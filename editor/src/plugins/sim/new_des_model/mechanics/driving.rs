@@ -8,7 +8,7 @@ use ezgui::{Color, GfxCtx};
 use geom::{Distance, Duration};
 use map_model::{Map, Traversable, LANE_THICKNESS};
 use serde_derive::{Deserialize, Serialize};
-use sim::{AgentID, DrawCarInput};
+use sim::{AgentID, CarID, DrawCarInput};
 use std::collections::{BTreeMap, VecDeque};
 
 const FREEFLOW: Color = Color::CYAN;
@@ -384,5 +384,18 @@ impl DrivingSimState {
 
             self.queues.get_mut(&goto).unwrap().cars.push_back(car);
         }
+    }
+
+    pub fn debug_car(&self, id: CarID) {
+        // TODO Faster
+        for q in self.queues.values() {
+            for car in &q.cars {
+                if car.vehicle.id == id {
+                    println!("{}", abstutil::to_json(car));
+                    return;
+                }
+            }
+        }
+        println!("{} is parked somewhere", id);
     }
 }

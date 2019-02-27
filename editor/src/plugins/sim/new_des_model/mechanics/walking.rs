@@ -217,6 +217,14 @@ impl WalkingSimState {
             self.peds.remove(&id);
         }
     }
+
+    pub fn debug_ped(&self, id: PedestrianID) {
+        if let Some(ped) = self.peds.get(&id) {
+            println!("{}", abstutil::to_json(ped));
+        } else {
+            println!("{} doesn't exist", id);
+        }
+    }
 }
 
 fn delete_ped_from_current_step(map: &mut MultiMap<Traversable, PedestrianID>, ped: &Pedestrian) {

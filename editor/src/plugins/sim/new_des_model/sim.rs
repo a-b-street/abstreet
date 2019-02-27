@@ -7,7 +7,7 @@ use abstutil::Timer;
 use derivative::Derivative;
 use ezgui::GfxCtx;
 use geom::Duration;
-use map_model::{BuildingID, LaneID, Map, Traversable};
+use map_model::{BuildingID, LaneID, LaneType, Map, Traversable, Turn};
 use serde_derive::{Deserialize, Serialize};
 use sim::{CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID, VehicleType};
 use std::collections::{HashSet, VecDeque};
@@ -36,6 +36,7 @@ pub struct Sim {
     savestate_every: Option<Duration>,
 }
 
+// Setup
 impl Sim {
     pub fn new(map: &Map, run_name: String, savestate_every: Option<Duration>) -> Sim {
         Sim {
@@ -97,6 +98,7 @@ impl Sim {
     }
 }
 
+// Drawing
 impl GetDrawAgents for Sim {
     fn time(&self) -> Duration {
         self.time
@@ -136,12 +138,14 @@ impl GetDrawAgents for Sim {
     }
 }
 
+// Drawing
 impl Sim {
     pub fn draw_unzoomed(&self, g: &mut GfxCtx, map: &Map) {
         self.driving.draw_unzoomed(self.time, g, map);
     }
 }
 
+// Running
 impl Sim {
     pub fn step(&mut self, map: &Map) -> Vec<Event> {
         self.time += Duration::seconds(0.1);
@@ -184,11 +188,15 @@ impl Sim {
 
         Vec::new()
     }
-}
 
-impl Sim {
-    pub fn time(&self) -> Duration {
-        self.time
+    pub fn dump_before_abort(&self) {
+        println!(
+            "********************************************************************************"
+        );
+        println!("At {}", self.time,);
+        if let Some(path) = self.find_previous_savestate(self.time) {
+            println!("Debug from {}", path);
+        }
     }
 }
 
@@ -263,21 +271,8 @@ impl Sim {
     }
 }
 
+// Savestating
 impl Sim {
-    pub fn is_done(&self) -> bool {
-        self.spawner.is_done() && self.trips.is_done()
-    }
-
-    pub fn dump_before_abort(&self) {
-        println!(
-            "********************************************************************************"
-        );
-        println!("At {}", self.time,);
-        if let Some(path) = self.find_previous_savestate(self.time) {
-            println!("Debug from {}", path);
-        }
-    }
-
     pub fn save(&self) -> String {
         // If we wanted to be even more reproducible, we'd encode RNG seed, version of code, etc,
         // but that's overkill right now.
@@ -312,8 +307,22 @@ impl Sim {
             base_time.as_filename()
         ))
     }
+
+    pub fn load_savestate(
+        path: String,
+        new_run_name: Option<String>,
+    ) -> Result<Sim, std::io::Error> {
+        println!("Loading {}", path);
+        abstutil::read_json(&path).map(|mut s: Sim| {
+            if let Some(name) = new_run_name {
+                s.run_name = name;
+            }
+            s
+        })
+    }
 }
 
+// Benchmarking
 impl Sim {
     pub fn start_benchmark(&self) -> Benchmark {
         Benchmark {
@@ -331,7 +340,31 @@ impl Sim {
     }
 }
 
+// Live modification -- TODO rethink all of this
 impl Sim {
+    pub fn edit_lane_type(&mut self, _id: LaneID, _old_type: LaneType, _map: &Map) {
+        panic!("implement");
+    }
+
+    pub fn edit_remove_turn(&mut self, _t: &Turn) {
+        panic!("implement");
+    }
+
+    pub fn edit_add_turn(&mut self, _t: &Turn) {
+        panic!("implement");
+    }
+}
+
+// Queries of all sorts
+impl Sim {
+    pub fn time(&self) -> Duration {
+        self.time
+    }
+
+    pub fn is_done(&self) -> bool {
+        self.spawner.is_done() && self.trips.is_done()
+    }
+
     // TODO Rethink this
     pub fn summarize(&self, lanes: &HashSet<LaneID>) -> Summary {
         Summary {
@@ -366,4 +399,162 @@ impl Sim {
             completion_time: None,
         }
     }
+
+    pub fn debug_ped(&self, id: PedestrianID) {
+        self.walking.debug_ped(id);
+    }
+
+    pub fn debug_car(&self, id: CarID) {
+        self.driving.debug_car(id);
+    }
+
+    /////////////////// TODO Port properly
+
+    /*pub fn ped_tooltip(&self, p: PedestrianID) -> Vec<String> {
+        let mut lines = self.walking_state.ped_tooltip(p);
+        lines.extend(self.trips_state.tooltip_lines(AgentID::Pedestrian(p)));
+        lines
+    }
+
+    pub fn car_tooltip(&self, car: CarID) -> Vec<String> {
+        if let Some(mut lines) = self.driving_state.tooltip_lines(car) {
+            lines.extend(self.trips_state.tooltip_lines(AgentID::Car(car)));
+            lines
+        } else {
+            self.parking_state.tooltip_lines(car)
+        }
+    }
+
+    pub fn debug_intersection(&mut self, id: IntersectionID, map: &Map) {
+        self.intersection_state.debug(id, map);
+    }
+
+    pub fn active_agents(&self) -> Vec<AgentID> {
+        self.trips_state.active_agents()
+    }
+
+    pub fn trace_route(
+        &self,
+        id: AgentID,
+        map: &Map,
+        dist_ahead: Option<Distance>,
+    ) -> Option<Trace> {
+        match id {
+            AgentID::Car(car) => self.driving_state.trace_route(car, map, dist_ahead),
+            AgentID::Pedestrian(ped) => self.walking_state.trace_route(ped, map, dist_ahead),
+        }
+    }
+
+    pub fn get_path(&self, id: AgentID) -> Option<&Path> {
+        match id {
+            AgentID::Car(car) => self.driving_state.get_path(car),
+            AgentID::Pedestrian(ped) => self.walking_state.get_path(ped),
+        }
+    }
+
+    pub fn get_name(&self) -> &str {
+        &self.run_name
+    }
+
+    // TODO dont toggle state in debug_car
+    pub fn debug_trip(&mut self, id: TripID) {
+        match self.trips_state.trip_to_agent(id) {
+            Some(AgentID::Car(id)) => self.debug_car(id),
+            Some(AgentID::Pedestrian(id)) => self.debug_ped(id),
+            None => println!("{} doesn't exist", id),
+        }
+    }
+
+    pub fn agent_to_trip(&self, id: AgentID) -> Option<TripID> {
+        self.trips_state.agent_to_trip(id)
+    }
+
+    pub fn trip_to_agent(&self, id: TripID) -> Option<AgentID> {
+        self.trips_state.trip_to_agent(id)
+    }
+
+    pub fn get_parked_cars_by_owner(&self, id: BuildingID) -> Vec<&ParkedCar> {
+        self.parking_state.get_parked_cars_by_owner(id)
+    }
+
+    pub fn get_owner_of_car(&self, id: CarID) -> Option<BuildingID> {
+        self.driving_state
+            .get_owner_of_car(id)
+            .or_else(|| self.parking_state.get_owner_of_car(id))
+    }
+
+    pub fn lookup_car_id(&self, idx: usize) -> Option<CarID> {
+        for vt in &[VehicleType::Car, VehicleType::Bike, VehicleType::Bus] {
+            let id = CarID(idx, *vt);
+            if self.driving_state.get_path(id).is_some() {
+                return Some(id);
+            }
+        }
+
+        let id = CarID(idx, VehicleType::Car);
+        // Only cars can be parked.
+        if self.parking_state.lookup_car(id).is_some() {
+            return Some(id);
+        }
+
+        None
+    }
+
+    pub fn get_accepted_agents(&self, id: IntersectionID) -> HashSet<AgentID> {
+        self.intersection_state.get_accepted_agents(id)
+    }
+
+    pub fn is_in_overtime(&self, id: IntersectionID) -> bool {
+        self.intersection_state.is_in_overtime(id)
+    }
+
+    pub fn get_stats(&mut self, map: &Map) -> &SimStats {
+        if self.stats.is_some() {
+            return self.stats.as_ref().unwrap();
+        }
+
+        let mut stats = SimStats::new(self.time);
+        for trip in self.trips_state.get_active_trips().into_iter() {
+            if let Some(agent) = self.trips_state.trip_to_agent(trip) {
+                stats
+                    .canonical_pt_per_trip
+                    .insert(trip, self.canonical_pt_for_agent(agent, map));
+            }
+        }
+
+        self.stats = Some(stats);
+        self.stats.as_ref().unwrap()
+    }
+
+    pub fn get_canonical_pt_per_trip(&self, trip: TripID, map: &Map) -> Option<Pt2D> {
+        self.trips_state
+            .trip_to_agent(trip)
+            .map(|id| self.canonical_pt_for_agent(id, map))
+    }
+
+    // Assumes agent does exist.
+    fn canonical_pt_for_agent(&self, id: AgentID, map: &Map) -> Pt2D {
+        match id {
+            AgentID::Car(id) => self.get_draw_car(id, map).unwrap().body.last_pt(),
+            AgentID::Pedestrian(id) => {
+                self.walking_state
+                    .get_draw_ped(id, map, self.time)
+                    .unwrap()
+                    .pos
+            }
+        }
+    }
+
+    // TODO argh this is so inefficient
+    pub fn location_for_agent(&self, id: AgentID, map: &Map) -> Traversable {
+        match id {
+            AgentID::Car(id) => self.get_draw_car(id, map).unwrap().on,
+            AgentID::Pedestrian(id) => {
+                self.walking_state
+                    .get_draw_ped(id, map, self.time)
+                    .unwrap()
+                    .on
+            }
+        }
+    }*/
 }
