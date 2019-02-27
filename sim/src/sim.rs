@@ -9,7 +9,7 @@ use derivative::Derivative;
 use ezgui::GfxCtx;
 use geom::{Distance, Duration, Pt2D};
 use map_model::{
-    BuildingID, IntersectionID, LaneID, LaneType, Map, Path, Trace, Traversable, Turn,
+    BuildingID, BusRoute, IntersectionID, LaneID, LaneType, Map, Path, Trace, Traversable, Turn,
 };
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{HashSet, VecDeque};
@@ -102,6 +102,11 @@ impl Sim {
 
     pub fn get_parked_cars_by_owner(&self, bldg: BuildingID) -> Vec<&ParkedCar> {
         self.parking.get_parked_cars_by_owner(bldg)
+    }
+
+    pub fn seed_bus_route(&mut self, route: &BusRoute, map: &Map, timer: &mut Timer) -> Vec<CarID> {
+        // TODO implement
+        Vec::new()
     }
 }
 

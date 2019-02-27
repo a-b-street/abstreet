@@ -1,16 +1,12 @@
 use crate::runner::TestRunner;
 use abstutil::Timer;
 use geom::Duration;
-use sim;
-use sim::{Event, SimFlags};
+use sim::{Event, SidewalkSpot, SimFlags, TripSpec};
 
 pub fn run(t: &mut TestRunner) {
     t.run_slow("bus_reaches_stops", |h| {
-        let (map, mut sim) = sim::load(
-            SimFlags::for_test("bus_reaches_stops"),
-            Some(Duration::seconds(30.0)),
-            &mut Timer::throwaway(),
-        );
+        let (map, mut sim, _) = SimFlags::for_test("bus_reaches_stops")
+            .load(Some(Duration::seconds(30.0)), &mut Timer::throwaway());
         let route = map.get_bus_route("49").unwrap();
         let buses = sim.seed_bus_route(route, &map, &mut Timer::throwaway());
         let bus = buses[0];
@@ -28,11 +24,8 @@ pub fn run(t: &mut TestRunner) {
     });
 
     t.run_slow("ped_uses_bus", |h| {
-        let (map, mut sim) = sim::load(
-            SimFlags::for_test("ped_uses_bus"),
-            Some(Duration::seconds(30.0)),
-            &mut Timer::throwaway(),
-        );
+        let (map, mut sim, _) = SimFlags::for_test("ped_uses_bus")
+            .load(Some(Duration::seconds(30.0)), &mut Timer::throwaway());
         let route = map.get_bus_route("49").unwrap();
         let buses = sim.seed_bus_route(route, &map, &mut Timer::throwaway());
         let bus = buses[0];
@@ -49,22 +42,33 @@ pub fn run(t: &mut TestRunner) {
         let goal_bldg = map
             .get_l(map.get_bs(ped_stop2).sidewalk_pos.lane())
             .building_paths[0];
-        let ped =
-            sim.seed_trip_using_bus(start_bldg, goal_bldg, route.id, ped_stop1, ped_stop2, &map);
+        sim.schedule_trip(
+            Duration::ZERO,
+            TripSpec::UsingTransit(
+                SidewalkSpot::building(start_bldg, &map),
+                route.id,
+                ped_stop1,
+                ped_stop2,
+                SidewalkSpot::building(goal_bldg, &map),
+            ),
+            &map,
+        );
+        // TODO ew
+        let ped = sim::PedestrianID::tmp_new(0);
         h.setup_done(&sim);
 
         sim.run_until_expectations_met(
             &map,
             vec![
-                sim::Event::PedReachedBusStop(ped, ped_stop1),
-                sim::Event::BusArrivedAtStop(bus, ped_stop1),
-                sim::Event::PedEntersBus(ped, bus),
-                sim::Event::BusDepartedFromStop(bus, ped_stop1),
-                sim::Event::BusArrivedAtStop(bus, ped_stop2),
-                sim::Event::PedLeavesBus(ped, bus),
-                sim::Event::PedReachedBuilding(ped, goal_bldg),
-                sim::Event::BusDepartedFromStop(bus, ped_stop2),
-                sim::Event::BusArrivedAtStop(bus, route.stops[3]),
+                Event::PedReachedBusStop(ped, ped_stop1),
+                Event::BusArrivedAtStop(bus, ped_stop1),
+                Event::PedEntersBus(ped, bus),
+                Event::BusDepartedFromStop(bus, ped_stop1),
+                Event::BusArrivedAtStop(bus, ped_stop2),
+                Event::PedLeavesBus(ped, bus),
+                Event::PedReachedBuilding(ped, goal_bldg),
+                Event::BusDepartedFromStop(bus, ped_stop2),
+                Event::BusArrivedAtStop(bus, route.stops[3]),
             ],
             Duration::minutes(8),
         );

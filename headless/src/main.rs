@@ -20,8 +20,9 @@ fn main() {
     // TODO not the ideal way to distinguish what thing we loaded
     let load = flags.sim_flags.load.clone();
     let mut timer = Timer::new("setup headless");
-    let mut rng = flags.sim_flags.make_rng();
-    let (map, mut sim) = sim::load(flags.sim_flags, Some(Duration::seconds(30.0)), &mut timer);
+    let (map, mut sim, mut rng) = flags
+        .sim_flags
+        .load(Some(Duration::seconds(30.0)), &mut timer);
 
     if load.contains("data/raw_maps/") || load.contains("data/maps/") {
         Scenario::small_run(&map).instantiate(&mut sim, &map, &mut rng, &mut timer);

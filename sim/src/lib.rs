@@ -10,7 +10,7 @@ mod trips;
 
 pub use self::events::Event;
 pub use self::make::{
-    load, ABTest, ABTestResults, BorderSpawnOverTime, OriginDestination, Scenario, SeedParkedCars,
+    ABTest, ABTestResults, BorderSpawnOverTime, OriginDestination, Scenario, SeedParkedCars,
     SimFlags, SpawnOverTime, TripSpawner, TripSpec,
 };
 pub(crate) use self::mechanics::{

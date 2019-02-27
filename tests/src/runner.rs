@@ -3,7 +3,9 @@
 use abstutil;
 use abstutil::Error;
 use gag::Redirect;
-use sim::Sim;
+use map_model::{BuildingID, LaneID};
+use rand_xorshift::XorShiftRng;
+use sim::{CarID, ParkingSpot, Sim};
 use std;
 use std::io::Write;
 use structopt::StructOpt;
@@ -264,6 +266,17 @@ impl TestHelper {
             panic!("Can't call setup_done twice in one test");
         }
         self.debug_with_savestate = Some(sim.save());
+    }
+
+    pub fn seed_parked_cars(
+        &self,
+        sim: &mut Sim,
+        rng: &mut XorShiftRng,
+        lane: LaneID,
+        owner: Option<BuildingID>,
+        spots: Vec<usize>,
+    ) -> Vec<(ParkingSpot, CarID)> {
+        Vec::new()
     }
 }
 

@@ -1,15 +1,12 @@
 use crate::runner::TestRunner;
 use abstutil::Timer;
-use sim;
+use sim::{Scenario, Sim, SimFlags};
 
 pub fn run(t: &mut TestRunner) {
     t.run_slow("serialization", |_| {
-        let (map, mut sim) = sim::load(
-            sim::SimFlags::for_test("serialization"),
-            None,
-            &mut Timer::throwaway(),
-        );
-        sim.small_spawn(&map);
+        let (map, mut sim, mut rng) =
+            SimFlags::for_test("serialization").load(None, &mut Timer::throwaway());
+        Scenario::small_run(&map).instantiate(&mut sim, &map, &mut rng, &mut Timer::throwaway());
 
         // Does savestating produce the same string?
         let save1 = abstutil::to_json(&sim);
@@ -19,14 +16,11 @@ pub fn run(t: &mut TestRunner) {
 
     t.run_slow("from_scratch", |_| {
         println!("Creating two simulations");
-        let (map, mut sim1) = sim::load(
-            sim::SimFlags::for_test("from_scratch_1"),
-            None,
-            &mut Timer::throwaway(),
-        );
-        let mut sim2 = sim::Sim::new(&map, "from_scratch_2".to_string(), Some(42), None);
-        sim1.small_spawn(&map);
-        sim2.small_spawn(&map);
+        let (map, mut sim1, mut rng) =
+            SimFlags::for_test("from_scratch_1").load(None, &mut Timer::throwaway());
+        let mut sim2 = Sim::new(&map, "from_scratch_2".to_string(), None);
+        Scenario::small_run(&map).instantiate(&mut sim1, &map, &mut rng, &mut Timer::throwaway());
+        Scenario::small_run(&map).instantiate(&mut sim2, &map, &mut rng, &mut Timer::throwaway());
 
         for _ in 1..600 {
             if sim1 != sim2 {
@@ -44,14 +38,11 @@ pub fn run(t: &mut TestRunner) {
 
     t.run_slow("with_savestating", |_| {
         println!("Creating two simulations");
-        let (map, mut sim1) = sim::load(
-            sim::SimFlags::for_test("with_savestating_1"),
-            None,
-            &mut Timer::throwaway(),
-        );
-        let mut sim2 = sim::Sim::new(&map, "with_savestating_2".to_string(), Some(42), None);
-        sim1.small_spawn(&map);
-        sim2.small_spawn(&map);
+        let (map, mut sim1, mut rng) =
+            SimFlags::for_test("with_savestating_1").load(None, &mut Timer::throwaway());
+        let mut sim2 = Sim::new(&map, "with_savestating_2".to_string(), None);
+        Scenario::small_run(&map).instantiate(&mut sim1, &map, &mut rng, &mut Timer::throwaway());
+        Scenario::small_run(&map).instantiate(&mut sim2, &map, &mut rng, &mut Timer::throwaway());
 
         for _ in 1..600 {
             sim1.step(&map);
@@ -80,9 +71,8 @@ pub fn run(t: &mut TestRunner) {
             );
         }
 
-        let sim3: sim::Sim =
-            sim::Sim::load_savestate(sim1_save.clone(), Some("with_savestating_3".to_string()))
-                .unwrap();
+        let sim3: Sim =
+            Sim::load_savestate(sim1_save.clone(), Some("with_savestating_3".to_string())).unwrap();
         if sim3 != sim2 {
             panic!(
                 "sim state differs between {} and {}",

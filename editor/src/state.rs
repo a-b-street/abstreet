@@ -454,11 +454,9 @@ impl PerMapUI {
     ) -> (PerMapUI, PluginsPerMap) {
         let mut timer = abstutil::Timer::new("setup PerMapUI");
         let mut mem = MeasureMemory::new();
-        let (map, sim) = sim::load(
-            flags.sim_flags.clone(),
-            Some(Duration::seconds(30.0)),
-            &mut timer,
-        );
+        let (map, sim, _) = flags
+            .sim_flags
+            .load(Some(Duration::seconds(30.0)), &mut timer);
         mem.reset("Map and Sim", &mut timer);
 
         timer.start("draw_map");

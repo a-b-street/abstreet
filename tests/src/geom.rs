@@ -1,6 +1,5 @@
 use crate::runner::TestRunner;
 use geom::{Duration, Line, PolyLine, Pt2D};
-//use rand;
 
 #[allow(clippy::unreadable_literal)]
 pub fn run(t: &mut TestRunner) {
@@ -14,53 +13,6 @@ pub fn run(t: &mut TestRunner) {
         assert!(l.contains_pt(pt));
         assert!(l.dist_along_of_point(pt).is_some());
     });
-
-    /*t.run_fast("shift_polyline_equivalence", |_| {
-        let scale = 1000.0;
-        let pt1 = Pt2D::new(rand::random::<f64>() * scale, rand::random::<f64>() * scale);
-        let pt2 = Pt2D::new(rand::random::<f64>() * scale, rand::random::<f64>() * scale);
-        let pt3 = Pt2D::new(rand::random::<f64>() * scale, rand::random::<f64>() * scale);
-        let pt4 = Pt2D::new(rand::random::<f64>() * scale, rand::random::<f64>() * scale);
-        let pt5 = Pt2D::new(rand::random::<f64>() * scale, rand::random::<f64>() * scale);
-
-        let width = 50.0;
-        let pt1_s = Line::new(pt1, pt2).shift_right(width).pt1();
-        let pt2_s = Line::new(pt1, pt2)
-            .shift_right(width)
-            .infinite()
-            .intersection(&Line::new(pt2, pt3).shift_right(width).infinite())
-            .unwrap();
-        let pt3_s = Line::new(pt2, pt3)
-            .shift_right(width)
-            .infinite()
-            .intersection(&Line::new(pt3, pt4).shift_right(width).infinite())
-            .unwrap();
-        let pt4_s = Line::new(pt3, pt4)
-            .shift_right(width)
-            .infinite()
-            .intersection(&Line::new(pt4, pt5).shift_right(width).infinite())
-            .unwrap();
-        let pt5_s = Line::new(pt4, pt5).shift_right(width).pt2();
-
-        assert_eq!(
-            PolyLine::new(vec![pt1, pt2, pt3, pt4, pt5]).shift_right(width),
-            PolyLine::new(vec![pt1_s, pt2_s, pt3_s, pt4_s, pt5_s])
-        );
-    });*/
-
-    /*t.run_fast("shift_short_polyline_equivalence", |_| {
-        let scale = 1000.0;
-        let pt1 = Pt2D::new(rand::random::<f64>() * scale, rand::random::<f64>() * scale);
-        let pt2 = Pt2D::new(rand::random::<f64>() * scale, rand::random::<f64>() * scale);
-
-        let width = 50.0;
-        let l = Line::new(pt1, pt2).shift_right(width);
-
-        assert_eq!(
-            PolyLine::new(vec![pt1, pt2]).shift_right(width),
-            l.to_polyline()
-        );
-    });*/
 
     t.run_fast("trim_with_epsilon", |_| {
         /*

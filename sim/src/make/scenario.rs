@@ -71,6 +71,10 @@ impl Scenario {
     pub fn instantiate(&self, sim: &mut Sim, map: &Map, rng: &mut XorShiftRng, timer: &mut Timer) {
         timer.start(&format!("Instantiating {}", self.scenario_name));
 
+        for route in map.get_all_bus_routes() {
+            sim.seed_bus_route(route, map, timer);
+        }
+
         timer.start("load full neighborhood info");
         let neighborhoods = FullNeighborhoodInfo::load_all(map);
         timer.stop("load full neighborhood info");
