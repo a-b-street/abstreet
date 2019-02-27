@@ -145,37 +145,66 @@ impl BlockingPlugin for SpawnAgent {
         }
 
         if self.maybe_goal.is_some() && ctx.input.contextual_action(Key::F3, "end the agent here") {
+            let mut rng = ctx.primary.current_flags.sim_flags.make_rng();
+            let sim = &mut ctx.primary.sim;
             match (self.from.clone(), self.maybe_goal.take().unwrap().0) {
                 (Source::Walking(from), Goal::Building(to)) => {
+                    /*sim.schedule_trip(
+                        sim.time + TIMESTEP,
+                        TripSpec::JustWalking(
+                            SidewalkSpot::building(from, map),
+                            SidewalkSpot::building(to, map),
+                        ),
+                        map,
+                    );*/
                     println!(
                         "Spawning {}",
-                        ctx.primary
-                            .sim
-                            .seed_trip_just_walking_to_bldg(from, to, map)
+                        sim.seed_trip_just_walking_to_bldg(from, to, map)
                     );
                 }
                 (Source::Walking(from), Goal::Border(to)) => {
+                    /*sim.schedule_trip(
+                        sim.time + TIMESTEP,
+                        TripSpec::JustWalking(
+                            SidewalkSpot::building(from, map),
+                            SidewalkSpot::end_at_border(to, map),
+                        ),
+                        map,
+                    );*/
                     println!(
                         "Spawning {}",
-                        ctx.primary
-                            .sim
-                            .seed_trip_just_walking_to_border(from, to, map)
+                        sim.seed_trip_just_walking_to_border(from, to, map)
                     );
                 }
                 (Source::Driving(from), Goal::Building(to)) => {
+                    /*sim.schedule_trip(
+                        sim.time + TIMESTEP,
+                        TripSpec::CarAppearing(
+                            from,
+                            Scenario::rand_car(&mut rng),
+                            DrivingGoal::ParkNear(to),
+                        ),
+                        map,
+                    );*/
                     println!(
                         "Spawning {}",
-                        ctx.primary
-                            .sim
-                            .seed_trip_with_car_appearing_to_bldg(from, to, map)
+                        sim.seed_trip_with_car_appearing_to_bldg(from, to, map)
                     );
                 }
                 (Source::Driving(from), Goal::Border(to)) => {
+                    /*if let Some(goal) = DrivingGoal::end_at_border(to, vec![LaneType::Driving], map)
+                    {
+                        sim.schedule_trip(
+                            sim.time + TIMESTEP,
+                            TripSpec::CarAppearing(from, Scenario::rand_car(&mut rng), goal, map),
+                            map,
+                        );
+                    } else {
+                        println!("Can't end a car trip at {}; no driving lanes", to);
+                    }*/
                     println!(
                         "Spawning {}",
-                        ctx.primary
-                            .sim
-                            .seed_trip_with_car_appearing_to_border(from, to, map)
+                        sim.seed_trip_with_car_appearing_to_border(from, to, map)
                     );
                 }
             };

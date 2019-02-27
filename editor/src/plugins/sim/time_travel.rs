@@ -2,10 +2,8 @@ use crate::plugins::PluginCtx;
 use abstutil::MultiMap;
 use geom::Duration;
 use map_model::{Map, Traversable};
-use sim::{CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID, Sim};
+use sim::{CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID, Sim, TIMESTEP};
 use std::collections::BTreeMap;
-
-const TIMESTEP: Duration = Duration::const_seconds(0.1);
 
 pub struct TimeTravel {
     // TODO Could be more efficient

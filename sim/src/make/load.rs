@@ -2,6 +2,8 @@ use crate::{Scenario, Sim};
 use abstutil;
 use geom::Duration;
 use map_model::{Map, MapEdits};
+use rand::{FromEntropy, SeedableRng};
+use rand_xorshift::XorShiftRng;
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug, Clone)]
@@ -36,6 +38,14 @@ impl SimFlags {
             rng_seed: Some(42),
             run_name: run_name.to_string(),
             edits_name: "no_edits".to_string(),
+        }
+    }
+
+    pub fn make_rng(&self) -> XorShiftRng {
+        if let Some(seed) = self.rng_seed {
+            XorShiftRng::from_seed([seed; 16])
+        } else {
+            XorShiftRng::from_entropy()
         }
     }
 }

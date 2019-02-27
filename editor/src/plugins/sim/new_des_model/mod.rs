@@ -38,6 +38,8 @@ pub const BUS_LENGTH: Distance = Distance::const_meters(12.5);
 // one car to the back of the other.
 pub const FOLLOWING_DISTANCE: Distance = Distance::const_meters(1.0);
 
+pub const TIMESTEP: Duration = Duration::const_seconds(0.1);
+
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Vehicle {
     pub id: CarID,
@@ -98,6 +100,23 @@ pub enum DrivingGoal {
 }
 
 impl DrivingGoal {
+    pub fn end_at_border(
+        i: IntersectionID,
+        lane_types: Vec<LaneType>,
+        map: &Map,
+    ) -> Option<DrivingGoal> {
+        let mut lanes = Vec::new();
+        for lt in lane_types {
+            lanes.extend(map.get_i(i).get_incoming_lanes(map, lt));
+        }
+        if lanes.is_empty() {
+            None
+        } else {
+            // TODO ideally could use any
+            Some(DrivingGoal::Border(i, lanes[0]))
+        }
+    }
+
     pub fn goal_pos(&self, map: &Map) -> Position {
         let lane = match self {
             DrivingGoal::ParkNear(b) => map.find_driving_lane_near_building(*b),

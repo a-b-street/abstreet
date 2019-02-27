@@ -7,7 +7,7 @@ use ezgui::{EventLoopMode, GfxCtx, Key};
 use geom::{Distance, Duration, Speed};
 use map_model::{BuildingID, LaneID, Map, Position, Traversable};
 use rand::seq::SliceRandom;
-use rand::{Rng, SeedableRng};
+use rand::Rng;
 use rand_xorshift::XorShiftRng;
 use sim::VehicleType;
 
@@ -25,7 +25,11 @@ impl EvenSimplerModelController {
                     .contextual_action(Key::Z, "start even simpler model")
             {
                 return Some(EvenSimplerModelController {
-                    sim: populate_sim(id, &ctx.primary.map),
+                    sim: populate_sim(
+                        id,
+                        &ctx.primary.map,
+                        &mut ctx.primary.current_flags.sim_flags.make_rng(),
+                    ),
                     auto_mode: false,
                 });
             }
@@ -55,7 +59,10 @@ impl BlockingPlugin for EvenSimplerModelController {
                 self.auto_mode = true;
                 ctx.hints.mode = EventLoopMode::Animation;
             } else if ctx.input.modal_action("spawn tons of cars everywhere") {
-                self.sim = densely_populate_sim(&ctx.primary.map);
+                self.sim = densely_populate_sim(
+                    &ctx.primary.map,
+                    &mut ctx.primary.current_flags.sim_flags.make_rng(),
+                );
             }
         }
         if ctx.input.modal_action("quit") {
@@ -71,7 +78,7 @@ impl BlockingPlugin for EvenSimplerModelController {
     }
 }
 
-fn populate_sim(start: LaneID, map: &Map) -> new_des_model::Sim {
+fn populate_sim(start: LaneID, map: &Map, rng: &mut XorShiftRng) -> new_des_model::Sim {
     let mut timer = Timer::new("populate_sim");
     let mut sim = new_des_model::Sim::new(map, "run".to_string(), None);
 
@@ -90,7 +97,6 @@ fn populate_sim(start: LaneID, map: &Map) -> new_des_model::Sim {
         }
     }
 
-    let mut rng = XorShiftRng::from_seed([42; 16]);
     for source in sources {
         let len = map.get_l(source).length();
         if len < new_des_model::MAX_CAR_LENGTH {
@@ -99,12 +105,12 @@ fn populate_sim(start: LaneID, map: &Map) -> new_des_model::Sim {
         }
 
         for _ in 0..10 {
-            spawn_car(&mut sim, &mut rng, map, source);
+            spawn_car(&mut sim, rng, map, source);
         }
 
-        seed_parked_cars_near(source, &mut rng, &mut sim, map);
+        seed_parked_cars_near(source, rng, &mut sim, map);
 
-        random_ped_near(source, &mut sim, map, &mut rng);
+        random_ped_near(source, &mut sim, map, rng);
     }
 
     sim.spawn_all_trips(map, &mut timer);
@@ -112,11 +118,10 @@ fn populate_sim(start: LaneID, map: &Map) -> new_des_model::Sim {
     sim
 }
 
-fn densely_populate_sim(map: &Map) -> new_des_model::Sim {
+fn densely_populate_sim(map: &Map, rng: &mut XorShiftRng) -> new_des_model::Sim {
     let mut timer = Timer::new("densely_populate_sim");
     let mut sim = new_des_model::Sim::new(map, "run".to_string(), None);
-    let mut rng = XorShiftRng::from_seed([42; 16]);
-    new_des_model::Scenario::small_run(map).instantiate(&mut sim, map, &mut rng, &mut timer);
+    new_des_model::Scenario::small_run(map).instantiate(&mut sim, map, rng, &mut timer);
     timer.done();
     sim
 }

@@ -1,7 +1,7 @@
 use crate::plugins::sim::new_des_model::{
     Benchmark, DrivingSimState, Event, IntersectionSimState, ParkedCar, ParkingSimState,
     ParkingSpot, Scheduler, ScoreSummary, SimStats, Summary, TripManager, TripSpawner, TripSpec,
-    VehicleSpec, WalkingSimState,
+    VehicleSpec, WalkingSimState, TIMESTEP,
 };
 use abstutil::Timer;
 use derivative::Derivative;
@@ -158,7 +158,7 @@ impl Sim {
 // Running
 impl Sim {
     pub fn step(&mut self, map: &Map) -> Vec<Event> {
-        self.time += Duration::seconds(0.1);
+        self.time += TIMESTEP;
 
         self.driving.step_if_needed(
             self.time,

@@ -40,6 +40,14 @@ impl SimFlags {
             edits_name: "no_edits".to_string(),
         }
     }
+
+    pub fn make_rng(&self) -> XorShiftRng {
+        if let Some(seed) = self.rng_seed {
+            XorShiftRng::from_seed([seed; 16])
+        } else {
+            XorShiftRng::from_entropy()
+        }
+    }
 }
 
 // Convenience method to setup everything.
@@ -48,10 +56,7 @@ pub fn load(
     savestate_every: Option<Duration>,
     timer: &mut abstutil::Timer,
 ) -> (Map, Sim) {
-    let mut rng = XorShiftRng::from_entropy();
-    if let Some(seed) = flags.rng_seed {
-        rng = XorShiftRng::from_seed([seed; 16]);
-    }
+    let mut rng = flags.make_rng();
 
     if flags.load.contains("data/save/") {
         assert_eq!(flags.edits_name, "no_edits");

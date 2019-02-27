@@ -172,6 +172,15 @@ impl Scenario {
         }
         s
     }
+
+    pub fn rand_car(rng: &mut XorShiftRng) -> VehicleSpec {
+        let length = rand_dist(rng, MIN_CAR_LENGTH, MAX_CAR_LENGTH);
+        VehicleSpec {
+            vehicle_type: VehicleType::Car,
+            length,
+            max_speed: None,
+        }
+    }
 }
 
 impl SpawnOverTime {
@@ -369,7 +378,7 @@ impl BorderSpawnOverTime {
                 rng,
                 timer,
             ) {
-                let vehicle = rand_car(rng);
+                let vehicle = Scenario::rand_car(rng);
                 sim.schedule_trip(
                     spawn_time,
                     TripSpec::CarAppearing(
@@ -459,20 +468,14 @@ impl OriginDestination {
                 *neighborhoods[n].buildings.choose(rng).unwrap(),
             )),
             OriginDestination::Border(i) => {
-                let mut lanes = Vec::new();
-                for lt in lane_types {
-                    lanes.extend(map.get_i(*i).get_incoming_lanes(map, lt));
-                }
-                if lanes.is_empty() {
+                let goal = DrivingGoal::end_at_border(*i, lane_types, map);
+                if goal.is_none() {
                     timer.warn(format!(
                         "Can't spawn a car ending at border {}; no appropriate lanes there",
                         i
                     ));
-                    None
-                } else {
-                    // TODO ideally could use any
-                    Some(DrivingGoal::Border(*i, lanes[0]))
                 }
+                goal
             }
         }
     }
@@ -543,7 +546,7 @@ fn seed_parked_cars(
                 map,
                 timer,
             ) {
-                sim.seed_parked_car(rand_car(&mut forked_rng), spot, Some(*b));
+                sim.seed_parked_car(Scenario::rand_car(&mut forked_rng), spot, Some(*b));
                 new_cars += 1;
             } else {
                 // TODO This should be more critical, but neighborhoods can currently contain a
@@ -619,15 +622,6 @@ fn rand_dist(rng: &mut XorShiftRng, low: Distance, high: Distance) -> Distance {
 
 fn rand_time(rng: &mut XorShiftRng, low: Duration, high: Duration) -> Duration {
     Duration::seconds(rng.gen_range(low.inner_seconds(), high.inner_seconds()))
-}
-
-fn rand_car(rng: &mut XorShiftRng) -> VehicleSpec {
-    let length = rand_dist(rng, MIN_CAR_LENGTH, MAX_CAR_LENGTH);
-    VehicleSpec {
-        vehicle_type: VehicleType::Car,
-        length,
-        max_speed: None,
-    }
 }
 
 fn rand_bike(rng: &mut XorShiftRng) -> VehicleSpec {
