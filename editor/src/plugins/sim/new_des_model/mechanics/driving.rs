@@ -6,7 +6,7 @@ use crate::plugins::sim::new_des_model::{
 };
 use ezgui::{Color, GfxCtx};
 use geom::{Distance, Duration};
-use map_model::{Map, Path, Trace, Traversable, LANE_THICKNESS};
+use map_model::{BuildingID, Map, Path, Trace, Traversable, LANE_THICKNESS};
 use serde_derive::{Deserialize, Serialize};
 use sim::{AgentID, CarID, DrawCarInput};
 use std::collections::{BTreeMap, VecDeque};
@@ -263,11 +263,10 @@ impl DrivingSimState {
                         CarState::Parking(_, spot, ref time_int) => {
                             if time > time_int.end {
                                 delete_indices.push((idx, dist));
-                                parking.add_parked_car(ParkedCar::new(
-                                    car.vehicle.clone(),
+                                parking.add_parked_car(ParkedCar {
+                                    vehicle: car.vehicle.clone(),
                                     spot,
-                                    None,
-                                ));
+                                });
                                 trips.car_reached_parking_spot(
                                     time,
                                     car.vehicle.id,
@@ -408,10 +407,12 @@ impl DrivingSimState {
 
     pub fn tooltip_lines(&self, id: CarID) -> Option<Vec<String>> {
         let car = self.get_car(id)?;
-        Some(vec![
-            // TODO Owner, path left...
-            format!("Car {:?}", id),
-        ])
+        Some(vec![format!(
+            "Car {:?}, owned by {:?}, {} lanes left",
+            id,
+            car.vehicle.owner,
+            car.router.get_path().num_lanes()
+        )])
     }
 
     pub fn get_path(&self, id: CarID) -> Option<&Path> {
@@ -434,5 +435,10 @@ impl DrivingSimState {
             .unwrap()
             .1;
         car.router.get_path().trace(map, front, dist_ahead)
+    }
+
+    pub fn get_owner_of_car(&self, id: CarID) -> Option<BuildingID> {
+        let car = self.get_car(id)?;
+        car.vehicle.owner
     }
 }

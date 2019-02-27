@@ -1,6 +1,6 @@
 use crate::plugins::sim::new_des_model::{
     Command, CreateCar, CreatePedestrian, DrivingGoal, ParkingSimState, ParkingSpot, Router,
-    Scheduler, SidewalkSpot, TripLeg, TripManager, VehicleSpec,
+    Scheduler, SidewalkPOI, SidewalkSpot, TripLeg, TripManager, VehicleSpec,
 };
 use abstutil::Timer;
 use geom::Duration;
@@ -155,7 +155,7 @@ impl TripSpawner {
                     scheduler.enqueue_command(Command::SpawnCar(
                         start_time,
                         CreateCar::for_appearing(
-                            vehicle_spec.make(car_id),
+                            vehicle_spec.make(car_id, None),
                             start_pos,
                             router,
                             trip,
@@ -165,14 +165,17 @@ impl TripSpawner {
                 TripSpec::UsingParkedCar(start, spot, goal) => {
                     let ped_id = PedestrianID::tmp_new(self.ped_id_counter);
                     self.ped_id_counter += 1;
-                    let car_id = parking.get_car_at_spot(spot).unwrap().vehicle.id;
-                    //assert_eq!(parked.owner, Some(start_bldg));
+                    let vehicle = &parking.get_car_at_spot(spot).unwrap().vehicle;
+                    match start.connection {
+                        SidewalkPOI::Building(b) => assert_eq!(vehicle.owner, Some(b)),
+                        _ => unreachable!(),
+                    };
 
                     let parking_spot = SidewalkSpot::parking_spot(spot, map, parking);
 
                     let mut legs = vec![
                         TripLeg::Walk(parking_spot.clone()),
-                        TripLeg::Drive(car_id, goal.clone()),
+                        TripLeg::Drive(vehicle.id, goal.clone()),
                     ];
                     match goal {
                         DrivingGoal::ParkNear(b) => {
@@ -220,7 +223,7 @@ impl TripSpawner {
                     let walk_to = SidewalkSpot::bike_rack(start.sidewalk_pos.lane(), map).unwrap();
                     let mut legs = vec![
                         TripLeg::Walk(walk_to.clone()),
-                        TripLeg::Bike(vehicle.make(bike_id), goal.clone()),
+                        TripLeg::Bike(vehicle.make(bike_id, None), goal.clone()),
                     ];
                     match goal {
                         DrivingGoal::ParkNear(b) => {

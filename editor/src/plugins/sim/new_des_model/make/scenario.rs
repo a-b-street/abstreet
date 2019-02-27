@@ -634,7 +634,7 @@ fn rand_bike(rng: &mut XorShiftRng) -> VehicleSpec {
     let length = rand_dist(rng, MIN_BIKE_LENGTH, MAX_BIKE_LENGTH);
     let max_speed = Some(Speed::miles_per_hour(10.0));
     VehicleSpec {
-        vehicle_type: VehicleType::Bus,
+        vehicle_type: VehicleType::Bike,
         length,
         max_speed,
     }

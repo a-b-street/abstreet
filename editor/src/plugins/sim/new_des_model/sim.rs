@@ -87,14 +87,13 @@ impl Sim {
         owner: Option<BuildingID>,
     ) {
         self.parking.reserve_spot(spot);
-        self.parking.add_parked_car(ParkedCar::new(
-            vehicle.make(CarID::tmp_new(
-                self.spawner.car_id_counter,
-                VehicleType::Car,
-            )),
+        self.parking.add_parked_car(ParkedCar {
+            vehicle: vehicle.make(
+                CarID::tmp_new(self.spawner.car_id_counter, VehicleType::Car),
+                owner,
+            ),
             spot,
-            owner,
-        ));
+        });
         self.spawner.car_id_counter += 1;
     }
 
@@ -492,15 +491,15 @@ impl Sim {
         }
     }
 
-    /////////////////// TODO Port properly
-
-    /*pub fn get_owner_of_car(&self, id: CarID) -> Option<BuildingID> {
-        self.driving_state
+    pub fn get_owner_of_car(&self, id: CarID) -> Option<BuildingID> {
+        self.driving
             .get_owner_of_car(id)
-            .or_else(|| self.parking_state.get_owner_of_car(id))
+            .or_else(|| self.parking.get_owner_of_car(id))
     }
 
-    pub fn get_accepted_agents(&self, id: IntersectionID) -> HashSet<AgentID> {
+    /////////////////// TODO Port properly
+
+    /*pub fn get_accepted_agents(&self, id: IntersectionID) -> HashSet<AgentID> {
         self.intersection_state.get_accepted_agents(id)
     }
 

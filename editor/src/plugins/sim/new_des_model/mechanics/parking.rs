@@ -90,7 +90,7 @@ impl ParkingSimState {
         assert!(self.reserved_spots.remove(&p.spot));
         assert_eq!(self.lanes[&spot.lane].occupants[spot.idx], None);
         self.lanes.get_mut(&spot.lane).unwrap().occupants[spot.idx] = Some(p.vehicle.id);
-        if let Some(b) = p.owner {
+        if let Some(b) = p.vehicle.owner {
             self.cars_per_building.insert(b, p.vehicle.id);
         }
         self.cars.insert(p.vehicle.id, p);
@@ -146,10 +146,6 @@ impl ParkingSimState {
             .collect()
     }
 
-    /*pub fn lookup_car(&self, id: CarID) -> Option<&ParkedCar> {
-        self.cars.get(&id)
-    }*/
-
     pub fn is_free(&self, spot: ParkingSpot) -> bool {
         self.lanes[&spot.lane].occupants[spot.idx].is_none() && !self.reserved_spots.contains(&spot)
     }
@@ -195,7 +191,7 @@ impl ParkingSimState {
         let c = self.cars.get(&id)?;
         Some(vec![format!(
             "{} is parked, owned by {:?}",
-            c.vehicle.id, c.owner
+            c.vehicle.id, c.vehicle.owner
         )])
     }
 
@@ -208,9 +204,9 @@ impl ParkingSimState {
             .collect()
     }
 
-    /*pub fn get_owner_of_car(&self, id: CarID) -> Option<BuildingID> {
-        self.lookup_car(id).and_then(|p| p.owner)
-    }*/
+    pub fn get_owner_of_car(&self, id: CarID) -> Option<BuildingID> {
+        self.cars.get(&id).and_then(|p| p.vehicle.owner)
+    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq)]

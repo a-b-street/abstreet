@@ -41,6 +41,7 @@ pub const FOLLOWING_DISTANCE: Distance = Distance::const_meters(1.0);
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Vehicle {
     pub id: CarID,
+    pub owner: Option<BuildingID>,
     pub vehicle_type: VehicleType,
     pub length: Distance,
     pub max_speed: Option<Speed>,
@@ -55,9 +56,10 @@ pub struct VehicleSpec {
 }
 
 impl VehicleSpec {
-    pub fn make(self, id: CarID) -> Vehicle {
+    pub fn make(self, id: CarID, owner: Option<BuildingID>) -> Vehicle {
         Vehicle {
             id,
+            owner,
             vehicle_type: self.vehicle_type,
             length: self.length,
             max_speed: self.max_speed,
@@ -81,19 +83,9 @@ impl ParkingSpot {
 pub struct ParkedCar {
     pub vehicle: Vehicle,
     pub spot: ParkingSpot,
-    pub owner: Option<BuildingID>,
 }
 
 impl ParkedCar {
-    pub fn new(vehicle: Vehicle, spot: ParkingSpot, owner: Option<BuildingID>) -> ParkedCar {
-        assert_eq!(vehicle.vehicle_type, VehicleType::Car);
-        ParkedCar {
-            vehicle,
-            spot,
-            owner,
-        }
-    }
-
     pub fn get_driving_pos(&self, parking: &ParkingSimState, map: &Map) -> Position {
         parking.spot_to_driving_pos(self.spot, &self.vehicle, map)
     }

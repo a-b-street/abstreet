@@ -149,11 +149,11 @@ fn seed_parked_cars_near(
     for l in map.get_parent(driving_lane).all_lanes() {
         if map.get_l(l).is_parking() {
             for spot in sim.get_free_spots(l) {
-                if rng.gen_bool(0.2) {
-                    sim.seed_parked_car(rand_vehicle(rng), spot, None);
+                if let Some(start_bldg) = random_bldg_near(l, map, rng) {
+                    if rng.gen_bool(0.2) {
+                        sim.seed_parked_car(rand_vehicle(rng), spot, Some(start_bldg));
 
-                    if rng.gen_bool(0.3) {
-                        if let Some(start_bldg) = random_bldg_near(l, map, rng) {
+                        if rng.gen_bool(0.3) {
                             sim.schedule_trip(
                                 Duration::seconds(5.0),
                                 new_des_model::TripSpec::UsingParkedCar(
