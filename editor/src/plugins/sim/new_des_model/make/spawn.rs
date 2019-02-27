@@ -83,12 +83,26 @@ impl TripSpawner {
                 self.parked_cars_claimed.insert(car_id);
             }
             TripSpec::JustWalking(_, _) => {}
-            TripSpec::UsingBike(start, _, _) => {
+            TripSpec::UsingBike(start, _, goal) => {
                 if SidewalkSpot::bike_rack(start.sidewalk_pos.lane(), map).is_none() {
                     panic!(
                         "Can't start biking from {}; no biking or driving lane nearby?",
                         start.sidewalk_pos.lane()
                     );
+                }
+                if let DrivingGoal::ParkNear(_) = goal {
+                    let last_lane = goal.goal_pos(map).lane();
+                    // If bike_to_sidewalk works, then SidewalkSpot::bike_rack should too.
+                    if map
+                        .get_parent(last_lane)
+                        .bike_to_sidewalk(last_lane)
+                        .is_none()
+                    {
+                        panic!(
+                            "Can't fulfill {:?} for a bike trip; no sidewalk near {}",
+                            goal, last_lane
+                        );
+                    }
                 }
             }
             TripSpec::UsingTransit(_, _, _, _, _) => {}
