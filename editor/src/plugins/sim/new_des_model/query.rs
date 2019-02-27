@@ -30,6 +30,7 @@ impl Benchmark {
     }
 }
 
+// TODO This is totally unused, needs to be re-thought
 // TODO moving vs stuck shouldn't be an instantaneous judgment -- stuck is if there's an agent
 // directly in front limiting speed significantly, or if an intersection isn't allowing movement
 // yet
@@ -45,6 +46,7 @@ pub struct Summary {
     pub trips_with_ab_test_divergence: usize,
 }
 
+// TODO This is totally unused, needs to be re-thought
 // As of a moment in time, not necessarily the end of the simulation
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ScoreSummary {

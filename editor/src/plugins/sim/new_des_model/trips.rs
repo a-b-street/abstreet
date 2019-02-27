@@ -353,9 +353,12 @@ impl TripManager {
         id
     }
 
-    /*
     pub fn active_agents(&self) -> Vec<AgentID> {
         self.active_trip_mode.keys().cloned().collect()
+    }
+
+    pub fn get_active_trips(&self) -> Vec<TripID> {
+        self.active_trip_mode.values().cloned().collect()
     }
 
     pub fn trip_to_agent(&self, id: TripID) -> Option<AgentID> {
@@ -375,10 +378,6 @@ impl TripManager {
         self.active_trip_mode.get(&id).cloned()
     }
 
-    pub fn get_active_trips(&self) -> Vec<TripID> {
-        self.active_trip_mode.values().cloned().collect()
-    }
-
     pub fn tooltip_lines(&self, id: AgentID) -> Vec<String> {
         // Only called for agents that _should_ have trips
         let trip = &self.trips[self.active_trip_mode[&id].0];
@@ -387,7 +386,7 @@ impl TripManager {
             trip.id,
             trip.legs.back().unwrap()
         )]
-    }*/
+    }
 
     pub fn is_done(&self) -> bool {
         // TODO Buses?

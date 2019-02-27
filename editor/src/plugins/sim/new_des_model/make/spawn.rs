@@ -9,7 +9,7 @@ use serde_derive::{Deserialize, Serialize};
 use sim::{CarID, PedestrianID, VehicleType};
 use std::collections::BTreeSet;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub enum TripSpec {
     // Can be used to spawn from a border or anywhere for interactive debugging.
     CarAppearing(Position, VehicleSpec, DrivingGoal),
@@ -19,7 +19,7 @@ pub enum TripSpec {
     UsingTransit(SidewalkSpot, BusRouteID, BusStopID, BusStopID, SidewalkSpot),
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq)]
 pub struct TripSpawner {
     // TODO tmp pub
     pub(crate) car_id_counter: usize,

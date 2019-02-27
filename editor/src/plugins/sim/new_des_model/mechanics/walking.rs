@@ -15,7 +15,7 @@ const SPEED: Speed = Speed::const_meters_per_second(3.9);
 const TIME_TO_START_BIKING: Duration = Duration::const_seconds(30.0);
 const TIME_TO_FINISH_BIKING: Duration = Duration::const_seconds(45.0);
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq)]
 pub struct WalkingSimState {
     // BTreeMap not for deterministic simulation, but to make serialized things easier to compare.
     peds: BTreeMap<PedestrianID, Pedestrian>,
@@ -226,7 +226,7 @@ fn delete_ped_from_current_step(map: &mut MultiMap<Traversable, PedestrianID>, p
         .retain(|&p| p != ped.id);
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq)]
 struct Pedestrian {
     id: PedestrianID,
     state: PedState,
@@ -295,7 +295,7 @@ impl Pedestrian {
 }
 
 // crossing front path, bike parking, waiting at bus stop, etc
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq)]
 enum PedState {
     // If we're past the TimeInterval, then blocked on a turn.
     // The bool is true when we've marked the turn finished. We might experience two turn sequences

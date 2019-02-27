@@ -200,7 +200,7 @@ pub enum SidewalkPOI {
     BikeRack(Position),
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct TimeInterval {
     // TODO Private fields
     pub start: Duration,
@@ -226,7 +226,7 @@ impl TimeInterval {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct DistanceInterval {
     // TODO Private fields
     pub start: Distance,

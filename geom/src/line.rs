@@ -4,7 +4,7 @@ use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 
 // Segment, technically. Should rename.
-#[derive(Clone, Serialize, Deserialize, Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 pub struct Line(Pt2D, Pt2D);
 
 impl Line {

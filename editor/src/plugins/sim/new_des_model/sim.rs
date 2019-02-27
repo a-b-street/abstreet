@@ -4,6 +4,7 @@ use crate::plugins::sim::new_des_model::{
     WalkingSimState,
 };
 use abstutil::Timer;
+use derivative::Derivative;
 use ezgui::GfxCtx;
 use geom::Duration;
 use map_model::{BuildingID, LaneID, Map, Traversable};
@@ -13,8 +14,8 @@ use std::collections::{HashSet, VecDeque};
 use std::panic;
 use std::time::Instant;
 
-#[derive(Serialize, Deserialize)]
-//#[derivative(PartialEq)]
+#[derive(Serialize, Deserialize, Derivative)]
+#[derivative(PartialEq)]
 pub struct Sim {
     driving: DrivingSimState,
     parking: ParkingSimState,
@@ -29,9 +30,9 @@ pub struct Sim {
     pub(crate) map_name: String,
     pub(crate) edits_name: String,
     // Some tests deliberately set different scenario names for comparisons.
-    //#[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore")]
     run_name: String,
-    //#[derivative(PartialEq = "ignore")]
+    #[derivative(PartialEq = "ignore")]
     savestate_every: Option<Duration>,
 }
 
@@ -172,6 +173,14 @@ impl Sim {
             &self.intersections,
             &mut self.trips,
         );
+
+        // Savestate? Do this AFTER incrementing the timestep. Otherwise we could repeatedly load a
+        // savestate, run a step, and invalidly save over it.
+        if let Some(t) = self.savestate_every {
+            if self.time.is_multiple_of(t) {
+                self.save();
+            }
+        }
 
         Vec::new()
     }
@@ -323,50 +332,38 @@ impl Sim {
 }
 
 impl Sim {
+    // TODO Rethink this
     pub fn summarize(&self, lanes: &HashSet<LaneID>) -> Summary {
-        /*let (cars_parked, open_parking_spots) = self.parking_state.count(lanes);
-        let (moving_cars, stuck_cars, buses) = self.driving_state.count(lanes);
-        let (moving_peds, stuck_peds) = self.walking_state.count(lanes);*/
-        let (cars_parked, open_parking_spots) = (0, 0);
-        let (moving_cars, stuck_cars, buses) = (0, 0, 0);
-        let (moving_peds, stuck_peds) = (0, 0);
-
         Summary {
-            cars_parked,
-            open_parking_spots,
-            moving_cars,
-            stuck_cars,
-            buses,
-            moving_peds,
-            stuck_peds,
-            // Something else has to calculate this
+            cars_parked: 0,
+            open_parking_spots: 0,
+            moving_cars: 0,
+            stuck_cars: 0,
+            buses: 0,
+            moving_peds: 0,
+            stuck_peds: 0,
             trips_with_ab_test_divergence: 0,
         }
     }
 
-    // TODO deprecate this, use the new Summary
     pub fn summary(&self) -> String {
-        /*let (waiting_cars, active_cars) = self.driving_state.get_active_and_waiting_count();
-        let (waiting_peds, active_peds) = self.walking_state.get_active_and_waiting_count();*/
-        let (waiting_cars, active_cars) = (0, 0);
-        let (waiting_peds, active_peds) = (0, 0);
         format!(
-            "Time: {0}, {1} / {2} active cars waiting, {3} cars parked, {4} / {5} pedestrians waiting",
+            "{}, {} active agents",
             self.time,
-            waiting_cars,
-            active_cars,
-            0,
-            //self.parking_state.total_count(),
-            waiting_peds, active_peds,
+            self.trips.active_agents().len()
         )
     }
 
+    // TODO Rethink this
     pub fn get_score(&self) -> ScoreSummary {
-        panic!("TODO");
-        /*let mut s = self.trips_state.get_score(self.time);
-        if self.is_done() {
-            s.completion_time = Some(self.time);
+        ScoreSummary {
+            pending_walking_trips: 0,
+            total_walking_trips: 0,
+            total_walking_trip_time: Duration::ZERO,
+            pending_driving_trips: 0,
+            total_driving_trips: 0,
+            total_driving_trip_time: Duration::ZERO,
+            completion_time: None,
         }
-        s*/
     }
 }

@@ -5,7 +5,7 @@ use map_model::{Map, Traversable};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::VecDeque;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq)]
 pub struct Queue {
     pub id: Traversable,
     pub cars: VecDeque<Car>,

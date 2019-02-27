@@ -4,7 +4,7 @@ use serde_derive::{Deserialize, Serialize};
 use sim::AgentID;
 use std::collections::{BTreeMap, BTreeSet};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq)]
 pub struct IntersectionSimState {
     controllers: BTreeMap<IntersectionID, IntersectionController>,
 }
@@ -47,7 +47,7 @@ impl IntersectionSimState {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq)]
 struct IntersectionController {
     id: IntersectionID,
     accepted: BTreeSet<Request>,
