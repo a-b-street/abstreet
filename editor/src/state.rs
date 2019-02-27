@@ -166,13 +166,6 @@ impl DefaultUIState {
         if self.primary_plugins.time_travel.is_active() {
             return &self.primary_plugins.time_travel;
         }
-        if let Some(ref plugin) = self.exclusive_blocking_plugin {
-            if let Ok(p) =
-                plugin.downcast_ref::<plugins::sim::simple_model::SimpleModelController>()
-            {
-                return p;
-            }
-        }
         &self.primary.sim
     }
 }
@@ -247,9 +240,6 @@ impl UIState for DefaultUIState {
             if let Some(p) = view::search::SearchState::new(&mut ctx) {
                 self.primary_plugins.search = Some(p);
             } else if let Some(p) = view::warp::WarpState::new(&mut ctx) {
-                self.exclusive_blocking_plugin = Some(Box::new(p));
-            } else if let Some(p) = plugins::sim::simple_model::SimpleModelController::new(&mut ctx)
-            {
                 self.exclusive_blocking_plugin = Some(Box::new(p));
             } else if ctx.secondary.is_none() {
                 if let Some(p) = edit::a_b_tests::ABTestManager::new(&mut ctx) {
