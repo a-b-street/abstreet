@@ -1,12 +1,12 @@
 use crate::plugins::sim::new_des_model::{
     Benchmark, DrivingSimState, Event, IntersectionSimState, ParkedCar, ParkingSimState,
-    ParkingSpot, Scheduler, ScoreSummary, Summary, TripManager, TripSpawner, TripSpec, VehicleSpec,
-    WalkingSimState,
+    ParkingSpot, Scheduler, ScoreSummary, SimStats, Summary, TripManager, TripSpawner, TripSpec,
+    VehicleSpec, WalkingSimState,
 };
 use abstutil::Timer;
 use derivative::Derivative;
 use ezgui::GfxCtx;
-use geom::{Distance, Duration};
+use geom::{Distance, Duration, Pt2D};
 use map_model::{
     BuildingID, IntersectionID, LaneID, LaneType, Map, Path, Trace, Traversable, Turn,
 };
@@ -39,6 +39,11 @@ pub struct Sim {
     run_name: String,
     #[derivative(PartialEq = "ignore")]
     savestate_every: Option<Duration>,
+
+    // Lazily computed.
+    #[derivative(PartialEq = "ignore")]
+    #[serde(skip_serializing, skip_deserializing)]
+    stats: Option<SimStats>,
 }
 
 // Setup
@@ -58,6 +63,7 @@ impl Sim {
             edits_name: map.get_edits().edits_name.to_string(),
             run_name,
             savestate_every,
+            stats: None,
         }
     }
 
@@ -181,6 +187,8 @@ impl Sim {
             &self.intersections,
             &mut self.trips,
         );
+
+        self.stats = None;
 
         // Savestate? Do this AFTER incrementing the timestep. Otherwise we could repeatedly load a
         // savestate, run a step, and invalidly save over it.
@@ -497,24 +505,14 @@ impl Sim {
             .or_else(|| self.parking.get_owner_of_car(id))
     }
 
-    /////////////////// TODO Port properly
-
-    /*pub fn get_accepted_agents(&self, id: IntersectionID) -> HashSet<AgentID> {
-        self.intersection_state.get_accepted_agents(id)
-    }
-
-    pub fn is_in_overtime(&self, id: IntersectionID) -> bool {
-        self.intersection_state.is_in_overtime(id)
-    }
-
     pub fn get_stats(&mut self, map: &Map) -> &SimStats {
         if self.stats.is_some() {
             return self.stats.as_ref().unwrap();
         }
 
         let mut stats = SimStats::new(self.time);
-        for trip in self.trips_state.get_active_trips().into_iter() {
-            if let Some(agent) = self.trips_state.trip_to_agent(trip) {
+        for trip in self.trips.get_active_trips().into_iter() {
+            if let Some(agent) = self.trips.trip_to_agent(trip) {
                 stats
                     .canonical_pt_per_trip
                     .insert(trip, self.canonical_pt_for_agent(agent, map));
@@ -526,7 +524,7 @@ impl Sim {
     }
 
     pub fn get_canonical_pt_per_trip(&self, trip: TripID, map: &Map) -> Option<Pt2D> {
-        self.trips_state
+        self.trips
             .trip_to_agent(trip)
             .map(|id| self.canonical_pt_for_agent(id, map))
     }
@@ -535,12 +533,7 @@ impl Sim {
     fn canonical_pt_for_agent(&self, id: AgentID, map: &Map) -> Pt2D {
         match id {
             AgentID::Car(id) => self.get_draw_car(id, map).unwrap().body.last_pt(),
-            AgentID::Pedestrian(id) => {
-                self.walking_state
-                    .get_draw_ped(id, map, self.time)
-                    .unwrap()
-                    .pos
-            }
+            AgentID::Pedestrian(id) => self.get_draw_ped(id, map).unwrap().pos,
         }
     }
 
@@ -548,12 +541,15 @@ impl Sim {
     pub fn location_for_agent(&self, id: AgentID, map: &Map) -> Traversable {
         match id {
             AgentID::Car(id) => self.get_draw_car(id, map).unwrap().on,
-            AgentID::Pedestrian(id) => {
-                self.walking_state
-                    .get_draw_ped(id, map, self.time)
-                    .unwrap()
-                    .on
-            }
+            AgentID::Pedestrian(id) => self.get_draw_ped(id, map).unwrap().on,
         }
-    }*/
+    }
+
+    pub fn get_accepted_agents(&self, id: IntersectionID) -> HashSet<AgentID> {
+        self.intersections.get_accepted_agents(id)
+    }
+
+    pub fn is_in_overtime(&self, id: IntersectionID, map: &Map) -> bool {
+        self.intersections.is_in_overtime(self.time, id, map)
+    }
 }

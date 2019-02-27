@@ -2,7 +2,7 @@ use geom::Duration;
 use map_model::{ControlTrafficSignal, IntersectionID, LaneID, Map, TurnID, TurnPriority};
 use serde_derive::{Deserialize, Serialize};
 use sim::AgentID;
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 #[derive(Serialize, Deserialize, PartialEq)]
 pub struct IntersectionSimState {
@@ -54,6 +54,26 @@ impl IntersectionSimState {
             println!("{}", abstutil::to_json(signal));
         } else {
             println!("Border");
+        }
+    }
+
+    pub fn get_accepted_agents(&self, id: IntersectionID) -> HashSet<AgentID> {
+        self.controllers[&id]
+            .accepted
+            .iter()
+            .map(|req| req.agent)
+            .collect()
+    }
+
+    pub fn is_in_overtime(&self, time: Duration, id: IntersectionID, map: &Map) -> bool {
+        if let Some(ref signal) = map.maybe_get_traffic_signal(id) {
+            let (cycle, _) = signal.current_cycle_and_remaining_time(time);
+            self.controllers[&id]
+                .accepted
+                .iter()
+                .any(|req| cycle.get_priority(req.turn) < TurnPriority::Yield)
+        } else {
+            false
         }
     }
 }

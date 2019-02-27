@@ -15,7 +15,7 @@ pub use self::make::{
 pub use self::mechanics::{
     DrivingSimState, IntersectionSimState, ParkingSimState, WalkingSimState,
 };
-pub use self::query::{Benchmark, ScoreSummary, Summary};
+pub use self::query::{Benchmark, ScoreSummary, SimStats, Summary};
 pub use self::router::{ActionAtEnd, Router};
 pub use self::scheduler::{Command, Scheduler};
 pub use self::sim::Sim;
