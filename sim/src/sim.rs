@@ -200,6 +200,10 @@ impl Sim {
 // Running
 impl Sim {
     pub fn step(&mut self, map: &Map) -> Vec<Event> {
+        if !self.spawner.is_done() {
+            panic!("Forgot to call spawn_all_trips");
+        }
+
         self.time += TIMESTEP;
 
         self.driving.step_if_needed(
@@ -240,7 +244,7 @@ impl Sim {
             }
         }
 
-        Vec::new()
+        self.trips.collect_events()
     }
 
     pub fn dump_before_abort(&self) {

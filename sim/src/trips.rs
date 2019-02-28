@@ -1,5 +1,5 @@
 use crate::{
-    AgentID, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, ParkingSimState,
+    AgentID, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, Event, ParkingSimState,
     ParkingSpot, PedestrianID, Router, Scheduler, SidewalkPOI, SidewalkSpot, TripID, Vehicle,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
@@ -17,6 +17,8 @@ pub struct TripManager {
         deserialize_with = "deserialize_btreemap"
     )]
     active_trip_mode: BTreeMap<AgentID, TripID>,
+
+    events: Vec<Event>,
 }
 
 impl TripManager {
@@ -24,10 +26,10 @@ impl TripManager {
         TripManager {
             trips: Vec::new(),
             active_trip_mode: BTreeMap::new(),
+            events: Vec::new(),
         }
     }
 
-    // Transitions from spawner
     pub fn agent_starting_trip_leg(&mut self, agent: AgentID, trip: TripID) {
         assert!(!self.active_trip_mode.contains_key(&agent));
         // TODO ensure a trip only has one active agent (aka, not walking and driving at the same
@@ -44,6 +46,7 @@ impl TripManager {
         parking: &ParkingSimState,
         scheduler: &mut Scheduler,
     ) {
+        self.events.push(Event::CarReachedParkingSpot(car, spot));
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
 
         match trip.legs.pop_front() {
@@ -387,6 +390,10 @@ impl TripManager {
     pub fn is_done(&self) -> bool {
         // TODO Buses?
         self.active_trip_mode.is_empty()
+    }
+
+    pub fn collect_events(&mut self) -> Vec<Event> {
+        self.events.drain(..).collect()
     }
 }
 

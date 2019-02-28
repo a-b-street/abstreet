@@ -1,26 +1,19 @@
 use crate::{AgentID, CarID, ParkingSpot, PedestrianID};
-use map_model::{BuildingID, BusStopID, Traversable, TurnID};
+use map_model::{BuildingID, BusStopID, Traversable};
+use serde_derive::{Deserialize, Serialize};
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Event {
-    // TODO CarFinishedParking
-    // TODO and the pedestrian / trip associated with it?
     CarReachedParkingSpot(CarID, ParkingSpot),
-    // TODO and the car / trip?
-    PedReachedParkingSpot(PedestrianID, ParkingSpot),
-    // TODO CarFinishedUnparking
+
     BusArrivedAtStop(CarID, BusStopID),
     BusDepartedFromStop(CarID, BusStopID),
 
+    PedReachedParkingSpot(PedestrianID, ParkingSpot),
     PedReachedBuilding(PedestrianID, BuildingID),
     PedReachedBusStop(PedestrianID, BusStopID),
     PedEntersBus(PedestrianID, CarID),
     PedLeavesBus(PedestrianID, CarID),
 
-    // TODO split up into cases or not?
     AgentEntersTraversable(AgentID, Traversable),
-    AgentLeavesTraversable(AgentID, Traversable),
-
-    // TODO maybe AgentRequestsTurn?
-    IntersectionAcceptsRequest(AgentID, TurnID),
 }
