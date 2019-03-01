@@ -1,6 +1,6 @@
-use crate::{CarID, Event, PedestrianID};
+use crate::{CarID, Event, PedestrianID, Router};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
-use geom::{Distance, Duration};
+use geom::Distance;
 use map_model::{BusRoute, BusRouteID, BusStop, Map, Path, PathRequest, Pathfinder};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -40,8 +40,7 @@ struct Bus {
 #[derive(Serialize, Deserialize, PartialEq)]
 enum BusState {
     DrivingToStop(StopIdx),
-    // When do we leave?
-    AtStop(StopIdx, Duration),
+    AtStop(StopIdx),
 }
 
 // This kind of acts like TripManager, managing transitions... but a bit more statefully.
@@ -57,6 +56,8 @@ pub struct TransitSimState {
         deserialize_with = "deserialize_btreemap"
     )]
     routes: BTreeMap<BusRouteID, Route>,
+
+    events: Vec<Event>,
 }
 
 impl TransitSimState {
@@ -64,6 +65,7 @@ impl TransitSimState {
         TransitSimState {
             buses: BTreeMap::new(),
             routes: BTreeMap::new(),
+            events: Vec::new(),
         }
     }
 
@@ -128,80 +130,55 @@ impl TransitSimState {
         );
     }
 
-    /*
-    // Returns (should idle, new path)
-    pub fn get_action_when_stopped_at_end(
-        &mut self,
-        events: &mut Vec<Event>,
-        view: &AgentView,
-        time: Tick,
-        map: &Map,
-    ) -> (bool, Option<Path>) {
-        let car = view.id.as_car();
-        let route = &self.routes[&self.buses[&car].route];
-        match self.buses[&car].state {
+    pub fn bus_arrived_at_stop(&mut self, id: CarID) {
+        let mut bus = self.buses.get_mut(&id).unwrap();
+        match bus.state {
             BusState::DrivingToStop(stop_idx) => {
-                let stop = &route.stops[stop_idx];
-                assert_eq!(stop.driving_pos.lane(), view.on.as_lane());
-                if stop.driving_pos.dist_along() == view.dist_along {
-                    if !view.speed.is_zero(TIMESTEP) {
-                        panic!(
-                            "{} arrived at stop {}, but speed is {}",
-                            car, stop.id, view.speed
-                        );
-                    }
-                    // TODO constant for stop time
-                    self.buses.get_mut(&car).unwrap().state =
-                        BusState::AtStop(stop_idx, time + Duration::seconds(10.0));
-                    events.push(Event::BusArrivedAtStop(car, stop.id));
-                    return (true, None);
-                }
-                // No, keep creeping forwards
-                (false, None)
+                bus.state = BusState::AtStop(stop_idx);
+                self.events.push(Event::BusArrivedAtStop(
+                    id,
+                    self.routes[&bus.route].stops[stop_idx].id,
+                ));
             }
-            BusState::AtStop(stop_idx, wait_until) => {
+            BusState::AtStop(_) => unreachable!(),
+        };
+    }
+
+    pub fn bus_departed_from_stop(&mut self, id: CarID, map: &Map) -> Router {
+        let mut bus = self.buses.get_mut(&id).unwrap();
+        match bus.state {
+            BusState::DrivingToStop(_) => unreachable!(),
+            BusState::AtStop(stop_idx) => {
+                let route = &self.routes[&bus.route];
+                let next_stop_idx = route.next_stop(stop_idx);
                 let stop = &route.stops[stop_idx];
-                assert_eq!(stop.driving_pos.lane(), view.on.as_lane());
-                if stop.driving_pos.dist_along() != view.dist_along {
-                    panic!(
-                        "{} stopped at {}, but dist_along is {}, not {}. Speed is {}",
-                        car,
-                        stop.id,
-                        view.dist_along,
-                        stop.driving_pos.dist_along(),
-                        view.speed
-                    );
-                }
-                assert_eq!(stop.driving_pos.dist_along(), view.dist_along);
+                let next_stop = &route.stops[next_stop_idx];
+                bus.state = BusState::DrivingToStop(next_stop_idx);
+                self.events.push(Event::BusDepartedFromStop(id, stop.id));
 
-                if time == wait_until {
-                    let next_stop = route.next_stop(stop_idx);
-                    self.buses.get_mut(&car).unwrap().state = BusState::DrivingToStop(next_stop);
-                    events.push(Event::BusDepartedFromStop(car, stop.id));
-
-                    let new_path = Pathfinder::shortest_distance(
-                        map,
-                        PathRequest {
-                            start: stop.driving_pos,
-                            end: route.stops[next_stop].driving_pos,
-                            can_use_bike_lanes: false,
-                            can_use_bus_lanes: true,
-                        },
-                    )
-                    .expect(&format!(
-                        "No route between bus stops {:?} and {:?}",
-                        stop, route.stops[next_stop]
-                    ));
-
-                    return (true, Some(new_path));
-                }
-
-                (true, None)
+                let new_path = Pathfinder::shortest_distance(
+                    map,
+                    PathRequest {
+                        start: stop.driving_pos,
+                        end: next_stop.driving_pos,
+                        can_use_bike_lanes: false,
+                        can_use_bus_lanes: true,
+                    },
+                )
+                .expect(&format!(
+                    "No route between bus stops {:?} and {:?}",
+                    stop, next_stop
+                ));
+                Router::follow_bus_route(new_path, next_stop.driving_pos.dist_along())
             }
         }
     }
 
-    pub fn step(
+    pub fn collect_events(&mut self) -> Vec<Event> {
+        self.events.drain(..).collect()
+    }
+
+    /*pub fn step(
         &mut self,
         now: Tick,
         events: &mut Vec<Event>,

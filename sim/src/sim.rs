@@ -98,7 +98,7 @@ impl Sim {
                 self.ped_id_counter += 1;
                 (Some(id), None)
             }
-            TripSpec::UsingBike(_, _, ref goal) => {
+            TripSpec::UsingBike(_, _, _) => {
                 let ped = PedestrianID(self.ped_id_counter);
                 self.ped_id_counter += 1;
                 let car = CarID(self.car_id_counter, VehicleType::Bike);
@@ -274,6 +274,7 @@ impl Sim {
             &mut self.intersections,
             &mut self.trips,
             &mut self.scheduler,
+            &mut self.transit,
         );
         self.walking.step_if_needed(
             self.time,
@@ -305,7 +306,9 @@ impl Sim {
             }
         }
 
-        self.trips.collect_events()
+        let mut events = self.trips.collect_events();
+        events.extend(self.transit.collect_events());
+        events
     }
 
     pub fn dump_before_abort(&self) {

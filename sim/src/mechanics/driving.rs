@@ -2,7 +2,8 @@ use crate::mechanics::car::{Car, CarState};
 use crate::mechanics::queue::Queue;
 use crate::{
     ActionAtEnd, AgentID, CarID, CreateCar, DrawCarInput, IntersectionSimState, ParkedCar,
-    ParkingSimState, Scheduler, TimeInterval, TripManager, BUS_LENGTH, FOLLOWING_DISTANCE,
+    ParkingSimState, Scheduler, TimeInterval, TransitSimState, TripManager, BUS_LENGTH,
+    FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use ezgui::{Color, GfxCtx};
@@ -16,6 +17,7 @@ const WAITING: Color = Color::RED;
 
 const TIME_TO_UNPARK: Duration = Duration::const_seconds(10.0);
 const TIME_TO_PARK: Duration = Duration::const_seconds(15.0);
+const TIME_TO_WAIT_AT_STOP: Duration = Duration::const_seconds(10.0);
 
 #[derive(Serialize, Deserialize, PartialEq)]
 pub struct DrivingSimState {
@@ -53,13 +55,15 @@ impl DrivingSimState {
             if queue.cars.is_empty() {
                 continue;
             }
+            // TODO blocked and not blocked? Eh
             let mut num_waiting = 0;
             let mut num_freeflow = 0;
             for car in &queue.cars {
                 match car.state {
                     CarState::Crossing(_, _)
                     | CarState::Unparking(_, _)
-                    | CarState::Parking(_, _, _) => {
+                    | CarState::Parking(_, _, _)
+                    | CarState::Idling(_, _) => {
                         num_freeflow += 1;
                     }
                     CarState::Queued => {
@@ -181,6 +185,7 @@ impl DrivingSimState {
         intersections: &mut IntersectionSimState,
         trips: &mut TripManager,
         scheduler: &mut Scheduler,
+        transit: &mut TransitSimState,
     ) {
         // Promote Crossing to Queued and Unparking to Crossing.
         for queue in self.queues.values_mut() {
@@ -262,6 +267,13 @@ impl DrivingSimState {
                                         scheduler,
                                     );
                                 }
+                                Some(ActionAtEnd::BusAtStop) => {
+                                    transit.bus_arrived_at_stop(car.vehicle.id);
+                                    car.state = CarState::Idling(
+                                        dist,
+                                        TimeInterval::new(time, time + TIME_TO_WAIT_AT_STOP),
+                                    );
+                                }
                                 None => {}
                             }
                         }
@@ -280,6 +292,12 @@ impl DrivingSimState {
                                     parking,
                                     scheduler,
                                 );
+                            }
+                        }
+                        CarState::Idling(dist, ref time_int) => {
+                            if time > time_int.end {
+                                car.router = transit.bus_departed_from_stop(car.vehicle.id, map);
+                                car.state = car.crossing_state(dist, time, map);
                             }
                         }
                         _ => {}
@@ -311,7 +329,8 @@ impl DrivingSimState {
                             // They weren't blocked
                             CarState::Crossing(_, _)
                             | CarState::Unparking(_, _)
-                            | CarState::Parking(_, _, _) => {}
+                            | CarState::Parking(_, _, _)
+                            | CarState::Idling(_, _) => {}
                         }
                     }
                 }
@@ -370,7 +389,8 @@ impl DrivingSimState {
                     // They weren't blocked
                     CarState::Crossing(_, _)
                     | CarState::Unparking(_, _)
-                    | CarState::Parking(_, _, _) => {}
+                    | CarState::Parking(_, _, _)
+                    | CarState::Idling(_, _) => {}
                 }
             }
 

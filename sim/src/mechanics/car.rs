@@ -113,6 +113,8 @@ impl Car {
                 // Eh they're technically moving, but this is a bit easier to spot
                 CarState::Unparking(_, _) => CarStatus::Parked,
                 CarState::Parking(_, _, _) => CarStatus::Parked,
+                // Changing color for idling buses is helpful
+                CarState::Idling(_, _) => CarStatus::Parked,
             },
             vehicle_type: self.vehicle.vehicle_type,
             on: self.router.head(),
@@ -136,4 +138,5 @@ pub enum CarState {
     // Where's the front of the car while this is happening?
     Unparking(Distance, TimeInterval),
     Parking(Distance, ParkingSpot, TimeInterval),
+    Idling(Distance, TimeInterval),
 }

@@ -63,6 +63,7 @@ impl Queue {
                 }
                 CarState::Unparking(front, _) => front,
                 CarState::Parking(front, _, _) => front,
+                CarState::Idling(front, _) => front,
             };
 
             result.push((car, front));
@@ -153,6 +154,9 @@ fn dump_cars(cars: &Vec<(&Car, Distance)>, id: Traversable, time: Duration) {
             }
             CarState::Parking(_, _, ref time_int) => {
                 println!("  Parking during {} .. {}", time_int.start, time_int.end);
+            }
+            CarState::Idling(_, ref time_int) => {
+                println!("  Idling during {} .. {}", time_int.start, time_int.end);
             }
         }
     }

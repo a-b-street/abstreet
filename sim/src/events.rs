@@ -17,5 +17,6 @@ pub enum Event {
     PedEntersBus(PedestrianID, CarID),
     PedLeavesBus(PedestrianID, CarID),
 
+    // TODO Remove this one
     AgentEntersTraversable(AgentID, Traversable),
 }

@@ -15,6 +15,7 @@ pub enum ActionAtEnd {
     StartParking(ParkingSpot),
     GotoLaneEnd,
     StopBiking(SidewalkSpot),
+    BusAtStop,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -170,8 +171,7 @@ impl Router {
             }
             Goal::FollowBusRoute { end_dist } => {
                 if end_dist == front {
-                    // TODO mark when they reach the stop, start waiting, replan, etc
-                    None
+                    Some(ActionAtEnd::BusAtStop)
                 } else {
                     None
                 }

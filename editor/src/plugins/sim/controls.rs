@@ -111,7 +111,12 @@ impl AmbientPluginWithPrimaryPlugins for SimControls {
                                 .unwrap();
                             }
                         }
-                        None => println!("Couldn't load previous savestate"),
+                        None => println!(
+                            "Couldn't load previous savestate {:?}",
+                            ctx.primary
+                                .sim
+                                .find_previous_savestate(ctx.primary.sim.time())
+                        ),
                     };
                 }
                 if ctx.input.action_chosen("load next sim state") {
@@ -133,7 +138,10 @@ impl AmbientPluginWithPrimaryPlugins for SimControls {
                                 .unwrap();
                             }
                         }
-                        None => println!("Couldn't load next savestate"),
+                        None => println!(
+                            "Couldn't load next savestate {:?}",
+                            ctx.primary.sim.find_next_savestate(ctx.primary.sim.time())
+                        ),
                     };
                 }
 
