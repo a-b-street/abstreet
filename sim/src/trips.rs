@@ -30,6 +30,20 @@ impl TripManager {
         }
     }
 
+    pub fn new_trip(&mut self, spawned_at: Duration, legs: Vec<TripLeg>) -> TripID {
+        assert!(!legs.is_empty());
+        // TODO Make sure the legs constitute a valid state machine.
+
+        let id = TripID(self.trips.len());
+        self.trips.push(Trip {
+            id,
+            spawned_at,
+            finished_at: None,
+            legs: VecDeque::from(legs),
+        });
+        id
+    }
+
     pub fn agent_starting_trip_leg(&mut self, agent: AgentID, trip: TripID) {
         assert!(!self.active_trip_mode.contains_key(&agent));
         // TODO ensure a trip only has one active agent (aka, not walking and driving at the same
@@ -53,8 +67,8 @@ impl TripManager {
             Some(TripLeg::Drive(id, DrivingGoal::ParkNear(_))) => assert_eq!(car, id),
             _ => unreachable!(),
         };
-        let walk_to = match trip.legs[0] {
-            TripLeg::Walk(ref to) => to.clone(),
+        let (ped, walk_to) = match trip.legs[0] {
+            TripLeg::Walk(ped, ref to) => (ped, to.clone()),
             _ => unreachable!(),
         };
 
@@ -77,7 +91,7 @@ impl TripManager {
         scheduler.enqueue_command(Command::SpawnPed(
             time,
             CreatePedestrian {
-                id: trip.ped.unwrap(),
+                id: ped,
                 start,
                 goal: walk_to,
                 path,
@@ -104,9 +118,10 @@ impl TripManager {
 
         assert_eq!(
             trip.legs.pop_front(),
-            Some(TripLeg::Walk(SidewalkSpot::parking_spot(
-                spot, map, parking
-            )))
+            Some(TripLeg::Walk(
+                ped,
+                SidewalkSpot::parking_spot(spot, map, parking)
+            ))
         );
         let (car, drive_to) = match trip.legs[0] {
             TripLeg::Drive(car, ref to) => (car, to.clone()),
@@ -156,7 +171,10 @@ impl TripManager {
             .unwrap()
             .0];
 
-        assert_eq!(trip.legs.pop_front(), Some(TripLeg::Walk(spot.clone())));
+        assert_eq!(
+            trip.legs.pop_front(),
+            Some(TripLeg::Walk(ped, spot.clone()))
+        );
         let (vehicle, drive_to) = match trip.legs[0] {
             TripLeg::Bike(ref vehicle, ref to) => (vehicle.clone(), to.clone()),
             _ => unreachable!(),
@@ -212,8 +230,8 @@ impl TripManager {
             Some(TripLeg::Bike(vehicle, DrivingGoal::ParkNear(_))) => assert_eq!(vehicle.id, bike),
             _ => unreachable!(),
         };
-        let walk_to = match trip.legs[0] {
-            TripLeg::Walk(ref to) => to.clone(),
+        let (ped, walk_to) = match trip.legs[0] {
+            TripLeg::Walk(ped, ref to) => (ped, to.clone()),
             _ => unreachable!(),
         };
 
@@ -235,7 +253,7 @@ impl TripManager {
         scheduler.enqueue_command(Command::SpawnPed(
             time,
             CreatePedestrian {
-                id: trip.ped.unwrap(),
+                id: ped,
                 start: bike_rack,
                 goal: walk_to,
                 path,
@@ -259,7 +277,7 @@ impl TripManager {
             .0];
         assert_eq!(
             trip.legs.pop_front().unwrap(),
-            TripLeg::Walk(SidewalkSpot::building(bldg, map))
+            TripLeg::Walk(ped, SidewalkSpot::building(bldg, map))
         );
         assert!(trip.legs.is_empty());
         assert!(!trip.finished_at.is_some());
@@ -281,7 +299,7 @@ impl TripManager {
             .0];
         assert_eq!(
             trip.legs.pop_front().unwrap(),
-            TripLeg::Walk(SidewalkSpot::end_at_border(i, map).unwrap())
+            TripLeg::Walk(ped, SidewalkSpot::end_at_border(i, map).unwrap())
         );
         assert!(trip.legs.is_empty());
         assert!(!trip.finished_at.is_some());
@@ -353,32 +371,6 @@ impl TripManager {
         (trip.id, walk_to.clone())
     }*/
 
-    // Creation from the interactive part of spawner
-    pub fn new_trip(
-        &mut self,
-        spawned_at: Duration,
-        ped: Option<PedestrianID>,
-        legs: Vec<TripLeg>,
-    ) -> TripID {
-        assert!(!legs.is_empty());
-        // TODO Make sure the legs constitute a valid state machine.
-
-        let id = TripID(self.trips.len());
-        self.trips.push(Trip {
-            id,
-            spawned_at,
-            finished_at: None,
-            ped,
-            uses_car: legs.iter().any(|l| match l {
-                TripLeg::Drive(_, _) => true,
-                TripLeg::ServeBusRoute(_, _) => true,
-                _ => false,
-            }),
-            legs: VecDeque::from(legs),
-        });
-        id
-    }
-
     pub fn active_agents(&self) -> Vec<AgentID> {
         self.active_trip_mode.keys().cloned().collect()
     }
@@ -390,11 +382,11 @@ impl TripManager {
     pub fn trip_to_agent(&self, id: TripID) -> Option<AgentID> {
         let trip = self.trips.get(id.0)?;
         match trip.legs.get(0)? {
-            TripLeg::Walk(_) => Some(AgentID::Pedestrian(trip.ped.unwrap())),
+            TripLeg::Walk(id, _) => Some(AgentID::Pedestrian(*id)),
             TripLeg::Drive(id, _) => Some(AgentID::Car(*id)),
             TripLeg::Bike(vehicle, _) => Some(AgentID::Car(vehicle.id)),
             // TODO Should be the bus, but apparently transit sim tracks differently?
-            TripLeg::RideBus(_, _) => Some(AgentID::Pedestrian(trip.ped.unwrap())),
+            TripLeg::RideBus(ped, _, _) => Some(AgentID::Pedestrian(*ped)),
             TripLeg::ServeBusRoute(id, _) => Some(AgentID::Car(*id)),
         }
     }
@@ -415,8 +407,10 @@ impl TripManager {
     }
 
     pub fn is_done(&self) -> bool {
-        // TODO Buses?
-        self.active_trip_mode.is_empty()
+        !self
+            .active_trip_mode
+            .values()
+            .any(|trip| !self.trips[trip.0].is_bus_trip())
     }
 
     pub fn collect_events(&mut self) -> Vec<Event> {
@@ -429,20 +423,26 @@ struct Trip {
     id: TripID,
     spawned_at: Duration,
     finished_at: Option<Duration>,
-    // TODO also uses_bike, so we can track those stats differently too
-    uses_car: bool,
-    // If none, then this is a bus. The trip will never end.
-    ped: Option<PedestrianID>,
     legs: VecDeque<TripLeg>,
+}
+
+impl Trip {
+    fn is_bus_trip(&self) -> bool {
+        self.legs.len() == 1
+            && match self.legs[0] {
+                TripLeg::ServeBusRoute(_, _) => true,
+                _ => false,
+            }
+    }
 }
 
 // These don't specify where the leg starts, since it might be unknown -- like when we drive and
 // don't know where we'll wind up parking.
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub enum TripLeg {
-    Walk(SidewalkSpot),
+    Walk(PedestrianID, SidewalkSpot),
     Drive(CarID, DrivingGoal),
     Bike(Vehicle, DrivingGoal),
-    RideBus(BusRouteID, BusStopID),
+    RideBus(PedestrianID, BusRouteID, BusStopID),
     ServeBusRoute(CarID, BusRouteID),
 }

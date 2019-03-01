@@ -178,9 +178,9 @@ impl Sim {
             // Bypass some layers of abstraction that don't make sense for buses.
 
             // TODO Aww, we create an orphan trip if the bus can't spawn.
-            let trip =
-                self.trips
-                    .new_trip(self.time, None, vec![TripLeg::ServeBusRoute(id, route.id)]);
+            let trip = self
+                .trips
+                .new_trip(self.time, vec![TripLeg::ServeBusRoute(id, route.id)]);
             if self.driving.start_car_on_lane(
                 self.time,
                 CreateCar {
