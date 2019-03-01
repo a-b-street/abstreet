@@ -2,10 +2,9 @@ use crate::{
     AgentID, CreatePedestrian, DistanceInterval, DrawPedestrianInput, IntersectionSimState,
     ParkingSimState, PedestrianID, Scheduler, SidewalkPOI, SidewalkSpot, TimeInterval, TripManager,
 };
-use abstutil::{deserialize_multimap, serialize_multimap};
+use abstutil::{deserialize_multimap, serialize_multimap, MultiMap};
 use geom::{Distance, Duration, Line, Speed};
 use map_model::{BuildingID, Map, Path, PathStep, Trace, Traversable};
-use multimap::MultiMap;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
@@ -89,8 +88,7 @@ impl WalkingSimState {
         map: &Map,
     ) -> Vec<DrawPedestrianInput> {
         self.peds_per_traversable
-            .get_vec(&on)
-            .unwrap_or(&Vec::new())
+            .get(on)
             .iter()
             .map(|id| self.peds[id].get_draw_ped(time, map))
             .collect()
@@ -114,10 +112,8 @@ impl WalkingSimState {
                             match ped.goal.connection {
                                 SidewalkPOI::ParkingSpot(spot) => {
                                     delete.push(ped.id);
-                                    delete_ped_from_current_step(
-                                        &mut self.peds_per_traversable,
-                                        ped,
-                                    );
+                                    self.peds_per_traversable
+                                        .remove(ped.path.current_step().as_traversable(), ped.id);
                                     trips.ped_reached_parking_spot(
                                         time, ped.id, spot, map, parking, scheduler,
                                     );
@@ -136,10 +132,8 @@ impl WalkingSimState {
                                 }
                                 SidewalkPOI::Border(i) => {
                                     delete.push(ped.id);
-                                    delete_ped_from_current_step(
-                                        &mut self.peds_per_traversable,
-                                        ped,
-                                    );
+                                    self.peds_per_traversable
+                                        .remove(ped.path.current_step().as_traversable(), ped.id);
                                     trips.ped_reached_border(time, ped.id, i, map);
                                 }
                                 SidewalkPOI::BikeRack(driving_pos) => {
@@ -171,7 +165,8 @@ impl WalkingSimState {
                                 }
                             }
 
-                            delete_ped_from_current_step(&mut self.peds_per_traversable, ped);
+                            self.peds_per_traversable
+                                .remove(ped.path.current_step().as_traversable(), ped.id);
                             ped.path.shift();
                             let start_dist = match ped.path.current_step() {
                                 PathStep::Lane(_) => Distance::ZERO,
@@ -196,14 +191,16 @@ impl WalkingSimState {
                 PedState::EnteringBuilding(bldg, ref time_int) => {
                     if time > time_int.end {
                         delete.push(ped.id);
-                        delete_ped_from_current_step(&mut self.peds_per_traversable, ped);
+                        self.peds_per_traversable
+                            .remove(ped.path.current_step().as_traversable(), ped.id);
                         trips.ped_reached_building(time, ped.id, bldg, map);
                     }
                 }
                 PedState::StartingToBike(ref spot, _, ref time_int) => {
                     if time > time_int.end {
                         delete.push(ped.id);
-                        delete_ped_from_current_step(&mut self.peds_per_traversable, ped);
+                        self.peds_per_traversable
+                            .remove(ped.path.current_step().as_traversable(), ped.id);
                         trips.ped_ready_to_bike(time, ped.id, spot.clone(), map, scheduler);
                     }
                 }
@@ -250,13 +247,6 @@ impl WalkingSimState {
         let p = self.peds.get(&id)?;
         Some(&p.path)
     }
-}
-
-fn delete_ped_from_current_step(map: &mut MultiMap<Traversable, PedestrianID>, ped: &Pedestrian) {
-    // API is so bad that we have this helper!
-    map.get_vec_mut(&ped.path.current_step().as_traversable())
-        .unwrap()
-        .retain(|&p| p != ped.id);
 }
 
 #[derive(Serialize, Deserialize, PartialEq)]

@@ -1,27 +1,34 @@
-use std;
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::cmp::Ord;
+use std::collections::{BTreeMap, BTreeSet};
 
-pub struct MultiMap<K, V> {
-    map: HashMap<K, HashSet<V>>,
-    empty: HashSet<V>,
+// TODO Ideally derive Serialize and Deserialize, but I can't seem to express the lifetimes
+// correctly.
+#[derive(PartialEq)]
+pub struct MultiMap<K, V>
+where
+    K: Ord + PartialEq,
+    V: Ord + PartialEq,
+{
+    map: BTreeMap<K, BTreeSet<V>>,
+    empty: BTreeSet<V>,
 }
 
 impl<K, V> MultiMap<K, V>
 where
-    K: std::cmp::Eq + std::hash::Hash,
-    V: std::cmp::Eq + std::hash::Hash,
+    K: Ord + PartialEq,
+    V: Ord + PartialEq,
 {
     pub fn new() -> MultiMap<K, V> {
         MultiMap {
-            map: HashMap::new(),
-            empty: HashSet::new(),
+            map: BTreeMap::new(),
+            empty: BTreeSet::new(),
         }
     }
 
     pub fn insert(&mut self, key: K, value: V) {
         self.map
             .entry(key)
-            .or_insert_with(HashSet::new)
+            .or_insert_with(BTreeSet::new)
             .insert(value);
     }
 
@@ -35,8 +42,12 @@ where
         }
     }
 
-    pub fn get(&self, key: K) -> &HashSet<V> {
+    pub fn get(&self, key: K) -> &BTreeSet<V> {
         self.map.get(&key).unwrap_or(&self.empty)
+    }
+
+    pub(crate) fn raw_map(&self) -> &BTreeMap<K, BTreeSet<V>> {
+        &self.map
     }
 }
 

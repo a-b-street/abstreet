@@ -15,6 +15,9 @@
 - easter eggs
 	- name agents, with some good names scattered in (Dustin Carlino, Dustin Bikelino, Dustin Buslino...)
 
+## More things to simulate
+
+- Light rail and downtown bus tunnel
 
 ## The very detailed driving model
 

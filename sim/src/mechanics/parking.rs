@@ -1,11 +1,10 @@
 use crate::{CarID, CarStatus, DrawCarInput, ParkedCar, ParkingSpot, Vehicle, VehicleType};
 use abstutil::{
-    deserialize_btreemap, deserialize_multimap, serialize_btreemap, serialize_multimap,
+    deserialize_btreemap, deserialize_multimap, serialize_btreemap, serialize_multimap, MultiMap,
 };
 use geom::{Angle, Distance, Pt2D};
 use map_model;
 use map_model::{BuildingID, Lane, LaneID, LaneType, Map, Position, Traversable};
-use multimap::MultiMap;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 use std::iter;
@@ -178,8 +177,7 @@ impl ParkingSimState {
 
     pub fn get_parked_cars_by_owner(&self, id: BuildingID) -> Vec<&ParkedCar> {
         self.cars_per_building
-            .get_vec(&id)
-            .unwrap_or(&Vec::new())
+            .get(id)
             .iter()
             .map(|id| &self.cars[id])
             .collect()

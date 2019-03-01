@@ -1,14 +1,13 @@
 use crate::time::prettyprint_time;
-use crate::{elapsed_seconds, prettyprint_usize, Timer, PROGRESS_FREQUENCY_SECONDS};
+use crate::{elapsed_seconds, prettyprint_usize, MultiMap, Timer, PROGRESS_FREQUENCY_SECONDS};
 use bincode;
-use multimap;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde_json;
 use std;
+use std::cmp::Ord;
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs::File;
-use std::hash::Hash;
 use std::io::{stdout, BufReader, BufWriter, Error, ErrorKind, Read, Write};
 use std::path::Path;
 use std::time::Instant;
@@ -80,24 +79,24 @@ pub fn deserialize_btreemap<
     Ok(map)
 }
 
-pub fn serialize_multimap<S: Serializer, K: Serialize + Eq + Hash, V: Serialize + Eq + Hash>(
-    map: &multimap::MultiMap<K, V>,
+pub fn serialize_multimap<S: Serializer, K: Serialize + Eq + Ord, V: Serialize + Eq + Ord>(
+    map: &MultiMap<K, V>,
     s: S,
 ) -> Result<S::Ok, S::Error> {
     // TODO maybe need to sort to have deterministic output
-    map.iter_all().collect::<Vec<(_, _)>>().serialize(s)
+    map.raw_map().iter().collect::<Vec<(_, _)>>().serialize(s)
 }
 
 pub fn deserialize_multimap<
     'de,
     D: Deserializer<'de>,
-    K: Deserialize<'de> + Eq + Hash + Clone,
-    V: Deserialize<'de> + Eq + Hash,
+    K: Deserialize<'de> + Eq + Ord + Clone,
+    V: Deserialize<'de> + Eq + Ord,
 >(
     d: D,
-) -> Result<multimap::MultiMap<K, V>, D::Error> {
+) -> Result<MultiMap<K, V>, D::Error> {
     let vec = <Vec<(K, Vec<V>)>>::deserialize(d)?;
-    let mut map = multimap::MultiMap::new();
+    let mut map = MultiMap::new();
     for (key, values) in vec {
         for value in values {
             map.insert(key.clone(), value);
