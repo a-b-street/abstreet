@@ -4,7 +4,7 @@ use crate::{
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::Duration;
-use map_model::{BusRouteID, BusStopID, Map, PathRequest, Pathfinder};
+use map_model::{BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathRequest, Pathfinder};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, VecDeque};
 
@@ -95,6 +95,7 @@ impl TripManager {
         parking: &ParkingSimState,
         scheduler: &mut Scheduler,
     ) {
+        self.events.push(Event::PedReachedParkingSpot(ped, spot));
         let trip = &mut self.trips[self
             .active_trip_mode
             .remove(&AgentID::Pedestrian(ped))
@@ -129,16 +130,15 @@ impl TripManager {
             return;
         };
 
-        let router = match drive_to {
-            DrivingGoal::ParkNear(b) => Router::park_near(path, b),
-            DrivingGoal::Border(_, last_lane) => {
-                Router::stop_suddenly(path, map.get_l(last_lane).length())
-            }
-        };
-
         scheduler.enqueue_command(Command::SpawnCar(
             time,
-            CreateCar::for_parked_car(parked_car, router, trip.id, parking, map),
+            CreateCar::for_parked_car(
+                parked_car,
+                drive_to.make_router(path, map),
+                trip.id,
+                parking,
+                map,
+            ),
         ));
     }
 
@@ -187,8 +187,8 @@ impl TripManager {
             DrivingGoal::ParkNear(_) => {
                 Router::bike_then_stop(path, map.get_l(end.lane()).length() / 2.0)
             }
-            DrivingGoal::Border(_, last_lane) => {
-                Router::stop_suddenly(path, map.get_l(last_lane).length())
+            DrivingGoal::Border(i, last_lane) => {
+                Router::end_at_border(path, map.get_l(last_lane).length(), i)
             }
         };
 
@@ -244,37 +244,64 @@ impl TripManager {
         ));
     }
 
-    /*pub fn ped_reached_building_or_border(&mut self, ped: PedestrianID, now: Duration) {
+    pub fn ped_reached_building(
+        &mut self,
+        time: Duration,
+        ped: PedestrianID,
+        bldg: BuildingID,
+        map: &Map,
+    ) {
+        self.events.push(Event::PedReachedBuilding(ped, bldg));
         let trip = &mut self.trips[self
             .active_trip_mode
             .remove(&AgentID::Pedestrian(ped))
             .unwrap()
             .0];
-        match trip.legs.pop_front().unwrap() {
-            TripLeg::Walk(_) => {}
-            x => panic!(
-                "Last trip leg {:?} doesn't match ped_reached_building_or_border",
-                x
-            ),
-        };
+        assert_eq!(
+            trip.legs.pop_front().unwrap(),
+            TripLeg::Walk(SidewalkSpot::building(bldg, map))
+        );
         assert!(trip.legs.is_empty());
         assert!(!trip.finished_at.is_some());
-        trip.finished_at = Some(now);
+        trip.finished_at = Some(time);
     }
 
-    // Or bike
-    pub fn car_reached_border(&mut self, car: CarID, now: Duration) {
+    pub fn ped_reached_border(
+        &mut self,
+        time: Duration,
+        ped: PedestrianID,
+        i: IntersectionID,
+        map: &Map,
+    ) {
+        self.events.push(Event::PedReachedBorder(ped, i));
+        let trip = &mut self.trips[self
+            .active_trip_mode
+            .remove(&AgentID::Pedestrian(ped))
+            .unwrap()
+            .0];
+        assert_eq!(
+            trip.legs.pop_front().unwrap(),
+            TripLeg::Walk(SidewalkSpot::end_at_border(i, map).unwrap())
+        );
+        assert!(trip.legs.is_empty());
+        assert!(!trip.finished_at.is_some());
+        trip.finished_at = Some(time);
+    }
+
+    pub fn car_or_bike_reached_border(&mut self, time: Duration, car: CarID, i: IntersectionID) {
+        self.events.push(Event::CarOrBikeReachedBorder(car, i));
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
         match trip.legs.pop_front().unwrap() {
-            TripLeg::Drive(_, _) => {}
-            TripLeg::Bike(_, _) => {}
-            x => panic!("Last trip leg {:?} doesn't match car_reached_border", x),
+            TripLeg::Drive(_, DrivingGoal::Border(int, _)) => assert_eq!(i, int),
+            TripLeg::Bike(_, DrivingGoal::Border(int, _)) => assert_eq!(i, int),
+            _ => unreachable!(),
         };
         assert!(trip.legs.is_empty());
         assert!(!trip.finished_at.is_some());
-        trip.finished_at = Some(now);
+        trip.finished_at = Some(time);
     }
 
+    /*
     // Combo query/transition from transit
     pub fn should_ped_board_bus(&mut self, ped: PedestrianID, route: BusRouteID) -> bool {
         let trip = &mut self.trips[self.active_trip_mode[&AgentID::Pedestrian(ped)].0];

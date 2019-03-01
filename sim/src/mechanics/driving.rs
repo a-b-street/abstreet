@@ -234,7 +234,8 @@ impl DrivingSimState {
                                 .router
                                 .maybe_handle_end(dist, &car.vehicle, parking, map)
                             {
-                                Some(ActionAtEnd::Vanish) => {
+                                Some(ActionAtEnd::VanishAtBorder(i)) => {
+                                    trips.car_or_bike_reached_border(time, car.vehicle.id, i);
                                     delete_indices.push((idx, dist));
                                 }
                                 Some(ActionAtEnd::StartParking(spot)) => {

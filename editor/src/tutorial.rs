@@ -81,6 +81,7 @@ impl UIState for TutorialState {
                 {
                     *last_time_observed = Some(time);
                     for ev in events {
+                        // TODO Spawned from border
                         if let Event::AgentEntersTraversable(_, Traversable::Lane(lane)) = ev {
                             if *lane == self.main.primary.map.driving_lane("north entrance").id {
                                 *spawned_from_north += 1;

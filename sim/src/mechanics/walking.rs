@@ -134,12 +134,13 @@ impl WalkingSimState {
                                 SidewalkPOI::BusStop(stop) => {
                                     panic!("implement");
                                 }
-                                SidewalkPOI::Border(_) => {
+                                SidewalkPOI::Border(i) => {
                                     delete.push(ped.id);
                                     delete_ped_from_current_step(
                                         &mut self.peds_per_traversable,
                                         ped,
                                     );
+                                    trips.ped_reached_border(time, ped.id, i, map);
                                 }
                                 SidewalkPOI::BikeRack(driving_pos) => {
                                     let pt1 = ped.goal.sidewalk_pos.pt(map);
@@ -192,10 +193,11 @@ impl WalkingSimState {
                         );
                     }
                 }
-                PedState::EnteringBuilding(_, ref time_int) => {
+                PedState::EnteringBuilding(bldg, ref time_int) => {
                     if time > time_int.end {
                         delete.push(ped.id);
                         delete_ped_from_current_step(&mut self.peds_per_traversable, ped);
+                        trips.ped_reached_building(time, ped.id, bldg, map);
                     }
                 }
                 PedState::StartingToBike(ref spot, _, ref time_int) => {

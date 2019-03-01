@@ -1,6 +1,6 @@
 use crate::{ParkingSimState, ParkingSpot, SidewalkSpot, Vehicle};
 use geom::Distance;
-use map_model::{BuildingID, Map, Path, PathStep, Position, Traversable};
+use map_model::{BuildingID, IntersectionID, Map, Path, PathStep, Position, Traversable};
 use serde_derive::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -11,7 +11,7 @@ pub struct Router {
 }
 
 pub enum ActionAtEnd {
-    Vanish,
+    VanishAtBorder(IntersectionID),
     StartParking(ParkingSpot),
     GotoLaneEnd,
     StopBiking(SidewalkSpot),
@@ -25,9 +25,9 @@ enum Goal {
         target: BuildingID,
         spot: Option<(ParkingSpot, Distance)>,
     },
-    // Stop at this distance along the last lane in the path
-    StopSuddenly {
+    EndAtBorder {
         end_dist: Distance,
+        i: IntersectionID,
     },
     BikeThenStop {
         end_dist: Distance,
@@ -35,10 +35,10 @@ enum Goal {
 }
 
 impl Router {
-    pub fn stop_suddenly(path: Path, end_dist: Distance) -> Router {
+    pub fn end_at_border(path: Path, end_dist: Distance, i: IntersectionID) -> Router {
         Router {
             path,
-            goal: Goal::StopSuddenly { end_dist },
+            goal: Goal::EndAtBorder { end_dist, i },
         }
     }
 
@@ -75,7 +75,7 @@ impl Router {
         // Shouldn't ask earlier!
         assert!(self.last_step());
         match self.goal {
-            Goal::StopSuddenly { end_dist } => end_dist,
+            Goal::EndAtBorder { end_dist, .. } => end_dist,
             Goal::ParkNearBuilding { spot, .. } => spot.unwrap().1,
             Goal::BikeThenStop { end_dist } => end_dist,
         }
@@ -110,9 +110,9 @@ impl Router {
         map: &Map,
     ) -> Option<ActionAtEnd> {
         match self.goal {
-            Goal::StopSuddenly { end_dist } => {
+            Goal::EndAtBorder { end_dist, i } => {
                 if end_dist == front {
-                    Some(ActionAtEnd::Vanish)
+                    Some(ActionAtEnd::VanishAtBorder(i))
                 } else {
                     None
                 }
@@ -165,8 +165,9 @@ impl Router {
         if choices.is_empty() {
             // TODO Fix properly by picking and pathfinding fully to a nearby parking lane.
             println!("{} can't find parking on {}, and also it's a dead-end, so they'll be stuck there forever. Vanishing.", vehicle.id, self.head().as_lane());
-            self.goal = Goal::StopSuddenly {
+            self.goal = Goal::EndAtBorder {
                 end_dist: self.head().length(map),
+                i: map.get_l(self.head().as_lane()).dst_i,
             };
             return;
         }

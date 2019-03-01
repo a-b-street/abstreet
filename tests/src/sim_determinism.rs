@@ -16,11 +16,21 @@ pub fn run(t: &mut TestRunner) {
 
     t.run_slow("from_scratch", |_| {
         println!("Creating two simulations");
-        let (map, mut sim1, mut rng) =
-            SimFlags::for_test("from_scratch_1").load(None, &mut Timer::throwaway());
+        let flags = SimFlags::for_test("from_scratch_1");
+        let (map, mut sim1, _) = flags.load(None, &mut Timer::throwaway());
         let mut sim2 = Sim::new(&map, "from_scratch_2".to_string(), None);
-        Scenario::small_run(&map).instantiate(&mut sim1, &map, &mut rng, &mut Timer::throwaway());
-        Scenario::small_run(&map).instantiate(&mut sim2, &map, &mut rng, &mut Timer::throwaway());
+        Scenario::small_run(&map).instantiate(
+            &mut sim1,
+            &map,
+            &mut flags.make_rng(),
+            &mut Timer::throwaway(),
+        );
+        Scenario::small_run(&map).instantiate(
+            &mut sim2,
+            &map,
+            &mut flags.make_rng(),
+            &mut Timer::throwaway(),
+        );
 
         for _ in 1..600 {
             if sim1 != sim2 {
@@ -38,11 +48,21 @@ pub fn run(t: &mut TestRunner) {
 
     t.run_slow("with_savestating", |_| {
         println!("Creating two simulations");
-        let (map, mut sim1, mut rng) =
-            SimFlags::for_test("with_savestating_1").load(None, &mut Timer::throwaway());
+        let flags = SimFlags::for_test("with_savestating_1");
+        let (map, mut sim1, _) = flags.load(None, &mut Timer::throwaway());
         let mut sim2 = Sim::new(&map, "with_savestating_2".to_string(), None);
-        Scenario::small_run(&map).instantiate(&mut sim1, &map, &mut rng, &mut Timer::throwaway());
-        Scenario::small_run(&map).instantiate(&mut sim2, &map, &mut rng, &mut Timer::throwaway());
+        Scenario::small_run(&map).instantiate(
+            &mut sim1,
+            &map,
+            &mut flags.make_rng(),
+            &mut Timer::throwaway(),
+        );
+        Scenario::small_run(&map).instantiate(
+            &mut sim2,
+            &map,
+            &mut flags.make_rng(),
+            &mut Timer::throwaway(),
+        );
 
         for _ in 1..600 {
             sim1.step(&map);

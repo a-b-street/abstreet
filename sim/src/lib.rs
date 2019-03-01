@@ -195,6 +195,15 @@ impl DrivingGoal {
         };
         Position::new(lane, map.get_l(lane).length())
     }
+
+    pub fn make_router(&self, path: Path, map: &Map) -> Router {
+        match self {
+            DrivingGoal::ParkNear(b) => Router::park_near(path, *b),
+            DrivingGoal::Border(i, last_lane) => {
+                Router::end_at_border(path, map.get_l(*last_lane).length(), *i)
+            }
+        }
+    }
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]

@@ -1,6 +1,6 @@
 use crate::{
     CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, ParkingSimState, ParkingSpot,
-    PedestrianID, Router, Scheduler, SidewalkPOI, SidewalkSpot, TripLeg, TripManager, VehicleSpec,
+    PedestrianID, Scheduler, SidewalkPOI, SidewalkSpot, TripLeg, TripManager, VehicleSpec,
     VehicleType,
 };
 use abstutil::Timer;
@@ -133,15 +133,9 @@ impl TripSpawner {
             match spec {
                 TripSpec::CarAppearing(start_pos, vehicle_spec, goal) => {
                     let mut legs = vec![TripLeg::Drive(car_id.unwrap(), goal.clone())];
-                    let router = match goal {
-                        DrivingGoal::ParkNear(b) => {
-                            legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
-                            Router::park_near(path, b)
-                        }
-                        DrivingGoal::Border(_, last_lane) => {
-                            Router::stop_suddenly(path, map.get_l(last_lane).length())
-                        }
-                    };
+                    if let DrivingGoal::ParkNear(b) = goal {
+                        legs.push(TripLeg::Walk(SidewalkSpot::building(b, map)));
+                    }
                     let trip = trips.new_trip(start_time, ped_id, legs);
 
                     scheduler.enqueue_command(Command::SpawnCar(
@@ -149,7 +143,7 @@ impl TripSpawner {
                         CreateCar::for_appearing(
                             vehicle_spec.make(car_id.unwrap(), None),
                             start_pos,
-                            router,
+                            goal.make_router(path, map),
                             trip,
                         ),
                     ));
