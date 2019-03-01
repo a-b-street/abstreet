@@ -1,8 +1,9 @@
 use crate::{
-    AgentID, Benchmark, CarID, DrawCarInput, DrawPedestrianInput, DrivingGoal, DrivingSimState,
-    Event, GetDrawAgents, IntersectionSimState, ParkedCar, ParkingSimState, ParkingSpot,
-    PedestrianID, Scheduler, ScoreSummary, SimStats, Summary, TripID, TripManager, TripSpawner,
-    TripSpec, VehicleSpec, VehicleType, WalkingSimState, TIMESTEP,
+    AgentID, Benchmark, CarID, CreateCar, DrawCarInput, DrawPedestrianInput, DrivingGoal,
+    DrivingSimState, Event, GetDrawAgents, IntersectionSimState, ParkedCar, ParkingSimState,
+    ParkingSpot, PedestrianID, Router, Scheduler, ScoreSummary, SimStats, Summary, TransitSimState,
+    TripID, TripLeg, TripManager, TripSpawner, TripSpec, VehicleSpec, VehicleType, WalkingSimState,
+    BUS_LENGTH, TIMESTEP,
 };
 use abstutil::Timer;
 use derivative::Derivative;
@@ -23,6 +24,7 @@ pub struct Sim {
     parking: ParkingSimState,
     walking: WalkingSimState,
     intersections: IntersectionSimState,
+    transit: TransitSimState,
     trips: TripManager,
     scheduler: Scheduler,
     spawner: TripSpawner,
@@ -53,6 +55,7 @@ impl Sim {
             parking: ParkingSimState::new(map),
             walking: WalkingSimState::new(),
             intersections: IntersectionSimState::new(map),
+            transit: TransitSimState::new(),
             trips: TripManager::new(),
             scheduler: Scheduler::new(),
             spawner: TripSpawner::new(),
@@ -145,8 +148,66 @@ impl Sim {
     }
 
     pub fn seed_bus_route(&mut self, route: &BusRoute, map: &Map, timer: &mut Timer) -> Vec<CarID> {
-        // TODO implement
-        Vec::new()
+        let mut results: Vec<CarID> = Vec::new();
+
+        // Try to spawn a bus at each stop
+        for (next_stop_idx, start_dist, path, end_dist) in
+            self.transit.create_empty_route(route, map).into_iter()
+        {
+            // For now, no desire for randomness. Caller can pass in list of specs if that ever
+            // changes.
+            let vehicle_spec = VehicleSpec {
+                vehicle_type: VehicleType::Bus,
+                length: BUS_LENGTH,
+                max_speed: None,
+            };
+
+            // TODO Do this validation more up-front in the map layer
+            if start_dist < vehicle_spec.length {
+                timer.warn(format!(
+                    "Stop at {:?} is too short to spawn a bus there; giving up on one bus for {}",
+                    path.current_step(),
+                    route.id
+                ));
+                continue;
+            }
+
+            let id = CarID(self.car_id_counter, VehicleType::Bus);
+            self.car_id_counter += 1;
+
+            // Bypass some layers of abstraction that don't make sense for buses.
+
+            // TODO Aww, we create an orphan trip if the bus can't spawn.
+            let trip =
+                self.trips
+                    .new_trip(self.time, None, vec![TripLeg::ServeBusRoute(id, route.id)]);
+            if self.driving.start_car_on_lane(
+                self.time,
+                CreateCar {
+                    vehicle: vehicle_spec.make(id, None),
+                    router: Router::follow_bus_route(path, end_dist),
+                    start_dist,
+                    maybe_parked_car: None,
+                    trip,
+                },
+                map,
+                &self.intersections,
+            ) {
+                self.trips.agent_starting_trip_leg(AgentID::Car(id), trip);
+                self.transit.bus_created(id, route.id, next_stop_idx);
+                timer.note(format!(
+                    "Spawned bus {} for route {} ({})",
+                    id, route.name, route.id
+                ));
+                results.push(id);
+            } else {
+                timer.warn(format!(
+                    "No room for a bus headed towards stop {} of {} ({}), giving up",
+                    next_stop_idx, route.name, route.id
+                ));
+            }
+        }
+        results
     }
 }
 

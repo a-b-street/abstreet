@@ -32,6 +32,9 @@ enum Goal {
     BikeThenStop {
         end_dist: Distance,
     },
+    FollowBusRoute {
+        end_dist: Distance,
+    },
 }
 
 impl Router {
@@ -59,6 +62,13 @@ impl Router {
         }
     }
 
+    pub fn follow_bus_route(path: Path, end_dist: Distance) -> Router {
+        Router {
+            path,
+            goal: Goal::FollowBusRoute { end_dist },
+        }
+    }
+
     pub fn head(&self) -> Traversable {
         self.path.current_step().as_traversable()
     }
@@ -78,6 +88,7 @@ impl Router {
             Goal::EndAtBorder { end_dist, .. } => end_dist,
             Goal::ParkNearBuilding { spot, .. } => spot.unwrap().1,
             Goal::BikeThenStop { end_dist } => end_dist,
+            Goal::FollowBusRoute { end_dist } => end_dist,
         }
     }
 
@@ -153,6 +164,14 @@ impl Router {
                         )
                         .unwrap(),
                     ))
+                } else {
+                    None
+                }
+            }
+            Goal::FollowBusRoute { end_dist } => {
+                if end_dist == front {
+                    // TODO mark when they reach the stop, start waiting, replan, etc
+                    None
                 } else {
                     None
                 }

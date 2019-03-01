@@ -6,6 +6,7 @@ mod render;
 mod router;
 mod scheduler;
 mod sim;
+mod transit;
 mod trips;
 
 pub use self::events::Event;
@@ -20,6 +21,7 @@ pub use self::query::{Benchmark, ScoreSummary, SimStats, Summary};
 pub(crate) use self::router::{ActionAtEnd, Router};
 pub(crate) use self::scheduler::{Command, Scheduler};
 pub use self::sim::Sim;
+pub(crate) use self::transit::TransitSimState;
 pub(crate) use self::trips::{TripLeg, TripManager};
 pub use crate::render::{CarStatus, DrawCarInput, DrawPedestrianInput, GetDrawAgents};
 use abstutil::Cloneable;
