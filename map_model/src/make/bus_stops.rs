@@ -3,10 +3,9 @@ use crate::{
     BusRoute, BusRouteID, BusStop, BusStopID, LaneID, LaneType, Map, PathRequest, Pathfinder,
     Position,
 };
-use abstutil::Timer;
+use abstutil::{MultiMap, Timer};
 use geom::{Bounds, Distance, GPSBounds, HashablePt2D, Pt2D};
 use gtfs;
-use multimap::MultiMap;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::iter;
 
@@ -45,16 +44,16 @@ pub fn make_bus_stops(
     let mut point_to_stop_id: HashMap<HashablePt2D, BusStopID> = HashMap::new();
     let mut bus_stops: BTreeMap<BusStopID, BusStop> = BTreeMap::new();
 
-    for (id, dists) in stops_per_sidewalk.iter_all_mut() {
-        let road = map.get_parent(*id);
-        if let Ok(driving_lane) =
-            road.find_closest_lane(*id, vec![LaneType::Driving, LaneType::Bus])
+    for (id, dists_set) in stops_per_sidewalk.consume().into_iter() {
+        let road = map.get_parent(id);
+        if let Ok(driving_lane) = road.find_closest_lane(id, vec![LaneType::Driving, LaneType::Bus])
         {
+            let mut dists: Vec<(Distance, HashablePt2D)> = dists_set.into_iter().collect();
             dists.sort_by_key(|(dist, _)| *dist);
-            for (idx, (dist_along, orig_pt)) in dists.iter().enumerate() {
-                let stop_id = BusStopID { sidewalk: *id, idx };
-                point_to_stop_id.insert(*orig_pt, stop_id);
-                let sidewalk_pos = Position::new(*id, *dist_along);
+            for (idx, (dist_along, orig_pt)) in dists.into_iter().enumerate() {
+                let stop_id = BusStopID { sidewalk: id, idx };
+                point_to_stop_id.insert(orig_pt, stop_id);
+                let sidewalk_pos = Position::new(id, dist_along);
                 let driving_pos = sidewalk_pos.equiv_pos(driving_lane, map);
                 bus_stops.insert(
                     stop_id,
@@ -76,27 +75,26 @@ pub fn make_bus_stops(
     let mut routes: Vec<BusRoute> = Vec::new();
     for route in bus_routes {
         let route_name = route.name.to_string();
-        if let Some(stop_points) = route_lookups.get_vec(&route_name) {
-            let stops: Vec<BusStopID> = stop_points
-                .iter()
-                .filter_map(|pt| point_to_stop_id.get(pt))
-                .cloned()
-                .collect();
-            if stops.len() < 2 {
-                timer.warn(format!(
-                    "Skipping route {} since it only has {} stop in the slice of the map",
-                    route_name,
-                    stops.len()
-                ));
-                continue;
-            }
-            let id = BusRouteID(routes.len());
-            routes.push(BusRoute {
-                id,
-                name: route_name.to_string(),
-                stops,
-            });
+        let stops: Vec<BusStopID> = route_lookups
+            .get(route_name.clone())
+            .iter()
+            .filter_map(|pt| point_to_stop_id.get(pt))
+            .cloned()
+            .collect();
+        if stops.len() < 2 {
+            timer.warn(format!(
+                "Skipping route {} since it only has {} stop in the slice of the map",
+                route_name,
+                stops.len()
+            ));
+            continue;
         }
+        let id = BusRouteID(routes.len());
+        routes.push(BusRoute {
+            id,
+            name: route_name.to_string(),
+            stops,
+        });
     }
     timer.stop("make bus stops");
     (bus_stops, routes)

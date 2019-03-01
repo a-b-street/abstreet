@@ -9,7 +9,6 @@ aabb-quadtree = "0.1.0"
 abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
 gtfs = { path = "../gtfs" }
-multimap = "0.4.0"
 nbez = "0.1.0"
 ordered-float = "1.0.1"
 pretty_assertions = "0.5.1"

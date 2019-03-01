@@ -49,6 +49,10 @@ where
     pub(crate) fn raw_map(&self) -> &BTreeMap<K, BTreeSet<V>> {
         &self.map
     }
+
+    pub fn consume(self) -> BTreeMap<K, BTreeSet<V>> {
+        self.map
+    }
 }
 
 pub fn wraparound_get<T>(vec: &Vec<T>, idx: isize) -> &T {
