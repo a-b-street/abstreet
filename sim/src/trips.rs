@@ -1,6 +1,7 @@
 use crate::{
     AgentID, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, Event, ParkingSimState,
-    ParkingSpot, PedestrianID, Router, Scheduler, SidewalkPOI, SidewalkSpot, TripID, Vehicle,
+    ParkingSpot, PedestrianID, Router, Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState,
+    TripID, Vehicle,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::Duration;
@@ -282,6 +283,28 @@ impl TripManager {
         assert!(trip.legs.is_empty());
         assert!(!trip.finished_at.is_some());
         trip.finished_at = Some(time);
+    }
+
+    // If true, the pedestrian boarded a bus immediately.
+    pub fn ped_reached_bus_stop(
+        &mut self,
+        ped: PedestrianID,
+        stop: BusStopID,
+        map: &Map,
+        transit: &mut TransitSimState,
+    ) -> bool {
+        self.events.push(Event::PedReachedBusStop(ped, stop));
+        let trip = &self.trips[self.active_trip_mode[&AgentID::Pedestrian(ped)].0];
+        assert_eq!(
+            trip.legs[0],
+            TripLeg::Walk(ped, SidewalkSpot::bus_stop(stop, map))
+        );
+        match trip.legs[1] {
+            TripLeg::RideBus(_, route, stop2) => {
+                transit.ped_waiting_for_bus(ped, stop, route, stop2)
+            }
+            _ => unreachable!(),
+        }
     }
 
     pub fn ped_reached_border(

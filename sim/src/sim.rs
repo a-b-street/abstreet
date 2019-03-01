@@ -275,6 +275,7 @@ impl Sim {
             &mut self.trips,
             &mut self.scheduler,
             &mut self.transit,
+            &mut self.walking,
         );
         self.walking.step_if_needed(
             self.time,
@@ -283,6 +284,7 @@ impl Sim {
             &self.parking,
             &mut self.scheduler,
             &mut self.trips,
+            &mut self.transit,
         );
 
         // Spawn stuff at the end, so we can see the correct state of everything else at this time.

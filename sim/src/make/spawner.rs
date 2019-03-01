@@ -217,7 +217,7 @@ impl TripSpawner {
                             ));
                         }
                         DrivingGoal::Border(_, _) => {}
-                    }
+                    };
                     let trip = trips.new_trip(start_time, legs);
 
                     scheduler.enqueue_command(Command::SpawnPed(
@@ -231,8 +231,27 @@ impl TripSpawner {
                         },
                     ));
                 }
-                TripSpec::UsingTransit(_, _, _, _, _) => {
-                    panic!("implement");
+                TripSpec::UsingTransit(start, route, stop1, stop2, goal) => {
+                    let walk_to = SidewalkSpot::bus_stop(stop1, map);
+                    let trip = trips.new_trip(
+                        start_time,
+                        vec![
+                            TripLeg::Walk(ped_id.unwrap(), walk_to.clone()),
+                            TripLeg::RideBus(ped_id.unwrap(), route, stop2),
+                            TripLeg::Walk(ped_id.unwrap(), goal),
+                        ],
+                    );
+
+                    scheduler.enqueue_command(Command::SpawnPed(
+                        start_time,
+                        CreatePedestrian {
+                            id: ped_id.unwrap(),
+                            start,
+                            goal: walk_to,
+                            path,
+                            trip,
+                        },
+                    ));
                 }
             }
         }
@@ -272,9 +291,12 @@ impl TripSpec {
                 can_use_bike_lanes: false,
                 can_use_bus_lanes: false,
             },
-            TripSpec::UsingTransit(_, _, _, _, _) => {
-                panic!("implement");
-            }
+            TripSpec::UsingTransit(start, _, stop1, _, _) => PathRequest {
+                start: start.sidewalk_pos,
+                end: SidewalkSpot::bus_stop(*stop1, map).sidewalk_pos,
+                can_use_bike_lanes: false,
+                can_use_bus_lanes: false,
+            },
         }
     }
 }

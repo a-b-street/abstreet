@@ -2,8 +2,8 @@ use crate::mechanics::car::{Car, CarState};
 use crate::mechanics::queue::Queue;
 use crate::{
     ActionAtEnd, AgentID, CarID, CreateCar, DrawCarInput, IntersectionSimState, ParkedCar,
-    ParkingSimState, Scheduler, TimeInterval, TransitSimState, TripManager, BUS_LENGTH,
-    FOLLOWING_DISTANCE,
+    ParkingSimState, Scheduler, TimeInterval, TransitSimState, TripManager, WalkingSimState,
+    BUS_LENGTH, FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use ezgui::{Color, GfxCtx};
@@ -186,6 +186,7 @@ impl DrivingSimState {
         trips: &mut TripManager,
         scheduler: &mut Scheduler,
         transit: &mut TransitSimState,
+        walking: &mut WalkingSimState,
     ) {
         // Promote Crossing to Queued and Unparking to Crossing.
         for queue in self.queues.values_mut() {
@@ -268,7 +269,7 @@ impl DrivingSimState {
                                     );
                                 }
                                 Some(ActionAtEnd::BusAtStop) => {
-                                    transit.bus_arrived_at_stop(car.vehicle.id);
+                                    transit.bus_arrived_at_stop(car.vehicle.id, walking);
                                     car.state = CarState::Idling(
                                         dist,
                                         TimeInterval::new(time, time + TIME_TO_WAIT_AT_STOP),

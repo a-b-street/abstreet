@@ -1,7 +1,7 @@
-use crate::{CarID, Event, PedestrianID, Router};
+use crate::{CarID, Event, PedestrianID, Router, WalkingSimState};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::Distance;
-use map_model::{BusRoute, BusRouteID, BusStop, Map, Path, PathRequest, Pathfinder};
+use map_model::{BusRoute, BusRouteID, BusStop, BusStopID, Map, Path, PathRequest, Pathfinder};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
@@ -33,7 +33,8 @@ impl Route {
 struct Bus {
     car: CarID,
     route: BusRouteID,
-    passengers: Vec<PedestrianID>,
+    // Where does each passenger want to deboard?
+    passengers: Vec<(PedestrianID, BusStopID)>,
     state: BusState,
 }
 
@@ -56,6 +57,8 @@ pub struct TransitSimState {
         deserialize_with = "deserialize_btreemap"
     )]
     routes: BTreeMap<BusRouteID, Route>,
+    // Can organize this more to make querying cheaper
+    peds_waiting: Vec<(PedestrianID, BusStopID, BusRouteID, BusStopID)>,
 
     events: Vec<Event>,
 }
@@ -65,6 +68,7 @@ impl TransitSimState {
         TransitSimState {
             buses: BTreeMap::new(),
             routes: BTreeMap::new(),
+            peds_waiting: Vec::new(),
             events: Vec::new(),
         }
     }
@@ -130,15 +134,27 @@ impl TransitSimState {
         );
     }
 
-    pub fn bus_arrived_at_stop(&mut self, id: CarID) {
+    pub fn bus_arrived_at_stop(&mut self, id: CarID, walking: &mut WalkingSimState) {
         let mut bus = self.buses.get_mut(&id).unwrap();
         match bus.state {
             BusState::DrivingToStop(stop_idx) => {
                 bus.state = BusState::AtStop(stop_idx);
-                self.events.push(Event::BusArrivedAtStop(
-                    id,
-                    self.routes[&bus.route].stops[stop_idx].id,
-                ));
+                let stop = self.routes[&bus.route].stops[stop_idx].id;
+                self.events.push(Event::BusArrivedAtStop(id, stop));
+
+                // Board new passengers.
+                let mut still_waiting = Vec::new();
+                for (ped, stop1, route, stop2) in self.peds_waiting.drain(..) {
+                    if stop == stop1 && bus.route == route {
+                        bus.passengers.push((ped, stop2));
+                        self.events.push(Event::PedEntersBus(ped, id));
+                        walking.ped_boarded_bus(ped);
+                    // TODO shift trips
+                    } else {
+                        still_waiting.push((ped, stop1, route, stop2));
+                    }
+                }
+                self.peds_waiting = still_waiting;
             }
             BusState::AtStop(_) => unreachable!(),
         };
@@ -172,6 +188,35 @@ impl TransitSimState {
                 Router::follow_bus_route(new_path, next_stop.driving_pos.dist_along())
             }
         }
+    }
+
+    // If true, the pedestrian boarded a bus immediately.
+    pub fn ped_waiting_for_bus(
+        &mut self,
+        ped: PedestrianID,
+        stop1: BusStopID,
+        route_id: BusRouteID,
+        stop2: BusStopID,
+    ) -> bool {
+        assert!(stop1 != stop2);
+        let route = &self.routes[&route_id];
+        for bus in &route.buses {
+            if let BusState::AtStop(idx) = self.buses[bus].state {
+                if route.stops[idx].id == stop1 {
+                    self.buses
+                        .get_mut(bus)
+                        .unwrap()
+                        .passengers
+                        .push((ped, stop2));
+                    // TODO shift trips
+                    self.events.push(Event::PedEntersBus(ped, *bus));
+                    return true;
+                }
+            }
+        }
+
+        self.peds_waiting.push((ped, stop1, route_id, stop2));
+        false
     }
 
     pub fn collect_events(&mut self) -> Vec<Event> {

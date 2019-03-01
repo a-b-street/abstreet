@@ -1,6 +1,7 @@
 use crate::{
     AgentID, CreatePedestrian, DistanceInterval, DrawPedestrianInput, IntersectionSimState,
-    ParkingSimState, PedestrianID, Scheduler, SidewalkPOI, SidewalkSpot, TimeInterval, TripManager,
+    ParkingSimState, PedestrianID, Scheduler, SidewalkPOI, SidewalkSpot, TimeInterval,
+    TransitSimState, TripManager,
 };
 use abstutil::{deserialize_multimap, serialize_multimap, MultiMap};
 use geom::{Distance, Duration, Line, Speed};
@@ -102,6 +103,7 @@ impl WalkingSimState {
         parking: &ParkingSimState,
         scheduler: &mut Scheduler,
         trips: &mut TripManager,
+        transit: &mut TransitSimState,
     ) {
         let mut delete = Vec::new();
         for ped in self.peds.values_mut() {
@@ -128,7 +130,15 @@ impl WalkingSimState {
                                     );
                                 }
                                 SidewalkPOI::BusStop(stop) => {
-                                    panic!("implement");
+                                    if trips.ped_reached_bus_stop(ped.id, stop, map, transit) {
+                                        delete.push(ped.id);
+                                        self.peds_per_traversable.remove(
+                                            ped.path.current_step().as_traversable(),
+                                            ped.id,
+                                        );
+                                    } else {
+                                        ped.state = PedState::WaitingForBus;
+                                    }
                                 }
                                 SidewalkPOI::Border(i) => {
                                     delete.push(ped.id);
@@ -209,11 +219,19 @@ impl WalkingSimState {
                         ped.state = ped.crossing_state(spot.sidewalk_pos.dist_along(), time, map);
                     }
                 }
+                PedState::WaitingForBus => {}
             };
         }
         for id in delete {
             self.peds.remove(&id);
         }
+    }
+
+    pub fn ped_boarded_bus(&mut self, id: PedestrianID) {
+        match self.peds.remove(&id).unwrap().state {
+            PedState::WaitingForBus => {}
+            _ => unreachable!(),
+        };
     }
 
     pub fn debug_ped(&self, id: PedestrianID) {
@@ -289,6 +307,7 @@ impl Pedestrian {
             PedState::EnteringBuilding(b, _) => map.get_b(b).front_path.sidewalk.dist_along(),
             PedState::StartingToBike(ref spot, _, _) => spot.sidewalk_pos.dist_along(),
             PedState::FinishingBiking(ref spot, _, _) => spot.sidewalk_pos.dist_along(),
+            PedState::WaitingForBus => self.goal.sidewalk_pos.dist_along(),
         }
     }
 
@@ -322,6 +341,7 @@ impl Pedestrian {
             PedState::FinishingBiking(_, ref line, ref time_int) => {
                 line.percent_along(time_int.percent(time))
             }
+            PedState::WaitingForBus => self.goal.sidewalk_pos.pt(map),
         };
 
         DrawPedestrianInput {
@@ -349,4 +369,5 @@ enum PedState {
     EnteringBuilding(BuildingID, TimeInterval),
     StartingToBike(SidewalkSpot, Line, TimeInterval),
     FinishingBiking(SidewalkSpot, Line, TimeInterval),
+    WaitingForBus,
 }
