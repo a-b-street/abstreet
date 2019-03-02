@@ -12,6 +12,10 @@ struct Flags {
     /// Optional time to savestate
     #[structopt(long = "save_at")]
     save_at: Option<String>,
+
+    /// Enable cpuprofiler?
+    #[structopt(long = "enable_profiler")]
+    pub enable_profiler: bool,
 }
 
 fn main() {
@@ -22,7 +26,7 @@ fn main() {
     let mut timer = Timer::new("setup headless");
     let (map, mut sim, mut rng) = flags
         .sim_flags
-        .load(Some(Duration::seconds(30.0)), &mut timer);
+        .load(None, &mut timer);
 
     if load.contains("data/raw_maps/") || load.contains("data/maps/") {
         Scenario::small_run(&map).instantiate(&mut sim, &map, &mut rng, &mut timer);
@@ -39,22 +43,29 @@ fn main() {
         None
     };
 
-    /*cpuprofiler::PROFILER
-    .lock()
-    .unwrap()
-    .start("./profile")
-    .unwrap();*/
+    if flags.enable_profiler {
+        cpuprofiler::PROFILER
+            .lock()
+            .unwrap()
+            .start("./profile")
+            .unwrap();
+    }
+    let enable_profiler = flags.enable_profiler;
     sim.run_until_done(
         &map,
         move |sim| {
             if Some(sim.time()) == save_at {
                 sim.save();
                 // Some simulatiosn run for a really long time, just do this.
-                //cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
+                if enable_profiler {
+                    cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
+                }
             }
         },
         None,
     );
-    //sim::save_backtraces("call_graph.json");
     println!("{:?}", sim.get_score());
+    if flags.enable_profiler && save_at.is_none() {
+        cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
+    }
 }
