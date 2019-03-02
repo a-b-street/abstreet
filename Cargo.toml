@@ -3,6 +3,7 @@
 members = [
   "abstutil",
   "analyze_code",
+  "benchmark_pathfinding",
   "convert_osm",
   "debug_initialmap",
   "editor",
