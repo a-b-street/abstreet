@@ -68,37 +68,13 @@ impl TripManager {
             Some(TripLeg::Drive(id, DrivingGoal::ParkNear(_))) => assert_eq!(car, id),
             _ => unreachable!(),
         };
-        let (ped, walk_to) = match trip.legs[0] {
-            TripLeg::Walk(ped, ref to) => (ped, to.clone()),
-            _ => unreachable!(),
-        };
 
-        let start = SidewalkSpot::parking_spot(spot, map, parking);
-        let path = if let Some(p) = Pathfinder::shortest_distance(
-            map,
-            PathRequest {
-                start: start.sidewalk_pos,
-                end: walk_to.sidewalk_pos,
-                can_use_bus_lanes: false,
-                can_use_bike_lanes: false,
-            },
-        ) {
-            p
-        } else {
-            println!("Aborting a trip because no path for the walking portion!");
-            return;
-        };
-
-        scheduler.enqueue_command(Command::SpawnPed(
+        trip.spawn_ped(
             time,
-            CreatePedestrian {
-                id: ped,
-                start,
-                goal: walk_to,
-                path,
-                trip: trip.id,
-            },
-        ));
+            SidewalkSpot::parking_spot(spot, map, parking),
+            map,
+            scheduler,
+        );
     }
 
     pub fn ped_reached_parking_spot(
@@ -231,36 +207,8 @@ impl TripManager {
             Some(TripLeg::Bike(vehicle, DrivingGoal::ParkNear(_))) => assert_eq!(vehicle.id, bike),
             _ => unreachable!(),
         };
-        let (ped, walk_to) = match trip.legs[0] {
-            TripLeg::Walk(ped, ref to) => (ped, to.clone()),
-            _ => unreachable!(),
-        };
 
-        let path = if let Some(p) = Pathfinder::shortest_distance(
-            map,
-            PathRequest {
-                start: bike_rack.sidewalk_pos,
-                end: walk_to.sidewalk_pos,
-                can_use_bus_lanes: false,
-                can_use_bike_lanes: false,
-            },
-        ) {
-            p
-        } else {
-            println!("Aborting a trip because no path for the walking portion!");
-            return;
-        };
-
-        scheduler.enqueue_command(Command::SpawnPed(
-            time,
-            CreatePedestrian {
-                id: ped,
-                start: bike_rack,
-                goal: walk_to,
-                path,
-                trip: trip.id,
-            },
-        ));
+        trip.spawn_ped(time, bike_rack, map, scheduler);
     }
 
     pub fn ped_reached_building(
@@ -294,20 +242,26 @@ impl TripManager {
         transit: &mut TransitSimState,
     ) -> bool {
         self.events.push(Event::PedReachedBusStop(ped, stop));
-        let trip = &self.trips[self.active_trip_mode[&AgentID::Pedestrian(ped)].0];
+        let trip = &mut self.trips[self.active_trip_mode[&AgentID::Pedestrian(ped)].0];
         assert_eq!(
             trip.legs[0],
             TripLeg::Walk(ped, SidewalkSpot::bus_stop(stop, map))
         );
         match trip.legs[1] {
             TripLeg::RideBus(_, route, stop2) => {
-                transit.ped_waiting_for_bus(ped, stop, route, stop2)
+                if transit.ped_waiting_for_bus(ped, stop, route, stop2) {
+                    trip.legs.pop_front();
+                    true
+                } else {
+                    false
+                }
             }
             _ => unreachable!(),
         }
     }
 
     pub fn ped_boarded_bus(&mut self, ped: PedestrianID, walking: &mut WalkingSimState) {
+        // TODO Make sure canonical pt is the bus while the ped is riding it
         let trip = &mut self.trips[self.active_trip_mode[&AgentID::Pedestrian(ped)].0];
         trip.legs.pop_front();
         walking.ped_boarded_bus(ped);
@@ -330,37 +284,7 @@ impl TripManager {
             _ => unreachable!(),
         };
 
-        // TODO This is the same as bike_reached_end... refactor.
-        let (ped, walk_to) = match trip.legs[0] {
-            TripLeg::Walk(ped, ref to) => (ped, to.clone()),
-            _ => unreachable!(),
-        };
-
-        let path = if let Some(p) = Pathfinder::shortest_distance(
-            map,
-            PathRequest {
-                start: start.sidewalk_pos,
-                end: walk_to.sidewalk_pos,
-                can_use_bus_lanes: false,
-                can_use_bike_lanes: false,
-            },
-        ) {
-            p
-        } else {
-            println!("Aborting a trip because no path for the walking portion!");
-            return;
-        };
-
-        scheduler.enqueue_command(Command::SpawnPed(
-            time,
-            CreatePedestrian {
-                id: ped,
-                start,
-                goal: walk_to,
-                path,
-                trip: trip.id,
-            },
-        ));
+        trip.spawn_ped(time, start, map, scheduler);
     }
 
     pub fn ped_reached_border(
@@ -460,6 +384,39 @@ impl Trip {
                 TripLeg::ServeBusRoute(_, _) => true,
                 _ => false,
             }
+    }
+
+    fn spawn_ped(&self, time: Duration, start: SidewalkSpot, map: &Map, scheduler: &mut Scheduler) {
+        let (ped, walk_to) = match self.legs[0] {
+            TripLeg::Walk(ped, ref to) => (ped, to.clone()),
+            _ => unreachable!(),
+        };
+
+        let path = if let Some(p) = Pathfinder::shortest_distance(
+            map,
+            PathRequest {
+                start: start.sidewalk_pos,
+                end: walk_to.sidewalk_pos,
+                can_use_bus_lanes: false,
+                can_use_bike_lanes: false,
+            },
+        ) {
+            p
+        } else {
+            println!("Aborting a trip because no path for the walking portion!");
+            return;
+        };
+
+        scheduler.enqueue_command(Command::SpawnPed(
+            time,
+            CreatePedestrian {
+                id: ped,
+                start,
+                goal: walk_to,
+                path,
+                trip: self.id,
+            },
+        ));
     }
 }
 
