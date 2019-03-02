@@ -1,8 +1,9 @@
 mod contraction;
+mod simplified;
 
 use abstutil::Timer;
 use geom::Distance;
-use map_model::{Map, PathRequest, Pathfinder, Position};
+use map_model::{LaneType, Map, PathRequest, Pathfinder, Position};
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
@@ -52,8 +53,21 @@ fn main() {
 
     let requests: Vec<PathRequest> = (0..NUM_PATHS)
         .map(|_| {
-            let lane1 = map.all_lanes().choose(&mut rng).unwrap().id;
-            let lane2 = map.all_lanes().choose(&mut rng).unwrap().id;
+            let lane1 = loop {
+                let l = map.all_lanes().choose(&mut rng).unwrap();
+                if !l.is_parking() {
+                    break l.id;
+                }
+            };
+            let sidewalk = map.get_l(lane1).is_sidewalk();
+            let lane2 = loop {
+                let l = map.all_lanes().choose(&mut rng).unwrap();
+                if sidewalk && l.is_sidewalk() {
+                    break l.id;
+                } else if !sidewalk && l.is_for_moving_vehicles() {
+                    break l.id;
+                }
+            };
             PathRequest {
                 start: Position::new(lane1, Distance::ZERO),
                 end: Position::new(lane2, Distance::ZERO),
@@ -76,6 +90,19 @@ fn main() {
         for req in &requests {
             timer.next();
             ch.pathfind(req);
+        }
+    }
+
+    let sidewalk_graph = simplified::MapPathfinder::new(&map, vec![LaneType::Sidewalk]);
+    let driving_graph = simplified::MapPathfinder::new(&map, vec![LaneType::Driving]);
+    // TODO Bus and bike ones too
+    timer.start_iter("compute paths using simplified approach", requests.len());
+    for req in &requests {
+        timer.next();
+        if map.get_l(req.start.lane()).is_sidewalk() {
+            sidewalk_graph.pathfind(req, &map, &mut timer);
+        } else {
+            driving_graph.pathfind(req, &map, &mut timer);
         }
     }
 

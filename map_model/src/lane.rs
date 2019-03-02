@@ -1,4 +1,4 @@
-use crate::{BuildingID, BusStopID, IntersectionID, RoadID};
+use crate::{BuildingID, BusStopID, DirectedRoadID, IntersectionID, Map, RoadID};
 use abstutil;
 use geom::{Angle, Distance, Line, PolyLine, Pt2D};
 use serde_derive::{Deserialize, Serialize};
@@ -143,6 +143,16 @@ impl Lane {
             LaneType::Biking => true,
             LaneType::Bus => true,
             _ => false,
+        }
+    }
+
+    // TODO Store this natively if this winds up being useful.
+    pub fn get_directed_parent(&self, map: &Map) -> DirectedRoadID {
+        let r = map.get_r(self.parent);
+        if r.is_forwards(self.id) {
+            r.id.forwards()
+        } else {
+            r.id.backwards()
         }
     }
 }
