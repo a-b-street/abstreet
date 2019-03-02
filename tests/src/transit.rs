@@ -73,7 +73,7 @@ pub fn run(t: &mut TestRunner) {
                 Event::BusDepartedFromStop(bus, ped_stop2),
                 Event::BusArrivedAtStop(bus, route.stops[3]),
             ],
-            Duration::minutes(8),
+            Duration::minutes(9),
         );
     });
 }

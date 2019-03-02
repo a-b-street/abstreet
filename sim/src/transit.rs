@@ -1,6 +1,6 @@
-use crate::{CarID, Event, PedestrianID, Router, WalkingSimState};
+use crate::{CarID, Event, PedestrianID, Router, Scheduler, TripManager, WalkingSimState};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
-use geom::Distance;
+use geom::{Distance, Duration};
 use map_model::{BusRoute, BusRouteID, BusStop, BusStopID, Map, Path, PathRequest, Pathfinder};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -134,7 +134,15 @@ impl TransitSimState {
         );
     }
 
-    pub fn bus_arrived_at_stop(&mut self, id: CarID, walking: &mut WalkingSimState) {
+    pub fn bus_arrived_at_stop(
+        &mut self,
+        time: Duration,
+        id: CarID,
+        trips: &mut TripManager,
+        walking: &mut WalkingSimState,
+        scheduler: &mut Scheduler,
+        map: &Map,
+    ) {
         let mut bus = self.buses.get_mut(&id).unwrap();
         match bus.state {
             BusState::DrivingToStop(stop_idx) => {
@@ -142,14 +150,25 @@ impl TransitSimState {
                 let stop = self.routes[&bus.route].stops[stop_idx].id;
                 self.events.push(Event::BusArrivedAtStop(id, stop));
 
+                // Deboard existing passengers.
+                let mut still_riding = Vec::new();
+                for (ped, stop2) in bus.passengers.drain(..) {
+                    if stop == stop2 {
+                        self.events.push(Event::PedLeavesBus(ped, id));
+                        trips.ped_left_bus(time, ped, map, scheduler);
+                    } else {
+                        still_riding.push((ped, stop2));
+                    }
+                }
+                bus.passengers = still_riding;
+
                 // Board new passengers.
                 let mut still_waiting = Vec::new();
                 for (ped, stop1, route, stop2) in self.peds_waiting.drain(..) {
                     if stop == stop1 && bus.route == route {
                         bus.passengers.push((ped, stop2));
                         self.events.push(Event::PedEntersBus(ped, id));
-                        walking.ped_boarded_bus(ped);
-                    // TODO shift trips
+                        trips.ped_boarded_bus(ped, walking);
                     } else {
                         still_waiting.push((ped, stop1, route, stop2));
                     }
@@ -222,49 +241,4 @@ impl TransitSimState {
     pub fn collect_events(&mut self) -> Vec<Event> {
         self.events.drain(..).collect()
     }
-
-    /*pub fn step(
-        &mut self,
-        now: Tick,
-        events: &mut Vec<Event>,
-        walking_sim: &mut WalkingSimState,
-        trips: &mut TripManager,
-        spawner: &mut Spawner,
-        map: &Map,
-    ) {
-        for b in self.buses.values_mut() {
-            if let BusState::AtStop(stop_idx, _) = b.state {
-                let stop = &self.routes[&b.route].stops[stop_idx];
-
-                // Let anybody new on?
-                for p in walking_sim.get_peds_waiting_at_stop(stop.id).into_iter() {
-                    if trips.should_ped_board_bus(p, b.route) {
-                        events.push(Event::PedEntersBus(p, b.car));
-                        b.passengers.push(p);
-                        walking_sim.ped_joined_bus(p, stop.id);
-                    }
-                }
-
-                // Let anybody off?
-                // TODO ideally dont even ask if they just got on, but the trip planner things
-                // should be fine with this
-                // TODO only do this if we JUST arrived at the stop, and in fact, wait for everyone
-                // to leave, since it may take time.
-                // so actually, we shouldnt statechange mutably in get_action_when_stopped_at_end,
-                // which is called by router! thats convoluted
-                let car = b.car;
-                b.passengers.retain(|p| {
-                    if trips.should_ped_leave_bus(*p, stop.id) {
-                        events.push(Event::PedLeavesBus(*p, car));
-                        // TODO would be a little cleaner to return this info up to sim and have it
-                        // plumb through to spawner? not sure
-                        spawner.ped_finished_bus_ride(now, *p, stop.id, trips, map);
-                        false
-                    } else {
-                        true
-                    }
-                });
-            }
-        }
-    }*/
 }

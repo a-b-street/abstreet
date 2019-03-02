@@ -1,7 +1,7 @@
 use crate::{
     AgentID, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, Event, ParkingSimState,
     ParkingSpot, PedestrianID, Router, Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState,
-    TripID, Vehicle,
+    TripID, Vehicle, WalkingSimState,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::Duration;
@@ -307,6 +307,62 @@ impl TripManager {
         }
     }
 
+    pub fn ped_boarded_bus(&mut self, ped: PedestrianID, walking: &mut WalkingSimState) {
+        let trip = &mut self.trips[self.active_trip_mode[&AgentID::Pedestrian(ped)].0];
+        trip.legs.pop_front();
+        walking.ped_boarded_bus(ped);
+    }
+
+    pub fn ped_left_bus(
+        &mut self,
+        time: Duration,
+        ped: PedestrianID,
+        map: &Map,
+        scheduler: &mut Scheduler,
+    ) {
+        let trip = &mut self.trips[self
+            .active_trip_mode
+            .remove(&AgentID::Pedestrian(ped))
+            .unwrap()
+            .0];
+        let start = match trip.legs.pop_front().unwrap() {
+            TripLeg::RideBus(_, _, stop) => SidewalkSpot::bus_stop(stop, map),
+            _ => unreachable!(),
+        };
+
+        // TODO This is the same as bike_reached_end... refactor.
+        let (ped, walk_to) = match trip.legs[0] {
+            TripLeg::Walk(ped, ref to) => (ped, to.clone()),
+            _ => unreachable!(),
+        };
+
+        let path = if let Some(p) = Pathfinder::shortest_distance(
+            map,
+            PathRequest {
+                start: start.sidewalk_pos,
+                end: walk_to.sidewalk_pos,
+                can_use_bus_lanes: false,
+                can_use_bike_lanes: false,
+            },
+        ) {
+            p
+        } else {
+            println!("Aborting a trip because no path for the walking portion!");
+            return;
+        };
+
+        scheduler.enqueue_command(Command::SpawnPed(
+            time,
+            CreatePedestrian {
+                id: ped,
+                start,
+                goal: walk_to,
+                path,
+                trip: trip.id,
+            },
+        ));
+    }
+
     pub fn ped_reached_border(
         &mut self,
         time: Duration,
@@ -341,58 +397,6 @@ impl TripManager {
         assert!(!trip.finished_at.is_some());
         trip.finished_at = Some(time);
     }
-
-    /*
-    // Combo query/transition from transit
-    pub fn should_ped_board_bus(&mut self, ped: PedestrianID, route: BusRouteID) -> bool {
-        let trip = &mut self.trips[self.active_trip_mode[&AgentID::Pedestrian(ped)].0];
-
-        let board = match trip.legs[1] {
-            TripLeg::RideBus(r, _) => r == route,
-            ref x => panic!("{} is at a bus stop, but next leg is {:?}", ped, x),
-        };
-        if !board {
-            return false;
-        }
-
-        // Could assert that the first leg is walking to the right bus stop
-        trip.legs.pop_front();
-        // Leave active_trip_mode as Pedestrian, since the transit sim tracks passengers as
-        // PedestrianIDs.
-
-        true
-    }
-
-    pub fn should_ped_leave_bus(&self, ped: PedestrianID, stop: BusStopID) -> bool {
-        let trip = &self.trips[self.active_trip_mode[&AgentID::Pedestrian(ped)].0];
-
-        match trip.legs[0] {
-            TripLeg::RideBus(_, until_stop) => stop == until_stop,
-            ref x => panic!("{} is on a bus stop, but first leg is {:?}", ped, x),
-        }
-    }
-
-    // Where to walk next?
-    pub fn ped_finished_bus_ride(&mut self, ped: PedestrianID) -> (TripID, SidewalkSpot) {
-        // The spawner will call agent_starting_trip_leg, so briefly remove the active PedestrianID.
-        let trip = &mut self.trips[self
-            .active_trip_mode
-            .remove(&AgentID::Pedestrian(ped))
-            .unwrap()
-            .0];
-
-        match trip.legs.pop_front().unwrap() {
-            TripLeg::RideBus(_, _) => {}
-            x => panic!("First trip leg {:?} doesn't match ped_finished_bus_ride", x),
-        };
-        // TODO there are only some valid sequences of trips. it'd be neat to guarantee these are
-        // valid by construction with a fluent API.
-        let walk_to = match trip.legs[0] {
-            TripLeg::Walk(ref to) => to,
-            ref x => panic!("Next trip leg is {:?}, not walking", x),
-        };
-        (trip.id, walk_to.clone())
-    }*/
 
     pub fn active_agents(&self) -> Vec<AgentID> {
         self.active_trip_mode.keys().cloned().collect()

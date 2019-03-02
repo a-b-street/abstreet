@@ -228,8 +228,12 @@ impl WalkingSimState {
     }
 
     pub fn ped_boarded_bus(&mut self, id: PedestrianID) {
-        match self.peds.remove(&id).unwrap().state {
-            PedState::WaitingForBus => {}
+        let ped = self.peds.remove(&id).unwrap();
+        match ped.state {
+            PedState::WaitingForBus => {
+                self.peds_per_traversable
+                    .remove(ped.path.current_step().as_traversable(), id);
+            }
             _ => unreachable!(),
         };
     }

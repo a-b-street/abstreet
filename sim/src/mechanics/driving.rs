@@ -269,7 +269,14 @@ impl DrivingSimState {
                                     );
                                 }
                                 Some(ActionAtEnd::BusAtStop) => {
-                                    transit.bus_arrived_at_stop(car.vehicle.id, walking);
+                                    transit.bus_arrived_at_stop(
+                                        time,
+                                        car.vehicle.id,
+                                        trips,
+                                        walking,
+                                        scheduler,
+                                        map,
+                                    );
                                     car.state = CarState::Idling(
                                         dist,
                                         TimeInterval::new(time, time + TIME_TO_WAIT_AT_STOP),
