@@ -1,3 +1,5 @@
+mod contraction;
+
 use abstutil::Timer;
 use geom::Distance;
 use map_model::{Map, PathRequest, Pathfinder, Position};
@@ -19,6 +21,14 @@ struct Flags {
     /// Enable cpuprofiler?
     #[structopt(long = "enable_profiler")]
     pub enable_profiler: bool,
+
+    /// Previously calculated CH to load
+    #[structopt(long = "load_ch")]
+    pub load_ch: Option<String>,
+
+    /// Calculate a CH and save here
+    #[structopt(long = "save_ch")]
+    pub save_ch: Option<String>,
 }
 
 fn main() {
@@ -27,6 +37,31 @@ fn main() {
     let mut rng = XorShiftRng::from_seed([RNG_SEED; 16]);
 
     let map: Map = abstutil::read_binary(&flags.map, &mut timer).unwrap();
+    println!(); // TODO Because Timer manages newlines poorly
+
+    if let Some(path) = flags.save_ch {
+        contraction::build_ch(path, &map, &mut timer);
+        return;
+    }
+
+    let maybe_ch: Option<contraction::CHGraph> = if let Some(path) = flags.load_ch {
+        Some(abstutil::read_binary(&path, &mut timer).unwrap())
+    } else {
+        None
+    };
+
+    let requests: Vec<PathRequest> = (0..NUM_PATHS)
+        .map(|_| {
+            let lane1 = map.all_lanes().choose(&mut rng).unwrap().id;
+            let lane2 = map.all_lanes().choose(&mut rng).unwrap().id;
+            PathRequest {
+                start: Position::new(lane1, Distance::ZERO),
+                end: Position::new(lane2, Distance::ZERO),
+                can_use_bike_lanes: false,
+                can_use_bus_lanes: false,
+            }
+        })
+        .collect();
 
     if flags.enable_profiler {
         cpuprofiler::PROFILER
@@ -35,22 +70,21 @@ fn main() {
             .start("./profile")
             .unwrap();
     }
-    println!(); // TODO Because Timer manages newlines poorly
-    timer.start_iter("compute paths", NUM_PATHS);
-    for _ in 0..NUM_PATHS {
-        timer.next();
-        let lane1 = map.all_lanes().choose(&mut rng).unwrap().id;
-        let lane2 = map.all_lanes().choose(&mut rng).unwrap().id;
-        Pathfinder::shortest_distance(
-            &map,
-            PathRequest {
-                start: Position::new(lane1, Distance::ZERO),
-                end: Position::new(lane2, Distance::ZERO),
-                can_use_bike_lanes: false,
-                can_use_bus_lanes: false,
-            },
-        );
+
+    if let Some(ref ch) = maybe_ch {
+        timer.start_iter("compute paths using CH", requests.len());
+        for req in &requests {
+            timer.next();
+            ch.pathfind(req);
+        }
     }
+
+    timer.start_iter("compute paths using A*", requests.len());
+    for req in requests {
+        timer.next();
+        Pathfinder::shortest_distance(&map, req);
+    }
+
     if flags.enable_profiler {
         cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
     }
