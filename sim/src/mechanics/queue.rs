@@ -1,14 +1,14 @@
 use crate::mechanics::car::{Car, CarState};
-use crate::{BUS_LENGTH, FOLLOWING_DISTANCE};
+use crate::{CarID, BUS_LENGTH, FOLLOWING_DISTANCE};
 use geom::{Distance, Duration};
 use map_model::{Map, Traversable};
 use serde_derive::{Deserialize, Serialize};
-use std::collections::VecDeque;
+use std::collections::{BTreeMap, VecDeque};
 
 #[derive(Serialize, Deserialize, PartialEq)]
 pub struct Queue {
     pub id: Traversable,
-    pub cars: VecDeque<Car>,
+    pub cars: VecDeque<CarID>,
     max_capacity: usize,
 
     pub geom_len: Distance,
@@ -26,14 +26,18 @@ impl Queue {
     }
 
     // Farthest along (greatest distance) is first.
-    pub fn get_car_positions(&self, time: Duration) -> Vec<(&Car, Distance)> {
+    pub fn get_car_positions<'a>(
+        &'a self,
+        time: Duration,
+        cars: &'a BTreeMap<CarID, Car>,
+    ) -> Vec<(&'a Car, Distance)> {
         if self.cars.is_empty() {
             return Vec::new();
         }
 
         let mut result: Vec<(&Car, Distance)> = Vec::new();
 
-        for car in &self.cars {
+        for id in &self.cars {
             let bound = match result.last() {
                 Some((leader, last_dist)) => {
                     *last_dist - leader.vehicle.length - FOLLOWING_DISTANCE
@@ -46,10 +50,11 @@ impl Queue {
                 dump_cars(&result, self.id, time);
                 panic!(
                     "Queue has spillover on {:?} at {} -- can't draw {}, bound is {}",
-                    self.id, time, car.vehicle.id, bound
+                    self.id, time, id, bound
                 );
             }
 
+            let car = &cars[id];
             let front = match car.state {
                 CarState::Queued => {
                     if car.router.last_step() {
@@ -76,6 +81,7 @@ impl Queue {
         start_dist: Distance,
         vehicle_len: Distance,
         time: Duration,
+        cars: &BTreeMap<CarID, Car>,
     ) -> Option<usize> {
         if self.cars.len() == self.max_capacity {
             return None;
@@ -84,7 +90,7 @@ impl Queue {
             return Some(0);
         }
 
-        let dists = self.get_car_positions(time);
+        let dists = self.get_car_positions(time, cars);
         // TODO Binary search
         let idx = match dists.iter().position(|(_, dist)| start_dist >= *dist) {
             Some(i) => i,
@@ -105,10 +111,10 @@ impl Queue {
         Some(idx)
     }
 
-    pub fn room_at_end(&self, time: Duration) -> bool {
+    pub fn room_at_end(&self, time: Duration, cars: &BTreeMap<CarID, Car>) -> bool {
         // This could also be implemented by calling get_idx_to_insert_car with start_dist =
         // self.geom_len
-        match self.get_car_positions(time).last() {
+        match self.get_car_positions(time, cars).last() {
             Some((car, front)) => *front >= car.vehicle.length + FOLLOWING_DISTANCE,
             None => true,
         }

@@ -25,12 +25,18 @@ pub struct DrivingSimState {
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
     )]
+    cars: BTreeMap<CarID, Car>,
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
     queues: BTreeMap<Traversable, Queue>,
 }
 
 impl DrivingSimState {
     pub fn new(map: &Map) -> DrivingSimState {
         let mut sim = DrivingSimState {
+            cars: BTreeMap::new(),
             queues: BTreeMap::new(),
         };
 
@@ -58,8 +64,8 @@ impl DrivingSimState {
             // TODO blocked and not blocked? Eh
             let mut num_waiting = 0;
             let mut num_freeflow = 0;
-            for car in &queue.cars {
-                match car.state {
+            for id in &queue.cars {
+                match self.cars[id].state {
                     CarState::Crossing(_, _)
                     | CarState::Unparking(_, _)
                     | CarState::Parking(_, _, _)
@@ -110,7 +116,7 @@ impl DrivingSimState {
         for queue in self.queues.values() {
             result.extend(
                 queue
-                    .get_car_positions(time)
+                    .get_car_positions(time, &self.cars)
                     .into_iter()
                     .map(|(car, dist)| car.get_draw_car(dist, time, map)),
             );
@@ -126,7 +132,7 @@ impl DrivingSimState {
     ) -> Vec<DrawCarInput> {
         match self.queues.get(&on) {
             Some(q) => q
-                .get_car_positions(time)
+                .get_car_positions(time, &self.cars)
                 .into_iter()
                 .map(|(car, dist)| car.get_draw_car(dist, time, map))
                 .collect(),
@@ -151,6 +157,7 @@ impl DrivingSimState {
             params.start_dist,
             params.vehicle.length,
             time,
+            &self.cars,
         ) {
             let mut car = Car {
                 vehicle: params.vehicle,
@@ -170,8 +177,8 @@ impl DrivingSimState {
                 .get_mut(&Traversable::Lane(first_lane))
                 .unwrap()
                 .cars
-                .insert(idx, car);
-            //println!("{} spawned at {}", vehicle.id, time);
+                .insert(idx, car.vehicle.id);
+            self.cars.insert(car.vehicle.id, car);
             return true;
         }
         false
@@ -189,32 +196,36 @@ impl DrivingSimState {
         walking: &mut WalkingSimState,
     ) {
         // Promote Crossing to Queued and Unparking to Crossing.
-        for queue in self.queues.values_mut() {
-            for car in queue.cars.iter_mut() {
-                if let CarState::Crossing(ref time_int, _) = car.state {
-                    if time > time_int.end {
-                        car.state = CarState::Queued;
+        for car in self.cars.values_mut() {
+            if let CarState::Crossing(ref time_int, _) = car.state {
+                if time > time_int.end {
+                    car.state = CarState::Queued;
+                }
+            } else if let CarState::Unparking(front, ref time_int) = car.state {
+                if time > time_int.end {
+                    if car.router.last_step() {
+                        // Actually, we need to do this first. Ignore the answer -- if we're
+                        // doing something weird like vanishing or re-parking immediately
+                        // (quite unlikely), the next loop will pick that up. Just trigger the
+                        // side effect of choosing an end_dist.
+                        car.router
+                            .maybe_handle_end(front, &car.vehicle, parking, map);
                     }
-                } else if let CarState::Unparking(front, ref time_int) = car.state {
-                    if time > time_int.end {
-                        if car.router.last_step() {
-                            // Actually, we need to do this first. Ignore the answer -- if we're
-                            // doing something weird like vanishing or re-parking immediately
-                            // (quite unlikely), the next loop will pick that up. Just trigger the
-                            // side effect of choosing an end_dist.
-                            car.router
-                                .maybe_handle_end(front, &car.vehicle, parking, map);
-                        }
-                        car.state = car.crossing_state(front, time, map);
-                    }
+                    car.state = car.crossing_state(front, time, map);
                 }
             }
         }
 
         // Handle cars on their last step. Some of them will vanish or finish parking; others will
         // start.
-        for queue in self.queues.values_mut() {
-            if queue.cars.iter().any(|car| car.router.last_step()) {
+        // TODO Inside here, need to mutate cars and a single queue. Clone keys to awkwardly work
+        // with borrow checker.
+        for on in self.queues.keys().cloned().collect::<Vec<Traversable>>() {
+            if self.queues[&on]
+                .cars
+                .iter()
+                .any(|id| self.cars[id].router.last_step())
+            {
                 // This car might have reached the router's end distance, but maybe not -- might
                 // actually be stuck behind other cars. We have to calculate the distances right
                 // now to be sure.
@@ -222,15 +233,15 @@ impl DrivingSimState {
                 // parking.
                 let mut delete_indices = Vec::new();
                 // Intermediate collect() to end the borrow of &Car from get_car_positions.
-                for (idx, dist) in queue
-                    .get_car_positions(time)
+                for (idx, dist) in self.queues[&on]
+                    .get_car_positions(time, &self.cars)
                     .into_iter()
                     .map(|(_, dist)| dist)
                     .collect::<Vec<Distance>>()
                     .into_iter()
                     .enumerate()
                 {
-                    let car = &mut queue.cars[idx];
+                    let car = self.cars.get_mut(&self.queues[&on].cars[idx]).unwrap();
                     if !car.router.last_step() {
                         continue;
                     }
@@ -316,11 +327,12 @@ impl DrivingSimState {
                 // messed up.
                 delete_indices.reverse();
                 for (idx, leader_dist) in delete_indices {
-                    let leader = queue.cars.remove(idx).unwrap();
+                    let queue = self.queues.get_mut(&on).unwrap();
+                    let leader = self.cars.remove(&queue.cars.remove(idx).unwrap()).unwrap();
 
                     // Update the follower so that they don't suddenly jump forwards.
                     if idx != queue.cars.len() {
-                        let mut follower = &mut queue.cars[idx];
+                        let mut follower = self.cars.get_mut(&queue.cars[idx]).unwrap();
                         // TODO If the leader vanished at a border node, this still jumps a bit --
                         // the lead car's back is still sticking out. Need to still be bound by
                         // them, even though they don't exist! If the leader just parked, then
@@ -351,7 +363,7 @@ impl DrivingSimState {
             if queue.cars.is_empty() {
                 continue;
             }
-            let car = &queue.cars[0];
+            let car = &self.cars[&queue.cars[0]];
             if car.is_queued() && !car.router.last_step() {
                 head_cars_ready_to_advance.push(queue.id);
             }
@@ -359,37 +371,35 @@ impl DrivingSimState {
 
         // Carry out the transitions.
         for from in head_cars_ready_to_advance {
-            let car_id = self.queues[&from].cars[0].vehicle.id;
-            let goto = self.queues[&from].cars[0].router.next();
+            let leader_id = self.queues[&from].cars[0];
+            let goto = self.cars[&leader_id].router.next();
 
             // Always need to do this check.
-            if !self.queues[&goto].room_at_end(time) {
+            if !self.queues[&goto].room_at_end(time, &self.cars) {
                 continue;
             }
 
             if let Traversable::Turn(t) = goto {
-                if !intersections.maybe_start_turn(AgentID::Car(car_id), t, time, map) {
+                if !intersections.maybe_start_turn(AgentID::Car(leader_id), t, time, map) {
                     continue;
                 }
             }
 
-            let mut car = self
-                .queues
-                .get_mut(&from)
-                .unwrap()
-                .cars
-                .pop_front()
-                .unwrap();
+            self.queues.get_mut(&from).unwrap().cars.pop_front();
 
             // Update the follower so that they don't suddenly jump forwards.
-            if let Some(ref mut follower) = self.queues.get_mut(&from).unwrap().cars.front_mut() {
+            if let Some(follower_id) = self.queues[&from].cars.front() {
+                // TODO https://crates.io/crates/multi_mut or https://crates.io/crates/splitmut
+                // might express this better
+                let leader_length = self.cars[&leader_id].vehicle.length;
+                let mut follower = self.cars.get_mut(&follower_id).unwrap();
                 // TODO This still jumps a bit -- the lead car's back is still sticking out. Need
                 // to still be bound by them.
                 match follower.state {
                     CarState::Queued => {
                         follower.state = follower.crossing_state(
                             // Since the follower was Queued, this must be where they are
-                            from.length(map) - car.vehicle.length - FOLLOWING_DISTANCE,
+                            from.length(map) - leader_length - FOLLOWING_DISTANCE,
                             time,
                             map,
                         );
@@ -402,36 +412,29 @@ impl DrivingSimState {
                 }
             }
 
-            let last_step = car.router.advance(&car.vehicle, parking, map);
-            car.last_steps.push_front(last_step);
-            car.trim_last_steps(map);
-            car.state = car.crossing_state(Distance::ZERO, time, map);
+            let mut leader = self.cars.get_mut(&leader_id).unwrap();
+            let last_step = leader.router.advance(&leader.vehicle, parking, map);
+            leader.last_steps.push_front(last_step);
+            leader.trim_last_steps(map);
+            leader.state = leader.crossing_state(Distance::ZERO, time, map);
 
             if goto.maybe_lane().is_some() {
                 // TODO Actually, don't call turn_finished until the car is at least vehicle.length
                 // + FOLLOWING_DISTANCE into the next lane. This'll be hard to predict when we're
                 // event-based, so hold off on this bit of realism.
-                intersections.turn_finished(AgentID::Car(car.vehicle.id), last_step.as_turn());
+                intersections.turn_finished(AgentID::Car(leader_id), last_step.as_turn());
             }
 
-            self.queues.get_mut(&goto).unwrap().cars.push_back(car);
+            self.queues
+                .get_mut(&goto)
+                .unwrap()
+                .cars
+                .push_back(leader_id);
         }
-    }
-
-    fn get_car(&self, id: CarID) -> Option<&Car> {
-        // TODO Faster
-        for q in self.queues.values() {
-            for car in &q.cars {
-                if car.vehicle.id == id {
-                    return Some(&car);
-                }
-            }
-        }
-        None
     }
 
     pub fn debug_car(&self, id: CarID) {
-        if let Some(car) = self.get_car(id) {
+        if let Some(ref car) = self.cars.get(&id) {
             println!("{}", abstutil::to_json(car));
         } else {
             println!("{} is parked somewhere", id);
@@ -439,7 +442,7 @@ impl DrivingSimState {
     }
 
     pub fn tooltip_lines(&self, id: CarID) -> Option<Vec<String>> {
-        let car = self.get_car(id)?;
+        let car = self.cars.get(&id)?;
         Some(vec![format!(
             "Car {:?}, owned by {:?}, {} lanes left",
             id,
@@ -449,7 +452,7 @@ impl DrivingSimState {
     }
 
     pub fn get_path(&self, id: CarID) -> Option<&Path> {
-        let car = self.get_car(id)?;
+        let car = self.cars.get(&id)?;
         Some(car.router.get_path())
     }
 
@@ -460,9 +463,9 @@ impl DrivingSimState {
         map: &Map,
         dist_ahead: Option<Distance>,
     ) -> Option<Trace> {
-        let car = self.get_car(id)?;
+        let car = self.cars.get(&id)?;
         let front = self.queues[&car.router.head()]
-            .get_car_positions(time)
+            .get_car_positions(time, &self.cars)
             .into_iter()
             .find(|(c, _)| c.vehicle.id == id)
             .unwrap()
@@ -471,7 +474,7 @@ impl DrivingSimState {
     }
 
     pub fn get_owner_of_car(&self, id: CarID) -> Option<BuildingID> {
-        let car = self.get_car(id)?;
+        let car = self.cars.get(&id)?;
         car.vehicle.owner
     }
 }
