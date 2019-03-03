@@ -56,90 +56,6 @@ impl DrivingSimState {
         sim
     }
 
-    pub fn draw_unzoomed(&self, _time: Duration, g: &mut GfxCtx, map: &Map) {
-        for queue in self.queues.values() {
-            if queue.cars.is_empty() {
-                continue;
-            }
-            // TODO blocked and not blocked? Eh
-            let mut num_waiting = 0;
-            let mut num_freeflow = 0;
-            for id in &queue.cars {
-                match self.cars[id].state {
-                    CarState::Crossing(_, _)
-                    | CarState::Unparking(_, _)
-                    | CarState::Parking(_, _, _)
-                    | CarState::Idling(_, _) => {
-                        num_freeflow += 1;
-                    }
-                    CarState::Queued => {
-                        num_waiting += 1;
-                    }
-                };
-            }
-
-            if num_waiting > 0 {
-                // Short lanes/turns exist
-                let start = (queue.geom_len
-                    - f64::from(num_waiting) * (BUS_LENGTH + FOLLOWING_DISTANCE))
-                    .max(Distance::ZERO);
-                g.draw_polygon(
-                    WAITING,
-                    &queue
-                        .id
-                        .slice(start, queue.geom_len, map)
-                        .unwrap()
-                        .0
-                        .make_polygons(LANE_THICKNESS),
-                );
-            }
-            if num_freeflow > 0 {
-                g.draw_polygon(
-                    FREEFLOW,
-                    &queue
-                        .id
-                        .slice(
-                            Distance::ZERO,
-                            f64::from(num_freeflow) * (BUS_LENGTH + FOLLOWING_DISTANCE),
-                            map,
-                        )
-                        .unwrap()
-                        .0
-                        .make_polygons(LANE_THICKNESS),
-                );
-            }
-        }
-    }
-
-    pub fn get_all_draw_cars(&self, time: Duration, map: &Map) -> Vec<DrawCarInput> {
-        let mut result = Vec::new();
-        for queue in self.queues.values() {
-            result.extend(
-                queue
-                    .get_car_positions(time, &self.cars)
-                    .into_iter()
-                    .map(|(car, dist)| car.get_draw_car(dist, time, map)),
-            );
-        }
-        result
-    }
-
-    pub fn get_draw_cars_on(
-        &self,
-        time: Duration,
-        on: Traversable,
-        map: &Map,
-    ) -> Vec<DrawCarInput> {
-        match self.queues.get(&on) {
-            Some(q) => q
-                .get_car_positions(time, &self.cars)
-                .into_iter()
-                .map(|(car, dist)| car.get_draw_car(dist, time, map))
-                .collect(),
-            None => Vec::new(),
-        }
-    }
-
     // True if it worked
     pub fn start_car_on_lane(
         &mut self,
@@ -195,6 +111,13 @@ impl DrivingSimState {
         transit: &mut TransitSimState,
         walking: &mut WalkingSimState,
     ) {
+        // The state transitions:
+        // Crossing -> Queued
+        // Unparking -> Crossing
+        // Parking -> done
+        // Idling -> Crossing
+        // Queued -> ...
+
         // Promote Crossing to Queued and Unparking to Crossing.
         for car in self.cars.values_mut() {
             if let CarState::Crossing(ref time_int, _) = car.state {
@@ -430,6 +353,90 @@ impl DrivingSimState {
                 .unwrap()
                 .cars
                 .push_back(leader_id);
+        }
+    }
+
+    pub fn draw_unzoomed(&self, _time: Duration, g: &mut GfxCtx, map: &Map) {
+        for queue in self.queues.values() {
+            if queue.cars.is_empty() {
+                continue;
+            }
+            // TODO blocked and not blocked? Eh
+            let mut num_waiting = 0;
+            let mut num_freeflow = 0;
+            for id in &queue.cars {
+                match self.cars[id].state {
+                    CarState::Crossing(_, _)
+                    | CarState::Unparking(_, _)
+                    | CarState::Parking(_, _, _)
+                    | CarState::Idling(_, _) => {
+                        num_freeflow += 1;
+                    }
+                    CarState::Queued => {
+                        num_waiting += 1;
+                    }
+                };
+            }
+
+            if num_waiting > 0 {
+                // Short lanes/turns exist
+                let start = (queue.geom_len
+                    - f64::from(num_waiting) * (BUS_LENGTH + FOLLOWING_DISTANCE))
+                    .max(Distance::ZERO);
+                g.draw_polygon(
+                    WAITING,
+                    &queue
+                        .id
+                        .slice(start, queue.geom_len, map)
+                        .unwrap()
+                        .0
+                        .make_polygons(LANE_THICKNESS),
+                );
+            }
+            if num_freeflow > 0 {
+                g.draw_polygon(
+                    FREEFLOW,
+                    &queue
+                        .id
+                        .slice(
+                            Distance::ZERO,
+                            f64::from(num_freeflow) * (BUS_LENGTH + FOLLOWING_DISTANCE),
+                            map,
+                        )
+                        .unwrap()
+                        .0
+                        .make_polygons(LANE_THICKNESS),
+                );
+            }
+        }
+    }
+
+    pub fn get_all_draw_cars(&self, time: Duration, map: &Map) -> Vec<DrawCarInput> {
+        let mut result = Vec::new();
+        for queue in self.queues.values() {
+            result.extend(
+                queue
+                    .get_car_positions(time, &self.cars)
+                    .into_iter()
+                    .map(|(car, dist)| car.get_draw_car(dist, time, map)),
+            );
+        }
+        result
+    }
+
+    pub fn get_draw_cars_on(
+        &self,
+        time: Duration,
+        on: Traversable,
+        map: &Map,
+    ) -> Vec<DrawCarInput> {
+        match self.queues.get(&on) {
+            Some(q) => q
+                .get_car_positions(time, &self.cars)
+                .into_iter()
+                .map(|(car, dist)| car.get_draw_car(dist, time, map))
+                .collect(),
+            None => Vec::new(),
         }
     }
 

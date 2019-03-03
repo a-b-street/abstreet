@@ -132,11 +132,22 @@ impl Car {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub enum CarState {
-    // TODO These two should perhaps be collapsed to (TimeInterval, DistanceInterval, Traversable).
     Crossing(TimeInterval, DistanceInterval),
     Queued,
     // Where's the front of the car while this is happening?
     Unparking(Distance, TimeInterval),
     Parking(Distance, ParkingSpot, TimeInterval),
     Idling(Distance, TimeInterval),
+}
+
+impl CarState {
+    pub fn get_end_time(&self) -> Duration {
+        match self {
+            CarState::Crossing(ref time_int, _) => time_int.end,
+            CarState::Queued => unreachable!(),
+            CarState::Unparking(_, ref time_int) => time_int.end,
+            CarState::Parking(_, _, ref time_int) => time_int.end,
+            CarState::Idling(_, ref time_int) => time_int.end,
+        }
+    }
 }

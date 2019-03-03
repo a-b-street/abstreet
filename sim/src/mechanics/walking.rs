@@ -71,7 +71,7 @@ impl WalkingSimState {
             _ => ped.crossing_state(params.start.sidewalk_pos.dist_along(), now, map),
         };
 
-        self.events.push(ped.state.get_end_time().unwrap(), ped.id);
+        self.events.push(ped.state.get_end_time(), ped.id);
         self.peds.insert(ped.id, ped);
         self.peds_per_traversable.insert(
             Traversable::Lane(params.start.sidewalk_pos.lane()),
@@ -132,7 +132,7 @@ impl WalkingSimState {
                                         now + map.get_b(b).front_path.line.length() / SPEED,
                                     ),
                                 );
-                                self.events.push(ped.state.get_end_time().unwrap(), ped.id);
+                                self.events.push(ped.state.get_end_time(), ped.id);
                             }
                             SidewalkPOI::BusStop(stop) => {
                                 if trips.ped_reached_bus_stop(ped.id, stop, map, transit) {
@@ -157,7 +157,7 @@ impl WalkingSimState {
                                     Line::new(pt1, pt2),
                                     TimeInterval::new(now, now + TIME_TO_START_BIKING),
                                 );
-                                self.events.push(ped.state.get_end_time().unwrap(), ped.id);
+                                self.events.push(ped.state.get_end_time(), ped.id);
                             }
                         }
                     } else {
@@ -192,13 +192,13 @@ impl WalkingSimState {
                         ped.state = ped.crossing_state(start_dist, now, map);
                         self.peds_per_traversable
                             .insert(ped.path.current_step().as_traversable(), ped.id);
-                        self.events.push(ped.state.get_end_time().unwrap(), ped.id);
+                        self.events.push(ped.state.get_end_time(), ped.id);
                     }
                 }
                 PedState::LeavingBuilding(b, _) => {
                     ped.state =
                         ped.crossing_state(map.get_b(b).front_path.sidewalk.dist_along(), now, map);
-                    self.events.push(ped.state.get_end_time().unwrap(), ped.id);
+                    self.events.push(ped.state.get_end_time(), ped.id);
                 }
                 PedState::EnteringBuilding(bldg, _) => {
                     delete.push(ped.id);
@@ -214,7 +214,7 @@ impl WalkingSimState {
                 }
                 PedState::FinishingBiking(ref spot, _, _) => {
                     ped.state = ped.crossing_state(spot.sidewalk_pos.dist_along(), now, map);
-                    self.events.push(ped.state.get_end_time().unwrap(), ped.id);
+                    self.events.push(ped.state.get_end_time(), ped.id);
                 }
                 PedState::WaitingForBus => unreachable!(),
             };
@@ -374,15 +374,15 @@ enum PedState {
 }
 
 impl PedState {
-    fn get_end_time(&self) -> Option<Duration> {
+    fn get_end_time(&self) -> Duration {
         match self {
             // TODO Need a state for waiting on intersection
-            PedState::Crossing(_, ref time_int, _) => Some(time_int.end),
-            PedState::LeavingBuilding(_, ref time_int) => Some(time_int.end),
-            PedState::EnteringBuilding(_, ref time_int) => Some(time_int.end),
-            PedState::StartingToBike(_, _, ref time_int) => Some(time_int.end),
-            PedState::FinishingBiking(_, _, ref time_int) => Some(time_int.end),
-            PedState::WaitingForBus => None,
+            PedState::Crossing(_, ref time_int, _) => time_int.end,
+            PedState::LeavingBuilding(_, ref time_int) => time_int.end,
+            PedState::EnteringBuilding(_, ref time_int) => time_int.end,
+            PedState::StartingToBike(_, _, ref time_int) => time_int.end,
+            PedState::FinishingBiking(_, _, ref time_int) => time_int.end,
+            PedState::WaitingForBus => unreachable!(),
         }
     }
 }
