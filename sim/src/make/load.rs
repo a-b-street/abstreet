@@ -34,7 +34,7 @@ impl SimFlags {
 
     pub fn synthetic_test(map: &str, run_name: &str) -> SimFlags {
         SimFlags {
-            load: format!("../data/raw_maps/{}.abst", map),
+            load: format!("../data/maps/{}_no_edits.abst", map),
             rng_seed: Some(42),
             run_name: run_name.to_string(),
             edits_name: "no_edits".to_string(),
