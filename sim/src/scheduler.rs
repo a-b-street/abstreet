@@ -23,14 +23,13 @@ impl Command {
 
 #[derive(Serialize, Deserialize, PartialEq)]
 pub struct Scheduler {
-    // Ordered descending by time
-    commands: Vec<Command>,
+    commands: PriorityQueue<Command>,
 }
 
 impl Scheduler {
     pub fn new() -> Scheduler {
         Scheduler {
-            commands: Vec::new(),
+            commands: PriorityQueue::new(),
         }
     }
 
@@ -44,22 +43,7 @@ impl Scheduler {
         intersections: &IntersectionSimState,
         trips: &mut TripManager,
     ) {
-        let mut this_step_commands: Vec<Command> = Vec::new();
-        loop {
-            if self
-                .commands
-                .last()
-                // TODO >= just to handle the fact that we dont step on 0
-                .and_then(|cmd| Some(now >= cmd.at()))
-                .unwrap_or(false)
-            {
-                this_step_commands.push(self.commands.pop().unwrap());
-            } else {
-                break;
-            }
-        }
-
-        for cmd in this_step_commands.into_iter() {
+        for cmd in self.commands.get_for_time(now).into_iter() {
             match cmd {
                 Command::SpawnCar(_, create_car) => {
                     if driving.start_car_on_lane(now, create_car.clone(), map, intersections) {
@@ -91,9 +75,45 @@ impl Scheduler {
     }
 
     pub fn enqueue_command(&mut self, cmd: Command) {
-        // TODO Use some kind of priority queue that's serializable
-        self.commands.push(cmd);
-        self.commands.sort_by_key(|cmd| cmd.at());
-        self.commands.reverse();
+        self.commands.push(cmd.at(), cmd);
+    }
+}
+
+#[derive(Serialize, Deserialize, PartialEq)]
+pub struct PriorityQueue<I> {
+    // TODO Implement more efficiently. Last element has earliest time.
+    items: Vec<(Duration, I)>,
+}
+
+impl<I> PriorityQueue<I> {
+    pub fn new() -> PriorityQueue<I> {
+        PriorityQueue { items: Vec::new() }
+    }
+
+    pub fn push(&mut self, time: Duration, item: I) {
+        // TODO Implement more efficiently
+        self.items.push((time, item));
+        self.items.sort_by_key(|(t, _)| *t);
+        self.items.reverse();
+    }
+
+    pub fn get_for_time(&mut self, now: Duration) -> Vec<I> {
+        let mut results = Vec::new();
+        while !self.items.is_empty() {
+            let next_time = self.items.last().as_ref().unwrap().0;
+            // TODO Enable this validation after we're properly event-based. Right now, there are
+            // spawn times between 0s and 0.1s, and stepping by 0.1s is too clunky.
+            /*if next_time < now {
+                panic!(
+                    "It's {}, but there's a command scheduled for {}",
+                    now, next_time
+                );
+            }*/
+            if next_time > now {
+                break;
+            }
+            results.push(self.items.pop().unwrap().1);
+        }
+        results
     }
 }
