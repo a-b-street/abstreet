@@ -5,6 +5,7 @@ mod runner;
 mod sim_completion;
 mod sim_determinism;
 mod transit;
+mod trips;
 
 use structopt::StructOpt;
 
@@ -17,6 +18,7 @@ fn main() {
     sim_completion::run(t.suite("sim_completion"));
     sim_determinism::run(t.suite("sim_determinism"));
     transit::run(t.suite("transit"));
+    trips::run(t.suite("trips"));
 
     t.done();
 }

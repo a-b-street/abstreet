@@ -184,6 +184,16 @@ impl Scenario {
             max_speed: None,
         }
     }
+
+    pub fn rand_bike(rng: &mut XorShiftRng) -> VehicleSpec {
+        let length = rand_dist(rng, MIN_BIKE_LENGTH, MAX_BIKE_LENGTH);
+        let max_speed = Some(Speed::miles_per_hour(10.0));
+        VehicleSpec {
+            vehicle_type: VehicleType::Bike,
+            length,
+            max_speed,
+        }
+    }
 }
 
 impl SpawnOverTime {
@@ -259,7 +269,7 @@ impl SpawnOverTime {
                             spawn_time,
                             TripSpec::UsingBike(
                                 SidewalkSpot::building(from_bldg, map),
-                                rand_bike(rng),
+                                Scenario::rand_bike(rng),
                                 goal,
                             ),
                             map,
@@ -435,7 +445,7 @@ impl BorderSpawnOverTime {
                 rng,
                 timer,
             ) {
-                let bike = rand_bike(rng);
+                let bike = Scenario::rand_bike(rng);
                 sim.schedule_trip(
                     spawn_time,
                     TripSpec::CarAppearing(
@@ -625,14 +635,4 @@ fn rand_dist(rng: &mut XorShiftRng, low: Distance, high: Distance) -> Distance {
 
 fn rand_time(rng: &mut XorShiftRng, low: Duration, high: Duration) -> Duration {
     Duration::seconds(rng.gen_range(low.inner_seconds(), high.inner_seconds()))
-}
-
-fn rand_bike(rng: &mut XorShiftRng) -> VehicleSpec {
-    let length = rand_dist(rng, MIN_BIKE_LENGTH, MAX_BIKE_LENGTH);
-    let max_speed = Some(Speed::miles_per_hour(10.0));
-    VehicleSpec {
-        vehicle_type: VehicleType::Bike,
-        length,
-        max_speed,
-    }
 }

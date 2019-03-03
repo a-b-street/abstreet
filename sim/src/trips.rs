@@ -201,6 +201,10 @@ impl TripManager {
         map: &Map,
         scheduler: &mut Scheduler,
     ) {
+        self.events.push(Event::BikeStoppedAtSidewalk(
+            bike,
+            bike_rack.sidewalk_pos.lane(),
+        ));
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(bike)).unwrap().0];
 
         match trip.legs.pop_front() {
