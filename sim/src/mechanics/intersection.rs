@@ -15,8 +15,14 @@ impl IntersectionSimState {
             controllers: BTreeMap::new(),
         };
         for i in map.all_intersections() {
-            sim.controllers
-                .insert(i.id, IntersectionController::new(i.id));
+            sim.controllers.insert(
+                i.id,
+                IntersectionController {
+                    id: i.id,
+                    accepted: BTreeSet::new(),
+                    waiting: BTreeSet::new(),
+                },
+            );
         }
         sim
     }
@@ -82,16 +88,10 @@ impl IntersectionSimState {
 struct IntersectionController {
     id: IntersectionID,
     accepted: BTreeSet<Request>,
+    waiting: BTreeSet<Request>,
 }
 
 impl IntersectionController {
-    fn new(id: IntersectionID) -> IntersectionController {
-        IntersectionController {
-            id,
-            accepted: BTreeSet::new(),
-        }
-    }
-
     // For cars: The head car calls this when they're at the end of the lane Queued. If this returns true,
     // then the head car MUST actually start this turn.
     // For peds: Likewise -- only called when the ped is at the start of the turn. They must
@@ -103,16 +103,21 @@ impl IntersectionController {
         time: Duration,
         map: &Map,
     ) -> bool {
+        let req = Request { agent, turn };
         let allowed = if let Some(ref signal) = map.maybe_get_traffic_signal(self.id) {
-            self.traffic_signal_policy(signal, agent, turn, time, map)
+            self.traffic_signal_policy(signal, &req, time, map)
         } else {
-            self.freeform_policy(agent, turn, time, map)
+            self.freeform_policy(&req, time, map)
         };
         if allowed {
             assert!(!self.any_accepted_conflict_with(turn, map));
-            self.accepted.insert(Request { agent, turn });
+            self.waiting.remove(&req);
+            self.accepted.insert(req);
+            true
+        } else {
+            self.waiting.insert(req);
+            false
         }
-        allowed
     }
 
     fn nobody_headed_towards(&self, dst_lane: LaneID) -> bool {
@@ -130,10 +135,10 @@ impl IntersectionController {
             .any(|req| map.get_t(req.turn).conflicts_with(turn))
     }
 
-    fn freeform_policy(&self, _agent: AgentID, t: TurnID, _time: Duration, map: &Map) -> bool {
+    fn freeform_policy(&self, req: &Request, _time: Duration, map: &Map) -> bool {
         // Allow concurrent turns that don't conflict, don't prevent target lane from spilling
         // over.
-        if self.any_accepted_conflict_with(t, map) {
+        if self.any_accepted_conflict_with(req.turn, map) {
             return false;
         }
         true
@@ -142,8 +147,7 @@ impl IntersectionController {
     fn traffic_signal_policy(
         &self,
         signal: &ControlTrafficSignal,
-        _agent: AgentID,
-        turn: TurnID,
+        new_req: &Request,
         time: Duration,
         map: &Map,
     ) -> bool {
@@ -161,12 +165,12 @@ impl IntersectionController {
         }
 
         // Can't go at all this cycle.
-        if cycle.get_priority(turn) < TurnPriority::Yield {
+        if cycle.get_priority(new_req.turn) < TurnPriority::Yield {
             return false;
         }
 
         // Somebody might already be doing a Yield turn that conflicts with this one.
-        if self.any_accepted_conflict_with(turn, map) {
+        if self.any_accepted_conflict_with(new_req.turn, map) {
             return false;
         }
 
@@ -181,7 +185,7 @@ impl IntersectionController {
     }
 }
 
-#[derive(PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Clone)]
 struct Request {
     agent: AgentID,
     turn: TurnID,

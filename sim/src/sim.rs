@@ -447,14 +447,14 @@ impl Sim {
 
 // Benchmarking
 impl Sim {
-    fn start_benchmark(&self) -> Benchmark {
+    pub fn start_benchmark(&self) -> Benchmark {
         Benchmark {
             last_real_time: Instant::now(),
             last_sim_time: self.time,
         }
     }
 
-    fn measure_speed(&self, b: &mut Benchmark) -> String {
+    pub fn measure_speed(&self, b: &mut Benchmark) -> String {
         let dt = Duration::seconds(abstutil::elapsed_seconds(b.last_real_time));
         if dt == Duration::ZERO {
             return "instantly".to_string();
