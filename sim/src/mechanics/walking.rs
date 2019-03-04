@@ -53,7 +53,6 @@ impl WalkingSimState {
             state: PedState::Crossing(
                 DistanceInterval::new_walking(Distance::ZERO, Distance::meters(1.0)),
                 TimeInterval::new(Duration::ZERO, Duration::seconds(1.0)),
-                true,
             ),
             path: params.path,
             goal: params.goal,
@@ -113,7 +112,7 @@ impl WalkingSimState {
         for id in self.events.get_for_time(now).into_iter() {
             let mut ped = self.peds.get_mut(&id).unwrap();
             match ped.state {
-                PedState::Crossing(_, _, ref mut turn_finished) => {
+                PedState::Crossing(ref dist_int, _) => {
                     if ped.path.is_last_step() {
                         match ped.goal.connection {
                             SidewalkPOI::ParkingSpot(spot) => {
@@ -161,38 +160,31 @@ impl WalkingSimState {
                             }
                         }
                     } else {
-                        if !*turn_finished {
-                            if let PathStep::Turn(t) = ped.path.current_step() {
-                                intersections.turn_finished(AgentID::Pedestrian(ped.id), t);
-                                *turn_finished = true;
-                            }
+                        if let PathStep::Turn(t) = ped.path.current_step() {
+                            intersections.turn_finished(AgentID::Pedestrian(ped.id), t);
                         }
 
-                        if let PathStep::Turn(t) = ped.path.next_step() {
-                            if !intersections.maybe_start_turn(
-                                AgentID::Pedestrian(ped.id),
-                                t,
-                                now,
-                                map,
-                            ) {
-                                // TODO separate state to block on the turn
-                                self.events.push(now + Duration::EPSILON, ped.id);
-                                continue;
-                            }
+                        let dist = dist_int.end;
+                        if ped.maybe_transition(
+                            now,
+                            map,
+                            intersections,
+                            &mut self.peds_per_traversable,
+                        ) {
+                            self.events.push(ped.state.get_end_time(), ped.id);
+                        } else {
+                            // Must've failed because we can't turn yet.
+                            ped.state = PedState::WaitingToTurn(dist);
+                            self.events.push(now + Duration::EPSILON, ped.id);
                         }
-
-                        self.peds_per_traversable
-                            .remove(ped.path.current_step().as_traversable(), ped.id);
-                        ped.path.shift();
-                        let start_dist = match ped.path.current_step() {
-                            PathStep::Lane(_) => Distance::ZERO,
-                            PathStep::ContraflowLane(l) => map.get_l(l).length(),
-                            PathStep::Turn(_) => Distance::ZERO,
-                        };
-                        ped.state = ped.crossing_state(start_dist, now, map);
-                        self.peds_per_traversable
-                            .insert(ped.path.current_step().as_traversable(), ped.id);
+                    }
+                }
+                PedState::WaitingToTurn(_) => {
+                    if ped.maybe_transition(now, map, intersections, &mut self.peds_per_traversable)
+                    {
                         self.events.push(ped.state.get_end_time(), ped.id);
+                    } else {
+                        self.events.push(now + Duration::EPSILON, ped.id);
                     }
                 }
                 PedState::LeavingBuilding(b, _) => {
@@ -291,12 +283,12 @@ impl Pedestrian {
         };
         let dist_int = DistanceInterval::new_walking(start_dist, end_dist);
         let time_int = TimeInterval::new(start_time, start_time + dist_int.length() / SPEED);
-        PedState::Crossing(dist_int, time_int, false)
+        PedState::Crossing(dist_int, time_int)
     }
 
     fn get_dist_along(&self, time: Duration, map: &Map) -> Distance {
         match self.state {
-            PedState::Crossing(ref dist_int, ref time_int, _) => {
+            PedState::Crossing(ref dist_int, ref time_int) => {
                 let percent = if time > time_int.end {
                     1.0
                 } else {
@@ -304,6 +296,7 @@ impl Pedestrian {
                 };
                 dist_int.lerp(percent)
             }
+            PedState::WaitingToTurn(dist) => dist,
             PedState::LeavingBuilding(b, _) => map.get_b(b).front_path.sidewalk.dist_along(),
             PedState::EnteringBuilding(b, _) => map.get_b(b).front_path.sidewalk.dist_along(),
             PedState::StartingToBike(ref spot, _, _) => spot.sidewalk_pos.dist_along(),
@@ -315,7 +308,7 @@ impl Pedestrian {
     fn get_draw_ped(&self, time: Duration, map: &Map) -> DrawPedestrianInput {
         let on = self.path.current_step().as_traversable();
         let pos = match self.state {
-            PedState::Crossing(ref dist_int, ref time_int, _) => {
+            PedState::Crossing(ref dist_int, ref time_int) => {
                 let percent = if time > time_int.end {
                     1.0
                 } else {
@@ -323,6 +316,7 @@ impl Pedestrian {
                 };
                 on.dist_along(dist_int.lerp(percent), map).0
             }
+            PedState::WaitingToTurn(dist) => on.dist_along(dist, map).0,
             PedState::LeavingBuilding(b, ref time_int) => {
                 let front_path = &map.get_b(b).front_path;
                 front_path
@@ -356,16 +350,40 @@ impl Pedestrian {
             on,
         }
     }
+
+    // True if we successfully continued to the next step of our path
+    fn maybe_transition(
+        &mut self,
+        now: Duration,
+        map: &Map,
+        intersections: &mut IntersectionSimState,
+        peds_per_traversable: &mut MultiMap<Traversable, PedestrianID>,
+    ) -> bool {
+        if let PathStep::Turn(t) = self.path.next_step() {
+            if !intersections.maybe_start_turn(AgentID::Pedestrian(self.id), t, now, map) {
+                return false;
+            }
+        }
+
+        peds_per_traversable.remove(self.path.current_step().as_traversable(), self.id);
+        self.path.shift();
+        let start_dist = match self.path.current_step() {
+            PathStep::Lane(_) => Distance::ZERO,
+            PathStep::ContraflowLane(l) => map.get_l(l).length(),
+            PathStep::Turn(_) => Distance::ZERO,
+        };
+        self.state = self.crossing_state(start_dist, now, map);
+        peds_per_traversable.insert(self.path.current_step().as_traversable(), self.id);
+        true
+    }
 }
 
 // crossing front path, bike parking, waiting at bus stop, etc
 #[derive(Serialize, Deserialize, PartialEq)]
 enum PedState {
-    // If we're past the TimeInterval, then blocked on a turn.
-    // The bool is true when we've marked the turn finished. We might experience two turn sequences
-    // and the second turn isn't accepted. Don't block the intersection by waiting. Turns always
-    // end at little sidewalk corners, so the ped is actually out of the way.
-    Crossing(DistanceInterval, TimeInterval, bool),
+    Crossing(DistanceInterval, TimeInterval),
+    // The Distance is either 0 or the current traversable's length
+    WaitingToTurn(Distance),
     LeavingBuilding(BuildingID, TimeInterval),
     EnteringBuilding(BuildingID, TimeInterval),
     StartingToBike(SidewalkSpot, Line, TimeInterval),
@@ -376,8 +394,8 @@ enum PedState {
 impl PedState {
     fn get_end_time(&self) -> Duration {
         match self {
-            // TODO Need a state for waiting on intersection
-            PedState::Crossing(_, ref time_int, _) => time_int.end,
+            PedState::Crossing(_, ref time_int) => time_int.end,
+            PedState::WaitingToTurn(_) => unreachable!(),
             PedState::LeavingBuilding(_, ref time_int) => time_int.end,
             PedState::EnteringBuilding(_, ref time_int) => time_int.end,
             PedState::StartingToBike(_, _, ref time_int) => time_int.end,
