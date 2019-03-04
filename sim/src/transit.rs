@@ -1,4 +1,6 @@
-use crate::{CarID, Event, PedestrianID, Router, Scheduler, TripManager, WalkingSimState};
+use crate::{
+    CarID, Command, Event, PedestrianID, PriorityQueue, Router, TripManager, WalkingSimState,
+};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Distance, Duration};
 use map_model::{BusRoute, BusRouteID, BusStop, BusStopID, Map, Path, PathRequest, Pathfinder};
@@ -140,7 +142,7 @@ impl TransitSimState {
         id: CarID,
         trips: &mut TripManager,
         walking: &mut WalkingSimState,
-        scheduler: &mut Scheduler,
+        scheduler: &mut PriorityQueue<Command>,
         map: &Map,
     ) {
         let mut bus = self.buses.get_mut(&id).unwrap();

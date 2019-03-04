@@ -1,82 +1,13 @@
-use crate::{
-    AgentID, CreateCar, CreatePedestrian, DrivingSimState, IntersectionSimState, ParkingSimState,
-    TripManager, WalkingSimState,
-};
+use crate::{CarID, CreateCar, CreatePedestrian, PedestrianID};
 use geom::Duration;
-use map_model::Map;
 use serde_derive::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
-pub enum Command {
-    SpawnCar(Duration, CreateCar),
-    SpawnPed(Duration, CreatePedestrian),
-}
-
-impl Command {
-    fn at(&self) -> Duration {
-        match self {
-            Command::SpawnCar(at, _) => *at,
-            Command::SpawnPed(at, _) => *at,
-        }
-    }
-}
-
 #[derive(Serialize, Deserialize, PartialEq)]
-pub struct Scheduler {
-    commands: PriorityQueue<Command>,
-}
-
-impl Scheduler {
-    pub fn new() -> Scheduler {
-        Scheduler {
-            commands: PriorityQueue::new(),
-        }
-    }
-
-    pub fn step_if_needed(
-        &mut self,
-        now: Duration,
-        map: &Map,
-        parking: &mut ParkingSimState,
-        walking: &mut WalkingSimState,
-        driving: &mut DrivingSimState,
-        intersections: &IntersectionSimState,
-        trips: &mut TripManager,
-    ) {
-        while let Some(cmd) = self.commands.get_next(now) {
-            match cmd {
-                Command::SpawnCar(_, create_car) => {
-                    if driving.start_car_on_lane(now, create_car.clone(), map, intersections) {
-                        trips.agent_starting_trip_leg(
-                            AgentID::Car(create_car.vehicle.id),
-                            create_car.trip,
-                        );
-                        if let Some(parked_car) = create_car.maybe_parked_car {
-                            parking.remove_parked_car(parked_car);
-                        }
-                    } else {
-                        self.enqueue_command(Command::SpawnCar(
-                            now + Duration::EPSILON,
-                            create_car,
-                        ));
-                    }
-                }
-                Command::SpawnPed(_, create_ped) => {
-                    // Do the order a bit backwards so we don't have to clone the CreatePedestrian.
-                    // spawn_ped can't fail.
-                    trips.agent_starting_trip_leg(
-                        AgentID::Pedestrian(create_ped.id),
-                        create_ped.trip,
-                    );
-                    walking.spawn_ped(now, create_ped, map);
-                }
-            };
-        }
-    }
-
-    pub fn enqueue_command(&mut self, cmd: Command) {
-        self.commands.push(cmd.at(), cmd);
-    }
+pub enum Command {
+    SpawnCar(CreateCar),
+    SpawnPed(CreatePedestrian),
+    UpdateCar(CarID),
+    UpdatePed(PedestrianID),
 }
 
 #[derive(Serialize, Deserialize, PartialEq)]

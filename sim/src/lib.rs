@@ -19,7 +19,7 @@ pub(crate) use self::mechanics::{
 };
 pub use self::query::{Benchmark, ScoreSummary, SimStats, Summary};
 pub(crate) use self::router::{ActionAtEnd, Router};
-pub(crate) use self::scheduler::{Command, PriorityQueue, Scheduler};
+pub(crate) use self::scheduler::{Command, PriorityQueue};
 pub use self::sim::Sim;
 pub(crate) use self::transit::TransitSimState;
 pub(crate) use self::trips::{TripLeg, TripManager};

@@ -1,9 +1,9 @@
 use crate::mechanics::car::{Car, CarState};
 use crate::mechanics::queue::Queue;
 use crate::{
-    ActionAtEnd, AgentID, CarID, CreateCar, DrawCarInput, IntersectionSimState, ParkedCar,
-    ParkingSimState, PriorityQueue, Scheduler, TimeInterval, TransitSimState, TripManager,
-    WalkingSimState, BUS_LENGTH, FOLLOWING_DISTANCE,
+    ActionAtEnd, AgentID, CarID, Command, CreateCar, DrawCarInput, IntersectionSimState, ParkedCar,
+    ParkingSimState, PriorityQueue, TimeInterval, TransitSimState, TripManager, WalkingSimState,
+    BUS_LENGTH, FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use ezgui::{Color, GfxCtx};
@@ -31,8 +31,6 @@ pub struct DrivingSimState {
         deserialize_with = "deserialize_btreemap"
     )]
     queues: BTreeMap<Traversable, Queue>,
-
-    events: PriorityQueue<CarID>,
 }
 
 impl DrivingSimState {
@@ -40,7 +38,6 @@ impl DrivingSimState {
         let mut sim = DrivingSimState {
             cars: BTreeMap::new(),
             queues: BTreeMap::new(),
-            events: PriorityQueue::new(),
         };
 
         for l in map.all_lanes() {
@@ -66,6 +63,7 @@ impl DrivingSimState {
         params: CreateCar,
         map: &Map,
         intersections: &IntersectionSimState,
+        scheduler: &mut PriorityQueue<Command>,
     ) -> bool {
         let first_lane = params.router.head().as_lane();
 
@@ -92,7 +90,7 @@ impl DrivingSimState {
             } else {
                 car.state = car.crossing_state(params.start_dist, time, map);
             }
-            self.events.push(car.state.get_end_time(), car.vehicle.id);
+            scheduler.push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
             self.queues
                 .get_mut(&Traversable::Lane(first_lane))
                 .unwrap()
@@ -104,14 +102,15 @@ impl DrivingSimState {
         false
     }
 
-    pub fn step_if_needed(
+    pub fn update_car(
         &mut self,
+        id: CarID,
         time: Duration,
         map: &Map,
         parking: &mut ParkingSimState,
         intersections: &mut IntersectionSimState,
         trips: &mut TripManager,
-        scheduler: &mut Scheduler,
+        scheduler: &mut PriorityQueue<Command>,
         transit: &mut TransitSimState,
         walking: &mut WalkingSimState,
     ) {
@@ -127,45 +126,50 @@ impl DrivingSimState {
         // Why is it safe to process cars in any order, rather than making sure to follow the order
         // of queues? Because of the invariant that distances should never suddenly jump when a car
         // has entered/exiting a queue.
+        // This car might have reached the router's end distance, but maybe not -- might
+        // actually be stuck behind other cars. We have to calculate the distances right now to
+        // be sure.
+        let need_distances = {
+            let car = &self.cars[&id];
+            match car.state {
+                CarState::Queued => car.router.last_step(),
+                CarState::Parking(_, _, _) => true,
+                _ => false,
+            }
+        };
+        if need_distances {
+            // Do this before removing the car!
+            let dists =
+                self.queues[&self.cars[&id].router.head()].get_car_positions(time, &self.cars);
 
-        while let Some(id) = self.events.get_next(time) {
-            // This car might have reached the router's end distance, but maybe not -- might
-            // actually be stuck behind other cars. We have to calculate the distances right now to
-            // be sure.
-            let need_distances = {
-                let car = &self.cars[&id];
-                match car.state {
-                    CarState::Queued => car.router.last_step(),
-                    CarState::Parking(_, _, _) => true,
-                    _ => false,
-                }
-            };
-            if need_distances {
-                // Do this before removing the car!
-                let dists =
-                    self.queues[&self.cars[&id].router.head()].get_car_positions(time, &self.cars);
-
-                // We need to mutate two different cars in some cases. To avoid fighting the borrow
-                // checker, temporarily move one of them out of the BTreeMap.
-                let mut car = self.cars.remove(&id).unwrap();
-                // Responsibility of update_car_with_distances to manage events!
-                if self.update_car_with_distances(
-                    &mut car, dists, time, map, parking, trips, scheduler, transit, walking,
-                ) {
-                    self.cars.insert(id, car);
-                }
-            } else {
-                // We need to mutate two different cars in one case. To avoid fighting the borrow
-                // checker, temporarily move one of them out of the BTreeMap.
-                let mut car = self.cars.remove(&id).unwrap();
-                // Responsibility of update_car to manage events!
-                self.update_car(&mut car, time, map, parking, intersections, transit);
+            // We need to mutate two different cars in some cases. To avoid fighting the borrow
+            // checker, temporarily move one of them out of the BTreeMap.
+            let mut car = self.cars.remove(&id).unwrap();
+            // Responsibility of update_car_with_distances to manage scheduling stuff!
+            if self.update_car_with_distances(
+                &mut car, dists, time, map, parking, trips, scheduler, transit, walking,
+            ) {
                 self.cars.insert(id, car);
             }
+        } else {
+            // We need to mutate two different cars in one case. To avoid fighting the borrow
+            // checker, temporarily move one of them out of the BTreeMap.
+            let mut car = self.cars.remove(&id).unwrap();
+            // Responsibility of update_car to manage scheduling stuff!
+            self.update_car_without_distances(
+                &mut car,
+                time,
+                map,
+                parking,
+                intersections,
+                transit,
+                scheduler,
+            );
+            self.cars.insert(id, car);
         }
     }
 
-    fn update_car(
+    fn update_car_without_distances(
         &mut self,
         car: &mut Car,
         time: Duration,
@@ -173,6 +177,7 @@ impl DrivingSimState {
         parking: &mut ParkingSimState,
         intersections: &mut IntersectionSimState,
         transit: &mut TransitSimState,
+        scheduler: &mut PriorityQueue<Command>,
     ) {
         match car.state {
             CarState::Crossing(_, _) => {
@@ -180,7 +185,7 @@ impl DrivingSimState {
                 if car.router.last_step()
                     || self.queues[&car.router.head()].cars[0] == car.vehicle.id
                 {
-                    self.events.push(time + Duration::EPSILON, car.vehicle.id);
+                    scheduler.push(time + Duration::EPSILON, Command::UpdateCar(car.vehicle.id));
                 }
             }
             CarState::Unparking(front, _) => {
@@ -193,12 +198,12 @@ impl DrivingSimState {
                         .maybe_handle_end(front, &car.vehicle, parking, map);
                 }
                 car.state = car.crossing_state(front, time, map);
-                self.events.push(car.state.get_end_time(), car.vehicle.id);
+                scheduler.push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
             }
             CarState::Idling(dist, _) => {
                 car.router = transit.bus_departed_from_stop(car.vehicle.id, map);
                 car.state = car.crossing_state(dist, time, map);
-                self.events.push(car.state.get_end_time(), car.vehicle.id);
+                scheduler.push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
             }
             CarState::Queued => {
                 // 'car' is the leader.
@@ -210,13 +215,14 @@ impl DrivingSimState {
                 // Note that 'car' is currently missing from self.cars, but they can't be on
                 // 'goto' right now -- they're on 'from'.
                 if !self.queues[&goto].room_at_end(time, &self.cars) {
-                    self.events.push(time + Duration::EPSILON, car.vehicle.id);
+                    scheduler.push(time + Duration::EPSILON, Command::UpdateCar(car.vehicle.id));
                     return;
                 }
 
                 if let Traversable::Turn(t) = goto {
                     if !intersections.maybe_start_turn(AgentID::Car(car.vehicle.id), t, time, map) {
-                        self.events.push(time + Duration::EPSILON, car.vehicle.id);
+                        scheduler
+                            .push(time + Duration::EPSILON, Command::UpdateCar(car.vehicle.id));
                         return;
                     }
                 }
@@ -246,8 +252,10 @@ impl DrivingSimState {
                                 time,
                                 map,
                             );
-                            self.events
-                                .update(*follower_id, follower.state.get_end_time());
+                            scheduler.update(
+                                Command::UpdateCar(*follower_id),
+                                follower.state.get_end_time(),
+                            );
                         }
                         // They weren't blocked. Note that there's no way the Crossing state could jump
                         // forwards here; the leader vanished from the end of the traversable.
@@ -262,7 +270,7 @@ impl DrivingSimState {
                 car.last_steps.push_front(last_step);
                 car.trim_last_steps(map);
                 car.state = car.crossing_state(Distance::ZERO, time, map);
-                self.events.push(car.state.get_end_time(), car.vehicle.id);
+                scheduler.push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
 
                 if goto.maybe_lane().is_some() {
                     // TODO Actually, don't call turn_finished until the car is at least
@@ -290,7 +298,7 @@ impl DrivingSimState {
         map: &Map,
         parking: &mut ParkingSimState,
         trips: &mut TripManager,
-        scheduler: &mut Scheduler,
+        scheduler: &mut PriorityQueue<Command>,
         transit: &mut TransitSimState,
         walking: &mut WalkingSimState,
     ) -> bool {
@@ -323,12 +331,14 @@ impl DrivingSimState {
                         // behind, see the spot free, and start parking too. This can
                         // happen with multiple lanes and certain vehicle lengths.
                         parking.reserve_spot(spot);
-                        self.events.push(car.state.get_end_time(), car.vehicle.id);
+                        scheduler
+                            .push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
                         return true;
                     }
                     Some(ActionAtEnd::GotoLaneEnd) => {
                         car.state = car.crossing_state(our_dist, time, map);
-                        self.events.push(car.state.get_end_time(), car.vehicle.id);
+                        scheduler
+                            .push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
                         return true;
                     }
                     Some(ActionAtEnd::StopBiking(bike_rack)) => {
@@ -347,11 +357,13 @@ impl DrivingSimState {
                             our_dist,
                             TimeInterval::new(time, time + TIME_TO_WAIT_AT_STOP),
                         );
-                        self.events.push(car.state.get_end_time(), car.vehicle.id);
+                        scheduler
+                            .push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
                         return true;
                     }
                     None => {
-                        self.events.push(time + Duration::EPSILON, car.vehicle.id);
+                        scheduler
+                            .push(time + Duration::EPSILON, Command::UpdateCar(car.vehicle.id));
                         return true;
                     }
                 }
@@ -389,8 +401,10 @@ impl DrivingSimState {
                     // no-op. But if they were blocked, then this will prevent them from
                     // jumping forwards.
                     follower.state = follower.crossing_state(follower_dist, time, map);
-                    self.events
-                        .update(follower_id, follower.state.get_end_time());
+                    scheduler.update(
+                        Command::UpdateCar(follower_id),
+                        follower.state.get_end_time(),
+                    );
                 }
                 // They weren't blocked
                 CarState::Unparking(_, _) | CarState::Parking(_, _, _) | CarState::Idling(_, _) => {

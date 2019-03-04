@@ -1,6 +1,6 @@
 use crate::{
     CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, ParkingSimState, ParkingSpot,
-    PedestrianID, Scheduler, SidewalkPOI, SidewalkSpot, TripLeg, TripManager, VehicleSpec,
+    PedestrianID, PriorityQueue, SidewalkPOI, SidewalkSpot, TripLeg, TripManager, VehicleSpec,
     VehicleType,
 };
 use abstutil::Timer;
@@ -113,7 +113,7 @@ impl TripSpawner {
         map: &Map,
         parking: &ParkingSimState,
         trips: &mut TripManager,
-        scheduler: &mut Scheduler,
+        scheduler: &mut PriorityQueue<Command>,
         timer: &mut Timer,
     ) {
         let paths = calculate_paths(
@@ -141,15 +141,15 @@ impl TripSpawner {
                     }
                     let trip = trips.new_trip(start_time, legs);
 
-                    scheduler.enqueue_command(Command::SpawnCar(
+                    scheduler.push(
                         start_time,
-                        CreateCar::for_appearing(
+                        Command::SpawnCar(CreateCar::for_appearing(
                             vehicle_spec.make(car_id.unwrap(), None),
                             start_pos,
                             goal.make_router(path, map),
                             trip,
-                        ),
-                    ));
+                        )),
+                    );
                 }
                 TripSpec::UsingParkedCar(start, spot, goal) => {
                     let vehicle = &parking.get_car_at_spot(spot).unwrap().vehicle;
@@ -175,16 +175,16 @@ impl TripSpawner {
                     }
                     let trip = trips.new_trip(start_time, legs);
 
-                    scheduler.enqueue_command(Command::SpawnPed(
+                    scheduler.push(
                         start_time,
-                        CreatePedestrian {
+                        Command::SpawnPed(CreatePedestrian {
                             id: ped_id.unwrap(),
                             start,
                             goal: parking_spot,
                             path,
                             trip,
-                        },
-                    ));
+                        }),
+                    );
                 }
                 TripSpec::JustWalking(start, goal) => {
                     let trip = trips.new_trip(
@@ -192,16 +192,16 @@ impl TripSpawner {
                         vec![TripLeg::Walk(ped_id.unwrap(), goal.clone())],
                     );
 
-                    scheduler.enqueue_command(Command::SpawnPed(
+                    scheduler.push(
                         start_time,
-                        CreatePedestrian {
+                        Command::SpawnPed(CreatePedestrian {
                             id: ped_id.unwrap(),
                             start,
                             goal,
                             path,
                             trip,
-                        },
-                    ));
+                        }),
+                    );
                 }
                 TripSpec::UsingBike(start, vehicle, goal) => {
                     let walk_to = SidewalkSpot::bike_rack(start.sidewalk_pos.lane(), map).unwrap();
@@ -220,16 +220,16 @@ impl TripSpawner {
                     };
                     let trip = trips.new_trip(start_time, legs);
 
-                    scheduler.enqueue_command(Command::SpawnPed(
+                    scheduler.push(
                         start_time,
-                        CreatePedestrian {
+                        Command::SpawnPed(CreatePedestrian {
                             id: ped_id.unwrap(),
                             start,
                             goal: walk_to,
                             path,
                             trip,
-                        },
-                    ));
+                        }),
+                    );
                 }
                 TripSpec::UsingTransit(start, route, stop1, stop2, goal) => {
                     let walk_to = SidewalkSpot::bus_stop(stop1, map);
@@ -242,16 +242,16 @@ impl TripSpawner {
                         ],
                     );
 
-                    scheduler.enqueue_command(Command::SpawnPed(
+                    scheduler.push(
                         start_time,
-                        CreatePedestrian {
+                        Command::SpawnPed(CreatePedestrian {
                             id: ped_id.unwrap(),
                             start,
                             goal: walk_to,
                             path,
                             trip,
-                        },
-                    ));
+                        }),
+                    );
                 }
             }
         }

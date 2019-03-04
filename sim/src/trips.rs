@@ -1,6 +1,6 @@
 use crate::{
     AgentID, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, Event, ParkingSimState,
-    ParkingSpot, PedestrianID, Router, Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState,
+    ParkingSpot, PedestrianID, PriorityQueue, Router, SidewalkPOI, SidewalkSpot, TransitSimState,
     TripID, Vehicle, WalkingSimState,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
@@ -59,7 +59,7 @@ impl TripManager {
         spot: ParkingSpot,
         map: &Map,
         parking: &ParkingSimState,
-        scheduler: &mut Scheduler,
+        scheduler: &mut PriorityQueue<Command>,
     ) {
         self.events.push(Event::CarReachedParkingSpot(car, spot));
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
@@ -84,7 +84,7 @@ impl TripManager {
         spot: ParkingSpot,
         map: &Map,
         parking: &ParkingSimState,
-        scheduler: &mut Scheduler,
+        scheduler: &mut PriorityQueue<Command>,
     ) {
         self.events.push(Event::PedReachedParkingSpot(ped, spot));
         let trip = &mut self.trips[self
@@ -122,16 +122,16 @@ impl TripManager {
             return;
         };
 
-        scheduler.enqueue_command(Command::SpawnCar(
+        scheduler.push(
             time,
-            CreateCar::for_parked_car(
+            Command::SpawnCar(CreateCar::for_parked_car(
                 parked_car,
                 drive_to.make_router(path, map),
                 trip.id,
                 parking,
                 map,
-            ),
-        ));
+            )),
+        );
     }
 
     pub fn ped_ready_to_bike(
@@ -140,7 +140,7 @@ impl TripManager {
         ped: PedestrianID,
         spot: SidewalkSpot,
         map: &Map,
-        scheduler: &mut Scheduler,
+        scheduler: &mut PriorityQueue<Command>,
     ) {
         let trip = &mut self.trips[self
             .active_trip_mode
@@ -187,10 +187,15 @@ impl TripManager {
             }
         };
 
-        scheduler.enqueue_command(Command::SpawnCar(
+        scheduler.push(
             time,
-            CreateCar::for_appearing(vehicle, driving_pos, router, trip.id),
-        ));
+            Command::SpawnCar(CreateCar::for_appearing(
+                vehicle,
+                driving_pos,
+                router,
+                trip.id,
+            )),
+        );
     }
 
     pub fn bike_reached_end(
@@ -199,7 +204,7 @@ impl TripManager {
         bike: CarID,
         bike_rack: SidewalkSpot,
         map: &Map,
-        scheduler: &mut Scheduler,
+        scheduler: &mut PriorityQueue<Command>,
     ) {
         self.events.push(Event::BikeStoppedAtSidewalk(
             bike,
@@ -276,7 +281,7 @@ impl TripManager {
         time: Duration,
         ped: PedestrianID,
         map: &Map,
-        scheduler: &mut Scheduler,
+        scheduler: &mut PriorityQueue<Command>,
     ) {
         let trip = &mut self.trips[self
             .active_trip_mode
@@ -390,7 +395,13 @@ impl Trip {
             }
     }
 
-    fn spawn_ped(&self, time: Duration, start: SidewalkSpot, map: &Map, scheduler: &mut Scheduler) {
+    fn spawn_ped(
+        &self,
+        time: Duration,
+        start: SidewalkSpot,
+        map: &Map,
+        scheduler: &mut PriorityQueue<Command>,
+    ) {
         let (ped, walk_to) = match self.legs[0] {
             TripLeg::Walk(ped, ref to) => (ped, to.clone()),
             _ => unreachable!(),
@@ -411,16 +422,16 @@ impl Trip {
             return;
         };
 
-        scheduler.enqueue_command(Command::SpawnPed(
+        scheduler.push(
             time,
-            CreatePedestrian {
+            Command::SpawnPed(CreatePedestrian {
                 id: ped,
                 start,
                 goal: walk_to,
                 path,
                 trip: self.id,
-            },
-        ));
+            }),
+        );
     }
 }
 

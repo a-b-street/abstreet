@@ -1,9 +1,9 @@
 use crate::{
-    AgentID, Benchmark, CarID, CreateCar, DrawCarInput, DrawPedestrianInput, DrivingGoal,
+    AgentID, Benchmark, CarID, Command, CreateCar, DrawCarInput, DrawPedestrianInput, DrivingGoal,
     DrivingSimState, Event, GetDrawAgents, IntersectionSimState, ParkedCar, ParkingSimState,
-    ParkingSpot, PedestrianID, Router, Scheduler, ScoreSummary, SimStats, Summary, TransitSimState,
-    TripID, TripLeg, TripManager, TripSpawner, TripSpec, VehicleSpec, VehicleType, WalkingSimState,
-    BUS_LENGTH, TIMESTEP,
+    ParkingSpot, PedestrianID, PriorityQueue, Router, ScoreSummary, SimStats, Summary,
+    TransitSimState, TripID, TripLeg, TripManager, TripSpawner, TripSpec, VehicleSpec, VehicleType,
+    WalkingSimState, BUS_LENGTH, TIMESTEP,
 };
 use abstutil::Timer;
 use derivative::Derivative;
@@ -26,8 +26,8 @@ pub struct Sim {
     intersections: IntersectionSimState,
     transit: TransitSimState,
     trips: TripManager,
-    scheduler: Scheduler,
     spawner: TripSpawner,
+    scheduler: PriorityQueue<Command>,
     time: Duration,
     car_id_counter: usize,
     ped_id_counter: usize,
@@ -57,8 +57,8 @@ impl Sim {
             intersections: IntersectionSimState::new(map),
             transit: TransitSimState::new(),
             trips: TripManager::new(),
-            scheduler: Scheduler::new(),
             spawner: TripSpawner::new(),
+            scheduler: PriorityQueue::new(),
             time: Duration::ZERO,
             car_id_counter: 0,
             ped_id_counter: 0,
@@ -192,6 +192,7 @@ impl Sim {
                 },
                 map,
                 &self.intersections,
+                &mut self.scheduler,
             ) {
                 self.trips.agent_starting_trip_leg(AgentID::Car(id), trip);
                 self.transit.bus_created(id, route.id, next_stop_idx);
@@ -267,36 +268,65 @@ impl Sim {
 
         self.time += TIMESTEP;
 
-        self.driving.step_if_needed(
-            self.time,
-            map,
-            &mut self.parking,
-            &mut self.intersections,
-            &mut self.trips,
-            &mut self.scheduler,
-            &mut self.transit,
-            &mut self.walking,
-        );
-        self.walking.step_if_needed(
-            self.time,
-            map,
-            &mut self.intersections,
-            &self.parking,
-            &mut self.scheduler,
-            &mut self.trips,
-            &mut self.transit,
-        );
-
-        // Spawn stuff at the end, so we can see the correct state of everything else at this time.
-        self.scheduler.step_if_needed(
-            self.time,
-            map,
-            &mut self.parking,
-            &mut self.walking,
-            &mut self.driving,
-            &self.intersections,
-            &mut self.trips,
-        );
+        while let Some(cmd) = self.scheduler.get_next(self.time) {
+            match cmd {
+                Command::SpawnCar(create_car) => {
+                    if self.driving.start_car_on_lane(
+                        self.time,
+                        create_car.clone(),
+                        map,
+                        &self.intersections,
+                        &mut self.scheduler,
+                    ) {
+                        self.trips.agent_starting_trip_leg(
+                            AgentID::Car(create_car.vehicle.id),
+                            create_car.trip,
+                        );
+                        if let Some(parked_car) = create_car.maybe_parked_car {
+                            self.parking.remove_parked_car(parked_car);
+                        }
+                    } else {
+                        self.scheduler
+                            .push(self.time + Duration::EPSILON, Command::SpawnCar(create_car));
+                    }
+                }
+                Command::SpawnPed(create_ped) => {
+                    // Do the order a bit backwards so we don't have to clone the CreatePedestrian.
+                    // spawn_ped can't fail.
+                    self.trips.agent_starting_trip_leg(
+                        AgentID::Pedestrian(create_ped.id),
+                        create_ped.trip,
+                    );
+                    self.walking
+                        .spawn_ped(self.time, create_ped, map, &mut self.scheduler);
+                }
+                Command::UpdateCar(car) => {
+                    self.driving.update_car(
+                        car,
+                        self.time,
+                        map,
+                        &mut self.parking,
+                        &mut self.intersections,
+                        &mut self.trips,
+                        &mut self.scheduler,
+                        &mut self.transit,
+                        &mut self.walking,
+                    );
+                }
+                Command::UpdatePed(ped) => {
+                    self.walking.update_ped(
+                        ped,
+                        self.time,
+                        map,
+                        &mut self.intersections,
+                        &self.parking,
+                        &mut self.scheduler,
+                        &mut self.trips,
+                        &mut self.transit,
+                    );
+                }
+            }
+        }
 
         self.stats = None;
 
