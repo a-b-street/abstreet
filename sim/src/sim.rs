@@ -347,8 +347,7 @@ impl Sim {
             }
 
             if self.time().is_multiple_of(Duration::minutes(1)) {
-                let speed = self.measure_speed(&mut benchmark);
-                println!("{0}, speed = {1:.2}x", self.summary(), speed);
+                println!("{}, {}", self.summary(), self.measure_speed(&mut benchmark));
             }
             callback(self);
             if Some(self.time()) == time_limit {
@@ -366,6 +365,7 @@ impl Sim {
         all_expectations: Vec<Event>,
         time_limit: Duration,
     ) {
+        // TODO Maybe can use run_until_done for this.
         let mut benchmark = self.start_benchmark();
         let mut expectations = VecDeque::from(all_expectations);
         loop {
@@ -382,8 +382,7 @@ impl Sim {
                 }
             }
             if self.time().is_multiple_of(Duration::minutes(1)) {
-                let speed = self.measure_speed(&mut benchmark);
-                println!("{0}, speed = {1:.2}x", self.summary(), speed);
+                println!("{}, {}", self.summary(), self.measure_speed(&mut benchmark));
             }
             if self.time() == time_limit {
                 panic!(
@@ -448,19 +447,22 @@ impl Sim {
 
 // Benchmarking
 impl Sim {
-    pub fn start_benchmark(&self) -> Benchmark {
+    fn start_benchmark(&self) -> Benchmark {
         Benchmark {
             last_real_time: Instant::now(),
             last_sim_time: self.time,
         }
     }
 
-    pub fn measure_speed(&self, b: &mut Benchmark) -> f64 {
+    fn measure_speed(&self, b: &mut Benchmark) -> String {
         let dt = Duration::seconds(abstutil::elapsed_seconds(b.last_real_time));
+        if dt == Duration::ZERO {
+            return "instantly".to_string();
+        }
         let speed = (self.time - b.last_sim_time) / dt;
         b.last_real_time = Instant::now();
         b.last_sim_time = self.time;
-        speed
+        format!("speed = {:.2}x", speed)
     }
 }
 
