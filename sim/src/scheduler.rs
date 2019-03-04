@@ -80,12 +80,12 @@ impl Scheduler {
 }
 
 #[derive(Serialize, Deserialize, PartialEq)]
-pub struct PriorityQueue<I> {
+pub struct PriorityQueue<I: PartialEq> {
     // TODO Implement more efficiently. Last element has earliest time.
     items: Vec<(Duration, I)>,
 }
 
-impl<I> PriorityQueue<I> {
+impl<I: PartialEq> PriorityQueue<I> {
     pub fn new() -> PriorityQueue<I> {
         PriorityQueue { items: Vec::new() }
     }
@@ -95,6 +95,13 @@ impl<I> PriorityQueue<I> {
         self.items.push((time, item));
         self.items.sort_by_key(|(t, _)| *t);
         self.items.reverse();
+    }
+
+    pub fn update(&mut self, item: I, new_time: Duration) {
+        if let Some(idx) = self.items.iter().position(|(_, i)| *i == item) {
+            self.items.remove(idx);
+        }
+        self.push(new_time, item);
     }
 
     // This API is safer than handing out a batch of items at a time, because while processing one
