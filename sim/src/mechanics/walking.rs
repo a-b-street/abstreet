@@ -108,7 +108,6 @@ impl WalkingSimState {
         trips: &mut TripManager,
         transit: &mut TransitSimState,
     ) {
-        let mut delete = Vec::new();
         for id in self.events.get_for_time(now).into_iter() {
             let mut ped = self.peds.get_mut(&id).unwrap();
             match ped.state {
@@ -116,12 +115,12 @@ impl WalkingSimState {
                     if ped.path.is_last_step() {
                         match ped.goal.connection {
                             SidewalkPOI::ParkingSpot(spot) => {
-                                delete.push(ped.id);
                                 self.peds_per_traversable
                                     .remove(ped.path.current_step().as_traversable(), ped.id);
                                 trips.ped_reached_parking_spot(
                                     now, ped.id, spot, map, parking, scheduler,
                                 );
+                                self.peds.remove(&id);
                             }
                             SidewalkPOI::Building(b) => {
                                 ped.state = PedState::EnteringBuilding(
@@ -135,18 +134,18 @@ impl WalkingSimState {
                             }
                             SidewalkPOI::BusStop(stop) => {
                                 if trips.ped_reached_bus_stop(ped.id, stop, map, transit) {
-                                    delete.push(ped.id);
                                     self.peds_per_traversable
                                         .remove(ped.path.current_step().as_traversable(), ped.id);
+                                    self.peds.remove(&id);
                                 } else {
                                     ped.state = PedState::WaitingForBus;
                                 }
                             }
                             SidewalkPOI::Border(i) => {
-                                delete.push(ped.id);
                                 self.peds_per_traversable
                                     .remove(ped.path.current_step().as_traversable(), ped.id);
                                 trips.ped_reached_border(now, ped.id, i, map);
+                                self.peds.remove(&id);
                             }
                             SidewalkPOI::BikeRack(driving_pos) => {
                                 let pt1 = ped.goal.sidewalk_pos.pt(map);
@@ -193,16 +192,16 @@ impl WalkingSimState {
                     self.events.push(ped.state.get_end_time(), ped.id);
                 }
                 PedState::EnteringBuilding(bldg, _) => {
-                    delete.push(ped.id);
                     self.peds_per_traversable
                         .remove(ped.path.current_step().as_traversable(), ped.id);
                     trips.ped_reached_building(now, ped.id, bldg, map);
+                    self.peds.remove(&id);
                 }
                 PedState::StartingToBike(ref spot, _, _) => {
-                    delete.push(ped.id);
                     self.peds_per_traversable
                         .remove(ped.path.current_step().as_traversable(), ped.id);
                     trips.ped_ready_to_bike(now, ped.id, spot.clone(), map, scheduler);
+                    self.peds.remove(&id);
                 }
                 PedState::FinishingBiking(ref spot, _, _) => {
                     ped.state = ped.crossing_state(spot.sidewalk_pos.dist_along(), now, map);
@@ -210,9 +209,6 @@ impl WalkingSimState {
                 }
                 PedState::WaitingForBus => unreachable!(),
             };
-        }
-        for id in delete {
-            self.peds.remove(&id);
         }
     }
 
