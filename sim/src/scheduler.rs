@@ -43,7 +43,7 @@ impl Scheduler {
         intersections: &IntersectionSimState,
         trips: &mut TripManager,
     ) {
-        for cmd in self.commands.get_for_time(now).into_iter() {
+        while let Some(cmd) = self.commands.get_next(now) {
             match cmd {
                 Command::SpawnCar(_, create_car) => {
                     if driving.start_car_on_lane(now, create_car.clone(), map, intersections) {
@@ -97,23 +97,22 @@ impl<I> PriorityQueue<I> {
         self.items.reverse();
     }
 
-    pub fn get_for_time(&mut self, now: Duration) -> Vec<I> {
-        let mut results = Vec::new();
-        while !self.items.is_empty() {
-            let next_time = self.items.last().as_ref().unwrap().0;
-            // TODO Enable this validation after we're properly event-based. Right now, there are
-            // spawn times between 0s and 0.1s, and stepping by 0.1s is too clunky.
-            /*if next_time < now {
-                panic!(
-                    "It's {}, but there's a command scheduled for {}",
-                    now, next_time
-                );
-            }*/
-            if next_time > now {
-                break;
-            }
-            results.push(self.items.pop().unwrap().1);
+    // This API is safer than handing out a batch of items at a time, because while processing one
+    // item, we might change the priority of other items or add new items. Don't make the caller
+    // reconcile those changes -- just keep pulling items from here, one at a time.
+    pub fn get_next(&mut self, now: Duration) -> Option<I> {
+        let next_time = self.items.last().as_ref()?.0;
+        // TODO Enable this validation after we're properly event-based. Right now, there are spawn
+        // times between 0s and 0.1s, and stepping by 0.1s is too clunky.
+        /*if next_time < now {
+            panic!(
+                "It's {}, but there's a command scheduled for {}",
+                now, next_time
+            );
+        }*/
+        if next_time > now {
+            return None;
         }
-        results
+        Some(self.items.pop().unwrap().1)
     }
 }

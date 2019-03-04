@@ -108,7 +108,7 @@ impl WalkingSimState {
         trips: &mut TripManager,
         transit: &mut TransitSimState,
     ) {
-        for id in self.events.get_for_time(now).into_iter() {
+        while let Some(id) = self.events.get_next(now) {
             let mut ped = self.peds.get_mut(&id).unwrap();
             match ped.state {
                 PedState::Crossing(ref dist_int, _) => {
