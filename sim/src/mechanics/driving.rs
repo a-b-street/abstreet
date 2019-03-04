@@ -112,30 +112,40 @@ impl DrivingSimState {
         walking: &mut WalkingSimState,
     ) {
         // The state transitions:
-        // Crossing -> Queued
-        // Unparking -> Crossing
         // Parking -> done
-        // Idling -> Crossing
         // Queued -> ...
 
-        // Promote Crossing to Queued and Unparking to Crossing.
+        // Perform easy state transitions:
+        // Crossing -> Queued
+        // Unparking -> Crossing
+        // Idling -> Crossing
         for car in self.cars.values_mut() {
-            if let CarState::Crossing(ref time_int, _) = car.state {
-                if time > time_int.end {
-                    car.state = CarState::Queued;
-                }
-            } else if let CarState::Unparking(front, ref time_int) = car.state {
-                if time > time_int.end {
-                    if car.router.last_step() {
-                        // Actually, we need to do this first. Ignore the answer -- if we're
-                        // doing something weird like vanishing or re-parking immediately
-                        // (quite unlikely), the next loop will pick that up. Just trigger the
-                        // side effect of choosing an end_dist.
-                        car.router
-                            .maybe_handle_end(front, &car.vehicle, parking, map);
+            match car.state {
+                CarState::Crossing(ref time_int, _) => {
+                    if time > time_int.end {
+                        car.state = CarState::Queued;
                     }
-                    car.state = car.crossing_state(front, time, map);
                 }
+                CarState::Unparking(front, ref time_int) => {
+                    if time > time_int.end {
+                        if car.router.last_step() {
+                            // Actually, we need to do this first. Ignore the answer -- if we're
+                            // doing something weird like vanishing or re-parking immediately
+                            // (quite unlikely), the next loop will pick that up. Just trigger the
+                            // side effect of choosing an end_dist.
+                            car.router
+                                .maybe_handle_end(front, &car.vehicle, parking, map);
+                        }
+                        car.state = car.crossing_state(front, time, map);
+                    }
+                }
+                CarState::Idling(dist, ref time_int) => {
+                    if time > time_int.end {
+                        car.router = transit.bus_departed_from_stop(car.vehicle.id, map);
+                        car.state = car.crossing_state(dist, time, map);
+                    }
+                }
+                CarState::Queued | CarState::Parking(_, _, _) => {}
             }
         }
 
@@ -166,7 +176,9 @@ impl DrivingSimState {
                     continue;
                 }
                 match car.state {
-                    CarState::Crossing(_, _) | CarState::Unparking(_, _) => {}
+                    CarState::Crossing(_, _)
+                    | CarState::Unparking(_, _)
+                    | CarState::Idling(_, _) => {}
                     CarState::Queued => {
                         match car
                             .router
@@ -232,12 +244,6 @@ impl DrivingSimState {
                                 parking,
                                 scheduler,
                             );
-                        }
-                    }
-                    CarState::Idling(dist, ref time_int) => {
-                        if time > time_int.end {
-                            car.router = transit.bus_departed_from_stop(car.vehicle.id, map);
-                            car.state = car.crossing_state(dist, time, map);
                         }
                     }
                 }
