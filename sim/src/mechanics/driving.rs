@@ -155,16 +155,12 @@ impl DrivingSimState {
                 // TODO This calculates distances a little unnecessarily -- might just be a car
                 // parking.
                 let mut delete_indices = Vec::new();
-                // Intermediate collect() to end the borrow of &Car from get_car_positions.
-                for (idx, dist) in self.queues[&on]
+                for (idx, (id, dist)) in self.queues[&on]
                     .get_car_positions(time, &self.cars)
-                    .into_iter()
-                    .map(|(_, dist)| dist)
-                    .collect::<Vec<Distance>>()
                     .into_iter()
                     .enumerate()
                 {
-                    let car = self.cars.get_mut(&self.queues[&on].cars[idx]).unwrap();
+                    let car = self.cars.get_mut(&id).unwrap();
                     if !car.router.last_step() {
                         continue;
                     }
@@ -418,7 +414,7 @@ impl DrivingSimState {
                 queue
                     .get_car_positions(time, &self.cars)
                     .into_iter()
-                    .map(|(car, dist)| car.get_draw_car(dist, time, map)),
+                    .map(|(id, dist)| self.cars[&id].get_draw_car(dist, time, map)),
             );
         }
         result
@@ -434,7 +430,7 @@ impl DrivingSimState {
             Some(q) => q
                 .get_car_positions(time, &self.cars)
                 .into_iter()
-                .map(|(car, dist)| car.get_draw_car(dist, time, map))
+                .map(|(id, dist)| self.cars[&id].get_draw_car(dist, time, map))
                 .collect(),
             None => Vec::new(),
         }
@@ -474,7 +470,7 @@ impl DrivingSimState {
         let front = self.queues[&car.router.head()]
             .get_car_positions(time, &self.cars)
             .into_iter()
-            .find(|(c, _)| c.vehicle.id == id)
+            .find(|(c, _)| *c == id)
             .unwrap()
             .1;
         car.router.get_path().trace(map, front, dist_ahead)

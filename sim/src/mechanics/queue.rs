@@ -26,28 +26,28 @@ impl Queue {
     }
 
     // Farthest along (greatest distance) is first.
-    pub fn get_car_positions<'a>(
-        &'a self,
+    pub fn get_car_positions(
+        &self,
         time: Duration,
-        cars: &'a BTreeMap<CarID, Car>,
-    ) -> Vec<(&'a Car, Distance)> {
+        cars: &BTreeMap<CarID, Car>,
+    ) -> Vec<(CarID, Distance)> {
         if self.cars.is_empty() {
             return Vec::new();
         }
 
-        let mut result: Vec<(&Car, Distance)> = Vec::new();
+        let mut result: Vec<(CarID, Distance)> = Vec::new();
 
         for id in &self.cars {
             let bound = match result.last() {
                 Some((leader, last_dist)) => {
-                    *last_dist - leader.vehicle.length - FOLLOWING_DISTANCE
+                    *last_dist - cars[leader].vehicle.length - FOLLOWING_DISTANCE
                 }
                 None => self.geom_len,
             };
 
             // There's spillover and a car shouldn't have been able to enter yet.
             if bound < Distance::ZERO {
-                dump_cars(&result, self.id, time);
+                dump_cars(&result, cars, self.id, time);
                 panic!(
                     "Queue has spillover on {:?} at {} -- can't draw {}, bound is {}",
                     self.id, time, id, bound
@@ -71,9 +71,9 @@ impl Queue {
                 CarState::Idling(front, _) => front,
             };
 
-            result.push((car, front));
+            result.push((*id, front));
         }
-        validate_positions(result, time, self.id)
+        validate_positions(result, cars, time, self.id)
     }
 
     pub fn get_idx_to_insert_car(
@@ -99,7 +99,8 @@ impl Queue {
 
         // Are we too close to the leader?
         if idx != 0
-            && dists[idx - 1].1 - dists[idx - 1].0.vehicle.length - FOLLOWING_DISTANCE < start_dist
+            && dists[idx - 1].1 - cars[&dists[idx - 1].0].vehicle.length - FOLLOWING_DISTANCE
+                < start_dist
         {
             return None;
         }
@@ -115,36 +116,40 @@ impl Queue {
         // This could also be implemented by calling get_idx_to_insert_car with start_dist =
         // self.geom_len
         match self.get_car_positions(time, cars).last() {
-            Some((car, front)) => *front >= car.vehicle.length + FOLLOWING_DISTANCE,
+            Some((car, front)) => *front >= cars[car].vehicle.length + FOLLOWING_DISTANCE,
             None => true,
         }
     }
 }
 
 fn validate_positions(
-    cars: Vec<(&Car, Distance)>,
+    dists: Vec<(CarID, Distance)>,
+    cars: &BTreeMap<CarID, Car>,
     time: Duration,
     id: Traversable,
-) -> Vec<(&Car, Distance)> {
-    for pair in cars.windows(2) {
-        if pair[0].1 - pair[0].0.vehicle.length - FOLLOWING_DISTANCE < pair[1].1 {
-            dump_cars(&cars, id, time);
+) -> Vec<(CarID, Distance)> {
+    for pair in dists.windows(2) {
+        if pair[0].1 - cars[&pair[0].0].vehicle.length - FOLLOWING_DISTANCE < pair[1].1 {
+            dump_cars(&dists, cars, id, time);
             panic!(
                 "get_car_positions wound up with bad positioning: {} then {}\n{:?}",
-                pair[0].1, pair[1].1, cars
+                pair[0].1, pair[1].1, dists
             );
         }
     }
-    cars
+    dists
 }
 
-fn dump_cars(cars: &Vec<(&Car, Distance)>, id: Traversable, time: Duration) {
+fn dump_cars(
+    dists: &Vec<(CarID, Distance)>,
+    cars: &BTreeMap<CarID, Car>,
+    id: Traversable,
+    time: Duration,
+) {
     println!("\nOn {:?} at {}...", id, time);
-    for (car, dist) in cars {
-        println!(
-            "- {} @ {} (length {})",
-            car.vehicle.id, dist, car.vehicle.length
-        );
+    for (id, dist) in dists {
+        let car = &cars[id];
+        println!("- {} @ {} (length {})", id, dist, car.vehicle.length);
         match car.state {
             CarState::Crossing(ref time_int, ref dist_int) => {
                 println!(
