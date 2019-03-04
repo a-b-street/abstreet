@@ -121,13 +121,6 @@ impl Car {
             body,
         }
     }
-
-    pub fn is_queued(&self) -> bool {
-        match self.state {
-            CarState::Queued => true,
-            _ => false,
-        }
-    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]

@@ -317,6 +317,13 @@ impl TimeInterval {
         assert!(x >= 0.0 && x <= 1.0);
         x
     }
+
+    pub fn percent_clamp_end(&self, t: Duration) -> f64 {
+        if t > self.end {
+            return 1.0;
+        }
+        self.percent(t)
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]

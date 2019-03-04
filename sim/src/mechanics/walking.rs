@@ -284,14 +284,7 @@ impl Pedestrian {
 
     fn get_dist_along(&self, time: Duration, map: &Map) -> Distance {
         match self.state {
-            PedState::Crossing(ref dist_int, ref time_int) => {
-                let percent = if time > time_int.end {
-                    1.0
-                } else {
-                    time_int.percent(time)
-                };
-                dist_int.lerp(percent)
-            }
+            PedState::Crossing(ref dist_int, ref time_int) => dist_int.lerp(time_int.percent(time)),
             PedState::WaitingToTurn(dist) => dist,
             PedState::LeavingBuilding(b, _) => map.get_b(b).front_path.sidewalk.dist_along(),
             PedState::EnteringBuilding(b, _) => map.get_b(b).front_path.sidewalk.dist_along(),

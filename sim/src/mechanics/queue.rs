@@ -64,7 +64,9 @@ impl Queue {
                     }
                 }
                 CarState::Crossing(ref time_int, ref dist_int) => {
-                    dist_int.lerp(time_int.percent(time)).min(bound)
+                    // TODO Why percent_clamp_end? We process car updates in any order, so we might
+                    // calculate this before moving this car from Crossing to another state.
+                    dist_int.lerp(time_int.percent_clamp_end(time)).min(bound)
                 }
                 CarState::Unparking(front, _) => front,
                 CarState::Parking(front, _, _) => front,

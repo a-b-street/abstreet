@@ -115,38 +115,52 @@ impl DrivingSimState {
         // Parking -> done
         // Queued -> ...
 
+        // TODO This should be replaced by a PriorityQueue.
+        let cars_to_process: Vec<CarID> = self
+            .cars
+            .values()
+            .filter_map(|car| {
+                let ready = match car.state {
+                    CarState::Crossing(ref time_int, _) => time > time_int.end,
+                    CarState::Unparking(_, ref time_int) => time > time_int.end,
+                    CarState::Idling(_, ref time_int) => time > time_int.end,
+                    // Only the head car, not on their last step
+                    // TODO aka WaitingToAdvance; maybe this does deserve a special state.
+                    CarState::Queued => {
+                        !car.router.last_step()
+                            && self.queues[&car.router.head()].cars[0] == car.vehicle.id
+                    }
+                    CarState::Parking(_, _, _) => false,
+                };
+                if ready {
+                    Some(car.vehicle.id)
+                } else {
+                    None
+                }
+            })
+            .collect();
+
         // Perform easy state transitions:
         // Crossing -> Queued
         // Unparking -> Crossing
         // Idling -> Crossing
-        for car in self.cars.values_mut() {
-            match car.state {
-                CarState::Crossing(ref time_int, _) => {
-                    if time > time_int.end {
-                        car.state = CarState::Queued;
-                    }
-                }
-                CarState::Unparking(front, ref time_int) => {
-                    if time > time_int.end {
-                        if car.router.last_step() {
-                            // Actually, we need to do this first. Ignore the answer -- if we're
-                            // doing something weird like vanishing or re-parking immediately
-                            // (quite unlikely), the next loop will pick that up. Just trigger the
-                            // side effect of choosing an end_dist.
-                            car.router
-                                .maybe_handle_end(front, &car.vehicle, parking, map);
-                        }
-                        car.state = car.crossing_state(front, time, map);
-                    }
-                }
-                CarState::Idling(dist, ref time_int) => {
-                    if time > time_int.end {
-                        car.router = transit.bus_departed_from_stop(car.vehicle.id, map);
-                        car.state = car.crossing_state(dist, time, map);
-                    }
-                }
-                CarState::Queued | CarState::Parking(_, _, _) => {}
-            }
+        // Queued -> try to advance to the next step of the path
+        for id in cars_to_process {
+            // We need to mutate two different cars in one case. To avoid fighting the borrow
+            // checker, temporarily move one of them out of the BTreeMap.
+            let mut car = self.cars.remove(&id).unwrap();
+            self.update_car(
+                &mut car,
+                time,
+                map,
+                parking,
+                intersections,
+                trips,
+                scheduler,
+                transit,
+                walking,
+            );
+            self.cars.insert(id, car);
         }
 
         // Handle cars on their last step. Some of them will vanish or finish parking; others will
@@ -278,81 +292,126 @@ impl DrivingSimState {
                 }
             }
         }
+    }
 
-        // Figure out where everybody wants to go next.
-        let mut head_cars_ready_to_advance: Vec<Traversable> = Vec::new();
-        for queue in self.queues.values() {
-            if queue.cars.is_empty() {
-                continue;
-            }
-            let car = &self.cars[&queue.cars[0]];
-            if car.is_queued() && !car.router.last_step() {
-                head_cars_ready_to_advance.push(queue.id);
-            }
-        }
-
-        // Carry out the transitions.
-        for from in head_cars_ready_to_advance {
-            let leader_id = self.queues[&from].cars[0];
-            let goto = self.cars[&leader_id].router.next();
-
-            // Always need to do this check.
-            if !self.queues[&goto].room_at_end(time, &self.cars) {
-                continue;
-            }
-
-            if let Traversable::Turn(t) = goto {
-                if !intersections.maybe_start_turn(AgentID::Car(leader_id), t, time, map) {
-                    continue;
+    fn update_car(
+        &mut self,
+        car: &mut Car,
+        time: Duration,
+        map: &Map,
+        parking: &mut ParkingSimState,
+        intersections: &mut IntersectionSimState,
+        _trips: &mut TripManager,
+        _scheduler: &mut Scheduler,
+        transit: &mut TransitSimState,
+        _walking: &mut WalkingSimState,
+    ) {
+        match car.state {
+            CarState::Crossing(ref time_int, _) => {
+                if time > time_int.end {
+                    car.state = CarState::Queued;
                 }
             }
-
-            self.queues.get_mut(&from).unwrap().cars.pop_front();
-
-            // Update the follower so that they don't suddenly jump forwards.
-            if let Some(follower_id) = self.queues[&from].cars.front() {
-                // TODO https://crates.io/crates/multi_mut or https://crates.io/crates/splitmut
-                // might express this better
-                let leader_length = self.cars[&leader_id].vehicle.length;
-                let mut follower = self.cars.get_mut(&follower_id).unwrap();
-                // TODO This still jumps a bit -- the lead car's back is still sticking out. Need
-                // to still be bound by them.
-                match follower.state {
-                    CarState::Queued => {
-                        follower.state = follower.crossing_state(
-                            // Since the follower was Queued, this must be where they are
-                            from.length(map) - leader_length - FOLLOWING_DISTANCE,
-                            time,
-                            map,
-                        );
+            CarState::Unparking(front, ref time_int) => {
+                if time > time_int.end {
+                    if car.router.last_step() {
+                        // Actually, we need to do this first. Ignore the answer -- if we're
+                        // doing something weird like vanishing or re-parking immediately
+                        // (quite unlikely), the next loop will pick that up. Just trigger the
+                        // side effect of choosing an end_dist.
+                        car.router
+                            .maybe_handle_end(front, &car.vehicle, parking, map);
                     }
-                    // They weren't blocked. Note that there's no way the Crossing state could jump
-                    // forwards here; the leader vanished from the end of the traversable.
-                    CarState::Crossing(_, _)
-                    | CarState::Unparking(_, _)
-                    | CarState::Parking(_, _, _)
-                    | CarState::Idling(_, _) => {}
+                    car.state = car.crossing_state(front, time, map);
                 }
             }
-
-            let mut leader = self.cars.get_mut(&leader_id).unwrap();
-            let last_step = leader.router.advance(&leader.vehicle, parking, map);
-            leader.last_steps.push_front(last_step);
-            leader.trim_last_steps(map);
-            leader.state = leader.crossing_state(Distance::ZERO, time, map);
-
-            if goto.maybe_lane().is_some() {
-                // TODO Actually, don't call turn_finished until the car is at least vehicle.length
-                // + FOLLOWING_DISTANCE into the next lane. This'll be hard to predict when we're
-                // event-based, so hold off on this bit of realism.
-                intersections.turn_finished(AgentID::Car(leader_id), last_step.as_turn());
+            CarState::Idling(dist, ref time_int) => {
+                if time > time_int.end {
+                    car.router = transit.bus_departed_from_stop(car.vehicle.id, map);
+                    car.state = car.crossing_state(dist, time, map);
+                }
             }
+            CarState::Queued => {
+                if car.router.last_step()
+                    || self.queues[&car.router.head()].cars[0] != car.vehicle.id
+                {
+                    return;
+                }
 
-            self.queues
-                .get_mut(&goto)
-                .unwrap()
-                .cars
-                .push_back(leader_id);
+                // 'car' is the leader.
+                let from = car.router.head();
+                let goto = car.router.next();
+                assert!(from != goto);
+
+                // Always need to do this check.
+                // Note that 'car' is currently missing from self.cars, but they can't be on
+                // 'goto' right now -- they're on 'from'.
+                if !self.queues[&goto].room_at_end(time, &self.cars) {
+                    return;
+                }
+
+                if let Traversable::Turn(t) = goto {
+                    if !intersections.maybe_start_turn(AgentID::Car(car.vehicle.id), t, time, map) {
+                        return;
+                    }
+                }
+
+                assert_eq!(
+                    self.queues
+                        .get_mut(&from)
+                        .unwrap()
+                        .cars
+                        .pop_front()
+                        .unwrap(),
+                    car.vehicle.id
+                );
+
+                // Update the follower so that they don't suddenly jump forwards.
+                if let Some(follower_id) = self.queues[&from].cars.front() {
+                    let mut follower = self.cars.get_mut(&follower_id).unwrap();
+                    // TODO This still jumps a bit -- the lead car's back is still sticking out. Need
+                    // to still be bound by them.
+                    match follower.state {
+                        CarState::Queued => {
+                            follower.state = follower.crossing_state(
+                                // Since the follower was Queued, this must be where they are. This
+                                // update case is when the lead car was NOT on their last step, so
+                                // they were indeed all the way at the end of 'from'.
+                                from.length(map) - car.vehicle.length - FOLLOWING_DISTANCE,
+                                time,
+                                map,
+                            );
+                            // TODO Logically, change priority -- maybe they're not actually ready to
+                            // be processed yet, after all.
+                        }
+                        // They weren't blocked. Note that there's no way the Crossing state could jump
+                        // forwards here; the leader vanished from the end of the traversable.
+                        CarState::Crossing(_, _)
+                        | CarState::Unparking(_, _)
+                        | CarState::Parking(_, _, _)
+                        | CarState::Idling(_, _) => {}
+                    }
+                }
+
+                let last_step = car.router.advance(&car.vehicle, parking, map);
+                car.last_steps.push_front(last_step);
+                car.trim_last_steps(map);
+                car.state = car.crossing_state(Distance::ZERO, time, map);
+
+                if goto.maybe_lane().is_some() {
+                    // TODO Actually, don't call turn_finished until the car is at least
+                    // vehicle.length + FOLLOWING_DISTANCE into the next lane. This'll be hard
+                    // to predict when we're event-based, so hold off on this bit of realism.
+                    intersections.turn_finished(AgentID::Car(car.vehicle.id), last_step.as_turn());
+                }
+
+                self.queues
+                    .get_mut(&goto)
+                    .unwrap()
+                    .cars
+                    .push_back(car.vehicle.id);
+            }
+            CarState::Parking(_, _, _) => {}
         }
     }
 
