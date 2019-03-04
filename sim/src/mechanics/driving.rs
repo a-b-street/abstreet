@@ -111,10 +111,6 @@ impl DrivingSimState {
         transit: &mut TransitSimState,
         walking: &mut WalkingSimState,
     ) {
-        // The state transitions:
-        // Parking -> done
-        // Queued -> ...
-
         // TODO This should be replaced by a PriorityQueue.
         let cars_to_process: Vec<CarID> = self
             .cars
@@ -124,13 +120,12 @@ impl DrivingSimState {
                     CarState::Crossing(ref time_int, _) => time > time_int.end,
                     CarState::Unparking(_, ref time_int) => time > time_int.end,
                     CarState::Idling(_, ref time_int) => time > time_int.end,
-                    // Only the head car, not on their last step
-                    // TODO aka WaitingToAdvance; maybe this does deserve a special state.
+                    // The head car or anybody on their last step
                     CarState::Queued => {
-                        !car.router.last_step()
-                            && self.queues[&car.router.head()].cars[0] == car.vehicle.id
+                        car.router.last_step()
+                            || self.queues[&car.router.head()].cars[0] == car.vehicle.id
                     }
-                    CarState::Parking(_, _, _) => false,
+                    CarState::Parking(_, _, ref time_int) => time > time_int.end,
                 };
                 if ready {
                     Some(car.vehicle.id)
@@ -141,155 +136,48 @@ impl DrivingSimState {
             .collect();
 
         // Perform easy state transitions:
+        //
         // Crossing -> Queued
         // Unparking -> Crossing
         // Idling -> Crossing
         // Queued -> try to advance to the next step of the path
+        // Queued -> last step handling (Parking or done)
+        // Parking -> done
+        //
+        // Why is it safe to process cars in any order, rather than making sure to follow the order
+        // of queues? Because of the invariant that distances should never suddenly jump when a car
+        // has entered/exiting a queue.
         for id in cars_to_process {
-            // We need to mutate two different cars in one case. To avoid fighting the borrow
-            // checker, temporarily move one of them out of the BTreeMap.
-            let mut car = self.cars.remove(&id).unwrap();
-            self.update_car(
-                &mut car,
-                time,
-                map,
-                parking,
-                intersections,
-                trips,
-                scheduler,
-                transit,
-                walking,
-            );
-            self.cars.insert(id, car);
-        }
-
-        // Handle cars on their last step. Some of them will vanish or finish parking; others will
-        // start.
-        for queue in self.queues.values_mut() {
-            let mut any_last_step = false;
-            for id in &queue.cars {
-                if self.cars[id].router.last_step() {
-                    any_last_step = true;
-                    break;
-                }
-            }
-            if !any_last_step {
-                continue;
-            }
-
             // This car might have reached the router's end distance, but maybe not -- might
             // actually be stuck behind other cars. We have to calculate the distances right now to
             // be sure.
-            // TODO This calculates distances a little unnecessarily -- might just be a car
-            // parking.
-            let mut delete_indices = Vec::new();
-            let dists = queue.get_car_positions(time, &self.cars);
-            for (idx, (id, dist)) in dists.iter().enumerate() {
-                let car = self.cars.get_mut(id).unwrap();
-                if !car.router.last_step() {
-                    continue;
-                }
+            let need_distances = {
+                let car = &self.cars[&id];
                 match car.state {
-                    CarState::Crossing(_, _)
-                    | CarState::Unparking(_, _)
-                    | CarState::Idling(_, _) => {}
-                    CarState::Queued => {
-                        match car
-                            .router
-                            .maybe_handle_end(*dist, &car.vehicle, parking, map)
-                        {
-                            Some(ActionAtEnd::VanishAtBorder(i)) => {
-                                trips.car_or_bike_reached_border(time, car.vehicle.id, i);
-                                delete_indices.push(idx);
-                            }
-                            Some(ActionAtEnd::StartParking(spot)) => {
-                                car.state = CarState::Parking(
-                                    *dist,
-                                    spot,
-                                    TimeInterval::new(time, time + TIME_TO_PARK),
-                                );
-                                // If we don't do this, then we might have another car creep up
-                                // behind, see the spot free, and start parking too. This can
-                                // happen with multiple lanes and certain vehicle lengths.
-                                parking.reserve_spot(spot);
-                            }
-                            Some(ActionAtEnd::GotoLaneEnd) => {
-                                car.state = car.crossing_state(*dist, time, map);
-                            }
-                            Some(ActionAtEnd::StopBiking(bike_rack)) => {
-                                delete_indices.push(idx);
-                                trips.bike_reached_end(
-                                    time,
-                                    car.vehicle.id,
-                                    bike_rack,
-                                    map,
-                                    scheduler,
-                                );
-                            }
-                            Some(ActionAtEnd::BusAtStop) => {
-                                transit.bus_arrived_at_stop(
-                                    time,
-                                    car.vehicle.id,
-                                    trips,
-                                    walking,
-                                    scheduler,
-                                    map,
-                                );
-                                car.state = CarState::Idling(
-                                    *dist,
-                                    TimeInterval::new(time, time + TIME_TO_WAIT_AT_STOP),
-                                );
-                            }
-                            None => {}
-                        }
-                    }
-                    CarState::Parking(_, spot, ref time_int) => {
-                        if time > time_int.end {
-                            delete_indices.push(idx);
-                            parking.add_parked_car(ParkedCar {
-                                vehicle: car.vehicle.clone(),
-                                spot,
-                            });
-                            trips.car_reached_parking_spot(
-                                time,
-                                car.vehicle.id,
-                                spot,
-                                map,
-                                parking,
-                                scheduler,
-                            );
-                        }
-                    }
+                    CarState::Queued => car.router.last_step(),
+                    CarState::Parking(_, _, ref time_int) => time > time_int.end,
+                    _ => false,
                 }
-            }
+            };
+            if need_distances {
+                // Do this before removing the car!
+                let dists =
+                    self.queues[&self.cars[&id].router.head()].get_car_positions(time, &self.cars);
 
-            // Remove the finished cars starting from the end of the queue (the beginning of the
-            // traversable), so indices aren't messed up.
-            delete_indices.reverse();
-            for idx in delete_indices {
-                self.cars.remove(&queue.cars.remove(idx).unwrap());
-
-                // Update the follower so that they don't suddenly jump forwards.
-                if idx != queue.cars.len() {
-                    let (follower_id, follower_dist) = dists[idx + 1];
-                    let mut follower = self.cars.get_mut(&follower_id).unwrap();
-                    // TODO If the leader vanished at a border node, this still jumps a bit -- the
-                    // lead car's back is still sticking out. Need to still be bound by them, even
-                    // though they don't exist! If the leader just parked, then we're fine.
-                    match follower.state {
-                        CarState::Queued | CarState::Crossing(_, _) => {
-                            // If the follower was still Crossing, they might not've been blocked
-                            // by leader yet. In that case, recalculating their Crossing state is a
-                            // no-op. But if they were blocked, then this will prevent them from
-                            // jumping forwards.
-                            follower.state = follower.crossing_state(follower_dist, time, map);
-                        }
-                        // They weren't blocked
-                        CarState::Unparking(_, _)
-                        | CarState::Parking(_, _, _)
-                        | CarState::Idling(_, _) => {}
-                    }
+                // We need to mutate two different cars in some cases. To avoid fighting the borrow
+                // checker, temporarily move one of them out of the BTreeMap.
+                let mut car = self.cars.remove(&id).unwrap();
+                if self.update_car_with_distances(
+                    &mut car, dists, time, map, parking, trips, scheduler, transit, walking,
+                ) {
+                    self.cars.insert(id, car);
                 }
+            } else {
+                // We need to mutate two different cars in one case. To avoid fighting the borrow
+                // checker, temporarily move one of them out of the BTreeMap.
+                let mut car = self.cars.remove(&id).unwrap();
+                self.update_car(&mut car, time, map, parking, intersections, transit);
+                self.cars.insert(id, car);
             }
         }
     }
@@ -301,10 +189,7 @@ impl DrivingSimState {
         map: &Map,
         parking: &mut ParkingSimState,
         intersections: &mut IntersectionSimState,
-        _trips: &mut TripManager,
-        _scheduler: &mut Scheduler,
         transit: &mut TransitSimState,
-        _walking: &mut WalkingSimState,
     ) {
         match car.state {
             CarState::Crossing(ref time_int, _) => {
@@ -413,6 +298,135 @@ impl DrivingSimState {
             }
             CarState::Parking(_, _, _) => {}
         }
+    }
+
+    // Returns true if the car survives.
+    fn update_car_with_distances(
+        &mut self,
+        car: &mut Car,
+        dists: Vec<(CarID, Distance)>,
+        time: Duration,
+        map: &Map,
+        parking: &mut ParkingSimState,
+        trips: &mut TripManager,
+        scheduler: &mut Scheduler,
+        transit: &mut TransitSimState,
+        walking: &mut WalkingSimState,
+    ) -> bool {
+        let idx = dists
+            .iter()
+            .position(|(id, _)| *id == car.vehicle.id)
+            .unwrap();
+        let our_dist = dists[idx].1;
+
+        // Just two cases here.
+        let delete = match car.state {
+            CarState::Crossing(_, _) | CarState::Unparking(_, _) | CarState::Idling(_, _) => {
+                unreachable!()
+            }
+            CarState::Queued => {
+                match car
+                    .router
+                    .maybe_handle_end(our_dist, &car.vehicle, parking, map)
+                {
+                    Some(ActionAtEnd::VanishAtBorder(i)) => {
+                        trips.car_or_bike_reached_border(time, car.vehicle.id, i);
+                        true
+                    }
+                    Some(ActionAtEnd::StartParking(spot)) => {
+                        car.state = CarState::Parking(
+                            our_dist,
+                            spot,
+                            TimeInterval::new(time, time + TIME_TO_PARK),
+                        );
+                        // If we don't do this, then we might have another car creep up
+                        // behind, see the spot free, and start parking too. This can
+                        // happen with multiple lanes and certain vehicle lengths.
+                        parking.reserve_spot(spot);
+                        false
+                    }
+                    Some(ActionAtEnd::GotoLaneEnd) => {
+                        car.state = car.crossing_state(our_dist, time, map);
+                        false
+                    }
+                    Some(ActionAtEnd::StopBiking(bike_rack)) => {
+                        trips.bike_reached_end(time, car.vehicle.id, bike_rack, map, scheduler);
+                        true
+                    }
+                    Some(ActionAtEnd::BusAtStop) => {
+                        transit.bus_arrived_at_stop(
+                            time,
+                            car.vehicle.id,
+                            trips,
+                            walking,
+                            scheduler,
+                            map,
+                        );
+                        car.state = CarState::Idling(
+                            our_dist,
+                            TimeInterval::new(time, time + TIME_TO_WAIT_AT_STOP),
+                        );
+                        false
+                    }
+                    None => false,
+                }
+            }
+            CarState::Parking(_, spot, ref time_int) => {
+                if time > time_int.end {
+                    parking.add_parked_car(ParkedCar {
+                        vehicle: car.vehicle.clone(),
+                        spot,
+                    });
+                    trips.car_reached_parking_spot(
+                        time,
+                        car.vehicle.id,
+                        spot,
+                        map,
+                        parking,
+                        scheduler,
+                    );
+                    true
+                } else {
+                    false
+                }
+            }
+        };
+        if !delete {
+            return true;
+        }
+
+        assert_eq!(
+            self.queues
+                .get_mut(&car.router.head())
+                .unwrap()
+                .cars
+                .remove(idx)
+                .unwrap(),
+            car.vehicle.id
+        );
+
+        // Update the follower so that they don't suddenly jump forwards.
+        if idx != dists.len() - 1 {
+            let (follower_id, follower_dist) = dists[idx + 1];
+            let mut follower = self.cars.get_mut(&follower_id).unwrap();
+            // TODO If the leader vanished at a border node, this still jumps a bit -- the
+            // lead car's back is still sticking out. Need to still be bound by them, even
+            // though they don't exist! If the leader just parked, then we're fine.
+            match follower.state {
+                CarState::Queued | CarState::Crossing(_, _) => {
+                    // If the follower was still Crossing, they might not've been blocked
+                    // by leader yet. In that case, recalculating their Crossing state is a
+                    // no-op. But if they were blocked, then this will prevent them from
+                    // jumping forwards.
+                    follower.state = follower.crossing_state(follower_dist, time, map);
+                }
+                // They weren't blocked
+                CarState::Unparking(_, _) | CarState::Parking(_, _, _) | CarState::Idling(_, _) => {
+                }
+            }
+        }
+
+        false
     }
 
     pub fn draw_unzoomed(&self, _time: Duration, g: &mut GfxCtx, map: &Map) {
