@@ -551,7 +551,7 @@ impl Sim {
         format!(
             "{}: {} active agents",
             self.time,
-            self.trips.active_agents().len()
+            self.trips.num_active_trips()
         )
     }
 

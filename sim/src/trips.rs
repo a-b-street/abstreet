@@ -373,11 +373,16 @@ impl TripManager {
         )]
     }
 
-    pub fn is_done(&self) -> bool {
-        !self
-            .active_trip_mode
+    // Not including buses
+    pub fn num_active_trips(&self) -> usize {
+        self.active_trip_mode
             .values()
-            .any(|trip| !self.trips[trip.0].is_bus_trip())
+            .filter(|trip| !self.trips[trip.0].is_bus_trip())
+            .count()
+    }
+
+    pub fn is_done(&self) -> bool {
+        self.num_active_trips() == 0
     }
 
     pub fn collect_events(&mut self) -> Vec<Event> {
