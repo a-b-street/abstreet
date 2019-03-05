@@ -127,6 +127,11 @@ impl Scenario {
     }
 
     pub fn small_run(map: &Map) -> Scenario {
+        Scenario::scaled_run(map, 100)
+    }
+
+    // This is wacky, because it fixes all values except for one.
+    pub fn scaled_run(map: &Map, num_normal_agents: usize) -> Scenario {
         let mut s = Scenario {
             scenario_name: "small_spawn".to_string(),
             map_name: map.get_name().to_string(),
@@ -137,7 +142,7 @@ impl Scenario {
                 },
             }],
             spawn_over_time: vec![SpawnOverTime {
-                num_agents: 100,
+                num_agents: num_normal_agents,
                 start_time: Duration::ZERO,
                 stop_time: Duration::seconds(5.0),
                 start_from_neighborhood: "_everywhere_".to_string(),

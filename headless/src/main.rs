@@ -13,9 +13,13 @@ struct Flags {
     #[structopt(long = "save_at")]
     save_at: Option<String>,
 
+    /// Number of agents to generate
+    #[structopt(long = "num_agents", default_value = "100")]
+    num_agents: usize,
+
     /// Enable cpuprofiler?
     #[structopt(long = "enable_profiler")]
-    pub enable_profiler: bool,
+    enable_profiler: bool,
 }
 
 fn main() {
@@ -27,7 +31,8 @@ fn main() {
     let (map, mut sim, mut rng) = flags.sim_flags.load(None, &mut timer);
 
     if load.contains("data/raw_maps/") || load.contains("data/maps/") {
-        Scenario::small_run(&map).instantiate(&mut sim, &map, &mut rng, &mut timer);
+        Scenario::scaled_run(&map, flags.num_agents)
+            .instantiate(&mut sim, &map, &mut rng, &mut timer);
     }
     timer.done();
 
