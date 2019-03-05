@@ -492,7 +492,11 @@ impl Sim {
         let speed = (self.time - b.last_sim_time) / dt;
         b.last_real_time = Instant::now();
         b.last_sim_time = self.time;
-        format!("speed = {:.2}x", speed)
+        format!(
+            "speed = {:.2}x ({})",
+            speed,
+            self.scheduler.describe_stats()
+        )
     }
 }
 
@@ -545,7 +549,7 @@ impl Sim {
 
     pub fn summary(&self) -> String {
         format!(
-            "{}, {} active agents",
+            "{}: {} active agents",
             self.time,
             self.trips.active_agents().len()
         )

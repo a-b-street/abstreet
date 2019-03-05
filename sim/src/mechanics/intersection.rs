@@ -156,10 +156,10 @@ impl IntersectionController {
         // For now, just maintain safety when agents over-run.
         for req in &self.accepted {
             if cycle.get_priority(req.turn) < TurnPriority::Yield {
-                println!(
+                /*println!(
                     "{:?} is still doing {:?} after the cycle is over",
                     req.agent, req.turn
-                );
+                );*/
                 return false;
             }
         }
