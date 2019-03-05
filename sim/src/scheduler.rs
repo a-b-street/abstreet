@@ -1,5 +1,7 @@
 use crate::{CarID, CreateCar, CreatePedestrian, PedestrianID};
+use derivative::Derivative;
 use geom::Duration;
+use histogram::Histogram;
 use serde_derive::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, PartialEq)]
@@ -10,16 +12,18 @@ pub enum Command {
     UpdatePed(PedestrianID),
 }
 
-#[derive(Serialize, Deserialize, PartialEq)]
+#[derive(Serialize, Deserialize, Derivative)]
+#[derivative(PartialEq)]
 pub struct Scheduler {
     // TODO Implement more efficiently. Last element has earliest time.
     items: Vec<(Duration, Command)>,
 
     latest_time: Duration,
+    // TODO Why doesn't the Histogram keep a total count? :(
     num_events: usize,
-    // TODO More generally, track the distribution of delta-times from latest_time. Or even cooler,
-    // per agent.
-    num_epsilon_events: usize,
+    #[derivative(PartialEq = "ignore")]
+    #[serde(skip_serializing, skip_deserializing)]
+    delta_times: Histogram,
 }
 
 impl Scheduler {
@@ -28,7 +32,7 @@ impl Scheduler {
             items: Vec::new(),
             latest_time: Duration::ZERO,
             num_events: 0,
-            num_epsilon_events: 0,
+            delta_times: Histogram::new(),
         }
     }
 
@@ -40,9 +44,9 @@ impl Scheduler {
             );
         }
         self.num_events += 1;
-        if time == self.latest_time + Duration::EPSILON {
-            self.num_epsilon_events += 1;
-        }
+        self.delta_times
+            .increment((time - self.latest_time).to_u64())
+            .unwrap();
 
         // TODO Make sure this is deterministic.
         // Note the order of comparison means times will be descending.
@@ -89,9 +93,11 @@ impl Scheduler {
 
     pub fn describe_stats(&self) -> String {
         format!(
-            "{} events pushed, {} of which only EPSILON in the future",
+            "{} events pushed, delta times: 50%ile {:?}, 90%ile {:?}, 99%ile {:?}",
             abstutil::prettyprint_usize(self.num_events),
-            abstutil::prettyprint_usize(self.num_epsilon_events)
+            Duration::from_u64(self.delta_times.percentile(50.0).unwrap()),
+            Duration::from_u64(self.delta_times.percentile(90.0).unwrap()),
+            Duration::from_u64(self.delta_times.percentile(99.0).unwrap()),
         )
     }
 }

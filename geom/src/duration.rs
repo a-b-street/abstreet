@@ -35,6 +35,14 @@ impl Duration {
         Duration(value)
     }
 
+    pub fn to_u64(self) -> u64 {
+        (self.0 / Duration::EPSILON.0) as u64
+    }
+
+    pub fn from_u64(x: u64) -> Duration {
+        (x as f64) * Duration::EPSILON
+    }
+
     pub fn min(self, other: Duration) -> Duration {
         if self <= other {
             self
