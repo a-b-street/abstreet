@@ -22,10 +22,13 @@ impl Scheduler {
     }
 
     pub fn push(&mut self, time: Duration, cmd: Command) {
-        // TODO Implement more efficiently
-        self.items.push((time, cmd));
-        self.items.sort_by_key(|(t, _)| *t);
-        self.items.reverse();
+        // TODO Make sure this is deterministic.
+        // Note the order of comparison means times will be descending.
+        let idx = match self.items.binary_search_by(|(at, _)| time.cmp(at)) {
+            Ok(i) => i,
+            Err(i) => i,
+        };
+        self.items.insert(idx, (time, cmd));
     }
 
     pub fn update(&mut self, cmd: Command, new_time: Duration) {
