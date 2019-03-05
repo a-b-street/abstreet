@@ -49,6 +49,7 @@ fn main() {
             .unwrap();
     }
     let enable_profiler = flags.enable_profiler;
+    let timer = Timer::new("run sim until done");
     sim.run_until_done(
         &map,
         move |sim| {
@@ -62,6 +63,7 @@ fn main() {
         },
         None,
     );
+    timer.done();
     println!("{:?}", sim.get_score());
     if flags.enable_profiler && save_at.is_none() {
         cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();

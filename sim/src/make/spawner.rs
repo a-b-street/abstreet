@@ -1,6 +1,6 @@
 use crate::{
     CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, ParkingSimState, ParkingSpot,
-    PedestrianID, PriorityQueue, SidewalkPOI, SidewalkSpot, TripLeg, TripManager, VehicleSpec,
+    PedestrianID, Scheduler, SidewalkPOI, SidewalkSpot, TripLeg, TripManager, VehicleSpec,
     VehicleType,
 };
 use abstutil::Timer;
@@ -113,7 +113,7 @@ impl TripSpawner {
         map: &Map,
         parking: &ParkingSimState,
         trips: &mut TripManager,
-        scheduler: &mut PriorityQueue<Command>,
+        scheduler: &mut Scheduler,
         timer: &mut Timer,
     ) {
         let paths = calculate_paths(

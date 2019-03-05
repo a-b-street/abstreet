@@ -1,9 +1,9 @@
 use crate::{
     AgentID, Benchmark, CarID, Command, CreateCar, DrawCarInput, DrawPedestrianInput, DrivingGoal,
     DrivingSimState, Event, GetDrawAgents, IntersectionSimState, ParkedCar, ParkingSimState,
-    ParkingSpot, PedestrianID, PriorityQueue, Router, ScoreSummary, SimStats, Summary,
-    TransitSimState, TripID, TripLeg, TripManager, TripSpawner, TripSpec, VehicleSpec, VehicleType,
-    WalkingSimState, BUS_LENGTH, TIMESTEP,
+    ParkingSpot, PedestrianID, Router, Scheduler, ScoreSummary, SimStats, Summary, TransitSimState,
+    TripID, TripLeg, TripManager, TripSpawner, TripSpec, VehicleSpec, VehicleType, WalkingSimState,
+    BUS_LENGTH, TIMESTEP,
 };
 use abstutil::Timer;
 use derivative::Derivative;
@@ -27,7 +27,7 @@ pub struct Sim {
     transit: TransitSimState,
     trips: TripManager,
     spawner: TripSpawner,
-    scheduler: PriorityQueue<Command>,
+    scheduler: Scheduler,
     time: Duration,
     car_id_counter: usize,
     ped_id_counter: usize,
@@ -58,7 +58,7 @@ impl Sim {
             transit: TransitSimState::new(),
             trips: TripManager::new(),
             spawner: TripSpawner::new(),
-            scheduler: PriorityQueue::new(),
+            scheduler: Scheduler::new(),
             time: Duration::ZERO,
             car_id_counter: 0,
             ped_id_counter: 0,

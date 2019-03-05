@@ -1,6 +1,6 @@
 use crate::{
     AgentID, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, Event, ParkingSimState,
-    ParkingSpot, PedestrianID, PriorityQueue, Router, SidewalkPOI, SidewalkSpot, TransitSimState,
+    ParkingSpot, PedestrianID, Router, Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState,
     TripID, Vehicle, WalkingSimState,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
@@ -59,7 +59,7 @@ impl TripManager {
         spot: ParkingSpot,
         map: &Map,
         parking: &ParkingSimState,
-        scheduler: &mut PriorityQueue<Command>,
+        scheduler: &mut Scheduler,
     ) {
         self.events.push(Event::CarReachedParkingSpot(car, spot));
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
@@ -84,7 +84,7 @@ impl TripManager {
         spot: ParkingSpot,
         map: &Map,
         parking: &ParkingSimState,
-        scheduler: &mut PriorityQueue<Command>,
+        scheduler: &mut Scheduler,
     ) {
         self.events.push(Event::PedReachedParkingSpot(ped, spot));
         let trip = &mut self.trips[self
@@ -140,7 +140,7 @@ impl TripManager {
         ped: PedestrianID,
         spot: SidewalkSpot,
         map: &Map,
-        scheduler: &mut PriorityQueue<Command>,
+        scheduler: &mut Scheduler,
     ) {
         let trip = &mut self.trips[self
             .active_trip_mode
@@ -204,7 +204,7 @@ impl TripManager {
         bike: CarID,
         bike_rack: SidewalkSpot,
         map: &Map,
-        scheduler: &mut PriorityQueue<Command>,
+        scheduler: &mut Scheduler,
     ) {
         self.events.push(Event::BikeStoppedAtSidewalk(
             bike,
@@ -281,7 +281,7 @@ impl TripManager {
         time: Duration,
         ped: PedestrianID,
         map: &Map,
-        scheduler: &mut PriorityQueue<Command>,
+        scheduler: &mut Scheduler,
     ) {
         let trip = &mut self.trips[self
             .active_trip_mode
@@ -395,13 +395,7 @@ impl Trip {
             }
     }
 
-    fn spawn_ped(
-        &self,
-        time: Duration,
-        start: SidewalkSpot,
-        map: &Map,
-        scheduler: &mut PriorityQueue<Command>,
-    ) {
+    fn spawn_ped(&self, time: Duration, start: SidewalkSpot, map: &Map, scheduler: &mut Scheduler) {
         let (ped, walk_to) = match self.legs[0] {
             TripLeg::Walk(ped, ref to) => (ped, to.clone()),
             _ => unreachable!(),

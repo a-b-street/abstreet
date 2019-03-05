@@ -1,6 +1,6 @@
 use crate::{
     AgentID, Command, CreatePedestrian, DistanceInterval, DrawPedestrianInput,
-    IntersectionSimState, ParkingSimState, PedestrianID, PriorityQueue, SidewalkPOI, SidewalkSpot,
+    IntersectionSimState, ParkingSimState, PedestrianID, Scheduler, SidewalkPOI, SidewalkSpot,
     TimeInterval, TransitSimState, TripManager,
 };
 use abstutil::{deserialize_multimap, serialize_multimap, MultiMap};
@@ -38,7 +38,7 @@ impl WalkingSimState {
         now: Duration,
         params: CreatePedestrian,
         map: &Map,
-        scheduler: &mut PriorityQueue<Command>,
+        scheduler: &mut Scheduler,
     ) {
         let start_lane = params.start.sidewalk_pos.lane();
         assert_eq!(
@@ -108,7 +108,7 @@ impl WalkingSimState {
         map: &Map,
         intersections: &mut IntersectionSimState,
         parking: &ParkingSimState,
-        scheduler: &mut PriorityQueue<Command>,
+        scheduler: &mut Scheduler,
         trips: &mut TripManager,
         transit: &mut TransitSimState,
     ) {

@@ -2,7 +2,7 @@ use crate::mechanics::car::{Car, CarState};
 use crate::mechanics::queue::Queue;
 use crate::{
     ActionAtEnd, AgentID, CarID, Command, CreateCar, DrawCarInput, IntersectionSimState, ParkedCar,
-    ParkingSimState, PriorityQueue, TimeInterval, TransitSimState, TripManager, WalkingSimState,
+    ParkingSimState, Scheduler, TimeInterval, TransitSimState, TripManager, WalkingSimState,
     BUS_LENGTH, FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
@@ -63,7 +63,7 @@ impl DrivingSimState {
         params: CreateCar,
         map: &Map,
         intersections: &IntersectionSimState,
-        scheduler: &mut PriorityQueue<Command>,
+        scheduler: &mut Scheduler,
     ) -> bool {
         let first_lane = params.router.head().as_lane();
 
@@ -110,7 +110,7 @@ impl DrivingSimState {
         parking: &mut ParkingSimState,
         intersections: &mut IntersectionSimState,
         trips: &mut TripManager,
-        scheduler: &mut PriorityQueue<Command>,
+        scheduler: &mut Scheduler,
         transit: &mut TransitSimState,
         walking: &mut WalkingSimState,
     ) {
@@ -177,7 +177,7 @@ impl DrivingSimState {
         parking: &mut ParkingSimState,
         intersections: &mut IntersectionSimState,
         transit: &mut TransitSimState,
-        scheduler: &mut PriorityQueue<Command>,
+        scheduler: &mut Scheduler,
     ) {
         match car.state {
             CarState::Crossing(_, _) => {
@@ -298,7 +298,7 @@ impl DrivingSimState {
         map: &Map,
         parking: &mut ParkingSimState,
         trips: &mut TripManager,
-        scheduler: &mut PriorityQueue<Command>,
+        scheduler: &mut Scheduler,
         transit: &mut TransitSimState,
         walking: &mut WalkingSimState,
     ) -> bool {
