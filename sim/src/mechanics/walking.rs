@@ -1,7 +1,7 @@
 use crate::{
     AgentID, Command, CreatePedestrian, DistanceInterval, DrawPedestrianInput,
     IntersectionSimState, ParkingSimState, PedestrianID, Scheduler, SidewalkPOI, SidewalkSpot,
-    TimeInterval, TransitSimState, TripManager, BLIND_RETRY,
+    TimeInterval, TransitSimState, TripManager,
 };
 use abstutil::{deserialize_multimap, serialize_multimap, MultiMap};
 use geom::{Distance, Duration, Line, Speed};
@@ -160,25 +160,39 @@ impl WalkingSimState {
                     }
                 } else {
                     if let PathStep::Turn(t) = ped.path.current_step() {
-                        intersections.turn_finished(AgentID::Pedestrian(ped.id), t);
+                        intersections.turn_finished(
+                            now,
+                            AgentID::Pedestrian(ped.id),
+                            t,
+                            scheduler,
+                            map,
+                        );
                     }
 
                     let dist = dist_int.end;
-                    if ped.maybe_transition(now, map, intersections, &mut self.peds_per_traversable)
-                    {
+                    if ped.maybe_transition(
+                        now,
+                        map,
+                        intersections,
+                        &mut self.peds_per_traversable,
+                        scheduler,
+                    ) {
                         scheduler.push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
                     } else {
-                        // Must've failed because we can't turn yet.
+                        // Must've failed because we can't turn yet. Don't schedule a retry here.
                         ped.state = PedState::WaitingToTurn(dist);
-                        scheduler.push(now + BLIND_RETRY, Command::UpdatePed(ped.id));
                     }
                 }
             }
             PedState::WaitingToTurn(_) => {
-                if ped.maybe_transition(now, map, intersections, &mut self.peds_per_traversable) {
+                if ped.maybe_transition(
+                    now,
+                    map,
+                    intersections,
+                    &mut self.peds_per_traversable,
+                    scheduler,
+                ) {
                     scheduler.push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
-                } else {
-                    scheduler.push(now + BLIND_RETRY, Command::UpdatePed(ped.id));
                 }
             }
             PedState::LeavingBuilding(b, _) => {
@@ -341,9 +355,11 @@ impl Pedestrian {
         map: &Map,
         intersections: &mut IntersectionSimState,
         peds_per_traversable: &mut MultiMap<Traversable, PedestrianID>,
+        scheduler: &mut Scheduler,
     ) -> bool {
         if let PathStep::Turn(t) = self.path.next_step() {
-            if !intersections.maybe_start_turn(AgentID::Pedestrian(self.id), t, now, map) {
+            if !intersections.maybe_start_turn(AgentID::Pedestrian(self.id), t, now, map, scheduler)
+            {
                 return false;
             }
         }

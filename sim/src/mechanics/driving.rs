@@ -185,7 +185,7 @@ impl DrivingSimState {
                 if car.router.last_step()
                     || self.queues[&car.router.head()].cars[0] == car.vehicle.id
                 {
-                    scheduler.push(time + BLIND_RETRY, Command::UpdateCar(car.vehicle.id));
+                    scheduler.push(time, Command::UpdateCar(car.vehicle.id));
                 }
             }
             CarState::Unparking(front, _) => {
@@ -220,8 +220,14 @@ impl DrivingSimState {
                 }
 
                 if let Traversable::Turn(t) = goto {
-                    if !intersections.maybe_start_turn(AgentID::Car(car.vehicle.id), t, time, map) {
-                        scheduler.push(time + BLIND_RETRY, Command::UpdateCar(car.vehicle.id));
+                    if !intersections.maybe_start_turn(
+                        AgentID::Car(car.vehicle.id),
+                        t,
+                        time,
+                        map,
+                        scheduler,
+                    ) {
+                        // Don't schedule a retry here.
                         return;
                     }
                 }
@@ -275,7 +281,13 @@ impl DrivingSimState {
                     // TODO Actually, don't call turn_finished until the car is at least
                     // vehicle.length + FOLLOWING_DISTANCE into the next lane. This'll be hard
                     // to predict when we're event-based, so hold off on this bit of realism.
-                    intersections.turn_finished(AgentID::Car(car.vehicle.id), last_step.as_turn());
+                    intersections.turn_finished(
+                        time,
+                        AgentID::Car(car.vehicle.id),
+                        last_step.as_turn(),
+                        scheduler,
+                        map,
+                    );
                 }
 
                 self.queues
