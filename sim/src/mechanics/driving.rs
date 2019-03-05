@@ -220,13 +220,7 @@ impl DrivingSimState {
                 }
 
                 if let Traversable::Turn(t) = goto {
-                    if !intersections.maybe_start_turn(
-                        AgentID::Car(car.vehicle.id),
-                        t,
-                        time,
-                        map,
-                        scheduler,
-                    ) {
+                    if !intersections.maybe_start_turn(AgentID::Car(car.vehicle.id), t, time, map) {
                         // Don't schedule a retry here.
                         return;
                     }
@@ -286,7 +280,6 @@ impl DrivingSimState {
                         AgentID::Car(car.vehicle.id),
                         last_step.as_turn(),
                         scheduler,
-                        map,
                     );
                 }
 

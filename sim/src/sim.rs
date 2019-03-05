@@ -50,15 +50,16 @@ pub struct Sim {
 // Setup
 impl Sim {
     pub fn new(map: &Map, run_name: String, savestate_every: Option<Duration>) -> Sim {
+        let mut scheduler = Scheduler::new();
         Sim {
             driving: DrivingSimState::new(map),
             parking: ParkingSimState::new(map),
             walking: WalkingSimState::new(),
-            intersections: IntersectionSimState::new(map),
+            intersections: IntersectionSimState::new(map, &mut scheduler),
             transit: TransitSimState::new(),
             trips: TripManager::new(),
             spawner: TripSpawner::new(),
-            scheduler: Scheduler::new(),
+            scheduler,
             time: Duration::ZERO,
             car_id_counter: 0,
             ped_id_counter: 0,
@@ -324,6 +325,10 @@ impl Sim {
                         &mut self.trips,
                         &mut self.transit,
                     );
+                }
+                Command::UpdateIntersection(i) => {
+                    self.intersections
+                        .update_intersection(self.time, i, map, &mut self.scheduler);
                 }
             }
         }

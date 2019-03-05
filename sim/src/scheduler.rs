@@ -2,6 +2,7 @@ use crate::{CarID, CreateCar, CreatePedestrian, PedestrianID};
 use derivative::Derivative;
 use geom::Duration;
 use histogram::Histogram;
+use map_model::IntersectionID;
 use serde_derive::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, PartialEq)]
@@ -10,6 +11,7 @@ pub enum Command {
     SpawnPed(CreatePedestrian),
     UpdateCar(CarID),
     UpdatePed(PedestrianID),
+    UpdateIntersection(IntersectionID),
 }
 
 #[derive(Serialize, Deserialize, Derivative)]

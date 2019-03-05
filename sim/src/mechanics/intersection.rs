@@ -1,6 +1,8 @@
-use crate::{AgentID, Command, Scheduler, BLIND_RETRY};
+use crate::{AgentID, Command, Scheduler};
 use geom::Duration;
-use map_model::{ControlTrafficSignal, IntersectionID, LaneID, Map, TurnID, TurnPriority};
+use map_model::{
+    ControlTrafficSignal, IntersectionID, IntersectionType, LaneID, Map, TurnID, TurnPriority,
+};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 
@@ -13,11 +15,11 @@ pub struct IntersectionSimState {
 struct State {
     id: IntersectionID,
     accepted: BTreeSet<Request>,
-    waiting: Vec<Request>,
+    waiting: BTreeSet<Request>,
 }
 
 impl IntersectionSimState {
-    pub fn new(map: &Map) -> IntersectionSimState {
+    pub fn new(map: &Map, scheduler: &mut Scheduler) -> IntersectionSimState {
         let mut sim = IntersectionSimState {
             state: BTreeMap::new(),
         };
@@ -27,9 +29,12 @@ impl IntersectionSimState {
                 State {
                     id: i.id,
                     accepted: BTreeSet::new(),
-                    waiting: Vec::new(),
+                    waiting: BTreeSet::new(),
                 },
             );
+            if i.intersection_type == IntersectionType::TrafficSignal {
+                sim.update_intersection(Duration::ZERO, i.id, map, scheduler);
+            }
         }
         sim
     }
@@ -43,30 +48,58 @@ impl IntersectionSimState {
 
     pub fn turn_finished(
         &mut self,
-        _now: Duration,
+        now: Duration,
         agent: AgentID,
         turn: TurnID,
-        _scheduler: &mut Scheduler,
-        _map: &Map,
+        scheduler: &mut Scheduler,
     ) {
         let state = self.state.get_mut(&turn.parent).unwrap();
 
         assert!(state.accepted.remove(&Request { agent, turn }));
 
-        /*if map.maybe_get_traffic_signal(state.id).is_some() {
-            // TODO If we were in overtime...
-        } else {
-            // For the freeform policy, give everyone a chance
-            for req in &state.waiting {
-                scheduler.push(
-                    now,
-                    match req.agent {
-                        AgentID::Car(id) => Command::UpdateCar(id),
-                        AgentID::Pedestrian(id) => Command::UpdatePed(id),
-                    },
-                );
-            }
-        }*/
+        // TODO Could be smarter here. For both policies, only wake up agents that would then be
+        // accepted. For now, wake up everyone -- for traffic signals, maybe we were in overtime,
+        // or maybe a Yield and Priority finished and could let another one in.
+
+        for req in &state.waiting {
+            // TODO Use update because multiple agents could finish a turn at the same time, before
+            // the waiting one has a chance to try again.
+            scheduler.update(
+                match req.agent {
+                    AgentID::Car(id) => Command::UpdateCar(id),
+                    AgentID::Pedestrian(id) => Command::UpdatePed(id),
+                },
+                now,
+            );
+        }
+    }
+
+    // This is only triggered for traffic signals.
+    pub fn update_intersection(
+        &self,
+        now: Duration,
+        id: IntersectionID,
+        map: &Map,
+        scheduler: &mut Scheduler,
+    ) {
+        let state = &self.state[&id];
+        let (_, remaining) = map
+            .get_traffic_signal(id)
+            .current_cycle_and_remaining_time(now);
+
+        // TODO Wake up everyone, for now.
+        // TODO Use update in case turn_finished scheduled an event for them already.
+        for req in &state.waiting {
+            scheduler.update(
+                match req.agent {
+                    AgentID::Car(id) => Command::UpdateCar(id),
+                    AgentID::Pedestrian(id) => Command::UpdatePed(id),
+                },
+                now,
+            );
+        }
+
+        scheduler.push(now + remaining, Command::UpdateIntersection(id));
     }
 
     // TODO This API is bad. Need to gather all of the requests at a time before making a decision.
@@ -84,7 +117,6 @@ impl IntersectionSimState {
         turn: TurnID,
         now: Duration,
         map: &Map,
-        scheduler: &mut Scheduler,
     ) -> bool {
         let state = self.state.get_mut(&turn.parent).unwrap();
 
@@ -96,22 +128,11 @@ impl IntersectionSimState {
         };
         if allowed {
             assert!(!state.any_accepted_conflict_with(turn, map));
-            if let Some(idx) = state.waiting.iter().position(|r| *r == req) {
-                state.waiting.remove(idx);
-            }
+            state.waiting.remove(&req);
             state.accepted.insert(req);
             true
         } else {
-            // TODO Don't do this here.
-            scheduler.push(
-                now + BLIND_RETRY,
-                match req.agent {
-                    AgentID::Car(id) => Command::UpdateCar(id),
-                    AgentID::Pedestrian(id) => Command::UpdatePed(id),
-                },
-            );
-
-            state.waiting.push(req);
+            state.waiting.insert(req);
             false
         }
     }
