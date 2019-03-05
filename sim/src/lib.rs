@@ -45,6 +45,9 @@ pub const FOLLOWING_DISTANCE: Distance = Distance::const_meters(1.0);
 
 pub const TIMESTEP: Duration = Duration::const_seconds(0.1);
 
+// TODO Obliviate the need for this.
+pub(crate) const BLIND_RETRY: Duration = Duration::const_seconds(0.05);
+
 // The VehicleType is only used for convenient debugging. The numeric ID itself must be sufficient.
 // TODO Implement Eq, Hash, Ord manually to guarantee this.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]

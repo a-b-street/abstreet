@@ -74,21 +74,13 @@ impl Scheduler {
     // This API is safer than handing out a batch of items at a time, because while processing one
     // item, we might change the priority of other items or add new items. Don't make the caller
     // reconcile those changes -- just keep pulling items from here, one at a time.
-    pub fn get_next(&mut self, now: Duration) -> Option<Command> {
+    pub fn get_next(&mut self, now: Duration) -> Option<(Command, Duration)> {
         let next_time = self.items.last().as_ref()?.0;
-        // TODO Enable this validation after we're properly event-based. Right now, there are spawn
-        // times between 0s and 0.1s, and stepping by 0.1s is too clunky.
-        /*if next_time < now {
-            panic!(
-                "It's {}, but there's a command scheduled for {}",
-                now, next_time
-            );
-        }*/
         if next_time > now {
             return None;
         }
         self.latest_time = next_time;
-        Some(self.items.pop().unwrap().1)
+        Some((self.items.pop().unwrap().1, next_time))
     }
 
     pub fn describe_stats(&self) -> String {

@@ -3,7 +3,7 @@ use crate::{
     DrivingSimState, Event, GetDrawAgents, IntersectionSimState, ParkedCar, ParkingSimState,
     ParkingSpot, PedestrianID, Router, Scheduler, ScoreSummary, SimStats, Summary, TransitSimState,
     TripID, TripLeg, TripManager, TripSpawner, TripSpec, VehicleSpec, VehicleType, WalkingSimState,
-    BUS_LENGTH, TIMESTEP,
+    BLIND_RETRY, BUS_LENGTH, TIMESTEP,
 };
 use abstutil::Timer;
 use derivative::Derivative;
@@ -266,9 +266,9 @@ impl Sim {
             panic!("Forgot to call spawn_all_trips");
         }
 
-        self.time += TIMESTEP;
-
-        while let Some(cmd) = self.scheduler.get_next(self.time) {
+        let target_time = self.time + TIMESTEP;
+        while let Some((cmd, time)) = self.scheduler.get_next(target_time) {
+            self.time = time;
             match cmd {
                 Command::SpawnCar(create_car) => {
                     if self.driving.start_car_on_lane(
@@ -287,7 +287,7 @@ impl Sim {
                         }
                     } else {
                         self.scheduler
-                            .push(self.time + Duration::EPSILON, Command::SpawnCar(create_car));
+                            .push(self.time + BLIND_RETRY, Command::SpawnCar(create_car));
                     }
                 }
                 Command::SpawnPed(create_ped) => {
@@ -327,6 +327,7 @@ impl Sim {
                 }
             }
         }
+        self.time = target_time;
 
         self.stats = None;
 

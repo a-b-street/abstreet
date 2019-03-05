@@ -3,7 +3,7 @@ use crate::mechanics::queue::Queue;
 use crate::{
     ActionAtEnd, AgentID, CarID, Command, CreateCar, DrawCarInput, IntersectionSimState, ParkedCar,
     ParkingSimState, Scheduler, TimeInterval, TransitSimState, TripManager, WalkingSimState,
-    BUS_LENGTH, FOLLOWING_DISTANCE,
+    BLIND_RETRY, BUS_LENGTH, FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use ezgui::{Color, GfxCtx};
@@ -185,7 +185,7 @@ impl DrivingSimState {
                 if car.router.last_step()
                     || self.queues[&car.router.head()].cars[0] == car.vehicle.id
                 {
-                    scheduler.push(time + Duration::EPSILON, Command::UpdateCar(car.vehicle.id));
+                    scheduler.push(time + BLIND_RETRY, Command::UpdateCar(car.vehicle.id));
                 }
             }
             CarState::Unparking(front, _) => {
@@ -215,14 +215,13 @@ impl DrivingSimState {
                 // Note that 'car' is currently missing from self.cars, but they can't be on
                 // 'goto' right now -- they're on 'from'.
                 if !self.queues[&goto].room_at_end(time, &self.cars) {
-                    scheduler.push(time + Duration::EPSILON, Command::UpdateCar(car.vehicle.id));
+                    scheduler.push(time + BLIND_RETRY, Command::UpdateCar(car.vehicle.id));
                     return;
                 }
 
                 if let Traversable::Turn(t) = goto {
                     if !intersections.maybe_start_turn(AgentID::Car(car.vehicle.id), t, time, map) {
-                        scheduler
-                            .push(time + Duration::EPSILON, Command::UpdateCar(car.vehicle.id));
+                        scheduler.push(time + BLIND_RETRY, Command::UpdateCar(car.vehicle.id));
                         return;
                     }
                 }
@@ -362,8 +361,7 @@ impl DrivingSimState {
                         return true;
                     }
                     None => {
-                        scheduler
-                            .push(time + Duration::EPSILON, Command::UpdateCar(car.vehicle.id));
+                        scheduler.push(time + BLIND_RETRY, Command::UpdateCar(car.vehicle.id));
                         return true;
                     }
                 }

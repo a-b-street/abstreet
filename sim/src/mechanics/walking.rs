@@ -1,7 +1,7 @@
 use crate::{
     AgentID, Command, CreatePedestrian, DistanceInterval, DrawPedestrianInput,
     IntersectionSimState, ParkingSimState, PedestrianID, Scheduler, SidewalkPOI, SidewalkSpot,
-    TimeInterval, TransitSimState, TripManager,
+    TimeInterval, TransitSimState, TripManager, BLIND_RETRY,
 };
 use abstutil::{deserialize_multimap, serialize_multimap, MultiMap};
 use geom::{Distance, Duration, Line, Speed};
@@ -170,7 +170,7 @@ impl WalkingSimState {
                     } else {
                         // Must've failed because we can't turn yet.
                         ped.state = PedState::WaitingToTurn(dist);
-                        scheduler.push(now + Duration::EPSILON, Command::UpdatePed(ped.id));
+                        scheduler.push(now + BLIND_RETRY, Command::UpdatePed(ped.id));
                     }
                 }
             }
@@ -178,7 +178,7 @@ impl WalkingSimState {
                 if ped.maybe_transition(now, map, intersections, &mut self.peds_per_traversable) {
                     scheduler.push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
                 } else {
-                    scheduler.push(now + Duration::EPSILON, Command::UpdatePed(ped.id));
+                    scheduler.push(now + BLIND_RETRY, Command::UpdatePed(ped.id));
                 }
             }
             PedState::LeavingBuilding(b, _) => {
