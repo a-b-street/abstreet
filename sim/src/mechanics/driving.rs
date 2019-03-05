@@ -129,7 +129,7 @@ impl DrivingSimState {
         // This car might have reached the router's end distance, but maybe not -- might
         // actually be stuck behind other cars. We have to calculate the distances right now to
         // be sure.
-        let need_distances = {
+        let mut need_distances = {
             let car = &self.cars[&id];
             match car.state {
                 CarState::Queued => car.router.last_step(),
@@ -137,6 +137,24 @@ impl DrivingSimState {
                 _ => false,
             }
         };
+
+        if !need_distances {
+            // We need to mutate two different cars in one case. To avoid fighting the borrow
+            // checker, temporarily move one of them out of the BTreeMap.
+            let mut car = self.cars.remove(&id).unwrap();
+            // Responsibility of update_car to manage scheduling stuff!
+            need_distances = self.update_car_without_distances(
+                &mut car,
+                time,
+                map,
+                parking,
+                intersections,
+                transit,
+                scheduler,
+            );
+            self.cars.insert(id, car);
+        }
+
         if need_distances {
             // Do this before removing the car!
             let dists =
@@ -151,24 +169,12 @@ impl DrivingSimState {
             ) {
                 self.cars.insert(id, car);
             }
-        } else {
-            // We need to mutate two different cars in one case. To avoid fighting the borrow
-            // checker, temporarily move one of them out of the BTreeMap.
-            let mut car = self.cars.remove(&id).unwrap();
-            // Responsibility of update_car to manage scheduling stuff!
-            self.update_car_without_distances(
-                &mut car,
-                time,
-                map,
-                parking,
-                intersections,
-                transit,
-                scheduler,
-            );
-            self.cars.insert(id, car);
         }
     }
 
+    // If this returns true, we need to immediately run update_car_with_distances. If we don't,
+    // then the car will briefly be Queued and might immediately become something else, which
+    // affects how leaders update followers.
     fn update_car_without_distances(
         &mut self,
         car: &mut Car,
@@ -178,13 +184,16 @@ impl DrivingSimState {
         intersections: &mut IntersectionSimState,
         transit: &mut TransitSimState,
         scheduler: &mut Scheduler,
-    ) {
+    ) -> bool {
         match car.state {
             CarState::Crossing(_, _) => {
                 car.state = CarState::Queued;
-                if car.router.last_step()
-                    || self.queues[&car.router.head()].cars[0] == car.vehicle.id
-                {
+                if car.router.last_step() {
+                    // Immediately run update_car_with_distances.
+                    return true;
+                }
+                if self.queues[&car.router.head()].cars[0] == car.vehicle.id {
+                    // Want to re-run, but no urgency about it happening immediately.
                     scheduler.push(time, Command::UpdateCar(car.vehicle.id));
                 }
             }
@@ -204,6 +213,41 @@ impl DrivingSimState {
                 car.router = transit.bus_departed_from_stop(car.vehicle.id, map);
                 car.state = car.crossing_state(dist, time, map);
                 scheduler.push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
+
+                // Update our follower, so they know we stopped idling.
+                let queue = &self.queues[&car.router.head()];
+                let idx = queue
+                    .cars
+                    .iter()
+                    .position(|c| *c == car.vehicle.id)
+                    .unwrap();
+                if idx != queue.cars.len() - 1 {
+                    let mut follower = self.cars.get_mut(&queue.cars[idx + 1]).unwrap();
+                    match follower.state {
+                        CarState::Queued => {
+                            // If they're on their last step, they might be ending early and not
+                            // right behind us.
+                            if !follower.router.last_step() {
+                                follower.state = follower.crossing_state(
+                                    // Since the follower was Queued, this must be where they are.
+                                    dist - car.vehicle.length - FOLLOWING_DISTANCE,
+                                    time,
+                                    map,
+                                );
+                                scheduler.update(
+                                    Command::UpdateCar(follower.vehicle.id),
+                                    follower.state.get_end_time(),
+                                );
+                            }
+                        }
+                        // They weren't blocked. Note that there's no way the Crossing state could jump
+                        // forwards here; the leader is still in front of them.
+                        CarState::Crossing(_, _)
+                        | CarState::Unparking(_, _)
+                        | CarState::Parking(_, _, _)
+                        | CarState::Idling(_, _) => {}
+                    }
+                }
             }
             CarState::Queued => {
                 // 'car' is the leader.
@@ -216,13 +260,13 @@ impl DrivingSimState {
                 // 'goto' right now -- they're on 'from'.
                 if !self.queues[&goto].room_at_end(time, &self.cars) {
                     scheduler.push(time + BLIND_RETRY, Command::UpdateCar(car.vehicle.id));
-                    return;
+                    return false;
                 }
 
                 if let Traversable::Turn(t) = goto {
                     if !intersections.maybe_start_turn(AgentID::Car(car.vehicle.id), t, time, map) {
                         // Don't schedule a retry here.
-                        return;
+                        return false;
                     }
                 }
 
@@ -243,18 +287,22 @@ impl DrivingSimState {
                     // to still be bound by them.
                     match follower.state {
                         CarState::Queued => {
-                            follower.state = follower.crossing_state(
-                                // Since the follower was Queued, this must be where they are. This
-                                // update case is when the lead car was NOT on their last step, so
-                                // they were indeed all the way at the end of 'from'.
-                                from.length(map) - car.vehicle.length - FOLLOWING_DISTANCE,
-                                time,
-                                map,
-                            );
-                            scheduler.update(
-                                Command::UpdateCar(*follower_id),
-                                follower.state.get_end_time(),
-                            );
+                            // If they're on their last step, they might be ending early and not
+                            // right behind us.
+                            if !follower.router.last_step() {
+                                follower.state = follower.crossing_state(
+                                    // Since the follower was Queued, this must be where they are. This
+                                    // update case is when the lead car was NOT on their last step, so
+                                    // they were indeed all the way at the end of 'from'.
+                                    from.length(map) - car.vehicle.length - FOLLOWING_DISTANCE,
+                                    time,
+                                    map,
+                                );
+                                scheduler.update(
+                                    Command::UpdateCar(*follower_id),
+                                    follower.state.get_end_time(),
+                                );
+                            }
                         }
                         // They weren't blocked. Note that there's no way the Crossing state could jump
                         // forwards here; the leader vanished from the end of the traversable.
@@ -291,6 +339,7 @@ impl DrivingSimState {
             }
             CarState::Parking(_, _, _) => unreachable!(),
         }
+        false
     }
 
     // Returns true if the car survives.
