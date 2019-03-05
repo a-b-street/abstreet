@@ -25,6 +25,16 @@ struct Flags {
 fn main() {
     let flags = Flags::from_args();
 
+    let save_at = if let Some(ref time_str) = flags.save_at {
+        if let Some(t) = Duration::parse(time_str) {
+            Some(t)
+        } else {
+            panic!("Couldn't parse time {}", time_str);
+        }
+    } else {
+        None
+    };
+
     // TODO not the ideal way to distinguish what thing we loaded
     let load = flags.sim_flags.load.clone();
     let mut timer = Timer::new("setup headless");
@@ -35,16 +45,6 @@ fn main() {
             .instantiate(&mut sim, &map, &mut rng, &mut timer);
     }
     timer.done();
-
-    let save_at = if let Some(ref time_str) = flags.save_at {
-        if let Some(t) = Duration::parse(time_str) {
-            Some(t)
-        } else {
-            panic!("Couldn't parse time {}", time_str);
-        }
-    } else {
-        None
-    };
 
     if flags.enable_profiler {
         cpuprofiler::PROFILER

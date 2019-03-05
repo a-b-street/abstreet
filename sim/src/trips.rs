@@ -324,7 +324,14 @@ impl TripManager {
         match trip.legs.pop_front().unwrap() {
             TripLeg::Drive(_, DrivingGoal::Border(int, _)) => assert_eq!(i, int),
             TripLeg::Bike(_, DrivingGoal::Border(int, _)) => assert_eq!(i, int),
-            _ => unreachable!(),
+            _ => {
+                // TODO Should be unreachable
+                println!(
+                    "Aborting trip {}, because {} couldn't find parking and got stuck",
+                    trip.id, car
+                );
+                return;
+            }
         };
         assert!(trip.legs.is_empty());
         assert!(!trip.finished_at.is_some());
