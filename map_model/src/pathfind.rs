@@ -65,6 +65,14 @@ impl PathStep {
         }
     }
 
+    pub fn as_lane(&self) -> LaneID {
+        self.as_traversable().as_lane()
+    }
+
+    pub fn as_turn(&self) -> TurnID {
+        self.as_traversable().as_turn()
+    }
+
     // Returns dist_remaining. start is relative to the start of the actual geometry -- so from the
     // lane's real start for ContraflowLane.
     fn slice(

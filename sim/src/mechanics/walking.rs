@@ -41,13 +41,10 @@ impl WalkingSimState {
         scheduler: &mut Scheduler,
     ) {
         let start_lane = params.start.sidewalk_pos.lane();
+        assert_eq!(params.path.current_step().as_lane(), start_lane);
         assert_eq!(
-            params.path.current_step().as_traversable(),
-            Traversable::Lane(start_lane)
-        );
-        assert_eq!(
-            params.path.last_step().as_traversable(),
-            Traversable::Lane(params.goal.sidewalk_pos.lane())
+            params.path.last_step().as_lane(),
+            params.goal.sidewalk_pos.lane()
         );
 
         let mut ped = Pedestrian {

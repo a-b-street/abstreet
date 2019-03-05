@@ -1,7 +1,10 @@
 use crate::{ParkingSimState, ParkingSpot, SidewalkSpot, Vehicle};
 use geom::Distance;
-use map_model::{BuildingID, IntersectionID, Map, Path, PathStep, Position, Traversable};
+use map_model::{
+    BuildingID, IntersectionID, Map, Path, PathStep, Position, Traversable, Turn, TurnID,
+};
 use serde_derive::{Deserialize, Serialize};
+use std::collections::BTreeSet;
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Router {
@@ -25,6 +28,7 @@ enum Goal {
     ParkNearBuilding {
         target: BuildingID,
         spot: Option<(ParkingSpot, Distance)>,
+        turns_attempted_while_roaming: BTreeSet<TurnID>,
     },
     EndAtBorder {
         end_dist: Distance,
@@ -52,6 +56,7 @@ impl Router {
             goal: Goal::ParkNearBuilding {
                 target: bldg,
                 spot: None,
+                turns_attempted_while_roaming: BTreeSet::new(),
             },
         }
     }
@@ -136,7 +141,7 @@ impl Router {
                 };
                 if need_new_spot {
                     if let Some((new_spot, new_pos)) = parking.get_first_free_spot(
-                        Position::new(self.path.current_step().as_traversable().as_lane(), front),
+                        Position::new(self.path.current_step().as_lane(), front),
                         vehicle,
                         map,
                     ) {
@@ -180,20 +185,40 @@ impl Router {
     }
 
     fn roam_around_for_parking(&mut self, vehicle: &Vehicle, map: &Map) {
-        let choices = map.get_turns_from_lane(self.head().as_lane());
-        if choices.is_empty() {
+        let turns_attempted_while_roaming = match self.goal {
+            Goal::ParkNearBuilding {
+                ref mut turns_attempted_while_roaming,
+                ..
+            } => turns_attempted_while_roaming,
+            _ => unreachable!(),
+        };
+
+        let current_lane = self.path.current_step().as_lane();
+        let all_choices = map.get_turns_from_lane(current_lane);
+        let new_choices: Vec<&&Turn> = all_choices
+            .iter()
+            .filter(|t| !turns_attempted_while_roaming.contains(&t.id))
+            .collect();
+
+        if all_choices.is_empty() {
             // TODO Fix properly by picking and pathfinding fully to a nearby parking lane.
-            println!("{} can't find parking on {}, and also it's a dead-end, so they'll be stuck there forever. Vanishing.", vehicle.id, self.head().as_lane());
+            println!("{} can't find parking on {}, and also it's a dead-end, so they'll be stuck there forever. Vanishing.", vehicle.id, current_lane);
             self.goal = Goal::EndAtBorder {
-                end_dist: self.head().length(map),
-                i: map.get_l(self.head().as_lane()).dst_i,
+                end_dist: map.get_l(current_lane).length(),
+                i: map.get_l(current_lane).dst_i,
             };
             return;
         }
+
         // TODO Better strategies than this: look for lanes with free spots (if it'd be feasible to
         // physically see the spots), stay close to the original goal building, avoid lanes we've
         // visited, prefer easier turns...
-        let turn = choices[0];
+        let turn = if !new_choices.is_empty() {
+            new_choices[0]
+        } else {
+            all_choices[0]
+        };
+        turns_attempted_while_roaming.insert(turn.id);
         self.path.add(PathStep::Turn(turn.id));
         self.path.add(PathStep::Lane(turn.id.dst));
     }
