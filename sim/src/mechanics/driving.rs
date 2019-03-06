@@ -416,14 +416,17 @@ impl DrivingSimState {
                         return true;
                     }
                     None => {
+                        scheduler.push(time + BLIND_RETRY, Command::UpdateCar(car.vehicle.id));
+
+                        // TODO For now, always use BLIND_RETRY. Measured things to be slower
+                        // otherwise. :(
+                        /*
                         // If this car wasn't blocked at all, when would it reach its goal?
                         let ideal_end_time = match car.crossing_state(our_dist, time, map) {
                             CarState::Crossing(time_int, _) => time_int.end,
                             _ => unreachable!(),
                         };
-                        // TODO For now, always use BLIND_RETRY. Measured things to be slower
-                        // otherwise. :(
-                        if ideal_end_time == time || true {
+                        if ideal_end_time == time {
                             // Haha, no such luck. We're super super close to the goal, but not
                             // quite there yet.
                             scheduler.push(time + BLIND_RETRY, Command::UpdateCar(car.vehicle.id));
@@ -432,6 +435,8 @@ impl DrivingSimState {
                         }
                         // TODO For cars stuck on their last step, this will spam a fair bit. But
                         // that should be pretty rare.
+                        */
+
                         return true;
                     }
                 }

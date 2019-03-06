@@ -555,7 +555,7 @@ impl Sim {
         format!(
             "{}: {} active agents",
             self.time,
-            self.trips.num_active_trips()
+            abstutil::prettyprint_usize(self.trips.num_active_trips())
         )
     }
 

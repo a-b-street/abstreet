@@ -302,13 +302,23 @@ impl TripSpec {
 }
 
 fn calculate_paths(map: &Map, requests: Vec<PathRequest>, timer: &mut Timer) -> Vec<Option<Path>> {
-    use rayon::prelude::*;
+    scoped_threadpool::Pool::new(num_cpus::get() as u32).scoped(|scope| {
+        let (tx, rx) = std::sync::mpsc::channel();
+        let mut results: Vec<Option<Path>> = vec![None; requests.len()];
+        for (idx, req) in requests.into_iter().enumerate() {
+            let tx = tx.clone();
+            scope.execute(move || {
+                let path = Pathfinder::shortest_distance(map, req);
+                tx.send((idx, path)).unwrap();
+            });
+        }
+        drop(tx);
 
-    timer.start(&format!("calculate {} paths", requests.len()));
-    let paths: Vec<Option<Path>> = requests
-        .into_par_iter()
-        .map(|req| Pathfinder::shortest_distance(map, req))
-        .collect();
-    timer.stop(&format!("calculate {} paths", paths.len()));
-    paths
+        timer.start_iter("calculate paths", results.len());
+        for (idx, path) in rx.iter() {
+            timer.next();
+            results[idx] = path;
+        }
+        results
+    })
 }
