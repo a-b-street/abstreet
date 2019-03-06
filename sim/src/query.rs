@@ -25,8 +25,9 @@ pub struct Benchmark {
 }
 
 impl Benchmark {
-    pub fn has_real_time_passed(&self, d: std::time::Duration) -> bool {
-        self.last_real_time.elapsed() >= d
+    pub fn has_real_time_passed(&self, d: Duration) -> bool {
+        // TODO convert to std::time::Duration better
+        self.last_real_time.elapsed() >= std::time::Duration::from_secs(d.inner_seconds() as u64)
     }
 }
 

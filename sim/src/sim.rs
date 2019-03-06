@@ -382,7 +382,7 @@ impl Sim {
                 }
             }
 
-            if self.time().is_multiple_of(Duration::minutes(1)) {
+            if benchmark.has_real_time_passed(Duration::seconds(1.0)) {
                 println!("{}, {}", self.summary(), self.measure_speed(&mut benchmark));
             }
             callback(self);
@@ -417,7 +417,7 @@ impl Sim {
                     }
                 }
             }
-            if self.time().is_multiple_of(Duration::minutes(1)) {
+            if benchmark.has_real_time_passed(Duration::seconds(1.0)) {
                 println!("{}, {}", self.summary(), self.measure_speed(&mut benchmark));
             }
             if self.time() == time_limit {
@@ -492,9 +492,6 @@ impl Sim {
 
     pub fn measure_speed(&self, b: &mut Benchmark) -> String {
         let dt = Duration::seconds(abstutil::elapsed_seconds(b.last_real_time));
-        if dt == Duration::ZERO {
-            return "instantly".to_string();
-        }
         let speed = (self.time - b.last_sim_time) / dt;
         b.last_real_time = Instant::now();
         b.last_sim_time = self.time;

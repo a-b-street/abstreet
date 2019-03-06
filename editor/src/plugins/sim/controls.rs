@@ -199,7 +199,7 @@ impl AmbientPluginWithPrimaryPlugins for SimControls {
                             *last_step = Instant::now();
                         }
 
-                        if benchmark.has_real_time_passed(std::time::Duration::from_secs(1)) {
+                        if benchmark.has_real_time_passed(Duration::seconds(1.0)) {
                             // I think the benchmark should naturally account for the delay of the
                             // secondary sim.
                             *speed = ctx.primary.sim.measure_speed(benchmark);
