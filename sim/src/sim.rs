@@ -390,6 +390,7 @@ impl Sim {
                 panic!("Time limit {} hit", self.time);
             }
             if self.is_done() {
+                println!("{}, {}", self.summary(), self.measure_speed(&mut benchmark));
                 break;
             }
         }

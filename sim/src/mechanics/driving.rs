@@ -259,6 +259,7 @@ impl DrivingSimState {
                 // Note that 'car' is currently missing from self.cars, but they can't be on
                 // 'goto' right now -- they're on 'from'.
                 if !self.queues[&goto].room_at_end(time, &self.cars) {
+                    // TODO Subscribe to the target queue, wake up when somebody leaves it.
                     scheduler.push(time + BLIND_RETRY, Command::UpdateCar(car.vehicle.id));
                     return false;
                 }
@@ -415,7 +416,22 @@ impl DrivingSimState {
                         return true;
                     }
                     None => {
-                        scheduler.push(time + BLIND_RETRY, Command::UpdateCar(car.vehicle.id));
+                        // If this car wasn't blocked at all, when would it reach its goal?
+                        let ideal_end_time = match car.crossing_state(our_dist, time, map) {
+                            CarState::Crossing(time_int, _) => time_int.end,
+                            _ => unreachable!(),
+                        };
+                        // TODO For now, always use BLIND_RETRY. Measured things to be slower
+                        // otherwise. :(
+                        if ideal_end_time == time || true {
+                            // Haha, no such luck. We're super super close to the goal, but not
+                            // quite there yet.
+                            scheduler.push(time + BLIND_RETRY, Command::UpdateCar(car.vehicle.id));
+                        } else {
+                            scheduler.push(ideal_end_time, Command::UpdateCar(car.vehicle.id));
+                        }
+                        // TODO For cars stuck on their last step, this will spam a fair bit. But
+                        // that should be pretty rare.
                         return true;
                     }
                 }
