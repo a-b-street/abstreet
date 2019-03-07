@@ -1,4 +1,3 @@
-use abstutil::Timer;
 use geom::Distance;
 use map_model::{DirectedRoadID, LaneID, LaneType, Map, Path, PathRequest, PathStep};
 use petgraph::graph::{Graph, NodeIndex};
@@ -9,6 +8,12 @@ use std::collections::{HashMap, VecDeque};
 pub struct VehiclePathfinder {
     graph: Graph<DirectedRoadID, Distance>,
     nodes: HashMap<DirectedRoadID, NodeIndex<u32>>,
+}
+
+pub enum Outcome {
+    Success(Path),
+    Failure,
+    RetrySlow,
 }
 
 impl VehiclePathfinder {
@@ -59,14 +64,14 @@ impl VehiclePathfinder {
         self.nodes[&map.get_l(lane).get_directed_parent(map)]
     }
 
-    pub fn pathfind(&self, req: &PathRequest, map: &Map, timer: &mut Timer) -> Option<Path> {
+    pub fn pathfind(&self, req: &PathRequest, map: &Map) -> Outcome {
         assert!(!map.get_l(req.start.lane()).is_sidewalk());
 
         let start_node = self.get_node(req.start.lane(), map);
         let end_node = self.get_node(req.end.lane(), map);
         let end_pt = map.get_l(req.end.lane()).first_pt();
 
-        let (_, raw_nodes) = petgraph::algo::astar(
+        let raw_nodes = match petgraph::algo::astar(
             &self.graph,
             start_node,
             |n| n == end_node,
@@ -80,7 +85,10 @@ impl VehiclePathfinder {
                     end_pt.dist_to(r.center_pts.first_pt())
                 }
             },
-        )?;
+        ) {
+            Some((_, nodes)) => nodes,
+            None => { return Outcome::Failure; }
+        };
 
         // TODO windows(2) would be fine for peeking, except it drops the last element for odd
         // cardinality
@@ -113,21 +121,15 @@ impl VehiclePathfinder {
                     steps.push(PathStep::Lane(turn.id.dst));
                 } else {
                     if steps.len() == 1 {
-                        timer.warn(format!(
-                            "Started in the wrong lane, can't turn from {} to {}",
-                            from_lane, dr
-                        ));
-                        return None;
+                        // Started in the wrong lane
+                        return Outcome::RetrySlow;
                     } else {
-                        timer.warn(format!(
-                            "Can't find a turn from {} to {}. Path so far: {:?}",
-                            from_lane, dr, steps
-                        ));
-                        return None;
+                        // Need more lookahead to stitch together the right path
+                        return Outcome::RetrySlow;
                     }
                 }
             }
         }
-        Some(Path::new(map, steps, req.end.dist_along()))
+        Outcome::Success(Path::new(map, steps, req.end.dist_along()))
     }
 }

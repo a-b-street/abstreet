@@ -1,10 +1,11 @@
 mod contraction;
 mod simplified;
 mod walking;
+mod wrapper;
 
 use abstutil::Timer;
 use geom::Distance;
-use map_model::{LaneType, Map, PathRequest, Pathfinder, Position};
+use map_model::{Map, PathRequest, Pathfinder, Position};
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
@@ -45,7 +46,6 @@ fn main() {
         contraction::build_ch(path, &map, &mut timer);
         return;
     }
-
     let maybe_ch: Option<contraction::CHGraph> = if let Some(path) = flags.load_ch {
         Some(abstutil::read_binary(&path, &mut timer).unwrap())
     } else {
@@ -94,23 +94,12 @@ fn main() {
         }
     }
 
-    let car_graph = simplified::VehiclePathfinder::new(&map, vec![LaneType::Driving]);
-    let bike_graph =
-        simplified::VehiclePathfinder::new(&map, vec![LaneType::Driving, LaneType::Biking]);
-    let bus_graph =
-        simplified::VehiclePathfinder::new(&map, vec![LaneType::Driving, LaneType::Bus]);
-    let walking_graph = walking::SidewalkPathfinder::new(&map, false);
-    let walking_with_transit_graph = walking::SidewalkPathfinder::new(&map, true);
+    let pathfinder = wrapper::Pathfinder::new(&map);
 
     timer.start_iter("compute paths using simplified approach", requests.len());
     for req in &requests {
         timer.next();
-        if map.get_l(req.start.lane()).is_sidewalk() {
-            walking_graph.pathfind(req, &map);
-        } else {
-            // TODO use bike or bus too, sometimes
-            car_graph.pathfind(req, &map, &mut timer);
-        }
+        pathfinder.pathfind(req.clone(), &map);
     }
 
     timer.start_iter("compute paths using A*", requests.len());
