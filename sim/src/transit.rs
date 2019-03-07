@@ -1,7 +1,7 @@
 use crate::{CarID, Event, PedestrianID, Router, Scheduler, TripManager, WalkingSimState};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Distance, Duration};
-use map_model::{BusRoute, BusRouteID, BusStop, BusStopID, Map, Path, PathRequest, Pathfinder};
+use map_model::{BusRoute, BusRouteID, BusStopID, Map, Path, PathRequest, Pathfinder, Position};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
@@ -9,24 +9,17 @@ use std::collections::BTreeMap;
 type StopIdx = usize;
 
 #[derive(Serialize, Deserialize, PartialEq)]
-struct Route {
-    // Just copy the info over here from map_model for convenience
-    id: BusRouteID,
-    name: String,
-    stops: Vec<BusStop>,
-
-    buses: Vec<CarID>,
-    // TODO info on schedules
+struct StopForRoute {
+    id: BusStopID,
+    driving_pos: Position,
+    path_to_next_stop: Path,
+    next_stop_idx: StopIdx,
 }
 
-impl Route {
-    fn next_stop(&self, idx: StopIdx) -> StopIdx {
-        if idx + 1 == self.stops.len() {
-            0
-        } else {
-            idx + 1
-        }
-    }
+#[derive(Serialize, Deserialize, PartialEq)]
+struct Route {
+    stops: Vec<StopForRoute>,
+    buses: Vec<CarID>,
 }
 
 #[derive(Serialize, Deserialize, PartialEq)]
@@ -77,47 +70,60 @@ impl TransitSimState {
     // stop) for all of the stops in the route.
     pub fn create_empty_route(
         &mut self,
-        route: &BusRoute,
+        bus_route: &BusRoute,
         map: &Map,
     ) -> Vec<(StopIdx, Distance, Path, Distance)> {
-        assert!(route.stops.len() > 1);
+        assert!(bus_route.stops.len() > 1);
+
         let route = Route {
-            id: route.id,
-            name: route.name.clone(),
-            stops: route.stops.iter().map(|s| map.get_bs(*s).clone()).collect(),
             buses: Vec::new(),
+            stops: bus_route
+                .stops
+                .iter()
+                .enumerate()
+                .map(|(idx, stop1_id)| {
+                    let stop1 = map.get_bs(*stop1_id);
+                    let stop2_idx = if idx + 1 == bus_route.stops.len() {
+                        0
+                    } else {
+                        idx + 1
+                    };
+                    let path = Pathfinder::shortest_distance(
+                        map,
+                        PathRequest {
+                            start: stop1.driving_pos,
+                            end: map.get_bs(bus_route.stops[stop2_idx]).driving_pos,
+                            can_use_bike_lanes: false,
+                            can_use_bus_lanes: true,
+                        },
+                    )
+                    .expect(&format!(
+                        "No route between bus stops {:?} and {:?}",
+                        stop1_id, bus_route.stops[stop2_idx]
+                    ));
+                    StopForRoute {
+                        id: *stop1_id,
+                        driving_pos: stop1.driving_pos,
+                        path_to_next_stop: path,
+                        next_stop_idx: stop2_idx,
+                    }
+                })
+                .collect(),
         };
 
         let stops = route
             .stops
             .iter()
-            .enumerate()
-            .map(|(idx, stop1)| {
-                let next_stop = route.next_stop(idx);
-                let stop2 = &route.stops[next_stop];
-                let path = Pathfinder::shortest_distance(
-                    map,
-                    PathRequest {
-                        start: stop1.driving_pos,
-                        end: stop2.driving_pos,
-                        can_use_bike_lanes: false,
-                        can_use_bus_lanes: true,
-                    },
-                )
-                .expect(&format!(
-                    "No route between bus stops {:?} and {:?}",
-                    stop1, stop2
-                ));
+            .map(|s| {
                 (
-                    next_stop,
-                    stop1.driving_pos.dist_along(),
-                    path,
-                    stop2.driving_pos.dist_along(),
+                    s.next_stop_idx,
+                    s.driving_pos.dist_along(),
+                    s.path_to_next_stop.clone(),
+                    route.stops[s.next_stop_idx].driving_pos.dist_along(),
                 )
             })
             .collect();
-
-        self.routes.insert(route.id, route);
+        self.routes.insert(bus_route.id, route);
         stops
     }
 
@@ -179,32 +185,20 @@ impl TransitSimState {
         };
     }
 
-    pub fn bus_departed_from_stop(&mut self, id: CarID, map: &Map) -> Router {
+    pub fn bus_departed_from_stop(&mut self, id: CarID) -> Router {
         let mut bus = self.buses.get_mut(&id).unwrap();
         match bus.state {
             BusState::DrivingToStop(_) => unreachable!(),
             BusState::AtStop(stop_idx) => {
                 let route = &self.routes[&bus.route];
-                let next_stop_idx = route.next_stop(stop_idx);
                 let stop = &route.stops[stop_idx];
-                let next_stop = &route.stops[next_stop_idx];
-                bus.state = BusState::DrivingToStop(next_stop_idx);
-                self.events.push(Event::BusDepartedFromStop(id, stop.id));
 
-                let new_path = Pathfinder::shortest_distance(
-                    map,
-                    PathRequest {
-                        start: stop.driving_pos,
-                        end: next_stop.driving_pos,
-                        can_use_bike_lanes: false,
-                        can_use_bus_lanes: true,
-                    },
+                bus.state = BusState::DrivingToStop(stop.next_stop_idx);
+                self.events.push(Event::BusDepartedFromStop(id, stop.id));
+                Router::follow_bus_route(
+                    stop.path_to_next_stop.clone(),
+                    route.stops[stop.next_stop_idx].driving_pos.dist_along(),
                 )
-                .expect(&format!(
-                    "No route between bus stops {:?} and {:?}",
-                    stop, next_stop
-                ));
-                Router::follow_bus_route(new_path, next_stop.driving_pos.dist_along())
             }
         }
     }

@@ -210,7 +210,7 @@ impl DrivingSimState {
                 scheduler.push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
             }
             CarState::Idling(dist, _) => {
-                car.router = transit.bus_departed_from_stop(car.vehicle.id, map);
+                car.router = transit.bus_departed_from_stop(car.vehicle.id);
                 car.state = car.crossing_state(dist, time, map);
                 scheduler.push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
 
