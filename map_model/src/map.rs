@@ -325,6 +325,19 @@ impl Map {
         turns
     }
 
+    pub fn get_turn_between(
+        &self,
+        from: LaneID,
+        to: LaneID,
+        parent: IntersectionID,
+    ) -> Option<TurnID> {
+        self.get_i(parent)
+            .turns
+            .iter()
+            .find(|t| t.src == from && t.dst == to)
+            .cloned()
+    }
+
     pub fn get_next_turns_and_lanes(
         &self,
         from: LaneID,
@@ -504,7 +517,7 @@ impl Map {
         panic!("No parking lane has label {}", label);
     }
 
-    pub(crate) fn is_turn_allowed(&self, t: TurnID) -> bool {
+    pub fn is_turn_allowed(&self, t: TurnID) -> bool {
         if let Some(ss) = self.stop_signs.get(&t.parent) {
             ss.get_priority(t) != TurnPriority::Banned
         } else if let Some(ts) = self.traffic_signals.get(&t.parent) {

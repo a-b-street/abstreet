@@ -1,5 +1,6 @@
 mod contraction;
 mod simplified;
+mod walking;
 
 use abstutil::Timer;
 use geom::Distance;
@@ -93,16 +94,22 @@ fn main() {
         }
     }
 
-    let sidewalk_graph = simplified::MapPathfinder::new(&map, vec![LaneType::Sidewalk]);
-    let driving_graph = simplified::MapPathfinder::new(&map, vec![LaneType::Driving]);
-    // TODO Bus and bike ones too
+    let car_graph = simplified::VehiclePathfinder::new(&map, vec![LaneType::Driving]);
+    let bike_graph =
+        simplified::VehiclePathfinder::new(&map, vec![LaneType::Driving, LaneType::Biking]);
+    let bus_graph =
+        simplified::VehiclePathfinder::new(&map, vec![LaneType::Driving, LaneType::Bus]);
+    let walking_graph = walking::SidewalkPathfinder::new(&map, false);
+    let walking_with_transit_graph = walking::SidewalkPathfinder::new(&map, true);
+
     timer.start_iter("compute paths using simplified approach", requests.len());
     for req in &requests {
         timer.next();
         if map.get_l(req.start.lane()).is_sidewalk() {
-            sidewalk_graph.pathfind(req, &map, &mut timer);
+            walking_graph.pathfind(req, &map);
         } else {
-            driving_graph.pathfind(req, &map, &mut timer);
+            // TODO use bike or bus too, sometimes
+            car_graph.pathfind(req, &map, &mut timer);
         }
     }
 

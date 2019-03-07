@@ -6,14 +6,14 @@ use std::collections::{HashMap, VecDeque};
 
 // TODO Make the graph smaller by considering RoadID, or even (directed?) bundles of roads based on
 // OSM way.
-pub struct MapPathfinder {
+pub struct VehiclePathfinder {
     graph: Graph<DirectedRoadID, Distance>,
     nodes: HashMap<DirectedRoadID, NodeIndex<u32>>,
 }
 
-impl MapPathfinder {
-    pub fn new(map: &Map, lane_types: Vec<LaneType>) -> MapPathfinder {
-        let mut g = MapPathfinder {
+impl VehiclePathfinder {
+    pub fn new(map: &Map, lane_types: Vec<LaneType>) -> VehiclePathfinder {
+        let mut g = VehiclePathfinder {
             graph: Graph::new(),
             nodes: HashMap::new(),
         };
@@ -31,6 +31,9 @@ impl MapPathfinder {
         }
 
         for t in map.all_turns().values() {
+            if !map.is_turn_allowed(t.id) {
+                continue;
+            }
             let src_l = map.get_l(t.id.src);
             let dst_l = map.get_l(t.id.dst);
             if lane_types.contains(&src_l.lane_type) && lane_types.contains(&dst_l.lane_type) {
@@ -57,6 +60,8 @@ impl MapPathfinder {
     }
 
     pub fn pathfind(&self, req: &PathRequest, map: &Map, timer: &mut Timer) -> Option<Path> {
+        assert!(!map.get_l(req.start.lane()).is_sidewalk());
+
         let start_node = self.get_node(req.start.lane(), map);
         let end_node = self.get_node(req.end.lane(), map);
         let end_pt = map.get_l(req.end.lane()).first_pt();
@@ -76,11 +81,6 @@ impl MapPathfinder {
                 }
             },
         )?;
-
-        // TODO implement the more complicated logic
-        if map.get_l(req.start.lane()).is_sidewalk() {
-            return None;
-        }
 
         // TODO windows(2) would be fine for peeking, except it drops the last element for odd
         // cardinality
