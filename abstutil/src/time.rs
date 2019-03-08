@@ -233,6 +233,7 @@ impl Timer {
     }
 }
 
+// TODO Can we skip doing this when we're unwinding a panic? It makes the stack trace quite ugly.
 impl std::ops::Drop for Timer {
     fn drop(&mut self) {
         let stop_name = self.outermost_name.clone();

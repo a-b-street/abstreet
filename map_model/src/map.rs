@@ -1,8 +1,9 @@
+use crate::pathfind::Pathfinder;
 use crate::{
     make, raw_data, Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop, BusStopID,
     ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, IntersectionType, Lane,
-    LaneID, LaneType, MapEdits, Parcel, ParcelID, Pathfinder, Road, RoadID, Turn, TurnID,
-    TurnPriority,
+    LaneID, LaneType, MapEdits, Parcel, ParcelID, Path, PathRequest, Position, Road, RoadID, Turn,
+    TurnID, TurnPriority,
 };
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
@@ -582,5 +583,21 @@ impl Map {
 
     pub fn get_boundary_polygon(&self) -> &Polygon {
         &self.boundary_polygon
+    }
+
+    pub fn pathfind(&self, req: PathRequest) -> Option<Path> {
+        self.pathfinder.as_ref().unwrap().pathfind(req, self)
+    }
+
+    pub fn pathfind_slow(&self, req: PathRequest) -> Option<Path> {
+        Pathfinder::shortest_distance(self, req)
+    }
+
+    pub fn should_use_transit(
+        &self,
+        start: Position,
+        end: Position,
+    ) -> Option<(BusStopID, BusStopID, BusRouteID)> {
+        Pathfinder::should_use_transit(self, start, end)
     }
 }

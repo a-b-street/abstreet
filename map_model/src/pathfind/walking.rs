@@ -95,6 +95,24 @@ impl SidewalkPathfinder {
     }
 
     pub fn pathfind(&self, req: &PathRequest, map: &Map) -> Option<Path> {
+        // Special-case one-step paths.
+        if req.start.lane() == req.end.lane() {
+            assert!(req.start.dist_along() != req.end.dist_along());
+            if req.start.dist_along() < req.end.dist_along() {
+                return Some(Path::new(
+                    map,
+                    vec![PathStep::Lane(req.start.lane())],
+                    req.end.dist_along(),
+                ));
+            } else {
+                return Some(Path::new(
+                    map,
+                    vec![PathStep::ContraflowLane(req.start.lane())],
+                    req.end.dist_along(),
+                ));
+            }
+        }
+
         let start_node = self.get_node(req.start.lane(), map);
         let end_node = self.get_node(req.end.lane(), map);
         let end_pt = map.get_l(req.end.lane()).first_pt();
@@ -120,16 +138,9 @@ impl SidewalkPathfinder {
         )?;
 
         let mut steps: Vec<PathStep> = Vec::new();
-        let mut current_i: Option<IntersectionID> = {
-            let first_lane = map.get_l(req.start.lane());
-            if req.start.dist_along() == Distance::ZERO {
-                Some(first_lane.src_i)
-            } else if req.start.dist_along() == first_lane.length() {
-                Some(first_lane.dst_i)
-            } else {
-                None
-            }
-        };
+        // If the request starts at the beginning/end of a lane, still include that as the first
+        // PathStep. Sim layer breaks otherwise.
+        let mut current_i: Option<IntersectionID> = None;
 
         for pair in raw_nodes.windows(2) {
             let lane1 = map.get_l(self.get_sidewalk(self.graph[pair[0]], map));
@@ -154,16 +165,12 @@ impl SidewalkPathfinder {
             }
         }
 
-        // TODO Handle one-step paths.
+        // Don't end a path in a turn; sim layer breaks.
         let last_lane = map.get_l(self.get_sidewalk(self.graph[*raw_nodes.last().unwrap()], map));
         if Some(last_lane.src_i) == current_i {
-            if req.end.dist_along() != Distance::ZERO {
-                steps.push(PathStep::Lane(last_lane.id));
-            }
+            steps.push(PathStep::Lane(last_lane.id));
         } else if Some(last_lane.dst_i) == current_i {
-            if req.end.dist_along() != last_lane.length() {
-                steps.push(PathStep::ContraflowLane(last_lane.id));
-            }
+            steps.push(PathStep::ContraflowLane(last_lane.id));
         } else {
             unreachable!();
         }

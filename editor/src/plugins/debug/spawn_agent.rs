@@ -3,8 +3,8 @@ use crate::plugins::{BlockingPlugin, PluginCtx};
 use abstutil::Timer;
 use ezgui::{Color, GfxCtx, Key};
 use map_model::{
-    BuildingID, IntersectionID, IntersectionType, LaneType, PathRequest, Pathfinder, Position,
-    Trace, LANE_THICKNESS,
+    BuildingID, IntersectionID, IntersectionType, LaneType, PathRequest, Position, Trace,
+    LANE_THICKNESS,
 };
 use sim::{DrivingGoal, Scenario, SidewalkSpot, TripSpec, TIMESTEP};
 
@@ -130,15 +130,12 @@ impl BlockingPlugin for SpawnAgent {
                 }
             };
 
-            if let Some(path) = Pathfinder::shortest_distance(
-                map,
-                PathRequest {
-                    start,
-                    end,
-                    can_use_bike_lanes: false,
-                    can_use_bus_lanes: false,
-                },
-            ) {
+            if let Some(path) = map.pathfind(PathRequest {
+                start,
+                end,
+                can_use_bike_lanes: false,
+                can_use_bus_lanes: false,
+            }) {
                 self.maybe_goal = Some((new_goal, path.trace(map, start.dist_along(), None)));
             } else {
                 self.maybe_goal = None;

@@ -5,7 +5,7 @@ use crate::{
 };
 use abstutil::Timer;
 use geom::Duration;
-use map_model::{BusRouteID, BusStopID, Map, Path, PathRequest, Pathfinder, Position};
+use map_model::{BusRouteID, BusStopID, Map, Path, PathRequest, Position};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 
@@ -308,8 +308,7 @@ fn calculate_paths(map: &Map, requests: Vec<PathRequest>, timer: &mut Timer) -> 
         for (idx, req) in requests.into_iter().enumerate() {
             let tx = tx.clone();
             scope.execute(move || {
-                let path = Pathfinder::shortest_distance(map, req);
-                tx.send((idx, path)).unwrap();
+                tx.send((idx, map.pathfind(req))).unwrap();
             });
         }
         drop(tx);

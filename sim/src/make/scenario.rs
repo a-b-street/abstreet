@@ -6,7 +6,7 @@ use abstutil;
 use abstutil::{fork_rng, Timer, WeightedUsizeChoice};
 use geom::{Distance, Duration, Speed};
 use map_model::{
-    BuildingID, FullNeighborhoodInfo, IntersectionID, LaneType, Map, Pathfinder, Position, RoadID,
+    BuildingID, FullNeighborhoodInfo, IntersectionID, LaneType, Map, Position, RoadID,
 };
 use rand::seq::SliceRandom;
 use rand::Rng;
@@ -292,7 +292,7 @@ impl SpawnOverTime {
                 // TODO This throws away some work. It also sequentially does expensive
                 // work right here.
                 if let Some((stop1, stop2, route)) =
-                    Pathfinder::should_use_transit(map, start_spot.sidewalk_pos, goal.sidewalk_pos)
+                    map.should_use_transit(start_spot.sidewalk_pos, goal.sidewalk_pos)
                 {
                     sim.schedule_trip(
                         spawn_time,
@@ -341,7 +341,7 @@ impl BorderSpawnOverTime {
                     // TODO This throws away some work. It also sequentially does expensive
                     // work right here.
                     if let Some((stop1, stop2, route)) =
-                        Pathfinder::should_use_transit(map, start.sidewalk_pos, goal.sidewalk_pos)
+                        map.should_use_transit(start.sidewalk_pos, goal.sidewalk_pos)
                     {
                         sim.schedule_trip(
                             spawn_time,

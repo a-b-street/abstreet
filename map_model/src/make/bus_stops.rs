@@ -1,7 +1,6 @@
 use crate::make::sidewalk_finder::find_sidewalk_points;
 use crate::{
-    BusRoute, BusRouteID, BusStop, BusStopID, LaneID, LaneType, Map, PathRequest, Pathfinder,
-    Position,
+    BusRoute, BusRouteID, BusStop, BusStopID, LaneID, LaneType, Map, PathRequest, Position,
 };
 use abstutil::{MultiMap, Timer};
 use geom::{Bounds, Distance, GPSBounds, HashablePt2D, Pt2D};
@@ -126,16 +125,14 @@ pub fn verify_bus_routes(map: &Map, routes: Vec<BusRoute>, timer: &mut Timer) ->
                     break;
                 }
 
-                if Pathfinder::shortest_distance(
-                    map,
-                    PathRequest {
+                if map
+                    .pathfind_slow(PathRequest {
                         start: bs1.driving_pos,
                         end: bs2.driving_pos,
                         can_use_bike_lanes: false,
                         can_use_bus_lanes: true,
-                    },
-                )
-                .is_none()
+                    })
+                    .is_none()
                 {
                     timer.warn(format!(
                         "Removing route {} since {:?} and {:?} aren't connected",

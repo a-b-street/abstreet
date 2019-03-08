@@ -5,7 +5,7 @@ use crate::{
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::Duration;
-use map_model::{BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathRequest, Pathfinder};
+use map_model::{BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathRequest};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, VecDeque};
 
@@ -107,15 +107,12 @@ impl TripManager {
         let parked_car = parking.get_car_at_spot(spot).unwrap();
         assert_eq!(parked_car.vehicle.id, car);
 
-        let path = if let Some(p) = Pathfinder::shortest_distance(
-            map,
-            PathRequest {
-                start: parked_car.get_driving_pos(parking, map),
-                end: drive_to.goal_pos(map),
-                can_use_bus_lanes: false,
-                can_use_bike_lanes: false,
-            },
-        ) {
+        let path = if let Some(p) = map.pathfind(PathRequest {
+            start: parked_car.get_driving_pos(parking, map),
+            end: drive_to.goal_pos(map),
+            can_use_bus_lanes: false,
+            can_use_bike_lanes: false,
+        }) {
             p
         } else {
             println!("Aborting a trip because no path for the car portion!");
@@ -162,15 +159,12 @@ impl TripManager {
         };
 
         let end = drive_to.goal_pos(map);
-        let path = if let Some(p) = Pathfinder::shortest_distance(
-            map,
-            PathRequest {
-                start: driving_pos,
-                end,
-                can_use_bus_lanes: false,
-                can_use_bike_lanes: false,
-            },
-        ) {
+        let path = if let Some(p) = map.pathfind(PathRequest {
+            start: driving_pos,
+            end,
+            can_use_bus_lanes: false,
+            can_use_bike_lanes: false,
+        }) {
             p
         } else {
             println!("Aborting a trip because no path for the car portion!");
@@ -413,15 +407,12 @@ impl Trip {
             _ => unreachable!(),
         };
 
-        let path = if let Some(p) = Pathfinder::shortest_distance(
-            map,
-            PathRequest {
-                start: start.sidewalk_pos,
-                end: walk_to.sidewalk_pos,
-                can_use_bus_lanes: false,
-                can_use_bike_lanes: false,
-            },
-        ) {
+        let path = if let Some(p) = map.pathfind(PathRequest {
+            start: start.sidewalk_pos,
+            end: walk_to.sidewalk_pos,
+            can_use_bus_lanes: false,
+            can_use_bike_lanes: false,
+        }) {
             p
         } else {
             println!("Aborting a trip because no path for the walking portion!");

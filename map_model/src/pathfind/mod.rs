@@ -336,29 +336,7 @@ impl Pathfinder {
             self.car_graph.pathfind(&req, map)
         };
         match outcome {
-            //Outcome::Success(path) => Some(path),
-            Outcome::Success(path) => {
-                let ok1 = match path.current_step().as_traversable() {
-                    Traversable::Lane(l) => l == req.start.lane(),
-                    Traversable::Turn(t) => t.src == req.start.lane(),
-                };
-                let ok2 = match path.last_step().as_traversable() {
-                    Traversable::Lane(l) => l == req.end.lane(),
-                    Traversable::Turn(t) => t.dst == req.end.lane(),
-                };
-                if !ok1 || !ok2 {
-                    println!("request is {:?}", req);
-                    for step in path.get_steps() {
-                        println!("- {:?}", step);
-                    }
-                    panic!(
-                        "bad path starting on a {:?}",
-                        map.get_l(req.start.lane()).lane_type
-                    );
-                }
-
-                Some(path)
-            }
+            Outcome::Success(path) => Some(path),
             Outcome::Failure => None,
             Outcome::RetrySlow => slow::shortest_distance(map, req),
         }

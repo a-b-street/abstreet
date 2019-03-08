@@ -2,7 +2,7 @@ mod contraction;
 
 use abstutil::Timer;
 use geom::Distance;
-use map_model::{Map, PathRequest, Pathfinder, Position};
+use map_model::{Map, PathRequest, Position};
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
@@ -94,19 +94,17 @@ fn main() {
         }
     }
 
-    let pathfinder = Pathfinder::new(&map);
-
     timer.start_iter("compute paths using simplified approach", requests.len());
     for req in &requests {
         timer.next();
-        pathfinder.pathfind(req.clone(), &map);
+        map.pathfind(req.clone());
     }
 
-    /*timer.start_iter("compute paths using A*", requests.len());
+    timer.start_iter("compute paths using A*", requests.len());
     for req in requests {
         timer.next();
-        Pathfinder::shortest_distance(&map, req);
-    }*/
+        map.pathfind_slow(req);
+    }
 
     if flags.enable_profiler {
         cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();

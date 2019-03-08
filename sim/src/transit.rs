@@ -1,7 +1,7 @@
 use crate::{CarID, Event, PedestrianID, Router, Scheduler, TripManager, WalkingSimState};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Distance, Duration};
-use map_model::{BusRoute, BusRouteID, BusStopID, Map, Path, PathRequest, Pathfinder, Position};
+use map_model::{BusRoute, BusRouteID, BusStopID, Map, Path, PathRequest, Position};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
@@ -88,19 +88,17 @@ impl TransitSimState {
                     } else {
                         idx + 1
                     };
-                    let path = Pathfinder::shortest_distance(
-                        map,
-                        PathRequest {
+                    let path = map
+                        .pathfind(PathRequest {
                             start: stop1.driving_pos,
                             end: map.get_bs(bus_route.stops[stop2_idx]).driving_pos,
                             can_use_bike_lanes: false,
                             can_use_bus_lanes: true,
-                        },
-                    )
-                    .expect(&format!(
-                        "No route between bus stops {:?} and {:?}",
-                        stop1_id, bus_route.stops[stop2_idx]
-                    ));
+                        })
+                        .expect(&format!(
+                            "No route between bus stops {:?} and {:?}",
+                            stop1_id, bus_route.stops[stop2_idx]
+                        ));
                     StopForRoute {
                         id: *stop1_id,
                         driving_pos: stop1.driving_pos,
