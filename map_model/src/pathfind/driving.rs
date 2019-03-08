@@ -1,5 +1,5 @@
+use crate::{DirectedRoadID, LaneID, LaneType, Map, Path, PathRequest, PathStep};
 use geom::Distance;
-use map_model::{DirectedRoadID, LaneID, LaneType, Map, Path, PathRequest, PathStep};
 use petgraph::graph::{Graph, NodeIndex};
 use std::collections::{HashMap, VecDeque};
 

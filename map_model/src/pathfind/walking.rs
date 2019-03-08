@@ -1,8 +1,8 @@
-use geom::Distance;
-use map_model::{
+use crate::{
     BusRouteID, BusStopID, DirectedRoadID, IntersectionID, LaneID, LaneType, Map, Path,
     PathRequest, PathStep, Position,
 };
+use geom::Distance;
 use petgraph::graph::{Graph, NodeIndex};
 use std::collections::HashMap;
 

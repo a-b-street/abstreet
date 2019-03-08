@@ -1,7 +1,4 @@
 mod contraction;
-mod simplified;
-mod walking;
-mod wrapper;
 
 use abstutil::Timer;
 use geom::Distance;
@@ -97,7 +94,7 @@ fn main() {
         }
     }
 
-    let pathfinder = wrapper::Pathfinder::new(&map);
+    let pathfinder = Pathfinder::new(&map);
 
     timer.start_iter("compute paths using simplified approach", requests.len());
     for req in &requests {
@@ -105,11 +102,11 @@ fn main() {
         pathfinder.pathfind(req.clone(), &map);
     }
 
-    timer.start_iter("compute paths using A*", requests.len());
+    /*timer.start_iter("compute paths using A*", requests.len());
     for req in requests {
         timer.next();
         Pathfinder::shortest_distance(&map, req);
-    }
+    }*/
 
     if flags.enable_profiler {
         cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
