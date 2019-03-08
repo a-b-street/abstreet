@@ -13,6 +13,7 @@ pub struct Router {
     goal: Goal,
 }
 
+#[derive(Debug)]
 pub enum ActionAtEnd {
     VanishAtBorder(IntersectionID),
     StartParking(ParkingSpot),

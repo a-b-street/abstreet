@@ -193,6 +193,7 @@ impl Sim {
                 },
                 map,
                 &self.intersections,
+                &self.parking,
                 &mut self.scheduler,
             ) {
                 self.trips.agent_starting_trip_leg(AgentID::Car(id), trip);
@@ -277,6 +278,7 @@ impl Sim {
                         create_car.clone(),
                         map,
                         &self.intersections,
+                        &self.parking,
                         &mut self.scheduler,
                     ) {
                         self.trips.agent_starting_trip_leg(

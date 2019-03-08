@@ -63,6 +63,7 @@ impl DrivingSimState {
         params: CreateCar,
         map: &Map,
         intersections: &IntersectionSimState,
+        parking: &ParkingSimState,
         scheduler: &mut Scheduler,
     ) -> bool {
         let first_lane = params.router.head().as_lane();
@@ -88,6 +89,19 @@ impl DrivingSimState {
                     TimeInterval::new(time, time + TIME_TO_UNPARK),
                 );
             } else {
+                // Have to do this early
+                if car.router.last_step() {
+                    match car
+                        .router
+                        .maybe_handle_end(params.start_dist, &car.vehicle, parking, map)
+                    {
+                        None | Some(ActionAtEnd::GotoLaneEnd) => {}
+                        x => {
+                            panic!("Car with one-step route {:?} had unexpected result from maybe_handle_end: {:?}", car.router, x);
+                        }
+                    }
+                }
+
                 car.state = car.crossing_state(params.start_dist, time, map);
             }
             scheduler.push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
