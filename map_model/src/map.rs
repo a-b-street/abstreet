@@ -1,7 +1,8 @@
 use crate::{
     make, raw_data, Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop, BusStopID,
     ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, IntersectionType, Lane,
-    LaneID, LaneType, MapEdits, Parcel, ParcelID, Road, RoadID, Turn, TurnID, TurnPriority,
+    LaneID, LaneType, MapEdits, Parcel, ParcelID, Pathfinder, Road, RoadID, Turn, TurnID,
+    TurnPriority,
 };
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
@@ -40,6 +41,8 @@ pub struct Map {
     bounds: Bounds,
 
     turn_lookup: Vec<TurnID>,
+    // TODO Argh, hack, initialization order is hard!
+    pathfinder: Option<Pathfinder>,
 
     name: String,
     edits: MapEdits,
@@ -95,6 +98,7 @@ impl Map {
             gps_bounds,
             bounds,
             turn_lookup: half_map.turn_lookup,
+            pathfinder: None,
             name,
             edits,
         };
@@ -136,6 +140,7 @@ impl Map {
 
             m.bus_routes = make::verify_bus_routes(&m, routes, timer);
         }
+        m.pathfinder = Some(Pathfinder::new(&m));
 
         timer.stop("finalize Map");
         m

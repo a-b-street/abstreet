@@ -1,10 +1,12 @@
 use crate::{DirectedRoadID, LaneID, LaneType, Map, Path, PathRequest, PathStep};
 use geom::Distance;
 use petgraph::graph::{Graph, NodeIndex};
+use serde_derive::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
 
 // TODO Make the graph smaller by considering RoadID, or even (directed?) bundles of roads based on
 // OSM way.
+#[derive(Serialize, Deserialize, Debug)]
 pub struct VehiclePathfinder {
     graph: Graph<DirectedRoadID, Distance>,
     nodes: HashMap<DirectedRoadID, NodeIndex<u32>>,

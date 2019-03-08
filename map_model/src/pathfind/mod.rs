@@ -293,6 +293,7 @@ fn validate(map: &Map, steps: &Vec<PathStep>) {
     }
 }
 
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Pathfinder {
     car_graph: VehiclePathfinder,
     bike_graph: VehiclePathfinder,

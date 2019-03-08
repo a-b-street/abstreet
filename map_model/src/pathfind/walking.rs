@@ -4,15 +4,18 @@ use crate::{
 };
 use geom::Distance;
 use petgraph::graph::{Graph, NodeIndex};
+use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 // TODO Make the graph smaller by considering RoadID, or even (directed?) bundles of roads based on
 // OSM way.
+#[derive(Serialize, Deserialize, Debug)]
 pub struct SidewalkPathfinder {
     graph: Graph<DirectedRoadID, Edge>,
     nodes: HashMap<DirectedRoadID, NodeIndex<u32>>,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
 enum Edge {
     Cross(Distance),
     RideBus(BusStopID, BusStopID, BusRouteID),
