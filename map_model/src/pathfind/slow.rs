@@ -40,30 +40,6 @@ pub fn shortest_distance(map: &Map, req: PathRequest) -> Option<Path> {
     Some(Path::new(map, steps, req.end.dist_along()))
 }
 
-// Attempt the pathfinding and see if riding a bus is a step.
-pub fn should_use_transit(
-    map: &Map,
-    start: Position,
-    goal: Position,
-) -> Option<(BusStopID, BusStopID, BusRouteID)> {
-    // TODO using first_pt here and in heuristic_dist is particularly bad for walking
-    // directions
-    let goal_pt = goal.pt(map);
-    let internal_steps = SlowPathfinder {
-        goal_pt,
-        can_use_bike_lanes: false,
-        can_use_bus_lanes: false,
-        can_use_transit: true,
-    }
-    .pathfind(map, start, goal)?;
-    for s in internal_steps.into_iter() {
-        if let InternalPathStep::RideBus(stop1, stop2, route) = s {
-            return Some((stop1, stop2, route));
-        }
-    }
-    None
-}
-
 // TODO This is like PathStep, but also encodes the possibility of taking a bus.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy)]
 enum InternalPathStep {

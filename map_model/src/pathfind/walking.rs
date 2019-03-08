@@ -179,7 +179,6 @@ impl SidewalkPathfinder {
     }
 
     // Attempt the pathfinding and see if riding a bus is a step.
-    // TODO Separate type to make sure we originally included transit edges.
     pub fn should_use_transit(
         &self,
         map: &Map,
@@ -210,7 +209,13 @@ impl SidewalkPathfinder {
             },
         )?;
 
-        // TODO Can we get the edges? If not, go through pairs of nodes and look up the edge.
+        for pair in raw_nodes.windows(2) {
+            if let Edge::RideBus(stop1, stop2, route) =
+                self.graph[self.graph.find_edge(pair[0], pair[1]).unwrap()]
+            {
+                return Some((stop1, stop2, route));
+            }
+        }
         None
     }
 }

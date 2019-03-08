@@ -590,7 +590,7 @@ impl Map {
     }
 
     pub fn pathfind_slow(&self, req: PathRequest) -> Option<Path> {
-        Pathfinder::shortest_distance(self, req)
+        crate::pathfind::slow::shortest_distance(self, req)
     }
 
     pub fn should_use_transit(
@@ -598,6 +598,9 @@ impl Map {
         start: Position,
         end: Position,
     ) -> Option<(BusStopID, BusStopID, BusRouteID)> {
-        Pathfinder::should_use_transit(self, start, end)
+        self.pathfinder
+            .as_ref()
+            .unwrap()
+            .should_use_transit(self, start, end)
     }
 }

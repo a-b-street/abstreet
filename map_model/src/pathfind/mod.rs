@@ -1,5 +1,5 @@
 mod driving;
-mod slow;
+pub mod slow;
 mod walking;
 
 use self::driving::{Outcome, VehiclePathfinder};
@@ -313,11 +313,6 @@ impl Pathfinder {
         }
     }
 
-    // TODO tmp
-    pub fn shortest_distance(map: &Map, req: PathRequest) -> Option<Path> {
-        slow::shortest_distance(map, req)
-    }
-
     pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<Path> {
         if req.start == req.end {
             panic!("Bad request {:?}", req);
@@ -338,19 +333,11 @@ impl Pathfinder {
         match outcome {
             Outcome::Success(path) => Some(path),
             Outcome::Failure => None,
-            Outcome::RetrySlow => slow::shortest_distance(map, req),
+            Outcome::RetrySlow => map.pathfind_slow(req),
         }
     }
 
     pub fn should_use_transit(
-        map: &Map,
-        start: Position,
-        end: Position,
-    ) -> Option<(BusStopID, BusStopID, BusRouteID)> {
-        slow::should_use_transit(map, start, end)
-    }
-
-    pub fn new_should_use_transit(
         &self,
         map: &Map,
         start: Position,
