@@ -287,6 +287,10 @@ impl SpawnOverTime {
 
         if let Some(goal) = self.goal.pick_walking_goal(map, &neighborhoods, rng, timer) {
             let start_spot = SidewalkSpot::building(from_bldg, map);
+            if start_spot == goal {
+                timer.warn("Skipping walking trip between same two buildings".to_string());
+                return;
+            }
 
             if rng.gen_bool(self.percent_use_transit) {
                 // TODO This throws away some work. It also sequentially does expensive

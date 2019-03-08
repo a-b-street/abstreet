@@ -79,7 +79,14 @@ impl TripSpawner {
                 }
                 self.parked_cars_claimed.insert(car_id);
             }
-            TripSpec::JustWalking(_, _) => {}
+            TripSpec::JustWalking(spot1, spot2) => {
+                if spot1 == spot2 {
+                    panic!(
+                        "A trip just walking from {:?} to {:?} doesn't make sense",
+                        spot1, spot2
+                    );
+                }
+            }
             TripSpec::UsingBike(start, _, goal) => {
                 if SidewalkSpot::bike_rack(start.sidewalk_pos.lane(), map).is_none() {
                     panic!(
