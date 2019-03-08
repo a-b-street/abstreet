@@ -107,15 +107,20 @@ impl TripManager {
         let parked_car = parking.get_car_at_spot(spot).unwrap();
         assert_eq!(parked_car.vehicle.id, car);
 
+        let start = parked_car.get_driving_pos(parking, map);
+        let end = drive_to.goal_pos(map);
         let path = if let Some(p) = map.pathfind(PathRequest {
-            start: parked_car.get_driving_pos(parking, map),
-            end: drive_to.goal_pos(map),
+            start,
+            end,
             can_use_bus_lanes: false,
             can_use_bike_lanes: false,
         }) {
             p
         } else {
-            println!("Aborting a trip because no path for the car portion!");
+            println!(
+                "Aborting a trip because no path for the car portion! {:?} to {:?}",
+                start, end
+            );
             return;
         };
 
@@ -167,7 +172,10 @@ impl TripManager {
         }) {
             p
         } else {
-            println!("Aborting a trip because no path for the car portion!");
+            println!(
+                "Aborting a trip because no path for the car portion! {:?} to {:?}",
+                driving_pos, end
+            );
             return;
         };
 
@@ -415,7 +423,10 @@ impl Trip {
         }) {
             p
         } else {
-            println!("Aborting a trip because no path for the walking portion!");
+            println!(
+                "Aborting a trip because no path for the walking portion! {:?} to {:?}",
+                start, walk_to
+            );
             return;
         };
 

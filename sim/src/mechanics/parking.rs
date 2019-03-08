@@ -179,7 +179,7 @@ impl ParkingSimState {
         self.cars_per_building
             .get(id)
             .iter()
-            .map(|id| &self.cars[id])
+            .filter_map(|id| self.cars.get(&id))
             .collect()
     }
 
