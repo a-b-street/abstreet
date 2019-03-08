@@ -9,6 +9,6 @@ pub fn run(t: &mut TestRunner) {
             .load(Some(Duration::seconds(30.0)), &mut Timer::throwaway());
         Scenario::small_run(&map).instantiate(&mut sim, &map, &mut rng, &mut Timer::throwaway());
         h.setup_done(&sim);
-        sim.run_until_done(&map, |_| {}, Some(Duration::minutes(60)));
+        sim.run_until_done(&map, |_| {}, Some(Duration::minutes(70)));
     });
 }

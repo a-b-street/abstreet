@@ -2,17 +2,22 @@ use crate::{
     BusRouteID, BusStopID, DirectedRoadID, IntersectionID, LaneID, LaneType, Map, Path,
     PathRequest, PathStep, Position,
 };
+use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::Distance;
 use petgraph::graph::{Graph, NodeIndex};
 use serde_derive::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 // TODO Make the graph smaller by considering RoadID, or even (directed?) bundles of roads based on
 // OSM way.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SidewalkPathfinder {
     graph: Graph<DirectedRoadID, Edge>,
-    nodes: HashMap<DirectedRoadID, NodeIndex<u32>>,
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
+    nodes: BTreeMap<DirectedRoadID, NodeIndex<u32>>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -25,7 +30,7 @@ impl SidewalkPathfinder {
     pub fn new(map: &Map, use_transit: bool) -> SidewalkPathfinder {
         let mut g = SidewalkPathfinder {
             graph: Graph::new(),
-            nodes: HashMap::new(),
+            nodes: BTreeMap::new(),
         };
 
         for r in map.all_roads() {

@@ -493,6 +493,9 @@ impl Sim {
 
     pub fn measure_speed(&self, b: &mut Benchmark) -> String {
         let dt = Duration::seconds(abstutil::elapsed_seconds(b.last_real_time));
+        if dt == Duration::ZERO {
+            return format!("speed = instantly ({})", self.scheduler.describe_stats());
+        }
         let speed = (self.time - b.last_sim_time) / dt;
         b.last_real_time = Instant::now();
         b.last_sim_time = self.time;
