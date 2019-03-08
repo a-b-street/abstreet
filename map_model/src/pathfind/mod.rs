@@ -11,7 +11,7 @@ use std::collections::VecDeque;
 
 pub type Trace = PolyLine;
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum PathStep {
     // Original direction
     Lane(LaneID),
@@ -21,13 +21,6 @@ pub enum PathStep {
 }
 
 impl PathStep {
-    pub fn is_contraflow(&self) -> bool {
-        match self {
-            PathStep::ContraflowLane(_) => true,
-            _ => false,
-        }
-    }
-
     pub fn as_traversable(&self) -> Traversable {
         match self {
             PathStep::Lane(id) => Traversable::Lane(*id),
