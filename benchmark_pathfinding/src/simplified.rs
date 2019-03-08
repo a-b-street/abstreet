@@ -87,7 +87,9 @@ impl VehiclePathfinder {
             },
         ) {
             Some((_, nodes)) => nodes,
-            None => { return Outcome::Failure; }
+            None => {
+                return Outcome::Failure;
+            }
         };
 
         // TODO windows(2) would be fine for peeking, except it drops the last element for odd
@@ -106,15 +108,20 @@ impl VehiclePathfinder {
                     _ => unreachable!(),
                 };
                 if let Some(turn) = map.get_turns_from_lane(from_lane).into_iter().find(|t| {
-                    let l = map.get_l(t.id.dst);
-                    if l.get_directed_parent(map) == dr {
-                        nodes.is_empty()
-                            || map.get_turns_from_lane(l.id).into_iter().any(|t2| {
+                    // Special case the last step
+                    if nodes.is_empty() {
+                        t.id.dst == req.end.lane()
+                    } else {
+                        let l = map.get_l(t.id.dst);
+                        if l.get_directed_parent(map) == dr {
+                            // TODO different case when nodes.len() == 1.
+                            map.get_turns_from_lane(l.id).into_iter().any(|t2| {
                                 map.get_l(t2.id.dst).get_directed_parent(map)
                                     == self.graph[nodes[0]]
                             })
-                    } else {
-                        false
+                        } else {
+                            false
+                        }
                     }
                 }) {
                     steps.push(PathStep::Turn(turn.id));

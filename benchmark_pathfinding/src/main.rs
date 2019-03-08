@@ -63,6 +63,9 @@ fn main() {
             let sidewalk = map.get_l(lane1).is_sidewalk();
             let lane2 = loop {
                 let l = map.all_lanes().choose(&mut rng).unwrap();
+                if l.id == lane1 {
+                    continue;
+                }
                 if sidewalk && l.is_sidewalk() {
                     break l.id;
                 } else if !sidewalk && l.is_for_moving_vehicles() {

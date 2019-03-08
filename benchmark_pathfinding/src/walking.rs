@@ -128,7 +128,6 @@ impl SidewalkPathfinder {
             }
         };
 
-        // TODO Handle last step. note its dist_along might be 0 or max.
         for pair in raw_nodes.windows(2) {
             let lane1 = map.get_l(self.get_sidewalk(self.graph[pair[0]], map));
             let l2 = self.get_sidewalk(self.graph[pair[1]], map);
@@ -150,6 +149,20 @@ impl SidewalkPathfinder {
                 steps.push(PathStep::Turn(back_t.unwrap()));
                 current_i = Some(lane1.src_i);
             }
+        }
+
+        // TODO Handle one-step paths.
+        let last_lane = map.get_l(self.get_sidewalk(self.graph[*raw_nodes.last().unwrap()], map));
+        if Some(last_lane.src_i) == current_i {
+            if req.end.dist_along() != Distance::ZERO {
+                steps.push(PathStep::Lane(last_lane.id));
+            }
+        } else if Some(last_lane.dst_i) == current_i {
+            if req.end.dist_along() != last_lane.length() {
+                steps.push(PathStep::ContraflowLane(last_lane.id));
+            }
+        } else {
+            unreachable!();
         }
 
         Some(Path::new(map, steps, req.end.dist_along()))

@@ -271,7 +271,7 @@ impl Path {
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct PathRequest {
     pub start: Position,
     pub end: Position,
@@ -484,6 +484,9 @@ impl Pathfinder {
 }
 
 fn validate(map: &Map, steps: &Vec<PathStep>) {
+    if steps.is_empty() {
+        panic!("Empty Path");
+    }
     for pair in steps.windows(2) {
         let from = match pair[0] {
             PathStep::Lane(id) => map.get_l(id).last_pt(),
