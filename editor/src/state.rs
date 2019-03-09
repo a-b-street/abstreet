@@ -40,6 +40,10 @@ pub struct Flags {
     /// Enable cpuprofiler?
     #[structopt(long = "enable_profiler")]
     pub enable_profiler: bool,
+
+    /// Number of agents to generate when small_spawn called
+    #[structopt(long = "num_agents", default_value = "100")]
+    pub num_agents: usize,
 }
 
 pub trait UIState {

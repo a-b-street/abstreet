@@ -148,12 +148,13 @@ impl AmbientPluginWithPrimaryPlugins for SimControls {
                 // Interactively spawning stuff would ruin an A/B test, don't allow it
                 if ctx.primary.sim.is_empty() && ctx.input.action_chosen("seed the sim with agents")
                 {
-                    Scenario::small_run(&ctx.primary.map).instantiate(
-                        &mut ctx.primary.sim,
-                        &ctx.primary.map,
-                        &mut ctx.primary.current_flags.sim_flags.make_rng(),
-                        &mut Timer::new("seed sim"),
-                    );
+                    Scenario::scaled_run(&ctx.primary.map, ctx.primary.current_flags.num_agents)
+                        .instantiate(
+                            &mut ctx.primary.sim,
+                            &ctx.primary.map,
+                            &mut ctx.primary.current_flags.sim_flags.make_rng(),
+                            &mut Timer::new("seed sim"),
+                        );
                     *ctx.recalculate_current_selection = true;
                 }
 
