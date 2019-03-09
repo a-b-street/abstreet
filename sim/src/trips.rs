@@ -18,6 +18,7 @@ pub struct TripManager {
         deserialize_with = "deserialize_btreemap"
     )]
     active_trip_mode: BTreeMap<AgentID, TripID>,
+    num_bus_trips: usize,
 
     events: Vec<Event>,
 }
@@ -27,6 +28,7 @@ impl TripManager {
         TripManager {
             trips: Vec::new(),
             active_trip_mode: BTreeMap::new(),
+            num_bus_trips: 0,
             events: Vec::new(),
         }
     }
@@ -50,6 +52,9 @@ impl TripManager {
         // TODO ensure a trip only has one active agent (aka, not walking and driving at the same
         // time)
         self.active_trip_mode.insert(agent, trip);
+        if self.trips[trip.0].is_bus_trip() {
+            self.num_bus_trips += 1;
+        }
     }
 
     pub fn car_reached_parking_spot(
@@ -377,10 +382,7 @@ impl TripManager {
 
     // Not including buses
     pub fn num_active_trips(&self) -> usize {
-        self.active_trip_mode
-            .values()
-            .filter(|trip| !self.trips[trip.0].is_bus_trip())
-            .count()
+        self.active_trip_mode.len() - self.num_bus_trips
     }
 
     pub fn is_done(&self) -> bool {
