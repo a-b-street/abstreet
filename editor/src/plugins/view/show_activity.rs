@@ -8,7 +8,8 @@ use std::collections::HashMap;
 
 pub enum ShowActivityState {
     Inactive,
-    Active(Duration, Heatmap, RoadHeatmap),
+    Unzoomed(Duration, RoadHeatmap),
+    Zoomed(Duration, Heatmap),
 }
 
 impl ShowActivityState {
@@ -19,41 +20,56 @@ impl ShowActivityState {
 
 impl AmbientPlugin for ShowActivityState {
     fn ambient_event(&mut self, ctx: &mut PluginCtx) {
+        let zoomed = ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL;
+
+        // If we survive past this, recompute current state.
         match self {
             ShowActivityState::Inactive => {
-                if ctx.input.action_chosen("show lanes with active traffic") {
-                    *self = ShowActivityState::Active(
-                        ctx.primary.sim.time(),
-                        active_agent_heatmap(ctx),
-                        RoadHeatmap::new(ctx),
-                    );
+                if !ctx.input.action_chosen("show lanes with active traffic") {
+                    return;
                 }
             }
-            ShowActivityState::Active(time, ref old_heatmap, _) => {
+            ShowActivityState::Zoomed(time, ref heatmap) => {
                 ctx.input.set_mode("Active Traffic Visualizer", &ctx.canvas);
                 if ctx.input.modal_action("quit") {
                     *self = ShowActivityState::Inactive;
                     return;
                 }
-                let bounds = ctx.canvas.get_screen_bounds();
-                if *time != ctx.primary.sim.time() || bounds != old_heatmap.bounds {
-                    *self = ShowActivityState::Active(
-                        ctx.primary.sim.time(),
-                        active_agent_heatmap(ctx),
-                        RoadHeatmap::new(ctx),
-                    );
+                if *time == ctx.primary.sim.time()
+                    && ctx.canvas.get_screen_bounds() == heatmap.bounds
+                    && zoomed
+                {
+                    return;
                 }
             }
+            ShowActivityState::Unzoomed(time, _) => {
+                ctx.input.set_mode("Active Traffic Visualizer", &ctx.canvas);
+                if ctx.input.modal_action("quit") {
+                    *self = ShowActivityState::Inactive;
+                    return;
+                }
+                if *time == ctx.primary.sim.time() && !zoomed {
+                    return;
+                }
+            }
+        };
+
+        if zoomed {
+            *self = ShowActivityState::Zoomed(ctx.primary.sim.time(), active_agent_heatmap(ctx));
+        } else {
+            *self = ShowActivityState::Unzoomed(ctx.primary.sim.time(), RoadHeatmap::new(ctx));
         }
     }
 
     fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
-        if let ShowActivityState::Active(_, ref heatmap, ref road_heatmap) = self {
-            if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
-                road_heatmap.draw(g, ctx);
-            } else {
+        match self {
+            ShowActivityState::Zoomed(_, ref heatmap) => {
                 heatmap.draw(g);
             }
+            ShowActivityState::Unzoomed(_, ref road_heatmap) => {
+                road_heatmap.draw(g, ctx);
+            }
+            ShowActivityState::Inactive => {}
         }
     }
 }
