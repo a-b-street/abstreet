@@ -4,10 +4,6 @@
 
 Discrete-time sim has two main problems:
 
-1) It's fundamentally slow; there's lots of busy work.
-
-2) Figuring out acceleration in order to do something for the next tick is complicated.
-
 Discrete-event sim is the real dream. I know when a ped will reach the end of a
 sidewalk and can cheaply interpolate between for drawing. If I could do the
 same for all agents and states/actions, I could switch to discrete-event sim
@@ -201,13 +197,3 @@ This model neglects:
 
 - speed, acceleration at some particular time
 - but delays to doing turns after queueing could include time to accelerate
-
-## Article on traffic simulation
-
-- introduce problem, macroscopic out of scope
-- discrete time... AORTA model
-	- drawbacks
-- time-space intervals
-	- retrospective
-- simpler discrete-event system
-	- essence of scarcity
