@@ -61,7 +61,8 @@ pub(crate) struct State<T, G: GUI<T>> {
 }
 
 impl<T, G: GUI<T>> State<T, G> {
-    fn event(mut self, ev: Event, prerender: &Prerender) -> (State<T, G>, EventLoopMode) {
+    // The bool indicates if the input was actually used.
+    fn event(mut self, ev: Event, prerender: &Prerender) -> (State<T, G>, EventLoopMode, bool) {
         // It's impossible / very unlikey we'll grab the cursor in map space before the very first
         // start_drawing call.
         let mut input = UserInput::new(
@@ -89,6 +90,13 @@ impl<T, G: GUI<T>> State<T, G> {
         self.gui = gui;
         self.canvas = canvas;
         self.last_data = Some(data);
+        // TODO We should always do has_been_consumed, but various hacks prevent this from being
+        // true. For now, just avoid the specific annoying redraw case when a KeyRelease event is
+        // unused.
+        let input_used = match ev {
+            Event::KeyRelease(_) => input.has_been_consumed(),
+            _ => true,
+        };
         self.context_menu = input.context_menu.maybe_build(&self.canvas);
         self.top_menu = input.top_menu;
         self.modal_state = input.modal_state;
@@ -106,7 +114,7 @@ impl<T, G: GUI<T>> State<T, G> {
         }
         self.modal_state.active = still_active;
 
-        (self, event_mode)
+        (self, event_mode, input_used)
     }
 
     // Returns naming hint. Logically consumes the number of uploads.
@@ -255,10 +263,13 @@ fn loop_forever<T, G: GUI<T>>(
             new_events.push(Event::Update);
         }
 
-        let any_new_events = !new_events.is_empty();
+        let mut any_input_used = false;
 
         for event in new_events {
-            let (new_state, mode) = state.event(event, &prerender);
+            let (new_state, mode, input_used) = state.event(event, &prerender);
+            if input_used {
+                any_input_used = true;
+            }
             state = new_state;
             wait_for_events = mode == EventLoopMode::InputOnly;
             if let EventLoopMode::ScreenCaptureEverything {
@@ -281,10 +292,9 @@ fn loop_forever<T, G: GUI<T>>(
             }
         }
 
-        // TODO Every time we press and release a single key, we draw twice. Ideally we'd batch
-        // those events before drawing or somehow know that the release event was ignored and we
-        // don't need to redraw.
-        if any_new_events {
+        // Don't draw if an event was ignored. Every keypress also fires a release event, most of
+        // which are ignored.
+        if any_input_used {
             state.draw(&prerender.display, &program, &prerender, false);
             prerender.num_uploads.set(0);
         }
