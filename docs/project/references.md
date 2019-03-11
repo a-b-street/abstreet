@@ -66,6 +66,7 @@ Seattlites with opinions and ideas:
 
 SimCity, Cities: Skylines
 https://steamcommunity.com/sharedfiles/filedetails/?id=583429740
+https://github.com/fegennari/3DWorld
 
 ### Open source urban planning
 

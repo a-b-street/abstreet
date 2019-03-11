@@ -1,4 +1,4 @@
-use glutin;
+use glium::glutin;
 use std::f32;
 
 pub struct CameraState {

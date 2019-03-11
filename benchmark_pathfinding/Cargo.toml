@@ -12,6 +12,6 @@ map_model = { path = "../map_model" }
 petgraph = { version = "0.4.13", features = ["serde-1"] }
 rand = "0.6.5"
 rand_xorshift = "0.1.1"
-serde = "1.0.87"
-serde_derive = "1.0.87"
-structopt = "0.2"
+serde = "1.0.89"
+serde_derive = "1.0.89"
+structopt = "0.2.15"

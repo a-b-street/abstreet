@@ -10,5 +10,5 @@ abstutil = { path = "../abstutil" }
 ezgui = { path = "../ezgui" }
 geom = { path = "../geom" }
 map_model = { path = "../map_model" }
-structopt = "0.2"
+structopt = "0.2.15"
 viewer = { path = "../viewer" }

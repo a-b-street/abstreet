@@ -7,7 +7,7 @@ edition = "2018"
 [dependencies]
 abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
-quick-xml = "0.13.1"
-serde = "1.0.87"
-serde_derive = "1.0.87"
-structopt = "0.2"
+quick-xml = "0.13.3"
+serde = "1.0.89"
+serde_derive = "1.0.89"
+structopt = "0.2.15"

@@ -6,4 +6,3 @@ edition = "2018"
 
 [dependencies]
 glium = "0.23.0"
-glutin = "0.19.0"
