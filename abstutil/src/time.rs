@@ -1,9 +1,7 @@
 use crate::{notes, PROGRESS_FREQUENCY_SECONDS};
-use procfs;
 use std::collections::HashMap;
 use std::io::{stdout, Write};
 use std::time::Instant;
-use termion;
 
 pub fn elapsed_seconds(since: Instant) -> f64 {
     let dt = since.elapsed();
@@ -399,10 +397,17 @@ impl MeasureMemory {
     }
 }
 
+#[cfg(unix)]
 fn process_used_memory_mb() -> usize {
     (procfs::Process::myself().unwrap().stat.vsize / 1024 / 1024) as usize
 }
 
+#[cfg(windows)]
+fn process_used_memory_mb() -> usize {
+    0
+}
+
+#[cfg(unix)]
 pub(crate) fn clear_current_line() {
     let (terminal_width, _) = termion::terminal_size().unwrap();
     print!(
@@ -410,4 +415,9 @@ pub(crate) fn clear_current_line() {
         termion::clear::CurrentLine,
         termion::cursor::Left(terminal_width)
     );
+}
+
+#[cfg(windows)]
+pub(crate) fn clear_current_line() {
+    print!("\r");
 }

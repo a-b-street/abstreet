@@ -232,11 +232,14 @@ fn loop_forever<T, G: GUI<T>>(
     prerender: Prerender,
 ) {
     if state.gui.profiling_enabled() {
-        cpuprofiler::PROFILER
-            .lock()
-            .unwrap()
-            .start("./profile")
-            .unwrap();
+        #[cfg(unix)]
+        {
+            cpuprofiler::PROFILER
+                .lock()
+                .unwrap()
+                .start("./profile")
+                .unwrap();
+        }
     }
 
     let mut wait_for_events = false;
@@ -249,7 +252,10 @@ fn loop_forever<T, G: GUI<T>>(
             if let glutin::Event::WindowEvent { event, .. } = event {
                 if event == glutin::WindowEvent::CloseRequested {
                     if state.gui.profiling_enabled() {
-                        cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
+                        #[cfg(unix)]
+                        {
+                            cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
+                        }
                     }
                     state.gui.before_quit(&state.canvas);
                     process::exit(0);
