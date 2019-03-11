@@ -91,10 +91,10 @@ impl<T, G: GUI<T>> State<T, G> {
         self.canvas = canvas;
         self.last_data = Some(data);
         // TODO We should always do has_been_consumed, but various hacks prevent this from being
-        // true. For now, just avoid the specific annoying redraw case when a KeyRelease event is
-        // unused.
+        // true. For now, just avoid the specific annoying redraw case when a KeyRelease or Update
+        // event is unused.
         let input_used = match ev {
-            Event::KeyRelease(_) => input.has_been_consumed(),
+            Event::KeyRelease(_) | Event::Update => input.has_been_consumed(),
             _ => true,
         };
         self.context_menu = input.context_menu.maybe_build(&self.canvas);

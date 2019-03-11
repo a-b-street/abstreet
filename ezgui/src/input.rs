@@ -394,7 +394,7 @@ impl UserInput {
         None
     }
 
-    pub fn is_update_event(&mut self) -> bool {
+    pub fn nonblocking_is_update_event(&mut self) -> bool {
         if self.context_menu_active() {
             return false;
         }
@@ -403,12 +403,11 @@ impl UserInput {
             return false;
         }
 
-        if self.event == Event::Update {
-            self.consume_event();
-            return true;
-        }
-
-        false
+        self.event == Event::Update
+    }
+    pub fn use_update_event(&mut self) {
+        self.consume_event();
+        assert!(self.event == Event::Update)
     }
 
     // TODO I'm not sure this is even useful anymore

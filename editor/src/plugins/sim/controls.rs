@@ -181,7 +181,7 @@ impl AmbientPluginWithPrimaryPlugins for SimControls {
                 } else {
                     ctx.hints.mode = EventLoopMode::Animation;
 
-                    if ctx.input.is_update_event() {
+                    if ctx.input.nonblocking_is_update_event() {
                         // TODO https://gafferongames.com/post/fix_your_timestep/
                         // TODO This doesn't interact correctly with the fixed 30 Update events
                         // sent per second. Even Benchmark is kind of wrong. I think we want to
@@ -189,6 +189,7 @@ impl AmbientPluginWithPrimaryPlugins for SimControls {
                         // the speed says we should.
                         let dt_s = elapsed_seconds(*last_step);
                         if dt_s >= TIMESTEP.inner_seconds() / self.desired_speed {
+                            ctx.input.use_update_event();
                             let time = ctx.primary.sim.time();
                             let events = ctx.primary.sim.step(&ctx.primary.map);
                             self.primary_events = Some((time, events));
@@ -198,12 +199,12 @@ impl AmbientPluginWithPrimaryPlugins for SimControls {
                                 s.sim.step(&s.map);
                             }
                             *last_step = Instant::now();
-                        }
 
-                        if benchmark.has_real_time_passed(Duration::seconds(1.0)) {
-                            // I think the benchmark should naturally account for the delay of the
-                            // secondary sim.
-                            *speed = ctx.primary.sim.measure_speed(benchmark);
+                            if benchmark.has_real_time_passed(Duration::seconds(1.0)) {
+                                // I think the benchmark should naturally account for the delay of
+                                // the secondary sim.
+                                *speed = ctx.primary.sim.measure_speed(benchmark);
+                            }
                         }
                     }
                 }
