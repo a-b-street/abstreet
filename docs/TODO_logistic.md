@@ -20,3 +20,8 @@
 	- first: all the maps fully convert and display in some form; all tests pass or are disabled
 	- slowly hone away at problems currently with errors printed (like bad pl shift angles)
 	- eventually: every intersection has at least a turn, minimum lengths enforced, etc
+
+## Code to release
+
+- tmp_gfx as a 2D-with-camera glium sample
+- ezgui

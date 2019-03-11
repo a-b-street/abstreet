@@ -23,6 +23,7 @@
 - https://www.seattle.gov/transportation/projects-and-programs/programs/neighborhood-street-fund / https://www.seattle.gov/neighborhoods/programs-and-services/your-voice-your-choice
 - https://commuteseattle.com/
 - https://www.theurbanist.org/
+- https://humantransit.org/2019/03/notes-on-simcity-at-30.html
 
 ## Similar projects
 
@@ -64,6 +65,7 @@ Seattlites with opinions and ideas:
 ### Games
 
 SimCity, Cities: Skylines
+https://steamcommunity.com/sharedfiles/filedetails/?id=583429740
 
 ### Open source urban planning
 

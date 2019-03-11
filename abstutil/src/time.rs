@@ -3,6 +3,7 @@ use procfs;
 use std::collections::HashMap;
 use std::io::{stdout, Write};
 use std::time::Instant;
+use termion;
 
 pub fn elapsed_seconds(since: Instant) -> f64 {
     let dt = since.elapsed();
@@ -47,14 +48,14 @@ impl Progress {
                 prettyprint_usize(self.total_items),
                 prettyprint_time(elapsed)
             );
-            // TODO blank till end of current line
-            println!("\r{}", line);
+            clear_current_line();
+            println!("{}", line);
             return Some((elapsed, line));
         } else if elapsed_seconds(self.last_printed_at) >= PROGRESS_FREQUENCY_SECONDS {
             self.last_printed_at = Instant::now();
-            // TODO blank till end of current line
+            clear_current_line();
             print!(
-                "\r{}: {}/{}... {}",
+                "{}: {}/{}... {}",
                 self.label,
                 prettyprint_usize(self.processed_items),
                 prettyprint_usize(self.total_items),
@@ -110,6 +111,11 @@ impl Timer {
     // Log immediately, but also repeat at the end, to avoid having to scroll up and find
     // interesting debug stuff.
     pub fn note(&mut self, line: String) {
+        // Interrupt the start_iter with a newline.
+        if let Some(StackEntry::Progress(_)) = self.stack.last() {
+            println!();
+        }
+
         println!("{}", line);
         self.notes.push(line);
     }
@@ -395,4 +401,13 @@ impl MeasureMemory {
 
 fn process_used_memory_mb() -> usize {
     (procfs::Process::myself().unwrap().stat.vsize / 1024 / 1024) as usize
+}
+
+pub(crate) fn clear_current_line() {
+    let (terminal_width, _) = termion::terminal_size().unwrap();
+    print!(
+        "{}{}",
+        termion::clear::CurrentLine,
+        termion::cursor::Left(terminal_width)
+    );
 }

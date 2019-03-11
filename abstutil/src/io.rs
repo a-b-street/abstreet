@@ -1,4 +1,4 @@
-use crate::time::prettyprint_time;
+use crate::time::{clear_current_line, prettyprint_time};
 use crate::{elapsed_seconds, prettyprint_usize, MultiMap, Timer, PROGRESS_FREQUENCY_SECONDS};
 use bincode;
 use serde::de::DeserializeOwned;
@@ -225,16 +225,23 @@ impl Read for FileWithProgress {
         let done = self.processed_bytes == self.total_bytes && bytes == 0;
         if elapsed_seconds(self.last_printed_at) >= PROGRESS_FREQUENCY_SECONDS || done {
             self.last_printed_at = Instant::now();
-            print!(
-                "\rReading {}: {}/{} MB... {}",
-                self.path,
-                prettyprint_usize(self.processed_bytes / 1024 / 1024),
-                prettyprint_usize(self.total_bytes / 1024 / 1024),
-                prettyprint_time(elapsed_seconds(self.started_at))
-            );
+            clear_current_line();
             if done {
-                println!();
+                // TODO Not seeing this case happen!
+                println!(
+                    "Read {} ({})... {}",
+                    self.path,
+                    prettyprint_usize(self.total_bytes / 1024 / 1024),
+                    prettyprint_time(elapsed_seconds(self.started_at))
+                );
             } else {
+                print!(
+                    "Reading {}: {}/{} MB... {}",
+                    self.path,
+                    prettyprint_usize(self.processed_bytes / 1024 / 1024),
+                    prettyprint_usize(self.total_bytes / 1024 / 1024),
+                    prettyprint_time(elapsed_seconds(self.started_at))
+                );
                 stdout().flush().unwrap();
             }
         }
