@@ -21,21 +21,7 @@
 
 ## Sim layer
 
-- consider refactoring car/ped sim
-	- basic structure with actions, react, stepping is same. SimQueue, lookahead, can goto? differs.
-
-- detangle sim managers... but first, figure out how to capture stacktraces
-	- manual call at a fxn to dump its stacktrace somewhere (to a file? ideally shared global state to dedupe stuff)
-	- macro to insert a call at the beginning of a fxn
-	- macro to apply a macro to all fxns in an impl
-	- then i can manually edit a few places when I want to gather data
-	- https://en.wikipedia.org/wiki/File:A_Call_Graph_generated_by_pycallgraph.png
-- figure out responsibility btwn agents and managers, then fix up visibility
-- things like ParkingSimState have so many methods -- some are only
-  meant for spawner, or driving/walking to query. separate out some
-  traits.
-
-- on a lane vs turn permeates so many places
+- rename Car->Vehicle?
 
 ## ezgui layer
 
@@ -46,7 +32,7 @@
 		- need to pass around a NonDrawCtx very uniformly first for this to work
 	- canvas owning text-drawing is maybe a bit weird, at least API-wise
 	- hide stuff inside the ctx's? canvas and prerender shouldnt even be known outside of crate
-	- generic World with quadtree should have actions on objects
+- generic World with quadtree should have actions on objects
 
 ## Editor layer
 

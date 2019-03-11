@@ -4,12 +4,6 @@
 - enforce consistent style (derive order, struct initialization order)
 - cross-platform builds
 
-- document map model
-	- diagram of data sources and stages
-	- explanation of intermediate formats
-	- autogenerate diagrams of the data schemas
-	- list invariants
-
 - update with mission statement (democratized urb p, that quote, refashion existing space cheaply)
 - trailer
 	- show common parts of routes in A/B, point of divergence
@@ -21,13 +15,6 @@
 	- https://github.com/spotify/git-test
 	- way to view later
 	- also could be benchmarks; just arbitrary data over time
-	- also screenshots
-
-- improve test code and explore problems
-	- big timestep, does follow error blow up?
-	- alternative to scenario is a sequence of commands for tests
-		- spawning code is becoming a BIG mess
-	- more tests: bikes, cars, peds starting/ending at borders
 
 - layered invariants
 	- first: all the maps fully convert and display in some form; all tests pass or are disabled

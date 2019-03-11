@@ -2,6 +2,9 @@
 
 link to code
 
+- diagram of data sources and stages
+- explanation of intermediate formats                                                                                  - autogenerate diagrams of the data schemas                                                                            - list invariants
+
 ## Model
 
 The map model is designed for A/B Street's traffic simulation and player

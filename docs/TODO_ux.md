@@ -1,6 +1,6 @@
 # TODO - GUI and UX
 
-## Quick n easy
+## Fix existing stuff
 
 - try showing traffic signals by little boxes at the end of lanes
 	- red circle means right turn on red OK, red right arrow means nope, green means normal turns ok, green arrow means protected left, crosswalk hand or stick figure
@@ -15,28 +15,36 @@
 - lane edit validity
 - make it easy to see current lane when changing it
 
-## Less easy
-
 - revamp stop sign editor
 - toggle rewind mode
 	- sim stuff feels like a modal menu that's kinda omniprescent, but gets hidden sometimes
 - yellow or flashing red/yellow for yields
 - text box entry: highlight char looks like replace mode; draw it btwn chars
 
+- traffic signal cycles go offscreen sometimes!
+
 ## General ezgui stuff
 
 - optionally limit canvas scrolling/zooming to some map bounds
-- T top menu doesnt know when we have a more urgent input thing going!
+- top menu doesnt know when we have a more urgent input thing going!
 - cant use G for geom debug mode and contextual polygon debug
 - on a menu with preselected thing, clicking ANYWHERE does stuff...
 - X on all menus
 - when dragging, dont give mouse movement to UI elements
+- start context menu when left click releases and we're not dragging
+- dont draw context menu off-screen
+- can we change labels in modal or top menu? show/hide
+- stacked modal menus
+	- should quit key for modal menus match key that started it?
+	- launch floodfill from context menu while following an agent... shouldnt be allowed
+	- can coexist: show score, search, hide
+	- some abstraction to just declare set_mode, give the extra width and height besides the menu, and get back a screenpt to start drawing at
 
 ## New features
 
 - swap direction of one-way
 - convert between one- and two-way if there's enough space
-
+- collapse smaller roads/neighborhoods and just show aggregate stats about them (in/out flow, moving/blocked within)
 - undo support for edits
 
 ## Better rendering
@@ -61,6 +69,7 @@
 		- draw as one polygon when fixed
 	- dashed thickness is way off
 	- last dash shouldnt appear?
+	- then debug the legend plugin
 
 ## Switch to OpenGL (for speed)
 
@@ -71,8 +80,6 @@
 - quality
 	- need padding around text
 	- text entry needs to draw the cursor differently
-	- better arrows (then debug the legend plugin)
-	- time for a car texture?
 - more speculative performance ideas
 	- experiment with batching and not passing colors
 	- specialized shaders for common shapes like circles?

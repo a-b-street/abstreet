@@ -266,7 +266,6 @@ impl std::ops::Drop for Timer {
 
 // For repeated things
 // TODO Why does the PartialEq derivation in sim require this?
-#[derive(Default)]
 pub struct Profiler {
     entries: Vec<ProfilerEntry>,
     current_entries: HashMap<String, Instant>,

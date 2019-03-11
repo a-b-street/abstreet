@@ -1,8 +1,7 @@
 # TODO - Core gameplay
 
 - parking vs bus tutorial level
-
-
+- introduce elements gradually... fix a silly traffic signal with just cars, then add peds and bikes...
 
 - Example use cases
 	- maybe dont need simulation at all to play with these
@@ -18,41 +17,11 @@
 ## More things to simulate
 
 - Light rail and downtown bus tunnel
+- more accurate pedestrian speed, and randomized speeds
+- seed parked cars in neighborhood with no owner or a far-away owner, to model reasonable starting state
 
-## The very detailed driving model
+## Small bugs / tests to add
 
-- different lookahead reaction times
-- could see if we ever have a lookahead constraint to deaccel more than what
-  we're capable of. it might mask problems. but since things like
-  accel_to_stop_in_dist don't have a careful notion of how much time will pass,
-  they recommend big rates sometimes.
-- no way for an agent to request a turn and ASAP have it granted. are there cases where they might slow down unnecessarily?
-
-- lane changing: seattle polite. planned things work. limit to space needed.
-
-## A much simpler model
-
-- render maps as super simple transit network.
-
-- event based + FSM + radically simpler model. essence of scarcity -- intersections, parking, lane capacity.
-- simpler kinematics: if we recognize we're stopping for an
-  intersection or following a vehicle closely, just set the
-  final state to be perfectly what we desire, rather than
-  solving for the acceleration to achieve that.
-  intent (and capabilities), not mechanics!
-- check out https://github.com/movsim/traffic-simulation-de
-
-- collapse smaller roads/neighborhoods and just simulate aggregate stats about them
-
-## Discrete-event model
-
-- Make cars cover an entire lane, even when it's short
-- try real distance over time ;) but does it make intersection calculation extremely hard?
-- avoid impossible accel/deaccel
-- Handle lead car being faster
-- The speed stated in the middle of intervals is clearly wrong for the follower car
-
-- Prototype alternate driving model
-	- branch or forked code?
-	- keep timesteps or immediately cut over to events?
-	- figure out how lookahead/interruptions and replanning work
+- do bikes use bike lanes?
+- test that peds will use buses organically
+	- make sure that we can jump to a ped on a bus and see the bus

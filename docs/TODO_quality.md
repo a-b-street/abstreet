@@ -65,7 +65,7 @@
 ## More problems to fix
 
 - Disconnected map
-	- Some lane-changing model needed to determine this
+	- now that LCing model is simple...
 - Impossible turns (from a far bus lane to a crazy left)
 - Buildings intersecting roads, probably because bad lane inference
 	- when this happens, get rid of parking lanes first (one or both sides?)
@@ -76,4 +76,3 @@
 ## Release
 
 - publish the map data
-- stabilize the code except for sim

@@ -42,6 +42,13 @@ some of the math
 
 ## Discrete-event model take 1: time-space intervals
 
+things that were not finished / still hard:
+
+- cover a short lane
+- real quadratic distance over time was breaking stuff
+- impossible accel/deaccel happened
+- faster lead car made adjusting follower very hard
+
 ## Discrete-event model take 2
 
 Let's try again, but even simpler and more incremental this time.
