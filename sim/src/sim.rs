@@ -45,6 +45,10 @@ pub struct Sim {
     #[derivative(PartialEq = "ignore")]
     #[serde(skip_serializing, skip_deserializing)]
     stats: Option<SimStats>,
+
+    #[derivative(PartialEq = "ignore")]
+    #[serde(skip_serializing, skip_deserializing)]
+    events_since_last_step: Vec<Event>,
 }
 
 // Setup
@@ -69,6 +73,7 @@ impl Sim {
             run_name,
             savestate_every,
             stats: None,
+            events_since_last_step: Vec::new(),
         }
     }
 
@@ -348,6 +353,9 @@ impl Sim {
 
         let mut events = self.trips.collect_events();
         events.extend(self.transit.collect_events());
+        self.events_since_last_step.clear();
+        self.events_since_last_step.extend(events.clone());
+        // TODO Stop returning these here
         events
     }
 
@@ -682,6 +690,10 @@ impl Sim {
 
         self.stats = Some(stats);
         self.stats.as_ref().unwrap()
+    }
+
+    pub fn get_events_since_last_step(&self) -> &Vec<Event> {
+        &self.events_since_last_step
     }
 
     pub fn get_canonical_pt_per_trip(&self, trip: TripID, map: &Map) -> Option<Pt2D> {

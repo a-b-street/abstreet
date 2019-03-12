@@ -15,7 +15,7 @@ pub struct TutorialState {
 enum State {
     GiveInstructions(LogScroller),
     Play {
-        last_time_observed: Option<Duration>,
+        last_time_observed: Duration,
         spawned_from_south: usize,
         spawned_from_north: usize,
     },
@@ -61,7 +61,7 @@ impl UIState for TutorialState {
                     self.main.sim_controls.run_sim(&mut self.main.primary.sim);
                     self.main.legend = Some(Legend::start(ctx.input, ctx.canvas));
                     self.state = State::Play {
-                        last_time_observed: None,
+                        last_time_observed: Duration::ZERO,
                         spawned_from_north: 0,
                         spawned_from_south: 0,
                     };
@@ -74,13 +74,9 @@ impl UIState for TutorialState {
             } => {
                 self.main.event(ctx, hints, recalculate_current_selection);
 
-                if let Some((time, events)) = self
-                    .main
-                    .sim_controls
-                    .get_new_primary_events(*last_time_observed)
-                {
-                    *last_time_observed = Some(time);
-                    for ev in events {
+                if *last_time_observed != self.main.primary.sim.time() {
+                    *last_time_observed = self.main.primary.sim.time();
+                    for ev in self.main.primary.sim.get_events_since_last_step() {
                         // TODO Spawned from border
                         if let Event::AgentEntersTraversable(_, Traversable::Lane(lane)) = ev {
                             if *lane == self.main.primary.map.driving_lane("north entrance").id {
