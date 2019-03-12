@@ -87,7 +87,9 @@ impl SpawnAgent {
                                 &mut ctx.primary.current_flags.sim_flags.make_rng(),
                                 &mut Timer::new("seed sim"),
                             );
+                        ctx.primary.sim.step(map);
                         *ctx.recalculate_current_selection = true;
+                        // TODO Also maybe step the secondary sim. Oops.
                     }
                 }
             }
@@ -214,6 +216,9 @@ impl BlockingPlugin for SpawnAgent {
                 }
             };
             sim.spawn_all_trips(map, &mut Timer::new("spawn trip"));
+            sim.step(map);
+            *ctx.recalculate_current_selection = true;
+            // TODO Also maybe step the secondary sim. Oops.
             return false;
         }
 
@@ -269,4 +274,7 @@ fn spawn_cars_around(i: IntersectionID, ctx: &mut PluginCtx) {
     }
 
     sim.spawn_all_trips(map, &mut Timer::throwaway());
+    sim.step(map);
+    *ctx.recalculate_current_selection = true;
+    // TODO Also maybe step the secondary sim. Oops.
 }
