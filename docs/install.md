@@ -3,8 +3,7 @@
 ## Dependencies
 
 To build, you need a Linux-like environment with `bash`, `wget`, `unzip`, etc.
-You also need `python` for the editor crate to build, and `osmosis` for the
-import script.
+You also `osmosis` for the import script.
 
 At runtime if you want to use the screen-capture plugin, you need `scrot`.
 

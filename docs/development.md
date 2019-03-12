@@ -26,8 +26,3 @@ Cross-compilation notes: https://github.com/rust-embedded/cross
 
 cross build --release --target x86_64-pc-windows-gnu --bin editor
 wine target/x86_64-pc-windows-gnu/release/editor.exe data/maps/montlake_no_edits.abst
-
-Problems:
-- build.rs tries to invoke python
-	- port the python script to rust ;)
-- GLSL 1.40 not supported (in wine at least)
