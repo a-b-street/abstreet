@@ -268,7 +268,7 @@ impl Sim {
 
 // Running
 impl Sim {
-    pub fn step(&mut self, map: &Map) -> Vec<Event> {
+    pub fn step(&mut self, map: &Map) {
         if !self.spawner.is_done() {
             panic!("Forgot to call spawn_all_trips");
         }
@@ -351,12 +351,11 @@ impl Sim {
             }
         }
 
-        let mut events = self.trips.collect_events();
-        events.extend(self.transit.collect_events());
         self.events_since_last_step.clear();
-        self.events_since_last_step.extend(events.clone());
-        // TODO Stop returning these here
-        events
+        self.events_since_last_step
+            .extend(self.trips.collect_events());
+        self.events_since_last_step
+            .extend(self.transit.collect_events());
     }
 
     pub fn dump_before_abort(&self) {
@@ -419,8 +418,9 @@ impl Sim {
             if expectations.is_empty() {
                 return;
             }
-            for ev in self.step(&map).into_iter() {
-                if ev == *expectations.front().unwrap() {
+            self.step(&map);
+            for ev in self.get_events_since_last_step() {
+                if ev == expectations.front().unwrap() {
                     println!("At {}, met expectation {:?}", self.time, ev);
                     expectations.pop_front();
                     if expectations.is_empty() {

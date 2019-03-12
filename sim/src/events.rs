@@ -2,8 +2,7 @@ use crate::{AgentID, CarID, ParkingSpot, PedestrianID};
 use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, Traversable};
 use serde_derive::{Deserialize, Serialize};
 
-// TODO rm Clone
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, Clone)]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Event {
     CarReachedParkingSpot(CarID, ParkingSpot),
     CarOrBikeReachedBorder(CarID, IntersectionID),

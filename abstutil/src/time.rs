@@ -409,12 +409,16 @@ fn process_used_memory_mb() -> usize {
 
 #[cfg(unix)]
 pub(crate) fn clear_current_line() {
-    let (terminal_width, _) = termion::terminal_size().unwrap();
-    print!(
-        "{}{}",
-        termion::clear::CurrentLine,
-        termion::cursor::Left(terminal_width)
-    );
+    // Fails in the test runner.
+    if let Ok((terminal_width, _)) = termion::terminal_size() {
+        print!(
+            "{}{}",
+            termion::clear::CurrentLine,
+            termion::cursor::Left(terminal_width)
+        );
+    } else {
+        print!("\r");
+    }
 }
 
 #[cfg(windows)]
