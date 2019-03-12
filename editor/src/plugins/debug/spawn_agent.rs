@@ -6,7 +6,8 @@ use map_model::{
     BuildingID, IntersectionID, IntersectionType, LaneType, PathRequest, Position, Trace,
     LANE_THICKNESS,
 };
-use sim::{DrivingGoal, Scenario, SidewalkSpot, TripSpec, TIMESTEP};
+use rand::seq::SliceRandom;
+use sim::{DrivingGoal, Scenario, SidewalkSpot, TripSpec};
 
 #[derive(Clone)]
 enum Source {
@@ -28,7 +29,6 @@ pub struct SpawnAgent {
 impl SpawnAgent {
     pub fn new(ctx: &mut PluginCtx) -> Option<SpawnAgent> {
         let map = &ctx.primary.map;
-
         match ctx.primary.current_selection {
             Some(ID::Building(id)) => {
                 if ctx
@@ -67,6 +67,28 @@ impl SpawnAgent {
                         from: Source::Driving(Position::new(id, map.get_l(id).length() / 2.0)),
                         maybe_goal: None,
                     });
+                }
+            }
+            Some(ID::Intersection(i)) => {
+                if ctx
+                    .input
+                    .contextual_action(Key::Z, "spawn cars around this intersection")
+                {
+                    spawn_cars_around(i, ctx);
+                }
+            }
+            None => {
+                if ctx.primary.sim.is_empty() {
+                    if ctx.input.action_chosen("seed the sim with agents") {
+                        Scenario::scaled_run(map, ctx.primary.current_flags.num_agents)
+                            .instantiate(
+                                &mut ctx.primary.sim,
+                                map,
+                                &mut ctx.primary.current_flags.sim_flags.make_rng(),
+                                &mut Timer::new("seed sim"),
+                            );
+                        *ctx.recalculate_current_selection = true;
+                    }
                 }
             }
             _ => {}
@@ -148,7 +170,7 @@ impl BlockingPlugin for SpawnAgent {
             match (self.from.clone(), self.maybe_goal.take().unwrap().0) {
                 (Source::Walking(from), Goal::Building(to)) => {
                     sim.schedule_trip(
-                        sim.time() + TIMESTEP,
+                        sim.time(),
                         TripSpec::JustWalking(
                             SidewalkSpot::building(from, map),
                             SidewalkSpot::building(to, map),
@@ -159,7 +181,7 @@ impl BlockingPlugin for SpawnAgent {
                 (Source::Walking(from), Goal::Border(to)) => {
                     if let Some(goal) = SidewalkSpot::end_at_border(to, map) {
                         sim.schedule_trip(
-                            sim.time() + TIMESTEP,
+                            sim.time(),
                             TripSpec::JustWalking(SidewalkSpot::building(from, map), goal),
                             map,
                         );
@@ -169,7 +191,7 @@ impl BlockingPlugin for SpawnAgent {
                 }
                 (Source::Driving(from), Goal::Building(to)) => {
                     sim.schedule_trip(
-                        sim.time() + TIMESTEP,
+                        sim.time(),
                         TripSpec::CarAppearing(
                             from,
                             Scenario::rand_car(&mut rng),
@@ -182,7 +204,7 @@ impl BlockingPlugin for SpawnAgent {
                     if let Some(goal) = DrivingGoal::end_at_border(to, vec![LaneType::Driving], map)
                     {
                         sim.schedule_trip(
-                            sim.time() + TIMESTEP,
+                            sim.time(),
                             TripSpec::CarAppearing(from, Scenario::rand_car(&mut rng), goal),
                             map,
                         );
@@ -215,4 +237,36 @@ impl BlockingPlugin for SpawnAgent {
             _ => None,
         }
     }
+}
+
+fn spawn_cars_around(i: IntersectionID, ctx: &mut PluginCtx) {
+    let map = &ctx.primary.map;
+    let sim = &mut ctx.primary.sim;
+    let mut rng = ctx.primary.current_flags.sim_flags.make_rng();
+
+    for l in &map.get_i(i).incoming_lanes {
+        let lane = map.get_l(*l);
+        if !lane.is_driving() {
+            continue;
+        }
+
+        for _ in 0..10 {
+            let vehicle = Scenario::rand_car(&mut rng);
+            sim.schedule_trip(
+                // TODO +1?
+                sim.time(),
+                TripSpec::CarAppearing(
+                    Position::new(
+                        lane.id,
+                        Scenario::rand_dist(&mut rng, vehicle.length, lane.length()),
+                    ),
+                    vehicle,
+                    DrivingGoal::ParkNear(map.all_buildings().choose(&mut rng).unwrap().id),
+                ),
+                map,
+            );
+        }
+    }
+
+    sim.spawn_all_trips(map, &mut Timer::throwaway());
 }
