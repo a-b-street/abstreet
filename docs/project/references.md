@@ -20,7 +20,9 @@
 - http://www.seattle.gov/seattle-pedestrian-advisory-board
 - Socrata
 - http://transportationcamp.org/
-- https://www.seattle.gov/transportation/projects-and-programs/programs/neighborhood-street-fund / https://www.seattle.gov/neighborhoods/programs-and-services/your-voice-your-choice
+- https://www.seattle.gov/transportation/projects-and-programs/programs/neighborhood-street-fund
+  /
+  https://www.seattle.gov/neighborhoods/programs-and-services/your-voice-your-choice
 - https://commuteseattle.com/
 - https://www.theurbanist.org/
 - https://humantransit.org/2019/03/notes-on-simcity-at-30.html
@@ -33,26 +35,26 @@
 
 SDOT asking for feedback:
 
-*   http://sdotblog.seattle.gov/2017/02/08/from-signals-to-signs/
-*   https://www.seattle.gov/transportation/projects-and-programs/programs/bike-program/protected-bike-lanes/n-34th-st-mobility-improvements
-*   https://www.seattle.gov/transportation/projects-and-programs/programs/transportation-planning/north-downtown-mobility-action-plan
-*   https://www.seattlebikeblog.com/2016/12/01/check-out-seattles-12-winning-neighborhood-led-transportation-ideas/
+- http://sdotblog.seattle.gov/2017/02/08/from-signals-to-signs/
+- https://www.seattle.gov/transportation/projects-and-programs/programs/bike-program/protected-bike-lanes/n-34th-st-mobility-improvements
+- https://www.seattle.gov/transportation/projects-and-programs/programs/transportation-planning/north-downtown-mobility-action-plan
+- https://www.seattlebikeblog.com/2016/12/01/check-out-seattles-12-winning-neighborhood-led-transportation-ideas/
 
 Seattlites with opinions and ideas:
 
-*   http://seattlegreenways.org/
-*   https://www.seattlebikeblog.com/2018/01/19/a-roosevelt-junior-redesigned-the-streets-around-his-high-school-and-his-plan-is-better-than-sdots/
-*   https://www.reddit.com/r/SeattleWA/comments/5rvss5/what_changes_would_you_make_to_seattles_bus/
-*   https://www.seattletimes.com/seattle-news/transportation/congestion-tolling-could-finally-break-seattles-working-poor-heres-a-better-idea/
-*   https://www.reddit.com/r/SeattleWA/comments/86g3p9/id_get_back_an_hour_and_a_half_a_week/
-*   https://www.reddit.com/r/Seattle/comments/4z3ewl/what_are_seattles_worst_intersections/
-*   https://www.reddit.com/r/SeattleWA/comments/83h4ri/the_intersection_at_john_and_broadway_desperately/
+- http://seattlegreenways.org/
+- https://www.seattlebikeblog.com/2018/01/19/a-roosevelt-junior-redesigned-the-streets-around-his-high-school-and-his-plan-is-better-than-sdots/
+- https://www.reddit.com/r/SeattleWA/comments/5rvss5/what_changes_would_you_make_to_seattles_bus/
+- https://www.seattletimes.com/seattle-news/transportation/congestion-tolling-could-finally-break-seattles-working-poor-heres-a-better-idea/
+- https://www.reddit.com/r/SeattleWA/comments/86g3p9/id_get_back_an_hour_and_a_half_a_week/
+- https://www.reddit.com/r/Seattle/comments/4z3ewl/what_are_seattles_worst_intersections/
+- https://www.reddit.com/r/SeattleWA/comments/83h4ri/the_intersection_at_john_and_broadway_desperately/
 
 ## Other projects
 
-*   https://github.com/uwescience/TrafficCruising-DSSG2017
-*   http://sharedstreets.io/
-*   https://github.com/twpol/osm-tiles attempting to infer nice road geometry too
+- https://github.com/uwescience/TrafficCruising-DSSG2017
+- http://sharedstreets.io/
+- https://github.com/twpol/osm-tiles attempting to infer nice road geometry too
 
 ## Notes from related work
 
@@ -82,8 +84,7 @@ https://arxiv.org/pdf/1811.01147.pdf
 
 ### gamma.cs.unc.edu/RoadNetwork/wilkie_TVCG.pdf
 
-section 6.3 talks about offset polylines
-http://gamma.cs.unc.edu/RoadNetwork
+section 6.3 talks about offset polylines http://gamma.cs.unc.edu/RoadNetwork
 
 ### CityBound
 
@@ -91,13 +92,17 @@ https://github.com/aeickhoff/descartes
 
 ### Discrete Event Simulation papers
 
-- section 5.1 of Advanced tutorial on microscopic discrete-event traffic simulation refers to some DES systems
-	- Florian, Mahut, and Tremblay 2008
-	- Sumaryo, Halim, and Ramli 2013
-	- Salimifard and Ansari 2013
-	- Burghout, Koutsopoulos, and Andreasson 2006
-	- Thulasidasan, Kasiviswanathan, Eidenbenz, Galli, Mniszewski, and Romero 2009
+- section 5.1 of Advanced tutorial on microscopic discrete-event traffic
+  simulation refers to some DES systems
+
+  - Florian, Mahut, and Tremblay 2008
+  - Sumaryo, Halim, and Ramli 2013
+  - Salimifard and Ansari 2013
+  - Burghout, Koutsopoulos, and Andreasson 2006
+  - Thulasidasan, Kasiviswanathan, Eidenbenz, Galli, Mniszewski, and Romero 2009
 
 - A Dynamic Traffic Assignment Model for Highly Congested Urban Networks
-	- section 2.2 models lanes as a moving and queueing part, references other possibly useful papers
-	- dont worry about multiple lanes for the moving part, just the turn queues at the end
+  - section 2.2 models lanes as a moving and queueing part, references other
+    possibly useful papers
+  - dont worry about multiple lanes for the moving part, just the turn queues at
+    the end
