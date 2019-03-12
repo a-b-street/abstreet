@@ -27,6 +27,8 @@ editing, but it likely has other uses.
 	* Geometry: a PolyLine representing the center of the lane
 	* Sidewalks know which Building paths are connected and 
 
+borders
+
 ![Alt text](https://g.gravizo.com/svg?
   digraph G {
     Road -> Intersection [label="connects two"];

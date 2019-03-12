@@ -22,6 +22,7 @@
 - text box entry: highlight char looks like replace mode; draw it btwn chars
 
 - traffic signal cycles go offscreen sometimes!
+- mouseover shouldnt even be possible in lot of modes, like when a menu is active
 
 ## General ezgui stuff
 
@@ -39,6 +40,7 @@
 	- launch floodfill from context menu while following an agent... shouldnt be allowed
 	- can coexist: show score, search, hide
 	- some abstraction to just declare set_mode, give the extra width and height besides the menu, and get back a screenpt to start drawing at
+- bold hotkey letters
 
 ## New features
 

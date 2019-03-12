@@ -1,5 +1,15 @@
 # TODO - Map quality
 
+## Boundary clipping
+
+- detect border nodes better by clipping roads based on the desired polygon in convert_osm!
+	- still weird!
+	- clip areas
+	- outgoing border nodes do kind of need a policy... can throttle intake to model backup.
+
+- some areas in small_seattle are borked or missing
+	- at least for lakeslice, we have points in good orders, but need to clip areas too.
+
 ## Geometry
 
 - bad polyline shifting remains
@@ -72,6 +82,7 @@
 	- iterative process... have to redo affected roads and intersections
 	- we havent filtered buildings by proximity to sidewalk yet
 		- if we dont filter at all, we pick up some houseboats! :) should draw water...
+- undo disabled traffic signal assertion
 
 ## Release
 
