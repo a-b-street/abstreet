@@ -18,6 +18,7 @@ kml = { path = "../kml" }
 map_model = { path = "../map_model" }
 ordered-float = "1.0.1"
 pretty_assertions = "0.6.1"
+rand = "0.6.5"
 serde = "1.0.89"
 serde_derive = "1.0.89"
 sim = { path = "../sim" }

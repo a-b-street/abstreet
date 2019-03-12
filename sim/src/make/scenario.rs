@@ -182,7 +182,7 @@ impl Scenario {
     }
 
     pub fn rand_car(rng: &mut XorShiftRng) -> VehicleSpec {
-        let length = rand_dist(rng, MIN_CAR_LENGTH, MAX_CAR_LENGTH);
+        let length = Scenario::rand_dist(rng, MIN_CAR_LENGTH, MAX_CAR_LENGTH);
         VehicleSpec {
             vehicle_type: VehicleType::Car,
             length,
@@ -191,13 +191,18 @@ impl Scenario {
     }
 
     pub fn rand_bike(rng: &mut XorShiftRng) -> VehicleSpec {
-        let length = rand_dist(rng, MIN_BIKE_LENGTH, MAX_BIKE_LENGTH);
+        let length = Scenario::rand_dist(rng, MIN_BIKE_LENGTH, MAX_BIKE_LENGTH);
         let max_speed = Some(Speed::miles_per_hour(10.0));
         VehicleSpec {
             vehicle_type: VehicleType::Bike,
             length,
             max_speed,
         }
+    }
+
+    pub fn rand_dist(rng: &mut XorShiftRng, low: Distance, high: Distance) -> Distance {
+        assert!(high > low);
+        Distance::meters(rng.gen_range(low.inner_meters(), high.inner_meters()))
     }
 }
 
@@ -638,10 +643,7 @@ fn find_spot_near_building(
     }
 }
 
-fn rand_dist(rng: &mut XorShiftRng, low: Distance, high: Distance) -> Distance {
-    Distance::meters(rng.gen_range(low.inner_meters(), high.inner_meters()))
-}
-
 fn rand_time(rng: &mut XorShiftRng, low: Duration, high: Duration) -> Duration {
+    assert!(high > low);
     Duration::seconds(rng.gen_range(low.inner_seconds(), high.inner_seconds()))
 }

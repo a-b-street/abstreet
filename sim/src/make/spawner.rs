@@ -131,9 +131,11 @@ impl TripSpawner {
                 .collect(),
             timer,
         );
-        for ((start_time, ped_id, car_id, spec), maybe_path) in self.trips.drain(..).zip(paths) {
+        for ((start_time, ped_id, car_id, spec), (req, maybe_path)) in
+            self.trips.drain(..).zip(paths)
+        {
             if maybe_path.is_none() {
-                timer.warn(format!("{:?} couldn't find the first path", spec));
+                timer.warn(format!("{:?} couldn't find the first path {:?}", spec, req));
                 continue;
             }
             let path = maybe_path.unwrap();
@@ -308,11 +310,16 @@ impl TripSpec {
     }
 }
 
-fn calculate_paths(map: &Map, requests: Vec<PathRequest>, timer: &mut Timer) -> Vec<Option<Path>> {
+fn calculate_paths(
+    map: &Map,
+    requests: Vec<PathRequest>,
+    timer: &mut Timer,
+) -> Vec<(PathRequest, Option<Path>)> {
     scoped_threadpool::Pool::new(num_cpus::get() as u32).scoped(|scope| {
         let (tx, rx) = std::sync::mpsc::channel();
-        let mut results: Vec<Option<Path>> = vec![None; requests.len()];
+        let mut results: Vec<(PathRequest, Option<Path>)> = Vec::new();
         for (idx, req) in requests.into_iter().enumerate() {
+            results.push((req.clone(), None));
             let tx = tx.clone();
             scope.execute(move || {
                 tx.send((idx, map.pathfind(req))).unwrap();
@@ -323,7 +330,7 @@ fn calculate_paths(map: &Map, requests: Vec<PathRequest>, timer: &mut Timer) -> 
         timer.start_iter("calculate paths", results.len());
         for (idx, path) in rx.iter() {
             timer.next();
-            results[idx] = path;
+            results[idx].1 = path;
         }
         results
     })

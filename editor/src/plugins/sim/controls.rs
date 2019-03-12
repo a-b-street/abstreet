@@ -1,9 +1,12 @@
+use crate::objects::ID;
 use crate::plugins::{AmbientPluginWithPrimaryPlugins, PluginCtx};
 use crate::state::PluginsPerMap;
 use abstutil::{elapsed_seconds, Timer};
-use ezgui::EventLoopMode;
+use ezgui::{EventLoopMode, Key};
 use geom::Duration;
-use sim::{Benchmark, Event, Scenario, Sim, TIMESTEP};
+use map_model::{IntersectionID, Position};
+use rand::seq::SliceRandom;
+use sim::{Benchmark, DrivingGoal, Event, Scenario, Sim, TripSpec, TIMESTEP};
 use std::mem;
 use std::time::Instant;
 
@@ -146,16 +149,28 @@ impl AmbientPluginWithPrimaryPlugins for SimControls {
                 }
 
                 // Interactively spawning stuff would ruin an A/B test, don't allow it
-                if ctx.primary.sim.is_empty() && ctx.input.action_chosen("seed the sim with agents")
-                {
-                    Scenario::scaled_run(&ctx.primary.map, ctx.primary.current_flags.num_agents)
+                if ctx.primary.sim.is_empty() {
+                    if ctx.input.action_chosen("seed the sim with agents") {
+                        Scenario::scaled_run(
+                            &ctx.primary.map,
+                            ctx.primary.current_flags.num_agents,
+                        )
                         .instantiate(
                             &mut ctx.primary.sim,
                             &ctx.primary.map,
                             &mut ctx.primary.current_flags.sim_flags.make_rng(),
                             &mut Timer::new("seed sim"),
                         );
-                    *ctx.recalculate_current_selection = true;
+                        *ctx.recalculate_current_selection = true;
+                    }
+                    if let Some(ID::Intersection(i)) = ctx.primary.current_selection {
+                        if ctx
+                            .input
+                            .contextual_action(Key::Z, "spawn cars around this intersection")
+                        {
+                            spawn_cars_around(i, ctx);
+                        }
+                    }
                 }
 
                 if ctx.input.action_chosen("run/pause sim") {
@@ -229,4 +244,36 @@ impl AmbientPluginWithPrimaryPlugins for SimControls {
             ));
         }
     }
+}
+
+fn spawn_cars_around(i: IntersectionID, ctx: &mut PluginCtx) {
+    let map = &ctx.primary.map;
+    let sim = &mut ctx.primary.sim;
+    let mut rng = ctx.primary.current_flags.sim_flags.make_rng();
+
+    for l in &map.get_i(i).incoming_lanes {
+        let lane = map.get_l(*l);
+        if !lane.is_driving() {
+            continue;
+        }
+
+        for _ in 0..10 {
+            let vehicle = Scenario::rand_car(&mut rng);
+            sim.schedule_trip(
+                // TODO +1?
+                sim.time(),
+                TripSpec::CarAppearing(
+                    Position::new(
+                        lane.id,
+                        Scenario::rand_dist(&mut rng, vehicle.length, lane.length()),
+                    ),
+                    vehicle,
+                    DrivingGoal::ParkNear(map.all_buildings().choose(&mut rng).unwrap().id),
+                ),
+                map,
+            );
+        }
+    }
+
+    sim.spawn_all_trips(map, &mut Timer::throwaway());
 }
