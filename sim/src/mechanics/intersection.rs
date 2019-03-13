@@ -104,8 +104,8 @@ impl IntersectionSimState {
 
     // TODO This API is bad. Need to gather all of the requests at a time before making a decision.
     //
-    // For cars: The head car calls this when they're at the end of the lane Queued. If this returns true,
-    // then the head car MUST actually start this turn.
+    // For cars: The head car calls this when they're at the end of the lane WaitingToAdvance. If
+    // this returns true, then the head car MUST actually start this turn.
     // For peds: Likewise -- only called when the ped is at the start of the turn. They must
     // actually do the turn if this returns true.
     //

@@ -104,11 +104,18 @@ impl Car {
 
         DrawCarInput {
             id: self.vehicle.id,
-            waiting_for_turn: None,
+            waiting_for_turn: match self.state {
+                CarState::WaitingToAdvance => match self.router.next() {
+                    Traversable::Lane(_) => None,
+                    Traversable::Turn(t) => Some(t),
+                },
+                _ => None,
+            },
             stopping_trace: None,
             status: match self.state {
                 // TODO Cars can be Queued behind a slow Crossing. Looks kind of weird.
                 CarState::Queued => CarStatus::Stuck,
+                CarState::WaitingToAdvance => CarStatus::Stuck,
                 CarState::Crossing(_, _) => CarStatus::Moving,
                 // Eh they're technically moving, but this is a bit easier to spot
                 CarState::Unparking(_, _) => CarStatus::Parked,
@@ -127,6 +134,7 @@ impl Car {
 pub enum CarState {
     Crossing(TimeInterval, DistanceInterval),
     Queued,
+    WaitingToAdvance,
     // Where's the front of the car while this is happening?
     Unparking(Distance, TimeInterval),
     Parking(Distance, ParkingSpot, TimeInterval),
@@ -138,6 +146,7 @@ impl CarState {
         match self {
             CarState::Crossing(ref time_int, _) => time_int.end,
             CarState::Queued => unreachable!(),
+            CarState::WaitingToAdvance => unreachable!(),
             CarState::Unparking(_, ref time_int) => time_int.end,
             CarState::Parking(_, _, ref time_int) => time_int.end,
             CarState::Idling(_, ref time_int) => time_int.end,

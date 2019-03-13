@@ -81,7 +81,7 @@ impl DrawCar {
         let color = match input.status {
             CarStatus::Debug => cs.get_def("debug car", Color::BLUE.alpha(0.8)),
             CarStatus::Moving => cs.get_def("moving car", Color::CYAN),
-            CarStatus::Stuck => cs.get_def("stuck car", Color::rgb_f(0.9, 0.0, 0.0)),
+            CarStatus::Stuck => cs.get_def("stuck car", Color::rgb(222, 184, 135)),
             CarStatus::Parked => cs.get_def("parked car", Color::rgb(180, 233, 76)),
         };
         let draw_default = prerender.upload_borrowed(vec![

@@ -63,6 +63,10 @@ impl Queue {
                         bound
                     }
                 }
+                CarState::WaitingToAdvance => {
+                    assert_eq!(bound, self.geom_len);
+                    self.geom_len
+                }
                 CarState::Crossing(ref time_int, ref dist_int) => {
                     // TODO Why percent_clamp_end? We process car updates in any order, so we might
                     // calculate this before moving this car from Crossing to another state.
@@ -161,6 +165,9 @@ fn dump_cars(
             }
             CarState::Queued => {
                 println!("  Queued currently");
+            }
+            CarState::WaitingToAdvance => {
+                println!("  WaitingToAdvance currently");
             }
             CarState::Unparking(_, ref time_int) => {
                 println!("  Unparking during {} .. {}", time_int.start, time_int.end);

@@ -80,6 +80,7 @@ impl DrivingSimState {
             let mut car = Car {
                 vehicle: params.vehicle,
                 router: params.router,
+                // Temporary
                 state: CarState::Queued,
                 last_steps: VecDeque::new(),
             };
@@ -128,14 +129,19 @@ impl DrivingSimState {
         transit: &mut TransitSimState,
         walking: &mut WalkingSimState,
     ) {
-        // State transitions:
+        // State transitions for this car:
         //
-        // Crossing -> Queued
+        // Crossing -> Queued or WaitingToAdvance
         // Unparking -> Crossing
         // Idling -> Crossing
-        // Queued -> try to advance to the next step of the path
         // Queued -> last step handling (Parking or done)
+        // WaitingToAdvance -> try to advance to the next step of the path
         // Parking -> done
+        //
+        // State transitions for other cars:
+        //
+        // Crossing -> Crossing (recalculate dist/time)
+        // Queued -> Crossing
         //
         // Why is it safe to process cars in any order, rather than making sure to follow the order
         // of queues? Because of the invariant that distances should never suddenly jump when a car
@@ -208,6 +214,7 @@ impl DrivingSimState {
                 }
                 if self.queues[&car.router.head()].cars[0] == car.vehicle.id {
                     // Want to re-run, but no urgency about it happening immediately.
+                    car.state = CarState::WaitingToAdvance;
                     scheduler.push(time, Command::UpdateCar(car.vehicle.id));
                 }
             }
@@ -254,6 +261,7 @@ impl DrivingSimState {
                                 );
                             }
                         }
+                        CarState::WaitingToAdvance => unreachable!(),
                         // They weren't blocked. Note that there's no way the Crossing state could jump
                         // forwards here; the leader is still in front of them.
                         CarState::Crossing(_, _)
@@ -263,7 +271,8 @@ impl DrivingSimState {
                     }
                 }
             }
-            CarState::Queued => {
+            CarState::Queued => unreachable!(),
+            CarState::WaitingToAdvance => {
                 // 'car' is the leader.
                 let from = car.router.head();
                 let goto = car.router.next();
@@ -319,6 +328,7 @@ impl DrivingSimState {
                                 );
                             }
                         }
+                        CarState::WaitingToAdvance => unreachable!(),
                         // They weren't blocked. Note that there's no way the Crossing state could jump
                         // forwards here; the leader vanished from the end of the traversable.
                         CarState::Crossing(_, _)
@@ -378,9 +388,10 @@ impl DrivingSimState {
 
         // Just two cases here.
         match car.state {
-            CarState::Crossing(_, _) | CarState::Unparking(_, _) | CarState::Idling(_, _) => {
-                unreachable!()
-            }
+            CarState::Crossing(_, _)
+            | CarState::Unparking(_, _)
+            | CarState::Idling(_, _)
+            | CarState::WaitingToAdvance => unreachable!(),
             CarState::Queued => {
                 match car
                     .router
@@ -496,6 +507,7 @@ impl DrivingSimState {
                 // They weren't blocked
                 CarState::Unparking(_, _) | CarState::Parking(_, _, _) | CarState::Idling(_, _) => {
                 }
+                CarState::WaitingToAdvance => unreachable!(),
             }
         }
 
@@ -518,7 +530,7 @@ impl DrivingSimState {
                     | CarState::Idling(_, _) => {
                         num_freeflow += 1;
                     }
-                    CarState::Queued => {
+                    CarState::Queued | CarState::WaitingToAdvance => {
                         num_waiting += 1;
                     }
                 };
