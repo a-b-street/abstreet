@@ -227,6 +227,7 @@ impl WalkingSimState {
         vec![
             format!("{}", p.id),
             format!("{} lanes left in path", p.path.num_lanes()),
+            format!("{:?}", p.state),
         ]
     }
 
@@ -359,7 +360,7 @@ impl Pedestrian {
 }
 
 // crossing front path, bike parking, waiting at bus stop, etc
-#[derive(Serialize, Deserialize, PartialEq)]
+#[derive(Serialize, Deserialize, PartialEq, Debug)]
 enum PedState {
     Crossing(DistanceInterval, TimeInterval),
     // The Distance is either 0 or the current traversable's length
