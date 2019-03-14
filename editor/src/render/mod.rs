@@ -69,7 +69,7 @@ pub fn draw_vehicle(
     cs: &ColorScheme,
 ) -> Box<Renderable> {
     if input.vehicle_type == VehicleType::Bike {
-        Box::new(DrawBike::new(input, prerender, cs))
+        Box::new(DrawBike::new(input, map, prerender, cs))
     } else {
         Box::new(DrawCar::new(input, map, prerender, cs))
     }

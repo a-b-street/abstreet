@@ -14,23 +14,28 @@ pub struct DrawBike {
     // TODO the turn arrows for bikes look way wrong
     // TODO maybe also draw lookahead buffer to know what the car is considering
     stopping_buffer: Option<Polygon>,
+    zorder: isize,
 
     draw_default: Drawable,
 }
 
 impl DrawBike {
-    pub fn new(input: DrawCarInput, prerender: &Prerender, cs: &ColorScheme) -> DrawBike {
+    pub fn new(
+        input: DrawCarInput,
+        map: &Map,
+        prerender: &Prerender,
+        cs: &ColorScheme,
+    ) -> DrawBike {
         let stopping_buffer = input.stopping_trace.map(|t| t.make_polygons(BIKE_WIDTH));
         let polygon = input.body.make_polygons(BIKE_WIDTH);
 
         let draw_default = prerender.upload_borrowed(vec![(
             match input.status {
-                CarStatus::Debug => cs
-                    .get_def("debug bike", Color::BLUE.alpha(0.8))
-                    .shift(input.id.0),
+                // TODO color.shift(input.id.0) actually looks pretty bad still
+                CarStatus::Debug => cs.get_def("debug bike", Color::BLUE.alpha(0.8)),
                 // TODO Hard to see on the greenish bike lanes? :P
-                CarStatus::Moving => cs.get_def("moving bike", Color::GREEN).shift(input.id.0),
-                CarStatus::Stuck => cs.get_def("stuck bike", Color::RED).shift(input.id.0),
+                CarStatus::Moving => cs.get_def("moving bike", Color::GREEN),
+                CarStatus::Stuck => cs.get_def("stuck bike", Color::RED),
                 CarStatus::Parked => panic!("Can't have a parked bike"),
             },
             &polygon,
@@ -40,6 +45,7 @@ impl DrawBike {
             id: input.id,
             polygon,
             stopping_buffer,
+            zorder: input.on.get_zorder(map),
             draw_default,
         }
     }
@@ -57,12 +63,14 @@ impl Renderable for DrawBike {
             g.redraw(&self.draw_default);
         }
 
-        if let Some(ref t) = self.stopping_buffer {
-            g.draw_polygon(
-                ctx.cs
-                    .get_def("bike stopping buffer", Color::RED.alpha(0.7)),
-                t,
-            );
+        if opts.debug_mode {
+            if let Some(ref t) = self.stopping_buffer {
+                g.draw_polygon(
+                    ctx.cs
+                        .get_def("bike stopping buffer", Color::RED.alpha(0.7)),
+                    t,
+                );
+            }
         }
     }
 
@@ -72,5 +80,9 @@ impl Renderable for DrawBike {
 
     fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {
         self.polygon.contains_pt(pt)
+    }
+
+    fn get_zorder(&self) -> isize {
+        self.zorder
     }
 }

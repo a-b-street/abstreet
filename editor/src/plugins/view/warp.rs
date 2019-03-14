@@ -57,6 +57,11 @@ impl BlockingPlugin for WarpState {
                 InputResult::StillActive => {}
             },
             WarpState::Warping(started, line, id) => {
+                // Weird to do stuff for any event?
+                if ctx.input.nonblocking_is_update_event() {
+                    ctx.input.use_update_event();
+                }
+
                 ctx.hints.mode = EventLoopMode::Animation;
                 let percent = elapsed_seconds(*started) / ANIMATION_TIME_S;
                 if percent >= 1.0 {
