@@ -352,7 +352,10 @@ calculate exactly when to update a car. Except for three:
 
 3. Cars waiting to turn, but not starting because target lane is full. Could
    register a dependency and get waked up when that queue's size falls below its
-   max capacity. Could use this also for gridlock detection.
+   max capacity. Could use this also for gridlock detection. Oops, but can't
+   start because of no room_at_end. That's different than target lane being
+   full, and it's hard to predict when there'll be room to inch forward at the
+   end.
 
 ## A/B Street's full simulation architecture
 

@@ -1,5 +1,5 @@
 use crate::mechanics::car::{Car, CarState};
-use crate::{CarID, BUS_LENGTH, FOLLOWING_DISTANCE};
+use crate::{CarID, FOLLOWING_DISTANCE};
 use geom::{Distance, Duration};
 use map_model::{Map, Traversable};
 use serde_derive::{Deserialize, Serialize};
@@ -9,7 +9,6 @@ use std::collections::{BTreeMap, VecDeque};
 pub struct Queue {
     pub id: Traversable,
     pub cars: VecDeque<CarID>,
-    max_capacity: usize,
 
     pub geom_len: Distance,
 }
@@ -20,7 +19,6 @@ impl Queue {
         Queue {
             id,
             cars: VecDeque::new(),
-            max_capacity: ((len / (BUS_LENGTH + FOLLOWING_DISTANCE)).floor() as usize).max(1),
             geom_len: len,
         }
     }
@@ -89,9 +87,6 @@ impl Queue {
         time: Duration,
         cars: &BTreeMap<CarID, Car>,
     ) -> Option<usize> {
-        if self.cars.len() == self.max_capacity {
-            return None;
-        }
         if self.cars.is_empty() {
             return Some(0);
         }
