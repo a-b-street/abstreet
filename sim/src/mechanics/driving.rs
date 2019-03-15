@@ -589,13 +589,11 @@ impl DrivingSimState {
                 .get_center_for_side(dr.forwards)
                 .unwrap()
                 .unwrap();
+            // Some cars might be only partially on this road, so the length sum might be too big.
+            let clamped_len = len.min(pl.length());
             g.draw_polygon(
                 FREEFLOW,
-                // TODO Variety that asserts no leftover dist
-                &pl.slice(Distance::ZERO, len)
-                    .unwrap()
-                    .0
-                    .make_polygons(width),
+                &pl.exact_slice(Distance::ZERO, clamped_len).make_polygons(width),
             );
         }
 
@@ -609,9 +607,7 @@ impl DrivingSimState {
             let clamped_len = len.min(pl.length());
             g.draw_polygon(
                 WAITING,
-                &pl.slice(pl.length() - clamped_len, pl.length())
-                    .unwrap()
-                    .0
+                &pl.exact_slice(pl.length() - clamped_len, pl.length())
                     .make_polygons(width),
             );
         }

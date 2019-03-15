@@ -205,9 +205,7 @@ fn calculate_driving_lines(
     }
     // Don't draw the dashes too close to the ends.
     let polygons = lane_edge_pts
-        .slice(dash_separation, lane_edge_pts.length() - dash_separation)
-        .unwrap()
-        .0
+        .exact_slice(dash_separation, lane_edge_pts.length() - dash_separation)
         .dashed_polygons(Distance::meters(0.25), dash_len, dash_separation);
     polygons
         .into_iter()
@@ -282,9 +280,7 @@ fn turn_markings(
 
     let common_base = lane
         .lane_center_pts
-        .slice(len - Distance::meters(7.0), len - Distance::meters(5.0))
-        .unwrap()
-        .0;
+        .exact_slice(len - Distance::meters(7.0), len - Distance::meters(5.0));
     let base_polygon = common_base.make_polygons(Distance::meters(0.1));
     let turn_line = Line::new(
         common_base.last_pt(),

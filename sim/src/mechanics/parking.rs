@@ -113,9 +113,7 @@ impl ParkingSimState {
             body: map
                 .get_l(lane)
                 .lane_center_pts
-                .slice(front_dist - p.vehicle.length, front_dist)
-                .unwrap()
-                .0,
+                .exact_slice(front_dist - p.vehicle.length, front_dist),
         })
     }
 

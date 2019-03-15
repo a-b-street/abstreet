@@ -175,8 +175,24 @@ impl PolyLine {
         Some((PolyLine::new(result), end - dist_so_far))
     }
 
+    // No excess leftover distance allowed.
+    pub fn exact_slice(&self, start: Distance, end: Distance) -> PolyLine {
+        let (pl, leftover) = self
+            .slice(start, end)
+            .unwrap_or_else(|| panic!("exact_slice({}, {}) yielded empty slice", start, end));
+        if leftover != Distance::ZERO {
+            panic!(
+                "exact_slice({}, {}) on a PL of length {} yielded leftover distance",
+                start,
+                end,
+                self.length()
+            );
+        }
+        pl
+    }
+
     pub fn second_half(&self) -> PolyLine {
-        self.slice(self.length() / 2.0, self.length()).unwrap().0
+        self.exact_slice(self.length() / 2.0, self.length())
     }
 
     // TODO return result with an error message
@@ -350,9 +366,7 @@ impl PolyLine {
             }
 
             polygons.push(
-                self.slice(start, start + dash_len)
-                    .unwrap()
-                    .0
+                self.exact_slice(start, start + dash_len)
                     .make_polygons(width),
             );
             start += dash_len + dash_separation;

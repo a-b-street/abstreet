@@ -16,20 +16,15 @@ pub struct DrawBusStop {
 impl DrawBusStop {
     pub fn new(stop: &BusStop, map: &Map, cs: &ColorScheme, prerender: &Prerender) -> DrawBusStop {
         let radius = Distance::meters(2.0);
-        // TODO if this happens to cross a bend in the lane, it'll look weird. similar to the
-        // lookahead arrows and center points / dashed white, we really want to render an Interval
-        // or something.
         // Kinda sad that bus stops might be very close to the start of the lane, but it's
         // happening.
         let lane = map.get_l(stop.id.sidewalk);
         let polygon = lane
             .lane_center_pts
-            .slice(
+            .exact_slice(
                 Distance::ZERO.max(stop.sidewalk_pos.dist_along() - radius),
-                stop.sidewalk_pos.dist_along() + radius,
+                lane.length().min(stop.sidewalk_pos.dist_along() + radius),
             )
-            .unwrap()
-            .0
             .make_polygons(LANE_THICKNESS * 0.8);
         let draw_default = prerender.upload_borrowed(vec![(
             cs.get_def("bus stop marking", Color::rgba(220, 160, 220, 0.8)),

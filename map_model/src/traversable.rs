@@ -106,6 +106,13 @@ impl Traversable {
         }
     }
 
+    pub fn exact_slice(&self, start: Distance, end: Distance, map: &Map) -> PolyLine {
+        match *self {
+            Traversable::Lane(id) => map.get_l(id).lane_center_pts.exact_slice(start, end),
+            Traversable::Turn(id) => map.get_t(id).geom.exact_slice(start, end),
+        }
+    }
+
     pub fn speed_limit(&self, map: &Map) -> Speed {
         match *self {
             Traversable::Lane(id) => map.get_parent(id).get_speed_limit(),

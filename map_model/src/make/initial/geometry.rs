@@ -102,13 +102,10 @@ fn generalized_trim_back(
 
         // Always trim back a minimum amount, if possible.
         let mut shortest_center = if road_center.length() >= DEGENERATE_INTERSECTION_HALF_LENGTH {
-            road_center
-                .slice(
-                    Distance::ZERO,
-                    road_center.length() - DEGENERATE_INTERSECTION_HALF_LENGTH,
-                )
-                .unwrap()
-                .0
+            road_center.exact_slice(
+                Distance::ZERO,
+                road_center.length() - DEGENERATE_INTERSECTION_HALF_LENGTH,
+            )
         } else {
             road_center.clone()
         };
@@ -305,23 +302,15 @@ fn deadend(
     if pt1.is_some() && pt2.is_some() {
         let r = roads.get_mut(&id).unwrap();
         if r.src_i == i {
-            r.trimmed_center_pts = r
-                .trimmed_center_pts
-                .slice(
-                    DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0,
-                    r.trimmed_center_pts.length(),
-                )
-                .unwrap()
-                .0;
+            r.trimmed_center_pts = r.trimmed_center_pts.exact_slice(
+                DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0,
+                r.trimmed_center_pts.length(),
+            );
         } else {
-            r.trimmed_center_pts = r
-                .trimmed_center_pts
-                .slice(
-                    Distance::ZERO,
-                    r.trimmed_center_pts.length() - DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0,
-                )
-                .unwrap()
-                .0;
+            r.trimmed_center_pts = r.trimmed_center_pts.exact_slice(
+                Distance::ZERO,
+                r.trimmed_center_pts.length() - DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0,
+            );
         }
 
         Warn::ok(vec![

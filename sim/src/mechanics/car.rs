@@ -60,9 +60,7 @@ impl Car {
         let raw_body = if front >= self.vehicle.length {
             self.router
                 .head()
-                .slice(front - self.vehicle.length, front, map)
-                .unwrap()
-                .0
+                .exact_slice(front - self.vehicle.length, front, map)
         } else {
             // TODO This is redoing some of the Path::trace work...
             let mut result = self
