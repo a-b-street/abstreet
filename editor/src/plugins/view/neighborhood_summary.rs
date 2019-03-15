@@ -2,7 +2,7 @@ use crate::objects::DrawCtx;
 use crate::plugins::{AmbientPlugin, PluginCtx};
 use crate::render::DrawMap;
 use abstutil;
-use ezgui::{Color, GfxCtx, Text};
+use ezgui::{Color, Drawable, GfxCtx, Prerender, Text};
 use geom::{Duration, Polygon, Pt2D};
 use map_model::{LaneID, Map, Neighborhood};
 use sim::Sim;
@@ -10,23 +10,38 @@ use std::collections::HashSet;
 
 pub struct NeighborhoodSummary {
     regions: Vec<Region>,
+    draw_all_regions: Drawable,
     active: bool,
     last_summary: Option<Duration>,
 }
 
 impl NeighborhoodSummary {
-    pub fn new(map: &Map, draw_map: &DrawMap, timer: &mut abstutil::Timer) -> NeighborhoodSummary {
+    pub fn new(
+        map: &Map,
+        draw_map: &DrawMap,
+        prerender: &Prerender,
+        timer: &mut abstutil::Timer,
+    ) -> NeighborhoodSummary {
         let neighborhoods = Neighborhood::load_all(map.get_name(), &map.get_gps_bounds());
         timer.start_iter("precompute neighborhood members", neighborhoods.len());
+        let regions: Vec<Region> = neighborhoods
+            .into_iter()
+            .enumerate()
+            .map(|(idx, (_, n))| {
+                timer.next();
+                Region::new(idx, n, map, draw_map)
+            })
+            .collect();
+        let draw_all_regions = prerender.upload_borrowed(
+            regions
+                .iter()
+                .map(|r| (r.color, &r.polygon))
+                .collect::<Vec<_>>(),
+        );
+
         NeighborhoodSummary {
-            regions: neighborhoods
-                .into_iter()
-                .enumerate()
-                .map(|(idx, (_, n))| {
-                    timer.next();
-                    Region::new(idx, n, map, draw_map)
-                })
-                .collect(),
+            regions,
+            draw_all_regions,
             active: false,
             last_summary: None,
         }
@@ -61,8 +76,8 @@ impl AmbientPlugin for NeighborhoodSummary {
             return;
         }
 
+        g.redraw(&self.draw_all_regions);
         for r in &self.regions {
-            g.draw_polygon(r.color, &r.polygon);
             // TODO ezgui should take borrows
             g.draw_text_at(r.summary.clone(), r.center);
         }

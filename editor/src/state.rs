@@ -475,7 +475,7 @@ impl PerMapUI {
             current_selection: None,
             current_flags: flags.clone(),
         };
-        let plugins = PluginsPerMap::new(&state, &mut timer, enable_debug_controls);
+        let plugins = PluginsPerMap::new(&state, prerender, &mut timer, enable_debug_controls);
         (state, plugins)
     }
 }
@@ -498,7 +498,12 @@ pub struct PluginsPerMap {
 }
 
 impl PluginsPerMap {
-    pub fn new(state: &PerMapUI, timer: &mut Timer, enable_debug_controls: bool) -> PluginsPerMap {
+    pub fn new(
+        state: &PerMapUI,
+        prerender: &Prerender,
+        timer: &mut Timer,
+        enable_debug_controls: bool,
+    ) -> PluginsPerMap {
         let mut p = PluginsPerMap {
             hider: None,
             orig_roads: None,
@@ -508,6 +513,7 @@ impl PluginsPerMap {
                 Box::new(view::neighborhood_summary::NeighborhoodSummary::new(
                     &state.map,
                     &state.draw_map,
+                    prerender,
                     timer,
                 )),
                 // TODO Could be a little simpler to instantiate this lazily, stop representing
