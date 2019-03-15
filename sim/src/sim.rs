@@ -17,6 +17,8 @@ use std::collections::{HashSet, VecDeque};
 use std::panic;
 use std::time::Instant;
 
+const CHECK_FOR_GRIDLOCK_FREQUENCY: Duration = Duration::const_seconds(5.0 * 60.0);
+
 #[derive(Serialize, Deserialize, Derivative)]
 #[derivative(PartialEq)]
 pub struct Sim {
@@ -55,6 +57,7 @@ pub struct Sim {
 impl Sim {
     pub fn new(map: &Map, run_name: String, savestate_every: Option<Duration>) -> Sim {
         let mut scheduler = Scheduler::new();
+        scheduler.push(CHECK_FOR_GRIDLOCK_FREQUENCY, Command::CheckForGridlock);
         Sim {
             driving: DrivingSimState::new(map),
             parking: ParkingSimState::new(map),
@@ -336,6 +339,16 @@ impl Sim {
                 Command::UpdateIntersection(i) => {
                     self.intersections
                         .update_intersection(self.time, i, map, &mut self.scheduler);
+                }
+                Command::CheckForGridlock => {
+                    if self.driving.detect_gridlock(map) {
+                        self.save();
+                    } else {
+                        self.scheduler.push(
+                            self.time + CHECK_FOR_GRIDLOCK_FREQUENCY,
+                            Command::CheckForGridlock,
+                        );
+                    }
                 }
             }
         }
@@ -724,9 +737,5 @@ impl Sim {
 
     pub fn is_in_overtime(&self, id: IntersectionID, map: &Map) -> bool {
         self.intersections.is_in_overtime(self.time, id, map)
-    }
-
-    pub fn detect_gridlock(&self, map: &Map) {
-        self.driving.detect_gridlock(map)
     }
 }

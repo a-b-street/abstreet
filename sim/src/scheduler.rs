@@ -12,6 +12,7 @@ pub enum Command {
     UpdateCar(CarID),
     UpdatePed(PedestrianID),
     UpdateIntersection(IntersectionID),
+    CheckForGridlock,
 }
 
 #[derive(Serialize, Deserialize, Derivative)]

@@ -648,7 +648,7 @@ impl DrivingSimState {
 
     // This ignores capacity, pedestrians, and traffic signal overtime. So it should yield false
     // positives (thinks there's gridlock, when there isn't) but never false negatives.
-    pub fn detect_gridlock(&self, map: &Map) {
+    pub fn detect_gridlock(&self, map: &Map) -> bool {
         #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
         enum Node {
             Lane(LaneID),
@@ -703,13 +703,15 @@ impl DrivingSimState {
                     for n in raw_nodes {
                         println!("- {:?}", deps[n]);
                     }
-                    return;
+                    return true;
                 }
             }
             println!(
                 "Gridlock involving {:?}, but couldn't find the cycle!",
                 cycle.node_id()
             );
+            return true;
         }
+        false
     }
 }
