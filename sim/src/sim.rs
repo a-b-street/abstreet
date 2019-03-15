@@ -725,4 +725,8 @@ impl Sim {
     pub fn is_in_overtime(&self, id: IntersectionID, map: &Map) -> bool {
         self.intersections.is_in_overtime(self.time, id, map)
     }
+
+    pub fn detect_gridlock(&self, map: &Map) {
+        self.driving.detect_gridlock(map)
+    }
 }

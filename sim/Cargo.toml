@@ -13,6 +13,7 @@ histogram = "0.6.9"
 map_model = { path = "../map_model" }
 more-asserts = "0.2.1"
 num_cpus = "1.10.0"
+petgraph = "0.4.13"
 pretty_assertions = "0.6.1"
 rand = { version = "0.6.5", features = ["serde1"] }
 rand_xorshift = "0.1.1"

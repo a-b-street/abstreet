@@ -131,6 +131,7 @@ impl AmbientPluginWithPrimaryPlugins for SimControls {
                     self.run_sim(&mut ctx.primary.sim);
                 } else if ctx.input.action_chosen("run one step of sim") {
                     ctx.primary.sim.step(&ctx.primary.map);
+                    ctx.primary.sim.detect_gridlock(&ctx.primary.map);
 
                     *ctx.recalculate_current_selection = true;
                     if let Some((s, _)) = ctx.secondary {

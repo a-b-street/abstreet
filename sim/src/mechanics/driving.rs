@@ -8,9 +8,12 @@ use crate::{
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use ezgui::{Color, GfxCtx};
 use geom::{Distance, Duration};
-use map_model::{BuildingID, Map, Path, Trace, Traversable, LANE_THICKNESS};
+use map_model::{
+    BuildingID, IntersectionID, LaneID, Map, Path, Trace, Traversable, LANE_THICKNESS,
+};
+use petgraph::graph::{Graph, NodeIndex};
 use serde_derive::{Deserialize, Serialize};
-use std::collections::{BTreeMap, VecDeque};
+use std::collections::{BTreeMap, HashMap, VecDeque};
 
 const FREEFLOW: Color = Color::CYAN;
 const WAITING: Color = Color::RED;
@@ -609,7 +612,7 @@ impl DrivingSimState {
     pub fn tooltip_lines(&self, id: CarID) -> Option<Vec<String>> {
         let car = self.cars.get(&id)?;
         Some(vec![
-            format!("{}", id),
+            format!("{} on {:?}", id, car.router.head()),
             format!("Owned by {:?}", car.vehicle.owner),
             format!("{} lanes left", car.router.get_path().num_lanes()),
             format!("{:?}", car.state),
@@ -641,5 +644,72 @@ impl DrivingSimState {
     pub fn get_owner_of_car(&self, id: CarID) -> Option<BuildingID> {
         let car = self.cars.get(&id)?;
         car.vehicle.owner
+    }
+
+    // This ignores capacity, pedestrians, and traffic signal overtime. So it should yield false
+    // positives (thinks there's gridlock, when there isn't) but never false negatives.
+    pub fn detect_gridlock(&self, map: &Map) {
+        #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+        enum Node {
+            Lane(LaneID),
+            Intersection(IntersectionID),
+        }
+
+        // TODO petgraph wrapper to map nodes -> node index and handle duplicate nodes
+        let mut deps: Graph<Node, ()> = Graph::new();
+        let mut nodes: HashMap<Node, NodeIndex<u32>> = HashMap::new();
+
+        for queue in self.queues.values() {
+            if queue.cars.is_empty() {
+                continue;
+            }
+            match queue.id {
+                Traversable::Lane(l) => {
+                    let lane_id = Node::Lane(l);
+                    // Assume lead car will proceed to the intersection
+                    nodes.insert(lane_id, deps.add_node(lane_id));
+
+                    let int_id = Node::Intersection(map.get_l(l).dst_i);
+                    if !nodes.contains_key(&int_id) {
+                        nodes.insert(int_id, deps.add_node(int_id));
+                    }
+
+                    deps.add_edge(nodes[&lane_id], nodes[&int_id], ());
+                }
+                Traversable::Turn(t) => {
+                    let int_id = Node::Intersection(t.parent);
+                    if !nodes.contains_key(&int_id) {
+                        nodes.insert(int_id, deps.add_node(int_id));
+                    }
+
+                    let target_lane_id = Node::Lane(t.dst);
+                    if !nodes.contains_key(&target_lane_id) {
+                        nodes.insert(target_lane_id, deps.add_node(target_lane_id));
+                    }
+
+                    deps.add_edge(nodes[&int_id], nodes[&target_lane_id], ());
+                }
+            }
+        }
+
+        if let Err(cycle) = petgraph::algo::toposort(&deps, None) {
+            // Super lame, we only get one node in the cycle, and A* won't attempt to look for
+            // loops.
+            for start in deps.neighbors(cycle.node_id()) {
+                if let Some((_, raw_nodes)) =
+                    petgraph::algo::astar(&deps, start, |n| n == cycle.node_id(), |_| 0, |_| 0)
+                {
+                    println!("Gridlock involving:");
+                    for n in raw_nodes {
+                        println!("- {:?}", deps[n]);
+                    }
+                    return;
+                }
+            }
+            println!(
+                "Gridlock involving {:?}, but couldn't find the cycle!",
+                cycle.node_id()
+            );
+        }
     }
 }

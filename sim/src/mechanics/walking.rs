@@ -225,7 +225,7 @@ impl WalkingSimState {
     pub fn ped_tooltip(&self, id: PedestrianID) -> Vec<String> {
         let p = &self.peds[&id];
         vec![
-            format!("{}", p.id),
+            format!("{} on {:?}", p.id, p.path.current_step()),
             format!("{} lanes left in path", p.path.num_lanes()),
             format!("{:?}", p.state),
         ]
