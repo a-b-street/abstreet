@@ -28,7 +28,16 @@ top30 --cum
 
 ## Building releases
 
-Cross-compilation notes: https://github.com/rust-embedded/cross
+Cross-compilation notes: https://github.com/rust-embedded/cross Or use
+https://github.com/japaric/trust
+
+Initially have to:
+
+```shell
+rustup target add x86_64-pc-windows-gnu
+```
+
+Then:
 
 ```
 cross build --release --target x86_64-pc-windows-gnu --bin editor

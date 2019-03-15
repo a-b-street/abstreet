@@ -9,6 +9,8 @@ use std::collections::{BTreeMap, VecDeque};
 pub struct Queue {
     pub id: Traversable,
     pub cars: VecDeque<CarID>,
+    // This car's back is still partly in this queue.
+    pub laggy_head: Option<CarID>,
 
     pub geom_len: Distance,
 }
@@ -19,6 +21,7 @@ impl Queue {
         Queue {
             id,
             cars: VecDeque::new(),
+            laggy_head: None,
             geom_len: len,
         }
     }
@@ -40,7 +43,12 @@ impl Queue {
                 Some((leader, last_dist)) => {
                     *last_dist - cars[leader].vehicle.length - FOLLOWING_DISTANCE
                 }
-                None => self.geom_len,
+                None => match self.laggy_head {
+                    // TODO This is very basic version; really we need to recurse here
+                    // TODO This doesn't handle short lanes
+                    Some(id) => self.geom_len - cars[&id].vehicle.length - FOLLOWING_DISTANCE,
+                    None => self.geom_len,
+                },
             };
 
             // There's spillover and a car shouldn't have been able to enter yet.
@@ -87,7 +95,7 @@ impl Queue {
         time: Duration,
         cars: &BTreeMap<CarID, Car>,
     ) -> Option<usize> {
-        if self.cars.is_empty() {
+        if self.laggy_head.is_none() && self.cars.is_empty() {
             return Some(0);
         }
 
@@ -97,6 +105,11 @@ impl Queue {
             Some(i) => i,
             None => dists.len(),
         };
+
+        // Nope, there's not actually room at the front right now.
+        if self.laggy_head.is_some() && idx == 0 {
+            return None;
+        }
 
         // Are we too close to the leader?
         if idx != 0

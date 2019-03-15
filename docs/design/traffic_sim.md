@@ -357,6 +357,49 @@ calculate exactly when to update a car. Except for three:
    full, and it's hard to predict when there'll be room to inch forward at the
    end.
 
+#### Notes on fixing the jump bug
+
+- can track a laggy leader per queue. there's 0 or 1 of these, impossible to be more.
+- a car can be a laggy leader in several queues, like long bus on short lanes. last_steps is kinda equivalent to this. 
+
+
+is it possible for get_car_positions to think something should still be blocked but the rest of the state machine to not?
+	- dont change somebody to WaitingToAdvance until theres no laggy leader.
+
+
+TODO impl:
+- get_car_positions needs to recurse
+- trim_last_steps needs to do something different
+
+
+
+
+the eager impl:
+- anytime we update a Car with last_steps, try to go erase those. need full distances. when we successfully erase, update followers that are Queued.
+	- - follower only starts moving once the laggy lead is totally out. wrong. they were Queued, so i
+mmediately promote them to WaitingToAdvance. smoothly draw in the meantime by recursing
+- optimistic check in the middle of Crossing, but use a different event for this to be clear. the retry should only be expensive in gridlocky cases.
+	- BLIND_RETRY after... similar to end_dist checking.
+	- note other routines dont even do checks that could hit numerical precision, we just assume events are scheduled for correct time.
+- maybe v1: dont recurse in get_car_positions, just block off entire laggy leader length until they're totally out.
+- v2: do have to recurse. :(
+
+
+the lazy impl:
+- when we become WaitingToAdvance on a queue of length > vehicle len, clean up last_steps if needed
+- when we vanish, clean up all last_steps
+- when a follower gets to ithin laggy leader length of the queue end, need to resolve earlier
+	- resolving early needs to get exact distances. expensive, but common case is theyre clear. if somebody gets stuck fully leaving a queue, then this will spam, but thats also gridlocky and we want to avoid that anyway
+
+
+
+other ideas:
+- can we cheat and ensure that we only clip into laggy leaders briefly?
+	- if laggy leaders never get stuck at end of their next queue...
+- alt: store front and back of each car in queues separately
+	- compute crossing state and stuff for those individually? double the work?
+
+
 ## A/B Street's full simulation architecture
 
 start from step(), the master event queue, how each event is dispatched, each

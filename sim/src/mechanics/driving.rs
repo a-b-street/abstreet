@@ -1,9 +1,9 @@
 use crate::mechanics::car::{Car, CarState};
 use crate::mechanics::queue::Queue;
 use crate::{
-    ActionAtEnd, AgentID, CarID, Command, CreateCar, DrawCarInput, IntersectionSimState, ParkedCar,
-    ParkingSimState, Scheduler, TimeInterval, TransitSimState, TripManager, WalkingSimState,
-    BLIND_RETRY, FOLLOWING_DISTANCE,
+    ActionAtEnd, AgentID, CarID, Command, CreateCar, DistanceInterval, DrawCarInput,
+    IntersectionSimState, ParkedCar, ParkingSimState, Scheduler, TimeInterval, TransitSimState,
+    TripManager, WalkingSimState, BLIND_RETRY, FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use ezgui::{Color, GfxCtx};
@@ -212,7 +212,8 @@ impl DrivingSimState {
                     // Immediately run update_car_with_distances.
                     return true;
                 }
-                if self.queues[&car.router.head()].cars[0] == car.vehicle.id {
+                let queue = &self.queues[&car.router.head()];
+                if queue.cars[0] == car.vehicle.id && queue.laggy_head.is_none() {
                     // Want to re-run, but no urgency about it happening immediately.
                     car.state = CarState::WaitingToAdvance;
                     scheduler.push(time, Command::UpdateCar(car.vehicle.id));
@@ -294,55 +295,30 @@ impl DrivingSimState {
                     }
                 }
 
-                assert_eq!(
-                    self.queues
-                        .get_mut(&from)
-                        .unwrap()
-                        .cars
-                        .pop_front()
-                        .unwrap(),
-                    car.vehicle.id
-                );
-
-                // Update the follower so that they don't suddenly jump forwards.
-                if let Some(follower_id) = self.queues[&from].cars.front() {
-                    let mut follower = self.cars.get_mut(&follower_id).unwrap();
-                    // TODO This still jumps a bit -- the lead car's back is still sticking out. Need
-                    // to still be bound by them.
-                    match follower.state {
-                        CarState::Queued => {
-                            // If they're on their last step, they might be ending early and not
-                            // right behind us.
-                            if !follower.router.last_step() {
-                                follower.state = follower.crossing_state(
-                                    // Since the follower was Queued, this must be where they are. This
-                                    // update case is when the lead car was NOT on their last step, so
-                                    // they were indeed all the way at the end of 'from'.
-                                    from.length(map) - car.vehicle.length - FOLLOWING_DISTANCE,
-                                    time,
-                                    map,
-                                );
-                                scheduler.update(
-                                    Command::UpdateCar(*follower_id),
-                                    follower.state.get_end_time(),
-                                );
-                            }
-                        }
-                        CarState::WaitingToAdvance => unreachable!(),
-                        // They weren't blocked. Note that there's no way the Crossing state could jump
-                        // forwards here; the leader vanished from the end of the traversable.
-                        CarState::Crossing(_, _)
-                        | CarState::Unparking(_, _)
-                        | CarState::Parking(_, _, _)
-                        | CarState::Idling(_, _) => {}
-                    }
+                {
+                    let mut queue = self.queues.get_mut(&from).unwrap();
+                    assert_eq!(queue.cars.pop_front().unwrap(), car.vehicle.id);
+                    queue.laggy_head = Some(car.vehicle.id);
                 }
+
+                // We do NOT need to update the follower. If they were Queued, they'll remain that
+                // way, until laggy_head is None.
 
                 let last_step = car.router.advance(&car.vehicle, parking, map);
                 car.last_steps.push_front(last_step);
-                car.trim_last_steps(map);
                 car.state = car.crossing_state(Distance::ZERO, time, map);
                 scheduler.push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
+
+                // TODO Doesn't handle short lanes and stopping short
+                scheduler.push(
+                    car.crossing_state_with_end_dist(
+                        DistanceInterval::new_driving(Distance::ZERO, car.vehicle.length),
+                        time,
+                        map,
+                    )
+                    .get_end_time(),
+                    Command::UpdateLaggyHead(car.vehicle.id),
+                );
 
                 if goto.maybe_lane().is_some() {
                     // TODO Actually, don't call turn_finished until the car is at least
@@ -485,6 +461,10 @@ impl DrivingSimState {
             car.vehicle.id
         );
 
+        // TODO Unless we vanished from something short, we should have already done this. When
+        // handling the short case, also be sure to cancel the update message...
+        assert!(car.last_steps.is_empty());
+
         // Update the follower so that they don't suddenly jump forwards.
         if idx != dists.len() - 1 {
             let (follower_id, follower_dist) = dists[idx + 1];
@@ -512,6 +492,100 @@ impl DrivingSimState {
         }
 
         false
+    }
+
+    // TODO Maybe also remember what the last step was in this event, to make sure we're canceling
+    // events and everything
+    pub fn update_laggy_head(
+        &mut self,
+        id: CarID,
+        time: Duration,
+        map: &Map,
+        scheduler: &mut Scheduler,
+    ) {
+        // TODO The impl here is pretty gross; play the same trick and remove car temporarily?
+        let dists = self.queues[&self.cars[&id].router.head()].get_car_positions(time, &self.cars);
+        // This car must be the tail.
+        assert_eq!(id, dists.last().unwrap().0);
+        let our_len = self.cars[&id].vehicle.length;
+
+        // TODO This will update short lanes too late I think?
+
+        // Have we made it far enough yet? Unfortunately, we have some math imprecision issues...
+        {
+            let our_dist = dists.last().unwrap().1;
+            let car = &self.cars[&id];
+            if our_dist < our_len {
+                let retry_at = car
+                    .crossing_state_with_end_dist(
+                        DistanceInterval::new_driving(our_dist, our_len),
+                        time,
+                        map,
+                    )
+                    .get_end_time();
+                if !retry_at.almost_eq(time, Duration::seconds(0.1)) {
+                    // TODO Smarter retry based on states and stuckness?
+                    println!(
+                        "{} really does need to retry {} from now, needs {} more",
+                        id,
+                        retry_at - time,
+                        our_len - our_dist
+                    );
+                    scheduler.push(retry_at, Command::UpdateLaggyHead(car.vehicle.id));
+                    return;
+                }
+            }
+        }
+
+        // If we were blocking a few short lanes, should be better now. Very last one might have
+        // somebody to wake up.
+        {
+            let car = &self.cars[&id];
+            if car.last_steps.len() != 1 {
+                println!("At {}, {} has last steps {:?}", time, id, car.last_steps);
+            }
+        }
+        assert_eq!(1, self.cars[&id].last_steps.len());
+        let old_on = self
+            .cars
+            .get_mut(&id)
+            .unwrap()
+            .last_steps
+            .pop_front()
+            .unwrap();
+        let old_queue = self.queues.get_mut(&old_on).unwrap();
+        assert_eq!(old_queue.laggy_head, Some(id));
+        old_queue.laggy_head = None;
+
+        // Wake em up
+        if let Some(follower_id) = old_queue.cars.front() {
+            let mut follower = self.cars.get_mut(&follower_id).unwrap();
+            match follower.state {
+                CarState::Queued => {
+                    // If they're on their last step, they might be ending early and not right
+                    // behind us.
+                    if !follower.router.last_step() {
+                        follower.state = follower.crossing_state(
+                            // Since the follower was Queued, this must be where they are.
+                            old_queue.geom_len - our_len - FOLLOWING_DISTANCE,
+                            time,
+                            map,
+                        );
+                        scheduler.update(
+                            Command::UpdateCar(*follower_id),
+                            follower.state.get_end_time(),
+                        );
+                    }
+                }
+                CarState::WaitingToAdvance => unreachable!(),
+                // They weren't blocked. Note that there's no way the Crossing state could jump
+                // forwards here; the leader vanished from the end of the traversable.
+                CarState::Crossing(_, _)
+                | CarState::Unparking(_, _)
+                | CarState::Parking(_, _, _)
+                | CarState::Idling(_, _) => {}
+            }
+        }
     }
 
     pub fn draw_unzoomed(&self, _time: Duration, g: &mut GfxCtx, map: &Map) {
@@ -593,7 +667,8 @@ impl DrivingSimState {
             let clamped_len = len.min(pl.length());
             g.draw_polygon(
                 FREEFLOW,
-                &pl.exact_slice(Distance::ZERO, clamped_len).make_polygons(width),
+                &pl.exact_slice(Distance::ZERO, clamped_len)
+                    .make_polygons(width),
             );
         }
 

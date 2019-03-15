@@ -10,6 +10,8 @@ pub enum Command {
     SpawnCar(CreateCar),
     SpawnPed(CreatePedestrian),
     UpdateCar(CarID),
+    // Distinguish this from UpdateCar to avoid confusing things
+    UpdateLaggyHead(CarID),
     UpdatePed(PedestrianID),
     UpdateIntersection(IntersectionID),
     CheckForGridlock,

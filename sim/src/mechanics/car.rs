@@ -25,34 +25,30 @@ impl Car {
         start_time: Duration,
         map: &Map,
     ) -> CarState {
-        let on = self.router.head();
         let dist_int = DistanceInterval::new_driving(
             start_dist,
             if self.router.last_step() {
                 self.router.get_end_dist()
             } else {
-                on.length(map)
+                self.router.head().length(map)
             },
         );
+        self.crossing_state_with_end_dist(dist_int, start_time, map)
+    }
+
+    pub fn crossing_state_with_end_dist(
+        &self,
+        dist_int: DistanceInterval,
+        start_time: Duration,
+        map: &Map,
+    ) -> CarState {
+        let on = self.router.head();
         let mut speed = on.speed_limit(map);
         if let Some(s) = self.vehicle.max_speed {
             speed = speed.min(s);
         }
         let dt = (dist_int.end - dist_int.start) / speed;
         CarState::Crossing(TimeInterval::new(start_time, start_time + dt), dist_int)
-    }
-
-    pub fn trim_last_steps(&mut self, map: &Map) {
-        let mut keep = VecDeque::new();
-        let mut len = Distance::ZERO;
-        for on in self.last_steps.drain(..) {
-            len += on.length(map);
-            keep.push_back(on);
-            if len >= self.vehicle.length {
-                break;
-            }
-        }
-        self.last_steps = keep;
     }
 
     pub fn get_draw_car(&self, front: Distance, time: Duration, map: &Map) -> DrawCarInput {
