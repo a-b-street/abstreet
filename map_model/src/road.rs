@@ -1,6 +1,6 @@
 use crate::{raw_data, IntersectionID, LaneID, LaneType, LANE_THICKNESS};
 use abstutil::{Error, Warn};
-use geom::{PolyLine, Polygon, Speed};
+use geom::{Distance, PolyLine, Polygon, Speed};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashSet};
 use std::fmt;
@@ -308,6 +308,32 @@ impl Road {
             self.center_pts
                 .shift_left((width_left - width_right) / 2.0)
                 .map(|pl| pl.make_polygons(total_width))
+        }
+    }
+
+    // Also returns width. The polyline points the correct direction. None if no lanes that
+    // direction.
+    pub fn get_center_for_side(&self, fwds: bool) -> Option<Warn<(PolyLine, Distance)>> {
+        if fwds {
+            if self.children_forwards.is_empty() {
+                return None;
+            }
+            let width = LANE_THICKNESS * (self.children_forwards.len() as f64);
+            Some(
+                self.center_pts
+                    .shift_right(width / 2.0)
+                    .map(|pl| (pl, width)),
+            )
+        } else {
+            if self.children_backwards.is_empty() {
+                return None;
+            }
+            let width = LANE_THICKNESS * (self.children_backwards.len() as f64);
+            Some(
+                self.center_pts
+                    .shift_left(width / 2.0)
+                    .map(|pl| (pl.reversed(), width)),
+            )
         }
     }
 }

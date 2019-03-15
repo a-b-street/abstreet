@@ -3,20 +3,17 @@ use crate::mechanics::queue::Queue;
 use crate::{
     ActionAtEnd, AgentID, CarID, Command, CreateCar, DrawCarInput, IntersectionSimState, ParkedCar,
     ParkingSimState, Scheduler, TimeInterval, TransitSimState, TripManager, WalkingSimState,
-    BLIND_RETRY, BUS_LENGTH, FOLLOWING_DISTANCE,
+    BLIND_RETRY, FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use ezgui::{Color, GfxCtx};
 use geom::{Distance, Duration};
 use map_model::{
-    BuildingID, IntersectionID, LaneID, Map, Path, Trace, Traversable, LANE_THICKNESS,
+    BuildingID, DirectedRoadID, IntersectionID, LaneID, Map, Path, Trace, Traversable,
 };
 use petgraph::graph::{Graph, NodeIndex};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap, VecDeque};
-
-const FREEFLOW: Color = Color::CYAN;
-const WAITING: Color = Color::RED;
 
 const TIME_TO_UNPARK: Duration = Duration::const_seconds(10.0);
 const TIME_TO_PARK: Duration = Duration::const_seconds(15.0);
@@ -518,57 +515,105 @@ impl DrivingSimState {
     }
 
     pub fn draw_unzoomed(&self, _time: Duration, g: &mut GfxCtx, map: &Map) {
+        const FREEFLOW: Color = Color::CYAN;
+        const WAITING: Color = Color::RED;
+
+        // These are the max over all lanes
+        let mut moving: HashMap<DirectedRoadID, Distance> = HashMap::new();
+        let mut waiting: HashMap<DirectedRoadID, Distance> = HashMap::new();
+
         for queue in self.queues.values() {
             if queue.cars.is_empty() {
                 continue;
             }
-            // TODO blocked and not blocked? Eh
-            let mut num_waiting = 0;
-            let mut num_freeflow = 0;
-            for id in &queue.cars {
-                match self.cars[id].state {
+            // Really coarse, strange behavior for turns. Overwrite blindly if there are concurrent turns
+            // happening. :(
+            if let Traversable::Turn(t) = queue.id {
+                let color = match self.cars[&queue.cars[0]].state {
                     CarState::Crossing(_, _)
                     | CarState::Unparking(_, _)
                     | CarState::Parking(_, _, _)
-                    | CarState::Idling(_, _) => {
-                        num_freeflow += 1;
-                    }
-                    CarState::Queued | CarState::WaitingToAdvance => {
-                        num_waiting += 1;
-                    }
+                    | CarState::Idling(_, _) => FREEFLOW,
+                    CarState::Queued | CarState::WaitingToAdvance => WAITING,
                 };
+                g.draw_polygon(color, &map.get_i(t.parent).polygon);
+                continue;
             }
 
-            if num_waiting > 0 {
-                // Short lanes/turns exist
-                let start = (queue.geom_len
-                    - f64::from(num_waiting) * (BUS_LENGTH + FOLLOWING_DISTANCE))
-                    .max(Distance::ZERO);
-                g.draw_polygon(
-                    WAITING,
-                    &queue
-                        .id
-                        .slice(start, queue.geom_len, map)
-                        .unwrap()
-                        .0
-                        .make_polygons(LANE_THICKNESS),
-                );
+            let mut moving_len = Distance::ZERO;
+            let mut waiting_len = Distance::ZERO;
+            let mut found_moving = false;
+            for id in &queue.cars {
+                let car = &self.cars[id];
+                if found_moving {
+                    if moving_len == Distance::ZERO {
+                        moving_len += FOLLOWING_DISTANCE;
+                    }
+                    moving_len += car.vehicle.length;
+                } else {
+                    match car.state {
+                        CarState::Crossing(_, _)
+                        | CarState::Unparking(_, _)
+                        | CarState::Parking(_, _, _)
+                        | CarState::Idling(_, _) => {
+                            found_moving = true;
+                            if moving_len == Distance::ZERO {
+                                moving_len += FOLLOWING_DISTANCE;
+                            }
+                            moving_len += car.vehicle.length;
+                        }
+                        CarState::Queued | CarState::WaitingToAdvance => {
+                            if waiting_len == Distance::ZERO {
+                                waiting_len += FOLLOWING_DISTANCE;
+                            }
+                            waiting_len += car.vehicle.length;
+                        }
+                    }
+                }
             }
-            if num_freeflow > 0 {
-                g.draw_polygon(
-                    FREEFLOW,
-                    &queue
-                        .id
-                        .slice(
-                            Distance::ZERO,
-                            f64::from(num_freeflow) * (BUS_LENGTH + FOLLOWING_DISTANCE),
-                            map,
-                        )
-                        .unwrap()
-                        .0
-                        .make_polygons(LANE_THICKNESS),
-                );
+            let dr = map.get_l(queue.id.as_lane()).get_directed_parent(map);
+
+            if moving_len > Distance::ZERO {
+                let dist = moving.entry(dr).or_insert(Distance::ZERO);
+                *dist = moving_len.max(*dist);
             }
+            if waiting_len > Distance::ZERO {
+                let dist = waiting.entry(dr).or_insert(Distance::ZERO);
+                *dist = waiting_len.max(*dist);
+            }
+        }
+
+        for (dr, len) in moving {
+            let (pl, width) = map
+                .get_r(dr.id)
+                .get_center_for_side(dr.forwards)
+                .unwrap()
+                .unwrap();
+            g.draw_polygon(
+                FREEFLOW,
+                // TODO Variety that asserts no leftover dist
+                &pl.slice(Distance::ZERO, len)
+                    .unwrap()
+                    .0
+                    .make_polygons(width),
+            );
+        }
+
+        for (dr, len) in waiting {
+            let (pl, width) = map
+                .get_r(dr.id)
+                .get_center_for_side(dr.forwards)
+                .unwrap()
+                .unwrap();
+            // Some cars might be only partially on this road, so the length sum might be too big.
+            let clamped_len = len.min(pl.length());
+            g.draw_polygon(
+                WAITING,
+                &pl.slice(pl.length() - clamped_len, pl.length())
+                    .unwrap()
+                    .0
+                    .make_polygons(width),
+            );
         }
     }
 

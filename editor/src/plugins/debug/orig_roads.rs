@@ -1,8 +1,7 @@
 use crate::objects::{DrawCtx, ID};
 use crate::plugins::{NonblockingPlugin, PluginCtx};
 use ezgui::{Color, GfxCtx, Key};
-use geom::Distance;
-use map_model::{RoadID, LANE_THICKNESS};
+use map_model::RoadID;
 use std::collections::HashSet;
 
 pub struct ShowOriginalRoads {
@@ -37,27 +36,20 @@ impl NonblockingPlugin for ShowOriginalRoads {
     fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
         for id in &self.roads {
             let r = ctx.map.get_r(*id);
-            // TODO Should be a less tedious way to do this
-            let width_right = (r.children_forwards.len() as f64) * LANE_THICKNESS;
-            let width_left = (r.children_backwards.len() as f64) * LANE_THICKNESS;
-            if width_right != Distance::ZERO {
+            if let Some(pair) = r.get_center_for_side(true) {
+                let (pl, width) = pair.unwrap();
                 g.draw_polygon(
                     ctx.cs
                         .get_def("original road forwards", Color::RED.alpha(0.5)),
-                    &r.original_center_pts
-                        .shift_right(width_right / 2.0)
-                        .unwrap()
-                        .make_polygons(width_right),
+                    &pl.make_polygons(width),
                 );
             }
-            if width_left != Distance::ZERO {
+            if let Some(pair) = r.get_center_for_side(false) {
+                let (pl, width) = pair.unwrap();
                 g.draw_polygon(
                     ctx.cs
                         .get_def("original road backwards", Color::BLUE.alpha(0.5)),
-                    &r.original_center_pts
-                        .shift_left(width_left / 2.0)
-                        .unwrap()
-                        .make_polygons(width_left),
+                    &pl.make_polygons(width),
                 );
             }
         }
