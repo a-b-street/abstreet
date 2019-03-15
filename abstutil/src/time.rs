@@ -237,10 +237,25 @@ impl Timer {
     }
 }
 
-// TODO Can we skip doing this when we're unwinding a panic? It makes the stack trace quite ugly.
 impl std::ops::Drop for Timer {
     fn drop(&mut self) {
         let stop_name = self.outermost_name.clone();
+
+        // If we're in the middle of unwinding a panic, don't further blow up.
+        match self.stack.last() {
+            Some(StackEntry::TimerSpan(ref s)) => {
+                if s.name != stop_name {
+                    println!("dropping Timer because of panic");
+                    return;
+                }
+            }
+            Some(StackEntry::Progress(_)) => {
+                println!("dropping Timer because of panic");
+                return;
+            }
+            None => unreachable!(),
+        }
+
         self.stop(&stop_name);
         assert!(self.stack.is_empty());
         println!();
