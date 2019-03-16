@@ -31,6 +31,7 @@ impl Queue {
         &self,
         time: Duration,
         cars: &BTreeMap<CarID, Car>,
+        queues: &BTreeMap<Traversable, Queue>,
     ) -> Vec<(CarID, Distance)> {
         if self.cars.is_empty() {
             return Vec::new();
@@ -46,7 +47,20 @@ impl Queue {
                 None => match self.laggy_head {
                     // TODO This is very basic version; really we need to recurse here
                     // TODO This doesn't handle short lanes
-                    Some(id) => self.geom_len - cars[&id].vehicle.length - FOLLOWING_DISTANCE,
+                    Some(id) => {
+                        // The simple but broken version:
+                        //self.geom_len - cars[&id].vehicle.length - FOLLOWING_DISTANCE
+
+                        // The expensive case. We need to figure out exactly where the laggy head
+                        // is on their queue. No protection against gridlock here!
+                        let (head, head_dist) = *queues[&cars[&id].router.head()]
+                            .get_car_positions(time, cars, queues)
+                            .last()
+                            .unwrap();
+                        assert_eq!(head, id);
+                        // TODO Deal with short lanes.
+                        self.geom_len - (cars[&id].vehicle.length - head_dist) - FOLLOWING_DISTANCE
+                    }
                     None => self.geom_len,
                 },
             };
@@ -94,12 +108,13 @@ impl Queue {
         vehicle_len: Distance,
         time: Duration,
         cars: &BTreeMap<CarID, Car>,
+        queues: &BTreeMap<Traversable, Queue>,
     ) -> Option<usize> {
         if self.laggy_head.is_none() && self.cars.is_empty() {
             return Some(0);
         }
 
-        let dists = self.get_car_positions(time, cars);
+        let dists = self.get_car_positions(time, cars, queues);
         // TODO Binary search
         let idx = match dists.iter().position(|(_, dist)| start_dist >= *dist) {
             Some(i) => i,
@@ -126,10 +141,15 @@ impl Queue {
         Some(idx)
     }
 
-    pub fn room_at_end(&self, time: Duration, cars: &BTreeMap<CarID, Car>) -> bool {
+    pub fn room_at_end(
+        &self,
+        time: Duration,
+        cars: &BTreeMap<CarID, Car>,
+        queues: &BTreeMap<Traversable, Queue>,
+    ) -> bool {
         // This could also be implemented by calling get_idx_to_insert_car with start_dist =
         // self.geom_len
-        match self.get_car_positions(time, cars).last() {
+        match self.get_car_positions(time, cars, queues).last() {
             Some((car, front)) => *front >= cars[car].vehicle.length + FOLLOWING_DISTANCE,
             None => true,
         }

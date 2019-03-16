@@ -76,6 +76,7 @@ impl DrivingSimState {
             params.vehicle.length,
             time,
             &self.cars,
+            &self.queues,
         ) {
             let mut car = Car {
                 vehicle: params.vehicle,
@@ -177,8 +178,11 @@ impl DrivingSimState {
 
         if need_distances {
             // Do this before removing the car!
-            let dists =
-                self.queues[&self.cars[&id].router.head()].get_car_positions(time, &self.cars);
+            let dists = self.queues[&self.cars[&id].router.head()].get_car_positions(
+                time,
+                &self.cars,
+                &self.queues,
+            );
 
             // We need to mutate two different cars in some cases. To avoid fighting the borrow
             // checker, temporarily move one of them out of the BTreeMap.
@@ -282,7 +286,7 @@ impl DrivingSimState {
                 // Always need to do this check.
                 // Note that 'car' is currently missing from self.cars, but they can't be on
                 // 'goto' right now -- they're on 'from'.
-                if !self.queues[&goto].room_at_end(time, &self.cars) {
+                if !self.queues[&goto].room_at_end(time, &self.cars, &self.queues) {
                     // TODO Subscribe to the target queue, wake up when somebody leaves it.
                     scheduler.push(time + BLIND_RETRY, Command::UpdateCar(car.vehicle.id));
                     return false;
@@ -312,7 +316,10 @@ impl DrivingSimState {
                 // TODO Doesn't handle short lanes and stopping short
                 scheduler.push(
                     car.crossing_state_with_end_dist(
-                        DistanceInterval::new_driving(Distance::ZERO, car.vehicle.length),
+                        DistanceInterval::new_driving(
+                            Distance::ZERO,
+                            car.vehicle.length + FOLLOWING_DISTANCE,
+                        ),
                         time,
                         map,
                     )
@@ -504,10 +511,14 @@ impl DrivingSimState {
         scheduler: &mut Scheduler,
     ) {
         // TODO The impl here is pretty gross; play the same trick and remove car temporarily?
-        let dists = self.queues[&self.cars[&id].router.head()].get_car_positions(time, &self.cars);
+        let dists = self.queues[&self.cars[&id].router.head()].get_car_positions(
+            time,
+            &self.cars,
+            &self.queues,
+        );
         // This car must be the tail.
         assert_eq!(id, dists.last().unwrap().0);
-        let our_len = self.cars[&id].vehicle.length;
+        let our_len = self.cars[&id].vehicle.length + FOLLOWING_DISTANCE;
 
         // TODO This will update short lanes too late I think?
 
@@ -565,16 +576,10 @@ impl DrivingSimState {
                     // If they're on their last step, they might be ending early and not right
                     // behind us.
                     if !follower.router.last_step() {
-                        follower.state = follower.crossing_state(
-                            // Since the follower was Queued, this must be where they are.
-                            old_queue.geom_len - our_len - FOLLOWING_DISTANCE,
-                            time,
-                            map,
-                        );
-                        scheduler.update(
-                            Command::UpdateCar(*follower_id),
-                            follower.state.get_end_time(),
-                        );
+                        // The follower has been smoothly following while the laggy head gets out
+                        // of the way. So immediately promote them to WaitingToAdvance.
+                        follower.state = CarState::WaitingToAdvance;
+                        scheduler.push(time, Command::UpdateCar(*follower_id));
                     }
                 }
                 CarState::WaitingToAdvance => unreachable!(),
@@ -693,7 +698,7 @@ impl DrivingSimState {
         for queue in self.queues.values() {
             result.extend(
                 queue
-                    .get_car_positions(time, &self.cars)
+                    .get_car_positions(time, &self.cars, &self.queues)
                     .into_iter()
                     .map(|(id, dist)| self.cars[&id].get_draw_car(dist, time, map)),
             );
@@ -709,7 +714,7 @@ impl DrivingSimState {
     ) -> Vec<DrawCarInput> {
         match self.queues.get(&on) {
             Some(q) => q
-                .get_car_positions(time, &self.cars)
+                .get_car_positions(time, &self.cars, &self.queues)
                 .into_iter()
                 .map(|(id, dist)| self.cars[&id].get_draw_car(dist, time, map))
                 .collect(),
@@ -749,7 +754,7 @@ impl DrivingSimState {
     ) -> Option<Trace> {
         let car = self.cars.get(&id)?;
         let front = self.queues[&car.router.head()]
-            .get_car_positions(time, &self.cars)
+            .get_car_positions(time, &self.cars, &self.queues)
             .into_iter()
             .find(|(c, _)| *c == id)
             .unwrap()
