@@ -45,8 +45,6 @@ impl Queue {
                     *last_dist - cars[leader].vehicle.length - FOLLOWING_DISTANCE
                 }
                 None => match self.laggy_head {
-                    // TODO This is very basic version; really we need to recurse here
-                    // TODO This doesn't handle short lanes
                     Some(id) => {
                         // The simple but broken version:
                         //self.geom_len - cars[&id].vehicle.length - FOLLOWING_DISTANCE
@@ -69,8 +67,8 @@ impl Queue {
             if bound < Distance::ZERO {
                 dump_cars(&result, cars, self.id, time);
                 panic!(
-                    "Queue has spillover on {:?} at {} -- can't draw {}, bound is {}",
-                    self.id, time, id, bound
+                    "Queue has spillover on {:?} at {} -- can't draw {}, bound is {}. Laggy head is {:?}",
+                    self.id, time, id, bound, self.laggy_head
                 );
             }
 
@@ -139,20 +137,6 @@ impl Queue {
         }
 
         Some(idx)
-    }
-
-    pub fn room_at_end(
-        &self,
-        time: Duration,
-        cars: &BTreeMap<CarID, Car>,
-        queues: &BTreeMap<Traversable, Queue>,
-    ) -> bool {
-        // This could also be implemented by calling get_idx_to_insert_car with start_dist =
-        // self.geom_len
-        match self.get_car_positions(time, cars, queues).last() {
-            Some((car, front)) => *front >= cars[car].vehicle.length + FOLLOWING_DISTANCE,
-            None => true,
-        }
     }
 }
 

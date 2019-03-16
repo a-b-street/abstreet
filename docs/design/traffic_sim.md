@@ -376,8 +376,7 @@ TODO impl:
 
 the eager impl:
 - anytime we update a Car with last_steps, try to go erase those. need full distances. when we successfully erase, update followers that are Queued.
-	- - follower only starts moving once the laggy lead is totally out. wrong. they were Queued, so i
-mmediately promote them to WaitingToAdvance. smoothly draw in the meantime by recursing
+	- - follower only starts moving once the laggy lead is totally out. wrong. they were Queued, so immediately promote them to WaitingToAdvance. smoothly draw in the meantime by recursing
 - optimistic check in the middle of Crossing, but use a different event for this to be clear. the retry should only be expensive in gridlocky cases.
 	- BLIND_RETRY after... similar to end_dist checking.
 	- note other routines dont even do checks that could hit numerical precision, we just assume events are scheduled for correct time.

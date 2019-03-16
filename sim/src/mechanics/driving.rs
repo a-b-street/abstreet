@@ -283,15 +283,6 @@ impl DrivingSimState {
                 let goto = car.router.next();
                 assert!(from != goto);
 
-                // Always need to do this check.
-                // Note that 'car' is currently missing from self.cars, but they can't be on
-                // 'goto' right now -- they're on 'from'.
-                if !self.queues[&goto].room_at_end(time, &self.cars, &self.queues) {
-                    // TODO Subscribe to the target queue, wake up when somebody leaves it.
-                    scheduler.push(time + BLIND_RETRY, Command::UpdateCar(car.vehicle.id));
-                    return false;
-                }
-
                 if let Traversable::Turn(t) = goto {
                     if !intersections.maybe_start_turn(AgentID::Car(car.vehicle.id), t, time, map) {
                         // Don't schedule a retry here.
@@ -309,35 +300,30 @@ impl DrivingSimState {
                 // way, until laggy_head is None.
 
                 let last_step = car.router.advance(&car.vehicle, parking, map);
-                car.last_steps.push_front(last_step);
                 car.state = car.crossing_state(Distance::ZERO, time, map);
                 scheduler.push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
 
-                // TODO Doesn't handle short lanes and stopping short
-                scheduler.push(
-                    car.crossing_state_with_end_dist(
-                        DistanceInterval::new_driving(
-                            Distance::ZERO,
-                            car.vehicle.length + FOLLOWING_DISTANCE,
-                        ),
-                        time,
-                        map,
-                    )
-                    .get_end_time(),
-                    Command::UpdateLaggyHead(car.vehicle.id),
-                );
-
-                if goto.maybe_lane().is_some() {
-                    // TODO Actually, don't call turn_finished until the car is at least
-                    // vehicle.length + FOLLOWING_DISTANCE into the next lane. This'll be hard
-                    // to predict when we're event-based, so hold off on this bit of realism.
-                    intersections.turn_finished(
-                        time,
-                        AgentID::Car(car.vehicle.id),
-                        last_step.as_turn(),
-                        scheduler,
+                // TODO What about stopping short on last step?
+                car.last_steps.push_front(last_step);
+                if goto.length(map) >= car.vehicle.length + FOLLOWING_DISTANCE {
+                    // Optimistically assume we'll be out of the way ASAP.
+                    scheduler.push(
+                        car.crossing_state_with_end_dist(
+                            DistanceInterval::new_driving(
+                                Distance::ZERO,
+                                car.vehicle.length + FOLLOWING_DISTANCE,
+                            ),
+                            time,
+                            map,
+                        )
+                        .get_end_time(),
+                        Command::UpdateLaggyHead(car.vehicle.id),
                     );
                 }
+                // Bit unrealistic, but don't unblock shorter intermediate steps until we're all
+                // the way into a lane later.
+
+                // Don't mark turn_finished until our back is out of the turn.
 
                 self.queues
                     .get_mut(&goto)
@@ -508,6 +494,7 @@ impl DrivingSimState {
         id: CarID,
         time: Duration,
         map: &Map,
+        intersections: &mut IntersectionSimState,
         scheduler: &mut Scheduler,
     ) {
         // TODO The impl here is pretty gross; play the same trick and remove car temporarily?
@@ -551,44 +538,50 @@ impl DrivingSimState {
         // If we were blocking a few short lanes, should be better now. Very last one might have
         // somebody to wake up.
         {
-            let car = &self.cars[&id];
-            if car.last_steps.len() != 1 {
-                println!("At {}, {} has last steps {:?}", time, id, car.last_steps);
-            }
-        }
-        assert_eq!(1, self.cars[&id].last_steps.len());
-        let old_on = self
-            .cars
-            .get_mut(&id)
-            .unwrap()
-            .last_steps
-            .pop_front()
-            .unwrap();
-        let old_queue = self.queues.get_mut(&old_on).unwrap();
-        assert_eq!(old_queue.laggy_head, Some(id));
-        old_queue.laggy_head = None;
+            let last_steps: Vec<Traversable> = self
+                .cars
+                .get_mut(&id)
+                .unwrap()
+                .last_steps
+                .drain(..)
+                .collect();
 
-        // Wake em up
-        if let Some(follower_id) = old_queue.cars.front() {
-            let mut follower = self.cars.get_mut(&follower_id).unwrap();
-            match follower.state {
-                CarState::Queued => {
-                    // If they're on their last step, they might be ending early and not right
-                    // behind us.
-                    if !follower.router.last_step() {
-                        // The follower has been smoothly following while the laggy head gets out
-                        // of the way. So immediately promote them to WaitingToAdvance.
-                        follower.state = CarState::WaitingToAdvance;
-                        scheduler.push(time, Command::UpdateCar(*follower_id));
-                    }
+            for (idx, on) in last_steps.iter().enumerate() {
+                let old_queue = self.queues.get_mut(&on).unwrap();
+                assert_eq!(old_queue.laggy_head, Some(id));
+                old_queue.laggy_head = None;
+
+                if let Traversable::Turn(t) = on {
+                    intersections.turn_finished(time, AgentID::Car(id), *t, scheduler);
                 }
-                CarState::WaitingToAdvance => unreachable!(),
-                // They weren't blocked. Note that there's no way the Crossing state could jump
-                // forwards here; the leader vanished from the end of the traversable.
-                CarState::Crossing(_, _)
-                | CarState::Unparking(_, _)
-                | CarState::Parking(_, _, _)
-                | CarState::Idling(_, _) => {}
+                if idx == last_steps.len() - 1 {
+                    // Wake up the follower
+                    if let Some(follower_id) = old_queue.cars.front() {
+                        let mut follower = self.cars.get_mut(&follower_id).unwrap();
+
+                        match follower.state {
+                            CarState::Queued => {
+                                // If they're on their last step, they might be ending early and not right
+                                // behind us.
+                                if !follower.router.last_step() {
+                                    // The follower has been smoothly following while the laggy head gets out
+                                    // of the way. So immediately promote them to WaitingToAdvance.
+                                    follower.state = CarState::WaitingToAdvance;
+                                    scheduler.push(time, Command::UpdateCar(*follower_id));
+                                }
+                            }
+                            CarState::WaitingToAdvance => unreachable!(),
+                            // They weren't blocked. Note that there's no way the Crossing state could jump
+                            // forwards here; the leader vanished from the end of the traversable.
+                            CarState::Crossing(_, _)
+                            | CarState::Unparking(_, _)
+                            | CarState::Parking(_, _, _)
+                            | CarState::Idling(_, _) => {}
+                        }
+                    }
+                } else {
+                    assert!(self.queues[&on].cars.is_empty());
+                }
             }
         }
     }

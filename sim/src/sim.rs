@@ -325,8 +325,13 @@ impl Sim {
                     );
                 }
                 Command::UpdateLaggyHead(car) => {
-                    self.driving
-                        .update_laggy_head(car, self.time, map, &mut self.scheduler);
+                    self.driving.update_laggy_head(
+                        car,
+                        self.time,
+                        map,
+                        &mut self.intersections,
+                        &mut self.scheduler,
+                    );
                 }
                 Command::UpdatePed(ped) => {
                     self.walking.update_ped(
