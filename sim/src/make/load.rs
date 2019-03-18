@@ -1,7 +1,7 @@
 use crate::{Scenario, Sim};
 use abstutil;
 use geom::Duration;
-use map_model::Map;
+use map_model::{Map, MapEdits};
 use rand::{FromEntropy, SeedableRng};
 use rand_xorshift::XorShiftRng;
 use structopt::StructOpt;
@@ -34,7 +34,7 @@ impl SimFlags {
 
     pub fn synthetic_test(map: &str, run_name: &str) -> SimFlags {
         SimFlags {
-            load: format!("../data/maps/{}.abst", map),
+            load: format!("../data/maps/{}_no_edits.abst", map),
             rng_seed: Some(42),
             run_name: run_name.to_string(),
             edits_name: "no_edits".to_string(),
@@ -58,14 +58,17 @@ impl SimFlags {
         let mut rng = self.make_rng();
 
         if self.load.contains("data/save/") {
+            assert_eq!(self.edits_name, "no_edits");
             timer.note(format!("Resuming from {}", self.load));
+
             timer.start("read sim savestate");
             let sim: Sim = abstutil::read_json(&self.load).expect("loading sim state failed");
             timer.stop("read sim savestate");
 
-            let map: Map =
+            let mut map: Map =
                 abstutil::read_binary(&format!("../data/maps/{}.abst", sim.map_name), timer)
                     .unwrap();
+            apply_edits(&mut map, &sim.edits_name);
 
             (map, sim, rng)
         } else if self.load.contains("data/scenarios/") {
@@ -73,12 +76,15 @@ impl SimFlags {
                 "Seeding the simulation from scenario {}",
                 self.load
             ));
+
             let scenario: Scenario =
                 abstutil::read_json(&self.load).expect("loading scenario failed");
 
-            let map: Map =
+            let mut map: Map =
                 abstutil::read_binary(&format!("../data/maps/{}.abst", scenario.map_name), timer)
                     .unwrap();
+            apply_edits(&mut map, &self.edits_name);
+
             let mut sim = Sim::new(
                 &map,
                 // TODO or the scenario name if no run name
@@ -86,26 +92,47 @@ impl SimFlags {
                 savestate_every,
             );
             scenario.instantiate(&mut sim, &map, &mut rng, timer);
+
             (map, sim, rng)
         } else if self.load.contains("data/raw_maps/") {
-            // TODO relative dir is brittle; match more cautiously
             timer.note(format!("Loading map {}", self.load));
-            let map = Map::new(&self.load, timer)
+
+            let mut map = Map::new(&self.load, timer)
                 .expect(&format!("Couldn't load map from {}", self.load));
+            apply_edits(&mut map, &self.edits_name);
+
             timer.start("create sim");
             let sim = Sim::new(&map, self.run_name.clone(), savestate_every);
             timer.stop("create sim");
+
             (map, sim, rng)
         } else if self.load.contains("data/maps/") {
             timer.note(format!("Loading map {}", self.load));
-            let map: Map = abstutil::read_binary(&self.load, timer)
+
+            let mut map: Map = abstutil::read_binary(&self.load, timer)
                 .expect(&format!("Couldn't load map from {}", self.load));
+            apply_edits(&mut map, &self.edits_name);
+
             timer.start("create sim");
             let sim = Sim::new(&map, self.run_name.clone(), savestate_every);
             timer.stop("create sim");
+
             (map, sim, rng)
         } else {
             panic!("Don't know how to load {}", self.load);
         }
     }
+}
+
+fn apply_edits(map: &mut Map, edits_name: &str) {
+    if edits_name == "no_edits" {
+        return;
+    }
+    let edits: MapEdits = abstutil::read_json(&format!(
+        "../data/edits/{}/{}.json",
+        map.get_name(),
+        edits_name
+    ))
+    .unwrap();
+    map.apply_edits(edits);
 }

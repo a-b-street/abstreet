@@ -2,8 +2,8 @@ use crate::pathfind::Pathfinder;
 use crate::{
     make, raw_data, Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop, BusStopID,
     ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, IntersectionType, Lane,
-    LaneID, LaneType, Parcel, ParcelID, Path, PathRequest, Position, Road, RoadID, Turn, TurnID,
-    TurnPriority,
+    LaneID, LaneType, MapEdits, Parcel, ParcelID, Path, PathRequest, Position, Road, RoadID, Turn,
+    TurnID, TurnPriority,
 };
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
@@ -46,6 +46,7 @@ pub struct Map {
     pathfinder: Option<Pathfinder>,
 
     name: String,
+    edits: MapEdits,
 }
 
 impl Map {
@@ -92,7 +93,8 @@ impl Map {
             bounds,
             turn_lookup: half_map.turn_lookup,
             pathfinder: None,
-            name,
+            name: name.clone(),
+            edits: MapEdits::new(name),
         };
 
         // Extra setup that's annoying to do as HalfMap, since we want to pass around a Map.
@@ -390,6 +392,7 @@ impl Map {
     }
 
     pub fn save(&self) {
+        assert_eq!(self.edits.edits_name, "no_edits");
         let path = format!("../data/maps/{}.abst", self.name);
         println!("Saving {}...", path);
         abstutil::write_binary(&path, self).expect(&format!("Saving {} failed", path));
@@ -546,5 +549,11 @@ impl Map {
             .as_ref()
             .unwrap()
             .should_use_transit(self, start, end)
+    }
+}
+
+impl Map {
+    pub fn apply_edits(&mut self, edits: MapEdits) {
+        // TODO implement
     }
 }
