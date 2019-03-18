@@ -51,13 +51,29 @@ impl Queue {
 
                         // The expensive case. We need to figure out exactly where the laggy head
                         // is on their queue. No protection against gridlock here!
-                        let (head, head_dist) = *queues[&cars[&id].router.head()]
+                        let leader = &cars[&id];
+                        let (head, head_dist) = *queues[&leader.router.head()]
                             .get_car_positions(time, cars, queues)
                             .last()
                             .unwrap();
                         assert_eq!(head, id);
-                        // TODO Deal with short lanes. See how many last_steps they have right now.
-                        self.geom_len - (cars[&id].vehicle.length - head_dist) - FOLLOWING_DISTANCE
+
+                        let mut dist_away_from_this_queue = head_dist;
+                        for on in &leader.last_steps {
+                            if *on == self.id {
+                                break;
+                            }
+                            dist_away_from_this_queue += queues[on].geom_len;
+                        }
+                        // They might actually be out of the way, but laggy_head hasn't been
+                        // updated yet.
+                        if dist_away_from_this_queue < leader.vehicle.length + FOLLOWING_DISTANCE {
+                            self.geom_len
+                                - (cars[&id].vehicle.length - dist_away_from_this_queue)
+                                - FOLLOWING_DISTANCE
+                        } else {
+                            self.geom_len
+                        }
                     }
                     None => self.geom_len,
                 },

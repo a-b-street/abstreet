@@ -55,7 +55,14 @@ impl Car {
         assert!(front >= Distance::ZERO);
         let raw_body = if front >= self.vehicle.length {
             if front > self.router.head().length(map) {
-                panic!("How is {} {} along {:?} at {}, when it's only {}?", self.vehicle.id, front, self.router.head(), time, self.router.head().length(map));
+                panic!(
+                    "How is {} {} along {:?} at {}, when it's only {}?",
+                    self.vehicle.id,
+                    front,
+                    self.router.head(),
+                    time,
+                    self.router.head().length(map)
+                );
             }
 
             self.router

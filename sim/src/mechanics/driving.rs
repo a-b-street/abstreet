@@ -3,7 +3,7 @@ use crate::mechanics::queue::Queue;
 use crate::{
     ActionAtEnd, AgentID, CarID, Command, CreateCar, DistanceInterval, DrawCarInput,
     IntersectionSimState, ParkedCar, ParkingSimState, Scheduler, TimeInterval, TransitSimState,
-    TripManager, WalkingSimState, BLIND_RETRY_TO_CREEP_FORWARDS, FOLLOWING_DISTANCE,
+    TripManager, WalkingSimState, FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use ezgui::{Color, GfxCtx};
@@ -18,6 +18,10 @@ use std::collections::{BTreeMap, HashMap, VecDeque};
 const TIME_TO_UNPARK: Duration = Duration::const_seconds(10.0);
 const TIME_TO_PARK: Duration = Duration::const_seconds(15.0);
 const TIME_TO_WAIT_AT_STOP: Duration = Duration::const_seconds(10.0);
+
+// TODO Do something else.
+pub(crate) const BLIND_RETRY_TO_CREEP_FORWARDS: Duration = Duration::const_seconds(0.1);
+pub(crate) const BLIND_RETRY_TO_REACH_END_DIST: Duration = Duration::const_seconds(5.0);
 
 #[derive(Serialize, Deserialize, PartialEq)]
 pub struct DrivingSimState {
@@ -411,11 +415,11 @@ impl DrivingSimState {
                     }
                     None => {
                         scheduler.push(
-                            time + BLIND_RETRY_TO_CREEP_FORWARDS,
+                            time + BLIND_RETRY_TO_REACH_END_DIST,
                             Command::UpdateCar(car.vehicle.id),
                         );
 
-                        // TODO For now, always use BLIND_RETRY_TO_CREEP_FORWARDS. Measured things
+                        // TODO For now, always use BLIND_RETRY_TO_REACH_END_DIST. Measured things
                         // to be slower otherwise. :(
                         /*
                         // If this car wasn't blocked at all, when would it reach its goal?
@@ -426,7 +430,7 @@ impl DrivingSimState {
                         if ideal_end_time == time {
                             // Haha, no such luck. We're super super close to the goal, but not
                             // quite there yet.
-                            scheduler.push(time + BLIND_RETRY_TO_CREEP_FORWARDS, Command::UpdateCar(car.vehicle.id));
+                            scheduler.push(time + BLIND_RETRY_TO_REACH_END_DIST, Command::UpdateCar(car.vehicle.id));
                         } else {
                             scheduler.push(ideal_end_time, Command::UpdateCar(car.vehicle.id));
                         }

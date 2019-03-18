@@ -3,7 +3,7 @@ use crate::{
     DrivingSimState, Event, GetDrawAgents, IntersectionSimState, ParkedCar, ParkingSimState,
     ParkingSpot, PedestrianID, Router, Scheduler, ScoreSummary, SimStats, Summary, TransitSimState,
     TripID, TripLeg, TripManager, TripSpawner, TripSpec, VehicleSpec, VehicleType, WalkingSimState,
-    BLIND_RETRY_TO_SPAWN, BUS_LENGTH, TIMESTEP,
+    BUS_LENGTH, TIMESTEP,
 };
 use abstutil::Timer;
 use derivative::Derivative;
@@ -18,6 +18,8 @@ use std::panic;
 use std::time::Instant;
 
 const CHECK_FOR_GRIDLOCK_FREQUENCY: Duration = Duration::const_seconds(5.0 * 60.0);
+// TODO Do something else.
+const BLIND_RETRY_TO_SPAWN: Duration = Duration::const_seconds(5.0);
 
 #[derive(Serialize, Deserialize, Derivative)]
 #[derivative(PartialEq)]
