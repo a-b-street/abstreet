@@ -316,7 +316,6 @@ impl DrivingSimState {
                 car.state = car.crossing_state(Distance::ZERO, time, map);
                 scheduler.push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
 
-                // TODO What about stopping short on last step?
                 car.last_steps.push_front(last_step);
                 if goto.length(map) >= car.vehicle.length + FOLLOWING_DISTANCE {
                     // Optimistically assume we'll be out of the way ASAP.
@@ -474,13 +473,6 @@ impl DrivingSimState {
         // We might be vanishing while partly clipping into other stuff.
         self.clear_last_steps(time, car, intersections, scheduler);
 
-        // TODO Unless we vanished from something short, we should have already done this. When
-        // handling the short case, also be sure to cancel the update message...
-        if !car.last_steps.is_empty() {
-            println!("sup {}", car.vehicle.id);
-        }
-        assert!(car.last_steps.is_empty());
-
         // Update the follower so that they don't suddenly jump forwards.
         if idx != dists.len() - 1 {
             let (follower_id, follower_dist) = dists[idx + 1];
@@ -510,8 +502,6 @@ impl DrivingSimState {
         false
     }
 
-    // TODO Maybe also remember what the last step was in this event, to make sure we're canceling
-    // events and everything
     pub fn update_laggy_head(
         &mut self,
         id: CarID,
@@ -529,8 +519,6 @@ impl DrivingSimState {
         // This car must be the tail.
         assert_eq!(id, dists.last().unwrap().0);
         let our_len = self.cars[&id].vehicle.length + FOLLOWING_DISTANCE;
-
-        // TODO This will update short lanes too late I think?
 
         // Have we made it far enough yet? Unfortunately, we have some math imprecision issues...
         {

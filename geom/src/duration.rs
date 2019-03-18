@@ -133,18 +133,6 @@ impl Duration {
             hours, minutes, seconds, remainder
         )
     }
-
-    fn abs(self) -> Duration {
-        if self.0 > 0.0 {
-            self
-        } else {
-            Duration(-self.0)
-        }
-    }
-
-    pub fn almost_eq(self, other: Duration, threshold: Duration) -> bool {
-        (self - other).abs() <= threshold
-    }
 }
 
 impl std::fmt::Display for Duration {

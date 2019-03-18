@@ -54,17 +54,6 @@ impl Car {
     pub fn get_draw_car(&self, front: Distance, time: Duration, map: &Map) -> DrawCarInput {
         assert!(front >= Distance::ZERO);
         let raw_body = if front >= self.vehicle.length {
-            if front > self.router.head().length(map) {
-                panic!(
-                    "How is {} {} along {:?} at {}, when it's only {}?",
-                    self.vehicle.id,
-                    front,
-                    self.router.head(),
-                    time,
-                    self.router.head().length(map)
-                );
-            }
-
             self.router
                 .head()
                 .exact_slice(front - self.vehicle.length, front, map)
