@@ -1,6 +1,6 @@
 use abstutil::Timer;
 use geom::Duration;
-use sim::{Scenario, SimFlags};
+use sim::{GetDrawAgents, Scenario, SimFlags};
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
@@ -20,6 +20,10 @@ struct Flags {
     /// Enable cpuprofiler?
     #[structopt(long = "enable_profiler")]
     enable_profiler: bool,
+
+    /// Every 0.1s, pretend to draw everything to make sure there are no bugs.
+    #[structopt(long = "paranoia")]
+    paranoia: bool,
 }
 
 fn main() {
@@ -54,16 +58,20 @@ fn main() {
             .unwrap();
     }
     let enable_profiler = flags.enable_profiler;
+    let paranoia = flags.paranoia;
     let timer = Timer::new("run sim until done");
     sim.run_until_done(
         &map,
-        move |sim| {
+        move |sim, map| {
             if Some(sim.time()) == save_at {
                 sim.save();
                 // Some simulatiosn run for a really long time, just do this.
                 if enable_profiler {
                     cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
                 }
+            }
+            if paranoia {
+                sim.get_all_draw_cars(map);
             }
         },
         None,

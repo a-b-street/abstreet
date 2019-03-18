@@ -21,7 +21,7 @@ pub fn run(t: &mut TestRunner) {
 
         sim.run_until_expectations_met(&map, expectations, Duration::minutes(10));
         // Make sure buses don't block a sim from being considered done
-        sim.run_until_done(&map, |_| {}, Some(Duration::minutes(11)));
+        sim.just_run_until_done(&map, Some(Duration::minutes(11)));
     });
 
     t.run_slow("ped_uses_bus", |h| {

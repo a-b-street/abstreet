@@ -397,7 +397,11 @@ impl Sim {
 
 // Helpers to run the sim
 impl Sim {
-    pub fn run_until_done<F: Fn(&Sim)>(
+    pub fn just_run_until_done(&mut self, map: &Map, time_limit: Option<Duration>) {
+        self.run_until_done(map, |_, _| {}, time_limit);
+    }
+
+    pub fn run_until_done<F: Fn(&Sim, &Map)>(
         &mut self,
         map: &Map,
         callback: F,
@@ -420,7 +424,7 @@ impl Sim {
             if benchmark.has_real_time_passed(Duration::seconds(1.0)) {
                 println!("{}, {}", self.summary(), self.measure_speed(&mut benchmark));
             }
-            callback(self);
+            callback(self, map);
             if Some(self.time()) == time_limit {
                 panic!("Time limit {} hit", self.time);
             }
