@@ -3,7 +3,7 @@ use crate::{
     DrivingSimState, Event, GetDrawAgents, IntersectionSimState, ParkedCar, ParkingSimState,
     ParkingSpot, PedestrianID, Router, Scheduler, ScoreSummary, SimStats, Summary, TransitSimState,
     TripID, TripLeg, TripManager, TripSpawner, TripSpec, VehicleSpec, VehicleType, WalkingSimState,
-    BLIND_RETRY, BUS_LENGTH, TIMESTEP,
+    BLIND_RETRY_TO_SPAWN, BUS_LENGTH, TIMESTEP,
 };
 use abstutil::Timer;
 use derivative::Derivative;
@@ -297,8 +297,10 @@ impl Sim {
                             self.parking.remove_parked_car(parked_car);
                         }
                     } else {
-                        self.scheduler
-                            .push(self.time + BLIND_RETRY, Command::SpawnCar(create_car));
+                        self.scheduler.push(
+                            self.time + BLIND_RETRY_TO_SPAWN,
+                            Command::SpawnCar(create_car),
+                        );
                     }
                 }
                 Command::SpawnPed(create_ped) => {

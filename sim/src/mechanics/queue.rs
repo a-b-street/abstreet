@@ -56,7 +56,7 @@ impl Queue {
                             .last()
                             .unwrap();
                         assert_eq!(head, id);
-                        // TODO Deal with short lanes.
+                        // TODO Deal with short lanes. See how many last_steps they have right now.
                         self.geom_len - (cars[&id].vehicle.length - head_dist) - FOLLOWING_DISTANCE
                     }
                     None => self.geom_len,

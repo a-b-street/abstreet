@@ -54,6 +54,10 @@ impl Car {
     pub fn get_draw_car(&self, front: Distance, time: Duration, map: &Map) -> DrawCarInput {
         assert!(front >= Distance::ZERO);
         let raw_body = if front >= self.vehicle.length {
+            if front > self.router.head().length(map) {
+                panic!("How is {} {} along {:?} at {}, when it's only {}?", self.vehicle.id, front, self.router.head(), time, self.router.head().length(map));
+            }
+
             self.router
                 .head()
                 .exact_slice(front - self.vehicle.length, front, map)
@@ -69,7 +73,10 @@ impl Car {
             let mut i = 0;
             while leftover > Distance::ZERO {
                 if i == self.last_steps.len() {
-                    panic!("{} spawned too close to short stuff", self.vehicle.id);
+                    panic!(
+                        "{} spawned too close to short stuff; still need to account for {}",
+                        self.vehicle.id, leftover
+                    );
                 }
                 let len = self.last_steps[i].length(map);
                 let start = (len - leftover).max(Distance::ZERO);

@@ -3,7 +3,7 @@ use crate::mechanics::queue::Queue;
 use crate::{
     ActionAtEnd, AgentID, CarID, Command, CreateCar, DistanceInterval, DrawCarInput,
     IntersectionSimState, ParkedCar, ParkingSimState, Scheduler, TimeInterval, TransitSimState,
-    TripManager, WalkingSimState, BLIND_RETRY, FOLLOWING_DISTANCE,
+    TripManager, WalkingSimState, BLIND_RETRY_TO_CREEP_FORWARDS, FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use ezgui::{Color, GfxCtx};
@@ -410,10 +410,13 @@ impl DrivingSimState {
                         return true;
                     }
                     None => {
-                        scheduler.push(time + BLIND_RETRY, Command::UpdateCar(car.vehicle.id));
+                        scheduler.push(
+                            time + BLIND_RETRY_TO_CREEP_FORWARDS,
+                            Command::UpdateCar(car.vehicle.id),
+                        );
 
-                        // TODO For now, always use BLIND_RETRY. Measured things to be slower
-                        // otherwise. :(
+                        // TODO For now, always use BLIND_RETRY_TO_CREEP_FORWARDS. Measured things
+                        // to be slower otherwise. :(
                         /*
                         // If this car wasn't blocked at all, when would it reach its goal?
                         let ideal_end_time = match car.crossing_state(our_dist, time, map) {
@@ -423,7 +426,7 @@ impl DrivingSimState {
                         if ideal_end_time == time {
                             // Haha, no such luck. We're super super close to the goal, but not
                             // quite there yet.
-                            scheduler.push(time + BLIND_RETRY, Command::UpdateCar(car.vehicle.id));
+                            scheduler.push(time + BLIND_RETRY_TO_CREEP_FORWARDS, Command::UpdateCar(car.vehicle.id));
                         } else {
                             scheduler.push(ideal_end_time, Command::UpdateCar(car.vehicle.id));
                         }
@@ -521,17 +524,22 @@ impl DrivingSimState {
                         map,
                     )
                     .get_end_time();
-                if !retry_at.almost_eq(time, Duration::seconds(0.1)) {
-                    // TODO Smarter retry based on states and stuckness?
-                    println!(
-                        "{} really does need to retry {} from now, needs {} more",
-                        id,
-                        retry_at - time,
-                        our_len - our_dist
-                    );
+                // Sometimes due to rounding, retry_at will be exactly time, but we really need to
+                // wait a bit longer.
+                // TODO Smarter retry based on states and stuckness?
+                if retry_at > time {
                     scheduler.push(retry_at, Command::UpdateLaggyHead(car.vehicle.id));
-                    return;
+                } else {
+                    // If we look up car positions before this retry happens, weird things can
+                    // happen -- the laggy head could be well clear of the old queue by then. Make
+                    // sure to handle that there. Consequences of this retry being long? A follower
+                    // will wait a bit before advancing.
+                    scheduler.push(
+                        time + BLIND_RETRY_TO_CREEP_FORWARDS,
+                        Command::UpdateLaggyHead(car.vehicle.id),
+                    );
                 }
+                return;
             }
         }
 
