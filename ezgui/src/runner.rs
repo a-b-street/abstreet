@@ -181,14 +181,34 @@ pub fn run<T, G: GUI<T>, F: FnOnce(&mut Canvas, &Prerender) -> G>(
     // 2 looks bad, 4 looks fine
     let context = glutin::ContextBuilder::new().with_multisampling(4);
     let display = glium::Display::new(window, context, &events_loop).unwrap();
+
+    let (vertex_shader, fragment_shader) =
+        if display.is_glsl_version_supported(&glium::Version(glium::Api::Gl, 1, 4)) {
+            (
+                include_str!("assets/vertex_140.glsl"),
+                include_str!("assets/fragment_140.glsl"),
+            )
+        } else if display.is_glsl_version_supported(&glium::Version(glium::Api::Gl, 1, 1)) {
+            (
+                include_str!("assets/vertex_110.glsl"),
+                include_str!("assets/fragment_110.glsl"),
+            )
+        } else {
+            panic!(
+                "GLSL 140 and 110 not supported. Try {:?} or {:?}",
+                display.get_opengl_version(),
+                display.get_supported_glsl_version()
+            );
+        };
+
     let program = glium::Program::new(
         &display,
         glium::program::ProgramCreationInput::SourceCode {
-            vertex_shader: include_str!("assets/vertex_140.glsl"),
+            vertex_shader,
             tessellation_control_shader: None,
             tessellation_evaluation_shader: None,
             geometry_shader: None,
-            fragment_shader: include_str!("assets/fragment_140.glsl"),
+            fragment_shader,
             transform_feedback_varyings: None,
             // Without this, SRGB gets enabled and post-processes the color from the fragment
             // shader.
