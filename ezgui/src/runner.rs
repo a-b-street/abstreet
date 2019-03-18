@@ -184,11 +184,11 @@ pub fn run<T, G: GUI<T>, F: FnOnce(&mut Canvas, &Prerender) -> G>(
     let program = glium::Program::new(
         &display,
         glium::program::ProgramCreationInput::SourceCode {
-            vertex_shader: include_str!("assets/vertex.glsl"),
+            vertex_shader: include_str!("assets/vertex_140.glsl"),
             tessellation_control_shader: None,
             tessellation_evaluation_shader: None,
             geometry_shader: None,
-            fragment_shader: include_str!("assets/fragment.glsl"),
+            fragment_shader: include_str!("assets/fragment_140.glsl"),
             transform_feedback_varyings: None,
             // Without this, SRGB gets enabled and post-processes the color from the fragment
             // shader.

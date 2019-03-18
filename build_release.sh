@@ -7,7 +7,7 @@ OUT=abst_release
 rm -rfv $OUT
 
 mkdir $OUT
-cp color_scheme $OUT
+cp color_scheme README.md $OUT
 
 mkdir $OUT/editor
 #cp target/debug/editor $OUT/editor
