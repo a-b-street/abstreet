@@ -55,6 +55,19 @@ pub enum Traversable {
     Turn(TurnID),
 }
 
+impl fmt::Display for Traversable {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Traversable::Lane(id) => write!(f, "Traversable::Lane({})", id.0),
+            Traversable::Turn(id) => write!(
+                f,
+                "Traversable::Turn({}, {}, {})",
+                id.src, id.dst, id.parent
+            ),
+        }
+    }
+}
+
 impl Traversable {
     pub fn as_lane(&self) -> LaneID {
         match *self {

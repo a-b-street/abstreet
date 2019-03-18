@@ -747,7 +747,7 @@ impl DrivingSimState {
     pub fn tooltip_lines(&self, id: CarID) -> Option<Vec<String>> {
         let car = self.cars.get(&id)?;
         Some(vec![
-            format!("{} on {:?}", id, car.router.head()),
+            format!("{} on {}", id, car.router.head()),
             format!("Owned by {:?}", car.vehicle.owner),
             format!("{} lanes left", car.router.get_path().num_lanes()),
             format!("{:?}", car.state),

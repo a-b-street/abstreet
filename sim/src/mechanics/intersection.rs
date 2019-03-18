@@ -199,7 +199,7 @@ impl State {
         for req in &self.accepted {
             if cycle.get_priority(req.turn) < TurnPriority::Yield {
                 /*println!(
-                    "{:?} is still doing {:?} after the cycle is over",
+                    "{:?} is still doing {} after the cycle is over",
                     req.agent, req.turn
                 );*/
                 return false;

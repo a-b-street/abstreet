@@ -190,6 +190,42 @@ so, I think the steps:
 
 Cool, good enough to start. whew.
 
+### Looking at this problem again
+
+raw_map to map is expensive -- so much that we have to precompute it. For the simple edits (change lane type and modify intersection policy), can we do a cheap live update?
+
+MAP LAYER:
+
+- initial Road stores lane_specs, but doesnt use the lanetypes yet
+- halfmap uses lane types: is_border, make_all_turns, turn lookup idx
+- stop signs and traffic signals assigned last-minute, very easy to override in map layer
+- pathfinder graph
+
+SIM LAYER (ignore for now, just ban most live edits):
+
+- parking sim needs to know about lane types
+- block some edits
+	- cant modify turns while intersection has any requests or accepted
+	- cant change lane type while anybody is on it
+	- or if parking spot is reserved
+	- paths are also affected
+
+EDITOR LAYER:
+
+- ooh, luckily DrawLanes aren't batched! should be relatively easy.
+
+equivalence test...
+- option 1: load a map from scratch with edits, compare to making live edits, do PartialEq and meld
+- option 2: always apply edits as last step of initial map loading. always reset map to canonical form before applying edits.
+
+
+So how to structure things?
+
+- dont ask for individual changes; mutate a MapEdits object and ask map, sim, editor layer to recalculate everything needed.
+- lane IDs will never change; just store LaneID -> LaneType overrides.
+- might have to figure out original OSM-based lanetype by recalculating
+- applying map edits always takes a BEFORE (possibly empty) and AFTER set
+
 ## Notes on King County GIS datasets
 
 - TODO: https://data-seattlecitygis.opendata.arcgis.com/datasets/channelization

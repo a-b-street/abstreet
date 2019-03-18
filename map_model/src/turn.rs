@@ -17,7 +17,7 @@ pub struct TurnID {
 
 impl fmt::Display for TurnID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "TurnID({0}, {1}, {2})", self.parent, self.src, self.dst)
+        write!(f, "TurnID({}, {}, {})", self.src, self.dst, self.parent)
     }
 }
 

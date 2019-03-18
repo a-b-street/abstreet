@@ -83,7 +83,7 @@ impl Queue {
             if bound < Distance::ZERO {
                 dump_cars(&result, cars, self.id, time);
                 panic!(
-                    "Queue has spillover on {:?} at {} -- can't draw {}, bound is {}. Laggy head is {:?}",
+                    "Queue has spillover on {} at {} -- can't draw {}, bound is {}. Laggy head is {:?}",
                     self.id, time, id, bound, self.laggy_head
                 );
             }
@@ -180,7 +180,7 @@ fn dump_cars(
     id: Traversable,
     time: Duration,
 ) {
-    println!("\nOn {:?} at {}...", id, time);
+    println!("\nOn {} at {}...", id, time);
     for (id, dist) in dists {
         let car = &cars[id];
         println!("- {} @ {} (length {})", id, dist, car.vehicle.length);
