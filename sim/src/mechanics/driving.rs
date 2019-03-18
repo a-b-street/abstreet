@@ -193,7 +193,16 @@ impl DrivingSimState {
             let mut car = self.cars.remove(&id).unwrap();
             // Responsibility of update_car_with_distances to manage scheduling stuff!
             if self.update_car_with_distances(
-                &mut car, dists, time, map, parking, trips, scheduler, transit, walking,
+                &mut car,
+                dists,
+                time,
+                map,
+                parking,
+                trips,
+                scheduler,
+                transit,
+                walking,
+                intersections,
             ) {
                 self.cars.insert(id, car);
             }
@@ -352,6 +361,7 @@ impl DrivingSimState {
         scheduler: &mut Scheduler,
         transit: &mut TransitSimState,
         walking: &mut WalkingSimState,
+        intersections: &mut IntersectionSimState,
     ) -> bool {
         let idx = dists
             .iter()
@@ -461,8 +471,14 @@ impl DrivingSimState {
             car.vehicle.id
         );
 
+        // We might be vanishing while partly clipping into other stuff.
+        self.clear_last_steps(time, car, intersections, scheduler);
+
         // TODO Unless we vanished from something short, we should have already done this. When
         // handling the short case, also be sure to cancel the update message...
+        if !car.last_steps.is_empty() {
+            println!("sup {}", car.vehicle.id);
+        }
         assert!(car.last_steps.is_empty());
 
         // Update the follower so that they don't suddenly jump forwards.
@@ -547,53 +563,58 @@ impl DrivingSimState {
             }
         }
 
+        // Argh, fight the borrow checker.
+        let mut car = self.cars.remove(&id).unwrap();
+        self.clear_last_steps(time, &mut car, intersections, scheduler);
+        self.cars.insert(id, car);
+    }
+
+    fn clear_last_steps(
+        &mut self,
+        time: Duration,
+        car: &mut Car,
+        intersections: &mut IntersectionSimState,
+        scheduler: &mut Scheduler,
+    ) {
         // If we were blocking a few short lanes, should be better now. Very last one might have
         // somebody to wake up.
-        {
-            let last_steps: Vec<Traversable> = self
-                .cars
-                .get_mut(&id)
-                .unwrap()
-                .last_steps
-                .drain(..)
-                .collect();
+        let last_steps: Vec<Traversable> = car.last_steps.drain(..).collect();
 
-            for (idx, on) in last_steps.iter().enumerate() {
-                let old_queue = self.queues.get_mut(&on).unwrap();
-                assert_eq!(old_queue.laggy_head, Some(id));
-                old_queue.laggy_head = None;
+        for (idx, on) in last_steps.iter().enumerate() {
+            let old_queue = self.queues.get_mut(&on).unwrap();
+            assert_eq!(old_queue.laggy_head, Some(car.vehicle.id));
+            old_queue.laggy_head = None;
 
-                if let Traversable::Turn(t) = on {
-                    intersections.turn_finished(time, AgentID::Car(id), *t, scheduler);
-                }
-                if idx == last_steps.len() - 1 {
-                    // Wake up the follower
-                    if let Some(follower_id) = old_queue.cars.front() {
-                        let mut follower = self.cars.get_mut(&follower_id).unwrap();
+            if let Traversable::Turn(t) = on {
+                intersections.turn_finished(time, AgentID::Car(car.vehicle.id), *t, scheduler);
+            }
+            if idx == last_steps.len() - 1 {
+                // Wake up the follower
+                if let Some(follower_id) = old_queue.cars.front() {
+                    let mut follower = self.cars.get_mut(&follower_id).unwrap();
 
-                        match follower.state {
-                            CarState::Queued => {
-                                // If they're on their last step, they might be ending early and not right
-                                // behind us.
-                                if !follower.router.last_step() {
-                                    // The follower has been smoothly following while the laggy head gets out
-                                    // of the way. So immediately promote them to WaitingToAdvance.
-                                    follower.state = CarState::WaitingToAdvance;
-                                    scheduler.push(time, Command::UpdateCar(*follower_id));
-                                }
+                    match follower.state {
+                        CarState::Queued => {
+                            // If they're on their last step, they might be ending early and not right
+                            // behind us.
+                            if !follower.router.last_step() {
+                                // The follower has been smoothly following while the laggy head gets out
+                                // of the way. So immediately promote them to WaitingToAdvance.
+                                follower.state = CarState::WaitingToAdvance;
+                                scheduler.push(time, Command::UpdateCar(*follower_id));
                             }
-                            CarState::WaitingToAdvance => unreachable!(),
-                            // They weren't blocked. Note that there's no way the Crossing state could jump
-                            // forwards here; the leader vanished from the end of the traversable.
-                            CarState::Crossing(_, _)
-                            | CarState::Unparking(_, _)
-                            | CarState::Parking(_, _, _)
-                            | CarState::Idling(_, _) => {}
                         }
+                        CarState::WaitingToAdvance => unreachable!(),
+                        // They weren't blocked. Note that there's no way the Crossing state could jump
+                        // forwards here; the leader vanished from the end of the traversable.
+                        CarState::Crossing(_, _)
+                        | CarState::Unparking(_, _)
+                        | CarState::Parking(_, _, _)
+                        | CarState::Idling(_, _) => {}
                     }
-                } else {
-                    assert!(self.queues[&on].cars.is_empty());
                 }
+            } else {
+                assert!(self.queues[&on].cars.is_empty());
             }
         }
     }
