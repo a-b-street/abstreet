@@ -21,7 +21,8 @@ pub struct TrafficSignalEditor {
 impl TrafficSignalEditor {
     pub fn new(ctx: &mut PluginCtx) -> Option<TrafficSignalEditor> {
         if let Some(ID::Intersection(id)) = ctx.primary.current_selection {
-            if ctx.primary.map.maybe_get_traffic_signal(id).is_some()
+            if ctx.primary.sim.is_empty()
+                && ctx.primary.map.maybe_get_traffic_signal(id).is_some()
                 && ctx
                     .input
                     .contextual_action(Key::E, &format!("edit traffic signal for {}", id))

@@ -9,9 +9,7 @@ use abstutil::Timer;
 use derivative::Derivative;
 use ezgui::GfxCtx;
 use geom::{Distance, Duration, Pt2D};
-use map_model::{
-    BuildingID, BusRoute, IntersectionID, LaneID, LaneType, Map, Path, Trace, Traversable, Turn,
-};
+use map_model::{BuildingID, BusRoute, IntersectionID, LaneID, Map, Path, Trace, Traversable};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{HashSet, VecDeque};
 use std::panic;
@@ -544,21 +542,6 @@ impl Sim {
             speed,
             self.scheduler.describe_stats()
         )
-    }
-}
-
-// Live modification -- TODO rethink all of this
-impl Sim {
-    pub fn edit_lane_type(&mut self, _id: LaneID, _old_type: LaneType, _map: &Map) {
-        panic!("implement");
-    }
-
-    pub fn edit_remove_turn(&mut self, _t: &Turn) {
-        panic!("implement");
-    }
-
-    pub fn edit_add_turn(&mut self, _t: &Turn) {
-        panic!("implement");
     }
 }
 

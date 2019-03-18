@@ -11,7 +11,8 @@ pub struct StopSignEditor {
 impl StopSignEditor {
     pub fn new(ctx: &mut PluginCtx) -> Option<StopSignEditor> {
         if let Some(ID::Intersection(id)) = ctx.primary.current_selection {
-            if ctx.primary.map.maybe_get_stop_sign(id).is_some()
+            if ctx.primary.sim.is_empty()
+                && ctx.primary.map.maybe_get_stop_sign(id).is_some()
                 && ctx
                     .input
                     .contextual_action(Key::E, &format!("edit stop signs for {}", id))

@@ -7,7 +7,10 @@ pub struct RoadEditor {}
 
 impl RoadEditor {
     pub fn new(ctx: &mut PluginCtx) -> Option<RoadEditor> {
-        if ctx.primary.current_selection.is_none() && ctx.input.action_chosen("edit roads") {
+        if ctx.primary.current_selection.is_none()
+            && ctx.primary.sim.is_empty()
+            && ctx.input.action_chosen("edit roads")
+        {
             return Some(RoadEditor {});
         }
         None
@@ -86,25 +89,19 @@ fn change_lane_type(id: LaneID, new_type: LaneType, ctx: &mut PluginCtx) {
     for i in &intersections {
         for t in &ctx.primary.map.get_i(*i).turns {
             ctx.primary.draw_map.edit_remove_turn(*t);
-            ctx.primary.sim.edit_remove_turn(ctx.primary.map.get_t(*t));
         }
     }
 
     // TODO Pretty sure control layer needs to recalculate based on the new turns
-    let old_type = ctx.primary.map.get_l(id).lane_type;
     ctx.primary.map.edit_lane_type(id, new_type);
     ctx.primary
         .draw_map
         .edit_lane_type(id, &ctx.primary.map, &ctx.cs, &ctx.prerender);
-    ctx.primary
-        .sim
-        .edit_lane_type(id, old_type, &ctx.primary.map);
 
     // Add turns back
     for i in &intersections {
         for t in &ctx.primary.map.get_i(*i).turns {
             ctx.primary.draw_map.edit_add_turn(*t, &ctx.primary.map);
-            ctx.primary.sim.edit_add_turn(ctx.primary.map.get_t(*t));
         }
     }
 }
