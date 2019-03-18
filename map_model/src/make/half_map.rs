@@ -88,6 +88,8 @@ pub fn make_half_map(
             original_center_pts: r.original_center_pts.clone(),
             src_i: i1,
             dst_i: i2,
+            parking_lane_fwd: raw_r.parking_lane_fwd,
+            parking_lane_back: raw_r.parking_lane_back,
         };
 
         for lane in &r.lane_specs {

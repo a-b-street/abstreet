@@ -1,3 +1,4 @@
+use crate::make::get_lane_types;
 use crate::pathfind::Pathfinder;
 use crate::{
     make, raw_data, Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop, BusStopID,
@@ -553,7 +554,75 @@ impl Map {
 }
 
 impl Map {
-    pub fn apply_edits(&mut self, edits: MapEdits) {
-        // TODO implement
+    // new_edits assumed to be valid.
+    pub fn apply_edits(&mut self, new_edits: MapEdits) {
+        let mut timer = Timer::new("applying map edits");
+
+        // Ignore if there's no change from current
+        let mut all_lane_edits: BTreeMap<LaneID, LaneType> = BTreeMap::new();
+        for (id, lt) in &new_edits.lane_overrides {
+            if self.edits.lane_overrides.get(id) != Some(lt) {
+                all_lane_edits.insert(*id, *lt);
+            }
+        }
+
+        if all_lane_edits.is_empty() {
+            timer.note("No edits to actually apply".to_string());
+            return;
+        }
+
+        // May need to revert some previous changes
+        for id in self.edits.lane_overrides.keys() {
+            if !new_edits.lane_overrides.contains_key(id) {
+                all_lane_edits.insert(*id, self.get_original_lt(*id));
+            }
+        }
+
+        for (id, lt) in all_lane_edits {
+            // TODO Did something affect a border intersection?
+
+            let (src, dst) = {
+                let l = &mut self.lanes[id.0];
+                l.lane_type = lt;
+                (l.src_i, l.dst_i)
+            };
+
+            // Recompute turns
+            for id in vec![src, dst] {
+                let i = &mut self.intersections[id.0];
+                i.turns.clear();
+
+                for t in make::make_all_turns(i, &self.roads, &self.lanes, &mut timer) {
+                    i.turns.push(t.id);
+                    if let Some(existing_t) = self.turns.get(&t.id) {
+                        // TODO Except for lookup_idx
+                        assert_eq!(t, *existing_t);
+                    } else {
+                        self.turns.insert(t.id, t);
+                    }
+                }
+                // TODO Deal with turn_lookup
+            }
+        }
+
+        // TODO Update more granularly.
+        self.pathfinder = Some(Pathfinder::new(self));
+
+        self.edits = new_edits;
+    }
+
+    fn get_original_lt(&self, id: LaneID) -> LaneType {
+        let parent = self.get_parent(id);
+        let (side1, side2) = get_lane_types(
+            &parent.osm_tags,
+            parent.parking_lane_fwd,
+            parent.parking_lane_back,
+        );
+        let (fwds, idx) = parent.dir_and_offset(id);
+        if fwds {
+            side1[idx]
+        } else {
+            side2[idx]
+        }
     }
 }

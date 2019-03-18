@@ -102,7 +102,11 @@ pub struct Road {
 
 impl Road {
     pub fn get_spec(&self) -> RoadSpec {
-        let (fwd, back) = get_lane_types(self);
+        let (fwd, back) = get_lane_types(
+            &self.osm_tags,
+            self.parking_lane_fwd,
+            self.parking_lane_back,
+        );
         RoadSpec { fwd, back }
     }
 }
