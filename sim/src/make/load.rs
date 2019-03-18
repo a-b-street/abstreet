@@ -1,7 +1,7 @@
 use crate::{Scenario, Sim};
 use abstutil;
 use geom::Duration;
-use map_model::{Map, MapEdits};
+use map_model::Map;
 use rand::{FromEntropy, SeedableRng};
 use rand_xorshift::XorShiftRng;
 use structopt::StructOpt;
@@ -34,7 +34,7 @@ impl SimFlags {
 
     pub fn synthetic_test(map: &str, run_name: &str) -> SimFlags {
         SimFlags {
-            load: format!("../data/maps/{}_no_edits.abst", map),
+            load: format!("../data/maps/{}.abst", map),
             rng_seed: Some(42),
             run_name: run_name.to_string(),
             edits_name: "no_edits".to_string(),
@@ -58,33 +58,14 @@ impl SimFlags {
         let mut rng = self.make_rng();
 
         if self.load.contains("data/save/") {
-            assert_eq!(self.edits_name, "no_edits");
-
             timer.note(format!("Resuming from {}", self.load));
             timer.start("read sim savestate");
             let sim: Sim = abstutil::read_json(&self.load).expect("loading sim state failed");
             timer.stop("read sim savestate");
 
-            let edits: MapEdits = if sim.edits_name == "no_edits" {
-                MapEdits::new(&sim.map_name)
-            } else {
-                abstutil::read_json(&format!(
-                    "../data/edits/{}/{}.json",
-                    sim.map_name, sim.edits_name
-                ))
-                .unwrap()
-            };
-
-            // Try loading the pre-baked map first
-            let map: Map = abstutil::read_binary(
-                &format!("../data/maps/{}_{}.abst", sim.map_name, sim.edits_name),
-                timer,
-            )
-            .unwrap_or_else(|_| {
-                let map_path = format!("../data/raw_maps/{}.abst", sim.map_name);
-                Map::new(&map_path, edits, timer)
-                    .expect(&format!("Couldn't load map from {}", map_path))
-            });
+            let map: Map =
+                abstutil::read_binary(&format!("../data/maps/{}.abst", sim.map_name), timer)
+                    .unwrap();
 
             (map, sim, rng)
         } else if self.load.contains("data/scenarios/") {
@@ -94,21 +75,10 @@ impl SimFlags {
             ));
             let scenario: Scenario =
                 abstutil::read_json(&self.load).expect("loading scenario failed");
-            let edits = self.load_edits(&scenario.map_name);
 
-            // Try loading the pre-baked map first
-            let map: Map = abstutil::read_binary(
-                &format!(
-                    "../data/maps/{}_{}.abst",
-                    scenario.map_name, edits.edits_name
-                ),
-                timer,
-            )
-            .unwrap_or_else(|_| {
-                let map_path = format!("../data/raw_maps/{}.abst", scenario.map_name);
-                Map::new(&map_path, edits, timer)
-                    .expect(&format!("Couldn't load map from {}", map_path))
-            });
+            let map: Map =
+                abstutil::read_binary(&format!("../data/maps/{}.abst", scenario.map_name), timer)
+                    .unwrap();
             let mut sim = Sim::new(
                 &map,
                 // TODO or the scenario name if no run name
@@ -119,22 +89,14 @@ impl SimFlags {
             (map, sim, rng)
         } else if self.load.contains("data/raw_maps/") {
             // TODO relative dir is brittle; match more cautiously
-            let map_name = self
-                .load
-                .trim_left_matches("../data/raw_maps/")
-                .trim_right_matches(".abst")
-                .to_string();
             timer.note(format!("Loading map {}", self.load));
-            let edits = self.load_edits(&map_name);
-            let map = Map::new(&self.load, edits, timer)
+            let map = Map::new(&self.load, timer)
                 .expect(&format!("Couldn't load map from {}", self.load));
             timer.start("create sim");
             let sim = Sim::new(&map, self.run_name.clone(), savestate_every);
             timer.stop("create sim");
             (map, sim, rng)
         } else if self.load.contains("data/maps/") {
-            assert_eq!(self.edits_name, "no_edits");
-
             timer.note(format!("Loading map {}", self.load));
             let map: Map = abstutil::read_binary(&self.load, timer)
                 .expect(&format!("Couldn't load map from {}", self.load));
@@ -145,23 +107,5 @@ impl SimFlags {
         } else {
             panic!("Don't know how to load {}", self.load);
         }
-    }
-
-    fn load_edits(&self, map_name: &str) -> MapEdits {
-        if self.edits_name == "no_edits" {
-            return MapEdits::new(map_name);
-        }
-        if self.edits_name.contains("data/") || self.edits_name.contains(".json") {
-            panic!(
-                "{} should just be a plain name, not a full path",
-                self.edits_name
-            );
-        }
-        let edits: MapEdits = abstutil::read_json(&format!(
-            "../data/edits/{}/{}.json",
-            map_name, self.edits_name
-        ))
-        .unwrap();
-        edits
     }
 }

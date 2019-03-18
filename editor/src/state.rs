@@ -137,14 +137,14 @@ impl DefaultUIState {
     }
 
     pub fn show_icons_for(&self, id: IntersectionID) -> bool {
-        if let Some(ref plugin) = self.exclusive_blocking_plugin {
-            if let Ok(p) = plugin.downcast_ref::<edit::stop_sign_editor::StopSignEditor>() {
+        if let Some(ref _plugin) = self.exclusive_blocking_plugin {
+            /*if let Ok(p) = plugin.downcast_ref::<edit::stop_sign_editor::StopSignEditor>() {
                 return p.show_turn_icons(id);
             }
             if let Ok(p) = plugin.downcast_ref::<edit::traffic_signal_editor::TrafficSignalEditor>()
             {
                 return p.show_turn_icons(id);
-            }
+            }*/
         }
 
         self.layers.show_all_turn_icons || {
@@ -254,18 +254,18 @@ impl UIState for DefaultUIState {
                     edit::draw_neighborhoods::DrawNeighborhoodState::new(&mut ctx)
                 {
                     self.exclusive_blocking_plugin = Some(Box::new(p));
-                } else if let Some(p) = edit::map_edits::EditsManager::new(&mut ctx) {
+                /*} else if let Some(p) = edit::map_edits::EditsManager::new(&mut ctx) {
                     self.exclusive_blocking_plugin = Some(Box::new(p));
                 } else if let Some(p) = edit::road_editor::RoadEditor::new(&mut ctx) {
-                    self.exclusive_blocking_plugin = Some(Box::new(p));
+                    self.exclusive_blocking_plugin = Some(Box::new(p));*/
                 } else if let Some(p) = edit::scenarios::ScenarioManager::new(&mut ctx) {
                     self.exclusive_blocking_plugin = Some(Box::new(p));
-                } else if let Some(p) = edit::stop_sign_editor::StopSignEditor::new(&mut ctx) {
-                    self.exclusive_blocking_plugin = Some(Box::new(p));
-                } else if let Some(p) =
-                    edit::traffic_signal_editor::TrafficSignalEditor::new(&mut ctx)
-                {
-                    self.exclusive_blocking_plugin = Some(Box::new(p));
+                    /*} else if let Some(p) = edit::stop_sign_editor::StopSignEditor::new(&mut ctx) {
+                        self.exclusive_blocking_plugin = Some(Box::new(p));
+                    } else if let Some(p) =
+                        edit::traffic_signal_editor::TrafficSignalEditor::new(&mut ctx)
+                    {
+                        self.exclusive_blocking_plugin = Some(Box::new(p));*/
                 }
             }
             if self

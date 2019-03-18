@@ -2,8 +2,8 @@ use crate::pathfind::Pathfinder;
 use crate::{
     make, raw_data, Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop, BusStopID,
     ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, IntersectionType, Lane,
-    LaneID, LaneType, MapEdits, Parcel, ParcelID, Path, PathRequest, Position, Road, RoadID, Turn,
-    TurnID, TurnPriority,
+    LaneID, LaneType, Parcel, ParcelID, Path, PathRequest, Position, Road, RoadID, Turn, TurnID,
+    TurnPriority,
 };
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
@@ -46,11 +46,10 @@ pub struct Map {
     pathfinder: Option<Pathfinder>,
 
     name: String,
-    edits: MapEdits,
 }
 
 impl Map {
-    pub fn new(path: &str, edits: MapEdits, timer: &mut Timer) -> Result<Map, io::Error> {
+    pub fn new(path: &str, timer: &mut Timer) -> Result<Map, io::Error> {
         let data: raw_data::Map = abstutil::read_binary(path, timer)?;
         Ok(Map::create_from_raw(
             path::Path::new(path)
@@ -60,22 +59,15 @@ impl Map {
                 .into_string()
                 .unwrap(),
             data,
-            edits,
             timer,
         ))
     }
 
-    pub fn create_from_raw(
-        name: String,
-        data: raw_data::Map,
-        edits: MapEdits,
-        timer: &mut Timer,
-    ) -> Map {
+    pub fn create_from_raw(name: String, data: raw_data::Map, timer: &mut Timer) -> Map {
         timer.start("raw_map to InitialMap");
         let gps_bounds = data.get_gps_bounds();
         let bounds = gps_bounds.to_bounds();
-        let initial_map =
-            make::InitialMap::new(name.clone(), &data, &gps_bounds, &bounds, &edits, timer);
+        let initial_map = make::InitialMap::new(name.clone(), &data, &gps_bounds, &bounds, timer);
         timer.stop("raw_map to InitialMap");
 
         timer.start("InitialMap to HalfMap");
@@ -101,7 +93,6 @@ impl Map {
             turn_lookup: half_map.turn_lookup,
             pathfinder: None,
             name,
-            edits,
         };
 
         // Extra setup that's annoying to do as HalfMap, since we want to pass around a Map.
@@ -119,13 +110,6 @@ impl Map {
                     }
                     IntersectionType::Border => {}
                 };
-            }
-            // Override with edits
-            for (i, ss) in &m.edits.stop_signs {
-                stop_signs.insert(*i, ss.clone());
-            }
-            for (i, ts) in &m.edits.traffic_signals {
-                traffic_signals.insert(*i, ts.clone());
             }
             m.stop_signs = stop_signs;
             m.traffic_signals = traffic_signals;
@@ -145,42 +129,6 @@ impl Map {
 
         timer.stop("finalize Map");
         m
-    }
-
-    // The caller has to clone get_edits(), mutate, actualize the changes, then store them
-    // here.
-    // TODO Only road editor calls this. Stop sign / traffic signal editor have a nicer pattern.
-    pub fn store_new_edits(&mut self, edits: MapEdits) {
-        self.edits = edits;
-    }
-
-    pub fn edit_lane_type(&mut self, lane: LaneID, new_type: LaneType) {
-        assert_ne!(self.get_l(lane).lane_type, new_type);
-        self.lanes[lane.0].lane_type = new_type;
-        let parent = self.get_l(lane).parent;
-        self.roads[parent.0].edit_lane_type(lane, new_type);
-
-        // Recalculate all of the turns at the two connected intersections.
-        for i in self.get_l(lane).intersections().into_iter() {
-            for t in &self.intersections[i.0].turns {
-                self.turns.remove(t);
-            }
-            self.intersections[i.0].turns.clear();
-
-            // TODO Actually recalculate. This got complicated after merging intersections.
-        }
-    }
-
-    pub fn edit_stop_sign(&mut self, mut sign: ControlStopSign) {
-        sign.changed = true;
-        self.edits.stop_signs.insert(sign.id, sign.clone());
-        self.stop_signs.insert(sign.id, sign);
-    }
-
-    pub fn edit_traffic_signal(&mut self, mut signal: ControlTrafficSignal) {
-        signal.changed = true;
-        self.edits.traffic_signals.insert(signal.id, signal.clone());
-        self.traffic_signals.insert(signal.id, signal);
     }
 
     pub fn all_roads(&self) -> &Vec<Road> {
@@ -386,10 +334,6 @@ impl Map {
         &self.name
     }
 
-    pub fn get_edits(&self) -> &MapEdits {
-        &self.edits
-    }
-
     pub fn all_bus_stops(&self) -> &BTreeMap<BusStopID, BusStop> {
         &self.bus_stops
     }
@@ -446,7 +390,7 @@ impl Map {
     }
 
     pub fn save(&self) {
-        let path = format!("../data/maps/{}_{}.abst", self.name, self.edits.edits_name);
+        let path = format!("../data/maps/{}.abst", self.name);
         println!("Saving {}...", path);
         abstutil::write_binary(&path, self).expect(&format!("Saving {} failed", path));
         println!("Saved {}", path);

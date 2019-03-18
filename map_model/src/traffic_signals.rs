@@ -10,7 +10,6 @@ const CYCLE_DURATION: Duration = Duration::const_seconds(30.0);
 pub struct ControlTrafficSignal {
     pub id: IntersectionID,
     pub cycles: Vec<Cycle>,
-    pub(crate) changed: bool,
 }
 
 impl ControlTrafficSignal {
@@ -22,10 +21,6 @@ impl ControlTrafficSignal {
         } else {
             ControlTrafficSignal::greedy_assignment(map, id).get(timer)
         }
-    }
-
-    pub fn is_changed(&self) -> bool {
-        self.changed
     }
 
     pub fn current_cycle_and_remaining_time(&self, time: Duration) -> (&Cycle, Duration) {
@@ -89,7 +84,6 @@ impl ControlTrafficSignal {
                 ControlTrafficSignal {
                     id: intersection,
                     cycles: vec![Cycle::new(intersection, 0)],
-                    changed: false,
                 },
                 format!("{} has no turns", intersection),
             );
@@ -129,7 +123,6 @@ impl ControlTrafficSignal {
         let ts = ControlTrafficSignal {
             id: intersection,
             cycles,
-            changed: false,
         };
         // This must succeed
         ts.validate(map).unwrap();
@@ -177,11 +170,7 @@ impl ControlTrafficSignal {
             ],
         );
 
-        let ts = ControlTrafficSignal {
-            id: i,
-            cycles,
-            changed: false,
-        };
+        let ts = ControlTrafficSignal { id: i, cycles };
         if ts.validate(map).is_ok() {
             Some(ts)
         } else {
@@ -245,11 +234,7 @@ impl ControlTrafficSignal {
             ],
         );
 
-        let ts = ControlTrafficSignal {
-            id: i,
-            cycles,
-            changed: false,
-        };
+        let ts = ControlTrafficSignal { id: i, cycles };
         if ts.validate(map).is_ok() {
             Some(ts)
         } else {
@@ -290,11 +275,7 @@ impl ControlTrafficSignal {
             ],
         );
 
-        let ts = ControlTrafficSignal {
-            id: i,
-            cycles,
-            changed: false,
-        };
+        let ts = ControlTrafficSignal { id: i, cycles };
         if ts.validate(map).is_ok() {
             Some(ts)
         } else {
@@ -341,48 +322,6 @@ impl Cycle {
         } else {
             TurnPriority::Banned
         }
-    }
-
-    pub fn edit_turn(&mut self, t: TurnID, pri: TurnPriority, map: &Map) {
-        let turn = map.get_t(t);
-        assert_eq!(t.parent, self.parent);
-
-        // First remove the turn from the old set, if present.
-        if self.priority_turns.contains(&t) {
-            assert_ne!(pri, TurnPriority::Priority);
-            self.priority_turns.remove(&t);
-            if turn.turn_type == TurnType::Crosswalk {
-                self.priority_turns.remove(&turn.other_crosswalk_id());
-            }
-        } else if self.yield_turns.contains(&t) {
-            assert_ne!(pri, TurnPriority::Yield);
-            self.yield_turns.remove(&t);
-        } else {
-            assert_ne!(pri, TurnPriority::Banned);
-        }
-
-        // Now add to the new set
-        match pri {
-            TurnPriority::Priority => {
-                assert!(self.could_be_priority_turn(t, map));
-                self.priority_turns.insert(t);
-                if turn.turn_type == TurnType::Crosswalk {
-                    self.priority_turns.insert(turn.other_crosswalk_id());
-                }
-            }
-            TurnPriority::Yield => {
-                assert_ne!(turn.turn_type, TurnType::Crosswalk);
-                self.yield_turns.insert(t);
-            }
-            TurnPriority::Stop => {
-                panic!("Can't set a cycle's TurnPriority to Stop");
-            }
-            TurnPriority::Banned => {}
-        }
-    }
-
-    pub fn edit_duration(&mut self, new_duration: Duration) {
-        self.duration = new_duration;
     }
 }
 

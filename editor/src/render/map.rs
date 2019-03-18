@@ -276,37 +276,6 @@ impl DrawMap {
         }
     }
 
-    pub fn edit_lane_type(
-        &mut self,
-        id: LaneID,
-        map: &Map,
-        cs: &ColorScheme,
-        prerender: &Prerender,
-    ) {
-        // No need to edit the quadtree; the bbox shouldn't depend on lane type.
-        // TODO Preserve flags.dont_draw_lane_markings
-        self.lanes[id.0] = DrawLane::new(
-            map.get_l(id),
-            map,
-            true,
-            cs,
-            prerender,
-            &mut Timer::new("recalculate DrawLane"),
-        );
-    }
-
-    pub fn edit_remove_turn(&mut self, id: TurnID) {
-        self.turns.remove(&id);
-    }
-
-    pub fn edit_add_turn(&mut self, id: TurnID, map: &Map) {
-        let t = map.get_t(id);
-        let mut turn_to_lane_offset: HashMap<TurnID, usize> = HashMap::new();
-        DrawMap::compute_turn_to_lane_offset(&mut turn_to_lane_offset, map.get_l(id.src), map);
-        let draw_turn = DrawTurn::new(map, t, turn_to_lane_offset[&id]);
-        self.turns.insert(id, draw_turn);
-    }
-
     // The alt to these is implementing std::ops::Index, but that's way more verbose!
     pub fn get_r(&self, id: RoadID) -> &DrawRoad {
         &self.roads[id.0]

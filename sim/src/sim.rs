@@ -72,7 +72,8 @@ impl Sim {
             ped_id_counter: 0,
 
             map_name: map.get_name().to_string(),
-            edits_name: map.get_edits().edits_name.to_string(),
+            // TODO
+            edits_name: "no_edits".to_string(),
             run_name,
             savestate_every,
             stats: None,

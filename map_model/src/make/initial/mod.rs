@@ -4,7 +4,7 @@ pub mod lane_specs;
 mod merge;
 
 use crate::raw_data::{StableIntersectionID, StableRoadID};
-use crate::{raw_data, MapEdits, LANE_THICKNESS};
+use crate::{raw_data, LANE_THICKNESS};
 use abstutil::Timer;
 use geom::{Bounds, Distance, GPSBounds, PolyLine, Pt2D};
 use serde_derive::{Deserialize, Serialize};
@@ -58,7 +58,6 @@ impl InitialMap {
         data: &raw_data::Map,
         gps_bounds: &GPSBounds,
         bounds: &Bounds,
-        edits: &MapEdits,
         timer: &mut Timer,
     ) -> InitialMap {
         let mut m = InitialMap {
@@ -102,7 +101,7 @@ impl InitialMap {
 
             let original_center_pts = PolyLine::new(gps_bounds.must_convert(&r.points));
 
-            let lane_specs = lane_specs::get_lane_specs(r, *stable_id, edits);
+            let lane_specs = lane_specs::get_lane_specs(r, *stable_id);
             let mut fwd_width = Distance::ZERO;
             let mut back_width = Distance::ZERO;
             for l in &lane_specs {

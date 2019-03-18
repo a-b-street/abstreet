@@ -29,4 +29,4 @@ RUST_BACKTRACE=1 cargo run $release_mode -- \
 	--output=../data/raw_maps/$name.abst
 
 cd ../precompute;
-RUST_BACKTRACE=1 cargo run $release_mode ../data/raw_maps/$name.abst --edits_name=no_edits;
+RUST_BACKTRACE=1 cargo run $release_mode ../data/raw_maps/$name.abst;

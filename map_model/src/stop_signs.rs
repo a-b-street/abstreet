@@ -12,7 +12,6 @@ pub struct ControlStopSign {
         deserialize_with = "deserialize_btreemap"
     )]
     pub turns: BTreeMap<TurnID, TurnPriority>,
-    pub(crate) changed: bool,
 }
 
 impl ControlStopSign {
@@ -26,18 +25,6 @@ impl ControlStopSign {
         self.turns[&turn]
     }
 
-    pub fn set_priority(&mut self, t: TurnID, priority: TurnPriority, map: &Map) {
-        assert_ne!(self.turns[&t], priority);
-        if priority == TurnPriority::Priority {
-            assert!(self.could_be_priority_turn(t, map));
-        }
-        self.turns.insert(t, priority);
-        let turn = map.get_t(t);
-        if turn.turn_type == TurnType::Crosswalk {
-            self.turns.insert(turn.other_crosswalk_id(), priority);
-        }
-    }
-
     pub fn could_be_priority_turn(&self, id: TurnID, map: &Map) -> bool {
         for (t, pri) in &self.turns {
             if *pri == TurnPriority::Priority && map.get_t(id).conflicts_with(map.get_t(*t)) {
@@ -45,10 +32,6 @@ impl ControlStopSign {
             }
         }
         true
-    }
-
-    pub fn is_changed(&self) -> bool {
-        self.changed
     }
 
     // Only Yield and Priority
@@ -163,7 +146,6 @@ fn smart_assignment(map: &Map, id: IntersectionID) -> Warn<ControlStopSign> {
     let mut ss = ControlStopSign {
         id,
         turns: BTreeMap::new(),
-        changed: false,
     };
     for t in &map.get_i(id).turns {
         if rank_per_incoming_lane[&t.src] == highest_rank {
@@ -186,7 +168,6 @@ fn all_way_stop(map: &Map, id: IntersectionID) -> ControlStopSign {
     let mut ss = ControlStopSign {
         id,
         turns: BTreeMap::new(),
-        changed: false,
     };
     for t in &map.get_i(id).turns {
         ss.turns.insert(*t, TurnPriority::Stop);
@@ -198,7 +179,6 @@ fn for_degenerate_and_deadend(map: &Map, id: IntersectionID) -> Warn<ControlStop
     let mut ss = ControlStopSign {
         id,
         turns: BTreeMap::new(),
-        changed: false,
     };
     for t in &map.get_i(id).turns {
         // Only the crosswalks should conflict with other turns.

@@ -33,13 +33,11 @@ pub fn run(t: &mut TestRunner) {
     t.run_slow("raw_to_map_twice", |_| {
         let map1 = map_model::Map::new(
             "../data/raw_maps/montlake.abst",
-            map_model::MapEdits::new("montlake"),
             &mut abstutil::Timer::throwaway(),
         )
         .unwrap();
         let map2 = map_model::Map::new(
             "../data/raw_maps/montlake.abst",
-            map_model::MapEdits::new("montlake"),
             &mut abstutil::Timer::throwaway(),
         )
         .unwrap();
@@ -55,7 +53,6 @@ pub fn run(t: &mut TestRunner) {
     t.run_slow("bigger_map_loads", |_| {
         map_model::Map::new(
             "../data/raw_maps/23rd.abst",
-            map_model::MapEdits::new("23rd"),
             &mut abstutil::Timer::throwaway(),
         )
         .expect("23rd broke");
@@ -64,7 +61,6 @@ pub fn run(t: &mut TestRunner) {
     t.run_slow("biggest_map_loads", |_| {
         map_model::Map::new(
             "../data/raw_maps/small_seattle.abst",
-            map_model::MapEdits::new("small_seattle"),
             &mut abstutil::Timer::throwaway(),
         )
         .expect("small_seattle broke");

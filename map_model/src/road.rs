@@ -76,15 +76,6 @@ pub struct Road {
 }
 
 impl Road {
-    pub fn edit_lane_type(&mut self, lane: LaneID, new_type: LaneType) {
-        let (dir, offset) = self.dir_and_offset(lane);
-        if dir {
-            self.children_forwards[offset] = (lane, new_type);
-        } else {
-            self.children_backwards[offset] = (lane, new_type);
-        }
-    }
-
     pub fn get_lane_types(&self) -> (Vec<LaneType>, Vec<LaneType>) {
         (
             self.children_forwards.iter().map(|pair| pair.1).collect(),

@@ -1,7 +1,6 @@
 mod area;
 mod building;
 mod bus_stop;
-mod edits;
 mod intersection;
 mod lane;
 mod make;
@@ -19,7 +18,6 @@ mod turn;
 pub use crate::area::{Area, AreaID, AreaType};
 pub use crate::building::{Building, BuildingID, BuildingType, FrontPath};
 pub use crate::bus_stop::{BusRoute, BusRouteID, BusStop, BusStopID};
-pub use crate::edits::{EditReason, MapEdits};
 pub use crate::intersection::{Intersection, IntersectionID, IntersectionType};
 pub use crate::lane::{Lane, LaneID, LaneType, PARKING_SPOT_LENGTH};
 pub use crate::make::RoadSpec;
@@ -39,6 +37,5 @@ pub const LANE_THICKNESS: Distance = Distance::const_meters(2.5);
 
 impl Cloneable for ControlTrafficSignal {}
 impl Cloneable for IntersectionID {}
-impl Cloneable for MapEdits {}
 impl Cloneable for Neighborhood {}
 impl Cloneable for NeighborhoodBuilder {}

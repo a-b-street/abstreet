@@ -15,6 +15,6 @@ mkdir $OUT/editor
 cp target/x86_64-pc-windows-gnu/release/editor.exe $OUT/editor
 
 mkdir -p $OUT/data/maps
-cp data/maps/montlake_no_edits.abst $OUT/data/maps
+cp data/maps/montlake.abst $OUT/data/maps
 
 zip -r $OUT $OUT

@@ -5,7 +5,7 @@ use crate::render::DrawMap;
 use crate::timer::Cycler;
 use abstutil::Timer;
 use ezgui::{EventCtx, EventLoopMode, GfxCtx, Key, Prerender, GUI};
-use map_model::{Map, MapEdits};
+use map_model::Map;
 use std::process;
 use structopt::StructOpt;
 
@@ -28,12 +28,7 @@ impl UI {
     fn new(flags: Flags, prerender: &Prerender) -> UI {
         // TODO Consolidate with sim::load
         let map: Map = if flags.load_map.contains("data/raw_maps/") {
-            Map::new(
-                &flags.load_map,
-                MapEdits::new("map name"),
-                &mut Timer::new("load map"),
-            )
-            .unwrap()
+            Map::new(&flags.load_map, &mut Timer::new("load map")).unwrap()
         } else {
             abstutil::read_binary(&flags.load_map, &mut Timer::new("load map")).unwrap()
         };
