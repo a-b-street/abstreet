@@ -581,6 +581,8 @@ impl Map {
         }
 
         let mut changed_lanes = Vec::new();
+        let mut delete_turns = Vec::new();
+        let mut add_turns = Vec::new();
         for (id, lt) in all_lane_edits {
             changed_lanes.push(id);
 
@@ -608,9 +610,11 @@ impl Map {
                 let mut old_turns = Vec::new();
                 for id in i.turns.drain(..) {
                     old_turns.push(self.turns.remove(&id).unwrap());
+                    delete_turns.push(id);
                 }
 
                 for t in make::make_all_turns(i, &self.roads, &self.lanes, timer) {
+                    add_turns.push(t.id);
                     i.turns.push(t.id);
                     if let Some(_existing_t) = old_turns.iter().find(|t| t.id == t.id) {
                         // TODO Except for lookup_idx
@@ -635,8 +639,9 @@ impl Map {
             }
         }
 
-        // TODO Update more granularly.
-        self.pathfinder = Some(Pathfinder::new(self));
+        let mut pathfinder = self.pathfinder.take().unwrap();
+        pathfinder.apply_edits(&delete_turns, &add_turns, self);
+        self.pathfinder = Some(pathfinder);
 
         self.edits = new_edits;
         changed_lanes

@@ -339,4 +339,10 @@ impl Pathfinder {
         self.walking_with_transit_graph
             .should_use_transit(map, start, end)
     }
+
+    pub fn apply_edits(&mut self, delete_turns: &Vec<TurnID>, add_turns: &Vec<TurnID>, map: &Map) {
+        self.car_graph.apply_edits(delete_turns, add_turns, map);
+        self.bike_graph.apply_edits(delete_turns, add_turns, map);
+        self.bus_graph.apply_edits(delete_turns, add_turns, map);
+    }
 }
