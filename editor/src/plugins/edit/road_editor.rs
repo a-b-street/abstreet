@@ -1,7 +1,9 @@
 use crate::objects::ID;
 use crate::plugins::{BlockingPlugin, PluginCtx};
+use crate::render::DrawLane;
+use abstutil::Timer;
 use ezgui::Key;
-use map_model::{EditReason, Lane, LaneID, LaneType, MapEdits, Road};
+use map_model::{Lane, LaneType, Road};
 
 pub struct RoadEditor {}
 
@@ -25,30 +27,32 @@ impl BlockingPlugin for RoadEditor {
         } else if let Some(ID::Lane(id)) = ctx.primary.current_selection {
             let lane = ctx.primary.map.get_l(id);
             let road = ctx.primary.map.get_r(lane.parent);
-            let reason = EditReason::BasemapWrong; // TODO be able to choose
 
             if lane.lane_type == LaneType::Sidewalk {
                 return true;
             }
 
-            if ctx
-                .input
-                .contextual_action(Key::Backspace, "delete this lane")
-            {
-                let mut edits = ctx.primary.map.get_edits().clone();
-                edits.delete_lane(road, lane);
-                println!("Have to reload the map from scratch to pick up this change!");
-                ctx.primary.map.store_new_edits(edits);
-            } else if let Some(new_type) = next_valid_type(ctx.primary.map.get_edits(), road, lane)
-            {
+            if let Some(new_type) = next_valid_type(road, lane) {
                 if ctx
                     .input
                     .contextual_action(Key::Space, &format!("toggle to {:?}", new_type))
                 {
+                    let mut timer = Timer::new("change lane type");
+
                     let mut edits = ctx.primary.map.get_edits().clone();
-                    edits.change_lane_type(reason, road, lane, new_type);
-                    change_lane_type(lane.id, new_type, ctx);
-                    ctx.primary.map.store_new_edits(edits);
+                    edits.lane_overrides.insert(lane.id, new_type);
+
+                    for l in ctx.primary.map.apply_edits(edits, &mut timer) {
+                        ctx.primary.draw_map.lanes[l.0] = DrawLane::new(
+                            ctx.primary.map.get_l(l),
+                            &ctx.primary.map,
+                            !ctx.primary.current_flags.dont_draw_lane_markings,
+                            ctx.cs,
+                            ctx.prerender,
+                            &mut timer,
+                        );
+                    }
+                    // TODO turns too
                 }
             }
         }
@@ -57,10 +61,10 @@ impl BlockingPlugin for RoadEditor {
     }
 }
 
-fn next_valid_type(edits: &MapEdits, r: &Road, lane: &Lane) -> Option<LaneType> {
-    let mut new_type = next_type(lane.lane_type);
-    while new_type != lane.lane_type {
-        if edits.can_change_lane_type(r, lane, new_type) {
+fn next_valid_type(r: &Road, l: &Lane) -> Option<LaneType> {
+    let mut new_type = next_type(l.lane_type);
+    while new_type != l.lane_type {
+        if can_change_lane_type(r, l, new_type) {
             return Some(new_type);
         }
         new_type = next_type(new_type);
@@ -79,29 +83,7 @@ fn next_type(lt: LaneType) -> LaneType {
     }
 }
 
-fn change_lane_type(id: LaneID, new_type: LaneType, ctx: &mut PluginCtx) {
-    let intersections = ctx.primary.map.get_l(id).intersections();
-
-    // TODO generally tense about having two methods to carry out this change. weird intermediate
-    // states are scary. maybe pass old and new struct for intersection (aka list of turns)?
-
-    // Remove turns
-    for i in &intersections {
-        for t in &ctx.primary.map.get_i(*i).turns {
-            ctx.primary.draw_map.edit_remove_turn(*t);
-        }
-    }
-
-    // TODO Pretty sure control layer needs to recalculate based on the new turns
-    ctx.primary.map.edit_lane_type(id, new_type);
-    ctx.primary
-        .draw_map
-        .edit_lane_type(id, &ctx.primary.map, &ctx.cs, &ctx.prerender);
-
-    // Add turns back
-    for i in &intersections {
-        for t in &ctx.primary.map.get_i(*i).turns {
-            ctx.primary.draw_map.edit_add_turn(*t, &ctx.primary.map);
-        }
-    }
+fn can_change_lane_type(_r: &Road, _l: &Lane, _lt: LaneType) -> bool {
+    // TODO implement this
+    true
 }

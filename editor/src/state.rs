@@ -255,9 +255,9 @@ impl UIState for DefaultUIState {
                 {
                     self.exclusive_blocking_plugin = Some(Box::new(p));
                 /*} else if let Some(p) = edit::map_edits::EditsManager::new(&mut ctx) {
-                    self.exclusive_blocking_plugin = Some(Box::new(p));
+                self.exclusive_blocking_plugin = Some(Box::new(p));*/
                 } else if let Some(p) = edit::road_editor::RoadEditor::new(&mut ctx) {
-                    self.exclusive_blocking_plugin = Some(Box::new(p));*/
+                    self.exclusive_blocking_plugin = Some(Box::new(p));
                 } else if let Some(p) = edit::scenarios::ScenarioManager::new(&mut ctx) {
                     self.exclusive_blocking_plugin = Some(Box::new(p));
                     /*} else if let Some(p) = edit::stop_sign_editor::StopSignEditor::new(&mut ctx) {

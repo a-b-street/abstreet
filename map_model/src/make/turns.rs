@@ -41,7 +41,6 @@ pub fn make_all_turns(
         outgoing_missing.remove(&t.id.dst);
     }
     if !incoming_missing.is_empty() || !outgoing_missing.is_empty() {
-        // TODO Annoying, but this error is noisy for border nodes.
         timer.warn(format!(
             "Turns for {} orphan some lanes. Incoming: {:?}, outgoing: {:?}",
             i.id, incoming_missing, outgoing_missing

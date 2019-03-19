@@ -1,5 +1,6 @@
 use crate::{Scenario, Sim};
 use abstutil;
+use abstutil::Timer;
 use geom::Duration;
 use map_model::{Map, MapEdits};
 use rand::{FromEntropy, SeedableRng};
@@ -68,7 +69,7 @@ impl SimFlags {
             let mut map: Map =
                 abstutil::read_binary(&format!("../data/maps/{}.abst", sim.map_name), timer)
                     .unwrap();
-            apply_edits(&mut map, &sim.edits_name);
+            apply_edits(&mut map, &sim.edits_name, timer);
 
             (map, sim, rng)
         } else if self.load.contains("data/scenarios/") {
@@ -83,7 +84,7 @@ impl SimFlags {
             let mut map: Map =
                 abstutil::read_binary(&format!("../data/maps/{}.abst", scenario.map_name), timer)
                     .unwrap();
-            apply_edits(&mut map, &self.edits_name);
+            apply_edits(&mut map, &self.edits_name, timer);
 
             let mut sim = Sim::new(
                 &map,
@@ -99,7 +100,7 @@ impl SimFlags {
 
             let mut map = Map::new(&self.load, timer)
                 .expect(&format!("Couldn't load map from {}", self.load));
-            apply_edits(&mut map, &self.edits_name);
+            apply_edits(&mut map, &self.edits_name, timer);
 
             timer.start("create sim");
             let sim = Sim::new(&map, self.run_name.clone(), savestate_every);
@@ -111,7 +112,7 @@ impl SimFlags {
 
             let mut map: Map = abstutil::read_binary(&self.load, timer)
                 .expect(&format!("Couldn't load map from {}", self.load));
-            apply_edits(&mut map, &self.edits_name);
+            apply_edits(&mut map, &self.edits_name, timer);
 
             timer.start("create sim");
             let sim = Sim::new(&map, self.run_name.clone(), savestate_every);
@@ -124,7 +125,7 @@ impl SimFlags {
     }
 }
 
-fn apply_edits(map: &mut Map, edits_name: &str) {
+fn apply_edits(map: &mut Map, edits_name: &str, timer: &mut Timer) {
     if edits_name == "no_edits" {
         return;
     }
@@ -134,5 +135,5 @@ fn apply_edits(map: &mut Map, edits_name: &str) {
         edits_name
     ))
     .unwrap();
-    map.apply_edits(edits);
+    map.apply_edits(edits, timer);
 }

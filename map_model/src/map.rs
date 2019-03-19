@@ -554,10 +554,12 @@ impl Map {
 }
 
 impl Map {
-    // new_edits assumed to be valid.
-    pub fn apply_edits(&mut self, new_edits: MapEdits) {
-        let mut timer = Timer::new("applying map edits");
+    pub fn get_edits(&self) -> &MapEdits {
+        &self.edits
+    }
 
+    // new_edits assumed to be valid. Returns actual lanes that changed.
+    pub fn apply_edits(&mut self, new_edits: MapEdits, timer: &mut Timer) -> Vec<LaneID> {
         // Ignore if there's no change from current
         let mut all_lane_edits: BTreeMap<LaneID, LaneType> = BTreeMap::new();
         for (id, lt) in &new_edits.lane_overrides {
@@ -568,7 +570,7 @@ impl Map {
 
         if all_lane_edits.is_empty() {
             timer.note("No edits to actually apply".to_string());
-            return;
+            return Vec::new();
         }
 
         // May need to revert some previous changes
@@ -578,30 +580,58 @@ impl Map {
             }
         }
 
+        let mut changed_lanes = Vec::new();
         for (id, lt) in all_lane_edits {
+            changed_lanes.push(id);
+
             // TODO Did something affect a border intersection?
 
             let (src, dst) = {
                 let l = &mut self.lanes[id.0];
                 l.lane_type = lt;
+
+                let r = &mut self.roads[l.parent.0];
+                let (fwds, idx) = r.dir_and_offset(l.id);
+                if fwds {
+                    r.children_forwards[idx] = (l.id, l.lane_type);
+                } else {
+                    r.children_backwards[idx] = (l.id, l.lane_type);
+                }
+
                 (l.src_i, l.dst_i)
             };
 
-            // Recompute turns
+            // Recompute turns and intersection policy
             for id in vec![src, dst] {
                 let i = &mut self.intersections[id.0];
-                i.turns.clear();
 
-                for t in make::make_all_turns(i, &self.roads, &self.lanes, &mut timer) {
-                    i.turns.push(t.id);
-                    if let Some(existing_t) = self.turns.get(&t.id) {
-                        // TODO Except for lookup_idx
-                        assert_eq!(t, *existing_t);
-                    } else {
-                        self.turns.insert(t.id, t);
-                    }
+                let mut old_turns = Vec::new();
+                for id in i.turns.drain(..) {
+                    old_turns.push(self.turns.remove(&id).unwrap());
                 }
+
+                for t in make::make_all_turns(i, &self.roads, &self.lanes, timer) {
+                    i.turns.push(t.id);
+                    if let Some(_existing_t) = old_turns.iter().find(|t| t.id == t.id) {
+                        // TODO Except for lookup_idx
+                        //assert_eq!(t, *existing_t);
+                    }
+                    self.turns.insert(t.id, t);
+                }
+
                 // TODO Deal with turn_lookup
+
+                match i.intersection_type {
+                    IntersectionType::StopSign => {
+                        self.stop_signs
+                            .insert(id, ControlStopSign::new(self, id, timer));
+                    }
+                    IntersectionType::TrafficSignal => {
+                        self.traffic_signals
+                            .insert(id, ControlTrafficSignal::new(self, id, timer));
+                    }
+                    IntersectionType::Border => {}
+                }
             }
         }
 
@@ -609,6 +639,7 @@ impl Map {
         self.pathfinder = Some(Pathfinder::new(self));
 
         self.edits = new_edits;
+        changed_lanes
     }
 
     fn get_original_lt(&self, id: LaneID) -> LaneType {
