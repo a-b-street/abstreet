@@ -39,5 +39,6 @@ pub const LANE_THICKNESS: Distance = Distance::const_meters(2.5);
 
 impl Cloneable for ControlTrafficSignal {}
 impl Cloneable for IntersectionID {}
+impl Cloneable for MapEdits {}
 impl Cloneable for Neighborhood {}
 impl Cloneable for NeighborhoodBuilder {}

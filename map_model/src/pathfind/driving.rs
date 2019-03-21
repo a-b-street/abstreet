@@ -4,7 +4,7 @@ use geom::Distance;
 use petgraph::graph::NodeIndex;
 use petgraph::stable_graph::StableGraph;
 use serde_derive::{Deserialize, Serialize};
-use std::collections::{BTreeMap, VecDeque};
+use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
 // TODO Make the graph smaller by considering RoadID, or even (directed?) bundles of roads based on
 // OSM way.
@@ -157,7 +157,12 @@ impl VehiclePathfinder {
         Outcome::Success(Path::new(map, steps, req.end.dist_along()))
     }
 
-    pub fn apply_edits(&mut self, delete_turns: &Vec<TurnID>, add_turns: &Vec<TurnID>, map: &Map) {
+    pub fn apply_edits(
+        &mut self,
+        delete_turns: &BTreeSet<TurnID>,
+        add_turns: &BTreeSet<TurnID>,
+        map: &Map,
+    ) {
         // Most turns will be in both lists. That's fine -- we want to re-add the same turn and
         // check if the lane type is different.
         for t in delete_turns {

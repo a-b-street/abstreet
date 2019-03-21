@@ -5,16 +5,17 @@ pub mod view;
 
 use crate::colors::ColorScheme;
 use crate::objects::{DrawCtx, RenderingHints, ID};
+use crate::render::DrawLane;
 use crate::state::{PerMapUI, PluginsPerMap};
 use ::sim::{ABTest, OriginDestination, Scenario};
 use abstutil;
-use abstutil::WeightedUsizeChoice;
+use abstutil::{Timer, WeightedUsizeChoice};
 use downcast::{
     downcast, downcast_methods, downcast_methods_core, downcast_methods_std, impl_downcast, Any,
 };
 use ezgui::{Canvas, Color, GfxCtx, Prerender, UserInput, WrappedWizard};
 use geom::Duration;
-use map_model::{IntersectionID, Map, Neighborhood, NeighborhoodBuilder};
+use map_model::{IntersectionID, Map, MapEdits, Neighborhood, NeighborhoodBuilder};
 
 // TODO Split into two types, but then State needs two possible types in its exclusive blocking
 // field.
@@ -134,6 +135,16 @@ pub fn choose_edits(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Optio
         .map(|(n, _)| n)
 }
 
+pub fn load_edits(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<MapEdits> {
+    let map_name = map.get_name().to_string();
+    wizard
+        .choose_something::<MapEdits>(
+            query,
+            Box::new(move || abstutil::load_all_objects("edits", &map_name)),
+        )
+        .map(|(_, e)| e)
+}
+
 pub fn load_ab_test(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<ABTest> {
     let map_name = map.get_name().to_string();
     wizard
@@ -180,4 +191,21 @@ pub fn choose_origin_destination(
     } else {
         choose_intersection(wizard, query).map(OriginDestination::Border)
     }
+}
+
+// Hmm, this is just shared functionality.
+pub fn apply_map_edits(ctx: &mut PluginCtx, edits: MapEdits) {
+    let mut timer = Timer::new("apply map edits");
+    ctx.primary.current_flags.sim_flags.edits_name = edits.edits_name.clone();
+    for l in ctx.primary.map.apply_edits(edits, &mut timer) {
+        ctx.primary.draw_map.lanes[l.0] = DrawLane::new(
+            ctx.primary.map.get_l(l),
+            &ctx.primary.map,
+            !ctx.primary.current_flags.dont_draw_lane_markings,
+            ctx.cs,
+            ctx.prerender,
+            &mut timer,
+        );
+    }
+    // TODO turns too
 }

@@ -1,7 +1,5 @@
 use crate::objects::ID;
-use crate::plugins::{BlockingPlugin, PluginCtx};
-use crate::render::DrawLane;
-use abstutil::Timer;
+use crate::plugins::{apply_map_edits, BlockingPlugin, PluginCtx};
 use ezgui::Key;
 use map_model::{Lane, LaneType, Road};
 
@@ -37,22 +35,10 @@ impl BlockingPlugin for RoadEditor {
                     .input
                     .contextual_action(Key::Space, &format!("toggle to {:?}", new_type))
                 {
-                    let mut timer = Timer::new("change lane type");
-
                     let mut edits = ctx.primary.map.get_edits().clone();
                     edits.lane_overrides.insert(lane.id, new_type);
 
-                    for l in ctx.primary.map.apply_edits(edits, &mut timer) {
-                        ctx.primary.draw_map.lanes[l.0] = DrawLane::new(
-                            ctx.primary.map.get_l(l),
-                            &ctx.primary.map,
-                            !ctx.primary.current_flags.dont_draw_lane_markings,
-                            ctx.cs,
-                            ctx.prerender,
-                            &mut timer,
-                        );
-                    }
-                    // TODO turns too
+                    apply_map_edits(ctx, edits);
                 }
             }
         }

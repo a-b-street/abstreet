@@ -570,6 +570,8 @@ impl Map {
 
         if all_lane_edits.is_empty() {
             timer.note("No edits to actually apply".to_string());
+            // Except maybe edits_name.
+            self.edits = new_edits;
             return Vec::new();
         }
 
@@ -581,8 +583,8 @@ impl Map {
         }
 
         let mut changed_lanes = Vec::new();
-        let mut delete_turns = Vec::new();
-        let mut add_turns = Vec::new();
+        let mut delete_turns = BTreeSet::new();
+        let mut add_turns = BTreeSet::new();
         for (id, lt) in all_lane_edits {
             changed_lanes.push(id);
 
@@ -610,11 +612,11 @@ impl Map {
                 let mut old_turns = Vec::new();
                 for id in i.turns.drain(..) {
                     old_turns.push(self.turns.remove(&id).unwrap());
-                    delete_turns.push(id);
+                    delete_turns.insert(id);
                 }
 
                 for t in make::make_all_turns(i, &self.roads, &self.lanes, timer) {
-                    add_turns.push(t.id);
+                    add_turns.insert(t.id);
                     i.turns.push(t.id);
                     if let Some(_existing_t) = old_turns.iter().find(|t| t.id == t.id) {
                         // TODO Except for lookup_idx

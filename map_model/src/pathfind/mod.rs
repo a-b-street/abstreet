@@ -7,7 +7,7 @@ use self::walking::SidewalkPathfinder;
 use crate::{BusRouteID, BusStopID, LaneID, LaneType, Map, Position, Traversable, TurnID};
 use geom::{Distance, PolyLine};
 use serde_derive::{Deserialize, Serialize};
-use std::collections::VecDeque;
+use std::collections::{BTreeSet, VecDeque};
 
 pub type Trace = PolyLine;
 
@@ -340,7 +340,12 @@ impl Pathfinder {
             .should_use_transit(map, start, end)
     }
 
-    pub fn apply_edits(&mut self, delete_turns: &Vec<TurnID>, add_turns: &Vec<TurnID>, map: &Map) {
+    pub fn apply_edits(
+        &mut self,
+        delete_turns: &BTreeSet<TurnID>,
+        add_turns: &BTreeSet<TurnID>,
+        map: &Map,
+    ) {
         self.car_graph.apply_edits(delete_turns, add_turns, map);
         self.bike_graph.apply_edits(delete_turns, add_turns, map);
         self.bus_graph.apply_edits(delete_turns, add_turns, map);
