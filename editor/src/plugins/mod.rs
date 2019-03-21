@@ -124,13 +124,16 @@ pub fn choose_scenario(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Op
         .map(|(n, _)| n)
 }
 
-// TODO Implicitly need a blank edits entry
 pub fn choose_edits(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
     let map_name = map.get_name().to_string();
     wizard
         .choose_something::<String>(
             query,
-            Box::new(move || abstutil::list_all_objects("edits", &map_name)),
+            Box::new(move || {
+                let mut list = abstutil::list_all_objects("edits", &map_name);
+                list.push(("no_edits".to_string(), "no_edits".to_string()));
+                list
+            }),
         )
         .map(|(n, _)| n)
 }
@@ -140,7 +143,11 @@ pub fn load_edits(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<
     wizard
         .choose_something::<MapEdits>(
             query,
-            Box::new(move || abstutil::load_all_objects("edits", &map_name)),
+            Box::new(move || {
+                let mut list = abstutil::load_all_objects("edits", &map_name);
+                list.push(("no_edits".to_string(), MapEdits::new(map_name.clone())));
+                list
+            }),
         )
         .map(|(_, e)| e)
 }

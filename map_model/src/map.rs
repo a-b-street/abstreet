@@ -568,18 +568,18 @@ impl Map {
             }
         }
 
-        if all_lane_edits.is_empty() {
-            timer.note("No edits to actually apply".to_string());
-            // Except maybe edits_name.
-            self.edits = new_edits;
-            return Vec::new();
-        }
-
         // May need to revert some previous changes
         for id in self.edits.lane_overrides.keys() {
             if !new_edits.lane_overrides.contains_key(id) {
                 all_lane_edits.insert(*id, self.get_original_lt(*id));
             }
+        }
+
+        if all_lane_edits.is_empty() {
+            timer.note("No edits to actually apply".to_string());
+            // Except maybe edits_name.
+            self.edits = new_edits;
+            return Vec::new();
         }
 
         let mut changed_lanes = Vec::new();

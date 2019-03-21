@@ -68,6 +68,8 @@ fn manage_edits(ctx: &mut PluginCtx, raw_wizard: &mut Wizard) -> Option<()> {
         x if x == load => {
             let edits = load_edits(&ctx.primary.map, &mut wizard, "Load which map edits?")?;
             apply_map_edits(ctx, edits);
+            // Argue why it's safe to not reset PluginsPerMap. In short -- there shouldn't be any
+            // interesting state there if the EditsManager plugin is active.
             Some(())
         }
         _ => unreachable!(),
