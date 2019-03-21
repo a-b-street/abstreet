@@ -583,61 +583,60 @@ impl Map {
         }
 
         let mut changed_lanes = Vec::new();
-        let mut delete_turns = BTreeSet::new();
-        let mut add_turns = BTreeSet::new();
+        let mut changed_intersections = BTreeSet::new();
         for (id, lt) in all_lane_edits {
             changed_lanes.push(id);
 
+            let l = &mut self.lanes[id.0];
+            l.lane_type = lt;
+
+            let r = &mut self.roads[l.parent.0];
+            let (fwds, idx) = r.dir_and_offset(l.id);
+            if fwds {
+                r.children_forwards[idx] = (l.id, l.lane_type);
+            } else {
+                r.children_backwards[idx] = (l.id, l.lane_type);
+            }
+
+            changed_intersections.insert(l.src_i);
+            changed_intersections.insert(l.dst_i);
+        }
+
+        // Recompute turns and intersection policy
+        let mut delete_turns = BTreeSet::new();
+        let mut add_turns = BTreeSet::new();
+        for id in changed_intersections {
             // TODO Did something affect a border intersection?
+            let i = &mut self.intersections[id.0];
 
-            let (src, dst) = {
-                let l = &mut self.lanes[id.0];
-                l.lane_type = lt;
+            let mut old_turns = Vec::new();
+            for id in i.turns.drain(..) {
+                old_turns.push(self.turns.remove(&id).unwrap());
+                delete_turns.insert(id);
+            }
 
-                let r = &mut self.roads[l.parent.0];
-                let (fwds, idx) = r.dir_and_offset(l.id);
-                if fwds {
-                    r.children_forwards[idx] = (l.id, l.lane_type);
-                } else {
-                    r.children_backwards[idx] = (l.id, l.lane_type);
+            for t in make::make_all_turns(i, &self.roads, &self.lanes, timer) {
+                add_turns.insert(t.id);
+                i.turns.push(t.id);
+                if let Some(_existing_t) = old_turns.iter().find(|t| t.id == t.id) {
+                    // TODO Except for lookup_idx
+                    //assert_eq!(t, *existing_t);
                 }
+                self.turns.insert(t.id, t);
+            }
 
-                (l.src_i, l.dst_i)
-            };
+            // TODO Deal with turn_lookup
 
-            // Recompute turns and intersection policy
-            for id in vec![src, dst] {
-                let i = &mut self.intersections[id.0];
-
-                let mut old_turns = Vec::new();
-                for id in i.turns.drain(..) {
-                    old_turns.push(self.turns.remove(&id).unwrap());
-                    delete_turns.insert(id);
+            match i.intersection_type {
+                IntersectionType::StopSign => {
+                    self.stop_signs
+                        .insert(id, ControlStopSign::new(self, id, timer));
                 }
-
-                for t in make::make_all_turns(i, &self.roads, &self.lanes, timer) {
-                    add_turns.insert(t.id);
-                    i.turns.push(t.id);
-                    if let Some(_existing_t) = old_turns.iter().find(|t| t.id == t.id) {
-                        // TODO Except for lookup_idx
-                        //assert_eq!(t, *existing_t);
-                    }
-                    self.turns.insert(t.id, t);
+                IntersectionType::TrafficSignal => {
+                    self.traffic_signals
+                        .insert(id, ControlTrafficSignal::new(self, id, timer));
                 }
-
-                // TODO Deal with turn_lookup
-
-                match i.intersection_type {
-                    IntersectionType::StopSign => {
-                        self.stop_signs
-                            .insert(id, ControlStopSign::new(self, id, timer));
-                    }
-                    IntersectionType::TrafficSignal => {
-                        self.traffic_signals
-                            .insert(id, ControlTrafficSignal::new(self, id, timer));
-                    }
-                    IntersectionType::Border => {}
-                }
+                IntersectionType::Border => {}
             }
         }
 
