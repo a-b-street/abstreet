@@ -1,7 +1,7 @@
 use crate::objects::{DrawCtx, ID};
 use crate::render::{RenderOptions, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS};
 use ezgui::{Color, GfxCtx};
-use geom::{Bounds, Circle, Distance, FindClosest, GPSBounds, PolyLine, Polygon, Pt2D};
+use geom::{Circle, Distance, FindClosest, GPSBounds, PolyLine, Polygon, Pt2D};
 use kml::ExtraShape;
 use map_model::{DirectedRoadID, Map, LANE_THICKNESS};
 use std::collections::BTreeMap;
@@ -16,14 +16,9 @@ impl fmt::Display for ExtraShapeID {
     }
 }
 
-enum Shape {
-    Polygon(Polygon),
-    Circle(Circle),
-}
-
 pub struct DrawExtraShape {
     pub id: ExtraShapeID,
-    shape: Shape,
+    polygon: Polygon,
     pub attributes: BTreeMap<String, String>,
     pub road: Option<DirectedRoadID>,
 }
@@ -43,7 +38,7 @@ impl DrawExtraShape {
         if pts.len() == 1 {
             Some(DrawExtraShape {
                 id,
-                shape: Shape::Circle(Circle::new(pts[0], EXTRA_SHAPE_POINT_RADIUS)),
+                polygon: Circle::new(pts[0], EXTRA_SHAPE_POINT_RADIUS).to_polygon(),
                 attributes: s.attributes,
                 road: None,
             })
@@ -59,7 +54,7 @@ impl DrawExtraShape {
                 .map(|(r, _)| r);
             Some(DrawExtraShape {
                 id,
-                shape: Shape::Polygon(pl.make_polygons(width)),
+                polygon: pl.make_polygons(width),
                 attributes: s.attributes,
                 road,
             })
@@ -67,10 +62,7 @@ impl DrawExtraShape {
     }
 
     pub fn center(&self) -> Pt2D {
-        match self.shape {
-            Shape::Polygon(ref p) => Pt2D::center(&p.points()),
-            Shape::Circle(ref c) => c.center,
-        }
+        self.polygon.center()
     }
 }
 
@@ -83,24 +75,11 @@ impl Renderable for DrawExtraShape {
         let color = opts
             .color
             .unwrap_or_else(|| ctx.cs.get_def("extra shape", Color::CYAN));
-        match self.shape {
-            Shape::Polygon(ref p) => g.draw_polygon(color, &p),
-            Shape::Circle(ref c) => g.draw_circle(color, c),
-        }
+        g.draw_polygon(color, &self.polygon);
     }
 
-    fn get_bounds(&self, _: &Map) -> Bounds {
-        match self.shape {
-            Shape::Polygon(ref p) => p.get_bounds(),
-            Shape::Circle(ref c) => c.get_bounds(),
-        }
-    }
-
-    fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {
-        match self.shape {
-            Shape::Polygon(ref p) => p.contains_pt(pt),
-            Shape::Circle(ref c) => c.contains_pt(pt),
-        }
+    fn get_outline(&self, _: &Map) -> Polygon {
+        self.polygon.clone()
     }
 }
 

@@ -8,7 +8,7 @@ use ezgui::{
     Canvas, Color, EventCtx, EventLoopMode, Folder, GfxCtx, Key, ModalMenu, Prerender, Text,
     TopMenu, BOTTOM_LEFT, GUI,
 };
-use geom::{Bounds, Circle, Distance};
+use geom::{Bounds, Circle, Distance, Polygon};
 use kml;
 use map_model::{BuildingID, LaneID, Traversable};
 use serde_derive::{Deserialize, Serialize};
@@ -296,14 +296,9 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             // Still show area selection when zoomed out.
             if state.primary.current_flags.debug_areas {
                 if let Some(ID::Area(id)) = state.primary.current_selection {
-                    state.primary.draw_map.get_a(id).draw(
-                        g,
-                        RenderOptions {
-                            color: state.color_obj(ID::Area(id), &ctx),
-                            debug_mode: state.layers.debug_mode,
-                            is_selected: true,
-                        },
-                        &ctx,
+                    g.draw_polygon(
+                        state.cs.get("selected"),
+                        &fill_to_boundary_polygon(ctx.draw_map.get_a(id).get_outline(&ctx.map)),
                     );
                 }
             }
@@ -343,9 +338,15 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                 let opts = RenderOptions {
                     color: state.color_obj(obj.get_id(), &ctx),
                     debug_mode: state.layers.debug_mode,
-                    is_selected: state.primary.current_selection == Some(obj.get_id()),
                 };
                 obj.draw(g, opts, &ctx);
+
+                if state.primary.current_selection == Some(obj.get_id()) {
+                    g.draw_polygon(
+                        state.cs.get_def("selected", Color::YELLOW.alpha(0.4)),
+                        &fill_to_boundary_polygon(obj.get_outline(&ctx.map)),
+                    );
+                }
 
                 if screencap && sample_intersection.is_none() {
                     if let ID::Intersection(id) = obj.get_id() {
@@ -459,7 +460,10 @@ impl<S: UIState> UI<S> {
                 // Thick roads are only shown when unzoomed, when we don't mouseover at all.
                 ID::Road(_) => {}
                 _ => {
-                    if obj.contains_pt(pt, &self.state.get_state().primary.map) {
+                    if obj
+                        .get_outline(&self.state.get_state().primary.map)
+                        .contains_pt(pt)
+                    {
                         return Some(obj.get_id());
                     }
                 }
@@ -595,4 +599,10 @@ pub struct EditorState {
     pub cam_x: f64,
     pub cam_y: f64,
     pub cam_zoom: f64,
+}
+
+fn fill_to_boundary_polygon(poly: Polygon) -> Polygon {
+    // TODO This looks awful for lanes, oops.
+    //PolyLine::make_polygons_for_boundary(poly.points().clone(), Distance::meters(0.5))
+    poly
 }

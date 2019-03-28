@@ -2,7 +2,7 @@ use crate::colors::ColorScheme;
 use crate::objects::{DrawCtx, ID};
 use crate::render::{RenderOptions, Renderable};
 use ezgui::{Color, GfxCtx};
-use geom::{Bounds, Polygon, Pt2D};
+use geom::Polygon;
 use map_model::{Area, AreaID, AreaType, Map};
 
 pub struct DrawArea {
@@ -31,11 +31,7 @@ impl Renderable for DrawArea {
         }
     }
 
-    fn get_bounds(&self, map: &Map) -> Bounds {
-        map.get_a(self.id).polygon.get_bounds()
-    }
-
-    fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool {
-        map.get_a(self.id).polygon.contains_pt(pt)
+    fn get_outline(&self, map: &Map) -> Polygon {
+        map.get_a(self.id).polygon.clone()
     }
 }

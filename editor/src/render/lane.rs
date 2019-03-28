@@ -3,7 +3,7 @@ use crate::objects::{DrawCtx, ID};
 use crate::render::{RenderOptions, Renderable, BIG_ARROW_THICKNESS, PARCEL_BOUNDARY_THICKNESS};
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
-use geom::{Bounds, Circle, Distance, Line, Polygon, Pt2D};
+use geom::{Circle, Distance, Line, Polygon};
 use map_model::{
     IntersectionType, Lane, LaneID, LaneType, Map, Road, Turn, LANE_THICKNESS, PARKING_SPOT_LENGTH,
 };
@@ -101,12 +101,8 @@ impl Renderable for DrawLane {
         }
     }
 
-    fn get_bounds(&self, _: &Map) -> Bounds {
-        self.polygon.get_bounds()
-    }
-
-    fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {
-        self.polygon.contains_pt(pt)
+    fn get_outline(&self, _: &Map) -> Polygon {
+        self.polygon.clone()
     }
 
     fn get_zorder(&self) -> isize {

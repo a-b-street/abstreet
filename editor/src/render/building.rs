@@ -2,7 +2,7 @@ use crate::colors::ColorScheme;
 use crate::objects::{DrawCtx, ID};
 use crate::render::{RenderOptions, Renderable};
 use ezgui::{Color, GfxCtx};
-use geom::{Bounds, Distance, Line, Polygon, Pt2D};
+use geom::{Distance, Line, Polygon};
 use map_model::{Building, BuildingID, BuildingType, Map, LANE_THICKNESS};
 
 pub struct DrawBuilding {
@@ -57,13 +57,7 @@ impl Renderable for DrawBuilding {
         }
     }
 
-    fn get_bounds(&self, map: &Map) -> Bounds {
-        // This is only used for mouseover, not rendering, now that buildings are drawn in a single
-        // batch. So don't include the front path.
-        map.get_b(self.id).polygon.get_bounds()
-    }
-
-    fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool {
-        map.get_b(self.id).polygon.contains_pt(pt)
+    fn get_outline(&self, map: &Map) -> Polygon {
+        map.get_b(self.id).polygon.clone()
     }
 }

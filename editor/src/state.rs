@@ -106,15 +106,6 @@ impl DefaultUIState {
     }
 
     pub fn color_obj(&self, id: ID, ctx: &DrawCtx) -> Option<Color> {
-        match id {
-            ID::Turn(_) => {}
-            _ => {
-                if Some(id) == self.primary.current_selection {
-                    return Some(ctx.cs.get_def("selected", Color::BLUE));
-                }
-            }
-        };
-
         if let Some(ref plugin) = self.primary_plugins.search {
             if let Some(c) = plugin.color_for(id, ctx) {
                 return Some(c);

@@ -5,7 +5,7 @@ use crate::render::{
     TURN_ICON_ARROW_LENGTH, TURN_ICON_ARROW_THICKNESS,
 };
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
-use geom::{Bounds, Circle, Distance, Line, Pt2D};
+use geom::{Circle, Distance, Line, Polygon};
 use map_model::{Map, Turn, TurnID, LANE_THICKNESS};
 
 pub struct DrawTurn {
@@ -80,11 +80,7 @@ impl Renderable for DrawTurn {
         }
 
         g.draw_circle(
-            if opts.is_selected {
-                ctx.cs.get("selected")
-            } else {
-                ctx.cs.get_def("turn icon circle", Color::grey(0.3))
-            },
+            ctx.cs.get_def("turn icon circle", Color::grey(0.3)),
             &self.icon_circle,
         );
 
@@ -96,12 +92,8 @@ impl Renderable for DrawTurn {
         );
     }
 
-    fn get_bounds(&self, _: &Map) -> Bounds {
-        self.icon_circle.get_bounds()
-    }
-
-    fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {
-        self.icon_circle.contains_pt(pt)
+    fn get_outline(&self, _: &Map) -> Polygon {
+        self.icon_circle.to_polygon()
     }
 }
 

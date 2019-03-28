@@ -25,7 +25,7 @@ pub use crate::render::pedestrian::DrawPedestrian;
 pub use crate::render::road::DrawRoad;
 pub use crate::render::turn::{DrawCrosswalk, DrawTurn};
 use ezgui::{Color, GfxCtx, Prerender};
-use geom::{Bounds, Distance, Pt2D};
+use geom::{Distance, Polygon};
 use map_model::Map;
 use sim::{DrawCarInput, VehicleType};
 
@@ -46,12 +46,12 @@ pub const CROSSWALK_LINE_THICKNESS: Distance = Distance::const_meters(0.25);
 pub trait Renderable {
     fn get_id(&self) -> ID;
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &DrawCtx);
-    fn get_bounds(&self, map: &Map) -> Bounds;
-    fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool;
     // Higher z-ordered objects are drawn later. Default to low so roads at -1 don't vanish.
     fn get_zorder(&self) -> isize {
         -5
     }
+    // This is called at most once per frame; don't worry about cloning and lack of prerendering.
+    fn get_outline(&self, map: &Map) -> Polygon;
 }
 
 pub struct RenderOptions {
@@ -59,7 +59,6 @@ pub struct RenderOptions {
     pub color: Option<Color>,
     // TODO This should be accessible through ctx...
     pub debug_mode: bool,
-    pub is_selected: bool,
 }
 
 pub fn draw_vehicle(

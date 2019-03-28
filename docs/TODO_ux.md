@@ -13,7 +13,6 @@
 
 - click cycle diagram to edit duration
 - lane edit validity
-- make it easy to see current lane when changing it
 
 - revamp stop sign editor
 - toggle rewind mode

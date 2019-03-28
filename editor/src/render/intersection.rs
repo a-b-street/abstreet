@@ -3,7 +3,7 @@ use crate::objects::{DrawCtx, ID};
 use crate::render::{DrawCrosswalk, DrawTurn, RenderOptions, Renderable};
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GfxCtx, Prerender, ScreenPt, Text};
-use geom::{Bounds, Circle, Distance, Duration, Line, Polygon, Pt2D};
+use geom::{Circle, Distance, Duration, Line, Polygon, Pt2D};
 use map_model::{
     Cycle, Intersection, IntersectionID, IntersectionType, Map, Road, TurnPriority, TurnType,
     LANE_THICKNESS,
@@ -103,12 +103,8 @@ impl Renderable for DrawIntersection {
         }
     }
 
-    fn get_bounds(&self, _: &Map) -> Bounds {
-        self.polygon.get_bounds()
-    }
-
-    fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {
-        self.polygon.contains_pt(pt)
+    fn get_outline(&self, _: &Map) -> Polygon {
+        self.polygon.clone()
     }
 
     fn get_zorder(&self) -> isize {

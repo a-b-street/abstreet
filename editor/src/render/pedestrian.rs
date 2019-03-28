@@ -2,7 +2,7 @@ use crate::colors::ColorScheme;
 use crate::objects::{DrawCtx, ID};
 use crate::render::{RenderOptions, Renderable};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
-use geom::{Bounds, Circle, Distance, Line, Pt2D};
+use geom::{Circle, Distance, Line, Polygon};
 use map_model::Map;
 use sim::{DrawPedestrianInput, PedestrianID};
 
@@ -78,12 +78,8 @@ impl Renderable for DrawPedestrian {
         }
     }
 
-    fn get_bounds(&self, _: &Map) -> Bounds {
-        self.circle.get_bounds()
-    }
-
-    fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {
-        self.circle.contains_pt(pt)
+    fn get_outline(&self, _: &Map) -> Polygon {
+        self.circle.to_polygon()
     }
 
     fn get_zorder(&self) -> isize {

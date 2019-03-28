@@ -2,7 +2,7 @@ use crate::colors::ColorScheme;
 use crate::objects::{DrawCtx, ID};
 use crate::render::{RenderOptions, Renderable};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
-use geom::{Angle, Bounds, Circle, Distance, PolyLine, Polygon, Pt2D};
+use geom::{Angle, Circle, Distance, PolyLine, Polygon, Pt2D};
 use map_model::{Map, TurnType};
 use sim::{CarID, CarStatus, DrawCarInput};
 use std;
@@ -199,12 +199,8 @@ impl Renderable for DrawCar {
         }
     }
 
-    fn get_bounds(&self, _: &Map) -> Bounds {
-        self.body_polygon.get_bounds()
-    }
-
-    fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {
-        self.body_polygon.contains_pt(pt)
+    fn get_outline(&self, _: &Map) -> Polygon {
+        self.body_polygon.clone()
     }
 
     fn get_zorder(&self) -> isize {

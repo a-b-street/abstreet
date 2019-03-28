@@ -2,7 +2,7 @@ use crate::colors::ColorScheme;
 use crate::objects::{DrawCtx, ID};
 use crate::render::{RenderOptions, Renderable};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
-use geom::{Bounds, Distance, Polygon, Pt2D};
+use geom::{Distance, Polygon};
 use map_model::{BusStop, BusStopID, Map, LANE_THICKNESS};
 
 pub struct DrawBusStop {
@@ -53,12 +53,8 @@ impl Renderable for DrawBusStop {
         }
     }
 
-    fn get_bounds(&self, _: &Map) -> Bounds {
-        self.polygon.get_bounds()
-    }
-
-    fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {
-        self.polygon.contains_pt(pt)
+    fn get_outline(&self, _: &Map) -> Polygon {
+        self.polygon.clone()
     }
 
     fn get_zorder(&self) -> isize {

@@ -2,7 +2,7 @@ use crate::colors::ColorScheme;
 use crate::objects::{DrawCtx, ID};
 use crate::render::{RenderOptions, Renderable, PARCEL_BOUNDARY_THICKNESS};
 use ezgui::{Color, GfxCtx};
-use geom::{Bounds, PolyLine, Polygon, Pt2D};
+use geom::{PolyLine, Polygon};
 use map_model::{Map, Parcel, ParcelID};
 
 const COLORS: [Color; 14] = [
@@ -69,11 +69,7 @@ impl Renderable for DrawParcel {
         }
     }
 
-    fn get_bounds(&self, _: &Map) -> Bounds {
-        self.fill_polygon.get_bounds()
-    }
-
-    fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {
-        self.fill_polygon.contains_pt(pt)
+    fn get_outline(&self, _: &Map) -> Polygon {
+        self.fill_polygon.clone()
     }
 }
