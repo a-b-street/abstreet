@@ -517,7 +517,12 @@ impl<S: UIState> UI<S> {
                 ID::Lane(id) => {
                     lanes.push(Box::new(draw_map.get_l(id)));
                     let lane = map.get_l(id);
-                    if !state.show_icons_for(lane.dst_i) {
+                    if state.show_icons_for(lane.dst_i) {
+                        for (t, _) in map.get_next_turns_and_lanes(id, lane.dst_i) {
+                            turn_icons.push(Box::new(draw_map.get_t(t.id)));
+                        }
+                    } else {
+                        // TODO Bug: pedestrians on front paths aren't selectable.
                         agents_on.push(Traversable::Lane(id));
                     }
                     for bs in &lane.bus_stops {
@@ -530,9 +535,7 @@ impl<S: UIState> UI<S> {
                 ID::Intersection(id) => {
                     intersections.push(Box::new(draw_map.get_i(id)));
                     for t in &map.get_i(id).turns {
-                        if state.show_icons_for(id) {
-                            turn_icons.push(Box::new(draw_map.get_t(*t)));
-                        } else {
+                        if !state.show_icons_for(id) {
                             agents_on.push(Traversable::Turn(*t));
                         }
                     }
