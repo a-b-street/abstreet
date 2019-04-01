@@ -558,8 +558,12 @@ impl Map {
         &self.edits
     }
 
-    // new_edits assumed to be valid. Returns actual lanes that changed.
-    pub fn apply_edits(&mut self, new_edits: MapEdits, timer: &mut Timer) -> Vec<LaneID> {
+    // new_edits assumed to be valid. Returns actual lanes that changed, turns deleted, turns added.
+    pub fn apply_edits(
+        &mut self,
+        new_edits: MapEdits,
+        timer: &mut Timer,
+    ) -> (Vec<LaneID>, BTreeSet<TurnID>, BTreeSet<TurnID>) {
         // Ignore if there's no change from current
         let mut all_lane_edits: BTreeMap<LaneID, LaneType> = BTreeMap::new();
         let mut all_stop_sign_edits: BTreeMap<IntersectionID, ControlStopSign> = BTreeMap::new();
@@ -676,7 +680,7 @@ impl Map {
         self.pathfinder = Some(pathfinder);
 
         self.edits = new_edits;
-        changed_lanes
+        (changed_lanes, delete_turns, add_turns)
     }
 
     fn get_original_lt(&self, id: LaneID) -> LaneType {

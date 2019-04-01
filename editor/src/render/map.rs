@@ -255,7 +255,7 @@ impl DrawMap {
         }
     }
 
-    fn compute_turn_to_lane_offset(result: &mut HashMap<TurnID, usize>, l: &Lane, map: &Map) {
+    pub fn compute_turn_to_lane_offset(result: &mut HashMap<TurnID, usize>, l: &Lane, map: &Map) {
         // Split into two groups, based on the endpoint
         let mut pair: (Vec<&Turn>, Vec<&Turn>) = map
             .get_turns_from_lane(l.id)

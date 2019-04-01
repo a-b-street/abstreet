@@ -5,7 +5,7 @@ pub mod view;
 
 use crate::colors::ColorScheme;
 use crate::objects::{DrawCtx, RenderingHints, ID};
-use crate::render::DrawLane;
+use crate::render::{DrawLane, DrawMap, DrawTurn};
 use crate::state::{PerMapUI, PluginsPerMap};
 use ::sim::{ABTest, OriginDestination, Scenario};
 use abstutil;
@@ -15,7 +15,8 @@ use downcast::{
 };
 use ezgui::{Canvas, Color, GfxCtx, Prerender, UserInput, WrappedWizard};
 use geom::Duration;
-use map_model::{IntersectionID, Map, MapEdits, Neighborhood, NeighborhoodBuilder};
+use map_model::{IntersectionID, LaneID, Map, MapEdits, Neighborhood, NeighborhoodBuilder, TurnID};
+use std::collections::{BTreeSet, HashMap};
 
 // TODO Split into two types, but then State needs two possible types in its exclusive blocking
 // field.
@@ -204,7 +205,10 @@ pub fn choose_origin_destination(
 pub fn apply_map_edits(ctx: &mut PluginCtx, edits: MapEdits) {
     let mut timer = Timer::new("apply map edits");
     ctx.primary.current_flags.sim_flags.edits_name = edits.edits_name.clone();
-    for l in ctx.primary.map.apply_edits(edits, &mut timer) {
+    let (lanes_changed, turns_deleted, turns_added) =
+        ctx.primary.map.apply_edits(edits, &mut timer);
+
+    for l in lanes_changed {
         ctx.primary.draw_map.lanes[l.0] = DrawLane::new(
             ctx.primary.map.get_l(l),
             &ctx.primary.map,
@@ -214,5 +218,31 @@ pub fn apply_map_edits(ctx: &mut PluginCtx, edits: MapEdits) {
             &mut timer,
         );
     }
-    // TODO turns too
+    let mut lanes_of_modified_turns: BTreeSet<LaneID> = BTreeSet::new();
+    for t in turns_deleted {
+        ctx.primary.draw_map.turns.remove(&t);
+        lanes_of_modified_turns.insert(t.src);
+    }
+    for t in &turns_added {
+        lanes_of_modified_turns.insert(t.src);
+    }
+
+    let mut turn_to_lane_offset: HashMap<TurnID, usize> = HashMap::new();
+    for l in lanes_of_modified_turns {
+        DrawMap::compute_turn_to_lane_offset(
+            &mut turn_to_lane_offset,
+            ctx.primary.map.get_l(l),
+            &ctx.primary.map,
+        );
+    }
+    for t in turns_added {
+        ctx.primary.draw_map.turns.insert(
+            t,
+            DrawTurn::new(
+                &ctx.primary.map,
+                ctx.primary.map.get_t(t),
+                turn_to_lane_offset[&t],
+            ),
+        );
+    }
 }
