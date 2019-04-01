@@ -668,11 +668,19 @@ impl Map {
             }
         }
 
+        // Make sure all of the turns of modified intersections are re-added in the pathfinder;
+        // they might've become banned.
         for (id, ss) in all_stop_sign_edits {
             self.stop_signs.insert(id, ss);
+            for t in &self.get_i(id).turns {
+                add_turns.insert(*t);
+            }
         }
         for (id, ts) in all_traffic_signals {
             self.traffic_signals.insert(id, ts);
+            for t in &self.get_i(id).turns {
+                add_turns.insert(*t);
+            }
         }
 
         let mut pathfinder = self.pathfinder.take().unwrap();
