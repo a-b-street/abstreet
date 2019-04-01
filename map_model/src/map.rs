@@ -563,7 +563,7 @@ impl Map {
         &mut self,
         new_edits: MapEdits,
         timer: &mut Timer,
-    ) -> (Vec<LaneID>, BTreeSet<TurnID>, BTreeSet<TurnID>) {
+    ) -> (BTreeSet<LaneID>, BTreeSet<TurnID>, BTreeSet<TurnID>) {
         // Ignore if there's no change from current
         let mut all_lane_edits: BTreeMap<LaneID, LaneType> = BTreeMap::new();
         let mut all_stop_sign_edits: BTreeMap<IntersectionID, ControlStopSign> = BTreeMap::new();
@@ -609,10 +609,10 @@ impl Map {
             all_traffic_signals.len()
         ));
 
-        let mut changed_lanes = Vec::new();
+        let mut changed_lanes = BTreeSet::new();
         let mut changed_intersections = BTreeSet::new();
         for (id, lt) in all_lane_edits {
-            changed_lanes.push(id);
+            changed_lanes.insert(id);
 
             let l = &mut self.lanes[id.0];
             l.lane_type = lt;
@@ -669,17 +669,23 @@ impl Map {
         }
 
         // Make sure all of the turns of modified intersections are re-added in the pathfinder;
-        // they might've become banned.
+        // they might've become banned. Lane markings may also change based on turn priorities.
         for (id, ss) in all_stop_sign_edits {
             self.stop_signs.insert(id, ss);
             for t in &self.get_i(id).turns {
                 add_turns.insert(*t);
+            }
+            for l in &self.get_i(id).incoming_lanes {
+                changed_lanes.insert(*l);
             }
         }
         for (id, ts) in all_traffic_signals {
             self.traffic_signals.insert(id, ts);
             for t in &self.get_i(id).turns {
                 add_turns.insert(*t);
+            }
+            for l in &self.get_i(id).incoming_lanes {
+                changed_lanes.insert(*l);
             }
         }
 
