@@ -562,9 +562,22 @@ impl Map {
     pub fn apply_edits(&mut self, new_edits: MapEdits, timer: &mut Timer) -> Vec<LaneID> {
         // Ignore if there's no change from current
         let mut all_lane_edits: BTreeMap<LaneID, LaneType> = BTreeMap::new();
+        let mut all_stop_sign_edits: BTreeMap<IntersectionID, ControlStopSign> = BTreeMap::new();
+        let mut all_traffic_signals: BTreeMap<IntersectionID, ControlTrafficSignal> =
+            BTreeMap::new();
         for (id, lt) in &new_edits.lane_overrides {
             if self.edits.lane_overrides.get(id) != Some(lt) {
                 all_lane_edits.insert(*id, *lt);
+            }
+        }
+        for (id, ss) in &new_edits.stop_sign_overrides {
+            if self.edits.stop_sign_overrides.get(id) != Some(ss) {
+                all_stop_sign_edits.insert(*id, ss.clone());
+            }
+        }
+        for (id, ts) in &new_edits.traffic_signal_overrides {
+            if self.edits.traffic_signal_overrides.get(id) != Some(ts) {
+                all_traffic_signals.insert(*id, ts.clone());
             }
         }
 
@@ -574,13 +587,23 @@ impl Map {
                 all_lane_edits.insert(*id, self.get_original_lt(*id));
             }
         }
-
-        if all_lane_edits.is_empty() {
-            timer.note("No edits to actually apply".to_string());
-            // Except maybe edits_name.
-            self.edits = new_edits;
-            return Vec::new();
+        for id in self.edits.stop_sign_overrides.keys() {
+            if !new_edits.stop_sign_overrides.contains_key(id) {
+                all_stop_sign_edits.insert(*id, ControlStopSign::new(self, *id, timer));
+            }
         }
+        for id in self.edits.traffic_signal_overrides.keys() {
+            if !new_edits.traffic_signal_overrides.contains_key(id) {
+                all_traffic_signals.insert(*id, ControlTrafficSignal::new(self, *id, timer));
+            }
+        }
+
+        timer.note(format!(
+            "Total diff: {} lanes, {} stop signs, {} traffic signals",
+            all_lane_edits.len(),
+            all_stop_sign_edits.len(),
+            all_traffic_signals.len()
+        ));
 
         let mut changed_lanes = Vec::new();
         let mut changed_intersections = BTreeSet::new();
@@ -627,6 +650,7 @@ impl Map {
 
             // TODO Deal with turn_lookup
 
+            // Do this before applying intersection policy edits.
             match i.intersection_type {
                 IntersectionType::StopSign => {
                     self.stop_signs
@@ -638,6 +662,13 @@ impl Map {
                 }
                 IntersectionType::Border => {}
             }
+        }
+
+        for (id, ss) in all_stop_sign_edits {
+            self.stop_signs.insert(id, ss);
+        }
+        for (id, ts) in all_traffic_signals {
+            self.traffic_signals.insert(id, ts);
         }
 
         let mut pathfinder = self.pathfinder.take().unwrap();

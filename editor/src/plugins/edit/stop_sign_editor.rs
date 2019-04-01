@@ -1,8 +1,7 @@
 use crate::objects::{DrawCtx, ID};
-use crate::plugins::{BlockingPlugin, PluginCtx};
-use abstutil::Timer;
+use crate::plugins::{apply_map_edits, BlockingPlugin, PluginCtx};
 use ezgui::{Color, Key};
-use map_model::{ControlStopSign, IntersectionID, TurnPriority};
+use map_model::{IntersectionID, TurnPriority};
 
 pub struct StopSignEditor {
     i: IntersectionID,
@@ -55,14 +54,17 @@ impl BlockingPlugin for StopSignEditor {
                 TurnPriority::Priority => TurnPriority::Banned,
             };
             if input.contextual_action(Key::Space, &format!("toggle to {:?}", next_priority)) {
-                sign.set_priority(id, next_priority, map);
-                map.edit_stop_sign(sign);
+                sign.turns.insert(id, next_priority);
+                let mut edits = map.get_edits().clone();
+                edits.stop_sign_overrides.insert(self.i, sign);
+                apply_map_edits(ctx, edits);
             }
         } else if input.modal_action("quit") {
             return false;
         } else if input.modal_action("reset to default") {
-            let sign = ControlStopSign::new(map, self.i, &mut Timer::new("reset ControlStopSign"));
-            map.edit_stop_sign(sign);
+            let mut edits = map.get_edits().clone();
+            edits.stop_sign_overrides.remove(&self.i);
+            apply_map_edits(ctx, edits);
         }
         true
     }

@@ -1,5 +1,5 @@
 use crate::objects::{DrawCtx, ID};
-use crate::plugins::{BlockingPlugin, PluginCtx};
+use crate::plugins::{apply_map_edits, BlockingPlugin, PluginCtx};
 use crate::render::{draw_signal_cycle, draw_signal_diagram, DrawTurn};
 use ezgui::{Color, GfxCtx, Key, ScreenPt, Wizard, WrappedWizard};
 use geom::Duration;
@@ -67,6 +67,8 @@ impl BlockingPlugin for TrafficSignalEditor {
             }
         }
 
+        let mut signal = ctx.primary.map.get_traffic_signal(self.i).clone();
+
         if self.cycle_duration_wizard.is_some() {
             if let Some(new_duration) = self
                 .cycle_duration_wizard
@@ -77,16 +79,11 @@ impl BlockingPlugin for TrafficSignalEditor {
                     "How long should this cycle be?",
                     format!(
                         "{}",
-                        ctx.primary.map.get_traffic_signal(self.i).cycles[self.current_cycle]
-                            .duration
-                            .inner_seconds() as usize
+                        signal.cycles[self.current_cycle].duration.inner_seconds() as usize
                     ),
                 )
             {
-                let mut signal = ctx.primary.map.get_traffic_signal(self.i).clone();
-                signal.cycles[self.current_cycle]
-                    .edit_duration(Duration::seconds(new_duration as f64));
-                ctx.primary.map.edit_traffic_signal(signal);
+                signal.cycles[self.current_cycle].duration = Duration::seconds(new_duration as f64);
                 self.cycle_duration_wizard = None;
             } else if self.cycle_duration_wizard.as_ref().unwrap().aborted() {
                 self.cycle_duration_wizard = None;
@@ -97,7 +94,7 @@ impl BlockingPlugin for TrafficSignalEditor {
                 self.i,
                 self.preset_wizard.as_mut().unwrap().wrap(input, ctx.canvas),
             ) {
-                ctx.primary.map.edit_traffic_signal(new_signal);
+                signal = new_signal;
                 self.preset_wizard = None;
             } else if self.preset_wizard.as_ref().unwrap().aborted() {
                 self.preset_wizard = None;
@@ -107,7 +104,6 @@ impl BlockingPlugin for TrafficSignalEditor {
             // showing icons for this one.
             self.icon_selected = Some(id);
 
-            let mut signal = ctx.primary.map.get_traffic_signal(self.i).clone();
             {
                 let cycle = &mut signal.cycles[self.current_cycle];
                 // Just one key to toggle between the 3 states
@@ -140,12 +136,10 @@ impl BlockingPlugin for TrafficSignalEditor {
                         Key::Space,
                         &format!("toggle from {:?} to {:?}", cycle.get_priority(id), pri),
                     ) {
-                        cycle.edit_turn(id, pri, &ctx.primary.map);
+                        cycle.edit_turn(id, pri);
                     }
                 }
             }
-
-            ctx.primary.map.edit_traffic_signal(signal);
         } else {
             self.icon_selected = None;
             if input.modal_action("quit") {
@@ -174,13 +168,11 @@ impl BlockingPlugin for TrafficSignalEditor {
                 .iter()
                 .any(|t| t.between_sidewalks());
 
-            let mut signal = ctx.primary.map.get_traffic_signal(self.i).clone();
             if self.current_cycle != 0 && input.modal_action("move current cycle up") {
                 signal
                     .cycles
                     .swap(self.current_cycle, self.current_cycle - 1);
                 self.current_cycle -= 1;
-                ctx.primary.map.edit_traffic_signal(signal);
             } else if self.current_cycle != signal.cycles.len() - 1
                 && input.modal_action("move current cycle down")
             {
@@ -188,18 +180,15 @@ impl BlockingPlugin for TrafficSignalEditor {
                     .cycles
                     .swap(self.current_cycle, self.current_cycle + 1);
                 self.current_cycle += 1;
-                ctx.primary.map.edit_traffic_signal(signal);
             } else if signal.cycles.len() > 1 && input.modal_action("delete current cycle") {
                 signal.cycles.remove(self.current_cycle);
                 if self.current_cycle == signal.cycles.len() {
                     self.current_cycle -= 1;
                 }
-                ctx.primary.map.edit_traffic_signal(signal);
             } else if input.modal_action("add a new empty cycle") {
                 signal
                     .cycles
                     .insert(self.current_cycle, Cycle::new(self.i, signal.cycles.len()));
-                ctx.primary.map.edit_traffic_signal(signal);
             } else if has_sidewalks && input.modal_action("add a new pedestrian scramble cycle") {
                 let mut cycle = Cycle::new(self.i, signal.cycles.len());
                 for t in ctx.primary.map.get_turns_in_intersection(self.i) {
@@ -207,13 +196,17 @@ impl BlockingPlugin for TrafficSignalEditor {
                     if t.turn_type == TurnType::SharedSidewalkCorner
                         || (t.turn_type == TurnType::Crosswalk && t.id.src < t.id.dst)
                     {
-                        cycle.edit_turn(t.id, TurnPriority::Priority, &ctx.primary.map);
+                        cycle.edit_turn(t.id, TurnPriority::Priority);
                     }
                 }
                 signal.cycles.insert(self.current_cycle, cycle);
-                ctx.primary.map.edit_traffic_signal(signal);
             }
         }
+
+        let mut edits = ctx.primary.map.get_edits().clone();
+        edits.traffic_signal_overrides.insert(self.i, signal);
+        apply_map_edits(ctx, edits);
+
         true
     }
 

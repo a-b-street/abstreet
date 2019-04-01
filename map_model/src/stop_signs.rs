@@ -3,7 +3,7 @@ use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer, Warn};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap, HashSet};
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ControlStopSign {
     pub id: IntersectionID,
     // Turns may be present here as Banned.

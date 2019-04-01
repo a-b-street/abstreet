@@ -12,6 +12,7 @@ pub struct DrawTurn {
     pub id: TurnID,
     icon_circle: Circle,
     icon_arrow: Line,
+    icon_zorder: isize,
 }
 
 impl DrawTurn {
@@ -35,6 +36,7 @@ impl DrawTurn {
             id: turn.id,
             icon_circle,
             icon_arrow,
+            icon_zorder: map.get_parent(turn.id.src).get_zorder(),
         }
     }
 
@@ -94,6 +96,10 @@ impl Renderable for DrawTurn {
 
     fn get_outline(&self, _: &Map) -> Polygon {
         self.icon_circle.to_polygon()
+    }
+
+    fn get_zorder(&self) -> isize {
+        self.icon_zorder
     }
 }
 

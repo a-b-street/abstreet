@@ -6,7 +6,7 @@ use std::collections::BTreeSet;
 
 const CYCLE_DURATION: Duration = Duration::const_seconds(30.0);
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ControlTrafficSignal {
     pub id: IntersectionID,
     pub cycles: Vec<Cycle>,
@@ -284,7 +284,7 @@ impl ControlTrafficSignal {
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct Cycle {
     pub parent: IntersectionID,
     pub idx: usize,
@@ -321,6 +321,16 @@ impl Cycle {
             TurnPriority::Yield
         } else {
             TurnPriority::Banned
+        }
+    }
+
+    pub fn edit_turn(&mut self, t: TurnID, pri: TurnPriority) {
+        self.priority_turns.remove(&t);
+        self.yield_turns.remove(&t);
+        if pri == TurnPriority::Priority {
+            self.priority_turns.insert(t);
+        } else if pri == TurnPriority::Yield {
+            self.yield_turns.insert(t);
         }
     }
 }
