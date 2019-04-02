@@ -1,6 +1,7 @@
 use crate::input::{ContextMenu, ModalMenuState};
 use crate::{
-    text, widgets, Canvas, Event, EventCtx, GfxCtx, ModalMenu, Prerender, TopMenu, UserInput,
+    text, widgets, Canvas, Event, EventCtx, GfxCtx, HorizontalAlignment, ModalMenu, Prerender,
+    Text, TopMenu, UserInput, VerticalAlignment,
 };
 use glium::glutin;
 use glium_glyph::glyph_brush::rusttype::Font;
@@ -231,6 +232,23 @@ pub fn run<T, G: GUI<T>, F: FnOnce(&mut Canvas, &Prerender) -> G>(
         num_uploads: Cell::new(0),
         total_bytes_uploaded: Cell::new(0),
     };
+
+    // Just display a loading screen. Ideally capture STDOUT during make_gui and asynchronously
+    // show the logs, but that's too hard.
+    {
+        let mut target = display.draw();
+        let mut g = GfxCtx::new(&canvas, &prerender, &mut target, &program);
+        g.draw_blocking_text(
+            Text::from_line("Loading... Check terminal for details".to_string()),
+            (HorizontalAlignment::Center, VerticalAlignment::Center),
+        );
+        canvas
+            .glyphs
+            .borrow_mut()
+            .draw_queued(&display, &mut target);
+        target.finish().unwrap();
+    }
+
     let gui = make_gui(&mut canvas, &prerender);
 
     let state = State {
