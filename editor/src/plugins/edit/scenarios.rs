@@ -4,7 +4,7 @@ use crate::plugins::{
     input_weighted_usize, load_scenario, BlockingPlugin, PluginCtx,
 };
 use abstutil::Timer;
-use ezgui::{GfxCtx, LogScroller, Wizard, WrappedWizard};
+use ezgui::{Color, Drawable, GfxCtx, LogScroller, Wizard, WrappedWizard};
 use map_model::{Map, Neighborhood};
 use sim::{BorderSpawnOverTime, Scenario, SeedParkedCars, SpawnOverTime};
 
@@ -12,6 +12,7 @@ pub enum ScenarioManager {
     PickScenario(Wizard),
     ManageScenario(Scenario, LogScroller),
     EditScenario(Scenario, Wizard),
+    VisualizeScenario(Scenario, Drawable),
 }
 
 impl ScenarioManager {
@@ -54,6 +55,19 @@ impl BlockingPlugin for ScenarioManager {
                         &mut Timer::new("instantiate scenario"),
                     );
                     return false;
+                } else if ctx.input.modal_action("visualize") {
+                    let neighborhoods = Neighborhood::load_all(
+                        ctx.primary.map.get_name(),
+                        &ctx.primary.map.get_gps_bounds(),
+                    );
+                    let draw_all = ctx.prerender.upload(
+                        neighborhoods
+                            .into_iter()
+                            .enumerate()
+                            .map(|(idx, (_, n))| (COLORS[idx % COLORS.len()], n.polygon))
+                            .collect::<Vec<_>>(),
+                    );
+                    *self = ScenarioManager::VisualizeScenario(scenario.clone(), draw_all);
                 } else if scroller.event(&mut ctx.input) {
                     return false;
                 }
@@ -70,6 +84,16 @@ impl BlockingPlugin for ScenarioManager {
                 } else if wizard.aborted() {
                     let scroller = LogScroller::new_from_lines(scenario.describe());
                     *self = ScenarioManager::ManageScenario(scenario.clone(), scroller);
+                }
+            }
+            ScenarioManager::VisualizeScenario(ref scenario, _) => {
+                ctx.input.set_mode_with_prompt(
+                    "Scenario Editor",
+                    format!("Scenario Editor for {}", scenario.scenario_name),
+                    &ctx.canvas,
+                );
+                if ctx.input.modal_action("quit") {
+                    return false;
                 }
             }
         }
@@ -89,6 +113,9 @@ impl BlockingPlugin for ScenarioManager {
                     g.draw_polygon(ctx.cs.get("neighborhood polygon"), &neighborhood.polygon);
                 }
                 wizard.draw(g);
+            }
+            ScenarioManager::VisualizeScenario(_, ref draw_all) => {
+                g.redraw(draw_all);
             }
         }
     }
@@ -176,3 +203,10 @@ fn edit_scenario(map: &Map, scenario: &mut Scenario, mut wizard: WrappedWizard) 
     };
     Some(())
 }
+
+const COLORS: [Color; 3] = [
+    // TODO these are awful choices
+    Color::RED.alpha(0.8),
+    Color::GREEN.alpha(0.8),
+    Color::BLUE.alpha(0.8),
+];

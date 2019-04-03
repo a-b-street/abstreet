@@ -107,7 +107,13 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             ),
             ModalMenu::new(
                 "Scenario Editor",
-                vec![(Key::S, "save"), (Key::E, "edit"), (Key::I, "instantiate")],
+                vec![
+                    (Key::S, "save"),
+                    (Key::E, "edit"),
+                    (Key::I, "instantiate"),
+                    (Key::V, "visualize"),
+                    (Key::Enter, "quit"),
+                ],
             ),
             ModalMenu::new("Road Editor", vec![(Key::Enter, "quit")]),
             ModalMenu::new(
