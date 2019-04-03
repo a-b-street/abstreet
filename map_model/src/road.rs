@@ -88,11 +88,11 @@ impl Road {
     }
 
     pub fn is_forwards(&self, lane: LaneID) -> bool {
-        self.children_forwards.iter().any(|(id, _)| *id == lane)
+        self.dir_and_offset(lane).0
     }
 
     pub fn is_backwards(&self, lane: LaneID) -> bool {
-        self.children_backwards.iter().any(|(id, _)| *id == lane)
+        !self.dir_and_offset(lane).0
     }
 
     // lane must belong to this road. Offset 0 is the centermost lane on each side of a road, then

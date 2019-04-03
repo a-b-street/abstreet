@@ -65,11 +65,39 @@ fn next_type(lt: LaneType) -> LaneType {
         LaneType::Biking => LaneType::Bus,
         LaneType::Bus => LaneType::Driving,
 
-        LaneType::Sidewalk => panic!("next_type(Sidewalk) undefined; can't modify sidewalks"),
+        LaneType::Sidewalk => unreachable!(),
     }
 }
 
-fn can_change_lane_type(_r: &Road, _l: &Lane, _lt: LaneType) -> bool {
-    // TODO implement this
+fn can_change_lane_type(r: &Road, l: &Lane, lt: LaneType) -> bool {
+    let (fwds, idx) = r.dir_and_offset(l.id);
+
+    // Only one parking lane per side.
+    if lt == LaneType::Parking {
+        let has_parking = if fwds {
+            r.get_lane_types().0
+        } else {
+            r.get_lane_types().1
+        }
+        .contains(&LaneType::Parking);
+        if has_parking {
+            return false;
+        }
+    }
+
+    // Two adjacent bike lanes is unnecessary.
+    if lt == LaneType::Biking {
+        let types = if fwds {
+            r.get_lane_types().0
+        } else {
+            r.get_lane_types().1
+        };
+        if (idx != 0 && types[idx - 1] == LaneType::Biking)
+            || types.get(idx + 1) == Some(&LaneType::Biking)
+        {
+            return false;
+        }
+    }
+
     true
 }

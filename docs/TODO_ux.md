@@ -12,7 +12,6 @@
 - sort the top menus
 
 - click cycle diagram to edit duration
-- lane edit validity
 
 - revamp stop sign editor
 - toggle rewind mode
