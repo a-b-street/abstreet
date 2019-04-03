@@ -7,6 +7,7 @@ pub struct Menu<T: Clone> {
     // The bool is whether this choice is active or not
     choices: Vec<(Option<Key>, String, bool, T)>,
     current_idx: Option<usize>,
+    mouse_in_bounds: bool,
     keys_enabled: bool,
     pos: Position,
 
@@ -78,6 +79,8 @@ impl<T: Clone> Menu<T> {
                 .collect(),
             current_idx: if keys_enabled { Some(0) } else { None },
             keys_enabled,
+            // TODO Bit of a hack, but eh.
+            mouse_in_bounds: !keys_enabled,
             pos,
 
             row_height,
@@ -106,7 +109,7 @@ impl<T: Clone> Menu<T> {
         if ev == Event::LeftMouseButtonDown {
             if let Some(i) = self.current_idx {
                 let (_, choice, active, data) = self.choices[i].clone();
-                if active {
+                if active && self.mouse_in_bounds {
                     return InputResult::Done(choice, data);
                 } else {
                     return InputResult::StillActive;
@@ -117,23 +120,25 @@ impl<T: Clone> Menu<T> {
         } else if ev == Event::RightMouseButtonDown {
             return InputResult::Canceled;
         } else if let Event::MouseMovedTo(pt) = ev {
-            let mut matched = false;
-            for i in 0..self.choices.len() {
-                if self.choices[i].2
-                    && self
-                        .first_choice_row
-                        .translate(0.0, (i as f64) * self.row_height)
-                        .contains(pt)
-                {
-                    self.current_idx = Some(i);
-                    matched = true;
-                    break;
+            if !canvas.is_dragging() {
+                for i in 0..self.choices.len() {
+                    if self.choices[i].2
+                        && self
+                            .first_choice_row
+                            .translate(0.0, (i as f64) * self.row_height)
+                            .contains(pt)
+                    {
+                        self.current_idx = Some(i);
+                        self.mouse_in_bounds = true;
+                        return InputResult::StillActive;
+                    }
                 }
+                self.mouse_in_bounds = false;
+                if !self.keys_enabled {
+                    self.current_idx = None;
+                }
+                return InputResult::StillActive;
             }
-            if !matched && !self.keys_enabled {
-                self.current_idx = None;
-            }
-            return InputResult::StillActive;
         }
 
         // Handle keys

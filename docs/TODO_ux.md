@@ -27,7 +27,6 @@
 - optionally limit canvas scrolling/zooming to some map bounds
 - top menu doesnt know when we have a more urgent input thing going!
 - cant use G for geom debug mode and contextual polygon debug
-- on a menu with preselected thing, clicking ANYWHERE does stuff...
 - X on all menus
 - when dragging, dont give mouse movement to UI elements
 - start context menu when left click releases and we're not dragging
