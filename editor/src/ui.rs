@@ -55,6 +55,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                     (Some(Key::Q), "manage map edits"),
                     (Some(Key::E), "edit roads"),
                     (Some(Key::W), "manage scenarios"),
+                    (None, "show map diffs"),
                 ],
             ),
             Folder::new(
@@ -196,6 +197,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                 ],
             ),
             ModalMenu::new("Agent Spawner", vec![(Key::Enter, "quit")]),
+            ModalMenu::new("Map Edits Differ", vec![(Key::Enter, "quit")]),
         ]
     }
 
