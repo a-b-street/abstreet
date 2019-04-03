@@ -5,14 +5,16 @@ use crate::plugins::{
 };
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GfxCtx, LogScroller, Wizard, WrappedWizard};
+use geom::{Distance, Duration, Line, Pt2D};
 use map_model::{Map, Neighborhood};
-use sim::{BorderSpawnOverTime, Scenario, SeedParkedCars, SpawnOverTime};
+use sim::{BorderSpawnOverTime, OriginDestination, Scenario, SeedParkedCars, SpawnOverTime};
+use std::collections::BTreeMap;
 
 pub enum ScenarioManager {
     PickScenario(Wizard),
     ManageScenario(Scenario, LogScroller),
     EditScenario(Scenario, Wizard),
-    VisualizeScenario(Scenario, Drawable),
+    VisualizeScenario(Scenario, Drawable, BTreeMap<String, Region>),
 }
 
 impl ScenarioManager {
@@ -60,14 +62,28 @@ impl BlockingPlugin for ScenarioManager {
                         ctx.primary.map.get_name(),
                         &ctx.primary.map.get_gps_bounds(),
                     );
-                    let draw_all = ctx.prerender.upload(
+                    let draw_all = ctx.prerender.upload_borrowed(
                         neighborhoods
-                            .into_iter()
+                            .iter()
                             .enumerate()
-                            .map(|(idx, (_, n))| (COLORS[idx % COLORS.len()], n.polygon))
+                            .map(|(idx, (_, n))| (COLORS[idx % COLORS.len()], &n.polygon))
                             .collect::<Vec<_>>(),
                     );
-                    *self = ScenarioManager::VisualizeScenario(scenario.clone(), draw_all);
+                    let mapping = neighborhoods
+                        .into_iter()
+                        .enumerate()
+                        .map(|(idx, (name, n))| {
+                            (
+                                name.clone(),
+                                Region {
+                                    name,
+                                    color: COLORS[idx % COLORS.len()],
+                                    center: n.polygon.center(),
+                                },
+                            )
+                        })
+                        .collect();
+                    *self = ScenarioManager::VisualizeScenario(scenario.clone(), draw_all, mapping);
                 } else if scroller.event(&mut ctx.input) {
                     return false;
                 }
@@ -86,7 +102,7 @@ impl BlockingPlugin for ScenarioManager {
                     *self = ScenarioManager::ManageScenario(scenario.clone(), scroller);
                 }
             }
-            ScenarioManager::VisualizeScenario(ref scenario, _) => {
+            ScenarioManager::VisualizeScenario(ref scenario, _, _) => {
                 ctx.input.set_mode_with_prompt(
                     "Scenario Editor",
                     format!("Scenario Editor for {}", scenario.scenario_name),
@@ -114,8 +130,32 @@ impl BlockingPlugin for ScenarioManager {
                 }
                 wizard.draw(g);
             }
-            ScenarioManager::VisualizeScenario(_, ref draw_all) => {
+            ScenarioManager::VisualizeScenario(ref scenario, ref draw_all, ref mapping) => {
                 g.redraw(draw_all);
+
+                // Aggregate by (src, dst) pair, breakdown over time and mode, etc.
+                for s in &scenario.spawn_over_time {
+                    // TODO Draw text label in neighborhood, then src is left and dst is right
+                    let src = mapping[&s.start_from_neighborhood]
+                        .center
+                        .offset(-50.0, 0.0);
+                    let dst = match s.goal {
+                        OriginDestination::Neighborhood(ref n) => mapping[n].center,
+                        OriginDestination::Border(i) => ctx.map.get_i(i).point,
+                    }
+                    .offset(50.0, 0.0);
+                    // TODO Draw a self-loop or something
+                    if src == dst {
+                        continue;
+                    }
+                    g.draw_arrow(
+                        // Source color, sure
+                        mapping[&s.start_from_neighborhood].color.alpha(0.5),
+                        // TODO Vary by (relative) number of agents
+                        Distance::meters(100.0),
+                        &Line::new(src, dst),
+                    );
+                }
             }
         }
     }
@@ -144,8 +184,12 @@ fn edit_scenario(map: &Map, scenario: &mut Scenario, mut wizard: WrappedWizard) 
     let seed_parked = "Seed parked cars";
     let spawn = "Spawn agents";
     let spawn_border = "Spawn agents from a border";
+    let randomize = "Randomly spawn stuff from/to every neighborhood";
     match wizard
-        .choose_string("What kind of edit?", vec![seed_parked, spawn, spawn_border])?
+        .choose_string(
+            "What kind of edit?",
+            vec![seed_parked, spawn, spawn_border, randomize],
+        )?
         .as_str()
     {
         x if x == seed_parked => {
@@ -199,6 +243,22 @@ fn edit_scenario(map: &Map, scenario: &mut Scenario, mut wizard: WrappedWizard) 
                 )?,
             });
         }
+        x if x == randomize => {
+            let neighborhoods = Neighborhood::load_all(map.get_name(), &map.get_gps_bounds());
+            for (src, _) in &neighborhoods {
+                for (dst, _) in &neighborhoods {
+                    scenario.spawn_over_time.push(SpawnOverTime {
+                        num_agents: 100,
+                        start_time: Duration::ZERO,
+                        stop_time: Duration::minutes(10),
+                        start_from_neighborhood: src.to_string(),
+                        goal: OriginDestination::Neighborhood(dst.to_string()),
+                        percent_biking: 0.1,
+                        percent_use_transit: 0.2,
+                    });
+                }
+            }
+        }
         _ => unreachable!(),
     };
     Some(())
@@ -210,3 +270,10 @@ const COLORS: [Color; 3] = [
     Color::GREEN.alpha(0.8),
     Color::BLUE.alpha(0.8),
 ];
+
+// Er, the info on top of Neighbohood
+pub struct Region {
+    name: String,
+    color: Color,
+    center: Pt2D,
+}
