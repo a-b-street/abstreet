@@ -1,7 +1,8 @@
 use crate::{AgentID, Command, Scheduler};
 use geom::Duration;
 use map_model::{
-    ControlTrafficSignal, IntersectionID, IntersectionType, LaneID, Map, TurnID, TurnPriority,
+    ControlStopSign, ControlTrafficSignal, IntersectionID, IntersectionType, LaneID, Map, TurnID,
+    TurnPriority,
 };
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet};
@@ -15,7 +16,7 @@ pub struct IntersectionSimState {
 struct State {
     id: IntersectionID,
     accepted: BTreeSet<Request>,
-    waiting: BTreeSet<Request>,
+    waiting: Vec<Request>,
 }
 
 impl IntersectionSimState {
@@ -29,7 +30,7 @@ impl IntersectionSimState {
                 State {
                     id: i.id,
                     accepted: BTreeSet::new(),
-                    waiting: BTreeSet::new(),
+                    waiting: Vec::new(),
                 },
             );
             if i.intersection_type == IntersectionType::TrafficSignal {
@@ -123,16 +124,25 @@ impl IntersectionSimState {
         let req = Request { agent, turn };
         let allowed = if let Some(ref signal) = map.maybe_get_traffic_signal(state.id) {
             state.traffic_signal_policy(signal, &req, now, map)
+        } else if let Some(ref sign) = map.maybe_get_stop_sign(state.id) {
+            state.stop_sign_policy(sign, &req, map)
         } else {
-            state.freeform_policy(&req, now, map)
+            // TODO This never gets called right now
+            state.freeform_policy(&req, map)
         };
+
+        let maybe_idx = state.waiting.iter().position(|r| *r == req);
         if allowed {
             assert!(!state.any_accepted_conflict_with(turn, map));
-            state.waiting.remove(&req);
+            if let Some(idx) = maybe_idx {
+                state.waiting.remove(idx);
+            }
             state.accepted.insert(req);
             true
         } else {
-            state.waiting.insert(req);
+            if maybe_idx.is_none() {
+                state.waiting.push(req);
+            }
             false
         }
     }
@@ -177,12 +187,47 @@ impl State {
             .any(|req| map.get_t(req.turn).conflicts_with(turn))
     }
 
-    fn freeform_policy(&self, req: &Request, _time: Duration, map: &Map) -> bool {
+    fn freeform_policy(&self, req: &Request, map: &Map) -> bool {
         // Allow concurrent turns that don't conflict, don't prevent target lane from spilling
         // over.
         if self.any_accepted_conflict_with(req.turn, map) {
             return false;
         }
+        true
+    }
+
+    fn stop_sign_policy(&self, sign: &ControlStopSign, req: &Request, map: &Map) -> bool {
+        if self.any_accepted_conflict_with(req.turn, map) {
+            return false;
+        }
+
+        let this_priority = sign.turns[&req.turn];
+        assert!(this_priority != TurnPriority::Banned);
+
+        // TODO Actually make TurnPriority::Stop turns pause briefly.
+
+        // If there's a higher rank turn waiting, don't allow
+        if self
+            .waiting
+            .iter()
+            .any(|r| sign.turns[&r.turn] > this_priority)
+        {
+            return false;
+        }
+
+        // If there's an equal rank turn queued before ours, don't allow
+        let this_idx = self
+            .waiting
+            .iter()
+            .position(|r| r == req)
+            .unwrap_or(self.waiting.len());
+        if self.waiting[0..this_idx]
+            .iter()
+            .any(|r| sign.turns[&r.turn] == this_priority)
+        {
+            return false;
+        }
+
         true
     }
 
@@ -227,7 +272,7 @@ impl State {
     }
 }
 
-#[derive(PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Clone)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Clone, Debug)]
 struct Request {
     agent: AgentID,
     turn: TurnID,

@@ -76,7 +76,7 @@ impl BlockingPlugin for ScenarioManager {
                             (
                                 name.clone(),
                                 Region {
-                                    name,
+                                    _name: name,
                                     color: COLORS[idx % COLORS.len()],
                                     center: n.polygon.center(),
                                 },
@@ -273,7 +273,7 @@ const COLORS: [Color; 3] = [
 
 // Er, the info on top of Neighbohood
 pub struct Region {
-    name: String,
+    _name: String,
     color: Color,
     center: Pt2D,
 }

@@ -21,7 +21,7 @@ city, and getting stuck in traffic are common experiences, and I think they can
 help...
 
 Imagine there's an incredibly rainy afternoon and we've got lots of paper. I
-draw a to-scale map of your hometown, showing detail like how many lanes are on
+draw a to-scale map of your hometown, showing details like how many lanes are on
 every road, noting the speed limits, and marking all the stop signs and traffic
 lights. Then I place a bunch of color-coded Hot Wheels and, I don't know, bits
 of paper around the map. Each of the cars will start somewhere and wants to go
@@ -48,9 +48,9 @@ little squeaks out of the corner of your mouth. (And I will laugh at you, of
 course.)
 
 Of course, you won't be able to tell me with perfect accuracy where all the cars
-are 45.2 seconds into our little game. There are potholes that'll slow some
-drivers down a bit that aren't marked on the map, and some cars that take a
-little longer to accelerate or notice the light's green. That's fine -- complete
+are 45.2 seconds into our little game. There are potholes that'll slow some cars
+down a bit that aren't marked on the map, and some drivers that take a little
+longer to accelerate or notice the light's green. That's fine -- complete
 realism isn't so important, as long as things look reasonable.
 
 For this to be interesting for me to watch, there have to be a realistic number
@@ -107,7 +107,7 @@ the middle.
 (could mention borders or not, maybe footnote)
 
 Don't worry about parking, pedestrians, bicycles, or buses. These things are all
-important to A/B Street, but we'll ad them in later.
+important to A/B Street, but we'll add them in later.
 
 ## Disrete-time model
 
@@ -172,12 +172,12 @@ think of three:
 
 And of course, whatever acceleration the driver picks gets clamped by their
 physical limits. Other than these constraints, let's assume every driver will
-want to go as fast as possible and isn't trying to drive smoothly or hyper-mile.
-Not realistic, but makes our lives easier. So if each of these three constraints
-gives an acceleration, we have to pick the smallest one to be safe. Rule 1 says
-hit the gas and go 5m/s^2, but rule 2 says we can safely go 2m/s^2 and not hit
-the next car and rule 3 actually says wait, we need to hit the brakes and go
--1m/s^2 right now. Have to go with rule 3.
+want to go as fast as possible and isn't trying to drive smoothly or in a
+fuel-efficient manner. Not realistic, but makes our lives easier. So if each of
+these three constraints gives an acceleration, we have to pick the smallest one
+to be safe. Rule 1 says hit the gas and go 5m/s^2, but rule 2 says we can safely
+go 2m/s^2 and not hit the next car and rule 3 actually says wait, we need to hit
+the brakes and go -1m/s^2 right now. Have to go with rule 3.
 
 ### Some math
 
@@ -219,6 +219,8 @@ things that were not finished / still hard:
 ## Discrete-event model take 2
 
 Let's try again, but even simpler and more incremental this time.
+
+(make sure to explain the premise of parametric time and events)
 
 ### v0: one car
 
@@ -359,45 +361,52 @@ calculate exactly when to update a car. Except for three:
 
 #### Notes on fixing the jump bug
 
-- can track a laggy leader per queue. there's 0 or 1 of these, impossible to be more.
-- a car can be a laggy leader in several queues, like long bus on short lanes. last_steps is kinda equivalent to this. 
+- can track a laggy leader per queue. there's 0 or 1 of these, impossible to be
+  more.
+- a car can be a laggy leader in several queues, like long bus on short lanes.
+  last_steps is kinda equivalent to this.
 
-
-is it possible for get_car_positions to think something should still be blocked but the rest of the state machine to not?
-	- dont change somebody to WaitingToAdvance until theres no laggy leader.
-
+is it possible for get_car_positions to think something should still be blocked
+but the rest of the state machine to not? - dont change somebody to
+WaitingToAdvance until theres no laggy leader.
 
 TODO impl:
+
 - get_car_positions needs to recurse
 - trim_last_steps needs to do something different
 
-
-
-
 the eager impl:
-- anytime we update a Car with last_steps, try to go erase those. need full distances. when we successfully erase, update followers that are Queued.
-	- - follower only starts moving once the laggy lead is totally out. wrong. they were Queued, so immediately promote them to WaitingToAdvance. smoothly draw in the meantime by recursing
-- optimistic check in the middle of Crossing, but use a different event for this to be clear. the retry should only be expensive in gridlocky cases.
-	- BLIND_RETRY after... similar to end_dist checking.
-	- note other routines dont even do checks that could hit numerical precision, we just assume events are scheduled for correct time.
-- maybe v1: dont recurse in get_car_positions, just block off entire laggy leader length until they're totally out.
+
+- anytime we update a Car with last_steps, try to go erase those. need full
+  distances. when we successfully erase, update followers that are Queued. - -
+  follower only starts moving once the laggy lead is totally out. wrong. they
+  were Queued, so immediately promote them to WaitingToAdvance. smoothly draw in
+  the meantime by recursing
+- optimistic check in the middle of Crossing, but use a different event for this
+  to be clear. the retry should only be expensive in gridlocky cases. -
+  BLIND_RETRY after... similar to end_dist checking. - note other routines dont
+  even do checks that could hit numerical precision, we just assume events are
+  scheduled for correct time.
+- maybe v1: dont recurse in get_car_positions, just block off entire laggy
+  leader length until they're totally out.
 - v2: do have to recurse. :(
 
-
 the lazy impl:
-- when we become WaitingToAdvance on a queue of length > vehicle len, clean up last_steps if needed
+
+- when we become WaitingToAdvance on a queue of length > vehicle len, clean up
+  last_steps if needed
 - when we vanish, clean up all last_steps
-- when a follower gets to ithin laggy leader length of the queue end, need to resolve earlier
-	- resolving early needs to get exact distances. expensive, but common case is theyre clear. if somebody gets stuck fully leaving a queue, then this will spam, but thats also gridlocky and we want to avoid that anyway
-
-
+- when a follower gets to ithin laggy leader length of the queue end, need to
+  resolve earlier - resolving early needs to get exact distances. expensive, but
+  common case is theyre clear. if somebody gets stuck fully leaving a queue,
+  then this will spam, but thats also gridlocky and we want to avoid that anyway
 
 other ideas:
-- can we cheat and ensure that we only clip into laggy leaders briefly?
-	- if laggy leaders never get stuck at end of their next queue...
-- alt: store front and back of each car in queues separately
-	- compute crossing state and stuff for those individually? double the work?
 
+- can we cheat and ensure that we only clip into laggy leaders briefly? - if
+  laggy leaders never get stuck at end of their next queue...
+- alt: store front and back of each car in queues separately - compute crossing
+  state and stuff for those individually? double the work?
 
 ## A/B Street's full simulation architecture
 
