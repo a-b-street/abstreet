@@ -5,14 +5,19 @@ use geom::Duration;
 use map_model::{Map, MapEdits};
 use rand::{FromEntropy, SeedableRng};
 use rand_xorshift::XorShiftRng;
+use std::path::{Path, PathBuf};
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug, Clone)]
 #[structopt(name = "sim_flags")]
 pub struct SimFlags {
     /// Map, scenario, or savestate to load
-    #[structopt(name = "load")]
-    pub load: String,
+    #[structopt(
+        name = "load",
+        parse(from_os_str),
+        default_value = "../data/maps/montlake.abst"
+    )]
+    pub load: PathBuf,
 
     /// Optional RNG seed
     #[structopt(long = "rng_seed")]
@@ -35,7 +40,7 @@ impl SimFlags {
 
     pub fn synthetic_test(map: &str, run_name: &str) -> SimFlags {
         SimFlags {
-            load: format!("../data/maps/{}_no_edits.abst", map),
+            load: PathBuf::from(format!("../data/maps/{}.abst", map)),
             rng_seed: Some(42),
             run_name: run_name.to_string(),
             edits_name: "no_edits".to_string(),
@@ -58,12 +63,13 @@ impl SimFlags {
     ) -> (Map, Sim, XorShiftRng) {
         let mut rng = self.make_rng();
 
-        if self.load.contains("data/save/") {
+        if self.load.starts_with(Path::new("../data/save/")) {
             assert_eq!(self.edits_name, "no_edits");
-            timer.note(format!("Resuming from {}", self.load));
+            timer.note(format!("Resuming from {}", self.load.display()));
 
             timer.start("read sim savestate");
-            let sim: Sim = abstutil::read_json(&self.load).expect("loading sim state failed");
+            let sim: Sim =
+                abstutil::read_json(self.load.to_str().unwrap()).expect("loading sim state failed");
             timer.stop("read sim savestate");
 
             let mut map: Map =
@@ -72,14 +78,14 @@ impl SimFlags {
             apply_edits(&mut map, &sim.edits_name, timer);
 
             (map, sim, rng)
-        } else if self.load.contains("data/scenarios/") {
+        } else if self.load.starts_with(Path::new("../data/scenarios/")) {
             timer.note(format!(
                 "Seeding the simulation from scenario {}",
-                self.load
+                self.load.display()
             ));
 
             let scenario: Scenario =
-                abstutil::read_json(&self.load).expect("loading scenario failed");
+                abstutil::read_json(self.load.to_str().unwrap()).expect("loading scenario failed");
 
             let mut map: Map =
                 abstutil::read_binary(&format!("../data/maps/{}.abst", scenario.map_name), timer)
@@ -95,11 +101,11 @@ impl SimFlags {
             scenario.instantiate(&mut sim, &map, &mut rng, timer);
 
             (map, sim, rng)
-        } else if self.load.contains("data/raw_maps/") {
-            timer.note(format!("Loading map {}", self.load));
+        } else if self.load.starts_with(Path::new("../data/raw_maps/")) {
+            timer.note(format!("Loading map {}", self.load.display()));
 
-            let mut map = Map::new(&self.load, timer)
-                .expect(&format!("Couldn't load map from {}", self.load));
+            let mut map = Map::new(self.load.to_str().unwrap(), timer)
+                .expect(&format!("Couldn't load map from {}", self.load.display()));
             apply_edits(&mut map, &self.edits_name, timer);
 
             timer.start("create sim");
@@ -107,11 +113,11 @@ impl SimFlags {
             timer.stop("create sim");
 
             (map, sim, rng)
-        } else if self.load.contains("data/maps/") {
-            timer.note(format!("Loading map {}", self.load));
+        } else if self.load.starts_with(Path::new("../data/maps/")) {
+            timer.note(format!("Loading map {}", self.load.display()));
 
-            let mut map: Map = abstutil::read_binary(&self.load, timer)
-                .expect(&format!("Couldn't load map from {}", self.load));
+            let mut map: Map = abstutil::read_binary(self.load.to_str().unwrap(), timer)
+                .expect(&format!("Couldn't load map from {}", self.load.display()));
             apply_edits(&mut map, &self.edits_name, timer);
 
             timer.start("create sim");
@@ -120,7 +126,7 @@ impl SimFlags {
 
             (map, sim, rng)
         } else {
-            panic!("Don't know how to load {}", self.load);
+            panic!("Don't know how to load {}", self.load.display());
         }
     }
 }

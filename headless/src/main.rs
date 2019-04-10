@@ -1,6 +1,7 @@
 use abstutil::Timer;
 use geom::Duration;
 use sim::{GetDrawAgents, Scenario, SimFlags};
+use std::path::Path;
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
@@ -44,7 +45,9 @@ fn main() {
     let mut timer = Timer::new("setup headless");
     let (map, mut sim, mut rng) = flags.sim_flags.load(None, &mut timer);
 
-    if load.contains("data/raw_maps/") || load.contains("data/maps/") {
+    if load.starts_with(Path::new("../data/raw_maps/"))
+        || load.starts_with(Path::new("../data/maps/"))
+    {
         Scenario::scaled_run(&map, flags.num_agents)
             .instantiate(&mut sim, &map, &mut rng, &mut timer);
     }

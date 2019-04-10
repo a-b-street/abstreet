@@ -26,4 +26,4 @@ In the future, I'll set up Github binary releases for multiple platforms.
 
 There's a bit more to it, but the basics:
 
-`cd editor; cargo run ../data/maps/montlake_no_edits.abst`
+`cd editor; cargo run ../data/maps/montlake.abst`

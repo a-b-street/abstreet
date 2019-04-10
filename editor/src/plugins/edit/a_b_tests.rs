@@ -5,6 +5,7 @@ use crate::state::{Flags, PerMapUI, PluginsPerMap};
 use ezgui::{GfxCtx, LogScroller, Prerender, Wizard, WrappedWizard};
 use map_model::Map;
 use sim::{ABTest, SimFlags};
+use std::path::PathBuf;
 
 pub enum ABTestManager {
     PickABTest(Wizard),
@@ -99,10 +100,10 @@ fn launch_test(
     prerender: &Prerender,
 ) -> ((PerMapUI, PluginsPerMap), (PerMapUI, PluginsPerMap)) {
     println!("Launching A/B test {}...", test.test_name);
-    let load = format!(
+    let load = PathBuf::from(format!(
         "../data/scenarios/{}/{}.json",
         test.map_name, test.scenario_name
-    );
+    ));
     let rng_seed = if current_flags.sim_flags.rng_seed.is_some() {
         current_flags.sim_flags.rng_seed
     } else {

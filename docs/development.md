@@ -40,8 +40,9 @@ rustup target add x86_64-pc-windows-gnu
 Then:
 
 ```
+sudo systemctl start docker
 cross build --release --target x86_64-pc-windows-gnu --bin editor
-wine target/x86_64-pc-windows-gnu/release/editor.exe data/maps/montlake_no_edits.abst
+wine target/x86_64-pc-windows-gnu/release/editor.exe data/maps/montlake.abst
 ```
 
 ## Markdown

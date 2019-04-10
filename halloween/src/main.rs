@@ -6,6 +6,7 @@ use crate::timer::Cycler;
 use abstutil::Timer;
 use ezgui::{EventCtx, EventLoopMode, GfxCtx, Key, Prerender, GUI};
 use map_model::Map;
+use std::path::{Path, PathBuf};
 use std::process;
 use structopt::StructOpt;
 
@@ -13,8 +14,8 @@ use structopt::StructOpt;
 #[structopt(name = "halloween")]
 struct Flags {
     /// Map to render
-    #[structopt(name = "load_map")]
-    load_map: String,
+    #[structopt(name = "load_map", parse(from_os_str))]
+    load_map: PathBuf,
 }
 
 const ANIMATION_PERIOD_S: f64 = 2.0;
@@ -27,7 +28,7 @@ struct UI {
 impl UI {
     fn new(flags: Flags, prerender: &Prerender) -> UI {
         // TODO Consolidate with sim::load
-        let map: Map = if flags.load_map.contains("data/raw_maps/") {
+        let map: Map = if flags.load_map.starts_with(Path::new("../data/raw_maps/")) {
             Map::new(&flags.load_map, &mut Timer::new("load map")).unwrap()
         } else {
             abstutil::read_binary(&flags.load_map, &mut Timer::new("load map")).unwrap()
