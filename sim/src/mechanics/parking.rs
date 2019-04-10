@@ -2,7 +2,7 @@ use crate::{CarID, CarStatus, DrawCarInput, ParkedCar, ParkingSpot, Vehicle, Veh
 use abstutil::{
     deserialize_btreemap, deserialize_multimap, serialize_btreemap, serialize_multimap, MultiMap,
 };
-use geom::{Angle, Distance, Pt2D};
+use geom::Distance;
 use map_model;
 use map_model::{BuildingID, Lane, LaneID, LaneType, Map, Position, Traversable};
 use serde_derive::{Deserialize, Serialize};
@@ -101,7 +101,7 @@ impl ParkingSimState {
         let p = self.cars.get(&id)?;
         let lane = p.spot.lane;
 
-        let front_dist = self.lanes[&lane].spots[p.spot.idx].dist_along_for_car(&p.vehicle);
+        let front_dist = self.lanes[&lane].dist_along_for_car(p.spot.idx, &p.vehicle);
         Some(DrawCarInput {
             id: p.vehicle.id,
             waiting_for_turn: None,
@@ -146,23 +146,28 @@ impl ParkingSimState {
         let idx = lane.occupants.iter().enumerate().position(|(idx, x)| {
             x.is_none()
                 && !self.reserved_spots.contains(&ParkingSpot::new(l, idx))
-                && parking_dist <= lane.spots[idx].dist_along_for_car(vehicle)
+                && parking_dist <= lane.dist_along_for_car(idx, vehicle)
         })?;
         let spot = ParkingSpot::new(l, idx);
         Some((spot, self.spot_to_driving_pos(spot, vehicle, map)))
     }
 
     pub fn spot_to_driving_pos(&self, spot: ParkingSpot, vehicle: &Vehicle, map: &Map) -> Position {
-        Position::new(spot.lane, self.get_spot(spot).dist_along_for_car(vehicle))
-            .equiv_pos(self.lanes[&spot.lane].driving_lane, map)
+        Position::new(
+            spot.lane,
+            self.lanes[&spot.lane].dist_along_for_car(spot.idx, vehicle),
+        )
+        .equiv_pos(self.lanes[&spot.lane].driving_lane, map)
     }
 
     pub fn spot_to_sidewalk_pos(&self, spot: ParkingSpot, sidewalk: LaneID, map: &Map) -> Position {
-        Position::new(spot.lane, self.get_spot(spot).dist_along_for_ped()).equiv_pos(sidewalk, map)
-    }
-
-    fn get_spot(&self, spot: ParkingSpot) -> &ParkingSpotGeometry {
-        &self.lanes[&spot.lane].spots[spot.idx]
+        // Always centered in the entire parking spot
+        Position::new(
+            spot.lane,
+            self.lanes[&spot.lane].spot_dist_along[spot.idx]
+                - (map_model::PARKING_SPOT_LENGTH / 2.0),
+        )
+        .equiv_pos(sidewalk, map)
     }
 
     pub fn tooltip_lines(&self, id: CarID) -> Option<Vec<String>> {
@@ -190,7 +195,8 @@ impl ParkingSimState {
 struct ParkingLane {
     id: LaneID,
     driving_lane: LaneID,
-    spots: Vec<ParkingSpotGeometry>,
+    // The front of the parking spot (farthest along the lane)
+    spot_dist_along: Vec<Distance>,
     occupants: Vec<Option<CarID>>,
 }
 
@@ -212,16 +218,8 @@ impl ParkingLane {
             id: l.id,
             driving_lane,
             occupants: iter::repeat(None).take(l.number_parking_spots()).collect(),
-            spots: (0..l.number_parking_spots())
-                .map(|idx| {
-                    let spot_start = map_model::PARKING_SPOT_LENGTH * (2.0 + idx as f64);
-                    let (pos, angle) = l.dist_along(spot_start);
-                    ParkingSpotGeometry {
-                        dist_along: spot_start,
-                        pos,
-                        angle,
-                    }
-                })
+            spot_dist_along: (0..l.number_parking_spots())
+                .map(|idx| map_model::PARKING_SPOT_LENGTH * (2.0 + idx as f64))
                 .collect(),
         })
     }
@@ -230,24 +228,9 @@ impl ParkingLane {
         let idx = self.occupants.iter().position(|x| *x == Some(car)).unwrap();
         self.occupants[idx] = None;
     }
-}
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-struct ParkingSpotGeometry {
-    // These 3 are of the front of the parking spot (farthest along)
-    dist_along: Distance,
-    pos: Pt2D,
-    angle: Angle,
-}
-
-impl ParkingSpotGeometry {
-    fn dist_along_for_ped(&self) -> Distance {
-        // Always centered in the entire parking spot
-        self.dist_along - (map_model::PARKING_SPOT_LENGTH / 2.0)
-    }
-
-    fn dist_along_for_car(&self, vehicle: &Vehicle) -> Distance {
+    fn dist_along_for_car(&self, spot_idx: usize, vehicle: &Vehicle) -> Distance {
         // Find the offset to center this particular car in the parking spot
-        self.dist_along - (map_model::PARKING_SPOT_LENGTH - vehicle.length) / 2.0
+        self.spot_dist_along[spot_idx] - (map_model::PARKING_SPOT_LENGTH - vehicle.length) / 2.0
     }
 }
