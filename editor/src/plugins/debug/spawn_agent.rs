@@ -153,16 +153,19 @@ impl BlockingPlugin for SpawnAgent {
                     Position::new(lanes[0], map.get_l(lanes[0]).length())
                 }
             };
-
-            if let Some(path) = map.pathfind(PathRequest {
-                start,
-                end,
-                can_use_bike_lanes: false,
-                can_use_bus_lanes: false,
-            }) {
-                self.maybe_goal = Some((new_goal, path.trace(map, start.dist_along(), None)));
-            } else {
+            if start == end {
                 self.maybe_goal = None;
+            } else {
+                if let Some(path) = map.pathfind(PathRequest {
+                    start,
+                    end,
+                    can_use_bike_lanes: false,
+                    can_use_bus_lanes: false,
+                }) {
+                    self.maybe_goal = Some((new_goal, path.trace(map, start.dist_along(), None)));
+                } else {
+                    self.maybe_goal = None;
+                }
             }
         }
 

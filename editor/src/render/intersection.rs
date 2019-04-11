@@ -3,7 +3,7 @@ use crate::objects::{DrawCtx, ID};
 use crate::render::{DrawCrosswalk, DrawTurn, RenderOptions, Renderable};
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GfxCtx, Prerender, ScreenPt, Text};
-use geom::{Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D};
+use geom::{Circle, Distance, Duration, Line, Polygon, Pt2D};
 use map_model::{
     Cycle, Intersection, IntersectionID, IntersectionType, Map, Road, TurnPriority, TurnType,
     LANE_THICKNESS,
@@ -129,6 +129,7 @@ fn calculate_crosswalks(
 }
 
 // TODO Temporarily public for debugging.
+// TODO This should just draw the turn geometry thickened, once that's stable.
 pub fn calculate_corners(i: &Intersection, map: &Map, timer: &mut Timer) -> Vec<Polygon> {
     let mut corners = Vec::new();
 
@@ -150,7 +151,11 @@ pub fn calculate_corners(i: &Intersection, map: &Map, timer: &mut Timer) -> Vec<
             let corner1 = l1.last_line().shift_right(LANE_THICKNESS / 2.0).pt2();
             let corner2 = l2.first_line().shift_right(LANE_THICKNESS / 2.0).pt1();
             // Intersection polygons are constructed in clockwise order, so do corner2 to corner1.
-            if let Some(mut pts_between) = find_pts_between(&i.polygon.points(), corner2, corner1) {
+            // TODO This threshold is higher than the 0.1 intersection polygons use to dedupe
+            // because of jagged lane teeth from bad polyline shifting. Seemingly.
+            if let Some(mut pts_between) =
+                Pt2D::find_pts_between(&i.polygon.points(), corner2, corner1, Distance::meters(0.5))
+            {
                 pts_between.push(src_line.pt2());
                 // If the intersection of the two lines isn't actually inside, then just exclude
                 // this point. Or if src_line and dst_line were parallel (actually, colinear), then
@@ -171,47 +176,6 @@ pub fn calculate_corners(i: &Intersection, map: &Map, timer: &mut Timer) -> Vec<
                     i.polygon.points()
                 ));
             }
-        }
-    }
-
-    corners
-}
-
-fn _calculate_corners_new(i: &Intersection, map: &Map, timer: &mut Timer) -> Vec<Polygon> {
-    let mut corners = Vec::new();
-
-    for turn in &map.get_turns_in_intersection(i.id) {
-        if turn.turn_type == TurnType::SharedSidewalkCorner {
-            // Avoid double-rendering
-            if map.get_l(turn.id.src).dst_i != i.id {
-                continue;
-            }
-
-            let l1 = map.get_l(turn.id.src);
-            let l2 = map.get_l(turn.id.dst);
-
-            // Now find all of the points on the intersection polygon between the two sidewalks.
-            let corner1 = l1.last_line().shift_right(LANE_THICKNESS / 2.0).pt2();
-            let corner2 = l2.first_line().shift_right(LANE_THICKNESS / 2.0).pt1();
-
-            // The order of the points here seems backwards, but it's because we scan from corner2
-            // to corner1 below.
-            let mut pts_between = vec![l2.first_pt()];
-            // Intersection polygons are constructed in clockwise order, so do corner2 to corner1.
-            if let Some(pts) = find_pts_between(&i.polygon.points(), corner2, corner1) {
-                let deduped = Pt2D::approx_dedupe(pts, geom::EPSILON_DIST);
-                if deduped.len() >= 2 {
-                    pts_between.extend(
-                        PolyLine::new(deduped)
-                            .shift_right(LANE_THICKNESS / 2.0)
-                            .get(timer)
-                            .points(),
-                    );
-                }
-            }
-            pts_between.push(l1.last_pt());
-            let deduped = Pt2D::approx_dedupe(pts_between, geom::EPSILON_DIST);
-            corners.push(PolyLine::new(deduped).make_polygons(LANE_THICKNESS));
         }
     }
 
@@ -417,40 +381,6 @@ pub fn draw_signal_diagram(
     }
 
     g.unfork();
-}
-
-fn find_pts_between(pts: &Vec<Pt2D>, start: Pt2D, end: Pt2D) -> Option<Vec<Pt2D>> {
-    // TODO This threshold is higher than the 0.1 intersection polygons use to dedupe because of
-    // jagged lane teeth from bad polyline shifting. Seemingly.
-    let threshold = Distance::meters(0.5);
-
-    let mut result = Vec::new();
-    for pt in pts {
-        if result.is_empty() && pt.approx_eq(start, threshold) {
-            result.push(*pt);
-        } else if !result.is_empty() {
-            result.push(*pt);
-        }
-        // start and end might be the same.
-        if !result.is_empty() && pt.approx_eq(end, threshold) {
-            return Some(result);
-        }
-    }
-
-    // start wasn't in the list!
-    if result.is_empty() {
-        return None;
-    }
-
-    // Go through again, looking for end
-    for pt in pts {
-        result.push(*pt);
-        if pt.approx_eq(end, threshold) {
-            return Some(result);
-        }
-    }
-    // Didn't find end
-    None
 }
 
 fn calculate_border_arrows(i: &Intersection, r: &Road, timer: &mut Timer) -> Vec<Polygon> {

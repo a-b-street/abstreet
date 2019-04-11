@@ -19,7 +19,7 @@ pub fn make_all_turns(
 
     let mut turns: Vec<Turn> = Vec::new();
     turns.extend(make_vehicle_turns(i, roads, lanes, timer));
-    turns.extend(make_walking_turns(i, roads, lanes));
+    turns.extend(make_walking_turns(i, roads, lanes, timer));
     let turns = ensure_unique(turns);
 
     // Make sure every incoming lane has a turn originating from it, and every outgoing lane has a
@@ -192,7 +192,12 @@ fn make_vehicle_turns_for_dead_end(
     Warn::ok(result)
 }
 
-fn make_walking_turns(i: &Intersection, all_roads: &Vec<Road>, lanes: &Vec<Lane>) -> Vec<Turn> {
+fn make_walking_turns(
+    i: &Intersection,
+    all_roads: &Vec<Road>,
+    lanes: &Vec<Lane>,
+    timer: &mut Timer,
+) -> Vec<Turn> {
     let roads: Vec<&Road> = i
         .get_roads_sorted_by_incoming_angle(all_roads)
         .into_iter()
@@ -215,18 +220,17 @@ fn make_walking_turns(i: &Intersection, all_roads: &Vec<Road>, lanes: &Vec<Lane>
                     wraparound_get(&roads, (idx1 as isize) - 1).outgoing_lanes(i.id),
                 ) {
                     if !l1.last_pt().epsilon_eq(l2.first_pt()) {
+                        let geom = make_shared_sidewalk_corner(i, l1, l2, timer);
                         result.push(Turn {
                             id: turn_id(i.id, l1.id, l2.id),
                             turn_type: TurnType::SharedSidewalkCorner,
-                            geom: PolyLine::new(vec![l1.last_pt(), l2.first_pt()]),
+                            geom: geom.clone(),
                             lookup_idx: 0,
                         });
-                    }
-                    if !l2.first_pt().epsilon_eq(l1.last_pt()) {
                         result.push(Turn {
                             id: turn_id(i.id, l2.id, l1.id),
                             turn_type: TurnType::SharedSidewalkCorner,
-                            geom: PolyLine::new(vec![l2.first_pt(), l1.last_pt()]),
+                            geom: geom.reversed(),
                             lookup_idx: 0,
                         });
                     }
@@ -270,6 +274,51 @@ fn make_crosswalks(i: IntersectionID, l1: &Lane, l2: &Lane) -> Vec<Turn> {
             lookup_idx: 0,
         },
     ]
+}
+
+fn make_shared_sidewalk_corner(
+    i: &Intersection,
+    l1: &Lane,
+    l2: &Lane,
+    timer: &mut Timer,
+) -> PolyLine {
+    // Find all of the points on the intersection polygon between the two sidewalks.
+    let corner1 = l1.last_line().shift_right(LANE_THICKNESS / 2.0).pt2();
+    let corner2 = l2.first_line().shift_right(LANE_THICKNESS / 2.0).pt1();
+
+    // The order of the points here seems backwards, but it's because we scan from corner2
+    // to corner1 below.
+    let mut pts_between = vec![l2.first_pt()];
+    // Intersection polygons are constructed in clockwise order, so do corner2 to corner1.
+    if let Some(pts) =
+        Pt2D::find_pts_between(&i.polygon.points(), corner2, corner1, Distance::meters(0.5))
+    {
+        let deduped = Pt2D::approx_dedupe(pts, geom::EPSILON_DIST);
+        if deduped.len() >= 2 {
+            pts_between.extend(
+                PolyLine::new(deduped)
+                    .shift_right(LANE_THICKNESS / 2.0)
+                    .get(timer)
+                    .points(),
+            );
+        }
+    }
+    pts_between.push(l1.last_pt());
+    pts_between.reverse();
+    let mut final_pts = Pt2D::approx_dedupe(pts_between, geom::EPSILON_DIST);
+    // The last point might be removed as a duplicate, but we want the start/end to exactly match
+    // up at least.
+    if *final_pts.last().unwrap() != l2.first_pt() {
+        final_pts.pop();
+        final_pts.push(l2.first_pt());
+    }
+    let result = PolyLine::new(final_pts);
+    let baseline = PolyLine::new(vec![l1.last_pt(), l2.first_pt()]);
+    if result.length() > 10.0 * baseline.length() {
+        timer.warn(format!("SharedSidewalkCorner between {} and {} explodes to {} long, so just doing straight line", l1.id, l2.id, result.length()));
+        return baseline;
+    }
+    result
 }
 
 fn turn_id(parent: IntersectionID, src: LaneID, dst: LaneID) -> TurnID {

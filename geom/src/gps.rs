@@ -52,6 +52,35 @@ impl LonLat {
     pub fn to_hashable(&self) -> HashablePt2D {
         HashablePt2D::new(self.longitude, self.latitude)
     }
+
+    // TODO Refactor with Pt2D::find_pts_between
+    pub fn find_slice(pts: &Vec<LonLat>, start: LonLat, end: LonLat) -> Vec<LonLat> {
+        let mut result = Vec::new();
+        for pt in pts {
+            if result.is_empty() && *pt == start {
+                result.push(*pt);
+            } else if !result.is_empty() {
+                result.push(*pt);
+            }
+            // start and end might be the same.
+            if !result.is_empty() && *pt == end {
+                return result;
+            }
+        }
+
+        if result.is_empty() {
+            panic!("Couldn't find start");
+        }
+
+        // Go through again, looking for end
+        for pt in pts {
+            result.push(*pt);
+            if *pt == end {
+                return result;
+            }
+        }
+        panic!("Couldn't find end");
+    }
 }
 
 impl fmt::Display for LonLat {

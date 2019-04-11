@@ -277,10 +277,10 @@ fn extrude_to_boundary(boundary_polygon: &Vec<LonLat>, result: &mut Vec<LonLat>)
             closest_to_first, closest_to_last
         );
 
-        let slice1 = find_slice(boundary_polygon, closest_to_last, closest_to_first);
+        let slice1 = LonLat::find_slice(boundary_polygon, closest_to_last, closest_to_first);
         let mut backwards_boundary: Vec<LonLat> = boundary_polygon.to_vec();
         backwards_boundary.reverse();
-        let slice2 = find_slice(&backwards_boundary, closest_to_last, closest_to_first);
+        let slice2 = LonLat::find_slice(&backwards_boundary, closest_to_last, closest_to_first);
         if slice_len(&slice1) <= slice_len(&slice2) {
             println!("  fwd won. adding {:?}", slice1);
             result.extend(slice1);
@@ -298,33 +298,4 @@ fn slice_len(pts: &Vec<LonLat>) -> Distance {
         dist += pair[0].gps_dist_meters(pair[1]);
     }
     dist
-}
-
-// TODO DrawIntersection has find_pts_between, basically a copy
-fn find_slice(pts: &Vec<LonLat>, start: LonLat, end: LonLat) -> Vec<LonLat> {
-    let mut result = Vec::new();
-    for pt in pts {
-        if result.is_empty() && *pt == start {
-            result.push(*pt);
-        } else if !result.is_empty() {
-            result.push(*pt);
-        }
-        // start and end might be the same.
-        if !result.is_empty() && *pt == end {
-            return result;
-        }
-    }
-
-    if result.is_empty() {
-        panic!("Couldn't find start");
-    }
-
-    // Go through again, looking for end
-    for pt in pts {
-        result.push(*pt);
-        if *pt == end {
-            return result;
-        }
-    }
-    panic!("Couldn't find end");
 }
