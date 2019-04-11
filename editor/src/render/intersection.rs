@@ -3,7 +3,7 @@ use crate::objects::{DrawCtx, ID};
 use crate::render::{DrawCrosswalk, DrawTurn, RenderOptions, Renderable};
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GfxCtx, Prerender, ScreenPt, Text};
-use geom::{Circle, Distance, Duration, Line, Polygon, Pt2D};
+use geom::{Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D};
 use map_model::{
     Cycle, Intersection, IntersectionID, IntersectionType, Map, Road, TurnPriority, TurnType,
     LANE_THICKNESS,
@@ -171,6 +171,47 @@ pub fn calculate_corners(i: &Intersection, map: &Map, timer: &mut Timer) -> Vec<
                     i.polygon.points()
                 ));
             }
+        }
+    }
+
+    corners
+}
+
+fn _calculate_corners_new(i: &Intersection, map: &Map, timer: &mut Timer) -> Vec<Polygon> {
+    let mut corners = Vec::new();
+
+    for turn in &map.get_turns_in_intersection(i.id) {
+        if turn.turn_type == TurnType::SharedSidewalkCorner {
+            // Avoid double-rendering
+            if map.get_l(turn.id.src).dst_i != i.id {
+                continue;
+            }
+
+            let l1 = map.get_l(turn.id.src);
+            let l2 = map.get_l(turn.id.dst);
+
+            // Now find all of the points on the intersection polygon between the two sidewalks.
+            let corner1 = l1.last_line().shift_right(LANE_THICKNESS / 2.0).pt2();
+            let corner2 = l2.first_line().shift_right(LANE_THICKNESS / 2.0).pt1();
+
+            // The order of the points here seems backwards, but it's because we scan from corner2
+            // to corner1 below.
+            let mut pts_between = vec![l2.first_pt()];
+            // Intersection polygons are constructed in clockwise order, so do corner2 to corner1.
+            if let Some(pts) = find_pts_between(&i.polygon.points(), corner2, corner1) {
+                let deduped = Pt2D::approx_dedupe(pts, geom::EPSILON_DIST);
+                if deduped.len() >= 2 {
+                    pts_between.extend(
+                        PolyLine::new(deduped)
+                            .shift_right(LANE_THICKNESS / 2.0)
+                            .get(timer)
+                            .points(),
+                    );
+                }
+            }
+            pts_between.push(l1.last_pt());
+            let deduped = Pt2D::approx_dedupe(pts_between, geom::EPSILON_DIST);
+            corners.push(PolyLine::new(deduped).make_polygons(LANE_THICKNESS));
         }
     }
 
