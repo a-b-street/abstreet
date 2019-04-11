@@ -4,7 +4,7 @@ use crate::render::DrawMap;
 use abstutil::elapsed_seconds;
 use ezgui::{EventLoopMode, GfxCtx, InputResult, TextBox};
 use geom::{Line, Pt2D};
-use map_model::{raw_data, AreaID, BuildingID, IntersectionID, LaneID, Map, ParcelID, RoadID};
+use map_model::{raw_data, AreaID, BuildingID, IntersectionID, LaneID, Map, RoadID};
 use sim::{PedestrianID, Sim, TripID};
 use std::time::Instant;
 use std::usize;
@@ -104,7 +104,6 @@ fn warp_point(line: String, map: &Map, sim: &Sim, draw_map: &DrawMap) -> Option<
             'i' => ID::Intersection(IntersectionID(idx)),
             'b' => ID::Building(BuildingID(idx)),
             'a' => ID::Area(AreaID(idx)),
-            'P' => ID::Parcel(ParcelID(idx)),
             'p' => ID::Pedestrian(PedestrianID(idx)),
             'c' => {
                 // This one gets more complicated. :)

@@ -36,7 +36,6 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                     (Some(Key::Num1), "show/hide buildings"),
                     (Some(Key::Num2), "show/hide intersections"),
                     (Some(Key::Num3), "show/hide lanes"),
-                    (Some(Key::Num4), "show/hide parcels"),
                     (Some(Key::Num5), "show/hide areas"),
                     (Some(Key::Num6), "show OSM colors"),
                     (Some(Key::Num7), "show/hide extra shapes"),
@@ -288,9 +287,6 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             if state.layers.show_areas {
                 g.redraw(&state.primary.draw_map.draw_all_areas);
             }
-            if state.layers.show_parcels {
-                g.redraw(&state.primary.draw_map.draw_all_parcels);
-            }
             if state.layers.show_lanes {
                 g.redraw(&state.primary.draw_map.draw_all_thick_roads);
             }
@@ -319,7 +315,6 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
 
             let mut drawn_all_buildings = false;
             let mut drawn_all_areas = false;
-            let mut drawn_all_parcels = false;
 
             for obj in objects {
                 match obj.get_id() {
@@ -333,12 +328,6 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                         if !drawn_all_areas {
                             g.redraw(&state.primary.draw_map.draw_all_areas);
                             drawn_all_areas = true;
-                        }
-                    }
-                    ID::Parcel(_) => {
-                        if !drawn_all_parcels {
-                            g.redraw(&state.primary.draw_map.draw_all_parcels);
-                            drawn_all_parcels = true;
                         }
                     }
                     _ => {}
@@ -459,11 +448,10 @@ impl<S: UIState> UI<S> {
 
         let debug_areas = self.state.get_state().primary.current_flags.debug_areas;
         for obj in objects {
-            // Don't mouseover parcels or areas.
+            // Don't mouseover areas.
             // TODO Might get fancier rules in the future, so we can't mouseover irrelevant things
             // in intersection editor mode, for example.
             match obj.get_id() {
-                ID::Parcel(_) => {}
                 ID::Area(_) if !debug_areas => {}
                 // Thick roads are only shown when unzoomed, when we don't mouseover at all.
                 ID::Road(_) => {}
@@ -505,7 +493,6 @@ impl<S: UIState> UI<S> {
         let draw_map = &state.primary.draw_map;
 
         let mut areas: Vec<Box<&Renderable>> = Vec::new();
-        let mut parcels: Vec<Box<&Renderable>> = Vec::new();
         let mut lanes: Vec<Box<&Renderable>> = Vec::new();
         let mut roads: Vec<Box<&Renderable>> = Vec::new();
         let mut intersections: Vec<Box<&Renderable>> = Vec::new();
@@ -521,7 +508,6 @@ impl<S: UIState> UI<S> {
             }
             match id {
                 ID::Area(id) => areas.push(Box::new(draw_map.get_a(id))),
-                ID::Parcel(id) => parcels.push(Box::new(draw_map.get_p(id))),
                 ID::Lane(id) => {
                     lanes.push(Box::new(draw_map.get_l(id)));
                     let lane = map.get_l(id);
@@ -563,7 +549,6 @@ impl<S: UIState> UI<S> {
         // From background to foreground Z-order
         let mut borrows: Vec<Box<&Renderable>> = Vec::new();
         borrows.extend(areas);
-        borrows.extend(parcels);
         borrows.extend(lanes);
         borrows.extend(roads);
         borrows.extend(intersections);

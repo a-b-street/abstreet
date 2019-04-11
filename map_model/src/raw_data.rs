@@ -30,7 +30,6 @@ pub struct Map {
     pub roads: BTreeMap<StableRoadID, Road>,
     pub intersections: BTreeMap<StableIntersectionID, Intersection>,
     pub buildings: Vec<Building>,
-    pub parcels: Vec<Parcel>,
     pub bus_routes: Vec<Route>,
     pub areas: Vec<Area>,
 
@@ -44,7 +43,6 @@ impl Map {
             roads: BTreeMap::new(),
             intersections: BTreeMap::new(),
             buildings: Vec::new(),
-            parcels: Vec::new(),
             bus_routes: Vec::new(),
             areas: Vec::new(),
             boundary_polygon: Vec::new(),
@@ -70,11 +68,6 @@ impl Map {
         }
         for a in &self.areas {
             for pt in &a.points {
-                bounds.update(*pt);
-            }
-        }
-        for p in &self.parcels {
-            for pt in &p.points {
                 bounds.update(*pt);
             }
         }
@@ -135,12 +128,4 @@ pub struct Area {
     pub points: Vec<LonLat>,
     pub osm_tags: BTreeMap<String, String>,
     pub osm_id: i64,
-}
-
-#[derive(PartialEq, Debug, Serialize, Deserialize)]
-pub struct Parcel {
-    // last point never the first?
-    pub points: Vec<LonLat>,
-    // TODO decide what metadata from the shapefile is useful
-    pub block: usize,
 }

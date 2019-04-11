@@ -6,7 +6,6 @@ use crate::render::bus_stop::DrawBusStop;
 use crate::render::extra_shape::{DrawExtraShape, ExtraShapeID};
 use crate::render::intersection::DrawIntersection;
 use crate::render::lane::DrawLane;
-use crate::render::parcel::DrawParcel;
 use crate::render::road::DrawRoad;
 use crate::render::turn::DrawTurn;
 use crate::render::Renderable;
@@ -16,8 +15,8 @@ use abstutil::Timer;
 use ezgui::{Color, Drawable, Prerender};
 use geom::{Bounds, Duration, FindClosest, Polygon};
 use map_model::{
-    AreaID, BuildingID, BusStopID, DirectedRoadID, IntersectionID, Lane, LaneID, Map, ParcelID,
-    RoadID, Traversable, Turn, TurnID, LANE_THICKNESS,
+    AreaID, BuildingID, BusStopID, DirectedRoadID, IntersectionID, Lane, LaneID, Map, RoadID,
+    Traversable, Turn, TurnID, LANE_THICKNESS,
 };
 use std::borrow::Borrow;
 use std::cell::RefCell;
@@ -29,7 +28,6 @@ pub struct DrawMap {
     pub intersections: Vec<DrawIntersection>,
     pub turns: HashMap<TurnID, DrawTurn>,
     pub buildings: Vec<DrawBuilding>,
-    pub parcels: Vec<DrawParcel>,
     pub extra_shapes: Vec<DrawExtraShape>,
     pub bus_stops: HashMap<BusStopID, DrawBusStop>,
     pub areas: Vec<DrawArea>,
@@ -42,7 +40,6 @@ pub struct DrawMap {
     pub draw_all_unzoomed_intersections: Drawable,
     pub draw_all_buildings: Drawable,
     pub draw_all_areas: Drawable,
-    pub draw_all_parcels: Drawable,
 
     quadtree: QuadTree<ID>,
 }
@@ -129,19 +126,6 @@ impl DrawMap {
         }
         let draw_all_buildings = prerender.upload(all_buildings);
 
-        let mut parcels: Vec<DrawParcel> = Vec::new();
-        let mut all_parcels: Vec<(Color, Polygon)> = Vec::new();
-        if flags.draw_parcels {
-            timer.start_iter("make DrawParcels", map.all_parcels().len());
-            for p in map.all_parcels() {
-                timer.next();
-                let (draw, geom) = DrawParcel::new(p, cs);
-                parcels.push(draw);
-                all_parcels.extend(geom);
-            }
-        }
-        let draw_all_parcels = prerender.upload(all_parcels);
-
         let mut extra_shapes: Vec<DrawExtraShape> = Vec::new();
         if let Some(ref path) = flags.kml {
             let raw_shapes = if path.ends_with(".kml") {
@@ -212,9 +196,6 @@ impl DrawMap {
         for obj in &buildings {
             quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
         }
-        for obj in &parcels {
-            quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
-        }
         for obj in &extra_shapes {
             quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
         }
@@ -235,7 +216,6 @@ impl DrawMap {
             intersections,
             turns,
             buildings,
-            parcels,
             extra_shapes,
             bus_stops,
             areas,
@@ -244,7 +224,6 @@ impl DrawMap {
             draw_all_unzoomed_intersections,
             draw_all_buildings,
             draw_all_areas,
-            draw_all_parcels,
 
             agents: RefCell::new(AgentCache {
                 time: None,
@@ -295,10 +274,6 @@ impl DrawMap {
 
     pub fn get_b(&self, id: BuildingID) -> &DrawBuilding {
         &self.buildings[id.0]
-    }
-
-    pub fn get_p(&self, id: ParcelID) -> &DrawParcel {
-        &self.parcels[id.0]
     }
 
     pub fn get_es(&self, id: ExtraShapeID) -> &DrawExtraShape {

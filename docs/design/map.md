@@ -6,6 +6,32 @@ link to code
 - explanation of intermediate formats
 - autogenerate diagrams of the data schemas
 - list invariants
+- edits
+
+## Features
+
+demonstrate all of these things with before/after pictures or GIFs showing functionality
+
+- Lanes
+  - show OSM way with metadata
+  - then multiple lane types, between two intersections. example with a curved road.
+  - individual parking spots modeled
+  - bus/bike lane restrictions modeled, with connecting turns that make sense (bus can go from restricted to general lane, but normal car cant enter a bus lane)
+- Intersections
+  - OSM model doesn't explicitly have these at all; just ways with shared nodes
+  - they have geometry; cars and peds stop and wait at the end of a lane, then cross through the intersection
+    - crosswalks and sidewalk geometry continues
+  - turns connect lanes, the turns have a path. turns conflict or don't.
+  - stop signs (some directions stop and others dont), traffic signals with multiple phases
+    - "reasonable" defaults inferred, editor for the rest
+  - WIP: small intersections, roundabouts merged
+- Buildings
+  - classified by use, notion of residential density
+  - front path connecting to a sidewalk
+- Clipping / borders (WIP)
+  - clipping polygon actually chops all geometry to fit -- doesnt just omit things that cross or leave dangling OOB stuff
+    - cleans up areas (parks, bodies of water) nicely
+  - roads that cross the boundary have direction-aware 'border intersections' at the end, to model traffic flowing in or out of an area
 
 ## Model
 
@@ -41,7 +67,6 @@ borders
     Lane -> BusStop [label="contains"];
     Intersection -> Turn [label="contains"];
     Turn -> Lane [label="connects"];
-    Parcel;
     BusRoute -> BusStop [label="connects"];
     Area;
   }
@@ -51,7 +76,7 @@ borders
 ![Alt text](https://g.gravizo.com/svg? digraph G { Road -> Intersection
 [label="connects two"]; Road -> Lane [label="contains"]; Lane -> Building
 [label="link to"]; Lane -> BusStop [label="contains"]; Intersection -> Turn
-[label="contains"]; Turn -> Lane [label="connects"]; Parcel; BusRoute -> BusStop
+[label="contains"]; Turn -> Lane [label="connects"]; BusRoute -> BusStop
 [label="connects"]; Area; } )
 
 ### Edits
@@ -95,8 +120,6 @@ is the source of truth.
   - Location of traffic signals
 - https://github.com/seattleio/seattle-boundaries-data/raw/master/data/neighborhoods.geojson
   - Neighborhood boundaries
-- https://gis-kingcounty.opendata.arcgis.com/datasets/king-county-parcels--parcel-area/geoservice
-  - Parcel boundaries
 - http://data-seattlecitygis.opendata.arcgis.com/datasets/blockface
   - Blockfaces, used to determine where on-street parking lanes are
 - https://data-seattlecitygis.opendata.arcgis.com/datasets/residential-building-permits-issued-and-final
@@ -117,9 +140,6 @@ is the source of truth.
 - calculate bounds
 - use blockface KML to match parking categories to nearest road and side of the
   road
-- add in-bounds parcels
-- group parcels based on intersection of their boundary, so an entire contiguous
-  block can be colored the same
 - match traffic signals from KML to nearest intersection
 - load raw bus routes from GTFS
 - extract in-bounds neighborhoods from the GeoJSON
@@ -153,7 +173,7 @@ is the source of truth.
   phases
 - override intersection defaults with player edits
 - create all buildings, matching them to the nearest sidewalk with a front path
-- copy over parcels and areas (like parks and bodies of water)
+- copy over areas (like parks and bodies of water)
 - filter out any bus routes with adjacent stops that fail pathfinding
 
 ## Conversion tricks

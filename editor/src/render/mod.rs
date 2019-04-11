@@ -7,7 +7,6 @@ mod extra_shape;
 mod intersection;
 mod lane;
 mod map;
-mod parcel;
 mod pedestrian;
 mod road;
 mod turn;
@@ -31,7 +30,6 @@ use sim::{DrawCarInput, VehicleType};
 
 pub const MIN_ZOOM_FOR_DETAIL: f64 = 1.0;
 
-const PARCEL_BOUNDARY_THICKNESS: Distance = Distance::const_meters(0.5);
 const EXTRA_SHAPE_THICKNESS: Distance = Distance::const_meters(1.0);
 const EXTRA_SHAPE_POINT_RADIUS: Distance = Distance::const_meters(1.0);
 

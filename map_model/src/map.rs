@@ -3,8 +3,8 @@ use crate::pathfind::Pathfinder;
 use crate::{
     make, raw_data, Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop, BusStopID,
     ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, IntersectionType, Lane,
-    LaneID, LaneType, MapEdits, Parcel, ParcelID, Path, PathRequest, Position, Road, RoadID, Turn,
-    TurnID, TurnPriority,
+    LaneID, LaneType, MapEdits, Path, PathRequest, Position, Road, RoadID, Turn, TurnID,
+    TurnPriority,
 };
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
@@ -25,7 +25,6 @@ pub struct Map {
     )]
     turns: BTreeMap<TurnID, Turn>,
     buildings: Vec<Building>,
-    parcels: Vec<Parcel>,
     #[serde(
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
@@ -83,7 +82,6 @@ impl Map {
             intersections: half_map.intersections,
             turns: half_map.turns,
             buildings: half_map.buildings,
-            parcels: half_map.parcels,
             bus_stops: BTreeMap::new(),
             bus_routes: Vec::new(),
             areas: half_map.areas,
@@ -154,10 +152,6 @@ impl Map {
         &self.buildings
     }
 
-    pub fn all_parcels(&self) -> &Vec<Parcel> {
-        &self.parcels
-    }
-
     pub fn all_areas(&self) -> &Vec<Area> {
         &self.areas
     }
@@ -180,10 +174,6 @@ impl Map {
 
     pub fn maybe_get_b(&self, id: BuildingID) -> Option<&Building> {
         self.buildings.get(id.0)
-    }
-
-    pub fn maybe_get_p(&self, id: ParcelID) -> Option<&Parcel> {
-        self.parcels.get(id.0)
     }
 
     pub fn maybe_get_a(&self, id: AreaID) -> Option<&Area> {
@@ -220,10 +210,6 @@ impl Map {
 
     pub fn get_b(&self, id: BuildingID) -> &Building {
         &self.buildings[id.0]
-    }
-
-    pub fn get_p(&self, id: ParcelID) -> &Parcel {
-        &self.parcels[id.0]
     }
 
     pub fn get_a(&self, id: AreaID) -> &Area {

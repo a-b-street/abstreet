@@ -37,9 +37,6 @@ impl Validator {
         for b in map.all_buildings() {
             objects.push((ID::Building(b.id), make_polys(&b.polygon)));
         }
-        for p in &draw_map.parcels {
-            objects.push((ID::Parcel(p.id), make_polys(&p.fill_polygon)));
-        }
 
         println!(
             "{} objects total. About {} possible overlaps",
@@ -57,12 +54,6 @@ impl Validator {
                     if id1 >= id2 {
                         continue;
                     }
-                    // Buildings and parcels are expected to overlap.
-                    match (id1, id2) {
-                        (ID::Building(_), ID::Parcel(_)) => continue,
-                        (ID::Parcel(_), ID::Building(_)) => continue,
-                        _ => {}
-                    };
 
                     'outer: for poly1 in ls1 {
                         for poly2 in ls2 {

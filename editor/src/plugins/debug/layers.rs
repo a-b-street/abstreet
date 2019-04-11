@@ -5,7 +5,6 @@ pub struct ToggleableLayers {
     pub show_buildings: bool,
     pub show_intersections: bool,
     pub show_lanes: bool,
-    pub show_parcels: bool,
     pub show_areas: bool,
     pub show_extra_shapes: bool,
     pub show_all_turn_icons: bool,
@@ -18,7 +17,6 @@ impl ToggleableLayers {
             show_buildings: true,
             show_intersections: true,
             show_lanes: true,
-            show_parcels: true,
             show_areas: true,
             show_extra_shapes: true,
             show_all_turn_icons: false,
@@ -32,7 +30,6 @@ impl ToggleableLayers {
             ID::Road(_) | ID::Lane(_) => self.show_lanes,
             ID::Building(_) => self.show_buildings,
             ID::Intersection(_) => self.show_intersections,
-            ID::Parcel(_) => self.show_parcels,
             ID::ExtraShape(_) => self.show_extra_shapes,
             ID::Area(_) => self.show_areas,
             _ => true,
@@ -48,8 +45,6 @@ impl AmbientPlugin for ToggleableLayers {
             self.show_intersections = !self.show_intersections;
         } else if ctx.input.action_chosen("show/hide lanes") {
             self.show_lanes = !self.show_lanes;
-        } else if ctx.input.action_chosen("show/hide parcels") {
-            self.show_parcels = !self.show_parcels;
         } else if ctx.input.action_chosen("show/hide areas") {
             self.show_areas = !self.show_areas;
         } else if ctx.input.action_chosen("show/hide extra shapes") {

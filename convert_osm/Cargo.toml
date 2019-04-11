@@ -5,10 +5,8 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-aabb-quadtree = "0.1.0"
 abstutil = { path = "../abstutil" }
 byteorder = "1.2.1"
-geo = "0.12.0"
 geojson = "0.15.0"
 geom = { path = "../geom" }
 gtfs = { path = "../gtfs" }

@@ -1,5 +1,4 @@
 mod clip;
-mod group_parcels;
 mod neighborhoods;
 mod osm;
 mod remove_disconnected;
@@ -38,10 +37,6 @@ pub struct Flags {
     #[structopt(long = "residential_buildings", default_value = "")]
     pub residential_buildings: String,
 
-    /// ExtraShapes file with parcels, produced using the kml crate. Optional.
-    #[structopt(long = "parcels", default_value = "")]
-    pub parcels: String,
-
     /// ExtraShapes file with blockface, produced using the kml crate. Optional.
     #[structopt(long = "parking_shapes", default_value = "")]
     pub parking_shapes: String,
@@ -62,7 +57,7 @@ pub struct Flags {
     #[structopt(long = "output")]
     pub output: String,
 
-    /// Disable parcels and blockface
+    /// Disable blockface
     #[structopt(long = "fast_dev")]
     pub fast_dev: bool,
 }
@@ -91,9 +86,6 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
     }
     if !flags.parking_shapes.is_empty() {
         use_parking_hints(&mut map, &gps_bounds, &flags.parking_shapes, timer);
-    }
-    if !flags.parcels.is_empty() {
-        handle_parcels(&mut map, &gps_bounds, &flags.parcels, timer);
     }
     if !flags.traffic_signals.is_empty() {
         handle_traffic_signals(&mut map, &gps_bounds, &flags.traffic_signals, timer);
@@ -167,31 +159,6 @@ fn use_parking_hints(
         }
     }
     timer.stop("apply parking hints");
-}
-
-fn handle_parcels(map: &mut raw_data::Map, gps_bounds: &GPSBounds, path: &str, timer: &mut Timer) {
-    timer.start("process parcels");
-    println!("Loading parcels from {}", path);
-    let parcels: ExtraShapes = abstutil::read_binary(path, timer).expect("loading parcels failed");
-    println!(
-        "Finding matching parcels from {} candidates",
-        parcels.shapes.len()
-    );
-    for p in parcels.shapes.into_iter() {
-        if p.points.len() > 1
-            && p.points
-                .iter()
-                .find(|pt| !gps_bounds.contains(**pt))
-                .is_none()
-        {
-            map.parcels.push(raw_data::Parcel {
-                points: p.points,
-                block: 0,
-            });
-        }
-    }
-    group_parcels::group_parcels(gps_bounds, &mut map.parcels);
-    timer.stop("process parcels");
 }
 
 fn handle_traffic_signals(

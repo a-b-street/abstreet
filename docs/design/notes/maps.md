@@ -142,7 +142,7 @@ the ID problem:
   equality checks, dont use these IDs -- treat these IDs as memory addresses.
   IDs for lookup and IDs for equality.
 - what're the different things that need this?
-	- stable objects: building, intersection, parcel, road
+	- stable objects: building, intersection, road
 	- malleable
 		- lane (road, direction, offset, lane type)
 		- turn (src lane, dst lane)

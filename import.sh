@@ -67,17 +67,6 @@ for poly in `ls data/polygons/`; do
 	fi
 done
 
-if [ ! -f data/shapes/parcels ]; then
-	# From https://gis-kingcounty.opendata.arcgis.com/datasets/king-county-parcels--parcel-area/geoservice
-	get_if_needed https://opendata.arcgis.com/datasets/8058a0c540434dadbe3ea0ade6565143_439.kml data/input/King_County_Parcels__parcel_area.kml;
-
-	cd kml
-	time cargo run --release -- \
-		--input=../data/input/King_County_Parcels__parcel_area.kml \
-		--output=../data/shapes/parcels
-	cd ..
-fi
-
 if [ ! -f data/shapes/blockface ]; then
 	# From http://data-seattlecitygis.opendata.arcgis.com/datasets/blockface
 	get_if_needed https://opendata.arcgis.com/datasets/a1458ad1abca41869b81f7c0db0cd777_0.kml data/input/blockface.kml;
@@ -98,7 +87,6 @@ for poly in `ls ../data/polygons/`; do
 		--elevation=../data/input/N47W122.hgt \
 		--traffic_signals=../data/input/traffic_signals.kml \
 		--residential_buildings=../data/input/residential_buildings.kml \
-		--parcels=../data/shapes/parcels \
 		--parking_shapes=../data/shapes/blockface \
 		--gtfs=../data/input/google_transit_2018_18_08 \
 		--neighborhoods=../data/input/neighborhoods.geojson \
@@ -106,4 +94,4 @@ for poly in `ls ../data/polygons/`; do
 		--output=../data/raw_maps/$name.abst
 done
 
-# To run manually: cargo run -- --osm=../data/input/montlake.osm --elevation=../data/input/N47W122.hgt --traffic_signals=../data/input/traffic_signals.kml --residential_buildings=../data/input/residential_buildings.kml --parcels=../data/shapes/parcels --parking_shapes=../data/shapes/blockface --gtfs=../data/input/google_transit_2018_18_08 --neighborhoods=../data/input/neighborhoods.geojson --clip=../data/polygons/montlake.poly --output=../data/raw_maps/montlake.abst --fast_dev
+# To run manually: cargo run -- --osm=../data/input/montlake.osm --elevation=../data/input/N47W122.hgt --traffic_signals=../data/input/traffic_signals.kml --residential_buildings=../data/input/residential_buildings.kml --parking_shapes=../data/shapes/blockface --gtfs=../data/input/google_transit_2018_18_08 --neighborhoods=../data/input/neighborhoods.geojson --clip=../data/polygons/montlake.poly --output=../data/raw_maps/montlake.abst --fast_dev

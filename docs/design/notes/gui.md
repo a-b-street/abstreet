@@ -236,7 +236,6 @@ current TreeMenu:
         - toggle extra KML shapes (7)
         - toggle intersections (2)
         - toggle lanes (3)
-        - toggle parcels (4)
         - toggle turn icons (9)
     - Validate map geometry (I)
     - start searching for something to warp to (J)

@@ -24,10 +24,6 @@ pub struct Flags {
     #[structopt(long = "kml")]
     pub kml: Option<String>,
 
-    /// Should parcels be drawn? They're slow and not so useful.
-    #[structopt(long = "draw_parcels")]
-    pub draw_parcels: bool,
-
     // TODO Ideally these'd be phrased positively, but can't easily make them default to true.
     /// Should lane markings be drawn? Sometimes they eat too much GPU memory.
     #[structopt(long = "dont_draw_lane_markings")]

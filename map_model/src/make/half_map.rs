@@ -1,6 +1,6 @@
 use crate::{
     make, raw_data, Area, AreaID, Building, Intersection, IntersectionID, IntersectionType, Lane,
-    LaneID, Parcel, Road, RoadID, Turn, TurnID, LANE_THICKNESS,
+    LaneID, Road, RoadID, Turn, TurnID, LANE_THICKNESS,
 };
 use abstutil::Timer;
 use geom::{Bounds, GPSBounds, Polygon, Pt2D};
@@ -12,7 +12,6 @@ pub struct HalfMap {
     pub intersections: Vec<Intersection>,
     pub turns: BTreeMap<TurnID, Turn>,
     pub buildings: Vec<Building>,
-    pub parcels: Vec<Parcel>,
     pub areas: Vec<Area>,
 
     pub turn_lookup: Vec<TurnID>,
@@ -31,7 +30,6 @@ pub fn make_half_map(
         intersections: Vec::new(),
         turns: BTreeMap::new(),
         buildings: Vec::new(),
-        parcels: Vec::new(),
         areas: Vec::new(),
         turn_lookup: Vec::new(),
     };
@@ -174,15 +172,6 @@ pub fn make_half_map(
         bldgs.sort_by_key(|b| half_map.buildings[b.0].front_path.sidewalk.dist_along());
         half_map.lanes[lane.0].building_paths = bldgs;
     }
-
-    make::make_all_parcels(
-        &mut half_map.parcels,
-        &data.parcels,
-        &gps_bounds,
-        &bounds,
-        &half_map.lanes,
-        timer,
-    );
 
     for (idx, a) in data.areas.iter().enumerate() {
         let pts = gps_bounds.must_convert(&a.points);

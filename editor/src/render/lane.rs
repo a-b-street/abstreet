@@ -1,6 +1,6 @@
 use crate::colors::ColorScheme;
 use crate::objects::{DrawCtx, ID};
-use crate::render::{RenderOptions, Renderable, BIG_ARROW_THICKNESS, PARCEL_BOUNDARY_THICKNESS};
+use crate::render::{RenderOptions, Renderable, BIG_ARROW_THICKNESS};
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Circle, Distance, Line, Polygon};
@@ -75,7 +75,7 @@ impl DrawLane {
         for l in ctx.map.get_l(self.id).lane_center_pts.lines() {
             g.draw_line(
                 ctx.cs.get_def("debug line", Color::RED),
-                PARCEL_BOUNDARY_THICKNESS / 2.0,
+                Distance::meters(0.25),
                 &l,
             );
             g.draw_circle(circle_color, &Circle::new(l.pt1(), Distance::meters(0.4)));

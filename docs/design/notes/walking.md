@@ -21,7 +21,6 @@
 
 - Intersection
 - Building
-- Parcel
 - Road (undirected bundle)
 - Driving/biking Lane (directed)
 - Sidewalk (undirected)

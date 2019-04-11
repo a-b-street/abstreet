@@ -3,9 +3,7 @@ use crate::render::{DrawMap, ExtraShapeID};
 use ezgui::{Color, EventLoopMode, GfxCtx, Text};
 use geom::Pt2D;
 use map_model::raw_data::StableRoadID;
-use map_model::{
-    AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParcelID, RoadID, TurnID,
-};
+use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, RoadID, TurnID};
 use sim::{AgentID, CarID, GetDrawAgents, PedestrianID, Sim, TripID};
 use std::collections::{BTreeMap, HashSet};
 
@@ -19,7 +17,6 @@ pub enum ID {
     Car(CarID),
     Pedestrian(PedestrianID),
     ExtraShape(ExtraShapeID),
-    Parcel(ParcelID),
     BusStop(BusStopID),
     Area(AreaID),
     Trip(TripID),
@@ -81,9 +78,6 @@ impl ID {
                     println!("{} = {}", k, v);
                 }
                 println!("associated road: {:?}", es.road);
-            }
-            ID::Parcel(id) => {
-                map.get_p(id).dump_debug();
             }
             ID::BusStop(id) => {
                 map.get_bs(id).dump_debug();
@@ -193,9 +187,6 @@ impl ID {
             ID::ExtraShape(id) => {
                 styled_kv(&mut txt, &draw_map.get_es(id).attributes);
             }
-            ID::Parcel(id) => {
-                txt.add_line(id.to_string());
-            }
             ID::BusStop(id) => {
                 txt.add_line(id.to_string());
                 for r in map.get_all_bus_routes() {
@@ -227,7 +218,6 @@ impl ID {
             ID::Pedestrian(id) => sim.get_draw_ped(id, map).map(|p| p.pos),
             // TODO maybe_get_es
             ID::ExtraShape(id) => Some(draw_map.get_es(id).center()),
-            ID::Parcel(id) => map.maybe_get_p(id).map(|p| Pt2D::center(&p.points)),
             ID::BusStop(id) => map.maybe_get_bs(id).map(|bs| bs.sidewalk_pos.pt(map)),
             ID::Area(id) => map.maybe_get_a(id).map(|a| a.polygon.center()),
             ID::Trip(id) => sim.get_canonical_pt_per_trip(id, map),
