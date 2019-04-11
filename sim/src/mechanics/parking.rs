@@ -105,7 +105,6 @@ impl ParkingSimState {
         Some(DrawCarInput {
             id: p.vehicle.id,
             waiting_for_turn: None,
-            stopping_trace: None,
             status: CarStatus::Parked,
             vehicle_type: VehicleType::Car,
             on: Traversable::Lane(lane),

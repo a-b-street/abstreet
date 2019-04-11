@@ -108,7 +108,6 @@ impl Car {
                 },
                 _ => None,
             },
-            stopping_trace: None,
             status: match self.state {
                 // TODO Cars can be Queued behind a slow Crossing. Looks kind of weird.
                 CarState::Queued => CarStatus::Stuck,

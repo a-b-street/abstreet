@@ -1,14 +1,14 @@
 use crate::objects::DrawCtx;
 use crate::plugins::{AmbientPlugin, PluginCtx};
 use ezgui::{Color, GfxCtx, Key};
-use geom::Duration;
-use map_model::{Trace, LANE_THICKNESS};
+use geom::{Duration, PolyLine};
+use map_model::LANE_THICKNESS;
 use sim::TripID;
 
 pub enum ShowRouteState {
     Inactive,
-    Active(Duration, TripID, Option<Trace>),
-    DebugAllRoutes(Duration, Vec<Trace>),
+    Active(Duration, TripID, Option<PolyLine>),
+    DebugAllRoutes(Duration, Vec<PolyLine>),
 }
 
 impl ShowRouteState {
@@ -99,7 +99,7 @@ fn show_route(trip: TripID, ctx: &mut PluginCtx) -> ShowRouteState {
 }
 
 fn debug_all_routes(ctx: &mut PluginCtx) -> ShowRouteState {
-    let mut traces: Vec<Trace> = Vec::new();
+    let mut traces: Vec<PolyLine> = Vec::new();
     let trips: Vec<TripID> = ctx
         .primary
         .sim

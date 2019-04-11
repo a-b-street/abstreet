@@ -8,8 +8,8 @@ use crate::{
 use abstutil::Timer;
 use derivative::Derivative;
 use ezgui::GfxCtx;
-use geom::{Distance, Duration, Pt2D};
-use map_model::{BuildingID, BusRoute, IntersectionID, LaneID, Map, Path, Trace, Traversable};
+use geom::{Distance, Duration, PolyLine, Pt2D};
+use map_model::{BuildingID, BusRoute, IntersectionID, LaneID, Map, Path, Traversable};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{HashSet, VecDeque};
 use std::panic;
@@ -675,7 +675,7 @@ impl Sim {
         id: AgentID,
         map: &Map,
         dist_ahead: Option<Distance>,
-    ) -> Option<Trace> {
+    ) -> Option<PolyLine> {
         match id {
             AgentID::Car(car) => self.driving.trace_route(self.time, car, map, dist_ahead),
             AgentID::Pedestrian(ped) => self.walking.trace_route(self.time, ped, map, dist_ahead),

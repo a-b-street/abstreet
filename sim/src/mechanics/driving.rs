@@ -7,10 +7,8 @@ use crate::{
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use ezgui::{Color, GfxCtx};
-use geom::{Distance, Duration};
-use map_model::{
-    BuildingID, DirectedRoadID, IntersectionID, LaneID, Map, Path, Trace, Traversable,
-};
+use geom::{Distance, Duration, PolyLine};
+use map_model::{BuildingID, DirectedRoadID, IntersectionID, LaneID, Map, Path, Traversable};
 use petgraph::graph::{Graph, NodeIndex};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap, VecDeque};
@@ -765,7 +763,7 @@ impl DrivingSimState {
         id: CarID,
         map: &Map,
         dist_ahead: Option<Distance>,
-    ) -> Option<Trace> {
+    ) -> Option<PolyLine> {
         let car = self.cars.get(&id)?;
         let front = self.queues[&car.router.head()]
             .get_car_positions(time, &self.cars, &self.queues)

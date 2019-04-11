@@ -9,8 +9,6 @@ use geom::{Distance, PolyLine};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeSet, VecDeque};
 
-pub type Trace = PolyLine;
-
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum PathStep {
     // Original direction
@@ -146,7 +144,7 @@ impl Path {
         map: &Map,
         start_dist: Distance,
         dist_ahead: Option<Distance>,
-    ) -> Option<Trace> {
+    ) -> Option<PolyLine> {
         let mut pts_so_far: Option<PolyLine> = None;
         let mut dist_remaining = dist_ahead;
 

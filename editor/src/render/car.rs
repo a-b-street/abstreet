@@ -18,8 +18,6 @@ pub struct DrawCar {
     right_blinkers: Option<(Circle, Circle)>,
     left_blinker_on: bool,
     right_blinker_on: bool,
-    // TODO maybe also draw lookahead buffer to know what the car is considering
-    stopping_buffer: Option<Polygon>,
     zorder: isize,
 
     draw_default: Drawable,
@@ -37,8 +35,6 @@ impl DrawCar {
         } else {
             (false, false)
         };
-
-        let stopping_buffer = input.stopping_trace.map(|t| t.make_polygons(CAR_WIDTH));
 
         let (front_blinker_pos, front_blinker_angle) = input
             .body
@@ -132,7 +128,6 @@ impl DrawCar {
             )),
             left_blinker_on,
             right_blinker_on,
-            stopping_buffer,
             zorder: input.on.get_zorder(map),
             draw_default,
         }
@@ -186,15 +181,6 @@ impl Renderable for DrawCar {
                     }
                     g.draw_circle(blinker_on, &right_blinkers.1);
                 }
-            }
-        }
-
-        if opts.debug_mode {
-            if let Some(ref t) = self.stopping_buffer {
-                g.draw_polygon(
-                    ctx.cs.get_def("car stopping buffer", Color::RED.alpha(0.7)),
-                    t,
-                );
             }
         }
     }

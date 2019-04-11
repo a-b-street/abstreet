@@ -592,3 +592,11 @@ for this kind of thing?
 	- make synthetic use stuff
 		- organize context menu things based on the ID
 		- not updating road geometry when an intersection changes is nice... hmm
+
+## Too spread out
+
+I want to hover over an agent and preview its route. Where's this functionality belong?
+
+- could put it in Draw{Bike,Car,Ped}, but then it's duplicated and doesnt cache (only recalculate trace when tick changes or mouseover changes)
+- could keep it in the ambient ShowRoute plugin, but then it's almost hard to understand that mousing over a car also reveals associated buildings...
+- i pretty much want to try attaching some mouseover logic to the car/bike/ped Renderables

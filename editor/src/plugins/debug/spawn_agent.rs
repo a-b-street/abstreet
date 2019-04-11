@@ -2,9 +2,9 @@ use crate::objects::{DrawCtx, ID};
 use crate::plugins::{BlockingPlugin, PluginCtx};
 use abstutil::Timer;
 use ezgui::{Color, GfxCtx, Key};
+use geom::PolyLine;
 use map_model::{
-    BuildingID, IntersectionID, IntersectionType, LaneType, PathRequest, Position, Trace,
-    LANE_THICKNESS,
+    BuildingID, IntersectionID, IntersectionType, LaneType, PathRequest, Position, LANE_THICKNESS,
 };
 use rand::seq::SliceRandom;
 use sim::{DrivingGoal, Scenario, SidewalkSpot, TripSpec};
@@ -23,7 +23,7 @@ enum Goal {
 
 pub struct SpawnAgent {
     from: Source,
-    maybe_goal: Option<(Goal, Option<Trace>)>,
+    maybe_goal: Option<(Goal, Option<PolyLine>)>,
 }
 
 impl SpawnAgent {

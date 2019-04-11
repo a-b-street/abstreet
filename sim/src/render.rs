@@ -1,6 +1,6 @@
 use crate::{CarID, PedestrianID, VehicleType};
 use geom::{Duration, PolyLine, Pt2D};
-use map_model::{Map, Trace, Traversable, TurnID};
+use map_model::{Map, Traversable, TurnID};
 
 // Intermediate structures so that sim and editor crates don't have a cyclic dependency.
 #[derive(Clone)]
@@ -16,7 +16,6 @@ pub struct DrawPedestrianInput {
 pub struct DrawCarInput {
     pub id: CarID,
     pub waiting_for_turn: Option<TurnID>,
-    pub stopping_trace: Option<Trace>,
     pub status: CarStatus,
     // TODO This is definitely redundant
     pub vehicle_type: VehicleType,

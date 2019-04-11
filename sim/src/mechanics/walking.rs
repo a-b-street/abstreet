@@ -4,8 +4,8 @@ use crate::{
     TimeInterval, TransitSimState, TripManager,
 };
 use abstutil::{deserialize_multimap, serialize_multimap, MultiMap};
-use geom::{Distance, Duration, Line, Speed};
-use map_model::{BuildingID, Map, Path, PathStep, Trace, Traversable};
+use geom::{Distance, Duration, Line, PolyLine, Speed};
+use map_model::{BuildingID, Map, Path, PathStep, Traversable};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
@@ -237,7 +237,7 @@ impl WalkingSimState {
         id: PedestrianID,
         map: &Map,
         dist_ahead: Option<Distance>,
-    ) -> Option<Trace> {
+    ) -> Option<PolyLine> {
         let p = self.peds.get(&id)?;
         p.path.trace(map, p.get_dist_along(time, map), dist_ahead)
     }

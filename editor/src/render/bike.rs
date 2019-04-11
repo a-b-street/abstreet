@@ -12,8 +12,6 @@ pub struct DrawBike {
     pub id: CarID,
     polygon: Polygon,
     // TODO the turn arrows for bikes look way wrong
-    // TODO maybe also draw lookahead buffer to know what the car is considering
-    stopping_buffer: Option<Polygon>,
     zorder: isize,
 
     draw_default: Drawable,
@@ -26,7 +24,6 @@ impl DrawBike {
         prerender: &Prerender,
         cs: &ColorScheme,
     ) -> DrawBike {
-        let stopping_buffer = input.stopping_trace.map(|t| t.make_polygons(BIKE_WIDTH));
         let polygon = input.body.make_polygons(BIKE_WIDTH);
 
         let draw_default = prerender.upload_borrowed(vec![(
@@ -44,7 +41,6 @@ impl DrawBike {
         DrawBike {
             id: input.id,
             polygon,
-            stopping_buffer,
             zorder: input.on.get_zorder(map),
             draw_default,
         }
@@ -56,21 +52,11 @@ impl Renderable for DrawBike {
         ID::Car(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &DrawCtx) {
+    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, _: &DrawCtx) {
         if let Some(color) = opts.color {
             g.draw_polygon(color, &self.polygon);
         } else {
             g.redraw(&self.draw_default);
-        }
-
-        if opts.debug_mode {
-            if let Some(ref t) = self.stopping_buffer {
-                g.draw_polygon(
-                    ctx.cs
-                        .get_def("bike stopping buffer", Color::RED.alpha(0.7)),
-                    t,
-                );
-            }
         }
     }
 

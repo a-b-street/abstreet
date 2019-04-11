@@ -1,8 +1,8 @@
 use crate::objects::DrawCtx;
 use crate::plugins::{NonblockingPlugin, PluginCtx};
 use ezgui::{Color, GfxCtx, Key};
-use geom::{Duration, Line};
-use map_model::{Trace, LANE_THICKNESS};
+use geom::{Duration, Line, PolyLine};
+use map_model::LANE_THICKNESS;
 use sim::TripID;
 
 pub struct DiffTripState {
@@ -11,8 +11,8 @@ pub struct DiffTripState {
     // These are all optional because mode-changes might cause temporary interruptions.
     // Just point from primary world agent to secondary world agent.
     line: Option<Line>,
-    primary_route: Option<Trace>,
-    secondary_route: Option<Trace>,
+    primary_route: Option<PolyLine>,
+    secondary_route: Option<PolyLine>,
 }
 
 impl DiffTripState {
