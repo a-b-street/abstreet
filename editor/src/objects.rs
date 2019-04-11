@@ -26,6 +26,13 @@ pub enum ID {
 }
 
 impl ID {
+    pub fn from_agent(id: AgentID) -> ID {
+        match id {
+            AgentID::Car(id) => ID::Car(id),
+            AgentID::Pedestrian(id) => ID::Pedestrian(id),
+        }
+    }
+
     pub fn agent_id(&self) -> Option<AgentID> {
         match *self {
             ID::Car(id) => Some(AgentID::Car(id)),

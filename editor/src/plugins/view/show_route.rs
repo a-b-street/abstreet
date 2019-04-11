@@ -1,12 +1,13 @@
-use crate::objects::DrawCtx;
+use crate::objects::{DrawCtx, ID};
 use crate::plugins::{AmbientPlugin, PluginCtx};
 use ezgui::{Color, GfxCtx, Key};
 use geom::{Duration, PolyLine};
 use map_model::LANE_THICKNESS;
-use sim::TripID;
+use sim::{AgentID, TripID};
 
 pub enum ShowRouteState {
     Inactive,
+    Hovering(Duration, AgentID, PolyLine),
     Active(Duration, TripID, Option<PolyLine>),
     DebugAllRoutes(Duration, Vec<PolyLine>),
 }
@@ -28,9 +29,34 @@ impl AmbientPlugin for ShowRouteState {
                             .contextual_action(Key::R, &format!("show {}'s route", agent))
                         {
                             *self = show_route(trip, ctx);
+                            return;
                         }
                     }
+
+                    if let Some(trace) = ctx.primary.sim.trace_route(agent, &ctx.primary.map, None)
+                    {
+                        *self = ShowRouteState::Hovering(ctx.primary.sim.time(), agent, trace);
+                    }
                 };
+            }
+            ShowRouteState::Hovering(time, agent, _) => {
+                if *time != ctx.primary.sim.time()
+                    || ctx.primary.current_selection != Some(ID::from_agent(*agent))
+                {
+                    *self = ShowRouteState::Inactive;
+                    if let Some(new_agent) =
+                        ctx.primary.current_selection.and_then(|id| id.agent_id())
+                    {
+                        if let Some(trace) =
+                            ctx.primary
+                                .sim
+                                .trace_route(new_agent, &ctx.primary.map, None)
+                        {
+                            *self =
+                                ShowRouteState::Hovering(ctx.primary.sim.time(), new_agent, trace);
+                        }
+                    }
+                }
             }
             ShowRouteState::Active(time, trip, _) => {
                 ctx.input.set_mode_with_prompt(
@@ -63,6 +89,12 @@ impl AmbientPlugin for ShowRouteState {
 
     fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
         match self {
+            ShowRouteState::Hovering(_, _, ref trace) => {
+                g.draw_polygon(
+                    ctx.cs.get("route").alpha(0.5),
+                    &trace.make_polygons(LANE_THICKNESS),
+                );
+            }
             ShowRouteState::Active(_, _, Some(ref trace)) => {
                 g.draw_polygon(
                     ctx.cs.get_def("route", Color::RED.alpha(0.8)),
