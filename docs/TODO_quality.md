@@ -3,7 +3,6 @@
 ## Boundary clipping
 
 - roads
-	- why does i96 break on new walking code? it's totally interior...
 	- what if they start/end in bounds, but briefly dip out? arboretum place east
 
 - intersections

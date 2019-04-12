@@ -50,11 +50,11 @@ impl VehiclePathfinder {
             g.add_turn(t, map);
         }
 
-        println!(
+        /*println!(
             "{} nodes, {} edges",
             g.graph.node_count(),
             g.graph.edge_count()
-        );
+        );*/
 
         g
     }

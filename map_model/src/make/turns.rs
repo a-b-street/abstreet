@@ -2,7 +2,7 @@ use crate::{
     Intersection, IntersectionID, IntersectionType, Lane, LaneID, LaneType, Road, Turn, TurnID,
     TurnType, LANE_THICKNESS,
 };
-use abstutil::{wraparound_get, Timer, Warn};
+use abstutil::{Timer, Warn};
 use geom::{Distance, Line, PolyLine, Pt2D};
 use nbez::{Bez3o, BezCurve, Point2d};
 use std::collections::{BTreeSet, HashSet};
@@ -217,7 +217,7 @@ fn make_walking_turns(
                 // TODO -1 and not +1 is brittle... must be the angle sorting
                 if let Some(l2) = get_sidewalk(
                     lanes,
-                    wraparound_get(&roads, (idx1 as isize) - 1).outgoing_lanes(i.id),
+                    abstutil::wraparound_get(&roads, (idx1 as isize) - 1).outgoing_lanes(i.id),
                 ) {
                     if !l1.last_pt().epsilon_eq(l2.first_pt()) {
                         let geom = make_shared_sidewalk_corner(i, l1, l2, timer);
@@ -240,7 +240,7 @@ fn make_walking_turns(
                     // ramps to get to the next sidewalk.
                     if let Some(l2) = get_sidewalk(
                         lanes,
-                        wraparound_get(&roads, (idx1 as isize) - 2).outgoing_lanes(i.id),
+                        abstutil::wraparound_get(&roads, (idx1 as isize) - 2).outgoing_lanes(i.id),
                     ) {
                         result.extend(make_crosswalks(i.id, l1, l2));
                     }
@@ -282,6 +282,8 @@ fn make_shared_sidewalk_corner(
     l2: &Lane,
     timer: &mut Timer,
 ) -> PolyLine {
+    let baseline = PolyLine::new(vec![l1.last_pt(), l2.first_pt()]);
+
     // Find all of the points on the intersection polygon between the two sidewalks.
     let corner1 = l1.last_line().shift_right(LANE_THICKNESS / 2.0).pt2();
     let corner2 = l2.first_line().shift_right(LANE_THICKNESS / 2.0).pt1();
@@ -295,6 +297,11 @@ fn make_shared_sidewalk_corner(
     {
         let deduped = Pt2D::approx_dedupe(pts, geom::EPSILON_DIST);
         if deduped.len() >= 2 {
+            if abstutil::contains_duplicates(&deduped.iter().map(|pt| pt.to_hashable()).collect()) {
+                timer.warn(format!("SharedSidewalkCorner between {} and {} has weird duplicate geometry, so just doing straight line", l1.id, l2.id));
+                return baseline;
+            }
+
             pts_between.extend(
                 PolyLine::new(deduped)
                     .shift_right(LANE_THICKNESS / 2.0)
@@ -312,8 +319,11 @@ fn make_shared_sidewalk_corner(
         final_pts.pop();
         final_pts.push(l2.first_pt());
     }
+    if abstutil::contains_duplicates(&final_pts.iter().map(|pt| pt.to_hashable()).collect()) {
+        timer.warn(format!("SharedSidewalkCorner between {} and {} has weird duplicate geometry, so just doing straight line", l1.id, l2.id));
+        return baseline;
+    }
     let result = PolyLine::new(final_pts);
-    let baseline = PolyLine::new(vec![l1.last_pt(), l2.first_pt()]);
     if result.length() > 10.0 * baseline.length() {
         timer.warn(format!("SharedSidewalkCorner between {} and {} explodes to {} long, so just doing straight line", l1.id, l2.id, result.length()));
         return baseline;

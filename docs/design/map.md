@@ -30,6 +30,7 @@ functionality
   - stop signs (some directions stop and others dont), traffic signals with
     multiple phases
     - "reasonable" defaults inferred, editor for the rest
+  - weird highway on-ramps fixed
   - WIP: small intersections, roundabouts merged
 - Buildings
   - classified by use, notion of residential density

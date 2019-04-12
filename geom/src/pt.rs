@@ -175,6 +175,10 @@ impl Pt2D {
         // Didn't find end
         None
     }
+
+    pub fn to_hashable(self) -> HashablePt2D {
+        HashablePt2D::new(self.x(), self.y())
+    }
 }
 
 impl fmt::Display for Pt2D {
