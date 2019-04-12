@@ -11,6 +11,11 @@ cp color_scheme INSTRUCTIONS.md $OUT
 mkdir -p $OUT/data/maps
 for map in montlake 23rd; do
 	cp -v data/maps/$map.abst $OUT/data/maps/
+	cat << EOF > $OUT/run_$map.sh
+cd editor
+./editor ../data/maps/$map.abst
+EOF
+	chmod +x $OUT/run_$map.sh
 done
 
 mkdir $OUT/editor

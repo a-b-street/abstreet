@@ -10,28 +10,36 @@ link to code
 
 ## Features
 
-demonstrate all of these things with before/after pictures or GIFs showing functionality
+demonstrate all of these things with before/after pictures or GIFs showing
+functionality
 
 - Lanes
   - show OSM way with metadata
-  - then multiple lane types, between two intersections. example with a curved road.
+  - then multiple lane types, between two intersections. example with a curved
+    road.
   - individual parking spots modeled
-  - bus/bike lane restrictions modeled, with connecting turns that make sense (bus can go from restricted to general lane, but normal car cant enter a bus lane)
+  - bus/bike lane restrictions modeled, with connecting turns that make sense
+    (bus can go from restricted to general lane, but normal car cant enter a bus
+    lane)
 - Intersections
   - OSM model doesn't explicitly have these at all; just ways with shared nodes
-  - they have geometry; cars and peds stop and wait at the end of a lane, then cross through the intersection
+  - they have geometry; cars and peds stop and wait at the end of a lane, then
+    cross through the intersection
     - crosswalks and sidewalk geometry continues
   - turns connect lanes, the turns have a path. turns conflict or don't.
-  - stop signs (some directions stop and others dont), traffic signals with multiple phases
+  - stop signs (some directions stop and others dont), traffic signals with
+    multiple phases
     - "reasonable" defaults inferred, editor for the rest
   - WIP: small intersections, roundabouts merged
 - Buildings
   - classified by use, notion of residential density
   - front path connecting to a sidewalk
 - Clipping / borders (WIP)
-  - clipping polygon actually chops all geometry to fit -- doesnt just omit things that cross or leave dangling OOB stuff
+  - clipping polygon actually chops all geometry to fit -- doesnt just omit
+    things that cross or leave dangling OOB stuff
     - cleans up areas (parks, bodies of water) nicely
-  - roads that cross the boundary have direction-aware 'border intersections' at the end, to model traffic flowing in or out of an area
+  - roads that cross the boundary have direction-aware 'border intersections' at
+    the end, to model traffic flowing in or out of an area
 
 ## Model
 
