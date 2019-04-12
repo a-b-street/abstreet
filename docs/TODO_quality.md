@@ -2,13 +2,19 @@
 
 ## Boundary clipping
 
-- detect border nodes better by clipping roads based on the desired polygon in convert_osm!
-	- still weird!
-	- clip areas
-	- outgoing border nodes do kind of need a policy... can throttle intake to model backup.
+- roads
+	- why does i96 break on new walking code? it's totally interior...
+	- what if they start/end in bounds, but briefly dip out? arboretum place east
 
-- some areas in small_seattle are borked or missing
-	- at least for lakeslice, we have points in good orders, but need to clip areas too.
+- intersections
+	- some intersections partly cross border, is that actually fine?
+
+- areas
+	- move the code to do this to clip. can probably get rid of find_blah_btwn for lonlat, right?
+	- some areas in small_seattle are borked or missing
+		- at least for lakeslice, we have points in good orders, but need to clip areas too.
+
+- use real map background by default
 
 ## Geometry
 

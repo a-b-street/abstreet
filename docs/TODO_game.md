@@ -20,6 +20,7 @@
 - Light rail and downtown bus tunnel
 - more accurate pedestrian speed, and randomized speeds
 - seed parked cars in neighborhood with no owner or a far-away owner, to model reasonable starting state
+- outgoing border nodes can throttle to simulate traffic downstream
 
 ## Small bugs / tests to add
 

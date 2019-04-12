@@ -34,15 +34,20 @@ impl PolyLine {
             );
         }
 
+        let result = PolyLine { pts, length };
+
         // Can't have duplicates! If the polyline ever crosses back on itself, all sorts of things
         // are broken.
-        let seen_pts: HashSet<HashablePt2D> =
-            pts.iter().map(|pt| HashablePt2D::from(*pt)).collect();
-        if seen_pts.len() != pts.len() {
-            panic!("PolyLine has repeat points: {:?}", pts);
+        let seen_pts: HashSet<HashablePt2D> = result
+            .points()
+            .iter()
+            .map(|pt| HashablePt2D::from(*pt))
+            .collect();
+        if seen_pts.len() != result.points().len() {
+            panic!("PolyLine has repeat points: {}", result);
         }
 
-        PolyLine { pts, length }
+        result
     }
 
     pub fn make_polygons_for_boundary(pts: Vec<Pt2D>, thickness: Distance) -> Polygon {
