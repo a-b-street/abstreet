@@ -81,7 +81,7 @@ fi
 cd convert_osm
 for poly in `ls ../data/polygons/`; do
 	name=`basename -s .poly $poly`;
-	rm -rf ../data/neighborhoods/$name ../data/maps/${name}_*.abst;
+	rm -rf ../data/neighborhoods/$name ../data/maps/${name}.abst;
 	RUST_BACKTRACE=1 cargo run --release -- \
 		--osm=../data/input/$name.osm \
 		--elevation=../data/input/N47W122.hgt \

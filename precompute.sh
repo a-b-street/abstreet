@@ -14,7 +14,6 @@ done
 
 mkdir -p data/maps/
 
-
 # Re-export all synthetic maps from scratch. Do this before the other loop,
 # since the raw_map might be stale.
 cd precompute;

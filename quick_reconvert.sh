@@ -19,7 +19,7 @@ fi
 
 # TODO Argh, copied code! Need to detangle all the scripts.
 
-rm -rf data/maps/${name}_*.abst;
+rm -rf data/neighborhoods/$name;
 
 cd convert_osm;
 RUST_BACKTRACE=1 cargo run $release_mode -- \
