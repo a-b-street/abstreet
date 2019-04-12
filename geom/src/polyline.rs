@@ -252,12 +252,6 @@ impl PolyLine {
     pub fn last_line(&self) -> Line {
         Line::new(self.pts[self.pts.len() - 2], self.pts[self.pts.len() - 1])
     }
-    pub fn without_last_line(&self) -> Option<PolyLine> {
-        if self.pts.len() == 2 {
-            return None;
-        }
-        Some(PolyLine::new(self.pts[0..self.pts.len() - 1].to_vec()))
-    }
 
     pub fn shift_right(&self, width: Distance) -> Warn<PolyLine> {
         self.shift_with_corrections(width)
@@ -373,6 +367,20 @@ impl PolyLine {
         }
 
         polygons
+    }
+
+    pub fn make_arrow(&self, thickness: Distance) -> Warn<Vec<Polygon>> {
+        if self.pts.len() == 2 {
+            self.last_line().make_arrow(thickness)
+        } else {
+            self.last_line().make_arrow(thickness).map(|mut polygons| {
+                polygons.push(
+                    PolyLine::new(self.pts[0..self.pts.len() - 1].to_vec())
+                        .make_polygons(thickness),
+                );
+                polygons
+            })
+        }
     }
 
     // Also return the angle of the line where the hit was found

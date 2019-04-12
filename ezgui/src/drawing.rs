@@ -86,29 +86,23 @@ impl<'a> GfxCtx<'a> {
             .clear_color_srgb(color.0[0], color.0[1], color.0[2], color.0[3]);
     }
 
-    // Use graphics::Line internally for now, but make it easy to switch to something else by
-    // picking this API now.
     pub fn draw_line(&mut self, color: Color, thickness: Distance, line: &Line) {
         self.draw_polygon(color, &line.make_polygons(thickness));
     }
 
     pub fn draw_rounded_line(&mut self, color: Color, thickness: Distance, line: &Line) {
-        self.draw_polygon_batch(vec![
-            (color, &line.make_polygons(thickness)),
-            (
-                color,
-                &Circle::new(line.pt1(), thickness / 2.0).to_polygon(),
-            ),
-            (
-                color,
-                &Circle::new(line.pt2(), thickness / 2.0).to_polygon(),
-            ),
-        ]);
+        self.draw_polygons(
+            color,
+            &vec![
+                line.make_polygons(thickness),
+                Circle::new(line.pt1(), thickness / 2.0).to_polygon(),
+                Circle::new(line.pt2(), thickness / 2.0).to_polygon(),
+            ],
+        );
     }
 
     pub fn draw_arrow(&mut self, color: Color, thickness: Distance, line: &Line) {
-        let polygons = line.make_arrow(thickness).unwrap();
-        self.draw_polygon_batch(polygons.iter().map(|poly| (color, poly)).collect());
+        self.draw_polygons(color, &line.make_arrow(thickness).unwrap());
     }
 
     pub fn draw_circle(&mut self, color: Color, circle: &Circle) {
@@ -118,6 +112,10 @@ impl<'a> GfxCtx<'a> {
     pub fn draw_polygon(&mut self, color: Color, poly: &Polygon) {
         let obj = self.prerender.upload_temporary(vec![(color, poly)]);
         self.redraw(&obj);
+    }
+
+    pub fn draw_polygons(&mut self, color: Color, polygons: &Vec<Polygon>) {
+        self.draw_polygon_batch(polygons.iter().map(|p| (color, p)).collect())
     }
 
     pub fn draw_polygon_batch(&mut self, list: Vec<(Color, &Polygon)>) {

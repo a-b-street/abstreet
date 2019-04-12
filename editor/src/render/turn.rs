@@ -41,13 +41,10 @@ impl DrawTurn {
     }
 
     pub fn draw_full(t: &Turn, g: &mut GfxCtx, color: Color) {
-        // TODO This is hiding a real problem... some composite turns probably need to have their
-        // geometry simplified a bit.
-        if let Some(pl) = t.geom.without_last_line() {
-            g.draw_polygon(color, &pl.make_polygons(BIG_ARROW_THICKNESS * 2.0));
-        }
-        // And a cap on the arrow
-        g.draw_arrow(color, BIG_ARROW_THICKNESS * 2.0, &t.geom.last_line());
+        g.draw_polygons(
+            color,
+            &t.geom.make_arrow(BIG_ARROW_THICKNESS * 2.0).unwrap(),
+        );
     }
 
     pub fn draw_dashed(turn: &Turn, g: &mut GfxCtx, color: Color) {
@@ -55,7 +52,7 @@ impl DrawTurn {
         let dashed =
             turn.geom
                 .dashed_polygons(BIG_ARROW_THICKNESS, dash_len, Distance::meters(0.5));
-        g.draw_polygon_batch(dashed.iter().map(|poly| (color, poly)).collect());
+        g.draw_polygons(color, &dashed);
         // And a cap on the arrow. In case the last line is long, trim it to be the dash
         // length.
         let last_line = turn.geom.last_line();

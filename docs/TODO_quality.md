@@ -27,8 +27,6 @@
 - degenerate-2's should only have one crosswalk
 	- then make them thinner
 
-- ped paths through sidewalk corners are totally broken
-	- calculate the better paths first, then make the corner geometry from that?
 - car turns often clip sidewalk corners now
 
 - figure out what to do about yellow center lines
