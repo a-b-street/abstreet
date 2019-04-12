@@ -374,18 +374,30 @@ impl PolyLine {
         polygons
     }
 
+    // TODO One polygon, please :)
     pub fn make_arrow(&self, thickness: Distance) -> Warn<Vec<Polygon>> {
-        if self.pts.len() == 2 {
-            self.last_line().make_arrow(thickness)
-        } else {
-            self.last_line().make_arrow(thickness).map(|mut polygons| {
-                polygons.push(
-                    PolyLine::new(self.pts[0..self.pts.len() - 1].to_vec())
-                        .make_polygons(thickness),
-                );
-                polygons
-            })
+        // TODO Remove overlap between the triangle and last line segment
+        let head_size = thickness * 2.0;
+        let triangle_height = (head_size / 2.0).sqrt();
+        if self.last_line().length() < triangle_height {
+            return Warn::warn(
+                vec![self.make_polygons(thickness)],
+                format!("Can't make_arrow of thickness {} for {}", thickness, self),
+            );
         }
+
+        let angle = self.last_line().angle();
+        Warn::ok(vec![
+            self.exact_slice(Distance::ZERO, self.length() - triangle_height)
+                .make_polygons(thickness),
+            Polygon::new(&vec![
+                self.last_pt(),
+                self.last_pt()
+                    .project_away(head_size, angle.rotate_degs(-135.0)),
+                self.last_pt()
+                    .project_away(head_size, angle.rotate_degs(135.0)),
+            ]),
+        ])
     }
 
     // Also return the angle of the line where the hit was found

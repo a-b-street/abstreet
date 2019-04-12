@@ -1,5 +1,4 @@
 use crate::{Angle, Distance, PolyLine, Polygon, Pt2D, EPSILON_DIST};
-use abstutil::Warn;
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 
@@ -46,42 +45,6 @@ impl Line {
 
     pub fn make_polygons(&self, thickness: Distance) -> Polygon {
         self.to_polyline().make_polygons(thickness)
-    }
-
-    // TODO One polygon, please :)
-    pub fn make_arrow(&self, thickness: Distance) -> Warn<Vec<Polygon>> {
-        let head_size = thickness * 2.0;
-        let angle = self.angle();
-        let triangle_height = (head_size / 2.0).sqrt();
-        if self.length() < triangle_height {
-            return Warn::warn(
-                Vec::new(),
-                format!("Can't make_arrow of thickness {} for {}", thickness, self),
-            );
-        }
-        Warn::ok(vec![
-            Polygon::new(&vec![
-                //self.pt2(),
-                //self.pt2().project_away(head_size, angle.rotate_degs(-135.0)),
-                self.reverse()
-                    .dist_along(triangle_height)
-                    .project_away(thickness / 2.0, angle.rotate_degs(90.0)),
-                self.pt1()
-                    .project_away(thickness / 2.0, angle.rotate_degs(90.0)),
-                self.pt1()
-                    .project_away(thickness / 2.0, angle.rotate_degs(-90.0)),
-                self.reverse()
-                    .dist_along(triangle_height)
-                    .project_away(thickness / 2.0, angle.rotate_degs(-90.0)),
-                //self.pt2().project_away(head_size, angle.rotate_degs(135.0)),
-            ]),
-            Polygon::new(&vec![
-                self.pt2(),
-                self.pt2()
-                    .project_away(head_size, angle.rotate_degs(-135.0)),
-                self.pt2().project_away(head_size, angle.rotate_degs(135.0)),
-            ]),
-        ])
     }
 
     pub fn length(&self) -> Distance {

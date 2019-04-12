@@ -3,7 +3,7 @@ use crate::objects::{DrawCtx, ID};
 use crate::render::{DrawCrosswalk, DrawTurn, RenderOptions, Renderable};
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GfxCtx, Prerender, ScreenPt, Text};
-use geom::{Circle, Distance, Duration, Line, Polygon, Pt2D};
+use geom::{Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D};
 use map_model::{
     Cycle, Intersection, IntersectionID, IntersectionType, Map, Road, TurnPriority, TurnType,
     LANE_THICKNESS,
@@ -401,10 +401,10 @@ fn calculate_border_arrows(i: &Intersection, r: &Road, timer: &mut Timer) -> Vec
         };
         result.extend(
             // DEGENERATE_INTERSECTION_HALF_LENGTH is 5m...
-            Line::new(
+            PolyLine::new(vec![
                 line.unbounded_dist_along(Distance::meters(-9.5)),
                 line.unbounded_dist_along(Distance::meters(-0.5)),
-            )
+            ])
             .make_arrow(width / 3.0)
             .with_context(timer, format!("outgoing border arrows for {}", r.id)),
         );
@@ -424,10 +424,10 @@ fn calculate_border_arrows(i: &Intersection, r: &Road, timer: &mut Timer) -> Vec
             (r.center_pts.first_line().shift_left(width / 2.0), width)
         };
         result.extend(
-            Line::new(
+            PolyLine::new(vec![
                 line.unbounded_dist_along(Distance::meters(-0.5)),
                 line.unbounded_dist_along(Distance::meters(-9.5)),
-            )
+            ])
             .make_arrow(width / 3.0)
             .with_context(timer, format!("incoming border arrows for {}", r.id)),
         );

@@ -102,7 +102,7 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn draw_arrow(&mut self, color: Color, thickness: Distance, line: &Line) {
-        self.draw_polygons(color, &line.make_arrow(thickness).unwrap());
+        self.draw_polygons(color, &line.to_polyline().make_arrow(thickness).unwrap());
     }
 
     pub fn draw_circle(&mut self, color: Color, circle: &Circle) {

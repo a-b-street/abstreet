@@ -3,7 +3,7 @@ use crate::objects::{DrawCtx, ID};
 use crate::render::{RenderOptions, Renderable, BIG_ARROW_THICKNESS};
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
-use geom::{Circle, Distance, Line, Polygon};
+use geom::{Circle, Distance, Line, PolyLine, Polygon};
 use map_model::{
     IntersectionType, Lane, LaneID, LaneType, Map, Road, Turn, LANE_THICKNESS, PARKING_SPOT_LENGTH,
 };
@@ -278,12 +278,12 @@ fn turn_markings(
         .lane_center_pts
         .exact_slice(len - Distance::meters(7.0), len - Distance::meters(5.0));
     let base_polygon = common_base.make_polygons(Distance::meters(0.1));
-    let turn_line = Line::new(
+    let turn_line = PolyLine::new(vec![
         common_base.last_pt(),
         common_base
             .last_pt()
             .project_away(LANE_THICKNESS / 2.0, turn.angle()),
-    );
+    ]);
 
     let color = cs.get_def("turn restrictions on lane", Color::WHITE);
     let mut result = vec![(color, base_polygon)];
