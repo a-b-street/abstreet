@@ -23,16 +23,6 @@ impl AmbientPlugin for ShowRouteState {
         match self {
             ShowRouteState::Inactive => {
                 if let Some(agent) = ctx.primary.current_selection.and_then(|id| id.agent_id()) {
-                    if let Some(trip) = ctx.primary.sim.agent_to_trip(agent) {
-                        if ctx
-                            .input
-                            .contextual_action(Key::R, &format!("show {}'s route", agent))
-                        {
-                            *self = show_route(trip, ctx);
-                            return;
-                        }
-                    }
-
                     if let Some(trace) = ctx.primary.sim.trace_route(agent, &ctx.primary.map, None)
                     {
                         *self = ShowRouteState::Hovering(ctx.primary.sim.time(), agent, trace);
@@ -40,8 +30,11 @@ impl AmbientPlugin for ShowRouteState {
                 };
             }
             ShowRouteState::Hovering(time, agent, _) => {
+                // Argh, borrow checker.
+                let agent = *agent;
+
                 if *time != ctx.primary.sim.time()
-                    || ctx.primary.current_selection != Some(ID::from_agent(*agent))
+                    || ctx.primary.current_selection != Some(ID::from_agent(agent))
                 {
                     *self = ShowRouteState::Inactive;
                     if let Some(new_agent) =
@@ -56,6 +49,17 @@ impl AmbientPlugin for ShowRouteState {
                                 ShowRouteState::Hovering(ctx.primary.sim.time(), new_agent, trace);
                         }
                     }
+                }
+
+                // If there's a current route, then there must be a trip.
+                let trip = ctx.primary.sim.agent_to_trip(agent).unwrap();
+                // TODO agent might be stale here! Really need a second match after this or
+                // something. Expressing a state machine like this isn't really great.
+                if ctx
+                    .input
+                    .contextual_action(Key::R, &format!("show {}'s route", agent))
+                {
+                    *self = show_route(trip, ctx);
                 }
             }
             ShowRouteState::Active(time, trip, _) => {

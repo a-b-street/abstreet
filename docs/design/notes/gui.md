@@ -599,3 +599,5 @@ I want to hover over an agent and preview its route. Where's this functionality 
 - could put it in Draw{Bike,Car,Ped}, but then it's duplicated and doesnt cache (only recalculate trace when tick changes or mouseover changes)
 - could keep it in the ambient ShowRoute plugin, but then it's almost hard to understand that mousing over a car also reveals associated buildings...
 - i pretty much want to try attaching some mouseover logic to the car/bike/ped Renderables
+
+Look at show_route plugin. Expressing state changes is awkward. Want to make the 'r' key available in Hovering state, but only if we survive the Hovering state.
