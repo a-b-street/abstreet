@@ -10,8 +10,6 @@
 - intersections
 	- some intersections partly cross border, is that actually fine?
 
-- use real map background by default
-
 ## Geometry
 
 - bad polyline shifting remains

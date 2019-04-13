@@ -274,13 +274,8 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         };
         let mut sample_intersection: Option<String> = None;
 
-        // TODO Not quite ready yet
-        if state.primary.current_flags.debug_areas {
-            g.clear(state.cs.get_def("true background", Color::BLACK));
-            g.redraw(&state.primary.draw_map.boundary_polygon);
-        } else {
-            g.clear(state.cs.get("map background"));
-        }
+        g.clear(state.cs.get_def("true background", Color::BLACK));
+        g.redraw(&state.primary.draw_map.boundary_polygon);
 
         if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL && !screencap {
             // Unzoomed mode

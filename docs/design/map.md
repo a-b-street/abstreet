@@ -35,12 +35,14 @@ functionality
 - Buildings
   - classified by use, notion of residential density
   - front path connecting to a sidewalk
-- Clipping / borders (WIP)
-  - clipping polygon actually chops all geometry to fit -- doesnt just omit
-    things that cross or leave dangling OOB stuff
-    - cleans up areas (parks, bodies of water) nicely
-  - roads that cross the boundary have direction-aware 'border intersections' at
-    the end, to model traffic flowing in or out of an area
+
+### Clipping
+
+- clipping polygon actually chops all geometry to fit -- doesnt just omit
+things that cross or leave dangling OOB stuff
+  - cleans up areas (parks, bodies of water) nicely
+- roads that cross the boundary have direction-aware 'border intersections' at
+the end, to model traffic flowing in or out of an area
 
 ## Model
 
