@@ -1,4 +1,5 @@
 use abstutil::{retain_btreemap, Timer};
+use clipping::CPolygon;
 use geom::{GPSBounds, PolyLine, Polygon, Pt2D};
 use map_model::{raw_data, IntersectionType};
 
@@ -92,6 +93,24 @@ pub fn clip_map(map: &mut raw_data::Map, timer: &mut Timer) -> GPSBounds {
             .into_iter()
             .all(|pt| boundary_poly.contains_pt(pt))
     });
+
+    if true {
+    let mut result_areas = Vec::new();
+    for orig_area in map.areas.drain(..) {
+        let mut boundary_pts = CPolygon::from_vec(&boundary_poly.points().into_iter().map(|pt| [pt.x(), pt.y()]).collect());
+        let mut area_pts = CPolygon::from_vec(&bounds.must_convert(&orig_area.points).into_iter().map(|pt| [pt.x(), pt.y()]).collect());
+        let results = area_pts.intersection(&mut boundary_pts);
+        for pts in results {
+            let mut area = orig_area.clone();
+            area.points = bounds.must_convert_back(&pts.into_iter().map(|pt| Pt2D::new(pt[0], pt[1])).collect());
+            if area.points[0] != *area.points.last().unwrap() {
+                area.points.push(area.points[0]);
+            }
+            result_areas.push(area);
+        }
+    }
+    map.areas = result_areas;
+    }
 
     // TODO This is close to working...
     // - Might split one polygon into two disjoint, but that's fine
