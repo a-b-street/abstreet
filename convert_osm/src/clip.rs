@@ -94,7 +94,6 @@ pub fn clip_map(map: &mut raw_data::Map, timer: &mut Timer) -> GPSBounds {
             .all(|pt| boundary_poly.contains_pt(pt))
     });
 
-    if true {
     let mut result_areas = Vec::new();
     for orig_area in map.areas.drain(..) {
         let mut boundary_pts = CPolygon::from_vec(&boundary_poly.points().into_iter().map(|pt| [pt.x(), pt.y()]).collect());
@@ -110,80 +109,6 @@ pub fn clip_map(map: &mut raw_data::Map, timer: &mut Timer) -> GPSBounds {
         }
     }
     map.areas = result_areas;
-    }
-
-    // TODO This is close to working...
-    // - Might split one polygon into two disjoint, but that's fine
-    // - Need to add intermediate corners from the boundary
-    // - Handle when first point isn't in bounds, but probably not by cycling through stuff?
-    if false {
-        for area in map.areas.iter_mut() {
-            // Start with a point that's in-bounds. Must exist, because areas with nothing
-            // in-bounds should get filtered out.
-            let pts = bounds.must_convert(&area.points);
-            // TODO Worse results? :(
-            /*
-            loop {
-                if boundary_poly.contains_pt(pts[0]) {
-                    break;
-                }
-                let pt = pts.pop().unwrap();
-                pts.insert(0, pt);
-            }
-            */
-
-            let mut final_pts = Vec::new();
-            let mut last_oob_pt: Option<Pt2D> = None;
-            for pt in pts {
-                if boundary_poly.contains_pt(pt) {
-                    if let Some(prev) = last_oob_pt {
-                        // Going back in!
-                        last_oob_pt = None;
-                        let crossing = PolyLine::new(vec![prev, pt]);
-                        let border_pt = boundary_lines
-                            .iter()
-                            .find_map(|l| crossing.intersection(l).map(|(pt, _)| pt))
-                            .unwrap();
-                        final_pts.push(border_pt);
-                        // TODO Maybe add intermediate "corners" of the boundary polygon
-                    }
-
-                    final_pts.push(pt);
-                } else {
-                    if last_oob_pt.is_none() {
-                        // Going out!
-                        last_oob_pt = Some(pt);
-                        // TODO Worse results without this
-                        if !final_pts.is_empty() {
-                            let crossing = PolyLine::new(vec![*final_pts.last().unwrap(), pt]);
-                            let border_pt = boundary_lines
-                                .iter()
-                                .find_map(|l| crossing.intersection(l).map(|(pt, _)| pt))
-                                .unwrap();
-                            final_pts.push(border_pt);
-                        }
-                    }
-                }
-            }
-
-            // TODO Worse results? :(
-            /*if let Some(prev) = last_oob_pt {
-                // Go back in!
-                let crossing = PolyLine::new(vec![prev, final_pts[0]]);
-                let border_pt = boundary_lines
-                    .iter()
-                    .find_map(|l| crossing.intersection(l).map(|(pt, _)| pt))
-                    .unwrap();
-                final_pts.push(border_pt);
-                // TODO Maybe add intermediate "corners" of the boundary polygon
-            }*/
-
-            if *final_pts.last().unwrap() != final_pts[0] {
-                final_pts.push(final_pts[0]);
-            }
-            area.points = bounds.must_convert_back(&final_pts);
-        }
-    }
 
     timer.stop("clipping map to boundary");
     bounds

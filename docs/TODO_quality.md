@@ -2,20 +2,13 @@
 
 ## Boundary clipping
 
+- lakes missing from small_seattle
+
 - roads
 	- what if they start/end in bounds, but briefly dip out? arboretum place east
 
 - intersections
 	- some intersections partly cross border, is that actually fine?
-
-- areas
-	- it may split areas... that's not so bad really
-	- ensure first pt is in-bounds... thats making stuff worse though?
-	- include intermediate corners
-
-	- move the code to do this to clip. can probably get rid of find_blah_btwn for lonlat, right?
-	- some areas in small_seattle are borked or missing
-		- at least for lakeslice, we have points in good orders, but need to clip areas too.
 
 - use real map background by default
 

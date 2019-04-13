@@ -244,58 +244,12 @@ fn glue_multipolygon(
             }
         }
     }
-    extrude_to_boundary(boundary_polygon, &mut result);
+
+    // Some ways of the multipolygon are clipped out. Connect the ends in the most straightforward
+    // way. Later polygon clipping will trim to the boundary.
+    if result[0] != *result.last().unwrap() {
+        result.push(result[0]);
+    }
     polygons.push(result);
     polygons
-}
-
-fn extrude_to_boundary(boundary_polygon: &Vec<LonLat>, result: &mut Vec<LonLat>) {
-    // Some ways of the multipolygon are clipped out. Connect the ends by traveling along the
-    // boundary polygon in the closest direction (clockwise or counter-clockwise).
-    let first_pt = result[0];
-    let last_pt = *result.last().unwrap();
-    if first_pt == last_pt {
-        return;
-    }
-
-    if true {
-        // Simple resolution:
-        result.push(first_pt);
-    } else {
-        // Proper resolution:
-        let closest_to_last = *boundary_polygon
-            .iter()
-            .min_by_key(|pt| pt.gps_dist_meters(last_pt))
-            .unwrap();
-        let closest_to_first = *boundary_polygon
-            .iter()
-            .min_by_key(|pt| pt.gps_dist_meters(first_pt))
-            .unwrap();
-        println!("first pt is {}, last pt is {}", first_pt, last_pt);
-        println!(
-            "boundary closest... first pt is {}, last pt is {}",
-            closest_to_first, closest_to_last
-        );
-
-        let slice1 = LonLat::find_slice(boundary_polygon, closest_to_last, closest_to_first);
-        let mut backwards_boundary: Vec<LonLat> = boundary_polygon.to_vec();
-        backwards_boundary.reverse();
-        let slice2 = LonLat::find_slice(&backwards_boundary, closest_to_last, closest_to_first);
-        if slice_len(&slice1) <= slice_len(&slice2) {
-            println!("  fwd won. adding {:?}", slice1);
-            result.extend(slice1);
-        } else {
-            println!("  back won. adding {:?}", slice2);
-            result.extend(slice2);
-        }
-        result.push(first_pt);
-    }
-}
-
-fn slice_len(pts: &Vec<LonLat>) -> Distance {
-    let mut dist = Distance::ZERO;
-    for pair in pts.windows(2) {
-        dist += pair[0].gps_dist_meters(pair[1]);
-    }
-    dist
 }
