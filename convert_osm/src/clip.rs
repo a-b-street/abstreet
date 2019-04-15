@@ -1,9 +1,9 @@
 use abstutil::{retain_btreemap, Timer};
 use clipping::CPolygon;
-use geom::{GPSBounds, PolyLine, Polygon, Pt2D};
+use geom::{PolyLine, Polygon, Pt2D};
 use map_model::{raw_data, IntersectionType};
 
-pub fn clip_map(map: &mut raw_data::Map, timer: &mut Timer) -> GPSBounds {
+pub fn clip_map(map: &mut raw_data::Map, timer: &mut Timer) {
     timer.start("clipping map to boundary");
     let bounds = map.get_gps_bounds();
 
@@ -127,5 +127,4 @@ pub fn clip_map(map: &mut raw_data::Map, timer: &mut Timer) -> GPSBounds {
     map.areas = result_areas;
 
     timer.stop("clipping map to boundary");
-    bounds
 }

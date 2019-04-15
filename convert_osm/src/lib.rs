@@ -64,22 +64,18 @@ pub struct Flags {
 
 pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
     let elevation = Elevation::new(&flags.elevation).expect("loading .hgt failed");
-    let boundary_polygon = read_osmosis_polygon(&flags.clip);
 
-    let mut map = split_ways::split_up_roads(
-        osm::osm_to_raw_roads(&flags.osm, timer),
-        boundary_polygon,
-        &elevation,
-        timer,
-    );
-    let gps_bounds = clip::clip_map(&mut map, timer);
+    let mut map =
+        split_ways::split_up_roads(osm::osm_to_raw_roads(&flags.osm, timer), &elevation, timer);
+    map.boundary_polygon = read_osmosis_polygon(&flags.clip);
+    clip::clip_map(&mut map, timer);
     remove_disconnected::remove_disconnected_roads(&mut map, timer);
-    // TODO Shouldn't we recalculate the gps_bounds after removing stuff? Or just base it off the
-    // boundary polygon?
 
     if flags.fast_dev {
         return map;
     }
+    // Do this after removing stuff.
+    let gps_bounds = map.get_gps_bounds();
 
     if !flags.residential_buildings.is_empty() {
         handle_residences(&mut map, &gps_bounds, &flags.residential_buildings, timer);

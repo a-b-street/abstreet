@@ -10,7 +10,6 @@ pub fn split_up_roads(
         Vec<raw_data::Building>,
         Vec<raw_data::Area>,
     ),
-    boundary_polygon: Vec<LonLat>,
     elevation: &srtm::Elevation,
     timer: &mut Timer,
 ) -> raw_data::Map {
@@ -61,7 +60,6 @@ pub fn split_up_roads(
     }
 
     let mut map = raw_data::Map::blank();
-    map.boundary_polygon = boundary_polygon;
     map.buildings = buildings;
     map.areas = areas;
     // All of the roundabout points will just keep moving the intersection
