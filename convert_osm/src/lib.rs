@@ -67,7 +67,7 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
     let boundary_polygon = read_osmosis_polygon(&flags.clip);
 
     let mut map = split_ways::split_up_roads(
-        osm::osm_to_raw_roads(&flags.osm, &boundary_polygon, timer),
+        osm::osm_to_raw_roads(&flags.osm, timer),
         boundary_polygon,
         &elevation,
         timer,

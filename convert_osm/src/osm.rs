@@ -1,12 +1,11 @@
 use abstutil::{FileWithProgress, Timer};
-use geom::{Distance, LonLat};
+use geom::LonLat;
 use map_model::{raw_data, AreaType};
 use osm_xml;
 use std::collections::{BTreeMap, HashMap};
 
 pub fn osm_to_raw_roads(
     osm_path: &str,
-    boundary_polygon: &Vec<LonLat>,
     timer: &mut Timer,
 ) -> (
     Vec<raw_data::Road>,
@@ -109,7 +108,7 @@ pub fn osm_to_raw_roads(
                     }
                 }
                 if ok {
-                    let polygons = glue_multipolygon(pts_per_way, boundary_polygon);
+                    let polygons = glue_multipolygon(pts_per_way);
                     if polygons.is_empty() {
                         println!("Relation {} failed to glue multipolygon", rel.id);
                     } else {
@@ -200,10 +199,7 @@ fn get_area_type(tags: &BTreeMap<String, String>) -> Option<AreaType> {
 }
 
 // The result could be more than one disjoint polygon.
-fn glue_multipolygon(
-    mut pts_per_way: Vec<Vec<LonLat>>,
-    boundary_polygon: &Vec<LonLat>,
-) -> Vec<Vec<LonLat>> {
+fn glue_multipolygon(mut pts_per_way: Vec<Vec<LonLat>>) -> Vec<Vec<LonLat>> {
     // First deal with all of the closed loops.
     let mut polygons: Vec<Vec<LonLat>> = Vec::new();
     pts_per_way.retain(|pts| {

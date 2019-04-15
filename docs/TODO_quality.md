@@ -3,12 +3,8 @@
 ## Boundary clipping
 
 - lakes missing from small_seattle
-
-- roads
-	- what if they start/end in bounds, but briefly dip out? arboretum place east
-
-- intersections
-	- some intersections partly cross border, is that actually fine?
+- some border intersections have weird OOBish geometry, or the arrows look weird
+- simplify border node detection, only do it in convert_osm?
 
 ## Geometry
 
