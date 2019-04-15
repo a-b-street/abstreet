@@ -32,11 +32,16 @@ pub(crate) fn screenshot_everything<T, G: GUI<T>>(
             state.canvas.cam_x = (tile_x as f64) * state.canvas.window_width;
             state.canvas.cam_y = (tile_y as f64) * state.canvas.window_height;
 
-            let naming_hint = state.draw(display, program, prerender, true);
+            let suffix = state
+                .draw(display, program, prerender, true)
+                .unwrap_or_else(String::new);
+            let filename = format!("{:02}x{:02}{}.png", tile_x + 1, tile_y + 1, suffix);
+
             // TODO Is vsync or something else causing the above redraw to not actually show up in
             // time for scrot to see it? This is slow (30s total for Montlake), but stable.
             thread::sleep(time::Duration::from_millis(100));
-            if let Some(filename) = screencap(dir_path, tile_x, tile_y, naming_hint) {
+
+            if screencap(&format!("{}/{}", dir_path, filename)) {
                 filenames.push(filename);
             } else {
                 // Abort early.
@@ -53,30 +58,28 @@ pub(crate) fn screenshot_everything<T, G: GUI<T>>(
     state
 }
 
-fn screencap(
-    dir_path: &str,
-    tile_x: usize,
-    tile_y: usize,
-    mut naming_hint: Option<String>,
-) -> Option<String> {
-    let suffix = naming_hint.take().unwrap_or_else(String::new);
-    let filename = format!("{:02}x{:02}{}.png", tile_x + 1, tile_y + 1, suffix);
+pub(crate) fn screenshot_current<T, G: GUI<T>>(
+    state: &mut State<T, G>,
+    display: &glium::Display,
+    program: &glium::Program,
+    prerender: &Prerender,
+) {
+    state.draw(display, program, prerender, true);
+    thread::sleep(time::Duration::from_millis(100));
+    screencap("screenshot.png");
+}
+
+fn screencap(filename: &str) -> bool {
     if !process::Command::new("scrot")
-        .args(&[
-            "--quality",
-            "100",
-            "--focused",
-            "--silent",
-            &format!("{}/{}", dir_path, filename),
-        ])
+        .args(&["--quality", "100", "--focused", "--silent", filename])
         .status()
         .unwrap()
         .success()
     {
         println!("scrot failed; aborting");
-        return None;
+        return false;
     }
-    Some(filename)
+    true
 }
 
 fn finish(dir_path: &str, filenames: Vec<String>, num_tiles_x: usize, num_tiles_y: usize) {

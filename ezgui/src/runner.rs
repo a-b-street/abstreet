@@ -50,6 +50,7 @@ pub enum EventLoopMode {
         max_x: f64,
         max_y: f64,
     },
+    ScreenCaptureCurrentShot,
 }
 
 pub(crate) struct State<T, G: GUI<T>> {
@@ -316,24 +317,34 @@ fn loop_forever<T, G: GUI<T>>(
             }
             state = new_state;
             wait_for_events = mode == EventLoopMode::InputOnly;
-            if let EventLoopMode::ScreenCaptureEverything {
-                dir,
-                zoom,
-                max_x,
-                max_y,
-            } = mode
-            {
-                state = widgets::screenshot_everything(
-                    &dir,
-                    state,
-                    &prerender.display,
-                    &program,
-                    &prerender,
+            match mode {
+                EventLoopMode::ScreenCaptureEverything {
+                    dir,
                     zoom,
                     max_x,
                     max_y,
-                );
-            }
+                } => {
+                    state = widgets::screenshot_everything(
+                        &dir,
+                        state,
+                        &prerender.display,
+                        &program,
+                        &prerender,
+                        zoom,
+                        max_x,
+                        max_y,
+                    );
+                }
+                EventLoopMode::ScreenCaptureCurrentShot => {
+                    widgets::screenshot_current(
+                        &mut state,
+                        &prerender.display,
+                        &program,
+                        &prerender,
+                    );
+                }
+                _ => {}
+            };
         }
 
         // Don't draw if an event was ignored. Every keypress also fires a release event, most of

@@ -8,7 +8,7 @@ mod wizard;
 
 pub use self::log_scroller::LogScroller;
 pub use self::menu::{Menu, Position};
-pub(crate) use self::screenshot::screenshot_everything;
+pub(crate) use self::screenshot::{screenshot_current, screenshot_everything};
 pub use self::scrolling_menu::ScrollingMenu;
 pub use self::text_box::TextBox;
 pub use self::top_menu::{Folder, TopMenu};

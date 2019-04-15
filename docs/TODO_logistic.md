@@ -13,6 +13,7 @@
 
 - play with https://github.com/glennw/thread_profiler
 - and https://github.com/ferrous-systems/cargo-flamegraph
+- display percentage breakdowns in Timer (need tree structure)
 
 ## Stability
 

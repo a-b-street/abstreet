@@ -31,6 +31,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                 "Debug",
                 vec![
                     (None, "screenshot everything"),
+                    (Some(Key::F1), "screenshot just this"),
                     (None, "find chokepoints"),
                     (None, "validate map geometry"),
                     (Some(Key::Num1), "show/hide buildings"),
@@ -241,20 +242,23 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         ctx.input.populate_osd(&mut hints.osd);
 
         // TODO a plugin should do this, even though it's such a tiny thing
-        if self.state.get_state().enable_debug_controls
-            && ctx.input.action_chosen("screenshot everything")
-        {
-            let bounds = self.state.get_state().primary.map.get_bounds();
-            assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
-            hints.mode = EventLoopMode::ScreenCaptureEverything {
-                dir: format!(
-                    "../data/screenshots/pending_{}",
-                    self.state.get_state().primary.map.get_name()
-                ),
-                zoom: 3.0,
-                max_x: bounds.max_x,
-                max_y: bounds.max_y,
-            };
+        if self.state.get_state().enable_debug_controls {
+            if ctx.input.action_chosen("screenshot everything") {
+                let bounds = self.state.get_state().primary.map.get_bounds();
+                assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
+                hints.mode = EventLoopMode::ScreenCaptureEverything {
+                    dir: format!(
+                        "../data/screenshots/pending_{}",
+                        self.state.get_state().primary.map.get_name()
+                    ),
+                    zoom: 3.0,
+                    max_x: bounds.max_x,
+                    max_y: bounds.max_y,
+                };
+            }
+            if ctx.input.action_chosen("screenshot just this") {
+                hints.mode = EventLoopMode::ScreenCaptureCurrentShot;
+            }
         }
 
         (hints.mode.clone(), hints)
