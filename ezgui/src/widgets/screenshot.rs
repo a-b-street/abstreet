@@ -15,8 +15,8 @@ pub(crate) fn screenshot_everything<T, G: GUI<T>>(
     max_y: f64,
 ) -> State<T, G> {
     let mut timer = Timer::new("capturing screen");
-    let num_tiles_x = (max_x * zoom / state.canvas.window_width).floor() as usize;
-    let num_tiles_y = (max_y * zoom / state.canvas.window_height).floor() as usize;
+    let num_tiles_x = (max_x * zoom / state.canvas.window_width).ceil() as usize;
+    let num_tiles_y = (max_y * zoom / state.canvas.window_height).ceil() as usize;
     let orig_zoom = state.canvas.cam_zoom;
     let orig_x = state.canvas.cam_x;
     let orig_y = state.canvas.cam_y;
