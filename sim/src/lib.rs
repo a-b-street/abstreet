@@ -280,6 +280,16 @@ impl SidewalkSpot {
             })
         }
     }
+
+    pub fn suddenly_appear(l: LaneID, dist: Distance, map: &Map) -> SidewalkSpot {
+        let lane = map.get_l(l);
+        assert!(lane.is_sidewalk());
+        assert!(dist <= lane.length());
+        SidewalkSpot {
+            sidewalk_pos: Position::new(l, dist),
+            connection: SidewalkPOI::SuddenlyAppear,
+        }
+    }
 }
 
 // Point of interest, that is
@@ -291,6 +301,7 @@ pub enum SidewalkPOI {
     Border(IntersectionID),
     // The equivalent position on the nearest driving/bike lane
     BikeRack(Position),
+    SuddenlyAppear,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]

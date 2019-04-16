@@ -72,9 +72,9 @@ impl SpawnAgent {
             Some(ID::Intersection(i)) => {
                 if ctx
                     .input
-                    .contextual_action(Key::Z, "spawn cars around this intersection")
+                    .contextual_action(Key::Z, "spawn agents around this intersection")
                 {
-                    spawn_cars_around(i, ctx);
+                    spawn_agents_around(i, ctx);
                 }
             }
             None => {
@@ -247,32 +247,48 @@ impl BlockingPlugin for SpawnAgent {
     }
 }
 
-fn spawn_cars_around(i: IntersectionID, ctx: &mut PluginCtx) {
+fn spawn_agents_around(i: IntersectionID, ctx: &mut PluginCtx) {
     let map = &ctx.primary.map;
     let sim = &mut ctx.primary.sim;
     let mut rng = ctx.primary.current_flags.sim_flags.make_rng();
 
     for l in &map.get_i(i).incoming_lanes {
         let lane = map.get_l(*l);
-        if !lane.is_driving() {
-            continue;
-        }
-
-        for _ in 0..10 {
-            let vehicle = Scenario::rand_car(&mut rng);
-            sim.schedule_trip(
-                // TODO +1?
-                sim.time(),
-                TripSpec::CarAppearing(
-                    Position::new(
-                        lane.id,
-                        Scenario::rand_dist(&mut rng, vehicle.length, lane.length()),
+        if lane.is_driving() {
+            for _ in 0..10 {
+                let vehicle = Scenario::rand_car(&mut rng);
+                sim.schedule_trip(
+                    // TODO +1?
+                    sim.time(),
+                    TripSpec::CarAppearing(
+                        Position::new(
+                            lane.id,
+                            Scenario::rand_dist(&mut rng, vehicle.length, lane.length()),
+                        ),
+                        vehicle,
+                        DrivingGoal::ParkNear(map.all_buildings().choose(&mut rng).unwrap().id),
                     ),
-                    vehicle,
-                    DrivingGoal::ParkNear(map.all_buildings().choose(&mut rng).unwrap().id),
-                ),
-                map,
-            );
+                    map,
+                );
+            }
+        } else if lane.is_sidewalk() {
+            for _ in 0..5 {
+                sim.schedule_trip(
+                    sim.time(),
+                    TripSpec::JustWalking(
+                        SidewalkSpot::suddenly_appear(
+                            lane.id,
+                            Scenario::rand_dist(&mut rng, 0.1 * lane.length(), 0.9 * lane.length()),
+                            map,
+                        ),
+                        SidewalkSpot::building(
+                            map.all_buildings().choose(&mut rng).unwrap().id,
+                            map,
+                        ),
+                    ),
+                    map,
+                );
+            }
         }
     }
 

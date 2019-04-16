@@ -42,10 +42,11 @@ functionality
 
 - In A/B Street, lanes and intersections have disjoint geometry.
 
+![A/B Street](screenshots/moving_through_intersection.gif)
+
+- This means that cars and pedestrians stop and queue at the correct position before crossing an intersection.
 
 
-This means that cars and pedestrians stop and queue at the correct position before crossing the intersection.
-	(gif of stuff moving thru intersection, including peds)
 
 - The intersection geometry is calculated automatically. In some cases, it works quite well. Other times, the result is very confusing and inaccurate.
 	(OSM and abst examples)

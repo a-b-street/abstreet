@@ -157,6 +157,7 @@ impl WalkingSimState {
                             );
                             scheduler.push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
                         }
+                        SidewalkPOI::SuddenlyAppear => unreachable!(),
                     }
                 } else {
                     if let PathStep::Turn(t) = ped.path.current_step() {
