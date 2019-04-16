@@ -13,68 +13,103 @@ link to code
 demonstrate all of these things with before/after pictures or GIFs showing
 functionality
 
-- Buildings
-  - classified by use, notion of residential density
-  - front path connecting to a sidewalk
-
 ### Lanes
 
+- OSM models entire roads coarsely, sometimes with some metadata about the
+  presence of bus- or bike-only lanes
+
 ![OSM](screenshots/lanes_osm.png)
-
-- OSM models entire roads coarsely, sometimes with some metadata about the presence of bus- or bike-only lanes
-
-![A/B Street](screenshots/lanes_abst.png)
 
 - A/B Street breaks roads down into individual lanes
 - Sidewalks for pedestrian movement, including bus stops and paths to buildings
 - Regular driving lanes, usable by any vehicle
 - Bus- or bike-only lanes
 - On-street parking lanes, with individual parking spots modeled
-- Finding the exact geometry for the lanes from the OSM road center-line is automatic. Lane types and number of lanes come from heuristics on OSM metadata and extra shapefiles from King County GIS.
+- Finding the exact geometry for the lanes from the OSM road center-line is
+  automatic. Lane types and number of lanes come from heuristics on OSM metadata
+  and extra shapefiles from King County GIS.
+
+![A/B Street](screenshots/lanes_abst.png)
 
 ### Intersections (geometry)
 
+OSM doesn't explicitly model intersections at all; some ways just share points.
+
 ![OSM](screenshots/intersections_osm.png)
 
-- OSM doesn't explicitly model intersections at all; some ways just share points.
+In A/B Street, lanes and intersections have disjoint geometry.
 
 ![A/B Street](screenshots/intersections_abst.png)
 
-- In A/B Street, lanes and intersections have disjoint geometry.
+This means that cars and pedestrians stop and queue at the correct position
+before crossing an intersection.
 
 ![A/B Street](screenshots/moving_through_intersection.gif)
 
-- This means that cars and pedestrians stop and queue at the correct position before crossing an intersection.
+The intersection geometry is calculated automatically. It's usually pretty
+robust:
 
+![A/B Street](screenshots/intersection_good_geom.png)
 
+But OSM ways often have many "intersections" very close together. These appear
+as extremely short roads in A/B Street, which complicates traffic modeling.
 
-- The intersection geometry is calculated automatically. In some cases, it works quite well. Other times, the result is very confusing and inaccurate.
-	(OSM and abst examples)
+![A/B Street](screenshots/short_roads_bridge_before.png)
 
-- OSM ways often have many "intersections" very close together. These appear as extremely short roads in A/B Street, which complicates traffic modeling. A/B Street can automatically fix these, which works well in some cases, but not others, so this is still disabled as of April 2019.
-	(good and bad examples, before/after)
+These can be merged automatically, which works reasonably well sometimes:
 
-  - weird highway on-ramps fixed
+![A/B Street](screenshots/short_roads_bridge_after.png)
+
+But some cases are very complex; this is Montlake and 520 without merging short
+roads:
+
+![A/B Street](screenshots/short_roads_montlake_before.png)
+
+As of April 2019, short road merging is disabled because it doesn't always work
+well:
+
+![A/B Street](screenshots/short_roads_montlake_after.png)
+
+Some highway on-ramps in OSM are modeled with particularly unusual geometry,
+overlapping an arterial road:
+
+![OSM](screenshots/highway_onramp_osm.png)
+
+A/B Street detects and fixes these cases
+
+![A/B Street](screenshots/highway_onramp_abst.png)
 
 ### Intersections (semantics)
 
-  - turns connect lanes, the turns have a path. turns conflict or don't.
+A/B Street models turns through intersections. Some turns can conflict 
 
-  - stop signs (some directions stop and others dont), traffic signals with
-    multiple phases
-    - "reasonable" defaults inferred, editor for the rest
+- turns connect lanes, the turns have a path. turns conflict or don't.
+
+- stop signs (some directions stop and others dont), traffic signals with
+  multiple phases
+  - "reasonable" defaults inferred, editor for the rest
 
 ### Clipping / boundaries
 
-A/B Street models some chunk of Seattle (or any slice from OSM), clipping to the desired boundary polygon properly.
+How should the boundary of the map be handled? Without proper clipping, roads
+and lakes go out-of-bounds, often with very strange, long roads to nowhere.
 
 ![before](screenshots/clipping_before.png)
 
-- Without clipping, roads and lakes go out-of-bounds, often with very strange, long roads to nowhere.
+Proper clipping trims polygons to fit properly. Roads that cross the boundary
+terminate at special border intersections, which can model traffic flowing into
+or out of the map.
 
 ![after](screenshots/clipping_after.png)
 
-- Proper clipping trims polygons to fit properly. Roads that cross the boundary terminate at special border intersections, which can model traffic flowing into or out of the map.
+### Buildings
+
+Light orange buildings are classified as residential, and dark orange as
+commercial. Additional data from King County GIS reveals how many units some
+apartments have. This will be used to generate a realistic number of trips
+between residential and commercial areas.
+
+![A/B Street](screenshots/buildings.png)
 
 ## Model
 
