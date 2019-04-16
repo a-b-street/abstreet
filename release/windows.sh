@@ -7,7 +7,7 @@ OUT=abstreet_windows
 rm -rfv $OUT
 mkdir $OUT
 
-cp color_scheme INSTRUCTIONS.md $OUT
+cp color_scheme docs/INSTRUCTIONS.md $OUT
 mkdir -p $OUT/data/maps
 for map in montlake 23rd; do
 	cp -v data/maps/$map.abst $OUT/data/maps/

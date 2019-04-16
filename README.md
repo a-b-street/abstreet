@@ -1,14 +1,13 @@
 # A/B Street
 
-A/B Street is a game exploring how small changes to a city affect the movement
-of drivers, cyclists, transit users, and pedestrians.
+Ever been on a bus stuck in traffic, wondering why there are cars parked on the
+road instead of a bus lane? A/B Street is a game exploring how small changes to
+a city affect the movement of drivers, cyclists, transit users, and pedestrians.
 
-This is not an officially supported Google product. Google owns the copyright to
-this work, but is otherwise unaffiliated with it.
+- [Game features](docs/articles/features/article.md)
+- [Instructions to run the game](docs/INSTRUCTIONS.md)
 
-This is currently an experimental project. Please contact me at
-<dabreegster@gmail.com> if you're interested in the premise of this game.
+This is currently an experimental project. Please contact Dustin Carlino at
+<dabreegster@gmail.com> if you're interested in this game.
 
-![traffic signal UI](docs/demos/traffic_signals.gif)
-
-![agents moving](docs/demos/movement.gif)
+TODO: main gif from the features page
