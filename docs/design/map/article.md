@@ -18,7 +18,7 @@ functionality
 - OSM models entire roads coarsely, sometimes with some metadata about the
   presence of bus- or bike-only lanes
 
-![OSM](screenshots/lanes_osm.png)
+![OSM](screenshots/lanes_osm.gif)
 
 - A/B Street breaks roads down into individual lanes
 - Sidewalks for pedestrian movement, including bus stops and paths to buildings
@@ -29,17 +29,17 @@ functionality
   automatic. Lane types and number of lanes come from heuristics on OSM metadata
   and extra shapefiles from King County GIS.
 
-![A/B Street](screenshots/lanes_abst.png)
+![A/B Street](screenshots/lanes_abst.gif)
 
 ### Intersections (geometry)
 
 OSM doesn't explicitly model intersections at all; some ways just share points.
 
-![OSM](screenshots/intersections_osm.png)
+![OSM](screenshots/intersections_osm.gif)
 
 In A/B Street, lanes and intersections have disjoint geometry.
 
-![A/B Street](screenshots/intersections_abst.png)
+![A/B Street](screenshots/intersections_abst.gif)
 
 This means that cars and pedestrians stop and queue at the correct position
 before crossing an intersection.
@@ -49,58 +49,61 @@ before crossing an intersection.
 The intersection geometry is calculated automatically. It's usually pretty
 robust:
 
-![A/B Street](screenshots/intersection_good_geom.png)
+![A/B Street](screenshots/intersection_good_geom.gif)
 
 But OSM ways often have many "intersections" very close together. These appear
 as extremely short roads in A/B Street, which complicates traffic modeling.
 
-![A/B Street](screenshots/short_roads_bridge_before.png)
+![A/B Street](screenshots/short_roads_bridge_before.gif)
 
 These can be merged automatically, which works reasonably well sometimes:
 
-![A/B Street](screenshots/short_roads_bridge_after.png)
+![A/B Street](screenshots/short_roads_bridge_after.gif)
 
 But some cases are very complex; this is Montlake and 520 without merging short
 roads:
 
-![A/B Street](screenshots/short_roads_montlake_before.png)
+![A/B Street](screenshots/short_roads_montlake_before.gif)
 
 As of April 2019, short road merging is disabled because it doesn't always work
 well:
 
-![A/B Street](screenshots/short_roads_montlake_after.png)
+![A/B Street](screenshots/short_roads_montlake_after.gif)
 
 Some highway on-ramps in OSM are modeled with particularly unusual geometry,
 overlapping an arterial road:
 
-![OSM](screenshots/highway_onramp_osm.png)
+![OSM](screenshots/highway_onramp_osm.gif)
 
 A/B Street detects and fixes these cases
 
-![A/B Street](screenshots/highway_onramp_abst.png)
+![A/B Street](screenshots/highway_onramp_abst.gif)
 
 ### Intersections (semantics)
 
-A/B Street models turns through intersections. Some turns can conflict 
+A/B Street models turns between lanes through intersections. Some turns
+conflict. For stop-sign controlled intersections, the bigger road by default has
+priority.
 
-- turns connect lanes, the turns have a path. turns conflict or don't.
+![A/B Street](screenshots/turns.gif)
 
-- stop signs (some directions stop and others dont), traffic signals with
-  multiple phases
-  - "reasonable" defaults inferred, editor for the rest
+Intersections controlled by traffic signals have a default set of timed phases.
+Users can edit these.
+
+![A/B Street](screenshots/traffic_signal.gif)
 
 ### Clipping / boundaries
 
 How should the boundary of the map be handled? Without proper clipping, roads
 and lakes go out-of-bounds, often with very strange, long roads to nowhere.
 
-![before](screenshots/clipping_before.png)
+![before](screenshots/clipping_before.gif)
 
 Proper clipping trims polygons to fit properly. Roads that cross the boundary
 terminate at special border intersections, which can model traffic flowing into
 or out of the map.
 
-![after](screenshots/clipping_after.png)
+![after](screenshots/clipping_after.gif)
 
 ### Buildings
 
@@ -109,7 +112,7 @@ commercial. Additional data from King County GIS reveals how many units some
 apartments have. This will be used to generate a realistic number of trips
 between residential and commercial areas.
 
-![A/B Street](screenshots/buildings.png)
+![A/B Street](screenshots/buildings.gif)
 
 ## Model
 
