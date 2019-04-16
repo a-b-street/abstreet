@@ -220,7 +220,7 @@ impl State {
             .waiting
             .iter()
             .position(|r| r == req)
-            .unwrap_or(self.waiting.len());
+            .unwrap_or_else(|| self.waiting.len());
         if self.waiting[0..this_idx]
             .iter()
             .any(|r| sign.turns[&r.turn] == this_priority)

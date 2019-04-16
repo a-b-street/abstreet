@@ -29,9 +29,17 @@ impl UI {
     fn new(flags: Flags, prerender: &Prerender) -> UI {
         // TODO Consolidate with sim::load
         let map: Map = if flags.load_map.starts_with(Path::new("../data/raw_maps/")) {
-            Map::new(&flags.load_map, &mut Timer::new("load map")).unwrap()
+            Map::new(
+                flags.load_map.to_str().unwrap(),
+                &mut Timer::new("load map"),
+            )
+            .unwrap()
         } else {
-            abstutil::read_binary(&flags.load_map, &mut Timer::new("load map")).unwrap()
+            abstutil::read_binary(
+                flags.load_map.to_str().unwrap(),
+                &mut Timer::new("load map"),
+            )
+            .unwrap()
         };
 
         UI {

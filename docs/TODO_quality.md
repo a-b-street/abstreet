@@ -3,6 +3,8 @@
 ## Boundary clipping
 
 - lakes missing from small_seattle
+	- just connecting the ends of ways doesnt always work well
+	- maybe increase the Bounds for areas, and let clipping clean up later?
 - some border intersections have weird OOBish geometry, or the arrows look weird
 - simplify border node detection, only do it in convert_osm?
 

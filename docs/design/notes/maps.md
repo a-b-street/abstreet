@@ -446,3 +446,14 @@ egregious edge cases look like.
 	- lets just separately index them. shrug. ideally part of the TurnID, but oh well.
 - How can we display the turn itself in response to warp?
 	- need to poke turn cycler from warp?
+
+## Faster pathfinding
+
+https://pdfs.semanticscholar.org/36d1/b4ec6a4a2823e9c875318f1952df4abf4876.pdf
+
+- do a bunch of pathfinding queries normally
+- then look for common shared sequences
+- cache those paths, then anytime normal pathfinding later hits a node, be able to jump to any destination with known cost
+	- but will the better heuristic to the goal make us actually search those?
+
+- or just use intersections between big roads as these landmarks, precompute paths between them

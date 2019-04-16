@@ -631,7 +631,7 @@ impl Map {
             for t in make::make_all_turns(i, &self.roads, &self.lanes, timer) {
                 add_turns.insert(t.id);
                 i.turns.push(t.id);
-                if let Some(_existing_t) = old_turns.iter().find(|t| t.id == t.id) {
+                if let Some(_existing_t) = old_turns.iter().find(|turn| turn.id == t.id) {
                     // TODO Except for lookup_idx
                     //assert_eq!(t, *existing_t);
                 }
