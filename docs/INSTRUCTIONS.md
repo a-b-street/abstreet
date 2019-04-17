@@ -6,7 +6,29 @@ are horrible. Don't expect things to work well, or at all. Please email
 
 ## Installing the game
 
-...
+TODO: link to binary releases
+
+### Compiling from source
+
+To build, you need a Linux-like environment with `bash`, `wget`, `unzip`, etc.
+You also `osmosis` for the import script. At runtime if you want to use the
+screen-capture plugin, you need `scrot`.
+
+1.  Install Rust, at least 1.31. https://www.rust-lang.org/tools/install
+
+2.  Download the repository:
+    `git clone https://github.com/dabreegster/abstreet.git`
+
+3.  Download all input data and build maps. Compilation times will be very slow
+    at first. `cd abstreet; ./import.sh && ./precompute.sh --release`
+
+If you build from source, you won't have the convenient launcher scripts
+referenced below. Instead:
+
+```
+cd editor
+cargo run --release ../data/maps/montlake.abst
+```
 
 ## Running the game
 

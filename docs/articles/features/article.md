@@ -18,14 +18,31 @@ A/B Street is not yet generally playable (but
 - Data sources describing a realistic set of trips is missing; cars start and
   end at uniformly chosen places.
 - Some important things aren't yet modeled: light rail, big bike trails like the
-  Burke Gilman, ridesharing services.
+  Burke Gilman, ridesharing services, off-street parking lots and garages.
 
 If you're interested in joining me and working on problems like these, please
 get in touch. Funding is available. I also have half-finished articles with
 technical details about how A/B Street works; just ask me to finish them.
 Contact Dustin Carlino at `dabreegster@gmail.com`.
 
-TODO: TOC?
+<!--ts-->
+
+- [A/B Street Features](#ab-street-features)
+  - [Map](#map)
+    - [Lanes](#lanes)
+    - [Intersections (geometry)](#intersections-geometry)
+    - [Intersections (semantics)](#intersections-semantics)
+    - [Boundaries](#boundaries)
+    - [Buildings](#buildings)
+    - [Editing](#editing)
+  - [Traffic simulation](#traffic-simulation)
+    - [Scale](#scale)
+    - [Trips](#trips)
+    - [A/B Tests](#ab-tests)
+
+<!-- Added by: dabreegster, at: Wed Apr 17 16:48:01 PDT 2019 -->
+
+<!--te-->
 
 ## Map
 
@@ -156,20 +173,68 @@ These are changes that could be prototyped in real life relatively cheaply. My
 goal with A/B Street is to explore improvements to Seattle that we could try
 tomorrow, not longer-term improvements like light rail extensions.
 
+![A/B Street](screenshots/map_editing.gif)
+
 ## Traffic simulation
 
-cars, buses, bikes, pedestrians - cars queue, change lanes only by turning, dont
-have speed/acceleration - buses are cars that cycle between routes - bikes are
-cars with a speed cap - pedestrians dont queue; in seattle, never really any
-limits where that matters
+A/B Street simulates the movement of individual agents:
 
-agent-based model. not discrete-time/timesteps because that's slow,
-discrete-event with some tricks to figure out next interesting time something
-happens. that article coming soon. approximate scale
+- Cars move along lanes in a queue, only changing lanes at intersections.
+- Buses are cars that cycle between bus stops, waiting at each one to unload and
+  load passengers.
+- Bikes are cars with a maximum speed limit.
+- Pedestrians move bidirectionally along sidewalks. They can pass through each
+  other; they don't queue or otherwise wait except at intersections. (Seattle
+  has very few places where pedestrian movement is significantly bottlenecked
+  due to other pedestrians.)
 
-time travel, kinda working
+![A/B Street](screenshots/lots_of_agents.gif)
 
-multi-modal trips. ped starts from building, down front path, to bus stop, rides
-bus, gets off, enters parked car, etc. parked cars belong to buildings.
+### Scale
 
-trip generation
+A/B Street originally used a discrete timestep model, updating every agent every
+0.1 seconds. This was unnecessarily complex and too slow, so it now uses a
+discrete-event simulation, only updating agents when an interesting transition
+happens. So while a car crosses a long lane, its exact position is only
+interpolated for drawing, and a full update happens when the car reaches the
+intersection or the end of the queued cars.
+
+On my modest laptop (7th-gen Intel i5, 8GB RAM), I can simulate 10,000 agents on
+the small map at 2x speed (one minute of game-time in 30 seconds). This
+definitely needs improvement, but many interesting scenarios will be around this
+scale. Simulating ~800,000 agents in all of Seattle is not a high priority; the
+flow into and out of a smaller region can be modeled much more cheaply.
+
+A/B Street has a time-travel mode, useful for rewinding to trace the source of a
+bottleneck. This is a bit memory-intensive right now, but hasn't been updated to
+take advantage of the discrete-event model.
+
+![A/B Street](screenshots/time_travel.gif)
+
+### Trips
+
+Most trips are multi-modal. A pedestrian will appear at a building, travel down
+the front path to the sidewalk, walk to a parked car they own or a bus stop,
+start driving or riding, park or deboard, and walk to their final destination.
+Bicycle trips have a fixed time to start or stop; this models how easy it is to
+find bike parking in Seattle. In contrast, car parking is often scarce, so
+drivers sometimes reach their destination, but start roaming around until they
+find an available spot.
+
+Trip generation -- travel from here to there, starting at this time, using a
+car/bike/bus -- is currently very unrealistic. Players can manually define
+groups of cars to spawn uniformly from somewhere within a region they outline,
+but this is tedious. I'm actively looking for data sources (like the U.S census)
+that'll give hints about where people live and work, to generate more realistic
+demand data.
+
+### A/B Tests
+
+Traffic simulation is fully deterministic -- run exactly the same scenario twice
+with the same version of the game, and you'll get the same results. Map edits
+like adding or removing parking will change the initial conditions minimally (so
+parked cars on unedited roads will usually not change). This lets players run
+meaningful A/B tests, holding everything fixed except for a few tweaks to lanes
+and intersections. Two simulations can be run in parallel, and there are tools
+to visualize how individual agents are taking different paths or moving
+faster/slower between the two runs.
