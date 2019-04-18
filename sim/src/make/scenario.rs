@@ -442,7 +442,9 @@ impl BorderSpawnOverTime {
                 starting_biking_lanes.push(l);
             }
         }
-        if starting_biking_lanes.is_empty() {
+        if starting_biking_lanes.is_empty()
+            || map.get_l(starting_biking_lanes[0]).length() < MAX_BIKE_LENGTH
+        {
             timer.warn(format!(
                 "Can't start bike at border for {}",
                 self.start_from_border

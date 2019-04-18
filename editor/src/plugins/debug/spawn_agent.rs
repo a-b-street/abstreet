@@ -257,6 +257,9 @@ fn spawn_agents_around(i: IntersectionID, ctx: &mut PluginCtx) {
         if lane.is_driving() {
             for _ in 0..10 {
                 let vehicle = Scenario::rand_car(&mut rng);
+                if vehicle.length > lane.length() {
+                    continue;
+                }
                 sim.schedule_trip(
                     // TODO +1?
                     sim.time(),
