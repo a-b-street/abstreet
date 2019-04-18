@@ -1,29 +1,13 @@
 # A/B Street Features
 
-This article gives a quick overview of the features of A/B Street. A/B Street is
-a traffic simulation game set in Seattle. Players explore how small changes to
-road layout and intersection rules affect the movement of pedestrians, drivers,
-transit, and cyclists. The game's mission is to make it fun and simple for
-anybody to test an idea to improve Seattle's traffic flow and, if the idea works
-well, to communicate it to others.
+This article gives a quick overview of the features of A/B Street, a traffic
+simulation game set in Seattle. Players explore how small changes to road layout
+and intersection rules affect the movement of pedestrians, drivers, transit, and
+cyclists. The game's mission is to make it fun and simple for anybody to test an
+idea to improve Seattle's traffic flow and, if the idea works well, to
+communicate it to others.
 
-TODO: up-front gif showing different stuff
-
-A/B Street is not yet generally playable (but
-[if you want to anyway](/docs/INSTRUCTIONS.md)...):
-
-- The user interface to explore and edit the map is quite clunky.
-- The pieces of the game -- editing the map, running a simulation, comparing
-  results -- exist, but nothing is tied together yet in a game-like format.
-- Data sources describing a realistic set of trips is missing; cars start and
-  end at uniformly chosen places.
-- Some important things aren't yet modeled: light rail, big bike trails like the
-  Burke Gilman, ridesharing services, off-street parking lots and garages.
-
-If you're interested in joining me and working on problems like these, please
-get in touch. Funding is available. I also have half-finished articles with
-technical details about how A/B Street works; just ask me to finish them.
-Contact Dustin Carlino at `dabreegster@gmail.com`.
+![demo](screenshots/demo.gif)
 
 <!--ts-->
 
@@ -238,3 +222,21 @@ meaningful A/B tests, holding everything fixed except for a few tweaks to lanes
 and intersections. Two simulations can be run in parallel, and there are tools
 to visualize how individual agents are taking different paths or moving
 faster/slower between the two runs.
+
+## Ongoing work
+
+A/B Street is not yet generally playable (but
+[if you want to anyway](/docs/INSTRUCTIONS.md)...):
+
+- The user interface to explore and edit the map is quite clunky.
+- The pieces of the game -- editing the map, running a simulation, comparing
+  results -- exist, but nothing is tied together yet in a game-like format.
+- Data sources describing a realistic set of trips is missing; cars start and
+  end at uniformly chosen places.
+- Some important things aren't yet modeled: light rail, big bike trails like the
+  Burke Gilman, ridesharing services, off-street parking lots and garages.
+
+If you're interested in joining me and working on problems like these, please
+get in touch. Funding is available. I also have half-finished articles with
+technical details about how A/B Street works; just ask me to finish them.
+Contact Dustin Carlino at `dabreegster@gmail.com`.

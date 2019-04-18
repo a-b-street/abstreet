@@ -10,4 +10,4 @@ a city affect the movement of drivers, cyclists, transit users, and pedestrians.
 This is currently an experimental project. Please contact Dustin Carlino at
 <dabreegster@gmail.com> if you're interested in this game.
 
-TODO: main gif from the features page
+![demo](docs/articles/features/screenshots/demo.gif)
