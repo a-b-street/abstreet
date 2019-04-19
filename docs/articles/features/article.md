@@ -1,13 +1,12 @@
 # A/B Street Features
 
-This article gives a quick overview of the features of A/B Street, a traffic
-simulation game set in Seattle. Players explore how small changes to road layout
-and intersection rules affect the movement of pedestrians, drivers, transit, and
-cyclists. The game's mission is to make it fun and simple for anybody to test an
-idea to improve Seattle's traffic flow and, if the idea works well, to
-communicate it to others.
-
-![](screenshots/demo.gif)
+Ever been on a bus stuck in traffic, wondering why there are cars parked on the
+road instead of a bus lane? This article overviews the features of A/B Street, a
+traffic simulation game set in Seattle. Players explore how small changes to
+road layout and intersection rules affect the movement of pedestrians, drivers,
+transit, and cyclists. The game's mission is to make it fun and simple for
+anybody to test an idea to improve Seattle's traffic flow and, if the idea works
+well, to communicate it to others.
 
 <!--ts-->
 
@@ -28,11 +27,35 @@ communicate it to others.
 
 <!--te-->
 
+## Core gameplay
+
+Explore Seattle and observe how traffic currently flows.
+
+![](screenshots/demo.gif)
+
+After finding a problem, edit the map in a few ways:
+
+- change lane types (example: replace on-street parking with a bus-only lane)
+- change which roads stop or yield at a stop sign
+- change the phases and timing of a traffic signal (example: ban a left turn or
+  give it a dedicated phase)
+
+![](screenshots/map_editing.gif)
+
+These are changes that could be prototyped in real life relatively cheaply. A/B
+Street's purpose is to explore improvements to Seattle that we could try
+tomorrow, not longer-term improvements like light rail extensions.
+
+After making edits, you can see how the same traffic patterns behave. I'm
+currently working on a way to easily visualize and compare results with and
+without edits.
+
 ## Map
 
 A/B Street generates a detailed map of Seattle from OpenStreetMap (OSM), King
 County GIS, and a few other sources. It takes lots of processing to make a map
-suitable for simulating traffic and that's visually appealing for a game.
+suitable for simulating traffic and that's visually appealing for a game. This
+section describes some of these problems and solutions.
 
 The portion of the code-base to transform and clean up the map are separate from
 the traffic simulation. If you see another use for this map, contact me and
@@ -50,7 +73,7 @@ some metadata about lane restrictions.
 A/B Street breaks roads down into indidual lanes, automatically finding the
 geometry from the OSM road's center-line. Lane types and the number of lanes
 come from heuristics on the OSM metadata and from extra King County GIS
-shapefiles.
+shapefiles. Types of lanes include:
 
 - Regular driving lanes, usable by any vehicle
 - Sidewalks for pedestrian movement, including bus stops and paths to buildings
@@ -144,20 +167,6 @@ apartments have. This could be used to generate a realistic number of trips
 between residential and commercial areas.
 
 ![](screenshots/buildings.gif)
-
-### Editing
-
-The player can edit the map in a few ways:
-
-- change lane types
-- change which roads stop or yield at a stop sign
-- change the phases and timing of a traffic signal
-
-These are changes that could be prototyped in real life relatively cheaply. My
-goal with A/B Street is to explore improvements to Seattle that we could try
-tomorrow, not longer-term improvements like light rail extensions.
-
-![](screenshots/map_editing.gif)
 
 ## Traffic simulation
 

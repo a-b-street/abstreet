@@ -7,7 +7,11 @@ a city affect the movement of drivers, cyclists, transit users, and pedestrians.
 - [Game features](docs/articles/features/article.md)
 - [Instructions to run the game](docs/INSTRUCTIONS.md)
 
-This is currently an experimental project. Please contact Dustin Carlino at
-<dabreegster@gmail.com> if you're interested in this game.
-
 ![demo](docs/articles/features/screenshots/demo.gif)
+
+## Contributing
+
+If you're skilled in user experience design, traffic simulation, data
+visualization, or government outreach, please contact Dustin Carlino at
+<dabreegster@gmail.com>. I also welcome any contributions on
+[Patreon](https://www.patreon.com/abstreet).

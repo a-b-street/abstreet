@@ -6,7 +6,19 @@ are horrible. Don't expect things to work well, or at all. Please email
 
 ## Installing the game
 
-TODO: link to binary releases
+The easiest method is to use pre-built binaries. Check
+https://github.com/dabreegster/abstreet/releases for the latest version, though
+I'll try to keep these links up-to-date:
+
+- Windows:
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.0/abstreet_windows.zip
+- Mac:
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.0/abstreet_mac.zip
+- Linux:
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.0/abstreet_linux.zip
+
+The Windows and Mac versions may have more problems than the Linux version,
+because I only have regular access to a Linux machine.
 
 ### Compiling from source
 
