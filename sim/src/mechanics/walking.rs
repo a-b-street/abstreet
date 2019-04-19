@@ -324,7 +324,10 @@ impl Pedestrian {
         DrawPedestrianInput {
             id: self.id,
             pos,
-            waiting_for_turn: None,
+            waiting_for_turn: match self.state {
+                PedState::WaitingToTurn(_) => Some(self.path.next_step().as_turn()),
+                _ => None,
+            },
             preparing_bike: match self.state {
                 PedState::StartingToBike(_, _, _) | PedState::FinishingBiking(_, _, _) => true,
                 _ => false,
@@ -360,7 +363,6 @@ impl Pedestrian {
     }
 }
 
-// crossing front path, bike parking, waiting at bus stop, etc
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 enum PedState {
     Crossing(DistanceInterval, TimeInterval),

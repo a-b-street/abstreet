@@ -1,8 +1,8 @@
 use crate::colors::ColorScheme;
 use crate::objects::{DrawCtx, ID};
-use crate::render::{RenderOptions, Renderable};
+use crate::render::{should_draw_blinkers, RenderOptions, Renderable};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
-use geom::{Circle, Distance, Line, Polygon};
+use geom::{Circle, Distance, PolyLine, Polygon};
 use map_model::Map;
 use sim::{DrawPedestrianInput, PedestrianID};
 
@@ -11,7 +11,7 @@ const RADIUS: Distance = Distance::const_meters(1.0);
 pub struct DrawPedestrian {
     pub id: PedestrianID,
     circle: Circle,
-    turn_arrow: Option<Line>,
+    turn_arrow: Option<Vec<Polygon>>,
     zorder: isize,
 
     draw_default: Drawable,
@@ -27,8 +27,14 @@ impl DrawPedestrian {
         let turn_arrow = if let Some(t) = input.waiting_for_turn {
             // TODO this isn't quite right, but good enough for now
             let angle = map.get_t(t).angle();
-            let arrow_pt = input.pos.project_away(RADIUS, angle.opposite());
-            Some(Line::new(arrow_pt, input.pos))
+            Some(
+                PolyLine::new(vec![
+                    input.pos.project_away(RADIUS / 2.0, angle.opposite()),
+                    input.pos.project_away(RADIUS / 2.0, angle),
+                ])
+                .make_arrow(Distance::meters(0.25))
+                .unwrap(),
+            )
         } else {
             None
         };
@@ -68,13 +74,10 @@ impl Renderable for DrawPedestrian {
             g.redraw(&self.draw_default);
         }
 
-        // TODO tune color, sizes
         if let Some(ref a) = self.turn_arrow {
-            g.draw_arrow(
-                ctx.cs.get_def("pedestrian turn arrow", Color::CYAN),
-                Distance::meters(0.25),
-                a,
-            );
+            if should_draw_blinkers() {
+                g.draw_polygons(ctx.cs.get("blinker on"), a);
+            }
         }
     }
 

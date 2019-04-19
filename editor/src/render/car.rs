@@ -1,6 +1,6 @@
 use crate::colors::ColorScheme;
 use crate::objects::{DrawCtx, ID};
-use crate::render::{RenderOptions, Renderable};
+use crate::render::{should_draw_blinkers, RenderOptions, Renderable};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Angle, Circle, Distance, PolyLine, Polygon, Pt2D};
 use map_model::{Map, TurnType};
@@ -151,18 +151,11 @@ impl Renderable for DrawCar {
         }
 
         let blinker_on = ctx.cs.get_def("blinker on", Color::RED);
-        // Don't use the simulation time, because then fast simulations would have cars blinking
-        // _very_ fast or slow. Unless that's what people expect?
         // But if a car is trying to go straight, don't blink at all.
         let any_blinkers_on = if self.left_blinker_on && self.right_blinker_on {
             true
         } else {
-            std::time::SystemTime::now()
-                .duration_since(std::time::SystemTime::UNIX_EPOCH)
-                .unwrap()
-                .subsec_millis()
-                % 300
-                < 150
+            should_draw_blinkers()
         };
         if any_blinkers_on {
             // If both are on, don't show the front ones -- just the back brake lights

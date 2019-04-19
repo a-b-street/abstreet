@@ -1,12 +1,12 @@
 # A/B Street Features
 
 Ever been on a bus stuck in traffic, wondering why there are cars parked on the
-road instead of a bus lane? This article overviews the features of A/B Street, a
-traffic simulation game set in Seattle. Players explore how small changes to
-road layout and intersection rules affect the movement of pedestrians, drivers,
-transit, and cyclists. The game's mission is to make it fun and simple for
-anybody to test an idea to improve Seattle's traffic flow and, if the idea works
-well, to communicate it to others.
+road instead of a bus lane? This article overviews the features of A/B Street,
+an in-progress traffic simulation game set in Seattle. Players explore how small
+changes to road layout and intersection rules affect multi-modal trips of
+pedestrians, drivers, transit users, and cyclists. The game's mission is to make
+it fun and simple for anybody to test an idea to improve Seattle's traffic flow
+and, if the idea works well, to communicate it to others.
 
 <!--ts-->
 
@@ -49,7 +49,9 @@ tomorrow, not longer-term improvements like light rail extensions.
 
 After making edits, you can see how the same traffic patterns behave. I'm
 currently working on a way to easily visualize and compare results with and
-without edits.
+without edits. The game is currently more of a sandbox, but these phases of
+exploring, editing, and evaluating will be tied together in a more game-friendly
+format.
 
 ## Map
 
