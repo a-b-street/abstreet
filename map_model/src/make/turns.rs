@@ -305,14 +305,25 @@ fn make_shared_sidewalk_corner(
             pts_between.extend(
                 PolyLine::new(deduped)
                     .shift_right(LANE_THICKNESS / 2.0)
-                    .get(timer)
+                    .with_context(
+                        timer,
+                        format!("SharedSidewalkCorner between {} and {}", l1.id, l2.id),
+                    )
                     .points(),
             );
         }
     }
     pts_between.push(l1.last_pt());
     pts_between.reverse();
-    let mut final_pts = Pt2D::approx_dedupe(pts_between, geom::EPSILON_DIST);
+    // Pretty big smoothing; I'm observing funky backtracking about 0.5m long.
+    let mut final_pts = Pt2D::approx_dedupe(pts_between.clone(), Distance::meters(1.0));
+    if final_pts.len() < 2 {
+        timer.warn(format!(
+            "SharedSidewalkCorner between {} and {} couldn't do final smoothing",
+            l1.id, l2.id
+        ));
+        final_pts = Pt2D::approx_dedupe(pts_between, geom::EPSILON_DIST);
+    }
     // The last point might be removed as a duplicate, but we want the start/end to exactly match
     // up at least.
     if *final_pts.last().unwrap() != l2.first_pt() {

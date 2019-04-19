@@ -234,26 +234,26 @@ fn generalized_trim_back(
             endpoints.push(
                 r.trimmed_center_pts
                     .shift_right(r.fwd_width)
-                    .get(timer)
+                    .with_context(timer, format!("main polygon endpoints from {}", r.id))
                     .last_pt(),
             );
             endpoints.push(
                 r.trimmed_center_pts
                     .shift_left(r.back_width)
-                    .get(timer)
+                    .with_context(timer, format!("main polygon endpoints from {}", r.id))
                     .last_pt(),
             );
         } else {
             endpoints.push(
                 r.trimmed_center_pts
                     .shift_left(r.back_width)
-                    .get(timer)
+                    .with_context(timer, format!("main polygon endpoints from {}", r.id))
                     .first_pt(),
             );
             endpoints.push(
                 r.trimmed_center_pts
                     .shift_right(r.fwd_width)
-                    .get(timer)
+                    .with_context(timer, format!("main polygon endpoints from {}", r.id))
                     .first_pt(),
             );
         }

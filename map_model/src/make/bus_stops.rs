@@ -81,11 +81,13 @@ pub fn make_bus_stops(
             .cloned()
             .collect();
         if stops.len() < 2 {
-            timer.warn(format!(
-                "Skipping route {} since it only has {} stop in the slice of the map",
-                route_name,
-                stops.len()
-            ));
+            if stops.len() > 0 {
+                timer.warn(format!(
+                    "Skipping route {} since it only has {} stop in the slice of the map",
+                    route_name,
+                    stops.len()
+                ));
+            }
             continue;
         }
         let id = BusRouteID(routes.len());
