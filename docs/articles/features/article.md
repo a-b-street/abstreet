@@ -11,19 +11,20 @@ well, to communicate it to others.
 <!--ts-->
 
 - [A/B Street Features](#ab-street-features)
+  - [Core gameplay](#core-gameplay)
   - [Map](#map)
     - [Lanes](#lanes)
     - [Intersections (geometry)](#intersections-geometry)
     - [Intersections (semantics)](#intersections-semantics)
     - [Boundaries](#boundaries)
     - [Buildings](#buildings)
-    - [Editing](#editing)
   - [Traffic simulation](#traffic-simulation)
     - [Scale](#scale)
     - [Trips](#trips)
     - [A/B Tests](#ab-tests)
+  - [Ongoing work](#ongoing-work)
 
-<!-- Added by: dabreegster, at: Wed Apr 17 16:48:01 PDT 2019 -->
+<!-- Added by: dabreegster, at: Fri Apr 19 13:28:13 PDT 2019 -->
 
 <!--te-->
 
