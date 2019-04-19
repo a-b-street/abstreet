@@ -1,5 +1,5 @@
 use crate::widgets::{Menu, Position};
-use crate::{Canvas, Event, InputResult, Key, ScreenPt, Text, TopMenu};
+use crate::{text, Canvas, Event, InputResult, Key, ScreenPt, Text, TopMenu};
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 // As we check for user input, record the input and the thing that would happen. This will let us
@@ -7,7 +7,7 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 pub struct UserInput {
     event: Event,
     event_consumed: bool,
-    important_actions: Vec<String>,
+    important_actions: Vec<(Key, String)>,
     // If two different callers both expect the same key, there's likely an unintentional conflict.
     reserved_keys: HashMap<Key, String>,
 
@@ -157,8 +157,7 @@ impl UserInput {
 
         self.reserve_key(key, action);
 
-        self.important_actions
-            .push(format!("Press {} to {}", key.describe(), action));
+        self.important_actions.push((key, action.to_string()));
 
         if self.event_consumed {
             return false;
@@ -430,8 +429,10 @@ impl UserInput {
     }
 
     pub fn populate_osd(&mut self, osd: &mut Text) {
-        for a in &self.important_actions {
-            osd.add_line(a.clone());
+        for (key, a) in self.important_actions.drain(..) {
+            osd.add_line("Press ".to_string());
+            osd.append(key.describe(), Some(text::HOTKEY_COLOR));
+            osd.append(format!(" to {}", a), None);
         }
     }
 

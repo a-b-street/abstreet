@@ -45,6 +45,11 @@ impl DrawTurn {
             color,
             &t.geom.make_arrow(BIG_ARROW_THICKNESS * 2.0).unwrap(),
         );
+
+        // For debugging
+        /*for pt in t.geom.points() {
+            g.draw_circle(Color::RED, &geom::Circle::new(*pt, Distance::meters(0.4)));
+        }*/
     }
 
     pub fn draw_dashed(turn: &Turn, g: &mut GfxCtx, color: Color) {
