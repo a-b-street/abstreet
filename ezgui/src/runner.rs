@@ -271,7 +271,7 @@ fn loop_forever<T, G: GUI<T>>(
     prerender: Prerender,
 ) {
     if state.gui.profiling_enabled() {
-        #[cfg(unix)]
+        #[cfg(target_os = "linux")]
         {
             cpuprofiler::PROFILER
                 .lock()
@@ -291,7 +291,7 @@ fn loop_forever<T, G: GUI<T>>(
             if let glutin::Event::WindowEvent { event, .. } = event {
                 if event == glutin::WindowEvent::CloseRequested {
                     if state.gui.profiling_enabled() {
-                        #[cfg(unix)]
+                        #[cfg(target_os = "linux")]
                         {
                             cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
                         }

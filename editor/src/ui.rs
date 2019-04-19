@@ -9,7 +9,6 @@ use ezgui::{
     TopMenu, BOTTOM_LEFT, GUI,
 };
 use geom::{Bounds, Circle, Distance, Polygon};
-use kml;
 use map_model::{BuildingID, LaneID, Traversable};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashSet;

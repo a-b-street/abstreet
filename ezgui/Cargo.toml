@@ -15,6 +15,6 @@ serde = "1.0.89"
 serde_derive = "1.0.89"
 textwrap = "0.11"
 
-[target.'cfg(unix)'.dependencies]
+[target.'cfg(target_os = "linux")'.dependencies]
 # TODO Could add gperftools to the Windows Docker image
 cpuprofiler = "0.0.3"
