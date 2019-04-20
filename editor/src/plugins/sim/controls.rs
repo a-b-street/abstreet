@@ -53,6 +53,18 @@ impl AmbientPluginWithPrimaryPlugins for SimControls {
         if ctx.input.action_chosen("speed up sim") {
             self.desired_speed += ADJUST_SPEED;
         }
+        if ctx.input.action_chosen("reset sim") {
+            // TODO Handle secondary sim
+            // TODO Will the sudden change mess up the state in other plugins, or will they detect
+            // the time change correctly?
+            // TODO savestate_every gets lost
+            ctx.primary.sim = Sim::new(
+                &ctx.primary.map,
+                ctx.primary.current_flags.sim_flags.run_name.clone(),
+                None,
+            );
+            self.state = State::Paused;
+        }
 
         if ctx.secondary.is_some() && ctx.input.action_chosen("swap the primary/secondary sim") {
             println!("Swapping primary/secondary sim");

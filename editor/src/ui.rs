@@ -73,6 +73,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                     (Some(Key::D), "diff all A/B trips"),
                     (Some(Key::S), "seed the sim with agents"),
                     (Some(Key::LeftAlt), "swap the primary/secondary sim"),
+                    (None, "reset sim"),
                 ],
             ),
             Folder::new(
