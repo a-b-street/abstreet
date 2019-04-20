@@ -193,3 +193,15 @@ I don't really want the top menu active at all during the splash screen.
 Probably have to make each application own this state instead, which I
 suspected from early on. :) But UserInput is very entangled with stuff,
 probably hard to do right now.
+
+splash screen: logo and author
+(in the bg, a map in screensaver mode, just zoomed in some amount bouncing around randomlyish)
+- sandbox
+	- choose map
+- mission
+	- list of curated problems, with description/maybe a picture
+- tutorial
+- about
+- quit
+
+as a pause screen, add a - resume option too

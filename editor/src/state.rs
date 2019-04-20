@@ -289,6 +289,9 @@ impl UIState for DefaultUIState {
                 } else if let Some(p) = debug::spawn_agent::SpawnAgent::new(&mut ctx) {
                     self.exclusive_blocking_plugin = Some(Box::new(p));
                     return;
+                } else if let Some(p) = debug::screensaver::Screensaver::new(&mut ctx) {
+                    self.exclusive_blocking_plugin = Some(Box::new(p));
+                    return;
                 }
             }
         }
