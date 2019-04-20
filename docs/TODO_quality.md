@@ -32,6 +32,9 @@
 	- yellow and white lines intersect cars and turn icons and such
 	- who should own drawing them?
 
+- arrows
+	- sometimes head is separated from body. I314 montlake ped turn arrows
+
 ## More data
 
 - lanes: https://data-seattlecitygis.opendata.arcgis.com/datasets/49d417979fec452981a068ca078e7070_3

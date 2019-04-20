@@ -25,7 +25,6 @@ impl DrawPedestrian {
         cs: &ColorScheme,
     ) -> DrawPedestrian {
         let turn_arrow = if let Some(t) = input.waiting_for_turn {
-            // TODO this isn't quite right, but good enough for now
             let angle = map.get_t(t).angle();
             Some(
                 PolyLine::new(vec![

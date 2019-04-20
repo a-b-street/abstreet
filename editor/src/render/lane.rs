@@ -5,7 +5,7 @@ use abstutil::Timer;
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Circle, Distance, Line, PolyLine, Polygon};
 use map_model::{
-    IntersectionType, Lane, LaneID, LaneType, Map, Road, Turn, LANE_THICKNESS, PARKING_SPOT_LENGTH,
+    IntersectionType, Lane, LaneID, LaneType, Map, Road, LANE_THICKNESS, PARKING_SPOT_LENGTH,
 };
 
 pub struct DrawLane {
@@ -255,44 +255,33 @@ fn calculate_turn_markings(
     {
         return results;
     }
-
-    for turn in map.get_turns_from_lane(lane.id) {
-        results.extend(turn_markings(turn, map, cs, timer));
+    if lane.length() < Distance::meters(7.0) {
+        return results;
     }
-    results
-}
-
-fn turn_markings(
-    turn: &Turn,
-    map: &Map,
-    cs: &ColorScheme,
-    timer: &mut Timer,
-) -> Vec<(Color, Polygon)> {
-    let lane = map.get_l(turn.id.src);
-    let len = lane.length();
-    if len < Distance::meters(7.0) {
-        return Vec::new();
-    }
-
-    let common_base = lane
-        .lane_center_pts
-        .exact_slice(len - Distance::meters(7.0), len - Distance::meters(5.0));
-    let base_polygon = common_base.make_polygons(Distance::meters(0.1));
-    let turn_line = PolyLine::new(vec![
-        common_base.last_pt(),
-        common_base
-            .last_pt()
-            .project_away(LANE_THICKNESS / 2.0, turn.angle()),
-    ]);
 
     let color = cs.get_def("turn restrictions on lane", Color::WHITE);
-    let mut result = vec![(color, base_polygon)];
-    result.extend(
-        turn_line
-            .make_arrow(Distance::meters(0.05))
+    let thickness = Distance::meters(0.2);
+
+    let common_base = lane.lane_center_pts.exact_slice(
+        lane.length() - Distance::meters(7.0),
+        lane.length() - Distance::meters(5.0),
+    );
+    results.push((color, common_base.make_polygons(thickness)));
+
+    // TODO Maybe draw arrows per target road, not lane
+    for turn in map.get_turns_from_lane(lane.id) {
+        results.extend(
+            PolyLine::new(vec![
+                common_base.last_pt(),
+                common_base
+                    .last_pt()
+                    .project_away(LANE_THICKNESS / 2.0, turn.angle()),
+            ])
+            .make_arrow(thickness)
             .with_context(timer, format!("turn_markings for {}", turn.id))
             .into_iter()
             .map(|p| (color, p)),
-    );
-    result
+        );
+    }
+    results
 }

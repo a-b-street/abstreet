@@ -376,8 +376,9 @@ impl PolyLine {
 
     // TODO One polygon, please :)
     pub fn make_arrow(&self, thickness: Distance) -> Warn<Vec<Polygon>> {
-        // TODO Remove overlap between the triangle and last line segment
         let head_size = thickness * 2.0;
+        // triangle_height is wrong. Sometimes there's overlap, sometimes there's a gap. But the
+        // trig seems so simple...
         let triangle_height = (head_size / 2.0).sqrt();
         if self.last_line().length() < triangle_height {
             return Warn::warn(
