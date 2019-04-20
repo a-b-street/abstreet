@@ -186,3 +186,10 @@ Almost done organizing plugins. For the last stretch, I think I need to solve a 
 Callbacks get so confusing. How about SimMode just exposes the most recent
 events, and other things can reach in and query. They're responsible for not
 double-counting.
+
+## Overall loop / splash screen
+
+I don't really want the top menu active at all during the splash screen.
+Probably have to make each application own this state instead, which I
+suspected from early on. :) But UserInput is very entangled with stuff,
+probably hard to do right now.

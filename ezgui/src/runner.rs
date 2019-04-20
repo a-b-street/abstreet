@@ -23,13 +23,8 @@ pub trait GUI<T> {
         Vec::new()
     }
     fn event(&mut self, ctx: EventCtx) -> (EventLoopMode, T);
-    // TODO Migrate all callers
-    fn draw(&self, g: &mut GfxCtx, data: &T);
     // Return optional naming hint for screencap. TODO This API is getting gross.
-    fn new_draw(&self, g: &mut GfxCtx, data: &T, _screencap: bool) -> Option<String> {
-        self.draw(g, data);
-        None
-    }
+    fn draw(&self, g: &mut GfxCtx, data: &T, _screencap: bool) -> Option<String>;
     // Will be called if event or draw panics.
     fn dump_before_abort(&self, _canvas: &Canvas) {}
     // Only before a normal exit, like window close
@@ -136,7 +131,7 @@ impl<T, G: GUI<T>> State<T, G> {
             self.canvas.start_drawing();
 
             if let Err(err) = panic::catch_unwind(panic::AssertUnwindSafe(|| {
-                naming_hint = self.gui.new_draw(&mut g, data, screenshot);
+                naming_hint = self.gui.draw(&mut g, data, screenshot);
             })) {
                 self.gui.dump_before_abort(&self.canvas);
                 panic::resume_unwind(err);

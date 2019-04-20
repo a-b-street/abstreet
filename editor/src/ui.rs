@@ -263,9 +263,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         (hints.mode.clone(), hints)
     }
 
-    fn draw(&self, _: &mut GfxCtx, _: &RenderingHints) {}
-
-    fn new_draw(&self, g: &mut GfxCtx, hints: &RenderingHints, screencap: bool) -> Option<String> {
+    fn draw(&self, g: &mut GfxCtx, hints: &RenderingHints, screencap: bool) -> Option<String> {
         let state = self.state.get_state();
 
         let ctx = DrawCtx {

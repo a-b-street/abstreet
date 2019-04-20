@@ -40,6 +40,10 @@ pub struct Flags {
     /// Number of agents to generate when small_spawn called
     #[structopt(long = "num_agents", default_value = "100")]
     pub num_agents: usize,
+
+    /// Start with the splash screen and menu
+    #[structopt(long = "splash")]
+    pub splash: bool,
 }
 
 pub trait UIState {

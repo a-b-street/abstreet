@@ -58,8 +58,9 @@ impl GUI<()> for UI {
         (EventLoopMode::Animation, ())
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &()) {
+    fn draw(&self, g: &mut GfxCtx, _: &(), _screencap: bool) -> Option<String> {
         self.draw_map.draw(g, self.cycler.value());
+        None
     }
 }
 
