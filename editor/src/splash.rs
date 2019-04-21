@@ -69,6 +69,9 @@ impl GUI for GameState {
                     splash_screen(wizard.wrap(&mut ctx.input, ctx.canvas), &mut self.ui)
                 {
                     self.mode = new_mode;
+                } else if wizard.aborted() {
+                    self.ui.before_quit(ctx.canvas);
+                    std::process::exit(0);
                 }
                 EventLoopMode::Animation
             }
