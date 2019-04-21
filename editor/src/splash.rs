@@ -13,12 +13,14 @@ use std::time::Instant;
 
 pub struct GameState {
     mode: Mode,
+    screensaver: Option<Screensaver>,
+    // TODO I'd prefer storing this in Screensaver, but it makes updating a little annoying.
     rng: XorShiftRng,
     ui: UI<DefaultUIState>,
 }
 
 enum Mode {
-    SplashScreen(Wizard, Screensaver),
+    SplashScreen(Wizard),
     Playing,
     About(LogScroller),
 }
@@ -28,10 +30,12 @@ impl GameState {
         let mut rng = flags.sim_flags.make_rng();
         let ui = UI::new(DefaultUIState::new(flags, prerender, true), canvas);
         GameState {
-            mode: Mode::SplashScreen(
-                Wizard::new(),
-                Screensaver::start_bounce(&mut rng, canvas, &ui.state.get_state().primary.map),
-            ),
+            mode: Mode::SplashScreen(Wizard::new()),
+            screensaver: Some(Screensaver::start_bounce(
+                &mut rng,
+                canvas,
+                &ui.state.get_state().primary.map,
+            )),
             rng,
             ui,
         }
@@ -50,15 +54,17 @@ impl GUI for GameState {
     }
 
     fn event(&mut self, mut ctx: EventCtx) -> EventLoopMode {
-        match self.mode {
-            Mode::SplashScreen(ref mut wizard, ref mut screensaver) => {
-                screensaver.update(
-                    &mut self.rng,
-                    &mut ctx.input,
-                    &mut ctx.canvas,
-                    &self.ui.state.get_state().primary.map,
-                );
+        if let Some(ref mut screensaver) = self.screensaver {
+            screensaver.update(
+                &mut self.rng,
+                &mut ctx.input,
+                &mut ctx.canvas,
+                &self.ui.state.get_state().primary.map,
+            );
+        }
 
+        match self.mode {
+            Mode::SplashScreen(ref mut wizard) => {
                 if let Some(new_mode) =
                     splash_screen(wizard.wrap(&mut ctx.input, ctx.canvas), &mut self.ui)
                 {
@@ -68,16 +74,9 @@ impl GUI for GameState {
             }
             Mode::About(ref mut scroller) => {
                 if scroller.event(ctx.input) {
-                    self.mode = Mode::SplashScreen(
-                        Wizard::new(),
-                        Screensaver::start_bounce(
-                            &mut self.rng,
-                            ctx.canvas,
-                            &self.ui.state.get_state().primary.map,
-                        ),
-                    );
+                    self.mode = Mode::SplashScreen(Wizard::new());
                 }
-                EventLoopMode::InputOnly
+                EventLoopMode::Animation
             }
             Mode::Playing => self.ui.event(ctx),
         }
@@ -85,14 +84,13 @@ impl GUI for GameState {
 
     fn draw(&self, g: &mut GfxCtx, screencap: bool) -> Option<String> {
         match self.mode {
-            Mode::SplashScreen(ref wizard, _) => {
-                // Draw the map in the background.
+            Mode::SplashScreen(ref wizard) => {
                 self.ui.draw(g, screencap);
-
                 wizard.draw(g);
                 None
             }
             Mode::About(ref scroller) => {
+                self.ui.draw(g, screencap);
                 scroller.draw(g);
                 None
             }
