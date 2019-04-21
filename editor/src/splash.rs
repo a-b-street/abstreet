@@ -65,10 +65,15 @@ impl GUI for GameState {
 
         match self.mode {
             Mode::SplashScreen(ref mut wizard) => {
-                if let Some(new_mode) =
-                    splash_screen(wizard.wrap(&mut ctx.input, ctx.canvas), &mut self.ui)
-                {
+                if let Some(new_mode) = splash_screen(
+                    wizard.wrap(&mut ctx.input, ctx.canvas),
+                    &mut self.ui,
+                    self.screensaver.is_none(),
+                ) {
                     self.mode = new_mode;
+                    if let Mode::Playing = self.mode {
+                        self.screensaver = None;
+                    }
                 } else if wizard.aborted() {
                     self.ui.before_quit(ctx.canvas);
                     std::process::exit(0);
@@ -81,7 +86,13 @@ impl GUI for GameState {
                 }
                 EventLoopMode::Animation
             }
-            Mode::Playing => self.ui.event(ctx),
+            Mode::Playing => {
+                let (event_mode, pause) = self.ui.new_event(ctx);
+                if pause {
+                    self.mode = Mode::SplashScreen(Wizard::new());
+                }
+                event_mode
+            }
         }
     }
 
@@ -114,8 +125,12 @@ impl GUI for GameState {
     }
 }
 
-fn splash_screen(mut wizard: WrappedWizard, ui: &mut UI<DefaultUIState>) -> Option<Mode> {
-    let play = "Play";
+fn splash_screen(
+    mut wizard: WrappedWizard,
+    ui: &mut UI<DefaultUIState>,
+    paused: bool,
+) -> Option<Mode> {
+    let play = if paused { "Resume" } else { "Play" };
     let about = "About";
     let quit = "Quit";
     match wizard

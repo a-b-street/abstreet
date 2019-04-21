@@ -12,7 +12,6 @@ use geom::{Bounds, Circle, Distance, Polygon};
 use map_model::{BuildingID, LaneID, Traversable};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashSet;
-use std::process;
 
 pub struct UI<S: UIState> {
     // TODO Probably move this into DefaultUIState after rewriting Tutorial and the whole UIState
@@ -26,7 +25,10 @@ impl<S: UIState> GUI for UI<S> {
         let mut folders = Vec::new();
         folders.push(Folder::new(
             "File",
-            vec![(Some(Key::L), "show legend"), (Some(Key::Escape), "quit")],
+            vec![
+                (Some(Key::L), "show legend"),
+                (Some(Key::Escape), "pause game"),
+            ],
         ));
         if self.state.get_state().enable_debug_controls {
             folders.push(Folder::new(
@@ -210,64 +212,9 @@ impl<S: UIState> GUI for UI<S> {
         ]
     }
 
-    fn event(&mut self, mut ctx: EventCtx) -> EventLoopMode {
-        self.hints = RenderingHints {
-            mode: EventLoopMode::InputOnly,
-            osd: Text::new(),
-            suppress_traffic_signal_details: None,
-            hide_turn_icons: HashSet::new(),
-        };
-
-        // First update the camera
-        ctx.canvas.handle_event(ctx.input);
-
-        // Always handle mouseover
-        if !ctx.canvas.is_dragging() && ctx.input.get_moved_mouse().is_some() {
-            self.state.mut_state().primary.current_selection = self.mouseover_something(&ctx);
-        }
-        if ctx.input.window_lost_cursor() {
-            self.state.mut_state().primary.current_selection = None;
-        }
-
-        let mut recalculate_current_selection = false;
-        self.state.event(
-            &mut ctx,
-            &mut self.hints,
-            &mut recalculate_current_selection,
-        );
-        if recalculate_current_selection {
-            self.state.mut_state().primary.current_selection = self.mouseover_something(&ctx);
-        }
-
-        // Can do this at any time.
-        if ctx.input.action_chosen("quit") {
-            self.before_quit(ctx.canvas);
-            process::exit(0);
-        }
-
-        ctx.input.populate_osd(&mut self.hints.osd);
-
-        // TODO a plugin should do this, even though it's such a tiny thing
-        if self.state.get_state().enable_debug_controls {
-            if ctx.input.action_chosen("screenshot everything") {
-                let bounds = self.state.get_state().primary.map.get_bounds();
-                assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
-                self.hints.mode = EventLoopMode::ScreenCaptureEverything {
-                    dir: format!(
-                        "../data/screenshots/pending_{}",
-                        self.state.get_state().primary.map.get_name()
-                    ),
-                    zoom: 3.0,
-                    max_x: bounds.max_x,
-                    max_y: bounds.max_y,
-                };
-            }
-            if ctx.input.action_chosen("screenshot just this") {
-                self.hints.mode = EventLoopMode::ScreenCaptureCurrentShot;
-            }
-        }
-
-        self.hints.mode.clone()
+    // TODO This hacky wrapper will soon disappear, when UI stops implementing GUI
+    fn event(&mut self, ctx: EventCtx) -> EventLoopMode {
+        self.new_event(ctx).0
     }
 
     fn draw(&self, g: &mut GfxCtx, screencap: bool) -> Option<String> {
@@ -437,6 +384,64 @@ impl<S: UIState> UI<S> {
                 hide_turn_icons: HashSet::new(),
             },
         }
+    }
+
+    // True if we should pause.
+    pub fn new_event(&mut self, mut ctx: EventCtx) -> (EventLoopMode, bool) {
+        self.hints = RenderingHints {
+            mode: EventLoopMode::InputOnly,
+            osd: Text::new(),
+            suppress_traffic_signal_details: None,
+            hide_turn_icons: HashSet::new(),
+        };
+
+        // First update the camera
+        ctx.canvas.handle_event(ctx.input);
+
+        // Always handle mouseover
+        if !ctx.canvas.is_dragging() && ctx.input.get_moved_mouse().is_some() {
+            self.state.mut_state().primary.current_selection = self.mouseover_something(&ctx);
+        }
+        if ctx.input.window_lost_cursor() {
+            self.state.mut_state().primary.current_selection = None;
+        }
+
+        let mut recalculate_current_selection = false;
+        self.state.event(
+            &mut ctx,
+            &mut self.hints,
+            &mut recalculate_current_selection,
+        );
+        if recalculate_current_selection {
+            self.state.mut_state().primary.current_selection = self.mouseover_something(&ctx);
+        }
+
+        ctx.input.populate_osd(&mut self.hints.osd);
+
+        // TODO a plugin should do this, even though it's such a tiny thing
+        if self.state.get_state().enable_debug_controls {
+            if ctx.input.action_chosen("screenshot everything") {
+                let bounds = self.state.get_state().primary.map.get_bounds();
+                assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
+                self.hints.mode = EventLoopMode::ScreenCaptureEverything {
+                    dir: format!(
+                        "../data/screenshots/pending_{}",
+                        self.state.get_state().primary.map.get_name()
+                    ),
+                    zoom: 3.0,
+                    max_x: bounds.max_x,
+                    max_y: bounds.max_y,
+                };
+            }
+            if ctx.input.action_chosen("screenshot just this") {
+                self.hints.mode = EventLoopMode::ScreenCaptureCurrentShot;
+            }
+        }
+
+        (
+            self.hints.mode.clone(),
+            ctx.input.action_chosen("pause game"),
+        )
     }
 
     fn mouseover_something(&self, ctx: &EventCtx) -> Option<ID> {
