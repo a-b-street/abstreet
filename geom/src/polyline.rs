@@ -378,17 +378,18 @@ impl PolyLine {
     pub fn make_arrow(&self, thickness: Distance) -> Warn<Vec<Polygon>> {
         let head_size = thickness * 2.0;
         let triangle_height = head_size / 2.0_f64.sqrt();
-        if self.last_line().length() < triangle_height {
+
+        if self.length() < triangle_height {
             return Warn::warn(
                 vec![self.make_polygons(thickness)],
                 format!("Can't make_arrow of thickness {} for {}", thickness, self),
             );
         }
+        let slice = self.exact_slice(Distance::ZERO, self.length() - triangle_height);
 
-        let angle = self.last_line().angle();
+        let angle = slice.last_pt().angle_to(self.last_pt());
         Warn::ok(vec![
-            self.exact_slice(Distance::ZERO, self.length() - triangle_height)
-                .make_polygons(thickness),
+            slice.make_polygons(thickness),
             Polygon::new(&vec![
                 self.last_pt(),
                 self.last_pt()

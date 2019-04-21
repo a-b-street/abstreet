@@ -62,13 +62,6 @@
 	- neutral (white or offwhite) color and make noncritical info close to
 	  that. http://davidjohnstone.net/pages/lch-lab-colour-gradient-picker,
           chroma < 50
-- use new arrows for drawing...
-	- triangle and base have a gap; why?!
-		- only for turn icons?
-		- draw as one polygon when fixed
-	- dashed thickness is way off
-	- last dash shouldnt appear?
-	- then debug the legend plugin
 
 ## Switch to OpenGL (for speed)
 
