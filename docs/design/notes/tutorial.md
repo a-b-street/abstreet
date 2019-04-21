@@ -205,3 +205,14 @@ splash screen: logo and author
 - quit
 
 as a pause screen, add a - resume option too
+
+
+and rethinking game modes...
+- explore
+- simulate
+- edit
+
+common functionality:
+- search
+- warp
+- legend
