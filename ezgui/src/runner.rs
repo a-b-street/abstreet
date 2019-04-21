@@ -14,7 +14,7 @@ use std::{env, panic, process, thread};
 // 30fps is 1000 / 30
 const SLEEP_BETWEEN_FRAMES: Duration = Duration::from_millis(33);
 
-pub trait GUI<T> {
+pub trait GUI {
     // Called once
     fn top_menu(&self, _canvas: &Canvas) -> Option<TopMenu> {
         None
@@ -22,9 +22,9 @@ pub trait GUI<T> {
     fn modal_menus(&self) -> Vec<ModalMenu> {
         Vec::new()
     }
-    fn event(&mut self, ctx: EventCtx) -> (EventLoopMode, T);
+    fn event(&mut self, ctx: EventCtx) -> EventLoopMode;
     // Return optional naming hint for screencap. TODO This API is getting gross.
-    fn draw(&self, g: &mut GfxCtx, data: &T, _screencap: bool) -> Option<String>;
+    fn draw(&self, g: &mut GfxCtx, _screencap: bool) -> Option<String>;
     // Will be called if event or draw panics.
     fn dump_before_abort(&self, _canvas: &Canvas) {}
     // Only before a normal exit, like window close
@@ -48,18 +48,17 @@ pub enum EventLoopMode {
     ScreenCaptureCurrentShot,
 }
 
-pub(crate) struct State<T, G: GUI<T>> {
+pub(crate) struct State<G: GUI> {
     pub(crate) gui: G,
     pub(crate) canvas: Canvas,
     context_menu: ContextMenu,
     top_menu: Option<TopMenu>,
     modal_state: ModalMenuState,
-    pub(crate) last_data: Option<T>,
 }
 
-impl<T, G: GUI<T>> State<T, G> {
+impl<G: GUI> State<G> {
     // The bool indicates if the input was actually used.
-    fn event(mut self, ev: Event, prerender: &Prerender) -> (State<T, G>, EventLoopMode, bool) {
+    fn event(mut self, ev: Event, prerender: &Prerender) -> (State<G>, EventLoopMode, bool) {
         // It's impossible / very unlikey we'll grab the cursor in map space before the very first
         // start_drawing call.
         let mut input = UserInput::new(
@@ -71,7 +70,7 @@ impl<T, G: GUI<T>> State<T, G> {
         );
         let mut gui = self.gui;
         let mut canvas = self.canvas;
-        let (event_mode, data) = match panic::catch_unwind(panic::AssertUnwindSafe(|| {
+        let event_mode = match panic::catch_unwind(panic::AssertUnwindSafe(|| {
             gui.event(EventCtx {
                 input: &mut input,
                 canvas: &mut canvas,
@@ -86,7 +85,6 @@ impl<T, G: GUI<T>> State<T, G> {
         };
         self.gui = gui;
         self.canvas = canvas;
-        self.last_data = Some(data);
         // TODO We should always do has_been_consumed, but various hacks prevent this from being
         // true. For now, just avoid the specific annoying redraw case when a KeyRelease or Update
         // event is unused.
@@ -126,35 +124,32 @@ impl<T, G: GUI<T>> State<T, G> {
         let mut g = GfxCtx::new(&self.canvas, &prerender, &mut target, program);
         let mut naming_hint: Option<String> = None;
 
-        // If the very first event is render, then just wait.
-        if let Some(ref data) = self.last_data {
-            self.canvas.start_drawing();
+        self.canvas.start_drawing();
 
-            if let Err(err) = panic::catch_unwind(panic::AssertUnwindSafe(|| {
-                naming_hint = self.gui.draw(&mut g, data, screenshot);
-            })) {
-                self.gui.dump_before_abort(&self.canvas);
-                panic::resume_unwind(err);
+        if let Err(err) = panic::catch_unwind(panic::AssertUnwindSafe(|| {
+            naming_hint = self.gui.draw(&mut g, screenshot);
+        })) {
+            self.gui.dump_before_abort(&self.canvas);
+            panic::resume_unwind(err);
+        }
+
+        if !screenshot {
+            // Always draw the menus last.
+            if let Some(ref menu) = self.top_menu {
+                menu.draw(&mut g);
+            }
+            for (_, ref menu) in &self.modal_state.active {
+                menu.draw(&mut g);
+            }
+            if let ContextMenu::Displaying(ref menu) = self.context_menu {
+                menu.draw(&mut g);
             }
 
-            if !screenshot {
-                // Always draw the menus last.
-                if let Some(ref menu) = self.top_menu {
-                    menu.draw(&mut g);
-                }
-                for (_, ref menu) in &self.modal_state.active {
-                    menu.draw(&mut g);
-                }
-                if let ContextMenu::Displaying(ref menu) = self.context_menu {
-                    menu.draw(&mut g);
-                }
-
-                // Always draw text last
-                self.canvas
-                    .glyphs
-                    .borrow_mut()
-                    .draw_queued(display, &mut target);
-            }
+            // Always draw text last
+            self.canvas
+                .glyphs
+                .borrow_mut()
+                .draw_queued(display, &mut target);
         }
 
         target.finish().unwrap();
@@ -162,7 +157,7 @@ impl<T, G: GUI<T>> State<T, G> {
     }
 }
 
-pub fn run<T, G: GUI<T>, F: FnOnce(&mut Canvas, &Prerender) -> G>(
+pub fn run<G: GUI, F: FnOnce(&mut Canvas, &Prerender) -> G>(
     window_title: &str,
     initial_width: f64,
     initial_height: f64,
@@ -252,15 +247,14 @@ pub fn run<T, G: GUI<T>, F: FnOnce(&mut Canvas, &Prerender) -> G>(
         canvas,
         context_menu: ContextMenu::Inactive,
         modal_state: ModalMenuState::new(gui.modal_menus()),
-        last_data: None,
         gui,
     };
 
     loop_forever(state, events_loop, program, prerender);
 }
 
-fn loop_forever<T, G: GUI<T>>(
-    mut state: State<T, G>,
+fn loop_forever<G: GUI>(
+    mut state: State<G>,
     mut events_loop: glutin::EventsLoop,
     program: glium::Program,
     prerender: Prerender,

@@ -49,16 +49,16 @@ impl UI {
     }
 }
 
-impl GUI<()> for UI {
-    fn event(&mut self, ctx: EventCtx) -> (EventLoopMode, ()) {
+impl GUI for UI {
+    fn event(&mut self, ctx: EventCtx) -> EventLoopMode {
         if ctx.input.unimportant_key_pressed(Key::Escape, "quit") {
             process::exit(0);
         }
         ctx.canvas.handle_event(ctx.input);
-        (EventLoopMode::Animation, ())
+        EventLoopMode::Animation
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &(), _screencap: bool) -> Option<String> {
+    fn draw(&self, g: &mut GfxCtx, _screencap: bool) -> Option<String> {
         self.draw_map.draw(g, self.cycler.value());
         None
     }

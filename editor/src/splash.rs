@@ -1,4 +1,3 @@
-use crate::objects::RenderingHints;
 use crate::state::{DefaultUIState, Flags};
 use crate::ui::UI;
 use ezgui::{Canvas, EventCtx, EventLoopMode, GfxCtx, ModalMenu, Prerender, TopMenu, Wizard, GUI};
@@ -22,7 +21,7 @@ impl GameState {
     }
 }
 
-impl GUI<RenderingHints> for GameState {
+impl GUI for GameState {
     // TODO Don't display this unless mode is Playing! But that probably means we have to drag the
     // management of more ezgui state here.
     fn top_menu(&self, canvas: &Canvas) -> Option<TopMenu> {
@@ -33,15 +32,15 @@ impl GUI<RenderingHints> for GameState {
         self.ui.modal_menus()
     }
 
-    fn event(&mut self, ctx: EventCtx) -> (EventLoopMode, RenderingHints) {
+    fn event(&mut self, ctx: EventCtx) -> EventLoopMode {
         match self.mode {
             Mode::SplashScreen(ref mut _wizard) => self.ui.event(ctx),
             Mode::Playing => self.ui.event(ctx),
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, hints: &RenderingHints, screencap: bool) -> Option<String> {
-        self.ui.draw(g, hints, screencap)
+    fn draw(&self, g: &mut GfxCtx, screencap: bool) -> Option<String> {
+        self.ui.draw(g, screencap)
     }
 
     fn dump_before_abort(&self, canvas: &Canvas) {

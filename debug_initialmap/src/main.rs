@@ -13,6 +13,7 @@ struct UI {
     // TODO Or, if these are common things, the World could also hold this state.
     selected: Option<ID>,
     hide: HashSet<ID>,
+    osd: Text,
 }
 
 impl UI {
@@ -22,6 +23,7 @@ impl UI {
             filename: filename.to_string(),
             selected: None,
             hide: HashSet::new(),
+            osd: Text::new(),
         }
     }
 
@@ -33,8 +35,8 @@ impl UI {
     }
 }
 
-impl GUI<Text> for UI {
-    fn event(&mut self, mut ctx: EventCtx) -> (EventLoopMode, Text) {
+impl GUI for UI {
+    fn event(&mut self, mut ctx: EventCtx) -> EventLoopMode {
         ctx.canvas.handle_event(ctx.input);
 
         if !ctx.canvas.is_dragging() && ctx.input.get_moved_mouse().is_some() {
@@ -68,12 +70,12 @@ impl GUI<Text> for UI {
             }
         }
 
-        let mut osd = Text::new();
-        ctx.input.populate_osd(&mut osd);
-        (EventLoopMode::InputOnly, osd)
+        self.osd = Text::new();
+        ctx.input.populate_osd(&mut self.osd);
+        EventLoopMode::InputOnly
     }
 
-    fn draw(&self, g: &mut GfxCtx, osd: &Text, _screencap: bool) -> Option<String> {
+    fn draw(&self, g: &mut GfxCtx, _screencap: bool) -> Option<String> {
         g.clear(Color::WHITE);
 
         self.world.draw(g, &self.hide);
@@ -82,7 +84,7 @@ impl GUI<Text> for UI {
             self.world.draw_selected(g, id);
         }
 
-        g.draw_blocking_text(osd.clone(), ezgui::BOTTOM_LEFT);
+        g.draw_blocking_text(self.osd.clone(), ezgui::BOTTOM_LEFT);
         None
     }
 }

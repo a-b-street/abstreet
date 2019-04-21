@@ -9,6 +9,7 @@ struct UI {
     model: Model,
     quadtree: Option<QuadTree<ID>>,
     state: State,
+    osd: Text,
 }
 
 enum State {
@@ -42,18 +43,19 @@ impl UI {
             model,
             quadtree,
             state: State::Viewing,
+            osd: Text::new(),
         }
     }
 }
 
-impl GUI<Text> for UI {
-    fn event(&mut self, mut ctx: EventCtx) -> (EventLoopMode, Text) {
+impl GUI for UI {
+    fn event(&mut self, mut ctx: EventCtx) -> EventLoopMode {
         ctx.canvas.handle_event(ctx.input);
         let cursor = {
             if let Some(c) = ctx.canvas.get_cursor_in_map_space() {
                 c
             } else {
-                return (EventLoopMode::InputOnly, Text::new());
+                return EventLoopMode::InputOnly;
             }
         };
         let selected = self
@@ -201,12 +203,12 @@ impl GUI<Text> for UI {
             }
         }
 
-        let mut osd = Text::new();
-        ctx.input.populate_osd(&mut osd);
-        (EventLoopMode::InputOnly, osd)
+        self.osd = Text::new();
+        ctx.input.populate_osd(&mut self.osd);
+        EventLoopMode::InputOnly
     }
 
-    fn draw(&self, g: &mut GfxCtx, osd: &Text, _screencap: bool) -> Option<String> {
+    fn draw(&self, g: &mut GfxCtx, _screencap: bool) -> Option<String> {
         self.model.draw(g, self.quadtree.as_ref());
 
         match self.state {
@@ -229,7 +231,7 @@ impl GUI<Text> for UI {
             _ => {}
         };
 
-        g.draw_blocking_text(osd.clone(), ezgui::BOTTOM_LEFT);
+        g.draw_blocking_text(self.osd.clone(), ezgui::BOTTOM_LEFT);
         None
     }
 }

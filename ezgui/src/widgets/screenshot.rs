@@ -4,16 +4,16 @@ use abstutil::Timer;
 use std::io::Write;
 use std::{fs, process, thread, time};
 
-pub(crate) fn screenshot_everything<T, G: GUI<T>>(
+pub(crate) fn screenshot_everything<G: GUI>(
     dir_path: &str,
-    mut state: State<T, G>,
+    mut state: State<G>,
     display: &glium::Display,
     program: &glium::Program,
     prerender: &Prerender,
     zoom: f64,
     max_x: f64,
     max_y: f64,
-) -> State<T, G> {
+) -> State<G> {
     let mut timer = Timer::new("capturing screen");
     let num_tiles_x = (max_x * zoom / state.canvas.window_width).ceil() as usize;
     let num_tiles_y = (max_y * zoom / state.canvas.window_height).ceil() as usize;
@@ -58,8 +58,8 @@ pub(crate) fn screenshot_everything<T, G: GUI<T>>(
     state
 }
 
-pub(crate) fn screenshot_current<T, G: GUI<T>>(
-    state: &mut State<T, G>,
+pub(crate) fn screenshot_current<G: GUI>(
+    state: &mut State<G>,
     display: &glium::Display,
     program: &glium::Program,
     prerender: &Prerender,

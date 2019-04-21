@@ -15,10 +15,13 @@ use std::collections::HashSet;
 use std::process;
 
 pub struct UI<S: UIState> {
+    // TODO Probably move this into DefaultUIState after rewriting Tutorial and the whole UIState
+    // abstraction.
+    hints: RenderingHints,
     state: S,
 }
 
-impl<S: UIState> GUI<RenderingHints> for UI<S> {
+impl<S: UIState> GUI for UI<S> {
     fn top_menu(&self, canvas: &Canvas) -> Option<TopMenu> {
         let mut folders = Vec::new();
         folders.push(Folder::new(
@@ -209,8 +212,8 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         ]
     }
 
-    fn event(&mut self, mut ctx: EventCtx) -> (EventLoopMode, RenderingHints) {
-        let mut hints = RenderingHints {
+    fn event(&mut self, mut ctx: EventCtx) -> EventLoopMode {
+        self.hints = RenderingHints {
             mode: EventLoopMode::InputOnly,
             osd: Text::new(),
             suppress_traffic_signal_details: None,
@@ -229,8 +232,11 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         }
 
         let mut recalculate_current_selection = false;
-        self.state
-            .event(&mut ctx, &mut hints, &mut recalculate_current_selection);
+        self.state.event(
+            &mut ctx,
+            &mut self.hints,
+            &mut recalculate_current_selection,
+        );
         if recalculate_current_selection {
             self.state.mut_state().primary.current_selection = self.mouseover_something(&ctx);
         }
@@ -241,14 +247,14 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             process::exit(0);
         }
 
-        ctx.input.populate_osd(&mut hints.osd);
+        ctx.input.populate_osd(&mut self.hints.osd);
 
         // TODO a plugin should do this, even though it's such a tiny thing
         if self.state.get_state().enable_debug_controls {
             if ctx.input.action_chosen("screenshot everything") {
                 let bounds = self.state.get_state().primary.map.get_bounds();
                 assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
-                hints.mode = EventLoopMode::ScreenCaptureEverything {
+                self.hints.mode = EventLoopMode::ScreenCaptureEverything {
                     dir: format!(
                         "../data/screenshots/pending_{}",
                         self.state.get_state().primary.map.get_name()
@@ -259,14 +265,14 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
                 };
             }
             if ctx.input.action_chosen("screenshot just this") {
-                hints.mode = EventLoopMode::ScreenCaptureCurrentShot;
+                self.hints.mode = EventLoopMode::ScreenCaptureCurrentShot;
             }
         }
 
-        (hints.mode.clone(), hints)
+        self.hints.mode.clone()
     }
 
-    fn draw(&self, g: &mut GfxCtx, hints: &RenderingHints, screencap: bool) -> Option<String> {
+    fn draw(&self, g: &mut GfxCtx, screencap: bool) -> Option<String> {
         let state = self.state.get_state();
 
         let ctx = DrawCtx {
@@ -274,7 +280,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
             map: &state.primary.map,
             draw_map: &state.primary.draw_map,
             sim: &state.primary.sim,
-            hints: &hints,
+            hints: &self.hints,
         };
         let mut sample_intersection: Option<String> = None;
 
@@ -357,7 +363,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
 
             // Not happy about cloning, but probably will make the OSD a first-class ezgui concept
             // soon, so meh
-            let mut osd = hints.osd.clone();
+            let mut osd = self.hints.osd.clone();
             // TODO Only in some kind of debug mode
             osd.add_line(format!(
                 "{} things uploaded, {} things drawn",
@@ -424,7 +430,15 @@ impl<S: UIState> UI<S> {
             }
         }
 
-        UI { state }
+        UI {
+            state,
+            hints: RenderingHints {
+                mode: EventLoopMode::InputOnly,
+                osd: Text::new(),
+                suppress_traffic_signal_details: None,
+                hide_turn_icons: HashSet::new(),
+            },
+        }
     }
 
     fn mouseover_something(&self, ctx: &EventCtx) -> Option<ID> {

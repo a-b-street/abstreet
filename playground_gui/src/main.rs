@@ -27,8 +27,8 @@ impl UI {
     }
 }
 
-impl GUI<()> for UI {
-    fn event(&mut self, ctx: EventCtx) -> (EventLoopMode, ()) {
+impl GUI for UI {
+    fn event(&mut self, ctx: EventCtx) -> EventLoopMode {
         if ctx.input.unimportant_key_pressed(Key::Escape, "quit") {
             process::exit(0);
         }
@@ -98,10 +98,10 @@ impl GUI<()> for UI {
 
         ctx.canvas.handle_event(ctx.input);
 
-        (EventLoopMode::InputOnly, ())
+        EventLoopMode::InputOnly
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &(), _screencap: bool) -> Option<String> {
+    fn draw(&self, g: &mut GfxCtx, _screencap: bool) -> Option<String> {
         g.clear(common::WHITE);
 
         let mut labels: Vec<(Pt2D, String)> = Vec::new();
