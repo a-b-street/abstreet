@@ -2,8 +2,8 @@ use crate::state::{DefaultUIState, Flags, UIState};
 use crate::ui::UI;
 use abstutil::elapsed_seconds;
 use ezgui::{
-    Canvas, EventCtx, EventLoopMode, GfxCtx, ModalMenu, Prerender, TopMenu, UserInput, Wizard,
-    WrappedWizard, GUI,
+    Canvas, EventCtx, EventLoopMode, GfxCtx, LogScroller, ModalMenu, Prerender, TopMenu, UserInput,
+    Wizard, WrappedWizard, GUI,
 };
 use geom::{Duration, Line, Pt2D, Speed};
 use map_model::Map;
@@ -13,22 +13,26 @@ use std::time::Instant;
 
 pub struct GameState {
     mode: Mode,
+    rng: XorShiftRng,
     ui: UI<DefaultUIState>,
 }
 
 enum Mode {
-    SplashScreen(Wizard, Screensaver, XorShiftRng),
+    SplashScreen(Wizard, Screensaver),
     Playing,
+    About(LogScroller),
 }
 
 impl GameState {
     pub fn new(flags: Flags, canvas: &mut Canvas, prerender: &Prerender) -> GameState {
         let mut rng = flags.sim_flags.make_rng();
         let ui = UI::new(DefaultUIState::new(flags, prerender, true), canvas);
-        let screensaver =
-            Screensaver::start_bounce(&mut rng, canvas, &ui.state.get_state().primary.map);
         GameState {
-            mode: Mode::SplashScreen(Wizard::new(), screensaver, rng),
+            mode: Mode::SplashScreen(
+                Wizard::new(),
+                Screensaver::start_bounce(&mut rng, canvas, &ui.state.get_state().primary.map),
+            ),
+            rng,
             ui,
         }
     }
@@ -47,18 +51,33 @@ impl GUI for GameState {
 
     fn event(&mut self, mut ctx: EventCtx) -> EventLoopMode {
         match self.mode {
-            Mode::SplashScreen(ref mut wizard, ref mut screensaver, ref mut rng) => {
+            Mode::SplashScreen(ref mut wizard, ref mut screensaver) => {
                 screensaver.update(
-                    rng,
+                    &mut self.rng,
                     &mut ctx.input,
                     &mut ctx.canvas,
                     &self.ui.state.get_state().primary.map,
                 );
 
-                if splash_screen(wizard.wrap(&mut ctx.input, ctx.canvas), &mut self.ui).is_some() {
-                    self.mode = Mode::Playing;
+                if let Some(new_mode) =
+                    splash_screen(wizard.wrap(&mut ctx.input, ctx.canvas), &mut self.ui)
+                {
+                    self.mode = new_mode;
                 }
                 EventLoopMode::Animation
+            }
+            Mode::About(ref mut scroller) => {
+                if scroller.event(ctx.input) {
+                    self.mode = Mode::SplashScreen(
+                        Wizard::new(),
+                        Screensaver::start_bounce(
+                            &mut self.rng,
+                            ctx.canvas,
+                            &self.ui.state.get_state().primary.map,
+                        ),
+                    );
+                }
+                EventLoopMode::InputOnly
             }
             Mode::Playing => self.ui.event(ctx),
         }
@@ -66,11 +85,15 @@ impl GUI for GameState {
 
     fn draw(&self, g: &mut GfxCtx, screencap: bool) -> Option<String> {
         match self.mode {
-            Mode::SplashScreen(ref wizard, _, _) => {
+            Mode::SplashScreen(ref wizard, _) => {
                 // Draw the map in the background.
                 self.ui.draw(g, screencap);
 
                 wizard.draw(g);
+                None
+            }
+            Mode::About(ref scroller) => {
+                scroller.draw(g);
                 None
             }
             Mode::Playing => self.ui.draw(g, screencap),
@@ -90,14 +113,21 @@ impl GUI for GameState {
     }
 }
 
-fn splash_screen(mut wizard: WrappedWizard, ui: &mut UI<DefaultUIState>) -> Option<()> {
+fn splash_screen(mut wizard: WrappedWizard, ui: &mut UI<DefaultUIState>) -> Option<Mode> {
     let play = "Play";
+    let about = "About";
     let quit = "Quit";
     match wizard
-        .choose_string("Welcome to A/B Street!", vec![play, quit])?
+        .choose_string("Welcome to A/B Street!", vec![play, about, quit])?
         .as_str()
     {
-        x if x == play => Some(()),
+        x if x == play => Some(Mode::Playing),
+        x if x == about => Some(Mode::About(LogScroller::new_from_lines(vec![
+            "A/B Street is developed by Dustin Carlino".to_string(),
+            "Contact dabreegster@gmail.com".to_string(),
+            "http://github.com/dabreegster/abstreet".to_string(),
+            "Map data from OpenStreetMap and King County GIS".to_string(),
+        ]))),
         x if x == quit => {
             ui.before_quit(wizard.canvas);
             std::process::exit(0);
@@ -108,8 +138,6 @@ fn splash_screen(mut wizard: WrappedWizard, ui: &mut UI<DefaultUIState>) -> Opti
 
 const SPEED: Speed = Speed::const_meters_per_second(50.0);
 
-// TODO I'd prefer to store the XorShiftRng in here, but it makes borrow checking without some
-// boilerplate hard.
 struct Screensaver {
     line: Line,
     started: Instant,
