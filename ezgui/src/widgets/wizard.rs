@@ -107,7 +107,7 @@ impl Wizard {
 pub struct WrappedWizard<'a> {
     wizard: &'a mut Wizard,
     input: &'a mut UserInput,
-    pub canvas: &'a Canvas,
+    canvas: &'a Canvas,
 
     // The downcasts are safe iff the queries made to the wizard are deterministic.
     ready_results: VecDeque<Box<Cloneable>>,
@@ -253,5 +253,9 @@ impl<'a> WrappedWizard<'a> {
             choices.into_iter().map(|s| (s.to_string(), ())).collect();
         self.choose_something(query, Box::new(move || copied_choices.clone()))
             .map(|(s, _)| s)
+    }
+
+    pub fn aborted(&self) -> bool {
+        self.wizard.aborted()
     }
 }

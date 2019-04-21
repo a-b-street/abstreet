@@ -106,10 +106,10 @@ pub fn deserialize_multimap<
 }
 
 // Just list all things from a directory, return sorted by name, with file extension removed.
-// Pretty hacky that we return a (String, String).
+// Pretty hacky that we return a (String, String). Also hacky that map_name can be blank. ;)
 pub fn list_all_objects(dir: &str, map_name: &str) -> Vec<(String, String)> {
     let mut results: BTreeSet<(String, String)> = BTreeSet::new();
-    match std::fs::read_dir(format!("../data/{}/{}/", dir, map_name)) {
+    match std::fs::read_dir(format!("../data/{}/{}", dir, map_name)) {
         Ok(iter) => {
             for entry in iter {
                 let filename = entry.unwrap().file_name();

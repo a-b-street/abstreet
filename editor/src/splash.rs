@@ -3,12 +3,13 @@ use crate::ui::UI;
 use abstutil::elapsed_seconds;
 use ezgui::{
     Canvas, EventCtx, EventLoopMode, GfxCtx, LogScroller, ModalMenu, Prerender, TopMenu, UserInput,
-    Wizard, WrappedWizard, GUI,
+    Wizard, GUI,
 };
 use geom::{Duration, Line, Pt2D, Speed};
 use map_model::Map;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
+use std::path::PathBuf;
 use std::time::Instant;
 
 pub struct GameState {
@@ -65,11 +66,9 @@ impl GUI for GameState {
 
         match self.mode {
             Mode::SplashScreen(ref mut wizard) => {
-                if let Some(new_mode) = splash_screen(
-                    wizard.wrap(&mut ctx.input, ctx.canvas),
-                    &mut self.ui,
-                    self.screensaver.is_none(),
-                ) {
+                if let Some(new_mode) =
+                    splash_screen(wizard, &mut ctx, &mut self.ui, self.screensaver.is_none())
+                {
                     self.mode = new_mode;
                     if let Mode::Playing = self.mode {
                         self.screensaver = None;
@@ -125,33 +124,6 @@ impl GUI for GameState {
     }
 }
 
-fn splash_screen(
-    mut wizard: WrappedWizard,
-    ui: &mut UI<DefaultUIState>,
-    paused: bool,
-) -> Option<Mode> {
-    let play = if paused { "Resume" } else { "Play" };
-    let about = "About";
-    let quit = "Quit";
-    match wizard
-        .choose_string("Welcome to A/B Street!", vec![play, about, quit])?
-        .as_str()
-    {
-        x if x == play => Some(Mode::Playing),
-        x if x == about => Some(Mode::About(LogScroller::new_from_lines(vec![
-            "A/B Street is developed by Dustin Carlino".to_string(),
-            "Contact dabreegster@gmail.com".to_string(),
-            "http://github.com/dabreegster/abstreet".to_string(),
-            "Map data from OpenStreetMap and King County GIS".to_string(),
-        ]))),
-        x if x == quit => {
-            ui.before_quit(wizard.canvas);
-            std::process::exit(0);
-        }
-        _ => unreachable!(),
-    }
-}
-
 const SPEED: Speed = Speed::const_meters_per_second(50.0);
 
 struct Screensaver {
@@ -194,5 +166,59 @@ impl Screensaver {
                 *self = Screensaver::start_bounce(rng, canvas, map)
             }
         }
+    }
+}
+
+fn splash_screen(
+    raw_wizard: &mut Wizard,
+    ctx: &mut EventCtx,
+    ui: &mut UI<DefaultUIState>,
+    paused: bool,
+) -> Option<Mode> {
+    let mut wizard = raw_wizard.wrap(&mut ctx.input, ctx.canvas);
+    let play = if paused { "Resume" } else { "Play" };
+    let load_map = "Load another map";
+    let about = "About";
+    let quit = "Quit";
+    match wizard
+        .choose_string("Welcome to A/B Street!", vec![play, load_map, about, quit])?
+        .as_str()
+    {
+        x if x == play => Some(Mode::Playing),
+        x if x == load_map => {
+            let current_map = ui.state.get_state().primary.map.get_name().to_string();
+            if let Some((name, _)) = wizard.choose_something::<String>(
+                "Load which map?",
+                Box::new(move || {
+                    abstutil::list_all_objects("maps", "")
+                        .into_iter()
+                        .filter(|(n, _)| n != &current_map)
+                        .collect()
+                }),
+            ) {
+                // This retains no state, but that's probably fine.
+                let mut flags = ui.state.get_state().primary.current_flags.clone();
+                flags.sim_flags.load = PathBuf::from(format!("../data/maps/{}.abst", name));
+                *ui = UI::new(DefaultUIState::new(flags, ctx.prerender, true), ctx.canvas);
+                Some(Mode::Playing)
+            } else if wizard.aborted() {
+                Some(Mode::SplashScreen(Wizard::new()))
+            } else {
+                None
+            }
+        }
+        x if x == about => Some(Mode::About(LogScroller::new_from_lines(vec![
+            "A/B Street is developed by Dustin Carlino".to_string(),
+            "Contact dabreegster@gmail.com".to_string(),
+            "http://github.com/dabreegster/abstreet".to_string(),
+            "Map data from OpenStreetMap and King County GIS".to_string(),
+            "".to_string(),
+            "Press ENTER to continue".to_string(),
+        ]))),
+        x if x == quit => {
+            ui.before_quit(ctx.canvas);
+            std::process::exit(0);
+        }
+        _ => unreachable!(),
     }
 }

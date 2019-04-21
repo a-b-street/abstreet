@@ -1,6 +1,7 @@
 # Notes on Rust in A/B Street
 
-This article describes parts of A/B Street's implementation that might be of interest to the Rust community.
+This article describes parts of A/B Street's implementation that might be of
+interest to the Rust community.
 
 TODO: TOC
 
@@ -30,7 +31,9 @@ forking rng
 
 ## Grievances
 
-Compile times. Tiny tweak in geom, everything that depends on it also gets recompiled. Might just be relinking, but feels slow enough to be redoing stuff. Very painful.
+Compile times. Tiny tweak in geom, everything that depends on it also gets
+recompiled. Might just be relinking, but feels slow enough to be redoing stuff.
+Very painful.
 
 ## Appendix: Code organization
 
