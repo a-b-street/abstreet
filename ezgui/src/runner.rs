@@ -19,7 +19,7 @@ pub trait GUI<T> {
     fn top_menu(&self, _canvas: &Canvas) -> Option<TopMenu> {
         None
     }
-    fn modal_menus() -> Vec<ModalMenu> {
+    fn modal_menus(&self) -> Vec<ModalMenu> {
         Vec::new()
     }
     fn event(&mut self, ctx: EventCtx) -> (EventLoopMode, T);
@@ -251,7 +251,7 @@ pub fn run<T, G: GUI<T>, F: FnOnce(&mut Canvas, &Prerender) -> G>(
         top_menu: gui.top_menu(&canvas),
         canvas,
         context_menu: ContextMenu::Inactive,
-        modal_state: ModalMenuState::new(G::modal_menus()),
+        modal_state: ModalMenuState::new(gui.modal_menus()),
         last_data: None,
         gui,
     };

@@ -89,7 +89,7 @@ impl<S: UIState> GUI<RenderingHints> for UI<S> {
         Some(TopMenu::new(folders, canvas))
     }
 
-    fn modal_menus() -> Vec<ModalMenu> {
+    fn modal_menus(&self) -> Vec<ModalMenu> {
         vec![
             ModalMenu::new(
                 "Traffic Signal Editor",
