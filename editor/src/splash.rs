@@ -1,6 +1,9 @@
 use crate::state::{DefaultUIState, Flags};
 use crate::ui::UI;
-use ezgui::{Canvas, EventCtx, EventLoopMode, GfxCtx, ModalMenu, Prerender, TopMenu, Wizard, GUI};
+use ezgui::{
+    Canvas, EventCtx, EventLoopMode, GfxCtx, ModalMenu, Prerender, TopMenu, Wizard, WrappedWizard,
+    GUI,
+};
 
 pub struct GameState {
     mode: Mode,
@@ -32,15 +35,26 @@ impl GUI for GameState {
         self.ui.modal_menus()
     }
 
-    fn event(&mut self, ctx: EventCtx) -> EventLoopMode {
+    fn event(&mut self, mut ctx: EventCtx) -> EventLoopMode {
         match self.mode {
-            Mode::SplashScreen(ref mut _wizard) => self.ui.event(ctx),
+            Mode::SplashScreen(ref mut wizard) => {
+                if splash_screen(wizard.wrap(&mut ctx.input, ctx.canvas), &mut self.ui).is_some() {
+                    self.mode = Mode::Playing;
+                }
+                EventLoopMode::InputOnly
+            }
             Mode::Playing => self.ui.event(ctx),
         }
     }
 
     fn draw(&self, g: &mut GfxCtx, screencap: bool) -> Option<String> {
-        self.ui.draw(g, screencap)
+        match self.mode {
+            Mode::SplashScreen(ref wizard) => {
+                wizard.draw(g);
+                None
+            }
+            Mode::Playing => self.ui.draw(g, screencap),
+        }
     }
 
     fn dump_before_abort(&self, canvas: &Canvas) {
@@ -53,5 +67,21 @@ impl GUI for GameState {
 
     fn profiling_enabled(&self) -> bool {
         self.ui.profiling_enabled()
+    }
+}
+
+fn splash_screen(mut wizard: WrappedWizard, ui: &mut UI<DefaultUIState>) -> Option<()> {
+    let play = "Play";
+    let quit = "Quit";
+    match wizard
+        .choose_string("Welcome to A/B Street!", vec![play, quit])?
+        .as_str()
+    {
+        x if x == play => Some(()),
+        x if x == quit => {
+            ui.before_quit(wizard.canvas);
+            std::process::exit(0);
+        }
+        _ => unreachable!(),
     }
 }

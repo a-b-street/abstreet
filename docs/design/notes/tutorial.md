@@ -204,6 +204,11 @@ splash screen: logo and author
 - about
 - quit
 
+maybe even some more things to guide flow:
+- a/b test some edits
+- edit mode
+
+
 as a pause screen, add a - resume option too
 
 
