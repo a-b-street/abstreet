@@ -18,7 +18,7 @@ pub struct UI<S: UIState> {
     // TODO Probably move this into DefaultUIState after rewriting Tutorial and the whole UIState
     // abstraction.
     hints: RenderingHints,
-    state: S,
+    pub state: S,
 }
 
 impl<S: UIState> GUI for UI<S> {
@@ -44,7 +44,6 @@ impl<S: UIState> GUI for UI<S> {
                     (Some(Key::Num7), "show/hide extra shapes"),
                     (Some(Key::Num9), "show/hide all turn icons"),
                     (None, "show/hide geometry debug mode"),
-                    (None, "screensaver mode"),
                 ],
             ));
         }
@@ -173,7 +172,6 @@ impl<S: UIState> GUI for UI<S> {
                 vec![(Key::Enter, "quit"), (Key::N, "see next problem")],
             ),
             ModalMenu::new("Original Roads", vec![(Key::Enter, "quit")]),
-            ModalMenu::new("Screensaver", vec![(Key::Enter, "quit")]),
             ModalMenu::new("OSM Classifier", vec![(Key::Num6, "quit")]),
             ModalMenu::new(
                 "Floodfiller",
