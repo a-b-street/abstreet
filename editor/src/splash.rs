@@ -2,8 +2,8 @@ use crate::state::{DefaultUIState, Flags, UIState};
 use crate::ui::UI;
 use abstutil::elapsed_seconds;
 use ezgui::{
-    Canvas, EventCtx, EventLoopMode, GfxCtx, LogScroller, ModalMenu, Prerender, TopMenu, UserInput,
-    Wizard, GUI,
+    Canvas, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Key, LogScroller, ModalMenu,
+    Prerender, Text, TopMenu, UserInput, VerticalAlignment, Wizard, GUI,
 };
 use geom::{Duration, Line, Pt2D, Speed};
 use map_model::Map;
@@ -24,6 +24,8 @@ enum Mode {
     SplashScreen(Wizard),
     Playing,
     About(LogScroller),
+    TutorialPart1(Pt2D),
+    TutorialPart2(f64),
 }
 
 impl GameState {
@@ -70,8 +72,11 @@ impl GUI for GameState {
                     splash_screen(wizard, &mut ctx, &mut self.ui, self.screensaver.is_none())
                 {
                     self.mode = new_mode;
-                    if let Mode::Playing = self.mode {
-                        self.screensaver = None;
+                    match self.mode {
+                        Mode::About(_) => {}
+                        _ => {
+                            self.screensaver = None;
+                        }
                     }
                 } else if wizard.aborted() {
                     self.ui.before_quit(ctx.canvas);
@@ -86,6 +91,31 @@ impl GUI for GameState {
                 EventLoopMode::Animation
             }
             Mode::Playing => {
+                let (event_mode, pause) = self.ui.new_event(ctx);
+                if pause {
+                    self.mode = Mode::SplashScreen(Wizard::new());
+                }
+                event_mode
+            }
+            Mode::TutorialPart1(orig_center) => {
+                // TODO Zooming also changes this. :(
+                if ctx.canvas.center_to_map_pt() != orig_center
+                    && ctx.input.key_pressed(Key::Enter, "next step of tutorial")
+                {
+                    self.mode = Mode::TutorialPart2(ctx.canvas.cam_zoom);
+                }
+                let (event_mode, pause) = self.ui.new_event(ctx);
+                if pause {
+                    self.mode = Mode::SplashScreen(Wizard::new());
+                }
+                event_mode
+            }
+            Mode::TutorialPart2(orig_cam_zoom) => {
+                if ctx.canvas.cam_zoom != orig_cam_zoom
+                    && ctx.input.key_pressed(Key::Enter, "next step of tutorial")
+                {
+                    self.mode = Mode::SplashScreen(Wizard::new());
+                }
                 let (event_mode, pause) = self.ui.new_event(ctx);
                 if pause {
                     self.mode = Mode::SplashScreen(Wizard::new());
@@ -108,6 +138,29 @@ impl GUI for GameState {
                 None
             }
             Mode::Playing => self.ui.draw(g, screencap),
+            Mode::TutorialPart1(orig_center) => {
+                self.ui.draw(g, screencap);
+                let mut txt = Text::new();
+                txt.add_line("Click and drag to pan around".to_string());
+                if g.canvas.center_to_map_pt() != orig_center {
+                    txt.add_line("".to_string());
+                    txt.add_line("Great! Press ENTER to continue.".to_string());
+                }
+                // TODO Get rid of top menu and OSD and then put this somewhere more sensible. :)
+                g.draw_blocking_text(txt, (HorizontalAlignment::Right, VerticalAlignment::Center));
+                None
+            }
+            Mode::TutorialPart2(orig_cam_zoom) => {
+                self.ui.draw(g, screencap);
+                let mut txt = Text::new();
+                txt.add_line("Use your mouse wheel or touchpad to zoom in and out".to_string());
+                if g.canvas.cam_zoom != orig_cam_zoom {
+                    txt.add_line("".to_string());
+                    txt.add_line("Great! Press ENTER to continue.".to_string());
+                }
+                g.draw_blocking_text(txt, (HorizontalAlignment::Right, VerticalAlignment::Center));
+                None
+            }
         }
     }
 
@@ -178,10 +231,14 @@ fn splash_screen(
     let mut wizard = raw_wizard.wrap(&mut ctx.input, ctx.canvas);
     let play = if paused { "Resume" } else { "Play" };
     let load_map = "Load another map";
+    let tutorial = "Tutorial";
     let about = "About";
     let quit = "Quit";
     match wizard
-        .choose_string("Welcome to A/B Street!", vec![play, load_map, about, quit])?
+        .choose_string(
+            "Welcome to A/B Street!",
+            vec![play, load_map, tutorial, about, quit],
+        )?
         .as_str()
     {
         x if x == play => Some(Mode::Playing),
@@ -207,6 +264,7 @@ fn splash_screen(
                 None
             }
         }
+        x if x == tutorial => Some(Mode::TutorialPart1(ctx.canvas.center_to_map_pt())),
         x if x == about => Some(Mode::About(LogScroller::new_from_lines(vec![
             "A/B Street is developed by Dustin Carlino".to_string(),
             "Contact dabreegster@gmail.com".to_string(),
