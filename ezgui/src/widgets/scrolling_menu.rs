@@ -62,7 +62,7 @@ impl<T: Clone> ScrollingMenu<T> {
             let n = (g.canvas.window_height / g.canvas.line_height).floor() as isize - 1 - 6;
             if n <= 0 {
                 // Weird small window, just display the prompt and bail out.
-                g.draw_blocking_text(txt, CENTERED);
+                g.draw_blocking_text(&txt, CENTERED);
                 return;
             }
             n as usize
@@ -90,7 +90,7 @@ impl<T: Clone> ScrollingMenu<T> {
             }
         }
 
-        g.draw_blocking_text(txt, CENTERED);
+        g.draw_blocking_text(&txt, CENTERED);
     }
 
     pub fn current_choice(&self) -> &T {

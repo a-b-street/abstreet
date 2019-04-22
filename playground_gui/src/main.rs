@@ -120,7 +120,7 @@ impl GUI for UI {
 
         if self.show_labels {
             for (pt, label) in labels.into_iter() {
-                g.draw_text_at(Text::from_line(label), pt);
+                g.draw_text_at(&Text::from_line(label), pt);
             }
         }
         None

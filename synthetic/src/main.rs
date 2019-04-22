@@ -231,7 +231,7 @@ impl GUI for UI {
             _ => {}
         };
 
-        g.draw_blocking_text(self.osd.clone(), ezgui::BOTTOM_LEFT);
+        g.draw_blocking_text(&self.osd, ezgui::BOTTOM_LEFT);
         None
     }
 }

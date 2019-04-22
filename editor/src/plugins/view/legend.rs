@@ -68,7 +68,7 @@ impl NonblockingPlugin for Legend {
             ctx.cs.get("turns protected by traffic signal right now"),
         );
         g.draw_text_at_screenspace_topleft(
-            Text::from_line("Protected turn".to_string()),
+            &Text::from_line("Protected turn".to_string()),
             ScreenPt::new(self.top_left.x + 20.0, self.top_left.y + 10.0),
         );
 
@@ -83,7 +83,7 @@ impl NonblockingPlugin for Legend {
                 .get("turns allowed with yielding by traffic signal right now"),
         );
         g.draw_text_at_screenspace_topleft(
-            Text::from_line("Yield turn".to_string()),
+            &Text::from_line("Yield turn".to_string()),
             ScreenPt::new(self.top_left.x + 20.0, self.top_left.y + 110.0),
         );
 

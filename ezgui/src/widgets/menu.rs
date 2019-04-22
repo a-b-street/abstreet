@@ -230,7 +230,7 @@ impl<T: Clone> Menu<T> {
             x2: self.first_choice_row.x2,
             y2: self.top_left.y + (self.row_height * (txt.num_lines() as f64)),
         });
-        g.draw_text_at_screenspace_topleft(txt, self.top_left);
+        g.draw_text_at_screenspace_topleft(&txt, self.top_left);
     }
 
     pub fn current_choice(&self) -> Option<&T> {

@@ -78,8 +78,7 @@ impl AmbientPlugin for NeighborhoodSummary {
 
         g.redraw(&self.draw_all_regions);
         for r in &self.regions {
-            // TODO ezgui should take borrows
-            g.draw_text_at(r.summary.clone(), r.center);
+            g.draw_text_at(&r.summary, r.center);
         }
     }
 }

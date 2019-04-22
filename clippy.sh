@@ -9,6 +9,7 @@ cargo clippy -- \
 	-A clippy::collapsible_if \
 	-A clippy::cyclomatic_complexity \
 	-A clippy::expect_fun_call \
+	-A clippy::float_cmp \
 	-A clippy::if_same_then_else \
 	-A clippy::large_enum_variant \
 	-A clippy::many_single_char_names \

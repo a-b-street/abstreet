@@ -147,7 +147,7 @@ impl TopMenu {
                 None
             });
             txt.add_line(f.name.to_string());
-            g.draw_text_at_screenspace_topleft(txt, ScreenPt::new(f.rectangle.x1, f.rectangle.y1));
+            g.draw_text_at_screenspace_topleft(&txt, ScreenPt::new(f.rectangle.x1, f.rectangle.y1));
         }
 
         if let Some((_, ref menu)) = self.submenu {

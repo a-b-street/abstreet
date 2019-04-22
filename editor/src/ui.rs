@@ -315,7 +315,7 @@ impl GUI for UI {
                 abstutil::prettyprint_usize(g.get_num_uploads()),
                 abstutil::prettyprint_usize(g.num_draw_calls),
             ));
-            g.draw_blocking_text(osd, BOTTOM_LEFT);
+            g.draw_blocking_text(&osd, BOTTOM_LEFT);
         }
 
         sample_intersection

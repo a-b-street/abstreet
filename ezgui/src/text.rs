@@ -146,7 +146,7 @@ impl Text {
 pub fn draw_text_bubble(
     g: &mut GfxCtx,
     top_left: ScreenPt,
-    txt: Text,
+    txt: &Text,
     // Callers almost always calculate this anyway
     (total_width, total_height): (f64, f64),
 ) -> ScreenRectangle {

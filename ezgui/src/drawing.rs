@@ -141,7 +141,7 @@ impl<'a> GfxCtx<'a> {
     // The text box covers up what's beneath and eats the cursor (for get_cursor_in_map_space).
     pub fn draw_blocking_text(
         &mut self,
-        txt: Text,
+        txt: &Text,
         (horiz, vert): (HorizontalAlignment, VerticalAlignment),
     ) {
         if txt.is_empty() {
@@ -175,7 +175,7 @@ impl<'a> GfxCtx<'a> {
     }
 
     // TODO Rename these draw_nonblocking_text_*
-    pub fn draw_text_at(&mut self, txt: Text, map_pt: Pt2D) {
+    pub fn draw_text_at(&mut self, txt: &Text, map_pt: Pt2D) {
         let (width, height) = self.text_dims(&txt);
         let pt = self.canvas.map_to_screen(map_pt);
         text::draw_text_bubble(
@@ -190,12 +190,12 @@ impl<'a> GfxCtx<'a> {
         self.canvas.text_dims(txt)
     }
 
-    pub fn draw_text_at_screenspace_topleft(&mut self, txt: Text, pt: ScreenPt) {
+    pub fn draw_text_at_screenspace_topleft(&mut self, txt: &Text, pt: ScreenPt) {
         let dims = self.text_dims(&txt);
         text::draw_text_bubble(self, pt, txt, dims);
     }
 
-    pub fn draw_mouse_tooltip(&mut self, txt: Text) {
+    pub fn draw_mouse_tooltip(&mut self, txt: &Text) {
         let (width, height) = self.text_dims(&txt);
         let x1 = self.canvas.cursor_x - (width / 2.0);
         let y1 = self.canvas.cursor_y - (height / 2.0);

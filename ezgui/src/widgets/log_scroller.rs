@@ -34,6 +34,6 @@ impl LogScroller {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        g.draw_blocking_text(self.text.clone(), CENTERED);
+        g.draw_blocking_text(&self.text, CENTERED);
     }
 }

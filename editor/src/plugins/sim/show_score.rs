@@ -31,7 +31,7 @@ impl NonblockingPlugin for ShowScoreState {
 
     fn draw(&self, g: &mut GfxCtx, _ctx: &DrawCtx) {
         g.draw_blocking_text(
-            self.txt.clone(),
+            &self.txt,
             (HorizontalAlignment::Right, VerticalAlignment::BelowTopMenu),
         );
     }

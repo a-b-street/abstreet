@@ -46,7 +46,7 @@ impl<ID: ObjectID> World<ID> {
     pub fn draw_selected(&self, g: &mut GfxCtx, id: ID) {
         let obj = &self.objects[&id];
         g.draw_polygon(Color::BLUE, &obj.polygon);
-        g.draw_mouse_tooltip(obj.info.clone());
+        g.draw_mouse_tooltip(&obj.info);
     }
 
     pub fn mouseover_something(&self, ctx: &EventCtx, hide: &HashSet<ID>) -> Option<ID> {

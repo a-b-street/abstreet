@@ -237,3 +237,22 @@ other modes...
 
 
 maybe top menu changes by the mode! some stuff could be common (debug plugins?)
+
+Forget top menu, modal menu, OSD, right-click menus, all the current GUI things. Start over from each mode -- how should it work ideally?
+- how do we indicate what major mode we're in and explain how to get out? top menu?
+
+- tutorial mode
+- challenge creation mode
+	- manage neighborhoods and scenarios
+	- how should the main functions be chosen? load/save neighborhood/scenario
+- interactive sandbox mode
+	- spawn traffic
+		- maybe choose the spawn tool, then can select a building or intersection or road?
+			- dont even allow selection of things that dont make sense
+	- persistent (but maybe hideable?) controls for sim, OSD showing time and agent count and stuff
+- map edit mode
+	- this makes sense as a separate thing, to visualize the edits and make sure to save them
+	- and to make it clear that there's no mixing with a running sim
+	- but how fluidly should this be enterable from the sandbox mode?
+- debug mode
+	- stuff like tooltips, warp, search only belong here... until i make more generally usable navigation tools

@@ -140,21 +140,21 @@ impl BlockingPlugin for DebugPolygon {
     fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
         match self.items[self.current] {
             Item::Point(pt) => {
-                g.draw_text_at(Text::from_line(format!("{}", self.current)), pt);
+                g.draw_text_at(&Text::from_line(format!("{}", self.current)), pt);
             }
             Item::Triangle(ref tri) => {
                 for pt in &[tri.pt1, tri.pt2, tri.pt3] {
-                    g.draw_text_at(Text::from_line(format!("{}", self.current)), *pt);
+                    g.draw_text_at(&Text::from_line(format!("{}", self.current)), *pt);
                 }
                 g.draw_polygon(ctx.cs.get("selected"), &Polygon::from_triangle(tri));
             }
             Item::Polygon(ref poly) => {
                 g.draw_polygon(ctx.cs.get("selected"), poly);
-                g.draw_text_at(Text::from_line(format!("{}", self.current)), poly.center());
+                g.draw_text_at(&Text::from_line(format!("{}", self.current)), poly.center());
             }
         }
         if let Some(pt) = self.center {
-            g.draw_text_at(Text::from_line("c".to_string()), pt);
+            g.draw_text_at(&Text::from_line("c".to_string()), pt);
         }
     }
 }

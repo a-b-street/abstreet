@@ -375,7 +375,7 @@ pub fn draw_signal_diagram(
         draw_signal_cycle(&cycle, g, ctx);
 
         g.draw_text_at_screenspace_topleft(
-            txt,
+            &txt,
             ScreenPt::new(x1_screen + 10.0 + (intersection_width * zoom), y1),
         );
     }

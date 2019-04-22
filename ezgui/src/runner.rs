@@ -230,7 +230,7 @@ pub fn run<G: GUI, F: FnOnce(&mut Canvas, &Prerender) -> G>(
         let mut target = display.draw();
         let mut g = GfxCtx::new(&canvas, &prerender, &mut target, &program);
         g.draw_blocking_text(
-            Text::from_line("Loading... Check terminal for details".to_string()),
+            &Text::from_line("Loading... Check terminal for details".to_string()),
             (HorizontalAlignment::Center, VerticalAlignment::Center),
         );
         canvas

@@ -36,7 +36,7 @@ impl TextBox {
             txt.append("|".to_string(), Some(text::SELECTED_COLOR));
         }
 
-        g.draw_blocking_text(txt, CENTERED);
+        g.draw_blocking_text(&txt, CENTERED);
     }
 
     pub fn event(&mut self, input: &mut UserInput) -> InputResult<()> {

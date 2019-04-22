@@ -49,7 +49,7 @@ impl AmbientPlugin for DebugObjectsState {
         if self.tooltip_key_held {
             if let Some(id) = self.selected {
                 let txt = id.tooltip_lines(g, ctx);
-                g.draw_mouse_tooltip(txt);
+                g.draw_mouse_tooltip(&txt);
             }
         }
 
@@ -59,7 +59,7 @@ impl AmbientPlugin for DebugObjectsState {
                     let mut txt = Text::new();
                     txt.add_line(format!("{}", pt));
                     txt.add_line(format!("{}", gps));
-                    g.draw_mouse_tooltip(txt);
+                    g.draw_mouse_tooltip(&txt);
                 }
             }
         }

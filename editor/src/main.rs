@@ -163,7 +163,10 @@ impl GUI for GameState {
                     txt.add_line("Great! Press ENTER to continue.".to_string());
                 }
                 // TODO Get rid of top menu and OSD and then put this somewhere more sensible. :)
-                g.draw_blocking_text(txt, (HorizontalAlignment::Right, VerticalAlignment::Center));
+                g.draw_blocking_text(
+                    &txt,
+                    (HorizontalAlignment::Right, VerticalAlignment::Center),
+                );
                 None
             }
             Mode::TutorialPart2(orig_cam_zoom) => {
@@ -174,7 +177,10 @@ impl GUI for GameState {
                     txt.add_line("".to_string());
                     txt.add_line("Great! Press ENTER to continue.".to_string());
                 }
-                g.draw_blocking_text(txt, (HorizontalAlignment::Right, VerticalAlignment::Center));
+                g.draw_blocking_text(
+                    &txt,
+                    (HorizontalAlignment::Right, VerticalAlignment::Center),
+                );
                 None
             }
         }
