@@ -46,20 +46,7 @@ pub struct Flags {
     pub no_splash: bool,
 }
 
-pub trait UIState {
-    fn get_state(&self) -> &DefaultUIState;
-    fn mut_state(&mut self) -> &mut DefaultUIState;
-
-    fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        hints: &mut RenderingHints,
-        recalculate_current_selection: &mut bool,
-    );
-    fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx);
-}
-
-pub struct DefaultUIState {
+pub struct UIState {
     pub primary: PerMapUI,
     pub primary_plugins: PluginsPerMap,
     // When running an A/B test, this is populated too.
@@ -84,13 +71,13 @@ pub struct DefaultUIState {
     pub cs: ColorScheme,
 }
 
-impl DefaultUIState {
-    pub fn new(flags: Flags, prerender: &Prerender, enable_debug_controls: bool) -> DefaultUIState {
+impl UIState {
+    pub fn new(flags: Flags, prerender: &Prerender, enable_debug_controls: bool) -> UIState {
         let cs = ColorScheme::load().unwrap();
 
         let (primary, primary_plugins) =
             PerMapUI::new(flags, &cs, prerender, enable_debug_controls);
-        DefaultUIState {
+        UIState {
             primary,
             primary_plugins,
             secondary: None,
@@ -163,18 +150,8 @@ impl DefaultUIState {
         }
         &self.primary.sim
     }
-}
 
-impl UIState for DefaultUIState {
-    // Kind of odd, but convenient.
-    fn get_state(&self) -> &DefaultUIState {
-        self
-    }
-    fn mut_state(&mut self) -> &mut DefaultUIState {
-        self
-    }
-
-    fn event(
+    pub fn event(
         &mut self,
         event_ctx: &mut EventCtx,
         hints: &mut RenderingHints,
@@ -395,7 +372,7 @@ impl UIState for DefaultUIState {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
+    pub fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
         if let Some(ref plugin) = self.primary_plugins.search {
             plugin.draw(g, ctx);
             if plugin.is_blocking() {

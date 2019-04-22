@@ -13,14 +13,13 @@ use map_model::{BuildingID, LaneID, Traversable};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashSet;
 
-pub struct UI<S: UIState> {
-    // TODO Probably move this into DefaultUIState after rewriting Tutorial and the whole UIState
-    // abstraction.
+// TODO Collapse stuff!
+pub struct UI {
     hints: RenderingHints,
-    pub state: S,
+    pub state: UIState,
 }
 
-impl<S: UIState> GUI for UI<S> {
+impl GUI for UI {
     fn top_menu(&self, canvas: &Canvas) -> Option<TopMenu> {
         let mut folders = Vec::new();
         folders.push(Folder::new(
@@ -30,7 +29,7 @@ impl<S: UIState> GUI for UI<S> {
                 (Some(Key::Escape), "pause game"),
             ],
         ));
-        if self.state.get_state().enable_debug_controls {
+        if self.state.enable_debug_controls {
             folders.push(Folder::new(
                 "Debug",
                 vec![
@@ -218,48 +217,49 @@ impl<S: UIState> GUI for UI<S> {
     }
 
     fn draw(&self, g: &mut GfxCtx, screencap: bool) -> Option<String> {
-        let state = self.state.get_state();
-
         let ctx = DrawCtx {
-            cs: &state.cs,
-            map: &state.primary.map,
-            draw_map: &state.primary.draw_map,
-            sim: &state.primary.sim,
+            cs: &self.state.cs,
+            map: &self.state.primary.map,
+            draw_map: &self.state.primary.draw_map,
+            sim: &self.state.primary.sim,
             hints: &self.hints,
         };
         let mut sample_intersection: Option<String> = None;
 
-        g.clear(state.cs.get_def("true background", Color::BLACK));
-        g.redraw(&state.primary.draw_map.boundary_polygon);
+        g.clear(self.state.cs.get_def("true background", Color::BLACK));
+        g.redraw(&self.state.primary.draw_map.boundary_polygon);
 
         if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL && !screencap {
             // Unzoomed mode
-            if state.layers.show_areas {
-                g.redraw(&state.primary.draw_map.draw_all_areas);
+            if self.state.layers.show_areas {
+                g.redraw(&self.state.primary.draw_map.draw_all_areas);
             }
-            if state.layers.show_lanes {
-                g.redraw(&state.primary.draw_map.draw_all_thick_roads);
+            if self.state.layers.show_lanes {
+                g.redraw(&self.state.primary.draw_map.draw_all_thick_roads);
             }
-            if state.layers.show_intersections {
-                g.redraw(&state.primary.draw_map.draw_all_unzoomed_intersections);
+            if self.state.layers.show_intersections {
+                g.redraw(&self.state.primary.draw_map.draw_all_unzoomed_intersections);
             }
-            if state.layers.show_buildings {
-                g.redraw(&state.primary.draw_map.draw_all_buildings);
+            if self.state.layers.show_buildings {
+                g.redraw(&self.state.primary.draw_map.draw_all_buildings);
             }
 
             // Still show area selection when zoomed out.
-            if state.primary.current_flags.debug_areas {
-                if let Some(ID::Area(id)) = state.primary.current_selection {
+            if self.state.primary.current_flags.debug_areas {
+                if let Some(ID::Area(id)) = self.state.primary.current_selection {
                     g.draw_polygon(
-                        state.cs.get("selected"),
+                        self.state.cs.get("selected"),
                         &fill_to_boundary_polygon(ctx.draw_map.get_a(id).get_outline(&ctx.map)),
                     );
                 }
             }
 
-            state.primary.sim.draw_unzoomed(g, &state.primary.map);
+            self.state
+                .primary
+                .sim
+                .draw_unzoomed(g, &self.state.primary.map);
         } else {
-            let mut cache = state.primary.draw_map.agents.borrow_mut();
+            let mut cache = self.state.primary.draw_map.agents.borrow_mut();
             let objects =
                 self.get_renderables_back_to_front(g.get_screen_bounds(), &g.prerender, &mut cache);
 
@@ -270,27 +270,27 @@ impl<S: UIState> GUI for UI<S> {
                 match obj.get_id() {
                     ID::Building(_) => {
                         if !drawn_all_buildings {
-                            g.redraw(&state.primary.draw_map.draw_all_buildings);
+                            g.redraw(&self.state.primary.draw_map.draw_all_buildings);
                             drawn_all_buildings = true;
                         }
                     }
                     ID::Area(_) => {
                         if !drawn_all_areas {
-                            g.redraw(&state.primary.draw_map.draw_all_areas);
+                            g.redraw(&self.state.primary.draw_map.draw_all_areas);
                             drawn_all_areas = true;
                         }
                     }
                     _ => {}
                 };
                 let opts = RenderOptions {
-                    color: state.color_obj(obj.get_id(), &ctx),
-                    debug_mode: state.layers.debug_mode,
+                    color: self.state.color_obj(obj.get_id(), &ctx),
+                    debug_mode: self.state.layers.debug_mode,
                 };
                 obj.draw(g, opts, &ctx);
 
-                if state.primary.current_selection == Some(obj.get_id()) {
+                if self.state.primary.current_selection == Some(obj.get_id()) {
                     g.draw_polygon(
-                        state.cs.get_def("selected", Color::YELLOW.alpha(0.4)),
+                        self.state.cs.get_def("selected", Color::YELLOW.alpha(0.4)),
                         &fill_to_boundary_polygon(obj.get_outline(&ctx.map)),
                     );
                 }
@@ -326,8 +326,8 @@ impl<S: UIState> GUI for UI<S> {
             "********************************************************************************"
         );
         println!("UI broke! Primary sim:");
-        self.state.get_state().primary.sim.dump_before_abort();
-        if let Some((s, _)) = &self.state.get_state().secondary {
+        self.state.primary.sim.dump_before_abort();
+        if let Some((s, _)) = &self.state.secondary {
             println!("Secondary sim:");
             s.sim.dump_before_abort();
         }
@@ -337,19 +337,19 @@ impl<S: UIState> GUI for UI<S> {
 
     fn before_quit(&self, canvas: &Canvas) {
         self.save_editor_state(canvas);
-        self.state.get_state().cs.save();
+        self.state.cs.save();
         println!("Saved color_scheme");
     }
 
     fn profiling_enabled(&self) -> bool {
-        self.state.get_state().primary.current_flags.enable_profiler
+        self.state.primary.current_flags.enable_profiler
     }
 }
 
-impl<S: UIState> UI<S> {
-    pub fn new(state: S, canvas: &mut Canvas) -> UI<S> {
+impl UI {
+    pub fn new(state: UIState, canvas: &mut Canvas) -> UI {
         match abstutil::read_json::<EditorState>("../editor_state") {
-            Ok(ref loaded) if state.get_state().primary.map.get_name() == &loaded.map_name => {
+            Ok(ref loaded) if state.primary.map.get_name() == &loaded.map_name => {
                 println!("Loaded previous editor_state");
                 canvas.cam_x = loaded.cam_x;
                 canvas.cam_y = loaded.cam_y;
@@ -359,15 +359,15 @@ impl<S: UIState> UI<S> {
                 println!("Couldn't load editor_state or it's for a different map, so just focusing on an arbitrary building");
                 let focus_pt = ID::Building(BuildingID(0))
                     .canonical_point(
-                        &state.get_state().primary.map,
-                        &state.get_state().primary.sim,
-                        &state.get_state().primary.draw_map,
+                        &state.primary.map,
+                        &state.primary.sim,
+                        &state.primary.draw_map,
                     )
                     .or_else(|| {
                         ID::Lane(LaneID(0)).canonical_point(
-                            &state.get_state().primary.map,
-                            &state.get_state().primary.sim,
-                            &state.get_state().primary.draw_map,
+                            &state.primary.map,
+                            &state.primary.sim,
+                            &state.primary.draw_map,
                         )
                     })
                     .expect("Can't get canonical_point of BuildingID(0) or Road(0)");
@@ -400,10 +400,10 @@ impl<S: UIState> UI<S> {
 
         // Always handle mouseover
         if !ctx.canvas.is_dragging() && ctx.input.get_moved_mouse().is_some() {
-            self.state.mut_state().primary.current_selection = self.mouseover_something(&ctx);
+            self.state.primary.current_selection = self.mouseover_something(&ctx);
         }
         if ctx.input.window_lost_cursor() {
-            self.state.mut_state().primary.current_selection = None;
+            self.state.primary.current_selection = None;
         }
 
         let mut recalculate_current_selection = false;
@@ -413,20 +413,20 @@ impl<S: UIState> UI<S> {
             &mut recalculate_current_selection,
         );
         if recalculate_current_selection {
-            self.state.mut_state().primary.current_selection = self.mouseover_something(&ctx);
+            self.state.primary.current_selection = self.mouseover_something(&ctx);
         }
 
         ctx.input.populate_osd(&mut self.hints.osd);
 
         // TODO a plugin should do this, even though it's such a tiny thing
-        if self.state.get_state().enable_debug_controls {
+        if self.state.enable_debug_controls {
             if ctx.input.action_chosen("screenshot everything") {
-                let bounds = self.state.get_state().primary.map.get_bounds();
+                let bounds = self.state.primary.map.get_bounds();
                 assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
                 self.hints.mode = EventLoopMode::ScreenCaptureEverything {
                     dir: format!(
                         "../data/screenshots/pending_{}",
-                        self.state.get_state().primary.map.get_name()
+                        self.state.primary.map.get_name()
                     ),
                     zoom: 3.0,
                     max_x: bounds.max_x,
@@ -447,14 +447,14 @@ impl<S: UIState> UI<S> {
     fn mouseover_something(&self, ctx: &EventCtx) -> Option<ID> {
         // Unzoomed mode. Ignore when debugging areas.
         if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL
-            && !self.state.get_state().primary.current_flags.debug_areas
+            && !self.state.primary.current_flags.debug_areas
         {
             return None;
         }
 
         let pt = ctx.canvas.get_cursor_in_map_space()?;
 
-        let mut cache = self.state.get_state().primary.draw_map.agents.borrow_mut();
+        let mut cache = self.state.primary.draw_map.agents.borrow_mut();
         let mut objects = self.get_renderables_back_to_front(
             Circle::new(pt, Distance::meters(3.0)).get_bounds(),
             ctx.prerender,
@@ -462,7 +462,7 @@ impl<S: UIState> UI<S> {
         );
         objects.reverse();
 
-        let debug_areas = self.state.get_state().primary.current_flags.debug_areas;
+        let debug_areas = self.state.primary.current_flags.debug_areas;
         for obj in objects {
             // Don't mouseover areas.
             // TODO Might get fancier rules in the future, so we can't mouseover irrelevant things
@@ -472,10 +472,7 @@ impl<S: UIState> UI<S> {
                 // Thick roads are only shown when unzoomed, when we don't mouseover at all.
                 ID::Road(_) => {}
                 _ => {
-                    if obj
-                        .get_outline(&self.state.get_state().primary.map)
-                        .contains_pt(pt)
-                    {
+                    if obj.get_outline(&self.state.primary.map).contains_pt(pt) {
                         return Some(obj.get_id());
                     }
                 }
@@ -486,7 +483,7 @@ impl<S: UIState> UI<S> {
 
     fn save_editor_state(&self, canvas: &Canvas) {
         let state = EditorState {
-            map_name: self.state.get_state().primary.map.get_name().clone(),
+            map_name: self.state.primary.map.get_name().clone(),
             cam_x: canvas.cam_x,
             cam_y: canvas.cam_y,
             cam_zoom: canvas.cam_zoom,
@@ -504,9 +501,8 @@ impl<S: UIState> UI<S> {
         prerender: &Prerender,
         agents: &'a mut AgentCache,
     ) -> Vec<Box<&'a Renderable>> {
-        let state = self.state.get_state();
-        let map = &state.primary.map;
-        let draw_map = &state.primary.draw_map;
+        let map = &self.state.primary.map;
+        let draw_map = &self.state.primary.draw_map;
 
         let mut areas: Vec<Box<&Renderable>> = Vec::new();
         let mut lanes: Vec<Box<&Renderable>> = Vec::new();
@@ -519,7 +515,7 @@ impl<S: UIState> UI<S> {
         let mut agents_on: Vec<Traversable> = Vec::new();
 
         for id in draw_map.get_matching_objects(bounds) {
-            if !state.show(id) {
+            if !self.state.show(id) {
                 continue;
             }
             match id {
@@ -527,7 +523,7 @@ impl<S: UIState> UI<S> {
                 ID::Lane(id) => {
                     lanes.push(Box::new(draw_map.get_l(id)));
                     let lane = map.get_l(id);
-                    if state.show_icons_for(lane.dst_i) {
+                    if self.state.show_icons_for(lane.dst_i) {
                         for (t, _) in map.get_next_turns_and_lanes(id, lane.dst_i) {
                             turn_icons.push(Box::new(draw_map.get_t(t.id)));
                         }
@@ -545,7 +541,7 @@ impl<S: UIState> UI<S> {
                 ID::Intersection(id) => {
                     intersections.push(Box::new(draw_map.get_i(id)));
                     for t in &map.get_i(id).turns {
-                        if !state.show_icons_for(id) {
+                        if !self.state.show_icons_for(id) {
                             agents_on.push(Traversable::Turn(*t));
                         }
                     }
@@ -575,17 +571,22 @@ impl<S: UIState> UI<S> {
 
         // Expand all of the Traversables into agents, populating the cache if needed.
         {
-            let source = state.get_draw_agents();
+            let source = self.state.get_draw_agents();
             let time = source.time();
 
             for on in &agents_on {
                 if !agents.has(time, *on) {
                     let mut list: Vec<Box<Renderable>> = Vec::new();
                     for c in source.get_draw_cars(*on, map).into_iter() {
-                        list.push(draw_vehicle(c, map, prerender, &state.cs));
+                        list.push(draw_vehicle(c, map, prerender, &self.state.cs));
                     }
                     for p in source.get_draw_peds(*on, map).into_iter() {
-                        list.push(Box::new(DrawPedestrian::new(p, map, prerender, &state.cs)));
+                        list.push(Box::new(DrawPedestrian::new(
+                            p,
+                            map,
+                            prerender,
+                            &self.state.cs,
+                        )));
                     }
                     agents.put(time, *on, list);
                 }

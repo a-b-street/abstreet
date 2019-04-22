@@ -5,7 +5,7 @@ mod render;
 mod state;
 mod ui;
 
-use crate::state::{DefaultUIState, Flags, UIState};
+use crate::state::{Flags, UIState};
 use crate::ui::UI;
 use abstutil::elapsed_seconds;
 use ezgui::{
@@ -31,7 +31,7 @@ struct GameState {
     screensaver: Option<Screensaver>,
     // TODO I'd prefer storing this in Screensaver, but it makes updating a little annoying.
     rng: XorShiftRng,
-    ui: UI<DefaultUIState>,
+    ui: UI,
 }
 
 enum Mode {
@@ -49,14 +49,14 @@ impl GameState {
             mode: Mode::Playing,
             screensaver: None,
             rng: flags.sim_flags.make_rng(),
-            ui: UI::new(DefaultUIState::new(flags, prerender, true), canvas),
+            ui: UI::new(UIState::new(flags, prerender, true), canvas),
         };
         if splash {
             game.mode = Mode::SplashScreen(Wizard::new());
             game.screensaver = Some(Screensaver::start_bounce(
                 &mut game.rng,
                 canvas,
-                &game.ui.state.get_state().primary.map,
+                &game.ui.state.primary.map,
             ));
         }
         game
@@ -80,15 +80,13 @@ impl GUI for GameState {
                 &mut self.rng,
                 &mut ctx.input,
                 &mut ctx.canvas,
-                &self.ui.state.get_state().primary.map,
+                &self.ui.state.primary.map,
             );
         }
 
         match self.mode {
             Mode::SplashScreen(ref mut wizard) => {
-                if let Some(new_mode) =
-                    splash_screen(wizard, &mut ctx, &mut self.ui, self.screensaver.is_none())
-                {
+                if let Some(new_mode) = splash_screen(wizard, &mut ctx, &mut self.ui) {
                     self.mode = new_mode;
                     match self.mode {
                         Mode::About(_) => {}
@@ -240,14 +238,9 @@ impl Screensaver {
     }
 }
 
-fn splash_screen(
-    raw_wizard: &mut Wizard,
-    ctx: &mut EventCtx,
-    ui: &mut UI<DefaultUIState>,
-    paused: bool,
-) -> Option<Mode> {
+fn splash_screen(raw_wizard: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Mode> {
     let mut wizard = raw_wizard.wrap(&mut ctx.input, ctx.canvas);
-    let play = if paused { "Resume" } else { "Play" };
+    let play = "Play";
     let load_map = "Load another map";
     let tutorial = "Tutorial";
     let about = "About";
@@ -261,7 +254,7 @@ fn splash_screen(
     {
         x if x == play => Some(Mode::Playing),
         x if x == load_map => {
-            let current_map = ui.state.get_state().primary.map.get_name().to_string();
+            let current_map = ui.state.primary.map.get_name().to_string();
             if let Some((name, _)) = wizard.choose_something::<String>(
                 "Load which map?",
                 Box::new(move || {
@@ -272,9 +265,9 @@ fn splash_screen(
                 }),
             ) {
                 // This retains no state, but that's probably fine.
-                let mut flags = ui.state.get_state().primary.current_flags.clone();
+                let mut flags = ui.state.primary.current_flags.clone();
                 flags.sim_flags.load = PathBuf::from(format!("../data/maps/{}.abst", name));
-                *ui = UI::new(DefaultUIState::new(flags, ctx.prerender, true), ctx.canvas);
+                *ui = UI::new(UIState::new(flags, ctx.prerender, true), ctx.canvas);
                 Some(Mode::Playing)
             } else if wizard.aborted() {
                 Some(Mode::SplashScreen(Wizard::new()))
