@@ -7,15 +7,10 @@ OUT=abstreet_windows
 rm -rfv $OUT
 mkdir $OUT
 
-cp color_scheme docs/INSTRUCTIONS.md $OUT
+cp color_scheme docs/INSTRUCTIONS.md release/play_abstreet.bat $OUT
+
 mkdir -p $OUT/data/maps
-for map in montlake 23rd; do
-	cp -v data/maps/$map.abst $OUT/data/maps/
-	cat << EOF > $OUT/run_$map.bat
-cd editor
-editor.exe ..\\data\\maps\\$map.abst > ..\\output.txt
-EOF
-done
+cp -v data/maps/montlake.abst data/maps/23rd.abst $OUT/data/maps/
 
 mkdir $OUT/editor
 cross build --release --target x86_64-pc-windows-gnu --bin editor

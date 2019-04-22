@@ -7,16 +7,10 @@ OUT=abstreet_linux
 rm -rfv $OUT
 mkdir $OUT
 
-cp color_scheme docs/INSTRUCTIONS.md $OUT
+cp color_scheme docs/INSTRUCTIONS.md release/play_abstreet.sh $OUT
+
 mkdir -p $OUT/data/maps
-for map in montlake 23rd; do
-	cp -v data/maps/$map.abst $OUT/data/maps/
-	cat << EOF > $OUT/run_$map.sh
-cd editor
-./editor ../data/maps/$map.abst
-EOF
-	chmod +x $OUT/run_$map.sh
-done
+cp -v data/maps/montlake.abst data/maps/23rd.abst $OUT/data/maps/
 
 mkdir $OUT/editor
 cargo build --release --bin editor

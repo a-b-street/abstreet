@@ -11,11 +11,11 @@ https://github.com/dabreegster/abstreet/releases for the latest version, though
 I'll try to keep these links up-to-date:
 
 - Windows:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.0/abstreet_windows.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.1/abstreet_windows.zip
 - Mac:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.0/abstreet_mac.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.1/abstreet_mac.zip
 - Linux:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.0/abstreet_linux.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.1/abstreet_linux.zip
 
 The Windows and Mac versions may have more problems than the Linux version,
 because I only have regular access to a Linux machine.
@@ -44,10 +44,8 @@ cargo run --release ../data/maps/montlake.abst
 
 ## Running the game
 
-Start the game by running `run_montlake.sh` or `run_montlake.bat`. On Windows,
+Start the game by running `play_abstreet.sh` or `play_abstreet.bat`. On Windows,
 you'll probably get a warning about running software from an unknown publisher.
-Two maps are included in this release -- `montlake` is a small slice around the
-Montlake neighborhood, `23rd` is a larger slice around 23rd Ave.
 
 General controls:
 
