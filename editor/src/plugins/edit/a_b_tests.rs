@@ -32,7 +32,7 @@ impl BlockingPlugin for ABTestManager {
                 if let Some(ab_test) =
                     pick_ab_test(&ctx.primary.map, wizard.wrap(ctx.input, ctx.canvas))
                 {
-                    let scroller = LogScroller::new_from_lines(ab_test.describe());
+                    let scroller = LogScroller::new(ab_test.test_name.clone(), ab_test.describe());
                     *self = ABTestManager::ManageABTest(ab_test, scroller);
                 } else if wizard.aborted() {
                     return false;

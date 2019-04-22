@@ -221,3 +221,19 @@ common functionality:
 - search
 - warp
 - legend
+
+
+
+other modes...
+- scratchpad: map editing and ad-hoc simulation
+	- saving map edits
+- define/edit neighborhoods, scenarios, missions
+	- very different controls should be available!
+	- plugins: manage neighborhoods, manage scenarios
+- run an a/b test
+	- setting up a/b test spec, checking results
+	- special osd or bar for time, current sim
+	- work on trip diffing
+
+
+maybe top menu changes by the mode! some stuff could be common (debug plugins?)

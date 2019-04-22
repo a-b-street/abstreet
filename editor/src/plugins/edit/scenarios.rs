@@ -33,7 +33,8 @@ impl BlockingPlugin for ScenarioManager {
                 if let Some(scenario) =
                     pick_scenario(&ctx.primary.map, wizard.wrap(&mut ctx.input, ctx.canvas))
                 {
-                    let scroller = LogScroller::new_from_lines(scenario.describe());
+                    let scroller =
+                        LogScroller::new(scenario.scenario_name.clone(), scenario.describe());
                     *self = ScenarioManager::ManageScenario(scenario, scroller);
                 } else if wizard.aborted() {
                     return false;
@@ -94,11 +95,13 @@ impl BlockingPlugin for ScenarioManager {
                     scenario,
                     wizard.wrap(&mut ctx.input, ctx.canvas),
                 ) {
-                    let scroller = LogScroller::new_from_lines(scenario.describe());
+                    let scroller =
+                        LogScroller::new(scenario.scenario_name.clone(), scenario.describe());
                     // TODO autosave, or at least make it clear there are unsaved edits
                     *self = ScenarioManager::ManageScenario(scenario.clone(), scroller);
                 } else if wizard.aborted() {
-                    let scroller = LogScroller::new_from_lines(scenario.describe());
+                    let scroller =
+                        LogScroller::new(scenario.scenario_name.clone(), scenario.describe());
                     *self = ScenarioManager::ManageScenario(scenario.clone(), scroller);
                 }
             }

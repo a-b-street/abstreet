@@ -5,7 +5,6 @@ use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Angle, Circle, Distance, PolyLine, Polygon, Pt2D};
 use map_model::{Map, TurnType};
 use sim::{CarID, CarStatus, DrawCarInput};
-use std;
 
 const CAR_WIDTH: Distance = Distance::const_meters(2.0);
 

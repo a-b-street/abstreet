@@ -201,10 +201,10 @@ impl<'a> WrappedWizard<'a> {
         if self.wizard.menu.is_none() {
             let choices: Vec<(String, R)> = choices_generator();
             if choices.is_empty() {
-                self.wizard.log_scroller = Some(LogScroller::new_from_lines(vec![format!(
-                    "No choices for \"{}\", canceling wizard",
-                    query
-                )]));
+                self.wizard.log_scroller = Some(LogScroller::new(
+                    "Wizard".to_string(),
+                    vec![format!("No choices for \"{}\", canceling wizard", query)],
+                ));
                 return None;
             }
             let boxed_choices: Vec<(Option<Key>, String, Box<Cloneable>)> = choices

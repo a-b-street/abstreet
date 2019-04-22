@@ -276,14 +276,16 @@ fn splash_screen(raw_wizard: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Op
             }
         }
         x if x == tutorial => Some(Mode::TutorialPart1(ctx.canvas.center_to_map_pt())),
-        x if x == about => Some(Mode::About(LogScroller::new_from_lines(vec![
-            "A/B Street is developed by Dustin Carlino".to_string(),
-            "Contact dabreegster@gmail.com".to_string(),
-            "http://github.com/dabreegster/abstreet".to_string(),
-            "Map data from OpenStreetMap and King County GIS".to_string(),
-            "".to_string(),
-            "Press ENTER to continue".to_string(),
-        ]))),
+        x if x == about => Some(Mode::About(LogScroller::new(
+            "About A/B Street".to_string(),
+            vec![
+                "Author: Dustin Carlino (dabreegster@gmail.com)".to_string(),
+                "http://github.com/dabreegster/abstreet".to_string(),
+                "Map data from OpenStreetMap and King County GIS".to_string(),
+                "".to_string(),
+                "Press ENTER to continue".to_string(),
+            ],
+        ))),
         x if x == quit => {
             ui.before_quit(ctx.canvas);
             std::process::exit(0);
