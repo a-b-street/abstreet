@@ -4,7 +4,7 @@ use ezgui::{Color, GfxCtx, Key, Wizard, WrappedWizard};
 use geom::{Circle, Distance, Line, Polygon, Pt2D};
 use map_model::{Map, NeighborhoodBuilder};
 
-const POINT_RADIUS: Distance = Distance::const_meters(2.0);
+const POINT_RADIUS: Distance = Distance::const_meters(10.0);
 
 pub enum DrawNeighborhoodState {
     PickNeighborhood(Wizard),
@@ -65,8 +65,11 @@ impl BlockingPlugin for DrawNeighborhoodState {
 
                 if let Some(cursor) = ctx.canvas.get_cursor_in_map_space() {
                     *current_idx = n.points.iter().position(|pt| {
-                        Circle::new(Pt2D::from_gps(*pt, gps_bounds).unwrap(), POINT_RADIUS)
-                            .contains_pt(cursor)
+                        Circle::new(
+                            Pt2D::from_gps(*pt, gps_bounds).unwrap(),
+                            POINT_RADIUS / ctx.canvas.cam_zoom,
+                        )
+                        .contains_pt(cursor)
                     });
                 } else {
                     *current_idx = None;
@@ -135,24 +138,16 @@ impl BlockingPlugin for DrawNeighborhoodState {
                 &Polygon::new(&pts),
             );
         }
-        for pt in &pts {
-            g.draw_circle(
-                ctx.cs.get("neighborhood point"),
-                &Circle::new(*pt, POINT_RADIUS),
-            );
-        }
-        if let Some(last) = pts.last() {
-            g.draw_circle(
+        for (idx, pt) in pts.iter().enumerate() {
+            let color = if Some(idx) == current_idx {
+                ctx.cs.get_def("neighborhood point to move", Color::CYAN)
+            } else if idx == pts.len() - 1 {
                 ctx.cs
-                    .get_def("neighborhood last placed point", Color::GREEN),
-                &Circle::new(*last, POINT_RADIUS),
-            );
-        }
-        if let Some(idx) = current_idx {
-            g.draw_circle(
-                ctx.cs.get_def("neighborhood point to move", Color::CYAN),
-                &Circle::new(pts[idx], POINT_RADIUS),
-            );
+                    .get_def("neighborhood last placed point", Color::GREEN)
+            } else {
+                ctx.cs.get("neighborhood point")
+            };
+            g.draw_circle(color, &Circle::new(*pt, POINT_RADIUS / g.canvas.cam_zoom));
         }
     }
 }

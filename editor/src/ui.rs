@@ -133,7 +133,7 @@ impl GUI for UI {
                 "Neighborhood Editor",
                 vec![
                     (Key::Enter, "save"),
-                    (Key::Escape, "quit"),
+                    (Key::Q, "quit"),
                     (Key::X, "export as an Osmosis polygon filter"),
                     (Key::P, "add a new point"),
                 ],
