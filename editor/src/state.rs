@@ -41,9 +41,9 @@ pub struct Flags {
     #[structopt(long = "num_agents", default_value = "100")]
     pub num_agents: usize,
 
-    /// Start with the splash screen and menu
-    #[structopt(long = "splash")]
-    pub splash: bool,
+    /// Don't start with the splash screen and menu
+    #[structopt(long = "no_splash")]
+    pub no_splash: bool,
 }
 
 pub trait UIState {
