@@ -3,6 +3,9 @@
 This article describes parts of A/B Street's implementation that might be of
 interest to the Rust community.
 
+Background:
+[What is A/B Street](https://github.com/dabreegster/abstreet/blob/master/docs/articles/features/article.md)?
+
 <!--ts-->
 
 - [Notes on Rust in A/B Street](#notes-on-rust-in-ab-street)
@@ -29,18 +32,18 @@ Street running in the browser with WebGL or similar.
 The ezgui library exposes a very simple, immediate-mode API. There's no messy
 synchronization between application and GUI state; the application just asks
 what events happened and says what to draw. There are basic widgets for text
-entry and menus (with hotkeys). The application creates and stores these, passes
-events along to them, and asks them to draw themselves. There's no layouting,
-besides options to align individual widgets. A "canvas" (really a 2D camera)
-handles basic panning and zooming.
+entry and menus. The application creates and stores these, passes events along
+to them, and asks them to draw themselves. There's no layouting, besides options
+to align individual widgets. A "canvas" (really a 2D camera) handles basic
+panning and zooming.
 
 [This](https://github.com/dabreegster/abstreet/blob/eae301ee1bde247be5a2b067f6a4eadaa68aa6e7/synthetic/src/main.rs)
 is a simple example of usage. In the `event` method, the application checks its
 own current state and, based on that, tests for relevant key-presses or clicks.
 At the bottom of the screen, the current possible actions are shown with their
-hotkey -- a king of cheap context-sensitive help function. `draw` is simple as
-well; `ezgui` just exposes methods to draw a colored polygon and render text.
-Large batches of geometry can be uploaded once, then cheaply redrawn later.
+hotkey -- a cheap context-sensitive help function. `draw` is simple as well;
+ezgui just exposes methods to draw a colored polygon and render text. Large
+batches of geometry can be uploaded once, then cheaply redrawn later.
 
 ![](hotkeys.gif)
 
@@ -52,11 +55,11 @@ part of the map I'm not looking at. I tried a few different ways of coercing
 glium to rendering to one big texture and saving to a file, but the result was
 extremely slow unless I compiled in release mode (which is absolutely not an
 option in the middle of debugging hairy geometry code). So instead, the
-application can ask the `ezgui` layer to zoom in some amount, then take a bunch
-of left-to-right, top-to-bottom steps over the canvas, calling an external
+application can ask the ezgui layer to zoom in some amount, then take a bunch of
+left-to-right, top-to-bottom steps over the canvas, calling an external
 screenshot tool after each render. Sometimes the quick hack works perfectly.
 
-I would consider cleaning up `ezgui` and publishing it as a generally usable
+I would consider cleaning up ezgui and publishing it as a generally usable
 crate, except it's pretty crippled:
 
 - the text rendering is very primitive; font size is fixed
@@ -94,16 +97,18 @@ for incomplete answers, and the `?` short-circuiting takes care of the rest.
 
 ## Test runner
 
-Usability problems with the Rust test runner make it useless for my purposes.
-When a test fails, I want STDOUT and STDERR in a log file, not inlined with
-information on test runs. I sometimes want to surface a custom string in the
-main test results that lets me quickly re-run a failed test with a GUI. So I
-wrote
+The Rust test runner is painful to use. When a test fails, I want STDOUT and
+STDERR in a log file, not inlined with information on test runs. I sometimes
+want to surface a custom string in the main test results that lets me quickly
+re-run a failed test with a GUI. So I wrote
 [this](https://github.com/dabreegster/abstreet/blob/eae301ee1bde247be5a2b067f6a4eadaa68aa6e7/tests/src/runner.rs)
 to solve my needs, at least until https://github.com/rust-lang/rust/issues/50297
 makes progress.
 
 ![](tests.gif)
+
+The downside is that all test code has to live in one crate, but I'm sure some
+macro cleverness could avoid this.
 
 ## Grievances
 
@@ -158,7 +163,7 @@ Less interesting stuff:
 
 - `analyze_code`: a static analysis attempt to construct a call-graph using
   `syn`
-- `benchmark_pathfinding`: experimenting with an implementation of contraction
+- `benchmark_pathfinding`: trying (and failing) to implement contraction
   hierarchies
 - `debug_initialmap`: tool to debug intermediate form of maps, useful for
   intersection merging
