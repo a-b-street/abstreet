@@ -206,7 +206,15 @@ impl GUI for UI {
                 ],
             ),
             ModalMenu::new("Agent Spawner", vec![(Key::Enter, "quit")]),
-            ModalMenu::new("Map Edits Differ", vec![(Key::Enter, "quit")]),
+            // The new exciting things!
+            ModalMenu::new(
+                "Map Edit Mode",
+                vec![
+                    (Key::Escape, "quit"),
+                    (Key::S, "save edits"),
+                    (Key::L, "load different edits"),
+                ],
+            ),
         ]
     }
 

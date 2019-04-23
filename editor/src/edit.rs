@@ -1,26 +1,55 @@
 use crate::game::{GameState, Mode};
 use crate::objects::DrawCtx;
 use crate::render::{RenderOptions, Renderable, MIN_ZOOM_FOR_DETAIL};
-use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Wizard, GUI};
+use abstutil::Timer;
+use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Wizard, WrappedWizard, GUI};
+use map_model::Map;
 
 pub enum EditMode {
     ViewingDiffs,
-    // loading others, saving, road editor, intersection editors, etc
+    Saving(Wizard),
 }
 
 impl EditMode {
     pub fn event(state: &mut GameState, ctx: EventCtx) -> EventLoopMode {
-        // TODO modal with some info
+        let edits = state.ui.state.primary.map.get_edits();
+
+        // TODO Display info/hints on more lines.
+        ctx.input.set_mode_with_prompt(
+            "Map Edit Mode",
+            format!("Map Edit Mode for {}", edits.describe()),
+            &ctx.canvas,
+        );
+        if ctx.input.modal_action("quit") {
+            // TODO Warn about unsaved edits
+            state.mode = Mode::SplashScreen(Wizard::new());
+            return EventLoopMode::InputOnly;
+        }
 
         match state.mode {
-            Mode::Edit(EditMode::ViewingDiffs) => {}
+            Mode::Edit(EditMode::ViewingDiffs) => {
+                // TODO Only if current edits are unsaved
+                if ctx.input.modal_action("save edits") {
+                    state.mode = Mode::Edit(EditMode::Saving(Wizard::new()));
+                } else if ctx.input.modal_action("load different edits") {
+                }
+            }
+            Mode::Edit(EditMode::Saving(ref mut wizard)) => {
+                if save_edits(
+                    wizard.wrap(ctx.input, ctx.canvas),
+                    &mut state.ui.state.primary.map,
+                )
+                .is_some()
+                    || wizard.aborted()
+                {
+                    state.mode = Mode::Edit(EditMode::ViewingDiffs);
+                }
+            }
             _ => unreachable!(),
         }
 
-        let (event_mode, pause) = state.ui.new_event(ctx);
-        if pause {
-            state.mode = Mode::SplashScreen(Wizard::new());
-        }
+        // TODO stop doing this. all we want is canvas stuff, which we dont even need UI for.
+        let (event_mode, _) = state.ui.new_event(ctx);
         event_mode
     }
 
@@ -76,7 +105,36 @@ impl EditMode {
                     );
                 }
             }
+            Mode::Edit(EditMode::Saving(ref wizard)) => {
+                // TODO Still draw the diffs, yo
+                wizard.draw(g);
+            }
             _ => unreachable!(),
         }
     }
+}
+
+fn save_edits(mut wizard: WrappedWizard, map: &mut Map) -> Option<()> {
+    let rename = if map.get_edits().edits_name == "no_edits" {
+        Some(wizard.input_string("Name these map edits")?)
+    } else {
+        None
+    };
+
+    // TODO Do it this weird way to avoid saving edits on every event. :P
+    let save = "save edits";
+    let cancel = "cancel";
+    if wizard
+        .choose_string("Overwrite edits?", vec![save, cancel])?
+        .as_str()
+        == save
+    {
+        if let Some(name) = rename {
+            let mut edits = map.get_edits().clone();
+            edits.edits_name = name;
+            map.apply_edits(edits, &mut Timer::new("name map edits"));
+        }
+        map.get_edits().save();
+    }
+    Some(())
 }
