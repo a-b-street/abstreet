@@ -1,5 +1,5 @@
 use crate::state::{Flags, UIState};
-use crate::tutorial::TutorialState;
+use crate::tutorial::TutorialMode;
 use crate::ui::UI;
 use abstutil::elapsed_seconds;
 use ezgui::{
@@ -26,7 +26,7 @@ pub struct GameState {
 pub enum Mode {
     SplashScreen(Wizard),
     Playing,
-    Tutorial(TutorialState),
+    Tutorial(TutorialMode),
 }
 
 impl GameState {
@@ -89,7 +89,7 @@ impl GUI for GameState {
                 }
                 event_mode
             }
-            Mode::Tutorial(_) => TutorialState::event(self, ctx),
+            Mode::Tutorial(_) => TutorialMode::event(self, ctx),
         }
     }
 
@@ -100,7 +100,7 @@ impl GUI for GameState {
                 wizard.draw(g);
             }
             Mode::Playing => self.ui.draw(g),
-            Mode::Tutorial(_) => TutorialState::draw(self, g),
+            Mode::Tutorial(_) => TutorialMode::draw(self, g),
         }
     }
 
@@ -203,7 +203,7 @@ fn splash_screen(raw_wizard: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Op
                 }
             }
             x if x == tutorial => {
-                break Some(Mode::Tutorial(TutorialState::Part1(
+                break Some(Mode::Tutorial(TutorialMode::Part1(
                     ctx.canvas.center_to_map_pt(),
                 )))
             }
