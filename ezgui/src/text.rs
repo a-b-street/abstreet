@@ -120,33 +120,31 @@ impl Text {
     }
 
     pub(crate) fn dims(&self, canvas: &Canvas) -> (f64, f64) {
-        // Always use the max height, since other stuff like menus assume a fixed height.
-        let height = (self.lines.len() as f64) * canvas.line_height(FONT_SIZE);
+        let mut max_width = 0;
+        let mut height = 0.0;
 
-        let mut glyphs = canvas.glyphs.borrow_mut();
-        let width = f64::from(
-            self.lines
-                .iter()
-                .map(|(_, l)| {
-                    let full_line = l.iter().fold(String::new(), |mut so_far, span| {
-                        so_far.push_str(&span.text);
-                        so_far
-                    });
-                    // Empty lines or whitespace-only lines effectively have 0 width.
-                    glyphs
-                        .pixel_bounds(Section {
-                            text: &full_line,
-                            scale: Scale::uniform(FONT_SIZE as f32),
-                            ..Section::default()
-                        })
-                        .map(|rect| rect.width())
-                        .unwrap_or(0)
+        for (_, line) in &self.lines {
+            let mut full_line = String::new();
+            let mut max_size = 0;
+            for span in line {
+                full_line.push_str(&span.text);
+                max_size = max_size.max(span.size);
+            }
+            // Empty lines or whitespace-only lines effectively have 0 width.
+            let width = canvas
+                .glyphs
+                .borrow_mut()
+                .pixel_bounds(Section {
+                    text: &full_line,
+                    scale: Scale::uniform(max_size as f32),
+                    ..Section::default()
                 })
-                .max()
-                .unwrap(),
-        );
-
-        (width, height)
+                .map(|rect| rect.width())
+                .unwrap_or(0);
+            max_width = max_width.max(width);
+            height += canvas.line_height(max_size);
+        }
+        (max_width as f64, height)
     }
 }
 
@@ -173,32 +171,33 @@ pub fn draw_text_bubble(
 
     let mut y = top_left.y;
     for (line_color, line) in &txt.lines {
+        let mut max_size = 0;
         let section = VariedSection {
             screen_position: (top_left.x as f32, y as f32),
             text: line
                 .into_iter()
-                .map(|span| SectionText {
-                    text: &span.text,
-                    color: span.fg_color.0,
-                    scale: Scale::uniform(FONT_SIZE as f32),
-                    ..SectionText::default()
+                .map(|span| {
+                    max_size = max_size.max(span.size);
+                    SectionText {
+                        text: &span.text,
+                        color: span.fg_color.0,
+                        scale: Scale::uniform(span.size as f32),
+                        ..SectionText::default()
+                    }
                 })
                 .collect(),
             ..VariedSection::default()
         };
+        let height = g.canvas.line_height(max_size);
 
         if let Some(c) = line_color {
             g.draw_polygon(
                 *c,
-                &Polygon::rectangle_topleft(
-                    Pt2D::new(top_left.x, y),
-                    total_width,
-                    g.canvas.line_height(FONT_SIZE),
-                ),
+                &Polygon::rectangle_topleft(Pt2D::new(top_left.x, y), total_width, height),
             );
         }
 
-        y += g.canvas.line_height(FONT_SIZE);
+        y += height;
         g.canvas.glyphs.borrow_mut().queue(section);
     }
 

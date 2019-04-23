@@ -62,7 +62,6 @@ screenshot tool after each render. Sometimes the quick hack works perfectly.
 I would consider cleaning up ezgui and publishing it as a generally usable
 crate, except it's pretty crippled:
 
-- the text rendering is very primitive; font size is fixed
 - basic widgets like a scrolling text box, list with radio buttons, and tables
   are missing
 - The imperative style makes it quite easy for different parts of the UI to

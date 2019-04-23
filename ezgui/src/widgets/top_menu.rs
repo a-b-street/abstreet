@@ -126,7 +126,7 @@ impl TopMenu {
             x1: 0.0,
             y1: 0.0,
             x2: g.canvas.window_width,
-            y2: g.canvas.line_height(text::FONT_SIZE),
+            y2: g.canvas.top_menu_height(),
         });
 
         g.fork_screenspace();
@@ -135,7 +135,7 @@ impl TopMenu {
             &Polygon::rectangle_topleft(
                 Pt2D::new(0.0, 0.0),
                 g.canvas.window_width,
-                g.canvas.line_height(text::FONT_SIZE),
+                g.canvas.top_menu_height(),
             ),
         );
         g.unfork();

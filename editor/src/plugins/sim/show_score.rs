@@ -56,7 +56,12 @@ fn panel(ctx: &mut PluginCtx) -> ShowScoreState {
 }
 
 fn summarize(txt: &mut Text, summary: ScoreSummary) {
-    txt.add_styled_line("Walking".to_string(), None, Some(Color::RED.alpha(0.8)), None);
+    txt.add_styled_line(
+        "Walking".to_string(),
+        None,
+        Some(Color::RED.alpha(0.8)),
+        None,
+    );
     txt.add_line(format!(
         "  {}/{} trips done",
         (summary.total_walking_trips - summary.pending_walking_trips),
@@ -64,7 +69,12 @@ fn summarize(txt: &mut Text, summary: ScoreSummary) {
     ));
     txt.add_line(format!("  {} total", summary.total_walking_trip_time));
 
-    txt.add_styled_line("Driving".to_string(), None, Some(Color::BLUE.alpha(0.8)), None);
+    txt.add_styled_line(
+        "Driving".to_string(),
+        None,
+        Some(Color::BLUE.alpha(0.8)),
+        None,
+    );
     txt.add_line(format!(
         "  {}/{} trips done",
         (summary.total_driving_trips - summary.pending_driving_trips),

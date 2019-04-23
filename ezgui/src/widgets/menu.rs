@@ -66,7 +66,7 @@ impl<T: Clone> Menu<T> {
                 } else {
                     total_width
                 };
-                ScreenPt::new(canvas.window_width - w, canvas.line_height(text::FONT_SIZE))
+                ScreenPt::new(canvas.window_width - w, canvas.top_menu_height())
             }
         };
 
@@ -221,7 +221,12 @@ impl<T: Clone> Menu<T> {
                         None,
                     );
                 } else {
-                    txt.add_styled_line(choice.to_string(), Some(text::INACTIVE_CHOICE_COLOR), bg, None);
+                    txt.add_styled_line(
+                        choice.to_string(),
+                        Some(text::INACTIVE_CHOICE_COLOR),
+                        bg,
+                        None,
+                    );
                 }
             }
         }

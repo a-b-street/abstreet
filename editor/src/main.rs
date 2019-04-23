@@ -199,7 +199,7 @@ impl GUI for GameState {
     }
 }
 
-const SPEED: Speed = Speed::const_meters_per_second(50.0);
+const SPEED: Speed = Speed::const_meters_per_second(20.0);
 
 struct Screensaver {
     line: Line,
