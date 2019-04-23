@@ -24,7 +24,7 @@ impl TutorialMode {
                 if ctx.canvas.cam_zoom != orig_cam_zoom
                     && ctx.input.key_pressed(Key::Enter, "next step of tutorial")
                 {
-                    state.mode = Mode::SplashScreen(Wizard::new());
+                    state.mode = Mode::SplashScreen(Wizard::new(), None);
                 }
             }
             _ => unreachable!(),
@@ -32,7 +32,7 @@ impl TutorialMode {
 
         let (event_mode, pause) = state.ui.new_event(ctx);
         if pause {
-            state.mode = Mode::SplashScreen(Wizard::new());
+            state.mode = Mode::SplashScreen(Wizard::new(), None);
         }
         event_mode
     }

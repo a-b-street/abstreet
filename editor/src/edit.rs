@@ -23,7 +23,7 @@ impl EditMode {
         // TODO Clicking this works, but the key doesn't
         if ctx.input.modal_action("quit") {
             // TODO Warn about unsaved edits
-            state.mode = Mode::SplashScreen(Wizard::new());
+            state.mode = Mode::SplashScreen(Wizard::new(), None);
             return EventLoopMode::InputOnly;
         }
 

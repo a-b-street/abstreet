@@ -18,14 +18,11 @@ use std::time::Instant;
 // top-level game states.
 pub struct GameState {
     pub mode: Mode,
-    pub screensaver: Option<Screensaver>,
-    // TODO I'd prefer storing this in Screensaver, but it makes updating a little annoying.
-    pub rng: XorShiftRng,
     pub ui: UI,
 }
 
 pub enum Mode {
-    SplashScreen(Wizard),
+    SplashScreen(Wizard, Option<(Screensaver, XorShiftRng)>),
     Playing,
     Edit(EditMode),
     Tutorial(TutorialMode),
@@ -34,19 +31,19 @@ pub enum Mode {
 impl GameState {
     pub fn new(flags: Flags, canvas: &mut Canvas, prerender: &Prerender) -> GameState {
         let splash = !flags.no_splash;
+        let mut rng = flags.sim_flags.make_rng();
         let mut game = GameState {
             mode: Mode::Playing,
-            screensaver: None,
-            rng: flags.sim_flags.make_rng(),
             ui: UI::new(UIState::new(flags, prerender, true), canvas),
         };
         if splash {
-            game.mode = Mode::SplashScreen(Wizard::new());
-            game.screensaver = Some(Screensaver::start_bounce(
-                &mut game.rng,
-                canvas,
-                &game.ui.state.primary.map,
-            ));
+            game.mode = Mode::SplashScreen(
+                Wizard::new(),
+                Some((
+                    Screensaver::start_bounce(&mut rng, canvas, &game.ui.state.primary.map),
+                    rng,
+                )),
+            );
         }
         game
     }
@@ -64,20 +61,21 @@ impl GUI for GameState {
     }
 
     fn event(&mut self, mut ctx: EventCtx) -> EventLoopMode {
-        if let Some(ref mut screensaver) = self.screensaver {
-            screensaver.update(
-                &mut self.rng,
-                &mut ctx.input,
-                &mut ctx.canvas,
-                &self.ui.state.primary.map,
-            );
-        }
-
         match self.mode {
-            Mode::SplashScreen(ref mut wizard) => {
-                if let Some(new_mode) = splash_screen(wizard, &mut ctx, &mut self.ui) {
+            Mode::SplashScreen(ref mut wizard, ref mut maybe_screensaver) => {
+                if let Some((ref mut screensaver, ref mut rng)) = maybe_screensaver {
+                    screensaver.update(
+                        rng,
+                        &mut ctx.input,
+                        &mut ctx.canvas,
+                        &self.ui.state.primary.map,
+                    );
+                }
+
+                if let Some(new_mode) =
+                    splash_screen(wizard, &mut ctx, &mut self.ui, maybe_screensaver)
+                {
                     self.mode = new_mode;
-                    self.screensaver = None;
                 } else if wizard.aborted() {
                     self.ui.before_quit(ctx.canvas);
                     std::process::exit(0);
@@ -87,7 +85,7 @@ impl GUI for GameState {
             Mode::Playing => {
                 let (event_mode, pause) = self.ui.new_event(ctx);
                 if pause {
-                    self.mode = Mode::SplashScreen(Wizard::new());
+                    self.mode = Mode::SplashScreen(Wizard::new(), None);
                 }
                 event_mode
             }
@@ -98,7 +96,7 @@ impl GUI for GameState {
 
     fn draw(&self, g: &mut GfxCtx) {
         match self.mode {
-            Mode::SplashScreen(ref wizard) => {
+            Mode::SplashScreen(ref wizard, _) => {
                 self.ui.draw(g);
                 wizard.draw(g);
             }
@@ -166,7 +164,12 @@ impl Screensaver {
     }
 }
 
-fn splash_screen(raw_wizard: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Mode> {
+fn splash_screen(
+    raw_wizard: &mut Wizard,
+    ctx: &mut EventCtx,
+    ui: &mut UI,
+    maybe_screensaver: &mut Option<(Screensaver, XorShiftRng)>,
+) -> Option<Mode> {
     let mut wizard = raw_wizard.wrap(&mut ctx.input, ctx.canvas);
     let play = "Play";
     let load_map = "Load another map";
@@ -202,7 +205,7 @@ fn splash_screen(raw_wizard: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Op
                     *ui = UI::new(UIState::new(flags, ctx.prerender, true), ctx.canvas);
                     break Some(Mode::Playing);
                 } else if wizard.aborted() {
-                    break Some(Mode::SplashScreen(Wizard::new()));
+                    break Some(Mode::SplashScreen(Wizard::new(), maybe_screensaver.take()));
                 } else {
                     break None;
                 }
