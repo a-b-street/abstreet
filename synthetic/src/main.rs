@@ -208,7 +208,7 @@ impl GUI for UI {
         EventLoopMode::InputOnly
     }
 
-    fn draw(&self, g: &mut GfxCtx, _screencap: bool) -> Option<String> {
+    fn draw(&self, g: &mut GfxCtx) {
         self.model.draw(g, self.quadtree.as_ref());
 
         match self.state {
@@ -232,7 +232,6 @@ impl GUI for UI {
         };
 
         g.draw_blocking_text(&self.osd, ezgui::BOTTOM_LEFT);
-        None
     }
 }
 

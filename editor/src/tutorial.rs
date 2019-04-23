@@ -41,10 +41,10 @@ impl TutorialState {
         }
     }
 
-    pub fn draw(state: &GameState, g: &mut GfxCtx, screencap: bool) -> Option<String> {
+    pub fn draw(state: &GameState, g: &mut GfxCtx) {
         match state.mode {
             Mode::Tutorial(TutorialState::Part1(orig_center)) => {
-                state.ui.draw(g, screencap);
+                state.ui.draw(g);
                 let mut txt = Text::new();
                 txt.add_line("Click and drag to pan around".to_string());
                 if g.canvas.center_to_map_pt() != orig_center {
@@ -56,10 +56,9 @@ impl TutorialState {
                     &txt,
                     (HorizontalAlignment::Right, VerticalAlignment::Center),
                 );
-                None
             }
             Mode::Tutorial(TutorialState::Part2(orig_cam_zoom)) => {
-                state.ui.draw(g, screencap);
+                state.ui.draw(g);
                 let mut txt = Text::new();
                 txt.add_line("Use your mouse wheel or touchpad to zoom in and out".to_string());
                 if g.canvas.cam_zoom != orig_cam_zoom {
@@ -70,7 +69,6 @@ impl TutorialState {
                     &txt,
                     (HorizontalAlignment::Right, VerticalAlignment::Center),
                 );
-                None
             }
             _ => unreachable!(),
         }

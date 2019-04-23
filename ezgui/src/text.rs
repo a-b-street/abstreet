@@ -144,7 +144,7 @@ impl Text {
             max_width = max_width.max(width);
             height += canvas.line_height(max_size);
         }
-        (max_width as f64, height)
+        (f64::from(max_width), height)
     }
 }
 

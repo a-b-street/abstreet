@@ -93,15 +93,14 @@ impl GUI for GameState {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, screencap: bool) -> Option<String> {
+    fn draw(&self, g: &mut GfxCtx) {
         match self.mode {
             Mode::SplashScreen(ref wizard) => {
-                self.ui.draw(g, screencap);
+                self.ui.draw(g);
                 wizard.draw(g);
-                None
             }
-            Mode::Playing => self.ui.draw(g, screencap),
-            Mode::Tutorial(_) => TutorialState::draw(self, g, screencap),
+            Mode::Playing => self.ui.draw(g),
+            Mode::Tutorial(_) => TutorialState::draw(self, g),
         }
     }
 

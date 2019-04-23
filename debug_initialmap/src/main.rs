@@ -75,7 +75,7 @@ impl GUI for UI {
         EventLoopMode::InputOnly
     }
 
-    fn draw(&self, g: &mut GfxCtx, _screencap: bool) -> Option<String> {
+    fn draw(&self, g: &mut GfxCtx) {
         g.clear(Color::WHITE);
 
         self.world.draw(g, &self.hide);
@@ -85,7 +85,6 @@ impl GUI for UI {
         }
 
         g.draw_blocking_text(&self.osd, ezgui::BOTTOM_LEFT);
-        None
     }
 }
 

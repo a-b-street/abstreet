@@ -216,7 +216,7 @@ impl GUI for UI {
         self.new_event(ctx).0
     }
 
-    fn draw(&self, g: &mut GfxCtx, screencap: bool) -> Option<String> {
+    fn draw(&self, g: &mut GfxCtx) {
         let ctx = DrawCtx {
             cs: &self.state.cs,
             map: &self.state.primary.map,
@@ -229,7 +229,7 @@ impl GUI for UI {
         g.clear(self.state.cs.get_def("true background", Color::BLACK));
         g.redraw(&self.state.primary.draw_map.boundary_polygon);
 
-        if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL && !screencap {
+        if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL && !g.is_screencap() {
             // Unzoomed mode
             if self.state.layers.show_areas {
                 g.redraw(&self.state.primary.draw_map.draw_all_areas);
@@ -295,7 +295,7 @@ impl GUI for UI {
                     );
                 }
 
-                if screencap && sample_intersection.is_none() {
+                if g.is_screencap() && sample_intersection.is_none() {
                     if let ID::Intersection(id) = obj.get_id() {
                         sample_intersection = Some(format!("_i{}", id.0));
                     }
@@ -303,7 +303,7 @@ impl GUI for UI {
             }
         }
 
-        if !screencap {
+        if !g.is_screencap() {
             self.state.draw(g, &ctx);
 
             // Not happy about cloning, but probably will make the OSD a first-class ezgui concept
@@ -318,7 +318,9 @@ impl GUI for UI {
             g.draw_blocking_text(&osd, BOTTOM_LEFT);
         }
 
-        sample_intersection
+        if let Some(i) = sample_intersection {
+            g.set_screencap_naming_hint(i);
+        }
     }
 
     fn dump_before_abort(&self, canvas: &Canvas) {

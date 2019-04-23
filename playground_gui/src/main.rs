@@ -101,7 +101,7 @@ impl GUI for UI {
         EventLoopMode::InputOnly
     }
 
-    fn draw(&self, g: &mut GfxCtx, _screencap: bool) -> Option<String> {
+    fn draw(&self, g: &mut GfxCtx) {
         g.clear(common::WHITE);
 
         let mut labels: Vec<(Pt2D, String)> = Vec::new();
@@ -123,7 +123,6 @@ impl GUI for UI {
                 g.draw_text_at(&Text::from_line(label), pt);
             }
         }
-        None
     }
 }
 

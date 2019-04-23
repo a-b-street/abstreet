@@ -22,8 +22,7 @@ pub trait GUI {
         Vec::new()
     }
     fn event(&mut self, ctx: EventCtx) -> EventLoopMode;
-    // Return optional naming hint for screencap. TODO This API is getting gross.
-    fn draw(&self, g: &mut GfxCtx, _screencap: bool) -> Option<String>;
+    fn draw(&self, g: &mut GfxCtx);
     // Will be called if event or draw panics.
     fn dump_before_abort(&self, _canvas: &Canvas) {}
     // Only before a normal exit, like window close
@@ -120,17 +119,17 @@ impl<G: GUI> State<G> {
         screenshot: bool,
     ) -> Option<String> {
         let mut target = display.draw();
-        let mut g = GfxCtx::new(&self.canvas, &prerender, &mut target, program);
-        let mut naming_hint: Option<String> = None;
+        let mut g = GfxCtx::new(&self.canvas, &prerender, &mut target, program, screenshot);
 
         self.canvas.start_drawing();
 
         if let Err(err) = panic::catch_unwind(panic::AssertUnwindSafe(|| {
-            naming_hint = self.gui.draw(&mut g, screenshot);
+            self.gui.draw(&mut g);
         })) {
             self.gui.dump_before_abort(&self.canvas);
             panic::resume_unwind(err);
         }
+        let naming_hint = g.naming_hint.take();
 
         if !screenshot {
             // Always draw the menus last.
@@ -223,7 +222,7 @@ pub fn run<G: GUI, F: FnOnce(&mut Canvas, &Prerender) -> G>(
     // show the logs, but that's too hard.
     {
         let mut target = display.draw();
-        let mut g = GfxCtx::new(&canvas, &prerender, &mut target, &program);
+        let mut g = GfxCtx::new(&canvas, &prerender, &mut target, &program, false);
         g.draw_blocking_text(
             &Text::from_line("Loading... Check terminal for details".to_string()),
             (HorizontalAlignment::Center, VerticalAlignment::Center),

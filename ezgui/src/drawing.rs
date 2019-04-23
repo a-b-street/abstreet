@@ -17,6 +17,9 @@ pub struct GfxCtx<'a> {
     uniforms: Uniforms<'a>,
     params: glium::DrawParameters<'a>,
 
+    screencap_mode: bool,
+    pub(crate) naming_hint: Option<String>,
+
     // TODO Don't be pub. Delegate everything.
     pub canvas: &'a Canvas,
     pub prerender: &'a Prerender<'a>,
@@ -30,6 +33,7 @@ impl<'a> GfxCtx<'a> {
         prerender: &'a Prerender<'a>,
         target: &'a mut glium::Frame,
         program: &'a glium::Program,
+        screencap_mode: bool,
     ) -> GfxCtx<'a> {
         let params = glium::DrawParameters {
             blend: glium::Blend::alpha_blending(),
@@ -49,6 +53,8 @@ impl<'a> GfxCtx<'a> {
             uniforms,
             params,
             num_draw_calls: 0,
+            screencap_mode,
+            naming_hint: None,
         }
     }
 
@@ -223,5 +229,15 @@ impl<'a> GfxCtx<'a> {
 
     pub fn get_num_uploads(&self) -> usize {
         self.prerender.num_uploads.get()
+    }
+
+    pub fn is_screencap(&self) -> bool {
+        self.screencap_mode
+    }
+
+    pub fn set_screencap_naming_hint(&mut self, hint: String) {
+        assert!(self.screencap_mode);
+        assert!(self.naming_hint.is_none());
+        self.naming_hint = Some(hint);
     }
 }
