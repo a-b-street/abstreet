@@ -20,6 +20,7 @@ impl EditMode {
             format!("Map Edit Mode for {}", edits.describe()),
             &ctx.canvas,
         );
+        // TODO Clicking this works, but the key doesn't
         if ctx.input.modal_action("quit") {
             // TODO Warn about unsaved edits
             state.mode = Mode::SplashScreen(Wizard::new());
@@ -48,9 +49,8 @@ impl EditMode {
             _ => unreachable!(),
         }
 
-        // TODO stop doing this. all we want is canvas stuff, which we dont even need UI for.
-        let (event_mode, _) = state.ui.new_event(ctx);
-        event_mode
+        ctx.canvas.handle_event(ctx.input);
+        EventLoopMode::InputOnly
     }
 
     pub fn draw(state: &GameState, g: &mut GfxCtx) {
