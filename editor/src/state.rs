@@ -490,7 +490,6 @@ impl PluginsPerMap {
                 Box::new(view::show_associated::ShowAssociatedState::new()),
                 Box::new(view::show_route::ShowRouteState::new()),
                 Box::new(view::turn_cycler::TurnCyclerState::new()),
-                Box::new(edit::show_map_diffs::ShowMapDiffs::new()),
             ],
             time_travel: plugins::sim::time_travel::TimeTravel::new(),
         };

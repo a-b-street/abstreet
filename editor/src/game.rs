@@ -1,3 +1,4 @@
+use crate::edit::EditMode;
 use crate::state::{Flags, UIState};
 use crate::tutorial::TutorialMode;
 use crate::ui::UI;
@@ -26,6 +27,7 @@ pub struct GameState {
 pub enum Mode {
     SplashScreen(Wizard),
     Playing,
+    Edit(EditMode),
     Tutorial(TutorialMode),
 }
 
@@ -89,6 +91,7 @@ impl GUI for GameState {
                 }
                 event_mode
             }
+            Mode::Edit(_) => EditMode::event(self, ctx),
             Mode::Tutorial(_) => TutorialMode::event(self, ctx),
         }
     }
@@ -100,6 +103,7 @@ impl GUI for GameState {
                 wizard.draw(g);
             }
             Mode::Playing => self.ui.draw(g),
+            Mode::Edit(_) => EditMode::draw(self, g),
             Mode::Tutorial(_) => TutorialMode::draw(self, g),
         }
     }
@@ -166,6 +170,7 @@ fn splash_screen(raw_wizard: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Op
     let mut wizard = raw_wizard.wrap(&mut ctx.input, ctx.canvas);
     let play = "Play";
     let load_map = "Load another map";
+    let edit = "Edit map";
     let tutorial = "Tutorial";
     let about = "About";
     let quit = "Quit";
@@ -175,7 +180,7 @@ fn splash_screen(raw_wizard: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Op
         match wizard
             .choose_string(
                 "Welcome to A/B Street!",
-                vec![play, load_map, tutorial, about, quit],
+                vec![play, load_map, edit, tutorial, about, quit],
             )?
             .as_str()
         {
@@ -202,6 +207,7 @@ fn splash_screen(raw_wizard: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Op
                     break None;
                 }
             }
+            x if x == edit => break Some(Mode::Edit(EditMode::ViewingDiffs)),
             x if x == tutorial => {
                 break Some(Mode::Tutorial(TutorialMode::Part1(
                     ctx.canvas.center_to_map_pt(),

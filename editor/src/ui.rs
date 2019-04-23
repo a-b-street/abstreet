@@ -15,7 +15,7 @@ use std::collections::HashSet;
 
 // TODO Collapse stuff!
 pub struct UI {
-    hints: RenderingHints,
+    pub hints: RenderingHints,
     pub state: UIState,
 }
 
@@ -58,7 +58,6 @@ impl GUI for UI {
                     (Some(Key::Q), "manage map edits"),
                     (Some(Key::E), "edit roads"),
                     (Some(Key::W), "manage scenarios"),
-                    (None, "show map diffs"),
                 ],
             ),
             Folder::new(

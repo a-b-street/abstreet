@@ -1,4 +1,5 @@
 mod colors;
+mod edit;
 mod game;
 mod objects;
 mod plugins;
