@@ -210,3 +210,59 @@ pub fn draw_text_bubble(
         y2: top_left.y + total_height,
     }
 }
+
+// TODO Painfully slow at high zooms. Maybe need to use draw_queued_with_transform, expose a
+// flush_text_screenspace and flush_text_mapspace.
+pub fn draw_text_bubble_mapspace(
+    g: &mut GfxCtx,
+    top_left: Pt2D,
+    txt: &Text,
+    // Callers almost always calculate this anyway
+    (total_width, total_height): (f64, f64),
+) {
+    if let Some(c) = txt.bg_color {
+        g.draw_polygon(
+            c,
+            &Polygon::rectangle_topleft(top_left, total_width, total_height),
+        );
+    }
+
+    let start_at = g
+        .canvas
+        .map_to_screen(Pt2D::new(top_left.x(), top_left.y()));
+    let mut y = 0.0;
+    for (line_color, line) in &txt.lines {
+        let mut max_size = 0;
+        let section = VariedSection {
+            screen_position: (start_at.x as f32, (start_at.y + y) as f32),
+            text: line
+                .into_iter()
+                .map(|span| {
+                    max_size = max_size.max(span.size);
+                    SectionText {
+                        text: &span.text,
+                        color: span.fg_color.0,
+                        scale: Scale::uniform(((span.size as f64) * g.canvas.cam_zoom) as f32),
+                        ..SectionText::default()
+                    }
+                })
+                .collect(),
+            ..VariedSection::default()
+        };
+        let height = g.canvas.line_height(max_size);
+
+        if let Some(c) = line_color {
+            g.draw_polygon(
+                *c,
+                &Polygon::rectangle_topleft(
+                    Pt2D::new(top_left.x(), top_left.y() + y),
+                    total_width,
+                    height,
+                ),
+            );
+        }
+
+        y += height * g.canvas.cam_zoom;
+        g.canvas.glyphs.borrow_mut().queue(section);
+    }
+}

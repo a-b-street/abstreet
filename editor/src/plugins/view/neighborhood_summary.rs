@@ -78,7 +78,7 @@ impl AmbientPlugin for NeighborhoodSummary {
 
         g.redraw(&self.draw_all_regions);
         for r in &self.regions {
-            g.draw_text_at(&r.summary, r.center);
+            g.draw_text_at_mapspace(&r.summary, r.center);
         }
     }
 }
@@ -118,7 +118,8 @@ impl Region {
 
     fn update_summary(&mut self, primary: &Sim, maybe_secondary: Option<&Sim>) {
         let mut txt = Text::new();
-        txt.add_line(format!("{} has {} lanes", self.name, self.lanes.len()));
+        txt.add_styled_line(self.name.clone(), None, Some(Color::GREEN), Some(50));
+        txt.add_line(format!("contains {} lanes", self.lanes.len()));
 
         if let Some(secondary) = maybe_secondary {
             // TODO colors

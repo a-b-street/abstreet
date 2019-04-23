@@ -254,5 +254,6 @@ Forget top menu, modal menu, OSD, right-click menus, all the current GUI things.
 	- this makes sense as a separate thing, to visualize the edits and make sure to save them
 	- and to make it clear that there's no mixing with a running sim
 	- but how fluidly should this be enterable from the sandbox mode?
+	- replace with OSD with a little summary thing.. "sidewalk of 5th Ave"
 - debug mode
 	- stuff like tooltips, warp, search only belong here... until i make more generally usable navigation tools
