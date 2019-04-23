@@ -245,7 +245,7 @@ pub struct DrawCtx<'a> {
 
 fn styled_kv(txt: &mut Text, tags: &BTreeMap<String, String>) {
     for (k, v) in tags {
-        txt.add_styled_line(k.to_string(), Some(Color::RED), None);
+        txt.add_styled_line(k.to_string(), Some(Color::RED), None, None);
         txt.append(" = ".to_string(), None);
         txt.append(v.to_string(), Some(Color::CYAN));
     }

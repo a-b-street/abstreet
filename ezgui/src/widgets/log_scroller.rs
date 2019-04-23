@@ -8,7 +8,7 @@ pub struct LogScroller {
 impl LogScroller {
     pub fn new(title: String, lines: Vec<String>) -> LogScroller {
         let mut text = Text::new();
-        text.add_styled_line(title, None, Some(text::PROMPT_COLOR));
+        text.add_styled_line(title, None, Some(text::PROMPT_COLOR), Some(50));
         for line in lines {
             text.add_line(line);
         }

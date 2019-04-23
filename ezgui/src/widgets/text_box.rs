@@ -24,7 +24,7 @@ impl TextBox {
 
     pub fn draw(&self, g: &mut GfxCtx) {
         let mut txt = Text::new();
-        txt.add_styled_line(self.prompt.clone(), None, Some(text::PROMPT_COLOR));
+        txt.add_styled_line(self.prompt.clone(), None, Some(text::PROMPT_COLOR), None);
 
         txt.add_line(self.line[0..self.cursor_x].to_string());
         if self.cursor_x < self.line.len() {

@@ -66,7 +66,7 @@ impl<T: Clone> Menu<T> {
                 } else {
                     total_width
                 };
-                ScreenPt::new(canvas.window_width - w, canvas.line_height)
+                ScreenPt::new(canvas.window_width - w, canvas.line_height(text::FONT_SIZE))
             }
         };
 
@@ -197,7 +197,7 @@ impl<T: Clone> Menu<T> {
     pub fn draw(&self, g: &mut GfxCtx) {
         let mut txt = Text::new();
         if let Some(ref line) = self.prompt {
-            txt.add_styled_line(line.to_string(), None, Some(text::PROMPT_COLOR));
+            txt.add_styled_line(line.to_string(), None, Some(text::PROMPT_COLOR), None);
         }
         for (idx, (hotkey, choice, active, _)) in self.choices.iter().enumerate() {
             let bg = if Some(idx) == self.current_idx {
@@ -207,10 +207,10 @@ impl<T: Clone> Menu<T> {
             };
             if *active {
                 if let Some(key) = hotkey {
-                    txt.add_styled_line(key.describe(), Some(text::HOTKEY_COLOR), bg);
+                    txt.add_styled_line(key.describe(), Some(text::HOTKEY_COLOR), bg, None);
                     txt.append(format!(" - {}", choice), None);
                 } else {
-                    txt.add_styled_line(choice.to_string(), None, bg);
+                    txt.add_styled_line(choice.to_string(), None, bg, None);
                 }
             } else {
                 if let Some(key) = hotkey {
@@ -218,9 +218,10 @@ impl<T: Clone> Menu<T> {
                         format!("{} - {}", key.describe(), choice),
                         Some(text::INACTIVE_CHOICE_COLOR),
                         bg,
+                        None,
                     );
                 } else {
-                    txt.add_styled_line(choice.to_string(), Some(text::INACTIVE_CHOICE_COLOR), bg);
+                    txt.add_styled_line(choice.to_string(), Some(text::INACTIVE_CHOICE_COLOR), bg, None);
                 }
             }
         }

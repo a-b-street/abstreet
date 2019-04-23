@@ -1,11 +1,10 @@
 use crate::input::{ContextMenu, ModalMenuState};
 use crate::{
-    text, widgets, Canvas, Event, EventCtx, GfxCtx, HorizontalAlignment, ModalMenu, Prerender,
-    Text, TopMenu, UserInput, VerticalAlignment,
+    widgets, Canvas, Event, EventCtx, GfxCtx, HorizontalAlignment, ModalMenu, Prerender, Text,
+    TopMenu, UserInput, VerticalAlignment,
 };
 use glium::glutin;
 use glium_glyph::glyph_brush::rusttype::Font;
-use glium_glyph::glyph_brush::rusttype::Scale;
 use glium_glyph::GlyphBrush;
 use std::cell::Cell;
 use std::time::{Duration, Instant};
@@ -211,13 +210,9 @@ pub fn run<G: GUI, F: FnOnce(&mut Canvas, &Prerender) -> G>(
     .unwrap();
 
     let dejavu: &[u8] = include_bytes!("assets/DejaVuSans.ttf");
-    let fonts = vec![Font::from_bytes(dejavu).unwrap()];
-    let vmetrics = fonts[0].v_metrics(Scale::uniform(text::FONT_SIZE));
-    // TODO This works for this font, but could be more paranoid with abs()
-    let line_height = f64::from(vmetrics.ascent - vmetrics.descent + vmetrics.line_gap);
-    let glyphs = GlyphBrush::new(&display, fonts);
+    let glyphs = GlyphBrush::new(&display, vec![Font::from_bytes(dejavu).unwrap()]);
 
-    let mut canvas = Canvas::new(initial_width, initial_height, glyphs, line_height);
+    let mut canvas = Canvas::new(initial_width, initial_height, glyphs);
     let prerender = Prerender {
         display: &display,
         num_uploads: Cell::new(0),

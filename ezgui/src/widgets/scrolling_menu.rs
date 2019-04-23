@@ -49,7 +49,7 @@ impl<T: Clone> ScrollingMenu<T> {
 
     pub fn draw(&self, g: &mut GfxCtx) {
         let mut txt = Text::new();
-        txt.add_styled_line(self.prompt.clone(), None, Some(text::PROMPT_COLOR));
+        txt.add_styled_line(self.prompt.clone(), None, Some(text::PROMPT_COLOR), None);
 
         // TODO Silly results from doing this:
         // - The menu width changes as we scroll
@@ -59,7 +59,10 @@ impl<T: Clone> ScrollingMenu<T> {
         let can_fit = {
             // Subtract 1 for the prompt, and an additional TODO hacky
             // few to avoid the bottom OSD and stuff.
-            let n = (g.canvas.window_height / g.canvas.line_height).floor() as isize - 1 - 6;
+            let n = (g.canvas.window_height / g.canvas.line_height(text::FONT_SIZE)).floor()
+                as isize
+                - 1
+                - 6;
             if n <= 0 {
                 // Weird small window, just display the prompt and bail out.
                 g.draw_blocking_text(&txt, CENTERED);
@@ -84,7 +87,7 @@ impl<T: Clone> ScrollingMenu<T> {
                 continue;
             }
             if self.current_idx == idx {
-                txt.add_styled_line(line.clone(), None, Some(text::SELECTED_COLOR));
+                txt.add_styled_line(line.clone(), None, Some(text::SELECTED_COLOR), None);
             } else {
                 txt.add_line(line.clone());
             }

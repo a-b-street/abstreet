@@ -1,8 +1,10 @@
 use crate::screen_geom::ScreenRectangle;
-use crate::{ScreenPt, Text, UserInput};
+use crate::{text, ScreenPt, Text, UserInput};
 use geom::{Bounds, Pt2D};
+use glium_glyph::glyph_brush::rusttype::Scale;
 use glium_glyph::GlyphBrush;
 use std::cell::RefCell;
+use std::collections::HashMap;
 
 const ZOOM_SPEED: f64 = 0.1;
 
@@ -24,7 +26,7 @@ pub struct Canvas {
     pub window_height: f64,
 
     pub(crate) glyphs: RefCell<GlyphBrush<'static, 'static>>,
-    pub(crate) line_height: f64,
+    line_height_per_font_size: RefCell<HashMap<usize, f64>>,
 
     // TODO Bit weird and hacky to mutate inside of draw() calls.
     pub(crate) covered_areas: RefCell<Vec<ScreenRectangle>>,
@@ -35,7 +37,6 @@ impl Canvas {
         initial_width: f64,
         initial_height: f64,
         glyphs: GlyphBrush<'static, 'static>,
-        line_height: f64,
     ) -> Canvas {
         Canvas {
             cam_x: 0.0,
@@ -51,7 +52,7 @@ impl Canvas {
             window_height: initial_height,
 
             glyphs: RefCell::new(glyphs),
-            line_height,
+            line_height_per_font_size: RefCell::new(HashMap::new()),
             covered_areas: RefCell::new(Vec::new()),
         }
     }
@@ -168,11 +169,24 @@ impl Canvas {
     // TODO Not super happy about exposing this; fork_screenspace for external callers should be
     // smarter.
     pub fn top_menu_height(&self) -> f64 {
-        self.line_height
+        self.line_height(text::FONT_SIZE)
     }
 
     pub fn text_dims(&self, txt: &Text) -> (f64, f64) {
         txt.dims(self)
+    }
+
+    // Don't call this while glyphs are mutably borrowed.
+    pub(crate) fn line_height(&self, font_size: usize) -> f64 {
+        let mut hash = self.line_height_per_font_size.borrow_mut();
+        if hash.contains_key(&font_size) {
+            return hash[&font_size];
+        }
+        let vmetrics = self.glyphs.borrow().fonts()[0].v_metrics(Scale::uniform(font_size as f32));
+        // TODO This works for this font, but could be more paranoid with abs()
+        let line_height = f64::from(vmetrics.ascent - vmetrics.descent + vmetrics.line_gap);
+        hash.insert(font_size, line_height);
+        line_height
     }
 }
 

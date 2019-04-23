@@ -13,7 +13,7 @@ pub const SELECTED_COLOR: Color = Color::RED;
 pub const HOTKEY_COLOR: Color = Color::GREEN;
 pub const INACTIVE_CHOICE_COLOR: Color = Color::grey(0.4);
 
-pub const FONT_SIZE: f32 = 30.0;
+pub const FONT_SIZE: usize = 30;
 // TODO Don't do this!
 const MAX_CHAR_WIDTH: f64 = 25.0;
 
@@ -21,7 +21,8 @@ const MAX_CHAR_WIDTH: f64 = 25.0;
 struct TextSpan {
     text: String,
     fg_color: Color,
-    // TODO bold, italic, font size, font style
+    size: usize,
+    // TODO bold, italic, font style
 }
 
 impl TextSpan {
@@ -29,6 +30,7 @@ impl TextSpan {
         TextSpan {
             text,
             fg_color: FG_COLOR,
+            size: FONT_SIZE,
         }
     }
 }
@@ -85,12 +87,14 @@ impl Text {
         line: String,
         fg_color: Option<Color>,
         highlight_color: Option<Color>,
+        font_size: Option<usize>,
     ) {
         self.lines.push((
             highlight_color,
             vec![TextSpan {
                 text: line,
                 fg_color: fg_color.unwrap_or(FG_COLOR),
+                size: font_size.unwrap_or(FONT_SIZE),
             }],
         ));
     }
@@ -103,6 +107,7 @@ impl Text {
         self.lines.last_mut().unwrap().1.push(TextSpan {
             text,
             fg_color: fg_color.unwrap_or(FG_COLOR),
+            size: FONT_SIZE,
         });
     }
 
@@ -115,6 +120,9 @@ impl Text {
     }
 
     pub(crate) fn dims(&self, canvas: &Canvas) -> (f64, f64) {
+        // Always use the max height, since other stuff like menus assume a fixed height.
+        let height = (self.lines.len() as f64) * canvas.line_height(FONT_SIZE);
+
         let mut glyphs = canvas.glyphs.borrow_mut();
         let width = f64::from(
             self.lines
@@ -128,7 +136,7 @@ impl Text {
                     glyphs
                         .pixel_bounds(Section {
                             text: &full_line,
-                            scale: Scale::uniform(FONT_SIZE),
+                            scale: Scale::uniform(FONT_SIZE as f32),
                             ..Section::default()
                         })
                         .map(|rect| rect.width())
@@ -138,8 +146,7 @@ impl Text {
                 .unwrap(),
         );
 
-        // Always use the max height, since other stuff like menus assume a fixed height.
-        (width, (self.lines.len() as f64) * canvas.line_height)
+        (width, height)
     }
 }
 
@@ -164,7 +171,6 @@ pub fn draw_text_bubble(
         );
     }
 
-    let mut glyphs = g.canvas.glyphs.borrow_mut();
     let mut y = top_left.y;
     for (line_color, line) in &txt.lines {
         let section = VariedSection {
@@ -174,7 +180,7 @@ pub fn draw_text_bubble(
                 .map(|span| SectionText {
                     text: &span.text,
                     color: span.fg_color.0,
-                    scale: Scale::uniform(FONT_SIZE),
+                    scale: Scale::uniform(FONT_SIZE as f32),
                     ..SectionText::default()
                 })
                 .collect(),
@@ -187,13 +193,13 @@ pub fn draw_text_bubble(
                 &Polygon::rectangle_topleft(
                     Pt2D::new(top_left.x, y),
                     total_width,
-                    g.canvas.line_height,
+                    g.canvas.line_height(FONT_SIZE),
                 ),
             );
         }
 
-        y += g.canvas.line_height;
-        glyphs.queue(section);
+        y += g.canvas.line_height(FONT_SIZE);
+        g.canvas.glyphs.borrow_mut().queue(section);
     }
 
     g.unfork();
