@@ -26,7 +26,6 @@ pub struct GameState {
 pub enum Mode {
     SplashScreen(Wizard),
     Playing,
-    About(LogScroller),
     Tutorial(TutorialState),
 }
 
@@ -76,21 +75,10 @@ impl GUI for GameState {
             Mode::SplashScreen(ref mut wizard) => {
                 if let Some(new_mode) = splash_screen(wizard, &mut ctx, &mut self.ui) {
                     self.mode = new_mode;
-                    match self.mode {
-                        Mode::About(_) => {}
-                        _ => {
-                            self.screensaver = None;
-                        }
-                    }
+                    self.screensaver = None;
                 } else if wizard.aborted() {
                     self.ui.before_quit(ctx.canvas);
                     std::process::exit(0);
-                }
-                EventLoopMode::Animation
-            }
-            Mode::About(ref mut scroller) => {
-                if scroller.event(ctx.input) {
-                    self.mode = Mode::SplashScreen(Wizard::new());
                 }
                 EventLoopMode::Animation
             }
@@ -110,11 +98,6 @@ impl GUI for GameState {
             Mode::SplashScreen(ref wizard) => {
                 self.ui.draw(g, screencap);
                 wizard.draw(g);
-                None
-            }
-            Mode::About(ref scroller) => {
-                self.ui.draw(g, screencap);
-                scroller.draw(g);
                 None
             }
             Mode::Playing => self.ui.draw(g, screencap),
@@ -187,53 +170,65 @@ fn splash_screen(raw_wizard: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Op
     let tutorial = "Tutorial";
     let about = "About";
     let quit = "Quit";
-    match wizard
-        .choose_string(
-            "Welcome to A/B Street!",
-            vec![play, load_map, tutorial, about, quit],
-        )?
-        .as_str()
-    {
-        x if x == play => Some(Mode::Playing),
-        x if x == load_map => {
-            let current_map = ui.state.primary.map.get_name().to_string();
-            if let Some((name, _)) = wizard.choose_something::<String>(
-                "Load which map?",
-                Box::new(move || {
-                    abstutil::list_all_objects("maps", "")
-                        .into_iter()
-                        .filter(|(n, _)| n != &current_map)
-                        .collect()
-                }),
-            ) {
-                // This retains no state, but that's probably fine.
-                let mut flags = ui.state.primary.current_flags.clone();
-                flags.sim_flags.load = PathBuf::from(format!("../data/maps/{}.abst", name));
-                *ui = UI::new(UIState::new(flags, ctx.prerender, true), ctx.canvas);
-                Some(Mode::Playing)
-            } else if wizard.aborted() {
-                Some(Mode::SplashScreen(Wizard::new()))
-            } else {
-                None
+
+    // Loop because we might go from About -> top-level menu repeatedly, and recursion is scary.
+    loop {
+        match wizard
+            .choose_string(
+                "Welcome to A/B Street!",
+                vec![play, load_map, tutorial, about, quit],
+            )?
+            .as_str()
+        {
+            x if x == play => break Some(Mode::Playing),
+            x if x == load_map => {
+                let current_map = ui.state.primary.map.get_name().to_string();
+                if let Some((name, _)) = wizard.choose_something::<String>(
+                    "Load which map?",
+                    Box::new(move || {
+                        abstutil::list_all_objects("maps", "")
+                            .into_iter()
+                            .filter(|(n, _)| n != &current_map)
+                            .collect()
+                    }),
+                ) {
+                    // This retains no state, but that's probably fine.
+                    let mut flags = ui.state.primary.current_flags.clone();
+                    flags.sim_flags.load = PathBuf::from(format!("../data/maps/{}.abst", name));
+                    *ui = UI::new(UIState::new(flags, ctx.prerender, true), ctx.canvas);
+                    break Some(Mode::Playing);
+                } else if wizard.aborted() {
+                    break Some(Mode::SplashScreen(Wizard::new()));
+                } else {
+                    break None;
+                }
             }
+            x if x == tutorial => {
+                break Some(Mode::Tutorial(TutorialState::Part1(
+                    ctx.canvas.center_to_map_pt(),
+                )))
+            }
+            x if x == about => {
+                if wizard.acknowledge(LogScroller::new(
+                    "About A/B Street".to_string(),
+                    vec![
+                        "Author: Dustin Carlino (dabreegster@gmail.com)".to_string(),
+                        "http://github.com/dabreegster/abstreet".to_string(),
+                        "Map data from OpenStreetMap and King County GIS".to_string(),
+                        "".to_string(),
+                        "Press ENTER to continue".to_string(),
+                    ],
+                )) {
+                    continue;
+                } else {
+                    break None;
+                }
+            }
+            x if x == quit => {
+                ui.before_quit(ctx.canvas);
+                std::process::exit(0);
+            }
+            _ => unreachable!(),
         }
-        x if x == tutorial => Some(Mode::Tutorial(TutorialState::Part1(
-            ctx.canvas.center_to_map_pt(),
-        ))),
-        x if x == about => Some(Mode::About(LogScroller::new(
-            "About A/B Street".to_string(),
-            vec![
-                "Author: Dustin Carlino (dabreegster@gmail.com)".to_string(),
-                "http://github.com/dabreegster/abstreet".to_string(),
-                "Map data from OpenStreetMap and King County GIS".to_string(),
-                "".to_string(),
-                "Press ENTER to continue".to_string(),
-            ],
-        ))),
-        x if x == quit => {
-            ui.before_quit(ctx.canvas);
-            std::process::exit(0);
-        }
-        _ => unreachable!(),
     }
 }

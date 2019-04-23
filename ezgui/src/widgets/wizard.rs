@@ -258,4 +258,22 @@ impl<'a> WrappedWizard<'a> {
     pub fn aborted(&self) -> bool {
         self.wizard.aborted()
     }
+
+    pub fn acknowledge(&mut self, scroller: LogScroller) -> bool {
+        if !self.ready_results.is_empty() {
+            self.ready_results.pop_front();
+            return true;
+        }
+
+        if self.wizard.log_scroller.is_none() {
+            self.wizard.log_scroller = Some(scroller);
+        }
+        if self.wizard.log_scroller.as_mut().unwrap().event(self.input) {
+            self.wizard.confirmed_state.push(Box::new(()));
+            self.wizard.log_scroller = None;
+            true
+        } else {
+            false
+        }
+    }
 }
