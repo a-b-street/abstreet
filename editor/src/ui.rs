@@ -9,9 +9,9 @@ use ezgui::{
     TopMenu, BOTTOM_LEFT, GUI,
 };
 use geom::{Bounds, Circle, Distance, Polygon};
-use map_model::{BuildingID, LaneID, Traversable};
+use map_model::{BuildingID, IntersectionID, LaneID, Traversable};
 use serde_derive::{Deserialize, Serialize};
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 // TODO Collapse stuff!
 pub struct UI {
@@ -120,10 +120,6 @@ impl GUI for UI {
                 "Color Picker",
                 vec![(Key::Backspace, "revert"), (Key::Enter, "finalize")],
             ),
-            ModalMenu::new(
-                "Stop Sign Editor",
-                vec![(Key::Enter, "quit"), (Key::R, "reset to default")],
-            ),
             ModalMenu::new("A/B Test Editor", vec![(Key::R, "run A/B test")]),
             ModalMenu::new(
                 "Neighborhood Editor",
@@ -212,6 +208,10 @@ impl GUI for UI {
                     (Key::L, "load different edits"),
                 ],
             ),
+            ModalMenu::new(
+                "Stop Sign Editor",
+                vec![(Key::Enter, "quit"), (Key::R, "reset to default")],
+            ),
         ]
     }
 
@@ -221,110 +221,7 @@ impl GUI for UI {
     }
 
     fn draw(&self, g: &mut GfxCtx) {
-        let ctx = DrawCtx {
-            cs: &self.state.cs,
-            map: &self.state.primary.map,
-            draw_map: &self.state.primary.draw_map,
-            sim: &self.state.primary.sim,
-            hints: &self.hints,
-        };
-        let mut sample_intersection: Option<String> = None;
-
-        g.clear(self.state.cs.get_def("true background", Color::BLACK));
-        g.redraw(&self.state.primary.draw_map.boundary_polygon);
-
-        if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL && !g.is_screencap() {
-            // Unzoomed mode
-            if self.state.layers.show_areas {
-                g.redraw(&self.state.primary.draw_map.draw_all_areas);
-            }
-            if self.state.layers.show_lanes {
-                g.redraw(&self.state.primary.draw_map.draw_all_thick_roads);
-            }
-            if self.state.layers.show_intersections {
-                g.redraw(&self.state.primary.draw_map.draw_all_unzoomed_intersections);
-            }
-            if self.state.layers.show_buildings {
-                g.redraw(&self.state.primary.draw_map.draw_all_buildings);
-            }
-
-            // Still show area selection when zoomed out.
-            if self.state.primary.current_flags.debug_areas {
-                if let Some(ID::Area(id)) = self.state.primary.current_selection {
-                    g.draw_polygon(
-                        self.state.cs.get("selected"),
-                        &fill_to_boundary_polygon(ctx.draw_map.get_a(id).get_outline(&ctx.map)),
-                    );
-                }
-            }
-
-            self.state
-                .primary
-                .sim
-                .draw_unzoomed(g, &self.state.primary.map);
-        } else {
-            let mut cache = self.state.primary.draw_map.agents.borrow_mut();
-            let objects =
-                self.get_renderables_back_to_front(g.get_screen_bounds(), &g.prerender, &mut cache);
-
-            let mut drawn_all_buildings = false;
-            let mut drawn_all_areas = false;
-
-            for obj in objects {
-                match obj.get_id() {
-                    ID::Building(_) => {
-                        if !drawn_all_buildings {
-                            g.redraw(&self.state.primary.draw_map.draw_all_buildings);
-                            drawn_all_buildings = true;
-                        }
-                    }
-                    ID::Area(_) => {
-                        if !drawn_all_areas {
-                            g.redraw(&self.state.primary.draw_map.draw_all_areas);
-                            drawn_all_areas = true;
-                        }
-                    }
-                    _ => {}
-                };
-                let opts = RenderOptions {
-                    color: self.state.color_obj(obj.get_id(), &ctx),
-                    debug_mode: self.state.layers.debug_mode,
-                };
-                obj.draw(g, opts, &ctx);
-
-                if self.state.primary.current_selection == Some(obj.get_id()) {
-                    g.draw_polygon(
-                        self.state.cs.get_def("selected", Color::YELLOW.alpha(0.4)),
-                        &fill_to_boundary_polygon(obj.get_outline(&ctx.map)),
-                    );
-                }
-
-                if g.is_screencap() && sample_intersection.is_none() {
-                    if let ID::Intersection(id) = obj.get_id() {
-                        sample_intersection = Some(format!("_i{}", id.0));
-                    }
-                }
-            }
-        }
-
-        if !g.is_screencap() {
-            self.state.draw(g, &ctx);
-
-            // Not happy about cloning, but probably will make the OSD a first-class ezgui concept
-            // soon, so meh
-            let mut osd = self.hints.osd.clone();
-            // TODO Only in some kind of debug mode
-            osd.add_line(format!(
-                "{} things uploaded, {} things drawn",
-                abstutil::prettyprint_usize(g.get_num_uploads()),
-                abstutil::prettyprint_usize(g.num_draw_calls),
-            ));
-            g.draw_blocking_text(&osd, BOTTOM_LEFT);
-        }
-
-        if let Some(i) = sample_intersection {
-            g.set_screencap_naming_hint(i);
-        }
+        self.new_draw(g, None, HashMap::new())
     }
 
     fn dump_before_abort(&self, canvas: &Canvas) {
@@ -405,13 +302,13 @@ impl UI {
         ctx.canvas.handle_event(ctx.input);
 
         // Always handle mouseover
-        self.handle_mouseover(ctx);
+        self.handle_mouseover(ctx, None);
 
         let mut recalculate_current_selection = false;
         self.state
             .event(ctx, &mut self.hints, &mut recalculate_current_selection);
         if recalculate_current_selection {
-            self.state.primary.current_selection = self.mouseover_something(&ctx);
+            self.state.primary.current_selection = self.mouseover_something(&ctx, None);
         }
 
         ctx.input.populate_osd(&mut self.hints.osd);
@@ -442,16 +339,144 @@ impl UI {
         )
     }
 
-    pub fn handle_mouseover(&mut self, ctx: &mut EventCtx) {
+    pub fn new_draw(
+        &self,
+        g: &mut GfxCtx,
+        show_turn_icons_for: Option<IntersectionID>,
+        override_color: HashMap<ID, Color>,
+    ) {
+        let ctx = DrawCtx {
+            cs: &self.state.cs,
+            map: &self.state.primary.map,
+            draw_map: &self.state.primary.draw_map,
+            sim: &self.state.primary.sim,
+            hints: &self.hints,
+        };
+        let mut sample_intersection: Option<String> = None;
+
+        g.clear(self.state.cs.get_def("true background", Color::BLACK));
+        g.redraw(&self.state.primary.draw_map.boundary_polygon);
+
+        if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL && !g.is_screencap() {
+            // Unzoomed mode
+            if self.state.layers.show_areas {
+                g.redraw(&self.state.primary.draw_map.draw_all_areas);
+            }
+            if self.state.layers.show_lanes {
+                g.redraw(&self.state.primary.draw_map.draw_all_thick_roads);
+            }
+            if self.state.layers.show_intersections {
+                g.redraw(&self.state.primary.draw_map.draw_all_unzoomed_intersections);
+            }
+            if self.state.layers.show_buildings {
+                g.redraw(&self.state.primary.draw_map.draw_all_buildings);
+            }
+
+            // Still show area selection when zoomed out.
+            if self.state.primary.current_flags.debug_areas {
+                if let Some(ID::Area(id)) = self.state.primary.current_selection {
+                    g.draw_polygon(
+                        self.state.cs.get("selected"),
+                        &fill_to_boundary_polygon(ctx.draw_map.get_a(id).get_outline(&ctx.map)),
+                    );
+                }
+            }
+
+            self.state
+                .primary
+                .sim
+                .draw_unzoomed(g, &self.state.primary.map);
+        } else {
+            let mut cache = self.state.primary.draw_map.agents.borrow_mut();
+            let objects = self.get_renderables_back_to_front(
+                g.get_screen_bounds(),
+                &g.prerender,
+                &mut cache,
+                show_turn_icons_for,
+            );
+
+            let mut drawn_all_buildings = false;
+            let mut drawn_all_areas = false;
+
+            for obj in objects {
+                match obj.get_id() {
+                    ID::Building(_) => {
+                        if !drawn_all_buildings {
+                            g.redraw(&self.state.primary.draw_map.draw_all_buildings);
+                            drawn_all_buildings = true;
+                        }
+                    }
+                    ID::Area(_) => {
+                        if !drawn_all_areas {
+                            g.redraw(&self.state.primary.draw_map.draw_all_areas);
+                            drawn_all_areas = true;
+                        }
+                    }
+                    _ => {}
+                };
+                let opts = RenderOptions {
+                    color: override_color
+                        .get(&obj.get_id())
+                        .cloned()
+                        .or_else(|| self.state.color_obj(obj.get_id(), &ctx)),
+                    debug_mode: self.state.layers.debug_mode,
+                };
+                obj.draw(g, opts, &ctx);
+
+                if self.state.primary.current_selection == Some(obj.get_id()) {
+                    g.draw_polygon(
+                        self.state.cs.get_def("selected", Color::YELLOW.alpha(0.4)),
+                        &fill_to_boundary_polygon(obj.get_outline(&ctx.map)),
+                    );
+                }
+
+                if g.is_screencap() && sample_intersection.is_none() {
+                    if let ID::Intersection(id) = obj.get_id() {
+                        sample_intersection = Some(format!("_i{}", id.0));
+                    }
+                }
+            }
+        }
+
+        if !g.is_screencap() {
+            self.state.draw(g, &ctx);
+
+            // Not happy about cloning, but probably will make the OSD a first-class ezgui concept
+            // soon, so meh
+            let mut osd = self.hints.osd.clone();
+            // TODO Only in some kind of debug mode
+            osd.add_line(format!(
+                "{} things uploaded, {} things drawn",
+                abstutil::prettyprint_usize(g.get_num_uploads()),
+                abstutil::prettyprint_usize(g.num_draw_calls),
+            ));
+            g.draw_blocking_text(&osd, BOTTOM_LEFT);
+        }
+
+        if let Some(i) = sample_intersection {
+            g.set_screencap_naming_hint(i);
+        }
+    }
+
+    pub fn handle_mouseover(
+        &mut self,
+        ctx: &mut EventCtx,
+        show_turn_icons_for: Option<IntersectionID>,
+    ) {
         if !ctx.canvas.is_dragging() && ctx.input.get_moved_mouse().is_some() {
-            self.state.primary.current_selection = self.mouseover_something(&ctx);
+            self.state.primary.current_selection =
+                self.mouseover_something(&ctx, show_turn_icons_for);
         }
         if ctx.input.window_lost_cursor() {
             self.state.primary.current_selection = None;
         }
     }
 
-    fn mouseover_something(&self, ctx: &EventCtx) -> Option<ID> {
+    fn mouseover_something(
+        &self,
+        ctx: &EventCtx,
+        show_turn_icons_for: Option<IntersectionID>,
+    ) -> Option<ID> {
         // Unzoomed mode. Ignore when debugging areas.
         if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL
             && !self.state.primary.current_flags.debug_areas
@@ -466,6 +491,7 @@ impl UI {
             Circle::new(pt, Distance::meters(3.0)).get_bounds(),
             ctx.prerender,
             &mut cache,
+            show_turn_icons_for,
         );
         objects.reverse();
 
@@ -507,6 +533,7 @@ impl UI {
         bounds: Bounds,
         prerender: &Prerender,
         agents: &'a mut AgentCache,
+        show_turn_icons_for: Option<IntersectionID>,
     ) -> Vec<Box<&'a Renderable>> {
         let map = &self.state.primary.map;
         let draw_map = &self.state.primary.draw_map;
@@ -530,7 +557,9 @@ impl UI {
                 ID::Lane(id) => {
                     lanes.push(Box::new(draw_map.get_l(id)));
                     let lane = map.get_l(id);
-                    if self.state.show_icons_for(lane.dst_i) {
+                    if self.state.show_icons_for(lane.dst_i)
+                        || show_turn_icons_for == Some(lane.dst_i)
+                    {
                         for (t, _) in map.get_next_turns_and_lanes(id, lane.dst_i) {
                             turn_icons.push(Box::new(draw_map.get_t(t.id)));
                         }
@@ -548,7 +577,7 @@ impl UI {
                 ID::Intersection(id) => {
                     intersections.push(Box::new(draw_map.get_i(id)));
                     for t in &map.get_i(id).turns {
-                        if !self.state.show_icons_for(id) {
+                        if !self.state.show_icons_for(id) && show_turn_icons_for != Some(id) {
                             agents_on.push(Traversable::Turn(*t));
                         }
                     }

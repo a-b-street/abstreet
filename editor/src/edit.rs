@@ -3,33 +3,43 @@ use crate::objects::{DrawCtx, ID};
 use crate::plugins::{apply_map_edits, load_edits, PluginCtx};
 use crate::render::{RenderOptions, Renderable, MIN_ZOOM_FOR_DETAIL};
 use abstutil::Timer;
-use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Wizard, WrappedWizard, GUI};
-use map_model::{Lane, LaneType, Map, Road};
+use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Wizard, WrappedWizard};
+use map_model::{IntersectionID, Lane, LaneType, Map, Road, TurnPriority};
+use std::collections::HashMap;
 
 pub enum EditMode {
     ViewingDiffs,
     Saving(Wizard),
     Loading(Wizard),
+    EditingStopSign(IntersectionID),
 }
 
 impl EditMode {
     pub fn event(state: &mut GameState, ctx: &mut EventCtx) -> EventLoopMode {
         ctx.canvas.handle_event(ctx.input);
 
-        // TODO Display info/hints on more lines.
-        ctx.input.set_mode_with_prompt(
-            "Map Edit Mode",
-            format!(
-                "Map Edit Mode for {}",
-                state.ui.state.primary.map.get_edits().describe()
-            ),
-            ctx.canvas,
-        );
-        // TODO Clicking this works, but the key doesn't
-        if ctx.input.modal_action("quit") {
-            // TODO Warn about unsaved edits
-            state.mode = Mode::SplashScreen(Wizard::new(), None);
-            return EventLoopMode::InputOnly;
+        // Common functionality
+        match state.mode {
+            Mode::Edit(EditMode::ViewingDiffs)
+            | Mode::Edit(EditMode::Saving(_))
+            | Mode::Edit(EditMode::Loading(_)) => {
+                // TODO Display info/hints on more lines.
+                ctx.input.set_mode_with_prompt(
+                    "Map Edit Mode",
+                    format!(
+                        "Map Edit Mode for {}",
+                        state.ui.state.primary.map.get_edits().describe()
+                    ),
+                    ctx.canvas,
+                );
+                // TODO Clicking this works, but the key doesn't
+                if ctx.input.modal_action("quit") {
+                    // TODO Warn about unsaved edits
+                    state.mode = Mode::SplashScreen(Wizard::new(), None);
+                    return EventLoopMode::InputOnly;
+                }
+            }
+            _ => {}
         }
 
         match state.mode {
@@ -45,7 +55,7 @@ impl EditMode {
                 // the effects of it. Or eventually, the Option<ID> itself will live in here
                 // directly.
                 // TODO Only mouseover lanes and intersections?
-                state.ui.handle_mouseover(ctx);
+                state.ui.handle_mouseover(ctx, None);
 
                 if let Some(ID::Lane(id)) = state.ui.state.primary.current_selection {
                     let lane = state.ui.state.primary.map.get_l(id);
@@ -74,6 +84,15 @@ impl EditMode {
                                 );
                             }
                         }
+                    }
+                }
+                if let Some(ID::Intersection(id)) = state.ui.state.primary.current_selection {
+                    if state.ui.state.primary.map.maybe_get_stop_sign(id).is_some()
+                        && ctx
+                            .input
+                            .contextual_action(Key::E, &format!("edit stop signs for {}", id))
+                    {
+                        state.mode = Mode::Edit(EditMode::EditingStopSign(id));
                     }
                 }
             }
@@ -112,6 +131,70 @@ impl EditMode {
                     state.mode = Mode::Edit(EditMode::ViewingDiffs);
                 }
             }
+            Mode::Edit(EditMode::EditingStopSign(i)) => {
+                state.ui.handle_mouseover(ctx, Some(i));
+
+                ctx.input.set_mode_with_prompt(
+                    "Stop Sign Editor",
+                    format!("Stop Sign Editor for {}", i),
+                    &ctx.canvas,
+                );
+
+                if let Some(ID::Turn(t)) = state.ui.state.primary.current_selection {
+                    let mut sign = state.ui.state.primary.map.get_stop_sign(i).clone();
+                    let next_priority = match sign.get_priority(t) {
+                        TurnPriority::Banned => TurnPriority::Stop,
+                        TurnPriority::Stop => TurnPriority::Yield,
+                        TurnPriority::Yield => {
+                            if sign.could_be_priority_turn(t, &state.ui.state.primary.map) {
+                                TurnPriority::Priority
+                            } else {
+                                TurnPriority::Banned
+                            }
+                        }
+                        TurnPriority::Priority => TurnPriority::Banned,
+                    };
+                    if ctx
+                        .input
+                        .contextual_action(Key::Space, &format!("toggle to {:?}", next_priority))
+                    {
+                        sign.turns.insert(t, next_priority);
+                        let mut new_edits = state.ui.state.primary.map.get_edits().clone();
+                        new_edits.stop_sign_overrides.insert(i, sign);
+                        apply_map_edits(
+                            &mut PluginCtx {
+                                primary: &mut state.ui.state.primary,
+                                secondary: &mut None,
+                                canvas: ctx.canvas,
+                                cs: &mut state.ui.state.cs,
+                                prerender: ctx.prerender,
+                                input: ctx.input,
+                                hints: &mut state.ui.hints,
+                                recalculate_current_selection: &mut false,
+                            },
+                            new_edits,
+                        );
+                    }
+                } else if ctx.input.modal_action("quit") {
+                    state.mode = Mode::Edit(EditMode::ViewingDiffs);
+                } else if ctx.input.modal_action("reset to default") {
+                    let mut new_edits = state.ui.state.primary.map.get_edits().clone();
+                    new_edits.stop_sign_overrides.remove(&i);
+                    apply_map_edits(
+                        &mut PluginCtx {
+                            primary: &mut state.ui.state.primary,
+                            secondary: &mut None,
+                            canvas: ctx.canvas,
+                            cs: &mut state.ui.state.cs,
+                            prerender: ctx.prerender,
+                            input: ctx.input,
+                            hints: &mut state.ui.hints,
+                            recalculate_current_selection: &mut false,
+                        },
+                        new_edits,
+                    );
+                }
+            }
             _ => unreachable!(),
         }
 
@@ -119,7 +202,8 @@ impl EditMode {
     }
 
     pub fn draw(state: &GameState, g: &mut GfxCtx) {
-        state.ui.draw(g);
+        let mut override_color: HashMap<ID, Color> = HashMap::new();
+
         let ctx = DrawCtx {
             cs: &state.ui.state.cs,
             map: &state.ui.state.primary.map,
@@ -130,6 +214,8 @@ impl EditMode {
 
         match state.mode {
             Mode::Edit(EditMode::ViewingDiffs) => {
+                state.ui.new_draw(g, None, override_color);
+
                 // TODO Similar to drawing areas with traffic or not -- would be convenient to just
                 // supply a set of things to highlight and have something else take care of drawing
                 // with detail or not.
@@ -172,8 +258,37 @@ impl EditMode {
             }
             Mode::Edit(EditMode::Saving(ref wizard))
             | Mode::Edit(EditMode::Loading(ref wizard)) => {
+                state.ui.new_draw(g, None, override_color);
+
                 // TODO Still draw the diffs, yo
                 wizard.draw(g);
+            }
+            Mode::Edit(EditMode::EditingStopSign(i)) => {
+                let sign = state.ui.state.primary.map.get_stop_sign(i);
+                for t in &state.ui.state.primary.map.get_i(i).turns {
+                    override_color.insert(
+                        ID::Turn(*t),
+                        match sign.get_priority(*t) {
+                            TurnPriority::Priority => state
+                                .ui
+                                .state
+                                .cs
+                                .get_def("priority stop sign turn", Color::GREEN),
+                            TurnPriority::Yield => state
+                                .ui
+                                .state
+                                .cs
+                                .get_def("yield stop sign turn", Color::YELLOW),
+                            TurnPriority::Stop => {
+                                state.ui.state.cs.get_def("stop turn", Color::RED)
+                            }
+                            TurnPriority::Banned => {
+                                state.ui.state.cs.get_def("banned turn", Color::BLACK)
+                            }
+                        },
+                    );
+                }
+                state.ui.new_draw(g, Some(i), override_color);
             }
             _ => unreachable!(),
         }
