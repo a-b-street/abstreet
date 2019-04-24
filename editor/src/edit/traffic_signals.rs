@@ -3,6 +3,7 @@ use crate::objects::{DrawCtx, ID};
 use crate::plugins::{apply_map_edits, PluginCtx};
 use crate::render::{draw_signal_cycle, draw_signal_diagram, DrawTurn};
 use crate::ui::UI;
+use abstutil::Timer;
 use ezgui::{Color, EventCtx, GfxCtx, Key, ScreenPt, Wizard, WrappedWizard};
 use geom::Duration;
 use map_model::{ControlTrafficSignal, Cycle, IntersectionID, Map, TurnID, TurnPriority, TurnType};
@@ -54,6 +55,7 @@ impl TrafficSignalEditor {
         }
 
         let mut signal = ui.state.primary.map.get_traffic_signal(self.i).clone();
+        let mut changed = false;
 
         if self.cycle_duration_wizard.is_some() {
             if let Some(new_duration) = self
@@ -70,6 +72,7 @@ impl TrafficSignalEditor {
                 )
             {
                 signal.cycles[self.current_cycle].duration = Duration::seconds(new_duration as f64);
+                changed = true;
                 self.cycle_duration_wizard = None;
             } else if self.cycle_duration_wizard.as_ref().unwrap().aborted() {
                 self.cycle_duration_wizard = None;
@@ -84,6 +87,7 @@ impl TrafficSignalEditor {
                     .wrap(ctx.input, ctx.canvas),
             ) {
                 signal = new_signal;
+                changed = true;
                 self.preset_wizard = None;
             } else if self.preset_wizard.as_ref().unwrap().aborted() {
                 self.preset_wizard = None;
@@ -126,6 +130,7 @@ impl TrafficSignalEditor {
                         &format!("toggle from {:?} to {:?}", cycle.get_priority(id), pri),
                     ) {
                         cycle.edit_turn(id, pri);
+                        changed = true;
                     }
                 }
             }
@@ -163,6 +168,7 @@ impl TrafficSignalEditor {
                 signal
                     .cycles
                     .swap(self.current_cycle, self.current_cycle - 1);
+                changed = true;
                 self.current_cycle -= 1;
             } else if self.current_cycle != signal.cycles.len() - 1
                 && ctx.input.modal_action("move current cycle down")
@@ -170,9 +176,11 @@ impl TrafficSignalEditor {
                 signal
                     .cycles
                     .swap(self.current_cycle, self.current_cycle + 1);
+                changed = true;
                 self.current_cycle += 1;
             } else if signal.cycles.len() > 1 && ctx.input.modal_action("delete current cycle") {
                 signal.cycles.remove(self.current_cycle);
+                changed = true;
                 if self.current_cycle == signal.cycles.len() {
                     self.current_cycle -= 1;
                 }
@@ -180,6 +188,7 @@ impl TrafficSignalEditor {
                 signal
                     .cycles
                     .insert(self.current_cycle, Cycle::new(self.i, signal.cycles.len()));
+                changed = true;
             } else if has_sidewalks
                 && ctx
                     .input
@@ -195,25 +204,33 @@ impl TrafficSignalEditor {
                     }
                 }
                 signal.cycles.insert(self.current_cycle, cycle);
+                changed = true;
             }
         }
 
-        // TODO Constantly? :(
-        let mut new_edits = ui.state.primary.map.get_edits().clone();
-        new_edits.traffic_signal_overrides.insert(self.i, signal);
-        apply_map_edits(
-            &mut PluginCtx {
-                primary: &mut ui.state.primary,
-                secondary: &mut None,
-                canvas: ctx.canvas,
-                cs: &mut ui.state.cs,
-                prerender: ctx.prerender,
-                input: ctx.input,
-                hints: &mut ui.hints,
-                recalculate_current_selection: &mut false,
-            },
-            new_edits,
-        );
+        if changed {
+            let orig =
+                ControlTrafficSignal::new(&ui.state.primary.map, self.i, &mut Timer::throwaway());
+            let mut new_edits = ui.state.primary.map.get_edits().clone();
+            if orig == signal {
+                new_edits.traffic_signal_overrides.remove(&self.i);
+            } else {
+                new_edits.traffic_signal_overrides.insert(self.i, signal);
+            }
+            apply_map_edits(
+                &mut PluginCtx {
+                    primary: &mut ui.state.primary,
+                    secondary: &mut None,
+                    canvas: ctx.canvas,
+                    cs: &mut ui.state.cs,
+                    prerender: ctx.prerender,
+                    input: ctx.input,
+                    hints: &mut ui.hints,
+                    recalculate_current_selection: &mut false,
+                },
+                new_edits,
+            );
+        }
 
         false
     }
