@@ -1,3 +1,5 @@
+mod traffic_signals;
+
 use crate::game::{GameState, Mode};
 use crate::objects::{DrawCtx, ID};
 use crate::plugins::{apply_map_edits, load_edits, PluginCtx};
@@ -12,6 +14,7 @@ pub enum EditMode {
     Saving(Wizard),
     Loading(Wizard),
     EditingStopSign(IntersectionID),
+    EditingTrafficSignal(traffic_signals::TrafficSignalEditor),
 }
 
 impl EditMode {
@@ -93,6 +96,21 @@ impl EditMode {
                             .contextual_action(Key::E, &format!("edit stop signs for {}", id))
                     {
                         state.mode = Mode::Edit(EditMode::EditingStopSign(id));
+                    }
+                    if state
+                        .ui
+                        .state
+                        .primary
+                        .map
+                        .maybe_get_traffic_signal(id)
+                        .is_some()
+                        && ctx
+                            .input
+                            .contextual_action(Key::E, &format!("edit traffic signal for {}", id))
+                    {
+                        state.mode = Mode::Edit(EditMode::EditingTrafficSignal(
+                            traffic_signals::TrafficSignalEditor::new(id, ctx),
+                        ));
                     }
                 }
             }
@@ -195,6 +213,11 @@ impl EditMode {
                     );
                 }
             }
+            Mode::Edit(EditMode::EditingTrafficSignal(ref mut editor)) => {
+                if editor.event(ctx, &mut state.ui) {
+                    state.mode = Mode::Edit(EditMode::ViewingDiffs);
+                }
+            }
             _ => unreachable!(),
         }
 
@@ -289,6 +312,9 @@ impl EditMode {
                     );
                 }
                 state.ui.new_draw(g, Some(i), override_color);
+            }
+            Mode::Edit(EditMode::EditingTrafficSignal(ref editor)) => {
+                editor.draw(g, state);
             }
             _ => unreachable!(),
         }

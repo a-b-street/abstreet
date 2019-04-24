@@ -92,21 +92,6 @@ impl GUI for UI {
     fn modal_menus(&self) -> Vec<ModalMenu> {
         vec![
             ModalMenu::new(
-                "Traffic Signal Editor",
-                vec![
-                    (Key::Enter, "quit"),
-                    (Key::D, "change cycle duration"),
-                    (Key::P, "choose a preset signal"),
-                    (Key::K, "move current cycle up"),
-                    (Key::J, "move current cycle down"),
-                    (Key::UpArrow, "select previous cycle"),
-                    (Key::DownArrow, "select next cycle"),
-                    (Key::Backspace, "delete current cycle"),
-                    (Key::N, "add a new empty cycle"),
-                    (Key::M, "add a new pedestrian scramble cycle"),
-                ],
-            ),
-            ModalMenu::new(
                 "Scenario Editor",
                 vec![
                     (Key::S, "save"),
@@ -211,6 +196,21 @@ impl GUI for UI {
             ModalMenu::new(
                 "Stop Sign Editor",
                 vec![(Key::Enter, "quit"), (Key::R, "reset to default")],
+            ),
+            ModalMenu::new(
+                "Traffic Signal Editor",
+                vec![
+                    (Key::Enter, "quit"),
+                    (Key::D, "change cycle duration"),
+                    (Key::P, "choose a preset signal"),
+                    (Key::K, "move current cycle up"),
+                    (Key::J, "move current cycle down"),
+                    (Key::UpArrow, "select previous cycle"),
+                    (Key::DownArrow, "select next cycle"),
+                    (Key::Backspace, "delete current cycle"),
+                    (Key::N, "add a new empty cycle"),
+                    (Key::M, "add a new pedestrian scramble cycle"),
+                ],
             ),
         ]
     }
