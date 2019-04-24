@@ -2,12 +2,15 @@ mod traffic_signals;
 
 use crate::game::{GameState, Mode};
 use crate::objects::{DrawCtx, ID};
-use crate::plugins::{apply_map_edits, load_edits, PluginCtx};
-use crate::render::{RenderOptions, Renderable, MIN_ZOOM_FOR_DETAIL};
+use crate::plugins::load_edits;
+use crate::render::{DrawLane, DrawMap, DrawTurn, RenderOptions, Renderable, MIN_ZOOM_FOR_DETAIL};
+use crate::state::UIState;
 use abstutil::Timer;
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Wizard, WrappedWizard};
-use map_model::{IntersectionID, Lane, LaneType, Map, Road, TurnPriority};
-use std::collections::HashMap;
+use map_model::{
+    IntersectionID, Lane, LaneID, LaneType, Map, MapEdits, Road, TurnID, TurnPriority,
+};
+use std::collections::{BTreeSet, HashMap};
 
 pub enum EditMode {
     ViewingDiffs,
@@ -72,19 +75,7 @@ impl EditMode {
                             {
                                 let mut new_edits = state.ui.state.primary.map.get_edits().clone();
                                 new_edits.lane_overrides.insert(lane.id, new_type);
-                                apply_map_edits(
-                                    &mut PluginCtx {
-                                        primary: &mut state.ui.state.primary,
-                                        secondary: &mut None,
-                                        canvas: ctx.canvas,
-                                        cs: &mut state.ui.state.cs,
-                                        prerender: ctx.prerender,
-                                        input: ctx.input,
-                                        hints: &mut state.ui.hints,
-                                        recalculate_current_selection: &mut false,
-                                    },
-                                    new_edits,
-                                );
+                                apply_map_edits(&mut state.ui.state, ctx, new_edits);
                             }
                         }
                     }
@@ -131,19 +122,7 @@ impl EditMode {
                     &mut wizard.wrap(ctx.input, ctx.canvas),
                     "Load which map edits?",
                 ) {
-                    apply_map_edits(
-                        &mut PluginCtx {
-                            primary: &mut state.ui.state.primary,
-                            secondary: &mut None,
-                            canvas: ctx.canvas,
-                            cs: &mut state.ui.state.cs,
-                            prerender: ctx.prerender,
-                            input: ctx.input,
-                            hints: &mut state.ui.hints,
-                            recalculate_current_selection: &mut false,
-                        },
-                        new_edits,
-                    );
+                    apply_map_edits(&mut state.ui.state, ctx, new_edits);
                     state.mode = Mode::Edit(EditMode::ViewingDiffs);
                 } else if wizard.aborted() {
                     state.mode = Mode::Edit(EditMode::ViewingDiffs);
@@ -179,38 +158,14 @@ impl EditMode {
                         sign.turns.insert(t, next_priority);
                         let mut new_edits = state.ui.state.primary.map.get_edits().clone();
                         new_edits.stop_sign_overrides.insert(i, sign);
-                        apply_map_edits(
-                            &mut PluginCtx {
-                                primary: &mut state.ui.state.primary,
-                                secondary: &mut None,
-                                canvas: ctx.canvas,
-                                cs: &mut state.ui.state.cs,
-                                prerender: ctx.prerender,
-                                input: ctx.input,
-                                hints: &mut state.ui.hints,
-                                recalculate_current_selection: &mut false,
-                            },
-                            new_edits,
-                        );
+                        apply_map_edits(&mut state.ui.state, ctx, new_edits);
                     }
                 } else if ctx.input.modal_action("quit") {
                     state.mode = Mode::Edit(EditMode::ViewingDiffs);
                 } else if ctx.input.modal_action("reset to default") {
                     let mut new_edits = state.ui.state.primary.map.get_edits().clone();
                     new_edits.stop_sign_overrides.remove(&i);
-                    apply_map_edits(
-                        &mut PluginCtx {
-                            primary: &mut state.ui.state.primary,
-                            secondary: &mut None,
-                            canvas: ctx.canvas,
-                            cs: &mut state.ui.state.cs,
-                            prerender: ctx.prerender,
-                            input: ctx.input,
-                            hints: &mut state.ui.hints,
-                            recalculate_current_selection: &mut false,
-                        },
-                        new_edits,
-                    );
+                    apply_map_edits(&mut state.ui.state, ctx, new_edits);
                 }
             }
             Mode::Edit(EditMode::EditingTrafficSignal(ref mut editor)) => {
@@ -401,4 +356,49 @@ fn can_change_lane_type(r: &Road, l: &Lane, lt: LaneType) -> bool {
     }
 
     true
+}
+
+pub fn apply_map_edits(state: &mut UIState, ctx: &mut EventCtx, edits: MapEdits) {
+    let mut timer = Timer::new("apply map edits");
+    state.primary.current_flags.sim_flags.edits_name = edits.edits_name.clone();
+    let (lanes_changed, turns_deleted, turns_added) =
+        state.primary.map.apply_edits(edits, &mut timer);
+
+    for l in lanes_changed {
+        state.primary.draw_map.lanes[l.0] = DrawLane::new(
+            state.primary.map.get_l(l),
+            &state.primary.map,
+            !state.primary.current_flags.dont_draw_lane_markings,
+            &state.cs,
+            ctx.prerender,
+            &mut timer,
+        );
+    }
+    let mut lanes_of_modified_turns: BTreeSet<LaneID> = BTreeSet::new();
+    for t in turns_deleted {
+        state.primary.draw_map.turns.remove(&t);
+        lanes_of_modified_turns.insert(t.src);
+    }
+    for t in &turns_added {
+        lanes_of_modified_turns.insert(t.src);
+    }
+
+    let mut turn_to_lane_offset: HashMap<TurnID, usize> = HashMap::new();
+    for l in lanes_of_modified_turns {
+        DrawMap::compute_turn_to_lane_offset(
+            &mut turn_to_lane_offset,
+            state.primary.map.get_l(l),
+            &state.primary.map,
+        );
+    }
+    for t in turns_added {
+        state.primary.draw_map.turns.insert(
+            t,
+            DrawTurn::new(
+                &state.primary.map,
+                state.primary.map.get_t(t),
+                turn_to_lane_offset[&t],
+            ),
+        );
+    }
 }

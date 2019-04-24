@@ -260,3 +260,4 @@ Forget top menu, modal menu, OSD, right-click menus, all the current GUI things.
 
 
 persisting anything as modes change is hard to do with the borrow checker. ex: modal menus within the edit mode, soon the core components like map and drawmap. when we're processing the current state, we &mut, but then we want to take ownership of the pieces, which should sorta be safe because we're replacing the overall state. solved this for screensaver because it's an Option, and we can take() it -- replace with None.
+- can we just take ownership and return back at the end?

@@ -1,6 +1,6 @@
+use crate::edit::apply_map_edits;
 use crate::game::GameState;
 use crate::objects::{DrawCtx, ID};
-use crate::plugins::{apply_map_edits, PluginCtx};
 use crate::render::{draw_signal_cycle, draw_signal_diagram, DrawTurn};
 use crate::ui::UI;
 use abstutil::Timer;
@@ -220,19 +220,7 @@ impl TrafficSignalEditor {
             } else {
                 new_edits.traffic_signal_overrides.insert(self.i, signal);
             }
-            apply_map_edits(
-                &mut PluginCtx {
-                    primary: &mut ui.state.primary,
-                    secondary: &mut None,
-                    canvas: ctx.canvas,
-                    cs: &mut ui.state.cs,
-                    prerender: ctx.prerender,
-                    input: ctx.input,
-                    hints: &mut ui.hints,
-                    recalculate_current_selection: &mut false,
-                },
-                new_edits,
-            );
+            apply_map_edits(&mut ui.state, ctx, new_edits);
         }
 
         false
