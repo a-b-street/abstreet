@@ -36,11 +36,11 @@ impl UI {
 }
 
 impl GUI for UI {
-    fn event(&mut self, mut ctx: EventCtx) -> EventLoopMode {
+    fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode {
         ctx.canvas.handle_event(ctx.input);
 
         if !ctx.canvas.is_dragging() && ctx.input.get_moved_mouse().is_some() {
-            self.selected = self.world.mouseover_something(&ctx, &self.hide);
+            self.selected = self.world.mouseover_something(ctx, &self.hide);
         }
 
         if ctx.input.unimportant_key_pressed(Key::Escape, "quit") {
@@ -49,12 +49,12 @@ impl GUI for UI {
 
         if let Some(prev) = find_prev_file(&self.filename) {
             if ctx.input.key_pressed(Key::Comma, "load previous map") {
-                self.load_different(prev, &mut ctx);
+                self.load_different(prev, ctx);
             }
         }
         if let Some(next) = find_next_file(&self.filename) {
             if ctx.input.key_pressed(Key::Dot, "load next map") {
-                self.load_different(next, &mut ctx);
+                self.load_different(next, ctx);
             }
         }
 

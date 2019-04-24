@@ -60,20 +60,14 @@ impl GUI for GameState {
         self.ui.modal_menus()
     }
 
-    fn event(&mut self, mut ctx: EventCtx) -> EventLoopMode {
+    fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode {
         match self.mode {
             Mode::SplashScreen(ref mut wizard, ref mut maybe_screensaver) => {
                 if let Some((ref mut screensaver, ref mut rng)) = maybe_screensaver {
-                    screensaver.update(
-                        rng,
-                        &mut ctx.input,
-                        &mut ctx.canvas,
-                        &self.ui.state.primary.map,
-                    );
+                    screensaver.update(rng, ctx.input, ctx.canvas, &self.ui.state.primary.map);
                 }
 
-                if let Some(new_mode) =
-                    splash_screen(wizard, &mut ctx, &mut self.ui, maybe_screensaver)
+                if let Some(new_mode) = splash_screen(wizard, ctx, &mut self.ui, maybe_screensaver)
                 {
                     self.mode = new_mode;
                 } else if wizard.aborted() {

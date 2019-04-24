@@ -49,7 +49,7 @@ impl UI {
 }
 
 impl GUI for UI {
-    fn event(&mut self, mut ctx: EventCtx) -> EventLoopMode {
+    fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode {
         ctx.canvas.handle_event(ctx.input);
         let cursor = {
             if let Some(c) = ctx.canvas.get_cursor_in_map_space() {
@@ -60,7 +60,7 @@ impl GUI for UI {
         };
         let selected = self
             .model
-            .mouseover_something(&ctx.canvas, self.quadtree.as_ref());
+            .mouseover_something(ctx.canvas, self.quadtree.as_ref());
 
         match self.state {
             State::MovingIntersection(id) => {
@@ -76,13 +76,10 @@ impl GUI for UI {
                 }
             }
             State::LabelingBuilding(id, ref mut wizard) => {
-                if let Some(label) = wizard
-                    .wrap(&mut ctx.input, &ctx.canvas)
-                    .input_string_prefilled(
-                        "Label the building",
-                        self.model.get_b_label(id).unwrap_or_else(String::new),
-                    )
-                {
+                if let Some(label) = wizard.wrap(ctx.input, ctx.canvas).input_string_prefilled(
+                    "Label the building",
+                    self.model.get_b_label(id).unwrap_or_else(String::new),
+                ) {
                     self.model.set_b_label(id, label);
                     self.state = State::Viewing;
                 } else if wizard.aborted() {
@@ -90,13 +87,10 @@ impl GUI for UI {
                 }
             }
             State::LabelingRoad(pair, ref mut wizard) => {
-                if let Some(label) = wizard
-                    .wrap(&mut ctx.input, &ctx.canvas)
-                    .input_string_prefilled(
-                        "Label this side of the road",
-                        self.model.get_r_label(pair).unwrap_or_else(String::new),
-                    )
-                {
+                if let Some(label) = wizard.wrap(ctx.input, ctx.canvas).input_string_prefilled(
+                    "Label this side of the road",
+                    self.model.get_r_label(pair).unwrap_or_else(String::new),
+                ) {
                     self.model.set_r_label(pair, label);
                     self.state = State::Viewing;
                 } else if wizard.aborted() {
@@ -104,13 +98,10 @@ impl GUI for UI {
                 }
             }
             State::LabelingIntersection(id, ref mut wizard) => {
-                if let Some(label) = wizard
-                    .wrap(&mut ctx.input, &ctx.canvas)
-                    .input_string_prefilled(
-                        "Label the intersection",
-                        self.model.get_i_label(id).unwrap_or_else(String::new),
-                    )
-                {
+                if let Some(label) = wizard.wrap(ctx.input, ctx.canvas).input_string_prefilled(
+                    "Label the intersection",
+                    self.model.get_i_label(id).unwrap_or_else(String::new),
+                ) {
                     self.model.set_i_label(id, label);
                     self.state = State::Viewing;
                 } else if wizard.aborted() {
@@ -129,7 +120,7 @@ impl GUI for UI {
             }
             State::EditingRoad(id, ref mut wizard) => {
                 if let Some(s) = wizard
-                    .wrap(&mut ctx.input, &ctx.canvas)
+                    .wrap(ctx.input, ctx.canvas)
                     .input_string_prefilled("Specify the lanes", self.model.get_lanes(id))
                 {
                     self.model.edit_lanes(id, s);
@@ -140,7 +131,7 @@ impl GUI for UI {
             }
             State::SavingModel(ref mut wizard) => {
                 if let Some(name) = wizard
-                    .wrap(&mut ctx.input, &ctx.canvas)
+                    .wrap(ctx.input, ctx.canvas)
                     .input_string("Name the synthetic map")
                 {
                     self.model.name = Some(name);

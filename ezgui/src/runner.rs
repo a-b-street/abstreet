@@ -21,7 +21,7 @@ pub trait GUI {
     fn modal_menus(&self) -> Vec<ModalMenu> {
         Vec::new()
     }
-    fn event(&mut self, ctx: EventCtx) -> EventLoopMode;
+    fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode;
     fn draw(&self, g: &mut GfxCtx);
     // Will be called if event or draw panics.
     fn dump_before_abort(&self, _canvas: &Canvas) {}
@@ -69,7 +69,7 @@ impl<G: GUI> State<G> {
         let mut gui = self.gui;
         let mut canvas = self.canvas;
         let event_mode = match panic::catch_unwind(panic::AssertUnwindSafe(|| {
-            gui.event(EventCtx {
+            gui.event(&mut EventCtx {
                 input: &mut input,
                 canvas: &mut canvas,
                 prerender,

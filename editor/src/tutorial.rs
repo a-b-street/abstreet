@@ -10,7 +10,7 @@ pub enum TutorialMode {
 }
 
 impl TutorialMode {
-    pub fn event(state: &mut GameState, ctx: EventCtx) -> EventLoopMode {
+    pub fn event(state: &mut GameState, ctx: &mut EventCtx) -> EventLoopMode {
         match state.mode {
             Mode::Tutorial(TutorialMode::Part1(orig_center)) => {
                 // TODO Zooming also changes this. :(

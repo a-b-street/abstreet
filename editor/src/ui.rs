@@ -216,7 +216,7 @@ impl GUI for UI {
     }
 
     // TODO This hacky wrapper will soon disappear, when UI stops implementing GUI
-    fn event(&mut self, ctx: EventCtx) -> EventLoopMode {
+    fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode {
         self.new_event(ctx).0
     }
 
@@ -393,7 +393,7 @@ impl UI {
     }
 
     // True if we should pause.
-    pub fn new_event(&mut self, mut ctx: EventCtx) -> (EventLoopMode, bool) {
+    pub fn new_event(&mut self, ctx: &mut EventCtx) -> (EventLoopMode, bool) {
         self.hints = RenderingHints {
             mode: EventLoopMode::InputOnly,
             osd: Text::new(),
@@ -405,14 +405,11 @@ impl UI {
         ctx.canvas.handle_event(ctx.input);
 
         // Always handle mouseover
-        self.handle_mouseover(&mut ctx);
+        self.handle_mouseover(ctx);
 
         let mut recalculate_current_selection = false;
-        self.state.event(
-            &mut ctx,
-            &mut self.hints,
-            &mut recalculate_current_selection,
-        );
+        self.state
+            .event(ctx, &mut self.hints, &mut recalculate_current_selection);
         if recalculate_current_selection {
             self.state.primary.current_selection = self.mouseover_something(&ctx);
         }

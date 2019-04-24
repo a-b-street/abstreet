@@ -13,7 +13,7 @@ pub enum EditMode {
 }
 
 impl EditMode {
-    pub fn event(state: &mut GameState, mut ctx: EventCtx) -> EventLoopMode {
+    pub fn event(state: &mut GameState, ctx: &mut EventCtx) -> EventLoopMode {
         ctx.canvas.handle_event(ctx.input);
 
         // TODO Display info/hints on more lines.
@@ -23,7 +23,7 @@ impl EditMode {
                 "Map Edit Mode for {}",
                 state.ui.state.primary.map.get_edits().describe()
             ),
-            &ctx.canvas,
+            ctx.canvas,
         );
         // TODO Clicking this works, but the key doesn't
         if ctx.input.modal_action("quit") {
@@ -45,7 +45,7 @@ impl EditMode {
                 // the effects of it. Or eventually, the Option<ID> itself will live in here
                 // directly.
                 // TODO Only mouseover lanes and intersections?
-                state.ui.handle_mouseover(&mut ctx);
+                state.ui.handle_mouseover(ctx);
 
                 if let Some(ID::Lane(id)) = state.ui.state.primary.current_selection {
                     let lane = state.ui.state.primary.map.get_l(id);

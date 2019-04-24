@@ -28,7 +28,7 @@ impl UI {
 }
 
 impl GUI for UI {
-    fn event(&mut self, ctx: EventCtx) -> EventLoopMode {
+    fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode {
         if ctx.input.unimportant_key_pressed(Key::Escape, "quit") {
             process::exit(0);
         }
