@@ -23,7 +23,16 @@ pub struct TrafficSignalEditor {
 }
 
 impl TrafficSignalEditor {
-    pub fn new(id: IntersectionID, ctx: &mut EventCtx) -> TrafficSignalEditor {
+    pub fn new(id: IntersectionID, ctx: &mut EventCtx, ui: &mut UI) -> TrafficSignalEditor {
+        ui.hints.suppress_traffic_signal_details = Some(id);
+        for t in ui.state.primary.map.get_turns_in_intersection(id) {
+            // TODO bit weird, now looks like there's missing space between some icons. Do
+            // we ever need to have an icon for SharedSidewalkCorner?
+            if t.turn_type == TurnType::SharedSidewalkCorner {
+                ui.hints.hide_turn_icons.insert(t.id);
+            }
+        }
+
         let diagram_top_left = ctx.input.set_mode("Traffic Signal Editor", &ctx.canvas);
         TrafficSignalEditor {
             i: id,
@@ -44,15 +53,6 @@ impl TrafficSignalEditor {
             format!("Traffic Signal Editor for {}", self.i),
             &ctx.canvas,
         );
-
-        ui.hints.suppress_traffic_signal_details = Some(self.i);
-        for t in ui.state.primary.map.get_turns_in_intersection(self.i) {
-            // TODO bit weird, now looks like there's missing space between some icons. Do
-            // we ever need to have an icon for SharedSidewalkCorner?
-            if t.turn_type == TurnType::SharedSidewalkCorner {
-                ui.hints.hide_turn_icons.insert(t.id);
-            }
-        }
 
         let mut signal = ui.state.primary.map.get_traffic_signal(self.i).clone();
         let mut changed = false;
@@ -137,6 +137,9 @@ impl TrafficSignalEditor {
         } else {
             self.icon_selected = None;
             if ctx.input.modal_action("quit") {
+                // Reset hints
+                ui.hints.suppress_traffic_signal_details = None;
+                ui.hints.hide_turn_icons.clear();
                 return true;
             }
 

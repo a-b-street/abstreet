@@ -109,7 +109,7 @@ impl EditMode {
                             .contextual_action(Key::E, &format!("edit traffic signal for {}", id))
                     {
                         state.mode = Mode::Edit(EditMode::EditingTrafficSignal(
-                            traffic_signals::TrafficSignalEditor::new(id, ctx),
+                            traffic_signals::TrafficSignalEditor::new(id, ctx, &mut state.ui),
                         ));
                     }
                 }
