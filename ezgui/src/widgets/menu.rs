@@ -3,7 +3,7 @@ use crate::{text, Canvas, Event, GfxCtx, InputResult, Key, ScreenPt, Text};
 
 // Stores some associated data with each choice
 pub struct Menu<T: Clone> {
-    prompt: Option<String>,
+    prompt: Option<Text>,
     // The bool is whether this choice is active or not
     choices: Vec<(Option<Key>, String, bool, T)>,
     current_idx: Option<usize>,
@@ -27,7 +27,7 @@ pub enum Position {
 
 impl<T: Clone> Menu<T> {
     pub fn new(
-        prompt: Option<String>,
+        prompt: Option<Text>,
         choices: Vec<(Option<Key>, String, T)>,
         keys_enabled: bool,
         pos: Position,
@@ -38,10 +38,8 @@ impl<T: Clone> Menu<T> {
         }
 
         // Calculate geometry.
-        let mut txt = Text::new();
-        if let Some(ref line) = prompt {
-            txt.add_line(line.to_string());
-        }
+        let mut txt = prompt.clone().unwrap_or_else(|| Text::new());
+        let (_, prompt_height) = canvas.text_dims(&txt);
         for (hotkey, choice, _) in &choices {
             if let Some(key) = hotkey {
                 txt.add_line(format!("{} - {}", key.describe(), choice));
@@ -50,7 +48,7 @@ impl<T: Clone> Menu<T> {
             }
         }
         let (total_width, total_height) = canvas.text_dims(&txt);
-        let row_height = total_height / (txt.num_lines() as f64);
+        let row_height = (total_height - prompt_height) / (choices.len() as f64);
 
         let top_left = match pos {
             Position::TopLeftAt(pt) => pt,
@@ -71,7 +69,7 @@ impl<T: Clone> Menu<T> {
         };
 
         Menu {
-            prompt: prompt.clone(),
+            prompt,
             // All choices start active.
             choices: choices
                 .into_iter()
@@ -85,20 +83,11 @@ impl<T: Clone> Menu<T> {
 
             row_height,
             top_left,
-            first_choice_row: if prompt.is_some() {
-                ScreenRectangle {
-                    x1: top_left.x,
-                    y1: top_left.y + row_height,
-                    x2: top_left.x + total_width,
-                    y2: top_left.y + (2.0 * row_height),
-                }
-            } else {
-                ScreenRectangle {
-                    x1: top_left.x,
-                    y1: top_left.y,
-                    x2: top_left.x + total_width,
-                    y2: top_left.y + row_height,
-                }
+            first_choice_row: ScreenRectangle {
+                x1: top_left.x,
+                y1: top_left.y + prompt_height,
+                x2: top_left.x + total_width,
+                y2: top_left.y + prompt_height + row_height,
             },
             total_height,
         }
@@ -195,10 +184,7 @@ impl<T: Clone> Menu<T> {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        let mut txt = Text::new();
-        if let Some(ref line) = self.prompt {
-            txt.add_styled_line(line.to_string(), None, Some(text::PROMPT_COLOR), None);
-        }
+        let mut txt = self.prompt.clone().unwrap_or_else(|| Text::new());
         for (idx, (hotkey, choice, active, _)) in self.choices.iter().enumerate() {
             let bg = if Some(idx) == self.current_idx {
                 Some(text::SELECTED_COLOR)
@@ -234,7 +220,7 @@ impl<T: Clone> Menu<T> {
             x1: self.top_left.x,
             y1: self.top_left.y,
             x2: self.first_choice_row.x2,
-            y2: self.top_left.y + (self.row_height * (txt.num_lines() as f64)),
+            y2: self.top_left.y + self.total_height,
         });
         g.draw_text_at_screenspace_topleft(&txt, self.top_left);
     }
@@ -263,10 +249,11 @@ impl<T: Clone> Menu<T> {
         }
     }
 
-    // Assume that this doesn't vastly affect width.
-    pub fn change_prompt(&mut self, prompt: String) {
+    // Assume that this doesn't vastly affect geometry.
+    pub fn change_prompt(&mut self, prompt: Text) {
         assert!(self.prompt.is_some());
         self.prompt = Some(prompt);
+        // TODO Actually just recalculate geometry when this happens...
     }
 
     pub fn get_bottom_left(&self) -> ScreenPt {

@@ -6,7 +6,7 @@ use crate::plugins::load_edits;
 use crate::render::{DrawLane, DrawMap, DrawTurn, RenderOptions, Renderable, MIN_ZOOM_FOR_DETAIL};
 use crate::state::UIState;
 use abstutil::Timer;
-use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Wizard, WrappedWizard};
+use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, Wizard, WrappedWizard};
 use map_model::{
     IntersectionID, Lane, LaneID, LaneType, Map, MapEdits, Road, TurnID, TurnPriority,
 };
@@ -25,19 +25,18 @@ impl EditMode {
         ctx.canvas.handle_event(ctx.input);
 
         // Common functionality
+        let mut txt = Text::new();
+        txt.add_styled_line("Map Edit Mode".to_string(), None, Some(Color::BLUE), None);
+        txt.add_line(state.ui.state.primary.map.get_edits().edits_name.clone());
+        txt.add_line(state.ui.state.primary.map.get_edits().describe());
+        txt.add_line("Right-click a lane or intersection to start editing".to_string());
         match state.mode {
             Mode::Edit(EditMode::ViewingDiffs)
             | Mode::Edit(EditMode::Saving(_))
             | Mode::Edit(EditMode::Loading(_)) => {
                 // TODO Display info/hints on more lines.
-                ctx.input.set_mode_with_prompt(
-                    "Map Edit Mode",
-                    format!(
-                        "Map Edit Mode for {}",
-                        state.ui.state.primary.map.get_edits().describe()
-                    ),
-                    ctx.canvas,
-                );
+                ctx.input
+                    .set_mode_with_new_prompt("Map Edit Mode", txt, ctx.canvas);
                 // TODO Clicking this works, but the key doesn't
                 if ctx.input.modal_action("quit") {
                     // TODO Warn about unsaved edits

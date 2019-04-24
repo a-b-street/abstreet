@@ -1,5 +1,5 @@
 use crate::widgets::{Menu, Position};
-use crate::{Canvas, GfxCtx, InputResult, Key, LogScroller, TextBox, UserInput};
+use crate::{text, Canvas, GfxCtx, InputResult, Key, LogScroller, Text, TextBox, UserInput};
 use abstutil::Cloneable;
 use std::collections::VecDeque;
 
@@ -212,7 +212,12 @@ impl<'a> WrappedWizard<'a> {
                 .map(|(s, item)| (None, s.to_string(), item.clone_box()))
                 .collect();
             self.wizard.menu = Some(Menu::new(
-                Some(query.to_string()),
+                Some(Text::from_styled_line(
+                    query.to_string(),
+                    None,
+                    Some(text::PROMPT_COLOR),
+                    None,
+                )),
                 boxed_choices,
                 true,
                 Position::ScreenCenter,

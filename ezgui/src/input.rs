@@ -237,7 +237,7 @@ impl UserInput {
     pub fn set_mode_with_extra(
         &mut self,
         mode: &str,
-        prompt: String,
+        prompt: Text,
         canvas: &Canvas,
         extra_width: f64,
         _extra_height: f64,
@@ -274,6 +274,17 @@ impl UserInput {
         &mut self,
         mode: &str,
         prompt: String,
+        canvas: &Canvas,
+    ) -> ScreenPt {
+        let mut txt = Text::new();
+        txt.add_styled_line(prompt, None, Some(text::PROMPT_COLOR), None);
+        self.set_mode_with_extra(mode, txt, canvas, 0.0, 0.0)
+    }
+
+    pub fn set_mode_with_new_prompt(
+        &mut self,
+        mode: &str,
+        prompt: Text,
         canvas: &Canvas,
     ) -> ScreenPt {
         self.set_mode_with_extra(mode, prompt, canvas, 0.0, 0.0)

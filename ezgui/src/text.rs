@@ -64,6 +64,17 @@ impl Text {
         txt
     }
 
+    pub fn from_styled_line(
+        line: String,
+        fg_color: Option<Color>,
+        highlight_color: Option<Color>,
+        font_size: Option<usize>,
+    ) -> Text {
+        let mut txt = Text::new();
+        txt.add_styled_line(line, fg_color, highlight_color, font_size);
+        txt
+    }
+
     pub fn pad_if_nonempty(&mut self) {
         if !self.lines.is_empty() {
             self.lines.push((None, Vec::new()));

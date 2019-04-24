@@ -22,7 +22,8 @@ impl Legend {
             // Size needed for the legend was manually tuned. :\
             top_left: input.set_mode_with_extra(
                 "Legend",
-                "Legend".to_string(),
+                // TODO prompt color again
+                Text::from_line("Legend".to_string()),
                 canvas,
                 220.0,
                 300.0,
