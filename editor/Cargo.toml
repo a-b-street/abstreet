@@ -11,8 +11,6 @@ counter = "0.4.3"
 derive-new = "0.5.6"
 downcast = "0.10.0"
 ezgui = { path = "../ezgui" }
-generator = "0.6.12"
-geo = "0.12.0"
 geom = { path = "../geom" }
 kml = { path = "../kml" }
 map_model = { path = "../map_model" }
