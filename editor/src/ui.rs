@@ -55,7 +55,6 @@ impl GUI for UI {
                     (Some(Key::B), "manage A/B tests"),
                     (None, "configure colors"),
                     (Some(Key::N), "manage neighborhoods"),
-                    (Some(Key::Q), "manage map edits"),
                     (Some(Key::E), "edit roads"),
                     (Some(Key::W), "manage scenarios"),
                 ],

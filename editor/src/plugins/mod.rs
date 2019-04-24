@@ -140,6 +140,7 @@ pub fn choose_edits(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Optio
 }
 
 pub fn load_edits(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<MapEdits> {
+    // TODO Exclude current?
     let map_name = map.get_name().to_string();
     wizard
         .choose_something::<MapEdits>(

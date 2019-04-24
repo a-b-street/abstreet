@@ -1,5 +1,6 @@
 use crate::game::{GameState, Mode};
 use crate::objects::DrawCtx;
+use crate::plugins::{apply_map_edits, load_edits, PluginCtx};
 use crate::render::{RenderOptions, Renderable, MIN_ZOOM_FOR_DETAIL};
 use abstutil::Timer;
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Wizard, WrappedWizard, GUI};
@@ -8,6 +9,7 @@ use map_model::Map;
 pub enum EditMode {
     ViewingDiffs,
     Saving(Wizard),
+    Loading(Wizard),
 }
 
 impl EditMode {
@@ -33,6 +35,7 @@ impl EditMode {
                 if ctx.input.modal_action("save edits") {
                     state.mode = Mode::Edit(EditMode::Saving(Wizard::new()));
                 } else if ctx.input.modal_action("load different edits") {
+                    state.mode = Mode::Edit(EditMode::Loading(Wizard::new()));
                 }
             }
             Mode::Edit(EditMode::Saving(ref mut wizard)) => {
@@ -43,6 +46,30 @@ impl EditMode {
                 .is_some()
                     || wizard.aborted()
                 {
+                    state.mode = Mode::Edit(EditMode::ViewingDiffs);
+                }
+            }
+            Mode::Edit(EditMode::Loading(ref mut wizard)) => {
+                if let Some(new_edits) = load_edits(
+                    &state.ui.state.primary.map,
+                    &mut wizard.wrap(ctx.input, ctx.canvas),
+                    "Load which map edits?",
+                ) {
+                    apply_map_edits(
+                        &mut PluginCtx {
+                            primary: &mut state.ui.state.primary,
+                            secondary: &mut None,
+                            canvas: ctx.canvas,
+                            cs: &mut state.ui.state.cs,
+                            prerender: ctx.prerender,
+                            input: ctx.input,
+                            hints: &mut state.ui.hints,
+                            recalculate_current_selection: &mut false,
+                        },
+                        new_edits,
+                    );
+                    state.mode = Mode::Edit(EditMode::ViewingDiffs);
+                } else if wizard.aborted() {
                     state.mode = Mode::Edit(EditMode::ViewingDiffs);
                 }
             }
@@ -105,7 +132,8 @@ impl EditMode {
                     );
                 }
             }
-            Mode::Edit(EditMode::Saving(ref wizard)) => {
+            Mode::Edit(EditMode::Saving(ref wizard))
+            | Mode::Edit(EditMode::Loading(ref wizard)) => {
                 // TODO Still draw the diffs, yo
                 wizard.draw(g);
             }
