@@ -55,7 +55,6 @@ impl GUI for UI {
                     (Some(Key::B), "manage A/B tests"),
                     (None, "configure colors"),
                     (Some(Key::N), "manage neighborhoods"),
-                    (Some(Key::E), "edit roads"),
                     (Some(Key::W), "manage scenarios"),
                 ],
             ),
@@ -117,7 +116,6 @@ impl GUI for UI {
                     (Key::Enter, "quit"),
                 ],
             ),
-            ModalMenu::new("Road Editor", vec![(Key::Enter, "quit")]),
             ModalMenu::new(
                 "Color Picker",
                 vec![(Key::Backspace, "revert"), (Key::Enter, "finalize")],
@@ -407,12 +405,7 @@ impl UI {
         ctx.canvas.handle_event(ctx.input);
 
         // Always handle mouseover
-        if !ctx.canvas.is_dragging() && ctx.input.get_moved_mouse().is_some() {
-            self.state.primary.current_selection = self.mouseover_something(&ctx);
-        }
-        if ctx.input.window_lost_cursor() {
-            self.state.primary.current_selection = None;
-        }
+        self.handle_mouseover(&mut ctx);
 
         let mut recalculate_current_selection = false;
         self.state.event(
@@ -450,6 +443,15 @@ impl UI {
             self.hints.mode.clone(),
             ctx.input.action_chosen("pause game"),
         )
+    }
+
+    pub fn handle_mouseover(&mut self, ctx: &mut EventCtx) {
+        if !ctx.canvas.is_dragging() && ctx.input.get_moved_mouse().is_some() {
+            self.state.primary.current_selection = self.mouseover_something(&ctx);
+        }
+        if ctx.input.window_lost_cursor() {
+            self.state.primary.current_selection = None;
+        }
     }
 
     fn mouseover_something(&self, ctx: &EventCtx) -> Option<ID> {

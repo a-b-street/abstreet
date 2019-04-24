@@ -1,10 +1,10 @@
 use crate::game::{GameState, Mode};
-use crate::objects::DrawCtx;
+use crate::objects::{DrawCtx, ID};
 use crate::plugins::{apply_map_edits, load_edits, PluginCtx};
 use crate::render::{RenderOptions, Renderable, MIN_ZOOM_FOR_DETAIL};
 use abstutil::Timer;
-use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Wizard, WrappedWizard, GUI};
-use map_model::Map;
+use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Wizard, WrappedWizard, GUI};
+use map_model::{Lane, LaneType, Map, Road};
 
 pub enum EditMode {
     ViewingDiffs,
@@ -13,13 +13,16 @@ pub enum EditMode {
 }
 
 impl EditMode {
-    pub fn event(state: &mut GameState, ctx: EventCtx) -> EventLoopMode {
-        let edits = state.ui.state.primary.map.get_edits();
+    pub fn event(state: &mut GameState, mut ctx: EventCtx) -> EventLoopMode {
+        ctx.canvas.handle_event(ctx.input);
 
         // TODO Display info/hints on more lines.
         ctx.input.set_mode_with_prompt(
             "Map Edit Mode",
-            format!("Map Edit Mode for {}", edits.describe()),
+            format!(
+                "Map Edit Mode for {}",
+                state.ui.state.primary.map.get_edits().describe()
+            ),
             &ctx.canvas,
         );
         // TODO Clicking this works, but the key doesn't
@@ -36,6 +39,42 @@ impl EditMode {
                     state.mode = Mode::Edit(EditMode::Saving(Wizard::new()));
                 } else if ctx.input.modal_action("load different edits") {
                     state.mode = Mode::Edit(EditMode::Loading(Wizard::new()));
+                }
+
+                // TODO Reset when transitioning in/out of this state? Or maybe we just don't draw
+                // the effects of it. Or eventually, the Option<ID> itself will live in here
+                // directly.
+                // TODO Only mouseover lanes and intersections?
+                state.ui.handle_mouseover(&mut ctx);
+
+                if let Some(ID::Lane(id)) = state.ui.state.primary.current_selection {
+                    let lane = state.ui.state.primary.map.get_l(id);
+                    let road = state.ui.state.primary.map.get_r(lane.parent);
+
+                    if lane.lane_type != LaneType::Sidewalk {
+                        if let Some(new_type) = next_valid_type(road, lane) {
+                            if ctx
+                                .input
+                                .contextual_action(Key::Space, &format!("toggle to {:?}", new_type))
+                            {
+                                let mut new_edits = state.ui.state.primary.map.get_edits().clone();
+                                new_edits.lane_overrides.insert(lane.id, new_type);
+                                apply_map_edits(
+                                    &mut PluginCtx {
+                                        primary: &mut state.ui.state.primary,
+                                        secondary: &mut None,
+                                        canvas: ctx.canvas,
+                                        cs: &mut state.ui.state.cs,
+                                        prerender: ctx.prerender,
+                                        input: ctx.input,
+                                        hints: &mut state.ui.hints,
+                                        recalculate_current_selection: &mut false,
+                                    },
+                                    new_edits,
+                                );
+                            }
+                        }
+                    }
                 }
             }
             Mode::Edit(EditMode::Saving(ref mut wizard)) => {
@@ -76,7 +115,6 @@ impl EditMode {
             _ => unreachable!(),
         }
 
-        ctx.canvas.handle_event(ctx.input);
         EventLoopMode::InputOnly
     }
 
@@ -165,4 +203,61 @@ fn save_edits(mut wizard: WrappedWizard, map: &mut Map) -> Option<()> {
         map.get_edits().save();
     }
     Some(())
+}
+
+// For lane editing
+
+fn next_valid_type(r: &Road, l: &Lane) -> Option<LaneType> {
+    let mut new_type = next_type(l.lane_type);
+    while new_type != l.lane_type {
+        if can_change_lane_type(r, l, new_type) {
+            return Some(new_type);
+        }
+        new_type = next_type(new_type);
+    }
+    None
+}
+
+fn next_type(lt: LaneType) -> LaneType {
+    match lt {
+        LaneType::Driving => LaneType::Parking,
+        LaneType::Parking => LaneType::Biking,
+        LaneType::Biking => LaneType::Bus,
+        LaneType::Bus => LaneType::Driving,
+
+        LaneType::Sidewalk => unreachable!(),
+    }
+}
+
+fn can_change_lane_type(r: &Road, l: &Lane, lt: LaneType) -> bool {
+    let (fwds, idx) = r.dir_and_offset(l.id);
+
+    // Only one parking lane per side.
+    if lt == LaneType::Parking {
+        let has_parking = if fwds {
+            r.get_lane_types().0
+        } else {
+            r.get_lane_types().1
+        }
+        .contains(&LaneType::Parking);
+        if has_parking {
+            return false;
+        }
+    }
+
+    // Two adjacent bike lanes is unnecessary.
+    if lt == LaneType::Biking {
+        let types = if fwds {
+            r.get_lane_types().0
+        } else {
+            r.get_lane_types().1
+        };
+        if (idx != 0 && types[idx - 1] == LaneType::Biking)
+            || types.get(idx + 1) == Some(&LaneType::Biking)
+        {
+            return false;
+        }
+    }
+
+    true
 }
