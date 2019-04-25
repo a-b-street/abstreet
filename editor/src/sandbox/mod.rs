@@ -53,6 +53,13 @@ impl SandboxMode {
                     }
                     return EventLoopMode::InputOnly;
                 }
+                mode.time_travel.record_events(state);
+                if let State::TimeTraveling = mode.state {
+                    if mode.time_travel.event(ctx) {
+                        mode.state = State::Paused;
+                    }
+                    return EventLoopMode::InputOnly;
+                }
 
                 let mut txt = Text::new();
                 txt.add_styled_line("Sandbox Mode".to_string(), None, Some(Color::BLUE), None);

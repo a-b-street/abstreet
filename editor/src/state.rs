@@ -175,12 +175,6 @@ impl UIState {
                 return;
             }
 
-            // Always run this here, to let it scrape sim state.
-            self.primary_plugins.time_travel.event(&mut ctx);
-            if self.primary_plugins.time_travel.is_active() {
-                return;
-            }
-
             if self.exclusive_blocking_plugin.is_some() {
                 if !self
                     .exclusive_blocking_plugin
@@ -404,10 +398,6 @@ pub struct PluginsPerMap {
     // When present, this either acts like exclusive blocking or like stackable modal. :\
     search: Option<view::search::SearchState>,
 
-    // This acts like exclusive blocking when active.
-    // TODO Make this implement one of the traits.
-    pub time_travel: plugins::sim::time_travel::TimeTravel,
-
     ambient_plugins: Vec<Box<AmbientPlugin>>,
 }
 
@@ -434,7 +424,6 @@ impl PluginsPerMap {
                 Box::new(view::show_associated::ShowAssociatedState::new()),
                 Box::new(view::turn_cycler::TurnCyclerState::new()),
             ],
-            time_travel: plugins::sim::time_travel::TimeTravel::new(),
         };
         if enable_debug_controls {
             p.ambient_plugins

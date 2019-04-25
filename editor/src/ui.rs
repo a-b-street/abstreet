@@ -59,7 +59,6 @@ impl GUI for UI {
             Folder::new(
                 "Simulation",
                 vec![
-                    (Some(Key::T), "start time traveling"),
                     (Some(Key::D), "diff all A/B trips"),
                 ],
             ),
@@ -99,14 +98,6 @@ impl GUI for UI {
                     (Key::Q, "quit"),
                     (Key::X, "export as an Osmosis polygon filter"),
                     (Key::P, "add a new point"),
-                ],
-            ),
-            ModalMenu::new(
-                "Time Traveler",
-                vec![
-                    (Key::Enter, "quit"),
-                    (Key::Comma, "rewind"),
-                    (Key::Dot, "forwards"),
                 ],
             ),
             ModalMenu::new("Original Roads", vec![(Key::Enter, "quit")]),
@@ -175,9 +166,18 @@ impl GUI for UI {
                     // TODO This should probably be a debug thing instead
                     (Key::L, "show/hide route for all agents"),
                     (Key::A, "show/hide active traffic"),
+                    (Key::T, "start time traveling"),
                 ],
             ),
             ModalMenu::new("Agent Spawner", vec![(Key::Escape, "quit")]),
+            ModalMenu::new(
+                "Time Traveler",
+                vec![
+                    (Key::Escape, "quit"),
+                    (Key::Comma, "rewind"),
+                    (Key::Dot, "forwards"),
+                ],
+            ),
         ]
     }
 
