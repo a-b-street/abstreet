@@ -1,4 +1,3 @@
-pub mod follow;
 pub mod legend;
 pub mod neighborhood_summary;
 pub mod search;

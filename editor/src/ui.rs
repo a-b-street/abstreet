@@ -136,7 +136,6 @@ impl GUI for UI {
             ModalMenu::new("Chokepoints Debugger", vec![(Key::Enter, "quit")]),
             ModalMenu::new("A/B Trip Explorer", vec![(Key::Enter, "quit")]),
             ModalMenu::new("A/B All Trips Explorer", vec![(Key::Enter, "quit")]),
-            ModalMenu::new("Agent Follower", vec![(Key::F, "quit")]),
             ModalMenu::new("Search", vec![(Key::Enter, "quit")]),
             ModalMenu::new("Neighborhood Summaries", vec![(Key::Enter, "quit")]),
             ModalMenu::new(
@@ -198,6 +197,8 @@ impl GUI for UI {
                     (Key::M, "run one step of sim"),
                     (Key::R, "reset sim"),
                     (Key::S, "seed the sim with agents"),
+                    // TODO Strange to always have this. Really it's a case of stacked modal?
+                    (Key::F, "stop following agent"),
                 ],
             ),
             ModalMenu::new("Agent Spawner", vec![(Key::Escape, "quit")]),

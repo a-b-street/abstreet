@@ -2,7 +2,7 @@ mod spawner;
 
 use crate::game::{GameState, Mode};
 use abstutil::elapsed_seconds;
-use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Text, Wizard};
+use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, Wizard};
 use geom::Duration;
 use sim::{Benchmark, Sim, TripID};
 use std::collections::HashMap;
@@ -12,8 +12,8 @@ const ADJUST_SPEED: f64 = 0.1;
 
 pub struct SandboxMode {
     desired_speed: f64, // sim seconds per real second
+    following: Option<TripID>,
     state: State,
-    //following: Option<TripID>,
 }
 
 enum State {
@@ -31,7 +31,7 @@ impl SandboxMode {
         SandboxMode {
             desired_speed: 1.0,
             state: State::Paused,
-            //following: None,
+            following: None,
         }
     }
 
@@ -62,12 +62,52 @@ impl SandboxMode {
                         mode.desired_speed
                     ));
                 }
+                if let Some(trip) = mode.following {
+                    txt.add_line(format!("Following {}", trip));
+                }
                 ctx.input
                     .set_mode_with_new_prompt("Sandbox Mode", txt, ctx.canvas);
 
                 if let Some(spawner) = spawner::AgentSpawner::new(ctx, &mut state.ui) {
                     mode.state = State::Spawning(spawner);
                     return EventLoopMode::InputOnly;
+                }
+
+                if mode.following.is_none() {
+                    if let Some(agent) = state
+                        .ui
+                        .state
+                        .primary
+                        .current_selection
+                        .and_then(|id| id.agent_id())
+                    {
+                        if let Some(trip) = state.ui.state.primary.sim.agent_to_trip(agent) {
+                            if ctx
+                                .input
+                                .contextual_action(Key::F, &format!("follow {}", agent))
+                            {
+                                mode.following = Some(trip);
+                            }
+                        }
+                    }
+                }
+                if let Some(trip) = mode.following {
+                    if let Some(pt) = state
+                        .ui
+                        .state
+                        .primary
+                        .sim
+                        .get_canonical_pt_per_trip(trip, &state.ui.state.primary.map)
+                    {
+                        ctx.canvas.center_on_map_pt(pt);
+                    } else {
+                        // TODO ideally they wouldnt vanish for so long according to
+                        // get_canonical_point_for_trip
+                        println!("{} is gone... temporarily or not?", trip);
+                    }
+                    if ctx.input.modal_action("stop following agent") {
+                        mode.following = None;
+                    }
                 }
 
                 if ctx.input.modal_action("quit") {

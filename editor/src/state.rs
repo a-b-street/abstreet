@@ -423,7 +423,6 @@ impl PluginsPerMap {
             orig_roads: None,
             search: None,
             ambient_plugins: vec![
-                Box::new(view::follow::FollowState::new()),
                 Box::new(view::neighborhood_summary::NeighborhoodSummary::new(
                     &state.map,
                     &state.draw_map,
