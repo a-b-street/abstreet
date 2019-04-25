@@ -1,4 +1,5 @@
 mod route_viewer;
+mod show_activity;
 mod spawner;
 
 use crate::game::{GameState, Mode};
@@ -15,6 +16,7 @@ pub struct SandboxMode {
     desired_speed: f64, // sim seconds per real second
     following: Option<TripID>,
     route_viewer: route_viewer::RouteViewer,
+    show_activity: show_activity::ShowActivity,
     state: State,
 }
 
@@ -35,6 +37,7 @@ impl SandboxMode {
             state: State::Paused,
             following: None,
             route_viewer: route_viewer::RouteViewer::Inactive,
+            show_activity: show_activity::ShowActivity::Inactive,
         }
     }
 
@@ -76,6 +79,12 @@ impl SandboxMode {
                         txt.add_line("Showing all routes".to_string());
                     }
                     _ => {}
+                }
+                match mode.show_activity {
+                    show_activity::ShowActivity::Inactive => {}
+                    _ => {
+                        txt.add_line("Showing active traffic".to_string());
+                    }
                 }
                 ctx.input
                     .set_mode_with_new_prompt("Sandbox Mode", txt, ctx.canvas);
@@ -122,6 +131,7 @@ impl SandboxMode {
                     }
                 }
                 mode.route_viewer.event(ctx, &mut state.ui);
+                mode.show_activity.event(ctx, &mut state.ui);
 
                 if ctx.input.modal_action("quit") {
                     // TODO This shouldn't be necessary when we plumb state around instead of
@@ -268,6 +278,7 @@ impl SandboxMode {
                 _ => {
                     state.ui.new_draw(g, None, HashMap::new());
                     mode.route_viewer.draw(g, &state.ui);
+                    mode.show_activity.draw(g, &state.ui);
                 }
             },
             _ => unreachable!(),

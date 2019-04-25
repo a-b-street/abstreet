@@ -1,75 +1,67 @@
-use crate::objects::DrawCtx;
-use crate::plugins::{AmbientPlugin, PluginCtx};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
-use ezgui::{Color, GfxCtx};
+use crate::ui::UI;
+use ezgui::{Color, EventCtx, GfxCtx};
 use geom::{Bounds, Duration, Polygon, Pt2D};
 use map_model::{RoadID, Traversable};
 use std::collections::HashMap;
 
-pub enum ShowActivityState {
+pub enum ShowActivity {
     Inactive,
     Unzoomed(Duration, RoadHeatmap),
     Zoomed(Duration, Heatmap),
 }
 
-impl ShowActivityState {
-    pub fn new() -> ShowActivityState {
-        ShowActivityState::Inactive
-    }
-}
-
-impl AmbientPlugin for ShowActivityState {
-    fn ambient_event(&mut self, ctx: &mut PluginCtx) {
+impl ShowActivity {
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) {
         let zoomed = ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL;
 
         // If we survive past this, recompute current state.
         match self {
-            ShowActivityState::Inactive => {
-                if !ctx.input.action_chosen("show lanes with active traffic") {
+            ShowActivity::Inactive => {
+                if !ctx.input.modal_action("show/hide active traffic") {
                     return;
                 }
             }
-            ShowActivityState::Zoomed(time, ref heatmap) => {
-                ctx.input.set_mode("Active Traffic Visualizer", &ctx.canvas);
-                if ctx.input.modal_action("quit") {
-                    *self = ShowActivityState::Inactive;
+            ShowActivity::Zoomed(time, ref heatmap) => {
+                if ctx.input.modal_action("show/hide active traffic") {
+                    *self = ShowActivity::Inactive;
                     return;
                 }
-                if *time == ctx.primary.sim.time()
+                if *time == ui.state.primary.sim.time()
                     && ctx.canvas.get_screen_bounds() == heatmap.bounds
                     && zoomed
                 {
                     return;
                 }
             }
-            ShowActivityState::Unzoomed(time, _) => {
-                ctx.input.set_mode("Active Traffic Visualizer", &ctx.canvas);
-                if ctx.input.modal_action("quit") {
-                    *self = ShowActivityState::Inactive;
+            ShowActivity::Unzoomed(time, _) => {
+                if ctx.input.modal_action("show/hide active traffic") {
+                    *self = ShowActivity::Inactive;
                     return;
                 }
-                if *time == ctx.primary.sim.time() && !zoomed {
+                if *time == ui.state.primary.sim.time() && !zoomed {
                     return;
                 }
             }
         };
 
         if zoomed {
-            *self = ShowActivityState::Zoomed(ctx.primary.sim.time(), active_agent_heatmap(ctx));
+            *self =
+                ShowActivity::Zoomed(ui.state.primary.sim.time(), active_agent_heatmap(ctx, ui));
         } else {
-            *self = ShowActivityState::Unzoomed(ctx.primary.sim.time(), RoadHeatmap::new(ctx));
+            *self = ShowActivity::Unzoomed(ui.state.primary.sim.time(), RoadHeatmap::new(ui));
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
+    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         match self {
-            ShowActivityState::Zoomed(_, ref heatmap) => {
+            ShowActivity::Zoomed(_, ref heatmap) => {
                 heatmap.draw(g);
             }
-            ShowActivityState::Unzoomed(_, ref road_heatmap) => {
-                road_heatmap.draw(g, ctx);
+            ShowActivity::Unzoomed(_, ref road_heatmap) => {
+                road_heatmap.draw(g, ui);
             }
-            ShowActivityState::Inactive => {}
+            ShowActivity::Inactive => {}
         }
     }
 }
@@ -138,9 +130,9 @@ impl Heatmap {
     }
 }
 
-fn active_agent_heatmap(ctx: &mut PluginCtx) -> Heatmap {
+fn active_agent_heatmap(ctx: &EventCtx, ui: &mut UI) -> Heatmap {
     let mut h = Heatmap::new(ctx.canvas.get_screen_bounds());
-    let stats = ctx.primary.sim.get_stats(&ctx.primary.map);
+    let stats = ui.state.primary.sim.get_stats(&ui.state.primary.map);
     for pt in stats.canonical_pt_per_trip.values() {
         h.add(*pt);
     }
@@ -154,14 +146,14 @@ pub struct RoadHeatmap {
 }
 
 impl RoadHeatmap {
-    fn new(ctx: &mut PluginCtx) -> RoadHeatmap {
+    fn new(ui: &UI) -> RoadHeatmap {
         let mut h = RoadHeatmap {
             count_per_road: HashMap::new(),
             max_count: 0,
         };
-        let map = &ctx.primary.map;
-        for a in ctx.primary.sim.active_agents() {
-            let r = match ctx.primary.sim.location_for_agent(a, map) {
+        let map = &ui.state.primary.map;
+        for a in ui.state.primary.sim.active_agents() {
+            let r = match ui.state.primary.sim.location_for_agent(a, map) {
                 Traversable::Lane(l) => map.get_l(l).parent,
                 // Count the destination
                 Traversable::Turn(t) => map.get_l(t.dst).parent,
@@ -174,7 +166,7 @@ impl RoadHeatmap {
         h
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         for (r, count) in &self.count_per_road {
             let percent = (*count as f32) / (self.max_count as f32);
             // TODO Map percent to hot/cold colors. For now, just bucket into 3 categories.
@@ -186,7 +178,10 @@ impl RoadHeatmap {
                 Color::RED
             };
             // TODO Inefficient!
-            g.draw_polygon(color, &ctx.map.get_r(*r).get_thick_polygon().unwrap());
+            g.draw_polygon(
+                color,
+                &ui.state.primary.map.get_r(*r).get_thick_polygon().unwrap(),
+            );
         }
     }
 }

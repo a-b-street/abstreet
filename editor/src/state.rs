@@ -431,7 +431,6 @@ impl PluginsPerMap {
                 )),
                 // TODO Could be a little simpler to instantiate this lazily, stop representing
                 // inactive state.
-                Box::new(view::show_activity::ShowActivityState::new()),
                 Box::new(view::show_associated::ShowAssociatedState::new()),
                 Box::new(view::turn_cycler::TurnCyclerState::new()),
             ],

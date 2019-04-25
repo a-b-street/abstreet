@@ -68,7 +68,6 @@ impl GUI for UI {
                 vec![
                     (None, "show neighborhood summaries"),
                     (Some(Key::Slash), "search for something"),
-                    (Some(Key::A), "show lanes with active traffic"),
                     (Some(Key::J), "warp to an object"),
                 ],
             ),
@@ -110,35 +109,12 @@ impl GUI for UI {
                     (Key::Dot, "forwards"),
                 ],
             ),
-            ModalMenu::new(
-                "Simple Model",
-                vec![
-                    (Key::Enter, "quit"),
-                    (Key::Comma, "rewind"),
-                    (Key::Dot, "forwards"),
-                    (Key::Space, "toggle forwards play"),
-                    (Key::M, "toggle backwards play"),
-                    (Key::T, "toggle tooltips"),
-                    (Key::E, "exhaustively test instantiation everywhere"),
-                    (Key::D, "debug"),
-                ],
-            ),
-            ModalMenu::new(
-                "Even Simpler Model",
-                vec![
-                    (Key::Enter, "quit"),
-                    (Key::Dot, "forwards"),
-                    (Key::Space, "toggle forwards play"),
-                    (Key::E, "spawn tons of cars everywhere"),
-                ],
-            ),
             ModalMenu::new("Original Roads", vec![(Key::Enter, "quit")]),
             ModalMenu::new("Chokepoints Debugger", vec![(Key::Enter, "quit")]),
             ModalMenu::new("A/B Trip Explorer", vec![(Key::Enter, "quit")]),
             ModalMenu::new("A/B All Trips Explorer", vec![(Key::Enter, "quit")]),
             ModalMenu::new("Search", vec![(Key::Enter, "quit")]),
             ModalMenu::new("Neighborhood Summaries", vec![(Key::Enter, "quit")]),
-            ModalMenu::new("Active Traffic Visualizer", vec![(Key::A, "quit")]),
             ModalMenu::new("Object Hider", vec![(Key::K, "unhide everything")]),
             // TODO F1?
             ModalMenu::new("Legend", vec![(Key::L, "quit")]),
@@ -198,6 +174,7 @@ impl GUI for UI {
                     (Key::R, "stop showing agent's route"),
                     // TODO This should probably be a debug thing instead
                     (Key::L, "show/hide route for all agents"),
+                    (Key::A, "show/hide active traffic"),
                 ],
             ),
             ModalMenu::new("Agent Spawner", vec![(Key::Escape, "quit")]),
