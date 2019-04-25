@@ -174,6 +174,7 @@ impl GUI for UI {
                     (Key::Dot, "forwards"),
                 ],
             ),
+            ModalMenu::new("Debug Mode", vec![(Key::Escape, "quit")]),
         ]
     }
 

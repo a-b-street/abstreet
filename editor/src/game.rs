@@ -1,3 +1,4 @@
+use crate::debug::DebugMode;
 use crate::edit::EditMode;
 use crate::sandbox::SandboxMode;
 use crate::state::{Flags, UIState};
@@ -28,6 +29,7 @@ pub enum Mode {
     Edit(EditMode),
     Tutorial(TutorialMode),
     Sandbox(SandboxMode),
+    Debug(DebugMode),
 }
 
 impl GameState {
@@ -35,7 +37,7 @@ impl GameState {
         let splash = !flags.no_splash;
         let mut rng = flags.sim_flags.make_rng();
         let mut game = GameState {
-            mode: Mode::Legacy,
+            mode: Mode::Sandbox(SandboxMode::new()),
             ui: UI::new(UIState::new(flags, prerender, true), canvas),
         };
         if splash {
@@ -87,6 +89,7 @@ impl GUI for GameState {
             Mode::Edit(_) => EditMode::event(self, ctx),
             Mode::Tutorial(_) => TutorialMode::event(self, ctx),
             Mode::Sandbox(_) => SandboxMode::event(self, ctx),
+            Mode::Debug(_) => DebugMode::event(self, ctx),
         }
     }
 
@@ -100,6 +103,7 @@ impl GUI for GameState {
             Mode::Edit(_) => EditMode::draw(self, g),
             Mode::Tutorial(_) => TutorialMode::draw(self, g),
             Mode::Sandbox(_) => SandboxMode::draw(self, g),
+            Mode::Debug(_) => DebugMode::draw(self, g),
         }
     }
 
@@ -172,6 +176,7 @@ fn splash_screen(
     let load_map = "Load another map";
     let edit = "Edit map";
     let tutorial = "Tutorial";
+    let debug = "Debug mode";
     let legacy = "Legacy mode (ignore this)";
     let about = "About";
     let quit = "Quit";
@@ -181,7 +186,9 @@ fn splash_screen(
         match wizard
             .choose_string(
                 "Welcome to A/B Street!",
-                vec![sandbox, load_map, edit, tutorial, legacy, about, quit],
+                vec![
+                    sandbox, load_map, edit, tutorial, debug, legacy, about, quit,
+                ],
             )?
             .as_str()
         {
@@ -214,6 +221,7 @@ fn splash_screen(
                     ctx.canvas.center_to_map_pt(),
                 )))
             }
+            x if x == debug => break Some(Mode::Debug(DebugMode::new())),
             x if x == legacy => break Some(Mode::Legacy),
             x if x == about => {
                 if wizard.acknowledge(LogScroller::new(
