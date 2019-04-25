@@ -4,6 +4,7 @@ mod game;
 mod objects;
 mod plugins;
 mod render;
+mod sandbox;
 mod state;
 mod tutorial;
 mod ui;

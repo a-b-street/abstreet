@@ -59,19 +59,9 @@ impl GUI for UI {
             Folder::new(
                 "Simulation",
                 vec![
-                    (Some(Key::LeftBracket), "slow down sim"),
-                    (Some(Key::RightBracket), "speed up sim"),
-                    (Some(Key::O), "save sim state"),
-                    (Some(Key::Y), "load previous sim state"),
-                    (Some(Key::U), "load next sim state"),
-                    (Some(Key::Space), "run/pause sim"),
-                    (Some(Key::M), "run one step of sim"),
-                    (Some(Key::Dot), "show/hide sim info sidepanel"),
                     (Some(Key::T), "start time traveling"),
                     (Some(Key::D), "diff all A/B trips"),
                     (Some(Key::S), "seed the sim with agents"),
-                    (Some(Key::LeftAlt), "swap the primary/secondary sim"),
-                    (None, "reset sim"),
                 ],
             ),
             Folder::new(
@@ -180,7 +170,7 @@ impl GUI for UI {
             ),
             ModalMenu::new(
                 "Stop Sign Editor",
-                vec![(Key::Enter, "quit"), (Key::R, "reset to default")],
+                vec![(Key::Escape, "quit"), (Key::R, "reset to default")],
             ),
             ModalMenu::new(
                 "Traffic Signal Editor",
@@ -195,6 +185,20 @@ impl GUI for UI {
                     (Key::Backspace, "delete current cycle"),
                     (Key::N, "add a new empty cycle"),
                     (Key::M, "add a new pedestrian scramble cycle"),
+                ],
+            ),
+            ModalMenu::new(
+                "Sandbox Mode",
+                vec![
+                    (Key::Escape, "quit"),
+                    (Key::LeftBracket, "slow down sim"),
+                    (Key::RightBracket, "speed up sim"),
+                    (Key::O, "save sim state"),
+                    (Key::Y, "load previous sim state"),
+                    (Key::U, "load next sim state"),
+                    (Key::Space, "run/pause sim"),
+                    (Key::M, "run one step of sim"),
+                    (Key::R, "reset sim"),
                 ],
             ),
         ]

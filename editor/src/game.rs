@@ -1,4 +1,5 @@
 use crate::edit::EditMode;
+use crate::sandbox::SandboxMode;
 use crate::state::{Flags, UIState};
 use crate::tutorial::TutorialMode;
 use crate::ui::UI;
@@ -23,9 +24,10 @@ pub struct GameState {
 
 pub enum Mode {
     SplashScreen(Wizard, Option<(Screensaver, XorShiftRng)>),
-    Playing,
+    Legacy,
     Edit(EditMode),
     Tutorial(TutorialMode),
+    Sandbox(SandboxMode),
 }
 
 impl GameState {
@@ -33,7 +35,7 @@ impl GameState {
         let splash = !flags.no_splash;
         let mut rng = flags.sim_flags.make_rng();
         let mut game = GameState {
-            mode: Mode::Playing,
+            mode: Mode::Legacy,
             ui: UI::new(UIState::new(flags, prerender, true), canvas),
         };
         if splash {
@@ -50,8 +52,7 @@ impl GameState {
 }
 
 impl GUI for GameState {
-    // TODO Don't display this unless mode is Playing! But that probably means we have to drag the
-    // management of more ezgui state here.
+    // TODO Totally get rid of this...
     fn top_menu(&self, canvas: &Canvas) -> Option<TopMenu> {
         self.ui.top_menu(canvas)
     }
@@ -76,7 +77,7 @@ impl GUI for GameState {
                 }
                 EventLoopMode::Animation
             }
-            Mode::Playing => {
+            Mode::Legacy => {
                 let (event_mode, pause) = self.ui.new_event(ctx);
                 if pause {
                     self.mode = Mode::SplashScreen(Wizard::new(), None);
@@ -85,6 +86,7 @@ impl GUI for GameState {
             }
             Mode::Edit(_) => EditMode::event(self, ctx),
             Mode::Tutorial(_) => TutorialMode::event(self, ctx),
+            Mode::Sandbox(_) => SandboxMode::event(self, ctx),
         }
     }
 
@@ -94,9 +96,10 @@ impl GUI for GameState {
                 self.ui.draw(g);
                 wizard.draw(g);
             }
-            Mode::Playing => self.ui.draw(g),
+            Mode::Legacy => self.ui.draw(g),
             Mode::Edit(_) => EditMode::draw(self, g),
             Mode::Tutorial(_) => TutorialMode::draw(self, g),
+            Mode::Sandbox(_) => SandboxMode::draw(self, g),
         }
     }
 
@@ -165,10 +168,11 @@ fn splash_screen(
     maybe_screensaver: &mut Option<(Screensaver, XorShiftRng)>,
 ) -> Option<Mode> {
     let mut wizard = raw_wizard.wrap(&mut ctx.input, ctx.canvas);
-    let play = "Play";
+    let sandbox = "Sandbox mode";
     let load_map = "Load another map";
     let edit = "Edit map";
     let tutorial = "Tutorial";
+    let legacy = "Legacy mode (ignore this)";
     let about = "About";
     let quit = "Quit";
 
@@ -177,11 +181,11 @@ fn splash_screen(
         match wizard
             .choose_string(
                 "Welcome to A/B Street!",
-                vec![play, load_map, edit, tutorial, about, quit],
+                vec![sandbox, load_map, edit, tutorial, legacy, about, quit],
             )?
             .as_str()
         {
-            x if x == play => break Some(Mode::Playing),
+            x if x == sandbox => break Some(Mode::Sandbox(SandboxMode::new())),
             x if x == load_map => {
                 let current_map = ui.state.primary.map.get_name().to_string();
                 if let Some((name, _)) = wizard.choose_something::<String>(
@@ -197,7 +201,7 @@ fn splash_screen(
                     let mut flags = ui.state.primary.current_flags.clone();
                     flags.sim_flags.load = PathBuf::from(format!("../data/maps/{}.abst", name));
                     *ui = UI::new(UIState::new(flags, ctx.prerender, true), ctx.canvas);
-                    break Some(Mode::Playing);
+                    break Some(Mode::Sandbox(SandboxMode::new()));
                 } else if wizard.aborted() {
                     break Some(Mode::SplashScreen(Wizard::new(), maybe_screensaver.take()));
                 } else {
@@ -210,6 +214,7 @@ fn splash_screen(
                     ctx.canvas.center_to_map_pt(),
                 )))
             }
+            x if x == legacy => break Some(Mode::Legacy),
             x if x == about => {
                 if wizard.acknowledge(LogScroller::new(
                     "About A/B Street".to_string(),

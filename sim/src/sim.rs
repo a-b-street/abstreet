@@ -421,14 +421,22 @@ impl Sim {
             }
 
             if benchmark.has_real_time_passed(Duration::seconds(1.0)) {
-                println!("{}, {}", self.summary(), self.measure_speed(&mut benchmark));
+                println!(
+                    "{}, speed = {}",
+                    self.summary(),
+                    self.measure_speed(&mut benchmark, true)
+                );
             }
             callback(self, map);
             if Some(self.time()) == time_limit {
                 panic!("Time limit {} hit", self.time);
             }
             if self.is_done() {
-                println!("{}, {}", self.summary(), self.measure_speed(&mut benchmark));
+                println!(
+                    "{}, speed = {}",
+                    self.summary(),
+                    self.measure_speed(&mut benchmark, true)
+                );
                 break;
             }
         }
@@ -458,7 +466,11 @@ impl Sim {
                 }
             }
             if benchmark.has_real_time_passed(Duration::seconds(1.0)) {
-                println!("{}, {}", self.summary(), self.measure_speed(&mut benchmark));
+                println!(
+                    "{}, speed = {}",
+                    self.summary(),
+                    self.measure_speed(&mut benchmark, true)
+                );
             }
             if self.time() == time_limit {
                 panic!(
@@ -530,19 +542,19 @@ impl Sim {
         }
     }
 
-    pub fn measure_speed(&self, b: &mut Benchmark) -> String {
+    pub fn measure_speed(&self, b: &mut Benchmark, details: bool) -> String {
         let dt = Duration::seconds(abstutil::elapsed_seconds(b.last_real_time));
         if dt == Duration::ZERO {
-            return format!("speed = instantly ({})", self.scheduler.describe_stats());
+            return "...".to_string();
         }
         let speed = (self.time - b.last_sim_time) / dt;
         b.last_real_time = Instant::now();
         b.last_sim_time = self.time;
-        format!(
-            "speed = {:.2}x ({})",
-            speed,
-            self.scheduler.describe_stats()
-        )
+        if details {
+            format!("{:.2}x ({})", speed, self.scheduler.describe_stats())
+        } else {
+            format!("{:.2}x", speed)
+        }
     }
 }
 

@@ -50,10 +50,6 @@ pub trait AmbientPlugin {
     fn draw(&self, _g: &mut GfxCtx, _ctx: &DrawCtx) {}
 }
 
-pub trait AmbientPluginWithPrimaryPlugins {
-    fn ambient_event_with_plugins(&mut self, _ctx: &mut PluginCtx, _plugins: &mut PluginsPerMap);
-}
-
 pub trait NonblockingPlugin {
     // True means active; false means done, please destroy.
     fn nonblocking_event(&mut self, _ctx: &mut PluginCtx) -> bool;
