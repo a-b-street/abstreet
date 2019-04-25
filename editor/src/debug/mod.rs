@@ -5,6 +5,7 @@ mod polygons;
 
 use crate::game::{GameState, Mode};
 use crate::objects::ID;
+use crate::ui::ShowObject;
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, Wizard};
 use map_model::RoadID;
 use std::collections::{HashMap, HashSet};
@@ -42,7 +43,7 @@ impl DebugMode {
                         state.ui.state.primary.current_selection =
                             state
                                 .ui
-                                .handle_mouseover(ctx, None, &state.ui.state.primary.sim);
+                                .handle_mouseover(ctx, None, &state.ui.state.primary.sim, mode);
 
                         let mut txt = Text::new();
                         txt.add_styled_line(
@@ -139,7 +140,7 @@ impl DebugMode {
                     }
                     state
                         .ui
-                        .new_draw(g, None, color_overrides, &state.ui.state.primary.sim);
+                        .new_draw(g, None, color_overrides, &state.ui.state.primary.sim, mode);
 
                     for id in &mode.show_original_roads {
                         let r = state.ui.state.primary.map.get_r(*id);
@@ -172,11 +173,17 @@ impl DebugMode {
                 State::Polygons(ref debugger) => {
                     state
                         .ui
-                        .new_draw(g, None, HashMap::new(), &state.ui.state.primary.sim);
+                        .new_draw(g, None, HashMap::new(), &state.ui.state.primary.sim, mode);
                     debugger.draw(g, &state.ui);
                 }
             },
             _ => unreachable!(),
         }
+    }
+}
+
+impl ShowObject for DebugMode {
+    fn show(&self, obj: ID) -> bool {
+        false
     }
 }

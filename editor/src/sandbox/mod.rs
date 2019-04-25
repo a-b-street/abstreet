@@ -4,6 +4,7 @@ mod spawner;
 mod time_travel;
 
 use crate::game::{GameState, Mode};
+use crate::ui::ShowEverything;
 use abstutil::elapsed_seconds;
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, Wizard};
 use geom::Duration;
@@ -49,10 +50,12 @@ impl SandboxMode {
         match state.mode {
             Mode::Sandbox(ref mut mode) => {
                 ctx.canvas.handle_event(ctx.input);
-                state.ui.state.primary.current_selection =
-                    state
-                        .ui
-                        .handle_mouseover(ctx, None, &state.ui.state.primary.sim);
+                state.ui.state.primary.current_selection = state.ui.handle_mouseover(
+                    ctx,
+                    None,
+                    &state.ui.state.primary.sim,
+                    &ShowEverything {},
+                );
 
                 if let State::Spawning(ref mut spawner) = mode.state {
                     if spawner.event(ctx, &mut state.ui) {
@@ -298,14 +301,22 @@ impl SandboxMode {
                     spawner.draw(g, &state.ui);
                 }
                 State::TimeTraveling => {
-                    state
-                        .ui
-                        .new_draw(g, None, HashMap::new(), &mode.time_travel);
+                    state.ui.new_draw(
+                        g,
+                        None,
+                        HashMap::new(),
+                        &mode.time_travel,
+                        &ShowEverything {},
+                    );
                 }
                 _ => {
-                    state
-                        .ui
-                        .new_draw(g, None, HashMap::new(), &state.ui.state.primary.sim);
+                    state.ui.new_draw(
+                        g,
+                        None,
+                        HashMap::new(),
+                        &state.ui.state.primary.sim,
+                        &ShowEverything {},
+                    );
                     mode.route_viewer.draw(g, &state.ui);
                     mode.show_activity.draw(g, &state.ui);
                 }

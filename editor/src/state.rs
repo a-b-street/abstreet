@@ -9,7 +9,7 @@ use abstutil::{MeasureMemory, Timer};
 use ezgui::EventCtx;
 use ezgui::{Color, GfxCtx, Prerender};
 use geom::Duration;
-use map_model::{IntersectionID, Map};
+use map_model::Map;
 use sim::{Sim, SimFlags};
 use structopt::StructOpt;
 
@@ -106,26 +106,6 @@ impl UIState {
         }
 
         None
-    }
-
-    pub fn show_icons_for(&self, id: IntersectionID) -> bool {
-        self.layers.show_all_turn_icons || {
-            // TODO This sounds like some old hack, probably remove this?
-            if let Some(ID::Turn(t)) = self.primary.current_selection {
-                t.parent == id
-            } else {
-                false
-            }
-        }
-    }
-
-    pub fn show(&self, obj: ID) -> bool {
-        if let Some(ref p) = self.primary_plugins.hider {
-            if !p.show(obj) {
-                return false;
-            }
-        }
-        self.layers.show(obj)
     }
 
     pub fn event(

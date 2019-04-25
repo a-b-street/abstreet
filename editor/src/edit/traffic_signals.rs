@@ -2,7 +2,7 @@ use crate::edit::apply_map_edits;
 use crate::game::GameState;
 use crate::objects::{DrawCtx, ID};
 use crate::render::{draw_signal_cycle, draw_signal_diagram, DrawTurn};
-use crate::ui::UI;
+use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{Color, EventCtx, GfxCtx, Key, ScreenPt, Wizard, WrappedWizard};
 use geom::Duration;
@@ -47,7 +47,7 @@ impl TrafficSignalEditor {
     // Returns true if the editor is done and we should go back to main edit mode.
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> bool {
         ui.state.primary.current_selection =
-            ui.handle_mouseover(ctx, Some(self.i), &ui.state.primary.sim);
+            ui.handle_mouseover(ctx, Some(self.i), &ui.state.primary.sim, &ShowEverything {});
 
         ctx.input.set_mode_with_prompt(
             "Traffic Signal Editor",
@@ -256,9 +256,13 @@ impl TrafficSignalEditor {
                 },
             );
         }
-        state
-            .ui
-            .new_draw(g, Some(self.i), override_color, &state.ui.state.primary.sim);
+        state.ui.new_draw(
+            g,
+            Some(self.i),
+            override_color,
+            &state.ui.state.primary.sim,
+            &ShowEverything {},
+        );
 
         let ctx = DrawCtx {
             cs: &state.ui.state.cs,

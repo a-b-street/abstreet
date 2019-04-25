@@ -5,6 +5,7 @@ use crate::objects::{DrawCtx, ID};
 use crate::plugins::load_edits;
 use crate::render::{DrawLane, DrawMap, DrawTurn, RenderOptions, Renderable, MIN_ZOOM_FOR_DETAIL};
 use crate::state::UIState;
+use crate::ui::ShowEverything;
 use abstutil::Timer;
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, Wizard, WrappedWizard};
 use map_model::{
@@ -60,10 +61,12 @@ impl EditMode {
                 // the effects of it. Or eventually, the Option<ID> itself will live in here
                 // directly.
                 // TODO Only mouseover lanes and intersections?
-                state.ui.state.primary.current_selection =
-                    state
-                        .ui
-                        .handle_mouseover(ctx, None, &state.ui.state.primary.sim);
+                state.ui.state.primary.current_selection = state.ui.handle_mouseover(
+                    ctx,
+                    None,
+                    &state.ui.state.primary.sim,
+                    &ShowEverything {},
+                );
 
                 if let Some(ID::Lane(id)) = state.ui.state.primary.current_selection {
                     let lane = state.ui.state.primary.map.get_l(id);
@@ -131,10 +134,12 @@ impl EditMode {
                 }
             }
             Mode::Edit(EditMode::EditingStopSign(i)) => {
-                state.ui.state.primary.current_selection =
-                    state
-                        .ui
-                        .handle_mouseover(ctx, Some(i), &state.ui.state.primary.sim);
+                state.ui.state.primary.current_selection = state.ui.handle_mouseover(
+                    ctx,
+                    Some(i),
+                    &state.ui.state.primary.sim,
+                    &ShowEverything {},
+                );
 
                 ctx.input.set_mode_with_prompt(
                     "Stop Sign Editor",
@@ -197,9 +202,13 @@ impl EditMode {
 
         match state.mode {
             Mode::Edit(EditMode::ViewingDiffs) => {
-                state
-                    .ui
-                    .new_draw(g, None, override_color, &state.ui.state.primary.sim);
+                state.ui.new_draw(
+                    g,
+                    None,
+                    override_color,
+                    &state.ui.state.primary.sim,
+                    &ShowEverything {},
+                );
 
                 // TODO Similar to drawing areas with traffic or not -- would be convenient to just
                 // supply a set of things to highlight and have something else take care of drawing
@@ -243,9 +252,13 @@ impl EditMode {
             }
             Mode::Edit(EditMode::Saving(ref wizard))
             | Mode::Edit(EditMode::Loading(ref wizard)) => {
-                state
-                    .ui
-                    .new_draw(g, None, override_color, &state.ui.state.primary.sim);
+                state.ui.new_draw(
+                    g,
+                    None,
+                    override_color,
+                    &state.ui.state.primary.sim,
+                    &ShowEverything {},
+                );
 
                 // TODO Still draw the diffs, yo
                 wizard.draw(g);
@@ -275,9 +288,13 @@ impl EditMode {
                         },
                     );
                 }
-                state
-                    .ui
-                    .new_draw(g, Some(i), override_color, &state.ui.state.primary.sim);
+                state.ui.new_draw(
+                    g,
+                    Some(i),
+                    override_color,
+                    &state.ui.state.primary.sim,
+                    &ShowEverything {},
+                );
             }
             Mode::Edit(EditMode::EditingTrafficSignal(ref editor)) => {
                 editor.draw(g, state);

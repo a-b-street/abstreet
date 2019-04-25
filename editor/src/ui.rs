@@ -188,7 +188,13 @@ impl GUI for UI {
     }
 
     fn draw(&self, g: &mut GfxCtx) {
-        self.new_draw(g, None, HashMap::new(), &self.state.primary.sim)
+        self.new_draw(
+            g,
+            None,
+            HashMap::new(),
+            &self.state.primary.sim,
+            &ShowEverything {},
+        )
     }
 
     fn dump_before_abort(&self, canvas: &Canvas) {
@@ -270,14 +276,14 @@ impl UI {
 
         // Always handle mouseover
         self.state.primary.current_selection =
-            self.handle_mouseover(ctx, None, &self.state.primary.sim);
+            self.handle_mouseover(ctx, None, &self.state.primary.sim, &ShowEverything {});
 
         let mut recalculate_current_selection = false;
         self.state
             .event(ctx, &mut self.hints, &mut recalculate_current_selection);
         if recalculate_current_selection {
             self.state.primary.current_selection =
-                self.mouseover_something(&ctx, None, &self.state.primary.sim);
+                self.mouseover_something(&ctx, None, &self.state.primary.sim, &ShowEverything {});
         }
 
         ctx.input.populate_osd(&mut self.hints.osd);
@@ -314,6 +320,7 @@ impl UI {
         show_turn_icons_for: Option<IntersectionID>,
         override_color: HashMap<ID, Color>,
         source: &GetDrawAgents,
+        show_objs: &ShowObject,
     ) {
         let ctx = DrawCtx {
             cs: &self.state.cs,
@@ -364,6 +371,7 @@ impl UI {
                 &mut cache,
                 show_turn_icons_for,
                 source,
+                show_objs,
             );
 
             let mut drawn_all_buildings = false;
@@ -437,9 +445,10 @@ impl UI {
         ctx: &mut EventCtx,
         show_turn_icons_for: Option<IntersectionID>,
         source: &GetDrawAgents,
+        show_objs: &ShowObject,
     ) -> Option<ID> {
         if !ctx.canvas.is_dragging() && ctx.input.get_moved_mouse().is_some() {
-            return self.mouseover_something(&ctx, show_turn_icons_for, source);
+            return self.mouseover_something(&ctx, show_turn_icons_for, source, show_objs);
         }
         if ctx.input.window_lost_cursor() {
             return None;
@@ -452,6 +461,7 @@ impl UI {
         ctx: &EventCtx,
         show_turn_icons_for: Option<IntersectionID>,
         source: &GetDrawAgents,
+        show_objs: &ShowObject,
     ) -> Option<ID> {
         // Unzoomed mode. Ignore when debugging areas.
         if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL
@@ -469,6 +479,7 @@ impl UI {
             &mut cache,
             show_turn_icons_for,
             source,
+            show_objs,
         );
         objects.reverse();
 
@@ -512,6 +523,7 @@ impl UI {
         agents: &'a mut AgentCache,
         show_turn_icons_for: Option<IntersectionID>,
         source: &GetDrawAgents,
+        show_objs: &ShowObject,
     ) -> Vec<Box<&'a Renderable>> {
         let map = &self.state.primary.map;
         let draw_map = &self.state.primary.draw_map;
@@ -527,7 +539,7 @@ impl UI {
         let mut agents_on: Vec<Traversable> = Vec::new();
 
         for id in draw_map.get_matching_objects(bounds) {
-            if !self.state.show(id) {
+            if !show_objs.show(id) {
                 continue;
             }
             match id {
@@ -535,9 +547,7 @@ impl UI {
                 ID::Lane(id) => {
                     lanes.push(Box::new(draw_map.get_l(id)));
                     let lane = map.get_l(id);
-                    if self.state.show_icons_for(lane.dst_i)
-                        || show_turn_icons_for == Some(lane.dst_i)
-                    {
+                    if show_turn_icons_for == Some(lane.dst_i) {
                         for (t, _) in map.get_next_turns_and_lanes(id, lane.dst_i) {
                             turn_icons.push(Box::new(draw_map.get_t(t.id)));
                         }
@@ -555,7 +565,7 @@ impl UI {
                 ID::Intersection(id) => {
                     intersections.push(Box::new(draw_map.get_i(id)));
                     for t in &map.get_i(id).turns {
-                        if !self.state.show_icons_for(id) && show_turn_icons_for != Some(id) {
+                        if show_turn_icons_for != Some(id) {
                             agents_on.push(Traversable::Turn(*t));
                         }
                     }
@@ -631,4 +641,16 @@ fn fill_to_boundary_polygon(poly: Polygon) -> Polygon {
     // TODO This looks awful for lanes, oops.
     //PolyLine::make_polygons_for_boundary(poly.points().clone(), Distance::meters(0.5))
     poly
+}
+
+pub trait ShowObject {
+    fn show(&self, obj: ID) -> bool;
+}
+
+pub struct ShowEverything {}
+
+impl ShowObject for ShowEverything {
+    fn show(&self, _: ID) -> bool {
+        true
+    }
 }
