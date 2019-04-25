@@ -1,3 +1,5 @@
+mod spawner;
+
 use crate::game::{GameState, Mode};
 use abstutil::elapsed_seconds;
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Text, Wizard};
@@ -11,8 +13,7 @@ const ADJUST_SPEED: f64 = 0.1;
 pub struct SandboxMode {
     desired_speed: f64, // sim seconds per real second
     state: State,
-
-    following: Option<TripID>,
+    //following: Option<TripID>,
 }
 
 enum State {
@@ -22,6 +23,7 @@ enum State {
         benchmark: Benchmark,
         speed: String,
     },
+    Spawning(spawner::AgentSpawner),
 }
 
 impl SandboxMode {
@@ -29,16 +31,23 @@ impl SandboxMode {
         SandboxMode {
             desired_speed: 1.0,
             state: State::Paused,
-            following: None,
+            //following: None,
         }
     }
 
     pub fn event(state: &mut GameState, ctx: &mut EventCtx) -> EventLoopMode {
-        ctx.canvas.handle_event(ctx.input);
-
         match state.mode {
-            // TODO confusing name? ;)
             Mode::Sandbox(ref mut mode) => {
+                ctx.canvas.handle_event(ctx.input);
+                state.ui.handle_mouseover(ctx, None);
+
+                if let State::Spawning(ref mut spawner) = mode.state {
+                    if spawner.event(ctx, &mut state.ui) {
+                        mode.state = State::Paused;
+                    }
+                    return EventLoopMode::InputOnly;
+                }
+
                 let mut txt = Text::new();
                 txt.add_styled_line("Sandbox Mode".to_string(), None, Some(Color::BLUE), None);
                 txt.add_line(state.ui.state.primary.sim.summary());
@@ -55,6 +64,11 @@ impl SandboxMode {
                 }
                 ctx.input
                     .set_mode_with_new_prompt("Sandbox Mode", txt, ctx.canvas);
+
+                if let Some(spawner) = spawner::AgentSpawner::new(ctx, &mut state.ui) {
+                    mode.state = State::Spawning(spawner);
+                    return EventLoopMode::InputOnly;
+                }
 
                 if ctx.input.modal_action("quit") {
                     // TODO This shouldn't be necessary when we plumb state around instead of
@@ -74,8 +88,6 @@ impl SandboxMode {
                     state.mode = Mode::SplashScreen(Wizard::new(), None);
                     return EventLoopMode::InputOnly;
                 }
-
-                state.ui.handle_mouseover(ctx, None);
 
                 if ctx.input.modal_action("slow down sim") {
                     mode.desired_speed -= ADJUST_SPEED;
@@ -187,6 +199,7 @@ impl SandboxMode {
                         }
                         EventLoopMode::Animation
                     }
+                    State::Spawning(_) => unreachable!(),
                 }
             }
             _ => unreachable!(),
@@ -194,6 +207,14 @@ impl SandboxMode {
     }
 
     pub fn draw(state: &GameState, g: &mut GfxCtx) {
-        state.ui.new_draw(g, None, HashMap::new());
+        match state.mode {
+            Mode::Sandbox(ref mode) => match mode.state {
+                State::Spawning(ref spawner) => {
+                    spawner.draw(g, &state.ui);
+                }
+                _ => state.ui.new_draw(g, None, HashMap::new()),
+            },
+            _ => unreachable!(),
+        }
     }
 }

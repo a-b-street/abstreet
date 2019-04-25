@@ -5,4 +5,3 @@ pub mod debug_polygon;
 pub mod hider;
 pub mod layers;
 pub mod orig_roads;
-pub mod spawn_agent;

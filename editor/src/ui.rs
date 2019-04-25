@@ -61,7 +61,6 @@ impl GUI for UI {
                 vec![
                     (Some(Key::T), "start time traveling"),
                     (Some(Key::D), "diff all A/B trips"),
-                    (Some(Key::S), "seed the sim with agents"),
                 ],
             ),
             Folder::new(
@@ -158,7 +157,6 @@ impl GUI for UI {
                     (Key::L, "last item"),
                 ],
             ),
-            ModalMenu::new("Agent Spawner", vec![(Key::Enter, "quit")]),
             // The new exciting things!
             ModalMenu::new(
                 "Map Edit Mode",
@@ -199,8 +197,10 @@ impl GUI for UI {
                     (Key::Space, "run/pause sim"),
                     (Key::M, "run one step of sim"),
                     (Key::R, "reset sim"),
+                    (Key::S, "seed the sim with agents"),
                 ],
             ),
+            ModalMenu::new("Agent Spawner", vec![(Key::Escape, "quit")]),
         ]
     }
 

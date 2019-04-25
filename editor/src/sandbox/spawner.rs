@@ -1,13 +1,19 @@
-use crate::objects::{DrawCtx, ID};
-use crate::plugins::{BlockingPlugin, PluginCtx};
+use crate::objects::ID;
+use crate::ui::UI;
 use abstutil::Timer;
-use ezgui::{Color, GfxCtx, Key};
+use ezgui::{EventCtx, GfxCtx, Key};
 use geom::PolyLine;
 use map_model::{
     BuildingID, IntersectionID, IntersectionType, LaneType, PathRequest, Position, LANE_THICKNESS,
 };
 use rand::seq::SliceRandom;
 use sim::{DrivingGoal, Scenario, SidewalkSpot, TripSpec};
+use std::collections::HashMap;
+
+pub struct AgentSpawner {
+    from: Source,
+    maybe_goal: Option<(Goal, Option<PolyLine>)>,
+}
 
 #[derive(Clone)]
 enum Source {
@@ -21,21 +27,16 @@ enum Goal {
     Border(IntersectionID),
 }
 
-pub struct SpawnAgent {
-    from: Source,
-    maybe_goal: Option<(Goal, Option<PolyLine>)>,
-}
-
-impl SpawnAgent {
-    pub fn new(ctx: &mut PluginCtx) -> Option<SpawnAgent> {
-        let map = &ctx.primary.map;
-        match ctx.primary.current_selection {
+impl AgentSpawner {
+    pub fn new(ctx: &mut EventCtx, ui: &mut UI) -> Option<AgentSpawner> {
+        let map = &ui.state.primary.map;
+        match ui.state.primary.current_selection {
             Some(ID::Building(id)) => {
                 if ctx
                     .input
                     .contextual_action(Key::F3, "spawn a pedestrian starting here")
                 {
-                    return Some(SpawnAgent {
+                    return Some(AgentSpawner {
                         from: Source::Walking(id),
                         maybe_goal: None,
                     });
@@ -48,7 +49,7 @@ impl SpawnAgent {
                         .input
                         .contextual_action(Key::F4, "spawn a car starting here")
                     {
-                        return Some(SpawnAgent {
+                        return Some(AgentSpawner {
                             from: Source::Driving(
                                 b.front_path.sidewalk.equiv_pos(driving_lane, map),
                             ),
@@ -63,7 +64,7 @@ impl SpawnAgent {
                         .input
                         .contextual_action(Key::F3, "spawn an agent starting here")
                 {
-                    return Some(SpawnAgent {
+                    return Some(AgentSpawner {
                         from: Source::Driving(Position::new(id, map.get_l(id).length() / 2.0)),
                         maybe_goal: None,
                     });
@@ -74,22 +75,21 @@ impl SpawnAgent {
                     .input
                     .contextual_action(Key::Z, "spawn agents around this intersection")
                 {
-                    spawn_agents_around(i, ctx);
+                    spawn_agents_around(i, ui);
                 }
             }
             None => {
-                if ctx.primary.sim.is_empty() {
-                    if ctx.input.action_chosen("seed the sim with agents") {
-                        Scenario::scaled_run(map, ctx.primary.current_flags.num_agents)
+                if ui.state.primary.sim.is_empty() {
+                    // TODO Weird. This mode belongs to the parent SpawnMode, not AgentSpawner.
+                    if ctx.input.modal_action("seed the sim with agents") {
+                        Scenario::scaled_run(map, ui.state.primary.current_flags.num_agents)
                             .instantiate(
-                                &mut ctx.primary.sim,
+                                &mut ui.state.primary.sim,
                                 map,
-                                &mut ctx.primary.current_flags.sim_flags.make_rng(),
+                                &mut ui.state.primary.current_flags.sim_flags.make_rng(),
                                 &mut Timer::new("seed sim"),
                             );
-                        ctx.primary.sim.step(map);
-                        *ctx.recalculate_current_selection = true;
-                        // TODO Also maybe step the secondary sim. Oops.
+                        ui.state.primary.sim.step(map);
                     }
                 }
             }
@@ -97,17 +97,18 @@ impl SpawnAgent {
         }
         None
     }
-}
 
-impl BlockingPlugin for SpawnAgent {
-    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
-        ctx.input.set_mode("Agent Spawner", &ctx.canvas);
+    // Returns true if the spawner editor is done and we should go back to main sandbox mode.
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> bool {
+        // TODO Instructions to select target building/lane
+        ctx.input.set_mode("Agent Spawner", ctx.canvas);
         if ctx.input.modal_action("quit") {
-            return false;
+            return true;
         }
-        let map = &ctx.primary.map;
 
-        let new_goal = match ctx.primary.current_selection {
+        let map = &ui.state.primary.map;
+
+        let new_goal = match ui.state.primary.current_selection {
             Some(ID::Building(b)) => Goal::Building(b),
             Some(ID::Intersection(i))
                 if map.get_i(i).intersection_type == IntersectionType::Border =>
@@ -116,7 +117,7 @@ impl BlockingPlugin for SpawnAgent {
             }
             _ => {
                 self.maybe_goal = None;
-                return true;
+                return false;
             }
         };
 
@@ -170,8 +171,8 @@ impl BlockingPlugin for SpawnAgent {
         }
 
         if self.maybe_goal.is_some() && ctx.input.contextual_action(Key::F3, "end the agent here") {
-            let mut rng = ctx.primary.current_flags.sim_flags.make_rng();
-            let sim = &mut ctx.primary.sim;
+            let mut rng = ui.state.primary.current_flags.sim_flags.make_rng();
+            let sim = &mut ui.state.primary.sim;
             match (self.from.clone(), self.maybe_goal.take().unwrap().0) {
                 (Source::Walking(from), Goal::Building(to)) => {
                     sim.schedule_trip(
@@ -220,37 +221,35 @@ impl BlockingPlugin for SpawnAgent {
             };
             sim.spawn_all_trips(map, &mut Timer::new("spawn trip"));
             sim.step(map);
-            *ctx.recalculate_current_selection = true;
-            // TODO Also maybe step the secondary sim. Oops.
-            return false;
+            //*ctx.recalculate_current_selection = true;
+            return true;
         }
 
-        true
+        false
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
+    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        let src = match self.from {
+            Source::Walking(b1) => ID::Building(b1),
+            Source::Driving(pos1) => ID::Lane(pos1.lane()),
+        };
+        let mut override_color = HashMap::new();
+        override_color.insert(src, ui.state.cs.get("selected"));
+        ui.new_draw(g, None, override_color);
+
         if let Some((_, Some(ref trace))) = self.maybe_goal {
-            g.draw_polygon(ctx.cs.get("route"), &trace.make_polygons(LANE_THICKNESS));
-        }
-    }
-
-    fn color_for(&self, obj: ID, ctx: &DrawCtx) -> Option<Color> {
-        match (&self.from, obj) {
-            (Source::Walking(ref b1), ID::Building(b2)) if *b1 == b2 => {
-                Some(ctx.cs.get("selected"))
-            }
-            (Source::Driving(ref pos1), ID::Lane(l2)) if pos1.lane() == l2 => {
-                Some(ctx.cs.get("selected"))
-            }
-            _ => None,
+            g.draw_polygon(
+                ui.state.cs.get("route"),
+                &trace.make_polygons(LANE_THICKNESS),
+            );
         }
     }
 }
 
-fn spawn_agents_around(i: IntersectionID, ctx: &mut PluginCtx) {
-    let map = &ctx.primary.map;
-    let sim = &mut ctx.primary.sim;
-    let mut rng = ctx.primary.current_flags.sim_flags.make_rng();
+fn spawn_agents_around(i: IntersectionID, ui: &mut UI) {
+    let map = &ui.state.primary.map;
+    let sim = &mut ui.state.primary.sim;
+    let mut rng = ui.state.primary.current_flags.sim_flags.make_rng();
 
     for l in &map.get_i(i).incoming_lanes {
         let lane = map.get_l(*l);
@@ -297,6 +296,5 @@ fn spawn_agents_around(i: IntersectionID, ctx: &mut PluginCtx) {
 
     sim.spawn_all_trips(map, &mut Timer::throwaway());
     sim.step(map);
-    *ctx.recalculate_current_selection = true;
-    // TODO Also maybe step the secondary sim. Oops.
+    //*ctx.recalculate_current_selection = true;
 }
