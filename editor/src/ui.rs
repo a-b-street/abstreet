@@ -95,7 +95,6 @@ impl GUI for UI {
                     (Key::P, "add a new point"),
                 ],
             ),
-            ModalMenu::new("Original Roads", vec![(Key::Enter, "quit")]),
             ModalMenu::new("A/B Trip Explorer", vec![(Key::Enter, "quit")]),
             ModalMenu::new("A/B All Trips Explorer", vec![(Key::Enter, "quit")]),
             ModalMenu::new("Search", vec![(Key::Enter, "quit")]),
@@ -174,7 +173,11 @@ impl GUI for UI {
             ),
             ModalMenu::new(
                 "Debug Mode",
-                vec![(Key::Escape, "quit"), (Key::C, "show/hide chokepoints")],
+                vec![
+                    (Key::Escape, "quit"),
+                    (Key::C, "show/hide chokepoints"),
+                    (Key::O, "clear original roads shown"),
+                ],
             ),
         ]
     }
