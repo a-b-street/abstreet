@@ -1,5 +1,6 @@
 mod chokepoints;
 mod connected_roads;
+mod objects;
 mod polygons;
 
 use crate::game::{GameState, Mode};
@@ -13,6 +14,7 @@ pub struct DebugMode {
     chokepoints: Option<chokepoints::ChokepointsFinder>,
     show_original_roads: HashSet<RoadID>,
     connected_roads: connected_roads::ShowConnectedRoads,
+    objects: objects::ObjectDebugger,
 }
 
 enum State {
@@ -27,6 +29,7 @@ impl DebugMode {
             chokepoints: None,
             show_original_roads: HashSet::new(),
             connected_roads: connected_roads::ShowConnectedRoads::new(),
+            objects: objects::ObjectDebugger::new(),
         }
     }
 
@@ -90,6 +93,7 @@ impl DebugMode {
                             }
                         }
                         mode.connected_roads.event(ctx, &state.ui);
+                        mode.objects.event(ctx, &state.ui);
 
                         if let Some(debugger) = polygons::PolygonDebugger::new(ctx, &state.ui) {
                             mode.state = State::Polygons(debugger);
@@ -162,6 +166,8 @@ impl DebugMode {
                             );
                         }
                     }
+
+                    mode.objects.draw(g, &state.ui);
                 }
                 State::Polygons(ref debugger) => {
                     state

@@ -1,5 +1,6 @@
 use crate::colors::ColorScheme;
 use crate::render::{DrawMap, ExtraShapeID};
+use crate::state::PerMapUI;
 use ezgui::{Color, EventLoopMode, GfxCtx, Text};
 use geom::Pt2D;
 use map_model::raw_data::StableRoadID;
@@ -91,7 +92,7 @@ impl ID {
         }
     }
 
-    pub fn tooltip_lines(&self, g: &mut GfxCtx, ctx: &DrawCtx) -> Text {
+    pub fn tooltip_lines(&self, g: &mut GfxCtx, ctx: &PerMapUI) -> Text {
         let (map, sim, draw_map) = (&ctx.map, &ctx.sim, &ctx.draw_map);
         let mut txt = Text::new();
         match *self {

@@ -72,8 +72,7 @@ impl UIState {
     pub fn new(flags: Flags, prerender: &Prerender, enable_debug_controls: bool) -> UIState {
         let cs = ColorScheme::load().unwrap();
 
-        let (primary, primary_plugins) =
-            PerMapUI::new(flags, &cs, prerender, enable_debug_controls);
+        let (primary, primary_plugins) = PerMapUI::new(flags, &cs, prerender);
         UIState {
             primary,
             primary_plugins,
@@ -323,12 +322,7 @@ pub struct PerMapUI {
 }
 
 impl PerMapUI {
-    pub fn new(
-        flags: Flags,
-        cs: &ColorScheme,
-        prerender: &Prerender,
-        enable_debug_controls: bool,
-    ) -> (PerMapUI, PluginsPerMap) {
+    pub fn new(flags: Flags, cs: &ColorScheme, prerender: &Prerender) -> (PerMapUI, PluginsPerMap) {
         let mut timer = abstutil::Timer::new("setup PerMapUI");
         let mut mem = MeasureMemory::new();
         let (map, sim, _) = flags
@@ -348,7 +342,7 @@ impl PerMapUI {
             current_selection: None,
             current_flags: flags.clone(),
         };
-        let plugins = PluginsPerMap::new(&state, prerender, &mut timer, enable_debug_controls);
+        let plugins = PluginsPerMap::new(&state, prerender, &mut timer);
         (state, plugins)
     }
 }
@@ -366,13 +360,8 @@ pub struct PluginsPerMap {
 }
 
 impl PluginsPerMap {
-    pub fn new(
-        state: &PerMapUI,
-        prerender: &Prerender,
-        timer: &mut Timer,
-        enable_debug_controls: bool,
-    ) -> PluginsPerMap {
-        let mut p = PluginsPerMap {
+    pub fn new(state: &PerMapUI, prerender: &Prerender, timer: &mut Timer) -> PluginsPerMap {
+        PluginsPerMap {
             hider: None,
             search: None,
             ambient_plugins: vec![
@@ -387,11 +376,6 @@ impl PluginsPerMap {
                 Box::new(view::show_associated::ShowAssociatedState::new()),
                 Box::new(view::turn_cycler::TurnCyclerState::new()),
             ],
-        };
-        if enable_debug_controls {
-            p.ambient_plugins
-                .push(Box::new(debug::debug_objects::DebugObjectsState::new()));
         }
-        p
     }
 }

@@ -110,7 +110,6 @@ fn launch_test(
         Some(42)
     };
 
-    // TODO Properly retain enable_debug_plugins
     let primary = PerMapUI::new(
         Flags {
             sim_flags: SimFlags {
@@ -123,7 +122,6 @@ fn launch_test(
         },
         cs,
         prerender,
-        true,
     );
     let secondary = PerMapUI::new(
         Flags {
@@ -137,7 +135,6 @@ fn launch_test(
         },
         cs,
         prerender,
-        true,
     );
     // That's all! The scenario will be instantiated.
     (primary, secondary)
