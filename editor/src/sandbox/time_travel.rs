@@ -1,14 +1,15 @@
-use crate::plugins::PluginCtx;
+use crate::ui::UI;
 use abstutil::MultiMap;
+use ezgui::EventCtx;
 use geom::Duration;
 use map_model::{Map, Traversable};
-use sim::{CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID, Sim, TIMESTEP};
+use sim::{CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID, TIMESTEP};
 use std::collections::BTreeMap;
 
 pub struct TimeTravel {
     // TODO Could be more efficient
     state_per_time: BTreeMap<Duration, StateAtTime>,
-    current_time: Option<Duration>,
+    pub current_time: Option<Duration>,
     first_time: Duration,
     last_time: Duration,
     should_record: bool,
@@ -33,11 +34,18 @@ impl TimeTravel {
         }
     }
 
-    pub fn is_active(&self) -> bool {
-        self.current_time.is_some()
+    pub fn start(&mut self, time: Duration) {
+        assert!(self.current_time.is_none());
+        self.should_record = true;
+        self.current_time = Some(time);
     }
 
-    fn record_state(&mut self, sim: &Sim, map: &Map) {
+    pub fn record(&mut self, ui: &UI) {
+        if !self.should_record {
+            return;
+        }
+        let map = &ui.state.primary.map;
+        let sim = &ui.state.primary.sim;
         let now = sim.time();
 
         // Record state for this timestep, if needed.
@@ -70,36 +78,27 @@ impl TimeTravel {
         self.state_per_time.insert(now, state);
     }
 
-    fn get_current_state(&self) -> &StateAtTime {
-        &self.state_per_time[&self.current_time.unwrap()]
+    // Returns true if done.
+    pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
+        let time = self.current_time.unwrap();
+        ctx.input.set_mode_with_prompt(
+            "Time Traveler",
+            format!("Time Traveler at {}", time),
+            &ctx.canvas,
+        );
+        if time > self.first_time && ctx.input.modal_action("rewind") {
+            self.current_time = Some(time - TIMESTEP);
+        } else if time < self.last_time && ctx.input.modal_action("forwards") {
+            self.current_time = Some(time + TIMESTEP);
+        } else if ctx.input.modal_action("quit") {
+            self.current_time = None;
+            return true;
+        }
+        false
     }
 
-    // Don't really need to indicate activeness here.
-    pub fn event(&mut self, ctx: &mut PluginCtx) {
-        if self.should_record {
-            self.record_state(&ctx.primary.sim, &ctx.primary.map);
-        }
-
-        if let Some(time) = self.current_time {
-            ctx.input.set_mode_with_prompt(
-                "Time Traveler",
-                format!("Time Traveler at {}", time),
-                &ctx.canvas,
-            );
-            if time > self.first_time && ctx.input.modal_action("rewind") {
-                self.current_time = Some(time - TIMESTEP);
-            } else if time < self.last_time && ctx.input.modal_action("forwards") {
-                self.current_time = Some(time + TIMESTEP);
-            } else if ctx.input.modal_action("quit") {
-                self.current_time = None;
-            }
-        } else if ctx.input.action_chosen("start time traveling") {
-            if !self.should_record {
-                self.should_record = true;
-                self.record_state(&ctx.primary.sim, &ctx.primary.map);
-            }
-            self.current_time = Some(ctx.primary.sim.time());
-        }
+    fn get_current_state(&self) -> &StateAtTime {
+        &self.state_per_time[&self.current_time.unwrap()]
     }
 }
 

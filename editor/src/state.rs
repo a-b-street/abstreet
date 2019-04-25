@@ -10,7 +10,7 @@ use ezgui::EventCtx;
 use ezgui::{Color, GfxCtx, Prerender};
 use geom::Duration;
 use map_model::{IntersectionID, Map};
-use sim::{GetDrawAgents, Sim, SimFlags};
+use sim::{Sim, SimFlags};
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug, Clone)]
@@ -127,13 +127,6 @@ impl UIState {
             }
         }
         self.layers.show(obj)
-    }
-
-    pub fn get_draw_agents(&self) -> &GetDrawAgents {
-        if self.primary_plugins.time_travel.is_active() {
-            return &self.primary_plugins.time_travel;
-        }
-        &self.primary.sim
     }
 
     pub fn event(

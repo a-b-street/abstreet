@@ -11,6 +11,7 @@ use ezgui::{
 use geom::{Bounds, Circle, Distance, Polygon};
 use map_model::{BuildingID, IntersectionID, LaneID, Traversable};
 use serde_derive::{Deserialize, Serialize};
+use sim::GetDrawAgents;
 use std::collections::{HashMap, HashSet};
 
 // TODO Collapse stuff!
@@ -56,12 +57,7 @@ impl GUI for UI {
                     (Some(Key::W), "manage scenarios"),
                 ],
             ),
-            Folder::new(
-                "Simulation",
-                vec![
-                    (Some(Key::D), "diff all A/B trips"),
-                ],
-            ),
+            Folder::new("Simulation", vec![(Some(Key::D), "diff all A/B trips")]),
             Folder::new(
                 "View",
                 vec![
@@ -187,7 +183,7 @@ impl GUI for UI {
     }
 
     fn draw(&self, g: &mut GfxCtx) {
-        self.new_draw(g, None, HashMap::new())
+        self.new_draw(g, None, HashMap::new(), &self.state.primary.sim)
     }
 
     fn dump_before_abort(&self, canvas: &Canvas) {
@@ -268,13 +264,15 @@ impl UI {
         ctx.canvas.handle_event(ctx.input);
 
         // Always handle mouseover
-        self.handle_mouseover(ctx, None);
+        self.state.primary.current_selection =
+            self.handle_mouseover(ctx, None, &self.state.primary.sim);
 
         let mut recalculate_current_selection = false;
         self.state
             .event(ctx, &mut self.hints, &mut recalculate_current_selection);
         if recalculate_current_selection {
-            self.state.primary.current_selection = self.mouseover_something(&ctx, None);
+            self.state.primary.current_selection =
+                self.mouseover_something(&ctx, None, &self.state.primary.sim);
         }
 
         ctx.input.populate_osd(&mut self.hints.osd);
@@ -310,6 +308,7 @@ impl UI {
         g: &mut GfxCtx,
         show_turn_icons_for: Option<IntersectionID>,
         override_color: HashMap<ID, Color>,
+        source: &GetDrawAgents,
     ) {
         let ctx = DrawCtx {
             cs: &self.state.cs,
@@ -359,6 +358,7 @@ impl UI {
                 &g.prerender,
                 &mut cache,
                 show_turn_icons_for,
+                source,
             );
 
             let mut drawn_all_buildings = false;
@@ -424,24 +424,29 @@ impl UI {
         }
     }
 
+    // Because we have to sometimes borrow part of self for GetDrawAgents, this just returns the
+    // Option<ID> that the caller should assign. When this monolithic UI nonsense is dismantled,
+    // this weirdness goes away.
     pub fn handle_mouseover(
-        &mut self,
+        &self,
         ctx: &mut EventCtx,
         show_turn_icons_for: Option<IntersectionID>,
-    ) {
+        source: &GetDrawAgents,
+    ) -> Option<ID> {
         if !ctx.canvas.is_dragging() && ctx.input.get_moved_mouse().is_some() {
-            self.state.primary.current_selection =
-                self.mouseover_something(&ctx, show_turn_icons_for);
+            return self.mouseover_something(&ctx, show_turn_icons_for, source);
         }
         if ctx.input.window_lost_cursor() {
-            self.state.primary.current_selection = None;
+            return None;
         }
+        self.state.primary.current_selection
     }
 
     fn mouseover_something(
         &self,
         ctx: &EventCtx,
         show_turn_icons_for: Option<IntersectionID>,
+        source: &GetDrawAgents,
     ) -> Option<ID> {
         // Unzoomed mode. Ignore when debugging areas.
         if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL
@@ -458,6 +463,7 @@ impl UI {
             ctx.prerender,
             &mut cache,
             show_turn_icons_for,
+            source,
         );
         objects.reverse();
 
@@ -500,6 +506,7 @@ impl UI {
         prerender: &Prerender,
         agents: &'a mut AgentCache,
         show_turn_icons_for: Option<IntersectionID>,
+        source: &GetDrawAgents,
     ) -> Vec<Box<&'a Renderable>> {
         let map = &self.state.primary.map;
         let draw_map = &self.state.primary.draw_map;
@@ -573,7 +580,6 @@ impl UI {
 
         // Expand all of the Traversables into agents, populating the cache if needed.
         {
-            let source = self.state.get_draw_agents();
             let time = source.time();
 
             for on in &agents_on {

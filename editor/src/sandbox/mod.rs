@@ -1,6 +1,7 @@
 mod route_viewer;
 mod show_activity;
 mod spawner;
+mod time_travel;
 
 use crate::game::{GameState, Mode};
 use abstutil::elapsed_seconds;
@@ -17,6 +18,7 @@ pub struct SandboxMode {
     following: Option<TripID>,
     route_viewer: route_viewer::RouteViewer,
     show_activity: show_activity::ShowActivity,
+    time_travel: time_travel::TimeTravel,
     state: State,
 }
 
@@ -28,6 +30,7 @@ enum State {
         speed: String,
     },
     Spawning(spawner::AgentSpawner),
+    TimeTraveling,
 }
 
 impl SandboxMode {
@@ -38,6 +41,7 @@ impl SandboxMode {
             following: None,
             route_viewer: route_viewer::RouteViewer::Inactive,
             show_activity: show_activity::ShowActivity::Inactive,
+            time_travel: time_travel::TimeTravel::new(),
         }
     }
 
@@ -45,7 +49,10 @@ impl SandboxMode {
         match state.mode {
             Mode::Sandbox(ref mut mode) => {
                 ctx.canvas.handle_event(ctx.input);
-                state.ui.handle_mouseover(ctx, None);
+                state.ui.state.primary.current_selection =
+                    state
+                        .ui
+                        .handle_mouseover(ctx, None, &state.ui.state.primary.sim);
 
                 if let State::Spawning(ref mut spawner) = mode.state {
                     if spawner.event(ctx, &mut state.ui) {
@@ -53,7 +60,7 @@ impl SandboxMode {
                     }
                     return EventLoopMode::InputOnly;
                 }
-                mode.time_travel.record_events(state);
+                mode.time_travel.record(&state.ui);
                 if let State::TimeTraveling = mode.state {
                     if mode.time_travel.event(ctx) {
                         mode.state = State::Paused;
@@ -139,6 +146,13 @@ impl SandboxMode {
                 }
                 mode.route_viewer.event(ctx, &mut state.ui);
                 mode.show_activity.event(ctx, &mut state.ui);
+                if ctx.input.modal_action("start time traveling") {
+                    mode.state = State::TimeTraveling;
+                    mode.time_travel.start(state.ui.state.primary.sim.time());
+                    // Do this again, in case recording was previously disabled.
+                    mode.time_travel.record(&state.ui);
+                    return EventLoopMode::InputOnly;
+                }
 
                 if ctx.input.modal_action("quit") {
                     // TODO This shouldn't be necessary when we plumb state around instead of
@@ -270,6 +284,7 @@ impl SandboxMode {
                         EventLoopMode::Animation
                     }
                     State::Spawning(_) => unreachable!(),
+                    State::TimeTraveling => unreachable!(),
                 }
             }
             _ => unreachable!(),
@@ -282,8 +297,15 @@ impl SandboxMode {
                 State::Spawning(ref spawner) => {
                     spawner.draw(g, &state.ui);
                 }
+                State::TimeTraveling => {
+                    state
+                        .ui
+                        .new_draw(g, None, HashMap::new(), &mode.time_travel);
+                }
                 _ => {
-                    state.ui.new_draw(g, None, HashMap::new());
+                    state
+                        .ui
+                        .new_draw(g, None, HashMap::new(), &state.ui.state.primary.sim);
                     mode.route_viewer.draw(g, &state.ui);
                     mode.show_activity.draw(g, &state.ui);
                 }

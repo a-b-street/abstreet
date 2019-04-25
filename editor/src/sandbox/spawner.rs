@@ -235,7 +235,7 @@ impl AgentSpawner {
         };
         let mut override_color = HashMap::new();
         override_color.insert(src, ui.state.cs.get("selected"));
-        ui.new_draw(g, None, override_color);
+        ui.new_draw(g, None, override_color, &ui.state.primary.sim);
 
         if let Some((_, Some(ref trace))) = self.maybe_goal {
             g.draw_polygon(

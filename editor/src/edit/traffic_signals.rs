@@ -46,7 +46,8 @@ impl TrafficSignalEditor {
 
     // Returns true if the editor is done and we should go back to main edit mode.
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> bool {
-        ui.handle_mouseover(ctx, Some(self.i));
+        ui.state.primary.current_selection =
+            ui.handle_mouseover(ctx, Some(self.i), &ui.state.primary.sim);
 
         ctx.input.set_mode_with_prompt(
             "Traffic Signal Editor",
@@ -255,7 +256,9 @@ impl TrafficSignalEditor {
                 },
             );
         }
-        state.ui.new_draw(g, Some(self.i), override_color);
+        state
+            .ui
+            .new_draw(g, Some(self.i), override_color, &state.ui.state.primary.sim);
 
         let ctx = DrawCtx {
             cs: &state.ui.state.cs,
