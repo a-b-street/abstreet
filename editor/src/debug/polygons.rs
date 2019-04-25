@@ -1,9 +1,15 @@
-use crate::objects::{DrawCtx, ID};
-use crate::plugins::{BlockingPlugin, PluginCtx};
+use crate::objects::ID;
 use crate::render::calculate_corners;
+use crate::ui::UI;
 use abstutil::Timer;
-use ezgui::{GfxCtx, Key, Text};
+use ezgui::{EventCtx, GfxCtx, Key, Text};
 use geom::{Polygon, Pt2D, Triangle};
+
+pub struct PolygonDebugger {
+    items: Vec<Item>,
+    current: usize,
+    center: Option<Pt2D>,
+}
 
 enum Item {
     Point(Pt2D),
@@ -11,17 +17,11 @@ enum Item {
     Polygon(Polygon),
 }
 
-pub struct DebugPolygon {
-    items: Vec<Item>,
-    current: usize,
-    center: Option<Pt2D>,
-}
-
-impl DebugPolygon {
-    pub fn new(ctx: &mut PluginCtx) -> Option<DebugPolygon> {
-        match ctx.primary.current_selection {
+impl PolygonDebugger {
+    pub fn new(ctx: &mut EventCtx, ui: &UI) -> Option<PolygonDebugger> {
+        match ui.state.primary.current_selection {
             Some(ID::Intersection(id)) => {
-                let i = ctx.primary.map.get_i(id);
+                let i = ui.state.primary.map.get_i(id);
                 if ctx
                     .input
                     .contextual_action(Key::X, "debug intersection geometry")
@@ -29,7 +29,7 @@ impl DebugPolygon {
                     let pts = i.polygon.points();
                     let mut pts_without_last = pts.clone();
                     pts_without_last.pop();
-                    return Some(DebugPolygon {
+                    return Some(PolygonDebugger {
                         items: pts.iter().map(|pt| Item::Point(*pt)).collect(),
                         current: 0,
                         center: Some(Pt2D::center(&pts_without_last)),
@@ -38,10 +38,10 @@ impl DebugPolygon {
                     .input
                     .contextual_action(Key::F2, "debug sidewalk corners")
                 {
-                    return Some(DebugPolygon {
+                    return Some(PolygonDebugger {
                         items: calculate_corners(
                             i,
-                            &ctx.primary.map,
+                            &ui.state.primary.map,
                             &mut Timer::new("calculate corners"),
                         )
                         .into_iter()
@@ -54,8 +54,9 @@ impl DebugPolygon {
             }
             Some(ID::Lane(id)) => {
                 if ctx.input.contextual_action(Key::X, "debug lane geometry") {
-                    return Some(DebugPolygon {
-                        items: ctx
+                    return Some(PolygonDebugger {
+                        items: ui
+                            .state
                             .primary
                             .map
                             .get_l(id)
@@ -68,8 +69,9 @@ impl DebugPolygon {
                         center: None,
                     });
                 } else if ctx.input.contextual_action(Key::F2, "debug lane triangles") {
-                    return Some(DebugPolygon {
-                        items: ctx
+                    return Some(PolygonDebugger {
+                        items: ui
+                            .state
                             .primary
                             .draw_map
                             .get_l(id)
@@ -85,7 +87,7 @@ impl DebugPolygon {
             }
             Some(ID::Area(id)) => {
                 if ctx.input.contextual_action(Key::X, "debug area geometry") {
-                    let pts = &ctx.primary.map.get_a(id).polygon.points();
+                    let pts = &ui.state.primary.map.get_a(id).polygon.points();
                     let center = if pts[0] == *pts.last().unwrap() {
                         // TODO The center looks really wrong for Volunteer Park and others, but I
                         // think it's because they have many points along some edges.
@@ -93,14 +95,15 @@ impl DebugPolygon {
                     } else {
                         Pt2D::center(pts)
                     };
-                    return Some(DebugPolygon {
+                    return Some(PolygonDebugger {
                         items: pts.iter().map(|pt| Item::Point(*pt)).collect(),
                         current: 0,
                         center: Some(center),
                     });
                 } else if ctx.input.contextual_action(Key::F2, "debug area triangles") {
-                    return Some(DebugPolygon {
-                        items: ctx
+                    return Some(PolygonDebugger {
+                        items: ui
+                            .state
                             .primary
                             .map
                             .get_a(id)
@@ -118,13 +121,12 @@ impl DebugPolygon {
         }
         None
     }
-}
 
-impl BlockingPlugin for DebugPolygon {
-    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
+    // True when done
+    pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
         ctx.input.set_mode("Polygon Debugger", &ctx.canvas);
         if ctx.input.modal_action("quit") {
-            return false;
+            return true;
         } else if self.current != self.items.len() - 1 && ctx.input.modal_action("next item") {
             self.current += 1;
         } else if self.current != self.items.len() - 1 && ctx.input.modal_action("last item") {
@@ -134,10 +136,10 @@ impl BlockingPlugin for DebugPolygon {
         } else if self.current != 0 && ctx.input.modal_action("first item") {
             self.current = 0;
         }
-        true
+        false
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
+    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         match self.items[self.current] {
             Item::Point(pt) => {
                 g.draw_text_at(&Text::from_line(format!("{}", self.current)), pt);
@@ -146,10 +148,10 @@ impl BlockingPlugin for DebugPolygon {
                 for pt in &[tri.pt1, tri.pt2, tri.pt3] {
                     g.draw_text_at(&Text::from_line(format!("{}", self.current)), *pt);
                 }
-                g.draw_polygon(ctx.cs.get("selected"), &Polygon::from_triangle(tri));
+                g.draw_polygon(ui.state.cs.get("selected"), &Polygon::from_triangle(tri));
             }
             Item::Polygon(ref poly) => {
-                g.draw_polygon(ctx.cs.get("selected"), poly);
+                g.draw_polygon(ui.state.cs.get("selected"), poly);
                 g.draw_text_at(&Text::from_line(format!("{}", self.current)), poly.center());
             }
         }

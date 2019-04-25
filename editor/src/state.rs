@@ -208,13 +208,6 @@ impl UIState {
             {
                 return;
             }
-
-            if self.enable_debug_controls {
-                if let Some(p) = debug::debug_polygon::DebugPolygon::new(&mut ctx) {
-                    self.exclusive_blocking_plugin = Some(Box::new(p));
-                    return;
-                }
-            }
         }
 
         // Exclusive nonblocking plugins

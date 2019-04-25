@@ -1,4 +1,5 @@
 mod chokepoints;
+mod polygons;
 
 use crate::game::{GameState, Mode};
 use crate::objects::ID;
@@ -14,6 +15,7 @@ pub struct DebugMode {
 
 enum State {
     Exploring,
+    Polygons(polygons::PolygonDebugger),
 }
 
 impl DebugMode {
@@ -28,57 +30,76 @@ impl DebugMode {
     pub fn event(state: &mut GameState, ctx: &mut EventCtx) -> EventLoopMode {
         match state.mode {
             Mode::Debug(ref mut mode) => {
-                ctx.canvas.handle_event(ctx.input);
-                state.ui.state.primary.current_selection =
-                    state
-                        .ui
-                        .handle_mouseover(ctx, None, &state.ui.state.primary.sim);
+                match mode.state {
+                    State::Exploring => {
+                        ctx.canvas.handle_event(ctx.input);
+                        state.ui.state.primary.current_selection =
+                            state
+                                .ui
+                                .handle_mouseover(ctx, None, &state.ui.state.primary.sim);
 
-                let mut txt = Text::new();
-                txt.add_styled_line("Debug Mode".to_string(), None, Some(Color::BLUE), None);
-                if mode.chokepoints.is_some() {
-                    txt.add_line("Showing chokepoints".to_string());
-                }
-                if !mode.show_original_roads.is_empty() {
-                    txt.add_line(format!(
-                        "Showing {} original roads",
-                        mode.show_original_roads.len()
-                    ));
-                }
-                ctx.input
-                    .set_mode_with_new_prompt("Debug Mode", txt, ctx.canvas);
-                if ctx.input.modal_action("quit") {
-                    state.mode = Mode::SplashScreen(Wizard::new(), None);
-                    return EventLoopMode::InputOnly;
-                }
+                        let mut txt = Text::new();
+                        txt.add_styled_line(
+                            "Debug Mode".to_string(),
+                            None,
+                            Some(Color::BLUE),
+                            None,
+                        );
+                        if mode.chokepoints.is_some() {
+                            txt.add_line("Showing chokepoints".to_string());
+                        }
+                        if !mode.show_original_roads.is_empty() {
+                            txt.add_line(format!(
+                                "Showing {} original roads",
+                                mode.show_original_roads.len()
+                            ));
+                        }
+                        ctx.input
+                            .set_mode_with_new_prompt("Debug Mode", txt, ctx.canvas);
+                        if ctx.input.modal_action("quit") {
+                            state.mode = Mode::SplashScreen(Wizard::new(), None);
+                            return EventLoopMode::InputOnly;
+                        }
 
-                if ctx.input.modal_action("show/hide chokepoints") {
-                    if mode.chokepoints.is_some() {
-                        mode.chokepoints = None;
-                    } else {
-                        // TODO Nothing will actually exist. ;)
-                        mode.chokepoints = Some(chokepoints::ChokepointsFinder::new(
-                            &state.ui.state.primary.sim,
-                        ));
+                        if ctx.input.modal_action("show/hide chokepoints") {
+                            if mode.chokepoints.is_some() {
+                                mode.chokepoints = None;
+                            } else {
+                                // TODO Nothing will actually exist. ;)
+                                mode.chokepoints = Some(chokepoints::ChokepointsFinder::new(
+                                    &state.ui.state.primary.sim,
+                                ));
+                            }
+                        }
+                        if !mode.show_original_roads.is_empty() {
+                            if ctx.input.modal_action("clear original roads shown") {
+                                mode.show_original_roads.clear();
+                            }
+                        }
+
+                        if let Some(ID::Lane(l)) = state.ui.state.primary.current_selection {
+                            let id = state.ui.state.primary.map.get_l(l).parent;
+                            if ctx.input.contextual_action(
+                                Key::V,
+                                &format!("show original geometry of {:?}", id),
+                            ) {
+                                mode.show_original_roads.insert(id);
+                            }
+                        }
+
+                        if let Some(debugger) = polygons::PolygonDebugger::new(ctx, &state.ui) {
+                            mode.state = State::Polygons(debugger);
+                        }
+
+                        EventLoopMode::InputOnly
+                    }
+                    State::Polygons(ref mut debugger) => {
+                        if debugger.event(ctx) {
+                            mode.state = State::Exploring;
+                        }
+                        EventLoopMode::InputOnly
                     }
                 }
-                if !mode.show_original_roads.is_empty() {
-                    if ctx.input.modal_action("clear original roads shown") {
-                        mode.show_original_roads.clear();
-                    }
-                }
-
-                if let Some(ID::Lane(l)) = state.ui.state.primary.current_selection {
-                    let id = state.ui.state.primary.map.get_l(l).parent;
-                    if ctx
-                        .input
-                        .contextual_action(Key::V, &format!("show original geometry of {:?}", id))
-                    {
-                        mode.show_original_roads.insert(id);
-                    }
-                }
-
-                EventLoopMode::InputOnly
             }
             _ => unreachable!(),
         }
@@ -127,6 +148,12 @@ impl DebugMode {
                             );
                         }
                     }
+                }
+                State::Polygons(ref debugger) => {
+                    state
+                        .ui
+                        .new_draw(g, None, HashMap::new(), &state.ui.state.primary.sim);
+                    debugger.draw(g, &state.ui);
                 }
             },
             _ => unreachable!(),

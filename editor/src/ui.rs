@@ -102,16 +102,6 @@ impl GUI for UI {
             ModalMenu::new("Object Hider", vec![(Key::K, "unhide everything")]),
             // TODO F1?
             ModalMenu::new("Legend", vec![(Key::L, "quit")]),
-            ModalMenu::new(
-                "Polygon Debugger",
-                vec![
-                    (Key::Enter, "quit"),
-                    (Key::Dot, "next item"),
-                    (Key::Comma, "prev item"),
-                    (Key::F, "first item"),
-                    (Key::L, "last item"),
-                ],
-            ),
             // The new exciting things!
             ModalMenu::new(
                 "Map Edit Mode",
@@ -177,6 +167,16 @@ impl GUI for UI {
                     (Key::Escape, "quit"),
                     (Key::C, "show/hide chokepoints"),
                     (Key::O, "clear original roads shown"),
+                ],
+            ),
+            ModalMenu::new(
+                "Polygon Debugger",
+                vec![
+                    (Key::Escape, "quit"),
+                    (Key::Dot, "next item"),
+                    (Key::Comma, "prev item"),
+                    (Key::F, "first item"),
+                    (Key::L, "last item"),
                 ],
             ),
         ]
