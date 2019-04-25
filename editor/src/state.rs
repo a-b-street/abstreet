@@ -391,8 +391,6 @@ impl PluginsPerMap {
         if enable_debug_controls {
             p.ambient_plugins
                 .push(Box::new(debug::debug_objects::DebugObjectsState::new()));
-            p.ambient_plugins
-                .push(Box::new(debug::connected_roads::ShowConnectedRoads::new()));
         }
         p
     }

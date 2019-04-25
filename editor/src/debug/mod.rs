@@ -1,4 +1,5 @@
 mod chokepoints;
+mod connected_roads;
 mod polygons;
 
 use crate::game::{GameState, Mode};
@@ -11,6 +12,7 @@ pub struct DebugMode {
     state: State,
     chokepoints: Option<chokepoints::ChokepointsFinder>,
     show_original_roads: HashSet<RoadID>,
+    connected_roads: connected_roads::ShowConnectedRoads,
 }
 
 enum State {
@@ -24,6 +26,7 @@ impl DebugMode {
             state: State::Exploring,
             chokepoints: None,
             show_original_roads: HashSet::new(),
+            connected_roads: connected_roads::ShowConnectedRoads::new(),
         }
     }
 
@@ -86,6 +89,7 @@ impl DebugMode {
                                 mode.show_original_roads.insert(id);
                             }
                         }
+                        mode.connected_roads.event(ctx, &state.ui);
 
                         if let Some(debugger) = polygons::PolygonDebugger::new(ctx, &state.ui) {
                             mode.state = State::Polygons(debugger);
@@ -118,6 +122,16 @@ impl DebugMode {
                         for i in &chokepoints.intersections {
                             color_overrides.insert(ID::Intersection(*i), color);
                         }
+                    }
+                    for l in &mode.connected_roads.lanes {
+                        color_overrides.insert(
+                            ID::Lane(*l),
+                            state
+                                .ui
+                                .state
+                                .cs
+                                .get("something associated with something else"),
+                        );
                     }
                     state
                         .ui

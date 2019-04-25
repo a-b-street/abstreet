@@ -1,12 +1,12 @@
-use crate::objects::{DrawCtx, ID};
-use crate::plugins::{AmbientPlugin, PluginCtx};
-use ezgui::{Color, Key};
+use crate::objects::ID;
+use crate::ui::UI;
+use ezgui::{EventCtx, Key};
 use map_model::LaneID;
 use std::collections::HashSet;
 
 pub struct ShowConnectedRoads {
     key_held: bool,
-    lanes: HashSet<LaneID>,
+    pub lanes: HashSet<LaneID>,
 }
 
 impl ShowConnectedRoads {
@@ -16,10 +16,8 @@ impl ShowConnectedRoads {
             lanes: HashSet::new(),
         }
     }
-}
 
-impl AmbientPlugin for ShowConnectedRoads {
-    fn ambient_event(&mut self, ctx: &mut PluginCtx) {
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI) {
         if self.key_held {
             self.key_held = !ctx.input.key_released(Key::RightAlt);
         } else {
@@ -33,20 +31,12 @@ impl AmbientPlugin for ShowConnectedRoads {
 
         self.lanes.clear();
         if self.key_held {
-            if let Some(ID::Intersection(i)) = ctx.primary.current_selection {
-                for r in &ctx.primary.map.get_i(i).roads {
-                    self.lanes.extend(ctx.primary.map.get_r(*r).all_lanes());
+            if let Some(ID::Intersection(i)) = ui.state.primary.current_selection {
+                for r in &ui.state.primary.map.get_i(i).roads {
+                    self.lanes
+                        .extend(ui.state.primary.map.get_r(*r).all_lanes());
                 }
             }
         }
-    }
-
-    fn color_for(&self, obj: ID, ctx: &DrawCtx) -> Option<Color> {
-        if let ID::Lane(id) = obj {
-            if self.lanes.contains(&id) {
-                return Some(ctx.cs.get("something associated with something else"));
-            }
-        }
-        None
     }
 }
