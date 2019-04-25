@@ -138,10 +138,6 @@ impl GUI for UI {
             ModalMenu::new("A/B All Trips Explorer", vec![(Key::Enter, "quit")]),
             ModalMenu::new("Search", vec![(Key::Enter, "quit")]),
             ModalMenu::new("Neighborhood Summaries", vec![(Key::Enter, "quit")]),
-            ModalMenu::new(
-                "Agent Route Debugger",
-                vec![(Key::R, "quit"), (Key::L, "show route for all agents")],
-            ),
             ModalMenu::new("Active Traffic Visualizer", vec![(Key::A, "quit")]),
             ModalMenu::new("Object Hider", vec![(Key::K, "unhide everything")]),
             // TODO F1?
@@ -195,10 +191,13 @@ impl GUI for UI {
                     (Key::U, "load next sim state"),
                     (Key::Space, "run/pause sim"),
                     (Key::M, "run one step of sim"),
-                    (Key::R, "reset sim"),
+                    (Key::X, "reset sim"),
                     (Key::S, "seed the sim with agents"),
                     // TODO Strange to always have this. Really it's a case of stacked modal?
                     (Key::F, "stop following agent"),
+                    (Key::R, "stop showing agent's route"),
+                    // TODO This should probably be a debug thing instead
+                    (Key::L, "show/hide route for all agents"),
                 ],
             ),
             ModalMenu::new("Agent Spawner", vec![(Key::Escape, "quit")]),

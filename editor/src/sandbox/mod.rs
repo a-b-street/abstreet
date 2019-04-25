@@ -1,3 +1,4 @@
+mod route_viewer;
 mod spawner;
 
 use crate::game::{GameState, Mode};
@@ -13,6 +14,7 @@ const ADJUST_SPEED: f64 = 0.1;
 pub struct SandboxMode {
     desired_speed: f64, // sim seconds per real second
     following: Option<TripID>,
+    route_viewer: route_viewer::RouteViewer,
     state: State,
 }
 
@@ -32,6 +34,7 @@ impl SandboxMode {
             desired_speed: 1.0,
             state: State::Paused,
             following: None,
+            route_viewer: route_viewer::RouteViewer::Inactive,
         }
     }
 
@@ -64,6 +67,15 @@ impl SandboxMode {
                 }
                 if let Some(trip) = mode.following {
                     txt.add_line(format!("Following {}", trip));
+                }
+                match mode.route_viewer {
+                    route_viewer::RouteViewer::Active(_, trip, _) => {
+                        txt.add_line(format!("Showing {}'s route", trip));
+                    }
+                    route_viewer::RouteViewer::DebugAllRoutes(_, _) => {
+                        txt.add_line("Showing all routes".to_string());
+                    }
+                    _ => {}
                 }
                 ctx.input
                     .set_mode_with_new_prompt("Sandbox Mode", txt, ctx.canvas);
@@ -109,6 +121,7 @@ impl SandboxMode {
                         mode.following = None;
                     }
                 }
+                mode.route_viewer.event(ctx, &mut state.ui);
 
                 if ctx.input.modal_action("quit") {
                     // TODO This shouldn't be necessary when we plumb state around instead of
@@ -252,7 +265,10 @@ impl SandboxMode {
                 State::Spawning(ref spawner) => {
                     spawner.draw(g, &state.ui);
                 }
-                _ => state.ui.new_draw(g, None, HashMap::new()),
+                _ => {
+                    state.ui.new_draw(g, None, HashMap::new());
+                    mode.route_viewer.draw(g, &state.ui);
+                }
             },
             _ => unreachable!(),
         }

@@ -433,7 +433,6 @@ impl PluginsPerMap {
                 // inactive state.
                 Box::new(view::show_activity::ShowActivityState::new()),
                 Box::new(view::show_associated::ShowAssociatedState::new()),
-                Box::new(view::show_route::ShowRouteState::new()),
                 Box::new(view::turn_cycler::TurnCyclerState::new()),
             ],
             time_travel: plugins::sim::time_travel::TimeTravel::new(),
