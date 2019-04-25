@@ -36,7 +36,6 @@ impl GUI for UI {
                 vec![
                     (None, "screenshot everything"),
                     (Some(Key::F1), "screenshot just this"),
-                    (None, "find chokepoints"),
                     (Some(Key::Num1), "show/hide buildings"),
                     (Some(Key::Num2), "show/hide intersections"),
                     (Some(Key::Num3), "show/hide lanes"),
@@ -97,7 +96,6 @@ impl GUI for UI {
                 ],
             ),
             ModalMenu::new("Original Roads", vec![(Key::Enter, "quit")]),
-            ModalMenu::new("Chokepoints Debugger", vec![(Key::Enter, "quit")]),
             ModalMenu::new("A/B Trip Explorer", vec![(Key::Enter, "quit")]),
             ModalMenu::new("A/B All Trips Explorer", vec![(Key::Enter, "quit")]),
             ModalMenu::new("Search", vec![(Key::Enter, "quit")]),
@@ -174,7 +172,10 @@ impl GUI for UI {
                     (Key::Dot, "forwards"),
                 ],
             ),
-            ModalMenu::new("Debug Mode", vec![(Key::Escape, "quit")]),
+            ModalMenu::new(
+                "Debug Mode",
+                vec![(Key::Escape, "quit"), (Key::C, "show/hide chokepoints")],
+            ),
         ]
     }
 

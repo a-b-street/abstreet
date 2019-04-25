@@ -210,10 +210,7 @@ impl UIState {
             }
 
             if self.enable_debug_controls {
-                if let Some(p) = debug::chokepoints::ChokepointsFinder::new(&mut ctx) {
-                    self.exclusive_blocking_plugin = Some(Box::new(p));
-                    return;
-                } else if let Some(p) = debug::debug_polygon::DebugPolygon::new(&mut ctx) {
+                if let Some(p) = debug::debug_polygon::DebugPolygon::new(&mut ctx) {
                     self.exclusive_blocking_plugin = Some(Box::new(p));
                     return;
                 }
