@@ -27,10 +27,7 @@ impl GUI for UI {
         if self.state.enable_debug_controls {
             folders.push(Folder::new(
                 "Debug",
-                vec![
-                    (None, "screenshot everything"),
-                    (Some(Key::F1), "screenshot just this"),
-                ],
+                vec![(Some(Key::F1), "screenshot just this")],
             ));
         }
         folders.extend(vec![
@@ -158,6 +155,7 @@ impl GUI for UI {
                     (Key::Num4, "show/hide areas"),
                     (Key::Num5, "show/hide extra shapes"),
                     (Key::Num6, "show/hide geometry debug mode"),
+                    (Key::F1, "screenshot everything"),
                 ],
             ),
             ModalMenu::new(
@@ -285,19 +283,6 @@ impl UI {
 
         // TODO a plugin should do this, even though it's such a tiny thing
         if self.state.enable_debug_controls {
-            if ctx.input.action_chosen("screenshot everything") {
-                let bounds = self.state.primary.map.get_bounds();
-                assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
-                self.hints.mode = EventLoopMode::ScreenCaptureEverything {
-                    dir: format!(
-                        "../data/screenshots/pending_{}",
-                        self.state.primary.map.get_name()
-                    ),
-                    zoom: 3.0,
-                    max_x: bounds.max_x,
-                    max_y: bounds.max_y,
-                };
-            }
             if ctx.input.action_chosen("screenshot just this") {
                 self.hints.mode = EventLoopMode::ScreenCaptureCurrentShot;
             }

@@ -145,6 +145,20 @@ impl DebugMode {
                             mode.layers.geom_debug_mode = !mode.layers.geom_debug_mode;
                         }
 
+                        if ctx.input.modal_action("screenshot everything") {
+                            let bounds = state.ui.state.primary.map.get_bounds();
+                            assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
+                            return EventLoopMode::ScreenCaptureEverything {
+                                dir: format!(
+                                    "../data/screenshots/pending_{}",
+                                    state.ui.state.primary.map.get_name()
+                                ),
+                                zoom: 3.0,
+                                max_x: bounds.max_x,
+                                max_y: bounds.max_y,
+                            };
+                        }
+
                         EventLoopMode::InputOnly
                     }
                     State::Polygons(ref mut debugger) => {
