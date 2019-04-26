@@ -45,7 +45,6 @@ impl GUI for UI {
                 "View",
                 vec![
                     (None, "show neighborhood summaries"),
-                    (Some(Key::Slash), "search for something"),
                     (Some(Key::J), "warp to an object"),
                 ],
             ),
@@ -81,7 +80,6 @@ impl GUI for UI {
             ),
             ModalMenu::new("A/B Trip Explorer", vec![(Key::Enter, "quit")]),
             ModalMenu::new("A/B All Trips Explorer", vec![(Key::Enter, "quit")]),
-            ModalMenu::new("Search", vec![(Key::Enter, "quit")]),
             ModalMenu::new("Neighborhood Summaries", vec![(Key::Enter, "quit")]),
             // The new exciting things!
             ModalMenu::new(
@@ -156,6 +154,8 @@ impl GUI for UI {
                     (Key::Num5, "show/hide extra shapes"),
                     (Key::Num6, "show/hide geometry debug mode"),
                     (Key::F1, "screenshot everything"),
+                    (Key::Slash, "search OSM metadata"),
+                    (Key::M, "clear OSM search results"),
                 ],
             ),
             ModalMenu::new(

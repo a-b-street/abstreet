@@ -6,7 +6,7 @@ mod polygons;
 use crate::game::{GameState, Mode};
 use crate::objects::ID;
 use crate::ui::{ShowLayers, ShowObject};
-use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, Wizard};
+use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, InputResult, Key, Text, TextBox, Wizard};
 use map_model::RoadID;
 use std::collections::{HashMap, HashSet};
 
@@ -18,11 +18,13 @@ pub struct DebugMode {
     objects: objects::ObjectDebugger,
     hidden: HashSet<ID>,
     layers: ShowLayers,
+    search_results: Option<(String, HashSet<ID>)>,
 }
 
 enum State {
     Exploring,
     Polygons(polygons::PolygonDebugger),
+    SearchOSM(TextBox),
 }
 
 impl DebugMode {
@@ -35,6 +37,7 @@ impl DebugMode {
             objects: objects::ObjectDebugger::new(),
             hidden: HashSet::new(),
             layers: ShowLayers::new(),
+            search_results: None,
         }
     }
 
@@ -67,6 +70,13 @@ impl DebugMode {
                         }
                         if !mode.hidden.is_empty() {
                             txt.add_line(format!("Hiding {} things", mode.hidden.len()));
+                        }
+                        if let Some((ref search, ref results)) = mode.search_results {
+                            txt.add_line(format!(
+                                "Search for {} has {} results",
+                                search,
+                                results.len()
+                            ));
                         }
                         ctx.input
                             .set_mode_with_new_prompt("Debug Mode", txt, ctx.canvas);
@@ -159,11 +169,53 @@ impl DebugMode {
                             };
                         }
 
+                        if mode.search_results.is_some() {
+                            if ctx.input.modal_action("clear OSM search results") {
+                                mode.search_results = None;
+                            }
+                        } else if ctx.input.modal_action("search OSM metadata") {
+                            mode.state = State::SearchOSM(TextBox::new("Search for what?", None));
+                        }
+
                         EventLoopMode::InputOnly
                     }
                     State::Polygons(ref mut debugger) => {
                         if debugger.event(ctx) {
                             mode.state = State::Exploring;
+                        }
+                        EventLoopMode::InputOnly
+                    }
+                    State::SearchOSM(ref mut tb) => {
+                        match tb.event(&mut ctx.input) {
+                            InputResult::Canceled => {
+                                mode.state = State::Exploring;
+                            }
+                            InputResult::Done(filter, _) => {
+                                mode.state = State::Exploring;
+
+                                let mut ids = HashSet::new();
+                                let map = &state.ui.state.primary.map;
+                                for r in map.all_roads() {
+                                    if r.osm_tags
+                                        .iter()
+                                        .any(|(k, v)| format!("{} = {}", k, v).contains(&filter))
+                                    {
+                                        for l in r.all_lanes() {
+                                            ids.insert(ID::Lane(l));
+                                        }
+                                    }
+                                }
+                                for b in map.all_buildings() {
+                                    if b.osm_tags
+                                        .iter()
+                                        .any(|(k, v)| format!("{} = {}", k, v).contains(&filter))
+                                    {
+                                        ids.insert(ID::Building(b.id));
+                                    }
+                                }
+                                mode.search_results = Some((filter, ids));
+                            }
+                            InputResult::StillActive => {}
                         }
                         EventLoopMode::InputOnly
                     }
@@ -196,6 +248,14 @@ impl DebugMode {
                                 .cs
                                 .get("something associated with something else"),
                         );
+                    }
+                    if let Some((_, ref results)) = mode.search_results {
+                        for id in results {
+                            color_overrides.insert(
+                                *id,
+                                state.ui.state.cs.get_def("search result", Color::RED),
+                            );
+                        }
                     }
                     state
                         .ui
@@ -234,6 +294,9 @@ impl DebugMode {
                         .ui
                         .new_draw(g, None, HashMap::new(), &state.ui.state.primary.sim, mode);
                     debugger.draw(g, &state.ui);
+                }
+                State::SearchOSM(ref tb) => {
+                    tb.draw(g);
                 }
             },
             _ => unreachable!(),

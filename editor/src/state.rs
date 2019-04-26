@@ -76,11 +76,6 @@ impl UIState {
     }
 
     pub fn color_obj(&self, id: ID, ctx: &DrawCtx) -> Option<Color> {
-        if let Some(ref plugin) = self.primary_plugins.search {
-            if let Some(c) = plugin.color_for(id, ctx) {
-                return Some(c);
-            }
-        }
         if let Some(ref plugin) = self.exclusive_blocking_plugin {
             return plugin.color_for(id, ctx);
         }
@@ -115,26 +110,6 @@ impl UIState {
 
         // Exclusive blocking plugins first
         {
-            // Special cases of weird blocking exclusive plugins!
-            if self
-                .primary_plugins
-                .search
-                .as_ref()
-                .map(|p| p.is_blocking())
-                .unwrap_or(false)
-            {
-                if !self
-                    .primary_plugins
-                    .search
-                    .as_mut()
-                    .unwrap()
-                    .blocking_event(&mut ctx)
-                {
-                    self.primary_plugins.search = None;
-                }
-                return;
-            }
-
             if self.exclusive_blocking_plugin.is_some() {
                 if !self
                     .exclusive_blocking_plugin
@@ -147,10 +122,7 @@ impl UIState {
                 return;
             }
 
-            // TODO Don't reinstantiate if search is present but nonblocking!
-            if let Some(p) = view::search::SearchState::new(&mut ctx) {
-                self.primary_plugins.search = Some(p);
-            } else if let Some(p) = view::warp::WarpState::new(&mut ctx) {
+            if let Some(p) = view::warp::WarpState::new(&mut ctx) {
                 self.exclusive_blocking_plugin = Some(Box::new(p));
             } else if ctx.secondary.is_none() {
                 if let Some(p) = edit::a_b_tests::ABTestManager::new(&mut ctx) {
@@ -164,16 +136,6 @@ impl UIState {
                 } else if let Some(p) = edit::scenarios::ScenarioManager::new(&mut ctx) {
                     self.exclusive_blocking_plugin = Some(Box::new(p));
                 }
-            }
-            if self
-                .primary_plugins
-                .search
-                .as_ref()
-                .map(|p| p.is_blocking())
-                .unwrap_or(false)
-                || self.exclusive_blocking_plugin.is_some()
-            {
-                return;
             }
         }
 
@@ -199,25 +161,6 @@ impl UIState {
             }
         }
 
-        // Stackable modal plugins
-        if self
-            .primary_plugins
-            .search
-            .as_ref()
-            .map(|p| !p.is_blocking())
-            .unwrap_or(false)
-        {
-            if !self
-                .primary_plugins
-                .search
-                .as_mut()
-                .unwrap()
-                .blocking_event(&mut ctx)
-            {
-                self.primary_plugins.search = None;
-            }
-        }
-
         // Ambient plugins
         for p in self.primary_plugins.ambient_plugins.iter_mut() {
             p.ambient_event(&mut ctx);
@@ -225,12 +168,6 @@ impl UIState {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
-        if let Some(ref plugin) = self.primary_plugins.search {
-            plugin.draw(g, ctx);
-            if plugin.is_blocking() {
-                return;
-            }
-        }
         if let Some(ref plugin) = self.exclusive_blocking_plugin {
             plugin.draw(g, ctx);
             return;
@@ -285,16 +222,12 @@ impl PerMapUI {
 
 // Anything that holds onto any kind of ID has to live here!
 pub struct PluginsPerMap {
-    // When present, this either acts like exclusive blocking or like stackable modal. :\
-    search: Option<view::search::SearchState>,
-
     ambient_plugins: Vec<Box<AmbientPlugin>>,
 }
 
 impl PluginsPerMap {
     pub fn new(state: &PerMapUI, prerender: &Prerender, timer: &mut Timer) -> PluginsPerMap {
         PluginsPerMap {
-            search: None,
             ambient_plugins: vec![
                 Box::new(view::neighborhood_summary::NeighborhoodSummary::new(
                     &state.map,
