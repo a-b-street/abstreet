@@ -35,7 +35,6 @@ impl GUI for UI {
                 "Edit",
                 vec![
                     (Some(Key::B), "manage A/B tests"),
-                    (None, "configure colors"),
                     (Some(Key::N), "manage neighborhoods"),
                     (Some(Key::W), "manage scenarios"),
                 ],
@@ -63,10 +62,6 @@ impl GUI for UI {
                     (Key::V, "visualize"),
                     (Key::Enter, "quit"),
                 ],
-            ),
-            ModalMenu::new(
-                "Color Picker",
-                vec![(Key::Backspace, "revert"), (Key::Enter, "finalize")],
             ),
             ModalMenu::new("A/B Test Editor", vec![(Key::R, "run A/B test")]),
             ModalMenu::new(
@@ -156,6 +151,7 @@ impl GUI for UI {
                     (Key::F1, "screenshot everything"),
                     (Key::Slash, "search OSM metadata"),
                     (Key::M, "clear OSM search results"),
+                    (Key::S, "configure colors"),
                 ],
             ),
             ModalMenu::new(
@@ -167,6 +163,10 @@ impl GUI for UI {
                     (Key::F, "first item"),
                     (Key::L, "last item"),
                 ],
+            ),
+            ModalMenu::new(
+                "Color Picker",
+                vec![(Key::Backspace, "revert"), (Key::Enter, "finalize")],
             ),
         ]
     }

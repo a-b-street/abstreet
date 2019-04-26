@@ -1,7 +1,5 @@
-use crate::objects::DrawCtx;
-use crate::plugins::{BlockingPlugin, PluginCtx};
-use ezgui::ScreenPt;
-use ezgui::{Canvas, Color, GfxCtx, InputResult, ScrollingMenu};
+use crate::ui::UI;
+use ezgui::{Canvas, Color, EventCtx, GfxCtx, InputResult, ScreenPt, ScrollingMenu};
 use geom::Polygon;
 
 // TODO assumes minimum screen size
@@ -17,32 +15,19 @@ pub enum ColorPicker {
 }
 
 impl ColorPicker {
-    pub fn new(ctx: &mut PluginCtx) -> Option<ColorPicker> {
-        if ctx.input.action_chosen("configure colors") {
-            return Some(ColorPicker::Choosing(ScrollingMenu::new(
-                "Pick a color to change",
-                ctx.cs.color_names(),
-            )));
-        }
-        None
-    }
-}
-
-impl BlockingPlugin for ColorPicker {
-    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
+    // True when done
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> bool {
         match self {
-            ColorPicker::Choosing(ref mut menu) => {
-                match menu.event(&mut ctx.input) {
-                    InputResult::Canceled => {
-                        return false;
-                    }
-                    InputResult::StillActive => {}
-                    InputResult::Done(name, _) => {
-                        *self =
-                            ColorPicker::ChangingColor(name.clone(), ctx.cs.get_modified(&name));
-                    }
-                };
-            }
+            ColorPicker::Choosing(ref mut menu) => match menu.event(&mut ctx.input) {
+                InputResult::Canceled => {
+                    return true;
+                }
+                InputResult::StillActive => {}
+                InputResult::Done(name, _) => {
+                    *self =
+                        ColorPicker::ChangingColor(name.clone(), ui.state.cs.get_modified(&name));
+                }
+            },
             ColorPicker::ChangingColor(name, orig) => {
                 ctx.input.set_mode_with_prompt(
                     "Color Picker",
@@ -50,11 +35,11 @@ impl BlockingPlugin for ColorPicker {
                     &ctx.canvas,
                 );
                 if ctx.input.modal_action("revert") {
-                    ctx.cs.reset_modified(name, *orig);
-                    return false;
+                    ui.state.cs.reset_modified(name, *orig);
+                    return true;
                 } else if ctx.input.modal_action("finalize") {
                     println!("Setting color for {}", name);
-                    return false;
+                    return true;
                 }
 
                 if let Some(pt) = ctx.input.get_moved_mouse() {
@@ -63,15 +48,17 @@ impl BlockingPlugin for ColorPicker {
                     let x = (pt.x - start_x) / TILE_DIMS / 255.0;
                     let y = (pt.y - start_y) / TILE_DIMS / 255.0;
                     if x >= 0.0 && x <= 1.0 && y >= 0.0 && y <= 1.0 {
-                        ctx.cs.override_color(name, get_color(x as f32, y as f32));
+                        ui.state
+                            .cs
+                            .override_color(name, get_color(x as f32, y as f32));
                     }
                 }
             }
-        };
-        true
+        }
+        false
     }
 
-    fn draw(&self, g: &mut GfxCtx, _ctx: &DrawCtx) {
+    pub fn draw(&self, g: &mut GfxCtx) {
         match self {
             ColorPicker::Choosing(menu) => {
                 menu.draw(g);

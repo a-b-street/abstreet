@@ -1,4 +1,5 @@
 mod chokepoints;
+mod color_picker;
 mod connected_roads;
 mod objects;
 mod polygons;
@@ -6,7 +7,9 @@ mod polygons;
 use crate::game::{GameState, Mode};
 use crate::objects::ID;
 use crate::ui::{ShowLayers, ShowObject};
-use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, InputResult, Key, Text, TextBox, Wizard};
+use ezgui::{
+    Color, EventCtx, EventLoopMode, GfxCtx, InputResult, Key, ScrollingMenu, Text, TextBox, Wizard,
+};
 use map_model::RoadID;
 use std::collections::{HashMap, HashSet};
 
@@ -25,6 +28,7 @@ enum State {
     Exploring,
     Polygons(polygons::PolygonDebugger),
     SearchOSM(TextBox),
+    Colors(color_picker::ColorPicker),
 }
 
 impl DebugMode {
@@ -175,6 +179,13 @@ impl DebugMode {
                             }
                         } else if ctx.input.modal_action("search OSM metadata") {
                             mode.state = State::SearchOSM(TextBox::new("Search for what?", None));
+                        } else if ctx.input.modal_action("configure colors") {
+                            mode.state = State::Colors(color_picker::ColorPicker::Choosing(
+                                ScrollingMenu::new(
+                                    "Pick a color to change",
+                                    state.ui.state.cs.color_names(),
+                                ),
+                            ));
                         }
 
                         EventLoopMode::InputOnly
@@ -216,6 +227,12 @@ impl DebugMode {
                                 mode.search_results = Some((filter, ids));
                             }
                             InputResult::StillActive => {}
+                        }
+                        EventLoopMode::InputOnly
+                    }
+                    State::Colors(ref mut picker) => {
+                        if picker.event(ctx, &mut state.ui) {
+                            mode.state = State::Exploring;
                         }
                         EventLoopMode::InputOnly
                     }
@@ -296,7 +313,16 @@ impl DebugMode {
                     debugger.draw(g, &state.ui);
                 }
                 State::SearchOSM(ref tb) => {
+                    state
+                        .ui
+                        .new_draw(g, None, HashMap::new(), &state.ui.state.primary.sim, mode);
                     tb.draw(g);
+                }
+                State::Colors(ref picker) => {
+                    state
+                        .ui
+                        .new_draw(g, None, HashMap::new(), &state.ui.state.primary.sim, mode);
+                    picker.draw(g);
                 }
             },
             _ => unreachable!(),
