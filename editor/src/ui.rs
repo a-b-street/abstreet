@@ -36,13 +36,6 @@ impl GUI for UI {
                 vec![
                     (None, "screenshot everything"),
                     (Some(Key::F1), "screenshot just this"),
-                    (Some(Key::Num1), "show/hide buildings"),
-                    (Some(Key::Num2), "show/hide intersections"),
-                    (Some(Key::Num3), "show/hide lanes"),
-                    (Some(Key::Num5), "show/hide areas"),
-                    (Some(Key::Num7), "show/hide extra shapes"),
-                    (Some(Key::Num9), "show/hide all turn icons"),
-                    (None, "show/hide geometry debug mode"),
                 ],
             ));
         }
@@ -167,6 +160,12 @@ impl GUI for UI {
                     (Key::C, "show/hide chokepoints"),
                     (Key::O, "clear original roads shown"),
                     (Key::K, "unhide everything"),
+                    (Key::Num1, "show/hide buildings"),
+                    (Key::Num2, "show/hide intersections"),
+                    (Key::Num3, "show/hide lanes"),
+                    (Key::Num4, "show/hide areas"),
+                    (Key::Num5, "show/hide extra shapes"),
+                    (Key::Num6, "show/hide geometry debug mode"),
                 ],
             ),
             ModalMenu::new(
@@ -193,7 +192,7 @@ impl GUI for UI {
             None,
             HashMap::new(),
             &self.state.primary.sim,
-            &ShowEverything {},
+            &ShowEverything::new(),
         )
     }
 
@@ -276,14 +275,18 @@ impl UI {
 
         // Always handle mouseover
         self.state.primary.current_selection =
-            self.handle_mouseover(ctx, None, &self.state.primary.sim, &ShowEverything {});
+            self.handle_mouseover(ctx, None, &self.state.primary.sim, &ShowEverything::new());
 
         let mut recalculate_current_selection = false;
         self.state
             .event(ctx, &mut self.hints, &mut recalculate_current_selection);
         if recalculate_current_selection {
-            self.state.primary.current_selection =
-                self.mouseover_something(&ctx, None, &self.state.primary.sim, &ShowEverything {});
+            self.state.primary.current_selection = self.mouseover_something(
+                &ctx,
+                None,
+                &self.state.primary.sim,
+                &ShowEverything::new(),
+            );
         }
 
         ctx.input.populate_osd(&mut self.hints.osd);
@@ -336,16 +339,17 @@ impl UI {
 
         if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL && !g.is_screencap() {
             // Unzoomed mode
-            if self.state.layers.show_areas {
+            let layers = show_objs.layers();
+            if layers.show_areas {
                 g.redraw(&self.state.primary.draw_map.draw_all_areas);
             }
-            if self.state.layers.show_lanes {
+            if layers.show_lanes {
                 g.redraw(&self.state.primary.draw_map.draw_all_thick_roads);
             }
-            if self.state.layers.show_intersections {
+            if layers.show_intersections {
                 g.redraw(&self.state.primary.draw_map.draw_all_unzoomed_intersections);
             }
-            if self.state.layers.show_buildings {
+            if layers.show_buildings {
                 g.redraw(&self.state.primary.draw_map.draw_all_buildings);
             }
 
@@ -398,7 +402,7 @@ impl UI {
                         .get(&obj.get_id())
                         .cloned()
                         .or_else(|| self.state.color_obj(obj.get_id(), &ctx)),
-                    debug_mode: self.state.layers.debug_mode,
+                    debug_mode: show_objs.layers().geom_debug_mode,
                 };
                 obj.draw(g, opts, &ctx);
 
@@ -643,14 +647,51 @@ fn fill_to_boundary_polygon(poly: Polygon) -> Polygon {
     poly
 }
 
-pub trait ShowObject {
-    fn show(&self, obj: ID) -> bool;
+pub struct ShowLayers {
+    pub show_buildings: bool,
+    pub show_intersections: bool,
+    pub show_lanes: bool,
+    pub show_areas: bool,
+    pub show_extra_shapes: bool,
+    pub geom_debug_mode: bool,
 }
 
-pub struct ShowEverything {}
+impl ShowLayers {
+    pub fn new() -> ShowLayers {
+        ShowLayers {
+            show_buildings: true,
+            show_intersections: true,
+            show_lanes: true,
+            show_areas: true,
+            show_extra_shapes: true,
+            geom_debug_mode: false,
+        }
+    }
+}
+
+pub trait ShowObject {
+    fn show(&self, obj: ID) -> bool;
+    fn layers(&self) -> &ShowLayers;
+}
+
+pub struct ShowEverything {
+    layers: ShowLayers,
+}
+
+impl ShowEverything {
+    pub fn new() -> ShowEverything {
+        ShowEverything {
+            layers: ShowLayers::new(),
+        }
+    }
+}
 
 impl ShowObject for ShowEverything {
     fn show(&self, _: ID) -> bool {
         true
+    }
+
+    fn layers(&self) -> &ShowLayers {
+        &self.layers
     }
 }

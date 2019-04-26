@@ -1,9 +1,7 @@
 use crate::colors::ColorScheme;
 use crate::objects::{DrawCtx, RenderingHints, ID};
 use crate::plugins;
-use crate::plugins::{
-    debug, edit, view, AmbientPlugin, BlockingPlugin, NonblockingPlugin, PluginCtx,
-};
+use crate::plugins::{edit, view, AmbientPlugin, BlockingPlugin, NonblockingPlugin, PluginCtx};
 use crate::render::DrawMap;
 use abstutil::{MeasureMemory, Timer};
 use ezgui::EventCtx;
@@ -60,9 +58,6 @@ pub struct UIState {
     // plugins or ambient plugins.
     pub legend: Option<plugins::view::legend::Legend>,
 
-    // Ambient plugins always exist, and they never block anything.
-    pub layers: debug::layers::ToggleableLayers,
-
     pub enable_debug_controls: bool,
 
     pub cs: ColorScheme,
@@ -80,7 +75,6 @@ impl UIState {
             exclusive_blocking_plugin: None,
             exclusive_nonblocking_plugin: None,
             legend: None,
-            layers: debug::layers::ToggleableLayers::new(),
             enable_debug_controls,
             cs,
         }
@@ -98,7 +92,7 @@ impl UIState {
 
         // The exclusive_nonblocking_plugins don't color_obj.
 
-        // legend and layers don't color_obj.
+        // legend doesn't color_obj.
         for p in &self.primary_plugins.ambient_plugins {
             if let Some(c) = p.color_for(id, ctx) {
                 return Some(c);
@@ -241,9 +235,6 @@ impl UIState {
         for p in self.primary_plugins.ambient_plugins.iter_mut() {
             p.ambient_event(&mut ctx);
         }
-        if self.enable_debug_controls {
-            self.layers.ambient_event(&mut ctx);
-        }
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
@@ -267,7 +258,6 @@ impl UIState {
             p.draw(g, ctx);
         }
 
-        // Layers doesn't draw
         for p in &self.primary_plugins.ambient_plugins {
             p.draw(g, ctx);
         }

@@ -240,7 +240,7 @@ impl AgentSpawner {
             None,
             override_color,
             &ui.state.primary.sim,
-            &ShowEverything {},
+            &ShowEverything::new(),
         );
 
         if let Some((_, Some(ref trace))) = self.maybe_goal {

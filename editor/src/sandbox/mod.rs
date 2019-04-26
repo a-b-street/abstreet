@@ -54,7 +54,7 @@ impl SandboxMode {
                     ctx,
                     None,
                     &state.ui.state.primary.sim,
-                    &ShowEverything {},
+                    &ShowEverything::new(),
                 );
 
                 if let State::Spawning(ref mut spawner) = mode.state {
@@ -306,7 +306,7 @@ impl SandboxMode {
                         None,
                         HashMap::new(),
                         &mode.time_travel,
-                        &ShowEverything {},
+                        &ShowEverything::new(),
                     );
                 }
                 _ => {
@@ -315,7 +315,7 @@ impl SandboxMode {
                         None,
                         HashMap::new(),
                         &state.ui.state.primary.sim,
-                        &ShowEverything {},
+                        &ShowEverything::new(),
                     );
                     mode.route_viewer.draw(g, &state.ui);
                     mode.show_activity.draw(g, &state.ui);

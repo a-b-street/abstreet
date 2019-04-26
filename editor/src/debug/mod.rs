@@ -5,7 +5,7 @@ mod polygons;
 
 use crate::game::{GameState, Mode};
 use crate::objects::ID;
-use crate::ui::ShowObject;
+use crate::ui::{ShowLayers, ShowObject};
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, Wizard};
 use map_model::RoadID;
 use std::collections::{HashMap, HashSet};
@@ -17,6 +17,7 @@ pub struct DebugMode {
     connected_roads: connected_roads::ShowConnectedRoads,
     objects: objects::ObjectDebugger,
     hidden: HashSet<ID>,
+    layers: ShowLayers,
 }
 
 enum State {
@@ -33,6 +34,7 @@ impl DebugMode {
             connected_roads: connected_roads::ShowConnectedRoads::new(),
             objects: objects::ObjectDebugger::new(),
             hidden: HashSet::new(),
+            layers: ShowLayers::new(),
         }
     }
 
@@ -128,6 +130,21 @@ impl DebugMode {
                             mode.state = State::Polygons(debugger);
                         }
 
+                        // TODO recalc current selection...
+                        if ctx.input.modal_action("show/hide buildings") {
+                            mode.layers.show_buildings = !mode.layers.show_buildings;
+                        } else if ctx.input.modal_action("show/hide intersections") {
+                            mode.layers.show_intersections = !mode.layers.show_intersections;
+                        } else if ctx.input.modal_action("show/hide lanes") {
+                            mode.layers.show_lanes = !mode.layers.show_lanes;
+                        } else if ctx.input.modal_action("show/hide areas") {
+                            mode.layers.show_areas = !mode.layers.show_areas;
+                        } else if ctx.input.modal_action("show/hide extra shapes") {
+                            mode.layers.show_extra_shapes = !mode.layers.show_extra_shapes;
+                        } else if ctx.input.modal_action("show/hide geometry debug mode") {
+                            mode.layers.geom_debug_mode = !mode.layers.geom_debug_mode;
+                        }
+
                         EventLoopMode::InputOnly
                     }
                     State::Polygons(ref mut debugger) => {
@@ -212,6 +229,21 @@ impl DebugMode {
 
 impl ShowObject for DebugMode {
     fn show(&self, obj: ID) -> bool {
-        !self.hidden.contains(&obj)
+        if self.hidden.contains(&obj) {
+            return false;
+        }
+
+        match obj {
+            ID::Road(_) | ID::Lane(_) => self.layers.show_lanes,
+            ID::Building(_) => self.layers.show_buildings,
+            ID::Intersection(_) => self.layers.show_intersections,
+            ID::ExtraShape(_) => self.layers.show_extra_shapes,
+            ID::Area(_) => self.layers.show_areas,
+            _ => true,
+        }
+    }
+
+    fn layers(&self) -> &ShowLayers {
+        &self.layers
     }
 }

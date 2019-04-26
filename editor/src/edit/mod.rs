@@ -65,7 +65,7 @@ impl EditMode {
                     ctx,
                     None,
                     &state.ui.state.primary.sim,
-                    &ShowEverything {},
+                    &ShowEverything::new(),
                 );
 
                 if let Some(ID::Lane(id)) = state.ui.state.primary.current_selection {
@@ -138,7 +138,7 @@ impl EditMode {
                     ctx,
                     Some(i),
                     &state.ui.state.primary.sim,
-                    &ShowEverything {},
+                    &ShowEverything::new(),
                 );
 
                 ctx.input.set_mode_with_prompt(
@@ -207,7 +207,7 @@ impl EditMode {
                     None,
                     override_color,
                     &state.ui.state.primary.sim,
-                    &ShowEverything {},
+                    &ShowEverything::new(),
                 );
 
                 // TODO Similar to drawing areas with traffic or not -- would be convenient to just
@@ -257,7 +257,7 @@ impl EditMode {
                     None,
                     override_color,
                     &state.ui.state.primary.sim,
-                    &ShowEverything {},
+                    &ShowEverything::new(),
                 );
 
                 // TODO Still draw the diffs, yo
@@ -293,7 +293,7 @@ impl EditMode {
                     Some(i),
                     override_color,
                     &state.ui.state.primary.sim,
-                    &ShowEverything {},
+                    &ShowEverything::new(),
                 );
             }
             Mode::Edit(EditMode::EditingTrafficSignal(ref editor)) => {
