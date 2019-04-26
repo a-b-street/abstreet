@@ -99,7 +99,6 @@ impl GUI for UI {
             ModalMenu::new("A/B All Trips Explorer", vec![(Key::Enter, "quit")]),
             ModalMenu::new("Search", vec![(Key::Enter, "quit")]),
             ModalMenu::new("Neighborhood Summaries", vec![(Key::Enter, "quit")]),
-            ModalMenu::new("Object Hider", vec![(Key::K, "unhide everything")]),
             // TODO F1?
             ModalMenu::new("Legend", vec![(Key::L, "quit")]),
             // The new exciting things!
@@ -167,6 +166,7 @@ impl GUI for UI {
                     (Key::Escape, "quit"),
                     (Key::C, "show/hide chokepoints"),
                     (Key::O, "clear original roads shown"),
+                    (Key::K, "unhide everything"),
                 ],
             ),
             ModalMenu::new(

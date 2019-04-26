@@ -16,6 +16,7 @@ pub struct DebugMode {
     show_original_roads: HashSet<RoadID>,
     connected_roads: connected_roads::ShowConnectedRoads,
     objects: objects::ObjectDebugger,
+    hidden: HashSet<ID>,
 }
 
 enum State {
@@ -31,6 +32,7 @@ impl DebugMode {
             show_original_roads: HashSet::new(),
             connected_roads: connected_roads::ShowConnectedRoads::new(),
             objects: objects::ObjectDebugger::new(),
+            hidden: HashSet::new(),
         }
     }
 
@@ -61,6 +63,9 @@ impl DebugMode {
                                 mode.show_original_roads.len()
                             ));
                         }
+                        if !mode.hidden.is_empty() {
+                            txt.add_line(format!("Hiding {} things", mode.hidden.len()));
+                        }
                         ctx.input
                             .set_mode_with_new_prompt("Debug Mode", txt, ctx.canvas);
                         if ctx.input.modal_action("quit") {
@@ -82,6 +87,29 @@ impl DebugMode {
                             if ctx.input.modal_action("clear original roads shown") {
                                 mode.show_original_roads.clear();
                             }
+                        }
+                        if !mode.hidden.is_empty() {
+                            if ctx.input.modal_action("unhide everything") {
+                                mode.hidden.clear();
+                                // TODO recalculate current_selection
+                            }
+                        }
+                        match state.ui.state.primary.current_selection {
+                            Some(ID::Lane(_))
+                            | Some(ID::Intersection(_))
+                            | Some(ID::ExtraShape(_)) => {
+                                let id = state.ui.state.primary.current_selection.unwrap();
+                                if ctx
+                                    .input
+                                    .contextual_action(Key::H, &format!("hide {:?}", id))
+                                {
+                                    println!("Hiding {:?}", id);
+                                    //*ctx.recalculate_current_selection = true;
+                                    state.ui.state.primary.current_selection = None;
+                                    mode.hidden.insert(id);
+                                }
+                            }
+                            _ => {}
                         }
 
                         if let Some(ID::Lane(l)) = state.ui.state.primary.current_selection {
@@ -184,6 +212,6 @@ impl DebugMode {
 
 impl ShowObject for DebugMode {
     fn show(&self, obj: ID) -> bool {
-        false
+        !self.hidden.contains(&obj)
     }
 }

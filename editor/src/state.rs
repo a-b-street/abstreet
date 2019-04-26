@@ -98,7 +98,7 @@ impl UIState {
 
         // The exclusive_nonblocking_plugins don't color_obj.
 
-        // legend, hider, and layers don't color_obj.
+        // legend and layers don't color_obj.
         for p in &self.primary_plugins.ambient_plugins {
             if let Some(c) = p.color_for(id, ctx) {
                 return Some(c);
@@ -237,22 +237,6 @@ impl UIState {
             }
         }
 
-        if self.primary_plugins.hider.is_some() {
-            if !self
-                .primary_plugins
-                .hider
-                .as_mut()
-                .unwrap()
-                .nonblocking_event(&mut ctx)
-            {
-                self.primary_plugins.hider = None;
-            }
-        } else if self.enable_debug_controls {
-            if let Some(p) = debug::hider::Hider::new(&mut ctx) {
-                self.primary_plugins.hider = Some(p);
-            }
-        }
-
         // Ambient plugins
         for p in self.primary_plugins.ambient_plugins.iter_mut() {
             p.ambient_event(&mut ctx);
@@ -282,7 +266,6 @@ impl UIState {
         if let Some(ref p) = self.legend {
             p.draw(g, ctx);
         }
-        // Hider doesn't draw
 
         // Layers doesn't draw
         for p in &self.primary_plugins.ambient_plugins {
@@ -329,10 +312,6 @@ impl PerMapUI {
 
 // Anything that holds onto any kind of ID has to live here!
 pub struct PluginsPerMap {
-    // These are stackable modal plugins. They can all coexist, and they don't block other modal
-    // plugins or ambient plugins.
-    hider: Option<debug::hider::Hider>,
-
     // When present, this either acts like exclusive blocking or like stackable modal. :\
     search: Option<view::search::SearchState>,
 
@@ -342,7 +321,6 @@ pub struct PluginsPerMap {
 impl PluginsPerMap {
     pub fn new(state: &PerMapUI, prerender: &Prerender, timer: &mut Timer) -> PluginsPerMap {
         PluginsPerMap {
-            hider: None,
             search: None,
             ambient_plugins: vec![
                 Box::new(view::neighborhood_summary::NeighborhoodSummary::new(
