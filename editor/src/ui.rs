@@ -168,6 +168,8 @@ impl GUI for UI {
                 "Color Picker",
                 vec![(Key::Backspace, "revert"), (Key::Enter, "finalize")],
             ),
+            ModalMenu::new("Mission Edit Mode", vec![(Key::Escape, "quit")]),
+            ModalMenu::new("A/B Test Mode", vec![(Key::Escape, "quit")]),
         ]
     }
 

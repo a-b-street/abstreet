@@ -1,7 +1,9 @@
+mod abtest;
 mod colors;
 mod debug;
 mod edit;
 mod game;
+mod mission;
 mod objects;
 mod plugins;
 mod render;

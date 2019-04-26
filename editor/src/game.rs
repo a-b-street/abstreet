@@ -1,5 +1,7 @@
+use crate::abtest::ABTestMode;
 use crate::debug::DebugMode;
 use crate::edit::EditMode;
+use crate::mission::MissionEditMode;
 use crate::sandbox::SandboxMode;
 use crate::state::{Flags, UIState};
 use crate::tutorial::TutorialMode;
@@ -30,6 +32,8 @@ pub enum Mode {
     Tutorial(TutorialMode),
     Sandbox(SandboxMode),
     Debug(DebugMode),
+    Mission(MissionEditMode),
+    ABTest(ABTestMode),
 }
 
 impl GameState {
@@ -90,6 +94,8 @@ impl GUI for GameState {
             Mode::Tutorial(_) => TutorialMode::event(self, ctx),
             Mode::Sandbox(_) => SandboxMode::event(self, ctx),
             Mode::Debug(_) => DebugMode::event(self, ctx),
+            Mode::Mission(_) => MissionEditMode::event(self, ctx),
+            Mode::ABTest(_) => ABTestMode::event(self, ctx),
         }
     }
 
@@ -104,6 +110,8 @@ impl GUI for GameState {
             Mode::Tutorial(_) => TutorialMode::draw(self, g),
             Mode::Sandbox(_) => SandboxMode::draw(self, g),
             Mode::Debug(_) => DebugMode::draw(self, g),
+            Mode::Mission(_) => MissionEditMode::draw(self, g),
+            Mode::ABTest(_) => ABTestMode::draw(self, g),
         }
     }
 
@@ -177,6 +185,8 @@ fn splash_screen(
     let edit = "Edit map";
     let tutorial = "Tutorial";
     let debug = "Debug mode";
+    let mission = "Mission Edit Mode";
+    let abtest = "A/B Test Mode";
     let legacy = "Legacy mode (ignore this)";
     let about = "About";
     let quit = "Quit";
@@ -187,7 +197,7 @@ fn splash_screen(
             .choose_string(
                 "Welcome to A/B Street!",
                 vec![
-                    sandbox, load_map, edit, tutorial, debug, legacy, about, quit,
+                    sandbox, load_map, edit, tutorial, debug, mission, abtest, legacy, about, quit,
                 ],
             )?
             .as_str()
@@ -222,6 +232,8 @@ fn splash_screen(
                 )))
             }
             x if x == debug => break Some(Mode::Debug(DebugMode::new())),
+            x if x == mission => break Some(Mode::Mission(MissionEditMode::new())),
+            x if x == abtest => break Some(Mode::ABTest(ABTestMode::new())),
             x if x == legacy => break Some(Mode::Legacy),
             x if x == about => {
                 if wizard.acknowledge(LogScroller::new(
