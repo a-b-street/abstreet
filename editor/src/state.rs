@@ -54,10 +54,6 @@ pub struct UIState {
     // These are all mutually exclusive, but don't override other stuff.
     exclusive_nonblocking_plugin: Option<Box<NonblockingPlugin>>,
 
-    // These are stackable modal plugins. They can all coexist, and they don't block other modal
-    // plugins or ambient plugins.
-    pub legend: Option<plugins::view::legend::Legend>,
-
     pub enable_debug_controls: bool,
 
     pub cs: ColorScheme,
@@ -74,7 +70,6 @@ impl UIState {
             secondary: None,
             exclusive_blocking_plugin: None,
             exclusive_nonblocking_plugin: None,
-            legend: None,
             enable_debug_controls,
             cs,
         }
@@ -92,7 +87,6 @@ impl UIState {
 
         // The exclusive_nonblocking_plugins don't color_obj.
 
-        // legend doesn't color_obj.
         for p in &self.primary_plugins.ambient_plugins {
             if let Some(c) = p.color_for(id, ctx) {
                 return Some(c);
@@ -206,13 +200,6 @@ impl UIState {
         }
 
         // Stackable modal plugins
-        if self.legend.is_some() {
-            if !self.legend.as_mut().unwrap().nonblocking_event(&mut ctx) {
-                self.legend = None;
-            }
-        } else if let Some(p) = plugins::view::legend::Legend::new(&mut ctx) {
-            self.legend = Some(p);
-        }
         if self
             .primary_plugins
             .search
@@ -254,10 +241,6 @@ impl UIState {
         }
 
         // Stackable modals
-        if let Some(ref p) = self.legend {
-            p.draw(g, ctx);
-        }
-
         for p in &self.primary_plugins.ambient_plugins {
             p.draw(g, ctx);
         }

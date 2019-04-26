@@ -23,13 +23,7 @@ pub struct UI {
 impl GUI for UI {
     fn top_menu(&self, canvas: &Canvas) -> Option<TopMenu> {
         let mut folders = Vec::new();
-        folders.push(Folder::new(
-            "File",
-            vec![
-                (Some(Key::L), "show legend"),
-                (Some(Key::Escape), "pause game"),
-            ],
-        ));
+        folders.push(Folder::new("File", vec![(Some(Key::Escape), "pause game")]));
         if self.state.enable_debug_controls {
             folders.push(Folder::new(
                 "Debug",
@@ -92,8 +86,6 @@ impl GUI for UI {
             ModalMenu::new("A/B All Trips Explorer", vec![(Key::Enter, "quit")]),
             ModalMenu::new("Search", vec![(Key::Enter, "quit")]),
             ModalMenu::new("Neighborhood Summaries", vec![(Key::Enter, "quit")]),
-            // TODO F1?
-            ModalMenu::new("Legend", vec![(Key::L, "quit")]),
             // The new exciting things!
             ModalMenu::new(
                 "Map Edit Mode",
