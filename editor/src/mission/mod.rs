@@ -1,3 +1,5 @@
+mod neighborhood;
+
 use crate::game::{GameState, Mode};
 use crate::ui::ShowEverything;
 use ezgui::{EventCtx, EventLoopMode, GfxCtx, Wizard};
@@ -9,6 +11,7 @@ pub struct MissionEditMode {
 
 enum State {
     Exploring,
+    Neighborhood(neighborhood::NeighborhoodEditor),
 }
 
 impl MissionEditMode {
@@ -21,19 +24,31 @@ impl MissionEditMode {
     pub fn event(state: &mut GameState, ctx: &mut EventCtx) -> EventLoopMode {
         match state.mode {
             Mode::Mission(ref mut mode) => {
-                ctx.canvas.handle_event(ctx.input);
-                state.ui.state.primary.current_selection = state.ui.handle_mouseover(
-                    ctx,
-                    None,
-                    &state.ui.state.primary.sim,
-                    &ShowEverything::new(),
-                );
+                match mode.state {
+                    State::Exploring => {
+                        ctx.canvas.handle_event(ctx.input);
+                        state.ui.state.primary.current_selection = state.ui.handle_mouseover(
+                            ctx,
+                            None,
+                            &state.ui.state.primary.sim,
+                            &ShowEverything::new(),
+                        );
 
-                ctx.input.set_mode("Mission Edit Mode", ctx.canvas);
-                if ctx.input.modal_action("quit") {
-                    state.mode = Mode::SplashScreen(Wizard::new(), None);
+                        ctx.input.set_mode("Mission Edit Mode", ctx.canvas);
+                        if ctx.input.modal_action("quit") {
+                            state.mode = Mode::SplashScreen(Wizard::new(), None);
+                        } else if ctx.input.modal_action("manage neighborhoods") {
+                            mode.state = State::Neighborhood(
+                                neighborhood::NeighborhoodEditor::PickNeighborhood(Wizard::new()),
+                            );
+                        }
+                    }
+                    State::Neighborhood(ref mut editor) => {
+                        if editor.event(ctx, &state.ui) {
+                            mode.state = State::Exploring;
+                        }
+                    }
                 }
-
                 EventLoopMode::InputOnly
             }
             _ => unreachable!(),
@@ -41,16 +56,19 @@ impl MissionEditMode {
     }
 
     pub fn draw(state: &GameState, g: &mut GfxCtx) {
+        state.ui.new_draw(
+            g,
+            None,
+            HashMap::new(),
+            &state.ui.state.primary.sim,
+            &ShowEverything::new(),
+        );
+
         match state.mode {
             Mode::Mission(ref mode) => match mode.state {
-                State::Exploring => {
-                    state.ui.new_draw(
-                        g,
-                        None,
-                        HashMap::new(),
-                        &state.ui.state.primary.sim,
-                        &ShowEverything::new(),
-                    );
+                State::Exploring => {}
+                State::Neighborhood(ref editor) => {
+                    editor.draw(g, &state.ui);
                 }
             },
             _ => unreachable!(),

@@ -1,12 +1,12 @@
-use crate::objects::DrawCtx;
-use crate::plugins::{load_neighborhood_builder, BlockingPlugin, PluginCtx};
-use ezgui::{Color, GfxCtx, Key, Wizard, WrappedWizard};
+use crate::plugins::load_neighborhood_builder;
+use crate::ui::UI;
+use ezgui::{Color, EventCtx, GfxCtx, Key, Wizard, WrappedWizard};
 use geom::{Circle, Distance, Line, Polygon, Pt2D};
 use map_model::{Map, NeighborhoodBuilder};
 
 const POINT_RADIUS: Distance = Distance::const_meters(10.0);
 
-pub enum DrawNeighborhoodState {
+pub enum NeighborhoodEditor {
     PickNeighborhood(Wizard),
     // Option<usize> is the point currently being hovered over
     EditNeighborhood(NeighborhoodBuilder, Option<usize>),
@@ -14,39 +14,34 @@ pub enum DrawNeighborhoodState {
     MovingPoint(NeighborhoodBuilder, usize),
 }
 
-impl DrawNeighborhoodState {
-    pub fn new(ctx: &mut PluginCtx) -> Option<DrawNeighborhoodState> {
-        if ctx.input.action_chosen("manage neighborhoods") {
-            return Some(DrawNeighborhoodState::PickNeighborhood(Wizard::new()));
-        }
-        None
-    }
-}
+impl NeighborhoodEditor {
+    // True if done
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI) -> bool {
+        ctx.canvas.handle_event(ctx.input);
 
-impl BlockingPlugin for DrawNeighborhoodState {
-    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
-        let gps_bounds = ctx.primary.map.get_gps_bounds();
+        let gps_bounds = ui.state.primary.map.get_gps_bounds();
         match self {
-            DrawNeighborhoodState::PickNeighborhood(ref mut wizard) => {
-                if let Some(n) =
-                    pick_neighborhood(&ctx.primary.map, wizard.wrap(&mut ctx.input, ctx.canvas))
-                {
-                    *self = DrawNeighborhoodState::EditNeighborhood(n, None);
+            NeighborhoodEditor::PickNeighborhood(ref mut wizard) => {
+                if let Some(n) = pick_neighborhood(
+                    &ui.state.primary.map,
+                    wizard.wrap(&mut ctx.input, ctx.canvas),
+                ) {
+                    *self = NeighborhoodEditor::EditNeighborhood(n, None);
                 } else if wizard.aborted() {
-                    return false;
+                    return true;
                 }
             }
-            DrawNeighborhoodState::EditNeighborhood(ref mut n, ref mut current_idx) => {
+            NeighborhoodEditor::EditNeighborhood(ref mut n, ref mut current_idx) => {
                 ctx.input.set_mode_with_prompt(
                     "Neighborhood Editor",
                     format!("Neighborhood Editor for {}", n.name),
                     &ctx.canvas,
                 );
                 if ctx.input.modal_action("quit") {
-                    return false;
+                    return true;
                 } else if n.points.len() >= 3 && ctx.input.modal_action("save") {
                     n.save();
-                    return false;
+                    return true;
                 } else if n.points.len() >= 3
                     && ctx
                         .input
@@ -81,11 +76,11 @@ impl BlockingPlugin for DrawNeighborhoodState {
                         .input
                         .key_pressed(Key::LeftControl, "hold to move this point")
                     {
-                        *self = DrawNeighborhoodState::MovingPoint(n.clone(), *idx);
+                        *self = NeighborhoodEditor::MovingPoint(n.clone(), *idx);
                     }
                 }
             }
-            DrawNeighborhoodState::MovingPoint(ref mut n, idx) => {
+            NeighborhoodEditor::MovingPoint(ref mut n, idx) => {
                 ctx.input.set_mode_with_prompt(
                     "Neighborhood Editor",
                     format!("Neighborhood Editor for {}", n.name),
@@ -100,16 +95,16 @@ impl BlockingPlugin for DrawNeighborhoodState {
                     n.points[*idx] = pt;
                 }
                 if ctx.input.key_released(Key::LeftControl) {
-                    *self = DrawNeighborhoodState::EditNeighborhood(n.clone(), Some(*idx));
+                    *self = NeighborhoodEditor::EditNeighborhood(n.clone(), Some(*idx));
                 }
             }
         }
-        true
+        false
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
+    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         let (raw_pts, current_idx) = match self {
-            DrawNeighborhoodState::PickNeighborhood(wizard) => {
+            NeighborhoodEditor::PickNeighborhood(wizard) => {
                 // TODO is this order wrong?
                 wizard.draw(g);
                 if let Some(neighborhood) = wizard.current_menu_choice::<NeighborhoodBuilder>() {
@@ -118,34 +113,38 @@ impl BlockingPlugin for DrawNeighborhoodState {
                     return;
                 }
             }
-            DrawNeighborhoodState::EditNeighborhood(n, current_idx) => (&n.points, *current_idx),
-            DrawNeighborhoodState::MovingPoint(n, current_idx) => (&n.points, Some(*current_idx)),
+            NeighborhoodEditor::EditNeighborhood(n, current_idx) => (&n.points, *current_idx),
+            NeighborhoodEditor::MovingPoint(n, current_idx) => (&n.points, Some(*current_idx)),
         };
-        let gps_bounds = ctx.map.get_gps_bounds();
+        let gps_bounds = ui.state.primary.map.get_gps_bounds();
         let pts: Vec<Pt2D> = gps_bounds.must_convert(&raw_pts);
 
         if pts.len() == 2 {
             g.draw_line(
-                ctx.cs.get_def("neighborhood point", Color::RED),
+                ui.state.cs.get_def("neighborhood point", Color::RED),
                 POINT_RADIUS / 2.0,
                 &Line::new(pts[0], pts[1]),
             );
         }
         if pts.len() >= 3 {
             g.draw_polygon(
-                ctx.cs
+                ui.state
+                    .cs
                     .get_def("neighborhood polygon", Color::BLUE.alpha(0.6)),
                 &Polygon::new(&pts),
             );
         }
         for (idx, pt) in pts.iter().enumerate() {
             let color = if Some(idx) == current_idx {
-                ctx.cs.get_def("neighborhood point to move", Color::CYAN)
+                ui.state
+                    .cs
+                    .get_def("neighborhood point to move", Color::CYAN)
             } else if idx == pts.len() - 1 {
-                ctx.cs
+                ui.state
+                    .cs
                     .get_def("neighborhood last placed point", Color::GREEN)
             } else {
-                ctx.cs.get("neighborhood point")
+                ui.state.cs.get("neighborhood point")
             };
             g.draw_circle(color, &Circle::new(*pt, POINT_RADIUS / g.canvas.cam_zoom));
         }

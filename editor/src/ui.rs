@@ -35,7 +35,6 @@ impl GUI for UI {
                 "Edit",
                 vec![
                     (Some(Key::B), "manage A/B tests"),
-                    (Some(Key::N), "manage neighborhoods"),
                     (Some(Key::W), "manage scenarios"),
                 ],
             ),
@@ -64,15 +63,6 @@ impl GUI for UI {
                 ],
             ),
             ModalMenu::new("A/B Test Editor", vec![(Key::R, "run A/B test")]),
-            ModalMenu::new(
-                "Neighborhood Editor",
-                vec![
-                    (Key::Enter, "save"),
-                    (Key::Q, "quit"),
-                    (Key::X, "export as an Osmosis polygon filter"),
-                    (Key::P, "add a new point"),
-                ],
-            ),
             ModalMenu::new("A/B Trip Explorer", vec![(Key::Enter, "quit")]),
             ModalMenu::new("A/B All Trips Explorer", vec![(Key::Enter, "quit")]),
             ModalMenu::new("Neighborhood Summaries", vec![(Key::Enter, "quit")]),
@@ -168,8 +158,20 @@ impl GUI for UI {
                 "Color Picker",
                 vec![(Key::Backspace, "revert"), (Key::Enter, "finalize")],
             ),
-            ModalMenu::new("Mission Edit Mode", vec![(Key::Escape, "quit")]),
+            ModalMenu::new(
+                "Mission Edit Mode",
+                vec![(Key::Escape, "quit"), (Key::N, "manage neighborhoods")],
+            ),
             ModalMenu::new("A/B Test Mode", vec![(Key::Escape, "quit")]),
+            ModalMenu::new(
+                "Neighborhood Editor",
+                vec![
+                    (Key::Enter, "save"),
+                    (Key::Q, "quit"),
+                    (Key::X, "export as an Osmosis polygon filter"),
+                    (Key::P, "add a new point"),
+                ],
+            ),
         ]
     }
 
