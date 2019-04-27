@@ -31,13 +31,7 @@ impl GUI for UI {
             ));
         }
         folders.extend(vec![
-            Folder::new(
-                "Edit",
-                vec![
-                    (Some(Key::B), "manage A/B tests"),
-                    (Some(Key::W), "manage scenarios"),
-                ],
-            ),
+            Folder::new("Edit", vec![(Some(Key::B), "manage A/B tests")]),
             Folder::new("Simulation", vec![(Some(Key::D), "diff all A/B trips")]),
             Folder::new(
                 "View",
@@ -52,16 +46,6 @@ impl GUI for UI {
 
     fn modal_menus(&self) -> Vec<ModalMenu> {
         vec![
-            ModalMenu::new(
-                "Scenario Editor",
-                vec![
-                    (Key::S, "save"),
-                    (Key::E, "edit"),
-                    (Key::I, "instantiate"),
-                    (Key::V, "visualize"),
-                    (Key::Enter, "quit"),
-                ],
-            ),
             ModalMenu::new("A/B Test Editor", vec![(Key::R, "run A/B test")]),
             ModalMenu::new("A/B Trip Explorer", vec![(Key::Enter, "quit")]),
             ModalMenu::new("A/B All Trips Explorer", vec![(Key::Enter, "quit")]),
@@ -160,7 +144,11 @@ impl GUI for UI {
             ),
             ModalMenu::new(
                 "Mission Edit Mode",
-                vec![(Key::Escape, "quit"), (Key::N, "manage neighborhoods")],
+                vec![
+                    (Key::Escape, "quit"),
+                    (Key::N, "manage neighborhoods"),
+                    (Key::W, "manage scenarios"),
+                ],
             ),
             ModalMenu::new("A/B Test Mode", vec![(Key::Escape, "quit")]),
             ModalMenu::new(
@@ -170,6 +158,16 @@ impl GUI for UI {
                     (Key::Q, "quit"),
                     (Key::X, "export as an Osmosis polygon filter"),
                     (Key::P, "add a new point"),
+                ],
+            ),
+            ModalMenu::new(
+                "Scenario Editor",
+                vec![
+                    (Key::S, "save"),
+                    (Key::E, "edit"),
+                    (Key::I, "instantiate"),
+                    (Key::V, "visualize"),
+                    (Key::Enter, "quit"),
                 ],
             ),
         ]

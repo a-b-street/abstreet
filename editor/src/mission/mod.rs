@@ -1,4 +1,5 @@
 mod neighborhood;
+mod scenario;
 
 use crate::game::{GameState, Mode};
 use crate::ui::ShowEverything;
@@ -12,6 +13,7 @@ pub struct MissionEditMode {
 enum State {
     Exploring,
     Neighborhood(neighborhood::NeighborhoodEditor),
+    Scenario(scenario::ScenarioEditor),
 }
 
 impl MissionEditMode {
@@ -42,11 +44,20 @@ impl MissionEditMode {
                             mode.state = State::Neighborhood(
                                 neighborhood::NeighborhoodEditor::PickNeighborhood(Wizard::new()),
                             );
+                        } else if ctx.input.modal_action("manage scenarios") {
+                            mode.state = State::Scenario(scenario::ScenarioEditor::PickScenario(
+                                Wizard::new(),
+                            ));
                         }
                     }
                     State::Neighborhood(ref mut editor) => {
                         if editor.event(ctx, &state.ui) {
                             mode.state = State::Exploring;
+                        }
+                    }
+                    State::Scenario(ref mut editor) => {
+                        if let Some(new_mode) = editor.event(ctx, &mut state.ui) {
+                            state.mode = new_mode;
                         }
                     }
                 }
@@ -69,6 +80,9 @@ impl MissionEditMode {
             Mode::Mission(ref mode) => match mode.state {
                 State::Exploring => {}
                 State::Neighborhood(ref editor) => {
+                    editor.draw(g, &state.ui);
+                }
+                State::Scenario(ref editor) => {
                     editor.draw(g, &state.ui);
                 }
             },

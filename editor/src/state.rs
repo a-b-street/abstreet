@@ -123,8 +123,6 @@ impl UIState {
             } else if ctx.secondary.is_none() {
                 if let Some(p) = edit::a_b_tests::ABTestManager::new(&mut ctx) {
                     self.exclusive_blocking_plugin = Some(Box::new(p));
-                } else if let Some(p) = edit::scenarios::ScenarioManager::new(&mut ctx) {
-                    self.exclusive_blocking_plugin = Some(Box::new(p));
                 }
             }
         }

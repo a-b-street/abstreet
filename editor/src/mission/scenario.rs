@@ -1,46 +1,42 @@
-use crate::objects::DrawCtx;
+use crate::game::Mode;
+use crate::mission::MissionEditMode;
 use crate::plugins::{
     choose_intersection, choose_neighborhood, choose_origin_destination, input_time,
-    input_weighted_usize, load_scenario, BlockingPlugin, PluginCtx,
+    input_weighted_usize, load_scenario,
 };
+use crate::sandbox::SandboxMode;
+use crate::ui::UI;
 use abstutil::Timer;
-use ezgui::{Color, Drawable, GfxCtx, LogScroller, Wizard, WrappedWizard};
+use ezgui::{Color, Drawable, EventCtx, GfxCtx, LogScroller, Wizard, WrappedWizard};
 use geom::{Distance, Duration, Line, Pt2D};
 use map_model::{Map, Neighborhood};
 use sim::{BorderSpawnOverTime, OriginDestination, Scenario, SeedParkedCars, SpawnOverTime};
 use std::collections::BTreeMap;
 
-pub enum ScenarioManager {
+pub enum ScenarioEditor {
     PickScenario(Wizard),
     ManageScenario(Scenario, LogScroller),
     EditScenario(Scenario, Wizard),
     VisualizeScenario(Scenario, Drawable, BTreeMap<String, Region>),
 }
 
-impl ScenarioManager {
-    pub fn new(ctx: &mut PluginCtx) -> Option<ScenarioManager> {
-        if ctx.input.action_chosen("manage scenarios") {
-            return Some(ScenarioManager::PickScenario(Wizard::new()));
-        }
-        None
-    }
-}
-
-impl BlockingPlugin for ScenarioManager {
-    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
+impl ScenarioEditor {
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Mode> {
         match self {
-            ScenarioManager::PickScenario(ref mut wizard) => {
-                if let Some(scenario) =
-                    pick_scenario(&ctx.primary.map, wizard.wrap(&mut ctx.input, ctx.canvas))
-                {
+            ScenarioEditor::PickScenario(ref mut wizard) => {
+                if let Some(scenario) = pick_scenario(
+                    &ui.state.primary.map,
+                    wizard.wrap(&mut ctx.input, ctx.canvas),
+                ) {
                     let scroller =
                         LogScroller::new(scenario.scenario_name.clone(), scenario.describe());
-                    *self = ScenarioManager::ManageScenario(scenario, scroller);
+                    *self = ScenarioEditor::ManageScenario(scenario, scroller);
                 } else if wizard.aborted() {
-                    return false;
+                    return Some(Mode::Mission(MissionEditMode::new()));
                 }
             }
-            ScenarioManager::ManageScenario(scenario, ref mut scroller) => {
+            ScenarioEditor::ManageScenario(scenario, ref mut scroller) => {
+                ctx.canvas.handle_event(ctx.input);
                 ctx.input.set_mode_with_prompt(
                     "Scenario Editor",
                     format!("Scenario Editor for {}", scenario.scenario_name),
@@ -49,19 +45,19 @@ impl BlockingPlugin for ScenarioManager {
                 if ctx.input.modal_action("save") {
                     scenario.save();
                 } else if ctx.input.modal_action("edit") {
-                    *self = ScenarioManager::EditScenario(scenario.clone(), Wizard::new());
+                    *self = ScenarioEditor::EditScenario(scenario.clone(), Wizard::new());
                 } else if ctx.input.modal_action("instantiate") {
                     scenario.instantiate(
-                        &mut ctx.primary.sim,
-                        &ctx.primary.map,
-                        &mut ctx.primary.current_flags.sim_flags.make_rng(),
+                        &mut ui.state.primary.sim,
+                        &ui.state.primary.map,
+                        &mut ui.state.primary.current_flags.sim_flags.make_rng(),
                         &mut Timer::new("instantiate scenario"),
                     );
-                    return false;
+                    return Some(Mode::Sandbox(SandboxMode::new()));
                 } else if ctx.input.modal_action("visualize") {
                     let neighborhoods = Neighborhood::load_all(
-                        ctx.primary.map.get_name(),
-                        &ctx.primary.map.get_gps_bounds(),
+                        ui.state.primary.map.get_name(),
+                        &ui.state.primary.map.get_gps_bounds(),
                     );
                     let draw_all = ctx.prerender.upload_borrowed(
                         neighborhoods
@@ -84,56 +80,60 @@ impl BlockingPlugin for ScenarioManager {
                             )
                         })
                         .collect();
-                    *self = ScenarioManager::VisualizeScenario(scenario.clone(), draw_all, mapping);
+                    *self = ScenarioEditor::VisualizeScenario(scenario.clone(), draw_all, mapping);
                 } else if scroller.event(&mut ctx.input) {
-                    return false;
+                    return Some(Mode::Mission(MissionEditMode::new()));
                 }
             }
-            ScenarioManager::EditScenario(ref mut scenario, ref mut wizard) => {
+            ScenarioEditor::EditScenario(ref mut scenario, ref mut wizard) => {
                 if let Some(()) = edit_scenario(
-                    &ctx.primary.map,
+                    &ui.state.primary.map,
                     scenario,
                     wizard.wrap(&mut ctx.input, ctx.canvas),
                 ) {
                     let scroller =
                         LogScroller::new(scenario.scenario_name.clone(), scenario.describe());
                     // TODO autosave, or at least make it clear there are unsaved edits
-                    *self = ScenarioManager::ManageScenario(scenario.clone(), scroller);
+                    *self = ScenarioEditor::ManageScenario(scenario.clone(), scroller);
                 } else if wizard.aborted() {
                     let scroller =
                         LogScroller::new(scenario.scenario_name.clone(), scenario.describe());
-                    *self = ScenarioManager::ManageScenario(scenario.clone(), scroller);
+                    *self = ScenarioEditor::ManageScenario(scenario.clone(), scroller);
                 }
             }
-            ScenarioManager::VisualizeScenario(ref scenario, _, _) => {
+            ScenarioEditor::VisualizeScenario(ref scenario, _, _) => {
+                ctx.canvas.handle_event(ctx.input);
                 ctx.input.set_mode_with_prompt(
                     "Scenario Editor",
                     format!("Scenario Editor for {}", scenario.scenario_name),
                     &ctx.canvas,
                 );
                 if ctx.input.modal_action("quit") {
-                    return false;
+                    return Some(Mode::Mission(MissionEditMode::new()));
                 }
             }
         }
-        true
+        None
     }
 
-    fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
+    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         match self {
-            ScenarioManager::PickScenario(wizard) => {
+            ScenarioEditor::PickScenario(wizard) => {
                 wizard.draw(g);
             }
-            ScenarioManager::ManageScenario(_, scroller) => {
+            ScenarioEditor::ManageScenario(_, scroller) => {
                 scroller.draw(g);
             }
-            ScenarioManager::EditScenario(_, wizard) => {
+            ScenarioEditor::EditScenario(_, wizard) => {
                 if let Some(neighborhood) = wizard.current_menu_choice::<Neighborhood>() {
-                    g.draw_polygon(ctx.cs.get("neighborhood polygon"), &neighborhood.polygon);
+                    g.draw_polygon(
+                        ui.state.cs.get("neighborhood polygon"),
+                        &neighborhood.polygon,
+                    );
                 }
                 wizard.draw(g);
             }
-            ScenarioManager::VisualizeScenario(ref scenario, ref draw_all, ref mapping) => {
+            ScenarioEditor::VisualizeScenario(ref scenario, ref draw_all, ref mapping) => {
                 g.redraw(draw_all);
 
                 // Aggregate by (src, dst) pair, breakdown over time and mode, etc.
@@ -144,7 +144,7 @@ impl BlockingPlugin for ScenarioManager {
                         .offset(-50.0, 0.0);
                     let dst = match s.goal {
                         OriginDestination::Neighborhood(ref n) => mapping[n].center,
-                        OriginDestination::Border(i) => ctx.map.get_i(i).point,
+                        OriginDestination::Border(i) => ui.state.primary.map.get_i(i).point,
                     }
                     .offset(50.0, 0.0);
                     // TODO Draw a self-loop or something
