@@ -319,17 +319,18 @@ fn choose_preset(
 ) -> Option<ControlTrafficSignal> {
     // TODO I wanted to do all of this work just once per wizard, but we can't touch map inside a
     // closure. Grr.
-    let mut choices: Vec<(String, ControlTrafficSignal)> = Vec::new();
+    let mut choices: Vec<(Option<Key>, String, ControlTrafficSignal)> = Vec::new();
     if let Some(ts) = ControlTrafficSignal::four_way_four_phase(map, id) {
-        choices.push(("four-phase".to_string(), ts));
+        choices.push((None, "four-phase".to_string(), ts));
     }
     if let Some(ts) = ControlTrafficSignal::four_way_two_phase(map, id) {
-        choices.push(("two-phase".to_string(), ts));
+        choices.push((None, "two-phase".to_string(), ts));
     }
     if let Some(ts) = ControlTrafficSignal::three_way(map, id) {
-        choices.push(("three-phase".to_string(), ts));
+        choices.push((None, "three-phase".to_string(), ts));
     }
     choices.push((
+        None,
         "arbitrary assignment".to_string(),
         ControlTrafficSignal::greedy_assignment(map, id).unwrap(),
     ));

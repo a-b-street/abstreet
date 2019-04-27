@@ -77,7 +77,7 @@ pub fn choose_neighborhood(map: &Map, wizard: &mut WrappedWizard, query: &str) -
     let gps_bounds = map.get_gps_bounds().clone();
     // Load the full object, since various plugins visualize the neighborhood when menuing over it
     wizard
-        .choose_something::<Neighborhood>(
+        .choose_something_no_keys::<Neighborhood>(
             query,
             Box::new(move || Neighborhood::load_all(&map_name, &gps_bounds)),
         )
@@ -91,7 +91,7 @@ pub fn load_neighborhood_builder(
 ) -> Option<NeighborhoodBuilder> {
     let map_name = map.get_name().to_string();
     wizard
-        .choose_something::<NeighborhoodBuilder>(
+        .choose_something_no_keys::<NeighborhoodBuilder>(
             query,
             Box::new(move || abstutil::load_all_objects("neighborhoods", &map_name)),
         )
@@ -101,7 +101,7 @@ pub fn load_neighborhood_builder(
 pub fn load_scenario(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<Scenario> {
     let map_name = map.get_name().to_string();
     wizard
-        .choose_something::<Scenario>(
+        .choose_something_no_keys::<Scenario>(
             query,
             Box::new(move || abstutil::load_all_objects("scenarios", &map_name)),
         )
@@ -111,7 +111,7 @@ pub fn load_scenario(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Opti
 pub fn choose_scenario(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
     let map_name = map.get_name().to_string();
     wizard
-        .choose_something::<String>(
+        .choose_something_no_keys::<String>(
             query,
             Box::new(move || abstutil::list_all_objects("scenarios", &map_name)),
         )
@@ -121,7 +121,7 @@ pub fn choose_scenario(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Op
 pub fn choose_edits(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
     let map_name = map.get_name().to_string();
     wizard
-        .choose_something::<String>(
+        .choose_something_no_keys::<String>(
             query,
             Box::new(move || {
                 let mut list = abstutil::list_all_objects("edits", &map_name);
@@ -136,7 +136,7 @@ pub fn load_edits(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<
     // TODO Exclude current?
     let map_name = map.get_name().to_string();
     wizard
-        .choose_something::<MapEdits>(
+        .choose_something_no_keys::<MapEdits>(
             query,
             Box::new(move || {
                 let mut list = abstutil::load_all_objects("edits", &map_name);
@@ -150,7 +150,7 @@ pub fn load_edits(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<
 pub fn load_ab_test(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<ABTest> {
     let map_name = map.get_name().to_string();
     wizard
-        .choose_something::<ABTest>(
+        .choose_something_no_keys::<ABTest>(
             query,
             Box::new(move || abstutil::load_all_objects("ab_tests", &map_name)),
         )

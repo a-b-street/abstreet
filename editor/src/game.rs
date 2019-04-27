@@ -8,8 +8,8 @@ use crate::tutorial::TutorialMode;
 use crate::ui::UI;
 use abstutil::elapsed_seconds;
 use ezgui::{
-    Canvas, EventCtx, EventLoopMode, GfxCtx, LogScroller, ModalMenu, Prerender, TopMenu, UserInput,
-    Wizard, GUI,
+    Canvas, EventCtx, EventLoopMode, GfxCtx, Key, LogScroller, ModalMenu, Prerender, TopMenu,
+    UserInput, Wizard, GUI,
 };
 use geom::{Duration, Line, Pt2D, Speed};
 use map_model::Map;
@@ -193,11 +193,21 @@ fn splash_screen(
 
     // Loop because we might go from About -> top-level menu repeatedly, and recursion is scary.
     loop {
+        // TODO No hotkey for quit because it's just the normal menu escape?
         match wizard
-            .choose_string(
+            .choose_string_hotkeys(
                 "Welcome to A/B Street!",
                 vec![
-                    sandbox, load_map, edit, tutorial, debug, mission, abtest, legacy, about, quit,
+                    (Some(Key::S), sandbox),
+                    (Some(Key::L), load_map),
+                    (Some(Key::E), edit),
+                    (Some(Key::T), tutorial),
+                    (Some(Key::D), debug),
+                    (Some(Key::M), mission),
+                    (Some(Key::A), abtest),
+                    (None, legacy),
+                    (Some(Key::A), about),
+                    (None, quit),
                 ],
             )?
             .as_str()
@@ -205,7 +215,7 @@ fn splash_screen(
             x if x == sandbox => break Some(Mode::Sandbox(SandboxMode::new())),
             x if x == load_map => {
                 let current_map = ui.state.primary.map.get_name().to_string();
-                if let Some((name, _)) = wizard.choose_something::<String>(
+                if let Some((name, _)) = wizard.choose_something_no_keys::<String>(
                     "Load which map?",
                     Box::new(move || {
                         abstutil::list_all_objects("maps", "")

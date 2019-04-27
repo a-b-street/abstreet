@@ -175,7 +175,7 @@ impl<'a> WrappedWizard<'a> {
     pub fn choose_something<R: 'static + Clone + Cloneable>(
         &mut self,
         query: &str,
-        choices_generator: Box<Fn() -> Vec<(String, R)>>,
+        choices_generator: Box<Fn() -> Vec<(Option<Key>, String, R)>>,
     ) -> Option<(String, R)> {
         if !self.ready_results.is_empty() {
             let first = self.ready_results.pop_front().unwrap();
@@ -199,7 +199,7 @@ impl<'a> WrappedWizard<'a> {
         }
 
         if self.wizard.menu.is_none() {
-            let choices: Vec<(String, R)> = choices_generator();
+            let choices: Vec<(Option<Key>, String, R)> = choices_generator();
             if choices.is_empty() {
                 self.wizard.log_scroller = Some(LogScroller::new(
                     "Wizard".to_string(),
@@ -208,8 +208,8 @@ impl<'a> WrappedWizard<'a> {
                 return None;
             }
             let boxed_choices: Vec<(Option<Key>, String, Box<Cloneable>)> = choices
-                .iter()
-                .map(|(s, item)| (None, s.to_string(), item.clone_box()))
+                .into_iter()
+                .map(|(key, s, item)| (key, s, item.clone_box()))
                 .collect();
             self.wizard.menu = Some(Menu::new(
                 Some(Text::from_styled_line(
@@ -251,11 +251,42 @@ impl<'a> WrappedWizard<'a> {
         }
     }
 
+    pub fn choose_something_no_keys<R: 'static + Clone + Cloneable>(
+        &mut self,
+        query: &str,
+        choices_generator: Box<Fn() -> Vec<(String, R)>>,
+    ) -> Option<(String, R)> {
+        let wrapped_generator = Box::new(move || {
+            choices_generator()
+                .into_iter()
+                .map(|(name, data)| (None, name, data))
+                .collect()
+        });
+        self.choose_something(query, wrapped_generator)
+    }
+
     pub fn choose_string(&mut self, query: &str, choices: Vec<&str>) -> Option<String> {
         // Clone the choices outside of the closure to get around the fact that choices_generator's
         // lifetime isn't correctly specified.
-        let copied_choices: Vec<(String, ())> =
-            choices.into_iter().map(|s| (s.to_string(), ())).collect();
+        let copied_choices: Vec<(Option<Key>, String, ())> = choices
+            .into_iter()
+            .map(|s| (None, s.to_string(), ()))
+            .collect();
+        self.choose_something(query, Box::new(move || copied_choices.clone()))
+            .map(|(s, _)| s)
+    }
+
+    pub fn choose_string_hotkeys(
+        &mut self,
+        query: &str,
+        choices: Vec<(Option<Key>, &str)>,
+    ) -> Option<String> {
+        // Clone the choices outside of the closure to get around the fact that choices_generator's
+        // lifetime isn't correctly specified.
+        let copied_choices: Vec<(Option<Key>, String, ())> = choices
+            .into_iter()
+            .map(|(key, s)| (key, s.to_string(), ()))
+            .collect();
         self.choose_something(query, Box::new(move || copied_choices.clone()))
             .map(|(s, _)| s)
     }
