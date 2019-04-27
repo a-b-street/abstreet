@@ -216,6 +216,11 @@ impl EditMode {
                 // supply a set of things to highlight and have something else take care of drawing
                 // with detail or not.
                 let zoomed = g.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL;
+                let color = if zoomed {
+                    ctx.cs.get_def("zoomed map diffs", Color::RED.alpha(0.5))
+                } else {
+                    ctx.cs.get_def("unzoomed map diffs", Color::RED)
+                };
 
                 // More generally we might want to show the diff between two edits, but for now,
                 // just show diff relative to basemap.
@@ -225,16 +230,13 @@ impl EditMode {
                         ctx.draw_map.get_l(*l).draw(
                             g,
                             RenderOptions {
-                                color: Some(ctx.cs.get_def("map diffs", Color::RED)),
+                                color: Some(color),
                                 debug_mode: false,
                             },
                             &ctx,
                         );
                     } else {
-                        g.draw_polygon(
-                            ctx.cs.get("map diffs"),
-                            &ctx.map.get_parent(*l).get_thick_polygon().unwrap(),
-                        );
+                        g.draw_polygon(color, &ctx.map.get_parent(*l).get_thick_polygon().unwrap());
                     }
                 }
                 for i in edits
@@ -245,7 +247,7 @@ impl EditMode {
                     ctx.draw_map.get_i(*i).draw(
                         g,
                         RenderOptions {
-                            color: Some(ctx.cs.get("map diffs")),
+                            color: Some(color),
                             debug_mode: false,
                         },
                         &ctx,
