@@ -3,7 +3,7 @@ use crate::objects::{DrawCtx, RenderingHints, ID};
 use crate::plugins;
 use crate::plugins::{edit, view, AmbientPlugin, BlockingPlugin, NonblockingPlugin, PluginCtx};
 use crate::render::DrawMap;
-use abstutil::{MeasureMemory, Timer};
+use abstutil::MeasureMemory;
 use ezgui::EventCtx;
 use ezgui::{Color, GfxCtx, Prerender};
 use geom::Duration;
@@ -203,7 +203,14 @@ impl PerMapUI {
             current_selection: None,
             current_flags: flags.clone(),
         };
-        let plugins = PluginsPerMap::new(&state, prerender, &mut timer);
+        let plugins = PluginsPerMap {
+            ambient_plugins: vec![
+                // TODO Could be a little simpler to instantiate this lazily, stop representing
+                // inactive state.
+                Box::new(view::show_associated::ShowAssociatedState::new()),
+                Box::new(view::turn_cycler::TurnCyclerState::new()),
+            ],
+        };
         (state, plugins)
     }
 }
@@ -211,23 +218,4 @@ impl PerMapUI {
 // Anything that holds onto any kind of ID has to live here!
 pub struct PluginsPerMap {
     ambient_plugins: Vec<Box<AmbientPlugin>>,
-}
-
-impl PluginsPerMap {
-    pub fn new(state: &PerMapUI, prerender: &Prerender, timer: &mut Timer) -> PluginsPerMap {
-        PluginsPerMap {
-            ambient_plugins: vec![
-                Box::new(view::neighborhood_summary::NeighborhoodSummary::new(
-                    &state.map,
-                    &state.draw_map,
-                    prerender,
-                    timer,
-                )),
-                // TODO Could be a little simpler to instantiate this lazily, stop representing
-                // inactive state.
-                Box::new(view::show_associated::ShowAssociatedState::new()),
-                Box::new(view::turn_cycler::TurnCyclerState::new()),
-            ],
-        }
-    }
 }

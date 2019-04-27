@@ -241,7 +241,7 @@ fn splash_screen(
                     ctx.canvas.center_to_map_pt(),
                 )))
             }
-            x if x == debug => break Some(Mode::Debug(DebugMode::new())),
+            x if x == debug => break Some(Mode::Debug(DebugMode::new(ctx, ui))),
             x if x == mission => break Some(Mode::Mission(MissionEditMode::new())),
             x if x == abtest => break Some(Mode::ABTest(ABTestMode::new())),
             x if x == legacy => break Some(Mode::Legacy),

@@ -1,8 +1,7 @@
-use crate::objects::DrawCtx;
-use crate::plugins::{AmbientPlugin, PluginCtx};
 use crate::render::DrawMap;
+use crate::ui::UI;
 use abstutil;
-use ezgui::{Color, Drawable, GfxCtx, Prerender, Text};
+use ezgui::{Color, Drawable, EventCtx, GfxCtx, Prerender, Text};
 use geom::{Duration, Polygon, Pt2D};
 use map_model::{LaneID, Map, Neighborhood};
 use sim::Sim;
@@ -11,7 +10,7 @@ use std::collections::HashSet;
 pub struct NeighborhoodSummary {
     regions: Vec<Region>,
     draw_all_regions: Drawable,
-    active: bool,
+    pub active: bool,
     last_summary: Option<Duration>,
 }
 
@@ -46,32 +45,21 @@ impl NeighborhoodSummary {
             last_summary: None,
         }
     }
-}
 
-impl AmbientPlugin for NeighborhoodSummary {
-    fn ambient_event(&mut self, ctx: &mut PluginCtx) {
-        if self.active {
-            ctx.input.set_mode("Neighborhood Summaries", &ctx.canvas);
-            if ctx.input.modal_action("quit") {
-                self.active = false;
-            }
-        } else {
-            self.active = ctx.primary.current_selection.is_none()
-                && ctx.input.action_chosen("show neighborhood summaries");
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI) {
+        if ctx.input.modal_action("show/hide neighborhood summaries") {
+            self.active = !self.active;
         }
 
-        if self.active && Some(ctx.primary.sim.time()) != self.last_summary {
-            self.last_summary = Some(ctx.primary.sim.time());
+        if self.active && Some(ui.state.primary.sim.time()) != self.last_summary {
+            self.last_summary = Some(ui.state.primary.sim.time());
             for r in self.regions.iter_mut() {
-                r.update_summary(
-                    &ctx.primary.sim,
-                    ctx.secondary.as_ref().map(|(s, _)| &s.sim),
-                );
+                r.update_summary(&ui.state.primary.sim);
             }
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, _ctx: &DrawCtx) {
+    pub fn draw(&self, g: &mut GfxCtx) {
         if !self.active {
             return;
         }
@@ -116,47 +104,26 @@ impl Region {
         }
     }
 
-    fn update_summary(&mut self, primary: &Sim, maybe_secondary: Option<&Sim>) {
+    fn update_summary(&mut self, primary: &Sim) {
         let mut txt = Text::new();
         txt.add_styled_line(self.name.clone(), None, Some(Color::GREEN), Some(50));
         txt.add_line(format!("contains {} lanes", self.lanes.len()));
 
-        if let Some(secondary) = maybe_secondary {
-            // TODO colors
-            let s1 = primary.summarize(&self.lanes);
-            let s2 = secondary.summarize(&self.lanes);
+        let s1 = primary.summarize(&self.lanes);
 
-            txt.add_line(format!(
-                "{}|{} cars parked, {}|{} spots free",
-                s1.cars_parked, s2.cars_parked, s1.open_parking_spots, s2.open_parking_spots
-            ));
-            txt.add_line(format!(
-                "{}|{} moving cars, {}|{} stuck",
-                s1.moving_cars, s2.moving_cars, s1.stuck_cars, s2.stuck_cars
-            ));
-            txt.add_line(format!(
-                "{}|{} moving peds, {}|{} stuck",
-                s1.moving_peds, s2.moving_peds, s1.stuck_peds, s2.stuck_peds
-            ));
-            txt.add_line(format!("{}|{} buses", s1.buses, s2.buses));
-        // TODO diff all in a region and provide the count
-        } else {
-            let s1 = primary.summarize(&self.lanes);
-
-            txt.add_line(format!(
-                "{} cars parked, {} spots free",
-                s1.cars_parked, s1.open_parking_spots
-            ));
-            txt.add_line(format!(
-                "{} moving cars, {} stuck",
-                s1.moving_cars, s1.stuck_cars
-            ));
-            txt.add_line(format!(
-                "{} moving peds, {} stuck",
-                s1.moving_peds, s1.stuck_peds
-            ));
-            txt.add_line(format!("{} buses", s1.buses));
-        }
+        txt.add_line(format!(
+            "{} cars parked, {} spots free",
+            s1.cars_parked, s1.open_parking_spots
+        ));
+        txt.add_line(format!(
+            "{} moving cars, {} stuck",
+            s1.moving_cars, s1.stuck_cars
+        ));
+        txt.add_line(format!(
+            "{} moving peds, {} stuck",
+            s1.moving_peds, s1.stuck_peds
+        ));
+        txt.add_line(format!("{} buses", s1.buses));
 
         self.summary = txt;
     }

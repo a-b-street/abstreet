@@ -1,12 +1,14 @@
 mod chokepoints;
 mod color_picker;
 mod connected_roads;
+mod neighborhood_summary;
 mod objects;
 mod polygons;
 
 use crate::game::{GameState, Mode};
 use crate::objects::ID;
-use crate::ui::{ShowLayers, ShowObject};
+use crate::ui::{ShowLayers, ShowObject, UI};
+use abstutil::Timer;
 use ezgui::{
     Color, EventCtx, EventLoopMode, GfxCtx, InputResult, Key, ScrollingMenu, Text, TextBox, Wizard,
 };
@@ -22,6 +24,7 @@ pub struct DebugMode {
     hidden: HashSet<ID>,
     layers: ShowLayers,
     search_results: Option<(String, HashSet<ID>)>,
+    neighborhood_summary: neighborhood_summary::NeighborhoodSummary,
 }
 
 enum State {
@@ -32,7 +35,7 @@ enum State {
 }
 
 impl DebugMode {
-    pub fn new() -> DebugMode {
+    pub fn new(ctx: &mut EventCtx, ui: &UI) -> DebugMode {
         DebugMode {
             state: State::Exploring,
             chokepoints: None,
@@ -42,6 +45,12 @@ impl DebugMode {
             hidden: HashSet::new(),
             layers: ShowLayers::new(),
             search_results: None,
+            neighborhood_summary: neighborhood_summary::NeighborhoodSummary::new(
+                &ui.state.primary.map,
+                &ui.state.primary.draw_map,
+                ctx.prerender,
+                &mut Timer::new("set up DebugMode"),
+            ),
         }
     }
 
@@ -84,6 +93,9 @@ impl DebugMode {
                                 search,
                                 results.len()
                             ));
+                        }
+                        if mode.neighborhood_summary.active {
+                            txt.add_line("Showing neighborhood summaries".to_string());
                         }
                         ctx.input
                             .set_mode_with_new_prompt("Debug Mode", txt, ctx.canvas);
@@ -142,6 +154,7 @@ impl DebugMode {
                         }
                         mode.connected_roads.event(ctx, &state.ui);
                         mode.objects.event(ctx, &state.ui);
+                        mode.neighborhood_summary.event(ctx, &state.ui);
 
                         if let Some(debugger) = polygons::PolygonDebugger::new(ctx, &state.ui) {
                             mode.state = State::Polygons(debugger);
@@ -308,6 +321,7 @@ impl DebugMode {
                     }
 
                     mode.objects.draw(g, &state.ui);
+                    mode.neighborhood_summary.draw(g);
                 }
                 State::Polygons(ref debugger) => {
                     state

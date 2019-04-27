@@ -33,13 +33,7 @@ impl GUI for UI {
         folders.extend(vec![
             Folder::new("Edit", vec![(Some(Key::B), "manage A/B tests")]),
             Folder::new("Simulation", vec![(Some(Key::D), "diff all A/B trips")]),
-            Folder::new(
-                "View",
-                vec![
-                    (None, "show neighborhood summaries"),
-                    (Some(Key::J), "warp to an object"),
-                ],
-            ),
+            Folder::new("View", vec![(Some(Key::J), "warp to an object")]),
         ]);
         Some(TopMenu::new(folders, canvas))
     }
@@ -49,7 +43,6 @@ impl GUI for UI {
             ModalMenu::new("A/B Test Editor", vec![(Key::R, "run A/B test")]),
             ModalMenu::new("A/B Trip Explorer", vec![(Key::Enter, "quit")]),
             ModalMenu::new("A/B All Trips Explorer", vec![(Key::Enter, "quit")]),
-            ModalMenu::new("Neighborhood Summaries", vec![(Key::Enter, "quit")]),
             // The new exciting things!
             ModalMenu::new(
                 "Map Edit Mode",
@@ -66,7 +59,7 @@ impl GUI for UI {
             ModalMenu::new(
                 "Traffic Signal Editor",
                 vec![
-                    (Key::Enter, "quit"),
+                    (Key::Escape, "quit"),
                     (Key::D, "change cycle duration"),
                     (Key::P, "choose a preset signal"),
                     (Key::K, "move current cycle up"),
@@ -126,6 +119,7 @@ impl GUI for UI {
                     (Key::Slash, "search OSM metadata"),
                     (Key::M, "clear OSM search results"),
                     (Key::S, "configure colors"),
+                    (Key::N, "show/hide neighborhood summaries"),
                 ],
             ),
             ModalMenu::new(
@@ -140,7 +134,7 @@ impl GUI for UI {
             ),
             ModalMenu::new(
                 "Color Picker",
-                vec![(Key::Backspace, "revert"), (Key::Enter, "finalize")],
+                vec![(Key::Backspace, "revert"), (Key::Escape, "finalize")],
             ),
             ModalMenu::new(
                 "Mission Edit Mode",
@@ -154,8 +148,8 @@ impl GUI for UI {
             ModalMenu::new(
                 "Neighborhood Editor",
                 vec![
-                    (Key::Enter, "save"),
-                    (Key::Q, "quit"),
+                    (Key::Escape, "quit"),
+                    (Key::S, "save"),
                     (Key::X, "export as an Osmosis polygon filter"),
                     (Key::P, "add a new point"),
                 ],
@@ -163,11 +157,11 @@ impl GUI for UI {
             ModalMenu::new(
                 "Scenario Editor",
                 vec![
+                    (Key::Escape, "quit"),
                     (Key::S, "save"),
                     (Key::E, "edit"),
                     (Key::I, "instantiate"),
                     (Key::V, "visualize"),
-                    (Key::Enter, "quit"),
                 ],
             ),
         ]
