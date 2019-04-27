@@ -32,6 +32,7 @@ impl MissionEditMode {
                             None,
                             &state.ui.state.primary.sim,
                             &ShowEverything::new(),
+                            false,
                         );
 
                         ctx.input.set_mode("Mission Edit Mode", ctx.canvas);

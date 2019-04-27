@@ -26,10 +26,6 @@ pub struct Flags {
     #[structopt(long = "dont_draw_lane_markings")]
     pub dont_draw_lane_markings: bool,
 
-    /// Allow areas to be moused over?
-    #[structopt(long = "debug_areas")]
-    pub debug_areas: bool,
-
     /// Enable cpuprofiler?
     #[structopt(long = "enable_profiler")]
     pub enable_profiler: bool,

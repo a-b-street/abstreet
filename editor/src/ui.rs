@@ -268,8 +268,13 @@ impl UI {
         ctx.canvas.handle_event(ctx.input);
 
         // Always handle mouseover
-        self.state.primary.current_selection =
-            self.handle_mouseover(ctx, None, &self.state.primary.sim, &ShowEverything::new());
+        self.state.primary.current_selection = self.handle_mouseover(
+            ctx,
+            None,
+            &self.state.primary.sim,
+            &ShowEverything::new(),
+            false,
+        );
 
         let mut recalculate_current_selection = false;
         self.state
@@ -280,6 +285,7 @@ impl UI {
                 None,
                 &self.state.primary.sim,
                 &ShowEverything::new(),
+                false,
             );
         }
 
@@ -335,13 +341,11 @@ impl UI {
             }
 
             // Still show area selection when zoomed out.
-            if self.state.primary.current_flags.debug_areas {
-                if let Some(ID::Area(id)) = self.state.primary.current_selection {
-                    g.draw_polygon(
-                        self.state.cs.get("selected"),
-                        &fill_to_boundary_polygon(ctx.draw_map.get_a(id).get_outline(&ctx.map)),
-                    );
-                }
+            if let Some(ID::Area(id)) = self.state.primary.current_selection {
+                g.draw_polygon(
+                    self.state.cs.get("selected"),
+                    &fill_to_boundary_polygon(ctx.draw_map.get_a(id).get_outline(&ctx.map)),
+                );
             }
 
             self.state
@@ -431,9 +435,16 @@ impl UI {
         show_turn_icons_for: Option<IntersectionID>,
         source: &GetDrawAgents,
         show_objs: &ShowObject,
+        debug_areas: bool,
     ) -> Option<ID> {
         if !ctx.canvas.is_dragging() && ctx.input.get_moved_mouse().is_some() {
-            return self.mouseover_something(&ctx, show_turn_icons_for, source, show_objs);
+            return self.mouseover_something(
+                &ctx,
+                show_turn_icons_for,
+                source,
+                show_objs,
+                debug_areas,
+            );
         }
         if ctx.input.window_lost_cursor() {
             return None;
@@ -447,11 +458,10 @@ impl UI {
         show_turn_icons_for: Option<IntersectionID>,
         source: &GetDrawAgents,
         show_objs: &ShowObject,
+        debug_areas: bool,
     ) -> Option<ID> {
         // Unzoomed mode. Ignore when debugging areas.
-        if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL
-            && !self.state.primary.current_flags.debug_areas
-        {
+        if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL && !debug_areas {
             return None;
         }
 
@@ -468,7 +478,6 @@ impl UI {
         );
         objects.reverse();
 
-        let debug_areas = self.state.primary.current_flags.debug_areas;
         for obj in objects {
             // Don't mouseover areas.
             // TODO Might get fancier rules in the future, so we can't mouseover irrelevant things

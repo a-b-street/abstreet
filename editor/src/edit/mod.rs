@@ -66,6 +66,7 @@ impl EditMode {
                     None,
                     &state.ui.state.primary.sim,
                     &ShowEverything::new(),
+                    false,
                 );
 
                 if let Some(ID::Lane(id)) = state.ui.state.primary.current_selection {
@@ -139,6 +140,7 @@ impl EditMode {
                     Some(i),
                     &state.ui.state.primary.sim,
                     &ShowEverything::new(),
+                    false,
                 );
 
                 ctx.input.set_mode_with_prompt(

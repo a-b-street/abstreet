@@ -55,6 +55,7 @@ impl SandboxMode {
                     None,
                     &state.ui.state.primary.sim,
                     &ShowEverything::new(),
+                    false,
                 );
 
                 if let State::Spawning(ref mut spawner) = mode.state {

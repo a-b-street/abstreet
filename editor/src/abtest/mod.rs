@@ -27,6 +27,7 @@ impl ABTestMode {
                     None,
                     &state.ui.state.primary.sim,
                     &ShowEverything::new(),
+                    false,
                 );
 
                 ctx.input.set_mode("A/B Test Mode", ctx.canvas);

@@ -51,10 +51,13 @@ impl DebugMode {
                 match mode.state {
                     State::Exploring => {
                         ctx.canvas.handle_event(ctx.input);
-                        state.ui.state.primary.current_selection =
-                            state
-                                .ui
-                                .handle_mouseover(ctx, None, &state.ui.state.primary.sim, mode);
+                        state.ui.state.primary.current_selection = state.ui.handle_mouseover(
+                            ctx,
+                            None,
+                            &state.ui.state.primary.sim,
+                            mode,
+                            true,
+                        );
 
                         let mut txt = Text::new();
                         txt.add_styled_line(

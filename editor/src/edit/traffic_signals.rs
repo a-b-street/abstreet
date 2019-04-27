@@ -51,6 +51,7 @@ impl TrafficSignalEditor {
             Some(self.i),
             &ui.state.primary.sim,
             &ShowEverything::new(),
+            false,
         );
 
         ctx.input.set_mode_with_prompt(
