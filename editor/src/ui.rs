@@ -144,7 +144,16 @@ impl GUI for UI {
                     (Key::W, "manage scenarios"),
                 ],
             ),
-            ModalMenu::new("A/B Test Mode", vec![(Key::Escape, "quit")]),
+            ModalMenu::new(
+                "A/B Test Mode",
+                vec![
+                    (Key::Escape, "quit"),
+                    (Key::LeftBracket, "slow down sim"),
+                    (Key::RightBracket, "speed up sim"),
+                    (Key::Space, "run/pause sim"),
+                    (Key::M, "run one step of sim"),
+                ],
+            ),
             ModalMenu::new(
                 "Neighborhood Editor",
                 vec![
