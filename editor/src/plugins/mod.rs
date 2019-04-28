@@ -1,4 +1,3 @@
-pub mod edit;
 pub mod sim;
 pub mod view;
 

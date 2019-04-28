@@ -31,7 +31,6 @@ impl GUI for UI {
             ));
         }
         folders.extend(vec![
-            Folder::new("Edit", vec![(Some(Key::B), "manage A/B tests")]),
             Folder::new("Simulation", vec![(Some(Key::D), "diff all A/B trips")]),
             Folder::new("View", vec![(Some(Key::J), "warp to an object")]),
         ]);
@@ -40,7 +39,6 @@ impl GUI for UI {
 
     fn modal_menus(&self) -> Vec<ModalMenu> {
         vec![
-            ModalMenu::new("A/B Test Editor", vec![(Key::R, "run A/B test")]),
             ModalMenu::new("A/B Trip Explorer", vec![(Key::Enter, "quit")]),
             ModalMenu::new("A/B All Trips Explorer", vec![(Key::Enter, "quit")]),
             // The new exciting things!
@@ -172,6 +170,10 @@ impl GUI for UI {
                     (Key::I, "instantiate"),
                     (Key::V, "visualize"),
                 ],
+            ),
+            ModalMenu::new(
+                "A/B Test Editor",
+                vec![(Key::Escape, "quit"), (Key::R, "run A/B test")],
             ),
         ]
     }

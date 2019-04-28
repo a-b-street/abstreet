@@ -278,8 +278,6 @@ impl SandboxMode {
                                 *last_step = Instant::now();
 
                                 if benchmark.has_real_time_passed(Duration::seconds(1.0)) {
-                                    // I think the benchmark should naturally account for the delay of
-                                    // the secondary sim.
                                     *speed =
                                         state.ui.state.primary.sim.measure_speed(benchmark, false);
                                 }

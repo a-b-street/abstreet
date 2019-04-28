@@ -1,4 +1,7 @@
+mod setup;
+
 use crate::game::{GameState, Mode};
+use crate::state::PerMapUI;
 use crate::ui::ShowEverything;
 use abstutil::elapsed_seconds;
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Text, Wizard};
@@ -10,11 +13,14 @@ use std::time::Instant;
 const ADJUST_SPEED: f64 = 0.1;
 
 pub struct ABTestMode {
-    desired_speed: f64, // sim seconds per real second
-    state: State,
+    pub desired_speed: f64, // sim seconds per real second
+    pub state: State,
+    // TODO Urgh, hack. Need to be able to take() it to switch states sometimes.
+    pub secondary: Option<PerMapUI>,
 }
 
-enum State {
+pub enum State {
+    Setup(setup::ABTestSetup),
     Paused,
     Running {
         last_step: Instant,
@@ -27,13 +33,19 @@ impl ABTestMode {
     pub fn new() -> ABTestMode {
         ABTestMode {
             desired_speed: 1.0,
-            state: State::Paused,
+            state: State::Setup(setup::ABTestSetup::Pick(Wizard::new())),
+            secondary: None,
         }
     }
 
     pub fn event(state: &mut GameState, ctx: &mut EventCtx) -> EventLoopMode {
         match state.mode {
             Mode::ABTest(ref mut mode) => {
+                if let State::Setup(_) = mode.state {
+                    setup::ABTestSetup::event(state, ctx);
+                    return EventLoopMode::InputOnly;
+                }
+
                 ctx.canvas.handle_event(ctx.input);
                 state.ui.state.primary.current_selection = state.ui.handle_mouseover(
                     ctx,
@@ -97,6 +109,10 @@ impl ABTestMode {
                             };
                         } else if ctx.input.modal_action("run one step of sim") {
                             state.ui.state.primary.sim.step(&state.ui.state.primary.map);
+                            {
+                                let s = mode.secondary.as_mut().unwrap();
+                                s.sim.step(&s.map);
+                            }
                             //*ctx.recalculate_current_selection = true;
                         }
                         EventLoopMode::InputOnly
@@ -118,6 +134,10 @@ impl ABTestMode {
                             if dt_s >= sim::TIMESTEP.inner_seconds() / mode.desired_speed {
                                 ctx.input.use_update_event();
                                 state.ui.state.primary.sim.step(&state.ui.state.primary.map);
+                                {
+                                    let s = mode.secondary.as_mut().unwrap();
+                                    s.sim.step(&s.map);
+                                }
                                 //*ctx.recalculate_current_selection = true;
                                 *last_step = Instant::now();
 
@@ -131,6 +151,7 @@ impl ABTestMode {
                         }
                         EventLoopMode::Animation
                     }
+                    State::Setup(_) => unreachable!(),
                 }
             }
             _ => unreachable!(),
@@ -138,17 +159,20 @@ impl ABTestMode {
     }
 
     pub fn draw(state: &GameState, g: &mut GfxCtx) {
+        state.ui.new_draw(
+            g,
+            None,
+            HashMap::new(),
+            &state.ui.state.primary.sim,
+            &ShowEverything::new(),
+        );
+
         match state.mode {
             Mode::ABTest(ref mode) => match mode.state {
-                _ => {
-                    state.ui.new_draw(
-                        g,
-                        None,
-                        HashMap::new(),
-                        &state.ui.state.primary.sim,
-                        &ShowEverything::new(),
-                    );
+                State::Setup(ref setup) => {
+                    setup.draw(g);
                 }
+                _ => {}
             },
             _ => unreachable!(),
         }
