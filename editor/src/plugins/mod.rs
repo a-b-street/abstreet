@@ -6,16 +6,13 @@ use crate::state::{PerMapUI, PluginsPerMap};
 use ::sim::{ABTest, OriginDestination, Scenario};
 use abstutil;
 use abstutil::WeightedUsizeChoice;
-use downcast::{
-    downcast, downcast_methods, downcast_methods_core, downcast_methods_std, impl_downcast, Any,
-};
 use ezgui::{Canvas, Color, GfxCtx, Prerender, UserInput, WrappedWizard};
 use geom::Duration;
 use map_model::{IntersectionID, Map, MapEdits, Neighborhood, NeighborhoodBuilder};
 
 // TODO Split into two types, but then State needs two possible types in its exclusive blocking
 // field.
-pub trait BlockingPlugin: Any {
+pub trait BlockingPlugin {
     fn color_for(&self, _obj: ID, _ctx: &DrawCtx) -> Option<Color> {
         None
     }
@@ -36,8 +33,6 @@ pub trait BlockingPlugin: Any {
     }
 }
 
-downcast!(BlockingPlugin);
-
 pub trait AmbientPlugin {
     fn ambient_event(&mut self, _ctx: &mut PluginCtx);
 
@@ -47,17 +42,9 @@ pub trait AmbientPlugin {
     fn draw(&self, _g: &mut GfxCtx, _ctx: &DrawCtx) {}
 }
 
-pub trait NonblockingPlugin {
-    // True means active; false means done, please destroy.
-    fn nonblocking_event(&mut self, _ctx: &mut PluginCtx) -> bool;
-
-    fn draw(&self, _g: &mut GfxCtx, _ctx: &DrawCtx) {}
-}
-
 // This mirrors many, but not all, of the fields in UI.
 pub struct PluginCtx<'a> {
     pub primary: &'a mut PerMapUI,
-    pub secondary: &'a mut Option<(PerMapUI, PluginsPerMap)>,
     pub canvas: &'a mut Canvas,
     pub cs: &'a mut ColorScheme,
     pub input: &'a mut UserInput,

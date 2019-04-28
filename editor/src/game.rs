@@ -5,7 +5,7 @@ use crate::mission::MissionEditMode;
 use crate::sandbox::SandboxMode;
 use crate::state::{Flags, UIState};
 use crate::tutorial::TutorialMode;
-use crate::ui::UI;
+use crate::ui::{EditorState, UI};
 use abstutil::elapsed_seconds;
 use ezgui::{
     Canvas, EventCtx, EventLoopMode, GfxCtx, Key, LogScroller, ModalMenu, Prerender, TopMenu,
@@ -54,6 +54,18 @@ impl GameState {
             );
         }
         game
+    }
+
+    fn save_editor_state(&self, canvas: &Canvas) {
+        let state = EditorState {
+            map_name: self.ui.state.primary.map.get_name().clone(),
+            cam_x: canvas.cam_x,
+            cam_y: canvas.cam_y,
+            cam_zoom: canvas.cam_zoom,
+        };
+        // TODO maybe make state line up with the map, so loading from a new map doesn't break
+        abstutil::write_json("../editor_state", &state).expect("Saving editor_state failed");
+        println!("Saved editor_state");
     }
 }
 
@@ -116,15 +128,31 @@ impl GUI for GameState {
     }
 
     fn dump_before_abort(&self, canvas: &Canvas) {
-        self.ui.dump_before_abort(canvas);
+        println!(
+            "********************************************************************************"
+        );
+        println!("UI broke! Primary sim:");
+        self.ui.state.primary.sim.dump_before_abort();
+        match self.mode {
+            Mode::ABTest(ref abtest) => {
+                if let Some(ref s) = abtest.secondary {
+                    println!("Secondary sim:");
+                    s.sim.dump_before_abort();
+                }
+            }
+            _ => {}
+        }
+        self.save_editor_state(canvas);
     }
 
     fn before_quit(&self, canvas: &Canvas) {
-        self.ui.before_quit(canvas);
+        self.save_editor_state(canvas);
+        self.ui.state.cs.save();
+        println!("Saved color_scheme");
     }
 
     fn profiling_enabled(&self) -> bool {
-        self.ui.profiling_enabled()
+        self.ui.state.primary.current_flags.enable_profiler
     }
 }
 

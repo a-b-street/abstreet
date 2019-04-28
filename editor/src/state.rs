@@ -1,6 +1,6 @@
 use crate::colors::ColorScheme;
 use crate::objects::{DrawCtx, RenderingHints, ID};
-use crate::plugins::{view, AmbientPlugin, BlockingPlugin, NonblockingPlugin, PluginCtx};
+use crate::plugins::{view, AmbientPlugin, BlockingPlugin, PluginCtx};
 use crate::render::DrawMap;
 use abstutil::MeasureMemory;
 use ezgui::EventCtx;
@@ -41,13 +41,9 @@ pub struct Flags {
 pub struct UIState {
     pub primary: PerMapUI,
     pub primary_plugins: PluginsPerMap,
-    // When running an A/B test, this is populated too.
-    pub secondary: Option<(PerMapUI, PluginsPerMap)>,
 
     // These are all mutually exclusive and, if present, override everything else.
     pub exclusive_blocking_plugin: Option<Box<BlockingPlugin>>,
-    // These are all mutually exclusive, but don't override other stuff.
-    exclusive_nonblocking_plugin: Option<Box<NonblockingPlugin>>,
 
     pub enable_debug_controls: bool,
 
@@ -62,9 +58,7 @@ impl UIState {
         UIState {
             primary,
             primary_plugins,
-            secondary: None,
             exclusive_blocking_plugin: None,
-            exclusive_nonblocking_plugin: None,
             enable_debug_controls,
             cs,
         }
@@ -74,8 +68,6 @@ impl UIState {
         if let Some(ref plugin) = self.exclusive_blocking_plugin {
             return plugin.color_for(id, ctx);
         }
-
-        // The exclusive_nonblocking_plugins don't color_obj.
 
         for p in &self.primary_plugins.ambient_plugins {
             if let Some(c) = p.color_for(id, ctx) {
@@ -94,7 +86,6 @@ impl UIState {
     ) {
         let mut ctx = PluginCtx {
             primary: &mut self.primary,
-            secondary: &mut self.secondary,
             canvas: event_ctx.canvas,
             cs: &mut self.cs,
             prerender: event_ctx.prerender,
@@ -122,20 +113,6 @@ impl UIState {
             }
         }
 
-        // Exclusive nonblocking plugins
-        {
-            if self.exclusive_nonblocking_plugin.is_some() {
-                if !self
-                    .exclusive_nonblocking_plugin
-                    .as_mut()
-                    .unwrap()
-                    .nonblocking_event(&mut ctx)
-                {
-                    self.exclusive_nonblocking_plugin = None;
-                }
-            }
-        }
-
         // Ambient plugins
         for p in self.primary_plugins.ambient_plugins.iter_mut() {
             p.ambient_event(&mut ctx);
@@ -146,10 +123,6 @@ impl UIState {
         if let Some(ref plugin) = self.exclusive_blocking_plugin {
             plugin.draw(g, ctx);
             return;
-        }
-
-        if let Some(ref plugin) = self.exclusive_nonblocking_plugin {
-            plugin.draw(g, ctx);
         }
 
         // Stackable modals

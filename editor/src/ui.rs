@@ -193,28 +193,12 @@ impl GUI for UI {
         )
     }
 
-    fn dump_before_abort(&self, canvas: &Canvas) {
-        println!(
-            "********************************************************************************"
-        );
-        println!("UI broke! Primary sim:");
-        self.state.primary.sim.dump_before_abort();
-        if let Some((s, _)) = &self.state.secondary {
-            println!("Secondary sim:");
-            s.sim.dump_before_abort();
-        }
+    fn dump_before_abort(&self, _: &Canvas) {}
 
-        self.save_editor_state(canvas);
-    }
-
-    fn before_quit(&self, canvas: &Canvas) {
-        self.save_editor_state(canvas);
-        self.state.cs.save();
-        println!("Saved color_scheme");
-    }
+    fn before_quit(&self, _: &Canvas) {}
 
     fn profiling_enabled(&self) -> bool {
-        self.state.primary.current_flags.enable_profiler
+        false
     }
 }
 
@@ -497,18 +481,6 @@ impl UI {
             };
         }
         None
-    }
-
-    fn save_editor_state(&self, canvas: &Canvas) {
-        let state = EditorState {
-            map_name: self.state.primary.map.get_name().clone(),
-            cam_x: canvas.cam_x,
-            cam_y: canvas.cam_y,
-            cam_zoom: canvas.cam_zoom,
-        };
-        // TODO maybe make state line up with the map, so loading from a new map doesn't break
-        abstutil::write_json("../editor_state", &state).expect("Saving editor_state failed");
-        println!("Saved editor_state");
     }
 
     // TODO This could probably belong to DrawMap again, but it's annoying to plumb things that

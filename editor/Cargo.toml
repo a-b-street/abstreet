@@ -9,7 +9,6 @@ aabb-quadtree = "0.1.0"
 abstutil = { path = "../abstutil" }
 counter = "0.4.3"
 derive-new = "0.5.6"
-downcast = "0.10.0"
 ezgui = { path = "../ezgui" }
 geom = { path = "../geom" }
 kml = { path = "../kml" }
