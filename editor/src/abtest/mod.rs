@@ -1,5 +1,6 @@
 mod setup;
 
+use crate::common::CommonState;
 use crate::game::{GameState, Mode};
 use crate::state::PerMapUI;
 use crate::ui::{ShowEverything, UI};
@@ -20,6 +21,8 @@ pub struct ABTestMode {
     pub secondary: Option<PerMapUI>,
     pub diff_trip: Option<DiffOneTrip>,
     pub diff_all: Option<DiffAllTrips>,
+    // TODO Not present in Setup state.
+    common: CommonState,
 }
 
 pub enum State {
@@ -40,6 +43,7 @@ impl ABTestMode {
             secondary: None,
             diff_trip: None,
             diff_all: None,
+            common: CommonState::new(),
         }
     }
 
@@ -59,6 +63,9 @@ impl ABTestMode {
                     &ShowEverything::new(),
                     false,
                 );
+                if let Some(evmode) = mode.common.event(ctx, &state.ui) {
+                    return evmode;
+                }
 
                 let mut txt = Text::new();
                 txt.add_styled_line("A/B Test Mode".to_string(), None, Some(Color::BLUE), None);
@@ -242,20 +249,27 @@ impl ABTestMode {
     }
 
     pub fn draw(state: &GameState, g: &mut GfxCtx) {
-        state.ui.new_draw(
-            g,
-            None,
-            HashMap::new(),
-            &state.ui.state.primary.sim,
-            &ShowEverything::new(),
-        );
-
         match state.mode {
             Mode::ABTest(ref mode) => match mode.state {
                 State::Setup(ref setup) => {
+                    state.ui.new_draw(
+                        g,
+                        None,
+                        HashMap::new(),
+                        &state.ui.state.primary.sim,
+                        &ShowEverything::new(),
+                    );
                     setup.draw(g);
                 }
                 _ => {
+                    state.ui.new_draw(
+                        g,
+                        None,
+                        mode.common.override_colors(&state.ui),
+                        &state.ui.state.primary.sim,
+                        &ShowEverything::new(),
+                    );
+
                     if let Some(ref diff) = mode.diff_trip {
                         diff.draw(g, &state.ui);
                     }

@@ -1,5 +1,6 @@
 mod abtest;
 mod colors;
+mod common;
 mod debug;
 mod edit;
 mod game;

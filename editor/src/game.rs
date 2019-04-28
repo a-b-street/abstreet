@@ -263,7 +263,7 @@ fn splash_screen(
                     break None;
                 }
             }
-            x if x == edit => break Some(Mode::Edit(EditMode::ViewingDiffs)),
+            x if x == edit => break Some(Mode::Edit(EditMode::new())),
             x if x == tutorial => {
                 break Some(Mode::Tutorial(TutorialMode::Part1(
                     ctx.canvas.center_to_map_pt(),

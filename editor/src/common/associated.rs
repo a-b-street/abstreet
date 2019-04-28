@@ -1,11 +1,14 @@
-use crate::objects::{DrawCtx, ID};
-use crate::plugins::{AmbientPlugin, PluginCtx};
+use crate::objects::ID;
 use crate::render::ExtraShapeID;
+use crate::ui::UI;
 use ezgui::Color;
 use map_model::{BuildingID, DirectedRoadID, IntersectionID};
 use sim::{AgentID, CarID};
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
+// TODO Maybe just store the IDs upfront.
+// TODO ShapeSelected only makes sense in DebugMode (more generally, extra shapes only make sense
+// there...). The rest only make sense in sandbox/AB test mode.
 pub enum ShowAssociatedState {
     Inactive,
     BuildingSelected(BuildingID, HashSet<CarID>),
@@ -15,14 +18,9 @@ pub enum ShowAssociatedState {
 }
 
 impl ShowAssociatedState {
-    pub fn new() -> ShowAssociatedState {
-        ShowAssociatedState::Inactive
-    }
-}
-
-impl AmbientPlugin for ShowAssociatedState {
-    fn ambient_event(&mut self, ctx: &mut PluginCtx) {
-        let (selected, sim) = (ctx.primary.current_selection, &ctx.primary.sim);
+    pub fn event(&mut self, ui: &UI) {
+        let selected = ui.state.primary.current_selection;
+        let sim = &ui.state.primary.sim;
 
         // Reset to Inactive when appropriate
         let mut reset = false;
@@ -64,7 +62,7 @@ impl AmbientPlugin for ShowAssociatedState {
                 Some(ID::ExtraShape(id)) => {
                     *self = ShowAssociatedState::ShapeSelected(
                         id,
-                        ctx.primary.draw_map.get_es(id).road,
+                        ui.state.primary.draw_map.get_es(id).road,
                     );
                 }
                 Some(ID::Intersection(id)) => {
@@ -72,43 +70,42 @@ impl AmbientPlugin for ShowAssociatedState {
                         ShowAssociatedState::IntersectionSelected(id, sim.get_accepted_agents(id));
                 }
                 _ => {}
-            };
+            }
         }
     }
 
-    fn color_for(&self, obj: ID, ctx: &DrawCtx) -> Option<Color> {
-        let color = ctx
+    pub fn override_colors(&self, colors: &mut HashMap<ID, Color>, ui: &UI) {
+        let color = ui
+            .state
             .cs
             .get_def("something associated with something else", Color::PURPLE);
-        match (self, obj) {
-            (ShowAssociatedState::BuildingSelected(_, cars), ID::Car(id)) => {
-                if cars.contains(&id) {
-                    return Some(color);
+        match self {
+            ShowAssociatedState::BuildingSelected(_, cars) => {
+                for c in cars {
+                    colors.insert(ID::Car(*c), color);
                 }
             }
-            (ShowAssociatedState::CarSelected(_, Some(id1)), ID::Building(id2)) => {
-                if *id1 == id2 {
-                    return Some(color);
-                }
+            ShowAssociatedState::CarSelected(_, Some(b)) => {
+                colors.insert(ID::Building(*b), color);
             }
-            (ShowAssociatedState::ShapeSelected(_, Some(r)), ID::Lane(l)) => {
-                let parent = ctx.map.get_parent(l);
-                if parent.id == r.id
-                    && ((r.forwards && parent.is_forwards(l))
-                        || (!r.forwards && parent.is_backwards(l)))
-                {
-                    return Some(color);
-                }
-            }
-            (ShowAssociatedState::IntersectionSelected(_, agents), _) => {
-                if let Some(agent) = obj.agent_id() {
-                    if agents.contains(&agent) {
-                        return Some(color);
+            ShowAssociatedState::ShapeSelected(_, Some(dr)) => {
+                let r = ui.state.primary.map.get_r(dr.id);
+                if dr.forwards {
+                    for (l, _) in &r.children_forwards {
+                        colors.insert(ID::Lane(*l), color);
                     }
+                } else {
+                    for (l, _) in &r.children_backwards {
+                        colors.insert(ID::Lane(*l), color);
+                    }
+                }
+            }
+            ShowAssociatedState::IntersectionSelected(_, agents) => {
+                for a in agents {
+                    colors.insert(ID::from_agent(*a), color);
                 }
             }
             _ => {}
         }
-        None
     }
 }

@@ -1,5 +1,6 @@
 mod traffic_signals;
 
+use crate::common::CommonState;
 use crate::game::{GameState, Mode};
 use crate::objects::{DrawCtx, ID};
 use crate::plugins::load_edits;
@@ -14,7 +15,7 @@ use map_model::{
 use std::collections::{BTreeSet, HashMap};
 
 pub enum EditMode {
-    ViewingDiffs,
+    ViewingDiffs(CommonState),
     Saving(Wizard),
     Loading(Wizard),
     EditingStopSign(IntersectionID),
@@ -22,6 +23,10 @@ pub enum EditMode {
 }
 
 impl EditMode {
+    pub fn new() -> EditMode {
+        EditMode::ViewingDiffs(CommonState::new())
+    }
+
     pub fn event(state: &mut GameState, ctx: &mut EventCtx) -> EventLoopMode {
         ctx.canvas.handle_event(ctx.input);
 
@@ -32,7 +37,7 @@ impl EditMode {
         txt.add_line(state.ui.state.primary.map.get_edits().describe());
         txt.add_line("Right-click a lane or intersection to start editing".to_string());
         match state.mode {
-            Mode::Edit(EditMode::ViewingDiffs)
+            Mode::Edit(EditMode::ViewingDiffs(_))
             | Mode::Edit(EditMode::Saving(_))
             | Mode::Edit(EditMode::Loading(_)) => {
                 // TODO Display info/hints on more lines.
@@ -49,12 +54,14 @@ impl EditMode {
         }
 
         match state.mode {
-            Mode::Edit(EditMode::ViewingDiffs) => {
+            Mode::Edit(EditMode::ViewingDiffs(ref mut common)) => {
                 // TODO Only if current edits are unsaved
                 if ctx.input.modal_action("save edits") {
                     state.mode = Mode::Edit(EditMode::Saving(Wizard::new()));
+                    return EventLoopMode::InputOnly;
                 } else if ctx.input.modal_action("load different edits") {
                     state.mode = Mode::Edit(EditMode::Loading(Wizard::new()));
+                    return EventLoopMode::InputOnly;
                 }
 
                 // TODO Reset when transitioning in/out of this state? Or maybe we just don't draw
@@ -68,6 +75,9 @@ impl EditMode {
                     &ShowEverything::new(),
                     false,
                 );
+                if let Some(evmode) = common.event(ctx, &state.ui) {
+                    return evmode;
+                }
 
                 if let Some(ID::Lane(id)) = state.ui.state.primary.current_selection {
                     let lane = state.ui.state.primary.map.get_l(id);
@@ -119,7 +129,7 @@ impl EditMode {
                 .is_some()
                     || wizard.aborted()
                 {
-                    state.mode = Mode::Edit(EditMode::ViewingDiffs);
+                    state.mode = Mode::Edit(EditMode::new());
                 }
             }
             Mode::Edit(EditMode::Loading(ref mut wizard)) => {
@@ -129,9 +139,9 @@ impl EditMode {
                     "Load which map edits?",
                 ) {
                     apply_map_edits(&mut state.ui.state, ctx, new_edits);
-                    state.mode = Mode::Edit(EditMode::ViewingDiffs);
+                    state.mode = Mode::Edit(EditMode::new());
                 } else if wizard.aborted() {
-                    state.mode = Mode::Edit(EditMode::ViewingDiffs);
+                    state.mode = Mode::Edit(EditMode::new());
                 }
             }
             Mode::Edit(EditMode::EditingStopSign(i)) => {
@@ -173,7 +183,7 @@ impl EditMode {
                         apply_map_edits(&mut state.ui.state, ctx, new_edits);
                     }
                 } else if ctx.input.modal_action("quit") {
-                    state.mode = Mode::Edit(EditMode::ViewingDiffs);
+                    state.mode = Mode::Edit(EditMode::new());
                 } else if ctx.input.modal_action("reset to default") {
                     let mut new_edits = state.ui.state.primary.map.get_edits().clone();
                     new_edits.stop_sign_overrides.remove(&i);
@@ -182,7 +192,7 @@ impl EditMode {
             }
             Mode::Edit(EditMode::EditingTrafficSignal(ref mut editor)) => {
                 if editor.event(ctx, &mut state.ui) {
-                    state.mode = Mode::Edit(EditMode::ViewingDiffs);
+                    state.mode = Mode::Edit(EditMode::new());
                 }
             }
             _ => unreachable!(),
@@ -192,22 +202,12 @@ impl EditMode {
     }
 
     pub fn draw(state: &GameState, g: &mut GfxCtx) {
-        let mut override_color: HashMap<ID, Color> = HashMap::new();
-
-        let ctx = DrawCtx {
-            cs: &state.ui.state.cs,
-            map: &state.ui.state.primary.map,
-            draw_map: &state.ui.state.primary.draw_map,
-            sim: &state.ui.state.primary.sim,
-            hints: &state.ui.hints,
-        };
-
         match state.mode {
-            Mode::Edit(EditMode::ViewingDiffs) => {
+            Mode::Edit(EditMode::ViewingDiffs(ref common)) => {
                 state.ui.new_draw(
                     g,
                     None,
-                    override_color,
+                    common.override_colors(&state.ui),
                     &state.ui.state.primary.sim,
                     &ShowEverything::new(),
                 );
@@ -217,17 +217,29 @@ impl EditMode {
                 // with detail or not.
                 let zoomed = g.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL;
                 let color = if zoomed {
-                    ctx.cs.get_def("zoomed map diffs", Color::RED.alpha(0.5))
+                    state
+                        .ui
+                        .state
+                        .cs
+                        .get_def("zoomed map diffs", Color::RED.alpha(0.5))
                 } else {
-                    ctx.cs.get_def("unzoomed map diffs", Color::RED)
+                    state.ui.state.cs.get_def("unzoomed map diffs", Color::RED)
+                };
+
+                let ctx = DrawCtx {
+                    cs: &state.ui.state.cs,
+                    map: &state.ui.state.primary.map,
+                    draw_map: &state.ui.state.primary.draw_map,
+                    sim: &state.ui.state.primary.sim,
+                    hints: &state.ui.hints,
                 };
 
                 // More generally we might want to show the diff between two edits, but for now,
                 // just show diff relative to basemap.
-                let edits = ctx.map.get_edits();
+                let edits = state.ui.state.primary.map.get_edits();
                 for l in edits.lane_overrides.keys() {
                     if zoomed {
-                        ctx.draw_map.get_l(*l).draw(
+                        state.ui.state.primary.draw_map.get_l(*l).draw(
                             g,
                             RenderOptions {
                                 color: Some(color),
@@ -236,7 +248,17 @@ impl EditMode {
                             &ctx,
                         );
                     } else {
-                        g.draw_polygon(color, &ctx.map.get_parent(*l).get_thick_polygon().unwrap());
+                        g.draw_polygon(
+                            color,
+                            &state
+                                .ui
+                                .state
+                                .primary
+                                .map
+                                .get_parent(*l)
+                                .get_thick_polygon()
+                                .unwrap(),
+                        );
                     }
                 }
                 for i in edits
@@ -244,7 +266,7 @@ impl EditMode {
                     .keys()
                     .chain(edits.traffic_signal_overrides.keys())
                 {
-                    ctx.draw_map.get_i(*i).draw(
+                    state.ui.state.primary.draw_map.get_i(*i).draw(
                         g,
                         RenderOptions {
                             color: Some(color),
@@ -259,7 +281,7 @@ impl EditMode {
                 state.ui.new_draw(
                     g,
                     None,
-                    override_color,
+                    HashMap::new(),
                     &state.ui.state.primary.sim,
                     &ShowEverything::new(),
                 );
@@ -268,6 +290,7 @@ impl EditMode {
                 wizard.draw(g);
             }
             Mode::Edit(EditMode::EditingStopSign(i)) => {
+                let mut override_color: HashMap<ID, Color> = HashMap::new();
                 let sign = state.ui.state.primary.map.get_stop_sign(i);
                 for t in &state.ui.state.primary.map.get_i(i).turns {
                     override_color.insert(

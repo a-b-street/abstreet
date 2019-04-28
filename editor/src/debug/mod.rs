@@ -5,6 +5,7 @@ mod neighborhood_summary;
 mod objects;
 mod polygons;
 
+use crate::common::CommonState;
 use crate::game::{GameState, Mode};
 use crate::objects::ID;
 use crate::ui::{ShowLayers, ShowObject, UI};
@@ -17,6 +18,7 @@ use std::collections::{HashMap, HashSet};
 
 pub struct DebugMode {
     state: State,
+    common: CommonState,
     chokepoints: Option<chokepoints::ChokepointsFinder>,
     show_original_roads: HashSet<RoadID>,
     connected_roads: connected_roads::ShowConnectedRoads,
@@ -38,6 +40,7 @@ impl DebugMode {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> DebugMode {
         DebugMode {
             state: State::Exploring,
+            common: CommonState::new(),
             chokepoints: None,
             show_original_roads: HashSet::new(),
             connected_roads: connected_roads::ShowConnectedRoads::new(),
@@ -67,6 +70,9 @@ impl DebugMode {
                             mode,
                             true,
                         );
+                        if let Some(evmode) = mode.common.event(ctx, &state.ui) {
+                            return evmode;
+                        }
 
                         let mut txt = Text::new();
                         txt.add_styled_line(
@@ -262,7 +268,7 @@ impl DebugMode {
         match state.mode {
             Mode::Debug(ref mode) => match mode.state {
                 State::Exploring => {
-                    let mut color_overrides = HashMap::new();
+                    let mut color_overrides = mode.common.override_colors(&state.ui);
                     if let Some(ref chokepoints) = mode.chokepoints {
                         let color = state.ui.state.cs.get_def("chokepoint", Color::RED);
                         for l in &chokepoints.lanes {

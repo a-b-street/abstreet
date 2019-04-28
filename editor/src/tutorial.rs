@@ -4,6 +4,7 @@ use ezgui::{
 };
 use geom::Pt2D;
 
+// Does CommonState make sense?
 pub enum TutorialMode {
     Part1(Pt2D),
     Part2(f64),

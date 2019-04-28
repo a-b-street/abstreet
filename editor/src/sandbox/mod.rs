@@ -3,6 +3,7 @@ mod show_activity;
 mod spawner;
 mod time_travel;
 
+use crate::common::CommonState;
 use crate::game::{GameState, Mode};
 use crate::ui::ShowEverything;
 use abstutil::elapsed_seconds;
@@ -21,6 +22,8 @@ pub struct SandboxMode {
     show_activity: show_activity::ShowActivity,
     time_travel: time_travel::TimeTravel,
     state: State,
+    // TODO Not while Spawning or TimeTraveling...
+    common: CommonState,
 }
 
 enum State {
@@ -43,6 +46,7 @@ impl SandboxMode {
             route_viewer: route_viewer::RouteViewer::Inactive,
             show_activity: show_activity::ShowActivity::Inactive,
             time_travel: time_travel::TimeTravel::new(),
+            common: CommonState::new(),
         }
     }
 
@@ -106,6 +110,10 @@ impl SandboxMode {
                 }
                 ctx.input
                     .set_mode_with_new_prompt("Sandbox Mode", txt, ctx.canvas);
+
+                if let Some(evmode) = mode.common.event(ctx, &state.ui) {
+                    return evmode;
+                }
 
                 if let Some(spawner) = spawner::AgentSpawner::new(ctx, &mut state.ui) {
                     mode.state = State::Spawning(spawner);
@@ -312,7 +320,7 @@ impl SandboxMode {
                     state.ui.new_draw(
                         g,
                         None,
-                        HashMap::new(),
+                        mode.common.override_colors(&state.ui),
                         &state.ui.state.primary.sim,
                         &ShowEverything::new(),
                     );

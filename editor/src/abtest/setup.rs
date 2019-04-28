@@ -1,4 +1,5 @@
 use crate::abtest::{ABTestMode, State};
+use crate::common::CommonState;
 use crate::game::{GameState, Mode};
 use crate::plugins::{choose_edits, choose_scenario, load_ab_test};
 use crate::state::{Flags, PerMapUI, UIState};
@@ -130,5 +131,6 @@ fn launch_test(test: &ABTest, state: &mut UIState, ctx: &mut EventCtx) -> Mode {
         secondary: Some(secondary),
         diff_trip: None,
         diff_all: None,
+        common: CommonState::new(),
     })
 }
