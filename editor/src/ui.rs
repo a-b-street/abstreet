@@ -30,10 +30,10 @@ impl GUI for UI {
                 vec![(Some(Key::F1), "screenshot just this")],
             ));
         }
-        folders.extend(vec![
-            Folder::new("Simulation", vec![(Some(Key::D), "diff all A/B trips")]),
-            Folder::new("View", vec![(Some(Key::J), "warp to an object")]),
-        ]);
+        folders.extend(vec![Folder::new(
+            "View",
+            vec![(Some(Key::J), "warp to an object")],
+        )]);
         Some(TopMenu::new(folders, canvas))
     }
 
@@ -148,6 +148,7 @@ impl GUI for UI {
                     (Key::Space, "run/pause sim"),
                     (Key::M, "run one step of sim"),
                     (Key::S, "swap"),
+                    (Key::D, "diff all trips"),
                     (Key::B, "stop diffing trips"),
                 ],
             ),

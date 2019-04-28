@@ -129,5 +129,6 @@ fn launch_test(test: &ABTest, state: &mut UIState, ctx: &mut EventCtx) -> Mode {
         state: State::Paused,
         secondary: Some(secondary),
         diff_trip: None,
+        diff_all: None,
     })
 }

@@ -1,4 +1,3 @@
-pub mod sim;
 pub mod view;
 
 use crate::colors::ColorScheme;

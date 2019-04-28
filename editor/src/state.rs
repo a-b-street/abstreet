@@ -1,6 +1,5 @@
 use crate::colors::ColorScheme;
 use crate::objects::{DrawCtx, RenderingHints, ID};
-use crate::plugins;
 use crate::plugins::{view, AmbientPlugin, BlockingPlugin, NonblockingPlugin, PluginCtx};
 use crate::render::DrawMap;
 use abstutil::MeasureMemory;
@@ -133,12 +132,6 @@ impl UIState {
                     .nonblocking_event(&mut ctx)
                 {
                     self.exclusive_nonblocking_plugin = None;
-                }
-            } else if ctx.secondary.is_some() {
-                // TODO This is per UI, so it's never reloaded. Make sure to detect new loads, even
-                // when the initial time is 0? But we probably have no state then, so...
-                if let Some(p) = plugins::sim::diff_all::DiffAllState::new(&mut ctx) {
-                    self.exclusive_nonblocking_plugin = Some(Box::new(p));
                 }
             }
         }

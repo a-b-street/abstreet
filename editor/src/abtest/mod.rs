@@ -19,6 +19,7 @@ pub struct ABTestMode {
     // TODO Urgh, hack. Need to be able to take() it to switch states sometimes.
     pub secondary: Option<PerMapUI>,
     pub diff_trip: Option<DiffOneTrip>,
+    pub diff_all: Option<DiffAllTrips>,
 }
 
 pub enum State {
@@ -38,6 +39,7 @@ impl ABTestMode {
             state: State::Setup(setup::ABTestSetup::Pick(Wizard::new())),
             secondary: None,
             diff_trip: None,
+            diff_all: None,
         }
     }
 
@@ -63,6 +65,11 @@ impl ABTestMode {
                 txt.add_line(state.ui.state.primary.map.get_edits().edits_name.clone());
                 if let Some(ref diff) = mode.diff_trip {
                     txt.add_line(format!("Showing diff for {}", diff.trip));
+                } else if let Some(ref diff) = mode.diff_all {
+                    txt.add_line(format!(
+                        "Showing diffs for all. {} equivalent trips",
+                        diff.same_trips
+                    ));
                 }
                 txt.add_line(state.ui.state.primary.sim.summary());
                 if let State::Running { ref speed, .. } = mode.state {
@@ -115,23 +122,36 @@ impl ABTestMode {
                     if ctx.input.modal_action("stop diffing trips") {
                         mode.diff_trip = None;
                     }
-                } else if let Some(agent) = state
-                    .ui
-                    .state
-                    .primary
-                    .current_selection
-                    .and_then(|id| id.agent_id())
-                {
-                    if let Some(trip) = state.ui.state.primary.sim.agent_to_trip(agent) {
-                        if ctx
-                            .input
-                            .contextual_action(Key::B, &format!("Show {}'s parallel world", agent))
-                        {
-                            mode.diff_trip = Some(DiffOneTrip::new(
-                                trip,
-                                &state.ui.state.primary,
-                                mode.secondary.as_ref().unwrap(),
-                            ));
+                } else if mode.diff_all.is_some() {
+                    if ctx.input.modal_action("stop diffing trips") {
+                        mode.diff_all = None;
+                    }
+                } else {
+                    if state.ui.state.primary.current_selection.is_none()
+                        && ctx.input.modal_action("diff all trips")
+                    {
+                        mode.diff_all = Some(DiffAllTrips::new(
+                            &mut state.ui.state.primary,
+                            mode.secondary.as_mut().unwrap(),
+                        ));
+                    } else if let Some(agent) = state
+                        .ui
+                        .state
+                        .primary
+                        .current_selection
+                        .and_then(|id| id.agent_id())
+                    {
+                        if let Some(trip) = state.ui.state.primary.sim.agent_to_trip(agent) {
+                            if ctx.input.contextual_action(
+                                Key::B,
+                                &format!("Show {}'s parallel world", agent),
+                            ) {
+                                mode.diff_trip = Some(DiffOneTrip::new(
+                                    trip,
+                                    &state.ui.state.primary,
+                                    mode.secondary.as_ref().unwrap(),
+                                ));
+                            }
                         }
                     }
                 }
@@ -155,6 +175,12 @@ impl ABTestMode {
                                     diff.trip,
                                     &state.ui.state.primary,
                                     mode.secondary.as_ref().unwrap(),
+                                ));
+                            }
+                            if mode.diff_all.is_some() {
+                                mode.diff_all = Some(DiffAllTrips::new(
+                                    &mut state.ui.state.primary,
+                                    mode.secondary.as_mut().unwrap(),
                                 ));
                             }
                             //*ctx.recalculate_current_selection = true;
@@ -187,6 +213,12 @@ impl ABTestMode {
                                         diff.trip,
                                         &state.ui.state.primary,
                                         mode.secondary.as_ref().unwrap(),
+                                    ));
+                                }
+                                if mode.diff_all.is_some() {
+                                    mode.diff_all = Some(DiffAllTrips::new(
+                                        &mut state.ui.state.primary,
+                                        mode.secondary.as_mut().unwrap(),
                                     ));
                                 }
                                 //*ctx.recalculate_current_selection = true;
@@ -225,6 +257,9 @@ impl ABTestMode {
                 }
                 _ => {
                     if let Some(ref diff) = mode.diff_trip {
+                        diff.draw(g, &state.ui);
+                    }
+                    if let Some(ref diff) = mode.diff_all {
                         diff.draw(g, &state.ui);
                     }
                 }
@@ -297,6 +332,37 @@ impl DiffOneTrip {
                     .get_def("secondary agent route", Color::BLUE.alpha(0.5)),
                 &t.make_polygons(LANE_THICKNESS),
             );
+        }
+    }
+}
+
+pub struct DiffAllTrips {
+    same_trips: usize,
+    // TODO Or do we want to augment DrawCars and DrawPeds, so we get automatic quadtree support?
+    lines: Vec<Line>,
+}
+
+impl DiffAllTrips {
+    fn new(primary: &mut PerMapUI, secondary: &mut PerMapUI) -> DiffAllTrips {
+        let stats1 = primary.sim.get_stats(&primary.map);
+        let stats2 = secondary.sim.get_stats(&secondary.map);
+        let mut same_trips = 0;
+        let mut lines: Vec<Line> = Vec::new();
+        for (trip, pt1) in &stats1.canonical_pt_per_trip {
+            if let Some(pt2) = stats2.canonical_pt_per_trip.get(trip) {
+                if let Some(l) = Line::maybe_new(*pt1, *pt2) {
+                    lines.push(l);
+                } else {
+                    same_trips += 1;
+                }
+            }
+        }
+        DiffAllTrips { same_trips, lines }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        for line in &self.lines {
+            g.draw_line(ui.state.cs.get("diff agents line"), LANE_THICKNESS, line);
         }
     }
 }
