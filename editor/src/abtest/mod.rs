@@ -57,6 +57,7 @@ impl ABTestMode {
 
                 let mut txt = Text::new();
                 txt.add_styled_line("A/B Test Mode".to_string(), None, Some(Color::BLUE), None);
+                txt.add_line(state.ui.state.primary.map.get_edits().edits_name.clone());
                 txt.add_line(state.ui.state.primary.sim.summary());
                 if let State::Running { ref speed, .. } = mode.state {
                     txt.add_line(format!(
@@ -97,6 +98,11 @@ impl ABTestMode {
                 }
                 if ctx.input.modal_action("speed up sim") {
                     mode.desired_speed += ADJUST_SPEED;
+                }
+                if ctx.input.modal_action("swap") {
+                    let secondary = mode.secondary.take().unwrap();
+                    let primary = std::mem::replace(&mut state.ui.state.primary, secondary);
+                    mode.secondary = Some(primary);
                 }
 
                 match mode.state {

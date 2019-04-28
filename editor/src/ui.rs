@@ -150,6 +150,7 @@ impl GUI for UI {
                     (Key::RightBracket, "speed up sim"),
                     (Key::Space, "run/pause sim"),
                     (Key::M, "run one step of sim"),
+                    (Key::S, "swap"),
                 ],
             ),
             ModalMenu::new(
