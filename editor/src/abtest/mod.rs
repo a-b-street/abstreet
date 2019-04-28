@@ -2,11 +2,12 @@ mod setup;
 
 use crate::game::{GameState, Mode};
 use crate::state::PerMapUI;
-use crate::ui::ShowEverything;
+use crate::ui::{ShowEverything, UI};
 use abstutil::elapsed_seconds;
-use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Text, Wizard};
-use geom::Duration;
-use sim::{Benchmark, Sim};
+use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, Wizard};
+use geom::{Duration, Line, PolyLine};
+use map_model::LANE_THICKNESS;
+use sim::{Benchmark, Sim, TripID};
 use std::collections::HashMap;
 use std::time::Instant;
 
@@ -17,6 +18,7 @@ pub struct ABTestMode {
     pub state: State,
     // TODO Urgh, hack. Need to be able to take() it to switch states sometimes.
     pub secondary: Option<PerMapUI>,
+    pub diff_trip: Option<DiffOneTrip>,
 }
 
 pub enum State {
@@ -35,6 +37,7 @@ impl ABTestMode {
             desired_speed: 1.0,
             state: State::Setup(setup::ABTestSetup::Pick(Wizard::new())),
             secondary: None,
+            diff_trip: None,
         }
     }
 
@@ -58,6 +61,9 @@ impl ABTestMode {
                 let mut txt = Text::new();
                 txt.add_styled_line("A/B Test Mode".to_string(), None, Some(Color::BLUE), None);
                 txt.add_line(state.ui.state.primary.map.get_edits().edits_name.clone());
+                if let Some(ref diff) = mode.diff_trip {
+                    txt.add_line(format!("Showing diff for {}", diff.trip));
+                }
                 txt.add_line(state.ui.state.primary.sim.summary());
                 if let State::Running { ref speed, .. } = mode.state {
                     txt.add_line(format!(
@@ -105,6 +111,31 @@ impl ABTestMode {
                     mode.secondary = Some(primary);
                 }
 
+                if mode.diff_trip.is_some() {
+                    if ctx.input.modal_action("stop diffing trips") {
+                        mode.diff_trip = None;
+                    }
+                } else if let Some(agent) = state
+                    .ui
+                    .state
+                    .primary
+                    .current_selection
+                    .and_then(|id| id.agent_id())
+                {
+                    if let Some(trip) = state.ui.state.primary.sim.agent_to_trip(agent) {
+                        if ctx
+                            .input
+                            .contextual_action(Key::B, &format!("Show {}'s parallel world", agent))
+                        {
+                            mode.diff_trip = Some(DiffOneTrip::new(
+                                trip,
+                                &state.ui.state.primary,
+                                mode.secondary.as_ref().unwrap(),
+                            ));
+                        }
+                    }
+                }
+
                 match mode.state {
                     State::Paused => {
                         if ctx.input.modal_action("run/pause sim") {
@@ -118,6 +149,13 @@ impl ABTestMode {
                             {
                                 let s = mode.secondary.as_mut().unwrap();
                                 s.sim.step(&s.map);
+                            }
+                            if let Some(diff) = mode.diff_trip.take() {
+                                mode.diff_trip = Some(DiffOneTrip::new(
+                                    diff.trip,
+                                    &state.ui.state.primary,
+                                    mode.secondary.as_ref().unwrap(),
+                                ));
                             }
                             //*ctx.recalculate_current_selection = true;
                         }
@@ -143,6 +181,13 @@ impl ABTestMode {
                                 {
                                     let s = mode.secondary.as_mut().unwrap();
                                     s.sim.step(&s.map);
+                                }
+                                if let Some(diff) = mode.diff_trip.take() {
+                                    mode.diff_trip = Some(DiffOneTrip::new(
+                                        diff.trip,
+                                        &state.ui.state.primary,
+                                        mode.secondary.as_ref().unwrap(),
+                                    ));
                                 }
                                 //*ctx.recalculate_current_selection = true;
                                 *last_step = Instant::now();
@@ -178,9 +223,80 @@ impl ABTestMode {
                 State::Setup(ref setup) => {
                     setup.draw(g);
                 }
-                _ => {}
+                _ => {
+                    if let Some(ref diff) = mode.diff_trip {
+                        diff.draw(g, &state.ui);
+                    }
+                }
             },
             _ => unreachable!(),
+        }
+    }
+}
+
+pub struct DiffOneTrip {
+    trip: TripID,
+    // These are all optional because mode-changes might cause temporary interruptions.
+    // Just point from primary world agent to secondary world agent.
+    line: Option<Line>,
+    primary_route: Option<PolyLine>,
+    secondary_route: Option<PolyLine>,
+}
+
+impl DiffOneTrip {
+    fn new(trip: TripID, primary: &PerMapUI, secondary: &PerMapUI) -> DiffOneTrip {
+        let pt1 = primary.sim.get_canonical_pt_per_trip(trip, &primary.map);
+        let pt2 = secondary
+            .sim
+            .get_canonical_pt_per_trip(trip, &secondary.map);
+        let line = if pt1.is_some() && pt2.is_some() {
+            Line::maybe_new(pt1.unwrap(), pt2.unwrap())
+        } else {
+            None
+        };
+        let primary_route = primary
+            .sim
+            .trip_to_agent(trip)
+            .and_then(|agent| primary.sim.trace_route(agent, &primary.map, None));
+        let secondary_route = secondary
+            .sim
+            .trip_to_agent(trip)
+            .and_then(|agent| secondary.sim.trace_route(agent, &secondary.map, None));
+
+        if line.is_none() || primary_route.is_none() || secondary_route.is_none() {
+            println!("{} isn't present in both sims", trip);
+        }
+        DiffOneTrip {
+            trip,
+            line,
+            primary_route,
+            secondary_route,
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        if let Some(l) = &self.line {
+            g.draw_line(
+                ui.state.cs.get_def("diff agents line", Color::YELLOW),
+                LANE_THICKNESS,
+                l,
+            );
+        }
+        if let Some(t) = &self.primary_route {
+            g.draw_polygon(
+                ui.state
+                    .cs
+                    .get_def("primary agent route", Color::RED.alpha(0.5)),
+                &t.make_polygons(LANE_THICKNESS),
+            );
+        }
+        if let Some(t) = &self.secondary_route {
+            g.draw_polygon(
+                ui.state
+                    .cs
+                    .get_def("secondary agent route", Color::BLUE.alpha(0.5)),
+                &t.make_polygons(LANE_THICKNESS),
+            );
         }
     }
 }

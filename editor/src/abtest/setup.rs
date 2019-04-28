@@ -128,5 +128,6 @@ fn launch_test(test: &ABTest, state: &mut UIState, ctx: &mut EventCtx) -> Mode {
         desired_speed: 1.0,
         state: State::Paused,
         secondary: Some(secondary),
+        diff_trip: None,
     })
 }

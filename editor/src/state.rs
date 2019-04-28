@@ -139,8 +139,6 @@ impl UIState {
                 // when the initial time is 0? But we probably have no state then, so...
                 if let Some(p) = plugins::sim::diff_all::DiffAllState::new(&mut ctx) {
                     self.exclusive_nonblocking_plugin = Some(Box::new(p));
-                } else if let Some(p) = plugins::sim::diff_trip::DiffTripState::new(&mut ctx) {
-                    self.exclusive_nonblocking_plugin = Some(Box::new(p));
                 }
             }
         }

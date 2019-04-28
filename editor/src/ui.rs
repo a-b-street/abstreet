@@ -39,9 +39,6 @@ impl GUI for UI {
 
     fn modal_menus(&self) -> Vec<ModalMenu> {
         vec![
-            ModalMenu::new("A/B Trip Explorer", vec![(Key::Enter, "quit")]),
-            ModalMenu::new("A/B All Trips Explorer", vec![(Key::Enter, "quit")]),
-            // The new exciting things!
             ModalMenu::new(
                 "Map Edit Mode",
                 vec![
@@ -151,6 +148,7 @@ impl GUI for UI {
                     (Key::Space, "run/pause sim"),
                     (Key::M, "run one step of sim"),
                     (Key::S, "swap"),
+                    (Key::B, "stop diffing trips"),
                 ],
             ),
             ModalMenu::new(
