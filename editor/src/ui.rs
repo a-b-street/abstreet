@@ -24,10 +24,6 @@ impl GUI for UI {
     fn top_menu(&self, canvas: &Canvas) -> Option<TopMenu> {
         let mut folders = Vec::new();
         folders.push(Folder::new("File", vec![(Some(Key::Escape), "pause game")]));
-        folders.extend(vec![Folder::new(
-            "View",
-            vec![(Some(Key::J), "warp to an object")],
-        )]);
         Some(TopMenu::new(folders, canvas))
     }
 

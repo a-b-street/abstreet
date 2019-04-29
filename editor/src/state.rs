@@ -1,6 +1,6 @@
 use crate::colors::ColorScheme;
 use crate::objects::{DrawCtx, RenderingHints, ID};
-use crate::plugins::{view, AmbientPlugin, BlockingPlugin, PluginCtx};
+use crate::plugins::{AmbientPlugin, BlockingPlugin, PluginCtx};
 use crate::render::DrawMap;
 use abstutil::MeasureMemory;
 use ezgui::EventCtx;
@@ -106,10 +106,6 @@ impl UIState {
                     self.exclusive_blocking_plugin = None;
                 }
                 return;
-            }
-
-            if let Some(p) = view::warp::WarpState::new(&mut ctx) {
-                self.exclusive_blocking_plugin = Some(Box::new(p));
             }
         }
 

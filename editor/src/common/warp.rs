@@ -1,8 +1,8 @@
-use crate::objects::{DrawCtx, ID};
-use crate::plugins::{BlockingPlugin, PluginCtx};
+use crate::objects::ID;
 use crate::render::DrawMap;
+use crate::ui::UI;
 use abstutil::elapsed_seconds;
-use ezgui::{EventLoopMode, GfxCtx, InputResult, TextBox};
+use ezgui::{EventCtx, EventLoopMode, GfxCtx, InputResult, TextBox};
 use geom::{Line, Pt2D};
 use map_model::{raw_data, AreaID, BuildingID, IntersectionID, LaneID, Map, RoadID};
 use sim::{PedestrianID, Sim, TripID};
@@ -18,66 +18,57 @@ pub enum WarpState {
 }
 
 impl WarpState {
-    pub fn new(ctx: &mut PluginCtx) -> Option<WarpState> {
-        if ctx.input.action_chosen("warp to an object") {
-            return Some(WarpState::EnteringSearch(TextBox::new(
-                "Warp to what?",
-                None,
-            )));
-        }
-        None
+    pub fn new() -> WarpState {
+        WarpState::EnteringSearch(TextBox::new("Warp to what?", None))
     }
-}
 
-impl BlockingPlugin for WarpState {
-    fn blocking_event(&mut self, ctx: &mut PluginCtx) -> bool {
+    // When None, this is done.
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI) -> Option<EventLoopMode> {
         match self {
             WarpState::EnteringSearch(tb) => match tb.event(ctx.input) {
-                InputResult::Canceled => {
-                    return false;
-                }
+                InputResult::Canceled => None,
                 InputResult::Done(to, _) => {
                     if let Some((id, pt)) = warp_point(
                         to,
-                        &ctx.primary.map,
-                        &ctx.primary.sim,
-                        &ctx.primary.draw_map,
+                        &ui.state.primary.map,
+                        &ui.state.primary.sim,
+                        &ui.state.primary.draw_map,
                     ) {
                         let at = ctx.canvas.center_to_map_pt();
                         if let Some(l) = Line::maybe_new(at, pt) {
                             *self = WarpState::Warping(Instant::now(), l, id);
+                            Some(EventLoopMode::Animation)
                         } else {
-                            ctx.primary.current_selection = Some(id);
-                            return false;
+                            //ctx.primary.current_selection = Some(id);
+                            None
                         }
                     } else {
-                        return false;
+                        None
                     }
                 }
-                InputResult::StillActive => {}
+                InputResult::StillActive => Some(EventLoopMode::InputOnly),
             },
-            WarpState::Warping(started, line, id) => {
+            WarpState::Warping(started, line, _) => {
                 // Weird to do stuff for any event?
                 if ctx.input.nonblocking_is_update_event() {
                     ctx.input.use_update_event();
                 }
 
-                ctx.hints.mode = EventLoopMode::Animation;
                 let percent = elapsed_seconds(*started) / ANIMATION_TIME_S;
                 if percent >= 1.0 {
                     ctx.canvas.center_on_map_pt(line.pt2());
-                    ctx.primary.current_selection = Some(*id);
-                    return false;
+                    //ctx.primary.current_selection = Some(*id);
+                    None
                 } else {
                     ctx.canvas
                         .center_on_map_pt(line.dist_along(line.length() * percent));
+                    Some(EventLoopMode::Animation)
                 }
             }
-        };
-        true
+        }
     }
 
-    fn draw(&self, g: &mut GfxCtx, _ctx: &DrawCtx) {
+    pub fn draw(&self, g: &mut GfxCtx) {
         if let WarpState::EnteringSearch(tb) = self {
             tb.draw(g);
         }

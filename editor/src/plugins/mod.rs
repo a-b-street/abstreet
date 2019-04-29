@@ -1,5 +1,3 @@
-pub mod view;
-
 use crate::colors::ColorScheme;
 use crate::objects::{DrawCtx, RenderingHints, ID};
 use crate::state::{PerMapUI, PluginsPerMap};

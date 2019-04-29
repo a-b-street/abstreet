@@ -55,15 +55,6 @@ impl EditMode {
 
         match state.mode {
             Mode::Edit(EditMode::ViewingDiffs(ref mut common)) => {
-                // TODO Only if current edits are unsaved
-                if ctx.input.modal_action("save edits") {
-                    state.mode = Mode::Edit(EditMode::Saving(Wizard::new()));
-                    return EventLoopMode::InputOnly;
-                } else if ctx.input.modal_action("load different edits") {
-                    state.mode = Mode::Edit(EditMode::Loading(Wizard::new()));
-                    return EventLoopMode::InputOnly;
-                }
-
                 // TODO Reset when transitioning in/out of this state? Or maybe we just don't draw
                 // the effects of it. Or eventually, the Option<ID> itself will live in here
                 // directly.
@@ -77,6 +68,15 @@ impl EditMode {
                 );
                 if let Some(evmode) = common.event(ctx, &state.ui) {
                     return evmode;
+                }
+
+                // TODO Only if current edits are unsaved
+                if ctx.input.modal_action("save edits") {
+                    state.mode = Mode::Edit(EditMode::Saving(Wizard::new()));
+                    return EventLoopMode::InputOnly;
+                } else if ctx.input.modal_action("load different edits") {
+                    state.mode = Mode::Edit(EditMode::Loading(Wizard::new()));
+                    return EventLoopMode::InputOnly;
                 }
 
                 if let Some(ID::Lane(id)) = state.ui.state.primary.current_selection {
