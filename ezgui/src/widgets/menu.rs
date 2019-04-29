@@ -38,7 +38,7 @@ impl<T: Clone> Menu<T> {
         }
 
         // Calculate geometry.
-        let mut txt = prompt.clone().unwrap_or_else(|| Text::new());
+        let mut txt = prompt.clone().unwrap_or_else(Text::new);
         let (_, prompt_height) = canvas.text_dims(&txt);
         // TODO Make sure hotkeys aren't used twice.
         for (hotkey, choice, _) in &choices {
@@ -186,7 +186,7 @@ impl<T: Clone> Menu<T> {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        let mut txt = self.prompt.clone().unwrap_or_else(|| Text::new());
+        let mut txt = self.prompt.clone().unwrap_or_else(Text::new);
         for (idx, (hotkey, choice, active, _)) in self.choices.iter().enumerate() {
             let bg = if Some(idx) == self.current_idx {
                 Some(text::SELECTED_COLOR)

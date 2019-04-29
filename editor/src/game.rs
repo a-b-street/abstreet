@@ -267,14 +267,11 @@ impl GUI for GameState {
         );
         println!("UI broke! Primary sim:");
         self.ui.state.primary.sim.dump_before_abort();
-        match self.mode {
-            Mode::ABTest(ref abtest) => {
-                if let Some(ref s) = abtest.secondary {
-                    println!("Secondary sim:");
-                    s.sim.dump_before_abort();
-                }
+        if let Mode::ABTest(ref abtest) = self.mode {
+            if let Some(ref s) = abtest.secondary {
+                println!("Secondary sim:");
+                s.sim.dump_before_abort();
             }
-            _ => {}
         }
         self.save_editor_state(canvas);
     }
