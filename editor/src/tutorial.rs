@@ -1,10 +1,10 @@
 use crate::game::{GameState, Mode};
+use crate::render::DrawOptions;
 use crate::ui::ShowEverything;
 use ezgui::{
     EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Key, Text, VerticalAlignment, Wizard,
 };
 use geom::Pt2D;
-use std::collections::HashMap;
 
 // Does CommonState make sense?
 pub enum TutorialMode {
@@ -39,10 +39,9 @@ impl TutorialMode {
     }
 
     pub fn draw(state: &GameState, g: &mut GfxCtx) {
-        state.ui.new_draw(
+        state.ui.draw(
             g,
-            None,
-            HashMap::new(),
+            DrawOptions::new(),
             &state.ui.primary.sim,
             &ShowEverything::new(),
         );

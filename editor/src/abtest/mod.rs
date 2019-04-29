@@ -2,13 +2,13 @@ mod setup;
 
 use crate::common::CommonState;
 use crate::game::{GameState, Mode};
+use crate::render::DrawOptions;
 use crate::ui::{PerMapUI, ShowEverything, UI};
 use abstutil::elapsed_seconds;
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, Wizard};
 use geom::{Duration, Line, PolyLine};
 use map_model::LANE_THICKNESS;
 use sim::{Benchmark, Sim, TripID};
-use std::collections::HashMap;
 use std::time::Instant;
 
 const ADJUST_SPEED: f64 = 0.1;
@@ -242,20 +242,18 @@ impl ABTestMode {
         match state.mode {
             Mode::ABTest(ref mode) => match mode.state {
                 State::Setup(ref setup) => {
-                    state.ui.new_draw(
+                    state.ui.draw(
                         g,
-                        None,
-                        HashMap::new(),
+                        DrawOptions::new(),
                         &state.ui.primary.sim,
                         &ShowEverything::new(),
                     );
                     setup.draw(g);
                 }
                 _ => {
-                    state.ui.new_draw(
+                    state.ui.draw(
                         g,
-                        None,
-                        mode.common.override_colors(&state.ui),
+                        mode.common.draw_options(&state.ui),
                         &state.ui.primary.sim,
                         &ShowEverything::new(),
                     );

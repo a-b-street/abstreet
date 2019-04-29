@@ -2,6 +2,7 @@ use crate::abtest::ABTestMode;
 use crate::debug::DebugMode;
 use crate::edit::EditMode;
 use crate::mission::MissionEditMode;
+use crate::render::DrawOptions;
 use crate::sandbox::SandboxMode;
 use crate::tutorial::TutorialMode;
 use crate::ui::{EditorState, Flags, ShowEverything, UI};
@@ -14,7 +15,6 @@ use geom::{Duration, Line, Pt2D, Speed};
 use map_model::Map;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
-use std::collections::HashMap;
 use std::path::PathBuf;
 use std::time::Instant;
 
@@ -242,10 +242,9 @@ impl GUI for GameState {
     fn draw(&self, g: &mut GfxCtx) {
         match self.mode {
             Mode::SplashScreen(ref wizard, _) => {
-                self.ui.new_draw(
+                self.ui.draw(
                     g,
-                    None,
-                    HashMap::new(),
+                    DrawOptions::new(),
                     &self.ui.primary.sim,
                     &ShowEverything::new(),
                 );

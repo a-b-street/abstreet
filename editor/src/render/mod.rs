@@ -24,8 +24,9 @@ pub use crate::render::road::DrawRoad;
 pub use crate::render::turn::{DrawCrosswalk, DrawTurn};
 use ezgui::{Color, GfxCtx, Prerender};
 use geom::{Distance, Polygon};
-use map_model::Map;
+use map_model::{IntersectionID, Map};
 use sim::{DrawCarInput, VehicleType};
+use std::collections::HashMap;
 
 pub const MIN_ZOOM_FOR_DETAIL: f64 = 1.0;
 
@@ -80,4 +81,18 @@ pub fn should_draw_blinkers() -> bool {
         .subsec_millis()
         % 300
         < 150
+}
+
+pub struct DrawOptions {
+    pub show_turn_icons_for: Option<IntersectionID>,
+    pub override_colors: HashMap<ID, Color>,
+}
+
+impl DrawOptions {
+    pub fn new() -> DrawOptions {
+        DrawOptions {
+            show_turn_icons_for: None,
+            override_colors: HashMap::new(),
+        }
+    }
 }

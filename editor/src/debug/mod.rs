@@ -8,13 +8,14 @@ mod polygons;
 use crate::common::CommonState;
 use crate::game::{GameState, Mode};
 use crate::helpers::ID;
+use crate::render::DrawOptions;
 use crate::ui::{ShowLayers, ShowObject, UI};
 use abstutil::Timer;
 use ezgui::{
     Color, EventCtx, EventLoopMode, GfxCtx, InputResult, Key, ScrollingMenu, Text, TextBox, Wizard,
 };
 use map_model::RoadID;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
 pub struct DebugMode {
     state: State,
@@ -265,31 +266,29 @@ impl DebugMode {
         match state.mode {
             Mode::Debug(ref mode) => match mode.state {
                 State::Exploring => {
-                    let mut color_overrides = mode.common.override_colors(&state.ui);
+                    let mut opts = mode.common.draw_options(&state.ui);
                     if let Some(ref chokepoints) = mode.chokepoints {
                         let color = state.ui.cs.get_def("chokepoint", Color::RED);
                         for l in &chokepoints.lanes {
-                            color_overrides.insert(ID::Lane(*l), color);
+                            opts.override_colors.insert(ID::Lane(*l), color);
                         }
                         for i in &chokepoints.intersections {
-                            color_overrides.insert(ID::Intersection(*i), color);
+                            opts.override_colors.insert(ID::Intersection(*i), color);
                         }
                     }
                     for l in &mode.connected_roads.lanes {
-                        color_overrides.insert(
+                        opts.override_colors.insert(
                             ID::Lane(*l),
                             state.ui.cs.get("something associated with something else"),
                         );
                     }
                     if let Some((_, ref results)) = mode.search_results {
                         for id in results {
-                            color_overrides
+                            opts.override_colors
                                 .insert(*id, state.ui.cs.get_def("search result", Color::RED));
                         }
                     }
-                    state
-                        .ui
-                        .new_draw(g, None, color_overrides, &state.ui.primary.sim, mode);
+                    state.ui.draw(g, opts, &state.ui.primary.sim, mode);
                     mode.common.draw(g, &state.ui);
 
                     for id in &mode.show_original_roads {
@@ -322,19 +321,19 @@ impl DebugMode {
                 State::Polygons(ref debugger) => {
                     state
                         .ui
-                        .new_draw(g, None, HashMap::new(), &state.ui.primary.sim, mode);
+                        .draw(g, DrawOptions::new(), &state.ui.primary.sim, mode);
                     debugger.draw(g, &state.ui);
                 }
                 State::SearchOSM(ref tb) => {
                     state
                         .ui
-                        .new_draw(g, None, HashMap::new(), &state.ui.primary.sim, mode);
+                        .draw(g, DrawOptions::new(), &state.ui.primary.sim, mode);
                     tb.draw(g);
                 }
                 State::Colors(ref picker) => {
                     state
                         .ui
-                        .new_draw(g, None, HashMap::new(), &state.ui.primary.sim, mode);
+                        .draw(g, DrawOptions::new(), &state.ui.primary.sim, mode);
                     picker.draw(g);
                 }
             },

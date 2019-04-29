@@ -1,6 +1,6 @@
 use crate::helpers::{ColorScheme, DrawCtx, RenderingHints, ID};
 use crate::render::{
-    draw_vehicle, AgentCache, DrawMap, DrawPedestrian, RenderOptions, Renderable,
+    draw_vehicle, AgentCache, DrawMap, DrawOptions, DrawPedestrian, RenderOptions, Renderable,
     MIN_ZOOM_FOR_DETAIL,
 };
 use abstutil;
@@ -10,7 +10,6 @@ use geom::{Bounds, Circle, Distance, Duration, Polygon};
 use map_model::{BuildingID, IntersectionID, LaneID, Map, Traversable, TurnType};
 use serde_derive::{Deserialize, Serialize};
 use sim::{GetDrawAgents, Sim, SimFlags};
-use std::collections::HashMap;
 use structopt::StructOpt;
 
 // TODO Collapse stuff!
@@ -56,11 +55,10 @@ impl UI {
         }
     }
 
-    pub fn new_draw(
+    pub fn draw(
         &self,
         g: &mut GfxCtx,
-        show_turn_icons_for: Option<IntersectionID>,
-        override_color: HashMap<ID, Color>,
+        opts: DrawOptions,
         source: &GetDrawAgents,
         show_objs: &ShowObject,
     ) {
@@ -107,7 +105,7 @@ impl UI {
                 g.get_screen_bounds(),
                 &g.prerender,
                 &mut cache,
-                show_turn_icons_for,
+                opts.show_turn_icons_for,
                 source,
                 show_objs,
             );
@@ -132,7 +130,7 @@ impl UI {
                     _ => {}
                 };
                 let opts = RenderOptions {
-                    color: override_color.get(&obj.get_id()).cloned(),
+                    color: opts.override_colors.get(&obj.get_id()).cloned(),
                     debug_mode: show_objs.layers().geom_debug_mode,
                 };
                 obj.draw(g, opts, &ctx);

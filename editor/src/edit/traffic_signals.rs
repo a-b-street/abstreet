@@ -1,13 +1,12 @@
 use crate::edit::apply_map_edits;
 use crate::game::GameState;
 use crate::helpers::{DrawCtx, ID};
-use crate::render::{draw_signal_cycle, draw_signal_diagram, DrawTurn};
+use crate::render::{draw_signal_cycle, draw_signal_diagram, DrawOptions, DrawTurn};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{Color, EventCtx, GfxCtx, Key, ScreenPt, Wizard, WrappedWizard};
 use geom::Duration;
 use map_model::{ControlTrafficSignal, Cycle, IntersectionID, Map, TurnID, TurnPriority, TurnType};
-use std::collections::HashMap;
 
 // TODO Warn if there are empty cycles or if some turn is completely absent from the signal.
 pub struct TrafficSignalEditor {
@@ -223,9 +222,10 @@ impl TrafficSignalEditor {
 
     pub fn draw(&self, g: &mut GfxCtx, state: &GameState) {
         let cycle = &state.ui.primary.map.get_traffic_signal(self.i).cycles[self.current_cycle];
-        let mut override_color: HashMap<ID, Color> = HashMap::new();
+        let mut opts = DrawOptions::new();
+        opts.show_turn_icons_for = Some(self.i);
         for t in &state.ui.primary.map.get_i(self.i).turns {
-            override_color.insert(
+            opts.override_colors.insert(
                 ID::Turn(*t),
                 match cycle.get_priority(*t) {
                     TurnPriority::Priority => state
@@ -246,13 +246,9 @@ impl TrafficSignalEditor {
                 },
             );
         }
-        state.ui.new_draw(
-            g,
-            Some(self.i),
-            override_color,
-            &state.ui.primary.sim,
-            &ShowEverything::new(),
-        );
+        state
+            .ui
+            .draw(g, opts, &state.ui.primary.sim, &ShowEverything::new());
 
         let ctx = DrawCtx {
             cs: &state.ui.cs,

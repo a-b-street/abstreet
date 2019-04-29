@@ -5,12 +5,12 @@ mod time_travel;
 
 use crate::common::CommonState;
 use crate::game::{GameState, Mode};
+use crate::render::DrawOptions;
 use crate::ui::ShowEverything;
 use abstutil::elapsed_seconds;
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, Wizard};
 use geom::Duration;
 use sim::{Benchmark, Sim, TripID};
-use std::collections::HashMap;
 use std::time::Instant;
 
 const ADJUST_SPEED: f64 = 0.1;
@@ -289,19 +289,17 @@ impl SandboxMode {
                     spawner.draw(g, &state.ui);
                 }
                 State::TimeTraveling => {
-                    state.ui.new_draw(
+                    state.ui.draw(
                         g,
-                        None,
-                        HashMap::new(),
+                        DrawOptions::new(),
                         &mode.time_travel,
                         &ShowEverything::new(),
                     );
                 }
                 _ => {
-                    state.ui.new_draw(
+                    state.ui.draw(
                         g,
-                        None,
-                        mode.common.override_colors(&state.ui),
+                        mode.common.draw_options(&state.ui),
                         &state.ui.primary.sim,
                         &ShowEverything::new(),
                     );

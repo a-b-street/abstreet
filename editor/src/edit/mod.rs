@@ -3,7 +3,9 @@ mod traffic_signals;
 use crate::common::CommonState;
 use crate::game::{GameState, Mode};
 use crate::helpers::{DrawCtx, ID};
-use crate::render::{DrawLane, DrawMap, DrawTurn, RenderOptions, Renderable, MIN_ZOOM_FOR_DETAIL};
+use crate::render::{
+    DrawLane, DrawMap, DrawOptions, DrawTurn, RenderOptions, Renderable, MIN_ZOOM_FOR_DETAIL,
+};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, Wizard, WrappedWizard};
@@ -196,10 +198,9 @@ impl EditMode {
     pub fn draw(state: &GameState, g: &mut GfxCtx) {
         match state.mode {
             Mode::Edit(EditMode::ViewingDiffs(ref common)) => {
-                state.ui.new_draw(
+                state.ui.draw(
                     g,
-                    None,
-                    common.override_colors(&state.ui),
+                    common.draw_options(&state.ui),
                     &state.ui.primary.sim,
                     &ShowEverything::new(),
                 );
@@ -269,10 +270,9 @@ impl EditMode {
             }
             Mode::Edit(EditMode::Saving(ref wizard))
             | Mode::Edit(EditMode::Loading(ref wizard)) => {
-                state.ui.new_draw(
+                state.ui.draw(
                     g,
-                    None,
-                    HashMap::new(),
+                    DrawOptions::new(),
                     &state.ui.primary.sim,
                     &ShowEverything::new(),
                 );
@@ -281,10 +281,11 @@ impl EditMode {
                 wizard.draw(g);
             }
             Mode::Edit(EditMode::EditingStopSign(i)) => {
-                let mut override_color: HashMap<ID, Color> = HashMap::new();
+                let mut opts = DrawOptions::new();
+                opts.show_turn_icons_for = Some(i);
                 let sign = state.ui.primary.map.get_stop_sign(i);
                 for t in &state.ui.primary.map.get_i(i).turns {
-                    override_color.insert(
+                    opts.override_colors.insert(
                         ID::Turn(*t),
                         match sign.get_priority(*t) {
                             TurnPriority::Priority => {
@@ -300,13 +301,9 @@ impl EditMode {
                         },
                     );
                 }
-                state.ui.new_draw(
-                    g,
-                    Some(i),
-                    override_color,
-                    &state.ui.primary.sim,
-                    &ShowEverything::new(),
-                );
+                state
+                    .ui
+                    .draw(g, opts, &state.ui.primary.sim, &ShowEverything::new());
 
                 if let Some(ID::Turn(id)) = state.ui.primary.current_selection {
                     DrawTurn::draw_dashed(

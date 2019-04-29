@@ -2,10 +2,9 @@ mod associated;
 mod turn_cycler;
 mod warp;
 
-use crate::helpers::ID;
+use crate::render::DrawOptions;
 use crate::ui::UI;
-use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key};
-use std::collections::HashMap;
+use ezgui::{EventCtx, EventLoopMode, GfxCtx, Key};
 
 pub struct CommonState {
     associated: associated::ShowAssociatedState,
@@ -54,9 +53,10 @@ impl CommonState {
         self.turn_cycler.draw(g, ui);
     }
 
-    pub fn override_colors(&self, ui: &UI) -> HashMap<ID, Color> {
-        let mut colors = HashMap::new();
-        self.associated.override_colors(&mut colors, ui);
-        colors
+    pub fn draw_options(&self, ui: &UI) -> DrawOptions {
+        let mut opts = DrawOptions::new();
+        self.associated
+            .override_colors(&mut opts.override_colors, ui);
+        opts
     }
 }

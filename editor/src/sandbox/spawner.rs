@@ -1,4 +1,5 @@
 use crate::helpers::ID;
+use crate::render::DrawOptions;
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{EventCtx, GfxCtx, Key};
@@ -8,7 +9,6 @@ use map_model::{
 };
 use rand::seq::SliceRandom;
 use sim::{DrivingGoal, Scenario, SidewalkSpot, TripSpec};
-use std::collections::HashMap;
 
 pub struct AgentSpawner {
     from: Source,
@@ -232,15 +232,9 @@ impl AgentSpawner {
             Source::Walking(b1) => ID::Building(b1),
             Source::Driving(pos1) => ID::Lane(pos1.lane()),
         };
-        let mut override_color = HashMap::new();
-        override_color.insert(src, ui.cs.get("selected"));
-        ui.new_draw(
-            g,
-            None,
-            override_color,
-            &ui.primary.sim,
-            &ShowEverything::new(),
-        );
+        let mut opts = DrawOptions::new();
+        opts.override_colors.insert(src, ui.cs.get("selected"));
+        ui.draw(g, opts, &ui.primary.sim, &ShowEverything::new());
 
         if let Some((_, Some(ref trace))) = self.maybe_goal {
             g.draw_polygon(ui.cs.get("route"), &trace.make_polygons(LANE_THICKNESS));
