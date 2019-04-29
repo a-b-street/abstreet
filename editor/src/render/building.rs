@@ -1,5 +1,5 @@
-use crate::helpers::{ColorScheme, DrawCtx, ID};
-use crate::render::{DrawOptions, Renderable};
+use crate::helpers::{ColorScheme, ID};
+use crate::render::{DrawCtx, DrawOptions, Renderable};
 use ezgui::{Color, GfxCtx};
 use geom::{Distance, Line, Polygon};
 use map_model::{Building, BuildingID, BuildingType, Map, LANE_THICKNESS};

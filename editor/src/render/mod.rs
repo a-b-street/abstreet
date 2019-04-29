@@ -11,7 +11,7 @@ mod pedestrian;
 mod road;
 mod turn;
 
-use crate::helpers::{ColorScheme, DrawCtx, ID};
+use crate::helpers::{ColorScheme, ID};
 pub use crate::render::area::DrawArea;
 use crate::render::bike::DrawBike;
 use crate::render::car::DrawCar;
@@ -25,7 +25,7 @@ pub use crate::render::turn::{DrawCrosswalk, DrawTurn};
 use ezgui::{Color, GfxCtx, Prerender};
 use geom::{Distance, Polygon};
 use map_model::{IntersectionID, Map};
-use sim::{DrawCarInput, VehicleType};
+use sim::{DrawCarInput, Sim, VehicleType};
 use std::collections::HashMap;
 
 pub const MIN_ZOOM_FOR_DETAIL: f64 = 1.0;
@@ -74,6 +74,13 @@ pub fn should_draw_blinkers() -> bool {
         .subsec_millis()
         % 300
         < 150
+}
+
+pub struct DrawCtx<'a> {
+    pub cs: &'a ColorScheme,
+    pub map: &'a Map,
+    pub draw_map: &'a DrawMap,
+    pub sim: &'a Sim,
 }
 
 pub struct DrawOptions {

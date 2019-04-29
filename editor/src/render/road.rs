@@ -1,5 +1,5 @@
-use crate::helpers::{ColorScheme, DrawCtx, ID};
-use crate::render::{DrawOptions, Renderable, BIG_ARROW_THICKNESS};
+use crate::helpers::{ColorScheme, ID};
+use crate::render::{DrawCtx, DrawOptions, Renderable, BIG_ARROW_THICKNESS};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::Polygon;
 use map_model::{Map, Road, RoadID};

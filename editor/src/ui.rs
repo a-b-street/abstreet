@@ -1,6 +1,7 @@
-use crate::helpers::{ColorScheme, DrawCtx, ID};
+use crate::helpers::{ColorScheme, ID};
 use crate::render::{
-    draw_vehicle, AgentCache, DrawMap, DrawOptions, DrawPedestrian, Renderable, MIN_ZOOM_FOR_DETAIL,
+    draw_vehicle, AgentCache, DrawCtx, DrawMap, DrawOptions, DrawPedestrian, Renderable,
+    MIN_ZOOM_FOR_DETAIL,
 };
 use abstutil;
 use abstutil::MeasureMemory;

@@ -1,5 +1,5 @@
-use crate::helpers::{DrawCtx, ID};
-use crate::render::{draw_signal_diagram, DrawTurn};
+use crate::helpers::ID;
+use crate::render::{draw_signal_diagram, DrawCtx, DrawTurn};
 use crate::ui::UI;
 use ezgui::{Color, EventCtx, GfxCtx, Key};
 use geom::Duration;

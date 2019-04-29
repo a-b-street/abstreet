@@ -1,5 +1,7 @@
-use crate::helpers::{DrawCtx, ID};
-use crate::render::{DrawOptions, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS};
+use crate::helpers::ID;
+use crate::render::{
+    DrawCtx, DrawOptions, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS,
+};
 use ezgui::{Color, GfxCtx};
 use geom::{Circle, Distance, FindClosest, GPSBounds, PolyLine, Polygon, Pt2D};
 use kml::ExtraShape;

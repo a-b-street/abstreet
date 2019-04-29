@@ -1,7 +1,7 @@
-use crate::helpers::{ColorScheme, DrawCtx, ID};
+use crate::helpers::{ColorScheme, ID};
 use crate::render::{
-    DrawOptions, Renderable, BIG_ARROW_THICKNESS, CROSSWALK_LINE_THICKNESS, TURN_ICON_ARROW_LENGTH,
-    TURN_ICON_ARROW_THICKNESS,
+    DrawCtx, DrawOptions, Renderable, BIG_ARROW_THICKNESS, CROSSWALK_LINE_THICKNESS,
+    TURN_ICON_ARROW_LENGTH, TURN_ICON_ARROW_THICKNESS,
 };
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Circle, Distance, Line, Polygon};

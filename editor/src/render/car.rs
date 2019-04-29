@@ -1,5 +1,5 @@
-use crate::helpers::{ColorScheme, DrawCtx, ID};
-use crate::render::{should_draw_blinkers, DrawOptions, Renderable};
+use crate::helpers::{ColorScheme, ID};
+use crate::render::{should_draw_blinkers, DrawCtx, DrawOptions, Renderable};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Angle, Circle, Distance, PolyLine, Polygon, Pt2D};
 use map_model::{Map, TurnType};

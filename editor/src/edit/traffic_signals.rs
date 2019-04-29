@@ -1,7 +1,7 @@
 use crate::edit::apply_map_edits;
 use crate::game::GameState;
-use crate::helpers::{DrawCtx, ID};
-use crate::render::{draw_signal_cycle, draw_signal_diagram, DrawOptions, DrawTurn};
+use crate::helpers::ID;
+use crate::render::{draw_signal_cycle, draw_signal_diagram, DrawCtx, DrawOptions, DrawTurn};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{Color, EventCtx, GfxCtx, Key, ScreenPt, Wizard, WrappedWizard};

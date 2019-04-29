@@ -2,8 +2,10 @@ mod traffic_signals;
 
 use crate::common::CommonState;
 use crate::game::{GameState, Mode};
-use crate::helpers::{DrawCtx, ID};
-use crate::render::{DrawLane, DrawMap, DrawOptions, DrawTurn, Renderable, MIN_ZOOM_FOR_DETAIL};
+use crate::helpers::ID;
+use crate::render::{
+    DrawCtx, DrawLane, DrawMap, DrawOptions, DrawTurn, Renderable, MIN_ZOOM_FOR_DETAIL,
+};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, Wizard, WrappedWizard};

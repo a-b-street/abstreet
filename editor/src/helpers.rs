@@ -228,14 +228,6 @@ impl ID {
     }
 }
 
-// TODO move to render module
-pub struct DrawCtx<'a> {
-    pub cs: &'a ColorScheme,
-    pub map: &'a Map,
-    pub draw_map: &'a DrawMap,
-    pub sim: &'a Sim,
-}
-
 fn styled_kv(txt: &mut Text, tags: &BTreeMap<String, String>) {
     for (k, v) in tags {
         txt.add_styled_line(k.to_string(), Some(Color::RED), None, None);

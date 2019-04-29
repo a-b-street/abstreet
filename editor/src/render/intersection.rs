@@ -1,5 +1,5 @@
-use crate::helpers::{ColorScheme, DrawCtx, ID};
-use crate::render::{DrawCrosswalk, DrawOptions, DrawTurn, Renderable};
+use crate::helpers::{ColorScheme, ID};
+use crate::render::{DrawCrosswalk, DrawCtx, DrawOptions, DrawTurn, Renderable};
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GfxCtx, Prerender, ScreenPt, Text};
 use geom::{Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D};
