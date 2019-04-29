@@ -40,6 +40,7 @@ impl<T: Clone> Menu<T> {
         // Calculate geometry.
         let mut txt = prompt.clone().unwrap_or_else(|| Text::new());
         let (_, prompt_height) = canvas.text_dims(&txt);
+        // TODO Make sure hotkeys aren't used twice.
         for (hotkey, choice, _) in &choices {
             if let Some(key) = hotkey {
                 txt.add_line(format!("{} - {}", key.describe(), choice));

@@ -5,7 +5,7 @@ use crate::mission::MissionEditMode;
 use crate::sandbox::SandboxMode;
 use crate::state::{Flags, UIState};
 use crate::tutorial::TutorialMode;
-use crate::ui::{EditorState, UI};
+use crate::ui::{EditorState, ShowEverything, UI};
 use abstutil::elapsed_seconds;
 use ezgui::{
     Canvas, EventCtx, EventLoopMode, GfxCtx, Key, LogScroller, ModalMenu, Prerender, TopMenu,
@@ -15,6 +15,7 @@ use geom::{Duration, Line, Pt2D, Speed};
 use map_model::Map;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
+use std::collections::HashMap;
 use std::path::PathBuf;
 use std::time::Instant;
 
@@ -27,7 +28,6 @@ pub struct GameState {
 
 pub enum Mode {
     SplashScreen(Wizard, Option<(Screensaver, XorShiftRng)>),
-    Legacy,
     Edit(EditMode),
     Tutorial(TutorialMode),
     Sandbox(SandboxMode),
@@ -70,13 +70,149 @@ impl GameState {
 }
 
 impl GUI for GameState {
-    // TODO Totally get rid of this...
-    fn top_menu(&self, canvas: &Canvas) -> Option<TopMenu> {
-        self.ui.top_menu(canvas)
+    fn top_menu(&self, _: &Canvas) -> Option<TopMenu> {
+        None
     }
 
     fn modal_menus(&self) -> Vec<ModalMenu> {
-        self.ui.modal_menus()
+        vec![
+            ModalMenu::new(
+                "Map Edit Mode",
+                vec![
+                    (Key::Escape, "quit"),
+                    (Key::S, "save edits"),
+                    (Key::L, "load different edits"),
+                ],
+            ),
+            ModalMenu::new(
+                "Stop Sign Editor",
+                vec![(Key::Escape, "quit"), (Key::R, "reset to default")],
+            ),
+            ModalMenu::new(
+                "Traffic Signal Editor",
+                vec![
+                    (Key::Escape, "quit"),
+                    (Key::D, "change cycle duration"),
+                    (Key::P, "choose a preset signal"),
+                    (Key::K, "move current cycle up"),
+                    (Key::J, "move current cycle down"),
+                    (Key::UpArrow, "select previous cycle"),
+                    (Key::DownArrow, "select next cycle"),
+                    (Key::Backspace, "delete current cycle"),
+                    (Key::N, "add a new empty cycle"),
+                    (Key::M, "add a new pedestrian scramble cycle"),
+                ],
+            ),
+            ModalMenu::new(
+                "Sandbox Mode",
+                vec![
+                    (Key::Escape, "quit"),
+                    (Key::LeftBracket, "slow down sim"),
+                    (Key::RightBracket, "speed up sim"),
+                    (Key::O, "save sim state"),
+                    (Key::Y, "load previous sim state"),
+                    (Key::U, "load next sim state"),
+                    (Key::Space, "run/pause sim"),
+                    (Key::M, "run one step of sim"),
+                    (Key::X, "reset sim"),
+                    (Key::S, "seed the sim with agents"),
+                    // TODO Strange to always have this. Really it's a case of stacked modal?
+                    (Key::F, "stop following agent"),
+                    (Key::R, "stop showing agent's route"),
+                    // TODO This should probably be a debug thing instead
+                    (Key::L, "show/hide route for all agents"),
+                    (Key::A, "show/hide active traffic"),
+                    (Key::T, "start time traveling"),
+                ],
+            ),
+            ModalMenu::new("Agent Spawner", vec![(Key::Escape, "quit")]),
+            ModalMenu::new(
+                "Time Traveler",
+                vec![
+                    (Key::Escape, "quit"),
+                    (Key::Comma, "rewind"),
+                    (Key::Dot, "forwards"),
+                ],
+            ),
+            ModalMenu::new(
+                "Debug Mode",
+                vec![
+                    (Key::Escape, "quit"),
+                    (Key::C, "show/hide chokepoints"),
+                    (Key::O, "clear original roads shown"),
+                    (Key::K, "unhide everything"),
+                    (Key::Num1, "show/hide buildings"),
+                    (Key::Num2, "show/hide intersections"),
+                    (Key::Num3, "show/hide lanes"),
+                    (Key::Num4, "show/hide areas"),
+                    (Key::Num5, "show/hide extra shapes"),
+                    (Key::Num6, "show/hide geometry debug mode"),
+                    (Key::F1, "screenshot everything"),
+                    (Key::Slash, "search OSM metadata"),
+                    (Key::M, "clear OSM search results"),
+                    (Key::S, "configure colors"),
+                    (Key::N, "show/hide neighborhood summaries"),
+                ],
+            ),
+            ModalMenu::new(
+                "Polygon Debugger",
+                vec![
+                    (Key::Escape, "quit"),
+                    (Key::Dot, "next item"),
+                    (Key::Comma, "prev item"),
+                    (Key::F, "first item"),
+                    (Key::L, "last item"),
+                ],
+            ),
+            ModalMenu::new(
+                "Color Picker",
+                vec![(Key::Backspace, "revert"), (Key::Escape, "finalize")],
+            ),
+            ModalMenu::new(
+                "Mission Edit Mode",
+                vec![
+                    (Key::Escape, "quit"),
+                    (Key::N, "manage neighborhoods"),
+                    (Key::W, "manage scenarios"),
+                ],
+            ),
+            ModalMenu::new(
+                "A/B Test Mode",
+                vec![
+                    (Key::Escape, "quit"),
+                    (Key::LeftBracket, "slow down sim"),
+                    (Key::RightBracket, "speed up sim"),
+                    (Key::Space, "run/pause sim"),
+                    (Key::M, "run one step of sim"),
+                    (Key::S, "swap"),
+                    (Key::D, "diff all trips"),
+                    (Key::B, "stop diffing trips"),
+                ],
+            ),
+            ModalMenu::new(
+                "Neighborhood Editor",
+                vec![
+                    (Key::Escape, "quit"),
+                    (Key::S, "save"),
+                    (Key::X, "export as an Osmosis polygon filter"),
+                    (Key::P, "add a new point"),
+                ],
+            ),
+            ModalMenu::new(
+                "Scenario Editor",
+                vec![
+                    (Key::Escape, "quit"),
+                    (Key::S, "save"),
+                    (Key::E, "edit"),
+                    (Key::I, "instantiate"),
+                    (Key::V, "visualize"),
+                ],
+            ),
+            ModalMenu::new(
+                "A/B Test Editor",
+                vec![(Key::Escape, "quit"), (Key::R, "run A/B test")],
+            ),
+        ]
     }
 
     fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode {
@@ -90,17 +226,10 @@ impl GUI for GameState {
                 {
                     self.mode = new_mode;
                 } else if wizard.aborted() {
-                    self.ui.before_quit(ctx.canvas);
+                    self.before_quit(ctx.canvas);
                     std::process::exit(0);
                 }
                 EventLoopMode::Animation
-            }
-            Mode::Legacy => {
-                let (event_mode, pause) = self.ui.new_event(ctx);
-                if pause {
-                    self.mode = Mode::SplashScreen(Wizard::new(), None);
-                }
-                event_mode
             }
             Mode::Edit(_) => EditMode::event(self, ctx),
             Mode::Tutorial(_) => TutorialMode::event(self, ctx),
@@ -114,10 +243,15 @@ impl GUI for GameState {
     fn draw(&self, g: &mut GfxCtx) {
         match self.mode {
             Mode::SplashScreen(ref wizard, _) => {
-                self.ui.draw(g);
+                self.ui.new_draw(
+                    g,
+                    None,
+                    HashMap::new(),
+                    &self.ui.state.primary.sim,
+                    &ShowEverything::new(),
+                );
                 wizard.draw(g);
             }
-            Mode::Legacy => self.ui.draw(g),
             Mode::Edit(_) => EditMode::draw(self, g),
             Mode::Tutorial(_) => TutorialMode::draw(self, g),
             Mode::Sandbox(_) => SandboxMode::draw(self, g),
@@ -215,7 +349,6 @@ fn splash_screen(
     let debug = "Debug mode";
     let mission = "Mission Edit Mode";
     let abtest = "A/B Test Mode";
-    let legacy = "Legacy mode (ignore this)";
     let about = "About";
     let quit = "Quit";
 
@@ -233,8 +366,7 @@ fn splash_screen(
                     (Some(Key::D), debug),
                     (Some(Key::M), mission),
                     (Some(Key::A), abtest),
-                    (None, legacy),
-                    (Some(Key::A), about),
+                    (None, about),
                     (None, quit),
                 ],
             )?
@@ -272,7 +404,6 @@ fn splash_screen(
             x if x == debug => break Some(Mode::Debug(DebugMode::new(ctx, ui))),
             x if x == mission => break Some(Mode::Mission(MissionEditMode::new())),
             x if x == abtest => break Some(Mode::ABTest(ABTestMode::new())),
-            x if x == legacy => break Some(Mode::Legacy),
             x if x == about => {
                 if wizard.acknowledge(LogScroller::new(
                     "About A/B Street".to_string(),
@@ -290,7 +421,8 @@ fn splash_screen(
                 }
             }
             x if x == quit => {
-                ui.before_quit(ctx.canvas);
+                // Not important to call before_quit... if we're here, we're bouncing around
+                // aimlessly anyway
                 std::process::exit(0);
             }
             _ => unreachable!(),

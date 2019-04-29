@@ -1,8 +1,10 @@
 use crate::game::{GameState, Mode};
+use crate::ui::ShowEverything;
 use ezgui::{
-    EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Key, Text, VerticalAlignment, Wizard, GUI,
+    EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Key, Text, VerticalAlignment, Wizard,
 };
 use geom::Pt2D;
+use std::collections::HashMap;
 
 // Does CommonState make sense?
 pub enum TutorialMode {
@@ -12,6 +14,8 @@ pub enum TutorialMode {
 
 impl TutorialMode {
     pub fn event(state: &mut GameState, ctx: &mut EventCtx) -> EventLoopMode {
+        ctx.canvas.handle_event(ctx.input);
+
         match state.mode {
             Mode::Tutorial(TutorialMode::Part1(orig_center)) => {
                 // TODO Zooming also changes this. :(
@@ -31,15 +35,17 @@ impl TutorialMode {
             _ => unreachable!(),
         }
 
-        let (event_mode, pause) = state.ui.new_event(ctx);
-        if pause {
-            state.mode = Mode::SplashScreen(Wizard::new(), None);
-        }
-        event_mode
+        EventLoopMode::InputOnly
     }
 
     pub fn draw(state: &GameState, g: &mut GfxCtx) {
-        state.ui.draw(g);
+        state.ui.new_draw(
+            g,
+            None,
+            HashMap::new(),
+            &state.ui.state.primary.sim,
+            &ShowEverything::new(),
+        );
 
         let mut txt = Text::new();
         match state.mode {
