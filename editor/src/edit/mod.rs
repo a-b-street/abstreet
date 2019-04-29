@@ -110,7 +110,7 @@ impl EditMode {
                             .contextual_action(Key::E, &format!("edit traffic signal for {}", id))
                     {
                         state.mode = Mode::Edit(EditMode::EditingTrafficSignal(
-                            traffic_signals::TrafficSignalEditor::new(id, ctx, &mut state.ui),
+                            traffic_signals::TrafficSignalEditor::new(id, ctx),
                         ));
                     }
                 }
@@ -224,7 +224,8 @@ impl EditMode {
                     map: &state.ui.primary.map,
                     draw_map: &state.ui.primary.draw_map,
                     sim: &state.ui.primary.sim,
-                    hints: &state.ui.hints,
+                    // TODO suppress_traffic_signal_details?
+                    opts: DrawOptions::new(),
                 };
 
                 // More generally we might want to show the diff between two edits, but for now,

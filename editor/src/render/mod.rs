@@ -84,15 +84,17 @@ pub fn should_draw_blinkers() -> bool {
 }
 
 pub struct DrawOptions {
-    pub show_turn_icons_for: Option<IntersectionID>,
     pub override_colors: HashMap<ID, Color>,
+    pub show_turn_icons_for: Option<IntersectionID>,
+    pub suppress_traffic_signal_details: Option<IntersectionID>,
 }
 
 impl DrawOptions {
     pub fn new() -> DrawOptions {
         DrawOptions {
-            show_turn_icons_for: None,
             override_colors: HashMap::new(),
+            show_turn_icons_for: None,
+            suppress_traffic_signal_details: None,
         }
     }
 }

@@ -22,9 +22,7 @@ pub struct TrafficSignalEditor {
 }
 
 impl TrafficSignalEditor {
-    pub fn new(id: IntersectionID, ctx: &mut EventCtx, ui: &mut UI) -> TrafficSignalEditor {
-        ui.hints.suppress_traffic_signal_details = Some(id);
-
+    pub fn new(id: IntersectionID, ctx: &mut EventCtx) -> TrafficSignalEditor {
         let diagram_top_left = ctx.input.set_mode("Traffic Signal Editor", &ctx.canvas);
         TrafficSignalEditor {
             i: id,
@@ -135,8 +133,6 @@ impl TrafficSignalEditor {
         } else {
             self.icon_selected = None;
             if ctx.input.modal_action("quit") {
-                // Reset hints
-                ui.hints.suppress_traffic_signal_details = None;
                 return true;
             }
 
@@ -224,6 +220,7 @@ impl TrafficSignalEditor {
         let cycle = &state.ui.primary.map.get_traffic_signal(self.i).cycles[self.current_cycle];
         let mut opts = DrawOptions::new();
         opts.show_turn_icons_for = Some(self.i);
+        opts.suppress_traffic_signal_details = Some(self.i);
         for t in &state.ui.primary.map.get_i(self.i).turns {
             opts.override_colors.insert(
                 ID::Turn(*t),
@@ -255,7 +252,8 @@ impl TrafficSignalEditor {
             map: &state.ui.primary.map,
             draw_map: &state.ui.primary.draw_map,
             sim: &state.ui.primary.sim,
-            hints: &state.ui.hints,
+            // TODO Same options as above?
+            opts: DrawOptions::new(),
         };
         draw_signal_cycle(cycle, g, &ctx);
 

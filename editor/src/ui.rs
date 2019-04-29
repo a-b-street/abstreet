@@ -1,4 +1,4 @@
-use crate::helpers::{ColorScheme, DrawCtx, RenderingHints, ID};
+use crate::helpers::{ColorScheme, DrawCtx, ID};
 use crate::render::{
     draw_vehicle, AgentCache, DrawMap, DrawOptions, DrawPedestrian, RenderOptions, Renderable,
     MIN_ZOOM_FOR_DETAIL,
@@ -16,7 +16,6 @@ use structopt::StructOpt;
 pub struct UI {
     pub primary: PerMapUI,
     pub cs: ColorScheme,
-    pub hints: RenderingHints,
 }
 
 impl UI {
@@ -46,13 +45,7 @@ impl UI {
             }
         }
 
-        UI {
-            primary,
-            cs,
-            hints: RenderingHints {
-                suppress_traffic_signal_details: None,
-            },
-        }
+        UI { primary, cs }
     }
 
     pub fn draw(
@@ -67,7 +60,7 @@ impl UI {
             map: &self.primary.map,
             draw_map: &self.primary.draw_map,
             sim: &self.primary.sim,
-            hints: &self.hints,
+            opts,
         };
         let mut sample_intersection: Option<String> = None;
 
@@ -105,7 +98,7 @@ impl UI {
                 g.get_screen_bounds(),
                 &g.prerender,
                 &mut cache,
-                opts.show_turn_icons_for,
+                ctx.opts.show_turn_icons_for,
                 source,
                 show_objs,
             );
@@ -130,7 +123,7 @@ impl UI {
                     _ => {}
                 };
                 let opts = RenderOptions {
-                    color: opts.override_colors.get(&obj.get_id()).cloned(),
+                    color: ctx.opts.override_colors.get(&obj.get_id()).cloned(),
                     debug_mode: show_objs.layers().geom_debug_mode,
                 };
                 obj.draw(g, opts, &ctx);

@@ -1,4 +1,4 @@
-use crate::render::{DrawMap, ExtraShapeID};
+use crate::render::{DrawMap, DrawOptions, ExtraShapeID};
 use crate::ui::PerMapUI;
 use abstutil;
 use ezgui::{Color, GfxCtx, Text};
@@ -228,17 +228,13 @@ impl ID {
     }
 }
 
-pub struct RenderingHints {
-    pub suppress_traffic_signal_details: Option<IntersectionID>,
-}
-
 // TODO move to render module
 pub struct DrawCtx<'a> {
     pub cs: &'a ColorScheme,
     pub map: &'a Map,
     pub draw_map: &'a DrawMap,
     pub sim: &'a Sim,
-    pub hints: &'a RenderingHints,
+    pub opts: DrawOptions,
 }
 
 fn styled_kv(txt: &mut Text, tags: &BTreeMap<String, String>) {

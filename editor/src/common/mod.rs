@@ -2,6 +2,7 @@ mod associated;
 mod turn_cycler;
 mod warp;
 
+use crate::helpers::ID;
 use crate::render::DrawOptions;
 use crate::ui::UI;
 use ezgui::{EventCtx, EventLoopMode, GfxCtx, Key};
@@ -57,6 +58,10 @@ impl CommonState {
         let mut opts = DrawOptions::new();
         self.associated
             .override_colors(&mut opts.override_colors, ui);
+        // On behalf of turn_cycler, just do this directly here.
+        if let Some(ID::Lane(l)) = ui.primary.current_selection {
+            opts.suppress_traffic_signal_details = Some(ui.primary.map.get_l(l).dst_i);
+        }
         opts
     }
 }

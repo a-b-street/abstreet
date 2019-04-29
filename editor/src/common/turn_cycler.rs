@@ -1,5 +1,5 @@
 use crate::helpers::{DrawCtx, ID};
-use crate::render::{draw_signal_diagram, DrawTurn};
+use crate::render::{draw_signal_diagram, DrawOptions, DrawTurn};
 use crate::ui::UI;
 use ezgui::{Color, EventCtx, GfxCtx, Key};
 use geom::Duration;
@@ -47,9 +47,6 @@ impl TurnCyclerState {
                         self.state = State::CycleTurns(id, 0);
                     }
                 }
-
-                // TODO...
-                //ctx.hints.suppress_traffic_signal_details = Some(ctx.primary.map.get_l(id).dst_i);
             }
             Some(ID::Intersection(id)) => {
                 self.state = State::ShowIntersection(id);
@@ -103,7 +100,9 @@ impl TurnCyclerState {
                             map: &ui.primary.map,
                             draw_map: &ui.primary.draw_map,
                             sim: &ui.primary.sim,
-                            hints: &ui.hints,
+                            // TODO suppress_traffic_signal_details? draw_signal_diagram is a
+                            // confusing API.
+                            opts: DrawOptions::new(),
                         };
                         draw_signal_diagram(i, cycle.idx, Some(time_left), 0.0, g, &ctx);
                     }
