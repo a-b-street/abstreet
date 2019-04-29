@@ -1,3 +1,4 @@
+mod autocomplete;
 mod log_scroller;
 mod menu;
 mod screenshot;
@@ -6,6 +7,7 @@ mod text_box;
 mod top_menu;
 mod wizard;
 
+pub use self::autocomplete::Autocomplete;
 pub use self::log_scroller::LogScroller;
 pub use self::menu::{Menu, Position};
 pub(crate) use self::screenshot::{screenshot_current, screenshot_everything};

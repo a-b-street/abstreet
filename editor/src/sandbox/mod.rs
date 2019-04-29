@@ -61,6 +61,9 @@ impl SandboxMode {
                     &ShowEverything::new(),
                     false,
                 );
+                if let Some(evmode) = mode.common.event(ctx, &state.ui) {
+                    return evmode;
+                }
 
                 if let State::Spawning(ref mut spawner) = mode.state {
                     if spawner.event(ctx, &mut state.ui) {
@@ -110,10 +113,6 @@ impl SandboxMode {
                 }
                 ctx.input
                     .set_mode_with_new_prompt("Sandbox Mode", txt, ctx.canvas);
-
-                if let Some(evmode) = mode.common.event(ctx, &state.ui) {
-                    return evmode;
-                }
 
                 if let Some(spawner) = spawner::AgentSpawner::new(ctx, &mut state.ui) {
                     mode.state = State::Spawning(spawner);

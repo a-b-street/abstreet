@@ -331,4 +331,11 @@ impl Road {
             )
         }
     }
+
+    pub fn get_name(&self) -> String {
+        self.osm_tags
+            .get("name")
+            .unwrap_or(&"???".to_string())
+            .to_string()
+    }
 }

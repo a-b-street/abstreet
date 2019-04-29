@@ -101,13 +101,7 @@ impl ID {
             ID::Road(id) => {
                 let r = map.get_r(id);
                 txt.add_line(format!("{} (originally {}) is ", r.id, r.stable_id));
-                txt.append(
-                    r.osm_tags
-                        .get("name")
-                        .unwrap_or(&"???".to_string())
-                        .to_string(),
-                    Some(Color::CYAN),
-                );
+                txt.append(r.get_name(), Some(Color::CYAN));
                 txt.add_line(format!("From OSM way {}", r.osm_way_id));
             }
             ID::Lane(id) => {
@@ -117,13 +111,7 @@ impl ID {
                 let i2 = map.get_destination_intersection(id);
 
                 txt.add_line(format!("{} is ", l.id));
-                txt.append(
-                    r.osm_tags
-                        .get("name")
-                        .unwrap_or(&"???".to_string())
-                        .to_string(),
-                    Some(Color::CYAN),
-                );
+                txt.append(r.get_name(), Some(Color::CYAN));
                 txt.add_line(format!("From OSM way {}", r.osm_way_id));
                 txt.add_line(format!(
                     "Parent {} (originally {}) points to {}",

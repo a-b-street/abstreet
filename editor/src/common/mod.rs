@@ -1,4 +1,5 @@
 mod associated;
+mod navigate;
 mod turn_cycler;
 mod warp;
 
@@ -11,6 +12,7 @@ pub struct CommonState {
     associated: associated::ShowAssociatedState,
     turn_cycler: turn_cycler::TurnCyclerState,
     warp: Option<warp::WarpState>,
+    navigate: Option<navigate::Navigator>,
 }
 
 impl CommonState {
@@ -19,6 +21,7 @@ impl CommonState {
             associated: associated::ShowAssociatedState::Inactive,
             turn_cycler: turn_cycler::TurnCyclerState::new(),
             warp: None,
+            navigate: None,
         }
     }
 
@@ -33,6 +36,16 @@ impl CommonState {
         }
         if ctx.input.unimportant_key_pressed(Key::J, "warp") {
             self.warp = Some(warp::WarpState::new());
+        }
+        if let Some(ref mut navigate) = self.navigate {
+            if let Some(evmode) = navigate.event(ctx, ui) {
+                return Some(evmode);
+            }
+            self.navigate = None;
+        }
+        // TODO This definitely conflicts with some modes.
+        if ctx.input.unimportant_key_pressed(Key::K, "navigate") {
+            self.navigate = Some(navigate::Navigator::new(ui));
         }
 
         self.associated.event(ui);
@@ -50,6 +63,9 @@ impl CommonState {
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         if let Some(ref warp) = self.warp {
             warp.draw(g);
+        }
+        if let Some(ref navigate) = self.navigate {
+            navigate.draw(g);
         }
         self.turn_cycler.draw(g, ui);
     }

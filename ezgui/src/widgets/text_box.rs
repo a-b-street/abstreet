@@ -5,8 +5,7 @@ use crate::{text, Event, GfxCtx, InputResult, Key, Text, UserInput, CENTERED};
 pub struct TextBox {
     prompt: String,
     // TODO A rope would be cool.
-    // TODO dont be pub
-    pub line: String,
+    line: String,
     cursor_x: usize,
     shift_pressed: bool,
 }
