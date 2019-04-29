@@ -132,10 +132,6 @@ impl<T: Clone> Menu<T> {
         }
 
         // Handle keys
-        if ev == Event::KeyPress(Key::Escape) {
-            return InputResult::Canceled;
-        }
-
         if self.keys_enabled {
             let idx = self.current_idx.unwrap();
             if ev == Event::KeyPress(Key::Enter) {
@@ -162,6 +158,11 @@ impl<T: Clone> Menu<T> {
                     return InputResult::Done(choice.to_string(), data.clone());
                 }
             }
+        }
+
+        // This is always an option, but do this last, in case Escape is a hotkey of a menu choice.
+        if ev == Event::KeyPress(Key::Escape) {
+            return InputResult::Canceled;
         }
 
         if let Event::WindowResized(_, _) = ev {
