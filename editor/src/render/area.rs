@@ -1,5 +1,5 @@
 use crate::helpers::{ColorScheme, DrawCtx, ID};
-use crate::render::{RenderOptions, Renderable};
+use crate::render::{DrawOptions, Renderable};
 use ezgui::{Color, GfxCtx};
 use geom::Polygon;
 use map_model::{Area, AreaID, AreaType, Map};
@@ -24,8 +24,8 @@ impl Renderable for DrawArea {
         ID::Area(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &DrawCtx) {
-        if let Some(color) = opts.color {
+    fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, ctx: &DrawCtx) {
+        if let Some(color) = opts.color(self.get_id()) {
             g.draw_polygon(color, &ctx.map.get_a(self.id).polygon);
         }
     }

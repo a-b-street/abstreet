@@ -1,5 +1,5 @@
 use crate::helpers::{ColorScheme, DrawCtx, ID};
-use crate::render::{RenderOptions, Renderable, BIG_ARROW_THICKNESS};
+use crate::render::{DrawOptions, Renderable, BIG_ARROW_THICKNESS};
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Circle, Distance, Line, PolyLine, Polygon};
@@ -88,14 +88,14 @@ impl Renderable for DrawLane {
         ID::Lane(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &DrawCtx) {
-        if let Some(color) = opts.color {
+    fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, ctx: &DrawCtx) {
+        if let Some(color) = opts.color(self.get_id()) {
             g.draw_polygon(color, &self.polygon);
         } else {
             g.redraw(&self.draw_default);
         }
 
-        if opts.debug_mode {
+        if opts.geom_debug_mode {
             self.draw_debug(g, ctx);
         }
     }

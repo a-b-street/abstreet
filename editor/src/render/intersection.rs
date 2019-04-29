@@ -1,5 +1,5 @@
 use crate::helpers::{ColorScheme, DrawCtx, ID};
-use crate::render::{DrawCrosswalk, DrawTurn, RenderOptions, Renderable};
+use crate::render::{DrawCrosswalk, DrawOptions, DrawTurn, Renderable};
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GfxCtx, Prerender, ScreenPt, Text};
 use geom::{Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D};
@@ -83,8 +83,8 @@ impl Renderable for DrawIntersection {
         ID::Intersection(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &DrawCtx) {
-        if let Some(color) = opts.color {
+    fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, ctx: &DrawCtx) {
+        if let Some(color) = opts.color(self.get_id()) {
             // Don't draw the sidewalk corners
             g.draw_polygon(color, &self.polygon);
         } else {

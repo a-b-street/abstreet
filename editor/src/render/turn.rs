@@ -1,7 +1,7 @@
 use crate::helpers::{ColorScheme, DrawCtx, ID};
 use crate::render::{
-    RenderOptions, Renderable, BIG_ARROW_THICKNESS, CROSSWALK_LINE_THICKNESS,
-    TURN_ICON_ARROW_LENGTH, TURN_ICON_ARROW_THICKNESS,
+    DrawOptions, Renderable, BIG_ARROW_THICKNESS, CROSSWALK_LINE_THICKNESS, TURN_ICON_ARROW_LENGTH,
+    TURN_ICON_ARROW_THICKNESS,
 };
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Circle, Distance, Line, Polygon};
@@ -76,14 +76,14 @@ impl Renderable for DrawTurn {
         ID::Turn(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &DrawCtx) {
+    fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, ctx: &DrawCtx) {
         g.draw_circle(
             ctx.cs.get_def("turn icon circle", Color::grey(0.3)),
             &self.icon_circle,
         );
 
         g.draw_arrow(
-            opts.color
+            opts.color(self.get_id())
                 .unwrap_or_else(|| ctx.cs.get_def("inactive turn icon", Color::grey(0.7))),
             TURN_ICON_ARROW_THICKNESS,
             &self.icon_arrow,

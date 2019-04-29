@@ -43,21 +43,13 @@ pub const CROSSWALK_LINE_THICKNESS: Distance = Distance::const_meters(0.25);
 // here. For example, trips aren't drawn, so it's meaningless to ask what their bounding box is.
 pub trait Renderable {
     fn get_id(&self) -> ID;
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &DrawCtx);
+    fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, ctx: &DrawCtx);
     // Higher z-ordered objects are drawn later. Default to low so roads at -1 don't vanish.
     fn get_zorder(&self) -> isize {
         -5
     }
     // This is called at most once per frame; don't worry about cloning and lack of prerendering.
     fn get_outline(&self, map: &Map) -> Polygon;
-}
-
-pub struct RenderOptions {
-    // The "main" color for the object, if available.
-    pub color: Option<Color>,
-    // TODO This should be accessible through ctx...
-    pub debug_mode: bool,
-    pub suppress_traffic_signal_details: Option<IntersectionID>,
 }
 
 pub fn draw_vehicle(
@@ -88,6 +80,7 @@ pub struct DrawOptions {
     pub override_colors: HashMap<ID, Color>,
     pub show_turn_icons_for: Option<IntersectionID>,
     pub suppress_traffic_signal_details: Option<IntersectionID>,
+    pub geom_debug_mode: bool,
 }
 
 impl DrawOptions {
@@ -96,6 +89,11 @@ impl DrawOptions {
             override_colors: HashMap::new(),
             show_turn_icons_for: None,
             suppress_traffic_signal_details: None,
+            geom_debug_mode: false,
         }
+    }
+
+    pub fn color(&self, id: ID) -> Option<Color> {
+        self.override_colors.get(&id).cloned()
     }
 }

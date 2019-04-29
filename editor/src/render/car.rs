@@ -1,5 +1,5 @@
 use crate::helpers::{ColorScheme, DrawCtx, ID};
-use crate::render::{should_draw_blinkers, RenderOptions, Renderable};
+use crate::render::{should_draw_blinkers, DrawOptions, Renderable};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Angle, Circle, Distance, PolyLine, Polygon, Pt2D};
 use map_model::{Map, TurnType};
@@ -137,8 +137,8 @@ impl Renderable for DrawCar {
         ID::Car(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &DrawCtx) {
-        if let Some(color) = opts.color {
+    fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, ctx: &DrawCtx) {
+        if let Some(color) = opts.color(self.get_id()) {
             let mut draw = vec![(color, &self.body_polygon)];
             for p in &self.window_polygons {
                 draw.push((ctx.cs.get("car window"), p));

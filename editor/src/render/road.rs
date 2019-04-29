@@ -1,5 +1,5 @@
 use crate::helpers::{ColorScheme, DrawCtx, ID};
-use crate::render::{RenderOptions, Renderable, BIG_ARROW_THICKNESS};
+use crate::render::{DrawOptions, Renderable, BIG_ARROW_THICKNESS};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::Polygon;
 use map_model::{Map, Road, RoadID};
@@ -29,7 +29,7 @@ impl Renderable for DrawRoad {
         ID::Road(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: RenderOptions, _: &DrawCtx) {
+    fn draw(&self, g: &mut GfxCtx, _: &DrawOptions, _: &DrawCtx) {
         g.redraw(&self.draw_center_line);
     }
 

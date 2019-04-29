@@ -267,6 +267,7 @@ impl DebugMode {
             Mode::Debug(ref mode) => match mode.state {
                 State::Exploring => {
                     let mut opts = mode.common.draw_options(&state.ui);
+                    opts.geom_debug_mode = mode.layers.geom_debug_mode;
                     if let Some(ref chokepoints) = mode.chokepoints {
                         let color = state.ui.cs.get_def("chokepoint", Color::RED);
                         for l in &chokepoints.lanes {
@@ -319,21 +320,21 @@ impl DebugMode {
                     mode.neighborhood_summary.draw(g);
                 }
                 State::Polygons(ref debugger) => {
-                    state
-                        .ui
-                        .draw(g, DrawOptions::new(), &state.ui.primary.sim, mode);
+                    let mut opts = DrawOptions::new();
+                    opts.geom_debug_mode = mode.layers.geom_debug_mode;
+                    state.ui.draw(g, opts, &state.ui.primary.sim, mode);
                     debugger.draw(g, &state.ui);
                 }
                 State::SearchOSM(ref tb) => {
-                    state
-                        .ui
-                        .draw(g, DrawOptions::new(), &state.ui.primary.sim, mode);
+                    let mut opts = DrawOptions::new();
+                    opts.geom_debug_mode = mode.layers.geom_debug_mode;
+                    state.ui.draw(g, opts, &state.ui.primary.sim, mode);
                     tb.draw(g);
                 }
                 State::Colors(ref picker) => {
-                    state
-                        .ui
-                        .draw(g, DrawOptions::new(), &state.ui.primary.sim, mode);
+                    let mut opts = DrawOptions::new();
+                    opts.geom_debug_mode = mode.layers.geom_debug_mode;
+                    state.ui.draw(g, opts, &state.ui.primary.sim, mode);
                     picker.draw(g);
                 }
             },

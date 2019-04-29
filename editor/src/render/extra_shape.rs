@@ -1,5 +1,5 @@
 use crate::helpers::{DrawCtx, ID};
-use crate::render::{RenderOptions, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS};
+use crate::render::{DrawOptions, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS};
 use ezgui::{Color, GfxCtx};
 use geom::{Circle, Distance, FindClosest, GPSBounds, PolyLine, Polygon, Pt2D};
 use kml::ExtraShape;
@@ -71,9 +71,9 @@ impl Renderable for DrawExtraShape {
         ID::ExtraShape(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &DrawCtx) {
+    fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, ctx: &DrawCtx) {
         let color = opts
-            .color
+            .color(self.get_id())
             .unwrap_or_else(|| ctx.cs.get_def("extra shape", Color::CYAN));
         g.draw_polygon(color, &self.polygon);
     }

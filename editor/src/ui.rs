@@ -1,7 +1,6 @@
 use crate::helpers::{ColorScheme, DrawCtx, ID};
 use crate::render::{
-    draw_vehicle, AgentCache, DrawMap, DrawOptions, DrawPedestrian, RenderOptions, Renderable,
-    MIN_ZOOM_FOR_DETAIL,
+    draw_vehicle, AgentCache, DrawMap, DrawOptions, DrawPedestrian, Renderable, MIN_ZOOM_FOR_DETAIL,
 };
 use abstutil;
 use abstutil::MeasureMemory;
@@ -121,12 +120,7 @@ impl UI {
                     }
                     _ => {}
                 };
-                let tmp_opts = RenderOptions {
-                    color: opts.override_colors.get(&obj.get_id()).cloned(),
-                    debug_mode: show_objs.layers().geom_debug_mode,
-                    suppress_traffic_signal_details: opts.suppress_traffic_signal_details,
-                };
-                obj.draw(g, tmp_opts, &ctx);
+                obj.draw(g, &opts, &ctx);
 
                 if self.primary.current_selection == Some(obj.get_id()) {
                     g.draw_polygon(

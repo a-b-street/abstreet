@@ -1,5 +1,5 @@
 use crate::helpers::{ColorScheme, DrawCtx, ID};
-use crate::render::{RenderOptions, Renderable};
+use crate::render::{DrawOptions, Renderable};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Distance, Polygon};
 use map_model::Map;
@@ -51,8 +51,8 @@ impl Renderable for DrawBike {
         ID::Car(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, _: &DrawCtx) {
-        if let Some(color) = opts.color {
+    fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, _: &DrawCtx) {
+        if let Some(color) = opts.color(self.get_id()) {
             g.draw_polygon(color, &self.polygon);
         } else {
             g.redraw(&self.draw_default);

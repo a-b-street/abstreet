@@ -1,5 +1,5 @@
 use crate::helpers::{ColorScheme, DrawCtx, ID};
-use crate::render::{RenderOptions, Renderable};
+use crate::render::{DrawOptions, Renderable};
 use ezgui::{Color, GfxCtx};
 use geom::{Distance, Line, Polygon};
 use map_model::{Building, BuildingID, BuildingType, Map, LANE_THICKNESS};
@@ -50,9 +50,9 @@ impl Renderable for DrawBuilding {
         ID::Building(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &DrawCtx) {
-        if let Some(c) = opts.color {
-            g.draw_polygon(c, &ctx.map.get_b(self.id).polygon);
+    fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, ctx: &DrawCtx) {
+        if let Some(color) = opts.color(self.get_id()) {
+            g.draw_polygon(color, &ctx.map.get_b(self.id).polygon);
         }
     }
 

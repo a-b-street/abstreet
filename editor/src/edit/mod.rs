@@ -3,9 +3,7 @@ mod traffic_signals;
 use crate::common::CommonState;
 use crate::game::{GameState, Mode};
 use crate::helpers::{DrawCtx, ID};
-use crate::render::{
-    DrawLane, DrawMap, DrawOptions, DrawTurn, RenderOptions, Renderable, MIN_ZOOM_FOR_DETAIL,
-};
+use crate::render::{DrawLane, DrawMap, DrawOptions, DrawTurn, Renderable, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, Wizard, WrappedWizard};
@@ -225,21 +223,15 @@ impl EditMode {
                     draw_map: &state.ui.primary.draw_map,
                     sim: &state.ui.primary.sim,
                 };
+                let mut opts = DrawOptions::new();
 
                 // More generally we might want to show the diff between two edits, but for now,
                 // just show diff relative to basemap.
                 let edits = state.ui.primary.map.get_edits();
                 for l in edits.lane_overrides.keys() {
                     if zoomed {
-                        state.ui.primary.draw_map.get_l(*l).draw(
-                            g,
-                            RenderOptions {
-                                color: Some(color),
-                                debug_mode: false,
-                                suppress_traffic_signal_details: None,
-                            },
-                            &ctx,
-                        );
+                        opts.override_colors.insert(ID::Lane(*l), color);
+                        state.ui.primary.draw_map.get_l(*l).draw(g, &opts, &ctx);
                     } else {
                         g.draw_polygon(
                             color,
@@ -258,15 +250,8 @@ impl EditMode {
                     .keys()
                     .chain(edits.traffic_signal_overrides.keys())
                 {
-                    state.ui.primary.draw_map.get_i(*i).draw(
-                        g,
-                        RenderOptions {
-                            color: Some(color),
-                            debug_mode: false,
-                            suppress_traffic_signal_details: None,
-                        },
-                        &ctx,
-                    );
+                    opts.override_colors.insert(ID::Intersection(*i), color);
+                    state.ui.primary.draw_map.get_i(*i).draw(g, &opts, &ctx);
                 }
             }
             Mode::Edit(EditMode::Saving(ref wizard))

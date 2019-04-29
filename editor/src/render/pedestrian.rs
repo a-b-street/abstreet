@@ -1,5 +1,5 @@
 use crate::helpers::{ColorScheme, DrawCtx, ID};
-use crate::render::{should_draw_blinkers, RenderOptions, Renderable};
+use crate::render::{should_draw_blinkers, DrawOptions, Renderable};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Circle, Distance, PolyLine, Polygon};
 use map_model::Map;
@@ -65,8 +65,8 @@ impl Renderable for DrawPedestrian {
         ID::Pedestrian(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &DrawCtx) {
-        if let Some(color) = opts.color {
+    fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, ctx: &DrawCtx) {
+        if let Some(color) = opts.color(self.get_id()) {
             g.draw_circle(color, &self.circle);
         } else {
             g.redraw(&self.draw_default);
