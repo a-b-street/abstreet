@@ -1,12 +1,10 @@
 mod abtest;
-mod colors;
 mod common;
 mod debug;
 mod edit;
 mod game;
+mod helpers;
 mod mission;
-mod objects;
-mod plugins;
 mod render;
 mod sandbox;
 mod tutorial;

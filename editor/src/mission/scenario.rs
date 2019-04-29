@@ -1,9 +1,9 @@
 use crate::game::Mode;
-use crate::mission::MissionEditMode;
-use crate::plugins::{
+use crate::helpers::{
     choose_intersection, choose_neighborhood, choose_origin_destination, input_time,
     input_weighted_usize, load_scenario,
 };
+use crate::mission::MissionEditMode;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::Timer;

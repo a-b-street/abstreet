@@ -11,8 +11,7 @@ mod pedestrian;
 mod road;
 mod turn;
 
-use crate::colors::ColorScheme;
-use crate::objects::{DrawCtx, ID};
+use crate::helpers::{ColorScheme, DrawCtx, ID};
 pub use crate::render::area::DrawArea;
 use crate::render::bike::DrawBike;
 use crate::render::car::DrawCar;

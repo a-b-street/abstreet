@@ -1,4 +1,4 @@
-use crate::objects::ID;
+use crate::helpers::ID;
 use crate::ui::UI;
 use ezgui::{EventCtx, Key};
 use map_model::LaneID;

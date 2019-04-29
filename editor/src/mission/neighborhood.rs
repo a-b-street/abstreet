@@ -1,4 +1,4 @@
-use crate::plugins::load_neighborhood_builder;
+use crate::helpers::load_neighborhood_builder;
 use crate::ui::UI;
 use ezgui::{Color, EventCtx, GfxCtx, Key, Wizard, WrappedWizard};
 use geom::{Circle, Distance, Line, Polygon, Pt2D};

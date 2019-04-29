@@ -1,4 +1,4 @@
-use crate::objects::{DrawCtx, ID};
+use crate::helpers::{DrawCtx, ID};
 use crate::render::{RenderOptions, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS};
 use ezgui::{Color, GfxCtx};
 use geom::{Circle, Distance, FindClosest, GPSBounds, PolyLine, Polygon, Pt2D};

@@ -1,5 +1,4 @@
-use crate::colors::ColorScheme;
-use crate::objects::{DrawCtx, ID};
+use crate::helpers::{ColorScheme, DrawCtx, ID};
 use crate::render::{RenderOptions, Renderable};
 use ezgui::{Color, GfxCtx};
 use geom::Polygon;

@@ -1,6 +1,6 @@
 use crate::edit::apply_map_edits;
 use crate::game::GameState;
-use crate::objects::{DrawCtx, ID};
+use crate::helpers::{DrawCtx, ID};
 use crate::render::{draw_signal_cycle, draw_signal_diagram, DrawTurn};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;

@@ -1,5 +1,4 @@
-use crate::colors::ColorScheme;
-use crate::objects::{DrawCtx, ID};
+use crate::helpers::{ColorScheme, DrawCtx, ID};
 use crate::render::{
     RenderOptions, Renderable, BIG_ARROW_THICKNESS, CROSSWALK_LINE_THICKNESS,
     TURN_ICON_ARROW_LENGTH, TURN_ICON_ARROW_THICKNESS,
@@ -78,7 +77,6 @@ impl Renderable for DrawTurn {
     }
 
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &DrawCtx) {
-        // Some plugins hide icons entirely.
         if ctx.hints.hide_turn_icons.contains(&self.id) {
             return;
         }

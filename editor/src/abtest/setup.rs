@@ -1,7 +1,7 @@
 use crate::abtest::{ABTestMode, State};
 use crate::common::CommonState;
 use crate::game::{GameState, Mode};
-use crate::plugins::{choose_edits, choose_scenario, load_ab_test};
+use crate::helpers::{choose_edits, choose_scenario, load_ab_test};
 use crate::ui::{Flags, PerMapUI, UI};
 use ezgui::{EventCtx, GfxCtx, LogScroller, Wizard, WrappedWizard};
 use map_model::Map;

@@ -7,7 +7,7 @@ mod polygons;
 
 use crate::common::CommonState;
 use crate::game::{GameState, Mode};
-use crate::objects::ID;
+use crate::helpers::ID;
 use crate::ui::{ShowLayers, ShowObject, UI};
 use abstutil::Timer;
 use ezgui::{

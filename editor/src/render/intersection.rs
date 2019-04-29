@@ -1,5 +1,4 @@
-use crate::colors::ColorScheme;
-use crate::objects::{DrawCtx, ID};
+use crate::helpers::{ColorScheme, DrawCtx, ID};
 use crate::render::{DrawCrosswalk, DrawTurn, RenderOptions, Renderable};
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GfxCtx, Prerender, ScreenPt, Text};

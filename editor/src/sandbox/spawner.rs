@@ -1,4 +1,4 @@
-use crate::objects::ID;
+use crate::helpers::ID;
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{EventCtx, GfxCtx, Key};

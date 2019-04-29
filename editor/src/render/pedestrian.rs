@@ -1,5 +1,4 @@
-use crate::colors::ColorScheme;
-use crate::objects::{DrawCtx, ID};
+use crate::helpers::{ColorScheme, DrawCtx, ID};
 use crate::render::{should_draw_blinkers, RenderOptions, Renderable};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Circle, Distance, PolyLine, Polygon};

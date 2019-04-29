@@ -1,4 +1,4 @@
-use crate::objects::ID;
+use crate::helpers::ID;
 use crate::render::DrawMap;
 use crate::ui::UI;
 use abstutil::elapsed_seconds;

@@ -1,12 +1,20 @@
-use crate::colors::ColorScheme;
 use crate::render::{DrawMap, ExtraShapeID};
 use crate::ui::PerMapUI;
-use ezgui::{Color, GfxCtx, Text};
-use geom::Pt2D;
+use abstutil;
+use abstutil::WeightedUsizeChoice;
+use ezgui::{Color, GfxCtx, Text, WrappedWizard};
+use geom::{Duration, Pt2D};
 use map_model::raw_data::StableRoadID;
-use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, RoadID, TurnID};
-use sim::{AgentID, CarID, GetDrawAgents, PedestrianID, Sim, TripID};
-use std::collections::{BTreeMap, HashSet};
+use map_model::{
+    AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, MapEdits, Neighborhood,
+    NeighborhoodBuilder, RoadID, TurnID,
+};
+use serde_derive::{Deserialize, Serialize};
+use sim::{
+    ABTest, AgentID, CarID, GetDrawAgents, OriginDestination, PedestrianID, Scenario, Sim, TripID,
+};
+use std::collections::{BTreeMap, HashMap, HashSet};
+use std::io::Error;
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]
 pub enum ID {
@@ -231,7 +239,7 @@ pub struct RenderingHints {
     pub hide_turn_icons: HashSet<TurnID>,
 }
 
-// For plugins and rendering. Not sure what module this should live in, here seems fine.
+// TODO move to render module
 pub struct DrawCtx<'a> {
     pub cs: &'a ColorScheme,
     pub map: &'a Map,
@@ -247,3 +255,194 @@ fn styled_kv(txt: &mut Text, tags: &BTreeMap<String, String>) {
         txt.append(v.to_string(), Some(Color::CYAN));
     }
 }
+
+pub fn choose_neighborhood(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
+    let map_name = map.get_name().to_string();
+    let gps_bounds = map.get_gps_bounds().clone();
+    // Load the full object, since we usually visualize the neighborhood when menuing over it
+    wizard
+        .choose_something_no_keys::<Neighborhood>(
+            query,
+            Box::new(move || Neighborhood::load_all(&map_name, &gps_bounds)),
+        )
+        .map(|(n, _)| n)
+}
+
+pub fn load_neighborhood_builder(
+    map: &Map,
+    wizard: &mut WrappedWizard,
+    query: &str,
+) -> Option<NeighborhoodBuilder> {
+    let map_name = map.get_name().to_string();
+    wizard
+        .choose_something_no_keys::<NeighborhoodBuilder>(
+            query,
+            Box::new(move || abstutil::load_all_objects("neighborhoods", &map_name)),
+        )
+        .map(|(_, n)| n)
+}
+
+pub fn load_scenario(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<Scenario> {
+    let map_name = map.get_name().to_string();
+    wizard
+        .choose_something_no_keys::<Scenario>(
+            query,
+            Box::new(move || abstutil::load_all_objects("scenarios", &map_name)),
+        )
+        .map(|(_, s)| s)
+}
+
+pub fn choose_scenario(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
+    let map_name = map.get_name().to_string();
+    wizard
+        .choose_something_no_keys::<String>(
+            query,
+            Box::new(move || abstutil::list_all_objects("scenarios", &map_name)),
+        )
+        .map(|(n, _)| n)
+}
+
+pub fn choose_edits(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
+    let map_name = map.get_name().to_string();
+    wizard
+        .choose_something_no_keys::<String>(
+            query,
+            Box::new(move || {
+                let mut list = abstutil::list_all_objects("edits", &map_name);
+                list.push(("no_edits".to_string(), "no_edits".to_string()));
+                list
+            }),
+        )
+        .map(|(n, _)| n)
+}
+
+pub fn load_edits(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<MapEdits> {
+    // TODO Exclude current?
+    let map_name = map.get_name().to_string();
+    wizard
+        .choose_something_no_keys::<MapEdits>(
+            query,
+            Box::new(move || {
+                let mut list = abstutil::load_all_objects("edits", &map_name);
+                list.push(("no_edits".to_string(), MapEdits::new(map_name.clone())));
+                list
+            }),
+        )
+        .map(|(_, e)| e)
+}
+
+pub fn load_ab_test(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<ABTest> {
+    let map_name = map.get_name().to_string();
+    wizard
+        .choose_something_no_keys::<ABTest>(
+            query,
+            Box::new(move || abstutil::load_all_objects("ab_tests", &map_name)),
+        )
+        .map(|(_, t)| t)
+}
+
+pub fn input_time(wizard: &mut WrappedWizard, query: &str) -> Option<Duration> {
+    wizard.input_something(query, None, Box::new(|line| Duration::parse(&line)))
+}
+
+pub fn input_weighted_usize(
+    wizard: &mut WrappedWizard,
+    query: &str,
+) -> Option<WeightedUsizeChoice> {
+    wizard.input_something(
+        query,
+        None,
+        Box::new(|line| WeightedUsizeChoice::parse(&line)),
+    )
+}
+
+// TODO Validate the intersection exists? Let them pick it with the cursor?
+pub fn choose_intersection(wizard: &mut WrappedWizard, query: &str) -> Option<IntersectionID> {
+    wizard.input_something(
+        query,
+        None,
+        Box::new(|line| usize::from_str_radix(&line, 10).ok().map(IntersectionID)),
+    )
+}
+
+pub fn choose_origin_destination(
+    map: &Map,
+    wizard: &mut WrappedWizard,
+    query: &str,
+) -> Option<OriginDestination> {
+    let neighborhood = "Neighborhood";
+    let border = "Border intersection";
+    if wizard.choose_string(query, vec![neighborhood, border])? == neighborhood {
+        choose_neighborhood(map, wizard, query).map(OriginDestination::Neighborhood)
+    } else {
+        choose_intersection(wizard, query).map(OriginDestination::Border)
+    }
+}
+
+pub struct ColorScheme {
+    map: HashMap<String, Color>,
+
+    // A subset of map
+    modified: ModifiedColors,
+}
+
+#[derive(Serialize, Deserialize)]
+struct ModifiedColors {
+    map: BTreeMap<String, Color>,
+}
+
+impl ColorScheme {
+    pub fn load() -> Result<ColorScheme, Error> {
+        let modified: ModifiedColors = abstutil::read_json("../color_scheme")?;
+        let mut map: HashMap<String, Color> = default_colors();
+        for (name, c) in &modified.map {
+            map.insert(name.clone(), *c);
+        }
+
+        Ok(ColorScheme { map, modified })
+    }
+
+    pub fn save(&self) {
+        abstutil::write_json("../color_scheme", &self.modified)
+            .expect("Saving color_scheme failed");
+    }
+
+    // Get, but specify the default inline. The default is extracted before compilation by a script
+    // and used to generate default_colors().
+    pub fn get_def(&self, name: &str, _default: Color) -> Color {
+        self.map[name]
+    }
+
+    pub fn get(&self, name: &str) -> Color {
+        self.map[name]
+    }
+
+    // Just for the color picker plugin, that's why the funky return value
+    pub fn color_names(&self) -> Vec<(String, ())> {
+        let mut names: Vec<(String, ())> = self.map.keys().map(|n| (n.clone(), ())).collect();
+        names.sort();
+        names
+    }
+
+    pub fn override_color(&mut self, name: &str, value: Color) {
+        self.modified.map.insert(name.to_string(), value);
+        self.map.insert(name.to_string(), value);
+    }
+
+    pub fn get_modified(&self, name: &str) -> Option<Color> {
+        self.modified.map.get(name).cloned()
+    }
+
+    pub fn reset_modified(&mut self, name: &str, orig: Option<Color>) {
+        if let Some(c) = orig {
+            self.modified.map.insert(name.to_string(), c);
+            self.map.insert(name.to_string(), c);
+        } else {
+            self.modified.map.remove(name);
+            // Restore the original default.
+            self.map.insert(name.to_string(), default_colors()[name]);
+        }
+    }
+}
+
+include!(concat!(env!("OUT_DIR"), "/init_colors.rs"));

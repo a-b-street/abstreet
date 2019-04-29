@@ -1,4 +1,4 @@
-use crate::objects::{DrawCtx, ID};
+use crate::helpers::{DrawCtx, ID};
 use crate::render::{draw_signal_diagram, DrawTurn};
 use crate::ui::UI;
 use ezgui::{Color, EventCtx, GfxCtx, Key};

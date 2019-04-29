@@ -1,5 +1,4 @@
-use crate::colors::ColorScheme;
-use crate::objects::{DrawCtx, RenderingHints, ID};
+use crate::helpers::{ColorScheme, DrawCtx, RenderingHints, ID};
 use crate::render::{
     draw_vehicle, AgentCache, DrawMap, DrawPedestrian, RenderOptions, Renderable,
     MIN_ZOOM_FOR_DETAIL,

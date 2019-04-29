@@ -2,8 +2,7 @@ mod traffic_signals;
 
 use crate::common::CommonState;
 use crate::game::{GameState, Mode};
-use crate::objects::{DrawCtx, ID};
-use crate::plugins::load_edits;
+use crate::helpers::{load_edits, DrawCtx, ID};
 use crate::render::{DrawLane, DrawMap, DrawTurn, RenderOptions, Renderable, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
