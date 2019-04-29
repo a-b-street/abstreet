@@ -90,62 +90,69 @@ impl UserInput {
             match menu.event(&mut input, canvas) {
                 // Keep going; the input hasn't been consumed.
                 InputResult::Canceled => {
-                    // Create the context menu here, even if one already existed.
-                    if input.right_mouse_button_pressed() {
-                        assert!(!input.event_consumed);
-                        input.event_consumed = true;
-                        input.context_menu = ContextMenu::Building(
-                            canvas.get_cursor_in_screen_space(),
-                            BTreeMap::new(),
-                        );
-                    } else {
-                        match input.context_menu {
-                            ContextMenu::Inactive => {
-                                for (_, menu) in input.modal_state.active.iter_mut() {
-                                    // context_menu is borrowed, so can't call methods on input.
-                                    match menu.event(input.event, canvas) {
-                                        // TODO Only consume the input if it was a mouse on top of
-                                        // the menu... because we don't want to also mouseover
-                                        // stuff underneath
-                                        InputResult::Canceled | InputResult::StillActive => {}
-                                        InputResult::Done(action, _) => {
-                                            assert!(!input.event_consumed);
-                                            input.event_consumed = true;
-                                            input.chosen_action = Some(action);
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            ContextMenu::Displaying(ref mut menu) => {
-                                // Can't call consume_event() because context_menu is borrowed.
-                                assert!(!input.event_consumed);
-                                input.event_consumed = true;
-                                match menu.event(input.event, canvas) {
-                                    InputResult::Canceled => {
-                                        input.context_menu = ContextMenu::Inactive;
-                                    }
-                                    InputResult::StillActive => {}
-                                    InputResult::Done(_, hotkey) => {
-                                        input.context_menu = ContextMenu::Clicked(hotkey);
-                                    }
-                                }
-                            }
-                            ContextMenu::Building(_, _) | ContextMenu::Clicked(_) => {
-                                panic!("UserInput::new given a ContextMenu in an impossible state");
-                            }
-                        }
-                    }
+                    menu.valid_actions.clear();
+                    input.top_menu = top_menu;
                 }
                 // The context menu can't coexist.
-                InputResult::StillActive => {}
+                InputResult::StillActive => {
+                    menu.valid_actions.clear();
+                    input.top_menu = top_menu;
+                    return input;
+                }
                 InputResult::Done(action, _) => {
+                    menu.valid_actions.clear();
                     input.chosen_action = Some(action);
+                    input.top_menu = top_menu;
+                    return input;
                 }
             }
-            menu.valid_actions.clear();
         }
-        input.top_menu = top_menu;
+
+        // Create the context menu here, even if one already existed.
+        if input.right_mouse_button_pressed() {
+            assert!(!input.event_consumed);
+            input.event_consumed = true;
+            input.context_menu =
+                ContextMenu::Building(canvas.get_cursor_in_screen_space(), BTreeMap::new());
+            return input;
+        }
+        match input.context_menu {
+            ContextMenu::Inactive => {}
+            ContextMenu::Displaying(ref mut menu) => {
+                // Can't call consume_event() because context_menu is borrowed.
+                assert!(!input.event_consumed);
+                input.event_consumed = true;
+                match menu.event(input.event, canvas) {
+                    InputResult::Canceled => {
+                        input.context_menu = ContextMenu::Inactive;
+                    }
+                    InputResult::StillActive => {}
+                    InputResult::Done(_, hotkey) => {
+                        input.context_menu = ContextMenu::Clicked(hotkey);
+                    }
+                }
+                return input;
+            }
+            ContextMenu::Building(_, _) | ContextMenu::Clicked(_) => {
+                panic!("UserInput::new given a ContextMenu in an impossible state");
+            }
+        }
+
+        for (_, menu) in input.modal_state.active.iter_mut() {
+            // context_menu is borrowed, so can't call methods on input.
+            match menu.event(input.event, canvas) {
+                // TODO Only consume the input if it was a mouse on top of
+                // the menu... because we don't want to also mouseover
+                // stuff underneath
+                InputResult::Canceled | InputResult::StillActive => {}
+                InputResult::Done(action, _) => {
+                    assert!(!input.event_consumed);
+                    input.event_consumed = true;
+                    input.chosen_action = Some(action);
+                    break;
+                }
+            }
+        }
 
         input
     }
