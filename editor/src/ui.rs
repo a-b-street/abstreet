@@ -155,62 +155,45 @@ impl UI {
         debug_areas: bool,
     ) -> Option<ID> {
         if !ctx.canvas.is_dragging() && ctx.input.get_moved_mouse().is_some() {
-            return self.mouseover_something(
-                &ctx,
+            // Unzoomed mode. Ignore when debugging areas.
+            if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL && !debug_areas {
+                return None;
+            }
+
+            let pt = ctx.canvas.get_cursor_in_map_space()?;
+
+            let mut cache = self.primary.draw_map.agents.borrow_mut();
+            let mut objects = self.get_renderables_back_to_front(
+                Circle::new(pt, Distance::meters(3.0)).get_bounds(),
+                ctx.prerender,
+                &mut cache,
                 show_turn_icons_for,
                 source,
                 show_objs,
-                debug_areas,
             );
+            objects.reverse();
+
+            for obj in objects {
+                // Don't mouseover areas.
+                // TODO Might get fancier rules in the future, so we can't mouseover irrelevant things
+                // in intersection editor mode, for example.
+                match obj.get_id() {
+                    ID::Area(_) if !debug_areas => {}
+                    // Thick roads are only shown when unzoomed, when we don't mouseover at all.
+                    ID::Road(_) => {}
+                    _ => {
+                        if obj.get_outline(&self.primary.map).contains_pt(pt) {
+                            return Some(obj.get_id());
+                        }
+                    }
+                };
+            }
+            return None;
         }
         if ctx.input.window_lost_cursor() {
             return None;
         }
         self.primary.current_selection
-    }
-
-    fn mouseover_something(
-        &self,
-        ctx: &EventCtx,
-        show_turn_icons_for: Option<IntersectionID>,
-        source: &GetDrawAgents,
-        show_objs: &ShowObject,
-        debug_areas: bool,
-    ) -> Option<ID> {
-        // Unzoomed mode. Ignore when debugging areas.
-        if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL && !debug_areas {
-            return None;
-        }
-
-        let pt = ctx.canvas.get_cursor_in_map_space()?;
-
-        let mut cache = self.primary.draw_map.agents.borrow_mut();
-        let mut objects = self.get_renderables_back_to_front(
-            Circle::new(pt, Distance::meters(3.0)).get_bounds(),
-            ctx.prerender,
-            &mut cache,
-            show_turn_icons_for,
-            source,
-            show_objs,
-        );
-        objects.reverse();
-
-        for obj in objects {
-            // Don't mouseover areas.
-            // TODO Might get fancier rules in the future, so we can't mouseover irrelevant things
-            // in intersection editor mode, for example.
-            match obj.get_id() {
-                ID::Area(_) if !debug_areas => {}
-                // Thick roads are only shown when unzoomed, when we don't mouseover at all.
-                ID::Road(_) => {}
-                _ => {
-                    if obj.get_outline(&self.primary.map).contains_pt(pt) {
-                        return Some(obj.get_id());
-                    }
-                }
-            };
-        }
-        None
     }
 
     // TODO This could probably belong to DrawMap again, but it's annoying to plumb things that
