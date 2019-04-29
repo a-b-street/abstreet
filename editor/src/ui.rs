@@ -253,19 +253,6 @@ impl UI {
             false,
         );
 
-        let mut recalculate_current_selection = false;
-        self.state
-            .event(ctx, &mut self.hints, &mut recalculate_current_selection);
-        if recalculate_current_selection {
-            self.state.primary.current_selection = self.mouseover_something(
-                &ctx,
-                None,
-                &self.state.primary.sim,
-                &ShowEverything::new(),
-                false,
-            );
-        }
-
         ctx.input.populate_osd(&mut self.hints.osd);
 
         (
@@ -353,10 +340,7 @@ impl UI {
                     _ => {}
                 };
                 let opts = RenderOptions {
-                    color: override_color
-                        .get(&obj.get_id())
-                        .cloned()
-                        .or_else(|| self.state.color_obj(obj.get_id(), &ctx)),
+                    color: override_color.get(&obj.get_id()).cloned(),
                     debug_mode: show_objs.layers().geom_debug_mode,
                 };
                 obj.draw(g, opts, &ctx);
@@ -377,8 +361,6 @@ impl UI {
         }
 
         if !g.is_screencap() {
-            self.state.draw(g, &ctx);
-
             // Not happy about cloning, but probably will make the OSD a first-class ezgui concept
             // soon, so meh
             let mut osd = self.hints.osd.clone();

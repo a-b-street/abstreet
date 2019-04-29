@@ -42,7 +42,7 @@ impl GameState {
         let mut rng = flags.sim_flags.make_rng();
         let mut game = GameState {
             mode: Mode::Sandbox(SandboxMode::new()),
-            ui: UI::new(UIState::new(flags, prerender, true), canvas),
+            ui: UI::new(UIState::new(flags, prerender), canvas),
         };
         if splash {
             game.mode = Mode::SplashScreen(
@@ -255,7 +255,7 @@ fn splash_screen(
                     // This retains no state, but that's probably fine.
                     let mut flags = ui.state.primary.current_flags.clone();
                     flags.sim_flags.load = PathBuf::from(format!("../data/maps/{}.abst", name));
-                    *ui = UI::new(UIState::new(flags, ctx.prerender, true), ctx.canvas);
+                    *ui = UI::new(UIState::new(flags, ctx.prerender), ctx.canvas);
                     break Some(Mode::Sandbox(SandboxMode::new()));
                 } else if wizard.aborted() {
                     break Some(Mode::SplashScreen(Wizard::new(), maybe_screensaver.take()));

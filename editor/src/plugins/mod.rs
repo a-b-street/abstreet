@@ -1,56 +1,9 @@
-use crate::colors::ColorScheme;
-use crate::objects::{DrawCtx, RenderingHints, ID};
-use crate::state::{PerMapUI, PluginsPerMap};
 use ::sim::{ABTest, OriginDestination, Scenario};
 use abstutil;
 use abstutil::WeightedUsizeChoice;
-use ezgui::{Canvas, Color, GfxCtx, Prerender, UserInput, WrappedWizard};
+use ezgui::WrappedWizard;
 use geom::Duration;
 use map_model::{IntersectionID, Map, MapEdits, Neighborhood, NeighborhoodBuilder};
-
-// TODO Split into two types, but then State needs two possible types in its exclusive blocking
-// field.
-pub trait BlockingPlugin {
-    fn color_for(&self, _obj: ID, _ctx: &DrawCtx) -> Option<Color> {
-        None
-    }
-
-    fn draw(&self, _g: &mut GfxCtx, _ctx: &DrawCtx) {}
-
-    // True if active, false if done
-    fn blocking_event(&mut self, _ctx: &mut PluginCtx) -> bool {
-        false
-    }
-    fn blocking_event_with_plugins(
-        &mut self,
-        ctx: &mut PluginCtx,
-        _plugins: &mut PluginsPerMap,
-    ) -> bool {
-        // By default, redirect to the other one.
-        self.blocking_event(ctx)
-    }
-}
-
-pub trait AmbientPlugin {
-    fn ambient_event(&mut self, _ctx: &mut PluginCtx);
-
-    fn color_for(&self, _obj: ID, _ctx: &DrawCtx) -> Option<Color> {
-        None
-    }
-    fn draw(&self, _g: &mut GfxCtx, _ctx: &DrawCtx) {}
-}
-
-// This mirrors many, but not all, of the fields in UI.
-pub struct PluginCtx<'a> {
-    pub primary: &'a mut PerMapUI,
-    pub canvas: &'a mut Canvas,
-    pub cs: &'a mut ColorScheme,
-    pub input: &'a mut UserInput,
-    pub hints: &'a mut RenderingHints,
-    pub recalculate_current_selection: &'a mut bool,
-    // And also a thing from ezgui
-    pub prerender: &'a Prerender<'a>,
-}
 
 // TODO Further refactoring should be done, but at least group these here to start.
 // General principles are to avoid actually deserializing the objects unless needed.

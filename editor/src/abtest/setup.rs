@@ -97,7 +97,7 @@ fn launch_test(test: &ABTest, state: &mut UIState, ctx: &mut EventCtx) -> Mode {
 
     // TODO Cheaper to load the edits for the map and then instantiate the scenario for the
     // primary.
-    let (primary, _) = PerMapUI::new(
+    let primary = PerMapUI::new(
         Flags {
             sim_flags: SimFlags {
                 load: load.clone(),
@@ -110,7 +110,7 @@ fn launch_test(test: &ABTest, state: &mut UIState, ctx: &mut EventCtx) -> Mode {
         &state.cs,
         ctx.prerender,
     );
-    let (secondary, _) = PerMapUI::new(
+    let secondary = PerMapUI::new(
         Flags {
             sim_flags: SimFlags {
                 load,
