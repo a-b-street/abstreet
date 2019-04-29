@@ -77,10 +77,6 @@ impl Renderable for DrawTurn {
     }
 
     fn draw(&self, g: &mut GfxCtx, opts: RenderOptions, ctx: &DrawCtx) {
-        if ctx.hints.hide_turn_icons.contains(&self.id) {
-            return;
-        }
-
         g.draw_circle(
             ctx.cs.get_def("turn icon circle", Color::grey(0.3)),
             &self.icon_circle,

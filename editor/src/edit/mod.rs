@@ -8,7 +8,7 @@ use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, Wizard, WrappedWizard};
 use map_model::{
-    IntersectionID, Lane, LaneID, LaneType, Map, MapEdits, Road, TurnID, TurnPriority,
+    IntersectionID, Lane, LaneID, LaneType, Map, MapEdits, Road, TurnID, TurnPriority, TurnType,
 };
 use std::collections::{BTreeSet, HashMap};
 
@@ -431,14 +431,13 @@ pub fn apply_map_edits(ui: &mut UI, ctx: &mut EventCtx, edits: MapEdits) {
         );
     }
     for t in turns_added {
-        ui.primary.draw_map.turns.insert(
-            t,
-            DrawTurn::new(
-                &ui.primary.map,
-                ui.primary.map.get_t(t),
-                turn_to_lane_offset[&t],
-            ),
-        );
+        let turn = ui.primary.map.get_t(t);
+        if turn.turn_type != TurnType::SharedSidewalkCorner {
+            ui.primary.draw_map.turns.insert(
+                t,
+                DrawTurn::new(&ui.primary.map, turn, turn_to_lane_offset[&t]),
+            );
+        }
     }
 }
 

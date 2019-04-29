@@ -7,7 +7,7 @@ use map_model::raw_data::StableRoadID;
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, RoadID, TurnID};
 use serde_derive::{Deserialize, Serialize};
 use sim::{AgentID, CarID, GetDrawAgents, PedestrianID, Sim, TripID};
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap};
 use std::io::Error;
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]
@@ -230,7 +230,6 @@ impl ID {
 
 pub struct RenderingHints {
     pub suppress_traffic_signal_details: Option<IntersectionID>,
-    pub hide_turn_icons: HashSet<TurnID>,
 }
 
 // TODO move to render module

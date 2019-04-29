@@ -15,7 +15,7 @@ use ezgui::{Color, Drawable, Prerender};
 use geom::{Bounds, Duration, FindClosest, Polygon};
 use map_model::{
     AreaID, BuildingID, BusStopID, DirectedRoadID, IntersectionID, Lane, LaneID, Map, RoadID,
-    Traversable, Turn, TurnID, LANE_THICKNESS,
+    Traversable, Turn, TurnID, TurnType, LANE_THICKNESS,
 };
 use std::borrow::Borrow;
 use std::cell::RefCell;
@@ -84,13 +84,16 @@ impl DrawMap {
         for l in map.all_lanes() {
             DrawMap::compute_turn_to_lane_offset(&mut turn_to_lane_offset, l, map);
         }
-        assert_eq!(turn_to_lane_offset.len(), map.all_turns().len());
 
         timer.start_iter("make DrawTurns", map.all_turns().len());
         let mut turns: HashMap<TurnID, DrawTurn> = HashMap::new();
         for t in map.all_turns().values() {
             timer.next();
-            turns.insert(t.id, DrawTurn::new(map, t, turn_to_lane_offset[&t.id]));
+            // There's never a reason to draw these icons; the turn priority is only ever Priority,
+            // since they can't conflict with anything.
+            if t.turn_type != TurnType::SharedSidewalkCorner {
+                turns.insert(t.id, DrawTurn::new(map, t, turn_to_lane_offset[&t.id]));
+            }
         }
 
         timer.start_iter("make DrawIntersections", map.all_intersections().len());
@@ -238,6 +241,7 @@ impl DrawMap {
         let mut pair: (Vec<&Turn>, Vec<&Turn>) = map
             .get_turns_from_lane(l.id)
             .iter()
+            .filter(|t| t.turn_type != TurnType::SharedSidewalkCorner)
             .partition(|t| t.id.parent == l.dst_i);
 
         // Sort the turn icons by angle.

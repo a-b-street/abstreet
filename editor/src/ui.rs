@@ -7,10 +7,10 @@ use abstutil;
 use abstutil::MeasureMemory;
 use ezgui::{Canvas, Color, EventCtx, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Distance, Duration, Polygon};
-use map_model::{BuildingID, IntersectionID, LaneID, Map, Traversable};
+use map_model::{BuildingID, IntersectionID, LaneID, Map, Traversable, TurnType};
 use serde_derive::{Deserialize, Serialize};
 use sim::{GetDrawAgents, Sim, SimFlags};
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use structopt::StructOpt;
 
 // TODO Collapse stuff!
@@ -52,7 +52,6 @@ impl UI {
             cs,
             hints: RenderingHints {
                 suppress_traffic_signal_details: None,
-                hide_turn_icons: HashSet::new(),
             },
         }
     }
@@ -263,7 +262,9 @@ impl UI {
                     let lane = map.get_l(id);
                     if show_turn_icons_for == Some(lane.dst_i) {
                         for (t, _) in map.get_next_turns_and_lanes(id, lane.dst_i) {
-                            turn_icons.push(Box::new(draw_map.get_t(t.id)));
+                            if t.turn_type != TurnType::SharedSidewalkCorner {
+                                turn_icons.push(Box::new(draw_map.get_t(t.id)));
+                            }
                         }
                     } else {
                         // TODO Bug: pedestrians on front paths aren't selectable.
