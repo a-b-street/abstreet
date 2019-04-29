@@ -164,11 +164,7 @@ impl PerMapUI {
             current_flags: flags.clone(),
         };
         let plugins = PluginsPerMap {
-            ambient_plugins: vec![
-                // TODO Could be a little simpler to instantiate this lazily, stop representing
-                // inactive state.
-                Box::new(view::turn_cycler::TurnCyclerState::new()),
-            ],
+            ambient_plugins: Vec::new(),
         };
         (state, plugins)
     }

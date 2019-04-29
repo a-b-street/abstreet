@@ -269,6 +269,7 @@ impl ABTestMode {
                         &state.ui.state.primary.sim,
                         &ShowEverything::new(),
                     );
+                    mode.common.draw(g, &state.ui);
 
                     if let Some(ref diff) = mode.diff_trip {
                         diff.draw(g, &state.ui);

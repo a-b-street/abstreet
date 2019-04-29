@@ -211,6 +211,7 @@ impl EditMode {
                     &state.ui.state.primary.sim,
                     &ShowEverything::new(),
                 );
+                common.draw(g, &state.ui);
 
                 // TODO Similar to drawing areas with traffic or not -- would be convenient to just
                 // supply a set of things to highlight and have something else take care of drawing

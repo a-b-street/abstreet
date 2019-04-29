@@ -324,6 +324,7 @@ impl SandboxMode {
                         &state.ui.state.primary.sim,
                         &ShowEverything::new(),
                     );
+                    mode.common.draw(g, &state.ui);
                     mode.route_viewer.draw(g, &state.ui);
                     mode.show_activity.draw(g, &state.ui);
                 }

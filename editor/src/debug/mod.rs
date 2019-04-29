@@ -299,6 +299,7 @@ impl DebugMode {
                     state
                         .ui
                         .new_draw(g, None, color_overrides, &state.ui.state.primary.sim, mode);
+                    mode.common.draw(g, &state.ui);
 
                     for id in &mode.show_original_roads {
                         let r = state.ui.state.primary.map.get_r(*id);
