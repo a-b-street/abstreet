@@ -161,7 +161,6 @@ impl<'a> GfxCtx<'a> {
         };
         let y1 = match vert {
             VerticalAlignment::Top => 0.0,
-            VerticalAlignment::BelowTopMenu => self.canvas.top_menu_height(),
             VerticalAlignment::Center => (self.canvas.window_height - height) / 2.0,
             VerticalAlignment::Bottom => self.canvas.window_height - height,
         };

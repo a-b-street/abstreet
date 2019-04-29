@@ -1,5 +1,5 @@
 use crate::screen_geom::ScreenRectangle;
-use crate::{text, ScreenPt, Text, UserInput};
+use crate::{ScreenPt, Text, UserInput};
 use geom::{Bounds, Pt2D};
 use glium_glyph::glyph_brush::rusttype::Scale;
 use glium_glyph::GlyphBrush;
@@ -166,12 +166,6 @@ impl Canvas {
         b
     }
 
-    // TODO Not super happy about exposing this; fork_screenspace for external callers should be
-    // smarter.
-    pub fn top_menu_height(&self) -> f64 {
-        self.line_height(text::FONT_SIZE)
-    }
-
     pub fn text_dims(&self, txt: &Text) -> (f64, f64) {
         txt.dims(self)
     }
@@ -198,7 +192,6 @@ pub enum HorizontalAlignment {
 
 pub enum VerticalAlignment {
     Top,
-    BelowTopMenu,
     Center,
     Bottom,
 }

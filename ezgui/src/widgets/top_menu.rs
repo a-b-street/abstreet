@@ -122,11 +122,13 @@ impl TopMenu {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
+        let top_menu_height = g.canvas.line_height(text::FONT_SIZE);
+
         g.canvas.mark_covered_area(ScreenRectangle {
             x1: 0.0,
             y1: 0.0,
             x2: g.canvas.window_width,
-            y2: g.canvas.top_menu_height(),
+            y2: top_menu_height,
         });
 
         g.fork_screenspace();
@@ -135,7 +137,7 @@ impl TopMenu {
             &Polygon::rectangle_topleft(
                 Pt2D::new(0.0, 0.0),
                 g.canvas.window_width,
-                g.canvas.top_menu_height(),
+                top_menu_height,
             ),
         );
         g.unfork();

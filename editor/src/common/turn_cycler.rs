@@ -110,14 +110,7 @@ impl TurnCyclerState {
                             sim: &ui.state.primary.sim,
                             hints: &ui.hints,
                         };
-                        draw_signal_diagram(
-                            i,
-                            cycle.idx,
-                            Some(time_left),
-                            g.canvas.top_menu_height() + 10.0,
-                            g,
-                            &ctx,
-                        );
+                        draw_signal_diagram(i, cycle.idx, Some(time_left), 0.0, g, &ctx);
                     }
                 }
             }

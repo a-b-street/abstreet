@@ -65,7 +65,7 @@ impl<T: Clone> Menu<T> {
                 } else {
                     total_width
                 };
-                ScreenPt::new(canvas.window_width - w, canvas.top_menu_height())
+                ScreenPt::new(canvas.window_width - w, 0.0)
             }
         };
 
