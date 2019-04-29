@@ -4,7 +4,7 @@ use crate::render::{
 };
 use crate::state::UIState;
 use abstutil;
-use ezgui::{Canvas, Color, EventCtx, EventLoopMode, GfxCtx, Prerender, Text, BOTTOM_LEFT};
+use ezgui::{Canvas, Color, EventCtx, EventLoopMode, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Distance, Polygon};
 use map_model::{BuildingID, IntersectionID, LaneID, Traversable};
 use serde_derive::{Deserialize, Serialize};
@@ -50,7 +50,6 @@ impl UI {
             state,
             hints: RenderingHints {
                 mode: EventLoopMode::InputOnly,
-                osd: Text::new(),
                 suppress_traffic_signal_details: None,
                 hide_turn_icons: HashSet::new(),
             },
@@ -154,19 +153,6 @@ impl UI {
                     }
                 }
             }
-        }
-
-        if !g.is_screencap() {
-            // Not happy about cloning, but probably will make the OSD a first-class ezgui concept
-            // soon, so meh
-            let mut osd = self.hints.osd.clone();
-            // TODO Only in some kind of debug mode
-            osd.add_line(format!(
-                "{} things uploaded, {} things drawn",
-                abstutil::prettyprint_usize(g.get_num_uploads()),
-                abstutil::prettyprint_usize(g.num_draw_calls),
-            ));
-            g.draw_blocking_text(&osd, BOTTOM_LEFT);
         }
 
         if let Some(i) = sample_intersection {

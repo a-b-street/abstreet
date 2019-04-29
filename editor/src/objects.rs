@@ -228,7 +228,6 @@ impl ID {
 
 pub struct RenderingHints {
     pub mode: EventLoopMode,
-    pub osd: Text,
 
     // Miscellaneous cases where a plugin needs to control rendering.
     pub suppress_traffic_signal_details: Option<IntersectionID>,
