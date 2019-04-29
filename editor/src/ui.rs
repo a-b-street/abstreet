@@ -60,7 +60,6 @@ impl UI {
             map: &self.primary.map,
             draw_map: &self.primary.draw_map,
             sim: &self.primary.sim,
-            opts,
         };
         let mut sample_intersection: Option<String> = None;
 
@@ -98,7 +97,7 @@ impl UI {
                 g.get_screen_bounds(),
                 &g.prerender,
                 &mut cache,
-                ctx.opts.show_turn_icons_for,
+                opts.show_turn_icons_for,
                 source,
                 show_objs,
             );
@@ -122,11 +121,12 @@ impl UI {
                     }
                     _ => {}
                 };
-                let opts = RenderOptions {
-                    color: ctx.opts.override_colors.get(&obj.get_id()).cloned(),
+                let tmp_opts = RenderOptions {
+                    color: opts.override_colors.get(&obj.get_id()).cloned(),
                     debug_mode: show_objs.layers().geom_debug_mode,
+                    suppress_traffic_signal_details: opts.suppress_traffic_signal_details,
                 };
-                obj.draw(g, opts, &ctx);
+                obj.draw(g, tmp_opts, &ctx);
 
                 if self.primary.current_selection == Some(obj.get_id()) {
                     g.draw_polygon(

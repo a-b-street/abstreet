@@ -1,5 +1,5 @@
 use crate::helpers::{DrawCtx, ID};
-use crate::render::{draw_signal_diagram, DrawOptions, DrawTurn};
+use crate::render::{draw_signal_diagram, DrawTurn};
 use crate::ui::UI;
 use ezgui::{Color, EventCtx, GfxCtx, Key};
 use geom::Duration;
@@ -100,9 +100,6 @@ impl TurnCyclerState {
                             map: &ui.primary.map,
                             draw_map: &ui.primary.draw_map,
                             sim: &ui.primary.sim,
-                            // TODO suppress_traffic_signal_details? draw_signal_diagram is a
-                            // confusing API.
-                            opts: DrawOptions::new(),
                         };
                         draw_signal_diagram(i, cycle.idx, Some(time_left), 0.0, g, &ctx);
                     }

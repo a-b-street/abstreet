@@ -1,4 +1,4 @@
-use crate::render::{DrawMap, DrawOptions, ExtraShapeID};
+use crate::render::{DrawMap, ExtraShapeID};
 use crate::ui::PerMapUI;
 use abstutil;
 use ezgui::{Color, GfxCtx, Text};
@@ -234,7 +234,6 @@ pub struct DrawCtx<'a> {
     pub map: &'a Map,
     pub draw_map: &'a DrawMap,
     pub sim: &'a Sim,
-    pub opts: DrawOptions,
 }
 
 fn styled_kv(txt: &mut Text, tags: &BTreeMap<String, String>) {

@@ -57,6 +57,7 @@ pub struct RenderOptions {
     pub color: Option<Color>,
     // TODO This should be accessible through ctx...
     pub debug_mode: bool,
+    pub suppress_traffic_signal_details: Option<IntersectionID>,
 }
 
 pub fn draw_vehicle(

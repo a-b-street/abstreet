@@ -91,7 +91,7 @@ impl Renderable for DrawIntersection {
             g.redraw(&self.draw_default);
 
             if self.intersection_type == IntersectionType::TrafficSignal {
-                if ctx.opts.suppress_traffic_signal_details != Some(self.id) {
+                if opts.suppress_traffic_signal_details != Some(self.id) {
                     self.draw_traffic_signal(g, ctx);
                 }
             } else {

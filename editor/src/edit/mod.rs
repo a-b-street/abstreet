@@ -224,8 +224,6 @@ impl EditMode {
                     map: &state.ui.primary.map,
                     draw_map: &state.ui.primary.draw_map,
                     sim: &state.ui.primary.sim,
-                    // TODO suppress_traffic_signal_details?
-                    opts: DrawOptions::new(),
                 };
 
                 // More generally we might want to show the diff between two edits, but for now,
@@ -238,6 +236,7 @@ impl EditMode {
                             RenderOptions {
                                 color: Some(color),
                                 debug_mode: false,
+                                suppress_traffic_signal_details: None,
                             },
                             &ctx,
                         );
@@ -264,6 +263,7 @@ impl EditMode {
                         RenderOptions {
                             color: Some(color),
                             debug_mode: false,
+                            suppress_traffic_signal_details: None,
                         },
                         &ctx,
                     );

@@ -252,8 +252,6 @@ impl TrafficSignalEditor {
             map: &state.ui.primary.map,
             draw_map: &state.ui.primary.draw_map,
             sim: &state.ui.primary.sim,
-            // TODO Same options as above?
-            opts: DrawOptions::new(),
         };
         draw_signal_cycle(cycle, g, &ctx);
 
