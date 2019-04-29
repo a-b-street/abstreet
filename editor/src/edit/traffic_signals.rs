@@ -273,20 +273,11 @@ impl TrafficSignalEditor {
         );
 
         if let Some(id) = self.icon_selected {
-            // TODO What should we do for currently banned turns?
-            if cycle.get_priority(id) == TurnPriority::Yield {
-                DrawTurn::draw_dashed(
-                    state.ui.primary.map.get_t(id),
-                    g,
-                    state.ui.cs.get("selected"),
-                );
-            } else {
-                DrawTurn::draw_full(
-                    state.ui.primary.map.get_t(id),
-                    g,
-                    state.ui.cs.get("selected"),
-                );
-            }
+            DrawTurn::draw_dashed(
+                state.ui.primary.map.get_t(id),
+                g,
+                state.ui.cs.get("selected turn"),
+            );
         }
 
         if let Some(ref wizard) = self.cycle_duration_wizard {

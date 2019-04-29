@@ -307,6 +307,14 @@ impl EditMode {
                     &state.ui.primary.sim,
                     &ShowEverything::new(),
                 );
+
+                if let Some(ID::Turn(id)) = state.ui.primary.current_selection {
+                    DrawTurn::draw_dashed(
+                        state.ui.primary.map.get_t(id),
+                        g,
+                        state.ui.cs.get_def("selected turn", Color::RED),
+                    );
+                }
             }
             Mode::Edit(EditMode::EditingTrafficSignal(ref editor)) => {
                 editor.draw(g, state);
