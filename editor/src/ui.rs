@@ -24,12 +24,6 @@ impl GUI for UI {
     fn top_menu(&self, canvas: &Canvas) -> Option<TopMenu> {
         let mut folders = Vec::new();
         folders.push(Folder::new("File", vec![(Some(Key::Escape), "pause game")]));
-        if self.state.enable_debug_controls {
-            folders.push(Folder::new(
-                "Debug",
-                vec![(Some(Key::F1), "screenshot just this")],
-            ));
-        }
         folders.extend(vec![Folder::new(
             "View",
             vec![(Some(Key::J), "warp to an object")],
@@ -277,13 +271,6 @@ impl UI {
         }
 
         ctx.input.populate_osd(&mut self.hints.osd);
-
-        // TODO a plugin should do this, even though it's such a tiny thing
-        if self.state.enable_debug_controls {
-            if ctx.input.action_chosen("screenshot just this") {
-                self.hints.mode = EventLoopMode::ScreenCaptureCurrentShot;
-            }
-        }
 
         (
             self.hints.mode.clone(),

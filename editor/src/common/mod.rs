@@ -3,7 +3,7 @@ mod turn_cycler;
 
 use crate::objects::ID;
 use crate::ui::UI;
-use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx};
+use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key};
 use std::collections::HashMap;
 
 pub struct CommonState {
@@ -24,6 +24,13 @@ impl CommonState {
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI) -> Option<EventLoopMode> {
         self.associated.event(ui);
         self.turn_cycler.event(ctx, ui);
+        // TODO How to reserve and explain this key?
+        if ctx
+            .input
+            .unimportant_key_pressed(Key::F1, "screenshot just this")
+        {
+            return Some(EventLoopMode::ScreenCaptureCurrentShot);
+        }
         None
     }
 
