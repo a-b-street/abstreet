@@ -1,4 +1,3 @@
-use crate::helpers::load_neighborhood_builder;
 use crate::ui::UI;
 use ezgui::{Color, EventCtx, GfxCtx, Key, Wizard, WrappedWizard};
 use geom::{Circle, Distance, Line, Polygon, Pt2D};
@@ -163,4 +162,18 @@ fn pick_neighborhood(map: &Map, mut wizard: WrappedWizard) -> Option<Neighborhoo
             points: Vec::new(),
         })
     }
+}
+
+fn load_neighborhood_builder(
+    map: &Map,
+    wizard: &mut WrappedWizard,
+    query: &str,
+) -> Option<NeighborhoodBuilder> {
+    let map_name = map.get_name().to_string();
+    wizard
+        .choose_something_no_keys::<NeighborhoodBuilder>(
+            query,
+            Box::new(move || abstutil::load_all_objects("neighborhoods", &map_name)),
+        )
+        .map(|(_, n)| n)
 }

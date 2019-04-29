@@ -1,7 +1,6 @@
 use crate::abtest::{ABTestMode, State};
 use crate::common::CommonState;
 use crate::game::{GameState, Mode};
-use crate::helpers::{choose_edits, choose_scenario, load_ab_test};
 use crate::ui::{Flags, PerMapUI, UI};
 use ezgui::{EventCtx, GfxCtx, LogScroller, Wizard, WrappedWizard};
 use map_model::Map;
@@ -132,4 +131,38 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> Mode {
         diff_all: None,
         common: CommonState::new(),
     })
+}
+
+fn choose_scenario(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
+    let map_name = map.get_name().to_string();
+    wizard
+        .choose_something_no_keys::<String>(
+            query,
+            Box::new(move || abstutil::list_all_objects("scenarios", &map_name)),
+        )
+        .map(|(n, _)| n)
+}
+
+fn choose_edits(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
+    let map_name = map.get_name().to_string();
+    wizard
+        .choose_something_no_keys::<String>(
+            query,
+            Box::new(move || {
+                let mut list = abstutil::list_all_objects("edits", &map_name);
+                list.push(("no_edits".to_string(), "no_edits".to_string()));
+                list
+            }),
+        )
+        .map(|(n, _)| n)
+}
+
+fn load_ab_test(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<ABTest> {
+    let map_name = map.get_name().to_string();
+    wizard
+        .choose_something_no_keys::<ABTest>(
+            query,
+            Box::new(move || abstutil::load_all_objects("ab_tests", &map_name)),
+        )
+        .map(|(_, t)| t)
 }

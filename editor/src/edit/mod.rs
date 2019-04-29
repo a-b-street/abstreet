@@ -2,7 +2,7 @@ mod traffic_signals;
 
 use crate::common::CommonState;
 use crate::game::{GameState, Mode};
-use crate::helpers::{load_edits, DrawCtx, ID};
+use crate::helpers::{DrawCtx, ID};
 use crate::render::{DrawLane, DrawMap, DrawTurn, RenderOptions, Renderable, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
@@ -440,4 +440,19 @@ pub fn apply_map_edits(ui: &mut UI, ctx: &mut EventCtx, edits: MapEdits) {
             ),
         );
     }
+}
+
+fn load_edits(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<MapEdits> {
+    // TODO Exclude current?
+    let map_name = map.get_name().to_string();
+    wizard
+        .choose_something_no_keys::<MapEdits>(
+            query,
+            Box::new(move || {
+                let mut list = abstutil::load_all_objects("edits", &map_name);
+                list.push(("no_edits".to_string(), MapEdits::new(map_name.clone())));
+                list
+            }),
+        )
+        .map(|(_, e)| e)
 }

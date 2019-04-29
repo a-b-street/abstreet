@@ -1,15 +1,11 @@
 use crate::game::Mode;
-use crate::helpers::{
-    choose_intersection, choose_neighborhood, choose_origin_destination, input_time,
-    input_weighted_usize, load_scenario,
-};
 use crate::mission::MissionEditMode;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
-use abstutil::Timer;
+use abstutil::{Timer, WeightedUsizeChoice};
 use ezgui::{Color, Drawable, EventCtx, GfxCtx, LogScroller, Wizard, WrappedWizard};
 use geom::{Distance, Duration, Line, Pt2D};
-use map_model::{Map, Neighborhood};
+use map_model::{IntersectionID, Map, Neighborhood};
 use sim::{BorderSpawnOverTime, OriginDestination, Scenario, SeedParkedCars, SpawnOverTime};
 use std::collections::BTreeMap;
 
@@ -275,4 +271,61 @@ pub struct Region {
     _name: String,
     color: Color,
     center: Pt2D,
+}
+
+fn choose_neighborhood(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
+    let map_name = map.get_name().to_string();
+    let gps_bounds = map.get_gps_bounds().clone();
+    // Load the full object, since we usually visualize the neighborhood when menuing over it
+    wizard
+        .choose_something_no_keys::<Neighborhood>(
+            query,
+            Box::new(move || Neighborhood::load_all(&map_name, &gps_bounds)),
+        )
+        .map(|(n, _)| n)
+}
+
+fn load_scenario(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<Scenario> {
+    let map_name = map.get_name().to_string();
+    wizard
+        .choose_something_no_keys::<Scenario>(
+            query,
+            Box::new(move || abstutil::load_all_objects("scenarios", &map_name)),
+        )
+        .map(|(_, s)| s)
+}
+
+fn input_time(wizard: &mut WrappedWizard, query: &str) -> Option<Duration> {
+    wizard.input_something(query, None, Box::new(|line| Duration::parse(&line)))
+}
+
+fn input_weighted_usize(wizard: &mut WrappedWizard, query: &str) -> Option<WeightedUsizeChoice> {
+    wizard.input_something(
+        query,
+        None,
+        Box::new(|line| WeightedUsizeChoice::parse(&line)),
+    )
+}
+
+// TODO Validate the intersection exists? Let them pick it with the cursor?
+fn choose_intersection(wizard: &mut WrappedWizard, query: &str) -> Option<IntersectionID> {
+    wizard.input_something(
+        query,
+        None,
+        Box::new(|line| usize::from_str_radix(&line, 10).ok().map(IntersectionID)),
+    )
+}
+
+fn choose_origin_destination(
+    map: &Map,
+    wizard: &mut WrappedWizard,
+    query: &str,
+) -> Option<OriginDestination> {
+    let neighborhood = "Neighborhood";
+    let border = "Border intersection";
+    if wizard.choose_string(query, vec![neighborhood, border])? == neighborhood {
+        choose_neighborhood(map, wizard, query).map(OriginDestination::Neighborhood)
+    } else {
+        choose_intersection(wizard, query).map(OriginDestination::Border)
+    }
 }
