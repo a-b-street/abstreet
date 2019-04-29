@@ -2,7 +2,7 @@ use crate::abtest::{ABTestMode, State};
 use crate::common::CommonState;
 use crate::game::{GameState, Mode};
 use crate::plugins::{choose_edits, choose_scenario, load_ab_test};
-use crate::state::{Flags, PerMapUI, UIState};
+use crate::ui::{Flags, PerMapUI, UI};
 use ezgui::{EventCtx, GfxCtx, LogScroller, Wizard, WrappedWizard};
 use map_model::Map;
 use sim::{ABTest, SimFlags};
@@ -19,10 +19,9 @@ impl ABTestSetup {
             Mode::ABTest(ref mut mode) => match mode.state {
                 State::Setup(ref mut setup) => match setup {
                     ABTestSetup::Pick(ref mut wizard) => {
-                        if let Some(ab_test) = pick_ab_test(
-                            &state.ui.state.primary.map,
-                            wizard.wrap(ctx.input, ctx.canvas),
-                        ) {
+                        if let Some(ab_test) =
+                            pick_ab_test(&state.ui.primary.map, wizard.wrap(ctx.input, ctx.canvas))
+                        {
                             let scroller =
                                 LogScroller::new(ab_test.test_name.clone(), ab_test.describe());
                             *setup = ABTestSetup::Manage(ab_test, scroller);
@@ -39,7 +38,7 @@ impl ABTestSetup {
                         if scroller.event(ctx.input) {
                             state.mode = Mode::SplashScreen(Wizard::new(), None);
                         } else if ctx.input.modal_action("run A/B test") {
-                            state.mode = launch_test(test, &mut state.ui.state, ctx);
+                            state.mode = launch_test(test, &mut state.ui, ctx);
                         }
                     }
                 },
@@ -82,13 +81,13 @@ fn pick_ab_test(map: &Map, mut wizard: WrappedWizard) -> Option<ABTest> {
     }
 }
 
-fn launch_test(test: &ABTest, state: &mut UIState, ctx: &mut EventCtx) -> Mode {
+fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> Mode {
     println!("Launching A/B test {}...", test.test_name);
     let load = PathBuf::from(format!(
         "../data/scenarios/{}/{}.json",
         test.map_name, test.scenario_name
     ));
-    let current_flags = &state.primary.current_flags;
+    let current_flags = &ui.primary.current_flags;
     let rng_seed = if current_flags.sim_flags.rng_seed.is_some() {
         current_flags.sim_flags.rng_seed
     } else {
@@ -107,7 +106,7 @@ fn launch_test(test: &ABTest, state: &mut UIState, ctx: &mut EventCtx) -> Mode {
             },
             ..current_flags.clone()
         },
-        &state.cs,
+        &ui.cs,
         ctx.prerender,
     );
     let secondary = PerMapUI::new(
@@ -120,11 +119,11 @@ fn launch_test(test: &ABTest, state: &mut UIState, ctx: &mut EventCtx) -> Mode {
             },
             ..current_flags.clone()
         },
-        &state.cs,
+        &ui.cs,
         ctx.prerender,
     );
 
-    state.primary = primary;
+    ui.primary = primary;
     Mode::ABTest(ABTestMode {
         desired_speed: 1.0,
         state: State::Paused,

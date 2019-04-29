@@ -24,10 +24,9 @@ impl ScenarioEditor {
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Mode> {
         match self {
             ScenarioEditor::PickScenario(ref mut wizard) => {
-                if let Some(scenario) = pick_scenario(
-                    &ui.state.primary.map,
-                    wizard.wrap(&mut ctx.input, ctx.canvas),
-                ) {
+                if let Some(scenario) =
+                    pick_scenario(&ui.primary.map, wizard.wrap(&mut ctx.input, ctx.canvas))
+                {
                     let scroller =
                         LogScroller::new(scenario.scenario_name.clone(), scenario.describe());
                     *self = ScenarioEditor::ManageScenario(scenario, scroller);
@@ -48,16 +47,16 @@ impl ScenarioEditor {
                     *self = ScenarioEditor::EditScenario(scenario.clone(), Wizard::new());
                 } else if ctx.input.modal_action("instantiate") {
                     scenario.instantiate(
-                        &mut ui.state.primary.sim,
-                        &ui.state.primary.map,
-                        &mut ui.state.primary.current_flags.sim_flags.make_rng(),
+                        &mut ui.primary.sim,
+                        &ui.primary.map,
+                        &mut ui.primary.current_flags.sim_flags.make_rng(),
                         &mut Timer::new("instantiate scenario"),
                     );
                     return Some(Mode::Sandbox(SandboxMode::new()));
                 } else if ctx.input.modal_action("visualize") {
                     let neighborhoods = Neighborhood::load_all(
-                        ui.state.primary.map.get_name(),
-                        &ui.state.primary.map.get_gps_bounds(),
+                        ui.primary.map.get_name(),
+                        &ui.primary.map.get_gps_bounds(),
                     );
                     let draw_all = ctx.prerender.upload_borrowed(
                         neighborhoods
@@ -87,7 +86,7 @@ impl ScenarioEditor {
             }
             ScenarioEditor::EditScenario(ref mut scenario, ref mut wizard) => {
                 if let Some(()) = edit_scenario(
-                    &ui.state.primary.map,
+                    &ui.primary.map,
                     scenario,
                     wizard.wrap(&mut ctx.input, ctx.canvas),
                 ) {
@@ -126,10 +125,7 @@ impl ScenarioEditor {
             }
             ScenarioEditor::EditScenario(_, wizard) => {
                 if let Some(neighborhood) = wizard.current_menu_choice::<Neighborhood>() {
-                    g.draw_polygon(
-                        ui.state.cs.get("neighborhood polygon"),
-                        &neighborhood.polygon,
-                    );
+                    g.draw_polygon(ui.cs.get("neighborhood polygon"), &neighborhood.polygon);
                 }
                 wizard.draw(g);
             }
@@ -144,7 +140,7 @@ impl ScenarioEditor {
                         .offset(-50.0, 0.0);
                     let dst = match s.goal {
                         OriginDestination::Neighborhood(ref n) => mapping[n].center,
-                        OriginDestination::Border(i) => ui.state.primary.map.get_i(i).point,
+                        OriginDestination::Border(i) => ui.primary.map.get_i(i).point,
                     }
                     .offset(50.0, 0.0);
                     // TODO Draw a self-loop or something

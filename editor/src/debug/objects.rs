@@ -18,7 +18,7 @@ impl ObjectDebugger {
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI) {
-        self.selected = ui.state.primary.current_selection;
+        self.selected = ui.primary.current_selection;
         if self.tooltip_key_held {
             self.tooltip_key_held = !ctx.input.key_released(Key::LeftControl);
         } else {
@@ -38,11 +38,7 @@ impl ObjectDebugger {
 
         if let Some(id) = self.selected {
             if ctx.input.contextual_action(Key::D, "debug") {
-                id.debug(
-                    &ui.state.primary.map,
-                    &ui.state.primary.sim,
-                    &ui.state.primary.draw_map,
-                );
+                id.debug(&ui.primary.map, &ui.primary.sim, &ui.primary.draw_map);
             }
         }
     }
@@ -50,14 +46,14 @@ impl ObjectDebugger {
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         if self.tooltip_key_held {
             if let Some(id) = self.selected {
-                let txt = id.tooltip_lines(g, &ui.state.primary);
+                let txt = id.tooltip_lines(g, &ui.primary);
                 g.draw_mouse_tooltip(&txt);
             }
         }
 
         if self.debug_tooltip_key_held {
             if let Some(pt) = g.canvas.get_cursor_in_map_space() {
-                if let Some(gps) = pt.to_gps(ui.state.primary.map.get_gps_bounds()) {
+                if let Some(gps) = pt.to_gps(ui.primary.map.get_gps_bounds()) {
                     let mut txt = Text::new();
                     txt.add_line(format!("{}", pt));
                     txt.add_line(format!("{}", gps));

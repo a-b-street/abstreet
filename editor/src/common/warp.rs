@@ -28,12 +28,9 @@ impl WarpState {
             WarpState::EnteringSearch(tb) => match tb.event(ctx.input) {
                 InputResult::Canceled => None,
                 InputResult::Done(to, _) => {
-                    if let Some((id, pt)) = warp_point(
-                        to,
-                        &ui.state.primary.map,
-                        &ui.state.primary.sim,
-                        &ui.state.primary.draw_map,
-                    ) {
+                    if let Some((id, pt)) =
+                        warp_point(to, &ui.primary.map, &ui.primary.sim, &ui.primary.draw_map)
+                    {
                         let at = ctx.canvas.center_to_map_pt();
                         if let Some(l) = Line::maybe_new(at, pt) {
                             *self = WarpState::Warping(Instant::now(), l, id);

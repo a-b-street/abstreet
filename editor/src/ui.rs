@@ -1,26 +1,32 @@
+use crate::colors::ColorScheme;
 use crate::objects::{DrawCtx, RenderingHints, ID};
 use crate::render::{
-    draw_vehicle, AgentCache, DrawPedestrian, RenderOptions, Renderable, MIN_ZOOM_FOR_DETAIL,
+    draw_vehicle, AgentCache, DrawMap, DrawPedestrian, RenderOptions, Renderable,
+    MIN_ZOOM_FOR_DETAIL,
 };
-use crate::state::UIState;
 use abstutil;
-use ezgui::{Canvas, Color, EventCtx, EventLoopMode, GfxCtx, Prerender};
-use geom::{Bounds, Circle, Distance, Polygon};
-use map_model::{BuildingID, IntersectionID, LaneID, Traversable};
+use abstutil::MeasureMemory;
+use ezgui::{Canvas, Color, EventCtx, GfxCtx, Prerender};
+use geom::{Bounds, Circle, Distance, Duration, Polygon};
+use map_model::{BuildingID, IntersectionID, LaneID, Map, Traversable};
 use serde_derive::{Deserialize, Serialize};
-use sim::GetDrawAgents;
+use sim::{GetDrawAgents, Sim, SimFlags};
 use std::collections::{HashMap, HashSet};
+use structopt::StructOpt;
 
 // TODO Collapse stuff!
 pub struct UI {
+    pub primary: PerMapUI,
+    pub cs: ColorScheme,
     pub hints: RenderingHints,
-    pub state: UIState,
 }
 
 impl UI {
-    pub fn new(state: UIState, canvas: &mut Canvas) -> UI {
+    pub fn new(flags: Flags, prerender: &Prerender, canvas: &mut Canvas) -> UI {
+        let cs = ColorScheme::load().unwrap();
+        let primary = PerMapUI::new(flags, &cs, prerender);
         match abstutil::read_json::<EditorState>("../editor_state") {
-            Ok(ref loaded) if state.primary.map.get_name() == &loaded.map_name => {
+            Ok(ref loaded) if primary.map.get_name() == &loaded.map_name => {
                 println!("Loaded previous editor_state");
                 canvas.cam_x = loaded.cam_x;
                 canvas.cam_y = loaded.cam_y;
@@ -29,16 +35,12 @@ impl UI {
             _ => {
                 println!("Couldn't load editor_state or it's for a different map, so just focusing on an arbitrary building");
                 let focus_pt = ID::Building(BuildingID(0))
-                    .canonical_point(
-                        &state.primary.map,
-                        &state.primary.sim,
-                        &state.primary.draw_map,
-                    )
+                    .canonical_point(&primary.map, &primary.sim, &primary.draw_map)
                     .or_else(|| {
                         ID::Lane(LaneID(0)).canonical_point(
-                            &state.primary.map,
-                            &state.primary.sim,
-                            &state.primary.draw_map,
+                            &primary.map,
+                            &primary.sim,
+                            &primary.draw_map,
                         )
                     })
                     .expect("Can't get canonical_point of BuildingID(0) or Road(0)");
@@ -47,9 +49,9 @@ impl UI {
         }
 
         UI {
-            state,
+            primary,
+            cs,
             hints: RenderingHints {
-                mode: EventLoopMode::InputOnly,
                 suppress_traffic_signal_details: None,
                 hide_turn_icons: HashSet::new(),
             },
@@ -65,47 +67,44 @@ impl UI {
         show_objs: &ShowObject,
     ) {
         let ctx = DrawCtx {
-            cs: &self.state.cs,
-            map: &self.state.primary.map,
-            draw_map: &self.state.primary.draw_map,
-            sim: &self.state.primary.sim,
+            cs: &self.cs,
+            map: &self.primary.map,
+            draw_map: &self.primary.draw_map,
+            sim: &self.primary.sim,
             hints: &self.hints,
         };
         let mut sample_intersection: Option<String> = None;
 
-        g.clear(self.state.cs.get_def("true background", Color::BLACK));
-        g.redraw(&self.state.primary.draw_map.boundary_polygon);
+        g.clear(self.cs.get_def("true background", Color::BLACK));
+        g.redraw(&self.primary.draw_map.boundary_polygon);
 
         if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL && !g.is_screencap() {
             // Unzoomed mode
             let layers = show_objs.layers();
             if layers.show_areas {
-                g.redraw(&self.state.primary.draw_map.draw_all_areas);
+                g.redraw(&self.primary.draw_map.draw_all_areas);
             }
             if layers.show_lanes {
-                g.redraw(&self.state.primary.draw_map.draw_all_thick_roads);
+                g.redraw(&self.primary.draw_map.draw_all_thick_roads);
             }
             if layers.show_intersections {
-                g.redraw(&self.state.primary.draw_map.draw_all_unzoomed_intersections);
+                g.redraw(&self.primary.draw_map.draw_all_unzoomed_intersections);
             }
             if layers.show_buildings {
-                g.redraw(&self.state.primary.draw_map.draw_all_buildings);
+                g.redraw(&self.primary.draw_map.draw_all_buildings);
             }
 
             // Still show area selection when zoomed out.
-            if let Some(ID::Area(id)) = self.state.primary.current_selection {
+            if let Some(ID::Area(id)) = self.primary.current_selection {
                 g.draw_polygon(
-                    self.state.cs.get("selected"),
+                    self.cs.get("selected"),
                     &fill_to_boundary_polygon(ctx.draw_map.get_a(id).get_outline(&ctx.map)),
                 );
             }
 
-            self.state
-                .primary
-                .sim
-                .draw_unzoomed(g, &self.state.primary.map);
+            self.primary.sim.draw_unzoomed(g, &self.primary.map);
         } else {
-            let mut cache = self.state.primary.draw_map.agents.borrow_mut();
+            let mut cache = self.primary.draw_map.agents.borrow_mut();
             let objects = self.get_renderables_back_to_front(
                 g.get_screen_bounds(),
                 &g.prerender,
@@ -122,13 +121,13 @@ impl UI {
                 match obj.get_id() {
                     ID::Building(_) => {
                         if !drawn_all_buildings {
-                            g.redraw(&self.state.primary.draw_map.draw_all_buildings);
+                            g.redraw(&self.primary.draw_map.draw_all_buildings);
                             drawn_all_buildings = true;
                         }
                     }
                     ID::Area(_) => {
                         if !drawn_all_areas {
-                            g.redraw(&self.state.primary.draw_map.draw_all_areas);
+                            g.redraw(&self.primary.draw_map.draw_all_areas);
                             drawn_all_areas = true;
                         }
                     }
@@ -140,9 +139,9 @@ impl UI {
                 };
                 obj.draw(g, opts, &ctx);
 
-                if self.state.primary.current_selection == Some(obj.get_id()) {
+                if self.primary.current_selection == Some(obj.get_id()) {
                     g.draw_polygon(
-                        self.state.cs.get_def("selected", Color::YELLOW.alpha(0.4)),
+                        self.cs.get_def("selected", Color::YELLOW.alpha(0.4)),
                         &fill_to_boundary_polygon(obj.get_outline(&ctx.map)),
                     );
                 }
@@ -183,7 +182,7 @@ impl UI {
         if ctx.input.window_lost_cursor() {
             return None;
         }
-        self.state.primary.current_selection
+        self.primary.current_selection
     }
 
     fn mouseover_something(
@@ -201,7 +200,7 @@ impl UI {
 
         let pt = ctx.canvas.get_cursor_in_map_space()?;
 
-        let mut cache = self.state.primary.draw_map.agents.borrow_mut();
+        let mut cache = self.primary.draw_map.agents.borrow_mut();
         let mut objects = self.get_renderables_back_to_front(
             Circle::new(pt, Distance::meters(3.0)).get_bounds(),
             ctx.prerender,
@@ -221,7 +220,7 @@ impl UI {
                 // Thick roads are only shown when unzoomed, when we don't mouseover at all.
                 ID::Road(_) => {}
                 _ => {
-                    if obj.get_outline(&self.state.primary.map).contains_pt(pt) {
+                    if obj.get_outline(&self.primary.map).contains_pt(pt) {
                         return Some(obj.get_id());
                     }
                 }
@@ -241,8 +240,8 @@ impl UI {
         source: &GetDrawAgents,
         show_objs: &ShowObject,
     ) -> Vec<Box<&'a Renderable>> {
-        let map = &self.state.primary.map;
-        let draw_map = &self.state.primary.draw_map;
+        let map = &self.primary.map;
+        let draw_map = &self.primary.draw_map;
 
         let mut areas: Vec<Box<&Renderable>> = Vec::new();
         let mut lanes: Vec<Box<&Renderable>> = Vec::new();
@@ -317,15 +316,10 @@ impl UI {
                 if !agents.has(time, *on) {
                     let mut list: Vec<Box<Renderable>> = Vec::new();
                     for c in source.get_draw_cars(*on, map).into_iter() {
-                        list.push(draw_vehicle(c, map, prerender, &self.state.cs));
+                        list.push(draw_vehicle(c, map, prerender, &self.cs));
                     }
                     for p in source.get_draw_peds(*on, map).into_iter() {
-                        list.push(Box::new(DrawPedestrian::new(
-                            p,
-                            map,
-                            prerender,
-                            &self.state.cs,
-                        )));
+                        list.push(Box::new(DrawPedestrian::new(p, map, prerender, &self.cs)));
                     }
                     agents.put(time, *on, list);
                 }
@@ -405,5 +399,67 @@ impl ShowObject for ShowEverything {
 
     fn layers(&self) -> &ShowLayers {
         &self.layers
+    }
+}
+
+#[derive(StructOpt, Debug, Clone)]
+#[structopt(name = "editor")]
+pub struct Flags {
+    #[structopt(flatten)]
+    pub sim_flags: SimFlags,
+
+    /// Extra KML or ExtraShapes to display
+    #[structopt(long = "kml")]
+    pub kml: Option<String>,
+
+    // TODO Ideally these'd be phrased positively, but can't easily make them default to true.
+    /// Should lane markings be drawn? Sometimes they eat too much GPU memory.
+    #[structopt(long = "dont_draw_lane_markings")]
+    pub dont_draw_lane_markings: bool,
+
+    /// Enable cpuprofiler?
+    #[structopt(long = "enable_profiler")]
+    pub enable_profiler: bool,
+
+    /// Number of agents to generate when small_spawn called
+    #[structopt(long = "num_agents", default_value = "100")]
+    pub num_agents: usize,
+
+    /// Don't start with the splash screen and menu
+    #[structopt(long = "no_splash")]
+    pub no_splash: bool,
+}
+
+// All of the state that's bound to a specific map+edit has to live here.
+pub struct PerMapUI {
+    pub map: Map,
+    pub draw_map: DrawMap,
+    pub sim: Sim,
+
+    pub current_selection: Option<ID>,
+    pub current_flags: Flags,
+}
+
+impl PerMapUI {
+    pub fn new(flags: Flags, cs: &ColorScheme, prerender: &Prerender) -> PerMapUI {
+        let mut timer = abstutil::Timer::new("setup PerMapUI");
+        let mut mem = MeasureMemory::new();
+        let (map, sim, _) = flags
+            .sim_flags
+            .load(Some(Duration::seconds(30.0)), &mut timer);
+        mem.reset("Map and Sim", &mut timer);
+
+        timer.start("draw_map");
+        let draw_map = DrawMap::new(&map, &flags, cs, prerender, &mut timer);
+        timer.stop("draw_map");
+        mem.reset("DrawMap", &mut timer);
+
+        PerMapUI {
+            map,
+            draw_map,
+            sim,
+            current_selection: None,
+            current_flags: flags.clone(),
+        }
     }
 }

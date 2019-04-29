@@ -9,7 +9,7 @@ use crate::render::lane::DrawLane;
 use crate::render::road::DrawRoad;
 use crate::render::turn::DrawTurn;
 use crate::render::Renderable;
-use crate::state::Flags;
+use crate::ui::Flags;
 use aabb_quadtree::QuadTree;
 use abstutil::Timer;
 use ezgui::{Color, Drawable, Prerender};

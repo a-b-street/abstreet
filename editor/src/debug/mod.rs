@@ -49,8 +49,8 @@ impl DebugMode {
             layers: ShowLayers::new(),
             search_results: None,
             neighborhood_summary: neighborhood_summary::NeighborhoodSummary::new(
-                &ui.state.primary.map,
-                &ui.state.primary.draw_map,
+                &ui.primary.map,
+                &ui.primary.draw_map,
                 ctx.prerender,
                 &mut Timer::new("set up DebugMode"),
             ),
@@ -63,13 +63,10 @@ impl DebugMode {
                 match mode.state {
                     State::Exploring => {
                         ctx.canvas.handle_event(ctx.input);
-                        state.ui.state.primary.current_selection = state.ui.handle_mouseover(
-                            ctx,
-                            None,
-                            &state.ui.state.primary.sim,
-                            mode,
-                            true,
-                        );
+                        state.ui.primary.current_selection =
+                            state
+                                .ui
+                                .handle_mouseover(ctx, None, &state.ui.primary.sim, mode, true);
                         if let Some(evmode) = mode.common.event(ctx, &state.ui) {
                             return evmode;
                         }
@@ -116,7 +113,7 @@ impl DebugMode {
                             } else {
                                 // TODO Nothing will actually exist. ;)
                                 mode.chokepoints = Some(chokepoints::ChokepointsFinder::new(
-                                    &state.ui.state.primary.sim,
+                                    &state.ui.primary.sim,
                                 ));
                             }
                         }
@@ -131,26 +128,26 @@ impl DebugMode {
                                 // TODO recalculate current_selection
                             }
                         }
-                        match state.ui.state.primary.current_selection {
+                        match state.ui.primary.current_selection {
                             Some(ID::Lane(_))
                             | Some(ID::Intersection(_))
                             | Some(ID::ExtraShape(_)) => {
-                                let id = state.ui.state.primary.current_selection.unwrap();
+                                let id = state.ui.primary.current_selection.unwrap();
                                 if ctx
                                     .input
                                     .contextual_action(Key::H, &format!("hide {:?}", id))
                                 {
                                     println!("Hiding {:?}", id);
                                     //*ctx.recalculate_current_selection = true;
-                                    state.ui.state.primary.current_selection = None;
+                                    state.ui.primary.current_selection = None;
                                     mode.hidden.insert(id);
                                 }
                             }
                             _ => {}
                         }
 
-                        if let Some(ID::Lane(l)) = state.ui.state.primary.current_selection {
-                            let id = state.ui.state.primary.map.get_l(l).parent;
+                        if let Some(ID::Lane(l)) = state.ui.primary.current_selection {
+                            let id = state.ui.primary.map.get_l(l).parent;
                             if ctx.input.contextual_action(
                                 Key::V,
                                 &format!("show original geometry of {:?}", id),
@@ -182,12 +179,12 @@ impl DebugMode {
                         }
 
                         if ctx.input.modal_action("screenshot everything") {
-                            let bounds = state.ui.state.primary.map.get_bounds();
+                            let bounds = state.ui.primary.map.get_bounds();
                             assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
                             return EventLoopMode::ScreenCaptureEverything {
                                 dir: format!(
                                     "../data/screenshots/pending_{}",
-                                    state.ui.state.primary.map.get_name()
+                                    state.ui.primary.map.get_name()
                                 ),
                                 zoom: 3.0,
                                 max_x: bounds.max_x,
@@ -205,7 +202,7 @@ impl DebugMode {
                             mode.state = State::Colors(color_picker::ColorPicker::Choosing(
                                 ScrollingMenu::new(
                                     "Pick a color to change",
-                                    state.ui.state.cs.color_names(),
+                                    state.ui.cs.color_names(),
                                 ),
                             ));
                         }
@@ -227,7 +224,7 @@ impl DebugMode {
                                 mode.state = State::Exploring;
 
                                 let mut ids = HashSet::new();
-                                let map = &state.ui.state.primary.map;
+                                let map = &state.ui.primary.map;
                                 for r in map.all_roads() {
                                     if r.osm_tags
                                         .iter()
@@ -270,7 +267,7 @@ impl DebugMode {
                 State::Exploring => {
                     let mut color_overrides = mode.common.override_colors(&state.ui);
                     if let Some(ref chokepoints) = mode.chokepoints {
-                        let color = state.ui.state.cs.get_def("chokepoint", Color::RED);
+                        let color = state.ui.cs.get_def("chokepoint", Color::RED);
                         for l in &chokepoints.lanes {
                             color_overrides.insert(ID::Lane(*l), color);
                         }
@@ -281,34 +278,27 @@ impl DebugMode {
                     for l in &mode.connected_roads.lanes {
                         color_overrides.insert(
                             ID::Lane(*l),
-                            state
-                                .ui
-                                .state
-                                .cs
-                                .get("something associated with something else"),
+                            state.ui.cs.get("something associated with something else"),
                         );
                     }
                     if let Some((_, ref results)) = mode.search_results {
                         for id in results {
-                            color_overrides.insert(
-                                *id,
-                                state.ui.state.cs.get_def("search result", Color::RED),
-                            );
+                            color_overrides
+                                .insert(*id, state.ui.cs.get_def("search result", Color::RED));
                         }
                     }
                     state
                         .ui
-                        .new_draw(g, None, color_overrides, &state.ui.state.primary.sim, mode);
+                        .new_draw(g, None, color_overrides, &state.ui.primary.sim, mode);
                     mode.common.draw(g, &state.ui);
 
                     for id in &mode.show_original_roads {
-                        let r = state.ui.state.primary.map.get_r(*id);
+                        let r = state.ui.primary.map.get_r(*id);
                         if let Some(pair) = r.get_center_for_side(true) {
                             let (pl, width) = pair.unwrap();
                             g.draw_polygon(
                                 state
                                     .ui
-                                    .state
                                     .cs
                                     .get_def("original road forwards", Color::RED.alpha(0.5)),
                                 &pl.make_polygons(width),
@@ -319,7 +309,6 @@ impl DebugMode {
                             g.draw_polygon(
                                 state
                                     .ui
-                                    .state
                                     .cs
                                     .get_def("original road backwards", Color::BLUE.alpha(0.5)),
                                 &pl.make_polygons(width),
@@ -333,19 +322,19 @@ impl DebugMode {
                 State::Polygons(ref debugger) => {
                     state
                         .ui
-                        .new_draw(g, None, HashMap::new(), &state.ui.state.primary.sim, mode);
+                        .new_draw(g, None, HashMap::new(), &state.ui.primary.sim, mode);
                     debugger.draw(g, &state.ui);
                 }
                 State::SearchOSM(ref tb) => {
                     state
                         .ui
-                        .new_draw(g, None, HashMap::new(), &state.ui.state.primary.sim, mode);
+                        .new_draw(g, None, HashMap::new(), &state.ui.primary.sim, mode);
                     tb.draw(g);
                 }
                 State::Colors(ref picker) => {
                     state
                         .ui
-                        .new_draw(g, None, HashMap::new(), &state.ui.state.primary.sim, mode);
+                        .new_draw(g, None, HashMap::new(), &state.ui.primary.sim, mode);
                     picker.draw(g);
                 }
             },

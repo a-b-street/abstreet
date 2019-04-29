@@ -44,8 +44,8 @@ impl TimeTravel {
         if !self.should_record {
             return;
         }
-        let map = &ui.state.primary.map;
-        let sim = &ui.state.primary.sim;
+        let map = &ui.primary.map;
+        let sim = &ui.primary.sim;
         let now = sim.time();
 
         // Record state for this timestep, if needed.

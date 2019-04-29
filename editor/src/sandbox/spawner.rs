@@ -29,8 +29,8 @@ enum Goal {
 
 impl AgentSpawner {
     pub fn new(ctx: &mut EventCtx, ui: &mut UI) -> Option<AgentSpawner> {
-        let map = &ui.state.primary.map;
-        match ui.state.primary.current_selection {
+        let map = &ui.primary.map;
+        match ui.primary.current_selection {
             Some(ID::Building(id)) => {
                 if ctx
                     .input
@@ -79,17 +79,16 @@ impl AgentSpawner {
                 }
             }
             None => {
-                if ui.state.primary.sim.is_empty() {
+                if ui.primary.sim.is_empty() {
                     // TODO Weird. This mode belongs to the parent SpawnMode, not AgentSpawner.
                     if ctx.input.modal_action("seed the sim with agents") {
-                        Scenario::scaled_run(map, ui.state.primary.current_flags.num_agents)
-                            .instantiate(
-                                &mut ui.state.primary.sim,
-                                map,
-                                &mut ui.state.primary.current_flags.sim_flags.make_rng(),
-                                &mut Timer::new("seed sim"),
-                            );
-                        ui.state.primary.sim.step(map);
+                        Scenario::scaled_run(map, ui.primary.current_flags.num_agents).instantiate(
+                            &mut ui.primary.sim,
+                            map,
+                            &mut ui.primary.current_flags.sim_flags.make_rng(),
+                            &mut Timer::new("seed sim"),
+                        );
+                        ui.primary.sim.step(map);
                     }
                 }
             }
@@ -106,9 +105,9 @@ impl AgentSpawner {
             return true;
         }
 
-        let map = &ui.state.primary.map;
+        let map = &ui.primary.map;
 
-        let new_goal = match ui.state.primary.current_selection {
+        let new_goal = match ui.primary.current_selection {
             Some(ID::Building(b)) => Goal::Building(b),
             Some(ID::Intersection(i))
                 if map.get_i(i).intersection_type == IntersectionType::Border =>
@@ -171,8 +170,8 @@ impl AgentSpawner {
         }
 
         if self.maybe_goal.is_some() && ctx.input.contextual_action(Key::F3, "end the agent here") {
-            let mut rng = ui.state.primary.current_flags.sim_flags.make_rng();
-            let sim = &mut ui.state.primary.sim;
+            let mut rng = ui.primary.current_flags.sim_flags.make_rng();
+            let sim = &mut ui.primary.sim;
             match (self.from.clone(), self.maybe_goal.take().unwrap().0) {
                 (Source::Walking(from), Goal::Building(to)) => {
                     sim.schedule_trip(
@@ -234,28 +233,25 @@ impl AgentSpawner {
             Source::Driving(pos1) => ID::Lane(pos1.lane()),
         };
         let mut override_color = HashMap::new();
-        override_color.insert(src, ui.state.cs.get("selected"));
+        override_color.insert(src, ui.cs.get("selected"));
         ui.new_draw(
             g,
             None,
             override_color,
-            &ui.state.primary.sim,
+            &ui.primary.sim,
             &ShowEverything::new(),
         );
 
         if let Some((_, Some(ref trace))) = self.maybe_goal {
-            g.draw_polygon(
-                ui.state.cs.get("route"),
-                &trace.make_polygons(LANE_THICKNESS),
-            );
+            g.draw_polygon(ui.cs.get("route"), &trace.make_polygons(LANE_THICKNESS));
         }
     }
 }
 
 fn spawn_agents_around(i: IntersectionID, ui: &mut UI) {
-    let map = &ui.state.primary.map;
-    let sim = &mut ui.state.primary.sim;
-    let mut rng = ui.state.primary.current_flags.sim_flags.make_rng();
+    let map = &ui.primary.map;
+    let sim = &mut ui.primary.sim;
+    let mut rng = ui.primary.current_flags.sim_flags.make_rng();
 
     for l in &map.get_i(i).incoming_lanes {
         let lane = map.get_l(*l);

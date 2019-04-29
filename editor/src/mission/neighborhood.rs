@@ -19,13 +19,12 @@ impl NeighborhoodEditor {
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI) -> bool {
         ctx.canvas.handle_event(ctx.input);
 
-        let gps_bounds = ui.state.primary.map.get_gps_bounds();
+        let gps_bounds = ui.primary.map.get_gps_bounds();
         match self {
             NeighborhoodEditor::PickNeighborhood(ref mut wizard) => {
-                if let Some(n) = pick_neighborhood(
-                    &ui.state.primary.map,
-                    wizard.wrap(&mut ctx.input, ctx.canvas),
-                ) {
+                if let Some(n) =
+                    pick_neighborhood(&ui.primary.map, wizard.wrap(&mut ctx.input, ctx.canvas))
+                {
                     *self = NeighborhoodEditor::EditNeighborhood(n, None);
                 } else if wizard.aborted() {
                     return true;
@@ -116,35 +115,31 @@ impl NeighborhoodEditor {
             NeighborhoodEditor::EditNeighborhood(n, current_idx) => (&n.points, *current_idx),
             NeighborhoodEditor::MovingPoint(n, current_idx) => (&n.points, Some(*current_idx)),
         };
-        let gps_bounds = ui.state.primary.map.get_gps_bounds();
+        let gps_bounds = ui.primary.map.get_gps_bounds();
         let pts: Vec<Pt2D> = gps_bounds.must_convert(&raw_pts);
 
         if pts.len() == 2 {
             g.draw_line(
-                ui.state.cs.get_def("neighborhood point", Color::RED),
+                ui.cs.get_def("neighborhood point", Color::RED),
                 POINT_RADIUS / 2.0,
                 &Line::new(pts[0], pts[1]),
             );
         }
         if pts.len() >= 3 {
             g.draw_polygon(
-                ui.state
-                    .cs
+                ui.cs
                     .get_def("neighborhood polygon", Color::BLUE.alpha(0.6)),
                 &Polygon::new(&pts),
             );
         }
         for (idx, pt) in pts.iter().enumerate() {
             let color = if Some(idx) == current_idx {
-                ui.state
-                    .cs
-                    .get_def("neighborhood point to move", Color::CYAN)
+                ui.cs.get_def("neighborhood point to move", Color::CYAN)
             } else if idx == pts.len() - 1 {
-                ui.state
-                    .cs
+                ui.cs
                     .get_def("neighborhood last placed point", Color::GREEN)
             } else {
-                ui.state.cs.get("neighborhood point")
+                ui.cs.get("neighborhood point")
             };
             g.draw_circle(color, &Circle::new(*pt, POINT_RADIUS / g.canvas.cam_zoom));
         }

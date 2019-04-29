@@ -51,10 +51,10 @@ impl NeighborhoodSummary {
             self.active = !self.active;
         }
 
-        if self.active && Some(ui.state.primary.sim.time()) != self.last_summary {
-            self.last_summary = Some(ui.state.primary.sim.time());
+        if self.active && Some(ui.primary.sim.time()) != self.last_summary {
+            self.last_summary = Some(ui.primary.sim.time());
             for r in self.regions.iter_mut() {
-                r.update_summary(&ui.state.primary.sim);
+                r.update_summary(&ui.primary.sim);
             }
         }
     }

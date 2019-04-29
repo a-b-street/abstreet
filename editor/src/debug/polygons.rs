@@ -19,9 +19,9 @@ enum Item {
 
 impl PolygonDebugger {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> Option<PolygonDebugger> {
-        match ui.state.primary.current_selection {
+        match ui.primary.current_selection {
             Some(ID::Intersection(id)) => {
-                let i = ui.state.primary.map.get_i(id);
+                let i = ui.primary.map.get_i(id);
                 if ctx
                     .input
                     .contextual_action(Key::X, "debug intersection geometry")
@@ -41,7 +41,7 @@ impl PolygonDebugger {
                     return Some(PolygonDebugger {
                         items: calculate_corners(
                             i,
-                            &ui.state.primary.map,
+                            &ui.primary.map,
                             &mut Timer::new("calculate corners"),
                         )
                         .into_iter()
@@ -56,7 +56,6 @@ impl PolygonDebugger {
                 if ctx.input.contextual_action(Key::X, "debug lane geometry") {
                     return Some(PolygonDebugger {
                         items: ui
-                            .state
                             .primary
                             .map
                             .get_l(id)
@@ -71,7 +70,6 @@ impl PolygonDebugger {
                 } else if ctx.input.contextual_action(Key::F2, "debug lane triangles") {
                     return Some(PolygonDebugger {
                         items: ui
-                            .state
                             .primary
                             .draw_map
                             .get_l(id)
@@ -87,7 +85,7 @@ impl PolygonDebugger {
             }
             Some(ID::Area(id)) => {
                 if ctx.input.contextual_action(Key::X, "debug area geometry") {
-                    let pts = &ui.state.primary.map.get_a(id).polygon.points();
+                    let pts = &ui.primary.map.get_a(id).polygon.points();
                     let center = if pts[0] == *pts.last().unwrap() {
                         // TODO The center looks really wrong for Volunteer Park and others, but I
                         // think it's because they have many points along some edges.
@@ -103,7 +101,6 @@ impl PolygonDebugger {
                 } else if ctx.input.contextual_action(Key::F2, "debug area triangles") {
                     return Some(PolygonDebugger {
                         items: ui
-                            .state
                             .primary
                             .map
                             .get_a(id)
@@ -148,10 +145,10 @@ impl PolygonDebugger {
                 for pt in &[tri.pt1, tri.pt2, tri.pt3] {
                     g.draw_text_at(&Text::from_line(format!("{}", self.current)), *pt);
                 }
-                g.draw_polygon(ui.state.cs.get("selected"), &Polygon::from_triangle(tri));
+                g.draw_polygon(ui.cs.get("selected"), &Polygon::from_triangle(tri));
             }
             Item::Polygon(ref poly) => {
-                g.draw_polygon(ui.state.cs.get("selected"), poly);
+                g.draw_polygon(ui.cs.get("selected"), poly);
                 g.draw_text_at(&Text::from_line(format!("{}", self.current)), poly.center());
             }
         }

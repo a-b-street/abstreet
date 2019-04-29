@@ -2,8 +2,7 @@ mod setup;
 
 use crate::common::CommonState;
 use crate::game::{GameState, Mode};
-use crate::state::PerMapUI;
-use crate::ui::{ShowEverything, UI};
+use crate::ui::{PerMapUI, ShowEverything, UI};
 use abstutil::elapsed_seconds;
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, Wizard};
 use geom::{Duration, Line, PolyLine};
@@ -56,10 +55,10 @@ impl ABTestMode {
                 }
 
                 ctx.canvas.handle_event(ctx.input);
-                state.ui.state.primary.current_selection = state.ui.handle_mouseover(
+                state.ui.primary.current_selection = state.ui.handle_mouseover(
                     ctx,
                     None,
-                    &state.ui.state.primary.sim,
+                    &state.ui.primary.sim,
                     &ShowEverything::new(),
                     false,
                 );
@@ -69,7 +68,7 @@ impl ABTestMode {
 
                 let mut txt = Text::new();
                 txt.add_styled_line("A/B Test Mode".to_string(), None, Some(Color::BLUE), None);
-                txt.add_line(state.ui.state.primary.map.get_edits().edits_name.clone());
+                txt.add_line(state.ui.primary.map.get_edits().edits_name.clone());
                 if let Some(ref diff) = mode.diff_trip {
                     txt.add_line(format!("Showing diff for {}", diff.trip));
                 } else if let Some(ref diff) = mode.diff_all {
@@ -78,7 +77,7 @@ impl ABTestMode {
                         diff.same_trips
                     ));
                 }
-                txt.add_line(state.ui.state.primary.sim.summary());
+                txt.add_line(state.ui.primary.sim.summary());
                 if let State::Running { ref speed, .. } = mode.state {
                     txt.add_line(format!(
                         "Speed: {0} / desired {1:.2}x",
@@ -96,16 +95,9 @@ impl ABTestMode {
                 if ctx.input.modal_action("quit") {
                     // TODO This shouldn't be necessary when we plumb state around instead of
                     // sharing it in the old structure.
-                    state.ui.state.primary.sim = Sim::new(
-                        &state.ui.state.primary.map,
-                        state
-                            .ui
-                            .state
-                            .primary
-                            .current_flags
-                            .sim_flags
-                            .run_name
-                            .clone(),
+                    state.ui.primary.sim = Sim::new(
+                        &state.ui.primary.map,
+                        state.ui.primary.current_flags.sim_flags.run_name.clone(),
                         None,
                     );
                     state.mode = Mode::SplashScreen(Wizard::new(), None);
@@ -121,7 +113,7 @@ impl ABTestMode {
                 }
                 if ctx.input.modal_action("swap") {
                     let secondary = mode.secondary.take().unwrap();
-                    let primary = std::mem::replace(&mut state.ui.state.primary, secondary);
+                    let primary = std::mem::replace(&mut state.ui.primary, secondary);
                     mode.secondary = Some(primary);
                 }
 
@@ -134,28 +126,27 @@ impl ABTestMode {
                         mode.diff_all = None;
                     }
                 } else {
-                    if state.ui.state.primary.current_selection.is_none()
+                    if state.ui.primary.current_selection.is_none()
                         && ctx.input.modal_action("diff all trips")
                     {
                         mode.diff_all = Some(DiffAllTrips::new(
-                            &mut state.ui.state.primary,
+                            &mut state.ui.primary,
                             mode.secondary.as_mut().unwrap(),
                         ));
                     } else if let Some(agent) = state
                         .ui
-                        .state
                         .primary
                         .current_selection
                         .and_then(|id| id.agent_id())
                     {
-                        if let Some(trip) = state.ui.state.primary.sim.agent_to_trip(agent) {
+                        if let Some(trip) = state.ui.primary.sim.agent_to_trip(agent) {
                             if ctx.input.contextual_action(
                                 Key::B,
                                 &format!("Show {}'s parallel world", agent),
                             ) {
                                 mode.diff_trip = Some(DiffOneTrip::new(
                                     trip,
-                                    &state.ui.state.primary,
+                                    &state.ui.primary,
                                     mode.secondary.as_ref().unwrap(),
                                 ));
                             }
@@ -168,11 +159,11 @@ impl ABTestMode {
                         if ctx.input.modal_action("run/pause sim") {
                             mode.state = State::Running {
                                 last_step: Instant::now(),
-                                benchmark: state.ui.state.primary.sim.start_benchmark(),
+                                benchmark: state.ui.primary.sim.start_benchmark(),
                                 speed: "...".to_string(),
                             };
                         } else if ctx.input.modal_action("run one step of sim") {
-                            state.ui.state.primary.sim.step(&state.ui.state.primary.map);
+                            state.ui.primary.sim.step(&state.ui.primary.map);
                             {
                                 let s = mode.secondary.as_mut().unwrap();
                                 s.sim.step(&s.map);
@@ -180,13 +171,13 @@ impl ABTestMode {
                             if let Some(diff) = mode.diff_trip.take() {
                                 mode.diff_trip = Some(DiffOneTrip::new(
                                     diff.trip,
-                                    &state.ui.state.primary,
+                                    &state.ui.primary,
                                     mode.secondary.as_ref().unwrap(),
                                 ));
                             }
                             if mode.diff_all.is_some() {
                                 mode.diff_all = Some(DiffAllTrips::new(
-                                    &mut state.ui.state.primary,
+                                    &mut state.ui.primary,
                                     mode.secondary.as_mut().unwrap(),
                                 ));
                             }
@@ -210,7 +201,7 @@ impl ABTestMode {
                             let dt_s = elapsed_seconds(*last_step);
                             if dt_s >= sim::TIMESTEP.inner_seconds() / mode.desired_speed {
                                 ctx.input.use_update_event();
-                                state.ui.state.primary.sim.step(&state.ui.state.primary.map);
+                                state.ui.primary.sim.step(&state.ui.primary.map);
                                 {
                                     let s = mode.secondary.as_mut().unwrap();
                                     s.sim.step(&s.map);
@@ -218,13 +209,13 @@ impl ABTestMode {
                                 if let Some(diff) = mode.diff_trip.take() {
                                     mode.diff_trip = Some(DiffOneTrip::new(
                                         diff.trip,
-                                        &state.ui.state.primary,
+                                        &state.ui.primary,
                                         mode.secondary.as_ref().unwrap(),
                                     ));
                                 }
                                 if mode.diff_all.is_some() {
                                     mode.diff_all = Some(DiffAllTrips::new(
-                                        &mut state.ui.state.primary,
+                                        &mut state.ui.primary,
                                         mode.secondary.as_mut().unwrap(),
                                     ));
                                 }
@@ -234,8 +225,7 @@ impl ABTestMode {
                                 if benchmark.has_real_time_passed(Duration::seconds(1.0)) {
                                     // I think the benchmark should naturally account for the delay of
                                     // the secondary sim.
-                                    *speed =
-                                        state.ui.state.primary.sim.measure_speed(benchmark, false);
+                                    *speed = state.ui.primary.sim.measure_speed(benchmark, false);
                                 }
                             }
                         }
@@ -256,7 +246,7 @@ impl ABTestMode {
                         g,
                         None,
                         HashMap::new(),
-                        &state.ui.state.primary.sim,
+                        &state.ui.primary.sim,
                         &ShowEverything::new(),
                     );
                     setup.draw(g);
@@ -266,7 +256,7 @@ impl ABTestMode {
                         g,
                         None,
                         mode.common.override_colors(&state.ui),
-                        &state.ui.state.primary.sim,
+                        &state.ui.primary.sim,
                         &ShowEverything::new(),
                     );
                     mode.common.draw(g, &state.ui);
@@ -327,23 +317,20 @@ impl DiffOneTrip {
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         if let Some(l) = &self.line {
             g.draw_line(
-                ui.state.cs.get_def("diff agents line", Color::YELLOW),
+                ui.cs.get_def("diff agents line", Color::YELLOW),
                 LANE_THICKNESS,
                 l,
             );
         }
         if let Some(t) = &self.primary_route {
             g.draw_polygon(
-                ui.state
-                    .cs
-                    .get_def("primary agent route", Color::RED.alpha(0.5)),
+                ui.cs.get_def("primary agent route", Color::RED.alpha(0.5)),
                 &t.make_polygons(LANE_THICKNESS),
             );
         }
         if let Some(t) = &self.secondary_route {
             g.draw_polygon(
-                ui.state
-                    .cs
+                ui.cs
                     .get_def("secondary agent route", Color::BLUE.alpha(0.5)),
                 &t.make_polygons(LANE_THICKNESS),
             );
@@ -377,7 +364,7 @@ impl DiffAllTrips {
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         for line in &self.lines {
-            g.draw_line(ui.state.cs.get("diff agents line"), LANE_THICKNESS, line);
+            g.draw_line(ui.cs.get("diff agents line"), LANE_THICKNESS, line);
         }
     }
 }

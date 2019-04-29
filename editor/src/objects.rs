@@ -1,7 +1,7 @@
 use crate::colors::ColorScheme;
 use crate::render::{DrawMap, ExtraShapeID};
-use crate::state::PerMapUI;
-use ezgui::{Color, EventLoopMode, GfxCtx, Text};
+use crate::ui::PerMapUI;
+use ezgui::{Color, GfxCtx, Text};
 use geom::Pt2D;
 use map_model::raw_data::StableRoadID;
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, RoadID, TurnID};
@@ -227,9 +227,6 @@ impl ID {
 }
 
 pub struct RenderingHints {
-    pub mode: EventLoopMode,
-
-    // Miscellaneous cases where a plugin needs to control rendering.
     pub suppress_traffic_signal_details: Option<IntersectionID>,
     pub hide_turn_icons: HashSet<TurnID>,
 }

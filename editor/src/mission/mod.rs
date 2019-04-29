@@ -29,10 +29,10 @@ impl MissionEditMode {
                 match mode.state {
                     State::Exploring => {
                         ctx.canvas.handle_event(ctx.input);
-                        state.ui.state.primary.current_selection = state.ui.handle_mouseover(
+                        state.ui.primary.current_selection = state.ui.handle_mouseover(
                             ctx,
                             None,
-                            &state.ui.state.primary.sim,
+                            &state.ui.primary.sim,
                             &ShowEverything::new(),
                             false,
                         );
@@ -72,7 +72,7 @@ impl MissionEditMode {
             g,
             None,
             HashMap::new(),
-            &state.ui.state.primary.sim,
+            &state.ui.primary.sim,
             &ShowEverything::new(),
         );
 

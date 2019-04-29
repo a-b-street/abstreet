@@ -24,8 +24,7 @@ impl ColorPicker {
                 }
                 InputResult::StillActive => {}
                 InputResult::Done(name, _) => {
-                    *self =
-                        ColorPicker::ChangingColor(name.clone(), ui.state.cs.get_modified(&name));
+                    *self = ColorPicker::ChangingColor(name.clone(), ui.cs.get_modified(&name));
                 }
             },
             ColorPicker::ChangingColor(name, orig) => {
@@ -35,7 +34,7 @@ impl ColorPicker {
                     &ctx.canvas,
                 );
                 if ctx.input.modal_action("revert") {
-                    ui.state.cs.reset_modified(name, *orig);
+                    ui.cs.reset_modified(name, *orig);
                     return true;
                 } else if ctx.input.modal_action("finalize") {
                     println!("Setting color for {}", name);
@@ -48,9 +47,7 @@ impl ColorPicker {
                     let x = (pt.x - start_x) / TILE_DIMS / 255.0;
                     let y = (pt.y - start_y) / TILE_DIMS / 255.0;
                     if x >= 0.0 && x <= 1.0 && y >= 0.0 && y <= 1.0 {
-                        ui.state
-                            .cs
-                            .override_color(name, get_color(x as f32, y as f32));
+                        ui.cs.override_color(name, get_color(x as f32, y as f32));
                     }
                 }
             }

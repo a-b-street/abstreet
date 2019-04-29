@@ -3,9 +3,8 @@ use crate::debug::DebugMode;
 use crate::edit::EditMode;
 use crate::mission::MissionEditMode;
 use crate::sandbox::SandboxMode;
-use crate::state::{Flags, UIState};
 use crate::tutorial::TutorialMode;
-use crate::ui::{EditorState, ShowEverything, UI};
+use crate::ui::{EditorState, Flags, ShowEverything, UI};
 use abstutil::elapsed_seconds;
 use ezgui::{
     Canvas, EventCtx, EventLoopMode, GfxCtx, Key, LogScroller, ModalMenu, Prerender, TopMenu,
@@ -42,13 +41,13 @@ impl GameState {
         let mut rng = flags.sim_flags.make_rng();
         let mut game = GameState {
             mode: Mode::Sandbox(SandboxMode::new()),
-            ui: UI::new(UIState::new(flags, prerender), canvas),
+            ui: UI::new(flags, prerender, canvas),
         };
         if splash {
             game.mode = Mode::SplashScreen(
                 Wizard::new(),
                 Some((
-                    Screensaver::start_bounce(&mut rng, canvas, &game.ui.state.primary.map),
+                    Screensaver::start_bounce(&mut rng, canvas, &game.ui.primary.map),
                     rng,
                 )),
             );
@@ -58,7 +57,7 @@ impl GameState {
 
     fn save_editor_state(&self, canvas: &Canvas) {
         let state = EditorState {
-            map_name: self.ui.state.primary.map.get_name().clone(),
+            map_name: self.ui.primary.map.get_name().clone(),
             cam_x: canvas.cam_x,
             cam_y: canvas.cam_y,
             cam_zoom: canvas.cam_zoom,
@@ -219,7 +218,7 @@ impl GUI for GameState {
         match self.mode {
             Mode::SplashScreen(ref mut wizard, ref mut maybe_screensaver) => {
                 if let Some((ref mut screensaver, ref mut rng)) = maybe_screensaver {
-                    screensaver.update(rng, ctx.input, ctx.canvas, &self.ui.state.primary.map);
+                    screensaver.update(rng, ctx.input, ctx.canvas, &self.ui.primary.map);
                 }
 
                 if let Some(new_mode) = splash_screen(wizard, ctx, &mut self.ui, maybe_screensaver)
@@ -247,7 +246,7 @@ impl GUI for GameState {
                     g,
                     None,
                     HashMap::new(),
-                    &self.ui.state.primary.sim,
+                    &self.ui.primary.sim,
                     &ShowEverything::new(),
                 );
                 wizard.draw(g);
@@ -266,7 +265,7 @@ impl GUI for GameState {
             "********************************************************************************"
         );
         println!("UI broke! Primary sim:");
-        self.ui.state.primary.sim.dump_before_abort();
+        self.ui.primary.sim.dump_before_abort();
         if let Mode::ABTest(ref abtest) = self.mode {
             if let Some(ref s) = abtest.secondary {
                 println!("Secondary sim:");
@@ -278,12 +277,12 @@ impl GUI for GameState {
 
     fn before_quit(&self, canvas: &Canvas) {
         self.save_editor_state(canvas);
-        self.ui.state.cs.save();
+        self.ui.cs.save();
         println!("Saved color_scheme");
     }
 
     fn profiling_enabled(&self) -> bool {
-        self.ui.state.primary.current_flags.enable_profiler
+        self.ui.primary.current_flags.enable_profiler
     }
 }
 
@@ -371,7 +370,7 @@ fn splash_screen(
         {
             x if x == sandbox => break Some(Mode::Sandbox(SandboxMode::new())),
             x if x == load_map => {
-                let current_map = ui.state.primary.map.get_name().to_string();
+                let current_map = ui.primary.map.get_name().to_string();
                 if let Some((name, _)) = wizard.choose_something_no_keys::<String>(
                     "Load which map?",
                     Box::new(move || {
@@ -382,9 +381,9 @@ fn splash_screen(
                     }),
                 ) {
                     // This retains no state, but that's probably fine.
-                    let mut flags = ui.state.primary.current_flags.clone();
+                    let mut flags = ui.primary.current_flags.clone();
                     flags.sim_flags.load = PathBuf::from(format!("../data/maps/{}.abst", name));
-                    *ui = UI::new(UIState::new(flags, ctx.prerender), ctx.canvas);
+                    *ui = UI::new(flags, ctx.prerender, ctx.canvas);
                     break Some(Mode::Sandbox(SandboxMode::new()));
                 } else if wizard.aborted() {
                     break Some(Mode::SplashScreen(Wizard::new(), maybe_screensaver.take()));

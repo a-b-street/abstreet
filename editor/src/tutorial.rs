@@ -43,7 +43,7 @@ impl TutorialMode {
             g,
             None,
             HashMap::new(),
-            &state.ui.state.primary.sim,
+            &state.ui.primary.sim,
             &ShowEverything::new(),
         );
 

@@ -26,7 +26,7 @@ impl TurnCyclerState {
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI) {
-        match ui.state.primary.current_selection {
+        match ui.primary.current_selection {
             Some(ID::Lane(id)) => {
                 if let State::CycleTurns(current, idx) = self.state {
                     if current != id {
@@ -39,7 +39,7 @@ impl TurnCyclerState {
                     }
                 } else {
                     self.state = State::ShowLane(id);
-                    if !ui.state.primary.map.get_turns_from_lane(id).is_empty()
+                    if !ui.primary.map.get_turns_from_lane(id).is_empty()
                         && ctx
                             .input
                             .key_pressed(Key::Tab, "cycle through this lane's turns")
@@ -80,34 +80,29 @@ impl TurnCyclerState {
         match self.state {
             State::Inactive => {}
             State::ShowLane(l) => {
-                for turn in &ui.state.primary.map.get_turns_from_lane(l) {
+                for turn in &ui.primary.map.get_turns_from_lane(l) {
                     DrawTurn::draw_full(turn, g, color_turn_type(turn.turn_type, ui).alpha(0.5));
                 }
             }
             State::CycleTurns(l, idx) => {
-                let turns = ui.state.primary.map.get_turns_from_lane(l);
+                let turns = ui.primary.map.get_turns_from_lane(l);
                 let t = turns[idx % turns.len()];
                 DrawTurn::draw_full(t, g, color_turn_type(t.turn_type, ui));
             }
             State::ShowIntersection(i) => {
                 if self.shift_key_held {
-                    if let Some(signal) = ui.state.primary.map.maybe_get_traffic_signal(i) {
+                    if let Some(signal) = ui.primary.map.maybe_get_traffic_signal(i) {
                         let (cycle, mut time_left) =
-                            signal.current_cycle_and_remaining_time(ui.state.primary.sim.time());
-                        if ui
-                            .state
-                            .primary
-                            .sim
-                            .is_in_overtime(i, &ui.state.primary.map)
-                        {
+                            signal.current_cycle_and_remaining_time(ui.primary.sim.time());
+                        if ui.primary.sim.is_in_overtime(i, &ui.primary.map) {
                             // TODO Hacky way of indicating overtime. Should make a 3-case enum.
                             time_left = Duration::seconds(-1.0);
                         }
                         let ctx = DrawCtx {
-                            cs: &ui.state.cs,
-                            map: &ui.state.primary.map,
-                            draw_map: &ui.state.primary.draw_map,
-                            sim: &ui.state.primary.sim,
+                            cs: &ui.cs,
+                            map: &ui.primary.map,
+                            draw_map: &ui.primary.draw_map,
+                            sim: &ui.primary.sim,
                             hints: &ui.hints,
                         };
                         draw_signal_diagram(i, cycle.idx, Some(time_left), 0.0, g, &ctx);
@@ -120,13 +115,12 @@ impl TurnCyclerState {
 
 fn color_turn_type(t: TurnType, ui: &UI) -> Color {
     match t {
-        TurnType::SharedSidewalkCorner => ui
-            .state
-            .cs
-            .get_def("shared sidewalk corner turn", Color::BLACK),
-        TurnType::Crosswalk => ui.state.cs.get_def("crosswalk turn", Color::WHITE),
-        TurnType::Straight => ui.state.cs.get_def("straight turn", Color::BLUE),
-        TurnType::Right => ui.state.cs.get_def("right turn", Color::GREEN),
-        TurnType::Left => ui.state.cs.get_def("left turn", Color::RED),
+        TurnType::SharedSidewalkCorner => {
+            ui.cs.get_def("shared sidewalk corner turn", Color::BLACK)
+        }
+        TurnType::Crosswalk => ui.cs.get_def("crosswalk turn", Color::WHITE),
+        TurnType::Straight => ui.cs.get_def("straight turn", Color::BLUE),
+        TurnType::Right => ui.cs.get_def("right turn", Color::GREEN),
+        TurnType::Left => ui.cs.get_def("left turn", Color::RED),
     }
 }

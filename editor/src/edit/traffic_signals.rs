@@ -25,7 +25,7 @@ pub struct TrafficSignalEditor {
 impl TrafficSignalEditor {
     pub fn new(id: IntersectionID, ctx: &mut EventCtx, ui: &mut UI) -> TrafficSignalEditor {
         ui.hints.suppress_traffic_signal_details = Some(id);
-        for t in ui.state.primary.map.get_turns_in_intersection(id) {
+        for t in ui.primary.map.get_turns_in_intersection(id) {
             // TODO bit weird, now looks like there's missing space between some icons. Do
             // we ever need to have an icon for SharedSidewalkCorner?
             if t.turn_type == TurnType::SharedSidewalkCorner {
@@ -46,10 +46,10 @@ impl TrafficSignalEditor {
 
     // Returns true if the editor is done and we should go back to main edit mode.
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> bool {
-        ui.state.primary.current_selection = ui.handle_mouseover(
+        ui.primary.current_selection = ui.handle_mouseover(
             ctx,
             Some(self.i),
-            &ui.state.primary.sim,
+            &ui.primary.sim,
             &ShowEverything::new(),
             false,
         );
@@ -60,7 +60,7 @@ impl TrafficSignalEditor {
             &ctx.canvas,
         );
 
-        let mut signal = ui.state.primary.map.get_traffic_signal(self.i).clone();
+        let mut signal = ui.primary.map.get_traffic_signal(self.i).clone();
         let mut changed = false;
 
         if self.cycle_duration_wizard.is_some() {
@@ -85,7 +85,7 @@ impl TrafficSignalEditor {
             }
         } else if self.preset_wizard.is_some() {
             if let Some(new_signal) = choose_preset(
-                &ui.state.primary.map,
+                &ui.primary.map,
                 self.i,
                 self.preset_wizard
                     .as_mut()
@@ -98,7 +98,7 @@ impl TrafficSignalEditor {
             } else if self.preset_wizard.as_ref().unwrap().aborted() {
                 self.preset_wizard = None;
             }
-        } else if let Some(ID::Turn(id)) = ui.state.primary.current_selection {
+        } else if let Some(ID::Turn(id)) = ui.primary.current_selection {
             // We know this turn belongs to the current intersection, because we're only
             // showing icons for this one.
             self.icon_selected = Some(id);
@@ -108,8 +108,8 @@ impl TrafficSignalEditor {
                 // Just one key to toggle between the 3 states
                 let next_priority = match cycle.get_priority(id) {
                     TurnPriority::Banned => {
-                        if ui.state.primary.map.get_t(id).turn_type == TurnType::Crosswalk {
-                            if cycle.could_be_priority_turn(id, &ui.state.primary.map) {
+                        if ui.primary.map.get_t(id).turn_type == TurnType::Crosswalk {
+                            if cycle.could_be_priority_turn(id, &ui.primary.map) {
                                 Some(TurnPriority::Priority)
                             } else {
                                 None
@@ -122,7 +122,7 @@ impl TrafficSignalEditor {
                         panic!("Can't have TurnPriority::Stop in a traffic signal");
                     }
                     TurnPriority::Yield => {
-                        if cycle.could_be_priority_turn(id, &ui.state.primary.map) {
+                        if cycle.could_be_priority_turn(id, &ui.primary.map) {
                             Some(TurnPriority::Priority)
                         } else {
                             Some(TurnPriority::Banned)
@@ -152,8 +152,7 @@ impl TrafficSignalEditor {
             if self.current_cycle != 0 && ctx.input.modal_action("select previous cycle") {
                 self.current_cycle -= 1;
             }
-            if self.current_cycle
-                != ui.state.primary.map.get_traffic_signal(self.i).cycles.len() - 1
+            if self.current_cycle != ui.primary.map.get_traffic_signal(self.i).cycles.len() - 1
                 && ctx.input.modal_action("select next cycle")
             {
                 self.current_cycle += 1;
@@ -166,7 +165,6 @@ impl TrafficSignalEditor {
             }
 
             let has_sidewalks = ui
-                .state
                 .primary
                 .map
                 .get_turns_in_intersection(self.i)
@@ -204,7 +202,7 @@ impl TrafficSignalEditor {
                     .modal_action("add a new pedestrian scramble cycle")
             {
                 let mut cycle = Cycle::new(self.i, signal.cycles.len());
-                for t in ui.state.primary.map.get_turns_in_intersection(self.i) {
+                for t in ui.primary.map.get_turns_in_intersection(self.i) {
                     // edit_turn adds the other_crosswalk_id and asserts no duplicates.
                     if t.turn_type == TurnType::SharedSidewalkCorner
                         || (t.turn_type == TurnType::Crosswalk && t.id.src < t.id.dst)
@@ -218,41 +216,36 @@ impl TrafficSignalEditor {
         }
 
         if changed {
-            let orig =
-                ControlTrafficSignal::new(&ui.state.primary.map, self.i, &mut Timer::throwaway());
-            let mut new_edits = ui.state.primary.map.get_edits().clone();
+            let orig = ControlTrafficSignal::new(&ui.primary.map, self.i, &mut Timer::throwaway());
+            let mut new_edits = ui.primary.map.get_edits().clone();
             if orig == signal {
                 new_edits.traffic_signal_overrides.remove(&self.i);
             } else {
                 new_edits.traffic_signal_overrides.insert(self.i, signal);
             }
-            apply_map_edits(&mut ui.state, ctx, new_edits);
+            apply_map_edits(ui, ctx, new_edits);
         }
 
         false
     }
 
     pub fn draw(&self, g: &mut GfxCtx, state: &GameState) {
-        let cycle =
-            &state.ui.state.primary.map.get_traffic_signal(self.i).cycles[self.current_cycle];
+        let cycle = &state.ui.primary.map.get_traffic_signal(self.i).cycles[self.current_cycle];
         let mut override_color: HashMap<ID, Color> = HashMap::new();
-        for t in &state.ui.state.primary.map.get_i(self.i).turns {
+        for t in &state.ui.primary.map.get_i(self.i).turns {
             override_color.insert(
                 ID::Turn(*t),
                 match cycle.get_priority(*t) {
                     TurnPriority::Priority => state
                         .ui
-                        .state
                         .cs
                         .get_def("priority turn in current cycle", Color::GREEN),
                     TurnPriority::Yield => state
                         .ui
-                        .state
                         .cs
                         .get_def("yield turn in current cycle", Color::rgb(255, 105, 180)),
                     TurnPriority::Banned => state
                         .ui
-                        .state
                         .cs
                         .get_def("turn not in current cycle", Color::BLACK),
                     TurnPriority::Stop => {
@@ -265,15 +258,15 @@ impl TrafficSignalEditor {
             g,
             Some(self.i),
             override_color,
-            &state.ui.state.primary.sim,
+            &state.ui.primary.sim,
             &ShowEverything::new(),
         );
 
         let ctx = DrawCtx {
-            cs: &state.ui.state.cs,
-            map: &state.ui.state.primary.map,
-            draw_map: &state.ui.state.primary.draw_map,
-            sim: &state.ui.state.primary.sim,
+            cs: &state.ui.cs,
+            map: &state.ui.primary.map,
+            draw_map: &state.ui.primary.draw_map,
+            sim: &state.ui.primary.sim,
             hints: &state.ui.hints,
         };
         draw_signal_cycle(cycle, g, &ctx);
@@ -291,15 +284,15 @@ impl TrafficSignalEditor {
             // TODO What should we do for currently banned turns?
             if cycle.get_priority(id) == TurnPriority::Yield {
                 DrawTurn::draw_dashed(
-                    state.ui.state.primary.map.get_t(id),
+                    state.ui.primary.map.get_t(id),
                     g,
-                    state.ui.state.cs.get("selected"),
+                    state.ui.cs.get("selected"),
                 );
             } else {
                 DrawTurn::draw_full(
-                    state.ui.state.primary.map.get_t(id),
+                    state.ui.primary.map.get_t(id),
                     g,
-                    state.ui.state.cs.get("selected"),
+                    state.ui.cs.get("selected"),
                 );
             }
         }

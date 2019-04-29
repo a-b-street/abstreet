@@ -27,7 +27,7 @@ impl ShowActivity {
                     *self = ShowActivity::Inactive;
                     return;
                 }
-                if *time == ui.state.primary.sim.time()
+                if *time == ui.primary.sim.time()
                     && ctx.canvas.get_screen_bounds() == heatmap.bounds
                     && zoomed
                 {
@@ -39,17 +39,16 @@ impl ShowActivity {
                     *self = ShowActivity::Inactive;
                     return;
                 }
-                if *time == ui.state.primary.sim.time() && !zoomed {
+                if *time == ui.primary.sim.time() && !zoomed {
                     return;
                 }
             }
         };
 
         if zoomed {
-            *self =
-                ShowActivity::Zoomed(ui.state.primary.sim.time(), active_agent_heatmap(ctx, ui));
+            *self = ShowActivity::Zoomed(ui.primary.sim.time(), active_agent_heatmap(ctx, ui));
         } else {
-            *self = ShowActivity::Unzoomed(ui.state.primary.sim.time(), RoadHeatmap::new(ui));
+            *self = ShowActivity::Unzoomed(ui.primary.sim.time(), RoadHeatmap::new(ui));
         }
     }
 
@@ -132,7 +131,7 @@ impl Heatmap {
 
 fn active_agent_heatmap(ctx: &EventCtx, ui: &mut UI) -> Heatmap {
     let mut h = Heatmap::new(ctx.canvas.get_screen_bounds());
-    let stats = ui.state.primary.sim.get_stats(&ui.state.primary.map);
+    let stats = ui.primary.sim.get_stats(&ui.primary.map);
     for pt in stats.canonical_pt_per_trip.values() {
         h.add(*pt);
     }
@@ -151,9 +150,9 @@ impl RoadHeatmap {
             count_per_road: HashMap::new(),
             max_count: 0,
         };
-        let map = &ui.state.primary.map;
-        for a in ui.state.primary.sim.active_agents() {
-            let r = match ui.state.primary.sim.location_for_agent(a, map) {
+        let map = &ui.primary.map;
+        for a in ui.primary.sim.active_agents() {
+            let r = match ui.primary.sim.location_for_agent(a, map) {
                 Traversable::Lane(l) => map.get_l(l).parent,
                 // Count the destination
                 Traversable::Turn(t) => map.get_l(t.dst).parent,
@@ -180,7 +179,7 @@ impl RoadHeatmap {
             // TODO Inefficient!
             g.draw_polygon(
                 color,
-                &ui.state.primary.map.get_r(*r).get_thick_polygon().unwrap(),
+                &ui.primary.map.get_r(*r).get_thick_polygon().unwrap(),
             );
         }
     }

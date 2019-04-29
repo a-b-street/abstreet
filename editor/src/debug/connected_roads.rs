@@ -31,10 +31,9 @@ impl ShowConnectedRoads {
 
         self.lanes.clear();
         if self.key_held {
-            if let Some(ID::Intersection(i)) = ui.state.primary.current_selection {
-                for r in &ui.state.primary.map.get_i(i).roads {
-                    self.lanes
-                        .extend(ui.state.primary.map.get_r(*r).all_lanes());
+            if let Some(ID::Intersection(i)) = ui.primary.current_selection {
+                for r in &ui.primary.map.get_i(i).roads {
+                    self.lanes.extend(ui.primary.map.get_r(*r).all_lanes());
                 }
             }
         }

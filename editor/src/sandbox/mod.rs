@@ -54,10 +54,10 @@ impl SandboxMode {
         match state.mode {
             Mode::Sandbox(ref mut mode) => {
                 ctx.canvas.handle_event(ctx.input);
-                state.ui.state.primary.current_selection = state.ui.handle_mouseover(
+                state.ui.primary.current_selection = state.ui.handle_mouseover(
                     ctx,
                     None,
-                    &state.ui.state.primary.sim,
+                    &state.ui.primary.sim,
                     &ShowEverything::new(),
                     false,
                 );
@@ -78,7 +78,7 @@ impl SandboxMode {
 
                 let mut txt = Text::new();
                 txt.add_styled_line("Sandbox Mode".to_string(), None, Some(Color::BLUE), None);
-                txt.add_line(state.ui.state.primary.sim.summary());
+                txt.add_line(state.ui.primary.sim.summary());
                 if let State::Running { ref speed, .. } = mode.state {
                     txt.add_line(format!(
                         "Speed: {0} / desired {1:.2}x",
@@ -123,12 +123,11 @@ impl SandboxMode {
                 if mode.following.is_none() {
                     if let Some(agent) = state
                         .ui
-                        .state
                         .primary
                         .current_selection
                         .and_then(|id| id.agent_id())
                     {
-                        if let Some(trip) = state.ui.state.primary.sim.agent_to_trip(agent) {
+                        if let Some(trip) = state.ui.primary.sim.agent_to_trip(agent) {
                             if ctx
                                 .input
                                 .contextual_action(Key::F, &format!("follow {}", agent))
@@ -141,10 +140,9 @@ impl SandboxMode {
                 if let Some(trip) = mode.following {
                     if let Some(pt) = state
                         .ui
-                        .state
                         .primary
                         .sim
-                        .get_canonical_pt_per_trip(trip, &state.ui.state.primary.map)
+                        .get_canonical_pt_per_trip(trip, &state.ui.primary.map)
                     {
                         ctx.canvas.center_on_map_pt(pt);
                     } else {
@@ -160,7 +158,7 @@ impl SandboxMode {
                 mode.show_activity.event(ctx, &mut state.ui);
                 if ctx.input.modal_action("start time traveling") {
                     mode.state = State::TimeTraveling;
-                    mode.time_travel.start(state.ui.state.primary.sim.time());
+                    mode.time_travel.start(state.ui.primary.sim.time());
                     // Do this again, in case recording was previously disabled.
                     mode.time_travel.record(&state.ui);
                     return EventLoopMode::InputOnly;
@@ -169,16 +167,9 @@ impl SandboxMode {
                 if ctx.input.modal_action("quit") {
                     // TODO This shouldn't be necessary when we plumb state around instead of
                     // sharing it in the old structure.
-                    state.ui.state.primary.sim = Sim::new(
-                        &state.ui.state.primary.map,
-                        state
-                            .ui
-                            .state
-                            .primary
-                            .current_flags
-                            .sim_flags
-                            .run_name
-                            .clone(),
+                    state.ui.primary.sim = Sim::new(
+                        &state.ui.primary.map,
+                        state.ui.primary.current_flags.sim_flags.run_name.clone(),
                         None,
                     );
                     state.mode = Mode::SplashScreen(Wizard::new(), None);
@@ -194,16 +185,9 @@ impl SandboxMode {
                 }
                 if ctx.input.modal_action("reset sim") {
                     // TODO savestate_every gets lost
-                    state.ui.state.primary.sim = Sim::new(
-                        &state.ui.state.primary.map,
-                        state
-                            .ui
-                            .state
-                            .primary
-                            .current_flags
-                            .sim_flags
-                            .run_name
-                            .clone(),
+                    state.ui.primary.sim = Sim::new(
+                        &state.ui.primary.map,
+                        state.ui.primary.current_flags.sim_flags.run_name.clone(),
                         None,
                     );
                     mode.state = State::Paused;
@@ -212,21 +196,20 @@ impl SandboxMode {
                 match mode.state {
                     State::Paused => {
                         if ctx.input.modal_action("save sim state") {
-                            state.ui.state.primary.sim.save();
+                            state.ui.primary.sim.save();
                         }
                         if ctx.input.modal_action("load previous sim state") {
                             let prev_state = state
                                 .ui
-                                .state
                                 .primary
                                 .sim
-                                .find_previous_savestate(state.ui.state.primary.sim.time());
+                                .find_previous_savestate(state.ui.primary.sim.time());
                             match prev_state
                                 .clone()
                                 .and_then(|path| Sim::load_savestate(path, None).ok())
                             {
                                 Some(new_sim) => {
-                                    state.ui.state.primary.sim = new_sim;
+                                    state.ui.primary.sim = new_sim;
                                     //*ctx.recalculate_current_selection = true;
                                 }
                                 None => {
@@ -237,16 +220,15 @@ impl SandboxMode {
                         if ctx.input.modal_action("load next sim state") {
                             let next_state = state
                                 .ui
-                                .state
                                 .primary
                                 .sim
-                                .find_next_savestate(state.ui.state.primary.sim.time());
+                                .find_next_savestate(state.ui.primary.sim.time());
                             match next_state
                                 .clone()
                                 .and_then(|path| Sim::load_savestate(path, None).ok())
                             {
                                 Some(new_sim) => {
-                                    state.ui.state.primary.sim = new_sim;
+                                    state.ui.primary.sim = new_sim;
                                     //*ctx.recalculate_current_selection = true;
                                 }
                                 None => println!("Couldn't load next savestate {:?}", next_state),
@@ -256,11 +238,11 @@ impl SandboxMode {
                         if ctx.input.modal_action("run/pause sim") {
                             mode.state = State::Running {
                                 last_step: Instant::now(),
-                                benchmark: state.ui.state.primary.sim.start_benchmark(),
+                                benchmark: state.ui.primary.sim.start_benchmark(),
                                 speed: "...".to_string(),
                             };
                         } else if ctx.input.modal_action("run one step of sim") {
-                            state.ui.state.primary.sim.step(&state.ui.state.primary.map);
+                            state.ui.primary.sim.step(&state.ui.primary.map);
                             //*ctx.recalculate_current_selection = true;
                         }
                         EventLoopMode::InputOnly
@@ -281,13 +263,12 @@ impl SandboxMode {
                             let dt_s = elapsed_seconds(*last_step);
                             if dt_s >= sim::TIMESTEP.inner_seconds() / mode.desired_speed {
                                 ctx.input.use_update_event();
-                                state.ui.state.primary.sim.step(&state.ui.state.primary.map);
+                                state.ui.primary.sim.step(&state.ui.primary.map);
                                 //*ctx.recalculate_current_selection = true;
                                 *last_step = Instant::now();
 
                                 if benchmark.has_real_time_passed(Duration::seconds(1.0)) {
-                                    *speed =
-                                        state.ui.state.primary.sim.measure_speed(benchmark, false);
+                                    *speed = state.ui.primary.sim.measure_speed(benchmark, false);
                                 }
                             }
                         }
@@ -321,7 +302,7 @@ impl SandboxMode {
                         g,
                         None,
                         mode.common.override_colors(&state.ui),
-                        &state.ui.state.primary.sim,
+                        &state.ui.primary.sim,
                         &ShowEverything::new(),
                     );
                     mode.common.draw(g, &state.ui);
