@@ -1,19 +1,13 @@
+use crate::common::Warper;
 use crate::ui::UI;
-use abstutil::elapsed_seconds;
 use ezgui::{Autocomplete, EventCtx, EventLoopMode, GfxCtx, InputResult};
-use geom::Line;
 use map_model::RoadID;
 use std::collections::HashSet;
-use std::time::Instant;
-
-// TODO Maybe pixels/second or something would be smoother
-const ANIMATION_TIME_S: f64 = 0.5;
 
 pub enum Navigator {
-    // TODO Ask for a cross-street after the first one
     FirstStreet(Autocomplete<RoadID>),
     CrossStreet(RoadID, Autocomplete<RoadID>),
-    Warping(Instant, Line),
+    Warping(Warper),
 }
 
 impl Navigator {
@@ -69,14 +63,11 @@ impl Navigator {
                     // Just warp to somewhere on the first road
                     let road = map.get_r(*first_id);
                     println!("Warping to {}", road.get_name());
-                    let pt = road.center_pts.dist_along(road.center_pts.length() / 2.0).0;
-                    let at = ctx.canvas.center_to_map_pt();
-                    if let Some(l) = Line::maybe_new(at, pt) {
-                        *self = Navigator::Warping(Instant::now(), l);
-                        Some(EventLoopMode::Animation)
-                    } else {
-                        None
-                    }
+                    *self = Navigator::Warping(Warper::new(
+                        ctx,
+                        road.center_pts.dist_along(road.center_pts.length() / 2.0).0,
+                    ));
+                    Some(EventLoopMode::Animation)
                 }
                 InputResult::Done(name, ids) => {
                     println!(
@@ -90,33 +81,12 @@ impl Navigator {
                     } else {
                         map.get_i(road.dst_i).point
                     };
-                    let at = ctx.canvas.center_to_map_pt();
-                    if let Some(l) = Line::maybe_new(at, pt) {
-                        *self = Navigator::Warping(Instant::now(), l);
-                        Some(EventLoopMode::Animation)
-                    } else {
-                        None
-                    }
+                    *self = Navigator::Warping(Warper::new(ctx, pt));
+                    Some(EventLoopMode::Animation)
                 }
                 InputResult::StillActive => Some(EventLoopMode::InputOnly),
             },
-            Navigator::Warping(started, line) => {
-                // Weird to do stuff for any event?
-                if ctx.input.nonblocking_is_update_event() {
-                    ctx.input.use_update_event();
-                }
-
-                let percent = elapsed_seconds(*started) / ANIMATION_TIME_S;
-                if percent >= 1.0 {
-                    ctx.canvas.center_on_map_pt(line.pt2());
-                    //ctx.primary.current_selection = Some(*id);
-                    None
-                } else {
-                    ctx.canvas
-                        .center_on_map_pt(line.dist_along(line.length() * percent));
-                    Some(EventLoopMode::Animation)
-                }
-            }
+            Navigator::Warping(ref warper) => warper.event(ctx),
         }
     }
 
@@ -126,7 +96,7 @@ impl Navigator {
             | Navigator::CrossStreet(_, ref autocomplete) => {
                 autocomplete.draw(g);
             }
-            Navigator::Warping(_, _) => {}
+            Navigator::Warping(_) => {}
         }
     }
 }

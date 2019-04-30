@@ -6,7 +6,10 @@ mod warp;
 use crate::helpers::ID;
 use crate::render::DrawOptions;
 use crate::ui::UI;
+use abstutil::elapsed_seconds;
 use ezgui::{EventCtx, EventLoopMode, GfxCtx, Key};
+use geom::{Line, Pt2D};
+use std::time::Instant;
 
 pub struct CommonState {
     associated: associated::ShowAssociatedState,
@@ -79,5 +82,42 @@ impl CommonState {
             opts.suppress_traffic_signal_details = Some(ui.primary.map.get_l(l).dst_i);
         }
         opts
+    }
+}
+
+// TODO Maybe pixels/second or something would be smoother
+const ANIMATION_TIME_S: f64 = 0.5;
+
+pub struct Warper {
+    started: Instant,
+    line: Option<Line>,
+}
+
+impl Warper {
+    pub fn new(ctx: &EventCtx, pt: Pt2D) -> Warper {
+        Warper {
+            started: Instant::now(),
+            line: Line::maybe_new(ctx.canvas.center_to_map_pt(), pt),
+        }
+    }
+
+    pub fn event(&self, ctx: &mut EventCtx) -> Option<EventLoopMode> {
+        let line = self.line.as_ref()?;
+
+        // Weird to do stuff for any event?
+        if ctx.input.nonblocking_is_update_event() {
+            ctx.input.use_update_event();
+        }
+
+        let percent = elapsed_seconds(self.started) / ANIMATION_TIME_S;
+        if percent >= 1.0 {
+            ctx.canvas.center_on_map_pt(line.pt2());
+            //ctx.primary.current_selection = Some(*id);
+            None
+        } else {
+            ctx.canvas
+                .center_on_map_pt(line.dist_along(line.length() * percent));
+            Some(EventLoopMode::Animation)
+        }
     }
 }

@@ -1,20 +1,16 @@
+use crate::common::Warper;
 use crate::helpers::ID;
 use crate::render::DrawMap;
 use crate::ui::UI;
-use abstutil::elapsed_seconds;
 use ezgui::{EventCtx, EventLoopMode, GfxCtx, InputResult, TextBox};
-use geom::{Line, Pt2D};
+use geom::Pt2D;
 use map_model::{raw_data, AreaID, BuildingID, IntersectionID, LaneID, Map, RoadID};
 use sim::{PedestrianID, Sim, TripID};
-use std::time::Instant;
 use std::usize;
-
-// TODO Maybe pixels/second or something would be smoother
-const ANIMATION_TIME_S: f64 = 0.5;
 
 pub enum WarpState {
     EnteringSearch(TextBox),
-    Warping(Instant, Line, ID),
+    Warping(Warper),
 }
 
 impl WarpState {
@@ -28,40 +24,18 @@ impl WarpState {
             WarpState::EnteringSearch(tb) => match tb.event(ctx.input) {
                 InputResult::Canceled => None,
                 InputResult::Done(to, _) => {
-                    if let Some((id, pt)) =
+                    if let Some((_, pt)) =
                         warp_point(to, &ui.primary.map, &ui.primary.sim, &ui.primary.draw_map)
                     {
-                        let at = ctx.canvas.center_to_map_pt();
-                        if let Some(l) = Line::maybe_new(at, pt) {
-                            *self = WarpState::Warping(Instant::now(), l, id);
-                            Some(EventLoopMode::Animation)
-                        } else {
-                            //ctx.primary.current_selection = Some(id);
-                            None
-                        }
+                        *self = WarpState::Warping(Warper::new(ctx, pt));
+                        Some(EventLoopMode::Animation)
                     } else {
                         None
                     }
                 }
                 InputResult::StillActive => Some(EventLoopMode::InputOnly),
             },
-            WarpState::Warping(started, line, _) => {
-                // Weird to do stuff for any event?
-                if ctx.input.nonblocking_is_update_event() {
-                    ctx.input.use_update_event();
-                }
-
-                let percent = elapsed_seconds(*started) / ANIMATION_TIME_S;
-                if percent >= 1.0 {
-                    ctx.canvas.center_on_map_pt(line.pt2());
-                    //ctx.primary.current_selection = Some(*id);
-                    None
-                } else {
-                    ctx.canvas
-                        .center_on_map_pt(line.dist_along(line.length() * percent));
-                    Some(EventLoopMode::Animation)
-                }
-            }
+            WarpState::Warping(ref warper) => warper.event(ctx),
         }
     }
 
