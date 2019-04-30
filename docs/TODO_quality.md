@@ -26,14 +26,13 @@
 	- then make them thinner
 
 - car turns often clip sidewalk corners now
+- draw SharedSidewalkCorners just around the ped path, not arbitrarily thick
+	- dont forget to draw the notches
 
 - figure out what to do about yellow center lines
 	- intersections on one-ways look weird
 	- yellow and white lines intersect cars and turn icons and such
 	- who should own drawing them?
-
-- arrows
-	- sometimes head is separated from body. I314 montlake ped turn arrows
 
 ## More data
 
@@ -83,6 +82,62 @@
 		- if we dont filter at all, we pick up some houseboats! :) should draw water...
 - undo disabled traffic signal assertion
 
+## Map edits
+
+- lane type can affect border intersections
+- lane type can affect turn idx
+	- assert turns are the same
+- crash when loading some edits (priori->bikelanez)
+	- edit an intersection first, then change lanes to destroy turns. need to recalculate the policy, preserving edits!
+		- just revert intersection and warn
+		- or store overrides more granularly and warn or do something reasonable
+
 ## Release
 
 - publish the map data
+
+## Sim bugs/tests needed
+
+- do bikes use bike lanes?
+- test that peds will use buses organically
+	- make sure that we can jump to a ped on a bus and see the bus
+- park/unpark needs to jump two lanes in the case of crossing a bike lane or something
+	- should only be able to park from the closest lane, though!
+
+## Discrete-event sim model
+
+- gridlock
+	- get_car_positions will recurse?
+	- laggy head stuff will be inefficient without prevention?
+	- preventish... dont start turn unless target WILL have capacity
+		- stronger is room_at_end now, but thats too strict
+		- best-case static capacity wont help (we might have longer buses and over-commit)
+		- worst-case static capacity will stop shorter cars from going when they legit could
+		- look at current occupants, find where the back WILL eventually wind up (just add up lengths + following dist, actually), then reserve after that.
+
+- cleanup after the cutover
+	- explicit tests making cars park at 0 and max_dist, peds walk to 0 and max_dist
+	- proper intersection policies, by seeing full view
+	- time travel mode can be very smart
+	- dupe code for initially spawning vs spawning when a trip leg starts.
+		- validation (just do it in spawn and return an error?)
+		- getting the path
+		- converting goal into router and such
+	- is overtime necessary?
+	- all the scoring/query stuff is so terrible
+
+- perf
+	- speed up Scheduler
+		- BinaryHeap
+			- binheapplus not serde
+			- std::cmp::Reverse not serde
+			- so have to manually impl ord
+			- BinaryHeap isnt PartialEq, which sim det stuff needs!
+			- update() is very hard
+		- priority_queue crate... internally uses hash, so serialization and determinism probably borked               
+	- dig into individual events, still too many?
+		- for laggy heads, often round down and try slightly too early
+	
+	- change sim.step API to something like step_to_time
+		- handle savestating better... use scheduler, but ensure at the end of that time
+		- make the desired speed in editor work better

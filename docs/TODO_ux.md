@@ -9,34 +9,28 @@
 - color roads as solid black when zoomed out, and make intersections similar (except for stop sign / signal)
 - audit all panics
 - tune text color, size, padding
-- sort the top menus
 
 - click cycle diagram to edit duration
 
 - revamp stop sign editor
 - toggle rewind mode
-	- sim stuff feels like a modal menu that's kinda omniprescent, but gets hidden sometimes
 - yellow or flashing red/yellow for yields
 - text box entry: highlight char looks like replace mode; draw it btwn chars
 
 - traffic signal cycles go offscreen sometimes!
-- mouseover shouldnt even be possible in lot of modes, like when a menu is active
+
+- navigator
+	- show options on map
+	- stop jumping text size
 
 ## General ezgui stuff
 
 - optionally limit canvas scrolling/zooming to some map bounds
-- top menu doesnt know when we have a more urgent input thing going!
-- cant use G for geom debug mode and contextual polygon debug
 - X on all menus
 - when dragging, dont give mouse movement to UI elements
 - start context menu when left click releases and we're not dragging
 - dont draw context menu off-screen
 - can we change labels in modal or top menu? show/hide
-- stacked modal menus
-	- should quit key for modal menus match key that started it?
-	- launch floodfill from context menu while following an agent... shouldnt be allowed
-	- can coexist: show score, search, hide
-	- some abstraction to just declare set_mode, give the extra width and height besides the menu, and get back a screenpt to start drawing at
 - bold hotkey letters
 
 ## New features
@@ -63,21 +57,58 @@
 	  that. http://davidjohnstone.net/pages/lch-lab-colour-gradient-picker,
           chroma < 50
 
-## Switch to OpenGL (for speed)
-
-- speed
-	- show FPS or some kind of measure of lag
-	- sleep better in the event loop
-		- first make UserInput borrow state and not need to consume
-- quality
-	- need padding around text
-	- text entry needs to draw the cursor differently
-- more speculative performance ideas
-	- experiment with batching and not passing colors
-	- specialized shaders for common shapes like circles?
-	- try https://docs.rs/dymod/0.1.0/dymod/ to link in a release-mode ezgui crate?
-
 ## Performance
 
 - it's a pity we have to redo DrawCar work for all those parked cars every tick
-- areas like lakes are incredibly detailed
+- show FPS or some kind of measure of lag
+- sleep better in the event loop
+	- first make UserInput borrow state and not need to consume
+- more speculative performance ideas
+	- specialized shaders for common shapes like circles?
+	- try https://docs.rs/dymod/0.1.0/dymod/ to link in a release-mode ezgui crate?
+
+## Depicting traffic unzoomed
+
+- strange things to depict
+	- cars partly straddling roads
+	- some lanes backed up, others moving
+	- peds (lots of them in one position maybe!)
+	- intersections (simultaneous turns, some blocked, others not)
+	- peds waiting for bus
+- general ideas
+	- darked colors (contrast map bg and road)
+	- show min/max bounds (exact max is hard, but could calculate best-case easily)
+	- percentage of capacity instead of an exact, moving length
+- criteria
+	- at low zoom, easily pinpoint where things are moving and stuck
+	- include all agents
+
+## Mission Edit Mode
+
+- neighborhood
+	- how to "pop" up the menu, go back to load/create and even to managing scenarios? feels like a stack.
+	- display some instructions in the modal thing ("move a point by grabbing it")
+	- warp to neighborhood center and zoom out when loading one (or even hovering in the menu?)
+	- display all and click to edit
+		- draw text in map-space, or be able to scale it
+	- renaming
+- scenario
+	- visualize should just be the default thing
+	- summarize in the modal menu, dont display the ugly text
+	- almost feels like a list of 3 'command' types, each of which can be visualized:
+		- seed cars
+		- spawn agents
+		- spawn agents from border
+	- kind of need to CRUD this list
+	- time input is very unclear, put help text in there
+	- combine the spawn and border spawn... choose neighborhood OR border
+		- choose in a menu list, or click on the map
+			- draw the border nodes loudly
+	- visualize better
+		- draw separate arrows src/dst, on each side of text
+			- draw text at a fixed size, not in screenspace, specify the font size.
+			- associate font size with Text, probably
+		- highlight a region, draw counts to/from it in some meaningful way
+		- timer slider (except timeslices arent neatly in hour blocks, though they maybe should be)
+		- a table (with color-coded entries) is actually perfect
+

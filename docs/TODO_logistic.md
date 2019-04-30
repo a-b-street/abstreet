@@ -2,7 +2,6 @@
 
 - enable more clippy lints
 - enforce consistent style (derive order, struct initialization order)
-- cross-platform builds
 
 - update with mission statement (democratized urb p, that quote, refashion existing space cheaply)
 - trailer
