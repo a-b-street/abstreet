@@ -4,12 +4,13 @@ use crate::helpers::ID;
 use crate::render::{draw_signal_cycle, draw_signal_diagram, DrawCtx, DrawOptions, DrawTurn};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
-use ezgui::{Color, EventCtx, GfxCtx, Key, ScreenPt, Wizard, WrappedWizard};
+use ezgui::{Color, EventCtx, GfxCtx, Key, NewModalMenu, ScreenPt, Wizard, WrappedWizard};
 use geom::Duration;
 use map_model::{ControlTrafficSignal, Cycle, IntersectionID, Map, TurnID, TurnPriority, TurnType};
 
 // TODO Warn if there are empty cycles or if some turn is completely absent from the signal.
 pub struct TrafficSignalEditor {
+    menu: NewModalMenu,
     i: IntersectionID,
     current_cycle: usize,
     // The Wizard states are nested under here to remember things like current_cycle and keep
@@ -23,8 +24,25 @@ pub struct TrafficSignalEditor {
 
 impl TrafficSignalEditor {
     pub fn new(id: IntersectionID, ctx: &mut EventCtx) -> TrafficSignalEditor {
-        let diagram_top_left = ctx.input.set_mode("Traffic Signal Editor", &ctx.canvas);
+        let menu = NewModalMenu::new(
+            &format!("Traffic Signal Editor for {}", id),
+            vec![
+                (Key::Escape, "quit"),
+                (Key::D, "change cycle duration"),
+                (Key::P, "choose a preset signal"),
+                (Key::K, "move current cycle up"),
+                (Key::J, "move current cycle down"),
+                (Key::UpArrow, "select previous cycle"),
+                (Key::DownArrow, "select next cycle"),
+                (Key::Backspace, "delete current cycle"),
+                (Key::N, "add a new empty cycle"),
+                (Key::M, "add a new pedestrian scramble cycle"),
+            ],
+            ctx,
+        );
+        let diagram_top_left = menu.get_bottom_left(ctx);
         TrafficSignalEditor {
+            menu,
             i: id,
             current_cycle: 0,
             cycle_duration_wizard: None,
@@ -36,18 +54,15 @@ impl TrafficSignalEditor {
 
     // Returns true if the editor is done and we should go back to main edit mode.
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> bool {
+        self.menu.handle_event(ctx);
+        self.diagram_top_left = self.menu.get_bottom_left(ctx);
+
         ui.primary.current_selection = ui.handle_mouseover(
             ctx,
             Some(self.i),
             &ui.primary.sim,
             &ShowEverything::new(),
             false,
-        );
-
-        self.diagram_top_left = ctx.input.set_mode_with_prompt(
-            "Traffic Signal Editor",
-            format!("Traffic Signal Editor for {}", self.i),
-            &ctx.canvas,
         );
 
         let mut signal = ui.primary.map.get_traffic_signal(self.i).clone();
@@ -132,22 +147,22 @@ impl TrafficSignalEditor {
             }
         } else {
             self.icon_selected = None;
-            if ctx.input.modal_action("quit") {
+            if self.menu.action("quit") {
                 return true;
             }
 
-            if self.current_cycle != 0 && ctx.input.modal_action("select previous cycle") {
+            if self.current_cycle != 0 && self.menu.action("select previous cycle") {
                 self.current_cycle -= 1;
             }
             if self.current_cycle != ui.primary.map.get_traffic_signal(self.i).cycles.len() - 1
-                && ctx.input.modal_action("select next cycle")
+                && self.menu.action("select next cycle")
             {
                 self.current_cycle += 1;
             }
 
-            if ctx.input.modal_action("change cycle duration") {
+            if self.menu.action("change cycle duration") {
                 self.cycle_duration_wizard = Some(Wizard::new());
-            } else if ctx.input.modal_action("choose a preset signal") {
+            } else if self.menu.action("choose a preset signal") {
                 self.preset_wizard = Some(Wizard::new());
             }
 
@@ -158,36 +173,32 @@ impl TrafficSignalEditor {
                 .iter()
                 .any(|t| t.between_sidewalks());
 
-            if self.current_cycle != 0 && ctx.input.modal_action("move current cycle up") {
+            if self.current_cycle != 0 && self.menu.action("move current cycle up") {
                 signal
                     .cycles
                     .swap(self.current_cycle, self.current_cycle - 1);
                 changed = true;
                 self.current_cycle -= 1;
             } else if self.current_cycle != signal.cycles.len() - 1
-                && ctx.input.modal_action("move current cycle down")
+                && self.menu.action("move current cycle down")
             {
                 signal
                     .cycles
                     .swap(self.current_cycle, self.current_cycle + 1);
                 changed = true;
                 self.current_cycle += 1;
-            } else if signal.cycles.len() > 1 && ctx.input.modal_action("delete current cycle") {
+            } else if signal.cycles.len() > 1 && self.menu.action("delete current cycle") {
                 signal.cycles.remove(self.current_cycle);
                 changed = true;
                 if self.current_cycle == signal.cycles.len() {
                     self.current_cycle -= 1;
                 }
-            } else if ctx.input.modal_action("add a new empty cycle") {
+            } else if self.menu.action("add a new empty cycle") {
                 signal
                     .cycles
                     .insert(self.current_cycle, Cycle::new(self.i, signal.cycles.len()));
                 changed = true;
-            } else if has_sidewalks
-                && ctx
-                    .input
-                    .modal_action("add a new pedestrian scramble cycle")
-            {
+            } else if has_sidewalks && self.menu.action("add a new pedestrian scramble cycle") {
                 let mut cycle = Cycle::new(self.i, signal.cycles.len());
                 for t in ui.primary.map.get_turns_in_intersection(self.i) {
                     // edit_turn adds the other_crosswalk_id and asserts no duplicates.
@@ -246,6 +257,8 @@ impl TrafficSignalEditor {
         state
             .ui
             .draw(g, opts, &state.ui.primary.sim, &ShowEverything::new());
+
+        self.menu.draw(g);
 
         let ctx = DrawCtx {
             cs: &state.ui.cs,

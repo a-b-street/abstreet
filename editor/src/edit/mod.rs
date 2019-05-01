@@ -8,7 +8,9 @@ use crate::render::{
 };
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
-use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, Wizard, WrappedWizard};
+use ezgui::{
+    Color, EventCtx, EventLoopMode, GfxCtx, Key, NewModalMenu, Text, Wizard, WrappedWizard,
+};
 use map_model::{
     IntersectionID, Lane, LaneID, LaneType, Map, MapEdits, Road, TurnID, TurnPriority, TurnType,
 };
@@ -18,7 +20,7 @@ pub enum EditMode {
     ViewingDiffs(CommonState),
     Saving(Wizard),
     Loading(Wizard),
-    EditingStopSign(IntersectionID),
+    EditingStopSign(IntersectionID, NewModalMenu),
     EditingTrafficSignal(traffic_signals::TrafficSignalEditor),
 }
 
@@ -101,7 +103,14 @@ impl EditMode {
                             .input
                             .contextual_action(Key::E, &format!("edit stop signs for {}", id))
                     {
-                        state.mode = Mode::Edit(EditMode::EditingStopSign(id));
+                        state.mode = Mode::Edit(EditMode::EditingStopSign(
+                            id,
+                            NewModalMenu::new(
+                                "Stop Sign Editor",
+                                vec![(Key::Escape, "quit"), (Key::R, "reset to default")],
+                                ctx,
+                            ),
+                        ));
                     }
                     if state.ui.primary.map.maybe_get_traffic_signal(id).is_some()
                         && ctx
@@ -137,19 +146,15 @@ impl EditMode {
                     state.mode = Mode::Edit(EditMode::new());
                 }
             }
-            Mode::Edit(EditMode::EditingStopSign(i)) => {
+            Mode::Edit(EditMode::EditingStopSign(i, ref mut menu)) => {
+                menu.handle_event(ctx);
+
                 state.ui.primary.current_selection = state.ui.handle_mouseover(
                     ctx,
                     Some(i),
                     &state.ui.primary.sim,
                     &ShowEverything::new(),
                     false,
-                );
-
-                ctx.input.set_mode_with_prompt(
-                    "Stop Sign Editor",
-                    format!("Stop Sign Editor for {}", i),
-                    &ctx.canvas,
                 );
 
                 if let Some(ID::Turn(t)) = state.ui.primary.current_selection {
@@ -175,9 +180,9 @@ impl EditMode {
                         new_edits.stop_sign_overrides.insert(i, sign);
                         apply_map_edits(&mut state.ui, ctx, new_edits);
                     }
-                } else if ctx.input.modal_action("quit") {
+                } else if menu.action("quit") {
                     state.mode = Mode::Edit(EditMode::new());
-                } else if ctx.input.modal_action("reset to default") {
+                } else if menu.action("reset to default") {
                     let mut new_edits = state.ui.primary.map.get_edits().clone();
                     new_edits.stop_sign_overrides.remove(&i);
                     apply_map_edits(&mut state.ui, ctx, new_edits);
@@ -267,7 +272,7 @@ impl EditMode {
                 // TODO Still draw the diffs, yo
                 wizard.draw(g);
             }
-            Mode::Edit(EditMode::EditingStopSign(i)) => {
+            Mode::Edit(EditMode::EditingStopSign(i, ref menu)) => {
                 let mut opts = DrawOptions::new();
                 opts.show_turn_icons_for = Some(i);
                 let sign = state.ui.primary.map.get_stop_sign(i);
@@ -299,6 +304,8 @@ impl EditMode {
                         state.ui.cs.get_def("selected turn", Color::RED),
                     );
                 }
+
+                menu.draw(g);
             }
             Mode::Edit(EditMode::EditingTrafficSignal(ref editor)) => {
                 editor.draw(g, state);

@@ -80,25 +80,6 @@ impl GUI for GameState {
                 ],
             ),
             ModalMenu::new(
-                "Stop Sign Editor",
-                vec![(Key::Escape, "quit"), (Key::R, "reset to default")],
-            ),
-            ModalMenu::new(
-                "Traffic Signal Editor",
-                vec![
-                    (Key::Escape, "quit"),
-                    (Key::D, "change cycle duration"),
-                    (Key::P, "choose a preset signal"),
-                    (Key::K, "move current cycle up"),
-                    (Key::J, "move current cycle down"),
-                    (Key::UpArrow, "select previous cycle"),
-                    (Key::DownArrow, "select next cycle"),
-                    (Key::Backspace, "delete current cycle"),
-                    (Key::N, "add a new empty cycle"),
-                    (Key::M, "add a new pedestrian scramble cycle"),
-                ],
-            ),
-            ModalMenu::new(
                 "Sandbox Mode",
                 vec![
                     (Key::Escape, "quit"),

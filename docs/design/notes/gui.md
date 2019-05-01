@@ -601,3 +601,22 @@ I want to hover over an agent and preview its route. Where's this functionality 
 - i pretty much want to try attaching some mouseover logic to the car/bike/ped Renderables
 
 Look at show_route plugin. Expressing state changes is awkward. Want to make the 'r' key available in Hovering state, but only if we survive the Hovering state.
+
+## Modal menus
+
+About to let game own this directly, moving it out of ezgui.
+
+- at first, just do this and keep current impl
+	- do the same for top menu probably, and context menus?
+- but what if we dont constantly reset the active options? right after we do one action, the menu is displayed wrong, because no event causes us to build up possible actions again.
+	- hack: do a no-op event after just to rebuild the menu. very gross.
+- one pass that doesnt DO anything, just builds up all the possible events that do something interesting
+- then irrelevant events are immediately dropped
+	- this is kind of a generalization of the 'unused key_release' thing happening now
+- two different styles...
+	- register callbacks (ew? except it maybe avoids weird problems with accidentally using an event twice)
+	- or have a no-op phase and an execution phase
+
+The more radical design would get rid of event() entirely, invert the control. The game itself would say "poll for next event".
+- When do we draw? When we block for events? Is drawing inlined into this one combined method, or is there still a separate function to redo it from scratch?
+- screensaver would immediately hand over control to the menu. no more StillActive case!

@@ -5,8 +5,8 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 // As we check for user input, record the input and the thing that would happen. This will let us
 // build up some kind of OSD of possible actions.
 pub struct UserInput {
-    event: Event,
-    event_consumed: bool,
+    pub(crate) event: Event,
+    pub(crate) event_consumed: bool,
     important_actions: Vec<(Key, String)>,
     // If two different callers both expect the same key, there's likely an unintentional conflict.
     reserved_keys: HashMap<Key, String>,
