@@ -1,5 +1,5 @@
 use crate::widgets::{Menu, Position};
-use crate::{text, Canvas, Event, InputResult, Key, ScreenPt, Text, TopMenu};
+use crate::{text, Canvas, Event, InputResult, Key, ScreenPt, Text};
 use std::collections::{BTreeMap, HashMap};
 
 // As we check for user input, record the input and the thing that would happen. This will let us
@@ -11,16 +11,12 @@ pub struct UserInput {
     // If two different callers both expect the same key, there's likely an unintentional conflict.
     reserved_keys: HashMap<Key, String>,
 
-    // When context or top menus are active, most methods lie about having input.
+    // When context menu is active, most methods lie about having input.
     // TODO This is hacky, but if we consume_event in things like get_moved_mouse, then canvas
     // dragging and UI mouseover become mutex. :\
     // TODO Logically these are borrowed, but I think that requires lots of lifetime plumbing right
     // now...
     pub(crate) context_menu: ContextMenu,
-    pub(crate) top_menu: Option<TopMenu>,
-
-    // This could be from context_menu
-    pub(crate) chosen_action: Option<String>,
 }
 
 pub enum ContextMenu {
@@ -56,49 +52,19 @@ impl ContextMenu {
 }
 
 impl UserInput {
-    pub(crate) fn new(
-        event: Event,
-        context_menu: ContextMenu,
-        mut top_menu: Option<TopMenu>,
-        canvas: &mut Canvas,
-    ) -> UserInput {
+    pub(crate) fn new(event: Event, context_menu: ContextMenu, canvas: &mut Canvas) -> UserInput {
         let mut input = UserInput {
             event,
             event_consumed: false,
             important_actions: Vec::new(),
             context_menu,
-            // Don't move it in yet!
-            top_menu: None,
             reserved_keys: HashMap::new(),
-            chosen_action: None,
         };
 
         // First things first...
         if let Event::WindowResized(width, height) = input.event {
             canvas.window_width = width;
             canvas.window_height = height;
-        }
-
-        if let Some(ref mut menu) = top_menu {
-            match menu.event(&mut input, canvas) {
-                // Keep going; the input hasn't been consumed.
-                InputResult::Canceled => {
-                    menu.valid_actions.clear();
-                    input.top_menu = top_menu;
-                }
-                // The context menu can't coexist.
-                InputResult::StillActive => {
-                    menu.valid_actions.clear();
-                    input.top_menu = top_menu;
-                    return input;
-                }
-                InputResult::Done(action, _) => {
-                    menu.valid_actions.clear();
-                    input.chosen_action = Some(action);
-                    input.top_menu = top_menu;
-                    return input;
-                }
-            }
         }
 
         // Create the context menu here, even if one already existed.
@@ -189,31 +155,6 @@ impl UserInput {
             }
         }
         false
-    }
-
-    pub fn action_chosen(&mut self, action: &str) -> bool {
-        if self.chosen_action == Some(action.to_string()) {
-            self.chosen_action = None;
-            return true;
-        }
-
-        if let Some(ref mut menu) = self.top_menu {
-            if let Some(maybe_key) = menu.actions.get(action).cloned() {
-                menu.valid_actions.insert(action.to_string());
-                if let Some(key) = maybe_key {
-                    self.unimportant_key_pressed(key, action)
-                } else {
-                    false
-                }
-            } else {
-                panic!(
-                    "action_chosen(\"{}\") doesn't match actions in the TopMenu!",
-                    action
-                );
-            }
-        } else {
-            panic!("action_chosen(\"{}\") without a TopMenu defined!", action);
-        }
     }
 
     pub fn unimportant_key_pressed(&mut self, key: Key, action: &str) -> bool {

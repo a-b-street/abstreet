@@ -1,7 +1,7 @@
 use crate::input::ContextMenu;
 use crate::{
-    widgets, Canvas, Event, EventCtx, GfxCtx, HorizontalAlignment, Prerender, Text, TopMenu,
-    UserInput, VerticalAlignment,
+    widgets, Canvas, Event, EventCtx, GfxCtx, HorizontalAlignment, Prerender, Text, UserInput,
+    VerticalAlignment,
 };
 use glium::glutin;
 use glium_glyph::glyph_brush::rusttype::Font;
@@ -14,10 +14,6 @@ use std::{env, panic, process, thread};
 const SLEEP_BETWEEN_FRAMES: Duration = Duration::from_millis(33);
 
 pub trait GUI {
-    // Called once
-    fn top_menu(&self, _canvas: &Canvas) -> Option<TopMenu> {
-        None
-    }
     fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode;
     fn draw(&self, g: &mut GfxCtx);
     // Will be called if event or draw panics.
@@ -47,7 +43,6 @@ pub(crate) struct State<G: GUI> {
     pub(crate) gui: G,
     pub(crate) canvas: Canvas,
     context_menu: ContextMenu,
-    top_menu: Option<TopMenu>,
 }
 
 impl<G: GUI> State<G> {
@@ -55,7 +50,7 @@ impl<G: GUI> State<G> {
     fn event(mut self, ev: Event, prerender: &Prerender) -> (State<G>, EventLoopMode, bool) {
         // It's impossible / very unlikey we'll grab the cursor in map space before the very first
         // start_drawing call.
-        let mut input = UserInput::new(ev, self.context_menu, self.top_menu, &mut self.canvas);
+        let mut input = UserInput::new(ev, self.context_menu, &mut self.canvas);
         let mut gui = self.gui;
         let mut canvas = self.canvas;
         let event_mode = match panic::catch_unwind(panic::AssertUnwindSafe(|| {
@@ -81,13 +76,6 @@ impl<G: GUI> State<G> {
             _ => true,
         };
         self.context_menu = input.context_menu.maybe_build(&self.canvas);
-        self.top_menu = input.top_menu;
-        if let Some(action) = input.chosen_action {
-            panic!(
-                "\"{}\" chosen from the top, but nothing consumed it",
-                action
-            );
-        }
 
         (self, event_mode, input_used)
     }
@@ -115,9 +103,6 @@ impl<G: GUI> State<G> {
 
         if !screenshot {
             // Always draw the menus last.
-            if let Some(ref menu) = self.top_menu {
-                menu.draw(&mut g);
-            }
             if let ContextMenu::Displaying(ref menu) = self.context_menu {
                 menu.draw(&mut g);
             }
@@ -216,7 +201,6 @@ pub fn run<G: GUI, F: FnOnce(&mut Canvas, &Prerender) -> G>(
     let gui = make_gui(&mut canvas, &prerender);
 
     let state = State {
-        top_menu: gui.top_menu(&canvas),
         canvas,
         context_menu: ContextMenu::Inactive,
         gui,
