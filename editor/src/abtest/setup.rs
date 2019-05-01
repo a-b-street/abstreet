@@ -1,15 +1,14 @@
 use crate::abtest::{ABTestMode, State};
-use crate::common::CommonState;
 use crate::game::{GameState, Mode};
 use crate::ui::{Flags, PerMapUI, UI};
-use ezgui::{EventCtx, GfxCtx, LogScroller, Wizard, WrappedWizard};
+use ezgui::{EventCtx, GfxCtx, Key, LogScroller, NewModalMenu, Wizard, WrappedWizard};
 use map_model::Map;
 use sim::{ABTest, SimFlags};
 use std::path::PathBuf;
 
 pub enum ABTestSetup {
     Pick(Wizard),
-    Manage(ABTest, LogScroller),
+    Manage(NewModalMenu, ABTest, LogScroller),
 }
 
 impl ABTestSetup {
@@ -23,20 +22,24 @@ impl ABTestSetup {
                         {
                             let scroller =
                                 LogScroller::new(ab_test.test_name.clone(), ab_test.describe());
-                            *setup = ABTestSetup::Manage(ab_test, scroller);
+                            *setup = ABTestSetup::Manage(
+                                NewModalMenu::new(
+                                    &format!("A/B Test Editor for {}", ab_test.test_name),
+                                    vec![(Key::Escape, "quit"), (Key::R, "run A/B test")],
+                                    ctx,
+                                ),
+                                ab_test,
+                                scroller,
+                            );
                         } else if wizard.aborted() {
                             state.mode = Mode::SplashScreen(Wizard::new(), None);
                         }
                     }
-                    ABTestSetup::Manage(test, ref mut scroller) => {
-                        ctx.input.set_mode_with_prompt(
-                            "A/B Test Editor",
-                            format!("A/B Test Editor for {}", test.test_name),
-                            &ctx.canvas,
-                        );
+                    ABTestSetup::Manage(ref mut menu, test, ref mut scroller) => {
+                        menu.handle_event(ctx);
                         if scroller.event(ctx.input) {
                             state.mode = Mode::SplashScreen(Wizard::new(), None);
-                        } else if ctx.input.modal_action("run A/B test") {
+                        } else if menu.action("run A/B test") {
                             state.mode = launch_test(test, &mut state.ui, ctx);
                         }
                     }
@@ -52,8 +55,9 @@ impl ABTestSetup {
             ABTestSetup::Pick(wizard) => {
                 wizard.draw(g);
             }
-            ABTestSetup::Manage(_, scroller) => {
+            ABTestSetup::Manage(ref menu, _, scroller) => {
                 scroller.draw(g);
+                menu.draw(g);
             }
         }
     }
@@ -123,14 +127,10 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> Mode {
     );
 
     ui.primary = primary;
-    Mode::ABTest(ABTestMode {
-        desired_speed: 1.0,
-        state: State::Paused,
-        secondary: Some(secondary),
-        diff_trip: None,
-        diff_all: None,
-        common: CommonState::new(),
-    })
+    let mut mode = ABTestMode::new(ctx);
+    mode.state = State::Paused;
+    mode.secondary = Some(secondary);
+    Mode::ABTest(mode)
 }
 
 fn choose_scenario(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<String> {

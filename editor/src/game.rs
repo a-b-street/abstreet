@@ -70,87 +70,7 @@ impl GameState {
 
 impl GUI for GameState {
     fn modal_menus(&self) -> Vec<ModalMenu> {
-        vec![
-            ModalMenu::new(
-                "Debug Mode",
-                vec![
-                    (Key::Escape, "quit"),
-                    (Key::C, "show/hide chokepoints"),
-                    (Key::O, "clear original roads shown"),
-                    (Key::K, "unhide everything"),
-                    (Key::Num1, "show/hide buildings"),
-                    (Key::Num2, "show/hide intersections"),
-                    (Key::Num3, "show/hide lanes"),
-                    (Key::Num4, "show/hide areas"),
-                    (Key::Num5, "show/hide extra shapes"),
-                    (Key::Num6, "show/hide geometry debug mode"),
-                    (Key::F1, "screenshot everything"),
-                    (Key::Slash, "search OSM metadata"),
-                    (Key::M, "clear OSM search results"),
-                    (Key::S, "configure colors"),
-                    (Key::N, "show/hide neighborhood summaries"),
-                ],
-            ),
-            ModalMenu::new(
-                "Polygon Debugger",
-                vec![
-                    (Key::Escape, "quit"),
-                    (Key::Dot, "next item"),
-                    (Key::Comma, "prev item"),
-                    (Key::F, "first item"),
-                    (Key::L, "last item"),
-                ],
-            ),
-            ModalMenu::new(
-                "Color Picker",
-                vec![(Key::Backspace, "revert"), (Key::Escape, "finalize")],
-            ),
-            ModalMenu::new(
-                "Mission Edit Mode",
-                vec![
-                    (Key::Escape, "quit"),
-                    (Key::N, "manage neighborhoods"),
-                    (Key::W, "manage scenarios"),
-                ],
-            ),
-            ModalMenu::new(
-                "A/B Test Mode",
-                vec![
-                    (Key::Escape, "quit"),
-                    (Key::LeftBracket, "slow down sim"),
-                    (Key::RightBracket, "speed up sim"),
-                    (Key::Space, "run/pause sim"),
-                    (Key::M, "run one step of sim"),
-                    (Key::S, "swap"),
-                    (Key::D, "diff all trips"),
-                    (Key::B, "stop diffing trips"),
-                ],
-            ),
-            ModalMenu::new(
-                "Neighborhood Editor",
-                vec![
-                    (Key::Escape, "quit"),
-                    (Key::S, "save"),
-                    (Key::X, "export as an Osmosis polygon filter"),
-                    (Key::P, "add a new point"),
-                ],
-            ),
-            ModalMenu::new(
-                "Scenario Editor",
-                vec![
-                    (Key::Escape, "quit"),
-                    (Key::S, "save"),
-                    (Key::E, "edit"),
-                    (Key::I, "instantiate"),
-                    (Key::V, "visualize"),
-                ],
-            ),
-            ModalMenu::new(
-                "A/B Test Editor",
-                vec![(Key::Escape, "quit"), (Key::R, "run A/B test")],
-            ),
-            ModalMenu::new("Tutorial", vec![(Key::Escape, "quit")]),
-        ]
+        Vec::new()
     }
 
     fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode {
@@ -330,14 +250,10 @@ fn splash_screen(
                 }
             }
             x if x == edit => break Some(Mode::Edit(EditMode::new(ctx))),
-            x if x == tutorial => {
-                break Some(Mode::Tutorial(TutorialMode::Part1(
-                    ctx.canvas.center_to_map_pt(),
-                )))
-            }
+            x if x == tutorial => break Some(Mode::Tutorial(TutorialMode::new(ctx))),
             x if x == debug => break Some(Mode::Debug(DebugMode::new(ctx, ui))),
-            x if x == mission => break Some(Mode::Mission(MissionEditMode::new())),
-            x if x == abtest => break Some(Mode::ABTest(ABTestMode::new())),
+            x if x == mission => break Some(Mode::Mission(MissionEditMode::new(ctx))),
+            x if x == abtest => break Some(Mode::ABTest(ABTestMode::new(ctx))),
             x if x == about => {
                 if wizard.acknowledge(LogScroller::new(
                     "About A/B Street".to_string(),

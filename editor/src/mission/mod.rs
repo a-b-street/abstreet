@@ -4,22 +4,30 @@ mod scenario;
 use crate::game::{GameState, Mode};
 use crate::render::DrawOptions;
 use crate::ui::ShowEverything;
-use ezgui::{EventCtx, EventLoopMode, GfxCtx, Wizard};
+use ezgui::{EventCtx, EventLoopMode, GfxCtx, Key, NewModalMenu, Wizard};
 
 pub struct MissionEditMode {
     state: State,
 }
 
 enum State {
-    Exploring,
+    Exploring(NewModalMenu),
     Neighborhood(neighborhood::NeighborhoodEditor),
     Scenario(scenario::ScenarioEditor),
 }
 
 impl MissionEditMode {
-    pub fn new() -> MissionEditMode {
+    pub fn new(ctx: &EventCtx) -> MissionEditMode {
         MissionEditMode {
-            state: State::Exploring,
+            state: State::Exploring(NewModalMenu::new(
+                "Mission Edit Mode",
+                vec![
+                    (Key::Escape, "quit"),
+                    (Key::N, "manage neighborhoods"),
+                    (Key::W, "manage scenarios"),
+                ],
+                ctx,
+            )),
         }
     }
 
@@ -27,24 +35,17 @@ impl MissionEditMode {
         match state.mode {
             Mode::Mission(ref mut mode) => {
                 match mode.state {
-                    State::Exploring => {
+                    State::Exploring(ref mut menu) => {
+                        menu.handle_event(ctx);
                         ctx.canvas.handle_event(ctx.input);
-                        state.ui.primary.current_selection = state.ui.handle_mouseover(
-                            ctx,
-                            None,
-                            &state.ui.primary.sim,
-                            &ShowEverything::new(),
-                            false,
-                        );
 
-                        ctx.input.set_mode("Mission Edit Mode", ctx.canvas);
-                        if ctx.input.modal_action("quit") {
+                        if menu.action("quit") {
                             state.mode = Mode::SplashScreen(Wizard::new(), None);
-                        } else if ctx.input.modal_action("manage neighborhoods") {
+                        } else if menu.action("manage neighborhoods") {
                             mode.state = State::Neighborhood(
                                 neighborhood::NeighborhoodEditor::PickNeighborhood(Wizard::new()),
                             );
-                        } else if ctx.input.modal_action("manage scenarios") {
+                        } else if menu.action("manage scenarios") {
                             mode.state = State::Scenario(scenario::ScenarioEditor::PickScenario(
                                 Wizard::new(),
                             ));
@@ -52,7 +53,7 @@ impl MissionEditMode {
                     }
                     State::Neighborhood(ref mut editor) => {
                         if editor.event(ctx, &state.ui) {
-                            mode.state = State::Exploring;
+                            mode.state = MissionEditMode::new(ctx).state;
                         }
                     }
                     State::Scenario(ref mut editor) => {
@@ -77,7 +78,9 @@ impl MissionEditMode {
 
         match state.mode {
             Mode::Mission(ref mode) => match mode.state {
-                State::Exploring => {}
+                State::Exploring(ref menu) => {
+                    menu.draw(g);
+                }
                 State::Neighborhood(ref editor) => {
                     editor.draw(g, &state.ui);
                 }

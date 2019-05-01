@@ -3,7 +3,9 @@ use crate::mission::MissionEditMode;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::{Timer, WeightedUsizeChoice};
-use ezgui::{Color, Drawable, EventCtx, GfxCtx, LogScroller, Wizard, WrappedWizard};
+use ezgui::{
+    Color, Drawable, EventCtx, GfxCtx, Key, LogScroller, NewModalMenu, Wizard, WrappedWizard,
+};
 use geom::{Distance, Duration, Line, Pt2D};
 use map_model::{IntersectionID, Map, Neighborhood};
 use sim::{BorderSpawnOverTime, OriginDestination, Scenario, SeedParkedCars, SpawnOverTime};
@@ -11,12 +13,26 @@ use std::collections::BTreeMap;
 
 pub enum ScenarioEditor {
     PickScenario(Wizard),
-    ManageScenario(Scenario, LogScroller),
+    ManageScenario(NewModalMenu, Scenario, LogScroller),
     EditScenario(Scenario, Wizard),
-    VisualizeScenario(Scenario, Drawable, BTreeMap<String, Region>),
+    VisualizeScenario(NewModalMenu, Scenario, Drawable, BTreeMap<String, Region>),
 }
 
 impl ScenarioEditor {
+    fn modal_menu(name: &str, ctx: &EventCtx) -> NewModalMenu {
+        NewModalMenu::new(
+            &format!("Scenario Editor for {}", name),
+            vec![
+                (Key::Escape, "quit"),
+                (Key::S, "save"),
+                (Key::E, "edit"),
+                (Key::I, "instantiate"),
+                (Key::V, "visualize"),
+            ],
+            ctx,
+        )
+    }
+
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Mode> {
         match self {
             ScenarioEditor::PickScenario(ref mut wizard) => {
@@ -25,23 +41,23 @@ impl ScenarioEditor {
                 {
                     let scroller =
                         LogScroller::new(scenario.scenario_name.clone(), scenario.describe());
-                    *self = ScenarioEditor::ManageScenario(scenario, scroller);
+                    *self = ScenarioEditor::ManageScenario(
+                        ScenarioEditor::modal_menu(&scenario.scenario_name, ctx),
+                        scenario,
+                        scroller,
+                    );
                 } else if wizard.aborted() {
-                    return Some(Mode::Mission(MissionEditMode::new()));
+                    return Some(Mode::Mission(MissionEditMode::new(ctx)));
                 }
             }
-            ScenarioEditor::ManageScenario(scenario, ref mut scroller) => {
+            ScenarioEditor::ManageScenario(ref mut menu, scenario, ref mut scroller) => {
+                menu.handle_event(ctx);
                 ctx.canvas.handle_event(ctx.input);
-                ctx.input.set_mode_with_prompt(
-                    "Scenario Editor",
-                    format!("Scenario Editor for {}", scenario.scenario_name),
-                    &ctx.canvas,
-                );
-                if ctx.input.modal_action("save") {
+                if menu.action("save") {
                     scenario.save();
-                } else if ctx.input.modal_action("edit") {
+                } else if menu.action("edit") {
                     *self = ScenarioEditor::EditScenario(scenario.clone(), Wizard::new());
-                } else if ctx.input.modal_action("instantiate") {
+                } else if menu.action("instantiate") {
                     scenario.instantiate(
                         &mut ui.primary.sim,
                         &ui.primary.map,
@@ -49,7 +65,7 @@ impl ScenarioEditor {
                         &mut Timer::new("instantiate scenario"),
                     );
                     return Some(Mode::Sandbox(SandboxMode::new(ctx.canvas)));
-                } else if ctx.input.modal_action("visualize") {
+                } else if menu.action("visualize") {
                     let neighborhoods = Neighborhood::load_all(
                         ui.primary.map.get_name(),
                         &ui.primary.map.get_gps_bounds(),
@@ -75,9 +91,14 @@ impl ScenarioEditor {
                             )
                         })
                         .collect();
-                    *self = ScenarioEditor::VisualizeScenario(scenario.clone(), draw_all, mapping);
+                    *self = ScenarioEditor::VisualizeScenario(
+                        ScenarioEditor::modal_menu(&scenario.scenario_name, ctx),
+                        scenario.clone(),
+                        draw_all,
+                        mapping,
+                    );
                 } else if scroller.event(&mut ctx.input) {
-                    return Some(Mode::Mission(MissionEditMode::new()));
+                    return Some(Mode::Mission(MissionEditMode::new(ctx)));
                 }
             }
             ScenarioEditor::EditScenario(ref mut scenario, ref mut wizard) => {
@@ -89,22 +110,26 @@ impl ScenarioEditor {
                     let scroller =
                         LogScroller::new(scenario.scenario_name.clone(), scenario.describe());
                     // TODO autosave, or at least make it clear there are unsaved edits
-                    *self = ScenarioEditor::ManageScenario(scenario.clone(), scroller);
+                    *self = ScenarioEditor::ManageScenario(
+                        ScenarioEditor::modal_menu(&scenario.scenario_name, ctx),
+                        scenario.clone(),
+                        scroller,
+                    );
                 } else if wizard.aborted() {
                     let scroller =
                         LogScroller::new(scenario.scenario_name.clone(), scenario.describe());
-                    *self = ScenarioEditor::ManageScenario(scenario.clone(), scroller);
+                    *self = ScenarioEditor::ManageScenario(
+                        ScenarioEditor::modal_menu(&scenario.scenario_name, ctx),
+                        scenario.clone(),
+                        scroller,
+                    );
                 }
             }
-            ScenarioEditor::VisualizeScenario(ref scenario, _, _) => {
+            ScenarioEditor::VisualizeScenario(ref mut menu, _, _, _) => {
+                menu.handle_event(ctx);
                 ctx.canvas.handle_event(ctx.input);
-                ctx.input.set_mode_with_prompt(
-                    "Scenario Editor",
-                    format!("Scenario Editor for {}", scenario.scenario_name),
-                    &ctx.canvas,
-                );
-                if ctx.input.modal_action("quit") {
-                    return Some(Mode::Mission(MissionEditMode::new()));
+                if menu.action("quit") {
+                    return Some(Mode::Mission(MissionEditMode::new(ctx)));
                 }
             }
         }
@@ -116,8 +141,9 @@ impl ScenarioEditor {
             ScenarioEditor::PickScenario(wizard) => {
                 wizard.draw(g);
             }
-            ScenarioEditor::ManageScenario(_, scroller) => {
+            ScenarioEditor::ManageScenario(ref menu, _, scroller) => {
                 scroller.draw(g);
+                menu.draw(g);
             }
             ScenarioEditor::EditScenario(_, wizard) => {
                 if let Some(neighborhood) = wizard.current_menu_choice::<Neighborhood>() {
@@ -125,7 +151,12 @@ impl ScenarioEditor {
                 }
                 wizard.draw(g);
             }
-            ScenarioEditor::VisualizeScenario(ref scenario, ref draw_all, ref mapping) => {
+            ScenarioEditor::VisualizeScenario(
+                ref menu,
+                ref scenario,
+                ref draw_all,
+                ref mapping,
+            ) => {
                 g.redraw(draw_all);
 
                 // Aggregate by (src, dst) pair, breakdown over time and mode, etc.
@@ -151,6 +182,8 @@ impl ScenarioEditor {
                         &Line::new(src, dst),
                     );
                 }
+
+                menu.draw(g);
             }
         }
     }

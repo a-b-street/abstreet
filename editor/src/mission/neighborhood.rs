@@ -1,5 +1,5 @@
 use crate::ui::UI;
-use ezgui::{Color, EventCtx, GfxCtx, Key, Wizard, WrappedWizard};
+use ezgui::{Color, EventCtx, GfxCtx, Key, NewModalMenu, Wizard, WrappedWizard};
 use geom::{Circle, Distance, Line, Polygon, Pt2D};
 use map_model::{Map, NeighborhoodBuilder};
 
@@ -8,42 +8,54 @@ const POINT_RADIUS: Distance = Distance::const_meters(10.0);
 pub enum NeighborhoodEditor {
     PickNeighborhood(Wizard),
     // Option<usize> is the point currently being hovered over
-    EditNeighborhood(NeighborhoodBuilder, Option<usize>),
+    EditNeighborhood(NewModalMenu, NeighborhoodBuilder, Option<usize>),
     // usize is the point being moved
-    MovingPoint(NeighborhoodBuilder, usize),
+    MovingPoint(NewModalMenu, NeighborhoodBuilder, usize),
 }
 
 impl NeighborhoodEditor {
+    fn modal_menu(ctx: &EventCtx, name: &str) -> NewModalMenu {
+        NewModalMenu::new(
+            &format!("Neighborhood Editor for {}", name),
+            vec![
+                (Key::Escape, "quit"),
+                (Key::S, "save"),
+                (Key::X, "export as an Osmosis polygon filter"),
+                (Key::P, "add a new point"),
+            ],
+            ctx,
+        )
+    }
+
     // True if done
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI) -> bool {
-        ctx.canvas.handle_event(ctx.input);
-
         let gps_bounds = ui.primary.map.get_gps_bounds();
         match self {
             NeighborhoodEditor::PickNeighborhood(ref mut wizard) => {
+                ctx.canvas.handle_event(ctx.input);
+
                 if let Some(n) =
                     pick_neighborhood(&ui.primary.map, wizard.wrap(&mut ctx.input, ctx.canvas))
                 {
-                    *self = NeighborhoodEditor::EditNeighborhood(n, None);
+                    *self = NeighborhoodEditor::EditNeighborhood(
+                        NeighborhoodEditor::modal_menu(ctx, &n.name),
+                        n,
+                        None,
+                    );
                 } else if wizard.aborted() {
                     return true;
                 }
             }
-            NeighborhoodEditor::EditNeighborhood(ref mut n, ref mut current_idx) => {
-                ctx.input.set_mode_with_prompt(
-                    "Neighborhood Editor",
-                    format!("Neighborhood Editor for {}", n.name),
-                    &ctx.canvas,
-                );
-                if ctx.input.modal_action("quit") {
+            NeighborhoodEditor::EditNeighborhood(ref mut menu, ref mut n, ref mut current_idx) => {
+                menu.handle_event(ctx);
+                ctx.canvas.handle_event(ctx.input);
+
+                if menu.action("quit") {
                     return true;
-                } else if n.points.len() >= 3 && ctx.input.modal_action("save") {
+                } else if n.points.len() >= 3 && menu.action("save") {
                     n.save();
                     return true;
-                } else if n.points.len() >= 3
-                    && ctx
-                        .input
-                        .modal_action("export as an Osmosis polygon filter")
+                } else if n.points.len() >= 3 && menu.action("export as an Osmosis polygon filter")
                 {
                     n.save_as_osmosis().unwrap();
                 } else if let Some(pt) = ctx
@@ -51,7 +63,7 @@ impl NeighborhoodEditor {
                     .get_cursor_in_map_space()
                     .and_then(|c| c.to_gps(gps_bounds))
                 {
-                    if ctx.input.modal_action("add a new point") {
+                    if menu.action("add a new point") {
                         n.points.push(pt);
                     }
                 }
@@ -74,16 +86,17 @@ impl NeighborhoodEditor {
                         .input
                         .key_pressed(Key::LeftControl, "hold to move this point")
                     {
-                        *self = NeighborhoodEditor::MovingPoint(n.clone(), *idx);
+                        *self = NeighborhoodEditor::MovingPoint(
+                            NeighborhoodEditor::modal_menu(ctx, &n.name),
+                            n.clone(),
+                            *idx,
+                        );
                     }
                 }
             }
-            NeighborhoodEditor::MovingPoint(ref mut n, idx) => {
-                ctx.input.set_mode_with_prompt(
-                    "Neighborhood Editor",
-                    format!("Neighborhood Editor for {}", n.name),
-                    &ctx.canvas,
-                );
+            NeighborhoodEditor::MovingPoint(ref mut menu, ref mut n, idx) => {
+                menu.handle_event(ctx);
+                ctx.canvas.handle_event(ctx.input);
 
                 if let Some(pt) = ctx
                     .canvas
@@ -93,7 +106,11 @@ impl NeighborhoodEditor {
                     n.points[*idx] = pt;
                 }
                 if ctx.input.key_released(Key::LeftControl) {
-                    *self = NeighborhoodEditor::EditNeighborhood(n.clone(), Some(*idx));
+                    *self = NeighborhoodEditor::EditNeighborhood(
+                        NeighborhoodEditor::modal_menu(ctx, &n.name),
+                        n.clone(),
+                        Some(*idx),
+                    );
                 }
             }
         }
@@ -111,8 +128,8 @@ impl NeighborhoodEditor {
                     return;
                 }
             }
-            NeighborhoodEditor::EditNeighborhood(n, current_idx) => (&n.points, *current_idx),
-            NeighborhoodEditor::MovingPoint(n, current_idx) => (&n.points, Some(*current_idx)),
+            NeighborhoodEditor::EditNeighborhood(_, n, current_idx) => (&n.points, *current_idx),
+            NeighborhoodEditor::MovingPoint(_, n, current_idx) => (&n.points, Some(*current_idx)),
         };
         let gps_bounds = ui.primary.map.get_gps_bounds();
         let pts: Vec<Pt2D> = gps_bounds.must_convert(&raw_pts);
@@ -141,6 +158,14 @@ impl NeighborhoodEditor {
                 ui.cs.get("neighborhood point")
             };
             g.draw_circle(color, &Circle::new(*pt, POINT_RADIUS / g.canvas.cam_zoom));
+        }
+
+        match self {
+            NeighborhoodEditor::EditNeighborhood(ref menu, _, _)
+            | NeighborhoodEditor::MovingPoint(ref menu, _, _) => {
+                menu.draw(g);
+            }
+            _ => {}
         }
     }
 }

@@ -12,7 +12,8 @@ use crate::render::DrawOptions;
 use crate::ui::{ShowLayers, ShowObject, UI};
 use abstutil::Timer;
 use ezgui::{
-    Color, EventCtx, EventLoopMode, GfxCtx, InputResult, Key, ScrollingMenu, Text, TextBox, Wizard,
+    Color, EventCtx, EventLoopMode, GfxCtx, InputResult, Key, NewModalMenu, ScrollingMenu, Text,
+    TextBox, Wizard,
 };
 use map_model::RoadID;
 use std::collections::HashSet;
@@ -31,7 +32,7 @@ pub struct DebugMode {
 }
 
 enum State {
-    Exploring,
+    Exploring(NewModalMenu),
     Polygons(polygons::PolygonDebugger),
     SearchOSM(TextBox),
     Colors(color_picker::ColorPicker),
@@ -40,7 +41,7 @@ enum State {
 impl DebugMode {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> DebugMode {
         DebugMode {
-            state: State::Exploring,
+            state: DebugMode::exploring_state(ctx),
             common: CommonState::new(),
             chokepoints: None,
             show_original_roads: HashSet::new(),
@@ -58,20 +59,44 @@ impl DebugMode {
         }
     }
 
+    fn exploring_state(ctx: &EventCtx) -> State {
+        State::Exploring(NewModalMenu::new(
+            "Debug Mode",
+            vec![
+                (Key::Escape, "quit"),
+                (Key::C, "show/hide chokepoints"),
+                (Key::O, "clear original roads shown"),
+                (Key::K, "unhide everything"),
+                (Key::Num1, "show/hide buildings"),
+                (Key::Num2, "show/hide intersections"),
+                (Key::Num3, "show/hide lanes"),
+                (Key::Num4, "show/hide areas"),
+                (Key::Num5, "show/hide extra shapes"),
+                (Key::Num6, "show/hide geometry debug mode"),
+                (Key::F1, "screenshot everything"),
+                (Key::Slash, "search OSM metadata"),
+                (Key::M, "clear OSM search results"),
+                (Key::S, "configure colors"),
+                (Key::N, "show/hide neighborhood summaries"),
+            ],
+            ctx,
+        ))
+    }
+
     pub fn event(state: &mut GameState, ctx: &mut EventCtx) -> EventLoopMode {
         match state.mode {
             Mode::Debug(ref mut mode) => {
-                match mode.state {
-                    State::Exploring => {
-                        ctx.canvas.handle_event(ctx.input);
-                        state.ui.primary.current_selection =
-                            state
-                                .ui
-                                .handle_mouseover(ctx, None, &state.ui.primary.sim, mode, true);
-                        if let Some(evmode) = mode.common.event(ctx, &state.ui) {
-                            return evmode;
-                        }
+                // TODO Argh, bad hack! Can't do it below because menu is borrowed and ShowObject
+                // is implemented on the entirety of DebugMode. :(
+                if let State::Exploring(_) = mode.state {
+                    state.ui.primary.current_selection =
+                        state
+                            .ui
+                            .handle_mouseover(ctx, None, &state.ui.primary.sim, mode, true);
+                }
 
+                match mode.state {
+                    State::Exploring(ref mut menu) => {
                         let mut txt = Text::prompt("Debug Mode");
                         if mode.chokepoints.is_some() {
                             txt.add_line("Showing chokepoints".to_string());
@@ -95,14 +120,20 @@ impl DebugMode {
                         if mode.neighborhood_summary.active {
                             txt.add_line("Showing neighborhood summaries".to_string());
                         }
-                        ctx.input
-                            .set_mode_with_new_prompt("Debug Mode", txt, ctx.canvas);
-                        if ctx.input.modal_action("quit") {
+                        menu.handle_event(ctx);
+                        menu.update_prompt(txt, ctx);
+
+                        ctx.canvas.handle_event(ctx.input);
+                        if let Some(evmode) = mode.common.event(ctx, &state.ui) {
+                            return evmode;
+                        }
+
+                        if menu.action("quit") {
                             state.mode = Mode::SplashScreen(Wizard::new(), None);
                             return EventLoopMode::InputOnly;
                         }
 
-                        if ctx.input.modal_action("show/hide chokepoints") {
+                        if menu.action("show/hide chokepoints") {
                             if mode.chokepoints.is_some() {
                                 mode.chokepoints = None;
                             } else {
@@ -113,12 +144,12 @@ impl DebugMode {
                             }
                         }
                         if !mode.show_original_roads.is_empty() {
-                            if ctx.input.modal_action("clear original roads shown") {
+                            if menu.action("clear original roads shown") {
                                 mode.show_original_roads.clear();
                             }
                         }
                         if !mode.hidden.is_empty() {
-                            if ctx.input.modal_action("unhide everything") {
+                            if menu.action("unhide everything") {
                                 mode.hidden.clear();
                                 // TODO recalculate current_selection
                             }
@@ -152,28 +183,29 @@ impl DebugMode {
                         }
                         mode.connected_roads.event(ctx, &state.ui);
                         mode.objects.event(ctx, &state.ui);
-                        mode.neighborhood_summary.event(ctx, &state.ui);
+                        mode.neighborhood_summary.event(&state.ui, menu);
 
                         if let Some(debugger) = polygons::PolygonDebugger::new(ctx, &state.ui) {
                             mode.state = State::Polygons(debugger);
+                            return EventLoopMode::InputOnly;
                         }
 
                         // TODO recalc current selection...
-                        if ctx.input.modal_action("show/hide buildings") {
+                        if menu.action("show/hide buildings") {
                             mode.layers.show_buildings = !mode.layers.show_buildings;
-                        } else if ctx.input.modal_action("show/hide intersections") {
+                        } else if menu.action("show/hide intersections") {
                             mode.layers.show_intersections = !mode.layers.show_intersections;
-                        } else if ctx.input.modal_action("show/hide lanes") {
+                        } else if menu.action("show/hide lanes") {
                             mode.layers.show_lanes = !mode.layers.show_lanes;
-                        } else if ctx.input.modal_action("show/hide areas") {
+                        } else if menu.action("show/hide areas") {
                             mode.layers.show_areas = !mode.layers.show_areas;
-                        } else if ctx.input.modal_action("show/hide extra shapes") {
+                        } else if menu.action("show/hide extra shapes") {
                             mode.layers.show_extra_shapes = !mode.layers.show_extra_shapes;
-                        } else if ctx.input.modal_action("show/hide geometry debug mode") {
+                        } else if menu.action("show/hide geometry debug mode") {
                             mode.layers.geom_debug_mode = !mode.layers.geom_debug_mode;
                         }
 
-                        if ctx.input.modal_action("screenshot everything") {
+                        if menu.action("screenshot everything") {
                             let bounds = state.ui.primary.map.get_bounds();
                             assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
                             return EventLoopMode::ScreenCaptureEverything {
@@ -188,12 +220,12 @@ impl DebugMode {
                         }
 
                         if mode.search_results.is_some() {
-                            if ctx.input.modal_action("clear OSM search results") {
+                            if menu.action("clear OSM search results") {
                                 mode.search_results = None;
                             }
-                        } else if ctx.input.modal_action("search OSM metadata") {
+                        } else if menu.action("search OSM metadata") {
                             mode.state = State::SearchOSM(TextBox::new("Search for what?", None));
-                        } else if ctx.input.modal_action("configure colors") {
+                        } else if menu.action("configure colors") {
                             mode.state = State::Colors(color_picker::ColorPicker::Choosing(
                                 ScrollingMenu::new(
                                     "Pick a color to change",
@@ -206,17 +238,17 @@ impl DebugMode {
                     }
                     State::Polygons(ref mut debugger) => {
                         if debugger.event(ctx) {
-                            mode.state = State::Exploring;
+                            mode.state = DebugMode::exploring_state(ctx);
                         }
                         EventLoopMode::InputOnly
                     }
                     State::SearchOSM(ref mut tb) => {
                         match tb.event(&mut ctx.input) {
                             InputResult::Canceled => {
-                                mode.state = State::Exploring;
+                                mode.state = DebugMode::exploring_state(ctx);
                             }
                             InputResult::Done(filter, _) => {
-                                mode.state = State::Exploring;
+                                mode.state = DebugMode::exploring_state(ctx);
 
                                 let mut ids = HashSet::new();
                                 let map = &state.ui.primary.map;
@@ -246,7 +278,7 @@ impl DebugMode {
                     }
                     State::Colors(ref mut picker) => {
                         if picker.event(ctx, &mut state.ui) {
-                            mode.state = State::Exploring;
+                            mode.state = DebugMode::exploring_state(ctx);
                         }
                         EventLoopMode::InputOnly
                     }
@@ -259,7 +291,7 @@ impl DebugMode {
     pub fn draw(state: &GameState, g: &mut GfxCtx) {
         match state.mode {
             Mode::Debug(ref mode) => match mode.state {
-                State::Exploring => {
+                State::Exploring(ref menu) => {
                     let mut opts = mode.common.draw_options(&state.ui);
                     opts.geom_debug_mode = mode.layers.geom_debug_mode;
                     if let Some(ref chokepoints) = mode.chokepoints {
@@ -312,6 +344,8 @@ impl DebugMode {
 
                     mode.objects.draw(g, &state.ui);
                     mode.neighborhood_summary.draw(g);
+
+                    menu.draw(g);
                 }
                 State::Polygons(ref debugger) => {
                     let mut opts = DrawOptions::new();

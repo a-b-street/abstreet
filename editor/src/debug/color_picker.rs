@@ -1,5 +1,7 @@
 use crate::ui::UI;
-use ezgui::{Canvas, Color, EventCtx, GfxCtx, InputResult, ScreenPt, ScrollingMenu};
+use ezgui::{
+    Canvas, Color, EventCtx, GfxCtx, InputResult, Key, NewModalMenu, ScreenPt, ScrollingMenu,
+};
 use geom::Polygon;
 
 // TODO assumes minimum screen size
@@ -11,7 +13,7 @@ const TILE_DIMS: f64 = 2.0;
 pub enum ColorPicker {
     Choosing(ScrollingMenu<()>),
     // Remember the original modified color in case we revert.
-    ChangingColor(String, Option<Color>),
+    ChangingColor(String, Option<Color>, NewModalMenu),
 }
 
 impl ColorPicker {
@@ -24,19 +26,23 @@ impl ColorPicker {
                 }
                 InputResult::StillActive => {}
                 InputResult::Done(name, _) => {
-                    *self = ColorPicker::ChangingColor(name.clone(), ui.cs.get_modified(&name));
+                    *self = ColorPicker::ChangingColor(
+                        name.clone(),
+                        ui.cs.get_modified(&name),
+                        NewModalMenu::new(
+                            &format!("Color Picker for {}", name),
+                            vec![(Key::Backspace, "revert"), (Key::Escape, "finalize")],
+                            ctx,
+                        ),
+                    );
                 }
             },
-            ColorPicker::ChangingColor(name, orig) => {
-                ctx.input.set_mode_with_prompt(
-                    "Color Picker",
-                    format!("Color Picker for {}", name),
-                    &ctx.canvas,
-                );
-                if ctx.input.modal_action("revert") {
+            ColorPicker::ChangingColor(name, orig, ref mut menu) => {
+                menu.handle_event(ctx);
+                if menu.action("revert") {
                     ui.cs.reset_modified(name, *orig);
                     return true;
-                } else if ctx.input.modal_action("finalize") {
+                } else if menu.action("finalize") {
                     println!("Setting color for {}", name);
                     return true;
                 }
@@ -60,7 +66,7 @@ impl ColorPicker {
             ColorPicker::Choosing(menu) => {
                 menu.draw(g);
             }
-            ColorPicker::ChangingColor(_, _) => {
+            ColorPicker::ChangingColor(_, _, ref menu) => {
                 let (start_x, start_y) = get_screen_offset(g.canvas);
 
                 for x in 0..WIDTH {
@@ -76,6 +82,7 @@ impl ColorPicker {
                         );
                     }
                 }
+                menu.draw(g);
             }
         }
     }

@@ -2,10 +2,11 @@ use crate::helpers::ID;
 use crate::render::calculate_corners;
 use crate::ui::UI;
 use abstutil::Timer;
-use ezgui::{EventCtx, GfxCtx, Key, Text};
+use ezgui::{EventCtx, GfxCtx, Key, NewModalMenu, Text};
 use geom::{Polygon, Pt2D, Triangle};
 
 pub struct PolygonDebugger {
+    menu: NewModalMenu,
     items: Vec<Item>,
     current: usize,
     center: Option<Pt2D>,
@@ -19,6 +20,17 @@ enum Item {
 
 impl PolygonDebugger {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> Option<PolygonDebugger> {
+        let menu = NewModalMenu::new(
+            "Polygon Debugger",
+            vec![
+                (Key::Escape, "quit"),
+                (Key::Dot, "next item"),
+                (Key::Comma, "prev item"),
+                (Key::F, "first item"),
+                (Key::L, "last item"),
+            ],
+            ctx,
+        );
         match ui.primary.current_selection {
             Some(ID::Intersection(id)) => {
                 let i = ui.primary.map.get_i(id);
@@ -30,6 +42,7 @@ impl PolygonDebugger {
                     let mut pts_without_last = pts.clone();
                     pts_without_last.pop();
                     return Some(PolygonDebugger {
+                        menu,
                         items: pts.iter().map(|pt| Item::Point(*pt)).collect(),
                         current: 0,
                         center: Some(Pt2D::center(&pts_without_last)),
@@ -39,6 +52,7 @@ impl PolygonDebugger {
                     .contextual_action(Key::F2, "debug sidewalk corners")
                 {
                     return Some(PolygonDebugger {
+                        menu,
                         items: calculate_corners(
                             i,
                             &ui.primary.map,
@@ -55,6 +69,7 @@ impl PolygonDebugger {
             Some(ID::Lane(id)) => {
                 if ctx.input.contextual_action(Key::X, "debug lane geometry") {
                     return Some(PolygonDebugger {
+                        menu,
                         items: ui
                             .primary
                             .map
@@ -69,6 +84,7 @@ impl PolygonDebugger {
                     });
                 } else if ctx.input.contextual_action(Key::F2, "debug lane triangles") {
                     return Some(PolygonDebugger {
+                        menu,
                         items: ui
                             .primary
                             .draw_map
@@ -94,12 +110,14 @@ impl PolygonDebugger {
                         Pt2D::center(pts)
                     };
                     return Some(PolygonDebugger {
+                        menu,
                         items: pts.iter().map(|pt| Item::Point(*pt)).collect(),
                         current: 0,
                         center: Some(center),
                     });
                 } else if ctx.input.contextual_action(Key::F2, "debug area triangles") {
                     return Some(PolygonDebugger {
+                        menu,
                         items: ui
                             .primary
                             .map
@@ -121,16 +139,16 @@ impl PolygonDebugger {
 
     // True when done
     pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
-        ctx.input.set_mode("Polygon Debugger", &ctx.canvas);
-        if ctx.input.modal_action("quit") {
+        self.menu.handle_event(ctx);
+        if self.menu.action("quit") {
             return true;
-        } else if self.current != self.items.len() - 1 && ctx.input.modal_action("next item") {
+        } else if self.current != self.items.len() - 1 && self.menu.action("next item") {
             self.current += 1;
-        } else if self.current != self.items.len() - 1 && ctx.input.modal_action("last item") {
+        } else if self.current != self.items.len() - 1 && self.menu.action("last item") {
             self.current = self.items.len() - 1;
-        } else if self.current != 0 && ctx.input.modal_action("prev item") {
+        } else if self.current != 0 && self.menu.action("prev item") {
             self.current -= 1;
-        } else if self.current != 0 && ctx.input.modal_action("first item") {
+        } else if self.current != 0 && self.menu.action("first item") {
             self.current = 0;
         }
         false
@@ -155,5 +173,6 @@ impl PolygonDebugger {
         if let Some(pt) = self.center {
             g.draw_text_at(&Text::from_line("c".to_string()), pt);
         }
+        self.menu.draw(g);
     }
 }
