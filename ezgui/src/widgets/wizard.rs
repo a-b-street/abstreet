@@ -212,7 +212,7 @@ impl<'a> WrappedWizard<'a> {
                 .map(|(key, s, item)| (key, s, item.clone_box()))
                 .collect();
             self.wizard.menu = Some(Menu::new(
-                Some(Text::prompt(query)),
+                Text::prompt(query),
                 boxed_choices,
                 true,
                 false,

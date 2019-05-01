@@ -34,7 +34,7 @@ impl ContextMenu {
                     ContextMenu::Inactive
                 } else {
                     ContextMenu::Displaying(Menu::new(
-                        None,
+                        Text::new(),
                         actions
                             .into_iter()
                             .map(|(hotkey, action)| (Some(hotkey), action, hotkey))

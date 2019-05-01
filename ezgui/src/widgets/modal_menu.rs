@@ -19,7 +19,7 @@ impl ModalMenu {
     ) -> ModalMenu {
         // TODO Detect duplicate choices... maybe in Menu
         let mut menu = Menu::new(
-            Some(Text::prompt(prompt_line)),
+            Text::prompt(prompt_line),
             choices
                 .into_iter()
                 .map(|(key, action)| (key, action.to_string(), ()))
@@ -36,8 +36,8 @@ impl ModalMenu {
         }
     }
 
-    pub fn get_bottom_left(&self, ctx: &EventCtx) -> ScreenPt {
-        self.menu.get_bottom_left(ctx.canvas)
+    pub fn get_bottom_left(&self) -> ScreenPt {
+        self.menu.get_bottom_left()
     }
 
     pub fn handle_event(&mut self, ctx: &mut EventCtx) {
@@ -72,9 +72,8 @@ impl ModalMenu {
         false
     }
 
-    pub fn update_prompt(&mut self, txt: Text, _: &EventCtx) {
-        // TODO Do need to recalculate geometry
-        self.menu.change_prompt(txt);
+    pub fn update_prompt(&mut self, txt: Text, ctx: &EventCtx) {
+        self.menu.change_prompt(txt, ctx.canvas);
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {

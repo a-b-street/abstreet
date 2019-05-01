@@ -3,7 +3,7 @@ use crate::{text, Canvas, Event, GfxCtx, InputResult, Key, ScreenPt, Text};
 
 // Stores some associated data with each choice
 pub struct Menu<T: Clone> {
-    prompt: Option<Text>,
+    prompt: Text,
     // The bool is whether this choice is active or not
     choices: Vec<(Option<Key>, String, bool, T)>,
     current_idx: Option<usize>,
@@ -12,11 +12,13 @@ pub struct Menu<T: Clone> {
     hideable: bool,
     hidden: bool,
     pos: Position,
+    geom: Geometry,
+}
 
+struct Geometry {
     row_height: f64,
     top_left: ScreenPt,
     first_choice_row: ScreenRectangle,
-    // TODO Could store this in hidden and non-hidden modes, maybe simpler that way.
     total_height: f64,
 }
 
@@ -27,24 +29,19 @@ pub enum Position {
     TopRightOfScreen,
 }
 
-impl<T: Clone> Menu<T> {
-    pub fn new(
-        prompt: Option<Text>,
-        choices: Vec<(Option<Key>, String, T)>,
-        keys_enabled: bool,
-        hideable: bool,
-        pos: Position,
+impl Position {
+    fn geometry<T>(
+        &self,
         canvas: &Canvas,
-    ) -> Menu<T> {
-        if choices.is_empty() {
-            panic!("Can't create a menu without choices for {:?}", prompt);
-        }
+        prompt: Text,
+        choices: &Vec<(Option<Key>, String, bool, T)>,
+    ) -> Geometry {
+        // This is actually a constant, effectively...
+        let row_height = canvas.line_height(text::FONT_SIZE);
 
-        // Calculate geometry.
-        let mut txt = prompt.clone().unwrap_or_else(Text::new);
+        let mut txt = prompt;
         let (_, prompt_height) = canvas.text_dims(&txt);
-        // TODO Make sure hotkeys aren't used twice.
-        for (hotkey, choice, _) in &choices {
+        for (hotkey, choice, _, _) in choices {
             if let Some(key) = hotkey {
                 txt.add_line(format!("{} - {}", key.describe(), choice));
             } else {
@@ -52,10 +49,9 @@ impl<T: Clone> Menu<T> {
             }
         }
         let (total_width, total_height) = canvas.text_dims(&txt);
-        let row_height = (total_height - prompt_height) / (choices.len() as f64);
 
-        let top_left = match pos {
-            Position::TopLeftAt(pt) => pt,
+        let top_left = match self {
+            Position::TopLeftAt(pt) => *pt,
             Position::ScreenCenter => {
                 let mut pt = canvas.center_to_screen_pt();
                 pt.x -= total_width / 2.0;
@@ -64,22 +60,7 @@ impl<T: Clone> Menu<T> {
             }
             Position::TopRightOfScreen => ScreenPt::new(canvas.window_width - total_width, 0.0),
         };
-
-        Menu {
-            prompt,
-            // All choices start active.
-            choices: choices
-                .into_iter()
-                .map(|(key, choice, data)| (key, choice, true, data))
-                .collect(),
-            current_idx: if keys_enabled { Some(0) } else { None },
-            keys_enabled,
-            // TODO Bit of a hack, but eh.
-            mouse_in_bounds: !keys_enabled,
-            pos,
-            hideable,
-            hidden: false,
-
+        Geometry {
             row_height,
             top_left,
             first_choice_row: ScreenRectangle {
@@ -89,6 +70,41 @@ impl<T: Clone> Menu<T> {
                 y2: top_left.y + prompt_height + row_height,
             },
             total_height,
+        }
+    }
+}
+
+impl<T: Clone> Menu<T> {
+    pub fn new(
+        prompt: Text,
+        raw_choices: Vec<(Option<Key>, String, T)>,
+        keys_enabled: bool,
+        hideable: bool,
+        pos: Position,
+        canvas: &Canvas,
+    ) -> Menu<T> {
+        if raw_choices.is_empty() {
+            panic!("Can't create a menu without choices for {:?}", prompt);
+        }
+        // TODO Make sure hotkeys aren't used twice.
+        // All choices start active.
+        let choices = raw_choices
+            .into_iter()
+            .map(|(key, choice, data)| (key, choice, true, data))
+            .collect();
+        let geom = pos.geometry(canvas, prompt.clone(), &choices);
+
+        Menu {
+            prompt,
+            choices,
+            current_idx: if keys_enabled { Some(0) } else { None },
+            keys_enabled,
+            // TODO Bit of a hack, but eh.
+            mouse_in_bounds: !keys_enabled,
+            pos,
+            hideable,
+            hidden: false,
+            geom,
         }
     }
 
@@ -113,8 +129,9 @@ impl<T: Clone> Menu<T> {
                     for i in 0..self.choices.len() {
                         if self.choices[i].2
                             && self
+                                .geom
                                 .first_choice_row
-                                .translate(0.0, (i as f64) * self.row_height)
+                                .translate(0.0, (i as f64) * self.geom.row_height)
                                 .contains(pt)
                         {
                             self.current_idx = Some(i);
@@ -160,6 +177,7 @@ impl<T: Clone> Menu<T> {
                     self.hidden = true;
                     self.current_idx = None;
                 }
+                self.recalculate_geom(canvas);
             }
         }
 
@@ -177,28 +195,14 @@ impl<T: Clone> Menu<T> {
         }
 
         if let Event::WindowResized(_, _) = ev {
-            // Recreate the menu, then steal the geometry from it.
-            let new = Menu::new(
-                self.prompt.clone(),
-                self.choices
-                    .iter()
-                    .map(|(key, choice, _, data)| (*key, choice.to_string(), data.clone()))
-                    .collect(),
-                self.keys_enabled,
-                self.hideable,
-                self.pos.clone(),
-                canvas,
-            );
-            self.top_left = new.top_left;
-            self.first_choice_row = new.first_choice_row;
-            return InputResult::StillActive;
+            self.recalculate_geom(canvas);
         }
 
         InputResult::StillActive
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        let mut txt = self.prompt.clone().unwrap_or_else(Text::new);
+        let mut txt = self.prompt.clone();
         if !self.hidden {
             for (idx, (hotkey, choice, active, _)) in self.choices.iter().enumerate() {
                 let bg = if Some(idx) == self.current_idx {
@@ -232,14 +236,13 @@ impl<T: Clone> Menu<T> {
                 }
             }
         }
-        let (_, total_height) = g.canvas.text_dims(&txt);
         g.canvas.mark_covered_area(ScreenRectangle {
-            x1: self.top_left.x,
-            y1: self.top_left.y,
-            x2: self.first_choice_row.x2,
-            y2: self.top_left.y + total_height,
+            x1: self.geom.top_left.x,
+            y1: self.geom.top_left.y,
+            x2: self.geom.first_choice_row.x2,
+            y2: self.geom.top_left.y + self.geom.total_height,
         });
-        g.draw_text_at_screenspace_topleft(&txt, self.top_left);
+        g.draw_text_at_screenspace_topleft(&txt, self.geom.top_left);
     }
 
     pub fn current_choice(&self) -> Option<&T> {
@@ -266,19 +269,27 @@ impl<T: Clone> Menu<T> {
         }
     }
 
-    // Assume that this doesn't vastly affect geometry.
-    pub fn change_prompt(&mut self, prompt: Text) {
-        assert!(self.prompt.is_some());
-        self.prompt = Some(prompt);
-        // TODO Actually just recalculate geometry when this happens...
+    pub fn change_prompt(&mut self, prompt: Text, canvas: &Canvas) {
+        self.prompt = prompt;
+        self.recalculate_geom(canvas);
     }
 
-    pub fn get_bottom_left(&self, canvas: &Canvas) -> ScreenPt {
-        let total_height = if self.hidden {
-            canvas.text_dims(&self.prompt.as_ref().unwrap()).1
+    pub fn get_bottom_left(&self) -> ScreenPt {
+        ScreenPt::new(
+            self.geom.top_left.x,
+            self.geom.top_left.y + self.geom.total_height,
+        )
+    }
+
+    fn recalculate_geom(&mut self, canvas: &Canvas) {
+        if self.hidden {
+            self.geom = self
+                .pos
+                .geometry::<()>(canvas, self.prompt.clone(), &Vec::new());
         } else {
-            self.total_height
-        };
-        ScreenPt::new(self.top_left.x, self.top_left.y + total_height)
+            self.geom = self
+                .pos
+                .geometry(canvas, self.prompt.clone(), &self.choices);
+        }
     }
 }
