@@ -207,6 +207,7 @@ impl GUI for GameState {
                 "A/B Test Editor",
                 vec![(Key::Escape, "quit"), (Key::R, "run A/B test")],
             ),
+            ModalMenu::new("Tutorial", vec![(Key::Escape, "quit")]),
         ]
     }
 

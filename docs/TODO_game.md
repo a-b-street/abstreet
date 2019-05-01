@@ -16,7 +16,6 @@
 	- big vertical road. some neighborhoods off to the side. everyone trying to go nrth or south. one driving, one parkign lane. a bus that makes a loop. some horizontal roads connected to borders that force the vertical road to not be fast. just make a dedicated bus lane! oops,except some of the bus stops are at narrow places, so traffic has to slow down anyway for the bus. maybe there's a bypass road through a neighborhood?
 - introduce elements gradually... fix a silly traffic signal with just cars, then add peds and bikes...
 
-- use a modalish menu to display instructions and also give the 'escape' option
 - spawn cars somewhere
 - run sim, pause, change speed, reset
 
