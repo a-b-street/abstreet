@@ -220,6 +220,7 @@ impl<'a> WrappedWizard<'a> {
                 )),
                 boxed_choices,
                 true,
+                false,
                 Position::ScreenCenter,
                 self.canvas,
             ));

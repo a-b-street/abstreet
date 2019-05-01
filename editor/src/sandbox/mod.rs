@@ -182,7 +182,7 @@ impl SandboxMode {
                 if ctx.input.modal_action("speed up sim") {
                     mode.desired_speed += ADJUST_SPEED;
                 }
-                if ctx.input.modal_action("reset sim") {
+                if !state.ui.primary.sim.is_empty() && ctx.input.modal_action("reset sim") {
                     // TODO savestate_every gets lost
                     state.ui.primary.sim = Sim::new(
                         &state.ui.primary.map,

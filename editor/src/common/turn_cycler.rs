@@ -33,7 +33,7 @@ impl TurnCyclerState {
                         self.state = State::ShowLane(id);
                     } else if ctx
                         .input
-                        .key_pressed(Key::Tab, "cycle through this lane's turns")
+                        .key_pressed(Key::Z, "cycle through this lane's turns")
                     {
                         self.state = State::CycleTurns(id, idx + 1);
                     }
@@ -42,7 +42,7 @@ impl TurnCyclerState {
                     if !ui.primary.map.get_turns_from_lane(id).is_empty()
                         && ctx
                             .input
-                            .key_pressed(Key::Tab, "cycle through this lane's turns")
+                            .key_pressed(Key::Z, "cycle through this lane's turns")
                     {
                         self.state = State::CycleTurns(id, 0);
                     }

@@ -48,6 +48,7 @@ impl ContextMenu {
                             .map(|(hotkey, action)| (Some(hotkey), action, hotkey))
                             .collect(),
                         false,
+                        false,
                         Position::TopLeftAt(origin),
                         canvas,
                     ))
@@ -254,7 +255,7 @@ impl UserInput {
         if let Some(ref mut menu) = self.modal_state.mut_active_mode(mode) {
             menu.mark_all_inactive();
             menu.change_prompt(prompt);
-            menu.get_bottom_left()
+            menu.get_bottom_left(canvas)
         } else {
             if let Some(ref m) = self.modal_state.modes.get(mode) {
                 let mut menu = Menu::new(
@@ -264,11 +265,12 @@ impl UserInput {
                         .map(|(key, action)| (Some(*key), action.to_string(), *key))
                         .collect(),
                     false,
+                    true,
                     Position::TopRightOfScreen(extra_width),
                     canvas,
                 );
                 menu.mark_all_inactive();
-                let corner = menu.get_bottom_left();
+                let corner = menu.get_bottom_left(canvas);
                 self.modal_state.active.push((mode.to_string(), menu));
                 corner
             } else {

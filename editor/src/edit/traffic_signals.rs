@@ -44,7 +44,7 @@ impl TrafficSignalEditor {
             false,
         );
 
-        ctx.input.set_mode_with_prompt(
+        self.diagram_top_left = ctx.input.set_mode_with_prompt(
             "Traffic Signal Editor",
             format!("Traffic Signal Editor for {}", self.i),
             &ctx.canvas,

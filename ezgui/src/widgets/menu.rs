@@ -9,11 +9,14 @@ pub struct Menu<T: Clone> {
     current_idx: Option<usize>,
     mouse_in_bounds: bool,
     keys_enabled: bool,
+    hideable: bool,
+    hidden: bool,
     pos: Position,
 
     row_height: f64,
     top_left: ScreenPt,
     first_choice_row: ScreenRectangle,
+    // TODO Could store this in hidden and non-hidden modes, maybe simpler that way.
     total_height: f64,
 }
 
@@ -30,6 +33,7 @@ impl<T: Clone> Menu<T> {
         prompt: Option<Text>,
         choices: Vec<(Option<Key>, String, T)>,
         keys_enabled: bool,
+        hideable: bool,
         pos: Position,
         canvas: &Canvas,
     ) -> Menu<T> {
@@ -81,6 +85,8 @@ impl<T: Clone> Menu<T> {
             // TODO Bit of a hack, but eh.
             mouse_in_bounds: !keys_enabled,
             pos,
+            hideable,
+            hidden: false,
 
             row_height,
             top_left,
@@ -95,59 +101,72 @@ impl<T: Clone> Menu<T> {
     }
 
     pub fn event(&mut self, ev: Event, canvas: &Canvas) -> InputResult<T> {
-        // Handle the mouse
-        if ev == Event::LeftMouseButtonDown {
-            if let Some(i) = self.current_idx {
-                let (_, choice, active, data) = self.choices[i].clone();
-                if active && self.mouse_in_bounds {
-                    return InputResult::Done(choice, data);
-                } else {
-                    return InputResult::StillActive;
-                }
-            } else {
-                return InputResult::Canceled;
-            }
-        } else if ev == Event::RightMouseButtonDown {
-            return InputResult::Canceled;
-        } else if let Event::MouseMovedTo(pt) = ev {
-            if !canvas.is_dragging() {
-                for i in 0..self.choices.len() {
-                    if self.choices[i].2
-                        && self
-                            .first_choice_row
-                            .translate(0.0, (i as f64) * self.row_height)
-                            .contains(pt)
-                    {
-                        self.current_idx = Some(i);
-                        self.mouse_in_bounds = true;
+        if !self.hidden {
+            // Handle the mouse
+            if ev == Event::LeftMouseButtonDown {
+                if let Some(i) = self.current_idx {
+                    let (_, choice, active, data) = self.choices[i].clone();
+                    if active && self.mouse_in_bounds {
+                        return InputResult::Done(choice, data);
+                    } else {
                         return InputResult::StillActive;
                     }
+                } else {
+                    return InputResult::Canceled;
                 }
-                self.mouse_in_bounds = false;
-                if !self.keys_enabled {
-                    self.current_idx = None;
+            } else if ev == Event::RightMouseButtonDown {
+                return InputResult::Canceled;
+            } else if let Event::MouseMovedTo(pt) = ev {
+                if !canvas.is_dragging() {
+                    for i in 0..self.choices.len() {
+                        if self.choices[i].2
+                            && self
+                                .first_choice_row
+                                .translate(0.0, (i as f64) * self.row_height)
+                                .contains(pt)
+                        {
+                            self.current_idx = Some(i);
+                            self.mouse_in_bounds = true;
+                            return InputResult::StillActive;
+                        }
+                    }
+                    self.mouse_in_bounds = false;
+                    if !self.keys_enabled {
+                        self.current_idx = None;
+                    }
+                    return InputResult::StillActive;
                 }
-                return InputResult::StillActive;
+            }
+
+            // Handle keys
+            if self.keys_enabled {
+                let idx = self.current_idx.unwrap();
+                if ev == Event::KeyPress(Key::Enter) {
+                    let (_, name, active, data) = self.choices[idx].clone();
+                    if active {
+                        return InputResult::Done(name, data);
+                    } else {
+                        return InputResult::StillActive;
+                    }
+                } else if ev == Event::KeyPress(Key::UpArrow) {
+                    if idx > 0 {
+                        self.current_idx = Some(idx - 1);
+                    }
+                } else if ev == Event::KeyPress(Key::DownArrow) {
+                    if idx < self.choices.len() - 1 {
+                        self.current_idx = Some(idx + 1);
+                    }
+                }
             }
         }
 
-        // Handle keys
-        if self.keys_enabled {
-            let idx = self.current_idx.unwrap();
-            if ev == Event::KeyPress(Key::Enter) {
-                let (_, name, active, data) = self.choices[idx].clone();
-                if active {
-                    return InputResult::Done(name, data);
+        if self.hideable {
+            if ev == Event::KeyPress(Key::Tab) {
+                if self.hidden {
+                    self.hidden = false;
                 } else {
-                    return InputResult::StillActive;
-                }
-            } else if ev == Event::KeyPress(Key::UpArrow) {
-                if idx > 0 {
-                    self.current_idx = Some(idx - 1);
-                }
-            } else if ev == Event::KeyPress(Key::DownArrow) {
-                if idx < self.choices.len() - 1 {
-                    self.current_idx = Some(idx + 1);
+                    self.hidden = true;
+                    self.current_idx = None;
                 }
             }
         }
@@ -174,6 +193,7 @@ impl<T: Clone> Menu<T> {
                     .map(|(key, choice, _, data)| (*key, choice.to_string(), data.clone()))
                     .collect(),
                 self.keys_enabled,
+                self.hideable,
                 self.pos.clone(),
                 canvas,
             );
@@ -187,42 +207,45 @@ impl<T: Clone> Menu<T> {
 
     pub fn draw(&self, g: &mut GfxCtx) {
         let mut txt = self.prompt.clone().unwrap_or_else(Text::new);
-        for (idx, (hotkey, choice, active, _)) in self.choices.iter().enumerate() {
-            let bg = if Some(idx) == self.current_idx {
-                Some(text::SELECTED_COLOR)
-            } else {
-                None
-            };
-            if *active {
-                if let Some(key) = hotkey {
-                    txt.add_styled_line(key.describe(), Some(text::HOTKEY_COLOR), bg, None);
-                    txt.append(format!(" - {}", choice), None);
+        if !self.hidden {
+            for (idx, (hotkey, choice, active, _)) in self.choices.iter().enumerate() {
+                let bg = if Some(idx) == self.current_idx {
+                    Some(text::SELECTED_COLOR)
                 } else {
-                    txt.add_styled_line(choice.to_string(), None, bg, None);
-                }
-            } else {
-                if let Some(key) = hotkey {
-                    txt.add_styled_line(
-                        format!("{} - {}", key.describe(), choice),
-                        Some(text::INACTIVE_CHOICE_COLOR),
-                        bg,
-                        None,
-                    );
+                    None
+                };
+                if *active {
+                    if let Some(key) = hotkey {
+                        txt.add_styled_line(key.describe(), Some(text::HOTKEY_COLOR), bg, None);
+                        txt.append(format!(" - {}", choice), None);
+                    } else {
+                        txt.add_styled_line(choice.to_string(), None, bg, None);
+                    }
                 } else {
-                    txt.add_styled_line(
-                        choice.to_string(),
-                        Some(text::INACTIVE_CHOICE_COLOR),
-                        bg,
-                        None,
-                    );
+                    if let Some(key) = hotkey {
+                        txt.add_styled_line(
+                            format!("{} - {}", key.describe(), choice),
+                            Some(text::INACTIVE_CHOICE_COLOR),
+                            bg,
+                            None,
+                        );
+                    } else {
+                        txt.add_styled_line(
+                            choice.to_string(),
+                            Some(text::INACTIVE_CHOICE_COLOR),
+                            bg,
+                            None,
+                        );
+                    }
                 }
             }
         }
+        let (_, total_height) = g.canvas.text_dims(&txt);
         g.canvas.mark_covered_area(ScreenRectangle {
             x1: self.top_left.x,
             y1: self.top_left.y,
             x2: self.first_choice_row.x2,
-            y2: self.top_left.y + self.total_height,
+            y2: self.top_left.y + total_height,
         });
         g.draw_text_at_screenspace_topleft(&txt, self.top_left);
     }
@@ -258,7 +281,12 @@ impl<T: Clone> Menu<T> {
         // TODO Actually just recalculate geometry when this happens...
     }
 
-    pub fn get_bottom_left(&self) -> ScreenPt {
-        ScreenPt::new(self.top_left.x, self.top_left.y + self.total_height)
+    pub fn get_bottom_left(&self, canvas: &Canvas) -> ScreenPt {
+        let total_height = if self.hidden {
+            canvas.text_dims(&self.prompt.as_ref().unwrap()).1
+        } else {
+            self.total_height
+        };
+        ScreenPt::new(self.top_left.x, self.top_left.y + total_height)
     }
 }

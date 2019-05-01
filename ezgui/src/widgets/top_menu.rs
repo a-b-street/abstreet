@@ -86,6 +86,7 @@ impl TopMenu {
                         .map(|(maybe_key, action)| (*maybe_key, action.to_string(), ()))
                         .collect(),
                     false,
+                    false,
                     Position::TopLeftAt(ScreenPt::new(f.rectangle.x1, f.rectangle.y2)),
                     canvas,
                 );
