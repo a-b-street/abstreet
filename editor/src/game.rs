@@ -40,7 +40,7 @@ impl GameState {
         let splash = !flags.no_splash;
         let mut rng = flags.sim_flags.make_rng();
         let mut game = GameState {
-            mode: Mode::Sandbox(SandboxMode::new()),
+            mode: Mode::Sandbox(SandboxMode::new(canvas)),
             ui: UI::new(flags, prerender, canvas),
         };
         if splash {
@@ -71,45 +71,6 @@ impl GameState {
 impl GUI for GameState {
     fn modal_menus(&self) -> Vec<ModalMenu> {
         vec![
-            ModalMenu::new(
-                "Map Edit Mode",
-                vec![
-                    (Key::Escape, "quit"),
-                    (Key::S, "save edits"),
-                    (Key::L, "load different edits"),
-                ],
-            ),
-            ModalMenu::new(
-                "Sandbox Mode",
-                vec![
-                    (Key::Escape, "quit"),
-                    (Key::LeftBracket, "slow down sim"),
-                    (Key::RightBracket, "speed up sim"),
-                    (Key::O, "save sim state"),
-                    (Key::Y, "load previous sim state"),
-                    (Key::U, "load next sim state"),
-                    (Key::Space, "run/pause sim"),
-                    (Key::M, "run one step of sim"),
-                    (Key::X, "reset sim"),
-                    (Key::S, "seed the sim with agents"),
-                    // TODO Strange to always have this. Really it's a case of stacked modal?
-                    (Key::F, "stop following agent"),
-                    (Key::R, "stop showing agent's route"),
-                    // TODO This should probably be a debug thing instead
-                    (Key::L, "show/hide route for all agents"),
-                    (Key::A, "show/hide active traffic"),
-                    (Key::T, "start time traveling"),
-                ],
-            ),
-            ModalMenu::new("Agent Spawner", vec![(Key::Escape, "quit")]),
-            ModalMenu::new(
-                "Time Traveler",
-                vec![
-                    (Key::Escape, "quit"),
-                    (Key::Comma, "rewind"),
-                    (Key::Dot, "forwards"),
-                ],
-            ),
             ModalMenu::new(
                 "Debug Mode",
                 vec![
@@ -345,7 +306,7 @@ fn splash_screen(
             )?
             .as_str()
         {
-            x if x == sandbox => break Some(Mode::Sandbox(SandboxMode::new())),
+            x if x == sandbox => break Some(Mode::Sandbox(SandboxMode::new(ctx.canvas))),
             x if x == load_map => {
                 let current_map = ui.primary.map.get_name().to_string();
                 if let Some((name, _)) = wizard.choose_something_no_keys::<String>(
@@ -361,14 +322,14 @@ fn splash_screen(
                     let mut flags = ui.primary.current_flags.clone();
                     flags.sim_flags.load = PathBuf::from(format!("../data/maps/{}.abst", name));
                     *ui = UI::new(flags, ctx.prerender, ctx.canvas);
-                    break Some(Mode::Sandbox(SandboxMode::new()));
+                    break Some(Mode::Sandbox(SandboxMode::new(ctx.canvas)));
                 } else if wizard.aborted() {
                     break Some(Mode::SplashScreen(Wizard::new(), maybe_screensaver.take()));
                 } else {
                     break None;
                 }
             }
-            x if x == edit => break Some(Mode::Edit(EditMode::new())),
+            x if x == edit => break Some(Mode::Edit(EditMode::new(ctx))),
             x if x == tutorial => {
                 break Some(Mode::Tutorial(TutorialMode::Part1(
                     ctx.canvas.center_to_map_pt(),

@@ -1,6 +1,6 @@
 use crate::helpers::ID;
 use crate::ui::UI;
-use ezgui::{Color, EventCtx, GfxCtx, Key};
+use ezgui::{Color, EventCtx, GfxCtx, Key, NewModalMenu};
 use geom::{Duration, PolyLine};
 use map_model::LANE_THICKNESS;
 use sim::{AgentID, TripID};
@@ -13,14 +13,14 @@ pub enum RouteViewer {
 }
 
 impl RouteViewer {
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) {
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI, menu: &mut NewModalMenu) {
         match self {
             RouteViewer::Inactive => {
                 if let Some(agent) = ui.primary.current_selection.and_then(|id| id.agent_id()) {
                     if let Some(trace) = ui.primary.sim.trace_route(agent, &ui.primary.map, None) {
                         *self = RouteViewer::Hovering(ui.primary.sim.time(), agent, trace);
                     }
-                } else if ctx.input.modal_action("show/hide route for all agents") {
+                } else if menu.action("show/hide route for all agents") {
                     *self = debug_all_routes(ui);
                 }
             }
@@ -56,14 +56,14 @@ impl RouteViewer {
             }
             RouteViewer::Active(time, trip, _) => {
                 // TODO Using the modal menu from parent is weird...
-                if ctx.input.modal_action("stop showing agent's route") {
+                if menu.action("stop showing agent's route") {
                     *self = RouteViewer::Inactive;
                 } else if *time != ui.primary.sim.time() {
                     *self = show_route(*trip, ui);
                 }
             }
             RouteViewer::DebugAllRoutes(time, _) => {
-                if ctx.input.modal_action("show/hide route for all agents") {
+                if menu.action("show/hide route for all agents") {
                     *self = RouteViewer::Inactive;
                 } else if *time != ui.primary.sim.time() {
                     *self = debug_all_routes(ui);

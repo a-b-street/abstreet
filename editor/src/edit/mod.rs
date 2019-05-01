@@ -17,7 +17,7 @@ use map_model::{
 use std::collections::{BTreeSet, HashMap};
 
 pub enum EditMode {
-    ViewingDiffs(CommonState),
+    ViewingDiffs(CommonState, NewModalMenu),
     Saving(Wizard),
     Loading(Wizard),
     EditingStopSign(IntersectionID, NewModalMenu),
@@ -25,37 +25,39 @@ pub enum EditMode {
 }
 
 impl EditMode {
-    pub fn new() -> EditMode {
-        EditMode::ViewingDiffs(CommonState::new())
+    pub fn new(ctx: &EventCtx) -> EditMode {
+        EditMode::ViewingDiffs(
+            CommonState::new(),
+            NewModalMenu::new(
+                "Map Edit Mode",
+                vec![
+                    (Key::Escape, "quit"),
+                    (Key::S, "save edits"),
+                    (Key::L, "load different edits"),
+                ],
+                ctx,
+            ),
+        )
     }
 
     pub fn event(state: &mut GameState, ctx: &mut EventCtx) -> EventLoopMode {
-        ctx.canvas.handle_event(ctx.input);
-
-        // Common functionality
-        let mut txt = Text::prompt("Map Edit Mode");
-        txt.add_line(state.ui.primary.map.get_edits().edits_name.clone());
-        txt.add_line(state.ui.primary.map.get_edits().describe());
-        txt.add_line("Right-click a lane or intersection to start editing".to_string());
         match state.mode {
-            Mode::Edit(EditMode::ViewingDiffs(_))
-            | Mode::Edit(EditMode::Saving(_))
-            | Mode::Edit(EditMode::Loading(_)) => {
+            Mode::Edit(EditMode::ViewingDiffs(ref mut common, ref mut menu)) => {
+                let mut txt = Text::prompt("Map Edit Mode");
                 // TODO Display info/hints on more lines.
-                ctx.input
-                    .set_mode_with_new_prompt("Map Edit Mode", txt, ctx.canvas);
-                // TODO Clicking this works, but the key doesn't
-                if ctx.input.modal_action("quit") {
+                txt.add_line(state.ui.primary.map.get_edits().edits_name.clone());
+                txt.add_line(state.ui.primary.map.get_edits().describe());
+                txt.add_line("Right-click a lane or intersection to start editing".to_string());
+                menu.update_prompt(txt, ctx);
+                menu.handle_event(ctx);
+                if menu.action("quit") {
                     // TODO Warn about unsaved edits
                     state.mode = Mode::SplashScreen(Wizard::new(), None);
                     return EventLoopMode::InputOnly;
                 }
-            }
-            _ => {}
-        }
 
-        match state.mode {
-            Mode::Edit(EditMode::ViewingDiffs(ref mut common)) => {
+                ctx.canvas.handle_event(ctx.input);
+
                 // TODO Reset when transitioning in/out of this state? Or maybe we just don't draw
                 // the effects of it. Or eventually, the Option<ID> itself will live in here
                 // directly.
@@ -72,10 +74,10 @@ impl EditMode {
                 }
 
                 // TODO Only if current edits are unsaved
-                if ctx.input.modal_action("save edits") {
+                if menu.action("save edits") {
                     state.mode = Mode::Edit(EditMode::Saving(Wizard::new()));
                     return EventLoopMode::InputOnly;
-                } else if ctx.input.modal_action("load different edits") {
+                } else if menu.action("load different edits") {
                     state.mode = Mode::Edit(EditMode::Loading(Wizard::new()));
                     return EventLoopMode::InputOnly;
                 }
@@ -131,7 +133,7 @@ impl EditMode {
                 .is_some()
                     || wizard.aborted()
                 {
-                    state.mode = Mode::Edit(EditMode::new());
+                    state.mode = Mode::Edit(EditMode::new(ctx));
                 }
             }
             Mode::Edit(EditMode::Loading(ref mut wizard)) => {
@@ -141,13 +143,14 @@ impl EditMode {
                     "Load which map edits?",
                 ) {
                     apply_map_edits(&mut state.ui, ctx, new_edits);
-                    state.mode = Mode::Edit(EditMode::new());
+                    state.mode = Mode::Edit(EditMode::new(ctx));
                 } else if wizard.aborted() {
-                    state.mode = Mode::Edit(EditMode::new());
+                    state.mode = Mode::Edit(EditMode::new(ctx));
                 }
             }
             Mode::Edit(EditMode::EditingStopSign(i, ref mut menu)) => {
                 menu.handle_event(ctx);
+                ctx.canvas.handle_event(ctx.input);
 
                 state.ui.primary.current_selection = state.ui.handle_mouseover(
                     ctx,
@@ -181,7 +184,7 @@ impl EditMode {
                         apply_map_edits(&mut state.ui, ctx, new_edits);
                     }
                 } else if menu.action("quit") {
-                    state.mode = Mode::Edit(EditMode::new());
+                    state.mode = Mode::Edit(EditMode::new(ctx));
                 } else if menu.action("reset to default") {
                     let mut new_edits = state.ui.primary.map.get_edits().clone();
                     new_edits.stop_sign_overrides.remove(&i);
@@ -190,7 +193,7 @@ impl EditMode {
             }
             Mode::Edit(EditMode::EditingTrafficSignal(ref mut editor)) => {
                 if editor.event(ctx, &mut state.ui) {
-                    state.mode = Mode::Edit(EditMode::new());
+                    state.mode = Mode::Edit(EditMode::new(ctx));
                 }
             }
             _ => unreachable!(),
@@ -201,7 +204,7 @@ impl EditMode {
 
     pub fn draw(state: &GameState, g: &mut GfxCtx) {
         match state.mode {
-            Mode::Edit(EditMode::ViewingDiffs(ref common)) => {
+            Mode::Edit(EditMode::ViewingDiffs(ref common, ref menu)) => {
                 state.ui.draw(
                     g,
                     common.draw_options(&state.ui),
@@ -209,6 +212,7 @@ impl EditMode {
                     &ShowEverything::new(),
                 );
                 common.draw(g, &state.ui);
+                menu.draw(g);
 
                 // TODO Similar to drawing areas with traffic or not -- would be convenient to just
                 // supply a set of things to highlight and have something else take care of drawing

@@ -2,7 +2,7 @@ use crate::helpers::ID;
 use crate::render::DrawOptions;
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
-use ezgui::{EventCtx, GfxCtx, Key};
+use ezgui::{EventCtx, GfxCtx, Key, NewModalMenu};
 use geom::PolyLine;
 use map_model::{
     BuildingID, IntersectionID, IntersectionType, LaneType, PathRequest, Position, LANE_THICKNESS,
@@ -11,6 +11,7 @@ use rand::seq::SliceRandom;
 use sim::{DrivingGoal, Scenario, SidewalkSpot, TripSpec};
 
 pub struct AgentSpawner {
+    menu: NewModalMenu,
     from: Source,
     maybe_goal: Option<(Goal, Option<PolyLine>)>,
 }
@@ -28,7 +29,12 @@ enum Goal {
 }
 
 impl AgentSpawner {
-    pub fn new(ctx: &mut EventCtx, ui: &mut UI) -> Option<AgentSpawner> {
+    pub fn new(
+        ctx: &mut EventCtx,
+        ui: &mut UI,
+        sandbox_menu: &mut NewModalMenu,
+    ) -> Option<AgentSpawner> {
+        let menu = NewModalMenu::new("Agent Spawner", vec![(Key::Escape, "quit")], ctx);
         let map = &ui.primary.map;
         match ui.primary.current_selection {
             Some(ID::Building(id)) => {
@@ -37,6 +43,7 @@ impl AgentSpawner {
                     .contextual_action(Key::F3, "spawn a pedestrian starting here")
                 {
                     return Some(AgentSpawner {
+                        menu,
                         from: Source::Walking(id),
                         maybe_goal: None,
                     });
@@ -50,6 +57,7 @@ impl AgentSpawner {
                         .contextual_action(Key::F4, "spawn a car starting here")
                     {
                         return Some(AgentSpawner {
+                            menu,
                             from: Source::Driving(
                                 b.front_path.sidewalk.equiv_pos(driving_lane, map),
                             ),
@@ -65,6 +73,7 @@ impl AgentSpawner {
                         .contextual_action(Key::F3, "spawn an agent starting here")
                 {
                     return Some(AgentSpawner {
+                        menu,
                         from: Source::Driving(Position::new(id, map.get_l(id).length() / 2.0)),
                         maybe_goal: None,
                     });
@@ -80,8 +89,7 @@ impl AgentSpawner {
             }
             None => {
                 if ui.primary.sim.is_empty() {
-                    // TODO Weird. This mode belongs to the parent SpawnMode, not AgentSpawner.
-                    if ctx.input.modal_action("seed the sim with agents") {
+                    if sandbox_menu.action("seed the sim with agents") {
                         Scenario::scaled_run(map, ui.primary.current_flags.num_agents).instantiate(
                             &mut ui.primary.sim,
                             map,
@@ -100,10 +108,14 @@ impl AgentSpawner {
     // Returns true if the spawner editor is done and we should go back to main sandbox mode.
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> bool {
         // TODO Instructions to select target building/lane
-        ctx.input.set_mode("Agent Spawner", ctx.canvas);
-        if ctx.input.modal_action("quit") {
+        self.menu.handle_event(ctx);
+        if self.menu.action("quit") {
             return true;
         }
+
+        ctx.canvas.handle_event(ctx.input);
+        ui.primary.current_selection =
+            ui.handle_mouseover(ctx, None, &ui.primary.sim, &ShowEverything::new(), false);
 
         let map = &ui.primary.map;
 
@@ -235,6 +247,8 @@ impl AgentSpawner {
         let mut opts = DrawOptions::new();
         opts.override_colors.insert(src, ui.cs.get("selected"));
         ui.draw(g, opts, &ui.primary.sim, &ShowEverything::new());
+
+        self.menu.draw(g);
 
         if let Some((_, Some(ref trace))) = self.maybe_goal {
             g.draw_polygon(ui.cs.get("route"), &trace.make_polygons(LANE_THICKNESS));

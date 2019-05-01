@@ -8,7 +8,7 @@ use crate::game::{GameState, Mode};
 use crate::render::DrawOptions;
 use crate::ui::ShowEverything;
 use abstutil::elapsed_seconds;
-use ezgui::{EventCtx, EventLoopMode, GfxCtx, Key, Text, Wizard};
+use ezgui::{Canvas, EventCtx, EventLoopMode, GfxCtx, Key, NewModalMenu, Text, Wizard};
 use geom::Duration;
 use sim::{Benchmark, Sim, TripID};
 use std::time::Instant;
@@ -24,6 +24,7 @@ pub struct SandboxMode {
     state: State,
     // TODO Not while Spawning or TimeTraveling...
     common: CommonState,
+    menu: NewModalMenu,
 }
 
 enum State {
@@ -38,33 +39,44 @@ enum State {
 }
 
 impl SandboxMode {
-    pub fn new() -> SandboxMode {
+    pub fn new(canvas: &Canvas) -> SandboxMode {
         SandboxMode {
             desired_speed: 1.0,
             state: State::Paused,
             following: None,
             route_viewer: route_viewer::RouteViewer::Inactive,
             show_activity: show_activity::ShowActivity::Inactive,
-            time_travel: time_travel::TimeTravel::new(),
+            time_travel: time_travel::TimeTravel::new(canvas),
             common: CommonState::new(),
+            menu: NewModalMenu::hacky_new(
+                "Sandbox Mode",
+                vec![
+                    (Key::Escape, "quit"),
+                    (Key::LeftBracket, "slow down sim"),
+                    (Key::RightBracket, "speed up sim"),
+                    (Key::O, "save sim state"),
+                    (Key::Y, "load previous sim state"),
+                    (Key::U, "load next sim state"),
+                    (Key::Space, "run/pause sim"),
+                    (Key::M, "run one step of sim"),
+                    (Key::X, "reset sim"),
+                    (Key::S, "seed the sim with agents"),
+                    // TODO Strange to always have this. Really it's a case of stacked modal?
+                    (Key::F, "stop following agent"),
+                    (Key::R, "stop showing agent's route"),
+                    // TODO This should probably be a debug thing instead
+                    (Key::L, "show/hide route for all agents"),
+                    (Key::A, "show/hide active traffic"),
+                    (Key::T, "start time traveling"),
+                ],
+                canvas,
+            ),
         }
     }
 
     pub fn event(state: &mut GameState, ctx: &mut EventCtx) -> EventLoopMode {
         match state.mode {
             Mode::Sandbox(ref mut mode) => {
-                ctx.canvas.handle_event(ctx.input);
-                state.ui.primary.current_selection = state.ui.handle_mouseover(
-                    ctx,
-                    None,
-                    &state.ui.primary.sim,
-                    &ShowEverything::new(),
-                    false,
-                );
-                if let Some(evmode) = mode.common.event(ctx, &state.ui) {
-                    return evmode;
-                }
-
                 if let State::Spawning(ref mut spawner) = mode.state {
                     if spawner.event(ctx, &mut state.ui) {
                         mode.state = State::Paused;
@@ -110,10 +122,24 @@ impl SandboxMode {
                         txt.add_line("Showing active traffic".to_string());
                     }
                 }
-                ctx.input
-                    .set_mode_with_new_prompt("Sandbox Mode", txt, ctx.canvas);
+                mode.menu.update_prompt(txt, ctx);
+                mode.menu.handle_event(ctx);
 
-                if let Some(spawner) = spawner::AgentSpawner::new(ctx, &mut state.ui) {
+                ctx.canvas.handle_event(ctx.input);
+                state.ui.primary.current_selection = state.ui.handle_mouseover(
+                    ctx,
+                    None,
+                    &state.ui.primary.sim,
+                    &ShowEverything::new(),
+                    false,
+                );
+                if let Some(evmode) = mode.common.event(ctx, &state.ui) {
+                    return evmode;
+                }
+
+                if let Some(spawner) =
+                    spawner::AgentSpawner::new(ctx, &mut state.ui, &mut mode.menu)
+                {
                     mode.state = State::Spawning(spawner);
                     return EventLoopMode::InputOnly;
                 }
@@ -148,13 +174,13 @@ impl SandboxMode {
                         // get_canonical_point_for_trip
                         println!("{} is gone... temporarily or not?", trip);
                     }
-                    if ctx.input.modal_action("stop following agent") {
+                    if mode.menu.action("stop following agent") {
                         mode.following = None;
                     }
                 }
-                mode.route_viewer.event(ctx, &mut state.ui);
-                mode.show_activity.event(ctx, &mut state.ui);
-                if ctx.input.modal_action("start time traveling") {
+                mode.route_viewer.event(ctx, &mut state.ui, &mut mode.menu);
+                mode.show_activity.event(ctx, &mut state.ui, &mut mode.menu);
+                if mode.menu.action("start time traveling") {
                     mode.state = State::TimeTraveling;
                     mode.time_travel.start(state.ui.primary.sim.time());
                     // Do this again, in case recording was previously disabled.
@@ -162,7 +188,7 @@ impl SandboxMode {
                     return EventLoopMode::InputOnly;
                 }
 
-                if ctx.input.modal_action("quit") {
+                if mode.menu.action("quit") {
                     // TODO This shouldn't be necessary when we plumb state around instead of
                     // sharing it in the old structure.
                     state.ui.primary.sim = Sim::new(
@@ -174,14 +200,14 @@ impl SandboxMode {
                     return EventLoopMode::InputOnly;
                 }
 
-                if ctx.input.modal_action("slow down sim") {
+                if mode.menu.action("slow down sim") {
                     mode.desired_speed -= ADJUST_SPEED;
                     mode.desired_speed = mode.desired_speed.max(0.0);
                 }
-                if ctx.input.modal_action("speed up sim") {
+                if mode.menu.action("speed up sim") {
                     mode.desired_speed += ADJUST_SPEED;
                 }
-                if !state.ui.primary.sim.is_empty() && ctx.input.modal_action("reset sim") {
+                if !state.ui.primary.sim.is_empty() && mode.menu.action("reset sim") {
                     // TODO savestate_every gets lost
                     state.ui.primary.sim = Sim::new(
                         &state.ui.primary.map,
@@ -193,10 +219,10 @@ impl SandboxMode {
 
                 match mode.state {
                     State::Paused => {
-                        if ctx.input.modal_action("save sim state") {
+                        if mode.menu.action("save sim state") {
                             state.ui.primary.sim.save();
                         }
-                        if ctx.input.modal_action("load previous sim state") {
+                        if mode.menu.action("load previous sim state") {
                             let prev_state = state
                                 .ui
                                 .primary
@@ -215,7 +241,7 @@ impl SandboxMode {
                                 }
                             }
                         }
-                        if ctx.input.modal_action("load next sim state") {
+                        if mode.menu.action("load next sim state") {
                             let next_state = state
                                 .ui
                                 .primary
@@ -233,13 +259,13 @@ impl SandboxMode {
                             }
                         }
 
-                        if ctx.input.modal_action("run/pause sim") {
+                        if mode.menu.action("run/pause sim") {
                             mode.state = State::Running {
                                 last_step: Instant::now(),
                                 benchmark: state.ui.primary.sim.start_benchmark(),
                                 speed: "...".to_string(),
                             };
-                        } else if ctx.input.modal_action("run one step of sim") {
+                        } else if mode.menu.action("run one step of sim") {
                             state.ui.primary.sim.step(&state.ui.primary.map);
                             //*ctx.recalculate_current_selection = true;
                         }
@@ -250,7 +276,7 @@ impl SandboxMode {
                         ref mut benchmark,
                         ref mut speed,
                     } => {
-                        if ctx.input.modal_action("run/pause sim") {
+                        if mode.menu.action("run/pause sim") {
                             mode.state = State::Paused;
                         } else if ctx.input.nonblocking_is_update_event() {
                             // TODO https://gafferongames.com/post/fix_your_timestep/
@@ -293,6 +319,7 @@ impl SandboxMode {
                         &mode.time_travel,
                         &ShowEverything::new(),
                     );
+                    mode.time_travel.draw(g);
                 }
                 _ => {
                     state.ui.draw(
@@ -302,6 +329,7 @@ impl SandboxMode {
                         &ShowEverything::new(),
                     );
                     mode.common.draw(g, &state.ui);
+                    mode.menu.draw(g);
                     mode.route_viewer.draw(g, &state.ui);
                     mode.show_activity.draw(g, &state.ui);
                 }

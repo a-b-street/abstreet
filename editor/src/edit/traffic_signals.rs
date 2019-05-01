@@ -56,6 +56,7 @@ impl TrafficSignalEditor {
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> bool {
         self.menu.handle_event(ctx);
         self.diagram_top_left = self.menu.get_bottom_left(ctx);
+        ctx.canvas.handle_event(ctx.input);
 
         ui.primary.current_selection = ui.handle_mouseover(
             ctx,

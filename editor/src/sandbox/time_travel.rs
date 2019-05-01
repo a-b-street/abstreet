@@ -1,12 +1,13 @@
 use crate::ui::UI;
 use abstutil::MultiMap;
-use ezgui::EventCtx;
+use ezgui::{Canvas, EventCtx, GfxCtx, Key, NewModalMenu, Text};
 use geom::Duration;
 use map_model::{Map, Traversable};
 use sim::{CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID, TIMESTEP};
 use std::collections::BTreeMap;
 
 pub struct TimeTravel {
+    menu: NewModalMenu,
     // TODO Could be more efficient
     state_per_time: BTreeMap<Duration, StateAtTime>,
     pub current_time: Option<Duration>,
@@ -23,7 +24,7 @@ struct StateAtTime {
 }
 
 impl TimeTravel {
-    pub fn new() -> TimeTravel {
+    pub fn new(canvas: &Canvas) -> TimeTravel {
         TimeTravel {
             state_per_time: BTreeMap::new(),
             current_time: None,
@@ -31,6 +32,15 @@ impl TimeTravel {
             first_time: Duration::ZERO,
             last_time: Duration::ZERO,
             should_record: false,
+            menu: NewModalMenu::hacky_new(
+                "Time Traveler",
+                vec![
+                    (Key::Escape, "quit"),
+                    (Key::Comma, "rewind"),
+                    (Key::Dot, "forwards"),
+                ],
+                canvas,
+            ),
         }
     }
 
@@ -81,20 +91,25 @@ impl TimeTravel {
     // Returns true if done.
     pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
         let time = self.current_time.unwrap();
-        ctx.input.set_mode_with_prompt(
-            "Time Traveler",
-            format!("Time Traveler at {}", time),
-            &ctx.canvas,
-        );
-        if time > self.first_time && ctx.input.modal_action("rewind") {
+        self.menu.handle_event(ctx);
+        self.menu
+            .update_prompt(Text::prompt(&format!("Time Traveler at {}", time)), ctx);
+
+        ctx.canvas.handle_event(ctx.input);
+
+        if time > self.first_time && self.menu.action("rewind") {
             self.current_time = Some(time - TIMESTEP);
-        } else if time < self.last_time && ctx.input.modal_action("forwards") {
+        } else if time < self.last_time && self.menu.action("forwards") {
             self.current_time = Some(time + TIMESTEP);
-        } else if ctx.input.modal_action("quit") {
+        } else if self.menu.action("quit") {
             self.current_time = None;
             return true;
         }
         false
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx) {
+        self.menu.draw(g);
     }
 
     fn get_current_state(&self) -> &StateAtTime {

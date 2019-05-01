@@ -1,6 +1,6 @@
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::UI;
-use ezgui::{Color, EventCtx, GfxCtx};
+use ezgui::{Color, EventCtx, GfxCtx, NewModalMenu};
 use geom::{Bounds, Duration, Polygon, Pt2D};
 use map_model::{RoadID, Traversable};
 use std::collections::HashMap;
@@ -12,18 +12,18 @@ pub enum ShowActivity {
 }
 
 impl ShowActivity {
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) {
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI, menu: &mut NewModalMenu) {
         let zoomed = ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL;
 
         // If we survive past this, recompute current state.
         match self {
             ShowActivity::Inactive => {
-                if !ctx.input.modal_action("show/hide active traffic") {
+                if !menu.action("show/hide active traffic") {
                     return;
                 }
             }
             ShowActivity::Zoomed(time, ref heatmap) => {
-                if ctx.input.modal_action("show/hide active traffic") {
+                if menu.action("show/hide active traffic") {
                     *self = ShowActivity::Inactive;
                     return;
                 }
@@ -35,7 +35,7 @@ impl ShowActivity {
                 }
             }
             ShowActivity::Unzoomed(time, _) => {
-                if ctx.input.modal_action("show/hide active traffic") {
+                if menu.action("show/hide active traffic") {
                     *self = ShowActivity::Inactive;
                     return;
                 }

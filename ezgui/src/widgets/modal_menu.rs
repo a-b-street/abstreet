@@ -1,5 +1,5 @@
 use crate::widgets::{Menu, Position};
-use crate::{EventCtx, GfxCtx, InputResult, Key, ScreenPt, Text};
+use crate::{Canvas, EventCtx, GfxCtx, InputResult, Key, ScreenPt, Text};
 
 pub struct NewModalMenu {
     menu: Menu<Key>,
@@ -8,6 +8,15 @@ pub struct NewModalMenu {
 
 impl NewModalMenu {
     pub fn new(prompt_line: &str, choices: Vec<(Key, &str)>, ctx: &EventCtx) -> NewModalMenu {
+        NewModalMenu::hacky_new(prompt_line, choices, ctx.canvas)
+    }
+
+    // TODO Pass EventCtx when constructing the GUI?
+    pub fn hacky_new(
+        prompt_line: &str,
+        choices: Vec<(Key, &str)>,
+        canvas: &Canvas,
+    ) -> NewModalMenu {
         let mut menu = Menu::new(
             Some(Text::prompt(prompt_line)),
             choices
@@ -17,7 +26,7 @@ impl NewModalMenu {
             false,
             true,
             Position::TopRightOfScreen,
-            ctx.canvas,
+            canvas,
         );
         menu.mark_all_inactive();
         NewModalMenu {
@@ -60,6 +69,11 @@ impl NewModalMenu {
             self.menu.mark_active(name);
         }
         false
+    }
+
+    pub fn update_prompt(&mut self, txt: Text, _: &EventCtx) {
+        // TODO Do need to recalculate geometry
+        self.menu.change_prompt(txt);
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {

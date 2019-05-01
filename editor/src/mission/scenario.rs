@@ -48,7 +48,7 @@ impl ScenarioEditor {
                         &mut ui.primary.current_flags.sim_flags.make_rng(),
                         &mut Timer::new("instantiate scenario"),
                     );
-                    return Some(Mode::Sandbox(SandboxMode::new()));
+                    return Some(Mode::Sandbox(SandboxMode::new(ctx.canvas)));
                 } else if ctx.input.modal_action("visualize") {
                     let neighborhoods = Neighborhood::load_all(
                         ui.primary.map.get_name(),
