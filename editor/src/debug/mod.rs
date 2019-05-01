@@ -345,7 +345,9 @@ impl DebugMode {
                     mode.objects.draw(g, &state.ui);
                     mode.neighborhood_summary.draw(g);
 
-                    menu.draw(g);
+                    if !g.is_screencap() {
+                        menu.draw(g);
+                    }
                 }
                 State::Polygons(ref debugger) => {
                     let mut opts = DrawOptions::new();

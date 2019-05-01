@@ -101,18 +101,16 @@ impl<G: GUI> State<G> {
         }
         let naming_hint = g.naming_hint.take();
 
-        if !screenshot {
-            // Always draw the menus last.
-            if let ContextMenu::Displaying(ref menu) = self.context_menu {
-                menu.draw(&mut g);
-            }
-
-            // Always draw text last
-            self.canvas
-                .glyphs
-                .borrow_mut()
-                .draw_queued(display, &mut target);
+        // Always draw the menus last.
+        if let ContextMenu::Displaying(ref menu) = self.context_menu {
+            menu.draw(&mut g);
         }
+
+        // Always draw text last
+        self.canvas
+            .glyphs
+            .borrow_mut()
+            .draw_queued(display, &mut target);
 
         target.finish().unwrap();
         naming_hint
