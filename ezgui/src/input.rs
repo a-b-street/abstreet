@@ -242,13 +242,26 @@ impl UserInput {
 
     // Returns the bottom left of the modal menu.
     // TODO It'd be nice to scope the return value to the next draw()s only.
-    pub fn set_mode_with_extra(
+    pub fn set_mode(&mut self, mode: &str, canvas: &Canvas) -> ScreenPt {
+        self.set_mode_with_prompt(mode, mode.to_string(), canvas)
+    }
+
+    pub fn set_mode_with_prompt(
+        &mut self,
+        mode: &str,
+        prompt: String,
+        canvas: &Canvas,
+    ) -> ScreenPt {
+        let mut txt = Text::new();
+        txt.add_styled_line(prompt, None, Some(text::PROMPT_COLOR), None);
+        self.set_mode_with_new_prompt(mode, txt, canvas)
+    }
+
+    pub fn set_mode_with_new_prompt(
         &mut self,
         mode: &str,
         prompt: Text,
         canvas: &Canvas,
-        extra_width: f64,
-        _extra_height: f64,
     ) -> ScreenPt {
         self.set_mode_called.insert(mode.to_string());
         self.current_mode = Some(mode.to_string());
@@ -266,7 +279,7 @@ impl UserInput {
                         .collect(),
                     false,
                     true,
-                    Position::TopRightOfScreen(extra_width),
+                    Position::TopRightOfScreen,
                     canvas,
                 );
                 menu.mark_all_inactive();
@@ -277,30 +290,6 @@ impl UserInput {
                 panic!("set_mode called on unknown {}", mode);
             }
         }
-    }
-
-    pub fn set_mode_with_prompt(
-        &mut self,
-        mode: &str,
-        prompt: String,
-        canvas: &Canvas,
-    ) -> ScreenPt {
-        let mut txt = Text::new();
-        txt.add_styled_line(prompt, None, Some(text::PROMPT_COLOR), None);
-        self.set_mode_with_extra(mode, txt, canvas, 0.0, 0.0)
-    }
-
-    pub fn set_mode_with_new_prompt(
-        &mut self,
-        mode: &str,
-        prompt: Text,
-        canvas: &Canvas,
-    ) -> ScreenPt {
-        self.set_mode_with_extra(mode, prompt, canvas, 0.0, 0.0)
-    }
-
-    pub fn set_mode(&mut self, mode: &str, canvas: &Canvas) -> ScreenPt {
-        self.set_mode_with_prompt(mode, mode.to_string(), canvas)
     }
 
     pub fn modal_action(&mut self, action: &str) -> bool {
