@@ -1,5 +1,5 @@
 use crate::ui::UI;
-use ezgui::{Color, EventCtx, GfxCtx, Key, NewModalMenu, Wizard, WrappedWizard};
+use ezgui::{Color, EventCtx, GfxCtx, Key, ModalMenu, Wizard, WrappedWizard};
 use geom::{Circle, Distance, Line, Polygon, Pt2D};
 use map_model::{Map, NeighborhoodBuilder};
 
@@ -8,14 +8,14 @@ const POINT_RADIUS: Distance = Distance::const_meters(10.0);
 pub enum NeighborhoodEditor {
     PickNeighborhood(Wizard),
     // Option<usize> is the point currently being hovered over
-    EditNeighborhood(NewModalMenu, NeighborhoodBuilder, Option<usize>),
+    EditNeighborhood(ModalMenu, NeighborhoodBuilder, Option<usize>),
     // usize is the point being moved
-    MovingPoint(NewModalMenu, NeighborhoodBuilder, usize),
+    MovingPoint(ModalMenu, NeighborhoodBuilder, usize),
 }
 
 impl NeighborhoodEditor {
-    fn modal_menu(ctx: &EventCtx, name: &str) -> NewModalMenu {
-        NewModalMenu::new(
+    fn modal_menu(ctx: &EventCtx, name: &str) -> ModalMenu {
+        ModalMenu::new(
             &format!("Neighborhood Editor for {}", name),
             vec![
                 (Key::Escape, "quit"),

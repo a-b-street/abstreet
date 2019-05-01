@@ -1,22 +1,18 @@
 use crate::widgets::{Menu, Position};
 use crate::{Canvas, EventCtx, GfxCtx, InputResult, Key, ScreenPt, Text};
 
-pub struct NewModalMenu {
+pub struct ModalMenu {
     menu: Menu<Key>,
     chosen_action: Option<String>,
 }
 
-impl NewModalMenu {
-    pub fn new(prompt_line: &str, choices: Vec<(Key, &str)>, ctx: &EventCtx) -> NewModalMenu {
-        NewModalMenu::hacky_new(prompt_line, choices, ctx.canvas)
+impl ModalMenu {
+    pub fn new(prompt_line: &str, choices: Vec<(Key, &str)>, ctx: &EventCtx) -> ModalMenu {
+        ModalMenu::hacky_new(prompt_line, choices, ctx.canvas)
     }
 
     // TODO Pass EventCtx when constructing the GUI?
-    pub fn hacky_new(
-        prompt_line: &str,
-        choices: Vec<(Key, &str)>,
-        canvas: &Canvas,
-    ) -> NewModalMenu {
+    pub fn hacky_new(prompt_line: &str, choices: Vec<(Key, &str)>, canvas: &Canvas) -> ModalMenu {
         let mut menu = Menu::new(
             Some(Text::prompt(prompt_line)),
             choices
@@ -29,7 +25,7 @@ impl NewModalMenu {
             canvas,
         );
         menu.mark_all_inactive();
-        NewModalMenu {
+        ModalMenu {
             menu,
             chosen_action: None,
         }

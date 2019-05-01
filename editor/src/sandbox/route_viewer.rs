@@ -1,6 +1,6 @@
 use crate::helpers::ID;
 use crate::ui::UI;
-use ezgui::{Color, EventCtx, GfxCtx, Key, NewModalMenu};
+use ezgui::{Color, EventCtx, GfxCtx, Key, ModalMenu};
 use geom::{Duration, PolyLine};
 use map_model::LANE_THICKNESS;
 use sim::{AgentID, TripID};
@@ -13,7 +13,7 @@ pub enum RouteViewer {
 }
 
 impl RouteViewer {
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI, menu: &mut NewModalMenu) {
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI, menu: &mut ModalMenu) {
         match self {
             RouteViewer::Inactive => {
                 if let Some(agent) = ui.primary.current_selection.and_then(|id| id.agent_id()) {

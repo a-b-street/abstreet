@@ -1,6 +1,6 @@
 use crate::widgets::{Menu, Position};
 use crate::{text, Canvas, Event, InputResult, Key, ScreenPt, Text, TopMenu};
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap};
 
 // As we check for user input, record the input and the thing that would happen. This will let us
 // build up some kind of OSD of possible actions.
@@ -18,13 +18,9 @@ pub struct UserInput {
     // now...
     pub(crate) context_menu: ContextMenu,
     pub(crate) top_menu: Option<TopMenu>,
-    pub(crate) modal_state: ModalMenuState,
 
-    // This could be from context_menu or modal_state.
-    // TODO Is that potentially confusing?
+    // This could be from context_menu
     pub(crate) chosen_action: Option<String>,
-    pub(crate) set_mode_called: HashSet<String>,
-    current_mode: Option<String>,
 }
 
 pub enum ContextMenu {
@@ -64,7 +60,6 @@ impl UserInput {
         event: Event,
         context_menu: ContextMenu,
         mut top_menu: Option<TopMenu>,
-        modal_state: ModalMenuState,
         canvas: &mut Canvas,
     ) -> UserInput {
         let mut input = UserInput {
@@ -74,11 +69,8 @@ impl UserInput {
             context_menu,
             // Don't move it in yet!
             top_menu: None,
-            modal_state,
             reserved_keys: HashMap::new(),
             chosen_action: None,
-            set_mode_called: HashSet::new(),
-            current_mode: None,
         };
 
         // First things first...
@@ -136,22 +128,6 @@ impl UserInput {
             }
             ContextMenu::Building(_, _) | ContextMenu::Clicked(_) => {
                 panic!("UserInput::new given a ContextMenu in an impossible state");
-            }
-        }
-
-        for (_, menu) in input.modal_state.active.iter_mut() {
-            // context_menu is borrowed, so can't call methods on input.
-            match menu.event(input.event, canvas) {
-                // TODO Only consume the input if it was a mouse on top of
-                // the menu... because we don't want to also mouseover
-                // stuff underneath
-                InputResult::Canceled | InputResult::StillActive => {}
-                InputResult::Done(action, _) => {
-                    assert!(!input.event_consumed);
-                    input.event_consumed = true;
-                    input.chosen_action = Some(action);
-                    break;
-                }
             }
         }
 
@@ -237,83 +213,6 @@ impl UserInput {
             }
         } else {
             panic!("action_chosen(\"{}\") without a TopMenu defined!", action);
-        }
-    }
-
-    // Returns the bottom left of the modal menu.
-    // TODO It'd be nice to scope the return value to the next draw()s only.
-    pub fn set_mode(&mut self, mode: &str, canvas: &Canvas) -> ScreenPt {
-        self.set_mode_with_prompt(mode, mode.to_string(), canvas)
-    }
-
-    pub fn set_mode_with_prompt(
-        &mut self,
-        mode: &str,
-        prompt: String,
-        canvas: &Canvas,
-    ) -> ScreenPt {
-        self.set_mode_with_new_prompt(mode, Text::prompt(&prompt), canvas)
-    }
-
-    pub fn set_mode_with_new_prompt(
-        &mut self,
-        mode: &str,
-        prompt: Text,
-        canvas: &Canvas,
-    ) -> ScreenPt {
-        self.set_mode_called.insert(mode.to_string());
-        self.current_mode = Some(mode.to_string());
-        if let Some(ref mut menu) = self.modal_state.mut_active_mode(mode) {
-            menu.mark_all_inactive();
-            menu.change_prompt(prompt);
-            menu.get_bottom_left(canvas)
-        } else {
-            if let Some(ref m) = self.modal_state.modes.get(mode) {
-                let mut menu = Menu::new(
-                    Some(prompt),
-                    m.actions
-                        .iter()
-                        .map(|(key, action)| (Some(*key), action.to_string(), *key))
-                        .collect(),
-                    false,
-                    true,
-                    Position::TopRightOfScreen,
-                    canvas,
-                );
-                menu.mark_all_inactive();
-                let corner = menu.get_bottom_left(canvas);
-                self.modal_state.active.push((mode.to_string(), menu));
-                corner
-            } else {
-                panic!("set_mode called on unknown {}", mode);
-            }
-        }
-    }
-
-    pub fn modal_action(&mut self, action: &str) -> bool {
-        if let Some(ref mode) = self.current_mode {
-            if self.chosen_action == Some(action.to_string()) {
-                self.chosen_action = None;
-                return true;
-            }
-            // TODO When an action is chosen, the plugin short-circuits and we don't mark other
-            // items active. And here, we don't even mark the chosen action as active again. This
-            // is semantically correct (think about holding down the key for deleting the current
-            // cycle), but causes annoying flickering.
-
-            if self.modal_state.modes[mode].get_key(action).is_some() {
-                self.modal_state
-                    .mut_active_mode(mode)
-                    .unwrap()
-                    .mark_active(action);
-                // Don't check for the keypress here; Menu's event() will have already processed it
-                // and set chosen_action.
-                false
-            } else {
-                panic!("modal_action {} undefined in mode {}", action, mode);
-            }
-        } else {
-            panic!("modal_action({}) without set_mode", action);
         }
     }
 
@@ -455,71 +354,5 @@ impl UserInput {
             ContextMenu::Inactive => false,
             _ => true,
         }
-    }
-}
-
-pub struct ModalMenu {
-    name: String,
-    actions: Vec<(Key, String)>,
-}
-
-impl ModalMenu {
-    pub fn new(name: &str, raw_actions: Vec<(Key, &str)>) -> ModalMenu {
-        let mut keys: HashSet<Key> = HashSet::new();
-        let mut action_names: HashSet<String> = HashSet::new();
-        let mut actions = Vec::new();
-        for (key, action) in raw_actions {
-            if keys.contains(&key) {
-                panic!("ModalMenu {} uses {:?} twice", name, key);
-            }
-            keys.insert(key);
-
-            if action_names.contains(action) {
-                panic!("ModalMenu {} defines \"{}\" twice", name, action);
-            }
-            action_names.insert(action.to_string());
-
-            actions.push((key, action.to_string()));
-        }
-
-        ModalMenu {
-            name: name.to_string(),
-            actions,
-        }
-    }
-
-    fn get_key(&self, action: &str) -> Option<Key> {
-        // TODO Could precompute hash
-        for (key, a) in &self.actions {
-            if action == a {
-                return Some(*key);
-            }
-        }
-        None
-    }
-}
-
-pub struct ModalMenuState {
-    modes: HashMap<String, ModalMenu>,
-
-    pub(crate) active: Vec<(String, Menu<Key>)>,
-}
-
-impl ModalMenuState {
-    pub fn new(modes: Vec<ModalMenu>) -> ModalMenuState {
-        // TODO Make sure mode names aren't repeated
-        ModalMenuState {
-            modes: modes.into_iter().map(|m| (m.name.clone(), m)).collect(),
-            active: Vec::new(),
-        }
-    }
-
-    fn mut_active_mode(&mut self, mode: &str) -> Option<&mut Menu<Key>> {
-        for (name, menu) in self.active.iter_mut() {
-            if mode == name {
-                return Some(menu);
-            }
-        }
-        None
     }
 }

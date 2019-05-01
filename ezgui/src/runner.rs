@@ -1,7 +1,7 @@
-use crate::input::{ContextMenu, ModalMenuState};
+use crate::input::ContextMenu;
 use crate::{
-    widgets, Canvas, Event, EventCtx, GfxCtx, HorizontalAlignment, ModalMenu, Prerender, Text,
-    TopMenu, UserInput, VerticalAlignment,
+    widgets, Canvas, Event, EventCtx, GfxCtx, HorizontalAlignment, Prerender, Text, TopMenu,
+    UserInput, VerticalAlignment,
 };
 use glium::glutin;
 use glium_glyph::glyph_brush::rusttype::Font;
@@ -17,9 +17,6 @@ pub trait GUI {
     // Called once
     fn top_menu(&self, _canvas: &Canvas) -> Option<TopMenu> {
         None
-    }
-    fn modal_menus(&self) -> Vec<ModalMenu> {
-        Vec::new()
     }
     fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode;
     fn draw(&self, g: &mut GfxCtx);
@@ -51,7 +48,6 @@ pub(crate) struct State<G: GUI> {
     pub(crate) canvas: Canvas,
     context_menu: ContextMenu,
     top_menu: Option<TopMenu>,
-    modal_state: ModalMenuState,
 }
 
 impl<G: GUI> State<G> {
@@ -59,13 +55,7 @@ impl<G: GUI> State<G> {
     fn event(mut self, ev: Event, prerender: &Prerender) -> (State<G>, EventLoopMode, bool) {
         // It's impossible / very unlikey we'll grab the cursor in map space before the very first
         // start_drawing call.
-        let mut input = UserInput::new(
-            ev,
-            self.context_menu,
-            self.top_menu,
-            self.modal_state,
-            &mut self.canvas,
-        );
+        let mut input = UserInput::new(ev, self.context_menu, self.top_menu, &mut self.canvas);
         let mut gui = self.gui;
         let mut canvas = self.canvas;
         let event_mode = match panic::catch_unwind(panic::AssertUnwindSafe(|| {
@@ -92,20 +82,12 @@ impl<G: GUI> State<G> {
         };
         self.context_menu = input.context_menu.maybe_build(&self.canvas);
         self.top_menu = input.top_menu;
-        self.modal_state = input.modal_state;
         if let Some(action) = input.chosen_action {
             panic!(
-                "\"{}\" chosen from the top or modal menu, but nothing consumed it",
+                "\"{}\" chosen from the top, but nothing consumed it",
                 action
             );
         }
-        let mut still_active = Vec::new();
-        for (mode, menu) in self.modal_state.active.into_iter() {
-            if input.set_mode_called.contains(&mode) {
-                still_active.push((mode, menu));
-            }
-        }
-        self.modal_state.active = still_active;
 
         (self, event_mode, input_used)
     }
@@ -134,9 +116,6 @@ impl<G: GUI> State<G> {
         if !screenshot {
             // Always draw the menus last.
             if let Some(ref menu) = self.top_menu {
-                menu.draw(&mut g);
-            }
-            for (_, ref menu) in &self.modal_state.active {
                 menu.draw(&mut g);
             }
             if let ContextMenu::Displaying(ref menu) = self.context_menu {
@@ -240,7 +219,6 @@ pub fn run<G: GUI, F: FnOnce(&mut Canvas, &Prerender) -> G>(
         top_menu: gui.top_menu(&canvas),
         canvas,
         context_menu: ContextMenu::Inactive,
-        modal_state: ModalMenuState::new(gui.modal_menus()),
         gui,
     };
 

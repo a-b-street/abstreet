@@ -4,13 +4,13 @@ use crate::helpers::ID;
 use crate::render::{draw_signal_cycle, draw_signal_diagram, DrawCtx, DrawOptions, DrawTurn};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
-use ezgui::{Color, EventCtx, GfxCtx, Key, NewModalMenu, ScreenPt, Wizard, WrappedWizard};
+use ezgui::{Color, EventCtx, GfxCtx, Key, ModalMenu, ScreenPt, Wizard, WrappedWizard};
 use geom::Duration;
 use map_model::{ControlTrafficSignal, Cycle, IntersectionID, Map, TurnID, TurnPriority, TurnType};
 
 // TODO Warn if there are empty cycles or if some turn is completely absent from the signal.
 pub struct TrafficSignalEditor {
-    menu: NewModalMenu,
+    menu: ModalMenu,
     i: IntersectionID,
     current_cycle: usize,
     // The Wizard states are nested under here to remember things like current_cycle and keep
@@ -24,7 +24,7 @@ pub struct TrafficSignalEditor {
 
 impl TrafficSignalEditor {
     pub fn new(id: IntersectionID, ctx: &mut EventCtx) -> TrafficSignalEditor {
-        let menu = NewModalMenu::new(
+        let menu = ModalMenu::new(
             &format!("Traffic Signal Editor for {}", id),
             vec![
                 (Key::Escape, "quit"),

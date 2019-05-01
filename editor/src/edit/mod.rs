@@ -8,19 +8,17 @@ use crate::render::{
 };
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
-use ezgui::{
-    Color, EventCtx, EventLoopMode, GfxCtx, Key, NewModalMenu, Text, Wizard, WrappedWizard,
-};
+use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard, WrappedWizard};
 use map_model::{
     IntersectionID, Lane, LaneID, LaneType, Map, MapEdits, Road, TurnID, TurnPriority, TurnType,
 };
 use std::collections::{BTreeSet, HashMap};
 
 pub enum EditMode {
-    ViewingDiffs(CommonState, NewModalMenu),
+    ViewingDiffs(CommonState, ModalMenu),
     Saving(Wizard),
     Loading(Wizard),
-    EditingStopSign(IntersectionID, NewModalMenu),
+    EditingStopSign(IntersectionID, ModalMenu),
     EditingTrafficSignal(traffic_signals::TrafficSignalEditor),
 }
 
@@ -28,7 +26,7 @@ impl EditMode {
     pub fn new(ctx: &EventCtx) -> EditMode {
         EditMode::ViewingDiffs(
             CommonState::new(),
-            NewModalMenu::new(
+            ModalMenu::new(
                 "Map Edit Mode",
                 vec![
                     (Key::Escape, "quit"),
@@ -107,7 +105,7 @@ impl EditMode {
                     {
                         state.mode = Mode::Edit(EditMode::EditingStopSign(
                             id,
-                            NewModalMenu::new(
+                            ModalMenu::new(
                                 "Stop Sign Editor",
                                 vec![(Key::Escape, "quit"), (Key::R, "reset to default")],
                                 ctx,

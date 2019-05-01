@@ -8,8 +8,7 @@ use crate::tutorial::TutorialMode;
 use crate::ui::{EditorState, Flags, ShowEverything, UI};
 use abstutil::elapsed_seconds;
 use ezgui::{
-    Canvas, EventCtx, EventLoopMode, GfxCtx, Key, LogScroller, ModalMenu, Prerender, UserInput,
-    Wizard, GUI,
+    Canvas, EventCtx, EventLoopMode, GfxCtx, Key, LogScroller, Prerender, UserInput, Wizard, GUI,
 };
 use geom::{Duration, Line, Pt2D, Speed};
 use map_model::Map;
@@ -69,10 +68,6 @@ impl GameState {
 }
 
 impl GUI for GameState {
-    fn modal_menus(&self) -> Vec<ModalMenu> {
-        Vec::new()
-    }
-
     fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode {
         match self.mode {
             Mode::SplashScreen(ref mut wizard, ref mut maybe_screensaver) => {

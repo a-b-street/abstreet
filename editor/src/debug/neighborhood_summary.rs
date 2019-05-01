@@ -1,7 +1,7 @@
 use crate::render::DrawMap;
 use crate::ui::UI;
 use abstutil;
-use ezgui::{Color, Drawable, GfxCtx, NewModalMenu, Prerender, Text};
+use ezgui::{Color, Drawable, GfxCtx, ModalMenu, Prerender, Text};
 use geom::{Duration, Polygon, Pt2D};
 use map_model::{LaneID, Map, Neighborhood};
 use sim::Sim;
@@ -46,7 +46,7 @@ impl NeighborhoodSummary {
         }
     }
 
-    pub fn event(&mut self, ui: &UI, menu: &mut NewModalMenu) {
+    pub fn event(&mut self, ui: &UI, menu: &mut ModalMenu) {
         if menu.action("show/hide neighborhood summaries") {
             self.active = !self.active;
         }

@@ -1,6 +1,6 @@
 use crate::ui::UI;
 use ezgui::{
-    Canvas, Color, EventCtx, GfxCtx, InputResult, Key, NewModalMenu, ScreenPt, ScrollingMenu,
+    Canvas, Color, EventCtx, GfxCtx, InputResult, Key, ModalMenu, ScreenPt, ScrollingMenu,
 };
 use geom::Polygon;
 
@@ -13,7 +13,7 @@ const TILE_DIMS: f64 = 2.0;
 pub enum ColorPicker {
     Choosing(ScrollingMenu<()>),
     // Remember the original modified color in case we revert.
-    ChangingColor(String, Option<Color>, NewModalMenu),
+    ChangingColor(String, Option<Color>, ModalMenu),
 }
 
 impl ColorPicker {
@@ -29,7 +29,7 @@ impl ColorPicker {
                     *self = ColorPicker::ChangingColor(
                         name.clone(),
                         ui.cs.get_modified(&name),
-                        NewModalMenu::new(
+                        ModalMenu::new(
                             &format!("Color Picker for {}", name),
                             vec![(Key::Backspace, "revert"), (Key::Escape, "finalize")],
                             ctx,

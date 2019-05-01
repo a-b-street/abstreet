@@ -2,7 +2,7 @@ use crate::helpers::ID;
 use crate::render::DrawOptions;
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
-use ezgui::{EventCtx, GfxCtx, Key, NewModalMenu};
+use ezgui::{EventCtx, GfxCtx, Key, ModalMenu};
 use geom::PolyLine;
 use map_model::{
     BuildingID, IntersectionID, IntersectionType, LaneType, PathRequest, Position, LANE_THICKNESS,
@@ -11,7 +11,7 @@ use rand::seq::SliceRandom;
 use sim::{DrivingGoal, Scenario, SidewalkSpot, TripSpec};
 
 pub struct AgentSpawner {
-    menu: NewModalMenu,
+    menu: ModalMenu,
     from: Source,
     maybe_goal: Option<(Goal, Option<PolyLine>)>,
 }
@@ -32,9 +32,9 @@ impl AgentSpawner {
     pub fn new(
         ctx: &mut EventCtx,
         ui: &mut UI,
-        sandbox_menu: &mut NewModalMenu,
+        sandbox_menu: &mut ModalMenu,
     ) -> Option<AgentSpawner> {
-        let menu = NewModalMenu::new("Agent Spawner", vec![(Key::Escape, "quit")], ctx);
+        let menu = ModalMenu::new("Agent Spawner", vec![(Key::Escape, "quit")], ctx);
         let map = &ui.primary.map;
         match ui.primary.current_selection {
             Some(ID::Building(id)) => {

@@ -1,13 +1,13 @@
 use crate::ui::UI;
 use abstutil::MultiMap;
-use ezgui::{Canvas, EventCtx, GfxCtx, Key, NewModalMenu, Text};
+use ezgui::{Canvas, EventCtx, GfxCtx, Key, ModalMenu, Text};
 use geom::Duration;
 use map_model::{Map, Traversable};
 use sim::{CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID, TIMESTEP};
 use std::collections::BTreeMap;
 
 pub struct TimeTravel {
-    menu: NewModalMenu,
+    menu: ModalMenu,
     // TODO Could be more efficient
     state_per_time: BTreeMap<Duration, StateAtTime>,
     pub current_time: Option<Duration>,
@@ -32,7 +32,7 @@ impl TimeTravel {
             first_time: Duration::ZERO,
             last_time: Duration::ZERO,
             should_record: false,
-            menu: NewModalMenu::hacky_new(
+            menu: ModalMenu::hacky_new(
                 "Time Traveler",
                 vec![
                     (Key::Escape, "quit"),

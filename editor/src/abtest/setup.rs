@@ -1,14 +1,14 @@
 use crate::abtest::{ABTestMode, State};
 use crate::game::{GameState, Mode};
 use crate::ui::{Flags, PerMapUI, UI};
-use ezgui::{EventCtx, GfxCtx, Key, LogScroller, NewModalMenu, Wizard, WrappedWizard};
+use ezgui::{EventCtx, GfxCtx, Key, LogScroller, ModalMenu, Wizard, WrappedWizard};
 use map_model::Map;
 use sim::{ABTest, SimFlags};
 use std::path::PathBuf;
 
 pub enum ABTestSetup {
     Pick(Wizard),
-    Manage(NewModalMenu, ABTest, LogScroller),
+    Manage(ModalMenu, ABTest, LogScroller),
 }
 
 impl ABTestSetup {
@@ -23,7 +23,7 @@ impl ABTestSetup {
                             let scroller =
                                 LogScroller::new(ab_test.test_name.clone(), ab_test.describe());
                             *setup = ABTestSetup::Manage(
-                                NewModalMenu::new(
+                                ModalMenu::new(
                                     &format!("A/B Test Editor for {}", ab_test.test_name),
                                     vec![(Key::Escape, "quit"), (Key::R, "run A/B test")],
                                     ctx,

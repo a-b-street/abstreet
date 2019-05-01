@@ -5,7 +5,7 @@ use crate::game::{GameState, Mode};
 use crate::render::DrawOptions;
 use crate::ui::{PerMapUI, ShowEverything, UI};
 use abstutil::elapsed_seconds;
-use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, NewModalMenu, Text, Wizard};
+use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard};
 use geom::{Duration, Line, PolyLine};
 use map_model::LANE_THICKNESS;
 use sim::{Benchmark, Sim, TripID};
@@ -14,7 +14,7 @@ use std::time::Instant;
 const ADJUST_SPEED: f64 = 0.1;
 
 pub struct ABTestMode {
-    menu: NewModalMenu,
+    menu: ModalMenu,
     desired_speed: f64, // sim seconds per real second
     pub state: State,
     // TODO Urgh, hack. Need to be able to take() it to switch states sometimes.
@@ -38,7 +38,7 @@ pub enum State {
 impl ABTestMode {
     pub fn new(ctx: &EventCtx) -> ABTestMode {
         ABTestMode {
-            menu: NewModalMenu::new(
+            menu: ModalMenu::new(
                 "A/B Test Mode",
                 vec![
                     (Key::Escape, "quit"),

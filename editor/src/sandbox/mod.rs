@@ -8,7 +8,7 @@ use crate::game::{GameState, Mode};
 use crate::render::DrawOptions;
 use crate::ui::ShowEverything;
 use abstutil::elapsed_seconds;
-use ezgui::{Canvas, EventCtx, EventLoopMode, GfxCtx, Key, NewModalMenu, Text, Wizard};
+use ezgui::{Canvas, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard};
 use geom::Duration;
 use sim::{Benchmark, Sim, TripID};
 use std::time::Instant;
@@ -24,7 +24,7 @@ pub struct SandboxMode {
     state: State,
     // TODO Not while Spawning or TimeTraveling...
     common: CommonState,
-    menu: NewModalMenu,
+    menu: ModalMenu,
 }
 
 enum State {
@@ -48,7 +48,7 @@ impl SandboxMode {
             show_activity: show_activity::ShowActivity::Inactive,
             time_travel: time_travel::TimeTravel::new(canvas),
             common: CommonState::new(),
-            menu: NewModalMenu::hacky_new(
+            menu: ModalMenu::hacky_new(
                 "Sandbox Mode",
                 vec![
                     (Key::Escape, "quit"),

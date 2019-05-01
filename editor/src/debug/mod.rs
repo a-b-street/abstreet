@@ -12,7 +12,7 @@ use crate::render::DrawOptions;
 use crate::ui::{ShowLayers, ShowObject, UI};
 use abstutil::Timer;
 use ezgui::{
-    Color, EventCtx, EventLoopMode, GfxCtx, InputResult, Key, NewModalMenu, ScrollingMenu, Text,
+    Color, EventCtx, EventLoopMode, GfxCtx, InputResult, Key, ModalMenu, ScrollingMenu, Text,
     TextBox, Wizard,
 };
 use map_model::RoadID;
@@ -32,7 +32,7 @@ pub struct DebugMode {
 }
 
 enum State {
-    Exploring(NewModalMenu),
+    Exploring(ModalMenu),
     Polygons(polygons::PolygonDebugger),
     SearchOSM(TextBox),
     Colors(color_picker::ColorPicker),
@@ -60,7 +60,7 @@ impl DebugMode {
     }
 
     fn exploring_state(ctx: &EventCtx) -> State {
-        State::Exploring(NewModalMenu::new(
+        State::Exploring(ModalMenu::new(
             "Debug Mode",
             vec![
                 (Key::Escape, "quit"),

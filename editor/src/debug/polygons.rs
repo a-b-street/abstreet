@@ -2,11 +2,11 @@ use crate::helpers::ID;
 use crate::render::calculate_corners;
 use crate::ui::UI;
 use abstutil::Timer;
-use ezgui::{EventCtx, GfxCtx, Key, NewModalMenu, Text};
+use ezgui::{EventCtx, GfxCtx, Key, ModalMenu, Text};
 use geom::{Polygon, Pt2D, Triangle};
 
 pub struct PolygonDebugger {
-    menu: NewModalMenu,
+    menu: ModalMenu,
     items: Vec<Item>,
     current: usize,
     center: Option<Pt2D>,
@@ -20,7 +20,7 @@ enum Item {
 
 impl PolygonDebugger {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> Option<PolygonDebugger> {
-        let menu = NewModalMenu::new(
+        let menu = ModalMenu::new(
             "Polygon Debugger",
             vec![
                 (Key::Escape, "quit"),

@@ -1,6 +1,6 @@
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::UI;
-use ezgui::{Color, EventCtx, GfxCtx, NewModalMenu};
+use ezgui::{Color, EventCtx, GfxCtx, ModalMenu};
 use geom::{Bounds, Duration, Polygon, Pt2D};
 use map_model::{RoadID, Traversable};
 use std::collections::HashMap;
@@ -12,7 +12,7 @@ pub enum ShowActivity {
 }
 
 impl ShowActivity {
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI, menu: &mut NewModalMenu) {
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI, menu: &mut ModalMenu) {
         let zoomed = ctx.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL;
 
         // If we survive past this, recompute current state.

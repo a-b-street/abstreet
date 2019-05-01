@@ -1,11 +1,11 @@
 use crate::game::{GameState, Mode};
 use crate::render::DrawOptions;
 use crate::ui::ShowEverything;
-use ezgui::{EventCtx, EventLoopMode, GfxCtx, Key, NewModalMenu, Text, Wizard};
+use ezgui::{EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard};
 use geom::Pt2D;
 
 pub struct TutorialMode {
-    menu: NewModalMenu,
+    menu: ModalMenu,
     // TODO Does CommonState make sense?
     state: State,
 }
@@ -18,7 +18,7 @@ enum State {
 impl TutorialMode {
     pub fn new(ctx: &EventCtx) -> TutorialMode {
         TutorialMode {
-            menu: NewModalMenu::new("Tutorial", vec![(Key::Escape, "quit")], ctx),
+            menu: ModalMenu::new("Tutorial", vec![(Key::Escape, "quit")], ctx),
             state: State::Part1(ctx.canvas.center_to_map_pt()),
         }
     }

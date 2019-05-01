@@ -4,7 +4,7 @@ use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::{Timer, WeightedUsizeChoice};
 use ezgui::{
-    Color, Drawable, EventCtx, GfxCtx, Key, LogScroller, NewModalMenu, Wizard, WrappedWizard,
+    Color, Drawable, EventCtx, GfxCtx, Key, LogScroller, ModalMenu, Wizard, WrappedWizard,
 };
 use geom::{Distance, Duration, Line, Pt2D};
 use map_model::{IntersectionID, Map, Neighborhood};
@@ -13,14 +13,14 @@ use std::collections::BTreeMap;
 
 pub enum ScenarioEditor {
     PickScenario(Wizard),
-    ManageScenario(NewModalMenu, Scenario, LogScroller),
+    ManageScenario(ModalMenu, Scenario, LogScroller),
     EditScenario(Scenario, Wizard),
-    VisualizeScenario(NewModalMenu, Scenario, Drawable, BTreeMap<String, Region>),
+    VisualizeScenario(ModalMenu, Scenario, Drawable, BTreeMap<String, Region>),
 }
 
 impl ScenarioEditor {
-    fn modal_menu(name: &str, ctx: &EventCtx) -> NewModalMenu {
-        NewModalMenu::new(
+    fn modal_menu(name: &str, ctx: &EventCtx) -> ModalMenu {
+        ModalMenu::new(
             &format!("Scenario Editor for {}", name),
             vec![
                 (Key::Escape, "quit"),
