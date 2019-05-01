@@ -23,11 +23,11 @@ impl PolygonDebugger {
         let menu = ModalMenu::new(
             "Polygon Debugger",
             vec![
-                (Key::Escape, "quit"),
-                (Key::Dot, "next item"),
-                (Key::Comma, "prev item"),
-                (Key::F, "first item"),
-                (Key::L, "last item"),
+                (Some(Key::Escape), "quit"),
+                (Some(Key::Dot), "next item"),
+                (Some(Key::Comma), "prev item"),
+                (Some(Key::F), "first item"),
+                (Some(Key::L), "last item"),
             ],
             ctx,
         );

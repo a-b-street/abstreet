@@ -23,11 +23,11 @@ impl ScenarioEditor {
         ModalMenu::new(
             &format!("Scenario Editor for {}", name),
             vec![
-                (Key::Escape, "quit"),
-                (Key::S, "save"),
-                (Key::E, "edit"),
-                (Key::I, "instantiate"),
-                (Key::V, "visualize"),
+                (Some(Key::Escape), "quit"),
+                (Some(Key::S), "save"),
+                (Some(Key::E), "edit"),
+                (Some(Key::I), "instantiate"),
+                (Some(Key::V), "visualize"),
             ],
             ctx,
         )

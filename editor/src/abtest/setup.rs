@@ -25,7 +25,10 @@ impl ABTestSetup {
                             *setup = ABTestSetup::Manage(
                                 ModalMenu::new(
                                     &format!("A/B Test Editor for {}", ab_test.test_name),
-                                    vec![(Key::Escape, "quit"), (Key::R, "run A/B test")],
+                                    vec![
+                                        (Some(Key::Escape), "quit"),
+                                        (Some(Key::R), "run A/B test"),
+                                    ],
                                     ctx,
                                 ),
                                 ab_test,

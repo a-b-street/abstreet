@@ -2,22 +2,27 @@ use crate::widgets::{Menu, Position};
 use crate::{Canvas, EventCtx, GfxCtx, InputResult, Key, ScreenPt, Text};
 
 pub struct ModalMenu {
-    menu: Menu<Key>,
+    menu: Menu<()>,
     chosen_action: Option<String>,
 }
 
 impl ModalMenu {
-    pub fn new(prompt_line: &str, choices: Vec<(Key, &str)>, ctx: &EventCtx) -> ModalMenu {
+    pub fn new(prompt_line: &str, choices: Vec<(Option<Key>, &str)>, ctx: &EventCtx) -> ModalMenu {
         ModalMenu::hacky_new(prompt_line, choices, ctx.canvas)
     }
 
     // TODO Pass EventCtx when constructing the GUI?
-    pub fn hacky_new(prompt_line: &str, choices: Vec<(Key, &str)>, canvas: &Canvas) -> ModalMenu {
+    pub fn hacky_new(
+        prompt_line: &str,
+        choices: Vec<(Option<Key>, &str)>,
+        canvas: &Canvas,
+    ) -> ModalMenu {
+        // TODO Detect duplicate choices... maybe in Menu
         let mut menu = Menu::new(
             Some(Text::prompt(prompt_line)),
             choices
-                .iter()
-                .map(|(key, action)| (Some(*key), action.to_string(), *key))
+                .into_iter()
+                .map(|(key, action)| (key, action.to_string(), ()))
                 .collect(),
             false,
             true,

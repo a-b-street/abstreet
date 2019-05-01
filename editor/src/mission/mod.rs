@@ -22,9 +22,9 @@ impl MissionEditMode {
             state: State::Exploring(ModalMenu::new(
                 "Mission Edit Mode",
                 vec![
-                    (Key::Escape, "quit"),
-                    (Key::N, "manage neighborhoods"),
-                    (Key::W, "manage scenarios"),
+                    (Some(Key::Escape), "quit"),
+                    (Some(Key::N), "manage neighborhoods"),
+                    (Some(Key::W), "manage scenarios"),
                 ],
                 ctx,
             )),

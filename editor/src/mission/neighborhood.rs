@@ -18,10 +18,10 @@ impl NeighborhoodEditor {
         ModalMenu::new(
             &format!("Neighborhood Editor for {}", name),
             vec![
-                (Key::Escape, "quit"),
-                (Key::S, "save"),
-                (Key::X, "export as an Osmosis polygon filter"),
-                (Key::P, "add a new point"),
+                (Some(Key::Escape), "quit"),
+                (Some(Key::S), "save"),
+                (Some(Key::X), "export as an Osmosis polygon filter"),
+                (Some(Key::P), "add a new point"),
             ],
             ctx,
         )

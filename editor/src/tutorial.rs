@@ -18,7 +18,7 @@ enum State {
 impl TutorialMode {
     pub fn new(ctx: &EventCtx) -> TutorialMode {
         TutorialMode {
-            menu: ModalMenu::new("Tutorial", vec![(Key::Escape, "quit")], ctx),
+            menu: ModalMenu::new("Tutorial", vec![(Some(Key::Escape), "quit")], ctx),
             state: State::Part1(ctx.canvas.center_to_map_pt()),
         }
     }

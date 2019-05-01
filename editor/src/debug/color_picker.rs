@@ -31,7 +31,10 @@ impl ColorPicker {
                         ui.cs.get_modified(&name),
                         ModalMenu::new(
                             &format!("Color Picker for {}", name),
-                            vec![(Key::Backspace, "revert"), (Key::Escape, "finalize")],
+                            vec![
+                                (Some(Key::Backspace), "revert"),
+                                (Some(Key::Escape), "finalize"),
+                            ],
                             ctx,
                         ),
                     );

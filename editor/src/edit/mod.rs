@@ -29,9 +29,9 @@ impl EditMode {
             ModalMenu::new(
                 "Map Edit Mode",
                 vec![
-                    (Key::Escape, "quit"),
-                    (Key::S, "save edits"),
-                    (Key::L, "load different edits"),
+                    (Some(Key::Escape), "quit"),
+                    (Some(Key::S), "save edits"),
+                    (Some(Key::L), "load different edits"),
                 ],
                 ctx,
             ),
@@ -107,7 +107,10 @@ impl EditMode {
                             id,
                             ModalMenu::new(
                                 "Stop Sign Editor",
-                                vec![(Key::Escape, "quit"), (Key::R, "reset to default")],
+                                vec![
+                                    (Some(Key::Escape), "quit"),
+                                    (Some(Key::R), "reset to default"),
+                                ],
                                 ctx,
                             ),
                         ));

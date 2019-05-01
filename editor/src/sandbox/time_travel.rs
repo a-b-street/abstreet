@@ -35,9 +35,9 @@ impl TimeTravel {
             menu: ModalMenu::hacky_new(
                 "Time Traveler",
                 vec![
-                    (Key::Escape, "quit"),
-                    (Key::Comma, "rewind"),
-                    (Key::Dot, "forwards"),
+                    (Some(Key::Escape), "quit"),
+                    (Some(Key::Comma), "rewind"),
+                    (Some(Key::Dot), "forwards"),
                 ],
                 canvas,
             ),
