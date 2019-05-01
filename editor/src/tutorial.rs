@@ -1,7 +1,7 @@
 use crate::game::{GameState, Mode};
 use crate::render::DrawOptions;
 use crate::ui::ShowEverything;
-use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, Wizard};
+use ezgui::{EventCtx, EventLoopMode, GfxCtx, Key, Text, Wizard};
 use geom::Pt2D;
 
 // Does CommonState make sense?
@@ -14,8 +14,7 @@ impl TutorialMode {
     pub fn event(state: &mut GameState, ctx: &mut EventCtx) -> EventLoopMode {
         ctx.canvas.handle_event(ctx.input);
 
-        let mut txt = Text::new();
-        txt.add_styled_line("Tutorial".to_string(), None, Some(Color::BLUE), None);
+        let mut txt = Text::prompt("Tutorial");
         match state.mode {
             Mode::Tutorial(TutorialMode::Part1(orig_center)) => {
                 txt.add_line("Click and drag to pan around".to_string());

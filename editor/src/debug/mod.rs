@@ -72,13 +72,7 @@ impl DebugMode {
                             return evmode;
                         }
 
-                        let mut txt = Text::new();
-                        txt.add_styled_line(
-                            "Debug Mode".to_string(),
-                            None,
-                            Some(Color::BLUE),
-                            None,
-                        );
+                        let mut txt = Text::prompt("Debug Mode");
                         if mode.chokepoints.is_some() {
                             txt.add_line("Showing chokepoints".to_string());
                         }

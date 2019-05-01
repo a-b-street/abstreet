@@ -8,7 +8,7 @@ use crate::game::{GameState, Mode};
 use crate::render::DrawOptions;
 use crate::ui::ShowEverything;
 use abstutil::elapsed_seconds;
-use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, Wizard};
+use ezgui::{EventCtx, EventLoopMode, GfxCtx, Key, Text, Wizard};
 use geom::Duration;
 use sim::{Benchmark, Sim, TripID};
 use std::time::Instant;
@@ -79,8 +79,7 @@ impl SandboxMode {
                     return EventLoopMode::InputOnly;
                 }
 
-                let mut txt = Text::new();
-                txt.add_styled_line("Sandbox Mode".to_string(), None, Some(Color::BLUE), None);
+                let mut txt = Text::prompt("Sandbox Mode");
                 txt.add_line(state.ui.primary.sim.summary());
                 if let State::Running { ref speed, .. } = mode.state {
                     txt.add_line(format!(

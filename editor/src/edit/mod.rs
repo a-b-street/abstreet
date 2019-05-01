@@ -31,8 +31,7 @@ impl EditMode {
         ctx.canvas.handle_event(ctx.input);
 
         // Common functionality
-        let mut txt = Text::new();
-        txt.add_styled_line("Map Edit Mode".to_string(), None, Some(Color::BLUE), None);
+        let mut txt = Text::prompt("Map Edit Mode");
         txt.add_line(state.ui.primary.map.get_edits().edits_name.clone());
         txt.add_line(state.ui.primary.map.get_edits().describe());
         txt.add_line("Right-click a lane or intersection to start editing".to_string());

@@ -48,8 +48,7 @@ impl<T: Clone> ScrollingMenu<T> {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        let mut txt = Text::new();
-        txt.add_styled_line(self.prompt.clone(), None, Some(text::PROMPT_COLOR), None);
+        let mut txt = Text::prompt(&self.prompt);
 
         // TODO Silly results from doing this:
         // - The menu width changes as we scroll

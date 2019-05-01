@@ -66,8 +66,7 @@ impl ABTestMode {
                     return evmode;
                 }
 
-                let mut txt = Text::new();
-                txt.add_styled_line("A/B Test Mode".to_string(), None, Some(Color::BLUE), None);
+                let mut txt = Text::prompt("A/B Test Mode");
                 txt.add_line(state.ui.primary.map.get_edits().edits_name.clone());
                 if let Some(ref diff) = mode.diff_trip {
                     txt.add_line(format!("Showing diff for {}", diff.trip));

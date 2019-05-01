@@ -252,9 +252,7 @@ impl UserInput {
         prompt: String,
         canvas: &Canvas,
     ) -> ScreenPt {
-        let mut txt = Text::new();
-        txt.add_styled_line(prompt, None, Some(text::PROMPT_COLOR), None);
-        self.set_mode_with_new_prompt(mode, txt, canvas)
+        self.set_mode_with_new_prompt(mode, Text::prompt(&prompt), canvas)
     }
 
     pub fn set_mode_with_new_prompt(

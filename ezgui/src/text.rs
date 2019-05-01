@@ -51,6 +51,12 @@ impl Text {
         }
     }
 
+    pub fn prompt(line: &str) -> Text {
+        let mut txt = Text::new();
+        txt.add_styled_line(line.to_string(), None, Some(PROMPT_COLOR), None);
+        txt
+    }
+
     pub fn with_bg_color(bg_color: Option<Color>) -> Text {
         Text {
             lines: Vec::new(),
