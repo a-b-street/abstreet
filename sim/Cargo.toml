@@ -7,7 +7,6 @@ edition = "2018"
 [dependencies]
 abstutil = { path = "../abstutil" }
 derivative = "1.0.0"
-ezgui = { path = "../ezgui" }
 geom = { path = "../geom" }
 histogram = "0.6.9"
 map_model = { path = "../map_model" }

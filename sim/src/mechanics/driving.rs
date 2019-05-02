@@ -6,8 +6,7 @@ use crate::{
     TripManager, WalkingSimState, FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
-use ezgui::{Color, GfxCtx};
-use geom::{Distance, Duration, PolyLine};
+use geom::{Distance, Duration, PolyLine, Polygon};
 use map_model::{BuildingID, DirectedRoadID, IntersectionID, LaneID, Map, Path, Traversable};
 use petgraph::graph::{Graph, NodeIndex};
 use serde_derive::{Deserialize, Serialize};
@@ -605,13 +604,13 @@ impl DrivingSimState {
         }
     }
 
-    pub fn draw_unzoomed(&self, _time: Duration, g: &mut GfxCtx, map: &Map) {
-        const FREEFLOW: Color = Color::CYAN;
-        const WAITING: Color = Color::RED;
-
+    pub fn get_unzoomed_polygons(&self, map: &Map) -> (Vec<Polygon>, Vec<Polygon>) {
         // These are the max over all lanes
-        let mut moving: HashMap<DirectedRoadID, Distance> = HashMap::new();
-        let mut waiting: HashMap<DirectedRoadID, Distance> = HashMap::new();
+        let mut max_moving: HashMap<DirectedRoadID, Distance> = HashMap::new();
+        let mut max_waiting: HashMap<DirectedRoadID, Distance> = HashMap::new();
+
+        let mut moving = Vec::new();
+        let mut waiting = Vec::new();
 
         for queue in self.queues.values() {
             if queue.cars.is_empty() {
@@ -620,14 +619,18 @@ impl DrivingSimState {
             // Really coarse, strange behavior for turns. Overwrite blindly if there are concurrent turns
             // happening. :(
             if let Traversable::Turn(t) = queue.id {
-                let color = match self.cars[&queue.cars[0]].state {
+                let polygon = map.get_i(t.parent).polygon.clone();
+                match self.cars[&queue.cars[0]].state {
                     CarState::Crossing(_, _)
                     | CarState::Unparking(_, _)
                     | CarState::Parking(_, _, _)
-                    | CarState::Idling(_, _) => FREEFLOW,
-                    CarState::Queued | CarState::WaitingToAdvance => WAITING,
-                };
-                g.draw_polygon(color, &map.get_i(t.parent).polygon);
+                    | CarState::Idling(_, _) => {
+                        moving.push(polygon);
+                    }
+                    CarState::Queued | CarState::WaitingToAdvance => {
+                        waiting.push(polygon);
+                    }
+                }
                 continue;
             }
 
@@ -665,16 +668,16 @@ impl DrivingSimState {
             let dr = map.get_l(queue.id.as_lane()).get_directed_parent(map);
 
             if moving_len > Distance::ZERO {
-                let dist = moving.entry(dr).or_insert(Distance::ZERO);
+                let dist = max_moving.entry(dr).or_insert(Distance::ZERO);
                 *dist = moving_len.max(*dist);
             }
             if waiting_len > Distance::ZERO {
-                let dist = waiting.entry(dr).or_insert(Distance::ZERO);
+                let dist = max_waiting.entry(dr).or_insert(Distance::ZERO);
                 *dist = waiting_len.max(*dist);
             }
         }
 
-        for (dr, len) in moving {
+        for (dr, len) in max_moving {
             let (pl, width) = map
                 .get_r(dr.id)
                 .get_center_for_side(dr.forwards)
@@ -682,14 +685,13 @@ impl DrivingSimState {
                 .unwrap();
             // Some cars might be only partially on this road, so the length sum might be too big.
             let clamped_len = len.min(pl.length());
-            g.draw_polygon(
-                FREEFLOW,
-                &pl.exact_slice(Distance::ZERO, clamped_len)
+            moving.push(
+                pl.exact_slice(Distance::ZERO, clamped_len)
                     .make_polygons(width),
             );
         }
 
-        for (dr, len) in waiting {
+        for (dr, len) in max_waiting {
             let (pl, width) = map
                 .get_r(dr.id)
                 .get_center_for_side(dr.forwards)
@@ -697,12 +699,13 @@ impl DrivingSimState {
                 .unwrap();
             // Some cars might be only partially on this road, so the length sum might be too big.
             let clamped_len = len.min(pl.length());
-            g.draw_polygon(
-                WAITING,
-                &pl.exact_slice(pl.length() - clamped_len, pl.length())
+            waiting.push(
+                pl.exact_slice(pl.length() - clamped_len, pl.length())
                     .make_polygons(width),
             );
         }
+
+        (moving, waiting)
     }
 
     pub fn get_all_draw_cars(&self, time: Duration, map: &Map) -> Vec<DrawCarInput> {

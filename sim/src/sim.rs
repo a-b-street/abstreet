@@ -7,8 +7,7 @@ use crate::{
 };
 use abstutil::Timer;
 use derivative::Derivative;
-use ezgui::GfxCtx;
-use geom::{Distance, Duration, PolyLine, Pt2D};
+use geom::{Distance, Duration, PolyLine, Polygon, Pt2D};
 use map_model::{BuildingID, BusRoute, IntersectionID, LaneID, Map, Path, Traversable};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{HashSet, VecDeque};
@@ -265,8 +264,9 @@ impl GetDrawAgents for Sim {
 
 // Drawing
 impl Sim {
-    pub fn draw_unzoomed(&self, g: &mut GfxCtx, map: &Map) {
-        self.driving.draw_unzoomed(self.time, g, map);
+    // The results represent (moving, waiting) vehicles
+    pub fn get_unzoomed_polygons(&self, map: &Map) -> (Vec<Polygon>, Vec<Polygon>) {
+        self.driving.get_unzoomed_polygons(map)
     }
 }
 

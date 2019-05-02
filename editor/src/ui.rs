@@ -90,7 +90,12 @@ impl UI {
                 );
             }
 
-            self.primary.sim.draw_unzoomed(g, &self.primary.map);
+            let (moving, waiting) = self.primary.sim.get_unzoomed_polygons(&self.primary.map);
+            g.draw_polygons(self.cs.get_def("moving blob of cars", Color::CYAN), &moving);
+            g.draw_polygons(
+                self.cs.get_def("waiting blob of cars", Color::RED),
+                &waiting,
+            );
         } else {
             let mut cache = self.primary.draw_map.agents.borrow_mut();
             let objects = self.get_renderables_back_to_front(
