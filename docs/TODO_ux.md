@@ -29,7 +29,6 @@
 - X on all menus
 - when dragging, dont give mouse movement to UI elements
 - start context menu when left click releases and we're not dragging
-- dont draw context menu off-screen
 - can we change labels in modal or top menu? show/hide
 - bold hotkey letters
 

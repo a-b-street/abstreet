@@ -25,7 +25,7 @@ struct Geometry {
 #[derive(Clone)]
 pub enum Position {
     ScreenCenter,
-    TopLeftAt(ScreenPt),
+    SomeCornerAt(ScreenPt),
     TopRightOfScreen,
 }
 
@@ -51,7 +51,28 @@ impl Position {
         let (total_width, total_height) = canvas.text_dims(&txt);
 
         let top_left = match self {
-            Position::TopLeftAt(pt) => *pt,
+            Position::SomeCornerAt(pt) => {
+                // TODO Ideally also avoid covered canvas areas (modal menu)
+                if pt.x + total_width < canvas.window_width {
+                    // pt.x is the left corner
+                    if pt.y + total_height < canvas.window_height {
+                        // pt.y is the top corner
+                        *pt
+                    } else {
+                        // pt.y is the bottom corner
+                        ScreenPt::new(pt.x, pt.y - total_height)
+                    }
+                } else {
+                    // pt.x is the right corner
+                    if pt.y + total_height < canvas.window_height {
+                        // pt.y is the top corner
+                        ScreenPt::new(pt.x - total_width, pt.y)
+                    } else {
+                        // pt.y is the bottom corner
+                        ScreenPt::new(pt.x - total_width, pt.y - total_height)
+                    }
+                }
+            }
             Position::ScreenCenter => {
                 let mut pt = canvas.center_to_screen_pt();
                 pt.x -= total_width / 2.0;

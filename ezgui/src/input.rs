@@ -41,7 +41,7 @@ impl ContextMenu {
                             .collect(),
                         false,
                         false,
-                        Position::TopLeftAt(origin),
+                        Position::SomeCornerAt(origin),
                         canvas,
                     ))
                 }
