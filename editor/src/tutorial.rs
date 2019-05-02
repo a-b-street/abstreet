@@ -55,8 +55,7 @@ impl TutorialMode {
                         }
                     }
                 }
-                mode.menu.update_prompt(txt, ctx);
-                mode.menu.handle_event(ctx);
+                mode.menu.handle_event(ctx, Some(txt));
                 ctx.canvas.handle_event(ctx.input);
 
                 if mode.menu.action("quit") {

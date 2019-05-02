@@ -54,7 +54,7 @@ impl TrafficSignalEditor {
 
     // Returns true if the editor is done and we should go back to main edit mode.
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> bool {
-        self.menu.handle_event(ctx);
+        self.menu.handle_event(ctx, None);
         self.diagram_top_left = self.menu.get_bottom_left();
         ctx.canvas.handle_event(ctx.input);
 

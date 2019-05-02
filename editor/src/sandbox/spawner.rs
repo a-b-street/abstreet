@@ -108,7 +108,7 @@ impl AgentSpawner {
     // Returns true if the spawner editor is done and we should go back to main sandbox mode.
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> bool {
         // TODO Instructions to select target building/lane
-        self.menu.handle_event(ctx);
+        self.menu.handle_event(ctx, None);
         if self.menu.action("quit") {
             return true;
         }

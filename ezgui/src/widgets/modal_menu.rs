@@ -40,7 +40,7 @@ impl ModalMenu {
         self.menu.get_bottom_left()
     }
 
-    pub fn handle_event(&mut self, ctx: &mut EventCtx) {
+    pub fn handle_event(&mut self, ctx: &mut EventCtx, new_prompt: Option<Text>) {
         if let Some(ref action) = self.chosen_action {
             panic!("Caller didn't consume modal action '{}'", action);
         }
@@ -58,6 +58,9 @@ impl ModalMenu {
             }
         }
         self.menu.mark_all_inactive();
+        if let Some(txt) = new_prompt {
+            self.menu.change_prompt(txt, ctx.canvas);
+        }
     }
 
     pub fn action(&mut self, name: &str) -> bool {
@@ -70,10 +73,6 @@ impl ModalMenu {
             self.menu.mark_active(name);
         }
         false
-    }
-
-    pub fn update_prompt(&mut self, txt: Text, ctx: &EventCtx) {
-        self.menu.change_prompt(txt, ctx.canvas);
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {

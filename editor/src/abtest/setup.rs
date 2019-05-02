@@ -39,7 +39,7 @@ impl ABTestSetup {
                         }
                     }
                     ABTestSetup::Manage(ref mut menu, test, ref mut scroller) => {
-                        menu.handle_event(ctx);
+                        menu.handle_event(ctx, None);
                         if scroller.event(ctx.input) {
                             state.mode = Mode::SplashScreen(Wizard::new(), None);
                         } else if menu.action("run A/B test") {

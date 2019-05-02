@@ -46,8 +46,7 @@ impl EditMode {
                 txt.add_line(state.ui.primary.map.get_edits().edits_name.clone());
                 txt.add_line(state.ui.primary.map.get_edits().describe());
                 txt.add_line("Right-click a lane or intersection to start editing".to_string());
-                menu.update_prompt(txt, ctx);
-                menu.handle_event(ctx);
+                menu.handle_event(ctx, Some(txt));
                 if menu.action("quit") {
                     // TODO Warn about unsaved edits
                     state.mode = Mode::SplashScreen(Wizard::new(), None);
@@ -150,7 +149,7 @@ impl EditMode {
                 }
             }
             Mode::Edit(EditMode::EditingStopSign(i, ref mut menu)) => {
-                menu.handle_event(ctx);
+                menu.handle_event(ctx, None);
                 ctx.canvas.handle_event(ctx.input);
 
                 state.ui.primary.current_selection = state.ui.handle_mouseover(

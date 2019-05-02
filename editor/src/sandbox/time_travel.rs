@@ -91,9 +91,10 @@ impl TimeTravel {
     // Returns true if done.
     pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
         let time = self.current_time.unwrap();
-        self.menu.handle_event(ctx);
-        self.menu
-            .update_prompt(Text::prompt(&format!("Time Traveler at {}", time)), ctx);
+        self.menu.handle_event(
+            ctx,
+            Some(Text::prompt(&format!("Time Traveler at {}", time))),
+        );
 
         ctx.canvas.handle_event(ctx.input);
 

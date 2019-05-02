@@ -47,7 +47,7 @@ impl NeighborhoodEditor {
                 }
             }
             NeighborhoodEditor::EditNeighborhood(ref mut menu, ref mut n, ref mut current_idx) => {
-                menu.handle_event(ctx);
+                menu.handle_event(ctx, None);
                 ctx.canvas.handle_event(ctx.input);
 
                 if menu.action("quit") {
@@ -95,7 +95,7 @@ impl NeighborhoodEditor {
                 }
             }
             NeighborhoodEditor::MovingPoint(ref mut menu, ref mut n, idx) => {
-                menu.handle_event(ctx);
+                menu.handle_event(ctx, None);
                 ctx.canvas.handle_event(ctx.input);
 
                 if let Some(pt) = ctx

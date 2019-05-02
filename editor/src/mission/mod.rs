@@ -36,7 +36,7 @@ impl MissionEditMode {
             Mode::Mission(ref mut mode) => {
                 match mode.state {
                     State::Exploring(ref mut menu) => {
-                        menu.handle_event(ctx);
+                        menu.handle_event(ctx, None);
                         ctx.canvas.handle_event(ctx.input);
 
                         if menu.action("quit") {

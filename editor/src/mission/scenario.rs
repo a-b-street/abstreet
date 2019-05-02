@@ -51,7 +51,7 @@ impl ScenarioEditor {
                 }
             }
             ScenarioEditor::ManageScenario(ref mut menu, scenario, ref mut scroller) => {
-                menu.handle_event(ctx);
+                menu.handle_event(ctx, None);
                 ctx.canvas.handle_event(ctx.input);
                 if menu.action("save") {
                     scenario.save();
@@ -126,7 +126,7 @@ impl ScenarioEditor {
                 }
             }
             ScenarioEditor::VisualizeScenario(ref mut menu, _, _, _) => {
-                menu.handle_event(ctx);
+                menu.handle_event(ctx, None);
                 ctx.canvas.handle_event(ctx.input);
                 if menu.action("quit") {
                     return Some(Mode::Mission(MissionEditMode::new(ctx)));

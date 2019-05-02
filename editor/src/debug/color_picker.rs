@@ -41,7 +41,7 @@ impl ColorPicker {
                 }
             },
             ColorPicker::ChangingColor(name, orig, ref mut menu) => {
-                menu.handle_event(ctx);
+                menu.handle_event(ctx, None);
                 if menu.action("revert") {
                     ui.cs.reset_modified(name, *orig);
                     return true;

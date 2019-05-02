@@ -120,8 +120,7 @@ impl DebugMode {
                         if mode.neighborhood_summary.active {
                             txt.add_line("Showing neighborhood summaries".to_string());
                         }
-                        menu.handle_event(ctx);
-                        menu.update_prompt(txt, ctx);
+                        menu.handle_event(ctx, Some(txt));
 
                         ctx.canvas.handle_event(ctx.input);
                         if let Some(evmode) = mode.common.event(ctx, &state.ui) {

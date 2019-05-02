@@ -122,8 +122,7 @@ impl SandboxMode {
                         txt.add_line("Showing active traffic".to_string());
                     }
                 }
-                mode.menu.update_prompt(txt, ctx);
-                mode.menu.handle_event(ctx);
+                mode.menu.handle_event(ctx, Some(txt));
 
                 ctx.canvas.handle_event(ctx.input);
                 state.ui.primary.current_selection = state.ui.handle_mouseover(

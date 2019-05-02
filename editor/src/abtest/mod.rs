@@ -91,8 +91,7 @@ impl ABTestMode {
                         mode.desired_speed
                     ));
                 }
-                mode.menu.handle_event(ctx);
-                mode.menu.update_prompt(txt, ctx);
+                mode.menu.handle_event(ctx, Some(txt));
 
                 ctx.canvas.handle_event(ctx.input);
                 state.ui.primary.current_selection = state.ui.handle_mouseover(
