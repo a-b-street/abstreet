@@ -50,4 +50,18 @@ impl Building {
     pub fn sidewalk(&self) -> LaneID {
         self.front_path.sidewalk.lane()
     }
+
+    pub fn get_name(&self) -> String {
+        self.osm_tags
+            .get("name")
+            .map(|s| s.to_string())
+            .or_else(|| {
+                self.osm_tags.get("addr:housenumber").and_then(|num| {
+                    self.osm_tags
+                        .get("addr:street")
+                        .map(|street| format!("{} {}", num, street))
+                })
+            })
+            .unwrap_or("???".to_string())
+    }
 }

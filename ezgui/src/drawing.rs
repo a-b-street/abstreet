@@ -153,11 +153,15 @@ impl<'a> GfxCtx<'a> {
         if txt.is_empty() {
             return;
         }
-        let (width, height) = self.text_dims(&txt);
+        let (mut width, height) = self.text_dims(&txt);
         let x1 = match horiz {
             HorizontalAlignment::Left => 0.0,
             HorizontalAlignment::Center => (self.canvas.window_width - width) / 2.0,
             HorizontalAlignment::Right => self.canvas.window_width - width,
+            HorizontalAlignment::FillScreen => {
+                width = self.canvas.window_width;
+                0.0
+            }
         };
         let y1 = match vert {
             VerticalAlignment::Top => 0.0,

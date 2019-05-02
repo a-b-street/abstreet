@@ -188,6 +188,7 @@ pub enum HorizontalAlignment {
     Left,
     Center,
     Right,
+    FillScreen,
 }
 
 pub enum VerticalAlignment {

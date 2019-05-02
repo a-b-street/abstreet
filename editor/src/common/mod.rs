@@ -7,7 +7,9 @@ use crate::helpers::ID;
 use crate::render::DrawOptions;
 use crate::ui::UI;
 use abstutil::elapsed_seconds;
-use ezgui::{EventCtx, EventLoopMode, GfxCtx, Key};
+use ezgui::{
+    Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Key, Text, VerticalAlignment,
+};
 use geom::{Line, Pt2D};
 use std::time::Instant;
 
@@ -71,6 +73,34 @@ impl CommonState {
             navigate.draw(g);
         }
         self.turn_cycler.draw(g, ui);
+
+        let id_color = ui.cs.get_def("OSD ID color", Color::RED);
+        let name_color = ui.cs.get_def("OSD name color", Color::CYAN);
+        let mut osd = Text::new();
+        match ui.primary.current_selection {
+            None => {
+                osd.append("...".to_string(), None);
+            }
+            Some(ID::Lane(l)) => {
+                osd.append(format!("{}", l), Some(id_color));
+                osd.append(" is ".to_string(), None);
+                osd.append(ui.primary.map.get_parent(l).get_name(), Some(name_color));
+            }
+            Some(ID::Building(b)) => {
+                osd.append(format!("{}", b), Some(id_color));
+                osd.append(" is ".to_string(), None);
+                osd.append(ui.primary.map.get_b(b).get_name(), Some(name_color));
+            }
+            // TODO Intersections, cars, pedestrians...
+            Some(id) => {
+                osd.append(format!("{:?}", id), Some(id_color));
+            }
+        }
+        // TODO Grab hotkeys from the context menu
+        g.draw_blocking_text(
+            &osd,
+            (HorizontalAlignment::FillScreen, VerticalAlignment::Bottom),
+        );
     }
 
     pub fn draw_options(&self, ui: &UI) -> DrawOptions {
