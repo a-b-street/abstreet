@@ -63,22 +63,26 @@ impl DebugMode {
         State::Exploring(ModalMenu::new(
             "Debug Mode",
             vec![
-                (Some(Key::Escape), "quit"),
-                (Some(Key::C), "show/hide chokepoints"),
-                (Some(Key::O), "clear original roads shown"),
-                (Some(Key::K), "unhide everything"),
-                (Some(Key::Num1), "show/hide buildings"),
-                (Some(Key::Num2), "show/hide intersections"),
-                (Some(Key::Num3), "show/hide lanes"),
-                (Some(Key::Num4), "show/hide areas"),
-                (Some(Key::Num5), "show/hide extra shapes"),
-                (Some(Key::Num6), "show/hide geometry debug mode"),
-                (None, "screenshot everything"),
-                (Some(Key::Slash), "search OSM metadata"),
-                (Some(Key::M), "clear OSM search results"),
-                (Some(Key::S), "configure colors"),
-                (Some(Key::N), "show/hide neighborhood summaries"),
-            ],
+                vec![
+                    (Some(Key::Escape), "quit"),
+                    (Some(Key::C), "show/hide chokepoints"),
+                    (Some(Key::O), "clear original roads shown"),
+                    (Some(Key::K), "unhide everything"),
+                    (Some(Key::Num1), "show/hide buildings"),
+                    (Some(Key::Num2), "show/hide intersections"),
+                    (Some(Key::Num3), "show/hide lanes"),
+                    (Some(Key::Num4), "show/hide areas"),
+                    (Some(Key::Num5), "show/hide extra shapes"),
+                    (Some(Key::Num6), "show/hide geometry debug mode"),
+                    (None, "screenshot everything"),
+                    (Some(Key::Slash), "search OSM metadata"),
+                    (Some(Key::M), "clear OSM search results"),
+                    (Some(Key::S), "configure colors"),
+                    (Some(Key::N), "show/hide neighborhood summaries"),
+                ],
+                CommonState::modal_menu_entries(),
+            ]
+            .concat(),
             ctx,
         ))
     }
@@ -123,7 +127,7 @@ impl DebugMode {
                         menu.handle_event(ctx, Some(txt));
 
                         ctx.canvas.handle_event(ctx.input);
-                        if let Some(evmode) = mode.common.event(ctx, &state.ui) {
+                        if let Some(evmode) = mode.common.event(ctx, &state.ui, menu) {
                             return evmode;
                         }
 

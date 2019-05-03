@@ -29,10 +29,14 @@ impl EditMode {
             ModalMenu::new(
                 "Map Edit Mode",
                 vec![
-                    (Some(Key::Escape), "quit"),
-                    (Some(Key::S), "save edits"),
-                    (Some(Key::L), "load different edits"),
-                ],
+                    vec![
+                        (Some(Key::Escape), "quit"),
+                        (Some(Key::S), "save edits"),
+                        (Some(Key::L), "load different edits"),
+                    ],
+                    CommonState::modal_menu_entries(),
+                ]
+                .concat(),
                 ctx,
             ),
         )
@@ -47,11 +51,6 @@ impl EditMode {
                 txt.add_line(state.ui.primary.map.get_edits().describe());
                 txt.add_line("Right-click a lane or intersection to start editing".to_string());
                 menu.handle_event(ctx, Some(txt));
-                if menu.action("quit") {
-                    // TODO Warn about unsaved edits
-                    state.mode = Mode::SplashScreen(Wizard::new(), None);
-                    return EventLoopMode::InputOnly;
-                }
 
                 ctx.canvas.handle_event(ctx.input);
 
@@ -66,10 +65,15 @@ impl EditMode {
                     &ShowEverything::new(),
                     false,
                 );
-                if let Some(evmode) = common.event(ctx, &state.ui) {
+                if let Some(evmode) = common.event(ctx, &state.ui, menu) {
                     return evmode;
                 }
 
+                if menu.action("quit") {
+                    // TODO Warn about unsaved edits
+                    state.mode = Mode::SplashScreen(Wizard::new(), None);
+                    return EventLoopMode::InputOnly;
+                }
                 // TODO Only if current edits are unsaved
                 if menu.action("save edits") {
                     state.mode = Mode::Edit(EditMode::Saving(Wizard::new()));

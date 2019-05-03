@@ -41,15 +41,19 @@ impl ABTestMode {
             menu: ModalMenu::new(
                 "A/B Test Mode",
                 vec![
-                    (Some(Key::Escape), "quit"),
-                    (Some(Key::LeftBracket), "slow down sim"),
-                    (Some(Key::RightBracket), "speed up sim"),
-                    (Some(Key::Space), "run/pause sim"),
-                    (Some(Key::M), "run one step of sim"),
-                    (Some(Key::S), "swap"),
-                    (Some(Key::D), "diff all trips"),
-                    (Some(Key::B), "stop diffing trips"),
-                ],
+                    vec![
+                        (Some(Key::Escape), "quit"),
+                        (Some(Key::LeftBracket), "slow down sim"),
+                        (Some(Key::RightBracket), "speed up sim"),
+                        (Some(Key::Space), "run/pause sim"),
+                        (Some(Key::M), "run one step of sim"),
+                        (Some(Key::S), "swap"),
+                        (Some(Key::D), "diff all trips"),
+                        (Some(Key::B), "stop diffing trips"),
+                    ],
+                    CommonState::modal_menu_entries(),
+                ]
+                .concat(),
                 ctx,
             ),
             desired_speed: 1.0,
@@ -101,7 +105,7 @@ impl ABTestMode {
                     &ShowEverything::new(),
                     false,
                 );
-                if let Some(evmode) = mode.common.event(ctx, &state.ui) {
+                if let Some(evmode) = mode.common.event(ctx, &state.ui, &mut mode.menu) {
                     return evmode;
                 }
 

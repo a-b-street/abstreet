@@ -8,7 +8,8 @@ use crate::render::DrawOptions;
 use crate::ui::UI;
 use abstutil::elapsed_seconds;
 use ezgui::{
-    Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Key, Text, VerticalAlignment,
+    Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Key, ModalMenu, Text,
+    VerticalAlignment,
 };
 use geom::{Line, Pt2D};
 use std::time::Instant;
@@ -30,16 +31,30 @@ impl CommonState {
         }
     }
 
+    pub fn modal_menu_entries() -> Vec<(Option<Key>, &'static str)> {
+        vec![
+            (Some(Key::J), "warp"),
+            // TODO This definitely conflicts with some modes.
+            (Some(Key::K), "navigate"),
+            (Some(Key::F1), "take a screenshot"),
+        ]
+    }
+
     // If this returns something, then this common state should prevent other things from
     // happening.
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI) -> Option<EventLoopMode> {
+    pub fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        ui: &UI,
+        menu: &mut ModalMenu,
+    ) -> Option<EventLoopMode> {
         if let Some(ref mut warp) = self.warp {
             if let Some(evmode) = warp.event(ctx, ui) {
                 return Some(evmode);
             }
             self.warp = None;
         }
-        if ctx.input.unimportant_key_pressed(Key::J, "warp") {
+        if menu.action("warp") {
             self.warp = Some(warp::WarpState::new());
         }
         if let Some(ref mut navigate) = self.navigate {
@@ -48,18 +63,13 @@ impl CommonState {
             }
             self.navigate = None;
         }
-        // TODO This definitely conflicts with some modes.
-        if ctx.input.unimportant_key_pressed(Key::K, "navigate") {
+        if menu.action("navigate") {
             self.navigate = Some(navigate::Navigator::new(ui));
         }
 
         self.associated.event(ui);
         self.turn_cycler.event(ctx, ui);
-        // TODO How to reserve and explain this key?
-        if ctx
-            .input
-            .unimportant_key_pressed(Key::F1, "screenshot just this")
-        {
+        if menu.action("take a screenshot") {
             return Some(EventLoopMode::ScreenCaptureCurrentShot);
         }
         None

@@ -33,7 +33,7 @@ impl TurnCyclerState {
                         self.state = State::ShowLane(id);
                     } else if ctx
                         .input
-                        .key_pressed(Key::Z, "cycle through this lane's turns")
+                        .contextual_action(Key::Z, "cycle through this lane's turns")
                     {
                         self.state = State::CycleTurns(id, idx + 1);
                     }
@@ -42,7 +42,7 @@ impl TurnCyclerState {
                     if !ui.primary.map.get_turns_from_lane(id).is_empty()
                         && ctx
                             .input
-                            .key_pressed(Key::Z, "cycle through this lane's turns")
+                            .contextual_action(Key::Z, "cycle through this lane's turns")
                     {
                         self.state = State::CycleTurns(id, 0);
                     }
@@ -66,7 +66,7 @@ impl TurnCyclerState {
             // TODO How to tell the user that holding control and shift is sometimes useful?
             if ctx
                 .input
-                .unimportant_key_pressed(Key::LeftShift, "show full traffic signal diagram")
+                .contextual_action(Key::LeftShift, "show full traffic signal diagram")
             {
                 self.shift_key_held = true;
             }

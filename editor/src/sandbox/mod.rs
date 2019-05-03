@@ -51,24 +51,28 @@ impl SandboxMode {
             menu: ModalMenu::hacky_new(
                 "Sandbox Mode",
                 vec![
-                    (Some(Key::Escape), "quit"),
-                    (Some(Key::LeftBracket), "slow down sim"),
-                    (Some(Key::RightBracket), "speed up sim"),
-                    (Some(Key::O), "save sim state"),
-                    (Some(Key::Y), "load previous sim state"),
-                    (Some(Key::U), "load next sim state"),
-                    (Some(Key::Space), "run/pause sim"),
-                    (Some(Key::M), "run one step of sim"),
-                    (Some(Key::X), "reset sim"),
-                    (Some(Key::S), "seed the sim with agents"),
-                    // TODO Strange to always have this. Really it's a case of stacked modal?
-                    (Some(Key::F), "stop following agent"),
-                    (Some(Key::R), "stop showing agent's route"),
-                    // TODO This should probably be a debug thing instead
-                    (Some(Key::L), "show/hide route for all agents"),
-                    (Some(Key::A), "show/hide active traffic"),
-                    (Some(Key::T), "start time traveling"),
-                ],
+                    vec![
+                        (Some(Key::Escape), "quit"),
+                        (Some(Key::LeftBracket), "slow down sim"),
+                        (Some(Key::RightBracket), "speed up sim"),
+                        (Some(Key::O), "save sim state"),
+                        (Some(Key::Y), "load previous sim state"),
+                        (Some(Key::U), "load next sim state"),
+                        (Some(Key::Space), "run/pause sim"),
+                        (Some(Key::M), "run one step of sim"),
+                        (Some(Key::X), "reset sim"),
+                        (Some(Key::S), "seed the sim with agents"),
+                        // TODO Strange to always have this. Really it's a case of stacked modal?
+                        (Some(Key::F), "stop following agent"),
+                        (Some(Key::R), "stop showing agent's route"),
+                        // TODO This should probably be a debug thing instead
+                        (Some(Key::L), "show/hide route for all agents"),
+                        (Some(Key::A), "show/hide active traffic"),
+                        (Some(Key::T), "start time traveling"),
+                    ],
+                    CommonState::modal_menu_entries(),
+                ]
+                .concat(),
                 canvas,
             ),
         }
@@ -132,7 +136,7 @@ impl SandboxMode {
                     &ShowEverything::new(),
                     false,
                 );
-                if let Some(evmode) = mode.common.event(ctx, &state.ui) {
+                if let Some(evmode) = mode.common.event(ctx, &state.ui, &mut mode.menu) {
                     return evmode;
                 }
 
