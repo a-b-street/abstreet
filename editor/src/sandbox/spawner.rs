@@ -1,3 +1,4 @@
+use crate::common::CommonState;
 use crate::helpers::ID;
 use crate::render::DrawOptions;
 use crate::ui::{ShowEverything, UI};
@@ -253,6 +254,8 @@ impl AgentSpawner {
         if let Some((_, Some(ref trace))) = self.maybe_goal {
             g.draw_polygon(ui.cs.get("route"), &trace.make_polygons(LANE_THICKNESS));
         }
+
+        CommonState::draw_osd(g, ui);
     }
 }
 

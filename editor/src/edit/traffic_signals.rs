@@ -1,3 +1,4 @@
+use crate::common::CommonState;
 use crate::edit::apply_map_edits;
 use crate::game::GameState;
 use crate::helpers::ID;
@@ -291,6 +292,8 @@ impl TrafficSignalEditor {
         } else if let Some(ref wizard) = self.preset_wizard {
             wizard.draw(g);
         }
+
+        CommonState::draw_osd(g, &state.ui);
     }
 }
 

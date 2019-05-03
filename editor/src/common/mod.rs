@@ -74,6 +74,10 @@ impl CommonState {
         }
         self.turn_cycler.draw(g, ui);
 
+        CommonState::draw_osd(g, ui);
+    }
+
+    pub fn draw_osd(g: &mut GfxCtx, ui: &UI) {
         let id_color = ui.cs.get_def("OSD ID color", Color::RED);
         let name_color = ui.cs.get_def("OSD name color", Color::CYAN);
         let mut osd = Text::new();
@@ -90,6 +94,22 @@ impl CommonState {
                 osd.append(format!("{}", b), Some(id_color));
                 osd.append(" is ".to_string(), None);
                 osd.append(ui.primary.map.get_b(b).get_name(), Some(name_color));
+            }
+            Some(ID::Turn(t)) => {
+                osd.append(
+                    format!("TurnID({})", ui.primary.map.get_t(t).lookup_idx),
+                    Some(id_color),
+                );
+                osd.append(" between ".to_string(), None);
+                osd.append(
+                    ui.primary.map.get_parent(t.src).get_name(),
+                    Some(name_color),
+                );
+                osd.append(" and ".to_string(), None);
+                osd.append(
+                    ui.primary.map.get_parent(t.dst).get_name(),
+                    Some(name_color),
+                );
             }
             // TODO Intersections, cars, pedestrians...
             Some(id) => {

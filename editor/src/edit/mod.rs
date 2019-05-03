@@ -310,6 +310,7 @@ impl EditMode {
                 }
 
                 menu.draw(g);
+                CommonState::draw_osd(g, &state.ui);
             }
             Mode::Edit(EditMode::EditingTrafficSignal(ref editor)) => {
                 editor.draw(g, state);
