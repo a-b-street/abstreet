@@ -1,5 +1,6 @@
+use crate::input::ContextMenu;
 use crate::{
-    text, Canvas, Color, Drawable, HorizontalAlignment, Prerender, ScreenPt, Text,
+    text, Canvas, Color, Drawable, HorizontalAlignment, Key, Prerender, ScreenPt, Text,
     VerticalAlignment,
 };
 use geom::{Bounds, Circle, Distance, Line, Polygon, Pt2D};
@@ -23,6 +24,7 @@ pub struct GfxCtx<'a> {
     // TODO Don't be pub. Delegate everything.
     pub canvas: &'a Canvas,
     pub prerender: &'a Prerender<'a>,
+    context_menu: &'a ContextMenu,
 
     pub num_draw_calls: usize,
 }
@@ -33,6 +35,7 @@ impl<'a> GfxCtx<'a> {
         prerender: &'a Prerender<'a>,
         target: &'a mut glium::Frame,
         program: &'a glium::Program,
+        context_menu: &'a ContextMenu,
         screencap_mode: bool,
     ) -> GfxCtx<'a> {
         let params = glium::DrawParameters {
@@ -55,6 +58,7 @@ impl<'a> GfxCtx<'a> {
             num_draw_calls: 0,
             screencap_mode,
             naming_hint: None,
+            context_menu,
         }
     }
 
@@ -242,5 +246,15 @@ impl<'a> GfxCtx<'a> {
         assert!(self.screencap_mode);
         assert!(self.naming_hint.is_none());
         self.naming_hint = Some(hint);
+    }
+
+    pub fn get_active_context_menu_keys(&self) -> Vec<Key> {
+        match self.context_menu {
+            ContextMenu::Inactive(ref keys) => keys.iter().cloned().collect(),
+            ContextMenu::Displaying(ref menu) => {
+                menu.active_choices().into_iter().map(|key| *key).collect()
+            }
+            _ => Vec::new(),
+        }
     }
 }

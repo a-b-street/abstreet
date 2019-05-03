@@ -106,3 +106,7 @@ https://github.com/aeickhoff/descartes
     possibly useful papers
   - dont worry about multiple lanes for the moving part, just the turn queues at
     the end
+
+## Tactical urbanism
+
+- https://www.vice.com/en_us/article/pajgyz/rogue-coder-turned-a-parking-spot-into-a-coworking-space

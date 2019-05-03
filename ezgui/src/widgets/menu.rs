@@ -271,6 +271,13 @@ impl<T: Clone> Menu<T> {
         Some(&self.choices[idx].3)
     }
 
+    pub fn active_choices(&self) -> Vec<&T> {
+        self.choices
+            .iter()
+            .filter_map(|(_, _, active, data)| if *active { Some(data) } else { None })
+            .collect()
+    }
+
     // If there's no matching choice, be silent. The two callers don't care.
     pub fn mark_active(&mut self, choice: &str) {
         for (_, action, ref mut active, _) in self.choices.iter_mut() {

@@ -48,6 +48,14 @@ pub(crate) struct State<G: GUI> {
 impl<G: GUI> State<G> {
     // The bool indicates if the input was actually used.
     fn event(mut self, ev: Event, prerender: &Prerender) -> (State<G>, EventLoopMode, bool) {
+        // Clear out the possible keys
+        match self.context_menu {
+            ContextMenu::Inactive(_) => {
+                self.context_menu = ContextMenu::new();
+            }
+            _ => {}
+        }
+
         // It's impossible / very unlikey we'll grab the cursor in map space before the very first
         // start_drawing call.
         let mut input = UserInput::new(ev, self.context_menu, &mut self.canvas);
@@ -89,7 +97,14 @@ impl<G: GUI> State<G> {
         screenshot: bool,
     ) -> Option<String> {
         let mut target = display.draw();
-        let mut g = GfxCtx::new(&self.canvas, &prerender, &mut target, program, screenshot);
+        let mut g = GfxCtx::new(
+            &self.canvas,
+            &prerender,
+            &mut target,
+            program,
+            &self.context_menu,
+            screenshot,
+        );
 
         self.canvas.start_drawing();
 
@@ -184,7 +199,15 @@ pub fn run<G: GUI, F: FnOnce(&mut Canvas, &Prerender) -> G>(
     // show the logs, but that's too hard.
     {
         let mut target = display.draw();
-        let mut g = GfxCtx::new(&canvas, &prerender, &mut target, &program, false);
+        let context_menu = ContextMenu::new();
+        let mut g = GfxCtx::new(
+            &canvas,
+            &prerender,
+            &mut target,
+            &program,
+            &context_menu,
+            false,
+        );
         g.draw_blocking_text(
             &Text::from_line("Loading... Check terminal for details".to_string()),
             (HorizontalAlignment::Center, VerticalAlignment::Center),
@@ -200,7 +223,7 @@ pub fn run<G: GUI, F: FnOnce(&mut Canvas, &Prerender) -> G>(
 
     let state = State {
         canvas,
-        context_menu: ContextMenu::Inactive,
+        context_menu: ContextMenu::new(),
         gui,
     };
 

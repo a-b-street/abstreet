@@ -1,6 +1,6 @@
 use crate::widgets::{Menu, Position};
 use crate::{text, Canvas, Event, InputResult, Key, ScreenPt, Text};
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 // As we check for user input, record the input and the thing that would happen. This will let us
 // build up some kind of OSD of possible actions.
@@ -20,18 +20,22 @@ pub struct UserInput {
 }
 
 pub enum ContextMenu {
-    Inactive,
+    Inactive(BTreeSet<Key>),
     Building(ScreenPt, BTreeMap<Key, String>),
     Displaying(Menu<Key>),
     Clicked(Key),
 }
 
 impl ContextMenu {
+    pub fn new() -> ContextMenu {
+        ContextMenu::Inactive(BTreeSet::new())
+    }
+
     pub fn maybe_build(self, canvas: &Canvas) -> ContextMenu {
         match self {
             ContextMenu::Building(origin, actions) => {
                 if actions.is_empty() {
-                    ContextMenu::Inactive
+                    ContextMenu::new()
                 } else {
                     ContextMenu::Displaying(Menu::new(
                         Text::new(),
@@ -76,14 +80,14 @@ impl UserInput {
             return input;
         }
         match input.context_menu {
-            ContextMenu::Inactive => {}
+            ContextMenu::Inactive(_) => {}
             ContextMenu::Displaying(ref mut menu) => {
                 // Can't call consume_event() because context_menu is borrowed.
                 assert!(!input.event_consumed);
                 input.event_consumed = true;
                 match menu.event(input.event, canvas) {
                     InputResult::Canceled => {
-                        input.context_menu = ContextMenu::Inactive;
+                        input.context_menu = ContextMenu::new();
                     }
                     InputResult::StillActive => {}
                     InputResult::Done(_, hotkey) => {
@@ -122,9 +126,10 @@ impl UserInput {
 
     pub fn contextual_action(&mut self, hotkey: Key, action: &str) -> bool {
         match self.context_menu {
-            ContextMenu::Inactive => {
+            ContextMenu::Inactive(ref mut keys) => {
                 // If the menu's not active (the user hasn't right-clicked yet), then still allow the
                 // legacy behavior of just pressing the hotkey.
+                keys.insert(hotkey);
                 return self.unimportant_key_pressed(hotkey, &format!("CONTEXTUAL: {}", action));
             }
             ContextMenu::Building(_, ref mut actions) => {
@@ -143,13 +148,13 @@ impl UserInput {
             }
             ContextMenu::Displaying(_) => {
                 if self.event == Event::KeyPress(hotkey) {
-                    self.context_menu = ContextMenu::Inactive;
+                    self.context_menu = ContextMenu::new();
                     return true;
                 }
             }
             ContextMenu::Clicked(key) => {
                 if key == hotkey {
-                    self.context_menu = ContextMenu::Inactive;
+                    self.context_menu = ContextMenu::new();
                     return true;
                 }
             }
@@ -292,7 +297,7 @@ impl UserInput {
 
     fn context_menu_active(&self) -> bool {
         match self.context_menu {
-            ContextMenu::Inactive => false,
+            ContextMenu::Inactive(_) => false,
             _ => true,
         }
     }

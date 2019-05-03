@@ -96,7 +96,18 @@ impl CommonState {
                 osd.append(format!("{:?}", id), Some(id_color));
             }
         }
-        // TODO Grab hotkeys from the context menu
+
+        let keys = g.get_active_context_menu_keys();
+        if !keys.is_empty() {
+            osd.append("   Hotkeys: ".to_string(), None);
+            for (idx, key) in keys.into_iter().enumerate() {
+                if idx != 0 {
+                    osd.append(", ".to_string(), None);
+                }
+                osd.append(key.describe(), Some(ezgui::HOTKEY_COLOR));
+            }
+        }
+
         g.draw_blocking_text(
             &osd,
             (HorizontalAlignment::FillScreen, VerticalAlignment::Bottom),

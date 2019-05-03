@@ -17,7 +17,7 @@ pub use crate::event_ctx::{Drawable, EventCtx, Prerender};
 pub use crate::input::UserInput;
 pub use crate::runner::{run, EventLoopMode, GUI};
 pub use crate::screen_geom::ScreenPt;
-pub use crate::text::Text;
+pub use crate::text::{Text, HOTKEY_COLOR};
 pub use crate::widgets::{
     Autocomplete, LogScroller, ModalMenu, ScrollingMenu, TextBox, Wizard, WrappedWizard,
 };
