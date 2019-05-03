@@ -29,6 +29,9 @@ impl ModalMenu {
             canvas,
         );
         menu.mark_all_inactive();
+        if canvas.hide_modal_menus {
+            menu.make_hidden(canvas);
+        }
         ModalMenu {
             menu,
             chosen_action: None,

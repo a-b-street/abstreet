@@ -30,6 +30,9 @@ pub struct Canvas {
 
     // TODO Bit weird and hacky to mutate inside of draw() calls.
     pub(crate) covered_areas: RefCell<Vec<ScreenRectangle>>,
+
+    // Kind of just ezgui state awkwardly stuck here...
+    pub(crate) hide_modal_menus: bool,
 }
 
 impl Canvas {
@@ -54,6 +57,8 @@ impl Canvas {
             glyphs: RefCell::new(glyphs),
             line_height_per_font_size: RefCell::new(HashMap::new()),
             covered_areas: RefCell::new(Vec::new()),
+
+            hide_modal_menus: false,
         }
     }
 

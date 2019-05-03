@@ -145,7 +145,7 @@ impl<T: Clone> Menu<T> {
         }
     }
 
-    pub fn event(&mut self, ev: Event, canvas: &Canvas) -> InputResult<T> {
+    pub fn event(&mut self, ev: Event, canvas: &mut Canvas) -> InputResult<T> {
         if !self.hidden {
             // Handle the mouse
             if ev == Event::LeftMouseButtonDown {
@@ -214,6 +214,7 @@ impl<T: Clone> Menu<T> {
                     self.hidden = true;
                     self.current_idx = None;
                 }
+                canvas.hide_modal_menus = self.hidden;
                 self.recalculate_geom(canvas);
             }
         }
@@ -311,6 +312,13 @@ impl<T: Clone> Menu<T> {
         for (_, _, ref mut active, _) in self.choices.iter_mut() {
             *active = false;
         }
+    }
+
+    pub fn make_hidden(&mut self, canvas: &Canvas) {
+        assert!(!self.hidden);
+        assert!(self.hideable);
+        self.hidden = true;
+        self.recalculate_geom(canvas);
     }
 
     pub fn change_prompt(&mut self, prompt: Text, canvas: &Canvas) {

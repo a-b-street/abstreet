@@ -39,7 +39,7 @@ impl Wizard {
     pub fn wrap<'a>(
         &'a mut self,
         input: &'a mut UserInput,
-        canvas: &'a Canvas,
+        canvas: &'a mut Canvas,
     ) -> WrappedWizard<'a> {
         assert!(self.alive);
 
@@ -107,7 +107,7 @@ impl Wizard {
 pub struct WrappedWizard<'a> {
     wizard: &'a mut Wizard,
     input: &'a mut UserInput,
-    canvas: &'a Canvas,
+    canvas: &'a mut Canvas,
 
     // The downcasts are safe iff the queries made to the wizard are deterministic.
     ready_results: VecDeque<Box<Cloneable>>,

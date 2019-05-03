@@ -62,13 +62,14 @@ impl TurnCyclerState {
             if ctx.input.key_released(Key::LeftShift) {
                 self.shift_key_held = false;
             }
-        } else {
-            // TODO How to tell the user that holding control and shift is sometimes useful?
-            if ctx
-                .input
-                .contextual_action(Key::LeftShift, "show full traffic signal diagram")
-            {
-                self.shift_key_held = true;
+        } else if let Some(ID::Intersection(i)) = ui.primary.current_selection {
+            if ui.primary.map.maybe_get_traffic_signal(i).is_some() {
+                if ctx
+                    .input
+                    .contextual_action(Key::LeftShift, "show full traffic signal diagram")
+                {
+                    self.shift_key_held = true;
+                }
             }
         }
     }
