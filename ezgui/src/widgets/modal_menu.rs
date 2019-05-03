@@ -17,7 +17,6 @@ impl ModalMenu {
         choices: Vec<(Option<Key>, &str)>,
         canvas: &Canvas,
     ) -> ModalMenu {
-        // TODO Detect duplicate choices... maybe in Menu
         let mut menu = Menu::new(
             Text::prompt(prompt_line),
             choices
@@ -46,10 +45,6 @@ impl ModalMenu {
         }
 
         match self.menu.event(ctx.input.event, ctx.canvas) {
-            // TODO Only consume the input if it was a mouse on top of
-            // the menu... because we don't want to also mouseover
-            // stuff underneath
-            // TODO Doesn't covered_areas handle this?
             InputResult::Canceled | InputResult::StillActive => {}
             InputResult::Done(action, _) => {
                 assert!(!ctx.input.event_consumed);

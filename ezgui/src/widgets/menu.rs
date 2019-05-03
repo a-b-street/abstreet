@@ -1,5 +1,6 @@
 use crate::screen_geom::ScreenRectangle;
 use crate::{text, Canvas, Event, GfxCtx, InputResult, Key, ScreenPt, Text};
+use std::collections::HashSet;
 
 // Stores some associated data with each choice
 pub struct Menu<T: Clone> {
@@ -107,7 +108,22 @@ impl<T: Clone> Menu<T> {
         if raw_choices.is_empty() {
             panic!("Can't create a menu without choices for {:?}", prompt);
         }
-        // TODO Make sure hotkeys aren't used twice.
+        let mut used_keys = HashSet::new();
+        let mut used_actions = HashSet::new();
+        for (maybe_key, name, _) in &raw_choices {
+            if let Some(key) = maybe_key {
+                if used_keys.contains(&key) {
+                    panic!("Menu for {:?} uses {} twice", prompt, key.describe());
+                }
+                used_keys.insert(key);
+            }
+
+            if used_actions.contains(name) {
+                panic!("Menu for {:?} has two entries for {}", prompt, name);
+            }
+            used_actions.insert(name.to_string());
+        }
+
         // All choices start active.
         let choices = raw_choices
             .into_iter()

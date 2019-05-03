@@ -67,7 +67,7 @@ impl DebugMode {
                     (Some(Key::Escape), "quit"),
                     (Some(Key::C), "show/hide chokepoints"),
                     (Some(Key::O), "clear original roads shown"),
-                    (Some(Key::K), "unhide everything"),
+                    (Some(Key::H), "unhide everything"),
                     (Some(Key::Num1), "show/hide buildings"),
                     (Some(Key::Num2), "show/hide intersections"),
                     (Some(Key::Num3), "show/hide lanes"),
@@ -151,12 +151,6 @@ impl DebugMode {
                                 mode.show_original_roads.clear();
                             }
                         }
-                        if !mode.hidden.is_empty() {
-                            if menu.action("unhide everything") {
-                                mode.hidden.clear();
-                                // TODO recalculate current_selection
-                            }
-                        }
                         match state.ui.primary.current_selection {
                             Some(ID::Lane(_))
                             | Some(ID::Intersection(_))
@@ -170,6 +164,12 @@ impl DebugMode {
                                     //*ctx.recalculate_current_selection = true;
                                     state.ui.primary.current_selection = None;
                                     mode.hidden.insert(id);
+                                }
+                            }
+                            None => {
+                                if !mode.hidden.is_empty() && menu.action("unhide everything") {
+                                    mode.hidden.clear();
+                                    // TODO recalculate current_selection
                                 }
                             }
                             _ => {}
