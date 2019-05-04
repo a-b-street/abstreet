@@ -24,6 +24,10 @@ pub struct GameState {
     pub ui: UI,
 }
 
+// TODO Need to reset_sim() when entering Edit, Tutorial, Mission, or ABTest and when leaving
+// Tutorial and ABTest. Expressing this manually right now is quite tedious; maybe having on_enter
+// and on_exit would be cleaner.
+
 pub enum Mode {
     SplashScreen(Wizard, Option<(Screensaver, XorShiftRng)>),
     Edit(EditMode),
@@ -244,10 +248,10 @@ fn splash_screen(
                     break None;
                 }
             }
-            x if x == edit => break Some(Mode::Edit(EditMode::new(ctx))),
-            x if x == tutorial => break Some(Mode::Tutorial(TutorialMode::new(ctx))),
+            x if x == edit => break Some(Mode::Edit(EditMode::new(ctx, ui))),
+            x if x == tutorial => break Some(Mode::Tutorial(TutorialMode::new(ctx, ui))),
             x if x == debug => break Some(Mode::Debug(DebugMode::new(ctx, ui))),
-            x if x == mission => break Some(Mode::Mission(MissionEditMode::new(ctx))),
+            x if x == mission => break Some(Mode::Mission(MissionEditMode::new(ctx, ui))),
             x if x == abtest => break Some(Mode::ABTest(ABTestMode::new(ctx))),
             x if x == about => {
                 if wizard.acknowledge(LogScroller::new(

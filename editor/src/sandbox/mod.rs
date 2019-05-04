@@ -192,13 +192,6 @@ impl SandboxMode {
                 }
 
                 if mode.menu.action("quit") {
-                    // TODO This shouldn't be necessary when we plumb state around instead of
-                    // sharing it in the old structure.
-                    state.ui.primary.sim = Sim::new(
-                        &state.ui.primary.map,
-                        state.ui.primary.current_flags.sim_flags.run_name.clone(),
-                        None,
-                    );
                     state.mode = Mode::SplashScreen(Wizard::new(), None);
                     return EventLoopMode::InputOnly;
                 }
@@ -211,12 +204,7 @@ impl SandboxMode {
                     mode.desired_speed += ADJUST_SPEED;
                 }
                 if !state.ui.primary.sim.is_empty() && mode.menu.action("reset sim") {
-                    // TODO savestate_every gets lost
-                    state.ui.primary.sim = Sim::new(
-                        &state.ui.primary.map,
-                        state.ui.primary.current_flags.sim_flags.run_name.clone(),
-                        None,
-                    );
+                    state.ui.primary.reset_sim();
                     mode.state = State::Paused;
                 }
 

@@ -1,6 +1,6 @@
 use crate::game::{GameState, Mode};
 use crate::render::DrawOptions;
-use crate::ui::ShowEverything;
+use crate::ui::{ShowEverything, UI};
 use ezgui::{EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard};
 use geom::Pt2D;
 
@@ -16,7 +16,10 @@ enum State {
 }
 
 impl TutorialMode {
-    pub fn new(ctx: &EventCtx) -> TutorialMode {
+    pub fn new(ctx: &EventCtx, ui: &mut UI) -> TutorialMode {
+        // TODO Warn first?
+        ui.primary.reset_sim();
+
         TutorialMode {
             menu: ModalMenu::new("Tutorial", vec![(Some(Key::Escape), "quit")], ctx),
             state: State::Part1(ctx.canvas.center_to_map_pt()),
@@ -49,6 +52,7 @@ impl TutorialMode {
                             txt.add_line("".to_string());
                             txt.add_line("Great! Press ENTER to continue.".to_string());
                             if ctx.input.key_pressed(Key::Enter, "next step of tutorial") {
+                                state.ui.primary.reset_sim();
                                 state.mode = Mode::SplashScreen(Wizard::new(), None);
                                 return EventLoopMode::InputOnly;
                             }
@@ -59,6 +63,7 @@ impl TutorialMode {
                 ctx.canvas.handle_event(ctx.input);
 
                 if mode.menu.action("quit") {
+                    state.ui.primary.reset_sim();
                     state.mode = Mode::SplashScreen(Wizard::new(), None);
                 }
 

@@ -47,7 +47,7 @@ impl ScenarioEditor {
                         scroller,
                     );
                 } else if wizard.aborted() {
-                    return Some(Mode::Mission(MissionEditMode::new(ctx)));
+                    return Some(Mode::Mission(MissionEditMode::new(ctx, ui)));
                 }
             }
             ScenarioEditor::ManageScenario(ref mut menu, scenario, ref mut scroller) => {
@@ -98,7 +98,7 @@ impl ScenarioEditor {
                         mapping,
                     );
                 } else if scroller.event(&mut ctx.input) {
-                    return Some(Mode::Mission(MissionEditMode::new(ctx)));
+                    return Some(Mode::Mission(MissionEditMode::new(ctx, ui)));
                 }
             }
             ScenarioEditor::EditScenario(ref mut scenario, ref mut wizard) => {
@@ -129,7 +129,7 @@ impl ScenarioEditor {
                 menu.handle_event(ctx, None);
                 ctx.canvas.handle_event(ctx.input);
                 if menu.action("quit") {
-                    return Some(Mode::Mission(MissionEditMode::new(ctx)));
+                    return Some(Mode::Mission(MissionEditMode::new(ctx, ui)));
                 }
             }
         }

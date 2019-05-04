@@ -4,6 +4,7 @@ mod scenario;
 use crate::game::{GameState, Mode};
 use crate::render::DrawOptions;
 use crate::ui::ShowEverything;
+use crate::ui::UI;
 use ezgui::{EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Wizard};
 
 pub struct MissionEditMode {
@@ -17,7 +18,10 @@ enum State {
 }
 
 impl MissionEditMode {
-    pub fn new(ctx: &EventCtx) -> MissionEditMode {
+    pub fn new(ctx: &EventCtx, ui: &mut UI) -> MissionEditMode {
+        // TODO Warn first?
+        ui.primary.reset_sim();
+
         MissionEditMode {
             state: State::Exploring(ModalMenu::new(
                 "Mission Edit Mode",
@@ -53,7 +57,7 @@ impl MissionEditMode {
                     }
                     State::Neighborhood(ref mut editor) => {
                         if editor.event(ctx, &state.ui) {
-                            mode.state = MissionEditMode::new(ctx).state;
+                            mode.state = MissionEditMode::new(ctx, &mut state.ui).state;
                         }
                     }
                     State::Scenario(ref mut editor) => {

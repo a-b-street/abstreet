@@ -8,7 +8,7 @@ use abstutil::elapsed_seconds;
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard};
 use geom::{Duration, Line, PolyLine};
 use map_model::LANE_THICKNESS;
-use sim::{Benchmark, Sim, TripID};
+use sim::{Benchmark, TripID};
 use std::time::Instant;
 
 const ADJUST_SPEED: f64 = 0.1;
@@ -112,11 +112,7 @@ impl ABTestMode {
                 if mode.menu.action("quit") {
                     // TODO This shouldn't be necessary when we plumb state around instead of
                     // sharing it in the old structure.
-                    state.ui.primary.sim = Sim::new(
-                        &state.ui.primary.map,
-                        state.ui.primary.current_flags.sim_flags.run_name.clone(),
-                        None,
-                    );
+                    state.ui.primary.reset_sim();
                     state.mode = Mode::SplashScreen(Wizard::new(), None);
                     return EventLoopMode::InputOnly;
                 }

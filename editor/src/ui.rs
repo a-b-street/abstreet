@@ -436,4 +436,13 @@ impl PerMapUI {
             current_flags: flags.clone(),
         }
     }
+
+    pub fn reset_sim(&mut self) {
+        // TODO savestate_every gets lost
+        self.sim = Sim::new(
+            &self.map,
+            self.current_flags.sim_flags.run_name.clone(),
+            None,
+        );
+    }
 }

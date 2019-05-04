@@ -23,7 +23,10 @@ pub enum EditMode {
 }
 
 impl EditMode {
-    pub fn new(ctx: &EventCtx) -> EditMode {
+    pub fn new(ctx: &EventCtx, ui: &mut UI) -> EditMode {
+        // TODO Warn first?
+        ui.primary.reset_sim();
+
         EditMode::ViewingDiffs(
             CommonState::new(),
             ModalMenu::new(
@@ -137,7 +140,7 @@ impl EditMode {
                 .is_some()
                     || wizard.aborted()
                 {
-                    state.mode = Mode::Edit(EditMode::new(ctx));
+                    state.mode = Mode::Edit(EditMode::new(ctx, &mut state.ui));
                 }
             }
             Mode::Edit(EditMode::Loading(ref mut wizard)) => {
@@ -147,9 +150,9 @@ impl EditMode {
                     "Load which map edits?",
                 ) {
                     apply_map_edits(&mut state.ui, ctx, new_edits);
-                    state.mode = Mode::Edit(EditMode::new(ctx));
+                    state.mode = Mode::Edit(EditMode::new(ctx, &mut state.ui));
                 } else if wizard.aborted() {
-                    state.mode = Mode::Edit(EditMode::new(ctx));
+                    state.mode = Mode::Edit(EditMode::new(ctx, &mut state.ui));
                 }
             }
             Mode::Edit(EditMode::EditingStopSign(i, ref mut menu)) => {
@@ -188,7 +191,7 @@ impl EditMode {
                         apply_map_edits(&mut state.ui, ctx, new_edits);
                     }
                 } else if menu.action("quit") {
-                    state.mode = Mode::Edit(EditMode::new(ctx));
+                    state.mode = Mode::Edit(EditMode::new(ctx, &mut state.ui));
                 } else if menu.action("reset to default") {
                     let mut new_edits = state.ui.primary.map.get_edits().clone();
                     new_edits.stop_sign_overrides.remove(&i);
@@ -197,7 +200,7 @@ impl EditMode {
             }
             Mode::Edit(EditMode::EditingTrafficSignal(ref mut editor)) => {
                 if editor.event(ctx, &mut state.ui) {
-                    state.mode = Mode::Edit(EditMode::new(ctx));
+                    state.mode = Mode::Edit(EditMode::new(ctx, &mut state.ui));
                 }
             }
             _ => unreachable!(),
