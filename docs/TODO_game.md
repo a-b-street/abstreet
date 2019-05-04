@@ -5,6 +5,7 @@
 		- need intersection merging before this is understandable
 	- close interior neighborhoods to most cars (except for src/dst), see how traffic restricted to arterials would work
 		- puzzle: with only X miles of retained road, where would you leave them? what roads would go away?
+		- parking garages on the edges of neighborhoods?
 	- create a bike network with minimal hills, dedicated roads, minimal crossings
 
 - easter eggs

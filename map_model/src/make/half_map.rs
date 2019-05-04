@@ -126,6 +126,12 @@ pub fn make_half_map(
                 bus_stops: Vec::new(),
             });
         }
+        if road.get_name() == "???" {
+            timer.warn(format!(
+                "{} has no name. Tags: {:?}",
+                road.id, road.osm_tags
+            ));
+        }
         half_map.roads.push(road);
     }
 

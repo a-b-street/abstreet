@@ -333,9 +333,29 @@ impl Road {
     }
 
     pub fn get_name(&self) -> String {
-        self.osm_tags
-            .get("name")
-            .unwrap_or(&"???".to_string())
-            .to_string()
+        if let Some(name) = self.osm_tags.get("name") {
+            return name.to_string();
+        }
+        if let Some(name) = self.osm_tags.get("ref") {
+            return name.to_string();
+        }
+        if self
+            .osm_tags
+            .get("highway")
+            .map(|hwy| hwy.ends_with("_link"))
+            .unwrap_or(false)
+        {
+            if let Some(name) = self.osm_tags.get("destination:street") {
+                return format!("Exit for {}", name);
+            }
+            if let Some(name) = self.osm_tags.get("destination:ref") {
+                return format!("Exit for {}", name);
+            }
+            if let Some(name) = self.osm_tags.get("destination") {
+                return format!("Exit for {}", name);
+            }
+            // Sometimes 'directions' is filled out, but incorrectly...
+        }
+        "???".to_string()
     }
 }
