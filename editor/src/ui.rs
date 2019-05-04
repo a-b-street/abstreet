@@ -5,6 +5,7 @@ use crate::render::{
 };
 use abstutil;
 use abstutil::MeasureMemory;
+use abstutil::Timer;
 use ezgui::{Canvas, Color, EventCtx, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Distance, Duration, Polygon};
 use map_model::{BuildingID, IntersectionID, LaneID, Map, Traversable, TurnType};
@@ -19,9 +20,9 @@ pub struct UI {
 }
 
 impl UI {
-    pub fn new(flags: Flags, prerender: &Prerender, canvas: &mut Canvas) -> UI {
+    pub fn new(flags: Flags, prerender: &Prerender, canvas: &mut Canvas, timer: &mut Timer) -> UI {
         let cs = ColorScheme::load().unwrap();
-        let primary = PerMapUI::new(flags, &cs, prerender);
+        let primary = PerMapUI::new(flags, &cs, prerender, timer);
         match abstutil::read_json::<EditorState>("../editor_state") {
             Ok(ref loaded) if primary.map.get_name() == &loaded.map_name => {
                 println!("Loaded previous editor_state");
@@ -415,18 +416,20 @@ pub struct PerMapUI {
 }
 
 impl PerMapUI {
-    pub fn new(flags: Flags, cs: &ColorScheme, prerender: &Prerender) -> PerMapUI {
-        let mut timer = abstutil::Timer::new("setup PerMapUI");
+    pub fn new(
+        flags: Flags,
+        cs: &ColorScheme,
+        prerender: &Prerender,
+        timer: &mut Timer,
+    ) -> PerMapUI {
         let mut mem = MeasureMemory::new();
-        let (map, sim, _) = flags
-            .sim_flags
-            .load(Some(Duration::seconds(30.0)), &mut timer);
-        mem.reset("Map and Sim", &mut timer);
+        let (map, sim, _) = flags.sim_flags.load(Some(Duration::seconds(30.0)), timer);
+        mem.reset("Map and Sim", timer);
 
         timer.start("draw_map");
-        let draw_map = DrawMap::new(&map, &flags, cs, prerender, &mut timer);
+        let draw_map = DrawMap::new(&map, &flags, cs, prerender, timer);
         timer.stop("draw_map");
-        mem.reset("DrawMap", &mut timer);
+        mem.reset("DrawMap", timer);
 
         PerMapUI {
             map,

@@ -7,6 +7,7 @@ use crate::sandbox::SandboxMode;
 use crate::tutorial::TutorialMode;
 use crate::ui::{EditorState, Flags, ShowEverything, UI};
 use abstutil::elapsed_seconds;
+use abstutil::Timer;
 use ezgui::{
     Canvas, EventCtx, EventLoopMode, GfxCtx, Key, LogScroller, Prerender, UserInput, Wizard, GUI,
 };
@@ -39,12 +40,17 @@ pub enum Mode {
 }
 
 impl GameState {
-    pub fn new(flags: Flags, canvas: &mut Canvas, prerender: &Prerender) -> GameState {
+    pub fn new(
+        flags: Flags,
+        canvas: &mut Canvas,
+        prerender: &Prerender,
+        timer: &mut Timer,
+    ) -> GameState {
         let splash = !flags.no_splash;
         let mut rng = flags.sim_flags.make_rng();
         let mut game = GameState {
             mode: Mode::Sandbox(SandboxMode::new(canvas)),
-            ui: UI::new(flags, prerender, canvas),
+            ui: UI::new(flags, prerender, canvas, timer),
         };
         if splash {
             game.mode = Mode::SplashScreen(
@@ -240,7 +246,8 @@ fn splash_screen(
                     // This retains no state, but that's probably fine.
                     let mut flags = ui.primary.current_flags.clone();
                     flags.sim_flags.load = PathBuf::from(format!("../data/maps/{}.abst", name));
-                    *ui = UI::new(flags, ctx.prerender, ctx.canvas);
+                    let mut timer = Timer::new(&format!("load {}", name));
+                    *ui = UI::new(flags, ctx.prerender, ctx.canvas, &mut timer);
                     break Some(Mode::Sandbox(SandboxMode::new(ctx.canvas)));
                 } else if wizard.aborted() {
                     break Some(Mode::SplashScreen(Wizard::new(), maybe_screensaver.take()));

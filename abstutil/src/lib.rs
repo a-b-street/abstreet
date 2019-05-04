@@ -18,6 +18,8 @@ pub use crate::io::{
 pub use crate::logs::Warn;
 pub use crate::notes::note;
 pub use crate::random::{fork_rng, WeightedUsizeChoice};
-pub use crate::time::{elapsed_seconds, prettyprint_usize, MeasureMemory, Profiler, Timer};
+pub use crate::time::{
+    elapsed_seconds, prettyprint_usize, MeasureMemory, Profiler, Timer, TimerSink,
+};
 
 const PROGRESS_FREQUENCY_SECONDS: f64 = 0.2;

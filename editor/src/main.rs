@@ -13,7 +13,7 @@ mod ui;
 use structopt::StructOpt;
 
 fn main() {
-    ezgui::run("A/B Street", 1800.0, 800.0, |canvas, prerender| {
-        game::GameState::new(ui::Flags::from_args(), canvas, prerender)
+    ezgui::run("A/B Street", 1800.0, 800.0, |canvas, prerender, timer| {
+        game::GameState::new(ui::Flags::from_args(), canvas, prerender, timer)
     });
 }

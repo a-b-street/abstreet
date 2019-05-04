@@ -70,8 +70,12 @@ enum StackEntry {
     Progress(Progress),
 }
 
+pub trait TimerSink {
+    fn println(&mut self, line: String);
+}
+
 // Hierarchial magic
-pub struct Timer {
+pub struct Timer<'a> {
     results: Vec<String>,
     stack: Vec<StackEntry>,
 
@@ -79,6 +83,8 @@ pub struct Timer {
 
     notes: Vec<String>,
     pub(crate) warnings: Vec<String>,
+
+    sink: Option<Box<TimerSink + 'a>>,
 }
 
 struct TimerSpan {
@@ -88,22 +94,41 @@ struct TimerSpan {
     nested_time: f64,
 }
 
-impl Timer {
-    pub fn new(name: &str) -> Timer {
+impl<'a> Timer<'a> {
+    pub fn new(name: &str) -> Timer<'a> {
         let mut t = Timer {
             results: Vec::new(),
             stack: Vec::new(),
             outermost_name: name.to_string(),
             notes: Vec::new(),
             warnings: Vec::new(),
+            sink: None,
         };
         t.start(name);
         t
     }
 
+    pub fn new_with_sink(name: &str, sink: Box<TimerSink + 'a>) -> Timer<'a> {
+        let mut t = Timer::new(name);
+        t.sink = Some(sink);
+        t
+    }
+
     // TODO Shouldn't use this much.
-    pub fn throwaway() -> Timer {
+    pub fn throwaway() -> Timer<'a> {
         Timer::new("throwaway")
+    }
+
+    fn println(&mut self, line: String) {
+        Timer::selfless_println(&mut self.sink, line);
+    }
+
+    // Workaround for borrow checker
+    fn selfless_println(maybe_sink: &mut Option<Box<TimerSink + 'a>>, line: String) {
+        println!("{}", line);
+        if let Some(ref mut sink) = maybe_sink {
+            sink.println(line);
+        }
     }
 
     // Log immediately, but also repeat at the end, to avoid having to scroll up and find
@@ -111,10 +136,10 @@ impl Timer {
     pub fn note(&mut self, line: String) {
         // Interrupt the start_iter with a newline.
         if let Some(StackEntry::Progress(_)) = self.stack.last() {
-            println!();
+            self.println(String::new());
         }
 
-        println!("{}", line);
+        self.println(line.clone());
         self.notes.push(line);
     }
 
@@ -126,7 +151,7 @@ impl Timer {
     pub fn done(self) {}
 
     pub fn start(&mut self, name: &str) {
-        println!("{}...", name);
+        self.println(format!("{}...", name));
         self.stack.push(StackEntry::TimerSpan(TimerSpan {
             name: name.to_string(),
             started_at: Instant::now(),
@@ -153,10 +178,13 @@ impl Timer {
                 s.nested_results.push(format!("{}- {}", padding, line));
                 s.nested_results.extend(span.nested_results);
                 if span.nested_time != 0.0 {
-                    println!(
-                        "{}... plus {}",
-                        name,
-                        prettyprint_time(elapsed - span.nested_time)
+                    Timer::selfless_println(
+                        &mut self.sink,
+                        format!(
+                            "{}... plus {}",
+                            name,
+                            prettyprint_time(elapsed - span.nested_time)
+                        ),
                     );
                     s.nested_results.push(format!(
                         "  {}- ... plus {}",
@@ -174,11 +202,11 @@ impl Timer {
                 self.results.push(format!("{}- {}", padding, line));
                 self.results.extend(span.nested_results);
                 if span.nested_time != 0.0 {
-                    println!(
+                    self.println(format!(
                         "{}... plus {}",
                         name,
                         prettyprint_time(elapsed - span.nested_time)
-                    );
+                    ));
                     self.results.push(format!(
                         "  - ... plus {}",
                         prettyprint_time(elapsed - span.nested_time)
@@ -188,7 +216,7 @@ impl Timer {
             }
         }
 
-        println!("{}", line);
+        self.println(line);
     }
 
     pub fn start_iter(&mut self, name: &str, total_items: usize) {
@@ -237,7 +265,7 @@ impl Timer {
     }
 }
 
-impl std::ops::Drop for Timer {
+impl<'a> std::ops::Drop for Timer<'a> {
     fn drop(&mut self) {
         let stop_name = self.outermost_name.clone();
 
@@ -258,27 +286,27 @@ impl std::ops::Drop for Timer {
 
         self.stop(&stop_name);
         assert!(self.stack.is_empty());
-        println!();
+        self.println(String::new());
         for line in &self.results {
-            println!("{}", line);
+            Timer::selfless_println(&mut self.sink, line.to_string());
         }
-        println!();
+        self.println(String::new());
 
         if !self.notes.is_empty() {
-            println!("{} notes:", self.notes.len());
+            self.println(format!("{} notes:", self.notes.len()));
             for line in &self.notes {
-                println!("{}", line);
+                Timer::selfless_println(&mut self.sink, line.to_string());
             }
-            println!();
+            self.println(String::new());
         }
         notes::dump_notes();
 
         if !self.warnings.is_empty() {
-            println!("{} warnings:", self.warnings.len());
+            self.println(format!("{} warnings:", self.warnings.len()));
             for line in &self.warnings {
-                println!("{}", line);
+                Timer::selfless_println(&mut self.sink, line.to_string());
             }
-            println!();
+            self.println(String::new());
         }
     }
 }

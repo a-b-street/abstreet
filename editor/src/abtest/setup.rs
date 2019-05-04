@@ -1,6 +1,7 @@
 use crate::abtest::{ABTestMode, State};
 use crate::game::{GameState, Mode};
 use crate::ui::{Flags, PerMapUI, UI};
+use abstutil::Timer;
 use ezgui::{EventCtx, GfxCtx, Key, LogScroller, ModalMenu, Wizard, WrappedWizard};
 use map_model::Map;
 use sim::{ABTest, SimFlags};
@@ -102,6 +103,7 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> Mode {
 
     // TODO Cheaper to load the edits for the map and then instantiate the scenario for the
     // primary.
+    let mut timer = Timer::new("setup A/B test");
     let primary = PerMapUI::new(
         Flags {
             sim_flags: SimFlags {
@@ -114,6 +116,7 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> Mode {
         },
         &ui.cs,
         ctx.prerender,
+        &mut timer,
     );
     let secondary = PerMapUI::new(
         Flags {
@@ -127,6 +130,7 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> Mode {
         },
         &ui.cs,
         ctx.prerender,
+        &mut timer,
     );
 
     ui.primary = primary;
