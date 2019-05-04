@@ -105,7 +105,7 @@ impl ABTestMode {
                     &ShowEverything::new(),
                     false,
                 );
-                if let Some(evmode) = mode.common.event(ctx, &state.ui, &mut mode.menu) {
+                if let Some(evmode) = mode.common.event(ctx, &mut state.ui, &mut mode.menu) {
                     return evmode;
                 }
 

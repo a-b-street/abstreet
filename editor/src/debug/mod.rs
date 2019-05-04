@@ -127,7 +127,7 @@ impl DebugMode {
                         menu.handle_event(ctx, Some(txt));
 
                         ctx.canvas.handle_event(ctx.input);
-                        if let Some(evmode) = mode.common.event(ctx, &state.ui, menu) {
+                        if let Some(evmode) = mode.common.event(ctx, &mut state.ui, menu) {
                             return evmode;
                         }
 

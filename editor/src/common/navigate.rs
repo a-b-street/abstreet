@@ -1,4 +1,5 @@
 use crate::common::Warper;
+use crate::helpers::ID;
 use crate::ui::UI;
 use ezgui::{Autocomplete, EventCtx, EventLoopMode, GfxCtx, InputResult};
 use map_model::RoadID;
@@ -25,7 +26,7 @@ impl Navigator {
     }
 
     // When None, this is done.
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI) -> Option<EventLoopMode> {
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<EventLoopMode> {
         let map = &ui.primary.map;
 
         match self {
@@ -66,6 +67,7 @@ impl Navigator {
                     *self = Navigator::Warping(Warper::new(
                         ctx,
                         road.center_pts.dist_along(road.center_pts.length() / 2.0).0,
+                        ID::Lane(road.all_lanes()[0]),
                     ));
                     Some(EventLoopMode::Animation)
                 }
@@ -81,12 +83,12 @@ impl Navigator {
                     } else {
                         map.get_i(road.dst_i).point
                     };
-                    *self = Navigator::Warping(Warper::new(ctx, pt));
+                    *self = Navigator::Warping(Warper::new(ctx, pt, ID::Lane(road.all_lanes()[0])));
                     Some(EventLoopMode::Animation)
                 }
                 InputResult::StillActive => Some(EventLoopMode::InputOnly),
             },
-            Navigator::Warping(ref warper) => warper.event(ctx),
+            Navigator::Warping(ref warper) => warper.event(ctx, ui),
         }
     }
 

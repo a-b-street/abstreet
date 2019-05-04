@@ -19,15 +19,15 @@ impl WarpState {
     }
 
     // When None, this is done.
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI) -> Option<EventLoopMode> {
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<EventLoopMode> {
         match self {
             WarpState::EnteringSearch(tb) => match tb.event(ctx.input) {
                 InputResult::Canceled => None,
                 InputResult::Done(to, _) => {
-                    if let Some((_, pt)) =
+                    if let Some((id, pt)) =
                         warp_point(to, &ui.primary.map, &ui.primary.sim, &ui.primary.draw_map)
                     {
-                        *self = WarpState::Warping(Warper::new(ctx, pt));
+                        *self = WarpState::Warping(Warper::new(ctx, pt, id));
                         Some(EventLoopMode::Animation)
                     } else {
                         None
@@ -35,7 +35,7 @@ impl WarpState {
                 }
                 InputResult::StillActive => Some(EventLoopMode::InputOnly),
             },
-            WarpState::Warping(ref warper) => warper.event(ctx),
+            WarpState::Warping(ref warper) => warper.event(ctx, ui),
         }
     }
 

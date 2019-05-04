@@ -68,7 +68,7 @@ impl EditMode {
                     &ShowEverything::new(),
                     false,
                 );
-                if let Some(evmode) = common.event(ctx, &state.ui, menu) {
+                if let Some(evmode) = common.event(ctx, &mut state.ui, menu) {
                     return evmode;
                 }
 

@@ -45,7 +45,7 @@ impl CommonState {
     pub fn event(
         &mut self,
         ctx: &mut EventCtx,
-        ui: &UI,
+        ui: &mut UI,
         menu: &mut ModalMenu,
     ) -> Option<EventLoopMode> {
         if let Some(ref mut warp) = self.warp {
@@ -162,17 +162,19 @@ const ANIMATION_TIME_S: f64 = 0.5;
 pub struct Warper {
     started: Instant,
     line: Option<Line>,
+    id: ID,
 }
 
 impl Warper {
-    pub fn new(ctx: &EventCtx, pt: Pt2D) -> Warper {
+    pub fn new(ctx: &EventCtx, pt: Pt2D, id: ID) -> Warper {
         Warper {
             started: Instant::now(),
             line: Line::maybe_new(ctx.canvas.center_to_map_pt(), pt),
+            id,
         }
     }
 
-    pub fn event(&self, ctx: &mut EventCtx) -> Option<EventLoopMode> {
+    pub fn event(&self, ctx: &mut EventCtx, ui: &mut UI) -> Option<EventLoopMode> {
         let line = self.line.as_ref()?;
 
         // Weird to do stuff for any event?
@@ -183,7 +185,7 @@ impl Warper {
         let percent = elapsed_seconds(self.started) / ANIMATION_TIME_S;
         if percent >= 1.0 {
             ctx.canvas.center_on_map_pt(line.pt2());
-            //ctx.primary.current_selection = Some(*id);
+            ui.primary.current_selection = Some(self.id);
             None
         } else {
             ctx.canvas
