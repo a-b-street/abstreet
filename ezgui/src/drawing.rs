@@ -13,7 +13,8 @@ type Uniforms<'a> = glium::uniforms::UniformsStorage<
 >;
 
 pub struct GfxCtx<'a> {
-    target: &'a mut glium::Frame,
+    pub(crate) target: &'a mut glium::Frame,
+    pub(crate) display: &'a glium::Display,
     program: &'a glium::Program,
     uniforms: Uniforms<'a>,
     params: glium::DrawParameters<'a>,
@@ -33,6 +34,7 @@ impl<'a> GfxCtx<'a> {
     pub(crate) fn new(
         canvas: &'a Canvas,
         prerender: &'a Prerender<'a>,
+        display: &'a glium::Display,
         target: &'a mut glium::Frame,
         program: &'a glium::Program,
         context_menu: &'a ContextMenu,
@@ -51,6 +53,7 @@ impl<'a> GfxCtx<'a> {
         GfxCtx {
             canvas,
             prerender,
+            display,
             target,
             program,
             uniforms,

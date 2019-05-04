@@ -100,6 +100,7 @@ impl<G: GUI> State<G> {
         let mut g = GfxCtx::new(
             &self.canvas,
             &prerender,
+            display,
             &mut target,
             program,
             &self.context_menu,
@@ -120,12 +121,6 @@ impl<G: GUI> State<G> {
         if let ContextMenu::Displaying(ref menu) = self.context_menu {
             menu.draw(&mut g);
         }
-
-        // Always draw text last
-        self.canvas
-            .glyphs
-            .borrow_mut()
-            .draw_queued(display, &mut target);
 
         target.finish().unwrap();
         naming_hint
@@ -203,6 +198,7 @@ pub fn run<G: GUI, F: FnOnce(&mut Canvas, &Prerender) -> G>(
         let mut g = GfxCtx::new(
             &canvas,
             &prerender,
+            &display,
             &mut target,
             &program,
             &context_menu,
@@ -212,10 +208,6 @@ pub fn run<G: GUI, F: FnOnce(&mut Canvas, &Prerender) -> G>(
             &Text::from_line("Loading... Check terminal for details".to_string()),
             (HorizontalAlignment::Center, VerticalAlignment::Center),
         );
-        canvas
-            .glyphs
-            .borrow_mut()
-            .draw_queued(&display, &mut target);
         target.finish().unwrap();
     }
 

@@ -57,6 +57,7 @@ impl ObjectDebugger {
                     let mut txt = Text::new();
                     txt.add_line(format!("{}", pt));
                     txt.add_line(format!("{}", gps));
+                    txt.add_line(format!("zoom: {}", g.canvas.cam_zoom));
                     g.draw_mouse_tooltip(&txt);
                 }
             }

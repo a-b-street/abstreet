@@ -217,6 +217,10 @@ pub fn draw_text_bubble(
         y += height;
         g.canvas.glyphs.borrow_mut().queue(section);
     }
+    g.canvas
+        .glyphs
+        .borrow_mut()
+        .draw_queued(g.display, g.target);
 
     g.unfork();
 
@@ -282,4 +286,8 @@ pub fn draw_text_bubble_mapspace(
         y += height * g.canvas.cam_zoom;
         g.canvas.glyphs.borrow_mut().queue(section);
     }
+    g.canvas
+        .glyphs
+        .borrow_mut()
+        .draw_queued(g.display, g.target);
 }
