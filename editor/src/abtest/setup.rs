@@ -1,7 +1,6 @@
 use crate::abtest::{ABTestMode, State};
 use crate::game::{GameState, Mode};
 use crate::ui::{Flags, PerMapUI, UI};
-use abstutil::Timer;
 use ezgui::{EventCtx, GfxCtx, Key, LogScroller, ModalMenu, Wizard, WrappedWizard};
 use map_model::Map;
 use sim::{ABTest, SimFlags};
@@ -103,35 +102,37 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> Mode {
 
     // TODO Cheaper to load the edits for the map and then instantiate the scenario for the
     // primary.
-    let mut timer = Timer::new("setup A/B test");
-    let primary = PerMapUI::new(
-        Flags {
-            sim_flags: SimFlags {
-                load: load.clone(),
-                rng_seed,
-                run_name: format!("{} with {}", test.test_name, test.edits1_name),
-                edits_name: test.edits1_name.clone(),
+    let (primary, secondary) = ctx.loading_screen(|ctx, timer| {
+        let primary = PerMapUI::new(
+            Flags {
+                sim_flags: SimFlags {
+                    load: load.clone(),
+                    rng_seed,
+                    run_name: format!("{} with {}", test.test_name, test.edits1_name),
+                    edits_name: test.edits1_name.clone(),
+                },
+                ..current_flags.clone()
             },
-            ..current_flags.clone()
-        },
-        &ui.cs,
-        ctx.prerender,
-        &mut timer,
-    );
-    let secondary = PerMapUI::new(
-        Flags {
-            sim_flags: SimFlags {
-                load,
-                rng_seed,
-                run_name: format!("{} with {}", test.test_name, test.edits2_name),
-                edits_name: test.edits2_name.clone(),
+            &ui.cs,
+            ctx.prerender,
+            timer,
+        );
+        let secondary = PerMapUI::new(
+            Flags {
+                sim_flags: SimFlags {
+                    load,
+                    rng_seed,
+                    run_name: format!("{} with {}", test.test_name, test.edits2_name),
+                    edits_name: test.edits2_name.clone(),
+                },
+                ..current_flags.clone()
             },
-            ..current_flags.clone()
-        },
-        &ui.cs,
-        ctx.prerender,
-        &mut timer,
-    );
+            &ui.cs,
+            ctx.prerender,
+            timer,
+        );
+        (primary, secondary)
+    });
 
     ui.primary = primary;
     let mut mode = ABTestMode::new(ctx);

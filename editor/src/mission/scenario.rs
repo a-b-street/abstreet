@@ -2,7 +2,7 @@ use crate::game::Mode;
 use crate::mission::MissionEditMode;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
-use abstutil::{Timer, WeightedUsizeChoice};
+use abstutil::WeightedUsizeChoice;
 use ezgui::{
     Color, Drawable, EventCtx, GfxCtx, Key, LogScroller, ModalMenu, Wizard, WrappedWizard,
 };
@@ -58,12 +58,14 @@ impl ScenarioEditor {
                 } else if menu.action("edit") {
                     *self = ScenarioEditor::EditScenario(scenario.clone(), Wizard::new());
                 } else if menu.action("instantiate") {
-                    scenario.instantiate(
-                        &mut ui.primary.sim,
-                        &ui.primary.map,
-                        &mut ui.primary.current_flags.sim_flags.make_rng(),
-                        &mut Timer::new("instantiate scenario"),
-                    );
+                    ctx.loading_screen(|_, timer| {
+                        scenario.instantiate(
+                            &mut ui.primary.sim,
+                            &ui.primary.map,
+                            &mut ui.primary.current_flags.sim_flags.make_rng(),
+                            timer,
+                        );
+                    });
                     return Some(Mode::Sandbox(SandboxMode::new(ctx.canvas)));
                 } else if menu.action("visualize") {
                     let neighborhoods = Neighborhood::load_all(

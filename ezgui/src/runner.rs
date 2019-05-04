@@ -48,7 +48,12 @@ pub(crate) struct State<G: GUI> {
 
 impl<G: GUI> State<G> {
     // The bool indicates if the input was actually used.
-    fn event(mut self, ev: Event, prerender: &Prerender) -> (State<G>, EventLoopMode, bool) {
+    fn event(
+        mut self,
+        ev: Event,
+        prerender: &Prerender,
+        program: &glium::Program,
+    ) -> (State<G>, EventLoopMode, bool) {
         // Clear out the possible keys
         match self.context_menu {
             ContextMenu::Inactive(_) => {
@@ -67,6 +72,7 @@ impl<G: GUI> State<G> {
                 input: &mut input,
                 canvas: &mut canvas,
                 prerender,
+                program,
             })
         })) {
             Ok(pair) => pair,
@@ -195,7 +201,6 @@ pub fn run<G: GUI, F: FnOnce(&mut Canvas, &Prerender, &mut Timer) -> G>(
         let mut timer = Timer::new_with_sink(
             "Loading application...",
             Box::new(LoadingScreen::new(
-                &display,
                 &prerender,
                 &program,
                 initial_width,
@@ -261,7 +266,7 @@ fn loop_forever<G: GUI>(
         let mut any_input_used = false;
 
         for event in new_events {
-            let (new_state, mode, input_used) = state.event(event, &prerender);
+            let (new_state, mode, input_used) = state.event(event, &prerender, &program);
             if input_used {
                 any_input_used = true;
             }
@@ -313,8 +318,7 @@ fn loop_forever<G: GUI>(
     }
 }
 
-struct LoadingScreen<'a> {
-    display: &'a glium::Display,
+pub struct LoadingScreen<'a> {
     canvas: Canvas,
     prerender: &'a Prerender<'a>,
     program: &'a glium::Program,
@@ -322,8 +326,7 @@ struct LoadingScreen<'a> {
 }
 
 impl<'a> LoadingScreen<'a> {
-    fn new(
-        display: &'a glium::Display,
+    pub fn new(
         prerender: &'a Prerender<'a>,
         program: &'a glium::Program,
         initial_width: f64,
@@ -331,11 +334,10 @@ impl<'a> LoadingScreen<'a> {
     ) -> LoadingScreen<'a> {
         // TODO Ew! Expensive and wacky. Fix by not storing GlyphBrush in Canvas at all.
         let dejavu: &[u8] = include_bytes!("assets/DejaVuSans.ttf");
-        let glyphs = GlyphBrush::new(display, vec![Font::from_bytes(dejavu).unwrap()]);
+        let glyphs = GlyphBrush::new(prerender.display, vec![Font::from_bytes(dejavu).unwrap()]);
         let canvas = Canvas::new(initial_width, initial_height, glyphs);
 
         LoadingScreen {
-            display,
             canvas,
             prerender,
             program,
@@ -344,12 +346,12 @@ impl<'a> LoadingScreen<'a> {
     }
 
     fn redraw(&self, text: Text) {
-        let mut target = self.display.draw();
+        let mut target = self.prerender.display.draw();
         let context_menu = ContextMenu::new();
         let mut g = GfxCtx::new(
             &self.canvas,
             self.prerender,
-            self.display,
+            self.prerender.display,
             &mut target,
             self.program,
             &context_menu,

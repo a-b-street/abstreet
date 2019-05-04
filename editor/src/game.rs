@@ -246,8 +246,9 @@ fn splash_screen(
                     // This retains no state, but that's probably fine.
                     let mut flags = ui.primary.current_flags.clone();
                     flags.sim_flags.load = PathBuf::from(format!("../data/maps/{}.abst", name));
-                    let mut timer = Timer::new(&format!("load {}", name));
-                    *ui = UI::new(flags, ctx.prerender, ctx.canvas, &mut timer);
+                    *ui = ctx.loading_screen(|ctx, timer| {
+                        UI::new(flags, ctx.prerender, ctx.canvas, timer)
+                    });
                     break Some(Mode::Sandbox(SandboxMode::new(ctx.canvas)));
                 } else if wizard.aborted() {
                     break Some(Mode::SplashScreen(Wizard::new(), maybe_screensaver.take()));

@@ -91,13 +91,18 @@ impl AgentSpawner {
             None => {
                 if ui.primary.sim.is_empty() {
                     if sandbox_menu.action("seed the sim with agents") {
-                        Scenario::scaled_run(map, ui.primary.current_flags.num_agents).instantiate(
-                            &mut ui.primary.sim,
-                            map,
-                            &mut ui.primary.current_flags.sim_flags.make_rng(),
-                            &mut Timer::new("seed sim"),
-                        );
-                        ui.primary.sim.step(map);
+                        // TODO This covers up the map. :\
+                        ctx.loading_screen(|_, timer| {
+                            let map = &ui.primary.map;
+                            Scenario::scaled_run(map, ui.primary.current_flags.num_agents)
+                                .instantiate(
+                                    &mut ui.primary.sim,
+                                    map,
+                                    &mut ui.primary.current_flags.sim_flags.make_rng(),
+                                    timer,
+                                );
+                            ui.primary.sim.step(map);
+                        });
                     }
                 }
             }

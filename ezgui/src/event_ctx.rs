@@ -1,4 +1,6 @@
+use crate::runner::LoadingScreen;
 use crate::{Canvas, Color, UserInput};
+use abstutil::Timer;
 use geom::Polygon;
 use glium::implement_vertex;
 use std::cell::Cell;
@@ -112,6 +114,23 @@ pub struct EventCtx<'a> {
     // TODO These two probably shouldn't be public
     pub canvas: &'a mut Canvas,
     pub prerender: &'a Prerender<'a>,
+
+    pub(crate) program: &'a glium::Program,
+}
+
+impl<'a> EventCtx<'a> {
+    pub fn loading_screen<O, F: FnOnce(&mut EventCtx, &mut Timer) -> O>(&mut self, f: F) -> O {
+        let mut timer = Timer::new_with_sink(
+            "Loading...",
+            Box::new(LoadingScreen::new(
+                self.prerender,
+                self.program,
+                self.canvas.window_width,
+                self.canvas.window_height,
+            )),
+        );
+        f(self, &mut timer)
+    }
 }
 
 fn f32_to_u8(x: f32) -> u8 {
