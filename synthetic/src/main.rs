@@ -228,7 +228,7 @@ impl GUI for UI {
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    ezgui::run("Synthetic map editor", 1024.0, 768.0, |_, _| {
+    ezgui::run("Synthetic map editor", 1024.0, 768.0, |_| {
         UI::new(args.get(1))
     });
 }

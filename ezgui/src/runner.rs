@@ -51,11 +51,8 @@ impl<G: GUI> State<G> {
         program: &glium::Program,
     ) -> (State<G>, EventLoopMode, bool) {
         // Clear out the possible keys
-        match self.context_menu {
-            ContextMenu::Inactive(_) => {
-                self.context_menu = ContextMenu::new();
-            }
-            _ => {}
+        if let ContextMenu::Inactive(_) = self.context_menu {
+            self.context_menu = ContextMenu::new();
         }
 
         // It's impossible / very unlikey we'll grab the cursor in map space before the very first

@@ -62,6 +62,6 @@ impl Building {
                         .map(|street| format!("{} {}", num, street))
                 })
             })
-            .unwrap_or("???".to_string())
+            .unwrap_or_else(|| "???".to_string())
     }
 }

@@ -4,7 +4,7 @@ mod timer;
 use crate::render::DrawMap;
 use crate::timer::Cycler;
 use abstutil::Timer;
-use ezgui::{EventCtx, EventLoopMode, GfxCtx, Key, Prerender, GUI};
+use ezgui::{EventCtx, EventLoopMode, GfxCtx, Key, GUI};
 use map_model::Map;
 use std::path::{Path, PathBuf};
 use std::process;
@@ -26,7 +26,7 @@ struct UI {
 }
 
 impl UI {
-    fn new(flags: Flags, prerender: &Prerender) -> UI {
+    fn new(flags: Flags, ctx: &mut EventCtx) -> UI {
         // TODO Consolidate with sim::load
         let map: Map = if flags.load_map.starts_with(Path::new("../data/raw_maps/")) {
             Map::new(
@@ -43,7 +43,7 @@ impl UI {
         };
 
         UI {
-            draw_map: DrawMap::new(map, prerender),
+            draw_map: DrawMap::new(map, ctx.prerender),
             cycler: Cycler::new(ANIMATION_PERIOD_S),
         }
     }
@@ -65,7 +65,7 @@ impl GUI for UI {
 
 fn main() {
     let flags = Flags::from_args();
-    ezgui::run("Halloween tech demo", 1024.0, 768.0, |_, prerender| {
-        UI::new(flags, prerender)
+    ezgui::run("Halloween tech demo", 1024.0, 768.0, |ctx| {
+        UI::new(flags, ctx)
     });
 }

@@ -255,7 +255,7 @@ impl<'a> GfxCtx<'a> {
         match self.context_menu {
             ContextMenu::Inactive(ref keys) => keys.iter().cloned().collect(),
             ContextMenu::Displaying(ref menu) => {
-                menu.active_choices().into_iter().map(|key| *key).collect()
+                menu.active_choices().into_iter().cloned().collect()
             }
             _ => Vec::new(),
         }

@@ -1,5 +1,5 @@
 use abstutil::{find_next_file, find_prev_file, read_binary, Timer};
-use ezgui::{Canvas, Color, EventCtx, EventLoopMode, GfxCtx, Key, Prerender, Text, GUI};
+use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, GUI};
 use geom::{Distance, Polygon};
 use map_model::raw_data;
 use map_model::raw_data::{StableIntersectionID, StableRoadID};
@@ -28,7 +28,7 @@ impl UI {
     }
 
     fn load_different(&mut self, filename: String, ctx: &mut EventCtx) {
-        self.world = load_initial_map(&filename, ctx.canvas, ctx.prerender);
+        self.world = load_initial_map(&filename, ctx);
         self.selected = None;
         self.filename = filename;
         self.hide.clear();
@@ -90,9 +90,9 @@ impl GUI for UI {
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    ezgui::run("InitialMap debugger", 1024.0, 768.0, |canvas, prerender| {
-        canvas.cam_zoom = 4.0;
-        UI::new(&args[1], load_initial_map(&args[1], canvas, prerender))
+    ezgui::run("InitialMap debugger", 1024.0, 768.0, |ctx| {
+        ctx.canvas.cam_zoom = 4.0;
+        UI::new(&args[1], load_initial_map(&args[1], ctx))
     });
 }
 
@@ -112,7 +112,7 @@ impl viewer::ObjectID for ID {
     }
 }
 
-fn load_initial_map(filename: &str, canvas: &mut Canvas, prerender: &Prerender) -> World<ID> {
+fn load_initial_map(filename: &str, ctx: &mut EventCtx) -> World<ID> {
     let data: raw_data::InitialMap =
         read_binary(filename, &mut Timer::new("load InitialMap")).unwrap();
 
@@ -121,7 +121,7 @@ fn load_initial_map(filename: &str, canvas: &mut Canvas, prerender: &Prerender) 
     for r in data.roads.values() {
         if r.fwd_width > Distance::ZERO {
             w.add_obj(
-                prerender,
+                ctx.prerender,
                 ID::HalfRoad(r.id, true),
                 r.trimmed_center_pts
                     .shift_right(r.fwd_width / 2.0)
@@ -137,7 +137,7 @@ fn load_initial_map(filename: &str, canvas: &mut Canvas, prerender: &Prerender) 
         }
         if r.back_width > Distance::ZERO {
             w.add_obj(
-                prerender,
+                ctx.prerender,
                 ID::HalfRoad(r.id, false),
                 r.trimmed_center_pts
                     .shift_left(r.back_width / 2.0)
@@ -155,7 +155,7 @@ fn load_initial_map(filename: &str, canvas: &mut Canvas, prerender: &Prerender) 
 
     for i in data.intersections.values() {
         w.add_obj(
-            prerender,
+            ctx.prerender,
             ID::Intersection(i.id),
             Polygon::new(&i.polygon),
             Color::RED,
@@ -164,7 +164,8 @@ fn load_initial_map(filename: &str, canvas: &mut Canvas, prerender: &Prerender) 
     }
 
     if let Some(id) = data.focus_on {
-        canvas.center_on_map_pt(w.get_center(ID::Intersection(id)));
+        ctx.canvas
+            .center_on_map_pt(w.get_center(ID::Intersection(id)));
     }
 
     w
