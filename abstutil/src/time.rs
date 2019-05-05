@@ -14,6 +14,7 @@ struct Progress {
     total_items: usize,
     started_at: Instant,
     last_printed_at: Instant,
+    first_update: bool,
 }
 
 impl Progress {
@@ -24,6 +25,7 @@ impl Progress {
             total_items,
             started_at: Instant::now(),
             last_printed_at: Instant::now(),
+            first_update: true,
         }
     }
 
@@ -46,21 +48,37 @@ impl Progress {
                 prettyprint_usize(self.total_items),
                 prettyprint_time(elapsed)
             );
-            Timer::selfless_reprintln(maybe_sink, line.clone(), true);
+            if self.total_items == 1 {
+                Timer::selfless_println(maybe_sink, line.clone());
+            } else {
+                clear_current_line();
+                println!("{}", line);
+                if let Some(ref mut sink) = maybe_sink {
+                    sink.reprintln(line.clone());
+                }
+            }
             return Some((elapsed, line));
         } else if elapsed_seconds(self.last_printed_at) >= PROGRESS_FREQUENCY_SECONDS {
             self.last_printed_at = Instant::now();
-            Timer::selfless_reprintln(
-                maybe_sink,
-                format!(
-                    "{}: {}/{}... {}",
-                    self.label,
-                    prettyprint_usize(self.processed_items),
-                    prettyprint_usize(self.total_items),
-                    prettyprint_time(elapsed_seconds(self.started_at))
-                ),
-                false,
+            let line = format!(
+                "{}: {}/{}... {}",
+                self.label,
+                prettyprint_usize(self.processed_items),
+                prettyprint_usize(self.total_items),
+                prettyprint_time(elapsed_seconds(self.started_at))
             );
+            clear_current_line();
+            print!("{}", line);
+            stdout().flush().unwrap();
+
+            if let Some(ref mut sink) = maybe_sink {
+                if self.first_update {
+                    sink.println(line);
+                    self.first_update = false;
+                } else {
+                    sink.reprintln(line);
+                }
+            }
         }
         None
     }
@@ -130,19 +148,6 @@ impl<'a> Timer<'a> {
         println!("{}", line);
         if let Some(ref mut sink) = maybe_sink {
             sink.println(line);
-        }
-    }
-
-    fn selfless_reprintln(maybe_sink: &mut Option<Box<TimerSink + 'a>>, line: String, done: bool) {
-        clear_current_line();
-        if done {
-            println!("{}", line);
-        } else {
-            print!("{}", line);
-            stdout().flush().unwrap();
-        }
-        if let Some(ref mut sink) = maybe_sink {
-            sink.reprintln(line);
         }
     }
 
