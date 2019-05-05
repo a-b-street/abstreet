@@ -163,7 +163,12 @@ impl<'a> LoadingScreen<'a> {
         }
     }
 
-    fn redraw(&self, text: Text) {
+    fn redraw(&self) {
+        let mut txt = Text::prompt("Loading...");
+        for l in &self.lines {
+            txt.add_line(l.to_string());
+        }
+
         let mut target = self.prerender.display.draw();
         let context_menu = ContextMenu::new();
         let mut g = GfxCtx::new(
@@ -177,7 +182,7 @@ impl<'a> LoadingScreen<'a> {
         );
         g.clear(Color::BLACK);
         g.draw_blocking_text(
-            &text,
+            &txt,
             (HorizontalAlignment::Center, VerticalAlignment::Center),
         );
         target.finish().unwrap();
@@ -187,12 +192,13 @@ impl<'a> LoadingScreen<'a> {
 impl<'a> TimerSink for LoadingScreen<'a> {
     fn println(&mut self, line: String) {
         self.lines.push(line);
+        self.redraw();
+    }
 
-        let mut txt = Text::prompt("Loading...");
-        for l in &self.lines {
-            txt.add_line(l.to_string());
-        }
-        self.redraw(txt);
+    fn reprintln(&mut self, line: String) {
+        self.lines.pop();
+        self.lines.push(line);
+        self.redraw();
     }
 }
 

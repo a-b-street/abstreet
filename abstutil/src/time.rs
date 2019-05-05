@@ -28,7 +28,7 @@ impl Progress {
     }
 
     // Returns when done
-    fn next(&mut self) -> Option<(f64, String)> {
+    fn next<'a>(&mut self, maybe_sink: &mut Option<Box<TimerSink + 'a>>) -> Option<(f64, String)> {
         self.processed_items += 1;
         if self.processed_items > self.total_items {
             panic!(
@@ -46,20 +46,21 @@ impl Progress {
                 prettyprint_usize(self.total_items),
                 prettyprint_time(elapsed)
             );
-            clear_current_line();
-            println!("{}", line);
+            Timer::selfless_reprintln(maybe_sink, line.clone(), true);
             return Some((elapsed, line));
         } else if elapsed_seconds(self.last_printed_at) >= PROGRESS_FREQUENCY_SECONDS {
             self.last_printed_at = Instant::now();
-            clear_current_line();
-            print!(
-                "{}: {}/{}... {}",
-                self.label,
-                prettyprint_usize(self.processed_items),
-                prettyprint_usize(self.total_items),
-                prettyprint_time(elapsed_seconds(self.started_at))
+            Timer::selfless_reprintln(
+                maybe_sink,
+                format!(
+                    "{}: {}/{}... {}",
+                    self.label,
+                    prettyprint_usize(self.processed_items),
+                    prettyprint_usize(self.total_items),
+                    prettyprint_time(elapsed_seconds(self.started_at))
+                ),
+                false,
             );
-            stdout().flush().unwrap();
         }
         None
     }
@@ -72,6 +73,7 @@ enum StackEntry {
 
 pub trait TimerSink {
     fn println(&mut self, line: String);
+    fn reprintln(&mut self, line: String);
 }
 
 // Hierarchial magic
@@ -128,6 +130,19 @@ impl<'a> Timer<'a> {
         println!("{}", line);
         if let Some(ref mut sink) = maybe_sink {
             sink.println(line);
+        }
+    }
+
+    fn selfless_reprintln(maybe_sink: &mut Option<Box<TimerSink + 'a>>, line: String, done: bool) {
+        clear_current_line();
+        if done {
+            println!("{}", line);
+        } else {
+            print!("{}", line);
+            stdout().flush().unwrap();
+        }
+        if let Some(ref mut sink) = maybe_sink {
+            sink.reprintln(line);
         }
     }
 
@@ -237,7 +252,7 @@ impl<'a> Timer<'a> {
     pub fn next(&mut self) {
         let maybe_result =
             if let Some(StackEntry::Progress(ref mut progress)) = self.stack.last_mut() {
-                progress.next()
+                progress.next(&mut self.sink)
             } else {
                 panic!("Can't next() while a TimerSpan is top of the stack");
             };
