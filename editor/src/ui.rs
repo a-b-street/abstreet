@@ -5,8 +5,7 @@ use crate::render::{
 };
 use abstutil;
 use abstutil::MeasureMemory;
-use abstutil::Timer;
-use ezgui::{Canvas, Color, EventCtx, GfxCtx, Prerender};
+use ezgui::{Color, EventCtx, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Distance, Duration, Polygon};
 use map_model::{BuildingID, IntersectionID, LaneID, Map, Traversable, TurnType};
 use serde_derive::{Deserialize, Serialize};
@@ -20,15 +19,15 @@ pub struct UI {
 }
 
 impl UI {
-    pub fn new(flags: Flags, prerender: &Prerender, canvas: &mut Canvas, timer: &mut Timer) -> UI {
+    pub fn new(flags: Flags, ctx: &mut EventCtx) -> UI {
         let cs = ColorScheme::load().unwrap();
-        let primary = PerMapUI::new(flags, &cs, prerender, timer);
+        let primary = PerMapUI::new(flags, &cs, ctx);
         match abstutil::read_json::<EditorState>("../editor_state") {
             Ok(ref loaded) if primary.map.get_name() == &loaded.map_name => {
                 println!("Loaded previous editor_state");
-                canvas.cam_x = loaded.cam_x;
-                canvas.cam_y = loaded.cam_y;
-                canvas.cam_zoom = loaded.cam_zoom;
+                ctx.canvas.cam_x = loaded.cam_x;
+                ctx.canvas.cam_y = loaded.cam_y;
+                ctx.canvas.cam_zoom = loaded.cam_zoom;
             }
             _ => {
                 println!("Couldn't load editor_state or it's for a different map, so just focusing on an arbitrary building");
@@ -42,7 +41,7 @@ impl UI {
                         )
                     })
                     .expect("Can't get canonical_point of BuildingID(0) or Road(0)");
-                canvas.center_on_map_pt(focus_pt);
+                ctx.canvas.center_on_map_pt(focus_pt);
             }
         }
 
@@ -416,20 +415,19 @@ pub struct PerMapUI {
 }
 
 impl PerMapUI {
-    pub fn new(
-        flags: Flags,
-        cs: &ColorScheme,
-        prerender: &Prerender,
-        timer: &mut Timer,
-    ) -> PerMapUI {
-        let mut mem = MeasureMemory::new();
-        let (map, sim, _) = flags.sim_flags.load(Some(Duration::seconds(30.0)), timer);
-        mem.reset("Map and Sim", timer);
+    pub fn new(flags: Flags, cs: &ColorScheme, ctx: &mut EventCtx) -> PerMapUI {
+        let (map, sim, draw_map) = ctx.loading_screen(|ctx, timer| {
+            let mut mem = MeasureMemory::new();
+            let (map, sim, _) = flags.sim_flags.load(Some(Duration::seconds(30.0)), timer);
+            mem.reset("Map and Sim", timer);
 
-        timer.start("draw_map");
-        let draw_map = DrawMap::new(&map, &flags, cs, prerender, timer);
-        timer.stop("draw_map");
-        mem.reset("DrawMap", timer);
+            timer.start("draw_map");
+            let draw_map = DrawMap::new(&map, &flags, cs, ctx.prerender, timer);
+            timer.stop("draw_map");
+            mem.reset("DrawMap", timer);
+
+            (map, sim, draw_map)
+        });
 
         PerMapUI {
             map,

@@ -3,6 +3,7 @@ use glium::glutin;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Event {
+    InitializeApplication,
     LeftMouseButtonDown,
     LeftMouseButtonUp,
     RightMouseButtonDown,

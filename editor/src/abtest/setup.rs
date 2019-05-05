@@ -102,37 +102,32 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> Mode {
 
     // TODO Cheaper to load the edits for the map and then instantiate the scenario for the
     // primary.
-    let (primary, secondary) = ctx.loading_screen(|ctx, timer| {
-        let primary = PerMapUI::new(
-            Flags {
-                sim_flags: SimFlags {
-                    load: load.clone(),
-                    rng_seed,
-                    run_name: format!("{} with {}", test.test_name, test.edits1_name),
-                    edits_name: test.edits1_name.clone(),
-                },
-                ..current_flags.clone()
+    let primary = PerMapUI::new(
+        Flags {
+            sim_flags: SimFlags {
+                load: load.clone(),
+                rng_seed,
+                run_name: format!("{} with {}", test.test_name, test.edits1_name),
+                edits_name: test.edits1_name.clone(),
             },
-            &ui.cs,
-            ctx.prerender,
-            timer,
-        );
-        let secondary = PerMapUI::new(
-            Flags {
-                sim_flags: SimFlags {
-                    load,
-                    rng_seed,
-                    run_name: format!("{} with {}", test.test_name, test.edits2_name),
-                    edits_name: test.edits2_name.clone(),
-                },
-                ..current_flags.clone()
+            ..current_flags.clone()
+        },
+        &ui.cs,
+        ctx,
+    );
+    let secondary = PerMapUI::new(
+        Flags {
+            sim_flags: SimFlags {
+                load,
+                rng_seed,
+                run_name: format!("{} with {}", test.test_name, test.edits2_name),
+                edits_name: test.edits2_name.clone(),
             },
-            &ui.cs,
-            ctx.prerender,
-            timer,
-        );
-        (primary, secondary)
-    });
+            ..current_flags.clone()
+        },
+        &ui.cs,
+        ctx,
+    );
 
     ui.primary = primary;
     let mut mode = ABTestMode::new(ctx);

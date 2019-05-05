@@ -1,9 +1,5 @@
 use crate::input::ContextMenu;
-use crate::{
-    widgets, Canvas, Color, Event, EventCtx, GfxCtx, HorizontalAlignment, Prerender, Text,
-    UserInput, VerticalAlignment,
-};
-use abstutil::{Timer, TimerSink};
+use crate::{widgets, Canvas, Event, EventCtx, GfxCtx, Prerender, UserInput};
 use glium::glutin;
 use glium_glyph::glyph_brush::rusttype::Font;
 use glium_glyph::GlyphBrush;
@@ -134,7 +130,7 @@ impl<G: GUI> State<G> {
     }
 }
 
-pub fn run<G: GUI, F: FnOnce(&mut Canvas, &Prerender, &mut Timer) -> G>(
+pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(
     window_title: &str,
     initial_width: f64,
     initial_height: f64,
@@ -197,18 +193,16 @@ pub fn run<G: GUI, F: FnOnce(&mut Canvas, &Prerender, &mut Timer) -> G>(
         total_bytes_uploaded: Cell::new(0),
     };
 
-    let gui = {
-        let mut timer = Timer::new_with_sink(
-            "Loading application...",
-            Box::new(LoadingScreen::new(
-                &prerender,
-                &program,
-                initial_width,
-                initial_height,
-            )),
-        );
-        make_gui(&mut canvas, &prerender, &mut timer)
-    };
+    let gui = make_gui(&mut EventCtx {
+        input: &mut UserInput::new(
+            Event::InitializeApplication,
+            ContextMenu::new(),
+            &mut canvas,
+        ),
+        canvas: &mut canvas,
+        prerender: &prerender,
+        program: &program,
+    });
 
     let state = State {
         canvas,
@@ -315,65 +309,5 @@ fn loop_forever<G: GUI>(
         if SLEEP_BETWEEN_FRAMES > this_frame {
             thread::sleep(SLEEP_BETWEEN_FRAMES - this_frame);
         }
-    }
-}
-
-pub struct LoadingScreen<'a> {
-    canvas: Canvas,
-    prerender: &'a Prerender<'a>,
-    program: &'a glium::Program,
-    lines: Vec<String>,
-}
-
-impl<'a> LoadingScreen<'a> {
-    pub fn new(
-        prerender: &'a Prerender<'a>,
-        program: &'a glium::Program,
-        initial_width: f64,
-        initial_height: f64,
-    ) -> LoadingScreen<'a> {
-        // TODO Ew! Expensive and wacky. Fix by not storing GlyphBrush in Canvas at all.
-        let dejavu: &[u8] = include_bytes!("assets/DejaVuSans.ttf");
-        let glyphs = GlyphBrush::new(prerender.display, vec![Font::from_bytes(dejavu).unwrap()]);
-        let canvas = Canvas::new(initial_width, initial_height, glyphs);
-
-        LoadingScreen {
-            canvas,
-            prerender,
-            program,
-            lines: Vec::new(),
-        }
-    }
-
-    fn redraw(&self, text: Text) {
-        let mut target = self.prerender.display.draw();
-        let context_menu = ContextMenu::new();
-        let mut g = GfxCtx::new(
-            &self.canvas,
-            self.prerender,
-            self.prerender.display,
-            &mut target,
-            self.program,
-            &context_menu,
-            false,
-        );
-        g.clear(Color::BLACK);
-        g.draw_blocking_text(
-            &text,
-            (HorizontalAlignment::Center, VerticalAlignment::Center),
-        );
-        target.finish().unwrap();
-    }
-}
-
-impl<'a> TimerSink for LoadingScreen<'a> {
-    fn println(&mut self, line: String) {
-        self.lines.push(line);
-
-        let mut txt = Text::prompt("Loading...");
-        for l in &self.lines {
-            txt.add_line(l.to_string());
-        }
-        self.redraw(txt);
     }
 }

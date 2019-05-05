@@ -66,7 +66,7 @@ impl ScenarioEditor {
                             timer,
                         );
                     });
-                    return Some(Mode::Sandbox(SandboxMode::new(ctx.canvas)));
+                    return Some(Mode::Sandbox(SandboxMode::new(ctx)));
                 } else if menu.action("visualize") {
                     let neighborhoods = Neighborhood::load_all(
                         ui.primary.map.get_name(),

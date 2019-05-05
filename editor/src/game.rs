@@ -7,10 +7,7 @@ use crate::sandbox::SandboxMode;
 use crate::tutorial::TutorialMode;
 use crate::ui::{EditorState, Flags, ShowEverything, UI};
 use abstutil::elapsed_seconds;
-use abstutil::Timer;
-use ezgui::{
-    Canvas, EventCtx, EventLoopMode, GfxCtx, Key, LogScroller, Prerender, UserInput, Wizard, GUI,
-};
+use ezgui::{Canvas, EventCtx, EventLoopMode, GfxCtx, Key, LogScroller, UserInput, Wizard, GUI};
 use geom::{Duration, Line, Pt2D, Speed};
 use map_model::Map;
 use rand::Rng;
@@ -40,23 +37,18 @@ pub enum Mode {
 }
 
 impl GameState {
-    pub fn new(
-        flags: Flags,
-        canvas: &mut Canvas,
-        prerender: &Prerender,
-        timer: &mut Timer,
-    ) -> GameState {
+    pub fn new(flags: Flags, ctx: &mut EventCtx) -> GameState {
         let splash = !flags.no_splash;
         let mut rng = flags.sim_flags.make_rng();
         let mut game = GameState {
-            mode: Mode::Sandbox(SandboxMode::new(canvas)),
-            ui: UI::new(flags, prerender, canvas, timer),
+            mode: Mode::Sandbox(SandboxMode::new(ctx)),
+            ui: UI::new(flags, ctx),
         };
         if splash {
             game.mode = Mode::SplashScreen(
                 Wizard::new(),
                 Some((
-                    Screensaver::start_bounce(&mut rng, canvas, &game.ui.primary.map),
+                    Screensaver::start_bounce(&mut rng, ctx.canvas, &game.ui.primary.map),
                     rng,
                 )),
             );
@@ -231,7 +223,7 @@ fn splash_screen(
             )?
             .as_str()
         {
-            x if x == sandbox => break Some(Mode::Sandbox(SandboxMode::new(ctx.canvas))),
+            x if x == sandbox => break Some(Mode::Sandbox(SandboxMode::new(ctx))),
             x if x == load_map => {
                 let current_map = ui.primary.map.get_name().to_string();
                 if let Some((name, _)) = wizard.choose_something_no_keys::<String>(
@@ -246,10 +238,8 @@ fn splash_screen(
                     // This retains no state, but that's probably fine.
                     let mut flags = ui.primary.current_flags.clone();
                     flags.sim_flags.load = PathBuf::from(format!("../data/maps/{}.abst", name));
-                    *ui = ctx.loading_screen(|ctx, timer| {
-                        UI::new(flags, ctx.prerender, ctx.canvas, timer)
-                    });
-                    break Some(Mode::Sandbox(SandboxMode::new(ctx.canvas)));
+                    *ui = UI::new(flags, ctx);
+                    break Some(Mode::Sandbox(SandboxMode::new(ctx)));
                 } else if wizard.aborted() {
                     break Some(Mode::SplashScreen(Wizard::new(), maybe_screensaver.take()));
                 } else {

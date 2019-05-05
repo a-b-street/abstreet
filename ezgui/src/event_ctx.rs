@@ -1,8 +1,11 @@
-use crate::runner::LoadingScreen;
-use crate::{Canvas, Color, UserInput};
+use crate::input::ContextMenu;
+use crate::{Canvas, Color, GfxCtx, HorizontalAlignment, Text, UserInput, VerticalAlignment};
 use abstutil::Timer;
+use abstutil::TimerSink;
 use geom::Polygon;
 use glium::implement_vertex;
+use glium_glyph::glyph_brush::rusttype::Font;
+use glium_glyph::GlyphBrush;
 use std::cell::Cell;
 
 // Something that's been sent to the GPU already.
@@ -130,6 +133,66 @@ impl<'a> EventCtx<'a> {
             )),
         );
         f(self, &mut timer)
+    }
+}
+
+pub struct LoadingScreen<'a> {
+    canvas: Canvas,
+    prerender: &'a Prerender<'a>,
+    program: &'a glium::Program,
+    lines: Vec<String>,
+}
+
+impl<'a> LoadingScreen<'a> {
+    pub fn new(
+        prerender: &'a Prerender<'a>,
+        program: &'a glium::Program,
+        initial_width: f64,
+        initial_height: f64,
+    ) -> LoadingScreen<'a> {
+        // TODO Ew! Expensive and wacky. Fix by not storing GlyphBrush in Canvas at all.
+        let dejavu: &[u8] = include_bytes!("assets/DejaVuSans.ttf");
+        let glyphs = GlyphBrush::new(prerender.display, vec![Font::from_bytes(dejavu).unwrap()]);
+        let canvas = Canvas::new(initial_width, initial_height, glyphs);
+
+        LoadingScreen {
+            canvas,
+            prerender,
+            program,
+            lines: Vec::new(),
+        }
+    }
+
+    fn redraw(&self, text: Text) {
+        let mut target = self.prerender.display.draw();
+        let context_menu = ContextMenu::new();
+        let mut g = GfxCtx::new(
+            &self.canvas,
+            self.prerender,
+            self.prerender.display,
+            &mut target,
+            self.program,
+            &context_menu,
+            false,
+        );
+        g.clear(Color::BLACK);
+        g.draw_blocking_text(
+            &text,
+            (HorizontalAlignment::Center, VerticalAlignment::Center),
+        );
+        target.finish().unwrap();
+    }
+}
+
+impl<'a> TimerSink for LoadingScreen<'a> {
+    fn println(&mut self, line: String) {
+        self.lines.push(line);
+
+        let mut txt = Text::prompt("Loading...");
+        for l in &self.lines {
+            txt.add_line(l.to_string());
+        }
+        self.redraw(txt);
     }
 }
 

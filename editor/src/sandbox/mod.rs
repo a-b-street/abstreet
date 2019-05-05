@@ -8,7 +8,7 @@ use crate::game::{GameState, Mode};
 use crate::render::DrawOptions;
 use crate::ui::ShowEverything;
 use abstutil::elapsed_seconds;
-use ezgui::{Canvas, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard};
+use ezgui::{EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard};
 use geom::Duration;
 use sim::{Benchmark, Sim, TripID};
 use std::time::Instant;
@@ -39,14 +39,14 @@ enum State {
 }
 
 impl SandboxMode {
-    pub fn new(canvas: &Canvas) -> SandboxMode {
+    pub fn new(ctx: &EventCtx) -> SandboxMode {
         SandboxMode {
             desired_speed: 1.0,
             state: State::Paused,
             following: None,
             route_viewer: route_viewer::RouteViewer::Inactive,
             show_activity: show_activity::ShowActivity::Inactive,
-            time_travel: time_travel::TimeTravel::new(canvas),
+            time_travel: time_travel::TimeTravel::new(ctx.canvas),
             common: CommonState::new(),
             menu: ModalMenu::hacky_new(
                 "Sandbox Mode",
@@ -73,7 +73,7 @@ impl SandboxMode {
                     CommonState::modal_menu_entries(),
                 ]
                 .concat(),
-                canvas,
+                ctx.canvas,
             ),
         }
     }
