@@ -1,12 +1,15 @@
 use crate::input::ContextMenu;
+use crate::text::FONT_SIZE;
 use crate::{Canvas, Color, GfxCtx, HorizontalAlignment, Text, UserInput, VerticalAlignment};
 use abstutil::Timer;
 use abstutil::TimerSink;
 use geom::Polygon;
 use glium::implement_vertex;
 use glium_glyph::glyph_brush::rusttype::Font;
+use glium_glyph::glyph_brush::rusttype::Scale;
 use glium_glyph::GlyphBrush;
 use std::cell::Cell;
+use std::collections::VecDeque;
 
 // Something that's been sent to the GPU already.
 pub struct Drawable {
@@ -140,7 +143,8 @@ pub struct LoadingScreen<'a> {
     canvas: Canvas,
     prerender: &'a Prerender<'a>,
     program: &'a glium::Program,
-    lines: Vec<String>,
+    lines: VecDeque<String>,
+    max_capacity: usize,
 }
 
 impl<'a> LoadingScreen<'a> {
@@ -154,15 +158,21 @@ impl<'a> LoadingScreen<'a> {
         let dejavu: &[u8] = include_bytes!("assets/DejaVuSans.ttf");
         let glyphs = GlyphBrush::new(prerender.display, vec![Font::from_bytes(dejavu).unwrap()]);
         let canvas = Canvas::new(initial_width, initial_height, glyphs);
+        // TODO Dupe code
+        let vmetrics =
+            canvas.glyphs.borrow().fonts()[0].v_metrics(Scale::uniform(FONT_SIZE as f32));
+        let line_height = f64::from(vmetrics.ascent - vmetrics.descent + vmetrics.line_gap);
 
         LoadingScreen {
             canvas,
             prerender,
             program,
-            lines: Vec::new(),
+            lines: VecDeque::new(),
+            max_capacity: (0.8 * initial_height / line_height) as usize,
         }
     }
 
+    // Timer throttles updates reasonably, so don't bother throttling redraws.
     fn redraw(&self) {
         let mut txt = Text::prompt("Loading...");
         for l in &self.lines {
@@ -181,6 +191,7 @@ impl<'a> LoadingScreen<'a> {
             false,
         );
         g.clear(Color::BLACK);
+        // TODO Keep the width fixed.
         g.draw_blocking_text(
             &txt,
             (HorizontalAlignment::Center, VerticalAlignment::Center),
@@ -190,14 +201,18 @@ impl<'a> LoadingScreen<'a> {
 }
 
 impl<'a> TimerSink for LoadingScreen<'a> {
+    // TODO Do word wrap. Assume the window is fixed during loading, if it makes things easier.
     fn println(&mut self, line: String) {
-        self.lines.push(line);
+        if self.lines.len() == self.max_capacity {
+            self.lines.pop_front();
+        }
+        self.lines.push_back(line);
         self.redraw();
     }
 
     fn reprintln(&mut self, line: String) {
-        self.lines.pop();
-        self.lines.push(line);
+        self.lines.pop_back();
+        self.lines.push_back(line);
         self.redraw();
     }
 }
