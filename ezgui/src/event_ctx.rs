@@ -1,8 +1,7 @@
 use crate::input::ContextMenu;
 use crate::text::FONT_SIZE;
 use crate::{Canvas, Color, GfxCtx, HorizontalAlignment, Text, UserInput, VerticalAlignment};
-use abstutil::Timer;
-use abstutil::TimerSink;
+use abstutil::{elapsed_seconds, Timer, TimerSink};
 use geom::Polygon;
 use glium::implement_vertex;
 use glium_glyph::glyph_brush::rusttype::Font;
@@ -10,6 +9,7 @@ use glium_glyph::glyph_brush::rusttype::Scale;
 use glium_glyph::GlyphBrush;
 use std::cell::Cell;
 use std::collections::VecDeque;
+use std::time::Instant;
 
 // Something that's been sent to the GPU already.
 pub struct Drawable {
@@ -145,6 +145,7 @@ pub struct LoadingScreen<'a> {
     program: &'a glium::Program,
     lines: VecDeque<String>,
     max_capacity: usize,
+    last_drawn: Option<Instant>,
 }
 
 impl<'a> LoadingScreen<'a> {
@@ -169,11 +170,19 @@ impl<'a> LoadingScreen<'a> {
             program,
             lines: VecDeque::new(),
             max_capacity: (0.8 * initial_height / line_height) as usize,
+            last_drawn: None,
         }
     }
 
     // Timer throttles updates reasonably, so don't bother throttling redraws.
-    fn redraw(&self) {
+    fn redraw(&mut self) {
+        if let Some(t) = self.last_drawn {
+            if elapsed_seconds(t) < 0.2 {
+                return;
+            }
+        }
+        self.last_drawn = Some(Instant::now());
+
         let mut txt = Text::prompt("Loading...");
         for l in &self.lines {
             txt.add_line(l.to_string());
