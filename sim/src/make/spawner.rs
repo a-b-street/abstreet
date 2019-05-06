@@ -141,7 +141,8 @@ impl TripSpawner {
             let path = maybe_path.unwrap();
             match spec {
                 TripSpec::CarAppearing(start_pos, vehicle_spec, goal) => {
-                    let mut legs = vec![TripLeg::Drive(car_id.unwrap(), goal.clone())];
+                    let vehicle = vehicle_spec.make(car_id.unwrap(), None);
+                    let mut legs = vec![TripLeg::Drive(vehicle.clone(), goal.clone())];
                     if let DrivingGoal::ParkNear(b) = goal {
                         legs.push(TripLeg::Walk(
                             ped_id.unwrap(),
@@ -149,14 +150,11 @@ impl TripSpawner {
                         ));
                     }
                     let trip = trips.new_trip(start_time, legs);
-                    let router = goal.make_router(path, map, vehicle_spec.vehicle_type);
+                    let router = goal.make_router(path, map, vehicle.vehicle_type);
                     scheduler.push(
                         start_time,
                         Command::SpawnCar(CreateCar::for_appearing(
-                            vehicle_spec.make(car_id.unwrap(), None),
-                            start_pos,
-                            router,
-                            trip,
+                            vehicle, start_pos, router, trip,
                         )),
                     );
                 }
@@ -171,7 +169,7 @@ impl TripSpawner {
 
                     let mut legs = vec![
                         TripLeg::Walk(ped_id.unwrap(), parking_spot.clone()),
-                        TripLeg::Drive(vehicle.id, goal.clone()),
+                        TripLeg::Drive(vehicle.clone(), goal.clone()),
                     ];
                     match goal {
                         DrivingGoal::ParkNear(b) => {
@@ -216,7 +214,7 @@ impl TripSpawner {
                     let walk_to = SidewalkSpot::bike_rack(start.sidewalk_pos.lane(), map).unwrap();
                     let mut legs = vec![
                         TripLeg::Walk(ped_id.unwrap(), walk_to.clone()),
-                        TripLeg::Bike(vehicle.make(car_id.unwrap(), None), goal.clone()),
+                        TripLeg::Drive(vehicle.make(car_id.unwrap(), None), goal.clone()),
                     ];
                     match goal {
                         DrivingGoal::ParkNear(b) => {

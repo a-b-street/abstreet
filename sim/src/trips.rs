@@ -70,7 +70,7 @@ impl TripManager {
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
 
         match trip.legs.pop_front() {
-            Some(TripLeg::Drive(id, DrivingGoal::ParkNear(_))) => assert_eq!(car, id),
+            Some(TripLeg::Drive(vehicle, DrivingGoal::ParkNear(_))) => assert_eq!(car, vehicle.id),
             _ => unreachable!(),
         };
 
@@ -106,7 +106,7 @@ impl TripManager {
             ))
         );
         let (car, drive_to) = match trip.legs[0] {
-            TripLeg::Drive(car, ref to) => (car, to.clone()),
+            TripLeg::Drive(ref vehicle, ref to) => (vehicle.id, to.clone()),
             _ => unreachable!(),
         };
         let parked_car = parking.get_car_at_spot(spot).unwrap();
@@ -157,7 +157,7 @@ impl TripManager {
             Some(TripLeg::Walk(ped, spot.clone()))
         );
         let (vehicle, drive_to) = match trip.legs[0] {
-            TripLeg::Bike(ref vehicle, ref to) => (vehicle.clone(), to.clone()),
+            TripLeg::Drive(ref vehicle, ref to) => (vehicle.clone(), to.clone()),
             _ => unreachable!(),
         };
         let driving_pos = match spot.connection {
@@ -208,7 +208,7 @@ impl TripManager {
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(bike)).unwrap().0];
 
         match trip.legs.pop_front() {
-            Some(TripLeg::Bike(vehicle, DrivingGoal::ParkNear(_))) => assert_eq!(vehicle.id, bike),
+            Some(TripLeg::Drive(vehicle, DrivingGoal::ParkNear(_))) => assert_eq!(vehicle.id, bike),
             _ => unreachable!(),
         };
 
@@ -318,7 +318,6 @@ impl TripManager {
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
         match trip.legs.pop_front().unwrap() {
             TripLeg::Drive(_, DrivingGoal::Border(int, _)) => assert_eq!(i, int),
-            TripLeg::Bike(_, DrivingGoal::Border(int, _)) => assert_eq!(i, int),
             _ => {
                 // TODO Should be unreachable
                 println!(
@@ -345,8 +344,7 @@ impl TripManager {
         let trip = self.trips.get(id.0)?;
         match trip.legs.get(0)? {
             TripLeg::Walk(id, _) => Some(AgentID::Pedestrian(*id)),
-            TripLeg::Drive(id, _) => Some(AgentID::Car(*id)),
-            TripLeg::Bike(vehicle, _) => Some(AgentID::Car(vehicle.id)),
+            TripLeg::Drive(vehicle, _) => Some(AgentID::Car(vehicle.id)),
             // TODO Should be the bus, but apparently transit sim tracks differently?
             TripLeg::RideBus(ped, _, _) => Some(AgentID::Pedestrian(*ped)),
             TripLeg::ServeBusRoute(id, _) => Some(AgentID::Car(*id)),
@@ -438,8 +436,7 @@ impl Trip {
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub enum TripLeg {
     Walk(PedestrianID, SidewalkSpot),
-    Drive(CarID, DrivingGoal),
-    Bike(Vehicle, DrivingGoal),
+    Drive(Vehicle, DrivingGoal),
     RideBus(PedestrianID, BusRouteID, BusStopID),
     ServeBusRoute(CarID, BusRouteID),
 }
