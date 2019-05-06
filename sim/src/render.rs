@@ -1,5 +1,5 @@
 use crate::{CarID, PedestrianID, VehicleType};
-use geom::{Duration, PolyLine, Pt2D};
+use geom::{Angle, Duration, PolyLine, Pt2D};
 use map_model::{Map, Traversable, TurnID};
 
 // Intermediate structures so that sim and editor crates don't have a cyclic dependency.
@@ -7,6 +7,7 @@ use map_model::{Map, Traversable, TurnID};
 pub struct DrawPedestrianInput {
     pub id: PedestrianID,
     pub pos: Pt2D,
+    pub facing: Angle,
     pub waiting_for_turn: Option<TurnID>,
     pub preparing_bike: bool,
     pub on: Traversable,

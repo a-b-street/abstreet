@@ -1,7 +1,7 @@
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{should_draw_blinkers, DrawCtx, DrawOptions, Renderable};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
-use geom::{Circle, Distance, PolyLine, Polygon};
+use geom::{Circle, Distance, Duration, PolyLine, Polygon};
 use map_model::{Map, LANE_THICKNESS};
 use sim::{DrawPedestrianInput, PedestrianID};
 
@@ -17,6 +17,7 @@ pub struct DrawPedestrian {
 impl DrawPedestrian {
     pub fn new(
         input: DrawPedestrianInput,
+        time: Duration,
         map: &Map,
         prerender: &Prerender,
         cs: &ColorScheme,
@@ -41,25 +42,54 @@ impl DrawPedestrian {
             None
         };
 
-        let circle = Circle::new(input.pos, radius);
+        let mut draw_default = Vec::new();
 
-        let draw_default = prerender.upload(vec![(
-            if input.preparing_bike {
-                cs.get_def("pedestrian preparing bike", Color::rgb(255, 0, 144))
-                    .shift(input.id.0)
-            } else {
-                cs.get_def("pedestrian", Color::rgb_f(0.2, 0.7, 0.7))
-                    .shift(input.id.0)
-            },
-            circle.to_polygon(),
-        )]);
+        let foot_radius = 0.2 * radius;
+        let left_foot = Circle::new(
+            input
+                .pos
+                .project_away(radius, input.facing.rotate_degs(30.0)),
+            foot_radius,
+        );
+        let right_foot = Circle::new(
+            input
+                .pos
+                .project_away(radius, input.facing.rotate_degs(-30.0)),
+            foot_radius,
+        );
+        // TODO Foot animation looks weird. Disabled for now.
+        let foot_color = cs.get_def("pedestrian foot", Color::BLACK);
+        if input.waiting_for_turn.is_some() || true {
+            draw_default.push((foot_color, left_foot.to_polygon()));
+            draw_default.push((foot_color, right_foot.to_polygon()));
+        } else if time % Duration::seconds(0.4) < Duration::seconds(0.2) {
+            draw_default.push((foot_color, left_foot.to_polygon()));
+        } else {
+            draw_default.push((foot_color, right_foot.to_polygon()));
+        };
+
+        let body_circle = Circle::new(input.pos, radius);
+        let head_circle = Circle::new(input.pos, 0.5 * radius);
+        let body_color = if input.preparing_bike {
+            cs.get_def("pedestrian preparing bike", Color::rgb(255, 0, 144))
+                .shift(input.id.0)
+        } else {
+            cs.get_def("pedestrian", Color::rgb_f(0.2, 0.7, 0.7))
+                .shift(input.id.0)
+        };
+        // TODO Arms would look fabulous.
+        draw_default.push((body_color, body_circle.to_polygon()));
+        draw_default.push((
+            cs.get_def("pedestrian head", Color::rgb(139, 69, 19)),
+            head_circle.to_polygon(),
+        ));
 
         DrawPedestrian {
             id: input.id,
-            circle,
+            circle: body_circle,
             turn_arrow,
             zorder: input.on.get_zorder(map),
-            draw_default,
+            draw_default: prerender.upload(draw_default),
         }
     }
 }

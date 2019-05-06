@@ -293,7 +293,9 @@ impl UI {
                         list.push(draw_vehicle(c, map, prerender, &self.cs));
                     }
                     for p in source.get_draw_peds(*on, map).into_iter() {
-                        list.push(Box::new(DrawPedestrian::new(p, map, prerender, &self.cs)));
+                        list.push(Box::new(DrawPedestrian::new(
+                            p, time, map, prerender, &self.cs,
+                        )));
                     }
                     agents.put(time, *on, list);
                 }

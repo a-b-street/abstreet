@@ -289,67 +289,80 @@ impl Pedestrian {
 
     fn get_draw_ped(&self, time: Duration, map: &Map) -> DrawPedestrianInput {
         let on = self.path.current_step().as_traversable();
-        let pos = match self.state {
+        let (pos, facing) = match self.state {
             PedState::Crossing(ref dist_int, ref time_int) => {
                 let percent = if time > time_int.end {
                     1.0
                 } else {
                     time_int.percent(time)
                 };
-                let (pos, angle) = on.dist_along(dist_int.lerp(percent), map);
-                pos.project_away(
-                    LANE_THICKNESS / 4.0,
-                    if dist_int.start < dist_int.end {
-                        angle.rotate_degs(90.0)
-                    } else {
-                        angle.rotate_degs(-90.0)
-                    },
+                let (pos, orig_angle) = on.dist_along(dist_int.lerp(percent), map);
+                let facing = if dist_int.start < dist_int.end {
+                    orig_angle
+                } else {
+                    orig_angle.opposite()
+                };
+                (
+                    pos.project_away(LANE_THICKNESS / 4.0, facing.rotate_degs(90.0)),
+                    facing,
                 )
             }
             PedState::WaitingToTurn(dist) => {
-                let (pos, angle) = on.dist_along(dist, map);
-                pos.project_away(
-                    LANE_THICKNESS / 4.0,
-                    if dist == Distance::ZERO {
-                        angle.rotate_degs(-90.0)
-                    } else {
-                        angle.rotate_degs(90.0)
-                    },
+                let (pos, orig_angle) = on.dist_along(dist, map);
+                let facing = if dist == Distance::ZERO {
+                    orig_angle.opposite()
+                } else {
+                    orig_angle
+                };
+                (
+                    pos.project_away(LANE_THICKNESS / 4.0, facing.rotate_degs(90.0)),
+                    facing,
                 )
             }
             PedState::LeavingBuilding(b, ref time_int) => {
                 let front_path = &map.get_b(b).front_path;
-                front_path
-                    .line
-                    .dist_along(time_int.percent(time) * front_path.line.length())
-                    .project_away(
-                        LANE_THICKNESS / 4.0,
-                        front_path.line.angle().rotate_degs(90.0),
-                    )
+                (
+                    front_path
+                        .line
+                        .dist_along(time_int.percent(time) * front_path.line.length())
+                        .project_away(
+                            LANE_THICKNESS / 4.0,
+                            front_path.line.angle().rotate_degs(90.0),
+                        ),
+                    front_path.line.angle(),
+                )
             }
             PedState::EnteringBuilding(b, ref time_int) => {
                 let front_path = &map.get_b(b).front_path;
-                front_path
-                    .line
-                    .reverse()
-                    .dist_along(time_int.percent(time) * front_path.line.length())
-                    .project_away(
-                        LANE_THICKNESS / 4.0,
-                        front_path.line.angle().rotate_degs(-90.0),
-                    )
+                (
+                    front_path
+                        .line
+                        .reverse()
+                        .dist_along(time_int.percent(time) * front_path.line.length())
+                        .project_away(
+                            LANE_THICKNESS / 4.0,
+                            front_path.line.angle().rotate_degs(-90.0),
+                        ),
+                    front_path.line.angle().opposite(),
+                )
             }
             PedState::StartingToBike(_, ref line, ref time_int) => {
-                line.percent_along(time_int.percent(time))
+                (line.percent_along(time_int.percent(time)), line.angle())
             }
             PedState::FinishingBiking(_, ref line, ref time_int) => {
-                line.percent_along(time_int.percent(time))
+                (line.percent_along(time_int.percent(time)), line.angle())
             }
-            PedState::WaitingForBus => self.goal.sidewalk_pos.pt(map),
+            PedState::WaitingForBus => {
+                let (pt, angle) = self.goal.sidewalk_pos.pt_and_angle(map);
+                // Face the road
+                (pt, angle.rotate_degs(90.0))
+            }
         };
 
         DrawPedestrianInput {
             id: self.id,
             pos,
+            facing,
             waiting_for_turn: match self.state {
                 PedState::WaitingToTurn(_) => Some(self.path.next_step().as_turn()),
                 _ => None,

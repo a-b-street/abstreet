@@ -33,6 +33,10 @@ impl Position {
         map.get_l(self.lane).dist_along(self.dist_along).0
     }
 
+    pub fn pt_and_angle(&self, map: &Map) -> (Pt2D, Angle) {
+        map.get_l(self.lane).dist_along(self.dist_along)
+    }
+
     pub fn equiv_pos(&self, lane: LaneID, map: &Map) -> Position {
         let r = map.get_parent(lane);
         assert_eq!(map.get_l(self.lane).parent, r.id);
