@@ -7,7 +7,7 @@ use sim::{DrawPedestrianInput, PedestrianID};
 
 pub struct DrawPedestrian {
     pub id: PedestrianID,
-    circle: Circle,
+    body_circle: Circle,
     turn_arrow: Option<Vec<Polygon>>,
     zorder: isize,
 
@@ -86,7 +86,7 @@ impl DrawPedestrian {
 
         DrawPedestrian {
             id: input.id,
-            circle: body_circle,
+            body_circle,
             turn_arrow,
             zorder: input.on.get_zorder(map),
             draw_default: prerender.upload(draw_default),
@@ -101,7 +101,7 @@ impl Renderable for DrawPedestrian {
 
     fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, ctx: &DrawCtx) {
         if let Some(color) = opts.color(self.get_id()) {
-            g.draw_circle(color, &self.circle);
+            g.draw_circle(color, &self.body_circle);
         } else {
             g.redraw(&self.draw_default);
         }
@@ -114,7 +114,7 @@ impl Renderable for DrawPedestrian {
     }
 
     fn get_outline(&self, _: &Map) -> Polygon {
-        self.circle.to_polygon()
+        self.body_circle.to_polygon()
     }
 
     fn get_zorder(&self) -> isize {
