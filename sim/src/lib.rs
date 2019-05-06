@@ -198,9 +198,17 @@ impl DrivingGoal {
         Position::new(lane, map.get_l(lane).length())
     }
 
-    pub fn make_router(&self, path: Path, map: &Map) -> Router {
+    pub fn make_router(&self, path: Path, map: &Map, vt: VehicleType) -> Router {
         match self {
-            DrivingGoal::ParkNear(b) => Router::park_near(path, *b),
+            DrivingGoal::ParkNear(b) => {
+                if vt == VehicleType::Bike {
+                    // TODO Stop closer to the building?
+                    let end = path.last_step().as_lane();
+                    Router::bike_then_stop(path, map.get_l(end).length() / 2.0)
+                } else {
+                    Router::park_near(path, *b)
+                }
+            }
             DrivingGoal::Border(i, last_lane) => {
                 Router::end_at_border(path, map.get_l(*last_lane).length(), *i)
             }

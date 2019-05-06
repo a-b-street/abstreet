@@ -149,13 +149,13 @@ impl TripSpawner {
                         ));
                     }
                     let trip = trips.new_trip(start_time, legs);
-
+                    let router = goal.make_router(path, map, vehicle_spec.vehicle_type);
                     scheduler.push(
                         start_time,
                         Command::SpawnCar(CreateCar::for_appearing(
                             vehicle_spec.make(car_id.unwrap(), None),
                             start_pos,
-                            goal.make_router(path, map),
+                            router,
                             trip,
                         )),
                     );

@@ -1,7 +1,7 @@
 use crate::{
     AgentID, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, Event, ParkingSimState,
-    ParkingSpot, PedestrianID, Router, Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState,
-    TripID, Vehicle, WalkingSimState,
+    ParkingSpot, PedestrianID, Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState, TripID,
+    Vehicle, WalkingSimState,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::Duration;
@@ -129,14 +129,11 @@ impl TripManager {
             return;
         };
 
+        let router = drive_to.make_router(path, map, parked_car.vehicle.vehicle_type);
         scheduler.push(
             time,
             Command::SpawnCar(CreateCar::for_parked_car(
-                parked_car,
-                drive_to.make_router(path, map),
-                trip.id,
-                parking,
-                map,
+                parked_car, router, trip.id, parking, map,
             )),
         );
     }
@@ -173,27 +170,18 @@ impl TripManager {
             start: driving_pos,
             end,
             can_use_bus_lanes: false,
-            can_use_bike_lanes: false,
+            can_use_bike_lanes: true,
         }) {
             p
         } else {
             println!(
-                "Aborting a trip because no path for the car portion! {:?} to {:?}",
+                "Aborting a trip because no path for the bike portion! {:?} to {:?}",
                 driving_pos, end
             );
             return;
         };
 
-        let router = match drive_to {
-            // TODO Stop closer to the building?
-            DrivingGoal::ParkNear(_) => {
-                Router::bike_then_stop(path, map.get_l(end.lane()).length() / 2.0)
-            }
-            DrivingGoal::Border(i, last_lane) => {
-                Router::end_at_border(path, map.get_l(last_lane).length(), i)
-            }
-        };
-
+        let router = drive_to.make_router(path, map, vehicle.vehicle_type);
         scheduler.push(
             time,
             Command::SpawnCar(CreateCar::for_appearing(

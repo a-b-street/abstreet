@@ -32,7 +32,7 @@ impl DrawBike {
                 // TODO Hard to see on the greenish bike lanes? :P
                 CarStatus::Moving => cs.get_def("moving bike", Color::GREEN),
                 CarStatus::Stuck => cs.get_def("stuck bike", Color::RED),
-                CarStatus::Parked => panic!("Can't have a parked bike"),
+                CarStatus::Parked => panic!("Can't have a parked bike {}", input.id),
             },
             &polygon,
         )]);
