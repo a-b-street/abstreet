@@ -79,20 +79,21 @@ impl SandboxMode {
     }
 
     pub fn event(state: &mut GameState, ctx: &mut EventCtx) -> EventLoopMode {
+        // Always use Animation, so turn blinkers work.
         match state.mode {
             Mode::Sandbox(ref mut mode) => {
                 if let State::Spawning(ref mut spawner) = mode.state {
                     if spawner.event(ctx, &mut state.ui) {
                         mode.state = State::Paused;
                     }
-                    return EventLoopMode::InputOnly;
+                    return EventLoopMode::Animation;
                 }
                 mode.time_travel.record(&state.ui);
                 if let State::TimeTraveling = mode.state {
                     if mode.time_travel.event(ctx) {
                         mode.state = State::Paused;
                     }
-                    return EventLoopMode::InputOnly;
+                    return EventLoopMode::Animation;
                 }
 
                 let mut txt = Text::prompt("Sandbox Mode");
@@ -144,7 +145,7 @@ impl SandboxMode {
                     spawner::AgentSpawner::new(ctx, &mut state.ui, &mut mode.menu)
                 {
                     mode.state = State::Spawning(spawner);
-                    return EventLoopMode::InputOnly;
+                    return EventLoopMode::Animation;
                 }
 
                 if mode.following.is_none() {
@@ -188,7 +189,7 @@ impl SandboxMode {
                     mode.time_travel.start(state.ui.primary.sim.time());
                     // Do this again, in case recording was previously disabled.
                     mode.time_travel.record(&state.ui);
-                    return EventLoopMode::InputOnly;
+                    return EventLoopMode::Animation;
                 }
 
                 if mode.menu.action("quit") {
@@ -260,7 +261,7 @@ impl SandboxMode {
                             state.ui.primary.sim.step(&state.ui.primary.map);
                             //*ctx.recalculate_current_selection = true;
                         }
-                        EventLoopMode::InputOnly
+                        EventLoopMode::Animation
                     }
                     State::Running {
                         ref mut last_step,

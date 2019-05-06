@@ -289,14 +289,16 @@ fn loop_forever<G: GUI>(
             };
         }
 
-        // Don't draw if an event was ignored. Every keypress also fires a release event, most of
-        // which are ignored.
-        if any_input_used {
-            // But if the event caused a state-change, the drawing state might be different too.
-            // Need to recalculate what menu entries and such are valid. So send through a no-op
-            // event.
-            let (new_state, _, _) = state.event(Event::NoOp, &prerender, &program);
-            state = new_state;
+        // Don't draw if an event was ignored and we're not in Animation mode. Every keypress also
+        // fires a release event, most of which are ignored.
+        if any_input_used || !wait_for_events {
+            if any_input_used {
+                // But if the event caused a state-change, the drawing state might be different
+                // too. Need to recalculate what menu entries and such are valid. So send through
+                // a no-op event.
+                let (new_state, _, _) = state.event(Event::NoOp, &prerender, &program);
+                state = new_state;
+            }
 
             state.draw(&prerender.display, &program, &prerender, false);
             prerender.num_uploads.set(0);
