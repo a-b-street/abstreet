@@ -57,7 +57,7 @@ impl Duration {
     }
 
     pub fn is_multiple_of(self, other: Duration) -> bool {
-        self % other == Duration::ZERO
+        self.0 % other.0 == 0.0
     }
 
     // TODO Why have these two forms? Consolidate
@@ -217,13 +217,5 @@ impl ops::Div<Duration> for Duration {
             panic!("Can't divide {} / {}", self, other);
         }
         self.0 / other.0
-    }
-}
-
-impl ops::Rem for Duration {
-    type Output = Duration;
-
-    fn rem(self, other: Duration) -> Duration {
-        Duration::seconds(self.0 % other.0)
     }
 }

@@ -57,15 +57,36 @@ impl DrawPedestrian {
                 .project_away(radius, input.facing.rotate_degs(-30.0)),
             foot_radius,
         );
-        // TODO Foot animation looks weird. Disabled for now.
         let foot_color = cs.get_def("pedestrian foot", Color::BLACK);
-        if input.waiting_for_turn.is_some() || true {
+        // Jitter based on ID so we don't all walk synchronized.
+        let remainder = if input.id.0 % 2 == 0 { 0.0 } else { 1.0 };
+        if input.waiting_for_turn.is_some() {
             draw_default.push((foot_color, left_foot.to_polygon()));
             draw_default.push((foot_color, right_foot.to_polygon()));
-        } else if time % Duration::seconds(0.4) < Duration::seconds(0.2) {
+        } else if time.inner_seconds() * 10.0 % 2.0 == remainder {
             draw_default.push((foot_color, left_foot.to_polygon()));
+            draw_default.push((
+                foot_color,
+                Circle::new(
+                    input
+                        .pos
+                        .project_away(0.9 * radius, input.facing.rotate_degs(-30.0)),
+                    foot_radius,
+                )
+                .to_polygon(),
+            ));
         } else {
             draw_default.push((foot_color, right_foot.to_polygon()));
+            draw_default.push((
+                foot_color,
+                Circle::new(
+                    input
+                        .pos
+                        .project_away(0.9 * radius, input.facing.rotate_degs(30.0)),
+                    foot_radius,
+                )
+                .to_polygon(),
+            ));
         };
 
         let body_circle = Circle::new(input.pos, radius);
