@@ -26,11 +26,14 @@
 ## General ezgui stuff
 
 - optionally limit canvas scrolling/zooming to some map bounds
-- X on all menus
 - when dragging, dont give mouse movement to UI elements
 - start context menu when left click releases and we're not dragging
 - can we change labels in modal or top menu? show/hide
-- bold hotkey letters
+- label sections of modal menus
+- distinguish hints from status of modal menus, for hiding purposes
+- move context menus out of ezgui
+	- simplify/remove UserInput.
+	- maybe separate impls for context, wizard, modal menu make sense.
 
 ## New features
 
@@ -110,4 +113,3 @@
 		- highlight a region, draw counts to/from it in some meaningful way
 		- timer slider (except timeslices arent neatly in hour blocks, though they maybe should be)
 		- a table (with color-coded entries) is actually perfect
-

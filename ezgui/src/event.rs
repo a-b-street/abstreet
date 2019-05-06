@@ -3,7 +3,9 @@ use glium::glutin;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Event {
-    InitializeApplication,
+    // Used to initialize the application and also to recalculate menu state when some other event
+    // is used.
+    NoOp,
     LeftMouseButtonDown,
     LeftMouseButtonUp,
     RightMouseButtonDown,

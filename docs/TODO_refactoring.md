@@ -33,3 +33,8 @@
 	- canvas owning text-drawing is maybe a bit weird, at least API-wise
 	- hide stuff inside the ctx's? canvas and prerender shouldnt even be known outside of crate
 - generic World with quadtree should have actions on objects
+- loading screen
+	- cleanup hack: dont put glyphbrush in canvas at all
+	- FileWithProgress should go directly into Timer
+		- need to understand lifetimes
+	- cleanup abstutil Timer stuff generally
