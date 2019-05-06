@@ -2,10 +2,8 @@ use crate::helpers::{ColorScheme, ID};
 use crate::render::{should_draw_blinkers, DrawCtx, DrawOptions, Renderable};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Circle, Distance, PolyLine, Polygon};
-use map_model::Map;
+use map_model::{Map, LANE_THICKNESS};
 use sim::{DrawPedestrianInput, PedestrianID};
-
-const RADIUS: Distance = Distance::const_meters(1.0);
 
 pub struct DrawPedestrian {
     pub id: PedestrianID,
@@ -23,12 +21,18 @@ impl DrawPedestrian {
         prerender: &Prerender,
         cs: &ColorScheme,
     ) -> DrawPedestrian {
+        // TODO Slight issues with rendering small pedestrians:
+        // - route visualization is thick
+        // - there are little skips when making turns
+        // - front paths are too skinny
+        let radius = LANE_THICKNESS / 4.0;
+
         let turn_arrow = if let Some(t) = input.waiting_for_turn {
             let angle = map.get_t(t).angle();
             Some(
                 PolyLine::new(vec![
-                    input.pos.project_away(RADIUS / 2.0, angle.opposite()),
-                    input.pos.project_away(RADIUS / 2.0, angle),
+                    input.pos.project_away(radius / 2.0, angle.opposite()),
+                    input.pos.project_away(radius / 2.0, angle),
                 ])
                 .make_arrow(Distance::meters(0.25))
                 .unwrap(),
@@ -37,7 +41,7 @@ impl DrawPedestrian {
             None
         };
 
-        let circle = Circle::new(input.pos, RADIUS);
+        let circle = Circle::new(input.pos, radius);
 
         let draw_default = prerender.upload(vec![(
             if input.preparing_bike {

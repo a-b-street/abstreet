@@ -5,7 +5,7 @@ use crate::{
 };
 use abstutil::{deserialize_multimap, serialize_multimap, MultiMap};
 use geom::{Distance, Duration, Line, PolyLine, Speed};
-use map_model::{BuildingID, Map, Path, PathStep, Traversable};
+use map_model::{BuildingID, Map, Path, PathStep, Traversable, LANE_THICKNESS};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
@@ -296,14 +296,36 @@ impl Pedestrian {
                 } else {
                     time_int.percent(time)
                 };
-                on.dist_along(dist_int.lerp(percent), map).0
+                let (pos, angle) = on.dist_along(dist_int.lerp(percent), map);
+                pos.project_away(
+                    LANE_THICKNESS / 4.0,
+                    if dist_int.start < dist_int.end {
+                        angle.rotate_degs(90.0)
+                    } else {
+                        angle.rotate_degs(-90.0)
+                    },
+                )
             }
-            PedState::WaitingToTurn(dist) => on.dist_along(dist, map).0,
+            PedState::WaitingToTurn(dist) => {
+                let (pos, angle) = on.dist_along(dist, map);
+                pos.project_away(
+                    LANE_THICKNESS / 4.0,
+                    if dist == Distance::ZERO {
+                        angle.rotate_degs(-90.0)
+                    } else {
+                        angle.rotate_degs(90.0)
+                    },
+                )
+            }
             PedState::LeavingBuilding(b, ref time_int) => {
                 let front_path = &map.get_b(b).front_path;
                 front_path
                     .line
                     .dist_along(time_int.percent(time) * front_path.line.length())
+                    .project_away(
+                        LANE_THICKNESS / 4.0,
+                        front_path.line.angle().rotate_degs(90.0),
+                    )
             }
             PedState::EnteringBuilding(b, ref time_int) => {
                 let front_path = &map.get_b(b).front_path;
@@ -311,6 +333,10 @@ impl Pedestrian {
                     .line
                     .reverse()
                     .dist_along(time_int.percent(time) * front_path.line.length())
+                    .project_away(
+                        LANE_THICKNESS / 4.0,
+                        front_path.line.angle().rotate_degs(-90.0),
+                    )
             }
             PedState::StartingToBike(_, ref line, ref time_int) => {
                 line.percent_along(time_int.percent(time))
