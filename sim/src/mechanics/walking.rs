@@ -240,7 +240,10 @@ impl WalkingSimState {
         dist_ahead: Option<Distance>,
     ) -> Option<PolyLine> {
         let p = self.peds.get(&id)?;
-        p.path.trace(map, p.get_dist_along(time, map), dist_ahead)
+        let body_radius = LANE_THICKNESS / 4.0;
+        let dist = (p.get_dist_along(time, map) + body_radius)
+            .min(p.path.current_step().as_traversable().length(map));
+        p.path.trace(map, dist, dist_ahead)
     }
 
     pub fn get_path(&self, id: PedestrianID) -> Option<&Path> {
