@@ -31,8 +31,7 @@ use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 
 // http://pccsc.net/bicycle-parking-info/ says 68 inches, which is 1.73m
-pub const MIN_BIKE_LENGTH: Distance = Distance::const_meters(1.7);
-pub const MAX_BIKE_LENGTH: Distance = Distance::const_meters(2.0);
+pub const BIKE_LENGTH: Distance = Distance::const_meters(1.8);
 // These two must be < PARKING_SPOT_LENGTH
 pub const MIN_CAR_LENGTH: Distance = Distance::const_meters(4.5);
 pub const MAX_CAR_LENGTH: Distance = Distance::const_meters(6.5);

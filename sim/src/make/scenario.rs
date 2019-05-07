@@ -1,6 +1,6 @@
 use crate::{
     CarID, DrivingGoal, ParkingSpot, SidewalkSpot, Sim, TripSpec, VehicleSpec, VehicleType,
-    MAX_BIKE_LENGTH, MAX_CAR_LENGTH, MIN_BIKE_LENGTH, MIN_CAR_LENGTH,
+    BIKE_LENGTH, MAX_CAR_LENGTH, MIN_CAR_LENGTH,
 };
 use abstutil;
 use abstutil::{fork_rng, Timer, WeightedUsizeChoice};
@@ -191,11 +191,14 @@ impl Scenario {
     }
 
     pub fn rand_bike(rng: &mut XorShiftRng) -> VehicleSpec {
-        let length = Scenario::rand_dist(rng, MIN_BIKE_LENGTH, MAX_BIKE_LENGTH);
-        let max_speed = Some(Speed::miles_per_hour(10.0));
+        let max_speed = Some(Scenario::rand_speed(
+            rng,
+            Speed::miles_per_hour(8.0),
+            Speed::miles_per_hour(10.0),
+        ));
         VehicleSpec {
             vehicle_type: VehicleType::Bike,
-            length,
+            length: BIKE_LENGTH,
             max_speed,
         }
     }
@@ -203,6 +206,14 @@ impl Scenario {
     pub fn rand_dist(rng: &mut XorShiftRng, low: Distance, high: Distance) -> Distance {
         assert!(high > low);
         Distance::meters(rng.gen_range(low.inner_meters(), high.inner_meters()))
+    }
+
+    pub fn rand_speed(rng: &mut XorShiftRng, low: Speed, high: Speed) -> Speed {
+        assert!(high > low);
+        Speed::meters_per_second(rng.gen_range(
+            low.inner_meters_per_second(),
+            high.inner_meters_per_second(),
+        ))
     }
 }
 
@@ -443,7 +454,7 @@ impl BorderSpawnOverTime {
             }
         }
         if starting_biking_lanes.is_empty()
-            || map.get_l(starting_biking_lanes[0]).length() < MAX_BIKE_LENGTH
+            || map.get_l(starting_biking_lanes[0]).length() < BIKE_LENGTH
         {
             timer.warn(format!(
                 "Can't start bike at border for {}",
