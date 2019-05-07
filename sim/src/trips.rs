@@ -4,7 +4,7 @@ use crate::{
     Vehicle, WalkingSimState,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
-use geom::Duration;
+use geom::{Duration, Speed};
 use map_model::{BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathRequest};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, VecDeque};
@@ -98,13 +98,7 @@ impl TripManager {
             .unwrap()
             .0];
 
-        assert_eq!(
-            trip.legs.pop_front(),
-            Some(TripLeg::Walk(
-                ped,
-                SidewalkSpot::parking_spot(spot, map, parking)
-            ))
-        );
+        trip.assert_walking_leg(ped, SidewalkSpot::parking_spot(spot, map, parking));
         let (car, drive_to) = match trip.legs[0] {
             TripLeg::Drive(ref vehicle, ref to) => (vehicle.id, to.clone()),
             _ => unreachable!(),
@@ -152,10 +146,7 @@ impl TripManager {
             .unwrap()
             .0];
 
-        assert_eq!(
-            trip.legs.pop_front(),
-            Some(TripLeg::Walk(ped, spot.clone()))
-        );
+        trip.assert_walking_leg(ped, spot.clone());
         let (vehicle, drive_to) = match trip.legs[0] {
             TripLeg::Drive(ref vehicle, ref to) => (vehicle.clone(), to.clone()),
             _ => unreachable!(),
@@ -228,10 +219,7 @@ impl TripManager {
             .remove(&AgentID::Pedestrian(ped))
             .unwrap()
             .0];
-        assert_eq!(
-            trip.legs.pop_front().unwrap(),
-            TripLeg::Walk(ped, SidewalkSpot::building(bldg, map))
-        );
+        trip.assert_walking_leg(ped, SidewalkSpot::building(bldg, map));
         assert!(trip.legs.is_empty());
         assert!(!trip.finished_at.is_some());
         trip.finished_at = Some(time);
@@ -247,10 +235,13 @@ impl TripManager {
     ) -> bool {
         self.events.push(Event::PedReachedBusStop(ped, stop));
         let trip = &mut self.trips[self.active_trip_mode[&AgentID::Pedestrian(ped)].0];
-        assert_eq!(
-            trip.legs[0],
-            TripLeg::Walk(ped, SidewalkSpot::bus_stop(stop, map))
-        );
+        match trip.legs[0] {
+            TripLeg::Walk(p, _, ref spot) => {
+                assert_eq!(p, ped);
+                assert_eq!(*spot, SidewalkSpot::bus_stop(stop, map));
+            }
+            _ => unreachable!(),
+        }
         match trip.legs[1] {
             TripLeg::RideBus(_, route, stop2) => {
                 if transit.ped_waiting_for_bus(ped, stop, route, stop2) {
@@ -304,10 +295,7 @@ impl TripManager {
             .remove(&AgentID::Pedestrian(ped))
             .unwrap()
             .0];
-        assert_eq!(
-            trip.legs.pop_front().unwrap(),
-            TripLeg::Walk(ped, SidewalkSpot::end_at_border(i, map).unwrap())
-        );
+        trip.assert_walking_leg(ped, SidewalkSpot::end_at_border(i, map).unwrap());
         assert!(trip.legs.is_empty());
         assert!(!trip.finished_at.is_some());
         trip.finished_at = Some(time);
@@ -343,7 +331,7 @@ impl TripManager {
     pub fn trip_to_agent(&self, id: TripID) -> Option<AgentID> {
         let trip = self.trips.get(id.0)?;
         match trip.legs.get(0)? {
-            TripLeg::Walk(id, _) => Some(AgentID::Pedestrian(*id)),
+            TripLeg::Walk(id, _, _) => Some(AgentID::Pedestrian(*id)),
             TripLeg::Drive(vehicle, _) => Some(AgentID::Car(vehicle.id)),
             // TODO Should be the bus, but apparently transit sim tracks differently?
             TripLeg::RideBus(ped, _, _) => Some(AgentID::Pedestrian(*ped)),
@@ -398,8 +386,8 @@ impl Trip {
     }
 
     fn spawn_ped(&self, time: Duration, start: SidewalkSpot, map: &Map, scheduler: &mut Scheduler) {
-        let (ped, walk_to) = match self.legs[0] {
-            TripLeg::Walk(ped, ref to) => (ped, to.clone()),
+        let (ped, speed, walk_to) = match self.legs[0] {
+            TripLeg::Walk(ped, speed, ref to) => (ped, speed, to.clone()),
             _ => unreachable!(),
         };
 
@@ -422,6 +410,7 @@ impl Trip {
             time,
             Command::SpawnPed(CreatePedestrian {
                 id: ped,
+                speed,
                 start,
                 goal: walk_to,
                 path,
@@ -429,13 +418,23 @@ impl Trip {
             }),
         );
     }
+
+    fn assert_walking_leg(&mut self, ped: PedestrianID, goal: SidewalkSpot) {
+        match self.legs.pop_front() {
+            Some(TripLeg::Walk(p, _, spot)) => {
+                assert_eq!(ped, p);
+                assert_eq!(goal, spot);
+            }
+            _ => unreachable!(),
+        }
+    }
 }
 
 // These don't specify where the leg starts, since it might be unknown -- like when we drive and
 // don't know where we'll wind up parking.
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub enum TripLeg {
-    Walk(PedestrianID, SidewalkSpot),
+    Walk(PedestrianID, Speed, SidewalkSpot),
     Drive(Vehicle, DrivingGoal),
     RideBus(PedestrianID, BusRouteID, BusStopID),
     ServeBusRoute(CarID, BusRouteID),

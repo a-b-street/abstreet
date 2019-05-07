@@ -87,8 +87,12 @@ impl Sim {
         map: &Map,
     ) -> (Option<PedestrianID>, Option<CarID>) {
         let (ped_id, car_id) = match spec {
-            TripSpec::CarAppearing(_, ref spec, ref goal) => {
-                let car = CarID(self.car_id_counter, spec.vehicle_type);
+            TripSpec::CarAppearing {
+                ref vehicle_spec,
+                ref goal,
+                ..
+            } => {
+                let car = CarID(self.car_id_counter, vehicle_spec.vehicle_type);
                 self.car_id_counter += 1;
                 let ped = match goal {
                     DrivingGoal::ParkNear(_) => {
@@ -100,14 +104,14 @@ impl Sim {
                 };
                 (ped, Some(car))
             }
-            TripSpec::UsingParkedCar(_, _, _)
-            | TripSpec::JustWalking(_, _)
-            | TripSpec::UsingTransit(_, _, _, _, _) => {
+            TripSpec::UsingParkedCar { .. }
+            | TripSpec::JustWalking { .. }
+            | TripSpec::UsingTransit { .. } => {
                 let id = PedestrianID(self.ped_id_counter);
                 self.ped_id_counter += 1;
                 (Some(id), None)
             }
-            TripSpec::UsingBike(_, _, _) => {
+            TripSpec::UsingBike { .. } => {
                 let ped = PedestrianID(self.ped_id_counter);
                 self.ped_id_counter += 1;
                 let car = CarID(self.car_id_counter, VehicleType::Bike);

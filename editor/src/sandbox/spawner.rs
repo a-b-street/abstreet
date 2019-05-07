@@ -194,10 +194,11 @@ impl AgentSpawner {
                 (Source::Walking(from), Goal::Building(to)) => {
                     sim.schedule_trip(
                         sim.time(),
-                        TripSpec::JustWalking(
-                            SidewalkSpot::building(from, map),
-                            SidewalkSpot::building(to, map),
-                        ),
+                        TripSpec::JustWalking {
+                            start: SidewalkSpot::building(from, map),
+                            goal: SidewalkSpot::building(to, map),
+                            ped_speed: Scenario::rand_ped_speed(&mut rng),
+                        },
                         map,
                     );
                 }
@@ -205,7 +206,11 @@ impl AgentSpawner {
                     if let Some(goal) = SidewalkSpot::end_at_border(to, map) {
                         sim.schedule_trip(
                             sim.time(),
-                            TripSpec::JustWalking(SidewalkSpot::building(from, map), goal),
+                            TripSpec::JustWalking {
+                                start: SidewalkSpot::building(from, map),
+                                goal,
+                                ped_speed: Scenario::rand_ped_speed(&mut rng),
+                            },
                             map,
                         );
                     } else {
@@ -215,11 +220,12 @@ impl AgentSpawner {
                 (Source::Driving(from), Goal::Building(to)) => {
                     sim.schedule_trip(
                         sim.time(),
-                        TripSpec::CarAppearing(
-                            from,
-                            Scenario::rand_car(&mut rng),
-                            DrivingGoal::ParkNear(to),
-                        ),
+                        TripSpec::CarAppearing {
+                            start_pos: from,
+                            vehicle_spec: Scenario::rand_car(&mut rng),
+                            goal: DrivingGoal::ParkNear(to),
+                            ped_speed: Scenario::rand_ped_speed(&mut rng),
+                        },
                         map,
                     );
                 }
@@ -228,7 +234,12 @@ impl AgentSpawner {
                     {
                         sim.schedule_trip(
                             sim.time(),
-                            TripSpec::CarAppearing(from, Scenario::rand_car(&mut rng), goal),
+                            TripSpec::CarAppearing {
+                                start_pos: from,
+                                vehicle_spec: Scenario::rand_car(&mut rng),
+                                goal,
+                                ped_speed: Scenario::rand_ped_speed(&mut rng),
+                            },
                             map,
                         );
                     } else {
@@ -273,21 +284,24 @@ fn spawn_agents_around(i: IntersectionID, ui: &mut UI) {
         let lane = map.get_l(*l);
         if lane.is_driving() {
             for _ in 0..10 {
-                let vehicle = Scenario::rand_car(&mut rng);
-                if vehicle.length > lane.length() {
+                let vehicle_spec = Scenario::rand_car(&mut rng);
+                if vehicle_spec.length > lane.length() {
                     continue;
                 }
                 sim.schedule_trip(
                     // TODO +1?
                     sim.time(),
-                    TripSpec::CarAppearing(
-                        Position::new(
+                    TripSpec::CarAppearing {
+                        start_pos: Position::new(
                             lane.id,
-                            Scenario::rand_dist(&mut rng, vehicle.length, lane.length()),
+                            Scenario::rand_dist(&mut rng, vehicle_spec.length, lane.length()),
                         ),
-                        vehicle,
-                        DrivingGoal::ParkNear(map.all_buildings().choose(&mut rng).unwrap().id),
-                    ),
+                        vehicle_spec,
+                        goal: DrivingGoal::ParkNear(
+                            map.all_buildings().choose(&mut rng).unwrap().id,
+                        ),
+                        ped_speed: Scenario::rand_ped_speed(&mut rng),
+                    },
                     map,
                 );
             }
@@ -295,17 +309,18 @@ fn spawn_agents_around(i: IntersectionID, ui: &mut UI) {
             for _ in 0..5 {
                 sim.schedule_trip(
                     sim.time(),
-                    TripSpec::JustWalking(
-                        SidewalkSpot::suddenly_appear(
+                    TripSpec::JustWalking {
+                        start: SidewalkSpot::suddenly_appear(
                             lane.id,
                             Scenario::rand_dist(&mut rng, 0.1 * lane.length(), 0.9 * lane.length()),
                             map,
                         ),
-                        SidewalkSpot::building(
+                        goal: SidewalkSpot::building(
                             map.all_buildings().choose(&mut rng).unwrap().id,
                             map,
                         ),
-                    ),
+                        ped_speed: Scenario::rand_ped_speed(&mut rng),
+                    },
                     map,
                 );
             }

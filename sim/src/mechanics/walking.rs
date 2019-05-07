@@ -9,8 +9,6 @@ use map_model::{BuildingID, Map, Path, PathStep, Traversable, LANE_THICKNESS};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
-// 3mph
-const SPEED: Speed = Speed::const_meters_per_second(1.34);
 const TIME_TO_START_BIKING: Duration = Duration::const_seconds(30.0);
 const TIME_TO_FINISH_BIKING: Duration = Duration::const_seconds(45.0);
 
@@ -54,13 +52,14 @@ impl WalkingSimState {
                 DistanceInterval::new_walking(Distance::ZERO, Distance::meters(1.0)),
                 TimeInterval::new(Duration::ZERO, Duration::seconds(1.0)),
             ),
+            speed: params.speed,
             path: params.path,
             goal: params.goal,
         };
         ped.state = match params.start.connection {
             SidewalkPOI::Building(b) => PedState::LeavingBuilding(
                 b,
-                TimeInterval::new(now, now + map.get_b(b).front_path.line.length() / SPEED),
+                TimeInterval::new(now, now + map.get_b(b).front_path.line.length() / ped.speed),
             ),
             SidewalkPOI::BikeRack(driving_pos) => PedState::FinishingBiking(
                 params.start.clone(),
@@ -127,7 +126,7 @@ impl WalkingSimState {
                                 b,
                                 TimeInterval::new(
                                     now,
-                                    now + map.get_b(b).front_path.line.length() / SPEED,
+                                    now + map.get_b(b).front_path.line.length() / ped.speed,
                                 ),
                             );
                             scheduler.push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
@@ -256,6 +255,7 @@ impl WalkingSimState {
 struct Pedestrian {
     id: PedestrianID,
     state: PedState,
+    speed: Speed,
 
     path: Path,
     goal: SidewalkSpot,
@@ -274,7 +274,7 @@ impl Pedestrian {
             }
         };
         let dist_int = DistanceInterval::new_walking(start_dist, end_dist);
-        let time_int = TimeInterval::new(start_time, start_time + dist_int.length() / SPEED);
+        let time_int = TimeInterval::new(start_time, start_time + dist_int.length() / self.speed);
         PedState::Crossing(dist_int, time_int)
     }
 

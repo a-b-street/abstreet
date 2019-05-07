@@ -215,6 +215,15 @@ impl Scenario {
             high.inner_meters_per_second(),
         ))
     }
+
+    pub fn rand_ped_speed(rng: &mut XorShiftRng) -> Speed {
+        // 2-3mph
+        Scenario::rand_speed(
+            rng,
+            Speed::meters_per_second(0.894),
+            Speed::meters_per_second(1.34),
+        )
+    }
 }
 
 impl SpawnOverTime {
@@ -251,11 +260,12 @@ impl SpawnOverTime {
                 reserved_cars.insert(parked_car.vehicle.id);
                 sim.schedule_trip(
                     spawn_time,
-                    TripSpec::UsingParkedCar(
-                        SidewalkSpot::building(from_bldg, map),
-                        parked_car.spot,
+                    TripSpec::UsingParkedCar {
+                        start: SidewalkSpot::building(from_bldg, map),
+                        spot: parked_car.spot,
                         goal,
-                    ),
+                        ped_speed: Scenario::rand_ped_speed(rng),
+                    },
                     map,
                 );
                 return;
@@ -288,11 +298,12 @@ impl SpawnOverTime {
                     if ok {
                         sim.schedule_trip(
                             spawn_time,
-                            TripSpec::UsingBike(
-                                SidewalkSpot::building(from_bldg, map),
-                                Scenario::rand_bike(rng),
+                            TripSpec::UsingBike {
+                                start: SidewalkSpot::building(from_bldg, map),
+                                vehicle: Scenario::rand_bike(rng),
                                 goal,
-                            ),
+                                ped_speed: Scenario::rand_ped_speed(rng),
+                            },
                             map,
                         );
                         return;
@@ -316,14 +327,29 @@ impl SpawnOverTime {
                 {
                     sim.schedule_trip(
                         spawn_time,
-                        TripSpec::UsingTransit(start_spot, route, stop1, stop2, goal),
+                        TripSpec::UsingTransit {
+                            start: start_spot,
+                            route,
+                            stop1,
+                            stop2,
+                            goal,
+                            ped_speed: Scenario::rand_ped_speed(rng),
+                        },
                         map,
                     );
                     return;
                 }
             }
 
-            sim.schedule_trip(spawn_time, TripSpec::JustWalking(start_spot, goal), map);
+            sim.schedule_trip(
+                spawn_time,
+                TripSpec::JustWalking {
+                    start: start_spot,
+                    goal,
+                    ped_speed: Scenario::rand_ped_speed(rng),
+                },
+                map,
+            );
             return;
         }
 
@@ -365,14 +391,29 @@ impl BorderSpawnOverTime {
                     {
                         sim.schedule_trip(
                             spawn_time,
-                            TripSpec::UsingTransit(start.clone(), route, stop1, stop2, goal),
+                            TripSpec::UsingTransit {
+                                start: start.clone(),
+                                route,
+                                stop1,
+                                stop2,
+                                goal,
+                                ped_speed: Scenario::rand_ped_speed(rng),
+                            },
                             map,
                         );
                         continue;
                     }
                 }
 
-                sim.schedule_trip(spawn_time, TripSpec::JustWalking(start.clone(), goal), map);
+                sim.schedule_trip(
+                    spawn_time,
+                    TripSpec::JustWalking {
+                        start: start.clone(),
+                        goal,
+                        ped_speed: Scenario::rand_ped_speed(rng),
+                    },
+                    map,
+                );
             }
         }
     }
@@ -419,12 +460,13 @@ impl BorderSpawnOverTime {
                 let vehicle = Scenario::rand_car(rng);
                 sim.schedule_trip(
                     spawn_time,
-                    TripSpec::CarAppearing(
+                    TripSpec::CarAppearing {
                         // TODO could pretty easily pick any lane here
-                        Position::new(starting_driving_lanes[0], vehicle.length),
-                        vehicle,
+                        start_pos: Position::new(starting_driving_lanes[0], vehicle.length),
+                        vehicle_spec: vehicle,
                         goal,
-                    ),
+                        ped_speed: Scenario::rand_ped_speed(rng),
+                    },
                     map,
                 );
             }
@@ -475,11 +517,12 @@ impl BorderSpawnOverTime {
                 let bike = Scenario::rand_bike(rng);
                 sim.schedule_trip(
                     spawn_time,
-                    TripSpec::CarAppearing(
-                        Position::new(starting_biking_lanes[0], bike.length),
-                        bike,
+                    TripSpec::CarAppearing {
+                        start_pos: Position::new(starting_biking_lanes[0], bike.length),
+                        vehicle_spec: bike,
                         goal,
-                    ),
+                        ped_speed: Scenario::rand_ped_speed(rng),
+                    },
                     map,
                 );
             }

@@ -4,7 +4,7 @@ use crate::{
     VehicleType,
 };
 use abstutil::Timer;
-use geom::Duration;
+use geom::{Duration, Speed};
 use map_model::{BusRouteID, BusStopID, Map, Path, PathRequest, Position};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeSet;
@@ -12,11 +12,37 @@ use std::collections::BTreeSet;
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub enum TripSpec {
     // Can be used to spawn from a border or anywhere for interactive debugging.
-    CarAppearing(Position, VehicleSpec, DrivingGoal),
-    UsingParkedCar(SidewalkSpot, ParkingSpot, DrivingGoal),
-    JustWalking(SidewalkSpot, SidewalkSpot),
-    UsingBike(SidewalkSpot, VehicleSpec, DrivingGoal),
-    UsingTransit(SidewalkSpot, BusRouteID, BusStopID, BusStopID, SidewalkSpot),
+    CarAppearing {
+        start_pos: Position,
+        vehicle_spec: VehicleSpec,
+        goal: DrivingGoal,
+        ped_speed: Speed,
+    },
+    UsingParkedCar {
+        start: SidewalkSpot,
+        spot: ParkingSpot,
+        goal: DrivingGoal,
+        ped_speed: Speed,
+    },
+    JustWalking {
+        start: SidewalkSpot,
+        goal: SidewalkSpot,
+        ped_speed: Speed,
+    },
+    UsingBike {
+        start: SidewalkSpot,
+        vehicle: VehicleSpec,
+        goal: DrivingGoal,
+        ped_speed: Speed,
+    },
+    UsingTransit {
+        start: SidewalkSpot,
+        route: BusRouteID,
+        stop1: BusStopID,
+        stop2: BusStopID,
+        goal: SidewalkSpot,
+        ped_speed: Speed,
+    },
 }
 
 #[derive(Serialize, Deserialize, PartialEq)]
@@ -44,7 +70,12 @@ impl TripSpawner {
     ) {
         // TODO We'll want to repeat this validation when we spawn stuff later for a second leg...
         match &spec {
-            TripSpec::CarAppearing(start_pos, vehicle_spec, goal) => {
+            TripSpec::CarAppearing {
+                start_pos,
+                vehicle_spec,
+                goal,
+                ..
+            } => {
                 if start_pos.dist_along() < vehicle_spec.length {
                     panic!(
                         "Can't spawn a car at {}; too close to the start",
@@ -69,7 +100,7 @@ impl TripSpawner {
                     DrivingGoal::ParkNear(_) => {}
                 }
             }
-            TripSpec::UsingParkedCar(_, spot, _) => {
+            TripSpec::UsingParkedCar { spot, .. } => {
                 let car_id = parking.get_car_at_spot(*spot).unwrap().vehicle.id;
                 if self.parked_cars_claimed.contains(&car_id) {
                     panic!(
@@ -79,15 +110,15 @@ impl TripSpawner {
                 }
                 self.parked_cars_claimed.insert(car_id);
             }
-            TripSpec::JustWalking(spot1, spot2) => {
-                if spot1 == spot2 {
+            TripSpec::JustWalking { start, goal, .. } => {
+                if start == goal {
                     panic!(
                         "A trip just walking from {:?} to {:?} doesn't make sense",
-                        spot1, spot2
+                        start, goal
                     );
                 }
             }
-            TripSpec::UsingBike(start, _, goal) => {
+            TripSpec::UsingBike { start, goal, .. } => {
                 if SidewalkSpot::bike_rack(start.sidewalk_pos.lane(), map).is_none() {
                     panic!(
                         "Can't start biking from {}; no biking or driving lane nearby?",
@@ -109,7 +140,7 @@ impl TripSpawner {
                     }
                 }
             }
-            TripSpec::UsingTransit(_, _, _, _, _) => {}
+            TripSpec::UsingTransit { .. } => {}
         };
 
         self.trips.push((start_time, ped_id, car_id, spec));
@@ -140,12 +171,18 @@ impl TripSpawner {
             }
             let path = maybe_path.unwrap();
             match spec {
-                TripSpec::CarAppearing(start_pos, vehicle_spec, goal) => {
+                TripSpec::CarAppearing {
+                    start_pos,
+                    vehicle_spec,
+                    goal,
+                    ped_speed,
+                } => {
                     let vehicle = vehicle_spec.make(car_id.unwrap(), None);
                     let mut legs = vec![TripLeg::Drive(vehicle.clone(), goal.clone())];
                     if let DrivingGoal::ParkNear(b) = goal {
                         legs.push(TripLeg::Walk(
                             ped_id.unwrap(),
+                            ped_speed,
                             SidewalkSpot::building(b, map),
                         ));
                     }
@@ -158,7 +195,12 @@ impl TripSpawner {
                         )),
                     );
                 }
-                TripSpec::UsingParkedCar(start, spot, goal) => {
+                TripSpec::UsingParkedCar {
+                    start,
+                    spot,
+                    goal,
+                    ped_speed,
+                } => {
                     let vehicle = &parking.get_car_at_spot(spot).unwrap().vehicle;
                     match start.connection {
                         SidewalkPOI::Building(b) => assert_eq!(vehicle.owner, Some(b)),
@@ -168,13 +210,14 @@ impl TripSpawner {
                     let parking_spot = SidewalkSpot::parking_spot(spot, map, parking);
 
                     let mut legs = vec![
-                        TripLeg::Walk(ped_id.unwrap(), parking_spot.clone()),
+                        TripLeg::Walk(ped_id.unwrap(), ped_speed, parking_spot.clone()),
                         TripLeg::Drive(vehicle.clone(), goal.clone()),
                     ];
                     match goal {
                         DrivingGoal::ParkNear(b) => {
                             legs.push(TripLeg::Walk(
                                 ped_id.unwrap(),
+                                ped_speed,
                                 SidewalkSpot::building(b, map),
                             ));
                         }
@@ -186,6 +229,7 @@ impl TripSpawner {
                         start_time,
                         Command::SpawnPed(CreatePedestrian {
                             id: ped_id.unwrap(),
+                            speed: ped_speed,
                             start,
                             goal: parking_spot,
                             path,
@@ -193,16 +237,21 @@ impl TripSpawner {
                         }),
                     );
                 }
-                TripSpec::JustWalking(start, goal) => {
+                TripSpec::JustWalking {
+                    start,
+                    goal,
+                    ped_speed,
+                } => {
                     let trip = trips.new_trip(
                         start_time,
-                        vec![TripLeg::Walk(ped_id.unwrap(), goal.clone())],
+                        vec![TripLeg::Walk(ped_id.unwrap(), ped_speed, goal.clone())],
                     );
 
                     scheduler.push(
                         start_time,
                         Command::SpawnPed(CreatePedestrian {
                             id: ped_id.unwrap(),
+                            speed: ped_speed,
                             start,
                             goal,
                             path,
@@ -210,16 +259,22 @@ impl TripSpawner {
                         }),
                     );
                 }
-                TripSpec::UsingBike(start, vehicle, goal) => {
+                TripSpec::UsingBike {
+                    start,
+                    vehicle,
+                    goal,
+                    ped_speed,
+                } => {
                     let walk_to = SidewalkSpot::bike_rack(start.sidewalk_pos.lane(), map).unwrap();
                     let mut legs = vec![
-                        TripLeg::Walk(ped_id.unwrap(), walk_to.clone()),
+                        TripLeg::Walk(ped_id.unwrap(), ped_speed, walk_to.clone()),
                         TripLeg::Drive(vehicle.make(car_id.unwrap(), None), goal.clone()),
                     ];
                     match goal {
                         DrivingGoal::ParkNear(b) => {
                             legs.push(TripLeg::Walk(
                                 ped_id.unwrap(),
+                                ped_speed,
                                 SidewalkSpot::building(b, map),
                             ));
                         }
@@ -231,6 +286,7 @@ impl TripSpawner {
                         start_time,
                         Command::SpawnPed(CreatePedestrian {
                             id: ped_id.unwrap(),
+                            speed: ped_speed,
                             start,
                             goal: walk_to,
                             path,
@@ -238,14 +294,21 @@ impl TripSpawner {
                         }),
                     );
                 }
-                TripSpec::UsingTransit(start, route, stop1, stop2, goal) => {
+                TripSpec::UsingTransit {
+                    start,
+                    route,
+                    stop1,
+                    stop2,
+                    goal,
+                    ped_speed,
+                } => {
                     let walk_to = SidewalkSpot::bus_stop(stop1, map);
                     let trip = trips.new_trip(
                         start_time,
                         vec![
-                            TripLeg::Walk(ped_id.unwrap(), walk_to.clone()),
+                            TripLeg::Walk(ped_id.unwrap(), ped_speed, walk_to.clone()),
                             TripLeg::RideBus(ped_id.unwrap(), route, stop2),
-                            TripLeg::Walk(ped_id.unwrap(), goal),
+                            TripLeg::Walk(ped_id.unwrap(), ped_speed, goal),
                         ],
                     );
 
@@ -253,6 +316,7 @@ impl TripSpawner {
                         start_time,
                         Command::SpawnPed(CreatePedestrian {
                             id: ped_id.unwrap(),
+                            speed: ped_speed,
                             start,
                             goal: walk_to,
                             path,
@@ -272,25 +336,30 @@ impl TripSpawner {
 impl TripSpec {
     fn get_pathfinding_request(&self, map: &Map, parking: &ParkingSimState) -> PathRequest {
         match self {
-            TripSpec::CarAppearing(start, vehicle_spec, goal) => PathRequest {
-                start: *start,
+            TripSpec::CarAppearing {
+                start_pos,
+                vehicle_spec,
+                goal,
+                ..
+            } => PathRequest {
+                start: *start_pos,
                 end: goal.goal_pos(map),
                 can_use_bus_lanes: vehicle_spec.vehicle_type == VehicleType::Bus,
                 can_use_bike_lanes: vehicle_spec.vehicle_type == VehicleType::Bike,
             },
-            TripSpec::UsingParkedCar(start, spot, _) => PathRequest {
+            TripSpec::UsingParkedCar { start, spot, .. } => PathRequest {
                 start: start.sidewalk_pos,
                 end: SidewalkSpot::parking_spot(*spot, map, parking).sidewalk_pos,
                 can_use_bike_lanes: false,
                 can_use_bus_lanes: false,
             },
-            TripSpec::JustWalking(start, goal) => PathRequest {
+            TripSpec::JustWalking { start, goal, .. } => PathRequest {
                 start: start.sidewalk_pos,
                 end: goal.sidewalk_pos,
                 can_use_bike_lanes: false,
                 can_use_bus_lanes: false,
             },
-            TripSpec::UsingBike(start, _, _) => PathRequest {
+            TripSpec::UsingBike { start, .. } => PathRequest {
                 start: start.sidewalk_pos,
                 end: SidewalkSpot::bike_rack(start.sidewalk_pos.lane(), map)
                     .unwrap()
@@ -298,7 +367,7 @@ impl TripSpec {
                 can_use_bike_lanes: false,
                 can_use_bus_lanes: false,
             },
-            TripSpec::UsingTransit(start, _, stop1, _, _) => PathRequest {
+            TripSpec::UsingTransit { start, stop1, .. } => PathRequest {
                 start: start.sidewalk_pos,
                 end: SidewalkSpot::bus_stop(*stop1, map).sidewalk_pos,
                 can_use_bike_lanes: false,

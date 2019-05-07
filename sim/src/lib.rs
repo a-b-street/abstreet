@@ -378,6 +378,7 @@ impl DistanceInterval {
 pub struct CreatePedestrian {
     pub id: PedestrianID,
     pub start: SidewalkSpot,
+    pub speed: Speed,
     pub goal: SidewalkSpot,
     pub path: Path,
     pub trip: TripID,
