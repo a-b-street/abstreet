@@ -50,7 +50,13 @@ impl ModalMenu {
         match self.menu.event(ctx.input.event, ctx.canvas) {
             InputResult::Canceled | InputResult::StillActive => {}
             InputResult::Done(action, _) => {
-                assert!(!ctx.input.event_consumed);
+                //assert!(!ctx.input.event_consumed);
+                if ctx.input.event_consumed {
+                    panic!(
+                        "{} chosen from ModalMenu, but event {:?} was already consumed",
+                        action, ctx.input.event
+                    );
+                }
                 ctx.input.event_consumed = true;
                 self.chosen_action = Some(action);
             }

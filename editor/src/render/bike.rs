@@ -33,31 +33,49 @@ impl DrawBike {
             CarStatus::Stuck => cs.get_def("stuck bike", Color::RED),
             CarStatus::Parked => panic!("Can't have a parked bike {}", input.id),
         };
-
         draw_default.push((
-            cs.get_def("bike frame", Color::grey(0.6)),
+            cs.get_def("bike frame", Color::rgb(0, 128, 128)),
             input.body.make_polygons(Distance::meters(0.4)),
         ));
-        {
-            // Handlebars
-            let (pos, angle) = input.body.dist_along(0.9 * input.body.length());
-            draw_default.push((
-                cs.get("bike frame"),
-                Line::new(
-                    pos.project_away(body_radius, angle.rotate_degs(90.0)),
-                    pos.project_away(body_radius, angle.rotate_degs(-90.0)),
-                )
-                .make_polygons(Distance::meters(0.1)),
-            ));
-        }
 
-        let (pos, facing) = input.body.dist_along(0.4 * input.body.length());
-        let body_circle = Circle::new(pos, body_radius);
+        let (body_pos, facing) = input.body.dist_along(0.4 * input.body.length());
+        let body_circle = Circle::new(body_pos, body_radius);
         draw_default.push((body_color, body_circle.to_polygon()));
         draw_default.push((
             cs.get("pedestrian head"),
-            Circle::new(pos, 0.5 * body_radius).to_polygon(),
+            Circle::new(body_pos, 0.5 * body_radius).to_polygon(),
         ));
+
+        {
+            // Handlebars
+            let (hand_pos, hand_angle) = input.body.dist_along(0.9 * input.body.length());
+            draw_default.push((
+                cs.get("bike frame"),
+                Line::new(
+                    hand_pos.project_away(body_radius, hand_angle.rotate_degs(90.0)),
+                    hand_pos.project_away(body_radius, hand_angle.rotate_degs(-90.0)),
+                )
+                .make_polygons(Distance::meters(0.1)),
+            ));
+
+            // Hands
+            draw_default.push((
+                body_color,
+                Line::new(
+                    body_pos.project_away(0.9 * body_radius, facing.rotate_degs(-30.0)),
+                    hand_pos.project_away(0.4 * body_radius, hand_angle.rotate_degs(-90.0)),
+                )
+                .make_polygons(Distance::meters(0.08)),
+            ));
+            draw_default.push((
+                body_color,
+                Line::new(
+                    body_pos.project_away(0.9 * body_radius, facing.rotate_degs(30.0)),
+                    hand_pos.project_away(0.4 * body_radius, hand_angle.rotate_degs(90.0)),
+                )
+                .make_polygons(Distance::meters(0.08)),
+            ));
+        }
 
         DrawBike {
             id: input.id,
