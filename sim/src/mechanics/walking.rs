@@ -9,8 +9,8 @@ use map_model::{BuildingID, Map, Path, PathStep, Traversable, LANE_THICKNESS};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
-// TODO These are comically fast.
-const SPEED: Speed = Speed::const_meters_per_second(3.9);
+// 3mph
+const SPEED: Speed = Speed::const_meters_per_second(1.34);
 const TIME_TO_START_BIKING: Duration = Duration::const_seconds(30.0);
 const TIME_TO_FINISH_BIKING: Duration = Duration::const_seconds(45.0);
 
