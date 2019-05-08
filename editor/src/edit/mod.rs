@@ -219,7 +219,6 @@ impl EditMode {
                     &ShowEverything::new(),
                 );
                 common.draw(g, &state.ui);
-                menu.draw(g);
 
                 // TODO Similar to drawing areas with traffic or not -- would be convenient to just
                 // supply a set of things to highlight and have something else take care of drawing
@@ -270,6 +269,8 @@ impl EditMode {
                     opts.override_colors.insert(ID::Intersection(*i), color);
                     state.ui.primary.draw_map.get_i(*i).draw(g, &opts, &ctx);
                 }
+
+                menu.draw(g);
             }
             Mode::Edit(EditMode::Saving(ref wizard))
             | Mode::Edit(EditMode::Loading(ref wizard)) => {

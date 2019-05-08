@@ -321,9 +321,9 @@ impl SandboxMode {
                         &ShowEverything::new(),
                     );
                     mode.common.draw(g, &state.ui);
-                    mode.menu.draw(g);
                     mode.route_viewer.draw(g, &state.ui);
                     mode.show_activity.draw(g, &state.ui);
+                    mode.menu.draw(g);
                 }
             },
             _ => unreachable!(),

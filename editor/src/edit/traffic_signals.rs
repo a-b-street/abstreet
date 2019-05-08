@@ -260,8 +260,6 @@ impl TrafficSignalEditor {
             .ui
             .draw(g, opts, &state.ui.primary.sim, &ShowEverything::new());
 
-        self.menu.draw(g);
-
         let ctx = DrawCtx {
             cs: &state.ui.cs,
             map: &state.ui.primary.map,
@@ -293,6 +291,7 @@ impl TrafficSignalEditor {
             wizard.draw(g);
         }
 
+        self.menu.draw(g);
         CommonState::draw_osd(g, &state.ui);
     }
 }

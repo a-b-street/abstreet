@@ -265,12 +265,11 @@ impl AgentSpawner {
         opts.override_colors.insert(src, ui.cs.get("selected"));
         ui.draw(g, opts, &ui.primary.sim, &ShowEverything::new());
 
-        self.menu.draw(g);
-
         if let Some((_, Some(ref trace))) = self.maybe_goal {
             g.draw_polygon(ui.cs.get("route"), &trace.make_polygons(LANE_THICKNESS));
         }
 
+        self.menu.draw(g);
         CommonState::draw_osd(g, ui);
     }
 }

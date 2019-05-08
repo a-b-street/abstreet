@@ -140,6 +140,7 @@ impl PolygonDebugger {
     // True when done
     pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
         self.menu.handle_event(ctx, None);
+        ctx.canvas.handle_event(ctx.input);
         if self.menu.action("quit") {
             return true;
         } else if self.current != self.items.len() - 1 && self.menu.action("next item") {
