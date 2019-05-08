@@ -156,8 +156,9 @@ impl CommonState {
     }
 }
 
-// TODO Maybe pixels/second or something would be smoother
 const ANIMATION_TIME_S: f64 = 0.5;
+// TODO Should factor in zoom too
+const MIN_ANIMATION_SPEED: f64 = 200.0;
 
 pub struct Warper {
     started: Instant,
@@ -182,8 +183,15 @@ impl Warper {
             ctx.input.use_update_event();
         }
 
-        let percent = elapsed_seconds(self.started) / ANIMATION_TIME_S;
-        if percent >= 1.0 {
+        let speed = line.length().inner_meters() / ANIMATION_TIME_S;
+        let total_time = if speed >= MIN_ANIMATION_SPEED {
+            ANIMATION_TIME_S
+        } else {
+            line.length().inner_meters() / MIN_ANIMATION_SPEED
+        };
+        let percent = elapsed_seconds(self.started) / total_time;
+
+        if percent >= 1.0 || ctx.input.nonblocking_is_keypress_event() {
             ctx.canvas.center_on_map_pt(line.pt2());
             ui.primary.current_selection = Some(self.id);
             None

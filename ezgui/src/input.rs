@@ -261,6 +261,21 @@ impl UserInput {
         assert!(self.event == Event::Update)
     }
 
+    pub fn nonblocking_is_keypress_event(&mut self) -> bool {
+        if self.context_menu_active() {
+            return false;
+        }
+
+        if self.event_consumed {
+            return false;
+        }
+
+        match self.event {
+            Event::KeyPress(_) => true,
+            _ => false,
+        }
+    }
+
     // TODO I'm not sure this is even useful anymore
     pub(crate) fn use_event_directly(&mut self) -> Option<Event> {
         if self.event_consumed {
