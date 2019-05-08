@@ -42,8 +42,6 @@ pub const BUS_LENGTH: Distance = Distance::const_meters(12.5);
 // one car to the back of the other.
 pub const FOLLOWING_DISTANCE: Distance = Distance::const_meters(1.0);
 
-pub const TIMESTEP: Duration = Duration::const_seconds(0.1);
-
 // The VehicleType is only used for convenient debugging. The numeric ID itself must be sufficient.
 // TODO Implement Eq, Hash, Ord manually to guarantee this.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]

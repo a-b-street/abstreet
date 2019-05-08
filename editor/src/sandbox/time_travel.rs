@@ -3,20 +3,18 @@ use abstutil::MultiMap;
 use ezgui::{Canvas, EventCtx, GfxCtx, Key, ModalMenu, Text};
 use geom::Duration;
 use map_model::{Map, Traversable};
-use sim::{CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID, TIMESTEP};
+use sim::{CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID};
 use std::collections::BTreeMap;
 
 pub struct TimeTravel {
     menu: ModalMenu,
-    // TODO Could be more efficient
-    state_per_time: BTreeMap<Duration, StateAtTime>,
-    pub current_time: Option<Duration>,
-    first_time: Duration,
-    last_time: Duration,
+    state_per_time: Vec<StateAtTime>,
+    current_idx: Option<usize>,
     should_record: bool,
 }
 
 struct StateAtTime {
+    time: Duration,
     cars: BTreeMap<CarID, DrawCarInput>,
     peds: BTreeMap<PedestrianID, DrawPedestrianInput>,
     cars_per_traversable: MultiMap<Traversable, CarID>,
@@ -26,11 +24,8 @@ struct StateAtTime {
 impl TimeTravel {
     pub fn new(canvas: &Canvas) -> TimeTravel {
         TimeTravel {
-            state_per_time: BTreeMap::new(),
-            current_time: None,
-            // TODO Good ol' off-by-ones...
-            first_time: Duration::ZERO,
-            last_time: Duration::ZERO,
+            state_per_time: Vec::new(),
+            current_idx: None,
             should_record: false,
             menu: ModalMenu::hacky_new(
                 "Time Traveler",
@@ -44,12 +39,16 @@ impl TimeTravel {
         }
     }
 
-    pub fn start(&mut self, time: Duration) {
-        assert!(self.current_time.is_none());
+    pub fn start(&mut self, ui: &UI) {
+        assert!(self.current_idx.is_none());
         self.should_record = true;
-        self.current_time = Some(time);
+        // In case we weren't already...
+        self.record(ui);
+        self.current_idx = Some(self.state_per_time.len() - 1);
     }
 
+    // TODO Now that we take big jumps forward in the source sim, the time traveler sees the same
+    // granularity when replaying.
     pub fn record(&mut self, ui: &UI) {
         if !self.should_record {
             return;
@@ -58,20 +57,22 @@ impl TimeTravel {
         let sim = &ui.primary.sim;
         let now = sim.time();
 
-        // Record state for this timestep, if needed.
-        if now == self.last_time {
-            return;
+        if let Some(ref state) = self.state_per_time.last() {
+            // Already have this
+            if now == state.time {
+                return;
+            }
+            // We just loaded a new savestate or reset or something. Clear out our memory.
+            if now < state.time {
+                self.state_per_time.clear();
+                if self.current_idx.is_some() {
+                    self.current_idx = Some(0);
+                }
+            }
         }
-
-        if now != self.last_time + TIMESTEP {
-            // We just loaded a new savestate or something. Clear out our memory.
-            self.state_per_time.clear();
-            self.first_time = now;
-            self.last_time = now;
-        }
-        self.last_time = now;
 
         let mut state = StateAtTime {
+            time: now,
             cars: BTreeMap::new(),
             peds: BTreeMap::new(),
             cars_per_traversable: MultiMap::new(),
@@ -85,25 +86,25 @@ impl TimeTravel {
             state.peds_per_traversable.insert(draw.on, draw.id);
             state.peds.insert(draw.id, draw);
         }
-        self.state_per_time.insert(now, state);
+        self.state_per_time.push(state);
     }
 
     // Returns true if done.
     pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
-        let time = self.current_time.unwrap();
+        let idx = self.current_idx.unwrap();
         self.menu.handle_event(
             ctx,
-            Some(Text::prompt(&format!("Time Traveler at {}", time))),
+            Some(Text::prompt(&format!("Time Traveler at {}", self.time()))),
         );
 
         ctx.canvas.handle_event(ctx.input);
 
-        if time > self.first_time && self.menu.action("rewind") {
-            self.current_time = Some(time - TIMESTEP);
-        } else if time < self.last_time && self.menu.action("forwards") {
-            self.current_time = Some(time + TIMESTEP);
+        if idx > 0 && self.menu.action("rewind") {
+            self.current_idx = Some(idx - 1);
+        } else if idx != self.state_per_time.len() - 1 && self.menu.action("forwards") {
+            self.current_idx = Some(idx + 1);
         } else if self.menu.action("quit") {
-            self.current_time = None;
+            self.current_idx = None;
             return true;
         }
         false
@@ -114,13 +115,13 @@ impl TimeTravel {
     }
 
     fn get_current_state(&self) -> &StateAtTime {
-        &self.state_per_time[&self.current_time.unwrap()]
+        &self.state_per_time[self.current_idx.unwrap()]
     }
 }
 
 impl GetDrawAgents for TimeTravel {
     fn time(&self) -> Duration {
-        self.current_time.unwrap()
+        self.state_per_time[self.current_idx.unwrap()].time
     }
 
     fn get_draw_car(&self, id: CarID, _map: &Map) -> Option<DrawCarInput> {

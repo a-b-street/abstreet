@@ -46,7 +46,7 @@ impl ABTestMode {
                         (Some(Key::LeftBracket), "slow down sim"),
                         (Some(Key::RightBracket), "speed up sim"),
                         (Some(Key::Space), "run/pause sim"),
-                        (Some(Key::M), "run one step of sim"),
+                        (Some(Key::M), "step forwards 0.1s"),
                         (Some(Key::S), "swap"),
                         (Some(Key::D), "diff all trips"),
                         (Some(Key::B), "stop diffing trips"),
@@ -176,11 +176,15 @@ impl ABTestMode {
                                 benchmark: state.ui.primary.sim.start_benchmark(),
                                 speed: "...".to_string(),
                             };
-                        } else if mode.menu.action("run one step of sim") {
-                            state.ui.primary.sim.step(&state.ui.primary.map);
+                        } else if mode.menu.action("step forwards 0.1s") {
+                            state
+                                .ui
+                                .primary
+                                .sim
+                                .step(&state.ui.primary.map, Duration::seconds(0.1));
                             {
                                 let s = mode.secondary.as_mut().unwrap();
-                                s.sim.step(&s.map);
+                                s.sim.step(&s.map, Duration::seconds(0.1));
                             }
                             if let Some(diff) = mode.diff_trip.take() {
                                 mode.diff_trip = Some(DiffOneTrip::new(
@@ -207,40 +211,35 @@ impl ABTestMode {
                         if mode.menu.action("run/pause sim") {
                             mode.state = State::Paused;
                         } else if ctx.input.nonblocking_is_update_event() {
-                            // TODO https://gafferongames.com/post/fix_your_timestep/
-                            // TODO This doesn't interact correctly with the fixed 30 Update events sent
-                            // per second. Even Benchmark is kind of wrong. I think we want to count the
-                            // number of steps we've done in the last second, then stop if the speed says
-                            // we should.
-                            let dt_s = elapsed_seconds(*last_step);
-                            if dt_s >= sim::TIMESTEP.inner_seconds() / mode.desired_speed {
-                                ctx.input.use_update_event();
-                                state.ui.primary.sim.step(&state.ui.primary.map);
-                                {
-                                    let s = mode.secondary.as_mut().unwrap();
-                                    s.sim.step(&s.map);
-                                }
-                                if let Some(diff) = mode.diff_trip.take() {
-                                    mode.diff_trip = Some(DiffOneTrip::new(
-                                        diff.trip,
-                                        &state.ui.primary,
-                                        mode.secondary.as_ref().unwrap(),
-                                    ));
-                                }
-                                if mode.diff_all.is_some() {
-                                    mode.diff_all = Some(DiffAllTrips::new(
-                                        &mut state.ui.primary,
-                                        mode.secondary.as_mut().unwrap(),
-                                    ));
-                                }
-                                //*ctx.recalculate_current_selection = true;
-                                *last_step = Instant::now();
+                            ctx.input.use_update_event();
 
-                                if benchmark.has_real_time_passed(Duration::seconds(1.0)) {
-                                    // I think the benchmark should naturally account for the delay of
-                                    // the secondary sim.
-                                    *speed = state.ui.primary.sim.measure_speed(benchmark, false);
-                                }
+                            let dt =
+                                Duration::seconds(elapsed_seconds(*last_step)) * mode.desired_speed;
+                            state.ui.primary.sim.step(&state.ui.primary.map, dt);
+                            {
+                                let s = mode.secondary.as_mut().unwrap();
+                                s.sim.step(&s.map, dt);
+                            }
+                            if let Some(diff) = mode.diff_trip.take() {
+                                mode.diff_trip = Some(DiffOneTrip::new(
+                                    diff.trip,
+                                    &state.ui.primary,
+                                    mode.secondary.as_ref().unwrap(),
+                                ));
+                            }
+                            if mode.diff_all.is_some() {
+                                mode.diff_all = Some(DiffAllTrips::new(
+                                    &mut state.ui.primary,
+                                    mode.secondary.as_mut().unwrap(),
+                                ));
+                            }
+                            //*ctx.recalculate_current_selection = true;
+                            *last_step = Instant::now();
+
+                            if benchmark.has_real_time_passed(Duration::seconds(1.0)) {
+                                // I think the benchmark should naturally account for the delay of
+                                // the secondary sim.
+                                *speed = state.ui.primary.sim.measure_speed(benchmark, false);
                             }
                         }
                         EventLoopMode::Animation

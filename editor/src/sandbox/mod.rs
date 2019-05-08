@@ -61,7 +61,7 @@ impl SandboxMode {
                         (Some(Key::Y), "load previous sim state"),
                         (Some(Key::U), "load next sim state"),
                         (Some(Key::Space), "run/pause sim"),
-                        (Some(Key::M), "run one step of sim"),
+                        (Some(Key::M), "step forwards 0.1s"),
                         (Some(Key::X), "reset sim"),
                         (Some(Key::S), "seed the sim with agents"),
                         // TODO Strange to always have this. Really it's a case of stacked modal?
@@ -198,9 +198,7 @@ impl SandboxMode {
                 mode.show_activity.event(ctx, &mut state.ui, &mut mode.menu);
                 if mode.menu.action("start time traveling") {
                     mode.state = State::TimeTraveling;
-                    mode.time_travel.start(state.ui.primary.sim.time());
-                    // Do this again, in case recording was previously disabled.
-                    mode.time_travel.record(&state.ui);
+                    mode.time_travel.start(&state.ui);
                     return EventLoopMode::Animation;
                 }
 
@@ -269,8 +267,12 @@ impl SandboxMode {
                                 benchmark: state.ui.primary.sim.start_benchmark(),
                                 speed: "...".to_string(),
                             };
-                        } else if mode.menu.action("run one step of sim") {
-                            state.ui.primary.sim.step(&state.ui.primary.map);
+                        } else if mode.menu.action("step forwards 0.1s") {
+                            state
+                                .ui
+                                .primary
+                                .sim
+                                .step(&state.ui.primary.map, Duration::seconds(0.1));
                             //*ctx.recalculate_current_selection = true;
                         }
                         EventLoopMode::Animation
@@ -283,21 +285,16 @@ impl SandboxMode {
                         if mode.menu.action("run/pause sim") {
                             mode.state = State::Paused;
                         } else if ctx.input.nonblocking_is_update_event() {
-                            // TODO https://gafferongames.com/post/fix_your_timestep/
-                            // TODO This doesn't interact correctly with the fixed 30 Update events sent
-                            // per second. Even Benchmark is kind of wrong. I think we want to count the
-                            // number of steps we've done in the last second, then stop if the speed says
-                            // we should.
-                            let dt_s = elapsed_seconds(*last_step);
-                            if dt_s >= sim::TIMESTEP.inner_seconds() / mode.desired_speed {
-                                ctx.input.use_update_event();
-                                state.ui.primary.sim.step(&state.ui.primary.map);
-                                //*ctx.recalculate_current_selection = true;
-                                *last_step = Instant::now();
+                            ctx.input.use_update_event();
+                            let dt =
+                                Duration::seconds(elapsed_seconds(*last_step)) * mode.desired_speed;
 
-                                if benchmark.has_real_time_passed(Duration::seconds(1.0)) {
-                                    *speed = state.ui.primary.sim.measure_speed(benchmark, false);
-                                }
+                            state.ui.primary.sim.step(&state.ui.primary.map, dt);
+                            //*ctx.recalculate_current_selection = true;
+                            *last_step = Instant::now();
+
+                            if benchmark.has_real_time_passed(Duration::seconds(1.0)) {
+                                *speed = state.ui.primary.sim.measure_speed(benchmark, false);
                             }
                         }
                         EventLoopMode::Animation

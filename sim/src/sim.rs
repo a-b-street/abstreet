@@ -3,7 +3,7 @@ use crate::{
     DrivingSimState, Event, GetDrawAgents, IntersectionSimState, ParkedCar, ParkingSimState,
     ParkingSpot, PedestrianID, Router, Scheduler, ScoreSummary, SimStats, Summary, TransitSimState,
     TripID, TripLeg, TripManager, TripSpawner, TripSpec, VehicleSpec, VehicleType, WalkingSimState,
-    BUS_LENGTH, TIMESTEP,
+    BUS_LENGTH,
 };
 use abstutil::Timer;
 use derivative::Derivative;
@@ -276,12 +276,12 @@ impl Sim {
 
 // Running
 impl Sim {
-    pub fn step(&mut self, map: &Map) {
+    pub fn step(&mut self, map: &Map, dt: Duration) {
         if !self.spawner.is_done() {
             panic!("Forgot to call spawn_all_trips");
         }
 
-        let target_time = self.time + TIMESTEP;
+        let target_time = self.time + dt;
         let mut savestate_at: Option<Duration> = None;
         while let Some((cmd, time)) = self.scheduler.get_next(target_time) {
             // Many commands might be scheduled for a particular time. Savestate at the END of a
@@ -426,7 +426,8 @@ impl Sim {
         let mut benchmark = self.start_benchmark();
         loop {
             match panic::catch_unwind(panic::AssertUnwindSafe(|| {
-                self.step(&map);
+                // TODO Doesn't respect time_limit!
+                self.step(&map, Duration::seconds(30.0));
             })) {
                 Ok(()) => {}
                 Err(err) => {
@@ -445,7 +446,7 @@ impl Sim {
                 );
             }
             callback(self, map);
-            if Some(self.time()) == time_limit {
+            if Some(self.time()) >= time_limit {
                 panic!("Time limit {} hit", self.time);
             }
             if self.is_done() {
@@ -472,7 +473,8 @@ impl Sim {
             if expectations.is_empty() {
                 return;
             }
-            self.step(&map);
+            // TODO Doesn't respect time_limit!
+            self.step(&map, Duration::seconds(30.0));
             for ev in self.get_events_since_last_step() {
                 if ev == expectations.front().unwrap() {
                     println!("At {}, met expectation {:?}", self.time, ev);

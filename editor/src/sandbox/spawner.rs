@@ -4,12 +4,14 @@ use crate::render::DrawOptions;
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{EventCtx, GfxCtx, Key, ModalMenu};
-use geom::PolyLine;
+use geom::{Duration, PolyLine};
 use map_model::{
     BuildingID, IntersectionID, IntersectionType, LaneType, PathRequest, Position, LANE_THICKNESS,
 };
 use rand::seq::SliceRandom;
 use sim::{DrivingGoal, Scenario, SidewalkSpot, TripSpec};
+
+const SMALL_DT: Duration = Duration::const_seconds(0.1);
 
 pub struct AgentSpawner {
     menu: ModalMenu,
@@ -101,7 +103,7 @@ impl AgentSpawner {
                                     &mut ui.primary.current_flags.sim_flags.make_rng(),
                                     timer,
                                 );
-                            ui.primary.sim.step(map);
+                            ui.primary.sim.step(map, SMALL_DT);
                         });
                     }
                 }
@@ -248,7 +250,7 @@ impl AgentSpawner {
                 }
             };
             sim.spawn_all_trips(map, &mut Timer::new("spawn trip"));
-            sim.step(map);
+            sim.step(map, SMALL_DT);
             //*ctx.recalculate_current_selection = true;
             return true;
         }
@@ -327,6 +329,6 @@ fn spawn_agents_around(i: IntersectionID, ui: &mut UI) {
     }
 
     sim.spawn_all_trips(map, &mut Timer::throwaway());
-    sim.step(map);
+    sim.step(map, SMALL_DT);
     //*ctx.recalculate_current_selection = true;
 }
