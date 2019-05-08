@@ -1,3 +1,4 @@
+mod route_explorer;
 mod route_viewer;
 mod show_activity;
 mod spawner;
@@ -22,7 +23,7 @@ pub struct SandboxMode {
     show_activity: show_activity::ShowActivity,
     time_travel: time_travel::TimeTravel,
     state: State,
-    // TODO Not while Spawning or TimeTraveling...
+    // TODO Not while Spawning or TimeTraveling or ExploringRoute...
     common: CommonState,
     menu: ModalMenu,
 }
@@ -36,6 +37,7 @@ enum State {
     },
     Spawning(spawner::AgentSpawner),
     TimeTraveling,
+    ExploringRoute(route_explorer::RouteExplorer),
 }
 
 impl SandboxMode {
@@ -95,6 +97,12 @@ impl SandboxMode {
                     }
                     return EventLoopMode::Animation;
                 }
+                if let State::ExploringRoute(ref mut explorer) = mode.state {
+                    if explorer.event(ctx, &mut state.ui) {
+                        mode.state = State::Paused;
+                    }
+                    return EventLoopMode::Animation;
+                }
 
                 let mut txt = Text::prompt("Sandbox Mode");
                 txt.add_line(state.ui.primary.sim.summary());
@@ -145,6 +153,10 @@ impl SandboxMode {
                     spawner::AgentSpawner::new(ctx, &mut state.ui, &mut mode.menu)
                 {
                     mode.state = State::Spawning(spawner);
+                    return EventLoopMode::Animation;
+                }
+                if let Some(explorer) = route_explorer::RouteExplorer::new(ctx, &state.ui) {
+                    mode.state = State::ExploringRoute(explorer);
                     return EventLoopMode::Animation;
                 }
 
@@ -292,6 +304,7 @@ impl SandboxMode {
                     }
                     State::Spawning(_) => unreachable!(),
                     State::TimeTraveling => unreachable!(),
+                    State::ExploringRoute(_) => unreachable!(),
                 }
             }
             _ => unreachable!(),
@@ -312,6 +325,15 @@ impl SandboxMode {
                         &ShowEverything::new(),
                     );
                     mode.time_travel.draw(g);
+                }
+                State::ExploringRoute(ref explorer) => {
+                    state.ui.draw(
+                        g,
+                        DrawOptions::new(),
+                        &state.ui.primary.sim,
+                        &ShowEverything::new(),
+                    );
+                    explorer.draw(g, &state.ui);
                 }
                 _ => {
                     state.ui.draw(

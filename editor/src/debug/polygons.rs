@@ -139,8 +139,11 @@ impl PolygonDebugger {
 
     // True when done
     pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
-        self.menu.handle_event(ctx, None);
+        let mut txt = Text::prompt("Polygon Debugger");
+        txt.add_line(format!("Item {}/{}", self.current + 1, self.items.len()));
+        self.menu.handle_event(ctx, Some(txt));
         ctx.canvas.handle_event(ctx.input);
+
         if self.menu.action("quit") {
             return true;
         } else if self.current != self.items.len() - 1 && self.menu.action("next item") {
