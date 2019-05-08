@@ -1,7 +1,7 @@
 use crate::runner::TestRunner;
 use abstutil::Timer;
 use geom::Duration;
-use sim::{DrivingGoal, Event, ParkingSpot, SidewalkSpot, SimFlags, TripSpec};
+use sim::{DrivingGoal, Event, ParkingSpot, Scenario, SidewalkSpot, SimFlags, TripSpec};
 
 pub fn run(t: &mut TestRunner) {
     // TODO Lots of boilerplate between these two. Can we do better?
@@ -21,11 +21,12 @@ pub fn run(t: &mut TestRunner) {
         h.seed_parked_cars(&mut sim, &mut rng, north_parking, None, (5..10).collect());
         sim.schedule_trip(
             Duration::ZERO,
-            TripSpec::UsingParkedCar(
-                SidewalkSpot::building(south_bldg, &map),
+            TripSpec::UsingParkedCar {
+                start: SidewalkSpot::building(south_bldg, &map),
                 spot,
-                DrivingGoal::ParkNear(north_bldg),
-            ),
+                goal: DrivingGoal::ParkNear(north_bldg),
+                ped_speed: Scenario::rand_ped_speed(&mut rng),
+            },
             &map,
         );
         sim.spawn_all_trips(&map, &mut Timer::throwaway());
@@ -58,11 +59,12 @@ pub fn run(t: &mut TestRunner) {
         h.seed_parked_cars(&mut sim, &mut rng, north_parking, None, (0..23).collect());
         sim.schedule_trip(
             Duration::ZERO,
-            TripSpec::UsingParkedCar(
-                SidewalkSpot::building(south_bldg, &map),
+            TripSpec::UsingParkedCar {
+                start: SidewalkSpot::building(south_bldg, &map),
                 spot,
-                DrivingGoal::ParkNear(north_bldg),
-            ),
+                goal: DrivingGoal::ParkNear(north_bldg),
+                ped_speed: Scenario::rand_ped_speed(&mut rng),
+            },
             &map,
         );
         sim.spawn_all_trips(&map, &mut Timer::throwaway());

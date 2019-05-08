@@ -12,11 +12,12 @@ pub fn run(t: &mut TestRunner) {
         let goal_bldg = BuildingID(319);
         let (ped, bike) = sim.schedule_trip(
             Duration::ZERO,
-            TripSpec::UsingBike(
-                SidewalkSpot::start_at_border(IntersectionID(186), &map).unwrap(),
-                Scenario::rand_bike(&mut rng),
-                DrivingGoal::ParkNear(goal_bldg),
-            ),
+            TripSpec::UsingBike {
+                start: SidewalkSpot::start_at_border(IntersectionID(186), &map).unwrap(),
+                vehicle: Scenario::rand_bike(&mut rng),
+                goal: DrivingGoal::ParkNear(goal_bldg),
+                ped_speed: Scenario::rand_ped_speed(&mut rng),
+            },
             &map,
         );
         sim.spawn_all_trips(&map, &mut Timer::throwaway());

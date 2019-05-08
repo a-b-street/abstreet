@@ -39,8 +39,6 @@ pub struct Sim {
     // Some tests deliberately set different scenario names for comparisons.
     #[derivative(PartialEq = "ignore")]
     run_name: String,
-    #[derivative(PartialEq = "ignore")]
-    savestate_every: Option<Duration>,
 
     // Lazily computed.
     #[derivative(PartialEq = "ignore")]
@@ -57,6 +55,9 @@ impl Sim {
     pub fn new(map: &Map, run_name: String, savestate_every: Option<Duration>) -> Sim {
         let mut scheduler = Scheduler::new();
         scheduler.push(CHECK_FOR_GRIDLOCK_FREQUENCY, Command::CheckForGridlock);
+        if let Some(d) = savestate_every {
+            scheduler.push(d, Command::Savestate(d));
+        }
         Sim {
             driving: DrivingSimState::new(map),
             parking: ParkingSimState::new(map),
@@ -74,7 +75,6 @@ impl Sim {
             // TODO
             edits_name: "no_edits".to_string(),
             run_name,
-            savestate_every,
             stats: None,
             events_since_last_step: Vec::new(),
         }
@@ -282,7 +282,18 @@ impl Sim {
         }
 
         let target_time = self.time + TIMESTEP;
+        let mut savestate_at: Option<Duration> = None;
         while let Some((cmd, time)) = self.scheduler.get_next(target_time) {
+            // Many commands might be scheduled for a particular time. Savestate at the END of a
+            // certain time.
+            if let Some(t) = savestate_at {
+                if time > t {
+                    self.time = t;
+                    self.save();
+                    savestate_at = None;
+                }
+            }
+
             self.time = time;
             match cmd {
                 Command::SpawnCar(create_car) => {
@@ -366,19 +377,21 @@ impl Sim {
                         );
                     }
                 }
+                Command::Savestate(frequency) => {
+                    self.scheduler
+                        .push(self.time + frequency, Command::Savestate(frequency));
+                    assert_eq!(savestate_at, None);
+                    savestate_at = Some(self.time);
+                }
             }
+        }
+        if let Some(t) = savestate_at {
+            self.time = t;
+            self.save();
         }
         self.time = target_time;
 
         self.stats = None;
-
-        // Savestate? Do this AFTER incrementing the timestep. Otherwise we could repeatedly load a
-        // savestate, run a step, and invalidly save over it.
-        if let Some(t) = self.savestate_every {
-            if self.time.is_multiple_of(t) {
-                self.save();
-            }
-        }
 
         self.events_since_last_step.clear();
         self.events_since_last_step

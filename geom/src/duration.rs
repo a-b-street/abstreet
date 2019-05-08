@@ -56,10 +56,6 @@ impl Duration {
         self.0
     }
 
-    pub fn is_multiple_of(self, other: Duration) -> bool {
-        self.0 % other.0 == 0.0
-    }
-
     // TODO Why have these two forms? Consolidate
     pub fn parse(string: &str) -> Option<Duration> {
         let parts: Vec<&str> = string.split(':').collect();

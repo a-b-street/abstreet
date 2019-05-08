@@ -1,7 +1,7 @@
 use crate::runner::TestRunner;
 use abstutil::Timer;
 use geom::Duration;
-use sim::{Event, SidewalkSpot, SimFlags, TripSpec};
+use sim::{Event, Scenario, SidewalkSpot, SimFlags, TripSpec};
 
 pub fn run(t: &mut TestRunner) {
     t.run_slow("bus_reaches_stops", |h| {
@@ -25,7 +25,7 @@ pub fn run(t: &mut TestRunner) {
     });
 
     t.run_slow("ped_uses_bus", |h| {
-        let (map, mut sim, _) = SimFlags::for_test("ped_uses_bus")
+        let (map, mut sim, mut rng) = SimFlags::for_test("ped_uses_bus")
             .load(Some(Duration::seconds(30.0)), &mut Timer::throwaway());
         let route = map.get_bus_route("49").unwrap();
         let buses = sim.seed_bus_route(route, &map, &mut Timer::throwaway());
@@ -46,13 +46,14 @@ pub fn run(t: &mut TestRunner) {
         let ped = sim
             .schedule_trip(
                 Duration::ZERO,
-                TripSpec::UsingTransit(
-                    SidewalkSpot::building(start_bldg, &map),
-                    route.id,
-                    ped_stop1,
-                    ped_stop2,
-                    SidewalkSpot::building(goal_bldg, &map),
-                ),
+                TripSpec::UsingTransit {
+                    start: SidewalkSpot::building(start_bldg, &map),
+                    route: route.id,
+                    stop1: ped_stop1,
+                    stop2: ped_stop2,
+                    goal: SidewalkSpot::building(goal_bldg, &map),
+                    ped_speed: Scenario::rand_ped_speed(&mut rng),
+                },
                 &map,
             )
             .0
