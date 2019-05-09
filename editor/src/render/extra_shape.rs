@@ -1,8 +1,8 @@
-use crate::helpers::ID;
+use crate::helpers::{rotating_color, ID};
 use crate::render::{
     DrawCtx, DrawOptions, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS,
 };
-use ezgui::{Color, GfxCtx};
+use ezgui::GfxCtx;
 use geom::{Circle, FindClosest, GPSBounds, PolyLine, Polygon, Pt2D};
 use kml::ExtraShape;
 use map_model::{DirectedRoadID, Map, LANE_THICKNESS};
@@ -79,10 +79,10 @@ impl Renderable for DrawExtraShape {
         ID::ExtraShape(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, ctx: &DrawCtx) {
+    fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, _: &DrawCtx) {
         let color = opts
             .color(self.get_id())
-            .unwrap_or_else(|| ctx.cs.get_def("extra shape", Color::CYAN.alpha(0.8)));
+            .unwrap_or_else(|| rotating_color(self.id.0));
         g.draw_polygon(color, &self.polygon);
     }
 

@@ -1,4 +1,5 @@
 use crate::game::Mode;
+use crate::helpers::rotating_color;
 use crate::mission::MissionEditMode;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
@@ -76,7 +77,7 @@ impl ScenarioEditor {
                         neighborhoods
                             .iter()
                             .enumerate()
-                            .map(|(idx, (_, n))| (COLORS[idx % COLORS.len()], &n.polygon))
+                            .map(|(idx, (_, n))| (rotating_color(idx), &n.polygon))
                             .collect::<Vec<_>>(),
                     );
                     let mapping = neighborhoods
@@ -87,7 +88,7 @@ impl ScenarioEditor {
                                 name.clone(),
                                 Region {
                                     _name: name,
-                                    color: COLORS[idx % COLORS.len()],
+                                    color: rotating_color(idx),
                                     center: n.polygon.center(),
                                 },
                             )
@@ -293,13 +294,6 @@ fn edit_scenario(map: &Map, scenario: &mut Scenario, mut wizard: WrappedWizard) 
     };
     Some(())
 }
-
-const COLORS: [Color; 3] = [
-    // TODO these are awful choices
-    Color::RED.alpha(0.8),
-    Color::GREEN.alpha(0.8),
-    Color::BLUE.alpha(0.8),
-];
 
 // Er, the info on top of Neighbohood
 pub struct Region {

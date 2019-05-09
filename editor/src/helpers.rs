@@ -291,3 +291,13 @@ impl ColorScheme {
 }
 
 include!(concat!(env!("OUT_DIR"), "/init_colors.rs"));
+
+pub fn rotating_color(idx: usize) -> Color {
+    // TODO these are awful choices
+    const COLORS: [Color; 3] = [
+        Color::RED.alpha(0.8),
+        Color::GREEN.alpha(0.8),
+        Color::BLUE.alpha(0.8),
+    ];
+    COLORS[idx % COLORS.len()]
+}

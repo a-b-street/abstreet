@@ -1,3 +1,4 @@
+use crate::helpers::rotating_color;
 use crate::render::DrawMap;
 use crate::ui::UI;
 use abstutil;
@@ -99,7 +100,7 @@ impl Region {
             polygon: n.polygon.clone(),
             center,
             lanes: HashSet::new(),
-            color: COLORS[idx % COLORS.len()],
+            color: rotating_color(idx),
             summary: Text::from_line(format!("{} - no summary yet", n.name)),
         }
     }
@@ -128,10 +129,3 @@ impl Region {
         self.summary = txt;
     }
 }
-
-const COLORS: [Color; 3] = [
-    // TODO these are awful choices
-    Color::RED.alpha(0.8),
-    Color::GREEN.alpha(0.8),
-    Color::BLUE.alpha(0.8),
-];
