@@ -3,7 +3,7 @@ use crate::render::{
     DrawCtx, DrawOptions, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS,
 };
 use ezgui::{Color, GfxCtx};
-use geom::{Circle, Distance, FindClosest, GPSBounds, PolyLine, Polygon, Pt2D};
+use geom::{Circle, FindClosest, GPSBounds, PolyLine, Polygon, Pt2D};
 use kml::ExtraShape;
 use map_model::{DirectedRoadID, Map, LANE_THICKNESS};
 use std::collections::BTreeMap;
@@ -44,8 +44,14 @@ impl DrawExtraShape {
                 attributes: s.attributes,
                 road: None,
             })
+        } else if pts[0] == *pts.last().unwrap() {
+            Some(DrawExtraShape {
+                id,
+                polygon: Polygon::new(&pts),
+                attributes: s.attributes,
+                road: None,
+            })
         } else {
-            let width = get_sidewalk_width(&s.attributes).unwrap_or(EXTRA_SHAPE_THICKNESS);
             let pl = PolyLine::new(pts);
             // The blockface line endpoints will be close to other roads, so match based on the
             // middle of the blockface.
@@ -56,7 +62,7 @@ impl DrawExtraShape {
                 .map(|(r, _)| r);
             Some(DrawExtraShape {
                 id,
-                polygon: pl.make_polygons(width),
+                polygon: pl.make_polygons(EXTRA_SHAPE_THICKNESS),
                 attributes: s.attributes,
                 road,
             })
@@ -83,17 +89,4 @@ impl Renderable for DrawExtraShape {
     fn get_outline(&self, _: &Map) -> Polygon {
         self.polygon.clone()
     }
-}
-
-// See https://www.seattle.gov/Documents/Departments/SDOT/GIS/Sidewalks_OD.pdf
-fn get_sidewalk_width(attribs: &BTreeMap<String, String>) -> Option<Distance> {
-    let base_width = attribs
-        .get("SW_WIDTH")
-        .and_then(|s| s.parse::<f64>().ok())
-        .map(Distance::inches)?;
-    let filler_width = attribs
-        .get("FILLERWID")
-        .and_then(|s| s.parse::<f64>().ok())
-        .map(Distance::inches)?;
-    Some(base_width + filler_width)
 }
