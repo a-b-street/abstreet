@@ -96,13 +96,17 @@ impl AgentSpawner {
                         // TODO This covers up the map. :\
                         ctx.loading_screen(|_, timer| {
                             let map = &ui.primary.map;
-                            Scenario::scaled_run(map, ui.primary.current_flags.num_agents)
-                                .instantiate(
-                                    &mut ui.primary.sim,
-                                    map,
-                                    &mut ui.primary.current_flags.sim_flags.make_rng(),
-                                    timer,
-                                );
+                            let s = if let Some(n) = ui.primary.current_flags.num_agents {
+                                Scenario::scaled_run(map, n)
+                            } else {
+                                Scenario::small_run(map)
+                            };
+                            s.instantiate(
+                                &mut ui.primary.sim,
+                                map,
+                                &mut ui.primary.current_flags.sim_flags.make_rng(),
+                                timer,
+                            );
                             ui.primary.sim.step(map, SMALL_DT);
                         });
                     }

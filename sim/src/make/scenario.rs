@@ -127,11 +127,6 @@ impl Scenario {
     }
 
     pub fn small_run(map: &Map) -> Scenario {
-        Scenario::scaled_run(map, 100)
-    }
-
-    // This is wacky, because it fixes all values except for one.
-    pub fn scaled_run(map: &Map, num_normal_agents: usize) -> Scenario {
         let mut s = Scenario {
             scenario_name: "small_spawn".to_string(),
             map_name: map.get_name().to_string(),
@@ -142,7 +137,7 @@ impl Scenario {
                 },
             }],
             spawn_over_time: vec![SpawnOverTime {
-                num_agents: num_normal_agents,
+                num_agents: 100,
                 start_time: Duration::ZERO,
                 stop_time: Duration::seconds(5.0),
                 start_from_neighborhood: "_everywhere_".to_string(),
@@ -179,6 +174,30 @@ impl Scenario {
             });
         }
         s
+    }
+
+    // No border agents here, because making the count work is hard.
+    pub fn scaled_run(map: &Map, num_agents: usize) -> Scenario {
+        Scenario {
+            scenario_name: "scaled_run".to_string(),
+            map_name: map.get_name().to_string(),
+            seed_parked_cars: vec![SeedParkedCars {
+                neighborhood: "_everywhere_".to_string(),
+                cars_per_building: WeightedUsizeChoice {
+                    weights: vec![5, 5],
+                },
+            }],
+            spawn_over_time: vec![SpawnOverTime {
+                num_agents: num_agents,
+                start_time: Duration::ZERO,
+                stop_time: Duration::seconds(5.0),
+                start_from_neighborhood: "_everywhere_".to_string(),
+                goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
+                percent_biking: 0.5,
+                percent_use_transit: 0.5,
+            }],
+            border_spawn_over_time: Vec::new(),
+        }
     }
 
     pub fn rand_car(rng: &mut XorShiftRng) -> VehicleSpec {

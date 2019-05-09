@@ -398,9 +398,10 @@ pub struct Flags {
     #[structopt(long = "enable_profiler")]
     pub enable_profiler: bool,
 
-    /// Number of agents to generate when small_spawn called
-    #[structopt(long = "num_agents", default_value = "100")]
-    pub num_agents: usize,
+    /// Number of agents to generate when requested. If unspecified, trips to/from borders will be
+    /// included.
+    #[structopt(long = "num_agents")]
+    pub num_agents: Option<usize>,
 
     /// Don't start with the splash screen and menu
     #[structopt(long = "no_splash")]

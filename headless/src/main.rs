@@ -14,9 +14,9 @@ struct Flags {
     #[structopt(long = "save_at")]
     save_at: Option<String>,
 
-    /// Number of agents to generate
-    #[structopt(long = "num_agents", default_value = "100")]
-    num_agents: usize,
+    /// Number of agents to generate. If unspecified, trips to/from borders will be included.
+    #[structopt(long = "num_agents")]
+    num_agents: Option<usize>,
 
     /// Enable cpuprofiler?
     #[structopt(long = "enable_profiler")]
@@ -48,8 +48,12 @@ fn main() {
     if load.starts_with(Path::new("../data/raw_maps/"))
         || load.starts_with(Path::new("../data/maps/"))
     {
-        Scenario::scaled_run(&map, flags.num_agents)
-            .instantiate(&mut sim, &map, &mut rng, &mut timer);
+        let s = if let Some(n) = flags.num_agents {
+            Scenario::scaled_run(&map, n)
+        } else {
+            Scenario::small_run(&map)
+        };
+        s.instantiate(&mut sim, &map, &mut rng, &mut timer);
     }
     timer.done();
 
