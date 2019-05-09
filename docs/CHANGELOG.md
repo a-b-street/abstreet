@@ -16,3 +16,12 @@ changes here.
 0.1.2
 
 - totally revamp GUI by organizing everything into distinct gameplay modes
+
+0.1.3
+
+- new warp tool that autocompletes street names
+- hideable menus, place context menus better, remove top menu bar, add a simple OSD
+- loading screens reflect what's printed to the terminal
+- depict pedestrians and bikes with more detail
+- tool to scroll through an agent's route
+- make simulation speed controls actually work
