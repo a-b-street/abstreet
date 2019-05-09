@@ -39,6 +39,8 @@ pub struct Sim {
     // Some tests deliberately set different scenario names for comparisons.
     #[derivative(PartialEq = "ignore")]
     run_name: String,
+    #[derivative(PartialEq = "ignore")]
+    step_count: usize,
 
     // Lazily computed.
     #[derivative(PartialEq = "ignore")]
@@ -75,6 +77,7 @@ impl Sim {
             // TODO
             edits_name: "no_edits".to_string(),
             run_name,
+            step_count: 0,
             stats: None,
             events_since_last_step: Vec::new(),
         }
@@ -232,6 +235,10 @@ impl GetDrawAgents for Sim {
         self.time
     }
 
+    fn step_count(&self) -> usize {
+        self.step_count
+    }
+
     fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput> {
         // TODO Faster
         self.get_all_draw_cars(map).into_iter().find(|d| d.id == id)
@@ -277,6 +284,7 @@ impl Sim {
 // Running
 impl Sim {
     pub fn step(&mut self, map: &Map, dt: Duration) {
+        self.step_count += 1;
         if !self.spawner.is_done() {
             panic!("Forgot to call spawn_all_trips");
         }

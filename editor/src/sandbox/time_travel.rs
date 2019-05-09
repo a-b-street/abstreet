@@ -124,6 +124,10 @@ impl GetDrawAgents for TimeTravel {
         self.state_per_time[self.current_idx.unwrap()].time
     }
 
+    fn step_count(&self) -> usize {
+        self.current_idx.unwrap()
+    }
+
     fn get_draw_car(&self, id: CarID, _map: &Map) -> Option<DrawCarInput> {
         self.get_current_state().cars.get(&id).cloned()
     }

@@ -285,6 +285,7 @@ impl UI {
         // Expand all of the Traversables into agents, populating the cache if needed.
         {
             let time = source.time();
+            let step_count = source.step_count();
 
             for on in &agents_on {
                 if !agents.has(time, *on) {
@@ -294,7 +295,7 @@ impl UI {
                     }
                     for p in source.get_draw_peds(*on, map).into_iter() {
                         list.push(Box::new(DrawPedestrian::new(
-                            p, time, map, prerender, &self.cs,
+                            p, step_count, map, prerender, &self.cs,
                         )));
                     }
                     agents.put(time, *on, list);

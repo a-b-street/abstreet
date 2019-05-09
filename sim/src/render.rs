@@ -39,6 +39,8 @@ pub enum CarStatus {
 // otherwise? except we don't know what to calculate. maybe cache it?
 pub trait GetDrawAgents {
     fn time(&self) -> Duration;
+    // Every time the time changes, this should increase. For smoothly animating stuff.
+    fn step_count(&self) -> usize;
     fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput>;
     fn get_draw_ped(&self, id: PedestrianID, map: &Map) -> Option<DrawPedestrianInput>;
     fn get_draw_cars(&self, on: Traversable, map: &Map) -> Vec<DrawCarInput>;

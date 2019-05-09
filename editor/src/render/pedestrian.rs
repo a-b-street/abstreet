@@ -1,7 +1,7 @@
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{should_draw_blinkers, DrawCtx, DrawOptions, Renderable};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
-use geom::{Circle, Distance, Duration, PolyLine, Polygon};
+use geom::{Circle, Distance, PolyLine, Polygon};
 use map_model::{Map, LANE_THICKNESS};
 use sim::{DrawPedestrianInput, PedestrianID};
 
@@ -17,7 +17,7 @@ pub struct DrawPedestrian {
 impl DrawPedestrian {
     pub fn new(
         input: DrawPedestrianInput,
-        time: Duration,
+        step_count: usize,
         map: &Map,
         prerender: &Prerender,
         cs: &ColorScheme,
@@ -59,11 +59,12 @@ impl DrawPedestrian {
         );
         let foot_color = cs.get_def("pedestrian foot", Color::BLACK);
         // Jitter based on ID so we don't all walk synchronized.
-        let remainder = if input.id.0 % 2 == 0 { 0.0 } else { 1.0 };
+        let jitter = input.id.0 % 2 == 0;
+        let remainder = step_count % 6;
         if input.waiting_for_turn.is_some() {
             draw_default.push((foot_color, left_foot.to_polygon()));
             draw_default.push((foot_color, right_foot.to_polygon()));
-        } else if time.inner_seconds() * 10.0 % 2.0 == remainder {
+        } else if (jitter && remainder < 3) || (!jitter && remainder >= 3) {
             draw_default.push((foot_color, left_foot.to_polygon()));
             draw_default.push((
                 foot_color,
