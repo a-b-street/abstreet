@@ -214,13 +214,16 @@ impl SandboxMode {
                 if mode.menu.action("speed up sim") {
                     mode.desired_speed += ADJUST_SPEED;
                 }
-                if !state.ui.primary.sim.is_empty() && mode.menu.action("reset sim") {
-                    state.ui.primary.reset_sim();
-                    mode.state = State::Paused;
-                }
 
                 match mode.state {
                     State::Paused => {
+                        if !state.ui.primary.sim.is_empty() && mode.menu.action("reset sim") {
+                            state.ui.primary.reset_sim();
+                            mode.state = State::Paused;
+                            mode.following = None;
+                            mode.route_viewer = route_viewer::RouteViewer::Inactive;
+                            mode.show_activity = show_activity::ShowActivity::Inactive;
+                        }
                         if mode.menu.action("save sim state") {
                             state.ui.primary.sim.save();
                         }
