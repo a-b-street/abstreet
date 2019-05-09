@@ -82,7 +82,7 @@ impl Renderable for DrawExtraShape {
     fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, ctx: &DrawCtx) {
         let color = opts
             .color(self.get_id())
-            .unwrap_or_else(|| ctx.cs.get_def("extra shape", Color::CYAN));
+            .unwrap_or_else(|| ctx.cs.get_def("extra shape", Color::CYAN.alpha(0.8)));
         g.draw_polygon(color, &self.polygon);
     }
 

@@ -82,11 +82,24 @@ impl UI {
                 g.redraw(&self.primary.draw_map.draw_all_buildings);
             }
 
-            // Still show area selection when zoomed out.
+            if layers.show_extra_shapes {
+                for es in &self.primary.draw_map.extra_shapes {
+                    if show_objs.show(es.get_id()) {
+                        es.draw(g, &opts, &ctx);
+                    }
+                }
+            }
+
+            // Still show area/extra shape selection when zoomed out.
             if let Some(ID::Area(id)) = self.primary.current_selection {
                 g.draw_polygon(
                     self.cs.get("selected"),
                     &fill_to_boundary_polygon(ctx.draw_map.get_a(id).get_outline(&ctx.map)),
+                );
+            } else if let Some(ID::ExtraShape(id)) = self.primary.current_selection {
+                g.draw_polygon(
+                    self.cs.get("selected"),
+                    &fill_to_boundary_polygon(ctx.draw_map.get_es(id).get_outline(&ctx.map)),
                 );
             }
 
