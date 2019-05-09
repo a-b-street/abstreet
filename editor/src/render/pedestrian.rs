@@ -64,7 +64,7 @@ impl DrawPedestrian {
         if input.waiting_for_turn.is_some() {
             draw_default.push((foot_color, left_foot.to_polygon()));
             draw_default.push((foot_color, right_foot.to_polygon()));
-        } else if (jitter && remainder < 3) || (!jitter && remainder >= 3) {
+        } else if jitter == (remainder < 3) {
             draw_default.push((foot_color, left_foot.to_polygon()));
             draw_default.push((
                 foot_color,

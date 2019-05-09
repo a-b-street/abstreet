@@ -63,6 +63,8 @@
 
 - it's a pity we have to redo DrawCar work for all those parked cars every tick
 - show FPS or some kind of measure of lag
+	- sim Benchmark seems less useful now
+	- some desired_speed should cause lag; cap it
 - sleep better in the event loop
 	- first make UserInput borrow state and not need to consume
 - more speculative performance ideas

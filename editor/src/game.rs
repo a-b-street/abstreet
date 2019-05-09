@@ -38,7 +38,9 @@ pub enum Mode {
 
 impl GameState {
     pub fn new(flags: Flags, ctx: &mut EventCtx) -> GameState {
-        let splash = !flags.no_splash;
+        let splash = !flags.no_splash
+            && !format!("{}", flags.sim_flags.load.display()).contains("data/save");
+
         let mut rng = flags.sim_flags.make_rng();
         let mut game = GameState {
             mode: Mode::Sandbox(SandboxMode::new(ctx)),

@@ -32,8 +32,8 @@ pub fn run(t: &mut TestRunner) {
                 ),
                 Event::PedReachedBuilding(ped.unwrap(), goal_bldg),
             ],
-            Duration::minutes(3),
+            Duration::minutes(7),
         );
-        sim.just_run_until_done(&map, Some(Duration::minutes(4)));
+        sim.just_run_until_done(&map, Some(Duration::minutes(1)));
     });
 }

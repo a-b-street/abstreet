@@ -112,7 +112,7 @@ impl Duration {
         remainder -= minutes * 60.0;
         let seconds = remainder.floor();
         remainder -= seconds;
-        let centis = (remainder / 0.1).round();
+        let centis = (remainder / 0.1).floor();
 
         (
             hours as usize,

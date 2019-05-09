@@ -38,9 +38,9 @@ pub fn run(t: &mut TestRunner) {
                 car,
                 ParkingSpot::new(north_parking, 4),
             )],
-            Duration::minutes(2),
+            Duration::minutes(6),
         );
-        sim.just_run_until_done(&map, Some(Duration::minutes(4)));
+        sim.just_run_until_done(&map, Some(Duration::minutes(1)));
     });
 
     t.run_slow("wander_around_for_parking", |h| {
@@ -76,8 +76,8 @@ pub fn run(t: &mut TestRunner) {
                 car,
                 ParkingSpot::new(south_parking, 0),
             )],
-            Duration::minutes(2),
+            Duration::minutes(6),
         );
-        sim.just_run_until_done(&map, Some(Duration::minutes(4)));
+        sim.just_run_until_done(&map, Some(Duration::minutes(1)));
     });
 }

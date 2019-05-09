@@ -429,13 +429,20 @@ impl Sim {
         &mut self,
         map: &Map,
         callback: F,
+        // Interpreted as a relative time
         time_limit: Option<Duration>,
     ) {
         let mut benchmark = self.start_benchmark();
         loop {
+            let dt = if let Some(lim) = time_limit {
+                // TODO Regular benchmark printing then doesn't happen :\
+                self.time() + lim
+            } else {
+                Duration::seconds(30.0)
+            };
+
             match panic::catch_unwind(panic::AssertUnwindSafe(|| {
-                // TODO Doesn't respect time_limit!
-                self.step(&map, Duration::seconds(30.0));
+                self.step(&map, dt);
             })) {
                 Ok(()) => {}
                 Err(err) => {
@@ -454,9 +461,6 @@ impl Sim {
                 );
             }
             callback(self, map);
-            if Some(self.time()) >= time_limit {
-                panic!("Time limit {} hit", self.time);
-            }
             if self.is_done() {
                 println!(
                     "{}, speed = {}",
@@ -465,6 +469,10 @@ impl Sim {
                 );
                 break;
             }
+
+            if let Some(lim) = time_limit {
+                panic!("Time limit {} hit", lim);
+            }
         }
     }
 
@@ -472,40 +480,30 @@ impl Sim {
         &mut self,
         map: &Map,
         all_expectations: Vec<Event>,
+        // Interpreted as a relative time
         time_limit: Duration,
     ) {
-        // TODO Maybe can use run_until_done for this.
-        let mut benchmark = self.start_benchmark();
+        // TODO No benchmark printing at all this way.
+        // TODO Doesn't stop early once all expectations are met.
+
         let mut expectations = VecDeque::from(all_expectations);
-        loop {
-            if expectations.is_empty() {
-                return;
-            }
-            // TODO Doesn't respect time_limit!
-            self.step(&map, Duration::seconds(30.0));
-            for ev in self.get_events_since_last_step() {
-                if ev == expectations.front().unwrap() {
-                    println!("At {}, met expectation {:?}", self.time, ev);
-                    expectations.pop_front();
-                    if expectations.is_empty() {
-                        return;
-                    }
+        self.step(&map, self.time() + time_limit);
+        for ev in self.get_events_since_last_step() {
+            if ev == expectations.front().unwrap() {
+                println!("At {}, met expectation {:?}", self.time, ev);
+                expectations.pop_front();
+                if expectations.is_empty() {
+                    return;
                 }
             }
-            if benchmark.has_real_time_passed(Duration::seconds(1.0)) {
-                println!(
-                    "{}, speed = {}",
-                    self.summary(),
-                    self.measure_speed(&mut benchmark, true)
-                );
-            }
-            if self.time() == time_limit {
-                panic!(
-                    "Time limit {} hit, but some expectations never met: {:?}",
-                    self.time, expectations
-                );
-            }
         }
+        if expectations.is_empty() {
+            return;
+        }
+        panic!(
+            "Time limit {} hit, but some expectations never met: {:?}",
+            time_limit, expectations
+        );
     }
 }
 

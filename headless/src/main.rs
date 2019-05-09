@@ -66,9 +66,10 @@ fn main() {
     sim.run_until_done(
         &map,
         move |sim, map| {
+            // TODO We want to savestate at the end of this time; this'll happen at the beginning.
             if Some(sim.time()) == save_at {
                 sim.save();
-                // Some simulatiosn run for a really long time, just do this.
+                // Some simulations run for a really long time, just do this.
                 if enable_profiler {
                     cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
                 }

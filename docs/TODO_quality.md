@@ -137,7 +137,3 @@
 		- priority_queue crate... internally uses hash, so serialization and determinism probably borked               
 	- dig into individual events, still too many?
 		- for laggy heads, often round down and try slightly too early
-	
-	- change sim.step API to something like step_to_time
-		- handle savestating better... use scheduler, but ensure at the end of that time
-		- make the desired speed in editor work better

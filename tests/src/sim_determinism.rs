@@ -1,5 +1,6 @@
 use crate::runner::TestRunner;
 use abstutil::Timer;
+use geom::Duration;
 use sim::{Scenario, Sim, SimFlags};
 
 pub fn run(t: &mut TestRunner) {
@@ -32,6 +33,7 @@ pub fn run(t: &mut TestRunner) {
             &mut Timer::throwaway(),
         );
 
+        let dt = Duration::seconds(0.1);
         for _ in 1..600 {
             if sim1 != sim2 {
                 // TODO need to sort dicts in json output to compare
@@ -41,8 +43,8 @@ pub fn run(t: &mut TestRunner) {
                     sim2.save()
                 );
             }
-            sim1.step(&map);
-            sim2.step(&map);
+            sim1.step(&map, dt);
+            sim2.step(&map, dt);
         }
     });
 
@@ -64,10 +66,8 @@ pub fn run(t: &mut TestRunner) {
             &mut Timer::throwaway(),
         );
 
-        for _ in 1..600 {
-            sim1.step(&map);
-            sim2.step(&map);
-        }
+        sim1.step(&map, Duration::minutes(10));
+        sim2.step(&map, Duration::minutes(10));
 
         if sim1 != sim2 {
             panic!(
@@ -79,9 +79,7 @@ pub fn run(t: &mut TestRunner) {
 
         let sim1_save = sim1.save();
 
-        for _ in 1..60 {
-            sim1.step(&map);
-        }
+        sim1.step(&map, Duration::seconds(30.0));
 
         if sim1 == sim2 {
             panic!(
