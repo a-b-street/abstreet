@@ -12,6 +12,8 @@ pub struct StopSignEditor {
     menu: ModalMenu,
     id: IntersectionID,
     signs: Vec<StopSignGroup>,
+    // Index into signs
+    selected: Option<usize>,
 }
 
 impl StopSignEditor {
@@ -34,6 +36,7 @@ impl StopSignEditor {
             ),
             id,
             signs,
+            selected: None,
         }
     }
 
@@ -42,6 +45,7 @@ impl StopSignEditor {
         self.menu.handle_event(ctx, None);
         ctx.canvas.handle_event(ctx.input);
 
+        // For the turn icons
         ui.primary.current_selection = ui.handle_mouseover(
             ctx,
             Some(self.id),
@@ -49,6 +53,18 @@ impl StopSignEditor {
             &ShowEverything::new(),
             false,
         );
+        // TODO Weird to have two ways of doing this.
+        if !ctx.canvas.is_dragging() && ctx.input.get_moved_mouse().is_some() {
+            if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+                self.selected = None;
+                for (idx, ss) in self.signs.iter().enumerate() {
+                    if ss.octagon.contains_pt(pt) {
+                        self.selected = Some(idx);
+                        break;
+                    }
+                }
+            }
+        }
 
         if let Some(ID::Turn(t)) = ui.primary.current_selection {
             let mut sign = ui.primary.map.get_stop_sign(self.id).clone();
@@ -106,8 +122,25 @@ impl StopSignEditor {
             .ui
             .draw(g, opts, &state.ui.primary.sim, &ShowEverything::new());
 
-        for ss in &self.signs {
-            ss.draw(g, &state.ui);
+        for (idx, ss) in self.signs.iter().enumerate() {
+            g.draw_polygon(
+                if ss.enabled {
+                    state.ui.cs.get_def("enabled stop sign octagon", Color::RED)
+                } else {
+                    state
+                        .ui
+                        .cs
+                        .get_def("disabled stop sign octagon", Color::RED.alpha(0.2))
+                },
+                &ss.octagon,
+            );
+            if Some(idx) == self.selected {
+                g.draw_polygon(
+                    state.ui.cs.get("selected"),
+                    // TODO Just the boundary?
+                    &ss.octagon,
+                );
+            }
         }
 
         if let Some(ID::Turn(id)) = state.ui.primary.current_selection {
@@ -119,6 +152,7 @@ impl StopSignEditor {
         }
 
         self.menu.draw(g);
+        // TODO This doesn't know about selecting the stop signs!
         CommonState::draw_osd(g, &state.ui);
     }
 }
@@ -128,7 +162,6 @@ struct StopSignGroup {
     travel_lanes: Vec<LaneID>,
     octagon: Polygon,
     enabled: bool,
-    selected: bool,
 }
 
 impl StopSignGroup {
@@ -166,26 +199,7 @@ impl StopSignGroup {
             ),
             // TODO Depends on the ControlStopSign
             enabled: false,
-            selected: false,
         })
-    }
-
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        g.draw_polygon(
-            if self.enabled {
-                ui.cs.get_def("enabled stop sign octagon", Color::RED)
-            } else {
-                ui.cs
-                    .get_def("disabled stop sign octagon", Color::RED.alpha(0.2))
-            },
-            &self.octagon,
-        );
-        /*if self.selected {
-            g.draw_polygon(
-                self.cs.get("selected"),
-                &fill_to_boundary_polygon(self.octagon),
-            );
-        }*/
     }
 }
 
