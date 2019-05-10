@@ -318,7 +318,7 @@ pub struct EditorState {
 
 fn fill_to_boundary_polygon(poly: Polygon) -> Polygon {
     // TODO This looks awful for lanes, oops.
-    //PolyLine::make_polygons_for_boundary(poly.points().clone(), Distance::meters(0.5))
+    //geom::PolyLine::make_polygons_for_boundary(poly.points().clone(), Distance::meters(1.5))
     poly
 }
 

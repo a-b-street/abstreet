@@ -1,3 +1,4 @@
+mod stop_signs;
 mod traffic_signals;
 
 use crate::common::CommonState;
@@ -9,17 +10,14 @@ use crate::render::{
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard, WrappedWizard};
-use geom::{Angle, Distance, Polygon, Pt2D};
-use map_model::{
-    IntersectionID, Lane, LaneID, LaneType, Map, MapEdits, Road, TurnID, TurnPriority, TurnType,
-};
+use map_model::{Lane, LaneID, LaneType, Map, MapEdits, Road, TurnID, TurnType};
 use std::collections::{BTreeSet, HashMap};
 
 pub enum EditMode {
     ViewingDiffs(CommonState, ModalMenu),
     Saving(Wizard),
     Loading(Wizard),
-    EditingStopSign(IntersectionID, ModalMenu),
+    EditingStopSign(stop_signs::StopSignEditor),
     EditingTrafficSignal(traffic_signals::TrafficSignalEditor),
 }
 
@@ -111,15 +109,7 @@ impl EditMode {
                             .contextual_action(Key::E, &format!("edit stop signs for {}", id))
                     {
                         state.mode = Mode::Edit(EditMode::EditingStopSign(
-                            id,
-                            ModalMenu::new(
-                                "Stop Sign Editor",
-                                vec![
-                                    (Some(Key::Escape), "quit"),
-                                    (Some(Key::R), "reset to default"),
-                                ],
-                                ctx,
-                            ),
+                            stop_signs::StopSignEditor::new(id, ctx, &state.ui),
                         ));
                     }
                     if state.ui.primary.map.maybe_get_traffic_signal(id).is_some()
@@ -156,47 +146,9 @@ impl EditMode {
                     state.mode = Mode::Edit(EditMode::new(ctx, &mut state.ui));
                 }
             }
-            Mode::Edit(EditMode::EditingStopSign(i, ref mut menu)) => {
-                menu.handle_event(ctx, None);
-                ctx.canvas.handle_event(ctx.input);
-
-                state.ui.primary.current_selection = state.ui.handle_mouseover(
-                    ctx,
-                    Some(i),
-                    &state.ui.primary.sim,
-                    &ShowEverything::new(),
-                    false,
-                );
-
-                if let Some(ID::Turn(t)) = state.ui.primary.current_selection {
-                    let mut sign = state.ui.primary.map.get_stop_sign(i).clone();
-                    let next_priority = match sign.get_priority(t) {
-                        TurnPriority::Banned => TurnPriority::Stop,
-                        TurnPriority::Stop => TurnPriority::Yield,
-                        TurnPriority::Yield => {
-                            if sign.could_be_priority_turn(t, &state.ui.primary.map) {
-                                TurnPriority::Priority
-                            } else {
-                                TurnPriority::Banned
-                            }
-                        }
-                        TurnPriority::Priority => TurnPriority::Banned,
-                    };
-                    if ctx
-                        .input
-                        .contextual_action(Key::Space, &format!("toggle to {:?}", next_priority))
-                    {
-                        sign.turns.insert(t, next_priority);
-                        let mut new_edits = state.ui.primary.map.get_edits().clone();
-                        new_edits.stop_sign_overrides.insert(i, sign);
-                        apply_map_edits(&mut state.ui, ctx, new_edits);
-                    }
-                } else if menu.action("quit") {
+            Mode::Edit(EditMode::EditingStopSign(ref mut editor)) => {
+                if editor.event(ctx, &mut state.ui) {
                     state.mode = Mode::Edit(EditMode::new(ctx, &mut state.ui));
-                } else if menu.action("reset to default") {
-                    let mut new_edits = state.ui.primary.map.get_edits().clone();
-                    new_edits.stop_sign_overrides.remove(&i);
-                    apply_map_edits(&mut state.ui, ctx, new_edits);
                 }
             }
             Mode::Edit(EditMode::EditingTrafficSignal(ref mut editor)) => {
@@ -285,83 +237,8 @@ impl EditMode {
                 // TODO Still draw the diffs, yo
                 wizard.draw(g);
             }
-            Mode::Edit(EditMode::EditingStopSign(i, ref menu)) => {
-                let mut opts = DrawOptions::new();
-                opts.show_turn_icons_for = Some(i);
-                let sign = state.ui.primary.map.get_stop_sign(i);
-                for t in &state.ui.primary.map.get_i(i).turns {
-                    opts.override_colors.insert(
-                        ID::Turn(*t),
-                        match sign.get_priority(*t) {
-                            TurnPriority::Priority => {
-                                state.ui.cs.get_def("priority stop sign turn", Color::GREEN)
-                            }
-                            TurnPriority::Yield => {
-                                state.ui.cs.get_def("yield stop sign turn", Color::YELLOW)
-                            }
-                            TurnPriority::Stop => state.ui.cs.get_def("stop turn", Color::RED),
-                            TurnPriority::Banned => {
-                                state.ui.cs.get_def("banned turn", Color::BLACK)
-                            }
-                        },
-                    );
-                }
-                state
-                    .ui
-                    .draw(g, opts, &state.ui.primary.sim, &ShowEverything::new());
-
-                // TODO Pass in extra octagon Renderables.
-                {
-                    let map = &state.ui.primary.map;
-                    // TODO This is a strange way to group things; the ControlStopSign should have
-                    // this abstraction already.
-                    for r in &map.get_i(i).roads {
-                        let road = map.get_r(*r);
-                        let travel_lanes: Vec<LaneID> = road
-                            .incoming_lanes(i)
-                            .iter()
-                            .filter_map(|(id, lt)| {
-                                if lt.is_for_moving_vehicles() {
-                                    Some(*id)
-                                } else {
-                                    None
-                                }
-                            })
-                            .collect();
-                        if travel_lanes.is_empty() {
-                            continue;
-                        }
-                        // In most cases, the lanes will all have the same last angle
-                        let angle = map.get_l(travel_lanes[0]).last_line().angle();
-                        // Find the middle of the travel lanes
-                        let center = Pt2D::center(
-                            &travel_lanes
-                                .into_iter()
-                                .map(|l| map.get_l(l).last_pt())
-                                .collect(),
-                        );
-
-                        g.draw_polygon(
-                            state.ui.cs.get_def("stop sign octagon", Color::RED),
-                            &make_octagon(
-                                center.project_away(Distance::meters(2.0), angle),
-                                Distance::meters(2.0),
-                                angle,
-                            ),
-                        );
-                    }
-                }
-
-                if let Some(ID::Turn(id)) = state.ui.primary.current_selection {
-                    DrawTurn::draw_dashed(
-                        state.ui.primary.map.get_t(id),
-                        g,
-                        state.ui.cs.get_def("selected turn", Color::RED),
-                    );
-                }
-
-                menu.draw(g);
-                CommonState::draw_osd(g, &state.ui);
+            Mode::Edit(EditMode::EditingStopSign(ref editor)) => {
+                editor.draw(g, state);
             }
             Mode::Edit(EditMode::EditingTrafficSignal(ref editor)) => {
                 editor.draw(g, state);
@@ -509,17 +386,4 @@ fn load_edits(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<MapE
             }),
         )
         .map(|(_, e)| e)
-}
-
-fn make_octagon(center: Pt2D, radius: Distance, facing: Angle) -> Polygon {
-    Polygon::new(
-        &(0..8)
-            .map(|i| {
-                center.project_away(
-                    radius,
-                    facing + Angle::new_degs(22.5 + (i * 360 / 8) as f64),
-                )
-            })
-            .collect(),
-    )
 }
