@@ -65,7 +65,7 @@ fn main() {
                 }
                 if sidewalk && l.is_sidewalk() {
                     break l.id;
-                } else if !sidewalk && l.is_for_moving_vehicles() {
+                } else if !sidewalk && l.lane_type.is_for_moving_vehicles() {
                     break l.id;
                 }
             };

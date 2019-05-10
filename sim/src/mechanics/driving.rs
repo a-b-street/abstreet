@@ -42,7 +42,7 @@ impl DrivingSimState {
         };
 
         for l in map.all_lanes() {
-            if l.is_for_moving_vehicles() {
+            if l.lane_type.is_for_moving_vehicles() {
                 let q = Queue::new(Traversable::Lane(l.id), map);
                 sim.queues.insert(q.id, q);
             }

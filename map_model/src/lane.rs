@@ -26,6 +26,17 @@ pub enum LaneType {
     Bus,
 }
 
+impl LaneType {
+    pub fn is_for_moving_vehicles(self) -> bool {
+        match self {
+            LaneType::Driving => true,
+            LaneType::Biking => true,
+            LaneType::Bus => true,
+            _ => false,
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Lane {
     pub id: LaneID,
@@ -135,15 +146,6 @@ impl Lane {
 
     pub fn is_parking(&self) -> bool {
         self.lane_type == LaneType::Parking
-    }
-
-    pub fn is_for_moving_vehicles(&self) -> bool {
-        match self.lane_type {
-            LaneType::Driving => true,
-            LaneType::Biking => true,
-            LaneType::Bus => true,
-            _ => false,
-        }
     }
 
     // TODO Store this natively if this winds up being useful.

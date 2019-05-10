@@ -78,7 +78,7 @@ impl Renderable for DrawTurn {
 
     fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, ctx: &DrawCtx) {
         g.draw_circle(
-            ctx.cs.get_def("turn icon circle", Color::grey(0.3)),
+            ctx.cs.get_def("turn icon circle", Color::grey(0.6)),
             &self.icon_circle,
         );
 

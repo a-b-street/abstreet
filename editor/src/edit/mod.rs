@@ -9,6 +9,7 @@ use crate::render::{
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard, WrappedWizard};
+use geom::{Angle, Distance, Polygon, Pt2D};
 use map_model::{
     IntersectionID, Lane, LaneID, LaneType, Map, MapEdits, Road, TurnID, TurnPriority, TurnType,
 };
@@ -309,6 +310,48 @@ impl EditMode {
                     .ui
                     .draw(g, opts, &state.ui.primary.sim, &ShowEverything::new());
 
+                // TODO Pass in extra octagon Renderables.
+                {
+                    let map = &state.ui.primary.map;
+                    // TODO This is a strange way to group things; the ControlStopSign should have
+                    // this abstraction already.
+                    for r in &map.get_i(i).roads {
+                        let road = map.get_r(*r);
+                        let travel_lanes: Vec<LaneID> = road
+                            .incoming_lanes(i)
+                            .iter()
+                            .filter_map(|(id, lt)| {
+                                if lt.is_for_moving_vehicles() {
+                                    Some(*id)
+                                } else {
+                                    None
+                                }
+                            })
+                            .collect();
+                        if travel_lanes.is_empty() {
+                            continue;
+                        }
+                        // In most cases, the lanes will all have the same last angle
+                        let angle = map.get_l(travel_lanes[0]).last_line().angle();
+                        // Find the middle of the travel lanes
+                        let center = Pt2D::center(
+                            &travel_lanes
+                                .into_iter()
+                                .map(|l| map.get_l(l).last_pt())
+                                .collect(),
+                        );
+
+                        g.draw_polygon(
+                            state.ui.cs.get_def("stop sign octagon", Color::RED),
+                            &make_octagon(
+                                center.project_away(Distance::meters(2.0), angle),
+                                Distance::meters(2.0),
+                                angle,
+                            ),
+                        );
+                    }
+                }
+
                 if let Some(ID::Turn(id)) = state.ui.primary.current_selection {
                     DrawTurn::draw_dashed(
                         state.ui.primary.map.get_t(id),
@@ -466,4 +509,17 @@ fn load_edits(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<MapE
             }),
         )
         .map(|(_, e)| e)
+}
+
+fn make_octagon(center: Pt2D, radius: Distance, facing: Angle) -> Polygon {
+    Polygon::new(
+        &(0..8)
+            .map(|i| {
+                center.project_away(
+                    radius,
+                    facing + Angle::new_degs(22.5 + (i * 360 / 8) as f64),
+                )
+            })
+            .collect(),
+    )
 }
