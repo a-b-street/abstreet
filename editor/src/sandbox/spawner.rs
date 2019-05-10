@@ -127,7 +127,7 @@ impl AgentSpawner {
 
         ctx.canvas.handle_event(ctx.input);
         ui.primary.current_selection =
-            ui.handle_mouseover(ctx, None, &ui.primary.sim, &ShowEverything::new(), false);
+            ui.handle_mouseover(ctx, &ui.primary.sim, &ShowEverything::new(), false);
 
         let map = &ui.primary.map;
 

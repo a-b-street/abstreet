@@ -140,7 +140,6 @@ impl SandboxMode {
                 ctx.canvas.handle_event(ctx.input);
                 state.ui.primary.current_selection = state.ui.handle_mouseover(
                     ctx,
-                    None,
                     &state.ui.primary.sim,
                     &ShowEverything::new(),
                     false,

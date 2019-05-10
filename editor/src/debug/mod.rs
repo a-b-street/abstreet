@@ -96,7 +96,7 @@ impl DebugMode {
                     state.ui.primary.current_selection =
                         state
                             .ui
-                            .handle_mouseover(ctx, None, &state.ui.primary.sim, mode, true);
+                            .handle_mouseover(ctx, &state.ui.primary.sim, mode, true);
                 }
 
                 match mode.state {

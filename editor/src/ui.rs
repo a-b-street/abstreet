@@ -7,7 +7,7 @@ use abstutil;
 use abstutil::MeasureMemory;
 use ezgui::{Color, EventCtx, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Distance, Duration, Polygon};
-use map_model::{IntersectionID, Map, Traversable, TurnType};
+use map_model::{Map, Traversable};
 use serde_derive::{Deserialize, Serialize};
 use sim::{GetDrawAgents, Sim, SimFlags};
 use structopt::StructOpt;
@@ -94,7 +94,6 @@ impl UI {
                 g.get_screen_bounds(),
                 &g.prerender,
                 &mut cache,
-                opts.show_turn_icons_for,
                 source,
                 show_objs,
             );
@@ -146,7 +145,6 @@ impl UI {
     pub fn handle_mouseover(
         &self,
         ctx: &mut EventCtx,
-        show_turn_icons_for: Option<IntersectionID>,
         source: &GetDrawAgents,
         show_objs: &ShowObject,
         debug_areas: bool,
@@ -164,7 +162,6 @@ impl UI {
                 Circle::new(pt, Distance::meters(3.0)).get_bounds(),
                 ctx.prerender,
                 &mut cache,
-                show_turn_icons_for,
                 source,
                 show_objs,
             );
@@ -200,7 +197,6 @@ impl UI {
         bounds: Bounds,
         prerender: &Prerender,
         agents: &'a mut AgentCache,
-        show_turn_icons_for: Option<IntersectionID>,
         source: &GetDrawAgents,
         show_objs: &ShowObject,
     ) -> Vec<Box<&'a Renderable>> {
@@ -214,7 +210,6 @@ impl UI {
         let mut buildings: Vec<Box<&Renderable>> = Vec::new();
         let mut extra_shapes: Vec<Box<&Renderable>> = Vec::new();
         let mut bus_stops: Vec<Box<&Renderable>> = Vec::new();
-        let mut turn_icons: Vec<Box<&Renderable>> = Vec::new();
         let mut agents_on: Vec<Traversable> = Vec::new();
 
         for id in draw_map.get_matching_objects(bounds) {
@@ -225,18 +220,8 @@ impl UI {
                 ID::Area(id) => areas.push(Box::new(draw_map.get_a(id))),
                 ID::Lane(id) => {
                     lanes.push(Box::new(draw_map.get_l(id)));
-                    let lane = map.get_l(id);
-                    if show_turn_icons_for == Some(lane.dst_i) {
-                        for (t, _) in map.get_next_turns_and_lanes(id, lane.dst_i) {
-                            if t.turn_type != TurnType::SharedSidewalkCorner {
-                                turn_icons.push(Box::new(draw_map.get_t(t.id)));
-                            }
-                        }
-                    } else {
-                        // TODO Bug: pedestrians on front paths aren't selectable.
-                        agents_on.push(Traversable::Lane(id));
-                    }
-                    for bs in &lane.bus_stops {
+                    agents_on.push(Traversable::Lane(id));
+                    for bs in &map.get_l(id).bus_stops {
                         bus_stops.push(Box::new(draw_map.get_bs(*bs)));
                     }
                 }
@@ -245,11 +230,6 @@ impl UI {
                 }
                 ID::Intersection(id) => {
                     intersections.push(Box::new(draw_map.get_i(id)));
-                    for t in &map.get_i(id).turns {
-                        if show_turn_icons_for != Some(id) {
-                            agents_on.push(Traversable::Turn(*t));
-                        }
-                    }
                 }
                 // TODO front paths will get drawn over buildings, depending on quadtree order.
                 // probably just need to make them go around other buildings instead of having
@@ -272,7 +252,6 @@ impl UI {
         borrows.extend(buildings);
         borrows.extend(extra_shapes);
         borrows.extend(bus_stops);
-        borrows.extend(turn_icons);
 
         // Expand all of the Traversables into agents, populating the cache if needed.
         {

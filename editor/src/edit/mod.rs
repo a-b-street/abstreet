@@ -62,7 +62,6 @@ impl EditMode {
                 // TODO Only mouseover lanes and intersections?
                 state.ui.primary.current_selection = state.ui.handle_mouseover(
                     ctx,
-                    None,
                     &state.ui.primary.sim,
                     &ShowEverything::new(),
                     false,
@@ -109,7 +108,7 @@ impl EditMode {
                             .contextual_action(Key::E, &format!("edit stop signs for {}", id))
                     {
                         state.mode = Mode::Edit(EditMode::EditingStopSign(
-                            stop_signs::StopSignEditor::new(id, ctx, &state.ui),
+                            stop_signs::StopSignEditor::new(id, ctx, &mut state.ui),
                         ));
                     }
                     if state.ui.primary.map.maybe_get_traffic_signal(id).is_some()
@@ -118,7 +117,7 @@ impl EditMode {
                             .contextual_action(Key::E, &format!("edit traffic signal for {}", id))
                     {
                         state.mode = Mode::Edit(EditMode::EditingTrafficSignal(
-                            traffic_signals::TrafficSignalEditor::new(id, ctx),
+                            traffic_signals::TrafficSignalEditor::new(id, ctx, &mut state.ui),
                         ));
                     }
                 }

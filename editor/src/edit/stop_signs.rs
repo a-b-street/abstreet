@@ -2,22 +2,24 @@ use crate::common::CommonState;
 use crate::edit::apply_map_edits;
 use crate::game::GameState;
 use crate::helpers::ID;
-use crate::render::{DrawOptions, DrawTurn};
+use crate::render::{DrawCtx, DrawOptions, DrawTurn, Renderable};
 use crate::ui::{ShowEverything, UI};
 use ezgui::{Color, EventCtx, GfxCtx, Key, ModalMenu};
 use geom::{Angle, Distance, Polygon, Pt2D};
-use map_model::{IntersectionID, LaneID, Map, Road, TurnPriority};
+use map_model::{IntersectionID, LaneID, Map, Road, TurnID, TurnPriority, TurnType};
 
 pub struct StopSignEditor {
     menu: ModalMenu,
     id: IntersectionID,
     signs: Vec<StopSignGroup>,
     // Index into signs
-    selected: Option<usize>,
+    selected_sign: Option<usize>,
+    selected_turn: Option<TurnID>,
 }
 
 impl StopSignEditor {
-    pub fn new(id: IntersectionID, ctx: &EventCtx, ui: &UI) -> StopSignEditor {
+    pub fn new(id: IntersectionID, ctx: &EventCtx, ui: &mut UI) -> StopSignEditor {
+        ui.primary.current_selection = None;
         let map = &ui.primary.map;
         let mut signs = Vec::new();
         for r in &map.get_i(id).roads {
@@ -36,7 +38,8 @@ impl StopSignEditor {
             ),
             id,
             signs,
-            selected: None,
+            selected_sign: None,
+            selected_turn: None,
         }
     }
 
@@ -45,28 +48,36 @@ impl StopSignEditor {
         self.menu.handle_event(ctx, None);
         ctx.canvas.handle_event(ctx.input);
 
-        // For the turn icons
-        ui.primary.current_selection = ui.handle_mouseover(
-            ctx,
-            Some(self.id),
-            &ui.primary.sim,
-            &ShowEverything::new(),
-            false,
-        );
-        // TODO Weird to have two ways of doing this.
         if !ctx.canvas.is_dragging() && ctx.input.get_moved_mouse().is_some() {
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-                self.selected = None;
+                self.selected_sign = None;
+                self.selected_turn = None;
                 for (idx, ss) in self.signs.iter().enumerate() {
                     if ss.octagon.contains_pt(pt) {
-                        self.selected = Some(idx);
+                        self.selected_sign = Some(idx);
                         break;
+                    }
+                }
+                if self.selected_sign.is_none() {
+                    for t in &ui.primary.map.get_i(self.id).turns {
+                        if ui.primary.map.get_t(*t).turn_type != TurnType::SharedSidewalkCorner {
+                            if ui
+                                .primary
+                                .draw_map
+                                .get_t(*t)
+                                .get_outline(&ui.primary.map)
+                                .contains_pt(pt)
+                            {
+                                self.selected_turn = Some(*t);
+                                break;
+                            }
+                        }
                     }
                 }
             }
         }
 
-        if let Some(ID::Turn(t)) = ui.primary.current_selection {
+        if let Some(t) = self.selected_turn {
             let mut sign = ui.primary.map.get_stop_sign(self.id).clone();
             let next_priority = match sign.get_priority(t) {
                 TurnPriority::Banned => TurnPriority::Stop,
@@ -100,27 +111,12 @@ impl StopSignEditor {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, state: &GameState) {
-        let mut opts = DrawOptions::new();
-        opts.show_turn_icons_for = Some(self.id);
-        let sign = state.ui.primary.map.get_stop_sign(self.id);
-        for t in &state.ui.primary.map.get_i(self.id).turns {
-            opts.override_colors.insert(
-                ID::Turn(*t),
-                match sign.get_priority(*t) {
-                    TurnPriority::Priority => {
-                        state.ui.cs.get_def("priority stop sign turn", Color::GREEN)
-                    }
-                    TurnPriority::Yield => {
-                        state.ui.cs.get_def("yield stop sign turn", Color::YELLOW)
-                    }
-                    TurnPriority::Stop => state.ui.cs.get_def("stop turn", Color::RED),
-                    TurnPriority::Banned => state.ui.cs.get_def("banned turn", Color::BLACK),
-                },
-            );
-        }
-        state
-            .ui
-            .draw(g, opts, &state.ui.primary.sim, &ShowEverything::new());
+        state.ui.draw(
+            g,
+            DrawOptions::new(),
+            &state.ui.primary.sim,
+            &ShowEverything::new(),
+        );
 
         for (idx, ss) in self.signs.iter().enumerate() {
             g.draw_polygon(
@@ -134,7 +130,7 @@ impl StopSignEditor {
                 },
                 &ss.octagon,
             );
-            if Some(idx) == self.selected {
+            if Some(idx) == self.selected_sign {
                 g.draw_polygon(
                     state.ui.cs.get("selected"),
                     // TODO Just the boundary?
@@ -143,9 +139,41 @@ impl StopSignEditor {
             }
         }
 
-        if let Some(ID::Turn(id)) = state.ui.primary.current_selection {
+        let ctx = DrawCtx {
+            cs: &state.ui.cs,
+            map: &state.ui.primary.map,
+            draw_map: &state.ui.primary.draw_map,
+            sim: &state.ui.primary.sim,
+        };
+        let map = &state.ui.primary.map;
+        let sign = map.get_stop_sign(self.id);
+        for t in &map.get_i(self.id).turns {
+            if map.get_t(*t).turn_type == TurnType::SharedSidewalkCorner {
+                continue;
+            }
+            let mut opts = DrawOptions::new();
+            opts.override_colors.insert(
+                ID::Turn(*t),
+                match sign.get_priority(*t) {
+                    TurnPriority::Priority => {
+                        state.ui.cs.get_def("priority stop sign turn", Color::GREEN)
+                    }
+                    TurnPriority::Yield => {
+                        state.ui.cs.get_def("yield stop sign turn", Color::YELLOW)
+                    }
+                    TurnPriority::Stop => state.ui.cs.get_def("stop turn", Color::RED),
+                    TurnPriority::Banned => state.ui.cs.get_def("banned turn", Color::BLACK),
+                },
+            );
+            state.ui.primary.draw_map.get_t(*t).draw(g, &opts, &ctx);
+        }
+        if let Some(id) = self.selected_turn {
+            g.draw_polygon(
+                state.ui.cs.get("selected"),
+                &state.ui.primary.draw_map.get_t(id).get_outline(map),
+            );
             DrawTurn::draw_dashed(
-                state.ui.primary.map.get_t(id),
+                map.get_t(id),
                 g,
                 state.ui.cs.get_def("selected turn", Color::RED),
             );
