@@ -50,14 +50,6 @@
 - render trees
 - look for current stop sign priorities
 	- https://gis-kingcounty.opendata.arcgis.com/datasets/traffic-signs--sign-point/
-- population
-	- http://seattlecitygis.maps.arcgis.com/apps/MapSeries/index.html?appid=3eb44a4fdf9a4fff9e1c105cd5e7fe27
-	- https://data.seattle.gov/Permitting/Rental-Property-Registration-Map/5a7u-vxx7
-	- https://www.seattle.gov/transportation/document-library/reports-and-studies
-	- https://commuteseattle.com/wp-content/uploads/2017/02/2016-Mode-Split-Report-FINAL.pdf
-	- https://www.soundtransit.org/get-to-know-us/documents-reports/service-planning-ridership
-	- https://gis-kingcounty.opendata.arcgis.com/datasets/parcels-for-king-county-with-address-with-property-information--parcel-address-area
-		- PREUSE_DESC reveals landuse
 - http://guides.lib.uw.edu/research/gis/uw-lib_data has cool stuff, but .lyr??
 
 ## Low-priority geometry issues

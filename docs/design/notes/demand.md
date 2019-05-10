@@ -38,3 +38,13 @@ https://gis-kingcounty.opendata.arcgis.com/datasets/acs-household-size-by-number
 - goldmine, but seemingly very hard to interpret
 https://www.psrc.org/trip-based-travel-model-4k
 https://www.psrc.org/activity-based-travel-model-soundcast
+
+
+- population
+	- http://seattlecitygis.maps.arcgis.com/apps/MapSeries/index.html?appid=3eb44a4fdf9a4fff9e1c105cd5e7fe27
+	- https://data.seattle.gov/Permitting/Rental-Property-Registration-Map/5a7u-vxx7
+	- https://www.seattle.gov/transportation/document-library/reports-and-studies
+	- https://commuteseattle.com/wp-content/uploads/2017/02/2016-Mode-Split-Report-FINAL.pdf
+	- https://www.soundtransit.org/get-to-know-us/documents-reports/service-planning-ridership
+	- https://gis-kingcounty.opendata.arcgis.com/datasets/parcels-for-king-county-with-address-with-property-information--parcel-address-area
+		- PREUSE_DESC reveals landuse

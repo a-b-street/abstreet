@@ -196,22 +196,29 @@ impl ID {
         txt
     }
 
-    pub fn canonical_point(&self, map: &Map, sim: &Sim, draw_map: &DrawMap) -> Option<Pt2D> {
+    pub fn canonical_point(&self, primary: &PerMapUI) -> Option<Pt2D> {
         match *self {
-            ID::Road(id) => map
+            ID::Road(id) => primary
+                .map
                 .maybe_get_r(id)
                 .map(|r| r.original_center_pts.first_pt()),
-            ID::Lane(id) => map.maybe_get_l(id).map(|l| l.first_pt()),
-            ID::Intersection(id) => map.maybe_get_i(id).map(|i| i.point),
-            ID::Turn(id) => map.maybe_get_i(id.parent).map(|i| i.point),
-            ID::Building(id) => map.maybe_get_b(id).map(|b| b.polygon.center()),
-            ID::Car(id) => sim.get_draw_car(id, map).map(|c| c.body.last_pt()),
-            ID::Pedestrian(id) => sim.get_draw_ped(id, map).map(|p| p.pos),
+            ID::Lane(id) => primary.map.maybe_get_l(id).map(|l| l.first_pt()),
+            ID::Intersection(id) => primary.map.maybe_get_i(id).map(|i| i.point),
+            ID::Turn(id) => primary.map.maybe_get_i(id.parent).map(|i| i.point),
+            ID::Building(id) => primary.map.maybe_get_b(id).map(|b| b.polygon.center()),
+            ID::Car(id) => primary
+                .sim
+                .get_draw_car(id, &primary.map)
+                .map(|c| c.body.last_pt()),
+            ID::Pedestrian(id) => primary.sim.get_draw_ped(id, &primary.map).map(|p| p.pos),
             // TODO maybe_get_es
-            ID::ExtraShape(id) => Some(draw_map.get_es(id).center()),
-            ID::BusStop(id) => map.maybe_get_bs(id).map(|bs| bs.sidewalk_pos.pt(map)),
-            ID::Area(id) => map.maybe_get_a(id).map(|a| a.polygon.center()),
-            ID::Trip(id) => sim.get_canonical_pt_per_trip(id, map),
+            ID::ExtraShape(id) => Some(primary.draw_map.get_es(id).center()),
+            ID::BusStop(id) => primary
+                .map
+                .maybe_get_bs(id)
+                .map(|bs| bs.sidewalk_pos.pt(&primary.map)),
+            ID::Area(id) => primary.map.maybe_get_a(id).map(|a| a.polygon.center()),
+            ID::Trip(id) => primary.sim.get_canonical_pt_per_trip(id, &primary.map),
         }
     }
 }

@@ -1,11 +1,10 @@
 use crate::common::Warper;
 use crate::helpers::ID;
-use crate::render::DrawMap;
-use crate::ui::UI;
+use crate::ui::{PerMapUI, UI};
 use ezgui::{EventCtx, EventLoopMode, GfxCtx, InputResult, TextBox};
 use geom::Pt2D;
-use map_model::{raw_data, AreaID, BuildingID, IntersectionID, LaneID, Map, RoadID};
-use sim::{PedestrianID, Sim, TripID};
+use map_model::{raw_data, AreaID, BuildingID, IntersectionID, LaneID, RoadID};
+use sim::{PedestrianID, TripID};
 use std::usize;
 
 pub enum WarpState {
@@ -24,9 +23,7 @@ impl WarpState {
             WarpState::EnteringSearch(tb) => match tb.event(ctx.input) {
                 InputResult::Canceled => None,
                 InputResult::Done(to, _) => {
-                    if let Some((id, pt)) =
-                        warp_point(to, &ui.primary.map, &ui.primary.sim, &ui.primary.draw_map)
-                    {
+                    if let Some((id, pt)) = warp_point(to, &ui.primary) {
                         *self = WarpState::Warping(Warper::new(ctx, pt, id));
                         Some(EventLoopMode::Animation)
                     } else {
@@ -46,7 +43,7 @@ impl WarpState {
     }
 }
 
-fn warp_point(line: String, map: &Map, sim: &Sim, draw_map: &DrawMap) -> Option<(ID, Pt2D)> {
+fn warp_point(line: String, primary: &PerMapUI) -> Option<(ID, Pt2D)> {
     if line.is_empty() {
         return None;
     }
@@ -55,7 +52,7 @@ fn warp_point(line: String, map: &Map, sim: &Sim, draw_map: &DrawMap) -> Option<
         Ok(idx) => match line.chars().next().unwrap() {
             'r' => {
                 let id = RoadID(idx);
-                if let Some(r) = map.maybe_get_r(id) {
+                if let Some(r) = primary.map.maybe_get_r(id) {
                     ID::Lane(r.children_forwards[0].0)
                 } else {
                     println!("{} doesn't exist", id);
@@ -69,11 +66,11 @@ fn warp_point(line: String, map: &Map, sim: &Sim, draw_map: &DrawMap) -> Option<
             'p' => ID::Pedestrian(PedestrianID(idx)),
             'c' => {
                 // This one gets more complicated. :)
-                ID::Car(sim.lookup_car_id(idx)?)
+                ID::Car(primary.sim.lookup_car_id(idx)?)
             }
             't' => ID::Trip(TripID(idx)),
             'T' => {
-                if let Some(id) = map.lookup_turn_by_idx(idx) {
+                if let Some(id) = primary.map.lookup_turn_by_idx(idx) {
                     ID::Turn(id)
                 } else {
                     println!("{} isn't a known TurnID", line);
@@ -82,7 +79,8 @@ fn warp_point(line: String, map: &Map, sim: &Sim, draw_map: &DrawMap) -> Option<
             }
             'I' => {
                 let stable_id = raw_data::StableIntersectionID(idx);
-                if let Some(i) = map
+                if let Some(i) = primary
+                    .map
                     .all_intersections()
                     .iter()
                     .find(|i| i.stable_id == stable_id)
@@ -95,7 +93,12 @@ fn warp_point(line: String, map: &Map, sim: &Sim, draw_map: &DrawMap) -> Option<
             }
             'R' => {
                 let stable_id = raw_data::StableRoadID(idx);
-                if let Some(r) = map.all_roads().iter().find(|r| r.stable_id == stable_id) {
+                if let Some(r) = primary
+                    .map
+                    .all_roads()
+                    .iter()
+                    .find(|r| r.stable_id == stable_id)
+                {
                     ID::Lane(r.children_forwards[0].0)
                 } else {
                     println!("{} isn't known", stable_id);
@@ -111,7 +114,7 @@ fn warp_point(line: String, map: &Map, sim: &Sim, draw_map: &DrawMap) -> Option<
             return None;
         }
     };
-    if let Some(pt) = id.canonical_point(map, sim, draw_map) {
+    if let Some(pt) = id.canonical_point(primary) {
         println!("Warping to {:?}", id);
         Some((id, pt))
     } else {

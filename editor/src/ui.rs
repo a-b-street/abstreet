@@ -7,7 +7,7 @@ use abstutil;
 use abstutil::MeasureMemory;
 use ezgui::{Color, EventCtx, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Distance, Duration, Polygon};
-use map_model::{BuildingID, IntersectionID, LaneID, Map, Traversable, TurnType};
+use map_model::{IntersectionID, Map, Traversable, TurnType};
 use serde_derive::{Deserialize, Serialize};
 use sim::{GetDrawAgents, Sim, SimFlags};
 use structopt::StructOpt;
@@ -21,31 +21,10 @@ pub struct UI {
 impl UI {
     pub fn new(flags: Flags, ctx: &mut EventCtx) -> UI {
         let cs = ColorScheme::load().unwrap();
-        let primary = PerMapUI::new(flags, &cs, ctx);
-        match abstutil::read_json::<EditorState>("../editor_state") {
-            Ok(ref loaded) if primary.map.get_name() == &loaded.map_name => {
-                println!("Loaded previous editor_state");
-                ctx.canvas.cam_x = loaded.cam_x;
-                ctx.canvas.cam_y = loaded.cam_y;
-                ctx.canvas.cam_zoom = loaded.cam_zoom;
-            }
-            _ => {
-                println!("Couldn't load editor_state or it's for a different map, so just focusing on an arbitrary building");
-                let focus_pt = ID::Building(BuildingID(0))
-                    .canonical_point(&primary.map, &primary.sim, &primary.draw_map)
-                    .or_else(|| {
-                        ID::Lane(LaneID(0)).canonical_point(
-                            &primary.map,
-                            &primary.sim,
-                            &primary.draw_map,
-                        )
-                    })
-                    .expect("Can't get canonical_point of BuildingID(0) or Road(0)");
-                ctx.canvas.center_on_map_pt(focus_pt);
-            }
+        UI {
+            primary: PerMapUI::new(flags, &cs, ctx),
+            cs,
         }
-
-        UI { primary, cs }
     }
 
     pub fn draw(
