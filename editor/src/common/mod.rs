@@ -84,14 +84,14 @@ impl CommonState {
         }
         self.turn_cycler.draw(g, ui);
 
-        CommonState::draw_osd(g, ui);
+        CommonState::draw_osd(g, ui, ui.primary.current_selection);
     }
 
-    pub fn draw_osd(g: &mut GfxCtx, ui: &UI) {
+    pub fn draw_osd(g: &mut GfxCtx, ui: &UI, id: Option<ID>) {
         let id_color = ui.cs.get_def("OSD ID color", Color::RED);
         let name_color = ui.cs.get_def("OSD name color", Color::CYAN);
         let mut osd = Text::new();
-        match ui.primary.current_selection {
+        match id {
             None => {
                 osd.append("...".to_string(), None);
             }
@@ -126,7 +126,10 @@ impl CommonState {
                 osd.append(format!("{:?}", id), Some(id_color));
             }
         }
+        CommonState::draw_custom_osd(g, osd);
+    }
 
+    pub fn draw_custom_osd(g: &mut GfxCtx, mut osd: Text) {
         let keys = g.get_active_context_menu_keys();
         if !keys.is_empty() {
             osd.append("   Hotkeys: ".to_string(), None);

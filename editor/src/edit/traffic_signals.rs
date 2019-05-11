@@ -306,7 +306,11 @@ impl TrafficSignalEditor {
         }
 
         self.menu.draw(g);
-        CommonState::draw_osd(g, &state.ui);
+        if let Some(t) = self.icon_selected {
+            CommonState::draw_osd(g, &state.ui, Some(ID::Turn(t)));
+        } else {
+            CommonState::draw_osd(g, &state.ui, None);
+        }
     }
 }
 

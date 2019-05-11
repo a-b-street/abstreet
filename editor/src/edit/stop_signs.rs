@@ -4,7 +4,7 @@ use crate::game::GameState;
 use crate::helpers::ID;
 use crate::render::{DrawCtx, DrawOptions, DrawTurn, Renderable};
 use crate::ui::{ShowEverything, UI};
-use ezgui::{Color, EventCtx, GfxCtx, Key, ModalMenu};
+use ezgui::{Color, EventCtx, GfxCtx, Key, ModalMenu, Text};
 use geom::{Angle, Distance, Polygon, Pt2D};
 use map_model::{IntersectionID, LaneID, Map, Road, TurnID, TurnPriority, TurnType};
 
@@ -180,8 +180,23 @@ impl StopSignEditor {
         }
 
         self.menu.draw(g);
-        // TODO This doesn't know about selecting the stop signs!
-        CommonState::draw_osd(g, &state.ui);
+        if let Some(idx) = self.selected_sign {
+            let mut osd = Text::from_line("Stop sign for ".to_string());
+            osd.append(
+                state
+                    .ui
+                    .primary
+                    .map
+                    .get_parent(self.signs[idx].travel_lanes[0])
+                    .get_name(),
+                Some(state.ui.cs.get("OSD name color")),
+            );
+            CommonState::draw_custom_osd(g, osd);
+        } else if let Some(t) = self.selected_turn {
+            CommonState::draw_osd(g, &state.ui, Some(ID::Turn(t)));
+        } else {
+            CommonState::draw_osd(g, &state.ui, None);
+        }
     }
 }
 
