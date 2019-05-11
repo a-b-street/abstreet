@@ -75,6 +75,7 @@ impl ControlStopSign {
                 );
             }
         }
+        ss.recalculate_stop_signs(map);
 
         ss
     }
@@ -99,10 +100,6 @@ impl ControlStopSign {
             }
         }
         false
-        /*self.turns
-            .iter()
-            .find(|(turn, pri)| turn.src == lane && **pri <= TurnPriority::Stop)
-            .is_none()*/
     }
 
     // Returns both errors and warnings.
@@ -150,6 +147,27 @@ impl ControlStopSign {
         }
 
         Ok(Warn::empty_warnings(warnings))
+    }
+
+    pub fn change(&mut self, t: TurnID, pri: TurnPriority, map: &Map) {
+        self.turns.insert(t, pri);
+        self.recalculate_stop_signs(map);
+    }
+
+    fn recalculate_stop_signs(&mut self, map: &Map) {
+        for ss in self.roads.values_mut() {
+            ss.enabled = false;
+            for l in &ss.travel_lanes {
+                for (turn, _) in map.get_next_turns_and_lanes(*l, self.id) {
+                    match self.turns[&turn.id] {
+                        TurnPriority::Stop | TurnPriority::Banned => {
+                            ss.enabled = true;
+                        }
+                        _ => {}
+                    }
+                }
+            }
+        }
     }
 }
 

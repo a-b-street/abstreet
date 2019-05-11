@@ -106,7 +106,7 @@ impl StopSignEditor {
                 .input
                 .contextual_action(Key::Space, &format!("toggle to {:?}", next_priority))
             {
-                sign.turns.insert(t, next_priority);
+                sign.change(t, next_priority, &ui.primary.map);
                 let mut new_edits = ui.primary.map.get_edits().clone();
                 new_edits.stop_sign_overrides.insert(self.id, sign);
                 apply_map_edits(ui, ctx, new_edits);
