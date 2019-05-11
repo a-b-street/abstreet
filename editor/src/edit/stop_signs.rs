@@ -6,27 +6,46 @@ use crate::render::{DrawOptions, DrawTurn};
 use crate::ui::{ShowEverything, UI};
 use ezgui::{Color, EventCtx, GfxCtx, Key, ModalMenu, Text};
 use geom::{Angle, Distance, Polygon, Pt2D};
-use map_model::{IntersectionID, LaneID, Map, Road, TurnID, TurnPriority};
+use map_model::{IntersectionID, RoadID, TurnID, TurnPriority};
+use std::collections::HashMap;
 
 pub struct StopSignEditor {
     menu: ModalMenu,
     id: IntersectionID,
-    signs: Vec<StopSignGroup>,
-    // Index into signs
-    selected_sign: Option<usize>,
+    octagons: HashMap<RoadID, Polygon>,
+    selected_sign: Option<RoadID>,
     selected_turn: Option<TurnID>,
 }
 
 impl StopSignEditor {
     pub fn new(id: IntersectionID, ctx: &EventCtx, ui: &mut UI) -> StopSignEditor {
         ui.primary.current_selection = None;
-        let map = &ui.primary.map;
-        let mut signs = Vec::new();
-        for r in &map.get_i(id).roads {
-            if let Some(ss) = StopSignGroup::new(map.get_r(*r), id, map) {
-                signs.push(ss);
-            }
-        }
+        let octagons = ui
+            .primary
+            .map
+            .get_stop_sign(id)
+            .roads
+            .iter()
+            .map(|(r, ss)| {
+                // In most cases, the lanes will all have the same last angle
+                let angle = ui.primary.map.get_l(ss.travel_lanes[0]).last_line().angle();
+                // Find the middle of the travel lanes
+                let center = Pt2D::center(
+                    &ss.travel_lanes
+                        .iter()
+                        .map(|l| ui.primary.map.get_l(*l).last_pt())
+                        .collect(),
+                );
+                (
+                    *r,
+                    make_octagon(
+                        center.project_away(Distance::meters(2.0), angle),
+                        Distance::meters(2.0),
+                        angle,
+                    ),
+                )
+            })
+            .collect();
         StopSignEditor {
             menu: ModalMenu::new(
                 "Stop Sign Editor",
@@ -37,7 +56,7 @@ impl StopSignEditor {
                 ctx,
             ),
             id,
-            signs,
+            octagons,
             selected_sign: None,
             selected_turn: None,
         }
@@ -52,9 +71,9 @@ impl StopSignEditor {
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
                 self.selected_sign = None;
                 self.selected_turn = None;
-                for (idx, ss) in self.signs.iter().enumerate() {
-                    if ss.octagon.contains_pt(pt) {
-                        self.selected_sign = Some(idx);
+                for (r, octagon) in &self.octagons {
+                    if octagon.contains_pt(pt) {
+                        self.selected_sign = Some(*r);
                         break;
                     }
                 }
@@ -109,10 +128,12 @@ impl StopSignEditor {
             &state.ui.primary.sim,
             &ShowEverything::new(),
         );
+        let map = &state.ui.primary.map;
+        let sign = map.get_stop_sign(self.id);
 
-        for (idx, ss) in self.signs.iter().enumerate() {
+        for (r, octagon) in &self.octagons {
             g.draw_polygon(
-                if ss.enabled {
+                if sign.roads[r].enabled {
                     state.ui.cs.get_def("enabled stop sign octagon", Color::RED)
                 } else {
                     state
@@ -120,19 +141,17 @@ impl StopSignEditor {
                         .cs
                         .get_def("disabled stop sign octagon", Color::RED.alpha(0.2))
                 },
-                &ss.octagon,
+                octagon,
             );
-            if Some(idx) == self.selected_sign {
+            if Some(*r) == self.selected_sign {
                 g.draw_polygon(
                     state.ui.cs.get("selected"),
                     // TODO Just the boundary?
-                    &ss.octagon,
+                    &self.octagons[r],
                 );
             }
         }
 
-        let map = &state.ui.primary.map;
-        let sign = map.get_stop_sign(self.id);
         for t in &state.ui.primary.draw_map.get_turns(self.id, map) {
             let color = match sign.get_priority(t.id) {
                 TurnPriority::Priority => {
@@ -157,15 +176,10 @@ impl StopSignEditor {
         }
 
         self.menu.draw(g);
-        if let Some(idx) = self.selected_sign {
+        if let Some(r) = self.selected_sign {
             let mut osd = Text::from_line("Stop sign for ".to_string());
             osd.append(
-                state
-                    .ui
-                    .primary
-                    .map
-                    .get_parent(self.signs[idx].travel_lanes[0])
-                    .get_name(),
+                state.ui.primary.map.get_r(r).get_name(),
                 Some(state.ui.cs.get("OSD name color")),
             );
             CommonState::draw_custom_osd(g, osd);
@@ -174,52 +188,6 @@ impl StopSignEditor {
         } else {
             CommonState::draw_osd(g, &state.ui, None);
         }
-    }
-}
-
-// TODO Move this abstraction to ControlStopSign?
-struct StopSignGroup {
-    travel_lanes: Vec<LaneID>,
-    octagon: Polygon,
-    enabled: bool,
-}
-
-impl StopSignGroup {
-    fn new(road: &Road, i: IntersectionID, map: &Map) -> Option<StopSignGroup> {
-        let travel_lanes: Vec<LaneID> = road
-            .incoming_lanes(i)
-            .iter()
-            .filter_map(|(id, lt)| {
-                if lt.is_for_moving_vehicles() {
-                    Some(*id)
-                } else {
-                    None
-                }
-            })
-            .collect();
-        if travel_lanes.is_empty() {
-            return None;
-        }
-        // In most cases, the lanes will all have the same last angle
-        let angle = map.get_l(travel_lanes[0]).last_line().angle();
-        // Find the middle of the travel lanes
-        let center = Pt2D::center(
-            &travel_lanes
-                .iter()
-                .map(|l| map.get_l(*l).last_pt())
-                .collect(),
-        );
-
-        Some(StopSignGroup {
-            travel_lanes,
-            octagon: make_octagon(
-                center.project_away(Distance::meters(2.0), angle),
-                Distance::meters(2.0),
-                angle,
-            ),
-            // TODO Depends on the ControlStopSign
-            enabled: false,
-        })
     }
 }
 
