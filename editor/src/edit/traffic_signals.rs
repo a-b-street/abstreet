@@ -262,7 +262,7 @@ impl TrafficSignalEditor {
             };
             t.draw(g, &ctx.cs, color);
         }
-        draw_signal_cycle(cycle, g, &ctx);
+        draw_signal_cycle(cycle, None, g, &ctx);
         if let Some(id) = self.icon_selected {
             g.draw_polygon(
                 state.ui.cs.get("selected"),

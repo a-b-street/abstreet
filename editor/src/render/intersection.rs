@@ -72,8 +72,8 @@ impl DrawIntersection {
     fn draw_traffic_signal(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
         let signal = ctx.map.get_traffic_signal(self.id);
         if !ctx.sim.is_in_overtime(self.id, ctx.map) {
-            let (cycle, _) = signal.current_cycle_and_remaining_time(ctx.sim.time());
-            draw_signal_cycle(cycle, g, ctx);
+            let (cycle, t) = signal.current_cycle_and_remaining_time(ctx.sim.time());
+            draw_signal_cycle(cycle, Some(t), g, ctx);
         }
     }
 }
@@ -185,7 +185,13 @@ pub fn calculate_corners(i: &Intersection, map: &Map, timer: &mut Timer) -> Vec<
     corners
 }
 
-pub fn draw_signal_cycle(cycle: &Cycle, g: &mut GfxCtx, ctx: &DrawCtx) {
+// Only draws a box when time_left is present
+pub fn draw_signal_cycle(
+    cycle: &Cycle,
+    time_left: Option<Duration>,
+    g: &mut GfxCtx,
+    ctx: &DrawCtx,
+) {
     if false {
         draw_signal_cycle_with_icons(cycle, g, ctx);
         return;
@@ -216,6 +222,33 @@ pub fn draw_signal_cycle(cycle: &Cycle, g: &mut GfxCtx, ctx: &DrawCtx) {
             DrawTurn::draw_dashed(turn, g, yield_color);
         }
     }
+
+    if time_left.is_none() {
+        return;
+    }
+
+    let box_width = 1.0;
+    let box_height = 3.0;
+    let top_left = ctx
+        .map
+        .get_i(cycle.parent)
+        .point
+        .offset(-box_width / 2.0, -box_height / 2.0);
+    let time_left_height = box_height * (time_left.unwrap() / cycle.duration);
+    if time_left_height != box_height {
+        g.draw_polygon(
+            ctx.cs.get_def("traffic signal box", Color::grey(0.2)),
+            &Polygon::rectangle_topleft(top_left, box_width, box_height - time_left_height),
+        );
+    }
+    g.draw_polygon(
+        ctx.cs.get_def("traffic signal time left", Color::YELLOW),
+        &Polygon::rectangle_topleft(
+            top_left.offset(0.0, box_height - time_left_height),
+            box_width,
+            time_left_height,
+        ),
+    );
 }
 
 fn draw_signal_cycle_with_icons(cycle: &Cycle, g: &mut GfxCtx, ctx: &DrawCtx) {
@@ -375,7 +408,16 @@ pub fn draw_signal_diagram(
         let y1 = y1_screen + (padding + intersection_height) * (idx as f64) * zoom;
 
         g.fork(top_left, ScreenPt::new(x1_screen, y1), zoom);
-        draw_signal_cycle(&cycle, g, ctx);
+        draw_signal_cycle(
+            &cycle,
+            if idx == current_cycle {
+                time_left
+            } else {
+                None
+            },
+            g,
+            ctx,
+        );
 
         g.draw_text_at_screenspace_topleft(
             &txt,
