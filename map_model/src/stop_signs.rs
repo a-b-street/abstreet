@@ -92,12 +92,17 @@ impl ControlStopSign {
         true
     }
 
-    // Only Yield and Priority
-    pub fn is_priority_lane(&self, lane: LaneID) -> bool {
-        self.turns
+    pub fn lane_has_stop_sign(&self, lane: LaneID) -> bool {
+        for ss in self.roads.values() {
+            if ss.travel_lanes.contains(&lane) {
+                return ss.enabled;
+            }
+        }
+        false
+        /*self.turns
             .iter()
             .find(|(turn, pri)| turn.src == lane && **pri <= TurnPriority::Stop)
-            .is_none()
+            .is_none()*/
     }
 
     // Returns both errors and warnings.

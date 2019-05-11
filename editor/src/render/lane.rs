@@ -51,7 +51,7 @@ impl DrawLane {
                 }
                 LaneType::Biking => {}
             };
-            if lane.is_driving()
+            if lane.lane_type.is_for_moving_vehicles()
                 && map.get_i(lane.dst_i).intersection_type == IntersectionType::StopSign
             {
                 draw.extend(calculate_stop_sign_line(road, lane, map, cs));
@@ -214,11 +214,9 @@ fn calculate_stop_sign_line(
     map: &Map,
     cs: &ColorScheme,
 ) -> Option<(Color, Polygon)> {
-    if map.get_stop_sign(lane.dst_i).is_priority_lane(lane.id) {
+    if !map.get_stop_sign(lane.dst_i).lane_has_stop_sign(lane.id) {
         return None;
     }
-
-    // TODO maybe draw the stop sign octagon on each lane?
 
     let (pt1, angle) = lane.safe_dist_along(lane.length() - Distance::meters(1.0))?;
     // Reuse perp_line. Project away an arbitrary amount
