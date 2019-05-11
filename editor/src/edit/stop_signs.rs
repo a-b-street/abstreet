@@ -2,11 +2,11 @@ use crate::common::CommonState;
 use crate::edit::apply_map_edits;
 use crate::game::GameState;
 use crate::helpers::ID;
-use crate::render::{DrawCtx, DrawOptions, DrawTurn, Renderable};
+use crate::render::{DrawOptions, DrawTurn};
 use crate::ui::{ShowEverything, UI};
 use ezgui::{Color, EventCtx, GfxCtx, Key, ModalMenu, Text};
 use geom::{Angle, Distance, Polygon, Pt2D};
-use map_model::{IntersectionID, LaneID, Map, Road, TurnID, TurnPriority, TurnType};
+use map_model::{IntersectionID, LaneID, Map, Road, TurnID, TurnPriority};
 
 pub struct StopSignEditor {
     menu: ModalMenu,
@@ -59,18 +59,10 @@ impl StopSignEditor {
                     }
                 }
                 if self.selected_sign.is_none() {
-                    for t in &ui.primary.map.get_i(self.id).turns {
-                        if ui.primary.map.get_t(*t).turn_type != TurnType::SharedSidewalkCorner {
-                            if ui
-                                .primary
-                                .draw_map
-                                .get_t(*t)
-                                .get_outline(&ui.primary.map)
-                                .contains_pt(pt)
-                            {
-                                self.selected_turn = Some(*t);
-                                break;
-                            }
+                    for t in &ui.primary.draw_map.get_turns(self.id, &ui.primary.map) {
+                        if t.get_outline().contains_pt(pt) {
+                            self.selected_turn = Some(t.id);
+                            break;
                         }
                     }
                 }
@@ -139,38 +131,23 @@ impl StopSignEditor {
             }
         }
 
-        let ctx = DrawCtx {
-            cs: &state.ui.cs,
-            map: &state.ui.primary.map,
-            draw_map: &state.ui.primary.draw_map,
-            sim: &state.ui.primary.sim,
-        };
         let map = &state.ui.primary.map;
         let sign = map.get_stop_sign(self.id);
-        for t in &map.get_i(self.id).turns {
-            if map.get_t(*t).turn_type == TurnType::SharedSidewalkCorner {
-                continue;
-            }
-            let mut opts = DrawOptions::new();
-            opts.override_colors.insert(
-                ID::Turn(*t),
-                match sign.get_priority(*t) {
-                    TurnPriority::Priority => {
-                        state.ui.cs.get_def("priority stop sign turn", Color::GREEN)
-                    }
-                    TurnPriority::Yield => {
-                        state.ui.cs.get_def("yield stop sign turn", Color::YELLOW)
-                    }
-                    TurnPriority::Stop => state.ui.cs.get_def("stop turn", Color::RED),
-                    TurnPriority::Banned => state.ui.cs.get_def("banned turn", Color::BLACK),
-                },
-            );
-            state.ui.primary.draw_map.get_t(*t).draw(g, &opts, &ctx);
+        for t in &state.ui.primary.draw_map.get_turns(self.id, map) {
+            let color = match sign.get_priority(t.id) {
+                TurnPriority::Priority => {
+                    state.ui.cs.get_def("priority stop sign turn", Color::GREEN)
+                }
+                TurnPriority::Yield => state.ui.cs.get_def("yield stop sign turn", Color::YELLOW),
+                TurnPriority::Stop => state.ui.cs.get_def("stop turn", Color::RED),
+                TurnPriority::Banned => state.ui.cs.get_def("banned turn", Color::BLACK),
+            };
+            t.draw(g, &state.ui.cs, color);
         }
         if let Some(id) = self.selected_turn {
             g.draw_polygon(
                 state.ui.cs.get("selected"),
-                &state.ui.primary.draw_map.get_t(id).get_outline(map),
+                &state.ui.primary.draw_map.get_t(id).get_outline(),
             );
             DrawTurn::draw_dashed(
                 map.get_t(id),

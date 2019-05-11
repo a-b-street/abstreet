@@ -2,9 +2,7 @@ use crate::common::CommonState;
 use crate::edit::apply_map_edits;
 use crate::game::GameState;
 use crate::helpers::ID;
-use crate::render::{
-    draw_signal_cycle, draw_signal_diagram, DrawCtx, DrawOptions, DrawTurn, Renderable,
-};
+use crate::render::{draw_signal_cycle, draw_signal_diagram, DrawCtx, DrawOptions, DrawTurn};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{Color, EventCtx, GfxCtx, Key, ModalMenu, ScreenPt, Wizard, WrappedWizard};
@@ -65,18 +63,10 @@ impl TrafficSignalEditor {
         if !ctx.canvas.is_dragging() && ctx.input.get_moved_mouse().is_some() {
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
                 self.icon_selected = None;
-                for t in &ui.primary.map.get_i(self.i).turns {
-                    if ui.primary.map.get_t(*t).turn_type != TurnType::SharedSidewalkCorner {
-                        if ui
-                            .primary
-                            .draw_map
-                            .get_t(*t)
-                            .get_outline(&ui.primary.map)
-                            .contains_pt(pt)
-                        {
-                            self.icon_selected = Some(*t);
-                            break;
-                        }
+                for t in ui.primary.draw_map.get_turns(self.i, &ui.primary.map) {
+                    if t.get_outline().contains_pt(pt) {
+                        self.icon_selected = Some(t.id);
+                        break;
                     }
                 }
             }
@@ -254,38 +244,29 @@ impl TrafficSignalEditor {
         };
         let map = &state.ui.primary.map;
         let cycle = &map.get_traffic_signal(self.i).cycles[self.current_cycle];
-        for t in &map.get_i(self.i).turns {
-            if map.get_t(*t).turn_type == TurnType::SharedSidewalkCorner {
-                continue;
-            }
-            let mut opts = DrawOptions::new();
-            opts.override_colors.insert(
-                ID::Turn(*t),
-                match cycle.get_priority(*t) {
-                    TurnPriority::Priority => state
-                        .ui
-                        .cs
-                        .get_def("priority turn in current cycle", Color::GREEN),
-                    TurnPriority::Yield => state
-                        .ui
-                        .cs
-                        .get_def("yield turn in current cycle", Color::rgb(255, 105, 180)),
-                    TurnPriority::Banned => state
-                        .ui
-                        .cs
-                        .get_def("turn not in current cycle", Color::BLACK),
-                    TurnPriority::Stop => {
-                        panic!("Can't have TurnPriority::Stop in a traffic signal")
-                    }
-                },
-            );
-            state.ui.primary.draw_map.get_t(*t).draw(g, &opts, &ctx);
+        for t in &state.ui.primary.draw_map.get_turns(self.i, map) {
+            let color = match cycle.get_priority(t.id) {
+                TurnPriority::Priority => state
+                    .ui
+                    .cs
+                    .get_def("priority turn in current cycle", Color::GREEN),
+                TurnPriority::Yield => state
+                    .ui
+                    .cs
+                    .get_def("yield turn in current cycle", Color::rgb(255, 105, 180)),
+                TurnPriority::Banned => state
+                    .ui
+                    .cs
+                    .get_def("turn not in current cycle", Color::BLACK),
+                TurnPriority::Stop => panic!("Can't have TurnPriority::Stop in a traffic signal"),
+            };
+            t.draw(g, &ctx.cs, color);
         }
         draw_signal_cycle(cycle, g, &ctx);
         if let Some(id) = self.icon_selected {
             g.draw_polygon(
                 state.ui.cs.get("selected"),
-                &state.ui.primary.draw_map.get_t(id).get_outline(map),
+                &state.ui.primary.draw_map.get_t(id).get_outline(),
             );
             DrawTurn::draw_dashed(map.get_t(id), g, state.ui.cs.get("selected turn"));
         }

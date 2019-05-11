@@ -1,7 +1,7 @@
-use crate::helpers::{ColorScheme, ID};
+use crate::helpers::ColorScheme;
 use crate::render::{
-    DrawCtx, DrawOptions, Renderable, BIG_ARROW_THICKNESS, CROSSWALK_LINE_THICKNESS,
-    TURN_ICON_ARROW_LENGTH, TURN_ICON_ARROW_THICKNESS,
+    BIG_ARROW_THICKNESS, CROSSWALK_LINE_THICKNESS, TURN_ICON_ARROW_LENGTH,
+    TURN_ICON_ARROW_THICKNESS,
 };
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Circle, Distance, Line, Polygon};
@@ -11,7 +11,6 @@ pub struct DrawTurn {
     pub id: TurnID,
     icon_circle: Circle,
     icon_arrow: Line,
-    icon_zorder: isize,
 }
 
 impl DrawTurn {
@@ -35,7 +34,6 @@ impl DrawTurn {
             id: turn.id,
             icon_circle,
             icon_arrow,
-            icon_zorder: map.get_parent(turn.id.src).get_zorder(),
         }
     }
 
@@ -68,34 +66,18 @@ impl DrawTurn {
         };
         g.draw_arrow(color, BIG_ARROW_THICKNESS, &arrow_line);
     }
-}
 
-// Little weird, but this is focused on the turn icon, not the full visualization
-impl Renderable for DrawTurn {
-    fn get_id(&self) -> ID {
-        ID::Turn(self.id)
-    }
-
-    fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, ctx: &DrawCtx) {
+    pub fn draw(&self, g: &mut GfxCtx, cs: &ColorScheme, arrow_color: Color) {
         g.draw_circle(
-            ctx.cs.get_def("turn icon circle", Color::grey(0.6)),
+            cs.get_def("turn icon circle", Color::grey(0.6)),
             &self.icon_circle,
         );
 
-        g.draw_arrow(
-            opts.color(self.get_id())
-                .unwrap_or_else(|| ctx.cs.get_def("inactive turn icon", Color::grey(0.7))),
-            TURN_ICON_ARROW_THICKNESS,
-            &self.icon_arrow,
-        );
+        g.draw_arrow(arrow_color, TURN_ICON_ARROW_THICKNESS, &self.icon_arrow);
     }
 
-    fn get_outline(&self, _: &Map) -> Polygon {
+    pub fn get_outline(&self) -> Polygon {
         self.icon_circle.to_polygon()
-    }
-
-    fn get_zorder(&self) -> isize {
-        self.icon_zorder
     }
 }
 

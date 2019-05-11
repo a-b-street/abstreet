@@ -275,6 +275,16 @@ impl DrawMap {
         &self.turns[&id]
     }
 
+    pub fn get_turns(&self, i: IntersectionID, map: &Map) -> Vec<&DrawTurn> {
+        let mut results = Vec::new();
+        for t in &map.get_i(i).turns {
+            if map.get_t(*t).turn_type != TurnType::SharedSidewalkCorner {
+                results.push(self.get_t(*t));
+            }
+        }
+        results
+    }
+
     pub fn get_b(&self, id: BuildingID) -> &DrawBuilding {
         &self.buildings[id.0]
     }
