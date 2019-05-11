@@ -1,7 +1,7 @@
 use crate::helpers::{ColorScheme, ID};
-use crate::render::{DrawCtx, DrawOptions, Renderable, BIG_ARROW_THICKNESS};
+use crate::render::{DrawCtx, DrawOptions, Renderable, BIG_ARROW_THICKNESS, OUTLINE_THICKNESS};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
-use geom::Polygon;
+use geom::{Polygon, Pt2D};
 use map_model::{Map, Road, RoadID};
 
 pub struct DrawRoad {
@@ -34,8 +34,16 @@ impl Renderable for DrawRoad {
     }
 
     fn get_outline(&self, map: &Map) -> Polygon {
-        // TODO need PolyLine->boundary
-        map.get_r(self.id).get_thick_polygon().unwrap()
+        let (pl, width) = map.get_r(self.id).get_thick_polyline().unwrap();
+        pl.to_thick_boundary(width, OUTLINE_THICKNESS)
+            .unwrap_or_else(|| map.get_r(self.id).get_thick_polygon().unwrap())
+    }
+
+    fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool {
+        map.get_r(self.id)
+            .get_thick_polygon()
+            .unwrap()
+            .contains_pt(pt)
     }
 
     fn get_zorder(&self) -> isize {

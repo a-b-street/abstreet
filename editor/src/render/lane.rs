@@ -1,8 +1,8 @@
 use crate::helpers::{ColorScheme, ID};
-use crate::render::{DrawCtx, DrawOptions, Renderable, BIG_ARROW_THICKNESS};
+use crate::render::{DrawCtx, DrawOptions, Renderable, BIG_ARROW_THICKNESS, OUTLINE_THICKNESS};
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
-use geom::{Circle, Distance, Line, PolyLine, Polygon};
+use geom::{Circle, Distance, Line, PolyLine, Polygon, Pt2D};
 use map_model::{
     IntersectionType, Lane, LaneID, LaneType, Map, Road, LANE_THICKNESS, PARKING_SPOT_LENGTH,
 };
@@ -100,9 +100,15 @@ impl Renderable for DrawLane {
         }
     }
 
-    fn get_outline(&self, _: &Map) -> Polygon {
-        // TODO need PolyLine->boundary
-        self.polygon.clone()
+    fn get_outline(&self, map: &Map) -> Polygon {
+        map.get_l(self.id)
+            .lane_center_pts
+            .to_thick_boundary(LANE_THICKNESS, OUTLINE_THICKNESS)
+            .unwrap_or_else(|| self.polygon.clone())
+    }
+
+    fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {
+        self.polygon.contains_pt(pt)
     }
 
     fn get_zorder(&self) -> isize {

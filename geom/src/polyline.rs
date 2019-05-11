@@ -59,6 +59,27 @@ impl PolyLine {
         pl.make_polygons(thickness)
     }
 
+    pub fn to_thick_boundary(
+        &self,
+        self_width: Distance,
+        boundary_width: Distance,
+    ) -> Option<Polygon> {
+        assert!(self_width > boundary_width);
+        if self.length() <= boundary_width {
+            return None;
+        }
+        let slice = self.exact_slice(boundary_width / 2.0, self.length() - boundary_width / 2.0);
+        let mut side1 = slice.shift_with_sharp_angles((self_width - boundary_width) / 2.0);
+        let mut side2 = slice.shift_with_sharp_angles(-(self_width - boundary_width) / 2.0);
+        side2.reverse();
+        side1.extend(side2);
+        side1.push(side1[0]);
+        Some(PolyLine::make_polygons_for_boundary(
+            Pt2D::approx_dedupe(side1, EPSILON_DIST),
+            boundary_width,
+        ))
+    }
+
     pub fn reversed(&self) -> PolyLine {
         let mut pts = self.pts.clone();
         pts.reverse();

@@ -1,5 +1,5 @@
 use crate::helpers::{ColorScheme, ID};
-use crate::render::{should_draw_blinkers, DrawCtx, DrawOptions, Renderable};
+use crate::render::{should_draw_blinkers, DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Angle, Circle, Distance, PolyLine, Polygon, Pt2D};
 use map_model::{Map, TurnType};
@@ -9,6 +9,7 @@ const CAR_WIDTH: Distance = Distance::const_meters(2.0);
 
 pub struct DrawCar {
     pub id: CarID,
+    body: PolyLine,
     body_polygon: Polygon,
     // Optional and could be empty for super short cars near borders.
     window_polygons: Vec<Polygon>,
@@ -90,6 +91,7 @@ impl DrawCar {
 
         DrawCar {
             id: input.id,
+            body: input.body,
             body_polygon,
             window_polygons: vec![front_window, back_window],
             left_blinkers: Some((
@@ -177,8 +179,13 @@ impl Renderable for DrawCar {
     }
 
     fn get_outline(&self, _: &Map) -> Polygon {
-        // TODO need PolyLine->boundary
-        self.body_polygon.clone()
+        self.body
+            .to_thick_boundary(CAR_WIDTH, OUTLINE_THICKNESS)
+            .unwrap_or_else(|| self.body_polygon.clone())
+    }
+
+    fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {
+        self.body_polygon.contains_pt(pt)
     }
 
     fn get_zorder(&self) -> isize {
