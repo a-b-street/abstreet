@@ -111,6 +111,14 @@ impl StopSignEditor {
                 new_edits.stop_sign_overrides.insert(self.id, sign);
                 apply_map_edits(ui, ctx, new_edits);
             }
+        } else if let Some(r) = self.selected_sign {
+            if ctx.input.contextual_action(Key::Space, "toggle stop sign") {
+                let mut sign = ui.primary.map.get_stop_sign(self.id).clone();
+                sign.flip_sign(r, &ui.primary.map);
+                let mut new_edits = ui.primary.map.get_edits().clone();
+                new_edits.stop_sign_overrides.insert(self.id, sign);
+                apply_map_edits(ui, ctx, new_edits);
+            }
         } else if self.menu.action("quit") {
             return true;
         } else if self.menu.action("reset to default") {

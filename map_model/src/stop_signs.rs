@@ -154,6 +154,23 @@ impl ControlStopSign {
         self.recalculate_stop_signs(map);
     }
 
+    pub fn flip_sign(&mut self, r: RoadID, map: &Map) {
+        // Very naive approach
+        let ss = self.roads.get_mut(&r).unwrap();
+        ss.enabled = !ss.enabled;
+        // TODO Upgrade some to Priority
+        let new_pri = if ss.enabled {
+            TurnPriority::Stop
+        } else {
+            TurnPriority::Yield
+        };
+        for l in &ss.travel_lanes {
+            for (turn, _) in map.get_next_turns_and_lanes(*l, self.id) {
+                self.turns.insert(turn.id, new_pri);
+            }
+        }
+    }
+
     fn recalculate_stop_signs(&mut self, map: &Map) {
         for ss in self.roads.values_mut() {
             ss.enabled = false;
