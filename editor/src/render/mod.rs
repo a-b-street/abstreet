@@ -23,7 +23,7 @@ pub use crate::render::pedestrian::DrawPedestrian;
 pub use crate::render::road::DrawRoad;
 pub use crate::render::turn::{DrawCrosswalk, DrawTurn};
 use ezgui::{Color, GfxCtx, Prerender};
-use geom::{Distance, Polygon};
+use geom::{Distance, Polygon, Pt2D};
 use map_model::{IntersectionID, Map};
 use sim::{DrawCarInput, Sim, VehicleType};
 use std::collections::HashMap;
@@ -39,6 +39,8 @@ const TURN_ICON_ARROW_THICKNESS: Distance = Distance::const_meters(0.15);
 const TURN_ICON_ARROW_LENGTH: Distance = Distance::const_meters(2.0);
 pub const CROSSWALK_LINE_THICKNESS: Distance = Distance::const_meters(0.25);
 
+pub const OUTLINE_THICKNESS: Distance = Distance::const_meters(1.5);
+
 // Does something belong here or as a method on ID? If it ONLY applies to renderable things, then
 // here. For example, trips aren't drawn, so it's meaningless to ask what their bounding box is.
 pub trait Renderable {
@@ -48,8 +50,11 @@ pub trait Renderable {
     fn get_zorder(&self) -> isize {
         -5
     }
-    // This is called at most once per frame; don't worry about cloning and lack of prerendering.
+    // This outline is drawn over the base object to show that it's selected. It also represents the boundaries for quadtrees. This isn't called often; don't worry about caching.
     fn get_outline(&self, map: &Map) -> Polygon;
+    fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool {
+        self.get_outline(map).contains_pt(pt)
+    }
 }
 
 pub fn draw_vehicle(

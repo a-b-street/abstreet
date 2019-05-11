@@ -53,6 +53,7 @@ impl Renderable for DrawBusStop {
     }
 
     fn get_outline(&self, _: &Map) -> Polygon {
+        // TODO need PolyLine->boundary
         self.polygon.clone()
     }
 

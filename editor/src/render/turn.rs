@@ -4,12 +4,12 @@ use crate::render::{
     TURN_ICON_ARROW_THICKNESS,
 };
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
-use geom::{Circle, Distance, Line, Polygon};
+use geom::{Circle, Distance, Line};
 use map_model::{Map, Turn, TurnID, LANE_THICKNESS};
 
 pub struct DrawTurn {
     pub id: TurnID,
-    icon_circle: Circle,
+    pub icon_circle: Circle,
     icon_arrow: Line,
 }
 
@@ -74,10 +74,6 @@ impl DrawTurn {
         );
 
         g.draw_arrow(arrow_color, TURN_ICON_ARROW_THICKNESS, &self.icon_arrow);
-    }
-
-    pub fn get_outline(&self) -> Polygon {
-        self.icon_circle.to_polygon()
     }
 }
 

@@ -101,6 +101,7 @@ impl Renderable for DrawLane {
     }
 
     fn get_outline(&self, _: &Map) -> Polygon {
+        // TODO need PolyLine->boundary
         self.polygon.clone()
     }
 

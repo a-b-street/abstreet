@@ -64,7 +64,7 @@ impl TrafficSignalEditor {
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
                 self.icon_selected = None;
                 for t in ui.primary.draw_map.get_turns(self.i, &ui.primary.map) {
-                    if t.get_outline().contains_pt(pt) {
+                    if t.icon_circle.contains_pt(pt) {
                         self.icon_selected = Some(t.id);
                         break;
                     }
@@ -266,7 +266,8 @@ impl TrafficSignalEditor {
         if let Some(id) = self.icon_selected {
             g.draw_polygon(
                 state.ui.cs.get("selected"),
-                &state.ui.primary.draw_map.get_t(id).get_outline(),
+                // TODO thin ring
+                &state.ui.primary.draw_map.get_t(id).icon_circle.to_polygon(),
             );
             DrawTurn::draw_dashed(map.get_t(id), g, state.ui.cs.get("selected turn"));
         }

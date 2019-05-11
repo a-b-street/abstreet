@@ -136,6 +136,7 @@ impl Renderable for DrawPedestrian {
     }
 
     fn get_outline(&self, _: &Map) -> Polygon {
+        // TODO thin ring
         self.body_circle.to_polygon()
     }
 

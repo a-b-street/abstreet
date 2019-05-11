@@ -1,5 +1,5 @@
 use crate::helpers::{ColorScheme, ID};
-use crate::render::{DrawCrosswalk, DrawCtx, DrawOptions, DrawTurn, Renderable};
+use crate::render::{DrawCrosswalk, DrawCtx, DrawOptions, DrawTurn, Renderable, OUTLINE_THICKNESS};
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GfxCtx, Prerender, ScreenPt, Text};
 use geom::{Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D};
@@ -103,7 +103,11 @@ impl Renderable for DrawIntersection {
     }
 
     fn get_outline(&self, _: &Map) -> Polygon {
-        self.polygon.clone()
+        PolyLine::make_polygons_for_boundary(self.polygon.points().clone(), OUTLINE_THICKNESS)
+    }
+
+    fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {
+        self.polygon.contains_pt(pt)
     }
 
     fn get_zorder(&self) -> isize {

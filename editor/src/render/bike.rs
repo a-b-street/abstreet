@@ -100,6 +100,7 @@ impl Renderable for DrawBike {
     }
 
     fn get_outline(&self, _: &Map) -> Polygon {
+        // TODO ideally a thin ring
         self.body_circle.to_polygon()
     }
 

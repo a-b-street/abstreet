@@ -6,7 +6,7 @@ use crate::render::{
 use abstutil;
 use abstutil::MeasureMemory;
 use ezgui::{Color, EventCtx, GfxCtx, Prerender};
-use geom::{Bounds, Circle, Distance, Duration, Polygon};
+use geom::{Bounds, Circle, Distance, Duration};
 use map_model::{Map, Traversable};
 use serde_derive::{Deserialize, Serialize};
 use sim::{GetDrawAgents, Sim, SimFlags};
@@ -73,12 +73,12 @@ impl UI {
             if let Some(ID::Area(id)) = self.primary.current_selection {
                 g.draw_polygon(
                     self.cs.get("selected"),
-                    &fill_to_boundary_polygon(ctx.draw_map.get_a(id).get_outline(&ctx.map)),
+                    &ctx.draw_map.get_a(id).get_outline(&ctx.map),
                 );
             } else if let Some(ID::ExtraShape(id)) = self.primary.current_selection {
                 g.draw_polygon(
                     self.cs.get("selected"),
-                    &fill_to_boundary_polygon(ctx.draw_map.get_es(id).get_outline(&ctx.map)),
+                    &ctx.draw_map.get_es(id).get_outline(&ctx.map),
                 );
             }
 
@@ -122,7 +122,7 @@ impl UI {
                 if self.primary.current_selection == Some(obj.get_id()) {
                     g.draw_polygon(
                         self.cs.get_def("selected", Color::YELLOW.alpha(0.4)),
-                        &fill_to_boundary_polygon(obj.get_outline(&ctx.map)),
+                        &obj.get_outline(&ctx.map),
                     );
                 }
 
@@ -176,7 +176,7 @@ impl UI {
                     // Thick roads are only shown when unzoomed, when we don't mouseover at all.
                     ID::Road(_) => {}
                     _ => {
-                        if obj.get_outline(&self.primary.map).contains_pt(pt) {
+                        if obj.contains_pt(pt, &self.primary.map) {
                             return Some(obj.get_id());
                         }
                     }
@@ -293,12 +293,6 @@ pub struct EditorState {
     pub cam_x: f64,
     pub cam_y: f64,
     pub cam_zoom: f64,
-}
-
-fn fill_to_boundary_polygon(poly: Polygon) -> Polygon {
-    // TODO This looks awful for lanes, oops.
-    //geom::PolyLine::make_polygons_for_boundary(poly.points().clone(), Distance::meters(1.5))
-    poly
 }
 
 pub struct ShowLayers {

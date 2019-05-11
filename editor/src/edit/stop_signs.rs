@@ -79,7 +79,7 @@ impl StopSignEditor {
                 }
                 if self.selected_sign.is_none() {
                     for t in &ui.primary.draw_map.get_turns(self.id, &ui.primary.map) {
-                        if t.get_outline().contains_pt(pt) {
+                        if t.icon_circle.contains_pt(pt) {
                             self.selected_turn = Some(t.id);
                             break;
                         }
@@ -174,7 +174,8 @@ impl StopSignEditor {
         if let Some(id) = self.selected_turn {
             g.draw_polygon(
                 state.ui.cs.get("selected"),
-                &state.ui.primary.draw_map.get_t(id).get_outline(),
+                // TODO thin ring
+                &state.ui.primary.draw_map.get_t(id).icon_circle.to_polygon(),
             );
             DrawTurn::draw_dashed(
                 map.get_t(id),

@@ -177,6 +177,7 @@ impl Renderable for DrawCar {
     }
 
     fn get_outline(&self, _: &Map) -> Polygon {
+        // TODO need PolyLine->boundary
         self.body_polygon.clone()
     }
 

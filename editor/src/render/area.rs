@@ -31,6 +31,7 @@ impl Renderable for DrawArea {
     }
 
     fn get_outline(&self, map: &Map) -> Polygon {
+        // Since areas are so big, don't just draw the outline
         map.get_a(self.id).polygon.clone()
     }
 }

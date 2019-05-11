@@ -1,7 +1,7 @@
 use crate::helpers::{ColorScheme, ID};
-use crate::render::{DrawCtx, DrawOptions, Renderable};
+use crate::render::{DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, GfxCtx};
-use geom::{Distance, Line, Polygon};
+use geom::{Distance, Line, PolyLine, Polygon, Pt2D};
 use map_model::{Building, BuildingID, BuildingType, Map, LANE_THICKNESS};
 
 pub struct DrawBuilding {
@@ -57,6 +57,13 @@ impl Renderable for DrawBuilding {
     }
 
     fn get_outline(&self, map: &Map) -> Polygon {
-        map.get_b(self.id).polygon.clone()
+        PolyLine::make_polygons_for_boundary(
+            map.get_b(self.id).polygon.points().clone(),
+            OUTLINE_THICKNESS,
+        )
+    }
+
+    fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool {
+        map.get_b(self.id).polygon.contains_pt(pt)
     }
 }

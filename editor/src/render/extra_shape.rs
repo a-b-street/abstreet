@@ -87,6 +87,7 @@ impl Renderable for DrawExtraShape {
     }
 
     fn get_outline(&self, _: &Map) -> Polygon {
+        // TODO This depends on the original input type
         self.polygon.clone()
     }
 }

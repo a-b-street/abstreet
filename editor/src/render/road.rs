@@ -34,6 +34,7 @@ impl Renderable for DrawRoad {
     }
 
     fn get_outline(&self, map: &Map) -> Polygon {
+        // TODO need PolyLine->boundary
         map.get_r(self.id).get_thick_polygon().unwrap()
     }
 
