@@ -24,16 +24,6 @@ impl MapEdits {
         }
     }
 
-    pub fn describe(&self) -> String {
-        format!(
-            "map edits \"{}\" ({} lanes, {} stop signs, {} traffic signals)",
-            self.edits_name,
-            self.lane_overrides.len(),
-            self.stop_sign_overrides.len(),
-            self.traffic_signal_overrides.len(),
-        )
-    }
-
     pub fn save(&self) {
         abstutil::save_object("edits", &self.map_name, &self.edits_name, self);
     }

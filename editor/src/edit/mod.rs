@@ -48,10 +48,17 @@ impl EditMode {
         match state.mode {
             Mode::Edit(EditMode::ViewingDiffs(ref mut common, ref mut menu)) => {
                 let mut txt = Text::prompt("Map Edit Mode");
-                // TODO Display info/hints on more lines.
-                txt.add_line(state.ui.primary.map.get_edits().edits_name.clone());
-                txt.add_line(state.ui.primary.map.get_edits().describe());
-                txt.add_line("Right-click a lane or intersection to start editing".to_string());
+                {
+                    let edits = state.ui.primary.map.get_edits();
+                    txt.add_line(edits.edits_name.clone());
+                    txt.add_line(format!("{} lanes", edits.lane_overrides.len()));
+                    txt.add_line(format!("{} stop signs ", edits.stop_sign_overrides.len()));
+                    txt.add_line(format!(
+                        "{} traffic signals",
+                        edits.traffic_signal_overrides.len()
+                    ));
+                    txt.add_line("Right-click a lane or intersection to start editing".to_string());
+                }
                 menu.handle_event(ctx, Some(txt));
 
                 ctx.canvas.handle_event(ctx.input);
