@@ -230,6 +230,9 @@ impl UI {
                 }
                 ID::Intersection(id) => {
                     intersections.push(Box::new(draw_map.get_i(id)));
+                    for t in &map.get_i(id).turns {
+                        agents_on.push(Traversable::Turn(*t));
+                    }
                 }
                 // TODO front paths will get drawn over buildings, depending on quadtree order.
                 // probably just need to make them go around other buildings instead of having
