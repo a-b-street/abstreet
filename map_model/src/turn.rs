@@ -75,6 +75,11 @@ pub struct Turn {
 
 impl Turn {
     pub fn conflicts_with(&self, other: &Turn) -> bool {
+        if self.turn_type == TurnType::SharedSidewalkCorner
+            || other.turn_type == TurnType::SharedSidewalkCorner
+        {
+            return false;
+        }
         if self.id == other.id {
             return false;
         }

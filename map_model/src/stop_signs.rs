@@ -121,6 +121,10 @@ impl ControlStopSign {
             if !self.turns.contains_key(t) {
                 warnings.push(format!("Stop sign for {} is missing {}", self.id, t));
             }
+            // Are all of the SharedSidewalkCorner prioritized?
+            if map.get_t(*t).turn_type == TurnType::SharedSidewalkCorner {
+                assert_eq!(self.turns[t], TurnPriority::Priority);
+            }
         }
 
         // Do any of the priority turns conflict?
@@ -247,7 +251,9 @@ fn smart_assignment(map: &Map, id: IntersectionID) -> Warn<ControlStopSign> {
         roads: BTreeMap::new(),
     };
     for t in &map.get_i(id).turns {
-        if rank_per_incoming_lane[&t.src] == highest_rank {
+        if map.get_t(*t).turn_type == TurnType::SharedSidewalkCorner {
+            ss.turns.insert(*t, TurnPriority::Priority);
+        } else if rank_per_incoming_lane[&t.src] == highest_rank {
             // If it's the highest rank road, prioritize all non-left turns (if possible) and make
             // other turns yield.
             if map.get_t(*t).turn_type != TurnType::Left && ss.could_be_priority_turn(*t, map) {
@@ -270,7 +276,11 @@ fn all_way_stop(map: &Map, id: IntersectionID) -> ControlStopSign {
         roads: BTreeMap::new(),
     };
     for t in &map.get_i(id).turns {
-        ss.turns.insert(*t, TurnPriority::Stop);
+        if map.get_t(*t).turn_type == TurnType::SharedSidewalkCorner {
+            ss.turns.insert(*t, TurnPriority::Priority);
+        } else {
+            ss.turns.insert(*t, TurnPriority::Stop);
+        }
     }
     ss
 }
