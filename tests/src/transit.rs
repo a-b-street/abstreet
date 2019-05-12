@@ -58,7 +58,7 @@ pub fn run(t: &mut TestRunner) {
             )
             .0
             .unwrap();
-        sim.spawn_all_trips(&map, &mut Timer::throwaway());
+        sim.spawn_all_trips(&map, &mut Timer::throwaway(), false);
         h.setup_done(&sim);
 
         sim.run_until_expectations_met(

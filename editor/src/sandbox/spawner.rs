@@ -253,7 +253,7 @@ impl AgentSpawner {
                     }
                 }
             };
-            sim.spawn_all_trips(map, &mut Timer::new("spawn trip"));
+            sim.spawn_all_trips(map, &mut Timer::new("spawn trip"), false);
             sim.step(map, SMALL_DT);
             //*ctx.recalculate_current_selection = true;
             return true;
@@ -294,7 +294,6 @@ fn spawn_agents_around(i: IntersectionID, ui: &mut UI) {
                     continue;
                 }
                 sim.schedule_trip(
-                    // TODO +1?
                     sim.time(),
                     TripSpec::CarAppearing {
                         start_pos: Position::new(
@@ -332,7 +331,7 @@ fn spawn_agents_around(i: IntersectionID, ui: &mut UI) {
         }
     }
 
-    sim.spawn_all_trips(map, &mut Timer::throwaway());
+    sim.spawn_all_trips(map, &mut Timer::throwaway(), false);
     sim.step(map, SMALL_DT);
     //*ctx.recalculate_current_selection = true;
 }

@@ -126,9 +126,10 @@ impl TripManager {
         let router = drive_to.make_router(path, map, parked_car.vehicle.vehicle_type);
         scheduler.push(
             time,
-            Command::SpawnCar(CreateCar::for_parked_car(
-                parked_car, router, trip.id, parking, map,
-            )),
+            Command::SpawnCar(
+                CreateCar::for_parked_car(parked_car, router, trip.id, parking, map),
+                true,
+            ),
         );
     }
 
@@ -175,12 +176,10 @@ impl TripManager {
         let router = drive_to.make_router(path, map, vehicle.vehicle_type);
         scheduler.push(
             time,
-            Command::SpawnCar(CreateCar::for_appearing(
-                vehicle,
-                driving_pos,
-                router,
-                trip.id,
-            )),
+            Command::SpawnCar(
+                CreateCar::for_appearing(vehicle, driving_pos, router, trip.id),
+                true,
+            ),
         );
     }
 

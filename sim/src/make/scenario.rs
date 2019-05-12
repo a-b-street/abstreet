@@ -118,7 +118,7 @@ impl Scenario {
             s.spawn_bikes(rng, sim, &neighborhoods, map, timer);
         }
 
-        sim.spawn_all_trips(map, timer);
+        sim.spawn_all_trips(map, timer, true);
         timer.stop(&format!("Instantiating {}", self.scenario_name));
     }
 

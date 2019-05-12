@@ -153,6 +153,7 @@ impl TripSpawner {
         trips: &mut TripManager,
         scheduler: &mut Scheduler,
         timer: &mut Timer,
+        retry_if_no_room: bool,
     ) {
         let paths = calculate_paths(
             map,
@@ -190,9 +191,10 @@ impl TripSpawner {
                     let router = goal.make_router(path, map, vehicle.vehicle_type);
                     scheduler.push(
                         start_time,
-                        Command::SpawnCar(CreateCar::for_appearing(
-                            vehicle, start_pos, router, trip,
-                        )),
+                        Command::SpawnCar(
+                            CreateCar::for_appearing(vehicle, start_pos, router, trip),
+                            retry_if_no_room,
+                        ),
                     );
                 }
                 TripSpec::UsingParkedCar {

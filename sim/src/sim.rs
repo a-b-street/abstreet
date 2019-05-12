@@ -128,13 +128,14 @@ impl Sim {
         (ped_id, car_id)
     }
 
-    pub fn spawn_all_trips(&mut self, map: &Map, timer: &mut Timer) {
+    pub fn spawn_all_trips(&mut self, map: &Map, timer: &mut Timer, retry_if_no_room: bool) {
         self.spawner.spawn_all(
             map,
             &self.parking,
             &mut self.trips,
             &mut self.scheduler,
             timer,
+            retry_if_no_room,
         );
     }
 
@@ -304,7 +305,7 @@ impl Sim {
 
             self.time = time;
             match cmd {
-                Command::SpawnCar(create_car) => {
+                Command::SpawnCar(create_car, retry_if_no_room) => {
                     if self.driving.start_car_on_lane(
                         self.time,
                         create_car.clone(),
@@ -320,10 +321,16 @@ impl Sim {
                         if let Some(parked_car) = create_car.maybe_parked_car {
                             self.parking.remove_parked_car(parked_car);
                         }
-                    } else {
+                    } else if retry_if_no_room {
                         self.scheduler.push(
                             self.time + BLIND_RETRY_TO_SPAWN,
-                            Command::SpawnCar(create_car),
+                            Command::SpawnCar(create_car, retry_if_no_room),
+                        );
+                    } else {
+                        // TODO Cancel the trip or something?
+                        println!(
+                            "No room to spawn car for {}. Not retrying!",
+                            create_car.trip
                         );
                     }
                 }

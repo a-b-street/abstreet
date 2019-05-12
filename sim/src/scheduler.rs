@@ -7,7 +7,8 @@ use serde_derive::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, PartialEq)]
 pub enum Command {
-    SpawnCar(CreateCar),
+    // If true, retry when there's no room to spawn somewhere
+    SpawnCar(CreateCar, bool),
     SpawnPed(CreatePedestrian),
     UpdateCar(CarID),
     // Distinguish this from UpdateCar to avoid confusing things
