@@ -2,15 +2,17 @@
 
 // (x offset, y offset, zoom)
 uniform vec3 transform;
-// (window width, window height)
-uniform vec2 window;
+// (window width, window height, hatching == 1.0)
+uniform vec3 window;
 
 in vec2 position;
 in vec4 color;
 out vec4 pass_color;
+out float pass_hatching;
 
 void main() {
     pass_color = color / 255.0;
+    pass_hatching = window[2];
 
     // This is map_to_screen
     float screen_x = (position[0] * transform[2]) - transform[0];

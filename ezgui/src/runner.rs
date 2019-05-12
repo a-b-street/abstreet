@@ -163,6 +163,21 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(
             );
         };
 
+    // To quickly iterate on shaders without recompiling...
+    /*let mut vert = String::new();
+    let mut frag = String::new();
+    let (vertex_shader, fragment_shader) = {
+        use std::io::Read;
+
+        let mut f1 = std::fs::File:: open("../ezgui/src/assets/vertex_110.glsl").unwrap();
+        f1.read_to_string(&mut vert).unwrap();
+
+        let mut f2 = std::fs::File:: open("../ezgui/src/assets/fragment_110.glsl").unwrap();
+        f2.read_to_string(&mut frag).unwrap();
+
+        (&vert, &frag)
+    };*/
+
     let program = glium::Program::new(
         &display,
         glium::program::ProgramCreationInput::SourceCode {

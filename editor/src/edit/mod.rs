@@ -179,18 +179,9 @@ impl EditMode {
                 );
                 common.draw(g, &state.ui);
 
-                // TODO Similar to drawing areas with traffic or not -- would be convenient to just
-                // supply a set of things to highlight and have something else take care of drawing
-                // with detail or not.
-                let zoomed = g.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL;
-                let color = if zoomed {
-                    state
-                        .ui
-                        .cs
-                        .get_def("zoomed map diffs", Color::RED.alpha(0.5))
-                } else {
-                    state.ui.cs.get_def("unzoomed map diffs", Color::RED)
-                };
+                // More generally we might want to show the diff between two edits, but for now,
+                // just show diff relative to basemap.
+                let edits = state.ui.primary.map.get_edits();
 
                 let ctx = DrawCtx {
                     cs: &state.ui.cs,
@@ -200,33 +191,55 @@ impl EditMode {
                 };
                 let mut opts = DrawOptions::new();
 
-                // More generally we might want to show the diff between two edits, but for now,
-                // just show diff relative to basemap.
-                let edits = state.ui.primary.map.get_edits();
-                for l in edits.lane_overrides.keys() {
-                    if zoomed {
-                        opts.override_colors.insert(ID::Lane(*l), color);
-                        state.ui.primary.draw_map.get_l(*l).draw(g, &opts, &ctx);
-                    } else {
-                        g.draw_polygon(
-                            color,
-                            &state
-                                .ui
-                                .primary
-                                .map
-                                .get_parent(*l)
-                                .get_thick_polygon()
-                                .unwrap(),
-                        );
+                // TODO Similar to drawing areas with traffic or not -- would be convenient to just
+                // supply a set of things to highlight and have something else take care of drawing
+                // with detail or not.
+                if g.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL {
+                    g.enable_hatching();
+
+                    for l in edits.lane_overrides.keys() {
+                        ctx.draw_map.get_l(*l).draw(g, &opts, &ctx);
                     }
-                }
-                for i in edits
-                    .stop_sign_overrides
-                    .keys()
-                    .chain(edits.traffic_signal_overrides.keys())
-                {
-                    opts.override_colors.insert(ID::Intersection(*i), color);
-                    state.ui.primary.draw_map.get_i(*i).draw(g, &opts, &ctx);
+                    for i in edits
+                        .stop_sign_overrides
+                        .keys()
+                        .chain(edits.traffic_signal_overrides.keys())
+                    {
+                        ctx.draw_map.get_i(*i).draw(g, &opts, &ctx);
+                    }
+
+                    g.disable_hatching();
+
+                    // The hatching covers up the selection outline, so redraw it.
+                    match state.ui.primary.current_selection {
+                        Some(ID::Lane(l)) => {
+                            g.draw_polygon(
+                                state.ui.cs.get("selected"),
+                                &ctx.draw_map.get_l(l).get_outline(&ctx.map),
+                            );
+                        }
+                        Some(ID::Intersection(i)) => {
+                            g.draw_polygon(
+                                state.ui.cs.get("selected"),
+                                &ctx.draw_map.get_i(i).get_outline(&ctx.map),
+                            );
+                        }
+                        _ => {}
+                    }
+                } else {
+                    let color = state.ui.cs.get_def("unzoomed map diffs", Color::RED);
+                    for l in edits.lane_overrides.keys() {
+                        g.draw_polygon(color, &ctx.map.get_parent(*l).get_thick_polygon().unwrap());
+                    }
+
+                    for i in edits
+                        .stop_sign_overrides
+                        .keys()
+                        .chain(edits.traffic_signal_overrides.keys())
+                    {
+                        opts.override_colors.insert(ID::Intersection(*i), color);
+                        ctx.draw_map.get_i(*i).draw(g, &opts, &ctx);
+                    }
                 }
 
                 menu.draw(g);

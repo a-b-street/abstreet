@@ -6,11 +6,16 @@ use crate::{
 use geom::{Bounds, Circle, Distance, Line, Polygon, Pt2D};
 use glium::{uniform, Surface};
 
+// transform is (cam_x, cam_y, cam_zoom)
+// window is (window_width, window_height, hatching == 1.0)
+// Things are awkwardly grouped because passing uniforms is either broken or horribly documented.
 type Uniforms<'a> = glium::uniforms::UniformsStorage<
     'a,
-    [f32; 2],
+    [f32; 3],
     glium::uniforms::UniformsStorage<'a, [f32; 3], glium::uniforms::EmptyUniforms>,
 >;
+const NO_HATCHING: f32 = 0.0;
+const HATCHING: f32 = 1.0;
 
 pub struct GfxCtx<'a> {
     pub(crate) target: &'a mut glium::Frame,
@@ -28,6 +33,7 @@ pub struct GfxCtx<'a> {
     context_menu: &'a ContextMenu,
 
     pub num_draw_calls: usize,
+    hatching: f32,
 }
 
 impl<'a> GfxCtx<'a> {
@@ -47,7 +53,7 @@ impl<'a> GfxCtx<'a> {
 
         let uniforms = uniform! {
             transform: [canvas.cam_x as f32, canvas.cam_y as f32, canvas.cam_zoom as f32],
-            window: [canvas.window_width as f32, canvas.window_height as f32],
+            window: [canvas.window_width as f32, canvas.window_height as f32, NO_HATCHING],
         };
 
         GfxCtx {
@@ -62,6 +68,7 @@ impl<'a> GfxCtx<'a> {
             screencap_mode,
             naming_hint: None,
             context_menu,
+            hatching: NO_HATCHING,
         }
     }
 
@@ -75,21 +82,21 @@ impl<'a> GfxCtx<'a> {
 
         self.uniforms = uniform! {
             transform: [cam_x as f32, cam_y as f32, zoom as f32],
-            window: [self.canvas.window_width as f32, self.canvas.window_height as f32],
+            window: [self.canvas.window_width as f32, self.canvas.window_height as f32, self.hatching],
         };
     }
 
     pub fn fork_screenspace(&mut self) {
         self.uniforms = uniform! {
             transform: [0.0, 0.0, 1.0],
-            window: [self.canvas.window_width as f32, self.canvas.window_height as f32],
+            window: [self.canvas.window_width as f32, self.canvas.window_height as f32, self.hatching],
         };
     }
 
     pub fn unfork(&mut self) {
         self.uniforms = uniform! {
             transform: [self.canvas.cam_x as f32, self.canvas.cam_y as f32, self.canvas.cam_zoom as f32],
-            window: [self.canvas.window_width as f32, self.canvas.window_height as f32],
+            window: [self.canvas.window_width as f32, self.canvas.window_height as f32, self.hatching],
         };
     }
 
@@ -147,6 +154,18 @@ impl<'a> GfxCtx<'a> {
             )
             .unwrap();
         self.num_draw_calls += 1;
+    }
+
+    pub fn enable_hatching(&mut self) {
+        assert_eq!(self.hatching, NO_HATCHING);
+        self.hatching = HATCHING;
+        self.unfork();
+    }
+
+    pub fn disable_hatching(&mut self) {
+        assert_eq!(self.hatching, HATCHING);
+        self.hatching = NO_HATCHING;
+        self.unfork();
     }
 
     // Canvas stuff.
