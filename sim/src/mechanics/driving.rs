@@ -294,7 +294,13 @@ impl DrivingSimState {
                 assert!(from != goto);
 
                 if let Traversable::Turn(t) = goto {
-                    if !intersections.maybe_start_turn(AgentID::Car(car.vehicle.id), t, time, map) {
+                    if !intersections.maybe_start_turn(
+                        AgentID::Car(car.vehicle.id),
+                        t,
+                        time,
+                        map,
+                        scheduler,
+                    ) {
                         // Don't schedule a retry here.
                         return false;
                     }

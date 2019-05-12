@@ -1,4 +1,5 @@
 use crate::{AgentID, Command, Scheduler};
+use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::Duration;
 use map_model::{
     ControlStopSign, ControlTrafficSignal, IntersectionID, IntersectionType, LaneID, Map, TurnID,
@@ -6,6 +7,8 @@ use map_model::{
 };
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet};
+
+const WAIT_AT_STOP_SIGN: Duration = Duration::const_seconds(0.5);
 
 #[derive(Serialize, Deserialize, PartialEq)]
 pub struct IntersectionSimState {
@@ -16,7 +19,12 @@ pub struct IntersectionSimState {
 struct State {
     id: IntersectionID,
     accepted: BTreeSet<Request>,
-    waiting: Vec<Request>,
+    // Track when a request is first made.
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
+    waiting: BTreeMap<Request, Duration>,
 }
 
 impl IntersectionSimState {
@@ -30,7 +38,7 @@ impl IntersectionSimState {
                 State {
                     id: i.id,
                     accepted: BTreeSet::new(),
-                    waiting: Vec::new(),
+                    waiting: BTreeMap::new(),
                 },
             );
             if i.intersection_type == IntersectionType::TrafficSignal {
@@ -62,16 +70,10 @@ impl IntersectionSimState {
         // accepted. For now, wake up everyone -- for traffic signals, maybe we were in overtime,
         // or maybe a Yield and Priority finished and could let another one in.
 
-        for req in &state.waiting {
+        for req in state.waiting.keys() {
             // TODO Use update because multiple agents could finish a turn at the same time, before
             // the waiting one has a chance to try again.
-            scheduler.update(
-                match req.agent {
-                    AgentID::Car(id) => Command::UpdateCar(id),
-                    AgentID::Pedestrian(id) => Command::UpdatePed(id),
-                },
-                now,
-            );
+            scheduler.update(Command::update_agent(req.agent), now);
         }
     }
 
@@ -90,21 +92,13 @@ impl IntersectionSimState {
 
         // TODO Wake up everyone, for now.
         // TODO Use update in case turn_finished scheduled an event for them already.
-        for req in &state.waiting {
-            scheduler.update(
-                match req.agent {
-                    AgentID::Car(id) => Command::UpdateCar(id),
-                    AgentID::Pedestrian(id) => Command::UpdatePed(id),
-                },
-                now,
-            );
+        for req in state.waiting.keys() {
+            scheduler.update(Command::update_agent(req.agent), now);
         }
 
         scheduler.push(now + remaining, Command::UpdateIntersection(id));
     }
 
-    // TODO This API is bad. Need to gather all of the requests at a time before making a decision.
-    //
     // For cars: The head car calls this when they're at the end of the lane WaitingToAdvance. If
     // this returns true, then the head car MUST actually start this turn.
     // For peds: Likewise -- only called when the ped is at the start of the turn. They must
@@ -118,31 +112,27 @@ impl IntersectionSimState {
         turn: TurnID,
         now: Duration,
         map: &Map,
+        scheduler: &mut Scheduler,
     ) -> bool {
-        let state = self.state.get_mut(&turn.parent).unwrap();
-
         let req = Request { agent, turn };
+        let state = self.state.get_mut(&turn.parent).unwrap();
+        state.waiting.entry(req.clone()).or_insert(now);
+
         let allowed = if let Some(ref signal) = map.maybe_get_traffic_signal(state.id) {
             state.traffic_signal_policy(signal, &req, now, map)
         } else if let Some(ref sign) = map.maybe_get_stop_sign(state.id) {
-            state.stop_sign_policy(sign, &req, map)
+            state.stop_sign_policy(sign, &req, now, map, scheduler)
         } else {
             // TODO This never gets called right now
             state.freeform_policy(&req, map)
         };
 
-        let maybe_idx = state.waiting.iter().position(|r| *r == req);
         if allowed {
             assert!(!state.any_accepted_conflict_with(turn, map));
-            if let Some(idx) = maybe_idx {
-                state.waiting.remove(idx);
-            }
+            state.waiting.remove(&req).unwrap();
             state.accepted.insert(req);
             true
         } else {
-            if maybe_idx.is_none() {
-                state.waiting.push(req);
-            }
             false
         }
     }
@@ -196,36 +186,42 @@ impl State {
         true
     }
 
-    fn stop_sign_policy(&self, sign: &ControlStopSign, req: &Request, map: &Map) -> bool {
+    fn stop_sign_policy(
+        &self,
+        sign: &ControlStopSign,
+        req: &Request,
+        now: Duration,
+        map: &Map,
+        scheduler: &mut Scheduler,
+    ) -> bool {
         if self.any_accepted_conflict_with(req.turn, map) {
             return false;
         }
 
-        let this_priority = sign.turns[&req.turn];
-        assert!(this_priority != TurnPriority::Banned);
+        let our_priority = sign.turns[&req.turn];
+        assert!(our_priority != TurnPriority::Banned);
+        let our_time = self.waiting[req];
 
-        // TODO Actually make TurnPriority::Stop turns pause briefly.
-
-        // If there's a higher rank turn waiting, don't allow
-        if self
-            .waiting
-            .iter()
-            .any(|r| sign.turns[&r.turn] > this_priority)
-        {
+        if our_priority == TurnPriority::Stop && now < our_time + WAIT_AT_STOP_SIGN {
+            // Since we have "ownership" of scheduling for req.agent, don't need to use
+            // scheduler.update.
+            scheduler.push(
+                our_time + WAIT_AT_STOP_SIGN,
+                Command::update_agent(req.agent),
+            );
             return false;
         }
 
-        // If there's an equal rank turn queued before ours, don't allow
-        let this_idx = self
-            .waiting
-            .iter()
-            .position(|r| r == req)
-            .unwrap_or_else(|| self.waiting.len());
-        if self.waiting[0..this_idx]
-            .iter()
-            .any(|r| sign.turns[&r.turn] == this_priority)
-        {
-            return false;
+        // TODO Actually make TurnPriority::Stop turns pause briefly.
+
+        for (r, t) in &self.waiting {
+            // If there's a higher rank turn waiting, don't allow
+            if sign.turns[&r.turn] > our_priority {
+                return false;
+            // If there's an equal rank turn queued before ours, don't allow
+            } else if sign.turns[&r.turn] == our_priority && *t < our_time {
+                return false;
+            }
         }
 
         true

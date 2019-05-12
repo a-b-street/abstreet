@@ -164,8 +164,13 @@ impl WalkingSimState {
                     }
 
                     let dist = dist_int.end;
-                    if ped.maybe_transition(now, map, intersections, &mut self.peds_per_traversable)
-                    {
+                    if ped.maybe_transition(
+                        now,
+                        map,
+                        intersections,
+                        &mut self.peds_per_traversable,
+                        scheduler,
+                    ) {
                         scheduler.push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
                     } else {
                         // Must've failed because we can't turn yet. Don't schedule a retry here.
@@ -174,7 +179,13 @@ impl WalkingSimState {
                 }
             }
             PedState::WaitingToTurn(_) => {
-                if ped.maybe_transition(now, map, intersections, &mut self.peds_per_traversable) {
+                if ped.maybe_transition(
+                    now,
+                    map,
+                    intersections,
+                    &mut self.peds_per_traversable,
+                    scheduler,
+                ) {
                     scheduler.push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
                 }
             }
@@ -385,9 +396,11 @@ impl Pedestrian {
         map: &Map,
         intersections: &mut IntersectionSimState,
         peds_per_traversable: &mut MultiMap<Traversable, PedestrianID>,
+        scheduler: &mut Scheduler,
     ) -> bool {
         if let PathStep::Turn(t) = self.path.next_step() {
-            if !intersections.maybe_start_turn(AgentID::Pedestrian(self.id), t, now, map) {
+            if !intersections.maybe_start_turn(AgentID::Pedestrian(self.id), t, now, map, scheduler)
+            {
                 return false;
             }
         }

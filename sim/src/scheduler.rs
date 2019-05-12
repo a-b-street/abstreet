@@ -1,4 +1,4 @@
-use crate::{CarID, CreateCar, CreatePedestrian, PedestrianID};
+use crate::{AgentID, CarID, CreateCar, CreatePedestrian, PedestrianID};
 use derivative::Derivative;
 use geom::Duration;
 use histogram::Histogram;
@@ -16,6 +16,15 @@ pub enum Command {
     UpdateIntersection(IntersectionID),
     CheckForGridlock,
     Savestate(Duration),
+}
+
+impl Command {
+    pub fn update_agent(id: AgentID) -> Command {
+        match id {
+            AgentID::Car(c) => Command::UpdateCar(c),
+            AgentID::Pedestrian(p) => Command::UpdatePed(p),
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Derivative)]
