@@ -162,7 +162,7 @@ impl IntersectionSimState {
             self.state[&id]
                 .accepted
                 .iter()
-                .any(|req| cycle.get_priority(req.turn) < TurnPriority::Yield)
+                .any(|req| cycle.get_priority(req.turn) == TurnPriority::Banned)
         } else {
             false
         }
@@ -212,8 +212,6 @@ impl State {
             return false;
         }
 
-        // TODO Actually make TurnPriority::Stop turns pause briefly.
-
         for (r, t) in &self.waiting {
             // If there's a higher rank turn waiting, don't allow
             if sign.turns[&r.turn] > our_priority {
@@ -223,6 +221,9 @@ impl State {
                 return false;
             }
         }
+
+        // TODO Make sure we can optimistically finish this turn before an approaching
+        // higher-priority vehicle wants to begin.
 
         true
     }
@@ -238,7 +239,7 @@ impl State {
 
         // For now, just maintain safety when agents over-run.
         for req in &self.accepted {
-            if cycle.get_priority(req.turn) < TurnPriority::Yield {
+            if cycle.get_priority(req.turn) == TurnPriority::Banned {
                 /*println!(
                     "{:?} is still doing {} after the cycle is over",
                     req.agent, req.turn
@@ -248,7 +249,7 @@ impl State {
         }
 
         // Can't go at all this cycle.
-        if cycle.get_priority(new_req.turn) < TurnPriority::Yield {
+        if cycle.get_priority(new_req.turn) == TurnPriority::Banned {
             return false;
         }
 
@@ -257,8 +258,18 @@ impl State {
             return false;
         }
 
-        // TODO If there's a choice between a Priority and Yield request, choose Priority. Need
-        // batched requests to know -- that'll come later, once the walking sim is integrated.
+        // A yield loses to a conflicting Priority turn.
+        if cycle.get_priority(new_req.turn) == TurnPriority::Yield {
+            if self.waiting.keys().any(|r| {
+                map.get_t(new_req.turn).conflicts_with(map.get_t(r.turn))
+                    && cycle.get_priority(r.turn) == TurnPriority::Priority
+            }) {
+                return false;
+            }
+        }
+
+        // TODO Make sure we can optimistically finish this turn before an approaching
+        // higher-priority vehicle wants to begin.
 
         // TODO Don't accept the agent if they won't finish the turn in time. If the turn and
         // target lane were clear, we could calculate the time, but it gets hard. For now, allow
