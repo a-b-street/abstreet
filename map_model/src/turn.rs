@@ -27,6 +27,8 @@ pub enum TurnType {
     SharedSidewalkCorner,
     // These are for vehicle turns
     Straight,
+    LaneChangeLeft,
+    LaneChangeRight,
     Right,
     Left,
 }

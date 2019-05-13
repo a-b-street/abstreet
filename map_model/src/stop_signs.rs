@@ -158,19 +158,29 @@ impl ControlStopSign {
         self.recalculate_stop_signs(map);
     }
 
+    // TODO Actually want to recalculate individual turn priorities for everything when anything
+    // changes! I think the base data model needs to become 'roads' with some Banned overrides.
     pub fn flip_sign(&mut self, r: RoadID, map: &Map) {
-        // Very naive approach
         let ss = self.roads.get_mut(&r).unwrap();
         ss.enabled = !ss.enabled;
-        // TODO Upgrade some to Priority
         let new_pri = if ss.enabled {
             TurnPriority::Stop
         } else {
             TurnPriority::Yield
         };
-        for l in &ss.travel_lanes {
-            for (turn, _) in map.get_next_turns_and_lanes(*l, self.id) {
+        for l in ss.travel_lanes.clone() {
+            for (turn, _) in map.get_next_turns_and_lanes(l, self.id) {
                 self.turns.insert(turn.id, new_pri);
+
+                // Upgrade some turns to priority
+                if new_pri == TurnPriority::Yield && self.could_be_priority_turn(turn.id, map) {
+                    match turn.turn_type {
+                        TurnType::Straight | TurnType::Right | TurnType::Crosswalk => {
+                            self.turns.insert(turn.id, TurnPriority::Priority);
+                        }
+                        _ => {}
+                    }
+                }
             }
         }
     }
@@ -254,12 +264,15 @@ fn smart_assignment(map: &Map, id: IntersectionID) -> Warn<ControlStopSign> {
         if map.get_t(*t).turn_type == TurnType::SharedSidewalkCorner {
             ss.turns.insert(*t, TurnPriority::Priority);
         } else if rank_per_incoming_lane[&t.src] == highest_rank {
-            // If it's the highest rank road, prioritize all non-left turns (if possible) and make
-            // other turns yield.
-            if map.get_t(*t).turn_type != TurnType::Left && ss.could_be_priority_turn(*t, map) {
-                ss.turns.insert(*t, TurnPriority::Priority);
-            } else {
-                ss.turns.insert(*t, TurnPriority::Yield);
+            // If it's the highest rank road, prioritize main turns and make others yield.
+            ss.turns.insert(*t, TurnPriority::Yield);
+            if ss.could_be_priority_turn(*t, map) {
+                match map.get_t(*t).turn_type {
+                    TurnType::Straight | TurnType::Right | TurnType::Crosswalk => {
+                        ss.turns.insert(*t, TurnPriority::Priority);
+                    }
+                    _ => {}
+                }
             }
         } else {
             // Lower rank roads have to stop.

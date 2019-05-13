@@ -117,6 +117,8 @@ fn color_turn_type(t: TurnType, ui: &UI) -> Color {
         }
         TurnType::Crosswalk => ui.cs.get_def("crosswalk turn", Color::WHITE),
         TurnType::Straight => ui.cs.get_def("straight turn", Color::BLUE),
+        TurnType::LaneChangeLeft => ui.cs.get_def("change lanes left turn", Color::CYAN),
+        TurnType::LaneChangeRight => ui.cs.get_def("change lanes right turn", Color::PURPLE),
         TurnType::Right => ui.cs.get_def("right turn", Color::GREEN),
         TurnType::Left => ui.cs.get_def("left turn", Color::RED),
     }

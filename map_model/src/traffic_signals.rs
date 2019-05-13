@@ -155,6 +155,8 @@ impl ControlTrafficSignal {
             vec![
                 vec![
                     (vec![north, south], TurnType::Straight, PROTECTED),
+                    (vec![north, south], TurnType::LaneChangeLeft, YIELD),
+                    (vec![north, south], TurnType::LaneChangeRight, YIELD),
                     (vec![north, south], TurnType::Right, YIELD),
                     (vec![north, south], TurnType::Left, YIELD),
                     (vec![east], TurnType::Right, YIELD),
@@ -162,6 +164,8 @@ impl ControlTrafficSignal {
                 ],
                 vec![
                     (vec![east], TurnType::Straight, PROTECTED),
+                    (vec![east], TurnType::LaneChangeLeft, YIELD),
+                    (vec![east], TurnType::LaneChangeRight, YIELD),
                     (vec![east], TurnType::Right, YIELD),
                     (vec![east], TurnType::Left, YIELD),
                     (vec![north, south], TurnType::Right, YIELD),
@@ -189,28 +193,6 @@ impl ControlTrafficSignal {
             .get_roads_sorted_by_incoming_angle(map.all_roads());
         let (north, west, south, east) = (roads[0], roads[1], roads[2], roads[3]);
 
-        // Two-phase with no protected lefts, right turn on red, peds yielding to cars
-        /*let cycles = make_cycles(
-            map,
-            i,
-            vec![
-                vec![
-                    (vec![north, south], TurnType::Straight, PROTECTED),
-                    (vec![north, south], TurnType::Right, PROTECTED),
-                    (vec![north, south], TurnType::Left, YIELD),
-                    (vec![east, west], TurnType::Right, YIELD),
-                    (vec![east, west], TurnType::Crosswalk, YIELD),
-                ],
-                vec![
-                    (vec![east, west], TurnType::Straight, PROTECTED),
-                    (vec![east, west], TurnType::Right, PROTECTED),
-                    (vec![east, west], TurnType::Left, YIELD),
-                    (vec![north, south], TurnType::Right, YIELD),
-                    (vec![north, south], TurnType::Crosswalk, YIELD),
-                ],
-            ],
-        );*/
-
         // Four-phase with protected lefts, right turn on red (except for the protected lefts), turning
         // cars yield to peds
         let cycles = make_cycles(
@@ -219,6 +201,8 @@ impl ControlTrafficSignal {
             vec![
                 vec![
                     (vec![north, south], TurnType::Straight, PROTECTED),
+                    (vec![north, south], TurnType::LaneChangeLeft, YIELD),
+                    (vec![north, south], TurnType::LaneChangeRight, YIELD),
                     (vec![north, south], TurnType::Right, YIELD),
                     (vec![east, west], TurnType::Right, YIELD),
                     (vec![east, west], TurnType::Crosswalk, PROTECTED),
@@ -226,6 +210,8 @@ impl ControlTrafficSignal {
                 vec![(vec![north, south], TurnType::Left, PROTECTED)],
                 vec![
                     (vec![east, west], TurnType::Straight, PROTECTED),
+                    (vec![east, west], TurnType::LaneChangeLeft, YIELD),
+                    (vec![east, west], TurnType::LaneChangeRight, YIELD),
                     (vec![east, west], TurnType::Right, YIELD),
                     (vec![north, south], TurnType::Right, YIELD),
                     (vec![north, south], TurnType::Crosswalk, PROTECTED),
@@ -260,6 +246,8 @@ impl ControlTrafficSignal {
             vec![
                 vec![
                     (vec![north, south], TurnType::Straight, PROTECTED),
+                    (vec![north, south], TurnType::LaneChangeLeft, YIELD),
+                    (vec![north, south], TurnType::LaneChangeRight, YIELD),
                     (vec![north, south], TurnType::Right, YIELD),
                     (vec![north, south], TurnType::Left, YIELD),
                     (vec![east, west], TurnType::Right, YIELD),
@@ -267,6 +255,8 @@ impl ControlTrafficSignal {
                 ],
                 vec![
                     (vec![east, west], TurnType::Straight, PROTECTED),
+                    (vec![east, west], TurnType::LaneChangeLeft, YIELD),
+                    (vec![east, west], TurnType::LaneChangeRight, YIELD),
                     (vec![east, west], TurnType::Right, YIELD),
                     (vec![east, west], TurnType::Left, YIELD),
                     (vec![north, south], TurnType::Right, YIELD),

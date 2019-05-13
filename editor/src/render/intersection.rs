@@ -224,7 +224,11 @@ pub fn draw_signal_cycle(
     }
     for t in &cycle.yield_turns {
         let turn = ctx.map.get_t(*t);
-        if !turn.between_sidewalks() {
+        // Lane-changing as yield is implied and very messy to show.
+        if !turn.between_sidewalks()
+            && turn.turn_type != TurnType::LaneChangeLeft
+            && turn.turn_type != TurnType::LaneChangeRight
+        {
             DrawTurn::draw_dashed(turn, g, yield_color);
         }
     }
@@ -281,7 +285,7 @@ fn draw_signal_cycle_with_icons(cycle: &Cycle, g: &mut GfxCtx, ctx: &DrawCtx) {
                         _right_ok = false;
                     }
                 }
-                TurnType::Straight => {
+                TurnType::Straight | TurnType::LaneChangeLeft | TurnType::LaneChangeRight => {
                     // TODO Can we ever have Straight as Yield?
                     if cycle.get_priority(turn.id) == TurnPriority::Banned {
                         straight_green = false;

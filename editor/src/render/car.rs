@@ -26,10 +26,10 @@ impl DrawCar {
     pub fn new(input: DrawCarInput, map: &Map, prerender: &Prerender, cs: &ColorScheme) -> DrawCar {
         let (left_blinker_on, right_blinker_on) = if let Some(t) = input.waiting_for_turn {
             match map.get_t(t).turn_type {
-                TurnType::Left => (true, false),
-                TurnType::Right => (false, true),
+                TurnType::Left | TurnType::LaneChangeLeft => (true, false),
+                TurnType::Right | TurnType::LaneChangeRight => (false, true),
                 TurnType::Straight => (true, true),
-                _ => unreachable!(),
+                TurnType::Crosswalk | TurnType::SharedSidewalkCorner => unreachable!(),
             }
         } else {
             (false, false)

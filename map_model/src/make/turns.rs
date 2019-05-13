@@ -124,10 +124,21 @@ fn make_vehicle_turns(
 
                 match TurnType::from_angles(angle1, angle2) {
                     TurnType::Straight => {
-                        // Cartesian product
-                        for l1 in &incoming {
-                            for l2 in &outgoing {
-                                result.push(make_vehicle_turn(lanes, i.id, *l1, *l2));
+                        // Cartesian product. Additionally detect where the lane-changing movements
+                        // happen.
+                        for (idx1, l1) in incoming.iter().enumerate() {
+                            for (idx2, l2) in outgoing.iter().enumerate() {
+                                if let Some(mut t) = make_vehicle_turn(lanes, i.id, *l1, *l2) {
+                                    // TODO Breaks for mixed lane types, like near Roanoke and 10th
+                                    if incoming.len() == outgoing.len() {
+                                        if idx1 < idx2 {
+                                            t.turn_type = TurnType::LaneChangeRight;
+                                        } else if idx1 > idx2 {
+                                            t.turn_type = TurnType::LaneChangeLeft;
+                                        }
+                                    }
+                                    result.push(Some(t));
+                                }
                             }
                         }
                         all_incoming_lanes_covered = true;
