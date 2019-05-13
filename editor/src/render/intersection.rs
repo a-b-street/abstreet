@@ -233,27 +233,30 @@ pub fn draw_signal_cycle(
         return;
     }
 
-    let box_width = 1.0;
-    let box_height = 3.0;
-    let top_left = ctx
-        .map
-        .get_i(cycle.parent)
-        .point
-        .offset(-box_width / 2.0, -box_height / 2.0);
-    let time_left_height = box_height * (time_left.unwrap() / cycle.duration);
-    if time_left_height != box_height {
-        g.draw_polygon(
-            ctx.cs.get_def("traffic signal box", Color::grey(0.2)),
-            &Polygon::rectangle_topleft(top_left, box_width, box_height - time_left_height),
-        );
-    }
+    // TODO argh, fix these types to use Distance
+    let radius = Distance::meters(0.5);
+    let box_width = (2.5 * radius).inner_meters();
+    let box_height = (6.5 * radius).inner_meters();
+    let center = ctx.map.get_i(cycle.parent).point;
+    let top_left = center.offset(-box_width / 2.0, -box_height / 2.0);
+    let percent = time_left.unwrap() / cycle.duration;
+    // TODO Tune colors.
     g.draw_polygon(
-        ctx.cs.get_def("traffic signal time left", Color::YELLOW),
-        &Polygon::rectangle_topleft(
-            top_left.offset(0.0, box_height - time_left_height),
-            box_width,
-            time_left_height,
-        ),
+        ctx.cs.get_def("traffic signal box", Color::grey(0.2)),
+        &Polygon::rectangle_topleft(top_left, box_width, box_height),
+    );
+    g.draw_circle(
+        Color::RED,
+        &Circle::new(center.offset(0.0, (-2.0 * radius).inner_meters()), radius),
+    );
+    g.draw_circle(Color::grey(0.4), &Circle::new(center, radius));
+    g.draw_polygon(
+        Color::YELLOW,
+        &Circle::new(center, radius).to_partial_polygon(percent),
+    );
+    g.draw_circle(
+        Color::GREEN,
+        &Circle::new(center.offset(0.0, (2.0 * radius).inner_meters()), radius),
     );
 }
 

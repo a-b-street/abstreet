@@ -31,19 +31,26 @@ impl Circle {
     }
 
     pub fn to_polygon(&self) -> Polygon {
+        self.to_partial_polygon(1.0)
+    }
+
+    pub fn to_partial_polygon(&self, percent_full: f64) -> Polygon {
         let mut pts = vec![self.center];
         let mut indices = Vec::new();
         for i in 0..TRIANGLES_PER_CIRCLE {
             pts.push(self.center.project_away(
                 self.radius,
-                Angle::new_degs((i as f64) / (TRIANGLES_PER_CIRCLE as f64) * 360.0),
+                Angle::new_degs((i as f64) / (TRIANGLES_PER_CIRCLE as f64) * percent_full * 360.0),
             ));
             indices.push(0);
             indices.push(i + 1);
             if i != TRIANGLES_PER_CIRCLE - 1 {
                 indices.push(i + 2);
-            } else {
+            } else if percent_full == 1.0 {
                 indices.push(1);
+            } else {
+                indices.pop();
+                indices.pop();
             }
         }
         Polygon::precomputed(pts, indices)
