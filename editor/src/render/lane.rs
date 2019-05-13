@@ -1,11 +1,9 @@
 use crate::helpers::{ColorScheme, ID};
-use crate::render::{DrawCtx, DrawOptions, Renderable, BIG_ARROW_THICKNESS, OUTLINE_THICKNESS};
+use crate::render::{DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Circle, Distance, Line, PolyLine, Polygon, Pt2D};
-use map_model::{
-    IntersectionType, Lane, LaneID, LaneType, Map, Road, LANE_THICKNESS, PARKING_SPOT_LENGTH,
-};
+use map_model::{Lane, LaneID, LaneType, Map, Road, LANE_THICKNESS, PARKING_SPOT_LENGTH};
 
 pub struct DrawLane {
     pub id: LaneID,
@@ -51,11 +49,11 @@ impl DrawLane {
                 }
                 LaneType::Biking => {}
             };
-            if lane.lane_type.is_for_moving_vehicles()
+            /*if lane.lane_type.is_for_moving_vehicles()
                 && map.get_i(lane.dst_i).intersection_type == IntersectionType::StopSign
             {
                 draw.extend(calculate_stop_sign_line(road, lane, map, cs));
-            }
+            }*/
         }
 
         DrawLane {
@@ -213,35 +211,6 @@ fn calculate_driving_lines(
         .into_iter()
         .map(|p| (cs.get_def("dashed lane line", Color::WHITE), p))
         .collect()
-}
-
-fn calculate_stop_sign_line(
-    road: &Road,
-    lane: &Lane,
-    map: &Map,
-    cs: &ColorScheme,
-) -> Option<(Color, Polygon)> {
-    if !map.get_stop_sign(lane.dst_i).lane_has_stop_sign(lane.id) {
-        return None;
-    }
-
-    let (pt1, angle) = lane.safe_dist_along(lane.length() - Distance::meters(1.0))?;
-    // Reuse perp_line. Project away an arbitrary amount
-    let pt2 = pt1.project_away(Distance::meters(1.0), angle);
-    // Don't clobber the yellow line.
-    let line = if road.is_canonical_lane(lane.id) {
-        perp_line(
-            Line::new(pt1, pt2).shift_right(BIG_ARROW_THICKNESS / 2.0),
-            LANE_THICKNESS - BIG_ARROW_THICKNESS,
-        )
-    } else {
-        perp_line(Line::new(pt1, pt2), LANE_THICKNESS)
-    };
-
-    Some((
-        cs.get_def("stop line for lane", Color::RED),
-        line.make_polygons(Distance::meters(0.45)),
-    ))
 }
 
 fn calculate_turn_markings(

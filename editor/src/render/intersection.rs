@@ -2,10 +2,10 @@ use crate::helpers::{ColorScheme, ID};
 use crate::render::{DrawCrosswalk, DrawCtx, DrawOptions, DrawTurn, Renderable, OUTLINE_THICKNESS};
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GfxCtx, Prerender, ScreenPt, Text};
-use geom::{Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D};
+use geom::{Angle, Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D};
 use map_model::{
-    Cycle, Intersection, IntersectionID, IntersectionType, Map, Road, TurnPriority, TurnType,
-    LANE_THICKNESS,
+    ControlStopSign, Cycle, Intersection, IntersectionID, IntersectionType, Map, Road,
+    TurnPriority, TurnType, LANE_THICKNESS,
 };
 use ordered_float::NotNan;
 
@@ -47,16 +47,22 @@ impl DrawIntersection {
                 .into_iter()
                 .map(|p| (cs.get("sidewalk"), p)),
         );
-        if i.intersection_type == IntersectionType::Border {
-            if i.roads.len() != 1 {
-                panic!("Border {} has {} roads!", i.id, i.roads.len());
+        match i.intersection_type {
+            IntersectionType::Border => {
+                if i.roads.len() != 1 {
+                    panic!("Border {} has {} roads!", i.id, i.roads.len());
+                }
+                let r = map.get_r(*i.roads.iter().next().unwrap());
+                default_geom.extend(
+                    calculate_border_arrows(i, r, timer)
+                        .into_iter()
+                        .map(|p| (cs.get_def("incoming border node arrow", Color::PURPLE), p)),
+                );
             }
-            let r = map.get_r(*i.roads.iter().next().unwrap());
-            default_geom.extend(
-                calculate_border_arrows(i, r, timer)
-                    .into_iter()
-                    .map(|p| (cs.get_def("incoming border node arrow", Color::PURPLE), p)),
-            );
+            IntersectionType::StopSign => {
+                default_geom.extend(calculate_stop_sign(map, cs, map.get_stop_sign(i.id)));
+            }
+            IntersectionType::TrafficSignal => {}
         }
 
         DrawIntersection {
@@ -478,4 +484,60 @@ fn calculate_border_arrows(i: &Intersection, r: &Road, timer: &mut Timer) -> Vec
         );
     }
     result
+}
+
+fn calculate_stop_sign(
+    map: &Map,
+    cs: &ColorScheme,
+    sign: &ControlStopSign,
+) -> Vec<(Color, Polygon)> {
+    let trim_back = Distance::meters(0.7);
+
+    let mut result = Vec::new();
+    for (_, ss) in &sign.roads {
+        if ss.enabled {
+            let rightmost = &map.get_l(*ss.travel_lanes.last().unwrap()).lane_center_pts;
+            if rightmost.length() < trim_back {
+                continue;
+            }
+            let last_line = rightmost
+                .exact_slice(Distance::ZERO, rightmost.length() - trim_back)
+                .last_line()
+                .shift_right(1.0 * LANE_THICKNESS);
+
+            result.push((
+                cs.get_def("stop sign on side of road", Color::RED),
+                make_octagon(last_line.pt2(), Distance::meters(1.0), last_line.angle()),
+            ));
+            // A little pole for it too!
+            result.push((
+                cs.get_def("stop sign pole", Color::grey(0.5)),
+                Line::new(
+                    last_line
+                        .pt2()
+                        .project_away(Distance::meters(1.5), last_line.angle().opposite()),
+                    // TODO Slightly < 0.9
+                    last_line
+                        .pt2()
+                        .project_away(Distance::meters(0.9), last_line.angle().opposite()),
+                )
+                .make_polygons(Distance::meters(0.3)),
+            ));
+        }
+    }
+    result
+}
+
+// TODO A squished octagon would look better
+fn make_octagon(center: Pt2D, radius: Distance, facing: Angle) -> Polygon {
+    Polygon::new(
+        &(0..8)
+            .map(|i| {
+                center.project_away(
+                    radius,
+                    facing + Angle::new_degs(22.5 + (i * 360 / 8) as f64),
+                )
+            })
+            .collect(),
+    )
 }
