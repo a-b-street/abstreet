@@ -65,7 +65,7 @@ impl PolyLine {
         boundary_width: Distance,
     ) -> Option<Polygon> {
         assert!(self_width > boundary_width);
-        if self.length() <= boundary_width {
+        if self.length() <= boundary_width + EPSILON_DIST {
             return None;
         }
         let slice = self.exact_slice(boundary_width / 2.0, self.length() - boundary_width / 2.0);
