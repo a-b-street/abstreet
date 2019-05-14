@@ -3,7 +3,7 @@ use crate::render::{DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
 use geom::{Circle, Distance, Line, PolyLine, Polygon, Pt2D};
-use map_model::{Lane, LaneID, LaneType, Map, Road, LANE_THICKNESS, PARKING_SPOT_LENGTH};
+use map_model::{Lane, LaneID, LaneType, Map, Road, TurnType, LANE_THICKNESS, PARKING_SPOT_LENGTH};
 
 pub struct DrawLane {
     pub id: LaneID,
@@ -243,6 +243,10 @@ fn calculate_turn_markings(
 
     // TODO Maybe draw arrows per target road, not lane
     for turn in map.get_turns_from_lane(lane.id) {
+        if turn.turn_type == TurnType::LaneChangeLeft || turn.turn_type == TurnType::LaneChangeRight
+        {
+            continue;
+        }
         results.extend(
             PolyLine::new(vec![
                 common_base.last_pt(),
@@ -255,6 +259,11 @@ fn calculate_turn_markings(
             .into_iter()
             .map(|p| (color, p)),
         );
+    }
+
+    // Just lane-changing turns after all (common base + 2 for the arrow)
+    if results.len() == 3 {
+        return Vec::new();
     }
     results
 }

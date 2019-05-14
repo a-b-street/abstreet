@@ -12,6 +12,8 @@
 	- name agents, with some good names scattered in (Dustin Carlino, Dustin Bikelino, Dustin Buslino...)
 	- music / sound effects
 		- as you zoom in, overhear conversations and such
+	- some buildings could have extra detail
+	- zoom in too much, what might you see? ;)
 
 ## Tutorial
 

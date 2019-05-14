@@ -67,7 +67,7 @@ https://github.com/ekalinin/github-markdown-toc for table of contents
 # Fullscreen
 ffmpeg -f x11grab -r 25 -s 1920x1080 -i :0.0 -vcodec huffyuv raw.avi
 # Default window
-ffmpeg -f x11grab -r 25 -s 1024x768 -i :0.0+28,92 -vcodec huffyuv raw.avi
+ffmpeg -f x11grab -r 25 -s 1800x800 -i :0.0+28,92 -vcodec huffyuv raw.avi
 
 ffmpeg -ss 10.0 -t 5.0 -i raw.avi -f gif -filter_complex "[0:v] fps=12,scale=1024:-1,split [a][b];[a] palettegen [p];[b][p] paletteuse" screencast.gif
 ```

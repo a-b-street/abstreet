@@ -203,7 +203,13 @@ impl ControlStopSign {
 }
 
 fn smart_assignment(map: &Map, id: IntersectionID) -> Warn<ControlStopSign> {
-    if map.get_i(id).roads.len() <= 2 {
+    // Count the number of roads with incoming lanes to determine degenerate/deadends. Might have
+    // one incoming road to two outgoing.
+    let mut incoming_roads: HashSet<RoadID> = HashSet::new();
+    for l in &map.get_i(id).incoming_lanes {
+        incoming_roads.insert(map.get_l(*l).parent);
+    }
+    if incoming_roads.len() == 1 {
         return for_degenerate_and_deadend(map, id);
     }
 
@@ -308,6 +314,7 @@ fn for_degenerate_and_deadend(map: &Map, id: IntersectionID) -> Warn<ControlStop
         // Only the crosswalks should conflict with other turns.
         let priority = match map.get_t(*t).turn_type {
             TurnType::Crosswalk => TurnPriority::Stop,
+            TurnType::LaneChangeLeft | TurnType::LaneChangeRight => TurnPriority::Yield,
             _ => TurnPriority::Priority,
         };
         ss.turns.insert(*t, priority);

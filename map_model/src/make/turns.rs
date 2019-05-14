@@ -130,12 +130,10 @@ fn make_vehicle_turns(
                             for (idx2, l2) in outgoing.iter().enumerate() {
                                 if let Some(mut t) = make_vehicle_turn(lanes, i.id, *l1, *l2) {
                                     // TODO Breaks for mixed lane types, like near Roanoke and 10th
-                                    if incoming.len() == outgoing.len() {
-                                        if idx1 < idx2 {
-                                            t.turn_type = TurnType::LaneChangeRight;
-                                        } else if idx1 > idx2 {
-                                            t.turn_type = TurnType::LaneChangeLeft;
-                                        }
+                                    if idx1 < idx2 {
+                                        t.turn_type = TurnType::LaneChangeRight;
+                                    } else if idx1 > idx2 {
+                                        t.turn_type = TurnType::LaneChangeLeft;
                                     }
                                     result.push(Some(t));
                                 }
