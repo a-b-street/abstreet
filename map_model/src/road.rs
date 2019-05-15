@@ -363,4 +363,35 @@ impl Road {
         }
         "???".to_string()
     }
+
+    pub fn get_rank(&self) -> usize {
+        if let Some(highway) = self.osm_tags.get("highway") {
+            match highway.as_ref() {
+                "motorway" => 20,
+                "motorway_link" => 19,
+
+                "trunk" => 17,
+                "trunk_link" => 16,
+
+                "primary" => 15,
+                "primary_link" => 14,
+
+                "secondary" => 13,
+                "secondary_link" => 12,
+
+                "tertiary" => 10,
+                "tertiary_link" => 9,
+
+                "residential" => 5,
+
+                "footway" => 1,
+
+                "unclassified" => 0,
+                "road" => 0,
+                _ => panic!("Unknown OSM highway {}", highway),
+            }
+        } else {
+            0
+        }
+    }
 }

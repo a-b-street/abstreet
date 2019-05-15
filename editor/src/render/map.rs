@@ -14,8 +14,8 @@ use abstutil::Timer;
 use ezgui::{Color, Drawable, Prerender};
 use geom::{Bounds, Duration, FindClosest, Polygon};
 use map_model::{
-    AreaID, BuildingID, BusStopID, DirectedRoadID, IntersectionID, Lane, LaneID, Map, RoadID,
-    Traversable, Turn, TurnID, TurnType, LANE_THICKNESS,
+    AreaID, BuildingID, BusStopID, DirectedRoadID, IntersectionID, IntersectionType, Lane, LaneID,
+    Map, RoadID, Traversable, Turn, TurnID, TurnType, LANE_THICKNESS,
 };
 use std::borrow::Borrow;
 use std::cell::RefCell;
@@ -51,20 +51,23 @@ impl DrawMap {
         prerender: &Prerender,
         timer: &mut Timer,
     ) -> DrawMap {
-        timer.start_iter("make DrawRoads", map.all_roads().len());
         let mut roads: Vec<DrawRoad> = Vec::new();
-        let mut all_roads: Vec<Polygon> = Vec::new();
+        let mut all_roads: Vec<(Color, Polygon)> = Vec::new();
+        timer.start_iter("make DrawRoads", map.all_roads().len());
         for r in map.all_roads() {
             timer.next();
-            roads.push(DrawRoad::new(r, cs, prerender));
-            all_roads.push(r.get_thick_polygon().get(timer));
+            let draw_r = DrawRoad::new(r, cs, prerender);
+            all_roads.push((
+                osm_rank_to_color(cs, r.get_rank()),
+                r.get_thick_polygon().get(timer),
+            ));
+            all_roads.push((
+                cs.get_def("unzoomed outline", Color::BLACK),
+                draw_r.get_outline(map),
+            ));
+            roads.push(draw_r);
         }
-        let draw_all_thick_roads = prerender.upload(
-            all_roads
-                .into_iter()
-                .map(|p| (cs.get_def("unzoomed road band", Color::BLACK), p))
-                .collect(),
-        );
+        let draw_all_thick_roads = prerender.upload(all_roads);
 
         timer.start_iter("make DrawLanes", map.all_lanes().len());
         let mut lanes: Vec<DrawLane> = Vec::new();
@@ -96,26 +99,24 @@ impl DrawMap {
             }
         }
 
+        let mut intersections: Vec<DrawIntersection> = Vec::new();
+        let mut all_intersections: Vec<(Color, Polygon)> = Vec::new();
         timer.start_iter("make DrawIntersections", map.all_intersections().len());
-        let intersections: Vec<DrawIntersection> = map
-            .all_intersections()
-            .iter()
-            .map(|i| {
-                timer.next();
-                DrawIntersection::new(i, map, cs, prerender, timer)
-            })
-            .collect();
-        let draw_all_unzoomed_intersections = prerender.upload_borrowed(
-            intersections
-                .iter()
-                .map(|i| {
-                    (
-                        cs.get_def("unzoomed intersection", Color::BLACK),
-                        &i.polygon,
-                    )
-                })
-                .collect(),
-        );
+        for i in map.all_intersections() {
+            timer.next();
+            let draw_i = DrawIntersection::new(i, map, cs, prerender, timer);
+            if i.intersection_type == IntersectionType::StopSign {
+                all_intersections.push((osm_rank_to_color(cs, i.get_rank(map)), i.polygon.clone()));
+                all_intersections.push((cs.get("unzoomed outline"), draw_i.get_outline(map)));
+            } else {
+                all_intersections.push((
+                    cs.get_def("unzoomed interesting intersection", Color::BLACK),
+                    i.polygon.clone(),
+                ));
+            }
+            intersections.push(draw_i);
+        }
+        let draw_all_unzoomed_intersections = prerender.upload(all_intersections);
 
         let mut buildings: Vec<DrawBuilding> = Vec::new();
         let mut all_buildings: Vec<(Color, Polygon)> = Vec::new();
@@ -352,5 +353,15 @@ impl AgentCache {
 
         assert!(!self.agents_per_on.contains_key(&on));
         self.agents_per_on.insert(on, agents);
+    }
+}
+
+fn osm_rank_to_color(cs: &ColorScheme, rank: usize) -> Color {
+    if rank >= 16 {
+        cs.get_def("unzoomed highway road", Color::rgb(232, 146, 162))
+    } else if rank >= 6 {
+        cs.get_def("unzoomed arterial road", Color::rgb(247, 250, 191))
+    } else {
+        cs.get_def("unzoomed residential road", Color::WHITE)
     }
 }
