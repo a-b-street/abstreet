@@ -100,14 +100,34 @@ impl DrawCar {
 
             let arrow_color = cs.get_def("blinker on", Color::RED);
             if let Some(t) = input.waiting_for_turn {
-                match map.get_t(t).turn_type {
+                let turn = map.get_t(t);
+                let angle = turn.angle();
+                match turn.turn_type {
                     TurnType::Left | TurnType::LaneChangeLeft => {
-                        draw_default.push((arrow_color, front_left.to_polygon()));
-                        draw_default.push((arrow_color, back_left.to_polygon()));
+                        for circle in vec![front_left, back_left] {
+                            for poly in PolyLine::new(vec![
+                                circle.center.project_away(radius / 2.0, angle.opposite()),
+                                circle.center.project_away(radius / 2.0, angle),
+                            ])
+                            .make_arrow(Distance::meters(0.15))
+                            .unwrap()
+                            {
+                                draw_default.push((arrow_color, poly));
+                            }
+                        }
                     }
                     TurnType::Right | TurnType::LaneChangeRight => {
-                        draw_default.push((arrow_color, front_right.to_polygon()));
-                        draw_default.push((arrow_color, back_right.to_polygon()));
+                        for circle in vec![front_right, back_right] {
+                            for poly in PolyLine::new(vec![
+                                circle.center.project_away(radius / 2.0, angle.opposite()),
+                                circle.center.project_away(radius / 2.0, angle),
+                            ])
+                            .make_arrow(Distance::meters(0.15))
+                            .unwrap()
+                            {
+                                draw_default.push((arrow_color, poly));
+                            }
+                        }
                     }
                     TurnType::Straight => {
                         draw_default.push((arrow_color, back_left.to_polygon()));
