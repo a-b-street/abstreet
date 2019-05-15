@@ -421,6 +421,53 @@ impl PolyLine {
         ])
     }
 
+    // TODO Refactor
+    pub fn make_arrow_outline(
+        &self,
+        arrow_thickness: Distance,
+        outline_thickness: Distance,
+    ) -> Warn<Vec<Polygon>> {
+        let head_size = arrow_thickness * 2.0;
+        let triangle_height = head_size / 2.0_f64.sqrt();
+
+        if self.length() < triangle_height {
+            return Warn::warn(
+                vec![self.make_polygons(arrow_thickness)],
+                format!(
+                    "Can't make_arrow of thickness {} for {}",
+                    arrow_thickness, self
+                ),
+            );
+        }
+        let slice = self.exact_slice(Distance::ZERO, self.length() - triangle_height);
+
+        if let Some(p) = slice.to_thick_boundary(arrow_thickness, outline_thickness) {
+            let angle = slice.last_pt().angle_to(self.last_pt());
+            Warn::ok(vec![
+                p,
+                PolyLine::make_polygons_for_boundary(
+                    vec![
+                        self.last_pt(),
+                        self.last_pt()
+                            .project_away(head_size, angle.rotate_degs(-135.0)),
+                        self.last_pt()
+                            .project_away(head_size, angle.rotate_degs(135.0)),
+                        self.last_pt(),
+                    ],
+                    outline_thickness,
+                ),
+            ])
+        } else {
+            return Warn::warn(
+                vec![self.make_polygons(arrow_thickness)],
+                format!(
+                    "Can't make_arrow_outline of outline_thickness {} for {}",
+                    outline_thickness, self
+                ),
+            );
+        }
+    }
+
     // Also return the angle of the line where the hit was found
     // TODO Also return distance along self of the hit
     pub fn intersection(&self, other: &PolyLine) -> Option<(Pt2D, Angle)> {

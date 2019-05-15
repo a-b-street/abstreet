@@ -229,7 +229,7 @@ pub fn draw_signal_cycle(
             && turn.turn_type != TurnType::LaneChangeLeft
             && turn.turn_type != TurnType::LaneChangeRight
         {
-            DrawTurn::draw_dashed(turn, g, yield_color);
+            DrawTurn::draw_outline(turn, g, yield_color);
         }
     }
 

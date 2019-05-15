@@ -67,6 +67,16 @@ impl DrawTurn {
         g.draw_arrow(color, BIG_ARROW_THICKNESS, &arrow_line);
     }
 
+    pub fn draw_outline(turn: &Turn, g: &mut GfxCtx, color: Color) {
+        g.draw_polygons(
+            color,
+            &turn
+                .geom
+                .make_arrow_outline(BIG_ARROW_THICKNESS * 2.0, BIG_ARROW_THICKNESS / 2.0)
+                .unwrap(),
+        );
+    }
+
     pub fn draw(&self, g: &mut GfxCtx, cs: &ColorScheme, arrow_color: Color) {
         g.draw_circle(
             cs.get_def("turn icon circle", Color::grey(0.6)),
