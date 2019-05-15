@@ -47,20 +47,17 @@ impl ModalMenu {
             panic!("Caller didn't consume modal action '{}'", action);
         }
 
-        match self.menu.event(ctx.input.event, ctx.canvas) {
-            InputResult::Canceled | InputResult::StillActive => {}
-            InputResult::Done(action, _) => {
-                //assert!(!ctx.input.event_consumed);
-                if ctx.input.event_consumed {
-                    panic!(
-                        "{} chosen from ModalMenu, but event {:?} was already consumed",
-                        action, ctx.input.event
-                    );
+        // Example of a conflict is Escaping out of a context menu.
+        if !ctx.input.event_consumed {
+            match self.menu.event(ctx.input.event, ctx.canvas) {
+                InputResult::Canceled | InputResult::StillActive => {}
+                InputResult::Done(action, _) => {
+                    ctx.input.event_consumed = true;
+                    self.chosen_action = Some(action);
                 }
-                ctx.input.event_consumed = true;
-                self.chosen_action = Some(action);
             }
         }
+
         self.menu.mark_all_inactive();
         if let Some(txt) = new_prompt {
             self.menu.change_prompt(txt, ctx.canvas);
