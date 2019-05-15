@@ -11,12 +11,6 @@ pub struct DrawCar {
     pub id: CarID,
     body: PolyLine,
     body_polygon: Polygon,
-    // Optional and could be empty for super short cars near borders.
-    window_polygons: Vec<Polygon>,
-    left_blinkers: Option<(Circle, Circle)>,
-    right_blinkers: Option<(Circle, Circle)>,
-    left_blinker_on: bool,
-    right_blinker_on: bool,
     zorder: isize,
 
     draw_default: Drawable,
@@ -24,112 +18,112 @@ pub struct DrawCar {
 
 impl DrawCar {
     pub fn new(input: DrawCarInput, map: &Map, prerender: &Prerender, cs: &ColorScheme) -> DrawCar {
-        let (left_blinker_on, right_blinker_on) = if let Some(t) = input.waiting_for_turn {
-            match map.get_t(t).turn_type {
-                TurnType::Left | TurnType::LaneChangeLeft => (true, false),
-                TurnType::Right | TurnType::LaneChangeRight => (false, true),
-                TurnType::Straight => (true, true),
-                TurnType::Crosswalk | TurnType::SharedSidewalkCorner => unreachable!(),
-            }
-        } else {
-            (false, false)
-        };
-
-        let (front_blinker_pos, front_blinker_angle) = input
-            .body
-            .dist_along(input.body.length() - Distance::meters(0.5));
-        let (back_blinker_pos, back_blinker_angle) = input.body.dist_along(Distance::meters(0.5));
-        let blinker_radius = Distance::meters(0.3);
-
-        let window_length_gap = Distance::meters(0.2);
-        let window_thickness = Distance::meters(0.3);
-        let front_window = {
-            let (pos, angle) = input
-                .body
-                .dist_along(input.body.length() - Distance::meters(1.0));
-            thick_line_from_angle(
-                window_thickness,
-                CAR_WIDTH - window_length_gap * 2.0,
-                pos.project_away(
-                    CAR_WIDTH / 2.0 - window_length_gap,
-                    angle.rotate_degs(-90.0),
-                ),
-                angle.rotate_degs(90.0),
-            )
-        };
-        let back_window = {
-            let (pos, angle) = input.body.dist_along(Distance::meters(1.0));
-            thick_line_from_angle(
-                window_thickness * 0.8,
-                CAR_WIDTH - window_length_gap * 2.0,
-                pos.project_away(
-                    CAR_WIDTH / 2.0 - window_length_gap,
-                    angle.rotate_degs(-90.0),
-                ),
-                angle.rotate_degs(90.0),
-            )
-        };
+        let mut draw_default = Vec::new();
 
         let body_polygon = input.body.make_polygons(CAR_WIDTH);
+        draw_default.push((
+            // TODO if it's a bus, color it differently -- but how? :\
+            // TODO color.shift(input.id.0) actually looks pretty bad still
+            match input.status {
+                CarStatus::Debug => cs.get_def("debug car", Color::BLUE.alpha(0.8)),
+                CarStatus::Moving => cs.get_def("moving car", Color::CYAN),
+                CarStatus::Stuck => cs.get_def("stuck car", Color::rgb(222, 184, 135)),
+                CarStatus::Parked => cs.get_def("parked car", Color::rgb(180, 233, 76)),
+            },
+            body_polygon.clone(),
+        ));
 
-        // TODO if it's a bus, color it differently -- but how? :\
-        let color = match input.status {
-            CarStatus::Debug => cs.get_def("debug car", Color::BLUE.alpha(0.8)),
-            CarStatus::Moving => cs.get_def("moving car", Color::CYAN),
-            CarStatus::Stuck => cs.get_def("stuck car", Color::rgb(222, 184, 135)),
-            CarStatus::Parked => cs.get_def("parked car", Color::rgb(180, 233, 76)),
-        };
-        let draw_default = prerender.upload_borrowed(vec![
-            (
-                color,
-                // TODO color.shift(input.id.0) actually looks pretty bad still
-                &body_polygon,
-            ),
-            (cs.get_def("car window", Color::BLACK), &front_window),
-            (cs.get("car window"), &back_window),
-        ]);
+        {
+            let window_length_gap = Distance::meters(0.2);
+            let window_thickness = Distance::meters(0.3);
+            let front_window = {
+                let (pos, angle) = input
+                    .body
+                    .dist_along(input.body.length() - Distance::meters(1.0));
+                thick_line_from_angle(
+                    window_thickness,
+                    CAR_WIDTH - window_length_gap * 2.0,
+                    pos.project_away(
+                        CAR_WIDTH / 2.0 - window_length_gap,
+                        angle.rotate_degs(-90.0),
+                    ),
+                    angle.rotate_degs(90.0),
+                )
+            };
+            let back_window = {
+                let (pos, angle) = input.body.dist_along(Distance::meters(1.0));
+                thick_line_from_angle(
+                    window_thickness * 0.8,
+                    CAR_WIDTH - window_length_gap * 2.0,
+                    pos.project_away(
+                        CAR_WIDTH / 2.0 - window_length_gap,
+                        angle.rotate_degs(-90.0),
+                    ),
+                    angle.rotate_degs(90.0),
+                )
+            };
+            draw_default.push((cs.get_def("car window", Color::BLACK), front_window));
+            draw_default.push((cs.get("car window"), back_window));
+        }
+
+        {
+            let radius = Distance::meters(0.3);
+            let edge_offset = Distance::meters(0.5);
+            let (front_pos, front_angle) = input.body.dist_along(input.body.length() - edge_offset);
+            let (back_pos, back_angle) = input.body.dist_along(edge_offset);
+
+            let front_left = Circle::new(
+                front_pos.project_away(
+                    CAR_WIDTH / 2.0 - edge_offset,
+                    front_angle.rotate_degs(-90.0),
+                ),
+                radius,
+            );
+            let front_right = Circle::new(
+                front_pos
+                    .project_away(CAR_WIDTH / 2.0 - edge_offset, front_angle.rotate_degs(90.0)),
+                radius,
+            );
+            let back_left = Circle::new(
+                back_pos.project_away(CAR_WIDTH / 2.0 - edge_offset, back_angle.rotate_degs(-90.0)),
+                radius,
+            );
+            let back_right = Circle::new(
+                back_pos.project_away(CAR_WIDTH / 2.0 - edge_offset, back_angle.rotate_degs(90.0)),
+                radius,
+            );
+
+            let bg_color = cs.get_def("blinker background", Color::grey(0.2));
+            for c in vec![&front_left, &front_right, &back_left, &back_right] {
+                draw_default.push((bg_color, c.to_polygon()));
+            }
+
+            let arrow_color = cs.get_def("blinker on", Color::RED);
+            if let Some(t) = input.waiting_for_turn {
+                match map.get_t(t).turn_type {
+                    TurnType::Left | TurnType::LaneChangeLeft => {
+                        draw_default.push((arrow_color, front_left.to_polygon()));
+                        draw_default.push((arrow_color, back_left.to_polygon()));
+                    }
+                    TurnType::Right | TurnType::LaneChangeRight => {
+                        draw_default.push((arrow_color, front_right.to_polygon()));
+                        draw_default.push((arrow_color, back_right.to_polygon()));
+                    }
+                    TurnType::Straight => {
+                        draw_default.push((arrow_color, back_left.to_polygon()));
+                        draw_default.push((arrow_color, back_right.to_polygon()));
+                    }
+                    TurnType::Crosswalk | TurnType::SharedSidewalkCorner => unreachable!(),
+                }
+            }
+        }
 
         DrawCar {
             id: input.id,
             body: input.body,
             body_polygon,
-            window_polygons: vec![front_window, back_window],
-            left_blinkers: Some((
-                Circle::new(
-                    front_blinker_pos.project_away(
-                        CAR_WIDTH / 2.0 - Distance::meters(0.5),
-                        front_blinker_angle.rotate_degs(-90.0),
-                    ),
-                    blinker_radius,
-                ),
-                Circle::new(
-                    back_blinker_pos.project_away(
-                        CAR_WIDTH / 2.0 - Distance::meters(0.5),
-                        back_blinker_angle.rotate_degs(-90.0),
-                    ),
-                    blinker_radius,
-                ),
-            )),
-            right_blinkers: Some((
-                Circle::new(
-                    front_blinker_pos.project_away(
-                        CAR_WIDTH / 2.0 - Distance::meters(0.5),
-                        front_blinker_angle.rotate_degs(90.0),
-                    ),
-                    blinker_radius,
-                ),
-                Circle::new(
-                    back_blinker_pos.project_away(
-                        CAR_WIDTH / 2.0 - Distance::meters(0.5),
-                        back_blinker_angle.rotate_degs(90.0),
-                    ),
-                    blinker_radius,
-                ),
-            )),
-            left_blinker_on,
-            right_blinker_on,
             zorder: input.on.get_zorder(map),
-            draw_default,
+            draw_default: prerender.upload(draw_default),
         }
     }
 }
@@ -139,34 +133,11 @@ impl Renderable for DrawCar {
         ID::Car(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, ctx: &DrawCtx) {
+    fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, _: &DrawCtx) {
         if let Some(color) = opts.color(self.get_id()) {
-            let mut draw = vec![(color, &self.body_polygon)];
-            for p in &self.window_polygons {
-                draw.push((ctx.cs.get("car window"), p));
-            }
-            g.draw_polygon_batch(draw);
+            g.draw_polygon(color, &self.body_polygon);
         } else {
             g.redraw(&self.draw_default);
-        }
-
-        let blinker_on = ctx.cs.get_def("blinker on", Color::RED);
-        // If both are on, don't show the front ones -- just the back brake lights
-        if let (Some(left_blinkers), Some(right_blinkers)) =
-            (&self.left_blinkers, &self.right_blinkers)
-        {
-            if self.left_blinker_on {
-                if !self.right_blinker_on {
-                    g.draw_circle(blinker_on, &left_blinkers.0);
-                }
-                g.draw_circle(blinker_on, &left_blinkers.1);
-            }
-            if self.right_blinker_on {
-                if !self.left_blinker_on {
-                    g.draw_circle(blinker_on, &right_blinkers.0);
-                }
-                g.draw_circle(blinker_on, &right_blinkers.1);
-            }
         }
     }
 
