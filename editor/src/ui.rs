@@ -168,19 +168,26 @@ impl UI {
             objects.reverse();
 
             for obj in objects {
-                // Don't mouseover areas.
-                // TODO Might get fancier rules in the future, so we can't mouseover irrelevant things
-                // in intersection editor mode, for example.
+                // In unzoomed mode, can only mouseover areas
                 match obj.get_id() {
-                    ID::Area(_) if !debug_areas => {}
-                    // Thick roads are only shown when unzoomed, when we don't mouseover at all.
-                    ID::Road(_) => {}
-                    _ => {
-                        if obj.contains_pt(pt, &self.primary.map) {
-                            return Some(obj.get_id());
+                    ID::Area(_) => {
+                        if !debug_areas {
+                            continue;
                         }
                     }
-                };
+                    // Never mouseover these
+                    ID::Road(_) => {
+                        continue;
+                    }
+                    _ => {
+                        if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
+                            continue;
+                        }
+                    }
+                }
+                if obj.contains_pt(pt, &self.primary.map) {
+                    return Some(obj.get_id());
+                }
             }
             return None;
         }
