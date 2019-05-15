@@ -102,9 +102,10 @@ impl Car {
         DrawCarInput {
             id: self.vehicle.id,
             waiting_for_turn: match self.state {
-                CarState::WaitingToAdvance => match self.router.next() {
-                    Traversable::Lane(_) => None,
-                    Traversable::Turn(t) => Some(t),
+                // TODO Maybe also when Crossing?
+                CarState::WaitingToAdvance | CarState::Queued => match self.router.maybe_next() {
+                    Some(Traversable::Turn(t)) => Some(t),
+                    _ => None,
                 },
                 _ => None,
             },
