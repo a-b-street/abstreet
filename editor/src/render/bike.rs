@@ -1,7 +1,7 @@
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{DrawCtx, DrawOptions, Renderable};
 use ezgui::{Color, Drawable, GfxCtx, Prerender};
-use geom::{Circle, Distance, Line, Polygon};
+use geom::{Circle, Distance, Line, PolyLine, Polygon};
 use map_model::{Map, LANE_THICKNESS};
 use sim::{CarID, CarStatus, DrawCarInput};
 
@@ -75,6 +75,19 @@ impl DrawBike {
                 )
                 .make_polygons(Distance::meters(0.08)),
             ));
+        }
+
+        if let Some(t) = input.waiting_for_turn {
+            let angle = map.get_t(t).angle();
+            for poly in PolyLine::new(vec![
+                body_pos.project_away(body_radius / 2.0, angle.opposite()),
+                body_pos.project_away(body_radius / 2.0, angle),
+            ])
+            .make_arrow(Distance::meters(0.25))
+            .unwrap()
+            {
+                draw_default.push((cs.get("blinker on"), poly));
+            }
         }
 
         DrawBike {

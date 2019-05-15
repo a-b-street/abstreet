@@ -9,6 +9,7 @@ use map_model::{
     BuildingID, IntersectionID, IntersectionType, LaneType, PathRequest, Position, LANE_THICKNESS,
 };
 use rand::seq::SliceRandom;
+use rand::Rng;
 use sim::{DrivingGoal, Scenario, SidewalkSpot, TripSpec};
 
 const SMALL_DT: Duration = Duration::const_seconds(0.1);
@@ -289,7 +290,11 @@ fn spawn_agents_around(i: IntersectionID, ui: &mut UI) {
         let lane = map.get_l(*l);
         if lane.is_driving() {
             for _ in 0..10 {
-                let vehicle_spec = Scenario::rand_car(&mut rng);
+                let vehicle_spec = if rng.gen_bool(0.7) {
+                    Scenario::rand_car(&mut rng)
+                } else {
+                    Scenario::rand_bike(&mut rng)
+                };
                 if vehicle_spec.length > lane.length() {
                     continue;
                 }
