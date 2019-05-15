@@ -72,7 +72,6 @@ impl ABTestMode {
                     setup::ABTestSetup::event(state, ctx);
                     return EventLoopMode::InputOnly;
                 }
-                // Always use Animation, so turn blinkers work.
 
                 let mut txt = Text::prompt("A/B Test Mode");
                 txt.add_line(state.ui.primary.map.get_edits().edits_name.clone());
@@ -200,7 +199,7 @@ impl ABTestMode {
                             }
                             //*ctx.recalculate_current_selection = true;
                         }
-                        EventLoopMode::Animation
+                        EventLoopMode::InputOnly
                     }
                     State::Running {
                         ref mut last_step,

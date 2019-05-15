@@ -81,27 +81,27 @@ impl SandboxMode {
     }
 
     pub fn event(state: &mut GameState, ctx: &mut EventCtx) -> EventLoopMode {
-        // Always use Animation, so turn blinkers work.
         match state.mode {
             Mode::Sandbox(ref mut mode) => {
                 if let State::Spawning(ref mut spawner) = mode.state {
                     if spawner.event(ctx, &mut state.ui) {
                         mode.state = State::Paused;
                     }
-                    return EventLoopMode::Animation;
+                    return EventLoopMode::InputOnly;
                 }
                 mode.time_travel.record(&state.ui);
                 if let State::TimeTraveling = mode.state {
                     if mode.time_travel.event(ctx) {
                         mode.state = State::Paused;
                     }
-                    return EventLoopMode::Animation;
+                    return EventLoopMode::InputOnly;
                 }
                 if let State::ExploringRoute(ref mut explorer) = mode.state {
-                    if explorer.event(ctx, &mut state.ui) {
-                        mode.state = State::Paused;
+                    if let Some(mode) = explorer.event(ctx, &mut state.ui) {
+                        return mode;
                     }
-                    return EventLoopMode::Animation;
+                    mode.state = State::Paused;
+                    return EventLoopMode::InputOnly;
                 }
 
                 let mut txt = Text::prompt("Sandbox Mode");
@@ -152,11 +152,11 @@ impl SandboxMode {
                     spawner::AgentSpawner::new(ctx, &mut state.ui, &mut mode.menu)
                 {
                     mode.state = State::Spawning(spawner);
-                    return EventLoopMode::Animation;
+                    return EventLoopMode::InputOnly;
                 }
                 if let Some(explorer) = route_explorer::RouteExplorer::new(ctx, &state.ui) {
                     mode.state = State::ExploringRoute(explorer);
-                    return EventLoopMode::Animation;
+                    return EventLoopMode::InputOnly;
                 }
 
                 if mode.following.is_none() {
@@ -198,7 +198,7 @@ impl SandboxMode {
                 if mode.menu.action("start time traveling") {
                     mode.state = State::TimeTraveling;
                     mode.time_travel.start(&state.ui);
-                    return EventLoopMode::Animation;
+                    return EventLoopMode::InputOnly;
                 }
 
                 if mode.menu.action("quit") {
@@ -277,7 +277,7 @@ impl SandboxMode {
                                 .step(&state.ui.primary.map, Duration::seconds(0.1));
                             //*ctx.recalculate_current_selection = true;
                         }
-                        EventLoopMode::Animation
+                        EventLoopMode::InputOnly
                     }
                     State::Running {
                         ref mut last_step,

@@ -70,17 +70,6 @@ pub fn draw_vehicle(
     }
 }
 
-// Don't use the simulation time, because then fast simulations would have cars blinking _very_
-// fast or slow. Unless that's what people expect?
-pub fn should_draw_blinkers() -> bool {
-    std::time::SystemTime::now()
-        .duration_since(std::time::SystemTime::UNIX_EPOCH)
-        .unwrap()
-        .subsec_millis()
-        % 300
-        < 150
-}
-
 pub struct DrawCtx<'a> {
     pub cs: &'a ColorScheme,
     pub map: &'a Map,

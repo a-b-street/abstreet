@@ -2,7 +2,7 @@ use crate::common::Warper;
 use crate::helpers::ID;
 use crate::render::DrawTurn;
 use crate::ui::UI;
-use ezgui::{Color, EventCtx, GfxCtx, Key, ModalMenu, Text};
+use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text};
 use map_model::Traversable;
 use sim::AgentID;
 
@@ -44,11 +44,11 @@ impl RouteExplorer {
         })
     }
 
-    // True when done
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> bool {
+    // Done when None
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<EventLoopMode> {
         if let Some(ref warper) = self.warper {
-            if warper.event(ctx, ui).is_some() {
-                return false;
+            if let Some(mode) = warper.event(ctx, ui) {
+                return Some(mode);
             }
             self.warper = None;
         }
@@ -59,7 +59,7 @@ impl RouteExplorer {
         ctx.canvas.handle_event(ctx.input);
 
         if self.menu.action("quit") {
-            return true;
+            return None;
         } else if self.current != self.steps.len() - 1 && self.menu.action("next step") {
             self.current += 1;
         } else if self.current != self.steps.len() - 1 && self.menu.action("last step") {
@@ -69,7 +69,7 @@ impl RouteExplorer {
         } else if self.current != 0 && self.menu.action("first step") {
             self.current = 0;
         } else {
-            return false;
+            return Some(EventLoopMode::InputOnly);
         }
         self.warper = Some(Warper::new(
             ctx,
@@ -85,7 +85,7 @@ impl RouteExplorer {
             },
         ));
 
-        false
+        Some(EventLoopMode::InputOnly)
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
