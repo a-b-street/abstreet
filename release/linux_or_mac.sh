@@ -4,6 +4,10 @@
 set -e
 
 OUT=abstreet_linux
+if [[ "$OSTYPE" == "darwin"* ]]; then
+	OUT=abstreet_mac
+fi
+
 rm -rfv $OUT
 mkdir $OUT
 

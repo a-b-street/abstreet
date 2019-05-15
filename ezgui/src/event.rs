@@ -60,7 +60,12 @@ impl Event {
                 glutin::MouseScrollDelta::LineDelta(_, dy) => {
                     Some(Event::MouseWheelScroll(f64::from(dy)))
                 }
-                _ => None,
+                // This one only happens on Mac. The scrolling is way too fast, so slow it down.
+                // Probably the better way is to convert the LogicalPosition to a PhysicalPosition
+                // somehow knowing the DPI.
+                glutin::MouseScrollDelta::PixelDelta(pos) => {
+                    Some(Event::MouseWheelScroll(f64::from(0.1 * pos.y)))
+                }
             },
             glutin::WindowEvent::Resized(size) => {
                 Some(Event::WindowResized(size.width, size.height))
