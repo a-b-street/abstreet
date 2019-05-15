@@ -25,3 +25,16 @@ changes here.
 - depict pedestrians and bikes with more detail
 - tool to scroll through an agent's route
 - make simulation speed controls actually work
+
+0.1.4
+
+- improve stop sign editor UI (toggle entire roads)
+- better mouseover / selection rendering
+- better traffic signal rendering (show time left, use outlines for yields)
+- make cars actually stop and briefly wait at stop signs
+- improve edit mode diff visualization (cross-hatching)
+- render actual stop signs, not just red lines
+- fix intersection policies confused by conflicting straight turns with lane-changing
+- fix mac scrolling
+- better turn indicators
+- nicer unzoomed view of roads, with different colors for big/small roads
