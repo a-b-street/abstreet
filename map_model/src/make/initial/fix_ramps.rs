@@ -6,9 +6,9 @@ use geom::Bounds;
 use std::collections::{BTreeSet, HashSet};
 
 pub fn fix_ramps(m: &mut InitialMap, timer: &mut Timer) {
-    if m.name == "small_seattle" {
+    if m.name != "montlake" {
         timer.warn(
-            "fix_ramps still disabled for small_seattle; crosses_polygon seeing strange results"
+            "fix_ramps still disabled generally; crosses_polygon seeing strange results"
                 .to_string(),
         );
         return;
@@ -124,6 +124,10 @@ fn fix_ramp(
 
     if let Some(last_road) = delete_roads.last() {
         let mut i = m.intersections.get_mut(&last_normal_intersection).unwrap();
+        if i.roads.len() == 1 {
+            // Woops, can't do this.
+            return false;
+        }
         i.roads.remove(&last_road);
         i.polygon = geometry::intersection_polygon(i, &mut m.roads, timer);
     } else {

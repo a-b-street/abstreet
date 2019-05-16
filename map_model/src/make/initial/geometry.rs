@@ -13,6 +13,9 @@ pub fn intersection_polygon(
     roads: &mut BTreeMap<StableRoadID, Road>,
     timer: &mut Timer,
 ) -> Vec<Pt2D> {
+    if i.roads.is_empty() {
+        panic!("{} has no roads", i.id);
+    }
     let mut road_endpts: Vec<Pt2D> = Vec::new();
 
     // Turn all of the incident roads into two PolyLines (the "forwards" and "backwards" borders of

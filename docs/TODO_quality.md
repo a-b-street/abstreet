@@ -2,7 +2,7 @@
 
 ## Boundary clipping
 
-- lakes missing from small_seattle
+- lakes missing from huge_seattle
 	- just connecting the ends of ways doesnt always work well
 	- maybe increase the Bounds for areas, and let clipping clean up later?
 - some border intersections have weird OOBish geometry, or the arrows look weird

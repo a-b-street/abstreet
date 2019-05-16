@@ -14,7 +14,9 @@ mkdir $OUT
 cp color_scheme docs/INSTRUCTIONS.md release/play_abstreet.sh $OUT
 
 mkdir -p $OUT/data/maps
-cp -v data/maps/montlake.abst data/maps/23rd.abst $OUT/data/maps/
+for map in 23rd ballard caphill downtown montlake; do
+	cp -v data/maps/$map.abst $OUT/data/maps/
+done
 
 mkdir $OUT/editor
 cargo build --release --bin editor

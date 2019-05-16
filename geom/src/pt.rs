@@ -120,6 +120,9 @@ impl Pt2D {
     }
 
     pub fn center(pts: &Vec<Pt2D>) -> Pt2D {
+        if pts.is_empty() {
+            panic!("Can't find center of 0 points");
+        }
         let mut x = 0.0;
         let mut y = 0.0;
         for pt in pts {

@@ -59,9 +59,9 @@ pub fn run(t: &mut TestRunner) {
 
     t.run_slow("biggest_map_loads", |_| {
         map_model::Map::new(
-            "../data/raw_maps/small_seattle.abst",
+            "../data/raw_maps/huge_seattle.abst",
             &mut abstutil::Timer::throwaway(),
         )
-        .expect("small_seattle broke");
+        .expect("huge_seattle broke");
     });
 }
