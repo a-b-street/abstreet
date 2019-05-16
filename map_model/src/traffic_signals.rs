@@ -1,4 +1,4 @@
-use crate::{IntersectionID, Map, RoadID, TurnID, TurnPriority, TurnType};
+use crate::{IntersectionID, Map, RoadID, Turn, TurnID, TurnPriority, TurnType};
 use abstutil::{Error, Timer, Warn};
 use geom::Duration;
 use serde_derive::{Deserialize, Serialize};
@@ -314,13 +314,19 @@ impl Cycle {
         }
     }
 
-    pub fn edit_turn(&mut self, t: TurnID, pri: TurnPriority) {
-        self.priority_turns.remove(&t);
-        self.yield_turns.remove(&t);
-        if pri == TurnPriority::Priority {
-            self.priority_turns.insert(t);
-        } else if pri == TurnPriority::Yield {
-            self.yield_turns.insert(t);
+    pub fn edit_turn(&mut self, t: &Turn, pri: TurnPriority) {
+        let mut ids = vec![t.id];
+        if t.turn_type == TurnType::Crosswalk {
+            ids.push(t.other_crosswalk_id());
+        }
+        for id in ids {
+            self.priority_turns.remove(&id);
+            self.yield_turns.remove(&id);
+            if pri == TurnPriority::Priority {
+                self.priority_turns.insert(id);
+            } else if pri == TurnPriority::Yield {
+                self.yield_turns.insert(id);
+            }
         }
     }
 }

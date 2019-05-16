@@ -24,7 +24,8 @@ https://gis-kingcounty.opendata.arcgis.com/datasets/acs-means-of-transportation-
 https://gis-kingcounty.opendata.arcgis.com/datasets/acs-travel-time-to-work-acs-b08303-traveltime
 https://gis-kingcounty.opendata.arcgis.com/datasets/consolidated-demographics-index-for-king-county-census-tracts-demographic-index-area
 https://gis-kingcounty.opendata.arcgis.com/datasets/acs-household-size-by-vehicles-available-acs-b08201-householdvehicles
-
+https://lehd.ces.census.gov/
+https://movement.uber.com/explore/seattle/
 
 - indications of population
 https://gis-kingcounty.opendata.arcgis.com/datasets/acs-total-population-acs-b01003-totalpop

@@ -154,7 +154,11 @@ impl ControlStopSign {
     }
 
     pub fn change(&mut self, t: TurnID, pri: TurnPriority, map: &Map) {
+        let turn = map.get_t(t);
         self.turns.insert(t, pri);
+        if turn.turn_type == TurnType::Crosswalk {
+            self.turns.insert(turn.other_crosswalk_id(), pri);
+        }
         self.recalculate_stop_signs(map);
     }
 

@@ -107,7 +107,7 @@ impl Turn {
     pub fn between_sidewalks(&self) -> bool {
         self.turn_type == TurnType::SharedSidewalkCorner || self.turn_type == TurnType::Crosswalk
     }
-    pub fn other_crosswalk_id(&self) -> TurnID {
+    pub(crate) fn other_crosswalk_id(&self) -> TurnID {
         assert_eq!(self.turn_type, TurnType::Crosswalk);
         TurnID {
             parent: self.id.parent,

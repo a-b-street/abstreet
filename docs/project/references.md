@@ -26,6 +26,8 @@
 - https://commuteseattle.com/
 - https://www.theurbanist.org/
 - https://humantransit.org/2019/03/notes-on-simcity-at-30.html
+- https://mynorthwest.com/category/chokepoints/
+- https://blogs.uw.edu/ceadvice/2019/05/08/infrastructure-week-2019-welcome-uw-cee-students-and-faculty/
 
 ## Similar projects
 

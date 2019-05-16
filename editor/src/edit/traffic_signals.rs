@@ -142,7 +142,7 @@ impl TrafficSignalEditor {
                     Key::Space,
                     &format!("toggle from {:?} to {:?}", cycle.get_priority(id), pri),
                 ) {
-                    cycle.edit_turn(id, pri);
+                    cycle.edit_turn(ui.primary.map.get_t(id), pri);
                     changed = true;
                 }
             }
@@ -201,11 +201,8 @@ impl TrafficSignalEditor {
             } else if has_sidewalks && self.menu.action("add a new pedestrian scramble cycle") {
                 let mut cycle = Cycle::new(self.i, signal.cycles.len());
                 for t in ui.primary.map.get_turns_in_intersection(self.i) {
-                    // edit_turn adds the other_crosswalk_id and asserts no duplicates.
-                    if t.turn_type == TurnType::SharedSidewalkCorner
-                        || (t.turn_type == TurnType::Crosswalk && t.id.src < t.id.dst)
-                    {
-                        cycle.edit_turn(t.id, TurnPriority::Priority);
+                    if t.between_sidewalks() {
+                        cycle.edit_turn(t, TurnPriority::Priority);
                     }
                 }
                 signal.cycles.insert(self.current_cycle, cycle);
