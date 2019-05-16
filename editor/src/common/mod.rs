@@ -12,6 +12,7 @@ use ezgui::{
     VerticalAlignment,
 };
 use geom::{Line, Pt2D};
+use std::collections::BTreeSet;
 use std::time::Instant;
 
 pub struct CommonState {
@@ -88,6 +89,7 @@ impl CommonState {
     }
 
     pub fn draw_osd(g: &mut GfxCtx, ui: &UI, id: Option<ID>) {
+        let map = &ui.primary.map;
         let id_color = ui.cs.get_def("OSD ID color", Color::RED);
         let name_color = ui.cs.get_def("OSD name color", Color::CYAN);
         let mut osd = Text::new();
@@ -98,30 +100,40 @@ impl CommonState {
             Some(ID::Lane(l)) => {
                 osd.append(format!("{}", l), Some(id_color));
                 osd.append(" is ".to_string(), None);
-                osd.append(ui.primary.map.get_parent(l).get_name(), Some(name_color));
+                osd.append(map.get_parent(l).get_name(), Some(name_color));
             }
             Some(ID::Building(b)) => {
                 osd.append(format!("{}", b), Some(id_color));
                 osd.append(" is ".to_string(), None);
-                osd.append(ui.primary.map.get_b(b).get_name(), Some(name_color));
+                osd.append(map.get_b(b).get_name(), Some(name_color));
             }
             Some(ID::Turn(t)) => {
                 osd.append(
-                    format!("TurnID({})", ui.primary.map.get_t(t).lookup_idx),
+                    format!("TurnID({})", map.get_t(t).lookup_idx),
                     Some(id_color),
                 );
                 osd.append(" between ".to_string(), None);
-                osd.append(
-                    ui.primary.map.get_parent(t.src).get_name(),
-                    Some(name_color),
-                );
+                osd.append(map.get_parent(t.src).get_name(), Some(name_color));
                 osd.append(" and ".to_string(), None);
-                osd.append(
-                    ui.primary.map.get_parent(t.dst).get_name(),
-                    Some(name_color),
-                );
+                osd.append(map.get_parent(t.dst).get_name(), Some(name_color));
             }
-            // TODO Intersections, cars, pedestrians...
+            Some(ID::Intersection(i)) => {
+                osd.append(format!("{}", i), Some(id_color));
+                osd.append(" of ".to_string(), None);
+
+                let mut road_names = BTreeSet::new();
+                for r in &map.get_i(i).roads {
+                    road_names.insert(map.get_r(*r).get_name());
+                }
+                let len = road_names.len();
+                for (idx, n) in road_names.into_iter().enumerate() {
+                    osd.append(n, Some(name_color));
+                    if idx != len - 1 {
+                        osd.append(", ".to_string(), None);
+                    }
+                }
+            }
+            // TODO Cars, pedestrians...
             Some(id) => {
                 osd.append(format!("{:?}", id), Some(id_color));
             }
