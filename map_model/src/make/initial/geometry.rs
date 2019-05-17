@@ -61,22 +61,11 @@ pub fn intersection_polygon(
         l.pt1().angle_to(intersection_center).normalized_degrees() as i64
     });
 
-    let mut endpoints = if lines.len() == 1 {
+    if lines.len() == 1 {
         deadend(roads, i.id, &lines).get(timer)
     } else {
         generalized_trim_back(roads, i.id, &lines, timer)
-    };
-
-    // Close off the polygon
-    if endpoints
-        .last()
-        .unwrap()
-        .approx_eq(endpoints[0], Distance::meters(0.1))
-    {
-        endpoints.pop();
     }
-    endpoints.push(endpoints[0]);
-    endpoints
 }
 
 fn generalized_trim_back(
@@ -284,8 +273,27 @@ fn generalized_trim_back(
             timer.warn(format!("Excluding collision between original polylines of {} and something, because stuff's too short", id));
         }
     }
-    // TODO Caller will close off the polygon. Does that affect our dedupe?
-    Pt2D::approx_dedupe(endpoints, Distance::meters(0.1))
+    let main_result = close_off_polygon(Pt2D::approx_dedupe(endpoints, Distance::meters(0.1)));
+
+    // There are bad polygons caused by weird short roads. As a temporary workaround, detect cases
+    // where polygons dramatically double back on themselves and force the polygon to proceed
+    // around its center.
+    let mut deduped = main_result.clone();
+    deduped.pop();
+    deduped.sort_by_key(|pt| HashablePt2D::from(*pt));
+    deduped = Pt2D::approx_dedupe(deduped, Distance::meters(0.1));
+    let center = Pt2D::center(&deduped);
+    deduped.sort_by_key(|pt| pt.angle_to(center).normalized_degrees() as i64);
+    deduped = close_off_polygon(deduped);
+    if main_result.len() == deduped.len() {
+        main_result
+    } else {
+        timer.warn(format!(
+            "{}'s polygon has weird repeats, forcibly removing points",
+            i
+        ));
+        deduped
+    }
 }
 
 fn deadend(
@@ -316,19 +324,27 @@ fn deadend(
             );
         }
 
-        Warn::ok(vec![
+        Warn::ok(close_off_polygon(vec![
             pt1.unwrap(),
             pt2.unwrap(),
             pl_b.last_pt(),
             pl_a.last_pt(),
-        ])
+        ]))
     } else {
         Warn::warn(
-            vec![pl_a.last_pt(), pl_b.last_pt()],
+            vec![pl_a.last_pt(), pl_b.last_pt(), pl_a.last_pt()],
             format!(
             "{} is a dead-end for {}, which is too short to make degenerate intersection geometry",
             i, id
         ),
         )
     }
+}
+
+fn close_off_polygon(mut pts: Vec<Pt2D>) -> Vec<Pt2D> {
+    if pts.last().unwrap().approx_eq(pts[0], Distance::meters(0.1)) {
+        pts.pop();
+    }
+    pts.push(pts[0]);
+    pts
 }

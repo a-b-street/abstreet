@@ -1,7 +1,8 @@
 #!/bin/bash
 
-before=$1;
-after=$2;
+name=$1;
+before=../data/screenshots/pending_$name;
+after=../data/screenshots/$name;
 
 rm -rf diff
 mkdir diff
@@ -14,12 +15,10 @@ for file in `ls $before | grep -v full.png | grep -v combine.sh | grep -v MANIFE
 	diff $before/${prefix}* $after/${prefix}*;
 	if [ $? -eq 1 ]; then
 		compare $before/${prefix}* $after/${prefix}* diff/${prefix}.png;
-		if [ "$3" == "-i" ]; then
-			feh diff/${prefix}.png $before/${prefix}* $after/${prefix}*;
-			# Handle interrupts by killing the script entirely
-			if [ $? -ne 0 ]; then
-				exit;
-			fi
+		feh diff/${prefix}.png $before/${prefix}* $after/${prefix}*;
+		# Handle interrupts by killing the script entirely
+		if [ $? -ne 0 ]; then
+			exit;
 		fi
 	fi
 done

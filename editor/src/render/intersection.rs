@@ -11,7 +11,6 @@ use ordered_float::NotNan;
 
 pub struct DrawIntersection {
     pub id: IntersectionID,
-    pub polygon: Polygon,
     pub crosswalks: Vec<DrawCrosswalk>,
     intersection_type: IntersectionType,
     zorder: isize,
@@ -67,7 +66,6 @@ impl DrawIntersection {
 
         DrawIntersection {
             id: i.id,
-            polygon: i.polygon.clone(),
             crosswalks: calculate_crosswalks(i.id, map, prerender, cs),
             intersection_type: i.intersection_type,
             zorder: i.get_zorder(map),
@@ -92,7 +90,7 @@ impl Renderable for DrawIntersection {
     fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, ctx: &DrawCtx) {
         if let Some(color) = opts.color(self.get_id()) {
             // Don't draw the sidewalk corners
-            g.draw_polygon(color, &self.polygon);
+            g.draw_polygon(color, &ctx.map.get_i(self.id).polygon);
         } else {
             g.redraw(&self.draw_default);
 
@@ -108,12 +106,15 @@ impl Renderable for DrawIntersection {
         }
     }
 
-    fn get_outline(&self, _: &Map) -> Polygon {
-        PolyLine::make_polygons_for_boundary(self.polygon.points().clone(), OUTLINE_THICKNESS)
+    fn get_outline(&self, map: &Map) -> Polygon {
+        PolyLine::make_polygons_for_boundary(
+            map.get_i(self.id).polygon.points().clone(),
+            OUTLINE_THICKNESS,
+        )
     }
 
-    fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {
-        self.polygon.contains_pt(pt)
+    fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool {
+        map.get_i(self.id).polygon.contains_pt(pt)
     }
 
     fn get_zorder(&self) -> isize {
