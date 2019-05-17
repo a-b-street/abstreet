@@ -27,7 +27,8 @@ impl DrawIntersection {
         timer: &mut Timer,
     ) -> DrawIntersection {
         // Order matters... main polygon first, then sidewalk corners.
-        let mut default_geom = vec![(
+        let mut default_geom = GeomBatch::new();
+        default_geom.push(
             match i.intersection_type {
                 IntersectionType::Border => {
                     cs.get_def("border intersection", Color::rgb(50, 205, 50))
@@ -40,12 +41,8 @@ impl DrawIntersection {
                 }
             },
             i.polygon.clone(),
-        )];
-        default_geom.extend(
-            calculate_corners(i, map, timer)
-                .into_iter()
-                .map(|p| (cs.get("sidewalk"), p)),
         );
+        default_geom.extend(cs.get("sidewalk"), calculate_corners(i, map, timer));
         match i.intersection_type {
             IntersectionType::Border => {
                 if i.roads.len() != 1 {
@@ -53,13 +50,12 @@ impl DrawIntersection {
                 }
                 let r = map.get_r(*i.roads.iter().next().unwrap());
                 default_geom.extend(
-                    calculate_border_arrows(i, r, timer)
-                        .into_iter()
-                        .map(|p| (cs.get_def("incoming border node arrow", Color::PURPLE), p)),
+                    cs.get_def("incoming border node arrow", Color::PURPLE),
+                    calculate_border_arrows(i, r, timer),
                 );
             }
             IntersectionType::StopSign => {
-                default_geom.extend(calculate_stop_sign(map, cs, map.get_stop_sign(i.id)));
+                calculate_stop_sign(&mut default_geom, map, cs, map.get_stop_sign(i.id));
             }
             IntersectionType::TrafficSignal => {}
         }
@@ -498,14 +494,9 @@ fn calculate_border_arrows(i: &Intersection, r: &Road, timer: &mut Timer) -> Vec
     result
 }
 
-fn calculate_stop_sign(
-    map: &Map,
-    cs: &ColorScheme,
-    sign: &ControlStopSign,
-) -> Vec<(Color, Polygon)> {
+fn calculate_stop_sign(batch: &mut GeomBatch, map: &Map, cs: &ColorScheme, sign: &ControlStopSign) {
     let trim_back = Distance::meters(0.7);
 
-    let mut result = Vec::new();
     for (_, ss) in &sign.roads {
         if ss.enabled {
             let rightmost = &map.get_l(*ss.travel_lanes.last().unwrap()).lane_center_pts;
@@ -517,12 +508,12 @@ fn calculate_stop_sign(
                 .last_line()
                 .shift_right(1.0 * LANE_THICKNESS);
 
-            result.push((
+            batch.push(
                 cs.get_def("stop sign on side of road", Color::RED),
                 make_octagon(last_line.pt2(), Distance::meters(1.0), last_line.angle()),
-            ));
+            );
             // A little pole for it too!
-            result.push((
+            batch.push(
                 cs.get_def("stop sign pole", Color::grey(0.5)),
                 Line::new(
                     last_line
@@ -534,10 +525,9 @@ fn calculate_stop_sign(
                         .project_away(Distance::meters(0.9), last_line.angle().opposite()),
                 )
                 .make_polygons(Distance::meters(0.3)),
-            ));
+            );
         }
     }
-    result
 }
 
 // TODO A squished octagon would look better

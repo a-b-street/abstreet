@@ -135,11 +135,9 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn draw_polygons(&mut self, color: Color, polygons: &Vec<Polygon>) {
-        self.draw_polygon_batch(polygons.iter().map(|p| (color, p)).collect())
-    }
-
-    pub fn draw_polygon_batch(&mut self, list: Vec<(Color, &Polygon)>) {
-        let obj = self.prerender.upload_temporary(list);
+        let obj = self
+            .prerender
+            .upload_temporary(polygons.iter().map(|p| (color, p)).collect());
         self.redraw(&obj);
     }
 
@@ -284,7 +282,7 @@ impl<'a> GfxCtx<'a> {
 }
 
 pub struct GeomBatch {
-    list: Vec<(Color, Polygon)>,
+    pub(crate) list: Vec<(Color, Polygon)>,
 }
 
 impl GeomBatch {
@@ -304,6 +302,7 @@ impl GeomBatch {
 
     pub fn draw(self, g: &mut GfxCtx) {
         let refs = self.list.iter().map(|(color, p)| (*color, p)).collect();
-        g.draw_polygon_batch(refs);
+        let obj = g.prerender.upload_temporary(refs);
+        g.redraw(&obj);
     }
 }

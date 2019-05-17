@@ -1,6 +1,6 @@
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
-use ezgui::{Color, GfxCtx};
+use ezgui::{Color, GeomBatch, GfxCtx};
 use geom::{Distance, Line, PolyLine, Polygon, Pt2D};
 use map_model::{Building, BuildingID, BuildingType, Map, LANE_THICKNESS};
 
@@ -9,7 +9,7 @@ pub struct DrawBuilding {
 }
 
 impl DrawBuilding {
-    pub fn new(bldg: &Building, cs: &ColorScheme) -> (DrawBuilding, Vec<(Color, Polygon)>) {
+    pub fn new(bldg: &Building, cs: &ColorScheme, batch: &mut GeomBatch) -> DrawBuilding {
         // Trim the front path line away from the sidewalk's center line, so that it doesn't
         // overlap. For now, this cleanup is visual; it doesn't belong in the map_model layer.
         let mut front_path_line = bldg.front_path.line.clone();
@@ -23,25 +23,21 @@ impl DrawBuilding {
         }
         let front_path = front_path_line.make_polygons(Distance::meters(1.0));
 
-        let default_draw = vec![
-            (
-                match bldg.building_type {
-                    BuildingType::Residence => {
-                        cs.get_def("residential building", Color::rgb(218, 165, 32))
-                    }
-                    BuildingType::Business => {
-                        cs.get_def("business building", Color::rgb(210, 105, 30))
-                    }
-                    BuildingType::Unknown => {
-                        cs.get_def("unknown building", Color::rgb_f(0.7, 0.7, 0.7))
-                    }
-                },
-                bldg.polygon.clone(),
-            ),
-            (cs.get_def("building path", Color::grey(0.6)), front_path),
-        ];
+        batch.push(
+            match bldg.building_type {
+                BuildingType::Residence => {
+                    cs.get_def("residential building", Color::rgb(218, 165, 32))
+                }
+                BuildingType::Business => cs.get_def("business building", Color::rgb(210, 105, 30)),
+                BuildingType::Unknown => {
+                    cs.get_def("unknown building", Color::rgb_f(0.7, 0.7, 0.7))
+                }
+            },
+            bldg.polygon.clone(),
+        );
+        batch.push(cs.get_def("building path", Color::grey(0.6)), front_path);
 
-        (DrawBuilding { id: bldg.id }, default_draw)
+        DrawBuilding { id: bldg.id }
     }
 }
 

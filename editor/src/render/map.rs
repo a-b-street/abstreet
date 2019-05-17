@@ -11,8 +11,8 @@ use crate::render::Renderable;
 use crate::ui::Flags;
 use aabb_quadtree::QuadTree;
 use abstutil::Timer;
-use ezgui::{Color, Drawable, Prerender};
-use geom::{Bounds, Duration, FindClosest, Polygon};
+use ezgui::{Color, Drawable, GeomBatch, Prerender};
+use geom::{Bounds, Duration, FindClosest};
 use map_model::{
     AreaID, BuildingID, BusStopID, DirectedRoadID, IntersectionID, IntersectionType, Lane, LaneID,
     Map, RoadID, Traversable, Turn, TurnID, TurnType, LANE_THICKNESS,
@@ -52,19 +52,19 @@ impl DrawMap {
         timer: &mut Timer,
     ) -> DrawMap {
         let mut roads: Vec<DrawRoad> = Vec::new();
-        let mut all_roads: Vec<(Color, Polygon)> = Vec::new();
+        let mut all_roads = GeomBatch::new();
         timer.start_iter("make DrawRoads", map.all_roads().len());
         for r in map.all_roads() {
             timer.next();
             let draw_r = DrawRoad::new(r, cs, prerender);
-            all_roads.push((
+            all_roads.push(
                 osm_rank_to_color(cs, r.get_rank()),
                 r.get_thick_polygon().get(timer),
-            ));
-            all_roads.push((
+            );
+            all_roads.push(
                 cs.get_def("unzoomed outline", Color::BLACK),
                 draw_r.get_outline(map),
-            ));
+            );
             roads.push(draw_r);
         }
         let draw_all_thick_roads = prerender.upload(all_roads);
@@ -100,32 +100,30 @@ impl DrawMap {
         }
 
         let mut intersections: Vec<DrawIntersection> = Vec::new();
-        let mut all_intersections: Vec<(Color, Polygon)> = Vec::new();
+        let mut all_intersections = GeomBatch::new();
         timer.start_iter("make DrawIntersections", map.all_intersections().len());
         for i in map.all_intersections() {
             timer.next();
             let draw_i = DrawIntersection::new(i, map, cs, prerender, timer);
             if i.intersection_type == IntersectionType::StopSign {
-                all_intersections.push((osm_rank_to_color(cs, i.get_rank(map)), i.polygon.clone()));
-                all_intersections.push((cs.get("unzoomed outline"), draw_i.get_outline(map)));
+                all_intersections.push(osm_rank_to_color(cs, i.get_rank(map)), i.polygon.clone());
+                all_intersections.push(cs.get("unzoomed outline"), draw_i.get_outline(map));
             } else {
-                all_intersections.push((
+                all_intersections.push(
                     cs.get_def("unzoomed interesting intersection", Color::BLACK),
                     i.polygon.clone(),
-                ));
+                );
             }
             intersections.push(draw_i);
         }
         let draw_all_unzoomed_intersections = prerender.upload(all_intersections);
 
         let mut buildings: Vec<DrawBuilding> = Vec::new();
-        let mut all_buildings: Vec<(Color, Polygon)> = Vec::new();
+        let mut all_buildings = GeomBatch::new();
         timer.start_iter("make DrawBuildings", map.all_buildings().len());
         for b in map.all_buildings() {
             timer.next();
-            let (b, draw) = DrawBuilding::new(b, cs);
-            buildings.push(b);
-            all_buildings.extend(draw);
+            buildings.push(DrawBuilding::new(b, cs, &mut all_buildings));
         }
         let draw_all_buildings = prerender.upload(all_buildings);
 
@@ -169,13 +167,11 @@ impl DrawMap {
         }
 
         let mut areas: Vec<DrawArea> = Vec::new();
-        let mut all_areas: Vec<(Color, Polygon)> = Vec::new();
+        let mut all_areas = GeomBatch::new();
         timer.start_iter("make DrawAreas", map.all_areas().len());
         for a in map.all_areas() {
             timer.next();
-            let (draw, color, poly) = DrawArea::new(a, cs);
-            areas.push(draw);
-            all_areas.push((color, poly));
+            areas.push(DrawArea::new(a, cs, &mut all_areas));
         }
         let draw_all_areas = prerender.upload(all_areas);
 

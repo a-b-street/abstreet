@@ -1,6 +1,8 @@
 use crate::input::ContextMenu;
 use crate::text::FONT_SIZE;
-use crate::{Canvas, Color, GfxCtx, HorizontalAlignment, Text, UserInput, VerticalAlignment};
+use crate::{
+    Canvas, Color, GeomBatch, GfxCtx, HorizontalAlignment, Text, UserInput, VerticalAlignment,
+};
 use abstutil::{elapsed_seconds, Timer, TimerSink};
 use geom::Polygon;
 use glium::implement_vertex;
@@ -41,8 +43,8 @@ impl<'a> Prerender<'a> {
         self.actually_upload(true, list)
     }
 
-    pub fn upload(&self, list: Vec<(Color, Polygon)>) -> Drawable {
-        let borrows = list.iter().map(|(c, p)| (*c, p)).collect();
+    pub fn upload(&self, batch: GeomBatch) -> Drawable {
+        let borrows = batch.list.iter().map(|(c, p)| (*c, p)).collect();
         self.actually_upload(true, borrows)
     }
 

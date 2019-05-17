@@ -1,6 +1,6 @@
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{DrawCtx, DrawOptions, Renderable, BIG_ARROW_THICKNESS, OUTLINE_THICKNESS};
-use ezgui::{Color, Drawable, GfxCtx, Prerender};
+use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
 use geom::{Polygon, Pt2D};
 use map_model::{Map, Road, RoadID};
 
@@ -13,13 +13,15 @@ pub struct DrawRoad {
 
 impl DrawRoad {
     pub fn new(r: &Road, cs: &ColorScheme, prerender: &Prerender) -> DrawRoad {
+        let mut draw = GeomBatch::new();
+        draw.push(
+            cs.get_def("road center line", Color::YELLOW),
+            r.center_pts.make_polygons(BIG_ARROW_THICKNESS),
+        );
         DrawRoad {
             id: r.id,
             zorder: r.get_zorder(),
-            draw_center_line: prerender.upload(vec![(
-                cs.get_def("road center line", Color::YELLOW),
-                r.center_pts.make_polygons(BIG_ARROW_THICKNESS),
-            )]),
+            draw_center_line: prerender.upload(draw),
         }
     }
 }

@@ -1,6 +1,6 @@
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{DrawCtx, DrawOptions, Renderable};
-use ezgui::{Color, Drawable, GfxCtx, Prerender};
+use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
 use geom::{Circle, Distance, Line, PolyLine, Polygon};
 use map_model::{Map, LANE_THICKNESS};
 use sim::{CarID, CarStatus, DrawCarInput};
@@ -21,7 +21,7 @@ impl DrawBike {
         prerender: &Prerender,
         cs: &ColorScheme,
     ) -> DrawBike {
-        let mut draw_default = Vec::new();
+        let mut draw_default = GeomBatch::new();
 
         // TODO Share constants with DrawPedestrian
         let body_radius = LANE_THICKNESS / 4.0;
@@ -33,48 +33,48 @@ impl DrawBike {
             CarStatus::Stuck => cs.get_def("stuck bike", Color::RED),
             CarStatus::Parked => panic!("Can't have a parked bike {}", input.id),
         };
-        draw_default.push((
+        draw_default.push(
             cs.get_def("bike frame", Color::rgb(0, 128, 128)),
             input.body.make_polygons(Distance::meters(0.4)),
-        ));
+        );
 
         let (body_pos, facing) = input.body.dist_along(0.4 * input.body.length());
         let body_circle = Circle::new(body_pos, body_radius);
-        draw_default.push((body_color, body_circle.to_polygon()));
-        draw_default.push((
+        draw_default.push(body_color, body_circle.to_polygon());
+        draw_default.push(
             cs.get("pedestrian head"),
             Circle::new(body_pos, 0.5 * body_radius).to_polygon(),
-        ));
+        );
 
         {
             // Handlebars
             let (hand_pos, hand_angle) = input.body.dist_along(0.9 * input.body.length());
-            draw_default.push((
+            draw_default.push(
                 cs.get("bike frame"),
                 Line::new(
                     hand_pos.project_away(body_radius, hand_angle.rotate_degs(90.0)),
                     hand_pos.project_away(body_radius, hand_angle.rotate_degs(-90.0)),
                 )
                 .make_polygons(Distance::meters(0.1)),
-            ));
+            );
 
             // Hands
-            draw_default.push((
+            draw_default.push(
                 body_color,
                 Line::new(
                     body_pos.project_away(0.9 * body_radius, facing.rotate_degs(-30.0)),
                     hand_pos.project_away(0.4 * body_radius, hand_angle.rotate_degs(-90.0)),
                 )
                 .make_polygons(Distance::meters(0.08)),
-            ));
-            draw_default.push((
+            );
+            draw_default.push(
                 body_color,
                 Line::new(
                     body_pos.project_away(0.9 * body_radius, facing.rotate_degs(30.0)),
                     hand_pos.project_away(0.4 * body_radius, hand_angle.rotate_degs(90.0)),
                 )
                 .make_polygons(Distance::meters(0.08)),
-            ));
+            );
         }
 
         if let Some(t) = input.waiting_for_turn {
@@ -86,7 +86,7 @@ impl DrawBike {
             .make_arrow(Distance::meters(0.25))
             .unwrap()
             {
-                draw_default.push((cs.get("blinker on"), poly));
+                draw_default.push(cs.get("blinker on"), poly);
             }
         }
 

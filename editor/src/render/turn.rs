@@ -120,7 +120,7 @@ impl DrawCrosswalk {
             Line::new(pts[1], pts[2])
         };
 
-        let mut draw = Vec::new();
+        let mut draw = GeomBatch::new();
         let available_length = line.length() - (boundary * 2.0);
         if available_length > Distance::ZERO {
             let num_markings = (available_length / tile_every).floor() as usize;
@@ -131,11 +131,11 @@ impl DrawCrosswalk {
                 let pt1 = line.dist_along(dist_along);
                 // Reuse perp_line. Project away an arbitrary amount
                 let pt2 = pt1.project_away(Distance::meters(1.0), turn.angle());
-                draw.push((
+                draw.push(
                     cs.get_def("crosswalk", Color::WHITE),
                     perp_line(Line::new(pt1, pt2), LANE_THICKNESS)
                         .make_polygons(CROSSWALK_LINE_THICKNESS),
-                ));
+                );
                 dist_along += tile_every;
             }
         }

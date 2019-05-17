@@ -1,6 +1,6 @@
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{DrawCtx, DrawOptions, Renderable};
-use ezgui::{Color, Drawable, GfxCtx, Prerender};
+use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
 use geom::{Circle, Distance, PolyLine, Polygon};
 use map_model::{Map, LANE_THICKNESS};
 use sim::{DrawPedestrianInput, PedestrianID};
@@ -27,7 +27,7 @@ impl DrawPedestrian {
         // - front paths are too skinny
         let radius = LANE_THICKNESS / 4.0;
 
-        let mut draw_default = Vec::new();
+        let mut draw_default = GeomBatch::new();
 
         let foot_radius = 0.2 * radius;
         let left_foot = Circle::new(
@@ -47,11 +47,11 @@ impl DrawPedestrian {
         let jitter = input.id.0 % 2 == 0;
         let remainder = step_count % 6;
         if input.waiting_for_turn.is_some() {
-            draw_default.push((foot_color, left_foot.to_polygon()));
-            draw_default.push((foot_color, right_foot.to_polygon()));
+            draw_default.push(foot_color, left_foot.to_polygon());
+            draw_default.push(foot_color, right_foot.to_polygon());
         } else if jitter == (remainder < 3) {
-            draw_default.push((foot_color, left_foot.to_polygon()));
-            draw_default.push((
+            draw_default.push(foot_color, left_foot.to_polygon());
+            draw_default.push(
                 foot_color,
                 Circle::new(
                     input
@@ -60,10 +60,10 @@ impl DrawPedestrian {
                     foot_radius,
                 )
                 .to_polygon(),
-            ));
+            );
         } else {
-            draw_default.push((foot_color, right_foot.to_polygon()));
-            draw_default.push((
+            draw_default.push(foot_color, right_foot.to_polygon());
+            draw_default.push(
                 foot_color,
                 Circle::new(
                     input
@@ -72,7 +72,7 @@ impl DrawPedestrian {
                     foot_radius,
                 )
                 .to_polygon(),
-            ));
+            );
         };
 
         let body_circle = Circle::new(input.pos, radius);
@@ -85,11 +85,11 @@ impl DrawPedestrian {
                 .shift(input.id.0)
         };
         // TODO Arms would look fabulous.
-        draw_default.push((body_color, body_circle.to_polygon()));
-        draw_default.push((
+        draw_default.push(body_color, body_circle.to_polygon());
+        draw_default.push(
             cs.get_def("pedestrian head", Color::rgb(139, 69, 19)),
             head_circle.to_polygon(),
-        ));
+        );
 
         if let Some(t) = input.waiting_for_turn {
             // A silly idea for peds... use hands to point at their turn?
@@ -101,7 +101,7 @@ impl DrawPedestrian {
             .make_arrow(Distance::meters(0.25))
             .unwrap()
             {
-                draw_default.push((cs.get("blinker on"), poly));
+                draw_default.push(cs.get("blinker on"), poly);
             }
         }
 

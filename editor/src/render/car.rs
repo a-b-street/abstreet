@@ -1,6 +1,6 @@
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
-use ezgui::{Color, Drawable, GfxCtx, Prerender};
+use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
 use geom::{Angle, Circle, Distance, PolyLine, Polygon, Pt2D};
 use map_model::{Map, TurnType};
 use sim::{CarID, CarStatus, DrawCarInput};
@@ -18,10 +18,10 @@ pub struct DrawCar {
 
 impl DrawCar {
     pub fn new(input: DrawCarInput, map: &Map, prerender: &Prerender, cs: &ColorScheme) -> DrawCar {
-        let mut draw_default = Vec::new();
+        let mut draw_default = GeomBatch::new();
 
         let body_polygon = input.body.make_polygons(CAR_WIDTH);
-        draw_default.push((
+        draw_default.push(
             // TODO if it's a bus, color it differently -- but how? :\
             // TODO color.shift(input.id.0) actually looks pretty bad still
             match input.status {
@@ -31,7 +31,7 @@ impl DrawCar {
                 CarStatus::Parked => cs.get_def("parked car", Color::rgb(180, 233, 76)),
             },
             body_polygon.clone(),
-        ));
+        );
 
         {
             let window_length_gap = Distance::meters(0.2);
@@ -62,8 +62,8 @@ impl DrawCar {
                     angle.rotate_degs(90.0),
                 )
             };
-            draw_default.push((cs.get_def("car window", Color::BLACK), front_window));
-            draw_default.push((cs.get("car window"), back_window));
+            draw_default.push(cs.get_def("car window", Color::BLACK), front_window);
+            draw_default.push(cs.get("car window"), back_window);
         }
 
         {
@@ -95,7 +95,7 @@ impl DrawCar {
 
             let bg_color = cs.get_def("blinker background", Color::grey(0.2));
             for c in vec![&front_left, &front_right, &back_left, &back_right] {
-                draw_default.push((bg_color, c.to_polygon()));
+                draw_default.push(bg_color, c.to_polygon());
             }
 
             let arrow_color = cs.get_def("blinker on", Color::RED);
@@ -105,33 +105,33 @@ impl DrawCar {
                 match turn.turn_type {
                     TurnType::Left | TurnType::LaneChangeLeft => {
                         for circle in vec![front_left, back_left] {
-                            for poly in PolyLine::new(vec![
-                                circle.center.project_away(radius / 2.0, angle.opposite()),
-                                circle.center.project_away(radius / 2.0, angle),
-                            ])
-                            .make_arrow(Distance::meters(0.15))
-                            .unwrap()
-                            {
-                                draw_default.push((arrow_color, poly));
-                            }
+                            draw_default.extend(
+                                arrow_color,
+                                PolyLine::new(vec![
+                                    circle.center.project_away(radius / 2.0, angle.opposite()),
+                                    circle.center.project_away(radius / 2.0, angle),
+                                ])
+                                .make_arrow(Distance::meters(0.15))
+                                .unwrap(),
+                            );
                         }
                     }
                     TurnType::Right | TurnType::LaneChangeRight => {
                         for circle in vec![front_right, back_right] {
-                            for poly in PolyLine::new(vec![
-                                circle.center.project_away(radius / 2.0, angle.opposite()),
-                                circle.center.project_away(radius / 2.0, angle),
-                            ])
-                            .make_arrow(Distance::meters(0.15))
-                            .unwrap()
-                            {
-                                draw_default.push((arrow_color, poly));
-                            }
+                            draw_default.extend(
+                                arrow_color,
+                                PolyLine::new(vec![
+                                    circle.center.project_away(radius / 2.0, angle.opposite()),
+                                    circle.center.project_away(radius / 2.0, angle),
+                                ])
+                                .make_arrow(Distance::meters(0.15))
+                                .unwrap(),
+                            );
                         }
                     }
                     TurnType::Straight => {
-                        draw_default.push((arrow_color, back_left.to_polygon()));
-                        draw_default.push((arrow_color, back_right.to_polygon()));
+                        draw_default.push(arrow_color, back_left.to_polygon());
+                        draw_default.push(arrow_color, back_right.to_polygon());
                     }
                     TurnType::Crosswalk | TurnType::SharedSidewalkCorner => unreachable!(),
                 }
