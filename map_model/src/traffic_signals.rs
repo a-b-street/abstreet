@@ -18,6 +18,8 @@ impl ControlTrafficSignal {
             ts
         } else if let Some(ts) = ControlTrafficSignal::three_way(map, id) {
             ts
+        } else if let Some(ts) = ControlTrafficSignal::degenerate(map, id) {
+            ts
         } else {
             ControlTrafficSignal::greedy_assignment(map, id).get(timer)
         }
@@ -127,6 +129,36 @@ impl ControlTrafficSignal {
         // This must succeed
         ts.validate(map).unwrap();
         Warn::ok(ts)
+    }
+
+    pub fn degenerate(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
+        if map.get_i(i).roads.len() != 2 {
+            return None;
+        }
+
+        let mut roads = map.get_i(i).roads.iter();
+        let r1 = *roads.next().unwrap();
+        let r2 = *roads.next().unwrap();
+        // TODO One-ways downtown should also have crosswalks.
+        let has_crosswalks = !map.get_r(r1).children_backwards.is_empty()
+            || !map.get_r(r2).children_backwards.is_empty();
+        let mut phases = vec![vec![
+            (vec![r1, r2], TurnType::Straight, PROTECTED),
+            (vec![r1, r2], TurnType::LaneChangeLeft, YIELD),
+            (vec![r1, r2], TurnType::LaneChangeRight, YIELD),
+        ]];
+        if has_crosswalks {
+            phases.push(vec![(vec![r1, r2], TurnType::Crosswalk, PROTECTED)]);
+        }
+
+        let cycles = make_cycles(map, i, phases);
+
+        let ts = ControlTrafficSignal { id: i, cycles };
+        if ts.validate(map).is_ok() {
+            Some(ts)
+        } else {
+            None
+        }
     }
 
     pub fn three_way(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {

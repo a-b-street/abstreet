@@ -106,6 +106,7 @@ impl TrafficSignalEditor {
             ) {
                 signal = new_signal;
                 changed = true;
+                self.current_cycle = 0;
                 self.preset_wizard = None;
             } else if self.preset_wizard.as_ref().unwrap().aborted() {
                 self.preset_wizard = None;
@@ -311,6 +312,9 @@ fn choose_preset(
     }
     if let Some(ts) = ControlTrafficSignal::three_way(map, id) {
         choices.push((None, "three-phase".to_string(), ts));
+    }
+    if let Some(ts) = ControlTrafficSignal::degenerate(map, id) {
+        choices.push((None, "degenerate (2 roads)".to_string(), ts));
     }
     choices.push((
         None,
