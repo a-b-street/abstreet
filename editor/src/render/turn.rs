@@ -3,7 +3,7 @@ use crate::render::{
     BIG_ARROW_THICKNESS, CROSSWALK_LINE_THICKNESS, TURN_ICON_ARROW_LENGTH,
     TURN_ICON_ARROW_THICKNESS,
 };
-use ezgui::{Color, Drawable, GfxCtx, Prerender};
+use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
 use geom::{Circle, Distance, Line};
 use map_model::{Map, Turn, TurnID, LANE_THICKNESS};
 
@@ -37,11 +37,14 @@ impl DrawTurn {
         }
     }
 
+    pub fn full_geom(t: &Turn, batch: &mut GeomBatch, color: Color) {
+        batch.extend(color, t.geom.make_arrow(BIG_ARROW_THICKNESS * 2.0).unwrap());
+    }
+
     pub fn draw_full(t: &Turn, g: &mut GfxCtx, color: Color) {
-        g.draw_polygons(
-            color,
-            &t.geom.make_arrow(BIG_ARROW_THICKNESS * 2.0).unwrap(),
-        );
+        let mut batch = GeomBatch::new();
+        DrawTurn::full_geom(t, &mut batch, color);
+        batch.draw(g);
 
         // For debugging
         /*for pt in t.geom.points() {
@@ -67,11 +70,10 @@ impl DrawTurn {
         g.draw_arrow(color, BIG_ARROW_THICKNESS, &arrow_line);
     }
 
-    pub fn draw_outline(turn: &Turn, g: &mut GfxCtx, color: Color) {
-        g.draw_polygons(
+    pub fn outline_geom(turn: &Turn, batch: &mut GeomBatch, color: Color) {
+        batch.extend(
             color,
-            &turn
-                .geom
+            turn.geom
                 .make_arrow_outline(BIG_ARROW_THICKNESS * 2.0, BIG_ARROW_THICKNESS / 2.0)
                 .unwrap(),
         );

@@ -154,6 +154,8 @@ impl<'a> GfxCtx<'a> {
             )
             .unwrap();
         self.num_draw_calls += 1;
+
+        // println!("{:?}", backtrace::Backtrace::new());
     }
 
     pub fn enable_hatching(&mut self) {
@@ -278,5 +280,30 @@ impl<'a> GfxCtx<'a> {
             }
             _ => Vec::new(),
         }
+    }
+}
+
+pub struct GeomBatch {
+    list: Vec<(Color, Polygon)>,
+}
+
+impl GeomBatch {
+    pub fn new() -> GeomBatch {
+        GeomBatch { list: Vec::new() }
+    }
+
+    pub fn push(&mut self, color: Color, p: Polygon) {
+        self.list.push((color, p));
+    }
+
+    pub fn extend(&mut self, color: Color, polys: Vec<Polygon>) {
+        for p in polys {
+            self.list.push((color, p));
+        }
+    }
+
+    pub fn draw(self, g: &mut GfxCtx) {
+        let refs = self.list.iter().map(|(color, p)| (*color, p)).collect();
+        g.draw_polygon_batch(refs);
     }
 }

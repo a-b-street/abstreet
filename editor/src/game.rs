@@ -110,6 +110,7 @@ impl GUI for GameState {
     fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode {
         match self.mode {
             Mode::SplashScreen(ref mut wizard, ref mut maybe_screensaver) => {
+                let anim = maybe_screensaver.is_some();
                 if let Some((ref mut screensaver, ref mut rng)) = maybe_screensaver {
                     screensaver.update(rng, ctx.input, ctx.canvas, &self.ui.primary.map);
                 }
@@ -121,7 +122,11 @@ impl GUI for GameState {
                     self.before_quit(ctx.canvas);
                     std::process::exit(0);
                 }
-                EventLoopMode::Animation
+                if anim {
+                    EventLoopMode::Animation
+                } else {
+                    EventLoopMode::InputOnly
+                }
             }
             Mode::Edit(_) => EditMode::event(self, ctx),
             Mode::Tutorial(_) => TutorialMode::event(self, ctx),
@@ -150,6 +155,11 @@ impl GUI for GameState {
             Mode::Mission(_) => MissionEditMode::draw(self, g),
             Mode::ABTest(_) => ABTestMode::draw(self, g),
         }
+        /*println!(
+            "{} uploads, {} draw calls",
+            g.get_num_uploads(),
+            g.num_draw_calls
+        );*/
     }
 
     fn dump_before_abort(&self, canvas: &Canvas) {

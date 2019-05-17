@@ -1,7 +1,7 @@
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{DrawCrosswalk, DrawCtx, DrawOptions, DrawTurn, Renderable, OUTLINE_THICKNESS};
 use abstutil::Timer;
-use ezgui::{Color, Drawable, GfxCtx, Prerender, ScreenPt, Text};
+use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender, ScreenPt, Text};
 use geom::{Angle, Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D};
 use map_model::{
     ControlStopSign, Cycle, Intersection, IntersectionID, IntersectionType, Map, Road,
@@ -216,10 +216,13 @@ pub fn draw_signal_cycle(
             crosswalk.draw(g);
         }
     }
+
+    let mut batch = GeomBatch::new();
+
     for t in &cycle.priority_turns {
         let turn = ctx.map.get_t(*t);
         if !turn.between_sidewalks() {
-            DrawTurn::draw_full(turn, g, priority_color);
+            DrawTurn::full_geom(turn, &mut batch, priority_color);
         }
     }
     for t in &cycle.yield_turns {
@@ -229,11 +232,12 @@ pub fn draw_signal_cycle(
             && turn.turn_type != TurnType::LaneChangeLeft
             && turn.turn_type != TurnType::LaneChangeRight
         {
-            DrawTurn::draw_outline(turn, g, yield_color);
+            DrawTurn::outline_geom(turn, &mut batch, yield_color);
         }
     }
 
     if time_left.is_none() {
+        batch.draw(g);
         return;
     }
 
@@ -245,23 +249,24 @@ pub fn draw_signal_cycle(
     let top_left = center.offset(-box_width / 2.0, -box_height / 2.0);
     let percent = time_left.unwrap() / cycle.duration;
     // TODO Tune colors.
-    g.draw_polygon(
+    batch.push(
         ctx.cs.get_def("traffic signal box", Color::grey(0.2)),
-        &Polygon::rectangle_topleft(top_left, box_width, box_height),
+        Polygon::rectangle_topleft(top_left, box_width, box_height),
     );
-    g.draw_circle(
+    batch.push(
         Color::RED,
-        &Circle::new(center.offset(0.0, (-2.0 * radius).inner_meters()), radius),
+        Circle::new(center.offset(0.0, (-2.0 * radius).inner_meters()), radius).to_polygon(),
     );
-    g.draw_circle(Color::grey(0.4), &Circle::new(center, radius));
-    g.draw_polygon(
+    batch.push(Color::grey(0.4), Circle::new(center, radius).to_polygon());
+    batch.push(
         Color::YELLOW,
-        &Circle::new(center, radius).to_partial_polygon(percent),
+        Circle::new(center, radius).to_partial_polygon(percent),
     );
-    g.draw_circle(
+    batch.push(
         Color::GREEN,
-        &Circle::new(center.offset(0.0, (2.0 * radius).inner_meters()), radius),
+        Circle::new(center.offset(0.0, (2.0 * radius).inner_meters()), radius).to_polygon(),
     );
+    batch.draw(g);
 }
 
 fn draw_signal_cycle_with_icons(cycle: &Cycle, g: &mut GfxCtx, ctx: &DrawCtx) {
