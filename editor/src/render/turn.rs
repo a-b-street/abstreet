@@ -52,12 +52,13 @@ impl DrawTurn {
         }*/
     }
 
-    pub fn draw_dashed(turn: &Turn, g: &mut GfxCtx, color: Color) {
+    pub fn draw_dashed(turn: &Turn, batch: &mut GeomBatch, color: Color) {
         let dash_len = Distance::meters(1.0);
-        let dashed =
+        batch.extend(
+            color,
             turn.geom
-                .dashed_polygons(BIG_ARROW_THICKNESS, dash_len, Distance::meters(0.5));
-        g.draw_polygons(color, &dashed);
+                .dashed_polygons(BIG_ARROW_THICKNESS, dash_len, Distance::meters(0.5)),
+        );
         // And a cap on the arrow. In case the last line is long, trim it to be the dash
         // length.
         let last_line = turn.geom.last_line();
@@ -67,7 +68,13 @@ impl DrawTurn {
         } else {
             Line::new(last_line.dist_along(last_len - dash_len), last_line.pt2())
         };
-        g.draw_arrow(color, BIG_ARROW_THICKNESS, &arrow_line);
+        batch.extend(
+            color,
+            arrow_line
+                .to_polyline()
+                .make_arrow(BIG_ARROW_THICKNESS)
+                .unwrap(),
+        );
     }
 
     pub fn outline_geom(turn: &Turn, batch: &mut GeomBatch, color: Color) {
@@ -79,13 +86,18 @@ impl DrawTurn {
         );
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, cs: &ColorScheme, arrow_color: Color) {
-        g.draw_circle(
+    pub fn draw_icon(&self, batch: &mut GeomBatch, cs: &ColorScheme, arrow_color: Color) {
+        batch.push(
             cs.get_def("turn icon circle", Color::grey(0.6)),
-            &self.icon_circle,
+            self.icon_circle.to_polygon(),
         );
-
-        g.draw_arrow(arrow_color, TURN_ICON_ARROW_THICKNESS, &self.icon_arrow);
+        batch.extend(
+            arrow_color,
+            self.icon_arrow
+                .to_polyline()
+                .make_arrow(TURN_ICON_ARROW_THICKNESS)
+                .unwrap(),
+        );
     }
 }
 

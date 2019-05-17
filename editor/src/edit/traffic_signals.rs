@@ -5,7 +5,7 @@ use crate::helpers::ID;
 use crate::render::{draw_signal_cycle, draw_signal_diagram, DrawCtx, DrawOptions, DrawTurn};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
-use ezgui::{Color, EventCtx, GfxCtx, Key, ModalMenu, ScreenPt, Wizard, WrappedWizard};
+use ezgui::{Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu, ScreenPt, Wizard, WrappedWizard};
 use geom::Duration;
 use map_model::{ControlTrafficSignal, Cycle, IntersectionID, Map, TurnID, TurnPriority, TurnType};
 
@@ -233,6 +233,7 @@ impl TrafficSignalEditor {
                 .draw(g, opts, &state.ui.primary.sim, &ShowEverything::new());
         }
 
+        let mut batch = GeomBatch::new();
         let ctx = DrawCtx {
             cs: &state.ui.cs,
             map: &state.ui.primary.map,
@@ -257,17 +258,18 @@ impl TrafficSignalEditor {
                     .get_def("turn not in current cycle", Color::BLACK),
                 TurnPriority::Stop => panic!("Can't have TurnPriority::Stop in a traffic signal"),
             };
-            t.draw(g, &ctx.cs, color);
+            t.draw_icon(&mut batch, &ctx.cs, color);
         }
         draw_signal_cycle(cycle, None, g, &ctx);
         if let Some(id) = self.icon_selected {
-            g.draw_polygon(
+            batch.push(
                 state.ui.cs.get("selected"),
                 // TODO thin ring
-                &state.ui.primary.draw_map.get_t(id).icon_circle.to_polygon(),
+                state.ui.primary.draw_map.get_t(id).icon_circle.to_polygon(),
             );
-            DrawTurn::draw_dashed(map.get_t(id), g, state.ui.cs.get("selected turn"));
+            DrawTurn::draw_dashed(map.get_t(id), &mut batch, state.ui.cs.get("selected turn"));
         }
+        batch.draw(g);
 
         draw_signal_diagram(
             self.i,

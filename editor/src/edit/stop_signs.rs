@@ -4,7 +4,7 @@ use crate::game::GameState;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, DrawTurn};
 use crate::ui::{ShowEverything, UI};
-use ezgui::{Color, EventCtx, GfxCtx, Key, ModalMenu, Text};
+use ezgui::{Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu, Text};
 use geom::{Angle, Distance, Polygon, Pt2D};
 use map_model::{IntersectionID, RoadID, TurnID, TurnPriority};
 use std::collections::HashMap;
@@ -139,9 +139,13 @@ impl StopSignEditor {
         let map = &state.ui.primary.map;
         let sign = map.get_stop_sign(self.id);
 
+        let mut batch = GeomBatch::new();
+
         for (r, octagon) in &self.octagons {
-            g.draw_polygon(
-                if sign.roads[r].enabled {
+            batch.push(
+                if Some(*r) == self.selected_sign {
+                    state.ui.cs.get("selected")
+                } else if sign.roads[r].enabled {
                     state.ui.cs.get_def("enabled stop sign octagon", Color::RED)
                 } else {
                     state
@@ -149,15 +153,8 @@ impl StopSignEditor {
                         .cs
                         .get_def("disabled stop sign octagon", Color::RED.alpha(0.2))
                 },
-                octagon,
+                octagon.clone(),
             );
-            if Some(*r) == self.selected_sign {
-                g.draw_polygon(
-                    state.ui.cs.get("selected"),
-                    // TODO Just the boundary?
-                    &self.octagons[r],
-                );
-            }
         }
 
         for t in &state.ui.primary.draw_map.get_turns(self.id, map) {
@@ -169,20 +166,21 @@ impl StopSignEditor {
                 TurnPriority::Stop => state.ui.cs.get_def("stop turn", Color::RED),
                 TurnPriority::Banned => state.ui.cs.get_def("banned turn", Color::BLACK),
             };
-            t.draw(g, &state.ui.cs, color);
+            t.draw_icon(&mut batch, &state.ui.cs, color);
         }
         if let Some(id) = self.selected_turn {
-            g.draw_polygon(
+            batch.push(
                 state.ui.cs.get("selected"),
                 // TODO thin ring
-                &state.ui.primary.draw_map.get_t(id).icon_circle.to_polygon(),
+                state.ui.primary.draw_map.get_t(id).icon_circle.to_polygon(),
             );
             DrawTurn::draw_dashed(
                 map.get_t(id),
-                g,
+                &mut batch,
                 state.ui.cs.get_def("selected turn", Color::RED),
             );
         }
+        batch.draw(g);
 
         self.menu.draw(g);
         if let Some(r) = self.selected_sign {
