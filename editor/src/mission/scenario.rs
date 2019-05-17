@@ -167,12 +167,12 @@ impl ScenarioEditor {
                     // TODO Draw text label in neighborhood, then src is left and dst is right
                     let src = mapping[&s.start_from_neighborhood]
                         .center
-                        .offset(-50.0, 0.0);
+                        .offset(Distance::meters(-50.0), Distance::ZERO);
                     let dst = match s.goal {
                         OriginDestination::Neighborhood(ref n) => mapping[n].center,
                         OriginDestination::Border(i) => ui.primary.map.get_i(i).point,
                     }
-                    .offset(50.0, 0.0);
+                    .offset(Distance::meters(50.0), Distance::ZERO);
                     // TODO Draw a self-loop or something
                     if src == dst {
                         continue;

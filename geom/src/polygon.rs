@@ -1,6 +1,5 @@
-use crate::{Bounds, HashablePt2D, Pt2D};
+use crate::{Bounds, Distance, HashablePt2D, Pt2D};
 use serde_derive::{Deserialize, Serialize};
-use std::f64;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Polygon {
@@ -114,7 +113,7 @@ impl Polygon {
         Bounds::from(&self.points)
     }
 
-    pub fn translate(&self, dx: f64, dy: f64) -> Polygon {
+    pub fn translate(&self, dx: Distance, dy: Distance) -> Polygon {
         Polygon {
             points: self.points.iter().map(|pt| pt.offset(dx, dy)).collect(),
             indices: self.indices.clone(),
@@ -133,17 +132,17 @@ impl Polygon {
         Pt2D::center(&pts.iter().map(|pt| Pt2D::from(*pt)).collect())
     }
 
-    pub fn rectangle(center: Pt2D, width: f64, height: f64) -> Polygon {
+    pub fn rectangle(center: Pt2D, width: Distance, height: Distance) -> Polygon {
         Polygon::rectangle_topleft(center.offset(-width / 2.0, -height / 2.0), width, height)
     }
 
-    pub fn rectangle_topleft(top_left: Pt2D, width: f64, height: f64) -> Polygon {
+    pub fn rectangle_topleft(top_left: Pt2D, width: Distance, height: Distance) -> Polygon {
         Polygon {
             points: vec![
                 top_left,
-                top_left.offset(width, 0.0),
+                top_left.offset(width, Distance::ZERO),
                 top_left.offset(width, height),
-                top_left.offset(0.0, height),
+                top_left.offset(Distance::ZERO, height),
             ],
             indices: vec![0, 1, 2, 2, 3, 0],
         }

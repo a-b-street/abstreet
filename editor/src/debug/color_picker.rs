@@ -2,7 +2,7 @@ use crate::ui::UI;
 use ezgui::{
     Canvas, Color, EventCtx, GfxCtx, InputResult, Key, ModalMenu, ScreenPt, ScrollingMenu,
 };
-use geom::Polygon;
+use geom::{Distance, Polygon};
 
 // TODO assumes minimum screen size
 const WIDTH: u32 = 255;
@@ -81,7 +81,11 @@ impl ColorPicker {
                         ));
                         g.draw_polygon(
                             color,
-                            &Polygon::rectangle_topleft(corner, TILE_DIMS, TILE_DIMS),
+                            &Polygon::rectangle_topleft(
+                                corner,
+                                Distance::meters(TILE_DIMS),
+                                Distance::meters(TILE_DIMS),
+                            ),
                         );
                     }
                 }

@@ -1,7 +1,7 @@
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::UI;
 use ezgui::{Color, EventCtx, GfxCtx, ModalMenu};
-use geom::{Bounds, Duration, Polygon, Pt2D};
+use geom::{Bounds, Distance, Duration, Polygon, Pt2D};
 use map_model::{RoadID, Traversable};
 use std::collections::HashMap;
 
@@ -120,8 +120,8 @@ impl Heatmap {
                             self.bounds.min_x + (x as f64) * tile_width,
                             self.bounds.min_y + (y as f64) * tile_height,
                         ),
-                        tile_width,
-                        tile_height,
+                        Distance::meters(tile_width),
+                        Distance::meters(tile_height),
                     ),
                 );
             }

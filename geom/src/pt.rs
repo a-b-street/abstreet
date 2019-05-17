@@ -115,8 +115,8 @@ impl Pt2D {
         Angle::new((to.y() - self.y()).atan2(to.x() - self.x()))
     }
 
-    pub fn offset(self, dx: f64, dy: f64) -> Pt2D {
-        Pt2D::new(self.x() + dx, self.y() + dy)
+    pub fn offset(self, dx: Distance, dy: Distance) -> Pt2D {
+        Pt2D::new(self.x() + dx.inner_meters(), self.y() + dy.inner_meters())
     }
 
     pub fn center(pts: &Vec<Pt2D>) -> Pt2D {

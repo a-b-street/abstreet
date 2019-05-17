@@ -1,6 +1,6 @@
 use crate::screen_geom::ScreenRectangle;
 use crate::{Canvas, Color, GfxCtx, ScreenPt};
-use geom::{Polygon, Pt2D};
+use geom::{Distance, Polygon, Pt2D};
 use glium_glyph::glyph_brush::rusttype::Scale;
 use glium_glyph::glyph_brush::GlyphCruncher;
 use glium_glyph::glyph_brush::{Section, SectionText, VariedSection};
@@ -180,8 +180,8 @@ pub fn draw_text_bubble(
             c,
             &Polygon::rectangle_topleft(
                 Pt2D::new(top_left.x, top_left.y),
-                total_width,
-                total_height,
+                Distance::meters(total_width),
+                Distance::meters(total_height),
             ),
         );
     }
@@ -210,7 +210,11 @@ pub fn draw_text_bubble(
         if let Some(c) = line_color {
             g.draw_polygon(
                 *c,
-                &Polygon::rectangle_topleft(Pt2D::new(top_left.x, y), total_width, height),
+                &Polygon::rectangle_topleft(
+                    Pt2D::new(top_left.x, y),
+                    Distance::meters(total_width),
+                    Distance::meters(height),
+                ),
             );
         }
 
@@ -244,7 +248,11 @@ pub fn draw_text_bubble_mapspace(
     if let Some(c) = txt.bg_color {
         g.draw_polygon(
             c,
-            &Polygon::rectangle_topleft(top_left, total_width, total_height),
+            &Polygon::rectangle_topleft(
+                top_left,
+                Distance::meters(total_width),
+                Distance::meters(total_height),
+            ),
         );
     }
 
@@ -277,8 +285,8 @@ pub fn draw_text_bubble_mapspace(
                 *c,
                 &Polygon::rectangle_topleft(
                     Pt2D::new(top_left.x(), top_left.y() + y),
-                    total_width,
-                    height,
+                    Distance::meters(total_width),
+                    Distance::meters(height),
                 ),
             );
         }

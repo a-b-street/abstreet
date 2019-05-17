@@ -242,10 +242,9 @@ pub fn draw_signal_cycle(
         return;
     }
 
-    // TODO argh, fix these types to use Distance
     let radius = Distance::meters(0.5);
-    let box_width = (2.5 * radius).inner_meters();
-    let box_height = (6.5 * radius).inner_meters();
+    let box_width = 2.5 * radius;
+    let box_height = 6.5 * radius;
     let center = ctx.map.get_i(cycle.parent).point;
     let top_left = center.offset(-box_width / 2.0, -box_height / 2.0);
     let percent = time_left.unwrap() / cycle.duration;
@@ -256,7 +255,7 @@ pub fn draw_signal_cycle(
     );
     batch.push(
         Color::RED,
-        Circle::new(center.offset(0.0, (-2.0 * radius).inner_meters()), radius).to_polygon(),
+        Circle::new(center.offset(Distance::ZERO, -2.0 * radius), radius).to_polygon(),
     );
     batch.push(Color::grey(0.4), Circle::new(center, radius).to_polygon());
     batch.push(
@@ -265,7 +264,7 @@ pub fn draw_signal_cycle(
     );
     batch.push(
         Color::GREEN,
-        Circle::new(center.offset(0.0, (2.0 * radius).inner_meters()), radius).to_polygon(),
+        Circle::new(center.offset(Distance::ZERO, 2.0 * radius), radius).to_polygon(),
     );
     batch.draw(g);
 }
@@ -404,8 +403,8 @@ pub fn draw_signal_diagram(
             .get_def("signal editor panel", Color::BLACK.alpha(0.95)),
         &Polygon::rectangle_topleft(
             Pt2D::new(x1_screen, y1_screen),
-            total_screen_width,
-            (padding + intersection_height) * (cycles.len() as f64) * zoom,
+            Distance::meters(total_screen_width),
+            Distance::meters((padding + intersection_height) * (cycles.len() as f64) * zoom),
         ),
     );
     g.draw_polygon(
@@ -418,8 +417,8 @@ pub fn draw_signal_diagram(
                 x1_screen,
                 y1_screen + (padding + intersection_height) * (current_cycle as f64) * zoom,
             ),
-            total_screen_width,
-            (padding + intersection_height) * zoom,
+            Distance::meters(total_screen_width),
+            Distance::meters((padding + intersection_height) * zoom),
         ),
     );
 
