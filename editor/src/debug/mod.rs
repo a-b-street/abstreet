@@ -10,13 +10,14 @@ use crate::game::{GameState, Mode};
 use crate::helpers::ID;
 use crate::render::DrawOptions;
 use crate::ui::{ShowLayers, ShowObject, UI};
+use abstutil::wraparound_get;
 use abstutil::Timer;
 use clipping::CPolygon;
 use ezgui::{
     Color, EventCtx, EventLoopMode, GfxCtx, InputResult, Key, ModalMenu, ScrollingMenu, Text,
     TextBox, Wizard,
 };
-use geom::{Polygon, Pt2D};
+use geom::{Distance, PolyLine, Polygon, Pt2D};
 use map_model::{IntersectionID, Map, RoadID};
 use std::collections::HashSet;
 
@@ -431,30 +432,82 @@ impl ShowObject for DebugMode {
 }
 
 fn recalc_intersection_geom(id: IntersectionID, map: &Map, g: &mut GfxCtx) {
-    let i = map.get_i(id);
     let mut all_polys = Vec::new();
-    for r in &i.roads {
-        let (pl, width) = map.get_r(*r).get_thick_polyline(true).unwrap();
-        // This is different than pl.make_polygons(width) because of the order of the points!!!
-        let poly = Polygon::new(&pl.to_thick_boundary_pts(width));
-        g.draw_polygon(Color::RED.alpha(0.4), &poly);
-        all_polys.push(poly);
-    }
 
-    let mut all_pieces = Vec::new();
-    for (idx1, p1) in all_polys.iter().enumerate() {
-        for (idx2, p2) in all_polys.iter().enumerate() {
-            if idx1 != idx2 {
-                all_pieces.extend(intersection(p1, p2));
+    if true {
+        // Get road center lines sorted by angle into the intersection, to find adjacent roads.
+        // TODO Maybe do this by directed roads instead. Otherwise the corner is too big? But not
+        // sure what the intersections will look like yet.
+        let mut road_centers: Vec<(PolyLine, Distance)> = map
+            .get_i(id)
+            .roads
+            .iter()
+            .map(|r| {
+                let road = map.get_r(*r);
+                let (pl, width) = road.get_thick_polyline(true).unwrap();
+                if road.dst_i == id {
+                    (pl, width)
+                } else {
+                    (pl.reversed(), width)
+                }
+            })
+            .collect();
+        // TODO Right?
+        let common_pt = map.get_i(id).point;
+        // TODO Brittle because of f64->i64 and for short last lines
+        road_centers.sort_by_key(|(pl, _)| {
+            pl.last_line()
+                .pt1()
+                .angle_to(common_pt)
+                .normalized_degrees() as i64
+        });
+
+        for idx in 0..road_centers.len() as isize {
+            // pl1 to pl2 moves clockwise
+            let (pl1, width1) = wraparound_get(&road_centers, idx);
+            let (pl2, width2) = wraparound_get(&road_centers, idx + 1);
+
+            let glued = pl1.clone().extend(&pl2.reversed());
+            let max_width = (*width1).max(*width2);
+            let poly = Polygon::new(&glued.to_thick_boundary_pts(max_width));
+            g.draw_polygon(Color::RED.alpha(0.4), &poly);
+            all_polys.push(poly);
+            //break;
+        }
+
+        if false {
+            if let Some(p) = intersection_many(&all_polys) {
+                g.draw_polygon(Color::GREEN.alpha(0.4), &p);
             }
         }
     }
-    for p in &all_pieces {
-        g.draw_polygon(Color::BLUE.alpha(0.4), &p);
-    }
+
     if false {
-        if let Some(final_poly) = union(&all_pieces) {
-            g.draw_polygon(Color::GREEN.alpha(0.4), &final_poly);
+        for r in &map.get_i(id).roads {
+            let (pl, width) = map.get_r(*r).get_thick_polyline(true).unwrap();
+            // This is different than pl.make_polygons(width) because of the order of the points!!!
+            let poly = Polygon::new(&pl.to_thick_boundary_pts(width));
+            g.draw_polygon(Color::RED.alpha(0.4), &poly);
+            all_polys.push(poly);
+        }
+    }
+
+    if false {
+        let mut all_pieces = Vec::new();
+        for (idx1, p1) in all_polys.iter().enumerate() {
+            for (idx2, p2) in all_polys.iter().enumerate() {
+                if idx1 != idx2 {
+                    all_pieces.extend(intersection(p1, p2));
+                }
+            }
+        }
+        for p in &all_pieces {
+            g.draw_polygon(Color::BLUE.alpha(0.4), &p);
+        }
+        if false {
+            if let Some(final_poly) = union(&all_pieces) {
+                g.draw_polygon(Color::GREEN.alpha(0.4), &final_poly);
+            }
         }
     }
 }
@@ -493,6 +546,19 @@ fn union(polys: &Vec<Polygon>) -> Option<Polygon> {
         let output = result.union(&mut poly_to_cpoly(p));
         if output.len() != 1 {
             println!("Argh, got {} pieces from union", output.len());
+            return None;
+        }
+        result = CPolygon::from_vec(&output[0]);
+    }
+    Some(cpoly_to_poly(result.points()))
+}
+
+fn intersection_many(polys: &Vec<Polygon>) -> Option<Polygon> {
+    let mut result = poly_to_cpoly(&polys[0]);
+    for p in polys.iter().skip(1) {
+        let output = result.intersection(&mut poly_to_cpoly(p));
+        if output.len() != 1 {
+            println!("Argh, got {} pieces from intersection", output.len());
             return None;
         }
         result = CPolygon::from_vec(&output[0]);
