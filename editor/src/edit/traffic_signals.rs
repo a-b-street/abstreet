@@ -316,6 +316,9 @@ fn choose_preset(
     if let Some(ts) = ControlTrafficSignal::degenerate(map, id) {
         choices.push((None, "degenerate (2 roads)".to_string(), ts));
     }
+    if let Some(ts) = ControlTrafficSignal::four_oneways(map, id) {
+        choices.push((None, "two-phase for 4 one-ways".to_string(), ts));
+    }
     choices.push((
         None,
         "arbitrary assignment".to_string(),

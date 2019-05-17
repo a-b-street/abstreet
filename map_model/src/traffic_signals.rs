@@ -16,11 +16,14 @@ impl ControlTrafficSignal {
     pub fn new(map: &Map, id: IntersectionID, timer: &mut Timer) -> ControlTrafficSignal {
         if let Some(ts) = ControlTrafficSignal::four_way_four_phase(map, id) {
             ts
+        } else if let Some(ts) = ControlTrafficSignal::four_oneways(map, id) {
+            ts
         } else if let Some(ts) = ControlTrafficSignal::three_way(map, id) {
             ts
         } else if let Some(ts) = ControlTrafficSignal::degenerate(map, id) {
             ts
         } else {
+            timer.warn(format!("Falling back to greedy_assignment for {}", id));
             ControlTrafficSignal::greedy_assignment(map, id).get(timer)
         }
     }
@@ -40,11 +43,11 @@ impl ControlTrafficSignal {
         let expected_turns: BTreeSet<TurnID> = map.get_i(self.id).turns.iter().cloned().collect();
         let mut actual_turns: BTreeSet<TurnID> = BTreeSet::new();
         for cycle in &self.cycles {
-            actual_turns.extend(cycle.priority_turns.clone());
-            actual_turns.extend(cycle.yield_turns.clone());
+            actual_turns.extend(cycle.priority_turns.iter());
+            actual_turns.extend(cycle.yield_turns.iter());
         }
         if expected_turns != actual_turns {
-            return Err(Error::new(format!("Traffic signal assignment for {} broken. Missing turns {:?}, contains irrelevant turns {:?}", self.id, expected_turns.difference(&actual_turns), actual_turns.difference(&expected_turns))));
+            return Err(Error::new(format!("Traffic signal assignment for {} broken. Missing turns {:?}, contains irrelevant turns {:?}", self.id, expected_turns.difference(&actual_turns).cloned().collect::<Vec<TurnID>>(), actual_turns.difference(&expected_turns).cloned().collect::<Vec<TurnID>>())));
         }
 
         for cycle in &self.cycles {
@@ -304,6 +307,62 @@ impl ControlTrafficSignal {
             None
         }
     }
+
+    pub fn four_oneways(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
+        if map.get_i(i).roads.len() != 4 {
+            return None;
+        }
+
+        let mut incomings = Vec::new();
+        for r in &map.get_i(i).roads {
+            if !map.get_r(*r).incoming_lanes(i).is_empty() {
+                incomings.push(*r);
+            }
+        }
+        if incomings.len() != 2 {
+            return None;
+        }
+        let r1 = incomings[0];
+        let r2 = incomings[1];
+
+        // TODO This may not generalize...
+        let cycles = make_cycles(
+            map,
+            i,
+            vec![
+                vec![
+                    (vec![r1], TurnType::Straight, PROTECTED),
+                    (vec![r1], TurnType::LaneChangeLeft, YIELD),
+                    (vec![r1], TurnType::LaneChangeRight, YIELD),
+                    (vec![r1], TurnType::Crosswalk, PROTECTED),
+                    // TODO Technically, upgrade to protected if there's no opposing crosswalk --
+                    // even though it doesn't matter much.
+                    (vec![r1], TurnType::Right, YIELD),
+                    (vec![r1], TurnType::Left, YIELD),
+                    (vec![r1], TurnType::Right, YIELD),
+                    // TODO Refactor
+                ],
+                vec![
+                    (vec![r2], TurnType::Straight, PROTECTED),
+                    (vec![r2], TurnType::LaneChangeLeft, YIELD),
+                    (vec![r2], TurnType::LaneChangeRight, YIELD),
+                    (vec![r2], TurnType::Crosswalk, PROTECTED),
+                    // TODO Technically, upgrade to protected if there's no opposing crosswalk --
+                    // even though it doesn't matter much.
+                    (vec![r2], TurnType::Right, YIELD),
+                    (vec![r2], TurnType::Left, YIELD),
+                    (vec![r2], TurnType::Right, YIELD),
+                ],
+            ],
+        );
+
+        let ts = ControlTrafficSignal { id: i, cycles };
+        if ts.validate(map).is_ok() {
+            Some(ts)
+        } else {
+            None
+        }
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
@@ -404,11 +463,14 @@ fn make_cycles(
                     continue;
                 }
 
-                if protected {
-                    cycle.priority_turns.insert(turn.id);
-                } else {
-                    cycle.yield_turns.insert(turn.id);
-                }
+                cycle.edit_turn(
+                    turn,
+                    if protected {
+                        TurnPriority::Priority
+                    } else {
+                        TurnPriority::Yield
+                    },
+                );
             }
         }
 
