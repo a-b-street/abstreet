@@ -291,23 +291,26 @@ impl Road {
         search.iter().find(|(_, t)| lt == *t).map(|(id, _)| *id)
     }
 
-    pub fn get_thick_polyline(&self) -> Warn<(PolyLine, Distance)> {
+    pub fn get_thick_polyline(&self, orig_pts: bool) -> Warn<(PolyLine, Distance)> {
         let width_right = (self.children_forwards.len() as f64) * LANE_THICKNESS;
         let width_left = (self.children_backwards.len() as f64) * LANE_THICKNESS;
         let total_width = width_right + width_left;
+        let pts = if orig_pts {
+            &self.original_center_pts
+        } else {
+            &self.center_pts
+        };
         if width_right >= width_left {
-            self.center_pts
-                .shift_right((width_right - width_left) / 2.0)
+            pts.shift_right((width_right - width_left) / 2.0)
                 .map(|pl| (pl, total_width))
         } else {
-            self.center_pts
-                .shift_left((width_left - width_right) / 2.0)
+            pts.shift_left((width_left - width_right) / 2.0)
                 .map(|pl| (pl, total_width))
         }
     }
 
     pub fn get_thick_polygon(&self) -> Warn<Polygon> {
-        self.get_thick_polyline()
+        self.get_thick_polyline(false)
             .map(|(pl, width)| pl.make_polygons(width))
     }
 

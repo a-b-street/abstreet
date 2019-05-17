@@ -59,6 +59,15 @@ impl PolyLine {
         pl.make_polygons(thickness)
     }
 
+    pub fn to_thick_boundary_pts(&self, width: Distance) -> Vec<Pt2D> {
+        let mut side1 = self.shift_with_sharp_angles(width / 2.0);
+        let mut side2 = self.shift_with_sharp_angles(-width / 2.0);
+        side2.reverse();
+        side1.extend(side2);
+        side1.push(side1[0]);
+        side1
+    }
+
     pub fn to_thick_boundary(
         &self,
         self_width: Distance,

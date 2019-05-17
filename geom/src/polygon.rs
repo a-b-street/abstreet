@@ -1,5 +1,6 @@
 use crate::{Bounds, Distance, HashablePt2D, Pt2D};
 use serde_derive::{Deserialize, Serialize};
+use std::fmt;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Polygon {
@@ -120,6 +121,8 @@ impl Polygon {
         }
     }
 
+    // The order of these points depends on the constructor! The first and last point may or may
+    // not match. Polygons constructed from PolyLines will have a very weird order.
     pub fn points(&self) -> &Vec<Pt2D> {
         &self.points
     }
@@ -146,6 +149,25 @@ impl Polygon {
             ],
             indices: vec![0, 1, 2, 2, 3, 0],
         }
+    }
+}
+
+impl fmt::Display for Polygon {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        writeln!(
+            f,
+            "Polygon with {} points and {} indices",
+            self.points.len(),
+            self.indices.len()
+        )?;
+        for (idx, pt) in self.points.iter().enumerate() {
+            writeln!(f, "  {}: {}", idx, pt)?;
+        }
+        write!(f, "Indices: [")?;
+        for slice in self.indices.chunks_exact(3) {
+            write!(f, "({}, {}, {}), ", slice[0], slice[1], slice[2])?;
+        }
+        writeln!(f, "]")
     }
 }
 
