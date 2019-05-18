@@ -434,7 +434,7 @@ impl ShowObject for DebugMode {
 fn recalc_intersection_geom(id: IntersectionID, map: &Map, g: &mut GfxCtx) {
     let mut all_polys = Vec::new();
 
-    if true {
+    if false {
         // Get road center lines sorted by angle into the intersection, to find adjacent roads.
         // TODO Maybe do this by directed roads instead. Otherwise the corner is too big? But not
         // sure what the intersections will look like yet.
@@ -482,13 +482,32 @@ fn recalc_intersection_geom(id: IntersectionID, map: &Map, g: &mut GfxCtx) {
         }
     }
 
-    if false {
+    if true {
         for r in &map.get_i(id).roads {
-            let (pl, width) = map.get_r(*r).get_thick_polyline(true).unwrap();
+            let road = map.get_r(*r);
+            let (orig_pl, width) = road.get_thick_polyline(true).unwrap();
+            let dir_pl = if road.dst_i == id {
+                orig_pl
+            } else {
+                orig_pl.reversed()
+            };
+            // Extend the last line by, say, the length of the original road.
+            let last_pt = dir_pl
+                .last_line()
+                .pt2()
+                .project_away(dir_pl.length(), dir_pl.last_line().angle());
+            let mut pts = dir_pl.points().clone();
+            pts.pop();
+            pts.push(last_pt);
+
             // This is different than pl.make_polygons(width) because of the order of the points!!!
-            let poly = Polygon::new(&pl.to_thick_boundary_pts(width));
-            g.draw_polygon(Color::RED.alpha(0.4), &poly);
+            let poly = Polygon::new(&PolyLine::new(pts).to_thick_boundary_pts(width));
+            //g.draw_polygon(Color::RED.alpha(0.4), &poly);
             all_polys.push(poly);
+        }
+
+        if let Some(p) = intersection_many(&all_polys) {
+            g.draw_polygon(Color::GREEN.alpha(0.4), &p);
         }
     }
 
