@@ -3,7 +3,7 @@ use crate::render::{draw_signal_diagram, DrawCtx, DrawTurn};
 use crate::ui::UI;
 use ezgui::{Color, EventCtx, GfxCtx, Key};
 use geom::Duration;
-use map_model::{IntersectionID, LaneID, TurnType};
+use map_model::{IntersectionID, LaneID, Map, TurnType};
 
 pub struct TurnCyclerState {
     state: State,
@@ -27,7 +27,7 @@ impl TurnCyclerState {
 
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI) {
         match ui.primary.current_selection {
-            Some(ID::Lane(id)) => {
+            Some(ID::Lane(id)) if !ui.primary.map.get_turns_from_lane(id).is_empty() => {
                 if let State::CycleTurns(current, idx) = self.state {
                     if current != id {
                         self.state = State::ShowLane(id);
@@ -39,10 +39,9 @@ impl TurnCyclerState {
                     }
                 } else {
                     self.state = State::ShowLane(id);
-                    if !ui.primary.map.get_turns_from_lane(id).is_empty()
-                        && ctx
-                            .input
-                            .contextual_action(Key::Z, "cycle through this lane's turns")
+                    if ctx
+                        .input
+                        .contextual_action(Key::Z, "cycle through this lane's turns")
                     {
                         self.state = State::CycleTurns(id, 0);
                     }
@@ -106,6 +105,13 @@ impl TurnCyclerState {
                     }
                 }
             }
+        }
+    }
+
+    pub fn suppress_traffic_signal_details(&self, map: &Map) -> Option<IntersectionID> {
+        match self.state {
+            State::ShowLane(l) | State::CycleTurns(l, _) => Some(map.get_l(l).dst_i),
+            _ => None,
         }
     }
 }
