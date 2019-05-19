@@ -1,17 +1,20 @@
 use crate::helpers::{ColorScheme, ID};
-use crate::render::{DrawCrosswalk, DrawCtx, DrawOptions, DrawTurn, Renderable, OUTLINE_THICKNESS};
+use crate::render::{
+    DrawCtx, DrawOptions, DrawTurn, Renderable, CROSSWALK_LINE_THICKNESS, OUTLINE_THICKNESS,
+};
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender, ScreenPt, Text};
 use geom::{Angle, Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D};
 use map_model::{
-    Cycle, Intersection, IntersectionID, IntersectionType, Map, Road, RoadWithStopSign,
-    TurnPriority, TurnType, LANE_THICKNESS,
+    Cycle, Intersection, IntersectionID, IntersectionType, Map, Road, RoadWithStopSign, Turn,
+    TurnID, TurnPriority, TurnType, LANE_THICKNESS,
 };
 use ordered_float::NotNan;
 
 pub struct DrawIntersection {
     pub id: IntersectionID,
-    pub crosswalks: Vec<DrawCrosswalk>,
+    // Only for traffic signals
+    crosswalks: Vec<(TurnID, Drawable)>,
     intersection_type: IntersectionType,
     zorder: isize,
 
@@ -43,6 +46,21 @@ impl DrawIntersection {
             i.polygon.clone(),
         );
         default_geom.extend(cs.get("sidewalk"), calculate_corners(i, map, timer));
+
+        let mut crosswalks = Vec::new();
+        for turn in &map.get_turns_in_intersection(i.id) {
+            // Avoid double-rendering
+            if turn.turn_type == TurnType::Crosswalk && map.get_l(turn.id.src).dst_i == i.id {
+                if i.intersection_type == IntersectionType::TrafficSignal {
+                    let mut batch = GeomBatch::new();
+                    make_crosswalk(&mut batch, turn, cs);
+                    crosswalks.push((turn.id, prerender.upload(batch)));
+                } else {
+                    make_crosswalk(&mut default_geom, turn, cs);
+                }
+            }
+        }
+
         match i.intersection_type {
             IntersectionType::Border => {
                 if i.roads.len() != 1 {
@@ -70,7 +88,7 @@ impl DrawIntersection {
 
         DrawIntersection {
             id: i.id,
-            crosswalks: calculate_crosswalks(i.id, map, prerender, cs),
+            crosswalks,
             intersection_type: i.intersection_type,
             zorder: i.get_zorder(map),
             draw_default: prerender.upload(default_geom),
@@ -87,7 +105,7 @@ impl DrawIntersection {
 
     // Returns the (octagon, pole) if there's room to draw it.
     pub fn stop_sign_geom(ss: &RoadWithStopSign, map: &Map) -> Option<(Polygon, Polygon)> {
-        let trim_back = Distance::meters(0.7);
+        let trim_back = Distance::meters(0.1);
         let rightmost = &map.get_l(*ss.travel_lanes.last().unwrap()).lane_center_pts;
         if rightmost.length() < trim_back {
             // TODO warn
@@ -129,10 +147,6 @@ impl Renderable for DrawIntersection {
                 if opts.suppress_traffic_signal_details != Some(self.id) {
                     self.draw_traffic_signal(g, ctx);
                 }
-            } else {
-                for crosswalk in &self.crosswalks {
-                    crosswalk.draw(g);
-                }
             }
         }
     }
@@ -151,22 +165,6 @@ impl Renderable for DrawIntersection {
     fn get_zorder(&self) -> isize {
         self.zorder
     }
-}
-
-fn calculate_crosswalks(
-    i: IntersectionID,
-    map: &Map,
-    prerender: &Prerender,
-    cs: &ColorScheme,
-) -> Vec<DrawCrosswalk> {
-    let mut crosswalks = Vec::new();
-    for turn in &map.get_turns_in_intersection(i) {
-        // Avoid double-rendering
-        if turn.turn_type == TurnType::Crosswalk && map.get_l(turn.id.src).dst_i == i {
-            crosswalks.push(DrawCrosswalk::new(turn, prerender, cs));
-        }
-    }
-    crosswalks
 }
 
 // TODO Temporarily public for debugging.
@@ -243,9 +241,9 @@ pub fn draw_signal_cycle(
         Color::rgba(255, 105, 180, 0.8),
     );
 
-    for crosswalk in &ctx.draw_map.get_i(cycle.parent).crosswalks {
-        if cycle.get_priority(crosswalk.id1) == TurnPriority::Priority {
-            crosswalk.draw(g);
+    for (id, crosswalk) in &ctx.draw_map.get_i(cycle.parent).crosswalks {
+        if cycle.get_priority(*id) == TurnPriority::Priority {
+            g.redraw(crosswalk);
         }
     }
 
@@ -541,4 +539,42 @@ fn make_octagon(center: Pt2D, radius: Distance, facing: Angle) -> Polygon {
             })
             .collect(),
     )
+}
+
+fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, cs: &ColorScheme) {
+    // Start at least LANE_THICKNESS out to not hit sidewalk corners. Also account for the
+    // thickness of the crosswalk line itself. Center the lines inside these two boundaries.
+    let boundary = LANE_THICKNESS + CROSSWALK_LINE_THICKNESS;
+    let tile_every = LANE_THICKNESS * 0.6;
+    let line = {
+        // The middle line in the crosswalk geometry is the main crossing line.
+        let pts = turn.geom.points();
+        Line::new(pts[1], pts[2])
+    };
+
+    let available_length = line.length() - (boundary * 2.0);
+    if available_length > Distance::ZERO {
+        let num_markings = (available_length / tile_every).floor() as usize;
+        let mut dist_along =
+            boundary + (available_length - tile_every * (num_markings as f64)) / 2.0;
+        // TODO Seems to be an off-by-one sometimes. Not enough of these.
+        for _ in 0..=num_markings {
+            let pt1 = line.dist_along(dist_along);
+            // Reuse perp_line. Project away an arbitrary amount
+            let pt2 = pt1.project_away(Distance::meters(1.0), turn.angle());
+            batch.push(
+                cs.get_def("crosswalk", Color::WHITE),
+                perp_line(Line::new(pt1, pt2), LANE_THICKNESS)
+                    .make_polygons(CROSSWALK_LINE_THICKNESS),
+            );
+            dist_along += tile_every;
+        }
+    }
+}
+
+// TODO copied from DrawLane
+fn perp_line(l: Line, length: Distance) -> Line {
+    let pt1 = l.shift_right(length / 2.0).pt1();
+    let pt2 = l.shift_left(length / 2.0).pt1();
+    Line::new(pt1, pt2)
 }

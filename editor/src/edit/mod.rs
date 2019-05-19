@@ -178,7 +178,6 @@ impl EditMode {
                     &state.ui.primary.sim,
                     &ShowEverything::new(),
                 );
-                common.draw(g, &state.ui);
 
                 // More generally we might want to show the diff between two edits, but for now,
                 // just show diff relative to basemap.
@@ -243,6 +242,7 @@ impl EditMode {
                     }
                 }
 
+                common.draw(g, &state.ui);
                 menu.draw(g);
             }
             Mode::Edit(EditMode::Saving(ref wizard))

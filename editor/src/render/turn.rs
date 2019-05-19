@@ -1,11 +1,8 @@
 use crate::helpers::ColorScheme;
-use crate::render::{
-    BIG_ARROW_THICKNESS, CROSSWALK_LINE_THICKNESS, TURN_ICON_ARROW_LENGTH,
-    TURN_ICON_ARROW_THICKNESS,
-};
-use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
+use crate::render::{BIG_ARROW_THICKNESS, TURN_ICON_ARROW_LENGTH, TURN_ICON_ARROW_THICKNESS};
+use ezgui::{Color, GeomBatch, GfxCtx};
 use geom::{Circle, Distance, Line, Polygon, Pt2D};
-use map_model::{Map, Turn, TurnID, LANE_THICKNESS};
+use map_model::{Map, Turn, TurnID};
 
 pub struct DrawTurn {
     pub id: TurnID,
@@ -110,61 +107,4 @@ impl DrawTurn {
     pub fn contains_pt(&self, pt: Pt2D) -> bool {
         self.icon_circle.contains_pt(pt)
     }
-}
-
-pub struct DrawCrosswalk {
-    // This is arbitrarily one of the two IDs
-    pub id1: TurnID,
-    draw_default: Drawable,
-}
-
-impl DrawCrosswalk {
-    pub fn new(turn: &Turn, prerender: &Prerender, cs: &ColorScheme) -> DrawCrosswalk {
-        // Start at least LANE_THICKNESS out to not hit sidewalk corners. Also account for
-        // the thickness of the crosswalk line itself. Center the lines inside these two
-        // boundaries.
-        let boundary = LANE_THICKNESS + CROSSWALK_LINE_THICKNESS;
-        let tile_every = LANE_THICKNESS * 0.6;
-        let line = {
-            // The middle line in the crosswalk geometry is the main crossing line.
-            let pts = turn.geom.points();
-            Line::new(pts[1], pts[2])
-        };
-
-        let mut draw = GeomBatch::new();
-        let available_length = line.length() - (boundary * 2.0);
-        if available_length > Distance::ZERO {
-            let num_markings = (available_length / tile_every).floor() as usize;
-            let mut dist_along =
-                boundary + (available_length - tile_every * (num_markings as f64)) / 2.0;
-            // TODO Seems to be an off-by-one sometimes. Not enough of these.
-            for _ in 0..=num_markings {
-                let pt1 = line.dist_along(dist_along);
-                // Reuse perp_line. Project away an arbitrary amount
-                let pt2 = pt1.project_away(Distance::meters(1.0), turn.angle());
-                draw.push(
-                    cs.get_def("crosswalk", Color::WHITE),
-                    perp_line(Line::new(pt1, pt2), LANE_THICKNESS)
-                        .make_polygons(CROSSWALK_LINE_THICKNESS),
-                );
-                dist_along += tile_every;
-            }
-        }
-
-        DrawCrosswalk {
-            id1: turn.id,
-            draw_default: prerender.upload(draw),
-        }
-    }
-
-    pub fn draw(&self, g: &mut GfxCtx) {
-        g.redraw(&self.draw_default);
-    }
-}
-
-// TODO copied from DrawLane
-fn perp_line(l: Line, length: Distance) -> Line {
-    let pt1 = l.shift_right(length / 2.0).pt1();
-    let pt2 = l.shift_left(length / 2.0).pt1();
-    Line::new(pt1, pt2)
 }

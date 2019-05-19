@@ -23,7 +23,7 @@ pub use crate::render::lane::DrawLane;
 pub use crate::render::map::{AgentCache, DrawMap};
 pub use crate::render::pedestrian::DrawPedestrian;
 pub use crate::render::road::DrawRoad;
-pub use crate::render::turn::{DrawCrosswalk, DrawTurn};
+pub use crate::render::turn::DrawTurn;
 use ezgui::{Color, GfxCtx, Prerender};
 use geom::{Distance, Polygon, Pt2D};
 use map_model::{IntersectionID, Map};
