@@ -147,11 +147,11 @@ impl UI {
         ctx: &mut EventCtx,
         source: &GetDrawAgents,
         show_objs: &ShowObject,
-        debug_areas: bool,
+        debug_mode: bool,
     ) -> Option<ID> {
         if !ctx.canvas.is_dragging() && ctx.input.get_moved_mouse().is_some() {
-            // Unzoomed mode. Ignore when debugging areas.
-            if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL && !debug_areas {
+            // Unzoomed mode. Ignore when debugging areas and extra shapes.
+            if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL && !debug_mode {
                 return None;
             }
 
@@ -170,8 +170,8 @@ impl UI {
             for obj in objects {
                 // In unzoomed mode, can only mouseover areas
                 match obj.get_id() {
-                    ID::Area(_) => {
-                        if !debug_areas {
+                    ID::Area(_) | ID::ExtraShape(_) => {
+                        if !debug_mode {
                             continue;
                         }
                     }
