@@ -66,7 +66,7 @@ impl StopSignEditor {
                 }
                 if self.selected_sign.is_none() {
                     for t in &ui.primary.draw_map.get_turns(self.id, &ui.primary.map) {
-                        if t.icon_circle.contains_pt(pt) {
+                        if t.contains_pt(pt) {
                             self.selected_turn = Some(t.id);
                             break;
                         }
@@ -148,7 +148,7 @@ impl StopSignEditor {
         }
 
         for t in &state.ui.primary.draw_map.get_turns(self.id, map) {
-            let color = match sign.get_priority(t.id) {
+            let arrow_color = match sign.get_priority(t.id) {
                 TurnPriority::Priority => {
                     state.ui.cs.get_def("priority stop sign turn", Color::GREEN)
                 }
@@ -156,14 +156,14 @@ impl StopSignEditor {
                 TurnPriority::Stop => state.ui.cs.get_def("stop turn", Color::RED),
                 TurnPriority::Banned => state.ui.cs.get_def("banned turn", Color::BLACK),
             };
-            t.draw_icon(&mut batch, &state.ui.cs, color);
+            t.draw_icon(
+                &mut batch,
+                &state.ui.cs,
+                arrow_color,
+                self.selected_turn == Some(t.id),
+            );
         }
         if let Some(id) = self.selected_turn {
-            batch.push(
-                state.ui.cs.get("selected"),
-                // TODO thin ring
-                state.ui.primary.draw_map.get_t(id).icon_circle.to_polygon(),
-            );
             DrawTurn::draw_dashed(
                 map.get_t(id),
                 &mut batch,

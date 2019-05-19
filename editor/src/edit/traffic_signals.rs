@@ -64,7 +64,7 @@ impl TrafficSignalEditor {
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
                 self.icon_selected = None;
                 for t in ui.primary.draw_map.get_turns(self.i, &ui.primary.map) {
-                    if t.icon_circle.contains_pt(pt) {
+                    if t.contains_pt(pt) {
                         self.icon_selected = Some(t.id);
                         break;
                     }
@@ -244,7 +244,7 @@ impl TrafficSignalEditor {
         let map = &state.ui.primary.map;
         let cycle = &map.get_traffic_signal(self.i).cycles[self.current_cycle];
         for t in &state.ui.primary.draw_map.get_turns(self.i, map) {
-            let color = match cycle.get_priority(t.id) {
+            let arrow_color = match cycle.get_priority(t.id) {
                 TurnPriority::Priority => state
                     .ui
                     .cs
@@ -259,15 +259,15 @@ impl TrafficSignalEditor {
                     .get_def("turn not in current cycle", Color::BLACK),
                 TurnPriority::Stop => panic!("Can't have TurnPriority::Stop in a traffic signal"),
             };
-            t.draw_icon(&mut batch, &ctx.cs, color);
+            t.draw_icon(
+                &mut batch,
+                &ctx.cs,
+                arrow_color,
+                self.icon_selected == Some(t.id),
+            );
         }
         draw_signal_cycle(cycle, None, g, &ctx);
         if let Some(id) = self.icon_selected {
-            batch.push(
-                state.ui.cs.get("selected"),
-                // TODO thin ring
-                state.ui.primary.draw_map.get_t(id).icon_circle.to_polygon(),
-            );
             DrawTurn::draw_dashed(map.get_t(id), &mut batch, state.ui.cs.get("selected turn"));
         }
         batch.draw(g);

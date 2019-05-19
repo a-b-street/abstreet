@@ -4,13 +4,13 @@ use crate::render::{
     TURN_ICON_ARROW_THICKNESS,
 };
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
-use geom::{Circle, Distance, Line};
+use geom::{Circle, Distance, Line, Polygon, Pt2D};
 use map_model::{Map, Turn, TurnID, LANE_THICKNESS};
 
 pub struct DrawTurn {
     pub id: TurnID,
-    pub icon_circle: Circle,
-    icon_arrow: Line,
+    icon_circle: Circle,
+    icon_arrow: Vec<Polygon>,
 }
 
 impl DrawTurn {
@@ -28,7 +28,10 @@ impl DrawTurn {
 
         let icon_src = icon_center.project_away(TURN_ICON_ARROW_LENGTH / 2.0, angle.opposite());
         let icon_dst = icon_center.project_away(TURN_ICON_ARROW_LENGTH / 2.0, angle);
-        let icon_arrow = Line::new(icon_src, icon_dst);
+        let icon_arrow = Line::new(icon_src, icon_dst)
+            .to_polyline()
+            .make_arrow(TURN_ICON_ARROW_THICKNESS)
+            .unwrap();
 
         DrawTurn {
             id: turn.id,
@@ -86,18 +89,26 @@ impl DrawTurn {
         );
     }
 
-    pub fn draw_icon(&self, batch: &mut GeomBatch, cs: &ColorScheme, arrow_color: Color) {
+    pub fn draw_icon(
+        &self,
+        batch: &mut GeomBatch,
+        cs: &ColorScheme,
+        arrow_color: Color,
+        selected: bool,
+    ) {
         batch.push(
-            cs.get_def("turn icon circle", Color::grey(0.6)),
+            if selected {
+                cs.get("selected")
+            } else {
+                cs.get_def("turn icon circle", Color::grey(0.6))
+            },
             self.icon_circle.to_polygon(),
         );
-        batch.extend(
-            arrow_color,
-            self.icon_arrow
-                .to_polyline()
-                .make_arrow(TURN_ICON_ARROW_THICKNESS)
-                .unwrap(),
-        );
+        batch.extend(arrow_color, self.icon_arrow.clone());
+    }
+
+    pub fn contains_pt(&self, pt: Pt2D) -> bool {
+        self.icon_circle.contains_pt(pt)
     }
 }
 
