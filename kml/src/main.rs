@@ -1,8 +1,20 @@
 use geom::{GPSBounds, LonLat};
 use structopt::StructOpt;
 
+#[derive(StructOpt)]
+#[structopt(name = "kml")]
+struct Flags {
+    /// KML file to read
+    #[structopt(long = "input")]
+    pub input: String,
+
+    /// Output (serialized ExtraShapes) to write
+    #[structopt(long = "output")]
+    pub output: String,
+}
+
 fn main() {
-    let flags = kml::Flags::from_args();
+    let flags = Flags::from_args();
 
     // TODO don't hardcode
     let mut bounds = GPSBounds::new();

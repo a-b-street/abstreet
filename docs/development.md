@@ -12,6 +12,8 @@ qapitrace editor.trace
 apitrace dump editor.trace
 ```
 
+Understand XML: just use firefox
+
 ## Profiling
 
 `apt-get install google-perftools libgoogle-perftools-dev`

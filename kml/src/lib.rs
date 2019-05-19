@@ -4,20 +4,9 @@ use quick_xml::events::Event;
 use quick_xml::Reader;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
-use std::io;
-use structopt::StructOpt;
-
-#[derive(StructOpt)]
-#[structopt(name = "kml")]
-pub struct Flags {
-    /// KML file to read
-    #[structopt(long = "input")]
-    pub input: String,
-
-    /// Output (serialized ExtraShapes) to write
-    #[structopt(long = "output")]
-    pub output: String,
-}
+use std::path;
+use std::{fs, io};
+use xmltree::Element;
 
 #[derive(Serialize, Deserialize)]
 pub struct ExtraShapes {
@@ -113,7 +102,12 @@ pub fn load(
         skipped_count
     );
     done(timer);
-    Ok(ExtraShapes { shapes })
+
+    let mut shapes = ExtraShapes { shapes };
+    if fix_field_names(path, &mut shapes).is_none() {
+        timer.warn("Applying extra XML metadata failed".to_string());
+    }
+    Ok(shapes)
 }
 
 fn parse_pt(input: &str, gps_bounds: &GPSBounds) -> Option<LonLat> {
@@ -132,9 +126,35 @@ fn parse_pt(input: &str, gps_bounds: &GPSBounds) -> Option<LonLat> {
     }
 }
 
-/*
-// TODO only for Street_Signs.kml; this is temporary to explore stuff
-fn is_interesting_sign(attributes: &BTreeMap<String, String>) -> bool {
-    attributes.get("CATEGORY") == Some(&"REGMIS".to_string())
+fn fix_field_names(orig_path: &str, shapes: &mut ExtraShapes) -> Option<()> {
+    let new_path = orig_path.replace(".kml", ".xml");
+    if !path::Path::new(&new_path).exists() {
+        return None;
+    }
+    println!("Loading extra metadata from {}", new_path);
+    let root = Element::parse(fs::read_to_string(new_path).ok()?.as_bytes()).ok()?;
+
+    let mut rename = BTreeMap::new();
+    for attr in &root.get_child("eainfo")?.get_child("detailed")?.children {
+        if attr.name != "attr" {
+            continue;
+        }
+        let key = attr.get_child("attrlabl")?.text.clone()?;
+        let value = attr.get_child("attrdef")?.text.clone()?;
+        rename.insert(key, value);
+    }
+
+    for shp in shapes.shapes.iter_mut() {
+        let mut attribs = BTreeMap::new();
+        for (k, v) in &shp.attributes {
+            if let Some(new_key) = rename.get(k) {
+                attribs.insert(new_key.clone(), v.clone());
+            } else {
+                attribs.insert(k.clone(), v.clone());
+            }
+        }
+        shp.attributes = attribs;
+    }
+
+    Some(())
 }
-*/
