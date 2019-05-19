@@ -5,12 +5,13 @@ use crate::common::CommonState;
 use crate::game::{GameState, Mode};
 use crate::helpers::ID;
 use crate::render::{
-    DrawCtx, DrawLane, DrawMap, DrawOptions, DrawTurn, Renderable, MIN_ZOOM_FOR_DETAIL,
+    DrawCtx, DrawIntersection, DrawLane, DrawMap, DrawOptions, DrawTurn, Renderable,
+    MIN_ZOOM_FOR_DETAIL,
 };
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard, WrappedWizard};
-use map_model::{Lane, LaneID, LaneType, Map, MapEdits, Road, TurnID, TurnType};
+use map_model::{IntersectionID, Lane, LaneID, LaneType, Map, MapEdits, Road, TurnID, TurnType};
 use std::collections::{BTreeSet, HashMap};
 
 pub enum EditMode {
@@ -364,13 +365,16 @@ pub fn apply_map_edits(ui: &mut UI, ctx: &mut EventCtx, edits: MapEdits) {
             &mut timer,
         );
     }
+    let mut modified_intersections: BTreeSet<IntersectionID> = BTreeSet::new();
     let mut lanes_of_modified_turns: BTreeSet<LaneID> = BTreeSet::new();
     for t in turns_deleted {
         ui.primary.draw_map.turns.remove(&t);
         lanes_of_modified_turns.insert(t.src);
+        modified_intersections.insert(t.parent);
     }
     for t in &turns_added {
         lanes_of_modified_turns.insert(t.src);
+        modified_intersections.insert(t.parent);
     }
 
     let mut turn_to_lane_offset: HashMap<TurnID, usize> = HashMap::new();
@@ -389,6 +393,16 @@ pub fn apply_map_edits(ui: &mut UI, ctx: &mut EventCtx, edits: MapEdits) {
                 DrawTurn::new(&ui.primary.map, turn, turn_to_lane_offset[&t]),
             );
         }
+    }
+
+    for i in modified_intersections {
+        ui.primary.draw_map.intersections[i.0] = DrawIntersection::new(
+            ui.primary.map.get_i(i),
+            &ui.primary.map,
+            &ui.cs,
+            ctx.prerender,
+            &mut timer,
+        );
     }
 }
 
