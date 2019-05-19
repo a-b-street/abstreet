@@ -4,7 +4,7 @@ use abstutil::Timer;
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender, ScreenPt, Text};
 use geom::{Angle, Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D};
 use map_model::{
-    ControlStopSign, Cycle, Intersection, IntersectionID, IntersectionType, Map, Road,
+    Cycle, Intersection, IntersectionID, IntersectionType, Map, Road, RoadWithStopSign,
     TurnPriority, TurnType, LANE_THICKNESS,
 };
 use ordered_float::NotNan;
@@ -55,7 +55,15 @@ impl DrawIntersection {
                 );
             }
             IntersectionType::StopSign => {
-                calculate_stop_sign(&mut default_geom, map, cs, map.get_stop_sign(i.id));
+                for (_, ss) in &map.get_stop_sign(i.id).roads {
+                    if ss.enabled {
+                        if let Some((octagon, pole)) = DrawIntersection::stop_sign_geom(ss, map) {
+                            default_geom
+                                .push(cs.get_def("stop sign on side of road", Color::RED), octagon);
+                            default_geom.push(cs.get_def("stop sign pole", Color::grey(0.5)), pole);
+                        }
+                    }
+                }
             }
             IntersectionType::TrafficSignal => {}
         }
@@ -75,6 +83,33 @@ impl DrawIntersection {
             let (cycle, t) = signal.current_cycle_and_remaining_time(ctx.sim.time());
             draw_signal_cycle(cycle, Some(t), g, ctx);
         }
+    }
+
+    // Returns the (octagon, pole) if there's room to draw it.
+    pub fn stop_sign_geom(ss: &RoadWithStopSign, map: &Map) -> Option<(Polygon, Polygon)> {
+        let trim_back = Distance::meters(0.7);
+        let rightmost = &map.get_l(*ss.travel_lanes.last().unwrap()).lane_center_pts;
+        if rightmost.length() < trim_back {
+            // TODO warn
+            return None;
+        }
+        let last_line = rightmost
+            .exact_slice(Distance::ZERO, rightmost.length() - trim_back)
+            .last_line()
+            .shift_right(1.0 * LANE_THICKNESS);
+
+        let octagon = make_octagon(last_line.pt2(), Distance::meters(1.0), last_line.angle());
+        let pole = Line::new(
+            last_line
+                .pt2()
+                .project_away(Distance::meters(1.5), last_line.angle().opposite()),
+            // TODO Slightly < 0.9
+            last_line
+                .pt2()
+                .project_away(Distance::meters(0.9), last_line.angle().opposite()),
+        )
+        .make_polygons(Distance::meters(0.3));
+        Some((octagon, pole))
     }
 }
 
@@ -492,42 +527,6 @@ fn calculate_border_arrows(i: &Intersection, r: &Road, timer: &mut Timer) -> Vec
         );
     }
     result
-}
-
-fn calculate_stop_sign(batch: &mut GeomBatch, map: &Map, cs: &ColorScheme, sign: &ControlStopSign) {
-    let trim_back = Distance::meters(0.7);
-
-    for (_, ss) in &sign.roads {
-        if ss.enabled {
-            let rightmost = &map.get_l(*ss.travel_lanes.last().unwrap()).lane_center_pts;
-            if rightmost.length() < trim_back {
-                continue;
-            }
-            let last_line = rightmost
-                .exact_slice(Distance::ZERO, rightmost.length() - trim_back)
-                .last_line()
-                .shift_right(1.0 * LANE_THICKNESS);
-
-            batch.push(
-                cs.get_def("stop sign on side of road", Color::RED),
-                make_octagon(last_line.pt2(), Distance::meters(1.0), last_line.angle()),
-            );
-            // A little pole for it too!
-            batch.push(
-                cs.get_def("stop sign pole", Color::grey(0.5)),
-                Line::new(
-                    last_line
-                        .pt2()
-                        .project_away(Distance::meters(1.5), last_line.angle().opposite()),
-                    // TODO Slightly < 0.9
-                    last_line
-                        .pt2()
-                        .project_away(Distance::meters(0.9), last_line.angle().opposite()),
-                )
-                .make_polygons(Distance::meters(0.3)),
-            );
-        }
-    }
 }
 
 // TODO A squished octagon would look better

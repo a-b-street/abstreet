@@ -2,17 +2,18 @@ use crate::common::CommonState;
 use crate::edit::apply_map_edits;
 use crate::game::GameState;
 use crate::helpers::ID;
-use crate::render::{DrawOptions, DrawTurn};
+use crate::render::{DrawIntersection, DrawOptions, DrawTurn};
 use crate::ui::{ShowEverything, UI};
 use ezgui::{Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu, Text};
-use geom::{Angle, Distance, Polygon, Pt2D};
+use geom::Polygon;
 use map_model::{IntersectionID, RoadID, TurnID, TurnPriority};
 use std::collections::HashMap;
 
 pub struct StopSignEditor {
     menu: ModalMenu,
     id: IntersectionID,
-    octagons: HashMap<RoadID, Polygon>,
+    // (octagon, pole)
+    geom: HashMap<RoadID, (Polygon, Polygon)>,
     selected_sign: Option<RoadID>,
     selected_turn: Option<TurnID>,
 }
@@ -20,30 +21,16 @@ pub struct StopSignEditor {
 impl StopSignEditor {
     pub fn new(id: IntersectionID, ctx: &EventCtx, ui: &mut UI) -> StopSignEditor {
         ui.primary.current_selection = None;
-        let octagons = ui
+        let geom = ui
             .primary
             .map
             .get_stop_sign(id)
             .roads
             .iter()
             .map(|(r, ss)| {
-                // In most cases, the lanes will all have the same last angle
-                let angle = ui.primary.map.get_l(ss.travel_lanes[0]).last_line().angle();
-                // Find the middle of the travel lanes
-                let center = Pt2D::center(
-                    &ss.travel_lanes
-                        .iter()
-                        .map(|l| ui.primary.map.get_l(*l).last_pt())
-                        .collect(),
-                );
-                (
-                    *r,
-                    make_octagon(
-                        center.project_away(Distance::meters(2.0), angle),
-                        Distance::meters(2.0),
-                        angle,
-                    ),
-                )
+                let (octagon, pole) =
+                    DrawIntersection::stop_sign_geom(ss, &ui.primary.map).unwrap();
+                (*r, (octagon, pole))
             })
             .collect();
         StopSignEditor {
@@ -56,7 +43,7 @@ impl StopSignEditor {
                 ctx,
             ),
             id,
-            octagons,
+            geom,
             selected_sign: None,
             selected_turn: None,
         }
@@ -71,7 +58,7 @@ impl StopSignEditor {
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
                 self.selected_sign = None;
                 self.selected_turn = None;
-                for (r, octagon) in &self.octagons {
+                for (r, (octagon, _)) in &self.geom {
                     if octagon.contains_pt(pt) {
                         self.selected_sign = Some(*r);
                         break;
@@ -141,20 +128,23 @@ impl StopSignEditor {
 
         let mut batch = GeomBatch::new();
 
-        for (r, octagon) in &self.octagons {
-            batch.push(
-                if Some(*r) == self.selected_sign {
-                    state.ui.cs.get("selected")
-                } else if sign.roads[r].enabled {
-                    state.ui.cs.get_def("enabled stop sign octagon", Color::RED)
-                } else {
-                    state
-                        .ui
-                        .cs
-                        .get_def("disabled stop sign octagon", Color::RED.alpha(0.2))
-                },
-                octagon.clone(),
-            );
+        for (r, (octagon, pole)) in &self.geom {
+            // The intersection will already draw enabled stop signs
+            if Some(*r) == self.selected_sign {
+                batch.push(
+                    state.ui.cs.get_def("selected stop sign", Color::BLUE),
+                    octagon.clone(),
+                );
+                if !sign.roads[r].enabled {
+                    batch.push(state.ui.cs.get("stop sign pole").alpha(0.6), pole.clone());
+                }
+            } else if !sign.roads[r].enabled {
+                batch.push(
+                    state.ui.cs.get("stop sign on side of road").alpha(0.6),
+                    octagon.clone(),
+                );
+                batch.push(state.ui.cs.get("stop sign pole").alpha(0.6), pole.clone());
+            }
         }
 
         for t in &state.ui.primary.draw_map.get_turns(self.id, map) {
@@ -196,17 +186,4 @@ impl StopSignEditor {
             CommonState::draw_osd(g, &state.ui, None);
         }
     }
-}
-
-fn make_octagon(center: Pt2D, radius: Distance, facing: Angle) -> Polygon {
-    Polygon::new(
-        &(0..8)
-            .map(|i| {
-                center.project_away(
-                    radius,
-                    facing + Angle::new_degs(22.5 + (i * 360 / 8) as f64),
-                )
-            })
-            .collect(),
-    )
 }
