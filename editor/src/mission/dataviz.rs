@@ -1,7 +1,8 @@
+use crate::common::CommonState;
 use crate::helpers::rotating_color;
 use crate::ui::UI;
 use abstutil::Timer;
-use ezgui::{Color, EventCtx, GfxCtx, Key, ModalMenu};
+use ezgui::{Color, EventCtx, GfxCtx, Key, ModalMenu, Text};
 use geom::{GPSBounds, Polygon};
 use popdat::PopDat;
 
@@ -12,6 +13,7 @@ pub struct DataVisualizer {
 
     // TODO Urgh. 0, 1, or 2.
     current_dataset: usize,
+    current_tract: Option<String>,
 }
 
 struct Tract {
@@ -40,12 +42,18 @@ impl DataVisualizer {
             tracts: clip(&popdat, &ui.primary.map.get_gps_bounds()),
             popdat,
             current_dataset: 0,
+            current_tract: None,
         }
     }
 
     // Returns true if the we're done
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI) -> bool {
-        self.menu.handle_event(ctx, None);
+        let mut txt = Text::prompt("Data Visualizer");
+        if let Some(ref name) = self.current_tract {
+            txt.add_line("Census ".to_string());
+            txt.append(name.clone(), Some(ui.cs.get("OSD name color")));
+        }
+        self.menu.handle_event(ctx, Some(txt));
         ctx.canvas.handle_event(ctx.input);
 
         // TODO Remember which dataset we're showing and don't allow reseting to the same.
@@ -58,15 +66,41 @@ impl DataVisualizer {
         } else if self.current_dataset != 2 && self.menu.action("commute modes") {
             self.current_dataset = 2;
         }
+
+        if !ctx.canvas.is_dragging() && ctx.input.get_moved_mouse().is_some() {
+            if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+                self.current_tract = None;
+                for tract in &self.tracts {
+                    if tract.polygon.contains_pt(pt) {
+                        self.current_tract = Some(tract.name.clone());
+                        break;
+                    }
+                }
+            }
+        }
+
         false
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         for tract in &self.tracts {
-            g.draw_polygon(tract.color, &tract.polygon);
+            let color = if Some(tract.name.clone()) == self.current_tract {
+                ui.cs.get("selected")
+            } else {
+                tract.color
+            };
+            g.draw_polygon(color, &tract.polygon);
         }
 
         self.menu.draw(g);
+        if let Some(ref name) = self.current_tract {
+            let mut osd = Text::new();
+            osd.add_line("Census ".to_string());
+            osd.append(name.clone(), Some(ui.cs.get("OSD name color")));
+            CommonState::draw_custom_osd(g, osd);
+        } else {
+            CommonState::draw_osd(g, ui, None);
+        }
     }
 }
 
