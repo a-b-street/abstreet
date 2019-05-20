@@ -140,6 +140,8 @@ Constructing the map:
   intermediate map format into the final format
 - `precompute`: small tool to run the second stage of map conversion and write
   final output
+- `popdat`: importing extra census-based data specific to Seattle, optional
+  right now
 
 Traffic simulation:
 

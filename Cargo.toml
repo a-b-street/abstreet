@@ -15,6 +15,7 @@ members = [
   "kml",
   "map_model",
   "playground_gui",
+  "popdat",
   "precompute",
   "sim",
   "synthetic",

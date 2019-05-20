@@ -1,0 +1,12 @@
+[package]
+name = "popdat"
+version = "0.1.0"
+authors = ["Dustin Carlino <dabreegster@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+abstutil = { path = "../abstutil" }
+geom = { path = "../geom" }
+kml = { path = "../kml" }
+serde = "1.0.89"
+serde_derive = "1.0.89"
