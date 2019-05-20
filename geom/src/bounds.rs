@@ -150,10 +150,16 @@ impl GPSBounds {
         b
     }
 
+    pub fn try_convert(&self, pts: &Vec<LonLat>) -> Option<Vec<Pt2D>> {
+        let mut result = Vec::new();
+        for pt in pts {
+            result.push(Pt2D::from_gps(*pt, self)?);
+        }
+        Some(result)
+    }
+
     pub fn must_convert(&self, pts: &Vec<LonLat>) -> Vec<Pt2D> {
-        pts.iter()
-            .map(|pt| Pt2D::from_gps(*pt, self).unwrap())
-            .collect()
+        self.try_convert(pts).unwrap()
     }
 
     pub fn must_convert_back(&self, pts: &Vec<Pt2D>) -> Vec<LonLat> {

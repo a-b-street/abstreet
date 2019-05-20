@@ -15,6 +15,7 @@ geom = { path = "../geom" }
 kml = { path = "../kml" }
 map_model = { path = "../map_model" }
 ordered-float = "1.0.1"
+popdat = { path = "../popdat" }
 pretty_assertions = "0.6.1"
 rand = "0.6.5"
 rand_xorshift = "0.1.1"

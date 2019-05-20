@@ -7,8 +7,8 @@ use std::collections::BTreeMap;
 pub struct PopDat {
     // Keyed by census tract
     pub household_vehicles: BTreeMap<String, TractData>,
-    pub commute_time: BTreeMap<String, TractData>,
-    pub commute_mode: BTreeMap<String, TractData>,
+    pub commute_times: BTreeMap<String, TractData>,
+    pub commute_modes: BTreeMap<String, TractData>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -31,8 +31,8 @@ impl PopDat {
                 &bounds,
                 timer,
             ),
-            commute_time: TractData::import("../data/input/commute_time.kml", &bounds, timer),
-            commute_mode: TractData::import("../data/input/commute_mode.kml", &bounds, timer),
+            commute_times: TractData::import("../data/input/commute_time.kml", &bounds, timer),
+            commute_modes: TractData::import("../data/input/commute_mode.kml", &bounds, timer),
         }
     }
 }

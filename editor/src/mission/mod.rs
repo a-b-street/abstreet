@@ -1,3 +1,4 @@
+mod dataviz;
 mod neighborhood;
 mod scenario;
 
@@ -15,6 +16,7 @@ enum State {
     Exploring(ModalMenu),
     Neighborhood(neighborhood::NeighborhoodEditor),
     Scenario(scenario::ScenarioEditor),
+    DataViz(dataviz::DataVisualizer),
 }
 
 impl MissionEditMode {
@@ -27,6 +29,7 @@ impl MissionEditMode {
                 "Mission Edit Mode",
                 vec![
                     (Some(Key::Escape), "quit"),
+                    (Some(Key::D), "visualize population data"),
                     (Some(Key::N), "manage neighborhoods"),
                     (Some(Key::W), "manage scenarios"),
                 ],
@@ -45,6 +48,9 @@ impl MissionEditMode {
 
                         if menu.action("quit") {
                             state.mode = Mode::SplashScreen(Wizard::new(), None);
+                        } else if menu.action("visualize population data") {
+                            mode.state =
+                                State::DataViz(dataviz::DataVisualizer::new(ctx, &state.ui));
                         } else if menu.action("manage neighborhoods") {
                             mode.state = State::Neighborhood(
                                 neighborhood::NeighborhoodEditor::PickNeighborhood(Wizard::new()),
@@ -53,6 +59,11 @@ impl MissionEditMode {
                             mode.state = State::Scenario(scenario::ScenarioEditor::PickScenario(
                                 Wizard::new(),
                             ));
+                        }
+                    }
+                    State::DataViz(ref mut viz) => {
+                        if viz.event(ctx, &state.ui) {
+                            mode.state = MissionEditMode::new(ctx, &mut state.ui).state;
                         }
                     }
                     State::Neighborhood(ref mut editor) => {
@@ -84,6 +95,9 @@ impl MissionEditMode {
             Mode::Mission(ref mode) => match mode.state {
                 State::Exploring(ref menu) => {
                     menu.draw(g);
+                }
+                State::DataViz(ref viz) => {
+                    viz.draw(g, &state.ui);
                 }
                 State::Neighborhood(ref editor) => {
                     editor.draw(g, &state.ui);
