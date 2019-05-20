@@ -27,6 +27,7 @@ struct Tract {
 
     num_bldgs: usize,
     num_parking_spots: usize,
+    total_owned_cars: usize,
 }
 
 impl DataVisualizer {
@@ -66,6 +67,10 @@ impl DataVisualizer {
             txt.add_line(format!(
                 "{} parking spots ",
                 prettyprint_usize(tract.num_parking_spots)
+            ));
+            txt.add_line(format!(
+                "{} total owned cars",
+                prettyprint_usize(tract.total_owned_cars)
             ));
         }
         self.menu.handle_event(ctx, Some(txt));
@@ -189,6 +194,7 @@ fn clip(popdat: &PopDat, ui: &UI, timer: &mut Timer) -> BTreeMap<String, Tract> 
                     color: Color::WHITE,
                     num_bldgs,
                     num_parking_spots,
+                    total_owned_cars: tract.total_owned_cars(),
                 },
             );
         }

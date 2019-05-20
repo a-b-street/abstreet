@@ -146,3 +146,22 @@ fn group_attribs(mut attribs: BTreeMap<String, String>) -> BTreeMap<String, Esti
         })
         .collect()
 }
+
+impl TractData {
+    // Nontrivial summary
+    pub fn total_owned_cars(&self) -> usize {
+        let mut sum = 0;
+        for (name, est) in &self.household_vehicles {
+            match name.as_str() {
+                "1 vehicle avail." => sum += 1 * est.value,
+                "2 vehicles avail." => sum += 2 * est.value,
+                "3 vehicles avail." => sum += 3 * est.value,
+                // Many more than 4 seems unrealistic
+                "4 or more vehicles avail." => sum += 4 * est.value,
+                "No vehicle avail." | "Total:" => {}
+                _ => panic!("Unknown household_vehicles key {}", name),
+            }
+        }
+        sum
+    }
+}
