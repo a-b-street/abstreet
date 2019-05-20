@@ -2,7 +2,9 @@ use crate::common::CommonState;
 use crate::helpers::{rotating_color, ID};
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Timer};
-use ezgui::{Color, EventCtx, GfxCtx, Key, ModalMenu, Text};
+use ezgui::{
+    Color, EventCtx, GfxCtx, HorizontalAlignment, Key, ModalMenu, Text, VerticalAlignment,
+};
 use geom::Polygon;
 use popdat::PopDat;
 use std::collections::BTreeMap;
@@ -109,6 +111,27 @@ impl DataVisualizer {
             CommonState::draw_custom_osd(g, osd);
         } else {
             CommonState::draw_osd(g, ui, None);
+        }
+
+        if let Some(ref name) = self.current_tract {
+            let tract = &self.popdat.tracts[name];
+            let kv = if self.current_dataset == 0 {
+                &tract.household_vehicles
+            } else if self.current_dataset == 1 {
+                &tract.commute_times
+            } else if self.current_dataset == 2 {
+                &tract.commute_modes
+            } else {
+                unreachable!()
+            };
+
+            let mut txt = Text::new();
+            for (k, v) in kv {
+                txt.add_styled_line(k.to_string(), Some(Color::RED), None, None);
+                txt.append(" = ".to_string(), None);
+                txt.append(v.to_string(), Some(Color::CYAN));
+            }
+            g.draw_blocking_text(&txt, (HorizontalAlignment::Left, VerticalAlignment::Top));
         }
     }
 }

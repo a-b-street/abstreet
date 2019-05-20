@@ -2,6 +2,7 @@ use abstutil::Timer;
 use geom::{GPSBounds, LonLat};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
+use std::fmt;
 
 #[derive(Serialize, Deserialize)]
 pub struct PopDat {
@@ -13,10 +14,16 @@ pub struct PopDat {
 #[derive(Serialize, Deserialize)]
 pub struct TractData {
     pub pts: Vec<LonLat>,
-    // TODO measurement and error grouped together, at least, ±
-    pub household_vehicles: BTreeMap<String, String>,
-    pub commute_times: BTreeMap<String, String>,
-    pub commute_modes: BTreeMap<String, String>,
+    pub household_vehicles: BTreeMap<String, Estimate>,
+    pub commute_times: BTreeMap<String, Estimate>,
+    pub commute_modes: BTreeMap<String, Estimate>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Estimate {
+    pub value: usize,
+    // margin of error, 90% confidence
+    pub moe: usize,
 }
 
 impl PopDat {
@@ -29,7 +36,7 @@ impl PopDat {
         let mut dat = PopDat {
             tracts: BTreeMap::new(),
         };
-        let fields: Vec<(&str, Box<Fn(&mut TractData, BTreeMap<String, String>)>)> = vec![
+        let fields: Vec<(&str, Box<Fn(&mut TractData, BTreeMap<String, Estimate>)>)> = vec![
             (
                 "../data/input/household_vehicles.kml",
                 Box::new(|tract, map| {
@@ -70,11 +77,10 @@ impl PopDat {
                     );
                 }
 
-                // Remove useless stuff
-                shape.attributes.remove("Internal feature number.");
-                shape.attributes.remove("GEO_ID_TRT");
-
-                setter(dat.tracts.get_mut(&name).unwrap(), shape.attributes);
+                setter(
+                    dat.tracts.get_mut(&name).unwrap(),
+                    group_attribs(shape.attributes),
+                );
             }
         }
 
@@ -89,4 +95,54 @@ impl PopDat {
 
         dat
     }
+}
+
+impl fmt::Display for Estimate {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} ± {}", self.value, self.moe)
+    }
+}
+
+fn group_attribs(mut attribs: BTreeMap<String, String>) -> BTreeMap<String, Estimate> {
+    // Remove useless stuff
+    attribs.remove("Internal feature number.");
+    attribs.remove("GEO_ID_TRT");
+
+    let mut estimates = BTreeMap::new();
+    let mut moes = BTreeMap::new();
+    for (k, v) in attribs {
+        // These fields in the household_vehicles dataset aren't interesting.
+        if k.contains("person hsehold") {
+            continue;
+        }
+
+        let value = v
+            .parse::<usize>()
+            .unwrap_or_else(|_| panic!("Unknown value {}={}", k, v));
+
+        if k.starts_with("E1216 - ") {
+            estimates.insert(k["E1216 - ".len()..k.len()].to_string(), value);
+        } else if k.starts_with("M121616 - ") {
+            moes.insert(k["M121616 - ".len()..k.len()].to_string(), value);
+        } else {
+            panic!("Unknown key {}={}", k, v);
+        }
+    }
+
+    // If the length is the same but some keys differ, the lookup in moes below will blow up.
+    if estimates.len() != moes.len() {
+        panic!("estimates and margins of error have different keys, probably");
+    }
+    estimates
+        .into_iter()
+        .map(|(key, e)| {
+            (
+                key.clone(),
+                Estimate {
+                    value: e,
+                    moe: moes[&key],
+                },
+            )
+        })
+        .collect()
 }
