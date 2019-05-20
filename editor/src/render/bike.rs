@@ -26,7 +26,6 @@ impl DrawBike {
         // TODO Share constants with DrawPedestrian
         let body_radius = LANE_THICKNESS / 4.0;
         let body_color = match input.status {
-            // TODO color.shift(input.id.0) actually looks pretty bad still
             CarStatus::Debug => cs.get_def("debug bike", Color::BLUE.alpha(0.8)),
             // TODO Hard to see on the greenish bike lanes? :P
             CarStatus::Moving => cs.get_def("moving bike", Color::GREEN),

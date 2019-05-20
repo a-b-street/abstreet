@@ -1,4 +1,3 @@
-use palette;
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 
@@ -55,26 +54,6 @@ impl Color {
 
     pub const fn grey(f: f32) -> Color {
         Color([f, f, f, 1.0])
-    }
-
-    // Deterministically shift a color's brightness based on an ID.
-    pub fn shift(&self, id: usize) -> Color {
-        use palette::Shade;
-
-        // TODO this needs tuning. too easy to get too light/dark, but also too easy to have too few
-        // variants. should maybe just manually come up with a list of 100 colors, hardcode in, modulo.
-        let variants = 10;
-        let half_variants = variants / 2;
-        let modulo = id % variants;
-        let scale = 1.0 / (variants as f32);
-
-        let color = palette::Srgb::new(self.0[0], self.0[1], self.0[2]).into_linear();
-        let new_color = if modulo < half_variants {
-            color.lighten(scale * (modulo as f32))
-        } else {
-            color.darken(scale * ((modulo - half_variants) as f32))
-        };
-        Color([new_color.red, new_color.green, new_color.blue, 1.0])
     }
 
     pub const fn alpha(&self, a: f32) -> Color {

@@ -79,10 +79,8 @@ impl DrawPedestrian {
         let head_circle = Circle::new(input.pos, 0.5 * radius);
         let body_color = if input.preparing_bike {
             cs.get_def("pedestrian preparing bike", Color::rgb(255, 0, 144))
-                .shift(input.id.0)
         } else {
             cs.get_def("pedestrian", Color::rgb_f(0.2, 0.7, 0.7))
-                .shift(input.id.0)
         };
         // TODO Arms would look fabulous.
         draw_default.push(body_color, body_circle.to_polygon());

@@ -23,7 +23,6 @@ impl DrawCar {
         let body_polygon = input.body.make_polygons(CAR_WIDTH);
         draw_default.push(
             // TODO if it's a bus, color it differently -- but how? :\
-            // TODO color.shift(input.id.0) actually looks pretty bad still
             match input.status {
                 CarStatus::Debug => cs.get_def("debug car", Color::BLUE.alpha(0.8)),
                 CarStatus::Moving => cs.get_def("moving car", Color::CYAN),
