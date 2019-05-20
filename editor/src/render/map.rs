@@ -298,17 +298,6 @@ impl DrawMap {
         &self.areas[id.0]
     }
 
-    #[allow(dead_code)]
-    pub fn get_matching_lanes(&self, bounds: Bounds) -> Vec<LaneID> {
-        let mut results: Vec<LaneID> = Vec::new();
-        for &(id, _, _) in &self.quadtree.query(bounds.as_bbox()) {
-            if let ID::Lane(id) = id {
-                results.push(*id);
-            }
-        }
-        results
-    }
-
     // Unsorted, unexpanded, raw result.
     pub fn get_matching_objects(&self, bounds: Bounds) -> Vec<ID> {
         let mut results: Vec<ID> = Vec::new();
