@@ -206,17 +206,36 @@ fn clip(popdat: &PopDat, ui: &UI, timer: &mut Timer) -> BTreeMap<String, Tract> 
 }
 
 fn bar_chart(g: &mut GfxCtx, data: &BTreeMap<String, Estimate>) {
-    let mut labels = Text::with_bg_color(None);
     let mut max = 0;
+    let mut sum = 0;
     for (name, est) in data {
         if name == "Total:" {
             continue;
         }
-        labels.add_styled_line(name.to_string(), None, None, Some(40));
         max = max.max(est.value);
+        sum += est.value;
+    }
+
+    let mut labels = Text::with_bg_color(None);
+    for (name, est) in data {
+        if name == "Total:" {
+            continue;
+        }
+        labels.add_styled_line(format!("{} (", name), None, None, Some(40));
+        labels.append(
+            format!("{}%", ((est.value as f64) / (sum as f64) * 100.0) as usize),
+            Some(Color::RED),
+        );
+        labels.append(")".to_string(), None);
     }
     let (txt_width, total_height) = g.text_dims(&labels);
     let line_height = total_height / ((data.len() as f64) - 1.0);
+    labels.add_styled_line(
+        format!("{} samples", prettyprint_usize(sum)),
+        None,
+        None,
+        Some(40),
+    );
 
     // This is, uh, pixels. :P
     let max_bar_width = Distance::meters(300.0);
@@ -227,7 +246,7 @@ fn bar_chart(g: &mut GfxCtx, data: &BTreeMap<String, Estimate>) {
         &Polygon::rectangle_topleft(
             Pt2D::new(0.0, 0.0),
             Distance::meters(txt_width) + max_bar_width,
-            Distance::meters(total_height),
+            Distance::meters(total_height + line_height),
         ),
     );
     g.draw_blocking_text(&labels, (HorizontalAlignment::Left, VerticalAlignment::Top));

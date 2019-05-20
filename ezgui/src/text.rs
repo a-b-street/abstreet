@@ -121,10 +121,18 @@ impl Text {
             self.lines.push((None, Vec::new()));
         }
 
+        let size = self
+            .lines
+            .last()
+            .unwrap()
+            .1
+            .last()
+            .map(|span| span.size)
+            .unwrap_or(FONT_SIZE);
         self.lines.last_mut().unwrap().1.push(TextSpan {
             text,
             fg_color: fg_color.unwrap_or(FG_COLOR),
-            size: FONT_SIZE,
+            size,
         });
     }
 
