@@ -3,13 +3,15 @@ use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{Color, EventCtx, GfxCtx, Key, ModalMenu};
 use geom::{GPSBounds, Polygon};
-use popdat::{PopDat, TractData};
-use std::collections::BTreeMap;
+use popdat::PopDat;
 
 pub struct DataVisualizer {
     menu: ModalMenu,
     popdat: PopDat,
     tracts: Vec<Tract>,
+
+    // TODO Urgh. 0, 1, or 2.
+    current_dataset: usize,
 }
 
 struct Tract {
@@ -35,9 +37,9 @@ impl DataVisualizer {
                 ],
                 ctx,
             ),
+            tracts: clip(&popdat, &ui.primary.map.get_gps_bounds()),
             popdat,
-            // TODO Start showing something
-            tracts: Vec::new(),
+            current_dataset: 0,
         }
     }
 
@@ -49,15 +51,12 @@ impl DataVisualizer {
         // TODO Remember which dataset we're showing and don't allow reseting to the same.
         if self.menu.action("quit") {
             return true;
-        } else if self.menu.action("household vehicles") {
-            self.tracts = Tract::clip(
-                &self.popdat.household_vehicles,
-                ui.primary.map.get_gps_bounds(),
-            );
-        } else if self.menu.action("commute times") {
-            self.tracts = Tract::clip(&self.popdat.commute_times, ui.primary.map.get_gps_bounds());
-        } else if self.menu.action("commute modes") {
-            self.tracts = Tract::clip(&self.popdat.commute_modes, ui.primary.map.get_gps_bounds());
+        } else if self.current_dataset != 0 && self.menu.action("household vehicles") {
+            self.current_dataset = 0;
+        } else if self.current_dataset != 1 && self.menu.action("commute times") {
+            self.current_dataset = 1;
+        } else if self.current_dataset != 2 && self.menu.action("commute modes") {
+            self.current_dataset = 2;
         }
         false
     }
@@ -71,22 +70,24 @@ impl DataVisualizer {
     }
 }
 
-impl Tract {
-    fn clip(map: &BTreeMap<String, TractData>, bounds: &GPSBounds) -> Vec<Tract> {
-        // TODO Partial clipping could be neat, except it'd be confusing to interpret totals.
-        let mut results = Vec::new();
-        for (name, data) in map {
-            if let Some(pts) = bounds.try_convert(&data.pts) {
-                // TODO We should actually make sure the polygon is completely contained within the
-                // map's boundary.
-                results.push(Tract {
-                    name: name.clone(),
-                    polygon: Polygon::new(&pts),
-                    color: rotating_color(results.len()),
-                });
-            }
+fn clip(popdat: &PopDat, bounds: &GPSBounds) -> Vec<Tract> {
+    // TODO Partial clipping could be neat, except it'd be confusing to interpret totals.
+    let mut results = Vec::new();
+    for (name, tract) in &popdat.tracts {
+        if let Some(pts) = bounds.try_convert(&tract.pts) {
+            // TODO We should actually make sure the polygon is completely contained within the
+            // map's boundary.
+            results.push(Tract {
+                name: name.clone(),
+                polygon: Polygon::new(&pts),
+                color: rotating_color(results.len()),
+            });
         }
-        println!("Clipped {} tracts from {}", results.len(), map.len());
-        results
     }
+    println!(
+        "Clipped {} tracts from {}",
+        results.len(),
+        popdat.tracts.len()
+    );
+    results
 }
