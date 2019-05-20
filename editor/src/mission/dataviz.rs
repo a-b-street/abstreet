@@ -5,8 +5,8 @@ use abstutil::{prettyprint_usize, Timer};
 use ezgui::{
     Color, EventCtx, GfxCtx, HorizontalAlignment, Key, ModalMenu, Text, VerticalAlignment,
 };
-use geom::Polygon;
-use popdat::PopDat;
+use geom::{Distance, Polygon, Pt2D};
+use popdat::{Estimate, PopDat};
 use std::collections::BTreeMap;
 
 pub struct DataVisualizer {
@@ -14,6 +14,8 @@ pub struct DataVisualizer {
     popdat: PopDat,
     tracts: BTreeMap<String, Tract>,
 
+    // Table if false
+    show_bars: bool,
     // TODO Urgh. 0, 1, or 2.
     current_dataset: usize,
     current_tract: Option<String>,
@@ -38,6 +40,7 @@ impl DataVisualizer {
                 "Data Visualizer",
                 vec![
                     (Some(Key::Escape), "quit"),
+                    (Some(Key::Space), "toggle table/bar chart"),
                     (Some(Key::Num1), "household vehicles"),
                     (Some(Key::Num2), "commute times"),
                     (Some(Key::Num3), "commute modes"),
@@ -46,6 +49,7 @@ impl DataVisualizer {
             ),
             tracts: clip(&popdat, ui, &mut timer),
             popdat,
+            show_bars: false,
             current_dataset: 0,
             current_tract: None,
         }
@@ -76,6 +80,8 @@ impl DataVisualizer {
             self.current_dataset = 1;
         } else if self.current_dataset != 2 && self.menu.action("commute modes") {
             self.current_dataset = 2;
+        } else if self.menu.action("toggle table/bar chart") {
+            self.show_bars = !self.show_bars;
         }
 
         if !ctx.canvas.is_dragging() && ctx.input.get_moved_mouse().is_some() {
@@ -125,13 +131,17 @@ impl DataVisualizer {
                 unreachable!()
             };
 
-            let mut txt = Text::new();
-            for (k, v) in kv {
-                txt.add_styled_line(k.to_string(), Some(Color::RED), None, None);
-                txt.append(" = ".to_string(), None);
-                txt.append(v.to_string(), Some(Color::CYAN));
+            if self.show_bars {
+                bar_chart(g, kv);
+            } else {
+                let mut txt = Text::new();
+                for (k, v) in kv {
+                    txt.add_styled_line(k.to_string(), Some(Color::RED), None, None);
+                    txt.append(" = ".to_string(), None);
+                    txt.append(v.to_string(), Some(Color::CYAN));
+                }
+                g.draw_blocking_text(&txt, (HorizontalAlignment::Left, VerticalAlignment::Top));
             }
-            g.draw_blocking_text(&txt, (HorizontalAlignment::Left, VerticalAlignment::Top));
         }
     }
 }
@@ -188,4 +198,62 @@ fn clip(popdat: &PopDat, ui: &UI, timer: &mut Timer) -> BTreeMap<String, Tract> 
         popdat.tracts.len()
     );
     results
+}
+
+fn bar_chart(g: &mut GfxCtx, data: &BTreeMap<String, Estimate>) {
+    let mut labels = Text::with_bg_color(None);
+    let mut max = 0;
+    for (name, est) in data {
+        if name == "Total:" {
+            continue;
+        }
+        labels.add_styled_line(name.to_string(), None, None, Some(40));
+        max = max.max(est.value);
+    }
+    let (txt_width, total_height) = g.text_dims(&labels);
+    let line_height = total_height / ((data.len() as f64) - 1.0);
+
+    // This is, uh, pixels. :P
+    let max_bar_width = Distance::meters(300.0);
+
+    g.fork_screenspace();
+    g.draw_polygon(
+        Color::grey(0.3),
+        &Polygon::rectangle_topleft(
+            Pt2D::new(0.0, 0.0),
+            Distance::meters(txt_width) + max_bar_width,
+            Distance::meters(total_height),
+        ),
+    );
+    g.draw_blocking_text(&labels, (HorizontalAlignment::Left, VerticalAlignment::Top));
+    // draw_blocking_text undoes this! Oops.
+    g.fork_screenspace();
+
+    for (idx, (name, est)) in data.iter().enumerate() {
+        if name == "Total:" {
+            continue;
+        }
+        g.draw_polygon(
+            rotating_color(idx),
+            &Polygon::rectangle_topleft(
+                Pt2D::new(txt_width, (0.1 + (idx as f64)) * line_height),
+                max_bar_width * ((est.value as f64) / (max as f64)),
+                0.8 * Distance::meters(line_height),
+            ),
+        );
+
+        // Error bars!
+        // TODO Little cap on both sides
+        // TODO Draw the negative half too
+        g.draw_polygon(
+            Color::WHITE,
+            &Polygon::rectangle_topleft(
+                Pt2D::new(txt_width, (0.4 + (idx as f64)) * line_height),
+                max_bar_width * (((est.moe / 2) as f64) / (max as f64)),
+                0.2 * Distance::meters(line_height),
+            ),
+        );
+    }
+
+    g.unfork();
 }

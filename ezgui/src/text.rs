@@ -7,7 +7,7 @@ use glium_glyph::glyph_brush::{Section, SectionText, VariedSection};
 use textwrap;
 
 const FG_COLOR: Color = Color::WHITE;
-pub const BG_COLOR: Color = Color::grey(0.2);
+const BG_COLOR: Color = Color::grey(0.2);
 pub const PROMPT_COLOR: Color = Color::BLUE;
 pub const SELECTED_COLOR: Color = Color::RED;
 pub const HOTKEY_COLOR: Color = Color::GREEN;
