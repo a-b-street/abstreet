@@ -297,11 +297,28 @@ impl ColorScheme {
 include!(concat!(env!("OUT_DIR"), "/init_colors.rs"));
 
 pub fn rotating_color(idx: usize) -> Color {
-    // TODO these are awful choices
-    const COLORS: [Color; 3] = [
-        Color::RED.alpha(0.8),
-        Color::GREEN.alpha(0.8),
-        Color::BLUE.alpha(0.8),
-    ];
-    COLORS[idx % COLORS.len()]
+    rotating_color_total(idx, 9)
+}
+
+pub fn rotating_color_total(idx: usize, total: usize) -> Color {
+    if total > 9 {
+        return rotating_color_total(idx, 9);
+    }
+
+    // TODO Cache this
+    // TODO This palette doesn't contrast well with other stuff
+    let colors: Vec<Color> =
+        colorbrewer::get_color_ramp(colorbrewer::Palette::YlOrBr, total as u32)
+            .unwrap()
+            .into_iter()
+            .map(|raw| {
+                // Skip the leading '#'
+                let r = usize::from_str_radix(&raw[1..3], 16).unwrap();
+                let g = usize::from_str_radix(&raw[3..5], 16).unwrap();
+                let b = usize::from_str_radix(&raw[5..7], 16).unwrap();
+                Color::rgb(r, g, b)
+            })
+            .collect();
+
+    colors[idx % total]
 }

@@ -1,5 +1,5 @@
 use crate::common::CommonState;
-use crate::helpers::{rotating_color, ID};
+use crate::helpers::{rotating_color_total, ID};
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Timer};
 use ezgui::{
@@ -185,12 +185,17 @@ fn clip(popdat: &PopDat, ui: &UI, timer: &mut Timer) -> BTreeMap<String, Tract> 
                 name.clone(),
                 Tract {
                     polygon,
-                    color: rotating_color(results.len()),
+                    // Update it after we know the total number of matching tracts.
+                    color: Color::WHITE,
                     num_bldgs,
                     num_parking_spots,
                 },
             );
         }
+    }
+    let len = results.len();
+    for (idx, tract) in results.values_mut().enumerate() {
+        tract.color = rotating_color_total(idx, len);
     }
     println!(
         "Clipped {} tracts from {}",
@@ -234,7 +239,7 @@ fn bar_chart(g: &mut GfxCtx, data: &BTreeMap<String, Estimate>) {
             continue;
         }
         g.draw_polygon(
-            rotating_color(idx),
+            rotating_color_total(idx, data.len() - 1),
             &Polygon::rectangle_topleft(
                 Pt2D::new(txt_width, (0.1 + (idx as f64)) * line_height),
                 max_bar_width * ((est.value as f64) / (max as f64)),
