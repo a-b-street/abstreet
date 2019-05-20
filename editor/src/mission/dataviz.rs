@@ -238,14 +238,14 @@ fn bar_chart(g: &mut GfxCtx, data: &BTreeMap<String, Estimate>) {
     );
 
     // This is, uh, pixels. :P
-    let max_bar_width = Distance::meters(300.0);
+    let max_bar_width = 300.0;
 
     g.fork_screenspace();
     g.draw_polygon(
         Color::grey(0.3),
         &Polygon::rectangle_topleft(
             Pt2D::new(0.0, 0.0),
-            Distance::meters(txt_width) + max_bar_width,
+            Distance::meters(txt_width + 1.2 * max_bar_width),
             Distance::meters(total_height + line_height),
         ),
     );
@@ -257,23 +257,27 @@ fn bar_chart(g: &mut GfxCtx, data: &BTreeMap<String, Estimate>) {
         if name == "Total:" {
             continue;
         }
+        let this_width = max_bar_width * ((est.value as f64) / (max as f64));
         g.draw_polygon(
             rotating_color_total(idx, data.len() - 1),
             &Polygon::rectangle_topleft(
                 Pt2D::new(txt_width, (0.1 + (idx as f64)) * line_height),
-                max_bar_width * ((est.value as f64) / (max as f64)),
-                0.8 * Distance::meters(line_height),
+                Distance::meters(this_width),
+                Distance::meters(0.8 * line_height),
             ),
         );
 
         // Error bars!
         // TODO Little cap on both sides
-        // TODO Draw the negative half too
+        let half_moe_width = max_bar_width * (est.moe as f64) / (max as f64) / 2.0;
         g.draw_polygon(
-            Color::WHITE,
+            Color::BLACK,
             &Polygon::rectangle_topleft(
-                Pt2D::new(txt_width, (0.4 + (idx as f64)) * line_height),
-                max_bar_width * (((est.moe / 2) as f64) / (max as f64)),
+                Pt2D::new(
+                    txt_width + this_width - half_moe_width,
+                    (0.4 + (idx as f64)) * line_height,
+                ),
+                2.0 * Distance::meters(half_moe_width),
                 0.2 * Distance::meters(line_height),
             ),
         );
