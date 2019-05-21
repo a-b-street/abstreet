@@ -105,7 +105,7 @@ pub fn load(
 
     let mut shapes = ExtraShapes { shapes };
     if fix_field_names(path, &mut shapes).is_none() {
-        timer.warn("Applying extra XML metadata failed".to_string());
+        timer.warn(format!("Applying extra XML metadata for {} failed", path));
     }
     Ok(shapes)
 }

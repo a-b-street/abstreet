@@ -82,7 +82,10 @@ pub fn get_lane_types(
         // Only residential streets have a sidewalk on the other side of a one-way.
         // Ignore off-side parking, since cars don't know how to park on lanes without a driving
         // lane in that direction too.
-        let back_side = if has_sidewalk && tags.get("highway") == Some(&"residential".to_string()) {
+        let back_side = if has_sidewalk
+            && (tags.get("highway") == Some(&"residential".to_string())
+                || tags.get("sidewalk") == Some(&"both".to_string()))
+        {
             vec![LaneType::Sidewalk]
         } else {
             Vec::new()
