@@ -43,17 +43,31 @@ pub fn make_bus_stops(
     let mut point_to_stop_id: HashMap<HashablePt2D, BusStopID> = HashMap::new();
     let mut bus_stops: BTreeMap<BusStopID, BusStop> = BTreeMap::new();
 
-    for (id, dists_set) in stops_per_sidewalk.consume().into_iter() {
-        let road = map.get_parent(id);
-        if let Ok(driving_lane) = road.find_closest_lane(id, vec![LaneType::Driving, LaneType::Bus])
+    for (sidewalk_id, dists_set) in stops_per_sidewalk.consume().into_iter() {
+        let road = map.get_parent(sidewalk_id);
+        if let Ok(driving_lane) =
+            road.find_closest_lane(sidewalk_id, vec![LaneType::Driving, LaneType::Bus])
         {
             let mut dists: Vec<(Distance, HashablePt2D)> = dists_set.into_iter().collect();
             dists.sort_by_key(|(dist, _)| *dist);
             for (idx, (dist_along, orig_pt)) in dists.into_iter().enumerate() {
-                let stop_id = BusStopID { sidewalk: id, idx };
+                let stop_id = BusStopID {
+                    sidewalk: sidewalk_id,
+                    idx,
+                };
                 point_to_stop_id.insert(orig_pt, stop_id);
-                let sidewalk_pos = Position::new(id, dist_along);
-                let driving_pos = sidewalk_pos.equiv_pos(driving_lane, map);
+                let sidewalk_pos = Position::new(sidewalk_id, dist_along);
+                // On one-ways, might have a bus stop be on the "wrong" sidewalk.
+                let driving_pos = if road.is_forwards(driving_lane) == road.is_forwards(sidewalk_id)
+                {
+                    sidewalk_pos.equiv_pos(driving_lane, map)
+                } else {
+                    Position::new(
+                        driving_lane,
+                        (map.get_l(driving_lane).length() - sidewalk_pos.dist_along())
+                            .max(Distance::ZERO),
+                    )
+                };
                 bus_stops.insert(
                     stop_id,
                     BusStop {
@@ -66,7 +80,7 @@ pub fn make_bus_stops(
         } else {
             timer.warn(format!(
                 "Can't find driving lane next to {}: {:?} and {:?}",
-                id, road.children_forwards, road.children_backwards
+                sidewalk_id, road.children_forwards, road.children_backwards
             ));
         }
     }

@@ -27,6 +27,8 @@ impl fmt::Display for BusRouteID {
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct BusStop {
     pub id: BusStopID,
+    // These might be on opposite sides of the road in the case of one-ways. Shouldn't matter
+    // anywhere.
     pub driving_pos: Position,
     pub sidewalk_pos: Position,
 }
