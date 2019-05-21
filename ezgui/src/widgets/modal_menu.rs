@@ -1,5 +1,5 @@
 use crate::widgets::{Menu, Position};
-use crate::{Canvas, EventCtx, GfxCtx, InputResult, Key, ScreenPt, Text};
+use crate::{Canvas, EventCtx, GfxCtx, InputResult, Key, Text};
 
 pub struct ModalMenu {
     menu: Menu<()>,
@@ -36,10 +36,6 @@ impl ModalMenu {
             menu,
             chosen_action: None,
         }
-    }
-
-    pub fn get_bottom_left(&self) -> ScreenPt {
-        self.menu.get_bottom_left()
     }
 
     pub fn handle_event(&mut self, ctx: &mut EventCtx, new_prompt: Option<Text>) {

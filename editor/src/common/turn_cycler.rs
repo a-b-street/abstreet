@@ -101,7 +101,7 @@ impl TurnCyclerState {
                             draw_map: &ui.primary.draw_map,
                             sim: &ui.primary.sim,
                         };
-                        draw_signal_diagram(i, cycle.idx, Some(time_left), 0.0, g, &ctx);
+                        draw_signal_diagram(i, cycle.idx, Some(time_left), g, &ctx);
                     }
                 }
             }

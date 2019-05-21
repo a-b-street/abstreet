@@ -326,13 +326,6 @@ impl<T: Clone> Menu<T> {
         self.recalculate_geom(canvas);
     }
 
-    pub fn get_bottom_left(&self) -> ScreenPt {
-        ScreenPt::new(
-            self.geom.top_left.x,
-            self.geom.top_left.y + self.geom.total_height,
-        )
-    }
-
     fn recalculate_geom(&mut self, canvas: &Canvas) {
         if self.hidden {
             self.geom = self

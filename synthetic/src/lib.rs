@@ -9,7 +9,7 @@ use std::collections::BTreeMap;
 use std::mem;
 
 const INTERSECTION_RADIUS: Distance = Distance::const_meters(5.0);
-const BUILDING_LENGTH: f64 = 30.0;
+const BUILDING_LENGTH: Distance = Distance::const_meters(30.0);
 const CENTER_LINE_THICKNESS: Distance = Distance::const_meters(0.5);
 
 const HIGHLIGHT_COLOR: Color = Color::CYAN;

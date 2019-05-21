@@ -373,7 +373,6 @@ pub fn draw_signal_diagram(
     i: IntersectionID,
     current_cycle: usize,
     time_left: Option<Duration>,
-    y1_screen: f64,
     g: &mut GfxCtx,
     ctx: &DrawCtx,
 ) {
@@ -424,14 +423,13 @@ pub fn draw_signal_diagram(
         .max_by_key(|w| NotNan::new(*w).unwrap())
         .unwrap();
     let total_screen_width = (intersection_width * zoom) + label_length + 10.0;
-    let x1_screen = g.canvas.window_width - total_screen_width;
 
     g.fork_screenspace();
     g.draw_polygon(
         ctx.cs
             .get_def("signal editor panel", Color::BLACK.alpha(0.95)),
         &Polygon::rectangle_topleft(
-            Pt2D::new(x1_screen, y1_screen),
+            Pt2D::new(0.0, 0.0),
             Distance::meters(total_screen_width),
             Distance::meters((padding + intersection_height) * (cycles.len() as f64) * zoom),
         ),
@@ -443,8 +441,8 @@ pub fn draw_signal_diagram(
         ),
         &Polygon::rectangle_topleft(
             Pt2D::new(
-                x1_screen,
-                y1_screen + (padding + intersection_height) * (current_cycle as f64) * zoom,
+                0.0,
+                (padding + intersection_height) * (current_cycle as f64) * zoom,
             ),
             Distance::meters(total_screen_width),
             Distance::meters((padding + intersection_height) * zoom),
@@ -452,9 +450,9 @@ pub fn draw_signal_diagram(
     );
 
     for (idx, (txt, cycle)) in labels.into_iter().zip(cycles.iter()).enumerate() {
-        let y1 = y1_screen + (padding + intersection_height) * (idx as f64) * zoom;
+        let y1 = (padding + intersection_height) * (idx as f64) * zoom;
 
-        g.fork(top_left, ScreenPt::new(x1_screen, y1), zoom);
+        g.fork(top_left, ScreenPt::new(0.0, y1), zoom);
         draw_signal_cycle(
             &cycle,
             if idx == current_cycle {
@@ -468,7 +466,7 @@ pub fn draw_signal_diagram(
 
         g.draw_text_at_screenspace_topleft(
             &txt,
-            ScreenPt::new(x1_screen + 10.0 + (intersection_width * zoom), y1),
+            ScreenPt::new(10.0 + (intersection_width * zoom), y1),
         );
     }
 

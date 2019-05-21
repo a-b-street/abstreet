@@ -5,7 +5,7 @@ use crate::helpers::ID;
 use crate::render::{draw_signal_cycle, draw_signal_diagram, DrawCtx, DrawOptions, DrawTurn};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
-use ezgui::{Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu, ScreenPt, Wizard, WrappedWizard};
+use ezgui::{Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu, Wizard, WrappedWizard};
 use geom::Duration;
 use map_model::{ControlTrafficSignal, Cycle, IntersectionID, Map, TurnID, TurnPriority, TurnType};
 
@@ -19,8 +19,6 @@ pub struct TrafficSignalEditor {
     cycle_duration_wizard: Option<Wizard>,
     preset_wizard: Option<Wizard>,
     icon_selected: Option<TurnID>,
-
-    diagram_top_left: ScreenPt,
 }
 
 impl TrafficSignalEditor {
@@ -43,7 +41,6 @@ impl TrafficSignalEditor {
             ],
             ctx,
         );
-        let diagram_top_left = menu.get_bottom_left();
         TrafficSignalEditor {
             menu,
             i: id,
@@ -51,14 +48,12 @@ impl TrafficSignalEditor {
             cycle_duration_wizard: None,
             preset_wizard: None,
             icon_selected: None,
-            diagram_top_left,
         }
     }
 
     // Returns true if the editor is done and we should go back to main edit mode.
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> bool {
         self.menu.handle_event(ctx, None);
-        self.diagram_top_left = self.menu.get_bottom_left();
         ctx.canvas.handle_event(ctx.input);
 
         if !ctx.canvas.is_dragging() && ctx.input.get_moved_mouse().is_some() {
@@ -279,14 +274,7 @@ impl TrafficSignalEditor {
         }
         batch.draw(g);
 
-        draw_signal_diagram(
-            self.i,
-            self.current_cycle,
-            None,
-            self.diagram_top_left.y,
-            g,
-            &ctx,
-        );
+        draw_signal_diagram(self.i, self.current_cycle, None, g, &ctx);
 
         if let Some(ref wizard) = self.cycle_duration_wizard {
             wizard.draw(g);
