@@ -1,5 +1,5 @@
 use crate::{IntersectionID, Map, RoadID, Turn, TurnID, TurnPriority, TurnType};
-use abstutil::{Error, Timer, Warn};
+use abstutil::{Error, Timer};
 use geom::Duration;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeSet;
@@ -14,18 +14,38 @@ pub struct ControlTrafficSignal {
 
 impl ControlTrafficSignal {
     pub fn new(map: &Map, id: IntersectionID, timer: &mut Timer) -> ControlTrafficSignal {
-        if let Some(ts) = ControlTrafficSignal::four_way_four_phase(map, id) {
-            ts
-        } else if let Some(ts) = ControlTrafficSignal::four_oneways(map, id) {
-            ts
-        } else if let Some(ts) = ControlTrafficSignal::three_way(map, id) {
-            ts
-        } else if let Some(ts) = ControlTrafficSignal::degenerate(map, id) {
-            ts
-        } else {
+        let mut policies = ControlTrafficSignal::get_possible_policies(map, id);
+        if policies.len() == 1 {
             timer.warn(format!("Falling back to greedy_assignment for {}", id));
-            ControlTrafficSignal::greedy_assignment(map, id).get(timer)
         }
+        policies.remove(0).1
+    }
+
+    pub fn get_possible_policies(
+        map: &Map,
+        id: IntersectionID,
+    ) -> Vec<(String, ControlTrafficSignal)> {
+        let mut results = Vec::new();
+        if let Some(ts) = ControlTrafficSignal::four_way_four_phase(map, id) {
+            results.push(("four-phase".to_string(), ts));
+        }
+        if let Some(ts) = ControlTrafficSignal::four_way_two_phase(map, id) {
+            results.push(("two-phase".to_string(), ts));
+        }
+        if let Some(ts) = ControlTrafficSignal::three_way(map, id) {
+            results.push(("three-phase".to_string(), ts));
+        }
+        if let Some(ts) = ControlTrafficSignal::degenerate(map, id) {
+            results.push(("degenerate (2 roads)".to_string(), ts));
+        }
+        if let Some(ts) = ControlTrafficSignal::four_oneways(map, id) {
+            results.push(("two-phase for 4 one-ways".to_string(), ts));
+        }
+        results.push((
+            "arbitrary assignment".to_string(),
+            ControlTrafficSignal::greedy_assignment(map, id),
+        ));
+        results
     }
 
     pub fn current_cycle_and_remaining_time(&self, time: Duration) -> (&Cycle, Duration) {
@@ -80,18 +100,9 @@ impl ControlTrafficSignal {
         Ok(())
     }
 
-    pub fn greedy_assignment(
-        map: &Map,
-        intersection: IntersectionID,
-    ) -> Warn<ControlTrafficSignal> {
+    fn greedy_assignment(map: &Map, intersection: IntersectionID) -> ControlTrafficSignal {
         if map.get_turns_in_intersection(intersection).is_empty() {
-            return Warn::warn(
-                ControlTrafficSignal {
-                    id: intersection,
-                    cycles: vec![Cycle::new(intersection, 0)],
-                },
-                format!("{} has no turns", intersection),
-            );
+            panic!("{} has no turns", intersection);
         }
 
         let mut cycles = Vec::new();
@@ -131,10 +142,10 @@ impl ControlTrafficSignal {
         };
         // This must succeed
         ts.validate(map).unwrap();
-        Warn::ok(ts)
+        ts
     }
 
-    pub fn degenerate(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
+    fn degenerate(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
         if map.get_i(i).roads.len() != 2 {
             return None;
         }
@@ -164,7 +175,7 @@ impl ControlTrafficSignal {
         }
     }
 
-    pub fn three_way(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
+    fn three_way(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
         if map.get_i(i).roads.len() != 3 {
             return None;
         }
@@ -217,7 +228,7 @@ impl ControlTrafficSignal {
         }
     }
 
-    pub fn four_way_four_phase(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
+    fn four_way_four_phase(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
         if map.get_i(i).roads.len() != 4 {
             return None;
         }
@@ -263,7 +274,7 @@ impl ControlTrafficSignal {
         }
     }
 
-    pub fn four_way_two_phase(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
+    fn four_way_two_phase(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
         if map.get_i(i).roads.len() != 4 {
             return None;
         }
@@ -308,7 +319,7 @@ impl ControlTrafficSignal {
         }
     }
 
-    pub fn four_oneways(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
+    fn four_oneways(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
         if map.get_i(i).roads.len() != 4 {
             return None;
         }
