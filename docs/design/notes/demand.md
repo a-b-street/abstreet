@@ -49,3 +49,7 @@ https://www.psrc.org/activity-based-travel-model-soundcast
 	- https://www.soundtransit.org/get-to-know-us/documents-reports/service-planning-ridership
 	- https://gis-kingcounty.opendata.arcgis.com/datasets/parcels-for-king-county-with-address-with-property-information--parcel-address-area
 		- PREUSE_DESC reveals landuse
+
+## Great info
+
+- https://www.psrc.org/sites/default/files/shrp2_c46.pdf

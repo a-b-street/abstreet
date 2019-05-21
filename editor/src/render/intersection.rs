@@ -274,7 +274,7 @@ pub fn draw_signal_cycle(
     let radius = Distance::meters(0.5);
     let box_width = 2.5 * radius;
     let box_height = 6.5 * radius;
-    let center = ctx.map.get_i(cycle.parent).point;
+    let center = ctx.map.get_i(cycle.parent).polygon.center();
     let top_left = center.offset(-box_width / 2.0, -box_height / 2.0);
     let percent = time_left.unwrap() / cycle.duration;
     // TODO Tune colors.
