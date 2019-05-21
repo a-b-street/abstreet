@@ -32,6 +32,7 @@ impl TrafficSignalEditor {
                 (Some(Key::Escape), "quit"),
                 (Some(Key::D), "change cycle duration"),
                 (Some(Key::P), "choose a preset signal"),
+                (Some(Key::R), "reset to original"),
                 (Some(Key::K), "move current cycle up"),
                 (Some(Key::J), "move current cycle down"),
                 (Some(Key::UpArrow), "select previous cycle"),
@@ -165,6 +166,12 @@ impl TrafficSignalEditor {
                 self.cycle_duration_wizard = Some(Wizard::new());
             } else if self.menu.action("choose a preset signal") {
                 self.preset_wizard = Some(Wizard::new());
+            } else if self.menu.action("reset to original") {
+                signal = ControlTrafficSignal::get_possible_policies(&ui.primary.map, self.i)
+                    .remove(0)
+                    .1;
+                changed = true;
+                self.current_cycle = 0;
             }
 
             let has_sidewalks = ui
