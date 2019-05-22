@@ -155,11 +155,11 @@ impl GUI for GameState {
             Mode::Mission(_) => MissionEditMode::draw(self, g),
             Mode::ABTest(_) => ABTestMode::draw(self, g),
         }
-        /*println!(
+        println!(
             "{} uploads, {} draw calls",
             g.get_num_uploads(),
             g.num_draw_calls
-        );*/
+        );
     }
 
     fn dump_before_abort(&self, canvas: &Canvas) {

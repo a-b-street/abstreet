@@ -268,7 +268,7 @@ impl TrafficSignalEditor {
                 self.icon_selected == Some(t.id),
             );
         }
-        draw_signal_cycle(cycle, None, g, &ctx);
+        draw_signal_cycle(cycle, None, &mut batch, &ctx);
         if let Some(id) = self.icon_selected {
             DrawTurn::draw_dashed(map.get_t(id), &mut batch, state.ui.cs.get("selected turn"));
         }

@@ -300,6 +300,10 @@ impl GeomBatch {
         }
     }
 
+    pub fn append(&mut self, other: &GeomBatch) {
+        self.list.extend(other.list.clone());
+    }
+
     pub fn draw(self, g: &mut GfxCtx) {
         let refs = self.list.iter().map(|(color, p)| (*color, p)).collect();
         let obj = g.prerender.upload_temporary(refs);

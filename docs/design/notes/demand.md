@@ -53,3 +53,10 @@ https://www.psrc.org/activity-based-travel-model-soundcast
 ## Great info
 
 - https://www.psrc.org/sites/default/files/shrp2_c46.pdf
+
+## PSRC info
+
+- trips: https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv
+- parcels: https://github.com/psrc/soundcast/wiki/Inputs#primary-parcel-file-parcels_urbansimtxt
+	- input is at https://github.com/psrc/soundcast/releases
+	- https://www.kingcounty.gov/services/gis/GISData/DataStandards.aspx

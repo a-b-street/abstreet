@@ -10,15 +10,17 @@ use map_model::{
     TurnID, TurnPriority, TurnType, LANE_THICKNESS,
 };
 use ordered_float::NotNan;
+use std::cell::RefCell;
 
 pub struct DrawIntersection {
     pub id: IntersectionID,
-    // Only for traffic signals
-    crosswalks: Vec<(TurnID, Drawable)>,
     intersection_type: IntersectionType,
     zorder: isize,
 
     draw_default: Drawable,
+    draw_traffic_signal: RefCell<Option<(Drawable, Duration)>>,
+    // Only for traffic signals
+    crosswalks: Vec<(TurnID, GeomBatch)>,
 }
 
 impl DrawIntersection {
@@ -54,7 +56,7 @@ impl DrawIntersection {
                 if i.intersection_type == IntersectionType::TrafficSignal {
                     let mut batch = GeomBatch::new();
                     make_crosswalk(&mut batch, turn, cs);
-                    crosswalks.push((turn.id, prerender.upload(batch)));
+                    crosswalks.push((turn.id, batch));
                 } else {
                     make_crosswalk(&mut default_geom, turn, cs);
                 }
@@ -88,18 +90,11 @@ impl DrawIntersection {
 
         DrawIntersection {
             id: i.id,
-            crosswalks,
             intersection_type: i.intersection_type,
             zorder: i.get_zorder(map),
             draw_default: prerender.upload(default_geom),
-        }
-    }
-
-    fn draw_traffic_signal(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
-        let signal = ctx.map.get_traffic_signal(self.id);
-        if !ctx.sim.is_in_overtime(self.id, ctx.map) {
-            let (cycle, t) = signal.current_cycle_and_remaining_time(ctx.sim.time());
-            draw_signal_cycle(cycle, Some(t), g, ctx);
+            draw_traffic_signal: RefCell::new(None),
+            crosswalks,
         }
     }
 
@@ -143,9 +138,23 @@ impl Renderable for DrawIntersection {
         } else {
             g.redraw(&self.draw_default);
 
-            if self.intersection_type == IntersectionType::TrafficSignal {
-                if opts.suppress_traffic_signal_details != Some(self.id) {
-                    self.draw_traffic_signal(g, ctx);
+            if self.intersection_type == IntersectionType::TrafficSignal
+                && opts.suppress_traffic_signal_details != Some(self.id)
+            {
+                let signal = ctx.map.get_traffic_signal(self.id);
+                if !ctx.sim.is_in_overtime(self.id, ctx.map) {
+                    let mut maybe_redraw = self.draw_traffic_signal.borrow_mut();
+                    let recalc = maybe_redraw
+                        .as_ref()
+                        .map(|(_, t)| *t != ctx.sim.time())
+                        .unwrap_or(true);
+                    if recalc {
+                        let (cycle, t) = signal.current_cycle_and_remaining_time(ctx.sim.time());
+                        let mut batch = GeomBatch::new();
+                        draw_signal_cycle(cycle, Some(t), &mut batch, ctx);
+                        *maybe_redraw = Some((g.prerender.upload(batch), ctx.sim.time()));
+                    }
+                    g.redraw(&maybe_redraw.as_ref().unwrap().0);
                 }
             }
         }
@@ -225,11 +234,11 @@ pub fn calculate_corners(i: &Intersection, map: &Map, timer: &mut Timer) -> Vec<
 pub fn draw_signal_cycle(
     cycle: &Cycle,
     time_left: Option<Duration>,
-    g: &mut GfxCtx,
+    batch: &mut GeomBatch,
     ctx: &DrawCtx,
 ) {
     if false {
-        draw_signal_cycle_with_icons(cycle, g, ctx);
+        draw_signal_cycle_with_icons(cycle, batch, ctx);
         return;
     }
 
@@ -243,16 +252,14 @@ pub fn draw_signal_cycle(
 
     for (id, crosswalk) in &ctx.draw_map.get_i(cycle.parent).crosswalks {
         if cycle.get_priority(*id) == TurnPriority::Priority {
-            g.redraw(crosswalk);
+            batch.append(crosswalk);
         }
     }
-
-    let mut batch = GeomBatch::new();
 
     for t in &cycle.priority_turns {
         let turn = ctx.map.get_t(*t);
         if !turn.between_sidewalks() {
-            DrawTurn::full_geom(turn, &mut batch, priority_color);
+            DrawTurn::full_geom(turn, batch, priority_color);
         }
     }
     for t in &cycle.yield_turns {
@@ -262,12 +269,11 @@ pub fn draw_signal_cycle(
             && turn.turn_type != TurnType::LaneChangeLeft
             && turn.turn_type != TurnType::LaneChangeRight
         {
-            DrawTurn::outline_geom(turn, &mut batch, yield_color);
+            DrawTurn::outline_geom(turn, batch, yield_color);
         }
     }
 
     if time_left.is_none() {
-        batch.draw(g);
         return;
     }
 
@@ -295,10 +301,9 @@ pub fn draw_signal_cycle(
         Color::GREEN,
         Circle::new(center.offset(Distance::ZERO, 2.0 * radius), radius).to_polygon(),
     );
-    batch.draw(g);
 }
 
-fn draw_signal_cycle_with_icons(cycle: &Cycle, g: &mut GfxCtx, ctx: &DrawCtx) {
+fn draw_signal_cycle_with_icons(cycle: &Cycle, batch: &mut GeomBatch, ctx: &DrawCtx) {
     for l in &ctx.map.get_i(cycle.parent).incoming_lanes {
         let lane = ctx.map.get_l(*l);
         // TODO Show a hand or a walking sign for crosswalks
@@ -341,7 +346,7 @@ fn draw_signal_cycle_with_icons(cycle: &Cycle, g: &mut GfxCtx, ctx: &DrawCtx) {
             } else {
                 ctx.cs.get_def("traffic light stop", Color::RED)
             };
-            g.draw_circle(color, &Circle::new(center1, radius));
+            batch.push(color, Circle::new(center1, radius).to_polygon());
         }
 
         if let Some(pri) = left_priority {
@@ -353,17 +358,18 @@ fn draw_signal_cycle_with_icons(cycle: &Cycle, g: &mut GfxCtx, ctx: &DrawCtx) {
                 TurnPriority::Banned => ctx.cs.get("traffic light stop"),
                 TurnPriority::Stop => unreachable!(),
             };
-            g.draw_circle(
+            batch.push(
                 ctx.cs.get_def("traffic light box", Color::BLACK),
-                &Circle::new(center2, radius),
+                Circle::new(center2, radius).to_polygon(),
             );
-            g.draw_arrow(
+            batch.extend(
                 color,
-                Distance::meters(0.1),
-                &Line::new(
+                PolyLine::new(vec![
                     center2.project_away(radius, lane_line.angle().rotate_degs(90.0)),
                     center2.project_away(radius, lane_line.angle().rotate_degs(-90.0)),
-                ),
+                ])
+                .make_arrow(Distance::meters(0.1))
+                .unwrap(),
             );
         }
     }
@@ -453,6 +459,7 @@ pub fn draw_signal_diagram(
         let y1 = (padding + intersection_height) * (idx as f64) * zoom;
 
         g.fork(top_left, ScreenPt::new(0.0, y1), zoom);
+        let mut batch = GeomBatch::new();
         draw_signal_cycle(
             &cycle,
             if idx == current_cycle {
@@ -460,9 +467,10 @@ pub fn draw_signal_diagram(
             } else {
                 None
             },
-            g,
+            &mut batch,
             ctx,
         );
+        batch.draw(g);
 
         g.draw_text_at_screenspace_topleft(
             &txt,
