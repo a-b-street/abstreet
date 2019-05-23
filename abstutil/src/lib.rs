@@ -23,3 +23,16 @@ pub use crate::time::{
 };
 
 const PROGRESS_FREQUENCY_SECONDS: f64 = 0.2;
+
+// Thanks https://stackoverflow.com/a/49806368
+#[macro_export]
+macro_rules! skip_fail {
+    ($res:expr) => {
+        match $res {
+            Some(val) => val,
+            None => {
+                continue;
+            }
+        }
+    };
+}

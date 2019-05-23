@@ -1,4 +1,4 @@
-use abstutil::{prettyprint_usize, FileWithProgress, Timer};
+use abstutil::{prettyprint_usize, FileWithProgress, Timer, skip_fail};
 use geom::{Distance, Duration, GPSBounds, LonLat};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -51,27 +51,15 @@ pub fn import_trips(
         let rec = rec?;
 
         // opcl
-        let from = if let Some(pt) = parcels.get(rec[15].trim_end_matches(".0")) {
-            *pt
-        } else {
-            continue;
-        };
+        let from = *skip_fail!(parcels.get(rec[15].trim_end_matches(".0")));
         // dpcl
-        let to = if let Some(pt) = parcels.get(rec[6].trim_end_matches(".0")) {
-            *pt
-        } else {
-            continue;
-        };
+        let to = *skip_fail!(parcels.get(rec[6].trim_end_matches(".0")));
 
         // deptm
         let depart_at = Duration::minutes(rec[4].trim_end_matches(".0").parse::<usize>()?);
 
         // mode
-        let mode = if let Some(m) = get_mode(&rec[13]) {
-            m
-        } else {
-            continue;
-        };
+        let mode = skip_fail!(get_mode(&rec[13]));
 
         // opurp and dpurp
         let purpose = (get_purpose(&rec[16]), get_purpose(&rec[7]));
