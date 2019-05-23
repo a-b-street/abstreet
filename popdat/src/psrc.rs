@@ -1,8 +1,10 @@
 use geom::{Duration, GPSBounds, LonLat};
+use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader, BufWriter, Write};
 
+#[derive(Serialize, Deserialize)]
 pub struct Trip {
     pub from: LonLat,
     pub to: LonLat,
@@ -42,7 +44,7 @@ pub fn import_trips(
             depart_at,
         });
         // TODO Read all trips
-        if trips.len() == 10 {
+        if trips.len() == 1_000 {
             break;
         }
     }
@@ -62,7 +64,7 @@ pub fn import_parcels(path: &str) -> Result<HashMap<String, LonLat>, failure::Er
         parcel_ids.push(rec[15].to_string());
         coords.write_fmt(format_args!("{} {}\n", &rec[25], &rec[26]))?;
         // TODO convert it all
-        if parcel_ids.len() == 10000 {
+        if parcel_ids.len() == 1_000_000 {
             break;
         }
     }

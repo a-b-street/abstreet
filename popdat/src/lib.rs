@@ -11,6 +11,8 @@ pub struct PopDat {
     // Keyed by census tract label
     // Invariant: Every tract has all data filled out.
     pub tracts: BTreeMap<String, TractData>,
+
+    pub trips: Vec<psrc::Trip>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -32,6 +34,7 @@ impl PopDat {
     pub fn import_all(timer: &mut Timer) -> PopDat {
         let mut dat = PopDat {
             tracts: BTreeMap::new(),
+            trips: Vec::new(),
         };
         let fields: Vec<(&str, Box<Fn(&mut TractData, BTreeMap<String, Estimate>)>)> = vec![
             (
