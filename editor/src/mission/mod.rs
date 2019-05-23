@@ -1,6 +1,7 @@
 mod dataviz;
 mod neighborhood;
 mod scenario;
+mod trips;
 
 use crate::game::{GameState, Mode};
 use crate::render::DrawOptions;
@@ -17,6 +18,7 @@ enum State {
     Neighborhood(neighborhood::NeighborhoodEditor),
     Scenario(scenario::ScenarioEditor),
     DataViz(dataviz::DataVisualizer),
+    Trips(trips::TripsVisualizer),
 }
 
 impl MissionEditMode {
@@ -30,6 +32,7 @@ impl MissionEditMode {
                 vec![
                     (Some(Key::Escape), "quit"),
                     (Some(Key::D), "visualize population data"),
+                    (Some(Key::T), "visualize trip data"),
                     (Some(Key::N), "manage neighborhoods"),
                     (Some(Key::W), "manage scenarios"),
                 ],
@@ -51,6 +54,8 @@ impl MissionEditMode {
                         } else if menu.action("visualize population data") {
                             mode.state =
                                 State::DataViz(dataviz::DataVisualizer::new(ctx, &state.ui));
+                        } else if menu.action("visualize trip data") {
+                            mode.state = State::Trips(trips::TripsVisualizer::new(ctx, &state.ui));
                         } else if menu.action("manage neighborhoods") {
                             mode.state = State::Neighborhood(
                                 neighborhood::NeighborhoodEditor::PickNeighborhood(Wizard::new()),
@@ -62,6 +67,11 @@ impl MissionEditMode {
                         }
                     }
                     State::DataViz(ref mut viz) => {
+                        if viz.event(ctx, &state.ui) {
+                            mode.state = MissionEditMode::new(ctx, &mut state.ui).state;
+                        }
+                    }
+                    State::Trips(ref mut viz) => {
                         if viz.event(ctx, &state.ui) {
                             mode.state = MissionEditMode::new(ctx, &mut state.ui).state;
                         }
@@ -97,6 +107,9 @@ impl MissionEditMode {
                     menu.draw(g);
                 }
                 State::DataViz(ref viz) => {
+                    viz.draw(g, &state.ui);
+                }
+                State::Trips(ref viz) => {
                     viz.draw(g, &state.ui);
                 }
                 State::Neighborhood(ref editor) => {

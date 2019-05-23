@@ -5,7 +5,7 @@ use abstutil::{prettyprint_usize, Timer};
 use ezgui::{
     Color, EventCtx, GfxCtx, HorizontalAlignment, Key, ModalMenu, Text, VerticalAlignment,
 };
-use geom::{Distance, Duration, Polygon, Pt2D};
+use geom::{Distance, Polygon, Pt2D};
 use popdat::{Estimate, PopDat};
 use std::collections::BTreeMap;
 
@@ -13,7 +13,6 @@ pub struct DataVisualizer {
     menu: ModalMenu,
     popdat: PopDat,
     tracts: BTreeMap<String, Tract>,
-    trips: Vec<Trip>,
 
     // Table if false
     show_bars: bool,
@@ -50,7 +49,6 @@ impl DataVisualizer {
                 ctx,
             ),
             tracts: clip_tracts(&popdat, ui, &mut timer),
-            trips: clip_trips(&popdat, ui, &mut timer),
             popdat,
             show_bars: false,
             current_dataset: 0,
@@ -292,31 +290,4 @@ fn bar_chart(g: &mut GfxCtx, data: &BTreeMap<String, Estimate>) {
     }
 
     g.unfork();
-}
-
-struct Trip {
-    from: Pt2D,
-    to: Pt2D,
-    depart_at: Duration,
-}
-
-fn clip_trips(popdat: &PopDat, ui: &UI, _timer: &mut Timer) -> Vec<Trip> {
-    let mut results = Vec::new();
-    let bounds = ui.primary.map.get_gps_bounds();
-    for trip in &popdat.trips {
-        if !bounds.contains(trip.from) || !bounds.contains(trip.to) {
-            continue;
-        }
-        results.push(Trip {
-            from: Pt2D::from_gps(trip.from, bounds).unwrap(),
-            to: Pt2D::from_gps(trip.to, bounds).unwrap(),
-            depart_at: trip.depart_at,
-        });
-    }
-    println!(
-        "Clipped {} trips from {}",
-        results.len(),
-        popdat.trips.len()
-    );
-    results
 }
