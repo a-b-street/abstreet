@@ -10,7 +10,17 @@ pub struct Trip {
     pub to: LonLat,
     // Relative to midnight
     pub depart_at: Duration,
-    // TODO Also scrape mode, maybe interesting extra stuff like purpose of the trip
+    pub mode: TripMode,
+
+    // TODO Encode way more compactly as (enum, enum)
+    pub purpose: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+pub enum TripMode {
+    Walk,
+    Bike,
+    Drive,
 }
 
 pub fn import_trips(
@@ -38,10 +48,22 @@ pub fn import_trips(
         let mins: usize = rec[4].trim_end_matches(".0").parse()?;
         let depart_at = Duration::minutes(mins);
 
+        // mode
+        let mode = if let Some(m) = get_mode(&rec[13]) {
+            m
+        } else {
+            continue;
+        };
+
+        // opurp and dpurp
+        let purpose = format!("{} -> {}", get_purpose(&rec[16]), get_purpose(&rec[7]));
+
         trips.push(Trip {
             from,
             to,
             depart_at,
+            purpose,
+            mode,
         });
         // TODO Read all trips
         if trips.len() == 1_000 {
@@ -51,6 +73,7 @@ pub fn import_trips(
     Ok(trips)
 }
 
+// TODO Do we also need the zone ID, or is parcel ID globally unique?
 pub fn import_parcels(path: &str) -> Result<HashMap<String, LonLat>, failure::Error> {
     let mut coords = BufWriter::new(File::create("/tmp/parcels")?);
     let mut parcel_ids = Vec::new();
@@ -100,4 +123,33 @@ pub fn import_parcels(path: &str) -> Result<HashMap<String, LonLat>, failure::Er
         }
     }
     Ok(result)
+}
+
+// From https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv, opurp and dpurp
+fn get_purpose(code: &str) -> &str {
+    match code {
+        "0.0" => "home",
+        "1.0" => "work",
+        "2.0" => "school",
+        "3.0" => "escort",
+        "4.0" => "personal business",
+        "5.0" => "shopping",
+        "6.0" => "meal",
+        "7.0" => "social",
+        "8.0" => "recreation",
+        "9.0" => "medical",
+        "10.0" => "park-and-ride transfer",
+        _ => panic!("Unknown opurp/dpurp {}", code),
+    }
+}
+
+// From https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv, mode
+fn get_mode(code: &str) -> Option<TripMode> {
+    // TODO I'm not sure how to interpret some of these.
+    match code {
+        "1.0" | "6.0" => Some(TripMode::Walk),
+        "2.0" => Some(TripMode::Bike),
+        "3.0" | "4.0" | "5.0" => Some(TripMode::Drive),
+        _ => None,
+    }
 }

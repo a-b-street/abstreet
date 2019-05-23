@@ -1,5 +1,6 @@
+use crate::common::CommonState;
 use crate::helpers::ID;
-use crate::ui::UI;
+use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{Color, EventCtx, GfxCtx, Key, ModalMenu, Text};
 use geom::{Circle, Distance, Duration, Pt2D};
@@ -37,14 +38,18 @@ impl TripsVisualizer {
     }
 
     // Returns true if the we're done
-    pub fn event(&mut self, ctx: &mut EventCtx, _ui: &UI) -> bool {
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> bool {
         let mut txt = Text::prompt("Trips Visualizer");
-        txt.add_line(format!(
-            "Trip {} starts at {}",
-            self.current, self.trips[self.current].depart_at,
-        ));
+        txt.add_line(format!("Trip {}", self.current));
+        let trip = &self.trips[self.current];
+        txt.add_line(format!("Leave at {}", trip.depart_at));
+        txt.add_line(format!("Purpose: {}", trip.purpose));
+        txt.add_line(format!("{:?}", trip.mode));
         self.menu.handle_event(ctx, Some(txt));
         ctx.canvas.handle_event(ctx.input);
+
+        ui.primary.current_selection =
+            ui.handle_mouseover(ctx, &ui.primary.sim, &ShowEverything::new(), false);
 
         if self.menu.action("quit") {
             return true;
@@ -80,6 +85,7 @@ impl TripsVisualizer {
         );
 
         self.menu.draw(g);
+        CommonState::draw_osd(g, ui, ui.primary.current_selection);
     }
 }
 
@@ -87,6 +93,8 @@ struct Trip {
     from: BuildingID,
     to: BuildingID,
     depart_at: Duration,
+    purpose: String,
+    mode: popdat::psrc::TripMode,
 }
 
 fn clip_trips(popdat: &PopDat, ui: &UI, _timer: &mut Timer) -> Vec<Trip> {
@@ -103,6 +111,8 @@ fn clip_trips(popdat: &PopDat, ui: &UI, _timer: &mut Timer) -> Vec<Trip> {
                 from: from.unwrap(),
                 to: to.unwrap(),
                 depart_at: trip.depart_at,
+                purpose: trip.purpose.clone(),
+                mode: trip.mode,
             });
         }
     }

@@ -72,7 +72,7 @@ impl MissionEditMode {
                         }
                     }
                     State::Trips(ref mut viz) => {
-                        if viz.event(ctx, &state.ui) {
+                        if viz.event(ctx, &mut state.ui) {
                             mode.state = MissionEditMode::new(ctx, &mut state.ui).state;
                         }
                     }
