@@ -31,6 +31,10 @@ impl Duration {
         Duration::seconds((mins as f64) * 60.0)
     }
 
+    pub fn f64_minutes(mins: f64) -> Duration {
+        Duration::seconds(mins * 60.0)
+    }
+
     pub const fn const_seconds(value: f64) -> Duration {
         Duration(value)
     }

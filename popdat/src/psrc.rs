@@ -1,4 +1,4 @@
-use geom::{Duration, GPSBounds, LonLat};
+use geom::{Distance, Duration, GPSBounds, LonLat};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs::File;
@@ -14,6 +14,8 @@ pub struct Trip {
 
     // TODO Encode way more compactly as (enum, enum)
     pub purpose: String,
+    pub trip_time: Duration,
+    pub trip_dist: Distance,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
@@ -45,8 +47,7 @@ pub fn import_trips(
         };
 
         // deptm
-        let mins: usize = rec[4].trim_end_matches(".0").parse()?;
-        let depart_at = Duration::minutes(mins);
+        let depart_at = Duration::minutes(rec[4].trim_end_matches(".0").parse::<usize>()?);
 
         // mode
         let mode = if let Some(m) = get_mode(&rec[13]) {
@@ -58,12 +59,19 @@ pub fn import_trips(
         // opurp and dpurp
         let purpose = format!("{} -> {}", get_purpose(&rec[16]), get_purpose(&rec[7]));
 
+        // travtime
+        let trip_time = Duration::f64_minutes(rec[25].parse::<f64>()?);
+        // travdist
+        let trip_dist = Distance::miles(rec[24].parse::<f64>()?);
+
         trips.push(Trip {
             from,
             to,
             depart_at,
             purpose,
             mode,
+            trip_time,
+            trip_dist,
         });
         // TODO Read all trips
         if trips.len() == 1_000 {

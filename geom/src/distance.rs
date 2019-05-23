@@ -43,6 +43,10 @@ impl Distance {
         Distance::meters(0.0254 * value)
     }
 
+    pub fn miles(value: f64) -> Distance {
+        Distance::meters(1609.34 * value)
+    }
+
     pub fn abs(self) -> Distance {
         if self.0 > 0.0 {
             self

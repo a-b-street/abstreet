@@ -31,6 +31,10 @@ impl Speed {
         Speed::meters_per_second(0.44704 * value)
     }
 
+    pub fn from_dist_time(d: Distance, t: Duration) -> Speed {
+        Speed::meters_per_second(d.inner_meters() / t.inner_seconds())
+    }
+
     // TODO Remove if possible.
     pub fn inner_meters_per_second(self) -> f64 {
         self.0

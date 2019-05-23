@@ -3,7 +3,7 @@ use crate::helpers::ID;
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{Color, EventCtx, GfxCtx, Key, ModalMenu, Text};
-use geom::{Circle, Distance, Duration, Pt2D};
+use geom::{Circle, Distance, Duration, Pt2D, Speed};
 use map_model::BuildingID;
 use popdat::PopDat;
 
@@ -45,6 +45,12 @@ impl TripsVisualizer {
         txt.add_line(format!("Leave at {}", trip.depart_at));
         txt.add_line(format!("Purpose: {}", trip.purpose));
         txt.add_line(format!("{:?}", trip.mode));
+        txt.add_line(format!("Trip time: {}", trip.trip_time));
+        txt.add_line(format!("Trip distance: {}", trip.trip_dist));
+        txt.add_line(format!(
+            "Average speed {}",
+            Speed::from_dist_time(trip.trip_dist, trip.trip_time)
+        ));
         self.menu.handle_event(ctx, Some(txt));
         ctx.canvas.handle_event(ctx.input);
 
@@ -95,6 +101,8 @@ struct Trip {
     depart_at: Duration,
     purpose: String,
     mode: popdat::psrc::TripMode,
+    trip_time: Duration,
+    trip_dist: Distance,
 }
 
 fn clip_trips(popdat: &PopDat, ui: &UI, _timer: &mut Timer) -> Vec<Trip> {
@@ -113,6 +121,8 @@ fn clip_trips(popdat: &PopDat, ui: &UI, _timer: &mut Timer) -> Vec<Trip> {
                 depart_at: trip.depart_at,
                 purpose: trip.purpose.clone(),
                 mode: trip.mode,
+                trip_time: trip.trip_time,
+                trip_dist: trip.trip_dist,
             });
         }
     }
