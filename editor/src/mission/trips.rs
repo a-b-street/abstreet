@@ -47,8 +47,11 @@ impl TripsVisualizer {
         ));
         let trip = &self.trips[self.current];
         txt.add_line(format!("Leave at {}", trip.depart_at));
-        txt.add_line(format!("Purpose: {}", trip.purpose));
-        txt.add_line(format!("{:?}", trip.mode));
+        txt.add_line(format!(
+            "Purpose: {:?} -> {:?}",
+            trip.purpose.0, trip.purpose.1
+        ));
+        txt.add_line(format!("Mode: {:?}", trip.mode));
         txt.add_line(format!("Trip time: {}", trip.trip_time));
         txt.add_line(format!("Trip distance: {}", trip.trip_dist));
         txt.add_line(format!(
@@ -103,16 +106,18 @@ struct Trip {
     from: BuildingID,
     to: BuildingID,
     depart_at: Duration,
-    purpose: String,
-    mode: popdat::psrc::TripMode,
+    purpose: (popdat::psrc::Purpose, popdat::psrc::Purpose),
+    mode: popdat::psrc::Mode,
     trip_time: Duration,
     trip_dist: Distance,
 }
 
-fn clip_trips(popdat: &PopDat, ui: &UI, _timer: &mut Timer) -> Vec<Trip> {
+fn clip_trips(popdat: &PopDat, ui: &UI, timer: &mut Timer) -> Vec<Trip> {
     let mut results = Vec::new();
     let bounds = ui.primary.map.get_gps_bounds();
+    timer.start_iter("clip trips", popdat.trips.len());
     for trip in &popdat.trips {
+        timer.next();
         if !bounds.contains(trip.from) || !bounds.contains(trip.to) {
             continue;
         }
@@ -123,18 +128,13 @@ fn clip_trips(popdat: &PopDat, ui: &UI, _timer: &mut Timer) -> Vec<Trip> {
                 from: from.unwrap(),
                 to: to.unwrap(),
                 depart_at: trip.depart_at,
-                purpose: trip.purpose.clone(),
+                purpose: trip.purpose,
                 mode: trip.mode,
                 trip_time: trip.trip_time,
                 trip_dist: trip.trip_dist,
             });
         }
     }
-    println!(
-        "Clipped {} trips from {}",
-        results.len(),
-        popdat.trips.len()
-    );
     results
 }
 

@@ -11,19 +11,33 @@ pub struct Trip {
     pub to: LonLat,
     // Relative to midnight
     pub depart_at: Duration,
-    pub mode: TripMode,
+    pub mode: Mode,
 
-    // TODO Encode way more compactly as (enum, enum)
-    pub purpose: String,
+    pub purpose: (Purpose, Purpose),
     pub trip_time: Duration,
     pub trip_dist: Distance,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
-pub enum TripMode {
+pub enum Mode {
     Walk,
     Bike,
     Drive,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+pub enum Purpose {
+    Home,
+    Work,
+    School,
+    Escort,
+    PersonalBusiness,
+    Shopping,
+    Meal,
+    Social,
+    Recreation,
+    Medical,
+    ParkAndRideTransfer,
 }
 
 pub fn import_trips(
@@ -60,7 +74,7 @@ pub fn import_trips(
         };
 
         // opurp and dpurp
-        let purpose = format!("{} -> {}", get_purpose(&rec[16]), get_purpose(&rec[7]));
+        let purpose = (get_purpose(&rec[16]), get_purpose(&rec[7]));
 
         // travtime
         let trip_time = Duration::f64_minutes(rec[25].parse::<f64>()?);
@@ -145,30 +159,30 @@ pub fn import_parcels(
 }
 
 // From https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv, opurp and dpurp
-fn get_purpose(code: &str) -> &str {
+fn get_purpose(code: &str) -> Purpose {
     match code {
-        "0.0" => "home",
-        "1.0" => "work",
-        "2.0" => "school",
-        "3.0" => "escort",
-        "4.0" => "personal business",
-        "5.0" => "shopping",
-        "6.0" => "meal",
-        "7.0" => "social",
-        "8.0" => "recreation",
-        "9.0" => "medical",
-        "10.0" => "park-and-ride transfer",
+        "0.0" => Purpose::Home,
+        "1.0" => Purpose::Work,
+        "2.0" => Purpose::School,
+        "3.0" => Purpose::Escort,
+        "4.0" => Purpose::PersonalBusiness,
+        "5.0" => Purpose::Shopping,
+        "6.0" => Purpose::Meal,
+        "7.0" => Purpose::Social,
+        "8.0" => Purpose::Recreation,
+        "9.0" => Purpose::Medical,
+        "10.0" => Purpose::ParkAndRideTransfer,
         _ => panic!("Unknown opurp/dpurp {}", code),
     }
 }
 
 // From https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv, mode
-fn get_mode(code: &str) -> Option<TripMode> {
+fn get_mode(code: &str) -> Option<Mode> {
     // TODO I'm not sure how to interpret some of these.
     match code {
-        "1.0" | "6.0" => Some(TripMode::Walk),
-        "2.0" => Some(TripMode::Bike),
-        "3.0" | "4.0" | "5.0" => Some(TripMode::Drive),
+        "1.0" | "6.0" => Some(Mode::Walk),
+        "2.0" => Some(Mode::Bike),
+        "3.0" | "4.0" | "5.0" => Some(Mode::Drive),
         _ => None,
     }
 }
