@@ -1,4 +1,4 @@
-use abstutil::{prettyprint_usize, FileWithProgress, Timer, skip_fail};
+use abstutil::{prettyprint_usize, skip_fail, FileWithProgress, Timer};
 use geom::{Distance, Duration, GPSBounds, LonLat};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;

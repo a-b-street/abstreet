@@ -1,10 +1,9 @@
 use crate::common::CommonState;
-use crate::helpers::ID;
+use crate::mission::{clip_trips, Trip};
 use crate::ui::{ShowEverything, UI};
 use abstutil::{prettyprint_usize, Timer};
 use ezgui::{Color, EventCtx, GfxCtx, Key, ModalMenu, Text};
-use geom::{Circle, Distance, Duration, Pt2D, Speed};
-use map_model::BuildingID;
+use geom::{Circle, Distance, Speed};
 use popdat::PopDat;
 
 pub struct TripsVisualizer {
@@ -100,55 +99,4 @@ impl TripsVisualizer {
         self.menu.draw(g);
         CommonState::draw_osd(g, ui, ui.primary.current_selection);
     }
-}
-
-struct Trip {
-    from: BuildingID,
-    to: BuildingID,
-    depart_at: Duration,
-    purpose: (popdat::psrc::Purpose, popdat::psrc::Purpose),
-    mode: popdat::psrc::Mode,
-    trip_time: Duration,
-    trip_dist: Distance,
-}
-
-fn clip_trips(popdat: &PopDat, ui: &UI, timer: &mut Timer) -> Vec<Trip> {
-    let mut results = Vec::new();
-    let bounds = ui.primary.map.get_gps_bounds();
-    timer.start_iter("clip trips", popdat.trips.len());
-    for trip in &popdat.trips {
-        timer.next();
-        if !bounds.contains(trip.from) || !bounds.contains(trip.to) {
-            continue;
-        }
-        let from = find_building_containing(Pt2D::from_gps(trip.from, bounds).unwrap(), ui);
-        let to = find_building_containing(Pt2D::from_gps(trip.to, bounds).unwrap(), ui);
-        if from.is_some() && to.is_some() {
-            results.push(Trip {
-                from: from.unwrap(),
-                to: to.unwrap(),
-                depart_at: trip.depart_at,
-                purpose: trip.purpose,
-                mode: trip.mode,
-                trip_time: trip.trip_time,
-                trip_dist: trip.trip_dist,
-            });
-        }
-    }
-    results
-}
-
-fn find_building_containing(pt: Pt2D, ui: &UI) -> Option<BuildingID> {
-    for obj in ui
-        .primary
-        .draw_map
-        .get_matching_objects(Circle::new(pt, Distance::meters(3.0)).get_bounds())
-    {
-        if let ID::Building(b) = obj {
-            if ui.primary.map.get_b(b).polygon.contains_pt(pt) {
-                return Some(b);
-            }
-        }
-    }
-    None
 }
