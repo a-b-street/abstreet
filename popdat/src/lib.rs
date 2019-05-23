@@ -1,3 +1,5 @@
+pub mod psrc;
+
 use abstutil::Timer;
 use geom::{GPSBounds, LonLat};
 use serde_derive::{Deserialize, Serialize};
@@ -28,11 +30,6 @@ pub struct Estimate {
 
 impl PopDat {
     pub fn import_all(timer: &mut Timer) -> PopDat {
-        // Generally large slice of Seattle
-        let mut bounds = GPSBounds::new();
-        bounds.update(LonLat::new(-122.4416, 47.5793));
-        bounds.update(LonLat::new(-122.2421, 47.7155));
-
         let mut dat = PopDat {
             tracts: BTreeMap::new(),
         };
@@ -57,7 +54,7 @@ impl PopDat {
             ),
         ];
         for (path, setter) in fields {
-            for mut shape in kml::load(path, &bounds, timer)
+            for mut shape in kml::load(path, &GPSBounds::seattle_bounds(), timer)
                 .expect(&format!("couldn't load {}", path))
                 .shapes
             {

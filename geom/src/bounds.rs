@@ -165,4 +165,12 @@ impl GPSBounds {
     pub fn must_convert_back(&self, pts: &Vec<Pt2D>) -> Vec<LonLat> {
         pts.iter().map(|pt| pt.to_gps(self).unwrap()).collect()
     }
+
+    // TODO don't hardcode
+    pub fn seattle_bounds() -> GPSBounds {
+        let mut b = GPSBounds::new();
+        b.update(LonLat::new(-122.4416, 47.5793));
+        b.update(LonLat::new(-122.2421, 47.7155));
+        b
+    }
 }

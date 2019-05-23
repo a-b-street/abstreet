@@ -6,6 +6,8 @@ edition = "2018"
 
 [dependencies]
 abstutil = { path = "../abstutil" }
+csv = "1.0.1"
+failure = "0.1.2"
 geom = { path = "../geom" }
 kml = { path = "../kml" }
 serde = "1.0.89"
