@@ -1,7 +1,9 @@
+use crate::helpers::ID;
 use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{Color, EventCtx, GfxCtx, Key, ModalMenu, Text};
 use geom::{Circle, Distance, Duration, Pt2D};
+use map_model::BuildingID;
 use popdat::PopDat;
 
 pub struct TripsVisualizer {
@@ -59,18 +61,31 @@ impl TripsVisualizer {
         false
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, _ui: &UI) {
+    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         let trip = &self.trips[self.current];
-        g.draw_circle(Color::RED, &Circle::new(trip.from, Distance::meters(100.0)));
-        g.draw_circle(Color::BLUE, &Circle::new(trip.to, Distance::meters(100.0)));
+        let from = ui.primary.map.get_b(trip.from);
+        let to = ui.primary.map.get_b(trip.to);
+
+        g.draw_polygon(Color::RED, &from.polygon);
+        g.draw_polygon(Color::BLUE, &to.polygon);
+
+        // Hard to see the buildings highlighted, so also a big circle...
+        g.draw_circle(
+            Color::RED.alpha(0.5),
+            &Circle::new(from.polygon.center(), Distance::meters(100.0)),
+        );
+        g.draw_circle(
+            Color::BLUE.alpha(0.5),
+            &Circle::new(to.polygon.center(), Distance::meters(100.0)),
+        );
 
         self.menu.draw(g);
     }
 }
 
 struct Trip {
-    from: Pt2D,
-    to: Pt2D,
+    from: BuildingID,
+    to: BuildingID,
     depart_at: Duration,
 }
 
@@ -81,11 +96,15 @@ fn clip_trips(popdat: &PopDat, ui: &UI, _timer: &mut Timer) -> Vec<Trip> {
         if !bounds.contains(trip.from) || !bounds.contains(trip.to) {
             continue;
         }
-        results.push(Trip {
-            from: Pt2D::from_gps(trip.from, bounds).unwrap(),
-            to: Pt2D::from_gps(trip.to, bounds).unwrap(),
-            depart_at: trip.depart_at,
-        });
+        let from = find_building_containing(Pt2D::from_gps(trip.from, bounds).unwrap(), ui);
+        let to = find_building_containing(Pt2D::from_gps(trip.to, bounds).unwrap(), ui);
+        if from.is_some() && to.is_some() {
+            results.push(Trip {
+                from: from.unwrap(),
+                to: to.unwrap(),
+                depart_at: trip.depart_at,
+            });
+        }
     }
     println!(
         "Clipped {} trips from {}",
@@ -93,4 +112,19 @@ fn clip_trips(popdat: &PopDat, ui: &UI, _timer: &mut Timer) -> Vec<Trip> {
         popdat.trips.len()
     );
     results
+}
+
+fn find_building_containing(pt: Pt2D, ui: &UI) -> Option<BuildingID> {
+    for obj in ui
+        .primary
+        .draw_map
+        .get_matching_objects(Circle::new(pt, Distance::meters(3.0)).get_bounds())
+    {
+        if let ID::Building(b) = obj {
+            if ui.primary.map.get_b(b).polygon.contains_pt(pt) {
+                return Some(b);
+            }
+        }
+    }
+    None
 }
