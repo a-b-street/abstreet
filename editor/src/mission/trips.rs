@@ -1,7 +1,7 @@
 use crate::common::CommonState;
 use crate::helpers::ID;
 use crate::ui::{ShowEverything, UI};
-use abstutil::Timer;
+use abstutil::{prettyprint_usize, Timer};
 use ezgui::{Color, EventCtx, GfxCtx, Key, ModalMenu, Text};
 use geom::{Circle, Distance, Duration, Pt2D, Speed};
 use map_model::BuildingID;
@@ -40,7 +40,11 @@ impl TripsVisualizer {
     // Returns true if the we're done
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> bool {
         let mut txt = Text::prompt("Trips Visualizer");
-        txt.add_line(format!("Trip {}", self.current));
+        txt.add_line(format!(
+            "Trip {}/{}",
+            prettyprint_usize(self.current),
+            prettyprint_usize(self.trips.len())
+        ));
         let trip = &self.trips[self.current];
         txt.add_line(format!("Leave at {}", trip.depart_at));
         txt.add_line(format!("Purpose: {}", trip.purpose));
