@@ -8,6 +8,7 @@ use crate::{BusRouteID, BusStopID, LaneID, LaneType, Map, Position, Traversable,
 use geom::{Distance, PolyLine};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeSet, VecDeque};
+use std::fmt;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum PathStep {
@@ -233,12 +234,33 @@ impl Path {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct PathRequest {
     pub start: Position,
     pub end: Position,
     pub can_use_bike_lanes: bool,
     pub can_use_bus_lanes: bool,
+}
+
+impl fmt::Display for PathRequest {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "PathRequest({} along {}... to {} along {}",
+            self.start.dist_along(),
+            self.start.lane(),
+            self.end.dist_along(),
+            self.end.lane()
+        )?;
+        // TODO can_use_bike_lanes and can_use_bus_lanes are mutex, encode that directly.
+        if self.can_use_bike_lanes {
+            write!(f, ", bike lanes)")
+        } else if self.can_use_bus_lanes {
+            write!(f, ", bus lanes)")
+        } else {
+            write!(f, ")")
+        }
+    }
 }
 
 fn validate(map: &Map, steps: &Vec<PathStep>) {

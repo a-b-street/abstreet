@@ -167,7 +167,7 @@ impl TripSpawner {
             self.trips.drain(..).zip(paths)
         {
             if maybe_path.is_none() {
-                timer.warn(format!("{:?} couldn't find the first path {:?}", spec, req));
+                timer.warn(format!("{:?} couldn't find the first path {}", spec, req));
                 continue;
             }
             let path = maybe_path.unwrap();
