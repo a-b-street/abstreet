@@ -467,7 +467,7 @@ fn recalc_intersection_geom(id: IntersectionID, map: &Map, g: &mut GfxCtx) {
             let (pl1, width1) = wraparound_get(&road_centers, idx);
             let (pl2, width2) = wraparound_get(&road_centers, idx + 1);
 
-            let glued = pl1.clone().extend(&pl2.reversed());
+            let glued = pl1.clone().extend(&pl2.reversed()).unwrap();
             let max_width = (*width1).max(*width2);
             let poly = Polygon::new(&glued.to_thick_boundary_pts(max_width));
             g.draw_polygon(Color::RED.alpha(0.4), &poly);

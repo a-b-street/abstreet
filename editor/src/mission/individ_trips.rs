@@ -30,7 +30,7 @@ impl TripsVisualizer {
                 ],
                 ctx,
             ),
-            trips: clip_trips(&popdat, ui, &mut timer),
+            trips: clip_trips(&popdat, ui, 10_000, &mut timer),
             // TODO We'll break if there are no matching trips
             current: 0,
         }

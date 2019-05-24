@@ -38,11 +38,7 @@ impl PolyLine {
 
         // Can't have duplicates! If the polyline ever crosses back on itself, all sorts of things
         // are broken.
-        let seen_pts: HashSet<HashablePt2D> = result
-            .points()
-            .iter()
-            .map(|pt| HashablePt2D::from(*pt))
-            .collect();
+        let seen_pts = to_set(result.points());
         if seen_pts.len() != result.points().len() {
             panic!("PolyLine has repeat points: {}", result);
         }
@@ -95,9 +91,16 @@ impl PolyLine {
         PolyLine::new(pts)
     }
 
-    // TODO Rename append, make a prepend that just flips the arguments
-    pub fn extend(self, other: &PolyLine) -> PolyLine {
+    // Returns None if the two have any duplicate points (besides the last->first).
+    pub fn extend(self, other: &PolyLine) -> Option<PolyLine> {
         assert_eq!(*self.pts.last().unwrap(), other.pts[0]);
+
+        let pl1 = to_set(self.points());
+        let pl2 = to_set(&other.points()[1..]);
+        if pl1.intersection(&pl2).next().is_some() {
+            println!("Can't append, duplicate points... {} and {}", self, other);
+            return None;
+        }
 
         // There's an exciting edge case: the next point to add is on self's last line.
         let same_line = self
@@ -109,7 +112,7 @@ impl PolyLine {
             pts.pop();
         }
         pts.extend(other.pts.iter().skip(1));
-        PolyLine::new(pts)
+        Some(PolyLine::new(pts))
     }
 
     // One or both args might be empty.
@@ -123,6 +126,7 @@ impl PolyLine {
 
         PolyLine::new(first)
             .extend(&PolyLine::new(second))
+            .unwrap()
             .points()
             .clone()
     }
@@ -652,4 +656,8 @@ fn check_angles(orig: &PolyLine, fixed: PolyLine) -> Warn<PolyLine> {
         }
     }
     Warn::warnings(fixed, warnings)
+}
+
+fn to_set(pts: &[Pt2D]) -> HashSet<HashablePt2D> {
+    pts.iter().map(|pt| HashablePt2D::from(*pt)).collect()
 }

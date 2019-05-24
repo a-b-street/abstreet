@@ -190,12 +190,21 @@ impl Trip {
     }
 }
 
-pub fn clip_trips(popdat: &popdat::PopDat, ui: &UI, timer: &mut Timer) -> Vec<Trip> {
+// TODO max_results just temporary for development.
+pub fn clip_trips(
+    popdat: &popdat::PopDat,
+    ui: &UI,
+    max_results: usize,
+    timer: &mut Timer,
+) -> Vec<Trip> {
     let mut results = Vec::new();
     let bounds = ui.primary.map.get_gps_bounds();
     timer.start_iter("clip trips", popdat.trips.len());
     for trip in &popdat.trips {
         timer.next();
+        if results.len() == max_results {
+            continue;
+        }
         if !bounds.contains(trip.from) || !bounds.contains(trip.to) {
             continue;
         }

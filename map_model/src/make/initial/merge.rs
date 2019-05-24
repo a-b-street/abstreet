@@ -128,14 +128,14 @@ fn merge(
                 .original_center_pts
                 .get_slice_starting_at(r.trimmed_center_pts.last_pt())
             {
-                r.trimmed_center_pts = r.trimmed_center_pts.clone().extend(&append);
+                r.trimmed_center_pts = r.trimmed_center_pts.clone().extend(&append).unwrap();
             }
         } else {
             if let Some(prepend) = r
                 .original_center_pts
                 .get_slice_ending_at(r.trimmed_center_pts.first_pt())
             {
-                r.trimmed_center_pts = prepend.extend(&r.trimmed_center_pts);
+                r.trimmed_center_pts = prepend.extend(&r.trimmed_center_pts).unwrap();
             }
         }
     }
