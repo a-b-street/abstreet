@@ -138,7 +138,7 @@ impl Path {
         self.steps[self.steps.len() - 1]
     }
 
-    // dist_ahead might be unlimited.
+    // dist_ahead is unlimited when None.
     pub fn trace(
         &self,
         map: &Map,

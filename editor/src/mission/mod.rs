@@ -11,8 +11,8 @@ use crate::ui::ShowEverything;
 use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Wizard};
-use geom::{Circle, Distance, Duration, Pt2D};
-use map_model::BuildingID;
+use geom::{Circle, Distance, Duration, PolyLine, Pt2D};
+use map_model::{BuildingID, Map, PathRequest, Position};
 
 pub struct MissionEditMode {
     state: State,
@@ -152,11 +152,41 @@ pub struct Trip {
     pub mode: popdat::psrc::Mode,
     pub trip_time: Duration,
     pub trip_dist: Distance,
+    // clip_trips doesn't populate this.
+    pub route: Option<PolyLine>,
 }
 
 impl Trip {
     pub fn end_time(&self) -> Duration {
         self.depart_at + self.trip_time
+    }
+
+    pub fn path_req(&self, map: &Map) -> PathRequest {
+        use popdat::psrc::Mode;
+
+        match self.mode {
+            Mode::Walk => PathRequest {
+                start: Position::bldg_via_walking(self.from, map),
+                end: Position::bldg_via_walking(self.to, map),
+                can_use_bike_lanes: false,
+                can_use_bus_lanes: false,
+            },
+            // TODO bldg_via_driving needs to do find_driving_lane_near_building sometimes,
+            // refactor that
+            Mode::Bike => PathRequest {
+                // TODO Allow bike lane start/stops too
+                start: Position::bldg_via_driving(self.from, map).unwrap(),
+                end: Position::bldg_via_driving(self.to, map).unwrap(),
+                can_use_bike_lanes: true,
+                can_use_bus_lanes: false,
+            },
+            Mode::Drive => PathRequest {
+                start: Position::bldg_via_driving(self.from, map).unwrap(),
+                end: Position::bldg_via_driving(self.to, map).unwrap(),
+                can_use_bike_lanes: false,
+                can_use_bus_lanes: false,
+            },
+        }
     }
 }
 
@@ -180,6 +210,7 @@ pub fn clip_trips(popdat: &popdat::PopDat, ui: &UI, timer: &mut Timer) -> Vec<Tr
                 mode: trip.mode,
                 trip_time: trip.trip_time,
                 trip_dist: trip.trip_dist,
+                route: None,
             });
         }
     }

@@ -57,17 +57,7 @@ pub fn make_bus_stops(
                 };
                 point_to_stop_id.insert(orig_pt, stop_id);
                 let sidewalk_pos = Position::new(sidewalk_id, dist_along);
-                // On one-ways, might have a bus stop be on the "wrong" sidewalk.
-                let driving_pos = if road.is_forwards(driving_lane) == road.is_forwards(sidewalk_id)
-                {
-                    sidewalk_pos.equiv_pos(driving_lane, map)
-                } else {
-                    Position::new(
-                        driving_lane,
-                        (map.get_l(driving_lane).length() - sidewalk_pos.dist_along())
-                            .max(Distance::ZERO),
-                    )
-                };
+                let driving_pos = sidewalk_pos.equiv_pos(driving_lane, map);
                 bus_stops.insert(
                     stop_id,
                     BusStop {

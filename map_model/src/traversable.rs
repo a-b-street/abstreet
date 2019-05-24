@@ -1,4 +1,4 @@
-use crate::{LaneID, Map, TurnID};
+use crate::{BuildingID, LaneID, LaneType, Map, TurnID};
 use geom::{Angle, Distance, PolyLine, Pt2D, Speed};
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
@@ -40,15 +40,28 @@ impl Position {
     pub fn equiv_pos(&self, lane: LaneID, map: &Map) -> Position {
         let r = map.get_parent(lane);
         assert_eq!(map.get_l(self.lane).parent, r.id);
-        assert_eq!(r.is_forwards(lane), r.is_forwards(self.lane));
 
-        let len = map.get_l(lane).length();
         // TODO Project perpendicular
-        if self.dist_along < len {
-            Position::new(lane, self.dist_along)
+        let len = map.get_l(lane).length();
+        // The two lanes may be on opposite sides of the road; this often happens on one-ways with
+        // sidewalks on both sides.
+        if r.is_forwards(lane) == r.is_forwards(self.lane) {
+            Position::new(lane, self.dist_along.min(len))
         } else {
-            Position::new(lane, len)
+            Position::new(lane, (len - self.dist_along).max(Distance::ZERO))
         }
+    }
+
+    pub fn bldg_via_walking(b: BuildingID, map: &Map) -> Position {
+        map.get_b(b).front_path.sidewalk
+    }
+
+    pub fn bldg_via_driving(b: BuildingID, map: &Map) -> Option<Position> {
+        let bldg = map.get_b(b);
+        let driving_lane = map
+            .find_closest_lane(bldg.sidewalk(), vec![LaneType::Driving])
+            .ok()?;
+        Some(bldg.front_path.sidewalk.equiv_pos(driving_lane, map))
     }
 }
 

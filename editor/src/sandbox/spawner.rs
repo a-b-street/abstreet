@@ -52,19 +52,14 @@ impl AgentSpawner {
                         maybe_goal: None,
                     });
                 }
-                let b = map.get_b(id);
-                if let Ok(driving_lane) =
-                    map.find_closest_lane(b.sidewalk(), vec![LaneType::Driving])
-                {
+                if let Some(pos) = Position::bldg_via_driving(id, map) {
                     if ctx
                         .input
                         .contextual_action(Key::F4, "spawn a car starting here")
                     {
                         return Some(AgentSpawner {
                             menu,
-                            from: Source::Driving(
-                                b.front_path.sidewalk.equiv_pos(driving_lane, map),
-                            ),
+                            from: Source::Driving(pos),
                             maybe_goal: None,
                         });
                     }
@@ -152,12 +147,12 @@ impl AgentSpawner {
 
         if recalculate {
             let start = match self.from {
-                Source::Walking(from) => map.get_b(from).front_path.sidewalk,
-                Source::Driving(from) => from,
+                Source::Walking(b) => Position::bldg_via_walking(b, map),
+                Source::Driving(pos) => pos,
             };
             let end = match new_goal {
                 Goal::Building(to) => match self.from {
-                    Source::Walking(_) => map.get_b(to).front_path.sidewalk,
+                    Source::Walking(_) => Position::bldg_via_walking(to, map),
                     Source::Driving(_) => {
                         let end = map.find_driving_lane_near_building(to);
                         Position::new(end, map.get_l(end).length())

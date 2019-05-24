@@ -19,6 +19,17 @@ impl TripsVisualizer {
         let mut timer = Timer::new("initialize popdat");
         let popdat: PopDat = abstutil::read_binary("../data/shapes/popdat", &mut timer)
             .expect("Couldn't load popdat");
+        let mut trips = clip_trips(&popdat, ui, &mut timer);
+        timer.start_iter("calculate routes", trips.len());
+        for trip in trips.iter_mut() {
+            timer.next();
+            let req = trip.path_req(&ui.primary.map);
+            trip.route = ui
+                .primary
+                .map
+                .pathfind(req.clone())
+                .and_then(|path| path.trace(&ui.primary.map, req.start.dist_along(), None));
+        }
 
         TripsVisualizer {
             menu: ModalMenu::new(
@@ -32,7 +43,7 @@ impl TripsVisualizer {
                 ],
                 ctx,
             ),
-            trips: clip_trips(&popdat, ui, &mut timer),
+            trips,
             time: Duration::ZERO,
             active_trips: Vec::new(),
         }
