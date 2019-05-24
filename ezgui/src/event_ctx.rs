@@ -127,14 +127,19 @@ pub struct EventCtx<'a> {
 }
 
 impl<'a> EventCtx<'a> {
-    pub fn loading_screen<O, F: FnOnce(&mut EventCtx, &mut Timer) -> O>(&mut self, f: F) -> O {
+    pub fn loading_screen<O, F: FnOnce(&mut EventCtx, &mut Timer) -> O>(
+        &mut self,
+        timer_name: &str,
+        f: F,
+    ) -> O {
         let mut timer = Timer::new_with_sink(
-            "Loading...",
+            timer_name,
             Box::new(LoadingScreen::new(
                 self.prerender,
                 self.program,
                 self.canvas.window_width,
                 self.canvas.window_height,
+                timer_name.to_string(),
             )),
         );
         f(self, &mut timer)
@@ -148,6 +153,7 @@ pub struct LoadingScreen<'a> {
     lines: VecDeque<String>,
     max_capacity: usize,
     last_drawn: Option<Instant>,
+    title: String,
 }
 
 impl<'a> LoadingScreen<'a> {
@@ -156,6 +162,7 @@ impl<'a> LoadingScreen<'a> {
         program: &'a glium::Program,
         initial_width: f64,
         initial_height: f64,
+        title: String,
     ) -> LoadingScreen<'a> {
         // TODO Ew! Expensive and wacky. Fix by not storing GlyphBrush in Canvas at all.
         let dejavu: &[u8] = include_bytes!("assets/DejaVuSans.ttf");
@@ -173,6 +180,7 @@ impl<'a> LoadingScreen<'a> {
             lines: VecDeque::new(),
             max_capacity: (0.8 * initial_height / line_height) as usize,
             last_drawn: None,
+            title,
         }
     }
 
@@ -185,7 +193,7 @@ impl<'a> LoadingScreen<'a> {
         }
         self.last_drawn = Some(Instant::now());
 
-        let mut txt = Text::prompt("Loading...");
+        let mut txt = Text::prompt(&self.title);
         for l in &self.lines {
             txt.add_line(l.to_string());
         }

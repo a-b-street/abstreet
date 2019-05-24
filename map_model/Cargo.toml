@@ -10,8 +10,10 @@ abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
 gtfs = { path = "../gtfs" }
 nbez = "0.1.0"
+num_cpus = "1.10.0"
 ordered-float = "1.0.1"
 petgraph = { version = "0.4.13", features = ["serde-1"] }
 pretty_assertions = "0.6.1"
+scoped_threadpool = "0.1.9"
 serde = "1.0.89"
 serde_derive = "1.0.89"

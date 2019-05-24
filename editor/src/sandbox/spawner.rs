@@ -90,7 +90,7 @@ impl AgentSpawner {
                 if ui.primary.sim.is_empty() {
                     if sandbox_menu.action("seed the sim with agents") {
                         // TODO This covers up the map. :\
-                        ctx.loading_screen(|_, timer| {
+                        ctx.loading_screen("seed sim with agents", |_, timer| {
                             let map = &ui.primary.map;
                             let s = if let Some(n) = ui.primary.current_flags.num_agents {
                                 Scenario::scaled_run(map, n)

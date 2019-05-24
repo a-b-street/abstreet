@@ -59,7 +59,7 @@ impl ScenarioEditor {
                 } else if menu.action("edit") {
                     *self = ScenarioEditor::EditScenario(scenario.clone(), Wizard::new());
                 } else if menu.action("instantiate") {
-                    ctx.loading_screen(|_, timer| {
+                    ctx.loading_screen("instantiate scenario", |_, timer| {
                         scenario.instantiate(
                             &mut ui.primary.sim,
                             &ui.primary.map,
