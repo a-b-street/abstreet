@@ -223,7 +223,7 @@ impl AgentSpawner {
                     sim.schedule_trip(
                         sim.time(),
                         TripSpec::CarAppearing {
-                            start_pos: from,
+                            start_pos: TripSpec::spawn_car_at(from, map),
                             vehicle_spec: Scenario::rand_car(&mut rng),
                             goal: DrivingGoal::ParkNear(to),
                             ped_speed: Scenario::rand_ped_speed(&mut rng),

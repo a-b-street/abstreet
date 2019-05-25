@@ -1,10 +1,10 @@
 use crate::{
     CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, ParkingSimState, ParkingSpot,
     PedestrianID, Scheduler, SidewalkPOI, SidewalkSpot, TripLeg, TripManager, VehicleSpec,
-    VehicleType,
+    VehicleType, MAX_CAR_LENGTH,
 };
 use abstutil::Timer;
-use geom::{Duration, Speed};
+use geom::{Duration, Speed, EPSILON_DIST};
 use map_model::{BusRouteID, BusStopID, Map, PathRequest, Position};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeSet;
@@ -14,8 +14,8 @@ pub enum TripSpec {
     // Can be used to spawn from a border or anywhere for interactive debugging.
     CarAppearing {
         start_pos: Position,
-        vehicle_spec: VehicleSpec,
         goal: DrivingGoal,
+        vehicle_spec: VehicleSpec,
         ped_speed: Speed,
     },
     UsingParkedCar {
@@ -31,16 +31,16 @@ pub enum TripSpec {
     },
     UsingBike {
         start: SidewalkSpot,
-        vehicle: VehicleSpec,
         goal: DrivingGoal,
+        vehicle: VehicleSpec,
         ped_speed: Speed,
     },
     UsingTransit {
         start: SidewalkSpot,
+        goal: SidewalkSpot,
         route: BusRouteID,
         stop1: BusStopID,
         stop2: BusStopID,
-        goal: SidewalkSpot,
         ped_speed: Speed,
     },
 }
@@ -335,6 +335,20 @@ impl TripSpawner {
 }
 
 impl TripSpec {
+    // Fixes problems that schedule_trip would hit.
+    pub fn spawn_car_at(pos: Position, map: &Map) -> Position {
+        let len = map.get_l(pos.lane()).length();
+        if pos.dist_along() == len {
+            assert!(pos.dist_along() > EPSILON_DIST);
+            Position::new(pos.lane(), pos.dist_along() - EPSILON_DIST)
+        } else if pos.dist_along() < MAX_CAR_LENGTH {
+            assert!(len > MAX_CAR_LENGTH);
+            Position::new(pos.lane(), MAX_CAR_LENGTH)
+        } else {
+            pos
+        }
+    }
+
     fn get_pathfinding_request(&self, map: &Map, parking: &ParkingSimState) -> PathRequest {
         match self {
             TripSpec::CarAppearing {

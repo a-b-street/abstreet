@@ -7,6 +7,7 @@ mod scenario;
 use crate::game::{GameState, Mode};
 use crate::helpers::ID;
 use crate::render::DrawOptions;
+use crate::sandbox::SandboxMode;
 use crate::ui::ShowEverything;
 use crate::ui::UI;
 use abstutil::Timer;
@@ -38,8 +39,9 @@ impl MissionEditMode {
                 vec![
                     (Some(Key::Escape), "quit"),
                     (Some(Key::D), "visualize population data"),
-                    (Some(Key::T), "visualize individual trips"),
-                    (Some(Key::A), "visualize all trips"),
+                    (Some(Key::T), "visualize individual PSRC trips"),
+                    (Some(Key::A), "visualize all PSRC trips"),
+                    (Some(Key::S), "set up simulation with PSRC trips"),
                     (Some(Key::N), "manage neighborhoods"),
                     (Some(Key::W), "manage scenarios"),
                 ],
@@ -61,13 +63,16 @@ impl MissionEditMode {
                         } else if menu.action("visualize population data") {
                             mode.state =
                                 State::DataViz(dataviz::DataVisualizer::new(ctx, &state.ui));
-                        } else if menu.action("visualize individual trips") {
+                        } else if menu.action("visualize individual PSRC trips") {
                             mode.state = State::IndividualTrips(
                                 individ_trips::TripsVisualizer::new(ctx, &state.ui),
                             );
-                        } else if menu.action("visualize all trips") {
+                        } else if menu.action("visualize all PSRC trips") {
                             mode.state =
                                 State::AllTrips(all_trips::TripsVisualizer::new(ctx, &state.ui));
+                        } else if menu.action("set up simulation with PSRC trips") {
+                            instantiate_trips(ctx, &mut state.ui);
+                            state.mode = Mode::Sandbox(SandboxMode::new(ctx));
                         } else if menu.action("manage neighborhoods") {
                             mode.state = State::Neighborhood(
                                 neighborhood::NeighborhoodEditor::PickNeighborhood(Wizard::new()),
@@ -239,4 +244,48 @@ fn find_building_containing(pt: Pt2D, ui: &UI) -> Option<BuildingID> {
         }
     }
     None
+}
+
+fn instantiate_trips(ctx: &mut EventCtx, ui: &mut UI) {
+    use popdat::psrc::Mode;
+    use sim::{DrivingGoal, Scenario, SidewalkSpot, TripSpec};
+
+    ctx.loading_screen("set up sim with PSRC trips", |_, mut timer| {
+        let popdat: popdat::PopDat = abstutil::read_binary("../data/shapes/popdat", &mut timer)
+            .expect("Couldn't load popdat");
+        let map = &ui.primary.map;
+        let mut rng = ui.primary.current_flags.sim_flags.make_rng();
+
+        for trip in clip_trips(&popdat, ui, 1_000, &mut timer) {
+            ui.primary.sim.schedule_trip(
+                trip.depart_at,
+                match trip.mode {
+                    // TODO Use a parked car, but first have to figure out what cars to seed.
+                    Mode::Drive => TripSpec::CarAppearing {
+                        start_pos: TripSpec::spawn_car_at(
+                            Position::bldg_via_driving(trip.from, map).unwrap(),
+                            map,
+                        ),
+                        goal: DrivingGoal::ParkNear(trip.to),
+                        ped_speed: Scenario::rand_ped_speed(&mut rng),
+                        vehicle_spec: Scenario::rand_car(&mut rng),
+                    },
+                    Mode::Bike => TripSpec::UsingBike {
+                        start: SidewalkSpot::building(trip.from, map),
+                        goal: DrivingGoal::ParkNear(trip.to),
+                        ped_speed: Scenario::rand_ped_speed(&mut rng),
+                        vehicle: Scenario::rand_bike(&mut rng),
+                    },
+                    Mode::Walk => TripSpec::JustWalking {
+                        start: SidewalkSpot::building(trip.from, map),
+                        goal: SidewalkSpot::building(trip.to, map),
+                        ped_speed: Scenario::rand_ped_speed(&mut rng),
+                    },
+                },
+                map,
+            );
+        }
+
+        ui.primary.sim.spawn_all_trips(map, &mut timer, true);
+    });
 }
