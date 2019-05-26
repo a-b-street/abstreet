@@ -22,21 +22,22 @@ impl TripsVisualizer {
             let popdat: PopDat = abstutil::read_binary("../data/shapes/popdat", &mut timer)
                 .expect("Couldn't load popdat");
             let mut all_trips = clip_trips(&popdat, ui, 1_000, &mut timer);
-            let requests = all_trips
-                .iter()
-                .map(|trip| trip.path_req(&ui.primary.map))
-                .collect();
-            let paths = ui.primary.map.calculate_paths(requests, &mut timer);
+            let map = &ui.primary.map;
+            let routes = timer.parallelize(
+                "calculate paths with geometry",
+                all_trips.iter().map(|trip| trip.path_req(map)).collect(),
+                |req| {
+                    (
+                        req.clone(),
+                        map.pathfind(req.clone())
+                            .and_then(|path| path.trace(map, req.start.dist_along(), None)),
+                    )
+                },
+            );
 
             let mut final_trips = Vec::new();
-            timer.start_iter("route geometry", paths.len());
-            for (mut trip, (req, maybe_path)) in all_trips.drain(..).zip(paths) {
-                timer.next();
-                // TODO path.trace is slow too and could be parallelized. Generalize
-                // calculate_paths to just execute a callback and do the nice timer management.
-                if let Some(route) = maybe_path
-                    .and_then(|path| path.trace(&ui.primary.map, req.start.dist_along(), None))
-                {
+            for (mut trip, (req, maybe_route)) in all_trips.drain(..).zip(routes) {
+                if let Some(route) = maybe_route {
                     trip.route = Some(route);
                     final_trips.push(trip);
                 } else {

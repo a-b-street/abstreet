@@ -697,31 +697,4 @@ impl Map {
             side2[idx]
         }
     }
-
-    // Parallelizes pathfind()
-    pub fn calculate_paths(
-        &self,
-        requests: Vec<PathRequest>,
-        timer: &mut Timer,
-    ) -> Vec<(PathRequest, Option<Path>)> {
-        scoped_threadpool::Pool::new(num_cpus::get() as u32).scoped(|scope| {
-            let (tx, rx) = std::sync::mpsc::channel();
-            let mut results: Vec<(PathRequest, Option<Path>)> = Vec::new();
-            for (idx, req) in requests.into_iter().enumerate() {
-                results.push((req.clone(), None));
-                let tx = tx.clone();
-                scope.execute(move || {
-                    tx.send((idx, self.pathfind(req))).unwrap();
-                });
-            }
-            drop(tx);
-
-            timer.start_iter("calculate paths", results.len());
-            for (idx, path) in rx.iter() {
-                timer.next();
-                results[idx].1 = path;
-            }
-            results
-        })
-    }
 }

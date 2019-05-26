@@ -155,12 +155,13 @@ impl TripSpawner {
         timer: &mut Timer,
         retry_if_no_room: bool,
     ) {
-        let paths = map.calculate_paths(
+        let paths = timer.parallelize(
+            "calculate paths",
             self.trips
                 .iter()
                 .map(|(_, _, _, spec)| spec.get_pathfinding_request(map, parking))
                 .collect(),
-            timer,
+            |req| (req.clone(), map.pathfind(req)),
         );
         for ((start_time, ped_id, car_id, spec), (req, maybe_path)) in
             self.trips.drain(..).zip(paths)

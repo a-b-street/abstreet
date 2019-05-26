@@ -283,6 +283,39 @@ impl<'a> Timer<'a> {
             }
         }
     }
+
+    pub fn parallelize<I, O, F: Fn(I) -> O>(
+        &mut self,
+        timer_name: &str,
+        requests: Vec<I>,
+        cb: F,
+    ) -> Vec<O>
+    where
+        I: Send,
+        O: Send,
+        F: Send + Clone + Copy,
+    {
+        scoped_threadpool::Pool::new(num_cpus::get() as u32).scoped(|scope| {
+            let (tx, rx) = std::sync::mpsc::channel();
+            let mut results: Vec<Option<O>> = std::iter::repeat_with(|| None)
+                .take(requests.len())
+                .collect();
+            for (idx, req) in requests.into_iter().enumerate() {
+                let tx = tx.clone();
+                scope.execute(move || {
+                    tx.send((idx, cb(req))).unwrap();
+                });
+            }
+            drop(tx);
+
+            self.start_iter(timer_name, results.len());
+            for (idx, result) in rx.iter() {
+                self.next();
+                results[idx] = Some(result);
+            }
+            results.into_iter().map(|x| x.unwrap()).collect()
+        })
+    }
 }
 
 impl<'a> std::ops::Drop for Timer<'a> {
