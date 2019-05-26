@@ -261,15 +261,22 @@ fn instantiate_trips(ctx: &mut EventCtx, ui: &mut UI) {
                 trip.depart_at,
                 match trip.mode {
                     // TODO Use a parked car, but first have to figure out what cars to seed.
-                    Mode::Drive => TripSpec::CarAppearing {
-                        start_pos: TripSpec::spawn_car_at(
+                    Mode::Drive => {
+                        if let Some(start_pos) = TripSpec::spawn_car_at(
                             Position::bldg_via_driving(trip.from, map).unwrap(),
                             map,
-                        ),
-                        goal: DrivingGoal::ParkNear(trip.to),
-                        ped_speed: Scenario::rand_ped_speed(&mut rng),
-                        vehicle_spec: Scenario::rand_car(&mut rng),
-                    },
+                        ) {
+                            TripSpec::CarAppearing {
+                                start_pos,
+                                goal: DrivingGoal::ParkNear(trip.to),
+                                ped_speed: Scenario::rand_ped_speed(&mut rng),
+                                vehicle_spec: Scenario::rand_car(&mut rng),
+                            }
+                        } else {
+                            timer.warn(format!("Can't make car appear at {}", trip.from));
+                            continue;
+                        }
+                    }
                     Mode::Bike => TripSpec::UsingBike {
                         start: SidewalkSpot::building(trip.from, map),
                         goal: DrivingGoal::ParkNear(trip.to),

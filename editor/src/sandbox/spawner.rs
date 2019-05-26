@@ -220,16 +220,20 @@ impl AgentSpawner {
                     }
                 }
                 (Source::Driving(from), Goal::Building(to)) => {
-                    sim.schedule_trip(
-                        sim.time(),
-                        TripSpec::CarAppearing {
-                            start_pos: TripSpec::spawn_car_at(from, map),
-                            vehicle_spec: Scenario::rand_car(&mut rng),
-                            goal: DrivingGoal::ParkNear(to),
-                            ped_speed: Scenario::rand_ped_speed(&mut rng),
-                        },
-                        map,
-                    );
+                    if let Some(start_pos) = TripSpec::spawn_car_at(from, map) {
+                        sim.schedule_trip(
+                            sim.time(),
+                            TripSpec::CarAppearing {
+                                start_pos,
+                                vehicle_spec: Scenario::rand_car(&mut rng),
+                                goal: DrivingGoal::ParkNear(to),
+                                ped_speed: Scenario::rand_ped_speed(&mut rng),
+                            },
+                            map,
+                        );
+                    } else {
+                        println!("Can't make a car appear at {:?}", from);
+                    }
                 }
                 (Source::Driving(from), Goal::Border(to)) => {
                     if let Some(goal) = DrivingGoal::end_at_border(to, vec![LaneType::Driving], map)

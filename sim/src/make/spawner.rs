@@ -335,17 +335,21 @@ impl TripSpawner {
 }
 
 impl TripSpec {
-    // Fixes problems that schedule_trip would hit.
-    pub fn spawn_car_at(pos: Position, map: &Map) -> Position {
+    // If possible, fixes problems that schedule_trip would hit.
+    pub fn spawn_car_at(pos: Position, map: &Map) -> Option<Position> {
         let len = map.get_l(pos.lane()).length();
         if pos.dist_along() == len {
-            assert!(pos.dist_along() > EPSILON_DIST);
-            Position::new(pos.lane(), pos.dist_along() - EPSILON_DIST)
+            if pos.dist_along() <= EPSILON_DIST {
+                return None;
+            }
+            Some(Position::new(pos.lane(), pos.dist_along() - EPSILON_DIST))
         } else if pos.dist_along() < MAX_CAR_LENGTH {
-            assert!(len > MAX_CAR_LENGTH);
-            Position::new(pos.lane(), MAX_CAR_LENGTH)
+            if len <= MAX_CAR_LENGTH {
+                return None;
+            }
+            Some(Position::new(pos.lane(), MAX_CAR_LENGTH))
         } else {
-            pos
+            Some(pos)
         }
     }
 
