@@ -216,9 +216,19 @@ pub fn clip_trips(
         let from = find_building_containing(Pt2D::from_gps(trip.from, bounds).unwrap(), ui);
         let to = find_building_containing(Pt2D::from_gps(trip.to, bounds).unwrap(), ui);
         if from.is_some() && to.is_some() {
+            let from = from.unwrap();
+            let to = to.unwrap();
+            if from == to {
+                timer.warn(format!(
+                    "Trip leaving at {} goes from {} to {}, both matching {}",
+                    trip.depart_at, trip.from, trip.to, from
+                ));
+                continue;
+            }
+
             results.push(Trip {
-                from: from.unwrap(),
-                to: to.unwrap(),
+                from,
+                to,
                 depart_at: trip.depart_at,
                 purpose: trip.purpose,
                 mode: trip.mode,

@@ -4,7 +4,7 @@ use crate::render::{
 };
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender, ScreenPt, Text};
-use geom::{Angle, Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D};
+use geom::{Angle, Circle, Distance, Duration, Line, PolyLine, Polygon, Pt2D, EPSILON_DIST};
 use map_model::{
     Cycle, Intersection, IntersectionID, IntersectionType, Map, Road, RoadWithStopSign, Turn,
     TurnID, TurnPriority, TurnType, LANE_THICKNESS,
@@ -102,7 +102,8 @@ impl DrawIntersection {
     pub fn stop_sign_geom(ss: &RoadWithStopSign, map: &Map) -> Option<(Polygon, Polygon)> {
         let trim_back = Distance::meters(0.1);
         let rightmost = &map.get_l(*ss.travel_lanes.last().unwrap()).lane_center_pts;
-        if rightmost.length() < trim_back {
+        // TODO The dream of trimming f64's was to isolate epsilon checks like this...
+        if rightmost.length() - trim_back <= EPSILON_DIST {
             // TODO warn
             return None;
         }
