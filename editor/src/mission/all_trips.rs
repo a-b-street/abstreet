@@ -21,7 +21,7 @@ impl TripsVisualizer {
         let trips = ctx.loading_screen("load trip data", |_, mut timer| {
             let popdat: PopDat = abstutil::read_binary("../data/shapes/popdat", &mut timer)
                 .expect("Couldn't load popdat");
-            let mut all_trips = clip_trips(&popdat, ui, 1_000, &mut timer);
+            let mut all_trips = clip_trips(&popdat, ui, 10_000, &mut timer);
             let map = &ui.primary.map;
             let routes = timer.parallelize(
                 "calculate paths with geometry",

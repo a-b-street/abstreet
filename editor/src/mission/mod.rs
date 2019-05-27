@@ -256,7 +256,9 @@ fn instantiate_trips(ctx: &mut EventCtx, ui: &mut UI) {
         let map = &ui.primary.map;
         let mut rng = ui.primary.current_flags.sim_flags.make_rng();
 
-        for trip in clip_trips(&popdat, ui, 1_000, &mut timer) {
+        let mut min_time = Duration::parse("23:59:59.9").unwrap();
+
+        for trip in clip_trips(&popdat, ui, 10_000, &mut timer) {
             ui.primary.sim.schedule_trip(
                 trip.depart_at,
                 match trip.mode {
@@ -291,7 +293,9 @@ fn instantiate_trips(ctx: &mut EventCtx, ui: &mut UI) {
                 },
                 map,
             );
+            min_time = min_time.min(trip.depart_at);
         }
+        timer.note(format!("Expect the first trip to start at {}", min_time));
 
         ui.primary.sim.spawn_all_trips(map, &mut timer, true);
     });

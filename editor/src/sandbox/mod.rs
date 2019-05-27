@@ -62,6 +62,7 @@ impl SandboxMode {
                         (Some(Key::U), "load next sim state"),
                         (Some(Key::Space), "run/pause sim"),
                         (Some(Key::M), "step forwards 0.1s"),
+                        (Some(Key::N), "step forwards 10 mins"),
                         (Some(Key::X), "reset sim"),
                         (Some(Key::S), "seed the sim with agents"),
                         // TODO Strange to always have this. Really it's a case of stacked modal?
@@ -275,6 +276,13 @@ impl SandboxMode {
                                 .primary
                                 .sim
                                 .step(&state.ui.primary.map, Duration::seconds(0.1));
+                        //*ctx.recalculate_current_selection = true;
+                        } else if mode.menu.action("step forwards 10 mins") {
+                            state
+                                .ui
+                                .primary
+                                .sim
+                                .step(&state.ui.primary.map, Duration::minutes(10));
                             //*ctx.recalculate_current_selection = true;
                         }
                         EventLoopMode::InputOnly

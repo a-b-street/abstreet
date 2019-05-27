@@ -740,9 +740,10 @@ impl Sim {
         let mut stats = SimStats::new(self.time);
         for trip in self.trips.get_active_trips().into_iter() {
             if let Some(agent) = self.trips.trip_to_agent(trip) {
+                // Active trips with an agent should have a canonical pt.
                 stats
                     .canonical_pt_per_trip
-                    .insert(trip, self.canonical_pt_for_agent(agent, map));
+                    .insert(trip, self.canonical_pt_for_agent(agent, map).unwrap());
             }
         }
 
@@ -757,14 +758,13 @@ impl Sim {
     pub fn get_canonical_pt_per_trip(&self, trip: TripID, map: &Map) -> Option<Pt2D> {
         self.trips
             .trip_to_agent(trip)
-            .map(|id| self.canonical_pt_for_agent(id, map))
+            .and_then(|id| self.canonical_pt_for_agent(id, map))
     }
 
-    // Assumes agent does exist.
-    fn canonical_pt_for_agent(&self, id: AgentID, map: &Map) -> Pt2D {
+    fn canonical_pt_for_agent(&self, id: AgentID, map: &Map) -> Option<Pt2D> {
         match id {
-            AgentID::Car(id) => self.get_draw_car(id, map).unwrap().body.last_pt(),
-            AgentID::Pedestrian(id) => self.get_draw_ped(id, map).unwrap().pos,
+            AgentID::Car(id) => Some(self.get_draw_car(id, map)?.body.last_pt()),
+            AgentID::Pedestrian(id) => Some(self.get_draw_ped(id, map)?.pos),
         }
     }
 

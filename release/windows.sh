@@ -14,6 +14,9 @@ for map in 23rd ballard caphill downtown montlake; do
 	cp -v data/maps/$map.abst $OUT/data/maps/
 done
 
+mkdir -p $OUT/data/shapes
+cp -v data/shapes/popdat $OUT/data/shapes
+
 mkdir $OUT/editor
 cross build --release --target x86_64-pc-windows-gnu --bin editor
 cp target/x86_64-pc-windows-gnu/release/editor.exe $OUT/editor

@@ -457,3 +457,11 @@ https://pdfs.semanticscholar.org/36d1/b4ec6a4a2823e9c875318f1952df4abf4876.pdf
 	- but will the better heuristic to the goal make us actually search those?
 
 - or just use intersections between big roads as these landmarks, precompute paths between them
+
+contraction hierarchies: https://github.com/cc-routing/routing/wiki/Contraction-Hierarchies
+
+### OSRM notes
+
+https://github.com/aquavit/Project-OSRM/wiki/OSRM-normalized-file-format
+
+https://github.com/deliveroo/osrm-rs
