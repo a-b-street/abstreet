@@ -38,3 +38,15 @@ changes here.
 - fix mac scrolling
 - better turn indicators
 - nicer unzoomed view of roads, with different colors for big/small roads
+
+0.1.5
+
+(release file size jumped from ~15MB to ~70MB because of new PSRC trips)
+
+- improve UX of intersection editors
+- define a better set of maps included by default
+- improve drawing speed by batching more stuff
+- better default traffic signal policies for many cases
+- import and visualize census data
+- fix missing sidewalks on downtown one-ways
+- import and visualize PSRC trip data
