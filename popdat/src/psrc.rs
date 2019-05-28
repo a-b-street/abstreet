@@ -1,5 +1,6 @@
 use abstutil::{prettyprint_usize, skip_fail, FileWithProgress, Timer};
-use geom::{Distance, Duration, GPSBounds, LonLat};
+use geom::{Distance, Duration, FindClosest, LonLat, Pt2D};
+use map_model::Map;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs::File;
@@ -7,8 +8,9 @@ use std::io::{BufRead, BufReader, BufWriter, Write};
 
 #[derive(Serialize, Deserialize)]
 pub struct Trip {
-    pub from: LonLat,
-    pub to: LonLat,
+    // OSM building IDs
+    pub from: i64,
+    pub to: i64,
     // Relative to midnight
     pub depart_at: Duration,
     pub mode: Mode,
@@ -41,12 +43,14 @@ pub enum Purpose {
 }
 
 pub fn import_trips(
-    path: &str,
-    parcels: HashMap<String, LonLat>,
+    parcels_path: &str,
+    trips_path: &str,
     timer: &mut Timer,
 ) -> Result<Vec<Trip>, failure::Error> {
+    let parcels = import_parcels(parcels_path, timer)?;
+
     let mut trips = Vec::new();
-    let (reader, done) = FileWithProgress::new(path)?;
+    let (reader, done) = FileWithProgress::new(trips_path)?;
     for rec in csv::Reader::from_reader(reader).records() {
         let rec = rec?;
 
@@ -54,6 +58,14 @@ pub fn import_trips(
         let from = *skip_fail!(parcels.get(rec[15].trim_end_matches(".0")));
         // dpcl
         let to = *skip_fail!(parcels.get(rec[6].trim_end_matches(".0")));
+
+        if from == to {
+            timer.warn(format!(
+                "Skipping trip from parcel {} to {}; both match OSM building {}",
+                &rec[15], &rec[6], from
+            ));
+            continue;
+        }
 
         // deptm
         let depart_at = Duration::minutes(rec[4].trim_end_matches(".0").parse::<usize>()?);
@@ -84,10 +96,16 @@ pub fn import_trips(
 }
 
 // TODO Do we also need the zone ID, or is parcel ID globally unique?
-pub fn import_parcels(
-    path: &str,
-    timer: &mut Timer,
-) -> Result<HashMap<String, LonLat>, failure::Error> {
+fn import_parcels(path: &str, timer: &mut Timer) -> Result<HashMap<String, i64>, failure::Error> {
+    let map: Map = abstutil::read_binary("../data/maps/huge_seattle.abst", timer)?;
+
+    // TODO I really just want to do polygon containment with a quadtree. FindClosest only does
+    // line-string stuff right now, which'll be weird for the last->first pt line and stuff.
+    let mut closest_bldg: FindClosest<i64> = FindClosest::new(map.get_bounds());
+    for b in map.all_buildings() {
+        closest_bldg.add(b.osm_way_id, b.polygon.points());
+    }
+
     let mut coords = BufWriter::new(File::create("/tmp/parcels")?);
     let mut parcel_ids = Vec::new();
 
@@ -128,7 +146,7 @@ pub fn import_parcels(
         prettyprint_usize(parcel_ids.len())
     ));
 
-    let bounds = GPSBounds::seattle_bounds();
+    let bounds = map.get_gps_bounds();
     let reader = BufReader::new(output.stdout.as_slice());
     let mut result = HashMap::new();
     timer.start_iter("read cs2cs output", parcel_ids.len());
@@ -140,7 +158,11 @@ pub fn import_parcels(
         let lat: f64 = pieces[1].parse()?;
         let pt = LonLat::new(lon, lat);
         if bounds.contains(pt) {
-            result.insert(id, pt);
+            if let Some((bldg, _)) =
+                closest_bldg.closest_pt(Pt2D::from_gps(pt, bounds).unwrap(), Distance::meters(30.0))
+            {
+                result.insert(id, bldg);
+            }
         }
     }
     Ok(result)

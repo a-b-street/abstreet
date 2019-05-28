@@ -10,5 +10,6 @@ csv = "1.0.1"
 failure = "0.1.2"
 geom = { path = "../geom" }
 kml = { path = "../kml" }
+map_model = { path = "../map_model" }
 serde = "1.0.89"
 serde_derive = "1.0.89"

@@ -143,11 +143,11 @@ impl DrawMap {
             for r in map.all_roads().iter() {
                 closest.add(
                     r.id.forwards(),
-                    &r.center_pts.shift_right(LANE_THICKNESS).get(timer),
+                    r.center_pts.shift_right(LANE_THICKNESS).get(timer).points(),
                 );
                 closest.add(
                     r.id.backwards(),
-                    &r.center_pts.shift_left(LANE_THICKNESS).get(timer),
+                    r.center_pts.shift_left(LANE_THICKNESS).get(timer).points(),
                 );
             }
 

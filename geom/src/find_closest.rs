@@ -1,4 +1,4 @@
-use crate::{Bounds, Distance, GPSBounds, LonLat, PolyLine, Pt2D};
+use crate::{Bounds, Distance, GPSBounds, LonLat, Pt2D};
 use aabb_quadtree::geom::{Point, Rect};
 use aabb_quadtree::QuadTree;
 use geo;
@@ -22,11 +22,10 @@ where
         }
     }
 
-    pub fn add(&mut self, key: K, pts: &PolyLine) {
-        self.geometries
-            .insert(key.clone(), pts_to_line_string(&pts.points()));
+    pub fn add(&mut self, key: K, pts: &Vec<Pt2D>) {
+        self.geometries.insert(key.clone(), pts_to_line_string(pts));
         self.quadtree
-            .insert_with_box(key, pts.get_bounds().as_bbox());
+            .insert_with_box(key, Bounds::from(pts).as_bbox());
     }
 
     pub fn add_gps(&mut self, key: K, raw_pts: &Vec<LonLat>, gps_bounds: &GPSBounds) {

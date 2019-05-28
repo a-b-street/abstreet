@@ -21,7 +21,7 @@ pub fn find_sidewalk_points(
     for l in lanes {
         timer.next();
         if l.is_sidewalk() {
-            closest.add(l.id, &l.lane_center_pts);
+            closest.add(l.id, l.lane_center_pts.points());
         }
     }
 

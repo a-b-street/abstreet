@@ -5,15 +5,15 @@ mod neighborhood;
 mod scenario;
 
 use crate::game::{GameState, Mode};
-use crate::helpers::ID;
 use crate::render::DrawOptions;
 use crate::sandbox::SandboxMode;
 use crate::ui::ShowEverything;
 use crate::ui::UI;
-use abstutil::Timer;
+use abstutil::{skip_fail, Timer};
 use ezgui::{EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Wizard};
-use geom::{Circle, Distance, Duration, PolyLine, Pt2D};
+use geom::{Distance, Duration, PolyLine};
 use map_model::{BuildingID, Map, PathRequest, Position};
+use std::collections::HashMap;
 
 pub struct MissionEditMode {
     state: State,
@@ -202,58 +202,33 @@ pub fn clip_trips(
     max_results: usize,
     timer: &mut Timer,
 ) -> Vec<Trip> {
+    let mut osm_id_to_bldg = HashMap::new();
+    for b in ui.primary.map.all_buildings() {
+        osm_id_to_bldg.insert(b.osm_way_id, b.id);
+    }
+
     let mut results = Vec::new();
-    let bounds = ui.primary.map.get_gps_bounds();
     timer.start_iter("clip trips", popdat.trips.len());
     for trip in &popdat.trips {
         timer.next();
         if results.len() == max_results {
             continue;
         }
-        if !bounds.contains(trip.from) || !bounds.contains(trip.to) {
-            continue;
-        }
-        let from = find_building_containing(Pt2D::from_gps(trip.from, bounds).unwrap(), ui);
-        let to = find_building_containing(Pt2D::from_gps(trip.to, bounds).unwrap(), ui);
-        if from.is_some() && to.is_some() {
-            let from = from.unwrap();
-            let to = to.unwrap();
-            if from == to {
-                timer.warn(format!(
-                    "Trip leaving at {} goes from {} to {}, both matching {}",
-                    trip.depart_at, trip.from, trip.to, from
-                ));
-                continue;
-            }
 
-            results.push(Trip {
-                from,
-                to,
-                depart_at: trip.depart_at,
-                purpose: trip.purpose,
-                mode: trip.mode,
-                trip_time: trip.trip_time,
-                trip_dist: trip.trip_dist,
-                route: None,
-            });
-        }
+        let from = *skip_fail!(osm_id_to_bldg.get(&trip.from));
+        let to = *skip_fail!(osm_id_to_bldg.get(&trip.to));
+        results.push(Trip {
+            from,
+            to,
+            depart_at: trip.depart_at,
+            purpose: trip.purpose,
+            mode: trip.mode,
+            trip_time: trip.trip_time,
+            trip_dist: trip.trip_dist,
+            route: None,
+        });
     }
     results
-}
-
-fn find_building_containing(pt: Pt2D, ui: &UI) -> Option<BuildingID> {
-    for obj in ui
-        .primary
-        .draw_map
-        .get_matching_objects(Circle::new(pt, Distance::meters(3.0)).get_bounds())
-    {
-        if let ID::Building(b) = obj {
-            if ui.primary.map.get_b(b).polygon.contains_pt(pt) {
-                return Some(b);
-            }
-        }
-    }
-    None
 }
 
 fn instantiate_trips(ctx: &mut EventCtx, ui: &mut UI) {
