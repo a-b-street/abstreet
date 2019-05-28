@@ -623,10 +623,12 @@ impl Sim {
     }
 
     pub fn summary(&self) -> String {
+        let (active, unfinished) = self.trips.num_trips();
         format!(
-            "{}: {} active agents",
+            "{}: {} active / {} unfinished",
             self.time,
-            abstutil::prettyprint_usize(self.trips.num_active_trips())
+            abstutil::prettyprint_usize(active),
+            abstutil::prettyprint_usize(unfinished)
         )
     }
 

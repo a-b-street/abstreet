@@ -19,6 +19,7 @@ pub struct TripManager {
     )]
     active_trip_mode: BTreeMap<AgentID, TripID>,
     num_bus_trips: usize,
+    unfinished_trips: usize,
 
     events: Vec<Event>,
 }
@@ -29,6 +30,7 @@ impl TripManager {
             trips: Vec::new(),
             active_trip_mode: BTreeMap::new(),
             num_bus_trips: 0,
+            unfinished_trips: 0,
             events: Vec::new(),
         }
     }
@@ -38,12 +40,16 @@ impl TripManager {
         // TODO Make sure the legs constitute a valid state machine.
 
         let id = TripID(self.trips.len());
-        self.trips.push(Trip {
+        let trip = Trip {
             id,
             spawned_at,
             finished_at: None,
             legs: VecDeque::from(legs),
-        });
+        };
+        if !trip.is_bus_trip() {
+            self.unfinished_trips += 1;
+        }
+        self.trips.push(trip);
         id
     }
 
@@ -74,12 +80,14 @@ impl TripManager {
             _ => unreachable!(),
         };
 
-        trip.spawn_ped(
+        if !trip.spawn_ped(
             time,
             SidewalkSpot::parking_spot(spot, map, parking),
             map,
             scheduler,
-        );
+        ) {
+            self.unfinished_trips -= 1;
+        }
     }
 
     pub fn ped_reached_parking_spot(
@@ -120,6 +128,7 @@ impl TripManager {
                 "Aborting a trip because no path for the car portion! {:?} to {:?}",
                 start, end
             );
+            self.unfinished_trips -= 1;
             return;
         };
 
@@ -170,6 +179,7 @@ impl TripManager {
                 "Aborting a trip because no path for the bike portion! {:?} to {:?}",
                 driving_pos, end
             );
+            self.unfinished_trips -= 1;
             return;
         };
 
@@ -202,7 +212,9 @@ impl TripManager {
             _ => unreachable!(),
         };
 
-        trip.spawn_ped(time, bike_rack, map, scheduler);
+        if !trip.spawn_ped(time, bike_rack, map, scheduler) {
+            self.unfinished_trips -= 1;
+        }
     }
 
     pub fn ped_reached_building(
@@ -222,6 +234,7 @@ impl TripManager {
         assert!(trip.legs.is_empty());
         assert!(!trip.finished_at.is_some());
         trip.finished_at = Some(time);
+        self.unfinished_trips -= 1;
     }
 
     // If true, the pedestrian boarded a bus immediately.
@@ -278,7 +291,9 @@ impl TripManager {
             _ => unreachable!(),
         };
 
-        trip.spawn_ped(time, start, map, scheduler);
+        if !trip.spawn_ped(time, start, map, scheduler) {
+            self.unfinished_trips -= 1;
+        }
     }
 
     pub fn ped_reached_border(
@@ -298,6 +313,7 @@ impl TripManager {
         assert!(trip.legs.is_empty());
         assert!(!trip.finished_at.is_some());
         trip.finished_at = Some(time);
+        self.unfinished_trips -= 1;
     }
 
     pub fn car_or_bike_reached_border(&mut self, time: Duration, car: CarID, i: IntersectionID) {
@@ -311,12 +327,14 @@ impl TripManager {
                     "Aborting trip {}, because {} couldn't find parking and got stuck",
                     trip.id, car
                 );
+                self.unfinished_trips -= 1;
                 return;
             }
         };
         assert!(trip.legs.is_empty());
         assert!(!trip.finished_at.is_some());
         trip.finished_at = Some(time);
+        self.unfinished_trips -= 1;
     }
 
     pub fn active_agents(&self) -> Vec<AgentID> {
@@ -353,13 +371,16 @@ impl TripManager {
         )]
     }
 
-    // Not including buses
-    pub fn num_active_trips(&self) -> usize {
-        self.active_trip_mode.len() - self.num_bus_trips
+    // Not including buses. (active, unfinished)
+    pub fn num_trips(&self) -> (usize, usize) {
+        (
+            self.active_trip_mode.len() - self.num_bus_trips,
+            self.unfinished_trips,
+        )
     }
 
     pub fn is_done(&self) -> bool {
-        self.num_active_trips() == 0
+        self.unfinished_trips == 0
     }
 
     pub fn collect_events(&mut self) -> Vec<Event> {
@@ -384,7 +405,14 @@ impl Trip {
             }
     }
 
-    fn spawn_ped(&self, time: Duration, start: SidewalkSpot, map: &Map, scheduler: &mut Scheduler) {
+    // Returns true if this succeeds. If not, trip aborted.
+    fn spawn_ped(
+        &self,
+        time: Duration,
+        start: SidewalkSpot,
+        map: &Map,
+        scheduler: &mut Scheduler,
+    ) -> bool {
         let (ped, speed, walk_to) = match self.legs[0] {
             TripLeg::Walk(ped, speed, ref to) => (ped, speed, to.clone()),
             _ => unreachable!(),
@@ -402,7 +430,7 @@ impl Trip {
                 "Aborting a trip because no path for the walking portion! {:?} to {:?}",
                 start, walk_to
             );
-            return;
+            return false;
         };
 
         scheduler.push(
@@ -416,6 +444,7 @@ impl Trip {
                 trip: self.id,
             }),
         );
+        true
     }
 
     fn assert_walking_leg(&mut self, ped: PedestrianID, goal: SidewalkSpot) {
