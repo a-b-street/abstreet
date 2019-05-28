@@ -2,14 +2,14 @@ use crate::common::CommonState;
 use crate::mission::{clip_trips, Trip};
 use crate::ui::{ShowEverything, UI};
 use abstutil::{prettyprint_usize, Timer};
-use ezgui::{Color, EventCtx, GfxCtx, Key, ModalMenu, Text};
+use ezgui::{Color, EventCtx, GfxCtx, Key, ModalMenu, Slider, Text};
 use geom::{Circle, Distance, Speed};
 use popdat::PopDat;
 
 pub struct TripsVisualizer {
     menu: ModalMenu,
     trips: Vec<Trip>,
-    current: usize,
+    slider: Slider,
 }
 
 impl TripsVisualizer {
@@ -17,7 +17,8 @@ impl TripsVisualizer {
         let mut timer = Timer::new("initialize popdat");
         let popdat: PopDat = abstutil::read_binary("../data/shapes/popdat", &mut timer)
             .expect("Couldn't load popdat");
-
+        // TODO We'll break if there are no matching trips
+        let trips = clip_trips(&popdat, ui, 10_000, &mut timer);
         TripsVisualizer {
             menu: ModalMenu::new(
                 "Trips Visualizer",
@@ -30,21 +31,22 @@ impl TripsVisualizer {
                 ],
                 ctx,
             ),
-            trips: clip_trips(&popdat, ui, 10_000, &mut timer),
-            // TODO We'll break if there are no matching trips
-            current: 0,
+            slider: Slider::new(0, trips.len() - 1),
+            trips,
         }
     }
 
     // Returns true if the we're done
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> bool {
+        let current = self.slider.get_value();
+
         let mut txt = Text::prompt("Trips Visualizer");
         txt.add_line(format!(
             "Trip {}/{}",
-            prettyprint_usize(self.current),
+            prettyprint_usize(current + 1),
             prettyprint_usize(self.trips.len())
         ));
-        let trip = &self.trips[self.current];
+        let trip = &self.trips[current];
         txt.add_line(format!("Leave at {}", trip.depart_at));
         txt.add_line(format!(
             "Purpose: {:?} -> {:?}",
@@ -65,21 +67,23 @@ impl TripsVisualizer {
 
         if self.menu.action("quit") {
             return true;
-        } else if self.current != self.trips.len() - 1 && self.menu.action("next trip") {
-            self.current += 1;
-        } else if self.current != self.trips.len() - 1 && self.menu.action("last trip") {
-            self.current = self.trips.len() - 1;
-        } else if self.current != 0 && self.menu.action("prev trip") {
-            self.current -= 1;
-        } else if self.current != 0 && self.menu.action("first trip") {
-            self.current = 0;
+        } else if current != self.trips.len() - 1 && self.menu.action("next trip") {
+            self.slider.set_value(ctx, current + 1);
+        } else if current != self.trips.len() - 1 && self.menu.action("last trip") {
+            self.slider.set_value(ctx, self.trips.len() - 1);
+        } else if current != 0 && self.menu.action("prev trip") {
+            self.slider.set_value(ctx, current - 1);
+        } else if current != 0 && self.menu.action("first trip") {
+            self.slider.set_value(ctx, 0);
         }
+
+        self.slider.event(ctx);
 
         false
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        let trip = &self.trips[self.current];
+        let trip = &self.trips[self.slider.get_value()];
         let from = ui.primary.map.get_b(trip.from);
         let to = ui.primary.map.get_b(trip.to);
 
@@ -97,6 +101,7 @@ impl TripsVisualizer {
         );
 
         self.menu.draw(g);
+        self.slider.draw(g);
         CommonState::draw_osd(g, ui, ui.primary.current_selection);
     }
 }

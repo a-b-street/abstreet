@@ -2,13 +2,13 @@ use crate::helpers::ID;
 use crate::render::calculate_corners;
 use crate::ui::UI;
 use abstutil::Timer;
-use ezgui::{EventCtx, GfxCtx, Key, ModalMenu, Text};
+use ezgui::{EventCtx, GfxCtx, Key, ModalMenu, Slider, Text};
 use geom::{Polygon, Pt2D, Triangle};
 
 pub struct PolygonDebugger {
     menu: ModalMenu,
     items: Vec<Item>,
-    current: usize,
+    slider: Slider,
     center: Option<Pt2D>,
 }
 
@@ -44,57 +44,57 @@ impl PolygonDebugger {
                     return Some(PolygonDebugger {
                         menu,
                         items: pts.iter().map(|pt| Item::Point(*pt)).collect(),
-                        current: 0,
+                        slider: Slider::new(0, pts.len() - 1),
                         center: Some(Pt2D::center(&pts_without_last)),
                     });
                 } else if ctx
                     .input
                     .contextual_action(Key::F2, "debug sidewalk corners")
                 {
+                    let items: Vec<Item> =
+                        calculate_corners(i, &ui.primary.map, &mut Timer::new("calculate corners"))
+                            .into_iter()
+                            .map(Item::Polygon)
+                            .collect();
                     return Some(PolygonDebugger {
                         menu,
-                        items: calculate_corners(
-                            i,
-                            &ui.primary.map,
-                            &mut Timer::new("calculate corners"),
-                        )
-                        .into_iter()
-                        .map(Item::Polygon)
-                        .collect(),
-                        current: 0,
+                        slider: Slider::new(0, items.len() - 1),
+                        items,
                         center: None,
                     });
                 }
             }
             Some(ID::Lane(id)) => {
                 if ctx.input.contextual_action(Key::X, "debug lane geometry") {
+                    let items: Vec<Item> = ui
+                        .primary
+                        .map
+                        .get_l(id)
+                        .lane_center_pts
+                        .points()
+                        .iter()
+                        .map(|pt| Item::Point(*pt))
+                        .collect();
                     return Some(PolygonDebugger {
                         menu,
-                        items: ui
-                            .primary
-                            .map
-                            .get_l(id)
-                            .lane_center_pts
-                            .points()
-                            .iter()
-                            .map(|pt| Item::Point(*pt))
-                            .collect(),
-                        current: 0,
+                        slider: Slider::new(0, items.len() - 1),
+                        items,
                         center: None,
                     });
                 } else if ctx.input.contextual_action(Key::F2, "debug lane triangles") {
+                    let items: Vec<Item> = ui
+                        .primary
+                        .draw_map
+                        .get_l(id)
+                        .polygon
+                        .triangles()
+                        .into_iter()
+                        .map(Item::Triangle)
+                        .collect();
                     return Some(PolygonDebugger {
                         menu,
-                        items: ui
-                            .primary
-                            .draw_map
-                            .get_l(id)
-                            .polygon
-                            .triangles()
-                            .into_iter()
-                            .map(Item::Triangle)
-                            .collect(),
-                        current: 0,
+                        slider: Slider::new(0, items.len() - 1),
+                        items,
                         center: None,
                     });
                 }
@@ -112,22 +112,23 @@ impl PolygonDebugger {
                     return Some(PolygonDebugger {
                         menu,
                         items: pts.iter().map(|pt| Item::Point(*pt)).collect(),
-                        current: 0,
+                        slider: Slider::new(0, pts.len() - 1),
                         center: Some(center),
                     });
                 } else if ctx.input.contextual_action(Key::F2, "debug area triangles") {
+                    let items: Vec<Item> = ui
+                        .primary
+                        .map
+                        .get_a(id)
+                        .polygon
+                        .triangles()
+                        .into_iter()
+                        .map(Item::Triangle)
+                        .collect();
                     return Some(PolygonDebugger {
                         menu,
-                        items: ui
-                            .primary
-                            .map
-                            .get_a(id)
-                            .polygon
-                            .triangles()
-                            .into_iter()
-                            .map(Item::Triangle)
-                            .collect(),
-                        current: 0,
+                        slider: Slider::new(0, items.len() - 1),
+                        items,
                         center: None,
                     });
                 }
@@ -139,44 +140,52 @@ impl PolygonDebugger {
 
     // True when done
     pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
+        let current = self.slider.get_value();
+
         let mut txt = Text::prompt("Polygon Debugger");
-        txt.add_line(format!("Item {}/{}", self.current + 1, self.items.len()));
+        txt.add_line(format!("Item {}/{}", current + 1, self.items.len()));
         self.menu.handle_event(ctx, Some(txt));
         ctx.canvas.handle_event(ctx.input);
 
         if self.menu.action("quit") {
             return true;
-        } else if self.current != self.items.len() - 1 && self.menu.action("next item") {
-            self.current += 1;
-        } else if self.current != self.items.len() - 1 && self.menu.action("last item") {
-            self.current = self.items.len() - 1;
-        } else if self.current != 0 && self.menu.action("prev item") {
-            self.current -= 1;
-        } else if self.current != 0 && self.menu.action("first item") {
-            self.current = 0;
+        } else if current != self.items.len() - 1 && self.menu.action("next item") {
+            self.slider.set_value(ctx, current + 1);
+        } else if current != self.items.len() - 1 && self.menu.action("last item") {
+            self.slider.set_value(ctx, self.items.len() - 1);
+        } else if current != 0 && self.menu.action("prev item") {
+            self.slider.set_value(ctx, current - 1);
+        } else if current != 0 && self.menu.action("first item") {
+            self.slider.set_value(ctx, 0);
         }
+
+        self.slider.event(ctx);
+
         false
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        match self.items[self.current] {
+        let current = self.slider.get_value();
+
+        match self.items[current] {
             Item::Point(pt) => {
-                g.draw_text_at(&Text::from_line(format!("{}", self.current)), pt);
+                g.draw_text_at(&Text::from_line(format!("{}", current)), pt);
             }
             Item::Triangle(ref tri) => {
                 for pt in &[tri.pt1, tri.pt2, tri.pt3] {
-                    g.draw_text_at(&Text::from_line(format!("{}", self.current)), *pt);
+                    g.draw_text_at(&Text::from_line(format!("{}", current)), *pt);
                 }
                 g.draw_polygon(ui.cs.get("selected"), &Polygon::from_triangle(tri));
             }
             Item::Polygon(ref poly) => {
                 g.draw_polygon(ui.cs.get("selected"), poly);
-                g.draw_text_at(&Text::from_line(format!("{}", self.current)), poly.center());
+                g.draw_text_at(&Text::from_line(format!("{}", current)), poly.center());
             }
         }
         if let Some(pt) = self.center {
             g.draw_text_at(&Text::from_line("c".to_string()), pt);
         }
         self.menu.draw(g);
+        self.slider.draw(g);
     }
 }

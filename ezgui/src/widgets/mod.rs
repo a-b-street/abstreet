@@ -4,6 +4,7 @@ mod menu;
 mod modal_menu;
 mod screenshot;
 mod scrolling_menu;
+mod slider;
 mod text_box;
 mod wizard;
 
@@ -13,5 +14,6 @@ pub use self::menu::{Menu, Position};
 pub use self::modal_menu::ModalMenu;
 pub(crate) use self::screenshot::{screenshot_current, screenshot_everything};
 pub use self::scrolling_menu::ScrollingMenu;
+pub use self::slider::Slider;
 pub use self::text_box::TextBox;
 pub use self::wizard::{Wizard, WrappedWizard};
