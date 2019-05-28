@@ -31,14 +31,14 @@ impl TripsVisualizer {
                 ],
                 ctx,
             ),
-            slider: Slider::new(0, trips.len() - 1),
+            slider: Slider::new(),
             trips,
         }
     }
 
     // Returns true if the we're done
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> bool {
-        let current = self.slider.get_value();
+        let current = self.slider.get_value(self.trips.len());
 
         let mut txt = Text::prompt("Trips Visualizer");
         txt.add_line(format!(
@@ -68,13 +68,13 @@ impl TripsVisualizer {
         if self.menu.action("quit") {
             return true;
         } else if current != self.trips.len() - 1 && self.menu.action("next trip") {
-            self.slider.set_value(ctx, current + 1);
+            self.slider.set_value(ctx, current + 1, self.trips.len());
         } else if current != self.trips.len() - 1 && self.menu.action("last trip") {
-            self.slider.set_value(ctx, self.trips.len() - 1);
+            self.slider.set_percent(ctx, 1.0);
         } else if current != 0 && self.menu.action("prev trip") {
-            self.slider.set_value(ctx, current - 1);
+            self.slider.set_value(ctx, current - 1, self.trips.len());
         } else if current != 0 && self.menu.action("first trip") {
-            self.slider.set_value(ctx, 0);
+            self.slider.set_percent(ctx, 0.0);
         }
 
         self.slider.event(ctx);
@@ -83,7 +83,7 @@ impl TripsVisualizer {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        let trip = &self.trips[self.slider.get_value()];
+        let trip = &self.trips[self.slider.get_value(self.trips.len())];
         let from = ui.primary.map.get_b(trip.from);
         let to = ui.primary.map.get_b(trip.to);
 

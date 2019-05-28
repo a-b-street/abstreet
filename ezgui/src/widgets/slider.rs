@@ -12,48 +12,49 @@ const HORIZ_PADDING: f64 = 60.0;
 const VERT_PADDING: f64 = 20.0;
 
 pub struct Slider {
-    min: usize,
-    max: usize,
     current_percent: f64,
     mouse_on_slider: bool,
     dragging: bool,
 }
 
 impl Slider {
-    pub fn new(min: usize, max: usize) -> Slider {
+    pub fn new() -> Slider {
         Slider {
-            min,
-            max,
             current_percent: 0.0,
             mouse_on_slider: false,
             dragging: false,
         }
     }
 
-    pub fn get_value(&self) -> usize {
-        self.min + (self.current_percent * (self.max - self.min) as f64) as usize
+    pub fn get_percent(&self) -> f64 {
+        self.current_percent
     }
 
-    pub fn set_value(&mut self, ctx: &mut EventCtx, value: usize) {
-        self.current_percent = (value - self.min) as f64 / (self.max - self.min) as f64;
+    pub fn get_value(&self, num_items: usize) -> usize {
+        (self.current_percent * (num_items as f64 - 1.0)) as usize
+    }
 
+    pub fn set_percent(&mut self, ctx: &mut EventCtx, percent: f64) {
+        assert!(percent >= 0.0 && percent <= 1.0);
+        self.current_percent = percent;
         // Just reset dragging, to prevent chaos
         self.dragging = false;
         let pt = ctx.canvas.get_cursor_in_screen_space();
         self.mouse_on_slider = self.slider_geom().contains_pt(Pt2D::new(pt.x, pt.y));
     }
 
-    // Returns true if the value changed.
+    pub fn set_value(&mut self, ctx: &mut EventCtx, idx: usize, num_items: usize) {
+        self.set_percent(ctx, (idx as f64) / (num_items as f64 - 1.0));
+    }
+
+    // Returns true if the percentage changed.
     pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
         if self.dragging {
             if ctx.input.get_moved_mouse().is_some() {
                 let percent =
                     (ctx.canvas.get_cursor_in_screen_space().x - HORIZ_PADDING) / BAR_WIDTH;
-                let old_value = self.get_value();
                 self.current_percent = percent.min(1.0).max(0.0);
-                if self.get_value() != old_value {
-                    return true;
-                }
+                return true;
             }
             if ctx.input.left_mouse_button_released() {
                 self.dragging = false;
@@ -76,15 +77,11 @@ impl Slider {
                     )
                     .contains_pt(Pt2D::new(pt.x, pt.y))
                     {
-                        // TODO Argh, some code duplication
                         let percent = (pt.x - HORIZ_PADDING) / BAR_WIDTH;
-                        let old_value = self.get_value();
                         self.current_percent = percent.min(1.0).max(0.0);
                         self.mouse_on_slider = true;
                         self.dragging = true;
-                        if self.get_value() != old_value {
-                            return true;
-                        }
+                        return true;
                     }
                 }
             }

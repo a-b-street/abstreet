@@ -44,7 +44,7 @@ impl PolygonDebugger {
                     return Some(PolygonDebugger {
                         menu,
                         items: pts.iter().map(|pt| Item::Point(*pt)).collect(),
-                        slider: Slider::new(0, pts.len() - 1),
+                        slider: Slider::new(),
                         center: Some(Pt2D::center(&pts_without_last)),
                     });
                 } else if ctx
@@ -58,7 +58,7 @@ impl PolygonDebugger {
                             .collect();
                     return Some(PolygonDebugger {
                         menu,
-                        slider: Slider::new(0, items.len() - 1),
+                        slider: Slider::new(),
                         items,
                         center: None,
                     });
@@ -77,7 +77,7 @@ impl PolygonDebugger {
                         .collect();
                     return Some(PolygonDebugger {
                         menu,
-                        slider: Slider::new(0, items.len() - 1),
+                        slider: Slider::new(),
                         items,
                         center: None,
                     });
@@ -93,7 +93,7 @@ impl PolygonDebugger {
                         .collect();
                     return Some(PolygonDebugger {
                         menu,
-                        slider: Slider::new(0, items.len() - 1),
+                        slider: Slider::new(),
                         items,
                         center: None,
                     });
@@ -112,7 +112,7 @@ impl PolygonDebugger {
                     return Some(PolygonDebugger {
                         menu,
                         items: pts.iter().map(|pt| Item::Point(*pt)).collect(),
-                        slider: Slider::new(0, pts.len() - 1),
+                        slider: Slider::new(),
                         center: Some(center),
                     });
                 } else if ctx.input.contextual_action(Key::F2, "debug area triangles") {
@@ -127,7 +127,7 @@ impl PolygonDebugger {
                         .collect();
                     return Some(PolygonDebugger {
                         menu,
-                        slider: Slider::new(0, items.len() - 1),
+                        slider: Slider::new(),
                         items,
                         center: None,
                     });
@@ -140,7 +140,7 @@ impl PolygonDebugger {
 
     // True when done
     pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
-        let current = self.slider.get_value();
+        let current = self.slider.get_value(self.items.len());
 
         let mut txt = Text::prompt("Polygon Debugger");
         txt.add_line(format!("Item {}/{}", current + 1, self.items.len()));
@@ -150,13 +150,13 @@ impl PolygonDebugger {
         if self.menu.action("quit") {
             return true;
         } else if current != self.items.len() - 1 && self.menu.action("next item") {
-            self.slider.set_value(ctx, current + 1);
+            self.slider.set_value(ctx, current + 1, self.items.len());
         } else if current != self.items.len() - 1 && self.menu.action("last item") {
-            self.slider.set_value(ctx, self.items.len() - 1);
+            self.slider.set_percent(ctx, 1.0);
         } else if current != 0 && self.menu.action("prev item") {
-            self.slider.set_value(ctx, current - 1);
+            self.slider.set_value(ctx, current - 1, self.items.len());
         } else if current != 0 && self.menu.action("first item") {
-            self.slider.set_value(ctx, 0);
+            self.slider.set_percent(ctx, 0.0);
         }
 
         self.slider.event(ctx);
@@ -165,7 +165,7 @@ impl PolygonDebugger {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        let current = self.slider.get_value();
+        let current = self.slider.get_value(self.items.len());
 
         match self.items[current] {
             Item::Point(pt) => {

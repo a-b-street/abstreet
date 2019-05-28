@@ -2,7 +2,7 @@ use crate::common::CommonState;
 use crate::mission::{clip_trips, Trip};
 use crate::ui::{ShowEverything, UI};
 use abstutil::prettyprint_usize;
-use ezgui::{Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu, Text};
+use ezgui::{Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu, Slider, Text};
 use geom::{Circle, Distance, Duration};
 use map_model::LANE_THICKNESS;
 use popdat::psrc::Mode;
@@ -11,7 +11,7 @@ use popdat::PopDat;
 pub struct TripsVisualizer {
     menu: ModalMenu,
     trips: Vec<Trip>,
-    time: Duration,
+    slider: Slider,
 
     active_trips: Vec<usize>,
 }
@@ -63,55 +63,64 @@ impl TripsVisualizer {
                 ctx,
             ),
             trips,
-            time: Duration::ZERO,
+            slider: Slider::new(),
             active_trips: Vec::new(),
         }
     }
 
+    fn current_time(&self) -> Duration {
+        self.slider.get_percent() * Duration::parse("23:59:59.9").unwrap()
+    }
+
     // Returns true if the we're done
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> bool {
+        let time = self.current_time();
+
         let mut txt = Text::prompt("Trips Visualizer");
         txt.add_line(format!(
             "{} active trips",
             prettyprint_usize(self.active_trips.len())
         ));
-        txt.add_line(format!("At {}", self.time));
+        txt.add_line(format!("At {}", time));
         self.menu.handle_event(ctx, Some(txt));
         ctx.canvas.handle_event(ctx.input);
 
         ui.primary.current_selection =
             ui.handle_mouseover(ctx, &ui.primary.sim, &ShowEverything::new(), false);
 
-        let last_time = Duration::parse("23:59:50.0").unwrap();
+        let last_time = Duration::parse("23:59:59.9").unwrap();
         let ten_secs = Duration::seconds(10.0);
         let thirty_mins = Duration::minutes(30);
 
         if self.menu.action("quit") {
             return true;
-        } else if self.time != last_time && self.menu.action("forwards 10 seconds") {
-            self.time += ten_secs;
-        } else if self.time + thirty_mins <= last_time && self.menu.action("forwards 30 minutes") {
-            self.time += thirty_mins;
-        } else if self.time != Duration::ZERO && self.menu.action("backwards 10 seconds") {
-            self.time -= ten_secs;
-        } else if self.time - thirty_mins >= Duration::ZERO
-            && self.menu.action("backwards 30 minutes")
-        {
-            self.time -= thirty_mins;
-        } else if self.time != Duration::ZERO && self.menu.action("goto start of day") {
-            self.time = Duration::ZERO;
-        } else if self.time != last_time && self.menu.action("goto end of day") {
-            self.time = last_time;
+        } else if time != last_time && self.menu.action("forwards 10 seconds") {
+            self.slider.set_percent(ctx, (time + ten_secs) / last_time);
+        } else if time + thirty_mins <= last_time && self.menu.action("forwards 30 minutes") {
+            self.slider
+                .set_percent(ctx, (time + thirty_mins) / last_time);
+        } else if time != Duration::ZERO && self.menu.action("backwards 10 seconds") {
+            self.slider.set_percent(ctx, (time - ten_secs) / last_time);
+        } else if time - thirty_mins >= Duration::ZERO && self.menu.action("backwards 30 minutes") {
+            self.slider
+                .set_percent(ctx, (time - thirty_mins) / last_time);
+        } else if time != Duration::ZERO && self.menu.action("goto start of day") {
+            self.slider.set_percent(ctx, 0.0);
+        } else if time != last_time && self.menu.action("goto end of day") {
+            self.slider.set_percent(ctx, 1.0);
+        } else if self.slider.event(ctx) {
+            // Value changed, fall-through
         } else {
             return false;
         }
 
         // TODO Do this more efficiently. ;)
+        let time = self.current_time();
         self.active_trips = self
             .trips
             .iter()
             .enumerate()
-            .filter(|(_, trip)| self.time >= trip.depart_at && self.time <= trip.end_time())
+            .filter(|(_, trip)| time >= trip.depart_at && time <= trip.end_time())
             .map(|(idx, _)| idx)
             .collect();
 
@@ -119,10 +128,11 @@ impl TripsVisualizer {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        let time = self.current_time();
         let mut batch = GeomBatch::new();
         for idx in &self.active_trips {
             let trip = &self.trips[*idx];
-            let percent = (self.time - trip.depart_at) / trip.trip_time;
+            let percent = (time - trip.depart_at) / trip.trip_time;
 
             if true {
                 let pl = trip.route.as_ref().unwrap();
@@ -162,6 +172,7 @@ impl TripsVisualizer {
         batch.draw(g);
 
         self.menu.draw(g);
+        self.slider.draw(g);
         CommonState::draw_osd(g, ui, ui.primary.current_selection);
     }
 }

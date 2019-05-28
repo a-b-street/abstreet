@@ -72,7 +72,7 @@ impl RouteExplorer {
                     Traversable::Turn(t) => ID::Turn(t),
                 },
             )),
-            slider: Slider::new(0, steps.len() - 1),
+            slider: Slider::new(),
             steps,
             entire_trace,
         })
@@ -92,7 +92,7 @@ impl RouteExplorer {
             EventLoopMode::InputOnly
         };
 
-        let current = self.slider.get_value();
+        let current = self.slider.get_value(self.steps.len());
 
         let mut txt = Text::prompt(&format!("Route Explorer for {:?}", self.agent));
         txt.add_line(format!("Step {}/{}", current + 1, self.steps.len()));
@@ -103,20 +103,23 @@ impl RouteExplorer {
         if self.menu.action("quit") {
             return None;
         } else if current != self.steps.len() - 1 && self.menu.action("next step") {
-            self.slider.set_value(ctx, current + 1);
+            self.slider.set_value(ctx, current + 1, self.steps.len());
         } else if current != self.steps.len() - 1 && self.menu.action("last step") {
-            self.slider.set_value(ctx, self.steps.len() - 1);
+            self.slider.set_percent(ctx, 1.0);
         } else if current != 0 && self.menu.action("prev step") {
-            self.slider.set_value(ctx, current - 1);
+            self.slider.set_value(ctx, current - 1, self.steps.len());
         } else if current != 0 && self.menu.action("first step") {
-            self.slider.set_value(ctx, 0);
+            self.slider.set_percent(ctx, 0.0);
         } else if self.slider.event(ctx) {
-            // Cool, the value changed, so fall-through
+            // Did the value actually change?
+            if self.slider.get_value(self.steps.len()) == current {
+                return Some(ev_mode);
+            }
         } else {
             return Some(ev_mode);
         }
 
-        let step = self.steps[self.slider.get_value()];
+        let step = self.steps[self.slider.get_value(self.steps.len())];
         self.warper = Some(Warper::new(
             ctx,
             step.dist_along(step.length(&ui.primary.map) / 2.0, &ui.primary.map)
@@ -136,7 +139,7 @@ impl RouteExplorer {
         }
 
         let color = ui.cs.get_def("current step", Color::RED);
-        match self.steps[self.slider.get_value()] {
+        match self.steps[self.slider.get_value(self.steps.len())] {
             Traversable::Lane(l) => {
                 g.draw_polygon(color, &ui.primary.draw_map.get_l(l).polygon);
             }
