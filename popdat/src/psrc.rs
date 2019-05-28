@@ -25,6 +25,7 @@ pub enum Mode {
     Walk,
     Bike,
     Drive,
+    Transit,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
@@ -188,10 +189,10 @@ fn get_purpose(code: &str) -> Purpose {
 
 // From https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv, mode
 fn get_mode(code: &str) -> Option<Mode> {
-    // TODO I'm not sure how to interpret some of these.
     match code {
-        "1.0" | "6.0" => Some(Mode::Walk),
+        "1.0" => Some(Mode::Walk),
         "2.0" => Some(Mode::Bike),
+        "6.0" => Some(Mode::Transit),
         "3.0" | "4.0" | "5.0" => Some(Mode::Drive),
         _ => None,
     }

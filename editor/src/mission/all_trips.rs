@@ -130,6 +130,7 @@ impl TripsVisualizer {
                     Mode::Drive => Color::RED,
                     Mode::Walk => Color::GREEN,
                     Mode::Bike => Color::BLUE,
+                    Mode::Transit => Color::ORANGE,
                 }
                 .alpha(0.5);
                 batch.push(

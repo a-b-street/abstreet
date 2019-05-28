@@ -13,6 +13,7 @@ use abstutil::{skip_fail, Timer};
 use ezgui::{EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Wizard};
 use geom::{Distance, Duration, PolyLine};
 use map_model::{BuildingID, Map, PathRequest, Position};
+use sim::SidewalkSpot;
 use std::collections::HashMap;
 
 pub struct MissionEditMode {
@@ -149,6 +150,7 @@ impl MissionEditMode {
     }
 }
 
+#[derive(Debug)]
 pub struct Trip {
     pub from: BuildingID,
     pub to: BuildingID,
@@ -191,6 +193,26 @@ impl Trip {
                 can_use_bike_lanes: false,
                 can_use_bus_lanes: false,
             },
+            Mode::Transit => {
+                let start = Position::bldg_via_walking(self.from, map);
+                let end = Position::bldg_via_walking(self.to, map);
+                if let Some((stop1, _, _)) = map.should_use_transit(start, end) {
+                    PathRequest {
+                        start,
+                        end: SidewalkSpot::bus_stop(stop1, map).sidewalk_pos,
+                        can_use_bike_lanes: false,
+                        can_use_bus_lanes: false,
+                    }
+                } else {
+                    // Just fall back to walking. :\
+                    PathRequest {
+                        start,
+                        end,
+                        can_use_bike_lanes: false,
+                        can_use_bus_lanes: false,
+                    }
+                }
+            }
         }
     }
 }
@@ -275,6 +297,20 @@ fn instantiate_trips(ctx: &mut EventCtx, ui: &mut UI) {
                         goal: SidewalkSpot::building(trip.to, map),
                         ped_speed: Scenario::rand_ped_speed(&mut rng),
                     },
+                    Mode::Transit => {
+                        let start = SidewalkSpot::building(trip.from, map);
+                        let goal = SidewalkSpot::building(trip.to, map);
+                        let ped_speed = Scenario::rand_ped_speed(&mut rng);
+                        if let Some((stop1, stop2, route)) = map.should_use_transit(start.sidewalk_pos, goal.sidewalk_pos) {
+                            TripSpec::UsingTransit {
+                                start, goal, route, stop1, stop2, ped_speed,
+                            }
+                        } else {
+                            timer.warn(format!("{:?} not actually using transit, because pathfinding didn't find any useful route", trip));
+                            TripSpec::JustWalking {
+                                start, goal, ped_speed }
+                        }
+                    }
                 },
                 map,
             );
@@ -282,6 +318,11 @@ fn instantiate_trips(ctx: &mut EventCtx, ui: &mut UI) {
         }
         timer.note(format!("Expect the first trip to start at {}", min_time));
 
+        for route in map.get_all_bus_routes() {
+            ui.primary.sim.seed_bus_route(route, map, &mut timer);
+        }
+
         ui.primary.sim.spawn_all_trips(map, &mut timer, true);
+        ui.primary.sim.step(map, Duration::const_seconds(0.1));
     });
 }
