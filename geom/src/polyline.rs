@@ -91,28 +91,42 @@ impl PolyLine {
         PolyLine::new(pts)
     }
 
-    // Returns None if the two have any duplicate points (besides the last->first).
-    pub fn extend(self, other: &PolyLine) -> Option<PolyLine> {
+    pub fn extend(self, other: PolyLine) -> PolyLine {
         assert_eq!(*self.pts.last().unwrap(), other.pts[0]);
 
         let pl1 = to_set(self.points());
         let pl2 = to_set(&other.points()[1..]);
+
+        let mut self_pts = self.pts;
+        let mut other_pts = other.pts;
+
         if pl1.intersection(&pl2).next().is_some() {
-            println!("Can't append, duplicate points... {} and {}", self, other);
-            return None;
+            // Happens on some walking turns. Just clip out the loop. Start searching from the end
+            // of 'other'.
+            // TODO Measure the length of the thing being clipped out, to be sure this isn't
+            // running amok.
+            for (other_rev_idx, pt) in other_pts.iter().rev().enumerate() {
+                if pl1.contains(&HashablePt2D::from(*pt)) {
+                    while self_pts.last().unwrap() != pt {
+                        self_pts.pop();
+                    }
+                    other_pts = other_pts[other_pts.len() - 1 - other_rev_idx..].to_vec();
+                    break;
+                }
+            }
         }
+        // Repeat this for sanity
+        assert_eq!(*self_pts.last().unwrap(), other_pts[0]);
 
         // There's an exciting edge case: the next point to add is on self's last line.
-        let same_line = self
-            .last_line()
-            .angle()
-            .approx_eq(other.first_line().angle(), 0.1);
-        let mut pts = self.pts;
+        let same_line = self_pts[self_pts.len() - 2]
+            .angle_to(self_pts[self_pts.len() - 1])
+            .approx_eq(other_pts[0].angle_to(other_pts[1]), 0.1);
         if same_line {
-            pts.pop();
+            self_pts.pop();
         }
-        pts.extend(other.pts.iter().skip(1));
-        Some(PolyLine::new(pts))
+        self_pts.extend(other_pts.iter().skip(1));
+        PolyLine::new(self_pts)
     }
 
     // One or both args might be empty.
@@ -125,8 +139,7 @@ impl PolyLine {
         }
 
         PolyLine::new(first)
-            .extend(&PolyLine::new(second))
-            .unwrap()
+            .extend(PolyLine::new(second))
             .points()
             .clone()
     }

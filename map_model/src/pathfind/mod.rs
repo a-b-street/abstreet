@@ -215,16 +215,7 @@ impl Path {
                 self.steps[i].slice(map, start_dist_this_step, dist_remaining)
             {
                 if pts_so_far.is_some() {
-                    if let Some(pts) = pts_so_far.unwrap().extend(&new_pts) {
-                        pts_so_far = Some(pts);
-                    } else {
-                        println!(
-                            "Adding {:?} to {:?} causes duplicate points!",
-                            self.steps[i],
-                            self.steps.iter().take(i).collect::<Vec<&PathStep>>()
-                        );
-                        return None;
-                    }
+                    pts_so_far = Some(pts_so_far.unwrap().extend(new_pts));
                 } else {
                     pts_so_far = Some(new_pts);
                 }
