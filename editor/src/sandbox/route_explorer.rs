@@ -2,18 +2,16 @@ use crate::common::Warper;
 use crate::helpers::ID;
 use crate::render::DrawTurn;
 use crate::ui::UI;
-use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Slider, Text};
+use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, ItemSlider, Key, Text};
 use geom::{Distance, Polygon};
 use map_model::{Traversable, LANE_THICKNESS};
 use sim::AgentID;
 
 pub struct RouteExplorer {
-    menu: ModalMenu,
+    slider: ItemSlider<Traversable>,
     agent: AgentID,
-    steps: Vec<Traversable>,
     entire_trace: Option<Polygon>,
     warper: Option<Warper>,
-    slider: Slider,
 }
 
 impl RouteExplorer {
@@ -50,17 +48,6 @@ impl RouteExplorer {
             .map(|step| step.as_traversable())
             .collect();
         Some(RouteExplorer {
-            menu: ModalMenu::new(
-                &format!("Route Explorer for {:?}", agent),
-                vec![
-                    (Some(Key::Escape), "quit"),
-                    (Some(Key::Dot), "next step"),
-                    (Some(Key::Comma), "prev step"),
-                    (Some(Key::F), "first step"),
-                    (Some(Key::L), "last step"),
-                ],
-                ctx,
-            ),
             agent,
             warper: Some(Warper::new(
                 ctx,
@@ -72,8 +59,13 @@ impl RouteExplorer {
                     Traversable::Turn(t) => ID::Turn(t),
                 },
             )),
-            slider: Slider::new(),
-            steps,
+            slider: ItemSlider::new(
+                steps,
+                "Route Explorer",
+                "step",
+                vec![(Some(Key::Escape), "quit")],
+                ctx,
+            ),
             entire_trace,
         })
     }
@@ -92,41 +84,27 @@ impl RouteExplorer {
             EventLoopMode::InputOnly
         };
 
-        let current = self.slider.get_value(self.steps.len());
-
+        let (idx, step) = self.slider.get();
         let mut txt = Text::prompt(&format!("Route Explorer for {:?}", self.agent));
-        txt.add_line(format!("Step {}/{}", current + 1, self.steps.len()));
-        txt.add_line(format!("{:?}", self.steps[current]));
-        self.menu.handle_event(ctx, Some(txt));
+        txt.add_line(format!("Step {}/{}", idx + 1, self.slider.len()));
+        txt.add_line(format!("{:?}", step));
+        let changed = self.slider.event(ctx, Some(txt));
         ctx.canvas.handle_event(ctx.input);
 
-        if self.menu.action("quit") {
+        if self.slider.action("quit") {
             return None;
-        } else if current != self.steps.len() - 1 && self.menu.action("next step") {
-            self.slider.set_value(ctx, current + 1, self.steps.len());
-        } else if current != self.steps.len() - 1 && self.menu.action("last step") {
-            self.slider.set_percent(ctx, 1.0);
-        } else if current != 0 && self.menu.action("prev step") {
-            self.slider.set_value(ctx, current - 1, self.steps.len());
-        } else if current != 0 && self.menu.action("first step") {
-            self.slider.set_percent(ctx, 0.0);
-        } else if self.slider.event(ctx) {
-            // Did the value actually change?
-            if self.slider.get_value(self.steps.len()) == current {
-                return Some(ev_mode);
-            }
-        } else {
+        } else if !changed {
             return Some(ev_mode);
         }
 
-        let step = self.steps[self.slider.get_value(self.steps.len())];
+        let (_, step) = self.slider.get();
         self.warper = Some(Warper::new(
             ctx,
             step.dist_along(step.length(&ui.primary.map) / 2.0, &ui.primary.map)
                 .0,
             match step {
-                Traversable::Lane(l) => ID::Lane(l),
-                Traversable::Turn(t) => ID::Turn(t),
+                Traversable::Lane(l) => ID::Lane(*l),
+                Traversable::Turn(t) => ID::Turn(*t),
             },
         ));
         // We just created a new warper, so...
@@ -139,15 +117,14 @@ impl RouteExplorer {
         }
 
         let color = ui.cs.get_def("current step", Color::RED);
-        match self.steps[self.slider.get_value(self.steps.len())] {
+        match self.slider.get().1 {
             Traversable::Lane(l) => {
-                g.draw_polygon(color, &ui.primary.draw_map.get_l(l).polygon);
+                g.draw_polygon(color, &ui.primary.draw_map.get_l(*l).polygon);
             }
             Traversable::Turn(t) => {
-                DrawTurn::draw_full(ui.primary.map.get_t(t), g, color);
+                DrawTurn::draw_full(ui.primary.map.get_t(*t), g, color);
             }
         }
-        self.menu.draw(g);
         self.slider.draw(g);
     }
 }

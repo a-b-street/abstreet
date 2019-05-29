@@ -2,14 +2,12 @@ use crate::common::CommonState;
 use crate::mission::{clip_trips, Trip};
 use crate::ui::{ShowEverything, UI};
 use abstutil::{prettyprint_usize, Timer};
-use ezgui::{Color, EventCtx, GfxCtx, Key, ModalMenu, Slider, Text};
+use ezgui::{Color, EventCtx, GfxCtx, ItemSlider, Key, Text};
 use geom::{Circle, Distance, Speed};
 use popdat::PopDat;
 
 pub struct TripsVisualizer {
-    menu: ModalMenu,
-    trips: Vec<Trip>,
-    slider: Slider,
+    slider: ItemSlider<Trip>,
 }
 
 impl TripsVisualizer {
@@ -20,33 +18,25 @@ impl TripsVisualizer {
         // TODO We'll break if there are no matching trips
         let trips = clip_trips(&popdat, ui, 10_000, &mut timer);
         TripsVisualizer {
-            menu: ModalMenu::new(
+            slider: ItemSlider::new(
+                trips,
                 "Trips Visualizer",
-                vec![
-                    (Some(Key::Escape), "quit"),
-                    (Some(Key::Dot), "next trip"),
-                    (Some(Key::Comma), "prev trip"),
-                    (Some(Key::F), "first trip"),
-                    (Some(Key::L), "last trip"),
-                ],
+                "trip",
+                vec![(Some(Key::Escape), "quit")],
                 ctx,
             ),
-            slider: Slider::new(),
-            trips,
         }
     }
 
     // Returns true if the we're done
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> bool {
-        let current = self.slider.get_value(self.trips.len());
-
+        let (idx, trip) = self.slider.get();
         let mut txt = Text::prompt("Trips Visualizer");
         txt.add_line(format!(
             "Trip {}/{}",
-            prettyprint_usize(current + 1),
-            prettyprint_usize(self.trips.len())
+            prettyprint_usize(idx + 1),
+            prettyprint_usize(self.slider.len())
         ));
-        let trip = &self.trips[current];
         txt.add_line(format!("Leave at {}", trip.depart_at));
         txt.add_line(format!(
             "Purpose: {:?} -> {:?}",
@@ -59,31 +49,21 @@ impl TripsVisualizer {
             "Average speed {}",
             Speed::from_dist_time(trip.trip_dist, trip.trip_time)
         ));
-        self.menu.handle_event(ctx, Some(txt));
+
+        self.slider.event(ctx, Some(txt));
         ctx.canvas.handle_event(ctx.input);
 
         ui.primary.current_selection =
             ui.handle_mouseover(ctx, &ui.primary.sim, &ShowEverything::new(), false);
 
-        if self.menu.action("quit") {
+        if self.slider.action("quit") {
             return true;
-        } else if current != self.trips.len() - 1 && self.menu.action("next trip") {
-            self.slider.set_value(ctx, current + 1, self.trips.len());
-        } else if current != self.trips.len() - 1 && self.menu.action("last trip") {
-            self.slider.set_percent(ctx, 1.0);
-        } else if current != 0 && self.menu.action("prev trip") {
-            self.slider.set_value(ctx, current - 1, self.trips.len());
-        } else if current != 0 && self.menu.action("first trip") {
-            self.slider.set_percent(ctx, 0.0);
         }
-
-        self.slider.event(ctx);
-
         false
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        let trip = &self.trips[self.slider.get_value(self.trips.len())];
+        let (_, trip) = self.slider.get();
         let from = ui.primary.map.get_b(trip.from);
         let to = ui.primary.map.get_b(trip.to);
 
@@ -100,7 +80,6 @@ impl TripsVisualizer {
             &Circle::new(to.polygon.center(), Distance::meters(100.0)),
         );
 
-        self.menu.draw(g);
         self.slider.draw(g);
         CommonState::draw_osd(g, ui, ui.primary.current_selection);
     }

@@ -1,5 +1,5 @@
 use crate::screen_geom::ScreenRectangle;
-use crate::{Color, EventCtx, GfxCtx};
+use crate::{Color, EventCtx, GfxCtx, Key, ModalMenu, Text};
 use geom::{Distance, Polygon, Pt2D};
 
 // Pixels
@@ -150,5 +150,90 @@ impl Slider {
             Distance::meters(SLIDER_WIDTH),
             Distance::meters(SLIDER_HEIGHT),
         )
+    }
+}
+
+pub struct ItemSlider<T> {
+    items: Vec<T>,
+    slider: Slider,
+    menu: ModalMenu,
+
+    prev: String,
+    next: String,
+    first: String,
+    last: String,
+}
+
+impl<T> ItemSlider<T> {
+    pub fn new(
+        items: Vec<T>,
+        menu_title: &str,
+        noun: &str,
+        other_choices: Vec<(Option<Key>, &str)>,
+        ctx: &mut EventCtx,
+    ) -> ItemSlider<T> {
+        // Lifetime funniness...
+        let mut choices = other_choices.clone();
+
+        let prev = format!("previous {}", noun);
+        let next = format!("next {}", noun);
+        let first = format!("first {}", noun);
+        let last = format!("last {}", noun);
+        choices.extend(vec![
+            (Some(Key::LeftArrow), prev.as_str()),
+            (Some(Key::RightArrow), next.as_str()),
+            (Some(Key::Comma), first.as_str()),
+            (Some(Key::Dot), last.as_str()),
+        ]);
+
+        ItemSlider {
+            items,
+            slider: Slider::new(),
+            menu: ModalMenu::new(menu_title, choices, ctx),
+
+            prev,
+            next,
+            first,
+            last,
+        }
+    }
+
+    // Returns true if the value changed.
+    pub fn event(&mut self, ctx: &mut EventCtx, menu_prompt: Option<Text>) -> bool {
+        let current = self.slider.get_value(self.items.len());
+
+        self.menu.handle_event(ctx, menu_prompt);
+
+        if current != self.items.len() - 1 && self.menu.action(&self.next) {
+            self.slider.set_value(ctx, current + 1, self.items.len());
+        } else if current != self.items.len() - 1 && self.menu.action(&self.last) {
+            self.slider.set_percent(ctx, 1.0);
+        } else if current != 0 && self.menu.action(&self.prev) {
+            self.slider.set_value(ctx, current - 1, self.items.len());
+        } else if current != 0 && self.menu.action(&self.first) {
+            self.slider.set_percent(ctx, 0.0);
+        }
+
+        self.slider.event(ctx);
+
+        self.slider.get_value(self.items.len()) != current
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx) {
+        self.menu.draw(g);
+        self.slider.draw(g);
+    }
+
+    pub fn get(&self) -> (usize, &T) {
+        let idx = self.slider.get_value(self.items.len());
+        (idx, &self.items[idx])
+    }
+
+    pub fn len(&self) -> usize {
+        self.items.len()
+    }
+
+    pub fn action(&mut self, name: &str) -> bool {
+        self.menu.action(name)
     }
 }
