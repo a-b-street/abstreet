@@ -1,6 +1,7 @@
 use crate::{notes, PROGRESS_FREQUENCY_SECONDS};
 use std::collections::HashMap;
-use std::io::{stdout, Write};
+use std::fs::File;
+use std::io::{stdout, BufReader, Error, Read, Write};
 use std::time::Instant;
 
 pub fn elapsed_seconds(since: Instant) -> f64 {
@@ -87,6 +88,7 @@ impl Progress {
 enum StackEntry {
     TimerSpan(TimerSpan),
     Progress(Progress),
+    File(TimedFileReader),
 }
 
 pub trait TimerSink {
@@ -183,10 +185,7 @@ impl<'a> Timer<'a> {
     pub fn stop(&mut self, name: &str) {
         let span = match self.stack.pop().unwrap() {
             StackEntry::TimerSpan(s) => s,
-            StackEntry::Progress(p) => panic!(
-                "stop({}) while a Progress({}, {}/{}) is top of the stack",
-                name, p.label, p.processed_items, p.total_items
-            ),
+            _ => unreachable!(),
         };
         assert_eq!(span.name, name);
         let elapsed = elapsed_seconds(span.started_at);
@@ -214,10 +213,7 @@ impl<'a> Timer<'a> {
                 }
                 s.nested_time += elapsed;
             }
-            Some(StackEntry::Progress(p)) => panic!(
-                "How is TimerSpan({}) nested under Progress({})?",
-                name, p.label
-            ),
+            Some(_) => unreachable!(),
             None => {
                 self.results.push(format!("{}- {}", padding, line));
                 self.results.extend(span.nested_results);
@@ -274,9 +270,7 @@ impl<'a> Timer<'a> {
                 s.nested_results.push(format!("{}- {}", padding, line));
                 s.nested_time += elapsed;
             }
-            Some(StackEntry::Progress(p)) => {
-                panic!("How is something nested under Progress({})?", p.label)
-            }
+            Some(_) => unreachable!(),
             None => {
                 self.results.push(format!("{}- {}", padding, line));
                 // Don't bother tracking excess time that the Timer has existed but had no spans
@@ -316,6 +310,13 @@ impl<'a> Timer<'a> {
             results.into_iter().map(|x| x.unwrap()).collect()
         })
     }
+
+    // Then the caller passes this in as a reader
+    pub fn read_file(&mut self, path: &str) -> Result<(), Error> {
+        self.stack
+            .push(StackEntry::File(TimedFileReader::new(path)?));
+        Ok(())
+    }
 }
 
 impl<'a> std::ops::Drop for Timer<'a> {
@@ -330,7 +331,7 @@ impl<'a> std::ops::Drop for Timer<'a> {
                     return;
                 }
             }
-            Some(StackEntry::Progress(_)) => {
+            Some(_) => {
                 println!("dropping Timer because of panic");
                 return;
             }
@@ -520,4 +521,95 @@ pub(crate) fn clear_current_line() {
 #[cfg(windows)]
 pub(crate) fn clear_current_line() {
     print!("\r");
+}
+
+struct TimedFileReader {
+    inner: BufReader<File>,
+
+    path: String,
+    processed_bytes: usize,
+    total_bytes: usize,
+    started_at: Instant,
+    last_printed_at: Option<Instant>,
+}
+
+impl TimedFileReader {
+    fn new(path: &str) -> Result<TimedFileReader, Error> {
+        let file = File::open(path)?;
+        let total_bytes = file.metadata()?.len() as usize;
+        Ok(TimedFileReader {
+            inner: BufReader::new(file),
+            path: path.to_string(),
+            processed_bytes: 0,
+            total_bytes,
+            started_at: Instant::now(),
+            last_printed_at: None,
+        })
+    }
+}
+
+impl<'a> Read for Timer<'a> {
+    fn read(&mut self, buf: &mut [u8]) -> Result<usize, Error> {
+        let mut file = match self.stack.last_mut() {
+            Some(StackEntry::File(ref mut f)) => f,
+            _ => unreachable!(),
+        };
+
+        let bytes = file.inner.read(buf)?;
+        file.processed_bytes += bytes;
+        if file.processed_bytes > file.total_bytes {
+            panic!(
+                "{} is too many bytes read from {}",
+                prettyprint_usize(file.processed_bytes),
+                file.path
+            );
+        }
+
+        if file.processed_bytes == file.total_bytes {
+            let elapsed = elapsed_seconds(file.started_at);
+            let line = format!(
+                "Read {} ({})... {}",
+                file.path,
+                prettyprint_usize(file.total_bytes / 1024 / 1024),
+                prettyprint_time(elapsed)
+            );
+            if file.last_printed_at.is_none() {
+                self.println(line.clone());
+            } else {
+                clear_current_line();
+                println!("{}", line);
+                if let Some(ref mut sink) = self.sink {
+                    sink.reprintln(line.clone());
+                }
+            }
+            self.stack.pop();
+            self.add_result(elapsed, line);
+        } else if file.last_printed_at.is_none()
+            || elapsed_seconds(file.last_printed_at.unwrap()) >= PROGRESS_FREQUENCY_SECONDS
+        {
+            let line = format!(
+                "Reading {}: {}/{} MB... {}",
+                file.path,
+                prettyprint_usize(file.processed_bytes / 1024 / 1024),
+                prettyprint_usize(file.total_bytes / 1024 / 1024),
+                prettyprint_time(elapsed_seconds(file.started_at))
+            );
+            // TODO Refactor this pattern...
+            clear_current_line();
+            print!("{}", line);
+            stdout().flush().unwrap();
+
+            if let Some(ref mut sink) = self.sink {
+                if file.last_printed_at.is_none() {
+                    sink.println(line);
+                } else {
+                    sink.reprintln(line);
+                }
+            }
+
+            file.last_printed_at = Some(Instant::now());
+        }
+
+        Ok(bytes)
+    }
 }

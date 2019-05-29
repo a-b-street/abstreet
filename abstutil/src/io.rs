@@ -47,10 +47,9 @@ pub fn write_binary<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
 }
 
 pub fn read_binary<T: DeserializeOwned>(path: &str, timer: &mut Timer) -> Result<T, Error> {
-    let (reader, done) = FileWithProgress::new(path)?;
+    timer.read_file(path)?;
     let obj: T =
-        bincode::deserialize_from(reader).map_err(|err| Error::new(ErrorKind::Other, err))?;
-    done(timer);
+        bincode::deserialize_from(timer).map_err(|err| Error::new(ErrorKind::Other, err))?;
     Ok(obj)
 }
 
@@ -166,6 +165,8 @@ pub fn save_object<T: Serialize>(dir: &str, map_name: &str, obj_name: &str, obj:
     println!("Saved {}", path);
 }
 
+// TODO I'd like to get rid of this and just use Timer.read_file, but external libraries consume
+// the reader. :\
 pub struct FileWithProgress {
     inner: BufReader<File>,
 
