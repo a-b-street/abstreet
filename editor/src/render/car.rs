@@ -104,7 +104,7 @@ impl DrawCar {
                 match turn.turn_type {
                     TurnType::Left | TurnType::LaneChangeLeft => {
                         for circle in vec![front_left, back_left] {
-                            draw_default.extend(
+                            draw_default.push(
                                 arrow_color,
                                 PolyLine::new(vec![
                                     circle.center.project_away(radius / 2.0, angle.opposite()),
@@ -117,7 +117,7 @@ impl DrawCar {
                     }
                     TurnType::Right | TurnType::LaneChangeRight => {
                         for circle in vec![front_right, back_right] {
-                            draw_default.extend(
+                            draw_default.push(
                                 arrow_color,
                                 PolyLine::new(vec![
                                     circle.center.project_away(radius / 2.0, angle.opposite()),

@@ -150,6 +150,17 @@ impl Polygon {
             indices: vec![0, 1, 2, 2, 3, 0],
         }
     }
+
+    pub fn union(self, other: Polygon) -> Polygon {
+        let mut points = self.points;
+        let mut indices = self.indices;
+        let offset = points.len();
+        points.extend(other.points);
+        for idx in other.indices {
+            indices.push(offset + idx);
+        }
+        Polygon::precomputed(points, indices)
+    }
 }
 
 impl fmt::Display for Polygon {

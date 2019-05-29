@@ -92,15 +92,15 @@ impl DrawPedestrian {
         if let Some(t) = input.waiting_for_turn {
             // A silly idea for peds... use hands to point at their turn?
             let angle = map.get_t(t).angle();
-            for poly in PolyLine::new(vec![
-                input.pos.project_away(radius / 2.0, angle.opposite()),
-                input.pos.project_away(radius / 2.0, angle),
-            ])
-            .make_arrow(Distance::meters(0.25))
-            .unwrap()
-            {
-                draw_default.push(cs.get("blinker on"), poly);
-            }
+            draw_default.push(
+                cs.get("blinker on"),
+                PolyLine::new(vec![
+                    input.pos.project_away(radius / 2.0, angle.opposite()),
+                    input.pos.project_away(radius / 2.0, angle),
+                ])
+                .make_arrow(Distance::meters(0.25))
+                .unwrap(),
+            );
         }
 
         DrawPedestrian {

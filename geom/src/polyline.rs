@@ -421,30 +421,26 @@ impl PolyLine {
         polygons
     }
 
-    // TODO One polygon, please :)
-    pub fn make_arrow(&self, thickness: Distance) -> Warn<Vec<Polygon>> {
+    pub fn make_arrow(&self, thickness: Distance) -> Warn<Polygon> {
         let head_size = thickness * 2.0;
         let triangle_height = head_size / 2.0_f64.sqrt();
 
         if self.length() < triangle_height {
             return Warn::warn(
-                vec![self.make_polygons(thickness)],
+                self.make_polygons(thickness),
                 format!("Can't make_arrow of thickness {} for {}", thickness, self),
             );
         }
         let slice = self.exact_slice(Distance::ZERO, self.length() - triangle_height);
 
         let angle = slice.last_pt().angle_to(self.last_pt());
-        Warn::ok(vec![
-            slice.make_polygons(thickness),
-            Polygon::new(&vec![
+        Warn::ok(slice.make_polygons(thickness).union(Polygon::new(&vec![
                 self.last_pt(),
                 self.last_pt()
                     .project_away(head_size, angle.rotate_degs(-135.0)),
                 self.last_pt()
                     .project_away(head_size, angle.rotate_degs(135.0)),
-            ]),
-        ])
+            ])))
     }
 
     // TODO Refactor

@@ -233,7 +233,7 @@ fn calculate_turn_markings(map: &Map, lane: &Lane, timer: &mut Timer) -> Vec<Pol
         {
             continue;
         }
-        results.extend(
+        results.push(
             PolyLine::new(vec![
                 common_base.last_pt(),
                 common_base

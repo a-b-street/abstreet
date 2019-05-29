@@ -363,7 +363,7 @@ fn draw_signal_cycle_with_icons(cycle: &Cycle, batch: &mut GeomBatch, ctx: &Draw
                 ctx.cs.get_def("traffic light box", Color::BLACK),
                 Circle::new(center2, radius).to_polygon(),
             );
-            batch.extend(
+            batch.push(
                 color,
                 PolyLine::new(vec![
                     center2.project_away(radius, lane_line.angle().rotate_degs(90.0)),
@@ -498,7 +498,7 @@ fn calculate_border_arrows(i: &Intersection, r: &Road, timer: &mut Timer) -> Vec
             let width = (r.children_forwards.len() as f64) * LANE_THICKNESS;
             (r.center_pts.first_line().shift_right(width / 2.0), width)
         };
-        result.extend(
+        result.push(
             // DEGENERATE_INTERSECTION_HALF_LENGTH is 5m...
             PolyLine::new(vec![
                 line.unbounded_dist_along(Distance::meters(-9.5)),
@@ -522,7 +522,7 @@ fn calculate_border_arrows(i: &Intersection, r: &Road, timer: &mut Timer) -> Vec
             let width = (r.children_backwards.len() as f64) * LANE_THICKNESS;
             (r.center_pts.first_line().shift_left(width / 2.0), width)
         };
-        result.extend(
+        result.push(
             PolyLine::new(vec![
                 line.unbounded_dist_along(Distance::meters(-0.5)),
                 line.unbounded_dist_along(Distance::meters(-9.5)),

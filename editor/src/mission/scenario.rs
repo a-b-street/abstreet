@@ -7,7 +7,7 @@ use abstutil::WeightedUsizeChoice;
 use ezgui::{
     Color, Drawable, EventCtx, GfxCtx, Key, LogScroller, ModalMenu, Wizard, WrappedWizard,
 };
-use geom::{Distance, Duration, Line, Pt2D};
+use geom::{Distance, Duration, PolyLine, Pt2D};
 use map_model::{IntersectionID, Map, Neighborhood};
 use sim::{BorderSpawnOverTime, OriginDestination, Scenario, SeedParkedCars, SpawnOverTime};
 use std::collections::BTreeMap;
@@ -177,12 +177,13 @@ impl ScenarioEditor {
                     if src == dst {
                         continue;
                     }
-                    g.draw_arrow(
+                    g.draw_polygon(
                         // Source color, sure
                         mapping[&s.start_from_neighborhood].color.alpha(0.5),
                         // TODO Vary by (relative) number of agents
-                        Distance::meters(100.0),
-                        &Line::new(src, dst),
+                        &PolyLine::new(vec![src, dst])
+                            .make_arrow(Distance::meters(100.0))
+                            .unwrap(),
                     );
                 }
 

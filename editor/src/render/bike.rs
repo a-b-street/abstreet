@@ -78,15 +78,15 @@ impl DrawBike {
 
         if let Some(t) = input.waiting_for_turn {
             let angle = map.get_t(t).angle();
-            for poly in PolyLine::new(vec![
-                body_pos.project_away(body_radius / 2.0, angle.opposite()),
-                body_pos.project_away(body_radius / 2.0, angle),
-            ])
-            .make_arrow(Distance::meters(0.25))
-            .unwrap()
-            {
-                draw_default.push(cs.get("blinker on"), poly);
-            }
+            draw_default.push(
+                cs.get("blinker on"),
+                PolyLine::new(vec![
+                    body_pos.project_away(body_radius / 2.0, angle.opposite()),
+                    body_pos.project_away(body_radius / 2.0, angle),
+                ])
+                .make_arrow(Distance::meters(0.25))
+                .unwrap(),
+            );
         }
 
         DrawBike {

@@ -7,7 +7,7 @@ use map_model::{Map, Turn, TurnID};
 pub struct DrawTurn {
     pub id: TurnID,
     icon_circle: Circle,
-    icon_arrow: Vec<Polygon>,
+    icon_arrow: Polygon,
 }
 
 impl DrawTurn {
@@ -38,7 +38,7 @@ impl DrawTurn {
     }
 
     pub fn full_geom(t: &Turn, batch: &mut GeomBatch, color: Color) {
-        batch.extend(color, t.geom.make_arrow(BIG_ARROW_THICKNESS * 2.0).unwrap());
+        batch.push(color, t.geom.make_arrow(BIG_ARROW_THICKNESS * 2.0).unwrap());
     }
 
     pub fn draw_full(t: &Turn, g: &mut GfxCtx, color: Color) {
@@ -68,7 +68,7 @@ impl DrawTurn {
         } else {
             Line::new(last_line.dist_along(last_len - dash_len), last_line.pt2())
         };
-        batch.extend(
+        batch.push(
             color,
             arrow_line
                 .to_polyline()
@@ -101,7 +101,7 @@ impl DrawTurn {
             },
             self.icon_circle.to_polygon(),
         );
-        batch.extend(arrow_color, self.icon_arrow.clone());
+        batch.push(arrow_color, self.icon_arrow.clone());
     }
 
     pub fn contains_pt(&self, pt: Pt2D) -> bool {
