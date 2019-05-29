@@ -41,16 +41,16 @@ enum State {
 }
 
 impl SandboxMode {
-    pub fn new(ctx: &EventCtx) -> SandboxMode {
+    pub fn new(ctx: &mut EventCtx) -> SandboxMode {
         SandboxMode {
             desired_speed: 1.0,
             state: State::Paused,
             following: None,
             route_viewer: route_viewer::RouteViewer::Inactive,
             show_activity: show_activity::ShowActivity::Inactive,
-            time_travel: time_travel::TimeTravel::new(ctx.canvas),
+            time_travel: time_travel::TimeTravel::new(ctx),
             common: CommonState::new(),
-            menu: ModalMenu::hacky_new(
+            menu: ModalMenu::new(
                 "Sandbox Mode",
                 vec![
                     vec![
@@ -76,7 +76,7 @@ impl SandboxMode {
                     CommonState::modal_menu_entries(),
                 ]
                 .concat(),
-                ctx.canvas,
+                ctx,
             ),
         }
     }

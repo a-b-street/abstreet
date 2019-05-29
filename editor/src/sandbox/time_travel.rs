@@ -1,6 +1,6 @@
 use crate::ui::UI;
 use abstutil::MultiMap;
-use ezgui::{Canvas, EventCtx, GfxCtx, Key, ModalMenu, Text};
+use ezgui::{EventCtx, GfxCtx, Key, ModalMenu, Text};
 use geom::Duration;
 use map_model::{Map, Traversable};
 use sim::{CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID};
@@ -22,19 +22,19 @@ struct StateAtTime {
 }
 
 impl TimeTravel {
-    pub fn new(canvas: &Canvas) -> TimeTravel {
+    pub fn new(ctx: &mut EventCtx) -> TimeTravel {
         TimeTravel {
             state_per_time: Vec::new(),
             current_idx: None,
             should_record: false,
-            menu: ModalMenu::hacky_new(
+            menu: ModalMenu::new(
                 "Time Traveler",
                 vec![
                     (Some(Key::Escape), "quit"),
                     (Some(Key::Comma), "rewind"),
                     (Some(Key::Dot), "forwards"),
                 ],
-                canvas,
+                ctx,
             ),
         }
     }
