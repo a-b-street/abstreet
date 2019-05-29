@@ -237,7 +237,7 @@ impl Key {
         }
     }
 
-    pub fn describe(self: Key) -> String {
+    pub fn describe(self) -> String {
         match self {
             Key::Escape => "Escape".to_string(),
             Key::Enter => "Enter".to_string(),
@@ -349,4 +349,30 @@ impl Key {
             }
         })
     }
+}
+
+// TODO This is not an ideal representation at all.
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
+pub struct MultiKey {
+    pub key: Key,
+    pub lctrl: bool,
+}
+
+impl MultiKey {
+    pub fn describe(self) -> String {
+        if self.lctrl {
+            format!("Ctrl+{}", self.key.describe())
+        } else {
+            self.key.describe()
+        }
+    }
+}
+
+// For easy ModalMenu construction
+pub fn hotkey(key: Key) -> Option<MultiKey> {
+    Some(MultiKey { key, lctrl: false })
+}
+
+pub fn lctrl(key: Key) -> Option<MultiKey> {
+    Some(MultiKey { key, lctrl: true })
 }

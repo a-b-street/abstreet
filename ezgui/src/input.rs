@@ -1,5 +1,5 @@
 use crate::widgets::{Menu, Position};
-use crate::{text, Canvas, Event, InputResult, Key, ScreenPt, Text};
+use crate::{hotkey, text, Canvas, Event, InputResult, Key, ScreenPt, Text};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 // As we check for user input, record the input and the thing that would happen. This will let us
@@ -41,7 +41,7 @@ impl ContextMenu {
                         Text::new(),
                         actions
                             .into_iter()
-                            .map(|(hotkey, action)| (Some(hotkey), action, hotkey))
+                            .map(|(key, action)| (hotkey(key), action, key))
                             .collect(),
                         false,
                         false,
@@ -69,6 +69,13 @@ impl UserInput {
         if let Event::WindowResized(width, height) = input.event {
             canvas.window_width = width;
             canvas.window_height = height;
+        }
+
+        if input.event == Event::KeyPress(Key::LeftControl) {
+            canvas.lctrl_held = true;
+        }
+        if input.event == Event::KeyRelease(Key::LeftControl) {
+            canvas.lctrl_held = false;
         }
 
         // Create the context menu here, even if one already existed.

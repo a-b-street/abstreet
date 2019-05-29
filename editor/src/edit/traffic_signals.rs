@@ -5,7 +5,7 @@ use crate::helpers::ID;
 use crate::render::{draw_signal_cycle, draw_signal_diagram, DrawCtx, DrawOptions, DrawTurn};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
-use ezgui::{Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu, Wizard, WrappedWizard};
+use ezgui::{hotkey, Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu, Wizard, WrappedWizard};
 use geom::Duration;
 use map_model::{ControlTrafficSignal, Cycle, IntersectionID, Map, TurnID, TurnPriority, TurnType};
 
@@ -27,17 +27,17 @@ impl TrafficSignalEditor {
         let menu = ModalMenu::new(
             &format!("Traffic Signal Editor for {}", id),
             vec![
-                (Some(Key::Escape), "quit"),
-                (Some(Key::D), "change cycle duration"),
-                (Some(Key::P), "choose a preset signal"),
-                (Some(Key::R), "reset to original"),
-                (Some(Key::K), "move current cycle up"),
-                (Some(Key::J), "move current cycle down"),
-                (Some(Key::UpArrow), "select previous cycle"),
-                (Some(Key::DownArrow), "select next cycle"),
-                (Some(Key::Backspace), "delete current cycle"),
-                (Some(Key::N), "add a new empty cycle"),
-                (Some(Key::M), "add a new pedestrian scramble cycle"),
+                (hotkey(Key::Escape), "quit"),
+                (hotkey(Key::D), "change cycle duration"),
+                (hotkey(Key::P), "choose a preset signal"),
+                (hotkey(Key::R), "reset to original"),
+                (hotkey(Key::K), "move current cycle up"),
+                (hotkey(Key::J), "move current cycle down"),
+                (hotkey(Key::UpArrow), "select previous cycle"),
+                (hotkey(Key::DownArrow), "select next cycle"),
+                (hotkey(Key::Backspace), "delete current cycle"),
+                (hotkey(Key::N), "add a new empty cycle"),
+                (hotkey(Key::M), "add a new pedestrian scramble cycle"),
             ],
             ctx,
         );

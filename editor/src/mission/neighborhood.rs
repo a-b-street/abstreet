@@ -1,5 +1,5 @@
 use crate::ui::UI;
-use ezgui::{Color, EventCtx, GfxCtx, Key, ModalMenu, Wizard, WrappedWizard};
+use ezgui::{hotkey, Color, EventCtx, GfxCtx, Key, ModalMenu, Wizard, WrappedWizard};
 use geom::{Circle, Distance, Line, Polygon, Pt2D};
 use map_model::{Map, NeighborhoodBuilder};
 
@@ -18,10 +18,10 @@ impl NeighborhoodEditor {
         ModalMenu::new(
             &format!("Neighborhood Editor for {}", name),
             vec![
-                (Some(Key::Escape), "quit"),
-                (Some(Key::S), "save"),
-                (Some(Key::X), "export as an Osmosis polygon filter"),
-                (Some(Key::P), "add a new point"),
+                (hotkey(Key::Escape), "quit"),
+                (hotkey(Key::S), "save"),
+                (hotkey(Key::X), "export as an Osmosis polygon filter"),
+                (hotkey(Key::P), "add a new point"),
             ],
             ctx,
         )

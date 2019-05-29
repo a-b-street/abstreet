@@ -6,16 +6,18 @@ mod objects;
 mod polygons;
 
 use crate::common::CommonState;
+use crate::edit::EditMode;
 use crate::game::{GameState, Mode};
 use crate::helpers::ID;
 use crate::render::DrawOptions;
+use crate::sandbox::SandboxMode;
 use crate::ui::{ShowLayers, ShowObject, UI};
 use abstutil::wraparound_get;
 use abstutil::Timer;
 use clipping::CPolygon;
 use ezgui::{
-    Color, EventCtx, EventLoopMode, GfxCtx, InputResult, Key, ModalMenu, ScrollingMenu, Text,
-    TextBox, Wizard,
+    hotkey, lctrl, Color, EventCtx, EventLoopMode, GfxCtx, InputResult, Key, ModalMenu,
+    ScrollingMenu, Text, TextBox, Wizard,
 };
 use geom::{Distance, PolyLine, Polygon, Pt2D};
 use map_model::{IntersectionID, Map, RoadID};
@@ -69,22 +71,24 @@ impl DebugMode {
             "Debug Mode",
             vec![
                 vec![
-                    (Some(Key::Escape), "quit"),
-                    (Some(Key::C), "show/hide chokepoints"),
-                    (Some(Key::O), "clear original roads shown"),
-                    (Some(Key::G), "clear intersection geometry"),
-                    (Some(Key::H), "unhide everything"),
-                    (Some(Key::Num1), "show/hide buildings"),
-                    (Some(Key::Num2), "show/hide intersections"),
-                    (Some(Key::Num3), "show/hide lanes"),
-                    (Some(Key::Num4), "show/hide areas"),
-                    (Some(Key::Num5), "show/hide extra shapes"),
-                    (Some(Key::Num6), "show/hide geometry debug mode"),
+                    (hotkey(Key::Escape), "quit"),
+                    (hotkey(Key::C), "show/hide chokepoints"),
+                    (hotkey(Key::O), "clear original roads shown"),
+                    (hotkey(Key::G), "clear intersection geometry"),
+                    (hotkey(Key::H), "unhide everything"),
+                    (hotkey(Key::Num1), "show/hide buildings"),
+                    (hotkey(Key::Num2), "show/hide intersections"),
+                    (hotkey(Key::Num3), "show/hide lanes"),
+                    (hotkey(Key::Num4), "show/hide areas"),
+                    (hotkey(Key::Num5), "show/hide extra shapes"),
+                    (hotkey(Key::Num6), "show/hide geometry debug mode"),
                     (None, "screenshot everything"),
-                    (Some(Key::Slash), "search OSM metadata"),
-                    (Some(Key::M), "clear OSM search results"),
-                    (Some(Key::S), "configure colors"),
-                    (Some(Key::N), "show/hide neighborhood summaries"),
+                    (hotkey(Key::Slash), "search OSM metadata"),
+                    (hotkey(Key::M), "clear OSM search results"),
+                    (hotkey(Key::S), "configure colors"),
+                    (hotkey(Key::N), "show/hide neighborhood summaries"),
+                    (lctrl(Key::S), "sandbox mode"),
+                    (lctrl(Key::E), "edit mode"),
                 ],
                 CommonState::modal_menu_entries(),
             ]
@@ -145,6 +149,14 @@ impl DebugMode {
 
                         if menu.action("quit") {
                             state.mode = Mode::SplashScreen(Wizard::new(), None);
+                            return EventLoopMode::InputOnly;
+                        }
+                        if menu.action("sandbox mode") {
+                            state.mode = Mode::Sandbox(SandboxMode::new(ctx));
+                            return EventLoopMode::InputOnly;
+                        }
+                        if menu.action("edit mode") {
+                            state.mode = Mode::Edit(EditMode::new(ctx, &mut state.ui));
                             return EventLoopMode::InputOnly;
                         }
 

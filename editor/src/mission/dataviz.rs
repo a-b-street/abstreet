@@ -3,7 +3,7 @@ use crate::helpers::{rotating_color_total, ID};
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Timer};
 use ezgui::{
-    Color, EventCtx, GfxCtx, HorizontalAlignment, Key, ModalMenu, Text, VerticalAlignment,
+    hotkey, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, ModalMenu, Text, VerticalAlignment,
 };
 use geom::{Distance, Polygon, Pt2D};
 use popdat::{Estimate, PopDat};
@@ -40,11 +40,11 @@ impl DataVisualizer {
             menu: ModalMenu::new(
                 "Data Visualizer",
                 vec![
-                    (Some(Key::Escape), "quit"),
-                    (Some(Key::Space), "toggle table/bar chart"),
-                    (Some(Key::Num1), "household vehicles"),
-                    (Some(Key::Num2), "commute times"),
-                    (Some(Key::Num3), "commute modes"),
+                    (hotkey(Key::Escape), "quit"),
+                    (hotkey(Key::Space), "toggle table/bar chart"),
+                    (hotkey(Key::Num1), "household vehicles"),
+                    (hotkey(Key::Num2), "commute times"),
+                    (hotkey(Key::Num3), "commute modes"),
                 ],
                 ctx,
             ),

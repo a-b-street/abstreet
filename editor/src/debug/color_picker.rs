@@ -1,6 +1,6 @@
 use crate::ui::UI;
 use ezgui::{
-    Canvas, Color, EventCtx, GfxCtx, InputResult, Key, ModalMenu, ScreenPt, ScrollingMenu,
+    hotkey, Canvas, Color, EventCtx, GfxCtx, InputResult, Key, ModalMenu, ScreenPt, ScrollingMenu,
 };
 use geom::{Distance, Polygon};
 
@@ -32,8 +32,8 @@ impl ColorPicker {
                         ModalMenu::new(
                             &format!("Color Picker for {}", name),
                             vec![
-                                (Some(Key::Backspace), "revert"),
-                                (Some(Key::Escape), "finalize"),
+                                (hotkey(Key::Backspace), "revert"),
+                                (hotkey(Key::Escape), "finalize"),
                             ],
                             ctx,
                         ),

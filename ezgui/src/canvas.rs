@@ -33,6 +33,7 @@ pub struct Canvas {
 
     // Kind of just ezgui state awkwardly stuck here...
     pub(crate) hide_modal_menus: bool,
+    pub(crate) lctrl_held: bool,
 }
 
 impl Canvas {
@@ -59,6 +60,7 @@ impl Canvas {
             covered_areas: RefCell::new(Vec::new()),
 
             hide_modal_menus: false,
+            lctrl_held: false,
         }
     }
 

@@ -1,5 +1,5 @@
 use crate::screen_geom::ScreenRectangle;
-use crate::{Color, EventCtx, GfxCtx, Key, ModalMenu, Text};
+use crate::{hotkey, Color, EventCtx, GfxCtx, Key, ModalMenu, MultiKey, Text};
 use geom::{Distance, Polygon, Pt2D};
 
 // Pixels
@@ -169,7 +169,7 @@ impl<T> ItemSlider<T> {
         items: Vec<T>,
         menu_title: &str,
         noun: &str,
-        other_choices: Vec<(Option<Key>, &str)>,
+        other_choices: Vec<(Option<MultiKey>, &str)>,
         ctx: &mut EventCtx,
     ) -> ItemSlider<T> {
         // Lifetime funniness...
@@ -180,10 +180,10 @@ impl<T> ItemSlider<T> {
         let first = format!("first {}", noun);
         let last = format!("last {}", noun);
         choices.extend(vec![
-            (Some(Key::LeftArrow), prev.as_str()),
-            (Some(Key::RightArrow), next.as_str()),
-            (Some(Key::Comma), first.as_str()),
-            (Some(Key::Dot), last.as_str()),
+            (hotkey(Key::LeftArrow), prev.as_str()),
+            (hotkey(Key::RightArrow), next.as_str()),
+            (hotkey(Key::Comma), first.as_str()),
+            (hotkey(Key::Dot), last.as_str()),
         ]);
 
         ItemSlider {

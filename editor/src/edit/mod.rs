@@ -2,15 +2,20 @@ mod stop_signs;
 mod traffic_signals;
 
 use crate::common::CommonState;
+use crate::debug::DebugMode;
 use crate::game::{GameState, Mode};
 use crate::helpers::ID;
 use crate::render::{
     DrawCtx, DrawIntersection, DrawLane, DrawMap, DrawOptions, DrawTurn, Renderable,
     MIN_ZOOM_FOR_DETAIL,
 };
+use crate::sandbox::SandboxMode;
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
-use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard, WrappedWizard};
+use ezgui::{
+    hotkey, lctrl, Color, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard,
+    WrappedWizard,
+};
 use map_model::{IntersectionID, Lane, LaneID, LaneType, Map, MapEdits, Road, TurnID, TurnType};
 use std::collections::{BTreeSet, HashMap};
 
@@ -33,9 +38,11 @@ impl EditMode {
                 "Map Edit Mode",
                 vec![
                     vec![
-                        (Some(Key::Escape), "quit"),
-                        (Some(Key::S), "save edits"),
-                        (Some(Key::L), "load different edits"),
+                        (hotkey(Key::Escape), "quit"),
+                        (hotkey(Key::S), "save edits"),
+                        (hotkey(Key::L), "load different edits"),
+                        (lctrl(Key::S), "sandbox mode"),
+                        (lctrl(Key::D), "debug mode"),
                     ],
                     CommonState::modal_menu_entries(),
                 ]
@@ -83,6 +90,15 @@ impl EditMode {
                     state.mode = Mode::SplashScreen(Wizard::new(), None);
                     return EventLoopMode::InputOnly;
                 }
+                if menu.action("sandbox mode") {
+                    state.mode = Mode::Sandbox(SandboxMode::new(ctx));
+                    return EventLoopMode::InputOnly;
+                }
+                if menu.action("debug mode") {
+                    state.mode = Mode::Debug(DebugMode::new(ctx, &state.ui));
+                    return EventLoopMode::InputOnly;
+                }
+
                 // TODO Only if current edits are unsaved
                 if menu.action("save edits") {
                     state.mode = Mode::Edit(EditMode::Saving(Wizard::new()));

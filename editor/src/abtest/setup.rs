@@ -1,7 +1,7 @@
 use crate::abtest::{ABTestMode, State};
 use crate::game::{GameState, Mode};
 use crate::ui::{Flags, PerMapUI, UI};
-use ezgui::{EventCtx, GfxCtx, Key, LogScroller, ModalMenu, Wizard, WrappedWizard};
+use ezgui::{hotkey, EventCtx, GfxCtx, Key, LogScroller, ModalMenu, Wizard, WrappedWizard};
 use map_model::Map;
 use sim::{ABTest, SimFlags};
 use std::path::PathBuf;
@@ -26,8 +26,8 @@ impl ABTestSetup {
                                 ModalMenu::new(
                                     &format!("A/B Test Editor for {}", ab_test.test_name),
                                     vec![
-                                        (Some(Key::Escape), "quit"),
-                                        (Some(Key::R), "run A/B test"),
+                                        (hotkey(Key::Escape), "quit"),
+                                        (hotkey(Key::R), "run A/B test"),
                                     ],
                                     ctx,
                                 ),

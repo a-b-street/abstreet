@@ -1,5 +1,7 @@
 use crate::widgets::{Menu, Position};
-use crate::{Canvas, GfxCtx, InputResult, Key, LogScroller, Text, TextBox, UserInput};
+use crate::{
+    hotkey, Canvas, GfxCtx, InputResult, Key, LogScroller, MultiKey, Text, TextBox, UserInput,
+};
 use abstutil::Cloneable;
 use std::collections::VecDeque;
 
@@ -207,9 +209,9 @@ impl<'a> WrappedWizard<'a> {
                 ));
                 return None;
             }
-            let boxed_choices: Vec<(Option<Key>, String, Box<Cloneable>)> = choices
+            let boxed_choices: Vec<(Option<MultiKey>, String, Box<Cloneable>)> = choices
                 .into_iter()
-                .map(|(key, s, item)| (key, s, item.clone_box()))
+                .map(|(key, s, item)| (key.and_then(hotkey), s, item.clone_box()))
                 .collect();
             self.wizard.menu = Some(Menu::new(
                 Text::prompt(query),
@@ -275,13 +277,14 @@ impl<'a> WrappedWizard<'a> {
     pub fn choose_string_hotkeys(
         &mut self,
         query: &str,
-        choices: Vec<(Option<Key>, &str)>,
+        choices: Vec<(Option<MultiKey>, &str)>,
     ) -> Option<String> {
         // Clone the choices outside of the closure to get around the fact that choices_generator's
         // lifetime isn't correctly specified.
         let copied_choices: Vec<(Option<Key>, String, ())> = choices
             .into_iter()
-            .map(|(key, s)| (key, s.to_string(), ()))
+            // TODO Argh, change all the APIs to take MultiKey
+            .map(|(multikey, s)| (multikey.map(|mk| mk.key), s.to_string(), ()))
             .collect();
         self.choose_something(query, Box::new(move || copied_choices.clone()))
             .map(|(s, _)| s)

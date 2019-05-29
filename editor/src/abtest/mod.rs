@@ -5,7 +5,7 @@ use crate::game::{GameState, Mode};
 use crate::render::DrawOptions;
 use crate::ui::{PerMapUI, ShowEverything, UI};
 use abstutil::elapsed_seconds;
-use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard};
+use ezgui::{hotkey, Color, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard};
 use geom::{Duration, Line, PolyLine};
 use map_model::LANE_THICKNESS;
 use sim::{Benchmark, TripID};
@@ -42,14 +42,14 @@ impl ABTestMode {
                 "A/B Test Mode",
                 vec![
                     vec![
-                        (Some(Key::Escape), "quit"),
-                        (Some(Key::LeftBracket), "slow down sim"),
-                        (Some(Key::RightBracket), "speed up sim"),
-                        (Some(Key::Space), "run/pause sim"),
-                        (Some(Key::M), "step forwards 0.1s"),
-                        (Some(Key::S), "swap"),
-                        (Some(Key::D), "diff all trips"),
-                        (Some(Key::B), "stop diffing trips"),
+                        (hotkey(Key::Escape), "quit"),
+                        (hotkey(Key::LeftBracket), "slow down sim"),
+                        (hotkey(Key::RightBracket), "speed up sim"),
+                        (hotkey(Key::Space), "run/pause sim"),
+                        (hotkey(Key::M), "step forwards 0.1s"),
+                        (hotkey(Key::S), "swap"),
+                        (hotkey(Key::D), "diff all trips"),
+                        (hotkey(Key::B), "stop diffing trips"),
                     ],
                     CommonState::modal_menu_entries(),
                 ]

@@ -2,7 +2,7 @@ use crate::helpers::ID;
 use crate::render::calculate_corners;
 use crate::ui::UI;
 use abstutil::Timer;
-use ezgui::{EventCtx, GfxCtx, ItemSlider, Key, Text};
+use ezgui::{hotkey, EventCtx, GfxCtx, ItemSlider, Key, Text};
 use geom::{Polygon, Pt2D, Triangle};
 
 pub struct PolygonDebugger {
@@ -33,7 +33,7 @@ impl PolygonDebugger {
                             pts.iter().map(|pt| Item::Point(*pt)).collect(),
                             "Polygon Debugger",
                             "point",
-                            vec![(Some(Key::Escape), "quit")],
+                            vec![(hotkey(Key::Escape), "quit")],
                             ctx,
                         ),
                         center: Some(Pt2D::center(&pts_without_last)),
@@ -54,7 +54,7 @@ impl PolygonDebugger {
                             .collect(),
                             "Polygon Debugger",
                             "corner",
-                            vec![(Some(Key::Escape), "quit")],
+                            vec![(hotkey(Key::Escape), "quit")],
                             ctx,
                         ),
                         center: None,
@@ -75,7 +75,7 @@ impl PolygonDebugger {
                                 .collect(),
                             "Polygon Debugger",
                             "point",
-                            vec![(Some(Key::Escape), "quit")],
+                            vec![(hotkey(Key::Escape), "quit")],
                             ctx,
                         ),
                         center: None,
@@ -93,7 +93,7 @@ impl PolygonDebugger {
                                 .collect(),
                             "Polygon Debugger",
                             "triangle",
-                            vec![(Some(Key::Escape), "quit")],
+                            vec![(hotkey(Key::Escape), "quit")],
                             ctx,
                         ),
                         center: None,
@@ -115,7 +115,7 @@ impl PolygonDebugger {
                             pts.iter().map(|pt| Item::Point(*pt)).collect(),
                             "Polygon Debugger",
                             "point",
-                            vec![(Some(Key::Escape), "quit")],
+                            vec![(hotkey(Key::Escape), "quit")],
                             ctx,
                         ),
                         center: Some(center),
@@ -133,7 +133,7 @@ impl PolygonDebugger {
                                 .collect(),
                             "Polygon Debugger",
                             "triangle",
-                            vec![(Some(Key::Escape), "quit")],
+                            vec![(hotkey(Key::Escape), "quit")],
                             ctx,
                         ),
                         center: None,

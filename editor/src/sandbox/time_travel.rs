@@ -1,6 +1,6 @@
 use crate::ui::UI;
 use abstutil::MultiMap;
-use ezgui::{EventCtx, GfxCtx, Key, ModalMenu, Text};
+use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu, Text};
 use geom::Duration;
 use map_model::{Map, Traversable};
 use sim::{CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID};
@@ -30,9 +30,9 @@ impl TimeTravel {
             menu: ModalMenu::new(
                 "Time Traveler",
                 vec![
-                    (Some(Key::Escape), "quit"),
-                    (Some(Key::Comma), "rewind"),
-                    (Some(Key::Dot), "forwards"),
+                    (hotkey(Key::Escape), "quit"),
+                    (hotkey(Key::Comma), "rewind"),
+                    (hotkey(Key::Dot), "forwards"),
                 ],
                 ctx,
             ),

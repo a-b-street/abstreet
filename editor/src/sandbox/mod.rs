@@ -5,11 +5,13 @@ mod spawner;
 mod time_travel;
 
 use crate::common::CommonState;
+use crate::debug::DebugMode;
+use crate::edit::EditMode;
 use crate::game::{GameState, Mode};
 use crate::render::DrawOptions;
 use crate::ui::ShowEverything;
 use abstutil::elapsed_seconds;
-use ezgui::{EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard};
+use ezgui::{hotkey, lctrl, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard};
 use geom::Duration;
 use sim::{Benchmark, Sim, TripID};
 use std::time::Instant;
@@ -54,24 +56,26 @@ impl SandboxMode {
                 "Sandbox Mode",
                 vec![
                     vec![
-                        (Some(Key::Escape), "quit"),
-                        (Some(Key::LeftBracket), "slow down sim"),
-                        (Some(Key::RightBracket), "speed up sim"),
-                        (Some(Key::O), "save sim state"),
-                        (Some(Key::Y), "load previous sim state"),
-                        (Some(Key::U), "load next sim state"),
-                        (Some(Key::Space), "run/pause sim"),
-                        (Some(Key::M), "step forwards 0.1s"),
-                        (Some(Key::N), "step forwards 10 mins"),
-                        (Some(Key::X), "reset sim"),
-                        (Some(Key::S), "seed the sim with agents"),
+                        (hotkey(Key::Escape), "quit"),
+                        (hotkey(Key::LeftBracket), "slow down sim"),
+                        (hotkey(Key::RightBracket), "speed up sim"),
+                        (hotkey(Key::O), "save sim state"),
+                        (hotkey(Key::Y), "load previous sim state"),
+                        (hotkey(Key::U), "load next sim state"),
+                        (hotkey(Key::Space), "run/pause sim"),
+                        (hotkey(Key::M), "step forwards 0.1s"),
+                        (hotkey(Key::N), "step forwards 10 mins"),
+                        (hotkey(Key::X), "reset sim"),
+                        (hotkey(Key::S), "seed the sim with agents"),
                         // TODO Strange to always have this. Really it's a case of stacked modal?
-                        (Some(Key::F), "stop following agent"),
-                        (Some(Key::R), "stop showing agent's route"),
+                        (hotkey(Key::F), "stop following agent"),
+                        (hotkey(Key::R), "stop showing agent's route"),
                         // TODO This should probably be a debug thing instead
-                        (Some(Key::L), "show/hide route for all agents"),
-                        (Some(Key::A), "show/hide active traffic"),
-                        (Some(Key::T), "start time traveling"),
+                        (hotkey(Key::L), "show/hide route for all agents"),
+                        (hotkey(Key::A), "show/hide active traffic"),
+                        (hotkey(Key::T), "start time traveling"),
+                        (lctrl(Key::D), "debug mode"),
+                        (lctrl(Key::E), "edit mode"),
                     ],
                     CommonState::modal_menu_entries(),
                 ]
@@ -204,6 +208,14 @@ impl SandboxMode {
 
                 if mode.menu.action("quit") {
                     state.mode = Mode::SplashScreen(Wizard::new(), None);
+                    return EventLoopMode::InputOnly;
+                }
+                if mode.menu.action("debug mode") {
+                    state.mode = Mode::Debug(DebugMode::new(ctx, &state.ui));
+                    return EventLoopMode::InputOnly;
+                }
+                if mode.menu.action("edit mode") {
+                    state.mode = Mode::Edit(EditMode::new(ctx, &mut state.ui));
                     return EventLoopMode::InputOnly;
                 }
 

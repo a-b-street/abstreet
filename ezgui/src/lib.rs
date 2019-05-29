@@ -12,7 +12,7 @@ mod widgets;
 pub use crate::canvas::{Canvas, HorizontalAlignment, VerticalAlignment, BOTTOM_LEFT, CENTERED};
 pub use crate::color::Color;
 pub use crate::drawing::{GeomBatch, GfxCtx};
-pub use crate::event::{Event, Key};
+pub use crate::event::{hotkey, lctrl, Event, Key, MultiKey};
 pub use crate::event_ctx::{Drawable, EventCtx, Prerender};
 pub use crate::input::UserInput;
 pub use crate::runner::{run, EventLoopMode, GUI};

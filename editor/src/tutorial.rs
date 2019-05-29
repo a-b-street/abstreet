@@ -1,7 +1,7 @@
 use crate::game::{GameState, Mode};
 use crate::render::DrawOptions;
 use crate::ui::{ShowEverything, UI};
-use ezgui::{EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard};
+use ezgui::{hotkey, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard};
 use geom::Pt2D;
 
 pub struct TutorialMode {
@@ -21,7 +21,7 @@ impl TutorialMode {
         ui.primary.reset_sim();
 
         TutorialMode {
-            menu: ModalMenu::new("Tutorial", vec![(Some(Key::Escape), "quit")], ctx),
+            menu: ModalMenu::new("Tutorial", vec![(hotkey(Key::Escape), "quit")], ctx),
             state: State::Part1(ctx.canvas.center_to_map_pt()),
         }
     }

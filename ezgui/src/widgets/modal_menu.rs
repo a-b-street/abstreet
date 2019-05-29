@@ -1,5 +1,5 @@
 use crate::widgets::{Menu, Position};
-use crate::{EventCtx, GfxCtx, InputResult, Key, Text};
+use crate::{EventCtx, GfxCtx, InputResult, MultiKey, Text};
 
 pub struct ModalMenu {
     menu: Menu<()>,
@@ -7,12 +7,16 @@ pub struct ModalMenu {
 }
 
 impl ModalMenu {
-    pub fn new(prompt_line: &str, choices: Vec<(Option<Key>, &str)>, ctx: &EventCtx) -> ModalMenu {
+    pub fn new(
+        prompt_line: &str,
+        choices: Vec<(Option<MultiKey>, &str)>,
+        ctx: &EventCtx,
+    ) -> ModalMenu {
         let mut menu = Menu::new(
             Text::prompt(prompt_line),
             choices
                 .into_iter()
-                .map(|(key, action)| (key, action.to_string(), ()))
+                .map(|(multikey, action)| (multikey, action.to_string(), ()))
                 .collect(),
             false,
             true,

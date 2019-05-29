@@ -8,7 +8,9 @@ use crate::sandbox::SandboxMode;
 use crate::tutorial::TutorialMode;
 use crate::ui::{EditorState, Flags, ShowEverything, UI};
 use abstutil::elapsed_seconds;
-use ezgui::{Canvas, EventCtx, EventLoopMode, GfxCtx, Key, LogScroller, UserInput, Wizard, GUI};
+use ezgui::{
+    hotkey, Canvas, EventCtx, EventLoopMode, GfxCtx, Key, LogScroller, UserInput, Wizard, GUI,
+};
 use geom::{Duration, Line, Pt2D, Speed};
 use map_model::Map;
 use rand::seq::SliceRandom;
@@ -257,13 +259,13 @@ fn splash_screen(
             .choose_string_hotkeys(
                 "Welcome to A/B Street!",
                 vec![
-                    (Some(Key::S), sandbox),
-                    (Some(Key::L), load_map),
-                    (Some(Key::E), edit),
-                    (Some(Key::T), tutorial),
-                    (Some(Key::D), debug),
-                    (Some(Key::M), mission),
-                    (Some(Key::A), abtest),
+                    (hotkey(Key::S), sandbox),
+                    (hotkey(Key::L), load_map),
+                    (hotkey(Key::E), edit),
+                    (hotkey(Key::T), tutorial),
+                    (hotkey(Key::D), debug),
+                    (hotkey(Key::M), mission),
+                    (hotkey(Key::A), abtest),
                     (None, about),
                     (None, quit),
                 ],

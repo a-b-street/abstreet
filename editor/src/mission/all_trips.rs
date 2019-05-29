@@ -2,7 +2,7 @@ use crate::common::CommonState;
 use crate::mission::{clip_trips, Trip};
 use crate::ui::{ShowEverything, UI};
 use abstutil::prettyprint_usize;
-use ezgui::{Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu, Slider, Text};
+use ezgui::{hotkey, Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu, Slider, Text};
 use geom::{Circle, Distance, Duration};
 use map_model::LANE_THICKNESS;
 use popdat::psrc::Mode;
@@ -52,13 +52,13 @@ impl TripsVisualizer {
             menu: ModalMenu::new(
                 "Trips Visualizer",
                 vec![
-                    (Some(Key::Escape), "quit"),
-                    (Some(Key::Dot), "forwards 10 seconds"),
-                    (Some(Key::RightArrow), "forwards 30 minutes"),
-                    (Some(Key::Comma), "backwards 10 seconds"),
-                    (Some(Key::LeftArrow), "backwards 30 minutes"),
-                    (Some(Key::F), "goto start of day"),
-                    (Some(Key::L), "goto end of day"),
+                    (hotkey(Key::Escape), "quit"),
+                    (hotkey(Key::Dot), "forwards 10 seconds"),
+                    (hotkey(Key::RightArrow), "forwards 30 minutes"),
+                    (hotkey(Key::Comma), "backwards 10 seconds"),
+                    (hotkey(Key::LeftArrow), "backwards 30 minutes"),
+                    (hotkey(Key::F), "goto start of day"),
+                    (hotkey(Key::L), "goto end of day"),
                 ],
                 ctx,
             ),

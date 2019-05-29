@@ -2,7 +2,7 @@ use crate::common::Warper;
 use crate::helpers::ID;
 use crate::render::DrawTurn;
 use crate::ui::UI;
-use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, ItemSlider, Key, Text};
+use ezgui::{hotkey, Color, EventCtx, EventLoopMode, GfxCtx, ItemSlider, Key, Text};
 use geom::{Distance, Polygon};
 use map_model::{Traversable, LANE_THICKNESS};
 use sim::AgentID;
@@ -63,7 +63,7 @@ impl RouteExplorer {
                 steps,
                 "Route Explorer",
                 "step",
-                vec![(Some(Key::Escape), "quit")],
+                vec![(hotkey(Key::Escape), "quit")],
                 ctx,
             ),
             entire_trace,

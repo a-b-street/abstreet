@@ -2,7 +2,7 @@ use crate::common::CommonState;
 use crate::mission::{clip_trips, Trip};
 use crate::ui::{ShowEverything, UI};
 use abstutil::{prettyprint_usize, Timer};
-use ezgui::{Color, EventCtx, GfxCtx, ItemSlider, Key, Text};
+use ezgui::{hotkey, Color, EventCtx, GfxCtx, ItemSlider, Key, Text};
 use geom::{Circle, Distance, Speed};
 use popdat::PopDat;
 
@@ -22,7 +22,7 @@ impl TripsVisualizer {
                 trips,
                 "Trips Visualizer",
                 "trip",
-                vec![(Some(Key::Escape), "quit")],
+                vec![(hotkey(Key::Escape), "quit")],
                 ctx,
             ),
         }

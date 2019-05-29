@@ -3,7 +3,7 @@ use crate::helpers::ID;
 use crate::render::DrawOptions;
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
-use ezgui::{EventCtx, GfxCtx, Key, ModalMenu};
+use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu};
 use geom::{Duration, PolyLine};
 use map_model::{
     BuildingID, IntersectionID, IntersectionType, LaneType, PathRequest, Position, LANE_THICKNESS,
@@ -38,7 +38,7 @@ impl AgentSpawner {
         ui: &mut UI,
         sandbox_menu: &mut ModalMenu,
     ) -> Option<AgentSpawner> {
-        let menu = ModalMenu::new("Agent Spawner", vec![(Some(Key::Escape), "quit")], ctx);
+        let menu = ModalMenu::new("Agent Spawner", vec![(hotkey(Key::Escape), "quit")], ctx);
         let map = &ui.primary.map;
         match ui.primary.current_selection {
             Some(ID::Building(id)) => {

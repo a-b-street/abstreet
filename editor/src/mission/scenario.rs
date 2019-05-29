@@ -5,7 +5,7 @@ use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::WeightedUsizeChoice;
 use ezgui::{
-    Color, Drawable, EventCtx, GfxCtx, Key, LogScroller, ModalMenu, Wizard, WrappedWizard,
+    hotkey, Color, Drawable, EventCtx, GfxCtx, Key, LogScroller, ModalMenu, Wizard, WrappedWizard,
 };
 use geom::{Distance, Duration, PolyLine, Pt2D};
 use map_model::{IntersectionID, Map, Neighborhood};
@@ -24,11 +24,11 @@ impl ScenarioEditor {
         ModalMenu::new(
             &format!("Scenario Editor for {}", name),
             vec![
-                (Some(Key::Escape), "quit"),
-                (Some(Key::S), "save"),
-                (Some(Key::E), "edit"),
-                (Some(Key::I), "instantiate"),
-                (Some(Key::V), "visualize"),
+                (hotkey(Key::Escape), "quit"),
+                (hotkey(Key::S), "save"),
+                (hotkey(Key::E), "edit"),
+                (hotkey(Key::I), "instantiate"),
+                (hotkey(Key::V), "visualize"),
             ],
             ctx,
         )

@@ -1,12 +1,14 @@
 use crate::screen_geom::ScreenRectangle;
-use crate::{text, Canvas, Event, GfxCtx, InputResult, Key, ScreenPt, Text};
+use crate::{
+    hotkey, lctrl, text, Canvas, Event, GfxCtx, InputResult, Key, MultiKey, ScreenPt, Text,
+};
 use std::collections::HashSet;
 
 // Stores some associated data with each choice
 pub struct Menu<T: Clone> {
     prompt: Text,
     // The bool is whether this choice is active or not
-    choices: Vec<(Option<Key>, String, bool, T)>,
+    choices: Vec<(Option<MultiKey>, String, bool, T)>,
     current_idx: Option<usize>,
     mouse_in_bounds: bool,
     keys_enabled: bool,
@@ -35,7 +37,7 @@ impl Position {
         &self,
         canvas: &Canvas,
         prompt: Text,
-        choices: &Vec<(Option<Key>, String, bool, T)>,
+        choices: &Vec<(Option<MultiKey>, String, bool, T)>,
     ) -> Geometry {
         // This is actually a constant, effectively...
         let row_height = canvas.line_height(text::FONT_SIZE);
@@ -99,7 +101,7 @@ impl Position {
 impl<T: Clone> Menu<T> {
     pub fn new(
         prompt: Text,
-        raw_choices: Vec<(Option<Key>, String, T)>,
+        raw_choices: Vec<(Option<MultiKey>, String, T)>,
         keys_enabled: bool,
         hideable: bool,
         pos: Position,
@@ -220,8 +222,13 @@ impl<T: Clone> Menu<T> {
         }
 
         if let Event::KeyPress(key) = ev {
+            let pressed = if canvas.lctrl_held {
+                lctrl(key)
+            } else {
+                hotkey(key)
+            };
             for (maybe_key, choice, active, data) in &self.choices {
-                if *active && Some(key) == *maybe_key {
+                if *active && pressed == *maybe_key {
                     return InputResult::Done(choice.to_string(), data.clone());
                 }
             }

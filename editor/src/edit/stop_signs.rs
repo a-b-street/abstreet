@@ -4,7 +4,7 @@ use crate::game::GameState;
 use crate::helpers::ID;
 use crate::render::{DrawIntersection, DrawOptions, DrawTurn};
 use crate::ui::{ShowEverything, UI};
-use ezgui::{Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu, Text};
+use ezgui::{hotkey, Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu, Text};
 use geom::Polygon;
 use map_model::{IntersectionID, RoadID, TurnID, TurnPriority};
 use std::collections::HashMap;
@@ -37,8 +37,8 @@ impl StopSignEditor {
             menu: ModalMenu::new(
                 "Stop Sign Editor",
                 vec![
-                    (Some(Key::Escape), "quit"),
-                    (Some(Key::R), "reset to default"),
+                    (hotkey(Key::Escape), "quit"),
+                    (hotkey(Key::R), "reset to default"),
                 ],
                 ctx,
             ),

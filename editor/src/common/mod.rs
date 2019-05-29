@@ -8,8 +8,8 @@ use crate::render::DrawOptions;
 use crate::ui::UI;
 use abstutil::elapsed_seconds;
 use ezgui::{
-    Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Key, ModalMenu, Text,
-    VerticalAlignment,
+    hotkey, Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Key, ModalMenu, MultiKey,
+    Text, VerticalAlignment,
 };
 use geom::{Line, Pt2D};
 use std::collections::BTreeSet;
@@ -32,12 +32,12 @@ impl CommonState {
         }
     }
 
-    pub fn modal_menu_entries() -> Vec<(Option<Key>, &'static str)> {
+    pub fn modal_menu_entries() -> Vec<(Option<MultiKey>, &'static str)> {
         vec![
-            (Some(Key::J), "warp"),
+            (hotkey(Key::J), "warp"),
             // TODO This definitely conflicts with some modes.
-            (Some(Key::K), "navigate"),
-            (Some(Key::F1), "take a screenshot"),
+            (hotkey(Key::K), "navigate"),
+            (hotkey(Key::F1), "take a screenshot"),
         ]
     }
 

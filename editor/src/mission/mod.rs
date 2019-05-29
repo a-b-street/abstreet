@@ -10,7 +10,7 @@ use crate::sandbox::SandboxMode;
 use crate::ui::ShowEverything;
 use crate::ui::UI;
 use abstutil::{skip_fail, Timer};
-use ezgui::{EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Wizard};
+use ezgui::{hotkey, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Wizard};
 use geom::{Distance, Duration, PolyLine};
 use map_model::{BuildingID, Map, PathRequest, Position};
 use sim::SidewalkSpot;
@@ -38,13 +38,13 @@ impl MissionEditMode {
             state: State::Exploring(ModalMenu::new(
                 "Mission Edit Mode",
                 vec![
-                    (Some(Key::Escape), "quit"),
-                    (Some(Key::D), "visualize population data"),
-                    (Some(Key::T), "visualize individual PSRC trips"),
-                    (Some(Key::A), "visualize all PSRC trips"),
-                    (Some(Key::S), "set up simulation with PSRC trips"),
-                    (Some(Key::N), "manage neighborhoods"),
-                    (Some(Key::W), "manage scenarios"),
+                    (hotkey(Key::Escape), "quit"),
+                    (hotkey(Key::D), "visualize population data"),
+                    (hotkey(Key::T), "visualize individual PSRC trips"),
+                    (hotkey(Key::A), "visualize all PSRC trips"),
+                    (hotkey(Key::S), "set up simulation with PSRC trips"),
+                    (hotkey(Key::N), "manage neighborhoods"),
+                    (hotkey(Key::W), "manage scenarios"),
                 ],
                 ctx,
             )),
