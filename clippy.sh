@@ -6,11 +6,13 @@ touch `find * | grep '\.rs' | grep -v target | xargs`
 # TODO Remove all of these exceptions
 # TODO Report issues for some of these false positives
 cargo clippy -- \
+	-A clippy::block_in_if_condition_stmt \
 	-A clippy::collapsible_if \
 	-A clippy::cyclomatic_complexity \
 	-A clippy::expect_fun_call \
 	-A clippy::float_cmp \
 	-A clippy::if_same_then_else \
+	-A clippy::len_without_is_empty \
 	-A clippy::large_enum_variant \
 	-A clippy::many_single_char_names \
 	-A clippy::map_entry \

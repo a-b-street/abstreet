@@ -75,7 +75,7 @@ impl DrawIntersection {
                 );
             }
             IntersectionType::StopSign => {
-                for (_, ss) in &map.get_stop_sign(i.id).roads {
+                for ss in map.get_stop_sign(i.id).roads.values() {
                     if ss.enabled {
                         if let Some((octagon, pole)) = DrawIntersection::stop_sign_geom(ss, map) {
                             default_geom
@@ -541,7 +541,7 @@ fn make_octagon(center: Pt2D, radius: Distance, facing: Angle) -> Polygon {
             .map(|i| {
                 center.project_away(
                     radius,
-                    facing + Angle::new_degs(22.5 + (i * 360 / 8) as f64),
+                    facing + Angle::new_degs(22.5 + f64::from(i * 360 / 8)),
                 )
             })
             .collect(),

@@ -93,7 +93,7 @@ impl DrawCar {
             );
 
             let bg_color = cs.get_def("blinker background", Color::grey(0.2));
-            for c in vec![&front_left, &front_right, &back_left, &back_right] {
+            for c in &[&front_left, &front_right, &back_left, &back_right] {
                 draw_default.push(bg_color, c.to_polygon());
             }
 

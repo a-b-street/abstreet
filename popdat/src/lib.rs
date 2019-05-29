@@ -153,7 +153,7 @@ impl TractData {
         let mut sum = 0;
         for (name, est) in &self.household_vehicles {
             match name.as_str() {
-                "1 vehicle avail." => sum += 1 * est.value,
+                "1 vehicle avail." => sum += est.value,
                 "2 vehicles avail." => sum += 2 * est.value,
                 "3 vehicles avail." => sum += 3 * est.value,
                 // Many more than 4 seems unrealistic

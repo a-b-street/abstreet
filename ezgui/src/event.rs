@@ -64,7 +64,7 @@ impl Event {
                 // Probably the better way is to convert the LogicalPosition to a PhysicalPosition
                 // somehow knowing the DPI.
                 glutin::MouseScrollDelta::PixelDelta(pos) => {
-                    Some(Event::MouseWheelScroll(f64::from(0.1 * pos.y)))
+                    Some(Event::MouseWheelScroll(0.1 * pos.y))
                 }
             },
             glutin::WindowEvent::Resized(size) => {

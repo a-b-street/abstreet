@@ -105,9 +105,10 @@ impl DrawBuilding {
         // TODO or modify g's ctx
         g.draw_polygon(
             BUILDING,
-            &self
-                .polygon
-                .translate(-1.0 * (1.0 - percent) * dx, -1.0 * (1.0 - percent) * dy),
+            &self.polygon.translate(
+                Distance::meters(-1.0 * (1.0 - percent) * dx),
+                Distance::meters(-1.0 * (1.0 - percent) * dy),
+            ),
         );
 
         if let Some(new_line) = Line::maybe_new(

@@ -555,7 +555,7 @@ fn intersection(p1: &Polygon, p2: &Polygon) -> Vec<Polygon> {
     let mut cp2 = poly_to_cpoly(p2);
     cp1.intersection(&mut cp2)
         .into_iter()
-        .map(|pts| cpoly_to_poly(pts))
+        .map(cpoly_to_poly)
         .collect()
 }
 
