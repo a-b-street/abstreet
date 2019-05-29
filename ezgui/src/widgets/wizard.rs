@@ -1,7 +1,5 @@
 use crate::widgets::{Menu, Position};
-use crate::{
-    hotkey, Canvas, GfxCtx, InputResult, Key, LogScroller, MultiKey, Text, TextBox, UserInput,
-};
+use crate::{Canvas, GfxCtx, InputResult, LogScroller, MultiKey, Text, TextBox, UserInput};
 use abstutil::Cloneable;
 use std::collections::VecDeque;
 
@@ -177,7 +175,7 @@ impl<'a> WrappedWizard<'a> {
     pub fn choose_something<R: 'static + Clone + Cloneable>(
         &mut self,
         query: &str,
-        choices_generator: Box<Fn() -> Vec<(Option<Key>, String, R)>>,
+        choices_generator: Box<Fn() -> Vec<(Option<MultiKey>, String, R)>>,
     ) -> Option<(String, R)> {
         if !self.ready_results.is_empty() {
             let first = self.ready_results.pop_front().unwrap();
@@ -201,7 +199,7 @@ impl<'a> WrappedWizard<'a> {
         }
 
         if self.wizard.menu.is_none() {
-            let choices: Vec<(Option<Key>, String, R)> = choices_generator();
+            let choices: Vec<(Option<MultiKey>, String, R)> = choices_generator();
             if choices.is_empty() {
                 self.wizard.log_scroller = Some(LogScroller::new(
                     "Wizard".to_string(),
@@ -211,7 +209,7 @@ impl<'a> WrappedWizard<'a> {
             }
             let boxed_choices: Vec<(Option<MultiKey>, String, Box<Cloneable>)> = choices
                 .into_iter()
-                .map(|(key, s, item)| (key.and_then(hotkey), s, item.clone_box()))
+                .map(|(multikey, s, item)| (multikey, s, item.clone_box()))
                 .collect();
             self.wizard.menu = Some(Menu::new(
                 Text::prompt(query),
@@ -266,7 +264,7 @@ impl<'a> WrappedWizard<'a> {
     pub fn choose_string(&mut self, query: &str, choices: Vec<&str>) -> Option<String> {
         // Clone the choices outside of the closure to get around the fact that choices_generator's
         // lifetime isn't correctly specified.
-        let copied_choices: Vec<(Option<Key>, String, ())> = choices
+        let copied_choices: Vec<(Option<MultiKey>, String, ())> = choices
             .into_iter()
             .map(|s| (None, s.to_string(), ()))
             .collect();
@@ -281,10 +279,9 @@ impl<'a> WrappedWizard<'a> {
     ) -> Option<String> {
         // Clone the choices outside of the closure to get around the fact that choices_generator's
         // lifetime isn't correctly specified.
-        let copied_choices: Vec<(Option<Key>, String, ())> = choices
+        let copied_choices: Vec<(Option<MultiKey>, String, ())> = choices
             .into_iter()
-            // TODO Argh, change all the APIs to take MultiKey
-            .map(|(multikey, s)| (multikey.map(|mk| mk.key), s.to_string(), ()))
+            .map(|(multikey, s)| (multikey, s.to_string(), ()))
             .collect();
         self.choose_something(query, Box::new(move || copied_choices.clone()))
             .map(|(s, _)| s)
