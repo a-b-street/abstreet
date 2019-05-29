@@ -352,7 +352,14 @@ impl PolyLine {
             }
 
             if let Some(pt2_shift) = l1.infinite().intersection(&l2.infinite()) {
-                result.push(pt2_shift);
+                // Miter caps sometimes explode out to infinity. Hackily work around this.
+                let dist_away = l1.pt1().raw_dist_to(pt2_shift);
+                // TODO How to tune this?
+                if dist_away < 500.0 {
+                    result.push(pt2_shift);
+                } else {
+                    result.push(l1.pt2());
+                }
             } else {
                 // When the lines are perfectly parallel, it means pt2_shift_1st == pt2_shift_2nd
                 // and the original geometry is redundant.

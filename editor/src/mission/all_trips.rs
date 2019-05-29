@@ -153,7 +153,10 @@ impl TripsVisualizer {
                     )
                     .to_polygon(),
                 );
-            // TODO Draw the entire route, once sharp angled polylines are fixed
+
+                // TODO Ideally, slice based on the route remaining. Also, it's darn hard to see
+                // this zoomed out.
+                batch.push(color, pl.make_polygons(LANE_THICKNESS));
             } else {
                 // Draw the start and end, gradually fading the color.
                 let from = ui.primary.map.get_b(trip.from);
