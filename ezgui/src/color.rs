@@ -59,4 +59,22 @@ impl Color {
     pub const fn alpha(&self, a: f32) -> Color {
         Color([self.0[0], self.0[1], self.0[2], a])
     }
+
+    pub fn from_string(color: &str) -> Color {
+        match color {
+            "red" => Color::RED,
+            "cyan" => Color::CYAN,
+            _ => panic!("Unknown color {}", color),
+        }
+    }
+
+    pub fn to_string(self) -> &'static str {
+        if self == Color::RED {
+            return "red";
+        }
+        if self == Color::CYAN {
+            return "cyan";
+        }
+        panic!("Can't transform {} to a string", self);
+    }
 }

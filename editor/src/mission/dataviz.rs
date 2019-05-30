@@ -141,9 +141,7 @@ impl DataVisualizer {
             } else {
                 let mut txt = Text::new();
                 for (k, v) in kv {
-                    txt.add_styled_line(k.to_string(), Some(Color::RED), None, None);
-                    txt.append(" = ".to_string(), None);
-                    txt.append(v.to_string(), Some(Color::CYAN));
+                    txt.push(format!("[red:{}] = [cyan:{}]", k, v));
                 }
                 g.draw_blocking_text(&txt, (HorizontalAlignment::Left, VerticalAlignment::Top));
             }
