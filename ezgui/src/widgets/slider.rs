@@ -238,7 +238,7 @@ impl<T> ItemSlider<T> {
     }
 
     // TODO Consume self
-    pub fn all_items(&self) -> &Vec<T> {
-        &self.items
+    pub fn consume_all_items(&mut self) -> Vec<T> {
+        std::mem::replace(&mut self.items, Vec::new())
     }
 }

@@ -78,11 +78,7 @@ pub fn deserialize_btreemap<
     Ok(map)
 }
 
-pub fn serialize_multimap<
-    S: Serializer,
-    K: Serialize + Clone + Eq + Ord,
-    V: Serialize + Clone + Eq + Ord,
->(
+pub fn serialize_multimap<S: Serializer, K: Serialize + Eq + Ord, V: Serialize + Eq + Ord>(
     map: &MultiMap<K, V>,
     s: S,
 ) -> Result<S::Ok, S::Error> {
@@ -94,7 +90,7 @@ pub fn deserialize_multimap<
     'de,
     D: Deserializer<'de>,
     K: Deserialize<'de> + Eq + Ord + Clone,
-    V: Deserialize<'de> + Eq + Ord + Clone,
+    V: Deserialize<'de> + Eq + Ord,
 >(
     d: D,
 ) -> Result<MultiMap<K, V>, D::Error> {

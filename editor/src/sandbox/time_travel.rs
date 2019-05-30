@@ -14,7 +14,6 @@ pub enum TimeTravel {
     },
 }
 
-#[derive(Clone)]
 pub struct StateAtTime {
     time: Duration,
     cars: BTreeMap<CarID, DrawCarInput>,
@@ -44,20 +43,20 @@ impl TimeTravel {
         }
         self.record(ui);
 
-        // TODO Want to consume and replace!
+        // TODO More cleanly?
         let items = match self {
-            TimeTravel::Inactive { ref moments, .. } => moments,
+            TimeTravel::Inactive {
+                ref mut moments, ..
+            } => std::mem::replace(moments, Vec::new()),
             TimeTravel::Active(_) => unreachable!(),
         };
-        let mut slider = ItemSlider::new(
-            items.to_vec(),
+        *self = TimeTravel::Active(ItemSlider::new(
+            items,
             "Time Traveler",
             "moment",
             vec![(hotkey(Key::Escape), "quit")],
             ctx,
-        );
-        //slider.set_percent(ctx, 1.0);
-        *self = TimeTravel::Active(slider);
+        ));
     }
 
     // TODO Now that we take big jumps forward in the source sim, the time traveler sees the same
@@ -123,8 +122,7 @@ impl TimeTravel {
                 if slider.action("quit") {
                     *self = TimeTravel::Inactive {
                         should_record: true,
-                        // TODO consume and replace
-                        moments: slider.all_items().to_vec(),
+                        moments: slider.consume_all_items(),
                     };
                     return true;
                 }
