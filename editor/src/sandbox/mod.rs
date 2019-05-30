@@ -50,7 +50,7 @@ impl SandboxMode {
             following: None,
             route_viewer: route_viewer::RouteViewer::Inactive,
             show_activity: show_activity::ShowActivity::Inactive,
-            time_travel: time_travel::TimeTravel::new(ctx),
+            time_travel: time_travel::TimeTravel::new(),
             common: CommonState::new(),
             menu: ModalMenu::new(
                 "Sandbox Mode",
@@ -94,13 +94,13 @@ impl SandboxMode {
                     }
                     return EventLoopMode::InputOnly;
                 }
-                mode.time_travel.record(&state.ui);
                 if let State::TimeTraveling = mode.state {
                     if mode.time_travel.event(ctx) {
                         mode.state = State::Paused;
                     }
                     return EventLoopMode::InputOnly;
                 }
+                mode.time_travel.record(&state.ui);
                 if let State::ExploringRoute(ref mut explorer) = mode.state {
                     if let Some(mode) = explorer.event(ctx, &mut state.ui) {
                         return mode;
@@ -202,7 +202,7 @@ impl SandboxMode {
                 mode.show_activity.event(ctx, &mut state.ui, &mut mode.menu);
                 if mode.menu.action("start time traveling") {
                     mode.state = State::TimeTraveling;
-                    mode.time_travel.start(&state.ui);
+                    mode.time_travel.start(ctx, &state.ui);
                     return EventLoopMode::InputOnly;
                 }
 

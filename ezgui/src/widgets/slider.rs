@@ -236,4 +236,9 @@ impl<T> ItemSlider<T> {
     pub fn action(&mut self, name: &str) -> bool {
         self.menu.action(name)
     }
+
+    // TODO Consume self
+    pub fn all_items(&self) -> &Vec<T> {
+        &self.items
+    }
 }

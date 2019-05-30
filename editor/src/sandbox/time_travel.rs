@@ -1,19 +1,21 @@
 use crate::ui::UI;
 use abstutil::MultiMap;
-use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu, Text};
+use ezgui::{hotkey, EventCtx, GfxCtx, ItemSlider, Key, Text};
 use geom::Duration;
 use map_model::{Map, Traversable};
 use sim::{CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID};
 use std::collections::BTreeMap;
 
-pub struct TimeTravel {
-    menu: ModalMenu,
-    state_per_time: Vec<StateAtTime>,
-    current_idx: Option<usize>,
-    should_record: bool,
+pub enum TimeTravel {
+    Active(ItemSlider<StateAtTime>),
+    Inactive {
+        should_record: bool,
+        moments: Vec<StateAtTime>,
+    },
 }
 
-struct StateAtTime {
+#[derive(Clone)]
+pub struct StateAtTime {
     time: Duration,
     cars: BTreeMap<CarID, DrawCarInput>,
     peds: BTreeMap<PedestrianID, DrawPedestrianInput>,
@@ -22,110 +24,142 @@ struct StateAtTime {
 }
 
 impl TimeTravel {
-    pub fn new(ctx: &mut EventCtx) -> TimeTravel {
-        TimeTravel {
-            state_per_time: Vec::new(),
-            current_idx: None,
+    pub fn new() -> TimeTravel {
+        TimeTravel::Inactive {
             should_record: false,
-            menu: ModalMenu::new(
-                "Time Traveler",
-                vec![
-                    (hotkey(Key::Escape), "quit"),
-                    (hotkey(Key::Comma), "rewind"),
-                    (hotkey(Key::Dot), "forwards"),
-                ],
-                ctx,
-            ),
+            moments: Vec::new(),
         }
     }
 
-    pub fn start(&mut self, ui: &UI) {
-        assert!(self.current_idx.is_none());
-        self.should_record = true;
+    pub fn start(&mut self, ctx: &mut EventCtx, ui: &UI) {
         // In case we weren't already...
+        match self {
+            TimeTravel::Inactive {
+                ref mut should_record,
+                ..
+            } => {
+                *should_record = true;
+            }
+            TimeTravel::Active(_) => unreachable!(),
+        }
         self.record(ui);
-        self.current_idx = Some(self.state_per_time.len() - 1);
+
+        // TODO Want to consume and replace!
+        let items = match self {
+            TimeTravel::Inactive { ref moments, .. } => moments,
+            TimeTravel::Active(_) => unreachable!(),
+        };
+        let mut slider = ItemSlider::new(
+            items.to_vec(),
+            "Time Traveler",
+            "moment",
+            vec![(hotkey(Key::Escape), "quit")],
+            ctx,
+        );
+        //slider.set_percent(ctx, 1.0);
+        *self = TimeTravel::Active(slider);
     }
 
     // TODO Now that we take big jumps forward in the source sim, the time traveler sees the same
     // granularity when replaying.
     pub fn record(&mut self, ui: &UI) {
-        if !self.should_record {
-            return;
-        }
-        let map = &ui.primary.map;
-        let sim = &ui.primary.sim;
-        let now = sim.time();
-
-        if let Some(ref state) = self.state_per_time.last() {
-            // Already have this
-            if now == state.time {
-                return;
-            }
-            // We just loaded a new savestate or reset or something. Clear out our memory.
-            if now < state.time {
-                self.state_per_time.clear();
-                if self.current_idx.is_some() {
-                    self.current_idx = Some(0);
+        match self {
+            TimeTravel::Inactive {
+                ref should_record,
+                ref mut moments,
+            } => {
+                if !*should_record {
+                    return;
                 }
-            }
-        }
 
-        let mut state = StateAtTime {
-            time: now,
-            cars: BTreeMap::new(),
-            peds: BTreeMap::new(),
-            cars_per_traversable: MultiMap::new(),
-            peds_per_traversable: MultiMap::new(),
-        };
-        for draw in sim.get_all_draw_cars(map).into_iter() {
-            state.cars_per_traversable.insert(draw.on, draw.id);
-            state.cars.insert(draw.id, draw);
+                let map = &ui.primary.map;
+                let sim = &ui.primary.sim;
+                let now = sim.time();
+
+                if let Some(ref state) = moments.last() {
+                    // Already have this
+                    if now == state.time {
+                        return;
+                    }
+                    // We just loaded a new savestate or reset or something. Clear out our memory.
+                    if now < state.time {
+                        moments.clear();
+                    }
+                }
+
+                let mut state = StateAtTime {
+                    time: now,
+                    cars: BTreeMap::new(),
+                    peds: BTreeMap::new(),
+                    cars_per_traversable: MultiMap::new(),
+                    peds_per_traversable: MultiMap::new(),
+                };
+                for draw in sim.get_all_draw_cars(map).into_iter() {
+                    state.cars_per_traversable.insert(draw.on, draw.id);
+                    state.cars.insert(draw.id, draw);
+                }
+                for draw in sim.get_all_draw_peds(map).into_iter() {
+                    state.peds_per_traversable.insert(draw.on, draw.id);
+                    state.peds.insert(draw.id, draw);
+                }
+                moments.push(state);
+            }
+            TimeTravel::Active(_) => unreachable!(),
         }
-        for draw in sim.get_all_draw_peds(map).into_iter() {
-            state.peds_per_traversable.insert(draw.on, draw.id);
-            state.peds.insert(draw.id, draw);
-        }
-        self.state_per_time.push(state);
     }
 
     // Returns true if done.
     pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
-        let idx = self.current_idx.unwrap();
-        self.menu.handle_event(
-            ctx,
-            Some(Text::prompt(&format!("Time Traveler at {}", self.time()))),
-        );
+        match self {
+            TimeTravel::Inactive { .. } => unreachable!(),
+            TimeTravel::Active(ref mut slider) => {
+                let (idx, state) = slider.get();
+                let mut txt = Text::prompt("Time Traveler");
+                txt.add_line(format!("{}", state.time));
+                txt.add_line(format!("{}/{}", idx + 1, slider.len()));
+                slider.event(ctx, Some(txt));
+                ctx.canvas.handle_event(ctx.input);
 
-        ctx.canvas.handle_event(ctx.input);
-
-        if idx > 0 && self.menu.action("rewind") {
-            self.current_idx = Some(idx - 1);
-        } else if idx != self.state_per_time.len() - 1 && self.menu.action("forwards") {
-            self.current_idx = Some(idx + 1);
-        } else if self.menu.action("quit") {
-            self.current_idx = None;
-            return true;
+                if slider.action("quit") {
+                    *self = TimeTravel::Inactive {
+                        should_record: true,
+                        // TODO consume and replace
+                        moments: slider.all_items().to_vec(),
+                    };
+                    return true;
+                }
+                false
+            }
         }
-        false
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        self.menu.draw(g);
+        match self {
+            TimeTravel::Inactive { .. } => unreachable!(),
+            TimeTravel::Active(ref slider) => {
+                slider.draw(g);
+            }
+        }
     }
 
     fn get_current_state(&self) -> &StateAtTime {
-        &self.state_per_time[self.current_idx.unwrap()]
+        match self {
+            TimeTravel::Inactive { .. } => unreachable!(),
+            TimeTravel::Active(ref slider) => slider.get().1,
+        }
     }
 }
 
 impl GetDrawAgents for TimeTravel {
     fn time(&self) -> Duration {
-        self.state_per_time[self.current_idx.unwrap()].time
+        self.get_current_state().time
     }
 
     fn step_count(&self) -> usize {
-        self.current_idx.unwrap()
+        match self {
+            TimeTravel::Inactive { .. } => unreachable!(),
+            TimeTravel::Active(ref slider) => slider.get().0,
+        }
     }
 
     fn get_draw_car(&self, id: CarID, _map: &Map) -> Option<DrawCarInput> {
