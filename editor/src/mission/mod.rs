@@ -95,7 +95,9 @@ impl MissionEditMode {
                         }
                     }
                     State::AllTrips(ref mut viz) => {
-                        if viz.event(ctx, &mut state.ui) {
+                        if let Some(evmode) = viz.event(ctx, &mut state.ui) {
+                            return evmode;
+                        } else {
                             mode.state = MissionEditMode::new(ctx, &mut state.ui).state;
                         }
                     }

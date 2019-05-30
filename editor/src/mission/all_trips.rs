@@ -1,12 +1,17 @@
 use crate::common::CommonState;
 use crate::mission::{clip_trips, Trip};
 use crate::ui::{ShowEverything, UI};
-use abstutil::prettyprint_usize;
-use ezgui::{hotkey, Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu, Slider, Text};
+use abstutil::{elapsed_seconds, prettyprint_usize};
+use ezgui::{
+    hotkey, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, ModalMenu, Slider, Text,
+};
 use geom::{Circle, Distance, Duration};
 use map_model::LANE_THICKNESS;
 use popdat::psrc::Mode;
 use popdat::PopDat;
+use std::time::Instant;
+
+const ADJUST_SPEED: f64 = 0.1;
 
 pub struct TripsVisualizer {
     menu: ModalMenu,
@@ -14,6 +19,8 @@ pub struct TripsVisualizer {
     slider: Slider,
 
     active_trips: Vec<usize>,
+    desired_speed: f64,
+    running: Option<Instant>,
 }
 
 impl TripsVisualizer {
@@ -59,9 +66,14 @@ impl TripsVisualizer {
                     (hotkey(Key::LeftArrow), "backwards 30 minutes"),
                     (hotkey(Key::F), "goto start of day"),
                     (hotkey(Key::L), "goto end of day"),
+                    (hotkey(Key::LeftBracket), "slow down"),
+                    (hotkey(Key::RightBracket), "speed up"),
+                    (hotkey(Key::Space), "pause/resume"),
                 ],
                 ctx,
             ),
+            desired_speed: 1.0,
+            running: None,
             trips,
             slider: Slider::new(),
             active_trips: Vec::new(),
@@ -72,8 +84,8 @@ impl TripsVisualizer {
         self.slider.get_percent() * Duration::parse("23:59:59.9").unwrap()
     }
 
-    // Returns true if the we're done
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> bool {
+    // Returns None if the we're done
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<EventLoopMode> {
         let time = self.current_time();
 
         let mut txt = Text::prompt("Trips Visualizer");
@@ -82,6 +94,12 @@ impl TripsVisualizer {
             prettyprint_usize(self.active_trips.len())
         ));
         txt.add_line(format!("At {}", time));
+        txt.add_line(format!("Speed: {:.2}x", self.desired_speed));
+        if self.running.is_some() {
+            txt.add_line("Playing".to_string());
+        } else {
+            txt.add_line("Paused".to_string());
+        }
         self.menu.handle_event(ctx, Some(txt));
         ctx.canvas.handle_event(ctx.input);
 
@@ -92,8 +110,21 @@ impl TripsVisualizer {
         let ten_secs = Duration::seconds(10.0);
         let thirty_mins = Duration::minutes(30);
 
+        if self.menu.action("speed up") {
+            self.desired_speed += ADJUST_SPEED;
+        } else if self.menu.action("slow down") {
+            self.desired_speed -= ADJUST_SPEED;
+            self.desired_speed = self.desired_speed.max(0.0);
+        } else if self.menu.action("pause/resume") {
+            if self.running.is_some() {
+                self.running = None;
+            } else {
+                self.running = Some(Instant::now());
+            }
+        }
+
         if self.menu.action("quit") {
-            return true;
+            return None;
         } else if time != last_time && self.menu.action("forwards 10 seconds") {
             self.slider.set_percent(ctx, (time + ten_secs) / last_time);
         } else if time + thirty_mins <= last_time && self.menu.action("forwards 30 minutes") {
@@ -110,8 +141,19 @@ impl TripsVisualizer {
             self.slider.set_percent(ctx, 1.0);
         } else if self.slider.event(ctx) {
             // Value changed, fall-through
+        } else if let Some(last_step) = self.running {
+            if ctx.input.nonblocking_is_update_event() {
+                ctx.input.use_update_event();
+                let dt = Duration::seconds(elapsed_seconds(last_step)) * self.desired_speed;
+                self.slider
+                    .set_percent(ctx, ((time + dt) / last_time).min(1.0));
+                self.running = Some(Instant::now());
+            // Value changed, fall-through
+            } else {
+                return Some(EventLoopMode::Animation);
+            }
         } else {
-            return false;
+            return Some(EventLoopMode::InputOnly);
         }
 
         // TODO Do this more efficiently. ;)
@@ -124,7 +166,11 @@ impl TripsVisualizer {
             .map(|(idx, _)| idx)
             .collect();
 
-        false
+        if self.running.is_some() {
+            Some(EventLoopMode::Animation)
+        } else {
+            Some(EventLoopMode::InputOnly)
+        }
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
