@@ -102,6 +102,9 @@ pub fn import_trips(
         }
     }
     done(timer);
+
+    trips.sort_by_key(|t| t.depart_at);
+
     Ok(trips)
 }
 

@@ -233,4 +233,8 @@ impl TransitSimState {
     pub fn collect_events(&mut self) -> Vec<Event> {
         self.events.drain(..).collect()
     }
+
+    pub fn get_passengers(&self, bus: CarID) -> &Vec<(PedestrianID, BusStopID)> {
+        &self.buses[&bus].passengers
+    }
 }

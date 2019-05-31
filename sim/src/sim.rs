@@ -666,6 +666,13 @@ impl Sim {
     pub fn car_tooltip(&self, car: CarID) -> Vec<String> {
         if let Some(mut lines) = self.driving.tooltip_lines(car) {
             lines.extend(self.trips.tooltip_lines(AgentID::Car(car)));
+            if car.1 == VehicleType::Bus {
+                let passengers = self.transit.get_passengers(car);
+                lines.push(format!("{} passengers riding", passengers.len()));
+                for (id, stop) in passengers {
+                    lines.push(format!("- {} till {:?}", id, stop));
+                }
+            }
             lines
         } else {
             self.parking.tooltip_lines(car).unwrap()

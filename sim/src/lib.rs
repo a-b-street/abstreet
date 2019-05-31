@@ -45,7 +45,7 @@ pub const FOLLOWING_DISTANCE: Distance = Distance::const_meters(1.0);
 // The VehicleType is only used for convenient debugging. The numeric ID itself must be sufficient.
 // TODO Implement Eq, Hash, Ord manually to guarantee this.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
-pub struct CarID(pub usize, VehicleType);
+pub struct CarID(pub usize, pub(crate) VehicleType);
 
 impl fmt::Display for CarID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
