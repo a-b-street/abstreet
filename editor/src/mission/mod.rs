@@ -11,7 +11,7 @@ use crate::ui::ShowEverything;
 use crate::ui::UI;
 use abstutil::{skip_fail, Timer};
 use ezgui::{hotkey, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Wizard};
-use geom::{Distance, Duration, Pt2D, PolyLine, Polygon};
+use geom::{Distance, Duration, PolyLine, Polygon, Pt2D};
 use map_model::{BuildingID, Intersection, IntersectionID, LaneType, Map, PathRequest, Position};
 use sim::{DrivingGoal, SidewalkSpot};
 use std::collections::HashMap;
@@ -173,12 +173,7 @@ impl TripEndpt {
         let bounds = map.get_gps_bounds();
         borders
             .iter()
-            .min_by_key(|i| {
-                i.point
-                    .to_gps(bounds)
-                    .unwrap()
-                    .gps_dist_meters(endpt.pos)
-            })
+            .min_by_key(|i| i.point.to_gps(bounds).unwrap().gps_dist_meters(endpt.pos))
             .map(|i| TripEndpt::Border(i.id, Pt2D::forcibly_from_gps(endpt.pos, bounds)))
     }
 
@@ -232,7 +227,7 @@ impl TripEndpt {
         match self {
             TripEndpt::Building(b) => Position::bldg_via_driving(*b, map).unwrap(),
             TripEndpt::Border(i, _) => {
-                let lane = map.get_i(*i).get_outgoing_lanes(map, LaneType::Driving)[0];
+                let lane = map.get_i(*i).get_incoming_lanes(map, LaneType::Driving)[0];
                 Position::new(lane, map.get_l(lane).length())
             }
         }
@@ -325,14 +320,34 @@ pub fn clip_trips(
     max_results: usize,
     timer: &mut Timer,
 ) -> Vec<Trip> {
+    use popdat::psrc::Mode;
+
     let map = &ui.primary.map;
 
     let mut osm_id_to_bldg = HashMap::new();
     for b in map.all_buildings() {
         osm_id_to_bldg.insert(b.osm_way_id, b.id);
     }
-    let incoming_borders = map.all_incoming_borders();
-    let outgoing_borders = map.all_outgoing_borders();
+    let incoming_borders_walking = map
+        .all_incoming_borders()
+        .into_iter()
+        .filter(|i| !i.get_outgoing_lanes(map, LaneType::Sidewalk).is_empty())
+        .collect();
+    let incoming_borders_driving = map
+        .all_incoming_borders()
+        .into_iter()
+        .filter(|i| !i.get_outgoing_lanes(map, LaneType::Driving).is_empty())
+        .collect();
+    let outgoing_borders_walking = map
+        .all_outgoing_borders()
+        .into_iter()
+        .filter(|i| !i.get_incoming_lanes(map, LaneType::Sidewalk).is_empty())
+        .collect();
+    let outgoing_borders_driving = map
+        .all_outgoing_borders()
+        .into_iter()
+        .filter(|i| !i.get_incoming_lanes(map, LaneType::Driving).is_empty())
+        .collect();
 
     let mut results = Vec::new();
     timer.start_iter("clip trips", popdat.trips.len());
@@ -346,13 +361,19 @@ pub fn clip_trips(
             &trip.from,
             &osm_id_to_bldg,
             map,
-            &incoming_borders,
+            match trip.mode {
+                Mode::Walk | Mode::Transit => &incoming_borders_walking,
+                Mode::Drive | Mode::Bike => &incoming_borders_driving,
+            },
         ));
         let to = skip_fail!(TripEndpt::new(
             &trip.to,
             &osm_id_to_bldg,
             map,
-            &outgoing_borders,
+            match trip.mode {
+                Mode::Walk | Mode::Transit => &outgoing_borders_walking,
+                Mode::Drive | Mode::Bike => &outgoing_borders_driving,
+            },
         ));
         // TODO Detect pass-through trips
         match (&from, &to) {
