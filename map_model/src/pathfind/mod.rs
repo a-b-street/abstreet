@@ -231,6 +231,14 @@ impl Path {
     pub fn get_steps(&self) -> &VecDeque<PathStep> {
         &self.steps
     }
+
+    pub fn total_dist(&self, map: &Map) -> Distance {
+        let mut dist = Distance::ZERO;
+        for s in &self.steps {
+            dist += s.as_traversable().length(map);
+        }
+        dist
+    }
 }
 
 #[derive(Clone)]

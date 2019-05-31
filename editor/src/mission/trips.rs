@@ -228,15 +228,8 @@ pub fn clip_trips(ui: &UI, timer: &mut Timer) -> Vec<Trip> {
                 Mode::Drive | Mode::Bike => &outgoing_borders_driving,
             },
         )?;
-        // TODO Detect pass-through trips
-        match (&from, &to) {
-            (TripEndpt::Border(_, _), TripEndpt::Border(_, _)) => {
-                return None;
-            }
-            _ => {}
-        }
 
-        Some(Trip {
+        let mut trip = Trip {
             from,
             to,
             depart_at: trip.depart_at,
@@ -245,7 +238,41 @@ pub fn clip_trips(ui: &UI, timer: &mut Timer) -> Vec<Trip> {
             trip_time: trip.trip_time,
             trip_dist: trip.trip_dist,
             route: None,
-        })
+        };
+
+        match (&trip.from, &trip.to) {
+            (TripEndpt::Border(_, _), TripEndpt::Border(_, _)) => {
+                // TODO Detect and handle pass-through trips
+                return None;
+            }
+            // Fix depart_at, trip_time, and trip_dist for border cases. Assume constant speed
+            // through the trip.
+            // TODO Disabled because slow and nonsensical distance ratios. :(
+            (TripEndpt::Border(_, _), TripEndpt::Building(_)) => {
+                if false {
+                    // TODO Figure out why some paths fail.
+                    // TODO Since we're doing the work anyway, store the result?
+                    let dist = map.pathfind(trip.path_req(map))?.total_dist(map);
+                    // TODO This is failing all over the place, why?
+                    assert!(dist <= trip.trip_dist);
+                    let trip_time = (dist / trip.trip_dist) * trip.trip_time;
+                    trip.depart_at += trip.trip_time - trip_time;
+                    trip.trip_time = trip_time;
+                    trip.trip_dist = dist;
+                }
+            }
+            (TripEndpt::Building(_), TripEndpt::Border(_, _)) => {
+                if false {
+                    let dist = map.pathfind(trip.path_req(map))?.total_dist(map);
+                    assert!(dist <= trip.trip_dist);
+                    trip.trip_time = (dist / trip.trip_dist) * trip.trip_time;
+                    trip.trip_dist = dist;
+                }
+            }
+            (TripEndpt::Building(_), TripEndpt::Building(_)) => {}
+        }
+
+        Some(trip)
     });
     maybe_results.into_iter().flatten().collect()
 }
