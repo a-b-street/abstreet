@@ -1,5 +1,5 @@
 use crate::common::CommonState;
-use crate::mission::{clip_trips, Trip, TripEndpt};
+use crate::mission::trips::{clip_trips, Trip, TripEndpt};
 use crate::ui::{ShowEverything, UI};
 use abstutil::{prettyprint_usize, Timer};
 use ezgui::{hotkey, Color, EventCtx, GfxCtx, ItemSlider, Key, Text};

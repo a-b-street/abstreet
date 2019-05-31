@@ -66,10 +66,13 @@ pub fn import_trips(
         let to = skip_fail!(parcels.get(rec[6].trim_end_matches(".0"))).clone();
 
         if from.osm_building == to.osm_building {
-            timer.warn(format!(
-                "Skipping trip from parcel {} to {}; both match OSM building {:?}",
-                &rec[15], &rec[6], from.osm_building
-            ));
+            // TODO Plumb along pass-through trips later
+            if from.osm_building.is_some() {
+                timer.warn(format!(
+                    "Skipping trip from parcel {} to {}; both match OSM building {:?}",
+                    &rec[15], &rec[6], from.osm_building
+                ));
+            }
             continue;
         }
 
@@ -96,12 +99,10 @@ pub fn import_trips(
             trip_time,
             trip_dist,
         });
-        // TODO Temporary for faster development
-        if trips.len() == 10_000 {
-            break;
-        }
     }
     done(timer);
+
+    timer.note(format!("{} trips total", prettyprint_usize(trips.len())));
 
     trips.sort_by_key(|t| t.depart_at);
 
