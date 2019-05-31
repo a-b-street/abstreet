@@ -1,4 +1,5 @@
 use crate::{Distance, HashablePt2D};
+use ordered_float::NotNan;
 use serde_derive::{Deserialize, Serialize};
 use std::f64;
 use std::fmt;
@@ -33,6 +34,14 @@ impl LonLat {
             + (delta_lon / 2.0).sin().powi(2) * lat1.cos() * lat2.cos();
         let c = 2.0 * a.sqrt().atan2((1.0 - a).sqrt());
         Distance::meters(earth_radius_m * c)
+    }
+
+    // Pretty meaningless units, for comparing distances very roughly
+    pub fn fast_dist(&self, other: LonLat) -> NotNan<f64> {
+        NotNan::new(
+            (self.longitude - other.longitude).powi(2) + (self.latitude - other.latitude).powi(2),
+        )
+        .unwrap()
     }
 
     pub fn center(pts: &Vec<LonLat>) -> LonLat {

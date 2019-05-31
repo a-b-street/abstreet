@@ -1,10 +1,9 @@
 use crate::common::CommonState;
 use crate::mission::trips::{clip_trips, Trip, TripEndpt};
 use crate::ui::{ShowEverything, UI};
-use abstutil::{prettyprint_usize, Timer};
+use abstutil::prettyprint_usize;
 use ezgui::{hotkey, Color, EventCtx, GfxCtx, ItemSlider, Key, Text};
 use geom::{Circle, Distance, Line, Speed};
-use popdat::PopDat;
 
 pub struct TripsVisualizer {
     slider: ItemSlider<Trip>,
@@ -12,11 +11,10 @@ pub struct TripsVisualizer {
 
 impl TripsVisualizer {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> TripsVisualizer {
-        let mut timer = Timer::new("initialize popdat");
-        let popdat: PopDat = abstutil::read_binary("../data/shapes/popdat", &mut timer)
-            .expect("Couldn't load popdat");
-        // TODO We'll break if there are no matching trips
-        let trips = clip_trips(&popdat, ui, 10_000, &mut timer);
+        let trips = ctx.loading_screen("load trip data", |_, mut timer| {
+            // TODO We'll break if there are no matching trips
+            clip_trips(ui, &mut timer)
+        });
         TripsVisualizer {
             slider: ItemSlider::new(
                 trips,

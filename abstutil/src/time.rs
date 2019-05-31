@@ -289,6 +289,17 @@ impl<'a> Timer<'a> {
         O: Send,
         F: Send + Clone + Copy,
     {
+        // Here's the sequential equivalent, to conveniently compare times
+        if false {
+            let mut results: Vec<O> = Vec::new();
+            self.start_iter(timer_name, requests.len());
+            for req in requests {
+                self.next();
+                results.push(cb(req));
+            }
+            return results;
+        }
+
         scoped_threadpool::Pool::new(num_cpus::get() as u32).scoped(|scope| {
             let (tx, rx) = std::sync::mpsc::channel();
             let mut results: Vec<Option<O>> = std::iter::repeat_with(|| None)

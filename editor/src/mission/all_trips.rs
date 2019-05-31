@@ -8,7 +8,6 @@ use ezgui::{
 use geom::{Circle, Distance, Duration};
 use map_model::LANE_THICKNESS;
 use popdat::psrc::Mode;
-use popdat::PopDat;
 use std::time::Instant;
 
 const ADJUST_SPEED: f64 = 0.1;
@@ -26,9 +25,7 @@ pub struct TripsVisualizer {
 impl TripsVisualizer {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> TripsVisualizer {
         let trips = ctx.loading_screen("load trip data", |_, mut timer| {
-            let popdat: PopDat = abstutil::read_binary("../data/shapes/popdat", &mut timer)
-                .expect("Couldn't load popdat");
-            let mut all_trips = clip_trips(&popdat, ui, 10_000, &mut timer);
+            let mut all_trips = clip_trips(ui, &mut timer);
             let map = &ui.primary.map;
             let routes = timer.parallelize(
                 "calculate paths with geometry",
