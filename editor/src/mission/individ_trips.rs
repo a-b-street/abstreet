@@ -1,9 +1,9 @@
 use crate::common::CommonState;
-use crate::mission::{clip_trips, Trip};
+use crate::mission::{clip_trips, Trip, TripEndpt};
 use crate::ui::{ShowEverything, UI};
 use abstutil::{prettyprint_usize, Timer};
 use ezgui::{hotkey, Color, EventCtx, GfxCtx, ItemSlider, Key, Text};
-use geom::{Circle, Distance, Speed};
+use geom::{Line, Circle, Distance, Speed};
 use popdat::PopDat;
 
 pub struct TripsVisualizer {
@@ -79,6 +79,16 @@ impl TripsVisualizer {
             Color::BLUE.alpha(0.5),
             &Circle::new(to.center(), Distance::meters(100.0)),
         );
+
+        // For borders, draw the original out-of-bounds points.
+        match trip.from {
+            TripEndpt::Border(_, pt) => g.draw_line(Color::RED, Distance::meters(25.0), &Line::new(pt, from.center())),
+            TripEndpt::Building(_) => {}
+        }
+        match trip.to {
+            TripEndpt::Border(_, pt) => g.draw_line(Color::BLUE, Distance::meters(25.0), &Line::new(pt, to.center())),
+            TripEndpt::Building(_) => {}
+        }
 
         self.slider.draw(g);
         CommonState::draw_osd(g, ui, ui.primary.current_selection);

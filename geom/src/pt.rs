@@ -45,6 +45,11 @@ impl Pt2D {
             return None;
         }
 
+        Some(Pt2D::forcibly_from_gps(gps, b))
+    }
+
+    // Can go out of bounds.
+    pub fn forcibly_from_gps(gps: LonLat, b: &GPSBounds) -> Pt2D {
         let (width, height) = {
             let pt = b.get_max_world_pt();
             (pt.x(), pt.y())
@@ -53,7 +58,7 @@ impl Pt2D {
         let x = (gps.longitude - b.min_lon) / (b.max_lon - b.min_lon) * width;
         // Invert y, so that the northernmost latitude is 0. Screen drawing order, not Cartesian grid.
         let y = height - ((gps.latitude - b.min_lat) / (b.max_lat - b.min_lat) * height);
-        Some(Pt2D::new(x, y))
+        Pt2D::new(x, y)
     }
 
     pub fn to_gps(self, b: &GPSBounds) -> Option<LonLat> {

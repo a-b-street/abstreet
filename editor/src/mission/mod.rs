@@ -11,7 +11,7 @@ use crate::ui::ShowEverything;
 use crate::ui::UI;
 use abstutil::{skip_fail, Timer};
 use ezgui::{hotkey, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Wizard};
-use geom::{Distance, Duration, PolyLine, Polygon};
+use geom::{Distance, Duration, Pt2D, PolyLine, Polygon};
 use map_model::{BuildingID, Intersection, IntersectionID, LaneType, Map, PathRequest, Position};
 use sim::{DrivingGoal, SidewalkSpot};
 use std::collections::HashMap;
@@ -155,7 +155,9 @@ impl MissionEditMode {
 #[derive(Debug)]
 pub enum TripEndpt {
     Building(BuildingID),
-    Border(IntersectionID),
+    // The Pt2D is the original point. It'll be outside the map and likely out-of-bounds entirely,
+    // maybe even negative.
+    Border(IntersectionID, Pt2D),
 }
 
 impl TripEndpt {
@@ -168,21 +170,22 @@ impl TripEndpt {
         if let Some(b) = endpt.osm_building.and_then(|id| osm_id_to_bldg.get(&id)) {
             return Some(TripEndpt::Building(*b));
         }
+        let bounds = map.get_gps_bounds();
         borders
             .iter()
             .min_by_key(|i| {
                 i.point
-                    .to_gps(map.get_gps_bounds())
+                    .to_gps(bounds)
                     .unwrap()
                     .gps_dist_meters(endpt.pos)
             })
-            .map(|i| TripEndpt::Border(i.id))
+            .map(|i| TripEndpt::Border(i.id, Pt2D::forcibly_from_gps(endpt.pos, bounds)))
     }
 
     fn start_pos_walking(&self, map: &Map) -> Position {
         match self {
             TripEndpt::Building(b) => Position::bldg_via_walking(*b, map),
-            TripEndpt::Border(i) => {
+            TripEndpt::Border(i, _) => {
                 let lane = map.get_i(*i).get_outgoing_lanes(map, LaneType::Sidewalk)[0];
                 Position::new(lane, Distance::ZERO)
             }
@@ -192,7 +195,7 @@ impl TripEndpt {
     fn end_pos_walking(&self, map: &Map) -> Position {
         match self {
             TripEndpt::Building(b) => Position::bldg_via_walking(*b, map),
-            TripEndpt::Border(i) => {
+            TripEndpt::Border(i, _) => {
                 let lane = map.get_i(*i).get_incoming_lanes(map, LaneType::Sidewalk)[0];
                 Position::new(lane, map.get_l(lane).length())
             }
@@ -202,14 +205,14 @@ impl TripEndpt {
     fn start_sidewalk_spot(&self, map: &Map) -> SidewalkSpot {
         match self {
             TripEndpt::Building(b) => SidewalkSpot::building(*b, map),
-            TripEndpt::Border(i) => SidewalkSpot::start_at_border(*i, map).unwrap(),
+            TripEndpt::Border(i, _) => SidewalkSpot::start_at_border(*i, map).unwrap(),
         }
     }
 
     fn end_sidewalk_spot(&self, map: &Map) -> SidewalkSpot {
         match self {
             TripEndpt::Building(b) => SidewalkSpot::building(*b, map),
-            TripEndpt::Border(i) => SidewalkSpot::end_at_border(*i, map).unwrap(),
+            TripEndpt::Border(i, _) => SidewalkSpot::end_at_border(*i, map).unwrap(),
         }
     }
 
@@ -218,7 +221,7 @@ impl TripEndpt {
     fn start_pos_driving(&self, map: &Map) -> Position {
         match self {
             TripEndpt::Building(b) => Position::bldg_via_driving(*b, map).unwrap(),
-            TripEndpt::Border(i) => {
+            TripEndpt::Border(i, _) => {
                 let lane = map.get_i(*i).get_outgoing_lanes(map, LaneType::Driving)[0];
                 Position::new(lane, Distance::ZERO)
             }
@@ -228,7 +231,7 @@ impl TripEndpt {
     fn end_pos_driving(&self, map: &Map) -> Position {
         match self {
             TripEndpt::Building(b) => Position::bldg_via_driving(*b, map).unwrap(),
-            TripEndpt::Border(i) => {
+            TripEndpt::Border(i, _) => {
                 let lane = map.get_i(*i).get_outgoing_lanes(map, LaneType::Driving)[0];
                 Position::new(lane, map.get_l(lane).length())
             }
@@ -238,14 +241,14 @@ impl TripEndpt {
     fn driving_goal(&self, lane_types: Vec<LaneType>, map: &Map) -> DrivingGoal {
         match self {
             TripEndpt::Building(b) => DrivingGoal::ParkNear(*b),
-            TripEndpt::Border(i) => DrivingGoal::end_at_border(*i, lane_types, map).unwrap(),
+            TripEndpt::Border(i, _) => DrivingGoal::end_at_border(*i, lane_types, map).unwrap(),
         }
     }
 
     pub fn polygon<'a>(&self, map: &'a Map) -> &'a Polygon {
         match self {
             TripEndpt::Building(b) => &map.get_b(*b).polygon,
-            TripEndpt::Border(i) => &map.get_i(*i).polygon,
+            TripEndpt::Border(i, _) => &map.get_i(*i).polygon,
         }
     }
 }
@@ -353,7 +356,7 @@ pub fn clip_trips(
         ));
         // TODO Detect pass-through trips
         match (&from, &to) {
-            (TripEndpt::Border(_), TripEndpt::Border(_)) => {
+            (TripEndpt::Border(_, _), TripEndpt::Border(_, _)) => {
                 continue;
             }
             _ => {}
@@ -413,7 +416,7 @@ fn instantiate_trips(ctx: &mut EventCtx, ui: &mut UI) {
                             ped_speed: Scenario::rand_ped_speed(&mut rng),
                             vehicle: Scenario::rand_bike(&mut rng),
                         },
-                        TripEndpt::Border(i) => {
+                        TripEndpt::Border(i, _) => {
                             let vehicle = Scenario::rand_bike(&mut rng);
                             let l = map.get_i(i).get_outgoing_lanes(
                                 map,
