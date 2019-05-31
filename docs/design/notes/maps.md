@@ -460,8 +460,8 @@ https://pdfs.semanticscholar.org/36d1/b4ec6a4a2823e9c875318f1952df4abf4876.pdf
 
 contraction hierarchies: https://github.com/cc-routing/routing/wiki/Contraction-Hierarchies
 
-### OSRM notes
-
 https://github.com/aquavit/Project-OSRM/wiki/OSRM-normalized-file-format
 
 https://github.com/deliveroo/osrm-rs
+
+- for transit routing: https://www.microsoft.com/en-us/research/publication/round-based-public-transit-routing/

@@ -358,6 +358,7 @@ impl Map {
         self.get_parent(self.get_b(id).sidewalk())
     }
 
+    // This and all_outgoing_borders are expensive to constantly repeat
     pub fn all_incoming_borders(&self) -> Vec<&Intersection> {
         let mut result: Vec<&Intersection> = Vec::new();
         for i in &self.intersections {

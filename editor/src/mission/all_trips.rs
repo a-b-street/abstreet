@@ -205,16 +205,16 @@ impl TripsVisualizer {
                 batch.push(color, pl.make_polygons(LANE_THICKNESS));
             } else {
                 // Draw the start and end, gradually fading the color.
-                let from = ui.primary.map.get_b(trip.from);
-                let to = ui.primary.map.get_b(trip.to);
+                let from = trip.from.polygon(&ui.primary.map);
+                let to = trip.to.polygon(&ui.primary.map);
 
                 batch.push(
                     Color::RED.alpha(1.0 - (percent as f32)),
-                    Circle::new(from.polygon.center(), Distance::meters(100.0)).to_polygon(),
+                    Circle::new(from.center(), Distance::meters(100.0)).to_polygon(),
                 );
                 batch.push(
                     Color::BLUE.alpha(percent as f32),
-                    Circle::new(to.polygon.center(), Distance::meters(100.0)).to_polygon(),
+                    Circle::new(to.center(), Distance::meters(100.0)).to_polygon(),
                 );
             }
         }

@@ -8,9 +8,8 @@ use std::io::{BufRead, BufReader, BufWriter, Write};
 
 #[derive(Serialize, Deserialize)]
 pub struct Trip {
-    // OSM building IDs
-    pub from: i64,
-    pub to: i64,
+    pub from: Endpoint,
+    pub to: Endpoint,
     // Relative to midnight
     pub depart_at: Duration,
     pub mode: Mode,
@@ -18,6 +17,12 @@ pub struct Trip {
     pub purpose: (Purpose, Purpose),
     pub trip_time: Duration,
     pub trip_dist: Distance,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct Endpoint {
+    pub pos: LonLat,
+    pub osm_building: Option<i64>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
@@ -56,14 +61,14 @@ pub fn import_trips(
         let rec = rec?;
 
         // opcl
-        let from = *skip_fail!(parcels.get(rec[15].trim_end_matches(".0")));
+        let from = skip_fail!(parcels.get(rec[15].trim_end_matches(".0"))).clone();
         // dpcl
-        let to = *skip_fail!(parcels.get(rec[6].trim_end_matches(".0")));
+        let to = skip_fail!(parcels.get(rec[6].trim_end_matches(".0"))).clone();
 
-        if from == to {
+        if from.osm_building == to.osm_building {
             timer.warn(format!(
-                "Skipping trip from parcel {} to {}; both match OSM building {}",
-                &rec[15], &rec[6], from
+                "Skipping trip from parcel {} to {}; both match OSM building {:?}",
+                &rec[15], &rec[6], from.osm_building
             ));
             continue;
         }
@@ -91,13 +96,20 @@ pub fn import_trips(
             trip_time,
             trip_dist,
         });
+        // TODO Temporary for faster development
+        if trips.len() == 10_000 {
+            break;
+        }
     }
     done(timer);
     Ok(trips)
 }
 
 // TODO Do we also need the zone ID, or is parcel ID globally unique?
-fn import_parcels(path: &str, timer: &mut Timer) -> Result<HashMap<String, i64>, failure::Error> {
+fn import_parcels(
+    path: &str,
+    timer: &mut Timer,
+) -> Result<HashMap<String, Endpoint>, failure::Error> {
     let map: Map = abstutil::read_binary("../data/maps/huge_seattle.abst", timer)?;
 
     // TODO I really just want to do polygon containment with a quadtree. FindClosest only does
@@ -159,11 +171,15 @@ fn import_parcels(path: &str, timer: &mut Timer) -> Result<HashMap<String, i64>,
         let lat: f64 = pieces[1].parse()?;
         let pt = LonLat::new(lon, lat);
         if bounds.contains(pt) {
-            if let Some((bldg, _)) =
-                closest_bldg.closest_pt(Pt2D::from_gps(pt, bounds).unwrap(), Distance::meters(30.0))
-            {
-                result.insert(id, bldg);
-            }
+            result.insert(
+                id,
+                Endpoint {
+                    pos: pt,
+                    osm_building: closest_bldg
+                        .closest_pt(Pt2D::from_gps(pt, bounds).unwrap(), Distance::meters(30.0))
+                        .map(|(b, _)| b),
+                },
+            );
         }
     }
     Ok(result)

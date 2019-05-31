@@ -64,20 +64,20 @@ impl TripsVisualizer {
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         let (_, trip) = self.slider.get();
-        let from = ui.primary.map.get_b(trip.from);
-        let to = ui.primary.map.get_b(trip.to);
+        let from = trip.from.polygon(&ui.primary.map);
+        let to = trip.to.polygon(&ui.primary.map);
 
-        g.draw_polygon(Color::RED, &from.polygon);
-        g.draw_polygon(Color::BLUE, &to.polygon);
+        g.draw_polygon(Color::RED, from);
+        g.draw_polygon(Color::BLUE, to);
 
-        // Hard to see the buildings highlighted, so also a big circle...
+        // Hard to see the buildings/intersections highlighted, so also a big circle...
         g.draw_circle(
             Color::RED.alpha(0.5),
-            &Circle::new(from.polygon.center(), Distance::meters(100.0)),
+            &Circle::new(from.center(), Distance::meters(100.0)),
         );
         g.draw_circle(
             Color::BLUE.alpha(0.5),
-            &Circle::new(to.polygon.center(), Distance::meters(100.0)),
+            &Circle::new(to.center(), Distance::meters(100.0)),
         );
 
         self.slider.draw(g);

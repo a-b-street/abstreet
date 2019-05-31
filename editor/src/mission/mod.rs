@@ -11,9 +11,9 @@ use crate::ui::ShowEverything;
 use crate::ui::UI;
 use abstutil::{skip_fail, Timer};
 use ezgui::{hotkey, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Wizard};
-use geom::{Distance, Duration, PolyLine};
-use map_model::{BuildingID, Map, PathRequest, Position};
-use sim::SidewalkSpot;
+use geom::{Distance, Duration, PolyLine, Polygon};
+use map_model::{BuildingID, Intersection, IntersectionID, LaneType, Map, PathRequest, Position};
+use sim::{DrivingGoal, SidewalkSpot};
 use std::collections::HashMap;
 
 pub struct MissionEditMode {
@@ -153,12 +153,111 @@ impl MissionEditMode {
 }
 
 #[derive(Debug)]
+pub enum TripEndpt {
+    Building(BuildingID),
+    Border(IntersectionID),
+}
+
+impl TripEndpt {
+    fn new(
+        endpt: &popdat::psrc::Endpoint,
+        osm_id_to_bldg: &HashMap<i64, BuildingID>,
+        map: &Map,
+        borders: &Vec<&Intersection>,
+    ) -> Option<TripEndpt> {
+        if let Some(b) = endpt.osm_building.and_then(|id| osm_id_to_bldg.get(&id)) {
+            return Some(TripEndpt::Building(*b));
+        }
+        borders
+            .iter()
+            .min_by_key(|i| {
+                i.point
+                    .to_gps(map.get_gps_bounds())
+                    .unwrap()
+                    .gps_dist_meters(endpt.pos)
+            })
+            .map(|i| TripEndpt::Border(i.id))
+    }
+
+    fn start_pos_walking(&self, map: &Map) -> Position {
+        match self {
+            TripEndpt::Building(b) => Position::bldg_via_walking(*b, map),
+            TripEndpt::Border(i) => {
+                let lane = map.get_i(*i).get_outgoing_lanes(map, LaneType::Sidewalk)[0];
+                Position::new(lane, Distance::ZERO)
+            }
+        }
+    }
+
+    fn end_pos_walking(&self, map: &Map) -> Position {
+        match self {
+            TripEndpt::Building(b) => Position::bldg_via_walking(*b, map),
+            TripEndpt::Border(i) => {
+                let lane = map.get_i(*i).get_incoming_lanes(map, LaneType::Sidewalk)[0];
+                Position::new(lane, map.get_l(lane).length())
+            }
+        }
+    }
+
+    fn start_sidewalk_spot(&self, map: &Map) -> SidewalkSpot {
+        match self {
+            TripEndpt::Building(b) => SidewalkSpot::building(*b, map),
+            TripEndpt::Border(i) => SidewalkSpot::start_at_border(*i, map).unwrap(),
+        }
+    }
+
+    fn end_sidewalk_spot(&self, map: &Map) -> SidewalkSpot {
+        match self {
+            TripEndpt::Building(b) => SidewalkSpot::building(*b, map),
+            TripEndpt::Border(i) => SidewalkSpot::end_at_border(*i, map).unwrap(),
+        }
+    }
+
+    // TODO or biking
+    // TODO bldg_via_driving needs to do find_driving_lane_near_building sometimes
+    fn start_pos_driving(&self, map: &Map) -> Position {
+        match self {
+            TripEndpt::Building(b) => Position::bldg_via_driving(*b, map).unwrap(),
+            TripEndpt::Border(i) => {
+                let lane = map.get_i(*i).get_outgoing_lanes(map, LaneType::Driving)[0];
+                Position::new(lane, Distance::ZERO)
+            }
+        }
+    }
+
+    fn end_pos_driving(&self, map: &Map) -> Position {
+        match self {
+            TripEndpt::Building(b) => Position::bldg_via_driving(*b, map).unwrap(),
+            TripEndpt::Border(i) => {
+                let lane = map.get_i(*i).get_outgoing_lanes(map, LaneType::Driving)[0];
+                Position::new(lane, map.get_l(lane).length())
+            }
+        }
+    }
+
+    fn driving_goal(&self, lane_types: Vec<LaneType>, map: &Map) -> DrivingGoal {
+        match self {
+            TripEndpt::Building(b) => DrivingGoal::ParkNear(*b),
+            TripEndpt::Border(i) => DrivingGoal::end_at_border(*i, lane_types, map).unwrap(),
+        }
+    }
+
+    pub fn polygon<'a>(&self, map: &'a Map) -> &'a Polygon {
+        match self {
+            TripEndpt::Building(b) => &map.get_b(*b).polygon,
+            TripEndpt::Border(i) => &map.get_i(*i).polygon,
+        }
+    }
+}
+
+#[derive(Debug)]
 pub struct Trip {
-    pub from: BuildingID,
-    pub to: BuildingID,
+    pub from: TripEndpt,
+    pub to: TripEndpt,
     pub depart_at: Duration,
     pub purpose: (popdat::psrc::Purpose, popdat::psrc::Purpose),
     pub mode: popdat::psrc::Mode,
+    // These are an upper bound when TripEndpt::Border is involved.
     pub trip_time: Duration,
     pub trip_dist: Distance,
     // clip_trips doesn't populate this.
@@ -175,29 +274,26 @@ impl Trip {
 
         match self.mode {
             Mode::Walk => PathRequest {
-                start: Position::bldg_via_walking(self.from, map),
-                end: Position::bldg_via_walking(self.to, map),
+                start: self.from.start_pos_walking(map),
+                end: self.from.end_pos_walking(map),
                 can_use_bike_lanes: false,
                 can_use_bus_lanes: false,
             },
-            // TODO bldg_via_driving needs to do find_driving_lane_near_building sometimes,
-            // refactor that
             Mode::Bike => PathRequest {
-                // TODO Allow bike lane start/stops too
-                start: Position::bldg_via_driving(self.from, map).unwrap(),
-                end: Position::bldg_via_driving(self.to, map).unwrap(),
+                start: self.from.start_pos_driving(map),
+                end: self.to.end_pos_driving(map),
                 can_use_bike_lanes: true,
                 can_use_bus_lanes: false,
             },
             Mode::Drive => PathRequest {
-                start: Position::bldg_via_driving(self.from, map).unwrap(),
-                end: Position::bldg_via_driving(self.to, map).unwrap(),
+                start: self.from.start_pos_driving(map),
+                end: self.to.end_pos_driving(map),
                 can_use_bike_lanes: false,
                 can_use_bus_lanes: false,
             },
             Mode::Transit => {
-                let start = Position::bldg_via_walking(self.from, map);
-                let end = Position::bldg_via_walking(self.to, map);
+                let start = self.from.start_pos_walking(map);
+                let end = self.to.end_pos_walking(map);
                 if let Some((stop1, _, _)) = map.should_use_transit(start, end) {
                     PathRequest {
                         start,
@@ -226,10 +322,14 @@ pub fn clip_trips(
     max_results: usize,
     timer: &mut Timer,
 ) -> Vec<Trip> {
+    let map = &ui.primary.map;
+
     let mut osm_id_to_bldg = HashMap::new();
-    for b in ui.primary.map.all_buildings() {
+    for b in map.all_buildings() {
         osm_id_to_bldg.insert(b.osm_way_id, b.id);
     }
+    let incoming_borders = map.all_incoming_borders();
+    let outgoing_borders = map.all_outgoing_borders();
 
     let mut results = Vec::new();
     timer.start_iter("clip trips", popdat.trips.len());
@@ -239,8 +339,26 @@ pub fn clip_trips(
             continue;
         }
 
-        let from = *skip_fail!(osm_id_to_bldg.get(&trip.from));
-        let to = *skip_fail!(osm_id_to_bldg.get(&trip.to));
+        let from = skip_fail!(TripEndpt::new(
+            &trip.from,
+            &osm_id_to_bldg,
+            map,
+            &incoming_borders,
+        ));
+        let to = skip_fail!(TripEndpt::new(
+            &trip.to,
+            &osm_id_to_bldg,
+            map,
+            &outgoing_borders,
+        ));
+        // TODO Detect pass-through trips
+        match (&from, &to) {
+            (TripEndpt::Border(_), TripEndpt::Border(_)) => {
+                continue;
+            }
+            _ => {}
+        }
+
         results.push(Trip {
             from,
             to,
@@ -257,7 +375,7 @@ pub fn clip_trips(
 
 fn instantiate_trips(ctx: &mut EventCtx, ui: &mut UI) {
     use popdat::psrc::Mode;
-    use sim::{DrivingGoal, Scenario, SidewalkSpot, TripSpec};
+    use sim::{Scenario, TripSpec};
 
     ctx.loading_screen("set up sim with PSRC trips", |_, mut timer| {
         let popdat: popdat::PopDat = abstutil::read_binary("../data/shapes/popdat", &mut timer)
@@ -274,34 +392,49 @@ fn instantiate_trips(ctx: &mut EventCtx, ui: &mut UI) {
                     // TODO Use a parked car, but first have to figure out what cars to seed.
                     Mode::Drive => {
                         if let Some(start_pos) = TripSpec::spawn_car_at(
-                            Position::bldg_via_driving(trip.from, map).unwrap(),
+                            trip.from.start_pos_driving(map),
                             map,
                         ) {
                             TripSpec::CarAppearing {
                                 start_pos,
-                                goal: DrivingGoal::ParkNear(trip.to),
+                                goal: trip.to.driving_goal(vec![LaneType::Driving], map),
                                 ped_speed: Scenario::rand_ped_speed(&mut rng),
                                 vehicle_spec: Scenario::rand_car(&mut rng),
                             }
                         } else {
-                            timer.warn(format!("Can't make car appear at {}", trip.from));
+                            timer.warn(format!("Can't make car appear at {:?}", trip.from));
                             continue;
                         }
                     }
-                    Mode::Bike => TripSpec::UsingBike {
-                        start: SidewalkSpot::building(trip.from, map),
-                        goal: DrivingGoal::ParkNear(trip.to),
-                        ped_speed: Scenario::rand_ped_speed(&mut rng),
-                        vehicle: Scenario::rand_bike(&mut rng),
+                    Mode::Bike => match trip.from {
+                        TripEndpt::Building(b) => TripSpec::UsingBike {
+                            start: SidewalkSpot::building(b, map),
+                            goal: trip.to.driving_goal(vec![LaneType::Biking, LaneType::Driving], map),
+                            ped_speed: Scenario::rand_ped_speed(&mut rng),
+                            vehicle: Scenario::rand_bike(&mut rng),
+                        },
+                        TripEndpt::Border(i) => {
+                            let vehicle = Scenario::rand_bike(&mut rng);
+                            let l = map.get_i(i).get_outgoing_lanes(
+                                map,
+                                // TODO Or Biking
+                                LaneType::Driving)[0];
+                            TripSpec::CarAppearing {
+                                start_pos: Position::new(l, vehicle.length),
+                                goal: trip.to.driving_goal(vec![LaneType::Biking, LaneType::Driving], map),
+                                ped_speed: Scenario::rand_ped_speed(&mut rng),
+                                vehicle_spec: vehicle,
+                            }
+                        },
                     },
                     Mode::Walk => TripSpec::JustWalking {
-                        start: SidewalkSpot::building(trip.from, map),
-                        goal: SidewalkSpot::building(trip.to, map),
+                        start: trip.from.start_sidewalk_spot(map),
+                        goal: trip.to.end_sidewalk_spot(map),
                         ped_speed: Scenario::rand_ped_speed(&mut rng),
                     },
                     Mode::Transit => {
-                        let start = SidewalkSpot::building(trip.from, map);
-                        let goal = SidewalkSpot::building(trip.to, map);
+                        let start = trip.from.start_sidewalk_spot(map);
+                        let goal = trip.to.end_sidewalk_spot(map);
                         let ped_speed = Scenario::rand_ped_speed(&mut rng);
                         if let Some((stop1, stop2, route)) = map.should_use_transit(start.sidewalk_pos, goal.sidewalk_pos) {
                             TripSpec::UsingTransit {
