@@ -5,7 +5,7 @@ use crate::render::{
 };
 use abstutil;
 use abstutil::MeasureMemory;
-use ezgui::{Color, EventCtx, GfxCtx, Prerender};
+use ezgui::{Color, EventCtx, GeomBatch, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Distance, Duration};
 use map_model::{Map, Traversable};
 use serde_derive::{Deserialize, Serialize};
@@ -82,12 +82,22 @@ impl UI {
                 );
             }
 
-            let (moving, waiting) = self.primary.sim.get_unzoomed_polygons(&self.primary.map);
-            g.draw_polygons(self.cs.get_def("moving blob of cars", Color::CYAN), &moving);
-            g.draw_polygons(
-                self.cs.get_def("waiting blob of cars", Color::RED),
-                &waiting,
-            );
+            let (moving, waiting) = self.primary.sim.get_unzoomed_agents(&self.primary.map);
+            let mut batch = GeomBatch::new();
+            let radius = Distance::meters(10.0) / g.canvas.cam_zoom;
+            let moving_color = self
+                .cs
+                .get_def("moving unzoomed agents", Color::BLUE.alpha(0.5));
+            for pt in moving {
+                batch.push(moving_color, Circle::new(pt, radius).to_polygon());
+            }
+            let waiting_color = self
+                .cs
+                .get_def("waiting unzoomed agents", Color::RED.alpha(0.5));
+            for pt in waiting {
+                batch.push(waiting_color, Circle::new(pt, radius).to_polygon());
+            }
+            batch.draw(g);
         } else {
             let mut cache = self.primary.draw_map.agents.borrow_mut();
             let objects = self.get_renderables_back_to_front(

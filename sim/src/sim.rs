@@ -7,7 +7,7 @@ use crate::{
 };
 use abstutil::Timer;
 use derivative::Derivative;
-use geom::{Distance, Duration, PolyLine, Polygon, Pt2D};
+use geom::{Distance, Duration, PolyLine, Pt2D};
 use map_model::{BuildingID, BusRoute, IntersectionID, LaneID, Map, Path, Traversable};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{HashSet, VecDeque};
@@ -276,9 +276,15 @@ impl GetDrawAgents for Sim {
 
 // Drawing
 impl Sim {
-    // The results represent (moving, waiting) vehicles
-    pub fn get_unzoomed_polygons(&self, map: &Map) -> (Vec<Polygon>, Vec<Polygon>) {
-        self.driving.get_unzoomed_polygons(map)
+    // The results represent (moving, waiting) agents
+    // TODO Distinguishing by mode too would be nice, if that's not too many colors on the other
+    // side.
+    pub fn get_unzoomed_agents(&self, map: &Map) -> (Vec<Pt2D>, Vec<Pt2D>) {
+        let (mut moving, mut waiting) = self.driving.get_unzoomed_agents(self.time, map);
+        let (more_moving, more_waiting) = self.walking.get_unzoomed_agents(self.time, map);
+        moving.extend(more_moving);
+        waiting.extend(more_waiting);
+        (moving, waiting)
     }
 }
 

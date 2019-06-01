@@ -4,7 +4,7 @@ use crate::{
     TimeInterval, TransitSimState, TripManager,
 };
 use abstutil::{deserialize_multimap, serialize_multimap, MultiMap};
-use geom::{Distance, Duration, Line, PolyLine, Speed};
+use geom::{Distance, Duration, Line, PolyLine, Pt2D, Speed};
 use map_model::{BuildingID, Map, Path, PathStep, Traversable, LANE_THICKNESS};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -259,6 +259,22 @@ impl WalkingSimState {
     pub fn get_path(&self, id: PedestrianID) -> Option<&Path> {
         let p = self.peds.get(&id)?;
         Some(&p.path)
+    }
+
+    pub fn get_unzoomed_agents(&self, time: Duration, map: &Map) -> (Vec<Pt2D>, Vec<Pt2D>) {
+        let mut moving = Vec::new();
+        let mut waiting = Vec::new();
+
+        for ped in self.peds.values() {
+            let draw = ped.get_draw_ped(time, map);
+            if draw.waiting_for_turn.is_some() {
+                waiting.push(draw.pos);
+            } else {
+                moving.push(draw.pos);
+            }
+        }
+
+        (moving, waiting)
     }
 }
 

@@ -6,8 +6,8 @@ use crate::{
     TripManager, WalkingSimState, FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
-use geom::{Distance, Duration, PolyLine, Polygon};
-use map_model::{BuildingID, DirectedRoadID, IntersectionID, LaneID, Map, Path, Traversable};
+use geom::{Distance, Duration, PolyLine, Pt2D};
+use map_model::{BuildingID, IntersectionID, LaneID, Map, Path, Traversable};
 use petgraph::graph::{Graph, NodeIndex};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap, VecDeque};
@@ -610,11 +610,7 @@ impl DrivingSimState {
         }
     }
 
-    pub fn get_unzoomed_polygons(&self, map: &Map) -> (Vec<Polygon>, Vec<Polygon>) {
-        // These are the max over all lanes
-        let mut max_moving: HashMap<DirectedRoadID, Distance> = HashMap::new();
-        let mut max_waiting: HashMap<DirectedRoadID, Distance> = HashMap::new();
-
+    pub fn get_unzoomed_agents(&self, time: Duration, map: &Map) -> (Vec<Pt2D>, Vec<Pt2D>) {
         let mut moving = Vec::new();
         let mut waiting = Vec::new();
 
@@ -622,93 +618,19 @@ impl DrivingSimState {
             if queue.cars.is_empty() {
                 continue;
             }
-            // Really coarse, strange behavior for turns. Overwrite blindly if there are concurrent turns
-            // happening. :(
-            if let Traversable::Turn(t) = queue.id {
-                let polygon = map.get_i(t.parent).polygon.clone();
-                match self.cars[&queue.cars[0]].state {
-                    CarState::Crossing(_, _)
-                    | CarState::Unparking(_, _)
-                    | CarState::Parking(_, _, _)
-                    | CarState::Idling(_, _) => {
-                        moving.push(polygon);
-                    }
+            // TODO optimization: Don't constantly lookup!
+
+            for (car, dist) in queue.get_car_positions(time, &self.cars, &self.queues) {
+                let pos = queue.id.dist_along(dist, map).0;
+                match self.cars[&car].state {
                     CarState::Queued | CarState::WaitingToAdvance => {
-                        waiting.push(polygon);
+                        waiting.push(pos);
                     }
-                }
-                continue;
-            }
-
-            let mut moving_len = Distance::ZERO;
-            let mut waiting_len = Distance::ZERO;
-            let mut found_moving = false;
-            for id in &queue.cars {
-                let car = &self.cars[id];
-                if found_moving {
-                    if moving_len == Distance::ZERO {
-                        moving_len += FOLLOWING_DISTANCE;
-                    }
-                    moving_len += car.vehicle.length;
-                } else {
-                    match car.state {
-                        CarState::Crossing(_, _)
-                        | CarState::Unparking(_, _)
-                        | CarState::Parking(_, _, _)
-                        | CarState::Idling(_, _) => {
-                            found_moving = true;
-                            if moving_len == Distance::ZERO {
-                                moving_len += FOLLOWING_DISTANCE;
-                            }
-                            moving_len += car.vehicle.length;
-                        }
-                        CarState::Queued | CarState::WaitingToAdvance => {
-                            if waiting_len == Distance::ZERO {
-                                waiting_len += FOLLOWING_DISTANCE;
-                            }
-                            waiting_len += car.vehicle.length;
-                        }
+                    _ => {
+                        moving.push(pos);
                     }
                 }
             }
-            let dr = map.get_l(queue.id.as_lane()).get_directed_parent(map);
-
-            if moving_len > Distance::ZERO {
-                let dist = max_moving.entry(dr).or_insert(Distance::ZERO);
-                *dist = moving_len.max(*dist);
-            }
-            if waiting_len > Distance::ZERO {
-                let dist = max_waiting.entry(dr).or_insert(Distance::ZERO);
-                *dist = waiting_len.max(*dist);
-            }
-        }
-
-        for (dr, len) in max_moving {
-            let (pl, width) = map
-                .get_r(dr.id)
-                .get_center_for_side(dr.forwards)
-                .unwrap()
-                .unwrap();
-            // Some cars might be only partially on this road, so the length sum might be too big.
-            let clamped_len = len.min(pl.length());
-            moving.push(
-                pl.exact_slice(Distance::ZERO, clamped_len)
-                    .make_polygons(width),
-            );
-        }
-
-        for (dr, len) in max_waiting {
-            let (pl, width) = map
-                .get_r(dr.id)
-                .get_center_for_side(dr.forwards)
-                .unwrap()
-                .unwrap();
-            // Some cars might be only partially on this road, so the length sum might be too big.
-            let clamped_len = len.min(pl.length());
-            waiting.push(
-                pl.exact_slice(pl.length() - clamped_len, pl.length())
-                    .make_polygons(width),
-            );
         }
 
         (moving, waiting)
