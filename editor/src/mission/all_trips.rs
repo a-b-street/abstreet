@@ -177,43 +177,24 @@ impl TripsVisualizer {
             let trip = &self.trips[*idx];
             let percent = (time - trip.depart_at) / trip.trip_time;
 
-            if true {
-                let pl = trip.route.as_ref().unwrap();
-                let color = match trip.mode {
-                    Mode::Drive => Color::RED,
-                    Mode::Walk => Color::GREEN,
-                    Mode::Bike => Color::BLUE,
-                    Mode::Transit => Color::ORANGE,
-                }
-                .alpha(0.5);
-                batch.push(
-                    color,
-                    Circle::new(
-                        pl.dist_along(percent * pl.length()).0,
-                        // Draw bigger circles when zoomed out, but don't go smaller than the lane
-                        // once fully zoomed in.
-                        (Distance::meters(10.0) / g.canvas.cam_zoom).max(LANE_THICKNESS),
-                    )
-                    .to_polygon(),
-                );
-
-                // TODO Ideally, slice based on the route remaining. Also, it's darn hard to see
-                // this zoomed out.
-                batch.push(color, pl.make_polygons(LANE_THICKNESS));
-            } else {
-                // Draw the start and end, gradually fading the color.
-                let from = trip.from.polygon(&ui.primary.map);
-                let to = trip.to.polygon(&ui.primary.map);
-
-                batch.push(
-                    Color::RED.alpha(1.0 - (percent as f32)),
-                    Circle::new(from.center(), Distance::meters(100.0)).to_polygon(),
-                );
-                batch.push(
-                    Color::BLUE.alpha(percent as f32),
-                    Circle::new(to.center(), Distance::meters(100.0)).to_polygon(),
-                );
+            let pl = trip.route.as_ref().unwrap();
+            let color = match trip.mode {
+                Mode::Drive => Color::RED,
+                Mode::Walk => Color::GREEN,
+                Mode::Bike => Color::BLUE,
+                Mode::Transit => Color::ORANGE,
             }
+            .alpha(0.5);
+            batch.push(
+                color,
+                Circle::new(
+                    pl.dist_along(percent * pl.length()).0,
+                    // Draw bigger circles when zoomed out, but don't go smaller than the lane
+                    // once fully zoomed in.
+                    (Distance::meters(10.0) / g.canvas.cam_zoom).max(LANE_THICKNESS),
+                )
+                .to_polygon(),
+            );
         }
         batch.draw(g);
 
