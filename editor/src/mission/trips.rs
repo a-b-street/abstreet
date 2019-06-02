@@ -38,26 +38,32 @@ impl Trip {
 
         match self.mode {
             Mode::Walk => PathRequest {
-                start: self.from.start_pos_walking(map),
-                end: self.from.end_pos_walking(map),
+                start: self.from.start_sidewalk_spot(map).sidewalk_pos,
+                end: self.from.end_sidewalk_spot(map).sidewalk_pos,
                 can_use_bike_lanes: false,
                 can_use_bus_lanes: false,
             },
             Mode::Bike => PathRequest {
                 start: self.from.start_pos_driving(map),
-                end: self.to.end_pos_driving(map),
+                end: self
+                    .to
+                    .driving_goal(vec![LaneType::Biking, LaneType::Driving], map)
+                    .goal_pos(map),
                 can_use_bike_lanes: true,
                 can_use_bus_lanes: false,
             },
             Mode::Drive => PathRequest {
                 start: self.from.start_pos_driving(map),
-                end: self.to.end_pos_driving(map),
+                end: self
+                    .to
+                    .driving_goal(vec![LaneType::Driving], map)
+                    .goal_pos(map),
                 can_use_bike_lanes: false,
                 can_use_bus_lanes: false,
             },
             Mode::Transit => {
-                let start = self.from.start_pos_walking(map);
-                let end = self.to.end_pos_walking(map);
+                let start = self.from.start_sidewalk_spot(map).sidewalk_pos;
+                let end = self.to.end_sidewalk_spot(map).sidewalk_pos;
                 if let Some((stop1, _, _)) = map.should_use_transit(start, end) {
                     PathRequest {
                         start,
@@ -100,26 +106,6 @@ impl TripEndpt {
             })
     }
 
-    fn start_pos_walking(&self, map: &Map) -> Position {
-        match self {
-            TripEndpt::Building(b) => Position::bldg_via_walking(*b, map),
-            TripEndpt::Border(i, _) => {
-                let lane = map.get_i(*i).get_outgoing_lanes(map, LaneType::Sidewalk)[0];
-                Position::new(lane, Distance::ZERO)
-            }
-        }
-    }
-
-    fn end_pos_walking(&self, map: &Map) -> Position {
-        match self {
-            TripEndpt::Building(b) => Position::bldg_via_walking(*b, map),
-            TripEndpt::Border(i, _) => {
-                let lane = map.get_i(*i).get_incoming_lanes(map, LaneType::Sidewalk)[0];
-                Position::new(lane, map.get_l(lane).length())
-            }
-        }
-    }
-
     fn start_sidewalk_spot(&self, map: &Map) -> SidewalkSpot {
         match self {
             TripEndpt::Building(b) => SidewalkSpot::building(*b, map),
@@ -142,16 +128,6 @@ impl TripEndpt {
             TripEndpt::Border(i, _) => {
                 let lane = map.get_i(*i).get_outgoing_lanes(map, LaneType::Driving)[0];
                 Position::new(lane, Distance::ZERO)
-            }
-        }
-    }
-
-    fn end_pos_driving(&self, map: &Map) -> Position {
-        match self {
-            TripEndpt::Building(b) => Position::bldg_via_driving(*b, map).unwrap(),
-            TripEndpt::Border(i, _) => {
-                let lane = map.get_i(*i).get_incoming_lanes(map, LaneType::Driving)[0];
-                Position::new(lane, map.get_l(lane).length())
             }
         }
     }

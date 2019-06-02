@@ -262,28 +262,43 @@ impl SidewalkSpot {
         }
     }
 
+    // Recall sidewalks are bidirectional.
     pub fn start_at_border(i: IntersectionID, map: &Map) -> Option<SidewalkSpot> {
         let lanes = map.get_i(i).get_outgoing_lanes(map, LaneType::Sidewalk);
-        if lanes.is_empty() {
-            None
-        } else {
-            Some(SidewalkSpot {
+        if !lanes.is_empty() {
+            return Some(SidewalkSpot {
                 sidewalk_pos: Position::new(lanes[0], Distance::ZERO),
                 connection: SidewalkPOI::Border(i),
-            })
+            });
         }
+
+        let lanes = map.get_i(i).get_incoming_lanes(map, LaneType::Sidewalk);
+        if lanes.is_empty() {
+            return None;
+        }
+        Some(SidewalkSpot {
+            sidewalk_pos: Position::new(lanes[0], map.get_l(lanes[0]).length()),
+            connection: SidewalkPOI::Border(i),
+        })
     }
 
     pub fn end_at_border(i: IntersectionID, map: &Map) -> Option<SidewalkSpot> {
         let lanes = map.get_i(i).get_incoming_lanes(map, LaneType::Sidewalk);
-        if lanes.is_empty() {
-            None
-        } else {
-            Some(SidewalkSpot {
+        if !lanes.is_empty() {
+            return Some(SidewalkSpot {
                 sidewalk_pos: Position::new(lanes[0], map.get_l(lanes[0]).length()),
                 connection: SidewalkPOI::Border(i),
-            })
+            });
         }
+
+        let lanes = map.get_i(i).get_outgoing_lanes(map, LaneType::Sidewalk);
+        if lanes.is_empty() {
+            return None;
+        }
+        Some(SidewalkSpot {
+            sidewalk_pos: Position::new(lanes[0], Distance::ZERO),
+            connection: SidewalkPOI::Border(i),
+        })
     }
 
     pub fn suddenly_appear(l: LaneID, dist: Distance, map: &Map) -> SidewalkSpot {
