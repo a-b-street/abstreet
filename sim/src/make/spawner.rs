@@ -157,15 +157,15 @@ impl TripSpawner {
     ) {
         let paths = timer.parallelize(
             "calculate paths",
-            self.trips
-                .iter()
-                .map(|(_, _, _, spec)| spec.get_pathfinding_request(map, parking))
-                .collect(),
-            |req| (req.clone(), map.pathfind(req)),
+            std::mem::replace(&mut self.trips, Vec::new()),
+            |tuple| {
+                let req = tuple.3.get_pathfinding_request(map, parking);
+                (tuple, req.clone(), map.pathfind(req))
+            },
         );
-        for ((start_time, ped_id, car_id, spec), (req, maybe_path)) in
-            self.trips.drain(..).zip(paths)
-        {
+        timer.start_iter("spawn trips", paths.len());
+        for ((start_time, ped_id, car_id, spec), req, maybe_path) in paths {
+            timer.next();
             if maybe_path.is_none() {
                 timer.warn(format!("{:?} couldn't find the first path {}", spec, req));
                 continue;

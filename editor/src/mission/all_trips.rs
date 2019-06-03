@@ -6,7 +6,7 @@ use ezgui::{
     hotkey, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, ModalMenu, Slider, Text,
 };
 use geom::{Circle, Distance, Duration};
-use map_model::LANE_THICKNESS;
+use map_model::{PathRequest, LANE_THICKNESS};
 use popdat::psrc::Mode;
 use std::time::Instant;
 
@@ -22,30 +22,38 @@ pub struct TripsVisualizer {
     running: Option<Instant>,
 }
 
+enum MaybeTrip {
+    Success(Trip),
+    Failure(PathRequest),
+}
+
 impl TripsVisualizer {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> TripsVisualizer {
         let trips = ctx.loading_screen("load trip data", |_, mut timer| {
-            let mut all_trips = clip_trips(ui, &mut timer);
+            let all_trips = clip_trips(ui, &mut timer);
             let map = &ui.primary.map;
-            let routes = timer.parallelize(
-                "calculate paths with geometry",
-                all_trips.iter().map(|trip| trip.path_req(map)).collect(),
-                |req| {
-                    (
-                        req.clone(),
-                        map.pathfind(req.clone())
-                            .and_then(|path| path.trace(map, req.start.dist_along(), None)),
-                    )
-                },
-            );
-
+            let maybe_trips =
+                timer.parallelize("calculate paths with geometry", all_trips, |mut trip| {
+                    let req = trip.path_req(map);
+                    if let Some(route) = map
+                        .pathfind(req.clone())
+                        .and_then(|path| path.trace(map, req.start.dist_along(), None))
+                    {
+                        trip.route = Some(route);
+                        MaybeTrip::Success(trip)
+                    } else {
+                        MaybeTrip::Failure(req)
+                    }
+                });
             let mut final_trips = Vec::new();
-            for (mut trip, (req, maybe_route)) in all_trips.drain(..).zip(routes) {
-                if let Some(route) = maybe_route {
-                    trip.route = Some(route);
-                    final_trips.push(trip);
-                } else {
-                    timer.warn(format!("Couldn't satisfy {}", req));
+            for maybe in maybe_trips {
+                match maybe {
+                    MaybeTrip::Success(t) => {
+                        final_trips.push(t);
+                    }
+                    MaybeTrip::Failure(req) => {
+                        timer.warn(format!("Couldn't satisfy {}", req));
+                    }
                 }
             }
             final_trips
