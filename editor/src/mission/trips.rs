@@ -122,6 +122,7 @@ impl TripEndpt {
 
     // TODO or biking
     // TODO bldg_via_driving needs to do find_driving_lane_near_building sometimes
+    // Doesn't adjust for starting length yet.
     fn start_pos_driving(&self, map: &Map) -> Position {
         match self {
             TripEndpt::Building(b) => Position::bldg_via_driving(*b, map).unwrap(),
@@ -280,7 +281,7 @@ pub fn instantiate_trips(ctx: &mut EventCtx, ui: &mut UI) {
                                 vehicle_spec: Scenario::rand_car(&mut rng),
                             }
                         } else {
-                            timer.warn(format!("Can't make car appear at {:?}", trip.from));
+                            timer.warn(format!("No room for car to appear at {:?}", trip.from));
                             continue;
                         }
                     }
@@ -291,17 +292,20 @@ pub fn instantiate_trips(ctx: &mut EventCtx, ui: &mut UI) {
                             ped_speed: Scenario::rand_ped_speed(&mut rng),
                             vehicle: Scenario::rand_bike(&mut rng),
                         },
-                        TripEndpt::Border(i, _) => {
-                            let vehicle = Scenario::rand_bike(&mut rng);
-                            let l = map.get_i(i).get_outgoing_lanes(
+                        TripEndpt::Border(_, _) => {
+                            if let Some(start_pos) = TripSpec::spawn_car_at(
+                                trip.from.start_pos_driving(map),
                                 map,
-                                // TODO Or Biking
-                                LaneType::Driving)[0];
-                            TripSpec::CarAppearing {
-                                start_pos: Position::new(l, vehicle.length),
-                                goal: trip.to.driving_goal(vec![LaneType::Biking, LaneType::Driving], map),
-                                ped_speed: Scenario::rand_ped_speed(&mut rng),
-                                vehicle_spec: vehicle,
+                            ) {
+                                TripSpec::CarAppearing {
+                                    start_pos,
+                                    goal: trip.to.driving_goal(vec![LaneType::Biking, LaneType::Driving], map),
+                                    ped_speed: Scenario::rand_ped_speed(&mut rng),
+                                    vehicle_spec: Scenario::rand_bike(&mut rng),
+                                }
+                            } else {
+                                timer.warn(format!("No room for bike to appear at {:?}", trip.from));
+                                continue;
                             }
                         },
                     },
