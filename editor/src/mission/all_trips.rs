@@ -1,7 +1,7 @@
-use crate::common::CommonState;
+use crate::common::{CommonState, SpeedControls};
 use crate::mission::trips::{clip_trips, Trip};
 use crate::ui::{ShowEverything, UI};
-use abstutil::{elapsed_seconds, prettyprint_usize};
+use abstutil::prettyprint_usize;
 use ezgui::{
     hotkey, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, ModalMenu, ScreenPt, Slider,
     Text,
@@ -9,20 +9,14 @@ use ezgui::{
 use geom::{Circle, Distance, Duration};
 use map_model::{PathRequest, LANE_THICKNESS};
 use popdat::psrc::Mode;
-use std::time::Instant;
-
-const ADJUST_SPEED: f64 = 0.1;
-// TODO hardcoded cap for now...
-const SPEED_CAP: f64 = 60.0;
 
 pub struct TripsVisualizer {
     menu: ModalMenu,
     trips: Vec<Trip>,
     time_slider: Slider,
-    speed_slider: Slider,
+    speed: SpeedControls,
 
     active_trips: Vec<usize>,
-    running: Option<Instant>,
 }
 
 enum MaybeTrip {
@@ -62,10 +56,6 @@ impl TripsVisualizer {
             final_trips
         });
 
-        // TODO It'd be awesome to use the generic timer controls for this
-        // TODO hardcoding placement...
-        let mut speed_slider = Slider::new(Some(ScreenPt::new(500.0, 0.0)));
-        speed_slider.set_percent(ctx, 1.0 / SPEED_CAP);
         TripsVisualizer {
             menu: ModalMenu::new(
                 "Trips Visualizer",
@@ -83,10 +73,10 @@ impl TripsVisualizer {
                 ],
                 ctx,
             ),
-            running: None,
             trips,
             time_slider: Slider::new(None),
-            speed_slider,
+            // TODO hardcoding placement...
+            speed: SpeedControls::new(ctx, Some(ScreenPt::new(500.0, 0.0))),
             active_trips: Vec::new(),
         }
     }
@@ -98,7 +88,6 @@ impl TripsVisualizer {
     // Returns None if the we're done
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<EventLoopMode> {
         let time = self.current_time();
-        let desired_speed = self.speed_slider.get_percent() * SPEED_CAP;
 
         let mut txt = Text::prompt("Trips Visualizer");
         txt.add_line(format!(
@@ -106,12 +95,7 @@ impl TripsVisualizer {
             prettyprint_usize(self.active_trips.len())
         ));
         txt.add_line(format!("At {}", time));
-        txt.add_line(format!("Speed: {:.2}x", desired_speed));
-        if self.running.is_some() {
-            txt.add_line("Playing".to_string());
-        } else {
-            txt.add_line("Paused".to_string());
-        }
+        txt.add_line(self.speed.modal_status_line());
         self.menu.handle_event(ctx, Some(txt));
         ctx.canvas.handle_event(ctx.input);
 
@@ -121,22 +105,6 @@ impl TripsVisualizer {
         let last_time = Duration::parse("23:59:59.9").unwrap();
         let ten_secs = Duration::seconds(10.0);
         let thirty_mins = Duration::minutes(30);
-
-        if desired_speed != SPEED_CAP && self.menu.action("speed up") {
-            self.speed_slider
-                .set_percent(ctx, ((desired_speed + ADJUST_SPEED) / SPEED_CAP).min(1.0));
-        } else if desired_speed != 0.0 && self.menu.action("slow down") {
-            self.speed_slider
-                .set_percent(ctx, ((desired_speed - ADJUST_SPEED) / SPEED_CAP).max(0.0));
-        } else if self.speed_slider.event(ctx) {
-            // Keep going
-        } else if self.menu.action("pause/resume") {
-            if self.running.is_some() {
-                self.running = None;
-            } else {
-                self.running = Some(Instant::now());
-            }
-        }
 
         if self.menu.action("quit") {
             return None;
@@ -158,17 +126,11 @@ impl TripsVisualizer {
             self.time_slider.set_percent(ctx, 1.0);
         } else if self.time_slider.event(ctx) {
             // Value changed, fall-through
-        } else if let Some(last_step) = self.running {
-            if ctx.input.nonblocking_is_update_event() {
-                ctx.input.use_update_event();
-                let dt = Duration::seconds(elapsed_seconds(last_step)) * desired_speed;
-                self.time_slider
-                    .set_percent(ctx, ((time + dt) / last_time).min(1.0));
-                self.running = Some(Instant::now());
-            // Value changed, fall-through
-            } else {
-                return Some(EventLoopMode::Animation);
-            }
+        } else if let Some(dt) = self.speed.event(ctx, &mut self.menu, time) {
+            // TODO Speed description is briefly weird when we jump backwards with the other
+            // control.
+            self.time_slider
+                .set_percent(ctx, ((time + dt) / last_time).min(1.0));
         } else {
             return Some(EventLoopMode::InputOnly);
         }
@@ -183,10 +145,10 @@ impl TripsVisualizer {
             .map(|(idx, _)| idx)
             .collect();
 
-        if self.running.is_some() {
-            Some(EventLoopMode::Animation)
-        } else {
+        if self.speed.is_paused() {
             Some(EventLoopMode::InputOnly)
+        } else {
+            Some(EventLoopMode::Animation)
         }
     }
 
@@ -220,7 +182,7 @@ impl TripsVisualizer {
 
         self.menu.draw(g);
         self.time_slider.draw(g);
-        self.speed_slider.draw(g);
+        self.speed.draw(g);
         CommonState::draw_osd(g, ui, ui.primary.current_selection);
     }
 }

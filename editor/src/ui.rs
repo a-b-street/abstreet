@@ -407,7 +407,7 @@ impl PerMapUI {
     pub fn new(flags: Flags, cs: &ColorScheme, ctx: &mut EventCtx) -> PerMapUI {
         let (map, sim, draw_map) = ctx.loading_screen("load map", |ctx, timer| {
             let mut mem = MeasureMemory::new();
-            let (map, sim, _) = flags.sim_flags.load(Some(Duration::seconds(30.0)), timer);
+            let (map, sim, _) = flags.sim_flags.load(Some(Duration::minutes(30)), timer);
             mem.reset("Map and Sim", timer);
 
             timer.start("draw_map");
