@@ -2,7 +2,6 @@ use crate::TripID;
 use geom::{Duration, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
-use std::time::Instant;
 
 #[derive(Serialize, Deserialize, PartialEq)]
 pub struct SimStats {
@@ -16,18 +15,6 @@ impl SimStats {
             time,
             canonical_pt_per_trip: BTreeMap::new(),
         }
-    }
-}
-
-pub struct Benchmark {
-    pub(crate) last_real_time: Instant,
-    pub(crate) last_sim_time: Duration,
-}
-
-impl Benchmark {
-    pub fn has_real_time_passed(&self, d: Duration) -> bool {
-        // TODO convert to std::time::Duration better
-        self.last_real_time.elapsed() >= std::time::Duration::from_secs(d.inner_seconds() as u64)
     }
 }
 

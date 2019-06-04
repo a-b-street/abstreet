@@ -131,7 +131,7 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> Mode {
 
     ui.primary = primary;
     let mut mode = ABTestMode::new(ctx);
-    mode.state = State::Paused;
+    mode.state = State::Playing;
     mode.secondary = Some(secondary);
     Mode::ABTest(mode)
 }

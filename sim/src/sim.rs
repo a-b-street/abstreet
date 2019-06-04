@@ -1,11 +1,11 @@
 use crate::{
-    AgentID, Benchmark, CarID, Command, CreateCar, DrawCarInput, DrawPedestrianInput, DrivingGoal,
+    AgentID, CarID, Command, CreateCar, DrawCarInput, DrawPedestrianInput, DrivingGoal,
     DrivingSimState, Event, GetDrawAgents, IntersectionSimState, ParkedCar, ParkingSimState,
     ParkingSpot, PedestrianID, Router, Scheduler, ScoreSummary, SimStats, Summary, TransitSimState,
     TripID, TripLeg, TripManager, TripSpawner, TripSpec, VehicleSpec, VehicleType, WalkingSimState,
     BUS_LENGTH,
 };
-use abstutil::Timer;
+use abstutil::{elapsed_seconds, Timer};
 use derivative::Derivative;
 use geom::{Distance, Duration, PolyLine, Pt2D};
 use map_model::{BuildingID, BusRoute, IntersectionID, LaneID, Map, Path, Traversable};
@@ -445,10 +445,12 @@ impl Sim {
         // Interpreted as a relative time
         time_limit: Option<Duration>,
     ) {
-        let mut benchmark = self.start_benchmark();
+        let mut last_print = Instant::now();
+        let mut last_sim_time = self.time();
+
         loop {
             let dt = if let Some(lim) = time_limit {
-                // TODO Regular benchmark printing then doesn't happen :\
+                // TODO Regular printing then doesn't happen :\
                 self.time() + lim
             } else {
                 Duration::seconds(30.0)
@@ -466,19 +468,24 @@ impl Sim {
                 }
             }
 
-            if benchmark.has_real_time_passed(Duration::seconds(1.0)) {
+            let dt_real = Duration::seconds(elapsed_seconds(last_print));
+            if dt_real >= Duration::seconds(1.0) {
                 println!(
-                    "{}, speed = {}",
+                    "{}, speed = {:.2}x, {}",
                     self.summary(),
-                    self.measure_speed(&mut benchmark, true)
+                    (self.time() - last_sim_time) / dt_real,
+                    self.scheduler.describe_stats()
                 );
+                last_print = Instant::now();
+                last_sim_time = self.time();
             }
             callback(self, map);
             if self.is_done() {
                 println!(
-                    "{}, speed = {}",
+                    "{}, speed = {:.2}x, {}",
                     self.summary(),
-                    self.measure_speed(&mut benchmark, true)
+                    (self.time() - last_sim_time) / dt_real,
+                    self.scheduler.describe_stats()
                 );
                 break;
             }
@@ -568,31 +575,6 @@ impl Sim {
             }
             s
         })
-    }
-}
-
-// Benchmarking
-impl Sim {
-    pub fn start_benchmark(&self) -> Benchmark {
-        Benchmark {
-            last_real_time: Instant::now(),
-            last_sim_time: self.time,
-        }
-    }
-
-    pub fn measure_speed(&self, b: &mut Benchmark, details: bool) -> String {
-        let dt = Duration::seconds(abstutil::elapsed_seconds(b.last_real_time));
-        if dt == Duration::ZERO {
-            return "...".to_string();
-        }
-        let speed = (self.time - b.last_sim_time) / dt;
-        b.last_real_time = Instant::now();
-        b.last_sim_time = self.time;
-        if details {
-            format!("{:.2}x ({})", speed, self.scheduler.describe_stats())
-        } else {
-            format!("{:.2}x", speed)
-        }
     }
 }
 

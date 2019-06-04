@@ -1,21 +1,17 @@
 mod setup;
 
-use crate::common::CommonState;
+use crate::common::{CommonState, SpeedControls};
 use crate::game::{GameState, Mode};
 use crate::render::DrawOptions;
 use crate::ui::{PerMapUI, ShowEverything, UI};
-use abstutil::elapsed_seconds;
 use ezgui::{hotkey, Color, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard};
 use geom::{Duration, Line, PolyLine};
 use map_model::LANE_THICKNESS;
-use sim::{Benchmark, TripID};
-use std::time::Instant;
-
-const ADJUST_SPEED: f64 = 0.1;
+use sim::TripID;
 
 pub struct ABTestMode {
     menu: ModalMenu,
-    desired_speed: f64, // sim seconds per real second
+    speed: SpeedControls,
     pub state: State,
     // TODO Urgh, hack. Need to be able to take() it to switch states sometimes.
     pub secondary: Option<PerMapUI>,
@@ -27,25 +23,20 @@ pub struct ABTestMode {
 
 pub enum State {
     Setup(setup::ABTestSetup),
-    Paused,
-    Running {
-        last_step: Instant,
-        benchmark: Benchmark,
-        speed: String,
-    },
+    Playing,
 }
 
 impl ABTestMode {
-    pub fn new(ctx: &EventCtx) -> ABTestMode {
+    pub fn new(ctx: &mut EventCtx) -> ABTestMode {
         ABTestMode {
             menu: ModalMenu::new(
                 "A/B Test Mode",
                 vec![
                     vec![
                         (hotkey(Key::Escape), "quit"),
-                        (hotkey(Key::LeftBracket), "slow down sim"),
-                        (hotkey(Key::RightBracket), "speed up sim"),
-                        (hotkey(Key::Space), "run/pause sim"),
+                        (hotkey(Key::LeftBracket), "slow down"),
+                        (hotkey(Key::RightBracket), "speed up"),
+                        (hotkey(Key::Space), "pause/resume"),
                         (hotkey(Key::M), "step forwards 0.1s"),
                         (hotkey(Key::S), "swap"),
                         (hotkey(Key::D), "diff all trips"),
@@ -56,7 +47,7 @@ impl ABTestMode {
                 .concat(),
                 ctx,
             ),
-            desired_speed: 1.0,
+            speed: SpeedControls::new(ctx, None),
             state: State::Setup(setup::ABTestSetup::Pick(Wizard::new())),
             secondary: None,
             diff_trip: None,
@@ -68,185 +59,128 @@ impl ABTestMode {
     pub fn event(state: &mut GameState, ctx: &mut EventCtx) -> EventLoopMode {
         match state.mode {
             Mode::ABTest(ref mut mode) => {
-                if let State::Setup(_) = mode.state {
-                    setup::ABTestSetup::event(state, ctx);
-                    return EventLoopMode::InputOnly;
-                }
-
-                let mut txt = Text::prompt("A/B Test Mode");
-                txt.add_line(state.ui.primary.map.get_edits().edits_name.clone());
-                if let Some(ref diff) = mode.diff_trip {
-                    txt.add_line(format!("Showing diff for {}", diff.trip));
-                } else if let Some(ref diff) = mode.diff_all {
-                    txt.add_line(format!(
-                        "Showing diffs for all. {} equivalent trips",
-                        diff.same_trips
-                    ));
-                }
-                txt.add_line(state.ui.primary.sim.summary());
-                if let State::Running { ref speed, .. } = mode.state {
-                    txt.add_line(format!(
-                        "Speed: {0} / desired {1:.2}x",
-                        speed, mode.desired_speed
-                    ));
-                } else {
-                    txt.add_line(format!(
-                        "Speed: paused / desired {0:.2}x",
-                        mode.desired_speed
-                    ));
-                }
-                mode.menu.handle_event(ctx, Some(txt));
-
-                ctx.canvas.handle_event(ctx.input);
-                state.ui.primary.current_selection = state.ui.handle_mouseover(
-                    ctx,
-                    &state.ui.primary.sim,
-                    &ShowEverything::new(),
-                    false,
-                );
-                if let Some(evmode) = mode.common.event(ctx, &mut state.ui, &mut mode.menu) {
-                    return evmode;
-                }
-
-                if mode.menu.action("quit") {
-                    // TODO This shouldn't be necessary when we plumb state around instead of
-                    // sharing it in the old structure.
-                    state.ui.primary.reset_sim();
-                    state.mode = Mode::SplashScreen(Wizard::new(), None);
-                    return EventLoopMode::InputOnly;
-                }
-
-                if mode.menu.action("slow down sim") {
-                    mode.desired_speed -= ADJUST_SPEED;
-                    mode.desired_speed = mode.desired_speed.max(0.0);
-                }
-                if mode.menu.action("speed up sim") {
-                    mode.desired_speed += ADJUST_SPEED;
-                }
-                if mode.menu.action("swap") {
-                    let secondary = mode.secondary.take().unwrap();
-                    let primary = std::mem::replace(&mut state.ui.primary, secondary);
-                    mode.secondary = Some(primary);
-                }
-
-                if mode.diff_trip.is_some() {
-                    if mode.menu.action("stop diffing trips") {
-                        mode.diff_trip = None;
-                    }
-                } else if mode.diff_all.is_some() {
-                    if mode.menu.action("stop diffing trips") {
-                        mode.diff_all = None;
-                    }
-                } else {
-                    if state.ui.primary.current_selection.is_none()
-                        && mode.menu.action("diff all trips")
-                    {
-                        mode.diff_all = Some(DiffAllTrips::new(
-                            &mut state.ui.primary,
-                            mode.secondary.as_mut().unwrap(),
-                        ));
-                    } else if let Some(agent) = state
-                        .ui
-                        .primary
-                        .current_selection
-                        .and_then(|id| id.agent_id())
-                    {
-                        if let Some(trip) = state.ui.primary.sim.agent_to_trip(agent) {
-                            if ctx.input.contextual_action(
-                                Key::B,
-                                &format!("Show {}'s parallel world", agent),
-                            ) {
-                                mode.diff_trip = Some(DiffOneTrip::new(
-                                    trip,
-                                    &state.ui.primary,
-                                    mode.secondary.as_ref().unwrap(),
-                                ));
-                            }
-                        }
-                    }
-                }
-
                 match mode.state {
-                    State::Paused => {
-                        if mode.menu.action("run/pause sim") {
-                            mode.state = State::Running {
-                                last_step: Instant::now(),
-                                benchmark: state.ui.primary.sim.start_benchmark(),
-                                speed: "...".to_string(),
-                            };
-                        } else if mode.menu.action("step forwards 0.1s") {
-                            state
-                                .ui
-                                .primary
-                                .sim
-                                .step(&state.ui.primary.map, Duration::seconds(0.1));
-                            {
-                                let s = mode.secondary.as_mut().unwrap();
-                                s.sim.step(&s.map, Duration::seconds(0.1));
-                            }
-                            if let Some(diff) = mode.diff_trip.take() {
-                                mode.diff_trip = Some(DiffOneTrip::new(
-                                    diff.trip,
-                                    &state.ui.primary,
-                                    mode.secondary.as_ref().unwrap(),
-                                ));
-                            }
-                            if mode.diff_all.is_some() {
-                                mode.diff_all = Some(DiffAllTrips::new(
-                                    &mut state.ui.primary,
-                                    mode.secondary.as_mut().unwrap(),
-                                ));
-                            }
-                            //*ctx.recalculate_current_selection = true;
-                        }
+                    State::Setup(_) => {
+                        setup::ABTestSetup::event(state, ctx);
                         EventLoopMode::InputOnly
                     }
-                    State::Running {
-                        ref mut last_step,
-                        ref mut benchmark,
-                        ref mut speed,
-                    } => {
-                        if mode.menu.action("run/pause sim") {
-                            mode.state = State::Paused;
-                        } else if ctx.input.nonblocking_is_update_event() {
-                            ctx.input.use_update_event();
+                    State::Playing => {
+                        let mut txt = Text::prompt("A/B Test Mode");
+                        txt.add_line(state.ui.primary.map.get_edits().edits_name.clone());
+                        if let Some(ref diff) = mode.diff_trip {
+                            txt.add_line(format!("Showing diff for {}", diff.trip));
+                        } else if let Some(ref diff) = mode.diff_all {
+                            txt.add_line(format!(
+                                "Showing diffs for all. {} equivalent trips",
+                                diff.same_trips
+                            ));
+                        }
+                        txt.add_line(state.ui.primary.sim.summary());
+                        txt.add_line(mode.speed.modal_status_line());
+                        mode.menu.handle_event(ctx, Some(txt));
 
-                            let dt =
-                                Duration::seconds(elapsed_seconds(*last_step)) * mode.desired_speed;
-                            state.ui.primary.sim.step(&state.ui.primary.map, dt);
+                        ctx.canvas.handle_event(ctx.input);
+                        state.ui.primary.current_selection = state.ui.handle_mouseover(
+                            ctx,
+                            &state.ui.primary.sim,
+                            &ShowEverything::new(),
+                            false,
+                        );
+                        if let Some(evmode) = mode.common.event(ctx, &mut state.ui, &mut mode.menu)
+                        {
+                            return evmode;
+                        }
+
+                        if mode.menu.action("quit") {
+                            // TODO This shouldn't be necessary when we plumb state around instead of
+                            // sharing it in the old structure.
+                            state.ui.primary.reset_sim();
+                            state.mode = Mode::SplashScreen(Wizard::new(), None);
+                            return EventLoopMode::InputOnly;
+                        }
+
+                        if mode.menu.action("swap") {
+                            let secondary = mode.secondary.take().unwrap();
+                            let primary = std::mem::replace(&mut state.ui.primary, secondary);
+                            mode.secondary = Some(primary);
+                        }
+
+                        if mode.diff_trip.is_some() {
+                            if mode.menu.action("stop diffing trips") {
+                                mode.diff_trip = None;
+                            }
+                        } else if mode.diff_all.is_some() {
+                            if mode.menu.action("stop diffing trips") {
+                                mode.diff_all = None;
+                            }
+                        } else {
+                            if state.ui.primary.current_selection.is_none()
+                                && mode.menu.action("diff all trips")
                             {
-                                let s = mode.secondary.as_mut().unwrap();
-                                s.sim.step(&s.map, dt);
-                            }
-                            if let Some(diff) = mode.diff_trip.take() {
-                                mode.diff_trip = Some(DiffOneTrip::new(
-                                    diff.trip,
-                                    &state.ui.primary,
-                                    mode.secondary.as_ref().unwrap(),
-                                ));
-                            }
-                            if mode.diff_all.is_some() {
                                 mode.diff_all = Some(DiffAllTrips::new(
                                     &mut state.ui.primary,
                                     mode.secondary.as_mut().unwrap(),
                                 ));
-                            }
-                            //*ctx.recalculate_current_selection = true;
-                            *last_step = Instant::now();
-
-                            if benchmark.has_real_time_passed(Duration::seconds(1.0)) {
-                                // I think the benchmark should naturally account for the delay of
-                                // the secondary sim.
-                                *speed = state.ui.primary.sim.measure_speed(benchmark, false);
+                            } else if let Some(agent) = state
+                                .ui
+                                .primary
+                                .current_selection
+                                .and_then(|id| id.agent_id())
+                            {
+                                if let Some(trip) = state.ui.primary.sim.agent_to_trip(agent) {
+                                    if ctx.input.contextual_action(
+                                        Key::B,
+                                        &format!("Show {}'s parallel world", agent),
+                                    ) {
+                                        mode.diff_trip = Some(DiffOneTrip::new(
+                                            trip,
+                                            &state.ui.primary,
+                                            mode.secondary.as_ref().unwrap(),
+                                        ));
+                                    }
+                                }
                             }
                         }
-                        EventLoopMode::Animation
+
+                        if let Some(dt) =
+                            mode.speed
+                                .event(ctx, &mut mode.menu, state.ui.primary.sim.time())
+                        {
+                            mode.step(dt, &mut state.ui.primary);
+                        }
+
+                        if mode.speed.is_paused() {
+                            if mode.menu.action("step forwards 0.1s") {
+                                mode.step(Duration::seconds(0.1), &mut state.ui.primary);
+                            }
+                            EventLoopMode::InputOnly
+                        } else {
+                            EventLoopMode::Animation
+                        }
                     }
-                    State::Setup(_) => unreachable!(),
                 }
             }
             _ => unreachable!(),
         }
+    }
+
+    fn step(&mut self, dt: Duration, primary: &mut PerMapUI) {
+        primary.sim.step(&primary.map, dt);
+        {
+            let s = self.secondary.as_mut().unwrap();
+            s.sim.step(&s.map, dt);
+        }
+        if let Some(diff) = self.diff_trip.take() {
+            self.diff_trip = Some(DiffOneTrip::new(
+                diff.trip,
+                primary,
+                self.secondary.as_ref().unwrap(),
+            ));
+        }
+        if self.diff_all.is_some() {
+            self.diff_all = Some(DiffAllTrips::new(primary, self.secondary.as_mut().unwrap()));
+        }
+        //*ctx.recalculate_current_selection = true;
     }
 
     pub fn draw(state: &GameState, g: &mut GfxCtx) {
@@ -277,6 +211,7 @@ impl ABTestMode {
                         diff.draw(g, &state.ui);
                     }
                     mode.menu.draw(g);
+                    mode.speed.draw(g);
                 }
             },
             _ => unreachable!(),
