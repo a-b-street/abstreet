@@ -3,7 +3,8 @@ use crate::mission::trips::{clip_trips, Trip};
 use crate::ui::{ShowEverything, UI};
 use abstutil::{elapsed_seconds, prettyprint_usize};
 use ezgui::{
-    hotkey, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, ModalMenu, Slider, Text,
+    hotkey, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, ModalMenu, ScreenPt, Slider,
+    Text,
 };
 use geom::{Circle, Distance, Duration};
 use map_model::{PathRequest, LANE_THICKNESS};
@@ -11,14 +12,16 @@ use popdat::psrc::Mode;
 use std::time::Instant;
 
 const ADJUST_SPEED: f64 = 0.1;
+// TODO hardcoded cap for now...
+const SPEED_CAP: f64 = 60.0;
 
 pub struct TripsVisualizer {
     menu: ModalMenu,
     trips: Vec<Trip>,
-    slider: Slider,
+    time_slider: Slider,
+    speed_slider: Slider,
 
     active_trips: Vec<usize>,
-    desired_speed: f64,
     running: Option<Instant>,
 }
 
@@ -60,6 +63,9 @@ impl TripsVisualizer {
         });
 
         // TODO It'd be awesome to use the generic timer controls for this
+        // TODO hardcoding placement...
+        let mut speed_slider = Slider::new(Some(ScreenPt::new(500.0, 0.0)));
+        speed_slider.set_percent(ctx, 1.0 / SPEED_CAP);
         TripsVisualizer {
             menu: ModalMenu::new(
                 "Trips Visualizer",
@@ -77,21 +83,22 @@ impl TripsVisualizer {
                 ],
                 ctx,
             ),
-            desired_speed: 1.0,
             running: None,
             trips,
-            slider: Slider::new(),
+            time_slider: Slider::new(None),
+            speed_slider,
             active_trips: Vec::new(),
         }
     }
 
     fn current_time(&self) -> Duration {
-        self.slider.get_percent() * Duration::parse("23:59:59.9").unwrap()
+        self.time_slider.get_percent() * Duration::parse("23:59:59.9").unwrap()
     }
 
     // Returns None if the we're done
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<EventLoopMode> {
         let time = self.current_time();
+        let desired_speed = self.speed_slider.get_percent() * SPEED_CAP;
 
         let mut txt = Text::prompt("Trips Visualizer");
         txt.add_line(format!(
@@ -99,7 +106,7 @@ impl TripsVisualizer {
             prettyprint_usize(self.active_trips.len())
         ));
         txt.add_line(format!("At {}", time));
-        txt.add_line(format!("Speed: {:.2}x", self.desired_speed));
+        txt.add_line(format!("Speed: {:.2}x", desired_speed));
         if self.running.is_some() {
             txt.add_line("Playing".to_string());
         } else {
@@ -115,11 +122,14 @@ impl TripsVisualizer {
         let ten_secs = Duration::seconds(10.0);
         let thirty_mins = Duration::minutes(30);
 
-        if self.menu.action("speed up") {
-            self.desired_speed += ADJUST_SPEED;
-        } else if self.menu.action("slow down") {
-            self.desired_speed -= ADJUST_SPEED;
-            self.desired_speed = self.desired_speed.max(0.0);
+        if desired_speed != SPEED_CAP && self.menu.action("speed up") {
+            self.speed_slider
+                .set_percent(ctx, ((desired_speed + ADJUST_SPEED) / SPEED_CAP).min(1.0));
+        } else if desired_speed != 0.0 && self.menu.action("slow down") {
+            self.speed_slider
+                .set_percent(ctx, ((desired_speed - ADJUST_SPEED) / SPEED_CAP).max(0.0));
+        } else if self.speed_slider.event(ctx) {
+            // Keep going
         } else if self.menu.action("pause/resume") {
             if self.running.is_some() {
                 self.running = None;
@@ -131,26 +141,28 @@ impl TripsVisualizer {
         if self.menu.action("quit") {
             return None;
         } else if time != last_time && self.menu.action("forwards 10 seconds") {
-            self.slider.set_percent(ctx, (time + ten_secs) / last_time);
+            self.time_slider
+                .set_percent(ctx, (time + ten_secs) / last_time);
         } else if time + thirty_mins <= last_time && self.menu.action("forwards 30 minutes") {
-            self.slider
+            self.time_slider
                 .set_percent(ctx, (time + thirty_mins) / last_time);
         } else if time != Duration::ZERO && self.menu.action("backwards 10 seconds") {
-            self.slider.set_percent(ctx, (time - ten_secs) / last_time);
+            self.time_slider
+                .set_percent(ctx, (time - ten_secs) / last_time);
         } else if time - thirty_mins >= Duration::ZERO && self.menu.action("backwards 30 minutes") {
-            self.slider
+            self.time_slider
                 .set_percent(ctx, (time - thirty_mins) / last_time);
         } else if time != Duration::ZERO && self.menu.action("goto start of day") {
-            self.slider.set_percent(ctx, 0.0);
+            self.time_slider.set_percent(ctx, 0.0);
         } else if time != last_time && self.menu.action("goto end of day") {
-            self.slider.set_percent(ctx, 1.0);
-        } else if self.slider.event(ctx) {
+            self.time_slider.set_percent(ctx, 1.0);
+        } else if self.time_slider.event(ctx) {
             // Value changed, fall-through
         } else if let Some(last_step) = self.running {
             if ctx.input.nonblocking_is_update_event() {
                 ctx.input.use_update_event();
-                let dt = Duration::seconds(elapsed_seconds(last_step)) * self.desired_speed;
-                self.slider
+                let dt = Duration::seconds(elapsed_seconds(last_step)) * desired_speed;
+                self.time_slider
                     .set_percent(ctx, ((time + dt) / last_time).min(1.0));
                 self.running = Some(Instant::now());
             // Value changed, fall-through
@@ -207,7 +219,8 @@ impl TripsVisualizer {
         batch.draw(g);
 
         self.menu.draw(g);
-        self.slider.draw(g);
+        self.time_slider.draw(g);
+        self.speed_slider.draw(g);
         CommonState::draw_osd(g, ui, ui.primary.current_selection);
     }
 }

@@ -1,4 +1,16 @@
+use structopt::StructOpt;
+
+#[derive(StructOpt)]
+#[structopt(name = "popdat")]
+struct Flags {
+    /// Stop after this many trips, for faster development
+    #[structopt(long = "cap")]
+    pub cap: Option<usize>,
+}
+
 fn main() {
+    let flags = Flags::from_args();
+
     let mut timer = abstutil::Timer::new("creating popdat");
     let mut popdat = popdat::PopDat::import_all(&mut timer);
 
@@ -11,6 +23,9 @@ fn main() {
         &mut timer,
     )
     .unwrap();
+    if let Some(n) = flags.cap {
+        popdat.trips = popdat.trips.into_iter().take(n).collect();
+    }
 
     abstutil::write_binary("../data/shapes/popdat", &popdat).unwrap();
 }

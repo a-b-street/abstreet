@@ -11,15 +11,17 @@ use crate::game::{GameState, Mode};
 use crate::render::DrawOptions;
 use crate::ui::ShowEverything;
 use abstutil::elapsed_seconds;
-use ezgui::{hotkey, lctrl, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard};
+use ezgui::{hotkey, lctrl, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Slider, Text, Wizard};
 use geom::Duration;
 use sim::{Benchmark, Sim, TripID};
 use std::time::Instant;
 
 const ADJUST_SPEED: f64 = 0.1;
+// TODO hardcoded cap for now...
+const SPEED_CAP: f64 = 60.0;
 
 pub struct SandboxMode {
-    desired_speed: f64, // sim seconds per real second
+    speed_slider: Slider,
     following: Option<TripID>,
     route_viewer: route_viewer::RouteViewer,
     show_activity: show_activity::ShowActivity,
@@ -44,8 +46,10 @@ enum State {
 
 impl SandboxMode {
     pub fn new(ctx: &mut EventCtx) -> SandboxMode {
+        let mut speed_slider = Slider::new(None);
+        speed_slider.set_percent(ctx, 1.0 / SPEED_CAP);
         SandboxMode {
-            desired_speed: 1.0,
+            speed_slider,
             state: State::Paused,
             following: None,
             route_viewer: route_viewer::RouteViewer::Inactive,
@@ -109,18 +113,17 @@ impl SandboxMode {
                     return EventLoopMode::InputOnly;
                 }
 
+                let desired_speed = mode.speed_slider.get_percent() * SPEED_CAP;
+
                 let mut txt = Text::prompt("Sandbox Mode");
                 txt.add_line(state.ui.primary.sim.summary());
                 if let State::Running { ref speed, .. } = mode.state {
                     txt.add_line(format!(
                         "Speed: {0} / desired {1:.2}x",
-                        speed, mode.desired_speed
+                        speed, desired_speed
                     ));
                 } else {
-                    txt.add_line(format!(
-                        "Speed: paused / desired {0:.2}x",
-                        mode.desired_speed
-                    ));
+                    txt.add_line(format!("Speed: paused / desired {0:.2}x", desired_speed));
                 }
                 if let Some(trip) = mode.following {
                     txt.add_line(format!("Following {}", trip));
@@ -219,12 +222,14 @@ impl SandboxMode {
                     return EventLoopMode::InputOnly;
                 }
 
-                if mode.menu.action("slow down sim") {
-                    mode.desired_speed -= ADJUST_SPEED;
-                    mode.desired_speed = mode.desired_speed.max(0.0);
-                }
-                if mode.menu.action("speed up sim") {
-                    mode.desired_speed += ADJUST_SPEED;
+                if desired_speed != SPEED_CAP && mode.menu.action("speed up sim") {
+                    mode.speed_slider
+                        .set_percent(ctx, ((desired_speed + ADJUST_SPEED) / SPEED_CAP).min(1.0));
+                } else if desired_speed != 0.0 && mode.menu.action("slow down sim") {
+                    mode.speed_slider
+                        .set_percent(ctx, ((desired_speed - ADJUST_SPEED) / SPEED_CAP).max(0.0));
+                } else if mode.speed_slider.event(ctx) {
+                    // Keep going
                 }
 
                 match mode.state {
@@ -308,8 +313,7 @@ impl SandboxMode {
                             mode.state = State::Paused;
                         } else if ctx.input.nonblocking_is_update_event() {
                             ctx.input.use_update_event();
-                            let dt =
-                                Duration::seconds(elapsed_seconds(*last_step)) * mode.desired_speed;
+                            let dt = Duration::seconds(elapsed_seconds(*last_step)) * desired_speed;
 
                             state.ui.primary.sim.step(&state.ui.primary.map, dt);
                             //*ctx.recalculate_current_selection = true;
@@ -365,6 +369,7 @@ impl SandboxMode {
                     mode.route_viewer.draw(g, &state.ui);
                     mode.show_activity.draw(g, &state.ui);
                     mode.menu.draw(g);
+                    mode.speed_slider.draw(g);
                 }
             },
             _ => unreachable!(),

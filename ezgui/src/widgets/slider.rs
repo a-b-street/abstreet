@@ -1,5 +1,5 @@
 use crate::screen_geom::ScreenRectangle;
-use crate::{hotkey, Color, EventCtx, GfxCtx, Key, ModalMenu, MultiKey, Text};
+use crate::{hotkey, Color, EventCtx, GfxCtx, Key, ModalMenu, MultiKey, ScreenPt, Text};
 use geom::{Distance, Polygon, Pt2D};
 
 // Pixels
@@ -12,14 +12,17 @@ const HORIZ_PADDING: f64 = 60.0;
 const VERT_PADDING: f64 = 20.0;
 
 pub struct Slider {
+    top_left: ScreenPt,
     current_percent: f64,
     mouse_on_slider: bool,
     dragging: bool,
 }
 
 impl Slider {
-    pub fn new() -> Slider {
+    // TODO Easier placement options.
+    pub fn new(top_left_at: Option<ScreenPt>) -> Slider {
         Slider {
+            top_left: top_left_at.unwrap_or_else(|| ScreenPt::new(0.0, 0.0)),
             current_percent: 0.0,
             mouse_on_slider: false,
             dragging: false,
@@ -52,7 +55,8 @@ impl Slider {
         if self.dragging {
             if ctx.input.get_moved_mouse().is_some() {
                 let percent =
-                    (ctx.canvas.get_cursor_in_screen_space().x - HORIZ_PADDING) / BAR_WIDTH;
+                    (ctx.canvas.get_cursor_in_screen_space().x - HORIZ_PADDING - self.top_left.x)
+                        / BAR_WIDTH;
                 self.current_percent = percent.min(1.0).max(0.0);
                 return true;
             }
@@ -71,13 +75,16 @@ impl Slider {
                     // Did we click somewhere else on the bar?
                     let pt = ctx.canvas.get_cursor_in_screen_space();
                     if Polygon::rectangle_topleft(
-                        Pt2D::new(HORIZ_PADDING, VERT_PADDING),
+                        Pt2D::new(
+                            HORIZ_PADDING + self.top_left.x,
+                            VERT_PADDING + self.top_left.y,
+                        ),
                         Distance::meters(BAR_WIDTH),
                         Distance::meters(BAR_HEIGHT),
                     )
                     .contains_pt(Pt2D::new(pt.x, pt.y))
                     {
-                        let percent = (pt.x - HORIZ_PADDING) / BAR_WIDTH;
+                        let percent = (pt.x - HORIZ_PADDING - self.top_left.x) / BAR_WIDTH;
                         self.current_percent = percent.min(1.0).max(0.0);
                         self.mouse_on_slider = true;
                         self.dragging = true;
@@ -96,23 +103,26 @@ impl Slider {
         g.draw_polygon(
             Color::grey(0.3),
             &Polygon::rectangle_topleft(
-                Pt2D::new(0.0, 0.0),
+                Pt2D::new(self.top_left.x, self.top_left.y),
                 Distance::meters(BAR_WIDTH + 2.0 * HORIZ_PADDING),
                 Distance::meters(BAR_HEIGHT + 2.0 * VERT_PADDING),
             ),
         );
         g.canvas.mark_covered_area(ScreenRectangle {
-            x1: 0.0,
-            y1: 0.0,
-            x2: BAR_WIDTH + 2.0 * HORIZ_PADDING,
-            y2: BAR_HEIGHT + 2.0 * VERT_PADDING,
+            x1: self.top_left.x,
+            y1: self.top_left.y,
+            x2: self.top_left.x + BAR_WIDTH + 2.0 * HORIZ_PADDING,
+            y2: self.top_left.y + BAR_HEIGHT + 2.0 * VERT_PADDING,
         });
 
         // The bar
         g.draw_polygon(
             Color::WHITE,
             &Polygon::rectangle_topleft(
-                Pt2D::new(HORIZ_PADDING, VERT_PADDING),
+                Pt2D::new(
+                    self.top_left.x + HORIZ_PADDING,
+                    self.top_left.y + VERT_PADDING,
+                ),
                 Distance::meters(BAR_WIDTH),
                 Distance::meters(BAR_HEIGHT),
             ),
@@ -123,7 +133,10 @@ impl Slider {
             g.draw_polygon(
                 Color::GREEN,
                 &Polygon::rectangle_topleft(
-                    Pt2D::new(HORIZ_PADDING, VERT_PADDING),
+                    Pt2D::new(
+                        self.top_left.x + HORIZ_PADDING,
+                        self.top_left.y + VERT_PADDING,
+                    ),
                     Distance::meters(self.current_percent * BAR_WIDTH),
                     Distance::meters(BAR_HEIGHT),
                 ),
@@ -144,8 +157,9 @@ impl Slider {
     fn slider_geom(&self) -> Polygon {
         Polygon::rectangle_topleft(
             Pt2D::new(
-                HORIZ_PADDING + self.current_percent * BAR_WIDTH - (SLIDER_WIDTH / 2.0),
-                VERT_PADDING - (SLIDER_HEIGHT - BAR_HEIGHT) / 2.0,
+                self.top_left.x + HORIZ_PADDING + self.current_percent * BAR_WIDTH
+                    - (SLIDER_WIDTH / 2.0),
+                self.top_left.y + VERT_PADDING - (SLIDER_HEIGHT - BAR_HEIGHT) / 2.0,
             ),
             Distance::meters(SLIDER_WIDTH),
             Distance::meters(SLIDER_HEIGHT),
@@ -188,7 +202,7 @@ impl<T> ItemSlider<T> {
 
         ItemSlider {
             items,
-            slider: Slider::new(),
+            slider: Slider::new(None),
             menu: ModalMenu::new(menu_title, choices, ctx),
 
             prev,
