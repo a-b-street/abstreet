@@ -476,6 +476,9 @@ impl DrivingSimState {
         // We might be vanishing while partly clipping into other stuff.
         self.clear_last_steps(time, car, intersections, scheduler);
 
+        // We might've scheduled one of those using BLIND_RETRY_TO_CREEP_FORWARDS.
+        scheduler.cancel(Command::UpdateLaggyHead(car.vehicle.id));
+
         // Update the follower so that they don't suddenly jump forwards.
         if idx != dists.len() - 1 {
             let (follower_id, follower_dist) = dists[idx + 1];

@@ -97,6 +97,12 @@ impl Scheduler {
         self.push(new_time, cmd);
     }
 
+    pub fn cancel(&mut self, cmd: Command) {
+        if let Some(idx) = self.items.iter().position(|(_, i)| *i == cmd) {
+            self.items.remove(idx);
+        }
+    }
+
     // This API is safer than handing out a batch of items at a time, because while processing one
     // item, we might change the priority of other items or add new items. Don't make the caller
     // reconcile those changes -- just keep pulling items from here, one at a time.
