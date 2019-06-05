@@ -73,6 +73,16 @@ impl Scheduler {
         self.items.insert(idx, (time, cmd));
     }
 
+    // Doesn't sort or touch the histogram. Have to call finalize_batch() after. Only for
+    // scheduling lots of stuff at the beginning of a simulation.
+    pub fn quick_push(&mut self, time: Duration, cmd: Command) {
+        self.items.push((time, cmd));
+    }
+
+    pub fn finalize_batch(&mut self) {
+        self.items.sort_by_key(|(time, _)| -*time);
+    }
+
     pub fn update(&mut self, cmd: Command, new_time: Duration) {
         if new_time < self.latest_time {
             panic!(
