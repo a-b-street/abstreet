@@ -311,11 +311,12 @@ fn choose_neighborhood(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Op
 }
 
 fn load_scenario(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<Scenario> {
+    // TODO choose from list, then load
     let map_name = map.get_name().to_string();
     wizard
         .choose_something_no_keys::<Scenario>(
             query,
-            Box::new(move || abstutil::load_all_objects("scenarios", &map_name)),
+            Box::new(move || abstutil::load_all_binary_objects("scenarios", &map_name)),
         )
         .map(|(_, s)| s)
 }

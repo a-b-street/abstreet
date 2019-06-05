@@ -159,9 +159,47 @@ pub fn load_all_objects<T: DeserializeOwned>(dir: &str, map_name: &str) -> Vec<(
     tree.into_iter().collect()
 }
 
+// TODO ahh don't duplicate like this.
+pub fn load_all_binary_objects<T: DeserializeOwned>(dir: &str, map_name: &str) -> Vec<(String, T)> {
+    let mut tree: BTreeMap<String, T> = BTreeMap::new();
+    let mut timer = Timer::new(&format!("read all binary {} for {}", dir, map_name));
+    match std::fs::read_dir(format!("../data/{}/{}/", dir, map_name)) {
+        Ok(iter) => {
+            for entry in iter {
+                let filename = entry.unwrap().file_name();
+                let path = Path::new(&filename);
+                if path.to_string_lossy().ends_with(".swp") {
+                    continue;
+                }
+                let name = path
+                    .file_stem()
+                    .unwrap()
+                    .to_os_string()
+                    .into_string()
+                    .unwrap();
+                let load: T = read_binary(
+                    &format!("../data/{}/{}/{}", dir, map_name, name),
+                    &mut timer,
+                )
+                .unwrap();
+                tree.insert(name, load);
+            }
+        }
+        Err(ref e) if e.kind() == ErrorKind::NotFound => {}
+        Err(e) => panic!(e),
+    };
+    tree.into_iter().collect()
+}
+
 pub fn save_object<T: Serialize>(dir: &str, map_name: &str, obj_name: &str, obj: &T) {
     let path = format!("../data/{}/{}/{}.json", dir, map_name, obj_name);
     write_json(&path, obj).expect(&format!("Saving {} failed", path));
+    println!("Saved {}", path);
+}
+
+pub fn save_binary_object<T: Serialize>(dir: &str, map_name: &str, obj_name: &str, obj: &T) {
+    let path = format!("../data/{}/{}/{}", dir, map_name, obj_name);
+    write_binary(&path, obj).expect(&format!("Saving {} failed", path));
     println!("Saved {}", path);
 }
 

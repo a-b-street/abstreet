@@ -89,7 +89,7 @@ fn pick_ab_test(map: &Map, mut wizard: WrappedWizard) -> Option<ABTest> {
 fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> Mode {
     println!("Launching A/B test {}...", test.test_name);
     let load = PathBuf::from(format!(
-        "../data/scenarios/{}/{}.json",
+        "../data/scenarios/{}/{}",
         test.map_name, test.scenario_name
     ));
     let current_flags = &ui.primary.current_flags;

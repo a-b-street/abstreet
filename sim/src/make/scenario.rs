@@ -63,10 +63,13 @@ pub struct SeedParkedCars {
 
 impl Scenario {
     pub fn describe(&self) -> Vec<String> {
-        abstutil::to_json(self)
-            .split('\n')
-            .map(|s| s.to_string())
-            .collect()
+        vec![
+            format!("{} for {}", self.scenario_name, self.map_name),
+            format!("{} SeedParkedCars", self.seed_parked_cars.len()),
+            format!("{} SpawnOverTime", self.spawn_over_time.len()),
+            format!("{} BorderSpawnOverTime", self.border_spawn_over_time.len()),
+            format!("{} SpawnTrip", self.individ_trips.len()),
+        ]
     }
 
     // TODO may need to fork the RNG a bit more
@@ -190,7 +193,7 @@ impl Scenario {
     }
 
     pub fn save(&self) {
-        abstutil::save_object("scenarios", &self.map_name, &self.scenario_name, self);
+        abstutil::save_binary_object("scenarios", &self.map_name, &self.scenario_name, self);
     }
 
     pub fn small_run(map: &Map) -> Scenario {

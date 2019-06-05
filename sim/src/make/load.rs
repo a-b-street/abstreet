@@ -84,8 +84,8 @@ impl SimFlags {
                 self.load.display()
             ));
 
-            let scenario: Scenario =
-                abstutil::read_json(self.load.to_str().unwrap()).expect("loading scenario failed");
+            let scenario: Scenario = abstutil::read_binary(self.load.to_str().unwrap(), timer)
+                .expect("loading scenario failed");
 
             let mut map: Map =
                 abstutil::read_binary(&format!("../data/maps/{}.abst", scenario.map_name), timer)
