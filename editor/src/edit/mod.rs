@@ -147,11 +147,7 @@ impl EditMode {
                 }
             }
             Mode::Edit(EditMode::Saving(ref mut wizard)) => {
-                if save_edits(
-                    wizard.wrap(ctx.input, ctx.canvas),
-                    &mut state.ui.primary.map,
-                )
-                .is_some()
+                if save_edits(wizard.wrap(ctx), &mut state.ui.primary.map).is_some()
                     || wizard.aborted()
                 {
                     state.mode = Mode::Edit(EditMode::new(ctx, &mut state.ui));
@@ -160,7 +156,7 @@ impl EditMode {
             Mode::Edit(EditMode::Loading(ref mut wizard)) => {
                 if let Some(new_edits) = load_edits(
                     &state.ui.primary.map,
-                    &mut wizard.wrap(ctx.input, ctx.canvas),
+                    &mut wizard.wrap(ctx),
                     "Load which map edits?",
                 ) {
                     apply_map_edits(&mut state.ui, ctx, new_edits);

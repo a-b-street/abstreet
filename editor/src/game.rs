@@ -241,7 +241,7 @@ fn splash_screen(
     ui: &mut UI,
     maybe_screensaver: &mut Option<(Screensaver, XorShiftRng)>,
 ) -> Option<Mode> {
-    let mut wizard = raw_wizard.wrap(&mut ctx.input, ctx.canvas);
+    let mut wizard = raw_wizard.wrap(ctx);
     let sandbox = "Sandbox mode";
     let load_map = "Load another map";
     let edit = "Edit map";

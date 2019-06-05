@@ -122,9 +122,7 @@ impl MissionEditMode {
                         }
                     }
                     State::TripsToScenario(ref mut wizard) => {
-                        if let Some((t1, t2)) =
-                            pick_time_range(wizard.wrap(&mut ctx.input, ctx.canvas))
-                        {
+                        if let Some((t1, t2)) = pick_time_range(wizard.wrap(ctx)) {
                             trips_to_scenario(ctx, &state.ui, t1, t2).save();
                             mode.state = MissionEditMode::new(ctx, &mut state.ui).state;
                         } else if wizard.aborted() {

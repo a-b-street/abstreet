@@ -78,7 +78,7 @@ impl TrafficSignalEditor {
                 .cycle_duration_wizard
                 .as_mut()
                 .unwrap()
-                .wrap(ctx.input, ctx.canvas)
+                .wrap(ctx)
                 .input_usize_prefilled(
                     "How long should this cycle be?",
                     format!(
@@ -97,10 +97,7 @@ impl TrafficSignalEditor {
             if let Some(new_signal) = choose_preset(
                 &ui.primary.map,
                 self.i,
-                self.preset_wizard
-                    .as_mut()
-                    .unwrap()
-                    .wrap(ctx.input, ctx.canvas),
+                self.preset_wizard.as_mut().unwrap().wrap(ctx),
             ) {
                 signal = new_signal;
                 changed = true;

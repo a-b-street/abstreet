@@ -1,5 +1,7 @@
 use crate::widgets::{Menu, Position};
-use crate::{Canvas, GfxCtx, InputResult, LogScroller, MultiKey, Text, TextBox, UserInput};
+use crate::{
+    Canvas, EventCtx, GfxCtx, InputResult, LogScroller, MultiKey, Text, TextBox, UserInput,
+};
 use abstutil::Cloneable;
 use std::collections::VecDeque;
 
@@ -36,18 +38,14 @@ impl Wizard {
         }
     }
 
-    pub fn wrap<'a>(
-        &'a mut self,
-        input: &'a mut UserInput,
-        canvas: &'a mut Canvas,
-    ) -> WrappedWizard<'a> {
+    pub fn wrap<'a>(&'a mut self, ctx: &'a mut EventCtx) -> WrappedWizard<'a> {
         assert!(self.alive);
 
         let ready_results = VecDeque::from(self.confirmed_state.clone());
         WrappedWizard {
             wizard: self,
-            input,
-            canvas,
+            input: ctx.input,
+            canvas: ctx.canvas,
             ready_results,
         }
     }

@@ -34,9 +34,7 @@ impl NeighborhoodEditor {
             NeighborhoodEditor::PickNeighborhood(ref mut wizard) => {
                 ctx.canvas.handle_event(ctx.input);
 
-                if let Some(n) =
-                    pick_neighborhood(&ui.primary.map, wizard.wrap(&mut ctx.input, ctx.canvas))
-                {
+                if let Some(n) = pick_neighborhood(&ui.primary.map, wizard.wrap(ctx)) {
                     *self = NeighborhoodEditor::EditNeighborhood(
                         NeighborhoodEditor::modal_menu(ctx, &n.name),
                         n,

@@ -37,9 +37,7 @@ impl ScenarioEditor {
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Mode> {
         match self {
             ScenarioEditor::PickScenario(ref mut wizard) => {
-                if let Some(scenario) =
-                    pick_scenario(&ui.primary.map, wizard.wrap(&mut ctx.input, ctx.canvas))
-                {
+                if let Some(scenario) = pick_scenario(&ui.primary.map, wizard.wrap(ctx)) {
                     let scroller =
                         LogScroller::new(scenario.scenario_name.clone(), scenario.describe());
                     *self = ScenarioEditor::ManageScenario(
@@ -105,11 +103,7 @@ impl ScenarioEditor {
                 }
             }
             ScenarioEditor::EditScenario(ref mut scenario, ref mut wizard) => {
-                if let Some(()) = edit_scenario(
-                    &ui.primary.map,
-                    scenario,
-                    wizard.wrap(&mut ctx.input, ctx.canvas),
-                ) {
+                if let Some(()) = edit_scenario(&ui.primary.map, scenario, wizard.wrap(ctx)) {
                     let scroller =
                         LogScroller::new(scenario.scenario_name.clone(), scenario.describe());
                     // TODO autosave, or at least make it clear there are unsaved edits

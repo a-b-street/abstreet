@@ -17,8 +17,7 @@ impl ABTestSetup {
             Mode::ABTest(ref mut mode) => match mode.state {
                 State::Setup(ref mut setup) => match setup {
                     ABTestSetup::Pick(ref mut wizard) => {
-                        if let Some(ab_test) =
-                            pick_ab_test(&state.ui.primary.map, wizard.wrap(ctx.input, ctx.canvas))
+                        if let Some(ab_test) = pick_ab_test(&state.ui.primary.map, wizard.wrap(ctx))
                         {
                             let scroller =
                                 LogScroller::new(ab_test.test_name.clone(), ab_test.describe());
