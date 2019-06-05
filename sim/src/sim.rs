@@ -276,15 +276,11 @@ impl GetDrawAgents for Sim {
 
 // Drawing
 impl Sim {
-    // The results represent (moving, waiting) agents
-    // TODO Distinguishing by mode too would be nice, if that's not too many colors on the other
-    // side.
-    pub fn get_unzoomed_agents(&self, map: &Map) -> (Vec<Pt2D>, Vec<Pt2D>) {
-        let (mut moving, mut waiting) = self.driving.get_unzoomed_agents(self.time, map);
-        let (more_moving, more_waiting) = self.walking.get_unzoomed_agents(self.time, map);
-        moving.extend(more_moving);
-        waiting.extend(more_waiting);
-        (moving, waiting)
+    // The results represent (cars, bikes, buses, pedestrians)
+    pub fn get_unzoomed_agents(&self, map: &Map) -> (Vec<Pt2D>, Vec<Pt2D>, Vec<Pt2D>, Vec<Pt2D>) {
+        let (cars, bikes, buses) = self.driving.get_unzoomed_agents(self.time, map);
+        let peds = self.walking.get_unzoomed_agents(self.time, map);
+        (cars, bikes, buses, peds)
     }
 }
 

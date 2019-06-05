@@ -261,20 +261,14 @@ impl WalkingSimState {
         Some(&p.path)
     }
 
-    pub fn get_unzoomed_agents(&self, time: Duration, map: &Map) -> (Vec<Pt2D>, Vec<Pt2D>) {
-        let mut moving = Vec::new();
-        let mut waiting = Vec::new();
+    pub fn get_unzoomed_agents(&self, time: Duration, map: &Map) -> Vec<Pt2D> {
+        let mut peds = Vec::new();
 
         for ped in self.peds.values() {
-            let draw = ped.get_draw_ped(time, map);
-            if draw.waiting_for_turn.is_some() {
-                waiting.push(draw.pos);
-            } else {
-                moving.push(draw.pos);
-            }
+            peds.push(ped.get_draw_ped(time, map).pos);
         }
 
-        (moving, waiting)
+        peds
     }
 }
 

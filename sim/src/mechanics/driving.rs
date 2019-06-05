@@ -3,7 +3,7 @@ use crate::mechanics::queue::Queue;
 use crate::{
     ActionAtEnd, AgentID, CarID, Command, CreateCar, DistanceInterval, DrawCarInput,
     IntersectionSimState, ParkedCar, ParkingSimState, Scheduler, TimeInterval, TransitSimState,
-    TripManager, WalkingSimState, FOLLOWING_DISTANCE,
+    TripManager, VehicleType, WalkingSimState, FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Distance, Duration, PolyLine, Pt2D};
@@ -610,9 +610,15 @@ impl DrivingSimState {
         }
     }
 
-    pub fn get_unzoomed_agents(&self, time: Duration, map: &Map) -> (Vec<Pt2D>, Vec<Pt2D>) {
-        let mut moving = Vec::new();
-        let mut waiting = Vec::new();
+    // cars, bikes, buses
+    pub fn get_unzoomed_agents(
+        &self,
+        time: Duration,
+        map: &Map,
+    ) -> (Vec<Pt2D>, Vec<Pt2D>, Vec<Pt2D>) {
+        let mut cars = Vec::new();
+        let mut bikes = Vec::new();
+        let mut buses = Vec::new();
 
         for queue in self.queues.values() {
             if queue.cars.is_empty() {
@@ -622,18 +628,21 @@ impl DrivingSimState {
 
             for (car, dist) in queue.get_car_positions(time, &self.cars, &self.queues) {
                 let pos = queue.id.dist_along(dist, map).0;
-                match self.cars[&car].state {
-                    CarState::Queued | CarState::WaitingToAdvance => {
-                        waiting.push(pos);
+                match car.1 {
+                    VehicleType::Car => {
+                        cars.push(pos);
                     }
-                    _ => {
-                        moving.push(pos);
+                    VehicleType::Bike => {
+                        bikes.push(pos);
+                    }
+                    VehicleType::Bus => {
+                        buses.push(pos);
                     }
                 }
             }
         }
 
-        (moving, waiting)
+        (cars, bikes, buses)
     }
 
     pub fn get_all_draw_cars(&self, time: Duration, map: &Map) -> Vec<DrawCarInput> {

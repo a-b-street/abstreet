@@ -82,20 +82,29 @@ impl UI {
                 );
             }
 
-            let (moving, waiting) = self.primary.sim.get_unzoomed_agents(&self.primary.map);
+            let (cars, bikes, buses, peds) =
+                self.primary.sim.get_unzoomed_agents(&self.primary.map);
             let mut batch = GeomBatch::new();
             let radius = Distance::meters(10.0) / g.canvas.cam_zoom;
-            let moving_color = self
-                .cs
-                .get_def("moving unzoomed agents", Color::BLUE.alpha(0.5));
-            for pt in moving {
-                batch.push(moving_color, Circle::new(pt, radius).to_polygon());
-            }
-            let waiting_color = self
-                .cs
-                .get_def("waiting unzoomed agents", Color::RED.alpha(0.5));
-            for pt in waiting {
-                batch.push(waiting_color, Circle::new(pt, radius).to_polygon());
+            for (color, agents) in vec![
+                (self.cs.get_def("unzoomed car", Color::RED.alpha(0.5)), cars),
+                (
+                    self.cs.get_def("unzoomed bike", Color::GREEN.alpha(0.5)),
+                    bikes,
+                ),
+                (
+                    self.cs.get_def("unzoomed bus", Color::BLUE.alpha(0.5)),
+                    buses,
+                ),
+                (
+                    self.cs
+                        .get_def("unzoomed pedestrian ", Color::CYAN.alpha(0.5)),
+                    peds,
+                ),
+            ] {
+                for pt in agents {
+                    batch.push(color, Circle::new(pt, radius).to_polygon());
+                }
             }
             batch.draw(g);
         } else {
