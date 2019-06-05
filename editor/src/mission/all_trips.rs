@@ -3,8 +3,7 @@ use crate::mission::trips::{clip_trips, Trip};
 use crate::ui::{ShowEverything, UI};
 use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, ModalMenu, ScreenPt, Slider,
-    Text,
+    hotkey, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, ModalMenu, ScreenPt, Slider, Text,
 };
 use geom::{Circle, Distance, Duration};
 use map_model::{PathRequest, LANE_THICKNESS};
@@ -161,12 +160,12 @@ impl TripsVisualizer {
 
             let pl = trip.route.as_ref().unwrap();
             let color = match trip.mode {
-                Mode::Drive => Color::RED,
-                Mode::Walk => Color::GREEN,
-                Mode::Bike => Color::BLUE,
-                Mode::Transit => Color::ORANGE,
-            }
-            .alpha(0.5);
+                Mode::Drive => ui.cs.get("unzoomed car"),
+                Mode::Walk => ui.cs.get("unzoomed pedestrian"),
+                Mode::Bike => ui.cs.get("unzoomed bike"),
+                // Little weird, but close enough.
+                Mode::Transit => ui.cs.get("unzoomed bus"),
+            };
             batch.push(
                 color,
                 Circle::new(

@@ -98,7 +98,7 @@ impl UI {
                 ),
                 (
                     self.cs
-                        .get_def("unzoomed pedestrian ", Color::CYAN.alpha(0.5)),
+                        .get_def("unzoomed pedestrian", Color::ORANGE.alpha(0.5)),
                     peds,
                 ),
             ] {
