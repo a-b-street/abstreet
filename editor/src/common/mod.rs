@@ -219,7 +219,7 @@ impl Warper {
 
 const ADJUST_SPEED: f64 = 0.1;
 // TODO hardcoded cap for now...
-const SPEED_CAP: f64 = 60.0;
+const SPEED_CAP: f64 = 10.0 * 60.0;
 
 pub struct SpeedControls {
     slider: Slider,

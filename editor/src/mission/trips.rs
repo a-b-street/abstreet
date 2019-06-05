@@ -264,7 +264,11 @@ pub fn instantiate_trips(ctx: &mut EventCtx, ui: &mut UI) {
 
         let mut min_time = Duration::parse("23:59:59.9").unwrap();
 
-        for trip in clip_trips(ui, &mut timer) {
+        let trips = clip_trips(ui, &mut timer);
+        // TODO parallelize this -- except timer.warn and rng aren't threadsafe.
+        timer.start_iter("turn PSRC trips into sim trips", trips.len());
+        for trip in trips {
+            timer.next();
             ui.primary.sim.schedule_trip(
                 trip.depart_at,
                 match trip.mode {
