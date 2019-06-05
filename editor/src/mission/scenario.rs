@@ -1,6 +1,6 @@
 use crate::game::Mode;
 use crate::helpers::rotating_color;
-use crate::mission::MissionEditMode;
+use crate::mission::{input_time, MissionEditMode};
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::WeightedUsizeChoice;
@@ -208,6 +208,7 @@ fn pick_scenario(map: &Map, mut wizard: WrappedWizard) -> Option<Scenario> {
             seed_parked_cars: Vec::new(),
             spawn_over_time: Vec::new(),
             border_spawn_over_time: Vec::new(),
+            individ_trips: Vec::new(),
         })
     }
 }
@@ -323,10 +324,6 @@ fn load_scenario(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<S
             Box::new(move || abstutil::load_all_objects("scenarios", &map_name)),
         )
         .map(|(_, s)| s)
-}
-
-fn input_time(wizard: &mut WrappedWizard, query: &str) -> Option<Duration> {
-    wizard.input_something(query, None, Box::new(|line| Duration::parse(&line)))
 }
 
 fn input_weighted_usize(wizard: &mut WrappedWizard, query: &str) -> Option<WeightedUsizeChoice> {

@@ -6,7 +6,8 @@ use abstutil;
 use abstutil::{fork_rng, Timer, WeightedUsizeChoice};
 use geom::{Distance, Duration, Speed};
 use map_model::{
-    BuildingID, FullNeighborhoodInfo, IntersectionID, LaneType, Map, Position, RoadID,
+    BuildingID, BusRouteID, BusStopID, FullNeighborhoodInfo, IntersectionID, LaneType, Map,
+    Position, RoadID,
 };
 use rand::seq::SliceRandom;
 use rand::Rng;
@@ -22,6 +23,7 @@ pub struct Scenario {
     pub seed_parked_cars: Vec<SeedParkedCars>,
     pub spawn_over_time: Vec<SpawnOverTime>,
     pub border_spawn_over_time: Vec<BorderSpawnOverTime>,
+    pub individ_trips: Vec<SpawnTrip>,
 }
 
 // SpawnOverTime and BorderSpawnOverTime should be kept separate. Agents in SpawnOverTime pick
@@ -118,6 +120,71 @@ impl Scenario {
             s.spawn_bikes(rng, sim, &neighborhoods, map, timer);
         }
 
+        timer.start_iter("SpawnTrip", self.individ_trips.len());
+        for t in &self.individ_trips {
+            match t.clone() {
+                SpawnTrip::CarAppearing {
+                    depart,
+                    start,
+                    goal,
+                    is_bike,
+                } => {
+                    sim.schedule_trip(
+                        depart,
+                        TripSpec::CarAppearing {
+                            start_pos: start,
+                            goal,
+                            vehicle_spec: if is_bike {
+                                Scenario::rand_bike(rng)
+                            } else {
+                                Scenario::rand_car(rng)
+                            },
+                            ped_speed: Scenario::rand_ped_speed(rng),
+                        },
+                        map,
+                    );
+                }
+                SpawnTrip::UsingBike(depart, start, goal) => {
+                    sim.schedule_trip(
+                        depart,
+                        TripSpec::UsingBike {
+                            start,
+                            goal,
+                            vehicle: Scenario::rand_bike(rng),
+                            ped_speed: Scenario::rand_ped_speed(rng),
+                        },
+                        map,
+                    );
+                }
+                SpawnTrip::JustWalking(depart, start, goal) => {
+                    sim.schedule_trip(
+                        depart,
+                        TripSpec::JustWalking {
+                            start,
+                            goal,
+                            ped_speed: Scenario::rand_ped_speed(rng),
+                        },
+                        map,
+                    );
+                }
+                SpawnTrip::UsingTransit(depart, start, goal, route, stop1, stop2) => {
+                    sim.schedule_trip(
+                        depart,
+                        TripSpec::UsingTransit {
+                            start,
+                            goal,
+                            route,
+                            stop1,
+                            stop2,
+                            ped_speed: Scenario::rand_ped_speed(rng),
+                        },
+                        map,
+                    );
+                }
+            }
+            timer.next();
+        }
+
         sim.spawn_all_trips(map, timer, true);
         timer.stop(&format!("Instantiating {}", self.scenario_name));
     }
@@ -161,6 +228,7 @@ impl Scenario {
                     percent_use_transit: 0.5,
                 })
                 .collect(),
+            individ_trips: Vec::new(),
         };
         for i in map.all_outgoing_borders() {
             s.spawn_over_time.push(SpawnOverTime {
@@ -197,6 +265,7 @@ impl Scenario {
                 percent_use_transit: 0.5,
             }],
             border_spawn_over_time: Vec::new(),
+            individ_trips: Vec::new(),
         }
     }
 
@@ -721,4 +790,24 @@ fn find_spot_near_building(
 fn rand_time(rng: &mut XorShiftRng, low: Duration, high: Duration) -> Duration {
     assert!(high > low);
     Duration::seconds(rng.gen_range(low.inner_seconds(), high.inner_seconds()))
+}
+
+#[derive(Clone, Serialize, Deserialize, Debug)]
+pub enum SpawnTrip {
+    CarAppearing {
+        depart: Duration,
+        start: Position,
+        goal: DrivingGoal,
+        is_bike: bool,
+    },
+    UsingBike(Duration, SidewalkSpot, DrivingGoal),
+    JustWalking(Duration, SidewalkSpot, SidewalkSpot),
+    UsingTransit(
+        Duration,
+        SidewalkSpot,
+        SidewalkSpot,
+        BusRouteID,
+        BusStopID,
+        BusStopID,
+    ),
 }

@@ -1,9 +1,10 @@
+use crate::mission::input_time;
 use crate::ui::UI;
 use abstutil::Timer;
-use ezgui::EventCtx;
+use ezgui::{EventCtx, LogScroller, WrappedWizard};
 use geom::{Distance, Duration, LonLat, PolyLine, Polygon, Pt2D};
 use map_model::{BuildingID, IntersectionID, LaneType, Map, PathRequest, Position};
-use sim::{DrivingGoal, SidewalkSpot};
+use sim::{DrivingGoal, Scenario, SidewalkSpot, SpawnTrip, TripSpec};
 use std::collections::HashMap;
 
 #[derive(Debug)]
@@ -254,96 +255,116 @@ pub fn clip_trips(ui: &UI, timer: &mut Timer) -> Vec<Trip> {
     maybe_results.into_iter().flatten().collect()
 }
 
-pub fn instantiate_trips(ctx: &mut EventCtx, ui: &mut UI) {
+pub fn trips_to_scenario(ctx: &mut EventCtx, ui: &UI, t1: Duration, t2: Duration) -> Scenario {
     use popdat::psrc::Mode;
-    use sim::{Scenario, TripSpec};
+    let map = &ui.primary.map;
 
-    ctx.loading_screen("set up sim with PSRC trips", |_, mut timer| {
-        let map = &ui.primary.map;
-        let mut rng = ui.primary.current_flags.sim_flags.make_rng();
-
-        let mut min_time = Duration::parse("23:59:59.9").unwrap();
-
+    let individ_trips = ctx.loading_screen("convert PSRC trips to scenario", |_, mut timer| {
         let trips = clip_trips(ui, &mut timer);
-        // TODO parallelize this -- except timer.warn and rng aren't threadsafe.
-        timer.start_iter("turn PSRC trips into sim trips", trips.len());
-        for trip in trips {
-            timer.next();
-            ui.primary.sim.schedule_trip(
-                trip.depart_at,
+        timer
+            .parallelize("turn PSRC trips into SpawnTrips", trips, |trip| {
+                if trip.depart_at < t1 || trip.depart_at > t2 {
+                    return None;
+                }
+
                 match trip.mode {
-                    // TODO Use a parked car, but first have to figure out what cars to seed.
                     Mode::Drive => {
-                        if let Some(start_pos) = TripSpec::spawn_car_at(
-                            trip.from.start_pos_driving(map),
-                            map,
-                        ) {
-                            TripSpec::CarAppearing {
-                                start_pos,
+                        // TODO Use a parked car, but first have to figure out what cars to seed.
+                        if let Some(start) =
+                            TripSpec::spawn_car_at(trip.from.start_pos_driving(map), map)
+                        {
+                            Some(SpawnTrip::CarAppearing {
+                                depart: trip.depart_at,
+                                start,
                                 goal: trip.to.driving_goal(vec![LaneType::Driving], map),
-                                ped_speed: Scenario::rand_ped_speed(&mut rng),
-                                vehicle_spec: Scenario::rand_car(&mut rng),
-                            }
+                                is_bike: false,
+                            })
                         } else {
-                            timer.warn(format!("No room for car to appear at {:?}", trip.from));
-                            continue;
+                            // TODO need to be able to emit warnings from parallelize
+                            //timer.warn(format!("No room for car to appear at {:?}", trip.from));
+                            None
                         }
                     }
                     Mode::Bike => match trip.from {
-                        TripEndpt::Building(b) => TripSpec::UsingBike {
-                            start: SidewalkSpot::building(b, map),
-                            goal: trip.to.driving_goal(vec![LaneType::Biking, LaneType::Driving], map),
-                            ped_speed: Scenario::rand_ped_speed(&mut rng),
-                            vehicle: Scenario::rand_bike(&mut rng),
-                        },
+                        TripEndpt::Building(b) => Some(SpawnTrip::UsingBike(
+                            trip.depart_at,
+                            SidewalkSpot::building(b, map),
+                            trip.to
+                                .driving_goal(vec![LaneType::Biking, LaneType::Driving], map),
+                        )),
                         TripEndpt::Border(_, _) => {
-                            if let Some(start_pos) = TripSpec::spawn_car_at(
-                                trip.from.start_pos_driving(map),
-                                map,
-                            ) {
-                                TripSpec::CarAppearing {
-                                    start_pos,
-                                    goal: trip.to.driving_goal(vec![LaneType::Biking, LaneType::Driving], map),
-                                    ped_speed: Scenario::rand_ped_speed(&mut rng),
-                                    vehicle_spec: Scenario::rand_bike(&mut rng),
-                                }
+                            if let Some(start) =
+                                TripSpec::spawn_car_at(trip.from.start_pos_driving(map), map)
+                            {
+                                Some(SpawnTrip::CarAppearing {
+                                    depart: trip.depart_at,
+                                    start,
+                                    goal: trip.to.driving_goal(
+                                        vec![LaneType::Biking, LaneType::Driving],
+                                        map,
+                                    ),
+                                    is_bike: true,
+                                })
                             } else {
-                                timer.warn(format!("No room for bike to appear at {:?}", trip.from));
-                                continue;
+                                //timer.warn(format!("No room for bike to appear at {:?}", trip.from));
+                                None
                             }
-                        },
+                        }
                     },
-                    Mode::Walk => TripSpec::JustWalking {
-                        start: trip.from.start_sidewalk_spot(map),
-                        goal: trip.to.end_sidewalk_spot(map),
-                        ped_speed: Scenario::rand_ped_speed(&mut rng),
-                    },
+                    Mode::Walk => Some(SpawnTrip::JustWalking(
+                        trip.depart_at,
+                        trip.from.start_sidewalk_spot(map),
+                        trip.to.end_sidewalk_spot(map),
+                    )),
                     Mode::Transit => {
                         let start = trip.from.start_sidewalk_spot(map);
                         let goal = trip.to.end_sidewalk_spot(map);
-                        let ped_speed = Scenario::rand_ped_speed(&mut rng);
-                        if let Some((stop1, stop2, route)) = map.should_use_transit(start.sidewalk_pos, goal.sidewalk_pos) {
-                            TripSpec::UsingTransit {
-                                start, goal, route, stop1, stop2, ped_speed,
-                            }
+                        if let Some((stop1, stop2, route)) =
+                            map.should_use_transit(start.sidewalk_pos, goal.sidewalk_pos)
+                        {
+                            Some(SpawnTrip::UsingTransit(
+                                trip.depart_at,
+                                start,
+                                goal,
+                                route,
+                                stop1,
+                                stop2,
+                            ))
                         } else {
-                            timer.warn(format!("{:?} not actually using transit, because pathfinding didn't find any useful route", trip));
-                            TripSpec::JustWalking {
-                                start, goal, ped_speed }
+                            //timer.warn(format!("{:?} not actually using transit, because pathfinding didn't find any useful route", trip));
+                            Some(SpawnTrip::JustWalking(trip.depart_at, start, goal))
                         }
                     }
-                },
-                map,
-            );
-            min_time = min_time.min(trip.depart_at);
-        }
-        timer.note(format!("Expect the first trip to start at {}", min_time));
-
-        for route in map.get_all_bus_routes() {
-            ui.primary.sim.seed_bus_route(route, map, &mut timer);
-        }
-
-        ui.primary.sim.spawn_all_trips(map, &mut timer, true);
-        ui.primary.sim.step(map, Duration::const_seconds(0.1));
+                }
+            })
+            .into_iter()
+            .flatten()
+            .collect()
     });
+
+    Scenario {
+        scenario_name: "psrc".to_string(),
+        map_name: map.get_name().to_string(),
+        seed_parked_cars: Vec::new(),
+        spawn_over_time: Vec::new(),
+        border_spawn_over_time: Vec::new(),
+        individ_trips,
+    }
+}
+
+pub fn pick_time_range(mut wizard: WrappedWizard) -> Option<(Duration, Duration)> {
+    let t1 = input_time(&mut wizard, "Include trips departing AFTER when?")?;
+    let t2 = input_time(&mut wizard, "Include trips departing BEFORE when?")?;
+    // TODO enforce better
+    if t1 >= t2 {
+        if wizard.acknowledge(LogScroller::new(
+            "Invalid times".to_string(),
+            vec![format!("{} is >= {}", t1, t2)],
+        )) {
+            wizard.abort();
+        }
+        return None;
+    }
+
+    Some((t1, t2))
 }

@@ -291,6 +291,10 @@ impl<'a> WrappedWizard<'a> {
         self.wizard.aborted()
     }
 
+    pub fn abort(&mut self) {
+        self.wizard.alive = false;
+    }
+
     pub fn acknowledge(&mut self, scroller: LogScroller) -> bool {
         if !self.ready_results.is_empty() {
             self.ready_results.pop_front();
