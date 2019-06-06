@@ -394,7 +394,7 @@ fn can_change_lane_type(r: &Road, l: &Lane, lt: LaneType, map: &Map) -> bool {
     }
 
     // Don't let players orphan a bus stop.
-    if r.has_bus_stop(map) && (lt == LaneType::Parking || lt == LaneType::Biking) {
+    if !r.all_bus_stops(map).is_empty() && (lt == LaneType::Parking || lt == LaneType::Biking) {
         // Is this the last one?
         let mut other_bus_lane = false;
         for id in r.all_lanes() {

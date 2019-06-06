@@ -598,6 +598,7 @@ impl Map {
 
         let mut changed_lanes = BTreeSet::new();
         let mut changed_intersections = BTreeSet::new();
+        let mut changed_roads = BTreeSet::new();
         for (id, lt) in all_lane_edits {
             changed_lanes.insert(id);
 
@@ -614,6 +615,21 @@ impl Map {
 
             changed_intersections.insert(l.src_i);
             changed_intersections.insert(l.dst_i);
+            changed_roads.insert(l.parent);
+        }
+
+        for id in changed_roads {
+            let stops = self.get_r(id).all_bus_stops(self);
+            for s in stops {
+                let sidewalk_pos = self.get_bs(s).sidewalk_pos;
+                // Must exist, because we aren't allowed to orphan a bus stop.
+                let driving_lane = self
+                    .get_r(id)
+                    .find_closest_lane(sidewalk_pos.lane(), vec![LaneType::Driving, LaneType::Bus])
+                    .unwrap();
+                let driving_pos = sidewalk_pos.equiv_pos(driving_lane, self);
+                self.bus_stops.get_mut(&s).unwrap().driving_pos = driving_pos;
+            }
         }
 
         // Recompute turns and intersection policy
