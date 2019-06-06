@@ -66,7 +66,12 @@ fn warp_point(line: String, primary: &PerMapUI) -> Option<(ID, Pt2D)> {
             'p' => ID::Pedestrian(PedestrianID(idx)),
             'c' => {
                 // This one gets more complicated. :)
-                ID::Car(primary.sim.lookup_car_id(idx)?)
+                if let Some(id) = primary.sim.lookup_car_id(idx) {
+                    ID::Car(id)
+                } else {
+                    println!("Car {} doesn't exist", idx);
+                    return None;
+                }
             }
             't' => ID::Trip(TripID(idx)),
             'T' => {
