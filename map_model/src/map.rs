@@ -684,6 +684,38 @@ impl Map {
         (changed_lanes, delete_turns, add_turns)
     }
 
+    pub fn simplify_edits(&mut self, timer: &mut Timer) {
+        let mut delete_lanes = Vec::new();
+        for (id, lt) in &self.edits.lane_overrides {
+            if *lt == self.get_original_lt(*id) {
+                delete_lanes.push(*id);
+            }
+        }
+        for id in delete_lanes {
+            self.edits.lane_overrides.remove(&id);
+        }
+
+        let mut delete_stop_signs = Vec::new();
+        for (id, ss) in &self.edits.stop_sign_overrides {
+            if *ss == ControlStopSign::new(self, *id, timer) {
+                delete_stop_signs.push(*id);
+            }
+        }
+        for id in delete_stop_signs {
+            self.edits.stop_sign_overrides.remove(&id);
+        }
+
+        let mut delete_signals = Vec::new();
+        for (id, ts) in &self.edits.traffic_signal_overrides {
+            if *ts == ControlTrafficSignal::new(self, *id, timer) {
+                delete_signals.push(*id);
+            }
+        }
+        for id in delete_signals {
+            self.edits.traffic_signal_overrides.remove(&id);
+        }
+    }
+
     fn get_original_lt(&self, id: LaneID) -> LaneType {
         let parent = self.get_parent(id);
         let (side1, side2) = get_lane_types(

@@ -6,13 +6,11 @@
 	- red circle means right turn on red OK, red right arrow means nope, green means normal turns ok, green arrow means protected left, crosswalk hand or stick figure
 
 - if a lane could feasibly have multiple turn options but doesnt, print "ONLY"
-- color roads as solid black when zoomed out, and make intersections similar (except for stop sign / signal)
 - audit all panics
 - tune text color, size, padding
 
 - click cycle diagram to edit duration
 
-- revamp stop sign editor
 - toggle rewind mode
 - yellow or flashing red/yellow for yields
 - text box entry: highlight char looks like replace mode; draw it btwn chars
@@ -63,8 +61,6 @@
 
 - it's a pity we have to redo DrawCar work for all those parked cars every tick
 - show FPS or some kind of measure of lag
-	- sim Benchmark seems less useful now
-	- some desired_speed should cause lag; cap it
 - sleep better in the event loop
 	- first make UserInput borrow state and not need to consume
 - more speculative performance ideas

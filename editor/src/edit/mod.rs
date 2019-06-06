@@ -396,6 +396,7 @@ fn can_change_lane_type(r: &Road, l: &Lane, lt: LaneType) -> bool {
 
 pub fn apply_map_edits(ui: &mut UI, ctx: &mut EventCtx, edits: MapEdits) {
     let mut timer = Timer::new("apply map edits");
+
     ui.primary.current_flags.sim_flags.edits_name = edits.edits_name.clone();
     let (lanes_changed, turns_deleted, turns_added) = ui.primary.map.apply_edits(edits, &mut timer);
 
@@ -448,6 +449,9 @@ pub fn apply_map_edits(ui: &mut UI, ctx: &mut EventCtx, edits: MapEdits) {
             &mut timer,
         );
     }
+
+    // Do this after fixing up all the state above.
+    ui.primary.map.simplify_edits(&mut timer);
 }
 
 fn load_edits(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<MapEdits> {
