@@ -1,3 +1,4 @@
+mod bus_explorer;
 mod chokepoints;
 mod color_picker;
 mod connected_roads;
@@ -42,6 +43,7 @@ enum State {
     Polygons(polygons::PolygonDebugger),
     SearchOSM(TextBox),
     Colors(color_picker::ColorPicker),
+    BusRoute(bus_explorer::BusRouteExplorer),
 }
 
 impl DebugMode {
@@ -290,6 +292,11 @@ impl DebugMode {
                             ));
                         }
 
+                        if let Some(explorer) = bus_explorer::BusRouteExplorer::new(ctx, &state.ui)
+                        {
+                            mode.state = State::BusRoute(explorer);
+                        }
+
                         EventLoopMode::InputOnly
                     }
                     State::Polygons(ref mut debugger) => {
@@ -337,6 +344,14 @@ impl DebugMode {
                             mode.state = DebugMode::exploring_state(ctx);
                         }
                         EventLoopMode::InputOnly
+                    }
+                    State::BusRoute(ref mut explorer) => {
+                        if let Some(mode) = explorer.event(ctx, &mut state.ui) {
+                            mode
+                        } else {
+                            mode.state = DebugMode::exploring_state(ctx);
+                            EventLoopMode::InputOnly
+                        }
                     }
                 }
             }
@@ -425,6 +440,12 @@ impl DebugMode {
                     opts.geom_debug_mode = mode.layers.geom_debug_mode;
                     state.ui.draw(g, opts, &state.ui.primary.sim, mode);
                     picker.draw(g);
+                }
+                State::BusRoute(ref explorer) => {
+                    let mut opts = DrawOptions::new();
+                    opts.geom_debug_mode = mode.layers.geom_debug_mode;
+                    state.ui.draw(g, opts, &state.ui.primary.sim, mode);
+                    explorer.draw(g, &state.ui);
                 }
             },
             _ => unreachable!(),

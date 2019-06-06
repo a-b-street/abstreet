@@ -1,7 +1,7 @@
-use crate::common::Warper;
+use crate::common::{CommonState, Warper};
 use crate::helpers::ID;
 use crate::render::DrawTurn;
-use crate::ui::UI;
+use crate::ui::{ShowEverything, UI};
 use ezgui::{hotkey, Color, EventCtx, EventLoopMode, GfxCtx, ItemSlider, Key, Text};
 use geom::{Distance, Polygon};
 use map_model::{Traversable, LANE_THICKNESS};
@@ -90,6 +90,14 @@ impl RouteExplorer {
         txt.add_line(format!("{:?}", step));
         let changed = self.slider.event(ctx, Some(txt));
         ctx.canvas.handle_event(ctx.input);
+        if ctx.redo_mouseover() {
+            ui.primary.current_selection = ui.recalculate_current_selection(
+                ctx,
+                &ui.primary.sim,
+                &ShowEverything::new(),
+                false,
+            );
+        }
 
         if self.slider.action("quit") {
             return None;
@@ -126,5 +134,6 @@ impl RouteExplorer {
             }
         }
         self.slider.draw(g);
+        CommonState::draw_osd(g, ui, ui.primary.current_selection);
     }
 }
