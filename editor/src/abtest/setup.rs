@@ -38,6 +38,7 @@ impl ABTestSetup {
                         }
                     }
                     ABTestSetup::Manage(ref mut menu, test, ref mut scroller) => {
+                        ctx.canvas.handle_event(ctx.input);
                         menu.handle_event(ctx, None);
                         if scroller.event(ctx.input) {
                             state.mode = Mode::SplashScreen(Wizard::new(), None);
@@ -129,7 +130,7 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> Mode {
     );
 
     ui.primary = primary;
-    let mut mode = ABTestMode::new(ctx);
+    let mut mode = ABTestMode::new(ctx, ui);
     mode.state = State::Playing;
     mode.secondary = Some(secondary);
     Mode::ABTest(mode)

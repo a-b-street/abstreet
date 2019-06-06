@@ -27,7 +27,9 @@ pub enum State {
 }
 
 impl ABTestMode {
-    pub fn new(ctx: &mut EventCtx) -> ABTestMode {
+    pub fn new(ctx: &mut EventCtx, ui: &mut UI) -> ABTestMode {
+        ui.primary.current_selection = None;
+
         ABTestMode {
             menu: ModalMenu::new(
                 "A/B Test Mode",
@@ -106,14 +108,7 @@ impl ABTestMode {
                             let secondary = mode.secondary.take().unwrap();
                             let primary = std::mem::replace(&mut state.ui.primary, secondary);
                             mode.secondary = Some(primary);
-
-                            state.ui.primary.current_selection =
-                                state.ui.recalculate_current_selection(
-                                    ctx,
-                                    &state.ui.primary.sim,
-                                    &ShowEverything::new(),
-                                    false,
-                                );
+                            mode.recalculate_stuff(&mut state.ui, ctx);
                         }
 
                         if mode.diff_trip.is_some() {
@@ -181,7 +176,10 @@ impl ABTestMode {
             let s = self.secondary.as_mut().unwrap();
             s.sim.step(&s.map, dt);
         }
+        self.recalculate_stuff(ui, ctx);
+    }
 
+    fn recalculate_stuff(&mut self, ui: &mut UI, ctx: &EventCtx) {
         if let Some(diff) = self.diff_trip.take() {
             self.diff_trip = Some(DiffOneTrip::new(
                 diff.trip,
@@ -265,7 +263,7 @@ impl DiffOneTrip {
             .trip_to_agent(trip)
             .and_then(|agent| secondary.sim.trace_route(agent, &secondary.map, None));
 
-        if line.is_none() || primary_route.is_none() || secondary_route.is_none() {
+        if primary_route.is_none() || secondary_route.is_none() {
             println!("{} isn't present in both sims", trip);
         }
         DiffOneTrip {

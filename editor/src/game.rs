@@ -299,7 +299,7 @@ fn splash_screen(
             x if x == tutorial => break Some(Mode::Tutorial(TutorialMode::new(ctx, ui))),
             x if x == debug => break Some(Mode::Debug(DebugMode::new(ctx, ui))),
             x if x == mission => break Some(Mode::Mission(MissionEditMode::new(ctx, ui))),
-            x if x == abtest => break Some(Mode::ABTest(ABTestMode::new(ctx))),
+            x if x == abtest => break Some(Mode::ABTest(ABTestMode::new(ctx, ui))),
             x if x == about => {
                 if wizard.acknowledge(LogScroller::new(
                     "About A/B Street".to_string(),
