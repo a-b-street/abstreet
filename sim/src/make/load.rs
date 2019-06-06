@@ -24,8 +24,8 @@ pub struct SimFlags {
     pub rng_seed: Option<u8>,
 
     /// Run name for savestating
-    #[structopt(long = "run_name", default_value = "unnamed")]
-    pub run_name: String,
+    #[structopt(long = "run_name")]
+    pub run_name: Option<String>,
 
     /// Name of map edits. Shouldn't be a full path or have the ".json"
     #[structopt(long = "edits_name", default_value = "no_edits")]
@@ -42,7 +42,7 @@ impl SimFlags {
         SimFlags {
             load: PathBuf::from(format!("../data/maps/{}.abst", map)),
             rng_seed: Some(42),
-            run_name: run_name.to_string(),
+            run_name: Some(run_name.to_string()),
             edits_name: "no_edits".to_string(),
         }
     }
@@ -94,8 +94,9 @@ impl SimFlags {
 
             let mut sim = Sim::new(
                 &map,
-                // TODO or the scenario name if no run name
-                self.run_name.clone(),
+                self.run_name
+                    .clone()
+                    .unwrap_or_else(|| scenario.scenario_name.clone()),
                 savestate_every,
             );
             scenario.instantiate(&mut sim, &map, &mut rng, timer);
@@ -109,7 +110,13 @@ impl SimFlags {
             apply_edits(&mut map, &self.edits_name, timer);
 
             timer.start("create sim");
-            let sim = Sim::new(&map, self.run_name.clone(), savestate_every);
+            let sim = Sim::new(
+                &map,
+                self.run_name
+                    .clone()
+                    .unwrap_or_else(|| "unnamed".to_string()),
+                savestate_every,
+            );
             timer.stop("create sim");
 
             (map, sim, rng)
@@ -121,7 +128,13 @@ impl SimFlags {
             apply_edits(&mut map, &self.edits_name, timer);
 
             timer.start("create sim");
-            let sim = Sim::new(&map, self.run_name.clone(), savestate_every);
+            let sim = Sim::new(
+                &map,
+                self.run_name
+                    .clone()
+                    .unwrap_or_else(|| "unnamed".to_string()),
+                savestate_every,
+            );
             timer.stop("create sim");
 
             (map, sim, rng)

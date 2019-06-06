@@ -106,7 +106,7 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> Mode {
             sim_flags: SimFlags {
                 load: load.clone(),
                 rng_seed,
-                run_name: format!("{} with {}", test.test_name, test.edits1_name),
+                run_name: Some(format!("{} with {}", test.test_name, test.edits1_name)),
                 edits_name: test.edits1_name.clone(),
             },
             ..current_flags.clone()
@@ -119,7 +119,7 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> Mode {
             sim_flags: SimFlags {
                 load,
                 rng_seed,
-                run_name: format!("{} with {}", test.test_name, test.edits2_name),
+                run_name: Some(format!("{} with {}", test.test_name, test.edits2_name)),
                 edits_name: test.edits2_name.clone(),
             },
             ..current_flags.clone()

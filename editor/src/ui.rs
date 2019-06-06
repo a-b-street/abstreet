@@ -440,7 +440,11 @@ impl PerMapUI {
         // TODO savestate_every gets lost
         self.sim = Sim::new(
             &self.map,
-            self.current_flags.sim_flags.run_name.clone(),
+            self.current_flags
+                .sim_flags
+                .run_name
+                .clone()
+                .unwrap_or_else(|| "unnamed".to_string()),
             None,
         );
     }
