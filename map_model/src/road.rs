@@ -1,4 +1,4 @@
-use crate::{raw_data, IntersectionID, LaneID, LaneType, LANE_THICKNESS};
+use crate::{raw_data, IntersectionID, LaneID, LaneType, Map, LANE_THICKNESS};
 use abstutil::{Error, Warn};
 use geom::{Distance, PolyLine, Polygon, Speed};
 use serde_derive::{Deserialize, Serialize};
@@ -399,5 +399,14 @@ impl Road {
         } else {
             0
         }
+    }
+
+    pub fn has_bus_stop(&self, map: &Map) -> bool {
+        for id in self.all_lanes() {
+            if !map.get_l(id).bus_stops.is_empty() {
+                return true;
+            }
+        }
+        false
     }
 }

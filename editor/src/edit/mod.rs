@@ -116,7 +116,9 @@ impl EditMode {
                         let lane = state.ui.primary.map.get_l(id);
                         let road = state.ui.primary.map.get_r(lane.parent);
                         if lane.lane_type != LaneType::Sidewalk {
-                            if let Some(new_type) = next_valid_type(road, lane) {
+                            if let Some(new_type) =
+                                next_valid_type(road, lane, &state.ui.primary.map)
+                            {
                                 if ctx.input.contextual_action(
                                     Key::Space,
                                     &format!("toggle to {:?}", new_type),
@@ -138,7 +140,7 @@ impl EditMode {
                                 (LaneType::Biking, "biking", Key::B),
                                 (LaneType::Bus, "bus", Key::T),
                             ] {
-                                if can_change_lane_type(road, lane, *lt)
+                                if can_change_lane_type(road, lane, *lt, &state.ui.primary.map)
                                     && ctx.input.contextual_action(
                                         *key,
                                         &format!("change to {} lane", name),
@@ -335,10 +337,10 @@ fn save_edits(mut wizard: WrappedWizard, map: &mut Map) -> Option<()> {
 
 // For lane editing
 
-fn next_valid_type(r: &Road, l: &Lane) -> Option<LaneType> {
+fn next_valid_type(r: &Road, l: &Lane, map: &Map) -> Option<LaneType> {
     let mut new_type = next_type(l.lane_type);
     while new_type != l.lane_type {
-        if can_change_lane_type(r, l, new_type) {
+        if can_change_lane_type(r, l, new_type, map) {
             return Some(new_type);
         }
         new_type = next_type(new_type);
@@ -357,7 +359,7 @@ fn next_type(lt: LaneType) -> LaneType {
     }
 }
 
-fn can_change_lane_type(r: &Road, l: &Lane, lt: LaneType) -> bool {
+fn can_change_lane_type(r: &Road, l: &Lane, lt: LaneType, map: &Map) -> bool {
     let (fwds, idx) = r.dir_and_offset(l.id);
 
     if l.lane_type == lt {
@@ -387,6 +389,24 @@ fn can_change_lane_type(r: &Road, l: &Lane, lt: LaneType) -> bool {
         if (idx != 0 && types[idx - 1] == LaneType::Biking)
             || types.get(idx + 1) == Some(&LaneType::Biking)
         {
+            return false;
+        }
+    }
+
+    // Don't let players orphan a bus stop.
+    if r.has_bus_stop(map) && (lt == LaneType::Parking || lt == LaneType::Biking) {
+        // Is this the last one?
+        let mut other_bus_lane = false;
+        for id in r.all_lanes() {
+            if l.id != id {
+                let other_lt = map.get_l(id).lane_type;
+                if other_lt == LaneType::Driving || other_lt == LaneType::Bus {
+                    other_bus_lane = true;
+                    break;
+                }
+            }
+        }
+        if !other_bus_lane {
             return false;
         }
     }
