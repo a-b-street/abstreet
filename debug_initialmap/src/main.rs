@@ -47,12 +47,12 @@ impl GUI for UI {
             process::exit(0);
         }
 
-        if let Some(prev) = find_prev_file(&self.filename) {
+        if let Some(prev) = find_prev_file(self.filename.clone()) {
             if ctx.input.key_pressed(Key::Comma, "load previous map") {
                 self.load_different(prev, ctx);
             }
         }
-        if let Some(next) = find_next_file(&self.filename) {
+        if let Some(next) = find_next_file(self.filename.clone()) {
             if ctx.input.key_pressed(Key::Dot, "load next map") {
                 self.load_different(next, ctx);
             }

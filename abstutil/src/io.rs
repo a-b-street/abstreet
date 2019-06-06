@@ -289,22 +289,15 @@ impl Read for FileWithProgress {
     }
 }
 
-pub fn find_prev_file(orig: &str) -> Option<String> {
-    let files = list_dir(std::path::Path::new(orig).parent().unwrap());
-    let idx = files.iter().position(|f| f == orig)?;
-    if idx != 0 {
-        return Some(files[idx - 1].clone());
-    }
-    None
+pub fn find_prev_file(orig: String) -> Option<String> {
+    let mut files = list_dir(std::path::Path::new(&orig).parent().unwrap());
+    files.reverse();
+    files.into_iter().find(|f| f < &orig)
 }
 
-pub fn find_next_file(orig: &str) -> Option<String> {
-    let files = list_dir(std::path::Path::new(orig).parent().unwrap());
-    let idx = files.iter().position(|f| f == orig)?;
-    if idx != files.len() - 1 {
-        return Some(files[idx + 1].clone());
-    }
-    None
+pub fn find_next_file(orig: String) -> Option<String> {
+    let files = list_dir(std::path::Path::new(&orig).parent().unwrap());
+    files.into_iter().find(|f| f > &orig)
 }
 
 fn list_dir(dir: &std::path::Path) -> Vec<String> {

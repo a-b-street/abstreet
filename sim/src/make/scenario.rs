@@ -74,6 +74,8 @@ impl Scenario {
 
     // TODO may need to fork the RNG a bit more
     pub fn instantiate(&self, sim: &mut Sim, map: &Map, rng: &mut XorShiftRng, timer: &mut Timer) {
+        sim.set_name(self.scenario_name.clone());
+
         timer.start(&format!("Instantiating {}", self.scenario_name));
 
         for route in map.get_all_bus_routes() {
@@ -198,7 +200,7 @@ impl Scenario {
 
     pub fn small_run(map: &Map) -> Scenario {
         let mut s = Scenario {
-            scenario_name: "small_spawn".to_string(),
+            scenario_name: "small_run".to_string(),
             map_name: map.get_name().to_string(),
             seed_parked_cars: vec![SeedParkedCars {
                 neighborhood: "_everywhere_".to_string(),

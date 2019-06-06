@@ -228,6 +228,10 @@ impl Sim {
         }
         results
     }
+
+    pub fn set_name(&mut self, name: String) {
+        self.run_name = name;
+    }
 }
 
 // Drawing
@@ -541,7 +545,7 @@ impl Sim {
     }
 
     pub fn find_previous_savestate(&self, base_time: Duration) -> Option<String> {
-        abstutil::find_prev_file(&format!(
+        abstutil::find_prev_file(format!(
             "../data/save/{}_{}/{}/{}",
             self.map_name,
             self.edits_name,
@@ -551,7 +555,7 @@ impl Sim {
     }
 
     pub fn find_next_savestate(&self, base_time: Duration) -> Option<String> {
-        abstutil::find_next_file(&format!(
+        abstutil::find_next_file(format!(
             "../data/save/{}_{}/{}/{}",
             self.map_name,
             self.edits_name,
@@ -560,17 +564,9 @@ impl Sim {
         ))
     }
 
-    pub fn load_savestate(
-        path: String,
-        new_run_name: Option<String>,
-    ) -> Result<Sim, std::io::Error> {
+    pub fn load_savestate(path: String) -> Result<Sim, std::io::Error> {
         println!("Loading {}", path);
-        abstutil::read_json(&path).map(|mut s: Sim| {
-            if let Some(name) = new_run_name {
-                s.run_name = name;
-            }
-            s
-        })
+        abstutil::read_json(&path)
     }
 }
 
@@ -578,10 +574,6 @@ impl Sim {
 impl Sim {
     pub fn time(&self) -> Duration {
         self.time
-    }
-
-    pub fn get_name(&self) -> &str {
-        &self.run_name
     }
 
     pub fn is_done(&self) -> bool {

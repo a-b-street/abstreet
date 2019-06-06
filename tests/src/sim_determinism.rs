@@ -89,8 +89,8 @@ pub fn run(t: &mut TestRunner) {
             );
         }
 
-        let sim3: Sim =
-            Sim::load_savestate(sim1_save.clone(), Some("with_savestating_3".to_string())).unwrap();
+        let sim3: Sim = Sim::load_savestate(sim1_save.clone()).unwrap();
+        sim3.set_name("with_savestating_3".to_string());
         if sim3 != sim2 {
             panic!(
                 "sim state differs between {} and {}",

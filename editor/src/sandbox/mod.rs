@@ -232,7 +232,7 @@ impl SandboxMode {
                                 .find_previous_savestate(state.ui.primary.sim.time());
                             match prev_state
                                 .clone()
-                                .and_then(|path| Sim::load_savestate(path, None).ok())
+                                .and_then(|path| Sim::load_savestate(path).ok())
                             {
                                 Some(new_sim) => {
                                     state.ui.primary.sim = new_sim;
@@ -251,7 +251,7 @@ impl SandboxMode {
                                 .find_next_savestate(state.ui.primary.sim.time());
                             match next_state
                                 .clone()
-                                .and_then(|path| Sim::load_savestate(path, None).ok())
+                                .and_then(|path| Sim::load_savestate(path).ok())
                             {
                                 Some(new_sim) => {
                                     state.ui.primary.sim = new_sim;
