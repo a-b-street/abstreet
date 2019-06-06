@@ -17,13 +17,16 @@ pub fn make_bus_stops(
 ) -> (BTreeMap<BusStopID, BusStop>, Vec<BusRoute>) {
     timer.start("make bus stops");
     let mut bus_stop_pts: HashSet<HashablePt2D> = HashSet::new();
-    let mut route_lookups: MultiMap<String, HashablePt2D> = MultiMap::new();
+    let mut route_lookups: HashMap<String, Vec<HashablePt2D>> = HashMap::new();
     for route in bus_routes {
         for gps in &route.stops {
             if let Some(pt) = Pt2D::from_gps(*gps, gps_bounds) {
                 let hash_pt: HashablePt2D = pt.into();
                 bus_stop_pts.insert(hash_pt);
-                route_lookups.insert(route.name.to_string(), hash_pt);
+                route_lookups
+                    .entry(route.name.clone())
+                    .or_insert_with(Vec::new)
+                    .push(hash_pt);
             }
         }
     }
@@ -79,9 +82,10 @@ pub fn make_bus_stops(
     for route in bus_routes {
         let route_name = route.name.to_string();
         let stops: Vec<BusStopID> = route_lookups
-            .get(route_name.clone())
-            .iter()
-            .filter_map(|pt| point_to_stop_id.get(pt))
+            .remove(&route_name)
+            .unwrap_or_else(Vec::new)
+            .into_iter()
+            .filter_map(|pt| point_to_stop_id.get(&pt))
             .cloned()
             .collect();
         if stops.len() < 2 {
