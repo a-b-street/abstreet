@@ -107,48 +107,51 @@ pub fn make_bus_stops(
 
 pub fn verify_bus_routes(map: &Map, routes: Vec<BusRoute>, timer: &mut Timer) -> Vec<BusRoute> {
     timer.start_iter("verify bus routes are connected", routes.len());
-    routes
-        .into_iter()
-        .filter(|r| {
-            timer.next();
-            let mut ok = true;
-            for (stop1, stop2) in r
-                .stops
-                .iter()
-                .zip(r.stops.iter().skip(1))
-                .chain(iter::once((r.stops.last().unwrap(), &r.stops[0])))
-            {
-                let bs1 = map.get_bs(*stop1);
-                let bs2 = map.get_bs(*stop2);
-                if bs1.driving_pos.lane() == bs2.driving_pos.lane() {
-                    // This is coming up because the dist_along's are in a bad order. But why
-                    // should this happen at all?
-                    timer.warn(format!(
-                        "Removing route {} since {:?} and {:?} are on the same lane",
-                        r.name, bs1, bs2
-                    ));
-                    ok = false;
-                    break;
-                }
-
-                if map
-                    .pathfind_slow(PathRequest {
-                        start: bs1.driving_pos,
-                        end: bs2.driving_pos,
-                        can_use_bike_lanes: false,
-                        can_use_bus_lanes: true,
-                    })
-                    .is_none()
-                {
-                    timer.warn(format!(
-                        "Removing route {} since {:?} and {:?} aren't connected",
-                        r.name, bs1, bs2
-                    ));
-                    ok = false;
-                    break;
-                }
+    let mut results = Vec::new();
+    for mut r in routes {
+        timer.next();
+        let mut ok = true;
+        for (stop1, stop2) in r
+            .stops
+            .iter()
+            .zip(r.stops.iter().skip(1))
+            .chain(iter::once((r.stops.last().unwrap(), &r.stops[0])))
+        {
+            let bs1 = map.get_bs(*stop1);
+            let bs2 = map.get_bs(*stop2);
+            if bs1.driving_pos.lane() == bs2.driving_pos.lane() {
+                // This is coming up because the dist_along's are in a bad order. But why
+                // should this happen at all?
+                timer.warn(format!(
+                    "Removing route {} since {:?} and {:?} are on the same lane",
+                    r.name, bs1, bs2
+                ));
+                ok = false;
+                break;
             }
-            ok
-        })
-        .collect()
+
+            if map
+                .pathfind_slow(PathRequest {
+                    start: bs1.driving_pos,
+                    end: bs2.driving_pos,
+                    can_use_bike_lanes: false,
+                    can_use_bus_lanes: true,
+                })
+                .is_none()
+            {
+                timer.warn(format!(
+                    "Removing route {} since {:?} and {:?} aren't connected",
+                    r.name, bs1, bs2
+                ));
+                ok = false;
+                break;
+            }
+        }
+
+        if ok {
+            r.id = BusRouteID(results.len());
+            results.push(r);
+        }
+    }
+    results
 }
