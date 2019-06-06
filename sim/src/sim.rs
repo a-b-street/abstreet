@@ -8,7 +8,7 @@ use crate::{
 use abstutil::{elapsed_seconds, Timer};
 use derivative::Derivative;
 use geom::{Distance, Duration, PolyLine, Pt2D};
-use map_model::{BuildingID, BusRoute, IntersectionID, LaneID, Map, Path, Traversable};
+use map_model::{BuildingID, BusRoute, BusRouteID, IntersectionID, LaneID, Map, Path, Traversable};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{HashSet, VecDeque};
 use std::panic;
@@ -652,6 +652,14 @@ impl Sim {
             lines
         } else {
             self.parking.tooltip_lines(car).unwrap()
+        }
+    }
+
+    pub fn bus_route_name(&self, maybe_bus: CarID) -> Option<BusRouteID> {
+        if maybe_bus.1 == VehicleType::Bus {
+            Some(self.transit.bus_route(maybe_bus))
+        } else {
+            None
         }
     }
 

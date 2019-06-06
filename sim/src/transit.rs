@@ -237,4 +237,8 @@ impl TransitSimState {
     pub fn get_passengers(&self, bus: CarID) -> &Vec<(PedestrianID, BusStopID)> {
         &self.buses[&bus].passengers
     }
+
+    pub fn bus_route(&self, bus: CarID) -> BusRouteID {
+        self.buses[&bus].route
+    }
 }

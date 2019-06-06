@@ -331,6 +331,10 @@ impl Map {
         &self.bus_stops[&stop]
     }
 
+    pub fn get_br(&self, route: BusRouteID) -> &BusRoute {
+        &self.bus_routes[route.0]
+    }
+
     pub fn get_all_bus_routes(&self) -> &Vec<BusRoute> {
         &self.bus_routes
     }
@@ -352,6 +356,16 @@ impl Map {
             }
         }
         stops
+    }
+
+    pub fn get_routes_serving_stop(&self, stop: BusStopID) -> Vec<&BusRoute> {
+        let mut routes = Vec::new();
+        for r in &self.bus_routes {
+            if r.stops.contains(&stop) {
+                routes.push(r);
+            }
+        }
+        routes
     }
 
     pub fn building_to_road(&self, id: BuildingID) -> &Road {

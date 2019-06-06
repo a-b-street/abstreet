@@ -133,7 +133,26 @@ impl CommonState {
                     }
                 }
             }
-            // TODO Cars, pedestrians...
+            Some(ID::Car(c)) => {
+                osd.append(format!("{}", c), Some(id_color));
+                if let Some(r) = ui.primary.sim.bus_route_name(c) {
+                    osd.append(" serving ".to_string(), None);
+                    osd.append(format!("{}", map.get_br(r).name), Some(name_color));
+                }
+            }
+            Some(ID::BusStop(bs)) => {
+                osd.append(format!("{}", bs), Some(id_color));
+                osd.append(" serving ".to_string(), None);
+
+                let routes = map.get_routes_serving_stop(bs);
+                let len = routes.len();
+                for (idx, n) in routes.into_iter().enumerate() {
+                    osd.append(n.name.clone(), Some(name_color));
+                    if idx != len - 1 {
+                        osd.append(", ".to_string(), None);
+                    }
+                }
+            }
             Some(id) => {
                 osd.append(format!("{:?}", id), Some(id_color));
             }
