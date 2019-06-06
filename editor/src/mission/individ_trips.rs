@@ -51,8 +51,14 @@ impl TripsVisualizer {
         self.slider.event(ctx, Some(txt));
         ctx.canvas.handle_event(ctx.input);
 
-        ui.primary.current_selection =
-            ui.handle_mouseover(ctx, &ui.primary.sim, &ShowEverything::new(), false);
+        if ctx.redo_mouseover() {
+            ui.primary.current_selection = ui.recalculate_current_selection(
+                ctx,
+                &ui.primary.sim,
+                &ShowEverything::new(),
+                false,
+            );
+        }
 
         if self.slider.action("quit") {
             return true;

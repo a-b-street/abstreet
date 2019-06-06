@@ -54,10 +54,10 @@ impl StopSignEditor {
         self.menu.handle_event(ctx, None);
         ctx.canvas.handle_event(ctx.input);
 
-        if !ctx.canvas.is_dragging() && ctx.input.get_moved_mouse().is_some() {
+        if ctx.redo_mouseover() {
+            self.selected_sign = None;
+            self.selected_turn = None;
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-                self.selected_sign = None;
-                self.selected_turn = None;
                 for (r, (octagon, _)) in &self.geom {
                     if octagon.contains_pt(pt) {
                         self.selected_sign = Some(*r);

@@ -226,7 +226,7 @@ impl UserInput {
     pub(crate) fn window_gained_cursor(&mut self) -> bool {
         self.event == Event::WindowGainedCursor
     }
-    pub fn window_lost_cursor(&mut self) -> bool {
+    pub fn window_lost_cursor(&self) -> bool {
         self.event == Event::WindowLostCursor
     }
 

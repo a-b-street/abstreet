@@ -144,6 +144,11 @@ impl<'a> EventCtx<'a> {
         );
         f(self, &mut timer)
     }
+
+    pub fn redo_mouseover(&self) -> bool {
+        self.input.window_lost_cursor()
+            || (!self.canvas.is_dragging() && self.input.get_moved_mouse().is_some())
+    }
 }
 
 pub struct LoadingScreen<'a> {

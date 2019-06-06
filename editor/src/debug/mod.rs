@@ -103,10 +103,11 @@ impl DebugMode {
                 // TODO Argh, bad hack! Can't do it below because menu is borrowed and ShowObject
                 // is implemented on the entirety of DebugMode. :(
                 if let State::Exploring(_) = mode.state {
-                    state.ui.primary.current_selection =
-                        state
+                    if ctx.redo_mouseover() {
+                        state.ui.primary.current_selection = state
                             .ui
-                            .handle_mouseover(ctx, &state.ui.primary.sim, mode, true);
+                            .recalculate_current_selection(ctx, &state.ui.primary.sim, mode, true);
+                    }
                 }
 
                 match mode.state {
@@ -192,7 +193,6 @@ impl DebugMode {
                                     .contextual_action(Key::H, &format!("hide {:?}", id))
                                 {
                                     println!("Hiding {:?}", id);
-                                    //*ctx.recalculate_current_selection = true;
                                     state.ui.primary.current_selection = None;
                                     mode.hidden.insert(id);
                                 }
@@ -200,7 +200,8 @@ impl DebugMode {
                             None => {
                                 if !mode.hidden.is_empty() && menu.action("unhide everything") {
                                     mode.hidden.clear();
-                                    // TODO recalculate current_selection
+                                    // TODO recalculate_current_selection... need to borrow mode
+                                    // immutably
                                 }
                             }
                             _ => {}
@@ -236,19 +237,28 @@ impl DebugMode {
                             return EventLoopMode::InputOnly;
                         }
 
-                        // TODO recalc current selection...
-                        if menu.action("show/hide buildings") {
-                            mode.layers.show_buildings = !mode.layers.show_buildings;
-                        } else if menu.action("show/hide intersections") {
-                            mode.layers.show_intersections = !mode.layers.show_intersections;
-                        } else if menu.action("show/hide lanes") {
-                            mode.layers.show_lanes = !mode.layers.show_lanes;
-                        } else if menu.action("show/hide areas") {
-                            mode.layers.show_areas = !mode.layers.show_areas;
-                        } else if menu.action("show/hide extra shapes") {
-                            mode.layers.show_extra_shapes = !mode.layers.show_extra_shapes;
-                        } else if menu.action("show/hide geometry debug mode") {
-                            mode.layers.geom_debug_mode = !mode.layers.geom_debug_mode;
+                        {
+                            let mut changed = true;
+                            if menu.action("show/hide buildings") {
+                                mode.layers.show_buildings = !mode.layers.show_buildings;
+                            } else if menu.action("show/hide intersections") {
+                                mode.layers.show_intersections = !mode.layers.show_intersections;
+                            } else if menu.action("show/hide lanes") {
+                                mode.layers.show_lanes = !mode.layers.show_lanes;
+                            } else if menu.action("show/hide areas") {
+                                mode.layers.show_areas = !mode.layers.show_areas;
+                            } else if menu.action("show/hide extra shapes") {
+                                mode.layers.show_extra_shapes = !mode.layers.show_extra_shapes;
+                            } else if menu.action("show/hide geometry debug mode") {
+                                mode.layers.geom_debug_mode = !mode.layers.geom_debug_mode;
+                            } else {
+                                changed = false;
+                            }
+
+                            if changed {
+                                // TODO recalculate_current_selection... need to borrow mode
+                                // immutably
+                            }
                         }
 
                         if menu.action("screenshot everything") {

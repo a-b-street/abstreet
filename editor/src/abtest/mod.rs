@@ -80,12 +80,15 @@ impl ABTestMode {
                         mode.menu.handle_event(ctx, Some(txt));
 
                         ctx.canvas.handle_event(ctx.input);
-                        state.ui.primary.current_selection = state.ui.handle_mouseover(
-                            ctx,
-                            &state.ui.primary.sim,
-                            &ShowEverything::new(),
-                            false,
-                        );
+                        if ctx.redo_mouseover() {
+                            state.ui.primary.current_selection =
+                                state.ui.recalculate_current_selection(
+                                    ctx,
+                                    &state.ui.primary.sim,
+                                    &ShowEverything::new(),
+                                    false,
+                                );
+                        }
                         if let Some(evmode) = mode.common.event(ctx, &mut state.ui, &mut mode.menu)
                         {
                             return evmode;
@@ -103,6 +106,14 @@ impl ABTestMode {
                             let secondary = mode.secondary.take().unwrap();
                             let primary = std::mem::replace(&mut state.ui.primary, secondary);
                             mode.secondary = Some(primary);
+
+                            state.ui.primary.current_selection =
+                                state.ui.recalculate_current_selection(
+                                    ctx,
+                                    &state.ui.primary.sim,
+                                    &ShowEverything::new(),
+                                    false,
+                                );
                         }
 
                         if mode.diff_trip.is_some() {
@@ -146,12 +157,12 @@ impl ABTestMode {
                             mode.speed
                                 .event(ctx, &mut mode.menu, state.ui.primary.sim.time())
                         {
-                            mode.step(dt, &mut state.ui.primary);
+                            mode.step(dt, &mut state.ui, ctx);
                         }
 
                         if mode.speed.is_paused() {
                             if mode.menu.action("step forwards 0.1s") {
-                                mode.step(Duration::seconds(0.1), &mut state.ui.primary);
+                                mode.step(Duration::seconds(0.1), &mut state.ui, ctx);
                             }
                             EventLoopMode::InputOnly
                         } else {
@@ -164,23 +175,29 @@ impl ABTestMode {
         }
     }
 
-    fn step(&mut self, dt: Duration, primary: &mut PerMapUI) {
-        primary.sim.step(&primary.map, dt);
+    fn step(&mut self, dt: Duration, ui: &mut UI, ctx: &EventCtx) {
+        ui.primary.sim.step(&ui.primary.map, dt);
         {
             let s = self.secondary.as_mut().unwrap();
             s.sim.step(&s.map, dt);
         }
+
         if let Some(diff) = self.diff_trip.take() {
             self.diff_trip = Some(DiffOneTrip::new(
                 diff.trip,
-                primary,
+                &ui.primary,
                 self.secondary.as_ref().unwrap(),
             ));
         }
         if self.diff_all.is_some() {
-            self.diff_all = Some(DiffAllTrips::new(primary, self.secondary.as_mut().unwrap()));
+            self.diff_all = Some(DiffAllTrips::new(
+                &mut ui.primary,
+                self.secondary.as_mut().unwrap(),
+            ));
         }
-        //*ctx.recalculate_current_selection = true;
+
+        ui.primary.current_selection =
+            ui.recalculate_current_selection(ctx, &ui.primary.sim, &ShowEverything::new(), false);
     }
 
     pub fn draw(state: &GameState, g: &mut GfxCtx) {

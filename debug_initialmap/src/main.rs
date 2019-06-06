@@ -39,7 +39,7 @@ impl GUI for UI {
     fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode {
         ctx.canvas.handle_event(ctx.input);
 
-        if !ctx.canvas.is_dragging() && ctx.input.get_moved_mouse().is_some() {
+        if ctx.redo_mouseover() {
             self.selected = self.world.mouseover_something(ctx, &self.hide);
         }
 

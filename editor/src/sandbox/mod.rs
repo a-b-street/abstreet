@@ -129,12 +129,15 @@ impl SandboxMode {
                     mode.menu.handle_event(ctx, Some(txt));
 
                     ctx.canvas.handle_event(ctx.input);
-                    state.ui.primary.current_selection = state.ui.handle_mouseover(
-                        ctx,
-                        &state.ui.primary.sim,
-                        &ShowEverything::new(),
-                        false,
-                    );
+                    if ctx.redo_mouseover() {
+                        state.ui.primary.current_selection =
+                            state.ui.recalculate_current_selection(
+                                ctx,
+                                &state.ui.primary.sim,
+                                &ShowEverything::new(),
+                                false,
+                            );
+                    }
                     if let Some(evmode) = mode.common.event(ctx, &mut state.ui, &mut mode.menu) {
                         return evmode;
                     }
@@ -210,7 +213,13 @@ impl SandboxMode {
                             .event(ctx, &mut mode.menu, state.ui.primary.sim.time())
                     {
                         state.ui.primary.sim.step(&state.ui.primary.map, dt);
-                        //*ctx.recalculate_current_selection = true;
+                        state.ui.primary.current_selection =
+                            state.ui.recalculate_current_selection(
+                                ctx,
+                                &state.ui.primary.sim,
+                                &ShowEverything::new(),
+                                false,
+                            );
                     }
 
                     if mode.speed.is_paused() {
@@ -236,7 +245,13 @@ impl SandboxMode {
                             {
                                 Some(new_sim) => {
                                     state.ui.primary.sim = new_sim;
-                                    //*ctx.recalculate_current_selection = true;
+                                    state.ui.primary.current_selection =
+                                        state.ui.recalculate_current_selection(
+                                            ctx,
+                                            &state.ui.primary.sim,
+                                            &ShowEverything::new(),
+                                            false,
+                                        );
                                 }
                                 None => {
                                     println!("Couldn't load previous savestate {:?}", prev_state)
@@ -255,7 +270,13 @@ impl SandboxMode {
                             {
                                 Some(new_sim) => {
                                     state.ui.primary.sim = new_sim;
-                                    //*ctx.recalculate_current_selection = true;
+                                    state.ui.primary.current_selection =
+                                        state.ui.recalculate_current_selection(
+                                            ctx,
+                                            &state.ui.primary.sim,
+                                            &ShowEverything::new(),
+                                            false,
+                                        );
                                 }
                                 None => println!("Couldn't load next savestate {:?}", next_state),
                             }
@@ -267,14 +288,26 @@ impl SandboxMode {
                                 .primary
                                 .sim
                                 .step(&state.ui.primary.map, Duration::seconds(0.1));
-                        //*ctx.recalculate_current_selection = true;
+                            state.ui.primary.current_selection =
+                                state.ui.recalculate_current_selection(
+                                    ctx,
+                                    &state.ui.primary.sim,
+                                    &ShowEverything::new(),
+                                    false,
+                                );
                         } else if mode.menu.action("step forwards 10 mins") {
                             state
                                 .ui
                                 .primary
                                 .sim
                                 .step(&state.ui.primary.map, Duration::minutes(10));
-                            //*ctx.recalculate_current_selection = true;
+                            state.ui.primary.current_selection =
+                                state.ui.recalculate_current_selection(
+                                    ctx,
+                                    &state.ui.primary.sim,
+                                    &ShowEverything::new(),
+                                    false,
+                                );
                         }
                         EventLoopMode::InputOnly
                     } else {

@@ -26,7 +26,7 @@ impl RouteViewer {
             }
             RouteViewer::Hovering(time, agent, _) => {
                 // Argh, borrow checker.
-                let agent = *agent;
+                let mut agent = *agent;
 
                 if *time != ui.primary.sim.time()
                     || ui.primary.current_selection != Some(ID::from_agent(agent))
@@ -35,6 +35,8 @@ impl RouteViewer {
                     if let Some(new_agent) =
                         ui.primary.current_selection.and_then(|id| id.agent_id())
                     {
+                        // Gross.
+                        agent = new_agent;
                         if let Some(trace) =
                             ui.primary.sim.trace_route(new_agent, &ui.primary.map, None)
                         {
@@ -45,8 +47,6 @@ impl RouteViewer {
 
                 // If there's a current route, then there must be a trip.
                 let trip = ui.primary.sim.agent_to_trip(agent).unwrap();
-                // TODO agent might be stale here! Really need a second match after this or
-                // something. Expressing a state machine like this isn't really great.
                 if ctx
                     .input
                     .contextual_action(Key::R, &format!("show {}'s route", agent))

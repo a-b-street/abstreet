@@ -83,7 +83,7 @@ impl AgentSpawner {
                     .input
                     .contextual_action(Key::Z, "spawn agents around this intersection")
                 {
-                    spawn_agents_around(i, ui);
+                    spawn_agents_around(i, ui, ctx);
                 }
             }
             None => {
@@ -122,8 +122,14 @@ impl AgentSpawner {
         }
 
         ctx.canvas.handle_event(ctx.input);
-        ui.primary.current_selection =
-            ui.handle_mouseover(ctx, &ui.primary.sim, &ShowEverything::new(), false);
+        if ctx.redo_mouseover() {
+            ui.primary.current_selection = ui.recalculate_current_selection(
+                ctx,
+                &ui.primary.sim,
+                &ShowEverything::new(),
+                false,
+            );
+        }
 
         let map = &ui.primary.map;
 
@@ -255,7 +261,12 @@ impl AgentSpawner {
             };
             sim.spawn_all_trips(map, &mut Timer::new("spawn trip"), false);
             sim.step(map, SMALL_DT);
-            //*ctx.recalculate_current_selection = true;
+            ui.primary.current_selection = ui.recalculate_current_selection(
+                ctx,
+                &ui.primary.sim,
+                &ShowEverything::new(),
+                false,
+            );
             return true;
         }
 
@@ -280,7 +291,7 @@ impl AgentSpawner {
     }
 }
 
-fn spawn_agents_around(i: IntersectionID, ui: &mut UI) {
+fn spawn_agents_around(i: IntersectionID, ui: &mut UI, ctx: &EventCtx) {
     let map = &ui.primary.map;
     let sim = &mut ui.primary.sim;
     let mut rng = ui.primary.current_flags.sim_flags.make_rng();
@@ -337,5 +348,6 @@ fn spawn_agents_around(i: IntersectionID, ui: &mut UI) {
 
     sim.spawn_all_trips(map, &mut Timer::throwaway(), false);
     sim.step(map, SMALL_DT);
-    //*ctx.recalculate_current_selection = true;
+    ui.primary.current_selection =
+        ui.recalculate_current_selection(ctx, &ui.primary.sim, &ShowEverything::new(), false);
 }

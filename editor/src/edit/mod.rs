@@ -75,12 +75,14 @@ impl EditMode {
                 // the effects of it. Or eventually, the Option<ID> itself will live in here
                 // directly.
                 // TODO Only mouseover lanes and intersections?
-                state.ui.primary.current_selection = state.ui.handle_mouseover(
-                    ctx,
-                    &state.ui.primary.sim,
-                    &ShowEverything::new(),
-                    false,
-                );
+                if ctx.redo_mouseover() {
+                    state.ui.primary.current_selection = state.ui.recalculate_current_selection(
+                        ctx,
+                        &state.ui.primary.sim,
+                        &ShowEverything::new(),
+                        false,
+                    );
+                }
                 if let Some(evmode) = common.event(ctx, &mut state.ui, menu) {
                     return evmode;
                 }

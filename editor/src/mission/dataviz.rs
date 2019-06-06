@@ -89,9 +89,9 @@ impl DataVisualizer {
             self.show_bars = !self.show_bars;
         }
 
-        if !ctx.canvas.is_dragging() && ctx.input.get_moved_mouse().is_some() {
+        if ctx.redo_mouseover() {
+            self.current_tract = None;
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-                self.current_tract = None;
                 for (name, tract) in &self.tracts {
                     if tract.polygon.contains_pt(pt) {
                         self.current_tract = Some(name.clone());

@@ -98,8 +98,14 @@ impl TripsVisualizer {
         self.menu.handle_event(ctx, Some(txt));
         ctx.canvas.handle_event(ctx.input);
 
-        ui.primary.current_selection =
-            ui.handle_mouseover(ctx, &ui.primary.sim, &ShowEverything::new(), false);
+        if ctx.redo_mouseover() {
+            ui.primary.current_selection = ui.recalculate_current_selection(
+                ctx,
+                &ui.primary.sim,
+                &ShowEverything::new(),
+                false,
+            );
+        }
 
         let last_time = Duration::parse("23:59:59.9").unwrap();
         let ten_secs = Duration::seconds(10.0);

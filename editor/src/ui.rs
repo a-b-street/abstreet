@@ -161,59 +161,53 @@ impl UI {
     // Because we have to sometimes borrow part of self for GetDrawAgents, this just returns the
     // Option<ID> that the caller should assign. When this monolithic UI nonsense is dismantled,
     // this weirdness goes away.
-    pub fn handle_mouseover(
+    pub fn recalculate_current_selection(
         &self,
-        ctx: &mut EventCtx,
+        ctx: &EventCtx,
         source: &GetDrawAgents,
         show_objs: &ShowObject,
         debug_mode: bool,
     ) -> Option<ID> {
-        if !ctx.canvas.is_dragging() && ctx.input.get_moved_mouse().is_some() {
-            // Unzoomed mode. Ignore when debugging areas and extra shapes.
-            if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL && !debug_mode {
-                return None;
-            }
+        // Unzoomed mode. Ignore when debugging areas and extra shapes.
+        if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL && !debug_mode {
+            return None;
+        }
 
-            let pt = ctx.canvas.get_cursor_in_map_space()?;
+        let pt = ctx.canvas.get_cursor_in_map_space()?;
 
-            let mut cache = self.primary.draw_map.agents.borrow_mut();
-            let mut objects = self.get_renderables_back_to_front(
-                Circle::new(pt, Distance::meters(3.0)).get_bounds(),
-                ctx.prerender,
-                &mut cache,
-                source,
-                show_objs,
-            );
-            objects.reverse();
+        let mut cache = self.primary.draw_map.agents.borrow_mut();
+        let mut objects = self.get_renderables_back_to_front(
+            Circle::new(pt, Distance::meters(3.0)).get_bounds(),
+            ctx.prerender,
+            &mut cache,
+            source,
+            show_objs,
+        );
+        objects.reverse();
 
-            for obj in objects {
-                // In unzoomed mode, can only mouseover areas
-                match obj.get_id() {
-                    ID::Area(_) | ID::ExtraShape(_) => {
-                        if !debug_mode {
-                            continue;
-                        }
-                    }
-                    // Never mouseover these
-                    ID::Road(_) => {
+        for obj in objects {
+            // In unzoomed mode, can only mouseover areas
+            match obj.get_id() {
+                ID::Area(_) | ID::ExtraShape(_) => {
+                    if !debug_mode {
                         continue;
                     }
-                    _ => {
-                        if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
-                            continue;
-                        }
+                }
+                // Never mouseover these
+                ID::Road(_) => {
+                    continue;
+                }
+                _ => {
+                    if ctx.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
+                        continue;
                     }
                 }
-                if obj.contains_pt(pt, &self.primary.map) {
-                    return Some(obj.get_id());
-                }
             }
-            return None;
+            if obj.contains_pt(pt, &self.primary.map) {
+                return Some(obj.get_id());
+            }
         }
-        if ctx.input.window_lost_cursor() {
-            return None;
-        }
-        self.primary.current_selection
+        None
     }
 
     // TODO This could probably belong to DrawMap again, but it's annoying to plumb things that

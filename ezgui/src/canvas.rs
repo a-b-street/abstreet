@@ -64,7 +64,7 @@ impl Canvas {
         }
     }
 
-    pub fn is_dragging(&self) -> bool {
+    pub(crate) fn is_dragging(&self) -> bool {
         self.left_mouse_drag_from.is_some()
     }
 

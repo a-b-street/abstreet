@@ -64,7 +64,7 @@ impl Slider {
                 self.dragging = false;
             }
         } else {
-            if !ctx.canvas.is_dragging() && ctx.input.get_moved_mouse().is_some() {
+            if ctx.redo_mouseover() {
                 let pt = ctx.canvas.get_cursor_in_screen_space();
                 self.mouse_on_slider = self.slider_geom().contains_pt(Pt2D::new(pt.x, pt.y));
             }

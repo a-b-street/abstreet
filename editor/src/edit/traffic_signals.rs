@@ -58,9 +58,9 @@ impl TrafficSignalEditor {
         self.menu.handle_event(ctx, None);
         ctx.canvas.handle_event(ctx.input);
 
-        if !ctx.canvas.is_dragging() && ctx.input.get_moved_mouse().is_some() {
+        if ctx.redo_mouseover() {
+            self.icon_selected = None;
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-                self.icon_selected = None;
                 for t in ui.primary.draw_map.get_turns(self.i, &ui.primary.map) {
                     if t.contains_pt(pt) {
                         self.icon_selected = Some(t.id);
