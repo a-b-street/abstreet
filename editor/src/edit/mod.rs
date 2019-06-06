@@ -111,18 +111,44 @@ impl EditMode {
                 }
 
                 if let Some(ID::Lane(id)) = state.ui.primary.current_selection {
-                    let lane = state.ui.primary.map.get_l(id);
-                    let road = state.ui.primary.map.get_r(lane.parent);
-
-                    if lane.lane_type != LaneType::Sidewalk {
-                        if let Some(new_type) = next_valid_type(road, lane) {
-                            if ctx
-                                .input
-                                .contextual_action(Key::Space, &format!("toggle to {:?}", new_type))
-                            {
-                                let mut new_edits = state.ui.primary.map.get_edits().clone();
-                                new_edits.lane_overrides.insert(lane.id, new_type);
-                                apply_map_edits(&mut state.ui, ctx, new_edits);
+                    // TODO Urgh, borrow checker.
+                    {
+                        let lane = state.ui.primary.map.get_l(id);
+                        let road = state.ui.primary.map.get_r(lane.parent);
+                        if lane.lane_type != LaneType::Sidewalk {
+                            if let Some(new_type) = next_valid_type(road, lane) {
+                                if ctx.input.contextual_action(
+                                    Key::Space,
+                                    &format!("toggle to {:?}", new_type),
+                                ) {
+                                    let mut new_edits = state.ui.primary.map.get_edits().clone();
+                                    new_edits.lane_overrides.insert(lane.id, new_type);
+                                    apply_map_edits(&mut state.ui, ctx, new_edits);
+                                }
+                            }
+                        }
+                    }
+                    {
+                        let lane = state.ui.primary.map.get_l(id);
+                        let road = state.ui.primary.map.get_r(lane.parent);
+                        if lane.lane_type != LaneType::Sidewalk {
+                            for (lt, name, key) in &[
+                                (LaneType::Driving, "driving", Key::D),
+                                (LaneType::Parking, "parking", Key::P),
+                                (LaneType::Biking, "biking", Key::B),
+                                (LaneType::Bus, "bus", Key::T),
+                            ] {
+                                if can_change_lane_type(road, lane, *lt)
+                                    && ctx.input.contextual_action(
+                                        *key,
+                                        &format!("change to {} lane", name),
+                                    )
+                                {
+                                    let mut new_edits = state.ui.primary.map.get_edits().clone();
+                                    new_edits.lane_overrides.insert(lane.id, *lt);
+                                    apply_map_edits(&mut state.ui, ctx, new_edits);
+                                    break;
+                                }
                             }
                         }
                     }
@@ -333,6 +359,10 @@ fn next_type(lt: LaneType) -> LaneType {
 
 fn can_change_lane_type(r: &Road, l: &Lane, lt: LaneType) -> bool {
     let (fwds, idx) = r.dir_and_offset(l.id);
+
+    if l.lane_type == lt {
+        return false;
+    }
 
     // Only one parking lane per side.
     if lt == LaneType::Parking {
