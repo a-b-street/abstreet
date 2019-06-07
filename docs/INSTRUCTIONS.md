@@ -11,11 +11,11 @@ https://github.com/dabreegster/abstreet/releases for the latest version, though
 I'll try to keep these links up-to-date:
 
 - Windows:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.5/abstreet_windows.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.6/abstreet_windows.zip
 - Mac:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.5/abstreet_mac.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.6/abstreet_mac.zip
 - Linux:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.5/abstreet_linux.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.6/abstreet_linux.zip
 
 The Windows and Mac versions may have more problems than the Linux version,
 because I only have regular access to a Linux machine. The Mac release may lag

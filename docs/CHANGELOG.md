@@ -50,3 +50,13 @@ changes here.
 - import and visualize census data
 - fix missing sidewalks on downtown one-ways
 - import and visualize PSRC trip data
+
+0.1.6
+
+- slider widget for controlling time and speed
+- fixing bad polyline geometry in most cases; visualizing routes should no longer be buggy
+- handle PSRC trips that begin or end out-of-bounds
+- draw agents in unzoomed mode in a way simpler way
+- improve edit mode: detect reverts to original, easier lane type switching
+- lots of fixes for buses: handle edits better, read sequence of stops correctly from GTFS
+- set up A/B tests faster
