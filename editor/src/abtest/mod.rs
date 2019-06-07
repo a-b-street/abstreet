@@ -255,23 +255,18 @@ impl DiffOneTrip {
         } else {
             None
         };
-        let primary_route = primary
-            .sim
-            .trip_to_agent(trip)
-            .and_then(|agent| primary.sim.trace_route(agent, &primary.map, None));
-        let secondary_route = secondary
-            .sim
-            .trip_to_agent(trip)
-            .and_then(|agent| secondary.sim.trace_route(agent, &secondary.map, None));
-
-        if primary_route.is_none() || secondary_route.is_none() {
+        let primary_agent = primary.sim.trip_to_agent(trip);
+        let secondary_agent = secondary.sim.trip_to_agent(trip);
+        if primary_agent.is_none() || secondary_agent.is_none() {
             println!("{} isn't present in both sims", trip);
         }
         DiffOneTrip {
             trip,
             line,
-            primary_route,
-            secondary_route,
+            primary_route: primary_agent
+                .and_then(|a| primary.sim.trace_route(a, &primary.map, None)),
+            secondary_route: secondary_agent
+                .and_then(|a| secondary.sim.trace_route(a, &secondary.map, None)),
         }
     }
 
