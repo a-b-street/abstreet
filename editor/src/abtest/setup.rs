@@ -1,9 +1,10 @@
 use crate::abtest::{ABTestMode, State};
+use crate::edit::apply_map_edits;
 use crate::game::{GameState, Mode};
 use crate::ui::{Flags, PerMapUI, UI};
 use ezgui::{hotkey, EventCtx, GfxCtx, Key, LogScroller, ModalMenu, Wizard, WrappedWizard};
-use map_model::Map;
-use sim::{ABTest, SimFlags};
+use map_model::{Map, MapEdits};
+use sim::{ABTest, Scenario, SimFlags};
 use std::path::PathBuf;
 
 pub enum ABTestSetup {
@@ -88,59 +89,65 @@ fn pick_ab_test(map: &Map, mut wizard: WrappedWizard) -> Option<ABTest> {
 }
 
 fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> Mode {
-    let (primary, secondary) = ctx.loading_screen(
+    let secondary = ctx.loading_screen(
         &format!("Launching A/B test {}", test.test_name),
         |ctx, mut timer| {
             let load = PathBuf::from(format!(
                 "../data/scenarios/{}/{}",
                 test.map_name, test.scenario_name
             ));
-            let current_flags = &ui.primary.current_flags;
-            let rng_seed = if current_flags.sim_flags.rng_seed.is_some() {
-                current_flags.sim_flags.rng_seed
-            } else {
-                Some(42)
-            };
+            if ui.primary.current_flags.sim_flags.rng_seed.is_none() {
+                ui.primary.current_flags.sim_flags.rng_seed = Some(42);
+            }
 
-            // TODO Cheaper to load the edits for the map and then instantiate the scenario for the
-            // primary.
-            timer.start("load primary");
-            let primary = PerMapUI::new(
-                Flags {
-                    sim_flags: SimFlags {
-                        load: load.clone(),
-                        rng_seed,
-                        run_name: Some(format!("{} with {}", test.test_name, test.edits1_name)),
-                        edits_name: test.edits1_name.clone(),
+            {
+                timer.start("load primary");
+                ui.primary.current_flags.sim_flags.run_name =
+                    Some(format!("{} with {}", test.test_name, test.edits1_name));
+                let edits1: MapEdits = if test.edits1_name == "no_edits" {
+                    MapEdits::new(test.map_name.clone())
+                } else {
+                    abstutil::read_json(&format!(
+                        "../data/edits/{}/{}.json",
+                        test.map_name, test.edits1_name,
+                    ))
+                    .unwrap()
+                };
+                apply_map_edits(ui, ctx, edits1);
+
+                let scenario: Scenario = abstutil::read_binary(load.to_str().unwrap(), &mut timer)
+                    .expect("loading scenario failed");
+                ui.primary.reset_sim();
+                let mut rng = ui.primary.current_flags.sim_flags.make_rng();
+                scenario.instantiate(&mut ui.primary.sim, &ui.primary.map, &mut rng, &mut timer);
+                timer.stop("load primary");
+            }
+            {
+                timer.start("load secondary");
+                let current_flags = &ui.primary.current_flags;
+                // TODO We could try to be cheaper by cloning primary's Map, but cloning DrawMap
+                // won't help -- we need to upload new stuff to the GPU. :\  The alternative is
+                // doing apply_map_edits every time we swap.
+                let secondary = PerMapUI::new(
+                    Flags {
+                        sim_flags: SimFlags {
+                            load,
+                            rng_seed: current_flags.sim_flags.rng_seed,
+                            run_name: Some(format!("{} with {}", test.test_name, test.edits2_name)),
+                            edits_name: test.edits2_name.clone(),
+                        },
+                        ..current_flags.clone()
                     },
-                    ..current_flags.clone()
-                },
-                &ui.cs,
-                ctx,
-                &mut timer,
-            );
-            timer.stop("load primary");
-            timer.start("load secondary");
-            let secondary = PerMapUI::new(
-                Flags {
-                    sim_flags: SimFlags {
-                        load,
-                        rng_seed,
-                        run_name: Some(format!("{} with {}", test.test_name, test.edits2_name)),
-                        edits_name: test.edits2_name.clone(),
-                    },
-                    ..current_flags.clone()
-                },
-                &ui.cs,
-                ctx,
-                &mut timer,
-            );
-            timer.stop("load secondary");
-            (primary, secondary)
+                    &ui.cs,
+                    ctx,
+                    &mut timer,
+                );
+                timer.stop("load secondary");
+                secondary
+            }
         },
     );
 
-    ui.primary = primary;
     let mut mode = ABTestMode::new(ctx, ui);
     mode.state = State::Playing;
     mode.secondary = Some(secondary);
