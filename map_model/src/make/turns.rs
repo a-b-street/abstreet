@@ -125,11 +125,37 @@ fn make_vehicle_turns(
                 match TurnType::from_angles(angle1, angle2) {
                     TurnType::Straight => {
                         // Cartesian product. Additionally detect where the lane-changing movements
-                        // happen.
-                        for (idx1, l1) in incoming.iter().enumerate() {
-                            for (idx2, l2) in outgoing.iter().enumerate() {
-                                if let Some(mut t) = make_vehicle_turn(lanes, i.id, *l1, *l2) {
-                                    // TODO Breaks for mixed lane types, like near Roanoke and 10th
+                        // happen. But we have to use the indices assuming all travel lanes, not
+                        // just the restricted set. :\
+                        let all_incoming = r1
+                            .incoming_lanes(i.id)
+                            .iter()
+                            .filter_map(|(id, lt)| {
+                                if lt.is_for_moving_vehicles() {
+                                    Some(*id)
+                                } else {
+                                    None
+                                }
+                            })
+                            .collect::<Vec<LaneID>>();
+                        let all_outgoing = r2
+                            .outgoing_lanes(i.id)
+                            .iter()
+                            .filter_map(|(id, lt)| {
+                                if lt.is_for_moving_vehicles() {
+                                    Some(*id)
+                                } else {
+                                    None
+                                }
+                            })
+                            .collect::<Vec<LaneID>>();
+
+                        for (idx1, l1) in all_incoming.into_iter().enumerate() {
+                            for (idx2, l2) in all_outgoing.iter().enumerate() {
+                                if !incoming.contains(&l1) || !outgoing.contains(l2) {
+                                    continue;
+                                }
+                                if let Some(mut t) = make_vehicle_turn(lanes, i.id, l1, *l2) {
                                     if idx1 < idx2 {
                                         t.turn_type = TurnType::LaneChangeRight;
                                     } else if idx1 > idx2 {
