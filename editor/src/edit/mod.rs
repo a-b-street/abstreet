@@ -16,7 +16,9 @@ use ezgui::{
     hotkey, lctrl, Color, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard,
     WrappedWizard,
 };
-use map_model::{IntersectionID, Lane, LaneID, LaneType, Map, MapEdits, Road, TurnID, TurnType};
+use map_model::{
+    IntersectionID, Lane, LaneID, LaneType, Map, MapEdits, Road, RoadID, TurnID, TurnType,
+};
 use std::collections::{BTreeSet, HashMap};
 
 pub enum EditMode {
@@ -25,6 +27,7 @@ pub enum EditMode {
     Loading(Wizard),
     EditingStopSign(stop_signs::StopSignEditor),
     EditingTrafficSignal(traffic_signals::TrafficSignalEditor),
+    BulkEditLanes(RoadID, Wizard),
 }
 
 impl EditMode {
@@ -154,6 +157,16 @@ impl EditMode {
                             }
                         }
                     }
+
+                    if ctx
+                        .input
+                        .contextual_action(Key::U, "bulk edit lanes on this road")
+                    {
+                        state.mode = Mode::Edit(EditMode::BulkEditLanes(
+                            state.ui.primary.map.get_l(id).parent,
+                            Wizard::new(),
+                        ));
+                    }
                 }
                 if let Some(ID::Intersection(id)) = state.ui.primary.current_selection {
                     if state.ui.primary.map.maybe_get_stop_sign(id).is_some()
@@ -177,6 +190,7 @@ impl EditMode {
                 }
             }
             Mode::Edit(EditMode::Saving(ref mut wizard)) => {
+                ctx.canvas.handle_event(ctx.input);
                 if save_edits(wizard.wrap(ctx), &mut state.ui.primary.map).is_some()
                     || wizard.aborted()
                 {
@@ -184,6 +198,7 @@ impl EditMode {
                 }
             }
             Mode::Edit(EditMode::Loading(ref mut wizard)) => {
+                ctx.canvas.handle_event(ctx.input);
                 if let Some(new_edits) = load_edits(
                     &state.ui.primary.map,
                     &mut wizard.wrap(ctx),
@@ -202,6 +217,15 @@ impl EditMode {
             }
             Mode::Edit(EditMode::EditingTrafficSignal(ref mut editor)) => {
                 if editor.event(ctx, &mut state.ui) {
+                    state.mode = Mode::Edit(EditMode::new(ctx, &mut state.ui));
+                }
+            }
+            Mode::Edit(EditMode::BulkEditLanes(r, ref mut wizard)) => {
+                ctx.canvas.handle_event(ctx.input);
+                if let Some(edits) = bulk_edit(r, &mut wizard.wrap(ctx), &state.ui.primary.map) {
+                    apply_map_edits(&mut state.ui, ctx, edits);
+                    state.mode = Mode::Edit(EditMode::new(ctx, &mut state.ui));
+                } else if wizard.aborted() {
                     state.mode = Mode::Edit(EditMode::new(ctx, &mut state.ui));
                 }
             }
@@ -288,7 +312,8 @@ impl EditMode {
                 menu.draw(g);
             }
             Mode::Edit(EditMode::Saving(ref wizard))
-            | Mode::Edit(EditMode::Loading(ref wizard)) => {
+            | Mode::Edit(EditMode::Loading(ref wizard))
+            | Mode::Edit(EditMode::BulkEditLanes(_, ref wizard)) => {
                 state.ui.draw(
                     g,
                     DrawOptions::new(),
@@ -487,4 +512,61 @@ fn load_edits(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<MapE
             }),
         )
         .map(|(_, e)| e)
+}
+
+fn bulk_edit(r: RoadID, wizard: &mut WrappedWizard, map: &Map) -> Option<MapEdits> {
+    let from = wizard
+        .choose_something(
+            "Change all lanes of type...",
+            Box::new(|| {
+                vec![
+                    (None, "driving".to_string(), LaneType::Driving),
+                    (None, "parking".to_string(), LaneType::Parking),
+                    (None, "biking".to_string(), LaneType::Biking),
+                    (None, "bus".to_string(), LaneType::Bus),
+                ]
+            }),
+        )?
+        .1;
+    let to = wizard
+        .choose_something(
+            "Change to all lanes of type...",
+            Box::new(move || {
+                vec![
+                    (None, "driving".to_string(), LaneType::Driving),
+                    (None, "parking".to_string(), LaneType::Parking),
+                    (None, "biking".to_string(), LaneType::Biking),
+                    (None, "bus".to_string(), LaneType::Bus),
+                ]
+                .into_iter()
+                .filter(|(_, _, lt)| *lt != from)
+                .collect()
+            }),
+        )?
+        .1;
+
+    // Do the dirty deed. Match by road name; OSM way ID changes a fair bit.
+    let road_name = map.get_r(r).get_name();
+    let mut edits = map.get_edits().clone();
+    let mut cnt = 0;
+    for l in map.all_lanes() {
+        if l.lane_type != from {
+            continue;
+        }
+        let parent = map.get_parent(l.id);
+        if parent.get_name() != road_name {
+            continue;
+        }
+        // TODO This looks at the original state of the map, not with all the edits applied so far!
+        if can_change_lane_type(parent, l, to, map) {
+            edits.lane_overrides.insert(l.id, to);
+            cnt += 1;
+        }
+    }
+    // TODO pop this up. warn about road names changing and being weird. :)
+    println!(
+        "Changed {} {:?} lanes to {:?} lanes on {}",
+        cnt, from, to, road_name
+    );
+    Some(edits)
 }
