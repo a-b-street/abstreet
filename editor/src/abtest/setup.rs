@@ -3,6 +3,7 @@ use crate::edit::apply_map_edits;
 use crate::game::{GameState, Mode};
 use crate::ui::{Flags, PerMapUI, UI};
 use ezgui::{hotkey, EventCtx, GfxCtx, Key, LogScroller, ModalMenu, Wizard, WrappedWizard};
+use geom::Duration;
 use map_model::{Map, MapEdits};
 use sim::{ABTest, Scenario, SimFlags};
 use std::path::PathBuf;
@@ -120,6 +121,7 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> Mode {
                 ui.primary.reset_sim();
                 let mut rng = ui.primary.current_flags.sim_flags.make_rng();
                 scenario.instantiate(&mut ui.primary.sim, &ui.primary.map, &mut rng, &mut timer);
+                ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
                 timer.stop("load primary");
             }
             {
@@ -128,7 +130,7 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> Mode {
                 // TODO We could try to be cheaper by cloning primary's Map, but cloning DrawMap
                 // won't help -- we need to upload new stuff to the GPU. :\  The alternative is
                 // doing apply_map_edits every time we swap.
-                let secondary = PerMapUI::new(
+                let mut secondary = PerMapUI::new(
                     Flags {
                         sim_flags: SimFlags {
                             load,
@@ -142,6 +144,7 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> Mode {
                     ctx,
                     &mut timer,
                 );
+                secondary.sim.step(&secondary.map, Duration::seconds(0.1));
                 timer.stop("load secondary");
                 secondary
             }

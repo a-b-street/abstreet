@@ -273,7 +273,7 @@ impl DiffOneTrip {
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         if let Some(l) = &self.line {
             g.draw_line(
-                ui.cs.get_def("diff agents line", Color::YELLOW),
+                ui.cs.get_def("diff agents line", Color::YELLOW.alpha(0.5)),
                 LANE_THICKNESS,
                 l,
             );
