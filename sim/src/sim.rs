@@ -214,10 +214,6 @@ impl Sim {
             ) {
                 self.trips.agent_starting_trip_leg(AgentID::Car(id), trip);
                 self.transit.bus_created(id, route.id, next_stop_idx);
-                timer.note(format!(
-                    "Spawned bus {} for route {} ({})",
-                    id, route.name, route.id
-                ));
                 results.push(id);
             } else {
                 timer.warn(format!(

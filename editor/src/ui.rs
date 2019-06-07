@@ -4,7 +4,7 @@ use crate::render::{
     MIN_ZOOM_FOR_DETAIL,
 };
 use abstutil;
-use abstutil::MeasureMemory;
+use abstutil::{MeasureMemory, Timer};
 use ezgui::{Color, EventCtx, GeomBatch, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Distance, Duration};
 use map_model::{Map, Traversable};
@@ -21,10 +21,10 @@ pub struct UI {
 impl UI {
     pub fn new(flags: Flags, ctx: &mut EventCtx) -> UI {
         let cs = ColorScheme::load().unwrap();
-        UI {
-            primary: PerMapUI::new(flags, &cs, ctx),
-            cs,
-        }
+        let primary = ctx.loading_screen("load map", |ctx, mut timer| {
+            PerMapUI::new(flags, &cs, ctx, &mut timer)
+        });
+        UI { primary, cs }
     }
 
     pub fn draw(
@@ -407,19 +407,15 @@ pub struct PerMapUI {
 }
 
 impl PerMapUI {
-    pub fn new(flags: Flags, cs: &ColorScheme, ctx: &mut EventCtx) -> PerMapUI {
-        let (map, sim, draw_map) = ctx.loading_screen("load map", |ctx, timer| {
-            let mut mem = MeasureMemory::new();
-            let (map, sim, _) = flags.sim_flags.load(Some(Duration::minutes(30)), timer);
-            mem.reset("Map and Sim", timer);
+    pub fn new(flags: Flags, cs: &ColorScheme, ctx: &mut EventCtx, timer: &mut Timer) -> PerMapUI {
+        let mut mem = MeasureMemory::new();
+        let (map, sim, _) = flags.sim_flags.load(Some(Duration::minutes(30)), timer);
+        mem.reset("Map and Sim", timer);
 
-            timer.start("draw_map");
-            let draw_map = DrawMap::new(&map, &flags, cs, ctx.prerender, timer);
-            timer.stop("draw_map");
-            mem.reset("DrawMap", timer);
-
-            (map, sim, draw_map)
-        });
+        timer.start("draw_map");
+        let draw_map = DrawMap::new(&map, &flags, cs, ctx.prerender, timer);
+        timer.stop("draw_map");
+        mem.reset("DrawMap", timer);
 
         PerMapUI {
             map,

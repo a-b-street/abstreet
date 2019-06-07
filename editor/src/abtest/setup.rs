@@ -88,45 +88,56 @@ fn pick_ab_test(map: &Map, mut wizard: WrappedWizard) -> Option<ABTest> {
 }
 
 fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> Mode {
-    println!("Launching A/B test {}...", test.test_name);
-    let load = PathBuf::from(format!(
-        "../data/scenarios/{}/{}",
-        test.map_name, test.scenario_name
-    ));
-    let current_flags = &ui.primary.current_flags;
-    let rng_seed = if current_flags.sim_flags.rng_seed.is_some() {
-        current_flags.sim_flags.rng_seed
-    } else {
-        Some(42)
-    };
+    let (primary, secondary) = ctx.loading_screen(
+        &format!("Launching A/B test {}", test.test_name),
+        |ctx, mut timer| {
+            let load = PathBuf::from(format!(
+                "../data/scenarios/{}/{}",
+                test.map_name, test.scenario_name
+            ));
+            let current_flags = &ui.primary.current_flags;
+            let rng_seed = if current_flags.sim_flags.rng_seed.is_some() {
+                current_flags.sim_flags.rng_seed
+            } else {
+                Some(42)
+            };
 
-    // TODO Cheaper to load the edits for the map and then instantiate the scenario for the
-    // primary.
-    let primary = PerMapUI::new(
-        Flags {
-            sim_flags: SimFlags {
-                load: load.clone(),
-                rng_seed,
-                run_name: Some(format!("{} with {}", test.test_name, test.edits1_name)),
-                edits_name: test.edits1_name.clone(),
-            },
-            ..current_flags.clone()
+            // TODO Cheaper to load the edits for the map and then instantiate the scenario for the
+            // primary.
+            timer.start("load primary");
+            let primary = PerMapUI::new(
+                Flags {
+                    sim_flags: SimFlags {
+                        load: load.clone(),
+                        rng_seed,
+                        run_name: Some(format!("{} with {}", test.test_name, test.edits1_name)),
+                        edits_name: test.edits1_name.clone(),
+                    },
+                    ..current_flags.clone()
+                },
+                &ui.cs,
+                ctx,
+                &mut timer,
+            );
+            timer.stop("load primary");
+            timer.start("load secondary");
+            let secondary = PerMapUI::new(
+                Flags {
+                    sim_flags: SimFlags {
+                        load,
+                        rng_seed,
+                        run_name: Some(format!("{} with {}", test.test_name, test.edits2_name)),
+                        edits_name: test.edits2_name.clone(),
+                    },
+                    ..current_flags.clone()
+                },
+                &ui.cs,
+                ctx,
+                &mut timer,
+            );
+            timer.stop("load secondary");
+            (primary, secondary)
         },
-        &ui.cs,
-        ctx,
-    );
-    let secondary = PerMapUI::new(
-        Flags {
-            sim_flags: SimFlags {
-                load,
-                rng_seed,
-                run_name: Some(format!("{} with {}", test.test_name, test.edits2_name)),
-                edits_name: test.edits2_name.clone(),
-            },
-            ..current_flags.clone()
-        },
-        &ui.cs,
-        ctx,
     );
 
     ui.primary = primary;
