@@ -58,15 +58,20 @@ impl EditMode {
     pub fn event(state: &mut GameState, ctx: &mut EventCtx) -> EventLoopMode {
         match state.mode {
             Mode::Edit(EditMode::ViewingDiffs(ref mut common, ref mut menu)) => {
+                // The .clone() is probably not that expensive, and it makes later code a bit
+                // easier to read. :)
+                let orig_edits = state.ui.primary.map.get_edits().clone();
                 let mut txt = Text::prompt("Map Edit Mode");
                 {
-                    let edits = state.ui.primary.map.get_edits();
-                    txt.add_line(edits.edits_name.clone());
-                    txt.add_line(format!("{} lanes", edits.lane_overrides.len()));
-                    txt.add_line(format!("{} stop signs ", edits.stop_sign_overrides.len()));
+                    txt.add_line(orig_edits.edits_name.clone());
+                    txt.add_line(format!("{} lanes", orig_edits.lane_overrides.len()));
+                    txt.add_line(format!(
+                        "{} stop signs ",
+                        orig_edits.stop_sign_overrides.len()
+                    ));
                     txt.add_line(format!(
                         "{} traffic signals",
-                        edits.traffic_signal_overrides.len()
+                        orig_edits.traffic_signal_overrides.len()
                     ));
                     txt.add_line("Right-click a lane or intersection to start editing".to_string());
                 }
@@ -126,7 +131,7 @@ impl EditMode {
                                     Key::Space,
                                     &format!("toggle to {:?}", new_type),
                                 ) {
-                                    let mut new_edits = state.ui.primary.map.get_edits().clone();
+                                    let mut new_edits = orig_edits.clone();
                                     new_edits.lane_overrides.insert(lane.id, new_type);
                                     apply_map_edits(&mut state.ui, ctx, new_edits);
                                 }
@@ -149,7 +154,7 @@ impl EditMode {
                                         &format!("change to {} lane", name),
                                     )
                                 {
-                                    let mut new_edits = state.ui.primary.map.get_edits().clone();
+                                    let mut new_edits = orig_edits.clone();
                                     new_edits.lane_overrides.insert(lane.id, *lt);
                                     apply_map_edits(&mut state.ui, ctx, new_edits);
                                     break;
@@ -166,26 +171,46 @@ impl EditMode {
                             state.ui.primary.map.get_l(id).parent,
                             Wizard::new(),
                         ));
+                    } else if orig_edits.lane_overrides.contains_key(&id)
+                        && ctx.input.contextual_action(Key::R, "revert")
+                    {
+                        let mut new_edits = orig_edits.clone();
+                        new_edits.lane_overrides.remove(&id);
+                        apply_map_edits(&mut state.ui, ctx, new_edits);
                     }
                 }
                 if let Some(ID::Intersection(id)) = state.ui.primary.current_selection {
-                    if state.ui.primary.map.maybe_get_stop_sign(id).is_some()
-                        && ctx
+                    if state.ui.primary.map.maybe_get_stop_sign(id).is_some() {
+                        if ctx
                             .input
                             .contextual_action(Key::E, &format!("edit stop signs for {}", id))
-                    {
-                        state.mode = Mode::Edit(EditMode::EditingStopSign(
-                            stop_signs::StopSignEditor::new(id, ctx, &mut state.ui),
-                        ));
+                        {
+                            state.mode = Mode::Edit(EditMode::EditingStopSign(
+                                stop_signs::StopSignEditor::new(id, ctx, &mut state.ui),
+                            ));
+                        } else if orig_edits.stop_sign_overrides.contains_key(&id)
+                            && ctx.input.contextual_action(Key::R, "revert")
+                        {
+                            let mut new_edits = orig_edits.clone();
+                            new_edits.stop_sign_overrides.remove(&id);
+                            apply_map_edits(&mut state.ui, ctx, new_edits);
+                        }
                     }
-                    if state.ui.primary.map.maybe_get_traffic_signal(id).is_some()
-                        && ctx
+                    if state.ui.primary.map.maybe_get_traffic_signal(id).is_some() {
+                        if ctx
                             .input
                             .contextual_action(Key::E, &format!("edit traffic signal for {}", id))
-                    {
-                        state.mode = Mode::Edit(EditMode::EditingTrafficSignal(
-                            traffic_signals::TrafficSignalEditor::new(id, ctx, &mut state.ui),
-                        ));
+                        {
+                            state.mode = Mode::Edit(EditMode::EditingTrafficSignal(
+                                traffic_signals::TrafficSignalEditor::new(id, ctx, &mut state.ui),
+                            ));
+                        } else if orig_edits.traffic_signal_overrides.contains_key(&id)
+                            && ctx.input.contextual_action(Key::R, "revert")
+                        {
+                            let mut new_edits = orig_edits.clone();
+                            new_edits.traffic_signal_overrides.remove(&id);
+                            apply_map_edits(&mut state.ui, ctx, new_edits);
+                        }
                     }
                 }
             }
