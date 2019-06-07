@@ -16,7 +16,7 @@ impl BusRouteExplorer {
         let map = &ui.primary.map;
         // TODO Pick from a menu of all possible routes
         let route = match ui.primary.current_selection {
-            Some(ID::BusStop(bs)) => map.get_routes_serving_stop(bs)[0],
+            Some(ID::BusStop(bs)) => map.get_routes_serving_stop(bs).pop()?,
             _ => {
                 return None;
             }

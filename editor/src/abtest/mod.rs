@@ -100,6 +100,7 @@ impl ABTestMode {
                             // TODO This shouldn't be necessary when we plumb state around instead of
                             // sharing it in the old structure.
                             state.ui.primary.reset_sim();
+                            // Note destroying mode.secondary has some noticeable delay.
                             state.mode = Mode::SplashScreen(Wizard::new(), None);
                             return EventLoopMode::InputOnly;
                         }
