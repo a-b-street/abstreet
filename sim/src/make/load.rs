@@ -1,6 +1,5 @@
 use crate::{Scenario, Sim};
 use abstutil;
-use abstutil::Timer;
 use geom::Duration;
 use map_model::{Map, MapEdits};
 use rand::{FromEntropy, SeedableRng};
@@ -26,10 +25,6 @@ pub struct SimFlags {
     /// Run name for savestating
     #[structopt(long = "run_name")]
     pub run_name: Option<String>,
-
-    /// Name of map edits. Shouldn't be a full path or have the ".json"
-    #[structopt(long = "edits_name", default_value = "no_edits")]
-    pub edits_name: String,
 }
 
 impl SimFlags {
@@ -43,7 +38,6 @@ impl SimFlags {
             load: PathBuf::from(format!("../data/maps/{}.abst", map)),
             rng_seed: Some(42),
             run_name: Some(run_name.to_string()),
-            edits_name: "no_edits".to_string(),
         }
     }
 
@@ -64,7 +58,6 @@ impl SimFlags {
         let mut rng = self.make_rng();
 
         if self.load.starts_with(Path::new("../data/save/")) {
-            assert_eq!(self.edits_name, "no_edits");
             timer.note(format!("Resuming from {}", self.load.display()));
 
             timer.start("read sim savestate");
@@ -75,7 +68,7 @@ impl SimFlags {
             let mut map: Map =
                 abstutil::read_binary(&format!("../data/maps/{}.abst", sim.map_name), timer)
                     .unwrap();
-            apply_edits(&mut map, &sim.edits_name, timer);
+            map.apply_edits(MapEdits::load(map.get_name(), &sim.edits_name), timer);
 
             (map, sim, rng)
         } else if self.load.starts_with(Path::new("../data/scenarios/")) {
@@ -87,10 +80,9 @@ impl SimFlags {
             let scenario: Scenario = abstutil::read_binary(self.load.to_str().unwrap(), timer)
                 .expect("loading scenario failed");
 
-            let mut map: Map =
+            let map: Map =
                 abstutil::read_binary(&format!("../data/maps/{}.abst", scenario.map_name), timer)
                     .unwrap();
-            apply_edits(&mut map, &self.edits_name, timer);
 
             let mut sim = Sim::new(
                 &map,
@@ -105,9 +97,8 @@ impl SimFlags {
         } else if self.load.starts_with(Path::new("../data/raw_maps/")) {
             timer.note(format!("Loading map {}", self.load.display()));
 
-            let mut map = Map::new(self.load.to_str().unwrap(), timer)
+            let map = Map::new(self.load.to_str().unwrap(), timer)
                 .expect(&format!("Couldn't load map from {}", self.load.display()));
-            apply_edits(&mut map, &self.edits_name, timer);
 
             timer.start("create sim");
             let sim = Sim::new(
@@ -123,9 +114,8 @@ impl SimFlags {
         } else if self.load.starts_with(Path::new("../data/maps/")) {
             timer.note(format!("Loading map {}", self.load.display()));
 
-            let mut map: Map = abstutil::read_binary(self.load.to_str().unwrap(), timer)
+            let map: Map = abstutil::read_binary(self.load.to_str().unwrap(), timer)
                 .expect(&format!("Couldn't load map from {}", self.load.display()));
-            apply_edits(&mut map, &self.edits_name, timer);
 
             timer.start("create sim");
             let sim = Sim::new(
@@ -142,17 +132,4 @@ impl SimFlags {
             panic!("Don't know how to load {}", self.load.display());
         }
     }
-}
-
-fn apply_edits(map: &mut Map, edits_name: &str, timer: &mut Timer) {
-    if edits_name == "no_edits" {
-        return;
-    }
-    let edits: MapEdits = abstutil::read_json(&format!(
-        "../data/edits/{}/{}.json",
-        map.get_name(),
-        edits_name
-    ))
-    .unwrap();
-    map.apply_edits(edits, timer);
 }

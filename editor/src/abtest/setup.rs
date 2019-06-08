@@ -105,16 +105,12 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> Mode {
                 timer.start("load primary");
                 ui.primary.current_flags.sim_flags.run_name =
                     Some(format!("{} with {}", test.test_name, test.edits1_name));
-                let edits1: MapEdits = if test.edits1_name == "no_edits" {
-                    MapEdits::new(test.map_name.clone())
-                } else {
-                    abstutil::read_json(&format!(
-                        "../data/edits/{}/{}.json",
-                        test.map_name, test.edits1_name,
-                    ))
-                    .unwrap()
-                };
-                apply_map_edits(ui, ctx, edits1);
+                apply_map_edits(
+                    &mut ui.primary,
+                    &ui.cs,
+                    ctx,
+                    MapEdits::load(&test.map_name, &test.edits1_name),
+                );
 
                 let scenario: Scenario = abstutil::read_binary(load.to_str().unwrap(), &mut timer)
                     .expect("loading scenario failed");
@@ -136,13 +132,18 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> Mode {
                             load,
                             rng_seed: current_flags.sim_flags.rng_seed,
                             run_name: Some(format!("{} with {}", test.test_name, test.edits2_name)),
-                            edits_name: test.edits2_name.clone(),
                         },
                         ..current_flags.clone()
                     },
                     &ui.cs,
                     ctx,
                     &mut timer,
+                );
+                apply_map_edits(
+                    &mut secondary,
+                    &ui.cs,
+                    ctx,
+                    MapEdits::load(&test.map_name, &test.edits2_name),
                 );
                 secondary.sim.step(&secondary.map, Duration::seconds(0.1));
                 timer.stop("load secondary");

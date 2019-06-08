@@ -220,7 +220,7 @@ impl TrafficSignalEditor {
             } else {
                 new_edits.traffic_signal_overrides.insert(self.i, signal);
             }
-            apply_map_edits(ui, ctx, new_edits);
+            apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
         }
 
         false

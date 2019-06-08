@@ -96,7 +96,7 @@ impl StopSignEditor {
                 sign.change(t, next_priority, &ui.primary.map);
                 let mut new_edits = ui.primary.map.get_edits().clone();
                 new_edits.stop_sign_overrides.insert(self.id, sign);
-                apply_map_edits(ui, ctx, new_edits);
+                apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
             }
         } else if let Some(r) = self.selected_sign {
             if ctx.input.contextual_action(Key::Space, "toggle stop sign") {
@@ -104,14 +104,14 @@ impl StopSignEditor {
                 sign.flip_sign(r, &ui.primary.map);
                 let mut new_edits = ui.primary.map.get_edits().clone();
                 new_edits.stop_sign_overrides.insert(self.id, sign);
-                apply_map_edits(ui, ctx, new_edits);
+                apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
             }
         } else if self.menu.action("quit") {
             return true;
         } else if self.menu.action("reset to default") {
             let mut new_edits = ui.primary.map.get_edits().clone();
             new_edits.stop_sign_overrides.remove(&self.id);
-            apply_map_edits(ui, ctx, new_edits);
+            apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
         }
         false
     }

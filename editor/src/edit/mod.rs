@@ -4,13 +4,13 @@ mod traffic_signals;
 use crate::common::CommonState;
 use crate::debug::DebugMode;
 use crate::game::{GameState, Mode};
-use crate::helpers::ID;
+use crate::helpers::{ColorScheme, ID};
 use crate::render::{
     DrawCtx, DrawIntersection, DrawLane, DrawMap, DrawOptions, DrawTurn, Renderable,
     MIN_ZOOM_FOR_DETAIL,
 };
 use crate::sandbox::SandboxMode;
-use crate::ui::{ShowEverything, UI};
+use crate::ui::{PerMapUI, ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Color, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard,
@@ -133,7 +133,12 @@ impl EditMode {
                                 ) {
                                     let mut new_edits = orig_edits.clone();
                                     new_edits.lane_overrides.insert(lane.id, new_type);
-                                    apply_map_edits(&mut state.ui, ctx, new_edits);
+                                    apply_map_edits(
+                                        &mut state.ui.primary,
+                                        &state.ui.cs,
+                                        ctx,
+                                        new_edits,
+                                    );
                                 }
                             }
                         }
@@ -156,7 +161,12 @@ impl EditMode {
                                 {
                                     let mut new_edits = orig_edits.clone();
                                     new_edits.lane_overrides.insert(lane.id, *lt);
-                                    apply_map_edits(&mut state.ui, ctx, new_edits);
+                                    apply_map_edits(
+                                        &mut state.ui.primary,
+                                        &state.ui.cs,
+                                        ctx,
+                                        new_edits,
+                                    );
                                     break;
                                 }
                             }
@@ -176,7 +186,7 @@ impl EditMode {
                     {
                         let mut new_edits = orig_edits.clone();
                         new_edits.lane_overrides.remove(&id);
-                        apply_map_edits(&mut state.ui, ctx, new_edits);
+                        apply_map_edits(&mut state.ui.primary, &state.ui.cs, ctx, new_edits);
                     }
                 }
                 if let Some(ID::Intersection(id)) = state.ui.primary.current_selection {
@@ -193,7 +203,7 @@ impl EditMode {
                         {
                             let mut new_edits = orig_edits.clone();
                             new_edits.stop_sign_overrides.remove(&id);
-                            apply_map_edits(&mut state.ui, ctx, new_edits);
+                            apply_map_edits(&mut state.ui.primary, &state.ui.cs, ctx, new_edits);
                         }
                     }
                     if state.ui.primary.map.maybe_get_traffic_signal(id).is_some() {
@@ -209,7 +219,7 @@ impl EditMode {
                         {
                             let mut new_edits = orig_edits.clone();
                             new_edits.traffic_signal_overrides.remove(&id);
-                            apply_map_edits(&mut state.ui, ctx, new_edits);
+                            apply_map_edits(&mut state.ui.primary, &state.ui.cs, ctx, new_edits);
                         }
                     }
                 }
@@ -229,7 +239,7 @@ impl EditMode {
                     &mut wizard.wrap(ctx),
                     "Load which map edits?",
                 ) {
-                    apply_map_edits(&mut state.ui, ctx, new_edits);
+                    apply_map_edits(&mut state.ui.primary, &state.ui.cs, ctx, new_edits);
                     state.mode = Mode::Edit(EditMode::new(ctx, &mut state.ui));
                 } else if wizard.aborted() {
                     state.mode = Mode::Edit(EditMode::new(ctx, &mut state.ui));
@@ -248,7 +258,7 @@ impl EditMode {
             Mode::Edit(EditMode::BulkEditLanes(r, ref mut wizard)) => {
                 ctx.canvas.handle_event(ctx.input);
                 if let Some(edits) = bulk_edit(r, &mut wizard.wrap(ctx), &state.ui.primary.map) {
-                    apply_map_edits(&mut state.ui, ctx, edits);
+                    apply_map_edits(&mut state.ui.primary, &state.ui.cs, ctx, edits);
                     state.mode = Mode::Edit(EditMode::new(ctx, &mut state.ui));
                 } else if wizard.aborted() {
                     state.mode = Mode::Edit(EditMode::new(ctx, &mut state.ui));
@@ -464,18 +474,22 @@ fn can_change_lane_type(r: &Road, l: &Lane, lt: LaneType, map: &Map) -> bool {
     true
 }
 
-pub fn apply_map_edits(ui: &mut UI, ctx: &mut EventCtx, edits: MapEdits) {
+pub fn apply_map_edits(
+    bundle: &mut PerMapUI,
+    cs: &ColorScheme,
+    ctx: &mut EventCtx,
+    edits: MapEdits,
+) {
     let mut timer = Timer::new("apply map edits");
 
-    ui.primary.current_flags.sim_flags.edits_name = edits.edits_name.clone();
-    let (lanes_changed, turns_deleted, turns_added) = ui.primary.map.apply_edits(edits, &mut timer);
+    let (lanes_changed, turns_deleted, turns_added) = bundle.map.apply_edits(edits, &mut timer);
 
     for l in lanes_changed {
-        ui.primary.draw_map.lanes[l.0] = DrawLane::new(
-            ui.primary.map.get_l(l),
-            &ui.primary.map,
-            !ui.primary.current_flags.dont_draw_lane_markings,
-            &ui.cs,
+        bundle.draw_map.lanes[l.0] = DrawLane::new(
+            bundle.map.get_l(l),
+            &bundle.map,
+            !bundle.current_flags.dont_draw_lane_markings,
+            cs,
             ctx.prerender,
             &mut timer,
         );
@@ -483,7 +497,7 @@ pub fn apply_map_edits(ui: &mut UI, ctx: &mut EventCtx, edits: MapEdits) {
     let mut modified_intersections: BTreeSet<IntersectionID> = BTreeSet::new();
     let mut lanes_of_modified_turns: BTreeSet<LaneID> = BTreeSet::new();
     for t in turns_deleted {
-        ui.primary.draw_map.turns.remove(&t);
+        bundle.draw_map.turns.remove(&t);
         lanes_of_modified_turns.insert(t.src);
         modified_intersections.insert(t.parent);
     }
@@ -496,32 +510,32 @@ pub fn apply_map_edits(ui: &mut UI, ctx: &mut EventCtx, edits: MapEdits) {
     for l in lanes_of_modified_turns {
         DrawMap::compute_turn_to_lane_offset(
             &mut turn_to_lane_offset,
-            ui.primary.map.get_l(l),
-            &ui.primary.map,
+            bundle.map.get_l(l),
+            &bundle.map,
         );
     }
     for t in turns_added {
-        let turn = ui.primary.map.get_t(t);
+        let turn = bundle.map.get_t(t);
         if turn.turn_type != TurnType::SharedSidewalkCorner {
-            ui.primary.draw_map.turns.insert(
-                t,
-                DrawTurn::new(&ui.primary.map, turn, turn_to_lane_offset[&t]),
-            );
+            bundle
+                .draw_map
+                .turns
+                .insert(t, DrawTurn::new(&bundle.map, turn, turn_to_lane_offset[&t]));
         }
     }
 
     for i in modified_intersections {
-        ui.primary.draw_map.intersections[i.0] = DrawIntersection::new(
-            ui.primary.map.get_i(i),
-            &ui.primary.map,
-            &ui.cs,
+        bundle.draw_map.intersections[i.0] = DrawIntersection::new(
+            bundle.map.get_i(i),
+            &bundle.map,
+            cs,
             ctx.prerender,
             &mut timer,
         );
     }
 
     // Do this after fixing up all the state above.
-    ui.primary.map.simplify_edits(&mut timer);
+    bundle.map.simplify_edits(&mut timer);
 }
 
 fn load_edits(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<MapEdits> {
