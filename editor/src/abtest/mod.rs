@@ -2,10 +2,10 @@ mod setup;
 
 use crate::common::{CommonState, SpeedControls};
 use crate::game::{GameState, Mode};
-use crate::render::DrawOptions;
+use crate::render::{MIN_ZOOM_FOR_DETAIL, DrawOptions};
 use crate::ui::{PerMapUI, ShowEverything, UI};
-use ezgui::{hotkey, Color, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard};
-use geom::{Duration, Line, PolyLine};
+use ezgui::{hotkey, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, ModalMenu, Text, Wizard};
+use geom::{Duration, Line, PolyLine, Distance, Circle};
 use map_model::LANE_THICKNESS;
 use sim::TripID;
 
@@ -319,8 +319,19 @@ impl DiffAllTrips {
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        for line in &self.lines {
-            g.draw_line(ui.cs.get("diff agents line"), LANE_THICKNESS, line);
+        let mut batch = GeomBatch::new();
+        let color = ui.cs.get("diff agents line");
+        if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
+            // TODO Refactor with UI
+            let radius = Distance::meters(10.0) / g.canvas.cam_zoom;
+            for line in &self.lines {
+                batch.push(color, Circle::new(line.pt1(), radius).to_polygon());
+            }
+        } else {
+            for line in &self.lines {
+                batch.push(color, line.make_polygons(LANE_THICKNESS));
+            }
         }
+        batch.draw(g);
     }
 }
