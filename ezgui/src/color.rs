@@ -77,4 +77,12 @@ impl Color {
         }
         panic!("Can't transform {} to a string", self);
     }
+
+    pub fn from_hex(raw: &str) -> Color {
+        // Skip the leading '#'
+        let r = usize::from_str_radix(&raw[1..3], 16).unwrap();
+        let g = usize::from_str_radix(&raw[3..5], 16).unwrap();
+        let b = usize::from_str_radix(&raw[5..7], 16).unwrap();
+        Color::rgb(r, g, b)
+    }
 }

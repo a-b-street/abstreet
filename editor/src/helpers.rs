@@ -309,13 +309,7 @@ pub fn rotating_color_total(idx: usize, total: usize) -> Color {
         colorbrewer::get_color_ramp(colorbrewer::Palette::YlOrBr, total as u32)
             .unwrap()
             .into_iter()
-            .map(|raw| {
-                // Skip the leading '#'
-                let r = usize::from_str_radix(&raw[1..3], 16).unwrap();
-                let g = usize::from_str_radix(&raw[3..5], 16).unwrap();
-                let b = usize::from_str_radix(&raw[5..7], 16).unwrap();
-                Color::rgb(r, g, b)
-            })
+            .map(Color::from_hex)
             .collect();
 
     colors[idx % total]
