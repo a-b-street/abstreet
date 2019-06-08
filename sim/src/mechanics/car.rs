@@ -1,5 +1,5 @@
 use crate::{
-    CarStatus, DistanceInterval, DrawCarInput, ParkingSpot, Router, TimeInterval, Vehicle,
+    CarStatus, DistanceInterval, DrawCarInput, ParkingSpot, Router, TimeInterval, TripID, Vehicle,
 };
 use geom::{Distance, Duration, PolyLine};
 use map_model::{Map, Traversable, LANE_THICKNESS};
@@ -11,6 +11,7 @@ pub struct Car {
     pub vehicle: Vehicle,
     pub state: CarState,
     pub router: Router,
+    pub trip: TripID,
 
     // In reverse order -- most recently left is first. The sum length of these must be >=
     // vehicle.length.

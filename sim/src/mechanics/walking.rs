@@ -1,7 +1,7 @@
 use crate::{
     AgentID, Command, CreatePedestrian, DistanceInterval, DrawPedestrianInput,
     IntersectionSimState, ParkingSimState, PedestrianID, Scheduler, SidewalkPOI, SidewalkSpot,
-    TimeInterval, TransitSimState, TripManager,
+    SimStats, TimeInterval, TransitSimState, TripID, TripManager,
 };
 use abstutil::{deserialize_multimap, serialize_multimap, MultiMap};
 use geom::{Distance, Duration, Line, PolyLine, Pt2D, Speed};
@@ -55,6 +55,7 @@ impl WalkingSimState {
             speed: params.speed,
             path: params.path,
             goal: params.goal,
+            trip: params.trip,
         };
         ped.state = match params.start.connection {
             SidewalkPOI::Building(b) => PedState::LeavingBuilding(
@@ -270,6 +271,14 @@ impl WalkingSimState {
 
         peds
     }
+
+    pub fn populate_stats(&self, stats: &mut SimStats, map: &Map) {
+        for ped in self.peds.values() {
+            stats
+                .canonical_pt_per_trip
+                .insert(ped.trip, ped.get_draw_ped(stats.time, map).pos);
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq)]
@@ -280,6 +289,7 @@ struct Pedestrian {
 
     path: Path,
     goal: SidewalkSpot,
+    trip: TripID,
 }
 
 impl Pedestrian {

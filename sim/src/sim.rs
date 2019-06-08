@@ -727,14 +727,8 @@ impl Sim {
         }
 
         let mut stats = SimStats::new(self.time);
-        for trip in self.trips.get_active_trips().into_iter() {
-            if let Some(agent) = self.trips.trip_to_agent(trip) {
-                // Active trips with an agent should have a canonical pt.
-                stats
-                    .canonical_pt_per_trip
-                    .insert(trip, self.canonical_pt_for_agent(agent, map).unwrap());
-            }
-        }
+        self.driving.populate_stats(&mut stats, map);
+        self.walking.populate_stats(&mut stats, map);
 
         self.stats = Some(stats);
         self.stats.as_ref().unwrap()

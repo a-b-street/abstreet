@@ -2,10 +2,12 @@ mod setup;
 
 use crate::common::{CommonState, SpeedControls};
 use crate::game::{GameState, Mode};
-use crate::render::{MIN_ZOOM_FOR_DETAIL, DrawOptions};
+use crate::render::{DrawOptions, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::{PerMapUI, ShowEverything, UI};
-use ezgui::{hotkey, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, ModalMenu, Text, Wizard};
-use geom::{Duration, Line, PolyLine, Distance, Circle};
+use ezgui::{
+    hotkey, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, ModalMenu, Text, Wizard,
+};
+use geom::{Circle, Distance, Duration, Line, PolyLine};
 use map_model::LANE_THICKNESS;
 use sim::TripID;
 

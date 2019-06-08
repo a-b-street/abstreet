@@ -2,8 +2,8 @@ use crate::mechanics::car::{Car, CarState};
 use crate::mechanics::queue::Queue;
 use crate::{
     ActionAtEnd, AgentID, CarID, Command, CreateCar, DistanceInterval, DrawCarInput,
-    IntersectionSimState, ParkedCar, ParkingSimState, Scheduler, TimeInterval, TransitSimState,
-    TripManager, VehicleType, WalkingSimState, FOLLOWING_DISTANCE,
+    IntersectionSimState, ParkedCar, ParkingSimState, Scheduler, SimStats, TimeInterval,
+    TransitSimState, TripManager, VehicleType, WalkingSimState, FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Distance, Duration, PolyLine, Pt2D};
@@ -85,6 +85,7 @@ impl DrivingSimState {
                 // Temporary
                 state: CarState::Queued,
                 last_steps: VecDeque::new(),
+                trip: params.trip,
             };
             if params.maybe_parked_car.is_some() {
                 car.state = CarState::Unparking(
@@ -627,7 +628,6 @@ impl DrivingSimState {
             if queue.cars.is_empty() {
                 continue;
             }
-            // TODO optimization: Don't constantly lookup!
 
             for (car, dist) in queue.get_car_positions(time, &self.cars, &self.queues) {
                 let pos = queue.id.dist_along(dist, map).0;
@@ -646,6 +646,20 @@ impl DrivingSimState {
         }
 
         (cars, bikes, buses)
+    }
+
+    pub fn populate_stats(&self, stats: &mut SimStats, map: &Map) {
+        for queue in self.queues.values() {
+            if queue.cars.is_empty() {
+                continue;
+            }
+
+            for (car, dist) in queue.get_car_positions(stats.time, &self.cars, &self.queues) {
+                stats
+                    .canonical_pt_per_trip
+                    .insert(self.cars[&car].trip, queue.id.dist_along(dist, map).0);
+            }
+        }
     }
 
     pub fn get_all_draw_cars(&self, time: Duration, map: &Map) -> Vec<DrawCarInput> {
