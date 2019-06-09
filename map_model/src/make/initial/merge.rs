@@ -36,7 +36,8 @@ pub fn short_roads(map: &mut InitialMap, timer: &mut Timer) {
                 .values()
                 .find(|r| r.trimmed_center_pts.length() < Distance::meters(5.0))
             {
-                look_at.insert(merge(map, r.id, timer));
+                let id = r.id;
+                look_at.insert(merge(map, id, timer));
             } else {
                 break;
             }

@@ -351,11 +351,12 @@ impl SpawnOverTime {
                 timer,
             ) {
                 reserved_cars.insert(parked_car.vehicle.id);
+                let spot = parked_car.spot;
                 sim.schedule_trip(
                     spawn_time,
                     TripSpec::UsingParkedCar {
                         start: SidewalkSpot::building(from_bldg, map),
-                        spot: parked_car.spot,
+                        spot,
                         goal,
                         ped_speed: Scenario::rand_ped_speed(rng),
                     },
