@@ -302,6 +302,9 @@ pub fn rotating_color_total(idx: usize, total: usize) -> Color {
     if total > 9 {
         return rotating_color_total(idx, 9);
     }
+    if total < 3 {
+        return rotating_color_total(idx, 3);
+    }
 
     // TODO Cache this
     // TODO This palette doesn't contrast well with other stuff
