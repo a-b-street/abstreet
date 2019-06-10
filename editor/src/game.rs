@@ -8,9 +8,7 @@ use crate::sandbox::SandboxMode;
 use crate::tutorial::TutorialMode;
 use crate::ui::{EditorState, Flags, ShowEverything, UI};
 use abstutil::elapsed_seconds;
-use ezgui::{
-    hotkey, Canvas, EventCtx, EventLoopMode, GfxCtx, Key, LogScroller, UserInput, Wizard, GUI,
-};
+use ezgui::{hotkey, Canvas, EventCtx, EventLoopMode, GfxCtx, Key, UserInput, Wizard, GUI};
 use geom::{Duration, Line, Pt2D, Speed};
 use map_model::Map;
 use rand::seq::SliceRandom;
@@ -301,16 +299,16 @@ fn splash_screen(
             x if x == mission => break Some(Mode::Mission(MissionEditMode::new(ctx, ui))),
             x if x == abtest => break Some(Mode::ABTest(ABTestMode::new(ctx, ui))),
             x if x == about => {
-                if wizard.acknowledge(LogScroller::new(
-                    "About A/B Street".to_string(),
+                if wizard.acknowledge(
+                    "About A/B Street",
                     vec![
-                        "Author: Dustin Carlino (dabreegster@gmail.com)".to_string(),
-                        "http://github.com/dabreegster/abstreet".to_string(),
-                        "Map data from OpenStreetMap and King County GIS".to_string(),
-                        "".to_string(),
-                        "Press ENTER to continue".to_string(),
+                        "Author: Dustin Carlino (dabreegster@gmail.com)",
+                        "http://github.com/dabreegster/abstreet",
+                        "Map data from OpenStreetMap and King County GIS",
+                        "",
+                        "Press ENTER to continue",
                     ],
-                )) {
+                ) {
                     continue;
                 } else {
                     break None;

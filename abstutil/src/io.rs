@@ -131,6 +131,26 @@ pub fn list_all_objects(dir: &str, map_name: &str) -> Vec<(String, String)> {
     results.into_iter().collect()
 }
 
+// TODO Argh simplify all of this.
+pub fn list_all_objects_extensions(dir: &str, map_name: &str) -> Vec<(String, String)> {
+    let mut results: BTreeSet<(String, String)> = BTreeSet::new();
+    match std::fs::read_dir(format!("../data/{}/{}", dir, map_name)) {
+        Ok(iter) => {
+            for entry in iter {
+                // TODO Don't do file_stem here. Scenarios end with ".0" because of durations.
+                let name = entry.unwrap().file_name().into_string().unwrap();
+                if name.ends_with(".swp") {
+                    continue;
+                }
+                results.insert((name.clone(), name));
+            }
+        }
+        Err(ref e) if e.kind() == ErrorKind::NotFound => {}
+        Err(e) => panic!(e),
+    };
+    results.into_iter().collect()
+}
+
 // Load all serialized things from a directory, return sorted by name, with file extension removed.
 pub fn load_all_objects<T: DeserializeOwned>(dir: &str, map_name: &str) -> Vec<(String, T)> {
     let mut tree: BTreeMap<String, T> = BTreeMap::new();
@@ -166,17 +186,11 @@ pub fn load_all_binary_objects<T: DeserializeOwned>(dir: &str, map_name: &str) -
     match std::fs::read_dir(format!("../data/{}/{}/", dir, map_name)) {
         Ok(iter) => {
             for entry in iter {
-                let filename = entry.unwrap().file_name();
-                let path = Path::new(&filename);
-                if path.to_string_lossy().ends_with(".swp") {
+                // TODO Don't do file_stem here. Scenarios end with ".0" because of durations.
+                let name = entry.unwrap().file_name().into_string().unwrap();
+                if name.ends_with(".swp") {
                     continue;
                 }
-                let name = path
-                    .file_stem()
-                    .unwrap()
-                    .to_os_string()
-                    .into_string()
-                    .unwrap();
                 let load: T = read_binary(
                     &format!("../data/{}/{}/{}", dir, map_name, name),
                     &mut timer,

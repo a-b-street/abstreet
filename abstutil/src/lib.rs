@@ -12,9 +12,9 @@ pub use crate::collections::{contains_duplicates, retain_btreemap, wraparound_ge
 pub use crate::error::Error;
 pub use crate::io::{
     deserialize_btreemap, deserialize_multimap, find_next_file, find_prev_file, list_all_objects,
-    load_all_binary_objects, load_all_objects, read_binary, read_json, save_binary_object,
-    save_object, serialize_btreemap, serialize_multimap, to_json, write_binary, write_json,
-    FileWithProgress,
+    list_all_objects_extensions, load_all_binary_objects, load_all_objects, read_binary, read_json,
+    save_binary_object, save_object, serialize_btreemap, serialize_multimap, to_json, write_binary,
+    write_json, FileWithProgress,
 };
 pub use crate::logs::Warn;
 pub use crate::notes::note;

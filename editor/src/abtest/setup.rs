@@ -163,7 +163,7 @@ fn choose_scenario(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option
     wizard
         .choose_something_no_keys::<String>(
             query,
-            Box::new(move || abstutil::list_all_objects("scenarios", &map_name)),
+            Box::new(move || abstutil::list_all_objects_extensions("scenarios", &map_name)),
         )
         .map(|(n, _)| n)
 }

@@ -293,14 +293,18 @@ impl<'a> WrappedWizard<'a> {
         self.wizard.alive = false;
     }
 
-    pub fn acknowledge(&mut self, scroller: LogScroller) -> bool {
+    // Note this will abort the wizard once done!
+    pub fn acknowledge(&mut self, title: &str, lines: Vec<&str>) -> bool {
         if !self.ready_results.is_empty() {
             self.ready_results.pop_front();
             return true;
         }
 
         if self.wizard.log_scroller.is_none() {
-            self.wizard.log_scroller = Some(scroller);
+            self.wizard.log_scroller = Some(LogScroller::new(
+                title.to_string(),
+                lines.into_iter().map(|l| l.to_string()).collect(),
+            ));
         }
         if self.wizard.log_scroller.as_mut().unwrap().event(self.input) {
             self.wizard.confirmed_state.push(Box::new(()));

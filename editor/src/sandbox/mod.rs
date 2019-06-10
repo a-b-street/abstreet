@@ -106,22 +106,39 @@ impl SandboxMode {
                     }
                 }
                 State::JumpingToTime(ref mut wizard) => {
-                    if let Some(t) = input_time(&mut wizard.wrap(ctx), "Jump to what time?") {
-                        // TODO make acknowledge() easier to use
+                    let mut wiz = wizard.wrap(ctx);
 
-                        // Have to do this first for the borrow checker
-                        mode.state = State::Playing;
-                        mode.speed.pause();
-
+                    if let Some(t) = input_time(&mut wiz, "Jump to what time?") {
                         let dt = t - state.ui.primary.sim.time();
-                        if dt > Duration::ZERO {
-                            ctx.loading_screen(&format!("step forwards {}", dt), |_, mut timer| {
-                                state.ui.primary.sim.timed_step(
-                                    &state.ui.primary.map,
-                                    dt,
-                                    &mut timer,
+                        if dt <= Duration::ZERO {
+                            if wiz.acknowledge(
+                                "Bad time",
+                                vec![&format!(
+                                    "{} isn't after {}",
+                                    t,
+                                    state.ui.primary.sim.time()
+                                )],
+                            ) {
+                                mode.state = State::Playing;
+                                mode.speed.pause();
+                            }
+                        } else {
+                            // Have to do this first for the borrow checker
+                            mode.state = State::Playing;
+                            mode.speed.pause();
+
+                            if dt > Duration::ZERO {
+                                ctx.loading_screen(
+                                    &format!("step forwards {}", dt),
+                                    |_, mut timer| {
+                                        state.ui.primary.sim.timed_step(
+                                            &state.ui.primary.map,
+                                            dt,
+                                            &mut timer,
+                                        );
+                                    },
                                 );
-                            });
+                            }
                         }
                     } else if wizard.aborted() {
                         mode.state = State::Playing;
