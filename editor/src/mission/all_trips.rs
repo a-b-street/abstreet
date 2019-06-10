@@ -26,7 +26,7 @@ enum MaybeTrip {
 impl TripsVisualizer {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> TripsVisualizer {
         let trips = ctx.loading_screen("load trip data", |_, mut timer| {
-            let all_trips = clip_trips(ui, &mut timer);
+            let (all_trips, _) = clip_trips(ui, &mut timer);
             let map = &ui.primary.map;
             let maybe_trips =
                 timer.parallelize("calculate paths with geometry", all_trips, |mut trip| {

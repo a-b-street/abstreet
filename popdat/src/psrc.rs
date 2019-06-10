@@ -2,7 +2,7 @@ use abstutil::{prettyprint_usize, skip_fail, FileWithProgress, Timer};
 use geom::{Distance, Duration, FindClosest, LonLat, Pt2D};
 use map_model::Map;
 use serde_derive::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::fs::File;
 use std::io::{BufRead, BufReader, BufWriter, Write};
 
@@ -23,6 +23,12 @@ pub struct Trip {
 pub struct Endpoint {
     pub pos: LonLat,
     pub osm_building: Option<i64>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Parcel {
+    pub num_households: usize,
+    pub num_employees: usize,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
@@ -52,8 +58,8 @@ pub fn import_trips(
     parcels_path: &str,
     trips_path: &str,
     timer: &mut Timer,
-) -> Result<Vec<Trip>, failure::Error> {
-    let parcels = import_parcels(parcels_path, timer)?;
+) -> Result<(Vec<Trip>, BTreeMap<i64, Parcel>), failure::Error> {
+    let (parcels, metadata) = import_parcels(parcels_path, timer)?;
 
     let mut trips = Vec::new();
     let (reader, done) = FileWithProgress::new(trips_path)?;
@@ -106,14 +112,15 @@ pub fn import_trips(
 
     trips.sort_by_key(|t| t.depart_at);
 
-    Ok(trips)
+    Ok((trips, metadata))
 }
 
 // TODO Do we also need the zone ID, or is parcel ID globally unique?
+// Returns (parcel ID -> Endpoint) and (OSM building ID -> metadata)
 fn import_parcels(
     path: &str,
     timer: &mut Timer,
-) -> Result<HashMap<String, Endpoint>, failure::Error> {
+) -> Result<(HashMap<String, Endpoint>, BTreeMap<i64, Parcel>), failure::Error> {
     let map: Map = abstutil::read_binary("../data/maps/huge_seattle.abst", timer)?;
 
     // TODO I really just want to do polygon containment with a quadtree. FindClosest only does
@@ -124,7 +131,8 @@ fn import_parcels(
     }
 
     let mut coords = BufWriter::new(File::create("/tmp/parcels")?);
-    let mut parcel_ids = Vec::new();
+    // (parcel ID, number of households, number of employees)
+    let mut parcel_metadata = Vec::new();
 
     let (reader, done) = FileWithProgress::new(path)?;
     for rec in csv::ReaderBuilder::new()
@@ -133,7 +141,12 @@ fn import_parcels(
         .records()
     {
         let rec = rec?;
-        parcel_ids.push(rec[15].to_string());
+        // parcelid, hh_p, emptot_p
+        parcel_metadata.push((
+            rec[15].to_string(),
+            rec[12].parse::<usize>()?,
+            rec[11].parse::<usize>()?,
+        ));
         coords.write_fmt(format_args!("{} {}\n", &rec[25], &rec[26]))?;
     }
     done(timer);
@@ -144,7 +157,7 @@ fn import_parcels(
     // bindings to build. So just do this hack.
     timer.start(&format!(
         "run cs2cs on {} points",
-        prettyprint_usize(parcel_ids.len())
+        prettyprint_usize(parcel_metadata.len())
     ));
     let output = std::process::Command::new("cs2cs")
         // cs2cs +init=esri:102748 +to +init=epsg:4326 -f '%.5f' foo
@@ -160,14 +173,17 @@ fn import_parcels(
     assert!(output.status.success());
     timer.stop(&format!(
         "run cs2cs on {} points",
-        prettyprint_usize(parcel_ids.len())
+        prettyprint_usize(parcel_metadata.len())
     ));
 
     let bounds = map.get_gps_bounds();
     let reader = BufReader::new(output.stdout.as_slice());
     let mut result = HashMap::new();
-    timer.start_iter("read cs2cs output", parcel_ids.len());
-    for (line, id) in reader.lines().zip(parcel_ids.into_iter()) {
+    let mut metadata = BTreeMap::new();
+    timer.start_iter("read cs2cs output", parcel_metadata.len());
+    for (line, (id, num_households, num_employees)) in
+        reader.lines().zip(parcel_metadata.into_iter())
+    {
         timer.next();
         let line = line?;
         let pieces: Vec<&str> = line.split_whitespace().collect();
@@ -175,18 +191,28 @@ fn import_parcels(
         let lat: f64 = pieces[1].parse()?;
         let pt = LonLat::new(lon, lat);
         if bounds.contains(pt) {
+            let osm_building = closest_bldg
+                .closest_pt(Pt2D::from_gps(pt, bounds).unwrap(), Distance::meters(30.0))
+                .map(|(b, _)| b);
+            if let Some(b) = osm_building {
+                metadata.insert(
+                    b,
+                    Parcel {
+                        num_households,
+                        num_employees,
+                    },
+                );
+            }
             result.insert(
                 id,
                 Endpoint {
                     pos: pt,
-                    osm_building: closest_bldg
-                        .closest_pt(Pt2D::from_gps(pt, bounds).unwrap(), Distance::meters(30.0))
-                        .map(|(b, _)| b),
+                    osm_building,
                 },
             );
         }
     }
-    Ok(result)
+    Ok((result, metadata))
 }
 
 // From https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv, opurp and dpurp

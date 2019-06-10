@@ -13,6 +13,7 @@ pub struct PopDat {
     pub tracts: BTreeMap<String, TractData>,
 
     pub trips: Vec<psrc::Trip>,
+    pub parcels: BTreeMap<i64, psrc::Parcel>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -35,6 +36,7 @@ impl PopDat {
         let mut dat = PopDat {
             tracts: BTreeMap::new(),
             trips: Vec::new(),
+            parcels: BTreeMap::new(),
         };
         let fields: Vec<(&str, Box<Fn(&mut TractData, BTreeMap<String, Estimate>)>)> = vec![
             (

@@ -149,7 +149,10 @@ impl TripEndpt {
     }
 }
 
-pub fn clip_trips(ui: &UI, timer: &mut Timer) -> Vec<Trip> {
+pub fn clip_trips(
+    ui: &UI,
+    timer: &mut Timer,
+) -> (Vec<Trip>, HashMap<BuildingID, popdat::psrc::Parcel>) {
     use popdat::psrc::Mode;
 
     let popdat: popdat::PopDat =
@@ -252,7 +255,15 @@ pub fn clip_trips(ui: &UI, timer: &mut Timer) -> Vec<Trip> {
 
         Some(trip)
     });
-    maybe_results.into_iter().flatten().collect()
+    let trips = maybe_results.into_iter().flatten().collect();
+
+    let mut bldgs = HashMap::new();
+    for (osm_id, metadata) in popdat.parcels {
+        if let Some(b) = osm_id_to_bldg.get(&osm_id) {
+            bldgs.insert(*b, metadata);
+        }
+    }
+    (trips, bldgs)
 }
 
 pub fn trips_to_scenario(ctx: &mut EventCtx, ui: &UI, t1: Duration, t2: Duration) -> Scenario {
@@ -260,7 +271,7 @@ pub fn trips_to_scenario(ctx: &mut EventCtx, ui: &UI, t1: Duration, t2: Duration
     let map = &ui.primary.map;
 
     let individ_trips = ctx.loading_screen("convert PSRC trips to scenario", |_, mut timer| {
-        let trips = clip_trips(ui, &mut timer);
+        let (trips, _) = clip_trips(ui, &mut timer);
         timer
             .parallelize("turn PSRC trips into SpawnTrips", trips, |trip| {
                 if trip.depart_at < t1 || trip.depart_at > t2 {

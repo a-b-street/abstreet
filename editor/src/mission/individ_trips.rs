@@ -1,17 +1,22 @@
 use crate::common::CommonState;
+use crate::helpers::ID;
 use crate::mission::trips::{clip_trips, Trip, TripEndpt};
 use crate::ui::{ShowEverything, UI};
 use abstutil::prettyprint_usize;
 use ezgui::{hotkey, Color, EventCtx, GfxCtx, ItemSlider, Key, Text};
 use geom::{Circle, Distance, Line, Speed};
+use map_model::BuildingID;
+use popdat::psrc;
+use std::collections::HashMap;
 
 pub struct TripsVisualizer {
     slider: ItemSlider<Trip>,
+    bldgs: HashMap<BuildingID, psrc::Parcel>,
 }
 
 impl TripsVisualizer {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> TripsVisualizer {
-        let trips = ctx.loading_screen("load trip data", |_, mut timer| {
+        let (trips, bldgs) = ctx.loading_screen("load trip data", |_, mut timer| {
             // TODO We'll break if there are no matching trips
             clip_trips(ui, &mut timer)
         });
@@ -23,6 +28,7 @@ impl TripsVisualizer {
                 vec![(hotkey(Key::Escape), "quit")],
                 ctx,
             ),
+            bldgs,
         }
     }
 
@@ -103,6 +109,26 @@ impl TripsVisualizer {
         }
 
         self.slider.draw(g);
-        CommonState::draw_osd(g, ui, ui.primary.current_selection);
+        if let Some(ID::Building(b)) = ui.primary.current_selection {
+            let mut osd = Text::new();
+            osd.append(format!("{}", b), Some(ui.cs.get("OSD ID color")));
+            osd.append(" is ".to_string(), None);
+            osd.append(
+                ui.primary.map.get_b(b).get_name(),
+                Some(ui.cs.get("OSD name color")),
+            );
+            if let Some(md) = self.bldgs.get(&b) {
+                osd.append(
+                    format!(
+                        ". {} households, {} employees",
+                        md.num_households, md.num_employees,
+                    ),
+                    None,
+                );
+            }
+            CommonState::draw_custom_osd(g, osd);
+        } else {
+            CommonState::draw_osd(g, ui, ui.primary.current_selection);
+        }
     }
 }
