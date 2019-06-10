@@ -296,11 +296,13 @@ impl SandboxMode {
                                     false,
                                 );
                         } else if mode.menu.action("step forwards 10 mins") {
-                            state
-                                .ui
-                                .primary
-                                .sim
-                                .step(&state.ui.primary.map, Duration::minutes(10));
+                            ctx.loading_screen("step forwards 10 minutes", |_, mut timer| {
+                                state.ui.primary.sim.timed_step(
+                                    &state.ui.primary.map,
+                                    Duration::minutes(10),
+                                    &mut timer,
+                                );
+                            });
                             state.ui.primary.current_selection =
                                 state.ui.recalculate_current_selection(
                                     ctx,

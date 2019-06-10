@@ -417,6 +417,25 @@ impl Sim {
             .extend(self.transit.collect_events());
     }
 
+    pub fn timed_step(&mut self, map: &Map, dt: Duration, timer: &mut Timer) {
+        // TODO Ideally print every second or so
+        let orig_time = self.time;
+        let chunks = (dt / Duration::seconds(10.0)).ceil() as usize;
+        timer.start_iter(&format!("advance simulation by {}", dt), chunks);
+        for i in 0..chunks {
+            timer.next();
+            self.step(
+                map,
+                if i == chunks - 1 {
+                    orig_time + dt - self.time
+                } else {
+                    dt * (1.0 / (chunks as f64))
+                },
+            );
+        }
+        assert_eq!(self.time, orig_time + dt);
+    }
+
     pub fn dump_before_abort(&self) {
         println!(
             "********************************************************************************"
