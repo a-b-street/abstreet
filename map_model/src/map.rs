@@ -650,8 +650,12 @@ impl Map {
         let mut delete_turns = BTreeSet::new();
         let mut add_turns = BTreeSet::new();
         for id in changed_intersections {
-            // TODO Did something affect a border intersection?
             let i = &mut self.intersections[id.0];
+
+            if i.intersection_type == IntersectionType::Border {
+                assert!(i.turns.is_empty());
+                continue;
+            }
 
             let mut old_turns = Vec::new();
             for id in i.turns.drain(..) {
@@ -681,7 +685,7 @@ impl Map {
                     self.traffic_signals
                         .insert(id, ControlTrafficSignal::new(self, id, timer));
                 }
-                IntersectionType::Border => {}
+                IntersectionType::Border => unreachable!(),
             }
         }
 
