@@ -8,6 +8,7 @@ use crate::common::{CommonState, SpeedControls};
 use crate::debug::DebugMode;
 use crate::edit::EditMode;
 use crate::game::{GameState, Mode};
+use crate::mission::input_time;
 use crate::render::DrawOptions;
 use crate::ui::ShowEverything;
 use ezgui::{hotkey, lctrl, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard};
@@ -31,6 +32,7 @@ enum State {
     Spawning(spawner::AgentSpawner),
     TimeTraveling,
     ExploringRoute(route_explorer::RouteExplorer),
+    JumpingToTime(Wizard),
 }
 
 impl SandboxMode {
@@ -56,6 +58,7 @@ impl SandboxMode {
                         (hotkey(Key::U), "load next sim state"),
                         (hotkey(Key::M), "step forwards 0.1s"),
                         (hotkey(Key::N), "step forwards 10 mins"),
+                        (hotkey(Key::B), "jump to specific time"),
                         (hotkey(Key::X), "reset sim"),
                         (hotkey(Key::S), "seed the sim with agents"),
                         // TODO Strange to always have this. Really it's a case of stacked modal?
@@ -101,6 +104,30 @@ impl SandboxMode {
                         mode.speed.pause();
                         EventLoopMode::InputOnly
                     }
+                }
+                State::JumpingToTime(ref mut wizard) => {
+                    if let Some(t) = input_time(&mut wizard.wrap(ctx), "Jump to what time?") {
+                        // TODO make acknowledge() easier to use
+
+                        // Have to do this first for the borrow checker
+                        mode.state = State::Playing;
+                        mode.speed.pause();
+
+                        let dt = t - state.ui.primary.sim.time();
+                        if dt > Duration::ZERO {
+                            ctx.loading_screen(&format!("step forwards {}", dt), |_, mut timer| {
+                                state.ui.primary.sim.timed_step(
+                                    &state.ui.primary.map,
+                                    dt,
+                                    &mut timer,
+                                );
+                            });
+                        }
+                    } else if wizard.aborted() {
+                        mode.state = State::Playing;
+                        mode.speed.pause();
+                    }
+                    EventLoopMode::InputOnly
                 }
                 State::Playing => {
                     mode.time_travel.record(&state.ui);
@@ -310,6 +337,8 @@ impl SandboxMode {
                                     &ShowEverything::new(),
                                     false,
                                 );
+                        } else if mode.menu.action("jump to specific time") {
+                            mode.state = State::JumpingToTime(Wizard::new());
                         }
                         EventLoopMode::InputOnly
                     } else {
@@ -344,6 +373,15 @@ impl SandboxMode {
                         &ShowEverything::new(),
                     );
                     explorer.draw(g, &state.ui);
+                }
+                State::JumpingToTime(ref wizard) => {
+                    state.ui.draw(
+                        g,
+                        DrawOptions::new(),
+                        &state.ui.primary.sim,
+                        &ShowEverything::new(),
+                    );
+                    wizard.draw(g);
                 }
                 _ => {
                     state.ui.draw(
