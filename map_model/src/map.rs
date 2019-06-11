@@ -115,6 +115,11 @@ impl Map {
             m.stop_signs = stop_signs;
             m.traffic_signals = traffic_signals;
         }
+
+        timer.start("setup Pathfinder");
+        m.pathfinder = Some(Pathfinder::new(&m));
+        timer.stop("setup Pathfinder");
+
         {
             let (stops, routes) =
                 make::make_bus_stops(&m, &data.bus_routes, &m.gps_bounds, &m.bounds, timer);
@@ -126,7 +131,6 @@ impl Map {
 
             m.bus_routes = make::verify_bus_routes(&m, routes, timer);
         }
-        m.pathfinder = Some(Pathfinder::new(&m));
 
         timer.stop("finalize Map");
         m
@@ -536,10 +540,6 @@ impl Map {
 
     pub fn pathfind(&self, req: PathRequest) -> Option<Path> {
         self.pathfinder.as_ref().unwrap().pathfind(req, self)
-    }
-
-    pub fn pathfind_slow(&self, req: PathRequest) -> Option<Path> {
-        crate::pathfind::slow::shortest_distance(self, req)
     }
 
     pub fn should_use_transit(

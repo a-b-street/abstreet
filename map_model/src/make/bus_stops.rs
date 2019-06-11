@@ -135,7 +135,7 @@ pub fn verify_bus_routes(map: &Map, routes: Vec<BusRoute>, timer: &mut Timer) ->
             }
 
             if map
-                .pathfind_slow(PathRequest {
+                .pathfind(PathRequest {
                     start: bs1.driving_pos,
                     end: bs2.driving_pos,
                     can_use_bike_lanes: false,
