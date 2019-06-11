@@ -75,8 +75,9 @@ impl ABTestMode {
                             txt.add_line(format!("Showing diff for {}", diff.trip));
                         } else if let Some(ref diff) = mode.diff_all {
                             txt.add_line(format!(
-                                "Showing diffs for all. {} equivalent trips",
-                                diff.same_trips
+                                "Showing diffs for all. {} trips same, {} differ",
+                                diff.same_trips,
+                                diff.lines.len()
                             ));
                         }
                         txt.add_line(state.ui.primary.sim.summary());

@@ -164,8 +164,6 @@ Less interesting stuff:
 
 - `analyze_code`: a static analysis attempt to construct a call-graph using
   `syn`
-- `benchmark_pathfinding`: trying (and failing) to implement contraction
-  hierarchies
 - `debug_initialmap`: tool to debug intermediate form of maps, useful for
   intersection merging
 - `halloween`: a toy to render maps in a "creepy" way
