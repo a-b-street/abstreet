@@ -36,7 +36,7 @@ impl NeighborhoodBuilder {
     }
 
     pub fn save(&self) {
-        abstutil::save_object("neighborhoods", &self.map_name, &self.name, self);
+        abstutil::save_json_object("neighborhoods", &self.map_name, &self.name, self);
     }
 
     // https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format

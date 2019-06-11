@@ -155,8 +155,8 @@ pub fn clip_trips(
 ) -> (Vec<Trip>, HashMap<BuildingID, popdat::psrc::Parcel>) {
     use popdat::psrc::Mode;
 
-    let popdat: popdat::PopDat =
-        abstutil::read_binary("../data/shapes/popdat", timer).expect("Couldn't load popdat");
+    let popdat: popdat::PopDat = abstutil::read_binary("../data/shapes/popdat.bin", timer)
+        .expect("Couldn't load popdat.bin");
 
     let map = &ui.primary.map;
 

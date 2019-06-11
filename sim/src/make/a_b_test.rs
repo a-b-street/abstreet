@@ -21,7 +21,7 @@ impl ABTest {
     }
 
     pub fn save(&self) {
-        abstutil::save_object("ab_tests", &self.map_name, &self.test_name, self);
+        abstutil::save_json_object("ab_tests", &self.map_name, &self.test_name, self);
     }
 }
 

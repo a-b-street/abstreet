@@ -33,8 +33,8 @@ struct Tract {
 impl DataVisualizer {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> DataVisualizer {
         let mut timer = Timer::new("initialize popdat");
-        let popdat: PopDat = abstutil::read_binary("../data/shapes/popdat", &mut timer)
-            .expect("Couldn't load popdat");
+        let popdat: PopDat = abstutil::read_binary("../data/shapes/popdat.bin", &mut timer)
+            .expect("Couldn't load popdat.bin");
 
         DataVisualizer {
             menu: ModalMenu::new(

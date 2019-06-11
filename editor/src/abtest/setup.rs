@@ -94,7 +94,7 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> Mode {
         &format!("Launching A/B test {}", test.test_name),
         |ctx, mut timer| {
             let load = PathBuf::from(format!(
-                "../data/scenarios/{}/{}",
+                "../data/scenarios/{}/{}.bin",
                 test.map_name, test.scenario_name
             ));
             if ui.primary.current_flags.sim_flags.rng_seed.is_none() {
@@ -163,7 +163,7 @@ fn choose_scenario(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option
     wizard
         .choose_something_no_keys::<String>(
             query,
-            Box::new(move || abstutil::list_all_objects_extensions("scenarios", &map_name)),
+            Box::new(move || abstutil::list_all_objects("scenarios", &map_name)),
         )
         .map(|(n, _)| n)
 }

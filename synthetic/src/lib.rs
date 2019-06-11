@@ -375,7 +375,7 @@ impl Model {
         map.boundary_polygon.push(map.boundary_polygon[0]);
 
         let path = format!(
-            "../data/raw_maps/{}.abst",
+            "../data/raw_maps/{}.bin",
             self.name.as_ref().expect("Model hasn't been named yet")
         );
         abstutil::write_binary(&path, &map).expect(&format!("Saving {} failed", path));

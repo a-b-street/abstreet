@@ -7,7 +7,7 @@ Diff screencaps: http://www.imagemagick.org/Usage/compare/#methods
 Debug OpenGL calls:
 
 ```
-apitrace trace --api gl ../target/debug/editor ../data/raw_maps/montlake.abst
+apitrace trace --api gl ../target/debug/editor ../data/raw_maps/montlake.bin
 qapitrace editor.trace
 apitrace dump editor.trace
 ```
@@ -44,7 +44,7 @@ Then:
 ```
 sudo systemctl start docker
 cross build --release --target x86_64-pc-windows-gnu --bin editor
-wine target/x86_64-pc-windows-gnu/release/editor.exe data/maps/montlake.abst
+wine target/x86_64-pc-windows-gnu/release/editor.exe data/maps/montlake.bin
 ```
 
 ## Markdown

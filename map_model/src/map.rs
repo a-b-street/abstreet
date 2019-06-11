@@ -395,7 +395,7 @@ impl Map {
 
     pub fn save(&self) {
         assert_eq!(self.edits.edits_name, "no_edits");
-        let path = format!("../data/maps/{}.abst", self.name);
+        let path = format!("../data/maps/{}.bin", self.name);
         println!("Saving {}...", path);
         abstutil::write_binary(&path, self).expect(&format!("Saving {} failed", path));
         println!("Saved {}", path);

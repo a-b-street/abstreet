@@ -76,15 +76,15 @@ impl GameState {
                 )),
             );
         } else {
-            match abstutil::read_json::<EditorState>("../editor_state") {
+            match abstutil::read_json::<EditorState>("../editor_state.json") {
                 Ok(ref loaded) if game.ui.primary.map.get_name() == &loaded.map_name => {
-                    println!("Loaded previous editor_state");
+                    println!("Loaded previous editor_state.json");
                     ctx.canvas.cam_x = loaded.cam_x;
                     ctx.canvas.cam_y = loaded.cam_y;
                     ctx.canvas.cam_zoom = loaded.cam_zoom;
                 }
                 _ => {
-                    println!("Couldn't load editor_state or it's for a different map, so just focusing on an arbitrary building");
+                    println!("Couldn't load editor_state.json or it's for a different map, so just focusing on an arbitrary building");
                     ctx.canvas.center_on_map_pt(rand_focus_pt);
                 }
             }
@@ -101,8 +101,9 @@ impl GameState {
             cam_zoom: canvas.cam_zoom,
         };
         // TODO maybe make state line up with the map, so loading from a new map doesn't break
-        abstutil::write_json("../editor_state", &state).expect("Saving editor_state failed");
-        println!("Saved editor_state");
+        abstutil::write_json("../editor_state.json", &state)
+            .expect("Saving editor_state.json failed");
+        println!("Saved editor_state.json");
     }
 }
 
@@ -180,7 +181,7 @@ impl GUI for GameState {
     fn before_quit(&self, canvas: &Canvas) {
         self.save_editor_state(canvas);
         self.ui.cs.save();
-        println!("Saved color_scheme");
+        println!("Saved color_scheme.json");
     }
 
     fn profiling_enabled(&self) -> bool {
@@ -284,7 +285,7 @@ fn splash_screen(
                 ) {
                     // This retains no state, but that's probably fine.
                     let mut flags = ui.primary.current_flags.clone();
-                    flags.sim_flags.load = PathBuf::from(format!("../data/maps/{}.abst", name));
+                    flags.sim_flags.load = PathBuf::from(format!("../data/maps/{}.bin", name));
                     *ui = UI::new(flags, ctx);
                     break Some(Mode::Sandbox(SandboxMode::new(ctx)));
                 } else if wizard.aborted() {

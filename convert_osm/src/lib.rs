@@ -53,7 +53,7 @@ pub struct Flags {
     #[structopt(long = "clip")]
     pub clip: String,
 
-    /// Output .abst path
+    /// Output .bin path
     #[structopt(long = "output")]
     pub output: String,
 

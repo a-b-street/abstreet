@@ -16,7 +16,11 @@ pub fn to_json<T: Serialize>(obj: &T) -> String {
     serde_json::to_string_pretty(obj).unwrap()
 }
 
+// TODO Idea: Have a wrapper type DotJSON(...) and DotBin(...) to distinguish raw path strings
 pub fn write_json<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
+    if !path.ends_with(".json") {
+        panic!("write_json needs {} to end with .json", path);
+    }
     std::fs::create_dir_all(std::path::Path::new(path).parent().unwrap())
         .expect("Creating parent dir failed");
 
@@ -26,6 +30,10 @@ pub fn write_json<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
 }
 
 pub fn read_json<T: DeserializeOwned>(path: &str) -> Result<T, Error> {
+    if !path.ends_with(".json") && !path.ends_with(".geojson") {
+        panic!("read_json needs {} to end with .json or .geojson", path);
+    }
+
     // TODO easier way to map_err for anything in a block that has ?
     inner_read_json(path).map_err(|e| Error::new(e.kind(), format!("read_json({}): {}", path, e)))
 }
@@ -39,6 +47,10 @@ fn inner_read_json<T: DeserializeOwned>(path: &str) -> Result<T, Error> {
 }
 
 pub fn write_binary<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
+    if !path.ends_with(".bin") {
+        panic!("write_binary needs {} to end with .bin", path);
+    }
+
     std::fs::create_dir_all(std::path::Path::new(path).parent().unwrap())
         .expect("Creating parent dir failed");
 
@@ -47,6 +59,10 @@ pub fn write_binary<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
 }
 
 pub fn read_binary<T: DeserializeOwned>(path: &str, timer: &mut Timer) -> Result<T, Error> {
+    if !path.ends_with(".bin") {
+        panic!("read_binary needs {} to end with .bin", path);
+    }
+
     timer.read_file(path)?;
     let obj: T =
         bincode::deserialize_from(timer).map_err(|err| Error::new(ErrorKind::Other, err))?;
@@ -131,35 +147,21 @@ pub fn list_all_objects(dir: &str, map_name: &str) -> Vec<(String, String)> {
     results.into_iter().collect()
 }
 
-// TODO Argh simplify all of this.
-pub fn list_all_objects_extensions(dir: &str, map_name: &str) -> Vec<(String, String)> {
-    let mut results: BTreeSet<(String, String)> = BTreeSet::new();
-    match std::fs::read_dir(format!("../data/{}/{}", dir, map_name)) {
-        Ok(iter) => {
-            for entry in iter {
-                // TODO Don't do file_stem here. Scenarios end with ".0" because of durations.
-                let name = entry.unwrap().file_name().into_string().unwrap();
-                if name.ends_with(".swp") {
-                    continue;
-                }
-                results.insert((name.clone(), name));
-            }
-        }
-        Err(ref e) if e.kind() == ErrorKind::NotFound => {}
-        Err(e) => panic!(e),
-    };
-    results.into_iter().collect()
-}
-
 // Load all serialized things from a directory, return sorted by name, with file extension removed.
+// Detects JSON or binary.
 pub fn load_all_objects<T: DeserializeOwned>(dir: &str, map_name: &str) -> Vec<(String, T)> {
+    let mut timer = Timer::new(&format!(
+        "load_all_objects from ../data/{}/{}/",
+        dir, map_name
+    ));
     let mut tree: BTreeMap<String, T> = BTreeMap::new();
     match std::fs::read_dir(format!("../data/{}/{}/", dir, map_name)) {
         Ok(iter) => {
             for entry in iter {
                 let filename = entry.unwrap().file_name();
                 let path = Path::new(&filename);
-                if path.to_string_lossy().ends_with(".swp") {
+                let path_str = path.to_string_lossy();
+                if path_str.ends_with(".swp") {
                     continue;
                 }
                 let name = path
@@ -168,8 +170,20 @@ pub fn load_all_objects<T: DeserializeOwned>(dir: &str, map_name: &str) -> Vec<(
                     .to_os_string()
                     .into_string()
                     .unwrap();
-                let load: T =
-                    read_json(&format!("../data/{}/{}/{}.json", dir, map_name, name)).unwrap();
+                let load: T = if path_str.ends_with(".json") {
+                    read_json(&format!("../data/{}/{}/{}.json", dir, map_name, name)).unwrap()
+                } else if path_str.ends_with(".bin") {
+                    read_binary(
+                        &format!("../data/{}/{}/{}.bin", dir, map_name, name),
+                        &mut timer,
+                    )
+                    .unwrap()
+                } else {
+                    panic!(
+                        "Don't know what ../data/{}/{}/{} is",
+                        dir, map_name, path_str
+                    );
+                };
                 tree.insert(name, load);
             }
         }
@@ -179,40 +193,14 @@ pub fn load_all_objects<T: DeserializeOwned>(dir: &str, map_name: &str) -> Vec<(
     tree.into_iter().collect()
 }
 
-// TODO ahh don't duplicate like this.
-pub fn load_all_binary_objects<T: DeserializeOwned>(dir: &str, map_name: &str) -> Vec<(String, T)> {
-    let mut tree: BTreeMap<String, T> = BTreeMap::new();
-    let mut timer = Timer::new(&format!("read all binary {} for {}", dir, map_name));
-    match std::fs::read_dir(format!("../data/{}/{}/", dir, map_name)) {
-        Ok(iter) => {
-            for entry in iter {
-                // TODO Don't do file_stem here. Scenarios end with ".0" because of durations.
-                let name = entry.unwrap().file_name().into_string().unwrap();
-                if name.ends_with(".swp") {
-                    continue;
-                }
-                let load: T = read_binary(
-                    &format!("../data/{}/{}/{}", dir, map_name, name),
-                    &mut timer,
-                )
-                .unwrap();
-                tree.insert(name, load);
-            }
-        }
-        Err(ref e) if e.kind() == ErrorKind::NotFound => {}
-        Err(e) => panic!(e),
-    };
-    tree.into_iter().collect()
-}
-
-pub fn save_object<T: Serialize>(dir: &str, map_name: &str, obj_name: &str, obj: &T) {
+pub fn save_json_object<T: Serialize>(dir: &str, map_name: &str, obj_name: &str, obj: &T) {
     let path = format!("../data/{}/{}/{}.json", dir, map_name, obj_name);
     write_json(&path, obj).expect(&format!("Saving {} failed", path));
     println!("Saved {}", path);
 }
 
 pub fn save_binary_object<T: Serialize>(dir: &str, map_name: &str, obj_name: &str, obj: &T) {
-    let path = format!("../data/{}/{}/{}", dir, map_name, obj_name);
+    let path = format!("../data/{}/{}/{}.bin", dir, map_name, obj_name);
     write_binary(&path, obj).expect(&format!("Saving {} failed", path));
     println!("Saved {}", path);
 }
@@ -303,6 +291,7 @@ impl Read for FileWithProgress {
     }
 }
 
+// Keeps file extensions
 pub fn find_prev_file(orig: String) -> Option<String> {
     let mut files = list_dir(std::path::Path::new(&orig).parent().unwrap());
     files.reverse();

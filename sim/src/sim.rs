@@ -548,7 +548,7 @@ impl Sim {
         // If we wanted to be even more reproducible, we'd encode RNG seed, version of code, etc,
         // but that's overkill right now.
         let path = format!(
-            "../data/save/{}_{}/{}/{}",
+            "../data/save/{}_{}/{}/{}.json",
             self.map_name,
             self.edits_name,
             self.run_name,
@@ -561,7 +561,7 @@ impl Sim {
 
     pub fn find_previous_savestate(&self, base_time: Duration) -> Option<String> {
         abstutil::find_prev_file(format!(
-            "../data/save/{}_{}/{}/{}",
+            "../data/save/{}_{}/{}/{}.json",
             self.map_name,
             self.edits_name,
             self.run_name,
@@ -571,7 +571,7 @@ impl Sim {
 
     pub fn find_next_savestate(&self, base_time: Duration) -> Option<String> {
         abstutil::find_next_file(format!(
-            "../data/save/{}_{}/{}/{}",
+            "../data/save/{}_{}/{}/{}.json",
             self.map_name,
             self.edits_name,
             self.run_name,

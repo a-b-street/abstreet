@@ -29,5 +29,5 @@ fn main() {
         popdat.trips = popdat.trips.into_iter().take(n).collect();
     }
 
-    abstutil::write_binary("../data/shapes/popdat", &popdat).unwrap();
+    abstutil::write_binary("../data/shapes/popdat.bin", &popdat).unwrap();
 }

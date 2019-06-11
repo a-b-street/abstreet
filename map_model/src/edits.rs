@@ -32,6 +32,6 @@ impl MapEdits {
     }
 
     pub fn save(&self) {
-        abstutil::save_object("edits", &self.map_name, &self.edits_name, self);
+        abstutil::save_json_object("edits", &self.map_name, &self.edits_name, self);
     }
 }

@@ -14,7 +14,7 @@ pub struct SimFlags {
     #[structopt(
         name = "load",
         parse(from_os_str),
-        default_value = "../data/maps/montlake.abst"
+        default_value = "../data/maps/montlake.bin"
     )]
     pub load: PathBuf,
 
@@ -35,7 +35,7 @@ impl SimFlags {
 
     pub fn synthetic_test(map: &str, run_name: &str) -> SimFlags {
         SimFlags {
-            load: PathBuf::from(format!("../data/maps/{}.abst", map)),
+            load: PathBuf::from(format!("../data/maps/{}.bin", map)),
             rng_seed: Some(42),
             run_name: Some(run_name.to_string()),
         }
@@ -66,7 +66,7 @@ impl SimFlags {
             timer.stop("read sim savestate");
 
             let mut map: Map =
-                abstutil::read_binary(&format!("../data/maps/{}.abst", sim.map_name), timer)
+                abstutil::read_binary(&format!("../data/maps/{}.bin", sim.map_name), timer)
                     .unwrap();
             map.apply_edits(MapEdits::load(map.get_name(), &sim.edits_name), timer);
 
@@ -81,7 +81,7 @@ impl SimFlags {
                 .expect("loading scenario failed");
 
             let map: Map =
-                abstutil::read_binary(&format!("../data/maps/{}.abst", scenario.map_name), timer)
+                abstutil::read_binary(&format!("../data/maps/{}.bin", scenario.map_name), timer)
                     .unwrap();
 
             let mut sim = Sim::new(

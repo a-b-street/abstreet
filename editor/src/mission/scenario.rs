@@ -3,7 +3,7 @@ use crate::helpers::rotating_color;
 use crate::mission::{input_time, MissionEditMode};
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
-use abstutil::WeightedUsizeChoice;
+use abstutil::{Timer, WeightedUsizeChoice};
 use ezgui::{
     hotkey, Color, Drawable, EventCtx, GfxCtx, Key, LogScroller, ModalMenu, Wizard, WrappedWizard,
 };
@@ -312,14 +312,19 @@ fn choose_neighborhood(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Op
 }
 
 fn load_scenario(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<Scenario> {
-    // TODO choose from list, then load
     let map_name = map.get_name().to_string();
     wizard
-        .choose_something_no_keys::<Scenario>(
+        .choose_something_no_keys::<String>(
             query,
-            Box::new(move || abstutil::load_all_binary_objects("scenarios", &map_name)),
+            Box::new(move || abstutil::list_all_objects("scenarios", &map_name)),
         )
-        .map(|(_, s)| s)
+        .map(|(_, s)| {
+            abstutil::read_binary(
+                &format!("../data/scenarios/{}/{}.bin", map.get_name(), s),
+                &mut Timer::throwaway(),
+            )
+            .unwrap()
+        })
 }
 
 fn input_weighted_usize(wizard: &mut WrappedWizard, query: &str) -> Option<WeightedUsizeChoice> {

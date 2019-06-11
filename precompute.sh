@@ -23,9 +23,9 @@ done
 cd ..;
 
 for map_path in `ls data/raw_maps/`; do
-	map=`basename $map_path .abst`;
+	map=`basename $map_path .bin`;
 	echo "Precomputing $map";
 	cd precompute;
-	RUST_BACKTRACE=1 cargo run $release_mode ../data/raw_maps/$map.abst;
+	RUST_BACKTRACE=1 cargo run $release_mode ../data/raw_maps/$map.bin;
 	cd ..;
 done

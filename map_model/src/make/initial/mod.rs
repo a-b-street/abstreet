@@ -157,7 +157,7 @@ impl InitialMap {
         if true {
             return;
         }
-        let path = format!("../initial_maps/{:03}", self.versions_saved);
+        let path = format!("../initial_maps/{:03}.bin", self.versions_saved);
         self.focus_on = focus_on;
         self.versions_saved += 1;
         abstutil::write_binary(&path, self).expect(&format!("Saving {} failed", path));

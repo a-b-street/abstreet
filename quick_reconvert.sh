@@ -26,7 +26,7 @@ RUST_BACKTRACE=1 cargo run $release_mode -- \
 	--osm=../data/input/$name.osm \
 	--elevation=../data/input/N47W122.hgt \
 	--clip=../data/polygons/$name.poly \
-	--output=../data/raw_maps/$name.abst
+	--output=../data/raw_maps/$name.bin
 
 cd ../precompute;
-RUST_BACKTRACE=1 cargo run $release_mode ../data/raw_maps/$name.abst;
+RUST_BACKTRACE=1 cargo run $release_mode ../data/raw_maps/$name.bin;
