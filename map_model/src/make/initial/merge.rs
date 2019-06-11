@@ -56,7 +56,7 @@ pub fn short_roads(map: &mut InitialMap, timer: &mut Timer) {
 }
 
 // Returns the retained intersection.
-fn merge(
+pub fn merge(
     map: &mut InitialMap,
     merge_road: StableRoadID,
     timer: &mut Timer,

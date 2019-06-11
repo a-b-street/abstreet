@@ -163,4 +163,11 @@ impl InitialMap {
         abstutil::write_binary(&path, self).expect(&format!("Saving {} failed", path));
         println!("Saved {}", path);
     }
+
+    pub fn merge(
+        &mut self,
+        r: StableRoadID,
+    ) {
+        merge::merge(self, r, &mut Timer::throwaway());
+    }
 }
