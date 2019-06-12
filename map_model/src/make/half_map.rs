@@ -56,7 +56,7 @@ pub fn make_half_map(
             turns: Vec::new(),
             elevation: raw_i.elevation,
             // Might change later
-            intersection_type: raw_i.intersection_type,
+            intersection_type: i.intersection_type,
             label: raw_i.label.clone(),
             stable_id: i.id,
             incoming_lanes: Vec::new(),

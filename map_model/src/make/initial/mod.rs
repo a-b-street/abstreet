@@ -4,7 +4,7 @@ pub mod lane_specs;
 mod merge;
 
 use crate::raw_data::{StableIntersectionID, StableRoadID};
-use crate::{raw_data, LANE_THICKNESS};
+use crate::{raw_data, IntersectionType, LANE_THICKNESS};
 use abstutil::Timer;
 use geom::{Bounds, Distance, GPSBounds, PolyLine, Pt2D};
 use serde_derive::{Deserialize, Serialize};
@@ -45,6 +45,7 @@ pub struct Intersection {
     pub id: StableIntersectionID,
     pub polygon: Vec<Pt2D>,
     pub roads: BTreeSet<StableRoadID>,
+    pub intersection_type: IntersectionType,
 }
 
 impl InitialMap {
@@ -62,13 +63,14 @@ impl InitialMap {
             bounds: bounds.clone(),
         };
 
-        for stable_id in data.intersections.keys() {
+        for (stable_id, i) in &data.intersections {
             m.intersections.insert(
                 *stable_id,
                 Intersection {
                     id: *stable_id,
                     polygon: Vec::new(),
                     roads: BTreeSet::new(),
+                    intersection_type: i.intersection_type,
                 },
             );
         }

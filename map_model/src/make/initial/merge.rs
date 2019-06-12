@@ -1,28 +1,11 @@
 use crate::make::initial::{geometry, InitialMap};
 use crate::raw_data::{StableIntersectionID, StableRoadID};
+use crate::IntersectionType;
 use abstutil::Timer;
 use geom::Distance;
 use std::collections::HashSet;
 
 pub fn short_roads(map: &mut InitialMap, timer: &mut Timer) {
-    if false {
-        // I228
-        merge(map, StableRoadID(311), timer);
-
-        // I201
-        merge(map, StableRoadID(240), timer);
-
-        // I37
-        merge(map, StableRoadID(91), timer);
-
-        // I40
-        merge(map, StableRoadID(59), timer);
-
-        // I25
-        merge(map, StableRoadID(389), timer);
-        merge(map, StableRoadID(22), timer);
-    }
-
     if false {
         let mut look_at: HashSet<StableIntersectionID> = HashSet::new();
         let orig_count = map.roads.len();
@@ -74,12 +57,20 @@ pub fn merge(
         (r.src_i, r.dst_i)
     };
     map.roads.remove(&merge_road);
-    map.intersections.remove(&delete_i);
-    map.intersections
-        .get_mut(&keep_i)
+    let deleted_intersection_type = map
+        .intersections
+        .remove(&delete_i)
         .unwrap()
-        .roads
-        .remove(&merge_road);
+        .intersection_type;
+    {
+        let mut i = map.intersections.get_mut(&keep_i).unwrap();
+        i.roads.remove(&merge_road);
+        if deleted_intersection_type == IntersectionType::TrafficSignal
+            && i.intersection_type == IntersectionType::StopSign
+        {
+            i.intersection_type = deleted_intersection_type;
+        }
+    }
 
     let mut new_loops: Vec<StableRoadID> = Vec::new();
     for r in map.roads.values_mut() {
