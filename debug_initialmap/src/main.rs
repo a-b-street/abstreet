@@ -1,5 +1,5 @@
 use abstutil::Timer;
-use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, GUI};
+use ezgui::{hotkey, Color, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, GUI};
 use geom::{Distance, Polygon};
 use map_model::raw_data::{Hint, Hints, InitialMap, StableIntersectionID, StableRoadID};
 use std::collections::HashSet;
@@ -10,12 +10,13 @@ use viewer::World;
 const MIN_ROAD_LENGTH: Distance = Distance::const_meters(13.0);
 
 struct UI {
+    menu: ModalMenu,
     world: World<ID>,
     data: InitialMap,
+    raw: map_model::raw_data::Map,
     hints: Hints,
     // TODO Or, if these are common things, the World could also hold this state.
     selected: Option<ID>,
-    hide: HashSet<ID>,
     osd: Text,
 }
 
@@ -39,11 +40,21 @@ impl UI {
         let world = initial_map_to_world(&data, ctx);
 
         UI {
+            menu: ModalMenu::new(
+                "Intersection Geometry Helper",
+                vec![
+                    (hotkey(Key::Escape), "quit"),
+                    (hotkey(Key::S), "save"),
+                    (hotkey(Key::R), "reset hints"),
+                    (hotkey(Key::U), "undo last hint"),
+                ],
+                ctx,
+            ),
             world,
+            raw,
             data,
             hints,
             selected: None,
-            hide: HashSet::new(),
             osd: Text::new(),
         }
     }
@@ -51,32 +62,67 @@ impl UI {
 
 impl GUI for UI {
     fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode {
+        {
+            let len = self.hints.hints.len();
+            let mut txt = Text::prompt("Intersection Geometry Helper");
+            txt.add_line(format!("{} hints", len));
+            for i in (1..=5).rev() {
+                if len >= i {
+                    txt.add_line(match self.hints.hints[len - i] {
+                        Hint::MergeRoad(r) => format!("MergeRoad({})", r.0),
+                        Hint::DeleteRoad(r) => format!("DeleteRoad({})", r.0),
+                        Hint::MergeDegenerateIntersection(i) => {
+                            format!("MergeDegenerateIntersection({})", i.0)
+                        }
+                    });
+                } else {
+                    txt.add_line("...".to_string());
+                }
+            }
+            self.menu.handle_event(ctx, Some(txt));
+        }
         ctx.canvas.handle_event(ctx.input);
 
         if ctx.redo_mouseover() {
-            self.selected = self.world.mouseover_something(ctx, &self.hide);
+            self.selected = self.world.mouseover_something(ctx, &HashSet::new());
         }
 
-        if ctx.input.unimportant_key_pressed(Key::Escape, "quit") {
+        if self.menu.action("quit") {
             process::exit(0);
         }
-        if ctx
-            .input
-            .key_pressed(Key::S, &format!("save {} hints", self.hints.hints.len()))
-        {
-            abstutil::write_json(
-                &format!("../data/hints/{}.json", self.data.name),
-                &self.hints,
-            )
-            .unwrap();
-        }
+        if !self.hints.hints.is_empty() {
+            if self.menu.action("save") {
+                abstutil::write_json(
+                    &format!("../data/hints/{}.json", self.data.name),
+                    &self.hints,
+                )
+                .unwrap();
+            }
 
-        if let Some(id) = self.selected {
-            if ctx.input.key_pressed(Key::H, "hide this") {
-                self.hide.insert(id);
+            let recalc = if self.menu.action("undo last hint") {
+                self.hints.hints.pop();
+                true
+            } else if self.menu.action("reset hints") {
+                self.hints.hints.clear();
+                true
+            } else {
+                false
+            };
+            if recalc {
+                let gps_bounds = self.raw.get_gps_bounds();
+                self.data = InitialMap::new(
+                    self.data.name.clone(),
+                    &self.raw,
+                    &gps_bounds,
+                    &gps_bounds.to_bounds(),
+                    &mut Timer::throwaway(),
+                );
+                self.data.apply_hints(&self.hints);
+                self.world = initial_map_to_world(&self.data, ctx);
                 self.selected = None;
             }
         }
+
         if let Some(ID::HalfRoad(r, _)) = self.selected {
             if ctx.input.key_pressed(Key::M, "merge") {
                 self.hints.hints.push(Hint::MergeRoad(r));
@@ -100,11 +146,6 @@ impl GUI for UI {
                 self.selected = None;
             }
         }
-        if !self.hide.is_empty() {
-            if ctx.input.key_pressed(Key::K, "unhide everything") {
-                self.hide.clear();
-            }
-        }
 
         self.osd = Text::new();
         ctx.input.populate_osd(&mut self.osd);
@@ -114,12 +155,13 @@ impl GUI for UI {
     fn draw(&self, g: &mut GfxCtx) {
         g.clear(Color::WHITE);
 
-        self.world.draw(g, &self.hide);
+        self.world.draw(g, &HashSet::new());
 
         if let Some(id) = self.selected {
             self.world.draw_selected(g, id);
         }
 
+        self.menu.draw(g);
         g.draw_blocking_text(&self.osd, ezgui::BOTTOM_LEFT);
     }
 }
