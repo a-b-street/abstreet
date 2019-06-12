@@ -12,7 +12,6 @@ use kml::ExtraShapes;
 use map_model::{raw_data, IntersectionType, LANE_THICKNESS};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use std::path::Path;
 use structopt::StructOpt;
 
 const MAX_DIST_BTWN_INTERSECTION_AND_SIGNAL: Distance = Distance::const_meters(50.0);
@@ -94,12 +93,7 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
 
     if !flags.neighborhoods.is_empty() {
         timer.start("convert neighborhood polygons");
-        let map_name = Path::new(&flags.output)
-            .file_stem()
-            .unwrap()
-            .to_os_string()
-            .into_string()
-            .unwrap();
+        let map_name = abstutil::basename(&flags.output);
         neighborhoods::convert(&flags.neighborhoods, map_name, &gps_bounds);
         timer.stop("convert neighborhood polygons");
     }

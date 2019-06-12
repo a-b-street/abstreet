@@ -317,3 +317,12 @@ fn list_dir(dir: &std::path::Path) -> Vec<String> {
     files.sort();
     files
 }
+
+pub fn basename(path: &str) -> String {
+    Path::new(path)
+        .file_stem()
+        .unwrap()
+        .to_os_string()
+        .into_string()
+        .unwrap()
+}

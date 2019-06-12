@@ -7,6 +7,7 @@ use crate::raw_data::{StableIntersectionID, StableRoadID};
 use crate::{raw_data, LANE_THICKNESS};
 use abstutil::Timer;
 use geom::{Bounds, Distance, GPSBounds, PolyLine, Pt2D};
+use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
 pub struct InitialMap {
@@ -148,4 +149,24 @@ impl InitialMap {
     pub fn merge_road(&mut self, r: StableRoadID) {
         merge::merge(self, r, &mut Timer::throwaway());
     }
+
+    pub fn apply_hints(&mut self, hints: &Hints) {
+        for h in &hints.hints {
+            match h {
+                Hint::MergeRoad(r) => {
+                    self.merge_road(*r);
+                }
+            }
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Hints {
+    pub hints: Vec<Hint>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub enum Hint {
+    MergeRoad(StableRoadID),
 }

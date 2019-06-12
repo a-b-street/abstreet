@@ -1,7 +1,7 @@
 use abstutil::Timer;
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, GUI};
 use geom::{Distance, Polygon};
-use map_model::raw_data::{InitialMap, StableIntersectionID, StableRoadID};
+use map_model::raw_data::{Hint, Hints, InitialMap, StableIntersectionID, StableRoadID};
 use std::collections::HashSet;
 use std::{env, process};
 use viewer::World;
@@ -12,6 +12,7 @@ const MIN_ROAD_LENGTH: Distance = Distance::const_meters(13.0);
 struct UI {
     world: World<ID>,
     data: InitialMap,
+    hints: Hints,
     // TODO Or, if these are common things, the World could also hold this state.
     selected: Option<ID>,
     hide: HashSet<ID>,
@@ -22,18 +23,25 @@ impl UI {
     fn new(filename: &str, ctx: &mut EventCtx) -> UI {
         let mut timer = Timer::new(&format!("load {}", filename));
         let raw: map_model::raw_data::Map = abstutil::read_binary(filename, &mut timer).unwrap();
+        let map_name = abstutil::basename(filename);
         let gps_bounds = raw.get_gps_bounds();
-        let data = InitialMap::new(
-            filename.to_string(),
+        let mut data = InitialMap::new(
+            map_name,
             &raw,
             &gps_bounds,
             &gps_bounds.to_bounds(),
             &mut timer,
         );
+        let hints: Hints = abstutil::read_json(&format!("../data/hints/{}.json", data.name))
+            .unwrap_or(Hints { hints: Vec::new() });
+        data.apply_hints(&hints);
+
         let world = initial_map_to_world(&data, ctx);
+
         UI {
             world,
             data,
+            hints,
             selected: None,
             hide: HashSet::new(),
             osd: Text::new(),
@@ -52,6 +60,16 @@ impl GUI for UI {
         if ctx.input.unimportant_key_pressed(Key::Escape, "quit") {
             process::exit(0);
         }
+        if ctx
+            .input
+            .key_pressed(Key::S, &format!("save {} hints", self.hints.hints.len()))
+        {
+            abstutil::write_json(
+                &format!("../data/hints/{}.json", self.data.name),
+                &self.hints,
+            )
+            .unwrap();
+        }
 
         if let Some(id) = self.selected {
             if ctx.input.key_pressed(Key::H, "hide this") {
@@ -61,6 +79,7 @@ impl GUI for UI {
         }
         if let Some(ID::HalfRoad(r, _)) = self.selected {
             if ctx.input.key_pressed(Key::M, "merge") {
+                self.hints.hints.push(Hint::MergeRoad(r));
                 self.data.merge_road(r);
                 self.world = initial_map_to_world(&self.data, ctx);
                 self.selected = None;

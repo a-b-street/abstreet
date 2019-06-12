@@ -12,7 +12,6 @@ use geom::{Bounds, GPSBounds, Polygon};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 use std::io;
-use std::path;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Map {
@@ -52,23 +51,21 @@ pub struct Map {
 impl Map {
     pub fn new(path: &str, timer: &mut Timer) -> Result<Map, io::Error> {
         let data: raw_data::Map = abstutil::read_binary(path, timer)?;
-        Ok(Map::create_from_raw(
-            path::Path::new(path)
-                .file_stem()
-                .unwrap()
-                .to_os_string()
-                .into_string()
-                .unwrap(),
-            data,
-            timer,
-        ))
+        Ok(Map::create_from_raw(abstutil::basename(path), data, timer))
     }
 
     pub fn create_from_raw(name: String, data: raw_data::Map, timer: &mut Timer) -> Map {
         timer.start("raw_map to InitialMap");
         let gps_bounds = data.get_gps_bounds();
         let bounds = gps_bounds.to_bounds();
-        let initial_map = make::InitialMap::new(name.clone(), &data, &gps_bounds, &bounds, timer);
+        let mut initial_map =
+            make::InitialMap::new(name.clone(), &data, &gps_bounds, &bounds, timer);
+        if let Ok(hints) =
+            abstutil::read_json::<raw_data::Hints>(&format!("../data/hints/{}.json", name))
+        {
+            timer.note(format!("Applying {} hints", hints.hints.len()));
+            initial_map.apply_hints(&hints);
+        }
         timer.stop("raw_map to InitialMap");
 
         timer.start("InitialMap to HalfMap");
