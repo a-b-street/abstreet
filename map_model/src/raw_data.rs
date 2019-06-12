@@ -34,6 +34,7 @@ pub struct Map {
     pub areas: Vec<Area>,
 
     pub boundary_polygon: Vec<LonLat>,
+    pub gps_bounds: GPSBounds,
     pub coordinates_in_world_space: bool,
 }
 
@@ -46,38 +47,73 @@ impl Map {
             bus_routes: Vec::new(),
             areas: Vec::new(),
             boundary_polygon: Vec::new(),
+            gps_bounds: GPSBounds::new(),
             coordinates_in_world_space: false,
         }
     }
 
-    pub fn get_gps_bounds(&self) -> GPSBounds {
-        let mut bounds = GPSBounds::new();
+    pub fn compute_gps_bounds(&mut self) {
+        assert_eq!(self.gps_bounds, GPSBounds::new());
 
         for r in self.roads.values() {
             for pt in &r.points {
-                bounds.update(*pt);
+                self.gps_bounds.update(*pt);
             }
         }
         for i in self.intersections.values() {
-            bounds.update(i.point);
+            self.gps_bounds.update(i.point);
         }
         for b in &self.buildings {
             for pt in &b.points {
-                bounds.update(*pt);
+                self.gps_bounds.update(*pt);
             }
         }
         for a in &self.areas {
             for pt in &a.points {
-                bounds.update(*pt);
+                self.gps_bounds.update(*pt);
             }
         }
         for pt in &self.boundary_polygon {
-            bounds.update(*pt);
+            self.gps_bounds.update(*pt);
         }
 
-        bounds.represents_world_space = self.coordinates_in_world_space;
+        self.gps_bounds.represents_world_space = self.coordinates_in_world_space;
+    }
 
-        bounds
+    pub fn find_r(&self, orig: OriginalRoad) -> Option<StableRoadID> {
+        if !self.gps_bounds.contains(orig.pt1) || !self.gps_bounds.contains(orig.pt2) {
+            return None;
+        }
+        for (id, r) in &self.roads {
+            if r.points[0] == orig.pt1 && *r.points.last().unwrap() == orig.pt2 {
+                return Some(*id);
+            }
+        }
+
+        // TODO There will be cases where the point fits in the bounding box, but isn't inside the
+        // clipping polygon.
+        panic!(
+            "find_r({:?}) failed, even though it should be in-bounds",
+            orig
+        );
+    }
+
+    pub fn find_i(&self, orig: OriginalIntersection) -> Option<StableIntersectionID> {
+        if !self.gps_bounds.contains(orig.point) {
+            return None;
+        }
+        for (id, i) in &self.intersections {
+            if i.point == orig.point {
+                return Some(*id);
+            }
+        }
+
+        // TODO There will be cases where the point fits in the bounding box, but isn't inside the
+        // clipping polygon.
+        panic!(
+            "find_i({:?}) failed, even though it should be in-bounds",
+            orig
+        );
     }
 }
 
@@ -102,6 +138,13 @@ impl Road {
         );
         RoadSpec { fwd, back }
     }
+
+    pub fn orig_id(&self) -> OriginalRoad {
+        OriginalRoad {
+            pt1: self.points[0],
+            pt2: *self.points.last().unwrap(),
+        }
+    }
 }
 
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
@@ -111,6 +154,12 @@ pub struct Intersection {
     pub point: LonLat,
     pub intersection_type: IntersectionType,
     pub label: Option<String>,
+}
+
+impl Intersection {
+    pub fn orig_id(&self) -> OriginalIntersection {
+        OriginalIntersection { point: self.point }
+    }
 }
 
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
@@ -129,4 +178,17 @@ pub struct Area {
     pub points: Vec<LonLat>,
     pub osm_tags: BTreeMap<String, String>,
     pub osm_id: i64,
+}
+
+// A way to refer to roads across many maps.
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+pub struct OriginalRoad {
+    pub pt1: LonLat,
+    pub pt2: LonLat,
+}
+
+// A way to refer to intersections across many maps.
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+pub struct OriginalIntersection {
+    pub point: LonLat,
 }

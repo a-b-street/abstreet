@@ -369,7 +369,8 @@ impl Model {
             });
         }
 
-        map.boundary_polygon = map.get_gps_bounds().get_corners();
+        map.compute_gps_bounds();
+        map.boundary_polygon = map.gps_bounds.get_corners();
         // Close off the polygon
         map.boundary_polygon.push(map.boundary_polygon[0]);
 
@@ -385,13 +386,12 @@ impl Model {
     // TODO Directly use raw_data and get rid of Model? Might be more maintainable long-term.
     pub fn import(path: &str) -> (Model, QuadTree<ID>) {
         let data: raw_data::Map = read_binary(path, &mut Timer::new("load map")).unwrap();
-        let gps_bounds = data.get_gps_bounds();
 
         let mut m = Model::new();
-        let mut quadtree = QuadTree::default(gps_bounds.to_bounds().as_bbox());
+        let mut quadtree = QuadTree::default(data.gps_bounds.to_bounds().as_bbox());
 
         for (id, raw_i) in &data.intersections {
-            let center = Pt2D::from_gps(raw_i.point, &gps_bounds).unwrap();
+            let center = Pt2D::from_gps(raw_i.point, &data.gps_bounds).unwrap();
             let i = Intersection {
                 center,
                 intersection_type: raw_i.intersection_type,
@@ -429,7 +429,7 @@ impl Model {
         /*for (idx, b) in data.buildings.iter().enumerate() {
             let b = Building {
                 label: None,
-                center: Pt2D::center(&gps_bounds.must_convert(&b.points)),
+                center: Pt2D::center(&data.gps_bounds.must_convert(&b.points)),
             };
             quadtree.insert_with_box(ID::Building(idx), b.polygon().get_bounds().as_bbox());
             m.buildings.insert(idx, b);

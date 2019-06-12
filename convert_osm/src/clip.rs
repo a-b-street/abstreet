@@ -1,11 +1,13 @@
 use abstutil::{retain_btreemap, Timer};
 use clipping::CPolygon;
-use geom::{PolyLine, Polygon, Pt2D};
+use geom::{GPSBounds, PolyLine, Polygon, Pt2D};
 use map_model::{raw_data, IntersectionType};
 
 pub fn clip_map(map: &mut raw_data::Map, timer: &mut Timer) {
     timer.start("clipping map to boundary");
-    let bounds = map.get_gps_bounds();
+    // TODO Is this weird? Can't we just compute the bounds from the boundary polygon directly?
+    map.compute_gps_bounds();
+    let bounds = std::mem::replace(&mut map.gps_bounds, GPSBounds::new());
 
     let boundary_poly = Polygon::new(&bounds.must_convert(&map.boundary_polygon));
     let boundary_lines: Vec<PolyLine> = boundary_poly

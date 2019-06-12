@@ -25,17 +25,17 @@ impl UI {
         let mut timer = Timer::new(&format!("load {}", filename));
         let raw: Map = abstutil::read_binary(filename, &mut timer).unwrap();
         let map_name = abstutil::basename(filename);
-        let gps_bounds = raw.get_gps_bounds();
+        let gps_bounds = &raw.gps_bounds;
         let mut data = InitialMap::new(
             map_name,
             &raw,
-            &gps_bounds,
+            gps_bounds,
             &gps_bounds.to_bounds(),
             &mut timer,
         );
         let hints: Hints = abstutil::read_json(&format!("../data/hints/{}.json", data.name))
             .unwrap_or(Hints { hints: Vec::new() });
-        data.apply_hints(&hints);
+        data.apply_hints(&hints, &raw, &mut timer);
 
         let world = initial_map_to_world(&data, &raw, ctx);
 
@@ -69,10 +69,10 @@ impl GUI for UI {
             for i in (1..=5).rev() {
                 if len >= i {
                     txt.add_line(match self.hints.hints[len - i] {
-                        Hint::MergeRoad(r) => format!("MergeRoad({})", r.0),
-                        Hint::DeleteRoad(r) => format!("DeleteRoad({})", r.0),
-                        Hint::MergeDegenerateIntersection(i) => {
-                            format!("MergeDegenerateIntersection({})", i.0)
+                        Hint::MergeRoad(_) => "MergeRoad(...)".to_string(),
+                        Hint::DeleteRoad(_) => "DeleteRoad(...)".to_string(),
+                        Hint::MergeDegenerateIntersection(_) => {
+                            "MergeDegenerateIntersection(...)".to_string()
                         }
                     });
                 } else {
@@ -109,15 +109,16 @@ impl GUI for UI {
                 false
             };
             if recalc {
-                let gps_bounds = self.raw.get_gps_bounds();
+                let mut timer = Timer::new("recalculate map from hints");
+                let gps_bounds = &self.raw.gps_bounds;
                 self.data = InitialMap::new(
                     self.data.name.clone(),
                     &self.raw,
-                    &gps_bounds,
+                    gps_bounds,
                     &gps_bounds.to_bounds(),
-                    &mut Timer::throwaway(),
+                    &mut timer,
                 );
-                self.data.apply_hints(&self.hints);
+                self.data.apply_hints(&self.hints, &self.raw, &mut timer);
                 self.world = initial_map_to_world(&self.data, &self.raw, ctx);
                 self.selected = None;
             }
@@ -125,13 +126,17 @@ impl GUI for UI {
 
         if let Some(ID::HalfRoad(r, _)) = self.selected {
             if ctx.input.key_pressed(Key::M, "merge") {
-                self.hints.hints.push(Hint::MergeRoad(r));
-                self.data.merge_road(r);
+                self.hints
+                    .hints
+                    .push(Hint::MergeRoad(self.raw.roads[&r].orig_id()));
+                self.data.merge_road(r, &mut Timer::new("merge road"));
                 self.world = initial_map_to_world(&self.data, &self.raw, ctx);
                 self.selected = None;
             } else if ctx.input.key_pressed(Key::D, "delete") {
-                self.hints.hints.push(Hint::DeleteRoad(r));
-                self.data.delete_road(r);
+                self.hints
+                    .hints
+                    .push(Hint::DeleteRoad(self.raw.roads[&r].orig_id()));
+                self.data.delete_road(r, &mut Timer::new("delete road"));
                 self.world = initial_map_to_world(&self.data, &self.raw, ctx);
                 self.selected = None;
             }
@@ -140,8 +145,11 @@ impl GUI for UI {
             if self.data.intersections[&i].roads.len() == 2
                 && ctx.input.key_pressed(Key::M, "merge")
             {
-                self.hints.hints.push(Hint::MergeDegenerateIntersection(i));
-                self.data.merge_degenerate_intersection(i);
+                self.hints.hints.push(Hint::MergeDegenerateIntersection(
+                    self.raw.intersections[&i].orig_id(),
+                ));
+                self.data
+                    .merge_degenerate_intersection(i, &mut Timer::new("merge intersection"));
                 self.world = initial_map_to_world(&self.data, &self.raw, ctx);
                 self.selected = None;
             }

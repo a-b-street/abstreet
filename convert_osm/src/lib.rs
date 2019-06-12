@@ -5,7 +5,7 @@ mod remove_disconnected;
 mod split_ways;
 
 use abstutil::Timer;
-use geom::{Distance, FindClosest, GPSBounds, LonLat, PolyLine, Pt2D};
+use geom::{Distance, FindClosest, LonLat, PolyLine, Pt2D};
 use kml::ExtraShapes;
 use map_model::{raw_data, IntersectionType, LANE_THICKNESS};
 use std::fs::File;
@@ -65,16 +65,16 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
         return map;
     }
     // Do this after removing stuff.
-    let gps_bounds = map.get_gps_bounds();
+    map.compute_gps_bounds();
 
     if !flags.residential_buildings.is_empty() {
-        handle_residences(&mut map, &gps_bounds, &flags.residential_buildings, timer);
+        handle_residences(&mut map, &flags.residential_buildings, timer);
     }
     if !flags.parking_shapes.is_empty() {
-        use_parking_hints(&mut map, &gps_bounds, &flags.parking_shapes, timer);
+        use_parking_hints(&mut map, &flags.parking_shapes, timer);
     }
     if !flags.traffic_signals.is_empty() {
-        handle_traffic_signals(&mut map, &gps_bounds, &flags.traffic_signals, timer);
+        handle_traffic_signals(&mut map, &flags.traffic_signals, timer);
     }
     if !flags.gtfs.is_empty() {
         timer.start("load GTFS");
@@ -85,28 +85,23 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
     if !flags.neighborhoods.is_empty() {
         timer.start("convert neighborhood polygons");
         let map_name = abstutil::basename(&flags.output);
-        neighborhoods::convert(&flags.neighborhoods, map_name, &gps_bounds);
+        neighborhoods::convert(&flags.neighborhoods, map_name, &map.gps_bounds);
         timer.stop("convert neighborhood polygons");
     }
 
     map
 }
 
-fn use_parking_hints(
-    map: &mut raw_data::Map,
-    gps_bounds: &GPSBounds,
-    path: &str,
-    timer: &mut Timer,
-) {
+fn use_parking_hints(map: &mut raw_data::Map, path: &str, timer: &mut Timer) {
     timer.start("apply parking hints");
     println!("Loading blockface shapes from {}", path);
     let shapes: ExtraShapes = abstutil::read_binary(path, timer).expect("loading blockface failed");
 
     // Match shapes with the nearest road + direction (true for forwards)
     let mut closest: FindClosest<(raw_data::StableRoadID, bool)> =
-        FindClosest::new(&gps_bounds.to_bounds());
+        FindClosest::new(&map.gps_bounds.to_bounds());
     for (id, r) in &map.roads {
-        let pts = PolyLine::new(gps_bounds.must_convert(&r.points));
+        let pts = PolyLine::new(map.gps_bounds.must_convert(&r.points));
         closest.add(
             (*id, true),
             pts.shift_right(LANE_THICKNESS).get(timer).points(),
@@ -120,7 +115,7 @@ fn use_parking_hints(
     'SHAPE: for s in shapes.shapes.into_iter() {
         let mut pts: Vec<Pt2D> = Vec::new();
         for pt in s.points.into_iter() {
-            if let Some(pt) = Pt2D::from_gps(pt, gps_bounds) {
+            if let Some(pt) = Pt2D::from_gps(pt, &map.gps_bounds) {
                 pts.push(pt);
             } else {
                 continue 'SHAPE;
@@ -148,14 +143,9 @@ fn use_parking_hints(
     timer.stop("apply parking hints");
 }
 
-fn handle_traffic_signals(
-    map: &mut raw_data::Map,
-    gps_bounds: &GPSBounds,
-    path: &str,
-    timer: &mut Timer,
-) {
+fn handle_traffic_signals(map: &mut raw_data::Map, path: &str, timer: &mut Timer) {
     timer.start("handle traffic signals");
-    for shape in kml::load(path, gps_bounds, timer)
+    for shape in kml::load(path, &map.gps_bounds, timer)
         .expect("loading traffic signals failed")
         .shapes
         .into_iter()
@@ -165,7 +155,7 @@ fn handle_traffic_signals(
             panic!("Traffic signal has multiple points: {:?}", shape);
         }
         let pt = shape.points[0];
-        if gps_bounds.contains(pt) {
+        if map.gps_bounds.contains(pt) {
             // TODO use a quadtree or some better way to match signals to the closest
             // intersection
             let closest_intersection = map
@@ -185,21 +175,16 @@ fn handle_traffic_signals(
     timer.stop("handle traffic signals");
 }
 
-fn handle_residences(
-    map: &mut raw_data::Map,
-    gps_bounds: &GPSBounds,
-    path: &str,
-    timer: &mut Timer,
-) {
+fn handle_residences(map: &mut raw_data::Map, path: &str, timer: &mut Timer) {
     timer.start("match residential permits with buildings");
 
-    let mut closest: FindClosest<usize> = FindClosest::new(&gps_bounds.to_bounds());
+    let mut closest: FindClosest<usize> = FindClosest::new(&map.gps_bounds.to_bounds());
     for (idx, b) in map.buildings.iter().enumerate() {
         // TODO Ew, have to massage into Pt2D.
-        closest.add_gps(idx, &b.points, gps_bounds);
+        closest.add_gps(idx, &b.points, &map.gps_bounds);
     }
 
-    let shapes = kml::load(path, gps_bounds, timer)
+    let shapes = kml::load(path, &map.gps_bounds, timer)
         .expect("loading residential buildings failed")
         .shapes;
     timer.start_iter("handle residential permits", shapes.len());
@@ -212,7 +197,7 @@ fn handle_residences(
             );
         }
         let pt = shape.points[0];
-        if !gps_bounds.contains(pt) {
+        if !map.gps_bounds.contains(pt) {
             continue;
         }
         if let Some(num) = shape
@@ -221,7 +206,7 @@ fn handle_residences(
             .and_then(|n| usize::from_str_radix(n, 10).ok())
         {
             if let Some((idx, _)) = closest.closest_pt(
-                Pt2D::from_gps(pt, gps_bounds).unwrap(),
+                Pt2D::from_gps(pt, &map.gps_bounds).unwrap(),
                 MAX_DIST_BTWN_BLDG_PERMIT_AND_BLDG,
             ) {
                 // Just blindly override with the latest point. The dataset says multiple permits

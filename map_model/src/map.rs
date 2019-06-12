@@ -56,15 +56,14 @@ impl Map {
 
     pub fn create_from_raw(name: String, data: raw_data::Map, timer: &mut Timer) -> Map {
         timer.start("raw_map to InitialMap");
-        let gps_bounds = data.get_gps_bounds();
+        let gps_bounds = data.gps_bounds.clone();
         let bounds = gps_bounds.to_bounds();
         let mut initial_map =
             make::InitialMap::new(name.clone(), &data, &gps_bounds, &bounds, timer);
         if let Ok(hints) =
             abstutil::read_json::<raw_data::Hints>(&format!("../data/hints/{}.json", name))
         {
-            timer.note(format!("Applying {} hints", hints.hints.len()));
-            initial_map.apply_hints(&hints);
+            initial_map.apply_hints(&hints, &data, timer);
         }
         timer.stop("raw_map to InitialMap");
 
