@@ -90,6 +90,16 @@ impl GUI for UI {
                 self.selected = None;
             }
         }
+        if let Some(ID::Intersection(i)) = self.selected {
+            if self.data.intersections[&i].roads.len() == 2
+                && ctx.input.key_pressed(Key::M, "merge")
+            {
+                self.hints.hints.push(Hint::MergeDegenerateIntersection(i));
+                self.data.merge_degenerate_intersection(i);
+                self.world = initial_map_to_world(&self.data, ctx);
+                self.selected = None;
+            }
+        }
         if !self.hide.is_empty() {
             if ctx.input.key_pressed(Key::K, "unhide everything") {
                 self.hide.clear();

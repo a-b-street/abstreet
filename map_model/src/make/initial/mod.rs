@@ -167,6 +167,72 @@ impl InitialMap {
         }
     }
 
+    pub fn merge_degenerate_intersection(&mut self, delete_i: StableIntersectionID) {
+        let mut timer = Timer::throwaway();
+        let (r1, r2) = {
+            let i = self.intersections.remove(&delete_i).unwrap();
+            let roads: Vec<StableRoadID> = i.roads.into_iter().collect();
+            assert_eq!(roads.len(), 2);
+            (roads[0], roads[1])
+        };
+        // new_i1 is the other end of r1, new_i2 is the other end of r2
+        let new_i1 = {
+            let r = &self.roads[&r1];
+            if r.src_i == delete_i {
+                r.dst_i
+            } else {
+                r.src_i
+            }
+        };
+        let new_i2 = {
+            let r = &self.roads[&r2];
+            if r.src_i == delete_i {
+                r.dst_i
+            } else {
+                r.src_i
+            }
+        };
+
+        // Arbitrarily delete r1. Fix up intersections
+        let deleted_road = self.roads.remove(&r1).unwrap();
+        {
+            let i = self.intersections.get_mut(&new_i1).unwrap();
+            i.roads.remove(&r1);
+            i.roads.insert(r2);
+        }
+        // Start at delete_i and go to new_i1.
+        let pts_towards_new_i1 = if deleted_road.src_i == delete_i {
+            deleted_road.original_center_pts
+        } else {
+            deleted_road.original_center_pts.reversed()
+        };
+
+        // Fix up r2.
+        {
+            let r = self.roads.get_mut(&r2).unwrap();
+            if r.src_i == delete_i {
+                r.src_i = new_i1;
+                r.original_center_pts = pts_towards_new_i1
+                    .reversed()
+                    .extend(r.original_center_pts.clone());
+            } else {
+                r.dst_i = new_i1;
+                r.original_center_pts = r.original_center_pts.clone().extend(pts_towards_new_i1);
+            }
+            r.trimmed_center_pts = r.original_center_pts.clone();
+        }
+
+        // And finally the intersection geometry
+        {
+            let i = self.intersections.get_mut(&new_i1).unwrap();
+            i.polygon = geometry::intersection_polygon(i, &mut self.roads, &mut timer);
+        }
+        {
+            let i = self.intersections.get_mut(&new_i2).unwrap();
+            i.polygon = geometry::intersection_polygon(i, &mut self.roads, &mut timer);
+        }
+    }
+
     pub fn apply_hints(&mut self, hints: &Hints) {
         for h in &hints.hints {
             match h {
@@ -175,6 +241,9 @@ impl InitialMap {
                 }
                 Hint::DeleteRoad(r) => {
                     self.delete_road(*r);
+                }
+                Hint::MergeDegenerateIntersection(i) => {
+                    self.merge_degenerate_intersection(*i);
                 }
             }
         }
@@ -190,4 +259,5 @@ pub struct Hints {
 pub enum Hint {
     MergeRoad(StableRoadID),
     DeleteRoad(StableRoadID),
+    MergeDegenerateIntersection(StableIntersectionID),
 }
