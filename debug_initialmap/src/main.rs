@@ -1,7 +1,7 @@
 use abstutil::Timer;
 use ezgui::{hotkey, Color, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, GUI};
 use geom::{Distance, Polygon};
-use map_model::raw_data::{Hint, Hints, InitialMap, StableIntersectionID, StableRoadID};
+use map_model::raw_data::{Hint, Hints, InitialMap, Map, StableIntersectionID, StableRoadID};
 use std::collections::HashSet;
 use std::{env, process};
 use viewer::World;
@@ -13,7 +13,7 @@ struct UI {
     menu: ModalMenu,
     world: World<ID>,
     data: InitialMap,
-    raw: map_model::raw_data::Map,
+    raw: Map,
     hints: Hints,
     // TODO Or, if these are common things, the World could also hold this state.
     selected: Option<ID>,
@@ -23,7 +23,7 @@ struct UI {
 impl UI {
     fn new(filename: &str, ctx: &mut EventCtx) -> UI {
         let mut timer = Timer::new(&format!("load {}", filename));
-        let raw: map_model::raw_data::Map = abstutil::read_binary(filename, &mut timer).unwrap();
+        let raw: Map = abstutil::read_binary(filename, &mut timer).unwrap();
         let map_name = abstutil::basename(filename);
         let gps_bounds = raw.get_gps_bounds();
         let mut data = InitialMap::new(
@@ -37,7 +37,7 @@ impl UI {
             .unwrap_or(Hints { hints: Vec::new() });
         data.apply_hints(&hints);
 
-        let world = initial_map_to_world(&data, ctx);
+        let world = initial_map_to_world(&data, &raw, ctx);
 
         UI {
             menu: ModalMenu::new(
@@ -118,7 +118,7 @@ impl GUI for UI {
                     &mut Timer::throwaway(),
                 );
                 self.data.apply_hints(&self.hints);
-                self.world = initial_map_to_world(&self.data, ctx);
+                self.world = initial_map_to_world(&self.data, &self.raw, ctx);
                 self.selected = None;
             }
         }
@@ -127,12 +127,12 @@ impl GUI for UI {
             if ctx.input.key_pressed(Key::M, "merge") {
                 self.hints.hints.push(Hint::MergeRoad(r));
                 self.data.merge_road(r);
-                self.world = initial_map_to_world(&self.data, ctx);
+                self.world = initial_map_to_world(&self.data, &self.raw, ctx);
                 self.selected = None;
             } else if ctx.input.key_pressed(Key::D, "delete") {
                 self.hints.hints.push(Hint::DeleteRoad(r));
                 self.data.delete_road(r);
-                self.world = initial_map_to_world(&self.data, ctx);
+                self.world = initial_map_to_world(&self.data, &self.raw, ctx);
                 self.selected = None;
             }
         }
@@ -142,7 +142,7 @@ impl GUI for UI {
             {
                 self.hints.hints.push(Hint::MergeDegenerateIntersection(i));
                 self.data.merge_degenerate_intersection(i);
-                self.world = initial_map_to_world(&self.data, ctx);
+                self.world = initial_map_to_world(&self.data, &self.raw, ctx);
                 self.selected = None;
             }
         }
@@ -190,12 +190,16 @@ impl viewer::ObjectID for ID {
     }
 }
 
-fn initial_map_to_world(data: &InitialMap, ctx: &mut EventCtx) -> World<ID> {
+fn initial_map_to_world(data: &InitialMap, raw: &Map, ctx: &mut EventCtx) -> World<ID> {
     let mut w = World::new(&data.bounds);
 
     for r in data.roads.values() {
         let len = r.trimmed_center_pts.length();
         if r.fwd_width > Distance::ZERO {
+            let mut txt = Text::from_line(format!("{} forwards, {} long", r.id, len));
+            for (k, v) in &raw.roads[&r.id].osm_tags {
+                txt.add_line(format!("{} = {}", k, v));
+            }
             w.add_obj(
                 ctx.prerender,
                 ID::HalfRoad(r.id, true),
@@ -208,10 +212,14 @@ fn initial_map_to_world(data: &InitialMap, ctx: &mut EventCtx) -> World<ID> {
                 } else {
                     Color::grey(0.8)
                 },
-                Text::from_line(format!("{} forwards, {} long", r.id, len)),
+                txt,
             );
         }
         if r.back_width > Distance::ZERO {
+            let mut txt = Text::from_line(format!("{} backwards, {} long", r.id, len));
+            for (k, v) in &raw.roads[&r.id].osm_tags {
+                txt.add_line(format!("{} = {}", k, v));
+            }
             w.add_obj(
                 ctx.prerender,
                 ID::HalfRoad(r.id, false),
@@ -224,7 +232,7 @@ fn initial_map_to_world(data: &InitialMap, ctx: &mut EventCtx) -> World<ID> {
                 } else {
                     Color::grey(0.6)
                 },
-                Text::from_line(format!("{} backwards, {} long", r.id, len)),
+                txt,
             );
         }
     }
