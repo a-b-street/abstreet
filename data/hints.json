@@ -1,0 +1,16 @@
+{
+  "hints": [
+    {
+      "MergeRoad": {
+        "pt1": {
+          "longitude": -122.3021482,
+          "latitude": 47.6424539
+        },
+        "pt2": {
+          "longitude": -122.302195,
+          "latitude": 47.6425139
+        }
+      }
+    }
+  ]
+}

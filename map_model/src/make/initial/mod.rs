@@ -270,6 +270,16 @@ pub struct Hints {
     pub hints: Vec<Hint>,
 }
 
+impl Hints {
+    pub fn load() -> Hints {
+        if let Ok(h) = abstutil::read_json::<Hints>("../data/hints.json") {
+            h
+        } else {
+            Hints { hints: Vec::new() }
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub enum Hint {
     MergeRoad(raw_data::OriginalRoad),

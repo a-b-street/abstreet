@@ -33,8 +33,7 @@ impl UI {
             &gps_bounds.to_bounds(),
             &mut timer,
         );
-        let hints: Hints = abstutil::read_json(&format!("../data/hints/{}.json", data.name))
-            .unwrap_or(Hints { hints: Vec::new() });
+        let hints = Hints::load();
         data.apply_hints(&hints, &raw, &mut timer);
 
         let world = initial_map_to_world(&data, &raw, ctx);
@@ -92,11 +91,8 @@ impl GUI for UI {
         }
         if !self.hints.hints.is_empty() {
             if self.menu.action("save") {
-                abstutil::write_json(
-                    &format!("../data/hints/{}.json", self.data.name),
-                    &self.hints,
-                )
-                .unwrap();
+                abstutil::write_json("../data/hints.json", &self.hints).unwrap();
+                println!("Saved hints.json");
             }
 
             let recalc = if self.menu.action("undo last hint") {

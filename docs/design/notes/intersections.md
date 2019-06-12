@@ -181,3 +181,20 @@ roads. If we just cherry-pick some roads to destroy and make enveloped by the
 intersection, will it work? Will reasonable turns result? Or do we have to
 retain hints in the raw Intersection about things that should be connected and
 the original path inside the intersection that should do it?
+
+## v3 of short road handling
+
+- soln1: lets try MANUALLY merging intersections
+	- how can we specify in a map-agnostic way? OSM ids? intersection name?
+	*** none of this is looking good. manually draw what i want.
+- soln2: make that road longer by not requiring perpendicular endings?
+- soln3: disallow that weird sequence of turns. c615. north on 23rd, left on madison
+	- does OSM have turn restrictions here? nope.
+	- what's reality? its a ped island.
+	- this feels brittle regardless
+	- right from madison to 23rd southbound MUST happen from oneway, not at the light
+- soln4: more complicated sim to lock a sequence of turns
+	- pushes the problem downstream...
+- soln5: loosen the sim rules about proceeding through "blocked" intersection
+- soln6: manual map editor, damnit. blow up roads. define new ones by dragging points. copy over md.
+	- try operating on InitialMaps

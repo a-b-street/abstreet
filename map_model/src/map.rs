@@ -60,11 +60,8 @@ impl Map {
         let bounds = gps_bounds.to_bounds();
         let mut initial_map =
             make::InitialMap::new(name.clone(), &data, &gps_bounds, &bounds, timer);
-        if let Ok(hints) =
-            abstutil::read_json::<raw_data::Hints>(&format!("../data/hints/{}.json", name))
-        {
-            initial_map.apply_hints(&hints, &data, timer);
-        }
+        let hints = raw_data::Hints::load();
+        initial_map.apply_hints(&hints, &data, timer);
         timer.stop("raw_map to InitialMap");
 
         timer.start("InitialMap to HalfMap");
