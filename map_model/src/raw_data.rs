@@ -106,6 +106,8 @@ impl Road {
 
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 pub struct Intersection {
+    // Represents the original place where OSM center-lines meet. This is meaningless beyond
+    // raw_data; roads and intersections get merged and deleted.
     pub point: LonLat,
     pub intersection_type: IntersectionType,
     pub label: Option<String>,

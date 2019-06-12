@@ -323,10 +323,10 @@ impl AgentCache {
     }
 
     // Must call has() first.
-    pub fn get(&self, on: Traversable) -> Vec<Box<&Renderable>> {
+    pub fn get(&self, on: Traversable) -> Vec<&dyn Renderable> {
         self.agents_per_on[&on]
             .iter()
-            .map(|obj| Box::new(obj.borrow()))
+            .map(|obj| obj.borrow())
             .collect()
     }
 

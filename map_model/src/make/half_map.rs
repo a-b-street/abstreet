@@ -3,7 +3,7 @@ use crate::{
     LaneID, Road, RoadID, Turn, TurnID, LANE_THICKNESS,
 };
 use abstutil::Timer;
-use geom::{Bounds, GPSBounds, Polygon, Pt2D};
+use geom::{Bounds, GPSBounds, Polygon};
 use std::collections::BTreeMap;
 
 pub struct HalfMap {
@@ -46,10 +46,8 @@ pub fn make_half_map(
         let raw_i = &data.intersections[&i.id];
 
         let id = IntersectionID(idx);
-        let pt = Pt2D::from_gps(raw_i.point, &gps_bounds).unwrap();
         half_map.intersections.push(Intersection {
             id,
-            point: pt,
             // IMPORTANT! We're relying on the triangulation algorithm not to mess with the order
             // of the points. Sidewalk corner rendering depends on it later.
             polygon: Polygon::new(&i.polygon),

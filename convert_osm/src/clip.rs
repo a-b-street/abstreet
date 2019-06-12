@@ -102,7 +102,7 @@ pub fn clip_map(map: &mut raw_data::Map, timer: &mut Timer) {
         let mut boundary_pts = CPolygon::from_vec(
             &boundary_poly
                 .points()
-                .into_iter()
+                .iter()
                 .map(|pt| [pt.x(), pt.y()])
                 .collect(),
         );

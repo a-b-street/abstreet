@@ -1,6 +1,6 @@
 use crate::{raw_data, LaneID, LaneType, Map, Road, RoadID, TurnID};
 use abstutil;
-use geom::{Polygon, Pt2D};
+use geom::Polygon;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 use std::fmt;
@@ -25,9 +25,6 @@ pub enum IntersectionType {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Intersection {
     pub id: IntersectionID,
-    // This is the original OSM point where center lines met, in a smoky alley... ehem, it doesn't
-    // represent the "center" of the intersection geometrically in many cases.
-    pub point: Pt2D,
     // This needs to be in clockwise orientation, or later rendering of sidewalk corners breaks.
     pub polygon: Polygon,
     pub turns: Vec<TurnID>,

@@ -34,10 +34,8 @@ pub fn load(dir_path: &str) -> Result<Vec<Route>, Error> {
     let mut trip_id_to_route_id_and_direction: HashMap<String, (String, bool)> = HashMap::new();
     for rec in csv::Reader::from_reader(File::open(format!("{}/trips.txt", dir_path))?).records() {
         let rec = rec?;
-        trip_id_to_route_id_and_direction.insert(
-            rec[2].to_string(),
-            (rec[0].to_string(), rec[5].to_string() == "0"),
-        );
+        trip_id_to_route_id_and_direction
+            .insert(rec[2].to_string(), (rec[0].to_string(), &rec[5] == "0"));
     }
 
     // Each (directed) route has many trips. Ignore all but the first and assume the list of stops

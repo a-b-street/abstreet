@@ -200,7 +200,7 @@ pub fn draw_text_bubble(
         let section = VariedSection {
             screen_position: (top_left.x as f32, y as f32),
             text: line
-                .into_iter()
+                .iter()
                 .map(|span| {
                     max_size = max_size.max(span.size);
                     SectionText {
@@ -273,7 +273,7 @@ pub fn draw_text_bubble_mapspace(
         let section = VariedSection {
             screen_position: (start_at.x as f32, (start_at.y + y) as f32),
             text: line
-                .into_iter()
+                .iter()
                 .map(|span| {
                     max_size = max_size.max(span.size);
                     SectionText {

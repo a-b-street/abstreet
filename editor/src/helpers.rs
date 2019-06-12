@@ -194,8 +194,11 @@ impl ID {
         match *self {
             ID::Road(id) => primary.map.maybe_get_r(id).map(|r| r.center_pts.first_pt()),
             ID::Lane(id) => primary.map.maybe_get_l(id).map(|l| l.first_pt()),
-            ID::Intersection(id) => primary.map.maybe_get_i(id).map(|i| i.point),
-            ID::Turn(id) => primary.map.maybe_get_i(id.parent).map(|i| i.point),
+            ID::Intersection(id) => primary.map.maybe_get_i(id).map(|i| i.polygon.center()),
+            ID::Turn(id) => primary
+                .map
+                .maybe_get_i(id.parent)
+                .map(|i| i.polygon.center()),
             ID::Building(id) => primary.map.maybe_get_b(id).map(|b| b.polygon.center()),
             ID::Car(id) => primary
                 .sim

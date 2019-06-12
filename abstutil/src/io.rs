@@ -295,12 +295,12 @@ impl Read for FileWithProgress {
 pub fn find_prev_file(orig: String) -> Option<String> {
     let mut files = list_dir(std::path::Path::new(&orig).parent().unwrap());
     files.reverse();
-    files.into_iter().find(|f| f < &orig)
+    files.into_iter().find(|f| *f < orig)
 }
 
 pub fn find_next_file(orig: String) -> Option<String> {
     let files = list_dir(std::path::Path::new(&orig).parent().unwrap());
-    files.into_iter().find(|f| f > &orig)
+    files.into_iter().find(|f| *f > orig)
 }
 
 fn list_dir(dir: &std::path::Path) -> Vec<String> {

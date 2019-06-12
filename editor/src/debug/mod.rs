@@ -495,8 +495,8 @@ fn recalc_intersection_geom(id: IntersectionID, map: &Map, g: &mut GfxCtx) {
                 }
             })
             .collect();
-        // TODO Right?
-        let common_pt = map.get_i(id).point;
+        // TODO This used to be the original OSM center-line node. No longer!
+        let common_pt = map.get_i(id).polygon.center();
         // TODO Brittle because of f64->i64 and for short last lines
         road_centers.sort_by_key(|(pl, _)| {
             pl.last_line()

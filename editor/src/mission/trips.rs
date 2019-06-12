@@ -169,25 +169,25 @@ pub fn clip_trips(
         .all_incoming_borders()
         .into_iter()
         .filter(|i| !i.get_outgoing_lanes(map, LaneType::Sidewalk).is_empty())
-        .map(|i| (i.id, i.point.to_gps(bounds).unwrap()))
+        .map(|i| (i.id, i.polygon.center().to_gps(bounds).unwrap()))
         .collect();
     let incoming_borders_driving: Vec<(IntersectionID, LonLat)> = map
         .all_incoming_borders()
         .into_iter()
         .filter(|i| !i.get_outgoing_lanes(map, LaneType::Driving).is_empty())
-        .map(|i| (i.id, i.point.to_gps(bounds).unwrap()))
+        .map(|i| (i.id, i.polygon.center().to_gps(bounds).unwrap()))
         .collect();
     let outgoing_borders_walking: Vec<(IntersectionID, LonLat)> = map
         .all_outgoing_borders()
         .into_iter()
         .filter(|i| !i.get_incoming_lanes(map, LaneType::Sidewalk).is_empty())
-        .map(|i| (i.id, i.point.to_gps(bounds).unwrap()))
+        .map(|i| (i.id, i.polygon.center().to_gps(bounds).unwrap()))
         .collect();
     let outgoing_borders_driving: Vec<(IntersectionID, LonLat)> = map
         .all_outgoing_borders()
         .into_iter()
         .filter(|i| !i.get_incoming_lanes(map, LaneType::Driving).is_empty())
-        .map(|i| (i.id, i.point.to_gps(bounds).unwrap()))
+        .map(|i| (i.id, i.polygon.center().to_gps(bounds).unwrap()))
         .collect();
 
     let maybe_results: Vec<Option<Trip>> = timer.parallelize("clip trips", popdat.trips, |trip| {

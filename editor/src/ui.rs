@@ -219,17 +219,17 @@ impl UI {
         agents: &'a mut AgentCache,
         source: &GetDrawAgents,
         show_objs: &ShowObject,
-    ) -> Vec<Box<&'a Renderable>> {
+    ) -> Vec<&'a (dyn Renderable + 'a)> {
         let map = &self.primary.map;
         let draw_map = &self.primary.draw_map;
 
-        let mut areas: Vec<Box<&Renderable>> = Vec::new();
-        let mut lanes: Vec<Box<&Renderable>> = Vec::new();
-        let mut roads: Vec<Box<&Renderable>> = Vec::new();
-        let mut intersections: Vec<Box<&Renderable>> = Vec::new();
-        let mut buildings: Vec<Box<&Renderable>> = Vec::new();
-        let mut extra_shapes: Vec<Box<&Renderable>> = Vec::new();
-        let mut bus_stops: Vec<Box<&Renderable>> = Vec::new();
+        let mut areas: Vec<&dyn Renderable> = Vec::new();
+        let mut lanes: Vec<&dyn Renderable> = Vec::new();
+        let mut roads: Vec<&dyn Renderable> = Vec::new();
+        let mut intersections: Vec<&dyn Renderable> = Vec::new();
+        let mut buildings: Vec<&dyn Renderable> = Vec::new();
+        let mut extra_shapes: Vec<&dyn Renderable> = Vec::new();
+        let mut bus_stops: Vec<&dyn Renderable> = Vec::new();
         let mut agents_on: Vec<Traversable> = Vec::new();
 
         for id in draw_map.get_matching_objects(bounds) {
@@ -237,19 +237,19 @@ impl UI {
                 continue;
             }
             match id {
-                ID::Area(id) => areas.push(Box::new(draw_map.get_a(id))),
+                ID::Area(id) => areas.push(draw_map.get_a(id)),
                 ID::Lane(id) => {
-                    lanes.push(Box::new(draw_map.get_l(id)));
+                    lanes.push(draw_map.get_l(id));
                     agents_on.push(Traversable::Lane(id));
                     for bs in &map.get_l(id).bus_stops {
-                        bus_stops.push(Box::new(draw_map.get_bs(*bs)));
+                        bus_stops.push(draw_map.get_bs(*bs));
                     }
                 }
                 ID::Road(id) => {
-                    roads.push(Box::new(draw_map.get_r(id)));
+                    roads.push(draw_map.get_r(id));
                 }
                 ID::Intersection(id) => {
-                    intersections.push(Box::new(draw_map.get_i(id)));
+                    intersections.push(draw_map.get_i(id));
                     for t in &map.get_i(id).turns {
                         agents_on.push(Traversable::Turn(*t));
                     }
@@ -257,8 +257,8 @@ impl UI {
                 // TODO front paths will get drawn over buildings, depending on quadtree order.
                 // probably just need to make them go around other buildings instead of having
                 // two passes through buildings.
-                ID::Building(id) => buildings.push(Box::new(draw_map.get_b(id))),
-                ID::ExtraShape(id) => extra_shapes.push(Box::new(draw_map.get_es(id))),
+                ID::Building(id) => buildings.push(draw_map.get_b(id)),
+                ID::ExtraShape(id) => extra_shapes.push(draw_map.get_es(id)),
 
                 ID::BusStop(_) | ID::Turn(_) | ID::Car(_) | ID::Pedestrian(_) | ID::Trip(_) => {
                     panic!("{:?} shouldn't be in the quadtree", id)
@@ -267,7 +267,7 @@ impl UI {
         }
 
         // From background to foreground Z-order
-        let mut borrows: Vec<Box<&Renderable>> = Vec::new();
+        let mut borrows: Vec<&dyn Renderable> = Vec::new();
         borrows.extend(areas);
         borrows.extend(lanes);
         borrows.extend(roads);

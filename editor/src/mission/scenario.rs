@@ -165,7 +165,7 @@ impl ScenarioEditor {
                         .offset(Distance::meters(-50.0), Distance::ZERO);
                     let dst = match s.goal {
                         OriginDestination::Neighborhood(ref n) => mapping[n].center,
-                        OriginDestination::Border(i) => ui.primary.map.get_i(i).point,
+                        OriginDestination::Border(i) => ui.primary.map.get_i(i).polygon.center(),
                     }
                     .offset(Distance::meters(50.0), Distance::ZERO);
                     // TODO Draw a self-loop or something

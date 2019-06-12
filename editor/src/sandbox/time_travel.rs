@@ -174,7 +174,7 @@ impl GetDrawAgents for TimeTravel {
         state
             .cars_per_traversable
             .get(on)
-            .into_iter()
+            .iter()
             .map(|id| state.cars[id].clone())
             .collect()
     }
@@ -184,7 +184,7 @@ impl GetDrawAgents for TimeTravel {
         state
             .peds_per_traversable
             .get(on)
-            .into_iter()
+            .iter()
             .map(|id| state.peds[id].clone())
             .collect()
     }

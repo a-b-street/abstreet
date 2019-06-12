@@ -134,8 +134,8 @@ impl FullNeighborhoodInfo {
                 // TODO Polygon containment is hard; just see if the "center" of each endpoint is
                 // inside.
                 let r = map.get_r(*id);
-                let pt1 = map.get_i(r.src_i).point;
-                let pt2 = map.get_i(r.dst_i).point;
+                let pt1 = r.center_pts.first_pt();
+                let pt2 = r.center_pts.last_pt();
                 if n.polygon.contains_pt(pt1) && n.polygon.contains_pt(pt2) {
                     info.roads.insert(*id);
                 }

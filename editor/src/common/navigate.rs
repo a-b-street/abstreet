@@ -79,9 +79,9 @@ impl Navigator {
                     );
                     let road = map.get_r(*ids.iter().next().unwrap());
                     let pt = if map.get_i(road.src_i).roads.contains(first_id) {
-                        map.get_i(road.src_i).point
+                        map.get_i(road.src_i).polygon.center()
                     } else {
-                        map.get_i(road.dst_i).point
+                        map.get_i(road.dst_i).polygon.center()
                     };
                     *self = Navigator::Warping(Warper::new(ctx, pt, ID::Lane(road.all_lanes()[0])));
                     Some(EventLoopMode::Animation)
