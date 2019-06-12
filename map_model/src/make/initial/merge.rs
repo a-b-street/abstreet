@@ -73,8 +73,6 @@ pub fn merge(
 
         (r.src_i, r.dst_i)
     };
-    // Show what we're about to delete
-    map.save(Some(delete_i));
     map.roads.remove(&merge_road);
     map.intersections.remove(&delete_i);
     map.intersections
@@ -140,13 +138,9 @@ pub fn merge(
             }
         }
     }
-    // Show the reset road geometry
-    map.save(None);
 
     let mut i = map.intersections.get_mut(&keep_i).unwrap();
     i.polygon = geometry::intersection_polygon(i, &mut map.roads, timer);
-    // Show the final results of fixing this area
-    map.save(None);
 
     keep_i
 }

@@ -1,7 +1,7 @@
-use abstutil::{find_next_file, find_prev_file, read_binary, Timer};
+use abstutil::Timer;
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, GUI};
 use geom::{Distance, Polygon};
-use map_model::raw_data::{StableIntersectionID, StableRoadID, InitialMap};
+use map_model::raw_data::{InitialMap, StableIntersectionID, StableRoadID};
 use std::collections::HashSet;
 use std::{env, process};
 use viewer::World;
@@ -12,7 +12,6 @@ const MIN_ROAD_LENGTH: Distance = Distance::const_meters(13.0);
 struct UI {
     world: World<ID>,
     data: InitialMap,
-    filename: String,
     // TODO Or, if these are common things, the World could also hold this state.
     selected: Option<ID>,
     hide: HashSet<ID>,
@@ -21,26 +20,24 @@ struct UI {
 
 impl UI {
     fn new(filename: &str, ctx: &mut EventCtx) -> UI {
-        let data: InitialMap =
-            read_binary(filename, &mut Timer::new("load InitialMap")).unwrap();
+        let mut timer = Timer::new(&format!("load {}", filename));
+        let raw: map_model::raw_data::Map = abstutil::read_binary(filename, &mut timer).unwrap();
+        let gps_bounds = raw.get_gps_bounds();
+        let data = InitialMap::new(
+            filename.to_string(),
+            &raw,
+            &gps_bounds,
+            &gps_bounds.to_bounds(),
+            &mut timer,
+        );
         let world = initial_map_to_world(&data, ctx);
         UI {
             world,
             data,
-            filename: filename.to_string(),
             selected: None,
             hide: HashSet::new(),
             osd: Text::new(),
         }
-    }
-
-    fn load_different(&mut self, filename: String, ctx: &mut EventCtx) {
-        let data: InitialMap =
-            read_binary(&filename, &mut Timer::new("load InitialMap")).unwrap();
-        self.world = initial_map_to_world(&data, ctx);
-        self.selected = None;
-        self.filename = filename;
-        self.hide.clear();
     }
 }
 
@@ -56,17 +53,6 @@ impl GUI for UI {
             process::exit(0);
         }
 
-        if let Some(prev) = find_prev_file(self.filename.clone()) {
-            if ctx.input.key_pressed(Key::Comma, "load previous map") {
-                self.load_different(prev, ctx);
-            }
-        }
-        if let Some(next) = find_next_file(self.filename.clone()) {
-            if ctx.input.key_pressed(Key::Dot, "load next map") {
-                self.load_different(next, ctx);
-            }
-        }
-
         if let Some(id) = self.selected {
             if ctx.input.key_pressed(Key::H, "hide this") {
                 self.hide.insert(id);
@@ -75,7 +61,7 @@ impl GUI for UI {
         }
         if let Some(ID::HalfRoad(r, _)) = self.selected {
             if ctx.input.key_pressed(Key::M, "merge") {
-                self.data.merge(r);
+                self.data.merge_road(r);
                 self.world = initial_map_to_world(&self.data, ctx);
                 self.selected = None;
             }
@@ -175,11 +161,6 @@ fn initial_map_to_world(data: &InitialMap, ctx: &mut EventCtx) -> World<ID> {
             Color::RED,
             Text::from_line(format!("{}", i.id)),
         );
-    }
-
-    if let Some(id) = data.focus_on {
-        ctx.canvas
-            .center_on_map_pt(w.get_center(ID::Intersection(id)));
     }
 
     w

@@ -7,21 +7,16 @@ use crate::raw_data::{StableIntersectionID, StableRoadID};
 use crate::{raw_data, LANE_THICKNESS};
 use abstutil::Timer;
 use geom::{Bounds, Distance, GPSBounds, PolyLine, Pt2D};
-use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
-#[derive(Serialize, Deserialize)]
 pub struct InitialMap {
     pub roads: BTreeMap<StableRoadID, Road>,
     pub intersections: BTreeMap<StableIntersectionID, Intersection>,
 
     pub name: String,
     pub bounds: Bounds,
-    pub focus_on: Option<StableIntersectionID>,
-    versions_saved: usize,
 }
 
-#[derive(Serialize, Deserialize)]
 pub struct Road {
     pub id: StableRoadID,
     pub src_i: StableIntersectionID,
@@ -45,7 +40,6 @@ impl Road {
     }
 }
 
-#[derive(Serialize, Deserialize)]
 pub struct Intersection {
     pub id: StableIntersectionID,
     pub polygon: Vec<Pt2D>,
@@ -65,8 +59,6 @@ impl InitialMap {
             intersections: BTreeMap::new(),
             name,
             bounds: bounds.clone(),
-            focus_on: None,
-            versions_saved: 0,
         };
 
         for stable_id in data.intersections.keys() {
@@ -153,21 +145,7 @@ impl InitialMap {
         m
     }
 
-    pub fn save(&mut self, focus_on: Option<StableIntersectionID>) {
-        if true {
-            return;
-        }
-        let path = format!("../initial_maps/{:03}.bin", self.versions_saved);
-        self.focus_on = focus_on;
-        self.versions_saved += 1;
-        abstutil::write_binary(&path, self).expect(&format!("Saving {} failed", path));
-        println!("Saved {}", path);
-    }
-
-    pub fn merge(
-        &mut self,
-        r: StableRoadID,
-    ) {
+    pub fn merge_road(&mut self, r: StableRoadID) {
         merge::merge(self, r, &mut Timer::throwaway());
     }
 }
