@@ -1,6 +1,6 @@
 use crate::{raw_data, LaneID, LaneType, Map, Road, RoadID, TurnID};
 use abstutil;
-use geom::{Distance, Polygon, Pt2D};
+use geom::{Polygon, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 use std::fmt;
@@ -31,7 +31,6 @@ pub struct Intersection {
     // This needs to be in clockwise orientation, or later rendering of sidewalk corners breaks.
     pub polygon: Polygon,
     pub turns: Vec<TurnID>,
-    pub elevation: Distance,
 
     pub intersection_type: IntersectionType,
     pub label: Option<String>,

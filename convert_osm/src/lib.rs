@@ -3,9 +3,7 @@ mod neighborhoods;
 mod osm;
 mod remove_disconnected;
 mod split_ways;
-mod srtm;
 
-use crate::srtm::Elevation;
 use abstutil::Timer;
 use geom::{Distance, FindClosest, GPSBounds, LonLat, PolyLine, Pt2D};
 use kml::ExtraShapes;
@@ -23,10 +21,6 @@ pub struct Flags {
     /// OSM XML file to read
     #[structopt(long = "osm")]
     pub osm: String,
-
-    /// HGT with elevation data
-    #[structopt(long = "elevation")]
-    pub elevation: String,
 
     /// KML with traffic signals. Optional.
     #[structopt(long = "traffic_signals", default_value = "")]
@@ -62,10 +56,7 @@ pub struct Flags {
 }
 
 pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
-    let elevation = Elevation::new(&flags.elevation).expect("loading .hgt failed");
-
-    let mut map =
-        split_ways::split_up_roads(osm::osm_to_raw_roads(&flags.osm, timer), &elevation, timer);
+    let mut map = split_ways::split_up_roads(osm::osm_to_raw_roads(&flags.osm, timer), timer);
     map.boundary_polygon = read_osmosis_polygon(&flags.clip);
     clip::clip_map(&mut map, timer);
     remove_disconnected::remove_disconnected_roads(&mut map, timer);

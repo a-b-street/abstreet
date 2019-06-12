@@ -54,7 +54,6 @@ pub fn make_half_map(
             // of the points. Sidewalk corner rendering depends on it later.
             polygon: Polygon::new(&i.polygon),
             turns: Vec::new(),
-            elevation: raw_i.elevation,
             // Might change later
             intersection_type: i.intersection_type,
             label: raw_i.label.clone(),

@@ -349,7 +349,6 @@ impl Model {
                 *id,
                 raw_data::Intersection {
                     point: pt(i.center),
-                    elevation: Distance::ZERO,
                     intersection_type: i.intersection_type,
                     label: i.label.clone(),
                 },

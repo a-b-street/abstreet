@@ -107,8 +107,6 @@ impl ID {
             ID::Lane(id) => {
                 let l = map.get_l(id);
                 let r = map.get_r(l.parent);
-                let i1 = map.get_source_intersection(id);
-                let i2 = map.get_destination_intersection(id);
 
                 txt.add_line(format!("{} is ", l.id));
                 txt.append(r.get_name(), Some(Color::CYAN));
@@ -116,10 +114,6 @@ impl ID {
                 txt.add_line(format!(
                     "Parent {} (originally {}) points to {}",
                     r.id, r.stable_id, r.dst_i
-                ));
-                txt.add_line(format!(
-                    "Lane goes from {} to {}",
-                    i1.elevation, i2.elevation
                 ));
                 txt.add_line(format!(
                     "Lane is {} long, parent {} is {} long",

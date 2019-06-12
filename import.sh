@@ -13,14 +13,6 @@ function get_if_needed {
 mkdir -p data/input data/raw_maps
 
 # TODO refactor a variant for .zips?
-if [ ! -f data/input/N47W122.hgt ]; then
-	get_if_needed \
-		https://dds.cr.usgs.gov/srtm/version2_1/SRTM1/Region_01/N47W122.hgt.zip \
-		data/input/N47W122.hgt.zip;
-	unzip -d data/input data/input/N47W122.hgt.zip;
-	rm -f data/input/N47W122.hgt.zip;
-fi
-
 if [ ! -d data/input/google_transit_2018_18_08/ ]; then
 	get_if_needed \
 		https://metro.kingcounty.gov/GTFS/google_transit_2018_18_08.zip \
@@ -102,7 +94,6 @@ for poly in `ls ../data/polygons/`; do
 	rm -rf ../data/neighborhoods/$name ../data/maps/${name}.bin;
 	RUST_BACKTRACE=1 cargo run --release -- \
 		--osm=../data/input/$name.osm \
-		--elevation=../data/input/N47W122.hgt \
 		--traffic_signals=../data/input/traffic_signals.kml \
 		--residential_buildings=../data/input/residential_buildings.kml \
 		--parking_shapes=../data/shapes/blockface.bin \
@@ -112,4 +103,4 @@ for poly in `ls ../data/polygons/`; do
 		--output=../data/raw_maps/$name.bin
 done
 
-# To run manually: cargo run -- --osm=../data/input/montlake.osm --elevation=../data/input/N47W122.hgt --traffic_signals=../data/input/traffic_signals.kml --residential_buildings=../data/input/residential_buildings.kml --parking_shapes=../data/shapes/blockface.bin --gtfs=../data/input/google_transit_2018_18_08 --neighborhoods=../data/input/neighborhoods.geojson --clip=../data/polygons/montlake.poly --output=../data/raw_maps/montlake.bin --fast_dev
+# To run manually: cargo run -- --osm=../data/input/montlake.osm --traffic_signals=../data/input/traffic_signals.kml --residential_buildings=../data/input/residential_buildings.kml --parking_shapes=../data/shapes/blockface.bin --gtfs=../data/input/google_transit_2018_18_08 --neighborhoods=../data/input/neighborhoods.geojson --clip=../data/polygons/montlake.poly --output=../data/raw_maps/montlake.bin --fast_dev

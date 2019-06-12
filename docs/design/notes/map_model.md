@@ -85,8 +85,6 @@ is the source of truth.
 
 - http://download.bbbike.org/osm/bbbike/Seattle/Seattle.osm.gz
   - OpenStreetMap extract
-- https://dds.cr.usgs.gov/srtm/version2_1/SRTM1/Region_01/N47W122.hgt.zip
-  - Elevation data, currently unused in the simulation
 - https://metro.kingcounty.gov/GTFS/google_transit_2018_18_08.zip
   - Bus stops and routes
 - https://data.seattle.gov/Transportation/Traffic-Signals/nr6x-wnd5
@@ -106,7 +104,6 @@ is the source of truth.
 
 ### convert_osm: from data sources to raw_data::Map
 
-- load elevation into memory from a .hgt
 - get raw OSM ways from a .osm
 - split up OSM ways into roads and intersections
 - remove completely disconnected roads
