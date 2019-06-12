@@ -150,11 +150,29 @@ impl InitialMap {
         merge::merge(self, r, &mut Timer::throwaway());
     }
 
+    pub fn delete_road(&mut self, r: StableRoadID) {
+        let mut timer = Timer::throwaway();
+        let road = self.roads.remove(&r).unwrap();
+        {
+            let mut i = self.intersections.get_mut(&road.src_i).unwrap();
+            i.roads.remove(&r);
+            i.polygon = geometry::intersection_polygon(i, &mut self.roads, &mut timer);
+        }
+        {
+            let mut i = self.intersections.get_mut(&road.dst_i).unwrap();
+            i.roads.remove(&r);
+            i.polygon = geometry::intersection_polygon(i, &mut self.roads, &mut timer);
+        }
+    }
+
     pub fn apply_hints(&mut self, hints: &Hints) {
         for h in &hints.hints {
             match h {
                 Hint::MergeRoad(r) => {
                     self.merge_road(*r);
+                }
+                Hint::DeleteRoad(r) => {
+                    self.delete_road(*r);
                 }
             }
         }
@@ -169,4 +187,5 @@ pub struct Hints {
 #[derive(Serialize, Deserialize, Debug)]
 pub enum Hint {
     MergeRoad(StableRoadID),
+    DeleteRoad(StableRoadID),
 }

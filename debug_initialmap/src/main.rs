@@ -83,6 +83,11 @@ impl GUI for UI {
                 self.data.merge_road(r);
                 self.world = initial_map_to_world(&self.data, ctx);
                 self.selected = None;
+            } else if ctx.input.key_pressed(Key::D, "delete") {
+                self.hints.hints.push(Hint::DeleteRoad(r));
+                self.data.delete_road(r);
+                self.world = initial_map_to_world(&self.data, ctx);
+                self.selected = None;
             }
         }
         if !self.hide.is_empty() {
