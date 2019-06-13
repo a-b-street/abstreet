@@ -22,40 +22,41 @@ struct UI {
 
 impl UI {
     fn new(filename: &str, ctx: &mut EventCtx) -> UI {
-        let mut timer = Timer::new(&format!("load {}", filename));
-        let raw: Map = abstutil::read_binary(filename, &mut timer).unwrap();
-        let map_name = abstutil::basename(filename);
-        let gps_bounds = &raw.gps_bounds;
-        let mut data = InitialMap::new(
-            map_name,
-            &raw,
-            gps_bounds,
-            &gps_bounds.to_bounds(),
-            &mut timer,
-        );
-        let hints = Hints::load();
-        data.apply_hints(&hints, &raw, &mut timer);
+        ctx.loading_screen(&format!("load {}", filename), |ctx, mut timer| {
+            let raw: Map = abstutil::read_binary(filename, &mut timer).unwrap();
+            let map_name = abstutil::basename(filename);
+            let gps_bounds = &raw.gps_bounds;
+            let mut data = InitialMap::new(
+                map_name,
+                &raw,
+                gps_bounds,
+                &gps_bounds.to_bounds(),
+                &mut timer,
+            );
+            let hints = Hints::load();
+            data.apply_hints(&hints, &raw, &mut timer);
 
-        let world = initial_map_to_world(&data, &raw, ctx);
+            let world = initial_map_to_world(&data, ctx);
 
-        UI {
-            menu: ModalMenu::new(
-                "Intersection Geometry Helper",
-                vec![
-                    (hotkey(Key::Escape), "quit"),
-                    (hotkey(Key::S), "save"),
-                    (hotkey(Key::R), "reset hints"),
-                    (hotkey(Key::U), "undo last hint"),
-                ],
-                ctx,
-            ),
-            world,
-            raw,
-            data,
-            hints,
-            selected: None,
-            osd: Text::new(),
-        }
+            UI {
+                menu: ModalMenu::new(
+                    "Fix Map Geometry",
+                    vec![
+                        (hotkey(Key::Escape), "quit"),
+                        (hotkey(Key::S), "save"),
+                        (hotkey(Key::R), "reset hints"),
+                        (hotkey(Key::U), "undo last hint"),
+                    ],
+                    ctx,
+                ),
+                world,
+                raw,
+                data,
+                hints,
+                selected: None,
+                osd: Text::new(),
+            }
+        })
     }
 }
 
@@ -63,8 +64,8 @@ impl GUI for UI {
     fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode {
         {
             let len = self.hints.hints.len();
-            let mut txt = Text::prompt("Intersection Geometry Helper");
-            txt.add_line(format!("{} hints", len));
+            let mut txt = Text::prompt("Fix Map Geometry");
+            txt.push(format!("[cyan:{}] hints", len));
             for i in (1..=5).rev() {
                 if len >= i {
                     txt.add_line(match self.hints.hints[len - i] {
@@ -76,6 +77,16 @@ impl GUI for UI {
                     });
                 } else {
                     txt.add_line("...".to_string());
+                }
+            }
+            if let Some(ID::Road(r)) = self.selected {
+                txt.push(format!(
+                    "[red:{}] is {} long",
+                    r,
+                    self.data.roads[&r].trimmed_center_pts.length()
+                ));
+                for (k, v) in &self.raw.roads[&r].osm_tags {
+                    txt.push(format!("[cyan:{}] = [red:{}]", k, v));
                 }
             }
             self.menu.handle_event(ctx, Some(txt));
@@ -105,35 +116,36 @@ impl GUI for UI {
                 false
             };
             if recalc {
-                let mut timer = Timer::new("recalculate map from hints");
-                let gps_bounds = &self.raw.gps_bounds;
-                self.data = InitialMap::new(
-                    self.data.name.clone(),
-                    &self.raw,
-                    gps_bounds,
-                    &gps_bounds.to_bounds(),
-                    &mut timer,
-                );
-                self.data.apply_hints(&self.hints, &self.raw, &mut timer);
-                self.world = initial_map_to_world(&self.data, &self.raw, ctx);
-                self.selected = None;
+                ctx.loading_screen("recalculate map from hints", |ctx, mut timer| {
+                    let gps_bounds = &self.raw.gps_bounds;
+                    self.data = InitialMap::new(
+                        self.data.name.clone(),
+                        &self.raw,
+                        gps_bounds,
+                        &gps_bounds.to_bounds(),
+                        &mut timer,
+                    );
+                    self.data.apply_hints(&self.hints, &self.raw, &mut timer);
+                    self.world = initial_map_to_world(&self.data, ctx);
+                    self.selected = None;
+                });
             }
         }
 
-        if let Some(ID::HalfRoad(r, _)) = self.selected {
+        if let Some(ID::Road(r)) = self.selected {
             if ctx.input.key_pressed(Key::M, "merge") {
                 self.hints
                     .hints
                     .push(Hint::MergeRoad(self.raw.roads[&r].orig_id()));
                 self.data.merge_road(r, &mut Timer::new("merge road"));
-                self.world = initial_map_to_world(&self.data, &self.raw, ctx);
+                self.world = initial_map_to_world(&self.data, ctx);
                 self.selected = None;
             } else if ctx.input.key_pressed(Key::D, "delete") {
                 self.hints
                     .hints
                     .push(Hint::DeleteRoad(self.raw.roads[&r].orig_id()));
                 self.data.delete_road(r, &mut Timer::new("delete road"));
-                self.world = initial_map_to_world(&self.data, &self.raw, ctx);
+                self.world = initial_map_to_world(&self.data, ctx);
                 self.selected = None;
             }
         }
@@ -146,7 +158,7 @@ impl GUI for UI {
                 ));
                 self.data
                     .merge_degenerate_intersection(i, &mut Timer::new("merge intersection"));
-                self.world = initial_map_to_world(&self.data, &self.raw, ctx);
+                self.world = initial_map_to_world(&self.data, ctx);
                 self.selected = None;
             }
         }
@@ -172,7 +184,7 @@ impl GUI for UI {
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    ezgui::run("InitialMap debugger", 1024.0, 768.0, |ctx| {
+    ezgui::run("InitialMap debugger", 1800.0, 800.0, |ctx| {
         ctx.canvas.cam_zoom = 4.0;
         UI::new(&args[1], ctx)
     });
@@ -180,65 +192,42 @@ fn main() {
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
 enum ID {
-    // Forwards?
-    HalfRoad(StableRoadID, bool),
+    Road(StableRoadID),
     Intersection(StableIntersectionID),
 }
 
 impl viewer::ObjectID for ID {
     fn zorder(&self) -> usize {
         match self {
-            ID::HalfRoad(_, _) => 0,
+            ID::Road(_) => 0,
             ID::Intersection(_) => 1,
         }
     }
 }
 
-fn initial_map_to_world(data: &InitialMap, raw: &Map, ctx: &mut EventCtx) -> World<ID> {
+fn initial_map_to_world(data: &InitialMap, ctx: &mut EventCtx) -> World<ID> {
     let mut w = World::new(&data.bounds);
 
     for r in data.roads.values() {
-        let len = r.trimmed_center_pts.length();
-        if r.fwd_width > Distance::ZERO {
-            let mut txt = Text::from_line(format!("{} forwards, {} long", r.id, len));
-            for (k, v) in &raw.roads[&r.id].osm_tags {
-                txt.add_line(format!("{} = {}", k, v));
-            }
-            w.add_obj(
-                ctx.prerender,
-                ID::HalfRoad(r.id, true),
+        w.add_obj(
+            ctx.prerender,
+            ID::Road(r.id),
+            (if r.fwd_width >= r.back_width {
                 r.trimmed_center_pts
-                    .shift_right(r.fwd_width / 2.0)
-                    .unwrap()
-                    .make_polygons(r.fwd_width),
-                if len < MIN_ROAD_LENGTH {
-                    Color::CYAN
-                } else {
-                    Color::grey(0.8)
-                },
-                txt,
-            );
-        }
-        if r.back_width > Distance::ZERO {
-            let mut txt = Text::from_line(format!("{} backwards, {} long", r.id, len));
-            for (k, v) in &raw.roads[&r.id].osm_tags {
-                txt.add_line(format!("{} = {}", k, v));
-            }
-            w.add_obj(
-                ctx.prerender,
-                ID::HalfRoad(r.id, false),
+                    .shift_right((r.fwd_width - r.back_width) / 2.0)
+            } else {
                 r.trimmed_center_pts
-                    .shift_left(r.back_width / 2.0)
-                    .unwrap()
-                    .make_polygons(r.back_width),
-                if len < MIN_ROAD_LENGTH {
-                    Color::GREEN
-                } else {
-                    Color::grey(0.6)
-                },
-                txt,
-            );
-        }
+                    .shift_left((r.back_width - r.fwd_width) / 2.0)
+            })
+            .unwrap()
+            .make_polygons(r.fwd_width + r.back_width),
+            if r.trimmed_center_pts.length() < MIN_ROAD_LENGTH {
+                Color::CYAN
+            } else {
+                Color::grey(0.8)
+            },
+            Text::from_line(r.id.to_string()),
+        );
     }
 
     for i in data.intersections.values() {
@@ -246,7 +235,11 @@ fn initial_map_to_world(data: &InitialMap, raw: &Map, ctx: &mut EventCtx) -> Wor
             ctx.prerender,
             ID::Intersection(i.id),
             Polygon::new(&i.polygon),
-            Color::RED,
+            if i.roads.len() == 2 {
+                Color::CYAN
+            } else {
+                Color::RED
+            },
             Text::from_line(format!("{}", i.id)),
         );
     }

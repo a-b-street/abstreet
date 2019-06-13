@@ -62,18 +62,26 @@ impl Color {
 
     pub fn from_string(color: &str) -> Color {
         match color {
-            "red" => Color::RED,
+            "blue" => Color::BLUE,
             "cyan" => Color::CYAN,
+            "green" => Color::GREEN,
+            "red" => Color::RED,
             _ => panic!("Unknown color {}", color),
         }
     }
 
     pub fn to_string(self) -> &'static str {
-        if self == Color::RED {
-            return "red";
+        if self == Color::BLUE {
+            return "blue";
         }
         if self == Color::CYAN {
             return "cyan";
+        }
+        if self == Color::GREEN {
+            return "green";
+        }
+        if self == Color::RED {
+            return "red";
         }
         panic!("Can't transform {} to a string", self);
     }

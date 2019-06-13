@@ -142,6 +142,8 @@ Constructing the map:
   final output
 - `popdat`: importing extra census-based data specific to Seattle, optional
   right now
+- `fix_map_geom`: tool to manually merge/delete weird intersections and short
+  roads
 
 Traffic simulation:
 
@@ -164,8 +166,6 @@ Less interesting stuff:
 
 - `analyze_code`: a static analysis attempt to construct a call-graph using
   `syn`
-- `debug_initialmap`: tool to debug intermediate form of maps, useful for
-  intersection merging
 - `halloween`: a toy to render maps in a "creepy" way
 - `playground_gui`: interactive debugging of basic geometric algorithms
 - `synthetic`: GUI for creating and editing "synthetic" maps from scratch

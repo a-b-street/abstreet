@@ -1,5 +1,5 @@
 [package]
-name = "debug_initialmap"
+name = "fix_map_geom"
 version = "0.1.0"
 authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2018"
