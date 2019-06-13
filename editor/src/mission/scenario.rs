@@ -1,22 +1,17 @@
 use crate::game::Mode;
-use crate::helpers::rotating_color;
 use crate::mission::{input_time, MissionEditMode};
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::{Timer, WeightedUsizeChoice};
-use ezgui::{
-    hotkey, Color, Drawable, EventCtx, GfxCtx, Key, LogScroller, ModalMenu, Wizard, WrappedWizard,
-};
-use geom::{Distance, Duration, PolyLine, Pt2D};
+use ezgui::{hotkey, EventCtx, GfxCtx, Key, LogScroller, ModalMenu, Wizard, WrappedWizard};
+use geom::Duration;
 use map_model::{IntersectionID, Map, Neighborhood};
 use sim::{BorderSpawnOverTime, OriginDestination, Scenario, SeedParkedCars, SpawnOverTime};
-use std::collections::BTreeMap;
 
 pub enum ScenarioEditor {
     PickScenario(Wizard),
     ManageScenario(ModalMenu, Scenario, LogScroller),
     EditScenario(Scenario, Wizard),
-    VisualizeScenario(ModalMenu, Scenario, Drawable, BTreeMap<String, Region>),
 }
 
 impl ScenarioEditor {
@@ -28,7 +23,6 @@ impl ScenarioEditor {
                 (hotkey(Key::S), "save"),
                 (hotkey(Key::E), "edit"),
                 (hotkey(Key::I), "instantiate"),
-                (hotkey(Key::V), "visualize"),
             ],
             ctx,
         )
@@ -67,38 +61,6 @@ impl ScenarioEditor {
                         ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
                     });
                     return Some(Mode::Sandbox(SandboxMode::new(ctx)));
-                } else if menu.action("visualize") {
-                    let neighborhoods = Neighborhood::load_all(
-                        ui.primary.map.get_name(),
-                        &ui.primary.map.get_gps_bounds(),
-                    );
-                    let draw_all = ctx.prerender.upload_borrowed(
-                        neighborhoods
-                            .iter()
-                            .enumerate()
-                            .map(|(idx, (_, n))| (rotating_color(idx), &n.polygon))
-                            .collect::<Vec<_>>(),
-                    );
-                    let mapping = neighborhoods
-                        .into_iter()
-                        .enumerate()
-                        .map(|(idx, (name, n))| {
-                            (
-                                name.clone(),
-                                Region {
-                                    _name: name,
-                                    color: rotating_color(idx),
-                                    center: n.polygon.center(),
-                                },
-                            )
-                        })
-                        .collect();
-                    *self = ScenarioEditor::VisualizeScenario(
-                        ScenarioEditor::modal_menu(&scenario.scenario_name, ctx),
-                        scenario.clone(),
-                        draw_all,
-                        mapping,
-                    );
                 } else if scroller.event(&mut ctx.input) {
                     return Some(Mode::Mission(MissionEditMode::new(ctx, ui)));
                 }
@@ -123,13 +85,6 @@ impl ScenarioEditor {
                     );
                 }
             }
-            ScenarioEditor::VisualizeScenario(ref mut menu, _, _, _) => {
-                menu.handle_event(ctx, None);
-                ctx.canvas.handle_event(ctx.input);
-                if menu.action("quit") {
-                    return Some(Mode::Mission(MissionEditMode::new(ctx, ui)));
-                }
-            }
         }
         None
     }
@@ -148,41 +103,6 @@ impl ScenarioEditor {
                     g.draw_polygon(ui.cs.get("neighborhood polygon"), &neighborhood.polygon);
                 }
                 wizard.draw(g);
-            }
-            ScenarioEditor::VisualizeScenario(
-                ref menu,
-                ref scenario,
-                ref draw_all,
-                ref mapping,
-            ) => {
-                g.redraw(draw_all);
-
-                // Aggregate by (src, dst) pair, breakdown over time and mode, etc.
-                for s in &scenario.spawn_over_time {
-                    // TODO Draw text label in neighborhood, then src is left and dst is right
-                    let src = mapping[&s.start_from_neighborhood]
-                        .center
-                        .offset(Distance::meters(-50.0), Distance::ZERO);
-                    let dst = match s.goal {
-                        OriginDestination::Neighborhood(ref n) => mapping[n].center,
-                        OriginDestination::Border(i) => ui.primary.map.get_i(i).polygon.center(),
-                    }
-                    .offset(Distance::meters(50.0), Distance::ZERO);
-                    // TODO Draw a self-loop or something
-                    if src == dst {
-                        continue;
-                    }
-                    g.draw_polygon(
-                        // Source color, sure
-                        mapping[&s.start_from_neighborhood].color.alpha(0.5),
-                        // TODO Vary by (relative) number of agents
-                        &PolyLine::new(vec![src, dst])
-                            .make_arrow(Distance::meters(100.0))
-                            .unwrap(),
-                    );
-                }
-
-                menu.draw(g);
             }
         }
     }
@@ -290,13 +210,6 @@ fn edit_scenario(map: &Map, scenario: &mut Scenario, mut wizard: WrappedWizard) 
         _ => unreachable!(),
     };
     Some(())
-}
-
-// Er, the info on top of Neighbohood
-pub struct Region {
-    _name: String,
-    color: Color,
-    center: Pt2D,
 }
 
 fn choose_neighborhood(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
