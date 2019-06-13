@@ -1,4 +1,3 @@
-use crate::ScoreSummary;
 use abstutil;
 use serde_derive::{Deserialize, Serialize};
 
@@ -23,11 +22,4 @@ impl ABTest {
     pub fn save(&self) {
         abstutil::save_json_object("ab_tests", &self.map_name, &self.test_name, self);
     }
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct ABTestResults {
-    pub test_name: String,
-    pub run1_score: ScoreSummary,
-    pub run2_score: ScoreSummary,
 }

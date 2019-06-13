@@ -305,12 +305,12 @@ pub struct DiffAllTrips {
 
 impl DiffAllTrips {
     fn new(primary: &mut PerMapUI, secondary: &mut PerMapUI) -> DiffAllTrips {
-        let stats1 = primary.sim.get_stats(&primary.map);
-        let stats2 = secondary.sim.get_stats(&secondary.map);
+        let trip_positions1 = primary.sim.get_trip_positions(&primary.map);
+        let trip_positions2 = secondary.sim.get_trip_positions(&secondary.map);
         let mut same_trips = 0;
         let mut lines: Vec<Line> = Vec::new();
-        for (trip, pt1) in &stats1.canonical_pt_per_trip {
-            if let Some(pt2) = stats2.canonical_pt_per_trip.get(trip) {
+        for (trip, pt1) in &trip_positions1.canonical_pt_per_trip {
+            if let Some(pt2) = trip_positions2.canonical_pt_per_trip.get(trip) {
                 if let Some(l) = Line::maybe_new(*pt1, *pt2) {
                     lines.push(l);
                 } else {

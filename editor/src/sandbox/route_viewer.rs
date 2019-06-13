@@ -120,7 +120,7 @@ fn debug_all_routes(ui: &mut UI) -> RouteViewer {
     let trips: Vec<TripID> = ui
         .primary
         .sim
-        .get_stats(&ui.primary.map)
+        .get_trip_positions(&ui.primary.map)
         .canonical_pt_per_trip
         .keys()
         .cloned()

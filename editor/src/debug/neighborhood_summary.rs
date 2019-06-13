@@ -5,7 +5,6 @@ use abstutil;
 use ezgui::{Color, Drawable, GfxCtx, ModalMenu, Prerender, Text};
 use geom::{Duration, Polygon, Pt2D};
 use map_model::{LaneID, Map, Neighborhood};
-use sim::Sim;
 use std::collections::HashSet;
 
 pub struct NeighborhoodSummary {
@@ -55,7 +54,7 @@ impl NeighborhoodSummary {
         if self.active && Some(ui.primary.sim.time()) != self.last_summary {
             self.last_summary = Some(ui.primary.sim.time());
             for r in self.regions.iter_mut() {
-                r.update_summary(&ui.primary.sim);
+                r.update_summary();
             }
         }
     }
@@ -105,13 +104,12 @@ impl Region {
         }
     }
 
-    fn update_summary(&mut self, primary: &Sim) {
+    fn update_summary(&mut self) {
         let mut txt = Text::new();
         txt.add_styled_line(self.name.clone(), None, Some(Color::GREEN), Some(50));
         txt.add_line(format!("contains {} lanes", self.lanes.len()));
 
-        let s1 = primary.summarize(&self.lanes);
-
+        /*let s1 = primary.summarize(&self.lanes);
         txt.add_line(format!(
             "{} cars parked, {} spots free",
             s1.cars_parked, s1.open_parking_spots
@@ -124,7 +122,7 @@ impl Region {
             "{} moving peds, {} stuck",
             s1.moving_peds, s1.stuck_peds
         ));
-        txt.add_line(format!("{} buses", s1.buses));
+        txt.add_line(format!("{} buses", s1.buses));*/
 
         self.summary = txt;
     }

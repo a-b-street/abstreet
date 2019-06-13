@@ -131,8 +131,8 @@ impl Heatmap {
 
 fn active_agent_heatmap(ctx: &EventCtx, ui: &mut UI) -> Heatmap {
     let mut h = Heatmap::new(ctx.canvas.get_screen_bounds());
-    let stats = ui.primary.sim.get_stats(&ui.primary.map);
-    for pt in stats.canonical_pt_per_trip.values() {
+    let trip_positions = ui.primary.sim.get_trip_positions(&ui.primary.map);
+    for pt in trip_positions.canonical_pt_per_trip.values() {
         h.add(*pt);
     }
     h

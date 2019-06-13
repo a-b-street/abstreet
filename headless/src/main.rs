@@ -85,7 +85,7 @@ fn main() {
         None,
     );
     timer.done();
-    println!("{:?}", sim.get_score());
+    println!("Done at {}", sim.time());
     if flags.enable_profiler && save_at.is_none() {
         cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
     }

@@ -1,9 +1,9 @@
 use crate::{
     AgentID, CarID, Command, CreateCar, DrawCarInput, DrawPedestrianInput, DrivingGoal,
-    DrivingSimState, Event, GetDrawAgents, IntersectionSimState, ParkedCar, ParkingSimState,
-    ParkingSpot, PedestrianID, Router, Scheduler, ScoreSummary, SimStats, Summary, TransitSimState,
-    TripID, TripLeg, TripManager, TripSpawner, TripSpec, VehicleSpec, VehicleType, WalkingSimState,
-    BUS_LENGTH,
+    DrivingSimState, Event, FinishedTrips, GetDrawAgents, IntersectionSimState, ParkedCar,
+    ParkingSimState, ParkingSpot, PedestrianID, Router, Scheduler, TransitSimState, TripID,
+    TripLeg, TripManager, TripPositions, TripSpawner, TripSpec, VehicleSpec, VehicleType,
+    WalkingSimState, BUS_LENGTH,
 };
 use abstutil::{elapsed_seconds, Timer};
 use derivative::Derivative;
@@ -45,7 +45,7 @@ pub struct Sim {
     // Lazily computed.
     #[derivative(PartialEq = "ignore")]
     #[serde(skip_serializing, skip_deserializing)]
-    stats: Option<SimStats>,
+    trip_positions: Option<TripPositions>,
 
     #[derivative(PartialEq = "ignore")]
     #[serde(skip_serializing, skip_deserializing)]
@@ -78,7 +78,7 @@ impl Sim {
             edits_name: "no_edits".to_string(),
             run_name,
             step_count: 0,
-            stats: None,
+            trip_positions: None,
             events_since_last_step: Vec::new(),
         }
     }
@@ -408,7 +408,7 @@ impl Sim {
         }
         self.time = target_time;
 
-        self.stats = None;
+        self.trip_positions = None;
 
         self.events_since_last_step.clear();
         self.events_since_last_step
@@ -599,20 +599,6 @@ impl Sim {
         self.time == Duration::ZERO && self.is_done()
     }
 
-    // TODO Rethink this
-    pub fn summarize(&self, _lanes: &HashSet<LaneID>) -> Summary {
-        Summary {
-            cars_parked: 0,
-            open_parking_spots: 0,
-            moving_cars: 0,
-            stuck_cars: 0,
-            buses: 0,
-            moving_peds: 0,
-            stuck_peds: 0,
-            trips_with_ab_test_divergence: 0,
-        }
-    }
-
     pub fn summary(&self) -> String {
         let (active, unfinished) = self.trips.num_trips();
         format!(
@@ -623,17 +609,8 @@ impl Sim {
         )
     }
 
-    // TODO Rethink this
-    pub fn get_score(&self) -> ScoreSummary {
-        ScoreSummary {
-            pending_walking_trips: 0,
-            total_walking_trips: 0,
-            total_walking_trip_time: Duration::ZERO,
-            pending_driving_trips: 0,
-            total_driving_trips: 0,
-            total_driving_trip_time: Duration::ZERO,
-            completion_time: None,
-        }
+    pub fn get_finished_trips(&self) -> FinishedTrips {
+        self.trips.get_finished_trips()
     }
 
     pub fn debug_ped(&self, id: PedestrianID) {
@@ -740,17 +717,19 @@ impl Sim {
             .or_else(|| self.parking.get_owner_of_car(id))
     }
 
-    pub fn get_stats(&mut self, map: &Map) -> &SimStats {
-        if self.stats.is_some() {
-            return self.stats.as_ref().unwrap();
+    pub fn get_trip_positions(&mut self, map: &Map) -> &TripPositions {
+        if self.trip_positions.is_some() {
+            return self.trip_positions.as_ref().unwrap();
         }
 
-        let mut stats = SimStats::new(self.time);
-        self.driving.populate_stats(&mut stats, map);
-        self.walking.populate_stats(&mut stats, map);
+        let mut trip_positions = TripPositions::new(self.time);
+        self.driving
+            .populate_trip_positions(&mut trip_positions, map);
+        self.walking
+            .populate_trip_positions(&mut trip_positions, map);
 
-        self.stats = Some(stats);
-        self.stats.as_ref().unwrap()
+        self.trip_positions = Some(trip_positions);
+        self.trip_positions.as_ref().unwrap()
     }
 
     pub fn get_events_since_last_step(&self) -> &Vec<Event> {

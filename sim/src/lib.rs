@@ -1,7 +1,6 @@
 mod events;
 mod make;
 mod mechanics;
-mod query;
 mod render;
 mod router;
 mod scheduler;
@@ -11,23 +10,23 @@ mod trips;
 
 pub use self::events::Event;
 pub use self::make::{
-    ABTest, ABTestResults, BorderSpawnOverTime, OriginDestination, Scenario, SeedParkedCars,
-    SimFlags, SpawnOverTime, SpawnTrip, TripSpawner, TripSpec,
+    ABTest, BorderSpawnOverTime, OriginDestination, Scenario, SeedParkedCars, SimFlags,
+    SpawnOverTime, SpawnTrip, TripSpawner, TripSpec,
 };
 pub(crate) use self::mechanics::{
     DrivingSimState, IntersectionSimState, ParkingSimState, WalkingSimState,
 };
-pub use self::query::{ScoreSummary, SimStats, Summary};
 pub(crate) use self::router::{ActionAtEnd, Router};
 pub(crate) use self::scheduler::{Command, Scheduler};
 pub use self::sim::Sim;
 pub(crate) use self::transit::TransitSimState;
-pub(crate) use self::trips::{TripLeg, TripManager};
+pub(crate) use self::trips::{FinishedTrips, TripLeg, TripManager};
 pub use crate::render::{CarStatus, DrawCarInput, DrawPedestrianInput, GetDrawAgents};
 use abstutil::Cloneable;
-use geom::{Distance, Duration, Speed};
+use geom::{Distance, Duration, Pt2D, Speed};
 use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, LaneType, Map, Path, Position};
 use serde_derive::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 use std::fmt;
 
 // http://pccsc.net/bicycle-parking-info/ says 68 inches, which is 1.73m
@@ -435,6 +434,21 @@ impl CreateCar {
             start_dist: parked_car.get_driving_pos(parking, map).dist_along(),
             maybe_parked_car: Some(parked_car),
             trip,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, PartialEq)]
+pub struct TripPositions {
+    pub time: Duration,
+    pub canonical_pt_per_trip: BTreeMap<TripID, Pt2D>,
+}
+
+impl TripPositions {
+    pub(crate) fn new(time: Duration) -> TripPositions {
+        TripPositions {
+            time,
+            canonical_pt_per_trip: BTreeMap::new(),
         }
     }
 }

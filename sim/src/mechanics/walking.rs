@@ -1,7 +1,7 @@
 use crate::{
     AgentID, Command, CreatePedestrian, DistanceInterval, DrawPedestrianInput,
     IntersectionSimState, ParkingSimState, PedestrianID, Scheduler, SidewalkPOI, SidewalkSpot,
-    SimStats, TimeInterval, TransitSimState, TripID, TripManager,
+    TimeInterval, TransitSimState, TripID, TripManager, TripPositions,
 };
 use abstutil::{deserialize_multimap, serialize_multimap, MultiMap};
 use geom::{Distance, Duration, Line, PolyLine, Pt2D, Speed};
@@ -272,11 +272,11 @@ impl WalkingSimState {
         peds
     }
 
-    pub fn populate_stats(&self, stats: &mut SimStats, map: &Map) {
+    pub fn populate_trip_positions(&self, trip_positions: &mut TripPositions, map: &Map) {
         for ped in self.peds.values() {
-            stats
+            trip_positions
                 .canonical_pt_per_trip
-                .insert(ped.trip, ped.get_draw_ped(stats.time, map).pos);
+                .insert(ped.trip, ped.get_draw_ped(trip_positions.time, map).pos);
         }
     }
 }

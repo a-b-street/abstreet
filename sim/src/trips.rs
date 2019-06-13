@@ -379,6 +379,18 @@ impl TripManager {
         )
     }
 
+    pub fn get_finished_trips(&self) -> FinishedTrips {
+        FinishedTrips {
+            pending_walking_trips: 0,
+            total_walking_trips: 0,
+            total_walking_trip_time: Duration::ZERO,
+            pending_driving_trips: 0,
+            total_driving_trips: 0,
+            total_driving_trip_time: Duration::ZERO,
+            completion_time: None,
+        }
+    }
+
     pub fn is_done(&self) -> bool {
         self.unfinished_trips == 0
     }
@@ -466,4 +478,21 @@ pub enum TripLeg {
     Drive(Vehicle, DrivingGoal),
     RideBus(PedestrianID, BusRouteID, BusStopID),
     ServeBusRoute(CarID, BusRouteID),
+}
+
+// As of a moment in time, not necessarily the end of the simulation
+#[derive(Serialize, Deserialize, Debug)]
+pub struct FinishedTrips {
+    pub pending_walking_trips: usize,
+    pub total_walking_trips: usize,
+    pub total_walking_trip_time: Duration,
+
+    pub pending_driving_trips: usize,
+    pub total_driving_trips: usize,
+    pub total_driving_trip_time: Duration,
+
+    // If filled out, the sim took this long to complete.
+    // TODO This is maybe not a useful thing to measure; the agents moving at the end don't have
+    // others around, so things are stranger for them.
+    pub completion_time: Option<Duration>,
 }

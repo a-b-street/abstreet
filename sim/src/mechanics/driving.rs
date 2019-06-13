@@ -2,8 +2,8 @@ use crate::mechanics::car::{Car, CarState};
 use crate::mechanics::queue::Queue;
 use crate::{
     ActionAtEnd, AgentID, CarID, Command, CreateCar, DistanceInterval, DrawCarInput,
-    IntersectionSimState, ParkedCar, ParkingSimState, Scheduler, SimStats, TimeInterval,
-    TransitSimState, TripManager, VehicleType, WalkingSimState, FOLLOWING_DISTANCE,
+    IntersectionSimState, ParkedCar, ParkingSimState, Scheduler, TimeInterval, TransitSimState,
+    TripManager, TripPositions, VehicleType, WalkingSimState, FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Distance, Duration, PolyLine, Pt2D};
@@ -648,14 +648,16 @@ impl DrivingSimState {
         (cars, bikes, buses)
     }
 
-    pub fn populate_stats(&self, stats: &mut SimStats, map: &Map) {
+    pub fn populate_trip_positions(&self, trip_positions: &mut TripPositions, map: &Map) {
         for queue in self.queues.values() {
             if queue.cars.is_empty() {
                 continue;
             }
 
-            for (car, dist) in queue.get_car_positions(stats.time, &self.cars, &self.queues) {
-                stats
+            for (car, dist) in
+                queue.get_car_positions(trip_positions.time, &self.cars, &self.queues)
+            {
+                trip_positions
                     .canonical_pt_per_trip
                     .insert(self.cars[&car].trip, queue.id.dist_along(dist, map).0);
             }

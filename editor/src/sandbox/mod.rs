@@ -1,5 +1,6 @@
 mod route_explorer;
 mod route_viewer;
+mod score;
 mod show_activity;
 mod spawner;
 mod time_travel;
@@ -33,6 +34,7 @@ enum State {
     TimeTraveling,
     ExploringRoute(route_explorer::RouteExplorer),
     JumpingToTime(Wizard),
+    Scoreboard(score::Scoreboard),
 }
 
 impl SandboxMode {
@@ -68,6 +70,7 @@ impl SandboxMode {
                         (hotkey(Key::L), "show/hide route for all agents"),
                         (hotkey(Key::A), "show/hide active traffic"),
                         (hotkey(Key::T), "start time traveling"),
+                        (hotkey(Key::Q), "scoreboard"),
                         (lctrl(Key::D), "debug mode"),
                         (lctrl(Key::E), "edit mode"),
                     ],
@@ -141,6 +144,13 @@ impl SandboxMode {
                             }
                         }
                     } else if wizard.aborted() {
+                        mode.state = State::Playing;
+                        mode.speed.pause();
+                    }
+                    EventLoopMode::InputOnly
+                }
+                State::Scoreboard(ref mut s) => {
+                    if s.event(ctx) {
                         mode.state = State::Playing;
                         mode.speed.pause();
                     }
@@ -236,6 +246,10 @@ impl SandboxMode {
                     if mode.menu.action("start time traveling") {
                         mode.state = State::TimeTraveling;
                         mode.time_travel.start(ctx, &state.ui);
+                        return EventLoopMode::InputOnly;
+                    }
+                    if mode.menu.action("scoreboard") {
+                        mode.state = State::Scoreboard(score::Scoreboard::new(ctx, &state.ui));
                         return EventLoopMode::InputOnly;
                     }
 
@@ -399,6 +413,15 @@ impl SandboxMode {
                         &ShowEverything::new(),
                     );
                     wizard.draw(g);
+                }
+                State::Scoreboard(ref s) => {
+                    state.ui.draw(
+                        g,
+                        DrawOptions::new(),
+                        &state.ui.primary.sim,
+                        &ShowEverything::new(),
+                    );
+                    s.draw(g);
                 }
                 _ => {
                     state.ui.draw(
