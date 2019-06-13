@@ -150,7 +150,7 @@ impl SandboxMode {
                     EventLoopMode::InputOnly
                 }
                 State::Scoreboard(ref mut s) => {
-                    if s.event(ctx) {
+                    if s.event(ctx, &state.ui) {
                         mode.state = State::Playing;
                         mode.speed.pause();
                     }

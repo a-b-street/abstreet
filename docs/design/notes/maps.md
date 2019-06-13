@@ -465,3 +465,12 @@ https://github.com/aquavit/Project-OSRM/wiki/OSRM-normalized-file-format
 https://github.com/deliveroo/osrm-rs
 
 - for transit routing: https://www.microsoft.com/en-us/research/publication/round-based-public-transit-routing/
+
+## Traffic signal data
+
+https://wiki.openstreetmap.org/wiki/Proposed_features/Traffic_Signals
+https://wiki.openstreetmap.org/wiki/Proposed_features/Set_of_Traffic_Signals
+https://wiki.openstreetmap.org/wiki/Tag:highway%3Dtraffic_signals#Complex_intersections
+https://sumo.dlr.de/wiki/Simulation/Traffic_Lights
+https://wiki.openstreetmap.org/wiki/Proposed_features/Traffic_Signal_Timings
+https://connectedsignals.com/

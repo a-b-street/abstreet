@@ -20,7 +20,8 @@ pub(crate) use self::router::{ActionAtEnd, Router};
 pub(crate) use self::scheduler::{Command, Scheduler};
 pub use self::sim::Sim;
 pub(crate) use self::transit::TransitSimState;
-pub(crate) use self::trips::{FinishedTrips, TripLeg, TripManager};
+pub use self::trips::{FinishedTrips, TripMode};
+pub(crate) use self::trips::{TripLeg, TripManager};
 pub use crate::render::{CarStatus, DrawCarInput, DrawPedestrianInput, GetDrawAgents};
 use abstutil::Cloneable;
 use geom::{Distance, Duration, Pt2D, Speed};
@@ -457,3 +458,5 @@ impl TripPositions {
 // kind of an ezgui concept.
 impl Cloneable for ABTest {}
 impl Cloneable for Scenario {}
+impl Cloneable for TripID {}
+impl Cloneable for TripMode {}
