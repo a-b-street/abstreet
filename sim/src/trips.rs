@@ -40,10 +40,28 @@ impl TripManager {
         // TODO Make sure the legs constitute a valid state machine.
 
         let id = TripID(self.trips.len());
+        let mut mode = TripMode::Walk;
+        for l in &legs {
+            match l {
+                TripLeg::Walk(_, _, _) => {}
+                TripLeg::Drive(_, _) => {
+                    mode = TripMode::Drive;
+                }
+                TripLeg::RideBus(_, _, _) => {
+                    mode = TripMode::Transit;
+                }
+                TripLeg::ServeBusRoute(_, _) => {
+                    // Confusing, because Transit usually means riding transit. But bus trips will
+                    // never get returned in FinishedTrips anyway.
+                    mode = TripMode::Transit;
+                }
+            }
+        }
         let trip = Trip {
             id,
             spawned_at,
             finished_at: None,
+            mode,
             legs: VecDeque::from(legs),
         };
         if !trip.is_bus_trip() {
@@ -380,15 +398,18 @@ impl TripManager {
     }
 
     pub fn get_finished_trips(&self) -> FinishedTrips {
-        FinishedTrips {
-            pending_walking_trips: 0,
-            total_walking_trips: 0,
-            total_walking_trip_time: Duration::ZERO,
-            pending_driving_trips: 0,
-            total_driving_trips: 0,
-            total_driving_trip_time: Duration::ZERO,
-            completion_time: None,
+        let mut result = FinishedTrips {
+            unfinished_trips: self.unfinished_trips,
+            finished_trips: Vec::new(),
+        };
+        for t in &self.trips {
+            if let Some(end) = t.finished_at {
+                result
+                    .finished_trips
+                    .push((t.id, t.mode, end - t.spawned_at));
+            }
         }
+        result
     }
 
     pub fn is_done(&self) -> bool {
@@ -406,6 +427,7 @@ struct Trip {
     spawned_at: Duration,
     finished_at: Option<Duration>,
     legs: VecDeque<TripLeg>,
+    mode: TripMode,
 }
 
 impl Trip {
@@ -481,18 +503,16 @@ pub enum TripLeg {
 }
 
 // As of a moment in time, not necessarily the end of the simulation
-#[derive(Serialize, Deserialize, Debug)]
 pub struct FinishedTrips {
-    pub pending_walking_trips: usize,
-    pub total_walking_trips: usize,
-    pub total_walking_trip_time: Duration,
+    pub unfinished_trips: usize,
+    // (..., ..., time to complete trip)
+    pub finished_trips: Vec<(TripID, TripMode, Duration)>,
+}
 
-    pub pending_driving_trips: usize,
-    pub total_driving_trips: usize,
-    pub total_driving_trip_time: Duration,
-
-    // If filled out, the sim took this long to complete.
-    // TODO This is maybe not a useful thing to measure; the agents moving at the end don't have
-    // others around, so things are stranger for them.
-    pub completion_time: Option<Duration>,
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone, Copy, PartialOrd, Ord)]
+pub enum TripMode {
+    Walk,
+    Bike,
+    Transit,
+    Drive,
 }

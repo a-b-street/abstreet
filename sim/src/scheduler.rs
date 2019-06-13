@@ -1,7 +1,6 @@
 use crate::{AgentID, CarID, CreateCar, CreatePedestrian, PedestrianID};
 use derivative::Derivative;
-use geom::Duration;
-use histogram::Histogram;
+use geom::{Duration, DurationHistogram};
 use map_model::IntersectionID;
 use serde_derive::{Deserialize, Serialize};
 
@@ -35,11 +34,9 @@ pub struct Scheduler {
     items: Vec<(Duration, Command)>,
 
     latest_time: Duration,
-    // TODO Why doesn't the Histogram keep a total count? :(
-    num_events: usize,
     #[derivative(PartialEq = "ignore")]
     #[serde(skip_serializing, skip_deserializing)]
-    delta_times: Histogram,
+    delta_times: DurationHistogram,
 }
 
 impl Scheduler {
@@ -47,8 +44,7 @@ impl Scheduler {
         Scheduler {
             items: Vec::new(),
             latest_time: Duration::ZERO,
-            num_events: 0,
-            delta_times: Histogram::new(),
+            delta_times: std::default::Default::default(),
         }
     }
 
@@ -59,10 +55,7 @@ impl Scheduler {
                 self.latest_time, time
             );
         }
-        self.num_events += 1;
-        self.delta_times
-            .increment((time - self.latest_time).to_u64())
-            .unwrap();
+        self.delta_times.add(time - self.latest_time);
 
         // TODO Make sure this is deterministic.
         // Note the order of comparison means times will be descending.
@@ -116,12 +109,6 @@ impl Scheduler {
     }
 
     pub fn describe_stats(&self) -> String {
-        format!(
-            "{} events pushed, delta times: 50%ile {:?}, 90%ile {:?}, 99%ile {:?}",
-            abstutil::prettyprint_usize(self.num_events),
-            Duration::from_u64(self.delta_times.percentile(50.0).unwrap()),
-            Duration::from_u64(self.delta_times.percentile(90.0).unwrap()),
-            Duration::from_u64(self.delta_times.percentile(99.0).unwrap()),
-        )
+        format!("delta times for events: {}", self.delta_times.describe())
     }
 }

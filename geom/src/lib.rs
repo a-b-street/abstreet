@@ -15,7 +15,7 @@ pub use crate::angle::Angle;
 pub use crate::bounds::{Bounds, GPSBounds};
 pub use crate::circle::Circle;
 pub use crate::distance::Distance;
-pub use crate::duration::Duration;
+pub use crate::duration::{Duration, DurationHistogram};
 pub use crate::find_closest::FindClosest;
 pub use crate::gps::LonLat;
 pub use crate::line::{InfiniteLine, Line};

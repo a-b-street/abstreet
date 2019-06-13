@@ -1,4 +1,5 @@
 use crate::{trim_f64, Distance, Speed};
+use histogram::Histogram;
 use serde_derive::{Deserialize, Serialize};
 use std::{cmp, f64, ops};
 
@@ -39,11 +40,11 @@ impl Duration {
         Duration(value)
     }
 
-    pub fn to_u64(self) -> u64 {
+    fn to_u64(self) -> u64 {
         (self.0 / Duration::EPSILON.0) as u64
     }
 
-    pub fn from_u64(x: u64) -> Duration {
+    fn from_u64(x: u64) -> Duration {
         (x as f64) * Duration::EPSILON
     }
 
@@ -217,5 +218,28 @@ impl ops::Div<Duration> for Duration {
             panic!("Can't divide {} / {}", self, other);
         }
         self.0 / other.0
+    }
+}
+
+#[derive(Default)]
+pub struct DurationHistogram {
+    count: usize,
+    histogram: Histogram,
+}
+
+impl DurationHistogram {
+    pub fn add(&mut self, t: Duration) {
+        self.count += 1;
+        self.histogram.increment(t.to_u64()).unwrap();
+    }
+
+    pub fn describe(&self) -> String {
+        format!(
+            "{} count, 50%ile {}, 90%ile {}, 99%ile {}",
+            abstutil::prettyprint_usize(self.count),
+            Duration::from_u64(self.histogram.percentile(50.0).unwrap()),
+            Duration::from_u64(self.histogram.percentile(90.0).unwrap()),
+            Duration::from_u64(self.histogram.percentile(99.0).unwrap()),
+        )
     }
 }
