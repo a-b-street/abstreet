@@ -280,7 +280,7 @@ impl Hints {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum Hint {
     MergeRoad(raw_data::OriginalRoad),
     DeleteRoad(raw_data::OriginalRoad),
