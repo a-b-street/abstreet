@@ -270,7 +270,13 @@ impl SandboxMode {
                         mode.speed
                             .event(ctx, &mut mode.menu, state.ui.primary.sim.time())
                     {
-                        state.ui.primary.sim.step(&state.ui.primary.map, dt);
+                        // If speed is too high, don't be unresponsive for too long.
+                        // TODO This should probably match the ezgui framerate.
+                        state.ui.primary.sim.time_limited_step(
+                            &state.ui.primary.map,
+                            dt,
+                            Duration::seconds(0.1),
+                        );
                         state.ui.primary.current_selection =
                             state.ui.recalculate_current_selection(
                                 ctx,
