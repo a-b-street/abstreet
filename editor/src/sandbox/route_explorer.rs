@@ -1,17 +1,15 @@
 use crate::common::CommonState;
-use crate::helpers::ID;
 use crate::render::DrawTurn;
 use crate::ui::{ShowEverything, UI};
-use ezgui::{hotkey, Color, EventCtx, EventLoopMode, GfxCtx, ItemSlider, Key, Text, Warper};
-use geom::{Distance, Polygon};
+use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, WarpingItemSlider};
+use geom::{Distance, Polygon, Pt2D};
 use map_model::{Traversable, LANE_THICKNESS};
 use sim::AgentID;
 
 pub struct RouteExplorer {
-    slider: ItemSlider<Traversable>,
+    slider: WarpingItemSlider<Traversable>,
     agent: AgentID,
     entire_trace: Option<Polygon>,
-    warper: Option<(Warper, ID)>,
 }
 
 impl RouteExplorer {
@@ -42,86 +40,47 @@ impl RouteExplorer {
             .trace(&ui.primary.map, Distance::ZERO, None)
             .map(|pl| pl.make_polygons(LANE_THICKNESS));
 
-        let steps: Vec<Traversable> = path
+        let steps: Vec<(Pt2D, Traversable)> = path
             .get_steps()
             .iter()
-            .map(|step| step.as_traversable())
+            .map(|step| {
+                let t = step.as_traversable();
+                (
+                    t.dist_along(t.length(&ui.primary.map) / 2.0, &ui.primary.map)
+                        .0,
+                    t,
+                )
+            })
             .collect();
         Some(RouteExplorer {
             agent,
-            warper: Some((
-                Warper::new(
-                    ctx,
-                    steps[0]
-                        .dist_along(steps[0].length(&ui.primary.map) / 2.0, &ui.primary.map)
-                        .0,
-                ),
-                match steps[0] {
-                    Traversable::Lane(l) => ID::Lane(l),
-                    Traversable::Turn(t) => ID::Turn(t),
-                },
-            )),
-            slider: ItemSlider::new(
-                steps,
-                "Route Explorer",
-                "step",
-                vec![(hotkey(Key::Escape), "quit")],
-                ctx,
-            ),
+            slider: WarpingItemSlider::new(steps, "Route Explorer", "step", ctx),
             entire_trace,
         })
     }
 
     // Done when None
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<EventLoopMode> {
-        // Don't block while we're warping
-        let ev_mode = if let Some((ref warper, id)) = self.warper {
-            if let Some(mode) = warper.event(ctx) {
-                mode
-            } else {
-                ui.primary.current_selection = Some(id);
-                self.warper = None;
-                EventLoopMode::InputOnly
-            }
-        } else {
-            EventLoopMode::InputOnly
-        };
-
-        let (idx, step) = self.slider.get();
-        let mut txt = Text::prompt(&format!("Route Explorer for {:?}", self.agent));
-        txt.add_line(format!("Step {}/{}", idx + 1, self.slider.len()));
-        txt.add_line(format!("{:?}", step));
-        let changed = self.slider.event(ctx, Some(txt));
-        ctx.canvas.handle_event(ctx.input);
         if ctx.redo_mouseover() {
             ui.primary.current_selection = ui.recalculate_current_selection(
                 ctx,
                 &ui.primary.sim,
+                // TODO Or use what debug mode is showing?
                 &ShowEverything::new(),
                 false,
             );
         }
+        ctx.canvas.handle_event(ctx.input);
 
-        if self.slider.action("quit") {
-            return None;
-        } else if !changed {
-            return Some(ev_mode);
-        }
+        let (idx, step) = self.slider.get();
+        let step = *step;
+        let mut txt = Text::prompt(&format!("Route Explorer for {:?}", self.agent));
+        txt.add_line(format!("Step {}/{}", idx + 1, self.slider.len()));
+        txt.add_line(format!("{:?}", step));
 
-        let (_, step) = self.slider.get();
-        self.warper = Some((
-            Warper::new(
-                ctx,
-                step.dist_along(step.length(&ui.primary.map) / 2.0, &ui.primary.map)
-                    .0,
-            ),
-            match step {
-                Traversable::Lane(l) => ID::Lane(*l),
-                Traversable::Turn(t) => ID::Turn(*t),
-            },
-        ));
-        // We just created a new warper, so...
-        Some(EventLoopMode::Animation)
+        // We don't really care about setting current_selection to the current step; drawing covers
+        // it up anyway.
+        self.slider.event(ctx, Some(txt)).map(|(evmode, _)| evmode)
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {

@@ -1,5 +1,8 @@
 use crate::screen_geom::ScreenRectangle;
-use crate::{hotkey, Color, EventCtx, GfxCtx, Key, ModalMenu, MultiKey, ScreenPt, Text};
+use crate::{
+    hotkey, Color, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, MultiKey, ScreenPt, Text,
+    Warper,
+};
 use geom::{Distance, Polygon, Pt2D};
 
 // Pixels
@@ -254,5 +257,76 @@ impl<T> ItemSlider<T> {
     // TODO Consume self
     pub fn consume_all_items(&mut self) -> Vec<T> {
         std::mem::replace(&mut self.items, Vec::new())
+    }
+}
+
+pub struct WarpingItemSlider<T> {
+    slider: ItemSlider<(Pt2D, T)>,
+    warper: Option<Warper>,
+}
+
+impl<T> WarpingItemSlider<T> {
+    // Note other_choices is hardcoded to quitting.
+    pub fn new(
+        items: Vec<(Pt2D, T)>,
+        menu_title: &str,
+        noun: &str,
+        ctx: &mut EventCtx,
+    ) -> WarpingItemSlider<T> {
+        WarpingItemSlider {
+            warper: Some(Warper::new(ctx, items[0].0)),
+            slider: ItemSlider::new(
+                items,
+                menu_title,
+                noun,
+                vec![(hotkey(Key::Escape), "quit")],
+                ctx,
+            ),
+        }
+    }
+
+    // Done when None. If the bool is true, done warping.
+    pub fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        menu_prompt: Option<Text>,
+    ) -> Option<(EventLoopMode, bool)> {
+        // Don't block while we're warping
+        let (ev_mode, done_warping) = if let Some(ref warper) = self.warper {
+            if let Some(mode) = warper.event(ctx) {
+                (mode, false)
+            } else {
+                self.warper = None;
+                (EventLoopMode::InputOnly, true)
+            }
+        } else {
+            (EventLoopMode::InputOnly, false)
+        };
+
+        let changed = self.slider.event(ctx, menu_prompt);
+
+        if self.slider.action("quit") {
+            return None;
+        } else if !changed {
+            return Some((ev_mode, done_warping));
+        }
+
+        let (_, (pt, _)) = self.slider.get();
+        self.warper = Some(Warper::new(ctx, *pt));
+        // We just created a new warper, so...
+        Some((EventLoopMode::Animation, done_warping))
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx) {
+        self.slider.draw(g);
+    }
+
+    pub fn get(&self) -> (usize, &T) {
+        let (idx, (_, data)) = self.slider.get();
+        (idx, data)
+    }
+
+    pub fn len(&self) -> usize {
+        self.slider.len()
     }
 }
