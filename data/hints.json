@@ -11,6 +11,150 @@
           "latitude": 47.6425139
         }
       }
+    },
+    {
+      "MergeDegenerateIntersection": {
+        "point": {
+          "longitude": -122.3061614,
+          "latitude": 47.6505563
+        }
+      }
+    },
+    {
+      "MergeDegenerateIntersection": {
+        "point": {
+          "longitude": -122.3054966,
+          "latitude": 47.6506489
+        }
+      }
+    },
+    {
+      "MergeDegenerateIntersection": {
+        "point": {
+          "longitude": -122.3064437,
+          "latitude": 47.6505476
+        }
+      }
+    },
+    {
+      "MergeDegenerateIntersection": {
+        "point": {
+          "longitude": -122.305654,
+          "latitude": 47.6506177
+        }
+      }
+    },
+    {
+      "MergeDegenerateIntersection": {
+        "point": {
+          "longitude": -122.3059164,
+          "latitude": 47.6505781
+        }
+      }
+    },
+    {
+      "MergeDegenerateIntersection": {
+        "point": {
+          "longitude": -122.3046635,
+          "latitude": 47.6509288
+        }
+      }
+    },
+    {
+      "MergeDegenerateIntersection": {
+        "point": {
+          "longitude": -122.2986984,
+          "latitude": 47.6521368
+        }
+      }
+    },
+    {
+      "MergeDegenerateIntersection": {
+        "point": {
+          "longitude": -122.2992713,
+          "latitude": 47.6494713
+        }
+      }
+    },
+    {
+      "MergeDegenerateIntersection": {
+        "point": {
+          "longitude": -122.2995236,
+          "latitude": 47.6493731
+        }
+      }
+    },
+    {
+      "MergeDegenerateIntersection": {
+        "point": {
+          "longitude": -122.3003819,
+          "latitude": 47.6488144
+        }
+      }
+    },
+    {
+      "MergeDegenerateIntersection": {
+        "point": {
+          "longitude": -122.2998801,
+          "latitude": 47.6489147
+        }
+      }
+    },
+    {
+      "MergeRoad": {
+        "pt1": {
+          "longitude": -122.3004973,
+          "latitude": 47.6395202
+        },
+        "pt2": {
+          "longitude": -122.3003583,
+          "latitude": 47.6395231
+        }
+      }
+    },
+    {
+      "MergeRoad": {
+        "pt1": {
+          "longitude": -122.3037236,
+          "latitude": 47.6347693
+        },
+        "pt2": {
+          "longitude": -122.3035947,
+          "latitude": 47.6347853
+        }
+      }
+    },
+    {
+      "DeleteRoad": {
+        "pt1": {
+          "longitude": -122.3029152,
+          "latitude": 47.6189332
+        },
+        "pt2": {
+          "longitude": -122.3025627,
+          "latitude": 47.6189356
+        }
+      }
+    },
+    {
+      "MergeDegenerateIntersection": {
+        "point": {
+          "longitude": -122.3029152,
+          "latitude": 47.6189332
+        }
+      }
+    },
+    {
+      "MergeRoad": {
+        "pt1": {
+          "longitude": -122.3025453,
+          "latitude": 47.6191841
+        },
+        "pt2": {
+          "longitude": -122.3025627,
+          "latitude": 47.6189356
+        }
+      }
     }
   ]
 }

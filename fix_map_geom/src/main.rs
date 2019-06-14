@@ -89,6 +89,30 @@ impl GUI for UI {
                     txt.push(format!("[cyan:{}] = [red:{}]", k, v));
                 }
             }
+            if let Some(ID::Intersection(i)) = self.selected {
+                txt.push(format!("[red:{}] OSM tag diffs:", i));
+                let roads = &self.data.intersections[&i].roads;
+                if roads.len() == 2 {
+                    let mut iter = roads.iter();
+                    let r1_tags = &self.raw.roads[iter.next().unwrap()].osm_tags;
+                    let r2_tags = &self.raw.roads[iter.next().unwrap()].osm_tags;
+
+                    for (k, v1) in r1_tags {
+                        if let Some(v2) = r2_tags.get(k) {
+                            if v1 != v2 {
+                                txt.push(format!("[cyan:{}] = [red:{}] / [red:{}]", k, v1, v2));
+                            }
+                        } else {
+                            txt.push(format!("[cyan:{}] = [red:{}] / MISSING", k, v1));
+                        }
+                    }
+                    for (k, v2) in r2_tags {
+                        if !r1_tags.contains_key(k) {
+                            txt.push(format!("[cyan:{}] = MISSING / [red:{}] ", k, v2));
+                        }
+                    }
+                }
+            }
             self.menu.handle_event(ctx, Some(txt));
         }
         ctx.canvas.handle_event(ctx.input);
@@ -236,9 +260,9 @@ fn initial_map_to_world(data: &InitialMap, ctx: &mut EventCtx) -> World<ID> {
             ID::Intersection(i.id),
             Polygon::new(&i.polygon),
             if i.roads.len() == 2 {
-                Color::CYAN
-            } else {
                 Color::RED
+            } else {
+                Color::BLACK
             },
             Text::from_line(format!("{}", i.id)),
         );
