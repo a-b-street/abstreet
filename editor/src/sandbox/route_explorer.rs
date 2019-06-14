@@ -1,8 +1,8 @@
-use crate::common::{CommonState, Warper};
+use crate::common::CommonState;
 use crate::helpers::ID;
 use crate::render::DrawTurn;
 use crate::ui::{ShowEverything, UI};
-use ezgui::{hotkey, Color, EventCtx, EventLoopMode, GfxCtx, ItemSlider, Key, Text};
+use ezgui::{hotkey, Color, EventCtx, EventLoopMode, GfxCtx, ItemSlider, Key, Text, Warper};
 use geom::{Distance, Polygon};
 use map_model::{Traversable, LANE_THICKNESS};
 use sim::AgentID;
@@ -11,7 +11,7 @@ pub struct RouteExplorer {
     slider: ItemSlider<Traversable>,
     agent: AgentID,
     entire_trace: Option<Polygon>,
-    warper: Option<Warper>,
+    warper: Option<(Warper, ID)>,
 }
 
 impl RouteExplorer {
@@ -49,11 +49,13 @@ impl RouteExplorer {
             .collect();
         Some(RouteExplorer {
             agent,
-            warper: Some(Warper::new(
-                ctx,
-                steps[0]
-                    .dist_along(steps[0].length(&ui.primary.map) / 2.0, &ui.primary.map)
-                    .0,
+            warper: Some((
+                Warper::new(
+                    ctx,
+                    steps[0]
+                        .dist_along(steps[0].length(&ui.primary.map) / 2.0, &ui.primary.map)
+                        .0,
+                ),
                 match steps[0] {
                     Traversable::Lane(l) => ID::Lane(l),
                     Traversable::Turn(t) => ID::Turn(t),
@@ -73,10 +75,11 @@ impl RouteExplorer {
     // Done when None
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<EventLoopMode> {
         // Don't block while we're warping
-        let ev_mode = if let Some(ref warper) = self.warper {
-            if let Some(mode) = warper.event(ctx, ui) {
+        let ev_mode = if let Some((ref warper, id)) = self.warper {
+            if let Some(mode) = warper.event(ctx) {
                 mode
             } else {
+                ui.primary.current_selection = Some(id);
                 self.warper = None;
                 EventLoopMode::InputOnly
             }
@@ -106,10 +109,12 @@ impl RouteExplorer {
         }
 
         let (_, step) = self.slider.get();
-        self.warper = Some(Warper::new(
-            ctx,
-            step.dist_along(step.length(&ui.primary.map) / 2.0, &ui.primary.map)
-                .0,
+        self.warper = Some((
+            Warper::new(
+                ctx,
+                step.dist_along(step.length(&ui.primary.map) / 2.0, &ui.primary.map)
+                    .0,
+            ),
             match step {
                 Traversable::Lane(l) => ID::Lane(*l),
                 Traversable::Turn(t) => ID::Turn(*t),

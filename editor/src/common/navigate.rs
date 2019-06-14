@@ -1,14 +1,13 @@
-use crate::common::Warper;
 use crate::helpers::ID;
 use crate::ui::UI;
-use ezgui::{Autocomplete, EventCtx, EventLoopMode, GfxCtx, InputResult};
+use ezgui::{Autocomplete, EventCtx, EventLoopMode, GfxCtx, InputResult, Warper};
 use map_model::RoadID;
 use std::collections::HashSet;
 
 pub enum Navigator {
     FirstStreet(Autocomplete<RoadID>),
     CrossStreet(RoadID, Autocomplete<RoadID>),
-    Warping(Warper),
+    Warping(Warper, ID),
 }
 
 impl Navigator {
@@ -64,11 +63,13 @@ impl Navigator {
                     // Just warp to somewhere on the first road
                     let road = map.get_r(*first_id);
                     println!("Warping to {}", road.get_name());
-                    *self = Navigator::Warping(Warper::new(
-                        ctx,
-                        road.center_pts.dist_along(road.center_pts.length() / 2.0).0,
+                    *self = Navigator::Warping(
+                        Warper::new(
+                            ctx,
+                            road.center_pts.dist_along(road.center_pts.length() / 2.0).0,
+                        ),
                         ID::Lane(road.all_lanes()[0]),
-                    ));
+                    );
                     Some(EventLoopMode::Animation)
                 }
                 InputResult::Done(name, ids) => {
@@ -83,12 +84,18 @@ impl Navigator {
                     } else {
                         map.get_i(road.dst_i).polygon.center()
                     };
-                    *self = Navigator::Warping(Warper::new(ctx, pt, ID::Lane(road.all_lanes()[0])));
+                    *self = Navigator::Warping(Warper::new(ctx, pt), ID::Lane(road.all_lanes()[0]));
                     Some(EventLoopMode::Animation)
                 }
                 InputResult::StillActive => Some(EventLoopMode::InputOnly),
             },
-            Navigator::Warping(ref warper) => warper.event(ctx, ui),
+            Navigator::Warping(ref warper, id) => {
+                let result = warper.event(ctx);
+                if result.is_none() {
+                    ui.primary.current_selection = Some(*id);
+                }
+                result
+            }
         }
     }
 
@@ -98,7 +105,7 @@ impl Navigator {
             | Navigator::CrossStreet(_, ref autocomplete) => {
                 autocomplete.draw(g);
             }
-            Navigator::Warping(_) => {}
+            Navigator::Warping(_, _) => {}
         }
     }
 }

@@ -1,7 +1,6 @@
-use crate::common::Warper;
 use crate::helpers::ID;
 use crate::ui::{PerMapUI, UI};
-use ezgui::{EventCtx, EventLoopMode, GfxCtx, InputResult, TextBox};
+use ezgui::{EventCtx, EventLoopMode, GfxCtx, InputResult, TextBox, Warper};
 use geom::Pt2D;
 use map_model::{raw_data, AreaID, BuildingID, IntersectionID, LaneID, RoadID};
 use sim::{PedestrianID, TripID};
@@ -9,7 +8,7 @@ use std::usize;
 
 pub enum WarpState {
     EnteringSearch(TextBox),
-    Warping(Warper),
+    Warping(Warper, ID),
 }
 
 impl WarpState {
@@ -24,7 +23,7 @@ impl WarpState {
                 InputResult::Canceled => None,
                 InputResult::Done(to, _) => {
                     if let Some((id, pt)) = warp_point(to, &ui.primary) {
-                        *self = WarpState::Warping(Warper::new(ctx, pt, id));
+                        *self = WarpState::Warping(Warper::new(ctx, pt), id);
                         Some(EventLoopMode::Animation)
                     } else {
                         None
@@ -32,7 +31,13 @@ impl WarpState {
                 }
                 InputResult::StillActive => Some(EventLoopMode::InputOnly),
             },
-            WarpState::Warping(ref warper) => warper.event(ctx, ui),
+            WarpState::Warping(ref warper, id) => {
+                let result = warper.event(ctx);
+                if result.is_none() {
+                    ui.primary.current_selection = Some(*id);
+                }
+                result
+            }
         }
     }
 

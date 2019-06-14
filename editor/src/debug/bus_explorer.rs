@@ -1,14 +1,14 @@
-use crate::common::{CommonState, Warper};
+use crate::common::CommonState;
 use crate::helpers::ID;
 use crate::ui::{ShowEverything, UI};
-use ezgui::{hotkey, EventCtx, EventLoopMode, GfxCtx, ItemSlider, Key, Text};
+use ezgui::{hotkey, EventCtx, EventLoopMode, GfxCtx, ItemSlider, Key, Text, Warper};
 use geom::Pt2D;
 use map_model::{BusStopID, LaneID};
 
 pub struct BusRouteExplorer {
     slider: ItemSlider<(BusStopID, LaneID, Pt2D)>,
     route_name: String,
-    warper: Option<Warper>,
+    warper: Option<(Warper, ID)>,
 }
 
 impl BusRouteExplorer {
@@ -36,7 +36,7 @@ impl BusRouteExplorer {
 
         Some(BusRouteExplorer {
             route_name: route.name.clone(),
-            warper: Some(Warper::new(ctx, stops[0].2, ID::Lane(stops[0].1))),
+            warper: Some((Warper::new(ctx, stops[0].2), ID::Lane(stops[0].1))),
             slider: ItemSlider::new(
                 stops,
                 "Bus Route Explorer",
@@ -51,10 +51,11 @@ impl BusRouteExplorer {
     // TODO Refactor with sandbox route explorer
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<EventLoopMode> {
         // Don't block while we're warping
-        let ev_mode = if let Some(ref warper) = self.warper {
-            if let Some(mode) = warper.event(ctx, ui) {
+        let ev_mode = if let Some((ref warper, id)) = self.warper {
+            if let Some(mode) = warper.event(ctx) {
                 mode
             } else {
+                ui.primary.current_selection = Some(id);
                 self.warper = None;
                 EventLoopMode::InputOnly
             }
@@ -84,7 +85,7 @@ impl BusRouteExplorer {
         }
 
         let (_, (_, lane, pt)) = self.slider.get();
-        self.warper = Some(Warper::new(ctx, *pt, ID::Lane(*lane)));
+        self.warper = Some((Warper::new(ctx, *pt), ID::Lane(*lane)));
         // We just created a new warper, so...
         Some(EventLoopMode::Animation)
     }

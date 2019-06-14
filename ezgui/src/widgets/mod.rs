@@ -6,6 +6,7 @@ mod screenshot;
 mod scrolling_menu;
 mod slider;
 mod text_box;
+mod warper;
 mod wizard;
 
 pub use self::autocomplete::Autocomplete;
@@ -16,4 +17,5 @@ pub(crate) use self::screenshot::{screenshot_current, screenshot_everything};
 pub use self::scrolling_menu::ScrollingMenu;
 pub use self::slider::{ItemSlider, Slider};
 pub use self::text_box::TextBox;
+pub use self::warper::Warper;
 pub use self::wizard::{Wizard, WrappedWizard};

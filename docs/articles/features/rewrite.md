@@ -52,6 +52,9 @@ TODO:
 ## Map borders
 
 
+## Buildings
+
+home / commerical / mixed-use, etc. number of households and employees from psrc.
 
 ## Generalizing to other cities
 
