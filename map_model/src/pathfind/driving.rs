@@ -8,7 +8,7 @@ use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
 // TODO Make the graph smaller by considering RoadID, or even (directed?) bundles of roads based on
 // OSM way.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize)]
 pub struct VehiclePathfinder {
     graph: StableGraph<DirectedRoadID, Distance>,
     #[serde(

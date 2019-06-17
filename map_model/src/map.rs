@@ -13,7 +13,7 @@ use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 use std::io;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize)]
 pub struct Map {
     roads: Vec<Road>,
     lanes: Vec<Lane>,
