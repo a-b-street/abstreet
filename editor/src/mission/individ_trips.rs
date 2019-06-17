@@ -2,7 +2,6 @@ use crate::common::CommonState;
 use crate::helpers::ID;
 use crate::mission::trips::{clip_trips, Trip, TripEndpt};
 use crate::ui::{ShowEverything, UI};
-use abstutil::prettyprint_usize;
 use ezgui::{hotkey, Color, EventCtx, GfxCtx, ItemSlider, Key, Text};
 use geom::{Circle, Distance, Line, Speed};
 use map_model::BuildingID;
@@ -18,7 +17,29 @@ impl TripsVisualizer {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> TripsVisualizer {
         let (trips, bldgs) = ctx.loading_screen("load trip data", |_, mut timer| {
             // TODO We'll break if there are no matching trips
-            clip_trips(ui, &mut timer)
+            let (trips, bldgs) = clip_trips(ui, &mut timer);
+            (
+                trips
+                    .into_iter()
+                    .map(|trip| {
+                        let mut txt = Text::new();
+                        txt.add_line(format!("Leave at {}", trip.depart_at));
+                        txt.add_line(format!(
+                            "Purpose: {:?} -> {:?}",
+                            trip.purpose.0, trip.purpose.1
+                        ));
+                        txt.add_line(format!("Mode: {:?}", trip.mode));
+                        txt.add_line(format!("Trip time: {}", trip.trip_time));
+                        txt.add_line(format!("Trip distance: {}", trip.trip_dist));
+                        txt.add_line(format!(
+                            "Average speed {}",
+                            Speed::from_dist_time(trip.trip_dist, trip.trip_time)
+                        ));
+                        (trip, txt)
+                    })
+                    .collect(),
+                bldgs,
+            )
         });
         TripsVisualizer {
             slider: ItemSlider::new(
@@ -34,27 +55,7 @@ impl TripsVisualizer {
 
     // Returns true if the we're done
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> bool {
-        let (idx, trip) = self.slider.get();
-        let mut txt = Text::prompt("Trips Visualizer");
-        txt.add_line(format!(
-            "Trip {}/{}",
-            prettyprint_usize(idx + 1),
-            prettyprint_usize(self.slider.len())
-        ));
-        txt.add_line(format!("Leave at {}", trip.depart_at));
-        txt.add_line(format!(
-            "Purpose: {:?} -> {:?}",
-            trip.purpose.0, trip.purpose.1
-        ));
-        txt.add_line(format!("Mode: {:?}", trip.mode));
-        txt.add_line(format!("Trip time: {}", trip.trip_time));
-        txt.add_line(format!("Trip distance: {}", trip.trip_dist));
-        txt.add_line(format!(
-            "Average speed {}",
-            Speed::from_dist_time(trip.trip_dist, trip.trip_time)
-        ));
-
-        self.slider.event(ctx, Some(txt));
+        self.slider.event(ctx);
         ctx.canvas.handle_event(ctx.input);
 
         if ctx.redo_mouseover() {

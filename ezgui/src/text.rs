@@ -140,6 +140,10 @@ impl Text {
         self.lines.len()
     }
 
+    pub fn extend(&mut self, other: &Text) {
+        self.lines.extend(other.lines.clone())
+    }
+
     pub(crate) fn is_empty(&self) -> bool {
         self.lines.is_empty()
     }

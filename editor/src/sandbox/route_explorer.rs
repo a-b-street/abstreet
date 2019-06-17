@@ -8,7 +8,6 @@ use sim::AgentID;
 
 pub struct RouteExplorer {
     slider: WarpingItemSlider<Traversable>,
-    agent: AgentID,
     entire_trace: Option<Polygon>,
 }
 
@@ -40,7 +39,7 @@ impl RouteExplorer {
             .trace(&ui.primary.map, Distance::ZERO, None)
             .map(|pl| pl.make_polygons(LANE_THICKNESS));
 
-        let steps: Vec<(Pt2D, Traversable)> = path
+        let steps: Vec<(Pt2D, Traversable, Text)> = path
             .get_steps()
             .iter()
             .map(|step| {
@@ -49,12 +48,17 @@ impl RouteExplorer {
                     t.dist_along(t.length(&ui.primary.map) / 2.0, &ui.primary.map)
                         .0,
                     t,
+                    Text::from_line(format!("{:?}", t)),
                 )
             })
             .collect();
         Some(RouteExplorer {
-            agent,
-            slider: WarpingItemSlider::new(steps, "Route Explorer", "step", ctx),
+            slider: WarpingItemSlider::new(
+                steps,
+                &format!("Route Explorer for {}", agent),
+                "step",
+                ctx,
+            ),
             entire_trace,
         })
     }
@@ -72,15 +76,9 @@ impl RouteExplorer {
         }
         ctx.canvas.handle_event(ctx.input);
 
-        let (idx, step) = self.slider.get();
-        let step = *step;
-        let mut txt = Text::prompt(&format!("Route Explorer for {:?}", self.agent));
-        txt.add_line(format!("Step {}/{}", idx + 1, self.slider.len()));
-        txt.add_line(format!("{:?}", step));
-
         // We don't really care about setting current_selection to the current step; drawing covers
         // it up anyway.
-        self.slider.event(ctx, Some(txt)).map(|(evmode, _)| evmode)
+        self.slider.event(ctx).map(|(evmode, _)| evmode)
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {

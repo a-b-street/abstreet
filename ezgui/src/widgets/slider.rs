@@ -171,9 +171,10 @@ impl Slider {
 }
 
 pub struct ItemSlider<T> {
-    items: Vec<T>,
+    items: Vec<(T, Text)>,
     slider: Slider,
     menu: ModalMenu,
+    menu_title: String,
 
     prev: String,
     next: String,
@@ -183,7 +184,7 @@ pub struct ItemSlider<T> {
 
 impl<T> ItemSlider<T> {
     pub fn new(
-        items: Vec<T>,
+        items: Vec<(T, Text)>,
         menu_title: &str,
         noun: &str,
         other_choices: Vec<(Option<MultiKey>, &str)>,
@@ -207,6 +208,7 @@ impl<T> ItemSlider<T> {
             items,
             slider: Slider::new(None),
             menu: ModalMenu::new(menu_title, choices, ctx),
+            menu_title: menu_title.to_string(),
 
             prev,
             next,
@@ -216,10 +218,19 @@ impl<T> ItemSlider<T> {
     }
 
     // Returns true if the value changed.
-    pub fn event(&mut self, ctx: &mut EventCtx, menu_prompt: Option<Text>) -> bool {
-        let current = self.slider.get_value(self.items.len());
-
-        self.menu.handle_event(ctx, menu_prompt);
+    pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
+        let current = {
+            let idx = self.slider.get_value(self.items.len());
+            let mut txt = Text::prompt(&self.menu_title);
+            txt.add_line(format!(
+                "{}/{}",
+                abstutil::prettyprint_usize(idx + 1),
+                abstutil::prettyprint_usize(self.items.len())
+            ));
+            txt.extend(&self.items[idx].1);
+            self.menu.handle_event(ctx, Some(txt));
+            idx
+        };
 
         if current != self.items.len() - 1 && self.menu.action(&self.next) {
             self.slider.set_value(ctx, current + 1, self.items.len());
@@ -243,11 +254,7 @@ impl<T> ItemSlider<T> {
 
     pub fn get(&self) -> (usize, &T) {
         let idx = self.slider.get_value(self.items.len());
-        (idx, &self.items[idx])
-    }
-
-    pub fn len(&self) -> usize {
-        self.items.len()
+        (idx, &self.items[idx].0)
     }
 
     pub fn action(&mut self, name: &str) -> bool {
@@ -255,7 +262,7 @@ impl<T> ItemSlider<T> {
     }
 
     // TODO Consume self
-    pub fn consume_all_items(&mut self) -> Vec<T> {
+    pub fn consume_all_items(&mut self) -> Vec<(T, Text)> {
         std::mem::replace(&mut self.items, Vec::new())
     }
 }
@@ -268,7 +275,7 @@ pub struct WarpingItemSlider<T> {
 impl<T> WarpingItemSlider<T> {
     // Note other_choices is hardcoded to quitting.
     pub fn new(
-        items: Vec<(Pt2D, T)>,
+        items: Vec<(Pt2D, T, Text)>,
         menu_title: &str,
         noun: &str,
         ctx: &mut EventCtx,
@@ -276,7 +283,10 @@ impl<T> WarpingItemSlider<T> {
         WarpingItemSlider {
             warper: Some(Warper::new(ctx, items[0].0)),
             slider: ItemSlider::new(
-                items,
+                items
+                    .into_iter()
+                    .map(|(pt, obj, label)| ((pt, obj), label))
+                    .collect(),
                 menu_title,
                 noun,
                 vec![(hotkey(Key::Escape), "quit")],
@@ -286,11 +296,7 @@ impl<T> WarpingItemSlider<T> {
     }
 
     // Done when None. If the bool is true, done warping.
-    pub fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        menu_prompt: Option<Text>,
-    ) -> Option<(EventLoopMode, bool)> {
+    pub fn event(&mut self, ctx: &mut EventCtx) -> Option<(EventLoopMode, bool)> {
         // Don't block while we're warping
         let (ev_mode, done_warping) = if let Some(ref warper) = self.warper {
             if let Some(mode) = warper.event(ctx) {
@@ -303,7 +309,7 @@ impl<T> WarpingItemSlider<T> {
             (EventLoopMode::InputOnly, false)
         };
 
-        let changed = self.slider.event(ctx, menu_prompt);
+        let changed = self.slider.event(ctx);
 
         if self.slider.action("quit") {
             return None;
@@ -324,9 +330,5 @@ impl<T> WarpingItemSlider<T> {
     pub fn get(&self) -> (usize, &T) {
         let (idx, (_, data)) = self.slider.get();
         (idx, data)
-    }
-
-    pub fn len(&self) -> usize {
-        self.slider.len()
     }
 }

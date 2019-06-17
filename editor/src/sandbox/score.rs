@@ -58,7 +58,7 @@ impl Scoreboard {
                 }
             }
             Scoreboard::BrowseTrips(ref trips, ref mut wizard) => {
-                if let Some(_) = pick_trip(trips, &mut wizard.wrap(ctx)) {
+                if pick_trip(trips, &mut wizard.wrap(ctx)).is_some() {
                     // TODO show trip departure, where it started and ended
                     *self = Scoreboard::new(ctx, ui);
                 } else if wizard.aborted() {

@@ -60,11 +60,15 @@ impl SidewalkPathfinder {
 
             // Connect each adjacent stop along a route, again with a "free" cost.
             for route in map.get_all_bus_routes() {
-                for (stop1, stop2) in route
-                    .stops
-                    .iter()
-                    .zip(route.stops.iter().skip(1))
-                    .chain(std::iter::once((route.stops.last().unwrap(), &route.stops[0])))
+                for (stop1, stop2) in
+                    route
+                        .stops
+                        .iter()
+                        .zip(route.stops.iter().skip(1))
+                        .chain(std::iter::once((
+                            route.stops.last().unwrap(),
+                            &route.stops[0],
+                        )))
                 {
                     input_graph.add_edge(
                         nodes.get(Node::RideBus(*stop1)),
@@ -76,14 +80,13 @@ impl SidewalkPathfinder {
             }
         }
         input_graph.freeze();
-        println!(
-            "{} nodes, {} edges",
-            abstutil::prettyprint_usize(input_graph.get_num_nodes()),
-            abstutil::prettyprint_usize(input_graph.get_num_edges())
-        );
         let graph = fast_paths::prepare(&input_graph);
 
-        SidewalkPathfinder { graph, nodes, connections }
+        SidewalkPathfinder {
+            graph,
+            nodes,
+            connections,
+        }
     }
 
     pub fn pathfind(&self, req: &PathRequest, map: &Map) -> Option<Path> {
@@ -176,11 +179,8 @@ impl SidewalkPathfinder {
         )?;
 
         for pair in self.nodes.translate(&raw_path).windows(2) {
-            match (pair[0], pair[1]) {
-                (Node::RideBus(stop1), Node::RideBus(stop2)) => {
-                    return Some((stop1, stop2, self.connections[&(stop1, stop2)]));
-                }
-                _ => {}
+            if let (Node::RideBus(stop1), Node::RideBus(stop2)) = (pair[0], pair[1]) {
+                return Some((stop1, stop2, self.connections[&(stop1, stop2)]));
             }
         }
         None

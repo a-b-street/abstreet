@@ -7,7 +7,6 @@ use map_model::BusStopID;
 
 pub struct BusRouteExplorer {
     slider: WarpingItemSlider<BusStopID>,
-    route_name: String,
 }
 
 impl BusRouteExplorer {
@@ -24,18 +23,22 @@ impl BusRouteExplorer {
             return None;
         }
 
-        let stops: Vec<(Pt2D, BusStopID)> = route
+        let stops: Vec<(Pt2D, BusStopID, Text)> = route
             .stops
             .iter()
             .map(|bs| {
                 let stop = map.get_bs(*bs);
-                (stop.sidewalk_pos.pt(map), stop.id)
+                (stop.sidewalk_pos.pt(map), stop.id, Text::new())
             })
             .collect();
 
         Some(BusRouteExplorer {
-            route_name: route.name.clone(),
-            slider: WarpingItemSlider::new(stops, "Bus Route Explorer", "stop", ctx),
+            slider: WarpingItemSlider::new(
+                stops,
+                &format!("Bus Route Explorer for {}", route.name),
+                "stop",
+                ctx,
+            ),
         })
     }
 
@@ -52,14 +55,9 @@ impl BusRouteExplorer {
         }
         ctx.canvas.handle_event(ctx.input);
 
-        let (idx, stop_id) = self.slider.get();
-        let stop_id = *stop_id;
-        let mut txt = Text::prompt(&format!("Bus Route Explorer for {:?}", self.route_name));
-        txt.add_line(format!("Step {}/{}", idx + 1, self.slider.len()));
-
-        let (evmode, done_warping) = self.slider.event(ctx, Some(txt))?;
+        let (evmode, done_warping) = self.slider.event(ctx)?;
         if done_warping {
-            ui.primary.current_selection = Some(ID::BusStop(stop_id));
+            ui.primary.current_selection = Some(ID::BusStop(*self.slider.get().1));
         }
         Some(evmode)
     }

@@ -168,7 +168,7 @@ impl GUI for UI {
                                         }
                                     };
                                     let pt = Pt2D::from_gps(gps_pt, &self.raw.gps_bounds)?;
-                                    Some((pt, h.clone()))
+                                    Some((pt, h.clone(), Text::from_line(describe(h))))
                                 })
                                 .collect(),
                             "Hints Browser",
@@ -244,13 +244,7 @@ impl GUI for UI {
             }
             State::BrowsingHints(ref mut slider) => {
                 ctx.canvas.handle_event(ctx.input);
-                let mut txt = Text::prompt("Hints Browser");
-                {
-                    let (idx, hint) = slider.get();
-                    txt.add_line(format!("Hint {}/{}", idx + 1, slider.len()));
-                    txt.add_line(describe(hint));
-                }
-                if let Some((evmode, _)) = slider.event(ctx, Some(txt)) {
+                if let Some((evmode, _)) = slider.event(ctx) {
                     evmode
                 } else {
                     self.state = State::main(ctx);

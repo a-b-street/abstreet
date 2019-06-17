@@ -10,7 +10,7 @@ pub enum TimeTravel {
     Active(ItemSlider<StateAtTime>),
     Inactive {
         should_record: bool,
-        moments: Vec<StateAtTime>,
+        moments: Vec<(StateAtTime, Text)>,
     },
 }
 
@@ -75,7 +75,7 @@ impl TimeTravel {
                 let sim = &ui.primary.sim;
                 let now = sim.time();
 
-                if let Some(ref state) = moments.last() {
+                if let Some((ref state, _)) = moments.last() {
                     // Already have this
                     if now == state.time {
                         return;
@@ -101,7 +101,8 @@ impl TimeTravel {
                     state.peds_per_traversable.insert(draw.on, draw.id);
                     state.peds.insert(draw.id, draw);
                 }
-                moments.push(state);
+                let label = Text::from_line(state.time.to_string());
+                moments.push((state, label));
             }
             TimeTravel::Active(_) => unreachable!(),
         }
@@ -112,11 +113,7 @@ impl TimeTravel {
         match self {
             TimeTravel::Inactive { .. } => unreachable!(),
             TimeTravel::Active(ref mut slider) => {
-                let (idx, state) = slider.get();
-                let mut txt = Text::prompt("Time Traveler");
-                txt.add_line(format!("{}", state.time));
-                txt.add_line(format!("{}/{}", idx + 1, slider.len()));
-                slider.event(ctx, Some(txt));
+                slider.event(ctx);
                 ctx.canvas.handle_event(ctx.input);
 
                 if slider.action("quit") {

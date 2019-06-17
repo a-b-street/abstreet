@@ -30,7 +30,9 @@ impl PolygonDebugger {
                     pts_without_last.pop();
                     return Some(PolygonDebugger {
                         slider: ItemSlider::new(
-                            pts.iter().map(|pt| Item::Point(*pt)).collect(),
+                            pts.iter()
+                                .map(|pt| (Item::Point(*pt), Text::new()))
+                                .collect(),
                             "Polygon Debugger",
                             "point",
                             vec![(hotkey(Key::Escape), "quit")],
@@ -50,7 +52,7 @@ impl PolygonDebugger {
                                 &mut Timer::new("calculate corners"),
                             )
                             .into_iter()
-                            .map(Item::Polygon)
+                            .map(|poly| (Item::Polygon(poly), Text::new()))
                             .collect(),
                             "Polygon Debugger",
                             "corner",
@@ -71,7 +73,7 @@ impl PolygonDebugger {
                                 .lane_center_pts
                                 .points()
                                 .iter()
-                                .map(|pt| Item::Point(*pt))
+                                .map(|pt| (Item::Point(*pt), Text::new()))
                                 .collect(),
                             "Polygon Debugger",
                             "point",
@@ -89,7 +91,7 @@ impl PolygonDebugger {
                                 .polygon
                                 .triangles()
                                 .into_iter()
-                                .map(Item::Triangle)
+                                .map(|tri| (Item::Triangle(tri), Text::new()))
                                 .collect(),
                             "Polygon Debugger",
                             "triangle",
@@ -112,7 +114,9 @@ impl PolygonDebugger {
                     };
                     return Some(PolygonDebugger {
                         slider: ItemSlider::new(
-                            pts.iter().map(|pt| Item::Point(*pt)).collect(),
+                            pts.iter()
+                                .map(|pt| (Item::Point(*pt), Text::new()))
+                                .collect(),
                             "Polygon Debugger",
                             "point",
                             vec![(hotkey(Key::Escape), "quit")],
@@ -129,7 +133,7 @@ impl PolygonDebugger {
                                 .polygon
                                 .triangles()
                                 .into_iter()
-                                .map(Item::Triangle)
+                                .map(|tri| (Item::Triangle(tri), Text::new()))
                                 .collect(),
                             "Polygon Debugger",
                             "triangle",
@@ -147,10 +151,7 @@ impl PolygonDebugger {
 
     // True when done
     pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
-        let (idx, _) = self.slider.get();
-        let mut txt = Text::prompt("Polygon Debugger");
-        txt.add_line(format!("Item {}/{}", idx + 1, self.slider.len()));
-        self.slider.event(ctx, Some(txt));
+        self.slider.event(ctx);
         ctx.canvas.handle_event(ctx.input);
 
         if self.slider.action("quit") {
