@@ -1,15 +1,14 @@
 mod driving;
 mod node_map;
-mod slow;
 mod walking;
 
-use self::driving::{Outcome, VehiclePathfinder};
+use self::driving::VehiclePathfinder;
 use self::walking::SidewalkPathfinder;
 use crate::{BusRouteID, BusStopID, LaneID, LaneType, Map, Position, Traversable, TurnID};
 use abstutil::Timer;
 use geom::{Distance, PolyLine};
 use serde_derive::{Deserialize, Serialize};
-use std::collections::{BTreeSet, VecDeque};
+use std::collections::VecDeque;
 use std::fmt;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -367,22 +366,14 @@ impl Pathfinder {
             ));
         }
 
-        let outcome = if map.get_l(req.start.lane()).is_sidewalk() {
-            match self.walking_graph.pathfind(&req, map) {
-                Some(path) => Outcome::Success(path),
-                None => Outcome::Failure,
-            }
+        if map.get_l(req.start.lane()).is_sidewalk() {
+            self.walking_graph.pathfind(&req, map)
         } else if req.can_use_bus_lanes {
             self.bus_graph.pathfind(&req, map)
         } else if req.can_use_bike_lanes {
             self.bike_graph.pathfind(&req, map)
         } else {
             self.car_graph.pathfind(&req, map)
-        };
-        match outcome {
-            Outcome::Success(path) => Some(path),
-            Outcome::Failure => None,
-            Outcome::RetrySlow => self::slow::shortest_distance(map, req),
         }
     }
 
@@ -398,19 +389,19 @@ impl Pathfinder {
             .should_use_transit(map, start, end)
     }
 
-    pub fn apply_edits(
-        &mut self,
-        delete_turns: &BTreeSet<TurnID>,
-        add_turns: &BTreeSet<TurnID>,
-        map: &Map,
-        timer: &mut Timer,
-    ) {
-        self.car_graph
-            .apply_edits(delete_turns, add_turns, map, timer);
-        self.bike_graph
-            .apply_edits(delete_turns, add_turns, map, timer);
-        self.bus_graph
-            .apply_edits(delete_turns, add_turns, map, timer);
+    pub fn apply_edits(&mut self, map: &Map, timer: &mut Timer) {
+        timer.start("apply edits to car pathfinding");
+        self.car_graph.apply_edits(map);
+        timer.stop("apply edits to car pathfinding");
+
+        timer.start("apply edits to bike pathfinding");
+        self.bike_graph.apply_edits(map);
+        timer.stop("apply edits to bike pathfinding");
+
+        timer.start("apply edits to bus pathfinding");
+        self.bus_graph.apply_edits(map);
+        timer.stop("apply edits to bus pathfinding");
+
         // TODO Can edits ever affect walking or walking+transit? If a crosswalk is entirely
         // banned, then yes... but actually that sounds like a bad edit to allow.
     }

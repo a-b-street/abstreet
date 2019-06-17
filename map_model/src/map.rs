@@ -697,8 +697,9 @@ impl Map {
             }
         }
 
+        // Do this last, so all the changes are visible in the map.
         let mut pathfinder = self.pathfinder.take().unwrap();
-        pathfinder.apply_edits(&delete_turns, &add_turns, self, timer);
+        pathfinder.apply_edits(self, timer);
         self.pathfinder = Some(pathfinder);
 
         self.edits = new_edits;
