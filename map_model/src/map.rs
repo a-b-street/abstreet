@@ -349,21 +349,6 @@ impl Map {
         self.bus_routes.iter().find(|r| r.name == name)
     }
 
-    // Not including transfers
-    pub fn get_connected_bus_stops(&self, start: BusStopID) -> Vec<(BusStopID, BusRouteID)> {
-        let mut stops = Vec::new();
-        for r in &self.bus_routes {
-            if r.stops.contains(&start) {
-                for stop in &r.stops {
-                    if *stop != start {
-                        stops.push((*stop, r.id));
-                    }
-                }
-            }
-        }
-        stops
-    }
-
     pub fn get_routes_serving_stop(&self, stop: BusStopID) -> Vec<&BusRoute> {
         let mut routes = Vec::new();
         for r in &self.bus_routes {

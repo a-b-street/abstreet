@@ -7,8 +7,11 @@ for arg in "$@"; do
 	if [ "$arg" == "--release" ]; then
 		release_mode="--release";
 	else
-		echo "Unknown argument $arg";
-		exit 1;
+		# Just recompute a single map.
+		cd precompute;
+		RUST_BACKTRACE=1 cargo run $release_mode ../data/raw_maps/$arg.bin;
+		cd ..;
+		exit;
 	fi
 done
 

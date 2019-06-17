@@ -6,7 +6,6 @@ use abstutil::{MultiMap, Timer};
 use geom::{Bounds, Distance, GPSBounds, HashablePt2D, Pt2D};
 use gtfs;
 use std::collections::{BTreeMap, HashMap, HashSet};
-use std::iter;
 
 pub fn make_bus_stops(
     map: &Map,
@@ -119,7 +118,7 @@ pub fn verify_bus_routes(map: &Map, routes: Vec<BusRoute>, timer: &mut Timer) ->
             .stops
             .iter()
             .zip(r.stops.iter().skip(1))
-            .chain(iter::once((r.stops.last().unwrap(), &r.stops[0])))
+            .chain(std::iter::once((r.stops.last().unwrap(), &r.stops[0])))
         {
             let bs1 = map.get_bs(*stop1);
             let bs2 = map.get_bs(*stop2);
