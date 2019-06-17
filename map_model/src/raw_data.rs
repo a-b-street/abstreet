@@ -90,12 +90,9 @@ impl Map {
             }
         }
 
-        // TODO There will be cases where the point fits in the bounding box, but isn't inside the
+        // There will be cases where the point fits in the bounding box, but isn't inside the
         // clipping polygon.
-        panic!(
-            "find_r({:?}) failed, even though it should be in-bounds",
-            orig
-        );
+        None
     }
 
     pub fn find_i(&self, orig: OriginalIntersection) -> Option<StableIntersectionID> {
@@ -110,10 +107,7 @@ impl Map {
 
         // TODO There will be cases where the point fits in the bounding box, but isn't inside the
         // clipping polygon.
-        panic!(
-            "find_i({:?}) failed, even though it should be in-bounds",
-            orig
-        );
+        None
     }
 }
 
