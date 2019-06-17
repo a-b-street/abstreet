@@ -200,15 +200,36 @@ impl AgentSpawner {
             let sim = &mut ui.primary.sim;
             match (self.from.clone(), self.maybe_goal.take().unwrap().0) {
                 (Source::Walking(from), Goal::Building(to)) => {
-                    sim.schedule_trip(
-                        sim.time(),
-                        TripSpec::JustWalking {
-                            start: SidewalkSpot::building(from, map),
-                            goal: SidewalkSpot::building(to, map),
-                            ped_speed: Scenario::rand_ped_speed(&mut rng),
-                        },
-                        map,
-                    );
+                    let start = SidewalkSpot::building(from, map);
+                    let goal = SidewalkSpot::building(to, map);
+                    let ped_speed = Scenario::rand_ped_speed(&mut rng);
+
+                    if let Some((stop1, stop2, route)) =
+                        map.should_use_transit(start.sidewalk_pos, goal.sidewalk_pos)
+                    {
+                        sim.schedule_trip(
+                            sim.time(),
+                            TripSpec::UsingTransit {
+                                start,
+                                goal,
+                                route,
+                                stop1,
+                                stop2,
+                                ped_speed,
+                            },
+                            map,
+                        );
+                    } else {
+                        sim.schedule_trip(
+                            sim.time(),
+                            TripSpec::JustWalking {
+                                start,
+                                goal,
+                                ped_speed,
+                            },
+                            map,
+                        );
+                    }
                 }
                 (Source::Walking(from), Goal::Border(to)) => {
                     if let Some(goal) = SidewalkSpot::end_at_border(to, map) {

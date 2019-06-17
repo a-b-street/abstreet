@@ -321,11 +321,12 @@ pub struct Pathfinder {
     bike_graph: VehiclePathfinder,
     bus_graph: VehiclePathfinder,
     walking_graph: SidewalkPathfinder,
-    walking_with_transit_graph: SidewalkPathfinder,
+    // TODO Option just during initialization! Ewww.
+    walking_with_transit_graph: Option<SidewalkPathfinder>,
 }
 
 impl Pathfinder {
-    pub fn new(map: &Map, timer: &mut Timer) -> Pathfinder {
+    pub fn new_without_transit(map: &Map, timer: &mut Timer) -> Pathfinder {
         timer.start("prepare pathfinding for cars");
         let car_graph = VehiclePathfinder::new(map, vec![LaneType::Driving]);
         timer.stop("prepare pathfinding for cars");
@@ -342,17 +343,17 @@ impl Pathfinder {
         let walking_graph = SidewalkPathfinder::new(map, false);
         timer.stop("prepare pathfinding for pedestrians");
 
-        timer.start("prepare pathfinding for pedestrians using transit");
-        let walking_with_transit_graph = SidewalkPathfinder::new(map, true);
-        timer.stop("prepare pathfinding for pedestrians using transit");
-
         Pathfinder {
             car_graph,
             bike_graph,
             bus_graph,
             walking_graph,
-            walking_with_transit_graph,
+            walking_with_transit_graph: None,
         }
+    }
+
+    pub fn setup_walking_with_transit(&mut self, map: &Map) {
+        self.walking_with_transit_graph = Some(SidewalkPathfinder::new(map, true));
     }
 
     pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<Path> {
@@ -392,6 +393,8 @@ impl Pathfinder {
         end: Position,
     ) -> Option<(BusStopID, BusStopID, BusRouteID)> {
         self.walking_with_transit_graph
+            .as_ref()
+            .unwrap()
             .should_use_transit(map, start, end)
     }
 

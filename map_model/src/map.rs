@@ -109,9 +109,12 @@ impl Map {
             m.traffic_signals = traffic_signals;
         }
 
-        timer.start("setup Pathfinder");
-        m.pathfinder = Some(Pathfinder::new(&m, timer));
-        timer.stop("setup Pathfinder");
+        // Here's a fun one: we can't set up walking_using_transit yet, because we haven't
+        // finalized bus stops and routes. We need the bus graph in place for that. So setup
+        // pathfinding in two stages.
+        timer.start("setup (most of) Pathfinder");
+        m.pathfinder = Some(Pathfinder::new_without_transit(&m, timer));
+        timer.stop("setup (most of) Pathfinder");
 
         {
             let (stops, routes) =
@@ -124,6 +127,12 @@ impl Map {
 
             m.bus_routes = make::verify_bus_routes(&m, routes, timer);
         }
+
+        timer.start("setup rest of Pathfinder");
+        let mut pathfinder = m.pathfinder.take().unwrap();
+        pathfinder.setup_walking_with_transit(&m);
+        m.pathfinder = Some(pathfinder);
+        timer.stop("setup rest of Pathfinder");
 
         timer.stop("finalize Map");
         m
