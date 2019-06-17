@@ -1,102 +1,67 @@
+use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
 use crate::{
     BusRouteID, BusStopID, DirectedRoadID, IntersectionID, LaneID, LaneType, Map, Path,
     PathRequest, PathStep, Position,
 };
-use abstutil::{deserialize_btreemap, serialize_btreemap};
-use geom::Distance;
-use petgraph::graph::{Graph, NodeIndex};
+use fast_paths::{FastGraph, InputGraph};
 use serde_derive::{Deserialize, Serialize};
-use std::collections::BTreeMap;
 
-// TODO Make the graph smaller by considering RoadID, or even (directed?) bundles of roads based on
-// OSM way.
 #[derive(Serialize, Deserialize)]
 pub struct SidewalkPathfinder {
-    graph: Graph<DirectedRoadID, Edge>,
-    #[serde(
-        serialize_with = "serialize_btreemap",
-        deserialize_with = "deserialize_btreemap"
-    )]
-    nodes: BTreeMap<DirectedRoadID, NodeIndex<u32>>,
+    graph: FastGraph,
+    #[serde(deserialize_with = "deserialize_nodemap")]
+    nodes: NodeMap<Node>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-enum Edge {
-    Cross(Distance),
+// TODO Possibly better representation is just a BusStopID as a node, and a separate map for
+// (BusStopID, BusStopID) to BusRouteID.
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+enum Node {
+    // Direction determined later
+    Cross(DirectedRoadID),
     RideBus(BusStopID, BusStopID, BusRouteID),
 }
 
 impl SidewalkPathfinder {
     pub fn new(map: &Map, use_transit: bool) -> SidewalkPathfinder {
-        let mut g = SidewalkPathfinder {
-            graph: Graph::new(),
-            nodes: BTreeMap::new(),
-        };
-
-        for r in map.all_roads() {
-            // TODO Technically, only if there's a sidewalk
-            if !r.children_forwards.is_empty() {
-                let id = r.id.forwards();
-                g.nodes.insert(id, g.graph.add_node(id));
-            }
-            if !r.children_backwards.is_empty() {
-                let id = r.id.backwards();
-                g.nodes.insert(id, g.graph.add_node(id));
-            }
-        }
+        let mut input_graph = InputGraph::new();
+        let mut nodes = NodeMap::new();
 
         for t in map.all_turns().values() {
             if !t.between_sidewalks() || !map.is_turn_allowed(t.id) {
                 continue;
             }
-            let src_l = map.get_l(t.id.src);
-            let src = g.get_node(t.id.src, map);
-            let dst = g.get_node(t.id.dst, map);
-            // First length arbitrarily wins.
-            if !g.graph.contains_edge(src, dst) {
-                g.graph
-                    .add_edge(src, dst, Edge::Cross(src_l.length() + t.geom.length()));
-            }
+            // Duplicate edges in InputGraph will be removed.
+            let length = map.get_l(t.id.src).length() + t.geom.length();
+            let length_cm = (length.inner_meters() * 100.0).round() as usize;
+
+            input_graph.add_edge(
+                nodes.get_or_insert(lane_to_node(t.id.src, map)),
+                nodes.get_or_insert(lane_to_node(t.id.dst, map)),
+                length_cm,
+            );
         }
 
-        // Add edges for all the bus rides. No transfers.
+        // Add nodes for all the bus rides. No transfers.
         if use_transit {
             for stop1 in map.all_bus_stops().values() {
-                let src = g.get_node(stop1.sidewalk_pos.lane(), map);
+                let src_l = nodes.get_or_insert(lane_to_node(stop1.sidewalk_pos.lane(), map));
                 for (stop2, route) in map.get_connected_bus_stops(stop1.id).into_iter() {
-                    let dst = g.get_node(map.get_bs(stop2).sidewalk_pos.lane(), map);
-                    g.graph
-                        .add_edge(src, dst, Edge::RideBus(stop1.id, stop2, route));
+                    let dst_l = nodes
+                        .get_or_insert(lane_to_node(map.get_bs(stop2).sidewalk_pos.lane(), map));
+                    let ride_bus = nodes.get_or_insert(Node::RideBus(stop1.id, stop2, route));
+
+                    // TODO Hardcode a nice, cheap cost of 1 (fast_paths ignores 0-weight edges)
+                    // for riding the bus.
+                    input_graph.add_edge(src_l, ride_bus, 1);
+                    input_graph.add_edge(ride_bus, dst_l, 1);
                 }
             }
         }
+        input_graph.freeze();
+        let graph = fast_paths::prepare(&input_graph);
 
-        /*println!(
-            "{} nodes, {} edges",
-            g.graph.node_count(),
-            g.graph.edge_count()
-        );*/
-
-        g
-    }
-
-    fn get_node(&self, lane: LaneID, map: &Map) -> NodeIndex<u32> {
-        self.nodes[&map.get_l(lane).get_directed_parent(map)]
-    }
-
-    fn get_sidewalk(&self, dr: DirectedRoadID, map: &Map) -> LaneID {
-        let r = map.get_r(dr.id);
-        let lanes = if dr.forwards {
-            &r.children_forwards
-        } else {
-            &r.children_backwards
-        };
-        for (id, lt) in lanes {
-            if *lt == LaneType::Sidewalk {
-                return *id;
-            }
-        }
-        panic!("{} has no sidewalk", dr);
+        SidewalkPathfinder { graph, nodes }
     }
 
     pub fn pathfind(&self, req: &PathRequest, map: &Map) -> Option<Path> {
@@ -118,38 +83,27 @@ impl SidewalkPathfinder {
             }
         }
 
-        let start_node = self.get_node(req.start.lane(), map);
-        let end_node = self.get_node(req.end.lane(), map);
-        let end_pt = map.get_l(req.end.lane()).first_pt();
-
-        let (_, raw_nodes) = petgraph::algo::astar(
+        let raw_path = fast_paths::calc_path(
             &self.graph,
-            start_node,
-            |n| n == end_node,
-            |e| match e.weight() {
-                Edge::Cross(dist) => *dist,
-                // Free for now
-                Edge::RideBus(_, _, _) => Distance::ZERO,
-            },
-            |n| {
-                let dr = self.graph[n];
-                let r = map.get_r(dr.id);
-                if dr.forwards {
-                    end_pt.dist_to(r.center_pts.last_pt())
-                } else {
-                    end_pt.dist_to(r.center_pts.first_pt())
-                }
-            },
+            self.nodes.get(lane_to_node(req.start.lane(), map)),
+            self.nodes.get(lane_to_node(req.end.lane(), map)),
         )?;
+        let path = self.nodes.translate(&raw_path);
 
         let mut steps: Vec<PathStep> = Vec::new();
         // If the request starts at the beginning/end of a lane, still include that as the first
         // PathStep. Sim layer breaks otherwise.
         let mut current_i: Option<IntersectionID> = None;
 
-        for pair in raw_nodes.windows(2) {
-            let lane1 = map.get_l(self.get_sidewalk(self.graph[pair[0]], map));
-            let l2 = self.get_sidewalk(self.graph[pair[1]], map);
+        for pair in path.windows(2) {
+            let lane1 = match pair[0] {
+                Node::Cross(dr) => map.get_l(get_sidewalk(dr, map)),
+                Node::RideBus(_, _, _) => unreachable!(),
+            };
+            let l2 = match pair[1] {
+                Node::Cross(dr) => get_sidewalk(dr, map),
+                Node::RideBus(_, _, _) => unreachable!(),
+            };
 
             let fwd_t = map.get_turn_between(lane1.id, l2, lane1.dst_i);
             let back_t = map.get_turn_between(lane1.id, l2, lane1.src_i);
@@ -171,7 +125,10 @@ impl SidewalkPathfinder {
         }
 
         // Don't end a path in a turn; sim layer breaks.
-        let last_lane = map.get_l(self.get_sidewalk(self.graph[*raw_nodes.last().unwrap()], map));
+        let last_lane = match path.last().unwrap() {
+            Node::Cross(dr) => map.get_l(get_sidewalk(*dr, map)),
+            Node::RideBus(_, _, _) => unreachable!(),
+        };
         if Some(last_lane.src_i) == current_i {
             steps.push(PathStep::Lane(last_lane.id));
         } else if Some(last_lane.dst_i) == current_i {
@@ -190,37 +147,36 @@ impl SidewalkPathfinder {
         start: Position,
         end: Position,
     ) -> Option<(BusStopID, BusStopID, BusRouteID)> {
-        let start_node = self.get_node(start.lane(), map);
-        let end_node = self.get_node(end.lane(), map);
-        let end_pt = map.get_l(end.lane()).first_pt();
-
-        let (_, raw_nodes) = petgraph::algo::astar(
+        let raw_path = fast_paths::calc_path(
             &self.graph,
-            start_node,
-            |n| n == end_node,
-            |e| match e.weight() {
-                Edge::Cross(dist) => *dist,
-                // Free for now
-                Edge::RideBus(_, _, _) => Distance::ZERO,
-            },
-            |n| {
-                let dr = self.graph[n];
-                let r = map.get_r(dr.id);
-                if dr.forwards {
-                    end_pt.dist_to(r.center_pts.last_pt())
-                } else {
-                    end_pt.dist_to(r.center_pts.first_pt())
-                }
-            },
+            self.nodes.get(lane_to_node(start.lane(), map)),
+            self.nodes.get(lane_to_node(end.lane(), map)),
         )?;
 
-        for pair in raw_nodes.windows(2) {
-            if let Edge::RideBus(stop1, stop2, route) =
-                self.graph[self.graph.find_edge(pair[0], pair[1]).unwrap()]
-            {
+        for node in self.nodes.translate(&raw_path) {
+            if let Node::RideBus(stop1, stop2, route) = node {
                 return Some((stop1, stop2, route));
             }
         }
         None
     }
+}
+
+fn lane_to_node(l: LaneID, map: &Map) -> Node {
+    Node::Cross(map.get_l(l).get_directed_parent(map))
+}
+
+fn get_sidewalk(dr: DirectedRoadID, map: &Map) -> LaneID {
+    let r = map.get_r(dr.id);
+    let lanes = if dr.forwards {
+        &r.children_forwards
+    } else {
+        &r.children_backwards
+    };
+    for (id, lt) in lanes {
+        if *lt == LaneType::Sidewalk {
+            return *id;
+        }
+    }
+    panic!("{} has no sidewalk", dr);
 }

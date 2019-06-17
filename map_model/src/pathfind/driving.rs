@@ -1,5 +1,5 @@
 use crate::{DirectedRoadID, LaneID, LaneType, Map, Path, PathRequest, PathStep, Turn, TurnID};
-use abstutil::{deserialize_btreemap, serialize_btreemap};
+use abstutil::{deserialize_btreemap, serialize_btreemap, Timer};
 use geom::Distance;
 use petgraph::graph::NodeIndex;
 use petgraph::stable_graph::StableGraph;
@@ -162,6 +162,7 @@ impl VehiclePathfinder {
         delete_turns: &BTreeSet<TurnID>,
         add_turns: &BTreeSet<TurnID>,
         map: &Map,
+        _timer: &mut Timer,
     ) {
         // Most turns will be in both lists. That's fine -- we want to re-add the same turn and
         // check if the lane type is different.

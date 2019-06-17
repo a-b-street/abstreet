@@ -110,7 +110,7 @@ impl Map {
         }
 
         timer.start("setup Pathfinder");
-        m.pathfinder = Some(Pathfinder::new(&m));
+        m.pathfinder = Some(Pathfinder::new(&m, timer));
         timer.stop("setup Pathfinder");
 
         {
@@ -704,7 +704,7 @@ impl Map {
         }
 
         let mut pathfinder = self.pathfinder.take().unwrap();
-        pathfinder.apply_edits(&delete_turns, &add_turns, self);
+        pathfinder.apply_edits(&delete_turns, &add_turns, self, timer);
         self.pathfinder = Some(pathfinder);
 
         self.edits = new_edits;

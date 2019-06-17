@@ -1,10 +1,12 @@
 mod driving;
+mod node_map;
 mod slow;
 mod walking;
 
 use self::driving::{Outcome, VehiclePathfinder};
 use self::walking::SidewalkPathfinder;
 use crate::{BusRouteID, BusStopID, LaneID, LaneType, Map, Position, Traversable, TurnID};
+use abstutil::Timer;
 use geom::{Distance, PolyLine};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeSet, VecDeque};
@@ -323,13 +325,33 @@ pub struct Pathfinder {
 }
 
 impl Pathfinder {
-    pub fn new(map: &Map) -> Pathfinder {
+    pub fn new(map: &Map, timer: &mut Timer) -> Pathfinder {
+        timer.start("prepare pathfinding for cars");
+        let car_graph = VehiclePathfinder::new(map, vec![LaneType::Driving]);
+        timer.stop("prepare pathfinding for cars");
+
+        timer.start("prepare pathfinding for bikes");
+        let bike_graph = VehiclePathfinder::new(map, vec![LaneType::Driving, LaneType::Biking]);
+        timer.stop("prepare pathfinding for bikes");
+
+        timer.start("prepare pathfinding for buses");
+        let bus_graph = VehiclePathfinder::new(map, vec![LaneType::Driving, LaneType::Bus]);
+        timer.stop("prepare pathfinding for buses");
+
+        timer.start("prepare pathfinding for pedestrians");
+        let walking_graph = SidewalkPathfinder::new(map, false);
+        timer.stop("prepare pathfinding for pedestrians");
+
+        timer.start("prepare pathfinding for pedestrians using transit");
+        let walking_with_transit_graph = SidewalkPathfinder::new(map, true);
+        timer.stop("prepare pathfinding for pedestrians using transit");
+
         Pathfinder {
-            car_graph: VehiclePathfinder::new(map, vec![LaneType::Driving]),
-            bike_graph: VehiclePathfinder::new(map, vec![LaneType::Driving, LaneType::Biking]),
-            bus_graph: VehiclePathfinder::new(map, vec![LaneType::Driving, LaneType::Bus]),
-            walking_graph: SidewalkPathfinder::new(map, false),
-            walking_with_transit_graph: SidewalkPathfinder::new(map, true),
+            car_graph,
+            bike_graph,
+            bus_graph,
+            walking_graph,
+            walking_with_transit_graph,
         }
     }
 
@@ -378,9 +400,15 @@ impl Pathfinder {
         delete_turns: &BTreeSet<TurnID>,
         add_turns: &BTreeSet<TurnID>,
         map: &Map,
+        timer: &mut Timer,
     ) {
-        self.car_graph.apply_edits(delete_turns, add_turns, map);
-        self.bike_graph.apply_edits(delete_turns, add_turns, map);
-        self.bus_graph.apply_edits(delete_turns, add_turns, map);
+        self.car_graph
+            .apply_edits(delete_turns, add_turns, map, timer);
+        self.bike_graph
+            .apply_edits(delete_turns, add_turns, map, timer);
+        self.bus_graph
+            .apply_edits(delete_turns, add_turns, map, timer);
+        // TODO Can edits ever affect walking or walking+transit? If a crosswalk is entirely
+        // banned, then yes... but actually that sounds like a bad edit to allow.
     }
 }
