@@ -2,47 +2,38 @@ use crate::game::Mode;
 use crate::mission::{input_time, MissionEditMode};
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
-use abstutil::{Timer, WeightedUsizeChoice};
+use abstutil::WeightedUsizeChoice;
 use ezgui::{hotkey, EventCtx, GfxCtx, Key, LogScroller, ModalMenu, Wizard, WrappedWizard};
 use geom::Duration;
 use map_model::{IntersectionID, Map, Neighborhood};
 use sim::{BorderSpawnOverTime, OriginDestination, Scenario, SeedParkedCars, SpawnOverTime};
 
 pub enum ScenarioEditor {
-    PickScenario(Wizard),
     ManageScenario(ModalMenu, Scenario, LogScroller),
     EditScenario(Scenario, Wizard),
 }
 
 impl ScenarioEditor {
-    fn modal_menu(name: &str, ctx: &EventCtx) -> ModalMenu {
-        ModalMenu::new(
-            &format!("Scenario Editor for {}", name),
-            vec![
-                (hotkey(Key::Escape), "quit"),
-                (hotkey(Key::S), "save"),
-                (hotkey(Key::E), "edit"),
-                (hotkey(Key::I), "instantiate"),
-            ],
-            ctx,
+    pub fn new(scenario: Scenario, ctx: &mut EventCtx) -> ScenarioEditor {
+        let scroller = LogScroller::new(scenario.scenario_name.clone(), scenario.describe());
+        ScenarioEditor::ManageScenario(
+            ModalMenu::new(
+                &format!("Scenario Editor for {}", scenario.scenario_name),
+                vec![
+                    (hotkey(Key::Escape), "quit"),
+                    (hotkey(Key::S), "save"),
+                    (hotkey(Key::E), "edit"),
+                    (hotkey(Key::I), "instantiate"),
+                ],
+                ctx,
+            ),
+            scenario,
+            scroller,
         )
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Mode> {
         match self {
-            ScenarioEditor::PickScenario(ref mut wizard) => {
-                if let Some(scenario) = pick_scenario(&ui.primary.map, wizard.wrap(ctx)) {
-                    let scroller =
-                        LogScroller::new(scenario.scenario_name.clone(), scenario.describe());
-                    *self = ScenarioEditor::ManageScenario(
-                        ScenarioEditor::modal_menu(&scenario.scenario_name, ctx),
-                        scenario,
-                        scroller,
-                    );
-                } else if wizard.aborted() {
-                    return Some(Mode::Mission(MissionEditMode::new(ctx, ui)));
-                }
-            }
             ScenarioEditor::ManageScenario(ref mut menu, scenario, ref mut scroller) => {
                 menu.handle_event(ctx, None);
                 ctx.canvas.handle_event(ctx.input);
@@ -67,22 +58,10 @@ impl ScenarioEditor {
             }
             ScenarioEditor::EditScenario(ref mut scenario, ref mut wizard) => {
                 if let Some(()) = edit_scenario(&ui.primary.map, scenario, wizard.wrap(ctx)) {
-                    let scroller =
-                        LogScroller::new(scenario.scenario_name.clone(), scenario.describe());
                     // TODO autosave, or at least make it clear there are unsaved edits
-                    *self = ScenarioEditor::ManageScenario(
-                        ScenarioEditor::modal_menu(&scenario.scenario_name, ctx),
-                        scenario.clone(),
-                        scroller,
-                    );
+                    *self = ScenarioEditor::new(scenario.clone(), ctx);
                 } else if wizard.aborted() {
-                    let scroller =
-                        LogScroller::new(scenario.scenario_name.clone(), scenario.describe());
-                    *self = ScenarioEditor::ManageScenario(
-                        ScenarioEditor::modal_menu(&scenario.scenario_name, ctx),
-                        scenario.clone(),
-                        scroller,
-                    );
+                    *self = ScenarioEditor::new(scenario.clone(), ctx);
                 }
             }
         }
@@ -91,9 +70,6 @@ impl ScenarioEditor {
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         match self {
-            ScenarioEditor::PickScenario(wizard) => {
-                wizard.draw(g);
-            }
             ScenarioEditor::ManageScenario(ref menu, _, scroller) => {
                 scroller.draw(g);
                 menu.draw(g);
@@ -105,26 +81,6 @@ impl ScenarioEditor {
                 wizard.draw(g);
             }
         }
-    }
-}
-
-fn pick_scenario(map: &Map, mut wizard: WrappedWizard) -> Option<Scenario> {
-    let load_existing = "Load existing scenario";
-    let create_new = "Create new scenario";
-    if wizard.choose_string("What scenario to edit?", vec![load_existing, create_new])?
-        == load_existing
-    {
-        load_scenario(map, &mut wizard, "Load which scenario?")
-    } else {
-        let scenario_name = wizard.input_string("Name the scenario")?;
-        Some(Scenario {
-            scenario_name,
-            map_name: map.get_name().to_string(),
-            seed_parked_cars: Vec::new(),
-            spawn_over_time: Vec::new(),
-            border_spawn_over_time: Vec::new(),
-            individ_trips: Vec::new(),
-        })
     }
 }
 
@@ -222,22 +178,6 @@ fn choose_neighborhood(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Op
             Box::new(move || Neighborhood::load_all(&map_name, &gps_bounds)),
         )
         .map(|(n, _)| n)
-}
-
-fn load_scenario(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<Scenario> {
-    let map_name = map.get_name().to_string();
-    wizard
-        .choose_something_no_keys::<String>(
-            query,
-            Box::new(move || abstutil::list_all_objects("scenarios", &map_name)),
-        )
-        .map(|(_, s)| {
-            abstutil::read_binary(
-                &format!("../data/scenarios/{}/{}.bin", map.get_name(), s),
-                &mut Timer::throwaway(),
-            )
-            .unwrap()
-        })
 }
 
 fn input_weighted_usize(wizard: &mut WrappedWizard, query: &str) -> Option<WeightedUsizeChoice> {

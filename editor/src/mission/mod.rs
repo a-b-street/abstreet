@@ -11,8 +11,11 @@ use crate::render::DrawOptions;
 use crate::sandbox::SandboxMode;
 use crate::ui::ShowEverything;
 use crate::ui::UI;
+use abstutil::Timer;
 use ezgui::{hotkey, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Wizard, WrappedWizard};
 use geom::Duration;
+use map_model::Map;
+use sim::Scenario;
 
 pub struct MissionEditMode {
     state: State,
@@ -21,7 +24,9 @@ pub struct MissionEditMode {
 enum State {
     Exploring(ModalMenu),
     Neighborhood(neighborhood::NeighborhoodEditor),
-    Scenario(scenario::ScenarioEditor),
+    LoadScenario(Wizard),
+    CreateNewScenario(Wizard),
+    EditScenario(scenario::ScenarioEditor),
     DataViz(dataviz::DataVisualizer),
     IndividualTrips(individ_trips::TripsVisualizer),
     AllTrips(all_trips::TripsVisualizer),
@@ -44,7 +49,8 @@ impl MissionEditMode {
                     (hotkey(Key::S), "set up simulation with PSRC trips"),
                     (hotkey(Key::Q), "create scenario from PSRC trips"),
                     (hotkey(Key::N), "manage neighborhoods"),
-                    (hotkey(Key::W), "manage scenarios"),
+                    (hotkey(Key::W), "load scenario"),
+                    (None, "create new scenario"),
                 ],
                 ctx,
             )),
@@ -98,10 +104,10 @@ impl MissionEditMode {
                             mode.state = State::Neighborhood(
                                 neighborhood::NeighborhoodEditor::PickNeighborhood(Wizard::new()),
                             );
-                        } else if menu.action("manage scenarios") {
-                            mode.state = State::Scenario(scenario::ScenarioEditor::PickScenario(
-                                Wizard::new(),
-                            ));
+                        } else if menu.action("load scenario") {
+                            mode.state = State::LoadScenario(Wizard::new());
+                        } else if menu.action("create new scenario") {
+                            mode.state = State::CreateNewScenario(Wizard::new());
                         }
                     }
                     State::DataViz(ref mut viz) => {
@@ -134,7 +140,35 @@ impl MissionEditMode {
                             mode.state = MissionEditMode::new(ctx, &mut state.ui).state;
                         }
                     }
-                    State::Scenario(ref mut editor) => {
+                    State::LoadScenario(ref mut wizard) => {
+                        if let Some(scenario) =
+                            load_scenario(&state.ui.primary.map, &mut wizard.wrap(ctx))
+                        {
+                            mode.state =
+                                State::EditScenario(scenario::ScenarioEditor::new(scenario, ctx));
+                        } else if wizard.aborted() {
+                            mode.state = MissionEditMode::new(ctx, &mut state.ui).state;
+                        }
+                    }
+                    State::CreateNewScenario(ref mut wizard) => {
+                        let mut wrapped = wizard.wrap(ctx);
+                        if let Some(name) = wrapped.input_string("Name the scenario") {
+                            mode.state = State::EditScenario(scenario::ScenarioEditor::new(
+                                Scenario {
+                                    scenario_name: name,
+                                    map_name: state.ui.primary.map.get_name().to_string(),
+                                    seed_parked_cars: Vec::new(),
+                                    spawn_over_time: Vec::new(),
+                                    border_spawn_over_time: Vec::new(),
+                                    individ_trips: Vec::new(),
+                                },
+                                ctx,
+                            ));
+                        } else if wizard.aborted() {
+                            mode.state = MissionEditMode::new(ctx, &mut state.ui).state;
+                        }
+                    }
+                    State::EditScenario(ref mut editor) => {
                         if let Some(new_mode) = editor.event(ctx, &mut state.ui) {
                             state.mode = new_mode;
                         }
@@ -174,8 +208,11 @@ impl MissionEditMode {
                 State::Neighborhood(ref editor) => {
                     editor.draw(g, &state.ui);
                 }
-                State::Scenario(ref editor) => {
+                State::EditScenario(ref editor) => {
                     editor.draw(g, &state.ui);
+                }
+                State::LoadScenario(ref wizard) | State::CreateNewScenario(ref wizard) => {
+                    wizard.draw(g);
                 }
             },
             _ => unreachable!(),
@@ -185,4 +222,20 @@ impl MissionEditMode {
 
 pub fn input_time(wizard: &mut WrappedWizard, query: &str) -> Option<Duration> {
     wizard.input_something(query, None, Box::new(|line| Duration::parse(&line)))
+}
+
+fn load_scenario(map: &Map, wizard: &mut WrappedWizard) -> Option<Scenario> {
+    let map_name = map.get_name().to_string();
+    wizard
+        .choose_something_no_keys::<String>(
+            "Load which scenario?",
+            Box::new(move || abstutil::list_all_objects("scenarios", &map_name)),
+        )
+        .map(|(_, s)| {
+            abstutil::read_binary(
+                &format!("../data/scenarios/{}/{}.bin", map.get_name(), s),
+                &mut Timer::throwaway(),
+            )
+            .unwrap()
+        })
 }
