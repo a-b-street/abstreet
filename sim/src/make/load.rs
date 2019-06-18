@@ -69,6 +69,7 @@ impl SimFlags {
                 abstutil::read_binary(&format!("../data/maps/{}.bin", sim.map_name), timer)
                     .unwrap();
             map.apply_edits(MapEdits::load(map.get_name(), &sim.edits_name), timer);
+            map.recalculate_pathfinding_after_edits(timer);
 
             (map, sim, rng)
         } else if self.load.starts_with(Path::new("../data/scenarios/")) {

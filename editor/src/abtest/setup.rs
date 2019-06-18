@@ -111,6 +111,9 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> Mode {
                     ctx,
                     MapEdits::load(&test.map_name, &test.edits1_name),
                 );
+                ui.primary
+                    .map
+                    .recalculate_pathfinding_after_edits(&mut timer);
 
                 let scenario: Scenario = abstutil::read_binary(load.to_str().unwrap(), &mut timer)
                     .expect("loading scenario failed");
@@ -145,6 +148,9 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> Mode {
                     ctx,
                     MapEdits::load(&test.map_name, &test.edits2_name),
                 );
+                secondary
+                    .map
+                    .recalculate_pathfinding_after_edits(&mut timer);
                 secondary.sim.step(&secondary.map, Duration::seconds(0.1));
                 timer.stop("load secondary");
                 secondary

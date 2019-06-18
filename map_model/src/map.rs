@@ -43,6 +43,7 @@ pub struct Map {
     turn_lookup: Vec<TurnID>,
     // TODO Argh, hack, initialization order is hard!
     pathfinder: Option<Pathfinder>,
+    pathfinder_dirty: bool,
 
     name: String,
     edits: MapEdits,
@@ -85,6 +86,7 @@ impl Map {
             bounds,
             turn_lookup: half_map.turn_lookup,
             pathfinder: None,
+            pathfinder_dirty: false,
             name: name.clone(),
             edits: MapEdits::new(name),
         };
@@ -386,6 +388,7 @@ impl Map {
 
     pub fn save(&self) {
         assert_eq!(self.edits.edits_name, "no_edits");
+        assert!(!self.pathfinder_dirty);
         let path = format!("../data/maps/{}.bin", self.name);
         println!("Saving {}...", path);
         abstutil::write_binary(&path, self).expect(&format!("Saving {} failed", path));
@@ -526,6 +529,7 @@ impl Map {
     }
 
     pub fn pathfind(&self, req: PathRequest) -> Option<Path> {
+        assert!(!self.pathfinder_dirty);
         self.pathfinder.as_ref().unwrap().pathfind(req, self)
     }
 
@@ -546,7 +550,7 @@ impl Map {
         &self.edits
     }
 
-    // new_edits assumed to be valid. Returns actual lanes that changed, turns deleted, turns added.
+    // new_edits assumed to be valid. Returns actual lanes that changed, turns deleted, turns added. Doesn't update pathfinding yet.
     pub fn apply_edits(
         &mut self,
         new_edits: MapEdits,
@@ -697,13 +701,19 @@ impl Map {
             }
         }
 
-        // Do this last, so all the changes are visible in the map.
+        self.edits = new_edits;
+        self.pathfinder_dirty = true;
+        (changed_lanes, delete_turns, add_turns)
+    }
+
+    pub fn recalculate_pathfinding_after_edits(&mut self, timer: &mut Timer) {
+        if !self.pathfinder_dirty {
+            return;
+        }
         let mut pathfinder = self.pathfinder.take().unwrap();
         pathfinder.apply_edits(self, timer);
         self.pathfinder = Some(pathfinder);
-
-        self.edits = new_edits;
-        (changed_lanes, delete_turns, add_turns)
+        self.pathfinder_dirty = false;
     }
 
     pub fn simplify_edits(&mut self, timer: &mut Timer) {

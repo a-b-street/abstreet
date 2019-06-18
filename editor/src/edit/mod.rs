@@ -97,14 +97,36 @@ impl EditMode {
 
                 if menu.action("quit") {
                     // TODO Warn about unsaved edits
+                    // TODO Maybe put a loading screen around these.
+                    state
+                        .ui
+                        .primary
+                        .map
+                        .recalculate_pathfinding_after_edits(&mut Timer::new(
+                            "apply pending map edits",
+                        ));
                     state.mode = Mode::SplashScreen(Wizard::new(), None);
                     return EventLoopMode::InputOnly;
                 }
                 if menu.action("sandbox mode") {
+                    state
+                        .ui
+                        .primary
+                        .map
+                        .recalculate_pathfinding_after_edits(&mut Timer::new(
+                            "apply pending map edits",
+                        ));
                     state.mode = Mode::Sandbox(SandboxMode::new(ctx));
                     return EventLoopMode::InputOnly;
                 }
                 if menu.action("debug mode") {
+                    state
+                        .ui
+                        .primary
+                        .map
+                        .recalculate_pathfinding_after_edits(&mut Timer::new(
+                            "apply pending map edits",
+                        ));
                     state.mode = Mode::Debug(DebugMode::new(ctx, &state.ui));
                     return EventLoopMode::InputOnly;
                 }
