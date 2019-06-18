@@ -356,16 +356,6 @@ impl Pathfinder {
     }
 
     pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<Path> {
-        // Weird case, but it can happen for walking from a building path to a bus stop that're
-        // actually at the same spot.
-        if req.start == req.end {
-            return Some(Path::new(
-                map,
-                vec![PathStep::Lane(req.start.lane())],
-                req.start.dist_along(),
-            ));
-        }
-
         if map.get_l(req.start.lane()).is_sidewalk() {
             self.walking_graph.pathfind(&req, map)
         } else if req.can_use_bus_lanes {

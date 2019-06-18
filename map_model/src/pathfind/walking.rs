@@ -4,9 +4,11 @@ use crate::{
     PathRequest, PathStep, Position,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
-use fast_paths::{FastGraph, InputGraph};
+use fast_paths::{FastGraph, InputGraph, PathCalculator};
 use serde_derive::{Deserialize, Serialize};
+use std::cell::RefCell;
 use std::collections::BTreeMap;
+use thread_local::ThreadLocal;
 
 #[derive(Serialize, Deserialize)]
 pub struct SidewalkPathfinder {
@@ -18,6 +20,9 @@ pub struct SidewalkPathfinder {
         deserialize_with = "deserialize_btreemap"
     )]
     connections: BTreeMap<(BusStopID, BusStopID), BusRouteID>,
+
+    #[serde(skip_serializing, skip_deserializing)]
+    path_calc: ThreadLocal<RefCell<PathCalculator>>,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -86,14 +91,22 @@ impl SidewalkPathfinder {
             graph,
             nodes,
             connections,
+            path_calc: ThreadLocal::new(),
         }
     }
 
     pub fn pathfind(&self, req: &PathRequest, map: &Map) -> Option<Path> {
         // Special-case one-step paths.
         if req.start.lane() == req.end.lane() {
-            assert!(req.start.dist_along() != req.end.dist_along());
-            if req.start.dist_along() < req.end.dist_along() {
+            // Weird case, but it can happen for walking from a building path to a bus stop that're
+            // actually at the same spot.
+            if req.start.dist_along() == req.end.dist_along() {
+                return Some(Path::new(
+                    map,
+                    vec![PathStep::Lane(req.start.lane())],
+                    req.start.dist_along(),
+                ));
+            } else if req.start.dist_along() < req.end.dist_along() {
                 return Some(Path::new(
                     map,
                     vec![PathStep::Lane(req.start.lane())],
@@ -108,7 +121,11 @@ impl SidewalkPathfinder {
             }
         }
 
-        let raw_path = fast_paths::calc_path(
+        let mut calc = self
+            .path_calc
+            .get_or(|| Box::new(RefCell::new(fast_paths::create_calculator(&self.graph))))
+            .borrow_mut();
+        let raw_path = calc.calc_path(
             &self.graph,
             self.nodes.get(lane_to_node(req.start.lane(), map)),
             self.nodes.get(lane_to_node(req.end.lane(), map)),

@@ -1,7 +1,9 @@
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
 use crate::{LaneID, LaneType, Map, Path, PathRequest, PathStep, TurnID};
-use fast_paths::{FastGraph, InputGraph};
+use fast_paths::{FastGraph, InputGraph, PathCalculator};
 use serde_derive::{Deserialize, Serialize};
+use std::cell::RefCell;
+use thread_local::ThreadLocal;
 
 #[derive(Serialize, Deserialize)]
 pub struct VehiclePathfinder {
@@ -9,6 +11,9 @@ pub struct VehiclePathfinder {
     #[serde(deserialize_with = "deserialize_nodemap")]
     nodes: NodeMap<LaneID>,
     lane_types: Vec<LaneType>,
+
+    #[serde(skip_serializing, skip_deserializing)]
+    path_calc: ThreadLocal<RefCell<PathCalculator>>,
 }
 
 impl VehiclePathfinder {
@@ -38,12 +43,17 @@ impl VehiclePathfinder {
             graph,
             nodes,
             lane_types,
+            path_calc: ThreadLocal::new(),
         }
     }
 
     pub fn pathfind(&self, req: &PathRequest, map: &Map) -> Option<Path> {
         assert!(!map.get_l(req.start.lane()).is_sidewalk());
-        let raw_path = fast_paths::calc_path(
+        let mut calc = self
+            .path_calc
+            .get_or(|| Box::new(RefCell::new(fast_paths::create_calculator(&self.graph))))
+            .borrow_mut();
+        let raw_path = calc.calc_path(
             &self.graph,
             self.nodes.get(req.start.lane()),
             self.nodes.get(req.end.lane()),

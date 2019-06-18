@@ -17,3 +17,4 @@ petgraph = { version = "0.4.13", features = ["serde-1"] }
 pretty_assertions = "0.6.1"
 serde = "1.0.89"
 serde_derive = "1.0.89"
+thread_local = "0.3.6"
