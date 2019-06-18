@@ -93,8 +93,10 @@ pub struct Path {
 impl Path {
     // TODO pub for DrawCarInput... bleh.
     pub fn new(map: &Map, steps: Vec<PathStep>, end_dist: Distance) -> Path {
-        // Can disable this after trusting it.
-        validate(map, &steps);
+        // Haven't seen problems here in a very long time. Noticeably saves some time to skip.
+        if false {
+            validate(map, &steps);
+        }
         Path {
             steps: VecDeque::from(steps),
             end_dist,
