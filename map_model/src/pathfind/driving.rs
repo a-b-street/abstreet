@@ -17,27 +17,28 @@ pub struct VehiclePathfinder {
 }
 
 impl VehiclePathfinder {
-    pub fn new(map: &Map, lane_types: Vec<LaneType>) -> VehiclePathfinder {
-        let mut input_graph = InputGraph::new();
+    pub fn new(
+        map: &Map,
+        lane_types: Vec<LaneType>,
+        seed: Option<&VehiclePathfinder>,
+    ) -> VehiclePathfinder {
+        // Insert every lane as a node. Even if the lane type is wrong now, it might change later,
+        // and we want the node in the graph. Do this first, so the IDs of all the nodes doesn't
+        // depend on lane types and turns and such.
         let mut nodes = NodeMap::new();
-
         for l in map.all_lanes() {
-            // Insert every lane as a node. Even if the lane type is wrong now, it might change
-            // later, and we want the node in the graph.
-            let from = nodes.get_or_insert(l.id);
-
-            for (turn, next) in map.get_next_turns_and_lanes(l.id, l.dst_i).into_iter() {
-                if !map.is_turn_allowed(turn.id) || !lane_types.contains(&next.lane_type) {
-                    continue;
-                }
-                // TODO Speed limit or some other cost
-                let length = l.length() + turn.geom.length();
-                let length_cm = (length.inner_meters() * 100.0).round() as usize;
-                input_graph.add_edge(from, nodes.get_or_insert(next.id), length_cm);
-            }
+            nodes.get_or_insert(l.id);
         }
-        input_graph.freeze();
-        let graph = fast_paths::prepare(&input_graph);
+        let input_graph = make_input_graph(map, &nodes, &lane_types);
+
+        // All VehiclePathfinders have the same nodes (lanes), so if we're not the first being
+        // built, seed from the node ordering.
+        let graph = if let Some(seed) = seed {
+            let node_ordering = seed.graph.get_node_ordering();
+            fast_paths::prepare_with_order(&input_graph, &node_ordering).unwrap()
+        } else {
+            fast_paths::prepare(&input_graph)
+        };
 
         VehiclePathfinder {
             graph,
@@ -77,21 +78,37 @@ impl VehiclePathfinder {
         // ordering.
         // TODO Make sure the result of this is deterministic and equivalent to computing from
         // scratch.
-        let mut input_graph = InputGraph::new();
-
-        for l in map.all_lanes() {
-            for (turn, next) in map.get_next_turns_and_lanes(l.id, l.dst_i).into_iter() {
-                if !map.is_turn_allowed(turn.id) || !self.lane_types.contains(&next.lane_type) {
-                    continue;
-                }
-                // TODO Speed limit or some other cost
-                let length = l.length() + turn.geom.length();
-                let length_cm = (length.inner_meters() * 100.0).round() as usize;
-                input_graph.add_edge(self.nodes.get(l.id), self.nodes.get(next.id), length_cm);
-            }
-        }
-        input_graph.freeze();
+        let input_graph = make_input_graph(map, &self.nodes, &self.lane_types);
         let node_ordering = self.graph.get_node_ordering();
         self.graph = fast_paths::prepare_with_order(&input_graph, &node_ordering).unwrap();
     }
+}
+
+fn make_input_graph(map: &Map, nodes: &NodeMap<LaneID>, lane_types: &Vec<LaneType>) -> InputGraph {
+    let mut input_graph = InputGraph::new();
+    let num_lanes = map.all_lanes().len();
+    for l in map.all_lanes() {
+        let from = nodes.get(l.id);
+        let mut any = false;
+        for (turn, next) in map.get_next_turns_and_lanes(l.id, l.dst_i).into_iter() {
+            if !map.is_turn_allowed(turn.id) || !lane_types.contains(&next.lane_type) {
+                continue;
+            }
+            any = true;
+            // TODO Speed limit or some other cost
+            let length = l.length() + turn.geom.length();
+            let length_cm = (length.inner_meters() * 100.0).round() as usize;
+            input_graph.add_edge(from, nodes.get(next.id), length_cm);
+        }
+        // The nodes in the graph MUST exactly be all of the lanes, so we can reuse node
+        // ordering later. If the last lane doesn't have any edges, then this won't work. So
+        // pretend like it points to some arbitrary other node. Since no paths will start from
+        // this unused node, this won't affect results.
+        // TODO Upstream a method in InputGraph to do this more clearly.
+        if !any && l.id.0 == num_lanes - 1 {
+            input_graph.add_edge(from, nodes.get(LaneID(0)), 1);
+        }
+    }
+    input_graph.freeze();
+    input_graph
 }

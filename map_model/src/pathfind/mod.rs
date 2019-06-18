@@ -329,15 +329,23 @@ pub struct Pathfinder {
 impl Pathfinder {
     pub fn new_without_transit(map: &Map, timer: &mut Timer) -> Pathfinder {
         timer.start("prepare pathfinding for cars");
-        let car_graph = VehiclePathfinder::new(map, vec![LaneType::Driving]);
+        let car_graph = VehiclePathfinder::new(map, vec![LaneType::Driving], None);
         timer.stop("prepare pathfinding for cars");
 
         timer.start("prepare pathfinding for bikes");
-        let bike_graph = VehiclePathfinder::new(map, vec![LaneType::Driving, LaneType::Biking]);
+        let bike_graph = VehiclePathfinder::new(
+            map,
+            vec![LaneType::Driving, LaneType::Biking],
+            Some(&car_graph),
+        );
         timer.stop("prepare pathfinding for bikes");
 
         timer.start("prepare pathfinding for buses");
-        let bus_graph = VehiclePathfinder::new(map, vec![LaneType::Driving, LaneType::Bus]);
+        let bus_graph = VehiclePathfinder::new(
+            map,
+            vec![LaneType::Driving, LaneType::Bus],
+            Some(&car_graph),
+        );
         timer.stop("prepare pathfinding for buses");
 
         timer.start("prepare pathfinding for pedestrians");
