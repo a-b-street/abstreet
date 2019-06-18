@@ -13,7 +13,6 @@ use std::io::{BufRead, BufReader};
 use structopt::StructOpt;
 
 const MAX_DIST_BTWN_INTERSECTION_AND_SIGNAL: Distance = Distance::const_meters(50.0);
-const MAX_DIST_BTWN_BLDG_PERMIT_AND_BLDG: Distance = Distance::const_meters(10.0);
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "convert_osm")]
@@ -25,10 +24,6 @@ pub struct Flags {
     /// KML with traffic signals. Optional.
     #[structopt(long = "traffic_signals", default_value = "")]
     pub traffic_signals: String,
-
-    /// KML with residential building permits. Optional.
-    #[structopt(long = "residential_buildings", default_value = "")]
-    pub residential_buildings: String,
 
     /// ExtraShapes file with blockface, produced using the kml crate. Optional.
     #[structopt(long = "parking_shapes", default_value = "")]
@@ -67,9 +62,6 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
     // Do this after removing stuff.
     map.compute_gps_bounds();
 
-    if !flags.residential_buildings.is_empty() {
-        handle_residences(&mut map, &flags.residential_buildings, timer);
-    }
     if !flags.parking_shapes.is_empty() {
         use_parking_hints(&mut map, &flags.parking_shapes, timer);
     }
@@ -173,49 +165,6 @@ fn handle_traffic_signals(map: &mut raw_data::Map, path: &str, timer: &mut Timer
         }
     }
     timer.stop("handle traffic signals");
-}
-
-fn handle_residences(map: &mut raw_data::Map, path: &str, timer: &mut Timer) {
-    timer.start("match residential permits with buildings");
-
-    let mut closest: FindClosest<usize> = FindClosest::new(&map.gps_bounds.to_bounds());
-    for (idx, b) in map.buildings.iter().enumerate() {
-        // TODO Ew, have to massage into Pt2D.
-        closest.add_gps(idx, &b.points, &map.gps_bounds);
-    }
-
-    let shapes = kml::load(path, &map.gps_bounds, timer)
-        .expect("loading residential buildings failed")
-        .shapes;
-    timer.start_iter("handle residential permits", shapes.len());
-    for shape in shapes.into_iter() {
-        timer.next();
-        if shape.points.len() > 1 {
-            panic!(
-                "Residential building permit has multiple points: {:?}",
-                shape
-            );
-        }
-        let pt = shape.points[0];
-        if !map.gps_bounds.contains(pt) {
-            continue;
-        }
-        if let Some(num) = shape
-            .attributes
-            .get("net_units")
-            .and_then(|n| usize::from_str_radix(n, 10).ok())
-        {
-            if let Some((idx, _)) = closest.closest_pt(
-                Pt2D::from_gps(pt, &map.gps_bounds).unwrap(),
-                MAX_DIST_BTWN_BLDG_PERMIT_AND_BLDG,
-            ) {
-                // Just blindly override with the latest point. The dataset says multiple permits
-                // per building might exist.
-                map.buildings[idx].num_residential_units = Some(num);
-            }
-        }
-    }
-    timer.stop("match residential permits with buildings");
 }
 
 fn read_osmosis_polygon(path: &str) -> Vec<LonLat> {

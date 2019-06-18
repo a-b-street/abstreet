@@ -1,8 +1,8 @@
 use crate::make::sidewalk_finder::find_sidewalk_points;
-use crate::{raw_data, Building, BuildingID, BuildingType, FrontPath, Lane};
+use crate::{raw_data, Building, BuildingID, FrontPath, Lane};
 use abstutil::Timer;
 use geom::{Bounds, Distance, GPSBounds, HashablePt2D, Line, Polygon, Pt2D};
-use std::collections::{BTreeMap, HashSet};
+use std::collections::HashSet;
 
 pub fn make_all_buildings(
     results: &mut Vec<Building>,
@@ -46,7 +46,6 @@ pub fn make_all_buildings(
             let id = BuildingID(results.len());
             results.push(Building {
                 id,
-                building_type: classify(input[idx].num_residential_units, &input[idx].osm_tags),
                 polygon: Polygon::new(&points),
                 osm_tags: input[idx].osm_tags.clone(),
                 osm_way_id: input[idx].osm_way_id,
@@ -55,7 +54,6 @@ pub fn make_all_buildings(
                     sidewalk: *sidewalk_pos,
                     line,
                 },
-                num_residential_units: input[idx].num_residential_units,
             });
         }
     }
@@ -82,31 +80,4 @@ fn trim_front_path(bldg_points: &Vec<Pt2D>, path: Line) -> Line {
     }
     // Just give up
     path
-}
-
-fn classify(num_residential_units: Option<usize>, tags: &BTreeMap<String, String>) -> BuildingType {
-    if num_residential_units.is_some() {
-        return BuildingType::Residence;
-    }
-    if tags.get("building") == Some(&"apartments".to_string()) {
-        return BuildingType::Residence;
-    }
-    if tags.get("building") == Some(&"residential".to_string()) {
-        return BuildingType::Residence;
-    }
-    if tags.get("building") == Some(&"house".to_string()) {
-        return BuildingType::Residence;
-    }
-
-    if tags.contains_key(&"shop".to_string()) || tags.contains_key(&"amenity".to_string()) {
-        return BuildingType::Business;
-    }
-    if tags.get("building") == Some(&"commercial".to_string()) {
-        return BuildingType::Business;
-    }
-    if tags.get("building") == Some(&"retail".to_string()) {
-        return BuildingType::Business;
-    }
-
-    BuildingType::Unknown
 }

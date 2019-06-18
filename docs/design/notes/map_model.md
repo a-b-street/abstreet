@@ -93,8 +93,6 @@ is the source of truth.
   - Neighborhood boundaries
 - http://data-seattlecitygis.opendata.arcgis.com/datasets/blockface
   - Blockfaces, used to determine where on-street parking lanes are
-- https://data-seattlecitygis.opendata.arcgis.com/datasets/residential-building-permits-issued-and-final
-  - Number of units per residential building
 
 ## Conversion process
 
