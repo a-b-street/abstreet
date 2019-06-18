@@ -52,16 +52,18 @@ impl Building {
     }
 
     pub fn get_name(&self) -> String {
-        self.osm_tags
-            .get("name")
-            .map(|s| s.to_string())
-            .or_else(|| {
-                self.osm_tags.get("addr:housenumber").and_then(|num| {
-                    self.osm_tags
-                        .get("addr:street")
-                        .map(|street| format!("{} {}", num, street))
-                })
-            })
-            .unwrap_or_else(|| "???".to_string())
+        let address = match (
+            self.osm_tags.get("addr:housenumber"),
+            self.osm_tags.get("addr:street"),
+        ) {
+            (Some(num), Some(st)) => format!("{} {}", num, st),
+            (None, Some(st)) => format!("??? {}", st),
+            _ => "???".to_string(),
+        };
+        if let Some(name) = self.osm_tags.get("name") {
+            format!("{} (at {})", name, address)
+        } else {
+            address
+        }
     }
 }

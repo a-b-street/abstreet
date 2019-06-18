@@ -38,11 +38,8 @@ impl DrawIntersection {
                 IntersectionType::Border => {
                     cs.get_def("border intersection", Color::rgb(50, 205, 50))
                 }
-                IntersectionType::StopSign => {
-                    cs.get_def("stop sign intersection", Color::grey(0.6))
-                }
-                IntersectionType::TrafficSignal => {
-                    cs.get_def("traffic signal intersection", Color::grey(0.4))
+                IntersectionType::StopSign | IntersectionType::TrafficSignal => {
+                    cs.get_def("normal intersection", Color::grey(0.6))
                 }
             },
             i.polygon.clone(),

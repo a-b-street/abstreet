@@ -2,7 +2,7 @@ use crate::helpers::{ColorScheme, ID};
 use crate::render::{DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, GeomBatch, GfxCtx};
 use geom::{Distance, Line, PolyLine, Polygon, Pt2D};
-use map_model::{Building, BuildingID, BuildingType, Map, LANE_THICKNESS};
+use map_model::{Building, BuildingID, Map, LANE_THICKNESS};
 
 pub struct DrawBuilding {
     pub id: BuildingID,
@@ -24,15 +24,7 @@ impl DrawBuilding {
         let front_path = front_path_line.make_polygons(Distance::meters(1.0));
 
         batch.push(
-            match bldg.building_type {
-                BuildingType::Residence => {
-                    cs.get_def("residential building", Color::rgb(218, 165, 32))
-                }
-                BuildingType::Business => cs.get_def("business building", Color::rgb(210, 105, 30)),
-                BuildingType::Unknown => {
-                    cs.get_def("unknown building", Color::rgb_f(0.7, 0.7, 0.7))
-                }
-            },
+            cs.get_def("building", Color::grey(0.5)),
             bldg.polygon.clone(),
         );
         batch.push(cs.get_def("building path", Color::grey(0.6)), front_path);
