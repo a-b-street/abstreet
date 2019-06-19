@@ -1,3 +1,4 @@
+mod score;
 mod setup;
 
 use crate::common::{CommonState, SpeedControls};
@@ -26,6 +27,7 @@ pub struct ABTestMode {
 pub enum State {
     Setup(setup::ABTestSetup),
     Playing,
+    Scoreboard(score::Scoreboard),
 }
 
 impl ABTestMode {
@@ -45,6 +47,7 @@ impl ABTestMode {
                         (hotkey(Key::S), "swap"),
                         (hotkey(Key::D), "diff all trips"),
                         (hotkey(Key::B), "stop diffing trips"),
+                        (hotkey(Key::Q), "scoreboard"),
                     ],
                     CommonState::modal_menu_entries(),
                 ]
@@ -66,6 +69,13 @@ impl ABTestMode {
                 match mode.state {
                     State::Setup(_) => {
                         setup::ABTestSetup::event(state, ctx);
+                        EventLoopMode::InputOnly
+                    }
+                    State::Scoreboard(ref mut s) => {
+                        if s.event(ctx, &state.ui.primary, mode.secondary.as_ref().unwrap()) {
+                            mode.state = State::Playing;
+                            mode.speed.pause();
+                        }
                         EventLoopMode::InputOnly
                     }
                     State::Playing => {
@@ -113,6 +123,15 @@ impl ABTestMode {
                             let primary = std::mem::replace(&mut state.ui.primary, secondary);
                             mode.secondary = Some(primary);
                             mode.recalculate_stuff(&mut state.ui, ctx);
+                        }
+
+                        if mode.menu.action("scoreboard") {
+                            mode.state = State::Scoreboard(score::Scoreboard::new(
+                                ctx,
+                                &state.ui.primary,
+                                mode.secondary.as_ref().unwrap(),
+                            ));
+                            return EventLoopMode::InputOnly;
                         }
 
                         if mode.diff_trip.is_some() {
@@ -214,7 +233,16 @@ impl ABTestMode {
                     );
                     setup.draw(g);
                 }
-                _ => {
+                State::Scoreboard(ref s) => {
+                    state.ui.draw(
+                        g,
+                        DrawOptions::new(),
+                        &state.ui.primary.sim,
+                        &ShowEverything::new(),
+                    );
+                    s.draw(g);
+                }
+                State::Playing => {
                     state.ui.draw(
                         g,
                         mode.common.draw_options(&state.ui),
