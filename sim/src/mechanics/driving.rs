@@ -738,8 +738,8 @@ impl DrivingSimState {
         car.vehicle.owner
     }
 
-    // This ignores capacity, pedestrians, and traffic signal overtime. So it should yield false
-    // positives (thinks there's gridlock, when there isn't) but never false negatives.
+    // This ignores capacity and pedestrians. So it should yield false positives (thinks there's
+    // gridlock, when there isn't) but never false negatives.
     pub fn detect_gridlock(&self, map: &Map) -> bool {
         #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
         enum Node {

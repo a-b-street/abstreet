@@ -67,8 +67,8 @@ impl IntersectionSimState {
         assert!(state.accepted.remove(&Request { agent, turn }));
 
         // TODO Could be smarter here. For both policies, only wake up agents that would then be
-        // accepted. For now, wake up everyone -- for traffic signals, maybe we were in overtime,
-        // or maybe a Yield and Priority finished and could let another one in.
+        // accepted. For now, wake up everyone -- for traffic signals, maybe a Yield and Priority
+        // finished and could let another one in.
 
         for req in state.waiting.keys() {
             // TODO Use update because multiple agents could finish a turn at the same time, before
@@ -155,18 +155,6 @@ impl IntersectionSimState {
             .map(|req| req.agent)
             .collect()
     }
-
-    pub fn is_in_overtime(&self, time: Duration, id: IntersectionID, map: &Map) -> bool {
-        if let Some(ref signal) = map.maybe_get_traffic_signal(id) {
-            let (cycle, _) = signal.current_cycle_and_remaining_time(time);
-            self.state[&id]
-                .accepted
-                .iter()
-                .any(|req| cycle.get_priority(req.turn) == TurnPriority::Banned)
-        } else {
-            false
-        }
-    }
 }
 
 impl State {
@@ -237,17 +225,6 @@ impl State {
     ) -> bool {
         let (cycle, _remaining_cycle_time) = signal.current_cycle_and_remaining_time(time);
 
-        // For now, just maintain safety when agents over-run.
-        for req in &self.accepted {
-            if cycle.get_priority(req.turn) == TurnPriority::Banned {
-                /*println!(
-                    "{:?} is still doing {} after the cycle is over",
-                    req.agent, req.turn
-                );*/
-                return false;
-            }
-        }
-
         // Can't go at all this cycle.
         if cycle.get_priority(new_req.turn) == TurnPriority::Banned {
             return false;
@@ -272,8 +249,7 @@ impl State {
         // higher-priority vehicle wants to begin.
 
         // TODO Don't accept the agent if they won't finish the turn in time. If the turn and
-        // target lane were clear, we could calculate the time, but it gets hard. For now, allow
-        // overtime. This is trivial for peds.
+        // target lane were clear, we could calculate the time.
 
         true
     }

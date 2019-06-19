@@ -11,7 +11,7 @@ fi
 rm -rfv $OUT
 mkdir $OUT
 
-cp color_scheme docs/INSTRUCTIONS.md release/play_abstreet.sh $OUT
+cp color_scheme.json docs/INSTRUCTIONS.md release/play_abstreet.sh $OUT
 
 mkdir -p $OUT/data/maps
 for map in 23rd ballard caphill downtown montlake; do
@@ -19,7 +19,7 @@ for map in 23rd ballard caphill downtown montlake; do
 done
 
 mkdir -p $OUT/data/shapes
-cp -v data/shapes/popdat $OUT/data/shapes
+cp -v data/shapes/popdat.bin $OUT/data/shapes
 
 mkdir $OUT/editor
 cargo build --release --bin editor

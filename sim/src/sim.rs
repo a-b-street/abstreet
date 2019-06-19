@@ -56,7 +56,10 @@ pub struct Sim {
 impl Sim {
     pub fn new(map: &Map, run_name: String, savestate_every: Option<Duration>) -> Sim {
         let mut scheduler = Scheduler::new();
-        scheduler.push(CHECK_FOR_GRIDLOCK_FREQUENCY, Command::CheckForGridlock);
+        // TODO Gridlock detection doesn't add value right now.
+        if false {
+            scheduler.push(CHECK_FOR_GRIDLOCK_FREQUENCY, Command::CheckForGridlock);
+        }
         if let Some(d) = savestate_every {
             scheduler.push(d, Command::Savestate(d));
         }
@@ -779,9 +782,5 @@ impl Sim {
 
     pub fn get_accepted_agents(&self, id: IntersectionID) -> HashSet<AgentID> {
         self.intersections.get_accepted_agents(id)
-    }
-
-    pub fn is_in_overtime(&self, id: IntersectionID, map: &Map) -> bool {
-        self.intersections.is_in_overtime(self.time, id, map)
     }
 }

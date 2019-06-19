@@ -140,20 +140,18 @@ impl Renderable for DrawIntersection {
                 && opts.suppress_traffic_signal_details != Some(self.id)
             {
                 let signal = ctx.map.get_traffic_signal(self.id);
-                if !ctx.sim.is_in_overtime(self.id, ctx.map) {
-                    let mut maybe_redraw = self.draw_traffic_signal.borrow_mut();
-                    let recalc = maybe_redraw
-                        .as_ref()
-                        .map(|(_, t)| *t != ctx.sim.time())
-                        .unwrap_or(true);
-                    if recalc {
-                        let (cycle, t) = signal.current_cycle_and_remaining_time(ctx.sim.time());
-                        let mut batch = GeomBatch::new();
-                        draw_signal_cycle(cycle, Some(t), &mut batch, ctx);
-                        *maybe_redraw = Some((g.prerender.upload(batch), ctx.sim.time()));
-                    }
-                    g.redraw(&maybe_redraw.as_ref().unwrap().0);
+                let mut maybe_redraw = self.draw_traffic_signal.borrow_mut();
+                let recalc = maybe_redraw
+                    .as_ref()
+                    .map(|(_, t)| *t != ctx.sim.time())
+                    .unwrap_or(true);
+                if recalc {
+                    let (cycle, t) = signal.current_cycle_and_remaining_time(ctx.sim.time());
+                    let mut batch = GeomBatch::new();
+                    draw_signal_cycle(cycle, Some(t), &mut batch, ctx);
+                    *maybe_redraw = Some((g.prerender.upload(batch), ctx.sim.time()));
                 }
+                g.redraw(&maybe_redraw.as_ref().unwrap().0);
             }
         }
     }
@@ -397,22 +395,12 @@ pub fn draw_signal_diagram(
     let mut labels = Vec::new();
     for (idx, cycle) in cycles.iter().enumerate() {
         if idx == current_cycle && time_left.is_some() {
-            // TODO Hacky way of indicating overtime
-            if time_left.unwrap() < Duration::ZERO {
-                let mut txt = Text::from_line(format!("Cycle {}: ", idx + 1));
-                txt.append(
-                    "OVERTIME".to_string(),
-                    Some(ctx.cs.get_def("signal overtime", Color::RED)),
-                );
-                labels.push(txt);
-            } else {
-                labels.push(Text::from_line(format!(
-                    "Cycle {}: {:.01}s / {}",
-                    idx + 1,
-                    (cycle.duration - time_left.unwrap()).inner_seconds(),
-                    cycle.duration
-                )));
-            }
+            labels.push(Text::from_line(format!(
+                "Cycle {}: {:.01}s / {}",
+                idx + 1,
+                (cycle.duration - time_left.unwrap()).inner_seconds(),
+                cycle.duration
+            )));
         } else {
             labels.push(Text::from_line(format!(
                 "Cycle {}: {}",

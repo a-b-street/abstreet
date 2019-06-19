@@ -2,7 +2,6 @@ use crate::helpers::ID;
 use crate::render::{draw_signal_diagram, DrawCtx, DrawTurn};
 use crate::ui::UI;
 use ezgui::{Color, EventCtx, GfxCtx, Key};
-use geom::Duration;
 use map_model::{IntersectionID, LaneID, Map, TurnType};
 
 pub struct TurnCyclerState {
@@ -89,12 +88,8 @@ impl TurnCyclerState {
             State::ShowIntersection(i) => {
                 if self.shift_key_held {
                     if let Some(signal) = ui.primary.map.maybe_get_traffic_signal(i) {
-                        let (cycle, mut time_left) =
+                        let (cycle, time_left) =
                             signal.current_cycle_and_remaining_time(ui.primary.sim.time());
-                        if ui.primary.sim.is_in_overtime(i, &ui.primary.map) {
-                            // TODO Hacky way of indicating overtime. Should make a 3-case enum.
-                            time_left = Duration::seconds(-1.0);
-                        }
                         let ctx = DrawCtx {
                             cs: &ui.cs,
                             map: &ui.primary.map,

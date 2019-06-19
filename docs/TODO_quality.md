@@ -115,8 +115,6 @@
 		- validation (just do it in spawn and return an error?)
 		- getting the path
 		- converting goal into router and such
-	- is overtime necessary?
-	- all the scoring/query stuff is so terrible
 
 - perf
 	- speed up Scheduler
