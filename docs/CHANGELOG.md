@@ -60,3 +60,13 @@ changes here.
 - improve edit mode: detect reverts to original, easier lane type switching
 - lots of fixes for buses: handle edits better, read sequence of stops correctly from GTFS
 - set up A/B tests faster
+
+0.1.7
+
+- bulk and revert tools in edit mode
+- improve turns and default intersection policies when bike/bus lanes involved
+- new tool to manually hint for short roads and weird intersections. some problems have now been manually fixed
+- scoreboard of trip results for sandbox and A/B test mode
+- reduce lag when sim is running at full speeds, but system is too slow
+- switch to easbar's contraction hierarchy crate, making all pathfinding INSANELY fast
+- remove weird rules about the world freezing when traffic signals are in "overtime"
