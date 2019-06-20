@@ -161,7 +161,6 @@ impl SandboxMode {
 
                     let mut txt = Text::prompt("Sandbox Mode");
                     txt.add_line(state.ui.primary.sim.summary());
-                    txt.add_line(mode.speed.modal_status_line());
                     if let Some(trip) = mode.following {
                         txt.add_line(format!("Following {}", trip));
                     }

@@ -194,15 +194,12 @@ impl<'a> GfxCtx<'a> {
             VerticalAlignment::Center => (self.canvas.window_height - height) / 2.0,
             VerticalAlignment::Bottom => self.canvas.window_height - height,
         };
-        self.canvas
-            .covered_areas
-            .borrow_mut()
-            .push(text::draw_text_bubble(
-                self,
-                ScreenPt::new(x1, y1),
-                txt,
-                (width, height),
-            ));
+        self.canvas.mark_covered_area(text::draw_text_bubble(
+            self,
+            ScreenPt::new(x1, y1),
+            txt,
+            (width, height),
+        ));
     }
 
     pub fn get_screen_bounds(&self) -> Bounds {
@@ -237,7 +234,8 @@ impl<'a> GfxCtx<'a> {
 
     pub fn draw_text_at_screenspace_topleft(&mut self, txt: &Text, pt: ScreenPt) {
         let dims = self.text_dims(&txt);
-        text::draw_text_bubble(self, pt, txt, dims);
+        self.canvas
+            .mark_covered_area(text::draw_text_bubble(self, pt, txt, dims));
     }
 
     pub fn draw_mouse_tooltip(&mut self, txt: &Text) {

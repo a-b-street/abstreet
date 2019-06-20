@@ -218,22 +218,6 @@ impl SpeedControls {
         }
     }
 
-    pub fn modal_status_line(&self) -> String {
-        if let State::Running {
-            ref speed_description,
-            ..
-        } = self.state
-        {
-            format!(
-                "Speed: {} / desired {:.2}x",
-                speed_description,
-                self.desired_speed()
-            )
-        } else {
-            format!("Speed: paused / desired {:.2}x", self.desired_speed())
-        }
-    }
-
     // Returns the amount of simulation time to step, if running.
     pub fn event(
         &mut self,
@@ -296,7 +280,24 @@ impl SpeedControls {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        self.slider.draw(g);
+        let mut txt = Text::new();
+        if let State::Running {
+            ref speed_description,
+            ..
+        } = self.state
+        {
+            txt.add_line(format!(
+                "Speed: {} / desired {:.2}x",
+                speed_description,
+                self.desired_speed()
+            ))
+        } else {
+            txt.add_line(format!(
+                "Speed: paused / desired {:.2}x",
+                self.desired_speed()
+            ))
+        }
+        self.slider.draw(g, Some(txt));
     }
 
     pub fn pause(&mut self) {

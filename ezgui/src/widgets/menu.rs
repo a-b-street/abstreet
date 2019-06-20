@@ -22,7 +22,6 @@ struct Geometry {
     row_height: f64,
     top_left: ScreenPt,
     first_choice_row: ScreenRectangle,
-    total_height: f64,
 }
 
 #[derive(Clone)]
@@ -93,7 +92,6 @@ impl Position {
                 x2: top_left.x + total_width,
                 y2: top_left.y + prompt_height + row_height,
             },
-            total_height,
         }
     }
 }
@@ -281,12 +279,6 @@ impl<T: Clone> Menu<T> {
                 }
             }
         }
-        g.canvas.mark_covered_area(ScreenRectangle {
-            x1: self.geom.top_left.x,
-            y1: self.geom.top_left.y,
-            x2: self.geom.first_choice_row.x2,
-            y2: self.geom.top_left.y + self.geom.total_height,
-        });
         g.draw_text_at_screenspace_topleft(&txt, self.geom.top_left);
     }
 

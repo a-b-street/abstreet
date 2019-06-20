@@ -91,7 +91,6 @@ impl ABTestMode {
                             ));
                         }
                         txt.add_line(state.ui.primary.sim.summary());
-                        txt.add_line(mode.speed.modal_status_line());
                         mode.menu.handle_event(ctx, Some(txt));
 
                         ctx.canvas.handle_event(ctx.input);

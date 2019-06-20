@@ -99,7 +99,7 @@ impl Slider {
         false
     }
 
-    pub fn draw(&self, g: &mut GfxCtx) {
+    pub fn draw(&self, g: &mut GfxCtx, label: Option<Text>) {
         g.fork_screenspace();
 
         // A nice background for the entire thing
@@ -155,6 +155,16 @@ impl Slider {
             },
             &self.slider_geom(),
         );
+
+        if let Some(ref txt) = label {
+            g.draw_text_at_screenspace_topleft(
+                txt,
+                ScreenPt::new(
+                    self.top_left.x,
+                    self.top_left.y + BAR_HEIGHT + 2.0 * VERT_PADDING,
+                ),
+            );
+        }
     }
 
     fn slider_geom(&self) -> Polygon {
@@ -174,8 +184,8 @@ pub struct ItemSlider<T> {
     items: Vec<(T, Text)>,
     slider: Slider,
     menu: ModalMenu,
-    menu_title: String,
 
+    noun: String,
     prev: String,
     next: String,
     first: String,
@@ -208,8 +218,8 @@ impl<T> ItemSlider<T> {
             items,
             slider: Slider::new(None),
             menu: ModalMenu::new(menu_title, choices, ctx),
-            menu_title: menu_title.to_string(),
 
+            noun: noun.to_string(),
             prev,
             next,
             first,
@@ -219,19 +229,9 @@ impl<T> ItemSlider<T> {
 
     // Returns true if the value changed.
     pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
-        let current = {
-            let idx = self.slider.get_value(self.items.len());
-            let mut txt = Text::prompt(&self.menu_title);
-            txt.add_line(format!(
-                "{}/{}",
-                abstutil::prettyprint_usize(idx + 1),
-                abstutil::prettyprint_usize(self.items.len())
-            ));
-            txt.extend(&self.items[idx].1);
-            self.menu.handle_event(ctx, Some(txt));
-            idx
-        };
+        self.menu.handle_event(ctx, None);
 
+        let current = self.slider.get_value(self.items.len());
         if current != self.items.len() - 1 && self.menu.action(&self.next) {
             self.slider.set_value(ctx, current + 1, self.items.len());
         } else if current != self.items.len() - 1 && self.menu.action(&self.last) {
@@ -249,7 +249,16 @@ impl<T> ItemSlider<T> {
 
     pub fn draw(&self, g: &mut GfxCtx) {
         self.menu.draw(g);
-        self.slider.draw(g);
+
+        let idx = self.slider.get_value(self.items.len());
+        let mut txt = Text::from_line(format!(
+            "{} {}/{}",
+            self.noun,
+            abstutil::prettyprint_usize(idx + 1),
+            abstutil::prettyprint_usize(self.items.len())
+        ));
+        txt.extend(&self.items[idx].1);
+        self.slider.draw(g, Some(txt));
     }
 
     pub fn get(&self) -> (usize, &T) {

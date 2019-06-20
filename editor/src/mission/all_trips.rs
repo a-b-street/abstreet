@@ -93,8 +93,6 @@ impl TripsVisualizer {
             "{} active trips",
             prettyprint_usize(self.active_trips.len())
         ));
-        txt.add_line(format!("At {}", time));
-        txt.add_line(self.speed.modal_status_line());
         self.menu.handle_event(ctx, Some(txt));
         ctx.canvas.handle_event(ctx.input);
 
@@ -186,7 +184,8 @@ impl TripsVisualizer {
         batch.draw(g);
 
         self.menu.draw(g);
-        self.time_slider.draw(g);
+        self.time_slider
+            .draw(g, Some(Text::from_line(format!("At {}", time))));
         self.speed.draw(g);
         CommonState::draw_osd(g, ui, ui.primary.current_selection);
     }
