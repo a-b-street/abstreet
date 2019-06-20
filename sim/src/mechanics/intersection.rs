@@ -1,4 +1,4 @@
-use crate::{AgentID, Command, Scheduler};
+use crate::{AgentID, Command, Scheduler, Speed};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::Duration;
 use map_model::{
@@ -110,6 +110,7 @@ impl IntersectionSimState {
         &mut self,
         agent: AgentID,
         turn: TurnID,
+        speed: Speed,
         now: Duration,
         map: &Map,
         scheduler: &mut Scheduler,
@@ -119,7 +120,7 @@ impl IntersectionSimState {
         state.waiting.entry(req.clone()).or_insert(now);
 
         let allowed = if let Some(ref signal) = map.maybe_get_traffic_signal(state.id) {
-            state.traffic_signal_policy(signal, &req, now, map)
+            state.traffic_signal_policy(signal, &req, speed, now, map)
         } else if let Some(ref sign) = map.maybe_get_stop_sign(state.id) {
             state.stop_sign_policy(sign, &req, now, map, scheduler)
         } else {
@@ -220,10 +221,11 @@ impl State {
         &self,
         signal: &ControlTrafficSignal,
         new_req: &Request,
+        speed: Speed,
         time: Duration,
         map: &Map,
     ) -> bool {
-        let (cycle, _remaining_cycle_time) = signal.current_cycle_and_remaining_time(time);
+        let (cycle, remaining_cycle_time) = signal.current_cycle_and_remaining_time(time);
 
         // Can't go at all this cycle.
         if cycle.get_priority(new_req.turn) == TurnPriority::Banned {
@@ -236,9 +238,10 @@ impl State {
         }
 
         // A yield loses to a conflicting Priority turn.
+        let turn = map.get_t(new_req.turn);
         if cycle.get_priority(new_req.turn) == TurnPriority::Yield {
             if self.waiting.keys().any(|r| {
-                map.get_t(new_req.turn).conflicts_with(map.get_t(r.turn))
+                turn.conflicts_with(map.get_t(r.turn))
                     && cycle.get_priority(r.turn) == TurnPriority::Priority
             }) {
                 return false;
@@ -248,8 +251,13 @@ impl State {
         // TODO Make sure we can optimistically finish this turn before an approaching
         // higher-priority vehicle wants to begin.
 
-        // TODO Don't accept the agent if they won't finish the turn in time. If the turn and
-        // target lane were clear, we could calculate the time.
+        // Optimistically if nobody else is in the way, this is how long it'll take to finish the
+        // turn. Don't start the turn if we won't finish by the time the light changes. If we get
+        // it wrong, that's fine -- block the box a bit.
+        let time_to_cross = turn.geom.length() / speed;
+        if time_to_cross > remaining_cycle_time {
+            return false;
+        }
 
         true
     }

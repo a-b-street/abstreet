@@ -295,9 +295,14 @@ impl DrivingSimState {
                 assert!(from != goto);
 
                 if let Traversable::Turn(t) = goto {
+                    let mut speed = goto.speed_limit(map);
+                    if let Some(s) = car.vehicle.max_speed {
+                        speed = speed.min(s);
+                    }
                     if !intersections.maybe_start_turn(
                         AgentID::Car(car.vehicle.id),
                         t,
+                        speed,
                         time,
                         map,
                         scheduler,

@@ -419,8 +419,14 @@ impl Pedestrian {
         scheduler: &mut Scheduler,
     ) -> bool {
         if let PathStep::Turn(t) = self.path.next_step() {
-            if !intersections.maybe_start_turn(AgentID::Pedestrian(self.id), t, now, map, scheduler)
-            {
+            if !intersections.maybe_start_turn(
+                AgentID::Pedestrian(self.id),
+                t,
+                self.speed,
+                now,
+                map,
+                scheduler,
+            ) {
                 return false;
             }
         }
