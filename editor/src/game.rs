@@ -1,7 +1,6 @@
 use crate::abtest::ABTestMode;
 use crate::debug::DebugMode;
 use crate::edit::EditMode;
-use crate::helpers::ID;
 use crate::mission::MissionEditMode;
 use crate::render::DrawOptions;
 use crate::sandbox::SandboxMode;
@@ -11,7 +10,6 @@ use abstutil::elapsed_seconds;
 use ezgui::{hotkey, Canvas, EventCtx, EventLoopMode, GfxCtx, Key, UserInput, Wizard, GUI};
 use geom::{Duration, Line, Pt2D, Speed};
 use map_model::Map;
-use rand::seq::SliceRandom;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
 use std::path::PathBuf;
@@ -42,32 +40,12 @@ impl GameState {
     pub fn new(flags: Flags, ctx: &mut EventCtx) -> GameState {
         let splash = !flags.no_splash
             && !format!("{}", flags.sim_flags.load.display()).contains("data/save");
-
-        let mut rng = flags.sim_flags.make_rng();
         let mut game = GameState {
             mode: Mode::Sandbox(SandboxMode::new(ctx)),
-            ui: UI::new(flags, ctx),
+            ui: UI::new(flags, ctx, splash),
         };
-
-        let rand_focus_pt = game
-            .ui
-            .primary
-            .map
-            .all_buildings()
-            .choose(&mut rng)
-            .and_then(|b| ID::Building(b.id).canonical_point(&game.ui.primary))
-            .or_else(|| {
-                game.ui
-                    .primary
-                    .map
-                    .all_lanes()
-                    .choose(&mut rng)
-                    .and_then(|l| ID::Lane(l.id).canonical_point(&game.ui.primary))
-            })
-            .expect("Can't get canonical_point of a random building or lane");
-
         if splash {
-            ctx.canvas.center_on_map_pt(rand_focus_pt);
+            let mut rng = game.ui.primary.current_flags.sim_flags.make_rng();
             game.mode = Mode::SplashScreen(
                 Wizard::new(),
                 Some((
@@ -75,21 +53,7 @@ impl GameState {
                     rng,
                 )),
             );
-        } else {
-            match abstutil::read_json::<EditorState>("../editor_state.json") {
-                Ok(ref loaded) if game.ui.primary.map.get_name() == &loaded.map_name => {
-                    println!("Loaded previous editor_state.json");
-                    ctx.canvas.cam_x = loaded.cam_x;
-                    ctx.canvas.cam_y = loaded.cam_y;
-                    ctx.canvas.cam_zoom = loaded.cam_zoom;
-                }
-                _ => {
-                    println!("Couldn't load editor_state.json or it's for a different map, so just focusing on an arbitrary building");
-                    ctx.canvas.center_on_map_pt(rand_focus_pt);
-                }
-            }
         }
-
         game
     }
 
@@ -286,7 +250,7 @@ fn splash_screen(
                     // This retains no state, but that's probably fine.
                     let mut flags = ui.primary.current_flags.clone();
                     flags.sim_flags.load = PathBuf::from(format!("../data/maps/{}.bin", name));
-                    *ui = UI::new(flags, ctx);
+                    *ui = UI::new(flags, ctx, false);
                     break Some(Mode::Sandbox(SandboxMode::new(ctx)));
                 } else if wizard.aborted() {
                     break Some(Mode::SplashScreen(Wizard::new(), maybe_screensaver.take()));

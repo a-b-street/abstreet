@@ -8,6 +8,7 @@ use abstutil::{MeasureMemory, Timer};
 use ezgui::{Color, EventCtx, GeomBatch, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Distance, Duration};
 use map_model::{Map, Traversable};
+use rand::seq::SliceRandom;
 use serde_derive::{Deserialize, Serialize};
 use sim::{GetDrawAgents, Sim, SimFlags};
 use structopt::StructOpt;
@@ -19,11 +20,44 @@ pub struct UI {
 }
 
 impl UI {
-    pub fn new(flags: Flags, ctx: &mut EventCtx) -> UI {
+    pub fn new(flags: Flags, ctx: &mut EventCtx, splash: bool) -> UI {
         let cs = ColorScheme::load().unwrap();
         let primary = ctx.loading_screen("load map", |ctx, mut timer| {
             PerMapUI::new(flags, &cs, ctx, &mut timer)
         });
+
+        let mut rng = primary.current_flags.sim_flags.make_rng();
+        let rand_focus_pt = primary
+            .map
+            .all_buildings()
+            .choose(&mut rng)
+            .and_then(|b| ID::Building(b.id).canonical_point(&primary))
+            .or_else(|| {
+                primary
+                    .map
+                    .all_lanes()
+                    .choose(&mut rng)
+                    .and_then(|l| ID::Lane(l.id).canonical_point(&primary))
+            })
+            .expect("Can't get canonical_point of a random building or lane");
+
+        if splash {
+            ctx.canvas.center_on_map_pt(rand_focus_pt);
+        } else {
+            match abstutil::read_json::<EditorState>("../editor_state.json") {
+                Ok(ref loaded) if primary.map.get_name() == &loaded.map_name => {
+                    println!("Loaded previous editor_state.json");
+                    ctx.canvas.cam_x = loaded.cam_x;
+                    ctx.canvas.cam_y = loaded.cam_y;
+                    ctx.canvas.cam_zoom = loaded.cam_zoom;
+                }
+                _ => {
+                    println!("Couldn't load editor_state.json or it's for a different map, so just focusing on an arbitrary building");
+                    ctx.canvas.center_on_map_pt(rand_focus_pt);
+                }
+            }
+        }
+
         UI { primary, cs }
     }
 
