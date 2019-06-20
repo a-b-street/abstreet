@@ -40,6 +40,10 @@ impl TrafficSignalEditor {
                 (hotkey(Key::Backspace), "delete current cycle"),
                 (hotkey(Key::N), "add a new empty cycle"),
                 (hotkey(Key::M), "add a new pedestrian scramble cycle"),
+                (
+                    hotkey(Key::B),
+                    "convert to dedicated pedestrian scramble cycle",
+                ),
             ],
             ctx,
         );
@@ -209,6 +213,13 @@ impl TrafficSignalEditor {
                 }
                 signal.cycles.insert(self.current_cycle, cycle);
                 changed = true;
+            } else if has_sidewalks
+                && self
+                    .menu
+                    .action("convert to dedicated pedestrian scramble cycle")
+            {
+                convert_to_ped_scramble(&mut signal, self.i, &ui.primary.map);
+                changed = true;
             }
         }
 
@@ -309,4 +320,37 @@ fn choose_preset(
             Box::new(move || choices.clone()),
         )
         .map(|(_, ts)| ts)
+}
+
+fn convert_to_ped_scramble(signal: &mut ControlTrafficSignal, i: IntersectionID, map: &Map) {
+    // Remove Crosswalk turns from existing cycles.
+    for cycle in signal.cycles.iter_mut() {
+        // Crosswalks are usually only priority_turns, but also clear out from yield_turns.
+        for t in map.get_turns_in_intersection(i) {
+            if t.turn_type == TurnType::Crosswalk {
+                cycle.priority_turns.remove(&t.id);
+                cycle.yield_turns.remove(&t.id);
+            }
+        }
+
+        // Blindly try to promote yield turns to protected, now that crosswalks are gone.
+        let mut promoted = Vec::new();
+        for t in &cycle.yield_turns {
+            if cycle.could_be_priority_turn(*t, map) {
+                cycle.priority_turns.insert(*t);
+                promoted.push(*t);
+            }
+        }
+        for t in promoted {
+            cycle.yield_turns.remove(&t);
+        }
+    }
+
+    let mut cycle = Cycle::new(i, signal.cycles.len());
+    for t in map.get_turns_in_intersection(i) {
+        if t.between_sidewalks() {
+            cycle.edit_turn(t, TurnPriority::Priority);
+        }
+    }
+    signal.cycles.push(cycle);
 }
