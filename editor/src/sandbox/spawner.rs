@@ -1,9 +1,10 @@
 use crate::common::CommonState;
 use crate::helpers::ID;
 use crate::render::DrawOptions;
+use crate::state::{State, Transition};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
-use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu};
+use ezgui::{hotkey, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu};
 use geom::{Duration, PolyLine};
 use map_model::{
     BuildingID, IntersectionID, IntersectionType, LaneType, PathRequest, Position, LANE_THICKNESS,
@@ -112,13 +113,14 @@ impl AgentSpawner {
         }
         None
     }
+}
 
-    // Returns true if the spawner editor is done and we should go back to main sandbox mode.
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> bool {
+impl State for AgentSpawner {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
         // TODO Instructions to select target building/lane
         self.menu.handle_event(ctx, None);
         if self.menu.action("quit") {
-            return true;
+            return (Transition::Pop, EventLoopMode::InputOnly);
         }
 
         ctx.canvas.handle_event(ctx.input);
@@ -142,7 +144,7 @@ impl AgentSpawner {
             }
             _ => {
                 self.maybe_goal = None;
-                return false;
+                return (Transition::Keep, EventLoopMode::InputOnly);
             }
         };
 
@@ -174,7 +176,7 @@ impl AgentSpawner {
                     );
                     if lanes.is_empty() {
                         self.maybe_goal = None;
-                        return true;
+                        return (Transition::Keep, EventLoopMode::InputOnly);
                     }
                     Position::new(lanes[0], map.get_l(lanes[0]).length())
                 }
@@ -288,13 +290,17 @@ impl AgentSpawner {
                 &ShowEverything::new(),
                 false,
             );
-            return true;
+            return (Transition::Pop, EventLoopMode::InputOnly);
         }
 
+        (Transition::Keep, EventLoopMode::InputOnly)
+    }
+
+    fn draw_default_ui(&self) -> bool {
         false
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         let src = match self.from {
             Source::Walking(b1) => ID::Building(b1),
             Source::Driving(pos1) => ID::Lane(pos1.lane()),

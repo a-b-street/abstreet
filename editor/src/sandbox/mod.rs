@@ -6,12 +6,12 @@ mod spawner;
 mod time_travel;
 
 use crate::common::{CommonState, SpeedControls};
-use crate::debug::DebugMode;
-use crate::edit::EditMode;
-use crate::game::{GameState, Mode};
-use crate::mission::input_time;
+//use crate::debug::DebugMode;
+//use crate::edit::EditMode;
+use crate::state::{State, Transition};
+//use crate::mission::input_time;
 use crate::render::DrawOptions;
-use crate::ui::ShowEverything;
+use crate::ui::{ShowEverything, UI};
 use ezgui::{hotkey, lctrl, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard};
 use geom::Duration;
 use sim::{Sim, TripID};
@@ -22,26 +22,20 @@ pub struct SandboxMode {
     route_viewer: route_viewer::RouteViewer,
     show_activity: show_activity::ShowActivity,
     time_travel: time_travel::TimeTravel,
-    state: State,
     // TODO Not while Spawning or TimeTraveling or ExploringRoute...
     common: CommonState,
     menu: ModalMenu,
 }
 
-enum State {
-    Playing,
-    Spawning(spawner::AgentSpawner),
+/*enum State {
     TimeTraveling,
-    ExploringRoute(route_explorer::RouteExplorer),
     JumpingToTime(Wizard),
-    Scoreboard(score::Scoreboard),
-}
+}*/
 
 impl SandboxMode {
     pub fn new(ctx: &mut EventCtx) -> SandboxMode {
         SandboxMode {
             speed: SpeedControls::new(ctx, None),
-            state: State::Playing,
             following: None,
             route_viewer: route_viewer::RouteViewer::Inactive,
             show_activity: show_activity::ShowActivity::Inactive,
@@ -81,33 +75,210 @@ impl SandboxMode {
             ),
         }
     }
+}
 
-    pub fn event(state: &mut GameState, ctx: &mut EventCtx) -> EventLoopMode {
-        match state.mode {
+impl State for SandboxMode {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+        self.time_travel.record(ui);
+
+        let mut txt = Text::prompt("Sandbox Mode");
+        txt.add_line(ui.primary.sim.summary());
+        if let Some(trip) = self.following {
+            txt.add_line(format!("Following {}", trip));
+        }
+        match self.route_viewer {
+            route_viewer::RouteViewer::Active(_, trip, _) => {
+                txt.add_line(format!("Showing {}'s route", trip));
+            }
+            route_viewer::RouteViewer::DebugAllRoutes(_, _) => {
+                txt.add_line("Showing all routes".to_string());
+            }
+            _ => {}
+        }
+        match self.show_activity {
+            show_activity::ShowActivity::Inactive => {}
+            _ => {
+                txt.add_line("Showing active traffic".to_string());
+            }
+        }
+        self.menu.handle_event(ctx, Some(txt));
+
+        ctx.canvas.handle_event(ctx.input);
+        if ctx.redo_mouseover() {
+            ui.primary.current_selection = ui.recalculate_current_selection(
+                ctx,
+                &ui.primary.sim,
+                &ShowEverything::new(),
+                false,
+            );
+        }
+        if let Some(evmode) = self.common.event(ctx, ui, &mut self.menu) {
+            return (Transition::Keep, evmode);
+        }
+
+        if let Some(spawner) = spawner::AgentSpawner::new(ctx, ui, &mut self.menu) {
+            return (
+                Transition::Push(Box::new(spawner)),
+                EventLoopMode::InputOnly,
+            );
+        }
+        if let Some(explorer) = route_explorer::RouteExplorer::new(ctx, ui) {
+            return (
+                Transition::Push(Box::new(explorer)),
+                EventLoopMode::InputOnly,
+            );
+        }
+
+        if self.following.is_none() {
+            if let Some(agent) = ui.primary.current_selection.and_then(|id| id.agent_id()) {
+                if let Some(trip) = ui.primary.sim.agent_to_trip(agent) {
+                    if ctx
+                        .input
+                        .contextual_action(Key::F, &format!("follow {}", agent))
+                    {
+                        self.following = Some(trip);
+                    }
+                }
+            }
+        }
+        if let Some(trip) = self.following {
+            if let Some(pt) = ui
+                .primary
+                .sim
+                .get_canonical_pt_per_trip(trip, &ui.primary.map)
+            {
+                ctx.canvas.center_on_map_pt(pt);
+            } else {
+                // TODO ideally they wouldnt vanish for so long according to
+                // get_canonical_point_for_trip
+                println!("{} is gone... temporarily or not?", trip);
+            }
+            if self.menu.action("stop following agent") {
+                self.following = None;
+            }
+        }
+        self.route_viewer.event(ctx, ui, &mut self.menu);
+        self.show_activity.event(ctx, ui, &mut self.menu);
+        if self.menu.action("start time traveling") {
+            //self.state = State::TimeTraveling;
+            //self.time_travel.start(ctx, ui);
+            //return EventLoopMode::InputOnly;
+        }
+        if self.menu.action("scoreboard") {
+            return (
+                Transition::Push(Box::new(score::Scoreboard::new(ctx, ui))),
+                EventLoopMode::InputOnly,
+            );
+        }
+
+        if self.menu.action("quit") {
+            return (Transition::Pop, EventLoopMode::InputOnly);
+        }
+        if self.menu.action("debug mode") {
+            //state.mode = Mode::Debug(DebugMode::new(ctx, &state.ui));
+            //return EventLoopMode::InputOnly;
+        }
+        if self.menu.action("edit mode") {
+            //state.mode = Mode::Edit(EditMode::new(ctx, &mut state.ui));
+            //return EventLoopMode::InputOnly;
+        }
+
+        if let Some(dt) = self.speed.event(ctx, &mut self.menu, ui.primary.sim.time()) {
+            // If speed is too high, don't be unresponsive for too long.
+            // TODO This should probably match the ezgui framerate.
+            ui.primary
+                .sim
+                .time_limited_step(&ui.primary.map, dt, Duration::seconds(0.1));
+            ui.primary.current_selection = ui.recalculate_current_selection(
+                ctx,
+                &ui.primary.sim,
+                &ShowEverything::new(),
+                false,
+            );
+        }
+
+        if self.speed.is_paused() {
+            if !ui.primary.sim.is_empty() && self.menu.action("reset sim") {
+                ui.primary.reset_sim();
+                return (
+                    Transition::Replace(Box::new(SandboxMode::new(ctx))),
+                    EventLoopMode::InputOnly,
+                );
+            }
+            if self.menu.action("save sim state") {
+                ui.primary.sim.save();
+            }
+            if self.menu.action("load previous sim state") {
+                let prev_state = ui
+                    .primary
+                    .sim
+                    .find_previous_savestate(ui.primary.sim.time());
+                match prev_state
+                    .clone()
+                    .and_then(|path| Sim::load_savestate(path).ok())
+                {
+                    Some(new_sim) => {
+                        ui.primary.sim = new_sim;
+                        ui.primary.current_selection = ui.recalculate_current_selection(
+                            ctx,
+                            &ui.primary.sim,
+                            &ShowEverything::new(),
+                            false,
+                        );
+                    }
+                    None => println!("Couldn't load previous savestate {:?}", prev_state),
+                }
+            }
+            if self.menu.action("load next sim state") {
+                let next_state = ui.primary.sim.find_next_savestate(ui.primary.sim.time());
+                match next_state
+                    .clone()
+                    .and_then(|path| Sim::load_savestate(path).ok())
+                {
+                    Some(new_sim) => {
+                        ui.primary.sim = new_sim;
+                        ui.primary.current_selection = ui.recalculate_current_selection(
+                            ctx,
+                            &ui.primary.sim,
+                            &ShowEverything::new(),
+                            false,
+                        );
+                    }
+                    None => println!("Couldn't load next savestate {:?}", next_state),
+                }
+            }
+
+            if self.menu.action("step forwards 0.1s") {
+                ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
+                ui.primary.current_selection = ui.recalculate_current_selection(
+                    ctx,
+                    &ui.primary.sim,
+                    &ShowEverything::new(),
+                    false,
+                );
+            } else if self.menu.action("step forwards 10 mins") {
+                ctx.loading_screen("step forwards 10 minutes", |_, mut timer| {
+                    ui.primary
+                        .sim
+                        .timed_step(&ui.primary.map, Duration::minutes(10), &mut timer);
+                });
+                ui.primary.current_selection = ui.recalculate_current_selection(
+                    ctx,
+                    &ui.primary.sim,
+                    &ShowEverything::new(),
+                    false,
+                );
+            } else if self.menu.action("jump to specific time") {
+                // TODO new state
+                //mode.state = State::JumpingToTime(Wizard::new());
+            }
+            (Transition::Keep, EventLoopMode::InputOnly)
+        } else {
+            (Transition::Keep, EventLoopMode::Animation)
+        }
+
+        /*match state.mode {
             Mode::Sandbox(ref mut mode) => match mode.state {
-                State::Spawning(ref mut spawner) => {
-                    if spawner.event(ctx, &mut state.ui) {
-                        mode.state = State::Playing;
-                        mode.speed.pause();
-                    }
-                    EventLoopMode::InputOnly
-                }
-                State::TimeTraveling => {
-                    if mode.time_travel.event(ctx) {
-                        mode.state = State::Playing;
-                        mode.speed.pause();
-                    }
-                    EventLoopMode::InputOnly
-                }
-                State::ExploringRoute(ref mut explorer) => {
-                    if let Some(mode) = explorer.event(ctx, &mut state.ui) {
-                        mode
-                    } else {
-                        mode.state = State::Playing;
-                        mode.speed.pause();
-                        EventLoopMode::InputOnly
-                    }
-                }
                 State::JumpingToTime(ref mut wizard) => {
                     let mut wiz = wizard.wrap(ctx);
 
@@ -149,249 +320,30 @@ impl SandboxMode {
                     }
                     EventLoopMode::InputOnly
                 }
-                State::Scoreboard(ref mut s) => {
-                    if s.event(ctx, &state.ui) {
-                        mode.state = State::Playing;
-                        mode.speed.pause();
-                    }
-                    EventLoopMode::InputOnly
-                }
-                State::Playing => {
-                    mode.time_travel.record(&state.ui);
-
-                    let mut txt = Text::prompt("Sandbox Mode");
-                    txt.add_line(state.ui.primary.sim.summary());
-                    if let Some(trip) = mode.following {
-                        txt.add_line(format!("Following {}", trip));
-                    }
-                    match mode.route_viewer {
-                        route_viewer::RouteViewer::Active(_, trip, _) => {
-                            txt.add_line(format!("Showing {}'s route", trip));
-                        }
-                        route_viewer::RouteViewer::DebugAllRoutes(_, _) => {
-                            txt.add_line("Showing all routes".to_string());
-                        }
-                        _ => {}
-                    }
-                    match mode.show_activity {
-                        show_activity::ShowActivity::Inactive => {}
-                        _ => {
-                            txt.add_line("Showing active traffic".to_string());
-                        }
-                    }
-                    mode.menu.handle_event(ctx, Some(txt));
-
-                    ctx.canvas.handle_event(ctx.input);
-                    if ctx.redo_mouseover() {
-                        state.ui.primary.current_selection =
-                            state.ui.recalculate_current_selection(
-                                ctx,
-                                &state.ui.primary.sim,
-                                &ShowEverything::new(),
-                                false,
-                            );
-                    }
-                    if let Some(evmode) = mode.common.event(ctx, &mut state.ui, &mut mode.menu) {
-                        return evmode;
-                    }
-
-                    if let Some(spawner) =
-                        spawner::AgentSpawner::new(ctx, &mut state.ui, &mut mode.menu)
-                    {
-                        mode.state = State::Spawning(spawner);
-                        return EventLoopMode::InputOnly;
-                    }
-                    if let Some(explorer) = route_explorer::RouteExplorer::new(ctx, &state.ui) {
-                        mode.state = State::ExploringRoute(explorer);
-                        return EventLoopMode::InputOnly;
-                    }
-
-                    if mode.following.is_none() {
-                        if let Some(agent) = state
-                            .ui
-                            .primary
-                            .current_selection
-                            .and_then(|id| id.agent_id())
-                        {
-                            if let Some(trip) = state.ui.primary.sim.agent_to_trip(agent) {
-                                if ctx
-                                    .input
-                                    .contextual_action(Key::F, &format!("follow {}", agent))
-                                {
-                                    mode.following = Some(trip);
-                                }
-                            }
-                        }
-                    }
-                    if let Some(trip) = mode.following {
-                        if let Some(pt) = state
-                            .ui
-                            .primary
-                            .sim
-                            .get_canonical_pt_per_trip(trip, &state.ui.primary.map)
-                        {
-                            ctx.canvas.center_on_map_pt(pt);
-                        } else {
-                            // TODO ideally they wouldnt vanish for so long according to
-                            // get_canonical_point_for_trip
-                            println!("{} is gone... temporarily or not?", trip);
-                        }
-                        if mode.menu.action("stop following agent") {
-                            mode.following = None;
-                        }
-                    }
-                    mode.route_viewer.event(ctx, &mut state.ui, &mut mode.menu);
-                    mode.show_activity.event(ctx, &mut state.ui, &mut mode.menu);
-                    if mode.menu.action("start time traveling") {
-                        mode.state = State::TimeTraveling;
-                        mode.time_travel.start(ctx, &state.ui);
-                        return EventLoopMode::InputOnly;
-                    }
-                    if mode.menu.action("scoreboard") {
-                        mode.state = State::Scoreboard(score::Scoreboard::new(ctx, &state.ui));
-                        return EventLoopMode::InputOnly;
-                    }
-
-                    if mode.menu.action("quit") {
-                        state.mode = Mode::SplashScreen(Wizard::new(), None);
-                        return EventLoopMode::InputOnly;
-                    }
-                    if mode.menu.action("debug mode") {
-                        state.mode = Mode::Debug(DebugMode::new(ctx, &state.ui));
-                        return EventLoopMode::InputOnly;
-                    }
-                    if mode.menu.action("edit mode") {
-                        state.mode = Mode::Edit(EditMode::new(ctx, &mut state.ui));
-                        return EventLoopMode::InputOnly;
-                    }
-
-                    if let Some(dt) =
-                        mode.speed
-                            .event(ctx, &mut mode.menu, state.ui.primary.sim.time())
-                    {
-                        // If speed is too high, don't be unresponsive for too long.
-                        // TODO This should probably match the ezgui framerate.
-                        state.ui.primary.sim.time_limited_step(
-                            &state.ui.primary.map,
-                            dt,
-                            Duration::seconds(0.1),
-                        );
-                        state.ui.primary.current_selection =
-                            state.ui.recalculate_current_selection(
-                                ctx,
-                                &state.ui.primary.sim,
-                                &ShowEverything::new(),
-                                false,
-                            );
-                    }
-
-                    if mode.speed.is_paused() {
-                        if !state.ui.primary.sim.is_empty() && mode.menu.action("reset sim") {
-                            state.ui.primary.reset_sim();
-                            mode.state = State::Playing;
-                            mode.following = None;
-                            mode.route_viewer = route_viewer::RouteViewer::Inactive;
-                            mode.show_activity = show_activity::ShowActivity::Inactive;
-                        }
-                        if mode.menu.action("save sim state") {
-                            state.ui.primary.sim.save();
-                        }
-                        if mode.menu.action("load previous sim state") {
-                            let prev_state = state
-                                .ui
-                                .primary
-                                .sim
-                                .find_previous_savestate(state.ui.primary.sim.time());
-                            match prev_state
-                                .clone()
-                                .and_then(|path| Sim::load_savestate(path).ok())
-                            {
-                                Some(new_sim) => {
-                                    state.ui.primary.sim = new_sim;
-                                    state.ui.primary.current_selection =
-                                        state.ui.recalculate_current_selection(
-                                            ctx,
-                                            &state.ui.primary.sim,
-                                            &ShowEverything::new(),
-                                            false,
-                                        );
-                                }
-                                None => {
-                                    println!("Couldn't load previous savestate {:?}", prev_state)
-                                }
-                            }
-                        }
-                        if mode.menu.action("load next sim state") {
-                            let next_state = state
-                                .ui
-                                .primary
-                                .sim
-                                .find_next_savestate(state.ui.primary.sim.time());
-                            match next_state
-                                .clone()
-                                .and_then(|path| Sim::load_savestate(path).ok())
-                            {
-                                Some(new_sim) => {
-                                    state.ui.primary.sim = new_sim;
-                                    state.ui.primary.current_selection =
-                                        state.ui.recalculate_current_selection(
-                                            ctx,
-                                            &state.ui.primary.sim,
-                                            &ShowEverything::new(),
-                                            false,
-                                        );
-                                }
-                                None => println!("Couldn't load next savestate {:?}", next_state),
-                            }
-                        }
-
-                        if mode.menu.action("step forwards 0.1s") {
-                            state
-                                .ui
-                                .primary
-                                .sim
-                                .step(&state.ui.primary.map, Duration::seconds(0.1));
-                            state.ui.primary.current_selection =
-                                state.ui.recalculate_current_selection(
-                                    ctx,
-                                    &state.ui.primary.sim,
-                                    &ShowEverything::new(),
-                                    false,
-                                );
-                        } else if mode.menu.action("step forwards 10 mins") {
-                            ctx.loading_screen("step forwards 10 minutes", |_, mut timer| {
-                                state.ui.primary.sim.timed_step(
-                                    &state.ui.primary.map,
-                                    Duration::minutes(10),
-                                    &mut timer,
-                                );
-                            });
-                            state.ui.primary.current_selection =
-                                state.ui.recalculate_current_selection(
-                                    ctx,
-                                    &state.ui.primary.sim,
-                                    &ShowEverything::new(),
-                                    false,
-                                );
-                        } else if mode.menu.action("jump to specific time") {
-                            mode.state = State::JumpingToTime(Wizard::new());
-                        }
-                        EventLoopMode::InputOnly
-                    } else {
-                        EventLoopMode::Animation
-                    }
-                }
             },
             _ => unreachable!(),
-        }
+        }*/
     }
 
-    pub fn draw(state: &GameState, g: &mut GfxCtx) {
-        match state.mode {
+    fn draw_default_ui(&self) -> bool {
+        false
+    }
+
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        ui.draw(
+            g,
+            self.common.draw_options(ui),
+            &ui.primary.sim,
+            &ShowEverything::new(),
+        );
+        self.common.draw(g, ui);
+        self.route_viewer.draw(g, ui);
+        self.show_activity.draw(g, ui);
+        self.menu.draw(g);
+        self.speed.draw(g);
+
+        /*match state.mode {
             Mode::Sandbox(ref mode) => match mode.state {
-                State::Spawning(ref spawner) => {
-                    spawner.draw(g, &state.ui);
-                }
                 State::TimeTraveling => {
                     state.ui.draw(
                         g,
@@ -400,15 +352,6 @@ impl SandboxMode {
                         &ShowEverything::new(),
                     );
                     mode.time_travel.draw(g);
-                }
-                State::ExploringRoute(ref explorer) => {
-                    state.ui.draw(
-                        g,
-                        DrawOptions::new(),
-                        &state.ui.primary.sim,
-                        &ShowEverything::new(),
-                    );
-                    explorer.draw(g, &state.ui);
                 }
                 State::JumpingToTime(ref wizard) => {
                     state.ui.draw(
@@ -419,30 +362,8 @@ impl SandboxMode {
                     );
                     wizard.draw(g);
                 }
-                State::Scoreboard(ref s) => {
-                    state.ui.draw(
-                        g,
-                        DrawOptions::new(),
-                        &state.ui.primary.sim,
-                        &ShowEverything::new(),
-                    );
-                    s.draw(g);
-                }
-                _ => {
-                    state.ui.draw(
-                        g,
-                        mode.common.draw_options(&state.ui),
-                        &state.ui.primary.sim,
-                        &ShowEverything::new(),
-                    );
-                    mode.common.draw(g, &state.ui);
-                    mode.route_viewer.draw(g, &state.ui);
-                    mode.show_activity.draw(g, &state.ui);
-                    mode.menu.draw(g);
-                    mode.speed.draw(g);
-                }
             },
             _ => unreachable!(),
-        }
+        }*/
     }
 }

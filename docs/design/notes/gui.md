@@ -620,3 +620,90 @@ About to let game own this directly, moving it out of ezgui.
 The more radical design would get rid of event() entirely, invert the control. The game itself would say "poll for next event".
 - When do we draw? When we block for events? Is drawing inlined into this one combined method, or is there still a separate function to redo it from scratch?
 - screensaver would immediately hand over control to the menu. no more StillActive case!
+
+## Stackable states
+
+What've we wound up with so far?
+
+- sandbox
+	- playing
+	- agent spawner
+	- time travel
+	- route explorer
+	- jumping to time
+	- scoreboard
+		- browsing trips
+- load another map
+- edit map
+	- main diff mode
+	- saving
+	- loading
+	- stop sign editor
+	- traffic signal editor
+		- change cycle duration
+		- choose preset
+- tutorial
+	- various ones...
+- debug mode
+	- main
+	- polygon debugger
+	- searching osm
+	- color picker
+	- bus route explorer
+- mission edit mode
+	- main
+	- neighborhood
+		- load/create
+		- edit
+	- load scenario
+	- create scenario
+	- scenario editor
+		- add stuff
+	- popdat data viz
+	- individ trip viz
+	- all trip viz
+	- trips to scenario wizard
+- a/b test mode
+	- setup
+		- make new test
+		- load test
+		- load savestate for a test
+	- playing
+	- scoreboard
+- about
+
+
+thoughts on this structure right now:
+
+- most of these states also quietly have an extra state for warp / navigate, from common
+- dont like explicitly having enums with all the states
+	- sharing code between states happens rarely
+	- way too much nesting in the code to manage this
+- there are a few cases where if we escape from some menu, we pop back too far
+	- this is jarring; player's mental model is probably a stack
+
+dont other game engines explicitly have states?
+- https://book.amethyst.rs/stable/concepts/state.html
+	- push and replace
+
+
+roughly what I want:
+
+trait State {
+	fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> StateResult;
+	fn draw(&self, g: &mut GfxCtx, ui: &UI);
+}
+
+StateResult indicates EventLoopMode and indicates if we should do any
+transitions... pop current state, push some new state, replace current state
+	- why not just do this manipulation directly ourselves? because of borrowing.
+
+- shared state in UI
+- ... which means secondary has to go in there
+- if we tried to nicely pass things between states... how would that actually
+  work when pushing? only replacing/popping
+
+
+I don't want to wind up with the mess of plugins again. Why am I sure it's not that?
+
+- these are complete, mutex states

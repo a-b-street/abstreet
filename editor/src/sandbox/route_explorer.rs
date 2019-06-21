@@ -1,5 +1,6 @@
 use crate::common::CommonState;
 use crate::render::DrawTurn;
+use crate::state::{State, Transition};
 use crate::ui::{ShowEverything, UI};
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, WarpingItemSlider};
 use geom::{Distance, Polygon, Pt2D};
@@ -62,9 +63,10 @@ impl RouteExplorer {
             entire_trace,
         })
     }
+}
 
-    // Done when None
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<EventLoopMode> {
+impl State for RouteExplorer {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
         if ctx.redo_mouseover() {
             ui.primary.current_selection = ui.recalculate_current_selection(
                 ctx,
@@ -78,10 +80,14 @@ impl RouteExplorer {
 
         // We don't really care about setting current_selection to the current step; drawing covers
         // it up anyway.
-        self.slider.event(ctx).map(|(evmode, _)| evmode)
+        if let Some((evmode, _)) = self.slider.event(ctx) {
+            (Transition::Keep, evmode)
+        } else {
+            (Transition::Pop, EventLoopMode::InputOnly)
+        }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         if let Some(ref poly) = self.entire_trace {
             g.draw_polygon(ui.cs.get_def("entire route", Color::BLUE.alpha(0.2)), poly);
         }

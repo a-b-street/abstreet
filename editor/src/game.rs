@@ -1,10 +1,11 @@
-use crate::abtest::ABTestMode;
-use crate::debug::DebugMode;
-use crate::edit::EditMode;
-use crate::mission::MissionEditMode;
+//use crate::abtest::ABTestMode;
+//use crate::debug::DebugMode;
+//use crate::edit::EditMode;
+//use crate::mission::MissionEditMode;
 use crate::render::DrawOptions;
 use crate::sandbox::SandboxMode;
-use crate::tutorial::TutorialMode;
+//use crate::tutorial::TutorialMode;
+use crate::state::{State, Transition};
 use crate::ui::{EditorState, Flags, ShowEverything, UI};
 use abstutil::elapsed_seconds;
 use ezgui::{hotkey, Canvas, EventCtx, EventLoopMode, GfxCtx, Key, UserInput, Wizard, GUI};
@@ -17,8 +18,9 @@ use std::time::Instant;
 
 // This is the top-level of the GUI logic. This module should just manage interactions between the
 // top-level game states.
-pub struct GameState {
-    pub mode: Mode,
+pub struct Game {
+    // A stack of states
+    pub states: Vec<Box<State>>,
     pub ui: UI,
 }
 
@@ -26,35 +28,30 @@ pub struct GameState {
 // Tutorial and ABTest. Expressing this manually right now is quite tedious; maybe having on_enter
 // and on_exit would be cleaner.
 
-pub enum Mode {
-    SplashScreen(Wizard, Option<(Screensaver, XorShiftRng)>),
-    Edit(EditMode),
-    Tutorial(TutorialMode),
-    Sandbox(SandboxMode),
-    Debug(DebugMode),
-    Mission(MissionEditMode),
-    ABTest(ABTestMode),
-}
-
-impl GameState {
-    pub fn new(flags: Flags, ctx: &mut EventCtx) -> GameState {
+impl Game {
+    pub fn new(flags: Flags, ctx: &mut EventCtx) -> Game {
         let splash = !flags.no_splash
             && !format!("{}", flags.sim_flags.load.display()).contains("data/save");
-        let mut game = GameState {
-            mode: Mode::Sandbox(SandboxMode::new(ctx)),
-            ui: UI::new(flags, ctx, splash),
-        };
-        if splash {
-            let mut rng = game.ui.primary.current_flags.sim_flags.make_rng();
-            game.mode = Mode::SplashScreen(
-                Wizard::new(),
-                Some((
-                    Screensaver::start_bounce(&mut rng, ctx.canvas, &game.ui.primary.map),
+        let ui = UI::new(flags, ctx, splash);
+        let states: Vec<Box<State>> = if splash {
+            let mut rng = ui.primary.current_flags.sim_flags.make_rng();
+            vec![Box::new(SplashScreen {
+                wizard: Wizard::new(),
+                maybe_screensaver: Some((
+                    Screensaver::start_bounce(&mut rng, ctx.canvas, &ui.primary.map),
                     rng,
                 )),
-            );
-        }
-        game
+            })]
+        } else {
+            vec![
+                Box::new(SplashScreen {
+                    wizard: Wizard::new(),
+                    maybe_screensaver: None,
+                }),
+                Box::new(SandboxMode::new(ctx)),
+            ]
+        };
+        Game { states, ui }
     }
 
     fn save_editor_state(&self, canvas: &Canvas) {
@@ -71,55 +68,41 @@ impl GameState {
     }
 }
 
-impl GUI for GameState {
+impl GUI for Game {
     fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode {
-        match self.mode {
-            Mode::SplashScreen(ref mut wizard, ref mut maybe_screensaver) => {
-                let anim = maybe_screensaver.is_some();
-                if let Some((ref mut screensaver, ref mut rng)) = maybe_screensaver {
-                    screensaver.update(rng, ctx.input, ctx.canvas, &self.ui.primary.map);
-                }
-
-                if let Some(new_mode) = splash_screen(wizard, ctx, &mut self.ui, maybe_screensaver)
-                {
-                    self.mode = new_mode;
-                } else if wizard.aborted() {
+        let (transition, evloop) = self.states.last_mut().unwrap().event(ctx, &mut self.ui);
+        match transition {
+            Transition::Keep => {}
+            Transition::Pop => {
+                self.states.pop();
+                if self.states.is_empty() {
                     self.before_quit(ctx.canvas);
                     std::process::exit(0);
                 }
-                if anim {
-                    EventLoopMode::Animation
-                } else {
-                    EventLoopMode::InputOnly
-                }
             }
-            Mode::Edit(_) => EditMode::event(self, ctx),
-            Mode::Tutorial(_) => TutorialMode::event(self, ctx),
-            Mode::Sandbox(_) => SandboxMode::event(self, ctx),
-            Mode::Debug(_) => DebugMode::event(self, ctx),
-            Mode::Mission(_) => MissionEditMode::event(self, ctx),
-            Mode::ABTest(_) => ABTestMode::event(self, ctx),
+            Transition::Push(state) => {
+                self.states.push(state);
+            }
+            Transition::Replace(state) => {
+                self.states.pop();
+                self.states.push(state);
+            }
         }
+        evloop
     }
 
     fn draw(&self, g: &mut GfxCtx) {
-        match self.mode {
-            Mode::SplashScreen(ref wizard, _) => {
-                self.ui.draw(
-                    g,
-                    DrawOptions::new(),
-                    &self.ui.primary.sim,
-                    &ShowEverything::new(),
-                );
-                wizard.draw(g);
-            }
-            Mode::Edit(_) => EditMode::draw(self, g),
-            Mode::Tutorial(_) => TutorialMode::draw(self, g),
-            Mode::Sandbox(_) => SandboxMode::draw(self, g),
-            Mode::Debug(_) => DebugMode::draw(self, g),
-            Mode::Mission(_) => MissionEditMode::draw(self, g),
-            Mode::ABTest(_) => ABTestMode::draw(self, g),
+        let state = self.states.last().unwrap();
+        if state.draw_default_ui() {
+            self.ui.draw(
+                g,
+                DrawOptions::new(),
+                &self.ui.primary.sim,
+                &ShowEverything::new(),
+            );
         }
+        state.draw(g, &self.ui);
+
         /*println!(
             "{} uploads, {} draw calls",
             g.get_num_uploads(),
@@ -133,12 +116,12 @@ impl GUI for GameState {
         );
         println!("UI broke! Primary sim:");
         self.ui.primary.sim.dump_before_abort();
-        if let Mode::ABTest(ref abtest) = self.mode {
+        /*if let Mode::ABTest(ref abtest) = self.mode {
             if let Some(ref s) = abtest.secondary {
                 println!("Secondary sim:");
                 s.sim.dump_before_abort();
             }
-        }
+        }*/
         self.save_editor_state(canvas);
     }
 
@@ -153,9 +136,43 @@ impl GUI for GameState {
     }
 }
 
+struct SplashScreen {
+    wizard: Wizard,
+    maybe_screensaver: Option<(Screensaver, XorShiftRng)>,
+}
+
+impl State for SplashScreen {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+        if let Some((ref mut screensaver, ref mut rng)) = self.maybe_screensaver {
+            screensaver.update(rng, ctx.input, ctx.canvas, &ui.primary.map);
+        }
+
+        let transition = if let Some(t) =
+            splash_screen(&mut self.wizard, ctx, ui, &mut self.maybe_screensaver)
+        {
+            t
+        } else if self.wizard.aborted() {
+            Transition::Pop
+        } else {
+            Transition::Keep
+        };
+        let evloop = if self.maybe_screensaver.is_some() {
+            EventLoopMode::Animation
+        } else {
+            EventLoopMode::InputOnly
+        };
+
+        (transition, evloop)
+    }
+
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        self.wizard.draw(g);
+    }
+}
+
 const SPEED: Speed = Speed::const_meters_per_second(20.0);
 
-pub struct Screensaver {
+struct Screensaver {
     line: Line,
     started: Instant,
 }
@@ -203,7 +220,7 @@ fn splash_screen(
     ctx: &mut EventCtx,
     ui: &mut UI,
     maybe_screensaver: &mut Option<(Screensaver, XorShiftRng)>,
-) -> Option<Mode> {
+) -> Option<Transition> {
     let mut wizard = raw_wizard.wrap(ctx);
     let sandbox = "Sandbox mode";
     let load_map = "Load another map";
@@ -215,78 +232,78 @@ fn splash_screen(
     let about = "About";
     let quit = "Quit";
 
-    // Loop because we might go from About -> top-level menu repeatedly, and recursion is scary.
-    loop {
-        // TODO No hotkey for quit because it's just the normal menu escape?
-        match wizard
-            .choose_string_hotkeys(
-                "Welcome to A/B Street!",
-                vec![
-                    (hotkey(Key::S), sandbox),
-                    (hotkey(Key::L), load_map),
-                    (hotkey(Key::E), edit),
-                    (hotkey(Key::T), tutorial),
-                    (hotkey(Key::D), debug),
-                    (hotkey(Key::M), mission),
-                    (hotkey(Key::A), abtest),
-                    (None, about),
-                    (None, quit),
-                ],
-            )?
-            .as_str()
-        {
-            x if x == sandbox => break Some(Mode::Sandbox(SandboxMode::new(ctx))),
-            x if x == load_map => {
-                let current_map = ui.primary.map.get_name().to_string();
-                if let Some((name, _)) = wizard.choose_something_no_keys::<String>(
-                    "Load which map?",
-                    Box::new(move || {
-                        abstutil::list_all_objects("maps", "")
-                            .into_iter()
-                            .filter(|(n, _)| n != &current_map)
-                            .collect()
-                    }),
-                ) {
-                    // This retains no state, but that's probably fine.
-                    let mut flags = ui.primary.current_flags.clone();
-                    flags.sim_flags.load = PathBuf::from(format!("../data/maps/{}.bin", name));
-                    *ui = UI::new(flags, ctx, false);
-                    break Some(Mode::Sandbox(SandboxMode::new(ctx)));
-                } else if wizard.aborted() {
-                    break Some(Mode::SplashScreen(Wizard::new(), maybe_screensaver.take()));
-                } else {
-                    break None;
-                }
+    // TODO No hotkey for quit because it's just the normal menu escape?
+    match wizard
+        .choose_string_hotkeys(
+            "Welcome to A/B Street!",
+            vec![
+                (hotkey(Key::S), sandbox),
+                (hotkey(Key::L), load_map),
+                (hotkey(Key::E), edit),
+                (hotkey(Key::T), tutorial),
+                (hotkey(Key::D), debug),
+                (hotkey(Key::M), mission),
+                (hotkey(Key::A), abtest),
+                (None, about),
+                (None, quit),
+            ],
+        )?
+        .as_str()
+    {
+        x if x == sandbox => Some(Transition::Push(Box::new(SandboxMode::new(ctx)))),
+        x if x == load_map => {
+            let current_map = ui.primary.map.get_name().to_string();
+            if let Some((name, _)) = wizard.choose_something_no_keys::<String>(
+                "Load which map?",
+                Box::new(move || {
+                    abstutil::list_all_objects("maps", "")
+                        .into_iter()
+                        .filter(|(n, _)| n != &current_map)
+                        .collect()
+                }),
+            ) {
+                // This retains no state, but that's probably fine.
+                let mut flags = ui.primary.current_flags.clone();
+                flags.sim_flags.load = PathBuf::from(format!("../data/maps/{}.bin", name));
+                *ui = UI::new(flags, ctx, false);
+                // TODO want to clear wizard and screensaver as we leave this state.
+                Some(Transition::Push(Box::new(SandboxMode::new(ctx))))
+            } else if wizard.aborted() {
+                Some(Transition::Replace(Box::new(SplashScreen {
+                    wizard: Wizard::new(),
+                    maybe_screensaver: maybe_screensaver.take(),
+                })))
+            } else {
+                None
             }
-            x if x == edit => break Some(Mode::Edit(EditMode::new(ctx, ui))),
-            x if x == tutorial => break Some(Mode::Tutorial(TutorialMode::new(ctx, ui))),
-            x if x == debug => break Some(Mode::Debug(DebugMode::new(ctx, ui))),
-            x if x == mission => break Some(Mode::Mission(MissionEditMode::new(ctx, ui))),
-            x if x == abtest => {
-                break Some(Mode::ABTest(ABTestMode::new(ctx, ui, "unnamed a/b test")))
-            }
-            x if x == about => {
-                if wizard.acknowledge(
-                    "About A/B Street",
-                    vec![
-                        "Author: Dustin Carlino (dabreegster@gmail.com)",
-                        "http://github.com/dabreegster/abstreet",
-                        "Map data from OpenStreetMap and King County GIS",
-                        "",
-                        "Press ENTER to continue",
-                    ],
-                ) {
-                    continue;
-                } else {
-                    break None;
-                }
-            }
-            x if x == quit => {
-                // Not important to call before_quit... if we're here, we're bouncing around
-                // aimlessly anyway
-                std::process::exit(0);
-            }
-            _ => unreachable!(),
         }
+        /*x if x == edit => break Some(Mode::Edit(EditMode::new(ctx, ui))),
+        x if x == tutorial => break Some(Mode::Tutorial(TutorialMode::new(ctx, ui))),
+        x if x == debug => break Some(Mode::Debug(DebugMode::new(ctx, ui))),
+        x if x == mission => break Some(Mode::Mission(MissionEditMode::new(ctx, ui))),
+        x if x == abtest => {
+            break Some(Mode::ABTest(ABTestMode::new(ctx, ui, "unnamed a/b test")))
+        }*/
+        x if x == about => {
+            if wizard.acknowledge(
+                "About A/B Street",
+                vec![
+                    "Author: Dustin Carlino (dabreegster@gmail.com)",
+                    "http://github.com/dabreegster/abstreet",
+                    "Map data from OpenStreetMap and King County GIS",
+                    "",
+                    "Press ENTER to continue",
+                ],
+            ) {
+                Some(Transition::Replace(Box::new(SplashScreen {
+                    wizard: Wizard::new(),
+                    maybe_screensaver: maybe_screensaver.take(),
+                })))
+            } else {
+                None
+            }
+        }
+        x if x == quit => Some(Transition::Pop),
+        _ => unreachable!(),
     }
 }

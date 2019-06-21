@@ -1,19 +1,20 @@
-mod abtest;
+//mod abtest;
 mod common;
-mod debug;
-mod edit;
+//mod debug;
+//mod edit;
 mod game;
 mod helpers;
-mod mission;
+//mod mission;
 mod render;
 mod sandbox;
-mod tutorial;
+mod state;
+//mod tutorial;
 mod ui;
 
 use structopt::StructOpt;
 
 fn main() {
     ezgui::run("A/B Street", 1800.0, 800.0, |ctx| {
-        game::GameState::new(ui::Flags::from_args(), ctx)
+        game::Game::new(ui::Flags::from_args(), ctx)
     });
 }
