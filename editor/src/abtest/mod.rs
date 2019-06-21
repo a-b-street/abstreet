@@ -9,8 +9,9 @@ use ezgui::{
     hotkey, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, ModalMenu, Text, Wizard,
 };
 use geom::{Circle, Distance, Duration, Line, PolyLine};
-use map_model::LANE_THICKNESS;
-use sim::TripID;
+use map_model::{Map, LANE_THICKNESS};
+use serde_derive::{Deserialize, Serialize};
+use sim::{Sim, TripID};
 
 pub struct ABTestMode {
     menu: ModalMenu,
@@ -22,6 +23,7 @@ pub struct ABTestMode {
     diff_all: Option<DiffAllTrips>,
     // TODO Not present in Setup state.
     common: CommonState,
+    test_name: String,
 }
 
 pub enum State {
@@ -31,7 +33,7 @@ pub enum State {
 }
 
 impl ABTestMode {
-    pub fn new(ctx: &mut EventCtx, ui: &mut UI) -> ABTestMode {
+    pub fn new(ctx: &mut EventCtx, ui: &mut UI, test_name: &str) -> ABTestMode {
         ui.primary.current_selection = None;
 
         ABTestMode {
@@ -48,6 +50,7 @@ impl ABTestMode {
                         (hotkey(Key::D), "diff all trips"),
                         (hotkey(Key::B), "stop diffing trips"),
                         (hotkey(Key::Q), "scoreboard"),
+                        (hotkey(Key::O), "save state"),
                     ],
                     CommonState::modal_menu_entries(),
                 ]
@@ -60,6 +63,7 @@ impl ABTestMode {
             diff_trip: None,
             diff_all: None,
             common: CommonState::new(),
+            test_name: test_name.to_string(),
         }
     }
 
@@ -131,6 +135,10 @@ impl ABTestMode {
                                 mode.secondary.as_ref().unwrap(),
                             ));
                             return EventLoopMode::InputOnly;
+                        }
+
+                        if mode.menu.action("save state") {
+                            mode.savestate(&mut state.ui.primary);
                         }
 
                         if mode.diff_trip.is_some() {
@@ -263,6 +271,44 @@ impl ABTestMode {
             _ => unreachable!(),
         }
     }
+
+    fn savestate(&mut self, primary: &mut PerMapUI) {
+        // Temporarily move everything into this structure.
+        let blank_map = Map::blank();
+        let mut secondary = self.secondary.take().unwrap();
+        let ss = ABTestSavestate {
+            primary_map: std::mem::replace(&mut primary.map, Map::blank()),
+            primary_sim: std::mem::replace(
+                &mut primary.sim,
+                Sim::new(&blank_map, "run".to_string(), None),
+            ),
+            secondary_map: std::mem::replace(&mut secondary.map, Map::blank()),
+            secondary_sim: std::mem::replace(
+                &mut secondary.sim,
+                Sim::new(&blank_map, "run".to_string(), None),
+            ),
+        };
+
+        let path = format!(
+            "../data/ab_test_saves/{}/{}/{}.bin",
+            ss.primary_map.get_name(),
+            self.test_name,
+            ss.primary_sim.time()
+        );
+        abstutil::write_binary(&path, &ss).unwrap();
+        println!("Saved {}", path);
+
+        // Restore everything.
+        primary.sim = ss.primary_sim;
+        primary.map = ss.primary_map;
+        self.secondary = Some(PerMapUI {
+            map: ss.secondary_map,
+            draw_map: secondary.draw_map,
+            sim: ss.secondary_sim,
+            current_selection: secondary.current_selection,
+            current_flags: secondary.current_flags,
+        });
+    }
 }
 
 pub struct DiffOneTrip {
@@ -364,4 +410,12 @@ impl DiffAllTrips {
         }
         batch.draw(g);
     }
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct ABTestSavestate {
+    primary_map: Map,
+    primary_sim: Sim,
+    secondary_map: Map,
+    secondary_sim: Sim,
 }

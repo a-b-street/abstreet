@@ -8,7 +8,7 @@ use crate::{
 };
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
-use geom::{Bounds, GPSBounds, Polygon};
+use geom::{Bounds, GPSBounds, Polygon, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 use std::io;
@@ -53,6 +53,34 @@ impl Map {
     pub fn new(path: &str, timer: &mut Timer) -> Result<Map, io::Error> {
         let data: raw_data::Map = abstutil::read_binary(path, timer)?;
         Ok(Map::create_from_raw(abstutil::basename(path), data, timer))
+    }
+
+    // Just for temporary std::mem::replace tricks.
+    pub fn blank() -> Map {
+        Map {
+            roads: Vec::new(),
+            lanes: Vec::new(),
+            intersections: Vec::new(),
+            turns: BTreeMap::new(),
+            buildings: Vec::new(),
+            bus_stops: BTreeMap::new(),
+            bus_routes: Vec::new(),
+            areas: Vec::new(),
+            boundary_polygon: Polygon::new(&vec![
+                Pt2D::new(0.0, 0.0),
+                Pt2D::new(1.0, 0.0),
+                Pt2D::new(1.0, 1.0),
+            ]),
+            stop_signs: BTreeMap::new(),
+            traffic_signals: BTreeMap::new(),
+            gps_bounds: GPSBounds::new(),
+            bounds: Bounds::new(),
+            turn_lookup: Vec::new(),
+            pathfinder: None,
+            pathfinder_dirty: false,
+            name: "blank".to_string(),
+            edits: MapEdits::new("blank".to_string()),
+        }
     }
 
     pub fn create_from_raw(name: String, data: raw_data::Map, timer: &mut Timer) -> Map {

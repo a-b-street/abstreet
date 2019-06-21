@@ -1,6 +1,7 @@
-use crate::abtest::{ABTestMode, State};
+use crate::abtest::{ABTestMode, ABTestSavestate, State};
 use crate::edit::apply_map_edits;
 use crate::game::{GameState, Mode};
+use crate::render::DrawMap;
 use crate::ui::{Flags, PerMapUI, UI};
 use ezgui::{hotkey, EventCtx, GfxCtx, Key, LogScroller, ModalMenu, Wizard, WrappedWizard};
 use geom::Duration;
@@ -11,6 +12,7 @@ use std::path::PathBuf;
 pub enum ABTestSetup {
     Pick(Wizard),
     Manage(ModalMenu, ABTest, LogScroller),
+    LoadSavestate(ABTest, Wizard),
 }
 
 impl ABTestSetup {
@@ -29,6 +31,7 @@ impl ABTestSetup {
                                     vec![
                                         (hotkey(Key::Escape), "quit"),
                                         (hotkey(Key::R), "run A/B test"),
+                                        (hotkey(Key::L), "load savestate"),
                                     ],
                                     ctx,
                                 ),
@@ -39,6 +42,28 @@ impl ABTestSetup {
                             state.mode = Mode::SplashScreen(Wizard::new(), None);
                         }
                     }
+                    ABTestSetup::LoadSavestate(ref test, ref mut wizard) => {
+                        if let Some(ss) = pick_savestate(test, &mut wizard.wrap(ctx)) {
+                            state.mode = launch_savestate(test, ss, &mut state.ui, ctx);
+                        } else if wizard.aborted() {
+                            // TODO Here's where we need to push and pop states.
+                            let scroller =
+                                LogScroller::new(test.test_name.clone(), test.describe());
+                            *setup = ABTestSetup::Manage(
+                                ModalMenu::new(
+                                    &format!("A/B Test Editor for {}", test.test_name),
+                                    vec![
+                                        (hotkey(Key::Escape), "quit"),
+                                        (hotkey(Key::R), "run A/B test"),
+                                        (hotkey(Key::L), "load savestate"),
+                                    ],
+                                    ctx,
+                                ),
+                                test.clone(),
+                                scroller,
+                            );
+                        }
+                    }
                     ABTestSetup::Manage(ref mut menu, test, ref mut scroller) => {
                         ctx.canvas.handle_event(ctx.input);
                         menu.handle_event(ctx, None);
@@ -46,6 +71,8 @@ impl ABTestSetup {
                             state.mode = Mode::SplashScreen(Wizard::new(), None);
                         } else if menu.action("run A/B test") {
                             state.mode = launch_test(test, &mut state.ui, ctx);
+                        } else if menu.action("load savestate") {
+                            *setup = ABTestSetup::LoadSavestate(test.clone(), Wizard::new());
                         }
                     }
                 },
@@ -58,6 +85,9 @@ impl ABTestSetup {
     pub fn draw(&self, g: &mut GfxCtx) {
         match self {
             ABTestSetup::Pick(wizard) => {
+                wizard.draw(g);
+            }
+            ABTestSetup::LoadSavestate(_, wizard) => {
                 wizard.draw(g);
             }
             ABTestSetup::Manage(ref menu, _, scroller) => {
@@ -158,10 +188,51 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> Mode {
         },
     );
 
-    let mut mode = ABTestMode::new(ctx, ui);
+    let mut mode = ABTestMode::new(ctx, ui, &test.test_name);
     mode.state = State::Playing;
     mode.secondary = Some(secondary);
     Mode::ABTest(mode)
+}
+
+fn launch_savestate(test: &ABTest, ss_path: String, ui: &mut UI, ctx: &mut EventCtx) -> Mode {
+    ctx.loading_screen(
+        &format!("Launch A/B test from savestate {}", ss_path),
+        |ctx, mut timer| {
+            let ss: ABTestSavestate = abstutil::read_binary(&ss_path, &mut timer).unwrap();
+
+            timer.start("setup primary");
+            ui.primary.map = ss.primary_map;
+            ui.primary.sim = ss.primary_sim;
+            ui.primary.draw_map = DrawMap::new(
+                &ui.primary.map,
+                &ui.primary.current_flags,
+                &ui.cs,
+                ctx.prerender,
+                &mut timer,
+            );
+            timer.stop("setup primary");
+
+            timer.start("setup secondary");
+            let mut mode = ABTestMode::new(ctx, ui, &test.test_name);
+            mode.state = State::Playing;
+            mode.secondary = Some(PerMapUI {
+                draw_map: DrawMap::new(
+                    &ss.secondary_map,
+                    &ui.primary.current_flags,
+                    &ui.cs,
+                    ctx.prerender,
+                    &mut timer,
+                ),
+                map: ss.secondary_map,
+                sim: ss.secondary_sim,
+                current_selection: None,
+                // TODO Hack... can we just remove these?
+                current_flags: ui.primary.current_flags.clone(),
+            });
+            timer.stop("setup secondary");
+            Mode::ABTest(mode)
+        },
+    )
 }
 
 fn choose_scenario(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
@@ -196,4 +267,22 @@ fn load_ab_test(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<AB
             Box::new(move || abstutil::load_all_objects("ab_tests", &map_name)),
         )
         .map(|(_, t)| t)
+}
+
+fn pick_savestate(test: &ABTest, wizard: &mut WrappedWizard) -> Option<String> {
+    let path = format!(
+        "../data/ab_test_saves/{}/{}/",
+        test.map_name, test.test_name
+    );
+    wizard
+        .choose_something_no_keys::<()>(
+            "Load which savestate?",
+            Box::new(move || {
+                abstutil::list_dir(std::path::Path::new(&path))
+                    .into_iter()
+                    .map(|f| (f, ()))
+                    .collect()
+            }),
+        )
+        .map(|(f, _)| f)
 }

@@ -4,6 +4,7 @@
 
 editor_state.json
 
+data/ab_test_saves/*
 data/ab_tests/*
 data/edits/*
 data/input/*
