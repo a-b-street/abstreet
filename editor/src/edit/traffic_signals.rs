@@ -1,12 +1,13 @@
 use crate::common::CommonState;
 use crate::edit::apply_map_edits;
-use crate::game::GameState;
 use crate::helpers::ID;
 use crate::render::{draw_signal_cycle, draw_signal_diagram, DrawCtx, DrawOptions, DrawTurn};
+use crate::state::{State, Transition};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu, MultiKey, Wizard, WrappedWizard,
+    hotkey, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, ModalMenu, MultiKey, Wizard,
+    WrappedWizard,
 };
 use geom::Duration;
 use map_model::{ControlTrafficSignal, Cycle, IntersectionID, Map, TurnID, TurnPriority, TurnType};
@@ -56,9 +57,10 @@ impl TrafficSignalEditor {
             icon_selected: None,
         }
     }
+}
 
-    // Returns true if the editor is done and we should go back to main edit mode.
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> bool {
+impl State for TrafficSignalEditor {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
         self.menu.handle_event(ctx, None);
         ctx.canvas.handle_event(ctx.input);
 
@@ -148,7 +150,7 @@ impl TrafficSignalEditor {
             }
         } else {
             if self.menu.action("quit") {
-                return true;
+                return (Transition::Pop, EventLoopMode::InputOnly);
             }
 
             if self.current_cycle != 0 && self.menu.action("select previous cycle") {
@@ -234,41 +236,34 @@ impl TrafficSignalEditor {
             apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
         }
 
-        false
+        (Transition::Keep, EventLoopMode::InputOnly)
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, state: &GameState) {
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         {
             let mut opts = DrawOptions::new();
             opts.suppress_traffic_signal_details = Some(self.i);
-            state
-                .ui
-                .draw(g, opts, &state.ui.primary.sim, &ShowEverything::new());
+            ui.draw(g, opts, &ui.primary.sim, &ShowEverything::new());
         }
 
         let mut batch = GeomBatch::new();
         let ctx = DrawCtx {
-            cs: &state.ui.cs,
-            map: &state.ui.primary.map,
-            draw_map: &state.ui.primary.draw_map,
-            sim: &state.ui.primary.sim,
+            cs: &ui.cs,
+            map: &ui.primary.map,
+            draw_map: &ui.primary.draw_map,
+            sim: &ui.primary.sim,
         };
-        let map = &state.ui.primary.map;
+        let map = &ui.primary.map;
         let cycle = &map.get_traffic_signal(self.i).cycles[self.current_cycle];
-        for t in &state.ui.primary.draw_map.get_turns(self.i, map) {
+        for t in &ui.primary.draw_map.get_turns(self.i, map) {
             let arrow_color = match cycle.get_priority(t.id) {
-                TurnPriority::Priority => state
-                    .ui
+                TurnPriority::Priority => ui
                     .cs
                     .get_def("priority turn in current cycle", Color::GREEN),
-                TurnPriority::Yield => state
-                    .ui
+                TurnPriority::Yield => ui
                     .cs
                     .get_def("yield turn in current cycle", Color::rgb(255, 105, 180)),
-                TurnPriority::Banned => state
-                    .ui
-                    .cs
-                    .get_def("turn not in current cycle", Color::BLACK),
+                TurnPriority::Banned => ui.cs.get_def("turn not in current cycle", Color::BLACK),
                 TurnPriority::Stop => panic!("Can't have TurnPriority::Stop in a traffic signal"),
             };
             t.draw_icon(
@@ -280,7 +275,7 @@ impl TrafficSignalEditor {
         }
         draw_signal_cycle(cycle, None, &mut batch, &ctx);
         if let Some(id) = self.icon_selected {
-            DrawTurn::draw_dashed(map.get_t(id), &mut batch, state.ui.cs.get("selected turn"));
+            DrawTurn::draw_dashed(map.get_t(id), &mut batch, ui.cs.get("selected turn"));
         }
         batch.draw(g);
 
@@ -294,9 +289,9 @@ impl TrafficSignalEditor {
 
         self.menu.draw(g);
         if let Some(t) = self.icon_selected {
-            CommonState::draw_osd(g, &state.ui, Some(ID::Turn(t)));
+            CommonState::draw_osd(g, ui, Some(ID::Turn(t)));
         } else {
-            CommonState::draw_osd(g, &state.ui, None);
+            CommonState::draw_osd(g, ui, None);
         }
     }
 }

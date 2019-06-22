@@ -7,7 +7,7 @@ mod objects;
 mod polygons;
 
 use crate::common::CommonState;
-//use crate::edit::EditMode;
+use crate::edit::EditMode;
 use crate::helpers::ID;
 use crate::sandbox::SandboxMode;
 use crate::state::{State, Transition};
@@ -136,13 +136,15 @@ impl State for DebugMode {
         }
         if self.menu.action("sandbox mode") {
             return (
-                Transition::Push(Box::new(SandboxMode::new(ctx))),
+                Transition::Replace(Box::new(SandboxMode::new(ctx))),
                 EventLoopMode::InputOnly,
             );
         }
         if self.menu.action("edit mode") {
-            //state.mode = Mode::Edit(EditMode::new(ctx, ui));
-            //return EventLoopMode::InputOnly;
+            return (
+                Transition::Replace(Box::new(EditMode::new(ctx, ui))),
+                EventLoopMode::InputOnly,
+            );
         }
 
         if self.menu.action("show/hide chokepoints") {
@@ -558,7 +560,7 @@ impl State for SearchOSM {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
         self.entry.draw(g);
     }
 }

@@ -1,7 +1,7 @@
 //mod abtest;
 mod common;
 mod debug;
-//mod edit;
+mod edit;
 mod game;
 mod helpers;
 //mod mission;

@@ -7,7 +7,7 @@ mod time_travel;
 
 use crate::common::{CommonState, SpeedControls};
 use crate::debug::DebugMode;
-//use crate::edit::EditMode;
+use crate::edit::EditMode;
 use crate::state::{State, Transition};
 //use crate::mission::input_time;
 use crate::ui::{ShowEverything, UI};
@@ -181,8 +181,10 @@ impl State for SandboxMode {
             );
         }
         if self.menu.action("edit mode") {
-            //state.mode = Mode::Edit(EditMode::new(ctx, &mut state.ui));
-            //return EventLoopMode::InputOnly;
+            return (
+                Transition::Replace(Box::new(EditMode::new(ctx, ui))),
+                EventLoopMode::InputOnly,
+            );
         }
 
         if let Some(dt) = self.speed.event(ctx, &mut self.menu, ui.primary.sim.time()) {
