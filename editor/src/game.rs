@@ -4,8 +4,8 @@ use crate::edit::EditMode;
 use crate::mission::MissionEditMode;
 use crate::render::DrawOptions;
 use crate::sandbox::SandboxMode;
-//use crate::tutorial::TutorialMode;
 use crate::state::{State, Transition};
+use crate::tutorial::TutorialMode;
 use crate::ui::{EditorState, Flags, ShowEverything, UI};
 use abstutil::elapsed_seconds;
 use ezgui::{hotkey, Canvas, EventCtx, EventLoopMode, GfxCtx, Key, UserInput, Wizard, GUI};
@@ -278,7 +278,7 @@ fn splash_screen(
             }
         }
         x if x == edit => Some(Transition::Push(Box::new(EditMode::new(ctx, ui)))),
-        //x if x == tutorial => break Some(Mode::Tutorial(TutorialMode::new(ctx, ui))),
+        x if x == tutorial => Some(Transition::Push(Box::new(TutorialMode::new(ctx, ui)))),
         x if x == debug => Some(Transition::Push(Box::new(DebugMode::new(ctx, ui)))),
         x if x == mission => Some(Transition::Push(Box::new(MissionEditMode::new(ctx, ui)))),
         x if x == abtest => Some(Transition::Push(Box::new(PickABTest::new()))),

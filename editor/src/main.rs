@@ -8,7 +8,7 @@ mod mission;
 mod render;
 mod sandbox;
 mod state;
-//mod tutorial;
+mod tutorial;
 mod ui;
 
 use structopt::StructOpt;

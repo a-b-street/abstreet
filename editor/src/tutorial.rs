@@ -1,18 +1,11 @@
-use crate::game::{GameState, Mode};
-use crate::render::DrawOptions;
-use crate::ui::{ShowEverything, UI};
-use ezgui::{hotkey, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard};
+use crate::state::{State, Transition};
+use crate::ui::UI;
+use ezgui::{hotkey, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text};
 use geom::Pt2D;
 
 pub struct TutorialMode {
     menu: ModalMenu,
-    // TODO Does CommonState make sense?
-    state: State,
-}
-
-enum State {
-    Part1(Pt2D),
-    Part2(f64),
+    orig_center: Pt2D,
 }
 
 impl TutorialMode {
@@ -22,69 +15,76 @@ impl TutorialMode {
 
         TutorialMode {
             menu: ModalMenu::new("Tutorial", vec![(hotkey(Key::Escape), "quit")], ctx),
-            state: State::Part1(ctx.canvas.center_to_map_pt()),
+            orig_center: ctx.canvas.center_to_map_pt(),
         }
     }
+}
 
-    pub fn event(state: &mut GameState, ctx: &mut EventCtx) -> EventLoopMode {
-        match state.mode {
-            Mode::Tutorial(ref mut mode) => {
-                let mut txt = Text::prompt("Tutorial");
-                match mode.state {
-                    State::Part1(orig_center) => {
-                        txt.add_line("Click and drag to pan around".to_string());
+impl State for TutorialMode {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+        let mut txt = Text::prompt("Tutorial");
+        txt.add_line("Click and drag to pan around".to_string());
 
-                        // TODO Zooming also changes this. :(
-                        if ctx.canvas.center_to_map_pt() != orig_center {
-                            txt.add_line("".to_string());
-                            txt.add_line("Great! Press ENTER to continue.".to_string());
-                            if ctx.input.key_pressed(Key::Enter, "next step of tutorial") {
-                                mode.state = State::Part2(ctx.canvas.cam_zoom);
-                            }
-                        }
-                    }
-                    State::Part2(orig_cam_zoom) => {
-                        txt.add_line(
-                            "Use your mouse wheel or touchpad to zoom in and out".to_string(),
-                        );
-
-                        if ctx.canvas.cam_zoom != orig_cam_zoom {
-                            txt.add_line("".to_string());
-                            txt.add_line("Great! Press ENTER to continue.".to_string());
-                            if ctx.input.key_pressed(Key::Enter, "next step of tutorial") {
-                                state.ui.primary.reset_sim();
-                                state.mode = Mode::SplashScreen(Wizard::new(), None);
-                                return EventLoopMode::InputOnly;
-                            }
-                        }
-                    }
-                }
-                mode.menu.handle_event(ctx, Some(txt));
-                ctx.canvas.handle_event(ctx.input);
-
-                if mode.menu.action("quit") {
-                    state.ui.primary.reset_sim();
-                    state.mode = Mode::SplashScreen(Wizard::new(), None);
-                }
-
-                EventLoopMode::InputOnly
+        // TODO Zooming also changes this. :(
+        if ctx.canvas.center_to_map_pt() != self.orig_center {
+            txt.add_line("".to_string());
+            txt.add_line("Great! Press ENTER to continue.".to_string());
+            if ctx.input.key_pressed(Key::Enter, "next step of tutorial") {
+                return (
+                    Transition::Replace(Box::new(Part2 {
+                        orig_cam_zoom: ctx.canvas.cam_zoom,
+                        menu: ModalMenu::new("Tutorial", vec![(hotkey(Key::Escape), "quit")], ctx),
+                    })),
+                    EventLoopMode::InputOnly,
+                );
             }
-            _ => unreachable!(),
         }
+        self.menu.handle_event(ctx, Some(txt));
+        ctx.canvas.handle_event(ctx.input);
+
+        if self.menu.action("quit") {
+            ui.primary.reset_sim();
+            return (Transition::Pop, EventLoopMode::InputOnly);
+        }
+
+        (Transition::Keep, EventLoopMode::InputOnly)
     }
 
-    pub fn draw(state: &GameState, g: &mut GfxCtx) {
-        state.ui.draw(
-            g,
-            DrawOptions::new(),
-            &state.ui.primary.sim,
-            &ShowEverything::new(),
-        );
-        match state.mode {
-            Mode::Tutorial(ref mode) => {
-                mode.menu.draw(g);
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        self.menu.draw(g);
+    }
+}
+
+struct Part2 {
+    menu: ModalMenu,
+    orig_cam_zoom: f64,
+}
+
+impl State for Part2 {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+        let mut txt = Text::prompt("Tutorial");
+        txt.add_line("Use your mouse wheel or touchpad to zoom in and out".to_string());
+
+        if ctx.canvas.cam_zoom != self.orig_cam_zoom {
+            txt.add_line("".to_string());
+            txt.add_line("Great! Press ENTER to continue.".to_string());
+            if ctx.input.key_pressed(Key::Enter, "next step of tutorial") {
+                ui.primary.reset_sim();
+                return (Transition::Pop, EventLoopMode::InputOnly);
             }
-            _ => unreachable!(),
         }
+        self.menu.handle_event(ctx, Some(txt));
+        ctx.canvas.handle_event(ctx.input);
+
+        if self.menu.action("quit") {
+            ui.primary.reset_sim();
+            return (Transition::Pop, EventLoopMode::InputOnly);
+        }
+
+        (Transition::Keep, EventLoopMode::InputOnly)
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        self.menu.draw(g);
     }
 }
