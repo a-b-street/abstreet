@@ -6,11 +6,10 @@ mod spawner;
 mod time_travel;
 
 use crate::common::{CommonState, SpeedControls};
-//use crate::debug::DebugMode;
+use crate::debug::DebugMode;
 //use crate::edit::EditMode;
 use crate::state::{State, Transition};
 //use crate::mission::input_time;
-use crate::render::DrawOptions;
 use crate::ui::{ShowEverything, UI};
 use ezgui::{hotkey, lctrl, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard};
 use geom::Duration;
@@ -175,8 +174,11 @@ impl State for SandboxMode {
             return (Transition::Pop, EventLoopMode::InputOnly);
         }
         if self.menu.action("debug mode") {
-            //state.mode = Mode::Debug(DebugMode::new(ctx, &state.ui));
-            //return EventLoopMode::InputOnly;
+            // TODO Replace or Push?
+            return (
+                Transition::Replace(Box::new(DebugMode::new(ctx, ui))),
+                EventLoopMode::InputOnly,
+            );
         }
         if self.menu.action("edit mode") {
             //state.mode = Mode::Edit(EditMode::new(ctx, &mut state.ui));

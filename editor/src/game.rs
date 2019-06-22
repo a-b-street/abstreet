@@ -1,5 +1,5 @@
 //use crate::abtest::ABTestMode;
-//use crate::debug::DebugMode;
+use crate::debug::DebugMode;
 //use crate::edit::EditMode;
 //use crate::mission::MissionEditMode;
 use crate::render::DrawOptions;
@@ -165,7 +165,7 @@ impl State for SplashScreen {
         (transition, evloop)
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
         self.wizard.draw(g);
     }
 }
@@ -278,9 +278,9 @@ fn splash_screen(
             }
         }
         /*x if x == edit => break Some(Mode::Edit(EditMode::new(ctx, ui))),
-        x if x == tutorial => break Some(Mode::Tutorial(TutorialMode::new(ctx, ui))),
-        x if x == debug => break Some(Mode::Debug(DebugMode::new(ctx, ui))),
-        x if x == mission => break Some(Mode::Mission(MissionEditMode::new(ctx, ui))),
+        x if x == tutorial => break Some(Mode::Tutorial(TutorialMode::new(ctx, ui))),*/
+        x if x == debug => Some(Transition::Push(Box::new(DebugMode::new(ctx, ui)))),
+        /*x if x == mission => break Some(Mode::Mission(MissionEditMode::new(ctx, ui))),
         x if x == abtest => {
             break Some(Mode::ABTest(ABTestMode::new(ctx, ui, "unnamed a/b test")))
         }*/

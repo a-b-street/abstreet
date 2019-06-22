@@ -1,8 +1,9 @@
 use crate::helpers::ID;
 use crate::render::calculate_corners;
+use crate::state::{State, Transition};
 use crate::ui::UI;
 use abstutil::Timer;
-use ezgui::{hotkey, EventCtx, GfxCtx, ItemSlider, Key, Text};
+use ezgui::{hotkey, EventCtx, EventLoopMode, GfxCtx, ItemSlider, Key, Text};
 use geom::{Polygon, Pt2D, Triangle};
 
 pub struct PolygonDebugger {
@@ -148,19 +149,20 @@ impl PolygonDebugger {
         }
         None
     }
+}
 
-    // True when done
-    pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
+impl State for PolygonDebugger {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> (Transition, EventLoopMode) {
         self.slider.event(ctx);
         ctx.canvas.handle_event(ctx.input);
 
         if self.slider.action("quit") {
-            return true;
+            return (Transition::Pop, EventLoopMode::InputOnly);
         }
-        false
+        (Transition::Keep, EventLoopMode::InputOnly)
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         let (idx, item) = self.slider.get();
 
         match item {

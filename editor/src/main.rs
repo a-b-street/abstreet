@@ -1,6 +1,6 @@
 //mod abtest;
 mod common;
-//mod debug;
+mod debug;
 //mod edit;
 mod game;
 mod helpers;

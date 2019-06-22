@@ -7,25 +7,24 @@ mod objects;
 mod polygons;
 
 use crate::common::CommonState;
-use crate::edit::EditMode;
-use crate::game::{GameState, Mode};
+//use crate::edit::EditMode;
 use crate::helpers::ID;
-use crate::render::DrawOptions;
 use crate::sandbox::SandboxMode;
+use crate::state::{State, Transition};
 use crate::ui::{ShowLayers, ShowObject, UI};
 use abstutil::wraparound_get;
 use abstutil::Timer;
 use clipping::CPolygon;
 use ezgui::{
-    hotkey, lctrl, Color, EventCtx, EventLoopMode, GfxCtx, InputResult, Key, ModalMenu,
-    ScrollingMenu, Text, TextBox, Wizard,
+    hotkey, lctrl, Color, EventCtx, EventLoopMode, GfxCtx, InputResult, Key, ModalMenu, Text,
+    TextBox,
 };
 use geom::{Distance, PolyLine, Polygon, Pt2D};
 use map_model::{IntersectionID, Map, RoadID};
 use std::collections::HashSet;
 
 pub struct DebugMode {
-    state: State,
+    menu: ModalMenu,
     common: CommonState,
     chokepoints: Option<chokepoints::ChokepointsFinder>,
     show_original_roads: HashSet<RoadID>,
@@ -38,18 +37,37 @@ pub struct DebugMode {
     neighborhood_summary: neighborhood_summary::NeighborhoodSummary,
 }
 
-enum State {
-    Exploring(ModalMenu),
-    Polygons(polygons::PolygonDebugger),
-    SearchOSM(TextBox),
-    Colors(color_picker::ColorPicker),
-    BusRoute(bus_explorer::BusRouteExplorer),
-}
-
 impl DebugMode {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> DebugMode {
         DebugMode {
-            state: DebugMode::exploring_state(ctx),
+            menu: ModalMenu::new(
+                "Debug Mode",
+                vec![
+                    vec![
+                        (hotkey(Key::Escape), "quit"),
+                        (hotkey(Key::C), "show/hide chokepoints"),
+                        (hotkey(Key::O), "clear original roads shown"),
+                        (hotkey(Key::G), "clear intersection geometry"),
+                        (hotkey(Key::H), "unhide everything"),
+                        (hotkey(Key::Num1), "show/hide buildings"),
+                        (hotkey(Key::Num2), "show/hide intersections"),
+                        (hotkey(Key::Num3), "show/hide lanes"),
+                        (hotkey(Key::Num4), "show/hide areas"),
+                        (hotkey(Key::Num5), "show/hide extra shapes"),
+                        (hotkey(Key::Num6), "show/hide geometry debug mode"),
+                        (None, "screenshot everything"),
+                        (hotkey(Key::Slash), "search OSM metadata"),
+                        (hotkey(Key::M), "clear OSM search results"),
+                        (hotkey(Key::S), "configure colors"),
+                        (hotkey(Key::N), "show/hide neighborhood summaries"),
+                        (lctrl(Key::S), "sandbox mode"),
+                        (lctrl(Key::E), "edit mode"),
+                    ],
+                    CommonState::modal_menu_entries(),
+                ]
+                .concat(),
+                ctx,
+            ),
             common: CommonState::new(),
             chokepoints: None,
             show_original_roads: HashSet::new(),
@@ -67,388 +85,262 @@ impl DebugMode {
             ),
         }
     }
+}
 
-    fn exploring_state(ctx: &EventCtx) -> State {
-        State::Exploring(ModalMenu::new(
-            "Debug Mode",
-            vec![
-                vec![
-                    (hotkey(Key::Escape), "quit"),
-                    (hotkey(Key::C), "show/hide chokepoints"),
-                    (hotkey(Key::O), "clear original roads shown"),
-                    (hotkey(Key::G), "clear intersection geometry"),
-                    (hotkey(Key::H), "unhide everything"),
-                    (hotkey(Key::Num1), "show/hide buildings"),
-                    (hotkey(Key::Num2), "show/hide intersections"),
-                    (hotkey(Key::Num3), "show/hide lanes"),
-                    (hotkey(Key::Num4), "show/hide areas"),
-                    (hotkey(Key::Num5), "show/hide extra shapes"),
-                    (hotkey(Key::Num6), "show/hide geometry debug mode"),
-                    (None, "screenshot everything"),
-                    (hotkey(Key::Slash), "search OSM metadata"),
-                    (hotkey(Key::M), "clear OSM search results"),
-                    (hotkey(Key::S), "configure colors"),
-                    (hotkey(Key::N), "show/hide neighborhood summaries"),
-                    (lctrl(Key::S), "sandbox mode"),
-                    (lctrl(Key::E), "edit mode"),
-                ],
-                CommonState::modal_menu_entries(),
-            ]
-            .concat(),
-            ctx,
-        ))
-    }
+impl State for DebugMode {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+        // TODO This might break, because ShowObject is implemented on the entirety of DebugMode
+        if ctx.redo_mouseover() {
+            ui.primary.current_selection =
+                ui.recalculate_current_selection(ctx, &ui.primary.sim, self, true);
+        }
 
-    pub fn event(state: &mut GameState, ctx: &mut EventCtx) -> EventLoopMode {
-        match state.mode {
-            Mode::Debug(ref mut mode) => {
-                // TODO Argh, bad hack! Can't do it below because menu is borrowed and ShowObject
-                // is implemented on the entirety of DebugMode. :(
-                if let State::Exploring(_) = mode.state {
-                    if ctx.redo_mouseover() {
-                        state.ui.primary.current_selection = state
-                            .ui
-                            .recalculate_current_selection(ctx, &state.ui.primary.sim, mode, true);
-                    }
-                }
+        let mut txt = Text::prompt("Debug Mode");
+        if self.chokepoints.is_some() {
+            txt.add_line("Showing chokepoints".to_string());
+        }
+        if !self.show_original_roads.is_empty() {
+            txt.add_line(format!(
+                "Showing {} original roads",
+                self.show_original_roads.len()
+            ));
+        }
+        if !self.intersection_geom.is_empty() {
+            txt.add_line(format!(
+                "Showing {} attempts at intersection geometry",
+                self.intersection_geom.len()
+            ));
+        }
+        if !self.hidden.is_empty() {
+            txt.add_line(format!("Hiding {} things", self.hidden.len()));
+        }
+        if let Some((ref search, ref results)) = self.search_results {
+            txt.add_line(format!(
+                "Search for {} has {} results",
+                search,
+                results.len()
+            ));
+        }
+        if self.neighborhood_summary.active {
+            txt.add_line("Showing neighborhood summaries".to_string());
+        }
+        self.menu.handle_event(ctx, Some(txt));
 
-                match mode.state {
-                    State::Exploring(ref mut menu) => {
-                        let mut txt = Text::prompt("Debug Mode");
-                        if mode.chokepoints.is_some() {
-                            txt.add_line("Showing chokepoints".to_string());
-                        }
-                        if !mode.show_original_roads.is_empty() {
-                            txt.add_line(format!(
-                                "Showing {} original roads",
-                                mode.show_original_roads.len()
-                            ));
-                        }
-                        if !mode.intersection_geom.is_empty() {
-                            txt.add_line(format!(
-                                "Showing {} attempts at intersection geometry",
-                                mode.intersection_geom.len()
-                            ));
-                        }
-                        if !mode.hidden.is_empty() {
-                            txt.add_line(format!("Hiding {} things", mode.hidden.len()));
-                        }
-                        if let Some((ref search, ref results)) = mode.search_results {
-                            txt.add_line(format!(
-                                "Search for {} has {} results",
-                                search,
-                                results.len()
-                            ));
-                        }
-                        if mode.neighborhood_summary.active {
-                            txt.add_line("Showing neighborhood summaries".to_string());
-                        }
-                        menu.handle_event(ctx, Some(txt));
+        ctx.canvas.handle_event(ctx.input);
+        if let Some(evmode) = self.common.event(ctx, ui, &mut self.menu) {
+            return (Transition::Keep, evmode);
+        }
 
-                        ctx.canvas.handle_event(ctx.input);
-                        if let Some(evmode) = mode.common.event(ctx, &mut state.ui, menu) {
-                            return evmode;
-                        }
+        if self.menu.action("quit") {
+            return (Transition::Pop, EventLoopMode::InputOnly);
+        }
+        if self.menu.action("sandbox mode") {
+            return (
+                Transition::Push(Box::new(SandboxMode::new(ctx))),
+                EventLoopMode::InputOnly,
+            );
+        }
+        if self.menu.action("edit mode") {
+            //state.mode = Mode::Edit(EditMode::new(ctx, ui));
+            //return EventLoopMode::InputOnly;
+        }
 
-                        if menu.action("quit") {
-                            state.mode = Mode::SplashScreen(Wizard::new(), None);
-                            return EventLoopMode::InputOnly;
-                        }
-                        if menu.action("sandbox mode") {
-                            state.mode = Mode::Sandbox(SandboxMode::new(ctx));
-                            return EventLoopMode::InputOnly;
-                        }
-                        if menu.action("edit mode") {
-                            state.mode = Mode::Edit(EditMode::new(ctx, &mut state.ui));
-                            return EventLoopMode::InputOnly;
-                        }
-
-                        if menu.action("show/hide chokepoints") {
-                            if mode.chokepoints.is_some() {
-                                mode.chokepoints = None;
-                            } else {
-                                // TODO Nothing will actually exist. ;)
-                                mode.chokepoints = Some(chokepoints::ChokepointsFinder::new(
-                                    &state.ui.primary.sim,
-                                ));
-                            }
-                        }
-                        if !mode.show_original_roads.is_empty() {
-                            if menu.action("clear original roads shown") {
-                                mode.show_original_roads.clear();
-                            }
-                        }
-                        if !mode.intersection_geom.is_empty()
-                            && state.ui.primary.current_selection.is_none()
-                        {
-                            if menu.action("clear intersection geometry") {
-                                mode.intersection_geom.clear();
-                            }
-                        }
-                        match state.ui.primary.current_selection {
-                            Some(ID::Lane(_))
-                            | Some(ID::Intersection(_))
-                            | Some(ID::ExtraShape(_)) => {
-                                let id = state.ui.primary.current_selection.unwrap();
-                                if ctx
-                                    .input
-                                    .contextual_action(Key::H, &format!("hide {:?}", id))
-                                {
-                                    println!("Hiding {:?}", id);
-                                    state.ui.primary.current_selection = None;
-                                    mode.hidden.insert(id);
-                                }
-                            }
-                            None => {
-                                if !mode.hidden.is_empty() && menu.action("unhide everything") {
-                                    mode.hidden.clear();
-                                    // TODO recalculate_current_selection... need to borrow mode
-                                    // immutably
-                                }
-                            }
-                            _ => {}
-                        }
-
-                        if let Some(ID::Lane(l)) = state.ui.primary.current_selection {
-                            let id = state.ui.primary.map.get_l(l).parent;
-                            if !mode.show_original_roads.contains(&id)
-                                && ctx.input.contextual_action(
-                                    Key::V,
-                                    &format!("show original geometry of {}", id),
-                                )
-                            {
-                                mode.show_original_roads.insert(id);
-                            }
-                        }
-                        if let Some(ID::Intersection(i)) = state.ui.primary.current_selection {
-                            if !mode.intersection_geom.contains(&i)
-                                && ctx.input.contextual_action(
-                                    Key::G,
-                                    &format!("recalculate intersection geometry of {}", i),
-                                )
-                            {
-                                mode.intersection_geom.insert(i);
-                            }
-                        }
-                        mode.connected_roads.event(ctx, &state.ui);
-                        mode.objects.event(ctx, &state.ui);
-                        mode.neighborhood_summary.event(&state.ui, menu);
-
-                        if let Some(debugger) = polygons::PolygonDebugger::new(ctx, &state.ui) {
-                            mode.state = State::Polygons(debugger);
-                            return EventLoopMode::InputOnly;
-                        }
-
-                        {
-                            let mut changed = true;
-                            if menu.action("show/hide buildings") {
-                                mode.layers.show_buildings = !mode.layers.show_buildings;
-                            } else if menu.action("show/hide intersections") {
-                                mode.layers.show_intersections = !mode.layers.show_intersections;
-                            } else if menu.action("show/hide lanes") {
-                                mode.layers.show_lanes = !mode.layers.show_lanes;
-                            } else if menu.action("show/hide areas") {
-                                mode.layers.show_areas = !mode.layers.show_areas;
-                            } else if menu.action("show/hide extra shapes") {
-                                mode.layers.show_extra_shapes = !mode.layers.show_extra_shapes;
-                            } else if menu.action("show/hide geometry debug mode") {
-                                mode.layers.geom_debug_mode = !mode.layers.geom_debug_mode;
-                            } else {
-                                changed = false;
-                            }
-
-                            if changed {
-                                // TODO recalculate_current_selection... need to borrow mode
-                                // immutably
-                            }
-                        }
-
-                        if menu.action("screenshot everything") {
-                            let bounds = state.ui.primary.map.get_bounds();
-                            assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
-                            return EventLoopMode::ScreenCaptureEverything {
-                                dir: format!(
-                                    "../data/screenshots/pending_{}",
-                                    state.ui.primary.map.get_name()
-                                ),
-                                zoom: 3.0,
-                                max_x: bounds.max_x,
-                                max_y: bounds.max_y,
-                            };
-                        }
-
-                        if mode.search_results.is_some() {
-                            if menu.action("clear OSM search results") {
-                                mode.search_results = None;
-                            }
-                        } else if menu.action("search OSM metadata") {
-                            mode.state = State::SearchOSM(TextBox::new("Search for what?", None));
-                        } else if menu.action("configure colors") {
-                            mode.state = State::Colors(color_picker::ColorPicker::Choosing(
-                                ScrollingMenu::new(
-                                    "Pick a color to change",
-                                    state.ui.cs.color_names(),
-                                ),
-                            ));
-                        }
-
-                        if let Some(explorer) = bus_explorer::BusRouteExplorer::new(ctx, &state.ui)
-                        {
-                            mode.state = State::BusRoute(explorer);
-                        }
-
-                        EventLoopMode::InputOnly
-                    }
-                    State::Polygons(ref mut debugger) => {
-                        if debugger.event(ctx) {
-                            mode.state = DebugMode::exploring_state(ctx);
-                        }
-                        EventLoopMode::InputOnly
-                    }
-                    State::SearchOSM(ref mut tb) => {
-                        match tb.event(&mut ctx.input) {
-                            InputResult::Canceled => {
-                                mode.state = DebugMode::exploring_state(ctx);
-                            }
-                            InputResult::Done(filter, _) => {
-                                mode.state = DebugMode::exploring_state(ctx);
-
-                                let mut ids = HashSet::new();
-                                let map = &state.ui.primary.map;
-                                for r in map.all_roads() {
-                                    if r.osm_tags
-                                        .iter()
-                                        .any(|(k, v)| format!("{} = {}", k, v).contains(&filter))
-                                    {
-                                        for l in r.all_lanes() {
-                                            ids.insert(ID::Lane(l));
-                                        }
-                                    }
-                                }
-                                for b in map.all_buildings() {
-                                    if b.osm_tags
-                                        .iter()
-                                        .any(|(k, v)| format!("{} = {}", k, v).contains(&filter))
-                                    {
-                                        ids.insert(ID::Building(b.id));
-                                    }
-                                }
-                                mode.search_results = Some((filter, ids));
-                            }
-                            InputResult::StillActive => {}
-                        }
-                        EventLoopMode::InputOnly
-                    }
-                    State::Colors(ref mut picker) => {
-                        if picker.event(ctx, &mut state.ui) {
-                            mode.state = DebugMode::exploring_state(ctx);
-                        }
-                        EventLoopMode::InputOnly
-                    }
-                    State::BusRoute(ref mut explorer) => {
-                        if let Some(mode) = explorer.event(ctx, &mut state.ui) {
-                            mode
-                        } else {
-                            mode.state = DebugMode::exploring_state(ctx);
-                            EventLoopMode::InputOnly
-                        }
-                    }
+        if self.menu.action("show/hide chokepoints") {
+            if self.chokepoints.is_some() {
+                self.chokepoints = None;
+            } else {
+                // TODO Nothing will actually exist. ;)
+                self.chokepoints = Some(chokepoints::ChokepointsFinder::new(&ui.primary.sim));
+            }
+        }
+        if !self.show_original_roads.is_empty() {
+            if self.menu.action("clear original roads shown") {
+                self.show_original_roads.clear();
+            }
+        }
+        if !self.intersection_geom.is_empty() && ui.primary.current_selection.is_none() {
+            if self.menu.action("clear intersection geometry") {
+                self.intersection_geom.clear();
+            }
+        }
+        match ui.primary.current_selection {
+            Some(ID::Lane(_)) | Some(ID::Intersection(_)) | Some(ID::ExtraShape(_)) => {
+                let id = ui.primary.current_selection.unwrap();
+                if ctx
+                    .input
+                    .contextual_action(Key::H, &format!("hide {:?}", id))
+                {
+                    println!("Hiding {:?}", id);
+                    ui.primary.current_selection = None;
+                    self.hidden.insert(id);
                 }
             }
-            _ => unreachable!(),
+            None => {
+                if !self.hidden.is_empty() && self.menu.action("unhide everything") {
+                    self.hidden.clear();
+                    // TODO recalculate_current_selection... need to borrow mode
+                    // immutably
+                }
+            }
+            _ => {}
         }
+
+        if let Some(ID::Lane(l)) = ui.primary.current_selection {
+            let id = ui.primary.map.get_l(l).parent;
+            if !self.show_original_roads.contains(&id)
+                && ctx
+                    .input
+                    .contextual_action(Key::V, &format!("show original geometry of {}", id))
+            {
+                self.show_original_roads.insert(id);
+            }
+        }
+        if let Some(ID::Intersection(i)) = ui.primary.current_selection {
+            if !self.intersection_geom.contains(&i)
+                && ctx.input.contextual_action(
+                    Key::G,
+                    &format!("recalculate intersection geometry of {}", i),
+                )
+            {
+                self.intersection_geom.insert(i);
+            }
+        }
+        self.connected_roads.event(ctx, ui);
+        self.objects.event(ctx, ui);
+        self.neighborhood_summary.event(ui, &mut self.menu);
+
+        if let Some(debugger) = polygons::PolygonDebugger::new(ctx, ui) {
+            return (
+                Transition::Push(Box::new(debugger)),
+                EventLoopMode::InputOnly,
+            );
+        }
+
+        {
+            let mut changed = true;
+            if self.menu.action("show/hide buildings") {
+                self.layers.show_buildings = !self.layers.show_buildings;
+            } else if self.menu.action("show/hide intersections") {
+                self.layers.show_intersections = !self.layers.show_intersections;
+            } else if self.menu.action("show/hide lanes") {
+                self.layers.show_lanes = !self.layers.show_lanes;
+            } else if self.menu.action("show/hide areas") {
+                self.layers.show_areas = !self.layers.show_areas;
+            } else if self.menu.action("show/hide extra shapes") {
+                self.layers.show_extra_shapes = !self.layers.show_extra_shapes;
+            } else if self.menu.action("show/hide geometry debug mode") {
+                self.layers.geom_debug_mode = !self.layers.geom_debug_mode;
+            } else {
+                changed = false;
+            }
+
+            if changed {
+                // TODO recalculate_current_selection... need to borrow mode
+                // immutably
+            }
+        }
+
+        if self.menu.action("screenshot everything") {
+            let bounds = ui.primary.map.get_bounds();
+            assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
+            return (
+                Transition::Keep,
+                EventLoopMode::ScreenCaptureEverything {
+                    dir: format!("../data/screenshots/pending_{}", ui.primary.map.get_name()),
+                    zoom: 3.0,
+                    max_x: bounds.max_x,
+                    max_y: bounds.max_y,
+                },
+            );
+        }
+
+        if self.search_results.is_some() {
+            if self.menu.action("clear OSM search results") {
+                self.search_results = None;
+            }
+        } else if self.menu.action("search OSM metadata") {
+            return (
+                Transition::Push(Box::new(SearchOSM {
+                    entry: TextBox::new("Search for what?", None),
+                })),
+                EventLoopMode::InputOnly,
+            );
+        } else if self.menu.action("configure colors") {
+            return (
+                Transition::Push(Box::new(color_picker::ColorChooser::new(ui))),
+                EventLoopMode::InputOnly,
+            );
+        }
+
+        if let Some(explorer) = bus_explorer::BusRouteExplorer::new(ctx, ui) {
+            return (
+                Transition::Push(Box::new(explorer)),
+                EventLoopMode::Animation,
+            );
+        }
+
+        (Transition::Keep, EventLoopMode::InputOnly)
     }
 
-    pub fn draw(state: &GameState, g: &mut GfxCtx) {
-        match state.mode {
-            Mode::Debug(ref mode) => match mode.state {
-                State::Exploring(ref menu) => {
-                    let mut opts = mode.common.draw_options(&state.ui);
-                    opts.geom_debug_mode = mode.layers.geom_debug_mode;
-                    if let Some(ref chokepoints) = mode.chokepoints {
-                        let color = state.ui.cs.get_def("chokepoint", Color::RED);
-                        for l in &chokepoints.lanes {
-                            opts.override_colors.insert(ID::Lane(*l), color);
-                        }
-                        for i in &chokepoints.intersections {
-                            opts.override_colors.insert(ID::Intersection(*i), color);
-                        }
-                    }
-                    for l in &mode.connected_roads.lanes {
-                        opts.override_colors.insert(
-                            ID::Lane(*l),
-                            state.ui.cs.get("something associated with something else"),
-                        );
-                    }
-                    if let Some((_, ref results)) = mode.search_results {
-                        for id in results {
-                            opts.override_colors
-                                .insert(*id, state.ui.cs.get_def("search result", Color::RED));
-                        }
-                    }
-                    state.ui.draw(g, opts, &state.ui.primary.sim, mode);
-                    mode.common.draw(g, &state.ui);
+    fn draw_default_ui(&self) -> bool {
+        false
+    }
 
-                    for id in &mode.show_original_roads {
-                        let r = state.ui.primary.map.get_r(*id);
-                        if let Some(pair) = r.get_center_for_side(true) {
-                            let (pl, width) = pair.unwrap();
-                            g.draw_polygon(
-                                state
-                                    .ui
-                                    .cs
-                                    .get_def("original road forwards", Color::RED.alpha(0.5)),
-                                &pl.make_polygons(width),
-                            );
-                        }
-                        if let Some(pair) = r.get_center_for_side(false) {
-                            let (pl, width) = pair.unwrap();
-                            g.draw_polygon(
-                                state
-                                    .ui
-                                    .cs
-                                    .get_def("original road backwards", Color::BLUE.alpha(0.5)),
-                                &pl.make_polygons(width),
-                            );
-                        }
-                    }
-                    for id in &mode.intersection_geom {
-                        recalc_intersection_geom(*id, &state.ui.primary.map, g);
-                    }
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        let mut opts = self.common.draw_options(ui);
+        opts.geom_debug_mode = self.layers.geom_debug_mode;
+        if let Some(ref chokepoints) = self.chokepoints {
+            let color = ui.cs.get_def("chokepoint", Color::RED);
+            for l in &chokepoints.lanes {
+                opts.override_colors.insert(ID::Lane(*l), color);
+            }
+            for i in &chokepoints.intersections {
+                opts.override_colors.insert(ID::Intersection(*i), color);
+            }
+        }
+        for l in &self.connected_roads.lanes {
+            opts.override_colors.insert(
+                ID::Lane(*l),
+                ui.cs.get("something associated with something else"),
+            );
+        }
+        if let Some((_, ref results)) = self.search_results {
+            for id in results {
+                opts.override_colors
+                    .insert(*id, ui.cs.get_def("search result", Color::RED));
+            }
+        }
+        ui.draw(g, opts, &ui.primary.sim, self);
+        self.common.draw(g, ui);
 
-                    mode.objects.draw(g, &state.ui);
-                    mode.neighborhood_summary.draw(g);
+        for id in &self.show_original_roads {
+            let r = ui.primary.map.get_r(*id);
+            if let Some(pair) = r.get_center_for_side(true) {
+                let (pl, width) = pair.unwrap();
+                g.draw_polygon(
+                    ui.cs
+                        .get_def("original road forwards", Color::RED.alpha(0.5)),
+                    &pl.make_polygons(width),
+                );
+            }
+            if let Some(pair) = r.get_center_for_side(false) {
+                let (pl, width) = pair.unwrap();
+                g.draw_polygon(
+                    ui.cs
+                        .get_def("original road backwards", Color::BLUE.alpha(0.5)),
+                    &pl.make_polygons(width),
+                );
+            }
+        }
+        for id in &self.intersection_geom {
+            recalc_intersection_geom(*id, &ui.primary.map, g);
+        }
 
-                    if !g.is_screencap() {
-                        menu.draw(g);
-                    }
-                }
-                State::Polygons(ref debugger) => {
-                    let mut opts = DrawOptions::new();
-                    opts.geom_debug_mode = mode.layers.geom_debug_mode;
-                    state.ui.draw(g, opts, &state.ui.primary.sim, mode);
-                    debugger.draw(g, &state.ui);
-                }
-                State::SearchOSM(ref tb) => {
-                    let mut opts = DrawOptions::new();
-                    opts.geom_debug_mode = mode.layers.geom_debug_mode;
-                    state.ui.draw(g, opts, &state.ui.primary.sim, mode);
-                    tb.draw(g);
-                }
-                State::Colors(ref picker) => {
-                    let mut opts = DrawOptions::new();
-                    opts.geom_debug_mode = mode.layers.geom_debug_mode;
-                    state.ui.draw(g, opts, &state.ui.primary.sim, mode);
-                    picker.draw(g);
-                }
-                State::BusRoute(ref explorer) => {
-                    let mut opts = DrawOptions::new();
-                    opts.geom_debug_mode = mode.layers.geom_debug_mode;
-                    state.ui.draw(g, opts, &state.ui.primary.sim, mode);
-                    explorer.draw(g, &state.ui);
-                }
-            },
-            _ => unreachable!(),
+        self.objects.draw(g, ui);
+        self.neighborhood_summary.draw(g);
+
+        if !g.is_screencap() {
+            self.menu.draw(g);
         }
     }
 }
@@ -626,4 +518,47 @@ fn intersection_many(polys: &Vec<Polygon>) -> Option<Polygon> {
         result = CPolygon::from_vec(&output[0]);
     }
     Some(cpoly_to_poly(result.points()))
+}
+
+struct SearchOSM {
+    entry: TextBox,
+}
+
+impl State for SearchOSM {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+        match self.entry.event(&mut ctx.input) {
+            InputResult::Canceled => (Transition::Pop, EventLoopMode::InputOnly),
+            InputResult::Done(filter, _) => {
+                let mut ids = HashSet::new();
+                let map = &ui.primary.map;
+                for r in map.all_roads() {
+                    if r.osm_tags
+                        .iter()
+                        .any(|(k, v)| format!("{} = {}", k, v).contains(&filter))
+                    {
+                        for l in r.all_lanes() {
+                            ids.insert(ID::Lane(l));
+                        }
+                    }
+                }
+                for b in map.all_buildings() {
+                    if b.osm_tags
+                        .iter()
+                        .any(|(k, v)| format!("{} = {}", k, v).contains(&filter))
+                    {
+                        ids.insert(ID::Building(b.id));
+                    }
+                }
+
+                // TODO How to pass data back?
+                //mode.search_results = Some((filter, ids));
+                (Transition::Pop, EventLoopMode::InputOnly)
+            }
+            InputResult::StillActive => (Transition::Keep, EventLoopMode::InputOnly),
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        self.entry.draw(g);
+    }
 }

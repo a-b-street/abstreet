@@ -1,5 +1,6 @@
 use crate::common::CommonState;
 use crate::helpers::ID;
+use crate::state::{State, Transition};
 use crate::ui::{ShowEverything, UI};
 use ezgui::{EventCtx, EventLoopMode, GfxCtx, Key, Text, WarpingItemSlider};
 use geom::Pt2D;
@@ -41,9 +42,10 @@ impl BusRouteExplorer {
             ),
         })
     }
+}
 
-    // Done when None
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<EventLoopMode> {
+impl State for BusRouteExplorer {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
         if ctx.redo_mouseover() {
             ui.primary.current_selection = ui.recalculate_current_selection(
                 ctx,
@@ -55,14 +57,17 @@ impl BusRouteExplorer {
         }
         ctx.canvas.handle_event(ctx.input);
 
-        let (evmode, done_warping) = self.slider.event(ctx)?;
-        if done_warping {
-            ui.primary.current_selection = Some(ID::BusStop(*self.slider.get().1));
+        if let Some((evmode, done_warping)) = self.slider.event(ctx) {
+            if done_warping {
+                ui.primary.current_selection = Some(ID::BusStop(*self.slider.get().1));
+            }
+            (Transition::Keep, evmode)
+        } else {
+            (Transition::Pop, EventLoopMode::InputOnly)
         }
-        Some(evmode)
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         self.slider.draw(g);
         CommonState::draw_osd(g, ui, ui.primary.current_selection);
     }
