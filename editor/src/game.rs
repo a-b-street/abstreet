@@ -1,4 +1,4 @@
-//use crate::abtest::ABTestMode;
+use crate::abtest::setup::PickABTest;
 use crate::debug::DebugMode;
 use crate::edit::EditMode;
 //use crate::mission::MissionEditMode;
@@ -280,10 +280,8 @@ fn splash_screen(
         x if x == edit => Some(Transition::Push(Box::new(EditMode::new(ctx, ui)))),
         //x if x == tutorial => break Some(Mode::Tutorial(TutorialMode::new(ctx, ui))),
         x if x == debug => Some(Transition::Push(Box::new(DebugMode::new(ctx, ui)))),
-        /*x if x == mission => break Some(Mode::Mission(MissionEditMode::new(ctx, ui))),
-        x if x == abtest => {
-            break Some(Mode::ABTest(ABTestMode::new(ctx, ui, "unnamed a/b test")))
-        }*/
+        //x if x == mission => break Some(Mode::Mission(MissionEditMode::new(ctx, ui))),
+        x if x == abtest => Some(Transition::Push(Box::new(PickABTest::new()))),
         x if x == about => {
             if wizard.acknowledge(
                 "About A/B Street",

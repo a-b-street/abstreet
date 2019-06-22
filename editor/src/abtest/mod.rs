@@ -1,13 +1,11 @@
 mod score;
-mod setup;
+pub mod setup;
 
 use crate::common::{CommonState, SpeedControls};
-use crate::game::{GameState, Mode};
-use crate::render::{DrawOptions, MIN_ZOOM_FOR_DETAIL};
+use crate::render::MIN_ZOOM_FOR_DETAIL;
+use crate::state::{State, Transition};
 use crate::ui::{PerMapUI, ShowEverything, UI};
-use ezgui::{
-    hotkey, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, ModalMenu, Text, Wizard,
-};
+use ezgui::{hotkey, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, ModalMenu, Text};
 use geom::{Circle, Distance, Duration, Line, PolyLine};
 use map_model::{Map, LANE_THICKNESS};
 use serde_derive::{Deserialize, Serialize};
@@ -16,9 +14,8 @@ use sim::{Sim, TripID};
 pub struct ABTestMode {
     menu: ModalMenu,
     speed: SpeedControls,
-    pub state: State,
     // TODO Urgh, hack. Need to be able to take() it to switch states sometimes.
-    pub secondary: Option<PerMapUI>,
+    secondary: Option<PerMapUI>,
     diff_trip: Option<DiffOneTrip>,
     diff_all: Option<DiffAllTrips>,
     // TODO Not present in Setup state.
@@ -26,14 +23,13 @@ pub struct ABTestMode {
     test_name: String,
 }
 
-pub enum State {
-    Setup(setup::ABTestSetup),
-    Playing,
-    Scoreboard(score::Scoreboard),
-}
-
 impl ABTestMode {
-    pub fn new(ctx: &mut EventCtx, ui: &mut UI, test_name: &str) -> ABTestMode {
+    pub fn new(
+        ctx: &mut EventCtx,
+        ui: &mut UI,
+        test_name: &str,
+        secondary: PerMapUI,
+    ) -> ABTestMode {
         ui.primary.current_selection = None;
 
         ABTestMode {
@@ -58,148 +54,133 @@ impl ABTestMode {
                 ctx,
             ),
             speed: SpeedControls::new(ctx, None),
-            state: State::Setup(setup::ABTestSetup::Pick(Wizard::new())),
-            secondary: None,
+            secondary: Some(secondary),
             diff_trip: None,
             diff_all: None,
             common: CommonState::new(),
             test_name: test_name.to_string(),
         }
     }
+}
 
-    pub fn event(state: &mut GameState, ctx: &mut EventCtx) -> EventLoopMode {
-        match state.mode {
-            Mode::ABTest(ref mut mode) => {
-                match mode.state {
-                    State::Setup(_) => {
-                        setup::ABTestSetup::event(state, ctx);
-                        EventLoopMode::InputOnly
-                    }
-                    State::Scoreboard(ref mut s) => {
-                        if s.event(ctx, &state.ui.primary, mode.secondary.as_ref().unwrap()) {
-                            mode.state = State::Playing;
-                            mode.speed.pause();
-                        }
-                        EventLoopMode::InputOnly
-                    }
-                    State::Playing => {
-                        let mut txt = Text::prompt("A/B Test Mode");
-                        txt.add_line(state.ui.primary.map.get_edits().edits_name.clone());
-                        if let Some(ref diff) = mode.diff_trip {
-                            txt.add_line(format!("Showing diff for {}", diff.trip));
-                        } else if let Some(ref diff) = mode.diff_all {
-                            txt.add_line(format!(
-                                "Showing diffs for all. {} trips same, {} differ",
-                                diff.same_trips,
-                                diff.lines.len()
-                            ));
-                        }
-                        txt.add_line(state.ui.primary.sim.summary());
-                        mode.menu.handle_event(ctx, Some(txt));
+impl State for ABTestMode {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+        let mut txt = Text::prompt("A/B Test Mode");
+        txt.add_line(ui.primary.map.get_edits().edits_name.clone());
+        if let Some(ref diff) = self.diff_trip {
+            txt.add_line(format!("Showing diff for {}", diff.trip));
+        } else if let Some(ref diff) = self.diff_all {
+            txt.add_line(format!(
+                "Showing diffs for all. {} trips same, {} differ",
+                diff.same_trips,
+                diff.lines.len()
+            ));
+        }
+        txt.add_line(ui.primary.sim.summary());
+        self.menu.handle_event(ctx, Some(txt));
 
-                        ctx.canvas.handle_event(ctx.input);
-                        if ctx.redo_mouseover() {
-                            state.ui.primary.current_selection =
-                                state.ui.recalculate_current_selection(
-                                    ctx,
-                                    &state.ui.primary.sim,
-                                    &ShowEverything::new(),
-                                    false,
-                                );
-                        }
-                        if let Some(evmode) = mode.common.event(ctx, &mut state.ui, &mut mode.menu)
-                        {
-                            return evmode;
-                        }
+        ctx.canvas.handle_event(ctx.input);
+        if ctx.redo_mouseover() {
+            ui.primary.current_selection = ui.recalculate_current_selection(
+                ctx,
+                &ui.primary.sim,
+                &ShowEverything::new(),
+                false,
+            );
+        }
+        if let Some(evmode) = self.common.event(ctx, ui, &mut self.menu) {
+            return (Transition::Keep, evmode);
+        }
 
-                        if mode.menu.action("quit") {
-                            // TODO This shouldn't be necessary when we plumb state around instead of
-                            // sharing it in the old structure.
-                            state.ui.primary.reset_sim();
-                            // Note destroying mode.secondary has some noticeable delay.
-                            state.mode = Mode::SplashScreen(Wizard::new(), None);
-                            return EventLoopMode::InputOnly;
-                        }
+        if self.menu.action("quit") {
+            // TODO Should we clear edits too?
+            ui.primary.reset_sim();
+            // Note destroying mode.secondary has some noticeable delay.
+            return (Transition::Pop, EventLoopMode::InputOnly);
+        }
 
-                        if mode.menu.action("swap") {
-                            let secondary = mode.secondary.take().unwrap();
-                            let primary = std::mem::replace(&mut state.ui.primary, secondary);
-                            mode.secondary = Some(primary);
-                            mode.recalculate_stuff(&mut state.ui, ctx);
-                        }
+        if self.menu.action("swap") {
+            let secondary = self.secondary.take().unwrap();
+            let primary = std::mem::replace(&mut ui.primary, secondary);
+            self.secondary = Some(primary);
+            self.recalculate_stuff(ui, ctx);
+        }
 
-                        if mode.menu.action("scoreboard") {
-                            mode.state = State::Scoreboard(score::Scoreboard::new(
-                                ctx,
-                                &state.ui.primary,
-                                mode.secondary.as_ref().unwrap(),
-                            ));
-                            return EventLoopMode::InputOnly;
-                        }
+        if self.menu.action("scoreboard") {
+            self.speed.pause();
+            return (
+                Transition::Push(Box::new(score::Scoreboard::new(
+                    ctx,
+                    &ui.primary,
+                    self.secondary.as_ref().unwrap(),
+                ))),
+                EventLoopMode::InputOnly,
+            );
+        }
 
-                        if mode.menu.action("save state") {
-                            mode.savestate(&mut state.ui.primary);
-                        }
+        if self.menu.action("save state") {
+            self.savestate(&mut ui.primary);
+        }
 
-                        if mode.diff_trip.is_some() {
-                            if mode.menu.action("stop diffing trips") {
-                                mode.diff_trip = None;
-                            }
-                        } else if mode.diff_all.is_some() {
-                            if mode.menu.action("stop diffing trips") {
-                                mode.diff_all = None;
-                            }
-                        } else {
-                            if state.ui.primary.current_selection.is_none()
-                                && mode.menu.action("diff all trips")
-                            {
-                                mode.diff_all = Some(DiffAllTrips::new(
-                                    &mut state.ui.primary,
-                                    mode.secondary.as_mut().unwrap(),
-                                ));
-                            } else if let Some(agent) = state
-                                .ui
-                                .primary
-                                .current_selection
-                                .and_then(|id| id.agent_id())
-                            {
-                                if let Some(trip) = state.ui.primary.sim.agent_to_trip(agent) {
-                                    if ctx.input.contextual_action(
-                                        Key::B,
-                                        &format!("Show {}'s parallel world", agent),
-                                    ) {
-                                        mode.diff_trip = Some(DiffOneTrip::new(
-                                            trip,
-                                            &state.ui.primary,
-                                            mode.secondary.as_ref().unwrap(),
-                                        ));
-                                    }
-                                }
-                            }
-                        }
-
-                        if let Some(dt) =
-                            mode.speed
-                                .event(ctx, &mut mode.menu, state.ui.primary.sim.time())
-                        {
-                            mode.step(dt, &mut state.ui, ctx);
-                        }
-
-                        if mode.speed.is_paused() {
-                            if mode.menu.action("step forwards 0.1s") {
-                                mode.step(Duration::seconds(0.1), &mut state.ui, ctx);
-                            }
-                            EventLoopMode::InputOnly
-                        } else {
-                            EventLoopMode::Animation
-                        }
+        if self.diff_trip.is_some() {
+            if self.menu.action("stop diffing trips") {
+                self.diff_trip = None;
+            }
+        } else if self.diff_all.is_some() {
+            if self.menu.action("stop diffing trips") {
+                self.diff_all = None;
+            }
+        } else {
+            if ui.primary.current_selection.is_none() && self.menu.action("diff all trips") {
+                self.diff_all = Some(DiffAllTrips::new(
+                    &mut ui.primary,
+                    self.secondary.as_mut().unwrap(),
+                ));
+            } else if let Some(agent) = ui.primary.current_selection.and_then(|id| id.agent_id()) {
+                if let Some(trip) = ui.primary.sim.agent_to_trip(agent) {
+                    if ctx
+                        .input
+                        .contextual_action(Key::B, &format!("Show {}'s parallel world", agent))
+                    {
+                        self.diff_trip = Some(DiffOneTrip::new(
+                            trip,
+                            &ui.primary,
+                            self.secondary.as_ref().unwrap(),
+                        ));
                     }
                 }
             }
-            _ => unreachable!(),
+        }
+
+        if let Some(dt) = self.speed.event(ctx, &mut self.menu, ui.primary.sim.time()) {
+            self.step(dt, ui, ctx);
+        }
+
+        if self.speed.is_paused() {
+            if self.menu.action("step forwards 0.1s") {
+                self.step(Duration::seconds(0.1), ui, ctx);
+            }
+            (Transition::Keep, EventLoopMode::InputOnly)
+        } else {
+            (Transition::Keep, EventLoopMode::Animation)
         }
     }
 
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        self.common.draw(g, ui);
+
+        if let Some(ref diff) = self.diff_trip {
+            diff.draw(g, ui);
+        }
+        if let Some(ref diff) = self.diff_all {
+            diff.draw(g, ui);
+        }
+        self.menu.draw(g);
+        self.speed.draw(g);
+    }
+}
+
+impl ABTestMode {
     fn step(&mut self, dt: Duration, ui: &mut UI, ctx: &EventCtx) {
         ui.primary.sim.step(&ui.primary.map, dt);
         {
@@ -226,50 +207,6 @@ impl ABTestMode {
 
         ui.primary.current_selection =
             ui.recalculate_current_selection(ctx, &ui.primary.sim, &ShowEverything::new(), false);
-    }
-
-    pub fn draw(state: &GameState, g: &mut GfxCtx) {
-        match state.mode {
-            Mode::ABTest(ref mode) => match mode.state {
-                State::Setup(ref setup) => {
-                    state.ui.draw(
-                        g,
-                        DrawOptions::new(),
-                        &state.ui.primary.sim,
-                        &ShowEverything::new(),
-                    );
-                    setup.draw(g);
-                }
-                State::Scoreboard(ref s) => {
-                    state.ui.draw(
-                        g,
-                        DrawOptions::new(),
-                        &state.ui.primary.sim,
-                        &ShowEverything::new(),
-                    );
-                    s.draw(g);
-                }
-                State::Playing => {
-                    state.ui.draw(
-                        g,
-                        mode.common.draw_options(&state.ui),
-                        &state.ui.primary.sim,
-                        &ShowEverything::new(),
-                    );
-                    mode.common.draw(g, &state.ui);
-
-                    if let Some(ref diff) = mode.diff_trip {
-                        diff.draw(g, &state.ui);
-                    }
-                    if let Some(ref diff) = mode.diff_all {
-                        diff.draw(g, &state.ui);
-                    }
-                    mode.menu.draw(g);
-                    mode.speed.draw(g);
-                }
-            },
-            _ => unreachable!(),
-        }
     }
 
     fn savestate(&mut self, primary: &mut PerMapUI) {

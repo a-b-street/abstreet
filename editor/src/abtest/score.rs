@@ -1,16 +1,18 @@
+use crate::state::{State, Transition};
 use crate::ui::PerMapUI;
+use crate::ui::UI;
 use ezgui::{
-    hotkey, EventCtx, GfxCtx, HorizontalAlignment, Key, ModalMenu, Text, VerticalAlignment, Wizard,
-    WrappedWizard,
+    hotkey, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Key, ModalMenu, Text,
+    VerticalAlignment, Wizard, WrappedWizard,
 };
 use geom::Duration;
 use itertools::Itertools;
 use sim::{FinishedTrips, TripID, TripMode};
 use std::collections::BTreeMap;
 
-pub enum Scoreboard {
-    Summary(ModalMenu, Text),
-    BrowseTrips(CompareTrips, Wizard),
+pub struct Scoreboard {
+    menu: ModalMenu,
+    summary: Text,
 }
 
 impl Scoreboard {
@@ -76,52 +78,55 @@ impl Scoreboard {
             }
         }
 
-        Scoreboard::Summary(menu, summary)
+        Scoreboard { menu, summary }
+    }
+}
+
+impl State for Scoreboard {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> (Transition, EventLoopMode) {
+        self.menu.handle_event(ctx, None);
+        if self.menu.action("quit") {
+            return (Transition::Pop, EventLoopMode::InputOnly);
+        }
+        if self.menu.action("browse trips") {
+            /*self = Scoreboard::BrowseTrips(
+                CompareTrips::new(
+                    primary.sim.get_finished_trips(),
+                    secondary.sim.get_finished_trips(),
+                ),
+                Wizard::new(),
+            );*/
+        }
+        (Transition::Keep, EventLoopMode::InputOnly)
     }
 
-    // Returns true if done and we should go back to main A/B test mode.
-    pub fn event(&mut self, ctx: &mut EventCtx, primary: &PerMapUI, secondary: &PerMapUI) -> bool {
-        match self {
-            Scoreboard::Summary(ref mut menu, _) => {
-                menu.handle_event(ctx, None);
-                if menu.action("quit") {
-                    return true;
-                }
-                if menu.action("browse trips") {
-                    *self = Scoreboard::BrowseTrips(
-                        CompareTrips::new(
-                            primary.sim.get_finished_trips(),
-                            secondary.sim.get_finished_trips(),
-                        ),
-                        Wizard::new(),
-                    );
-                }
-            }
-            Scoreboard::BrowseTrips(ref trips, ref mut wizard) => {
-                if pick_trip(trips, &mut wizard.wrap(ctx)).is_some() {
-                    // TODO show more details...
-                    *self = Scoreboard::new(ctx, primary, secondary);
-                } else if wizard.aborted() {
-                    *self = Scoreboard::new(ctx, primary, secondary);
-                }
-            }
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        g.draw_blocking_text(
+            &self.summary,
+            (HorizontalAlignment::Center, VerticalAlignment::Center),
+        );
+        self.menu.draw(g);
+    }
+}
+
+struct BrowseTrips {
+    trips: CompareTrips,
+    wizard: Wizard,
+}
+
+impl State for BrowseTrips {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> (Transition, EventLoopMode) {
+        if pick_trip(&self.trips, &mut self.wizard.wrap(ctx)).is_some() {
+            // TODO show more details...
+            return (Transition::Pop, EventLoopMode::InputOnly);
+        } else if self.wizard.aborted() {
+            return (Transition::Pop, EventLoopMode::InputOnly);
         }
-        false
+        (Transition::Keep, EventLoopMode::InputOnly)
     }
 
-    pub fn draw(&self, g: &mut GfxCtx) {
-        match self {
-            Scoreboard::Summary(ref menu, ref txt) => {
-                g.draw_blocking_text(
-                    txt,
-                    (HorizontalAlignment::Center, VerticalAlignment::Center),
-                );
-                menu.draw(g);
-            }
-            Scoreboard::BrowseTrips(_, ref wizard) => {
-                wizard.draw(g);
-            }
-        }
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        self.wizard.draw(g);
     }
 }
 

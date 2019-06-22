@@ -1,100 +1,114 @@
-use crate::abtest::{ABTestMode, ABTestSavestate, State};
+use crate::abtest::{ABTestMode, ABTestSavestate};
 use crate::edit::apply_map_edits;
-use crate::game::{GameState, Mode};
 use crate::render::DrawMap;
+use crate::state::{State, Transition};
 use crate::ui::{Flags, PerMapUI, UI};
-use ezgui::{hotkey, EventCtx, GfxCtx, Key, LogScroller, ModalMenu, Wizard, WrappedWizard};
+use ezgui::{
+    hotkey, EventCtx, EventLoopMode, GfxCtx, Key, LogScroller, ModalMenu, Wizard, WrappedWizard,
+};
 use geom::Duration;
 use map_model::{Map, MapEdits};
 use sim::{ABTest, Scenario, SimFlags};
 use std::path::PathBuf;
 
-pub enum ABTestSetup {
-    Pick(Wizard),
-    Manage(ModalMenu, ABTest, LogScroller),
-    LoadSavestate(ABTest, Wizard),
+pub struct PickABTest {
+    wizard: Wizard,
 }
 
-impl ABTestSetup {
-    pub fn event(state: &mut GameState, ctx: &mut EventCtx) {
-        match state.mode {
-            Mode::ABTest(ref mut mode) => match mode.state {
-                State::Setup(ref mut setup) => match setup {
-                    ABTestSetup::Pick(ref mut wizard) => {
-                        if let Some(ab_test) = pick_ab_test(&state.ui.primary.map, wizard.wrap(ctx))
-                        {
-                            let scroller =
-                                LogScroller::new(ab_test.test_name.clone(), ab_test.describe());
-                            *setup = ABTestSetup::Manage(
-                                ModalMenu::new(
-                                    &format!("A/B Test Editor for {}", ab_test.test_name),
-                                    vec![
-                                        (hotkey(Key::Escape), "quit"),
-                                        (hotkey(Key::R), "run A/B test"),
-                                        (hotkey(Key::L), "load savestate"),
-                                    ],
-                                    ctx,
-                                ),
-                                ab_test,
-                                scroller,
-                            );
-                        } else if wizard.aborted() {
-                            state.mode = Mode::SplashScreen(Wizard::new(), None);
-                        }
-                    }
-                    ABTestSetup::LoadSavestate(ref test, ref mut wizard) => {
-                        if let Some(ss) = pick_savestate(test, &mut wizard.wrap(ctx)) {
-                            state.mode = launch_savestate(test, ss, &mut state.ui, ctx);
-                        } else if wizard.aborted() {
-                            // TODO Here's where we need to push and pop states.
-                            let scroller =
-                                LogScroller::new(test.test_name.clone(), test.describe());
-                            *setup = ABTestSetup::Manage(
-                                ModalMenu::new(
-                                    &format!("A/B Test Editor for {}", test.test_name),
-                                    vec![
-                                        (hotkey(Key::Escape), "quit"),
-                                        (hotkey(Key::R), "run A/B test"),
-                                        (hotkey(Key::L), "load savestate"),
-                                    ],
-                                    ctx,
-                                ),
-                                test.clone(),
-                                scroller,
-                            );
-                        }
-                    }
-                    ABTestSetup::Manage(ref mut menu, test, ref mut scroller) => {
-                        ctx.canvas.handle_event(ctx.input);
-                        menu.handle_event(ctx, None);
-                        if scroller.event(ctx.input) {
-                            state.mode = Mode::SplashScreen(Wizard::new(), None);
-                        } else if menu.action("run A/B test") {
-                            state.mode = launch_test(test, &mut state.ui, ctx);
-                        } else if menu.action("load savestate") {
-                            *setup = ABTestSetup::LoadSavestate(test.clone(), Wizard::new());
-                        }
-                    }
-                },
-                _ => unreachable!(),
-            },
-            _ => unreachable!(),
+impl PickABTest {
+    pub fn new() -> PickABTest {
+        PickABTest {
+            wizard: Wizard::new(),
         }
     }
+}
 
-    pub fn draw(&self, g: &mut GfxCtx) {
-        match self {
-            ABTestSetup::Pick(wizard) => {
-                wizard.draw(g);
-            }
-            ABTestSetup::LoadSavestate(_, wizard) => {
-                wizard.draw(g);
-            }
-            ABTestSetup::Manage(ref menu, _, scroller) => {
-                scroller.draw(g);
-                menu.draw(g);
-            }
+impl State for PickABTest {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+        if let Some(ab_test) = pick_ab_test(&ui.primary.map, self.wizard.wrap(ctx)) {
+            let scroller = LogScroller::new(ab_test.test_name.clone(), ab_test.describe());
+            return (
+                Transition::Replace(Box::new(ABTestSetup {
+                    menu: ModalMenu::new(
+                        &format!("A/B Test Editor for {}", ab_test.test_name),
+                        vec![
+                            (hotkey(Key::Escape), "quit"),
+                            (hotkey(Key::R), "run A/B test"),
+                            (hotkey(Key::L), "load savestate"),
+                        ],
+                        ctx,
+                    ),
+                    ab_test,
+                    scroller,
+                })),
+                EventLoopMode::InputOnly,
+            );
+        } else if self.wizard.aborted() {
+            return (Transition::Pop, EventLoopMode::InputOnly);
         }
+        (Transition::Keep, EventLoopMode::InputOnly)
+    }
+
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        self.wizard.draw(g);
+    }
+}
+
+struct ABTestSetup {
+    menu: ModalMenu,
+    ab_test: ABTest,
+    scroller: LogScroller,
+}
+
+impl State for ABTestSetup {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+        ctx.canvas.handle_event(ctx.input);
+        self.menu.handle_event(ctx, None);
+        if self.scroller.event(ctx.input) {
+            return (Transition::Pop, EventLoopMode::InputOnly);
+        } else if self.menu.action("run A/B test") {
+            return (
+                Transition::Replace(Box::new(launch_test(&self.ab_test, ui, ctx))),
+                EventLoopMode::InputOnly,
+            );
+        } else if self.menu.action("load savestate") {
+            return (
+                Transition::Push(Box::new(LoadSavestate {
+                    ab_test: self.ab_test.clone(),
+                    wizard: Wizard::new(),
+                })),
+                EventLoopMode::InputOnly,
+            );
+        }
+        (Transition::Keep, EventLoopMode::InputOnly)
+    }
+
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        self.scroller.draw(g);
+        self.menu.draw(g);
+    }
+}
+
+struct LoadSavestate {
+    ab_test: ABTest,
+    wizard: Wizard,
+}
+
+impl State for LoadSavestate {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+        if let Some(ss) = pick_savestate(&self.ab_test, &mut self.wizard.wrap(ctx)) {
+            return (
+                Transition::Replace(Box::new(launch_savestate(&self.ab_test, ss, ui, ctx))),
+                EventLoopMode::InputOnly,
+            );
+        } else if self.wizard.aborted() {
+            return (Transition::Pop, EventLoopMode::InputOnly);
+        }
+        (Transition::Keep, EventLoopMode::InputOnly)
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        self.wizard.draw(g);
     }
 }
 
@@ -119,7 +133,7 @@ fn pick_ab_test(map: &Map, mut wizard: WrappedWizard) -> Option<ABTest> {
     }
 }
 
-fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> Mode {
+fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
     let secondary = ctx.loading_screen(
         &format!("Launching A/B test {}", test.test_name),
         |ctx, mut timer| {
@@ -188,13 +202,10 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> Mode {
         },
     );
 
-    let mut mode = ABTestMode::new(ctx, ui, &test.test_name);
-    mode.state = State::Playing;
-    mode.secondary = Some(secondary);
-    Mode::ABTest(mode)
+    ABTestMode::new(ctx, ui, &test.test_name, secondary)
 }
 
-fn launch_savestate(test: &ABTest, ss_path: String, ui: &mut UI, ctx: &mut EventCtx) -> Mode {
+fn launch_savestate(test: &ABTest, ss_path: String, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
     ctx.loading_screen(
         &format!("Launch A/B test from savestate {}", ss_path),
         |ctx, mut timer| {
@@ -213,9 +224,7 @@ fn launch_savestate(test: &ABTest, ss_path: String, ui: &mut UI, ctx: &mut Event
             timer.stop("setup primary");
 
             timer.start("setup secondary");
-            let mut mode = ABTestMode::new(ctx, ui, &test.test_name);
-            mode.state = State::Playing;
-            mode.secondary = Some(PerMapUI {
+            let secondary = PerMapUI {
                 draw_map: DrawMap::new(
                     &ss.secondary_map,
                     &ui.primary.current_flags,
@@ -228,9 +237,10 @@ fn launch_savestate(test: &ABTest, ss_path: String, ui: &mut UI, ctx: &mut Event
                 current_selection: None,
                 // TODO Hack... can we just remove these?
                 current_flags: ui.primary.current_flags.clone(),
-            });
+            };
             timer.stop("setup secondary");
-            Mode::ABTest(mode)
+
+            ABTestMode::new(ctx, ui, &test.test_name, secondary)
         },
     )
 }
