@@ -4,7 +4,7 @@ mod debug;
 mod edit;
 mod game;
 mod helpers;
-//mod mission;
+mod mission;
 mod render;
 mod sandbox;
 mod state;

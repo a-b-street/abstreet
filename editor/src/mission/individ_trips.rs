@@ -1,8 +1,9 @@
 use crate::common::CommonState;
 use crate::helpers::ID;
 use crate::mission::trips::{clip_trips, Trip, TripEndpt};
+use crate::state::{State, Transition};
 use crate::ui::{ShowEverything, UI};
-use ezgui::{hotkey, Color, EventCtx, GfxCtx, ItemSlider, Key, Text};
+use ezgui::{hotkey, Color, EventCtx, EventLoopMode, GfxCtx, ItemSlider, Key, Text};
 use geom::{Circle, Distance, Line, Speed};
 use map_model::BuildingID;
 use popdat::psrc;
@@ -52,9 +53,10 @@ impl TripsVisualizer {
             bldgs,
         }
     }
+}
 
-    // Returns true if the we're done
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> bool {
+impl State for TripsVisualizer {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
         self.slider.event(ctx);
         ctx.canvas.handle_event(ctx.input);
 
@@ -68,12 +70,12 @@ impl TripsVisualizer {
         }
 
         if self.slider.action("quit") {
-            return true;
+            return (Transition::Pop, EventLoopMode::InputOnly);
         }
-        false
+        (Transition::Keep, EventLoopMode::InputOnly)
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         let (_, trip) = self.slider.get();
         let from = trip.from.polygon(&ui.primary.map);
         let to = trip.to.polygon(&ui.primary.map);

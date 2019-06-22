@@ -1,9 +1,11 @@
 use crate::common::CommonState;
 use crate::helpers::{rotating_color_total, ID};
+use crate::state::{State, Transition};
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Timer};
 use ezgui::{
-    hotkey, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, ModalMenu, Text, VerticalAlignment,
+    hotkey, Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Key, ModalMenu, Text,
+    VerticalAlignment,
 };
 use geom::{Distance, Polygon, Pt2D};
 use popdat::{Estimate, PopDat};
@@ -55,9 +57,9 @@ impl DataVisualizer {
             current_tract: None,
         }
     }
-
-    // Returns true if the we're done
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI) -> bool {
+}
+impl State for DataVisualizer {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
         let mut txt = Text::prompt("Data Visualizer");
         if let Some(ref name) = self.current_tract {
             txt.add_line("Census ".to_string());
@@ -78,7 +80,7 @@ impl DataVisualizer {
 
         // TODO Remember which dataset we're showing and don't allow reseting to the same.
         if self.menu.action("quit") {
-            return true;
+            return (Transition::Pop, EventLoopMode::InputOnly);
         } else if self.current_dataset != 0 && self.menu.action("household vehicles") {
             self.current_dataset = 0;
         } else if self.current_dataset != 1 && self.menu.action("commute times") {
@@ -101,10 +103,10 @@ impl DataVisualizer {
             }
         }
 
-        false
+        (Transition::Keep, EventLoopMode::InputOnly)
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         for (name, tract) in &self.tracts {
             let color = if Some(name.clone()) == self.current_tract {
                 ui.cs.get("selected")

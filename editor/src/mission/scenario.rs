@@ -1,23 +1,26 @@
-use crate::game::Mode;
-use crate::mission::{input_time, MissionEditMode};
+use crate::mission::input_time;
 use crate::sandbox::SandboxMode;
+use crate::state::{State, Transition};
 use crate::ui::UI;
 use abstutil::WeightedUsizeChoice;
-use ezgui::{hotkey, EventCtx, GfxCtx, Key, LogScroller, ModalMenu, Wizard, WrappedWizard};
+use ezgui::{
+    hotkey, EventCtx, EventLoopMode, GfxCtx, Key, LogScroller, ModalMenu, Wizard, WrappedWizard,
+};
 use geom::Duration;
 use map_model::{IntersectionID, Map, Neighborhood};
 use sim::{BorderSpawnOverTime, OriginDestination, Scenario, SeedParkedCars, SpawnOverTime};
 
-pub enum ScenarioEditor {
-    ManageScenario(ModalMenu, Scenario, LogScroller),
-    EditScenario(Scenario, Wizard),
+pub struct ScenarioManager {
+    menu: ModalMenu,
+    scenario: Scenario,
+    scroller: LogScroller,
 }
 
-impl ScenarioEditor {
-    pub fn new(scenario: Scenario, ctx: &mut EventCtx) -> ScenarioEditor {
+impl ScenarioManager {
+    pub fn new(scenario: Scenario, ctx: &mut EventCtx) -> ScenarioManager {
         let scroller = LogScroller::new(scenario.scenario_name.clone(), scenario.describe());
-        ScenarioEditor::ManageScenario(
-            ModalMenu::new(
+        ScenarioManager {
+            menu: ModalMenu::new(
                 &format!("Scenario Editor for {}", scenario.scenario_name),
                 vec![
                     (hotkey(Key::Escape), "quit"),
@@ -29,58 +32,73 @@ impl ScenarioEditor {
             ),
             scenario,
             scroller,
-        )
+        }
+    }
+}
+
+impl State for ScenarioManager {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+        self.menu.handle_event(ctx, None);
+        ctx.canvas.handle_event(ctx.input);
+        if self.menu.action("save") {
+            self.scenario.save();
+        } else if self.menu.action("edit") {
+            return (
+                Transition::Push(Box::new(ScenarioEditor {
+                    scenario: self.scenario.clone(),
+                    wizard: Wizard::new(),
+                })),
+                EventLoopMode::InputOnly,
+            );
+        } else if self.menu.action("instantiate") {
+            ctx.loading_screen("instantiate scenario", |_, timer| {
+                self.scenario.instantiate(
+                    &mut ui.primary.sim,
+                    &ui.primary.map,
+                    &mut ui.primary.current_flags.sim_flags.make_rng(),
+                    timer,
+                );
+                ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
+            });
+            return (
+                Transition::Replace(Box::new(SandboxMode::new(ctx))),
+                EventLoopMode::InputOnly,
+            );
+        } else if self.scroller.event(&mut ctx.input) {
+            return (Transition::Pop, EventLoopMode::InputOnly);
+        }
+        (Transition::Keep, EventLoopMode::InputOnly)
     }
 
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Mode> {
-        match self {
-            ScenarioEditor::ManageScenario(ref mut menu, scenario, ref mut scroller) => {
-                menu.handle_event(ctx, None);
-                ctx.canvas.handle_event(ctx.input);
-                if menu.action("save") {
-                    scenario.save();
-                } else if menu.action("edit") {
-                    *self = ScenarioEditor::EditScenario(scenario.clone(), Wizard::new());
-                } else if menu.action("instantiate") {
-                    ctx.loading_screen("instantiate scenario", |_, timer| {
-                        scenario.instantiate(
-                            &mut ui.primary.sim,
-                            &ui.primary.map,
-                            &mut ui.primary.current_flags.sim_flags.make_rng(),
-                            timer,
-                        );
-                        ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
-                    });
-                    return Some(Mode::Sandbox(SandboxMode::new(ctx)));
-                } else if scroller.event(&mut ctx.input) {
-                    return Some(Mode::Mission(MissionEditMode::new(ctx, ui)));
-                }
-            }
-            ScenarioEditor::EditScenario(ref mut scenario, ref mut wizard) => {
-                if let Some(()) = edit_scenario(&ui.primary.map, scenario, wizard.wrap(ctx)) {
-                    // TODO autosave, or at least make it clear there are unsaved edits
-                    *self = ScenarioEditor::new(scenario.clone(), ctx);
-                } else if wizard.aborted() {
-                    *self = ScenarioEditor::new(scenario.clone(), ctx);
-                }
-            }
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        self.scroller.draw(g);
+        self.menu.draw(g);
+    }
+}
+
+struct ScenarioEditor {
+    scenario: Scenario,
+    wizard: Wizard,
+}
+
+impl State for ScenarioEditor {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+        if let Some(()) = edit_scenario(&ui.primary.map, &mut self.scenario, self.wizard.wrap(ctx))
+        {
+            // TODO autosave, or at least make it clear there are unsaved edits
+            // TODO Need to Refresh the scenario in our parent!
+            return (Transition::Pop, EventLoopMode::InputOnly);
+        } else if self.wizard.aborted() {
+            return (Transition::Pop, EventLoopMode::InputOnly);
         }
-        None
+        (Transition::Keep, EventLoopMode::InputOnly)
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        match self {
-            ScenarioEditor::ManageScenario(ref menu, _, scroller) => {
-                scroller.draw(g);
-                menu.draw(g);
-            }
-            ScenarioEditor::EditScenario(_, wizard) => {
-                if let Some(neighborhood) = wizard.current_menu_choice::<Neighborhood>() {
-                    g.draw_polygon(ui.cs.get("neighborhood polygon"), &neighborhood.polygon);
-                }
-                wizard.draw(g);
-            }
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        if let Some(neighborhood) = self.wizard.current_menu_choice::<Neighborhood>() {
+            g.draw_polygon(ui.cs.get("neighborhood polygon"), &neighborhood.polygon);
         }
+        self.wizard.draw(g);
     }
 }
 

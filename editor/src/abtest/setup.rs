@@ -49,7 +49,7 @@ impl State for PickABTest {
         (Transition::Keep, EventLoopMode::InputOnly)
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
         self.wizard.draw(g);
     }
 }
@@ -83,7 +83,7 @@ impl State for ABTestSetup {
         (Transition::Keep, EventLoopMode::InputOnly)
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
         self.scroller.draw(g);
         self.menu.draw(g);
     }

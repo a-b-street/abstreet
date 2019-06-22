@@ -1,5 +1,6 @@
 use crate::common::{CommonState, SpeedControls};
 use crate::mission::trips::{clip_trips, Trip};
+use crate::state::{State, Transition};
 use crate::ui::{ShowEverything, UI};
 use abstutil::prettyprint_usize;
 use ezgui::{
@@ -83,9 +84,10 @@ impl TripsVisualizer {
     fn current_time(&self) -> Duration {
         self.time_slider.get_percent() * Duration::parse("23:59:59.9").unwrap()
     }
+}
 
-    // Returns None if the we're done
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<EventLoopMode> {
+impl State for TripsVisualizer {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
         let time = self.current_time();
 
         let mut txt = Text::prompt("Trips Visualizer");
@@ -110,7 +112,7 @@ impl TripsVisualizer {
         let thirty_mins = Duration::minutes(30);
 
         if self.menu.action("quit") {
-            return None;
+            return (Transition::Pop, EventLoopMode::InputOnly);
         } else if time != last_time && self.menu.action("forwards 10 seconds") {
             self.time_slider
                 .set_percent(ctx, (time + ten_secs) / last_time);
@@ -135,7 +137,7 @@ impl TripsVisualizer {
             self.time_slider
                 .set_percent(ctx, ((time + dt) / last_time).min(1.0));
         } else {
-            return Some(EventLoopMode::InputOnly);
+            return (Transition::Keep, EventLoopMode::InputOnly);
         }
 
         // TODO Do this more efficiently. ;)
@@ -149,13 +151,13 @@ impl TripsVisualizer {
             .collect();
 
         if self.speed.is_paused() {
-            Some(EventLoopMode::InputOnly)
+            (Transition::Keep, EventLoopMode::InputOnly)
         } else {
-            Some(EventLoopMode::Animation)
+            (Transition::Keep, EventLoopMode::Animation)
         }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         let time = self.current_time();
         let mut batch = GeomBatch::new();
         for idx in &self.active_trips {
