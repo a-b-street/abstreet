@@ -12,10 +12,6 @@ pub struct Game {
     pub ui: UI,
 }
 
-// TODO Need to reset_sim() when entering Edit, Tutorial, Mission, or ABTest and when leaving
-// Tutorial and ABTest. Expressing this manually right now is quite tedious; maybe having on_enter
-// and on_exit would be cleaner.
-
 impl Game {
     pub fn new(flags: Flags, ctx: &mut EventCtx) -> Game {
         let splash = !flags.no_splash
@@ -52,17 +48,18 @@ impl GUI for Game {
         match transition {
             Transition::Keep => {}
             Transition::Pop => {
-                self.states.pop();
+                self.states.pop().unwrap().on_destroy(&mut self.ui);
                 if self.states.is_empty() {
                     self.before_quit(ctx.canvas);
                     std::process::exit(0);
                 }
             }
             Transition::Push(state) => {
+                self.states.last_mut().unwrap().on_suspend(&mut self.ui);
                 self.states.push(state);
             }
             Transition::Replace(state) => {
-                self.states.pop();
+                self.states.pop().unwrap().on_destroy(&mut self.ui);
                 self.states.push(state);
             }
         }
@@ -120,6 +117,12 @@ pub trait State {
     fn draw_default_ui(&self) -> bool {
         true
     }
+
+    // Before we push a new state on top of this one, call this.
+    fn on_suspend(&mut self, _: &mut UI) {}
+    // Before this state is popped or replaced, call this.
+    fn on_destroy(&mut self, _: &mut UI) {}
+    // We don't need an on_enter -- the constructor for the state can just do it.
 }
 
 pub enum Transition {

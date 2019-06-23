@@ -268,7 +268,6 @@ impl State for SandboxMode {
                     false,
                 );
             } else if self.menu.action("jump to specific time") {
-                self.speed.pause();
                 return (
                     Transition::Push(Box::new(JumpingToTime {
                         wizard: Wizard::new(),
@@ -313,6 +312,10 @@ impl State for SandboxMode {
             },
             _ => unreachable!(),
         }*/
+    }
+
+    fn on_suspend(&mut self, _: &mut UI) {
+        self.speed.pause();
     }
 }
 

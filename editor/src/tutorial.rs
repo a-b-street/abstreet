@@ -43,7 +43,6 @@ impl State for TutorialMode {
         ctx.canvas.handle_event(ctx.input);
 
         if self.menu.action("quit") {
-            ui.primary.reset_sim();
             return (Transition::Pop, EventLoopMode::InputOnly);
         }
 
@@ -52,6 +51,10 @@ impl State for TutorialMode {
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
         self.menu.draw(g);
+    }
+
+    fn on_destroy(&mut self, ui: &mut UI) {
+        ui.primary.reset_sim();
     }
 }
 
@@ -69,7 +72,6 @@ impl State for Part2 {
             txt.add_line("".to_string());
             txt.add_line("Great! Press ENTER to continue.".to_string());
             if ctx.input.key_pressed(Key::Enter, "next step of tutorial") {
-                ui.primary.reset_sim();
                 return (Transition::Pop, EventLoopMode::InputOnly);
             }
         }
@@ -77,7 +79,6 @@ impl State for Part2 {
         ctx.canvas.handle_event(ctx.input);
 
         if self.menu.action("quit") {
-            ui.primary.reset_sim();
             return (Transition::Pop, EventLoopMode::InputOnly);
         }
 
@@ -86,5 +87,9 @@ impl State for Part2 {
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
         self.menu.draw(g);
+    }
+
+    fn on_destroy(&mut self, ui: &mut UI) {
+        ui.primary.reset_sim();
     }
 }

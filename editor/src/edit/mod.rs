@@ -92,26 +92,15 @@ impl State for EditMode {
         }
 
         if self.menu.action("quit") {
-            // TODO Warn about unsaved edits
-            // TODO Maybe put a loading screen around these.
-            ui.primary
-                .map
-                .recalculate_pathfinding_after_edits(&mut Timer::new("apply pending map edits"));
             return (Transition::Pop, EventLoopMode::InputOnly);
         }
         if self.menu.action("sandbox mode") {
-            ui.primary
-                .map
-                .recalculate_pathfinding_after_edits(&mut Timer::new("apply pending map edits"));
             return (
                 Transition::Replace(Box::new(SandboxMode::new(ctx))),
                 EventLoopMode::InputOnly,
             );
         }
         if self.menu.action("debug mode") {
-            ui.primary
-                .map
-                .recalculate_pathfinding_after_edits(&mut Timer::new("apply pending map edits"));
             return (
                 Transition::Replace(Box::new(DebugMode::new(ctx, ui))),
                 EventLoopMode::InputOnly,
@@ -315,6 +304,14 @@ impl State for EditMode {
 
         self.common.draw(g, ui);
         self.menu.draw(g);
+    }
+
+    fn on_destroy(&mut self, ui: &mut UI) {
+        // TODO Warn about unsaved edits
+        // TODO Maybe put a loading screen around these.
+        ui.primary
+            .map
+            .recalculate_pathfinding_after_edits(&mut Timer::new("apply pending map edits"));
     }
 }
 

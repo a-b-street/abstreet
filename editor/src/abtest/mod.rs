@@ -93,8 +93,6 @@ impl State for ABTestMode {
         }
 
         if self.menu.action("quit") {
-            // TODO Should we clear edits too?
-            ui.primary.reset_sim();
             // Note destroying mode.secondary has some noticeable delay.
             return (Transition::Pop, EventLoopMode::InputOnly);
         }
@@ -107,7 +105,6 @@ impl State for ABTestMode {
         }
 
         if self.menu.action("scoreboard") {
-            self.speed.pause();
             return (
                 Transition::Push(Box::new(score::Scoreboard::new(
                     ctx,
@@ -177,6 +174,15 @@ impl State for ABTestMode {
         }
         self.menu.draw(g);
         self.speed.draw(g);
+    }
+
+    fn on_suspend(&mut self, _: &mut UI) {
+        self.speed.pause();
+    }
+
+    fn on_destroy(&mut self, ui: &mut UI) {
+        // TODO Should we clear edits too?
+        ui.primary.reset_sim();
     }
 }
 

@@ -67,6 +67,10 @@ impl State for SplashScreen {
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
         self.wizard.draw(g);
     }
+
+    fn on_suspend(&mut self, _: &mut UI) {
+        self.wizard.reset();
+    }
 }
 
 const SPEED: Speed = Speed::const_meters_per_second(20.0);

@@ -63,6 +63,13 @@ impl Wizard {
         None
     }
 
+    pub fn reset(&mut self) {
+        assert!(self.tb.is_none());
+        assert!(self.menu.is_none());
+        assert!(self.log_scroller.is_none());
+        self.confirmed_state.clear();
+    }
+
     fn input_with_text_box<R: Cloneable>(
         &mut self,
         query: &str,
