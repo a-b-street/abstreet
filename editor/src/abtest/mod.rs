@@ -14,8 +14,6 @@ use sim::{Sim, TripID};
 pub struct ABTestMode {
     menu: ModalMenu,
     speed: SpeedControls,
-    // TODO Urgh, hack. Need to be able to take() it to switch states sometimes.
-    secondary: Option<PerMapUI>,
     diff_trip: Option<DiffOneTrip>,
     diff_all: Option<DiffAllTrips>,
     // TODO Not present in Setup state.
@@ -24,12 +22,7 @@ pub struct ABTestMode {
 }
 
 impl ABTestMode {
-    pub fn new(
-        ctx: &mut EventCtx,
-        ui: &mut UI,
-        test_name: &str,
-        secondary: PerMapUI,
-    ) -> ABTestMode {
+    pub fn new(ctx: &mut EventCtx, ui: &mut UI, test_name: &str) -> ABTestMode {
         ui.primary.current_selection = None;
 
         ABTestMode {
@@ -54,7 +47,6 @@ impl ABTestMode {
                 ctx,
             ),
             speed: SpeedControls::new(ctx, None),
-            secondary: Some(secondary),
             diff_trip: None,
             diff_all: None,
             common: CommonState::new(),
@@ -93,14 +85,13 @@ impl State for ABTestMode {
         }
 
         if self.menu.action("quit") {
-            // Note destroying mode.secondary has some noticeable delay.
             return (Transition::Pop, EventLoopMode::InputOnly);
         }
 
         if self.menu.action("swap") {
-            let secondary = self.secondary.take().unwrap();
+            let secondary = ui.secondary.take().unwrap();
             let primary = std::mem::replace(&mut ui.primary, secondary);
-            self.secondary = Some(primary);
+            ui.secondary = Some(primary);
             self.recalculate_stuff(ui, ctx);
         }
 
@@ -109,14 +100,14 @@ impl State for ABTestMode {
                 Transition::Push(Box::new(score::Scoreboard::new(
                     ctx,
                     &ui.primary,
-                    self.secondary.as_ref().unwrap(),
+                    ui.secondary.as_ref().unwrap(),
                 ))),
                 EventLoopMode::InputOnly,
             );
         }
 
         if self.menu.action("save state") {
-            self.savestate(&mut ui.primary);
+            self.savestate(ui);
         }
 
         if self.diff_trip.is_some() {
@@ -131,7 +122,7 @@ impl State for ABTestMode {
             if ui.primary.current_selection.is_none() && self.menu.action("diff all trips") {
                 self.diff_all = Some(DiffAllTrips::new(
                     &mut ui.primary,
-                    self.secondary.as_mut().unwrap(),
+                    ui.secondary.as_mut().unwrap(),
                 ));
             } else if let Some(agent) = ui.primary.current_selection.and_then(|id| id.agent_id()) {
                 if let Some(trip) = ui.primary.sim.agent_to_trip(agent) {
@@ -142,7 +133,7 @@ impl State for ABTestMode {
                         self.diff_trip = Some(DiffOneTrip::new(
                             trip,
                             &ui.primary,
-                            self.secondary.as_ref().unwrap(),
+                            ui.secondary.as_ref().unwrap(),
                         ));
                     }
                 }
@@ -183,6 +174,9 @@ impl State for ABTestMode {
     fn on_destroy(&mut self, ui: &mut UI) {
         // TODO Should we clear edits too?
         ui.primary.reset_sim();
+
+        // Note destroying this has some noticeable delay.
+        ui.secondary = None;
     }
 }
 
@@ -190,7 +184,7 @@ impl ABTestMode {
     fn step(&mut self, dt: Duration, ui: &mut UI, ctx: &EventCtx) {
         ui.primary.sim.step(&ui.primary.map, dt);
         {
-            let s = self.secondary.as_mut().unwrap();
+            let s = ui.secondary.as_mut().unwrap();
             s.sim.step(&s.map, dt);
         }
         self.recalculate_stuff(ui, ctx);
@@ -201,13 +195,13 @@ impl ABTestMode {
             self.diff_trip = Some(DiffOneTrip::new(
                 diff.trip,
                 &ui.primary,
-                self.secondary.as_ref().unwrap(),
+                ui.secondary.as_ref().unwrap(),
             ));
         }
         if self.diff_all.is_some() {
             self.diff_all = Some(DiffAllTrips::new(
                 &mut ui.primary,
-                self.secondary.as_mut().unwrap(),
+                ui.secondary.as_mut().unwrap(),
             ));
         }
 
@@ -215,14 +209,14 @@ impl ABTestMode {
             ui.recalculate_current_selection(ctx, &ui.primary.sim, &ShowEverything::new(), false);
     }
 
-    fn savestate(&mut self, primary: &mut PerMapUI) {
+    fn savestate(&mut self, ui: &mut UI) {
         // Temporarily move everything into this structure.
         let blank_map = Map::blank();
-        let mut secondary = self.secondary.take().unwrap();
+        let mut secondary = ui.secondary.take().unwrap();
         let ss = ABTestSavestate {
-            primary_map: std::mem::replace(&mut primary.map, Map::blank()),
+            primary_map: std::mem::replace(&mut ui.primary.map, Map::blank()),
             primary_sim: std::mem::replace(
-                &mut primary.sim,
+                &mut ui.primary.sim,
                 Sim::new(&blank_map, "run".to_string(), None),
             ),
             secondary_map: std::mem::replace(&mut secondary.map, Map::blank()),
@@ -242,9 +236,9 @@ impl ABTestMode {
         println!("Saved {}", path);
 
         // Restore everything.
-        primary.sim = ss.primary_sim;
-        primary.map = ss.primary_map;
-        self.secondary = Some(PerMapUI {
+        ui.primary.sim = ss.primary_sim;
+        ui.primary.map = ss.primary_map;
+        ui.secondary = Some(PerMapUI {
             map: ss.secondary_map,
             draw_map: secondary.draw_map,
             sim: ss.secondary_sim,

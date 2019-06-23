@@ -201,8 +201,9 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
             }
         },
     );
+    ui.secondary = Some(secondary);
 
-    ABTestMode::new(ctx, ui, &test.test_name, secondary)
+    ABTestMode::new(ctx, ui, &test.test_name)
 }
 
 fn launch_savestate(test: &ABTest, ss_path: String, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
@@ -238,9 +239,10 @@ fn launch_savestate(test: &ABTest, ss_path: String, ui: &mut UI, ctx: &mut Event
                 // TODO Hack... can we just remove these?
                 current_flags: ui.primary.current_flags.clone(),
             };
+            ui.secondary = Some(secondary);
             timer.stop("setup secondary");
 
-            ABTestMode::new(ctx, ui, &test.test_name, secondary)
+            ABTestMode::new(ctx, ui, &test.test_name)
         },
     )
 }

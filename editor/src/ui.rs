@@ -13,9 +13,10 @@ use serde_derive::{Deserialize, Serialize};
 use sim::{GetDrawAgents, Sim, SimFlags};
 use structopt::StructOpt;
 
-// TODO Collapse stuff!
 pub struct UI {
     pub primary: PerMapUI,
+    // Invariant: This is Some(...) iff we're in A/B test mode or a sub-state.
+    pub secondary: Option<PerMapUI>,
     pub cs: ColorScheme,
 }
 
@@ -58,7 +59,11 @@ impl UI {
             }
         }
 
-        UI { primary, cs }
+        UI {
+            primary,
+            cs,
+            secondary: None,
+        }
     }
 
     pub fn draw(

@@ -95,12 +95,10 @@ impl GUI for Game {
         );
         println!("UI broke! Primary sim:");
         self.ui.primary.sim.dump_before_abort();
-        /*if let Mode::ABTest(ref abtest) = self.mode {
-            if let Some(ref s) = abtest.secondary {
-                println!("Secondary sim:");
-                s.sim.dump_before_abort();
-            }
-        }*/
+        if let Some(ref s) = self.ui.secondary {
+            println!("Secondary sim:");
+            s.sim.dump_before_abort();
+        }
         self.save_editor_state(canvas);
     }
 

@@ -83,19 +83,22 @@ impl Scoreboard {
 }
 
 impl State for Scoreboard {
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
         self.menu.handle_event(ctx, None);
         if self.menu.action("quit") {
             return (Transition::Pop, EventLoopMode::InputOnly);
         }
         if self.menu.action("browse trips") {
-            /*self = Scoreboard::BrowseTrips(
-                CompareTrips::new(
-                    primary.sim.get_finished_trips(),
-                    secondary.sim.get_finished_trips(),
-                ),
-                Wizard::new(),
-            );*/
+            return (
+                Transition::Push(Box::new(BrowseTrips {
+                    trips: CompareTrips::new(
+                        ui.primary.sim.get_finished_trips(),
+                        ui.secondary.as_ref().unwrap().sim.get_finished_trips(),
+                    ),
+                    wizard: Wizard::new(),
+                })),
+                EventLoopMode::InputOnly,
+            );
         }
         (Transition::Keep, EventLoopMode::InputOnly)
     }
