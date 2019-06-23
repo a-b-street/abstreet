@@ -1,6 +1,6 @@
 use crate::common::{CommonState, SpeedControls};
+use crate::game::{State, Transition};
 use crate::mission::trips::{clip_trips, Trip};
-use crate::state::{State, Transition};
 use crate::ui::{ShowEverything, UI};
 use abstutil::prettyprint_usize;
 use ezgui::{

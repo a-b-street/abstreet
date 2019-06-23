@@ -1,6 +1,6 @@
+use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::render::calculate_corners;
-use crate::state::{State, Transition};
 use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{hotkey, EventCtx, EventLoopMode, GfxCtx, ItemSlider, Key, Text};

@@ -1,6 +1,6 @@
 use crate::common::CommonState;
+use crate::game::{State, Transition};
 use crate::render::DrawTurn;
-use crate::state::{State, Transition};
 use crate::ui::{ShowEverything, UI};
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, WarpingItemSlider};
 use geom::{Distance, Polygon, Pt2D};

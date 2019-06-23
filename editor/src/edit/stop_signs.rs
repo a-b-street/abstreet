@@ -1,8 +1,8 @@
 use crate::common::CommonState;
 use crate::edit::apply_map_edits;
+use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::render::{DrawIntersection, DrawOptions, DrawTurn};
-use crate::state::{State, Transition};
 use crate::ui::{ShowEverything, UI};
 use ezgui::{hotkey, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, ModalMenu, Text};
 use geom::Polygon;

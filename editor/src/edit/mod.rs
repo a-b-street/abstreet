@@ -3,13 +3,13 @@ mod traffic_signals;
 
 use crate::common::CommonState;
 use crate::debug::DebugMode;
+use crate::game::{State, Transition};
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{
     DrawCtx, DrawIntersection, DrawLane, DrawMap, DrawOptions, DrawTurn, Renderable,
     MIN_ZOOM_FOR_DETAIL,
 };
 use crate::sandbox::SandboxMode;
-use crate::state::{State, Transition};
 use crate::ui::{PerMapUI, ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{

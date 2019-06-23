@@ -1,6 +1,6 @@
 use crate::common::CommonState;
+use crate::game::{State, Transition};
 use crate::helpers::{rotating_color_total, ID};
-use crate::state::{State, Transition};
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Timer};
 use ezgui::{

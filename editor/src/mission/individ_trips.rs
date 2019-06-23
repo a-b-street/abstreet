@@ -1,7 +1,7 @@
 use crate::common::CommonState;
+use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::mission::trips::{clip_trips, Trip, TripEndpt};
-use crate::state::{State, Transition};
 use crate::ui::{ShowEverything, UI};
 use ezgui::{hotkey, Color, EventCtx, EventLoopMode, GfxCtx, ItemSlider, Key, Text};
 use geom::{Circle, Distance, Line, Speed};

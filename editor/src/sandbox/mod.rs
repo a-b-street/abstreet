@@ -8,7 +8,7 @@ mod time_travel;
 use crate::common::{CommonState, SpeedControls};
 use crate::debug::DebugMode;
 use crate::edit::EditMode;
-use crate::state::{State, Transition};
+use crate::game::{State, Transition};
 //use crate::mission::input_time;
 use crate::ui::{ShowEverything, UI};
 use ezgui::{hotkey, lctrl, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard};

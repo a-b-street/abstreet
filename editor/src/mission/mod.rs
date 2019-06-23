@@ -6,8 +6,8 @@ mod scenario;
 mod trips;
 
 use self::trips::{pick_time_range, trips_to_scenario};
+use crate::game::{State, Transition};
 use crate::sandbox::SandboxMode;
-use crate::state::{State, Transition};
 use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{hotkey, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Wizard, WrappedWizard};

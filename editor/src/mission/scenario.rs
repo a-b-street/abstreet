@@ -1,6 +1,6 @@
+use crate::game::{State, Transition};
 use crate::mission::input_time;
 use crate::sandbox::SandboxMode;
-use crate::state::{State, Transition};
 use crate::ui::UI;
 use abstutil::WeightedUsizeChoice;
 use ezgui::{

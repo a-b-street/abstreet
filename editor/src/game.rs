@@ -1,7 +1,6 @@
 use crate::render::DrawOptions;
 use crate::sandbox::SandboxMode;
 use crate::splash_screen::SplashScreen;
-use crate::state::{State, Transition};
 use crate::ui::{EditorState, Flags, ShowEverything, UI};
 use ezgui::{Canvas, EventCtx, EventLoopMode, GfxCtx, GUI};
 
@@ -113,4 +112,19 @@ impl GUI for Game {
     fn profiling_enabled(&self) -> bool {
         self.ui.primary.current_flags.enable_profiler
     }
+}
+
+pub trait State {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode);
+    fn draw(&self, g: &mut GfxCtx, ui: &UI);
+    fn draw_default_ui(&self) -> bool {
+        true
+    }
+}
+
+pub enum Transition {
+    Keep,
+    Pop,
+    Push(Box<State>),
+    Replace(Box<State>),
 }

@@ -8,9 +8,9 @@ mod polygons;
 
 use crate::common::CommonState;
 use crate::edit::EditMode;
+use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::sandbox::SandboxMode;
-use crate::state::{State, Transition};
 use crate::ui::{ShowLayers, ShowObject, UI};
 use abstutil::wraparound_get;
 use abstutil::Timer;

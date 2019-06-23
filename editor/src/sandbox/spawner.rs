@@ -1,7 +1,7 @@
 use crate::common::CommonState;
+use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::render::DrawOptions;
-use crate::state::{State, Transition};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{hotkey, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu};

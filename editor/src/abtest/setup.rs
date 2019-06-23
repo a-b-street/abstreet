@@ -1,7 +1,7 @@
 use crate::abtest::{ABTestMode, ABTestSavestate};
 use crate::edit::apply_map_edits;
+use crate::game::{State, Transition};
 use crate::render::DrawMap;
-use crate::state::{State, Transition};
 use crate::ui::{Flags, PerMapUI, UI};
 use ezgui::{
     hotkey, EventCtx, EventLoopMode, GfxCtx, Key, LogScroller, ModalMenu, Wizard, WrappedWizard,

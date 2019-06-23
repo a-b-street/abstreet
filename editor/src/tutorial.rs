@@ -1,4 +1,4 @@
-use crate::state::{State, Transition};
+use crate::game::{State, Transition};
 use crate::ui::UI;
 use ezgui::{hotkey, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text};
 use geom::Pt2D;

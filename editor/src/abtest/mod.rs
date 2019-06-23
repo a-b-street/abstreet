@@ -2,8 +2,8 @@ mod score;
 pub mod setup;
 
 use crate::common::{CommonState, SpeedControls};
+use crate::game::{State, Transition};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
-use crate::state::{State, Transition};
 use crate::ui::{PerMapUI, ShowEverything, UI};
 use ezgui::{hotkey, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, ModalMenu, Text};
 use geom::{Circle, Distance, Duration, Line, PolyLine};

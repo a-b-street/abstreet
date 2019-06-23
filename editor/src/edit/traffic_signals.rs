@@ -1,8 +1,8 @@
 use crate::common::CommonState;
 use crate::edit::apply_map_edits;
+use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::render::{draw_signal_cycle, draw_signal_diagram, DrawCtx, DrawOptions, DrawTurn};
-use crate::state::{State, Transition};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{

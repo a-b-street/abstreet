@@ -1,9 +1,9 @@
 use crate::abtest::setup::PickABTest;
 use crate::debug::DebugMode;
 use crate::edit::EditMode;
+use crate::game::{State, Transition};
 use crate::mission::MissionEditMode;
 use crate::sandbox::SandboxMode;
-use crate::state::{State, Transition};
 use crate::tutorial::TutorialMode;
 use crate::ui::UI;
 use abstutil::elapsed_seconds;
