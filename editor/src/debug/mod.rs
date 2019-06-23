@@ -89,7 +89,6 @@ impl DebugMode {
 
 impl State for DebugMode {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
-        // TODO This might break, because ShowObject is implemented on the entirety of DebugMode
         if ctx.redo_mouseover() {
             ui.primary.current_selection =
                 ui.recalculate_current_selection(ctx, &ui.primary.sim, self, true);
@@ -180,8 +179,8 @@ impl State for DebugMode {
             None => {
                 if !self.hidden.is_empty() && self.menu.action("unhide everything") {
                     self.hidden.clear();
-                    // TODO recalculate_current_selection... need to borrow mode
-                    // immutably
+                    ui.primary.current_selection =
+                        ui.recalculate_current_selection(ctx, &ui.primary.sim, self, true);
                 }
             }
             _ => {}
@@ -237,8 +236,8 @@ impl State for DebugMode {
             }
 
             if changed {
-                // TODO recalculate_current_selection... need to borrow mode
-                // immutably
+                ui.primary.current_selection =
+                    ui.recalculate_current_selection(ctx, &ui.primary.sim, self, true);
             }
         }
 
