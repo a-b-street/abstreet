@@ -70,7 +70,7 @@ impl State for ScenarioManager {
         (Transition::Keep, EventLoopMode::InputOnly)
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
         self.scroller.draw(g);
         self.menu.draw(g);
     }

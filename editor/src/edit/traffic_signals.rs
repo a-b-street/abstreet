@@ -17,8 +17,7 @@ pub struct TrafficSignalEditor {
     menu: ModalMenu,
     i: IntersectionID,
     current_cycle: usize,
-    // The Wizard states are nested under here to remember things like current_cycle and keep
-    // drawing stuff. Better way to represent nested states?
+    // TODO Using stackable states seems to be more complexity than is worthwhile here.
     cycle_duration_wizard: Option<Wizard>,
     preset_wizard: Option<Wizard>,
     icon_selected: Option<TurnID>,

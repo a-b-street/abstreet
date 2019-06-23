@@ -9,7 +9,7 @@ use crate::common::{CommonState, SpeedControls};
 use crate::debug::DebugMode;
 use crate::edit::EditMode;
 use crate::game::{State, Transition};
-//use crate::mission::input_time;
+use crate::mission::input_time;
 use crate::ui::{ShowEverything, UI};
 use ezgui::{hotkey, lctrl, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard};
 use geom::Duration;
@@ -25,11 +25,6 @@ pub struct SandboxMode {
     common: CommonState,
     menu: ModalMenu,
 }
-
-/*enum State {
-    TimeTraveling,
-    JumpingToTime(Wizard),
-}*/
 
 impl SandboxMode {
     pub fn new(ctx: &mut EventCtx) -> SandboxMode {
@@ -273,60 +268,18 @@ impl State for SandboxMode {
                     false,
                 );
             } else if self.menu.action("jump to specific time") {
-                // TODO new state
-                //mode.state = State::JumpingToTime(Wizard::new());
+                self.speed.pause();
+                return (
+                    Transition::Push(Box::new(JumpingToTime {
+                        wizard: Wizard::new(),
+                    })),
+                    EventLoopMode::InputOnly,
+                );
             }
             (Transition::Keep, EventLoopMode::InputOnly)
         } else {
             (Transition::Keep, EventLoopMode::Animation)
         }
-
-        /*match state.mode {
-            Mode::Sandbox(ref mut mode) => match mode.state {
-                State::JumpingToTime(ref mut wizard) => {
-                    let mut wiz = wizard.wrap(ctx);
-
-                    if let Some(t) = input_time(&mut wiz, "Jump to what time?") {
-                        let dt = t - state.ui.primary.sim.time();
-                        if dt <= Duration::ZERO {
-                            if wiz.acknowledge(
-                                "Bad time",
-                                vec![&format!(
-                                    "{} isn't after {}",
-                                    t,
-                                    state.ui.primary.sim.time()
-                                )],
-                            ) {
-                                mode.state = State::Playing;
-                                mode.speed.pause();
-                            }
-                        } else {
-                            // Have to do this first for the borrow checker
-                            mode.state = State::Playing;
-                            mode.speed.pause();
-
-                            if dt > Duration::ZERO {
-                                ctx.loading_screen(
-                                    &format!("step forwards {}", dt),
-                                    |_, mut timer| {
-                                        state.ui.primary.sim.timed_step(
-                                            &state.ui.primary.map,
-                                            dt,
-                                            &mut timer,
-                                        );
-                                    },
-                                );
-                            }
-                        }
-                    } else if wizard.aborted() {
-                        mode.state = State::Playing;
-                        mode.speed.pause();
-                    }
-                    EventLoopMode::InputOnly
-                }
-            },
-            _ => unreachable!(),
-        }*/
     }
 
     fn draw_default_ui(&self) -> bool {
@@ -357,17 +310,45 @@ impl State for SandboxMode {
                     );
                     mode.time_travel.draw(g);
                 }
-                State::JumpingToTime(ref wizard) => {
-                    state.ui.draw(
-                        g,
-                        DrawOptions::new(),
-                        &state.ui.primary.sim,
-                        &ShowEverything::new(),
-                    );
-                    wizard.draw(g);
-                }
             },
             _ => unreachable!(),
         }*/
+    }
+}
+
+struct JumpingToTime {
+    wizard: Wizard,
+}
+
+impl State for JumpingToTime {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+        let mut wiz = self.wizard.wrap(ctx);
+
+        if let Some(t) = input_time(&mut wiz, "Jump to what time?") {
+            let dt = t - ui.primary.sim.time();
+            if dt <= Duration::ZERO {
+                if wiz.acknowledge(
+                    "Bad time",
+                    vec![&format!("{} isn't after {}", t, ui.primary.sim.time())],
+                ) {
+                    return (Transition::Pop, EventLoopMode::InputOnly);
+                }
+            } else {
+                if dt > Duration::ZERO {
+                    ctx.loading_screen(&format!("step forwards {}", dt), |_, mut timer| {
+                        ui.primary.sim.timed_step(&ui.primary.map, dt, &mut timer);
+                    });
+                }
+
+                return (Transition::Pop, EventLoopMode::InputOnly);
+            }
+        } else if self.wizard.aborted() {
+            return (Transition::Pop, EventLoopMode::InputOnly);
+        }
+        (Transition::Keep, EventLoopMode::InputOnly)
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        self.wizard.draw(g);
     }
 }
