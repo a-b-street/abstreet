@@ -87,8 +87,8 @@ impl State for EditMode {
                 false,
             );
         }
-        if let Some(evmode) = self.common.event(ctx, ui, &mut self.menu) {
-            return (Transition::Keep, evmode);
+        if let Some(pair) = self.common.event(ctx, ui, &mut self.menu) {
+            return pair;
         }
 
         if self.menu.action("quit") {

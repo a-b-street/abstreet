@@ -127,8 +127,8 @@ impl State for DebugMode {
         self.menu.handle_event(ctx, Some(txt));
 
         ctx.canvas.handle_event(ctx.input);
-        if let Some(evmode) = self.common.event(ctx, ui, &mut self.menu) {
-            return (Transition::Keep, evmode);
+        if let Some(pair) = self.common.event(ctx, ui, &mut self.menu) {
+            return pair;
         }
 
         if self.menu.action("quit") {

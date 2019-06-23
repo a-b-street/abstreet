@@ -3,6 +3,7 @@ mod navigate;
 mod turn_cycler;
 mod warp;
 
+use crate::game::Transition;
 use crate::helpers::ID;
 use crate::render::DrawOptions;
 use crate::ui::UI;
@@ -18,8 +19,6 @@ use std::time::Instant;
 pub struct CommonState {
     associated: associated::ShowAssociatedState,
     turn_cycler: turn_cycler::TurnCyclerState,
-    warp: Option<warp::WarpState>,
-    navigate: Option<navigate::Navigator>,
 }
 
 impl CommonState {
@@ -27,8 +26,6 @@ impl CommonState {
         CommonState {
             associated: associated::ShowAssociatedState::Inactive,
             turn_cycler: turn_cycler::TurnCyclerState::new(),
-            warp: None,
-            navigate: None,
         }
     }
 
@@ -41,48 +38,35 @@ impl CommonState {
         ]
     }
 
-    // If this returns something, then this common state should prevent other things from
-    // happening.
     pub fn event(
         &mut self,
         ctx: &mut EventCtx,
         ui: &mut UI,
         menu: &mut ModalMenu,
-    ) -> Option<EventLoopMode> {
-        if let Some(ref mut warp) = self.warp {
-            if let Some(evmode) = warp.event(ctx, ui) {
-                return Some(evmode);
-            }
-            self.warp = None;
-        }
+    ) -> Option<(Transition, EventLoopMode)> {
         if menu.action("warp") {
-            self.warp = Some(warp::WarpState::new());
-        }
-        if let Some(ref mut navigate) = self.navigate {
-            if let Some(evmode) = navigate.event(ctx, ui) {
-                return Some(evmode);
-            }
-            self.navigate = None;
+            return Some((
+                Transition::Push(Box::new(warp::EnteringWarp::new())),
+                EventLoopMode::InputOnly,
+            ));
         }
         if menu.action("navigate") {
-            self.navigate = Some(navigate::Navigator::new(ui));
+            return Some((
+                Transition::Push(Box::new(navigate::Navigator::new(ui))),
+                EventLoopMode::InputOnly,
+            ));
         }
 
         self.associated.event(ui);
         self.turn_cycler.event(ctx, ui);
         if menu.action("take a screenshot") {
-            return Some(EventLoopMode::ScreenCaptureCurrentShot);
+            return Some((Transition::Keep, EventLoopMode::ScreenCaptureCurrentShot));
         }
+
         None
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        if let Some(ref warp) = self.warp {
-            warp.draw(g);
-        }
-        if let Some(ref navigate) = self.navigate {
-            navigate.draw(g);
-        }
         self.turn_cycler.draw(g, ui);
 
         CommonState::draw_osd(g, ui, ui.primary.current_selection);

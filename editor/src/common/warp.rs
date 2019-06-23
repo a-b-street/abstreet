@@ -1,3 +1,4 @@
+use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::ui::{PerMapUI, UI};
 use ezgui::{EventCtx, EventLoopMode, GfxCtx, InputResult, TextBox, Warper};
@@ -6,46 +7,60 @@ use map_model::{raw_data, AreaID, BuildingID, IntersectionID, LaneID, RoadID};
 use sim::{PedestrianID, TripID};
 use std::usize;
 
-pub enum WarpState {
-    EnteringSearch(TextBox),
-    Warping(Warper, ID),
+pub struct EnteringWarp {
+    tb: TextBox,
 }
 
-impl WarpState {
-    pub fn new() -> WarpState {
-        WarpState::EnteringSearch(TextBox::new("Warp to what?", None))
+impl EnteringWarp {
+    pub fn new() -> EnteringWarp {
+        EnteringWarp {
+            tb: TextBox::new("Warp to what?", None),
+        }
     }
+}
 
-    // When None, this is done.
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<EventLoopMode> {
-        match self {
-            WarpState::EnteringSearch(tb) => match tb.event(ctx.input) {
-                InputResult::Canceled => None,
-                InputResult::Done(to, _) => {
-                    if let Some((id, pt)) = warp_point(to, &ui.primary) {
-                        *self = WarpState::Warping(Warper::new(ctx, pt), id);
-                        Some(EventLoopMode::Animation)
-                    } else {
-                        None
-                    }
+impl State for EnteringWarp {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+        match self.tb.event(ctx.input) {
+            InputResult::Canceled => (Transition::Pop, EventLoopMode::InputOnly),
+            InputResult::Done(to, _) => {
+                if let Some((id, pt)) = warp_point(to, &ui.primary) {
+                    (
+                        Transition::Replace(Box::new(Warping {
+                            warper: Warper::new(ctx, pt),
+                            id,
+                        })),
+                        EventLoopMode::Animation,
+                    )
+                } else {
+                    (Transition::Pop, EventLoopMode::InputOnly)
                 }
-                InputResult::StillActive => Some(EventLoopMode::InputOnly),
-            },
-            WarpState::Warping(ref warper, id) => {
-                let result = warper.event(ctx);
-                if result.is_none() {
-                    ui.primary.current_selection = Some(*id);
-                }
-                result
             }
+            InputResult::StillActive => (Transition::Keep, EventLoopMode::InputOnly),
         }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx) {
-        if let WarpState::EnteringSearch(tb) = self {
-            tb.draw(g);
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        self.tb.draw(g);
+    }
+}
+
+pub struct Warping {
+    pub warper: Warper,
+    pub id: ID,
+}
+
+impl State for Warping {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+        if let Some(evmode) = self.warper.event(ctx) {
+            (Transition::Keep, evmode)
+        } else {
+            ui.primary.current_selection = Some(self.id);
+            (Transition::Pop, EventLoopMode::InputOnly)
         }
     }
+
+    fn draw(&self, _: &mut GfxCtx, _: &UI) {}
 }
 
 fn warp_point(line: String, primary: &PerMapUI) -> Option<(ID, Pt2D)> {

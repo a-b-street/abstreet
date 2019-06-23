@@ -1,111 +1,123 @@
+use crate::common::warp::Warping;
+use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::ui::UI;
 use ezgui::{Autocomplete, EventCtx, EventLoopMode, GfxCtx, InputResult, Warper};
 use map_model::RoadID;
 use std::collections::HashSet;
 
-pub enum Navigator {
-    FirstStreet(Autocomplete<RoadID>),
-    CrossStreet(RoadID, Autocomplete<RoadID>),
-    Warping(Warper, ID),
+pub struct Navigator {
+    autocomplete: Autocomplete<RoadID>,
 }
 
 impl Navigator {
     pub fn new(ui: &UI) -> Navigator {
         // TODO Canonicalize names, handling abbreviations like east/e and street/st
-        Navigator::FirstStreet(Autocomplete::new(
-            "Warp where?",
-            ui.primary
-                .map
-                .all_roads()
-                .iter()
-                .map(|r| (r.get_name(), r.id))
-                .collect(),
-        ))
+        Navigator {
+            autocomplete: Autocomplete::new(
+                "Warp where?",
+                ui.primary
+                    .map
+                    .all_roads()
+                    .iter()
+                    .map(|r| (r.get_name(), r.id))
+                    .collect(),
+            ),
+        }
     }
+}
 
-    // When None, this is done.
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<EventLoopMode> {
+impl State for Navigator {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
         let map = &ui.primary.map;
-
-        match self {
-            Navigator::FirstStreet(autocomplete) => match autocomplete.event(ctx.input) {
-                InputResult::Canceled => None,
-                InputResult::Done(name, ids) => {
-                    // Roads share intersections, so of course there'll be overlap here.
-                    let mut cross_streets = HashSet::new();
-                    for r in &ids {
-                        let road = map.get_r(*r);
-                        for i in &[road.src_i, road.dst_i] {
-                            for cross in &map.get_i(*i).roads {
-                                if !ids.contains(cross) {
-                                    cross_streets.insert(*cross);
-                                }
+        match self.autocomplete.event(ctx.input) {
+            InputResult::Canceled => (Transition::Pop, EventLoopMode::InputOnly),
+            InputResult::Done(name, ids) => {
+                // Roads share intersections, so of course there'll be overlap here.
+                let mut cross_streets = HashSet::new();
+                for r in &ids {
+                    let road = map.get_r(*r);
+                    for i in &[road.src_i, road.dst_i] {
+                        for cross in &map.get_i(*i).roads {
+                            if !ids.contains(cross) {
+                                cross_streets.insert(*cross);
                             }
                         }
                     }
-                    *self = Navigator::CrossStreet(
-                        *ids.iter().next().unwrap(),
-                        Autocomplete::new(
+                }
+                (
+                    Transition::Replace(Box::new(CrossStreet {
+                        first: *ids.iter().next().unwrap(),
+                        autocomplete: Autocomplete::new(
                             &format!("{} and what?", name),
                             cross_streets
                                 .into_iter()
                                 .map(|r| (map.get_r(r).get_name(), r))
                                 .collect(),
                         ),
-                    );
-                    Some(EventLoopMode::InputOnly)
-                }
-                InputResult::StillActive => Some(EventLoopMode::InputOnly),
-            },
-            Navigator::CrossStreet(first_id, autocomplete) => match autocomplete.event(ctx.input) {
-                InputResult::Canceled => {
-                    // Just warp to somewhere on the first road
-                    let road = map.get_r(*first_id);
-                    println!("Warping to {}", road.get_name());
-                    *self = Navigator::Warping(
-                        Warper::new(
-                            ctx,
-                            road.center_pts.dist_along(road.center_pts.length() / 2.0).0,
-                        ),
-                        ID::Lane(road.all_lanes()[0]),
-                    );
-                    Some(EventLoopMode::Animation)
-                }
-                InputResult::Done(name, ids) => {
-                    println!(
-                        "Warping to {} and {}",
-                        map.get_r(*first_id).get_name(),
-                        name
-                    );
-                    let road = map.get_r(*ids.iter().next().unwrap());
-                    let pt = if map.get_i(road.src_i).roads.contains(first_id) {
-                        map.get_i(road.src_i).polygon.center()
-                    } else {
-                        map.get_i(road.dst_i).polygon.center()
-                    };
-                    *self = Navigator::Warping(Warper::new(ctx, pt), ID::Lane(road.all_lanes()[0]));
-                    Some(EventLoopMode::Animation)
-                }
-                InputResult::StillActive => Some(EventLoopMode::InputOnly),
-            },
-            Navigator::Warping(ref warper, id) => {
-                let result = warper.event(ctx);
-                if result.is_none() {
-                    ui.primary.current_selection = Some(*id);
-                }
-                result
+                    })),
+                    EventLoopMode::InputOnly,
+                )
             }
+            InputResult::StillActive => (Transition::Keep, EventLoopMode::InputOnly),
         }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx) {
-        match self {
-            Navigator::FirstStreet(ref autocomplete)
-            | Navigator::CrossStreet(_, ref autocomplete) => {
-                autocomplete.draw(g);
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        self.autocomplete.draw(g);
+    }
+}
+
+struct CrossStreet {
+    first: RoadID,
+    autocomplete: Autocomplete<RoadID>,
+}
+
+impl State for CrossStreet {
+    // When None, this is done.
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+        let map = &ui.primary.map;
+        match self.autocomplete.event(ctx.input) {
+            InputResult::Canceled => {
+                // Just warp to somewhere on the first road
+                let road = map.get_r(self.first);
+                println!("Warping to {}", road.get_name());
+                (
+                    Transition::Replace(Box::new(Warping {
+                        warper: Warper::new(
+                            ctx,
+                            road.center_pts.dist_along(road.center_pts.length() / 2.0).0,
+                        ),
+                        id: ID::Lane(road.all_lanes()[0]),
+                    })),
+                    EventLoopMode::Animation,
+                )
             }
-            Navigator::Warping(_, _) => {}
+            InputResult::Done(name, ids) => {
+                println!(
+                    "Warping to {} and {}",
+                    map.get_r(self.first).get_name(),
+                    name
+                );
+                let road = map.get_r(*ids.iter().next().unwrap());
+                let pt = if map.get_i(road.src_i).roads.contains(&self.first) {
+                    map.get_i(road.src_i).polygon.center()
+                } else {
+                    map.get_i(road.dst_i).polygon.center()
+                };
+                (
+                    Transition::Replace(Box::new(Warping {
+                        warper: Warper::new(ctx, pt),
+                        id: ID::Lane(road.all_lanes()[0]),
+                    })),
+                    EventLoopMode::Animation,
+                )
+            }
+            InputResult::StillActive => (Transition::Keep, EventLoopMode::InputOnly),
         }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        self.autocomplete.draw(g);
     }
 }

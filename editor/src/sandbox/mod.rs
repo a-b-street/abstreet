@@ -106,8 +106,8 @@ impl State for SandboxMode {
                 false,
             );
         }
-        if let Some(evmode) = self.common.event(ctx, ui, &mut self.menu) {
-            return (Transition::Keep, evmode);
+        if let Some(pair) = self.common.event(ctx, ui, &mut self.menu) {
+            return pair;
         }
 
         if let Some(spawner) = spawner::AgentSpawner::new(ctx, ui, &mut self.menu) {
