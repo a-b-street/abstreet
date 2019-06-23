@@ -86,8 +86,16 @@ impl State for ScenarioEditor {
         if let Some(()) = edit_scenario(&ui.primary.map, &mut self.scenario, self.wizard.wrap(ctx))
         {
             // TODO autosave, or at least make it clear there are unsaved edits
-            // TODO Need to Refresh the scenario in our parent!
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            let scenario = self.scenario.clone();
+            return (
+                Transition::PopWithData(Box::new(|state| {
+                    let mut manager = state.downcast_mut::<ScenarioManager>().unwrap();
+                    manager.scroller =
+                        LogScroller::new(scenario.scenario_name.clone(), scenario.describe());
+                    manager.scenario = scenario;
+                })),
+                EventLoopMode::InputOnly,
+            );
         } else if self.wizard.aborted() {
             return (Transition::Pop, EventLoopMode::InputOnly);
         }

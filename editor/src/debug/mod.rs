@@ -552,9 +552,13 @@ impl State for SearchOSM {
                     }
                 }
 
-                // TODO How to pass data back?
-                //mode.search_results = Some((filter, ids));
-                (Transition::Pop, EventLoopMode::InputOnly)
+                (
+                    Transition::PopWithData(Box::new(|state| {
+                        state.downcast_mut::<DebugMode>().unwrap().search_results =
+                            Some((filter, ids));
+                    })),
+                    EventLoopMode::InputOnly,
+                )
             }
             InputResult::StillActive => (Transition::Keep, EventLoopMode::InputOnly),
         }

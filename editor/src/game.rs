@@ -54,6 +54,10 @@ impl GUI for Game {
                     std::process::exit(0);
                 }
             }
+            Transition::PopWithData(cb) => {
+                self.states.pop().unwrap().on_destroy(&mut self.ui);
+                cb(self.states.last_mut().unwrap());
+            }
             Transition::Push(state) => {
                 self.states.last_mut().unwrap().on_suspend(&mut self.ui);
                 self.states.push(state);
@@ -111,7 +115,7 @@ impl GUI for Game {
     }
 }
 
-pub trait State {
+pub trait State: downcast_rs::Downcast {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode);
     fn draw(&self, g: &mut GfxCtx, ui: &UI);
     fn draw_default_ui(&self) -> bool {
@@ -125,9 +129,13 @@ pub trait State {
     // We don't need an on_enter -- the constructor for the state can just do it.
 }
 
+downcast_rs::impl_downcast!(State);
+
 pub enum Transition {
     Keep,
     Pop,
+    // If a state needs to pass data back to the parent, use this. Sadly, runtime type casting.
+    PopWithData(Box<FnOnce(&mut Box<State>)>),
     Push(Box<State>),
     Replace(Box<State>),
 }

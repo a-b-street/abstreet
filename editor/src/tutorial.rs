@@ -21,7 +21,7 @@ impl TutorialMode {
 }
 
 impl State for TutorialMode {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> (Transition, EventLoopMode) {
         let mut txt = Text::prompt("Tutorial");
         txt.add_line("Click and drag to pan around".to_string());
 
@@ -64,7 +64,7 @@ struct Part2 {
 }
 
 impl State for Part2 {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> (Transition, EventLoopMode) {
         let mut txt = Text::prompt("Tutorial");
         txt.add_line("Use your mouse wheel or touchpad to zoom in and out".to_string());
 

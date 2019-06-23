@@ -11,6 +11,7 @@ clipping = "0.1.1"
 colorbrewer = "0.1.0"
 counter = "0.4.3"
 derive-new = "0.5.6"
+downcast-rs = "1.0.4"
 ezgui = { path = "../ezgui" }
 geom = { path = "../geom" }
 itertools = "0.8.0"
