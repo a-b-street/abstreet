@@ -2,7 +2,7 @@ use crate::common::CommonState;
 use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::mission::trips::{clip_trips, Trip, TripEndpt};
-use crate::ui::{ShowEverything, UI};
+use crate::ui::UI;
 use ezgui::{hotkey, Color, EventCtx, GfxCtx, ItemSlider, Key, Text};
 use geom::{Circle, Distance, Line, Speed};
 use map_model::BuildingID;
@@ -61,12 +61,7 @@ impl State for TripsVisualizer {
         ctx.canvas.handle_event(ctx.input);
 
         if ctx.redo_mouseover() {
-            ui.primary.current_selection = ui.recalculate_current_selection(
-                ctx,
-                &ui.primary.sim,
-                &ShowEverything::new(),
-                false,
-            );
+            ui.recalculate_current_selection(ctx);
         }
 
         if self.slider.action("quit") {

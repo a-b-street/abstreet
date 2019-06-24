@@ -125,12 +125,7 @@ impl State for AgentSpawner {
 
         ctx.canvas.handle_event(ctx.input);
         if ctx.redo_mouseover() {
-            ui.primary.current_selection = ui.recalculate_current_selection(
-                ctx,
-                &ui.primary.sim,
-                &ShowEverything::new(),
-                false,
-            );
+            ui.recalculate_current_selection(ctx);
         }
 
         let map = &ui.primary.map;
@@ -284,12 +279,7 @@ impl State for AgentSpawner {
             };
             sim.spawn_all_trips(map, &mut Timer::new("spawn trip"), false);
             sim.step(map, SMALL_DT);
-            ui.primary.current_selection = ui.recalculate_current_selection(
-                ctx,
-                &ui.primary.sim,
-                &ShowEverything::new(),
-                false,
-            );
+            ui.recalculate_current_selection(ctx);
             return Transition::Pop;
         }
 
@@ -375,6 +365,5 @@ fn spawn_agents_around(i: IntersectionID, ui: &mut UI, ctx: &EventCtx) {
 
     sim.spawn_all_trips(map, &mut Timer::throwaway(), false);
     sim.step(map, SMALL_DT);
-    ui.primary.current_selection =
-        ui.recalculate_current_selection(ctx, &ui.primary.sim, &ShowEverything::new(), false);
+    ui.recalculate_current_selection(ctx);
 }

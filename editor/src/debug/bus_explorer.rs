@@ -1,7 +1,7 @@
 use crate::common::CommonState;
 use crate::game::{State, Transition};
 use crate::helpers::ID;
-use crate::ui::{ShowEverything, UI};
+use crate::ui::UI;
 use ezgui::{EventCtx, GfxCtx, Key, Text, WarpingItemSlider};
 use geom::Pt2D;
 use map_model::BusStopID;
@@ -47,13 +47,8 @@ impl BusRouteExplorer {
 impl State for BusRouteExplorer {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         if ctx.redo_mouseover() {
-            ui.primary.current_selection = ui.recalculate_current_selection(
-                ctx,
-                &ui.primary.sim,
-                // TODO Or use what debug mode is showing?
-                &ShowEverything::new(),
-                false,
-            );
+            // TODO Or use what debug mode is showing?
+            ui.recalculate_current_selection(ctx);
         }
         ctx.canvas.handle_event(ctx.input);
 

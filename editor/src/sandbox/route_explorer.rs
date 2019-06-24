@@ -1,7 +1,7 @@
 use crate::common::CommonState;
 use crate::game::{State, Transition};
 use crate::render::DrawTurn;
-use crate::ui::{ShowEverything, UI};
+use crate::ui::UI;
 use ezgui::{Color, EventCtx, GfxCtx, Key, Text, WarpingItemSlider};
 use geom::{Distance, Polygon, Pt2D};
 use map_model::{Traversable, LANE_THICKNESS};
@@ -68,13 +68,7 @@ impl RouteExplorer {
 impl State for RouteExplorer {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         if ctx.redo_mouseover() {
-            ui.primary.current_selection = ui.recalculate_current_selection(
-                ctx,
-                &ui.primary.sim,
-                // TODO Or use what debug mode is showing?
-                &ShowEverything::new(),
-                false,
-            );
+            ui.recalculate_current_selection(ctx);
         }
         ctx.canvas.handle_event(ctx.input);
 

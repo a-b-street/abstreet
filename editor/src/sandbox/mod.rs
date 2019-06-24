@@ -98,12 +98,7 @@ impl State for SandboxMode {
 
         ctx.canvas.handle_event(ctx.input);
         if ctx.redo_mouseover() {
-            ui.primary.current_selection = ui.recalculate_current_selection(
-                ctx,
-                &ui.primary.sim,
-                &ShowEverything::new(),
-                false,
-            );
+            ui.recalculate_current_selection(ctx);
         }
         if let Some(t) = self.common.event(ctx, ui, &mut self.menu) {
             return t;
@@ -170,12 +165,7 @@ impl State for SandboxMode {
             ui.primary
                 .sim
                 .time_limited_step(&ui.primary.map, dt, Duration::seconds(0.1));
-            ui.primary.current_selection = ui.recalculate_current_selection(
-                ctx,
-                &ui.primary.sim,
-                &ShowEverything::new(),
-                false,
-            );
+            ui.recalculate_current_selection(ctx);
         }
 
         if self.speed.is_paused() {
@@ -197,12 +187,7 @@ impl State for SandboxMode {
                 {
                     Some(new_sim) => {
                         ui.primary.sim = new_sim;
-                        ui.primary.current_selection = ui.recalculate_current_selection(
-                            ctx,
-                            &ui.primary.sim,
-                            &ShowEverything::new(),
-                            false,
-                        );
+                        ui.recalculate_current_selection(ctx);
                     }
                     None => println!("Couldn't load previous savestate {:?}", prev_state),
                 }
@@ -215,12 +200,7 @@ impl State for SandboxMode {
                 {
                     Some(new_sim) => {
                         ui.primary.sim = new_sim;
-                        ui.primary.current_selection = ui.recalculate_current_selection(
-                            ctx,
-                            &ui.primary.sim,
-                            &ShowEverything::new(),
-                            false,
-                        );
+                        ui.recalculate_current_selection(ctx);
                     }
                     None => println!("Couldn't load next savestate {:?}", next_state),
                 }
@@ -228,24 +208,14 @@ impl State for SandboxMode {
 
             if self.menu.action("step forwards 0.1s") {
                 ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
-                ui.primary.current_selection = ui.recalculate_current_selection(
-                    ctx,
-                    &ui.primary.sim,
-                    &ShowEverything::new(),
-                    false,
-                );
+                ui.recalculate_current_selection(ctx);
             } else if self.menu.action("step forwards 10 mins") {
                 ctx.loading_screen("step forwards 10 minutes", |_, mut timer| {
                     ui.primary
                         .sim
                         .timed_step(&ui.primary.map, Duration::minutes(10), &mut timer);
                 });
-                ui.primary.current_selection = ui.recalculate_current_selection(
-                    ctx,
-                    &ui.primary.sim,
-                    &ShowEverything::new(),
-                    false,
-                );
+                ui.recalculate_current_selection(ctx);
             } else if self.menu.action("jump to specific time") {
                 return Transition::Push(Box::new(JumpingToTime {
                     wizard: Wizard::new(),

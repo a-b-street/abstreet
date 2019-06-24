@@ -1,7 +1,7 @@
 use crate::common::{CommonState, SpeedControls};
 use crate::game::{State, Transition};
 use crate::mission::trips::{clip_trips, Trip};
-use crate::ui::{ShowEverything, UI};
+use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{
     hotkey, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, ModalMenu, ScreenPt, Slider, Text,
@@ -99,12 +99,7 @@ impl State for TripsVisualizer {
         ctx.canvas.handle_event(ctx.input);
 
         if ctx.redo_mouseover() {
-            ui.primary.current_selection = ui.recalculate_current_selection(
-                ctx,
-                &ui.primary.sim,
-                &ShowEverything::new(),
-                false,
-            );
+            ui.recalculate_current_selection(ctx);
         }
 
         let last_time = Duration::parse("23:59:59.9").unwrap();

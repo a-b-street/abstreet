@@ -77,12 +77,7 @@ impl State for EditMode {
         // directly.
         // TODO Only mouseover lanes and intersections?
         if ctx.redo_mouseover() {
-            ui.primary.current_selection = ui.recalculate_current_selection(
-                ctx,
-                &ui.primary.sim,
-                &ShowEverything::new(),
-                false,
-            );
+            ui.recalculate_current_selection(ctx);
         }
         if let Some(t) = self.common.event(ctx, ui, &mut self.menu) {
             return t;

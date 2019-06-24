@@ -4,7 +4,7 @@ pub mod setup;
 use crate::common::{CommonState, SpeedControls};
 use crate::game::{State, Transition};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
-use crate::ui::{PerMapUI, ShowEverything, UI};
+use crate::ui::{PerMapUI, UI};
 use ezgui::{hotkey, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, ModalMenu, Text};
 use geom::{Circle, Distance, Duration, Line, PolyLine};
 use map_model::{Map, LANE_THICKNESS};
@@ -73,12 +73,7 @@ impl State for ABTestMode {
 
         ctx.canvas.handle_event(ctx.input);
         if ctx.redo_mouseover() {
-            ui.primary.current_selection = ui.recalculate_current_selection(
-                ctx,
-                &ui.primary.sim,
-                &ShowEverything::new(),
-                false,
-            );
+            ui.recalculate_current_selection(ctx);
         }
         if let Some(t) = self.common.event(ctx, ui, &mut self.menu) {
             return t;
@@ -202,8 +197,7 @@ impl ABTestMode {
             ));
         }
 
-        ui.primary.current_selection =
-            ui.recalculate_current_selection(ctx, &ui.primary.sim, &ShowEverything::new(), false);
+        ui.recalculate_current_selection(ctx);
     }
 
     fn savestate(&mut self, ui: &mut UI) {

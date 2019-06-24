@@ -197,10 +197,16 @@ impl UI {
         }
     }
 
+    // Assumes some defaults.
+    pub fn recalculate_current_selection(&mut self, ctx: &EventCtx) {
+        self.primary.current_selection =
+            self.calculate_current_selection(ctx, &self.primary.sim, &ShowEverything::new(), false);
+    }
+
     // Because we have to sometimes borrow part of self for GetDrawAgents, this just returns the
     // Option<ID> that the caller should assign. When this monolithic UI nonsense is dismantled,
     // this weirdness goes away.
-    pub fn recalculate_current_selection(
+    pub fn calculate_current_selection(
         &self,
         ctx: &EventCtx,
         source: &GetDrawAgents,
