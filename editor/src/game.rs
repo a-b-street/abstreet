@@ -10,6 +10,8 @@ pub struct Game {
     // A stack of states
     pub states: Vec<Box<State>>,
     pub ui: UI,
+
+    idx_draw_base: Option<usize>,
 }
 
 impl Game {
@@ -25,7 +27,16 @@ impl Game {
                 Box::new(SandboxMode::new(ctx)),
             ]
         };
-        Game { states, ui }
+        let idx_draw_base = if states.last().as_ref().unwrap().draw_as_base_for_substates() {
+            Some(states.len() - 1)
+        } else {
+            None
+        };
+        Game {
+            states,
+            ui,
+            idx_draw_base,
+        }
     }
 
     fn save_editor_state(&self, canvas: &Canvas) {
@@ -44,34 +55,19 @@ impl Game {
 
 impl GUI for Game {
     fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode {
-        let transition = self.states.last_mut().unwrap().event(ctx, &mut self.ui);
-        match transition {
-            Transition::Keep => EventLoopMode::InputOnly,
-            Transition::Pop => {
-                self.states.pop().unwrap().on_destroy(&mut self.ui);
-                if self.states.is_empty() {
-                    self.before_quit(ctx.canvas);
-                    std::process::exit(0);
-                }
-                EventLoopMode::InputOnly
-            }
-            Transition::PopWithData(cb) => {
-                self.states.pop().unwrap().on_destroy(&mut self.ui);
-                cb(self.states.last_mut().unwrap());
-                EventLoopMode::InputOnly
-            }
-            Transition::Push(state) => {
-                self.states.last_mut().unwrap().on_suspend(&mut self.ui);
-                self.states.push(state);
-                EventLoopMode::InputOnly
-            }
+        // First rewrite the transitions to explicitly have EventLoopMode, to avoid duplicated
+        // code.
+        let transition = match self.states.last_mut().unwrap().event(ctx, &mut self.ui) {
+            Transition::Keep => Transition::KeepWithMode(EventLoopMode::InputOnly),
+            Transition::Pop => Transition::PopWithMode(EventLoopMode::InputOnly),
+            Transition::Push(state) => Transition::PushWithMode(state, EventLoopMode::InputOnly),
             Transition::Replace(state) => {
-                self.states.pop().unwrap().on_destroy(&mut self.ui);
-                self.states.push(state);
-                EventLoopMode::InputOnly
+                Transition::ReplaceWithMode(state, EventLoopMode::InputOnly)
             }
+            x => x,
+        };
 
-            // A little repetitive...
+        match transition {
             Transition::KeepWithMode(evmode) => evmode,
             Transition::PopWithMode(evmode) => {
                 self.states.pop().unwrap().on_destroy(&mut self.ui);
@@ -79,24 +75,57 @@ impl GUI for Game {
                     self.before_quit(ctx.canvas);
                     std::process::exit(0);
                 }
+                if self.idx_draw_base == Some(self.states.len()) {
+                    self.idx_draw_base = None;
+                }
                 evmode
+            }
+            Transition::PopWithData(cb) => {
+                self.states.pop().unwrap().on_destroy(&mut self.ui);
+                cb(self.states.last_mut().unwrap());
+                if self.idx_draw_base == Some(self.states.len()) {
+                    self.idx_draw_base = None;
+                }
+                EventLoopMode::InputOnly
             }
             Transition::PushWithMode(state, evmode) => {
                 self.states.last_mut().unwrap().on_suspend(&mut self.ui);
+                if self.idx_draw_base.is_some() {
+                    assert!(!state.draw_as_base_for_substates());
+                    assert!(state.draw_default_ui());
+                } else if state.draw_as_base_for_substates() {
+                    assert!(!state.draw_default_ui());
+                    self.idx_draw_base = Some(self.states.len());
+                }
                 self.states.push(state);
                 evmode
             }
             Transition::ReplaceWithMode(state, evmode) => {
                 self.states.pop().unwrap().on_destroy(&mut self.ui);
+                if self.idx_draw_base == Some(self.states.len()) {
+                    self.idx_draw_base = None;
+                }
+
+                if self.idx_draw_base.is_some() {
+                    assert!(!state.draw_as_base_for_substates());
+                    assert!(state.draw_default_ui());
+                } else if state.draw_as_base_for_substates() {
+                    assert!(!state.draw_default_ui());
+                    self.idx_draw_base = Some(self.states.len());
+                }
                 self.states.push(state);
                 evmode
             }
+            _ => unreachable!(),
         }
     }
 
     fn draw(&self, g: &mut GfxCtx) {
         let state = self.states.last().unwrap();
-        if state.draw_default_ui() {
+
+        if let Some(idx) = self.idx_draw_base {
+            self.states[idx].draw(g, &self.ui);
+        } else if state.draw_default_ui() {
             self.ui.draw(
                 g,
                 DrawOptions::new(),
@@ -142,8 +171,12 @@ pub trait State: downcast_rs::Downcast {
     // InputOnly, the variations are encoded by Transition.
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition;
     fn draw(&self, g: &mut GfxCtx, ui: &UI);
+
     fn draw_default_ui(&self) -> bool {
         true
+    }
+    fn draw_as_base_for_substates(&self) -> bool {
+        false
     }
 
     // Before we push a new state on top of this one, call this.
@@ -155,7 +188,6 @@ pub trait State: downcast_rs::Downcast {
 
 downcast_rs::impl_downcast!(State);
 
-//
 pub enum Transition {
     // These variants imply EventLoopMode::InputOnly.
     Keep,
