@@ -20,12 +20,12 @@ impl ScenarioManager {
         ScenarioManager {
             menu: ModalMenu::new(
                 &format!("Scenario Editor for {}", scenario.scenario_name),
-                vec![
+                vec![vec![
                     (hotkey(Key::Escape), "quit"),
                     (hotkey(Key::S), "save"),
                     (hotkey(Key::E), "edit"),
                     (hotkey(Key::I), "instantiate"),
-                ],
+                ]],
                 ctx,
             ),
             scenario,

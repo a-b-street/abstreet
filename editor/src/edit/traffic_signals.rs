@@ -28,21 +28,27 @@ impl TrafficSignalEditor {
         let menu = ModalMenu::new(
             &format!("Traffic Signal Editor for {}", id),
             vec![
-                (hotkey(Key::Escape), "quit"),
-                (hotkey(Key::D), "change cycle duration"),
-                (hotkey(Key::P), "choose a preset signal"),
-                (hotkey(Key::R), "reset to original"),
-                (hotkey(Key::K), "move current cycle up"),
-                (hotkey(Key::J), "move current cycle down"),
-                (hotkey(Key::UpArrow), "select previous cycle"),
-                (hotkey(Key::DownArrow), "select next cycle"),
-                (hotkey(Key::Backspace), "delete current cycle"),
-                (hotkey(Key::N), "add a new empty cycle"),
-                (hotkey(Key::M), "add a new pedestrian scramble cycle"),
-                (
-                    hotkey(Key::B),
-                    "convert to dedicated pedestrian scramble cycle",
-                ),
+                vec![
+                    (hotkey(Key::UpArrow), "select previous cycle"),
+                    (hotkey(Key::DownArrow), "select next cycle"),
+                ],
+                vec![
+                    (hotkey(Key::D), "change cycle duration"),
+                    (hotkey(Key::K), "move current cycle up"),
+                    (hotkey(Key::J), "move current cycle down"),
+                    (hotkey(Key::Backspace), "delete current cycle"),
+                    (hotkey(Key::N), "add a new empty cycle"),
+                    (hotkey(Key::M), "add a new pedestrian scramble cycle"),
+                ],
+                vec![
+                    (hotkey(Key::R), "reset to original"),
+                    (hotkey(Key::P), "choose a preset signal"),
+                    (
+                        hotkey(Key::B),
+                        "convert to dedicated pedestrian scramble cycle",
+                    ),
+                ],
+                vec![(hotkey(Key::Escape), "quit")],
             ],
             ctx,
         );

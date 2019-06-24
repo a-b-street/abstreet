@@ -43,7 +43,7 @@ impl InactiveTimeTravel {
                 items,
                 "Time Traveler",
                 "moment",
-                vec![(hotkey(Key::Escape), "quit")],
+                vec![vec![(hotkey(Key::Escape), "quit")]],
                 ctx,
             ),
         }));

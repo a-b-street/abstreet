@@ -39,7 +39,11 @@ impl AgentSpawner {
         ui: &mut UI,
         sandbox_menu: &mut ModalMenu,
     ) -> Option<AgentSpawner> {
-        let menu = ModalMenu::new("Agent Spawner", vec![(hotkey(Key::Escape), "quit")], ctx);
+        let menu = ModalMenu::new(
+            "Agent Spawner",
+            vec![vec![(hotkey(Key::Escape), "quit")]],
+            ctx,
+        );
         let map = &ui.primary.map;
         match ui.primary.current_selection {
             Some(ID::Building(id)) => {

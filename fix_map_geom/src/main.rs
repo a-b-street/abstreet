@@ -35,13 +35,13 @@ impl State {
         State::Main {
             menu: ModalMenu::new(
                 "Fix Map Geometry",
-                vec![
+                vec![vec![
                     (hotkey(Key::Escape), "quit"),
                     (hotkey(Key::S), "save"),
                     (hotkey(Key::R), "reset hints"),
                     (hotkey(Key::U), "undo last hint"),
                     (hotkey(Key::B), "browse hints"),
-                ],
+                ]],
                 ctx,
             ),
             selected: None,

@@ -47,7 +47,7 @@ impl TripsVisualizer {
                 trips,
                 "Trips Visualizer",
                 "trip",
-                vec![(hotkey(Key::Escape), "quit")],
+                vec![vec![(hotkey(Key::Escape), "quit")]],
                 ctx,
             ),
             bldgs,

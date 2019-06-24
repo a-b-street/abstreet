@@ -9,13 +9,14 @@ pub struct ModalMenu {
 impl ModalMenu {
     pub fn new(
         prompt_line: &str,
-        choices: Vec<(Option<MultiKey>, &str)>,
+        choice_groups: Vec<Vec<(Option<MultiKey>, &str)>>,
         ctx: &EventCtx,
     ) -> ModalMenu {
         let mut menu = Menu::new(
             Text::prompt(prompt_line),
-            choices
+            choice_groups
                 .into_iter()
+                .flatten()
                 .map(|(multikey, action)| (multikey, action.to_string(), ()))
                 .collect(),
             false,

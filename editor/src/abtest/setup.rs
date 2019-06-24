@@ -28,11 +28,11 @@ impl State for PickABTest {
             return Transition::Replace(Box::new(ABTestSetup {
                 menu: ModalMenu::new(
                     &format!("A/B Test Editor for {}", ab_test.test_name),
-                    vec![
+                    vec![vec![
                         (hotkey(Key::Escape), "quit"),
                         (hotkey(Key::R), "run A/B test"),
                         (hotkey(Key::L), "load savestate"),
-                    ],
+                    ]],
                     ctx,
                 ),
                 ab_test,

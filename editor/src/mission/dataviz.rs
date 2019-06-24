@@ -41,11 +41,15 @@ impl DataVisualizer {
             menu: ModalMenu::new(
                 "Data Visualizer",
                 vec![
-                    (hotkey(Key::Escape), "quit"),
-                    (hotkey(Key::Space), "toggle table/bar chart"),
-                    (hotkey(Key::Num1), "household vehicles"),
-                    (hotkey(Key::Num2), "commute times"),
-                    (hotkey(Key::Num3), "commute modes"),
+                    vec![
+                        (hotkey(Key::Escape), "quit"),
+                        (hotkey(Key::Space), "toggle table/bar chart"),
+                    ],
+                    vec![
+                        (hotkey(Key::Num1), "household vehicles"),
+                        (hotkey(Key::Num2), "commute times"),
+                        (hotkey(Key::Num3), "commute modes"),
+                    ],
                 ],
                 ctx,
             ),

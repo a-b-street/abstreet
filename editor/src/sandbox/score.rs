@@ -17,10 +17,10 @@ impl Scoreboard {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> Scoreboard {
         let menu = ModalMenu::new(
             "Scoreboard",
-            vec![
+            vec![vec![
                 (hotkey(Key::Escape), "quit"),
                 (hotkey(Key::B), "browse trips"),
-            ],
+            ]],
             ctx,
         );
         let t = ui.primary.sim.get_finished_trips();

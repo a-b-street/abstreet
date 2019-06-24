@@ -36,10 +36,10 @@ impl StopSignEditor {
         StopSignEditor {
             menu: ModalMenu::new(
                 "Stop Sign Editor",
-                vec![
+                vec![vec![
                     (hotkey(Key::Escape), "quit"),
                     (hotkey(Key::R), "reset to default"),
-                ],
+                ]],
                 ctx,
             ),
             id,
