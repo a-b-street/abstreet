@@ -33,16 +33,15 @@ impl EditMode {
             menu: ModalMenu::new(
                 "Map Edit Mode",
                 vec![
-                    vec![
-                        (hotkey(Key::Escape), "quit"),
-                        (hotkey(Key::S), "save edits"),
-                        (hotkey(Key::L), "load different edits"),
-                        (lctrl(Key::S), "sandbox mode"),
-                        (lctrl(Key::D), "debug mode"),
-                    ],
-                    CommonState::modal_menu_entries(),
-                ]
-                .concat(),
+                    (hotkey(Key::Escape), "quit"),
+                    (hotkey(Key::S), "save edits"),
+                    (hotkey(Key::L), "load different edits"),
+                    (lctrl(Key::S), "sandbox mode"),
+                    (lctrl(Key::D), "debug mode"),
+                    (hotkey(Key::J), "warp"),
+                    (hotkey(Key::K), "navigate"),
+                    (hotkey(Key::F1), "take a screenshot"),
+                ],
                 ctx,
             ),
         }

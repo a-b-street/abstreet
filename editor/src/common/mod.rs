@@ -17,8 +17,7 @@ use crate::helpers::ID;
 use crate::render::DrawOptions;
 use crate::ui::UI;
 use ezgui::{
-    hotkey, Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Key, ModalMenu, MultiKey,
-    Text, VerticalAlignment,
+    Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, ModalMenu, Text, VerticalAlignment,
 };
 use std::collections::BTreeSet;
 
@@ -33,15 +32,6 @@ impl CommonState {
             associated: associated::ShowAssociatedState::Inactive,
             turn_cycler: turn_cycler::TurnCyclerState::new(),
         }
-    }
-
-    pub fn modal_menu_entries() -> Vec<(Option<MultiKey>, &'static str)> {
-        vec![
-            (hotkey(Key::J), "warp"),
-            // TODO This definitely conflicts with some modes.
-            (hotkey(Key::K), "navigate"),
-            (hotkey(Key::F1), "take a screenshot"),
-        ]
     }
 
     pub fn event(
