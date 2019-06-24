@@ -1,8 +1,7 @@
 use crate::game::{State, Transition};
 use crate::ui::UI;
 use ezgui::{
-    hotkey, Canvas, Color, EventCtx, EventLoopMode, GfxCtx, InputResult, Key, ModalMenu, ScreenPt,
-    ScrollingMenu,
+    hotkey, Canvas, Color, EventCtx, GfxCtx, InputResult, Key, ModalMenu, ScreenPt, ScrollingMenu,
 };
 use geom::{Distance, Polygon};
 
@@ -24,25 +23,22 @@ impl ColorChooser {
 }
 
 impl State for ColorChooser {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         match self.menu.event(&mut ctx.input) {
-            InputResult::Canceled => (Transition::Pop, EventLoopMode::InputOnly),
-            InputResult::StillActive => (Transition::Keep, EventLoopMode::InputOnly),
-            InputResult::Done(name, _) => (
-                Transition::Replace(Box::new(ColorChanger {
-                    name: name.clone(),
-                    original: ui.cs.get_modified(&name),
-                    menu: ModalMenu::new(
-                        &format!("Color Picker for {}", name),
-                        vec![
-                            (hotkey(Key::Backspace), "revert"),
-                            (hotkey(Key::Escape), "finalize"),
-                        ],
-                        ctx,
-                    ),
-                })),
-                EventLoopMode::InputOnly,
-            ),
+            InputResult::Canceled => Transition::Pop,
+            InputResult::StillActive => Transition::Keep,
+            InputResult::Done(name, _) => Transition::Replace(Box::new(ColorChanger {
+                name: name.clone(),
+                original: ui.cs.get_modified(&name),
+                menu: ModalMenu::new(
+                    &format!("Color Picker for {}", name),
+                    vec![
+                        (hotkey(Key::Backspace), "revert"),
+                        (hotkey(Key::Escape), "finalize"),
+                    ],
+                    ctx,
+                ),
+            })),
         }
     }
 
@@ -58,14 +54,14 @@ struct ColorChanger {
 }
 
 impl State for ColorChanger {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         self.menu.handle_event(ctx, None);
         if self.menu.action("revert") {
             ui.cs.reset_modified(&self.name, self.original);
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            return Transition::Pop;
         } else if self.menu.action("finalize") {
             println!("Setting color for {}", self.name);
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            return Transition::Pop;
         }
 
         if let Some(pt) = ctx.input.get_moved_mouse() {
@@ -78,7 +74,7 @@ impl State for ColorChanger {
                     .override_color(&self.name, get_color(x as f32, y as f32));
             }
         }
-        (Transition::Keep, EventLoopMode::InputOnly)
+        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {

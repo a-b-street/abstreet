@@ -1,6 +1,6 @@
 use crate::game::{State, Transition};
 use crate::ui::UI;
-use ezgui::{hotkey, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text};
+use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu, Text};
 use geom::Pt2D;
 
 pub struct TutorialMode {
@@ -21,7 +21,7 @@ impl TutorialMode {
 }
 
 impl State for TutorialMode {
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
         let mut txt = Text::prompt("Tutorial");
         txt.add_line("Click and drag to pan around".to_string());
 
@@ -30,23 +30,20 @@ impl State for TutorialMode {
             txt.add_line("".to_string());
             txt.add_line("Great! Press ENTER to continue.".to_string());
             if ctx.input.key_pressed(Key::Enter, "next step of tutorial") {
-                return (
-                    Transition::Replace(Box::new(Part2 {
-                        orig_cam_zoom: ctx.canvas.cam_zoom,
-                        menu: ModalMenu::new("Tutorial", vec![(hotkey(Key::Escape), "quit")], ctx),
-                    })),
-                    EventLoopMode::InputOnly,
-                );
+                return Transition::Replace(Box::new(Part2 {
+                    orig_cam_zoom: ctx.canvas.cam_zoom,
+                    menu: ModalMenu::new("Tutorial", vec![(hotkey(Key::Escape), "quit")], ctx),
+                }));
             }
         }
         self.menu.handle_event(ctx, Some(txt));
         ctx.canvas.handle_event(ctx.input);
 
         if self.menu.action("quit") {
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            return Transition::Pop;
         }
 
-        (Transition::Keep, EventLoopMode::InputOnly)
+        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
@@ -64,7 +61,7 @@ struct Part2 {
 }
 
 impl State for Part2 {
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
         let mut txt = Text::prompt("Tutorial");
         txt.add_line("Use your mouse wheel or touchpad to zoom in and out".to_string());
 
@@ -72,17 +69,17 @@ impl State for Part2 {
             txt.add_line("".to_string());
             txt.add_line("Great! Press ENTER to continue.".to_string());
             if ctx.input.key_pressed(Key::Enter, "next step of tutorial") {
-                return (Transition::Pop, EventLoopMode::InputOnly);
+                return Transition::Pop;
             }
         }
         self.menu.handle_event(ctx, Some(txt));
         ctx.canvas.handle_event(ctx.input);
 
         if self.menu.action("quit") {
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            return Transition::Pop;
         }
 
-        (Transition::Keep, EventLoopMode::InputOnly)
+        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {

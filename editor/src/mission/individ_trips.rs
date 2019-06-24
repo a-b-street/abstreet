@@ -3,7 +3,7 @@ use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::mission::trips::{clip_trips, Trip, TripEndpt};
 use crate::ui::{ShowEverything, UI};
-use ezgui::{hotkey, Color, EventCtx, EventLoopMode, GfxCtx, ItemSlider, Key, Text};
+use ezgui::{hotkey, Color, EventCtx, GfxCtx, ItemSlider, Key, Text};
 use geom::{Circle, Distance, Line, Speed};
 use map_model::BuildingID;
 use popdat::psrc;
@@ -56,7 +56,7 @@ impl TripsVisualizer {
 }
 
 impl State for TripsVisualizer {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         self.slider.event(ctx);
         ctx.canvas.handle_event(ctx.input);
 
@@ -70,9 +70,9 @@ impl State for TripsVisualizer {
         }
 
         if self.slider.action("quit") {
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            return Transition::Pop;
         }
-        (Transition::Keep, EventLoopMode::InputOnly)
+        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {

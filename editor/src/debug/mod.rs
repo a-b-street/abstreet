@@ -88,7 +88,7 @@ impl DebugMode {
 }
 
 impl State for DebugMode {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         if ctx.redo_mouseover() {
             ui.primary.current_selection =
                 ui.recalculate_current_selection(ctx, &ui.primary.sim, self, true);
@@ -126,24 +126,18 @@ impl State for DebugMode {
         self.menu.handle_event(ctx, Some(txt));
 
         ctx.canvas.handle_event(ctx.input);
-        if let Some(pair) = self.common.event(ctx, ui, &mut self.menu) {
-            return pair;
+        if let Some(t) = self.common.event(ctx, ui, &mut self.menu) {
+            return t;
         }
 
         if self.menu.action("quit") {
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            return Transition::Pop;
         }
         if self.menu.action("sandbox mode") {
-            return (
-                Transition::Replace(Box::new(SandboxMode::new(ctx))),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Replace(Box::new(SandboxMode::new(ctx)));
         }
         if self.menu.action("edit mode") {
-            return (
-                Transition::Replace(Box::new(EditMode::new(ctx, ui))),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Replace(Box::new(EditMode::new(ctx, ui)));
         }
 
         if self.menu.action("show/hide chokepoints") {
@@ -211,10 +205,7 @@ impl State for DebugMode {
         self.neighborhood_summary.event(ui, &mut self.menu);
 
         if let Some(debugger) = polygons::PolygonDebugger::new(ctx, ui) {
-            return (
-                Transition::Push(Box::new(debugger)),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Push(Box::new(debugger));
         }
 
         {
@@ -244,15 +235,12 @@ impl State for DebugMode {
         if self.menu.action("screenshot everything") {
             let bounds = ui.primary.map.get_bounds();
             assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
-            return (
-                Transition::Keep,
-                EventLoopMode::ScreenCaptureEverything {
-                    dir: format!("../data/screenshots/pending_{}", ui.primary.map.get_name()),
-                    zoom: 3.0,
-                    max_x: bounds.max_x,
-                    max_y: bounds.max_y,
-                },
-            );
+            return Transition::KeepWithMode(EventLoopMode::ScreenCaptureEverything {
+                dir: format!("../data/screenshots/pending_{}", ui.primary.map.get_name()),
+                zoom: 3.0,
+                max_x: bounds.max_x,
+                max_y: bounds.max_y,
+            });
         }
 
         if self.search_results.is_some() {
@@ -260,27 +248,18 @@ impl State for DebugMode {
                 self.search_results = None;
             }
         } else if self.menu.action("search OSM metadata") {
-            return (
-                Transition::Push(Box::new(SearchOSM {
-                    entry: TextBox::new("Search for what?", None),
-                })),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Push(Box::new(SearchOSM {
+                entry: TextBox::new("Search for what?", None),
+            }));
         } else if self.menu.action("configure colors") {
-            return (
-                Transition::Push(Box::new(color_picker::ColorChooser::new(ui))),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Push(Box::new(color_picker::ColorChooser::new(ui)));
         }
 
         if let Some(explorer) = bus_explorer::BusRouteExplorer::new(ctx, ui) {
-            return (
-                Transition::Push(Box::new(explorer)),
-                EventLoopMode::Animation,
-            );
+            return Transition::PushWithMode(Box::new(explorer), EventLoopMode::Animation);
         }
 
-        (Transition::Keep, EventLoopMode::InputOnly)
+        Transition::Keep
     }
 
     fn draw_default_ui(&self) -> bool {
@@ -526,9 +505,9 @@ struct SearchOSM {
 }
 
 impl State for SearchOSM {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         match self.entry.event(&mut ctx.input) {
-            InputResult::Canceled => (Transition::Pop, EventLoopMode::InputOnly),
+            InputResult::Canceled => Transition::Pop,
             InputResult::Done(filter, _) => {
                 let mut ids = HashSet::new();
                 let map = &ui.primary.map;
@@ -551,15 +530,11 @@ impl State for SearchOSM {
                     }
                 }
 
-                (
-                    Transition::PopWithData(Box::new(|state| {
-                        state.downcast_mut::<DebugMode>().unwrap().search_results =
-                            Some((filter, ids));
-                    })),
-                    EventLoopMode::InputOnly,
-                )
+                Transition::PopWithData(Box::new(|state| {
+                    state.downcast_mut::<DebugMode>().unwrap().search_results = Some((filter, ids));
+                }))
             }
-            InputResult::StillActive => (Transition::Keep, EventLoopMode::InputOnly),
+            InputResult::StillActive => Transition::Keep,
         }
     }
 

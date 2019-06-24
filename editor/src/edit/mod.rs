@@ -12,10 +12,7 @@ use crate::render::{
 use crate::sandbox::SandboxMode;
 use crate::ui::{PerMapUI, ShowEverything, UI};
 use abstutil::Timer;
-use ezgui::{
-    hotkey, lctrl, Color, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard,
-    WrappedWizard,
-};
+use ezgui::{hotkey, lctrl, Color, EventCtx, GfxCtx, Key, ModalMenu, Text, Wizard, WrappedWizard};
 use map_model::{
     IntersectionID, Lane, LaneID, LaneType, Map, MapEdits, Road, RoadID, TurnID, TurnType,
 };
@@ -53,7 +50,7 @@ impl EditMode {
 }
 
 impl State for EditMode {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         // The .clone() is probably not that expensive, and it makes later code a bit
         // easier to read. :)
         let orig_edits = ui.primary.map.get_edits().clone();
@@ -87,41 +84,29 @@ impl State for EditMode {
                 false,
             );
         }
-        if let Some(pair) = self.common.event(ctx, ui, &mut self.menu) {
-            return pair;
+        if let Some(t) = self.common.event(ctx, ui, &mut self.menu) {
+            return t;
         }
 
         if self.menu.action("quit") {
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            return Transition::Pop;
         }
         if self.menu.action("sandbox mode") {
-            return (
-                Transition::Replace(Box::new(SandboxMode::new(ctx))),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Replace(Box::new(SandboxMode::new(ctx)));
         }
         if self.menu.action("debug mode") {
-            return (
-                Transition::Replace(Box::new(DebugMode::new(ctx, ui))),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Replace(Box::new(DebugMode::new(ctx, ui)));
         }
 
         // TODO Only if current edits are unsaved
         if self.menu.action("save edits") {
-            return (
-                Transition::Push(Box::new(Saving {
-                    wizard: Wizard::new(),
-                })),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Push(Box::new(Saving {
+                wizard: Wizard::new(),
+            }));
         } else if self.menu.action("load different edits") {
-            return (
-                Transition::Push(Box::new(Loading {
-                    wizard: Wizard::new(),
-                })),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Push(Box::new(Loading {
+                wizard: Wizard::new(),
+            }));
         }
 
         if let Some(ID::Lane(id)) = ui.primary.current_selection {
@@ -170,13 +155,10 @@ impl State for EditMode {
                 .input
                 .contextual_action(Key::U, "bulk edit lanes on this road")
             {
-                return (
-                    Transition::Push(Box::new(BulkEditLanes {
-                        road: ui.primary.map.get_l(id).parent,
-                        wizard: Wizard::new(),
-                    })),
-                    EventLoopMode::InputOnly,
-                );
+                return Transition::Push(Box::new(BulkEditLanes {
+                    road: ui.primary.map.get_l(id).parent,
+                    wizard: Wizard::new(),
+                }));
             } else if orig_edits.lane_overrides.contains_key(&id)
                 && ctx.input.contextual_action(Key::R, "revert")
             {
@@ -191,10 +173,9 @@ impl State for EditMode {
                     .input
                     .contextual_action(Key::E, &format!("edit stop signs for {}", id))
                 {
-                    return (
-                        Transition::Push(Box::new(stop_signs::StopSignEditor::new(id, ctx, ui))),
-                        EventLoopMode::InputOnly,
-                    );
+                    return Transition::Push(Box::new(stop_signs::StopSignEditor::new(
+                        id, ctx, ui,
+                    )));
                 } else if orig_edits.stop_sign_overrides.contains_key(&id)
                     && ctx.input.contextual_action(Key::R, "revert")
                 {
@@ -208,12 +189,9 @@ impl State for EditMode {
                     .input
                     .contextual_action(Key::E, &format!("edit traffic signal for {}", id))
                 {
-                    return (
-                        Transition::Push(Box::new(traffic_signals::TrafficSignalEditor::new(
-                            id, ctx, ui,
-                        ))),
-                        EventLoopMode::InputOnly,
-                    );
+                    return Transition::Push(Box::new(traffic_signals::TrafficSignalEditor::new(
+                        id, ctx, ui,
+                    )));
                 } else if orig_edits.traffic_signal_overrides.contains_key(&id)
                     && ctx.input.contextual_action(Key::R, "revert")
                 {
@@ -224,7 +202,7 @@ impl State for EditMode {
             }
         }
 
-        (Transition::Keep, EventLoopMode::InputOnly)
+        Transition::Keep
     }
 
     fn draw_default_ui(&self) -> bool {
@@ -320,13 +298,13 @@ struct Saving {
 }
 
 impl State for Saving {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         ctx.canvas.handle_event(ctx.input);
         if save_edits(self.wizard.wrap(ctx), &mut ui.primary.map).is_some() || self.wizard.aborted()
         {
-            (Transition::Pop, EventLoopMode::InputOnly)
+            Transition::Pop
         } else {
-            (Transition::Keep, EventLoopMode::InputOnly)
+            Transition::Keep
         }
     }
 
@@ -341,7 +319,7 @@ struct Loading {
 }
 
 impl State for Loading {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         ctx.canvas.handle_event(ctx.input);
         if let Some(new_edits) = load_edits(
             &ui.primary.map,
@@ -349,11 +327,11 @@ impl State for Loading {
             "Load which map edits?",
         ) {
             apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
-            (Transition::Pop, EventLoopMode::InputOnly)
+            Transition::Pop
         } else if self.wizard.aborted() {
-            (Transition::Pop, EventLoopMode::InputOnly)
+            Transition::Pop
         } else {
-            (Transition::Keep, EventLoopMode::InputOnly)
+            Transition::Keep
         }
     }
 
@@ -369,15 +347,15 @@ struct BulkEditLanes {
 }
 
 impl State for BulkEditLanes {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         ctx.canvas.handle_event(ctx.input);
         if let Some(edits) = bulk_edit(self.road, &mut self.wizard.wrap(ctx), &ui.primary.map) {
             apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
-            (Transition::Pop, EventLoopMode::InputOnly)
+            Transition::Pop
         } else if self.wizard.aborted() {
-            (Transition::Pop, EventLoopMode::InputOnly)
+            Transition::Pop
         } else {
-            (Transition::Keep, EventLoopMode::InputOnly)
+            Transition::Keep
         }
     }
 

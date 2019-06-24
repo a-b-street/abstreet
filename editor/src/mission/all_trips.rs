@@ -87,7 +87,7 @@ impl TripsVisualizer {
 }
 
 impl State for TripsVisualizer {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         let time = self.current_time();
 
         let mut txt = Text::prompt("Trips Visualizer");
@@ -112,7 +112,7 @@ impl State for TripsVisualizer {
         let thirty_mins = Duration::minutes(30);
 
         if self.menu.action("quit") {
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            return Transition::Pop;
         } else if time != last_time && self.menu.action("forwards 10 seconds") {
             self.time_slider
                 .set_percent(ctx, (time + ten_secs) / last_time);
@@ -137,7 +137,7 @@ impl State for TripsVisualizer {
             self.time_slider
                 .set_percent(ctx, ((time + dt) / last_time).min(1.0));
         } else {
-            return (Transition::Keep, EventLoopMode::InputOnly);
+            return Transition::Keep;
         }
 
         // TODO Do this more efficiently. ;)
@@ -151,9 +151,9 @@ impl State for TripsVisualizer {
             .collect();
 
         if self.speed.is_paused() {
-            (Transition::Keep, EventLoopMode::InputOnly)
+            Transition::Keep
         } else {
-            (Transition::Keep, EventLoopMode::Animation)
+            Transition::KeepWithMode(EventLoopMode::Animation)
         }
     }
 

@@ -6,8 +6,7 @@ use crate::render::{draw_signal_cycle, draw_signal_diagram, DrawCtx, DrawOptions
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, ModalMenu, MultiKey, Wizard,
-    WrappedWizard,
+    hotkey, Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu, MultiKey, Wizard, WrappedWizard,
 };
 use geom::Duration;
 use map_model::{ControlTrafficSignal, Cycle, IntersectionID, Map, TurnID, TurnPriority, TurnType};
@@ -59,7 +58,7 @@ impl TrafficSignalEditor {
 }
 
 impl State for TrafficSignalEditor {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         self.menu.handle_event(ctx, None);
         ctx.canvas.handle_event(ctx.input);
 
@@ -149,7 +148,7 @@ impl State for TrafficSignalEditor {
             }
         } else {
             if self.menu.action("quit") {
-                return (Transition::Pop, EventLoopMode::InputOnly);
+                return Transition::Pop;
             }
 
             if self.current_cycle != 0 && self.menu.action("select previous cycle") {
@@ -235,7 +234,7 @@ impl State for TrafficSignalEditor {
             apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
         }
 
-        (Transition::Keep, EventLoopMode::InputOnly)
+        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {

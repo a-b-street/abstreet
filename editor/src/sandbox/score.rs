@@ -1,8 +1,8 @@
 use crate::game::{State, Transition};
 use crate::ui::UI;
 use ezgui::{
-    hotkey, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Key, ModalMenu, Text,
-    VerticalAlignment, Wizard, WrappedWizard,
+    hotkey, EventCtx, GfxCtx, HorizontalAlignment, Key, ModalMenu, Text, VerticalAlignment, Wizard,
+    WrappedWizard,
 };
 use geom::{Duration, DurationHistogram};
 use itertools::Itertools;
@@ -47,21 +47,18 @@ impl Scoreboard {
 }
 
 impl State for Scoreboard {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         self.menu.handle_event(ctx, None);
         if self.menu.action("quit") {
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            return Transition::Pop;
         }
         if self.menu.action("browse trips") {
-            return (
-                Transition::Push(Box::new(BrowseTrips {
-                    trips: ui.primary.sim.get_finished_trips(),
-                    wizard: Wizard::new(),
-                })),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Push(Box::new(BrowseTrips {
+                trips: ui.primary.sim.get_finished_trips(),
+                wizard: Wizard::new(),
+            }));
         }
-        (Transition::Keep, EventLoopMode::InputOnly)
+        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
@@ -79,14 +76,14 @@ struct BrowseTrips {
 }
 
 impl State for BrowseTrips {
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
         if pick_trip(&self.trips, &mut self.wizard.wrap(ctx)).is_some() {
             // TODO show trip departure, where it started and ended
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            return Transition::Pop;
         } else if self.wizard.aborted() {
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            return Transition::Pop;
         }
-        (Transition::Keep, EventLoopMode::InputOnly)
+        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {

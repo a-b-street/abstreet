@@ -2,7 +2,7 @@ use crate::common::CommonState;
 use crate::game::{State, Transition};
 use crate::render::DrawTurn;
 use crate::ui::{ShowEverything, UI};
-use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, WarpingItemSlider};
+use ezgui::{Color, EventCtx, GfxCtx, Key, Text, WarpingItemSlider};
 use geom::{Distance, Polygon, Pt2D};
 use map_model::{Traversable, LANE_THICKNESS};
 use sim::AgentID;
@@ -66,7 +66,7 @@ impl RouteExplorer {
 }
 
 impl State for RouteExplorer {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         if ctx.redo_mouseover() {
             ui.primary.current_selection = ui.recalculate_current_selection(
                 ctx,
@@ -81,9 +81,9 @@ impl State for RouteExplorer {
         // We don't really care about setting current_selection to the current step; drawing covers
         // it up anyway.
         if let Some((evmode, _)) = self.slider.event(ctx) {
-            (Transition::Keep, evmode)
+            Transition::KeepWithMode(evmode)
         } else {
-            (Transition::Pop, EventLoopMode::InputOnly)
+            Transition::Pop
         }
     }
 

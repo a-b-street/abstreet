@@ -3,7 +3,7 @@ use crate::helpers::ID;
 use crate::render::calculate_corners;
 use crate::ui::UI;
 use abstutil::Timer;
-use ezgui::{hotkey, EventCtx, EventLoopMode, GfxCtx, ItemSlider, Key, Text};
+use ezgui::{hotkey, EventCtx, GfxCtx, ItemSlider, Key, Text};
 use geom::{Polygon, Pt2D, Triangle};
 
 pub struct PolygonDebugger {
@@ -152,14 +152,14 @@ impl PolygonDebugger {
 }
 
 impl State for PolygonDebugger {
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
         self.slider.event(ctx);
         ctx.canvas.handle_event(ctx.input);
 
         if self.slider.action("quit") {
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            return Transition::Pop;
         }
-        (Transition::Keep, EventLoopMode::InputOnly)
+        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {

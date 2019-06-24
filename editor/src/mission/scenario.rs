@@ -3,9 +3,7 @@ use crate::mission::input_time;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::WeightedUsizeChoice;
-use ezgui::{
-    hotkey, EventCtx, EventLoopMode, GfxCtx, Key, LogScroller, ModalMenu, Wizard, WrappedWizard,
-};
+use ezgui::{hotkey, EventCtx, GfxCtx, Key, LogScroller, ModalMenu, Wizard, WrappedWizard};
 use geom::Duration;
 use map_model::{IntersectionID, Map, Neighborhood};
 use sim::{BorderSpawnOverTime, OriginDestination, Scenario, SeedParkedCars, SpawnOverTime};
@@ -37,19 +35,16 @@ impl ScenarioManager {
 }
 
 impl State for ScenarioManager {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         self.menu.handle_event(ctx, None);
         ctx.canvas.handle_event(ctx.input);
         if self.menu.action("save") {
             self.scenario.save();
         } else if self.menu.action("edit") {
-            return (
-                Transition::Push(Box::new(ScenarioEditor {
-                    scenario: self.scenario.clone(),
-                    wizard: Wizard::new(),
-                })),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Push(Box::new(ScenarioEditor {
+                scenario: self.scenario.clone(),
+                wizard: Wizard::new(),
+            }));
         } else if self.menu.action("instantiate") {
             ctx.loading_screen("instantiate scenario", |_, timer| {
                 self.scenario.instantiate(
@@ -60,14 +55,11 @@ impl State for ScenarioManager {
                 );
                 ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
             });
-            return (
-                Transition::Replace(Box::new(SandboxMode::new(ctx))),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Replace(Box::new(SandboxMode::new(ctx)));
         } else if self.scroller.event(&mut ctx.input) {
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            return Transition::Pop;
         }
-        (Transition::Keep, EventLoopMode::InputOnly)
+        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
@@ -82,24 +74,21 @@ struct ScenarioEditor {
 }
 
 impl State for ScenarioEditor {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         if let Some(()) = edit_scenario(&ui.primary.map, &mut self.scenario, self.wizard.wrap(ctx))
         {
             // TODO autosave, or at least make it clear there are unsaved edits
             let scenario = self.scenario.clone();
-            return (
-                Transition::PopWithData(Box::new(|state| {
-                    let mut manager = state.downcast_mut::<ScenarioManager>().unwrap();
-                    manager.scroller =
-                        LogScroller::new(scenario.scenario_name.clone(), scenario.describe());
-                    manager.scenario = scenario;
-                })),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::PopWithData(Box::new(|state| {
+                let mut manager = state.downcast_mut::<ScenarioManager>().unwrap();
+                manager.scroller =
+                    LogScroller::new(scenario.scenario_name.clone(), scenario.describe());
+                manager.scenario = scenario;
+            }));
         } else if self.wizard.aborted() {
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            return Transition::Pop;
         }
-        (Transition::Keep, EventLoopMode::InputOnly)
+        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {

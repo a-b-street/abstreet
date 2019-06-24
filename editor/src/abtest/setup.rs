@@ -3,9 +3,7 @@ use crate::edit::apply_map_edits;
 use crate::game::{State, Transition};
 use crate::render::DrawMap;
 use crate::ui::{Flags, PerMapUI, UI};
-use ezgui::{
-    hotkey, EventCtx, EventLoopMode, GfxCtx, Key, LogScroller, ModalMenu, Wizard, WrappedWizard,
-};
+use ezgui::{hotkey, EventCtx, GfxCtx, Key, LogScroller, ModalMenu, Wizard, WrappedWizard};
 use geom::Duration;
 use map_model::{Map, MapEdits};
 use sim::{ABTest, Scenario, SimFlags};
@@ -24,29 +22,26 @@ impl PickABTest {
 }
 
 impl State for PickABTest {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         if let Some(ab_test) = pick_ab_test(&ui.primary.map, self.wizard.wrap(ctx)) {
             let scroller = LogScroller::new(ab_test.test_name.clone(), ab_test.describe());
-            return (
-                Transition::Replace(Box::new(ABTestSetup {
-                    menu: ModalMenu::new(
-                        &format!("A/B Test Editor for {}", ab_test.test_name),
-                        vec![
-                            (hotkey(Key::Escape), "quit"),
-                            (hotkey(Key::R), "run A/B test"),
-                            (hotkey(Key::L), "load savestate"),
-                        ],
-                        ctx,
-                    ),
-                    ab_test,
-                    scroller,
-                })),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Replace(Box::new(ABTestSetup {
+                menu: ModalMenu::new(
+                    &format!("A/B Test Editor for {}", ab_test.test_name),
+                    vec![
+                        (hotkey(Key::Escape), "quit"),
+                        (hotkey(Key::R), "run A/B test"),
+                        (hotkey(Key::L), "load savestate"),
+                    ],
+                    ctx,
+                ),
+                ab_test,
+                scroller,
+            }));
         } else if self.wizard.aborted() {
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            return Transition::Pop;
         }
-        (Transition::Keep, EventLoopMode::InputOnly)
+        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
@@ -61,26 +56,20 @@ struct ABTestSetup {
 }
 
 impl State for ABTestSetup {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         ctx.canvas.handle_event(ctx.input);
         self.menu.handle_event(ctx, None);
         if self.scroller.event(ctx.input) {
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            return Transition::Pop;
         } else if self.menu.action("run A/B test") {
-            return (
-                Transition::Replace(Box::new(launch_test(&self.ab_test, ui, ctx))),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Replace(Box::new(launch_test(&self.ab_test, ui, ctx)));
         } else if self.menu.action("load savestate") {
-            return (
-                Transition::Push(Box::new(LoadSavestate {
-                    ab_test: self.ab_test.clone(),
-                    wizard: Wizard::new(),
-                })),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Push(Box::new(LoadSavestate {
+                ab_test: self.ab_test.clone(),
+                wizard: Wizard::new(),
+            }));
         }
-        (Transition::Keep, EventLoopMode::InputOnly)
+        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
@@ -95,16 +84,13 @@ struct LoadSavestate {
 }
 
 impl State for LoadSavestate {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         if let Some(ss) = pick_savestate(&self.ab_test, &mut self.wizard.wrap(ctx)) {
-            return (
-                Transition::Replace(Box::new(launch_savestate(&self.ab_test, ss, ui, ctx))),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Replace(Box::new(launch_savestate(&self.ab_test, ss, ui, ctx)));
         } else if self.wizard.aborted() {
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            return Transition::Pop;
         }
-        (Transition::Keep, EventLoopMode::InputOnly)
+        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {

@@ -2,7 +2,7 @@ use crate::common::CommonState;
 use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::ui::{ShowEverything, UI};
-use ezgui::{EventCtx, EventLoopMode, GfxCtx, Key, Text, WarpingItemSlider};
+use ezgui::{EventCtx, GfxCtx, Key, Text, WarpingItemSlider};
 use geom::Pt2D;
 use map_model::BusStopID;
 
@@ -45,7 +45,7 @@ impl BusRouteExplorer {
 }
 
 impl State for BusRouteExplorer {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         if ctx.redo_mouseover() {
             ui.primary.current_selection = ui.recalculate_current_selection(
                 ctx,
@@ -61,9 +61,9 @@ impl State for BusRouteExplorer {
             if done_warping {
                 ui.primary.current_selection = Some(ID::BusStop(*self.slider.get().1));
             }
-            (Transition::Keep, evmode)
+            Transition::KeepWithMode(evmode)
         } else {
-            (Transition::Pop, EventLoopMode::InputOnly)
+            Transition::Pop
         }
     }
 

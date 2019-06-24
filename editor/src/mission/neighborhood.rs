@@ -1,8 +1,6 @@
 use crate::game::{State, Transition};
 use crate::ui::UI;
-use ezgui::{
-    hotkey, Color, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Wizard, WrappedWizard,
-};
+use ezgui::{hotkey, Color, EventCtx, GfxCtx, Key, ModalMenu, Wizard, WrappedWizard};
 use geom::{Circle, Distance, Line, Polygon, Pt2D};
 use map_model::{Map, NeighborhoodBuilder};
 
@@ -21,32 +19,29 @@ impl NeighborhoodPicker {
 }
 
 impl State for NeighborhoodPicker {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         ctx.canvas.handle_event(ctx.input);
 
         if let Some(n) = pick_neighborhood(&ui.primary.map, self.wizard.wrap(ctx)) {
-            return (
-                Transition::Push(Box::new(NeighborhoodEditor {
-                    menu: ModalMenu::new(
-                        &format!("Neighborhood Editor for {}", n.name),
-                        vec![
-                            (hotkey(Key::Escape), "quit"),
-                            (hotkey(Key::S), "save"),
-                            (hotkey(Key::X), "export as an Osmosis polygon filter"),
-                            (hotkey(Key::P), "add a new point"),
-                        ],
-                        ctx,
-                    ),
-                    neighborhood: n,
-                    mouseover_pt: None,
-                    moving_pt: false,
-                })),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Push(Box::new(NeighborhoodEditor {
+                menu: ModalMenu::new(
+                    &format!("Neighborhood Editor for {}", n.name),
+                    vec![
+                        (hotkey(Key::Escape), "quit"),
+                        (hotkey(Key::S), "save"),
+                        (hotkey(Key::X), "export as an Osmosis polygon filter"),
+                        (hotkey(Key::P), "add a new point"),
+                    ],
+                    ctx,
+                ),
+                neighborhood: n,
+                mouseover_pt: None,
+                moving_pt: false,
+            }));
         } else if self.wizard.aborted() {
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            return Transition::Pop;
         }
-        (Transition::Keep, EventLoopMode::InputOnly)
+        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
@@ -74,7 +69,7 @@ struct NeighborhoodEditor {
 }
 
 impl State for NeighborhoodEditor {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         let gps_bounds = ui.primary.map.get_gps_bounds();
 
         self.menu.handle_event(ctx, None);
@@ -93,7 +88,7 @@ impl State for NeighborhoodEditor {
             }
         } else {
             if self.menu.action("quit") {
-                return (Transition::Pop, EventLoopMode::InputOnly);
+                return Transition::Pop;
             } else if self.neighborhood.points.len() >= 3 && self.menu.action("save") {
                 self.neighborhood.save();
             } else if self.neighborhood.points.len() >= 3
@@ -131,7 +126,7 @@ impl State for NeighborhoodEditor {
                 self.moving_pt = true;
             }
         }
-        (Transition::Keep, EventLoopMode::InputOnly)
+        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {

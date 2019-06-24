@@ -20,23 +20,23 @@ impl EnteringWarp {
 }
 
 impl State for EnteringWarp {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         match self.tb.event(ctx.input) {
-            InputResult::Canceled => (Transition::Pop, EventLoopMode::InputOnly),
+            InputResult::Canceled => Transition::Pop,
             InputResult::Done(to, _) => {
                 if let Some((id, pt)) = warp_point(to, &ui.primary) {
-                    (
-                        Transition::Replace(Box::new(Warping {
+                    Transition::ReplaceWithMode(
+                        Box::new(Warping {
                             warper: Warper::new(ctx, pt),
                             id,
-                        })),
+                        }),
                         EventLoopMode::Animation,
                     )
                 } else {
-                    (Transition::Pop, EventLoopMode::InputOnly)
+                    Transition::Pop
                 }
             }
-            InputResult::StillActive => (Transition::Keep, EventLoopMode::InputOnly),
+            InputResult::StillActive => Transition::Keep,
         }
     }
 
@@ -51,12 +51,12 @@ pub struct Warping {
 }
 
 impl State for Warping {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         if let Some(evmode) = self.warper.event(ctx) {
-            (Transition::Keep, evmode)
+            Transition::KeepWithMode(evmode)
         } else {
             ui.primary.current_selection = Some(self.id);
-            (Transition::Pop, EventLoopMode::InputOnly)
+            Transition::Pop
         }
     }
 

@@ -41,27 +41,24 @@ impl SplashScreen {
 }
 
 impl State for SplashScreen {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         if let Some((ref mut screensaver, ref mut rng)) = self.maybe_screensaver {
             screensaver.update(rng, ctx.input, ctx.canvas, &ui.primary.map);
         }
 
-        let transition = if let Some(t) =
-            splash_screen(&mut self.wizard, ctx, ui, &mut self.maybe_screensaver)
-        {
-            t
-        } else if self.wizard.aborted() {
-            Transition::Pop
-        } else {
-            Transition::Keep
-        };
-        let evloop = if self.maybe_screensaver.is_some() {
+        let evmode = if self.maybe_screensaver.is_some() {
             EventLoopMode::Animation
         } else {
             EventLoopMode::InputOnly
         };
 
-        (transition, evloop)
+        if let Some(t) = splash_screen(&mut self.wizard, ctx, ui, &mut self.maybe_screensaver) {
+            t
+        } else if self.wizard.aborted() {
+            Transition::PopWithMode(evmode)
+        } else {
+            Transition::KeepWithMode(evmode)
+        }
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
@@ -135,6 +132,12 @@ fn splash_screen(
     let about = "About";
     let quit = "Quit";
 
+    let evmode = if maybe_screensaver.is_some() {
+        EventLoopMode::Animation
+    } else {
+        EventLoopMode::InputOnly
+    };
+
     // TODO No hotkey for quit because it's just the normal menu escape?
     match wizard
         .choose_string_hotkeys(
@@ -172,10 +175,13 @@ fn splash_screen(
                 // TODO want to clear wizard and screensaver as we leave this state.
                 Some(Transition::Push(Box::new(SandboxMode::new(ctx))))
             } else if wizard.aborted() {
-                Some(Transition::Replace(Box::new(SplashScreen {
-                    wizard: Wizard::new(),
-                    maybe_screensaver: maybe_screensaver.take(),
-                })))
+                Some(Transition::ReplaceWithMode(
+                    Box::new(SplashScreen {
+                        wizard: Wizard::new(),
+                        maybe_screensaver: maybe_screensaver.take(),
+                    }),
+                    evmode,
+                ))
             } else {
                 None
             }

@@ -72,7 +72,7 @@ impl SandboxMode {
 }
 
 impl State for SandboxMode {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         self.time_travel.record(ui);
 
         let mut txt = Text::prompt("Sandbox Mode");
@@ -106,21 +106,15 @@ impl State for SandboxMode {
                 false,
             );
         }
-        if let Some(pair) = self.common.event(ctx, ui, &mut self.menu) {
-            return pair;
+        if let Some(t) = self.common.event(ctx, ui, &mut self.menu) {
+            return t;
         }
 
         if let Some(spawner) = spawner::AgentSpawner::new(ctx, ui, &mut self.menu) {
-            return (
-                Transition::Push(Box::new(spawner)),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Push(Box::new(spawner));
         }
         if let Some(explorer) = route_explorer::RouteExplorer::new(ctx, ui) {
-            return (
-                Transition::Push(Box::new(explorer)),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Push(Box::new(explorer));
         }
 
         if self.following.is_none() {
@@ -159,27 +153,18 @@ impl State for SandboxMode {
             //return EventLoopMode::InputOnly;
         }
         if self.menu.action("scoreboard") {
-            return (
-                Transition::Push(Box::new(score::Scoreboard::new(ctx, ui))),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Push(Box::new(score::Scoreboard::new(ctx, ui)));
         }
 
         if self.menu.action("quit") {
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            return Transition::Pop;
         }
         if self.menu.action("debug mode") {
             // TODO Replace or Push?
-            return (
-                Transition::Replace(Box::new(DebugMode::new(ctx, ui))),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Replace(Box::new(DebugMode::new(ctx, ui)));
         }
         if self.menu.action("edit mode") {
-            return (
-                Transition::Replace(Box::new(EditMode::new(ctx, ui))),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Replace(Box::new(EditMode::new(ctx, ui)));
         }
 
         if let Some(dt) = self.speed.event(ctx, &mut self.menu, ui.primary.sim.time()) {
@@ -199,10 +184,7 @@ impl State for SandboxMode {
         if self.speed.is_paused() {
             if !ui.primary.sim.is_empty() && self.menu.action("reset sim") {
                 ui.primary.reset_sim();
-                return (
-                    Transition::Replace(Box::new(SandboxMode::new(ctx))),
-                    EventLoopMode::InputOnly,
-                );
+                return Transition::Replace(Box::new(SandboxMode::new(ctx)));
             }
             if self.menu.action("save sim state") {
                 ui.primary.sim.save();
@@ -268,16 +250,13 @@ impl State for SandboxMode {
                     false,
                 );
             } else if self.menu.action("jump to specific time") {
-                return (
-                    Transition::Push(Box::new(JumpingToTime {
-                        wizard: Wizard::new(),
-                    })),
-                    EventLoopMode::InputOnly,
-                );
+                return Transition::Push(Box::new(JumpingToTime {
+                    wizard: Wizard::new(),
+                }));
             }
-            (Transition::Keep, EventLoopMode::InputOnly)
+            Transition::Keep
         } else {
-            (Transition::Keep, EventLoopMode::Animation)
+            Transition::KeepWithMode(EventLoopMode::Animation)
         }
     }
 
@@ -324,7 +303,7 @@ struct JumpingToTime {
 }
 
 impl State for JumpingToTime {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         let mut wiz = self.wizard.wrap(ctx);
 
         if let Some(t) = input_time(&mut wiz, "Jump to what time?") {
@@ -334,7 +313,7 @@ impl State for JumpingToTime {
                     "Bad time",
                     vec![&format!("{} isn't after {}", t, ui.primary.sim.time())],
                 ) {
-                    return (Transition::Pop, EventLoopMode::InputOnly);
+                    return Transition::Pop;
                 }
             } else {
                 if dt > Duration::ZERO {
@@ -343,12 +322,12 @@ impl State for JumpingToTime {
                     });
                 }
 
-                return (Transition::Pop, EventLoopMode::InputOnly);
+                return Transition::Pop;
             }
         } else if self.wizard.aborted() {
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            return Transition::Pop;
         }
-        (Transition::Keep, EventLoopMode::InputOnly)
+        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {

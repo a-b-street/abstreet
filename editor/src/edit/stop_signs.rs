@@ -4,7 +4,7 @@ use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::render::{DrawIntersection, DrawOptions, DrawTurn};
 use crate::ui::{ShowEverything, UI};
-use ezgui::{hotkey, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, ModalMenu, Text};
+use ezgui::{hotkey, Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu, Text};
 use geom::Polygon;
 use map_model::{IntersectionID, RoadID, TurnID, TurnPriority};
 use std::collections::HashMap;
@@ -51,7 +51,7 @@ impl StopSignEditor {
 }
 
 impl State for StopSignEditor {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         self.menu.handle_event(ctx, None);
         ctx.canvas.handle_event(ctx.input);
 
@@ -108,13 +108,13 @@ impl State for StopSignEditor {
                 apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
             }
         } else if self.menu.action("quit") {
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            return Transition::Pop;
         } else if self.menu.action("reset to default") {
             let mut new_edits = ui.primary.map.get_edits().clone();
             new_edits.stop_sign_overrides.remove(&self.id);
             apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
         }
-        (Transition::Keep, EventLoopMode::InputOnly)
+        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {

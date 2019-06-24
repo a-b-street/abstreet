@@ -4,7 +4,7 @@ use crate::helpers::ID;
 use crate::render::DrawOptions;
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
-use ezgui::{hotkey, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu};
+use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu};
 use geom::{Duration, PolyLine};
 use map_model::{
     BuildingID, IntersectionID, IntersectionType, LaneType, PathRequest, Position, LANE_THICKNESS,
@@ -116,11 +116,11 @@ impl AgentSpawner {
 }
 
 impl State for AgentSpawner {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         // TODO Instructions to select target building/lane
         self.menu.handle_event(ctx, None);
         if self.menu.action("quit") {
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            return Transition::Pop;
         }
 
         ctx.canvas.handle_event(ctx.input);
@@ -144,7 +144,7 @@ impl State for AgentSpawner {
             }
             _ => {
                 self.maybe_goal = None;
-                return (Transition::Keep, EventLoopMode::InputOnly);
+                return Transition::Keep;
             }
         };
 
@@ -176,7 +176,7 @@ impl State for AgentSpawner {
                     );
                     if lanes.is_empty() {
                         self.maybe_goal = None;
-                        return (Transition::Keep, EventLoopMode::InputOnly);
+                        return Transition::Keep;
                     }
                     Position::new(lanes[0], map.get_l(lanes[0]).length())
                 }
@@ -290,10 +290,10 @@ impl State for AgentSpawner {
                 &ShowEverything::new(),
                 false,
             );
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            return Transition::Pop;
         }
 
-        (Transition::Keep, EventLoopMode::InputOnly)
+        Transition::Keep
     }
 
     fn draw_default_ui(&self) -> bool {

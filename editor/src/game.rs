@@ -44,30 +44,54 @@ impl Game {
 
 impl GUI for Game {
     fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode {
-        let (transition, evloop) = self.states.last_mut().unwrap().event(ctx, &mut self.ui);
+        let transition = self.states.last_mut().unwrap().event(ctx, &mut self.ui);
         match transition {
-            Transition::Keep => {}
+            Transition::Keep => EventLoopMode::InputOnly,
             Transition::Pop => {
                 self.states.pop().unwrap().on_destroy(&mut self.ui);
                 if self.states.is_empty() {
                     self.before_quit(ctx.canvas);
                     std::process::exit(0);
                 }
+                EventLoopMode::InputOnly
             }
             Transition::PopWithData(cb) => {
                 self.states.pop().unwrap().on_destroy(&mut self.ui);
                 cb(self.states.last_mut().unwrap());
+                EventLoopMode::InputOnly
             }
             Transition::Push(state) => {
                 self.states.last_mut().unwrap().on_suspend(&mut self.ui);
                 self.states.push(state);
+                EventLoopMode::InputOnly
             }
             Transition::Replace(state) => {
                 self.states.pop().unwrap().on_destroy(&mut self.ui);
                 self.states.push(state);
+                EventLoopMode::InputOnly
+            }
+
+            // A little repetitive...
+            Transition::KeepWithMode(evmode) => evmode,
+            Transition::PopWithMode(evmode) => {
+                self.states.pop().unwrap().on_destroy(&mut self.ui);
+                if self.states.is_empty() {
+                    self.before_quit(ctx.canvas);
+                    std::process::exit(0);
+                }
+                evmode
+            }
+            Transition::PushWithMode(state, evmode) => {
+                self.states.last_mut().unwrap().on_suspend(&mut self.ui);
+                self.states.push(state);
+                evmode
+            }
+            Transition::ReplaceWithMode(state, evmode) => {
+                self.states.pop().unwrap().on_destroy(&mut self.ui);
+                self.states.push(state);
+                evmode
             }
         }
-        evloop
     }
 
     fn draw(&self, g: &mut GfxCtx) {
@@ -114,7 +138,9 @@ impl GUI for Game {
 }
 
 pub trait State: downcast_rs::Downcast {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode);
+    // Logically this returns Transition, but since EventLoopMode is almost always
+    // InputOnly, the variations are encoded by Transition.
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition;
     fn draw(&self, g: &mut GfxCtx, ui: &UI);
     fn draw_default_ui(&self) -> bool {
         true
@@ -129,11 +155,19 @@ pub trait State: downcast_rs::Downcast {
 
 downcast_rs::impl_downcast!(State);
 
+//
 pub enum Transition {
+    // These variants imply EventLoopMode::InputOnly.
     Keep,
     Pop,
     // If a state needs to pass data back to the parent, use this. Sadly, runtime type casting.
     PopWithData(Box<FnOnce(&mut Box<State>)>),
     Push(Box<State>),
     Replace(Box<State>),
+
+    // These don't.
+    KeepWithMode(EventLoopMode),
+    PopWithMode(EventLoopMode),
+    PushWithMode(Box<State>, EventLoopMode),
+    ReplaceWithMode(Box<State>, EventLoopMode),
 }

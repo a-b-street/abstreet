@@ -43,24 +43,20 @@ impl CommonState {
         ctx: &mut EventCtx,
         ui: &mut UI,
         menu: &mut ModalMenu,
-    ) -> Option<(Transition, EventLoopMode)> {
+    ) -> Option<Transition> {
         if menu.action("warp") {
-            return Some((
-                Transition::Push(Box::new(warp::EnteringWarp::new())),
-                EventLoopMode::InputOnly,
-            ));
+            return Some(Transition::Push(Box::new(warp::EnteringWarp::new())));
         }
         if menu.action("navigate") {
-            return Some((
-                Transition::Push(Box::new(navigate::Navigator::new(ui))),
-                EventLoopMode::InputOnly,
-            ));
+            return Some(Transition::Push(Box::new(navigate::Navigator::new(ui))));
         }
 
         self.associated.event(ui);
         self.turn_cycler.event(ctx, ui);
         if menu.action("take a screenshot") {
-            return Some((Transition::Keep, EventLoopMode::ScreenCaptureCurrentShot));
+            return Some(Transition::KeepWithMode(
+                EventLoopMode::ScreenCaptureCurrentShot,
+            ));
         }
 
         None

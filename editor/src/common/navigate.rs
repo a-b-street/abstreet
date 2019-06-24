@@ -28,10 +28,10 @@ impl Navigator {
 }
 
 impl State for Navigator {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         let map = &ui.primary.map;
         match self.autocomplete.event(ctx.input) {
-            InputResult::Canceled => (Transition::Pop, EventLoopMode::InputOnly),
+            InputResult::Canceled => Transition::Pop,
             InputResult::Done(name, ids) => {
                 // Roads share intersections, so of course there'll be overlap here.
                 let mut cross_streets = HashSet::new();
@@ -45,21 +45,18 @@ impl State for Navigator {
                         }
                     }
                 }
-                (
-                    Transition::Replace(Box::new(CrossStreet {
-                        first: *ids.iter().next().unwrap(),
-                        autocomplete: Autocomplete::new(
-                            &format!("{} and what?", name),
-                            cross_streets
-                                .into_iter()
-                                .map(|r| (map.get_r(r).get_name(), r))
-                                .collect(),
-                        ),
-                    })),
-                    EventLoopMode::InputOnly,
-                )
+                Transition::Replace(Box::new(CrossStreet {
+                    first: *ids.iter().next().unwrap(),
+                    autocomplete: Autocomplete::new(
+                        &format!("{} and what?", name),
+                        cross_streets
+                            .into_iter()
+                            .map(|r| (map.get_r(r).get_name(), r))
+                            .collect(),
+                    ),
+                }))
             }
-            InputResult::StillActive => (Transition::Keep, EventLoopMode::InputOnly),
+            InputResult::StillActive => Transition::Keep,
         }
     }
 
@@ -75,21 +72,21 @@ struct CrossStreet {
 
 impl State for CrossStreet {
     // When None, this is done.
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         let map = &ui.primary.map;
         match self.autocomplete.event(ctx.input) {
             InputResult::Canceled => {
                 // Just warp to somewhere on the first road
                 let road = map.get_r(self.first);
                 println!("Warping to {}", road.get_name());
-                (
-                    Transition::Replace(Box::new(Warping {
+                Transition::ReplaceWithMode(
+                    Box::new(Warping {
                         warper: Warper::new(
                             ctx,
                             road.center_pts.dist_along(road.center_pts.length() / 2.0).0,
                         ),
                         id: ID::Lane(road.all_lanes()[0]),
-                    })),
+                    }),
                     EventLoopMode::Animation,
                 )
             }
@@ -105,15 +102,15 @@ impl State for CrossStreet {
                 } else {
                     map.get_i(road.dst_i).polygon.center()
                 };
-                (
-                    Transition::Replace(Box::new(Warping {
+                Transition::ReplaceWithMode(
+                    Box::new(Warping {
                         warper: Warper::new(ctx, pt),
                         id: ID::Lane(road.all_lanes()[0]),
-                    })),
+                    }),
                     EventLoopMode::Animation,
                 )
             }
-            InputResult::StillActive => (Transition::Keep, EventLoopMode::InputOnly),
+            InputResult::StillActive => Transition::Keep,
         }
     }
 

@@ -10,7 +10,7 @@ use crate::game::{State, Transition};
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::Timer;
-use ezgui::{hotkey, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Wizard, WrappedWizard};
+use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu, Wizard, WrappedWizard};
 use geom::Duration;
 use map_model::Map;
 use sim::Scenario;
@@ -45,27 +45,18 @@ impl MissionEditMode {
 }
 
 impl State for MissionEditMode {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         self.menu.handle_event(ctx, None);
         ctx.canvas.handle_event(ctx.input);
 
         if self.menu.action("quit") {
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            return Transition::Pop;
         } else if self.menu.action("visualize population data") {
-            return (
-                Transition::Push(Box::new(dataviz::DataVisualizer::new(ctx, ui))),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Push(Box::new(dataviz::DataVisualizer::new(ctx, ui)));
         } else if self.menu.action("visualize individual PSRC trips") {
-            return (
-                Transition::Push(Box::new(individ_trips::TripsVisualizer::new(ctx, ui))),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Push(Box::new(individ_trips::TripsVisualizer::new(ctx, ui)));
         } else if self.menu.action("visualize all PSRC trips") {
-            return (
-                Transition::Push(Box::new(all_trips::TripsVisualizer::new(ctx, ui))),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Push(Box::new(all_trips::TripsVisualizer::new(ctx, ui)));
         } else if self.menu.action("set up simulation with PSRC trips") {
             let scenario = trips_to_scenario(
                 ctx,
@@ -84,38 +75,23 @@ impl State for MissionEditMode {
                     .sim
                     .step(&ui.primary.map, Duration::const_seconds(0.1));
             });
-            return (
-                Transition::Replace(Box::new(SandboxMode::new(ctx))),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Replace(Box::new(SandboxMode::new(ctx)));
         } else if self.menu.action("create scenario from PSRC trips") {
-            return (
-                Transition::Push(Box::new(TripsToScenario {
-                    wizard: Wizard::new(),
-                })),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Push(Box::new(TripsToScenario {
+                wizard: Wizard::new(),
+            }));
         } else if self.menu.action("manage neighborhoods") {
-            return (
-                Transition::Push(Box::new(neighborhood::NeighborhoodPicker::new())),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Push(Box::new(neighborhood::NeighborhoodPicker::new()));
         } else if self.menu.action("load scenario") {
-            return (
-                Transition::Push(Box::new(LoadScenario {
-                    wizard: Wizard::new(),
-                })),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Push(Box::new(LoadScenario {
+                wizard: Wizard::new(),
+            }));
         } else if self.menu.action("create new scenario") {
-            return (
-                Transition::Push(Box::new(CreateNewScenario {
-                    wizard: Wizard::new(),
-                })),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Push(Box::new(CreateNewScenario {
+                wizard: Wizard::new(),
+            }));
         }
-        (Transition::Keep, EventLoopMode::InputOnly)
+        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
@@ -128,14 +104,14 @@ struct TripsToScenario {
 }
 
 impl State for TripsToScenario {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         if let Some((t1, t2)) = pick_time_range(self.wizard.wrap(ctx)) {
             trips_to_scenario(ctx, ui, t1, t2).save();
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            return Transition::Pop;
         } else if self.wizard.aborted() {
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            return Transition::Pop;
         }
-        (Transition::Keep, EventLoopMode::InputOnly)
+        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
@@ -148,16 +124,13 @@ struct LoadScenario {
 }
 
 impl State for LoadScenario {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         if let Some(scenario) = load_scenario(&ui.primary.map, &mut self.wizard.wrap(ctx)) {
-            return (
-                Transition::Replace(Box::new(scenario::ScenarioManager::new(scenario, ctx))),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Replace(Box::new(scenario::ScenarioManager::new(scenario, ctx)));
         } else if self.wizard.aborted() {
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            return Transition::Pop;
         }
-        (Transition::Keep, EventLoopMode::InputOnly)
+        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
@@ -170,27 +143,24 @@ struct CreateNewScenario {
 }
 
 impl State for CreateNewScenario {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         let mut wrapped = self.wizard.wrap(ctx);
         if let Some(name) = wrapped.input_string("Name the scenario") {
-            return (
-                Transition::Replace(Box::new(scenario::ScenarioManager::new(
-                    Scenario {
-                        scenario_name: name,
-                        map_name: ui.primary.map.get_name().to_string(),
-                        seed_parked_cars: Vec::new(),
-                        spawn_over_time: Vec::new(),
-                        border_spawn_over_time: Vec::new(),
-                        individ_trips: Vec::new(),
-                    },
-                    ctx,
-                ))),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Replace(Box::new(scenario::ScenarioManager::new(
+                Scenario {
+                    scenario_name: name,
+                    map_name: ui.primary.map.get_name().to_string(),
+                    seed_parked_cars: Vec::new(),
+                    spawn_over_time: Vec::new(),
+                    border_spawn_over_time: Vec::new(),
+                    individ_trips: Vec::new(),
+                },
+                ctx,
+            )));
         } else if self.wizard.aborted() {
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            return Transition::Pop;
         }
-        (Transition::Keep, EventLoopMode::InputOnly)
+        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {

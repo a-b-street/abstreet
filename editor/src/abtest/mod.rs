@@ -56,7 +56,7 @@ impl ABTestMode {
 }
 
 impl State for ABTestMode {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> (Transition, EventLoopMode) {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         let mut txt = Text::prompt("A/B Test Mode");
         txt.add_line(ui.primary.map.get_edits().edits_name.clone());
         if let Some(ref diff) = self.diff_trip {
@@ -80,12 +80,12 @@ impl State for ABTestMode {
                 false,
             );
         }
-        if let Some(pair) = self.common.event(ctx, ui, &mut self.menu) {
-            return pair;
+        if let Some(t) = self.common.event(ctx, ui, &mut self.menu) {
+            return t;
         }
 
         if self.menu.action("quit") {
-            return (Transition::Pop, EventLoopMode::InputOnly);
+            return Transition::Pop;
         }
 
         if self.menu.action("swap") {
@@ -96,14 +96,11 @@ impl State for ABTestMode {
         }
 
         if self.menu.action("scoreboard") {
-            return (
-                Transition::Push(Box::new(score::Scoreboard::new(
-                    ctx,
-                    &ui.primary,
-                    ui.secondary.as_ref().unwrap(),
-                ))),
-                EventLoopMode::InputOnly,
-            );
+            return Transition::Push(Box::new(score::Scoreboard::new(
+                ctx,
+                &ui.primary,
+                ui.secondary.as_ref().unwrap(),
+            )));
         }
 
         if self.menu.action("save state") {
@@ -148,9 +145,9 @@ impl State for ABTestMode {
             if self.menu.action("step forwards 0.1s") {
                 self.step(Duration::seconds(0.1), ui, ctx);
             }
-            (Transition::Keep, EventLoopMode::InputOnly)
+            Transition::Keep
         } else {
-            (Transition::Keep, EventLoopMode::Animation)
+            Transition::KeepWithMode(EventLoopMode::Animation)
         }
     }
 
