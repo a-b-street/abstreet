@@ -279,7 +279,7 @@ impl State for EditMode {
         self.menu.draw(g);
     }
 
-    fn on_destroy(&mut self, ui: &mut UI) {
+    fn on_destroy(&mut self, _: &mut EventCtx, ui: &mut UI) {
         // TODO Warn about unsaved edits
         // TODO Maybe put a loading screen around these.
         ui.primary

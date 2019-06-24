@@ -70,7 +70,7 @@ impl GUI for Game {
         match transition {
             Transition::KeepWithMode(evmode) => evmode,
             Transition::PopWithMode(evmode) => {
-                self.states.pop().unwrap().on_destroy(&mut self.ui);
+                self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
                 if self.states.is_empty() {
                     self.before_quit(ctx.canvas);
                     std::process::exit(0);
@@ -81,7 +81,7 @@ impl GUI for Game {
                 evmode
             }
             Transition::PopWithData(cb) => {
-                self.states.pop().unwrap().on_destroy(&mut self.ui);
+                self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
                 cb(self.states.last_mut().unwrap());
                 if self.idx_draw_base == Some(self.states.len()) {
                     self.idx_draw_base = None;
@@ -101,7 +101,7 @@ impl GUI for Game {
                 evmode
             }
             Transition::ReplaceWithMode(state, evmode) => {
-                self.states.pop().unwrap().on_destroy(&mut self.ui);
+                self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
                 if self.idx_draw_base == Some(self.states.len()) {
                     self.idx_draw_base = None;
                 }
@@ -182,7 +182,7 @@ pub trait State: downcast_rs::Downcast {
     // Before we push a new state on top of this one, call this.
     fn on_suspend(&mut self, _: &mut UI) {}
     // Before this state is popped or replaced, call this.
-    fn on_destroy(&mut self, _: &mut UI) {}
+    fn on_destroy(&mut self, _: &mut EventCtx, _: &mut UI) {}
     // We don't need an on_enter -- the constructor for the state can just do it.
 }
 

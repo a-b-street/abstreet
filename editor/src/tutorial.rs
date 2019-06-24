@@ -50,7 +50,7 @@ impl State for TutorialMode {
         self.menu.draw(g);
     }
 
-    fn on_destroy(&mut self, ui: &mut UI) {
+    fn on_destroy(&mut self, _: &mut EventCtx, ui: &mut UI) {
         ui.primary.reset_sim();
     }
 }
@@ -86,7 +86,7 @@ impl State for Part2 {
         self.menu.draw(g);
     }
 
-    fn on_destroy(&mut self, ui: &mut UI) {
+    fn on_destroy(&mut self, _: &mut EventCtx, ui: &mut UI) {
         ui.primary.reset_sim();
     }
 }

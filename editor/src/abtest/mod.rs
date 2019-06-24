@@ -189,12 +189,15 @@ impl State for ABTestMode {
         self.speed.pause();
     }
 
-    fn on_destroy(&mut self, ui: &mut UI) {
-        // TODO Should we clear edits too?
-        ui.primary.reset_sim();
+    fn on_destroy(&mut self, ctx: &mut EventCtx, ui: &mut UI) {
+        ctx.loading_screen("exit A/B test mode", |_, timer| {
+            timer.start("destroy secondary sim");
+            // TODO Should we clear edits too?
+            ui.primary.reset_sim();
 
-        // Note destroying this has some noticeable delay.
-        ui.secondary = None;
+            ui.secondary = None;
+            timer.stop("destroy secondary sim");
+        });
     }
 }
 
