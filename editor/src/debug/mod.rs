@@ -5,6 +5,7 @@ mod connected_roads;
 mod neighborhood_summary;
 mod objects;
 mod polygons;
+mod routes;
 
 use crate::common::CommonState;
 use crate::edit::EditMode;
@@ -35,6 +36,7 @@ pub struct DebugMode {
     layers: ShowLayers,
     search_results: Option<(String, HashSet<ID>)>,
     neighborhood_summary: neighborhood_summary::NeighborhoodSummary,
+    all_routes: routes::AllRoutesViewer,
 }
 
 impl DebugMode {
@@ -60,6 +62,7 @@ impl DebugMode {
                         (hotkey(Key::M), "clear OSM search results"),
                         (hotkey(Key::S), "configure colors"),
                         (hotkey(Key::N), "show/hide neighborhood summaries"),
+                        (hotkey(Key::R), "show/hide route for all agents"),
                         (lctrl(Key::S), "sandbox mode"),
                         (lctrl(Key::E), "edit mode"),
                     ],
@@ -83,6 +86,7 @@ impl DebugMode {
                 ctx.prerender,
                 &mut Timer::new("set up DebugMode"),
             ),
+            all_routes: routes::AllRoutesViewer::Inactive,
         }
     }
 }
@@ -123,6 +127,12 @@ impl State for DebugMode {
         if self.neighborhood_summary.active {
             txt.add_line("Showing neighborhood summaries".to_string());
         }
+        match self.all_routes {
+            routes::AllRoutesViewer::Active(_, ref traces) => {
+                txt.add_line(format!("Showing {} routes", traces.len()));
+            }
+            _ => {}
+        }
         self.menu.handle_event(ctx, Some(txt));
 
         ctx.canvas.handle_event(ctx.input);
@@ -148,6 +158,7 @@ impl State for DebugMode {
                 self.chokepoints = Some(chokepoints::ChokepointsFinder::new(&ui.primary.sim));
             }
         }
+        self.all_routes.event(ui, &mut self.menu);
         if !self.show_original_roads.is_empty() {
             if self.menu.action("clear original roads shown") {
                 self.show_original_roads.clear();
@@ -322,6 +333,7 @@ impl State for DebugMode {
 
         self.objects.draw(g, ui);
         self.neighborhood_summary.draw(g);
+        self.all_routes.draw(g, ui);
 
         if !g.is_screencap() {
             self.menu.draw(g);

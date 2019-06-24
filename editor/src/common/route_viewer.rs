@@ -9,19 +9,16 @@ pub enum RouteViewer {
     Inactive,
     Hovering(Duration, AgentID, PolyLine),
     Active(Duration, TripID, Option<PolyLine>),
-    DebugAllRoutes(Duration, Vec<PolyLine>),
 }
 
 impl RouteViewer {
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI, menu: &mut ModalMenu) {
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI, menu: &mut ModalMenu) {
         match self {
             RouteViewer::Inactive => {
                 if let Some(agent) = ui.primary.current_selection.and_then(|id| id.agent_id()) {
                     if let Some(trace) = ui.primary.sim.trace_route(agent, &ui.primary.map, None) {
                         *self = RouteViewer::Hovering(ui.primary.sim.time(), agent, trace);
                     }
-                } else if menu.action("show/hide route for all agents") {
-                    *self = debug_all_routes(ui);
                 }
             }
             RouteViewer::Hovering(time, agent, _) => {
@@ -62,13 +59,6 @@ impl RouteViewer {
                     *self = show_route(*trip, ui);
                 }
             }
-            RouteViewer::DebugAllRoutes(time, _) => {
-                if menu.action("show/hide route for all agents") {
-                    *self = RouteViewer::Inactive;
-                } else if *time != ui.primary.sim.time() {
-                    *self = debug_all_routes(ui);
-                }
-            }
         }
     }
 
@@ -85,11 +75,6 @@ impl RouteViewer {
                     ui.cs.get_def("route", Color::RED.alpha(0.8)),
                     &trace.make_polygons(LANE_THICKNESS),
                 );
-            }
-            RouteViewer::DebugAllRoutes(_, ref traces) => {
-                for t in traces {
-                    g.draw_polygon(ui.cs.get("route"), &t.make_polygons(LANE_THICKNESS));
-                }
             }
             _ => {}
         }
@@ -113,24 +98,4 @@ fn show_route(trip: TripID, ui: &UI) -> RouteViewer {
         );
         RouteViewer::Active(time, trip, None)
     }
-}
-
-fn debug_all_routes(ui: &mut UI) -> RouteViewer {
-    let mut traces: Vec<PolyLine> = Vec::new();
-    let trips: Vec<TripID> = ui
-        .primary
-        .sim
-        .get_trip_positions(&ui.primary.map)
-        .canonical_pt_per_trip
-        .keys()
-        .cloned()
-        .collect();
-    for trip in trips {
-        if let Some(agent) = ui.primary.sim.trip_to_agent(trip) {
-            if let Some(trace) = ui.primary.sim.trace_route(agent, &ui.primary.map, None) {
-                traces.push(trace);
-            }
-        }
-    }
-    RouteViewer::DebugAllRoutes(ui.primary.sim.time(), traces)
 }

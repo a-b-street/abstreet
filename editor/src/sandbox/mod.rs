@@ -48,8 +48,6 @@ impl SandboxMode {
                         // TODO Strange to always have this. Really it's a case of stacked modal?
                         (hotkey(Key::F), "stop following agent"),
                         (hotkey(Key::R), "stop showing agent's route"),
-                        // TODO This should probably be a debug thing instead
-                        (hotkey(Key::L), "show/hide route for all agents"),
                         (hotkey(Key::A), "show/hide active traffic"),
                         (hotkey(Key::T), "start time traveling"),
                         (hotkey(Key::Q), "scoreboard"),

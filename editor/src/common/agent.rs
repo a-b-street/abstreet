@@ -24,14 +24,11 @@ impl AgentTools {
             RouteViewer::Active(_, trip, _) => {
                 txt.add_line(format!("Showing {}'s route", trip));
             }
-            RouteViewer::DebugAllRoutes(_, _) => {
-                txt.add_line("Showing all routes".to_string());
-            }
             _ => {}
         }
     }
 
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI, menu: &mut ModalMenu) {
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI, menu: &mut ModalMenu) {
         if self.following.is_none() {
             if let Some(agent) = ui.primary.current_selection.and_then(|id| id.agent_id()) {
                 if let Some(trip) = ui.primary.sim.agent_to_trip(agent) {
