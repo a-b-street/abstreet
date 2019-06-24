@@ -5,13 +5,12 @@ mod show_activity;
 mod spawner;
 mod time_travel;
 
-use crate::common::{CommonState, SpeedControls};
+use crate::common::{time_controls, CommonState, SpeedControls};
 use crate::debug::DebugMode;
 use crate::edit::EditMode;
 use crate::game::{State, Transition};
-use crate::mission::input_time;
 use crate::ui::{ShowEverything, UI};
-use ezgui::{hotkey, lctrl, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard};
+use ezgui::{hotkey, lctrl, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text};
 use geom::Duration;
 use sim::{Sim, TripID};
 
@@ -206,21 +205,10 @@ impl State for SandboxMode {
                 }
             }
 
-            if self.menu.action("step forwards 0.1s") {
-                ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
-                ui.recalculate_current_selection(ctx);
-            } else if self.menu.action("step forwards 10 mins") {
-                ctx.loading_screen("step forwards 10 minutes", |_, mut timer| {
-                    ui.primary
-                        .sim
-                        .timed_step(&ui.primary.map, Duration::minutes(10), &mut timer);
-                });
-                ui.recalculate_current_selection(ctx);
-            } else if self.menu.action("jump to specific time") {
-                return Transition::Push(Box::new(JumpingToTime {
-                    wizard: Wizard::new(),
-                }));
+            if let Some(t) = time_controls(ctx, ui, &mut self.menu) {
+                return t;
             }
+
             Transition::Keep
         } else {
             Transition::KeepWithMode(EventLoopMode::Animation)
@@ -247,42 +235,5 @@ impl State for SandboxMode {
 
     fn on_suspend(&mut self, _: &mut UI) {
         self.speed.pause();
-    }
-}
-
-struct JumpingToTime {
-    wizard: Wizard,
-}
-
-impl State for JumpingToTime {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        let mut wiz = self.wizard.wrap(ctx);
-
-        if let Some(t) = input_time(&mut wiz, "Jump to what time?") {
-            let dt = t - ui.primary.sim.time();
-            if dt <= Duration::ZERO {
-                if wiz.acknowledge(
-                    "Bad time",
-                    vec![&format!("{} isn't after {}", t, ui.primary.sim.time())],
-                ) {
-                    return Transition::Pop;
-                }
-            } else {
-                if dt > Duration::ZERO {
-                    ctx.loading_screen(&format!("step forwards {}", dt), |_, mut timer| {
-                        ui.primary.sim.timed_step(&ui.primary.map, dt, &mut timer);
-                    });
-                }
-
-                return Transition::Pop;
-            }
-        } else if self.wizard.aborted() {
-            return Transition::Pop;
-        }
-        Transition::Keep
-    }
-
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
-        self.wizard.draw(g);
     }
 }

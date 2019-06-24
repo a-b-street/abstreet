@@ -1,12 +1,12 @@
 mod score;
 pub mod setup;
 
-use crate::common::{CommonState, SpeedControls};
+use crate::common::{time_controls, CommonState, SpeedControls};
 use crate::game::{State, Transition};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::{PerMapUI, UI};
 use ezgui::{hotkey, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, ModalMenu, Text};
-use geom::{Circle, Distance, Duration, Line, PolyLine};
+use geom::{Circle, Distance, Line, PolyLine};
 use map_model::{Map, LANE_THICKNESS};
 use serde_derive::{Deserialize, Serialize};
 use sim::{Sim, TripID};
@@ -35,9 +35,11 @@ impl ABTestMode {
                         (hotkey(Key::RightBracket), "speed up"),
                         (hotkey(Key::Space), "pause/resume"),
                         (hotkey(Key::M), "step forwards 0.1s"),
+                        (hotkey(Key::N), "step forwards 10 mins"),
+                        (hotkey(Key::B), "jump to specific time"),
                         (hotkey(Key::S), "swap"),
                         (hotkey(Key::D), "diff all trips"),
-                        (hotkey(Key::B), "stop diffing trips"),
+                        (hotkey(Key::A), "stop diffing trips"),
                         (hotkey(Key::Q), "scoreboard"),
                         (hotkey(Key::O), "save state"),
                     ],
@@ -133,12 +135,18 @@ impl State for ABTestMode {
         }
 
         if let Some(dt) = self.speed.event(ctx, &mut self.menu, ui.primary.sim.time()) {
-            self.step(dt, ui, ctx);
+            ui.primary.sim.step(&ui.primary.map, dt);
+            {
+                let s = ui.secondary.as_mut().unwrap();
+                s.sim.step(&s.map, dt);
+            }
+            self.recalculate_stuff(ui, ctx);
         }
 
         if self.speed.is_paused() {
-            if self.menu.action("step forwards 0.1s") {
-                self.step(Duration::seconds(0.1), ui, ctx);
+            if let Some(t) = time_controls(ctx, ui, &mut self.menu) {
+                // TODO Need to trigger recalculate_stuff in a few cases...
+                return t;
             }
             Transition::Keep
         } else {
@@ -173,15 +181,6 @@ impl State for ABTestMode {
 }
 
 impl ABTestMode {
-    fn step(&mut self, dt: Duration, ui: &mut UI, ctx: &EventCtx) {
-        ui.primary.sim.step(&ui.primary.map, dt);
-        {
-            let s = ui.secondary.as_mut().unwrap();
-            s.sim.step(&s.map, dt);
-        }
-        self.recalculate_stuff(ui, ctx);
-    }
-
     fn recalculate_stuff(&mut self, ui: &mut UI, ctx: &EventCtx) {
         if let Some(diff) = self.diff_trip.take() {
             self.diff_trip = Some(DiffOneTrip::new(
