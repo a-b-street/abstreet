@@ -20,8 +20,7 @@ pub struct SandboxMode {
     following: Option<TripID>,
     route_viewer: route_viewer::RouteViewer,
     show_activity: show_activity::ShowActivity,
-    time_travel: time_travel::TimeTravel,
-    // TODO Not while Spawning or TimeTraveling or ExploringRoute...
+    pub time_travel: time_travel::InactiveTimeTravel,
     common: CommonState,
     menu: ModalMenu,
 }
@@ -33,7 +32,7 @@ impl SandboxMode {
             following: None,
             route_viewer: route_viewer::RouteViewer::Inactive,
             show_activity: show_activity::ShowActivity::Inactive,
-            time_travel: time_travel::TimeTravel::new(),
+            time_travel: time_travel::InactiveTimeTravel::new(),
             common: CommonState::new(),
             menu: ModalMenu::new(
                 "Sandbox Mode",
@@ -148,9 +147,7 @@ impl State for SandboxMode {
         self.route_viewer.event(ctx, ui, &mut self.menu);
         self.show_activity.event(ctx, ui, &mut self.menu);
         if self.menu.action("start time traveling") {
-            //self.state = State::TimeTraveling;
-            //self.time_travel.start(ctx, ui);
-            //return EventLoopMode::InputOnly;
+            return self.time_travel.start(ctx, ui);
         }
         if self.menu.action("scoreboard") {
             return Transition::Push(Box::new(score::Scoreboard::new(ctx, ui)));
@@ -276,21 +273,6 @@ impl State for SandboxMode {
         self.show_activity.draw(g, ui);
         self.menu.draw(g);
         self.speed.draw(g);
-
-        /*match state.mode {
-            Mode::Sandbox(ref mode) => match mode.state {
-                State::TimeTraveling => {
-                    state.ui.draw(
-                        g,
-                        DrawOptions::new(),
-                        &mode.time_travel,
-                        &ShowEverything::new(),
-                    );
-                    mode.time_travel.draw(g);
-                }
-            },
-            _ => unreachable!(),
-        }*/
     }
 
     fn on_suspend(&mut self, _: &mut UI) {
