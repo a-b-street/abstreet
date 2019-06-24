@@ -1,23 +1,20 @@
-mod route_explorer;
-mod route_viewer;
 mod score;
 mod show_activity;
 mod spawner;
 mod time_travel;
 
-use crate::common::{time_controls, CommonState, SpeedControls};
+use crate::common::{time_controls, AgentTools, CommonState, RouteExplorer, SpeedControls};
 use crate::debug::DebugMode;
 use crate::edit::EditMode;
 use crate::game::{State, Transition};
 use crate::ui::{ShowEverything, UI};
 use ezgui::{hotkey, lctrl, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text};
 use geom::Duration;
-use sim::{Sim, TripID};
+use sim::Sim;
 
 pub struct SandboxMode {
     speed: SpeedControls,
-    following: Option<TripID>,
-    route_viewer: route_viewer::RouteViewer,
+    agent_tools: AgentTools,
     show_activity: show_activity::ShowActivity,
     pub time_travel: time_travel::InactiveTimeTravel,
     common: CommonState,
@@ -28,8 +25,7 @@ impl SandboxMode {
     pub fn new(ctx: &mut EventCtx) -> SandboxMode {
         SandboxMode {
             speed: SpeedControls::new(ctx, None),
-            following: None,
-            route_viewer: route_viewer::RouteViewer::Inactive,
+            agent_tools: AgentTools::new(),
             show_activity: show_activity::ShowActivity::Inactive,
             time_travel: time_travel::InactiveTimeTravel::new(),
             common: CommonState::new(),
@@ -75,18 +71,7 @@ impl State for SandboxMode {
 
         let mut txt = Text::prompt("Sandbox Mode");
         txt.add_line(ui.primary.sim.summary());
-        if let Some(trip) = self.following {
-            txt.add_line(format!("Following {}", trip));
-        }
-        match self.route_viewer {
-            route_viewer::RouteViewer::Active(_, trip, _) => {
-                txt.add_line(format!("Showing {}'s route", trip));
-            }
-            route_viewer::RouteViewer::DebugAllRoutes(_, _) => {
-                txt.add_line("Showing all routes".to_string());
-            }
-            _ => {}
-        }
+        self.agent_tools.update_menu_info(&mut txt);
         match self.show_activity {
             show_activity::ShowActivity::Inactive => {}
             _ => {
@@ -106,39 +91,11 @@ impl State for SandboxMode {
         if let Some(spawner) = spawner::AgentSpawner::new(ctx, ui, &mut self.menu) {
             return Transition::Push(Box::new(spawner));
         }
-        if let Some(explorer) = route_explorer::RouteExplorer::new(ctx, ui) {
+        if let Some(explorer) = RouteExplorer::new(ctx, ui) {
             return Transition::Push(Box::new(explorer));
         }
 
-        if self.following.is_none() {
-            if let Some(agent) = ui.primary.current_selection.and_then(|id| id.agent_id()) {
-                if let Some(trip) = ui.primary.sim.agent_to_trip(agent) {
-                    if ctx
-                        .input
-                        .contextual_action(Key::F, &format!("follow {}", agent))
-                    {
-                        self.following = Some(trip);
-                    }
-                }
-            }
-        }
-        if let Some(trip) = self.following {
-            if let Some(pt) = ui
-                .primary
-                .sim
-                .get_canonical_pt_per_trip(trip, &ui.primary.map)
-            {
-                ctx.canvas.center_on_map_pt(pt);
-            } else {
-                // TODO ideally they wouldnt vanish for so long according to
-                // get_canonical_point_for_trip
-                println!("{} is gone... temporarily or not?", trip);
-            }
-            if self.menu.action("stop following agent") {
-                self.following = None;
-            }
-        }
-        self.route_viewer.event(ctx, ui, &mut self.menu);
+        self.agent_tools.event(ctx, ui, &mut self.menu);
         self.show_activity.event(ctx, ui, &mut self.menu);
         if self.menu.action("start time traveling") {
             return self.time_travel.start(ctx, ui);
@@ -227,7 +184,7 @@ impl State for SandboxMode {
             &ShowEverything::new(),
         );
         self.common.draw(g, ui);
-        self.route_viewer.draw(g, ui);
+        self.agent_tools.draw(g, ui);
         self.show_activity.draw(g, ui);
         self.menu.draw(g);
         self.speed.draw(g);

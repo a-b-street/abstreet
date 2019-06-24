@@ -1,7 +1,7 @@
 mod score;
 pub mod setup;
 
-use crate::common::{time_controls, CommonState, SpeedControls};
+use crate::common::{time_controls, AgentTools, CommonState, RouteExplorer, SpeedControls};
 use crate::game::{State, Transition};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::{PerMapUI, UI};
@@ -14,9 +14,10 @@ use sim::{Sim, TripID};
 pub struct ABTestMode {
     menu: ModalMenu,
     speed: SpeedControls,
+    primary_agent_tools: AgentTools,
+    secondary_agent_tools: AgentTools,
     diff_trip: Option<DiffOneTrip>,
     diff_all: Option<DiffAllTrips>,
-    // TODO Not present in Setup state.
     common: CommonState,
     test_name: String,
 }
@@ -40,6 +41,8 @@ impl ABTestMode {
                         (hotkey(Key::S), "swap"),
                         (hotkey(Key::D), "diff all trips"),
                         (hotkey(Key::A), "stop diffing trips"),
+                        (hotkey(Key::F), "stop following agent"),
+                        (hotkey(Key::R), "stop showing agent's route"),
                         (hotkey(Key::Q), "scoreboard"),
                         (hotkey(Key::O), "save state"),
                     ],
@@ -49,6 +52,8 @@ impl ABTestMode {
                 ctx,
             ),
             speed: SpeedControls::new(ctx, None),
+            primary_agent_tools: AgentTools::new(),
+            secondary_agent_tools: AgentTools::new(),
             diff_trip: None,
             diff_all: None,
             common: CommonState::new(),
@@ -70,6 +75,7 @@ impl State for ABTestMode {
                 diff.lines.len()
             ));
         }
+        self.primary_agent_tools.update_menu_info(&mut txt);
         txt.add_line(ui.primary.sim.summary());
         self.menu.handle_event(ctx, Some(txt));
 
@@ -90,6 +96,11 @@ impl State for ABTestMode {
             let primary = std::mem::replace(&mut ui.primary, secondary);
             ui.secondary = Some(primary);
             self.recalculate_stuff(ui, ctx);
+
+            std::mem::swap(
+                &mut self.primary_agent_tools,
+                &mut self.secondary_agent_tools,
+            );
         }
 
         if self.menu.action("scoreboard") {
@@ -99,6 +110,12 @@ impl State for ABTestMode {
                 ui.secondary.as_ref().unwrap(),
             )));
         }
+
+        if let Some(explorer) = RouteExplorer::new(ctx, ui) {
+            return Transition::Push(Box::new(explorer));
+        }
+
+        self.primary_agent_tools.event(ctx, ui, &mut self.menu);
 
         if self.menu.action("save state") {
             self.savestate(ui);
@@ -165,6 +182,7 @@ impl State for ABTestMode {
         }
         self.menu.draw(g);
         self.speed.draw(g);
+        self.primary_agent_tools.draw(g, ui);
     }
 
     fn on_suspend(&mut self, _: &mut UI) {

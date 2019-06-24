@@ -1,10 +1,15 @@
+mod agent;
 mod associated;
 mod navigate;
+mod route_explorer;
+mod route_viewer;
 mod speed;
 mod time;
 mod turn_cycler;
 mod warp;
 
+pub use self::agent::AgentTools;
+pub use self::route_explorer::RouteExplorer;
 pub use self::speed::SpeedControls;
 pub use self::time::time_controls;
 use crate::game::Transition;
