@@ -39,10 +39,10 @@ impl ContextMenu {
                 } else {
                     ContextMenu::Displaying(Menu::new(
                         Text::new(),
-                        actions
+                        vec![actions
                             .into_iter()
                             .map(|(key, action)| (hotkey(key), action, key))
-                            .collect(),
+                            .collect()],
                         false,
                         false,
                         Position::SomeCornerAt(origin),

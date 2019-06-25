@@ -218,7 +218,7 @@ impl<'a> WrappedWizard<'a> {
                 .collect();
             self.wizard.menu = Some(Menu::new(
                 Text::prompt(query),
-                boxed_choices,
+                vec![boxed_choices],
                 true,
                 false,
                 Position::ScreenCenter,

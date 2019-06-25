@@ -16,8 +16,12 @@ impl ModalMenu {
             Text::prompt(prompt_line),
             choice_groups
                 .into_iter()
-                .flatten()
-                .map(|(multikey, action)| (multikey, action.to_string(), ()))
+                .map(|group| {
+                    group
+                        .into_iter()
+                        .map(|(multikey, action)| (multikey, action.to_string(), ()))
+                        .collect()
+                })
                 .collect(),
             false,
             true,

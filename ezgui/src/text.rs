@@ -9,7 +9,7 @@ use nom::{alt, char, do_parse, many1, named, separated_pair, take_till1, take_un
 use textwrap;
 
 const FG_COLOR: Color = Color::WHITE;
-const BG_COLOR: Color = Color::grey(0.2);
+pub const BG_COLOR: Color = Color::grey(0.2);
 pub const PROMPT_COLOR: Color = Color::BLUE;
 pub const SELECTED_COLOR: Color = Color::RED;
 pub const HOTKEY_COLOR: Color = Color::GREEN;
@@ -42,6 +42,7 @@ pub struct Text {
     // The bg_color will cover the entire block, but some lines can have extra highlighting.
     lines: Vec<(Option<Color>, Vec<TextSpan>)>,
     bg_color: Option<Color>,
+    pub(crate) override_width: Option<f64>,
 }
 
 impl Text {
@@ -49,6 +50,7 @@ impl Text {
         Text {
             lines: Vec::new(),
             bg_color: Some(BG_COLOR),
+            override_width: None,
         }
     }
 
@@ -62,6 +64,7 @@ impl Text {
         Text {
             lines: Vec::new(),
             bg_color,
+            override_width: None,
         }
     }
 
@@ -173,7 +176,10 @@ impl Text {
             max_width = max_width.max(width);
             height += canvas.line_height(max_size);
         }
-        (f64::from(max_width), height)
+        (
+            self.override_width.unwrap_or_else(|| f64::from(max_width)),
+            height,
+        )
     }
 }
 
