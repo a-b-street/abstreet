@@ -1,6 +1,7 @@
 use crate::screen_geom::ScreenRectangle;
 use crate::{
-    hotkey, lctrl, text, Canvas, Color, Event, GfxCtx, InputResult, Key, MultiKey, ScreenPt, Text,
+    hotkey, lctrl, text, Canvas, Color, Event, GeomBatch, GfxCtx, InputResult, Key, MultiKey,
+    ScreenPt, Text,
 };
 use geom::{Circle, Distance, Polygon, Pt2D};
 use std::collections::HashSet;
@@ -241,33 +242,35 @@ impl<T: Clone> Menu<T> {
     pub fn draw(&self, g: &mut GfxCtx) {
         g.draw_text_at_screenspace_topleft(&self.prompt, self.top_left);
         if self.hidden {
-            g.fork_screenspace();
+            let mut batch = GeomBatch::new();
             // Draw the expand icon. Hopefully it doesn't clobber the prompt.
             let icon = self.get_expand_icon(g.canvas);
-            g.draw_circle(
+            batch.push(
                 if self.icon_selected {
                     ICON_BACKGROUND_SELECTED
                 } else {
                     ICON_BACKGROUND
                 },
-                &icon,
+                icon.to_polygon(),
             );
-            g.draw_polygon(
+            batch.push(
                 if self.icon_selected {
                     ICON_SYMBOL_SELECTED
                 } else {
                     ICON_SYMBOL
                 },
-                &Polygon::rectangle(icon.center, 1.5 * icon.radius, 0.5 * icon.radius),
+                Polygon::rectangle(icon.center, 1.5 * icon.radius, 0.5 * icon.radius),
             );
-            g.draw_polygon(
+            batch.push(
                 if self.icon_selected {
                     ICON_SYMBOL_SELECTED
                 } else {
                     ICON_SYMBOL
                 },
-                &Polygon::rectangle(icon.center, 0.5 * icon.radius, 1.5 * icon.radius),
+                Polygon::rectangle(icon.center, 0.5 * icon.radius, 1.5 * icon.radius),
             );
+            g.fork_screenspace();
+            batch.draw(g);
             g.unfork();
 
             return;
@@ -277,10 +280,11 @@ impl<T: Clone> Menu<T> {
         let base_y = self.top_left.y + (self.prompt.num_lines() as f64) * row_height;
 
         let choices_total_height = self.choices.last().unwrap().dy1 + row_height;
-        g.fork_screenspace();
-        g.draw_polygon(
+        let mut batch = GeomBatch::new();
+
+        batch.push(
             text::BG_COLOR,
-            &Polygon::rectangle_topleft(
+            Polygon::rectangle_topleft(
                 Pt2D::new(self.top_left.x, base_y),
                 Distance::meters(self.total_width),
                 Distance::meters(choices_total_height),
@@ -294,9 +298,9 @@ impl<T: Clone> Menu<T> {
         });
 
         for dy1 in &self.separators {
-            g.draw_polygon(
+            batch.push(
                 Color::grey(0.4),
-                &Polygon::rectangle_topleft(
+                Polygon::rectangle_topleft(
                     Pt2D::new(self.top_left.x, base_y + *dy1 + (row_height / 4.0)),
                     Distance::meters(self.total_width),
                     Distance::meters(row_height / 4.0),
@@ -307,24 +311,26 @@ impl<T: Clone> Menu<T> {
         // Draw the minimize icon. Hopefully it doesn't clobber the prompt.
         if self.hideable {
             let icon = self.get_expand_icon(g.canvas);
-            g.draw_circle(
+            batch.push(
                 if self.icon_selected {
                     ICON_BACKGROUND_SELECTED
                 } else {
                     ICON_BACKGROUND
                 },
-                &icon,
+                icon.to_polygon(),
             );
-            g.draw_polygon(
+            batch.push(
                 if self.icon_selected {
                     ICON_SYMBOL_SELECTED
                 } else {
                     ICON_SYMBOL
                 },
-                &Polygon::rectangle(icon.center, 1.5 * icon.radius, 0.5 * icon.radius),
+                Polygon::rectangle(icon.center, 1.5 * icon.radius, 0.5 * icon.radius),
             );
         }
 
+        g.fork_screenspace();
+        batch.draw(g);
         g.unfork();
 
         for (idx, choice) in self.choices.iter().enumerate() {
