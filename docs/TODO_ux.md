@@ -86,7 +86,6 @@
 ## Mission Edit Mode
 
 - neighborhood
-	- how to "pop" up the menu, go back to load/create and even to managing scenarios? feels like a stack.
 	- display some instructions in the modal thing ("move a point by grabbing it")
 	- warp to neighborhood center and zoom out when loading one (or even hovering in the menu?)
 	- display all and click to edit

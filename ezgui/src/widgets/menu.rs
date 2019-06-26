@@ -2,8 +2,13 @@ use crate::screen_geom::ScreenRectangle;
 use crate::{
     hotkey, lctrl, text, Canvas, Color, Event, GfxCtx, InputResult, Key, MultiKey, ScreenPt, Text,
 };
-use geom::{Distance, Polygon, Pt2D};
+use geom::{Circle, Distance, Polygon, Pt2D};
 use std::collections::HashSet;
+
+const ICON_BACKGROUND: Color = Color::grey(0.5);
+const ICON_BACKGROUND_SELECTED: Color = Color::YELLOW;
+const ICON_SYMBOL: Color = Color::grey(0.8);
+const ICON_SYMBOL_SELECTED: Color = Color::grey(0.2);
 
 // Stores some associated data with each choice
 pub struct Menu<T: Clone> {
@@ -19,6 +24,7 @@ pub struct Menu<T: Clone> {
     total_width: f64,
     // dy1 values of the separator half-rows
     separators: Vec<f64>,
+    icon_selected: bool,
 }
 
 struct Choice<T: Clone> {
@@ -111,10 +117,35 @@ impl<T: Clone> Menu<T> {
             top_left,
             total_width,
             separators,
+            icon_selected: false,
         }
     }
 
     pub fn event(&mut self, ev: Event, canvas: &mut Canvas) -> InputResult<T> {
+        if self.hideable {
+            if let Event::MouseMovedTo(pt) = ev {
+                if !canvas.is_dragging() {
+                    self.icon_selected = self
+                        .get_expand_icon(canvas)
+                        .contains_pt(Pt2D::new(pt.x, pt.y));
+                }
+            }
+
+            if (ev == Event::KeyPress(Key::Tab))
+                || (ev == Event::LeftMouseButtonDown && self.icon_selected)
+            {
+                if self.hidden {
+                    self.hidden = false;
+                } else {
+                    self.hidden = true;
+                    self.current_idx = None;
+                }
+                canvas.hide_modal_menus = self.hidden;
+                self.recalculate_geom(canvas);
+                return InputResult::StillActive;
+            }
+        }
+
         if !self.hidden {
             // Handle the mouse
             if ev == Event::LeftMouseButtonDown {
@@ -182,19 +213,6 @@ impl<T: Clone> Menu<T> {
             }
         }
 
-        if self.hideable {
-            if ev == Event::KeyPress(Key::Tab) {
-                if self.hidden {
-                    self.hidden = false;
-                } else {
-                    self.hidden = true;
-                    self.current_idx = None;
-                }
-                canvas.hide_modal_menus = self.hidden;
-                self.recalculate_geom(canvas);
-            }
-        }
-
         if let Event::KeyPress(key) = ev {
             let pressed = if canvas.lctrl_held {
                 lctrl(key)
@@ -223,6 +241,35 @@ impl<T: Clone> Menu<T> {
     pub fn draw(&self, g: &mut GfxCtx) {
         g.draw_text_at_screenspace_topleft(&self.prompt, self.top_left);
         if self.hidden {
+            g.fork_screenspace();
+            // Draw the expand icon. Hopefully it doesn't clobber the prompt.
+            let icon = self.get_expand_icon(g.canvas);
+            g.draw_circle(
+                if self.icon_selected {
+                    ICON_BACKGROUND_SELECTED
+                } else {
+                    ICON_BACKGROUND
+                },
+                &icon,
+            );
+            g.draw_polygon(
+                if self.icon_selected {
+                    ICON_SYMBOL_SELECTED
+                } else {
+                    ICON_SYMBOL
+                },
+                &Polygon::rectangle(icon.center, 1.5 * icon.radius, 0.5 * icon.radius),
+            );
+            g.draw_polygon(
+                if self.icon_selected {
+                    ICON_SYMBOL_SELECTED
+                } else {
+                    ICON_SYMBOL
+                },
+                &Polygon::rectangle(icon.center, 0.5 * icon.radius, 1.5 * icon.radius),
+            );
+            g.unfork();
+
             return;
         }
 
@@ -256,6 +303,28 @@ impl<T: Clone> Menu<T> {
                 ),
             );
         }
+
+        // Draw the minimize icon. Hopefully it doesn't clobber the prompt.
+        if self.hideable {
+            let icon = self.get_expand_icon(g.canvas);
+            g.draw_circle(
+                if self.icon_selected {
+                    ICON_BACKGROUND_SELECTED
+                } else {
+                    ICON_BACKGROUND
+                },
+                &icon,
+            );
+            g.draw_polygon(
+                if self.icon_selected {
+                    ICON_SYMBOL_SELECTED
+                } else {
+                    ICON_SYMBOL
+                },
+                &Polygon::rectangle(icon.center, 1.5 * icon.radius, 0.5 * icon.radius),
+            );
+        }
+
         g.unfork();
 
         for (idx, choice) in self.choices.iter().enumerate() {
@@ -361,6 +430,17 @@ impl<T: Clone> Menu<T> {
         self.top_left = self.pos.get_top_left(canvas, total_width, total_height);
         self.total_width = total_width;
         self.prompt.override_width = Some(total_width);
+    }
+
+    fn get_expand_icon(&self, canvas: &Canvas) -> Circle {
+        let radius = row_height(canvas) / 2.0;
+        Circle::new(
+            Pt2D::new(
+                self.top_left.x + self.total_width - radius,
+                self.top_left.y + radius,
+            ),
+            Distance::meters(radius),
+        )
     }
 }
 
