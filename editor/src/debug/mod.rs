@@ -11,14 +11,15 @@ use crate::common::CommonState;
 use crate::edit::EditMode;
 use crate::game::{State, Transition};
 use crate::helpers::ID;
+use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::sandbox::SandboxMode;
 use crate::ui::{ShowLayers, ShowObject, UI};
 use abstutil::wraparound_get;
 use abstutil::Timer;
 use clipping::CPolygon;
 use ezgui::{
-    hotkey, lctrl, Color, EventCtx, EventLoopMode, GfxCtx, InputResult, Key, ModalMenu, Text,
-    TextBox,
+    hotkey, lctrl, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, InputResult, Key,
+    ModalMenu, Text, TextBox,
 };
 use geom::{Distance, PolyLine, Polygon, Pt2D};
 use map_model::{IntersectionID, Map, RoadID};
@@ -34,7 +35,7 @@ pub struct DebugMode {
     objects: objects::ObjectDebugger,
     hidden: HashSet<ID>,
     layers: ShowLayers,
-    search_results: Option<(String, HashSet<ID>)>,
+    search_results: Option<SearchResults>,
     neighborhood_summary: neighborhood_summary::NeighborhoodSummary,
     all_routes: routes::AllRoutesViewer,
 }
@@ -124,11 +125,11 @@ impl State for DebugMode {
         if !self.hidden.is_empty() {
             txt.add_line(format!("Hiding {} things", self.hidden.len()));
         }
-        if let Some((ref search, ref results)) = self.search_results {
+        if let Some(ref results) = self.search_results {
             txt.add_line(format!(
                 "Search for {} has {} results",
-                search,
-                results.len()
+                results.query,
+                results.ids.len()
             ));
         }
         if self.neighborhood_summary.active {
@@ -306,13 +307,22 @@ impl State for DebugMode {
                 ui.cs.get("something associated with something else"),
             );
         }
-        if let Some((_, ref results)) = self.search_results {
-            for id in results {
-                opts.override_colors
-                    .insert(*id, ui.cs.get_def("search result", Color::RED));
+        if g.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL {
+            if let Some(ref results) = self.search_results {
+                for id in &results.ids {
+                    opts.override_colors.insert(*id, ui.cs.get("search result"));
+                }
             }
         }
+
         ui.draw(g, opts, &ui.primary.sim, self);
+
+        if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
+            if let Some(ref results) = self.search_results {
+                g.redraw(&results.unzoomed);
+            }
+        }
+
         self.common.draw(g, ui);
 
         for id in &self.show_original_roads {
@@ -533,7 +543,10 @@ impl State for SearchOSM {
             InputResult::Canceled => Transition::Pop,
             InputResult::Done(filter, _) => {
                 let mut ids = HashSet::new();
+                let mut batch = GeomBatch::new();
+
                 let map = &ui.primary.map;
+                let color = ui.cs.get_def("search result", Color::RED);
                 for r in map.all_roads() {
                     if r.osm_tags
                         .iter()
@@ -542,6 +555,7 @@ impl State for SearchOSM {
                         for l in r.all_lanes() {
                             ids.insert(ID::Lane(l));
                         }
+                        batch.push(color, r.get_thick_polygon().unwrap());
                     }
                 }
                 for b in map.all_buildings() {
@@ -550,11 +564,18 @@ impl State for SearchOSM {
                         .any(|(k, v)| format!("{} = {}", k, v).contains(&filter))
                     {
                         ids.insert(ID::Building(b.id));
+                        batch.push(color, b.polygon.clone());
                     }
                 }
 
+                let results = SearchResults {
+                    query: filter,
+                    ids,
+                    unzoomed: ctx.prerender.upload(batch),
+                };
+
                 Transition::PopWithData(Box::new(|state| {
-                    state.downcast_mut::<DebugMode>().unwrap().search_results = Some((filter, ids));
+                    state.downcast_mut::<DebugMode>().unwrap().search_results = Some(results);
                 }))
             }
             InputResult::StillActive => Transition::Keep,
@@ -564,4 +585,10 @@ impl State for SearchOSM {
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
         self.entry.draw(g);
     }
+}
+
+struct SearchResults {
+    query: String,
+    ids: HashSet<ID>,
+    unzoomed: Drawable,
 }
