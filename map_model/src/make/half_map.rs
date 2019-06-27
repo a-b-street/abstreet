@@ -74,7 +74,7 @@ pub fn make_half_map(
 
         let mut road = Road {
             id: road_id,
-            osm_tags: raw_r.osm_tags.clone(),
+            osm_tags: r.osm_tags.clone(),
             osm_way_id: raw_r.osm_way_id,
             stable_id: r.id,
             children_forwards: Vec::new(),

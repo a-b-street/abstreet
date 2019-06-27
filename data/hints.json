@@ -315,6 +315,22 @@
           "latitude": 47.6252204
         }
       }
+    },
+    {
+      "MergeDegenerateIntersection": {
+        "point": {
+          "longitude": -122.3020493,
+          "latitude": 47.6442086
+        }
+      }
+    },
+    {
+      "MergeDegenerateIntersection": {
+        "point": {
+          "longitude": -122.3020349,
+          "latitude": 47.6447682
+        }
+      }
     }
   ]
 }

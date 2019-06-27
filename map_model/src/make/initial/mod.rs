@@ -27,6 +27,8 @@ pub struct Road {
     pub fwd_width: Distance,
     pub back_width: Distance,
     pub lane_specs: Vec<lane_specs::LaneSpec>,
+    // Copied here from the raw layer, because merge_degenerate_intersection needs to modify them.
+    pub osm_tags: BTreeMap<String, String>,
 }
 
 impl Road {
@@ -130,6 +132,7 @@ impl InitialMap {
                     fwd_width,
                     back_width,
                     lane_specs,
+                    osm_tags: r.osm_tags.clone(),
                 },
             );
         }
@@ -224,7 +227,7 @@ impl InitialMap {
             r.trimmed_center_pts = r.original_center_pts.clone();
         }
 
-        // And finally the intersection geometry
+        // Redo the intersection geometry.
         {
             let i = self.intersections.get_mut(&new_i1).unwrap();
             i.polygon = geometry::intersection_polygon(i, &mut self.roads, timer);
@@ -232,6 +235,16 @@ impl InitialMap {
         {
             let i = self.intersections.get_mut(&new_i2).unwrap();
             i.polygon = geometry::intersection_polygon(i, &mut self.roads, timer);
+        }
+
+        // Preserve some OSM tags.
+        {
+            let r = self.roads.get_mut(&r2).unwrap();
+            for (k, v) in deleted_road.osm_tags {
+                if !r.osm_tags.contains_key(&k) {
+                    r.osm_tags.insert(k, v);
+                }
+            }
         }
     }
 
