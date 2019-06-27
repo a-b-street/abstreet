@@ -135,36 +135,44 @@ impl State for SandboxMode {
                 return Transition::Replace(Box::new(SandboxMode::new(ctx)));
             }
             if self.menu.action("save sim state") {
-                ui.primary.sim.save();
+                ctx.loading_screen("savestate", |_, timer| {
+                    timer.start("save sim state");
+                    ui.primary.sim.save();
+                    timer.stop("save sim state");
+                });
             }
             if self.menu.action("load previous sim state") {
-                let prev_state = ui
-                    .primary
-                    .sim
-                    .find_previous_savestate(ui.primary.sim.time());
-                match prev_state
-                    .clone()
-                    .and_then(|path| Sim::load_savestate(path).ok())
-                {
-                    Some(new_sim) => {
-                        ui.primary.sim = new_sim;
-                        ui.recalculate_current_selection(ctx);
+                ctx.loading_screen("load previous savestate", |ctx, mut timer| {
+                    let prev_state = ui
+                        .primary
+                        .sim
+                        .find_previous_savestate(ui.primary.sim.time());
+                    match prev_state
+                        .clone()
+                        .and_then(|path| Sim::load_savestate(path, &mut timer).ok())
+                    {
+                        Some(new_sim) => {
+                            ui.primary.sim = new_sim;
+                            ui.recalculate_current_selection(ctx);
+                        }
+                        None => println!("Couldn't load previous savestate {:?}", prev_state),
                     }
-                    None => println!("Couldn't load previous savestate {:?}", prev_state),
-                }
+                });
             }
             if self.menu.action("load next sim state") {
-                let next_state = ui.primary.sim.find_next_savestate(ui.primary.sim.time());
-                match next_state
-                    .clone()
-                    .and_then(|path| Sim::load_savestate(path).ok())
-                {
-                    Some(new_sim) => {
-                        ui.primary.sim = new_sim;
-                        ui.recalculate_current_selection(ctx);
+                ctx.loading_screen("load next savestate", |ctx, mut timer| {
+                    let next_state = ui.primary.sim.find_next_savestate(ui.primary.sim.time());
+                    match next_state
+                        .clone()
+                        .and_then(|path| Sim::load_savestate(path, &mut timer).ok())
+                    {
+                        Some(new_sim) => {
+                            ui.primary.sim = new_sim;
+                            ui.recalculate_current_selection(ctx);
+                        }
+                        None => println!("Couldn't load next savestate {:?}", next_state),
                     }
-                    None => println!("Couldn't load next savestate {:?}", next_state),
-                }
+                });
             }
 
             if let Some(t) = time_controls(ctx, ui, &mut self.menu) {

@@ -571,20 +571,20 @@ impl Sim {
         // If we wanted to be even more reproducible, we'd encode RNG seed, version of code, etc,
         // but that's overkill right now.
         let path = format!(
-            "../data/save/{}_{}/{}/{}.json",
+            "../data/save/{}_{}/{}/{}.bin",
             self.map_name,
             self.edits_name,
             self.run_name,
             self.time.as_filename()
         );
-        abstutil::write_json(&path, &self).expect("Writing sim state failed");
+        abstutil::write_binary(&path, &self).expect("Writing sim state failed");
         println!("Saved to {}", path);
         path
     }
 
     pub fn find_previous_savestate(&self, base_time: Duration) -> Option<String> {
         abstutil::find_prev_file(format!(
-            "../data/save/{}_{}/{}/{}.json",
+            "../data/save/{}_{}/{}/{}.bin",
             self.map_name,
             self.edits_name,
             self.run_name,
@@ -594,7 +594,7 @@ impl Sim {
 
     pub fn find_next_savestate(&self, base_time: Duration) -> Option<String> {
         abstutil::find_next_file(format!(
-            "../data/save/{}_{}/{}/{}.json",
+            "../data/save/{}_{}/{}/{}.bin",
             self.map_name,
             self.edits_name,
             self.run_name,
@@ -602,9 +602,9 @@ impl Sim {
         ))
     }
 
-    pub fn load_savestate(path: String) -> Result<Sim, std::io::Error> {
+    pub fn load_savestate(path: String, timer: &mut Timer) -> Result<Sim, std::io::Error> {
         println!("Loading {}", path);
-        abstutil::read_json(&path)
+        abstutil::read_binary(&path, timer)
     }
 }
 

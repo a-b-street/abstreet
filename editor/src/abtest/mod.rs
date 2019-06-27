@@ -123,7 +123,11 @@ impl State for ABTestMode {
         self.primary_agent_tools.event(ctx, ui, &mut self.menu);
 
         if self.menu.action("save state") {
-            self.savestate(ui);
+            ctx.loading_screen("savestate", |_, timer| {
+                timer.start("save all state");
+                self.savestate(ui);
+                timer.stop("save all state");
+            });
         }
 
         if self.diff_trip.is_some() {
