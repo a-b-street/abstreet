@@ -8,6 +8,9 @@ pedestrians, drivers, transit users, and cyclists. The game's mission is to make
 it fun and simple for anybody to test an idea to improve Seattle's traffic flow
 and, if the idea works well, to communicate it to others.
 
+Warning: This article last updated April 2019; screenshots have changed since
+then.
+
 <!--ts-->
 
 - [A/B Street Features](#ab-street-features)
