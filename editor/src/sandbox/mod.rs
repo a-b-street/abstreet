@@ -3,7 +3,9 @@ mod show_activity;
 mod spawner;
 mod time_travel;
 
-use crate::common::{time_controls, AgentTools, CommonState, RouteExplorer, SpeedControls};
+use crate::common::{
+    time_controls, AgentTools, CommonState, RouteExplorer, SpeedControls, TripExplorer,
+};
 use crate::debug::DebugMode;
 use crate::edit::EditMode;
 use crate::game::{State, Transition};
@@ -99,10 +101,13 @@ impl State for SandboxMode {
         if let Some(explorer) = RouteExplorer::new(ctx, ui) {
             return Transition::Push(Box::new(explorer));
         }
+        if let Some(explorer) = TripExplorer::new(ctx, ui) {
+            return Transition::Push(Box::new(explorer));
+        }
 
         self.agent_tools.event(ctx, ui, &mut self.menu);
         self.show_activity.event(ctx, ui, &mut self.menu);
-        if self.menu.action("start time traveling") {
+        if ui.primary.current_selection.is_none() && self.menu.action("start time traveling") {
             return self.time_travel.start(ctx, ui);
         }
         if self.menu.action("scoreboard") {

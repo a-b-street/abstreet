@@ -1,7 +1,9 @@
 mod score;
 pub mod setup;
 
-use crate::common::{time_controls, AgentTools, CommonState, RouteExplorer, SpeedControls};
+use crate::common::{
+    time_controls, AgentTools, CommonState, RouteExplorer, SpeedControls, TripExplorer,
+};
 use crate::game::{State, Transition};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::{PerMapUI, UI};
@@ -117,6 +119,9 @@ impl State for ABTestMode {
         }
 
         if let Some(explorer) = RouteExplorer::new(ctx, ui) {
+            return Transition::Push(Box::new(explorer));
+        }
+        if let Some(explorer) = TripExplorer::new(ctx, ui) {
             return Transition::Push(Box::new(explorer));
         }
 

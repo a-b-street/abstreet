@@ -5,6 +5,7 @@ mod route_explorer;
 mod route_viewer;
 mod speed;
 mod time;
+mod trip_explorer;
 mod turn_cycler;
 mod warp;
 
@@ -12,6 +13,7 @@ pub use self::agent::AgentTools;
 pub use self::route_explorer::RouteExplorer;
 pub use self::speed::SpeedControls;
 pub use self::time::time_controls;
+pub use self::trip_explorer::TripExplorer;
 use crate::game::Transition;
 use crate::helpers::ID;
 use crate::render::DrawOptions;

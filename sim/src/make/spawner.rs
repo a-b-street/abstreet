@@ -1,7 +1,7 @@
 use crate::{
     CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, ParkingSimState, ParkingSpot,
-    PedestrianID, Scheduler, SidewalkPOI, SidewalkSpot, TripLeg, TripManager, VehicleSpec,
-    VehicleType, MAX_CAR_LENGTH,
+    PedestrianID, Scheduler, SidewalkPOI, SidewalkSpot, TripLeg, TripManager, TripStart,
+    VehicleSpec, VehicleType, MAX_CAR_LENGTH,
 };
 use abstutil::Timer;
 use geom::{Duration, Speed, EPSILON_DIST};
@@ -187,7 +187,8 @@ impl TripSpawner {
                             SidewalkSpot::building(b, map),
                         ));
                     }
-                    let trip = trips.new_trip(start_time, legs);
+                    let trip =
+                        trips.new_trip(start_time, Some(TripStart::Appearing(start_pos)), legs);
                     let router = goal.make_router(path, map, vehicle.vehicle_type);
                     scheduler.quick_push(
                         start_time,
@@ -225,7 +226,11 @@ impl TripSpawner {
                         }
                         DrivingGoal::Border(_, _) => {}
                     }
-                    let trip = trips.new_trip(start_time, legs);
+                    let trip = trips.new_trip(
+                        start_time,
+                        Some(TripStart::Bldg(vehicle.owner.unwrap())),
+                        legs,
+                    );
 
                     scheduler.quick_push(
                         start_time,
@@ -246,6 +251,13 @@ impl TripSpawner {
                 } => {
                     let trip = trips.new_trip(
                         start_time,
+                        match start.connection {
+                            SidewalkPOI::Building(b) => Some(TripStart::Bldg(b)),
+                            SidewalkPOI::SuddenlyAppear | SidewalkPOI::Border(_) => {
+                                Some(TripStart::Appearing(start.sidewalk_pos))
+                            }
+                            _ => unreachable!(),
+                        },
                         vec![TripLeg::Walk(ped_id.unwrap(), ped_speed, goal.clone())],
                     );
 
@@ -282,7 +294,17 @@ impl TripSpawner {
                         }
                         DrivingGoal::Border(_, _) => {}
                     };
-                    let trip = trips.new_trip(start_time, legs);
+                    let trip = trips.new_trip(
+                        start_time,
+                        match start.connection {
+                            SidewalkPOI::Building(b) => Some(TripStart::Bldg(b)),
+                            SidewalkPOI::SuddenlyAppear | SidewalkPOI::Border(_) => {
+                                Some(TripStart::Appearing(start.sidewalk_pos))
+                            }
+                            _ => unreachable!(),
+                        },
+                        legs,
+                    );
 
                     scheduler.quick_push(
                         start_time,
@@ -307,6 +329,13 @@ impl TripSpawner {
                     let walk_to = SidewalkSpot::bus_stop(stop1, map);
                     let trip = trips.new_trip(
                         start_time,
+                        match start.connection {
+                            SidewalkPOI::Building(b) => Some(TripStart::Bldg(b)),
+                            SidewalkPOI::SuddenlyAppear | SidewalkPOI::Border(_) => {
+                                Some(TripStart::Appearing(start.sidewalk_pos))
+                            }
+                            _ => unreachable!(),
+                        },
                         vec![
                             TripLeg::Walk(ped_id.unwrap(), ped_speed, walk_to.clone()),
                             TripLeg::RideBus(ped_id.unwrap(), route, stop2),

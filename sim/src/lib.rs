@@ -20,7 +20,7 @@ pub(crate) use self::router::{ActionAtEnd, Router};
 pub(crate) use self::scheduler::{Command, Scheduler};
 pub use self::sim::Sim;
 pub(crate) use self::transit::TransitSimState;
-pub use self::trips::{FinishedTrips, TripMode};
+pub use self::trips::{FinishedTrips, TripEnd, TripMode, TripStart, TripStatus};
 pub(crate) use self::trips::{TripLeg, TripManager};
 pub use crate::render::{CarStatus, DrawCarInput, DrawPedestrianInput, GetDrawAgents};
 use abstutil::Cloneable;

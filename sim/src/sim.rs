@@ -2,8 +2,8 @@ use crate::{
     AgentID, CarID, Command, CreateCar, DrawCarInput, DrawPedestrianInput, DrivingGoal,
     DrivingSimState, Event, FinishedTrips, GetDrawAgents, IntersectionSimState, ParkedCar,
     ParkingSimState, ParkingSpot, PedestrianID, Router, Scheduler, TransitSimState, TripID,
-    TripLeg, TripManager, TripPositions, TripSpawner, TripSpec, VehicleSpec, VehicleType,
-    WalkingSimState, BUS_LENGTH,
+    TripLeg, TripManager, TripPositions, TripSpawner, TripSpec, TripStatus, VehicleSpec,
+    VehicleType, WalkingSimState, BUS_LENGTH,
 };
 use abstutil::{elapsed_seconds, Timer};
 use derivative::Derivative;
@@ -198,9 +198,9 @@ impl Sim {
             // Bypass some layers of abstraction that don't make sense for buses.
 
             // TODO Aww, we create an orphan trip if the bus can't spawn.
-            let trip = self
-                .trips
-                .new_trip(self.time, vec![TripLeg::ServeBusRoute(id, route.id)]);
+            let trip =
+                self.trips
+                    .new_trip(self.time, None, vec![TripLeg::ServeBusRoute(id, route.id)]);
             if self.driving.start_car_on_lane(
                 self.time,
                 CreateCar {
@@ -696,6 +696,10 @@ impl Sim {
 
     pub fn trip_to_agent(&self, id: TripID) -> Option<AgentID> {
         self.trips.trip_to_agent(id)
+    }
+
+    pub fn trip_status(&self, id: TripID) -> Option<TripStatus> {
+        self.trips.trip_status(id)
     }
 
     pub fn lookup_car_id(&self, idx: usize) -> Option<CarID> {

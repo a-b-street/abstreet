@@ -5,7 +5,7 @@ use crate::{
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Duration, Speed};
-use map_model::{BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathRequest};
+use map_model::{BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathRequest, Position};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, VecDeque};
 
@@ -35,7 +35,12 @@ impl TripManager {
         }
     }
 
-    pub fn new_trip(&mut self, spawned_at: Duration, legs: Vec<TripLeg>) -> TripID {
+    pub fn new_trip(
+        &mut self,
+        spawned_at: Duration,
+        start: Option<TripStart>,
+        legs: Vec<TripLeg>,
+    ) -> TripID {
         assert!(!legs.is_empty());
         // TODO Make sure the legs constitute a valid state machine.
 
@@ -63,6 +68,7 @@ impl TripManager {
             finished_at: None,
             mode,
             legs: VecDeque::from(legs),
+            start,
         };
         if !trip.is_bus_trip() {
             self.unfinished_trips += 1;
@@ -419,6 +425,23 @@ impl TripManager {
     pub fn collect_events(&mut self) -> Vec<Event> {
         self.events.drain(..).collect()
     }
+
+    pub fn trip_status(&self, id: TripID) -> Option<TripStatus> {
+        let trip = &self.trips[id.0];
+        let start = trip.start.clone()?;
+        let end = match trip.legs.back() {
+            Some(TripLeg::Walk(_, _, ref spot)) => match spot.connection {
+                SidewalkPOI::Building(b) => TripEnd::Bldg(b),
+                _ => unreachable!(),
+            },
+            Some(TripLeg::Drive(_, ref goal)) => match goal {
+                DrivingGoal::ParkNear(b) => TripEnd::Bldg(*b),
+                DrivingGoal::Border(i, _) => TripEnd::Border(*i),
+            },
+            _ => unreachable!(),
+        };
+        Some(TripStatus { start, end })
+    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
@@ -428,6 +451,7 @@ struct Trip {
     finished_at: Option<Duration>,
     legs: VecDeque<TripLeg>,
     mode: TripMode,
+    start: Option<TripStart>,
 }
 
 impl Trip {
@@ -515,4 +539,22 @@ pub enum TripMode {
     Bike,
     Transit,
     Drive,
+}
+
+// TODO Argh no, not more of these variants!
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+pub enum TripStart {
+    Bldg(BuildingID),
+    Appearing(Position),
+}
+
+pub enum TripEnd {
+    Bldg(BuildingID),
+    Border(IntersectionID),
+}
+
+pub struct TripStatus {
+    pub start: TripStart,
+    pub end: TripEnd,
 }

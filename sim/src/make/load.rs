@@ -60,10 +60,8 @@ impl SimFlags {
         if self.load.starts_with(Path::new("../data/save/")) {
             timer.note(format!("Resuming from {}", self.load.display()));
 
-            timer.start("read sim savestate");
-            let sim: Sim =
-                abstutil::read_json(self.load.to_str().unwrap()).expect("loading sim state failed");
-            timer.stop("read sim savestate");
+            let sim: Sim = abstutil::read_binary(self.load.to_str().unwrap(), timer)
+                .expect("loading sim state failed");
 
             let mut map: Map =
                 abstutil::read_binary(&format!("../data/maps/{}.bin", sim.map_name), timer)
