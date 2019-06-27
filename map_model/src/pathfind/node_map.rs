@@ -1,36 +1,41 @@
-use bimap::btree::BiBTreeMap;
 use fast_paths::{NodeId, ShortestPath};
 use serde::{Deserialize, Deserializer, Serialize};
+use std::collections::BTreeMap;
 
 // TODO Upstream this in fast_paths when this is more solid.
 #[derive(Serialize)]
 pub struct NodeMap<T: Copy + Ord + Serialize> {
-    // BiBTreeMap will serialize deterministically, so use it instead of the BiHashMap.
-    // TODO Since NodeId is just a usize, maybe have Vec<T> and BTreeMap<T, NodeId> instead of a
-    // dependency on bimap.
-    nodes: BiBTreeMap<T, NodeId>,
+    #[serde(skip_serializing)]
+    node_to_id: BTreeMap<T, NodeId>,
+    id_to_node: Vec<T>,
 }
 
 impl<T: Copy + Ord + Serialize> NodeMap<T> {
     pub fn new() -> NodeMap<T> {
         NodeMap {
-            nodes: BiBTreeMap::new(),
+            node_to_id: BTreeMap::new(),
+            id_to_node: Vec::new(),
         }
     }
 
     pub fn get_or_insert(&mut self, node: T) -> NodeId {
-        let _ = self.nodes.insert_no_overwrite(node, self.nodes.len());
-        *self.nodes.get_by_left(&node).unwrap()
+        if let Some(id) = self.node_to_id.get(&node) {
+            return *id;
+        }
+        let id = self.id_to_node.len();
+        self.node_to_id.insert(node, id);
+        self.id_to_node.push(node);
+        id
     }
 
     pub fn get(&self, node: T) -> NodeId {
-        *self.nodes.get_by_left(&node).unwrap()
+        self.node_to_id[&node]
     }
 
     pub fn translate(&self, path: &ShortestPath) -> Vec<T> {
         path.get_nodes()
             .iter()
-            .map(|id| *self.nodes.get_by_right(id).unwrap())
+            .map(|id| self.id_to_node[*id])
             .collect()
     }
 }
@@ -43,6 +48,16 @@ pub fn deserialize_nodemap<
 >(
     d: D,
 ) -> Result<NodeMap<T>, D::Error> {
-    let nodes = <BiBTreeMap<T, NodeId>>::deserialize(d)?;
-    Ok(NodeMap { nodes })
+    // TODO I'm offline and can't look up hw to use Deserializer twice in sequence. Since the two
+    // fields are redundant, just serialize one of them.
+    let id_to_node = <Vec<T>>::deserialize(d)?;
+    let mut node_to_id = BTreeMap::new();
+    for (id, node) in id_to_node.iter().enumerate() {
+        node_to_id.insert(*node, id);
+    }
+
+    Ok(NodeMap {
+        node_to_id,
+        id_to_node,
+    })
 }
