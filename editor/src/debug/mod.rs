@@ -574,7 +574,7 @@ impl State for SearchOSM {
                     unzoomed: ctx.prerender.upload(batch),
                 };
 
-                Transition::PopWithData(Box::new(|state| {
+                Transition::PopWithData(Box::new(|state, _, _| {
                     state.downcast_mut::<DebugMode>().unwrap().search_results = Some(results);
                 }))
             }

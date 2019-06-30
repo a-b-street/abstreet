@@ -79,7 +79,7 @@ impl State for ScenarioEditor {
         {
             // TODO autosave, or at least make it clear there are unsaved edits
             let scenario = self.scenario.clone();
-            return Transition::PopWithData(Box::new(|state| {
+            return Transition::PopWithData(Box::new(|state, _, _| {
                 let mut manager = state.downcast_mut::<ScenarioManager>().unwrap();
                 manager.scroller =
                     LogScroller::new(scenario.scenario_name.clone(), scenario.describe());

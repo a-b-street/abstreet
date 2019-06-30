@@ -82,7 +82,7 @@ impl GUI for Game {
             }
             Transition::PopWithData(cb) => {
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
-                cb(self.states.last_mut().unwrap());
+                cb(self.states.last_mut().unwrap(), &mut self.ui, ctx);
                 if self.idx_draw_base == Some(self.states.len()) {
                     self.idx_draw_base = None;
                 }
@@ -193,7 +193,7 @@ pub enum Transition {
     Keep,
     Pop,
     // If a state needs to pass data back to the parent, use this. Sadly, runtime type casting.
-    PopWithData(Box<FnOnce(&mut Box<State>)>),
+    PopWithData(Box<FnOnce(&mut Box<State>, &mut UI, &mut EventCtx)>),
     Push(Box<State>),
     Replace(Box<State>),
 

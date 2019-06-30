@@ -16,9 +16,6 @@ pub struct TrafficSignalEditor {
     menu: ModalMenu,
     i: IntersectionID,
     current_cycle: usize,
-    // TODO Using stackable states seems to be more complexity than is worthwhile here.
-    cycle_duration_wizard: Option<Wizard>,
-    preset_wizard: Option<Wizard>,
     icon_selected: Option<TurnID>,
 }
 
@@ -56,8 +53,6 @@ impl TrafficSignalEditor {
             menu,
             i: id,
             current_cycle: 0,
-            cycle_duration_wizard: None,
-            preset_wizard: None,
             icon_selected: None,
         }
     }
@@ -81,42 +76,8 @@ impl State for TrafficSignalEditor {
         }
 
         let mut signal = ui.primary.map.get_traffic_signal(self.i).clone();
-        let mut changed = false;
 
-        if self.cycle_duration_wizard.is_some() {
-            if let Some(new_duration) = self
-                .cycle_duration_wizard
-                .as_mut()
-                .unwrap()
-                .wrap(ctx)
-                .input_usize_prefilled(
-                    "How long should this cycle be?",
-                    format!(
-                        "{}",
-                        signal.cycles[self.current_cycle].duration.inner_seconds() as usize
-                    ),
-                )
-            {
-                signal.cycles[self.current_cycle].duration = Duration::seconds(new_duration as f64);
-                changed = true;
-                self.cycle_duration_wizard = None;
-            } else if self.cycle_duration_wizard.as_ref().unwrap().aborted() {
-                self.cycle_duration_wizard = None;
-            }
-        } else if self.preset_wizard.is_some() {
-            if let Some(new_signal) = choose_preset(
-                &ui.primary.map,
-                self.i,
-                self.preset_wizard.as_mut().unwrap().wrap(ctx),
-            ) {
-                signal = new_signal;
-                changed = true;
-                self.current_cycle = 0;
-                self.preset_wizard = None;
-            } else if self.preset_wizard.as_ref().unwrap().aborted() {
-                self.preset_wizard = None;
-            }
-        } else if let Some(id) = self.icon_selected {
+        if let Some(id) = self.icon_selected {
             let cycle = &mut signal.cycles[self.current_cycle];
             // Just one key to toggle between the 3 states
             let next_priority = match cycle.get_priority(id) {
@@ -149,95 +110,92 @@ impl State for TrafficSignalEditor {
                     &format!("toggle from {:?} to {:?}", cycle.get_priority(id), pri),
                 ) {
                     cycle.edit_turn(ui.primary.map.get_t(id), pri);
-                    changed = true;
+                    change_traffic_signal(signal, self.i, ui, ctx);
+                    return Transition::Keep;
                 }
-            }
-        } else {
-            if self.menu.action("quit") {
-                return Transition::Pop;
-            }
-
-            if self.current_cycle != 0 && self.menu.action("select previous cycle") {
-                self.current_cycle -= 1;
-            }
-            if self.current_cycle != ui.primary.map.get_traffic_signal(self.i).cycles.len() - 1
-                && self.menu.action("select next cycle")
-            {
-                self.current_cycle += 1;
-            }
-
-            if self.menu.action("change cycle duration") {
-                self.cycle_duration_wizard = Some(Wizard::new());
-            } else if self.menu.action("choose a preset signal") {
-                self.preset_wizard = Some(Wizard::new());
-            } else if self.menu.action("reset to original") {
-                signal = ControlTrafficSignal::get_possible_policies(&ui.primary.map, self.i)
-                    .remove(0)
-                    .1;
-                changed = true;
-                self.current_cycle = 0;
-            }
-
-            let has_sidewalks = ui
-                .primary
-                .map
-                .get_turns_in_intersection(self.i)
-                .iter()
-                .any(|t| t.between_sidewalks());
-
-            if self.current_cycle != 0 && self.menu.action("move current cycle up") {
-                signal
-                    .cycles
-                    .swap(self.current_cycle, self.current_cycle - 1);
-                changed = true;
-                self.current_cycle -= 1;
-            } else if self.current_cycle != signal.cycles.len() - 1
-                && self.menu.action("move current cycle down")
-            {
-                signal
-                    .cycles
-                    .swap(self.current_cycle, self.current_cycle + 1);
-                changed = true;
-                self.current_cycle += 1;
-            } else if signal.cycles.len() > 1 && self.menu.action("delete current cycle") {
-                signal.cycles.remove(self.current_cycle);
-                changed = true;
-                if self.current_cycle == signal.cycles.len() {
-                    self.current_cycle -= 1;
-                }
-            } else if self.menu.action("add a new empty cycle") {
-                signal
-                    .cycles
-                    .insert(self.current_cycle, Cycle::new(self.i, signal.cycles.len()));
-                changed = true;
-            } else if has_sidewalks && self.menu.action("add a new pedestrian scramble cycle") {
-                let mut cycle = Cycle::new(self.i, signal.cycles.len());
-                for t in ui.primary.map.get_turns_in_intersection(self.i) {
-                    if t.between_sidewalks() {
-                        cycle.edit_turn(t, TurnPriority::Priority);
-                    }
-                }
-                signal.cycles.insert(self.current_cycle, cycle);
-                changed = true;
-            } else if has_sidewalks
-                && self
-                    .menu
-                    .action("convert to dedicated pedestrian scramble cycle")
-            {
-                convert_to_ped_scramble(&mut signal, self.i, &ui.primary.map);
-                changed = true;
             }
         }
 
-        if changed {
-            let orig = ControlTrafficSignal::new(&ui.primary.map, self.i, &mut Timer::throwaway());
-            let mut new_edits = ui.primary.map.get_edits().clone();
-            if orig == signal {
-                new_edits.traffic_signal_overrides.remove(&self.i);
-            } else {
-                new_edits.traffic_signal_overrides.insert(self.i, signal);
+        if self.menu.action("quit") {
+            return Transition::Pop;
+        }
+
+        if self.current_cycle != 0 && self.menu.action("select previous cycle") {
+            self.current_cycle -= 1;
+        }
+        if self.current_cycle != ui.primary.map.get_traffic_signal(self.i).cycles.len() - 1
+            && self.menu.action("select next cycle")
+        {
+            self.current_cycle += 1;
+        }
+
+        if self.menu.action("change cycle duration") {
+            return Transition::Push(Box::new(ChangeCycleDuration {
+                cycle: signal.cycles[self.current_cycle].clone(),
+                wizard: Wizard::new(),
+            }));
+        } else if self.menu.action("choose a preset signal") {
+            return Transition::Push(Box::new(ChangePreset {
+                i: self.i,
+                wizard: Wizard::new(),
+            }));
+        } else if self.menu.action("reset to original") {
+            signal = ControlTrafficSignal::get_possible_policies(&ui.primary.map, self.i)
+                .remove(0)
+                .1;
+            change_traffic_signal(signal, self.i, ui, ctx);
+            self.current_cycle = 0;
+            return Transition::Keep;
+        }
+
+        let has_sidewalks = ui
+            .primary
+            .map
+            .get_turns_in_intersection(self.i)
+            .iter()
+            .any(|t| t.between_sidewalks());
+
+        if self.current_cycle != 0 && self.menu.action("move current cycle up") {
+            signal
+                .cycles
+                .swap(self.current_cycle, self.current_cycle - 1);
+            change_traffic_signal(signal, self.i, ui, ctx);
+            self.current_cycle -= 1;
+        } else if self.current_cycle != signal.cycles.len() - 1
+            && self.menu.action("move current cycle down")
+        {
+            signal
+                .cycles
+                .swap(self.current_cycle, self.current_cycle + 1);
+            change_traffic_signal(signal, self.i, ui, ctx);
+            self.current_cycle += 1;
+        } else if signal.cycles.len() > 1 && self.menu.action("delete current cycle") {
+            signal.cycles.remove(self.current_cycle);
+            if self.current_cycle == signal.cycles.len() {
+                self.current_cycle -= 1;
             }
-            apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
+            change_traffic_signal(signal, self.i, ui, ctx);
+        } else if self.menu.action("add a new empty cycle") {
+            signal
+                .cycles
+                .insert(self.current_cycle, Cycle::new(self.i, signal.cycles.len()));
+            change_traffic_signal(signal, self.i, ui, ctx);
+        } else if has_sidewalks && self.menu.action("add a new pedestrian scramble cycle") {
+            let mut cycle = Cycle::new(self.i, signal.cycles.len());
+            for t in ui.primary.map.get_turns_in_intersection(self.i) {
+                if t.between_sidewalks() {
+                    cycle.edit_turn(t, TurnPriority::Priority);
+                }
+            }
+            signal.cycles.insert(self.current_cycle, cycle);
+            change_traffic_signal(signal, self.i, ui, ctx);
+        } else if has_sidewalks
+            && self
+                .menu
+                .action("convert to dedicated pedestrian scramble cycle")
+        {
+            convert_to_ped_scramble(&mut signal, self.i, &ui.primary.map);
+            change_traffic_signal(signal, self.i, ui, ctx);
         }
 
         Transition::Keep
@@ -284,12 +242,6 @@ impl State for TrafficSignalEditor {
         batch.draw(g);
 
         draw_signal_diagram(self.i, self.current_cycle, None, g, &ctx);
-
-        if let Some(ref wizard) = self.cycle_duration_wizard {
-            wizard.draw(g);
-        } else if let Some(ref wizard) = self.preset_wizard {
-            wizard.draw(g);
-        }
 
         self.menu.draw(g);
         if let Some(t) = self.icon_selected {
@@ -352,4 +304,75 @@ fn convert_to_ped_scramble(signal: &mut ControlTrafficSignal, i: IntersectionID,
         }
     }
     signal.cycles.push(cycle);
+}
+
+fn change_traffic_signal(
+    signal: ControlTrafficSignal,
+    i: IntersectionID,
+    ui: &mut UI,
+    ctx: &mut EventCtx,
+) {
+    let orig = ControlTrafficSignal::new(&ui.primary.map, i, &mut Timer::throwaway());
+    let mut new_edits = ui.primary.map.get_edits().clone();
+    if orig == signal {
+        new_edits.traffic_signal_overrides.remove(&i);
+    } else {
+        new_edits.traffic_signal_overrides.insert(i, signal);
+    }
+    apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
+}
+
+struct ChangeCycleDuration {
+    cycle: Cycle,
+    wizard: Wizard,
+}
+
+impl State for ChangeCycleDuration {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
+        if let Some(new_duration) = self.wizard.wrap(ctx).input_usize_prefilled(
+            "How long should this cycle be?",
+            format!("{}", self.cycle.duration.inner_seconds() as usize),
+        ) {
+            return Transition::PopWithData(Box::new(move |state, ui, ctx| {
+                let editor = state.downcast_ref::<TrafficSignalEditor>().unwrap();
+                let mut signal = ui.primary.map.get_traffic_signal(editor.i).clone();
+                signal.cycles[editor.current_cycle].duration =
+                    Duration::seconds(new_duration as f64);
+                change_traffic_signal(signal, editor.i, ui, ctx);
+            }));
+        }
+        if self.wizard.aborted() {
+            return Transition::Pop;
+        }
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        self.wizard.draw(g);
+    }
+}
+
+struct ChangePreset {
+    i: IntersectionID,
+    wizard: Wizard,
+}
+
+impl State for ChangePreset {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+        if let Some(new_signal) = choose_preset(&ui.primary.map, self.i, self.wizard.wrap(ctx)) {
+            return Transition::PopWithData(Box::new(move |state, ui, ctx| {
+                let mut editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
+                editor.current_cycle = 0;
+                change_traffic_signal(new_signal, editor.i, ui, ctx);
+            }));
+        }
+        if self.wizard.aborted() {
+            return Transition::Pop;
+        }
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        self.wizard.draw(g);
+    }
 }

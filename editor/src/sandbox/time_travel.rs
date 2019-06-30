@@ -103,7 +103,7 @@ impl State for TimeTraveler {
 
         if self.slider.action("quit") {
             let moments = self.slider.consume_all_items();
-            return Transition::PopWithData(Box::new(|state| {
+            return Transition::PopWithData(Box::new(|state, _, _| {
                 let mut sandbox = state.downcast_mut::<SandboxMode>().unwrap();
                 sandbox.time_travel.moments = moments;
             }));
