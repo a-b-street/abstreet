@@ -125,6 +125,9 @@ impl GUI for Game {
 
         if let Some(idx) = self.idx_draw_base {
             self.states[idx].draw(g, &self.ui);
+            if idx != self.states.len() - 1 {
+                state.draw(g, &self.ui);
+            }
         } else if state.draw_default_ui() {
             self.ui.draw(
                 g,
@@ -132,8 +135,10 @@ impl GUI for Game {
                 &self.ui.primary.sim,
                 &ShowEverything::new(),
             );
+            state.draw(g, &self.ui);
+        } else {
+            state.draw(g, &self.ui);
         }
-        state.draw(g, &self.ui);
 
         /*println!(
             "{} uploads, {} draw calls",
