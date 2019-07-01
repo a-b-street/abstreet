@@ -20,11 +20,8 @@ impl AgentTools {
         if let Some(trip) = self.following {
             txt.add_line(format!("Following {}", trip));
         }
-        match self.route_viewer {
-            RouteViewer::Active(_, trip, _) => {
-                txt.add_line(format!("Showing {}'s route", trip));
-            }
-            _ => {}
+        if let RouteViewer::Active(_, trip, _) = self.route_viewer {
+            txt.add_line(format!("Showing {}'s route", trip));
         }
     }
 

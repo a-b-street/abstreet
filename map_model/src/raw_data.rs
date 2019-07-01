@@ -174,10 +174,45 @@ pub struct Area {
 }
 
 // A way to refer to roads across many maps.
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq)]
 pub struct OriginalRoad {
     pub pt1: LonLat,
     pub pt2: LonLat,
+}
+
+// Since we don't do arithmetic on the original LonLat's, it's reasonably safe to declare these Eq
+// and Ord.
+impl PartialOrd for OriginalRoad {
+    fn partial_cmp(&self, other: &OriginalRoad) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+impl Eq for OriginalRoad {}
+impl Ord for OriginalRoad {
+    fn cmp(&self, other: &OriginalRoad) -> std::cmp::Ordering {
+        // We know all the f64's are finite. then_with() produces ugly nesting, so manually do it.
+        let ord = self
+            .pt1
+            .longitude
+            .partial_cmp(&other.pt1.longitude)
+            .unwrap();
+        if ord != std::cmp::Ordering::Equal {
+            return ord;
+        }
+        let ord = self.pt1.latitude.partial_cmp(&other.pt1.latitude).unwrap();
+        if ord != std::cmp::Ordering::Equal {
+            return ord;
+        }
+        let ord = self
+            .pt2
+            .longitude
+            .partial_cmp(&other.pt2.longitude)
+            .unwrap();
+        if ord != std::cmp::Ordering::Equal {
+            return ord;
+        }
+        self.pt2.latitude.partial_cmp(&other.pt2.latitude).unwrap()
+    }
 }
 
 // A way to refer to intersections across many maps.

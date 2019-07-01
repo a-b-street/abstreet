@@ -90,7 +90,11 @@ impl GUI for UI {
                 {
                     let len = self.hints.hints.len();
                     let mut txt = Text::prompt("Fix Map Geometry");
-                    txt.push(format!("[cyan:{}] hints", len));
+                    txt.push(format!(
+                        "[cyan:{}] hints, [cyan:{}] parking overrides",
+                        len,
+                        self.hints.parking_overrides.len()
+                    ));
                     for i in (1..=5).rev() {
                         if len >= i {
                             txt.add_line(describe(&self.hints.hints[len - i]));
@@ -104,6 +108,11 @@ impl GUI for UI {
                             r,
                             self.data.roads[&r].trimmed_center_pts.length()
                         ));
+                        if self.data.roads[&r].has_parking() {
+                            txt.push("Has parking".to_string());
+                        } else {
+                            txt.push("No parking".to_string());
+                        }
                         for (k, v) in &self.raw.roads[&r].osm_tags {
                             txt.push(format!("[cyan:{}] = [red:{}]", k, v));
                         }
@@ -220,6 +229,17 @@ impl GUI for UI {
                         self.data.delete_road(*r, &mut Timer::new("delete road"));
                         self.world = initial_map_to_world(&self.data, ctx);
                         *selected = None;
+                    } else if ctx.input.key_pressed(Key::P, "toggle parking") {
+                        let has_parking = !self.data.roads[&r].has_parking();
+                        self.hints
+                            .parking_overrides
+                            .insert(self.raw.roads[r].orig_id(), has_parking);
+                        self.data.override_parking(
+                            *r,
+                            has_parking,
+                            &mut Timer::new("override parking"),
+                        );
+                        self.world = initial_map_to_world(&self.data, ctx);
                     }
                 }
                 if let Some(ID::Intersection(i)) = selected {
@@ -341,6 +361,8 @@ fn initial_map_to_world(data: &InitialMap, ctx: &mut EventCtx) -> World<ID> {
             .make_polygons(r.fwd_width + r.back_width),
             if r.trimmed_center_pts.length() < MIN_ROAD_LENGTH {
                 Color::CYAN
+            } else if r.has_parking() {
+                Color::grey(0.5)
             } else {
                 Color::grey(0.8)
             },

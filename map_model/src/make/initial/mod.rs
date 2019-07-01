@@ -5,7 +5,7 @@ mod merge;
 
 use crate::raw_data::{StableIntersectionID, StableRoadID};
 use crate::{raw_data, IntersectionType, LANE_THICKNESS};
-use abstutil::Timer;
+use abstutil::{deserialize_btreemap, serialize_btreemap, Timer};
 use geom::{Bounds, Distance, GPSBounds, PolyLine, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -27,8 +27,11 @@ pub struct Road {
     pub fwd_width: Distance,
     pub back_width: Distance,
     pub lane_specs: Vec<lane_specs::LaneSpec>,
-    // Copied here from the raw layer, because merge_degenerate_intersection needs to modify them.
+    // Copied here from the raw layer, because merge_degenerate_intersection and other fix_map_geom
+    // tools need to modify them.
     pub osm_tags: BTreeMap<String, String>,
+    pub parking_lane_fwd: bool,
+    pub parking_lane_back: bool,
 }
 
 impl Road {
@@ -39,6 +42,28 @@ impl Road {
             self.original_center_pts.last_pt()
         } else {
             panic!("{} doesn't end at {}", self.id, i);
+        }
+    }
+
+    pub fn has_parking(&self) -> bool {
+        self.parking_lane_fwd || self.parking_lane_back
+    }
+
+    pub fn reset_pts_on_side(&mut self, i: StableIntersectionID) {
+        if self.dst_i == i {
+            if let Some(append) = self
+                .original_center_pts
+                .get_slice_starting_at(self.trimmed_center_pts.last_pt())
+            {
+                self.trimmed_center_pts = self.trimmed_center_pts.clone().extend(append);
+            }
+        } else {
+            if let Some(prepend) = self
+                .original_center_pts
+                .get_slice_ending_at(self.trimmed_center_pts.first_pt())
+            {
+                self.trimmed_center_pts = prepend.extend(self.trimmed_center_pts.clone());
+            }
         }
     }
 }
@@ -98,7 +123,12 @@ impl InitialMap {
 
             let original_center_pts = PolyLine::new(gps_bounds.must_convert(&r.points));
 
-            let lane_specs = lane_specs::get_lane_specs(r, *stable_id);
+            let lane_specs = lane_specs::get_lane_specs(
+                &r.osm_tags,
+                r.parking_lane_fwd,
+                r.parking_lane_back,
+                *stable_id,
+            );
             let mut fwd_width = Distance::ZERO;
             let mut back_width = Distance::ZERO;
             for l in &lane_specs {
@@ -133,6 +163,8 @@ impl InitialMap {
                     back_width,
                     lane_specs,
                     osm_tags: r.osm_tags.clone(),
+                    parking_lane_fwd: r.parking_lane_fwd,
+                    parking_lane_back: r.parking_lane_back,
                 },
             );
         }
@@ -248,6 +280,48 @@ impl InitialMap {
         }
     }
 
+    pub fn override_parking(&mut self, r: StableRoadID, has_parking: bool, timer: &mut Timer) {
+        let (src_i, dst_i) = {
+            let mut road = self.roads.get_mut(&r).unwrap();
+            road.parking_lane_fwd = has_parking;
+            road.parking_lane_back = has_parking;
+
+            let lane_specs =
+                lane_specs::get_lane_specs(&road.osm_tags, has_parking, has_parking, r);
+            let mut fwd_width = Distance::ZERO;
+            let mut back_width = Distance::ZERO;
+            for l in &lane_specs {
+                if l.reverse_pts {
+                    back_width += LANE_THICKNESS;
+                } else {
+                    fwd_width += LANE_THICKNESS;
+                }
+            }
+            road.lane_specs = lane_specs;
+            road.fwd_width = fwd_width;
+            road.back_width = back_width;
+
+            (road.src_i, road.dst_i)
+        };
+
+        // Reset to original_center_pts (on one side) for all roads connected to both
+        // intersections.
+        for i in &[src_i, dst_i] {
+            for r in &self.intersections[i].roads {
+                self.roads.get_mut(r).unwrap().reset_pts_on_side(*i);
+            }
+        }
+
+        {
+            let mut i = self.intersections.get_mut(&src_i).unwrap();
+            i.polygon = geometry::intersection_polygon(i, &mut self.roads, timer);
+        }
+        {
+            let mut i = self.intersections.get_mut(&dst_i).unwrap();
+            i.polygon = geometry::intersection_polygon(i, &mut self.roads, timer);
+        }
+    }
+
     pub fn apply_hints(&mut self, hints: &Hints, raw: &raw_data::Map, timer: &mut Timer) {
         timer.start_iter("apply hints", hints.hints.len());
         let mut cnt = 0;
@@ -275,12 +349,33 @@ impl InitialMap {
             }
         }
         timer.note(format!("Applied {} of {} hints", cnt, hints.hints.len()));
+
+        timer.start_iter("apply parking overrides", hints.parking_overrides.len());
+        cnt = 0;
+        for (orig, has_parking) in &hints.parking_overrides {
+            timer.next();
+            if let Some(id) = raw.find_r(*orig) {
+                cnt += 1;
+                self.override_parking(id, *has_parking, timer);
+            }
+        }
+        timer.note(format!(
+            "Applied {} of {} parking overrides",
+            cnt,
+            hints.parking_overrides.len()
+        ));
     }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Hints {
     pub hints: Vec<Hint>,
+    // Doesn't specify direction yet; all or nothing
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
+    pub parking_overrides: BTreeMap<raw_data::OriginalRoad, bool>,
 }
 
 impl Hints {
@@ -288,7 +383,10 @@ impl Hints {
         if let Ok(h) = abstutil::read_json::<Hints>("../data/hints.json") {
             h
         } else {
-            Hints { hints: Vec::new() }
+            Hints {
+                hints: Vec::new(),
+                parking_overrides: BTreeMap::new(),
+            }
         }
     }
 }

@@ -38,7 +38,7 @@ impl InactiveTimeTravel {
         // Temporarily move our state into the new one.
         let items = std::mem::replace(&mut self.moments, Vec::new());
 
-        return Transition::Push(Box::new(TimeTraveler {
+        Transition::Push(Box::new(TimeTraveler {
             slider: ItemSlider::new(
                 items,
                 "Time Traveler",
@@ -46,7 +46,7 @@ impl InactiveTimeTravel {
                 vec![vec![(hotkey(Key::Escape), "quit")]],
                 ctx,
             ),
-        }));
+        }))
     }
 
     // TODO Now that we take big jumps forward in the source sim, the time traveler sees the same

@@ -67,7 +67,7 @@ pub fn make_half_map(
     for r in initial_map.roads.values() {
         timer.next();
 
-        let raw_r = &data.roads[&r.id];
+        let osm_way_id = data.roads[&r.id].osm_way_id;
         let road_id = road_id_mapping[&r.id];
         let i1 = intersection_id_mapping[&r.src_i];
         let i2 = intersection_id_mapping[&r.dst_i];
@@ -75,7 +75,7 @@ pub fn make_half_map(
         let mut road = Road {
             id: road_id,
             osm_tags: r.osm_tags.clone(),
-            osm_way_id: raw_r.osm_way_id,
+            osm_way_id,
             stable_id: r.id,
             children_forwards: Vec::new(),
             children_backwards: Vec::new(),
@@ -83,8 +83,8 @@ pub fn make_half_map(
             original_center_pts: r.original_center_pts.clone(),
             src_i: i1,
             dst_i: i2,
-            parking_lane_fwd: raw_r.parking_lane_fwd,
-            parking_lane_back: raw_r.parking_lane_back,
+            parking_lane_fwd: r.parking_lane_fwd,
+            parking_lane_back: r.parking_lane_back,
         };
 
         for lane in &r.lane_specs {

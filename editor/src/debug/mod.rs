@@ -135,11 +135,8 @@ impl State for DebugMode {
         if self.neighborhood_summary.active {
             txt.add_line("Showing neighborhood summaries".to_string());
         }
-        match self.all_routes {
-            routes::AllRoutesViewer::Active(_, ref traces) => {
-                txt.add_line(format!("Showing {} routes", traces.len()));
-            }
-            _ => {}
+        if let routes::AllRoutesViewer::Active(_, ref traces) = self.all_routes {
+            txt.add_line(format!("Showing {} routes", traces.len()));
         }
         self.menu.handle_event(ctx, Some(txt));
 

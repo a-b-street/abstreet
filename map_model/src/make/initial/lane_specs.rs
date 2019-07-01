@@ -115,9 +115,13 @@ pub struct LaneSpec {
     pub reverse_pts: bool,
 }
 
-pub fn get_lane_specs(r: &raw_data::Road, id: raw_data::StableRoadID) -> Vec<LaneSpec> {
-    let (side1_types, side2_types) =
-        get_lane_types(&r.osm_tags, r.parking_lane_fwd, r.parking_lane_back);
+pub fn get_lane_specs(
+    osm_tags: &BTreeMap<String, String>,
+    parking_lane_fwd: bool,
+    parking_lane_back: bool,
+    id: raw_data::StableRoadID,
+) -> Vec<LaneSpec> {
+    let (side1_types, side2_types) = get_lane_types(osm_tags, parking_lane_fwd, parking_lane_back);
 
     let mut specs: Vec<LaneSpec> = Vec::new();
     for lane_type in side1_types {
@@ -133,7 +137,10 @@ pub fn get_lane_specs(r: &raw_data::Road, id: raw_data::StableRoadID) -> Vec<Lan
         });
     }
     if specs.is_empty() {
-        panic!("{} wound up with no lanes! {:?}", id, r);
+        panic!(
+            "Road with tags {:?} wound up with no lanes! {:?}",
+            id, osm_tags
+        );
     }
     specs
 }

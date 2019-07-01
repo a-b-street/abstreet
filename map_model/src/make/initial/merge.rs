@@ -111,23 +111,7 @@ pub fn merge(
     // the polygon. Note we can't just copy over the original points -- that'd clobber the other
     // side, requiring us to recalculate that polygon too.
     for id in &map.intersections[&keep_i].roads {
-        let r = map.roads.get_mut(id).unwrap();
-        // Safe to do 'else' here, because we removed the loop roads.
-        if r.dst_i == keep_i {
-            if let Some(append) = r
-                .original_center_pts
-                .get_slice_starting_at(r.trimmed_center_pts.last_pt())
-            {
-                r.trimmed_center_pts = r.trimmed_center_pts.clone().extend(append);
-            }
-        } else {
-            if let Some(prepend) = r
-                .original_center_pts
-                .get_slice_ending_at(r.trimmed_center_pts.first_pt())
-            {
-                r.trimmed_center_pts = prepend.extend(r.trimmed_center_pts.clone());
-            }
-        }
+        map.roads.get_mut(id).unwrap().reset_pts_on_side(keep_i);
     }
 
     let mut i = map.intersections.get_mut(&keep_i).unwrap();
