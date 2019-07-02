@@ -158,11 +158,11 @@ impl Map {
             m.bus_routes = make::verify_bus_routes(&m, routes, timer);
         }
 
-        timer.start("setup rest of Pathfinder");
+        timer.start("setup rest of Pathfinder (walking with transit)");
         let mut pathfinder = m.pathfinder.take().unwrap();
         pathfinder.setup_walking_with_transit(&m);
         m.pathfinder = Some(pathfinder);
-        timer.stop("setup rest of Pathfinder");
+        timer.stop("setup rest of Pathfinder (walking with transit)");
 
         timer.stop("finalize Map");
         m

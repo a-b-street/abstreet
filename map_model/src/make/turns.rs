@@ -5,7 +5,7 @@ use crate::{
 use abstutil::{Timer, Warn};
 use geom::{Distance, Line, PolyLine, Pt2D};
 use nbez::{Bez3o, BezCurve, Point2d};
-use std::collections::{BTreeSet, HashSet};
+use std::collections::{BTreeSet, HashMap, HashSet};
 
 // TODO Add proper warnings when the geometry is too small to handle.
 
@@ -17,10 +17,23 @@ pub fn make_all_turns(
 ) -> Vec<Turn> {
     assert!(i.intersection_type != IntersectionType::Border);
 
-    let mut turns: Vec<Turn> = Vec::new();
-    turns.extend(make_vehicle_turns(i, roads, lanes, timer));
-    turns.extend(make_walking_turns(i, roads, lanes, timer));
-    let turns = ensure_unique(turns);
+    let mut raw_turns: Vec<Turn> = Vec::new();
+    raw_turns.extend(make_vehicle_turns(i, roads, lanes, timer));
+    raw_turns.extend(make_walking_turns(i, roads, lanes, timer));
+    let unique_turns = ensure_unique(raw_turns);
+
+    let mut final_turns: Vec<Turn> = Vec::new();
+    let mut filtered_turns: HashMap<LaneID, Vec<Turn>> = HashMap::new();
+    for turn in unique_turns {
+        if is_turn_allowed(&turn, roads, lanes) {
+            final_turns.push(turn);
+        } else {
+            filtered_turns
+                .entry(turn.id.src)
+                .or_insert_with(Vec::new)
+                .push(turn);
+        }
+    }
 
     // Make sure every incoming lane has a turn originating from it, and every outgoing lane has a
     // turn leading to it. Except for parking lanes, of course.
@@ -30,16 +43,31 @@ pub fn make_all_turns(
             incoming_missing.insert(*l);
         }
     }
+    for t in &final_turns {
+        incoming_missing.remove(&t.id.src);
+    }
+    // Turn restrictions are buggy. If they orphan a lane, restore the filtered turns.
+    for (l, turns) in filtered_turns {
+        if incoming_missing.contains(&l) {
+            timer.warn(format!(
+                "Turn restrictions broke {} outbound, so restoring turns",
+                l
+            ));
+            final_turns.extend(turns);
+            incoming_missing.remove(&l);
+        }
+    }
+
     let mut outgoing_missing: HashSet<LaneID> = HashSet::new();
     for l in &i.outgoing_lanes {
         if lanes[l.0].lane_type != LaneType::Parking {
             outgoing_missing.insert(*l);
         }
     }
-    for t in &turns {
-        incoming_missing.remove(&t.id.src);
+    for t in &final_turns {
         outgoing_missing.remove(&t.id.dst);
     }
+
     if !incoming_missing.is_empty() || !outgoing_missing.is_empty() {
         timer.warn(format!(
             "Turns for {} orphan some lanes. Incoming: {:?}, outgoing: {:?}",
@@ -47,7 +75,7 @@ pub fn make_all_turns(
         ));
     }
 
-    turns
+    final_turns
 }
 
 fn ensure_unique(turns: Vec<Turn>) -> Vec<Turn> {
@@ -458,4 +486,14 @@ fn to_pt(pt: Pt2D) -> Point2d<f64> {
 
 fn from_pt(pt: Point2d<f64>) -> Pt2D {
     Pt2D::new(pt.x, pt.y)
+}
+
+fn is_turn_allowed(turn: &Turn, roads: &Vec<Road>, lanes: &Vec<Lane>) -> bool {
+    let l = &lanes[turn.id.src.0];
+    let r = &roads[l.parent.0];
+    if let Some(types) = l.get_turn_restrictions(r) {
+        types.contains(&turn.turn_type)
+    } else {
+        true
+    }
 }

@@ -8,7 +8,6 @@ use std::collections::BTreeMap;
 use std::fmt;
 
 // Stable IDs don't get compacted as we merge and delete things.
-//#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 #[derive(PartialEq, Eq, Debug, Serialize, Deserialize, PartialOrd, Ord, Clone, Copy, Hash)]
 pub struct StableRoadID(pub usize);
 impl fmt::Display for StableRoadID {

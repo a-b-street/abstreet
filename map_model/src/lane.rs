@@ -174,11 +174,14 @@ impl Lane {
         } else {
             return None;
         };
-        let parts: Vec<&str> = all.split("|").collect();
+        let parts: Vec<&str> = all.split('|').collect();
         // TODO Verify the number of lanes matches up
+        let part = parts.get(offset)?;
+        if part == &"none" {
+            return None;
+        }
         Some(
-            parts[offset]
-                .split(";")
+            part.split(';')
                 .flat_map(|s| match s {
                     "left" => vec![TurnType::Left],
                     "right" => vec![TurnType::Right],
@@ -188,6 +191,15 @@ impl Lane {
                         TurnType::LaneChangeLeft,
                         TurnType::LaneChangeRight,
                     ],
+                    // TODO Check this more carefully
+                    "slight_right" | "slight right" | "merge_to_right" => vec![
+                        TurnType::Straight,
+                        TurnType::LaneChangeRight,
+                        TurnType::Right,
+                    ],
+                    "slight_left" | "slight left" | "merge_to_left" => {
+                        vec![TurnType::Straight, TurnType::LaneChangeLeft, TurnType::Left]
+                    }
                     _ => panic!("What's turn restriction {}?", s),
                 })
                 .collect(),
