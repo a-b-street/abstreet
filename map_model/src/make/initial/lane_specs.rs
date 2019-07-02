@@ -1,16 +1,16 @@
-use crate::{raw_data, LaneType};
+use crate::LaneType;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::iter;
 
 // (original direction, reversed direction)
 pub fn get_lane_types(
-    tags: &BTreeMap<String, String>,
+    osm_tags: &BTreeMap<String, String>,
     parking_lane_fwd: bool,
     parking_lane_back: bool,
 ) -> (Vec<LaneType>, Vec<LaneType>) {
     // The raw_data might come from the synthetic map editor.
-    if let Some(s) = tags.get("synthetic_lanes") {
+    if let Some(s) = osm_tags.get("synthetic_lanes") {
         if let Some(spec) = RoadSpec::parse(s.to_string()) {
             return (spec.fwd, spec.back);
         } else {
@@ -19,130 +19,120 @@ pub fn get_lane_types(
     }
 
     // Easy special cases first.
-    if tags.get("junction") == Some(&"roundabout".to_string()) {
+    if osm_tags.get("junction") == Some(&"roundabout".to_string()) {
         return (vec![LaneType::Driving, LaneType::Sidewalk], Vec::new());
     }
-    if tags.get("highway") == Some(&"footway".to_string()) {
+    if osm_tags.get("highway") == Some(&"footway".to_string()) {
         return (vec![LaneType::Sidewalk], Vec::new());
     }
 
     // TODO Reversible roads should be handled differently?
-    let oneway = tags.get("oneway") == Some(&"yes".to_string())
-        || tags.get("oneway") == Some(&"reversible".to_string());
-    let num_driving_lanes_per_side =
-        if let Some(n) = tags.get("lanes").and_then(|num| num.parse::<usize>().ok()) {
-            if oneway {
-                // TODO OSM way 124940792 is I5 express lane, should it be considered oneway?
-                n
-            } else {
-                // TODO How to distribute odd number of lanes?
-                (n / 2).max(1)
-            }
+    let oneway = osm_tags.get("oneway") == Some(&"yes".to_string())
+        || osm_tags.get("oneway") == Some(&"reversible".to_string());
+
+    // How many driving lanes in each direction?
+    let num_driving_fwd = if let Some(n) = osm_tags
+        .get("lanes:forward")
+        .and_then(|num| num.parse::<usize>().ok())
+    {
+        n
+    } else if let Some(n) = osm_tags
+        .get("lanes")
+        .and_then(|num| num.parse::<usize>().ok())
+    {
+        if oneway {
+            n
+        } else if n % 2 == 0 {
+            n / 2
         } else {
-            // TODO Does https://wiki.openstreetmap.org/wiki/Key:lanes#Assumptions help?
+            // TODO Really, this is ambiguous, but...
+            (n / 2).max(1)
+        }
+    } else {
+        // TODO Grrr.
+        1
+    };
+    let num_driving_back = if let Some(n) = osm_tags
+        .get("lanes:backward")
+        .and_then(|num| num.parse::<usize>().ok())
+    {
+        n
+    } else if let Some(n) = osm_tags
+        .get("lanes")
+        .and_then(|num| num.parse::<usize>().ok())
+    {
+        if oneway {
+            0
+        } else if n % 2 == 0 {
+            n / 2
+        } else {
+            // TODO Really, this is ambiguous, but...
+            (n / 2).max(1)
+        }
+    } else {
+        // TODO Grrr.
+        if oneway {
+            0
+        } else {
             1
-        };
-    let mut driving_lanes_per_side: Vec<LaneType> = iter::repeat(LaneType::Driving)
-        .take(num_driving_lanes_per_side)
+        }
+    };
+
+    let mut fwd_side: Vec<LaneType> = iter::repeat(LaneType::Driving)
+        .take(num_driving_fwd)
         .collect();
-    // TODO Don't even bother trying to parse this yet.
-    let has_bus_lane = tags.contains_key("bus:lanes");
-    // TODO This is circumstantial at best. :)
-    if has_bus_lane && driving_lanes_per_side.len() > 1 {
-        driving_lanes_per_side.pop();
-    }
+    let mut back_side: Vec<LaneType> = iter::repeat(LaneType::Driving)
+        .take(num_driving_back)
+        .collect();
 
-    let has_bike_lane = tags.get("cycleway") == Some(&"lane".to_string());
-    let has_sidewalk = tags.get("highway") != Some(&"motorway".to_string())
-        && tags.get("highway") != Some(&"motorway_link".to_string());
-    // TODO Bus/bike and parking lanes can coexist, but then we have to make sure cars are fine
-    // with merging in/out of the bus/bike lane to park. ><
-    //let has_parking = has_sidewalk && !has_bus_lane && !has_bike_lane;
-
-    let mut fwd_side = driving_lanes_per_side.clone();
+    // TODO Handle bus lanes properly.
+    let has_bus_lane = osm_tags.contains_key("bus:lanes");
     if has_bus_lane {
+        fwd_side.pop();
         fwd_side.push(LaneType::Bus);
+        if !back_side.is_empty() {
+            back_side.pop();
+            back_side.push(LaneType::Bus);
+        }
     }
+
+    let has_bike_lane = osm_tags.get("cycleway") == Some(&"lane".to_string());
     if has_bike_lane {
         fwd_side.push(LaneType::Biking);
+        if !back_side.is_empty() {
+            back_side.push(LaneType::Biking);
+        }
     }
+
     // TODO Should we warn when a link road has parking assigned to it from the blockface?
-    let is_link = match tags.get("highway") {
+    let is_link = match osm_tags.get("highway") {
         Some(hwy) => hwy.ends_with("_link"),
         None => false,
     };
     if parking_lane_fwd && !is_link {
         fwd_side.push(LaneType::Parking);
     }
+    if parking_lane_back && !is_link && !back_side.is_empty() {
+        back_side.push(LaneType::Parking);
+    }
+
+    let has_sidewalk = osm_tags.get("highway") != Some(&"motorway".to_string())
+        && osm_tags.get("highway") != Some(&"motorway_link".to_string());
     if has_sidewalk {
         fwd_side.push(LaneType::Sidewalk);
-    }
-
-    if oneway {
-        // Only residential streets have a sidewalk on the other side of a one-way.
-        // Ignore off-side parking, since cars don't know how to park on lanes without a driving
-        // lane in that direction too.
-        let back_side = if has_sidewalk
-            && (tags.get("highway") == Some(&"residential".to_string())
-                || tags.get("sidewalk") == Some(&"both".to_string()))
-        {
-            vec![LaneType::Sidewalk]
+        if oneway {
+            // Only residential streets have a sidewalk on the other side of a one-way.
+            if osm_tags.get("highway") == Some(&"residential".to_string())
+                || osm_tags.get("sidewalk") == Some(&"both".to_string())
+            {
+                back_side.push(LaneType::Sidewalk);
+            }
         } else {
-            Vec::new()
-        };
-        (fwd_side, back_side)
-    } else {
-        let mut back_side = driving_lanes_per_side;
-        if has_bus_lane {
-            back_side.push(LaneType::Bus);
-        }
-        if has_bike_lane {
-            back_side.push(LaneType::Biking);
-        }
-        if parking_lane_back && !is_link {
-            back_side.push(LaneType::Parking);
-        }
-        if has_sidewalk {
             back_side.push(LaneType::Sidewalk);
         }
-        (fwd_side, back_side)
     }
-}
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub struct LaneSpec {
-    pub lane_type: LaneType,
-    pub reverse_pts: bool,
-}
-
-pub fn get_lane_specs(
-    osm_tags: &BTreeMap<String, String>,
-    parking_lane_fwd: bool,
-    parking_lane_back: bool,
-    id: raw_data::StableRoadID,
-) -> Vec<LaneSpec> {
-    let (side1_types, side2_types) = get_lane_types(osm_tags, parking_lane_fwd, parking_lane_back);
-
-    let mut specs: Vec<LaneSpec> = Vec::new();
-    for lane_type in side1_types {
-        specs.push(LaneSpec {
-            lane_type,
-            reverse_pts: false,
-        });
-    }
-    for lane_type in side2_types {
-        specs.push(LaneSpec {
-            lane_type,
-            reverse_pts: true,
-        });
-    }
-    if specs.is_empty() {
-        panic!(
-            "Road with tags {:?} wound up with no lanes! {:?}",
-            id, osm_tags
-        );
-    }
-    specs
+    (fwd_side, back_side)
 }
 
 // This is a convenient way for the synthetic map editor to plumb instructions here.

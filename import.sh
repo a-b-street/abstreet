@@ -2,6 +2,11 @@
 
 set -e
 
+only_map=""
+for arg in "$@"; do
+	only_map=$arg;
+done
+
 # First prepare input.
 
 function get_if_needed {
@@ -84,6 +89,10 @@ fi
 cd convert_osm
 for poly in `ls ../data/polygons/`; do
 	name=`basename -s .poly $poly`;
+	if [ "$only_map" != "" ] && [ "$only_map" != "$name" ]; then
+		continue;
+	fi
+
 	rm -rf ../data/neighborhoods/$name ../data/maps/${name}.bin;
 	RUST_BACKTRACE=1 cargo run --release -- \
 		--osm=../data/input/$name.osm \

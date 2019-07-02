@@ -4,7 +4,7 @@ pub mod lane_specs;
 mod merge;
 
 use crate::raw_data::{StableIntersectionID, StableRoadID};
-use crate::{raw_data, IntersectionType, LANE_THICKNESS};
+use crate::{raw_data, IntersectionType, LaneType, LANE_THICKNESS};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Timer};
 use geom::{Bounds, Distance, GPSBounds, PolyLine, Pt2D};
 use serde_derive::{Deserialize, Serialize};
@@ -26,7 +26,7 @@ pub struct Road {
     pub trimmed_center_pts: PolyLine,
     pub fwd_width: Distance,
     pub back_width: Distance,
-    pub lane_specs: Vec<lane_specs::LaneSpec>,
+    pub lane_specs: Vec<LaneSpec>,
     // Copied here from the raw layer, because merge_degenerate_intersection and other fix_map_geom
     // tools need to modify them.
     pub osm_tags: BTreeMap<String, String>,
@@ -123,7 +123,7 @@ impl InitialMap {
 
             let original_center_pts = PolyLine::new(gps_bounds.must_convert(&r.points));
 
-            let lane_specs = lane_specs::get_lane_specs(
+            let lane_specs = get_lane_specs(
                 &r.osm_tags,
                 r.parking_lane_fwd,
                 r.parking_lane_back,
@@ -286,8 +286,7 @@ impl InitialMap {
             road.parking_lane_fwd = has_parking;
             road.parking_lane_back = has_parking;
 
-            let lane_specs =
-                lane_specs::get_lane_specs(&road.osm_tags, has_parking, has_parking, r);
+            let lane_specs = get_lane_specs(&road.osm_tags, has_parking, has_parking, r);
             let mut fwd_width = Distance::ZERO;
             let mut back_width = Distance::ZERO;
             for l in &lane_specs {
@@ -396,4 +395,40 @@ pub enum Hint {
     MergeRoad(raw_data::OriginalRoad),
     DeleteRoad(raw_data::OriginalRoad),
     MergeDegenerateIntersection(raw_data::OriginalIntersection),
+}
+
+pub struct LaneSpec {
+    pub lane_type: LaneType,
+    pub reverse_pts: bool,
+}
+
+fn get_lane_specs(
+    osm_tags: &BTreeMap<String, String>,
+    parking_lane_fwd: bool,
+    parking_lane_back: bool,
+    id: raw_data::StableRoadID,
+) -> Vec<LaneSpec> {
+    let (side1_types, side2_types) =
+        lane_specs::get_lane_types(osm_tags, parking_lane_fwd, parking_lane_back);
+
+    let mut specs: Vec<LaneSpec> = Vec::new();
+    for lane_type in side1_types {
+        specs.push(LaneSpec {
+            lane_type,
+            reverse_pts: false,
+        });
+    }
+    for lane_type in side2_types {
+        specs.push(LaneSpec {
+            lane_type,
+            reverse_pts: true,
+        });
+    }
+    if specs.is_empty() {
+        panic!(
+            "Road with tags {:?} wound up with no lanes! {:?}",
+            id, osm_tags
+        );
+    }
+    specs
 }
