@@ -89,6 +89,8 @@ pub fn split_up_roads(
         timer.next();
         let mut r = orig_road.clone();
         r.points.clear();
+        let endpt1 = pt_to_intersection[&orig_road.points[0].to_hashable()];
+        let endpt2 = pt_to_intersection[&orig_road.points.last().unwrap().to_hashable()];
         r.i1 = pt_to_intersection[&orig_road.points[0].to_hashable()];
 
         for (idx, pt) in orig_road.points.iter().enumerate() {
@@ -105,10 +107,20 @@ pub fn split_up_roads(
                     }
 
                     r.i2 = *i2;
+                    if r.i1 == endpt1 {
+                        r.osm_tags
+                            .insert("abst:endpt_back".to_string(), "true".to_string());
+                    }
+                    if r.i2 == endpt2 {
+                        r.osm_tags
+                            .insert("abst:endpt_fwd".to_string(), "true".to_string());
+                    }
                     // Start a new road
                     map.roads
                         .insert(raw_data::StableRoadID(map.roads.len()), r.clone());
                     r.points.clear();
+                    r.osm_tags.remove("abst:endpt_fwd");
+                    r.osm_tags.remove("abst:endpt_back");
                     r.i1 = *i2;
                     r.points.push(pt.clone());
                 }

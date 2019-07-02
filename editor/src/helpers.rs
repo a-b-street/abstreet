@@ -125,6 +125,9 @@ impl ID {
                 if l.is_parking() {
                     txt.add_line(format!("Has {} parking spots", l.number_parking_spots()));
                 }
+                if let Some(types) = l.get_turn_restrictions(r) {
+                    txt.add_line(format!("Turn restriction for this lane: {:?}", types));
+                }
             }
             ID::Intersection(id) => {
                 txt.add_line(id.to_string());

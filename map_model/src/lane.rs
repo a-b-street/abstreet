@@ -1,7 +1,8 @@
-use crate::{BuildingID, BusStopID, DirectedRoadID, IntersectionID, Map, RoadID};
+use crate::{BuildingID, BusStopID, DirectedRoadID, IntersectionID, Map, Road, RoadID, TurnType};
 use abstutil;
 use geom::{Angle, Distance, Line, PolyLine, Pt2D};
 use serde_derive::{Deserialize, Serialize};
+use std::collections::HashSet;
 use std::fmt;
 
 // Bit longer than the longest car.
@@ -156,5 +157,40 @@ impl Lane {
         } else {
             r.id.backwards()
         }
+    }
+
+    pub fn get_turn_restrictions(&self, road: &Road) -> Option<HashSet<TurnType>> {
+        if !self.is_driving() {
+            return None;
+        }
+
+        let (dir, offset) = road.dir_and_offset(self.id);
+        let all = if dir && road.osm_tags.contains_key("abst:endpt_fwd") {
+            road.osm_tags
+                .get("turn:lanes:forward")
+                .or_else(|| road.osm_tags.get("turn:lanes"))?
+        } else if !dir && road.osm_tags.contains_key("abst:endpt_back") {
+            road.osm_tags.get("turn:lanes:backward")?
+        } else {
+            return None;
+        };
+        let parts: Vec<&str> = all.split("|").collect();
+        // TODO Verify the number of lanes matches up
+        Some(
+            parts[offset]
+                .split(";")
+                .flat_map(|s| match s {
+                    "left" => vec![TurnType::Left],
+                    "right" => vec![TurnType::Right],
+                    // TODO What is blank supposed to mean? From few observed cases, same as through
+                    "through" | "" => vec![
+                        TurnType::Straight,
+                        TurnType::LaneChangeLeft,
+                        TurnType::LaneChangeRight,
+                    ],
+                    _ => panic!("What's turn restriction {}?", s),
+                })
+                .collect(),
+        )
     }
 }
