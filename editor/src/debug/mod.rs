@@ -548,6 +548,7 @@ impl State for SearchOSM {
                     if r.osm_tags
                         .iter()
                         .any(|(k, v)| format!("{} = {}", k, v).contains(&filter))
+                        || format!("{}", r.osm_way_id).contains(&filter)
                     {
                         for l in r.all_lanes() {
                             ids.insert(ID::Lane(l));
@@ -559,6 +560,7 @@ impl State for SearchOSM {
                     if b.osm_tags
                         .iter()
                         .any(|(k, v)| format!("{} = {}", k, v).contains(&filter))
+                        || format!("{}", b.osm_way_id).contains(&filter)
                     {
                         ids.insert(ID::Building(b.id));
                         batch.push(color, b.polygon.clone());
