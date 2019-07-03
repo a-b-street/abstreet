@@ -31,6 +31,8 @@ pub struct Map {
     pub buildings: Vec<Building>,
     pub bus_routes: Vec<Route>,
     pub areas: Vec<Area>,
+    // from OSM way => [(restriction, to OSM way)]
+    pub turn_restrictions: BTreeMap<i64, Vec<(String, i64)>>,
 
     pub boundary_polygon: Vec<LonLat>,
     pub gps_bounds: GPSBounds,
@@ -45,6 +47,7 @@ impl Map {
             buildings: Vec::new(),
             bus_routes: Vec::new(),
             areas: Vec::new(),
+            turn_restrictions: BTreeMap::new(),
             boundary_polygon: Vec::new(),
             gps_bounds: GPSBounds::new(),
             coordinates_in_world_space: false,

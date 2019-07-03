@@ -11,6 +11,7 @@ pub fn osm_to_raw_roads(
     Vec<raw_data::Road>,
     Vec<raw_data::Building>,
     Vec<raw_data::Area>,
+    BTreeMap<i64, Vec<(String, i64)>>,
 ) {
     let (reader, done) = FileWithProgress::new(osm_path).unwrap();
     let doc = osm_xml::OSM::parse(reader).expect("OSM parsing failed");
@@ -26,6 +27,7 @@ pub fn osm_to_raw_roads(
     let mut roads: Vec<raw_data::Road> = Vec::new();
     let mut buildings: Vec<raw_data::Building> = Vec::new();
     let mut areas: Vec<raw_data::Area> = Vec::new();
+    let mut turn_restrictions: BTreeMap<i64, Vec<(String, i64)>> = BTreeMap::new();
     timer.start_iter("processing OSM ways", doc.ways.len());
     for way in doc.ways.values() {
         timer.next();
@@ -86,10 +88,10 @@ pub fn osm_to_raw_roads(
                 let mut ok = true;
                 let mut pts_per_way: Vec<Vec<LonLat>> = Vec::new();
                 for member in &rel.members {
-                    match *member {
+                    match member {
                         osm_xml::Member::Way(osm_xml::UnresolvedReference::Way(id), ref role) => {
                             // If the way is clipped out, that's fine
-                            if let Some(pts) = id_to_way.get(&id) {
+                            if let Some(pts) = id_to_way.get(id) {
                                 if role == "outer" {
                                     pts_per_way.push(pts.to_vec());
                                 } else {
@@ -122,10 +124,32 @@ pub fn osm_to_raw_roads(
                     }
                 }
             }
+        } else if tags.get("type") == Some(&"restriction".to_string()) {
+            let mut from_way_id: Option<i64> = None;
+            let mut to_way_id: Option<i64> = None;
+            for member in &rel.members {
+                if let osm_xml::Member::Way(osm_xml::UnresolvedReference::Way(id), ref role) =
+                    member
+                {
+                    if role == "from" {
+                        from_way_id = Some(*id);
+                    } else if role == "to" {
+                        to_way_id = Some(*id);
+                    }
+                }
+            }
+            if let (Some(from_way_id), Some(to_way_id)) = (from_way_id, to_way_id) {
+                if let Some(restriction) = tags.get("restriction") {
+                    turn_restrictions
+                        .entry(from_way_id)
+                        .or_insert_with(Vec::new)
+                        .push((restriction.to_string(), to_way_id));
+                }
+            }
         }
     }
 
-    (roads, buildings, areas)
+    (roads, buildings, areas, turn_restrictions)
 }
 
 fn tags_to_map(raw_tags: &[osm_xml::Tag]) -> BTreeMap<String, String> {

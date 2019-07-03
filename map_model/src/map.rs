@@ -119,6 +119,20 @@ impl Map {
             edits: MapEdits::new(name),
         };
 
+        // TODO Temporary to debug turn restrictions.
+        for r in m.roads.iter_mut() {
+            if let Some(ref restrictions) = data.turn_restrictions.get(&r.osm_way_id) {
+                for (idx, (restriction, to)) in restrictions.iter().enumerate() {
+                    // TODO Is this road even connected to the other way ID? Filter by the relevant
+                    // pieces.
+                    r.osm_tags.insert(
+                        format!("turn_restriction_{}", idx),
+                        format!("{} to {}", restriction, to),
+                    );
+                }
+            }
+        }
+
         // Extra setup that's annoying to do as HalfMap, since we want to pass around a Map.
         {
             let mut stop_signs: BTreeMap<IntersectionID, ControlStopSign> = BTreeMap::new();
