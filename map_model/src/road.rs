@@ -57,6 +57,8 @@ impl fmt::Display for DirectedRoadID {
 pub struct Road {
     pub id: RoadID,
     pub osm_tags: BTreeMap<String, String>,
+    // self is 'from'
+    pub turn_restrictions: Vec<(String, RoadID)>,
     pub osm_way_id: i64,
     pub stable_id: raw_data::StableRoadID,
 

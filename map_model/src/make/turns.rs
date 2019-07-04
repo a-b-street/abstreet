@@ -1,6 +1,6 @@
 use crate::{
-    Intersection, IntersectionID, IntersectionType, Lane, LaneID, LaneType, Road, Turn, TurnID,
-    TurnType, LANE_THICKNESS,
+    Intersection, IntersectionID, IntersectionType, Lane, LaneID, LaneType, Road, RoadID, Turn,
+    TurnID, TurnType, LANE_THICKNESS,
 };
 use abstutil::{Timer, Warn};
 use geom::{Distance, Line, PolyLine, Pt2D};
@@ -25,6 +25,10 @@ pub fn make_all_turns(
     let mut final_turns: Vec<Turn> = Vec::new();
     let mut filtered_turns: HashMap<LaneID, Vec<Turn>> = HashMap::new();
     for turn in unique_turns {
+        if !does_turn_pass_restrictions(&turn, &i.roads, roads, lanes) {
+            continue;
+        }
+
         if is_turn_allowed(&turn, roads, lanes) {
             final_turns.push(turn);
         } else {
@@ -496,4 +500,45 @@ fn is_turn_allowed(turn: &Turn, roads: &Vec<Road>, lanes: &Vec<Lane>) -> bool {
     } else {
         true
     }
+}
+
+fn does_turn_pass_restrictions(
+    turn: &Turn,
+    intersection_roads: &BTreeSet<RoadID>,
+    roads: &Vec<Road>,
+    lanes: &Vec<Lane>,
+) -> bool {
+    if turn.between_sidewalks() {
+        return true;
+    }
+
+    let src = lanes[turn.id.src.0].parent;
+    let dst = lanes[turn.id.dst.0].parent;
+
+    for (restriction, to) in &roads[src.0].turn_restrictions {
+        // The restriction only applies to one direction of the road.
+        if !intersection_roads.contains(to) {
+            continue;
+        }
+
+        // Ignore the TurnType. Between two roads, there's only one category of TurnType (treating
+        // Straight/LaneChangeLeft/LaneChangeRight as the same).
+        //
+        // Strip off time restrictions (like " @ (Mo-Fr 06:00-09:00, 15:00-18:30)")
+        match restriction.split(" @ ").next().unwrap() {
+            "no_left_turn" | "no_right_turn" | "no_straight_on" | "no_u_turn" => {
+                if dst == *to {
+                    return false;
+                }
+            }
+            "only_left_turn" | "only_right_turn" | "only_straight_on" => {
+                if dst != *to {
+                    return false;
+                }
+            }
+            _ => panic!("Unknown restriction {}", restriction),
+        }
+    }
+
+    true
 }

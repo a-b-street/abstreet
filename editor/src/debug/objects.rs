@@ -158,6 +158,12 @@ fn tooltip_lines(id: ID, g: &mut GfxCtx, ctx: &PerMapUI) -> Text {
             if let Some(types) = l.get_turn_restrictions(r) {
                 txt.add_line(format!("Turn restriction for this lane: {:?}", types));
             }
+            for (restriction, to) in &r.turn_restrictions {
+                txt.add_line(format!(
+                    "Restriction from this road to {}: {}",
+                    to, restriction
+                ));
+            }
         }
         ID::Intersection(id) => {
             txt.add_line(id.to_string());

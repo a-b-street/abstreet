@@ -119,30 +119,6 @@ impl Map {
             edits: MapEdits::new(name),
         };
 
-        // TODO Temporary to debug turn restrictions.
-        let mut filtered_restrictions = Vec::new();
-        for r in &m.roads {
-            if let Some(restrictions) = data.turn_restrictions.get(&r.osm_way_id) {
-                for (restriction, to) in restrictions {
-                    // Make sure the restriction actually applies to this road.
-                    if let Some(to_road) = m.intersections[r.src_i.0]
-                        .roads
-                        .iter()
-                        .chain(m.intersections[r.dst_i.0].roads.iter())
-                        .find(|r| m.roads[r.0].osm_way_id == *to)
-                    {
-                        filtered_restrictions.push((r.id, restriction, to_road));
-                    }
-                }
-            }
-        }
-        for (idx, (from, restriction, to)) in filtered_restrictions.into_iter().enumerate() {
-            m.roads[from.0].osm_tags.insert(
-                format!("turn_restriction_{}", idx),
-                format!("{} to {}", restriction, to),
-            );
-        }
-
         // Extra setup that's annoying to do as HalfMap, since we want to pass around a Map.
         {
             let mut stop_signs: BTreeMap<IntersectionID, ControlStopSign> = BTreeMap::new();
