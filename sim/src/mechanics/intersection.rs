@@ -73,7 +73,7 @@ impl IntersectionSimState {
         for req in state.waiting.keys() {
             // TODO Use update because multiple agents could finish a turn at the same time, before
             // the waiting one has a chance to try again.
-            scheduler.update(Command::update_agent(req.agent), now);
+            scheduler.update(now, Command::update_agent(req.agent));
         }
     }
 
@@ -93,7 +93,7 @@ impl IntersectionSimState {
         // TODO Wake up everyone, for now.
         // TODO Use update in case turn_finished scheduled an event for them already.
         for req in state.waiting.keys() {
-            scheduler.update(Command::update_agent(req.agent), now);
+            scheduler.update(now, Command::update_agent(req.agent));
         }
 
         scheduler.push(now + remaining, Command::UpdateIntersection(id));

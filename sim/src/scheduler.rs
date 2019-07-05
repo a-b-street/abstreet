@@ -3,8 +3,10 @@ use derivative::Derivative;
 use geom::{Duration, DurationHistogram};
 use map_model::IntersectionID;
 use serde_derive::{Deserialize, Serialize};
+use std::cmp::Ordering;
+use std::collections::{BTreeMap, BinaryHeap};
 
-#[derive(Serialize, Deserialize, PartialEq)]
+#[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub enum Command {
     // If true, retry when there's no room to spawn somewhere
     SpawnCar(CreateCar, bool),
@@ -25,13 +27,63 @@ impl Command {
             AgentID::Pedestrian(p) => Command::UpdatePed(p),
         }
     }
+
+    pub fn to_type(&self) -> CommandType {
+        match self {
+            Command::SpawnCar(ref create, _) => CommandType::Car(create.vehicle.id),
+            Command::SpawnPed(ref create) => CommandType::Ped(create.id),
+            Command::UpdateCar(id) => CommandType::Car(*id),
+            Command::UpdateLaggyHead(id) => CommandType::CarLaggyHead(*id),
+            Command::UpdatePed(id) => CommandType::Ped(*id),
+            Command::UpdateIntersection(id) => CommandType::Intersection(*id),
+            Command::CheckForGridlock => CommandType::CheckForGridlock,
+            Command::Savestate(_) => CommandType::Savestate,
+        }
+    }
+}
+
+// A smaller version of Command that satisfies many more properties. Only one Command per
+// CommandType may exist at a time.
+#[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Debug)]
+pub enum CommandType {
+    Car(CarID),
+    CarLaggyHead(CarID),
+    Ped(PedestrianID),
+    Intersection(IntersectionID),
+    CheckForGridlock,
+    Savestate,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq)]
+struct Item {
+    time: Duration,
+    cmd_type: CommandType,
+}
+
+impl PartialOrd for Item {
+    fn partial_cmp(&self, other: &Item) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Item {
+    fn cmp(&self, other: &Item) -> Ordering {
+        // BinaryHeap is a max-heap, so reverse the comparison to get smallest times first.
+        let ord = other.time.cmp(&self.time);
+        if ord != Ordering::Equal {
+            return ord;
+        }
+        self.cmd_type.cmp(&other.cmd_type)
+    }
 }
 
 #[derive(Serialize, Deserialize, Derivative)]
 #[derivative(PartialEq)]
 pub struct Scheduler {
-    // TODO Implement more efficiently. Last element has earliest time.
-    items: Vec<(Duration, Command)>,
+    // TODO Argh, really?!
+    #[derivative(PartialEq = "ignore")]
+    items: BinaryHeap<Item>,
+    queued_commands: BTreeMap<CommandType, (Command, Duration)>,
 
     latest_time: Duration,
     #[derivative(PartialEq = "ignore")]
@@ -42,7 +94,8 @@ pub struct Scheduler {
 impl Scheduler {
     pub fn new() -> Scheduler {
         Scheduler {
-            items: Vec::new(),
+            items: BinaryHeap::new(),
+            queued_commands: BTreeMap::new(),
             latest_time: Duration::ZERO,
             delta_times: std::default::Default::default(),
         }
@@ -57,26 +110,29 @@ impl Scheduler {
         }
         self.delta_times.add(time - self.latest_time);
 
-        // TODO Make sure this is deterministic.
-        // Note the order of comparison means times will be descending.
-        let idx = match self.items.binary_search_by(|(at, _)| time.cmp(at)) {
-            Ok(i) => i,
-            Err(i) => i,
-        };
-        self.items.insert(idx, (time, cmd));
+        let cmd_type = cmd.to_type();
+
+        // TODO Combo with entry API
+        if let Some((existing_cmd, existing_time)) = self.queued_commands.get(&cmd_type) {
+            panic!(
+                "Can't push({}, {:?}) because ({}, {:?}) already queued",
+                time, cmd, existing_time, existing_cmd
+            );
+        }
+        self.queued_commands.insert(cmd_type.clone(), (cmd, time));
+        self.items.push(Item { time, cmd_type });
     }
 
-    // Doesn't sort or touch the histogram. Have to call finalize_batch() after. Only for
-    // scheduling lots of stuff at the beginning of a simulation.
+    // Doesn't touch the histogram. Have to call finalize_batch() after. Only for scheduling lots
+    // of stuff at the beginning of a simulation.
+    // TODO Phase this out?
     pub fn quick_push(&mut self, time: Duration, cmd: Command) {
-        self.items.push((time, cmd));
+        self.push(time, cmd);
     }
 
-    pub fn finalize_batch(&mut self) {
-        self.items.sort_by_key(|(time, _)| -*time);
-    }
+    pub fn finalize_batch(&mut self) {}
 
-    pub fn update(&mut self, cmd: Command, new_time: Duration) {
+    pub fn update(&mut self, new_time: Duration, cmd: Command) {
         if new_time < self.latest_time {
             panic!(
                 "It's at least {}, so can't schedule a command for {}",
@@ -84,28 +140,47 @@ impl Scheduler {
             );
         }
 
-        if let Some(idx) = self.items.iter().position(|(_, i)| *i == cmd) {
-            self.items.remove(idx);
+        let cmd_type = cmd.to_type();
+
+        // It's fine if a previous command hasn't actually been scheduled.
+        if let Some((existing_cmd, _)) = self.queued_commands.get(&cmd_type) {
+            assert_eq!(cmd, *existing_cmd);
         }
-        self.push(new_time, cmd);
+        self.queued_commands
+            .insert(cmd_type.clone(), (cmd, new_time));
+        self.items.push(Item {
+            time: new_time,
+            cmd_type,
+        });
     }
 
     pub fn cancel(&mut self, cmd: Command) {
-        if let Some(idx) = self.items.iter().position(|(_, i)| *i == cmd) {
-            self.items.remove(idx);
-        }
+        // It's fine if a previous command hasn't actually been scheduled.
+        self.queued_commands.remove(&cmd.to_type());
     }
 
     // This API is safer than handing out a batch of items at a time, because while processing one
     // item, we might change the priority of other items or add new items. Don't make the caller
     // reconcile those changes -- just keep pulling items from here, one at a time.
     pub fn get_next(&mut self, now: Duration) -> Option<(Command, Duration)> {
-        let next_time = self.items.last().as_ref()?.0;
-        if next_time > now {
-            return None;
+        loop {
+            let next_time = self.items.peek().as_ref()?.time;
+            if next_time > now {
+                return None;
+            }
+
+            self.latest_time = next_time;
+            let item = self.items.pop().unwrap();
+            if let Some((_, cmd_time)) = self.queued_commands.get(&item.cmd_type) {
+                // Command was re-scheduled for later.
+                if *cmd_time > next_time {
+                    continue;
+                }
+                return self.queued_commands.remove(&item.cmd_type);
+            }
+            // If the command was outright canceled, fall-through here and pull from the queue
+            // again.
         }
-        self.latest_time = next_time;
-        Some((self.items.pop().unwrap().1, next_time))
     }
 
     pub fn describe_stats(&self) -> String {

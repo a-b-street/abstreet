@@ -273,8 +273,8 @@ impl DrivingSimState {
                                     map,
                                 );
                                 scheduler.update(
-                                    Command::UpdateCar(follower.vehicle.id),
                                     follower.state.get_end_time(),
+                                    Command::UpdateCar(follower.vehicle.id),
                                 );
                             }
                         }
@@ -329,7 +329,10 @@ impl DrivingSimState {
                 car.last_steps.push_front(last_step);
                 if goto.length(map) >= car.vehicle.length + FOLLOWING_DISTANCE {
                     // Optimistically assume we'll be out of the way ASAP.
-                    scheduler.push(
+                    // This is update, not push, because we might've scheduled a blind retry too
+                    // late, and the car actually crosses an entire new traversable in the
+                    // meantime.
+                    scheduler.update(
                         car.crossing_state_with_end_dist(
                             DistanceInterval::new_driving(
                                 Distance::ZERO,
@@ -501,8 +504,8 @@ impl DrivingSimState {
                     // jumping forwards.
                     follower.state = follower.crossing_state(follower_dist, now, map);
                     scheduler.update(
-                        Command::UpdateCar(follower_id),
                         follower.state.get_end_time(),
+                        Command::UpdateCar(follower_id),
                     );
                 }
                 // They weren't blocked
