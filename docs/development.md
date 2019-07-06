@@ -61,7 +61,8 @@ npm install prettier --save-dev --save-exact
 Use https://github.com/joeyespo/grip to render. Doesn't seem to work with the
 graphviz image.
 
-https://github.com/ekalinin/github-markdown-toc for table of contents
+https://github.com/ekalinin/github-markdown-toc for table of contents (stashed
+in ~/Downloads/gh-md-toc)
 
 ## Videos
 

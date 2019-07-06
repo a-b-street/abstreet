@@ -64,8 +64,7 @@ writes:
 > laid out by government officials."
 
 Existing urban planning software is either proprietary or hard to use. A/B
-Street strives to set the accessibility bar high, by being a fun, engaging
-game.
+Street strives to set the accessibility bar high, by being a fun, engaging game.
 
 ## Contributing
 

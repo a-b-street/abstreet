@@ -41,7 +41,7 @@ pub fn clip_map(map: &mut raw_data::Map, timer: &mut Timer) {
 
         // The road crosses the boundary. If the intersection happens to have another connected
         // road, then we need to copy the intersection before trimming it. This effectively
-        // disconnects too roads in the map that would be connected if we left in some
+        // disconnects two roads in the map that would be connected if we left in some
         // partly-out-of-bounds road.
         if map
             .roads
