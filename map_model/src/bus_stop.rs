@@ -6,6 +6,8 @@ use std::fmt;
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct BusStopID {
     pub sidewalk: LaneID,
+    // This might actually not be contiguous and correct; we could remove a stop in between two
+    // others
     pub idx: usize,
 }
 

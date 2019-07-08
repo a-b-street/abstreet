@@ -25,7 +25,7 @@ impl DrawBusStop {
         );
         let polygon = polyline.make_polygons(LANE_THICKNESS * 0.8);
         let draw_default = prerender.upload_borrowed(vec![(
-            cs.get_def("bus stop marking", Color::rgba(220, 160, 220, 0.8)),
+            cs.get_def("bus stop marking", Color::CYAN),
             &polygon,
         )]);
 

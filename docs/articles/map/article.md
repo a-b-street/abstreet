@@ -262,6 +262,7 @@ Still in the `map_model` crate.
   - Between each pair of adjacent bus stops, run pathfinding to verify there's
     actually a path for the bus to follow. If any are disconnected, remove the
     bus route
+  - Remove bus stops that have no routes serving them.
 - `pathfind/walking.rs`: Precompute the CH for pedestrians who will use buses
   - Nodes in the graph are sidewalks and every bus stop
   - There's an edge with weight 0 between a bus stop and its sidewalk

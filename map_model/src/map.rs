@@ -156,6 +156,20 @@ impl Map {
             }
 
             m.bus_routes = make::verify_bus_routes(&m, routes, timer);
+
+            // Remove orphaned bus stops
+            let mut remove_stops = HashSet::new();
+            for id in m.bus_stops.keys() {
+                if m.get_routes_serving_stop(*id).is_empty() {
+                    remove_stops.insert(*id);
+                }
+            }
+            for id in &remove_stops {
+                m.bus_stops.remove(id);
+                m.lanes[id.sidewalk.0]
+                    .bus_stops
+                    .retain(|stop| !remove_stops.contains(stop))
+            }
         }
 
         timer.start("setup rest of Pathfinder (walking with transit)");
