@@ -3,11 +3,9 @@ use crate::{
     BusRouteID, BusStopID, DirectedRoadID, IntersectionID, LaneID, LaneType, Map, Path,
     PathRequest, PathStep, Position,
 };
-use abstutil::{deserialize_btreemap, serialize_btreemap};
 use fast_paths::{FastGraph, InputGraph, PathCalculator};
 use serde_derive::{Deserialize, Serialize};
 use std::cell::RefCell;
-use std::collections::BTreeMap;
 use thread_local::ThreadLocal;
 
 #[derive(Serialize, Deserialize)]
@@ -15,11 +13,6 @@ pub struct SidewalkPathfinder {
     graph: FastGraph,
     #[serde(deserialize_with = "deserialize_nodemap")]
     nodes: NodeMap<Node>,
-    #[serde(
-        serialize_with = "serialize_btreemap",
-        deserialize_with = "deserialize_btreemap"
-    )]
-    connections: BTreeMap<(BusStopID, BusStopID), BusRouteID>,
 
     #[serde(skip_serializing, skip_deserializing)]
     path_calc: ThreadLocal<RefCell<PathCalculator>>,
@@ -36,7 +29,6 @@ impl SidewalkPathfinder {
     pub fn new(map: &Map, use_transit: bool) -> SidewalkPathfinder {
         let mut input_graph = InputGraph::new();
         let mut nodes = NodeMap::new();
-        let mut connections = BTreeMap::new();
 
         for t in map.all_turns().values() {
             if !t.between_sidewalks() || !map.is_turn_allowed(t.id) {
@@ -80,7 +72,6 @@ impl SidewalkPathfinder {
                         nodes.get(Node::RideBus(*stop2)),
                         1,
                     );
-                    connections.insert((*stop1, *stop2), route.id);
                 }
             }
         }
@@ -90,7 +81,6 @@ impl SidewalkPathfinder {
         SidewalkPathfinder {
             graph,
             nodes,
-            connections,
             path_calc: ThreadLocal::new(),
         }
     }
@@ -182,7 +172,7 @@ impl SidewalkPathfinder {
         Some(Path::new(map, steps, req.end.dist_along()))
     }
 
-    // Attempt the pathfinding and see if riding a bus is a step.
+    // Attempt the pathfinding and see if we should ride a bus.
     pub fn should_use_transit(
         &self,
         map: &Map,
@@ -195,12 +185,26 @@ impl SidewalkPathfinder {
             self.nodes.get(lane_to_node(end.lane(), map)),
         )?;
 
-        for pair in self.nodes.translate(&raw_path).windows(2) {
-            if let (Node::RideBus(stop1), Node::RideBus(stop2)) = (pair[0], pair[1]) {
-                return Some((stop1, stop2, self.connections[&(stop1, stop2)]));
+        let mut nodes = self.nodes.translate(&raw_path);
+        let mut first_stop = None;
+        for n in &nodes {
+            if let Node::RideBus(stop) = n {
+                first_stop = Some(*stop);
+                break;
             }
         }
-        None
+        let first_stop = first_stop?;
+        let possible_routes = map.get_routes_serving_stop(first_stop);
+
+        nodes.reverse();
+        for n in nodes {
+            if let Node::RideBus(stop2) = n {
+                if let Some(route) = possible_routes.iter().find(|r| r.stops.contains(&stop2)) {
+                    return Some((first_stop, stop2, route.id));
+                }
+            }
+        }
+        unreachable!()
     }
 }
 
