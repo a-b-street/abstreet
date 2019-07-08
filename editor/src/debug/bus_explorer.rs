@@ -2,28 +2,44 @@ use crate::common::CommonState;
 use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::ui::UI;
-use ezgui::{EventCtx, GfxCtx, Key, Text, WarpingItemSlider};
+use ezgui::{EventCtx, GfxCtx, Key, ModalMenu, Text, WarpingItemSlider, Wizard};
 use geom::Pt2D;
-use map_model::BusStopID;
+use map_model::{BusRoute, BusRouteID, BusStopID, Map};
 
 pub struct BusRouteExplorer {
     slider: WarpingItemSlider<BusStopID>,
 }
 
 impl BusRouteExplorer {
-    pub fn new(ctx: &mut EventCtx, ui: &UI) -> Option<BusRouteExplorer> {
+    pub fn new(ctx: &mut EventCtx, ui: &UI) -> Option<Box<State>> {
         let map = &ui.primary.map;
-        // TODO Pick from a menu of all possible routes
-        let route = match ui.primary.current_selection {
-            Some(ID::BusStop(bs)) => map.get_routes_serving_stop(bs).pop()?,
+        let routes = match ui.primary.current_selection {
+            Some(ID::BusStop(bs)) => map.get_routes_serving_stop(bs),
             _ => {
                 return None;
             }
         };
+        if routes.is_empty() {
+            return None;
+        }
         if !ctx.input.contextual_action(Key::E, "explore bus route") {
             return None;
         }
+        if routes.len() == 1 {
+            Some(Box::new(BusRouteExplorer::for_route(
+                routes[0],
+                &ui.primary.map,
+                ctx,
+            )))
+        } else {
+            Some(Box::new(BusRoutePicker {
+                choices: routes.into_iter().map(|r| r.id).collect(),
+                wizard: Wizard::new(),
+            }))
+        }
+    }
 
+    fn for_route(route: &BusRoute, map: &Map, ctx: &mut EventCtx) -> BusRouteExplorer {
         let stops: Vec<(Pt2D, BusStopID, Text)> = route
             .stops
             .iter()
@@ -32,15 +48,14 @@ impl BusRouteExplorer {
                 (stop.sidewalk_pos.pt(map), stop.id, Text::new())
             })
             .collect();
-
-        Some(BusRouteExplorer {
+        BusRouteExplorer {
             slider: WarpingItemSlider::new(
                 stops,
                 &format!("Bus Route Explorer for {}", route.name),
                 "stop",
                 ctx,
             ),
-        })
+        }
     }
 }
 
@@ -65,5 +80,61 @@ impl State for BusRouteExplorer {
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         self.slider.draw(g);
         CommonState::draw_osd(g, ui, ui.primary.current_selection);
+    }
+}
+
+pub struct BusRoutePicker {
+    choices: Vec<BusRouteID>,
+    wizard: Wizard,
+}
+
+impl BusRoutePicker {
+    pub fn new(ui: &UI, menu: &mut ModalMenu) -> Option<BusRoutePicker> {
+        if !menu.action("explore a bus route") {
+            return None;
+        }
+        Some(BusRoutePicker {
+            choices: ui
+                .primary
+                .map
+                .get_all_bus_routes()
+                .iter()
+                .map(|r| r.id)
+                .collect(),
+            wizard: Wizard::new(),
+        })
+    }
+}
+
+impl State for BusRoutePicker {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+        // TODO Argh, constantly doing this.
+        let choices: Vec<(String, BusRouteID)> = self
+            .choices
+            .iter()
+            .map(|id| (ui.primary.map.get_br(*id).name.clone(), *id))
+            .collect();
+
+        if let Some((_, id)) = self
+            .wizard
+            .wrap(ctx)
+            .choose_something_no_keys::<BusRouteID>(
+                "Explore which bus route?",
+                Box::new(move || choices.clone()),
+            )
+        {
+            return Transition::Replace(Box::new(BusRouteExplorer::for_route(
+                ui.primary.map.get_br(id),
+                &ui.primary.map,
+                ctx,
+            )));
+        } else if self.wizard.aborted() {
+            return Transition::Pop;
+        }
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        self.wizard.draw(g);
     }
 }

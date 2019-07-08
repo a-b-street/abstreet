@@ -35,6 +35,7 @@ use geom::Distance;
 
 pub const LANE_THICKNESS: Distance = Distance::const_meters(2.5);
 
+impl Cloneable for BusRouteID {}
 impl Cloneable for ControlTrafficSignal {}
 impl Cloneable for IntersectionID {}
 impl Cloneable for LaneType {}

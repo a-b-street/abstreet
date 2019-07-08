@@ -67,6 +67,7 @@ impl DebugMode {
                         (None, "screenshot everything"),
                         (hotkey(Key::Slash), "search OSM metadata"),
                         (hotkey(Key::S), "configure colors"),
+                        (None, "explore a bus route"),
                     ],
                     vec![
                         (hotkey(Key::Escape), "quit"),
@@ -272,7 +273,10 @@ impl State for DebugMode {
         }
 
         if let Some(explorer) = bus_explorer::BusRouteExplorer::new(ctx, ui) {
-            return Transition::PushWithMode(Box::new(explorer), EventLoopMode::Animation);
+            return Transition::PushWithMode(explorer, EventLoopMode::Animation);
+        }
+        if let Some(picker) = bus_explorer::BusRoutePicker::new(ui, &mut self.menu) {
+            return Transition::Push(Box::new(picker));
         }
 
         Transition::Keep
