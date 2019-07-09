@@ -9,6 +9,21 @@ Seattle is used, but could be ommitted.
 Everything here should be up-to-date as of July 2019.
 
 <!--ts-->
+
+- [A/B Street's map model](#ab-streets-map-model)
+  - [The final map](#the-final-map)
+    - [Coordinate system](#coordinate-system)
+    - [Invariants](#invariants)
+  - [From OSM to raw_data (convert_osm crate)](#from-osm-to-raw_data-convert_osm-crate)
+  - [raw_data to InitialMap](#raw_data-to-initialmap)
+  - [InitialMap to HalfMap](#initialmap-to-halfmap)
+  - [HalfMap to Map](#halfmap-to-map)
+  - [Live edits](#live-edits)
+  - [Development tricks](#development-tricks)
+  - [Appendix: PolyLines](#appendix-polylines)
+
+<!-- Added by: dabreegster, at: Tue Jul  9 07:16:53 BST 2019 -->
+
 <!--te-->
 
 ## The final map

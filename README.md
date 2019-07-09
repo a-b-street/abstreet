@@ -14,9 +14,14 @@ Watching overall traffic patterns and zooming into a few slow areas:
 
 ![exploring_traffic](docs/videos/exploring_traffic.gif)
 
-## Features
+## Technical articles
 
-More details [here](docs/articles/features/article.md).
+- [Map model](docs/articles/map/article.md)
+- [Traffic simulation](docs/articles/trafficsim/article.md)
+- [Rust implementation notes](docs/articles/rust/article.md)
+- [Features (outdated)](docs/articles/features/article.md)
+
+## Features
 
 - The map
   - A detailed rendering of Seattle from OpenStreetMap and King County GIS data,

@@ -1,242 +1,189 @@
 # A/B Street's Traffic Simulation
 
-easiest to explain by going through the history, building up piece by piece
+This article describes how cars, bikes, buses, and pedestrians are modeled in
+A/B Street. All code lives in the `sim` crate. This is up-to-date as of
+July 2019.
 
-## The old world: discrete-time
+The traffic simulation models different agents (cars, bikes, buses, pedestrians,
+and intersections) over time. Agents don't constantly sense and react to the
+world every second; instead, they remain in some state until something
+interesting happens. This is a discrete-event architecture -- events are
+scheduled for some time in the future, and handling them changes the state of
+some agents. The core simulation loop simply processes events in order -- see
+`scheduler.rs` and the `step` method in `sim.rs`.
 
-agent-based, react every 0.1s, choose acceleration or initiate LC or make a turn
+<!--ts-->
 
-lookahead
+- [A/B Street's Traffic Simulation](#ab-streets-traffic-simulation)
+  - [Discrete-event simulation](#discrete-event-simulation)
+    - [Cars](#cars)
+      - [Exact positions](#exact-positions)
+    - [Lane-changing](#lane-changing)
+    - [Pedestrians](#pedestrians)
+    - [Intersections](#intersections)
+  - [Demand data](#demand-data)
+  - [Appendix: discrete-time simulation](#appendix-discrete-time-simulation)
 
-1. Don't exceed the speed limit of the current road
+<!-- Added by: dabreegster, at: Wed Jul 10 12:06:04 BST 2019 -->
 
-- so the driver needs to be able to look at the speed limit of the current road
+<!--te-->
 
-2. Don't hit the car in front of me
+## Discrete-event simulation
 
-- need to see the current dist_along, speed, length, accel and deaccel of the
-  next car in the queue
-- actually, humans can't eyeball another car and know how quickly it can speed
-  up or slow down. maybe they just assume some reasonable safe estimate.
+### Cars
 
-3. Maybe stop at the end of the lane
+(Note: Cars, bikes, and buses are all modeled the same way -- bikes just have a
+max speed, and buses/bikes can use restricted lanes.)
 
-but...
+Cars move through a sequence of lanes and turns (movements through an
+intersection). They queue and can't over-take a slow lead vehicle. The main
+simplifying assumption in A/B Street is that cars can instantly accelerate and
+decelerate. This wouldn't model highway driving at all, where things like jam
+waves are important, but it's reasonable for in-city driving. The essence of
+scarcity is the capacity on lanes and the contention at intersections. What
+happens in between isn't vital to get exactly right.
 
-1. It's fundamentally slow; there's lots of busy work. Cars in freeflow with
-   nothing blocking them yet, or cars
+A car has a few states (`mechanics/car.rs`):
 
-2. Figuring out acceleration in order to do something for the next tick is
-   complicated.
+- **Crossing** some distance of a lane/turn over some time interval
+- **Queued** behind another car on a lane/turn
+- **WaitingToAdvance** at the end of a lane, blocked on an intersection
+- A few states where the car stays in one place: **Parking**, **Unparking**, and
+  **Idling** (for buses at a stop)
 
-- floating pt bugs, apply accel but make sure speed doesnt go negative or dist
-  doesnt exceed end of lane if they were supposed to stop... wind up storing an
-  intent of what they wanted to do, make corrections based on that. hacky.
+State transitions happen in `mechanics/driving.rs`. This is best explained by an
+example sequence:
 
-3. The realism of having cars accel and deaccel doesnt really add much, and
-   since the approach has silly assumptions anyway (slam on brakes and
-   accelerator as much as possible), unrealistic
+- A car enters the Unparking state, taking a fixed 30s to exit a parking spot
+  and enter the adjacent driving lane. The driving lane is blocked during this
+  time, to mimic somebody pulling out from a parallel parking spot.
+- The car is now fully somewhere on the driving lane. It enters the Crossing
+  state, covering the remaining distance to the end of the road. The time
+  interval is calculated assuming the car travels at the max speed limit of the
+  road.
+- After that time, the car checks if there's anybody in the queue before it.
+  Nope? Then it attempts to initiate a turn through the intersection, but the
+  stop sign says no, so the car enters the WaitingToAdvance state.
+- Some time later, the stop sign wakes up the car. The car starts the turn,
+  entering the Crossing state again.
+- After finishing the turn, the car starts Crossing the next lane. When it's
+  finished, it turns out there are a few cars ahead of it, so it enters the
+  Queued state.
+- When the lead vehicle directly in front of the car exits the lane, it wakes up
+  the car, putting it in the Crossing state, starting at the appropriate
+  following distance behind the lead vehicle. This prevents the car from
+  immediately warping to the end of the lane when the lead vehicle is out of the
+  way.
+- And so on...
 
-## The new world: discrete-event
+#### Exact positions
 
-(make sure to explain the premise of parametric time and events)
+For a discrete-event simulation, we don't usually care exactly where on a lane a
+car is at some time. But we do need to know for drawing and for a few cases
+during simulation, such as determining when a bus is lined up with a bus stop in
+the middle of a lane. `mechanics/queue.rs` handles this, computing the distance
+of every car in a lane. For cars in the `Crossing` state, we linearly
+interpolate distance based on the current time. Of course, cars have to remain
+in order, so Queued cars are limited by the lead vehicle's position + the lead
+vehicle's length + a fixed following distance of 1m.
 
-### v0: one car
+Another case where we need to know exact positions of cars is to prevent the
+first vehicle on a lane from hitting the back of a car who just left the lane.
+All vehicles have length, and position is tracked by the front of the car. When
+a car's front leaves a lane, its back is still partly in the lane. Logically,
+the new lead car in the lane still needs to act like it's Queued. So each lane
+keeps a "laggy head", pointing to the car with its back partly in the lane.
+After the laggy head has made it sufficient distance along its new turn or lane,
+the laggy head on the old lane can be erased, unblocking the lead vehicle. This
+requires calculating exact distances and some occasionally expensive cases where
+we have to schedule frequent events to check when a laggy head is clear.
 
-Forget about speed, acceleration, and even multiple cars momentarily. What is a
-car's basic state machine? They enter a lane, travel across it, maybe stop and
-wait for the intersection, execute a turn through the intersection, and then
-enter the next lane. We could assign reasonable times for each of these --
-crossing a lane takes lane_distance / min(road's speed limit, car's max speed)
-at minimum. Intersections could become responsible for telling cars when to move
--- stop signs would keep a FIFO queue of waiting cars and wake up each car as
-the last one completes their turn, while traffic signals could wake up all
-relevant cars when the cycle changes.
+### Lane-changing
 
-### v1: queueing
+Lane-changing (LCing) deserves special mention. A/B Street cheats by not
+allowing it on lanes themselves. Instead, at intersections, cars can perform
+turns that shift them over any number of lanes. These LCing turns conflict with
+other turns appropriately, so the contention is still modeled. Why do it this
+way? In a
+[previous project](http://apps.cs.utexas.edu/tech_reports/reports/tr/TR-2157.pdf),
+I tried opportunistic LCing. If a car had room to warp to the equivalent
+distance on the adjacent lane without causing a crash, it would start LCing,
+then take a fixed time to slide over, blocking both lanes throughout. This meant
+cars often failed to LC when they needed to, forcing them to reroute, botching
+their trip times. In many cases the cars would be permanently stuck, because
+pathfinding would return paths requiring LCing that couldn't be pulled off in
+practice due to really short roads. Why not try making the car slow down if
+needed? Eventually it might have to stop, which could lead to unrealistic
+gridlock. This LCing model was using a detailed discrete-time model with cars
+accelerating properly; maybe it's easier with A/B Street's simplified movement
+model.
 
-Alright, but what about multiple cars? In one lane, they form a queue -- no
-over-taking or lane-changing. The FSM doesn't get much more complicated: a car
-enters a lane, spends at least the freeflow_time to cross it, and then either
-winds up front of the queue or behind somebody else. If they're in the front,
-similar logic from before applies -- except they first need to make sure the
-target lane they want to turn to has room. Maybe cars are already backed up all
-the way there. If so, they could just wait until that target lane has at least
-one car leave. When the car is queued behind another, they don't have anything
-interesting to do until they become the queue's lead vehicle.
+### Pedestrians
 
-Another way to understand this system is to picture every lane as having two
-parts -- the empty portion where cars cross in freeflow and a queue at the end.
-Cars have to pay a minimum amount of time to cross the lane, and then they wind
-up in the queue. The time to go from the end of the queue to the front requires
-crunching through the queue front-to-back, figuring out when each successive
-lead vehicle can start their turn and get out of the way.
+Pedestrian modeling -- in `mechanics/walking.rs` is way simpler. Pedestrians
+don't need to queue on sidewalks; they can "ghost" through each other. In
+Seattle, there aren't huge crowds of people walking and slowing down, except for
+niche cases like Pike Place Market. So in A/B Street, the only scarce resource
+modeled is the time spent waiting to cross intersections.
 
-### Drawing
+### Intersections
 
-An intermission -- we haven't pinned down exactly where cars are at some point
-in time, so how do we draw them? The idea for this DES model began without
-worrying about this too much -- when the map is zoomed out, individual cars are
-hard to see anyway; the player probably just wants to know roughly where lots of
-cars are moving and stuck waiting. This can be calculated easily at any time --
-just count the number of cars in each queue and see if they're in the Crossing
-or Queued state.
+I need to flesh this section out. See `mechanics/intersections.rs` for how stop
+signs and traffic signals work. Two things I need to fix before making this
+section interesting:
 
-But when zoomed in, we do want to draw individual cars at exact positions
-through time! Luckily, this isn't hard at all. The only change from the timestep
-model is that we have to process a queue at a time; we can't randomly query an
-individual car. This is fine from a performance perspective -- we almost always
-want to draw all cars on lanes visible on-screen anyway.
+- Only wake up relevant agents when a previous agent finishes a turn.
+- Don't let an agent start a low-priority turn (like an unprotected left) if
+  it'll force a high-priority vehicle approaching to wait. The approaching
+  vehicle is still in the Crossing state, so we need to notify intersections
+  ahead of time of intended turns and an ETA.
 
-So how does it work? First consider the queue's lead vehicle. If they're Queued,
-then the front of the car must be at the end of the lane waiting to turn. If
-they're Crossing, then we can just linearly interpolate their front position
-from (0, lane_length) using the time-interval of their crossing and the current
-time. Then we consider the queue's second car. In an ideal world where they're
-the lead car, we do the same calculation based on Queued or Crossing state. But
-the second car is limited by the first. So as we process the queue, we track the
-bound -- a car's front position + the car's length + a fixed following distance
-of 1m. The second car might be farther back, or directly following the first and
-blocked by them. We just take min(ideal distance, bound), and repeat for the
-third car.
+## Demand data
 
-### v2: preventing discontinuities
+The input to a traffic simulation consists of a list of trips -- start from
+building 1 at some time, and travel to building 2 via walking/driving/bus/bike.
+How do we generate a realistic set of trips to capture Seatle's traffic
+patterns? Picking origins and destinations uniformly at random yields extremely
+unrealistic results. One approach is to harvest location data from phones -- but
+this is expensive and invasive to privacy. Another approach is to generate a
+synthetic population based on census data, land-use of different buildings,
+vehicle counts, travel surveys, and such. In Seattle, the Puget Sound Regional
+Council (PSRC) uses the
+[Soundcast model](https://www.psrc.org/activity-based-travel-model-soundcast) to
+do exactly this.
 
-There's an obvious problem happening when the lead vehicle of a queue leaves the
-queue -- everybody queued behind them suddenly jump forward. Discontinuities
-like this are of course unrealistic, but more importantly for A/B St's purpose,
-looks confusing to watch. So let's try a simple fix: when a lead car exits a
-queue, update its follower to know to cross the remaining distance properly. The
-follower might be Queued right behind the lead, or they might still be Crossing.
-If they're still Crossing, no worries -- they'll continue to smoothly Cross to
-the end of the lane. But if they're Queued, then reset the follower to Crossing,
-but instead make them cover a smaller distance -- (lane_length - lead car's
-length - FOLLOWING_DISTANCE, lane_length), using the usual min(lane speed limit,
-car's max speed). Since they're Queued, we know that's exactly where the
-follower must be.
+A/B Street imports data from PSRC using the `popdat` crate (the canonically
+trendy rendering of "population data"). This is further processed in
+`editor/src/mission/trips.rs`.
 
-This smoothness comes at a price -- instead of a car taking one event to cross a
-lane, it now might go through a bunch of Crossing states -- the lane's max
-capacity for vehicles, at worst. That's not so bad, and it's worth it though.
+## Appendix: discrete-time simulation
 
-### v3: starting and stopping early
+A/B Street's first traffic model was discrete-time, meaning that every agent
+reacted to the world every 0.1s. Cars had a more realistic kinematics model,
+accelerating to change speed and gradually come to a halt. Cars did a worst-case
+estimation of how far ahead they need to lookahead in order to satisfy different
+constraints:
 
-The basic traffic model is now in-place. As we add more elements of A/B Street
-in, we need one last tweak to the driving model. Cars don't always enter a lane
-at the beginning or exit at the very end. Cars sometimes start in the middle of
-a lane by exiting an adjacent parking spot. They sometimes end in the middle of
-a lane, by parking somewhere. And buses will idle in the middle of a lane,
-waiting at a bus stop for some amount of time.
+- Don't exceed any speed limits
+- Don't hit the lead vehicle (which might suddenly slam on its brakes)
+- Stop at the end of a lane, unless the intersection says to go
 
-When we update a car, so far we've never needed to calculate exact distances of
-everybody on the queue at that time. That's just for drawing. But now, we'll
-actually need those distances in two cases: when a car is finished parking or
-when a car is somewhere along their last lane. (Note that buses idling at a stop
-satisfy this second case -- when they leave the stop, they start following a new
-path to the next stop.) When the lead car vanishes from the driving lane (by
-shifting into the adjacent parking spot, for example), we simply update the
-follower to the Crossing state, starting at the exact position they are at that
-time (because we calculated it). If they were Queued behind the vanishing car,
-we know their exact position without having to calculate all of them. But
-Crossing cars still paying the minimum time to cross the lane might jump forward
-when the car in front vanishes. To prevent this, we refresh the Crossing state
-to explicitly start from where they became unblocked.
+After fighting with this approach for a long time, I eventually scrapped it in
+favor of the simpler discrete-event model because:
 
-### Remaining work
-
-There's one more discontinuity remaining. Since cars have length, they can
-occupy more than one lane at a time. When the lead car leaves a queue, the
-follower is updated to cross the remaining distance to the end. But if the
-leader is moving slowly through their turn, then the follower will actually hit
-the back end of the lead vehicle! We need a way to mark that the back of a
-vehicle is still in the queue. Maybe just tracking the back of cars would make
-more sense? But intersections need to know when a car has started a turn, and
-cars spawning on the next lane might care when the front (but not back) of a car
-is on the new lane. So maybe we just need to explicitly stick a car in multiple
-queues at a time and know when to update the follower on the old lane. Except
-knowing when the lead car has advanced some minimum distance into the new lane
-seemingly requires calculating exact distances frequently!
-
-This jump bug also happens when a lead car vanishes at a border node. They
-vanish when their front hits the border, even though they should really only
-vanish when their back makes it through.
-
-The other big thing to fix is blind retries. In almost all cases, we can
-calculate exactly when to update a car. Except for three:
-
-1. Car initially spawning, but maybe not room to start. Describe the rules for
-   that anyway.
-
-2. Car on the last lane, but haven't reached end_distance yet. Tried a more
-   accurate prediction thing, but it caused more events than a blind retry of
-   5s.
-
-3. Cars waiting to turn, but not starting because target lane is full. Could
-   register a dependency and get waked up when that queue's size falls below its
-   max capacity. Could use this also for gridlock detection. Oops, but can't
-   start because of no room_at_end. That's different than target lane being
-   full, and it's hard to predict when there'll be room to inch forward at the
-   end.
-
-#### Notes on fixing the jump bug
-
-- can track a laggy leader per queue. there's 0 or 1 of these, impossible to be
-  more.
-- a car can be a laggy leader in several queues, like long bus on short lanes.
-  last_steps is kinda equivalent to this.
-
-is it possible for get_car_positions to think something should still be blocked
-but the rest of the state machine to not? - dont change somebody to
-WaitingToAdvance until theres no laggy leader.
-
-TODO impl:
-
-- get_car_positions needs to recurse
-- trim_last_steps needs to do something different
-
-the eager impl:
-
-- anytime we update a Car with last_steps, try to go erase those. need full
-  distances. when we successfully erase, update followers that are Queued. - -
-  follower only starts moving once the laggy lead is totally out. wrong. they
-  were Queued, so immediately promote them to WaitingToAdvance. smoothly draw in
-  the meantime by recursing
-- optimistic check in the middle of Crossing, but use a different event for this
-  to be clear. the retry should only be expensive in gridlocky cases. -
-  BLIND_RETRY after... similar to end_dist checking. - note other routines dont
-  even do checks that could hit numerical precision, we just assume events are
-  scheduled for correct time.
-- maybe v1: dont recurse in get_car_positions, just block off entire laggy
-  leader length until they're totally out.
-- v2: do have to recurse. :(
-
-the lazy impl:
-
-- when we become WaitingToAdvance on a queue of length > vehicle len, clean up
-  last_steps if needed
-- when we vanish, clean up all last_steps
-- when a follower gets to ithin laggy leader length of the queue end, need to
-  resolve earlier - resolving early needs to get exact distances. expensive, but
-  common case is theyre clear. if somebody gets stuck fully leaving a queue,
-  then this will spam, but thats also gridlocky and we want to avoid that anyway
-
-other ideas:
-
-- can we cheat and ensure that we only clip into laggy leaders briefly? - if
-  laggy leaders never get stuck at end of their next queue...
-- alt: store front and back of each car in queues separately - compute crossing
-  state and stuff for those individually? double the work?
-
-## A/B Street's full simulation architecture
-
-start from step(), the master event queue, how each event is dispatched, each
-agent's states
-
-FSM for intersections, cars, peds (need to represent stuff like updating a
-follower, or being updated by a leader)
-
-
-
-
-
-## demand data
+- It's fundamentally slow; there's lots of busy work where cars in freeflow with
+  nothing blocking them or stopped in a long queue constantly check to see if
+  anything has changed.
+- Figuring out the acceleration to apply for the next 0.1s in order to satisfy
+  all of the constraints is really complicated. Floating point inaccuracies
+  cause ugly edge cases with speeds that wind up slightly negative and with cars
+  coming to a complete stop slightly past the end of a lane. I wound up storing
+  the "intent" of an action to auto-correct these errors.
+- The realism of having cars accelerate smoothly didn't add value to the core
+  idea in A/B Street, which is to model points of contention like parking
+  capacity and intersections. (This is the same reason why I don't model bike
+  racks for parking bikes -- in Seattle, it's never hard to find something to
+  lock to -- this would be very different if Copenhagen was the target.)
+  Additionally, the kinematics model made silly assumptions about driving anyway
+  -- cars would smash on their accelerators and brakes as hard as possible
+  within all of the constraints.
