@@ -3,6 +3,7 @@ use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer, Warn};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap, HashSet};
 
+// TODO Some of these are probably old notes:
 // 1) Pedestrians always have right-of-way. (for now -- should be toggleable later)
 // 2) Incoming roads without a stop sign have priority over roads with a sign.
 // 3) Agents with a stop sign have to actually wait some amount of time before starting the turn.

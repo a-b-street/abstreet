@@ -1,21 +1,21 @@
 use crate::common::CommonState;
 use crate::edit::apply_map_edits;
 use crate::game::{State, Transition};
-use crate::helpers::ID;
-use crate::render::{DrawIntersection, DrawOptions, DrawTurn};
+use crate::render::{DrawIntersection, DrawOptions};
 use crate::ui::{ShowEverything, UI};
 use ezgui::{hotkey, Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu, Text};
 use geom::Polygon;
-use map_model::{IntersectionID, RoadID, TurnID, TurnPriority};
+use map_model::{IntersectionID, RoadID};
 use std::collections::HashMap;
 
+// TODO For now, individual turns can't be manipulated. Banning turns could be useful, but I'm not
+// sure what to do about the player orphaning a section of the map.
 pub struct StopSignEditor {
     menu: ModalMenu,
     id: IntersectionID,
     // (octagon, pole)
     geom: HashMap<RoadID, (Polygon, Polygon)>,
     selected_sign: Option<RoadID>,
-    selected_turn: Option<TurnID>,
 }
 
 impl StopSignEditor {
@@ -45,7 +45,6 @@ impl StopSignEditor {
             id,
             geom,
             selected_sign: None,
-            selected_turn: None,
         }
     }
 }
@@ -57,7 +56,6 @@ impl State for StopSignEditor {
 
         if ctx.redo_mouseover() {
             self.selected_sign = None;
-            self.selected_turn = None;
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
                 for (r, (octagon, _)) in &self.geom {
                     if octagon.contains_pt(pt) {
@@ -65,41 +63,10 @@ impl State for StopSignEditor {
                         break;
                     }
                 }
-                if self.selected_sign.is_none() {
-                    for t in &ui.primary.draw_map.get_turns(self.id, &ui.primary.map) {
-                        if t.contains_pt(pt) {
-                            self.selected_turn = Some(t.id);
-                            break;
-                        }
-                    }
-                }
             }
         }
 
-        if let Some(t) = self.selected_turn {
-            let mut sign = ui.primary.map.get_stop_sign(self.id).clone();
-            let next_priority = match sign.get_priority(t) {
-                TurnPriority::Banned => TurnPriority::Stop,
-                TurnPriority::Stop => TurnPriority::Yield,
-                TurnPriority::Yield => {
-                    if sign.could_be_priority_turn(t, &ui.primary.map) {
-                        TurnPriority::Priority
-                    } else {
-                        TurnPriority::Banned
-                    }
-                }
-                TurnPriority::Priority => TurnPriority::Banned,
-            };
-            if ctx
-                .input
-                .contextual_action(Key::Space, &format!("toggle to {:?}", next_priority))
-            {
-                sign.change(t, next_priority, &ui.primary.map);
-                let mut new_edits = ui.primary.map.get_edits().clone();
-                new_edits.stop_sign_overrides.insert(self.id, sign);
-                apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
-            }
-        } else if let Some(r) = self.selected_sign {
+        if let Some(r) = self.selected_sign {
             if ctx.input.contextual_action(Key::Space, "toggle stop sign") {
                 let mut sign = ui.primary.map.get_stop_sign(self.id).clone();
                 sign.flip_sign(r, &ui.primary.map);
@@ -148,27 +115,6 @@ impl State for StopSignEditor {
             }
         }
 
-        for t in &ui.primary.draw_map.get_turns(self.id, map) {
-            let arrow_color = match sign.get_priority(t.id) {
-                TurnPriority::Priority => ui.cs.get_def("priority stop sign turn", Color::GREEN),
-                TurnPriority::Yield => ui.cs.get_def("yield stop sign turn", Color::YELLOW),
-                TurnPriority::Stop => ui.cs.get_def("stop turn", Color::RED),
-                TurnPriority::Banned => ui.cs.get_def("banned turn", Color::BLACK),
-            };
-            t.draw_icon(
-                &mut batch,
-                &ui.cs,
-                arrow_color,
-                self.selected_turn == Some(t.id),
-            );
-        }
-        if let Some(id) = self.selected_turn {
-            DrawTurn::draw_dashed(
-                map.get_t(id),
-                &mut batch,
-                ui.cs.get_def("selected turn", Color::RED),
-            );
-        }
         batch.draw(g);
 
         self.menu.draw(g);
@@ -179,8 +125,6 @@ impl State for StopSignEditor {
                 Some(ui.cs.get("OSD name color")),
             );
             CommonState::draw_custom_osd(g, osd);
-        } else if let Some(t) = self.selected_turn {
-            CommonState::draw_osd(g, ui, Some(ID::Turn(t)));
         } else {
             CommonState::draw_osd(g, ui, None);
         }
