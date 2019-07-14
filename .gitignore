@@ -16,3 +16,4 @@ data/scenarios/*
 data/screenshots/*/*.png
 data/screenshots/*/combine.sh
 data/shapes/*
+data/shortcuts/*

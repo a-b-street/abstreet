@@ -9,13 +9,16 @@ const MIN_ANIMATION_SPEED: f64 = 200.0;
 pub struct Warper {
     started: Instant,
     line: Option<Line>,
+    cam_zoom: (f64, f64),
 }
 
 impl Warper {
-    pub fn new(ctx: &EventCtx, pt: Pt2D) -> Warper {
+    pub fn new(ctx: &EventCtx, pt: Pt2D, target_cam_zoom: Option<f64>) -> Warper {
+        let z = ctx.canvas.cam_zoom;
         Warper {
             started: Instant::now(),
             line: Line::maybe_new(ctx.canvas.center_to_map_pt(), pt),
+            cam_zoom: (z, target_cam_zoom.unwrap_or(z)),
         }
     }
 
@@ -36,9 +39,11 @@ impl Warper {
         let percent = abstutil::elapsed_seconds(self.started) / total_time;
 
         if percent >= 1.0 || ctx.input.nonblocking_is_keypress_event() {
+            ctx.canvas.cam_zoom = self.cam_zoom.1;
             ctx.canvas.center_on_map_pt(line.pt2());
             None
         } else {
+            ctx.canvas.cam_zoom = self.cam_zoom.0 + percent * (self.cam_zoom.1 - self.cam_zoom.0);
             ctx.canvas
                 .center_on_map_pt(line.dist_along(line.length() * percent));
             Some(EventLoopMode::Animation)

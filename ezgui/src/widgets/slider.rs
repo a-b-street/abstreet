@@ -290,7 +290,7 @@ impl<T> WarpingItemSlider<T> {
         ctx: &mut EventCtx,
     ) -> WarpingItemSlider<T> {
         WarpingItemSlider {
-            warper: Some(Warper::new(ctx, items[0].0)),
+            warper: Some(Warper::new(ctx, items[0].0, None)),
             slider: ItemSlider::new(
                 items
                     .into_iter()
@@ -327,7 +327,7 @@ impl<T> WarpingItemSlider<T> {
         }
 
         let (_, (pt, _)) = self.slider.get();
-        self.warper = Some(Warper::new(ctx, *pt));
+        self.warper = Some(Warper::new(ctx, *pt, None));
         // We just created a new warper, so...
         Some((EventLoopMode::Animation, done_warping))
     }

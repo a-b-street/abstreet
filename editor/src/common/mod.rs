@@ -3,6 +3,7 @@ mod associated;
 mod navigate;
 mod route_explorer;
 mod route_viewer;
+mod shortcuts;
 mod speed;
 mod time;
 mod trip_explorer;
@@ -47,6 +48,11 @@ impl CommonState {
         }
         if menu.action("navigate") {
             return Some(Transition::Push(Box::new(navigate::Navigator::new(ui))));
+        }
+        if menu.action("shortcuts") {
+            return Some(Transition::Push(Box::new(
+                shortcuts::ChoosingShortcut::new(ui),
+            )));
         }
 
         self.associated.event(ui);

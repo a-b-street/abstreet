@@ -75,6 +75,7 @@ impl DebugMode {
                         (lctrl(Key::E), "edit mode"),
                         (hotkey(Key::J), "warp"),
                         (hotkey(Key::K), "navigate"),
+                        (hotkey(Key::SingleQuote), "shortcuts"),
                         (hotkey(Key::F1), "take a screenshot"),
                     ],
                 ],

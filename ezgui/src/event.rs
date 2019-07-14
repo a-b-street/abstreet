@@ -133,6 +133,7 @@ pub enum Key {
     Semicolon,
     Colon,
     Equals,
+    SingleQuote,
     // Stuff without a straightforward single-character display
     Escape,
     Enter,
@@ -209,6 +210,7 @@ impl Key {
             Key::Semicolon => Some(';'),
             Key::Colon => Some(':'),
             Key::Equals => Some(if shift_pressed { '+' } else { '=' }),
+            Key::SingleQuote => Some(if shift_pressed { '"' } else { '\'' }),
             Key::Escape
             | Key::Enter
             | Key::Tab
@@ -318,6 +320,7 @@ impl Key {
             glutin::VirtualKeyCode::Semicolon => Key::Semicolon,
             glutin::VirtualKeyCode::Colon => Key::Colon,
             glutin::VirtualKeyCode::Equals => Key::Equals,
+            glutin::VirtualKeyCode::Apostrophe => Key::SingleQuote,
             glutin::VirtualKeyCode::Escape => Key::Escape,
             glutin::VirtualKeyCode::Return => Key::Enter,
             glutin::VirtualKeyCode::Tab => Key::Tab,

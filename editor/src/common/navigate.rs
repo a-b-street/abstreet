@@ -84,8 +84,9 @@ impl State for CrossStreet {
                         warper: Warper::new(
                             ctx,
                             road.center_pts.dist_along(road.center_pts.length() / 2.0).0,
+                            None,
                         ),
-                        id: ID::Lane(road.all_lanes()[0]),
+                        id: Some(ID::Lane(road.all_lanes()[0])),
                     }),
                     EventLoopMode::Animation,
                 )
@@ -104,8 +105,8 @@ impl State for CrossStreet {
                 };
                 Transition::ReplaceWithMode(
                     Box::new(Warping {
-                        warper: Warper::new(ctx, pt),
-                        id: ID::Lane(road.all_lanes()[0]),
+                        warper: Warper::new(ctx, pt, None),
+                        id: Some(ID::Lane(road.all_lanes()[0])),
                     }),
                     EventLoopMode::Animation,
                 )

@@ -27,8 +27,8 @@ impl State for EnteringWarp {
                 if let Some((id, pt)) = warp_point(to, &ui.primary) {
                     Transition::ReplaceWithMode(
                         Box::new(Warping {
-                            warper: Warper::new(ctx, pt),
-                            id,
+                            warper: Warper::new(ctx, pt, None),
+                            id: Some(id),
                         }),
                         EventLoopMode::Animation,
                     )
@@ -47,7 +47,7 @@ impl State for EnteringWarp {
 
 pub struct Warping {
     pub warper: Warper,
-    pub id: ID,
+    pub id: Option<ID>,
 }
 
 impl State for Warping {
@@ -55,7 +55,7 @@ impl State for Warping {
         if let Some(evmode) = self.warper.event(ctx) {
             Transition::KeepWithMode(evmode)
         } else {
-            ui.primary.current_selection = Some(self.id);
+            ui.primary.current_selection = self.id;
             Transition::Pop
         }
     }
