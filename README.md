@@ -19,6 +19,7 @@ Watching overall traffic patterns and zooming into a few slow areas:
 - [Map model](docs/articles/map/article.md)
 - [Traffic simulation](docs/articles/trafficsim/article.md)
 - [Rust implementation notes](docs/articles/rust/article.md)
+- [Running A/B Street in a new city](docs/new_city.md)
 - [Features (outdated)](docs/articles/features/article.md)
 
 ## Features

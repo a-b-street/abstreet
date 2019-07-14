@@ -396,6 +396,7 @@ impl Road {
 
                 "unclassified" => 0,
                 "road" => 0,
+                "crossing" => 0,
                 _ => panic!("Unknown OSM highway {}", highway),
             }
         } else {

@@ -124,6 +124,12 @@ fn generalized_trim_back(
                 (pl1.clone(), pl2.clone())
             };
 
+            // TODO This only happens in Austin so far, haven't dove into why.
+            if use_pl1 == use_pl2 {
+                timer.warn(format!("{} and {} wind up with the same polyline", r1, r2));
+                continue;
+            }
+
             if let Some((hit, angle)) = use_pl1.intersection(&use_pl2) {
                 // Find where the perpendicular hits the original road line
                 let perp = Line::new(

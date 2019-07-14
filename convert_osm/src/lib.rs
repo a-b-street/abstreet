@@ -5,7 +5,7 @@ mod remove_disconnected;
 mod split_ways;
 
 use abstutil::Timer;
-use geom::{Distance, FindClosest, LonLat, PolyLine, Pt2D};
+use geom::{Distance, FindClosest, GPSBounds, LonLat, PolyLine, Pt2D};
 use kml::ExtraShapes;
 use map_model::{raw_data, IntersectionType, LANE_THICKNESS};
 use std::fs::File;
@@ -37,8 +37,8 @@ pub struct Flags {
     #[structopt(long = "neighborhoods", default_value = "")]
     pub neighborhoods: String,
 
-    /// Osmosis clipping polgon
-    #[structopt(long = "clip")]
+    /// Osmosis clipping polgon. Optional.
+    #[structopt(long = "clip", default_value = "")]
     pub clip: String,
 
     /// Output .bin path
@@ -52,7 +52,15 @@ pub struct Flags {
 
 pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
     let mut map = split_ways::split_up_roads(osm::osm_to_raw_roads(&flags.osm, timer), timer);
-    map.boundary_polygon = read_osmosis_polygon(&flags.clip);
+    if !flags.clip.is_empty() {
+        map.boundary_polygon = read_osmosis_polygon(&flags.clip);
+    } else {
+        // Default to a rectangle covering everything.
+        map.compute_gps_bounds();
+        map.boundary_polygon = map.gps_bounds.get_corners();
+        map.boundary_polygon.push(map.boundary_polygon[0]);
+        map.gps_bounds = GPSBounds::new();
+    }
     clip::clip_map(&mut map, timer);
     remove_disconnected::remove_disconnected_roads(&mut map, timer);
 
