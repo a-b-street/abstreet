@@ -70,3 +70,13 @@ changes here.
 - reduce lag when sim is running at full speeds, but system is too slow
 - switch to easbar's contraction hierarchy crate, making all pathfinding INSANELY fast
 - remove weird rules about the world freezing when traffic signals are in "overtime"
+
+0.1.8
+
+- edit mode: convert to a ped scramble cycle, simplify stop sign editor by removing individual turns
+- ui: put labels next to sliders, organize modal menus into sections, add a minimize/maximize icon
+- A/B test mode: savestate, include time controls and agent following/route tools here
+- use more OSM data for turn lanes, turn restrictions from lanes, turn restrictions between entire roads
+- dont attempt to cross a traffic signal if there's absolutely no hope
+- improve bus route UI tools and make routes using transit more sane
+- user-defined shortcuts for jumping between views of a map
