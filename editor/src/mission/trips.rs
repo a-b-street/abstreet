@@ -1,7 +1,6 @@
-use crate::mission::input_time;
 use crate::ui::UI;
 use abstutil::Timer;
-use ezgui::{EventCtx, WrappedWizard};
+use ezgui::EventCtx;
 use geom::{Distance, Duration, LonLat, PolyLine, Polygon, Pt2D};
 use map_model::{BuildingID, IntersectionID, LaneType, Map, PathRequest, Position};
 use sim::{DrivingGoal, Scenario, SidewalkSpot, SpawnTrip, TripSpec};
@@ -361,18 +360,4 @@ pub fn trips_to_scenario(ctx: &mut EventCtx, ui: &UI, t1: Duration, t2: Duration
         border_spawn_over_time: Vec::new(),
         individ_trips,
     }
-}
-
-pub fn pick_time_range(mut wizard: WrappedWizard) -> Option<(Duration, Duration)> {
-    let t1 = input_time(&mut wizard, "Include trips departing AFTER when?")?;
-    let t2 = input_time(&mut wizard, "Include trips departing BEFORE when?")?;
-    // TODO enforce better
-    if t1 >= t2 {
-        if wizard.acknowledge("Invalid times", vec![&format!("{} is >= {}", t1, t2)]) {
-            wizard.abort();
-        }
-        return None;
-    }
-
-    Some((t1, t2))
 }

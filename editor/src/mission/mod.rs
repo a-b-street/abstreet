@@ -5,7 +5,7 @@ mod neighborhood;
 mod scenario;
 mod trips;
 
-use self::trips::{pick_time_range, trips_to_scenario};
+use self::trips::trips_to_scenario;
 use crate::game::{State, Transition};
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
@@ -62,12 +62,7 @@ impl State for MissionEditMode {
         } else if self.menu.action("visualize all PSRC trips") {
             return Transition::Push(Box::new(all_trips::TripsVisualizer::new(ctx, ui)));
         } else if self.menu.action("set up simulation with PSRC trips") {
-            let scenario = trips_to_scenario(
-                ctx,
-                ui,
-                Duration::ZERO,
-                Duration::parse("23:59:59.9").unwrap(),
-            );
+            let scenario = trips_to_scenario(ctx, ui, Duration::ZERO, Duration::END_OF_DAY);
             ctx.loading_screen("instantiate scenario", |_, timer| {
                 scenario.instantiate(
                     &mut ui.primary.sim,
@@ -109,7 +104,11 @@ struct TripsToScenario {
 
 impl State for TripsToScenario {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        if let Some((t1, t2)) = pick_time_range(self.wizard.wrap(ctx)) {
+        if let Some((t1, t2)) = pick_time_range(
+            &mut self.wizard.wrap(ctx),
+            "Include trips departing AFTER when?",
+            "Include trips departing BEFORE when?",
+        ) {
             trips_to_scenario(ctx, ui, t1, t2).save();
             return Transition::Pop;
         } else if self.wizard.aborted() {
@@ -172,8 +171,14 @@ impl State for CreateNewScenario {
     }
 }
 
-pub fn input_time(wizard: &mut WrappedWizard, query: &str) -> Option<Duration> {
-    wizard.input_something(query, None, Box::new(|line| Duration::parse(&line)))
+pub fn pick_time_range(
+    wizard: &mut WrappedWizard,
+    low_query: &str,
+    high_query: &str,
+) -> Option<(Duration, Duration)> {
+    let t1 = wizard.input_time_slider(low_query, Duration::ZERO, Duration::END_OF_DAY)?;
+    let t2 = wizard.input_time_slider(high_query, t1, Duration::END_OF_DAY)?;
+    Some((t1, t2))
 }
 
 fn load_scenario(map: &Map, wizard: &mut WrappedWizard) -> Option<Scenario> {

@@ -1,5 +1,5 @@
 use crate::game::{State, Transition};
-use crate::mission::input_time;
+use crate::mission::pick_time_range;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::WeightedUsizeChoice;
@@ -125,11 +125,12 @@ fn edit_scenario(map: &Map, scenario: &mut Scenario, mut wizard: WrappedWizard) 
             });
         }
         x if x == spawn => {
+            let (start_time, stop_time) =
+                pick_time_range(&mut wizard, "Start spawning when?", "Stop spawning when?")?;
             scenario.spawn_over_time.push(SpawnOverTime {
                 num_agents: wizard.input_usize("Spawn how many agents?")?,
-                start_time: input_time(&mut wizard, "Start spawning when?")?,
-                // TODO input interval, or otherwise enforce stop_time > start_time
-                stop_time: input_time(&mut wizard, "Stop spawning when?")?,
+                start_time,
+                stop_time,
                 start_from_neighborhood: choose_neighborhood(
                     map,
                     &mut wizard,
@@ -144,13 +145,14 @@ fn edit_scenario(map: &Map, scenario: &mut Scenario, mut wizard: WrappedWizard) 
             });
         }
         x if x == spawn_border => {
+            let (start_time, stop_time) =
+                pick_time_range(&mut wizard, "Start spawning when?", "Stop spawning when?")?;
             scenario.border_spawn_over_time.push(BorderSpawnOverTime {
                 num_peds: wizard.input_usize("Spawn how many pedestrians?")?,
                 num_cars: wizard.input_usize("Spawn how many cars?")?,
                 num_bikes: wizard.input_usize("Spawn how many bikes?")?,
-                start_time: input_time(&mut wizard, "Start spawning when?")?,
-                // TODO input interval, or otherwise enforce stop_time > start_time
-                stop_time: input_time(&mut wizard, "Stop spawning when?")?,
+                start_time,
+                stop_time,
                 // TODO validate it's a border!
                 start_from_border: choose_intersection(
                     &mut wizard,

@@ -86,7 +86,7 @@ impl TripsVisualizer {
     }
 
     fn current_time(&self) -> Duration {
-        self.time_slider.get_percent() * Duration::parse("23:59:59.9").unwrap()
+        self.time_slider.get_percent() * Duration::END_OF_DAY
     }
 }
 
@@ -106,27 +106,28 @@ impl State for TripsVisualizer {
             ui.recalculate_current_selection(ctx);
         }
 
-        let last_time = Duration::parse("23:59:59.9").unwrap();
         let ten_secs = Duration::seconds(10.0);
         let thirty_mins = Duration::minutes(30);
 
         if self.menu.action("quit") {
             return Transition::Pop;
-        } else if time != last_time && self.menu.action("forwards 10 seconds") {
+        } else if time != Duration::END_OF_DAY && self.menu.action("forwards 10 seconds") {
             self.time_slider
-                .set_percent(ctx, (time + ten_secs) / last_time);
-        } else if time + thirty_mins <= last_time && self.menu.action("forwards 30 minutes") {
+                .set_percent(ctx, (time + ten_secs) / Duration::END_OF_DAY);
+        } else if time + thirty_mins <= Duration::END_OF_DAY
+            && self.menu.action("forwards 30 minutes")
+        {
             self.time_slider
-                .set_percent(ctx, (time + thirty_mins) / last_time);
+                .set_percent(ctx, (time + thirty_mins) / Duration::END_OF_DAY);
         } else if time != Duration::ZERO && self.menu.action("backwards 10 seconds") {
             self.time_slider
-                .set_percent(ctx, (time - ten_secs) / last_time);
+                .set_percent(ctx, (time - ten_secs) / Duration::END_OF_DAY);
         } else if time - thirty_mins >= Duration::ZERO && self.menu.action("backwards 30 minutes") {
             self.time_slider
-                .set_percent(ctx, (time - thirty_mins) / last_time);
+                .set_percent(ctx, (time - thirty_mins) / Duration::END_OF_DAY);
         } else if time != Duration::ZERO && self.menu.action("goto start of day") {
             self.time_slider.set_percent(ctx, 0.0);
-        } else if time != last_time && self.menu.action("goto end of day") {
+        } else if time != Duration::END_OF_DAY && self.menu.action("goto end of day") {
             self.time_slider.set_percent(ctx, 1.0);
         } else if self.time_slider.event(ctx) {
             // Value changed, fall-through
@@ -134,7 +135,7 @@ impl State for TripsVisualizer {
             // TODO Speed description is briefly weird when we jump backwards with the other
             // control.
             self.time_slider
-                .set_percent(ctx, ((time + dt) / last_time).min(1.0));
+                .set_percent(ctx, ((time + dt) / Duration::END_OF_DAY).min(1.0));
         } else {
             return Transition::Keep;
         }

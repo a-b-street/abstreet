@@ -15,7 +15,7 @@ pub use self::menu::{Menu, Position};
 pub use self::modal_menu::ModalMenu;
 pub(crate) use self::screenshot::{screenshot_current, screenshot_everything};
 pub use self::scrolling_menu::ScrollingMenu;
-pub use self::slider::{ItemSlider, Slider, WarpingItemSlider};
+pub use self::slider::{ItemSlider, Slider, SliderWithTextBox, WarpingItemSlider};
 pub use self::text_box::TextBox;
 pub use self::warper::Warper;
 pub use self::wizard::{Wizard, WrappedWizard};

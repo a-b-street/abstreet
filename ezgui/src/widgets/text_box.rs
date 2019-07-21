@@ -21,9 +21,8 @@ impl TextBox {
         }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx) {
+    pub(crate) fn get_text(&self) -> Text {
         let mut txt = Text::prompt(&self.prompt);
-
         txt.add_line(self.line[0..self.cursor_x].to_string());
         if self.cursor_x < self.line.len() {
             // TODO This "cursor" looks awful!
@@ -33,8 +32,20 @@ impl TextBox {
         } else {
             txt.append("|".to_string(), Some(text::SELECTED_COLOR));
         }
+        txt
+    }
 
-        g.draw_blocking_text(&txt, CENTERED);
+    pub(crate) fn get_line(&self) -> &str {
+        &self.line
+    }
+
+    pub(crate) fn set_text(&mut self, line: String) {
+        self.line = line;
+        self.cursor_x = self.line.len();
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx) {
+        g.draw_blocking_text(&self.get_text(), CENTERED);
     }
 
     pub fn event(&mut self, input: &mut UserInput) -> InputResult<()> {

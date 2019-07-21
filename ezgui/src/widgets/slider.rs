@@ -1,9 +1,9 @@
 use crate::screen_geom::ScreenRectangle;
 use crate::{
-    hotkey, Color, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, MultiKey, ScreenPt, Text,
-    Warper,
+    hotkey, text, Canvas, Color, EventCtx, EventLoopMode, GfxCtx, InputResult, Key, ModalMenu,
+    MultiKey, ScreenPt, Text, TextBox, Warper,
 };
-use geom::{Distance, Polygon, Pt2D};
+use geom::{Distance, Duration, Polygon, Pt2D};
 
 // Pixels
 const BAR_WIDTH: f64 = 300.0;
@@ -339,5 +339,68 @@ impl<T> WarpingItemSlider<T> {
     pub fn get(&self) -> (usize, &T) {
         let (idx, (_, data)) = self.slider.get();
         (idx, data)
+    }
+}
+
+// TODO Hardcoded to Durations right now...
+pub struct SliderWithTextBox {
+    slider: Slider,
+    tb: TextBox,
+    low: Duration,
+    high: Duration,
+}
+
+impl SliderWithTextBox {
+    pub fn new(prompt: &str, low: Duration, high: Duration, canvas: &Canvas) -> SliderWithTextBox {
+        // TODO Need to re-center when window is resized
+        let mut top_left = canvas.center_to_screen_pt();
+        top_left.x -= (BAR_WIDTH + 2.0 * HORIZ_PADDING) / 2.0;
+        top_left.y -= (BAR_HEIGHT + 2.0 * VERT_PADDING + canvas.line_height(text::FONT_SIZE)) / 2.0;
+
+        SliderWithTextBox {
+            slider: Slider::new(Some(top_left)),
+            tb: TextBox::new(prompt, None),
+            low,
+            high,
+        }
+    }
+
+    pub fn event(&mut self, ctx: &mut EventCtx) -> InputResult<Duration> {
+        ctx.canvas.handle_event(ctx.input);
+
+        if self.slider.event(ctx) {
+            let value = self.low + self.slider.get_percent() * (self.high - self.low);
+            self.tb.set_text(value.to_string());
+            InputResult::StillActive
+        } else {
+            let line_before = self.tb.get_line().to_string();
+            match self.tb.event(ctx.input) {
+                InputResult::Done(line, _) => {
+                    if let Some(t) = Duration::parse(&line) {
+                        if t >= self.low && t <= self.high {
+                            return InputResult::Done(line, t);
+                        }
+                    }
+                    println!("Bad input {}", line);
+                    InputResult::Canceled
+                }
+                InputResult::StillActive => {
+                    if line_before != self.tb.get_line() {
+                        if let Some(t) = Duration::parse(self.tb.get_line()) {
+                            if t >= self.low && t <= self.high {
+                                self.slider
+                                    .set_percent(ctx, (t - self.low) / (self.high - self.low));
+                            }
+                        }
+                    }
+                    InputResult::StillActive
+                }
+                InputResult::Canceled => InputResult::Canceled,
+            }
+        }
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx) {
+        self.slider.draw(g, Some(self.tb.get_text()));
     }
 }

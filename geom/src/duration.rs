@@ -19,6 +19,9 @@ impl Ord for Duration {
 impl Duration {
     pub const ZERO: Duration = Duration::const_seconds(0.0);
     pub const EPSILON: Duration = Duration::const_seconds(0.0001);
+    // This isn't the last possible time, but for UI control purposes, it'll do.
+    pub const END_OF_DAY: Duration =
+        Duration::const_seconds(59.9 + (59.0 * 60.0) + (23.0 * 3600.0));
 
     pub fn seconds(value: f64) -> Duration {
         if !value.is_finite() {

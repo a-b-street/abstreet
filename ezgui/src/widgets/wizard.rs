@@ -1,8 +1,10 @@
 use crate::widgets::{Menu, Position};
 use crate::{
-    Canvas, EventCtx, GfxCtx, InputResult, LogScroller, MultiKey, Text, TextBox, UserInput,
+    EventCtx, GfxCtx, InputResult, LogScroller, MultiKey, SliderWithTextBox, Text, TextBox,
+    UserInput,
 };
 use abstutil::Cloneable;
+use geom::Duration;
 use std::collections::VecDeque;
 
 pub struct Wizard {
@@ -10,6 +12,7 @@ pub struct Wizard {
     tb: Option<TextBox>,
     menu: Option<Menu<Box<Cloneable>>>,
     log_scroller: Option<LogScroller>,
+    slider: Option<SliderWithTextBox>,
 
     // In the order of queries made
     confirmed_state: Vec<Box<Cloneable>>,
@@ -22,6 +25,7 @@ impl Wizard {
             tb: None,
             menu: None,
             log_scroller: None,
+            slider: None,
             confirmed_state: Vec::new(),
         }
     }
@@ -36,16 +40,18 @@ impl Wizard {
         if let Some(ref s) = self.log_scroller {
             s.draw(g);
         }
+        if let Some(ref s) = self.slider {
+            s.draw(g);
+        }
     }
 
-    pub fn wrap<'a>(&'a mut self, ctx: &'a mut EventCtx) -> WrappedWizard<'a> {
+    pub fn wrap<'a, 'b>(&'a mut self, ctx: &'a mut EventCtx<'b>) -> WrappedWizard<'a, 'b> {
         assert!(self.alive);
 
         let ready_results = VecDeque::from(self.confirmed_state.clone());
         WrappedWizard {
             wizard: self,
-            input: ctx.input,
-            canvas: ctx.canvas,
+            ctx,
             ready_results,
         }
     }
@@ -67,6 +73,7 @@ impl Wizard {
         assert!(self.tb.is_none());
         assert!(self.menu.is_none());
         assert!(self.log_scroller.is_none());
+        assert!(self.slider.is_none());
         self.confirmed_state.clear();
     }
 
@@ -105,20 +112,50 @@ impl Wizard {
             }
         }
     }
+
+    fn input_time_slider(
+        &mut self,
+        query: &str,
+        low: Duration,
+        high: Duration,
+        ctx: &mut EventCtx,
+    ) -> Option<Duration> {
+        assert!(self.alive);
+
+        // Otherwise, we try to use one event for two inputs potentially
+        if ctx.input.has_been_consumed() {
+            return None;
+        }
+
+        if self.slider.is_none() {
+            self.slider = Some(SliderWithTextBox::new(query, low, high, ctx.canvas));
+        }
+
+        match self.slider.as_mut().unwrap().event(ctx) {
+            InputResult::StillActive => None,
+            InputResult::Canceled => {
+                self.alive = false;
+                None
+            }
+            InputResult::Done(_, result) => {
+                self.slider = None;
+                Some(result)
+            }
+        }
+    }
 }
 
 // Lives only for one frame -- bundles up temporary things like UserInput and statefully serve
 // prior results.
-pub struct WrappedWizard<'a> {
+pub struct WrappedWizard<'a, 'b> {
     wizard: &'a mut Wizard,
-    input: &'a mut UserInput,
-    canvas: &'a mut Canvas,
+    ctx: &'a mut EventCtx<'b>,
 
     // The downcasts are safe iff the queries made to the wizard are deterministic.
     ready_results: VecDeque<Box<Cloneable>>,
 }
 
-impl<'a> WrappedWizard<'a> {
+impl<'a, 'b> WrappedWizard<'a, 'b> {
     pub fn input_something<R: 'static + Clone + Cloneable>(
         &mut self,
         query: &str,
@@ -132,8 +169,28 @@ impl<'a> WrappedWizard<'a> {
         }
         if let Some(obj) = self
             .wizard
-            .input_with_text_box(query, prefilled, self.input, parser)
+            .input_with_text_box(query, prefilled, self.ctx.input, parser)
         {
+            self.wizard.confirmed_state.push(Box::new(obj.clone()));
+            Some(obj)
+        } else {
+            None
+        }
+    }
+
+    pub fn input_time_slider(
+        &mut self,
+        query: &str,
+        low: Duration,
+        high: Duration,
+    ) -> Option<Duration> {
+        if !self.ready_results.is_empty() {
+            let first = self.ready_results.pop_front().unwrap();
+            // TODO Simplify?
+            let item: &Duration = first.as_any().downcast_ref::<Duration>().unwrap();
+            return Some(item.clone());
+        }
+        if let Some(obj) = self.wizard.input_time_slider(query, low, high, self.ctx) {
             self.wizard.confirmed_state.push(Box::new(obj.clone()));
             Some(obj)
         } else {
@@ -196,7 +253,13 @@ impl<'a> WrappedWizard<'a> {
         // If the menu was empty, wait for the user to acknowledge the text-box before aborting the
         // wizard.
         if self.wizard.log_scroller.is_some() {
-            if self.wizard.log_scroller.as_mut().unwrap().event(self.input) {
+            if self
+                .wizard
+                .log_scroller
+                .as_mut()
+                .unwrap()
+                .event(self.ctx.input)
+            {
                 self.wizard.log_scroller = None;
                 self.wizard.alive = false;
             }
@@ -222,19 +285,25 @@ impl<'a> WrappedWizard<'a> {
                 true,
                 false,
                 Position::ScreenCenter,
-                self.canvas,
+                self.ctx.canvas,
             ));
         }
 
         assert!(self.wizard.alive);
 
         // Otherwise, we try to use one event for two inputs potentially
-        if self.input.has_been_consumed() {
+        if self.ctx.input.has_been_consumed() {
             return None;
         }
 
-        let ev = self.input.use_event_directly().unwrap();
-        match self.wizard.menu.as_mut().unwrap().event(ev, self.canvas) {
+        let ev = self.ctx.input.use_event_directly().unwrap();
+        match self
+            .wizard
+            .menu
+            .as_mut()
+            .unwrap()
+            .event(ev, self.ctx.canvas)
+        {
             InputResult::Canceled => {
                 self.wizard.menu = None;
                 self.wizard.alive = false;
@@ -313,7 +382,13 @@ impl<'a> WrappedWizard<'a> {
                 lines.into_iter().map(|l| l.to_string()).collect(),
             ));
         }
-        if self.wizard.log_scroller.as_mut().unwrap().event(self.input) {
+        if self
+            .wizard
+            .log_scroller
+            .as_mut()
+            .unwrap()
+            .event(self.ctx.input)
+        {
             self.wizard.confirmed_state.push(Box::new(()));
             self.wizard.log_scroller = None;
             true

@@ -1,5 +1,4 @@
 use crate::game::{State, Transition};
-use crate::mission::input_time;
 use crate::ui::UI;
 use ezgui::{EventCtx, GfxCtx, ModalMenu, Wizard};
 use geom::Duration;
@@ -37,27 +36,19 @@ impl State for JumpingToTime {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         let mut wiz = self.wizard.wrap(ctx);
 
-        if let Some(t) = input_time(&mut wiz, "Jump to what time?") {
+        if let Some(t) = wiz.input_time_slider(
+            "Jump to what time?",
+            ui.primary.sim.time(),
+            Duration::END_OF_DAY,
+        ) {
             let dt = t - ui.primary.sim.time();
-            if dt <= Duration::ZERO {
-                if wiz.acknowledge(
-                    "Bad time",
-                    vec![&format!("{} isn't after {}", t, ui.primary.sim.time())],
-                ) {
-                    return Transition::Pop;
+            ctx.loading_screen(&format!("step forwards {}", dt), |_, mut timer| {
+                ui.primary.sim.timed_step(&ui.primary.map, dt, &mut timer);
+                if let Some(ref mut s) = ui.secondary {
+                    s.sim.timed_step(&s.map, dt, &mut timer);
                 }
-            } else {
-                if dt > Duration::ZERO {
-                    ctx.loading_screen(&format!("step forwards {}", dt), |_, mut timer| {
-                        ui.primary.sim.timed_step(&ui.primary.map, dt, &mut timer);
-                        if let Some(ref mut s) = ui.secondary {
-                            s.sim.timed_step(&s.map, dt, &mut timer);
-                        }
-                    });
-                }
-
-                return Transition::Pop;
-            }
+            });
+            return Transition::Pop;
         } else if self.wizard.aborted() {
             return Transition::Pop;
         }
