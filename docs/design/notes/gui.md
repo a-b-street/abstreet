@@ -707,3 +707,20 @@ transitions... pop current state, push some new state, replace current state
 I don't want to wind up with the mess of plugins again. Why am I sure it's not that?
 
 - these are complete, mutex states
+
+## Text
+
+What's slow right now?
+- drawing the rectangles?
+- forming the Text?
+- doing the draw_queued flush?
+
+Simpler ideas for speedup:
+= only one draw_queued flush, to preserve caching behavior!
+- batch fork/unfork and all the rectangles? maybe not needed for modal menu
+- detect state changes in ModalMenu, recreate Drawable thing only when needed
+
+Current stack:
+- https://docs.rs/glium-glyph/0.3.0/glium_glyph/
+- https://docs.rs/glyph_brush/0.4.0/glyph_brush/
+- https://docs.rs/rusttype/0.7.7/rusttype/

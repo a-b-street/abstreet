@@ -122,6 +122,13 @@ impl<G: GUI> State<G> {
             menu.draw(&mut g);
         }
 
+        // Flush text just once, so that GlyphBrush's internal caching works. We have to assume
+        // nothing will ever cover up text.
+        self.canvas
+            .glyphs
+            .borrow_mut()
+            .draw_queued(display, &mut target);
+
         target.finish().unwrap();
         naming_hint
     }

@@ -239,10 +239,6 @@ pub fn draw_text_bubble(
         y += height;
         g.canvas.glyphs.borrow_mut().queue(section);
     }
-    g.canvas
-        .glyphs
-        .borrow_mut()
-        .draw_queued(g.display, g.target);
 
     g.unfork();
 
