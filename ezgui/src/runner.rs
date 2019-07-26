@@ -5,7 +5,7 @@ use glium_glyph::glyph_brush::rusttype::Font;
 use glium_glyph::GlyphBrush;
 use std::cell::Cell;
 use std::time::{Duration, Instant};
-use std::{env, panic, process, thread};
+use std::{panic, process, thread};
 
 // 30fps is 1000 / 30
 const SLEEP_BETWEEN_FRAMES: Duration = Duration::from_millis(33);
@@ -140,13 +140,13 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(
     initial_height: f64,
     make_gui: F,
 ) {
-    // DPI is broken on my system; force the old behavior.
-    env::set_var("WINIT_HIDPI_FACTOR", "1.0");
-
     let events_loop = glutin::EventsLoop::new();
     let window = glutin::WindowBuilder::new()
         .with_title(window_title)
-        .with_dimensions(glutin::dpi::LogicalSize::new(initial_width, initial_height));
+        .with_dimensions(glutin::dpi::LogicalSize::from_physical(
+            glutin::dpi::PhysicalSize::new(initial_width, initial_height),
+            events_loop.get_primary_monitor().get_hidpi_factor(),
+        ));
     // 2 looks bad, 4 looks fine
     let context = glutin::ContextBuilder::new().with_multisampling(4);
     let display = glium::Display::new(window, context, &events_loop).unwrap();
@@ -247,6 +247,7 @@ fn loop_forever<G: GUI>(
 
     let mut wait_for_events = false;
 
+    let hidpi_factor = events_loop.get_primary_monitor().get_hidpi_factor();
     loop {
         let start_frame = Instant::now();
 
@@ -263,7 +264,7 @@ fn loop_forever<G: GUI>(
                     state.gui.before_quit(&state.canvas);
                     process::exit(0);
                 }
-                if let Some(ev) = Event::from_glutin_event(event) {
+                if let Some(ev) = Event::from_glutin_event(event, hidpi_factor) {
                     new_events.push(ev);
                 }
             }

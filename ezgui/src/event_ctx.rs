@@ -8,6 +8,7 @@ use geom::Polygon;
 use glium::implement_vertex;
 use glium_glyph::glyph_brush::rusttype::Font;
 use glium_glyph::glyph_brush::rusttype::Scale;
+use glium_glyph::glyph_brush::GlyphCruncher;
 use glium_glyph::GlyphBrush;
 use std::cell::Cell;
 use std::collections::VecDeque;

@@ -2,6 +2,7 @@ use crate::screen_geom::ScreenRectangle;
 use crate::{ScreenPt, Text, UserInput};
 use geom::{Bounds, Pt2D};
 use glium_glyph::glyph_brush::rusttype::Scale;
+use glium_glyph::glyph_brush::GlyphCruncher;
 use glium_glyph::GlyphBrush;
 use std::cell::RefCell;
 use std::collections::HashMap;

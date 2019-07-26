@@ -25,7 +25,7 @@ pub enum Event {
 }
 
 impl Event {
-    pub fn from_glutin_event(ev: glutin::WindowEvent) -> Option<Event> {
+    pub fn from_glutin_event(ev: glutin::WindowEvent, hidpi_factor: f64) -> Option<Event> {
         match ev {
             glutin::WindowEvent::MouseInput { state, button, .. } => match (button, state) {
                 (glutin::MouseButton::Left, glutin::ElementState::Pressed) => {
@@ -54,7 +54,8 @@ impl Event {
                 }
             }
             glutin::WindowEvent::CursorMoved { position, .. } => {
-                Some(Event::MouseMovedTo(ScreenPt::new(position.x, position.y)))
+                let pos = position.to_physical(hidpi_factor);
+                Some(Event::MouseMovedTo(ScreenPt::new(pos.x, pos.y)))
             }
             glutin::WindowEvent::MouseWheel { delta, .. } => match delta {
                 glutin::MouseScrollDelta::LineDelta(_, dy) => {
@@ -68,7 +69,8 @@ impl Event {
                 }
             },
             glutin::WindowEvent::Resized(size) => {
-                Some(Event::WindowResized(size.width, size.height))
+                let actual_size = glutin::dpi::PhysicalSize::from_logical(size, hidpi_factor);
+                Some(Event::WindowResized(actual_size.width, actual_size.height))
             }
             glutin::WindowEvent::Focused(gained) => Some(if gained {
                 Event::WindowGainedCursor

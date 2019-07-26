@@ -724,3 +724,6 @@ Current stack:
 - https://docs.rs/glium-glyph/0.3.0/glium_glyph/
 - https://docs.rs/glyph_brush/0.4.0/glyph_brush/
 - https://docs.rs/rusttype/0.7.7/rusttype/
+
+hidpi mess:
+- events_loop.get_primary_monitor().get_hidpi_factor() yields 1.25. env var seems ignored after upgrading.
