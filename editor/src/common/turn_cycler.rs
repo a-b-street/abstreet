@@ -1,112 +1,84 @@
+use crate::game::{State, Transition};
 use crate::helpers::ID;
-use crate::render::{draw_signal_diagram, DrawCtx, DrawTurn};
-use crate::ui::UI;
-use ezgui::{Color, EventCtx, GfxCtx, Key};
+use crate::render::{draw_signal_diagram, DrawCtx, DrawOptions, DrawTurn};
+use crate::ui::{ShowEverything, UI};
+use ezgui::{hotkey, Color, EventCtx, GfxCtx, Key, ModalMenu};
 use map_model::{IntersectionID, LaneID, Map, TurnType};
 
-pub struct TurnCyclerState {
-    state: State,
-    shift_key_held: bool,
-}
-
-enum State {
+pub enum TurnCyclerState {
     Inactive,
     ShowLane(LaneID),
     CycleTurns(LaneID, usize),
-    ShowIntersection(IntersectionID),
 }
 
 impl TurnCyclerState {
-    pub fn new() -> TurnCyclerState {
-        TurnCyclerState {
-            state: State::Inactive,
-            shift_key_held: false,
-        }
-    }
-
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI) {
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI) -> Option<Transition> {
         match ui.primary.current_selection {
             Some(ID::Lane(id)) if !ui.primary.map.get_turns_from_lane(id).is_empty() => {
-                if let State::CycleTurns(current, idx) = self.state {
-                    if current != id {
-                        self.state = State::ShowLane(id);
+                if let TurnCyclerState::CycleTurns(current, idx) = self {
+                    if *current != id {
+                        *self = TurnCyclerState::ShowLane(id);
                     } else if ctx
                         .input
                         .contextual_action(Key::Z, "cycle through this lane's turns")
                     {
-                        self.state = State::CycleTurns(id, idx + 1);
+                        *self = TurnCyclerState::CycleTurns(id, *idx + 1);
                     }
                 } else {
-                    self.state = State::ShowLane(id);
+                    *self = TurnCyclerState::ShowLane(id);
                     if ctx
                         .input
                         .contextual_action(Key::Z, "cycle through this lane's turns")
                     {
-                        self.state = State::CycleTurns(id, 0);
+                        *self = TurnCyclerState::CycleTurns(id, 0);
                     }
                 }
             }
-            Some(ID::Intersection(id)) => {
-                self.state = State::ShowIntersection(id);
+            Some(ID::Intersection(i)) if ui.primary.map.maybe_get_traffic_signal(i).is_some() => {
+                if ctx
+                    .input
+                    .contextual_action(Key::X, "show full traffic signal diagram")
+                {
+                    return Some(Transition::Push(Box::new(ShowTrafficSignal {
+                        menu: ModalMenu::new(
+                            "Traffic Signal Diagram",
+                            vec![vec![(hotkey(Key::Escape), "quit")]],
+                            ctx,
+                        ),
+                        i,
+                    })));
+                }
             }
             _ => {
-                self.state = State::Inactive;
+                *self = TurnCyclerState::Inactive;
             }
         }
 
-        // TODO I think it's possible for this state to get out of sync with reality, by holding
-        // the key while changing to a mode that doesn't invoke CommonState.
-        if self.shift_key_held {
-            if ctx.input.key_released(Key::LeftShift) {
-                self.shift_key_held = false;
-            }
-        } else if let Some(ID::Intersection(i)) = ui.primary.current_selection {
-            if ui.primary.map.maybe_get_traffic_signal(i).is_some() {
-                if ctx
-                    .input
-                    .contextual_action(Key::LeftShift, "show full traffic signal diagram")
-                {
-                    self.shift_key_held = true;
-                }
-            }
-        }
+        None
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        match self.state {
-            State::Inactive => {}
-            State::ShowLane(l) => {
-                for turn in &ui.primary.map.get_turns_from_lane(l) {
+        match self {
+            TurnCyclerState::Inactive => {}
+            TurnCyclerState::ShowLane(l) => {
+                for turn in &ui.primary.map.get_turns_from_lane(*l) {
                     DrawTurn::draw_full(turn, g, color_turn_type(turn.turn_type, ui).alpha(0.5));
                 }
             }
-            State::CycleTurns(l, idx) => {
-                let turns = ui.primary.map.get_turns_from_lane(l);
-                let t = turns[idx % turns.len()];
+            TurnCyclerState::CycleTurns(l, idx) => {
+                let turns = ui.primary.map.get_turns_from_lane(*l);
+                let t = turns[*idx % turns.len()];
                 DrawTurn::draw_full(t, g, color_turn_type(t.turn_type, ui));
-            }
-            State::ShowIntersection(i) => {
-                if self.shift_key_held {
-                    if let Some(signal) = ui.primary.map.maybe_get_traffic_signal(i) {
-                        let (cycle, time_left) =
-                            signal.current_cycle_and_remaining_time(ui.primary.sim.time());
-                        let ctx = DrawCtx {
-                            cs: &ui.cs,
-                            map: &ui.primary.map,
-                            draw_map: &ui.primary.draw_map,
-                            sim: &ui.primary.sim,
-                        };
-                        draw_signal_diagram(i, cycle.idx, Some(time_left), g, &ctx);
-                    }
-                }
             }
         }
     }
 
     pub fn suppress_traffic_signal_details(&self, map: &Map) -> Option<IntersectionID> {
-        match self.state {
-            State::ShowLane(l) | State::CycleTurns(l, _) => Some(map.get_l(l).dst_i),
-            _ => None,
+        match self {
+            TurnCyclerState::ShowLane(l) | TurnCyclerState::CycleTurns(l, _) => {
+                Some(map.get_l(*l).dst_i)
+            }
+            TurnCyclerState::Inactive => None,
         }
     }
 }
@@ -122,5 +94,44 @@ fn color_turn_type(t: TurnType, ui: &UI) -> Color {
         TurnType::LaneChangeRight => ui.cs.get_def("change lanes right turn", Color::PURPLE),
         TurnType::Right => ui.cs.get_def("right turn", Color::GREEN),
         TurnType::Left => ui.cs.get_def("left turn", Color::RED),
+    }
+}
+
+struct ShowTrafficSignal {
+    menu: ModalMenu,
+    i: IntersectionID,
+}
+
+impl State for ShowTrafficSignal {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
+        self.menu.handle_event(ctx, None);
+        if self.menu.action("quit") {
+            return Transition::Pop;
+        }
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        ui.draw(
+            g,
+            DrawOptions::new(),
+            &ui.primary.sim,
+            &ShowEverything::new(),
+        );
+        let (cycle, time_left) = ui
+            .primary
+            .map
+            .get_traffic_signal(self.i)
+            .current_cycle_and_remaining_time(ui.primary.sim.time());
+        let ctx = DrawCtx {
+            cs: &ui.cs,
+            map: &ui.primary.map,
+            draw_map: &ui.primary.draw_map,
+            sim: &ui.primary.sim,
+        };
+        // TODO Doesn't matter in practice, but it'd be nice to prerender this all once.
+        draw_signal_diagram(self.i, cycle.idx, Some(time_left), g, &ctx);
+
+        self.menu.draw(g);
     }
 }

@@ -33,7 +33,7 @@ impl CommonState {
     pub fn new() -> CommonState {
         CommonState {
             associated: associated::ShowAssociatedState::Inactive,
-            turn_cycler: turn_cycler::TurnCyclerState::new(),
+            turn_cycler: turn_cycler::TurnCyclerState::Inactive,
         }
     }
 
@@ -56,7 +56,9 @@ impl CommonState {
         }
 
         self.associated.event(ui);
-        self.turn_cycler.event(ctx, ui);
+        if let Some(t) = self.turn_cycler.event(ctx, ui) {
+            return Some(t);
+        }
         if menu.action("take a screenshot") {
             return Some(Transition::KeepWithMode(
                 EventLoopMode::ScreenCaptureCurrentShot,

@@ -237,7 +237,11 @@ impl State for TrafficSignalEditor {
         }
         draw_signal_cycle(cycle, None, &mut batch, &ctx);
         if let Some(id) = self.icon_selected {
-            DrawTurn::draw_dashed(map.get_t(id), &mut batch, ui.cs.get("selected turn"));
+            DrawTurn::draw_dashed(
+                map.get_t(id),
+                &mut batch,
+                ui.cs.get_def("selected turn", Color::RED),
+            );
         }
         batch.draw(g);
 
