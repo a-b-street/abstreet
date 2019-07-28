@@ -1,6 +1,8 @@
 use crate::render::{DrawCtx, DrawTurn};
 use crate::ui::UI;
-use ezgui::{Color, EventCtx, GeomBatch, GfxCtx, ModalMenu, ScreenPt, ScreenRectangle, Text};
+use ezgui::{
+    Color, EventCtx, GeomBatch, GfxCtx, ModalMenu, ScreenDims, ScreenPt, ScreenRectangle, Text,
+};
 use geom::{Circle, Distance, Duration, PolyLine, Polygon, Pt2D};
 use map_model::{Cycle, IntersectionID, Map, TurnPriority, TurnType, LANE_THICKNESS};
 use ordered_float::NotNan;
@@ -151,20 +153,17 @@ fn draw_signal_cycle_with_icons(cycle: &Cycle, batch: &mut GeomBatch, ctx: &Draw
 }
 
 const PADDING: f64 = 5.0;
-const ZOOM: f64 = 10.0;
+// TODO Reduce this after testing out scrolling
+const ZOOM: f64 = 15.0;
 
 pub struct TrafficSignalDiagram {
     pub i: IntersectionID,
     pub current_cycle: usize,
     labels: Vec<Text>,
-    // TODO Track offset for scrolling
-    cycle_geom: Vec<ScreenRectangle>,
     top_left: Pt2D,
-    intersection_width: f64,
-
-    hovering_on: Option<usize>,
-    up_btn: Button,
-    down_btn: Button,
+    intersection_width: f64, // TODO needed?
+    // The usizes are cycle indices
+    scroller: Scroller<usize>,
 }
 
 impl TrafficSignalDiagram {
@@ -199,29 +198,14 @@ impl TrafficSignalDiagram {
             .map(|l| ctx.canvas.text_dims(l).0)
             .max_by_key(|w| NotNan::new(*w).unwrap())
             .unwrap();
-        let total_screen_width = (intersection_width * ZOOM) + label_length + 10.0;
+        let item_dims = ScreenDims {
+            width: (intersection_width * ZOOM) + label_length + 10.0,
+            height: (PADDING + intersection_height) * ZOOM,
+        };
 
-        let up_btn = Button::new_autoheight(
+        let scroller = Scroller::new(
             ScreenPt::new(0.0, 0.0),
-            total_screen_width,
-            Text::from_line("scroll up".to_string()),
-            ctx,
-        );
-
-        let cycle_geom = (0..cycles.len())
-            .map(|idx| ScreenRectangle {
-                x1: 0.0,
-                y1: up_btn.geom.height() + ((PADDING + intersection_height) * (idx as f64) * ZOOM),
-                x2: total_screen_width,
-                y2: up_btn.geom.height()
-                    + ((PADDING + intersection_height) * ((idx + 1) as f64) * ZOOM),
-            })
-            .collect::<Vec<_>>();
-
-        let down_btn = Button::new_autoheight(
-            ScreenPt::new(0.0, cycle_geom.last().unwrap().y2),
-            total_screen_width,
-            Text::from_line("scroll down".to_string()),
+            cycles.iter().map(|cycle| (cycle.idx, item_dims)).collect(),
             ctx,
         );
 
@@ -229,46 +213,27 @@ impl TrafficSignalDiagram {
             i,
             current_cycle,
             labels,
-            cycle_geom,
             top_left,
             intersection_width,
-            hovering_on: None,
-            up_btn,
-            down_btn,
+            scroller,
         }
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI, menu: &mut ModalMenu) {
-        self.up_btn.event(ctx);
-        self.down_btn.event(ctx);
+        if let Some(idx) = self.scroller.event(ctx) {
+            self.current_cycle = idx;
+            self.reset(ui, ctx);
+        }
 
         if self.current_cycle != 0 && menu.action("select previous cycle") {
             self.current_cycle -= 1;
             self.reset(ui, ctx);
             return;
         }
-        if self.current_cycle != self.cycle_geom.len() - 1 && menu.action("select next cycle") {
+        if self.current_cycle != self.scroller.items.len() - 1 && menu.action("select next cycle") {
             self.current_cycle += 1;
             self.reset(ui, ctx);
             return;
-        }
-
-        if ctx.redo_mouseover() {
-            self.hovering_on = None;
-            let cursor = ctx.canvas.get_cursor_in_screen_space();
-            for (idx, rect) in self.cycle_geom.iter().enumerate() {
-                if rect.contains(cursor) {
-                    self.hovering_on = Some(idx);
-                    break;
-                }
-            }
-        }
-
-        if let Some(idx) = self.hovering_on {
-            if ctx.input.left_mouse_button_pressed() {
-                self.current_cycle = idx;
-                self.reset(ui, ctx);
-            }
         }
     }
 
@@ -277,76 +242,43 @@ impl TrafficSignalDiagram {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
-        g.fork_screenspace();
-        g.draw_polygon(
-            ctx.cs
-                .get_def("traffic signal panel", Color::BLACK.alpha(0.95)),
-            &Polygon::rectangle_topleft(
-                Pt2D::new(0.0, 0.0),
-                Distance::meters(self.cycle_geom[0].width()),
-                Distance::meters(self.cycle_geom.last().unwrap().y2),
-            ),
-        );
-        g.canvas.mark_covered_area(ScreenRectangle {
-            x1: 0.0,
-            y1: 0.0,
-            x2: self.cycle_geom[0].width(),
-            y2: self.cycle_geom.last().unwrap().y2,
-        });
-        let current_rect = &self.cycle_geom[self.current_cycle];
-        g.draw_polygon(
-            ctx.cs.get_def(
-                "current cycle in traffic signal panel",
-                Color::BLUE.alpha(0.95),
-            ),
-            &Polygon::rectangle_topleft(
-                Pt2D::new(current_rect.x1, current_rect.y1),
-                Distance::meters(current_rect.width()),
-                Distance::meters(current_rect.height()),
-            ),
-        );
-
-        if let Some(idx) = self.hovering_on {
-            let rect = &self.cycle_geom[idx];
-            g.draw_polygon(
-                ctx.cs.get_def(
-                    "hovering on cycle in traffic signal panel",
-                    Color::RED.alpha(0.95),
-                ),
-                &Polygon::rectangle_topleft(
-                    Pt2D::new(rect.x1, rect.y1),
-                    Distance::meters(rect.width()),
-                    Distance::meters(rect.height()),
-                ),
-            );
-        }
-
         let cycles = &ctx.map.get_traffic_signal(self.i).cycles;
-        for ((label, cycle), rect) in self
-            .labels
-            .iter()
-            .zip(cycles.iter())
-            .zip(self.cycle_geom.iter())
-        {
-            g.fork(self.top_left, ScreenPt::new(rect.x1, rect.y1), ZOOM);
+
+        for (idx, screen_top_left, dims) in self.scroller.draw(g) {
+            // TODO Maybe make Scroller do this after all.
+            if idx == self.current_cycle {
+                g.fork_screenspace();
+                g.draw_polygon(
+                    ctx.cs.get_def(
+                        "current cycle in traffic signal panel",
+                        Color::BLUE.alpha(0.95),
+                    ),
+                    &Polygon::rectangle_topleft(
+                        Pt2D::new(screen_top_left.x, screen_top_left.y),
+                        Distance::meters(dims.width),
+                        Distance::meters(dims.height),
+                    ),
+                );
+            }
+
+            g.fork(self.top_left, screen_top_left, ZOOM);
             let mut batch = GeomBatch::new();
-            draw_signal_cycle(&cycle, None, &mut batch, ctx);
+            draw_signal_cycle(&cycles[idx], None, &mut batch, ctx);
             batch.draw(g);
 
             g.draw_text_at_screenspace_topleft(
-                label,
-                ScreenPt::new(10.0 + (self.intersection_width * ZOOM), rect.y1),
+                &self.labels[idx],
+                // TODO The x here is weird...
+                ScreenPt::new(10.0 + (self.intersection_width * ZOOM), screen_top_left.y),
             );
         }
 
         g.unfork();
-
-        self.up_btn.draw(g);
-        self.down_btn.draw(g);
     }
 }
 
 // TODO Move to ezgui
+// TODO Actually, remove this concept entirely; it's just a special item in Scroller.
 struct Button {
     geom: ScreenRectangle,
     label: Text,
@@ -394,7 +326,6 @@ impl Button {
     }
 
     fn draw(&self, g: &mut GfxCtx) {
-        g.fork_screenspace();
         g.draw_polygon(
             if self.hovering {
                 Color::RED
@@ -409,6 +340,137 @@ impl Button {
         );
         g.canvas.mark_covered_area(self.geom.clone());
         g.draw_text_at_screenspace_topleft(&self.label, self.label_topleft);
+    }
+}
+
+struct Scroller<T: Clone + Copy> {
+    up_btn: Button,
+    down_btn: Button,
+    // TODO Maybe the height of each thing; insist that the width is the same for all?
+    items: Vec<(T, ScreenDims)>,
+
+    master_topleft: ScreenPt,
+    items_topleft: ScreenPt,
+    total_dims: ScreenDims,
+    hovering_on: Option<usize>,
+    bg_color: Color,
+    hovering_color: Color,
+    // TODO state for actually scrolling down
+}
+
+impl<T: Clone + Copy> Scroller<T> {
+    fn new(master_topleft: ScreenPt, items: Vec<(T, ScreenDims)>, ctx: &EventCtx) -> Scroller<T> {
+        let max_width = items
+            .iter()
+            .map(|(_, dims)| dims.width)
+            .max_by_key(|w| NotNan::new(*w).unwrap())
+            .unwrap();
+        let up_btn = Button::new_autoheight(
+            master_topleft,
+            max_width,
+            Text::from_line("scroll up".to_string()),
+            ctx,
+        );
+        let items_topleft = ScreenPt::new(master_topleft.x, up_btn.geom.y2);
+        let item_height = items.iter().fold(0.0, |sum, (_, dims)| sum + dims.height);
+        let down_btn = Button::new_autoheight(
+            ScreenPt::new(master_topleft.x, up_btn.geom.y2 + item_height),
+            max_width,
+            Text::from_line("scroll down".to_string()),
+            ctx,
+        );
+
+        Scroller {
+            items,
+            master_topleft,
+            items_topleft,
+            hovering_on: None,
+            // TODO ctx.cs
+            bg_color: Color::BLACK.alpha(0.95),
+            total_dims: ScreenDims {
+                width: max_width,
+                height: down_btn.geom.y2 - up_btn.geom.y1,
+            },
+            up_btn,
+            down_btn,
+            hovering_color: Color::RED.alpha(0.95),
+        }
+    }
+
+    // Returns the item selected
+    fn event(&mut self, ctx: &mut EventCtx) -> Option<T> {
+        if self.up_btn.event(ctx) {
+            println!("scroll up");
+        }
+        if self.down_btn.event(ctx) {
+            println!("scroll down");
+        }
+
+        if ctx.redo_mouseover() {
+            let cursor = ctx.canvas.get_cursor_in_screen_space();
+            self.hovering_on = None;
+            let mut y1 = self.items_topleft.y;
+            for (idx, (_, dims)) in self.items.iter().enumerate() {
+                if (ScreenRectangle {
+                    x1: self.master_topleft.x,
+                    y1,
+                    x2: self.master_topleft.x + dims.width,
+                    y2: y1 + dims.height,
+                }
+                .contains(cursor))
+                {
+                    self.hovering_on = Some(idx);
+                    break;
+                }
+                y1 += dims.height;
+            }
+        }
+        if let Some(idx) = self.hovering_on {
+            if ctx.input.left_mouse_button_pressed() {
+                return Some(self.items[idx].0);
+            }
+        }
+
+        None
+    }
+
+    // Returns the items to draw, their current top-left point, and their dims.
+    fn draw(&self, g: &mut GfxCtx) -> Vec<(T, ScreenPt, ScreenDims)> {
+        g.fork_screenspace();
+        g.draw_polygon(
+            self.bg_color,
+            &Polygon::rectangle_topleft(
+                Pt2D::new(self.master_topleft.x, self.master_topleft.y),
+                Distance::meters(self.total_dims.width),
+                Distance::meters(self.total_dims.height),
+            ),
+        );
+        g.canvas.mark_covered_area(ScreenRectangle::top_left(
+            self.master_topleft,
+            self.total_dims,
+        ));
+
+        let mut items_pos = Vec::new();
+        let mut y1 = self.items_topleft.y;
+        for (idx, (item, dims)) in self.items.iter().enumerate() {
+            items_pos.push((*item, ScreenPt::new(self.master_topleft.x, y1), *dims));
+            if Some(idx) == self.hovering_on {
+                g.draw_polygon(
+                    self.hovering_color,
+                    &Polygon::rectangle_topleft(
+                        Pt2D::new(self.master_topleft.x, y1),
+                        Distance::meters(dims.width),
+                        Distance::meters(dims.height),
+                    ),
+                );
+            }
+            y1 += dims.height;
+        }
+
+        self.up_btn.draw(g);
+        self.down_btn.draw(g);
         g.unfork();
+
+        items_pos
     }
 }

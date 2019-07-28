@@ -19,6 +19,15 @@ pub struct ScreenRectangle {
 }
 
 impl ScreenRectangle {
+    pub fn top_left(top_left: ScreenPt, dims: ScreenDims) -> ScreenRectangle {
+        ScreenRectangle {
+            x1: top_left.x,
+            y1: top_left.y,
+            x2: top_left.x + dims.width,
+            y2: top_left.y + dims.height,
+        }
+    }
+
     pub fn contains(&self, pt: ScreenPt) -> bool {
         pt.x >= self.x1 && pt.x <= self.x2 && pt.y >= self.y1 && pt.y <= self.y2
     }
@@ -30,4 +39,10 @@ impl ScreenRectangle {
     pub fn height(&self) -> f64 {
         self.y2 - self.y1
     }
+}
+
+#[derive(Clone, Copy)]
+pub struct ScreenDims {
+    pub width: f64,
+    pub height: f64,
 }
