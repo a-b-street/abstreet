@@ -163,6 +163,8 @@ pub struct TrafficSignalDiagram {
     intersection_width: f64,
 
     hovering_on: Option<usize>,
+    up_btn: Button,
+    down_btn: Button,
 }
 
 impl TrafficSignalDiagram {
@@ -199,14 +201,29 @@ impl TrafficSignalDiagram {
             .unwrap();
         let total_screen_width = (intersection_width * ZOOM) + label_length + 10.0;
 
+        let up_btn = Button::new_autoheight(
+            ScreenPt::new(0.0, 0.0),
+            total_screen_width,
+            Text::from_line("scroll up".to_string()),
+            ctx,
+        );
+
         let cycle_geom = (0..cycles.len())
             .map(|idx| ScreenRectangle {
                 x1: 0.0,
-                y1: (PADDING + intersection_height) * (idx as f64) * ZOOM,
+                y1: up_btn.geom.height() + ((PADDING + intersection_height) * (idx as f64) * ZOOM),
                 x2: total_screen_width,
-                y2: (PADDING + intersection_height) * ((idx + 1) as f64) * ZOOM,
+                y2: up_btn.geom.height()
+                    + ((PADDING + intersection_height) * ((idx + 1) as f64) * ZOOM),
             })
-            .collect();
+            .collect::<Vec<_>>();
+
+        let down_btn = Button::new_autoheight(
+            ScreenPt::new(0.0, cycle_geom.last().unwrap().y2),
+            total_screen_width,
+            Text::from_line("scroll down".to_string()),
+            ctx,
+        );
 
         TrafficSignalDiagram {
             i,
@@ -216,10 +233,15 @@ impl TrafficSignalDiagram {
             top_left,
             intersection_width,
             hovering_on: None,
+            up_btn,
+            down_btn,
         }
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI, menu: &mut ModalMenu) {
+        self.up_btn.event(ctx);
+        self.down_btn.event(ctx);
+
         if self.current_cycle != 0 && menu.action("select previous cycle") {
             self.current_cycle -= 1;
             self.reset(ui, ctx);
@@ -261,14 +283,14 @@ impl TrafficSignalDiagram {
                 .get_def("traffic signal panel", Color::BLACK.alpha(0.95)),
             &Polygon::rectangle_topleft(
                 Pt2D::new(0.0, 0.0),
-                Distance::meters(self.cycle_geom[0].x2 - self.cycle_geom[0].x1),
+                Distance::meters(self.cycle_geom[0].width()),
                 Distance::meters(self.cycle_geom.last().unwrap().y2),
             ),
         );
         g.canvas.mark_covered_area(ScreenRectangle {
             x1: 0.0,
             y1: 0.0,
-            x2: self.cycle_geom[0].x2 - self.cycle_geom[0].x1,
+            x2: self.cycle_geom[0].width(),
             y2: self.cycle_geom.last().unwrap().y2,
         });
         let current_rect = &self.cycle_geom[self.current_cycle];
@@ -279,8 +301,8 @@ impl TrafficSignalDiagram {
             ),
             &Polygon::rectangle_topleft(
                 Pt2D::new(current_rect.x1, current_rect.y1),
-                Distance::meters(current_rect.x2 - current_rect.x1),
-                Distance::meters(current_rect.y2 - current_rect.y1),
+                Distance::meters(current_rect.width()),
+                Distance::meters(current_rect.height()),
             ),
         );
 
@@ -293,8 +315,8 @@ impl TrafficSignalDiagram {
                 ),
                 &Polygon::rectangle_topleft(
                     Pt2D::new(rect.x1, rect.y1),
-                    Distance::meters(rect.x2 - rect.x1),
-                    Distance::meters(rect.y2 - rect.y1),
+                    Distance::meters(rect.width()),
+                    Distance::meters(rect.height()),
                 ),
             );
         }
@@ -317,6 +339,76 @@ impl TrafficSignalDiagram {
             );
         }
 
+        g.unfork();
+
+        self.up_btn.draw(g);
+        self.down_btn.draw(g);
+    }
+}
+
+// TODO Move to ezgui
+struct Button {
+    geom: ScreenRectangle,
+    label: Text,
+    label_topleft: ScreenPt,
+    hovering: bool,
+}
+
+impl Button {
+    fn new(geom: ScreenRectangle, label: Text, ctx: &EventCtx) -> Button {
+        let (width, height) = ctx.canvas.text_dims(&label);
+        let label_topleft = ScreenPt::new(
+            geom.x1 + (geom.width() - width) / 2.0,
+            geom.y1 + (geom.height() - height) / 2.0,
+        );
+        assert!(label_topleft.x >= 0.0);
+        assert!(label_topleft.y >= 0.0);
+        Button {
+            geom,
+            label,
+            label_topleft,
+            hovering: false,
+        }
+    }
+
+    fn new_autoheight(top_left: ScreenPt, width: f64, label: Text, ctx: &EventCtx) -> Button {
+        let (_, height) = ctx.canvas.text_dims(&label);
+        Button::new(
+            ScreenRectangle {
+                x1: top_left.x,
+                x2: top_left.x + width,
+                y1: top_left.y,
+                y2: top_left.y + height,
+            },
+            label,
+            ctx,
+        )
+    }
+
+    // True if clicked
+    fn event(&mut self, ctx: &mut EventCtx) -> bool {
+        if ctx.redo_mouseover() {
+            self.hovering = self.geom.contains(ctx.canvas.get_cursor_in_screen_space());
+        }
+        self.hovering && ctx.input.left_mouse_button_pressed()
+    }
+
+    fn draw(&self, g: &mut GfxCtx) {
+        g.fork_screenspace();
+        g.draw_polygon(
+            if self.hovering {
+                Color::RED
+            } else {
+                Color::grey(0.6)
+            },
+            &Polygon::rectangle_topleft(
+                Pt2D::new(self.geom.x1, self.geom.y1),
+                Distance::meters(self.geom.width()),
+                Distance::meters(self.geom.height()),
+            ),
+        );
+        g.canvas.mark_covered_area(self.geom.clone());
+        g.draw_text_at_screenspace_topleft(&self.label, self.label_topleft);
         g.unfork();
     }
 }

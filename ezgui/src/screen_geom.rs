@@ -10,6 +10,7 @@ impl ScreenPt {
     }
 }
 
+#[derive(Clone)]
 pub struct ScreenRectangle {
     pub x1: f64,
     pub y1: f64,
@@ -20,5 +21,13 @@ pub struct ScreenRectangle {
 impl ScreenRectangle {
     pub fn contains(&self, pt: ScreenPt) -> bool {
         pt.x >= self.x1 && pt.x <= self.x2 && pt.y >= self.y1 && pt.y <= self.y2
+    }
+
+    pub fn width(&self) -> f64 {
+        self.x2 - self.x1
+    }
+
+    pub fn height(&self) -> f64 {
+        self.y2 - self.y1
     }
 }
