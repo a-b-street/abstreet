@@ -1,7 +1,8 @@
 use crate::render::{DrawCtx, DrawTurn};
-use ezgui::{Color, GeomBatch, GfxCtx, ScreenPt, Text};
+use crate::ui::UI;
+use ezgui::{Color, EventCtx, GeomBatch, GfxCtx, ModalMenu, ScreenPt, ScreenRectangle, Text};
 use geom::{Circle, Distance, Duration, PolyLine, Polygon, Pt2D};
-use map_model::{Cycle, IntersectionID, TurnPriority, TurnType, LANE_THICKNESS};
+use map_model::{Cycle, IntersectionID, Map, TurnPriority, TurnType, LANE_THICKNESS};
 use ordered_float::NotNan;
 
 // Only draws a box when time_left is present
@@ -149,98 +150,140 @@ fn draw_signal_cycle_with_icons(cycle: &Cycle, batch: &mut GeomBatch, ctx: &Draw
     }
 }
 
-pub fn draw_signal_diagram(
-    i: IntersectionID,
-    current_cycle: usize,
-    time_left: Option<Duration>,
-    g: &mut GfxCtx,
-    ctx: &DrawCtx,
-) {
-    let padding = 5.0;
-    let zoom = 10.0;
-    let (top_left, intersection_width, intersection_height) = {
-        let b = ctx.map.get_i(i).polygon.get_bounds();
-        (
-            Pt2D::new(b.min_x, b.min_y),
-            b.max_x - b.min_x,
-            // Vertically pad
-            b.max_y - b.min_y,
-        )
-    };
-    let cycles = &ctx.map.get_traffic_signal(i).cycles;
+const PADDING: f64 = 5.0;
+const ZOOM: f64 = 10.0;
 
-    // Precalculate maximum text width.
-    let mut labels = Vec::new();
-    for (idx, cycle) in cycles.iter().enumerate() {
-        if idx == current_cycle && time_left.is_some() {
-            labels.push(Text::from_line(format!(
-                "Cycle {}: {:.01}s / {}",
-                idx + 1,
-                (cycle.duration - time_left.unwrap()).inner_seconds(),
-                cycle.duration
-            )));
-        } else {
+pub struct TrafficSignalDiagram {
+    pub i: IntersectionID,
+    pub current_cycle: usize,
+    labels: Vec<Text>,
+    // TODO Track offset for scrolling
+    cycle_geom: Vec<ScreenRectangle>,
+    top_left: Pt2D,
+    intersection_width: f64,
+}
+
+impl TrafficSignalDiagram {
+    pub fn new(
+        i: IntersectionID,
+        current_cycle: usize,
+        map: &Map,
+        ctx: &EventCtx,
+    ) -> TrafficSignalDiagram {
+        let (top_left, intersection_width, intersection_height) = {
+            let b = map.get_i(i).polygon.get_bounds();
+            (
+                Pt2D::new(b.min_x, b.min_y),
+                b.max_x - b.min_x,
+                // Vertically pad
+                b.max_y - b.min_y,
+            )
+        };
+        let cycles = &map.get_traffic_signal(i).cycles;
+
+        // Precalculate maximum text width.
+        let mut labels = Vec::new();
+        for (idx, cycle) in cycles.iter().enumerate() {
             labels.push(Text::from_line(format!(
                 "Cycle {}: {}",
                 idx + 1,
                 cycle.duration
             )));
         }
-    }
-    let label_length = labels
-        .iter()
-        .map(|l| g.canvas.text_dims(l).0)
-        .max_by_key(|w| NotNan::new(*w).unwrap())
-        .unwrap();
-    let total_screen_width = (intersection_width * zoom) + label_length + 10.0;
+        let label_length = labels
+            .iter()
+            .map(|l| ctx.canvas.text_dims(l).0)
+            .max_by_key(|w| NotNan::new(*w).unwrap())
+            .unwrap();
+        let total_screen_width = (intersection_width * ZOOM) + label_length + 10.0;
 
-    g.fork_screenspace();
-    g.draw_polygon(
-        ctx.cs
-            .get_def("signal editor panel", Color::BLACK.alpha(0.95)),
-        &Polygon::rectangle_topleft(
-            Pt2D::new(0.0, 0.0),
-            Distance::meters(total_screen_width),
-            Distance::meters((padding + intersection_height) * (cycles.len() as f64) * zoom),
-        ),
-    );
-    g.draw_polygon(
-        ctx.cs.get_def(
-            "current cycle in signal editor panel",
-            Color::BLUE.alpha(0.95),
-        ),
-        &Polygon::rectangle_topleft(
-            Pt2D::new(
-                0.0,
-                (padding + intersection_height) * (current_cycle as f64) * zoom,
+        let cycle_geom = (0..cycles.len())
+            .map(|idx| ScreenRectangle {
+                x1: 0.0,
+                y1: (PADDING + intersection_height) * (idx as f64) * ZOOM,
+                x2: total_screen_width,
+                y2: (PADDING + intersection_height) * ((idx + 1) as f64) * ZOOM,
+            })
+            .collect();
+
+        TrafficSignalDiagram {
+            i,
+            current_cycle,
+            labels,
+            cycle_geom,
+            top_left,
+            intersection_width,
+        }
+    }
+
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI, menu: &mut ModalMenu) {
+        if self.current_cycle != 0 && menu.action("select previous cycle") {
+            self.current_cycle -= 1;
+            self.reset(ui, ctx);
+            return;
+        }
+        if self.current_cycle != self.cycle_geom.len() - 1 && menu.action("select next cycle") {
+            self.current_cycle += 1;
+            self.reset(ui, ctx);
+            return;
+        }
+
+        if ctx.redo_mouseover() {
+            let cursor = ctx.canvas.get_cursor_in_screen_space();
+            for (idx, rect) in self.cycle_geom.iter().enumerate() {
+                if rect.contains(cursor) {
+                    // TODO mark it selected, dude
+                }
+            }
+        }
+    }
+
+    pub fn reset(&mut self, ui: &UI, ctx: &mut EventCtx) {
+        *self = TrafficSignalDiagram::new(self.i, self.current_cycle, &ui.primary.map, ctx);
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
+        g.fork_screenspace();
+        g.draw_polygon(
+            ctx.cs
+                .get_def("signal editor panel", Color::BLACK.alpha(0.95)),
+            &Polygon::rectangle_topleft(
+                Pt2D::new(0.0, 0.0),
+                Distance::meters(self.cycle_geom[0].x2 - self.cycle_geom[0].x1),
+                Distance::meters(self.cycle_geom.last().unwrap().y2),
             ),
-            Distance::meters(total_screen_width),
-            Distance::meters((padding + intersection_height) * zoom),
-        ),
-    );
-
-    for (idx, (txt, cycle)) in labels.into_iter().zip(cycles.iter()).enumerate() {
-        let y1 = (padding + intersection_height) * (idx as f64) * zoom;
-
-        g.fork(top_left, ScreenPt::new(0.0, y1), zoom);
-        let mut batch = GeomBatch::new();
-        draw_signal_cycle(
-            &cycle,
-            if idx == current_cycle {
-                time_left
-            } else {
-                None
-            },
-            &mut batch,
-            ctx,
         );
-        batch.draw(g);
-
-        g.draw_text_at_screenspace_topleft(
-            &txt,
-            ScreenPt::new(10.0 + (intersection_width * zoom), y1),
+        let current_rect = &self.cycle_geom[self.current_cycle];
+        g.draw_polygon(
+            ctx.cs.get_def(
+                "current cycle in signal editor panel",
+                Color::BLUE.alpha(0.95),
+            ),
+            &Polygon::rectangle_topleft(
+                Pt2D::new(current_rect.x1, current_rect.y1),
+                Distance::meters(current_rect.x2 - current_rect.x1),
+                Distance::meters(current_rect.y2 - current_rect.y1),
+            ),
         );
+
+        let cycles = &ctx.map.get_traffic_signal(self.i).cycles;
+        for ((label, cycle), rect) in self
+            .labels
+            .iter()
+            .zip(cycles.iter())
+            .zip(self.cycle_geom.iter())
+        {
+            g.fork(self.top_left, ScreenPt::new(rect.x1, rect.y1), ZOOM);
+            let mut batch = GeomBatch::new();
+            draw_signal_cycle(&cycle, None, &mut batch, ctx);
+            batch.draw(g);
+
+            g.draw_text_at_screenspace_topleft(
+                label,
+                ScreenPt::new(10.0 + (self.intersection_width * ZOOM), rect.y1),
+            );
+        }
+
+        g.unfork();
     }
-
-    g.unfork();
 }

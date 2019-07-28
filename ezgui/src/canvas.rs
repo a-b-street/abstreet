@@ -120,7 +120,7 @@ impl Canvas {
         self.cam_y = ((self.cam_zoom / old_zoom) * (self.cursor_y + self.cam_y)) - self.cursor_y;
     }
 
-    pub(crate) fn get_cursor_in_screen_space(&self) -> ScreenPt {
+    pub fn get_cursor_in_screen_space(&self) -> ScreenPt {
         ScreenPt::new(self.cursor_x, self.cursor_y)
     }
 
