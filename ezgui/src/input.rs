@@ -204,7 +204,7 @@ impl UserInput {
     }
 
     // No consuming for these?
-    pub(crate) fn left_mouse_button_pressed(&mut self) -> bool {
+    pub fn left_mouse_button_pressed(&mut self) -> bool {
         if self.context_menu_active() {
             return false;
         }

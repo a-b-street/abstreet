@@ -161,6 +161,8 @@ pub struct TrafficSignalDiagram {
     cycle_geom: Vec<ScreenRectangle>,
     top_left: Pt2D,
     intersection_width: f64,
+
+    hovering_on: Option<usize>,
 }
 
 impl TrafficSignalDiagram {
@@ -213,6 +215,7 @@ impl TrafficSignalDiagram {
             cycle_geom,
             top_left,
             intersection_width,
+            hovering_on: None,
         }
     }
 
@@ -229,11 +232,20 @@ impl TrafficSignalDiagram {
         }
 
         if ctx.redo_mouseover() {
+            self.hovering_on = None;
             let cursor = ctx.canvas.get_cursor_in_screen_space();
             for (idx, rect) in self.cycle_geom.iter().enumerate() {
                 if rect.contains(cursor) {
-                    // TODO mark it selected, dude
+                    self.hovering_on = Some(idx);
+                    break;
                 }
+            }
+        }
+
+        if let Some(idx) = self.hovering_on {
+            if ctx.input.left_mouse_button_pressed() {
+                self.current_cycle = idx;
+                self.reset(ui, ctx);
             }
         }
     }
@@ -246,17 +258,23 @@ impl TrafficSignalDiagram {
         g.fork_screenspace();
         g.draw_polygon(
             ctx.cs
-                .get_def("signal editor panel", Color::BLACK.alpha(0.95)),
+                .get_def("traffic signal panel", Color::BLACK.alpha(0.95)),
             &Polygon::rectangle_topleft(
                 Pt2D::new(0.0, 0.0),
                 Distance::meters(self.cycle_geom[0].x2 - self.cycle_geom[0].x1),
                 Distance::meters(self.cycle_geom.last().unwrap().y2),
             ),
         );
+        g.canvas.mark_covered_area(ScreenRectangle {
+            x1: 0.0,
+            y1: 0.0,
+            x2: self.cycle_geom[0].x2 - self.cycle_geom[0].x1,
+            y2: self.cycle_geom.last().unwrap().y2,
+        });
         let current_rect = &self.cycle_geom[self.current_cycle];
         g.draw_polygon(
             ctx.cs.get_def(
-                "current cycle in signal editor panel",
+                "current cycle in traffic signal panel",
                 Color::BLUE.alpha(0.95),
             ),
             &Polygon::rectangle_topleft(
@@ -265,6 +283,21 @@ impl TrafficSignalDiagram {
                 Distance::meters(current_rect.y2 - current_rect.y1),
             ),
         );
+
+        if let Some(idx) = self.hovering_on {
+            let rect = &self.cycle_geom[idx];
+            g.draw_polygon(
+                ctx.cs.get_def(
+                    "hovering on cycle in traffic signal panel",
+                    Color::RED.alpha(0.95),
+                ),
+                &Polygon::rectangle_topleft(
+                    Pt2D::new(rect.x1, rect.y1),
+                    Distance::meters(rect.x2 - rect.x1),
+                    Distance::meters(rect.y2 - rect.y1),
+                ),
+            );
+        }
 
         let cycles = &ctx.map.get_traffic_signal(self.i).cycles;
         for ((label, cycle), rect) in self
