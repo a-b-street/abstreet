@@ -1,7 +1,8 @@
 use crate::render::{DrawCtx, DrawTurn};
 use crate::ui::UI;
 use ezgui::{
-    Color, EventCtx, GeomBatch, GfxCtx, ModalMenu, ScreenDims, ScreenPt, ScreenRectangle, Text,
+    Canvas, Color, EventCtx, GeomBatch, GfxCtx, ModalMenu, ScreenDims, ScreenPt, ScreenRectangle,
+    Text,
 };
 use geom::{Circle, Distance, Duration, PolyLine, Polygon, Pt2D};
 use map_model::{Cycle, IntersectionID, Map, TurnPriority, TurnType, LANE_THICKNESS};
@@ -198,10 +199,10 @@ impl TrafficSignalDiagram {
             .map(|l| ctx.canvas.text_dims(l).0)
             .max_by_key(|w| NotNan::new(*w).unwrap())
             .unwrap();
-        let item_dims = ScreenDims {
-            width: (intersection_width * ZOOM) + label_length + 10.0,
-            height: (PADDING + intersection_height) * ZOOM,
-        };
+        let item_dims = ScreenDims::new(
+            (intersection_width * ZOOM) + label_length + 10.0,
+            (PADDING + intersection_height) * ZOOM,
+        );
 
         let scroller = Scroller::new(
             ScreenPt::new(0.0, 0.0),
@@ -244,7 +245,7 @@ impl TrafficSignalDiagram {
     pub fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
         let cycles = &ctx.map.get_traffic_signal(self.i).cycles;
 
-        for (idx, screen_top_left, dims) in self.scroller.draw(g) {
+        for (idx, rect) in self.scroller.draw(g) {
             // TODO Maybe make Scroller do this after all.
             if idx == self.current_cycle {
                 g.fork_screenspace();
@@ -254,14 +255,14 @@ impl TrafficSignalDiagram {
                         Color::BLUE.alpha(0.95),
                     ),
                     &Polygon::rectangle_topleft(
-                        Pt2D::new(screen_top_left.x, screen_top_left.y),
-                        Distance::meters(dims.width),
-                        Distance::meters(dims.height),
+                        Pt2D::new(rect.x1, rect.y1),
+                        Distance::meters(rect.width()),
+                        Distance::meters(rect.height()),
                     ),
                 );
             }
 
-            g.fork(self.top_left, screen_top_left, ZOOM);
+            g.fork(self.top_left, ScreenPt::new(rect.x1, rect.y1), ZOOM);
             let mut batch = GeomBatch::new();
             draw_signal_cycle(&cycles[idx], None, &mut batch, ctx);
             batch.draw(g);
@@ -269,7 +270,7 @@ impl TrafficSignalDiagram {
             g.draw_text_at_screenspace_topleft(
                 &self.labels[idx],
                 // TODO The x here is weird...
-                ScreenPt::new(10.0 + (self.intersection_width * ZOOM), screen_top_left.y),
+                ScreenPt::new(10.0 + (self.intersection_width * ZOOM), rect.y1),
             );
         }
 
@@ -277,200 +278,198 @@ impl TrafficSignalDiagram {
     }
 }
 
-// TODO Move to ezgui
-// TODO Actually, remove this concept entirely; it's just a special item in Scroller.
-struct Button {
-    geom: ScreenRectangle,
-    label: Text,
-    label_topleft: ScreenPt,
-    hovering: bool,
-}
-
-impl Button {
-    fn new(geom: ScreenRectangle, label: Text, ctx: &EventCtx) -> Button {
-        let (width, height) = ctx.canvas.text_dims(&label);
-        let label_topleft = ScreenPt::new(
-            geom.x1 + (geom.width() - width) / 2.0,
-            geom.y1 + (geom.height() - height) / 2.0,
-        );
-        assert!(label_topleft.x >= 0.0);
-        assert!(label_topleft.y >= 0.0);
-        Button {
-            geom,
-            label,
-            label_topleft,
-            hovering: false,
-        }
-    }
-
-    fn new_autoheight(top_left: ScreenPt, width: f64, label: Text, ctx: &EventCtx) -> Button {
-        let (_, height) = ctx.canvas.text_dims(&label);
-        Button::new(
-            ScreenRectangle {
-                x1: top_left.x,
-                x2: top_left.x + width,
-                y1: top_left.y,
-                y2: top_left.y + height,
-            },
-            label,
-            ctx,
-        )
-    }
-
-    // True if clicked
-    fn event(&mut self, ctx: &mut EventCtx) -> bool {
-        if ctx.redo_mouseover() {
-            self.hovering = self.geom.contains(ctx.canvas.get_cursor_in_screen_space());
-        }
-        self.hovering && ctx.input.left_mouse_button_pressed()
-    }
-
-    fn draw(&self, g: &mut GfxCtx) {
-        g.draw_polygon(
-            if self.hovering {
-                Color::RED
-            } else {
-                Color::grey(0.6)
-            },
-            &Polygon::rectangle_topleft(
-                Pt2D::new(self.geom.x1, self.geom.y1),
-                Distance::meters(self.geom.width()),
-                Distance::meters(self.geom.height()),
-            ),
-        );
-        g.canvas.mark_covered_area(self.geom.clone());
-        g.draw_text_at_screenspace_topleft(&self.label, self.label_topleft);
-    }
+enum Item<T: Clone + Copy> {
+    UpButton,
+    DownButton,
+    ActualItem(T),
 }
 
 struct Scroller<T: Clone + Copy> {
-    up_btn: Button,
-    down_btn: Button,
     // TODO Maybe the height of each thing; insist that the width is the same for all?
-    items: Vec<(T, ScreenDims)>,
+    items: Vec<(Item<T>, ScreenDims)>,
 
     master_topleft: ScreenPt,
-    items_topleft: ScreenPt,
-    total_dims: ScreenDims,
     hovering_on: Option<usize>,
     bg_color: Color,
     hovering_color: Color,
-    // TODO state for actually scrolling down
+
+    // Does NOT include buttons!
+    top_idx: usize,
 }
 
 impl<T: Clone + Copy> Scroller<T> {
-    fn new(master_topleft: ScreenPt, items: Vec<(T, ScreenDims)>, ctx: &EventCtx) -> Scroller<T> {
-        let max_width = items
+    fn new(
+        master_topleft: ScreenPt,
+        actual_items: Vec<(T, ScreenDims)>,
+        ctx: &EventCtx,
+    ) -> Scroller<T> {
+        let max_width = actual_items
             .iter()
             .map(|(_, dims)| dims.width)
             .max_by_key(|w| NotNan::new(*w).unwrap())
             .unwrap();
-        let up_btn = Button::new_autoheight(
-            master_topleft,
-            max_width,
-            Text::from_line("scroll up".to_string()),
-            ctx,
-        );
-        let items_topleft = ScreenPt::new(master_topleft.x, up_btn.geom.y2);
-        let item_height = items.iter().fold(0.0, |sum, (_, dims)| sum + dims.height);
-        let down_btn = Button::new_autoheight(
-            ScreenPt::new(master_topleft.x, up_btn.geom.y2 + item_height),
-            max_width,
-            Text::from_line("scroll down".to_string()),
-            ctx,
-        );
+        let (_, button_height) = ctx.canvas.text_dims(&Text::from_line("dummy".to_string()));
+        let mut items = vec![(Item::UpButton, ScreenDims::new(max_width, button_height))];
+        for (item, dims) in actual_items {
+            items.push((Item::ActualItem(item), dims));
+        }
+        items.push((Item::DownButton, ScreenDims::new(max_width, button_height)));
 
         Scroller {
             items,
             master_topleft,
-            items_topleft,
             hovering_on: None,
             // TODO ctx.cs
             bg_color: Color::BLACK.alpha(0.95),
-            total_dims: ScreenDims {
-                width: max_width,
-                height: down_btn.geom.y2 - up_btn.geom.y1,
-            },
-            up_btn,
-            down_btn,
             hovering_color: Color::RED.alpha(0.95),
+            top_idx: 0,
         }
+    }
+
+    // Includes buttons!
+    fn get_visible_items(&self, canvas: &Canvas) -> Vec<(usize, ScreenRectangle)> {
+        // Up button
+        let mut visible = vec![(
+            0,
+            ScreenRectangle {
+                x1: self.master_topleft.x,
+                y1: self.master_topleft.y,
+                x2: self.master_topleft.x + self.items[0].1.width,
+                y2: self.master_topleft.y + self.items[0].1.height,
+            },
+        )];
+
+        // Include the two buttons here
+        let mut space_left = canvas.window_height - (2.0 * self.items[0].1.height);
+        let mut y1 = visible[0].1.y2;
+
+        for idx in 1 + self.top_idx..self.items.len() - 1 {
+            if self.items[idx].1.height > space_left {
+                break;
+            }
+            visible.push((
+                idx,
+                ScreenRectangle {
+                    x1: self.master_topleft.x,
+                    y1,
+                    x2: self.master_topleft.x + self.items[idx].1.width,
+                    y2: y1 + self.items[idx].1.height,
+                },
+            ));
+            y1 += self.items[idx].1.height;
+            space_left -= self.items[idx].1.height;
+        }
+
+        // Down button
+        visible.push((
+            self.items.len() - 1,
+            ScreenRectangle {
+                x1: self.master_topleft.x,
+                y1,
+                x2: self.master_topleft.x + self.items[0].1.width,
+                y2: y1 + self.items[0].1.height,
+            },
+        ));
+
+        visible
     }
 
     // Returns the item selected
     fn event(&mut self, ctx: &mut EventCtx) -> Option<T> {
-        if self.up_btn.event(ctx) {
-            println!("scroll up");
-        }
-        if self.down_btn.event(ctx) {
-            println!("scroll down");
-        }
-
         if ctx.redo_mouseover() {
             let cursor = ctx.canvas.get_cursor_in_screen_space();
             self.hovering_on = None;
-            let mut y1 = self.items_topleft.y;
-            for (idx, (_, dims)) in self.items.iter().enumerate() {
-                if (ScreenRectangle {
-                    x1: self.master_topleft.x,
-                    y1,
-                    x2: self.master_topleft.x + dims.width,
-                    y2: y1 + dims.height,
-                }
-                .contains(cursor))
-                {
+            for (idx, rect) in self.get_visible_items(ctx.canvas) {
+                if rect.contains(cursor) {
                     self.hovering_on = Some(idx);
                     break;
                 }
-                y1 += dims.height;
             }
         }
         if let Some(idx) = self.hovering_on {
             if ctx.input.left_mouse_button_pressed() {
-                return Some(self.items[idx].0);
+                match self.items[idx].0 {
+                    Item::UpButton => {
+                        if self.top_idx != 0 {
+                            self.top_idx -= 1;
+                        }
+                    }
+                    Item::DownButton => {
+                        let visible = self.get_visible_items(ctx.canvas);
+                        // Ignore the down button
+                        let last_idx = visible[visible.len() - 2].0;
+                        if last_idx != self.items.len() - 2 {
+                            self.top_idx += 1;
+                        }
+                    }
+                    Item::ActualItem(item) => {
+                        return Some(item);
+                    }
+                }
             }
         }
 
         None
     }
 
-    // Returns the items to draw, their current top-left point, and their dims.
-    fn draw(&self, g: &mut GfxCtx) -> Vec<(T, ScreenPt, ScreenDims)> {
+    // Returns the items to draw and the space they occupy.
+    fn draw(&self, g: &mut GfxCtx) -> Vec<(T, ScreenRectangle)> {
+        let visible = self.get_visible_items(g.canvas);
+        // We know buttons have the max_width.
+        let max_width = visible[0].1.width();
+        let mut total_height = 0.0;
+        for (_, rect) in &visible {
+            total_height += rect.height();
+        }
+
         g.fork_screenspace();
         g.draw_polygon(
             self.bg_color,
             &Polygon::rectangle_topleft(
                 Pt2D::new(self.master_topleft.x, self.master_topleft.y),
-                Distance::meters(self.total_dims.width),
-                Distance::meters(self.total_dims.height),
+                Distance::meters(max_width),
+                Distance::meters(total_height),
             ),
         );
         g.canvas.mark_covered_area(ScreenRectangle::top_left(
             self.master_topleft,
-            self.total_dims,
+            ScreenDims::new(max_width, total_height),
         ));
 
-        let mut items_pos = Vec::new();
-        let mut y1 = self.items_topleft.y;
-        for (idx, (item, dims)) in self.items.iter().enumerate() {
-            items_pos.push((*item, ScreenPt::new(self.master_topleft.x, y1), *dims));
+        let mut items = Vec::new();
+        for (idx, rect) in visible {
             if Some(idx) == self.hovering_on {
+                // Drawing text keeps reseting this. :(
+                g.fork_screenspace();
                 g.draw_polygon(
                     self.hovering_color,
                     &Polygon::rectangle_topleft(
-                        Pt2D::new(self.master_topleft.x, y1),
-                        Distance::meters(dims.width),
-                        Distance::meters(dims.height),
+                        Pt2D::new(rect.x1, rect.y1),
+                        Distance::meters(rect.width()),
+                        Distance::meters(rect.height()),
                     ),
                 );
             }
-            y1 += dims.height;
+            match self.items[idx].0 {
+                Item::UpButton => {
+                    // TODO center the text inside the rectangle. and actually, g should have a
+                    // method for that.
+                    let mut txt = Text::with_bg_color(None);
+                    txt.add_line("scroll up".to_string());
+                    g.draw_text_at_screenspace_topleft(&txt, ScreenPt::new(rect.x1, rect.y1));
+                }
+                Item::DownButton => {
+                    let mut txt = Text::with_bg_color(None);
+                    txt.add_line("scroll down".to_string());
+                    g.draw_text_at_screenspace_topleft(&txt, ScreenPt::new(rect.x1, rect.y1));
+                }
+                Item::ActualItem(item) => {
+                    items.push((item, rect));
+                }
+            }
         }
-
-        self.up_btn.draw(g);
-        self.down_btn.draw(g);
         g.unfork();
 
-        items_pos
+        items
     }
 }

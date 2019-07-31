@@ -46,3 +46,9 @@ pub struct ScreenDims {
     pub width: f64,
     pub height: f64,
 }
+
+impl ScreenDims {
+    pub fn new(width: f64, height: f64) -> ScreenDims {
+        ScreenDims { width, height }
+    }
+}
