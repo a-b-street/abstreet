@@ -1,5 +1,4 @@
 use crate::render::{DrawCtx, DrawTurn};
-use crate::ui::UI;
 use ezgui::{
     Canvas, Color, EventCtx, GeomBatch, GfxCtx, ModalMenu, ScreenDims, ScreenPt, ScreenRectangle,
     Text,
@@ -159,7 +158,6 @@ const ZOOM: f64 = 15.0;
 
 pub struct TrafficSignalDiagram {
     pub i: IntersectionID,
-    pub current_cycle: usize,
     labels: Vec<Text>,
     top_left: Pt2D,
     intersection_width: f64, // TODO needed?
@@ -207,12 +205,12 @@ impl TrafficSignalDiagram {
         let scroller = Scroller::new(
             ScreenPt::new(0.0, 0.0),
             cycles.iter().map(|cycle| (cycle.idx, item_dims)).collect(),
+            current_cycle,
             ctx,
         );
 
         TrafficSignalDiagram {
             i,
-            current_cycle,
             labels,
             top_left,
             intersection_width,
@@ -220,48 +218,31 @@ impl TrafficSignalDiagram {
         }
     }
 
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI, menu: &mut ModalMenu) {
-        if let Some(idx) = self.scroller.event(ctx) {
-            self.current_cycle = idx;
-            self.reset(ui, ctx);
-        }
+    pub fn event(&mut self, ctx: &mut EventCtx, menu: &mut ModalMenu) {
+        self.scroller.event(ctx);
 
-        if self.current_cycle != 0 && menu.action("select previous cycle") {
-            self.current_cycle -= 1;
-            self.reset(ui, ctx);
+        if self.scroller.current_selection != 0 && menu.action("select previous cycle") {
+            self.scroller.select_previous();
             return;
         }
-        if self.current_cycle != self.scroller.items.len() - 1 && menu.action("select next cycle") {
-            self.current_cycle += 1;
-            self.reset(ui, ctx);
+        if self.scroller.current_selection != self.scroller.items.len() - 3
+            && menu.action("select next cycle")
+        {
+            self.scroller.select_next(ctx.canvas);
             return;
         }
     }
 
-    pub fn reset(&mut self, ui: &UI, ctx: &mut EventCtx) {
-        *self = TrafficSignalDiagram::new(self.i, self.current_cycle, &ui.primary.map, ctx);
+    //*self = TrafficSignalDiagram::new(self.i, self.scroller.current_selection, &ui.primary.map, ctx);
+
+    pub fn current_cycle(&self) -> usize {
+        self.scroller.current_selection
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
         let cycles = &ctx.map.get_traffic_signal(self.i).cycles;
 
         for (idx, rect) in self.scroller.draw(g) {
-            // TODO Maybe make Scroller do this after all.
-            if idx == self.current_cycle {
-                g.fork_screenspace();
-                g.draw_polygon(
-                    ctx.cs.get_def(
-                        "current cycle in traffic signal panel",
-                        Color::BLUE.alpha(0.95),
-                    ),
-                    &Polygon::rectangle_topleft(
-                        Pt2D::new(rect.x1, rect.y1),
-                        Distance::meters(rect.width()),
-                        Distance::meters(rect.height()),
-                    ),
-                );
-            }
-
             g.fork(self.top_left, ScreenPt::new(rect.x1, rect.y1), ZOOM);
             let mut batch = GeomBatch::new();
             draw_signal_cycle(&cycles[idx], None, &mut batch, ctx);
@@ -292,15 +273,18 @@ struct Scroller<T: Clone + Copy> {
     hovering_on: Option<usize>,
     bg_color: Color,
     hovering_color: Color,
+    current_selection_color: Color,
 
     // Does NOT include buttons!
     top_idx: usize,
+    current_selection: usize,
 }
 
 impl<T: Clone + Copy> Scroller<T> {
     fn new(
         master_topleft: ScreenPt,
         actual_items: Vec<(T, ScreenDims)>,
+        current_selection: usize,
         ctx: &EventCtx,
     ) -> Scroller<T> {
         let max_width = actual_items
@@ -315,6 +299,10 @@ impl<T: Clone + Copy> Scroller<T> {
         }
         items.push((Item::DownButton, ScreenDims::new(max_width, button_height)));
 
+        let top_idx = current_selection;
+        // TODO Try to start with current_selection centered, ideally. Or at least start a bit up
+        // in this case. :\
+
         Scroller {
             items,
             master_topleft,
@@ -322,7 +310,9 @@ impl<T: Clone + Copy> Scroller<T> {
             // TODO ctx.cs
             bg_color: Color::BLACK.alpha(0.95),
             hovering_color: Color::RED.alpha(0.95),
-            top_idx: 0,
+            current_selection_color: Color::BLUE.alpha(0.95),
+            top_idx,
+            current_selection,
         }
     }
 
@@ -374,7 +364,7 @@ impl<T: Clone + Copy> Scroller<T> {
         visible
     }
 
-    // Returns the item selected
+    // Returns the item selected, if it changes
     fn event(&mut self, ctx: &mut EventCtx) -> Option<T> {
         if ctx.redo_mouseover() {
             let cursor = ctx.canvas.get_cursor_in_screen_space();
@@ -403,6 +393,7 @@ impl<T: Clone + Copy> Scroller<T> {
                         }
                     }
                     Item::ActualItem(item) => {
+                        self.current_selection = idx - 1;
                         return Some(item);
                     }
                 }
@@ -438,11 +429,15 @@ impl<T: Clone + Copy> Scroller<T> {
 
         let mut items = Vec::new();
         for (idx, rect) in visible {
-            if Some(idx) == self.hovering_on {
+            if Some(idx) == self.hovering_on || idx == self.current_selection + 1 {
                 // Drawing text keeps reseting this. :(
                 g.fork_screenspace();
                 g.draw_polygon(
-                    self.hovering_color,
+                    if Some(idx) == self.hovering_on {
+                        self.hovering_color
+                    } else {
+                        self.current_selection_color
+                    },
                     &Polygon::rectangle_topleft(
                         Pt2D::new(rect.x1, rect.y1),
                         Distance::meters(rect.width()),
@@ -471,5 +466,30 @@ impl<T: Clone + Copy> Scroller<T> {
         g.unfork();
 
         items
+    }
+
+    fn select_previous(&mut self) {
+        assert!(self.current_selection != 0);
+        self.current_selection -= 1;
+        // TODO This and the case below aren't right; we might scroll far past the current
+        // selection. Need similar logic for initializing Scroller and make sure the new
+        // current_selection is "centered", but also retain consistency.
+        if self.current_selection < self.top_idx {
+            self.top_idx -= 1;
+        }
+    }
+
+    fn select_next(&mut self, canvas: &Canvas) {
+        assert!(self.current_selection != self.items.len() - 2);
+        self.current_selection += 1;
+        // Remember, the indices include buttons. :(
+        if self
+            .get_visible_items(canvas)
+            .into_iter()
+            .find(|(idx, _)| self.current_selection + 1 == *idx)
+            .is_none()
+        {
+            self.top_idx += 1;
+        }
     }
 }
