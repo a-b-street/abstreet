@@ -105,3 +105,20 @@ https://www.reddit.com/r/gamedev/comments/2yfyi5/drawing_lines_is_hard/
 	https://blog.mapbox.com/drawing-antialiased-lines-with-opengl-8766f34192dc
 	http://artgrammer.blogspot.com/2011/07/drawing-polylines-by-tessellation.html
 https://www.reddit.com/r/GraphicsProgramming/
+
+
+- are all the sources of doubling back strangely just directly fixable in the geom?
+- keep miter joins, but limit how far out we can explode?
+- bevel joins
+	- outlines miss bevels on one edge
+	- now there are little gaps between adjacent lanes
+	- slow!
+	- some bugs that cover a thick triangular area
+	- refactor all the methods... confusing.
+- ideas
+	- https://stackoverflow.com/questions/5641769/how-to-draw-an-outline-around-any-line
+	- http://old.cescg.org/CESCG99/SKrivograd/
+	- https://www.codeproject.com/Articles/226569/Drawing-polylines-by-tessellation
+	- https://stackoverflow.com/questions/36475254/polylines-outline-construction-drawing-thick-polylines
+	- https://forum.libcinder.org/topic/smooth-thick-lines-using-geometry-shader
+	- https://stackoverflow.com/questions/687173/how-do-i-render-thick-2d-lines-as-polygons

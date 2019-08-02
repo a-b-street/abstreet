@@ -4,10 +4,11 @@ use crate::helpers::ID;
 use crate::render::DrawOptions;
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
-use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu};
+use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu, Wizard, WrappedWizard};
 use geom::{Duration, PolyLine};
 use map_model::{
-    BuildingID, IntersectionID, IntersectionType, LaneType, PathRequest, Position, LANE_THICKNESS,
+    BuildingID, IntersectionID, IntersectionType, LaneType, Map, PathRequest, Position,
+    LANE_THICKNESS,
 };
 use rand::seq::SliceRandom;
 use rand::Rng;
@@ -38,7 +39,7 @@ impl AgentSpawner {
         ctx: &mut EventCtx,
         ui: &mut UI,
         sandbox_menu: &mut ModalMenu,
-    ) -> Option<AgentSpawner> {
+    ) -> Option<Box<State>> {
         let menu = ModalMenu::new(
             "Agent Spawner",
             vec![vec![(hotkey(Key::Escape), "quit")]],
@@ -51,22 +52,22 @@ impl AgentSpawner {
                     .input
                     .contextual_action(Key::F3, "spawn a pedestrian starting here")
                 {
-                    return Some(AgentSpawner {
+                    return Some(Box::new(AgentSpawner {
                         menu,
                         from: Source::Walking(id),
                         maybe_goal: None,
-                    });
+                    }));
                 }
                 if let Some(pos) = Position::bldg_via_driving(id, map) {
                     if ctx
                         .input
                         .contextual_action(Key::F4, "spawn a car starting here")
                     {
-                        return Some(AgentSpawner {
+                        return Some(Box::new(AgentSpawner {
                             menu,
                             from: Source::Driving(pos),
                             maybe_goal: None,
-                        });
+                        }));
                     }
                 }
             }
@@ -76,11 +77,11 @@ impl AgentSpawner {
                         .input
                         .contextual_action(Key::F3, "spawn an agent starting here")
                 {
-                    return Some(AgentSpawner {
+                    return Some(Box::new(AgentSpawner {
                         menu,
                         from: Source::Driving(Position::new(id, map.get_l(id).length() / 2.0)),
                         maybe_goal: None,
-                    });
+                    }));
                 }
             }
             Some(ID::Intersection(i)) => {
@@ -92,25 +93,10 @@ impl AgentSpawner {
                 }
             }
             None => {
-                if ui.primary.sim.is_empty() {
-                    if sandbox_menu.action("seed the sim with agents") {
-                        // TODO This covers up the map. :\
-                        ctx.loading_screen("seed sim with agents", |_, timer| {
-                            let map = &ui.primary.map;
-                            let s = if let Some(n) = ui.primary.current_flags.num_agents {
-                                Scenario::scaled_run(map, n)
-                            } else {
-                                Scenario::small_run(map)
-                            };
-                            s.instantiate(
-                                &mut ui.primary.sim,
-                                map,
-                                &mut ui.primary.current_flags.sim_flags.make_rng(),
-                                timer,
-                            );
-                            ui.primary.sim.step(map, SMALL_DT);
-                        });
-                    }
+                if ui.primary.sim.is_empty() && sandbox_menu.action("start a scenario") {
+                    return Some(Box::new(InstantiateScenario {
+                        wizard: Wizard::new(),
+                    }));
                 }
             }
             _ => {}
@@ -370,4 +356,76 @@ fn spawn_agents_around(i: IntersectionID, ui: &mut UI, ctx: &EventCtx) {
     sim.spawn_all_trips(map, &mut Timer::throwaway(), false);
     sim.step(map, SMALL_DT);
     ui.recalculate_current_selection(ctx);
+}
+
+// TODO Dedupe with code from mission/mod.rs.
+struct InstantiateScenario {
+    wizard: Wizard,
+}
+
+impl State for InstantiateScenario {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+        if let Some(scenario) = pick_scenario(
+            ui.primary.current_flags.num_agents,
+            &ui.primary.map,
+            &mut self.wizard.wrap(ctx),
+        ) {
+            ctx.loading_screen("instantiate scenario", |_, timer| {
+                scenario.instantiate(
+                    &mut ui.primary.sim,
+                    &ui.primary.map,
+                    &mut ui.primary.current_flags.sim_flags.make_rng(),
+                    timer,
+                );
+                ui.primary.sim.step(&ui.primary.map, SMALL_DT);
+            });
+            return Transition::Pop;
+        } else if self.wizard.aborted() {
+            return Transition::Pop;
+        }
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        self.wizard.draw(g);
+    }
+}
+
+fn pick_scenario(
+    num_agents: Option<usize>,
+    map: &Map,
+    wizard: &mut WrappedWizard,
+) -> Option<Scenario> {
+    let builtin = if let Some(n) = num_agents {
+        format!("random scenario with {} agents", n)
+    } else {
+        "random scenario with some agents".to_string()
+    };
+    let map_name = map.get_name().to_string();
+    let (_, scenario_name) = wizard.choose_something_no_keys::<String>(
+        "Instantiate which scenario?",
+        Box::new(move || {
+            let mut list = vec![
+                (builtin.clone(), "builtin".to_string()),
+                ("just buses".to_string(), "just buses".to_string()),
+            ];
+            list.extend(abstutil::list_all_objects("scenarios", &map_name));
+            list
+        }),
+    )?;
+    Some(if scenario_name == "builtin" {
+        if let Some(n) = num_agents {
+            Scenario::scaled_run(map, n)
+        } else {
+            Scenario::small_run(map)
+        }
+    } else if scenario_name == "just buses" {
+        Scenario::empty(map)
+    } else {
+        abstutil::read_binary(
+            &format!("../data/scenarios/{}/{}.bin", map.get_name(), scenario_name),
+            &mut Timer::throwaway(),
+        )
+        .unwrap()
+    })
 }

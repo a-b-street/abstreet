@@ -249,6 +249,18 @@ impl Scenario {
         s
     }
 
+    // Just buses.
+    pub fn empty(map: &Map) -> Scenario {
+        Scenario {
+            scenario_name: "just buses".to_string(),
+            map_name: map.get_name().to_string(),
+            seed_parked_cars: Vec::new(),
+            spawn_over_time: Vec::new(),
+            border_spawn_over_time: Vec::new(),
+            individ_trips: Vec::new(),
+        }
+    }
+
     // No border agents here, because making the count work is hard.
     pub fn scaled_run(map: &Map, num_agents: usize) -> Scenario {
         Scenario {

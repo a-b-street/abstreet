@@ -47,7 +47,7 @@ impl SandboxMode {
                         (hotkey(Key::Y), "load previous sim state"),
                         (hotkey(Key::U), "load next sim state"),
                         (hotkey(Key::X), "reset sim"),
-                        (hotkey(Key::S), "seed the sim with agents"),
+                        (hotkey(Key::S), "start a scenario"),
                     ],
                     vec![
                         // TODO Strange to always have this. Really it's a case of stacked modal?
@@ -96,8 +96,8 @@ impl State for SandboxMode {
             return t;
         }
 
-        if let Some(spawner) = spawner::AgentSpawner::new(ctx, ui, &mut self.menu) {
-            return Transition::Push(Box::new(spawner));
+        if let Some(new_state) = spawner::AgentSpawner::new(ctx, ui, &mut self.menu) {
+            return Transition::Push(new_state);
         }
         if let Some(explorer) = RouteExplorer::new(ctx, ui) {
             return Transition::Push(Box::new(explorer));
