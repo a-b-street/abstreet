@@ -200,6 +200,8 @@ impl<'a> LoadingScreen<'a> {
         self.last_drawn = Some(Instant::now());
 
         let mut txt = Text::prompt(&self.title);
+        txt.override_width = Some(self.canvas.window_width * 0.8);
+        txt.override_height = Some(self.canvas.window_height * 0.8);
         for l in &self.lines {
             txt.add_line(l.to_string());
         }

@@ -43,6 +43,7 @@ pub struct Text {
     lines: Vec<(Option<Color>, Vec<TextSpan>)>,
     bg_color: Option<Color>,
     pub(crate) override_width: Option<f64>,
+    pub(crate) override_height: Option<f64>,
 }
 
 impl Text {
@@ -51,6 +52,7 @@ impl Text {
             lines: Vec::new(),
             bg_color: Some(BG_COLOR),
             override_width: None,
+            override_height: None,
         }
     }
 
@@ -65,6 +67,7 @@ impl Text {
             lines: Vec::new(),
             bg_color,
             override_width: None,
+            override_height: None,
         }
     }
 
@@ -178,7 +181,7 @@ impl Text {
         }
         (
             self.override_width.unwrap_or_else(|| f64::from(max_width)),
-            height,
+            self.override_height.unwrap_or_else(|| f64::from(height)),
         )
     }
 }
