@@ -86,7 +86,7 @@ impl IntersectionSimState {
         scheduler: &mut Scheduler,
     ) {
         let state = &self.state[&id];
-        let (_, remaining) = map
+        let (_, _, remaining) = map
             .get_traffic_signal(id)
             .current_cycle_and_remaining_time(now);
 
@@ -225,7 +225,7 @@ impl State {
         time: Duration,
         map: &Map,
     ) -> bool {
-        let (cycle, remaining_cycle_time) = signal.current_cycle_and_remaining_time(time);
+        let (_, cycle, remaining_cycle_time) = signal.current_cycle_and_remaining_time(time);
 
         // Can't go at all this cycle.
         if cycle.get_priority(new_req.turn) == TurnPriority::Banned {

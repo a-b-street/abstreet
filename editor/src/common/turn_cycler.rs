@@ -41,7 +41,7 @@ impl TurnCyclerState {
                         .contextual_action(Key::F, "show full traffic signal diagram")
                     {
                         ui.primary.current_selection = None;
-                        let (cycle, _) =
+                        let (idx, _, _) =
                             signal.current_cycle_and_remaining_time(ui.primary.sim.time());
                         return Some(Transition::Push(Box::new(ShowTrafficSignal {
                             menu: ModalMenu::new(
@@ -55,7 +55,7 @@ impl TurnCyclerState {
                                 ],
                                 ctx,
                             ),
-                            diagram: TrafficSignalDiagram::new(i, cycle.idx, &ui.primary.map, ctx),
+                            diagram: TrafficSignalDiagram::new(i, idx, &ui.primary.map, ctx),
                         })));
                     }
                 }

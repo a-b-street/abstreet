@@ -48,12 +48,12 @@ impl ControlTrafficSignal {
         results
     }
 
-    pub fn current_cycle_and_remaining_time(&self, time: Duration) -> (&Cycle, Duration) {
+    pub fn current_cycle_and_remaining_time(&self, time: Duration) -> (usize, &Cycle, Duration) {
         let cycle_idx = (time / CYCLE_DURATION).floor() as usize;
         let cycle = &self.cycles[cycle_idx % self.cycles.len()];
         let next_cycle_time = CYCLE_DURATION * (cycle_idx + 1) as f64;
         let remaining_cycle_time = next_cycle_time - time;
-        (cycle, remaining_cycle_time)
+        (cycle_idx, cycle, remaining_cycle_time)
     }
 
     fn validate(&self, map: &Map) -> Result<(), Error> {
@@ -113,7 +113,7 @@ impl ControlTrafficSignal {
             .iter()
             .map(|t| t.id)
             .collect();
-        let mut current_cycle = Cycle::new(intersection, cycles.len());
+        let mut current_cycle = Cycle::new(intersection);
         loop {
             let add_turn = remaining_turns
                 .iter()
@@ -126,7 +126,7 @@ impl ControlTrafficSignal {
                 }
                 None => {
                     cycles.push(current_cycle);
-                    current_cycle = Cycle::new(intersection, cycles.len());
+                    current_cycle = Cycle::new(intersection);
                     if remaining_turns.is_empty() {
                         break;
                     }
@@ -379,17 +379,15 @@ impl ControlTrafficSignal {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct Cycle {
     pub parent: IntersectionID,
-    pub idx: usize,
     pub priority_turns: BTreeSet<TurnID>,
     pub yield_turns: BTreeSet<TurnID>,
     pub duration: Duration,
 }
 
 impl Cycle {
-    pub fn new(parent: IntersectionID, idx: usize) -> Cycle {
+    pub fn new(parent: IntersectionID) -> Cycle {
         Cycle {
             parent,
-            idx,
             priority_turns: BTreeSet::new(),
             yield_turns: BTreeSet::new(),
             duration: CYCLE_DURATION,
@@ -459,8 +457,8 @@ fn make_cycles(
 ) -> Vec<Cycle> {
     let mut cycles: Vec<Cycle> = Vec::new();
 
-    for (idx, specs) in cycle_specs.into_iter().enumerate() {
-        let mut cycle = Cycle::new(i, idx);
+    for specs in cycle_specs {
+        let mut cycle = Cycle::new(i);
 
         for (roads, turn_type, protected) in specs.into_iter() {
             for turn in map.get_turns_in_intersection(i) {

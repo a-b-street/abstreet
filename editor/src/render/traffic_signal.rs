@@ -204,7 +204,10 @@ impl TrafficSignalDiagram {
 
         let scroller = Scroller::new(
             ScreenPt::new(0.0, 0.0),
-            cycles.iter().map(|cycle| (cycle.idx, item_dims)).collect(),
+            std::iter::repeat(item_dims)
+                .take(cycles.len())
+                .enumerate()
+                .collect(),
             current_cycle,
             ctx,
         );

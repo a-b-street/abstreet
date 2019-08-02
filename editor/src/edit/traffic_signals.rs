@@ -178,15 +178,14 @@ impl State for TrafficSignalEditor {
                 ctx,
             );
         } else if self.menu.action("add a new empty cycle") {
-            signal.cycles.insert(
-                current_cycle,
-                Cycle::new(self.diagram.i, signal.cycles.len()),
-            );
+            signal
+                .cycles
+                .insert(current_cycle, Cycle::new(self.diagram.i));
             change_traffic_signal(signal, self.diagram.i, ui, ctx);
             self.diagram =
                 TrafficSignalDiagram::new(self.diagram.i, current_cycle, &ui.primary.map, ctx);
         } else if has_sidewalks && self.menu.action("add a new pedestrian scramble cycle") {
-            let mut cycle = Cycle::new(self.diagram.i, signal.cycles.len());
+            let mut cycle = Cycle::new(self.diagram.i);
             for t in ui.primary.map.get_turns_in_intersection(self.diagram.i) {
                 if t.between_sidewalks() {
                     cycle.edit_turn(t, TurnPriority::Priority);
@@ -309,7 +308,7 @@ fn convert_to_ped_scramble(signal: &mut ControlTrafficSignal, i: IntersectionID,
         }
     }
 
-    let mut cycle = Cycle::new(i, signal.cycles.len());
+    let mut cycle = Cycle::new(i);
     for t in map.get_turns_in_intersection(i) {
         if t.between_sidewalks() {
             cycle.edit_turn(t, TurnPriority::Priority);

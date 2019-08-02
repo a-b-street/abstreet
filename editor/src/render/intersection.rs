@@ -146,7 +146,7 @@ impl Renderable for DrawIntersection {
                     .map(|(_, t)| *t != ctx.sim.time())
                     .unwrap_or(true);
                 if recalc {
-                    let (cycle, t) = signal.current_cycle_and_remaining_time(ctx.sim.time());
+                    let (_, cycle, t) = signal.current_cycle_and_remaining_time(ctx.sim.time());
                     let mut batch = GeomBatch::new();
                     draw_signal_cycle(cycle, Some(t), &mut batch, ctx);
                     *maybe_redraw = Some((g.prerender.upload(batch), ctx.sim.time()));
