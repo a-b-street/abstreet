@@ -268,6 +268,7 @@ enum Item<T: Clone + Copy> {
     ActualItem(T),
 }
 
+// TODO Unify with Menu?
 struct Scroller<T: Clone + Copy> {
     // TODO Maybe the height of each thing; insist that the width is the same for all?
     items: Vec<(Item<T>, ScreenDims)>,
@@ -367,6 +368,13 @@ impl<T: Clone + Copy> Scroller<T> {
         visible
     }
 
+    fn num_items_hidden_below(&self, canvas: &Canvas) -> usize {
+        let visible = self.get_visible_items(canvas);
+        // Ignore the down button
+        let last_idx = visible[visible.len() - 2].0;
+        self.items.len() - 2 - last_idx
+    }
+
     // Returns the item selected, if it changes
     fn event(&mut self, ctx: &mut EventCtx) -> Option<T> {
         if ctx.redo_mouseover() {
@@ -388,10 +396,7 @@ impl<T: Clone + Copy> Scroller<T> {
                         }
                     }
                     Item::DownButton => {
-                        let visible = self.get_visible_items(ctx.canvas);
-                        // Ignore the down button
-                        let last_idx = visible[visible.len() - 2].0;
-                        if last_idx != self.items.len() - 2 {
+                        if self.num_items_hidden_below(ctx.canvas) != 0 {
                             self.top_idx += 1;
                         }
                     }
@@ -453,12 +458,32 @@ impl<T: Clone + Copy> Scroller<T> {
                     // TODO center the text inside the rectangle. and actually, g should have a
                     // method for that.
                     let mut txt = Text::with_bg_color(None);
-                    txt.add_line("scroll up".to_string());
+                    if self.top_idx == 0 {
+                        // TODO text::INACTIVE_CHOICE_COLOR
+                        txt.add_styled_line(
+                            "scroll up".to_string(),
+                            Some(Color::grey(0.4)),
+                            None,
+                            None,
+                        );
+                    } else {
+                        txt.add_line(format!("scroll up ({} more items)", self.top_idx));
+                    }
                     g.draw_text_at_screenspace_topleft(&txt, ScreenPt::new(rect.x1, rect.y1));
                 }
                 Item::DownButton => {
                     let mut txt = Text::with_bg_color(None);
-                    txt.add_line("scroll down".to_string());
+                    let num_items = self.num_items_hidden_below(g.canvas);
+                    if num_items == 0 {
+                        txt.add_styled_line(
+                            "scroll down".to_string(),
+                            Some(Color::grey(0.4)),
+                            None,
+                            None,
+                        );
+                    } else {
+                        txt.add_line(format!("scroll down ({} more items)", num_items));
+                    }
                     g.draw_text_at_screenspace_topleft(&txt, ScreenPt::new(rect.x1, rect.y1));
                 }
                 Item::ActualItem(item) => {
