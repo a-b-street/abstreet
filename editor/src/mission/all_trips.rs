@@ -1,6 +1,5 @@
 use crate::common::{CommonState, SpeedControls};
 use crate::game::{State, Transition};
-use crate::mission::trips::{clip_trips, Trip};
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{
@@ -9,6 +8,7 @@ use ezgui::{
 use geom::{Circle, Distance, Duration};
 use map_model::{PathRequest, LANE_THICKNESS};
 use popdat::psrc::Mode;
+use popdat::{clip_trips, Trip};
 
 pub struct TripsVisualizer {
     menu: ModalMenu,
@@ -27,7 +27,7 @@ enum MaybeTrip {
 impl TripsVisualizer {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> TripsVisualizer {
         let trips = ctx.loading_screen("load trip data", |_, mut timer| {
-            let (all_trips, _) = clip_trips(ui, &mut timer);
+            let (all_trips, _) = clip_trips(&ui.primary.map, &mut timer);
             let map = &ui.primary.map;
             let maybe_trips =
                 timer.parallelize("calculate paths with geometry", all_trips, |mut trip| {

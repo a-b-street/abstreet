@@ -1,12 +1,11 @@
 use crate::common::CommonState;
 use crate::game::{State, Transition};
 use crate::helpers::ID;
-use crate::mission::trips::{clip_trips, Trip, TripEndpt};
 use crate::ui::UI;
 use ezgui::{hotkey, Color, EventCtx, GfxCtx, ItemSlider, Key, Text};
 use geom::{Circle, Distance, Line, Speed};
 use map_model::BuildingID;
-use popdat::psrc;
+use popdat::{clip_trips, psrc, Trip, TripEndpt};
 use std::collections::HashMap;
 
 pub struct TripsVisualizer {
@@ -18,7 +17,7 @@ impl TripsVisualizer {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> TripsVisualizer {
         let (trips, bldgs) = ctx.loading_screen("load trip data", |_, mut timer| {
             // TODO We'll break if there are no matching trips
-            let (trips, bldgs) = clip_trips(ui, &mut timer);
+            let (trips, bldgs) = clip_trips(&ui.primary.map, &mut timer);
             (
                 trips
                     .into_iter()

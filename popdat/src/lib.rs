@@ -1,10 +1,12 @@
 pub mod psrc;
+mod trips;
 
 use abstutil::Timer;
 use geom::{GPSBounds, LonLat};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fmt;
+pub use trips::{clip_trips, trips_to_scenario, Trip, TripEndpt};
 
 #[derive(Serialize, Deserialize)]
 pub struct PopDat {

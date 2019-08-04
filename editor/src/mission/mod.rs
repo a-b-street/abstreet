@@ -3,9 +3,7 @@ mod dataviz;
 mod individ_trips;
 mod neighborhood;
 mod scenario;
-mod trips;
 
-use self::trips::trips_to_scenario;
 use crate::game::{State, Transition};
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
@@ -13,6 +11,7 @@ use abstutil::Timer;
 use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu, Wizard, WrappedWizard};
 use geom::Duration;
 use map_model::Map;
+use popdat::trips_to_scenario;
 use sim::Scenario;
 
 pub struct MissionEditMode {
@@ -62,8 +61,13 @@ impl State for MissionEditMode {
         } else if self.menu.action("visualize all PSRC trips") {
             return Transition::Push(Box::new(all_trips::TripsVisualizer::new(ctx, ui)));
         } else if self.menu.action("set up simulation with PSRC trips") {
-            let scenario = trips_to_scenario(ctx, ui, Duration::ZERO, Duration::END_OF_DAY);
-            ctx.loading_screen("instantiate scenario", |_, timer| {
+            ctx.loading_screen("setup PSRC scenario", |_, mut timer| {
+                let scenario = trips_to_scenario(
+                    &ui.primary.map,
+                    Duration::ZERO,
+                    Duration::END_OF_DAY,
+                    &mut timer,
+                );
                 scenario.instantiate(
                     &mut ui.primary.sim,
                     &ui.primary.map,
@@ -109,7 +113,9 @@ impl State for TripsToScenario {
             "Include trips departing AFTER when?",
             "Include trips departing BEFORE when?",
         ) {
-            trips_to_scenario(ctx, ui, t1, t2).save();
+            ctx.loading_screen("extract PSRC scenario", |_, mut timer| {
+                trips_to_scenario(&ui.primary.map, t1, t2, &mut timer).save();
+            });
             return Transition::Pop;
         } else if self.wizard.aborted() {
             return Transition::Pop;
