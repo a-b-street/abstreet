@@ -252,11 +252,11 @@ impl ABTestMode {
             ),
         };
 
-        let path = format!(
-            "../data/ab_test_saves/{}/{}/{}.bin",
+        let path = abstutil::path2_bin(
             ss.primary_map.get_name(),
-            self.test_name,
-            ss.primary_sim.time()
+            abstutil::AB_TEST_SAVES,
+            &self.test_name,
+            &ss.primary_sim.time().to_string(),
         );
         abstutil::write_binary(&path, &ss).unwrap();
         println!("Saved {}", path);

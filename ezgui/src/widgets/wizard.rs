@@ -188,10 +188,10 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
             let first = self.ready_results.pop_front().unwrap();
             // TODO Simplify?
             let item: &Duration = first.as_any().downcast_ref::<Duration>().unwrap();
-            return Some(item.clone());
+            return Some(*item);
         }
         if let Some(obj) = self.wizard.input_time_slider(query, low, high, self.ctx) {
-            self.wizard.confirmed_state.push(Box::new(obj.clone()));
+            self.wizard.confirmed_state.push(Box::new(obj));
             Some(obj)
         } else {
             None

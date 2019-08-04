@@ -567,39 +567,30 @@ impl Sim {
 
 // Savestating
 impl Sim {
-    pub fn save(&self) -> String {
+    fn save_path(&self, base_time: Duration) -> String {
         // If we wanted to be even more reproducible, we'd encode RNG seed, version of code, etc,
         // but that's overkill right now.
-        let path = format!(
-            "../data/save/{}_{}/{}/{}.bin",
-            self.map_name,
-            self.edits_name,
-            self.run_name,
-            self.time.as_filename()
-        );
+        abstutil::path2_bin(
+            &self.map_name,
+            abstutil::SAVE,
+            &format!("{}_{}", self.edits_name, self.run_name),
+            &base_time.as_filename(),
+        )
+    }
+
+    pub fn save(&self) -> String {
+        let path = self.save_path(self.time);
         abstutil::write_binary(&path, &self).expect("Writing sim state failed");
         println!("Saved to {}", path);
         path
     }
 
     pub fn find_previous_savestate(&self, base_time: Duration) -> Option<String> {
-        abstutil::find_prev_file(format!(
-            "../data/save/{}_{}/{}/{}.bin",
-            self.map_name,
-            self.edits_name,
-            self.run_name,
-            base_time.as_filename()
-        ))
+        abstutil::find_prev_file(self.save_path(base_time))
     }
 
     pub fn find_next_savestate(&self, base_time: Duration) -> Option<String> {
-        abstutil::find_next_file(format!(
-            "../data/save/{}_{}/{}/{}.bin",
-            self.map_name,
-            self.edits_name,
-            self.run_name,
-            base_time.as_filename()
-        ))
+        abstutil::find_next_file(self.save_path(base_time))
     }
 
     pub fn load_savestate(path: String, timer: &mut Timer) -> Result<Sim, std::io::Error> {

@@ -181,7 +181,7 @@ impl Text {
         }
         (
             self.override_width.unwrap_or_else(|| f64::from(max_width)),
-            self.override_height.unwrap_or_else(|| f64::from(height)),
+            self.override_height.unwrap_or_else(|| height),
         )
     }
 }

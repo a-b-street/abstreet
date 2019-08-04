@@ -301,10 +301,8 @@ impl Model {
     }
 
     pub fn save(&self) {
-        let path = format!(
-            "../data/synthetic_maps/{}.json",
-            self.name.as_ref().expect("Model hasn't been named yet")
-        );
+        let path =
+            abstutil::path_synthetic_map(self.name.as_ref().expect("Model hasn't been named yet"));
         write_json(&path, self).expect(&format!("Saving {} failed", path));
         println!("Saved {}", path);
     }
@@ -373,10 +371,7 @@ impl Model {
         // Close off the polygon
         map.boundary_polygon.push(map.boundary_polygon[0]);
 
-        let path = format!(
-            "../data/raw_maps/{}.bin",
-            self.name.as_ref().expect("Model hasn't been named yet")
-        );
+        let path = abstutil::path_raw_map(self.name.as_ref().expect("Model hasn't been named yet"));
         abstutil::write_binary(&path, &map).expect(&format!("Saving {} failed", path));
         println!("Exported {}", path);
         path

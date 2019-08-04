@@ -28,10 +28,10 @@ impl MapEdits {
         if edits_name == "no_edits" {
             return MapEdits::new(map_name.to_string());
         }
-        abstutil::read_json(&format!("../data/edits/{}/{}.json", map_name, edits_name)).unwrap()
+        abstutil::read_json(&abstutil::path1_json(map_name, abstutil::EDITS, edits_name)).unwrap()
     }
 
     pub fn save(&self) {
-        abstutil::save_json_object("edits", &self.map_name, &self.edits_name, self);
+        abstutil::save_json_object(abstutil::EDITS, &self.map_name, &self.edits_name, self);
     }
 }

@@ -6,7 +6,7 @@ use ordered_float::NotNan;
 enum Item<T: Clone + Copy> {
     UpButton,
     DownButton,
-    ActualItem(T),
+    Actual(T),
 }
 
 // TODO Unify with Menu?
@@ -42,7 +42,7 @@ impl<T: Clone + Copy> Scroller<T> {
         let (_, button_height) = ctx.canvas.text_dims(&Text::from_line("dummy".to_string()));
         let mut items = vec![(Item::UpButton, ScreenDims::new(max_width, button_height))];
         for (item, dims) in actual_items {
-            items.push((Item::ActualItem(item), dims));
+            items.push((Item::Actual(item), dims));
         }
         items.push((Item::DownButton, ScreenDims::new(max_width, button_height)));
 
@@ -143,7 +143,7 @@ impl<T: Clone + Copy> Scroller<T> {
                             self.top_idx += 1;
                         }
                     }
-                    Item::ActualItem(item) => {
+                    Item::Actual(item) => {
                         self.current_selection = idx - 1;
                         return Some(item);
                     }
@@ -229,7 +229,7 @@ impl<T: Clone + Copy> Scroller<T> {
                     }
                     g.draw_text_at_screenspace_topleft(&txt, ScreenPt::new(rect.x1, rect.y1));
                 }
-                Item::ActualItem(item) => {
+                Item::Actual(item) => {
                     items.push((item, rect));
                 }
             }

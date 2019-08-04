@@ -37,3 +37,48 @@ macro_rules! skip_fail {
         }
     };
 }
+
+pub const AB_TESTS: &str = "ab_tests";
+pub const AB_TEST_SAVES: &str = "ab_test_saves";
+pub const EDITS: &str = "edits";
+pub const NEIGHBORHOODS: &str = "neighborhoods";
+pub const POLYGONS: &str = "polygons";
+pub const SAVE: &str = "save";
+pub const SCENARIOS: &str = "scenarios";
+pub const SHORTCUTS: &str = "shortcuts";
+
+pub fn path1(map_name: &str, category: &str, dir: &str) -> String {
+    format!("../data/{}/{}/{}", category, map_name, dir)
+}
+
+pub fn path1_json(map_name: &str, category: &str, instance: &str) -> String {
+    format!("../data/{}/{}/{}.json", category, map_name, instance)
+}
+
+pub fn path1_bin(map_name: &str, category: &str, instance: &str) -> String {
+    format!("../data/{}/{}/{}.bin", category, map_name, instance)
+}
+
+pub fn path2_bin(map_name: &str, category: &str, dir: &str, instance: &str) -> String {
+    format!("../data/{}/{}/{}/{}.bin", category, map_name, dir, instance)
+}
+
+pub fn path_map(map_name: &str) -> String {
+    format!("../data/maps/{}.bin", map_name)
+}
+
+pub fn path_polygon(polygon_name: &str) -> String {
+    format!("../data/polygons/{}.poly", polygon_name)
+}
+
+pub fn path_raw_map(map_name: &str) -> String {
+    format!("../data/raw_maps/{}.bin", map_name)
+}
+
+pub fn path_pending_screenshots(map_name: &str) -> String {
+    format!("../data/screenshots/pending_{}", map_name)
+}
+
+pub fn path_synthetic_map(map_name: &str) -> String {
+    format!("../data/synthetic_maps/{}.json", map_name)
+}

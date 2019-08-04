@@ -192,11 +192,11 @@ fn load_scenario(map: &Map, wizard: &mut WrappedWizard) -> Option<Scenario> {
     wizard
         .choose_something_no_keys::<String>(
             "Load which scenario?",
-            Box::new(move || abstutil::list_all_objects("scenarios", &map_name)),
+            Box::new(move || abstutil::list_all_objects(abstutil::SCENARIOS, &map_name)),
         )
         .map(|(_, s)| {
             abstutil::read_binary(
-                &format!("../data/scenarios/{}/{}.bin", map.get_name(), s),
+                &abstutil::path1_bin(map.get_name(), abstutil::SCENARIOS, &s),
                 &mut Timer::throwaway(),
             )
             .unwrap()

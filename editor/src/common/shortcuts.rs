@@ -18,7 +18,7 @@ impl ChoosingShortcut {
         ChoosingShortcut {
             wizard: Wizard::new(),
             shortcuts: abstutil::load_all_objects::<Shortcut>(
-                "shortcuts",
+                abstutil::SHORTCUTS,
                 ui.primary.map.get_name(),
             )
             .into_iter()
@@ -94,7 +94,7 @@ fn choose_shortcut(
         // TODO Enforce non-empty, unique names
         let name = wizard.input_string("Name this shortcut")?;
         s.name = name;
-        abstutil::save_json_object("shortcuts", ui.primary.map.get_name(), &s.name, &s);
+        abstutil::save_json_object(abstutil::SHORTCUTS, ui.primary.map.get_name(), &s.name, &s);
         wizard.abort();
         None
     } else {

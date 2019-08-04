@@ -123,9 +123,10 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
     let secondary = ctx.loading_screen(
         &format!("Launching A/B test {}", test.test_name),
         |ctx, mut timer| {
-            let load = PathBuf::from(format!(
-                "../data/scenarios/{}/{}.bin",
-                test.map_name, test.scenario_name
+            let load = PathBuf::from(abstutil::path1_bin(
+                &test.map_name,
+                abstutil::SCENARIOS,
+                &test.scenario_name,
             ));
             if ui.primary.current_flags.sim_flags.rng_seed.is_none() {
                 ui.primary.current_flags.sim_flags.rng_seed = Some(42);
@@ -238,7 +239,7 @@ fn choose_scenario(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option
     wizard
         .choose_something_no_keys::<String>(
             query,
-            Box::new(move || abstutil::list_all_objects("scenarios", &map_name)),
+            Box::new(move || abstutil::list_all_objects(abstutil::SCENARIOS, &map_name)),
         )
         .map(|(n, _)| n)
 }
@@ -262,16 +263,13 @@ fn load_ab_test(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<AB
     wizard
         .choose_something_no_keys::<ABTest>(
             query,
-            Box::new(move || abstutil::load_all_objects("ab_tests", &map_name)),
+            Box::new(move || abstutil::load_all_objects(abstutil::AB_TESTS, &map_name)),
         )
         .map(|(_, t)| t)
 }
 
 fn pick_savestate(test: &ABTest, wizard: &mut WrappedWizard) -> Option<String> {
-    let path = format!(
-        "../data/ab_test_saves/{}/{}/",
-        test.map_name, test.test_name
-    );
+    let path = abstutil::path1(&test.map_name, abstutil::AB_TEST_SAVES, &test.test_name);
     wizard
         .choose_something_no_keys::<()>(
             "Load which savestate?",

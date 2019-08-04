@@ -254,7 +254,7 @@ impl State for DebugMode {
             let bounds = ui.primary.map.get_bounds();
             assert!(bounds.min_x == 0.0 && bounds.min_y == 0.0);
             return Transition::KeepWithMode(EventLoopMode::ScreenCaptureEverything {
-                dir: format!("../data/screenshots/pending_{}", ui.primary.map.get_name()),
+                dir: abstutil::path_pending_screenshots(ui.primary.map.get_name()),
                 zoom: 3.0,
                 max_x: bounds.max_x,
                 max_y: bounds.max_y,

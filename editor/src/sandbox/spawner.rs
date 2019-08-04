@@ -409,7 +409,7 @@ fn pick_scenario(
                 (builtin.clone(), "builtin".to_string()),
                 ("just buses".to_string(), "just buses".to_string()),
             ];
-            list.extend(abstutil::list_all_objects("scenarios", &map_name));
+            list.extend(abstutil::list_all_objects(abstutil::SCENARIOS, &map_name));
             list
         }),
     )?;
@@ -423,7 +423,7 @@ fn pick_scenario(
         Scenario::empty(map)
     } else {
         abstutil::read_binary(
-            &format!("../data/scenarios/{}/{}.bin", map.get_name(), scenario_name),
+            &abstutil::path1_bin(map.get_name(), abstutil::SCENARIOS, &scenario_name),
             &mut Timer::throwaway(),
         )
         .unwrap()

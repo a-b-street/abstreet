@@ -194,7 +194,7 @@ fn load_neighborhood_builder(
     wizard
         .choose_something_no_keys::<NeighborhoodBuilder>(
             query,
-            Box::new(move || abstutil::load_all_objects("neighborhoods", &map_name)),
+            Box::new(move || abstutil::load_all_objects(abstutil::NEIGHBORHOODS, &map_name)),
         )
         .map(|(_, n)| n)
 }

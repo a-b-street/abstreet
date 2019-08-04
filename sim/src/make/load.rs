@@ -35,7 +35,7 @@ impl SimFlags {
 
     pub fn synthetic_test(map: &str, run_name: &str) -> SimFlags {
         SimFlags {
-            load: PathBuf::from(format!("../data/maps/{}.bin", map)),
+            load: PathBuf::from(abstutil::path_map(map)),
             rng_seed: Some(42),
             run_name: Some(run_name.to_string()),
         }
@@ -64,8 +64,7 @@ impl SimFlags {
                 .expect("loading sim state failed");
 
             let mut map: Map =
-                abstutil::read_binary(&format!("../data/maps/{}.bin", sim.map_name), timer)
-                    .unwrap();
+                abstutil::read_binary(&abstutil::path_map(&sim.map_name), timer).unwrap();
             map.apply_edits(MapEdits::load(map.get_name(), &sim.edits_name), timer);
             map.recalculate_pathfinding_after_edits(timer);
 
@@ -80,8 +79,7 @@ impl SimFlags {
                 .expect("loading scenario failed");
 
             let map: Map =
-                abstutil::read_binary(&format!("../data/maps/{}.bin", scenario.map_name), timer)
-                    .unwrap();
+                abstutil::read_binary(&abstutil::path_map(&scenario.map_name), timer).unwrap();
 
             let mut sim = Sim::new(
                 &map,

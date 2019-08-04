@@ -11,7 +11,7 @@ pub fn run(t: &mut TestRunner) {
             parking_shapes: "../data/shapes/blockface.bin".to_string(),
             gtfs: "../data/input/google_transit_2018_18_08".to_string(),
             neighborhoods: "../data/input/neighborhoods.geojson".to_string(),
-            clip: "../data/polygons/montlake.poly".to_string(),
+            clip: abstutil::path_polygon("montlake"),
             output: "convert_osm_twice.bin".to_string(),
             fast_dev: false,
         };
@@ -29,12 +29,12 @@ pub fn run(t: &mut TestRunner) {
 
     t.run_slow("raw_to_map_twice", |_| {
         let map1 = map_model::Map::new(
-            "../data/raw_maps/montlake.bin",
+            &abstutil::path_raw_map("montlake"),
             &mut abstutil::Timer::throwaway(),
         )
         .unwrap();
         let map2 = map_model::Map::new(
-            "../data/raw_maps/montlake.bin",
+            &abstutil::path_raw_map("montlake"),
             &mut abstutil::Timer::throwaway(),
         )
         .unwrap();
@@ -49,7 +49,7 @@ pub fn run(t: &mut TestRunner) {
 
     t.run_slow("bigger_map_loads", |_| {
         map_model::Map::new(
-            "../data/raw_maps/23rd.bin",
+            &abstutil::path_raw_map("23rd"),
             &mut abstutil::Timer::throwaway(),
         )
         .expect("23rd broke");
@@ -57,7 +57,7 @@ pub fn run(t: &mut TestRunner) {
 
     t.run_slow("biggest_map_loads", |_| {
         map_model::Map::new(
-            "../data/raw_maps/huge_seattle.bin",
+            &abstutil::path_raw_map("huge_seattle"),
             &mut abstutil::Timer::throwaway(),
         )
         .expect("huge_seattle broke");
