@@ -1,5 +1,7 @@
 use abstutil::Timer;
+use geom::Duration;
 use map_model::Map;
+use popdat::trips_to_scenario;
 use structopt::StructOpt;
 
 #[derive(StructOpt)]
@@ -8,6 +10,9 @@ struct Flags {
     /// Map
     #[structopt(name = "load")]
     load: String,
+
+    #[structopt(name = "disable_psrc_scenarios")]
+    disable_psrc_scenarios: bool,
 }
 
 fn main() {
@@ -26,4 +31,8 @@ fn main() {
     timer.start("save map");
     map.save();
     timer.stop("save map");
+
+    if !flags.disable_psrc_scenarios {
+        trips_to_scenario(&map, Duration::ZERO, Duration::END_OF_DAY, &mut timer).save();
+    }
 }
