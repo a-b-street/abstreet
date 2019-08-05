@@ -2,7 +2,7 @@ use crate::helpers::{ColorScheme, ID};
 use crate::render::{DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
-use geom::{Circle, Distance, Line, PolyLine, Polygon, Pt2D};
+use geom::{Circle, Distance, Line, PolyLine, Polygon, Pt2D, EPSILON_DIST};
 use map_model::{Lane, LaneID, LaneType, Map, Road, TurnType, LANE_THICKNESS, PARKING_SPOT_LENGTH};
 
 pub struct DrawLane {
@@ -196,7 +196,7 @@ fn calculate_driving_lines(lane: &Lane, parent: &Road, timer: &mut Timer) -> Vec
         .lane_center_pts
         .shift_left(LANE_THICKNESS / 2.0)
         .get(timer);
-    if lane_edge_pts.length() < dash_separation * 2.0 {
+    if lane_edge_pts.length() < dash_separation * 2.0 + EPSILON_DIST {
         return Vec::new();
     }
     // Don't draw the dashes too close to the ends.
