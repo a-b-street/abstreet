@@ -19,6 +19,5 @@ members = [
   "sim",
   "synthetic",
   "tests",
-  "tmp_gfx",
   "viewer",
 ]

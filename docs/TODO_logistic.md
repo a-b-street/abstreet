@@ -28,5 +28,5 @@
 
 ## Code to release
 
-- tmp_gfx as a 2D-with-camera glium sample
+- (from before august 2019) tmp_gfx as a 2D-with-camera glium sample
 - ezgui

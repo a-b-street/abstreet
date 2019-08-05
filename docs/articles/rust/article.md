@@ -169,5 +169,4 @@ Less interesting stuff:
 - `halloween`: a toy to render maps in a "creepy" way
 - `playground_gui`: interactive debugging of basic geometric algorithms
 - `synthetic`: GUI for creating and editing "synthetic" maps from scratch
-- `tmp_gfx`: glium experiments
 - `viewer`: an experiment in making generic applications for manipulating maps
