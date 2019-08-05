@@ -1,7 +1,7 @@
 use crate::render::DrawOptions;
 use crate::sandbox::SandboxMode;
 use crate::splash_screen::SplashScreen;
-use crate::ui::{EditorState, Flags, ShowEverything, UI};
+use crate::ui::{Flags, ShowEverything, UI};
 use ezgui::{Canvas, EventCtx, EventLoopMode, GfxCtx, GUI};
 
 // This is the top-level of the GUI logic. This module should just manage interactions between the
@@ -37,19 +37,6 @@ impl Game {
             ui,
             idx_draw_base,
         }
-    }
-
-    fn save_editor_state(&self, canvas: &Canvas) {
-        let state = EditorState {
-            map_name: self.ui.primary.map.get_name().clone(),
-            cam_x: canvas.cam_x,
-            cam_y: canvas.cam_y,
-            cam_zoom: canvas.cam_zoom,
-        };
-        // TODO maybe make state line up with the map, so loading from a new map doesn't break
-        abstutil::write_json("../editor_state.json", &state)
-            .expect("Saving editor_state.json failed");
-        println!("Saved editor_state.json");
     }
 }
 
@@ -157,13 +144,13 @@ impl GUI for Game {
             println!("Secondary sim:");
             s.sim.dump_before_abort();
         }
-        self.save_editor_state(canvas);
+        self.ui.save_editor_state(canvas);
     }
 
     fn before_quit(&self, canvas: &Canvas) {
-        self.save_editor_state(canvas);
+        self.ui.save_editor_state(canvas);
         self.ui.cs.save();
-        println!("Saved color_scheme.json");
+        println!("Saved data/color_scheme.json");
     }
 
     fn profiling_enabled(&self) -> bool {

@@ -11,16 +11,18 @@ fi
 rm -rfv $OUT
 mkdir $OUT
 
-cp color_scheme.json docs/INSTRUCTIONS.md release/play_abstreet.sh $OUT
+cp docs/INSTRUCTIONS.md release/play_abstreet.sh $OUT
+mkdir $OUT/data
+cp data/color_scheme.json $OUT/data
 
-mkdir -p $OUT/data/maps
+mkdir $OUT/data/maps
 for map in 23rd ballard caphill downtown montlake; do
 	cp -v data/maps/$map.bin $OUT/data/maps/
 	mkdir -p $OUT/data/scenarios/$map
 	cp -v data/scenarios/$map/psrc* $OUT/data/scenarios/$map/
 done
 
-mkdir -p $OUT/data/shapes
+mkdir $OUT/data/shapes
 cp -v data/shapes/popdat.bin $OUT/data/shapes
 
 mkdir $OUT/editor

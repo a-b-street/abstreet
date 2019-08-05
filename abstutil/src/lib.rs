@@ -38,6 +38,9 @@ macro_rules! skip_fail {
     };
 }
 
+// TODO It might be nice to organize stuff in data/per_map/. Except it makes looping over all maps
+// a bit tougher, and it's unclear how to represent singletons like maps/foo.bin.
+
 pub const AB_TESTS: &str = "ab_tests";
 pub const AB_TEST_SAVES: &str = "ab_test_saves";
 pub const EDITS: &str = "edits";
@@ -73,6 +76,10 @@ pub fn path_polygon(polygon_name: &str) -> String {
 
 pub fn path_raw_map(map_name: &str) -> String {
     format!("../data/raw_maps/{}.bin", map_name)
+}
+
+pub fn path_editor_state(map_name: &str) -> String {
+    format!("../data/editor_state/{}.json", map_name)
 }
 
 pub fn path_pending_screenshots(map_name: &str) -> String {
