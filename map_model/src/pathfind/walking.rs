@@ -117,8 +117,8 @@ impl SidewalkPathfinder {
             .borrow_mut();
         let raw_path = calc.calc_path(
             &self.graph,
-            self.nodes.get(lane_to_node(req.start.lane(), map)),
-            self.nodes.get(lane_to_node(req.end.lane(), map)),
+            self.nodes.maybe_get(lane_to_node(req.start.lane(), map))?,
+            self.nodes.maybe_get(lane_to_node(req.end.lane(), map))?,
         )?;
         let path = self.nodes.translate(&raw_path);
 
@@ -179,10 +179,13 @@ impl SidewalkPathfinder {
         start: Position,
         end: Position,
     ) -> Option<(BusStopID, BusStopID, BusRouteID)> {
+        // TODO maybe_get is a temporaryish hack -- some sidewalks are actually totally
+        // disconnected, so there's no node for them. Just fail the pathfinding. Really this is a
+        // bug in turn creation though.
         let raw_path = fast_paths::calc_path(
             &self.graph,
-            self.nodes.get(lane_to_node(start.lane(), map)),
-            self.nodes.get(lane_to_node(end.lane(), map)),
+            self.nodes.maybe_get(lane_to_node(start.lane(), map))?,
+            self.nodes.maybe_get(lane_to_node(end.lane(), map))?,
         )?;
 
         let mut nodes = self.nodes.translate(&raw_path);
