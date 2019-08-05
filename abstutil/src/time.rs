@@ -173,6 +173,10 @@ impl<'a> Timer<'a> {
     pub fn done(self) {}
 
     pub fn start(&mut self, name: &str) {
+        if self.outermost_name == "throwaway" {
+            return;
+        }
+
         self.println(format!("{}...", name));
         self.stack.push(StackEntry::TimerSpan(TimerSpan {
             name: name.to_string(),
@@ -332,6 +336,10 @@ impl<'a> Timer<'a> {
 
 impl<'a> std::ops::Drop for Timer<'a> {
     fn drop(&mut self) {
+        if self.outermost_name == "throwaway" {
+            return;
+        }
+
         let stop_name = self.outermost_name.clone();
 
         // If we're in the middle of unwinding a panic, don't further blow up.

@@ -67,24 +67,33 @@ impl DrawMap {
             );
             roads.push(draw_r);
         }
+        timer.start("upload thick roads");
         let draw_all_thick_roads = prerender.upload(all_roads);
+        timer.stop("upload thick roads");
 
-        timer.start_iter("make DrawLanes", map.all_lanes().len());
+        let almost_lanes =
+            timer.parallelize("prepare DrawLanes", map.all_lanes().iter().collect(), |l| {
+                DrawLane::new(
+                    l,
+                    map,
+                    !flags.dont_draw_lane_markings,
+                    cs,
+                    // TODO Really parallelize should give us something thread-safe that can at
+                    // least take notes.
+                    &mut Timer::throwaway(),
+                )
+            });
+        timer.start_iter("finalize DrawLanes", almost_lanes.len());
         let mut lanes: Vec<DrawLane> = Vec::new();
-        for l in map.all_lanes() {
+        for almost in almost_lanes {
             timer.next();
-            lanes.push(DrawLane::new(
-                l,
-                map,
-                !flags.dont_draw_lane_markings,
-                cs,
-                prerender,
-                timer,
-            ));
+            lanes.push(almost.finish(prerender));
         }
 
+        timer.start_iter("compute_turn_to_lane_offset", map.all_lanes().len());
         let mut turn_to_lane_offset: HashMap<TurnID, usize> = HashMap::new();
         for l in map.all_lanes() {
+            timer.next();
             DrawMap::compute_turn_to_lane_offset(&mut turn_to_lane_offset, l, map);
         }
 
@@ -116,7 +125,9 @@ impl DrawMap {
             }
             intersections.push(draw_i);
         }
+        timer.start("upload all intersections");
         let draw_all_unzoomed_intersections = prerender.upload(all_intersections);
+        timer.stop("upload all intersections");
 
         let mut buildings: Vec<DrawBuilding> = Vec::new();
         let mut all_buildings = GeomBatch::new();
@@ -125,7 +136,9 @@ impl DrawMap {
             timer.next();
             buildings.push(DrawBuilding::new(b, cs, &mut all_buildings));
         }
+        timer.start("upload all buildings");
         let draw_all_buildings = prerender.upload(all_buildings);
+        timer.stop("upload all buildings");
 
         let mut extra_shapes: Vec<DrawExtraShape> = Vec::new();
         if let Some(ref path) = flags.kml {
@@ -161,8 +174,10 @@ impl DrawMap {
             }
         }
 
+        timer.start_iter("make DrawBusStop", map.all_bus_stops().len());
         let mut bus_stops: HashMap<BusStopID, DrawBusStop> = HashMap::new();
         for s in map.all_bus_stops().values() {
+            timer.next();
             bus_stops.insert(s.id, DrawBusStop::new(s, map, cs, prerender));
         }
 
@@ -173,7 +188,9 @@ impl DrawMap {
             timer.next();
             areas.push(DrawArea::new(a, cs, &mut all_areas));
         }
+        timer.start("upload all areas");
         let draw_all_areas = prerender.upload(all_areas);
+        timer.stop("upload all areas");
 
         let boundary_polygon = prerender.upload_borrowed(vec![(
             cs.get_def("map background", Color::rgb(242, 239, 233)),

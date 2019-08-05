@@ -484,9 +484,9 @@ pub fn apply_map_edits(
             &bundle.map,
             !bundle.current_flags.dont_draw_lane_markings,
             cs,
-            ctx.prerender,
             &mut timer,
-        );
+        )
+        .finish(ctx.prerender);
     }
     let mut modified_intersections: BTreeSet<IntersectionID> = BTreeSet::new();
     let mut lanes_of_modified_turns: BTreeSet<LaneID> = BTreeSet::new();

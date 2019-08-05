@@ -5,6 +5,26 @@ use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
 use geom::{Circle, Distance, Line, PolyLine, Polygon, Pt2D, EPSILON_DIST};
 use map_model::{Lane, LaneID, LaneType, Map, Road, TurnType, LANE_THICKNESS, PARKING_SPOT_LENGTH};
 
+// Split into two phases like this, because AlmostDrawLane can be created in parallel, but GPU
+// upload has to be serial.
+pub struct AlmostDrawLane {
+    id: LaneID,
+    polygon: Polygon,
+    zorder: isize,
+    draw_default: GeomBatch,
+}
+
+impl AlmostDrawLane {
+    pub fn finish(self, prerender: &Prerender) -> DrawLane {
+        DrawLane {
+            id: self.id,
+            polygon: self.polygon,
+            zorder: self.zorder,
+            draw_default: prerender.upload(self.draw_default),
+        }
+    }
+}
+
 pub struct DrawLane {
     pub id: LaneID,
     pub polygon: Polygon,
@@ -19,9 +39,8 @@ impl DrawLane {
         map: &Map,
         draw_lane_markings: bool,
         cs: &ColorScheme,
-        prerender: &Prerender,
         timer: &mut Timer,
-    ) -> DrawLane {
+    ) -> AlmostDrawLane {
         let road = map.get_r(lane.parent);
         let polygon = lane.lane_center_pts.make_polygons(LANE_THICKNESS);
 
@@ -69,11 +88,11 @@ impl DrawLane {
             }*/
         }
 
-        DrawLane {
+        AlmostDrawLane {
             id: lane.id,
             polygon,
             zorder: road.get_zorder(),
-            draw_default: prerender.upload(draw),
+            draw_default: draw,
         }
     }
 
