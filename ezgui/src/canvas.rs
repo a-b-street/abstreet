@@ -80,17 +80,20 @@ impl Canvas {
                 self.left_mouse_drag_from = Some(pt);
             }
         }
-        // Can't start dragging on top of covered area
-        if input.left_mouse_button_pressed() && self.get_cursor_in_map_space().is_some() {
+        // Can't start dragging or zooming on top of covered area
+        let mouse_on_map = self.get_cursor_in_map_space().is_some();
+        if input.left_mouse_button_pressed() && mouse_on_map {
             self.left_mouse_drag_from = Some(self.get_cursor_in_screen_space());
         }
         if input.left_mouse_button_released() {
             self.left_mouse_drag_from = None;
         }
-        if let Some(scroll) = input.get_mouse_scroll() {
-            // Zoom slower at low zooms, faster at high.
-            let delta = scroll * ZOOM_SPEED * self.cam_zoom;
-            self.zoom_towards_mouse(delta);
+        if mouse_on_map {
+            if let Some(scroll) = input.get_mouse_scroll() {
+                // Zoom slower at low zooms, faster at high.
+                let delta = scroll * ZOOM_SPEED * self.cam_zoom;
+                self.zoom_towards_mouse(delta);
+            }
         }
         if input.window_gained_cursor() {
             self.window_has_cursor = true;
