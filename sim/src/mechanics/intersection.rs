@@ -175,6 +175,27 @@ impl State {
         true
     }
 
+    fn is_ready_at_stop_sign(
+        &self,
+        sign: &ControlStopSign,
+        req: &Request,
+        now: Duration,
+        map: &Map,
+    ) -> bool {
+        if self.any_accepted_conflict_with(req.turn, map) {
+            return false;
+        }
+
+        let our_priority = sign.turns[&req.turn];
+        let our_time = self.waiting[req];
+
+        if our_priority == TurnPriority::Stop && now < our_time + WAIT_AT_STOP_SIGN {
+            return false;
+        }
+
+        true
+    }
+
     fn stop_sign_policy(
         &self,
         sign: &ControlStopSign,
@@ -201,12 +222,22 @@ impl State {
             return false;
         }
 
-        for (r, t) in &self.waiting {
+        let our_turn = map.get_t(req.turn);
+        for (r, time) in &self.waiting {
+            // If the turns don't conflict, then don't even worry.
+            if !our_turn.conflicts_with(map.get_t(r.turn)) {
+                continue;
+            }
+            // If the other can't go yet, then proceed.
+            if !self.is_ready_at_stop_sign(sign, r, now, map) {
+                continue;
+            }
+
             // If there's a higher rank turn waiting, don't allow
             if sign.turns[&r.turn] > our_priority {
                 return false;
             // If there's an equal rank turn queued before ours, don't allow
-            } else if sign.turns[&r.turn] == our_priority && *t < our_time {
+            } else if sign.turns[&r.turn] == our_priority && *time < our_time {
                 return false;
             }
         }
