@@ -2,7 +2,7 @@ use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::render::{DrawCtx, DrawOptions, DrawTurn, TrafficSignalDiagram};
 use crate::ui::{ShowEverything, UI};
-use ezgui::{hotkey, Color, EventCtx, GfxCtx, Key, ModalMenu};
+use ezgui::{hotkey, Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu};
 use map_model::{IntersectionID, LaneID, Map, TurnType};
 
 pub enum TurnCyclerState {
@@ -79,8 +79,20 @@ impl TurnCyclerState {
             }
             TurnCyclerState::CycleTurns(l, idx) => {
                 let turns = ui.primary.map.get_turns_from_lane(*l);
-                let t = turns[*idx % turns.len()];
-                DrawTurn::draw_full(t, g, color_turn_type(t.turn_type, ui));
+                let current = turns[*idx % turns.len()];
+                DrawTurn::draw_full(current, g, color_turn_type(current.turn_type, ui));
+
+                let mut batch = GeomBatch::new();
+                for t in ui.primary.map.get_turns_in_intersection(current.id.parent) {
+                    if current.conflicts_with(t) {
+                        DrawTurn::draw_dashed(
+                            t,
+                            &mut batch,
+                            ui.cs.get_def("conflicting turn", Color::RED.alpha(0.8)),
+                        );
+                    }
+                }
+                batch.draw(g);
             }
         }
     }
