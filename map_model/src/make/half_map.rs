@@ -87,6 +87,10 @@ pub fn make_half_map(
             parking_lane_fwd: r.parking_lane_fwd,
             parking_lane_back: r.parking_lane_back,
         };
+        for stable_id in &r.override_turn_restrictions_to {
+            road.turn_restrictions
+                .push(("no_anything".to_string(), road_id_mapping[stable_id]));
+        }
 
         for lane in &r.lane_specs {
             let id = LaneID(half_map.lanes.len());

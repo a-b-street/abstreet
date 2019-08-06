@@ -6,7 +6,7 @@ become the complex maps in A/B Street. As always,
 process generalizes to most cities in OpenStreetMap. Some extra data specific to
 Seattle is used, but could be ommitted.
 
-Everything here should be up-to-date as of July 2019.
+Everything here should be up-to-date as of August 2019.
 
 <!--ts-->
 
@@ -176,6 +176,9 @@ before the final Map: InitialMap and HalfMap.
     lanes, speed limit, or some other reason to preserve the intersection.
   - The hint to override parking on a road: the blockface dataset is inaccurate
     sometimes, so manually toggle parking on a road.
+  - The ban turns hint: don't allow turns from one road to another. In areas
+    with many close intersections, there are some U-turns that may be valid in
+    reality, but quickly cause gridlock in the simulation.
 
 ## InitialMap to HalfMap
 

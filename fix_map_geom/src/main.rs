@@ -28,6 +28,11 @@ enum State {
         osd: Text,
     },
     BrowsingHints(WarpingItemSlider<Hint>),
+    BanTurnsBetween {
+        from: StableRoadID,
+        selected: Option<ID>,
+        osd: Text,
+    },
 }
 
 impl State {
@@ -95,13 +100,6 @@ impl GUI for UI {
                         len,
                         self.hints.parking_overrides.len()
                     ));
-                    for i in (1..=5).rev() {
-                        if len >= i {
-                            txt.add_line(describe(&self.hints.hints[len - i]));
-                        } else {
-                            txt.add_line("...".to_string());
-                        }
-                    }
                     if let Some(ID::Road(r)) = selected {
                         txt.push(format!(
                             "[red:{}] is {} long",
@@ -169,7 +167,9 @@ impl GUI for UI {
                                 .iter()
                                 .filter_map(|h| {
                                     let gps_pt = match h {
-                                        Hint::MergeRoad(r) | Hint::DeleteRoad(r) => {
+                                        Hint::MergeRoad(r)
+                                        | Hint::DeleteRoad(r)
+                                        | Hint::BanTurnsBetween(r, _) => {
                                             self.raw.roads[&self.raw.find_r(*r)?].points[0]
                                         }
                                         Hint::MergeDegenerateIntersection(i) => {
@@ -240,6 +240,16 @@ impl GUI for UI {
                             &mut Timer::new("override parking"),
                         );
                         self.world = initial_map_to_world(&self.data, ctx);
+                    } else if ctx
+                        .input
+                        .key_pressed(Key::T, "ban turns between this road and another")
+                    {
+                        self.state = State::BanTurnsBetween {
+                            from: *r,
+                            selected: *selected,
+                            osd: Text::new(),
+                        };
+                        return EventLoopMode::InputOnly;
                     }
                 }
                 if let Some(ID::Intersection(i)) = selected {
@@ -271,6 +281,43 @@ impl GUI for UI {
                     EventLoopMode::InputOnly
                 }
             }
+            State::BanTurnsBetween {
+                from,
+                ref mut selected,
+                ref mut osd,
+            } => {
+                ctx.canvas.handle_event(ctx.input);
+
+                if ctx.redo_mouseover() {
+                    *selected = self.world.mouseover_something(ctx, &HashSet::new());
+                }
+
+                if ctx.input.key_pressed(Key::Escape, "cancel") {
+                    self.state = State::main(ctx);
+                    return EventLoopMode::InputOnly;
+                } else if let Some(ID::Road(r)) = selected {
+                    // TODO Why do we use data and not raw here?
+                    let (i1, i2) = (self.data.roads[&from].src_i, self.data.roads[&from].dst_i);
+                    let (i3, i4) = (self.data.roads[r].src_i, self.data.roads[r].dst_i);
+
+                    if from != *r
+                        && (i1 == i3 || i1 == i4 || i2 == i3 || i2 == i4)
+                        && ctx.input.key_pressed(Key::T, "ban turns to this road")
+                    {
+                        self.hints.hints.push(Hint::BanTurnsBetween(
+                            self.raw.roads[&from].orig_id(),
+                            self.raw.roads[r].orig_id(),
+                        ));
+                        // There's nothing to change about our model here.
+                        self.state = State::main(ctx);
+                        return EventLoopMode::InputOnly;
+                    }
+                }
+
+                *osd = Text::new();
+                ctx.input.populate_osd(osd);
+                EventLoopMode::InputOnly
+            }
         }
     }
 
@@ -295,7 +342,7 @@ impl GUI for UI {
             State::BrowsingHints(ref slider) => {
                 let poly =
                     match slider.get().1 {
-                        Hint::MergeRoad(r) | Hint::DeleteRoad(r) => {
+                        Hint::MergeRoad(r) | Hint::DeleteRoad(r) | Hint::BanTurnsBetween(r, _) => {
                             PolyLine::new(self.raw.gps_bounds.must_convert(
                                 &self.raw.roads[&self.raw.find_r(*r).unwrap()].points,
                             ))
@@ -315,6 +362,17 @@ impl GUI for UI {
                 g.draw_polygon(Color::PURPLE.alpha(0.7), &poly);
 
                 slider.draw(g);
+            }
+            State::BanTurnsBetween {
+                ref selected,
+                ref osd,
+                ..
+            } => {
+                if let Some(id) = selected {
+                    self.world.draw_selected(g, *id);
+                }
+
+                g.draw_blocking_text(osd, ezgui::BOTTOM_LEFT);
             }
         }
     }
@@ -392,5 +450,6 @@ fn describe(hint: &Hint) -> String {
         Hint::MergeRoad(_) => "MergeRoad(...)".to_string(),
         Hint::DeleteRoad(_) => "DeleteRoad(...)".to_string(),
         Hint::MergeDegenerateIntersection(_) => "MergeDegenerateIntersection(...)".to_string(),
+        Hint::BanTurnsBetween(_, _) => "BanTurnsBetween(...)".to_string(),
     }
 }

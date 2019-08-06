@@ -526,7 +526,7 @@ fn does_turn_pass_restrictions(
         //
         // Strip off time restrictions (like " @ (Mo-Fr 06:00-09:00, 15:00-18:30)")
         match restriction.split(" @ ").next().unwrap() {
-            "no_left_turn" | "no_right_turn" | "no_straight_on" | "no_u_turn" => {
+            "no_left_turn" | "no_right_turn" | "no_straight_on" | "no_u_turn" | "no_anything" => {
                 if dst == *to {
                     return false;
                 }

@@ -32,6 +32,7 @@ pub struct Road {
     pub osm_tags: BTreeMap<String, String>,
     pub parking_lane_fwd: bool,
     pub parking_lane_back: bool,
+    pub override_turn_restrictions_to: Vec<StableRoadID>,
 }
 
 impl Road {
@@ -165,6 +166,7 @@ impl InitialMap {
                     osm_tags: r.osm_tags.clone(),
                     parking_lane_fwd: r.parking_lane_fwd,
                     parking_lane_back: r.parking_lane_back,
+                    override_turn_restrictions_to: Vec::new(),
                 },
             );
         }
@@ -345,6 +347,18 @@ impl InitialMap {
                         self.merge_degenerate_intersection(i, timer);
                     }
                 }
+                Hint::BanTurnsBetween(orig1, orig2) => {
+                    if let Some(r1) = raw.find_r(*orig1) {
+                        if let Some(r2) = raw.find_r(*orig2) {
+                            self.roads
+                                .get_mut(&r1)
+                                .unwrap()
+                                .override_turn_restrictions_to
+                                .push(r2);
+                            cnt += 1;
+                        }
+                    }
+                }
             }
         }
         timer.note(format!("Applied {} of {} hints", cnt, hints.hints.len()));
@@ -395,6 +409,7 @@ pub enum Hint {
     MergeRoad(raw_data::OriginalRoad),
     DeleteRoad(raw_data::OriginalRoad),
     MergeDegenerateIntersection(raw_data::OriginalIntersection),
+    BanTurnsBetween(raw_data::OriginalRoad, raw_data::OriginalRoad),
 }
 
 pub struct LaneSpec {
