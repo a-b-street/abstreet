@@ -1,5 +1,4 @@
 mod score;
-mod show_activity;
 mod spawner;
 mod time_travel;
 
@@ -19,7 +18,6 @@ use sim::Sim;
 pub struct SandboxMode {
     speed: SpeedControls,
     agent_tools: AgentTools,
-    show_activity: show_activity::ShowActivity,
     pub time_travel: time_travel::InactiveTimeTravel,
     common: CommonState,
     menu: ModalMenu,
@@ -30,7 +28,6 @@ impl SandboxMode {
         SandboxMode {
             speed: SpeedControls::new(ctx, None),
             agent_tools: AgentTools::new(),
-            show_activity: show_activity::ShowActivity::Inactive,
             time_travel: time_travel::InactiveTimeTravel::new(),
             common: CommonState::new(),
             menu: ModalMenu::new(
@@ -83,12 +80,6 @@ impl State for SandboxMode {
         let mut txt = Text::prompt("Sandbox Mode");
         txt.add_line(ui.primary.sim.summary());
         self.agent_tools.update_menu_info(&mut txt);
-        match self.show_activity {
-            show_activity::ShowActivity::Inactive => {}
-            _ => {
-                txt.add_line("Showing active traffic".to_string());
-            }
-        }
         self.menu.handle_event(ctx, Some(txt));
 
         ctx.canvas.handle_event(ctx.input);
@@ -110,7 +101,6 @@ impl State for SandboxMode {
         }
 
         self.agent_tools.event(ctx, ui, &mut self.menu);
-        self.show_activity.event(ctx, ui, &mut self.menu);
         if ui.primary.current_selection.is_none() && self.menu.action("start time traveling") {
             return self.time_travel.start(ctx, ui);
         }
@@ -213,7 +203,6 @@ impl State for SandboxMode {
         );
         self.common.draw(g, ui);
         self.agent_tools.draw(g, ui);
-        self.show_activity.draw(g, ui);
         self.menu.draw(g);
         self.speed.draw(g);
     }

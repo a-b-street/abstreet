@@ -775,14 +775,6 @@ impl Sim {
         }
     }
 
-    // TODO argh this is so inefficient
-    pub fn location_for_agent(&self, id: AgentID, map: &Map) -> Traversable {
-        match id {
-            AgentID::Car(id) => self.get_draw_car(id, map).unwrap().on,
-            AgentID::Pedestrian(id) => self.get_draw_ped(id, map).unwrap().on,
-        }
-    }
-
     pub fn get_accepted_agents(&self, id: IntersectionID) -> HashSet<AgentID> {
         self.intersections.get_accepted_agents(id)
     }
