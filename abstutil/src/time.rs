@@ -187,6 +187,10 @@ impl<'a> Timer<'a> {
     }
 
     pub fn stop(&mut self, name: &str) {
+        if self.outermost_name == "throwaway" {
+            return;
+        }
+
         let span = match self.stack.pop().unwrap() {
             StackEntry::TimerSpan(s) => s,
             _ => unreachable!(),
@@ -240,6 +244,9 @@ impl<'a> Timer<'a> {
     }
 
     pub fn start_iter(&mut self, name: &str, total_items: usize) {
+        if self.outermost_name == "throwaway" {
+            return;
+        }
         if total_items == 0 {
             return;
         }
@@ -255,6 +262,9 @@ impl<'a> Timer<'a> {
     }
 
     pub fn next(&mut self) {
+        if self.outermost_name == "throwaway" {
+            return;
+        }
         let maybe_result =
             if let Some(StackEntry::Progress(ref mut progress)) = self.stack.last_mut() {
                 progress.next(&mut self.sink)
