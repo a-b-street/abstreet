@@ -567,6 +567,14 @@ impl Sim {
 
 // Savestating
 impl Sim {
+    pub fn save_dir(&self) -> String {
+        abstutil::path2_dir(
+            &self.map_name,
+            abstutil::SAVE,
+            &format!("{}_{}", self.edits_name, self.run_name),
+        )
+    }
+
     fn save_path(&self, base_time: Duration) -> String {
         // If we wanted to be even more reproducible, we'd encode RNG seed, version of code, etc,
         // but that's overkill right now.

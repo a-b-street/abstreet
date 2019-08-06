@@ -62,6 +62,10 @@ pub fn path1_bin(map_name: &str, category: &str, instance: &str) -> String {
     format!("../data/{}/{}/{}.bin", category, map_name, instance)
 }
 
+pub fn path2_dir(map_name: &str, category: &str, dir: &str) -> String {
+    format!("../data/{}/{}/{}/", category, map_name, dir)
+}
+
 pub fn path2_bin(map_name: &str, category: &str, dir: &str, instance: &str) -> String {
     format!("../data/{}/{}/{}/{}.bin", category, map_name, dir, instance)
 }
