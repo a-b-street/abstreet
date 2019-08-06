@@ -432,6 +432,7 @@ impl TripManager {
         let end = match trip.legs.back() {
             Some(TripLeg::Walk(_, _, ref spot)) => match spot.connection {
                 SidewalkPOI::Building(b) => TripEnd::Bldg(b),
+                SidewalkPOI::Border(i) => TripEnd::Border(i),
                 _ => unreachable!(),
             },
             Some(TripLeg::Drive(_, ref goal)) => match goal {
