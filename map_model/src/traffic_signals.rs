@@ -50,10 +50,11 @@ impl ControlTrafficSignal {
 
     pub fn current_cycle_and_remaining_time(&self, time: Duration) -> (usize, &Cycle, Duration) {
         let cycle_idx = (time / CYCLE_DURATION).floor() as usize;
-        let cycle = &self.cycles[cycle_idx % self.cycles.len()];
+        let normalized_cycle_idx = cycle_idx % self.cycles.len();
+        let cycle = &self.cycles[normalized_cycle_idx];
         let next_cycle_time = CYCLE_DURATION * (cycle_idx + 1) as f64;
         let remaining_cycle_time = next_cycle_time - time;
-        (cycle_idx, cycle, remaining_cycle_time)
+        (normalized_cycle_idx, cycle, remaining_cycle_time)
     }
 
     fn validate(&self, map: &Map) -> Result<(), Error> {
