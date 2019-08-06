@@ -34,6 +34,11 @@ pub enum CarStatus {
     Debug,
 }
 
+pub struct UnzoomedAgent {
+    pub pos: Pt2D,
+    pub time_since_last_turn: Duration,
+}
+
 // TODO Can we return borrows instead? Nice for time travel, not for main sim?
 // actually good for main sim too; we're constantly calculating stuff while sim is paused
 // otherwise? except we don't know what to calculate. maybe cache it?

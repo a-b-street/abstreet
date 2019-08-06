@@ -12,6 +12,7 @@ pub struct Car {
     pub state: CarState,
     pub router: Router,
     pub trip: TripID,
+    pub last_completed_turn: Duration,
 
     // In reverse order -- most recently left is first. The sum length of these must be >=
     // vehicle.length.

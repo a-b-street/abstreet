@@ -22,7 +22,9 @@ pub use self::sim::Sim;
 pub(crate) use self::transit::TransitSimState;
 pub use self::trips::{FinishedTrips, TripEnd, TripMode, TripStart, TripStatus};
 pub(crate) use self::trips::{TripLeg, TripManager};
-pub use crate::render::{CarStatus, DrawCarInput, DrawPedestrianInput, GetDrawAgents};
+pub use crate::render::{
+    CarStatus, DrawCarInput, DrawPedestrianInput, GetDrawAgents, UnzoomedAgent,
+};
 use abstutil::Cloneable;
 use geom::{Distance, Duration, Pt2D, Speed};
 use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, LaneType, Map, Path, Position};

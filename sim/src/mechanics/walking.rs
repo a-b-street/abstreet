@@ -53,6 +53,7 @@ impl WalkingSimState {
                 TimeInterval::new(Duration::ZERO, Duration::seconds(1.0)),
             ),
             speed: params.speed,
+            last_completed_turn: now,
             path: params.path,
             goal: params.goal,
             trip: params.trip,
@@ -162,6 +163,7 @@ impl WalkingSimState {
                 } else {
                     if let PathStep::Turn(t) = ped.path.current_step() {
                         intersections.turn_finished(now, AgentID::Pedestrian(ped.id), t, scheduler);
+                        ped.last_completed_turn = now;
                     }
 
                     let dist = dist_int.end;
@@ -262,11 +264,11 @@ impl WalkingSimState {
         Some(&p.path)
     }
 
-    pub fn get_unzoomed_agents(&self, time: Duration, map: &Map) -> Vec<Pt2D> {
+    pub fn get_unzoomed_agents(&self, now: Duration, map: &Map) -> Vec<Pt2D> {
         let mut peds = Vec::new();
 
         for ped in self.peds.values() {
-            peds.push(ped.get_draw_ped(time, map).pos);
+            peds.push(ped.get_draw_ped(now, map).pos);
         }
 
         peds
@@ -286,6 +288,9 @@ struct Pedestrian {
     id: PedestrianID,
     state: PedState,
     speed: Speed,
+    // Pedestrians waiting for buses will also have their times creep up, but that's nice, since it
+    // captures that same sense of delay.
+    last_completed_turn: Duration,
 
     path: Path,
     goal: SidewalkSpot,
