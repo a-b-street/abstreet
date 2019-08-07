@@ -2,8 +2,8 @@ use crate::{
     AgentID, CarID, Command, CreateCar, DrawCarInput, DrawPedestrianInput, DrivingGoal,
     DrivingSimState, Event, FinishedTrips, GetDrawAgents, IntersectionSimState, ParkedCar,
     ParkingSimState, ParkingSpot, PedestrianID, Router, Scheduler, TransitSimState, TripID,
-    TripLeg, TripManager, TripPositions, TripSpawner, TripSpec, TripStatus, VehicleSpec,
-    VehicleType, WalkingSimState, BUS_LENGTH,
+    TripLeg, TripManager, TripPositions, TripSpawner, TripSpec, TripStatus, UnzoomedAgent,
+    VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
 };
 use abstutil::{elapsed_seconds, Timer};
 use derivative::Derivative;
@@ -284,6 +284,13 @@ impl Sim {
         let (cars, bikes, buses) = self.driving.get_unzoomed_agents(self.time, map);
         let peds = self.walking.get_unzoomed_agents(self.time, map);
         (cars, bikes, buses, peds)
+    }
+
+    // TODO Ideally we'd always return UnzoomedAgent, but it's slow!
+    pub fn get_unzoomed_agents_with_delay(&self, map: &Map) -> Vec<UnzoomedAgent> {
+        let mut result = self.driving.get_unzoomed_agents_with_delay(self.time, map);
+        result.extend(self.walking.get_unzoomed_agents_with_delay(self.time, map));
+        result
     }
 }
 
@@ -648,13 +655,13 @@ impl Sim {
     }
 
     pub fn ped_tooltip(&self, p: PedestrianID) -> Vec<String> {
-        let mut lines = self.walking.ped_tooltip(p);
+        let mut lines = self.walking.ped_tooltip(p, self.time);
         lines.extend(self.trips.tooltip_lines(AgentID::Pedestrian(p)));
         lines
     }
 
     pub fn car_tooltip(&self, car: CarID) -> Vec<String> {
-        if let Some(mut lines) = self.driving.tooltip_lines(car) {
+        if let Some(mut lines) = self.driving.tooltip_lines(car, self.time) {
             lines.extend(self.trips.tooltip_lines(AgentID::Car(car)));
             if car.1 == VehicleType::Bus {
                 let passengers = self.transit.get_passengers(car);
@@ -704,7 +711,7 @@ impl Sim {
     pub fn lookup_car_id(&self, idx: usize) -> Option<CarID> {
         for vt in &[VehicleType::Car, VehicleType::Bike, VehicleType::Bus] {
             let id = CarID(idx, *vt);
-            if self.driving.tooltip_lines(id).is_some() {
+            if self.driving.tooltip_lines(id, self.time).is_some() {
                 return Some(id);
             }
         }

@@ -1,7 +1,7 @@
 use crate::{
     AgentID, Command, CreatePedestrian, DistanceInterval, DrawPedestrianInput,
     IntersectionSimState, ParkingSimState, PedestrianID, Scheduler, SidewalkPOI, SidewalkSpot,
-    TimeInterval, TransitSimState, TripID, TripManager, TripPositions,
+    TimeInterval, TransitSimState, TripID, TripManager, TripPositions, UnzoomedAgent,
 };
 use abstutil::{deserialize_multimap, serialize_multimap, MultiMap};
 use geom::{Distance, Duration, Line, PolyLine, Pt2D, Speed};
@@ -236,11 +236,12 @@ impl WalkingSimState {
         }
     }
 
-    pub fn ped_tooltip(&self, id: PedestrianID) -> Vec<String> {
+    pub fn ped_tooltip(&self, id: PedestrianID, now: Duration) -> Vec<String> {
         let p = &self.peds[&id];
         vec![
             format!("{} on {:?}", p.id, p.path.current_step()),
             format!("{} lanes left in path", p.path.num_lanes()),
+            format!("Last turned {} ago", now - p.last_completed_turn),
             format!("{:?}", p.state),
         ]
     }
@@ -269,6 +270,19 @@ impl WalkingSimState {
 
         for ped in self.peds.values() {
             peds.push(ped.get_draw_ped(now, map).pos);
+        }
+
+        peds
+    }
+
+    pub fn get_unzoomed_agents_with_delay(&self, now: Duration, map: &Map) -> Vec<UnzoomedAgent> {
+        let mut peds = Vec::new();
+
+        for ped in self.peds.values() {
+            peds.push(UnzoomedAgent {
+                pos: ped.get_draw_ped(now, map).pos,
+                time_since_last_turn: now - ped.last_completed_turn,
+            });
         }
 
         peds

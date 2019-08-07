@@ -3,7 +3,7 @@ use crate::mechanics::queue::Queue;
 use crate::{
     ActionAtEnd, AgentID, CarID, Command, CreateCar, DistanceInterval, DrawCarInput,
     IntersectionSimState, ParkedCar, ParkingSimState, Scheduler, TimeInterval, TransitSimState,
-    TripManager, TripPositions, VehicleType, WalkingSimState, FOLLOWING_DISTANCE,
+    TripManager, TripPositions, UnzoomedAgent, VehicleType, WalkingSimState, FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Distance, Duration, PolyLine, Pt2D};
@@ -655,6 +655,25 @@ impl DrivingSimState {
         (cars, bikes, buses)
     }
 
+    pub fn get_unzoomed_agents_with_delay(&self, now: Duration, map: &Map) -> Vec<UnzoomedAgent> {
+        let mut result = Vec::new();
+
+        for queue in self.queues.values() {
+            if queue.cars.is_empty() {
+                continue;
+            }
+
+            for (car, dist) in queue.get_car_positions(now, &self.cars, &self.queues) {
+                result.push(UnzoomedAgent {
+                    pos: queue.id.dist_along(dist, map).0,
+                    time_since_last_turn: now - self.cars[&car].last_completed_turn,
+                });
+            }
+        }
+
+        result
+    }
+
     pub fn populate_trip_positions(&self, trip_positions: &mut TripPositions, map: &Map) {
         for queue in self.queues.values() {
             if queue.cars.is_empty() {
@@ -703,12 +722,13 @@ impl DrivingSimState {
         }
     }
 
-    pub fn tooltip_lines(&self, id: CarID) -> Option<Vec<String>> {
+    pub fn tooltip_lines(&self, id: CarID, now: Duration) -> Option<Vec<String>> {
         let car = self.cars.get(&id)?;
         Some(vec![
             format!("{} on {}", id, car.router.head()),
             format!("Owned by {:?}", car.vehicle.owner),
             format!("{} lanes left", car.router.get_path().num_lanes()),
+            format!("Last turned {} ago", now - car.last_completed_turn),
             format!("{:?}", car.state),
         ])
     }

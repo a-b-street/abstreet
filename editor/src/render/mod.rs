@@ -52,7 +52,8 @@ pub trait Renderable {
     fn get_zorder(&self) -> isize {
         -5
     }
-    // This outline is drawn over the base object to show that it's selected. It also represents the boundaries for quadtrees. This isn't called often; don't worry about caching.
+    // This outline is drawn over the base object to show that it's selected. It also represents
+    // the boundaries for quadtrees. This isn't called often; don't worry about caching.
     fn get_outline(&self, map: &Map) -> Polygon;
     fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool {
         self.get_outline(map).contains_pt(pt)
@@ -83,6 +84,7 @@ pub struct DrawOptions {
     pub override_colors: HashMap<ID, Color>,
     pub suppress_traffic_signal_details: Option<IntersectionID>,
     pub geom_debug_mode: bool,
+    pub suppress_unzoomed_agents: bool,
 }
 
 impl DrawOptions {
@@ -91,6 +93,7 @@ impl DrawOptions {
             override_colors: HashMap::new(),
             suppress_traffic_signal_details: None,
             geom_debug_mode: false,
+            suppress_unzoomed_agents: false,
         }
     }
 

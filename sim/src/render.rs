@@ -36,6 +36,7 @@ pub enum CarStatus {
 
 pub struct UnzoomedAgent {
     pub pos: Pt2D,
+    // TODO Track actual delay, based on more fine-grained states. Easiest to be an Option
     pub time_since_last_turn: Duration,
 }
 

@@ -30,7 +30,7 @@ impl Color {
     // TODO should assert stuff about the inputs
 
     // TODO Once f32 can be used in const fn, make these const fn too and clean up call sites
-    // dividing by 255.0
+    // dividing by 255.0. https://github.com/rust-lang/rust/issues/57241
     pub fn rgb(r: usize, g: usize, b: usize) -> Color {
         Color::rgba(r, g, b, 1.0)
     }

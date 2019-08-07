@@ -125,31 +125,33 @@ impl UI {
                 );
             }
 
-            let (cars, bikes, buses, peds) =
-                self.primary.sim.get_unzoomed_agents(&self.primary.map);
-            let mut batch = GeomBatch::new();
-            let radius = Distance::meters(10.0) / g.canvas.cam_zoom;
-            for (color, agents) in vec![
-                (self.cs.get_def("unzoomed car", Color::RED.alpha(0.5)), cars),
-                (
-                    self.cs.get_def("unzoomed bike", Color::GREEN.alpha(0.5)),
-                    bikes,
-                ),
-                (
-                    self.cs.get_def("unzoomed bus", Color::BLUE.alpha(0.5)),
-                    buses,
-                ),
-                (
-                    self.cs
-                        .get_def("unzoomed pedestrian", Color::ORANGE.alpha(0.5)),
-                    peds,
-                ),
-            ] {
-                for pt in agents {
-                    batch.push(color, Circle::new(pt, radius).to_polygon());
+            if !opts.suppress_unzoomed_agents {
+                let (cars, bikes, buses, peds) =
+                    self.primary.sim.get_unzoomed_agents(&self.primary.map);
+                let mut batch = GeomBatch::new();
+                let radius = Distance::meters(10.0) / g.canvas.cam_zoom;
+                for (color, agents) in vec![
+                    (self.cs.get_def("unzoomed car", Color::RED.alpha(0.5)), cars),
+                    (
+                        self.cs.get_def("unzoomed bike", Color::GREEN.alpha(0.5)),
+                        bikes,
+                    ),
+                    (
+                        self.cs.get_def("unzoomed bus", Color::BLUE.alpha(0.5)),
+                        buses,
+                    ),
+                    (
+                        self.cs
+                            .get_def("unzoomed pedestrian", Color::ORANGE.alpha(0.5)),
+                        peds,
+                    ),
+                ] {
+                    for pt in agents {
+                        batch.push(color, Circle::new(pt, radius).to_polygon());
+                    }
                 }
+                batch.draw(g);
             }
-            batch.draw(g);
         } else {
             let mut cache = self.primary.draw_map.agents.borrow_mut();
             let objects = self.get_renderables_back_to_front(

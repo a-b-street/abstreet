@@ -17,16 +17,21 @@ pub use self::time::time_controls;
 pub use self::trip_explorer::TripExplorer;
 use crate::game::Transition;
 use crate::helpers::ID;
-use crate::render::DrawOptions;
+use crate::render::{DrawOptions, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::UI;
 use ezgui::{
-    Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, ModalMenu, Text, VerticalAlignment,
+    Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, HorizontalAlignment, ModalMenu, Text,
+    VerticalAlignment,
 };
+use geom::{Circle, Distance, Duration};
 use std::collections::BTreeSet;
 
 pub struct CommonState {
     associated: associated::ShowAssociatedState,
     turn_cycler: turn_cycler::TurnCyclerState,
+    // TODO Have a more general colorscheme that can be changed and affect everything. Show a
+    // little legend when it's first activated.
+    show_delayed_agents: bool,
 }
 
 impl CommonState {
@@ -34,6 +39,7 @@ impl CommonState {
         CommonState {
             associated: associated::ShowAssociatedState::Inactive,
             turn_cycler: turn_cycler::TurnCyclerState::Inactive,
+            show_delayed_agents: false,
         }
     }
 
@@ -54,6 +60,11 @@ impl CommonState {
                 shortcuts::ChoosingShortcut::new(ui),
             )));
         }
+        // TODO But it's too late to influence the menu's text to say if this is active or not.
+        // This kind of belongs in AgentTools, except that can't influence DrawOptions as easily.
+        if menu.action("show/hide delayed traffic") {
+            self.show_delayed_agents = !self.show_delayed_agents;
+        }
 
         self.associated.event(ui);
         if let Some(t) = self.turn_cycler.event(ctx, ui) {
@@ -70,6 +81,22 @@ impl CommonState {
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         self.turn_cycler.draw(g, ui);
+
+        if self.show_delayed_agents && g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
+            let mut batch = GeomBatch::new();
+            let radius = Distance::meters(10.0) / g.canvas.cam_zoom;
+            for agent in ui
+                .primary
+                .sim
+                .get_unzoomed_agents_with_delay(&ui.primary.map)
+            {
+                batch.push(
+                    delay_color(agent.time_since_last_turn),
+                    Circle::new(agent.pos, radius).to_polygon(),
+                );
+            }
+            batch.draw(g);
+        }
 
         CommonState::draw_osd(g, ui, ui.primary.current_selection);
     }
@@ -171,6 +198,18 @@ impl CommonState {
         opts.suppress_traffic_signal_details = self
             .turn_cycler
             .suppress_traffic_signal_details(&ui.primary.map);
+        opts.suppress_unzoomed_agents = self.show_delayed_agents;
         opts
     }
+}
+
+fn delay_color(delay: Duration) -> Color {
+    // TODO Better gradient
+    if delay <= Duration::minutes(1) {
+        return Color::BLUE.alpha(0.3);
+    }
+    if delay <= Duration::minutes(5) {
+        return Color::ORANGE.alpha(0.5);
+    }
+    Color::RED.alpha(0.8)
 }

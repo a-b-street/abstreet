@@ -150,8 +150,7 @@ fn draw_signal_cycle_with_icons(cycle: &Cycle, batch: &mut GeomBatch, ctx: &Draw
 }
 
 const PADDING: f64 = 5.0;
-// TODO Reduce this after testing out scrolling
-const ZOOM: f64 = 15.0;
+const ZOOM: f64 = 10.0;
 
 pub struct TrafficSignalDiagram {
     pub i: IntersectionID,
