@@ -112,7 +112,7 @@ impl State for BusRoutePicker {
         if let Some((_, id)) =
             self.wizard
                 .wrap(ctx)
-                .choose_something_no_keys("Explore which bus route?", || {
+                .choose_something("Explore which bus route?", || {
                     choices
                         .into_iter()
                         .map(|id| (ui.primary.map.get_br(id).name.clone(), id))

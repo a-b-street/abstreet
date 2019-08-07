@@ -267,7 +267,7 @@ fn choose_preset(
     mut wizard: WrappedWizard,
 ) -> Option<ControlTrafficSignal> {
     wizard
-        .choose_something_no_keys("Use which preset for this intersection?", || {
+        .choose_something("Use which preset for this intersection?", || {
             ControlTrafficSignal::get_possible_policies(map, id)
         })
         .map(|(_, ts)| ts)

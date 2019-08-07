@@ -60,7 +60,7 @@ fn choose_shortcut(
     shortcuts: Vec<Shortcut>,
     ui: &UI,
 ) -> Option<Shortcut> {
-    let (_, mut s) = wizard.new_choose_something("Jump to which shortcut?", || {
+    let (_, mut s) = wizard.choose_something_hotkeys("Jump to which shortcut?", || {
         // TODO Handle >9
         // TODO Allow deleting
         let keys = vec![

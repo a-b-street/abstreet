@@ -234,7 +234,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         )
     }
 
-    pub fn new_choose_something<
+    pub fn choose_something_hotkeys<
         R: 'static + Clone + Cloneable,
         F: FnOnce() -> Vec<(Option<MultiKey>, String, R)>,
     >(
@@ -324,16 +324,12 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         }
     }
 
-    // TODO rename choose_something and choose_something_hotkeys
-    pub fn choose_something_no_keys<
-        R: 'static + Clone + Cloneable,
-        F: FnOnce() -> Vec<(String, R)>,
-    >(
+    pub fn choose_something<R: 'static + Clone + Cloneable, F: FnOnce() -> Vec<(String, R)>>(
         &mut self,
         query: &str,
         choices_generator: F,
     ) -> Option<(String, R)> {
-        self.new_choose_something(query, || {
+        self.choose_something_hotkeys(query, || {
             choices_generator()
                 .into_iter()
                 .map(|(s, data)| (None, s, data))
@@ -341,9 +337,8 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         })
     }
 
-    // TODO rename choose_str
-    pub fn choose_string(&mut self, query: &str, choices: Vec<&str>) -> Option<String> {
-        self.new_choose_something(query, || {
+    pub fn choose_str(&mut self, query: &str, choices: Vec<&str>) -> Option<String> {
+        self.choose_something_hotkeys(query, || {
             choices
                 .into_iter()
                 .map(|s| (None, s.to_string(), ()))
@@ -352,29 +347,15 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         .map(|(s, _)| s)
     }
 
-    pub fn choose_actual_string<F: Fn() -> Vec<String>>(
+    pub fn choose_string<F: Fn() -> Vec<String>>(
         &mut self,
         query: &str,
         choices_generator: F,
     ) -> Option<String> {
-        self.new_choose_something(query, || {
+        self.choose_something_hotkeys(query, || {
             choices_generator()
                 .into_iter()
                 .map(|s| (None, s, ()))
-                .collect()
-        })
-        .map(|(s, _)| s)
-    }
-
-    pub fn choose_string_hotkeys(
-        &mut self,
-        query: &str,
-        choices: Vec<(Option<MultiKey>, &str)>,
-    ) -> Option<String> {
-        self.new_choose_something(query, || {
-            choices
-                .into_iter()
-                .map(|(key, s)| (key, s.to_string(), ()))
                 .collect()
         })
         .map(|(s, _)| s)

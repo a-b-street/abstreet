@@ -105,7 +105,7 @@ fn edit_scenario(map: &Map, scenario: &mut Scenario, mut wizard: WrappedWizard) 
     let spawn_border = "Spawn agents from a border";
     let randomize = "Randomly spawn stuff from/to every neighborhood";
     match wizard
-        .choose_string(
+        .choose_str(
             "What kind of edit?",
             vec![seed_parked, spawn, spawn_border, randomize],
         )?
@@ -188,7 +188,7 @@ fn edit_scenario(map: &Map, scenario: &mut Scenario, mut wizard: WrappedWizard) 
 fn choose_neighborhood(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
     // Load the full object, since we usually visualize the neighborhood when menuing over it
     wizard
-        .choose_something_no_keys(query, || {
+        .choose_something(query, || {
             Neighborhood::load_all(map.get_name(), map.get_gps_bounds())
         })
         .map(|(n, _)| n)
@@ -218,7 +218,7 @@ fn choose_origin_destination(
 ) -> Option<OriginDestination> {
     let neighborhood = "Neighborhood";
     let border = "Border intersection";
-    if wizard.choose_string(query, vec![neighborhood, border])? == neighborhood {
+    if wizard.choose_str(query, vec![neighborhood, border])? == neighborhood {
         choose_neighborhood(map, wizard, query).map(OriginDestination::Neighborhood)
     } else {
         choose_intersection(wizard, query).map(OriginDestination::Border)

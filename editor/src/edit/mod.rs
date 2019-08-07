@@ -302,7 +302,7 @@ fn save_edits(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Trans
     let save = "save edits";
     let cancel = "cancel";
     if wizard
-        .choose_string("Overwrite edits?", vec![save, cancel])?
+        .choose_str("Overwrite edits?", vec![save, cancel])?
         .as_str()
         == save
     {
@@ -322,7 +322,7 @@ fn load_edits(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Trans
 
     // TODO Exclude current
     let map_name = map.get_name().to_string();
-    let (_, new_edits) = wizard.choose_something_no_keys("Load which map edits?", || {
+    let (_, new_edits) = wizard.choose_something("Load which map edits?", || {
         let mut list = abstutil::load_all_objects("edits", &map_name);
         list.push(("no_edits".to_string(), MapEdits::new(map_name.clone())));
         list
@@ -499,7 +499,7 @@ impl State for BulkEditLanes {
 }
 
 fn bulk_edit(r: RoadID, wizard: &mut WrappedWizard, map: &Map) -> Option<MapEdits> {
-    let (_, from) = wizard.choose_something_no_keys("Change all lanes of type...", || {
+    let (_, from) = wizard.choose_something("Change all lanes of type...", || {
         vec![
             ("driving".to_string(), LaneType::Driving),
             ("parking".to_string(), LaneType::Parking),
@@ -507,7 +507,7 @@ fn bulk_edit(r: RoadID, wizard: &mut WrappedWizard, map: &Map) -> Option<MapEdit
             ("bus".to_string(), LaneType::Bus),
         ]
     })?;
-    let (_, to) = wizard.choose_something_no_keys("Change to all lanes of type...", || {
+    let (_, to) = wizard.choose_something("Change to all lanes of type...", || {
         vec![
             ("driving".to_string(), LaneType::Driving),
             ("parking".to_string(), LaneType::Parking),

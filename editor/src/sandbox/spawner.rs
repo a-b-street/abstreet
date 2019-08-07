@@ -364,16 +364,16 @@ fn instantiate_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Op
     };
     let map = &ui.primary.map;
 
-    let scenario_name =
-        wiz.wrap(ctx)
-            .choose_actual_string("Instantiate which scenario?", || {
-                let mut list = vec![builtin.clone(), "just buses".to_string()];
-                list.extend(abstutil::list_all_objects(
-                    abstutil::SCENARIOS,
-                    map.get_name(),
-                ));
-                list
-            })?;
+    let scenario_name = wiz
+        .wrap(ctx)
+        .choose_string("Instantiate which scenario?", || {
+            let mut list = vec![builtin.clone(), "just buses".to_string()];
+            list.extend(abstutil::list_all_objects(
+                abstutil::SCENARIOS,
+                map.get_name(),
+            ));
+            list
+        })?;
 
     let scenario = if scenario_name == builtin {
         if let Some(n) = num_agents {

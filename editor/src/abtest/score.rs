@@ -105,7 +105,7 @@ impl State for Scoreboard {
 fn browse_trips(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
     let mut wizard = wiz.wrap(ctx);
     let mode = wizard
-        .choose_something_no_keys("Browse which trips?", || {
+        .choose_something("Browse which trips?", || {
             vec![
                 ("walk".to_string(), TripMode::Walk),
                 ("bike".to_string(), TripMode::Bike),
@@ -114,7 +114,7 @@ fn browse_trips(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
             ]
         })?
         .1;
-    wizard.choose_something_no_keys("Examine which trip?", || {
+    wizard.choose_something("Examine which trip?", || {
         let trips = CompareTrips::new(
             ui.primary.sim.get_finished_trips(),
             ui.secondary.as_ref().unwrap().sim.get_finished_trips(),

@@ -18,7 +18,7 @@ impl ColorChooser {
 fn pick_color(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
     let name = wiz
         .wrap(ctx)
-        .choose_actual_string("Change which color?", || ui.cs.color_names())?;
+        .choose_string("Change which color?", || ui.cs.color_names())?;
     Some(Transition::Replace(Box::new(ColorChanger {
         name: name.clone(),
         original: ui.cs.get_modified(&name),

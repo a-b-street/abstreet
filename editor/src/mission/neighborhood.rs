@@ -170,7 +170,7 @@ impl State for NeighborhoodEditor {
 fn pick_neighborhood(map: &Map, mut wizard: WrappedWizard) -> Option<NeighborhoodBuilder> {
     let load_existing = "Load existing neighborhood";
     let create_new = "Create new neighborhood";
-    if wizard.choose_string(
+    if wizard.choose_str(
         "What neighborhood to edit?",
         vec![load_existing, create_new],
     )? == load_existing
@@ -192,7 +192,7 @@ fn load_neighborhood_builder(
     query: &str,
 ) -> Option<NeighborhoodBuilder> {
     wizard
-        .choose_something_no_keys(query, || {
+        .choose_something(query, || {
             abstutil::load_all_objects(abstutil::NEIGHBORHOODS, &map.get_name())
         })
         .map(|(_, n)| n)

@@ -141,25 +141,25 @@ fn splash_screen(
 
     // TODO No hotkey for quit because it's just the normal menu escape?
     match wizard
-        .choose_string_hotkeys(
-            "Welcome to A/B Street!",
+        .choose_something_hotkeys("Welcome to A/B Street!", || {
             vec![
-                (hotkey(Key::S), sandbox),
-                (hotkey(Key::L), load_map),
-                (hotkey(Key::E), edit),
-                (hotkey(Key::T), tutorial),
-                (hotkey(Key::D), debug),
-                (hotkey(Key::M), mission),
-                (hotkey(Key::A), abtest),
-                (None, about),
-                (None, quit),
-            ],
-        )?
+                (hotkey(Key::S), sandbox.to_string(), ()),
+                (hotkey(Key::L), load_map.to_string(), ()),
+                (hotkey(Key::E), edit.to_string(), ()),
+                (hotkey(Key::T), tutorial.to_string(), ()),
+                (hotkey(Key::D), debug.to_string(), ()),
+                (hotkey(Key::M), mission.to_string(), ()),
+                (hotkey(Key::A), abtest.to_string(), ()),
+                (None, about.to_string(), ()),
+                (None, quit.to_string(), ()),
+            ]
+        })?
+        .0
         .as_str()
     {
         x if x == sandbox => Some(Transition::Push(Box::new(SandboxMode::new(ctx)))),
         x if x == load_map => {
-            if let Some(name) = wizard.choose_actual_string("Load which map?", || {
+            if let Some(name) = wizard.choose_string("Load which map?", || {
                 let current_map = ui.primary.map.get_name();
                 abstutil::list_all_objects("maps", "")
                     .into_iter()

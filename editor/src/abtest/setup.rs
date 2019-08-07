@@ -21,11 +21,11 @@ fn pick_ab_test(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
     let load_existing = "Load existing A/B test";
     let create_new = "Create new A/B test";
     let ab_test = if wizard
-        .choose_string("What A/B test to manage?", vec![load_existing, create_new])?
+        .choose_str("What A/B test to manage?", vec![load_existing, create_new])?
         == load_existing
     {
         wizard
-            .choose_something_no_keys("Load which A/B test?", || {
+            .choose_something("Load which A/B test?", || {
                 abstutil::load_all_objects(abstutil::AB_TESTS, ui.primary.map.get_name())
             })?
             .1
@@ -232,13 +232,13 @@ fn launch_savestate(test: &ABTest, ss_path: String, ui: &mut UI, ctx: &mut Event
 }
 
 fn choose_scenario(map_name: &str, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
-    wizard.choose_actual_string(query, || {
+    wizard.choose_string(query, || {
         abstutil::list_all_objects(abstutil::SCENARIOS, map_name)
     })
 }
 
 fn choose_edits(map_name: &str, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
-    wizard.choose_actual_string(query, || {
+    wizard.choose_string(query, || {
         let mut list = abstutil::list_all_objects("edits", map_name);
         list.push("no_edits".to_string());
         list
@@ -247,7 +247,7 @@ fn choose_edits(map_name: &str, wizard: &mut WrappedWizard, query: &str) -> Opti
 
 fn pick_savestate(test: &ABTest, wizard: &mut WrappedWizard) -> Option<String> {
     let path = abstutil::path1(&test.map_name, abstutil::AB_TEST_SAVES, &test.test_name);
-    wizard.choose_actual_string("Load which savestate?", || {
+    wizard.choose_string("Load which savestate?", || {
         abstutil::list_dir(std::path::Path::new(&path))
     })
 }
