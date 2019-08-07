@@ -324,112 +324,43 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         }
     }
 
-    pub fn choose_something<R: 'static + Clone + Cloneable>(
+    // TODO rename choose_something and choose_something_hotkeys
+    pub fn choose_something_no_keys<
+        R: 'static + Clone + Cloneable,
+        F: FnOnce() -> Vec<(String, R)>,
+    >(
         &mut self,
         query: &str,
-        choices_generator: Box<Fn() -> Vec<(Option<MultiKey>, String, R)>>,
+        choices_generator: F,
     ) -> Option<(String, R)> {
-        if !self.ready_results.is_empty() {
-            let first = self.ready_results.pop_front().unwrap();
-            // We have to downcast twice! \o/
-            let pair: &(String, Box<Cloneable>) = first
-                .as_any()
-                .downcast_ref::<(String, Box<Cloneable>)>()
-                .unwrap();
-            let item: &R = pair.1.as_any().downcast_ref::<R>().unwrap();
-            return Some((pair.0.to_string(), item.clone()));
-        }
-
-        // If the menu was empty, wait for the user to acknowledge the text-box before aborting the
-        // wizard.
-        if self.wizard.log_scroller.is_some() {
-            if self
-                .wizard
-                .log_scroller
-                .as_mut()
-                .unwrap()
-                .event(self.ctx.input)
-            {
-                self.wizard.log_scroller = None;
-                self.wizard.alive = false;
-            }
-            return None;
-        }
-
-        if self.wizard.menu.is_none() {
-            let choices: Vec<(Option<MultiKey>, String, R)> = choices_generator();
-            if choices.is_empty() {
-                self.wizard.log_scroller = Some(LogScroller::new(
-                    "Wizard".to_string(),
-                    vec![format!("No choices for \"{}\", canceling wizard", query)],
-                ));
-                return None;
-            }
-            let boxed_choices: Vec<(Option<MultiKey>, String, Box<Cloneable>)> = choices
-                .into_iter()
-                .map(|(multikey, s, item)| (multikey, s, item.clone_box()))
-                .collect();
-            self.wizard.menu = Some(Menu::new(
-                Text::prompt(query),
-                vec![boxed_choices],
-                true,
-                false,
-                Position::ScreenCenter,
-                self.ctx.canvas,
-            ));
-        }
-
-        assert!(self.wizard.alive);
-
-        // Otherwise, we try to use one event for two inputs potentially
-        if self.ctx.input.has_been_consumed() {
-            return None;
-        }
-
-        let ev = self.ctx.input.use_event_directly().unwrap();
-        match self
-            .wizard
-            .menu
-            .as_mut()
-            .unwrap()
-            .event(ev, self.ctx.canvas)
-        {
-            InputResult::Canceled => {
-                self.wizard.menu = None;
-                self.wizard.alive = false;
-                None
-            }
-            InputResult::StillActive => None,
-            InputResult::Done(choice, item) => {
-                self.wizard.menu = None;
-                self.wizard
-                    .confirmed_state
-                    .push(Box::new((choice.to_string(), item.clone())));
-                let downcasted_item: &R = item.as_any().downcast_ref::<R>().unwrap();
-                Some((choice, downcasted_item.clone()))
-            }
-        }
-    }
-
-    pub fn choose_something_no_keys<R: 'static + Clone + Cloneable>(
-        &mut self,
-        query: &str,
-        choices_generator: Box<Fn() -> Vec<(String, R)>>,
-    ) -> Option<(String, R)> {
-        let wrapped_generator = Box::new(move || {
+        self.new_choose_something(query, || {
             choices_generator()
                 .into_iter()
-                .map(|(name, data)| (None, name, data))
+                .map(|(s, data)| (None, s, data))
                 .collect()
-        });
-        self.choose_something(query, wrapped_generator)
+        })
     }
 
+    // TODO rename choose_str
     pub fn choose_string(&mut self, query: &str, choices: Vec<&str>) -> Option<String> {
         self.new_choose_something(query, || {
             choices
                 .into_iter()
                 .map(|s| (None, s.to_string(), ()))
+                .collect()
+        })
+        .map(|(s, _)| s)
+    }
+
+    pub fn choose_actual_string<F: Fn() -> Vec<String>>(
+        &mut self,
+        query: &str,
+        choices_generator: F,
+    ) -> Option<String> {
+        self.new_choose_something(query, || {
+            choices_generator()
+                .into_iter()
+                .map(|s| (None, s, ()))
                 .collect()
         })
         .map(|(s, _)| s)

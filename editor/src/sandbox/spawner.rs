@@ -363,21 +363,19 @@ fn instantiate_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Op
         "random scenario with some agents".to_string()
     };
     let map = &ui.primary.map;
-    let map_name = map.get_name().to_string();
 
-    let (_, scenario_name) = wiz.wrap(ctx).choose_something_no_keys::<String>(
-        "Instantiate which scenario?",
-        Box::new(move || {
-            let mut list = vec![
-                (builtin.clone(), "builtin".to_string()),
-                ("just buses".to_string(), "just buses".to_string()),
-            ];
-            list.extend(abstutil::list_all_objects(abstutil::SCENARIOS, &map_name));
-            list
-        }),
-    )?;
+    let scenario_name =
+        wiz.wrap(ctx)
+            .choose_actual_string("Instantiate which scenario?", || {
+                let mut list = vec![builtin.clone(), "just buses".to_string()];
+                list.extend(abstutil::list_all_objects(
+                    abstutil::SCENARIOS,
+                    map.get_name(),
+                ));
+                list
+            })?;
 
-    let scenario = if scenario_name == "builtin" {
+    let scenario = if scenario_name == builtin {
         if let Some(n) = num_agents {
             Scenario::scaled_run(map, n)
         } else {

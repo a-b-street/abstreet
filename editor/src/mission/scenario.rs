@@ -186,14 +186,11 @@ fn edit_scenario(map: &Map, scenario: &mut Scenario, mut wizard: WrappedWizard) 
 }
 
 fn choose_neighborhood(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
-    let map_name = map.get_name().to_string();
-    let gps_bounds = map.get_gps_bounds().clone();
     // Load the full object, since we usually visualize the neighborhood when menuing over it
     wizard
-        .choose_something_no_keys::<Neighborhood>(
-            query,
-            Box::new(move || Neighborhood::load_all(&map_name, &gps_bounds)),
-        )
+        .choose_something_no_keys(query, || {
+            Neighborhood::load_all(map.get_name(), map.get_gps_bounds())
+        })
         .map(|(n, _)| n)
 }
 

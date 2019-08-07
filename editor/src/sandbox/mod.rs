@@ -211,15 +211,11 @@ impl State for SandboxMode {
 fn load_savestate(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
     let path = ui.primary.sim.save_dir();
 
-    let (ss, _) = wiz.wrap(ctx).choose_something_no_keys::<()>(
-        "Load which savestate?",
-        Box::new(move || {
+    let ss = wiz
+        .wrap(ctx)
+        .choose_actual_string("Load which savestate?", || {
             abstutil::list_dir(std::path::Path::new(&path))
-                .into_iter()
-                .map(|f| (f, ()))
-                .collect()
-        }),
-    )?;
+        })?;
 
     ctx.loading_screen("load savestate", |ctx, mut timer| {
         ui.primary.sim = Sim::load_savestate(ss, &mut timer).expect("Can't load savestate");

@@ -5,9 +5,7 @@ use crate::helpers::ID;
 use crate::render::{draw_signal_cycle, DrawCtx, DrawOptions, DrawTurn, TrafficSignalDiagram};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
-use ezgui::{
-    hotkey, Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu, MultiKey, Wizard, WrappedWizard,
-};
+use ezgui::{hotkey, Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu, Wizard, WrappedWizard};
 use geom::Duration;
 use map_model::{ControlTrafficSignal, Cycle, IntersectionID, Map, TurnID, TurnPriority, TurnType};
 
@@ -268,19 +266,10 @@ fn choose_preset(
     id: IntersectionID,
     mut wizard: WrappedWizard,
 ) -> Option<ControlTrafficSignal> {
-    // TODO I wanted to do all of this work just once per wizard, but we can't touch map inside a
-    // closure. Grr.
-    let choices: Vec<(Option<MultiKey>, String, ControlTrafficSignal)> =
-        ControlTrafficSignal::get_possible_policies(map, id)
-            .into_iter()
-            .map(|(name, ts)| (None, name, ts))
-            .collect();
-
     wizard
-        .choose_something::<ControlTrafficSignal>(
-            "Use which preset for this intersection?",
-            Box::new(move || choices.clone()),
-        )
+        .choose_something_no_keys("Use which preset for this intersection?", || {
+            ControlTrafficSignal::get_possible_policies(map, id)
+        })
         .map(|(_, ts)| ts)
 }
 

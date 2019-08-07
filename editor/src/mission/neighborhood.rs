@@ -191,11 +191,9 @@ fn load_neighborhood_builder(
     wizard: &mut WrappedWizard,
     query: &str,
 ) -> Option<NeighborhoodBuilder> {
-    let map_name = map.get_name().to_string();
     wizard
-        .choose_something_no_keys::<NeighborhoodBuilder>(
-            query,
-            Box::new(move || abstutil::load_all_objects(abstutil::NEIGHBORHOODS, &map_name)),
-        )
+        .choose_something_no_keys(query, || {
+            abstutil::load_all_objects(abstutil::NEIGHBORHOODS, &map.get_name())
+        })
         .map(|(_, n)| n)
 }

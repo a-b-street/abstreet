@@ -2,9 +2,7 @@ use crate::common::warp::Warping;
 use crate::game::{State, Transition};
 use crate::ui::UI;
 use abstutil::Cloneable;
-use ezgui::{
-    hotkey, EventCtx, EventLoopMode, GfxCtx, Key, MultiKey, Warper, Wizard, WrappedWizard,
-};
+use ezgui::{hotkey, EventCtx, EventLoopMode, GfxCtx, Key, Warper, Wizard, WrappedWizard};
 use geom::Pt2D;
 use serde_derive::{Deserialize, Serialize};
 
@@ -62,34 +60,33 @@ fn choose_shortcut(
     shortcuts: Vec<Shortcut>,
     ui: &UI,
 ) -> Option<Shortcut> {
-    // TODO Handle >9
-    // TODO Allow deleting
-    let keys = vec![
-        Key::Num1,
-        Key::Num2,
-        Key::Num3,
-        Key::Num4,
-        Key::Num5,
-        Key::Num6,
-        Key::Num7,
-        Key::Num8,
-        Key::Num9,
-    ];
+    let (_, mut s) = wizard.new_choose_something("Jump to which shortcut?", || {
+        // TODO Handle >9
+        // TODO Allow deleting
+        let keys = vec![
+            Key::Num1,
+            Key::Num2,
+            Key::Num3,
+            Key::Num4,
+            Key::Num5,
+            Key::Num6,
+            Key::Num7,
+            Key::Num8,
+            Key::Num9,
+        ];
 
-    let choices: Vec<(Option<MultiKey>, String, Shortcut)> = shortcuts
-        .into_iter()
-        .enumerate()
-        .map(|(idx, s)| {
-            if idx == 0 {
-                (None, s.name.clone(), s)
-            } else {
-                (hotkey(keys[idx - 1]), s.name.clone(), s)
-            }
-        })
-        .collect();
-
-    let (_, mut s) =
-        wizard.choose_something("Jump to which shortcut?", Box::new(move || choices.clone()))?;
+        shortcuts
+            .into_iter()
+            .enumerate()
+            .map(|(idx, s)| {
+                if idx == 0 {
+                    (None, s.name.clone(), s)
+                } else {
+                    (hotkey(keys[idx - 1]), s.name.clone(), s)
+                }
+            })
+            .collect()
+    })?;
     if s.name == "Create a new shortcut here" {
         // TODO Enforce non-empty, unique names
         let name = wizard.input_string("Name this shortcut")?;

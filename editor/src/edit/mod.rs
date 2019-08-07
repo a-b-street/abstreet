@@ -322,14 +322,11 @@ fn load_edits(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Trans
 
     // TODO Exclude current
     let map_name = map.get_name().to_string();
-    let (_, new_edits) = wizard.choose_something_no_keys::<MapEdits>(
-        "Load which map edits?",
-        Box::new(move || {
-            let mut list = abstutil::load_all_objects("edits", &map_name);
-            list.push(("no_edits".to_string(), MapEdits::new(map_name.clone())));
-            list
-        }),
-    )?;
+    let (_, new_edits) = wizard.choose_something_no_keys("Load which map edits?", || {
+        let mut list = abstutil::load_all_objects("edits", &map_name);
+        list.push(("no_edits".to_string(), MapEdits::new(map_name.clone())));
+        list
+    })?;
     apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
     Some(Transition::Pop)
 }
@@ -502,35 +499,25 @@ impl State for BulkEditLanes {
 }
 
 fn bulk_edit(r: RoadID, wizard: &mut WrappedWizard, map: &Map) -> Option<MapEdits> {
-    let from = wizard
-        .choose_something(
-            "Change all lanes of type...",
-            Box::new(|| {
-                vec![
-                    (None, "driving".to_string(), LaneType::Driving),
-                    (None, "parking".to_string(), LaneType::Parking),
-                    (None, "biking".to_string(), LaneType::Biking),
-                    (None, "bus".to_string(), LaneType::Bus),
-                ]
-            }),
-        )?
-        .1;
-    let to = wizard
-        .choose_something(
-            "Change to all lanes of type...",
-            Box::new(move || {
-                vec![
-                    (None, "driving".to_string(), LaneType::Driving),
-                    (None, "parking".to_string(), LaneType::Parking),
-                    (None, "biking".to_string(), LaneType::Biking),
-                    (None, "bus".to_string(), LaneType::Bus),
-                ]
-                .into_iter()
-                .filter(|(_, _, lt)| *lt != from)
-                .collect()
-            }),
-        )?
-        .1;
+    let (_, from) = wizard.choose_something_no_keys("Change all lanes of type...", || {
+        vec![
+            ("driving".to_string(), LaneType::Driving),
+            ("parking".to_string(), LaneType::Parking),
+            ("biking".to_string(), LaneType::Biking),
+            ("bus".to_string(), LaneType::Bus),
+        ]
+    })?;
+    let (_, to) = wizard.choose_something_no_keys("Change to all lanes of type...", || {
+        vec![
+            ("driving".to_string(), LaneType::Driving),
+            ("parking".to_string(), LaneType::Parking),
+            ("biking".to_string(), LaneType::Biking),
+            ("bus".to_string(), LaneType::Bus),
+        ]
+        .into_iter()
+        .filter(|(_, lt)| *lt != from)
+        .collect()
+    })?;
 
     // Do the dirty deed. Match by road name; OSM way ID changes a fair bit.
     let road_name = map.get_r(r).get_name();

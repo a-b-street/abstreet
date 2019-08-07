@@ -159,16 +159,13 @@ fn splash_screen(
     {
         x if x == sandbox => Some(Transition::Push(Box::new(SandboxMode::new(ctx)))),
         x if x == load_map => {
-            let current_map = ui.primary.map.get_name().to_string();
-            if let Some((name, _)) = wizard.choose_something_no_keys::<String>(
-                "Load which map?",
-                Box::new(move || {
-                    abstutil::list_all_objects("maps", "")
-                        .into_iter()
-                        .filter(|(n, _)| n != &current_map)
-                        .collect()
-                }),
-            ) {
+            if let Some(name) = wizard.choose_actual_string("Load which map?", || {
+                let current_map = ui.primary.map.get_name();
+                abstutil::list_all_objects("maps", "")
+                    .into_iter()
+                    .filter(|n| n != current_map)
+                    .collect()
+            }) {
                 ui.save_editor_state(ctx.canvas);
                 // This retains no state, but that's probably fine.
                 let mut flags = ui.primary.current_flags.clone();

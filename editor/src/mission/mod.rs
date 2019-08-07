@@ -113,12 +113,13 @@ fn convert_trips_to_scenario(
 
 fn load_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
     let map_name = ui.primary.map.get_name().to_string();
-    let (_, s) = wiz.wrap(ctx).choose_something_no_keys::<String>(
-        "Load which scenario?",
-        Box::new(move || abstutil::list_all_objects(abstutil::SCENARIOS, &map_name)),
-    )?;
+    let s = wiz
+        .wrap(ctx)
+        .choose_actual_string("Load which scenario?", || {
+            abstutil::list_all_objects(abstutil::SCENARIOS, &map_name)
+        })?;
     let scenario = abstutil::read_binary(
-        &abstutil::path1_bin(ui.primary.map.get_name(), abstutil::SCENARIOS, &s),
+        &abstutil::path1_bin(&map_name, abstutil::SCENARIOS, &s),
         &mut Timer::throwaway(),
     )
     .unwrap();

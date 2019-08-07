@@ -108,20 +108,16 @@ impl BusRoutePicker {
 
 impl State for BusRoutePicker {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        // TODO Argh, constantly doing this.
-        let choices: Vec<(String, BusRouteID)> = self
-            .choices
-            .iter()
-            .map(|id| (ui.primary.map.get_br(*id).name.clone(), *id))
-            .collect();
-
-        if let Some((_, id)) = self
-            .wizard
-            .wrap(ctx)
-            .choose_something_no_keys::<BusRouteID>(
-                "Explore which bus route?",
-                Box::new(move || choices.clone()),
-            )
+        let choices = self.choices.clone();
+        if let Some((_, id)) =
+            self.wizard
+                .wrap(ctx)
+                .choose_something_no_keys("Explore which bus route?", || {
+                    choices
+                        .into_iter()
+                        .map(|id| (ui.primary.map.get_br(id).name.clone(), id))
+                        .collect()
+                })
         {
             return Transition::Replace(Box::new(BusRouteExplorer::for_route(
                 ui.primary.map.get_br(id),

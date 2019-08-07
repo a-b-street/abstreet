@@ -20,30 +20,29 @@ fn pick_ab_test(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
     let mut wizard = wiz.wrap(ctx);
     let load_existing = "Load existing A/B test";
     let create_new = "Create new A/B test";
-    let map_name = ui.primary.map.get_name().to_string();
     let ab_test = if wizard
         .choose_string("What A/B test to manage?", vec![load_existing, create_new])?
         == load_existing
     {
         wizard
-            .choose_something_no_keys::<ABTest>(
-                "Load which A/B test?",
-                Box::new(move || abstutil::load_all_objects(abstutil::AB_TESTS, &map_name)),
-            )?
+            .choose_something_no_keys("Load which A/B test?", || {
+                abstutil::load_all_objects(abstutil::AB_TESTS, ui.primary.map.get_name())
+            })?
             .1
     } else {
         let test_name = wizard.input_string("Name the A/B test")?;
+        let map_name = ui.primary.map.get_name();
         let t = ABTest {
             test_name,
-            map_name: map_name.clone(),
-            scenario_name: choose_scenario(map_name.clone(), &mut wizard, "What scenario to run?")?,
+            map_name: map_name.to_string(),
+            scenario_name: choose_scenario(map_name, &mut wizard, "What scenario to run?")?,
             edits1_name: choose_edits(
-                map_name.clone(),
+                map_name,
                 &mut wizard,
                 "For the 1st run, what map edits to use?",
             )?,
             edits2_name: choose_edits(
-                map_name.clone(),
+                map_name,
                 &mut wizard,
                 "For the 2nd run, what map edits to use?",
             )?,
@@ -232,39 +231,23 @@ fn launch_savestate(test: &ABTest, ss_path: String, ui: &mut UI, ctx: &mut Event
     )
 }
 
-fn choose_scenario(map_name: String, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
-    wizard
-        .choose_something_no_keys::<String>(
-            query,
-            Box::new(move || abstutil::list_all_objects(abstutil::SCENARIOS, &map_name)),
-        )
-        .map(|(n, _)| n)
+fn choose_scenario(map_name: &str, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
+    wizard.choose_actual_string(query, || {
+        abstutil::list_all_objects(abstutil::SCENARIOS, map_name)
+    })
 }
 
-fn choose_edits(map_name: String, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
-    wizard
-        .choose_something_no_keys::<String>(
-            query,
-            Box::new(move || {
-                let mut list = abstutil::list_all_objects("edits", &map_name);
-                list.push(("no_edits".to_string(), "no_edits".to_string()));
-                list
-            }),
-        )
-        .map(|(n, _)| n)
+fn choose_edits(map_name: &str, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
+    wizard.choose_actual_string(query, || {
+        let mut list = abstutil::list_all_objects("edits", map_name);
+        list.push("no_edits".to_string());
+        list
+    })
 }
 
 fn pick_savestate(test: &ABTest, wizard: &mut WrappedWizard) -> Option<String> {
     let path = abstutil::path1(&test.map_name, abstutil::AB_TEST_SAVES, &test.test_name);
-    wizard
-        .choose_something_no_keys::<()>(
-            "Load which savestate?",
-            Box::new(move || {
-                abstutil::list_dir(std::path::Path::new(&path))
-                    .into_iter()
-                    .map(|f| (f, ()))
-                    .collect()
-            }),
-        )
-        .map(|(f, _)| f)
+    wizard.choose_actual_string("Load which savestate?", || {
+        abstutil::list_dir(std::path::Path::new(&path))
+    })
 }

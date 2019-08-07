@@ -105,38 +105,32 @@ impl State for Scoreboard {
 fn browse_trips(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
     let mut wizard = wiz.wrap(ctx);
     let mode = wizard
-        .choose_something_no_keys::<TripMode>(
-            "Browse which trips?",
-            Box::new(|| {
-                vec![
-                    ("walk".to_string(), TripMode::Walk),
-                    ("bike".to_string(), TripMode::Bike),
-                    ("transit".to_string(), TripMode::Transit),
-                    ("drive".to_string(), TripMode::Drive),
-                ]
-            }),
-        )?
+        .choose_something_no_keys("Browse which trips?", || {
+            vec![
+                ("walk".to_string(), TripMode::Walk),
+                ("bike".to_string(), TripMode::Bike),
+                ("transit".to_string(), TripMode::Transit),
+                ("drive".to_string(), TripMode::Drive),
+            ]
+        })?
         .1;
-    // TODO Ewwww. Can't do this inside choices_generator because trips isn't &'a static.
-    let trips = CompareTrips::new(
-        ui.primary.sim.get_finished_trips(),
-        ui.secondary.as_ref().unwrap().sim.get_finished_trips(),
-    );
-    let mut filtered: Vec<&(TripID, TripMode, Duration, Duration)> = trips
-        .finished_trips
-        .iter()
-        .filter(|(_, m, t1, t2)| *m == mode && *t1 != *t2)
-        .collect();
-    filtered.sort_by_key(|(_, _, t1, t2)| *t1 - *t2);
-    filtered.reverse();
-    let choices: Vec<(String, TripID)> = filtered
-        .into_iter()
-        .map(|(id, _, t1, t2)| (format!("{} taking {} vs {}", id, t1, t2), *id))
-        .collect();
-    wizard.choose_something_no_keys::<TripID>(
-        "Examine which trip?",
-        Box::new(move || choices.clone()),
-    )?;
+    wizard.choose_something_no_keys("Examine which trip?", || {
+        let trips = CompareTrips::new(
+            ui.primary.sim.get_finished_trips(),
+            ui.secondary.as_ref().unwrap().sim.get_finished_trips(),
+        );
+        let mut filtered: Vec<&(TripID, TripMode, Duration, Duration)> = trips
+            .finished_trips
+            .iter()
+            .filter(|(_, m, t1, t2)| *m == mode && *t1 != *t2)
+            .collect();
+        filtered.sort_by_key(|(_, _, t1, t2)| *t1 - *t2);
+        filtered.reverse();
+        filtered
+            .into_iter()
+            .map(|(id, _, t1, t2)| (format!("{} taking {} vs {}", id, t1, t2), *id))
+            .collect()
+    })?;
     // TODO show more details...
     Some(Transition::Pop)
 }

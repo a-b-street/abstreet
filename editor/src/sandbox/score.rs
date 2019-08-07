@@ -68,17 +68,14 @@ impl State for Scoreboard {
 
 fn browse_trips(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
     let mut wizard = wiz.wrap(ctx);
-    let (_, mode) = wizard.choose_something_no_keys::<TripMode>(
-        "Browse which trips?",
-        Box::new(|| {
-            vec![
-                ("walk".to_string(), TripMode::Walk),
-                ("bike".to_string(), TripMode::Bike),
-                ("transit".to_string(), TripMode::Transit),
-                ("drive".to_string(), TripMode::Drive),
-            ]
-        }),
-    )?;
+    let (_, mode) = wizard.choose_something_no_keys("Browse which trips?", || {
+        vec![
+            ("walk".to_string(), TripMode::Walk),
+            ("bike".to_string(), TripMode::Bike),
+            ("transit".to_string(), TripMode::Transit),
+            ("drive".to_string(), TripMode::Drive),
+        ]
+    })?;
     wizard.new_choose_something("Examine which trip?", || {
         let trips = ui.primary.sim.get_finished_trips();
         let mut filtered: Vec<&(TripID, TripMode, Duration)> = trips
