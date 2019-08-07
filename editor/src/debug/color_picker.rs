@@ -1,8 +1,6 @@
-use crate::game::{State, Transition};
+use crate::game::{State, Transition, WizardState};
 use crate::ui::UI;
-use ezgui::{
-    hotkey, Canvas, Color, EventCtx, GfxCtx, InputResult, Key, ModalMenu, ScreenPt, ScrollingMenu,
-};
+use ezgui::{hotkey, Canvas, Color, EventCtx, GfxCtx, Key, ModalMenu, ScreenPt, Wizard};
 use geom::{Distance, Polygon};
 
 // TODO assumes minimum screen size
@@ -10,41 +8,30 @@ const WIDTH: u32 = 255;
 const HEIGHT: u32 = 255;
 const TILE_DIMS: f64 = 2.0;
 
-pub struct ColorChooser {
-    menu: ScrollingMenu<()>,
-}
-
+pub struct ColorChooser;
 impl ColorChooser {
-    pub fn new(ui: &UI) -> ColorChooser {
-        ColorChooser {
-            menu: ScrollingMenu::new("Pick a color to change", ui.cs.color_names()),
-        }
+    pub fn new() -> Box<State> {
+        WizardState::new(Box::new(pick_color))
     }
 }
 
-impl State for ColorChooser {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        match self.menu.event(&mut ctx.input) {
-            InputResult::Canceled => Transition::Pop,
-            InputResult::StillActive => Transition::Keep,
-            InputResult::Done(name, _) => Transition::Replace(Box::new(ColorChanger {
-                name: name.clone(),
-                original: ui.cs.get_modified(&name),
-                menu: ModalMenu::new(
-                    &format!("Color Picker for {}", name),
-                    vec![vec![
-                        (hotkey(Key::Backspace), "revert"),
-                        (hotkey(Key::Escape), "finalize"),
-                    ]],
-                    ctx,
-                ),
-            })),
-        }
-    }
-
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
-        self.menu.draw(g);
-    }
+fn pick_color(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+    let choices = ui.cs.color_names();
+    let (name, _) = wiz
+        .wrap(ctx)
+        .choose_something_no_keys::<()>("Change which color?", Box::new(move || choices.clone()))?;
+    Some(Transition::Replace(Box::new(ColorChanger {
+        name: name.clone(),
+        original: ui.cs.get_modified(&name),
+        menu: ModalMenu::new(
+            &format!("Color Picker for {}", name),
+            vec![vec![
+                (hotkey(Key::Backspace), "revert"),
+                (hotkey(Key::Escape), "finalize"),
+            ]],
+            ctx,
+        ),
+    })))
 }
 
 struct ColorChanger {

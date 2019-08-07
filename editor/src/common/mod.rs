@@ -50,7 +50,7 @@ impl CommonState {
         menu: &mut ModalMenu,
     ) -> Option<Transition> {
         if menu.action("warp") {
-            return Some(Transition::Push(Box::new(warp::EnteringWarp::new())));
+            return Some(Transition::Push(warp::EnteringWarp::new()));
         }
         if menu.action("navigate") {
             return Some(Transition::Push(Box::new(navigate::Navigator::new(ui))));

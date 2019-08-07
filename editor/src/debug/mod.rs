@@ -9,7 +9,7 @@ mod routes;
 
 use crate::common::CommonState;
 use crate::edit::EditMode;
-use crate::game::{State, Transition};
+use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::sandbox::SandboxMode;
@@ -18,8 +18,8 @@ use abstutil::wraparound_get;
 use abstutil::Timer;
 use clipping::CPolygon;
 use ezgui::{
-    hotkey, lctrl, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, InputResult, Key,
-    ModalMenu, Text, TextBox,
+    hotkey, lctrl, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, ModalMenu,
+    Text, Wizard,
 };
 use geom::{Distance, PolyLine, Polygon, Pt2D};
 use map_model::{IntersectionID, Map, RoadID};
@@ -266,11 +266,9 @@ impl State for DebugMode {
                 self.search_results = None;
             }
         } else if self.menu.action("search OSM metadata") {
-            return Transition::Push(Box::new(SearchOSM {
-                entry: TextBox::new("Search for what?", None),
-            }));
+            return Transition::Push(WizardState::new(Box::new(search_osm)));
         } else if self.menu.action("configure colors") {
-            return Transition::Push(Box::new(color_picker::ColorChooser::new(ui)));
+            return Transition::Push(color_picker::ColorChooser::new());
         }
 
         if let Some(explorer) = bus_explorer::BusRouteExplorer::new(ctx, ui) {
@@ -535,60 +533,45 @@ fn intersection_many(polys: &Vec<Polygon>) -> Option<Polygon> {
     Some(cpoly_to_poly(result.points()))
 }
 
-struct SearchOSM {
-    entry: TextBox,
-}
+fn search_osm(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+    let filter = wiz.wrap(ctx).input_string("Search for what?")?;
+    let mut ids = HashSet::new();
+    let mut batch = GeomBatch::new();
 
-impl State for SearchOSM {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        match self.entry.event(&mut ctx.input) {
-            InputResult::Canceled => Transition::Pop,
-            InputResult::Done(filter, _) => {
-                let mut ids = HashSet::new();
-                let mut batch = GeomBatch::new();
-
-                let map = &ui.primary.map;
-                let color = ui.cs.get_def("search result", Color::RED);
-                for r in map.all_roads() {
-                    if r.osm_tags
-                        .iter()
-                        .any(|(k, v)| format!("{} = {}", k, v).contains(&filter))
-                        || format!("{}", r.osm_way_id).contains(&filter)
-                    {
-                        for l in r.all_lanes() {
-                            ids.insert(ID::Lane(l));
-                        }
-                        batch.push(color, r.get_thick_polygon().unwrap());
-                    }
-                }
-                for b in map.all_buildings() {
-                    if b.osm_tags
-                        .iter()
-                        .any(|(k, v)| format!("{} = {}", k, v).contains(&filter))
-                        || format!("{}", b.osm_way_id).contains(&filter)
-                    {
-                        ids.insert(ID::Building(b.id));
-                        batch.push(color, b.polygon.clone());
-                    }
-                }
-
-                let results = SearchResults {
-                    query: filter,
-                    ids,
-                    unzoomed: ctx.prerender.upload(batch),
-                };
-
-                Transition::PopWithData(Box::new(|state, _, _| {
-                    state.downcast_mut::<DebugMode>().unwrap().search_results = Some(results);
-                }))
+    let map = &ui.primary.map;
+    let color = ui.cs.get_def("search result", Color::RED);
+    for r in map.all_roads() {
+        if r.osm_tags
+            .iter()
+            .any(|(k, v)| format!("{} = {}", k, v).contains(&filter))
+            || format!("{}", r.osm_way_id).contains(&filter)
+        {
+            for l in r.all_lanes() {
+                ids.insert(ID::Lane(l));
             }
-            InputResult::StillActive => Transition::Keep,
+            batch.push(color, r.get_thick_polygon().unwrap());
+        }
+    }
+    for b in map.all_buildings() {
+        if b.osm_tags
+            .iter()
+            .any(|(k, v)| format!("{} = {}", k, v).contains(&filter))
+            || format!("{}", b.osm_way_id).contains(&filter)
+        {
+            ids.insert(ID::Building(b.id));
+            batch.push(color, b.polygon.clone());
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
-        self.entry.draw(g);
-    }
+    let results = SearchResults {
+        query: filter,
+        ids,
+        unzoomed: ctx.prerender.upload(batch),
+    };
+
+    Some(Transition::PopWithData(Box::new(|state, _, _| {
+        state.downcast_mut::<DebugMode>().unwrap().search_results = Some(results);
+    })))
 }
 
 struct SearchResults {

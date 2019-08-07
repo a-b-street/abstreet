@@ -1,48 +1,35 @@
-use crate::game::{State, Transition};
+use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::ui::{PerMapUI, UI};
-use ezgui::{EventCtx, EventLoopMode, GfxCtx, InputResult, TextBox, Warper};
+use ezgui::{EventCtx, EventLoopMode, GfxCtx, Warper, Wizard};
 use geom::Pt2D;
 use map_model::{raw_data, AreaID, BuildingID, IntersectionID, LaneID, RoadID};
 use sim::{PedestrianID, TripID};
 use std::usize;
 
-pub struct EnteringWarp {
-    tb: TextBox,
-}
-
+pub struct EnteringWarp;
 impl EnteringWarp {
-    pub fn new() -> EnteringWarp {
-        EnteringWarp {
-            tb: TextBox::new("Warp to what?", None),
-        }
+    pub fn new() -> Box<State> {
+        WizardState::new(Box::new(warp_to))
     }
 }
 
-impl State for EnteringWarp {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        match self.tb.event(ctx.input) {
-            InputResult::Canceled => Transition::Pop,
-            InputResult::Done(to, _) => {
-                if let Some((id, pt)) = warp_point(to, &ui.primary) {
-                    Transition::ReplaceWithMode(
-                        Box::new(Warping {
-                            warper: Warper::new(ctx, pt, None),
-                            id: Some(id),
-                        }),
-                        EventLoopMode::Animation,
-                    )
-                } else {
-                    Transition::Pop
-                }
-            }
-            InputResult::StillActive => Transition::Keep,
-        }
+fn warp_to(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+    let mut wizard = wiz.wrap(ctx);
+    let to = wizard.input_string("Warp to what?")?;
+    if let Some((id, pt)) = warp_point(&to, &ui.primary) {
+        return Some(Transition::ReplaceWithMode(
+            Box::new(Warping {
+                warper: Warper::new(ctx, pt, None),
+                id: Some(id),
+            }),
+            EventLoopMode::Animation,
+        ));
     }
-
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
-        self.tb.draw(g);
+    if wizard.acknowledge("Bad warp ID", vec![&format!("{} isn't a valid ID", to)]) {
+        return Some(Transition::Pop);
     }
+    None
 }
 
 pub struct Warping {
@@ -63,7 +50,7 @@ impl State for Warping {
     fn draw(&self, _: &mut GfxCtx, _: &UI) {}
 }
 
-fn warp_point(line: String, primary: &PerMapUI) -> Option<(ID, Pt2D)> {
+fn warp_point(line: &str, primary: &PerMapUI) -> Option<(ID, Pt2D)> {
     if line.is_empty() {
         return None;
     }

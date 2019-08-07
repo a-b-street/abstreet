@@ -1,7 +1,7 @@
+use crate::widgets::text_box::TextBox;
 use crate::widgets::{Menu, Position};
 use crate::{
-    EventCtx, GfxCtx, InputResult, LogScroller, MultiKey, SliderWithTextBox, Text, TextBox,
-    UserInput,
+    EventCtx, GfxCtx, InputResult, LogScroller, MultiKey, SliderWithTextBox, Text, UserInput,
 };
 use abstutil::Cloneable;
 use geom::Duration;
