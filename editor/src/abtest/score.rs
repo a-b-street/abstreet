@@ -1,9 +1,8 @@
-use crate::game::{State, Transition};
+use crate::game::{State, Transition, WizardState};
 use crate::ui::PerMapUI;
 use crate::ui::UI;
 use ezgui::{
     hotkey, EventCtx, GfxCtx, HorizontalAlignment, Key, ModalMenu, Text, VerticalAlignment, Wizard,
-    WrappedWizard,
 };
 use geom::Duration;
 use itertools::Itertools;
@@ -83,19 +82,13 @@ impl Scoreboard {
 }
 
 impl State for Scoreboard {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
         self.menu.handle_event(ctx, None);
         if self.menu.action("quit") {
             return Transition::Pop;
         }
         if self.menu.action("browse trips") {
-            return Transition::Push(Box::new(BrowseTrips {
-                trips: CompareTrips::new(
-                    ui.primary.sim.get_finished_trips(),
-                    ui.secondary.as_ref().unwrap().sim.get_finished_trips(),
-                ),
-                wizard: Wizard::new(),
-            }));
+            return Transition::Push(WizardState::new(Box::new(browse_trips)));
         }
         Transition::Keep
     }
@@ -109,28 +102,8 @@ impl State for Scoreboard {
     }
 }
 
-struct BrowseTrips {
-    trips: CompareTrips,
-    wizard: Wizard,
-}
-
-impl State for BrowseTrips {
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
-        if pick_trip(&self.trips, &mut self.wizard.wrap(ctx)).is_some() {
-            // TODO show more details...
-            return Transition::Pop;
-        } else if self.wizard.aborted() {
-            return Transition::Pop;
-        }
-        Transition::Keep
-    }
-
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
-        self.wizard.draw(g);
-    }
-}
-
-fn pick_trip(trips: &CompareTrips, wizard: &mut WrappedWizard) -> Option<TripID> {
+fn browse_trips(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+    let mut wizard = wiz.wrap(ctx);
     let mode = wizard
         .choose_something_no_keys::<TripMode>(
             "Browse which trips?",
@@ -145,6 +118,10 @@ fn pick_trip(trips: &CompareTrips, wizard: &mut WrappedWizard) -> Option<TripID>
         )?
         .1;
     // TODO Ewwww. Can't do this inside choices_generator because trips isn't &'a static.
+    let trips = CompareTrips::new(
+        ui.primary.sim.get_finished_trips(),
+        ui.secondary.as_ref().unwrap().sim.get_finished_trips(),
+    );
     let mut filtered: Vec<&(TripID, TripMode, Duration, Duration)> = trips
         .finished_trips
         .iter()
@@ -156,12 +133,12 @@ fn pick_trip(trips: &CompareTrips, wizard: &mut WrappedWizard) -> Option<TripID>
         .into_iter()
         .map(|(id, _, t1, t2)| (format!("{} taking {} vs {}", id, t1, t2), *id))
         .collect();
-    wizard
-        .choose_something_no_keys::<TripID>(
-            "Examine which trip?",
-            Box::new(move || choices.clone()),
-        )
-        .map(|(_, id)| id)
+    wizard.choose_something_no_keys::<TripID>(
+        "Examine which trip?",
+        Box::new(move || choices.clone()),
+    )?;
+    // TODO show more details...
+    Some(Transition::Pop)
 }
 
 pub struct CompareTrips {

@@ -7,11 +7,9 @@ use crate::common::{
 };
 use crate::debug::DebugMode;
 use crate::edit::EditMode;
-use crate::game::{State, Transition};
+use crate::game::{State, Transition, WizardState};
 use crate::ui::{ShowEverything, UI};
-use ezgui::{
-    hotkey, lctrl, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard, WrappedWizard,
-};
+use ezgui::{hotkey, lctrl, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard};
 use geom::Duration;
 use sim::Sim;
 
@@ -175,10 +173,7 @@ impl State for SandboxMode {
                 });
             }
             if self.menu.action("pick a savestate to load") {
-                return Transition::Push(Box::new(LoadSavestate {
-                    path: ui.primary.sim.save_dir(),
-                    wizard: Wizard::new(),
-                }));
+                return Transition::Push(WizardState::new(Box::new(load_savestate)));
             }
 
             if let Some(t) = time_controls(ctx, ui, &mut self.menu) {
@@ -213,41 +208,22 @@ impl State for SandboxMode {
     }
 }
 
-struct LoadSavestate {
-    path: String,
-    wizard: Wizard,
-}
+fn load_savestate(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+    let path = ui.primary.sim.save_dir();
 
-impl State for LoadSavestate {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        if let Some(ss) = pick_savestate(&self.path, &mut self.wizard.wrap(ctx)) {
-            ctx.loading_screen("load savestate", |ctx, mut timer| {
-                ui.primary.sim = Sim::load_savestate(ss, &mut timer).unwrap();
-                ui.recalculate_current_selection(ctx);
-            });
-            return Transition::Pop;
-        } else if self.wizard.aborted() {
-            return Transition::Pop;
-        }
-        Transition::Keep
-    }
+    let (ss, _) = wiz.wrap(ctx).choose_something_no_keys::<()>(
+        "Load which savestate?",
+        Box::new(move || {
+            abstutil::list_dir(std::path::Path::new(&path))
+                .into_iter()
+                .map(|f| (f, ()))
+                .collect()
+        }),
+    )?;
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
-        self.wizard.draw(g);
-    }
-}
-
-fn pick_savestate(path: &str, wizard: &mut WrappedWizard) -> Option<String> {
-    let path_copy = path.to_string();
-    wizard
-        .choose_something_no_keys::<()>(
-            "Load which savestate?",
-            Box::new(move || {
-                abstutil::list_dir(std::path::Path::new(&path_copy))
-                    .into_iter()
-                    .map(|f| (f, ()))
-                    .collect()
-            }),
-        )
-        .map(|(f, _)| f)
+    ctx.loading_screen("load savestate", |ctx, mut timer| {
+        ui.primary.sim = Sim::load_savestate(ss, &mut timer).expect("Can't load savestate");
+        ui.recalculate_current_selection(ctx);
+    });
+    Some(Transition::Pop)
 }

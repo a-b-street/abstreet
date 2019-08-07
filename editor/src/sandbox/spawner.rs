@@ -1,14 +1,13 @@
 use crate::common::CommonState;
-use crate::game::{State, Transition};
+use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::render::DrawOptions;
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
-use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu, Wizard, WrappedWizard};
+use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu, Wizard};
 use geom::{Duration, PolyLine};
 use map_model::{
-    BuildingID, IntersectionID, IntersectionType, LaneType, Map, PathRequest, Position,
-    LANE_THICKNESS,
+    BuildingID, IntersectionID, IntersectionType, LaneType, PathRequest, Position, LANE_THICKNESS,
 };
 use rand::seq::SliceRandom;
 use rand::Rng;
@@ -94,9 +93,7 @@ impl AgentSpawner {
             }
             None => {
                 if ui.primary.sim.is_empty() && sandbox_menu.action("start a scenario") {
-                    return Some(Box::new(InstantiateScenario {
-                        wizard: Wizard::new(),
-                    }));
+                    return Some(WizardState::new(Box::new(instantiate_scenario)));
                 }
             }
             _ => {}
@@ -358,51 +355,17 @@ fn spawn_agents_around(i: IntersectionID, ui: &mut UI, ctx: &EventCtx) {
     ui.recalculate_current_selection(ctx);
 }
 
-// TODO Dedupe with code from mission/mod.rs.
-struct InstantiateScenario {
-    wizard: Wizard,
-}
-
-impl State for InstantiateScenario {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        if let Some(scenario) = pick_scenario(
-            ui.primary.current_flags.num_agents,
-            &ui.primary.map,
-            &mut self.wizard.wrap(ctx),
-        ) {
-            ctx.loading_screen("instantiate scenario", |_, timer| {
-                scenario.instantiate(
-                    &mut ui.primary.sim,
-                    &ui.primary.map,
-                    &mut ui.primary.current_flags.sim_flags.make_rng(),
-                    timer,
-                );
-                ui.primary.sim.step(&ui.primary.map, SMALL_DT);
-            });
-            return Transition::Pop;
-        } else if self.wizard.aborted() {
-            return Transition::Pop;
-        }
-        Transition::Keep
-    }
-
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
-        self.wizard.draw(g);
-    }
-}
-
-fn pick_scenario(
-    num_agents: Option<usize>,
-    map: &Map,
-    wizard: &mut WrappedWizard,
-) -> Option<Scenario> {
+fn instantiate_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+    let num_agents = ui.primary.current_flags.num_agents;
     let builtin = if let Some(n) = num_agents {
         format!("random scenario with {} agents", n)
     } else {
         "random scenario with some agents".to_string()
     };
+    let map = &ui.primary.map;
     let map_name = map.get_name().to_string();
-    let (_, scenario_name) = wizard.choose_something_no_keys::<String>(
+
+    let (_, scenario_name) = wiz.wrap(ctx).choose_something_no_keys::<String>(
         "Instantiate which scenario?",
         Box::new(move || {
             let mut list = vec![
@@ -413,7 +376,8 @@ fn pick_scenario(
             list
         }),
     )?;
-    Some(if scenario_name == "builtin" {
+
+    let scenario = if scenario_name == "builtin" {
         if let Some(n) = num_agents {
             Scenario::scaled_run(map, n)
         } else {
@@ -427,5 +391,15 @@ fn pick_scenario(
             &mut Timer::throwaway(),
         )
         .unwrap()
-    })
+    };
+    ctx.loading_screen("instantiate scenario", |_, timer| {
+        scenario.instantiate(
+            &mut ui.primary.sim,
+            &ui.primary.map,
+            &mut ui.primary.current_flags.sim_flags.make_rng(),
+            timer,
+        );
+        ui.primary.sim.step(&ui.primary.map, SMALL_DT);
+    });
+    Some(Transition::Pop)
 }

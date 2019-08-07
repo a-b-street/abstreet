@@ -2,7 +2,7 @@ use crate::render::DrawOptions;
 use crate::sandbox::SandboxMode;
 use crate::splash_screen::SplashScreen;
 use crate::ui::{Flags, ShowEverything, UI};
-use ezgui::{Canvas, EventCtx, EventLoopMode, GfxCtx, GUI};
+use ezgui::{Canvas, EventCtx, EventLoopMode, GfxCtx, Wizard, GUI};
 
 // This is the top-level of the GUI logic. This module should just manage interactions between the
 // top-level game states.
@@ -194,4 +194,39 @@ pub enum Transition {
     PopWithMode(EventLoopMode),
     PushWithMode(Box<State>, EventLoopMode),
     ReplaceWithMode(Box<State>, EventLoopMode),
+}
+
+// TODO Maybe let callers stash expensive data computed once here, and let the cb borrow it.
+// Use cases: both BrowseTrips's
+pub struct WizardState {
+    wizard: Wizard,
+    // Returning None means stay in this WizardState
+    cb: Box<Fn(&mut Wizard, &mut EventCtx, &mut UI) -> Option<Transition>>,
+}
+
+impl WizardState {
+    pub fn new(
+        cb: Box<Fn(&mut Wizard, &mut EventCtx, &mut UI) -> Option<Transition>>,
+    ) -> Box<State> {
+        Box::new(WizardState {
+            wizard: Wizard::new(),
+            cb,
+        })
+    }
+}
+
+impl State for WizardState {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+        ctx.canvas.handle_event(ctx.input);
+        if let Some(t) = (self.cb)(&mut self.wizard, ctx, ui) {
+            return t;
+        } else if self.wizard.aborted() {
+            return Transition::Pop;
+        }
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        self.wizard.draw(g);
+    }
 }

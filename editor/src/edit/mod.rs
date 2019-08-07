@@ -3,7 +3,7 @@ mod traffic_signals;
 
 use crate::common::CommonState;
 use crate::debug::DebugMode;
-use crate::game::{State, Transition};
+use crate::game::{State, Transition, WizardState};
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{
     DrawCtx, DrawIntersection, DrawLane, DrawMap, DrawOptions, DrawTurn, Renderable,
@@ -99,13 +99,9 @@ impl State for EditMode {
 
         // TODO Only if current edits are unsaved
         if self.menu.action("save edits") {
-            return Transition::Push(Box::new(Saving {
-                wizard: Wizard::new(),
-            }));
+            return Transition::Push(WizardState::new(Box::new(save_edits)));
         } else if self.menu.action("load different edits") {
-            return Transition::Push(Box::new(Loading {
-                wizard: Wizard::new(),
-            }));
+            return Transition::Push(WizardState::new(Box::new(load_edits)));
         }
 
         if let Some(ID::Lane(id)) = ui.primary.current_selection {
@@ -292,79 +288,10 @@ impl State for EditMode {
     }
 }
 
-struct Saving {
-    wizard: Wizard,
-}
+fn save_edits(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+    let map = &mut ui.primary.map;
+    let mut wizard = wiz.wrap(ctx);
 
-impl State for Saving {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        ctx.canvas.handle_event(ctx.input);
-        if save_edits(self.wizard.wrap(ctx), &mut ui.primary.map).is_some() || self.wizard.aborted()
-        {
-            Transition::Pop
-        } else {
-            Transition::Keep
-        }
-    }
-
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
-        // TODO Still draw the diffs, yo
-        self.wizard.draw(g);
-    }
-}
-
-struct Loading {
-    wizard: Wizard,
-}
-
-impl State for Loading {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        ctx.canvas.handle_event(ctx.input);
-        if let Some(new_edits) = load_edits(
-            &ui.primary.map,
-            &mut self.wizard.wrap(ctx),
-            "Load which map edits?",
-        ) {
-            apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
-            Transition::Pop
-        } else if self.wizard.aborted() {
-            Transition::Pop
-        } else {
-            Transition::Keep
-        }
-    }
-
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
-        // TODO Still draw the diffs, yo
-        self.wizard.draw(g);
-    }
-}
-
-struct BulkEditLanes {
-    road: RoadID,
-    wizard: Wizard,
-}
-
-impl State for BulkEditLanes {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        ctx.canvas.handle_event(ctx.input);
-        if let Some(edits) = bulk_edit(self.road, &mut self.wizard.wrap(ctx), &ui.primary.map) {
-            apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
-            Transition::Pop
-        } else if self.wizard.aborted() {
-            Transition::Pop
-        } else {
-            Transition::Keep
-        }
-    }
-
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
-        // TODO Still draw the diffs, yo
-        self.wizard.draw(g);
-    }
-}
-
-fn save_edits(mut wizard: WrappedWizard, map: &mut Map) -> Option<()> {
     let rename = if map.get_edits().edits_name == "no_edits" {
         Some(wizard.input_string("Name these map edits")?)
     } else {
@@ -386,7 +313,25 @@ fn save_edits(mut wizard: WrappedWizard, map: &mut Map) -> Option<()> {
         }
         map.get_edits().save();
     }
-    Some(())
+    Some(Transition::Pop)
+}
+
+fn load_edits(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+    let map = &mut ui.primary.map;
+    let mut wizard = wiz.wrap(ctx);
+
+    // TODO Exclude current
+    let map_name = map.get_name().to_string();
+    let (_, new_edits) = wizard.choose_something_no_keys::<MapEdits>(
+        "Load which map edits?",
+        Box::new(move || {
+            let mut list = abstutil::load_all_objects("edits", &map_name);
+            list.push(("no_edits".to_string(), MapEdits::new(map_name.clone())));
+            list
+        }),
+    )?;
+    apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
+    Some(Transition::Pop)
 }
 
 // For lane editing
@@ -532,19 +477,28 @@ pub fn apply_map_edits(
     bundle.map.simplify_edits(&mut timer);
 }
 
-fn load_edits(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<MapEdits> {
-    // TODO Exclude current?
-    let map_name = map.get_name().to_string();
-    wizard
-        .choose_something_no_keys::<MapEdits>(
-            query,
-            Box::new(move || {
-                let mut list = abstutil::load_all_objects("edits", &map_name);
-                list.push(("no_edits".to_string(), MapEdits::new(map_name.clone())));
-                list
-            }),
-        )
-        .map(|(_, e)| e)
+struct BulkEditLanes {
+    road: RoadID,
+    wizard: Wizard,
+}
+
+impl State for BulkEditLanes {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+        ctx.canvas.handle_event(ctx.input);
+        if let Some(edits) = bulk_edit(self.road, &mut self.wizard.wrap(ctx), &ui.primary.map) {
+            apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
+            Transition::Pop
+        } else if self.wizard.aborted() {
+            Transition::Pop
+        } else {
+            Transition::Keep
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        // TODO Still draw the diffs, yo
+        self.wizard.draw(g);
+    }
 }
 
 fn bulk_edit(r: RoadID, wizard: &mut WrappedWizard, map: &Map) -> Option<MapEdits> {
