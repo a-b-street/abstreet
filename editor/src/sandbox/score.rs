@@ -79,24 +79,21 @@ fn browse_trips(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
             ]
         }),
     )?;
-    // TODO Ewwww. Can't do this inside choices_generator because trips isn't &'a static.
-    let trips = ui.primary.sim.get_finished_trips();
-    let mut filtered: Vec<&(TripID, TripMode, Duration)> = trips
-        .finished_trips
-        .iter()
-        .filter(|(_, m, _)| *m == mode)
-        .collect();
-    filtered.sort_by_key(|(_, _, dt)| *dt);
-    filtered.reverse();
-    let choices: Vec<(String, TripID)> = filtered
-        .into_iter()
-        // TODO Show percentile for time
-        .map(|(id, _, dt)| (format!("{} taking {}", id, dt), *id))
-        .collect();
-    wizard.choose_something_no_keys::<TripID>(
-        "Examine which trip?",
-        Box::new(move || choices.clone()),
-    )?;
+    wizard.new_choose_something("Examine which trip?", || {
+        let trips = ui.primary.sim.get_finished_trips();
+        let mut filtered: Vec<&(TripID, TripMode, Duration)> = trips
+            .finished_trips
+            .iter()
+            .filter(|(_, m, _)| *m == mode)
+            .collect();
+        filtered.sort_by_key(|(_, _, dt)| *dt);
+        filtered.reverse();
+        filtered
+            .into_iter()
+            // TODO Show percentile for time
+            .map(|(id, _, dt)| (None, format!("{} taking {}", id, dt), *id))
+            .collect()
+    })?;
     // TODO show trip departure, where it started and ended
     Some(Transition::Pop)
 }
