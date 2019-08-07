@@ -1,65 +1,32 @@
 use crate::common::warp::Warping;
-use crate::game::{State, Transition};
+use crate::game::{State, Transition, WizardState};
 use crate::ui::UI;
 use abstutil::Cloneable;
-use ezgui::{hotkey, EventCtx, EventLoopMode, GfxCtx, Key, Warper, Wizard, WrappedWizard};
+use ezgui::{hotkey, EventCtx, EventLoopMode, Key, Warper, Wizard};
 use geom::Pt2D;
 use serde_derive::{Deserialize, Serialize};
 
-pub struct ChoosingShortcut {
-    wizard: Wizard,
-    shortcuts: Vec<Shortcut>,
+#[derive(Clone, Serialize, Deserialize)]
+struct Shortcut {
+    name: String,
+    center: Pt2D,
+    cam_zoom: f64,
 }
 
+impl Cloneable for Shortcut {}
+
+pub struct ChoosingShortcut;
 impl ChoosingShortcut {
-    pub fn new(ui: &UI) -> ChoosingShortcut {
-        ChoosingShortcut {
-            wizard: Wizard::new(),
-            shortcuts: abstutil::load_all_objects::<Shortcut>(
-                abstutil::SHORTCUTS,
-                ui.primary.map.get_name(),
-            )
-            .into_iter()
-            .map(|(_, s)| s)
-            .collect(),
-        }
+    pub fn new() -> Box<State> {
+        WizardState::new(Box::new(choose_shortcut))
     }
 }
 
-impl State for ChoosingShortcut {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        // TODO Ahh expensive
-        let mut shortcuts = vec![Shortcut {
-            name: "Create a new shortcut here".to_string(),
-            center: ctx.canvas.center_to_map_pt(),
-            cam_zoom: ctx.canvas.cam_zoom,
-        }];
-        shortcuts.extend(self.shortcuts.clone());
+fn choose_shortcut(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+    let center = ctx.canvas.center_to_map_pt();
+    let cam_zoom = ctx.canvas.cam_zoom;
 
-        if let Some(s) = choose_shortcut(&mut self.wizard.wrap(ctx), shortcuts, ui) {
-            return Transition::ReplaceWithMode(
-                Box::new(Warping {
-                    warper: Warper::new(ctx, s.center, Some(s.cam_zoom)),
-                    id: None,
-                }),
-                EventLoopMode::Animation,
-            );
-        } else if self.wizard.aborted() {
-            return Transition::Pop;
-        }
-        Transition::Keep
-    }
-
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
-        self.wizard.draw(g);
-    }
-}
-
-fn choose_shortcut(
-    wizard: &mut WrappedWizard,
-    shortcuts: Vec<Shortcut>,
-    ui: &UI,
-) -> Option<Shortcut> {
+    let mut wizard = wiz.wrap(ctx);
     let (_, mut s) = wizard.choose_something_hotkeys("Jump to which shortcut?", || {
         // TODO Handle >9
         // TODO Allow deleting
@@ -75,6 +42,16 @@ fn choose_shortcut(
             Key::Num9,
         ];
 
+        let mut shortcuts = vec![Shortcut {
+            name: "Create a new shortcut here".to_string(),
+            center,
+            cam_zoom,
+        }];
+        shortcuts.extend(
+            abstutil::load_all_objects::<Shortcut>(abstutil::SHORTCUTS, ui.primary.map.get_name())
+                .into_iter()
+                .map(|(_, s)| s),
+        );
         shortcuts
             .into_iter()
             .enumerate()
@@ -93,17 +70,14 @@ fn choose_shortcut(
         s.name = name;
         abstutil::save_json_object(abstutil::SHORTCUTS, ui.primary.map.get_name(), &s.name, &s);
         wizard.abort();
-        None
+        Some(Transition::Pop)
     } else {
-        Some(s)
+        Some(Transition::ReplaceWithMode(
+            Box::new(Warping {
+                warper: Warper::new(ctx, s.center, Some(s.cam_zoom)),
+                id: None,
+            }),
+            EventLoopMode::Animation,
+        ))
     }
 }
-
-#[derive(Clone, Serialize, Deserialize)]
-struct Shortcut {
-    name: String,
-    center: Pt2D,
-    cam_zoom: f64,
-}
-
-impl Cloneable for Shortcut {}

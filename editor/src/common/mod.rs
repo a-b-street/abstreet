@@ -56,9 +56,7 @@ impl CommonState {
             return Some(Transition::Push(Box::new(navigate::Navigator::new(ui))));
         }
         if menu.action("shortcuts") {
-            return Some(Transition::Push(Box::new(
-                shortcuts::ChoosingShortcut::new(ui),
-            )));
+            return Some(Transition::Push(shortcuts::ChoosingShortcut::new()));
         }
         // TODO But it's too late to influence the menu's text to say if this is active or not.
         // This kind of belongs in AgentTools, except that can't influence DrawOptions as easily.
