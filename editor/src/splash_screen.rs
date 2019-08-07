@@ -192,7 +192,7 @@ fn splash_screen(
         x if x == tutorial => Some(Transition::Push(Box::new(TutorialMode::new(ctx, ui)))),
         x if x == debug => Some(Transition::Push(Box::new(DebugMode::new(ctx, ui)))),
         x if x == mission => Some(Transition::Push(Box::new(MissionEditMode::new(ctx, ui)))),
-        x if x == abtest => Some(Transition::Push(Box::new(PickABTest::new()))),
+        x if x == abtest => Some(Transition::Push(PickABTest::new())),
         x if x == about => {
             if wizard.acknowledge(
                 "About A/B Street",

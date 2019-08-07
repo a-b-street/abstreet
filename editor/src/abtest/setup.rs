@@ -1,52 +1,71 @@
 use crate::abtest::{ABTestMode, ABTestSavestate};
 use crate::edit::apply_map_edits;
-use crate::game::{State, Transition};
+use crate::game::{State, Transition, WizardState};
 use crate::render::DrawMap;
 use crate::ui::{Flags, PerMapUI, UI};
 use ezgui::{hotkey, EventCtx, GfxCtx, Key, LogScroller, ModalMenu, Wizard, WrappedWizard};
 use geom::Duration;
-use map_model::{Map, MapEdits};
+use map_model::MapEdits;
 use sim::{ABTest, Scenario, SimFlags};
 use std::path::PathBuf;
 
-pub struct PickABTest {
-    wizard: Wizard,
-}
-
+pub struct PickABTest;
 impl PickABTest {
-    pub fn new() -> PickABTest {
-        PickABTest {
-            wizard: Wizard::new(),
-        }
+    pub fn new() -> Box<State> {
+        WizardState::new(Box::new(pick_ab_test))
     }
 }
 
-impl State for PickABTest {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        if let Some(ab_test) = pick_ab_test(&ui.primary.map, self.wizard.wrap(ctx)) {
-            let scroller = LogScroller::new(ab_test.test_name.clone(), ab_test.describe());
-            return Transition::Replace(Box::new(ABTestSetup {
-                menu: ModalMenu::new(
-                    &format!("A/B Test Editor for {}", ab_test.test_name),
-                    vec![vec![
-                        (hotkey(Key::Escape), "quit"),
-                        (hotkey(Key::R), "run A/B test"),
-                        (hotkey(Key::L), "load savestate"),
-                    ]],
-                    ctx,
-                ),
-                ab_test,
-                scroller,
-            }));
-        } else if self.wizard.aborted() {
-            return Transition::Pop;
-        }
-        Transition::Keep
-    }
+fn pick_ab_test(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+    let mut wizard = wiz.wrap(ctx);
+    let load_existing = "Load existing A/B test";
+    let create_new = "Create new A/B test";
+    let map_name = ui.primary.map.get_name().to_string();
+    let ab_test = if wizard
+        .choose_string("What A/B test to manage?", vec![load_existing, create_new])?
+        == load_existing
+    {
+        wizard
+            .choose_something_no_keys::<ABTest>(
+                "Load which A/B test?",
+                Box::new(move || abstutil::load_all_objects(abstutil::AB_TESTS, &map_name)),
+            )?
+            .1
+    } else {
+        let test_name = wizard.input_string("Name the A/B test")?;
+        let t = ABTest {
+            test_name,
+            map_name: map_name.clone(),
+            scenario_name: choose_scenario(map_name.clone(), &mut wizard, "What scenario to run?")?,
+            edits1_name: choose_edits(
+                map_name.clone(),
+                &mut wizard,
+                "For the 1st run, what map edits to use?",
+            )?,
+            edits2_name: choose_edits(
+                map_name.clone(),
+                &mut wizard,
+                "For the 2nd run, what map edits to use?",
+            )?,
+        };
+        t.save();
+        t
+    };
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
-        self.wizard.draw(g);
-    }
+    let scroller = LogScroller::new(ab_test.test_name.clone(), ab_test.describe());
+    Some(Transition::Replace(Box::new(ABTestSetup {
+        menu: ModalMenu::new(
+            &format!("A/B Test Editor for {}", ab_test.test_name),
+            vec![vec![
+                (hotkey(Key::Escape), "quit"),
+                (hotkey(Key::R), "run A/B test"),
+                (hotkey(Key::L), "load savestate"),
+            ]],
+            ctx,
+        ),
+        ab_test,
+        scroller,
+    })))
 }
 
 struct ABTestSetup {
@@ -95,27 +114,6 @@ impl State for LoadSavestate {
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
         self.wizard.draw(g);
-    }
-}
-
-fn pick_ab_test(map: &Map, mut wizard: WrappedWizard) -> Option<ABTest> {
-    let load_existing = "Load existing A/B test";
-    let create_new = "Create new A/B test";
-    if wizard.choose_string("What A/B test to manage?", vec![load_existing, create_new])?
-        == load_existing
-    {
-        load_ab_test(map, &mut wizard, "Load which A/B test?")
-    } else {
-        let test_name = wizard.input_string("Name the A/B test")?;
-        let ab_test = ABTest {
-            test_name,
-            map_name: map.get_name().to_string(),
-            scenario_name: choose_scenario(map, &mut wizard, "What scenario to run?")?,
-            edits1_name: choose_edits(map, &mut wizard, "For the 1st run, what map edits to use?")?,
-            edits2_name: choose_edits(map, &mut wizard, "For the 2nd run, what map edits to use?")?,
-        };
-        ab_test.save();
-        Some(ab_test)
     }
 }
 
@@ -234,8 +232,7 @@ fn launch_savestate(test: &ABTest, ss_path: String, ui: &mut UI, ctx: &mut Event
     )
 }
 
-fn choose_scenario(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
-    let map_name = map.get_name().to_string();
+fn choose_scenario(map_name: String, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
     wizard
         .choose_something_no_keys::<String>(
             query,
@@ -244,8 +241,7 @@ fn choose_scenario(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option
         .map(|(n, _)| n)
 }
 
-fn choose_edits(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
-    let map_name = map.get_name().to_string();
+fn choose_edits(map_name: String, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
     wizard
         .choose_something_no_keys::<String>(
             query,
@@ -256,16 +252,6 @@ fn choose_edits(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<St
             }),
         )
         .map(|(n, _)| n)
-}
-
-fn load_ab_test(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<ABTest> {
-    let map_name = map.get_name().to_string();
-    wizard
-        .choose_something_no_keys::<ABTest>(
-            query,
-            Box::new(move || abstutil::load_all_objects(abstutil::AB_TESTS, &map_name)),
-        )
-        .map(|(_, t)| t)
 }
 
 fn pick_savestate(test: &ABTest, wizard: &mut WrappedWizard) -> Option<String> {

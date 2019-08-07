@@ -6,6 +6,7 @@ use map_model::{Map, NeighborhoodBuilder};
 
 const POINT_RADIUS: Distance = Distance::const_meters(10.0);
 
+// This shouldn't get subsumed by WizardState, since it has such an interesting draw().
 pub struct NeighborhoodPicker {
     wizard: Wizard,
 }

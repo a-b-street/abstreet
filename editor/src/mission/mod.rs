@@ -4,13 +4,12 @@ mod individ_trips;
 mod neighborhood;
 mod scenario;
 
-use crate::game::{State, Transition};
+use crate::game::{State, Transition, WizardState};
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu, Wizard, WrappedWizard};
 use geom::Duration;
-use map_model::Map;
 use popdat::trips_to_scenario;
 use sim::Scenario;
 
@@ -80,19 +79,13 @@ impl State for MissionEditMode {
             });
             return Transition::Replace(Box::new(SandboxMode::new(ctx)));
         } else if self.menu.action("create scenario from PSRC trips") {
-            return Transition::Push(Box::new(TripsToScenario {
-                wizard: Wizard::new(),
-            }));
+            return Transition::Push(WizardState::new(Box::new(convert_trips_to_scenario)));
         } else if self.menu.action("manage neighborhoods") {
             return Transition::Push(Box::new(neighborhood::NeighborhoodPicker::new()));
         } else if self.menu.action("load scenario") {
-            return Transition::Push(Box::new(LoadScenario {
-                wizard: Wizard::new(),
-            }));
+            return Transition::Push(WizardState::new(Box::new(load_scenario)));
         } else if self.menu.action("create new scenario") {
-            return Transition::Push(Box::new(CreateNewScenario {
-                wizard: Wizard::new(),
-            }));
+            return Transition::Push(WizardState::new(Box::new(create_new_scenario)));
         }
         Transition::Keep
     }
@@ -102,79 +95,53 @@ impl State for MissionEditMode {
     }
 }
 
-struct TripsToScenario {
-    wizard: Wizard,
+fn convert_trips_to_scenario(
+    wiz: &mut Wizard,
+    ctx: &mut EventCtx,
+    ui: &mut UI,
+) -> Option<Transition> {
+    let (t1, t2) = pick_time_range(
+        &mut wiz.wrap(ctx),
+        "Include trips departing AFTER when?",
+        "Include trips departing BEFORE when?",
+    )?;
+    ctx.loading_screen("extract PSRC scenario", |_, mut timer| {
+        trips_to_scenario(&ui.primary.map, t1, t2, &mut timer).save();
+    });
+    Some(Transition::Pop)
 }
 
-impl State for TripsToScenario {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        if let Some((t1, t2)) = pick_time_range(
-            &mut self.wizard.wrap(ctx),
-            "Include trips departing AFTER when?",
-            "Include trips departing BEFORE when?",
-        ) {
-            ctx.loading_screen("extract PSRC scenario", |_, mut timer| {
-                trips_to_scenario(&ui.primary.map, t1, t2, &mut timer).save();
-            });
-            return Transition::Pop;
-        } else if self.wizard.aborted() {
-            return Transition::Pop;
-        }
-        Transition::Keep
-    }
-
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
-        self.wizard.draw(g);
-    }
+fn load_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+    let map_name = ui.primary.map.get_name().to_string();
+    let (_, s) = wiz.wrap(ctx).choose_something_no_keys::<String>(
+        "Load which scenario?",
+        Box::new(move || abstutil::list_all_objects(abstutil::SCENARIOS, &map_name)),
+    )?;
+    let scenario = abstutil::read_binary(
+        &abstutil::path1_bin(ui.primary.map.get_name(), abstutil::SCENARIOS, &s),
+        &mut Timer::throwaway(),
+    )
+    .unwrap();
+    Some(Transition::Replace(Box::new(
+        scenario::ScenarioManager::new(scenario, ctx),
+    )))
 }
 
-struct LoadScenario {
-    wizard: Wizard,
-}
-
-impl State for LoadScenario {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        if let Some(scenario) = load_scenario(&ui.primary.map, &mut self.wizard.wrap(ctx)) {
-            return Transition::Replace(Box::new(scenario::ScenarioManager::new(scenario, ctx)));
-        } else if self.wizard.aborted() {
-            return Transition::Pop;
-        }
-        Transition::Keep
-    }
-
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
-        self.wizard.draw(g);
-    }
-}
-
-struct CreateNewScenario {
-    wizard: Wizard,
-}
-
-impl State for CreateNewScenario {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        let mut wrapped = self.wizard.wrap(ctx);
-        if let Some(name) = wrapped.input_string("Name the scenario") {
-            return Transition::Replace(Box::new(scenario::ScenarioManager::new(
-                Scenario {
-                    scenario_name: name,
-                    map_name: ui.primary.map.get_name().to_string(),
-                    seed_parked_cars: Vec::new(),
-                    spawn_over_time: Vec::new(),
-                    border_spawn_over_time: Vec::new(),
-                    individ_trips: Vec::new(),
-                },
-                ctx,
-            )));
-        } else if self.wizard.aborted() {
-            return Transition::Pop;
-        }
-        Transition::Keep
-    }
-
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
-        self.wizard.draw(g);
-    }
+fn create_new_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+    let name = wiz.wrap(ctx).input_string("Name the scenario")?;
+    Some(Transition::Replace(Box::new(
+        scenario::ScenarioManager::new(
+            Scenario {
+                scenario_name: name,
+                map_name: ui.primary.map.get_name().to_string(),
+                seed_parked_cars: Vec::new(),
+                spawn_over_time: Vec::new(),
+                border_spawn_over_time: Vec::new(),
+                individ_trips: Vec::new(),
+            },
+            ctx,
+        ),
+    )))
 }
 
 pub fn pick_time_range(
@@ -185,20 +152,4 @@ pub fn pick_time_range(
     let t1 = wizard.input_time_slider(low_query, Duration::ZERO, Duration::END_OF_DAY)?;
     let t2 = wizard.input_time_slider(high_query, t1, Duration::END_OF_DAY)?;
     Some((t1, t2))
-}
-
-fn load_scenario(map: &Map, wizard: &mut WrappedWizard) -> Option<Scenario> {
-    let map_name = map.get_name().to_string();
-    wizard
-        .choose_something_no_keys::<String>(
-            "Load which scenario?",
-            Box::new(move || abstutil::list_all_objects(abstutil::SCENARIOS, &map_name)),
-        )
-        .map(|(_, s)| {
-            abstutil::read_binary(
-                &abstutil::path1_bin(map.get_name(), abstutil::SCENARIOS, &s),
-                &mut Timer::throwaway(),
-            )
-            .unwrap()
-        })
 }
