@@ -375,6 +375,39 @@ impl ControlTrafficSignal {
             None
         }
     }
+
+    pub fn convert_to_ped_scramble(&mut self, map: &Map) {
+        // Remove Crosswalk turns from existing cycles.
+        for cycle in self.cycles.iter_mut() {
+            // Crosswalks are usually only priority_turns, but also clear out from yield_turns.
+            for t in map.get_turns_in_intersection(self.id) {
+                if t.turn_type == TurnType::Crosswalk {
+                    cycle.priority_turns.remove(&t.id);
+                    cycle.yield_turns.remove(&t.id);
+                }
+            }
+
+            // Blindly try to promote yield turns to protected, now that crosswalks are gone.
+            let mut promoted = Vec::new();
+            for t in &cycle.yield_turns {
+                if cycle.could_be_priority_turn(*t, map) {
+                    cycle.priority_turns.insert(*t);
+                    promoted.push(*t);
+                }
+            }
+            for t in promoted {
+                cycle.yield_turns.remove(&t);
+            }
+        }
+
+        let mut cycle = Cycle::new(self.id);
+        for t in map.get_turns_in_intersection(self.id) {
+            if t.between_sidewalks() {
+                cycle.edit_turn(t, TurnPriority::Priority);
+            }
+        }
+        self.cycles.push(cycle);
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]

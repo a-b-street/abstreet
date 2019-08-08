@@ -196,8 +196,6 @@ pub enum Transition {
     ReplaceWithMode(Box<State>, EventLoopMode),
 }
 
-// TODO Maybe let callers stash expensive data computed once here, and let the cb borrow it.
-// Use cases: both BrowseTrips's
 pub struct WizardState {
     wizard: Wizard,
     // Returning None means stay in this WizardState

@@ -1,8 +1,8 @@
 use crate::common::CommonState;
-use crate::game::{State, Transition};
+use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::ui::UI;
-use ezgui::{EventCtx, GfxCtx, Key, ModalMenu, Text, WarpingItemSlider, Wizard};
+use ezgui::{EventCtx, GfxCtx, Key, ModalMenu, Text, WarpingItemSlider};
 use geom::Pt2D;
 use map_model::{BusRoute, BusRouteID, BusStopID, Map};
 
@@ -32,10 +32,9 @@ impl BusRouteExplorer {
                 ctx,
             )))
         } else {
-            Some(Box::new(BusRoutePicker {
-                choices: routes.into_iter().map(|r| r.id).collect(),
-                wizard: Wizard::new(),
-            }))
+            Some(make_bus_route_picker(
+                routes.into_iter().map(|r| r.id).collect(),
+            ))
         }
     }
 
@@ -83,54 +82,37 @@ impl State for BusRouteExplorer {
     }
 }
 
-pub struct BusRoutePicker {
-    choices: Vec<BusRouteID>,
-    wizard: Wizard,
-}
-
+pub struct BusRoutePicker;
 impl BusRoutePicker {
-    pub fn new(ui: &UI, menu: &mut ModalMenu) -> Option<BusRoutePicker> {
+    pub fn new(ui: &UI, menu: &mut ModalMenu) -> Option<Box<State>> {
         if !menu.action("explore a bus route") {
             return None;
         }
-        Some(BusRoutePicker {
-            choices: ui
-                .primary
+        Some(make_bus_route_picker(
+            ui.primary
                 .map
                 .get_all_bus_routes()
                 .iter()
                 .map(|r| r.id)
                 .collect(),
-            wizard: Wizard::new(),
-        })
+        ))
     }
 }
 
-impl State for BusRoutePicker {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        let choices = self.choices.clone();
-        if let Some((_, id)) =
-            self.wizard
-                .wrap(ctx)
-                .choose_something("Explore which bus route?", || {
-                    choices
-                        .into_iter()
-                        .map(|id| (ui.primary.map.get_br(id).name.clone(), id))
-                        .collect()
-                })
-        {
-            return Transition::Replace(Box::new(BusRouteExplorer::for_route(
-                ui.primary.map.get_br(id),
-                &ui.primary.map,
-                ctx,
-            )));
-        } else if self.wizard.aborted() {
-            return Transition::Pop;
-        }
-        Transition::Keep
-    }
-
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
-        self.wizard.draw(g);
-    }
+fn make_bus_route_picker(choices: Vec<BusRouteID>) -> Box<State> {
+    WizardState::new(Box::new(move |wiz, ctx, ui| {
+        let (_, id) = wiz
+            .wrap(ctx)
+            .choose_something("Explore which bus route?", || {
+                choices
+                    .iter()
+                    .map(|id| (ui.primary.map.get_br(*id).name.clone(), *id))
+                    .collect()
+            })?;
+        Some(Transition::Replace(Box::new(BusRouteExplorer::for_route(
+            ui.primary.map.get_br(id),
+            &ui.primary.map,
+            ctx,
+        ))))
+    }))
 }

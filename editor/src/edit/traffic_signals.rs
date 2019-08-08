@@ -1,13 +1,13 @@
 use crate::common::CommonState;
 use crate::edit::apply_map_edits;
-use crate::game::{State, Transition};
+use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::render::{draw_signal_cycle, DrawCtx, DrawOptions, DrawTurn, TrafficSignalDiagram};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
-use ezgui::{hotkey, Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu, Wizard, WrappedWizard};
+use ezgui::{hotkey, Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu};
 use geom::Duration;
-use map_model::{ControlTrafficSignal, Cycle, IntersectionID, Map, TurnID, TurnPriority, TurnType};
+use map_model::{ControlTrafficSignal, Cycle, IntersectionID, TurnID, TurnPriority, TurnType};
 
 // TODO Warn if there are empty cycles or if some turn is completely absent from the signal.
 pub struct TrafficSignalEditor {
@@ -122,15 +122,11 @@ impl State for TrafficSignalEditor {
         }
 
         if self.menu.action("change cycle duration") {
-            return Transition::Push(Box::new(ChangeCycleDuration {
-                cycle: signal.cycles[self.diagram.current_cycle()].clone(),
-                wizard: Wizard::new(),
-            }));
+            return Transition::Push(make_change_cycle_duration(
+                signal.cycles[self.diagram.current_cycle()].duration,
+            ));
         } else if self.menu.action("choose a preset signal") {
-            return Transition::Push(Box::new(ChangePreset {
-                i: self.diagram.i,
-                wizard: Wizard::new(),
-            }));
+            return Transition::Push(make_change_preset(self.diagram.i));
         } else if self.menu.action("reset to original") {
             signal = ControlTrafficSignal::get_possible_policies(&ui.primary.map, self.diagram.i)
                 .remove(0)
@@ -198,7 +194,7 @@ impl State for TrafficSignalEditor {
                 .menu
                 .action("convert to dedicated pedestrian scramble cycle")
         {
-            convert_to_ped_scramble(&mut signal, self.diagram.i, &ui.primary.map);
+            signal.convert_to_ped_scramble(&ui.primary.map);
             change_traffic_signal(signal, self.diagram.i, ui, ctx);
             self.diagram = TrafficSignalDiagram::new(self.diagram.i, 0, &ui.primary.map, ctx);
         }
@@ -261,51 +257,6 @@ impl State for TrafficSignalEditor {
     }
 }
 
-fn choose_preset(
-    map: &Map,
-    id: IntersectionID,
-    mut wizard: WrappedWizard,
-) -> Option<ControlTrafficSignal> {
-    wizard
-        .choose_something("Use which preset for this intersection?", || {
-            ControlTrafficSignal::get_possible_policies(map, id)
-        })
-        .map(|(_, ts)| ts)
-}
-
-fn convert_to_ped_scramble(signal: &mut ControlTrafficSignal, i: IntersectionID, map: &Map) {
-    // Remove Crosswalk turns from existing cycles.
-    for cycle in signal.cycles.iter_mut() {
-        // Crosswalks are usually only priority_turns, but also clear out from yield_turns.
-        for t in map.get_turns_in_intersection(i) {
-            if t.turn_type == TurnType::Crosswalk {
-                cycle.priority_turns.remove(&t.id);
-                cycle.yield_turns.remove(&t.id);
-            }
-        }
-
-        // Blindly try to promote yield turns to protected, now that crosswalks are gone.
-        let mut promoted = Vec::new();
-        for t in &cycle.yield_turns {
-            if cycle.could_be_priority_turn(*t, map) {
-                cycle.priority_turns.insert(*t);
-                promoted.push(*t);
-            }
-        }
-        for t in promoted {
-            cycle.yield_turns.remove(&t);
-        }
-    }
-
-    let mut cycle = Cycle::new(i);
-    for t in map.get_turns_in_intersection(i) {
-        if t.between_sidewalks() {
-            cycle.edit_turn(t, TurnPriority::Priority);
-        }
-    }
-    signal.cycles.push(cycle);
-}
-
 fn change_traffic_signal(
     signal: ControlTrafficSignal,
     i: IntersectionID,
@@ -322,58 +273,34 @@ fn change_traffic_signal(
     apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
 }
 
-struct ChangeCycleDuration {
-    cycle: Cycle,
-    wizard: Wizard,
-}
-
-impl State for ChangeCycleDuration {
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
-        if let Some(new_duration) = self.wizard.wrap(ctx).input_usize_prefilled(
+fn make_change_cycle_duration(current_duration: Duration) -> Box<State> {
+    WizardState::new(Box::new(move |wiz, ctx, _| {
+        let new_duration = wiz.wrap(ctx).input_usize_prefilled(
             "How long should this cycle be?",
-            format!("{}", self.cycle.duration.inner_seconds() as usize),
-        ) {
-            return Transition::PopWithData(Box::new(move |state, ui, ctx| {
-                let editor = state.downcast_ref::<TrafficSignalEditor>().unwrap();
-                let mut signal = ui.primary.map.get_traffic_signal(editor.diagram.i).clone();
-                signal.cycles[editor.diagram.current_cycle()].duration =
-                    Duration::seconds(new_duration as f64);
-                change_traffic_signal(signal, editor.diagram.i, ui, ctx);
-            }));
-        }
-        if self.wizard.aborted() {
-            return Transition::Pop;
-        }
-        Transition::Keep
-    }
-
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
-        self.wizard.draw(g);
-    }
+            format!("{}", current_duration.inner_seconds() as usize),
+        )?;
+        Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
+            let mut editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
+            let mut signal = ui.primary.map.get_traffic_signal(editor.diagram.i).clone();
+            let idx = editor.diagram.current_cycle();
+            signal.cycles[idx].duration = Duration::seconds(new_duration as f64);
+            change_traffic_signal(signal, editor.diagram.i, ui, ctx);
+            editor.diagram = TrafficSignalDiagram::new(editor.diagram.i, idx, &ui.primary.map, ctx);
+        })))
+    }))
 }
 
-struct ChangePreset {
-    i: IntersectionID,
-    wizard: Wizard,
-}
-
-impl State for ChangePreset {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        if let Some(new_signal) = choose_preset(&ui.primary.map, self.i, self.wizard.wrap(ctx)) {
-            return Transition::PopWithData(Box::new(move |state, ui, ctx| {
-                let mut editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
-                editor.diagram =
-                    TrafficSignalDiagram::new(editor.diagram.i, 0, &ui.primary.map, ctx);
-                change_traffic_signal(new_signal, editor.diagram.i, ui, ctx);
-            }));
-        }
-        if self.wizard.aborted() {
-            return Transition::Pop;
-        }
-        Transition::Keep
-    }
-
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
-        self.wizard.draw(g);
-    }
+fn make_change_preset(i: IntersectionID) -> Box<State> {
+    WizardState::new(Box::new(move |wiz, ctx, ui| {
+        let (_, new_signal) = wiz
+            .wrap(ctx)
+            .choose_something("Use which preset for this intersection?", || {
+                ControlTrafficSignal::get_possible_policies(&ui.primary.map, i)
+            })?;
+        Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
+            let mut editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
+            change_traffic_signal(new_signal, editor.diagram.i, ui, ctx);
+            editor.diagram = TrafficSignalDiagram::new(editor.diagram.i, 0, &ui.primary.map, ctx);
+        })))
+    }))
 }

@@ -82,10 +82,7 @@ impl State for ABTestSetup {
         } else if self.menu.action("run A/B test") {
             return Transition::Replace(Box::new(launch_test(&self.ab_test, ui, ctx)));
         } else if self.menu.action("load savestate") {
-            return Transition::Push(Box::new(LoadSavestate {
-                ab_test: self.ab_test.clone(),
-                wizard: Wizard::new(),
-            }));
+            return Transition::Push(make_load_savestate(self.ab_test.clone()));
         }
         Transition::Keep
     }
@@ -96,24 +93,19 @@ impl State for ABTestSetup {
     }
 }
 
-struct LoadSavestate {
-    ab_test: ABTest,
-    wizard: Wizard,
-}
-
-impl State for LoadSavestate {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        if let Some(ss) = pick_savestate(&self.ab_test, &mut self.wizard.wrap(ctx)) {
-            return Transition::Replace(Box::new(launch_savestate(&self.ab_test, ss, ui, ctx)));
-        } else if self.wizard.aborted() {
-            return Transition::Pop;
-        }
-        Transition::Keep
-    }
-
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
-        self.wizard.draw(g);
-    }
+fn make_load_savestate(ab_test: ABTest) -> Box<State> {
+    WizardState::new(Box::new(move |wiz, ctx, ui| {
+        let ss = wiz.wrap(ctx).choose_string("Load which savestate?", || {
+            abstutil::list_dir(std::path::Path::new(&abstutil::path1(
+                &ab_test.map_name,
+                abstutil::AB_TEST_SAVES,
+                &ab_test.test_name,
+            )))
+        })?;
+        Some(Transition::Replace(Box::new(launch_savestate(
+            &ab_test, ss, ui, ctx,
+        ))))
+    }))
 }
 
 fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
@@ -242,12 +234,5 @@ fn choose_edits(map_name: &str, wizard: &mut WrappedWizard, query: &str) -> Opti
         let mut list = abstutil::list_all_objects("edits", map_name);
         list.push("no_edits".to_string());
         list
-    })
-}
-
-fn pick_savestate(test: &ABTest, wizard: &mut WrappedWizard) -> Option<String> {
-    let path = abstutil::path1(&test.map_name, abstutil::AB_TEST_SAVES, &test.test_name);
-    wizard.choose_string("Load which savestate?", || {
-        abstutil::list_dir(std::path::Path::new(&path))
     })
 }

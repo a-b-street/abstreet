@@ -12,7 +12,7 @@ use crate::render::{
 use crate::sandbox::SandboxMode;
 use crate::ui::{PerMapUI, ShowEverything, UI};
 use abstutil::Timer;
-use ezgui::{hotkey, lctrl, Color, EventCtx, GfxCtx, Key, ModalMenu, Text, Wizard, WrappedWizard};
+use ezgui::{hotkey, lctrl, Color, EventCtx, GfxCtx, Key, ModalMenu, Text, Wizard};
 use map_model::{
     IntersectionID, Lane, LaneID, LaneType, Map, MapEdits, Road, RoadID, TurnID, TurnType,
 };
@@ -150,10 +150,7 @@ impl State for EditMode {
                 .input
                 .contextual_action(Key::U, "bulk edit lanes on this road")
             {
-                return Transition::Push(Box::new(BulkEditLanes {
-                    road: ui.primary.map.get_l(id).parent,
-                    wizard: Wizard::new(),
-                }));
+                return Transition::Push(make_bulk_edit_lanes(ui.primary.map.get_l(id).parent));
             } else if orig_edits.lane_overrides.contains_key(&id)
                 && ctx.input.contextual_action(Key::R, "revert")
             {
@@ -474,73 +471,54 @@ pub fn apply_map_edits(
     bundle.map.simplify_edits(&mut timer);
 }
 
-struct BulkEditLanes {
-    road: RoadID,
-    wizard: Wizard,
-}
+fn make_bulk_edit_lanes(road: RoadID) -> Box<State> {
+    WizardState::new(Box::new(move |wiz, ctx, ui| {
+        let mut wizard = wiz.wrap(ctx);
+        let (_, from) = wizard.choose_something("Change all lanes of type...", || {
+            vec![
+                ("driving".to_string(), LaneType::Driving),
+                ("parking".to_string(), LaneType::Parking),
+                ("biking".to_string(), LaneType::Biking),
+                ("bus".to_string(), LaneType::Bus),
+            ]
+        })?;
+        let (_, to) = wizard.choose_something("Change to all lanes of type...", || {
+            vec![
+                ("driving".to_string(), LaneType::Driving),
+                ("parking".to_string(), LaneType::Parking),
+                ("biking".to_string(), LaneType::Biking),
+                ("bus".to_string(), LaneType::Bus),
+            ]
+            .into_iter()
+            .filter(|(_, lt)| *lt != from)
+            .collect()
+        })?;
 
-impl State for BulkEditLanes {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        ctx.canvas.handle_event(ctx.input);
-        if let Some(edits) = bulk_edit(self.road, &mut self.wizard.wrap(ctx), &ui.primary.map) {
-            apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
-            Transition::Pop
-        } else if self.wizard.aborted() {
-            Transition::Pop
-        } else {
-            Transition::Keep
+        // Do the dirty deed. Match by road name; OSM way ID changes a fair bit.
+        let map = &ui.primary.map;
+        let road_name = map.get_r(road).get_name();
+        let mut edits = map.get_edits().clone();
+        let mut cnt = 0;
+        for l in map.all_lanes() {
+            if l.lane_type != from {
+                continue;
+            }
+            let parent = map.get_parent(l.id);
+            if parent.get_name() != road_name {
+                continue;
+            }
+            // TODO This looks at the original state of the map, not with all the edits applied so far!
+            if can_change_lane_type(parent, l, to, map) {
+                edits.lane_overrides.insert(l.id, to);
+                cnt += 1;
+            }
         }
-    }
-
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
-        // TODO Still draw the diffs, yo
-        self.wizard.draw(g);
-    }
-}
-
-fn bulk_edit(r: RoadID, wizard: &mut WrappedWizard, map: &Map) -> Option<MapEdits> {
-    let (_, from) = wizard.choose_something("Change all lanes of type...", || {
-        vec![
-            ("driving".to_string(), LaneType::Driving),
-            ("parking".to_string(), LaneType::Parking),
-            ("biking".to_string(), LaneType::Biking),
-            ("bus".to_string(), LaneType::Bus),
-        ]
-    })?;
-    let (_, to) = wizard.choose_something("Change to all lanes of type...", || {
-        vec![
-            ("driving".to_string(), LaneType::Driving),
-            ("parking".to_string(), LaneType::Parking),
-            ("biking".to_string(), LaneType::Biking),
-            ("bus".to_string(), LaneType::Bus),
-        ]
-        .into_iter()
-        .filter(|(_, lt)| *lt != from)
-        .collect()
-    })?;
-
-    // Do the dirty deed. Match by road name; OSM way ID changes a fair bit.
-    let road_name = map.get_r(r).get_name();
-    let mut edits = map.get_edits().clone();
-    let mut cnt = 0;
-    for l in map.all_lanes() {
-        if l.lane_type != from {
-            continue;
-        }
-        let parent = map.get_parent(l.id);
-        if parent.get_name() != road_name {
-            continue;
-        }
-        // TODO This looks at the original state of the map, not with all the edits applied so far!
-        if can_change_lane_type(parent, l, to, map) {
-            edits.lane_overrides.insert(l.id, to);
-            cnt += 1;
-        }
-    }
-    // TODO pop this up. warn about road names changing and being weird. :)
-    println!(
-        "Changed {} {:?} lanes to {:?} lanes on {}",
-        cnt, from, to, road_name
-    );
-    Some(edits)
+        // TODO pop this up. warn about road names changing and being weird. :)
+        println!(
+            "Changed {} {:?} lanes to {:?} lanes on {}",
+            cnt, from, to, road_name
+        );
+        apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
+        Some(Transition::Pop)
+    }))
 }

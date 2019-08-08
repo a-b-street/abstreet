@@ -275,7 +275,7 @@ impl State for DebugMode {
             return Transition::PushWithMode(explorer, EventLoopMode::Animation);
         }
         if let Some(picker) = bus_explorer::BusRoutePicker::new(ui, &mut self.menu) {
-            return Transition::Push(Box::new(picker));
+            return Transition::Push(picker);
         }
 
         Transition::Keep
