@@ -26,7 +26,8 @@ pub struct Canvas {
     pub window_width: f64,
     pub window_height: f64,
 
-    pub(crate) glyphs: RefCell<GlyphBrush<'static, 'static>>,
+    pub(crate) screenspace_glyphs: RefCell<GlyphBrush<'static, 'static>>,
+    pub(crate) mapspace_glyphs: RefCell<GlyphBrush<'static, 'static>>,
     line_height_per_font_size: RefCell<HashMap<usize, f64>>,
 
     // TODO Bit weird and hacky to mutate inside of draw() calls.
@@ -41,7 +42,8 @@ impl Canvas {
     pub(crate) fn new(
         initial_width: f64,
         initial_height: f64,
-        glyphs: GlyphBrush<'static, 'static>,
+        screenspace_glyphs: GlyphBrush<'static, 'static>,
+        mapspace_glyphs: GlyphBrush<'static, 'static>,
     ) -> Canvas {
         Canvas {
             cam_x: 0.0,
@@ -56,7 +58,8 @@ impl Canvas {
             window_width: initial_width,
             window_height: initial_height,
 
-            glyphs: RefCell::new(glyphs),
+            screenspace_glyphs: RefCell::new(screenspace_glyphs),
+            mapspace_glyphs: RefCell::new(mapspace_glyphs),
             line_height_per_font_size: RefCell::new(HashMap::new()),
             covered_areas: RefCell::new(Vec::new()),
 
@@ -181,13 +184,14 @@ impl Canvas {
         txt.dims(self)
     }
 
-    // Don't call this while glyphs are mutably borrowed.
+    // Don't call this while screenspace_glyphs is mutably borrowed.
     pub(crate) fn line_height(&self, font_size: usize) -> f64 {
         let mut hash = self.line_height_per_font_size.borrow_mut();
         if hash.contains_key(&font_size) {
             return hash[&font_size];
         }
-        let vmetrics = self.glyphs.borrow().fonts()[0].v_metrics(Scale::uniform(font_size as f32));
+        let vmetrics =
+            self.screenspace_glyphs.borrow().fonts()[0].v_metrics(Scale::uniform(font_size as f32));
         // TODO This works for this font, but could be more paranoid with abs()
         let line_height = f64::from(vmetrics.ascent - vmetrics.descent + vmetrics.line_gap);
         hash.insert(font_size, line_height);

@@ -19,7 +19,6 @@ const HATCHING: f32 = 1.0;
 
 pub struct GfxCtx<'a> {
     pub(crate) target: &'a mut glium::Frame,
-    pub(crate) display: &'a glium::Display,
     program: &'a glium::Program,
     uniforms: Uniforms<'a>,
     params: glium::DrawParameters<'a>,
@@ -40,7 +39,6 @@ impl<'a> GfxCtx<'a> {
     pub(crate) fn new(
         canvas: &'a Canvas,
         prerender: &'a Prerender<'a>,
-        display: &'a glium::Display,
         target: &'a mut glium::Frame,
         program: &'a glium::Program,
         context_menu: &'a ContextMenu,
@@ -59,7 +57,6 @@ impl<'a> GfxCtx<'a> {
         GfxCtx {
             canvas,
             prerender,
-            display,
             target,
             program,
             uniforms,
@@ -219,13 +216,16 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn draw_text_at_mapspace(&mut self, txt: &Text, map_pt: Pt2D) {
-        let (width, height) = self.text_dims(&txt);
+        /*let (width, height) = self.text_dims(&txt);
         text::draw_text_bubble_mapspace(
             self,
             Pt2D::new(map_pt.x() - (width / 2.0), map_pt.y() - (height / 2.0)),
             txt,
             (width, height),
-        );
+        );*/
+
+        let (width, height) = self.text_dims(&txt);
+        text::draw_text_bubble_mapspace(self, map_pt, txt, (width, height));
     }
 
     pub fn text_dims(&self, txt: &Text) -> (f64, f64) {

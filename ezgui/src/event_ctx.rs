@@ -172,11 +172,19 @@ impl<'a> LoadingScreen<'a> {
     ) -> LoadingScreen<'a> {
         // TODO Ew! Expensive and wacky. Fix by not storing GlyphBrush in Canvas at all.
         let dejavu: &[u8] = include_bytes!("assets/DejaVuSans.ttf");
-        let glyphs = GlyphBrush::new(prerender.display, vec![Font::from_bytes(dejavu).unwrap()]);
-        let canvas = Canvas::new(initial_width, initial_height, glyphs);
+        let screenspace_glyphs =
+            GlyphBrush::new(prerender.display, vec![Font::from_bytes(dejavu).unwrap()]);
+        let mapspace_glyphs =
+            GlyphBrush::new(prerender.display, vec![Font::from_bytes(dejavu).unwrap()]);
+        let canvas = Canvas::new(
+            initial_width,
+            initial_height,
+            screenspace_glyphs,
+            mapspace_glyphs,
+        );
         // TODO Dupe code
-        let vmetrics =
-            canvas.glyphs.borrow().fonts()[0].v_metrics(Scale::uniform(FONT_SIZE as f32));
+        let vmetrics = canvas.screenspace_glyphs.borrow().fonts()[0]
+            .v_metrics(Scale::uniform(FONT_SIZE as f32));
         let line_height = f64::from(vmetrics.ascent - vmetrics.descent + vmetrics.line_gap);
 
         LoadingScreen {
@@ -211,7 +219,6 @@ impl<'a> LoadingScreen<'a> {
         let mut g = GfxCtx::new(
             &self.canvas,
             self.prerender,
-            self.prerender.display,
             &mut target,
             self.program,
             &context_menu,
@@ -224,9 +231,10 @@ impl<'a> LoadingScreen<'a> {
             (HorizontalAlignment::Center, VerticalAlignment::Center),
         );
         self.canvas
-            .glyphs
+            .screenspace_glyphs
             .borrow_mut()
             .draw_queued(self.prerender.display, &mut target);
+        // LoadingScreen doesn't use mapspace_glyphs
         target.finish().unwrap();
     }
 }

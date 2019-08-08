@@ -100,7 +100,6 @@ impl<G: GUI> State<G> {
         let mut g = GfxCtx::new(
             &self.canvas,
             &prerender,
-            display,
             &mut target,
             program,
             &self.context_menu,
@@ -125,9 +124,26 @@ impl<G: GUI> State<G> {
         // Flush text just once, so that GlyphBrush's internal caching works. We have to assume
         // nothing will ever cover up text.
         self.canvas
-            .glyphs
+            .screenspace_glyphs
             .borrow_mut()
             .draw_queued(display, &mut target);
+        {
+            let top_left = self
+                .canvas
+                .screen_to_map(crate::screen_geom::ScreenPt::new(0.0, 0.0));
+            let bottom_right = self.canvas.screen_to_map(crate::screen_geom::ScreenPt::new(
+                self.canvas.window_width,
+                self.canvas.window_height,
+            ));
+            let transform = ortho(
+                (top_left.x() as f32, bottom_right.x() as f32),
+                (top_left.y() as f32, bottom_right.y() as f32),
+            );
+            self.canvas
+                .mapspace_glyphs
+                .borrow_mut()
+                .draw_queued_with_transform(transform, display, &mut target);
+        }
 
         target.finish().unwrap();
         naming_hint
@@ -203,9 +219,15 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(
     .unwrap();
 
     let dejavu: &[u8] = include_bytes!("assets/DejaVuSans.ttf");
-    let glyphs = GlyphBrush::new(&display, vec![Font::from_bytes(dejavu).unwrap()]);
+    let screenspace_glyphs = GlyphBrush::new(&display, vec![Font::from_bytes(dejavu).unwrap()]);
+    let mapspace_glyphs = GlyphBrush::new(&display, vec![Font::from_bytes(dejavu).unwrap()]);
 
-    let mut canvas = Canvas::new(initial_width, initial_height, glyphs);
+    let mut canvas = Canvas::new(
+        initial_width,
+        initial_height,
+        screenspace_glyphs,
+        mapspace_glyphs,
+    );
     let prerender = Prerender {
         display: &display,
         num_uploads: Cell::new(0),
@@ -334,4 +356,17 @@ fn loop_forever<G: GUI>(
             thread::sleep(SLEEP_BETWEEN_FRAMES - this_frame);
         }
     }
+}
+
+fn ortho((left, right): (f32, f32), (bottom, top): (f32, f32)) -> [[f32; 4]; 4] {
+    let s_x = 2.0 / (right - left);
+    let s_y = 2.0 / (top - bottom);
+    let t_x = -(right + left) / (right - left);
+    let t_y = -(top + bottom) / (top - bottom);
+    [
+        [s_x, 0.0, 0.0, 0.0],
+        [0.0, s_y, 0.0, 0.0],
+        [0.0, 0.0, 1.0, 0.0],
+        [t_x, t_y, 0.0, 1.0],
+    ]
 }

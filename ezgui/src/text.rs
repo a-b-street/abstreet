@@ -167,7 +167,7 @@ impl Text {
             }
             // Empty lines or whitespace-only lines effectively have 0 width.
             let width = canvas
-                .glyphs
+                .screenspace_glyphs
                 .borrow_mut()
                 .pixel_bounds(Section {
                     text: &full_line,
@@ -240,7 +240,7 @@ pub fn draw_text_bubble(
         }
 
         y += height;
-        g.canvas.glyphs.borrow_mut().queue(section);
+        g.canvas.screenspace_glyphs.borrow_mut().queue(section);
     }
 
     g.unfork();
@@ -253,8 +253,6 @@ pub fn draw_text_bubble(
     }
 }
 
-// TODO Painfully slow at high zooms. Maybe need to use draw_queued_with_transform, expose a
-// flush_text_screenspace and flush_text_mapspace.
 pub fn draw_text_bubble_mapspace(
     g: &mut GfxCtx,
     top_left: Pt2D,
@@ -262,25 +260,25 @@ pub fn draw_text_bubble_mapspace(
     // Callers almost always calculate this anyway
     (total_width, total_height): (f64, f64),
 ) {
+    // TODO If this works, share most code with draw_text_bubble.
     if let Some(c) = txt.bg_color {
         g.draw_polygon(
             c,
             &Polygon::rectangle_topleft(
-                top_left,
+                Pt2D::new(top_left.x(), top_left.y()),
                 Distance::meters(total_width),
                 Distance::meters(total_height),
             ),
         );
     }
 
-    let start_at = g
-        .canvas
-        .map_to_screen(Pt2D::new(top_left.x(), top_left.y()));
-    let mut y = 0.0;
+    let mut y = top_left.y();
     for (line_color, line) in &txt.lines {
         let mut max_size = 0;
         let section = VariedSection {
-            screen_position: (start_at.x as f32, (start_at.y + y) as f32),
+            // This in map-space, but the transform matrix for mapspace_glyphs will take care of
+            // it.
+            screen_position: (top_left.x() as f32, y as f32),
             text: line
                 .iter()
                 .map(|span| {
@@ -288,7 +286,7 @@ pub fn draw_text_bubble_mapspace(
                     SectionText {
                         text: &span.text,
                         color: span.fg_color.0,
-                        scale: Scale::uniform(((span.size as f64) * g.canvas.cam_zoom) as f32),
+                        scale: Scale::uniform(span.size as f32),
                         ..SectionText::default()
                     }
                 })
@@ -301,20 +299,16 @@ pub fn draw_text_bubble_mapspace(
             g.draw_polygon(
                 *c,
                 &Polygon::rectangle_topleft(
-                    Pt2D::new(top_left.x(), top_left.y() + y),
+                    Pt2D::new(top_left.x(), y),
                     Distance::meters(total_width),
                     Distance::meters(height),
                 ),
             );
         }
 
-        y += height * g.canvas.cam_zoom;
-        g.canvas.glyphs.borrow_mut().queue(section);
+        y += height;
+        g.canvas.mapspace_glyphs.borrow_mut().queue(section);
     }
-    g.canvas
-        .glyphs
-        .borrow_mut()
-        .draw_queued(g.display, g.target);
 }
 
 #[derive(Debug)]
