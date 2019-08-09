@@ -474,3 +474,10 @@ https://wiki.openstreetmap.org/wiki/Tag:highway%3Dtraffic_signals#Complex_inters
 https://sumo.dlr.de/wiki/Simulation/Traffic_Lights
 https://wiki.openstreetmap.org/wiki/Proposed_features/Traffic_Signal_Timings
 https://connectedsignals.com/
+
+## CARLA project
+
+http://carla.org/
+https://www.vectorzero.io/
+http://www.opendrive.org/download.html spec
+https://github.com/carla-simulator/carla-map-editor

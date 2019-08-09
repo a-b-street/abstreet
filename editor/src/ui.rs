@@ -6,7 +6,7 @@ use crate::render::{
 use abstutil;
 use abstutil::{MeasureMemory, Timer};
 use ezgui::{Canvas, Color, EventCtx, GeomBatch, GfxCtx, Prerender};
-use geom::{Bounds, Circle, Distance, Duration};
+use geom::{Bounds, Circle, Distance};
 use map_model::{Map, Traversable};
 use rand::seq::SliceRandom;
 use serde_derive::{Deserialize, Serialize};
@@ -472,7 +472,7 @@ pub struct PerMapUI {
 impl PerMapUI {
     pub fn new(flags: Flags, cs: &ColorScheme, ctx: &mut EventCtx, timer: &mut Timer) -> PerMapUI {
         let mut mem = MeasureMemory::new();
-        let (map, sim, _) = flags.sim_flags.load(Some(Duration::minutes(30)), timer);
+        let (map, sim, _) = flags.sim_flags.load(None, timer);
         mem.reset("Map and Sim", timer);
 
         timer.start("draw_map");
