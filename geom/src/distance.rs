@@ -14,13 +14,6 @@ impl Ord for Distance {
     }
 }
 
-// TODO Just for petgraph integration.
-impl Default for Distance {
-    fn default() -> Distance {
-        Distance::ZERO
-    }
-}
-
 impl Distance {
     pub const ZERO: Distance = Distance::const_meters(0.0);
     // TODO Different than EPSILON_DIST... the true minimum representable difference.
