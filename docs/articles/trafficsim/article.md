@@ -138,6 +138,16 @@ section interesting:
   vehicle is still in the Crossing state, so we need to notify intersections
   ahead of time of intended turns and an ETA.
 
+One contributor to permanent gridlock is cars and bikes being stuck in an
+intersection, preventing conflicting turns from being performed. To help avoid
+this, one of the last checks that stop signs and traffic signals perform before
+accepting a new turn request is that the target lane has enough space for the
+new vehicle. This is "reserved" space, not necessarily currently occupied by
+vehicles in that lane. This accounts for other vehicles performing a turn bound
+for that lane. See `try_to_reserve_entry` in `mechanics/queue.rs`. When a car
+completely leaves a lane (determined by the "laggy head" described above), this
+space is freed, and blocked cars are woken up.
+
 ## Demand data
 
 The input to a traffic simulation consists of a list of trips -- start from

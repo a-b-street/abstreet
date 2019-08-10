@@ -445,6 +445,7 @@ impl Pedestrian {
                 now,
                 map,
                 scheduler,
+                None,
             ) {
                 return false;
             }

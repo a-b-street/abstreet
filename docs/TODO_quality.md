@@ -98,15 +98,6 @@
 
 ## Discrete-event sim model
 
-- gridlock
-	- get_car_positions will recurse?
-	- laggy head stuff will be inefficient without prevention?
-	- preventish... dont start turn unless target WILL have capacity
-		- stronger is room_at_end now, but thats too strict
-		- best-case static capacity wont help (we might have longer buses and over-commit)
-		- worst-case static capacity will stop shorter cars from going when they legit could
-		- look at current occupants, find where the back WILL eventually wind up (just add up lengths + following dist, actually), then reserve after that.
-
 - cleanup after the cutover
 	- explicit tests making cars park at 0 and max_dist, peds walk to 0 and max_dist
 	- proper intersection policies, by seeing full view
@@ -117,13 +108,5 @@
 		- converting goal into router and such
 
 - perf
-	- speed up Scheduler
-		- BinaryHeap
-			- binheapplus not serde
-			- std::cmp::Reverse not serde
-			- so have to manually impl ord
-			- BinaryHeap isnt PartialEq, which sim det stuff needs!
-			- update() is very hard
-		- priority_queue crate... internally uses hash, so serialization and determinism probably borked               
 	- dig into individual events, still too many?
 		- for laggy heads, often round down and try slightly too early

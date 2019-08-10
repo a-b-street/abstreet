@@ -13,16 +13,22 @@ pub struct Queue {
     pub laggy_head: Option<CarID>,
 
     pub geom_len: Distance,
+    // When a car's turn is accepted, reserve the vehicle length + FOLLOWING_DISTANCE for the
+    // target lane. When the car completely leaves (stops being the laggy_head), free up that
+    // space. To prevent blocking the box for possibly scary amounts of time, allocate some of this
+    // length first. This is unused for turns themselves. This value can exceed geom_len (for the
+    // edge case of ONE long car on a short queue).
+    pub reserved_length: Distance,
 }
 
 impl Queue {
     pub fn new(id: Traversable, map: &Map) -> Queue {
-        let len = id.length(map);
         Queue {
             id,
             cars: VecDeque::new(),
             laggy_head: None,
-            geom_len: len,
+            geom_len: id.length(map),
+            reserved_length: Distance::ZERO,
         }
     }
 
@@ -153,6 +159,35 @@ impl Queue {
         }
 
         Some(idx)
+    }
+
+    // If true, there's room and the car must actually start the turn (because the space is
+    // reserved).
+    pub fn try_to_reserve_entry(&mut self, car: &Car) -> bool {
+        // TODO Enable.
+        if true {
+            return true;
+        }
+
+        // Sometimes a car + FOLLOWING_DISTANCE might be longer than the geom_len entirely. In that
+        // case, it just means the car won't totally fit on the queue at once, which is fine.
+        // Reserve the normal amount of space; the next car trying to enter will get rejected.
+        let dist = car.vehicle.length + FOLLOWING_DISTANCE;
+        if self.reserved_length + dist < self.geom_len || self.reserved_length == Distance::ZERO {
+            self.reserved_length += dist;
+            return true;
+        }
+        false
+    }
+
+    pub fn free_reserved_space(&mut self, car: &Car) {
+        if true {
+            return;
+        }
+
+        assert!(self.laggy_head.is_none());
+        self.reserved_length -= car.vehicle.length + FOLLOWING_DISTANCE;
+        assert!(self.reserved_length >= Distance::ZERO);
     }
 }
 

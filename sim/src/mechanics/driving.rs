@@ -110,11 +110,13 @@ impl DrivingSimState {
                 car.state = car.crossing_state(params.start_dist, now, map);
             }
             scheduler.push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
-            self.queues
-                .get_mut(&Traversable::Lane(first_lane))
-                .unwrap()
-                .cars
-                .insert(idx, car.vehicle.id);
+            {
+                let queue = self.queues.get_mut(&Traversable::Lane(first_lane)).unwrap();
+                queue.cars.insert(idx, car.vehicle.id);
+                // Don't use try_to_reserve_entry -- it's overly conservative.
+                // get_idx_to_insert_car does a more detailed check of the current space usage.
+                queue.reserved_length += car.vehicle.length + FOLLOWING_DISTANCE;
+            }
             self.cars.insert(car.vehicle.id, car);
             return true;
         }
@@ -307,6 +309,10 @@ impl DrivingSimState {
                         now,
                         map,
                         scheduler,
+                        Some((
+                            self.queues.get_mut(&Traversable::Lane(t.dst)).unwrap(),
+                            &car,
+                        )),
                     ) {
                         // Don't schedule a retry here.
                         return false;
@@ -484,7 +490,7 @@ impl DrivingSimState {
         );
 
         // We might be vanishing while partly clipping into other stuff.
-        self.clear_last_steps(now, car, intersections, scheduler);
+        self.clear_last_steps(now, car, intersections, scheduler, map);
 
         // We might've scheduled one of those using BLIND_RETRY_TO_CREEP_FORWARDS.
         scheduler.cancel(Command::UpdateLaggyHead(car.vehicle.id));
@@ -569,7 +575,7 @@ impl DrivingSimState {
 
         // Argh, fight the borrow checker.
         let mut car = self.cars.remove(&id).unwrap();
-        self.clear_last_steps(now, &mut car, intersections, scheduler);
+        self.clear_last_steps(now, &mut car, intersections, scheduler, map);
         self.cars.insert(id, car);
     }
 
@@ -579,6 +585,7 @@ impl DrivingSimState {
         car: &mut Car,
         intersections: &mut IntersectionSimState,
         scheduler: &mut Scheduler,
+        map: &Map,
     ) {
         // If we were blocking a few short lanes, should be better now. Very last one might have
         // somebody to wake up.
@@ -588,11 +595,17 @@ impl DrivingSimState {
             let old_queue = self.queues.get_mut(&on).unwrap();
             assert_eq!(old_queue.laggy_head, Some(car.vehicle.id));
             old_queue.laggy_head = None;
-
-            if let Traversable::Turn(t) = on {
-                intersections.turn_finished(now, AgentID::Car(car.vehicle.id), *t, scheduler);
-                car.last_completed_turn = now;
+            match on {
+                Traversable::Turn(t) => {
+                    intersections.turn_finished(now, AgentID::Car(car.vehicle.id), *t, scheduler);
+                    car.last_completed_turn = now;
+                }
+                Traversable::Lane(l) => {
+                    old_queue.free_reserved_space(car);
+                    intersections.space_freed(now, map.get_l(*l).src_i, scheduler);
+                }
             }
+
             if idx == last_steps.len() - 1 {
                 // Wake up the follower
                 if let Some(follower_id) = old_queue.cars.front() {

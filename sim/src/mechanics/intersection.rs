@@ -1,3 +1,5 @@
+use crate::mechanics::car::Car;
+use crate::mechanics::queue::Queue;
 use crate::{AgentID, Command, Scheduler, Speed};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::Duration;
@@ -71,8 +73,19 @@ impl IntersectionSimState {
         // finished and could let another one in.
 
         for req in state.waiting.keys() {
-            // TODO Use update because multiple agents could finish a turn at the same time, before
-            // the waiting one has a chance to try again.
+            // Use update because multiple agents could finish a turn at the same time, before the
+            // waiting one has a chance to try again.
+            scheduler.update(now, Command::update_agent(req.agent));
+        }
+    }
+
+    pub fn space_freed(&mut self, now: Duration, i: IntersectionID, scheduler: &mut Scheduler) {
+        let state = self.state.get_mut(&i).unwrap();
+
+        // TODO Be smarter and wake up less people here too.
+
+        for req in state.waiting.keys() {
+            // Use update for similar reasons to turn_finished.
             scheduler.update(now, Command::update_agent(req.agent));
         }
     }
@@ -114,18 +127,19 @@ impl IntersectionSimState {
         now: Duration,
         map: &Map,
         scheduler: &mut Scheduler,
+        maybe_car_and_target_queue: Option<(&mut Queue, &Car)>,
     ) -> bool {
         let req = Request { agent, turn };
         let state = self.state.get_mut(&turn.parent).unwrap();
         state.waiting.entry(req.clone()).or_insert(now);
 
         let allowed = if let Some(ref signal) = map.maybe_get_traffic_signal(state.id) {
-            state.traffic_signal_policy(signal, &req, speed, now, map)
+            state.traffic_signal_policy(signal, &req, speed, now, maybe_car_and_target_queue, map)
         } else if let Some(ref sign) = map.maybe_get_stop_sign(state.id) {
-            state.stop_sign_policy(sign, &req, now, map, scheduler)
+            state.stop_sign_policy(sign, &req, now, map, scheduler, maybe_car_and_target_queue)
         } else {
             // TODO This never gets called right now
-            state.freeform_policy(&req, map)
+            state.freeform_policy(&req, map, maybe_car_and_target_queue)
         };
 
         if allowed {
@@ -166,12 +180,25 @@ impl State {
             .any(|req| map.get_t(req.turn).conflicts_with(turn))
     }
 
-    fn freeform_policy(&self, req: &Request, map: &Map) -> bool {
+    fn freeform_policy(
+        &self,
+        req: &Request,
+        map: &Map,
+        maybe_car_and_target_queue: Option<(&mut Queue, &Car)>,
+    ) -> bool {
         // Allow concurrent turns that don't conflict, don't prevent target lane from spilling
         // over.
         if self.any_accepted_conflict_with(req.turn, map) {
             return false;
         }
+
+        // Don't block the box
+        if let Some((queue, car)) = maybe_car_and_target_queue {
+            if !queue.try_to_reserve_entry(car) {
+                return false;
+            }
+        }
+
         true
     }
 
@@ -203,6 +230,7 @@ impl State {
         now: Duration,
         map: &Map,
         scheduler: &mut Scheduler,
+        maybe_car_and_target_queue: Option<(&mut Queue, &Car)>,
     ) -> bool {
         if self.any_accepted_conflict_with(req.turn, map) {
             return false;
@@ -245,6 +273,13 @@ impl State {
         // TODO Make sure we can optimistically finish this turn before an approaching
         // higher-priority vehicle wants to begin.
 
+        // Don't block the box
+        if let Some((queue, car)) = maybe_car_and_target_queue {
+            if !queue.try_to_reserve_entry(car) {
+                return false;
+            }
+        }
+
         true
     }
 
@@ -254,6 +289,7 @@ impl State {
         new_req: &Request,
         speed: Speed,
         time: Duration,
+        maybe_car_and_target_queue: Option<(&mut Queue, &Car)>,
         map: &Map,
     ) -> bool {
         let (_, cycle, remaining_cycle_time) = signal.current_cycle_and_remaining_time(time);
@@ -288,6 +324,13 @@ impl State {
         let time_to_cross = turn.geom.length() / speed;
         if time_to_cross > remaining_cycle_time {
             return false;
+        }
+
+        // Don't block the box
+        if let Some((queue, car)) = maybe_car_and_target_queue {
+            if !queue.try_to_reserve_entry(car) {
+                return false;
+            }
         }
 
         true
