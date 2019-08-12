@@ -654,6 +654,10 @@ impl Sim {
         self.intersections.debug(id, map);
     }
 
+    pub fn debug_lane(&self, id: LaneID) {
+        self.driving.debug_lane(id);
+    }
+
     pub fn ped_tooltip(&self, p: PedestrianID) -> Vec<String> {
         let mut lines = self.walking.ped_tooltip(p, self.time);
         lines.extend(self.trips.tooltip_lines(AgentID::Pedestrian(p)));

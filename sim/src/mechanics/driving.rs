@@ -400,6 +400,18 @@ impl DrivingSimState {
                 {
                     Some(ActionAtEnd::VanishAtBorder(i)) => {
                         trips.car_or_bike_reached_border(now, car.vehicle.id, i);
+                        // clear_last_steps won't apply for this last lane before the border. Still
+                        // need to do this.
+                        let last_lane = car.router.head();
+                        self.queues
+                            .get_mut(&last_lane)
+                            .unwrap()
+                            .free_reserved_space(car);
+                        intersections.space_freed(
+                            now,
+                            map.get_l(last_lane.as_lane()).src_i,
+                            scheduler,
+                        );
                     }
                     Some(ActionAtEnd::StartParking(spot)) => {
                         car.state = CarState::Parking(
@@ -735,6 +747,12 @@ impl DrivingSimState {
             println!("{}", abstutil::to_json(car));
         } else {
             println!("{} is parked somewhere", id);
+        }
+    }
+
+    pub fn debug_lane(&self, id: LaneID) {
+        if let Some(ref queue) = self.queues.get(&Traversable::Lane(id)) {
+            println!("{}", abstutil::to_json(queue));
         }
     }
 

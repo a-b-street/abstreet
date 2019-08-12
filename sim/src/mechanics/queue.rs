@@ -164,11 +164,6 @@ impl Queue {
     // If true, there's room and the car must actually start the turn (because the space is
     // reserved).
     pub fn try_to_reserve_entry(&mut self, car: &Car) -> bool {
-        // TODO Enable.
-        if true {
-            return true;
-        }
-
         // Sometimes a car + FOLLOWING_DISTANCE might be longer than the geom_len entirely. In that
         // case, it just means the car won't totally fit on the queue at once, which is fine.
         // Reserve the normal amount of space; the next car trying to enter will get rejected.
@@ -181,10 +176,6 @@ impl Queue {
     }
 
     pub fn free_reserved_space(&mut self, car: &Car) {
-        if true {
-            return;
-        }
-
         assert!(self.laggy_head.is_none());
         self.reserved_length -= car.vehicle.length + FOLLOWING_DISTANCE;
         assert!(self.reserved_length >= Distance::ZERO);

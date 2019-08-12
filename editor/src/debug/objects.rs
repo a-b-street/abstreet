@@ -78,6 +78,7 @@ fn dump_debug(id: ID, map: &Map, sim: &Sim, draw_map: &DrawMap) {
         }
         ID::Lane(id) => {
             map.get_l(id).dump_debug();
+            sim.debug_lane(id);
         }
         ID::Intersection(id) => {
             map.get_i(id).dump_debug();
