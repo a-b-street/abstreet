@@ -202,27 +202,6 @@ impl State {
         true
     }
 
-    fn is_ready_at_stop_sign(
-        &self,
-        sign: &ControlStopSign,
-        req: &Request,
-        now: Duration,
-        map: &Map,
-    ) -> bool {
-        if self.any_accepted_conflict_with(req.turn, map) {
-            return false;
-        }
-
-        let our_priority = sign.turns[&req.turn];
-        let our_time = self.waiting[req];
-
-        if our_priority == TurnPriority::Stop && now < our_time + WAIT_AT_STOP_SIGN {
-            return false;
-        }
-
-        true
-    }
-
     fn stop_sign_policy(
         &self,
         sign: &ControlStopSign,
@@ -250,25 +229,18 @@ impl State {
             return false;
         }
 
-        let our_turn = map.get_t(req.turn);
-        for (r, time) in &self.waiting {
-            // If the turns don't conflict, then don't even worry.
-            if !our_turn.conflicts_with(map.get_t(r.turn)) {
-                continue;
-            }
-            // If the other can't go yet, then proceed.
-            if !self.is_ready_at_stop_sign(sign, r, now, map) {
-                continue;
-            }
-
-            // If there's a higher rank turn waiting, don't allow
-            if sign.turns[&r.turn] > our_priority {
-                return false;
-            // If there's an equal rank turn queued before ours, don't allow
-            } else if sign.turns[&r.turn] == our_priority && *time < our_time {
-                return false;
-            }
-        }
+        // Once upon a time, we'd make sure that this request doesn't conflict with another in
+        // self.waiting:
+        // 1) Higher-ranking turns get to go first.
+        // 2) Equal-ranking turns that started waiting before us get to go first.
+        // But the exceptions started stacking -- if the other agent is blocked or the turns don't
+        // even conflict, then allow it. Except determining if the other agent is blocked or not is
+        // tough and kind of recursive.
+        //
+        // So instead, don't do any of that! The WAIT_AT_STOP_SIGN scheduling above and the fact
+        // that events are processed in time order mean that case #2 is magically handled anyway.
+        // If a case #1 could've started by now, then they would have. Since they didn't, they must
+        // be blocked.
 
         // TODO Make sure we can optimistically finish this turn before an approaching
         // higher-priority vehicle wants to begin.
