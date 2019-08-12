@@ -62,7 +62,6 @@ fn warp_point(line: &str, primary: &PerMapUI) -> Option<(ID, Pt2D)> {
                 if let Some(r) = primary.map.maybe_get_r(id) {
                     ID::Lane(r.children_forwards[0].0)
                 } else {
-                    println!("{} doesn't exist", id);
                     return None;
                 }
             }
@@ -76,7 +75,6 @@ fn warp_point(line: &str, primary: &PerMapUI) -> Option<(ID, Pt2D)> {
                 if let Some(id) = primary.sim.lookup_car_id(idx) {
                     ID::Car(id)
                 } else {
-                    println!("Car {} doesn't exist", idx);
                     return None;
                 }
             }
@@ -85,7 +83,6 @@ fn warp_point(line: &str, primary: &PerMapUI) -> Option<(ID, Pt2D)> {
                 if let Some(id) = primary.map.lookup_turn_by_idx(idx) {
                     ID::Turn(id)
                 } else {
-                    println!("{} isn't a known TurnID", line);
                     return None;
                 }
             }
@@ -99,7 +96,6 @@ fn warp_point(line: &str, primary: &PerMapUI) -> Option<(ID, Pt2D)> {
                 {
                     ID::Intersection(i.id)
                 } else {
-                    println!("{} isn't known", stable_id);
                     return None;
                 }
             }
@@ -113,12 +109,10 @@ fn warp_point(line: &str, primary: &PerMapUI) -> Option<(ID, Pt2D)> {
                 {
                     ID::Lane(r.children_forwards[0].0)
                 } else {
-                    println!("{} isn't known", stable_id);
                     return None;
                 }
             }
             _ => {
-                println!("{} isn't a valid ID; Should be [libepct][0-9]+", line);
                 return None;
             }
         },
@@ -130,7 +124,6 @@ fn warp_point(line: &str, primary: &PerMapUI) -> Option<(ID, Pt2D)> {
         println!("Warping to {:?}", id);
         Some((id, pt))
     } else {
-        println!("{:?} doesn't exist", id);
         None
     }
 }

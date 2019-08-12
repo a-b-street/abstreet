@@ -5,7 +5,7 @@ use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::Duration;
 use map_model::{
     ControlStopSign, ControlTrafficSignal, IntersectionID, IntersectionType, LaneID, Map, TurnID,
-    TurnPriority,
+    TurnPriority, TurnType,
 };
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet};
@@ -292,6 +292,13 @@ impl State {
         maybe_car_and_target_queue: Option<(&mut Queue, &Car)>,
         map: &Map,
     ) -> bool {
+        let turn = map.get_t(new_req.turn);
+
+        // SharedSidewalkCorner doesn't conflict with anything -- fastpath!
+        if turn.turn_type == TurnType::SharedSidewalkCorner {
+            return true;
+        }
+
         let (_, cycle, remaining_cycle_time) = signal.current_cycle_and_remaining_time(time);
 
         // Can't go at all this cycle.
@@ -305,7 +312,6 @@ impl State {
         }
 
         // A yield loses to a conflicting Priority turn.
-        let turn = map.get_t(new_req.turn);
         if cycle.get_priority(new_req.turn) == TurnPriority::Yield {
             if self.waiting.keys().any(|r| {
                 turn.conflicts_with(map.get_t(r.turn))
@@ -323,7 +329,12 @@ impl State {
         // it wrong, that's fine -- block the box a bit.
         let time_to_cross = turn.geom.length() / speed;
         if time_to_cross > remaining_cycle_time {
-            return false;
+            // Actually, we might have bigger problems...
+            if time_to_cross > cycle.duration {
+                println!("OYYY! {:?} is impossible to fit into cycle duration of {}. Allowing, but fix the policy!", new_req, cycle.duration);
+            } else {
+                return false;
+            }
         }
 
         // Don't block the box
