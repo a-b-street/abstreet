@@ -35,8 +35,7 @@ pub enum CarStatus {
 
 pub struct UnzoomedAgent {
     pub pos: Pt2D,
-    // TODO Track actual delay, based on more fine-grained states. Easiest to be an Option
-    pub time_since_last_turn: Duration,
+    pub time_spent_blocked: Duration,
 }
 
 // TODO Can we return borrows instead? Nice for time travel, not for main sim?

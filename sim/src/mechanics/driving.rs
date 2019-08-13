@@ -85,7 +85,7 @@ impl DrivingSimState {
                 // Temporary
                 state: CarState::Queued,
                 last_steps: VecDeque::new(),
-                last_completed_turn: now,
+                blocked_since: None,
                 trip: params.trip,
             };
             if params.maybe_parked_car.is_some() {
@@ -226,6 +226,7 @@ impl DrivingSimState {
         match car.state {
             CarState::Crossing(_, _) => {
                 car.state = CarState::Queued;
+                car.blocked_since = Some(now);
                 if car.router.last_step() {
                     // Immediately run update_car_with_distances.
                     return true;
@@ -274,6 +275,7 @@ impl DrivingSimState {
                                     now,
                                     map,
                                 );
+                                follower.blocked_since = None;
                                 scheduler.update(
                                     follower.state.get_end_time(),
                                     Command::UpdateCar(follower.vehicle.id),
@@ -330,6 +332,7 @@ impl DrivingSimState {
 
                 let last_step = car.router.advance(&car.vehicle, parking, map);
                 car.state = car.crossing_state(Distance::ZERO, now, map);
+                car.blocked_since = None;
                 scheduler.push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
 
                 car.last_steps.push_front(last_step);
@@ -387,7 +390,8 @@ impl DrivingSimState {
             .unwrap();
         let our_dist = dists[idx].1;
 
-        // Just two cases here.
+        // Just two cases here. In all cases, we leave the Queued state.
+        car.blocked_since = None;
         match car.state {
             CarState::Crossing(_, _)
             | CarState::Unparking(_, _)
@@ -521,6 +525,7 @@ impl DrivingSimState {
                     // no-op. But if they were blocked, then this will prevent them from
                     // jumping forwards.
                     follower.state = follower.crossing_state(follower_dist, now, map);
+                    follower.blocked_since = None;
                     scheduler.update(
                         follower.state.get_end_time(),
                         Command::UpdateCar(follower_id),
@@ -610,7 +615,6 @@ impl DrivingSimState {
             match on {
                 Traversable::Turn(t) => {
                     intersections.turn_finished(now, AgentID::Car(car.vehicle.id), *t, scheduler);
-                    car.last_completed_turn = now;
                 }
                 Traversable::Lane(l) => {
                     old_queue.free_reserved_space(car);
@@ -694,7 +698,10 @@ impl DrivingSimState {
             for (car, dist) in queue.get_car_positions(now, &self.cars, &self.queues) {
                 result.push(UnzoomedAgent {
                     pos: queue.id.dist_along(dist, map).0,
-                    time_since_last_turn: now - self.cars[&car].last_completed_turn,
+                    time_spent_blocked: self.cars[&car]
+                        .blocked_since
+                        .map(|t| now - t)
+                        .unwrap_or(Duration::ZERO),
                 });
             }
         }
@@ -773,7 +780,10 @@ impl DrivingSimState {
             format!("{} on {}", id, car.router.head()),
             format!("Owned by {:?}", car.vehicle.owner),
             format!("{} lanes left", car.router.get_path().num_lanes()),
-            format!("Last turned {} ago", now - car.last_completed_turn),
+            format!(
+                "Blocked for {}",
+                car.blocked_since.map(|t| now - t).unwrap_or(Duration::ZERO)
+            ),
             format!("{:?}", car.state),
         ])
     }

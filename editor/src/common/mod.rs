@@ -89,7 +89,7 @@ impl CommonState {
                 .get_unzoomed_agents_with_delay(&ui.primary.map)
             {
                 batch.push(
-                    delay_color(agent.time_since_last_turn),
+                    delay_color(agent.time_spent_blocked),
                     Circle::new(agent.pos, radius).to_polygon(),
                 );
             }

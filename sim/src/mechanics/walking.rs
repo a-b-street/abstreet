@@ -53,7 +53,7 @@ impl WalkingSimState {
                 TimeInterval::new(Duration::ZERO, Duration::seconds(1.0)),
             ),
             speed: params.speed,
-            last_completed_turn: now,
+            blocked_since: None,
             path: params.path,
             goal: params.goal,
             trip: params.trip,
@@ -140,6 +140,7 @@ impl WalkingSimState {
                                 self.peds.remove(&id);
                             } else {
                                 ped.state = PedState::WaitingForBus;
+                                ped.blocked_since = Some(now);
                             }
                         }
                         SidewalkPOI::Border(i) => {
@@ -163,7 +164,6 @@ impl WalkingSimState {
                 } else {
                     if let PathStep::Turn(t) = ped.path.current_step() {
                         intersections.turn_finished(now, AgentID::Pedestrian(ped.id), t, scheduler);
-                        ped.last_completed_turn = now;
                     }
 
                     let dist = dist_int.end;
@@ -178,6 +178,7 @@ impl WalkingSimState {
                     } else {
                         // Must've failed because we can't turn yet. Don't schedule a retry here.
                         ped.state = PedState::WaitingToTurn(dist);
+                        ped.blocked_since = Some(now);
                     }
                 }
             }
@@ -190,6 +191,7 @@ impl WalkingSimState {
                     scheduler,
                 ) {
                     scheduler.push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
+                    ped.blocked_since = None;
                 }
             }
             PedState::LeavingBuilding(b, _) => {
@@ -241,7 +243,10 @@ impl WalkingSimState {
         vec![
             format!("{} on {:?}", p.id, p.path.current_step()),
             format!("{} lanes left in path", p.path.num_lanes()),
-            format!("Last turned {} ago", now - p.last_completed_turn),
+            format!(
+                "Blocked for {}",
+                p.blocked_since.map(|t| now - t).unwrap_or(Duration::ZERO)
+            ),
             format!("{:?}", p.state),
         ]
     }
@@ -281,7 +286,7 @@ impl WalkingSimState {
         for ped in self.peds.values() {
             peds.push(UnzoomedAgent {
                 pos: ped.get_draw_ped(now, map).pos,
-                time_since_last_turn: now - ped.last_completed_turn,
+                time_spent_blocked: ped.blocked_since.map(|t| now - t).unwrap_or(Duration::ZERO),
             });
         }
 
@@ -302,9 +307,7 @@ struct Pedestrian {
     id: PedestrianID,
     state: PedState,
     speed: Speed,
-    // Pedestrians waiting for buses will also have their times creep up, but that's nice, since it
-    // captures that same sense of delay.
-    last_completed_turn: Duration,
+    blocked_since: Option<Duration>,
 
     path: Path,
     goal: SidewalkSpot,
