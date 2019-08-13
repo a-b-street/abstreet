@@ -259,7 +259,8 @@ impl GetDrawAgents for Sim {
                 return self.parking.get_draw_cars(l, map);
             }
         }
-        self.driving.get_draw_cars_on(self.time, on, map)
+        self.driving
+            .get_draw_cars_on(self.time, on, map, &self.transit)
     }
 
     fn get_draw_peds(&self, on: Traversable, map: &Map) -> Vec<DrawPedestrianInput> {
@@ -267,7 +268,9 @@ impl GetDrawAgents for Sim {
     }
 
     fn get_all_draw_cars(&self, map: &Map) -> Vec<DrawCarInput> {
-        let mut result = self.driving.get_all_draw_cars(self.time, map);
+        let mut result = self
+            .driving
+            .get_all_draw_cars(self.time, map, &self.transit);
         result.extend(self.parking.get_all_draw_cars(map));
         result
     }
@@ -680,7 +683,7 @@ impl Sim {
         }
     }
 
-    pub fn bus_route_name(&self, maybe_bus: CarID) -> Option<BusRouteID> {
+    pub fn bus_route_id(&self, maybe_bus: CarID) -> Option<BusRouteID> {
         if maybe_bus.1 == VehicleType::Bus {
             Some(self.transit.bus_route(maybe_bus))
         } else {

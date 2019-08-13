@@ -1,9 +1,9 @@
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
-use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
+use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender, Text};
 use geom::{Angle, Circle, Distance, PolyLine, Polygon, Pt2D};
 use map_model::{Map, TurnType};
-use sim::{CarID, CarStatus, DrawCarInput};
+use sim::{CarID, CarStatus, DrawCarInput, VehicleType};
 
 const CAR_WIDTH: Distance = Distance::const_meters(2.0);
 
@@ -12,6 +12,7 @@ pub struct DrawCar {
     body: PolyLine,
     body_polygon: Polygon,
     zorder: isize,
+    label: Option<Text>,
 
     draw_default: Drawable,
 }
@@ -22,12 +23,15 @@ impl DrawCar {
 
         let body_polygon = input.body.make_polygons(CAR_WIDTH);
         draw_default.push(
-            // TODO if it's a bus, color it differently -- but how? :\
-            match input.status {
-                CarStatus::Debug => cs.get_def("debug car", Color::BLUE.alpha(0.8)),
-                CarStatus::Moving => cs.get_def("moving car", Color::CYAN),
-                CarStatus::Stuck => cs.get_def("stuck car", Color::rgb(222, 184, 135)),
-                CarStatus::Parked => cs.get_def("parked car", Color::rgb(180, 233, 76)),
+            if input.id.1 == VehicleType::Bus {
+                cs.get_def("bus", Color::rgb(50, 133, 117))
+            } else {
+                match input.status {
+                    CarStatus::Debug => cs.get_def("debug car", Color::BLUE.alpha(0.8)),
+                    CarStatus::Moving => cs.get_def("moving car", Color::CYAN),
+                    CarStatus::Stuck => cs.get_def("stuck car", Color::rgb(222, 184, 135)),
+                    CarStatus::Parked => cs.get_def("parked car", Color::rgb(180, 233, 76)),
+                }
             },
             body_polygon.clone(),
         );
@@ -142,6 +146,11 @@ impl DrawCar {
             body: input.body,
             body_polygon,
             zorder: input.on.get_zorder(map),
+            label: input.label.map(|line| {
+                let mut txt = Text::with_bg_color(None);
+                txt.add_styled_line(line, Some(Color::rgb(249, 206, 24)), None, Some(20));
+                txt
+            }),
             draw_default: prerender.upload(draw_default),
         }
     }
@@ -157,6 +166,12 @@ impl Renderable for DrawCar {
             g.draw_polygon(color, &self.body_polygon);
         } else {
             g.redraw(&self.draw_default);
+        }
+
+        if let Some(ref txt) = self.label {
+            // TODO Would rotation make any sense? Or at least adjust position/size while turning.
+            // Buses are a constant length, so hardcoding this is fine.
+            g.draw_text_at_mapspace(txt, self.body.dist_along(Distance::meters(9.0)).0);
         }
     }
 

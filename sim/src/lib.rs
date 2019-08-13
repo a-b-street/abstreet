@@ -44,10 +44,11 @@ pub const BUS_LENGTH: Distance = Distance::const_meters(12.5);
 // one car to the back of the other.
 pub const FOLLOWING_DISTANCE: Distance = Distance::const_meters(1.0);
 
-// The VehicleType is only used for convenient debugging. The numeric ID itself must be sufficient.
+// The numeric ID must be globally unique, without considering VehicleType. VehicleType is bundled
+// for convenient debugging.
 // TODO Implement Eq, Hash, Ord manually to guarantee this.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
-pub struct CarID(pub usize, pub(crate) VehicleType);
+pub struct CarID(pub usize, pub VehicleType);
 
 impl fmt::Display for CarID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

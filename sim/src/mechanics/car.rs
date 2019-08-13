@@ -1,5 +1,6 @@
 use crate::{
-    CarStatus, DistanceInterval, DrawCarInput, ParkingSpot, Router, TimeInterval, TripID, Vehicle,
+    CarStatus, DistanceInterval, DrawCarInput, ParkingSpot, Router, TimeInterval, TransitSimState,
+    TripID, Vehicle, VehicleType,
 };
 use geom::{Distance, Duration, PolyLine};
 use map_model::{Map, Traversable, LANE_THICKNESS};
@@ -53,7 +54,13 @@ impl Car {
         CarState::Crossing(TimeInterval::new(start_time, start_time + dt), dist_int)
     }
 
-    pub fn get_draw_car(&self, front: Distance, time: Duration, map: &Map) -> DrawCarInput {
+    pub fn get_draw_car(
+        &self,
+        front: Distance,
+        time: Duration,
+        map: &Map,
+        transit: &TransitSimState,
+    ) -> DrawCarInput {
         assert!(front >= Distance::ZERO);
         let raw_body = if front >= self.vehicle.length {
             self.router
@@ -122,8 +129,16 @@ impl Car {
                 // Changing color for idling buses is helpful
                 CarState::Idling(_, _) => CarStatus::Parked,
             },
-            vehicle_type: self.vehicle.vehicle_type,
             on: self.router.head(),
+            label: if self.vehicle.vehicle_type == VehicleType::Bus {
+                Some(
+                    map.get_br(transit.bus_route(self.vehicle.id))
+                        .name
+                        .to_string(),
+                )
+            } else {
+                None
+            },
             body,
         }
     }

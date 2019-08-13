@@ -718,25 +718,36 @@ impl DrivingSimState {
         }
     }
 
-    pub fn get_all_draw_cars(&self, now: Duration, map: &Map) -> Vec<DrawCarInput> {
+    pub fn get_all_draw_cars(
+        &self,
+        now: Duration,
+        map: &Map,
+        transit: &TransitSimState,
+    ) -> Vec<DrawCarInput> {
         let mut result = Vec::new();
         for queue in self.queues.values() {
             result.extend(
                 queue
                     .get_car_positions(now, &self.cars, &self.queues)
                     .into_iter()
-                    .map(|(id, dist)| self.cars[&id].get_draw_car(dist, now, map)),
+                    .map(|(id, dist)| self.cars[&id].get_draw_car(dist, now, map, transit)),
             );
         }
         result
     }
 
-    pub fn get_draw_cars_on(&self, now: Duration, on: Traversable, map: &Map) -> Vec<DrawCarInput> {
+    pub fn get_draw_cars_on(
+        &self,
+        now: Duration,
+        on: Traversable,
+        map: &Map,
+        transit: &TransitSimState,
+    ) -> Vec<DrawCarInput> {
         match self.queues.get(&on) {
             Some(q) => q
                 .get_car_positions(now, &self.cars, &self.queues)
                 .into_iter()
-                .map(|(id, dist)| self.cars[&id].get_draw_car(dist, now, map))
+                .map(|(id, dist)| self.cars[&id].get_draw_car(dist, now, map, transit))
                 .collect(),
             None => Vec::new(),
         }

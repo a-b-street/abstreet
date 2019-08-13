@@ -1,4 +1,4 @@
-use crate::{CarID, CarStatus, DrawCarInput, ParkedCar, ParkingSpot, Vehicle, VehicleType};
+use crate::{CarID, CarStatus, DrawCarInput, ParkedCar, ParkingSpot, Vehicle};
 use abstutil::{
     deserialize_btreemap, deserialize_multimap, serialize_btreemap, serialize_multimap, MultiMap,
 };
@@ -106,8 +106,8 @@ impl ParkingSimState {
             id: p.vehicle.id,
             waiting_for_turn: None,
             status: CarStatus::Parked,
-            vehicle_type: VehicleType::Car,
             on: Traversable::Lane(lane),
+            label: None,
 
             body: map
                 .get_l(lane)

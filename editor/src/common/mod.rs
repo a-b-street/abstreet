@@ -146,7 +146,7 @@ impl CommonState {
             }
             Some(ID::Car(c)) => {
                 osd.append(format!("{}", c), Some(id_color));
-                if let Some(r) = ui.primary.sim.bus_route_name(c) {
+                if let Some(r) = ui.primary.sim.bus_route_id(c) {
                     osd.append(" serving ".to_string(), None);
                     osd.append(map.get_br(r).name.to_string(), Some(name_color));
                 }

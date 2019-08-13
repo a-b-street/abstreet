@@ -1,4 +1,4 @@
-use crate::{CarID, PedestrianID, VehicleType};
+use crate::{CarID, PedestrianID};
 use geom::{Angle, Duration, PolyLine, Pt2D};
 use map_model::{Map, Traversable, TurnID};
 
@@ -18,9 +18,8 @@ pub struct DrawCarInput {
     pub id: CarID,
     pub waiting_for_turn: Option<TurnID>,
     pub status: CarStatus,
-    // TODO This is definitely redundant
-    pub vehicle_type: VehicleType,
     pub on: Traversable,
+    pub label: Option<String>,
 
     // Starts at the BACK of the car. TODO Dedupe unused old stuff.
     pub body: PolyLine,
