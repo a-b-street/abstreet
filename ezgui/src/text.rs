@@ -18,6 +18,7 @@ pub const INACTIVE_CHOICE_COLOR: Color = Color::grey(0.4);
 pub const FONT_SIZE: usize = 30;
 // TODO Don't do this!
 const MAX_CHAR_WIDTH: f64 = 25.0;
+pub const SCALE_DOWN: f64 = 2.0;
 
 #[derive(Debug, Clone)]
 struct TextSpan {
@@ -266,8 +267,8 @@ pub fn draw_text_bubble_mapspace(
             c,
             &Polygon::rectangle_topleft(
                 Pt2D::new(top_left.x(), top_left.y()),
-                Distance::meters(total_width),
-                Distance::meters(total_height),
+                Distance::meters(total_width / SCALE_DOWN),
+                Distance::meters(total_height / SCALE_DOWN),
             ),
         );
     }
@@ -278,7 +279,7 @@ pub fn draw_text_bubble_mapspace(
         let section = VariedSection {
             // This in map-space, but the transform matrix for mapspace_glyphs will take care of
             // it.
-            screen_position: (top_left.x() as f32, y as f32),
+            screen_position: ((top_left.x() * SCALE_DOWN) as f32, (y * SCALE_DOWN) as f32),
             text: line
                 .iter()
                 .map(|span| {
@@ -293,14 +294,14 @@ pub fn draw_text_bubble_mapspace(
                 .collect(),
             ..VariedSection::default()
         };
-        let height = g.canvas.line_height(max_size);
+        let height = g.canvas.line_height(max_size) / SCALE_DOWN;
 
         if let Some(c) = line_color {
             g.draw_polygon(
                 *c,
                 &Polygon::rectangle_topleft(
                     Pt2D::new(top_left.x(), y),
-                    Distance::meters(total_width),
+                    Distance::meters(total_width / SCALE_DOWN),
                     Distance::meters(height),
                 ),
             );

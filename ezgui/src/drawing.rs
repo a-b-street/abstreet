@@ -216,16 +216,16 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn draw_text_at_mapspace(&mut self, txt: &Text, map_pt: Pt2D) {
-        /*let (width, height) = self.text_dims(&txt);
+        let (width, height) = self.text_dims(&txt);
         text::draw_text_bubble_mapspace(
             self,
-            Pt2D::new(map_pt.x() - (width / 2.0), map_pt.y() - (height / 2.0)),
+            Pt2D::new(
+                map_pt.x() - (width / (2.0 * text::SCALE_DOWN)),
+                map_pt.y() - (height / (2.0 * text::SCALE_DOWN)),
+            ),
             txt,
             (width, height),
-        );*/
-
-        let (width, height) = self.text_dims(&txt);
-        text::draw_text_bubble_mapspace(self, map_pt, txt, (width, height));
+        );
     }
 
     pub fn text_dims(&self, txt: &Text) -> (f64, f64) {

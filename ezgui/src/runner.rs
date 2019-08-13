@@ -1,5 +1,5 @@
 use crate::input::ContextMenu;
-use crate::{widgets, Canvas, Event, EventCtx, GfxCtx, Prerender, UserInput};
+use crate::{text, widgets, Canvas, Event, EventCtx, GfxCtx, Prerender, UserInput};
 use glium::glutin;
 use glium_glyph::glyph_brush::rusttype::Font;
 use glium_glyph::GlyphBrush;
@@ -359,8 +359,8 @@ fn loop_forever<G: GUI>(
 }
 
 fn ortho((left, right): (f32, f32), (bottom, top): (f32, f32)) -> [[f32; 4]; 4] {
-    let s_x = 2.0 / (right - left);
-    let s_y = 2.0 / (top - bottom);
+    let s_x = 2.0 / (right - left) / (text::SCALE_DOWN as f32);
+    let s_y = 2.0 / (top - bottom) / (text::SCALE_DOWN as f32);
     let t_x = -(right + left) / (right - left);
     let t_y = -(top + bottom) / (top - bottom);
     [
