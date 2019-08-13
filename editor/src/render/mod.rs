@@ -85,6 +85,7 @@ pub struct DrawOptions {
     pub suppress_traffic_signal_details: Option<IntersectionID>,
     pub geom_debug_mode: bool,
     pub suppress_unzoomed_agents: bool,
+    pub label_buildings: bool,
 }
 
 impl DrawOptions {
@@ -94,6 +95,7 @@ impl DrawOptions {
             suppress_traffic_signal_details: None,
             geom_debug_mode: false,
             suppress_unzoomed_agents: false,
+            label_buildings: false,
         }
     }
 

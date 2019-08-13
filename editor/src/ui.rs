@@ -5,7 +5,7 @@ use crate::render::{
 };
 use abstutil;
 use abstutil::{MeasureMemory, Timer};
-use ezgui::{Canvas, Color, EventCtx, GeomBatch, GfxCtx, Prerender};
+use ezgui::{Canvas, Color, EventCtx, GeomBatch, GfxCtx, Prerender, Text};
 use geom::{Bounds, Circle, Distance};
 use map_model::{Map, Traversable};
 use rand::seq::SliceRandom;
@@ -167,10 +167,24 @@ impl UI {
 
             for obj in objects {
                 match obj.get_id() {
-                    ID::Building(_) => {
+                    ID::Building(b) => {
                         if !drawn_all_buildings {
                             g.redraw(&self.primary.draw_map.draw_all_buildings);
                             drawn_all_buildings = true;
+                        }
+                        // TODO Cache the Sections in DrawBldg
+                        if opts.label_buildings {
+                            let bldg = ctx.map.get_b(b);
+                            if let Some(num) = bldg.osm_tags.get("addr:housenumber") {
+                                let mut txt = Text::with_bg_color(None);
+                                txt.add_styled_line(
+                                    num.to_string(),
+                                    Some(Color::BLACK),
+                                    None,
+                                    Some(50),
+                                );
+                                g.draw_text_at_mapspace(&txt, bldg.polygon.center());
+                            }
                         }
                     }
                     ID::Area(_) => {

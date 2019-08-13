@@ -18,7 +18,7 @@ pub const INACTIVE_CHOICE_COLOR: Color = Color::grey(0.4);
 pub const FONT_SIZE: usize = 30;
 // TODO Don't do this!
 const MAX_CHAR_WIDTH: f64 = 25.0;
-pub const SCALE_DOWN: f64 = 2.0;
+pub const SCALE_DOWN: f64 = 10.0;
 
 #[derive(Debug, Clone)]
 struct TextSpan {
