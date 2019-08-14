@@ -277,6 +277,10 @@ impl<'a> GfxCtx<'a> {
             _ => Vec::new(),
         }
     }
+
+    pub fn upload(&mut self, batch: GeomBatch) -> Drawable {
+        self.prerender.upload(batch)
+    }
 }
 
 pub struct GeomBatch {

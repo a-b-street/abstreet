@@ -8,11 +8,11 @@ use crate::render::lane::DrawLane;
 use crate::render::road::DrawRoad;
 use crate::render::turn::DrawTurn;
 use crate::render::Renderable;
-use crate::ui::Flags;
+use crate::ui::{Flags, PerMapUI};
 use aabb_quadtree::QuadTree;
 use abstutil::Timer;
-use ezgui::{Color, Drawable, GeomBatch, Prerender};
-use geom::{Bounds, Duration, FindClosest};
+use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
+use geom::{Bounds, Circle, Distance, Duration, FindClosest};
 use map_model::{
     AreaID, BuildingID, BusStopID, DirectedRoadID, IntersectionID, IntersectionType, Lane, LaneID,
     Map, RoadID, Traversable, Turn, TurnID, TurnType, LANE_THICKNESS,
@@ -244,6 +244,7 @@ impl DrawMap {
             agents: RefCell::new(AgentCache {
                 time: None,
                 agents_per_on: HashMap::new(),
+                unzoomed: None,
             }),
 
             quadtree,
@@ -329,6 +330,7 @@ impl DrawMap {
 pub struct AgentCache {
     time: Option<Duration>,
     agents_per_on: HashMap<Traversable, Vec<Box<Renderable>>>,
+    unzoomed: Option<(f64, Drawable)>,
 }
 
 impl AgentCache {
@@ -355,6 +357,41 @@ impl AgentCache {
 
         assert!(!self.agents_per_on.contains_key(&on));
         self.agents_per_on.insert(on, agents);
+    }
+
+    pub fn draw_unzoomed_agents(&mut self, primary: &PerMapUI, cs: &ColorScheme, g: &mut GfxCtx) {
+        let now = primary.sim.time();
+        if let Some((z, ref draw)) = self.unzoomed {
+            if g.canvas.cam_zoom == z && Some(now) == self.time {
+                g.redraw(draw);
+                return;
+            }
+        }
+
+        let (cars, bikes, buses, peds) = primary.sim.get_unzoomed_agents(&primary.map);
+        let mut batch = GeomBatch::new();
+        let radius = Distance::meters(10.0) / g.canvas.cam_zoom;
+        for (color, agents) in vec![
+            (cs.get_def("unzoomed car", Color::RED.alpha(0.5)), cars),
+            (cs.get_def("unzoomed bike", Color::GREEN.alpha(0.5)), bikes),
+            (cs.get_def("unzoomed bus", Color::BLUE.alpha(0.5)), buses),
+            (
+                cs.get_def("unzoomed pedestrian", Color::ORANGE.alpha(0.5)),
+                peds,
+            ),
+        ] {
+            for pt in agents {
+                batch.push(color, Circle::new(pt, radius).to_polygon());
+            }
+        }
+
+        let draw = g.upload(batch);
+        g.redraw(&draw);
+        self.unzoomed = Some((g.canvas.cam_zoom, draw));
+        if Some(now) != self.time {
+            self.agents_per_on.clear();
+            self.time = Some(now);
+        }
     }
 }
 
