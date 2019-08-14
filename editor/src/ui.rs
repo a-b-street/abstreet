@@ -1,7 +1,7 @@
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{
-    draw_vehicle, AgentCache, DrawCtx, DrawMap, DrawOptions, DrawPedestrian, Renderable,
-    MIN_ZOOM_FOR_DETAIL,
+    draw_vehicle, AgentCache, DrawCtx, DrawMap, DrawOptions, DrawPedCrowd, DrawPedestrian,
+    Renderable, MIN_ZOOM_FOR_DETAIL,
 };
 use abstutil;
 use abstutil::{MeasureMemory, Timer};
@@ -352,10 +352,15 @@ impl UI {
                     for c in source.get_draw_cars(*on, map).into_iter() {
                         list.push(draw_vehicle(c, map, prerender, &self.cs));
                     }
-                    for p in source.get_draw_peds(*on, map).into_iter() {
+                    let (loners, crowds) =
+                        DrawPedestrian::aggregate_peds(source.get_draw_peds(*on, map));
+                    for p in loners {
                         list.push(Box::new(DrawPedestrian::new(
                             p, step_count, map, prerender, &self.cs,
                         )));
+                    }
+                    for c in crowds {
+                        list.push(Box::new(DrawPedCrowd::new(c, map, prerender, &self.cs)));
                     }
                     agents.put(time, *on, list);
                 }

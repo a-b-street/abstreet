@@ -1,8 +1,8 @@
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{DrawCtx, DrawOptions, Renderable};
-use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
-use geom::{Circle, Distance, PolyLine, Polygon};
-use map_model::{Map, LANE_THICKNESS};
+use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender, Text};
+use geom::{Circle, Distance, PolyLine, Polygon, Pt2D};
+use map_model::{Map, Traversable, LANE_THICKNESS};
 use sim::{DrawPedestrianInput, PedestrianID};
 
 pub struct DrawPedestrian {
@@ -25,7 +25,7 @@ impl DrawPedestrian {
         // - route visualization is thick
         // - there are little skips when making turns
         // - front paths are too skinny
-        let radius = LANE_THICKNESS / 4.0;
+        let radius = LANE_THICKNESS / 4.0; // TODO make const after const fn is better
 
         let mut draw_default = GeomBatch::new();
 
@@ -110,6 +110,61 @@ impl DrawPedestrian {
             draw_default: prerender.upload(draw_default),
         }
     }
+
+    pub fn aggregate_peds(
+        mut peds: Vec<DrawPedestrianInput>,
+    ) -> (Vec<DrawPedestrianInput>, Vec<PedCrowd>) {
+        if peds.is_empty() {
+            return (Vec::new(), Vec::new());
+        }
+
+        // This'd be much cheaper to do by distance along the traversable, but it's a bit
+        // memory-expensive to plumb that out for this experiment. It also doesn't handle front
+        // paths as well.
+        // TODO But average position will wind up off the sidewalk. :P
+        let radius = LANE_THICKNESS / 4.0;
+
+        let mut loners: Vec<PedestrianID> = Vec::new();
+        let mut crowds: Vec<PedCrowd> = Vec::new();
+        let mut remaining: Vec<(PedestrianID, Pt2D)> = peds.iter().map(|p| (p.id, p.pos)).collect();
+        // We know everyone's on the same traversable.
+        let on = peds[0].on;
+
+        // TODO Incorrect and inefficient clustering
+        while !remaining.is_empty() {
+            let mut keep: Vec<(PedestrianID, Pt2D)> = Vec::new();
+            let mut combine: Vec<(PedestrianID, Pt2D)> = Vec::new();
+            let (base_id, base_pos) = remaining.pop().unwrap();
+
+            for (id, pos) in &remaining {
+                if base_pos.dist_to(*pos) <= 2.0 * radius {
+                    combine.push((*id, *pos));
+                } else {
+                    keep.push((*id, *pos));
+                }
+            }
+            if combine.is_empty() {
+                loners.push(base_id);
+            } else {
+                let mut positions = vec![base_pos];
+                let mut members = vec![base_id];
+                peds.retain(|p| p.id != base_id);
+                for (id, pos) in combine {
+                    positions.push(pos);
+                    members.push(id);
+                    remaining.retain(|(rem_id, _)| *rem_id != id);
+                    peds.retain(|p| p.id != id);
+                }
+                crowds.push(PedCrowd {
+                    members,
+                    avg_pos: Pt2D::center(&positions),
+                    on,
+                });
+            }
+        }
+
+        (peds, crowds)
+    }
 }
 
 impl Renderable for DrawPedestrian {
@@ -123,6 +178,70 @@ impl Renderable for DrawPedestrian {
         } else {
             g.redraw(&self.draw_default);
         }
+    }
+
+    fn get_outline(&self, _: &Map) -> Polygon {
+        // TODO thin ring
+        self.body_circle.to_polygon()
+    }
+
+    fn get_zorder(&self) -> isize {
+        self.zorder
+    }
+}
+
+pub struct PedCrowd {
+    avg_pos: Pt2D,
+    members: Vec<PedestrianID>,
+    on: Traversable,
+}
+
+pub struct DrawPedCrowd {
+    members: Vec<PedestrianID>,
+    body_circle: Circle,
+    zorder: isize,
+
+    draw_default: Drawable,
+    label: Text,
+}
+
+impl DrawPedCrowd {
+    pub fn new(input: PedCrowd, map: &Map, prerender: &Prerender, _: &ColorScheme) -> DrawPedCrowd {
+        let radius = LANE_THICKNESS / 4.0;
+        let body_circle = Circle::new(input.avg_pos, radius);
+        let mut batch = GeomBatch::new();
+        batch.push(Color::GREEN, body_circle.to_polygon());
+        let mut label = Text::with_bg_color(None);
+        label.add_styled_line(
+            format!("{}", input.members.len()),
+            Some(Color::BLACK),
+            None,
+            Some(15),
+        );
+
+        DrawPedCrowd {
+            members: input.members,
+            body_circle,
+            zorder: input.on.get_zorder(map),
+            draw_default: prerender.upload(batch),
+            label,
+        }
+    }
+}
+
+impl Renderable for DrawPedCrowd {
+    // TODO this
+    fn get_id(&self) -> ID {
+        ID::Pedestrian(self.members[0])
+    }
+
+    fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, _: &DrawCtx) {
+        if let Some(color) = opts.color(self.get_id()) {
+            g.draw_circle(color, &self.body_circle);
+        } else {
+            g.redraw(&self.draw_default);
+        }
+        g.draw_text_at_mapspace(&self.label, self.body_circle.center);
     }
 
     fn get_outline(&self, _: &Map) -> Polygon {
