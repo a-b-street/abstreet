@@ -230,9 +230,9 @@ impl DrawPedCrowd {
 }
 
 impl Renderable for DrawPedCrowd {
-    // TODO this
     fn get_id(&self) -> ID {
-        ID::Pedestrian(self.members[0])
+        // Expensive! :(
+        ID::PedCrowd(self.members.clone())
     }
 
     fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, _: &DrawCtx) {

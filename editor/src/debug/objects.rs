@@ -111,6 +111,12 @@ fn dump_debug(id: ID, map: &Map, sim: &Sim, draw_map: &DrawMap) {
         ID::Pedestrian(id) => {
             sim.debug_ped(id);
         }
+        ID::PedCrowd(members) => {
+            println!("Crowd with {} members", members.len());
+            for p in members {
+                sim.debug_ped(p);
+            }
+        }
         ID::ExtraShape(id) => {
             let es = draw_map.get_es(id);
             for (k, v) in &es.attributes {
@@ -210,6 +216,9 @@ fn tooltip_lines(id: ID, g: &mut GfxCtx, ctx: &PerMapUI) -> Text {
             for line in sim.ped_tooltip(id) {
                 txt.add_wrapped_line(&g.canvas, line);
             }
+        }
+        ID::PedCrowd(members) => {
+            txt.add_line(format!("Crowd of {}", members.len()));
         }
         ID::ExtraShape(id) => {
             styled_kv(&mut txt, &draw_map.get_es(id).attributes);

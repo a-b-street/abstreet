@@ -46,6 +46,8 @@ pub const OUTLINE_THICKNESS: Distance = Distance::const_meters(0.5);
 // Does something belong here or as a method on ID? If it ONLY applies to renderable things, then
 // here. For example, trips aren't drawn, so it's meaningless to ask what their bounding box is.
 pub trait Renderable {
+    // TODO This is expensive for the PedCrowd case. :( Returning a borrow is awkward, because most
+    // Renderables are better off storing the inner ID directly.
     fn get_id(&self) -> ID;
     fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, ctx: &DrawCtx);
     // Higher z-ordered objects are drawn later. Default to low so roads at -1 don't vanish.
