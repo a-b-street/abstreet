@@ -96,10 +96,10 @@ impl CommonState {
             batch.draw(g);
         }
 
-        CommonState::draw_osd(g, ui, ui.primary.current_selection);
+        CommonState::draw_osd(g, ui, &ui.primary.current_selection);
     }
 
-    pub fn draw_osd(g: &mut GfxCtx, ui: &UI, id: Option<ID>) {
+    pub fn draw_osd(g: &mut GfxCtx, ui: &UI, id: &Option<ID>) {
         let map = &ui.primary.map;
         let id_color = ui.cs.get_def("OSD ID color", Color::RED);
         let name_color = ui.cs.get_def("OSD name color", Color::CYAN);
@@ -111,16 +111,16 @@ impl CommonState {
             Some(ID::Lane(l)) => {
                 osd.append(format!("{}", l), Some(id_color));
                 osd.append(" is ".to_string(), None);
-                osd.append(map.get_parent(l).get_name(), Some(name_color));
+                osd.append(map.get_parent(*l).get_name(), Some(name_color));
             }
             Some(ID::Building(b)) => {
                 osd.append(format!("{}", b), Some(id_color));
                 osd.append(" is ".to_string(), None);
-                osd.append(map.get_b(b).get_name(), Some(name_color));
+                osd.append(map.get_b(*b).get_name(), Some(name_color));
             }
             Some(ID::Turn(t)) => {
                 osd.append(
-                    format!("TurnID({})", map.get_t(t).lookup_idx),
+                    format!("TurnID({})", map.get_t(*t).lookup_idx),
                     Some(id_color),
                 );
                 osd.append(" between ".to_string(), None);
@@ -133,7 +133,7 @@ impl CommonState {
                 osd.append(" of ".to_string(), None);
 
                 let mut road_names = BTreeSet::new();
-                for r in &map.get_i(i).roads {
+                for r in &map.get_i(*i).roads {
                     road_names.insert(map.get_r(*r).get_name());
                 }
                 let len = road_names.len();
@@ -146,7 +146,7 @@ impl CommonState {
             }
             Some(ID::Car(c)) => {
                 osd.append(format!("{}", c), Some(id_color));
-                if let Some(r) = ui.primary.sim.bus_route_id(c) {
+                if let Some(r) = ui.primary.sim.bus_route_id(*c) {
                     osd.append(" serving ".to_string(), None);
                     osd.append(map.get_br(r).name.to_string(), Some(name_color));
                 }
@@ -155,7 +155,7 @@ impl CommonState {
                 osd.append(format!("{}", bs), Some(id_color));
                 osd.append(" serving ".to_string(), None);
 
-                let routes = map.get_routes_serving_stop(bs);
+                let routes = map.get_routes_serving_stop(*bs);
                 let len = routes.len();
                 for (idx, n) in routes.into_iter().enumerate() {
                     osd.append(n.name.clone(), Some(name_color));

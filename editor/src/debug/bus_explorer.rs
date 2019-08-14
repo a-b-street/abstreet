@@ -78,7 +78,7 @@ impl State for BusRouteExplorer {
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         self.slider.draw(g);
-        CommonState::draw_osd(g, ui, ui.primary.current_selection);
+        CommonState::draw_osd(g, ui, &ui.primary.current_selection);
     }
 }
 

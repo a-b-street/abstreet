@@ -151,7 +151,12 @@ impl State for ABTestMode {
                     &mut ui.primary,
                     ui.secondary.as_mut().unwrap(),
                 ));
-            } else if let Some(agent) = ui.primary.current_selection.and_then(|id| id.agent_id()) {
+            } else if let Some(agent) = ui
+                .primary
+                .current_selection
+                .as_ref()
+                .and_then(|id| id.agent_id())
+            {
                 if let Some(trip) = ui.primary.sim.agent_to_trip(agent) {
                     if ctx
                         .input

@@ -24,7 +24,7 @@ impl ObjectDebugger {
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI) {
-        self.selected = ui.primary.current_selection;
+        self.selected = ui.primary.current_selection.clone();
         if self.tooltip_key_held {
             self.tooltip_key_held = !ctx.input.key_released(Key::LeftControl);
         } else {
@@ -42,17 +42,22 @@ impl ObjectDebugger {
                 .unimportant_key_pressed(Key::RightControl, "hold to show debug tooltips");
         }
 
-        if let Some(id) = self.selected {
+        if let Some(ref id) = self.selected {
             if ctx.input.contextual_action(Key::D, "debug") {
-                dump_debug(id, &ui.primary.map, &ui.primary.sim, &ui.primary.draw_map);
+                dump_debug(
+                    id.clone(),
+                    &ui.primary.map,
+                    &ui.primary.sim,
+                    &ui.primary.draw_map,
+                );
             }
         }
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         if self.tooltip_key_held {
-            if let Some(id) = self.selected {
-                let txt = tooltip_lines(id, g, &ui.primary);
+            if let Some(ref id) = self.selected {
+                let txt = tooltip_lines(id.clone(), g, &ui.primary);
                 g.draw_mouse_tooltip(&txt);
             }
         }

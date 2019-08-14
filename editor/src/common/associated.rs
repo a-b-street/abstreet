@@ -19,7 +19,7 @@ pub enum ShowAssociatedState {
 
 impl ShowAssociatedState {
     pub fn event(&mut self, ui: &UI) {
-        let selected = ui.primary.current_selection;
+        let selected = ui.primary.current_selection.clone();
         let sim = &ui.primary.sim;
 
         // Reset to Inactive when appropriate

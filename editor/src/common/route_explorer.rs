@@ -15,7 +15,11 @@ pub struct RouteExplorer {
 impl RouteExplorer {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> Option<RouteExplorer> {
         let (agent, path) = if true {
-            let agent = ui.primary.current_selection.and_then(|id| id.agent_id())?;
+            let agent = ui
+                .primary
+                .current_selection
+                .as_ref()
+                .and_then(|id| id.agent_id())?;
             (agent, ui.primary.sim.get_path(agent)?.clone())
         } else {
             use map_model::{LaneID, PathRequest, Position};
@@ -96,6 +100,6 @@ impl State for RouteExplorer {
             }
         }
         self.slider.draw(g);
-        CommonState::draw_osd(g, ui, ui.primary.current_selection);
+        CommonState::draw_osd(g, ui, &ui.primary.current_selection);
     }
 }

@@ -189,6 +189,6 @@ impl State for TripsVisualizer {
         self.time_slider
             .draw(g, Some(Text::from_line(format!("At {}", time))));
         self.speed.draw(g);
-        CommonState::draw_osd(g, ui, ui.primary.current_selection);
+        CommonState::draw_osd(g, ui, &ui.primary.current_selection);
     }
 }

@@ -178,7 +178,7 @@ impl State for DebugMode {
         }
         match ui.primary.current_selection {
             Some(ID::Lane(_)) | Some(ID::Intersection(_)) | Some(ID::ExtraShape(_)) => {
-                let id = ui.primary.current_selection.unwrap();
+                let id = ui.primary.current_selection.clone().unwrap();
                 if ctx
                     .input
                     .contextual_action(Key::H, &format!("hide {:?}", id))
@@ -311,7 +311,8 @@ impl State for DebugMode {
         if g.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL {
             if let Some(ref results) = self.search_results {
                 for id in &results.ids {
-                    opts.override_colors.insert(*id, ui.cs.get("search result"));
+                    opts.override_colors
+                        .insert(id.clone(), ui.cs.get("search result"));
                 }
             }
         }
@@ -360,8 +361,8 @@ impl State for DebugMode {
 }
 
 impl ShowObject for DebugMode {
-    fn show(&self, obj: ID) -> bool {
-        if self.hidden.contains(&obj) {
+    fn show(&self, obj: &ID) -> bool {
+        if self.hidden.contains(obj) {
             return false;
         }
 

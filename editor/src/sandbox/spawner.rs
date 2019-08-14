@@ -291,7 +291,7 @@ impl State for AgentSpawner {
         }
 
         self.menu.draw(g);
-        CommonState::draw_osd(g, ui, ui.primary.current_selection);
+        CommonState::draw_osd(g, ui, &ui.primary.current_selection);
     }
 }
 

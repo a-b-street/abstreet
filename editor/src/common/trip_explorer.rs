@@ -15,7 +15,11 @@ pub struct TripExplorer {
 impl TripExplorer {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> Option<TripExplorer> {
         let map = &ui.primary.map;
-        let agent = ui.primary.current_selection.and_then(|id| id.agent_id())?;
+        let agent = ui
+            .primary
+            .current_selection
+            .as_ref()
+            .and_then(|id| id.agent_id())?;
         let trip = ui.primary.sim.agent_to_trip(agent)?;
         let status = ui.primary.sim.trip_status(trip)?;
         if !ctx.input.contextual_action(Key::T, "explore trip") {
@@ -77,7 +81,7 @@ impl State for TripExplorer {
 
         if let Some((evmode, done_warping)) = self.slider.event(ctx) {
             if done_warping {
-                ui.primary.current_selection = Some(*self.slider.get().1);
+                ui.primary.current_selection = Some(self.slider.get().1.clone());
             }
             Transition::KeepWithMode(evmode)
         } else {
@@ -87,6 +91,6 @@ impl State for TripExplorer {
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         self.slider.draw(g);
-        CommonState::draw_osd(g, ui, ui.primary.current_selection);
+        CommonState::draw_osd(g, ui, &ui.primary.current_selection);
     }
 }

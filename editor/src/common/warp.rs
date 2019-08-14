@@ -42,7 +42,7 @@ impl State for Warping {
         if let Some(evmode) = self.warper.event(ctx) {
             Transition::KeepWithMode(evmode)
         } else {
-            ui.primary.current_selection = self.id;
+            ui.primary.current_selection = self.id.clone();
             Transition::Pop
         }
     }

@@ -106,7 +106,7 @@ impl UI {
 
             if layers.show_extra_shapes {
                 for es in &self.primary.draw_map.extra_shapes {
-                    if show_objs.show(es.get_id()) {
+                    if show_objs.show(&es.get_id()) {
                         es.draw(g, &opts, &ctx);
                     }
                 }
@@ -275,7 +275,7 @@ impl UI {
         let mut agents_on: Vec<Traversable> = Vec::new();
 
         for id in draw_map.get_matching_objects(bounds) {
-            if !show_objs.show(id) {
+            if !show_objs.show(&id) {
                 continue;
             }
             match id {
@@ -400,7 +400,7 @@ impl ShowLayers {
 }
 
 pub trait ShowObject {
-    fn show(&self, obj: ID) -> bool;
+    fn show(&self, obj: &ID) -> bool;
     fn layers(&self) -> &ShowLayers;
 }
 
@@ -417,7 +417,7 @@ impl ShowEverything {
 }
 
 impl ShowObject for ShowEverything {
-    fn show(&self, _: ID) -> bool {
+    fn show(&self, _: &ID) -> bool {
         true
     }
 

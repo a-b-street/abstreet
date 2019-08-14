@@ -125,7 +125,7 @@ impl State for TripsVisualizer {
             }
             CommonState::draw_custom_osd(g, osd);
         } else {
-            CommonState::draw_osd(g, ui, ui.primary.current_selection);
+            CommonState::draw_osd(g, ui, &ui.primary.current_selection);
         }
     }
 }

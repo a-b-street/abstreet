@@ -15,7 +15,12 @@ impl RouteViewer {
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI, menu: &mut ModalMenu) {
         match self {
             RouteViewer::Inactive => {
-                if let Some(agent) = ui.primary.current_selection.and_then(|id| id.agent_id()) {
+                if let Some(agent) = ui
+                    .primary
+                    .current_selection
+                    .as_ref()
+                    .and_then(|id| id.agent_id())
+                {
                     if let Some(trace) = ui.primary.sim.trace_route(agent, &ui.primary.map, None) {
                         *self = RouteViewer::Hovering(ui.primary.sim.time(), agent, trace);
                     }
@@ -29,8 +34,11 @@ impl RouteViewer {
                     || ui.primary.current_selection != Some(ID::from_agent(agent))
                 {
                     *self = RouteViewer::Inactive;
-                    if let Some(new_agent) =
-                        ui.primary.current_selection.and_then(|id| id.agent_id())
+                    if let Some(new_agent) = ui
+                        .primary
+                        .current_selection
+                        .as_ref()
+                        .and_then(|id| id.agent_id())
                     {
                         // Gross.
                         agent = new_agent;

@@ -9,7 +9,7 @@ use sim::{AgentID, CarID, GetDrawAgents, PedestrianID, TripID};
 use std::collections::{BTreeMap, HashMap};
 use std::io::Error;
 
-#[derive(Clone, Copy, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]
+#[derive(Clone, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]
 pub enum ID {
     Road(RoadID),
     Lane(LaneID),

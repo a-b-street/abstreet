@@ -320,7 +320,7 @@ impl DrawMap {
     pub fn get_matching_objects(&self, bounds: Bounds) -> Vec<ID> {
         let mut results: Vec<ID> = Vec::new();
         for &(id, _, _) in &self.quadtree.query(bounds.as_bbox()) {
-            results.push(*id);
+            results.push(id.clone());
         }
         results
     }

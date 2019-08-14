@@ -126,7 +126,7 @@ impl State for DataVisualizer {
             osd.append(name.clone(), Some(ui.cs.get("OSD name color")));
             CommonState::draw_custom_osd(g, osd);
         } else {
-            CommonState::draw_osd(g, ui, None);
+            CommonState::draw_osd(g, ui, &None);
         }
 
         if let Some(ref name) = self.current_tract {
