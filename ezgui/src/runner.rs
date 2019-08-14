@@ -2,7 +2,7 @@ use crate::input::ContextMenu;
 use crate::{text, widgets, Canvas, Event, EventCtx, GfxCtx, Prerender, UserInput};
 use glium::glutin;
 use glium_glyph::glyph_brush::rusttype::Font;
-use glium_glyph::GlyphBrush;
+use glium_glyph::{GlyphBrush, GlyphBrushBuilder};
 use std::cell::Cell;
 use std::time::{Duration, Instant};
 use std::{panic, process, thread};
@@ -123,10 +123,6 @@ impl<G: GUI> State<G> {
 
         // Flush text just once, so that GlyphBrush's internal caching works. We have to assume
         // nothing will ever cover up text.
-        self.canvas
-            .screenspace_glyphs
-            .borrow_mut()
-            .draw_queued(display, &mut target);
         {
             let top_left = self
                 .canvas
@@ -144,6 +140,12 @@ impl<G: GUI> State<G> {
                 .borrow_mut()
                 .draw_queued_with_transform(transform, display, &mut target);
         }
+        // The depth buffer doesn't seem to work between mapspace_glyphs and screenspace_glyphs. :\
+        // So draw screenspace_glyphs last.
+        self.canvas
+            .screenspace_glyphs
+            .borrow_mut()
+            .draw_queued(display, &mut target);
 
         target.finish().unwrap();
         naming_hint
@@ -163,8 +165,18 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(
             glutin::dpi::PhysicalSize::new(initial_width, initial_height),
             events_loop.get_primary_monitor().get_hidpi_factor(),
         ));
-    // 2 looks bad, 4 looks fine
-    let context = glutin::ContextBuilder::new().with_multisampling(4);
+    // multisampling: 2 looks bad, 4 looks fine
+    //
+    // The Z values are very simple:
+    // 1.0: The buffer is reset every frame
+    // 0.5: Map-space geometry and text
+    // 0.1: Screen-space text
+    // 0.0: Screen-space geometry
+    // Had weird issues with Z buffering not working as intended, so this is slightly more
+    // complicated than necessary to work.
+    let context = glutin::ContextBuilder::new()
+        .with_multisampling(4)
+        .with_depth_buffer(2);
     let display = glium::Display::new(window, context, &events_loop).unwrap();
 
     let (vertex_shader, fragment_shader) =
@@ -220,7 +232,17 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(
 
     let dejavu: &[u8] = include_bytes!("assets/DejaVuSans.ttf");
     let screenspace_glyphs = GlyphBrush::new(&display, vec![Font::from_bytes(dejavu).unwrap()]);
-    let mapspace_glyphs = GlyphBrush::new(&display, vec![Font::from_bytes(dejavu).unwrap()]);
+    let mapspace_glyphs = GlyphBrushBuilder::using_font_bytes(dejavu)
+        .params(glium::DrawParameters {
+            blend: glium::Blend::alpha_blending(),
+            depth: glium::Depth {
+                test: glium::DepthTest::IfLessOrEqual,
+                write: true,
+                ..Default::default()
+            },
+            ..Default::default()
+        })
+        .build(&display);
 
     let mut canvas = Canvas::new(
         initial_width,

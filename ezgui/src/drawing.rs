@@ -7,7 +7,10 @@ use geom::{Bounds, Circle, Distance, Line, Polygon, Pt2D};
 use glium::{uniform, Surface};
 
 // transform is (cam_x, cam_y, cam_zoom)
-// window is (window_width, window_height, hatching == 1.0)
+// window is (window_width, window_height, weird enum)
+//    - weird enum = 0.0 (map-space, no hatching)
+//                 = 1.0 (map-space, hatching)
+//                 = 2.0 (screen-space, no hatching)
 // Things are awkwardly grouped because passing uniforms is either broken or horribly documented.
 type Uniforms<'a> = glium::uniforms::UniformsStorage<
     'a,
@@ -16,6 +19,7 @@ type Uniforms<'a> = glium::uniforms::UniformsStorage<
 >;
 const NO_HATCHING: f32 = 0.0;
 const HATCHING: f32 = 1.0;
+const SCREENSPACE: f32 = 2.0;
 
 pub struct GfxCtx<'a> {
     pub(crate) target: &'a mut glium::Frame,
@@ -46,6 +50,11 @@ impl<'a> GfxCtx<'a> {
     ) -> GfxCtx<'a> {
         let params = glium::DrawParameters {
             blend: glium::Blend::alpha_blending(),
+            depth: glium::Depth {
+                test: glium::DepthTest::IfLessOrEqual,
+                write: true,
+                ..Default::default()
+            },
             ..Default::default()
         };
 
@@ -79,14 +88,14 @@ impl<'a> GfxCtx<'a> {
 
         self.uniforms = uniform! {
             transform: [cam_x as f32, cam_y as f32, zoom as f32],
-            window: [self.canvas.window_width as f32, self.canvas.window_height as f32, self.hatching],
+            window: [self.canvas.window_width as f32, self.canvas.window_height as f32, SCREENSPACE],
         };
     }
 
     pub fn fork_screenspace(&mut self) {
         self.uniforms = uniform! {
             transform: [0.0, 0.0, 1.0],
-            window: [self.canvas.window_width as f32, self.canvas.window_height as f32, self.hatching],
+            window: [self.canvas.window_width as f32, self.canvas.window_height as f32, SCREENSPACE],
         };
     }
 
@@ -100,7 +109,7 @@ impl<'a> GfxCtx<'a> {
     pub fn clear(&mut self, color: Color) {
         // Without this, SRGB gets enabled and post-processes the color from the fragment shader.
         self.target
-            .clear_color_srgb(color.0[0], color.0[1], color.0[2], color.0[3]);
+            .clear_color_srgb_and_depth((color.0[0], color.0[1], color.0[2], color.0[3]), 1.0);
     }
 
     pub fn draw_line(&mut self, color: Color, thickness: Distance, line: &Line) {

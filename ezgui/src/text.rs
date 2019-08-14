@@ -213,6 +213,7 @@ pub fn draw_text_bubble(
         let mut max_size = 0;
         let section = VariedSection {
             screen_position: (top_left.x as f32, y as f32),
+            z: 0.5,
             text: line
                 .iter()
                 .map(|span| {
@@ -280,6 +281,7 @@ pub fn draw_text_bubble_mapspace(
             // This in map-space, but the transform matrix for mapspace_glyphs will take care of
             // it.
             screen_position: ((top_left.x() * SCALE_DOWN) as f32, (y * SCALE_DOWN) as f32),
+            z: 0.1,
             text: line
                 .iter()
                 .map(|span| {
