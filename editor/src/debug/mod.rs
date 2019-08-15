@@ -16,12 +16,11 @@ use crate::sandbox::SandboxMode;
 use crate::ui::{ShowLayers, ShowObject, UI};
 use abstutil::wraparound_get;
 use abstutil::Timer;
-use clipping::CPolygon;
 use ezgui::{
     hotkey, lctrl, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, ModalMenu,
     Text, Wizard,
 };
-use geom::{Distance, PolyLine, Polygon, Pt2D};
+use geom::{Distance, PolyLine, Polygon};
 use map_model::{IntersectionID, Map, RoadID};
 use std::collections::HashSet;
 
@@ -382,8 +381,6 @@ impl ShowObject for DebugMode {
 }
 
 fn recalc_intersection_geom(id: IntersectionID, map: &Map, g: &mut GfxCtx) {
-    let mut all_polys = Vec::new();
-
     if false {
         // Get road center lines sorted by angle into the intersection, to find adjacent roads.
         // TODO Maybe do this by directed roads instead. Otherwise the corner is too big? But not
@@ -421,14 +418,6 @@ fn recalc_intersection_geom(id: IntersectionID, map: &Map, g: &mut GfxCtx) {
             let max_width = (*width1).max(*width2);
             let poly = Polygon::new(&glued.to_thick_boundary_pts(max_width));
             g.draw_polygon(Color::RED.alpha(0.4), &poly);
-            all_polys.push(poly);
-            //break;
-        }
-
-        if false {
-            if let Some(p) = intersection_many(&all_polys) {
-                g.draw_polygon(Color::GREEN.alpha(0.4), &p);
-            }
         }
     }
 
@@ -452,87 +441,9 @@ fn recalc_intersection_geom(id: IntersectionID, map: &Map, g: &mut GfxCtx) {
 
             // This is different than pl.make_polygons(width) because of the order of the points!!!
             let poly = Polygon::new(&PolyLine::new(pts).to_thick_boundary_pts(width));
-            //g.draw_polygon(Color::RED.alpha(0.4), &poly);
-            all_polys.push(poly);
-        }
-
-        if let Some(p) = intersection_many(&all_polys) {
-            g.draw_polygon(Color::GREEN.alpha(0.4), &p);
+            g.draw_polygon(Color::RED.alpha(0.4), &poly);
         }
     }
-
-    if false {
-        let mut all_pieces = Vec::new();
-        for (idx1, p1) in all_polys.iter().enumerate() {
-            for (idx2, p2) in all_polys.iter().enumerate() {
-                if idx1 != idx2 {
-                    all_pieces.extend(intersection(p1, p2));
-                }
-            }
-        }
-        for p in &all_pieces {
-            g.draw_polygon(Color::BLUE.alpha(0.4), &p);
-        }
-        if false {
-            if let Some(final_poly) = union(&all_pieces) {
-                g.draw_polygon(Color::GREEN.alpha(0.4), &final_poly);
-            }
-        }
-    }
-}
-
-fn poly_to_cpoly(poly: &Polygon) -> CPolygon {
-    let mut pts: Vec<[f64; 2]> = poly.points().iter().map(|pt| [pt.x(), pt.y()]).collect();
-    if pts[0] == *pts.last().unwrap() {
-        pts.pop();
-    }
-    CPolygon::from_vec(&pts)
-}
-
-fn cpoly_to_poly(raw_pts: Vec<[f64; 2]>) -> Polygon {
-    let mut pts: Vec<Pt2D> = raw_pts
-        .into_iter()
-        .map(|pt| Pt2D::new(pt[0], pt[1]))
-        .collect();
-    if pts[0] != *pts.last().unwrap() {
-        pts.push(pts[0]);
-    }
-    Polygon::new(&pts)
-}
-
-fn intersection(p1: &Polygon, p2: &Polygon) -> Vec<Polygon> {
-    let mut cp1 = poly_to_cpoly(p1);
-    let mut cp2 = poly_to_cpoly(p2);
-    cp1.intersection(&mut cp2)
-        .into_iter()
-        .map(cpoly_to_poly)
-        .collect()
-}
-
-fn union(polys: &Vec<Polygon>) -> Option<Polygon> {
-    let mut result = poly_to_cpoly(&polys[0]);
-    for p in polys.iter().skip(1) {
-        let output = result.union(&mut poly_to_cpoly(p));
-        if output.len() != 1 {
-            println!("Argh, got {} pieces from union", output.len());
-            return None;
-        }
-        result = CPolygon::from_vec(&output[0]);
-    }
-    Some(cpoly_to_poly(result.points()))
-}
-
-fn intersection_many(polys: &Vec<Polygon>) -> Option<Polygon> {
-    let mut result = poly_to_cpoly(&polys[0]);
-    for p in polys.iter().skip(1) {
-        let output = result.intersection(&mut poly_to_cpoly(p));
-        if output.len() != 1 {
-            println!("Argh, got {} pieces from intersection", output.len());
-            return None;
-        }
-        result = CPolygon::from_vec(&output[0]);
-    }
-    Some(cpoly_to_poly(result.points()))
 }
 
 fn search_osm(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {

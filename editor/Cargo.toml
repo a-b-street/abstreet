@@ -7,7 +7,6 @@ edition = "2018"
 [dependencies]
 aabb-quadtree = "0.1.0"
 abstutil = { path = "../abstutil" }
-clipping = "0.1.1"
 colorbrewer = "0.1.0"
 counter = "0.4.3"
 derive-new = "0.5.6"
