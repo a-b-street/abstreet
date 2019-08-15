@@ -13,4 +13,4 @@ gtfs = { path = "../gtfs" }
 kml = { path = "../kml" }
 osm-xml = "0.6.2"
 map_model = { path = "../map_model" }
-structopt = "0.2.15"
+structopt = "0.2.18"

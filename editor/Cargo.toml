@@ -19,12 +19,12 @@ kml = { path = "../kml" }
 map_model = { path = "../map_model" }
 ordered-float = "1.0.1"
 popdat = { path = "../popdat" }
-rand = "0.6.5"
-rand_xorshift = "0.1.1"
-serde = "1.0.89"
-serde_derive = "1.0.89"
+rand = "0.7.0"
+rand_xorshift = "0.2.0"
+serde = "1.0.98"
+serde_derive = "1.0.98"
 sim = { path = "../sim" }
-structopt = "0.2.15"
+structopt = "0.2.18"
 
 [build-dependencies]
 walkdir = "2.2.7"

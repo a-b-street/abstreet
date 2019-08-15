@@ -2,7 +2,7 @@ use crate::{Scenario, Sim};
 use abstutil;
 use geom::Duration;
 use map_model::{Map, MapEdits};
-use rand::{FromEntropy, SeedableRng};
+use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use std::path::{Path, PathBuf};
 use structopt::StructOpt;
