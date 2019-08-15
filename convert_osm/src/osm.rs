@@ -1,8 +1,8 @@
 use abstutil::{FileWithProgress, Timer};
-use geom::LonLat;
+use geom::{HashablePt2D, LonLat};
 use map_model::{raw_data, AreaType};
 use osm_xml;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, HashMap, HashSet};
 
 pub fn osm_to_raw_roads(
     osm_path: &str,
@@ -11,6 +11,9 @@ pub fn osm_to_raw_roads(
     Vec<raw_data::Road>,
     Vec<raw_data::Building>,
     Vec<raw_data::Area>,
+    // traffic signals
+    HashSet<HashablePt2D>,
+    // turn restrictions
     BTreeMap<i64, Vec<(String, i64)>>,
 ) {
     let (reader, done) = FileWithProgress::new(osm_path).unwrap();
@@ -28,6 +31,17 @@ pub fn osm_to_raw_roads(
     let mut buildings: Vec<raw_data::Building> = Vec::new();
     let mut areas: Vec<raw_data::Area> = Vec::new();
     let mut turn_restrictions: BTreeMap<i64, Vec<(String, i64)>> = BTreeMap::new();
+    let mut traffic_signals: HashSet<HashablePt2D> = HashSet::new();
+
+    timer.start_iter("processing OSM nodes", doc.nodes.len());
+    for node in doc.nodes.values() {
+        timer.next();
+        let tags = tags_to_map(&node.tags);
+        if tags.get("highway") == Some(&"traffic_signals".to_string()) {
+            traffic_signals.insert(LonLat::new(node.lon, node.lat).to_hashable());
+        }
+    }
+
     timer.start_iter("processing OSM ways", doc.ways.len());
     for way in doc.ways.values() {
         timer.next();
@@ -149,7 +163,7 @@ pub fn osm_to_raw_roads(
         }
     }
 
-    (roads, buildings, areas, turn_restrictions)
+    (roads, buildings, areas, traffic_signals, turn_restrictions)
 }
 
 fn tags_to_map(raw_tags: &[osm_xml::Tag]) -> BTreeMap<String, String> {

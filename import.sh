@@ -26,13 +26,6 @@ if [ ! -d data/input/google_transit_2018_18_08/ ]; then
 	rm -f data/input/google_transit_2018_18_08.zip;
 fi
 
-if [ ! -f data/input/traffic_signals.kml ]; then
-	# From https://data.seattle.gov/Transportation/Traffic-Signals/nr6x-wnd5
-	get_if_needed \
-		http://data-seattlecitygis.opendata.arcgis.com/datasets/ff97a6eb8ac84356beea09138c6e1ec3_0.kml \
-		data/input/traffic_signals.kml;
-fi
-
 if [ ! -f data/input/neighborhoods.geojson ]; then
 	# https://data.seattle.gov/dataset/Neighborhoods/2mbt-aqqx in GeoJSON, not SHP
 	get_if_needed \
@@ -96,7 +89,6 @@ for poly in `ls ../data/polygons/`; do
 	rm -rf ../data/neighborhoods/$name ../data/maps/${name}.bin;
 	RUST_BACKTRACE=1 cargo run --release -- \
 		--osm=../data/input/$name.osm \
-		--traffic_signals=../data/input/traffic_signals.kml \
 		--parking_shapes=../data/shapes/blockface.bin \
 		--gtfs=../data/input/google_transit_2018_18_08 \
 		--neighborhoods=../data/input/neighborhoods.geojson \
@@ -104,4 +96,4 @@ for poly in `ls ../data/polygons/`; do
 		--output=../data/raw_maps/$name.bin
 done
 
-# To run manually: cargo run -- --osm=../data/input/montlake.osm --traffic_signals=../data/input/traffic_signals.kml --parking_shapes=../data/shapes/blockface.bin --gtfs=../data/input/google_transit_2018_18_08 --neighborhoods=../data/input/neighborhoods.geojson --clip=../data/polygons/montlake.poly --output=../data/raw_maps/montlake.bin --fast_dev
+# To run manually: cargo run -- --osm=../data/input/montlake.osm --parking_shapes=../data/shapes/blockface.bin --gtfs=../data/input/google_transit_2018_18_08 --neighborhoods=../data/input/neighborhoods.geojson --clip=../data/polygons/montlake.poly --output=../data/raw_maps/montlake.bin --fast_dev

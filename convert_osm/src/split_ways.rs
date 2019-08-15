@@ -1,13 +1,14 @@
 use abstutil::Timer;
 use geom::{HashablePt2D, LonLat};
 use map_model::{raw_data, IntersectionType};
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, HashMap, HashSet};
 
 pub fn split_up_roads(
-    (mut roads, buildings, areas, turn_restrictions): (
+    (mut roads, buildings, areas, traffic_signals, turn_restrictions): (
         Vec<raw_data::Road>,
         Vec<raw_data::Building>,
         Vec<raw_data::Area>,
+        HashSet<HashablePt2D>,
         BTreeMap<i64, Vec<(String, i64)>>,
     ),
     timer: &mut Timer,
@@ -65,11 +66,16 @@ pub fn split_up_roads(
 
     // All of the roundabout points will just keep moving the intersection
     for (pt, id) in &pt_to_intersection {
+        let point = LonLat::new(pt.x(), pt.y());
         map.intersections.insert(
             *id,
             raw_data::Intersection {
-                point: LonLat::new(pt.x(), pt.y()),
-                intersection_type: IntersectionType::StopSign,
+                point,
+                intersection_type: if traffic_signals.contains(&point.to_hashable()) {
+                    IntersectionType::TrafficSignal
+                } else {
+                    IntersectionType::StopSign
+                },
                 label: None,
             },
         );
@@ -80,7 +86,11 @@ pub fn split_up_roads(
             *id,
             raw_data::Intersection {
                 point: *pt,
-                intersection_type: IntersectionType::StopSign,
+                intersection_type: if traffic_signals.contains(&pt.to_hashable()) {
+                    IntersectionType::TrafficSignal
+                } else {
+                    IntersectionType::StopSign
+                },
                 label: None,
             },
         );

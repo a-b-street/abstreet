@@ -11,6 +11,7 @@ struct Flags {
     #[structopt(name = "load")]
     load: String,
 
+    /// Disable PSRC scenario generation for faster development
     #[structopt(name = "disable_psrc_scenarios")]
     disable_psrc_scenarios: bool,
 }

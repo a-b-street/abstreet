@@ -7,7 +7,6 @@ pub fn run(t: &mut TestRunner) {
     t.run_slow("convert_osm_twice", |_| {
         let flags = convert_osm::Flags {
             osm: "../data/input/montlake.osm".to_string(),
-            traffic_signals: "../data/input/traffic_signals.kml".to_string(),
             parking_shapes: "../data/shapes/blockface.bin".to_string(),
             gtfs: "../data/input/google_transit_2018_18_08".to_string(),
             neighborhoods: "../data/input/neighborhoods.geojson".to_string(),

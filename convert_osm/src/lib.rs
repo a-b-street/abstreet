@@ -5,14 +5,12 @@ mod remove_disconnected;
 mod split_ways;
 
 use abstutil::Timer;
-use geom::{Distance, FindClosest, GPSBounds, LonLat, PolyLine, Pt2D};
+use geom::{FindClosest, GPSBounds, LonLat, PolyLine, Pt2D};
 use kml::ExtraShapes;
-use map_model::{raw_data, IntersectionType, LANE_THICKNESS};
+use map_model::{raw_data, LANE_THICKNESS};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use structopt::StructOpt;
-
-const MAX_DIST_BTWN_INTERSECTION_AND_SIGNAL: Distance = Distance::const_meters(50.0);
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "convert_osm")]
@@ -20,10 +18,6 @@ pub struct Flags {
     /// OSM XML file to read
     #[structopt(long = "osm")]
     pub osm: String,
-
-    /// KML with traffic signals. Optional.
-    #[structopt(long = "traffic_signals", default_value = "")]
-    pub traffic_signals: String,
 
     /// ExtraShapes file with blockface, produced using the kml crate. Optional.
     #[structopt(long = "parking_shapes", default_value = "")]
@@ -72,9 +66,6 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
 
     if !flags.parking_shapes.is_empty() {
         use_parking_hints(&mut map, &flags.parking_shapes, timer);
-    }
-    if !flags.traffic_signals.is_empty() {
-        handle_traffic_signals(&mut map, &flags.traffic_signals, timer);
     }
     if !flags.gtfs.is_empty() {
         timer.start("load GTFS");
@@ -141,38 +132,6 @@ fn use_parking_hints(map: &mut raw_data::Map, path: &str, timer: &mut Timer) {
         }
     }
     timer.stop("apply parking hints");
-}
-
-fn handle_traffic_signals(map: &mut raw_data::Map, path: &str, timer: &mut Timer) {
-    timer.start("handle traffic signals");
-    for shape in kml::load(path, &map.gps_bounds, timer)
-        .expect("loading traffic signals failed")
-        .shapes
-        .into_iter()
-    {
-        // See https://www.seattle.gov/Documents/Departments/SDOT/GIS/Traffic_Signals_OD.pdf
-        if shape.points.len() > 1 {
-            panic!("Traffic signal has multiple points: {:?}", shape);
-        }
-        let pt = shape.points[0];
-        if map.gps_bounds.contains(pt) {
-            // TODO use a quadtree or some better way to match signals to the closest
-            // intersection
-            let closest_intersection = map
-                .intersections
-                .values_mut()
-                .min_by_key(|i| pt.gps_dist_meters(i.point))
-                .unwrap();
-            let dist = pt.gps_dist_meters(closest_intersection.point);
-            if dist <= MAX_DIST_BTWN_INTERSECTION_AND_SIGNAL {
-                if closest_intersection.intersection_type == IntersectionType::TrafficSignal {
-                    println!("WARNING: {:?} already has a traffic signal, but there's another one that's {} from it", closest_intersection, dist);
-                }
-                closest_intersection.intersection_type = IntersectionType::TrafficSignal;
-            }
-        }
-    }
-    timer.stop("handle traffic signals");
 }
 
 fn read_osmosis_polygon(path: &str) -> Vec<LonLat> {

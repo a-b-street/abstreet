@@ -28,4 +28,5 @@ RUST_BACKTRACE=1 cargo run $release_mode -- \
 	--output=../data/raw_maps/$name.bin
 
 cd ../precompute;
-RUST_BACKTRACE=1 cargo run $release_mode ../data/raw_maps/$name.bin;
+# TODO Should be --disable_psrc_scenarios=true, but structopt and bools are weird...
+RUST_BACKTRACE=1 cargo run $release_mode ../data/raw_maps/$name.bin true;

@@ -105,7 +105,7 @@ it only takes a few seconds to load a serialized map.
     order. Gluing all the points together fails when the .osm has some ways
     clipped out. In that case, just use a straight line to try to close off the
     polygon.
-  - Also read turn restrictions between OSM ways
+  - Also read traffic signal locations and turn restrictions between OSM ways
 - `split_ways.rs`: Split OSM ways into road segments
   - OSM ways cross many intersections, so treat points with multiple ways and
     the points at the beginning and end of a way as intersections, then split
@@ -130,8 +130,6 @@ it only takes a few seconds to load a serialized map.
 - `lib.rs`: Apply parking hints from a King County GIS blockface dataset
   - Match each blockface to the nearest edge of a road
   - Interpret the metadata to assign on-street parking there or not
-- `lib.rs`: Apply traffic signal hints from a King County GIS dataset
-  - Match each signal to the closest intersection
 - `lib.rs` using the `gtfs` crate: Load bus route info from GTFS
 - `neighborhoods.rs`: Load neighborhood polygons from an extra geojson file
   - If the polygon isn't completely in-bounds, just remove it
