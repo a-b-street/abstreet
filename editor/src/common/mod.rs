@@ -16,7 +16,7 @@ pub use self::speed::SpeedControls;
 pub use self::time::time_controls;
 pub use self::trip_explorer::TripExplorer;
 use crate::game::Transition;
-use crate::helpers::ID;
+use crate::helpers::{rotating_color, ID};
 use crate::render::{DrawOptions, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::UI;
 use ezgui::{
@@ -29,9 +29,16 @@ use std::collections::BTreeSet;
 pub struct CommonState {
     associated: associated::ShowAssociatedState,
     turn_cycler: turn_cycler::TurnCyclerState,
-    // TODO Have a more general colorscheme that can be changed and affect everything. Show a
-    // little legend when it's first activated.
-    show_delayed_agents: bool,
+    agent_colors: AgentColorScheme,
+}
+
+// TODO Have a more general colorscheme that can be changed and affect everything. Show a little
+// legend when it's first activated.
+#[derive(Clone, Copy, PartialEq)]
+enum AgentColorScheme {
+    VehicleTypes,
+    Delay,
+    RemainingDistance,
 }
 
 impl CommonState {
@@ -39,7 +46,7 @@ impl CommonState {
         CommonState {
             associated: associated::ShowAssociatedState::Inactive,
             turn_cycler: turn_cycler::TurnCyclerState::Inactive,
-            show_delayed_agents: false,
+            agent_colors: AgentColorScheme::VehicleTypes,
         }
     }
 
@@ -60,8 +67,20 @@ impl CommonState {
         }
         // TODO But it's too late to influence the menu's text to say if this is active or not.
         // This kind of belongs in AgentTools, except that can't influence DrawOptions as easily.
+        // TODO This needs to be a mutex radio button style thing.
         if menu.action("show/hide delayed traffic") {
-            self.show_delayed_agents = !self.show_delayed_agents;
+            self.agent_colors = match self.agent_colors {
+                AgentColorScheme::VehicleTypes => AgentColorScheme::Delay,
+                AgentColorScheme::Delay => AgentColorScheme::VehicleTypes,
+                x => x,
+            };
+        }
+        if menu.action("show/hide distance remaining") {
+            self.agent_colors = match self.agent_colors {
+                AgentColorScheme::VehicleTypes => AgentColorScheme::RemainingDistance,
+                AgentColorScheme::RemainingDistance => AgentColorScheme::VehicleTypes,
+                x => x,
+            };
         }
 
         self.associated.event(ui);
@@ -80,16 +99,24 @@ impl CommonState {
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         self.turn_cycler.draw(g, ui);
 
-        if self.show_delayed_agents && g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
+        if self.agent_colors != AgentColorScheme::VehicleTypes
+            && g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL
+        {
             let mut batch = GeomBatch::new();
             let radius = Distance::meters(10.0) / g.canvas.cam_zoom;
             for agent in ui
                 .primary
                 .sim
-                .get_unzoomed_agents_with_delay(&ui.primary.map)
+                .get_unzoomed_agents_with_details(&ui.primary.map)
             {
                 batch.push(
-                    delay_color(agent.time_spent_blocked),
+                    match self.agent_colors {
+                        AgentColorScheme::VehicleTypes => unreachable!(),
+                        AgentColorScheme::Delay => delay_color(agent.time_spent_blocked),
+                        AgentColorScheme::RemainingDistance => {
+                            percent_color(agent.percent_dist_crossed)
+                        }
+                    },
                     Circle::new(agent.pos, radius).to_polygon(),
                 );
             }
@@ -196,7 +223,7 @@ impl CommonState {
         opts.suppress_traffic_signal_details = self
             .turn_cycler
             .suppress_traffic_signal_details(&ui.primary.map);
-        opts.suppress_unzoomed_agents = self.show_delayed_agents;
+        opts.suppress_unzoomed_agents = self.agent_colors != AgentColorScheme::VehicleTypes;
         opts
     }
 }
@@ -210,4 +237,8 @@ fn delay_color(delay: Duration) -> Color {
         return Color::ORANGE.alpha(0.5);
     }
     Color::RED.alpha(0.8)
+}
+
+fn percent_color(percent: f64) -> Color {
+    rotating_color((percent * 10.0).round() as usize)
 }

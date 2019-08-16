@@ -314,9 +314,14 @@ impl Sim {
     }
 
     // TODO Ideally we'd always return UnzoomedAgent, but it's slow!
-    pub fn get_unzoomed_agents_with_delay(&self, map: &Map) -> Vec<UnzoomedAgent> {
-        let mut result = self.driving.get_unzoomed_agents_with_delay(self.time, map);
-        result.extend(self.walking.get_unzoomed_agents_with_delay(self.time, map));
+    pub fn get_unzoomed_agents_with_details(&self, map: &Map) -> Vec<UnzoomedAgent> {
+        let mut result = self
+            .driving
+            .get_unzoomed_agents_with_details(self.time, map);
+        result.extend(
+            self.walking
+                .get_unzoomed_agents_with_details(self.time, map),
+        );
         result
     }
 }

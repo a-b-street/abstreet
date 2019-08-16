@@ -36,6 +36,7 @@ pub enum CarStatus {
 pub struct UnzoomedAgent {
     pub pos: Pt2D,
     pub time_spent_blocked: Duration,
+    pub percent_dist_crossed: f64,
 }
 
 // TODO Can we return borrows instead? Nice for time travel, not for main sim?

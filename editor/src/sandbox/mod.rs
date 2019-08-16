@@ -62,6 +62,7 @@ impl SandboxMode {
                         (hotkey(Key::J), "warp"),
                         (hotkey(Key::K), "navigate"),
                         (hotkey(Key::Semicolon), "show/hide delayed traffic"),
+                        (None, "show/hide distance remaining"),
                         (hotkey(Key::SingleQuote), "shortcuts"),
                         (hotkey(Key::F1), "take a screenshot"),
                     ],

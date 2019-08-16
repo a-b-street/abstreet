@@ -687,7 +687,7 @@ impl DrivingSimState {
         (cars, bikes, buses)
     }
 
-    pub fn get_unzoomed_agents_with_delay(&self, now: Duration, map: &Map) -> Vec<UnzoomedAgent> {
+    pub fn get_unzoomed_agents_with_details(&self, now: Duration, map: &Map) -> Vec<UnzoomedAgent> {
         let mut result = Vec::new();
 
         for queue in self.queues.values() {
@@ -695,13 +695,16 @@ impl DrivingSimState {
                 continue;
             }
 
-            for (car, dist) in queue.get_car_positions(now, &self.cars, &self.queues) {
+            for (c, dist) in queue.get_car_positions(now, &self.cars, &self.queues) {
+                let car = &self.cars[&c];
+                let path = car.router.get_path();
                 result.push(UnzoomedAgent {
                     pos: queue.id.dist_along(dist, map).0,
-                    time_spent_blocked: self.cars[&car]
+                    time_spent_blocked: car
                         .blocked_since
                         .map(|t| now - t)
                         .unwrap_or(Duration::ZERO),
+                    percent_dist_crossed: path.crossed_so_far() / path.total_length(),
                 });
             }
         }
