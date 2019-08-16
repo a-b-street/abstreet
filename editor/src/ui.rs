@@ -143,6 +143,8 @@ impl UI {
             let mut drawn_all_areas = false;
 
             for obj in objects {
+                obj.draw(g, &opts, &ctx);
+
                 match obj.get_id() {
                     ID::Building(b) => {
                         if !drawn_all_buildings {
@@ -164,6 +166,19 @@ impl UI {
                             }
                         }
                     }
+                    ID::Road(r) => {
+                        if opts.label_roads {
+                            let road = ctx.map.get_r(r);
+                            let mut txt = Text::new();
+                            txt.add_styled_line(
+                                road.get_name(),
+                                None, //Some(Color::BLACK),
+                                None,
+                                Some(50),
+                            );
+                            g.draw_text_at_mapspace(&txt, road.center_pts.middle());
+                        }
+                    }
                     ID::Area(_) => {
                         if !drawn_all_areas {
                             g.redraw(&self.primary.draw_map.draw_all_areas);
@@ -172,7 +187,6 @@ impl UI {
                     }
                     _ => {}
                 };
-                obj.draw(g, &opts, &ctx);
 
                 if self.primary.current_selection == Some(obj.get_id()) {
                     g.draw_polygon(
@@ -387,6 +401,7 @@ pub struct ShowLayers {
     pub show_areas: bool,
     pub show_extra_shapes: bool,
     pub geom_debug_mode: bool,
+    pub show_labels: bool,
 }
 
 impl ShowLayers {
@@ -398,6 +413,7 @@ impl ShowLayers {
             show_areas: true,
             show_extra_shapes: true,
             geom_debug_mode: false,
+            show_labels: false,
         }
     }
 }

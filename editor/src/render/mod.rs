@@ -88,6 +88,7 @@ pub struct DrawOptions {
     pub geom_debug_mode: bool,
     pub suppress_unzoomed_agents: bool,
     pub label_buildings: bool,
+    pub label_roads: bool,
 }
 
 impl DrawOptions {
@@ -98,6 +99,7 @@ impl DrawOptions {
             geom_debug_mode: false,
             suppress_unzoomed_agents: false,
             label_buildings: false,
+            label_roads: false,
         }
     }
 

@@ -53,6 +53,7 @@ impl DebugMode {
                         (hotkey(Key::Num4), "show/hide areas"),
                         (hotkey(Key::Num5), "show/hide extra shapes"),
                         (hotkey(Key::Num6), "show/hide geometry debug mode"),
+                        (hotkey(Key::Num7), "show/hide labels"),
                         (hotkey(Key::N), "show/hide neighborhood summaries"),
                         (hotkey(Key::R), "show/hide route for all agents"),
                     ],
@@ -239,6 +240,8 @@ impl State for DebugMode {
                 self.layers.show_extra_shapes = !self.layers.show_extra_shapes;
             } else if self.menu.action("show/hide geometry debug mode") {
                 self.layers.geom_debug_mode = !self.layers.geom_debug_mode;
+            } else if self.menu.action("show/hide labels") {
+                self.layers.show_labels = !self.layers.show_labels;
             } else {
                 changed = false;
             }
@@ -290,7 +293,8 @@ impl State for DebugMode {
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         let mut opts = self.common.draw_options(ui);
-        opts.label_buildings = true;
+        opts.label_buildings = self.layers.show_labels;
+        opts.label_roads = self.layers.show_labels;
         opts.geom_debug_mode = self.layers.geom_debug_mode;
         if let Some(ref chokepoints) = self.chokepoints {
             let color = ui.cs.get_def("chokepoint", Color::RED);
