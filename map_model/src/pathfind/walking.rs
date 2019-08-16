@@ -4,6 +4,7 @@ use crate::{
     PathRequest, PathStep, Position,
 };
 use fast_paths::{FastGraph, InputGraph, PathCalculator};
+use geom::Distance;
 use serde_derive::{Deserialize, Serialize};
 use std::cell::RefCell;
 use thread_local::ThreadLocal;
@@ -88,6 +89,7 @@ impl SidewalkPathfinder {
     pub fn pathfind(&self, req: &PathRequest, map: &Map) -> Option<Path> {
         // Special-case one-step paths.
         if req.start.lane() == req.end.lane() {
+            let len = map.get_l(req.start.lane()).length();
             // Weird case, but it can happen for walking from a building path to a bus stop that're
             // actually at the same spot.
             if req.start.dist_along() == req.end.dist_along() {
@@ -95,18 +97,21 @@ impl SidewalkPathfinder {
                     map,
                     vec![PathStep::Lane(req.start.lane())],
                     req.start.dist_along(),
+                    len,
                 ));
             } else if req.start.dist_along() < req.end.dist_along() {
                 return Some(Path::new(
                     map,
                     vec![PathStep::Lane(req.start.lane())],
                     req.end.dist_along(),
+                    len,
                 ));
             } else {
                 return Some(Path::new(
                     map,
                     vec![PathStep::ContraflowLane(req.start.lane())],
                     req.end.dist_along(),
+                    len,
                 ));
             }
         }
@@ -169,7 +174,12 @@ impl SidewalkPathfinder {
             unreachable!();
         }
 
-        Some(Path::new(map, steps, req.end.dist_along()))
+        Some(Path::new(
+            map,
+            steps,
+            req.end.dist_along(),
+            Distance::centimeters(raw_path.get_weight()),
+        ))
     }
 
     // Attempt the pathfinding and see if we should ride a bus.

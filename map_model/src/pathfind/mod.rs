@@ -88,11 +88,19 @@ impl PathStep {
 pub struct Path {
     steps: VecDeque<PathStep>,
     end_dist: Distance,
+
+    // Also track progress along the original path.
+    total_length: Distance,
+    crossed_so_far: Distance,
 }
 
 impl Path {
-    // TODO pub for DrawCarInput... bleh.
-    pub fn new(map: &Map, steps: Vec<PathStep>, end_dist: Distance) -> Path {
+    pub(crate) fn new(
+        map: &Map,
+        steps: Vec<PathStep>,
+        end_dist: Distance,
+        total_length: Distance,
+    ) -> Path {
         // Haven't seen problems here in a very long time. Noticeably saves some time to skip.
         if false {
             validate(map, &steps);
@@ -100,6 +108,8 @@ impl Path {
         Path {
             steps: VecDeque::from(steps),
             end_dist,
+            total_length,
+            crossed_so_far: Distance::ZERO,
         }
     }
 
@@ -114,6 +124,14 @@ impl Path {
         count
     }
 
+    pub fn crossed_so_far(&self) -> Distance {
+        self.crossed_so_far
+    }
+
+    pub fn total_length(&self) -> Distance {
+        self.total_length
+    }
+
     pub fn is_last_step(&self) -> bool {
         self.steps.len() == 1
     }
@@ -122,11 +140,14 @@ impl Path {
         self.steps.len() > 1
     }
 
-    pub fn shift(&mut self) -> PathStep {
-        self.steps.pop_front().unwrap()
+    pub fn shift(&mut self, map: &Map) -> PathStep {
+        let step = self.steps.pop_front().unwrap();
+        self.crossed_so_far += step.as_traversable().length(map);
+        step
     }
 
-    pub fn add(&mut self, step: PathStep) {
+    pub fn add(&mut self, step: PathStep, map: &Map) {
+        self.total_length += step.as_traversable().length(map);
         self.steps.push_back(step);
     }
 

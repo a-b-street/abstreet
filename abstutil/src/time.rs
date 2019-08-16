@@ -391,6 +391,9 @@ impl<'a> std::ops::Drop for Timer<'a> {
             }
             self.println(String::new());
         }
+
+        // In case of lots of notes and warnings, repeat the overall timing.
+        Timer::selfless_println(&mut self.sink, self.results[0].clone());
     }
 }
 

@@ -776,10 +776,16 @@ impl DrivingSimState {
 
     pub fn tooltip_lines(&self, id: CarID, now: Duration) -> Option<Vec<String>> {
         let car = self.cars.get(&id)?;
+        let path = car.router.get_path();
         Some(vec![
             format!("{} on {}", id, car.router.head()),
             format!("Owned by {:?}", car.vehicle.owner),
-            format!("{} lanes left", car.router.get_path().num_lanes()),
+            format!("{} lanes left", path.num_lanes()),
+            format!(
+                "Crossed {} / {} of path",
+                path.crossed_so_far(),
+                path.total_length()
+            ),
             format!(
                 "Blocked for {}",
                 car.blocked_since.map(|t| now - t).unwrap_or(Duration::ZERO)

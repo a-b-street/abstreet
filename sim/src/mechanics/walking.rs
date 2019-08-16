@@ -244,6 +244,11 @@ impl WalkingSimState {
             format!("{} on {:?}", p.id, p.path.current_step()),
             format!("{} lanes left in path", p.path.num_lanes()),
             format!(
+                "Crossed {} / {} of path",
+                p.path.crossed_so_far(),
+                p.path.total_length()
+            ),
+            format!(
                 "Blocked for {}",
                 p.blocked_since.map(|t| now - t).unwrap_or(Duration::ZERO)
             ),
@@ -455,7 +460,7 @@ impl Pedestrian {
         }
 
         peds_per_traversable.remove(self.path.current_step().as_traversable(), self.id);
-        self.path.shift();
+        self.path.shift(map);
         let start_dist = match self.path.current_step() {
             PathStep::Lane(_) => Distance::ZERO,
             PathStep::ContraflowLane(l) => map.get_l(l).length(),

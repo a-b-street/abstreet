@@ -118,7 +118,7 @@ impl Router {
         parking: &ParkingSimState,
         map: &Map,
     ) -> Traversable {
-        let prev = self.path.shift().as_traversable();
+        let prev = self.path.shift(map).as_traversable();
         if self.last_step() {
             // Do this to trigger the side-effect of looking for parking.
             self.maybe_handle_end(Distance::ZERO, vehicle, parking, map);
@@ -228,7 +228,7 @@ impl Router {
             all_choices[0]
         };
         turns_attempted_while_roaming.insert(turn.id);
-        self.path.add(PathStep::Turn(turn.id));
-        self.path.add(PathStep::Lane(turn.id.dst));
+        self.path.add(PathStep::Turn(turn.id), map);
+        self.path.add(PathStep::Lane(turn.id.dst), map);
     }
 }

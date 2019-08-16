@@ -40,6 +40,10 @@ impl Distance {
         Distance::meters(1609.34 * value)
     }
 
+    pub fn centimeters(value: usize) -> Distance {
+        Distance::meters((value as f64) / 100.0)
+    }
+
     pub fn abs(self) -> Distance {
         if self.0 > 0.0 {
             self
