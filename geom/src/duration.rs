@@ -64,40 +64,6 @@ impl Duration {
         self.0
     }
 
-    // TODO Why have these two forms? Consolidate
-    pub fn parse(string: &str) -> Option<Duration> {
-        let parts: Vec<&str> = string.split(':').collect();
-        if parts.is_empty() {
-            return None;
-        }
-
-        let mut seconds: f64 = 0.0;
-        if parts.last().unwrap().contains('.') {
-            let last_parts: Vec<&str> = parts.last().unwrap().split('.').collect();
-            if last_parts.len() != 2 {
-                return None;
-            }
-            seconds += last_parts[1].parse::<f64>().ok()? / 10.0;
-            seconds += last_parts[0].parse::<f64>().ok()?;
-        } else {
-            seconds += parts.last().unwrap().parse::<f64>().ok()?;
-        }
-
-        match parts.len() {
-            1 => Some(Duration::seconds(seconds)),
-            2 => {
-                seconds += 60.0 * parts[0].parse::<f64>().ok()?;
-                Some(Duration(seconds))
-            }
-            3 => {
-                seconds += 60.0 * parts[1].parse::<f64>().ok()?;
-                seconds += 3600.0 * parts[0].parse::<f64>().ok()?;
-                Some(Duration(seconds))
-            }
-            _ => None,
-        }
-    }
-
     /*pub fn parse_filename(string: &str) -> Option<Duration> {
         // TODO lazy_static! {
         let regex = Regex::new(r"(\d+)h(\d+)m(\d+)\.(\d+)s").unwrap();
@@ -136,6 +102,49 @@ impl Duration {
             "{0:02}h{1:02}m{2:02}.{3:01}s",
             hours, minutes, seconds, remainder
         )
+    }
+}
+
+impl std::str::FromStr for Duration {
+    type Err = abstutil::Error;
+
+    fn from_str(string: &str) -> Result<Duration, Self::Err> {
+        let parts: Vec<&str> = string.split(':').collect();
+        if parts.is_empty() {
+            return Err(abstutil::Error::new(format!("Duration {}: no :'s", string)));
+        }
+
+        let mut seconds: f64 = 0.0;
+        if parts.last().unwrap().contains('.') {
+            let last_parts: Vec<&str> = parts.last().unwrap().split('.').collect();
+            if last_parts.len() != 2 {
+                return Err(abstutil::Error::new(format!(
+                    "Duration {}: no . in last part",
+                    string
+                )));
+            }
+            seconds += last_parts[1].parse::<f64>()? / 10.0;
+            seconds += last_parts[0].parse::<f64>()?;
+        } else {
+            seconds += parts.last().unwrap().parse::<f64>()?;
+        }
+
+        match parts.len() {
+            1 => Ok(Duration::seconds(seconds)),
+            2 => {
+                seconds += 60.0 * parts[0].parse::<f64>()?;
+                Ok(Duration(seconds))
+            }
+            3 => {
+                seconds += 60.0 * parts[1].parse::<f64>()?;
+                seconds += 3600.0 * parts[0].parse::<f64>()?;
+                Ok(Duration(seconds))
+            }
+            _ => Err(abstutil::Error::new(format!(
+                "Duration {}: weird number of parts",
+                string
+            ))),
+        }
     }
 }
 

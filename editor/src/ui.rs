@@ -487,7 +487,7 @@ pub struct PerMapUI {
 impl PerMapUI {
     pub fn new(flags: Flags, cs: &ColorScheme, ctx: &mut EventCtx, timer: &mut Timer) -> PerMapUI {
         let mut mem = MeasureMemory::new();
-        let (map, sim, _) = flags.sim_flags.load(None, timer);
+        let (map, sim, _) = flags.sim_flags.load(timer);
         mem.reset("Map and Sim", timer);
 
         timer.start("draw_map");
@@ -507,7 +507,6 @@ impl PerMapUI {
     pub fn reset_sim(&mut self) {
         let flags = &self.current_flags.sim_flags;
 
-        // TODO savestate_every gets lost
         self.sim = Sim::new(
             &self.map,
             SimOptions {
@@ -515,7 +514,7 @@ impl PerMapUI {
                     .run_name
                     .clone()
                     .unwrap_or_else(|| "unnamed".to_string()),
-                savestate_every: None,
+                savestate_every: flags.savestate_every,
                 use_freeform_policy_everywhere: flags.freeform_policy,
             },
         );

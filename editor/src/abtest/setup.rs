@@ -125,6 +125,7 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
                 timer.start("load primary");
                 ui.primary.current_flags.sim_flags.run_name =
                     Some(format!("{} with {}", test.test_name, test.edits1_name));
+                ui.primary.current_flags.sim_flags.savestate_every = None;
                 apply_map_edits(
                     &mut ui.primary,
                     &ui.cs,
@@ -156,6 +157,7 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
                             rng_seed: current_flags.sim_flags.rng_seed,
                             run_name: Some(format!("{} with {}", test.test_name, test.edits2_name)),
                             freeform_policy: current_flags.sim_flags.freeform_policy,
+                            savestate_every: None,
                         },
                         ..current_flags.clone()
                     },

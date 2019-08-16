@@ -29,6 +29,10 @@ pub struct SimFlags {
     /// Use freeform intersection policy everywhere
     #[structopt(long = "freeform_policy")]
     pub freeform_policy: bool,
+
+    /// Regularly save simulation state
+    #[structopt(long = "savestate_every")]
+    pub savestate_every: Option<Duration>,
 }
 
 impl SimFlags {
@@ -43,6 +47,7 @@ impl SimFlags {
             rng_seed: Some(42),
             run_name: Some(run_name.to_string()),
             freeform_policy: false,
+            savestate_every: None,
         }
     }
 
@@ -55,11 +60,7 @@ impl SimFlags {
     }
 
     // Convenience method to setup everything.
-    pub fn load(
-        &self,
-        savestate_every: Option<Duration>,
-        timer: &mut abstutil::Timer,
-    ) -> (Map, Sim, XorShiftRng) {
+    pub fn load(&self, timer: &mut abstutil::Timer) -> (Map, Sim, XorShiftRng) {
         let mut rng = self.make_rng();
 
         let mut opts = SimOptions {
@@ -67,7 +68,7 @@ impl SimFlags {
                 .run_name
                 .clone()
                 .unwrap_or_else(|| "unnamed".to_string()),
-            savestate_every,
+            savestate_every: self.savestate_every,
             use_freeform_policy_everywhere: self.freeform_policy,
         };
 

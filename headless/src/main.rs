@@ -12,7 +12,7 @@ struct Flags {
 
     /// Optional time to savestate
     #[structopt(long = "save_at")]
-    save_at: Option<String>,
+    save_at: Option<Duration>,
 
     /// Number of agents to generate. If unspecified, trips to/from borders will be included.
     #[structopt(long = "num_agents")]
@@ -30,20 +30,10 @@ struct Flags {
 fn main() {
     let flags = Flags::from_args();
 
-    let save_at = if let Some(ref time_str) = flags.save_at {
-        if let Some(t) = Duration::parse(time_str) {
-            Some(t)
-        } else {
-            panic!("Couldn't parse time {}", time_str);
-        }
-    } else {
-        None
-    };
-
     // TODO not the ideal way to distinguish what thing we loaded
     let load = flags.sim_flags.load.clone();
     let mut timer = Timer::new("setup headless");
-    let (map, mut sim, mut rng) = flags.sim_flags.load(None, &mut timer);
+    let (map, mut sim, mut rng) = flags.sim_flags.load(&mut timer);
 
     if load.starts_with(Path::new("../data/raw_maps/"))
         || load.starts_with(Path::new("../data/maps/"))
@@ -66,6 +56,7 @@ fn main() {
     }
     let enable_profiler = flags.enable_profiler;
     let paranoia = flags.paranoia;
+    let save_at = flags.save_at;
     let timer = Timer::new("run sim until done");
     sim.run_until_done(
         &map,

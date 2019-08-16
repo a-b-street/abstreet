@@ -6,8 +6,9 @@ use sim::{DrivingGoal, Event, Scenario, SidewalkSpot, SimFlags, TripSpec};
 
 pub fn run(t: &mut TestRunner) {
     t.run_slow("bike_from_border", |h| {
-        let (map, mut sim, mut rng) = SimFlags::for_test("bike_from_border")
-            .load(Some(Duration::seconds(30.0)), &mut Timer::throwaway());
+        let mut flags = SimFlags::for_test("bike_from_border");
+        flags.savestate_every = Some(Duration::seconds(30.0));
+        let (map, mut sim, mut rng) = flags.load(&mut Timer::throwaway());
         // TODO Hardcoding IDs is fragile
         let goal_bldg = BuildingID(319);
         let (ped, bike) = sim.schedule_trip(

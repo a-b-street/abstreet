@@ -1,5 +1,6 @@
 use std::{error, fmt};
 
+#[derive(PartialEq)]
 pub struct Error {
     message: String,
     context: Vec<String>,
@@ -37,3 +38,9 @@ impl fmt::Debug for Error {
 }
 
 impl error::Error for Error {}
+
+impl std::convert::From<std::num::ParseFloatError> for Error {
+    fn from(err: std::num::ParseFloatError) -> Self {
+        Error::new(err.to_string())
+    }
+}

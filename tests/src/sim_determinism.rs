@@ -6,7 +6,7 @@ use sim::{Scenario, Sim, SimFlags, SimOptions};
 pub fn run(t: &mut TestRunner) {
     t.run_slow("serialization", |_| {
         let (map, mut sim, mut rng) =
-            SimFlags::for_test("serialization").load(None, &mut Timer::throwaway());
+            SimFlags::for_test("serialization").load(&mut Timer::throwaway());
         Scenario::small_run(&map).instantiate(&mut sim, &map, &mut rng, &mut Timer::throwaway());
 
         // Does savestating produce the same string?
@@ -18,7 +18,7 @@ pub fn run(t: &mut TestRunner) {
     t.run_slow("from_scratch", |_| {
         println!("Creating two simulations");
         let flags = SimFlags::for_test("from_scratch_1");
-        let (map, mut sim1, _) = flags.load(None, &mut Timer::throwaway());
+        let (map, mut sim1, _) = flags.load(&mut Timer::throwaway());
         let mut sim2 = Sim::new(&map, SimOptions::new("from_scratch_2"));
         Scenario::small_run(&map).instantiate(
             &mut sim1,
@@ -51,7 +51,7 @@ pub fn run(t: &mut TestRunner) {
     t.run_slow("with_savestating", |_| {
         println!("Creating two simulations");
         let flags = SimFlags::for_test("with_savestating_1");
-        let (map, mut sim1, _) = flags.load(None, &mut Timer::throwaway());
+        let (map, mut sim1, _) = flags.load(&mut Timer::throwaway());
         let mut sim2 = Sim::new(&map, SimOptions::new("with_savestating_2"));
         Scenario::small_run(&map).instantiate(
             &mut sim1,

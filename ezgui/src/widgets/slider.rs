@@ -5,6 +5,7 @@ use crate::{
     MultiKey, ScreenPt, Text, Warper,
 };
 use geom::{Distance, Duration, Polygon, Pt2D};
+use std::str::FromStr;
 
 // Pixels
 const BAR_WIDTH: f64 = 300.0;
@@ -377,7 +378,7 @@ impl SliderWithTextBox {
             let line_before = self.tb.get_line().to_string();
             match self.tb.event(ctx.input) {
                 InputResult::Done(line, _) => {
-                    if let Some(t) = Duration::parse(&line) {
+                    if let Ok(t) = Duration::from_str(&line) {
                         if t >= self.low && t <= self.high {
                             return InputResult::Done(line, t);
                         }
@@ -387,7 +388,7 @@ impl SliderWithTextBox {
                 }
                 InputResult::StillActive => {
                     if line_before != self.tb.get_line() {
-                        if let Some(t) = Duration::parse(self.tb.get_line()) {
+                        if let Ok(t) = Duration::from_str(self.tb.get_line()) {
                             if t >= self.low && t <= self.high {
                                 self.slider
                                     .set_percent(ctx, (t - self.low) / (self.high - self.low));

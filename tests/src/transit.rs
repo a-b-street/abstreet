@@ -5,8 +5,9 @@ use sim::{Event, Scenario, SidewalkSpot, SimFlags, TripSpec};
 
 pub fn run(t: &mut TestRunner) {
     t.run_slow("bus_reaches_stops", |h| {
-        let (map, mut sim, _) = SimFlags::for_test("bus_reaches_stops")
-            .load(Some(Duration::seconds(30.0)), &mut Timer::throwaway());
+        let mut flags = SimFlags::for_test("bus_reaches_stops");
+        flags.savestate_every = Some(Duration::seconds(30.0));
+        let (map, mut sim, _) = flags.load(&mut Timer::throwaway());
         let route = map.get_bus_route("49").unwrap();
         let buses = sim.seed_bus_route(route, &map, &mut Timer::throwaway());
         let bus = buses[0];
@@ -25,8 +26,9 @@ pub fn run(t: &mut TestRunner) {
     });
 
     t.run_slow("ped_uses_bus", |h| {
-        let (map, mut sim, mut rng) = SimFlags::for_test("ped_uses_bus")
-            .load(Some(Duration::seconds(30.0)), &mut Timer::throwaway());
+        let mut flags = SimFlags::for_test("ped_uses_bus");
+        flags.savestate_every = Some(Duration::seconds(30.0));
+        let (map, mut sim, mut rng) = flags.load(&mut Timer::throwaway());
         let route = map.get_bus_route("49").unwrap();
         let buses = sim.seed_bus_route(route, &map, &mut Timer::throwaway());
         let bus = buses[0];

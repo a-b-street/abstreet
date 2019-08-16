@@ -8,7 +8,7 @@ pub fn run(t: &mut TestRunner) {
 
     t.run_slow("park_on_goal_st", |h| {
         let (map, mut sim, mut rng) = SimFlags::synthetic_test("parking_test", "park_on_goal_st")
-            .load(None, &mut Timer::throwaway());
+            .load(&mut Timer::throwaway());
         let north_bldg = map.bldg("north").id;
         let south_bldg = map.bldg("south").id;
         let north_parking = map.parking_lane("north", 23).id;
@@ -46,7 +46,7 @@ pub fn run(t: &mut TestRunner) {
     t.run_slow("wander_around_for_parking", |h| {
         let (map, mut sim, mut rng) =
             SimFlags::synthetic_test("parking_test", "wander_around_for_parking")
-                .load(None, &mut Timer::throwaway());
+                .load(&mut Timer::throwaway());
         let north_bldg = map.bldg("north").id;
         let south_bldg = map.bldg("south").id;
         let north_parking = map.parking_lane("north", 23).id;
