@@ -1,6 +1,6 @@
 use crate::{LaneID, Position};
 use abstutil;
-use geom::{Line, Polygon};
+use geom::{Line, Polygon, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fmt;
@@ -29,6 +29,9 @@ pub struct Building {
     pub polygon: Polygon,
     pub osm_tags: BTreeMap<String, String>,
     pub osm_way_id: i64,
+    // Where a text label should be centered to have the best chances of being contained within the
+    // polygon.
+    pub label_center: Pt2D,
 
     pub front_path: FrontPath,
 }

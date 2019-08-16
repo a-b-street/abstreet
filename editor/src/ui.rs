@@ -162,7 +162,7 @@ impl UI {
                                     None,
                                     Some(50),
                                 );
-                                g.draw_text_at_mapspace(&txt, bldg.polygon.center());
+                                g.draw_text_at_mapspace(&txt, bldg.label_center);
                             }
                         }
                     }

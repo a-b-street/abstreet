@@ -165,18 +165,7 @@ impl Polygon {
 
     // Weird to operate on Vec<LonLat>, but this is the one use case right now...
     pub fn gps_intersection(p1: &Vec<LonLat>, p2: &Vec<LonLat>) -> Vec<Vec<LonLat>> {
-        fn to_geo(pts: &Vec<LonLat>) -> geo::Polygon<f64> {
-            geo::Polygon::new(
-                geo::LineString::from(
-                    pts.iter()
-                        .map(|pt| geo::Point::new(pt.longitude, pt.latitude))
-                        .collect::<Vec<_>>(),
-                ),
-                Vec::new(),
-            )
-        }
-
-        let multi = to_geo(p1).intersection(&to_geo(p2));
+        let multi = gps_to_geo(p1).intersection(&gps_to_geo(p2));
         multi
             .into_iter()
             .map(|poly| {
@@ -188,6 +177,11 @@ impl Polygon {
                     .collect()
             })
             .collect()
+    }
+
+    pub fn polylabel(pts: &Vec<Pt2D>) -> Pt2D {
+        let pt = polylabel::polylabel(&to_geo(pts), &1.0);
+        Pt2D::new(pt.x(), pt.y())
     }
 }
 
@@ -269,4 +263,26 @@ fn is_clockwise_polygon(pts: &Vec<Pt2D>) -> bool {
         sum += (pts[i + 1].x() - pts[i].x()) * (pts[i + 1].y() + pts[i].y());
     }
     sum > 0.0
+}
+
+fn gps_to_geo(pts: &Vec<LonLat>) -> geo::Polygon<f64> {
+    geo::Polygon::new(
+        geo::LineString::from(
+            pts.iter()
+                .map(|pt| geo::Point::new(pt.longitude, pt.latitude))
+                .collect::<Vec<_>>(),
+        ),
+        Vec::new(),
+    )
+}
+
+fn to_geo(pts: &Vec<Pt2D>) -> geo::Polygon<f64> {
+    geo::Polygon::new(
+        geo::LineString::from(
+            pts.iter()
+                .map(|pt| geo::Point::new(pt.x(), pt.y()))
+                .collect::<Vec<_>>(),
+        ),
+        Vec::new(),
+    )
 }

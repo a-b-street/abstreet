@@ -54,6 +54,7 @@ pub fn make_all_buildings(
                     sidewalk: *sidewalk_pos,
                     line,
                 },
+                label_center: Polygon::polylabel(&points),
             });
         }
     }
