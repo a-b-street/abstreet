@@ -15,6 +15,7 @@ const WAIT_AT_STOP_SIGN: Duration = Duration::const_seconds(0.5);
 #[derive(Serialize, Deserialize, PartialEq)]
 pub struct IntersectionSimState {
     state: BTreeMap<IntersectionID, State>,
+    use_freeform_policy_everywhere: bool,
 }
 
 #[derive(Serialize, Deserialize, PartialEq)]
@@ -30,9 +31,14 @@ struct State {
 }
 
 impl IntersectionSimState {
-    pub fn new(map: &Map, scheduler: &mut Scheduler) -> IntersectionSimState {
+    pub fn new(
+        map: &Map,
+        scheduler: &mut Scheduler,
+        use_freeform_policy_everywhere: bool,
+    ) -> IntersectionSimState {
         let mut sim = IntersectionSimState {
             state: BTreeMap::new(),
+            use_freeform_policy_everywhere,
         };
         for i in map.all_intersections() {
             sim.state.insert(
@@ -133,13 +139,14 @@ impl IntersectionSimState {
         let state = self.state.get_mut(&turn.parent).unwrap();
         state.waiting.entry(req.clone()).or_insert(now);
 
-        let allowed = if let Some(ref signal) = map.maybe_get_traffic_signal(state.id) {
+        let allowed = if self.use_freeform_policy_everywhere {
+            state.freeform_policy(&req, map, maybe_car_and_target_queue)
+        } else if let Some(ref signal) = map.maybe_get_traffic_signal(state.id) {
             state.traffic_signal_policy(signal, &req, speed, now, maybe_car_and_target_queue, map)
         } else if let Some(ref sign) = map.maybe_get_stop_sign(state.id) {
             state.stop_sign_policy(sign, &req, now, map, scheduler, maybe_car_and_target_queue)
         } else {
-            // TODO This never gets called right now
-            state.freeform_policy(&req, map, maybe_car_and_target_queue)
+            unreachable!()
         };
 
         if allowed {
@@ -186,8 +193,7 @@ impl State {
         map: &Map,
         maybe_car_and_target_queue: Option<(&mut Queue, &Car)>,
     ) -> bool {
-        // Allow concurrent turns that don't conflict, don't prevent target lane from spilling
-        // over.
+        // Allow concurrent turns that don't conflict
         if self.any_accepted_conflict_with(req.turn, map) {
             return false;
         }

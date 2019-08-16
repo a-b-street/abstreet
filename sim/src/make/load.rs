@@ -1,4 +1,4 @@
-use crate::{Scenario, Sim};
+use crate::{Scenario, Sim, SimOptions};
 use abstutil;
 use geom::Duration;
 use map_model::{Map, MapEdits};
@@ -25,6 +25,10 @@ pub struct SimFlags {
     /// Run name for savestating
     #[structopt(long = "run_name")]
     pub run_name: Option<String>,
+
+    /// Use freeform intersection policy everywhere
+    #[structopt(long = "freeform_policy")]
+    pub freeform_policy: bool,
 }
 
 impl SimFlags {
@@ -38,6 +42,7 @@ impl SimFlags {
             load: PathBuf::from(abstutil::path_map(map)),
             rng_seed: Some(42),
             run_name: Some(run_name.to_string()),
+            freeform_policy: false,
         }
     }
 
@@ -56,6 +61,15 @@ impl SimFlags {
         timer: &mut abstutil::Timer,
     ) -> (Map, Sim, XorShiftRng) {
         let mut rng = self.make_rng();
+
+        let mut opts = SimOptions {
+            run_name: self
+                .run_name
+                .clone()
+                .unwrap_or_else(|| "unnamed".to_string()),
+            savestate_every,
+            use_freeform_policy_everywhere: self.freeform_policy,
+        };
 
         if self.load.starts_with(Path::new("../data/save/")) {
             timer.note(format!("Resuming from {}", self.load.display()));
@@ -81,13 +95,11 @@ impl SimFlags {
             let map: Map =
                 abstutil::read_binary(&abstutil::path_map(&scenario.map_name), timer).unwrap();
 
-            let mut sim = Sim::new(
-                &map,
-                self.run_name
-                    .clone()
-                    .unwrap_or_else(|| scenario.scenario_name.clone()),
-                savestate_every,
-            );
+            opts.run_name = self
+                .run_name
+                .clone()
+                .unwrap_or_else(|| scenario.scenario_name.clone());
+            let mut sim = Sim::new(&map, opts);
             scenario.instantiate(&mut sim, &map, &mut rng, timer);
 
             (map, sim, rng)
@@ -98,13 +110,7 @@ impl SimFlags {
                 .expect(&format!("Couldn't load map from {}", self.load.display()));
 
             timer.start("create sim");
-            let sim = Sim::new(
-                &map,
-                self.run_name
-                    .clone()
-                    .unwrap_or_else(|| "unnamed".to_string()),
-                savestate_every,
-            );
+            let sim = Sim::new(&map, opts);
             timer.stop("create sim");
 
             (map, sim, rng)
@@ -115,13 +121,7 @@ impl SimFlags {
                 .expect(&format!("Couldn't load map from {}", self.load.display()));
 
             timer.start("create sim");
-            let sim = Sim::new(
-                &map,
-                self.run_name
-                    .clone()
-                    .unwrap_or_else(|| "unnamed".to_string()),
-                savestate_every,
-            );
+            let sim = Sim::new(&map, opts);
             timer.stop("create sim");
 
             (map, sim, rng)

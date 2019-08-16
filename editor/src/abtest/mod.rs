@@ -11,7 +11,7 @@ use ezgui::{hotkey, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Moda
 use geom::{Circle, Distance, Line, PolyLine};
 use map_model::{Map, LANE_THICKNESS};
 use serde_derive::{Deserialize, Serialize};
-use sim::{Sim, TripID};
+use sim::{Sim, SimOptions, TripID};
 
 pub struct ABTestMode {
     menu: ModalMenu,
@@ -245,17 +245,13 @@ impl ABTestMode {
         // Temporarily move everything into this structure.
         let blank_map = Map::blank();
         let mut secondary = ui.secondary.take().unwrap();
+        let mut opts = SimOptions::new("run");
+        opts.use_freeform_policy_everywhere = ui.primary.current_flags.sim_flags.freeform_policy;
         let ss = ABTestSavestate {
             primary_map: std::mem::replace(&mut ui.primary.map, Map::blank()),
-            primary_sim: std::mem::replace(
-                &mut ui.primary.sim,
-                Sim::new(&blank_map, "run".to_string(), None),
-            ),
+            primary_sim: std::mem::replace(&mut ui.primary.sim, Sim::new(&blank_map, opts.clone())),
             secondary_map: std::mem::replace(&mut secondary.map, Map::blank()),
-            secondary_sim: std::mem::replace(
-                &mut secondary.sim,
-                Sim::new(&blank_map, "run".to_string(), None),
-            ),
+            secondary_sim: std::mem::replace(&mut secondary.sim, Sim::new(&blank_map, opts)),
         };
 
         let path = abstutil::path2_bin(

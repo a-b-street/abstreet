@@ -52,22 +52,43 @@ pub struct Sim {
     events_since_last_step: Vec<Event>,
 }
 
+#[derive(Clone)]
+pub struct SimOptions {
+    pub run_name: String,
+    pub savestate_every: Option<Duration>,
+    pub use_freeform_policy_everywhere: bool,
+}
+
+impl SimOptions {
+    pub fn new(run_name: &str) -> SimOptions {
+        SimOptions {
+            run_name: run_name.to_string(),
+            savestate_every: None,
+            use_freeform_policy_everywhere: false,
+        }
+    }
+}
+
 // Setup
 impl Sim {
-    pub fn new(map: &Map, run_name: String, savestate_every: Option<Duration>) -> Sim {
+    pub fn new(map: &Map, opts: SimOptions) -> Sim {
         let mut scheduler = Scheduler::new();
         // TODO Gridlock detection doesn't add value right now.
         if false {
             scheduler.push(CHECK_FOR_GRIDLOCK_FREQUENCY, Command::CheckForGridlock);
         }
-        if let Some(d) = savestate_every {
+        if let Some(d) = opts.savestate_every {
             scheduler.push(d, Command::Savestate(d));
         }
         Sim {
             driving: DrivingSimState::new(map),
             parking: ParkingSimState::new(map),
             walking: WalkingSimState::new(),
-            intersections: IntersectionSimState::new(map, &mut scheduler),
+            intersections: IntersectionSimState::new(
+                map,
+                &mut scheduler,
+                opts.use_freeform_policy_everywhere,
+            ),
             transit: TransitSimState::new(),
             trips: TripManager::new(),
             spawner: TripSpawner::new(),
@@ -79,7 +100,7 @@ impl Sim {
             map_name: map.get_name().to_string(),
             // TODO
             edits_name: "no_edits".to_string(),
-            run_name,
+            run_name: opts.run_name,
             step_count: 0,
             trip_positions: None,
             events_since_last_step: Vec::new(),

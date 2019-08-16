@@ -1,7 +1,7 @@
 use crate::runner::TestRunner;
 use abstutil::Timer;
 use geom::Duration;
-use sim::{Scenario, Sim, SimFlags};
+use sim::{Scenario, Sim, SimFlags, SimOptions};
 
 pub fn run(t: &mut TestRunner) {
     t.run_slow("serialization", |_| {
@@ -19,7 +19,7 @@ pub fn run(t: &mut TestRunner) {
         println!("Creating two simulations");
         let flags = SimFlags::for_test("from_scratch_1");
         let (map, mut sim1, _) = flags.load(None, &mut Timer::throwaway());
-        let mut sim2 = Sim::new(&map, "from_scratch_2".to_string(), None);
+        let mut sim2 = Sim::new(&map, SimOptions::new("from_scratch_2"));
         Scenario::small_run(&map).instantiate(
             &mut sim1,
             &map,
@@ -52,7 +52,7 @@ pub fn run(t: &mut TestRunner) {
         println!("Creating two simulations");
         let flags = SimFlags::for_test("with_savestating_1");
         let (map, mut sim1, _) = flags.load(None, &mut Timer::throwaway());
-        let mut sim2 = Sim::new(&map, "with_savestating_2".to_string(), None);
+        let mut sim2 = Sim::new(&map, SimOptions::new("with_savestating_2"));
         Scenario::small_run(&map).instantiate(
             &mut sim1,
             &map,

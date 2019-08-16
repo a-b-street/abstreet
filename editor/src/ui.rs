@@ -10,7 +10,7 @@ use geom::{Bounds, Circle, Distance};
 use map_model::{Map, Traversable};
 use rand::seq::SliceRandom;
 use serde_derive::{Deserialize, Serialize};
-use sim::{GetDrawAgents, Sim, SimFlags};
+use sim::{GetDrawAgents, Sim, SimFlags, SimOptions};
 use structopt::StructOpt;
 
 pub struct UI {
@@ -489,15 +489,19 @@ impl PerMapUI {
     }
 
     pub fn reset_sim(&mut self) {
+        let flags = &self.current_flags.sim_flags;
+
         // TODO savestate_every gets lost
         self.sim = Sim::new(
             &self.map,
-            self.current_flags
-                .sim_flags
-                .run_name
-                .clone()
-                .unwrap_or_else(|| "unnamed".to_string()),
-            None,
+            SimOptions {
+                run_name: flags
+                    .run_name
+                    .clone()
+                    .unwrap_or_else(|| "unnamed".to_string()),
+                savestate_every: None,
+                use_freeform_policy_everywhere: flags.freeform_policy,
+            },
         );
     }
 }

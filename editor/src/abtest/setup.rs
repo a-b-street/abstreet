@@ -155,6 +155,7 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
                             load,
                             rng_seed: current_flags.sim_flags.rng_seed,
                             run_name: Some(format!("{} with {}", test.test_name, test.edits2_name)),
+                            freeform_policy: current_flags.sim_flags.freeform_policy,
                         },
                         ..current_flags.clone()
                     },
