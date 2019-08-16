@@ -26,13 +26,17 @@ pub struct SimFlags {
     #[structopt(long = "run_name")]
     pub run_name: Option<String>,
 
+    /// Regularly save simulation state
+    #[structopt(long = "savestate_every")]
+    pub savestate_every: Option<Duration>,
+
     /// Use freeform intersection policy everywhere
     #[structopt(long = "freeform_policy")]
     pub freeform_policy: bool,
 
-    /// Regularly save simulation state
-    #[structopt(long = "savestate_every")]
-    pub savestate_every: Option<Duration>,
+    /// Disable block-the-box prevention
+    #[structopt(long = "disable_block_the_box")]
+    pub disable_block_the_box: bool,
 }
 
 impl SimFlags {
@@ -46,8 +50,9 @@ impl SimFlags {
             load: PathBuf::from(abstutil::path_map(map)),
             rng_seed: Some(42),
             run_name: Some(run_name.to_string()),
-            freeform_policy: false,
             savestate_every: None,
+            freeform_policy: false,
+            disable_block_the_box: false,
         }
     }
 
@@ -70,6 +75,7 @@ impl SimFlags {
                 .unwrap_or_else(|| "unnamed".to_string()),
             savestate_every: self.savestate_every,
             use_freeform_policy_everywhere: self.freeform_policy,
+            disable_block_the_box: self.disable_block_the_box,
         };
 
         if self.load.starts_with(Path::new("../data/save/")) {

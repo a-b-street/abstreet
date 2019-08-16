@@ -30,6 +30,8 @@
 - https://blogs.uw.edu/ceadvice/2019/05/08/infrastructure-week-2019-welcome-uw-cee-students-and-faculty/
 - https://escience.washington.edu/dssg/
 - josie kresner from transport foundry
+- https://www.citylab.com/transportation/2019/08/city-planning-transportation-oakland-community-engagement/596050/
+	- tweeting small problems -> bug tracker
 
 ## Similar projects
 

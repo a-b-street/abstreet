@@ -163,12 +163,16 @@ impl Queue {
 
     // If true, there's room and the car must actually start the turn (because the space is
     // reserved).
-    pub fn try_to_reserve_entry(&mut self, car: &Car) -> bool {
+    pub fn try_to_reserve_entry(&mut self, car: &Car, force_entry: bool) -> bool {
         // Sometimes a car + FOLLOWING_DISTANCE might be longer than the geom_len entirely. In that
         // case, it just means the car won't totally fit on the queue at once, which is fine.
         // Reserve the normal amount of space; the next car trying to enter will get rejected.
+        // Also allow this don't-block-the-box prevention to be disabled.
         let dist = car.vehicle.length + FOLLOWING_DISTANCE;
-        if self.reserved_length + dist < self.geom_len || self.reserved_length == Distance::ZERO {
+        if self.reserved_length + dist < self.geom_len
+            || self.reserved_length == Distance::ZERO
+            || force_entry
+        {
             self.reserved_length += dist;
             return true;
         }

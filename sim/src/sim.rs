@@ -57,6 +57,7 @@ pub struct SimOptions {
     pub run_name: String,
     pub savestate_every: Option<Duration>,
     pub use_freeform_policy_everywhere: bool,
+    pub disable_block_the_box: bool,
 }
 
 impl SimOptions {
@@ -65,6 +66,7 @@ impl SimOptions {
             run_name: run_name.to_string(),
             savestate_every: None,
             use_freeform_policy_everywhere: false,
+            disable_block_the_box: false,
         }
     }
 }
@@ -88,6 +90,7 @@ impl Sim {
                 map,
                 &mut scheduler,
                 opts.use_freeform_policy_everywhere,
+                opts.disable_block_the_box,
             ),
             transit: TransitSimState::new(),
             trips: TripManager::new(),

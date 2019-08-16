@@ -516,6 +516,7 @@ impl PerMapUI {
                     .unwrap_or_else(|| "unnamed".to_string()),
                 savestate_every: flags.savestate_every,
                 use_freeform_policy_everywhere: flags.freeform_policy,
+                disable_block_the_box: flags.disable_block_the_box,
             },
         );
     }

@@ -156,8 +156,9 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
                             load,
                             rng_seed: current_flags.sim_flags.rng_seed,
                             run_name: Some(format!("{} with {}", test.test_name, test.edits2_name)),
-                            freeform_policy: current_flags.sim_flags.freeform_policy,
                             savestate_every: None,
+                            freeform_policy: current_flags.sim_flags.freeform_policy,
+                            disable_block_the_box: current_flags.sim_flags.disable_block_the_box,
                         },
                         ..current_flags.clone()
                     },

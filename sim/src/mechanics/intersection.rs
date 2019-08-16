@@ -16,6 +16,7 @@ const WAIT_AT_STOP_SIGN: Duration = Duration::const_seconds(0.5);
 pub struct IntersectionSimState {
     state: BTreeMap<IntersectionID, State>,
     use_freeform_policy_everywhere: bool,
+    force_queue_entry: bool,
 }
 
 #[derive(Serialize, Deserialize, PartialEq)]
@@ -35,10 +36,12 @@ impl IntersectionSimState {
         map: &Map,
         scheduler: &mut Scheduler,
         use_freeform_policy_everywhere: bool,
+        disable_block_the_box: bool,
     ) -> IntersectionSimState {
         let mut sim = IntersectionSimState {
             state: BTreeMap::new(),
             use_freeform_policy_everywhere,
+            force_queue_entry: disable_block_the_box,
         };
         for i in map.all_intersections() {
             sim.state.insert(
@@ -140,14 +143,21 @@ impl IntersectionSimState {
         state.waiting.entry(req.clone()).or_insert(now);
 
         let allowed = if self.use_freeform_policy_everywhere {
-            state.freeform_policy(&req, map, maybe_car_and_target_queue)
+            state.freeform_policy(&req, map)
         } else if let Some(ref signal) = map.maybe_get_traffic_signal(state.id) {
-            state.traffic_signal_policy(signal, &req, speed, now, maybe_car_and_target_queue, map)
+            state.traffic_signal_policy(signal, &req, speed, now, map)
         } else if let Some(ref sign) = map.maybe_get_stop_sign(state.id) {
-            state.stop_sign_policy(sign, &req, now, map, scheduler, maybe_car_and_target_queue)
+            state.stop_sign_policy(sign, &req, now, map, scheduler)
         } else {
             unreachable!()
         };
+
+        // Don't block the box
+        if let Some((queue, car)) = maybe_car_and_target_queue {
+            if !queue.try_to_reserve_entry(car, self.force_queue_entry) {
+                return false;
+            }
+        }
 
         if allowed {
             assert!(!state.any_accepted_conflict_with(turn, map));
@@ -187,22 +197,10 @@ impl State {
             .any(|req| map.get_t(req.turn).conflicts_with(turn))
     }
 
-    fn freeform_policy(
-        &self,
-        req: &Request,
-        map: &Map,
-        maybe_car_and_target_queue: Option<(&mut Queue, &Car)>,
-    ) -> bool {
+    fn freeform_policy(&self, req: &Request, map: &Map) -> bool {
         // Allow concurrent turns that don't conflict
         if self.any_accepted_conflict_with(req.turn, map) {
             return false;
-        }
-
-        // Don't block the box
-        if let Some((queue, car)) = maybe_car_and_target_queue {
-            if !queue.try_to_reserve_entry(car) {
-                return false;
-            }
         }
 
         true
@@ -215,7 +213,6 @@ impl State {
         now: Duration,
         map: &Map,
         scheduler: &mut Scheduler,
-        maybe_car_and_target_queue: Option<(&mut Queue, &Car)>,
     ) -> bool {
         if self.any_accepted_conflict_with(req.turn, map) {
             return false;
@@ -251,13 +248,6 @@ impl State {
         // TODO Make sure we can optimistically finish this turn before an approaching
         // higher-priority vehicle wants to begin.
 
-        // Don't block the box
-        if let Some((queue, car)) = maybe_car_and_target_queue {
-            if !queue.try_to_reserve_entry(car) {
-                return false;
-            }
-        }
-
         true
     }
 
@@ -267,7 +257,6 @@ impl State {
         new_req: &Request,
         speed: Speed,
         time: Duration,
-        maybe_car_and_target_queue: Option<(&mut Queue, &Car)>,
         map: &Map,
     ) -> bool {
         let turn = map.get_t(new_req.turn);
@@ -311,13 +300,6 @@ impl State {
             if time_to_cross > cycle.duration {
                 println!("OYYY! {:?} is impossible to fit into cycle duration of {}. Allowing, but fix the policy!", new_req, cycle.duration);
             } else {
-                return false;
-            }
-        }
-
-        // Don't block the box
-        if let Some((queue, car)) = maybe_car_and_target_queue {
-            if !queue.try_to_reserve_entry(car) {
                 return false;
             }
         }
