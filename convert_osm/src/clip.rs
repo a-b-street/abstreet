@@ -1,6 +1,5 @@
 use abstutil::{retain_btreemap, Timer};
-use clipping::CPolygon;
-use geom::{GPSBounds, PolyLine, Polygon, Pt2D};
+use geom::{GPSBounds, PolyLine, Polygon};
 use map_model::{raw_data, IntersectionType};
 
 pub fn clip_map(map: &mut raw_data::Map, timer: &mut Timer) {
@@ -101,28 +100,10 @@ pub fn clip_map(map: &mut raw_data::Map, timer: &mut Timer) {
 
     let mut result_areas = Vec::new();
     for orig_area in map.areas.drain(..) {
-        let mut boundary_pts = CPolygon::from_vec(
-            &boundary_poly
-                .points()
-                .iter()
-                .map(|pt| [pt.x(), pt.y()])
-                .collect(),
-        );
-        let mut area_pts = CPolygon::from_vec(
-            &bounds
-                .must_convert(&orig_area.points)
-                .into_iter()
-                .map(|pt| [pt.x(), pt.y()])
-                .collect(),
-        );
-        let results = area_pts.intersection(&mut boundary_pts);
-        for pts in results {
+        for pts in Polygon::gps_intersection(&map.boundary_polygon, &orig_area.points) {
             let mut area = orig_area.clone();
-            area.points = bounds
-                .must_convert_back(&pts.into_iter().map(|pt| Pt2D::new(pt[0], pt[1])).collect());
-            if area.points[0] != *area.points.last().unwrap() {
-                area.points.push(area.points[0]);
-            }
+            area.points = pts;
+            assert_eq!(area.points[0], *area.points.last().unwrap());
             result_areas.push(area);
         }
     }

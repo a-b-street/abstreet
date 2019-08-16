@@ -1,4 +1,5 @@
-use crate::{Bounds, Distance, HashablePt2D, Pt2D};
+use crate::{Bounds, Distance, HashablePt2D, LonLat, Pt2D};
+use geo_booleanop::boolean::BooleanOp;
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 
@@ -160,6 +161,33 @@ impl Polygon {
             indices.push(offset + idx);
         }
         Polygon::precomputed(points, indices)
+    }
+
+    // Weird to operate on Vec<LonLat>, but this is the one use case right now...
+    pub fn gps_intersection(p1: &Vec<LonLat>, p2: &Vec<LonLat>) -> Vec<Vec<LonLat>> {
+        fn to_geo(pts: &Vec<LonLat>) -> geo::Polygon<f64> {
+            geo::Polygon::new(
+                geo::LineString::from(
+                    pts.iter()
+                        .map(|pt| geo::Point::new(pt.longitude, pt.latitude))
+                        .collect::<Vec<_>>(),
+                ),
+                Vec::new(),
+            )
+        }
+
+        let multi = to_geo(p1).intersection(&to_geo(p2));
+        multi
+            .into_iter()
+            .map(|poly| {
+                poly.into_inner()
+                    .0
+                    .into_points()
+                    .into_iter()
+                    .map(|pt| LonLat::new(pt.x(), pt.y()))
+                    .collect()
+            })
+            .collect()
     }
 }
 
