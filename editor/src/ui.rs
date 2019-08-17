@@ -346,8 +346,7 @@ impl UI {
                     for c in source.get_draw_cars(*on, map).into_iter() {
                         list.push(draw_vehicle(c, map, prerender, &self.cs));
                     }
-                    let (loners, crowds) =
-                        DrawPedestrian::aggregate_peds(source.get_draw_peds(*on, map));
+                    let (loners, crowds) = source.get_draw_peds(*on, map);
                     for p in loners {
                         list.push(Box::new(DrawPedestrian::new(
                             p, step_count, map, prerender, &self.cs,

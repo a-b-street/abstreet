@@ -1,5 +1,5 @@
 use crate::{CarID, PedestrianID};
-use geom::{Angle, Duration, PolyLine, Pt2D};
+use geom::{Angle, Distance, Duration, PolyLine, Pt2D};
 use map_model::{Map, Traversable, TurnID};
 
 // Intermediate structures so that sim and editor crates don't have a cyclic dependency.
@@ -10,6 +10,14 @@ pub struct DrawPedestrianInput {
     pub facing: Angle,
     pub waiting_for_turn: Option<TurnID>,
     pub preparing_bike: bool,
+    pub on: Traversable,
+}
+
+pub struct DrawPedCrowdInput {
+    pub low: Distance,
+    pub high: Distance,
+    pub contraflow: bool,
+    pub members: Vec<PedestrianID>,
     pub on: Traversable,
 }
 
@@ -49,7 +57,11 @@ pub trait GetDrawAgents {
     fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput>;
     fn get_draw_ped(&self, id: PedestrianID, map: &Map) -> Option<DrawPedestrianInput>;
     fn get_draw_cars(&self, on: Traversable, map: &Map) -> Vec<DrawCarInput>;
-    fn get_draw_peds(&self, on: Traversable, map: &Map) -> Vec<DrawPedestrianInput>;
+    fn get_draw_peds(
+        &self,
+        on: Traversable,
+        map: &Map,
+    ) -> (Vec<DrawPedestrianInput>, Vec<DrawPedCrowdInput>);
     fn get_all_draw_cars(&self, map: &Map) -> Vec<DrawCarInput>;
     fn get_all_draw_peds(&self, map: &Map) -> Vec<DrawPedestrianInput>;
 }

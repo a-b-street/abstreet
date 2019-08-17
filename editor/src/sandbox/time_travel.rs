@@ -6,7 +6,9 @@ use abstutil::MultiMap;
 use ezgui::{hotkey, EventCtx, GfxCtx, ItemSlider, Key, Text};
 use geom::Duration;
 use map_model::{Map, Traversable};
-use sim::{CarID, DrawCarInput, DrawPedestrianInput, GetDrawAgents, PedestrianID};
+use sim::{
+    CarID, DrawCarInput, DrawPedCrowdInput, DrawPedestrianInput, GetDrawAgents, PedestrianID,
+};
 use std::collections::BTreeMap;
 
 pub struct InactiveTimeTravel {
@@ -151,14 +153,22 @@ impl GetDrawAgents for TimeTraveler {
             .collect()
     }
 
-    fn get_draw_peds(&self, on: Traversable, _map: &Map) -> Vec<DrawPedestrianInput> {
+    // TODO This cheats and doesn't handle crowds. :\
+    fn get_draw_peds(
+        &self,
+        on: Traversable,
+        _map: &Map,
+    ) -> (Vec<DrawPedestrianInput>, Vec<DrawPedCrowdInput>) {
         let state = self.get_current_state();
-        state
-            .peds_per_traversable
-            .get(on)
-            .iter()
-            .map(|id| state.peds[id].clone())
-            .collect()
+        (
+            state
+                .peds_per_traversable
+                .get(on)
+                .iter()
+                .map(|id| state.peds[id].clone())
+                .collect(),
+            Vec::new(),
+        )
     }
 
     fn get_all_draw_cars(&self, _map: &Map) -> Vec<DrawCarInput> {

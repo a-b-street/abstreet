@@ -1,5 +1,5 @@
 use crate::{
-    AgentID, Command, CreatePedestrian, DistanceInterval, DrawPedestrianInput,
+    AgentID, Command, CreatePedestrian, DistanceInterval, DrawPedCrowdInput, DrawPedestrianInput,
     IntersectionSimState, ParkingSimState, PedestrianID, Scheduler, SidewalkPOI, SidewalkSpot,
     TimeInterval, TransitSimState, TripID, TripManager, TripPositions, UnzoomedAgent,
 };
@@ -83,19 +83,6 @@ impl WalkingSimState {
         self.peds
             .values()
             .map(|p| p.get_draw_ped(time, map))
-            .collect()
-    }
-
-    pub fn get_draw_peds(
-        &self,
-        time: Duration,
-        on: Traversable,
-        map: &Map,
-    ) -> Vec<DrawPedestrianInput> {
-        self.peds_per_traversable
-            .get(on)
-            .iter()
-            .map(|id| self.peds[id].get_draw_ped(time, map))
             .collect()
     }
 
@@ -306,6 +293,94 @@ impl WalkingSimState {
                 .insert(ped.trip, ped.get_draw_ped(trip_positions.time, map).pos);
         }
     }
+
+    pub fn get_draw_peds_on(
+        &self,
+        time: Duration,
+        on: Traversable,
+        map: &Map,
+    ) -> (Vec<DrawPedestrianInput>, Vec<DrawPedCrowdInput>) {
+        // Classify into direction-based groups or by building front path.
+        let mut forwards: Vec<(PedestrianID, Distance)> = Vec::new();
+        let mut backwards: Vec<(PedestrianID, Distance)> = Vec::new();
+        let mut front_path: MultiMap<BuildingID, (PedestrianID, Distance)> = MultiMap::new();
+
+        let mut loners: Vec<DrawPedestrianInput> = Vec::new();
+
+        for id in self.peds_per_traversable.get(on) {
+            let ped = &self.peds[id];
+            let dist = ped.get_dist_along(time, map);
+
+            match ped.state {
+                PedState::Crossing(ref dist_int, _) => {
+                    if dist_int.start < dist_int.end {
+                        forwards.push((*id, dist));
+                    } else {
+                        backwards.push((*id, dist));
+                    }
+                }
+                PedState::WaitingToTurn(dist) => {
+                    if dist == Distance::ZERO {
+                        backwards.push((*id, dist));
+                    } else {
+                        forwards.push((*id, dist));
+                    }
+                }
+                PedState::LeavingBuilding(b, _) | PedState::EnteringBuilding(b, _) => {
+                    // TODO Group on front paths too.
+                    if false {
+                        // TODO Distance along the front path
+                        front_path.insert(b, (*id, dist));
+                    } else {
+                        loners.push(ped.get_draw_ped(time, map));
+                    }
+                }
+                PedState::StartingToBike(_, _, _)
+                | PedState::FinishingBiking(_, _, _)
+                | PedState::WaitingForBus => {
+                    // The backwards half of the sidewalk is closer to the road.
+                    backwards.push((*id, dist));
+                }
+            }
+        }
+
+        let mut crowds: Vec<DrawPedCrowdInput> = Vec::new();
+        let on_len = on.length(map);
+
+        // For each group, sort by distance along. Attempt to bundle into intervals.
+        for (idx, mut group) in vec![forwards, backwards]
+            .into_iter()
+            .chain(
+                front_path
+                    .consume()
+                    .values()
+                    .map(|set| set.into_iter().cloned().collect::<Vec<_>>()),
+            )
+            .enumerate()
+        {
+            if group.is_empty() {
+                continue;
+            }
+            group.sort_by_key(|(_, dist)| *dist);
+            let (individs, these_crowds) = find_crowds(group, on);
+            for id in individs {
+                loners.push(self.peds[&id].get_draw_ped(time, map));
+            }
+            for mut crowd in these_crowds {
+                crowd.contraflow = idx == 1;
+                // Clamp the distance intervals.
+                if crowd.low < Distance::ZERO {
+                    crowd.low = Distance::ZERO;
+                }
+                if crowd.high > on_len {
+                    crowd.high = on_len;
+                }
+                crowds.push(crowd);
+            }
+        }
+
+        (loners, crowds)
+    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq)]
@@ -497,4 +572,51 @@ impl PedState {
             PedState::WaitingForBus => unreachable!(),
         }
     }
+}
+
+// The crowds returned here may have low/high values extending up to radius past the real geometry.
+fn find_crowds(
+    input: Vec<(PedestrianID, Distance)>,
+    on: Traversable,
+) -> (Vec<PedestrianID>, Vec<DrawPedCrowdInput>) {
+    let mut loners = Vec::new();
+    let mut crowds = Vec::new();
+    let radius = LANE_THICKNESS / 4.0;
+
+    let mut current_crowd = DrawPedCrowdInput {
+        low: input[0].1 - radius,
+        high: input[0].1 + radius,
+        contraflow: false,
+        members: vec![input[0].0],
+        on,
+    };
+    for (id, dist) in input.into_iter().skip(1) {
+        // If the pedestrian circles would overlap at all,
+        if dist - radius <= current_crowd.high {
+            current_crowd.members.push(id);
+            current_crowd.high = dist + radius;
+        } else {
+            if current_crowd.members.len() == 1 {
+                loners.push(current_crowd.members[0]);
+            } else {
+                crowds.push(current_crowd);
+            }
+            // Reset current_crowd
+            current_crowd = DrawPedCrowdInput {
+                low: dist - radius,
+                high: dist + radius,
+                contraflow: false,
+                members: vec![id],
+                on,
+            };
+        }
+    }
+    // Handle the last bit
+    if current_crowd.members.len() == 1 {
+        loners.push(current_crowd.members[0]);
+    } else {
+        crowds.push(current_crowd);
+    }
+
+    (loners, crowds)
 }

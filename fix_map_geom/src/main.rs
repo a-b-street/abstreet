@@ -192,6 +192,7 @@ impl GUI for UI {
                         true
                     } else if menu.action("reset hints") {
                         self.hints.hints.clear();
+                        self.hints.parking_overrides.clear();
                         true
                     } else {
                         false

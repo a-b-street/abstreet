@@ -1,8 +1,8 @@
 use crate::{
-    AgentID, CarID, Command, CreateCar, DrawCarInput, DrawPedestrianInput, DrivingGoal,
-    DrivingSimState, Event, FinishedTrips, GetDrawAgents, IntersectionSimState, ParkedCar,
-    ParkingSimState, ParkingSpot, PedestrianID, Router, Scheduler, TransitSimState, TripID,
-    TripLeg, TripManager, TripPositions, TripSpawner, TripSpec, TripStatus, UnzoomedAgent,
+    AgentID, CarID, Command, CreateCar, DrawCarInput, DrawPedCrowdInput, DrawPedestrianInput,
+    DrivingGoal, DrivingSimState, Event, FinishedTrips, GetDrawAgents, IntersectionSimState,
+    ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, Router, Scheduler, TransitSimState,
+    TripID, TripLeg, TripManager, TripPositions, TripSpawner, TripSpec, TripStatus, UnzoomedAgent,
     VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
 };
 use abstutil::{elapsed_seconds, Timer};
@@ -287,8 +287,12 @@ impl GetDrawAgents for Sim {
             .get_draw_cars_on(self.time, on, map, &self.transit)
     }
 
-    fn get_draw_peds(&self, on: Traversable, map: &Map) -> Vec<DrawPedestrianInput> {
-        self.walking.get_draw_peds(self.time, on, map)
+    fn get_draw_peds(
+        &self,
+        on: Traversable,
+        map: &Map,
+    ) -> (Vec<DrawPedestrianInput>, Vec<DrawPedCrowdInput>) {
+        self.walking.get_draw_peds_on(self.time, on, map)
     }
 
     fn get_all_draw_cars(&self, map: &Map) -> Vec<DrawCarInput> {
