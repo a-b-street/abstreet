@@ -377,7 +377,7 @@ impl AgentCache {
 
         let mut batch = GeomBatch::new();
         let radius = Distance::meters(10.0) / g.canvas.cam_zoom;
-        for agent in primary.sim.get_unzoomed_agents_with_details(&primary.map) {
+        for agent in primary.sim.get_unzoomed_agents(&primary.map) {
             batch.push(
                 acs.color_for(&agent, cs),
                 Circle::new(agent.pos, radius).to_polygon(),

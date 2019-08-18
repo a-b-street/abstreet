@@ -3,10 +3,10 @@ use crate::mechanics::queue::Queue;
 use crate::{
     ActionAtEnd, AgentID, CarID, Command, CreateCar, DistanceInterval, DrawCarInput,
     IntersectionSimState, ParkedCar, ParkingSimState, Scheduler, TimeInterval, TransitSimState,
-    TripManager, TripPositions, UnzoomedAgent, VehicleType, WalkingSimState, FOLLOWING_DISTANCE,
+    TripManager, TripPositions, UnzoomedAgent, WalkingSimState, FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
-use geom::{Distance, Duration, PolyLine, Pt2D};
+use geom::{Distance, Duration, PolyLine};
 use map_model::{BuildingID, IntersectionID, LaneID, Map, Path, Traversable};
 use petgraph::graph::{Graph, NodeIndex};
 use serde_derive::{Deserialize, Serialize};
@@ -653,41 +653,7 @@ impl DrivingSimState {
         }
     }
 
-    // cars, bikes, buses
-    pub fn get_unzoomed_agents(
-        &self,
-        now: Duration,
-        map: &Map,
-    ) -> (Vec<Pt2D>, Vec<Pt2D>, Vec<Pt2D>) {
-        let mut cars = Vec::new();
-        let mut bikes = Vec::new();
-        let mut buses = Vec::new();
-
-        for queue in self.queues.values() {
-            if queue.cars.is_empty() {
-                continue;
-            }
-
-            for (car, dist) in queue.get_car_positions(now, &self.cars, &self.queues) {
-                let result = queue.id.dist_along(dist, map).0;
-                match car.1 {
-                    VehicleType::Car => {
-                        cars.push(result);
-                    }
-                    VehicleType::Bike => {
-                        bikes.push(result);
-                    }
-                    VehicleType::Bus => {
-                        buses.push(result);
-                    }
-                }
-            }
-        }
-
-        (cars, bikes, buses)
-    }
-
-    pub fn get_unzoomed_agents_with_details(&self, now: Duration, map: &Map) -> Vec<UnzoomedAgent> {
+    pub fn get_unzoomed_agents(&self, now: Duration, map: &Map) -> Vec<UnzoomedAgent> {
         let mut result = Vec::new();
 
         for queue in self.queues.values() {

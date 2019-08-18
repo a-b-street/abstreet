@@ -310,22 +310,9 @@ impl GetDrawAgents for Sim {
 
 // Drawing
 impl Sim {
-    // The results represent (cars, bikes, buses, pedestrians)
-    pub fn get_unzoomed_agents(&self, map: &Map) -> (Vec<Pt2D>, Vec<Pt2D>, Vec<Pt2D>, Vec<Pt2D>) {
-        let (cars, bikes, buses) = self.driving.get_unzoomed_agents(self.time, map);
-        let peds = self.walking.get_unzoomed_agents(self.time, map);
-        (cars, bikes, buses, peds)
-    }
-
-    // TODO Ideally we'd always return UnzoomedAgent, but it's slow!
-    pub fn get_unzoomed_agents_with_details(&self, map: &Map) -> Vec<UnzoomedAgent> {
-        let mut result = self
-            .driving
-            .get_unzoomed_agents_with_details(self.time, map);
-        result.extend(
-            self.walking
-                .get_unzoomed_agents_with_details(self.time, map),
-        );
+    pub fn get_unzoomed_agents(&self, map: &Map) -> Vec<UnzoomedAgent> {
+        let mut result = self.driving.get_unzoomed_agents(self.time, map);
+        result.extend(self.walking.get_unzoomed_agents(self.time, map));
         result
     }
 }
