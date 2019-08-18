@@ -30,25 +30,46 @@ impl DrawPedestrian {
         let mut draw_default = GeomBatch::new();
 
         let foot_radius = 0.2 * radius;
+        let hand_radius = 0.2 * radius;
+        let left_foot_angle = 30.0;
+        let right_foot_angle = -30.0;
+        let left_hand_angle = 70.0;
+        let right_hand_angle = -70.0;
+
         let left_foot = Circle::new(
             input
                 .pos
-                .project_away(radius, input.facing.rotate_degs(30.0)),
+                .project_away(radius, input.facing.rotate_degs(left_foot_angle)),
             foot_radius,
         );
         let right_foot = Circle::new(
             input
                 .pos
-                .project_away(radius, input.facing.rotate_degs(-30.0)),
+                .project_away(radius, input.facing.rotate_degs(right_foot_angle)),
             foot_radius,
         );
+        let left_hand = Circle::new(
+            input
+                .pos
+                .project_away(radius, input.facing.rotate_degs(left_hand_angle)),
+            hand_radius,
+        );
+        let right_hand = Circle::new(
+            input
+                .pos
+                .project_away(radius, input.facing.rotate_degs(right_hand_angle)),
+            hand_radius,
+        );
         let foot_color = cs.get_def("pedestrian foot", Color::BLACK);
+        let hand_color = cs.get("pedestrian head");
         // Jitter based on ID so we don't all walk synchronized.
         let jitter = input.id.0 % 2 == 0;
         let remainder = step_count % 6;
         if input.waiting_for_turn.is_some() {
             draw_default.push(foot_color, left_foot.to_polygon());
             draw_default.push(foot_color, right_foot.to_polygon());
+            draw_default.push(hand_color, left_hand.to_polygon());
+            draw_default.push(hand_color, right_hand.to_polygon());
         } else if jitter == (remainder < 3) {
             draw_default.push(foot_color, left_foot.to_polygon());
             draw_default.push(
@@ -56,8 +77,20 @@ impl DrawPedestrian {
                 Circle::new(
                     input
                         .pos
-                        .project_away(0.9 * radius, input.facing.rotate_degs(-30.0)),
+                        .project_away(0.9 * radius, input.facing.rotate_degs(right_foot_angle)),
                     foot_radius,
+                )
+                .to_polygon(),
+            );
+
+            draw_default.push(hand_color, right_hand.to_polygon());
+            draw_default.push(
+                hand_color,
+                Circle::new(
+                    input
+                        .pos
+                        .project_away(0.9 * radius, input.facing.rotate_degs(left_hand_angle)),
+                    hand_radius,
                 )
                 .to_polygon(),
             );
@@ -68,8 +101,20 @@ impl DrawPedestrian {
                 Circle::new(
                     input
                         .pos
-                        .project_away(0.9 * radius, input.facing.rotate_degs(30.0)),
+                        .project_away(0.9 * radius, input.facing.rotate_degs(left_foot_angle)),
                     foot_radius,
+                )
+                .to_polygon(),
+            );
+
+            draw_default.push(hand_color, left_hand.to_polygon());
+            draw_default.push(
+                hand_color,
+                Circle::new(
+                    input
+                        .pos
+                        .project_away(0.9 * radius, input.facing.rotate_degs(right_hand_angle)),
+                    hand_radius,
                 )
                 .to_polygon(),
             );
@@ -82,7 +127,6 @@ impl DrawPedestrian {
         } else {
             cs.get_def("pedestrian", Color::rgb_f(0.2, 0.7, 0.7))
         };
-        // TODO Arms would look fabulous.
         draw_default.push(body_color, body_circle.to_polygon());
         draw_default.push(
             cs.get_def("pedestrian head", Color::rgb(139, 69, 19)),
