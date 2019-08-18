@@ -1,4 +1,4 @@
-use crate::{CarID, PedestrianID};
+use crate::{CarID, PedestrianID, VehicleType};
 use geom::{Angle, Distance, Duration, PolyLine, Pt2D};
 use map_model::{Map, Traversable, TurnID};
 
@@ -42,6 +42,8 @@ pub enum CarStatus {
 }
 
 pub struct UnzoomedAgent {
+    // None means a pedestrian.
+    pub vehicle_type: Option<VehicleType>,
     pub pos: Pt2D,
     pub time_spent_blocked: Duration,
     pub percent_dist_crossed: f64,

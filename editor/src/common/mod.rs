@@ -16,29 +16,18 @@ pub use self::speed::SpeedControls;
 pub use self::time::time_controls;
 pub use self::trip_explorer::TripExplorer;
 use crate::game::Transition;
-use crate::helpers::{rotating_color, ID};
-use crate::render::{DrawOptions, MIN_ZOOM_FOR_DETAIL};
+use crate::helpers::ID;
+use crate::render::{AgentColorScheme, DrawOptions};
 use crate::ui::UI;
 use ezgui::{
-    Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, HorizontalAlignment, ModalMenu, Text,
-    VerticalAlignment,
+    Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, ModalMenu, Text, VerticalAlignment,
 };
-use geom::{Circle, Distance, Duration};
 use std::collections::BTreeSet;
 
 pub struct CommonState {
     associated: associated::ShowAssociatedState,
     turn_cycler: turn_cycler::TurnCyclerState,
-    agent_colors: AgentColorScheme,
-}
-
-// TODO Have a more general colorscheme that can be changed and affect everything. Show a little
-// legend when it's first activated.
-#[derive(Clone, Copy, PartialEq)]
-enum AgentColorScheme {
-    VehicleTypes,
-    Delay,
-    RemainingDistance,
+    agent_cs: AgentColorScheme,
 }
 
 impl CommonState {
@@ -46,7 +35,7 @@ impl CommonState {
         CommonState {
             associated: associated::ShowAssociatedState::Inactive,
             turn_cycler: turn_cycler::TurnCyclerState::Inactive,
-            agent_colors: AgentColorScheme::VehicleTypes,
+            agent_cs: AgentColorScheme::VehicleTypes,
         }
     }
 
@@ -69,14 +58,14 @@ impl CommonState {
         // This kind of belongs in AgentTools, except that can't influence DrawOptions as easily.
         // TODO This needs to be a mutex radio button style thing.
         if menu.action("show/hide delayed traffic") {
-            self.agent_colors = match self.agent_colors {
+            self.agent_cs = match self.agent_cs {
                 AgentColorScheme::VehicleTypes => AgentColorScheme::Delay,
                 AgentColorScheme::Delay => AgentColorScheme::VehicleTypes,
                 x => x,
             };
         }
         if menu.action("show/hide distance remaining") {
-            self.agent_colors = match self.agent_colors {
+            self.agent_cs = match self.agent_cs {
                 AgentColorScheme::VehicleTypes => AgentColorScheme::RemainingDistance,
                 AgentColorScheme::RemainingDistance => AgentColorScheme::VehicleTypes,
                 x => x,
@@ -98,30 +87,6 @@ impl CommonState {
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         self.turn_cycler.draw(g, ui);
-
-        if self.agent_colors != AgentColorScheme::VehicleTypes
-            && g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL
-        {
-            let mut batch = GeomBatch::new();
-            let radius = Distance::meters(10.0) / g.canvas.cam_zoom;
-            for agent in ui
-                .primary
-                .sim
-                .get_unzoomed_agents_with_details(&ui.primary.map)
-            {
-                batch.push(
-                    match self.agent_colors {
-                        AgentColorScheme::VehicleTypes => unreachable!(),
-                        AgentColorScheme::Delay => delay_color(agent.time_spent_blocked),
-                        AgentColorScheme::RemainingDistance => {
-                            percent_color(agent.percent_dist_crossed)
-                        }
-                    },
-                    Circle::new(agent.pos, radius).to_polygon(),
-                );
-            }
-            batch.draw(g);
-        }
 
         CommonState::draw_osd(g, ui, &ui.primary.current_selection);
     }
@@ -220,25 +185,10 @@ impl CommonState {
         let mut opts = DrawOptions::new();
         self.associated
             .override_colors(&mut opts.override_colors, ui);
+        opts.agent_cs = self.agent_cs;
         opts.suppress_traffic_signal_details = self
             .turn_cycler
             .suppress_traffic_signal_details(&ui.primary.map);
-        opts.suppress_unzoomed_agents = self.agent_colors != AgentColorScheme::VehicleTypes;
         opts
     }
-}
-
-fn delay_color(delay: Duration) -> Color {
-    // TODO Better gradient
-    if delay <= Duration::minutes(1) {
-        return Color::BLUE.alpha(0.3);
-    }
-    if delay <= Duration::minutes(5) {
-        return Color::ORANGE.alpha(0.5);
-    }
-    Color::RED.alpha(0.8)
-}
-
-fn percent_color(percent: f64) -> Color {
-    rotating_color((percent * 10.0).round() as usize)
 }

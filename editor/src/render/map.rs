@@ -1,4 +1,4 @@
-use crate::helpers::{ColorScheme, ID};
+use crate::helpers::{rotating_color, ColorScheme, ID};
 use crate::render::area::DrawArea;
 use crate::render::building::DrawBuilding;
 use crate::render::bus_stop::DrawBusStop;
@@ -17,6 +17,7 @@ use map_model::{
     AreaID, BuildingID, BusStopID, DirectedRoadID, IntersectionID, IntersectionType, Lane, LaneID,
     Map, RoadID, Traversable, Turn, TurnID, TurnType, LANE_THICKNESS,
 };
+use sim::{UnzoomedAgent, VehicleType};
 use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -326,11 +327,11 @@ impl DrawMap {
     }
 }
 
-// TODO Invalidate when we interactively spawn stuff elsewhere?
 pub struct AgentCache {
     time: Option<Duration>,
     agents_per_on: HashMap<Traversable, Vec<Box<Renderable>>>,
-    unzoomed: Option<(f64, Drawable)>,
+    // cam_zoom and AgentColorScheme also matter
+    unzoomed: Option<(f64, AgentColorScheme, Drawable)>,
 }
 
 impl AgentCache {
@@ -359,35 +360,33 @@ impl AgentCache {
         self.agents_per_on.insert(on, agents);
     }
 
-    pub fn draw_unzoomed_agents(&mut self, primary: &PerMapUI, cs: &ColorScheme, g: &mut GfxCtx) {
+    pub fn draw_unzoomed_agents(
+        &mut self,
+        primary: &PerMapUI,
+        acs: AgentColorScheme,
+        cs: &ColorScheme,
+        g: &mut GfxCtx,
+    ) {
         let now = primary.sim.time();
-        if let Some((z, ref draw)) = self.unzoomed {
-            if g.canvas.cam_zoom == z && Some(now) == self.time {
+        if let Some((z, old_acs, ref draw)) = self.unzoomed {
+            if g.canvas.cam_zoom == z && acs == old_acs && Some(now) == self.time {
                 g.redraw(draw);
                 return;
             }
         }
 
-        let (cars, bikes, buses, peds) = primary.sim.get_unzoomed_agents(&primary.map);
         let mut batch = GeomBatch::new();
         let radius = Distance::meters(10.0) / g.canvas.cam_zoom;
-        for (color, agents) in vec![
-            (cs.get_def("unzoomed car", Color::RED.alpha(0.5)), cars),
-            (cs.get_def("unzoomed bike", Color::GREEN.alpha(0.5)), bikes),
-            (cs.get_def("unzoomed bus", Color::BLUE.alpha(0.5)), buses),
-            (
-                cs.get_def("unzoomed pedestrian", Color::ORANGE.alpha(0.5)),
-                peds,
-            ),
-        ] {
-            for pt in agents {
-                batch.push(color, Circle::new(pt, radius).to_polygon());
-            }
+        for agent in primary.sim.get_unzoomed_agents_with_details(&primary.map) {
+            batch.push(
+                acs.color_for(&agent, cs),
+                Circle::new(agent.pos, radius).to_polygon(),
+            );
         }
 
         let draw = g.upload(batch);
         g.redraw(&draw);
-        self.unzoomed = Some((g.canvas.cam_zoom, draw));
+        self.unzoomed = Some((g.canvas.cam_zoom, acs, draw));
         if Some(now) != self.time {
             self.agents_per_on.clear();
             self.time = Some(now);
@@ -403,4 +402,43 @@ fn osm_rank_to_color(cs: &ColorScheme, rank: usize) -> Color {
     } else {
         cs.get_def("unzoomed residential road", Color::WHITE)
     }
+}
+
+// TODO Have a more general colorscheme that can be changed and affect everything. Show a little
+// legend when it's first activated.
+#[derive(Clone, Copy, PartialEq)]
+pub enum AgentColorScheme {
+    VehicleTypes,
+    Delay,
+    RemainingDistance,
+}
+
+impl AgentColorScheme {
+    pub fn color_for(&self, agent: &UnzoomedAgent, cs: &ColorScheme) -> Color {
+        match self {
+            AgentColorScheme::VehicleTypes => match agent.vehicle_type {
+                Some(VehicleType::Car) => cs.get_def("unzoomed car", Color::RED.alpha(0.5)),
+                Some(VehicleType::Bike) => cs.get_def("unzoomed bike", Color::GREEN.alpha(0.5)),
+                Some(VehicleType::Bus) => cs.get_def("unzoomed bus", Color::BLUE.alpha(0.5)),
+                None => cs.get_def("unzoomed pedestrian", Color::ORANGE.alpha(0.5)),
+            },
+            AgentColorScheme::Delay => delay_color(agent.time_spent_blocked),
+            AgentColorScheme::RemainingDistance => percent_color(agent.percent_dist_crossed),
+        }
+    }
+}
+
+fn delay_color(delay: Duration) -> Color {
+    // TODO Better gradient
+    if delay <= Duration::minutes(1) {
+        return Color::BLUE.alpha(0.3);
+    }
+    if delay <= Duration::minutes(5) {
+        return Color::ORANGE.alpha(0.5);
+    }
+    Color::RED.alpha(0.8)
+}
+
+fn percent_color(percent: f64) -> Color {
+    rotating_color((percent * 10.0).round() as usize)
 }

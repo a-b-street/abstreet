@@ -19,7 +19,7 @@ use crate::render::car::DrawCar;
 pub use crate::render::extra_shape::ExtraShapeID;
 pub use crate::render::intersection::{calculate_corners, DrawIntersection};
 pub use crate::render::lane::DrawLane;
-pub use crate::render::map::{AgentCache, DrawMap};
+pub use crate::render::map::{AgentCache, AgentColorScheme, DrawMap};
 pub use crate::render::pedestrian::{DrawPedCrowd, DrawPedestrian};
 pub use crate::render::road::DrawRoad;
 pub use crate::render::traffic_signal::{draw_signal_cycle, TrafficSignalDiagram};
@@ -86,9 +86,9 @@ pub struct DrawOptions {
     pub override_colors: HashMap<ID, Color>,
     pub suppress_traffic_signal_details: Option<IntersectionID>,
     pub geom_debug_mode: bool,
-    pub suppress_unzoomed_agents: bool,
     pub label_buildings: bool,
     pub label_roads: bool,
+    pub agent_cs: AgentColorScheme,
 }
 
 impl DrawOptions {
@@ -97,9 +97,9 @@ impl DrawOptions {
             override_colors: HashMap::new(),
             suppress_traffic_signal_details: None,
             geom_debug_mode: false,
-            suppress_unzoomed_agents: false,
             label_buildings: false,
             label_roads: false,
+            agent_cs: AgentColorScheme::VehicleTypes,
         }
     }
 

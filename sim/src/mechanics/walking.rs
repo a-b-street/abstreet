@@ -277,6 +277,7 @@ impl WalkingSimState {
 
         for ped in self.peds.values() {
             peds.push(UnzoomedAgent {
+                vehicle_type: None,
                 pos: ped.get_draw_ped(now, map).pos,
                 time_spent_blocked: ped.blocked_since.map(|t| now - t).unwrap_or(Duration::ZERO),
                 percent_dist_crossed: ped.path.crossed_so_far() / ped.path.total_length(),
