@@ -1,7 +1,7 @@
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{
-    draw_vehicle, AgentCache, DrawCtx, DrawMap, DrawOptions, DrawPedCrowd, DrawPedestrian,
-    Renderable, MIN_ZOOM_FOR_DETAIL,
+    draw_vehicle, AgentCache, AgentColorScheme, DrawCtx, DrawMap, DrawOptions, DrawPedCrowd,
+    DrawPedestrian, Renderable, MIN_ZOOM_FOR_DETAIL,
 };
 use abstutil;
 use abstutil::{MeasureMemory, Timer};
@@ -18,6 +18,7 @@ pub struct UI {
     // Invariant: This is Some(...) iff we're in A/B test mode or a sub-state.
     pub secondary: Option<PerMapUI>,
     pub cs: ColorScheme,
+    pub agent_cs: AgentColorScheme,
 }
 
 impl UI {
@@ -65,8 +66,9 @@ impl UI {
 
         UI {
             primary,
-            cs,
             secondary: None,
+            cs,
+            agent_cs: AgentColorScheme::VehicleTypes,
         }
     }
 
@@ -126,7 +128,7 @@ impl UI {
             }
 
             let mut cache = self.primary.draw_map.agents.borrow_mut();
-            cache.draw_unzoomed_agents(&self.primary, opts.agent_cs, &self.cs, g);
+            cache.draw_unzoomed_agents(&self.primary, self.agent_cs, &self.cs, g);
         } else {
             let mut cache = self.primary.draw_map.agents.borrow_mut();
             let objects = self.get_renderables_back_to_front(

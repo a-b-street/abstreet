@@ -88,7 +88,6 @@ pub struct DrawOptions {
     pub geom_debug_mode: bool,
     pub label_buildings: bool,
     pub label_roads: bool,
-    pub agent_cs: AgentColorScheme,
 }
 
 impl DrawOptions {
@@ -99,7 +98,6 @@ impl DrawOptions {
             geom_debug_mode: false,
             label_buildings: false,
             label_roads: false,
-            agent_cs: AgentColorScheme::VehicleTypes,
         }
     }
 

@@ -15,7 +15,7 @@ pub use self::route_explorer::RouteExplorer;
 pub use self::speed::SpeedControls;
 pub use self::time::time_controls;
 pub use self::trip_explorer::TripExplorer;
-use crate::game::Transition;
+use crate::game::{Transition, WizardState};
 use crate::helpers::ID;
 use crate::render::{AgentColorScheme, DrawOptions};
 use crate::ui::UI;
@@ -27,7 +27,6 @@ use std::collections::BTreeSet;
 pub struct CommonState {
     associated: associated::ShowAssociatedState,
     turn_cycler: turn_cycler::TurnCyclerState,
-    agent_cs: AgentColorScheme,
 }
 
 impl CommonState {
@@ -35,7 +34,6 @@ impl CommonState {
         CommonState {
             associated: associated::ShowAssociatedState::Inactive,
             turn_cycler: turn_cycler::TurnCyclerState::Inactive,
-            agent_cs: AgentColorScheme::VehicleTypes,
         }
     }
 
@@ -54,22 +52,26 @@ impl CommonState {
         if menu.action("shortcuts") {
             return Some(Transition::Push(shortcuts::ChoosingShortcut::new()));
         }
-        // TODO But it's too late to influence the menu's text to say if this is active or not.
-        // This kind of belongs in AgentTools, except that can't influence DrawOptions as easily.
-        // TODO This needs to be a mutex radio button style thing.
-        if menu.action("show/hide delayed traffic") {
-            self.agent_cs = match self.agent_cs {
-                AgentColorScheme::VehicleTypes => AgentColorScheme::Delay,
-                AgentColorScheme::Delay => AgentColorScheme::VehicleTypes,
-                x => x,
-            };
-        }
-        if menu.action("show/hide distance remaining") {
-            self.agent_cs = match self.agent_cs {
-                AgentColorScheme::VehicleTypes => AgentColorScheme::RemainingDistance,
-                AgentColorScheme::RemainingDistance => AgentColorScheme::VehicleTypes,
-                x => x,
-            };
+        // TODO Maybe move this to AgentTools. Maybe add a menu status note showing what scheme is
+        // currently active.
+        if menu.action("change agent colorscheme") {
+            return Some(Transition::Push(WizardState::new(Box::new(
+                |wiz, ctx, ui| {
+                    let (_, acs) =
+                        wiz.wrap(ctx)
+                            .choose_something("Which colorscheme for agents?", || {
+                                let mut choices = Vec::new();
+                                for (acs, name) in AgentColorScheme::all() {
+                                    if ui.agent_cs != acs {
+                                        choices.push((name, acs));
+                                    }
+                                }
+                                choices
+                            })?;
+                    ui.agent_cs = acs;
+                    Some(Transition::Pop)
+                },
+            ))));
         }
 
         self.associated.event(ui);
@@ -185,7 +187,6 @@ impl CommonState {
         let mut opts = DrawOptions::new();
         self.associated
             .override_colors(&mut opts.override_colors, ui);
-        opts.agent_cs = self.agent_cs;
         opts.suppress_traffic_signal_details = self
             .turn_cycler
             .suppress_traffic_signal_details(&ui.primary.map);

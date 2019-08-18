@@ -10,7 +10,7 @@ use crate::render::turn::DrawTurn;
 use crate::render::Renderable;
 use crate::ui::{Flags, PerMapUI};
 use aabb_quadtree::QuadTree;
-use abstutil::Timer;
+use abstutil::{Cloneable, Timer};
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Distance, Duration, FindClosest};
 use map_model::{
@@ -404,14 +404,15 @@ fn osm_rank_to_color(cs: &ColorScheme, rank: usize) -> Color {
     }
 }
 
-// TODO Have a more general colorscheme that can be changed and affect everything. Show a little
-// legend when it's first activated.
+// TODO Show a little legend when it's first activated.
 #[derive(Clone, Copy, PartialEq)]
 pub enum AgentColorScheme {
     VehicleTypes,
     Delay,
     RemainingDistance,
 }
+
+impl Cloneable for AgentColorScheme {}
 
 impl AgentColorScheme {
     pub fn color_for(&self, agent: &UnzoomedAgent, cs: &ColorScheme) -> Color {
@@ -425,6 +426,23 @@ impl AgentColorScheme {
             AgentColorScheme::Delay => delay_color(agent.time_spent_blocked),
             AgentColorScheme::RemainingDistance => percent_color(agent.percent_dist_crossed),
         }
+    }
+
+    pub fn all() -> Vec<(AgentColorScheme, String)> {
+        vec![
+            (
+                AgentColorScheme::VehicleTypes,
+                "by vehicle type".to_string(),
+            ),
+            (
+                AgentColorScheme::Delay,
+                "by time spent delayed/blocked".to_string(),
+            ),
+            (
+                AgentColorScheme::RemainingDistance,
+                "by distance remaining to goal".to_string(),
+            ),
+        ]
     }
 }
 
