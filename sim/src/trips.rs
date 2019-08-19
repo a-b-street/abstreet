@@ -361,6 +361,13 @@ impl TripManager {
         self.unfinished_trips -= 1;
     }
 
+    pub fn abort_trip_failed_start(&mut self, id: TripID) {
+        // TODO Maybe modify the Trip to indicate the cancelation
+        if !self.trips[id.0].is_bus_trip() {
+            self.unfinished_trips -= 1;
+        }
+    }
+
     pub fn active_agents(&self) -> Vec<AgentID> {
         self.active_trip_mode.keys().cloned().collect()
     }

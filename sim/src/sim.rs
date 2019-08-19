@@ -221,7 +221,6 @@ impl Sim {
 
             // Bypass some layers of abstraction that don't make sense for buses.
 
-            // TODO Aww, we create an orphan trip if the bus can't spawn.
             let trip =
                 self.trips
                     .new_trip(self.time, None, vec![TripLeg::ServeBusRoute(id, route.id)]);
@@ -247,6 +246,7 @@ impl Sim {
                     "No room for a bus headed towards stop {} of {} ({}), giving up",
                     next_stop_idx, route.name, route.id
                 ));
+                self.trips.abort_trip_failed_start(trip);
             }
         }
         results
@@ -362,11 +362,11 @@ impl Sim {
                             Command::SpawnCar(create_car, retry_if_no_room),
                         );
                     } else {
-                        // TODO Cancel the trip or something?
                         println!(
                             "No room to spawn car for {}. Not retrying!",
                             create_car.trip
                         );
+                        self.trips.abort_trip_failed_start(create_car.trip);
                     }
                 }
                 Command::SpawnPed(create_ped) => {
