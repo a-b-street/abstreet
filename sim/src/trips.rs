@@ -89,7 +89,7 @@ impl TripManager {
 
     pub fn car_reached_parking_spot(
         &mut self,
-        time: Duration,
+        now: Duration,
         car: CarID,
         spot: ParkingSpot,
         map: &Map,
@@ -105,7 +105,7 @@ impl TripManager {
         };
 
         if !trip.spawn_ped(
-            time,
+            now,
             SidewalkSpot::parking_spot(spot, map, parking),
             map,
             scheduler,
@@ -116,7 +116,7 @@ impl TripManager {
 
     pub fn ped_reached_parking_spot(
         &mut self,
-        time: Duration,
+        now: Duration,
         ped: PedestrianID,
         spot: ParkingSpot,
         map: &Map,
@@ -158,7 +158,7 @@ impl TripManager {
 
         let router = drive_to.make_router(path, map, parked_car.vehicle.vehicle_type);
         scheduler.push(
-            time,
+            now,
             Command::SpawnCar(
                 CreateCar::for_parked_car(parked_car, router, trip.id, parking, map),
                 true,
@@ -168,7 +168,7 @@ impl TripManager {
 
     pub fn ped_ready_to_bike(
         &mut self,
-        time: Duration,
+        now: Duration,
         ped: PedestrianID,
         spot: SidewalkSpot,
         map: &Map,
@@ -209,7 +209,7 @@ impl TripManager {
 
         let router = drive_to.make_router(path, map, vehicle.vehicle_type);
         scheduler.push(
-            time,
+            now,
             Command::SpawnCar(
                 CreateCar::for_appearing(vehicle, driving_pos, router, trip.id),
                 true,
@@ -219,7 +219,7 @@ impl TripManager {
 
     pub fn bike_reached_end(
         &mut self,
-        time: Duration,
+        now: Duration,
         bike: CarID,
         bike_rack: SidewalkSpot,
         map: &Map,
@@ -236,14 +236,14 @@ impl TripManager {
             _ => unreachable!(),
         };
 
-        if !trip.spawn_ped(time, bike_rack, map, scheduler) {
+        if !trip.spawn_ped(now, bike_rack, map, scheduler) {
             self.unfinished_trips -= 1;
         }
     }
 
     pub fn ped_reached_building(
         &mut self,
-        time: Duration,
+        now: Duration,
         ped: PedestrianID,
         bldg: BuildingID,
         map: &Map,
@@ -257,7 +257,7 @@ impl TripManager {
         trip.assert_walking_leg(ped, SidewalkSpot::building(bldg, map));
         assert!(trip.legs.is_empty());
         assert!(!trip.finished_at.is_some());
-        trip.finished_at = Some(time);
+        trip.finished_at = Some(now);
         self.unfinished_trips -= 1;
     }
 
@@ -300,7 +300,7 @@ impl TripManager {
 
     pub fn ped_left_bus(
         &mut self,
-        time: Duration,
+        now: Duration,
         ped: PedestrianID,
         map: &Map,
         scheduler: &mut Scheduler,
@@ -315,14 +315,14 @@ impl TripManager {
             _ => unreachable!(),
         };
 
-        if !trip.spawn_ped(time, start, map, scheduler) {
+        if !trip.spawn_ped(now, start, map, scheduler) {
             self.unfinished_trips -= 1;
         }
     }
 
     pub fn ped_reached_border(
         &mut self,
-        time: Duration,
+        now: Duration,
         ped: PedestrianID,
         i: IntersectionID,
         map: &Map,
@@ -336,11 +336,11 @@ impl TripManager {
         trip.assert_walking_leg(ped, SidewalkSpot::end_at_border(i, map).unwrap());
         assert!(trip.legs.is_empty());
         assert!(!trip.finished_at.is_some());
-        trip.finished_at = Some(time);
+        trip.finished_at = Some(now);
         self.unfinished_trips -= 1;
     }
 
-    pub fn car_or_bike_reached_border(&mut self, time: Duration, car: CarID, i: IntersectionID) {
+    pub fn car_or_bike_reached_border(&mut self, now: Duration, car: CarID, i: IntersectionID) {
         self.events.push(Event::CarOrBikeReachedBorder(car, i));
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
         match trip.legs.pop_front().unwrap() {
@@ -348,8 +348,8 @@ impl TripManager {
             _ => {
                 // TODO Should be unreachable
                 println!(
-                    "Aborting trip {}, because {} couldn't find parking and got stuck",
-                    trip.id, car
+                    "At {}: Aborting trip {}, because {} couldn't find parking and got stuck",
+                    now, trip.id, car
                 );
                 self.unfinished_trips -= 1;
                 return;
@@ -357,7 +357,7 @@ impl TripManager {
         };
         assert!(trip.legs.is_empty());
         assert!(!trip.finished_at.is_some());
-        trip.finished_at = Some(time);
+        trip.finished_at = Some(now);
         self.unfinished_trips -= 1;
     }
 
@@ -467,7 +467,7 @@ impl Trip {
     // Returns true if this succeeds. If not, trip aborted.
     fn spawn_ped(
         &self,
-        time: Duration,
+        now: Duration,
         start: SidewalkSpot,
         map: &Map,
         scheduler: &mut Scheduler,
@@ -493,7 +493,7 @@ impl Trip {
         };
 
         scheduler.push(
-            time,
+            now,
             Command::SpawnPed(CreatePedestrian {
                 id: ped,
                 speed,

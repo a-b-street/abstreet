@@ -335,8 +335,8 @@ pub struct AgentCache {
 }
 
 impl AgentCache {
-    pub fn has(&self, time: Duration, on: Traversable) -> bool {
-        if Some(time) != self.time {
+    pub fn has(&self, now: Duration, on: Traversable) -> bool {
+        if Some(now) != self.time {
             return false;
         }
         self.agents_per_on.contains_key(&on)
@@ -350,10 +350,10 @@ impl AgentCache {
             .collect()
     }
 
-    pub fn put(&mut self, time: Duration, on: Traversable, agents: Vec<Box<Renderable>>) {
-        if Some(time) != self.time {
+    pub fn put(&mut self, now: Duration, on: Traversable, agents: Vec<Box<Renderable>>) {
+        if Some(now) != self.time {
             self.agents_per_on.clear();
-            self.time = Some(time);
+            self.time = Some(now);
         }
 
         assert!(!self.agents_per_on.contains_key(&on));

@@ -80,10 +80,10 @@ impl WalkingSimState {
         );
     }
 
-    pub fn get_all_draw_peds(&self, time: Duration, map: &Map) -> Vec<DrawPedestrianInput> {
+    pub fn get_all_draw_peds(&self, now: Duration, map: &Map) -> Vec<DrawPedestrianInput> {
         self.peds
             .values()
-            .map(|p| p.get_draw_ped(time, map))
+            .map(|p| p.get_draw_ped(now, map))
             .collect()
     }
 
@@ -247,14 +247,14 @@ impl WalkingSimState {
 
     pub fn trace_route(
         &self,
-        time: Duration,
+        now: Duration,
         id: PedestrianID,
         map: &Map,
         dist_ahead: Option<Distance>,
     ) -> Option<PolyLine> {
         let p = self.peds.get(&id)?;
         let body_radius = LANE_THICKNESS / 4.0;
-        let dist = (p.get_dist_along(time, map) + body_radius)
+        let dist = (p.get_dist_along(now, map) + body_radius)
             .min(p.path.current_step().as_traversable().length(map));
         p.path.trace(map, dist, dist_ahead)
     }
@@ -290,7 +290,7 @@ impl WalkingSimState {
 
     pub fn get_draw_peds_on(
         &self,
-        time: Duration,
+        now: Duration,
         on: Traversable,
         map: &Map,
     ) -> (Vec<DrawPedestrianInput>, Vec<DrawPedCrowdInput>) {
@@ -303,7 +303,7 @@ impl WalkingSimState {
 
         for id in self.peds_per_traversable.get(on) {
             let ped = &self.peds[id];
-            let dist = ped.get_dist_along(time, map);
+            let dist = ped.get_dist_along(now, map);
 
             match ped.state {
                 PedState::Crossing(ref dist_int, _) => {
@@ -326,7 +326,7 @@ impl WalkingSimState {
                         // TODO Distance along the front path
                         front_path.insert(b, (*id, dist));
                     } else {
-                        loners.push(ped.get_draw_ped(time, map));
+                        loners.push(ped.get_draw_ped(now, map));
                     }
                 }
                 PedState::StartingToBike(_, _, _)
@@ -358,7 +358,7 @@ impl WalkingSimState {
             group.sort_by_key(|(_, dist)| *dist);
             let (individs, these_crowds) = find_crowds(group, on);
             for id in individs {
-                loners.push(self.peds[&id].get_draw_ped(time, map));
+                loners.push(self.peds[&id].get_draw_ped(now, map));
             }
             for mut crowd in these_crowds {
                 crowd.contraflow = idx == 1;
@@ -408,9 +408,9 @@ impl Pedestrian {
         PedState::Crossing(dist_int, time_int)
     }
 
-    fn get_dist_along(&self, time: Duration, map: &Map) -> Distance {
+    fn get_dist_along(&self, now: Duration, map: &Map) -> Distance {
         match self.state {
-            PedState::Crossing(ref dist_int, ref time_int) => dist_int.lerp(time_int.percent(time)),
+            PedState::Crossing(ref dist_int, ref time_int) => dist_int.lerp(time_int.percent(now)),
             PedState::WaitingToTurn(dist) => dist,
             PedState::LeavingBuilding(b, _) => map.get_b(b).front_path.sidewalk.dist_along(),
             PedState::EnteringBuilding(b, _) => map.get_b(b).front_path.sidewalk.dist_along(),

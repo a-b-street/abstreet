@@ -35,7 +35,7 @@ impl Queue {
     // Farthest along (greatest distance) is first.
     pub fn get_car_positions(
         &self,
-        time: Duration,
+        now: Duration,
         cars: &BTreeMap<CarID, Car>,
         queues: &BTreeMap<Traversable, Queue>,
     ) -> Vec<(CarID, Distance)> {
@@ -59,7 +59,7 @@ impl Queue {
                         // is on their queue. No protection against gridlock here!
                         let leader = &cars[&id];
                         let (head, head_dist) = *queues[&leader.router.head()]
-                            .get_car_positions(time, cars, queues)
+                            .get_car_positions(now, cars, queues)
                             .last()
                             .unwrap();
                         assert_eq!(head, id);
@@ -87,10 +87,10 @@ impl Queue {
 
             // There's spillover and a car shouldn't have been able to enter yet.
             if bound < Distance::ZERO {
-                dump_cars(&result, cars, self.id, time);
+                dump_cars(&result, cars, self.id, now);
                 panic!(
                     "Queue has spillover on {} at {} -- can't draw {}, bound is {}. Laggy head is {:?}",
-                    self.id, time, id, bound, self.laggy_head
+                    self.id, now, id, bound, self.laggy_head
                 );
             }
 
@@ -110,7 +110,7 @@ impl Queue {
                 CarState::Crossing(ref time_int, ref dist_int) => {
                     // TODO Why percent_clamp_end? We process car updates in any order, so we might
                     // calculate this before moving this car from Crossing to another state.
-                    dist_int.lerp(time_int.percent_clamp_end(time)).min(bound)
+                    dist_int.lerp(time_int.percent_clamp_end(now)).min(bound)
                 }
                 CarState::Unparking(front, _) => front,
                 CarState::Parking(front, _, _) => front,
@@ -119,14 +119,14 @@ impl Queue {
 
             result.push((*id, front));
         }
-        validate_positions(result, cars, time, self.id)
+        validate_positions(result, cars, now, self.id)
     }
 
     pub fn get_idx_to_insert_car(
         &self,
         start_dist: Distance,
         vehicle_len: Distance,
-        time: Duration,
+        now: Duration,
         cars: &BTreeMap<CarID, Car>,
         queues: &BTreeMap<Traversable, Queue>,
     ) -> Option<usize> {
@@ -134,7 +134,7 @@ impl Queue {
             return Some(0);
         }
 
-        let dists = self.get_car_positions(time, cars, queues);
+        let dists = self.get_car_positions(now, cars, queues);
         // TODO Binary search
         let idx = match dists.iter().position(|(_, dist)| start_dist >= *dist) {
             Some(i) => i,
@@ -189,12 +189,12 @@ impl Queue {
 fn validate_positions(
     dists: Vec<(CarID, Distance)>,
     cars: &BTreeMap<CarID, Car>,
-    time: Duration,
+    now: Duration,
     id: Traversable,
 ) -> Vec<(CarID, Distance)> {
     for pair in dists.windows(2) {
         if pair[0].1 - cars[&pair[0].0].vehicle.length - FOLLOWING_DISTANCE < pair[1].1 {
-            dump_cars(&dists, cars, id, time);
+            dump_cars(&dists, cars, id, now);
             panic!(
                 "get_car_positions wound up with bad positioning: {} then {}\n{:?}",
                 pair[0].1, pair[1].1, dists
@@ -208,9 +208,9 @@ fn dump_cars(
     dists: &Vec<(CarID, Distance)>,
     cars: &BTreeMap<CarID, Car>,
     id: Traversable,
-    time: Duration,
+    now: Duration,
 ) {
-    println!("\nOn {} at {}...", id, time);
+    println!("\nOn {} at {}...", id, now);
     for (id, dist) in dists {
         let car = &cars[id];
         println!("- {} @ {} (length {})", id, dist, car.vehicle.length);

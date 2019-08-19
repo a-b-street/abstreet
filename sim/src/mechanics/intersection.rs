@@ -255,7 +255,7 @@ impl State {
         signal: &ControlTrafficSignal,
         new_req: &Request,
         speed: Speed,
-        time: Duration,
+        now: Duration,
         map: &Map,
     ) -> bool {
         let turn = map.get_t(new_req.turn);
@@ -265,7 +265,7 @@ impl State {
             return true;
         }
 
-        let (_, cycle, remaining_cycle_time) = signal.current_cycle_and_remaining_time(time);
+        let (_, cycle, remaining_cycle_time) = signal.current_cycle_and_remaining_time(now);
 
         // Can't go at all this cycle.
         if cycle.get_priority(new_req.turn) == TurnPriority::Banned {

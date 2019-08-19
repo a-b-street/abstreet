@@ -140,7 +140,7 @@ impl TransitSimState {
 
     pub fn bus_arrived_at_stop(
         &mut self,
-        time: Duration,
+        now: Duration,
         id: CarID,
         trips: &mut TripManager,
         walking: &mut WalkingSimState,
@@ -159,7 +159,7 @@ impl TransitSimState {
                 for (ped, stop2) in bus.passengers.drain(..) {
                     if stop == stop2 {
                         self.events.push(Event::PedLeavesBus(ped, id));
-                        trips.ped_left_bus(time, ped, map, scheduler);
+                        trips.ped_left_bus(now, ped, map, scheduler);
                     } else {
                         still_riding.push((ped, stop2));
                     }
