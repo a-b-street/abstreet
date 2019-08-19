@@ -1,5 +1,5 @@
 use crate::helpers::{ColorScheme, ID};
-use crate::render::{DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
+use crate::render::{AgentColorScheme, DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender, Text};
 use geom::{Circle, Distance, PolyLine, Polygon};
 use map_model::{Map, LANE_THICKNESS};
@@ -20,6 +20,7 @@ impl DrawPedestrian {
         map: &Map,
         prerender: &Prerender,
         cs: &ColorScheme,
+        acs: AgentColorScheme,
     ) -> DrawPedestrian {
         // TODO Slight issues with rendering small pedestrians:
         // - route visualization is thick
@@ -122,12 +123,7 @@ impl DrawPedestrian {
 
         let body_circle = Circle::new(input.pos, radius);
         let head_circle = Circle::new(input.pos, 0.5 * radius);
-        let body_color = if input.preparing_bike {
-            cs.get_def("pedestrian preparing bike", Color::rgb(255, 0, 144))
-        } else {
-            cs.get_def("pedestrian", Color::rgb_f(0.2, 0.7, 0.7))
-        };
-        draw_default.push(body_color, body_circle.to_polygon());
+        draw_default.push(acs.zoomed_color_ped(&input, cs), body_circle.to_polygon());
         draw_default.push(
             cs.get_def("pedestrian head", Color::rgb(139, 69, 19)),
             head_circle.to_polygon(),

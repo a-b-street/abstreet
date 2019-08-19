@@ -11,6 +11,8 @@ pub struct DrawPedestrianInput {
     pub waiting_for_turn: Option<TurnID>,
     pub preparing_bike: bool,
     pub on: Traversable,
+    pub time_spent_blocked: Duration,
+    pub percent_dist_crossed: f64,
 }
 
 pub struct DrawPedCrowdInput {
@@ -28,8 +30,10 @@ pub struct DrawCarInput {
     pub status: CarStatus,
     pub on: Traversable,
     pub label: Option<String>,
+    pub time_spent_blocked: Duration,
+    pub percent_dist_crossed: f64,
 
-    // Starts at the BACK of the car. TODO Dedupe unused old stuff.
+    // Starts at the BACK of the car.
     pub body: PolyLine,
 }
 

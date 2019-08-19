@@ -1,9 +1,9 @@
 use crate::helpers::{ColorScheme, ID};
-use crate::render::{DrawCtx, DrawOptions, Renderable};
+use crate::render::{AgentColorScheme, DrawCtx, DrawOptions, Renderable};
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
 use geom::{Circle, Distance, Line, PolyLine, Polygon};
 use map_model::{Map, LANE_THICKNESS};
-use sim::{CarID, CarStatus, DrawCarInput};
+use sim::{CarID, DrawCarInput};
 
 pub struct DrawBike {
     pub id: CarID,
@@ -20,18 +20,13 @@ impl DrawBike {
         map: &Map,
         prerender: &Prerender,
         cs: &ColorScheme,
+        acs: AgentColorScheme,
     ) -> DrawBike {
         let mut draw_default = GeomBatch::new();
 
         // TODO Share constants with DrawPedestrian
         let body_radius = LANE_THICKNESS / 4.0;
-        let body_color = match input.status {
-            CarStatus::Debug => cs.get_def("debug bike", Color::BLUE.alpha(0.8)),
-            // TODO Hard to see on the greenish bike lanes? :P
-            CarStatus::Moving => cs.get_def("moving bike", Color::GREEN),
-            CarStatus::Stuck => cs.get_def("stuck bike", Color::RED),
-            CarStatus::Parked => panic!("Can't have a parked bike {}", input.id),
-        };
+        let body_color = acs.zoomed_color_bike(&input, cs);
         draw_default.push(
             cs.get_def("bike frame", Color::rgb(0, 128, 128)),
             input.body.make_polygons(Distance::meters(0.4)),

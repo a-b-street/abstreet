@@ -69,6 +69,10 @@ impl CommonState {
                                 choices
                             })?;
                     ui.agent_cs = acs;
+                    ui.primary.draw_map.agents.borrow_mut().invalidate_cache();
+                    if let Some(ref mut s) = ui.secondary {
+                        s.draw_map.agents.borrow_mut().invalidate_cache();
+                    }
                     Some(Transition::Pop)
                 },
             ))));

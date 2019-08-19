@@ -17,7 +17,7 @@ use map_model::{
     AreaID, BuildingID, BusStopID, DirectedRoadID, IntersectionID, IntersectionType, Lane, LaneID,
     Map, RoadID, Traversable, Turn, TurnID, TurnType, LANE_THICKNESS,
 };
-use sim::{UnzoomedAgent, VehicleType};
+use sim::{CarStatus, DrawCarInput, DrawPedestrianInput, UnzoomedAgent, VehicleType};
 use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -330,8 +330,8 @@ impl DrawMap {
 pub struct AgentCache {
     time: Option<Duration>,
     agents_per_on: HashMap<Traversable, Vec<Box<Renderable>>>,
-    // cam_zoom and AgentColorScheme also matter
-    unzoomed: Option<(f64, AgentColorScheme, Drawable)>,
+    // cam_zoom also matters
+    unzoomed: Option<(f64, Drawable)>,
 }
 
 impl AgentCache {
@@ -360,6 +360,12 @@ impl AgentCache {
         self.agents_per_on.insert(on, agents);
     }
 
+    pub fn invalidate_cache(&mut self) {
+        self.time = None;
+        self.agents_per_on.clear();
+        self.unzoomed = None;
+    }
+
     pub fn draw_unzoomed_agents(
         &mut self,
         primary: &PerMapUI,
@@ -368,8 +374,8 @@ impl AgentCache {
         g: &mut GfxCtx,
     ) {
         let now = primary.sim.time();
-        if let Some((z, old_acs, ref draw)) = self.unzoomed {
-            if g.canvas.cam_zoom == z && acs == old_acs && Some(now) == self.time {
+        if let Some((z, ref draw)) = self.unzoomed {
+            if g.canvas.cam_zoom == z && Some(now) == self.time {
                 g.redraw(draw);
                 return;
             }
@@ -379,14 +385,14 @@ impl AgentCache {
         let radius = Distance::meters(10.0) / g.canvas.cam_zoom;
         for agent in primary.sim.get_unzoomed_agents(&primary.map) {
             batch.push(
-                acs.color_for(&agent, cs),
+                acs.unzoomed_color(&agent, cs),
                 Circle::new(agent.pos, radius).to_polygon(),
             );
         }
 
         let draw = g.upload(batch);
         g.redraw(&draw);
-        self.unzoomed = Some((g.canvas.cam_zoom, acs, draw));
+        self.unzoomed = Some((g.canvas.cam_zoom, draw));
         if Some(now) != self.time {
             self.agents_per_on.clear();
             self.time = Some(now);
@@ -415,7 +421,7 @@ pub enum AgentColorScheme {
 impl Cloneable for AgentColorScheme {}
 
 impl AgentColorScheme {
-    pub fn color_for(&self, agent: &UnzoomedAgent, cs: &ColorScheme) -> Color {
+    pub fn unzoomed_color(&self, agent: &UnzoomedAgent, cs: &ColorScheme) -> Color {
         match self {
             AgentColorScheme::VehicleTypes => match agent.vehicle_type {
                 Some(VehicleType::Car) => cs.get_def("unzoomed car", Color::RED.alpha(0.5)),
@@ -425,6 +431,53 @@ impl AgentColorScheme {
             },
             AgentColorScheme::Delay => delay_color(agent.time_spent_blocked),
             AgentColorScheme::RemainingDistance => percent_color(agent.percent_dist_crossed),
+        }
+    }
+
+    pub fn zoomed_color_car(&self, input: &DrawCarInput, cs: &ColorScheme) -> Color {
+        match self {
+            AgentColorScheme::VehicleTypes => {
+                if input.id.1 == VehicleType::Bus {
+                    cs.get_def("bus", Color::rgb(50, 133, 117))
+                } else {
+                    match input.status {
+                        CarStatus::Debug => cs.get_def("debug car", Color::BLUE.alpha(0.8)),
+                        CarStatus::Moving => cs.get_def("moving car", Color::CYAN),
+                        CarStatus::Stuck => cs.get_def("stuck car", Color::rgb(222, 184, 135)),
+                        CarStatus::Parked => cs.get_def("parked car", Color::rgb(180, 233, 76)),
+                    }
+                }
+            }
+            AgentColorScheme::Delay => delay_color(input.time_spent_blocked),
+            AgentColorScheme::RemainingDistance => percent_color(input.percent_dist_crossed),
+        }
+    }
+
+    pub fn zoomed_color_bike(&self, input: &DrawCarInput, cs: &ColorScheme) -> Color {
+        match self {
+            AgentColorScheme::VehicleTypes => match input.status {
+                CarStatus::Debug => cs.get_def("debug bike", Color::BLUE.alpha(0.8)),
+                // TODO Hard to see on the greenish bike lanes? :P
+                CarStatus::Moving => cs.get_def("moving bike", Color::GREEN),
+                CarStatus::Stuck => cs.get_def("stuck bike", Color::RED),
+                CarStatus::Parked => panic!("Can't have a parked bike {}", input.id),
+            },
+            AgentColorScheme::Delay => delay_color(input.time_spent_blocked),
+            AgentColorScheme::RemainingDistance => percent_color(input.percent_dist_crossed),
+        }
+    }
+
+    pub fn zoomed_color_ped(&self, input: &DrawPedestrianInput, cs: &ColorScheme) -> Color {
+        match self {
+            AgentColorScheme::VehicleTypes => {
+                if input.preparing_bike {
+                    cs.get_def("pedestrian preparing bike", Color::rgb(255, 0, 144))
+                } else {
+                    cs.get_def("pedestrian", Color::rgb_f(0.2, 0.7, 0.7))
+                }
+            }
+            AgentColorScheme::Delay => delay_color(input.time_spent_blocked),
+            AgentColorScheme::RemainingDistance => percent_color(input.percent_dist_crossed),
         }
     }
 

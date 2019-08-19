@@ -57,7 +57,7 @@ impl Car {
     pub fn get_draw_car(
         &self,
         front: Distance,
-        time: Duration,
+        now: Duration,
         map: &Map,
         transit: &TransitSimState,
     ) -> DrawCarInput {
@@ -100,14 +100,15 @@ impl Car {
         let body = match self.state {
             // Assume the parking lane is to the right of us!
             CarState::Unparking(_, ref time_int) => raw_body
-                .shift_right(LANE_THICKNESS * (1.0 - time_int.percent(time)))
+                .shift_right(LANE_THICKNESS * (1.0 - time_int.percent(now)))
                 .unwrap(),
             CarState::Parking(_, _, ref time_int) => raw_body
-                .shift_right(LANE_THICKNESS * time_int.percent(time))
+                .shift_right(LANE_THICKNESS * time_int.percent(now))
                 .unwrap(),
             _ => raw_body,
         };
 
+        let path = self.router.get_path();
         DrawCarInput {
             id: self.vehicle.id,
             waiting_for_turn: match self.state {
@@ -140,6 +141,11 @@ impl Car {
                 None
             },
             body,
+            time_spent_blocked: self
+                .blocked_since
+                .map(|t| now - t)
+                .unwrap_or(Duration::ZERO),
+            percent_dist_crossed: path.crossed_so_far() / path.total_length(),
         }
     }
 }

@@ -2,7 +2,7 @@ use crate::{CarID, CarStatus, DrawCarInput, ParkedCar, ParkingSpot, Vehicle};
 use abstutil::{
     deserialize_btreemap, deserialize_multimap, serialize_btreemap, serialize_multimap, MultiMap,
 };
-use geom::Distance;
+use geom::{Distance, Duration};
 use map_model;
 use map_model::{BuildingID, Lane, LaneID, LaneType, Map, Position, Traversable};
 use serde_derive::{Deserialize, Serialize};
@@ -108,6 +108,8 @@ impl ParkingSimState {
             status: CarStatus::Parked,
             on: Traversable::Lane(lane),
             label: None,
+            time_spent_blocked: Duration::ZERO,
+            percent_dist_crossed: 0.0,
 
             body: map
                 .get_l(lane)

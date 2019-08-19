@@ -415,14 +415,14 @@ impl Pedestrian {
         }
     }
 
-    fn get_draw_ped(&self, time: Duration, map: &Map) -> DrawPedestrianInput {
+    fn get_draw_ped(&self, now: Duration, map: &Map) -> DrawPedestrianInput {
         let on = self.path.current_step().as_traversable();
         let (pos, facing) = match self.state {
             PedState::Crossing(ref dist_int, ref time_int) => {
-                let percent = if time > time_int.end {
+                let percent = if now > time_int.end {
                     1.0
                 } else {
-                    time_int.percent(time)
+                    time_int.percent(now)
                 };
                 let (pos, orig_angle) = on.dist_along(dist_int.lerp(percent), map);
                 let facing = if dist_int.start < dist_int.end {
@@ -452,7 +452,7 @@ impl Pedestrian {
                 (
                     front_path
                         .line
-                        .dist_along(time_int.percent(time) * front_path.line.length())
+                        .dist_along(time_int.percent(now) * front_path.line.length())
                         .project_away(
                             LANE_THICKNESS / 4.0,
                             front_path.line.angle().rotate_degs(90.0),
@@ -466,7 +466,7 @@ impl Pedestrian {
                     front_path
                         .line
                         .reverse()
-                        .dist_along(time_int.percent(time) * front_path.line.length())
+                        .dist_along(time_int.percent(now) * front_path.line.length())
                         .project_away(
                             LANE_THICKNESS / 4.0,
                             front_path.line.angle().rotate_degs(-90.0),
@@ -475,10 +475,10 @@ impl Pedestrian {
                 )
             }
             PedState::StartingToBike(_, ref line, ref time_int) => {
-                (line.percent_along(time_int.percent(time)), line.angle())
+                (line.percent_along(time_int.percent(now)), line.angle())
             }
             PedState::FinishingBiking(_, ref line, ref time_int) => {
-                (line.percent_along(time_int.percent(time)), line.angle())
+                (line.percent_along(time_int.percent(now)), line.angle())
             }
             PedState::WaitingForBus => {
                 let (pt, angle) = self.goal.sidewalk_pos.pt_and_angle(map);
@@ -500,6 +500,11 @@ impl Pedestrian {
                 _ => false,
             },
             on,
+            time_spent_blocked: self
+                .blocked_since
+                .map(|t| now - t)
+                .unwrap_or(Duration::ZERO),
+            percent_dist_crossed: self.path.crossed_so_far() / self.path.total_length(),
         }
     }
 

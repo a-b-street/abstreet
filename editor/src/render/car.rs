@@ -1,9 +1,9 @@
 use crate::helpers::{ColorScheme, ID};
-use crate::render::{DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
+use crate::render::{AgentColorScheme, DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender, Text};
 use geom::{Angle, Circle, Distance, PolyLine, Polygon, Pt2D};
 use map_model::{Map, TurnType};
-use sim::{CarID, CarStatus, DrawCarInput, VehicleType};
+use sim::{CarID, DrawCarInput};
 
 const CAR_WIDTH: Distance = Distance::const_meters(2.0);
 
@@ -18,23 +18,17 @@ pub struct DrawCar {
 }
 
 impl DrawCar {
-    pub fn new(input: DrawCarInput, map: &Map, prerender: &Prerender, cs: &ColorScheme) -> DrawCar {
+    pub fn new(
+        input: DrawCarInput,
+        map: &Map,
+        prerender: &Prerender,
+        cs: &ColorScheme,
+        acs: AgentColorScheme,
+    ) -> DrawCar {
         let mut draw_default = GeomBatch::new();
 
         let body_polygon = input.body.make_polygons(CAR_WIDTH);
-        draw_default.push(
-            if input.id.1 == VehicleType::Bus {
-                cs.get_def("bus", Color::rgb(50, 133, 117))
-            } else {
-                match input.status {
-                    CarStatus::Debug => cs.get_def("debug car", Color::BLUE.alpha(0.8)),
-                    CarStatus::Moving => cs.get_def("moving car", Color::CYAN),
-                    CarStatus::Stuck => cs.get_def("stuck car", Color::rgb(222, 184, 135)),
-                    CarStatus::Parked => cs.get_def("parked car", Color::rgb(180, 233, 76)),
-                }
-            },
-            body_polygon.clone(),
-        );
+        draw_default.push(acs.zoomed_color_car(&input, cs), body_polygon.clone());
 
         {
             let window_length_gap = Distance::meters(0.2);

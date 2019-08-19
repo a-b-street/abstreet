@@ -317,12 +317,17 @@ impl UI {
                 if !agents.has(time, *on) {
                     let mut list: Vec<Box<Renderable>> = Vec::new();
                     for c in source.get_draw_cars(*on, map).into_iter() {
-                        list.push(draw_vehicle(c, map, prerender, &self.cs));
+                        list.push(draw_vehicle(c, map, prerender, &self.cs, self.agent_cs));
                     }
                     let (loners, crowds) = source.get_draw_peds(*on, map);
                     for p in loners {
                         list.push(Box::new(DrawPedestrian::new(
-                            p, step_count, map, prerender, &self.cs,
+                            p,
+                            step_count,
+                            map,
+                            prerender,
+                            &self.cs,
+                            self.agent_cs,
                         )));
                     }
                     for c in crowds {
