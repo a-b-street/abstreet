@@ -54,6 +54,7 @@ impl WalkingSimState {
             ),
             speed: params.speed,
             blocked_since: None,
+            started_at: now,
             path: params.path,
             goal: params.goal,
             trip: params.trip,
@@ -239,6 +240,7 @@ impl WalkingSimState {
                 "Blocked for {}",
                 p.blocked_since.map(|t| now - t).unwrap_or(Duration::ZERO)
             ),
+            format!("Trip time so far: {}", now - p.started_at),
             format!("{:?}", p.state),
         ]
     }
@@ -271,6 +273,7 @@ impl WalkingSimState {
                 pos: ped.get_draw_ped(now, map).pos,
                 time_spent_blocked: ped.blocked_since.map(|t| now - t).unwrap_or(Duration::ZERO),
                 percent_dist_crossed: ped.path.crossed_so_far() / ped.path.total_length(),
+                trip_time_so_far: now - ped.started_at,
             });
         }
 
@@ -380,6 +383,8 @@ struct Pedestrian {
     state: PedState,
     speed: Speed,
     blocked_since: Option<Duration>,
+    // TODO organize analytics better.
+    started_at: Duration,
 
     path: Path,
     goal: SidewalkSpot,
@@ -505,6 +510,7 @@ impl Pedestrian {
                 .map(|t| now - t)
                 .unwrap_or(Duration::ZERO),
             percent_dist_crossed: self.path.crossed_so_far() / self.path.total_length(),
+            trip_time_so_far: now - self.started_at,
         }
     }
 

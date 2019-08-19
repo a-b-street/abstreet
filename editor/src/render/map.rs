@@ -381,6 +381,8 @@ impl AgentCache {
             }
         }
 
+        // TODO The perf is a little slow compared to when we just returned a bunch of Pt2Ds
+        // without the extra data. Try plumbing a callback that directly populates batch.
         let mut batch = GeomBatch::new();
         let radius = Distance::meters(10.0) / g.canvas.cam_zoom;
         for agent in primary.sim.get_unzoomed_agents(&primary.map) {
@@ -411,11 +413,13 @@ fn osm_rank_to_color(cs: &ColorScheme, rank: usize) -> Color {
 }
 
 // TODO Show a little legend when it's first activated.
+// TODO ETA till goal...
 #[derive(Clone, Copy, PartialEq)]
 pub enum AgentColorScheme {
     VehicleTypes,
     Delay,
     RemainingDistance,
+    TripTimeSoFar,
 }
 
 impl Cloneable for AgentColorScheme {}
@@ -431,6 +435,7 @@ impl AgentColorScheme {
             },
             AgentColorScheme::Delay => delay_color(agent.time_spent_blocked),
             AgentColorScheme::RemainingDistance => percent_color(agent.percent_dist_crossed),
+            AgentColorScheme::TripTimeSoFar => delay_color(agent.trip_time_so_far),
         }
     }
 
@@ -450,6 +455,7 @@ impl AgentColorScheme {
             }
             AgentColorScheme::Delay => delay_color(input.time_spent_blocked),
             AgentColorScheme::RemainingDistance => percent_color(input.percent_dist_crossed),
+            AgentColorScheme::TripTimeSoFar => delay_color(input.trip_time_so_far),
         }
     }
 
@@ -464,6 +470,7 @@ impl AgentColorScheme {
             },
             AgentColorScheme::Delay => delay_color(input.time_spent_blocked),
             AgentColorScheme::RemainingDistance => percent_color(input.percent_dist_crossed),
+            AgentColorScheme::TripTimeSoFar => delay_color(input.trip_time_so_far),
         }
     }
 
@@ -478,6 +485,7 @@ impl AgentColorScheme {
             }
             AgentColorScheme::Delay => delay_color(input.time_spent_blocked),
             AgentColorScheme::RemainingDistance => percent_color(input.percent_dist_crossed),
+            AgentColorScheme::TripTimeSoFar => delay_color(input.trip_time_so_far),
         }
     }
 
@@ -494,6 +502,10 @@ impl AgentColorScheme {
             (
                 AgentColorScheme::RemainingDistance,
                 "by distance remaining to goal".to_string(),
+            ),
+            (
+                AgentColorScheme::TripTimeSoFar,
+                "by trip time so far".to_string(),
             ),
         ]
     }

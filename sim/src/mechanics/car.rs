@@ -14,6 +14,7 @@ pub struct Car {
     pub router: Router,
     pub trip: TripID,
     pub blocked_since: Option<Duration>,
+    pub started_at: Duration,
 
     // In reverse order -- most recently left is first. The sum length of these must be >=
     // vehicle.length.
@@ -146,6 +147,7 @@ impl Car {
                 .map(|t| now - t)
                 .unwrap_or(Duration::ZERO),
             percent_dist_crossed: path.crossed_so_far() / path.total_length(),
+            trip_time_so_far: now - self.started_at,
         }
     }
 }

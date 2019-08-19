@@ -86,6 +86,7 @@ impl DrivingSimState {
                 state: CarState::Queued,
                 last_steps: VecDeque::new(),
                 blocked_since: None,
+                started_at: now,
                 trip: params.trip,
             };
             if params.maybe_parked_car.is_some() {
@@ -672,6 +673,7 @@ impl DrivingSimState {
                         .map(|t| now - t)
                         .unwrap_or(Duration::ZERO),
                     percent_dist_crossed: path.crossed_so_far() / path.total_length(),
+                    trip_time_so_far: now - car.started_at,
                 });
             }
         }
@@ -760,6 +762,7 @@ impl DrivingSimState {
                 "Blocked for {}",
                 car.blocked_since.map(|t| now - t).unwrap_or(Duration::ZERO)
             ),
+            format!("Trip time so far: {}", now - car.started_at),
             format!("{:?}", car.state),
         ])
     }

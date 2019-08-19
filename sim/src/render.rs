@@ -13,6 +13,7 @@ pub struct DrawPedestrianInput {
     pub on: Traversable,
     pub time_spent_blocked: Duration,
     pub percent_dist_crossed: f64,
+    pub trip_time_so_far: Duration,
 }
 
 pub struct DrawPedCrowdInput {
@@ -32,6 +33,7 @@ pub struct DrawCarInput {
     pub label: Option<String>,
     pub time_spent_blocked: Duration,
     pub percent_dist_crossed: f64,
+    pub trip_time_so_far: Duration,
 
     // Starts at the BACK of the car.
     pub body: PolyLine,
@@ -51,6 +53,7 @@ pub struct UnzoomedAgent {
     pub pos: Pt2D,
     pub time_spent_blocked: Duration,
     pub percent_dist_crossed: f64,
+    pub trip_time_so_far: Duration,
 }
 
 // TODO Can we return borrows instead? Nice for time travel, not for main sim?
