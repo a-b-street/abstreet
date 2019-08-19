@@ -8,7 +8,7 @@ use crate::{
 };
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
-use geom::{Bounds, GPSBounds, Polygon, Pt2D};
+use geom::{Bounds, Distance, GPSBounds, Polygon, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 use std::io;
@@ -177,6 +177,49 @@ impl Map {
         pathfinder.setup_walking_with_transit(&m);
         m.pathfinder = Some(pathfinder);
         timer.stop("setup rest of Pathfinder (walking with transit)");
+
+        {
+            timer.start("find parking blackholes");
+            // Pick an arbitrary parking lane to classify blackholes.
+            // TODO Don't do this! Some strongly-connected component classification instead.
+            let driving_goal = m.all_lanes().iter().find_map(|l| {
+                if !l.is_parking() {
+                    return None;
+                }
+                m.get_parent(l.id).parking_to_driving(l.id)
+            });
+            timer.note(format!(
+                "Using {:?} as the arbitrary driving_goal for parking_blackhole",
+                driving_goal
+            ));
+
+            let mut blackholes = Vec::new();
+            timer.start_iter("classify driving lanes", m.all_lanes().len());
+            for l in m.all_lanes() {
+                timer.next();
+                if !l.is_driving() {
+                    continue;
+                }
+                if driving_goal
+                    .map(|to| {
+                        m.pathfind(PathRequest {
+                            start: Position::new(l.id, Distance::ZERO),
+                            end: Position::new(to, Distance::ZERO),
+                            can_use_bike_lanes: false,
+                            can_use_bus_lanes: false,
+                        })
+                        .is_none()
+                    })
+                    .unwrap_or(true)
+                {
+                    blackholes.push(l.id);
+                }
+            }
+            for l in blackholes {
+                m.lanes[l.0].parking_blackhole = true;
+            }
+            timer.stop("find parking blackholes");
+        }
 
         timer.stop("finalize Map");
         m
