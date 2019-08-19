@@ -151,6 +151,9 @@ impl IntersectionSimState {
         } else {
             unreachable!()
         };
+        if !allowed {
+            return false;
+        }
 
         // Don't block the box
         if let Some((queue, car)) = maybe_car_and_target_queue {
@@ -159,14 +162,10 @@ impl IntersectionSimState {
             }
         }
 
-        if allowed {
-            assert!(!state.any_accepted_conflict_with(turn, map));
-            state.waiting.remove(&req).unwrap();
-            state.accepted.insert(req);
-            true
-        } else {
-            false
-        }
+        assert!(!state.any_accepted_conflict_with(turn, map));
+        state.waiting.remove(&req).unwrap();
+        state.accepted.insert(req);
+        true
     }
 
     pub fn debug(&self, id: IntersectionID, map: &Map) {
