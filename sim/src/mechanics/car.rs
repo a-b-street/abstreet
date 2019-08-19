@@ -146,7 +146,7 @@ impl Car {
                 .blocked_since
                 .map(|t| now - t)
                 .unwrap_or(Duration::ZERO),
-            percent_dist_crossed: path.crossed_so_far() / path.total_length(),
+            percent_dist_crossed: path.percent_dist_crossed(),
             trip_time_so_far: now - self.started_at,
         }
     }

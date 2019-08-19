@@ -132,6 +132,14 @@ impl Path {
         self.total_length
     }
 
+    pub fn percent_dist_crossed(&self) -> f64 {
+        // Sometimes this happens
+        if self.total_length == Distance::ZERO {
+            return 1.0;
+        }
+        self.crossed_so_far / self.total_length
+    }
+
     pub fn is_last_step(&self) -> bool {
         self.steps.len() == 1
     }
