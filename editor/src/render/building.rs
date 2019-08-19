@@ -1,11 +1,13 @@
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
-use ezgui::{Color, GeomBatch, GfxCtx};
+use ezgui::{Color, GeomBatch, GfxCtx, Text};
 use geom::{Distance, Line, PolyLine, Polygon, Pt2D};
 use map_model::{Building, BuildingID, Map, LANE_THICKNESS};
 
 pub struct DrawBuilding {
     pub id: BuildingID,
+    label: Option<Text>,
+    label_pos: Pt2D,
 }
 
 impl DrawBuilding {
@@ -29,7 +31,17 @@ impl DrawBuilding {
         );
         batch.push(cs.get_def("building path", Color::grey(0.6)), front_path);
 
-        DrawBuilding { id: bldg.id }
+        let label = bldg.osm_tags.get("addr:housenumber").map(|num| {
+            let mut txt = Text::with_bg_color(None);
+            txt.add_styled_line(num.to_string(), Some(Color::BLACK), None, Some(50));
+            txt
+        });
+
+        DrawBuilding {
+            id: bldg.id,
+            label,
+            label_pos: bldg.label_center,
+        }
     }
 }
 
@@ -41,6 +53,11 @@ impl Renderable for DrawBuilding {
     fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, ctx: &DrawCtx) {
         if let Some(color) = opts.color(self.get_id()) {
             g.draw_polygon(color, &ctx.map.get_b(self.id).polygon);
+        }
+        if opts.label_buildings {
+            if let Some(ref txt) = self.label {
+                g.draw_text_at_mapspace(txt, self.label_pos);
+            }
         }
     }
 

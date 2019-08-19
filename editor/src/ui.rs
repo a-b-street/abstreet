@@ -5,7 +5,7 @@ use crate::render::{
 };
 use abstutil;
 use abstutil::{MeasureMemory, Timer};
-use ezgui::{Canvas, Color, EventCtx, GfxCtx, Prerender, Text};
+use ezgui::{Canvas, Color, EventCtx, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Distance};
 use map_model::{Map, Traversable};
 use rand::seq::SliceRandom;
@@ -146,37 +146,10 @@ impl UI {
                 obj.draw(g, &opts, &ctx);
 
                 match obj.get_id() {
-                    ID::Building(b) => {
+                    ID::Building(_) => {
                         if !drawn_all_buildings {
                             g.redraw(&self.primary.draw_map.draw_all_buildings);
                             drawn_all_buildings = true;
-                        }
-                        // TODO Cache the Sections in DrawBldg
-                        if opts.label_buildings {
-                            let bldg = ctx.map.get_b(b);
-                            if let Some(num) = bldg.osm_tags.get("addr:housenumber") {
-                                let mut txt = Text::with_bg_color(None);
-                                txt.add_styled_line(
-                                    num.to_string(),
-                                    Some(Color::BLACK),
-                                    None,
-                                    Some(50),
-                                );
-                                g.draw_text_at_mapspace(&txt, bldg.label_center);
-                            }
-                        }
-                    }
-                    ID::Road(r) => {
-                        if opts.label_roads {
-                            let road = ctx.map.get_r(r);
-                            let mut txt = Text::new();
-                            txt.add_styled_line(
-                                road.get_name(),
-                                None, //Some(Color::BLACK),
-                                None,
-                                Some(50),
-                            );
-                            g.draw_text_at_mapspace(&txt, road.center_pts.middle());
                         }
                     }
                     ID::Area(_) => {
