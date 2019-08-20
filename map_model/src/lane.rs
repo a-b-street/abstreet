@@ -33,7 +33,8 @@ impl LaneType {
             LaneType::Driving => true,
             LaneType::Biking => true,
             LaneType::Bus => true,
-            _ => false,
+            LaneType::Parking => false,
+            LaneType::Sidewalk => false,
         }
     }
 }

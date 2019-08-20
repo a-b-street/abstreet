@@ -2,6 +2,7 @@ mod bus_explorer;
 mod chokepoints;
 mod color_picker;
 mod connected_roads;
+mod floodfill;
 mod neighborhood_summary;
 mod objects;
 mod polygons;
@@ -278,6 +279,9 @@ impl State for DebugMode {
         }
         if let Some(picker) = bus_explorer::BusRoutePicker::new(ui, &mut self.menu) {
             return Transition::Push(picker);
+        }
+        if let Some(floodfiller) = floodfill::Floodfiller::new(ctx, ui) {
+            return Transition::Push(floodfiller);
         }
 
         Transition::Keep
