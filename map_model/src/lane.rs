@@ -53,11 +53,9 @@ pub struct Lane {
     pub building_paths: Vec<BuildingID>,
     pub bus_stops: Vec<BusStopID>,
 
-    // For Driving lanes, is some arbitrary parking lane reachable from this lane? If not, this
-    // likely leads to a border. Cars trying to park near here should actually try to park
-    // somewhere else.
-    // TODO Precompute where the parking search should start.
-    pub parking_blackhole: bool,
+    // If set, cars trying to park near here should actually start their search at this other lane.
+    // Only populated for driving lanes inevitably leading to borders.
+    pub parking_blackhole: Option<LaneID>,
 }
 
 impl Lane {

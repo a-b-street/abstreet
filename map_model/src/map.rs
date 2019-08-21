@@ -179,8 +179,8 @@ impl Map {
         timer.stop("setup rest of Pathfinder (walking with transit)");
 
         timer.start("find parking blackholes");
-        for l in make::redirect_parking_blackholes(&mut m, timer) {
-            m.lanes[l.0].parking_blackhole = true;
+        for (l, redirect) in make::redirect_parking_blackholes(&mut m, timer) {
+            m.lanes[l.0].parking_blackhole = Some(redirect);
         }
         timer.stop("find parking blackholes");
 
@@ -317,6 +317,26 @@ impl Map {
         if lane.is_sidewalk() {
             for t in &self.get_i(lane.src_i).turns {
                 if t.src == l {
+                    turns.push(self.get_t(*t));
+                }
+            }
+        }
+        turns
+    }
+
+    pub fn get_turns_to_lane(&self, l: LaneID) -> Vec<&Turn> {
+        let lane = self.get_l(l);
+        let mut turns: Vec<&Turn> = self
+            .get_i(lane.src_i)
+            .turns
+            .iter()
+            .map(|t| self.get_t(*t))
+            .filter(|t| t.id.dst == l)
+            .collect();
+        // Sidewalks are bidirectional
+        if lane.is_sidewalk() {
+            for t in &self.get_i(lane.dst_i).turns {
+                if t.dst == l {
                     turns.push(self.get_t(*t));
                 }
             }

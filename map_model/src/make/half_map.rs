@@ -126,7 +126,7 @@ pub fn make_half_map(
                 parent: road_id,
                 building_paths: Vec::new(),
                 bus_stops: Vec::new(),
-                parking_blackhole: false,
+                parking_blackhole: None,
             });
         }
         if road.get_name() == "???" {

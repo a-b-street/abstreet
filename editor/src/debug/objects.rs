@@ -166,6 +166,11 @@ fn tooltip_lines(id: ID, g: &mut GfxCtx, ctx: &PerMapUI) -> Text {
             styled_kv(&mut txt, &r.osm_tags);
             if l.is_parking() {
                 txt.add_line(format!("Has {} parking spots", l.number_parking_spots()));
+            } else if l.is_driving() {
+                txt.add_line(format!(
+                    "Parking blackhole redirect? {:?}",
+                    l.parking_blackhole
+                ));
             }
             if let Some(types) = l.get_turn_restrictions(r) {
                 txt.add_line(format!("Turn restriction for this lane: {:?}", types));
