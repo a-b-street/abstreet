@@ -18,7 +18,7 @@ pub(crate) use self::mechanics::{
 };
 pub(crate) use self::router::{ActionAtEnd, Router};
 pub(crate) use self::scheduler::{Command, Scheduler};
-pub use self::sim::{Sim, SimOptions};
+pub use self::sim::{Sim, SimOptions, TripResult};
 pub(crate) use self::transit::TransitSimState;
 pub use self::trips::{FinishedTrips, TripEnd, TripMode, TripStart, TripStatus};
 pub(crate) use self::trips::{TripLeg, TripManager};

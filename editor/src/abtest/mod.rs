@@ -287,10 +287,14 @@ pub struct DiffOneTrip {
 
 impl DiffOneTrip {
     fn new(trip: TripID, primary: &PerMapUI, secondary: &PerMapUI) -> DiffOneTrip {
-        let pt1 = primary.sim.get_canonical_pt_per_trip(trip, &primary.map);
+        let pt1 = primary
+            .sim
+            .get_canonical_pt_per_trip(trip, &primary.map)
+            .ok();
         let pt2 = secondary
             .sim
-            .get_canonical_pt_per_trip(trip, &secondary.map);
+            .get_canonical_pt_per_trip(trip, &secondary.map)
+            .ok();
         let line = if pt1.is_some() && pt2.is_some() {
             Line::maybe_new(pt1.unwrap(), pt2.unwrap())
         } else {

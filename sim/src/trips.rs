@@ -66,6 +66,7 @@ impl TripManager {
             id,
             spawned_at,
             finished_at: None,
+            aborted: false,
             mode,
             legs: VecDeque::from(legs),
             start,
@@ -153,6 +154,7 @@ impl TripManager {
                 start, end
             );
             self.unfinished_trips -= 1;
+            trip.aborted = true;
             return;
         };
 
@@ -204,6 +206,7 @@ impl TripManager {
                 driving_pos, end
             );
             self.unfinished_trips -= 1;
+            trip.aborted = true;
             return;
         };
 
@@ -352,6 +355,7 @@ impl TripManager {
                     now, trip.id, car
                 );
                 self.unfinished_trips -= 1;
+                trip.aborted = true;
                 return;
             }
         };
@@ -362,7 +366,7 @@ impl TripManager {
     }
 
     pub fn abort_trip_failed_start(&mut self, id: TripID) {
-        // TODO Maybe modify the Trip to indicate the cancelation
+        self.trips[id.0].aborted = true;
         if !self.trips[id.0].is_bus_trip() {
             self.unfinished_trips -= 1;
         }
@@ -429,6 +433,11 @@ impl TripManager {
         self.unfinished_trips == 0
     }
 
+    pub fn is_trip_done_or_aborted(&self, id: TripID) -> bool {
+        let trip = &self.trips[id.0];
+        trip.finished_at.is_some() || trip.aborted
+    }
+
     pub fn collect_events(&mut self) -> Vec<Event> {
         self.events.drain(..).collect()
     }
@@ -457,6 +466,7 @@ struct Trip {
     id: TripID,
     spawned_at: Duration,
     finished_at: Option<Duration>,
+    aborted: bool,
     legs: VecDeque<TripLeg>,
     mode: TripMode,
     start: Option<TripStart>,

@@ -796,10 +796,18 @@ impl Sim {
         &self.events_since_last_step
     }
 
-    pub fn get_canonical_pt_per_trip(&self, trip: TripID, map: &Map) -> Option<Pt2D> {
-        self.trips
+    pub fn get_canonical_pt_per_trip(&self, trip: TripID, map: &Map) -> TripResult {
+        if let Some(pt) = self
+            .trips
             .trip_to_agent(trip)
             .and_then(|id| self.canonical_pt_for_agent(id, map))
+        {
+            return TripResult::Ok(pt);
+        }
+        if self.trips.is_trip_done_or_aborted(trip) {
+            return TripResult::TripDone;
+        }
+        TripResult::ModeChange
     }
 
     fn canonical_pt_for_agent(&self, id: AgentID, map: &Map) -> Option<Pt2D> {
@@ -811,5 +819,20 @@ impl Sim {
 
     pub fn get_accepted_agents(&self, id: IntersectionID) -> HashSet<AgentID> {
         self.intersections.get_accepted_agents(id)
+    }
+}
+
+pub enum TripResult {
+    Ok(Pt2D),
+    ModeChange,
+    TripDone,
+}
+
+impl TripResult {
+    pub fn ok(self) -> Option<Pt2D> {
+        match self {
+            TripResult::Ok(pt) => Some(pt),
+            _ => None,
+        }
     }
 }

@@ -2,7 +2,7 @@ use crate::common::route_viewer::RouteViewer;
 use crate::ui::UI;
 use ezgui::{EventCtx, GfxCtx, Key, ModalMenu, Text};
 use geom::{Duration, Pt2D};
-use sim::TripID;
+use sim::{TripID, TripResult};
 
 pub struct AgentTools {
     following: Option<(TripID, Option<Pt2D>, Duration)>,
@@ -43,7 +43,8 @@ impl AgentTools {
                             trip,
                             ui.primary
                                 .sim
-                                .get_canonical_pt_per_trip(trip, &ui.primary.map),
+                                .get_canonical_pt_per_trip(trip, &ui.primary.map)
+                                .ok(),
                             ui.primary.sim.time(),
                         ));
                     }
@@ -52,18 +53,23 @@ impl AgentTools {
         }
         if let Some((trip, _, time)) = self.following {
             if ui.primary.sim.time() != time {
-                let maybe_pt = ui
+                match ui
                     .primary
                     .sim
-                    .get_canonical_pt_per_trip(trip, &ui.primary.map);
-                if let Some(pt) = maybe_pt {
-                    ctx.canvas.center_on_map_pt(pt);
-                } else {
-                    // TODO ideally they wouldnt vanish for so long according to
-                    // get_canonical_pt_per_trip
-                    println!("{} is gone... temporarily or not?", trip);
+                    .get_canonical_pt_per_trip(trip, &ui.primary.map)
+                {
+                    TripResult::Ok(pt) => {
+                        ctx.canvas.center_on_map_pt(pt);
+                        self.following = Some((trip, Some(pt), ui.primary.sim.time()));
+                    }
+                    TripResult::ModeChange => {
+                        self.following = Some((trip, None, ui.primary.sim.time()));
+                    }
+                    TripResult::TripDone => {
+                        println!("{} is done or aborted, so no more following", trip);
+                        self.following = None;
+                    }
                 }
-                self.following = Some((trip, maybe_pt, ui.primary.sim.time()));
             }
             if menu.action("stop following agent") {
                 self.following = None;

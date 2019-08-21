@@ -68,7 +68,7 @@ impl ID {
                 .maybe_get_bs(id)
                 .map(|bs| bs.sidewalk_pos.pt(&primary.map)),
             ID::Area(id) => primary.map.maybe_get_a(id).map(|a| a.polygon.center()),
-            ID::Trip(id) => primary.sim.get_canonical_pt_per_trip(id, &primary.map),
+            ID::Trip(id) => primary.sim.get_canonical_pt_per_trip(id, &primary.map).ok(),
         }
     }
 }

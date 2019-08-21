@@ -43,7 +43,11 @@ impl TripExplorer {
                 ),
             },
             (
-                ui.primary.sim.get_canonical_pt_per_trip(trip, map).unwrap(),
+                ui.primary
+                    .sim
+                    .get_canonical_pt_per_trip(trip, map)
+                    .ok()
+                    .unwrap(),
                 ID::from_agent(agent),
                 Text::from_line("currently here".to_string()),
             ),
