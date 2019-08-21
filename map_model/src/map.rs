@@ -547,11 +547,13 @@ impl Map {
         }
     }
 
-    // When driving towards some goal building, there may not be a driving lane directly outside the
-    // building. So BFS out in a deterministic way and find one.
+    // Cars trying to park near this building should head for the driving lane returned here, then
+    // start their search. Some parking lanes are connected to driving lanes that're "parking
+    // blackholes" -- if there are no free spots on that lane, then the roads force cars to a
+    // border.
     pub fn find_driving_lane_near_building(&self, b: BuildingID) -> LaneID {
         if let Ok(l) = self.find_closest_lane_to_bldg(b, vec![LaneType::Driving]) {
-            return l;
+            return self.get_l(l).parking_blackhole.unwrap_or(l);
         }
 
         let mut roads_queue: VecDeque<RoadID> = VecDeque::new();
@@ -579,7 +581,7 @@ impl Map {
                 .chain(r.children_backwards.iter())
             {
                 if *lane_type == LaneType::Driving {
-                    return *lane;
+                    return self.get_l(*lane).parking_blackhole.unwrap_or(*lane);
                 }
             }
 

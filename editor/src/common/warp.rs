@@ -7,6 +7,8 @@ use map_model::{raw_data, AreaID, BuildingID, IntersectionID, LaneID, RoadID};
 use sim::{PedestrianID, TripID};
 use std::usize;
 
+const WARP_TO_CAM_ZOOM: f64 = 10.0;
+
 pub struct EnteringWarp;
 impl EnteringWarp {
     pub fn new() -> Box<State> {
@@ -20,7 +22,7 @@ fn warp_to(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transiti
     if let Some((id, pt)) = warp_point(&to, &ui.primary) {
         return Some(Transition::ReplaceWithMode(
             Box::new(Warping {
-                warper: Warper::new(ctx, pt, None),
+                warper: Warper::new(ctx, pt, Some(WARP_TO_CAM_ZOOM)),
                 id: Some(id),
             }),
             EventLoopMode::Animation,
