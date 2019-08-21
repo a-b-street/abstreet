@@ -57,6 +57,7 @@ impl DebugMode {
                         (hotkey(Key::Num7), "show/hide labels"),
                         (hotkey(Key::N), "show/hide neighborhood summaries"),
                         (hotkey(Key::R), "show/hide route for all agents"),
+                        (None, "show strongly-connected component roads"),
                     ],
                     vec![
                         (hotkey(Key::O), "clear original roads shown"),
@@ -280,7 +281,7 @@ impl State for DebugMode {
         if let Some(picker) = bus_explorer::BusRoutePicker::new(ui, &mut self.menu) {
             return Transition::Push(picker);
         }
-        if let Some(floodfiller) = floodfill::Floodfiller::new(ctx, ui) {
+        if let Some(floodfiller) = floodfill::Floodfiller::new(ctx, ui, &mut self.menu) {
             return Transition::Push(floodfiller);
         }
 

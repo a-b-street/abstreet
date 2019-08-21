@@ -3,7 +3,8 @@ use crate::helpers::ID;
 use crate::render::{DrawOptions, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::{ShowEverything, UI};
 use ezgui::{hotkey, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu, Text};
-use map_model::{LaneID, LaneType, Map, RoadID};
+use map_model::{LaneID, Map, RoadID};
+use petgraph::graphmap::DiGraphMap;
 use std::collections::{HashMap, HashSet};
 
 pub struct Floodfiller {
@@ -13,52 +14,75 @@ pub struct Floodfiller {
 }
 
 impl Floodfiller {
-    pub fn new(ctx: &mut EventCtx, ui: &UI) -> Option<Box<State>> {
-        if let Some(ID::Lane(l)) = ui.primary.current_selection {
-            let lt = ui.primary.map.get_l(l).lane_type;
-            if lt != LaneType::Parking
+    pub fn new(ctx: &mut EventCtx, ui: &UI, parent_menu: &mut ModalMenu) -> Option<Box<State>> {
+        let map = &ui.primary.map;
+        let (reachable_lanes, mut prompt) = if let Some(ID::Lane(l)) = ui.primary.current_selection
+        {
+            if map.get_l(l).is_driving()
                 && ctx
                     .input
                     .contextual_action(Key::F, "floodfill from this lane")
             {
-                let reachable_color = ui.cs.get_def("reachable lane", Color::GREEN);
-                let unreachable_color = ui.cs.get_def("unreachable lane", Color::RED);
-
-                let reachable = find_reachable_from(l, &ui.primary.map);
-                let mut colorer = RoadColorerBuilder::new(vec![unreachable_color, reachable_color]);
-                let mut num_unreachable = 0;
-                for lane in ui.primary.map.all_lanes() {
-                    // TODO Not quite right when starting from bus and bike lanes
-                    if lane.lane_type != lt {
-                        continue;
-                    }
-                    colorer.add(
-                        lane.id,
-                        if reachable.contains(&lane.id) {
-                            reachable_color
-                        } else {
-                            num_unreachable += 1;
-                            println!("{} is unreachable", lane.id);
-                            unreachable_color
-                        },
-                        &ui.primary.map,
-                    );
-                }
-                let mut prompt = Text::prompt(format!("Floodfiller from {}", l).as_str());
-                prompt.add_line(format!("{} unreachable lanes", num_unreachable));
-
-                return Some(Box::new(Floodfiller {
-                    menu: ModalMenu::new(
-                        "Floodfiller",
-                        vec![vec![(hotkey(Key::Escape), "quit")]],
-                        ctx,
-                    ),
-                    colorer: colorer.build(ctx, &ui.primary.map),
-                    prompt,
-                }));
+                (
+                    find_reachable_from(l, map),
+                    Text::prompt(format!("Floodfiller from {}", l).as_str()),
+                )
+            } else {
+                return None;
             }
+        } else if parent_menu.action("show strongly-connected component roads") {
+            let mut graph = DiGraphMap::new();
+            for turn in map.all_turns().values() {
+                if map.is_turn_allowed(turn.id) && !turn.between_sidewalks() {
+                    graph.add_edge(turn.id.src, turn.id.dst, 1);
+                }
+            }
+            let components = petgraph::algo::kosaraju_scc(&graph);
+            (
+                components
+                    .into_iter()
+                    .max_by_key(|c| c.len())
+                    .unwrap()
+                    .into_iter()
+                    .collect(),
+                Text::prompt("Strongy-connected component"),
+            )
+        } else {
+            return None;
+        };
+
+        let reachable_color = ui.cs.get_def("reachable lane", Color::GREEN);
+        let unreachable_color = ui.cs.get_def("unreachable lane", Color::RED);
+
+        let mut colorer = RoadColorerBuilder::new(vec![unreachable_color, reachable_color]);
+        let mut num_unreachable = 0;
+        for lane in map.all_lanes() {
+            if !lane.is_driving() {
+                continue;
+            }
+            colorer.add(
+                lane.id,
+                if reachable_lanes.contains(&lane.id) {
+                    reachable_color
+                } else {
+                    num_unreachable += 1;
+                    println!("{} is unreachable", lane.id);
+                    unreachable_color
+                },
+                map,
+            );
         }
-        None
+        prompt.add_line(format!("{} unreachable lanes", num_unreachable));
+
+        Some(Box::new(Floodfiller {
+            menu: ModalMenu::new(
+                "Floodfiller",
+                vec![vec![(hotkey(Key::Escape), "quit")]],
+                ctx,
+            ),
+            colorer: colorer.build(ctx, map),
+            prompt,
+        }))
     }
 }
 

@@ -36,7 +36,6 @@ pub fn redirect_parking_blackholes(map: &Map, timer: &mut Timer) -> Vec<(LaneID,
         } else {
             // If the lane starts at a border, totally expected to have no possible redirect.
             if map.get_i(l.src_i).intersection_type != IntersectionType::Border {
-                // TODO Hmm, this is firing for lanes that look well-connected...
                 timer.warn(format!(
                     "{} is a parking blackhole with no reasonable redirect!",
                     l.id
