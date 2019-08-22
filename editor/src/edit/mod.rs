@@ -475,7 +475,7 @@ pub fn apply_map_edits(
     bundle.map.simplify_edits(&mut timer);
 }
 
-fn make_bulk_edit_lanes(road: RoadID) -> Box<State> {
+fn make_bulk_edit_lanes(road: RoadID) -> Box<dyn State> {
     WizardState::new(Box::new(move |wiz, ctx, ui| {
         let mut wizard = wiz.wrap(ctx);
         let (_, from) = wizard.choose_something("Change all lanes of type...", || {

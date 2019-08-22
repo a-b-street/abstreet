@@ -76,8 +76,8 @@ impl UI {
         &self,
         g: &mut GfxCtx,
         opts: DrawOptions,
-        source: &GetDrawAgents,
-        show_objs: &ShowObject,
+        source: &dyn GetDrawAgents,
+        show_objs: &dyn ShowObject,
     ) {
         let ctx = DrawCtx {
             cs: &self.cs,
@@ -193,8 +193,8 @@ impl UI {
     pub fn calculate_current_selection(
         &self,
         ctx: &EventCtx,
-        source: &GetDrawAgents,
-        show_objs: &ShowObject,
+        source: &dyn GetDrawAgents,
+        show_objs: &dyn ShowObject,
         debug_mode: bool,
     ) -> Option<ID> {
         // Unzoomed mode. Ignore when debugging areas and extra shapes.
@@ -246,8 +246,8 @@ impl UI {
         bounds: Bounds,
         prerender: &Prerender,
         agents: &'a mut AgentCache,
-        source: &GetDrawAgents,
-        show_objs: &ShowObject,
+        source: &dyn GetDrawAgents,
+        show_objs: &dyn ShowObject,
     ) -> Vec<&'a (dyn Renderable + 'a)> {
         let map = &self.primary.map;
         let draw_map = &self.primary.draw_map;
@@ -315,7 +315,7 @@ impl UI {
 
             for on in &agents_on {
                 if !agents.has(time, *on) {
-                    let mut list: Vec<Box<Renderable>> = Vec::new();
+                    let mut list: Vec<Box<dyn Renderable>> = Vec::new();
                     for c in source.get_draw_cars(*on, map).into_iter() {
                         list.push(draw_vehicle(c, map, prerender, &self.cs, self.agent_cs));
                     }

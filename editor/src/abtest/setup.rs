@@ -11,7 +11,7 @@ use std::path::PathBuf;
 
 pub struct PickABTest;
 impl PickABTest {
-    pub fn new() -> Box<State> {
+    pub fn new() -> Box<dyn State> {
         WizardState::new(Box::new(pick_ab_test))
     }
 }
@@ -93,7 +93,7 @@ impl State for ABTestSetup {
     }
 }
 
-fn make_load_savestate(ab_test: ABTest) -> Box<State> {
+fn make_load_savestate(ab_test: ABTest) -> Box<dyn State> {
     WizardState::new(Box::new(move |wiz, ctx, ui| {
         let ss = wiz.wrap(ctx).choose_string("Load which savestate?", || {
             abstutil::list_dir(std::path::Path::new(&abstutil::path1(

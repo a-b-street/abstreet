@@ -487,13 +487,13 @@ impl PolyLine {
                 ),
             ])
         } else {
-            return Warn::warn(
+            Warn::warn(
                 vec![self.make_polygons(arrow_thickness)],
                 format!(
                     "Can't make_arrow_outline of outline_thickness {} for {}",
                     outline_thickness, self
                 ),
-            );
+            )
         }
     }
 
@@ -550,7 +550,7 @@ impl PolyLine {
             if pts.len() == 1 {
                 return None;
             }
-            return Some(PolyLine::new(pts));
+            Some(PolyLine::new(pts))
         } else {
             panic!("Can't get_slice_ending_at: {} doesn't contain {}", self, pt);
         }
@@ -566,7 +566,7 @@ impl PolyLine {
             let mut pts = self.pts.clone();
             pts = pts.split_off(idx + 1);
             pts.insert(0, pt);
-            return Some(PolyLine::new(pts));
+            Some(PolyLine::new(pts))
         } else {
             panic!(
                 "Can't get_slice_starting_at: {} doesn't contain {}",

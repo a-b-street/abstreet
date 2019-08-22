@@ -329,7 +329,7 @@ impl DrawMap {
 
 pub struct AgentCache {
     time: Option<Duration>,
-    agents_per_on: HashMap<Traversable, Vec<Box<Renderable>>>,
+    agents_per_on: HashMap<Traversable, Vec<Box<dyn Renderable>>>,
     // cam_zoom also matters
     unzoomed: Option<(f64, Drawable)>,
 }
@@ -350,7 +350,7 @@ impl AgentCache {
             .collect()
     }
 
-    pub fn put(&mut self, now: Duration, on: Traversable, agents: Vec<Box<Renderable>>) {
+    pub fn put(&mut self, now: Duration, on: Traversable, agents: Vec<Box<dyn Renderable>>) {
         if Some(now) != self.time {
             self.agents_per_on.clear();
             self.time = Some(now);

@@ -11,7 +11,7 @@ pub struct BusRouteExplorer {
 }
 
 impl BusRouteExplorer {
-    pub fn new(ctx: &mut EventCtx, ui: &UI) -> Option<Box<State>> {
+    pub fn new(ctx: &mut EventCtx, ui: &UI) -> Option<Box<dyn State>> {
         let map = &ui.primary.map;
         let routes = match ui.primary.current_selection {
             Some(ID::BusStop(bs)) => map.get_routes_serving_stop(bs),
@@ -84,7 +84,7 @@ impl State for BusRouteExplorer {
 
 pub struct BusRoutePicker;
 impl BusRoutePicker {
-    pub fn new(ui: &UI, menu: &mut ModalMenu) -> Option<Box<State>> {
+    pub fn new(ui: &UI, menu: &mut ModalMenu) -> Option<Box<dyn State>> {
         if !menu.action("explore a bus route") {
             return None;
         }
@@ -99,7 +99,7 @@ impl BusRoutePicker {
     }
 }
 
-fn make_bus_route_picker(choices: Vec<BusRouteID>) -> Box<State> {
+fn make_bus_route_picker(choices: Vec<BusRouteID>) -> Box<dyn State> {
     WizardState::new(Box::new(move |wiz, ctx, ui| {
         let (_, id) = wiz
             .wrap(ctx)

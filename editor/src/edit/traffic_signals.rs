@@ -273,7 +273,7 @@ fn change_traffic_signal(
     apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
 }
 
-fn make_change_cycle_duration(current_duration: Duration) -> Box<State> {
+fn make_change_cycle_duration(current_duration: Duration) -> Box<dyn State> {
     WizardState::new(Box::new(move |wiz, ctx, _| {
         let new_duration = wiz.wrap(ctx).input_usize_prefilled(
             "How long should this cycle be?",
@@ -290,7 +290,7 @@ fn make_change_cycle_duration(current_duration: Duration) -> Box<State> {
     }))
 }
 
-fn make_change_preset(i: IntersectionID) -> Box<State> {
+fn make_change_preset(i: IntersectionID) -> Box<dyn State> {
     WizardState::new(Box::new(move |wiz, ctx, ui| {
         let (_, new_signal) = wiz
             .wrap(ctx)

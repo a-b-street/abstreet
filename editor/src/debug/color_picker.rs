@@ -10,7 +10,7 @@ const TILE_DIMS: f64 = 2.0;
 
 pub struct ColorChooser;
 impl ColorChooser {
-    pub fn new() -> Box<State> {
+    pub fn new() -> Box<dyn State> {
         WizardState::new(Box::new(pick_color))
     }
 }

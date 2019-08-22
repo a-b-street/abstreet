@@ -8,7 +8,7 @@ use ezgui::{Canvas, EventCtx, EventLoopMode, GfxCtx, Wizard, GUI};
 // top-level game states.
 pub struct Game {
     // A stack of states
-    pub states: Vec<Box<State>>,
+    pub states: Vec<Box<dyn State>>,
     pub ui: UI,
 
     idx_draw_base: Option<usize>,
@@ -19,7 +19,7 @@ impl Game {
         let splash = !flags.no_splash
             && !format!("{}", flags.sim_flags.load.display()).contains("data/save");
         let ui = UI::new(flags, ctx, splash);
-        let states: Vec<Box<State>> = if splash {
+        let states: Vec<Box<dyn State>> = if splash {
             vec![Box::new(SplashScreen::new_with_screensaver(ctx, &ui))]
         } else {
             vec![
@@ -185,27 +185,27 @@ pub enum Transition {
     Keep,
     Pop,
     // If a state needs to pass data back to the parent, use this. Sadly, runtime type casting.
-    PopWithData(Box<FnOnce(&mut Box<State>, &mut UI, &mut EventCtx)>),
-    Push(Box<State>),
-    Replace(Box<State>),
+    PopWithData(Box<dyn FnOnce(&mut Box<dyn State>, &mut UI, &mut EventCtx)>),
+    Push(Box<dyn State>),
+    Replace(Box<dyn State>),
 
     // These don't.
     KeepWithMode(EventLoopMode),
     PopWithMode(EventLoopMode),
-    PushWithMode(Box<State>, EventLoopMode),
-    ReplaceWithMode(Box<State>, EventLoopMode),
+    PushWithMode(Box<dyn State>, EventLoopMode),
+    ReplaceWithMode(Box<dyn State>, EventLoopMode),
 }
 
 pub struct WizardState {
     wizard: Wizard,
     // Returning None means stay in this WizardState
-    cb: Box<Fn(&mut Wizard, &mut EventCtx, &mut UI) -> Option<Transition>>,
+    cb: Box<dyn Fn(&mut Wizard, &mut EventCtx, &mut UI) -> Option<Transition>>,
 }
 
 impl WizardState {
     pub fn new(
-        cb: Box<Fn(&mut Wizard, &mut EventCtx, &mut UI) -> Option<Transition>>,
-    ) -> Box<State> {
+        cb: Box<dyn Fn(&mut Wizard, &mut EventCtx, &mut UI) -> Option<Transition>>,
+    ) -> Box<dyn State> {
         Box::new(WizardState {
             wizard: Wizard::new(),
             cb,

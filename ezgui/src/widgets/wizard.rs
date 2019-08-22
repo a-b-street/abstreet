@@ -10,12 +10,12 @@ use std::collections::VecDeque;
 pub struct Wizard {
     alive: bool,
     tb: Option<TextBox>,
-    menu: Option<Menu<Box<Cloneable>>>,
+    menu: Option<Menu<Box<dyn Cloneable>>>,
     log_scroller: Option<LogScroller>,
     slider: Option<SliderWithTextBox>,
 
     // In the order of queries made
-    confirmed_state: Vec<Box<Cloneable>>,
+    confirmed_state: Vec<Box<dyn Cloneable>>,
 }
 
 impl Wizard {
@@ -82,7 +82,7 @@ impl Wizard {
         query: &str,
         prefilled: Option<String>,
         input: &mut UserInput,
-        parser: Box<Fn(String) -> Option<R>>,
+        parser: Box<dyn Fn(String) -> Option<R>>,
     ) -> Option<R> {
         assert!(self.alive);
 
@@ -152,7 +152,7 @@ pub struct WrappedWizard<'a, 'b> {
     ctx: &'a mut EventCtx<'b>,
 
     // The downcasts are safe iff the queries made to the wizard are deterministic.
-    ready_results: VecDeque<Box<Cloneable>>,
+    ready_results: VecDeque<Box<dyn Cloneable>>,
 }
 
 impl<'a, 'b> WrappedWizard<'a, 'b> {
@@ -160,7 +160,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         &mut self,
         query: &str,
         prefilled: Option<String>,
-        parser: Box<Fn(String) -> Option<R>>,
+        parser: Box<dyn Fn(String) -> Option<R>>,
     ) -> Option<R> {
         if !self.ready_results.is_empty() {
             let first = self.ready_results.pop_front().unwrap();
@@ -245,9 +245,9 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         if !self.ready_results.is_empty() {
             let first = self.ready_results.pop_front().unwrap();
             // We have to downcast twice! \o/
-            let pair: &(String, Box<Cloneable>) = first
+            let pair: &(String, Box<dyn Cloneable>) = first
                 .as_any()
-                .downcast_ref::<(String, Box<Cloneable>)>()
+                .downcast_ref::<(String, Box<dyn Cloneable>)>()
                 .unwrap();
             let item: &R = pair.1.as_any().downcast_ref::<R>().unwrap();
             return Some((pair.0.to_string(), item.clone()));
@@ -278,7 +278,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
                 ));
                 return None;
             }
-            let boxed_choices: Vec<(Option<MultiKey>, String, Box<Cloneable>)> = choices
+            let boxed_choices: Vec<(Option<MultiKey>, String, Box<dyn Cloneable>)> = choices
                 .into_iter()
                 .map(|(multikey, s, item)| (multikey, s, item.clone_box()))
                 .collect();

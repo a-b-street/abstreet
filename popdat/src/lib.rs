@@ -40,7 +40,10 @@ impl PopDat {
             trips: Vec::new(),
             parcels: BTreeMap::new(),
         };
-        let fields: Vec<(&str, Box<Fn(&mut TractData, BTreeMap<String, Estimate>)>)> = vec![
+        let fields: Vec<(
+            &str,
+            Box<dyn Fn(&mut TractData, BTreeMap<String, Estimate>)>,
+        )> = vec![
             (
                 "../data/input/household_vehicles.kml",
                 Box::new(|tract, map| {

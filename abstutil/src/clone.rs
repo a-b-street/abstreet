@@ -7,25 +7,25 @@ use std::any::Any;
 pub trait Cloneable: CloneableImpl {}
 
 pub trait CloneableImpl {
-    fn clone_box(&self) -> Box<Cloneable>;
-    fn as_any(&self) -> &Any;
+    fn clone_box(&self) -> Box<dyn Cloneable>;
+    fn as_any(&self) -> &dyn Any;
 }
 
 impl<T> CloneableImpl for T
 where
     T: 'static + Cloneable + Clone,
 {
-    fn clone_box(&self) -> Box<Cloneable> {
+    fn clone_box(&self) -> Box<dyn Cloneable> {
         Box::new(self.clone())
     }
 
-    fn as_any(&self) -> &Any {
+    fn as_any(&self) -> &dyn Any {
         self
     }
 }
 
-impl Clone for Box<Cloneable> {
-    fn clone(&self) -> Box<Cloneable> {
+impl Clone for Box<dyn Cloneable> {
+    fn clone(&self) -> Box<dyn Cloneable> {
         self.clone_box()
     }
 }
@@ -34,5 +34,5 @@ impl Cloneable for () {}
 impl Cloneable for usize {}
 impl Cloneable for f64 {}
 impl Cloneable for String {}
-impl Cloneable for (String, Box<Cloneable>) {}
+impl Cloneable for (String, Box<dyn Cloneable>) {}
 impl Cloneable for WeightedUsizeChoice {}

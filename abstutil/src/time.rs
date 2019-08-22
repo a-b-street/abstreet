@@ -31,7 +31,10 @@ impl Progress {
     }
 
     // Returns when done
-    fn next<'a>(&mut self, maybe_sink: &mut Option<Box<TimerSink + 'a>>) -> Option<(f64, String)> {
+    fn next<'a>(
+        &mut self,
+        maybe_sink: &mut Option<Box<dyn TimerSink + 'a>>,
+    ) -> Option<(f64, String)> {
         self.processed_items += 1;
         if self.processed_items > self.total_items {
             panic!(
@@ -106,7 +109,7 @@ pub struct Timer<'a> {
     notes: Vec<String>,
     pub(crate) warnings: Vec<String>,
 
-    sink: Option<Box<TimerSink + 'a>>,
+    sink: Option<Box<dyn TimerSink + 'a>>,
 }
 
 struct TimerSpan {
@@ -130,7 +133,7 @@ impl<'a> Timer<'a> {
         t
     }
 
-    pub fn new_with_sink(name: &str, sink: Box<TimerSink + 'a>) -> Timer<'a> {
+    pub fn new_with_sink(name: &str, sink: Box<dyn TimerSink + 'a>) -> Timer<'a> {
         let mut t = Timer::new(name);
         t.sink = Some(sink);
         t
@@ -146,7 +149,7 @@ impl<'a> Timer<'a> {
     }
 
     // Workaround for borrow checker
-    fn selfless_println(maybe_sink: &mut Option<Box<TimerSink + 'a>>, line: String) {
+    fn selfless_println(maybe_sink: &mut Option<Box<dyn TimerSink + 'a>>, line: String) {
         println!("{}", line);
         if let Some(ref mut sink) = maybe_sink {
             sink.println(line);

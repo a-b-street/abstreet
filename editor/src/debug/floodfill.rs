@@ -14,7 +14,7 @@ pub struct Floodfiller {
 }
 
 impl Floodfiller {
-    pub fn new(ctx: &mut EventCtx, ui: &UI, parent_menu: &mut ModalMenu) -> Option<Box<State>> {
+    pub fn new(ctx: &mut EventCtx, ui: &UI, parent_menu: &mut ModalMenu) -> Option<Box<dyn State>> {
         let map = &ui.primary.map;
         let (reachable_lanes, mut prompt) = if let Some(ID::Lane(l)) = ui.primary.current_selection
         {

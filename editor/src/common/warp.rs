@@ -11,7 +11,7 @@ const WARP_TO_CAM_ZOOM: f64 = 10.0;
 
 pub struct EnteringWarp;
 impl EnteringWarp {
-    pub fn new() -> Box<State> {
+    pub fn new() -> Box<dyn State> {
         WizardState::new(Box::new(warp_to))
     }
 }

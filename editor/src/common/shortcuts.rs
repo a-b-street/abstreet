@@ -17,7 +17,7 @@ impl Cloneable for Shortcut {}
 
 pub struct ChoosingShortcut;
 impl ChoosingShortcut {
-    pub fn new() -> Box<State> {
+    pub fn new() -> Box<dyn State> {
         WizardState::new(Box::new(choose_shortcut))
     }
 }

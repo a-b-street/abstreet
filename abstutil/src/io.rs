@@ -221,7 +221,7 @@ impl FileWithProgress {
     // Also hands back a callback that'll add the final result to the timer. The caller must run
     // it.
     // TODO It's really a FnOnce, but I don't understand the compiler error.
-    pub fn new(path: &str) -> Result<(FileWithProgress, Box<Fn(&mut Timer)>), Error> {
+    pub fn new(path: &str) -> Result<(FileWithProgress, Box<dyn Fn(&mut Timer)>), Error> {
         let file = File::open(path)?;
         let path_copy = path.to_string();
         let total_bytes = file.metadata()?.len() as usize;

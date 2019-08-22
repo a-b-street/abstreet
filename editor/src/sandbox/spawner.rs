@@ -38,7 +38,7 @@ impl AgentSpawner {
         ctx: &mut EventCtx,
         ui: &mut UI,
         sandbox_menu: &mut ModalMenu,
-    ) -> Option<Box<State>> {
+    ) -> Option<Box<dyn State>> {
         let menu = ModalMenu::new(
             "Agent Spawner",
             vec![vec![(hotkey(Key::Escape), "quit")]],
