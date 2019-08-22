@@ -179,7 +179,7 @@ impl Map {
         timer.stop("setup rest of Pathfinder (walking with transit)");
 
         timer.start("find parking blackholes");
-        for (l, redirect) in make::redirect_parking_blackholes(&mut m, timer) {
+        for (l, redirect) in make::redirect_parking_blackholes(&m, timer) {
             m.lanes[l.0].parking_blackhole = Some(redirect);
         }
         timer.stop("find parking blackholes");

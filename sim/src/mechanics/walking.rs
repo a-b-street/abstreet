@@ -348,7 +348,7 @@ impl WalkingSimState {
                 front_path
                     .consume()
                     .values()
-                    .map(|set| set.into_iter().cloned().collect::<Vec<_>>()),
+                    .map(|set| set.iter().cloned().collect::<Vec<_>>()),
             )
             .enumerate()
         {

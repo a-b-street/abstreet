@@ -60,32 +60,6 @@ impl Color {
         Color([self.0[0], self.0[1], self.0[2], a])
     }
 
-    pub fn from_string(color: &str) -> Color {
-        match color {
-            "blue" => Color::BLUE,
-            "cyan" => Color::CYAN,
-            "green" => Color::GREEN,
-            "red" => Color::RED,
-            _ => panic!("Unknown color {}", color),
-        }
-    }
-
-    pub fn to_string(self) -> &'static str {
-        if self == Color::BLUE {
-            return "blue";
-        }
-        if self == Color::CYAN {
-            return "cyan";
-        }
-        if self == Color::GREEN {
-            return "green";
-        }
-        if self == Color::RED {
-            return "red";
-        }
-        panic!("Can't transform {} to a string", self);
-    }
-
     pub fn from_hex(raw: &str) -> Color {
         // Skip the leading '#'
         let r = usize::from_str_radix(&raw[1..3], 16).unwrap();

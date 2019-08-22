@@ -2,6 +2,12 @@
 
 Find packages to upgrade: `cargo outdated -R`
 
+Deal with compile tile: `cargo bloat --time`
+
+Find why two binary crates aren't sharing dependencies: https://old.reddit.com/r/rust/comments/cqceu4/common_crates_in_cargo_workspace_recompiled/
+
+Where's a dependency coming from? `cargo tree -i -p syn`
+
 Diff screencaps: http://www.imagemagick.org/Usage/compare/#methods
 
 Debug OpenGL calls:

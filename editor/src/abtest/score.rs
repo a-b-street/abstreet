@@ -1,8 +1,10 @@
 use crate::game::{State, Transition, WizardState};
 use crate::ui::PerMapUI;
 use crate::ui::UI;
+use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, EventCtx, GfxCtx, HorizontalAlignment, Key, ModalMenu, Text, VerticalAlignment, Wizard,
+    hotkey, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, ModalMenu, Text, VerticalAlignment,
+    Wizard,
 };
 use geom::Duration;
 use itertools::Itertools;
@@ -28,16 +30,25 @@ impl Scoreboard {
         let t2 = secondary.sim.get_finished_trips();
 
         let mut summary = Text::new();
-        summary.push(format!(
-            "Score at [red:{}]... {} / {}",
-            primary.sim.time(),
-            primary.map.get_edits().edits_name,
-            secondary.map.get_edits().edits_name
-        ));
-        summary.push(format!(
-            "[cyan:{}] | [red:{}] unfinished trips",
-            t1.unfinished_trips, t2.unfinished_trips
-        ));
+        summary.add_line("Score at ".to_string());
+        summary.append(primary.sim.time().to_string(), Some(Color::RED));
+        summary.append(
+            format!(
+                "... {} / {}",
+                primary.map.get_edits().edits_name,
+                secondary.map.get_edits().edits_name
+            ),
+            None,
+        );
+        summary.add_styled_line(
+            prettyprint_usize(t1.unfinished_trips),
+            Some(Color::CYAN),
+            None,
+            None,
+        );
+        summary.append(" | ".to_string(), None);
+        summary.append(prettyprint_usize(t2.unfinished_trips), Some(Color::RED));
+        summary.append(" unfinished trips".to_string(), None);
 
         let cmp = CompareTrips::new(t1, t2);
         for (mode, trips) in &cmp
@@ -61,19 +72,41 @@ impl Scoreboard {
             deltas.sort();
             let len = deltas.len() as f64;
 
-            summary.push(format!(
-                "[cyan:{:?}] trips: {} same, {} different",
-                mode,
-                abstutil::prettyprint_usize(num_same),
-                abstutil::prettyprint_usize(deltas.len())
-            ));
+            summary.add_styled_line(format!("{:?}", mode), Some(Color::CYAN), None, None);
+            summary.append(
+                format!(
+                    " trips: {} same, {} different",
+                    abstutil::prettyprint_usize(num_same),
+                    abstutil::prettyprint_usize(deltas.len())
+                ),
+                None,
+            );
             if !deltas.is_empty() {
-                summary.push(format!(
-                    "  deltas: [red:50%ile] {}, [red:90%ile] {}, [red:99%ile] {}",
-                    handle_negative(deltas[(0.5 * len).floor() as usize]),
-                    handle_negative(deltas[(0.9 * len).floor() as usize]),
-                    handle_negative(deltas[(0.99 * len).floor() as usize]),
-                ));
+                summary.add_line("  deltas: ".to_string());
+                summary.append("50%ile".to_string(), Some(Color::RED));
+                summary.append(
+                    format!(
+                        " {}, ",
+                        handle_negative(deltas[(0.5 * len).floor() as usize])
+                    ),
+                    None,
+                );
+                summary.append("90%ile".to_string(), Some(Color::RED));
+                summary.append(
+                    format!(
+                        " {}, ",
+                        handle_negative(deltas[(0.9 * len).floor() as usize])
+                    ),
+                    None,
+                );
+                summary.append("99%ile".to_string(), Some(Color::RED));
+                summary.append(
+                    format!(
+                        " {}",
+                        handle_negative(deltas[(0.99 * len).floor() as usize])
+                    ),
+                    None,
+                );
             }
         }
 

@@ -95,28 +95,36 @@ impl GUI for UI {
                 {
                     let len = self.hints.hints.len();
                     let mut txt = Text::prompt("Fix Map Geometry");
-                    txt.push(format!(
-                        "[cyan:{}] hints, [cyan:{}] parking overrides",
-                        len,
-                        self.hints.parking_overrides.len()
-                    ));
+                    txt.add_styled_line(len.to_string(), Some(Color::CYAN), None, None);
+                    txt.append(" hints, ".to_string(), None);
+                    txt.append(
+                        self.hints.parking_overrides.len().to_string(),
+                        Some(Color::CYAN),
+                    );
+                    txt.append(" parking overrides".to_string(), None);
                     if let Some(ID::Road(r)) = selected {
-                        txt.push(format!(
-                            "[red:{}] is {} long",
-                            r,
-                            self.data.roads[&r].trimmed_center_pts.length()
-                        ));
+                        txt.add_styled_line(r.to_string(), Some(Color::RED), None, None);
+                        txt.append(
+                            format!(
+                                " is {} long",
+                                self.data.roads[&r].trimmed_center_pts.length()
+                            ),
+                            None,
+                        );
                         if self.data.roads[&r].has_parking() {
-                            txt.push("Has parking".to_string());
+                            txt.add_line("Has parking".to_string());
                         } else {
-                            txt.push("No parking".to_string());
+                            txt.add_line("No parking".to_string());
                         }
                         for (k, v) in &self.raw.roads[&r].osm_tags {
-                            txt.push(format!("[cyan:{}] = [red:{}]", k, v));
+                            txt.add_styled_line(k.to_string(), Some(Color::RED), None, None);
+                            txt.append(" = ".to_string(), None);
+                            txt.append(v.to_string(), Some(Color::CYAN));
                         }
                     }
                     if let Some(ID::Intersection(i)) = selected {
-                        txt.push(format!("[red:{}] OSM tag diffs:", i));
+                        txt.add_styled_line(i.to_string(), Some(Color::RED), None, None);
+                        txt.append(" OSM tag diffs:".to_string(), None);
                         let roads = &self.data.intersections[&i].roads;
                         if roads.len() == 2 {
                             let mut iter = roads.iter();
@@ -126,18 +134,40 @@ impl GUI for UI {
                             for (k, v1) in r1_tags {
                                 if let Some(v2) = r2_tags.get(k) {
                                     if v1 != v2 {
-                                        txt.push(format!(
-                                            "[cyan:{}] = [red:{}] / [red:{}]",
-                                            k, v1, v2
-                                        ));
+                                        txt.add_styled_line(
+                                            k.to_string(),
+                                            Some(Color::RED),
+                                            None,
+                                            None,
+                                        );
+                                        txt.append(" = ".to_string(), None);
+                                        txt.append(v1.to_string(), Some(Color::CYAN));
+                                        txt.append(" / ".to_string(), None);
+                                        txt.append(v2.to_string(), Some(Color::CYAN));
                                     }
                                 } else {
-                                    txt.push(format!("[cyan:{}] = [red:{}] / MISSING", k, v1));
+                                    txt.add_styled_line(
+                                        k.to_string(),
+                                        Some(Color::RED),
+                                        None,
+                                        None,
+                                    );
+                                    txt.append(" = ".to_string(), None);
+                                    txt.append(v1.to_string(), Some(Color::CYAN));
+                                    txt.append(" / MISSING".to_string(), None);
                                 }
                             }
                             for (k, v2) in r2_tags {
                                 if !r1_tags.contains_key(k) {
-                                    txt.push(format!("[cyan:{}] = MISSING / [red:{}] ", k, v2));
+                                    txt.add_styled_line(
+                                        k.to_string(),
+                                        Some(Color::RED),
+                                        None,
+                                        None,
+                                    );
+                                    txt.append(" = ".to_string(), None);
+                                    txt.append("MISSING / ".to_string(), None);
+                                    txt.append(v2.to_string(), Some(Color::CYAN));
                                 }
                             }
                         }

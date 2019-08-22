@@ -4,8 +4,6 @@ use geom::{Distance, Polygon, Pt2D};
 use glium_glyph::glyph_brush::rusttype::Scale;
 use glium_glyph::glyph_brush::GlyphCruncher;
 use glium_glyph::glyph_brush::{Section, SectionText, VariedSection};
-use nom::types::CompleteStr;
-use nom::{alt, char, do_parse, many1, named, separated_pair, take_till1, take_until};
 use textwrap;
 
 const FG_COLOR: Color = Color::WHITE;
@@ -70,11 +68,6 @@ impl Text {
             override_width: None,
             override_height: None,
         }
-    }
-
-    pub fn push(&mut self, line: String) {
-        self.lines.push((None, Vec::new()));
-        parse_style(self, line);
     }
 
     pub fn from_line(line: String) -> Text {
@@ -311,61 +304,5 @@ pub fn draw_text_bubble_mapspace(
 
         y += height;
         g.canvas.mapspace_glyphs.borrow_mut().queue(section);
-    }
-}
-
-#[derive(Debug)]
-struct Append {
-    color: Option<Color>,
-    text: String,
-}
-
-named!(colored<CompleteStr, Append>,
-    do_parse!(
-        char!('[') >>
-        pair: separated_pair!(take_until!(":"), char!(':'), take_until!("]")) >>
-        char!(']')
-        >>
-        (Append {
-            color: Some(Color::from_string(&pair.0)),
-            text: pair.1.to_string(),
-        })
-    )
-);
-
-fn is_left_bracket(x: char) -> bool {
-    x == '['
-}
-
-named!(plaintext<CompleteStr, Append>,
-    do_parse!(
-        txt: take_till1!(is_left_bracket)
-        >>
-        (Append {
-            color: None,
-            text: txt.to_string(),
-        })
-    )
-);
-
-named!(chunk<CompleteStr, Append>,
-    alt!(colored | plaintext)
-);
-
-named!(chunks<CompleteStr, Vec<Append>>,
-    many1!(chunk)
-);
-
-fn parse_style(txt: &mut Text, line: String) {
-    match chunks(CompleteStr(&line)) {
-        Ok((rest, values)) => {
-            if !rest.is_empty() {
-                panic!("Parsing {} had leftover {}", line, rest);
-            }
-            for x in values {
-                txt.append(x.text, x.color);
-            }
-        }
-        x => panic!("Parsing {} broke: {:?}", line, x),
     }
 }

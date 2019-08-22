@@ -425,7 +425,7 @@ pub enum AgentColorScheme {
 impl Cloneable for AgentColorScheme {}
 
 impl AgentColorScheme {
-    pub fn unzoomed_color(&self, agent: &UnzoomedAgent, cs: &ColorScheme) -> Color {
+    pub fn unzoomed_color(self, agent: &UnzoomedAgent, cs: &ColorScheme) -> Color {
         match self {
             AgentColorScheme::VehicleTypes => match agent.vehicle_type {
                 Some(VehicleType::Car) => cs.get_def("unzoomed car", Color::RED.alpha(0.5)),
@@ -439,7 +439,7 @@ impl AgentColorScheme {
         }
     }
 
-    pub fn zoomed_color_car(&self, input: &DrawCarInput, cs: &ColorScheme) -> Color {
+    pub fn zoomed_color_car(self, input: &DrawCarInput, cs: &ColorScheme) -> Color {
         match self {
             AgentColorScheme::VehicleTypes => {
                 if input.id.1 == VehicleType::Bus {
@@ -459,7 +459,7 @@ impl AgentColorScheme {
         }
     }
 
-    pub fn zoomed_color_bike(&self, input: &DrawCarInput, cs: &ColorScheme) -> Color {
+    pub fn zoomed_color_bike(self, input: &DrawCarInput, cs: &ColorScheme) -> Color {
         match self {
             AgentColorScheme::VehicleTypes => match input.status {
                 CarStatus::Debug => cs.get_def("debug bike", Color::BLUE.alpha(0.8)),
@@ -474,7 +474,7 @@ impl AgentColorScheme {
         }
     }
 
-    pub fn zoomed_color_ped(&self, input: &DrawPedestrianInput, cs: &ColorScheme) -> Color {
+    pub fn zoomed_color_ped(self, input: &DrawPedestrianInput, cs: &ColorScheme) -> Color {
         match self {
             AgentColorScheme::VehicleTypes => {
                 if input.preparing_bike {

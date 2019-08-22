@@ -10,7 +10,6 @@ geom = { path = "../geom" }
 glium = "0.25.1"
 glium-glyph = "0.6.0"
 glutin = "0.21.0"
-nom = "4.2.3"
 ordered-float = "1.0.1"
 serde = "1.0.98"
 serde_derive = "1.0.98"

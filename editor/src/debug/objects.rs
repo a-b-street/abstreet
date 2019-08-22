@@ -248,6 +248,8 @@ fn tooltip_lines(id: ID, g: &mut GfxCtx, ctx: &PerMapUI) -> Text {
 
 fn styled_kv(txt: &mut Text, tags: &BTreeMap<String, String>) {
     for (k, v) in tags {
-        txt.push(format!("[red:{}] = [cyan:{}]", k, v));
+        txt.add_styled_line(k.to_string(), Some(Color::RED), None, None);
+        txt.append(" = ".to_string(), None);
+        txt.append(v.to_string(), Some(Color::CYAN));
     }
 }
