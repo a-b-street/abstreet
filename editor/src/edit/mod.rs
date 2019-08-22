@@ -352,42 +352,41 @@ fn next_type(lt: LaneType) -> LaneType {
     }
 }
 
-fn can_change_lane_type(r: &Road, l: &Lane, lt: LaneType, map: &Map) -> bool {
+fn can_change_lane_type(r: &Road, l: &Lane, new_lt: LaneType, map: &Map) -> bool {
     let (fwds, idx) = r.dir_and_offset(l.id);
+    let mut proposed_lts = if fwds {
+        r.get_lane_types().0
+    } else {
+        r.get_lane_types().1
+    };
+    proposed_lts[idx] = new_lt;
 
-    if l.lane_type == lt {
+    // No-op change
+    if l.lane_type == new_lt {
         return false;
     }
 
     // Only one parking lane per side.
-    if lt == LaneType::Parking {
-        let has_parking = if fwds {
-            r.get_lane_types().0
-        } else {
-            r.get_lane_types().1
-        }
-        .contains(&LaneType::Parking);
-        if has_parking {
-            return false;
-        }
+    if proposed_lts
+        .iter()
+        .filter(|lt| **lt == LaneType::Parking)
+        .count()
+        > 1
+    {
+        return false;
     }
 
     // Two adjacent bike lanes is unnecessary.
-    if lt == LaneType::Biking {
-        let types = if fwds {
-            r.get_lane_types().0
-        } else {
-            r.get_lane_types().1
-        };
-        if (idx != 0 && types[idx - 1] == LaneType::Biking)
-            || types.get(idx + 1) == Some(&LaneType::Biking)
-        {
+    for pair in proposed_lts.windows(2) {
+        if pair[0] == LaneType::Biking && pair[1] == LaneType::Biking {
             return false;
         }
     }
 
     // Don't let players orphan a bus stop.
-    if !r.all_bus_stops(map).is_empty() && (lt == LaneType::Parking || lt == LaneType::Biking) {
+    if !r.all_bus_stops(map).is_empty()
+        && (new_lt == LaneType::Parking || new_lt == LaneType::Biking)
+    {
         // Is this the last one?
         let mut other_bus_lane = false;
         for id in r.all_lanes() {
@@ -402,6 +401,11 @@ fn can_change_lane_type(r: &Road, l: &Lane, lt: LaneType, map: &Map) -> bool {
         if !other_bus_lane {
             return false;
         }
+    }
+
+    // A parking lane must have a driving lane on the same side of the road.
+    if proposed_lts.contains(&LaneType::Parking) && !proposed_lts.contains(&LaneType::Driving) {
+        return false;
     }
 
     true
