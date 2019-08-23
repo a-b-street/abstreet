@@ -119,7 +119,7 @@ impl TripSpawner {
                 }
             }
             TripSpec::UsingBike { start, goal, .. } => {
-                if SidewalkSpot::bike_rack(start.sidewalk_pos.lane(), map).is_none() {
+                if SidewalkSpot::bike_from_bike_rack(start.sidewalk_pos.lane(), map).is_none() {
                     panic!(
                         "Can't start biking from {}; no biking or driving lane nearby?",
                         start.sidewalk_pos.lane()
@@ -279,7 +279,8 @@ impl TripSpawner {
                     goal,
                     ped_speed,
                 } => {
-                    let walk_to = SidewalkSpot::bike_rack(start.sidewalk_pos.lane(), map).unwrap();
+                    let walk_to =
+                        SidewalkSpot::bike_from_bike_rack(start.sidewalk_pos.lane(), map).unwrap();
                     let mut legs = vec![
                         TripLeg::Walk(ped_id.unwrap(), ped_speed, walk_to.clone()),
                         TripLeg::Drive(vehicle.make(car_id.unwrap(), None), goal.clone()),
@@ -413,7 +414,7 @@ impl TripSpec {
             },
             TripSpec::UsingBike { start, .. } => PathRequest {
                 start: start.sidewalk_pos,
-                end: SidewalkSpot::bike_rack(start.sidewalk_pos.lane(), map)
+                end: SidewalkSpot::bike_from_bike_rack(start.sidewalk_pos.lane(), map)
                     .unwrap()
                     .sidewalk_pos,
                 can_use_bike_lanes: false,

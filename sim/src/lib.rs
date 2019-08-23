@@ -258,6 +258,19 @@ impl SidewalkSpot {
         })
     }
 
+    pub fn bike_from_bike_rack(sidewalk: LaneID, map: &Map) -> Option<SidewalkSpot> {
+        assert!(map.get_l(sidewalk).is_sidewalk());
+        let driving_lane = map.get_parent(sidewalk).sidewalk_to_bike(sidewalk)?;
+        // Don't start biking on a blackhole!
+        // TODO Maybe compute a separate blackhole graph that includes bike lanes.
+        if let Some(redirect) = map.get_l(driving_lane).parking_blackhole {
+            let new_sidewalk = map.get_parent(redirect).bike_to_sidewalk(redirect)?;
+            SidewalkSpot::bike_rack(new_sidewalk, map)
+        } else {
+            SidewalkSpot::bike_rack(sidewalk, map)
+        }
+    }
+
     pub fn bus_stop(stop: BusStopID, map: &Map) -> SidewalkSpot {
         SidewalkSpot {
             sidewalk_pos: map.get_bs(stop).sidewalk_pos,
