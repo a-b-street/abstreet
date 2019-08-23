@@ -780,9 +780,21 @@ impl Map {
         if !self.pathfinder_dirty {
             return;
         }
+
         let mut pathfinder = self.pathfinder.take().unwrap();
         pathfinder.apply_edits(self, timer);
         self.pathfinder = Some(pathfinder);
+
+        // Also recompute parking blackholes. This is cheap enough to do from scratch.
+        timer.start("recompute parking blackholes");
+        for l in self.lanes.iter_mut() {
+            l.parking_blackhole = None;
+        }
+        for (l, redirect) in make::redirect_parking_blackholes(self, timer) {
+            self.lanes[l.0].parking_blackhole = Some(redirect);
+        }
+        timer.stop("recompute parking blackholes");
+
         self.pathfinder_dirty = false;
     }
 
