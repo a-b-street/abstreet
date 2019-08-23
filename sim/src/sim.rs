@@ -471,21 +471,15 @@ impl Sim {
 
     pub fn time_limited_step(&mut self, map: &Map, dt: Duration, real_time_limit: Duration) {
         let started_at = Instant::now();
+        let goal_time = self.time + dt;
 
-        let orig_time = self.time;
-        let chunks = (dt / Duration::seconds(10.0)).ceil() as usize;
-        for i in 0..chunks {
-            if Duration::seconds(elapsed_seconds(started_at)) > real_time_limit {
+        loop {
+            if Duration::seconds(elapsed_seconds(started_at)) > real_time_limit
+                || self.time >= goal_time
+            {
                 break;
             }
-            self.step(
-                map,
-                if i == chunks - 1 {
-                    orig_time + dt - self.time
-                } else {
-                    dt * (1.0 / (chunks as f64))
-                },
-            );
+            self.step(map, Duration::seconds(0.1));
         }
     }
 
