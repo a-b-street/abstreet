@@ -180,7 +180,6 @@ impl Queue {
     }
 
     pub fn free_reserved_space(&mut self, car: &Car) {
-        assert!(self.laggy_head.is_none());
         self.reserved_length -= car.vehicle.length + FOLLOWING_DISTANCE;
         assert!(self.reserved_length >= Distance::ZERO);
     }
