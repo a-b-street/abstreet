@@ -48,6 +48,11 @@ impl ParkingSimState {
 
     pub fn get_free_spots(&self, l: LaneID) -> Vec<ParkingSpot> {
         let lane = &self.lanes[&l];
+        // Don't seed cars here, because if somebody tries to drive from here, they can't reach most
+        // places.
+        if lane.blackhole {
+            return Vec::new();
+        }
         let mut spots: Vec<ParkingSpot> = Vec::new();
         for (idx, maybe_occupant) in lane.occupants.iter().enumerate() {
             if maybe_occupant.is_none() {
@@ -200,6 +205,7 @@ struct ParkingLane {
     // The front of the parking spot (farthest along the lane)
     spot_dist_along: Vec<Distance>,
     occupants: Vec<Option<CarID>>,
+    blackhole: bool,
 }
 
 impl ParkingLane {
@@ -223,6 +229,7 @@ impl ParkingLane {
             spot_dist_along: (0..l.number_parking_spots())
                 .map(|idx| map_model::PARKING_SPOT_LENGTH * (2.0 + idx as f64))
                 .collect(),
+            blackhole: map.get_l(driving_lane).parking_blackhole.is_some(),
         })
     }
 
