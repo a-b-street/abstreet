@@ -1,4 +1,4 @@
-use crate::{IntersectionType, LaneID, Map};
+use crate::{LaneID, Map};
 use abstutil::Timer;
 use petgraph::graphmap::DiGraphMap;
 use std::collections::{HashSet, VecDeque};
@@ -30,17 +30,16 @@ pub fn redirect_parking_blackholes(map: &Map, timer: &mut Timer) -> Vec<(LaneID,
             continue;
         }
 
-        // Search backwards for the nearest driving lane belonging to largest_group.
-        if let Some(redirect) = reverse_flood(map, l.id, &largest_group) {
+        // Search forwards and backwards for the nearest driving lane belonging to largest_group.
+        if let Some(redirect) = bidi_flood(map, l.id, &largest_group) {
             redirects.push((l.id, redirect));
         } else {
-            // If the lane starts at a border, totally expected to have no possible redirect.
-            if map.get_i(l.src_i).intersection_type != IntersectionType::Border {
-                timer.warn(format!(
-                    "{} is a parking blackhole with no reasonable redirect!",
-                    l.id
-                ));
-            }
+            // TODO Make this an error after dealing with places like Austin without much parking
+            // in the first place.
+            timer.warn(format!(
+                "{} is a parking blackhole with no reasonable redirect!",
+                l.id
+            ));
         }
     }
     timer.note(format!(
@@ -50,7 +49,7 @@ pub fn redirect_parking_blackholes(map: &Map, timer: &mut Timer) -> Vec<(LaneID,
     redirects
 }
 
-fn reverse_flood(map: &Map, start: LaneID, largest_group: &HashSet<LaneID>) -> Option<LaneID> {
+fn bidi_flood(map: &Map, start: LaneID, largest_group: &HashSet<LaneID>) -> Option<LaneID> {
     let mut queue = VecDeque::new();
     queue.push_back(start);
     let mut visisted = HashSet::new();
@@ -67,6 +66,11 @@ fn reverse_flood(map: &Map, start: LaneID, largest_group: &HashSet<LaneID>) -> O
         for turn in map.get_turns_to_lane(current) {
             if map.is_turn_allowed(turn.id) {
                 queue.push_back(turn.id.src);
+            }
+        }
+        for turn in map.get_turns_from_lane(current) {
+            if map.is_turn_allowed(turn.id) {
+                queue.push_back(turn.id.dst);
             }
         }
     }

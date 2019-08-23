@@ -150,8 +150,8 @@ impl TripManager {
             p
         } else {
             println!(
-                "Aborting a trip because no path for the car portion! {:?} to {:?}",
-                start, end
+                "Aborting {} at {} because no path for the car portion! {:?} to {:?}",
+                trip.id, now, start, end
             );
             self.unfinished_trips -= 1;
             trip.aborted = true;
@@ -202,8 +202,8 @@ impl TripManager {
             p
         } else {
             println!(
-                "Aborting a trip because no path for the bike portion! {:?} to {:?}",
-                driving_pos, end
+                "Aborting {} at {} because no path for the bike portion! {:?} to {:?}",
+                trip.id, now, driving_pos, end
             );
             self.unfinished_trips -= 1;
             trip.aborted = true;
@@ -351,8 +351,8 @@ impl TripManager {
             _ => {
                 // TODO Should be unreachable
                 println!(
-                    "At {}: Aborting trip {}, because {} couldn't find parking and got stuck",
-                    now, trip.id, car
+                    "Aborting {} at {} because {} couldn't find parking and got stuck",
+                    trip.id, now, car
                 );
                 self.unfinished_trips -= 1;
                 trip.aborted = true;
@@ -503,8 +503,8 @@ impl Trip {
             p
         } else {
             println!(
-                "Aborting a trip because no path for the walking portion! {:?} to {:?}",
-                start, walk_to
+                "Aborting {} at {} because no path for the walking portion! {:?} to {:?}",
+                self.id, now, start, walk_to
             );
             return false;
         };
