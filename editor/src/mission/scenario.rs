@@ -7,6 +7,7 @@ use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu, Text, Wizard, WrappedWizar
 use geom::Duration;
 use map_model::{IntersectionID, Map, Neighborhood};
 use sim::{BorderSpawnOverTime, OriginDestination, Scenario, SeedParkedCars, SpawnOverTime};
+use std::collections::HashMap;
 
 pub struct ScenarioManager {
     menu: ModalMenu,
