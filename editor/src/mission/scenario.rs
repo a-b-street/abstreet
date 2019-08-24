@@ -3,7 +3,7 @@ use crate::mission::pick_time_range;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::WeightedUsizeChoice;
-use ezgui::{hotkey, EventCtx, GfxCtx, Key, LogScroller, ModalMenu, Wizard, WrappedWizard};
+use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu, Text, Wizard, WrappedWizard};
 use geom::Duration;
 use map_model::{IntersectionID, Map, Neighborhood};
 use sim::{BorderSpawnOverTime, OriginDestination, Scenario, SeedParkedCars, SpawnOverTime};
@@ -11,15 +11,13 @@ use sim::{BorderSpawnOverTime, OriginDestination, Scenario, SeedParkedCars, Spaw
 pub struct ScenarioManager {
     menu: ModalMenu,
     scenario: Scenario,
-    scroller: LogScroller,
 }
 
 impl ScenarioManager {
     pub fn new(scenario: Scenario, ctx: &mut EventCtx) -> ScenarioManager {
-        let scroller = LogScroller::new(scenario.scenario_name.clone(), scenario.describe());
         ScenarioManager {
             menu: ModalMenu::new(
-                &format!("Scenario Editor for {}", scenario.scenario_name),
+                "Scenario Editor",
                 vec![vec![
                     (hotkey(Key::Escape), "quit"),
                     (hotkey(Key::S), "save"),
@@ -29,16 +27,27 @@ impl ScenarioManager {
                 ctx,
             ),
             scenario,
-            scroller,
         }
     }
 }
 
 impl State for ScenarioManager {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        self.menu.handle_event(ctx, None);
+        // TODO Calculate this once? Except when we modify it, nice to automatically pick up
+        // changes...
+        {
+            let mut txt = Text::prompt("Scenario Editor");
+            txt.add_line(self.scenario.scenario_name.clone());
+            for line in self.scenario.describe() {
+                txt.add_line(line);
+            }
+            self.menu.handle_event(ctx, Some(txt));
+        }
         ctx.canvas.handle_event(ctx.input);
-        if self.menu.action("save") {
+
+        if self.menu.action("quit") {
+            return Transition::Pop;
+        } else if self.menu.action("save") {
             self.scenario.save();
         } else if self.menu.action("edit") {
             return Transition::Push(Box::new(ScenarioEditor {
@@ -56,14 +65,11 @@ impl State for ScenarioManager {
                 ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
             });
             return Transition::Replace(Box::new(SandboxMode::new(ctx)));
-        } else if self.scroller.event(&mut ctx.input) {
-            return Transition::Pop;
         }
         Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
-        self.scroller.draw(g);
         self.menu.draw(g);
     }
 }
@@ -81,8 +87,6 @@ impl State for ScenarioEditor {
             let scenario = self.scenario.clone();
             return Transition::PopWithData(Box::new(|state, _, _| {
                 let mut manager = state.downcast_mut::<ScenarioManager>().unwrap();
-                manager.scroller =
-                    LogScroller::new(scenario.scenario_name.clone(), scenario.describe());
                 manager.scenario = scenario;
             }));
         } else if self.wizard.aborted() {

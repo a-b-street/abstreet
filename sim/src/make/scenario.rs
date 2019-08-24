@@ -3,7 +3,7 @@ use crate::{
     BIKE_LENGTH, MAX_CAR_LENGTH, MIN_CAR_LENGTH,
 };
 use abstutil;
-use abstutil::{fork_rng, Timer, WeightedUsizeChoice};
+use abstutil::{fork_rng, prettyprint_usize, Timer, WeightedUsizeChoice};
 use geom::{Distance, Duration, Speed};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, FullNeighborhoodInfo, IntersectionID, LaneType, Map,
@@ -65,10 +65,19 @@ impl Scenario {
     pub fn describe(&self) -> Vec<String> {
         vec![
             format!("{} for {}", self.scenario_name, self.map_name),
-            format!("{} SeedParkedCars", self.seed_parked_cars.len()),
-            format!("{} SpawnOverTime", self.spawn_over_time.len()),
-            format!("{} BorderSpawnOverTime", self.border_spawn_over_time.len()),
-            format!("{} SpawnTrip", self.individ_trips.len()),
+            format!(
+                "{} SeedParkedCars",
+                prettyprint_usize(self.seed_parked_cars.len())
+            ),
+            format!(
+                "{} SpawnOverTime",
+                prettyprint_usize(self.spawn_over_time.len())
+            ),
+            format!(
+                "{} BorderSpawnOverTime",
+                prettyprint_usize(self.border_spawn_over_time.len())
+            ),
+            format!("{} SpawnTrip", prettyprint_usize(self.individ_trips.len())),
         ]
     }
 

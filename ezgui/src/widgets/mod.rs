@@ -10,7 +10,6 @@ mod warper;
 mod wizard;
 
 pub use self::autocomplete::Autocomplete;
-pub use self::log_scroller::LogScroller;
 pub use self::menu::{Menu, Position};
 pub use self::modal_menu::ModalMenu;
 pub(crate) use self::screenshot::{screenshot_current, screenshot_everything};

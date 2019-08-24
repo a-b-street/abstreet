@@ -3,7 +3,7 @@ use crate::edit::apply_map_edits;
 use crate::game::{State, Transition, WizardState};
 use crate::render::DrawMap;
 use crate::ui::{Flags, PerMapUI, UI};
-use ezgui::{hotkey, EventCtx, GfxCtx, Key, LogScroller, ModalMenu, Wizard, WrappedWizard};
+use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu, Text, Wizard, WrappedWizard};
 use geom::Duration;
 use map_model::MapEdits;
 use sim::{ABTest, Scenario, SimFlags};
@@ -41,6 +41,7 @@ fn pick_ab_test(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
                 &mut wizard,
                 "For the 1st run, what map edits to use?",
             )?,
+            // TODO Filter out the first edits
             edits2_name: choose_edits(
                 map_name,
                 &mut wizard,
@@ -51,10 +52,9 @@ fn pick_ab_test(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
         t
     };
 
-    let scroller = LogScroller::new(ab_test.test_name.clone(), ab_test.describe());
     Some(Transition::Replace(Box::new(ABTestSetup {
         menu: ModalMenu::new(
-            &format!("A/B Test Editor for {}", ab_test.test_name),
+            "A/B Test Editor",
             vec![vec![
                 (hotkey(Key::Escape), "quit"),
                 (hotkey(Key::R), "run A/B test"),
@@ -63,21 +63,27 @@ fn pick_ab_test(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
             ctx,
         ),
         ab_test,
-        scroller,
     })))
 }
 
 struct ABTestSetup {
     menu: ModalMenu,
     ab_test: ABTest,
-    scroller: LogScroller,
 }
 
 impl State for ABTestSetup {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+        {
+            let mut txt = Text::prompt("A/B Test Editor");
+            txt.add_line(self.ab_test.test_name.clone());
+            for line in self.ab_test.describe() {
+                txt.add_line(line);
+            }
+            self.menu.handle_event(ctx, Some(txt));
+        }
         ctx.canvas.handle_event(ctx.input);
-        self.menu.handle_event(ctx, None);
-        if self.scroller.event(ctx.input) {
+
+        if self.menu.action("quit") {
             return Transition::Pop;
         } else if self.menu.action("run A/B test") {
             return Transition::Replace(Box::new(launch_test(&self.ab_test, ui, ctx)));
@@ -88,7 +94,6 @@ impl State for ABTestSetup {
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
-        self.scroller.draw(g);
         self.menu.draw(g);
     }
 }

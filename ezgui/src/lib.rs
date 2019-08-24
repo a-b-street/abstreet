@@ -19,7 +19,7 @@ pub use crate::runner::{run, EventLoopMode, GUI};
 pub use crate::screen_geom::{ScreenDims, ScreenPt};
 pub use crate::text::{Text, HOTKEY_COLOR};
 pub use crate::widgets::{
-    Autocomplete, ItemSlider, LogScroller, ModalMenu, Scroller, Slider, SliderWithTextBox, Warper,
+    Autocomplete, ItemSlider, ModalMenu, Scroller, Slider, SliderWithTextBox, Warper,
     WarpingItemSlider, Wizard, WrappedWizard,
 };
 
