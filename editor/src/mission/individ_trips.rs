@@ -117,8 +117,8 @@ impl State for TripsVisualizer {
             if let Some(md) = self.bldgs.get(&b) {
                 osd.append(
                     format!(
-                        ". {} households, {} employees",
-                        md.num_households, md.num_employees,
+                        ". {} households, {} employees, {} offstreet parking spaces",
+                        md.num_households, md.num_employees, md.offstreet_parking_spaces
                     ),
                     None,
                 );

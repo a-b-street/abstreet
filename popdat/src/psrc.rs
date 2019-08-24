@@ -29,6 +29,7 @@ pub struct Endpoint {
 pub struct Parcel {
     pub num_households: usize,
     pub num_employees: usize,
+    pub offstreet_parking_spaces: usize,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
@@ -131,7 +132,7 @@ fn import_parcels(
     }
 
     let mut coords = BufWriter::new(File::create("/tmp/parcels")?);
-    // (parcel ID, number of households, number of employees)
+    // (parcel ID, number of households, number of employees, number of parking spots)
     let mut parcel_metadata = Vec::new();
 
     let (reader, done) = FileWithProgress::new(path)?;
@@ -141,11 +142,13 @@ fn import_parcels(
         .records()
     {
         let rec = rec?;
-        // parcelid, hh_p, emptot_p
+        // parcelid, hh_p, emptot_p, parkdy_p, parkhr_p
+        // Note parkdy_p and parkhr_p might overlap, so this could be double-counting. >_<
         parcel_metadata.push((
             rec[15].to_string(),
             rec[12].parse::<usize>()?,
             rec[11].parse::<usize>()?,
+            rec[16].parse::<usize>()? + rec[17].parse::<usize>()?,
         ));
         coords.write_fmt(format_args!("{} {}\n", &rec[25], &rec[26]))?;
     }
@@ -181,7 +184,7 @@ fn import_parcels(
     let mut result = HashMap::new();
     let mut metadata = BTreeMap::new();
     timer.start_iter("read cs2cs output", parcel_metadata.len());
-    for (line, (id, num_households, num_employees)) in
+    for (line, (id, num_households, num_employees, offstreet_parking_spaces)) in
         reader.lines().zip(parcel_metadata.into_iter())
     {
         timer.next();
@@ -200,6 +203,7 @@ fn import_parcels(
                     Parcel {
                         num_households,
                         num_employees,
+                        offstreet_parking_spaces,
                     },
                 );
             }
