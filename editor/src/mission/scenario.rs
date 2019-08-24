@@ -1,21 +1,58 @@
-use crate::game::{State, Transition};
+use crate::common::CommonState;
+use crate::game::{State, Transition, WizardState};
+use crate::helpers::ID;
 use crate::mission::pick_time_range;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
-use abstutil::WeightedUsizeChoice;
+use abstutil::{MultiMap, WeightedUsizeChoice};
 use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu, Text, Wizard, WrappedWizard};
 use geom::Duration;
-use map_model::{IntersectionID, Map, Neighborhood};
-use sim::{BorderSpawnOverTime, OriginDestination, Scenario, SeedParkedCars, SpawnOverTime};
-use std::collections::HashMap;
+use map_model::{BuildingID, IntersectionID, Map, Neighborhood};
+use sim::{
+    BorderSpawnOverTime, DrivingGoal, OriginDestination, Scenario, SeedParkedCars, SidewalkPOI,
+    SidewalkSpot, SpawnOverTime, SpawnTrip,
+};
+use std::collections::BTreeSet;
 
 pub struct ScenarioManager {
     menu: ModalMenu,
     scenario: Scenario,
+    // The usizes are indices into scenario.individ_trips
+    trips_from_bldg: MultiMap<BuildingID, usize>,
+    trips_to_bldg: MultiMap<BuildingID, usize>,
 }
 
 impl ScenarioManager {
     pub fn new(scenario: Scenario, ctx: &mut EventCtx) -> ScenarioManager {
+        let mut trips_from_bldg = MultiMap::new();
+        let mut trips_to_bldg = MultiMap::new();
+        for (idx, trip) in scenario.individ_trips.iter().enumerate() {
+            match trip {
+                SpawnTrip::CarAppearing { .. } => {}
+                SpawnTrip::UsingBike(_, ref spot, _)
+                | SpawnTrip::JustWalking(_, ref spot, _)
+                | SpawnTrip::UsingTransit(_, ref spot, _, _, _, _) => {
+                    if let SidewalkPOI::Building(b) = spot.connection {
+                        trips_from_bldg.insert(b, idx);
+                    }
+                }
+            }
+
+            match trip {
+                SpawnTrip::CarAppearing { ref goal, .. } | SpawnTrip::UsingBike(_, _, ref goal) => {
+                    if let DrivingGoal::ParkNear(b) = goal {
+                        trips_to_bldg.insert(*b, idx);
+                    }
+                }
+                SpawnTrip::JustWalking(_, _, ref spot)
+                | SpawnTrip::UsingTransit(_, _, ref spot, _, _, _) => {
+                    if let SidewalkPOI::Building(b) = spot.connection {
+                        trips_to_bldg.insert(b, idx);
+                    }
+                }
+            }
+        }
+
         ScenarioManager {
             menu: ModalMenu::new(
                 "Scenario Editor",
@@ -28,6 +65,8 @@ impl ScenarioManager {
                 ctx,
             ),
             scenario,
+            trips_from_bldg,
+            trips_to_bldg,
         }
     }
 }
@@ -45,6 +84,9 @@ impl State for ScenarioManager {
             self.menu.handle_event(ctx, Some(txt));
         }
         ctx.canvas.handle_event(ctx.input);
+        if ctx.redo_mouseover() {
+            ui.recalculate_current_selection(ctx);
+        }
 
         if self.menu.action("quit") {
             return Transition::Pop;
@@ -67,11 +109,49 @@ impl State for ScenarioManager {
             });
             return Transition::Replace(Box::new(SandboxMode::new(ctx)));
         }
+
+        if let Some(ID::Building(b)) = ui.primary.current_selection {
+            let from = self.trips_from_bldg.get(b);
+            let to = self.trips_to_bldg.get(b);
+            if (!from.is_empty() || !to.is_empty())
+                && ctx.input.contextual_action(Key::T, "browse trips")
+            {
+                // TODO Avoid the clone? Just happens once though.
+                let mut all_trips = from.clone();
+                all_trips.extend(to);
+
+                return Transition::Push(make_trip_picker(self.scenario.clone(), all_trips, b));
+            }
+        }
+
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         self.menu.draw(g);
+
+        if let Some(ID::Building(b)) = ui.primary.current_selection {
+            let mut osd = Text::new();
+            osd.append(format!("{}", b), Some(ui.cs.get("OSD ID color")));
+            osd.append(" is ".to_string(), None);
+            osd.append(
+                ui.primary.map.get_b(b).get_name(),
+                Some(ui.cs.get("OSD name color")),
+            );
+            let from = self.trips_from_bldg.get(b);
+            let to = self.trips_to_bldg.get(b);
+            osd.append(
+                format!(
+                    ". {} trips from here, {} trips to here",
+                    from.len(),
+                    to.len()
+                ),
+                None,
+            );
+            CommonState::draw_custom_osd(g, osd);
+        } else {
+            CommonState::draw_osd(g, ui, &ui.primary.current_selection);
+        }
     }
 }
 
@@ -89,6 +169,8 @@ impl State for ScenarioEditor {
             return Transition::PopWithData(Box::new(|state, _, _| {
                 let mut manager = state.downcast_mut::<ScenarioManager>().unwrap();
                 manager.scenario = scenario;
+                // Don't need to update trips_from_bldg or trips_to_bldg, since edit_scenario
+                // doesn't touch individ_trips.
             }));
         } else if self.wizard.aborted() {
             return Transition::Pop;
@@ -227,5 +309,83 @@ fn choose_origin_destination(
         choose_neighborhood(map, wizard, query).map(OriginDestination::Neighborhood)
     } else {
         choose_intersection(wizard, query).map(OriginDestination::Border)
+    }
+}
+
+fn make_trip_picker(
+    scenario: Scenario,
+    indices: BTreeSet<usize>,
+    home: BuildingID,
+) -> Box<dyn State> {
+    WizardState::new(Box::new(move |wiz, ctx, _| {
+        wiz.wrap(ctx)
+            .choose_something("Trips from/to this building", || {
+                indices
+                    .iter()
+                    .map(|idx| (describe(&scenario.individ_trips[*idx], home), ()))
+                    .collect()
+            })?;
+        Some(Transition::Pop)
+    }))
+}
+
+fn describe(trip: &SpawnTrip, home: BuildingID) -> String {
+    let driving_goal = |goal: &DrivingGoal| match goal {
+        DrivingGoal::ParkNear(b) => {
+            if *b == home {
+                "HERE".to_string()
+            } else {
+                b.to_string()
+            }
+        }
+        DrivingGoal::Border(i, _) => i.to_string(),
+    };
+    let sidewalk_spot = |spot: &SidewalkSpot| match &spot.connection {
+        SidewalkPOI::Building(b) => {
+            if *b == home {
+                "HERE".to_string()
+            } else {
+                b.to_string()
+            }
+        }
+        SidewalkPOI::Border(i) => i.to_string(),
+        x => format!("{:?}", x),
+    };
+
+    match trip {
+        SpawnTrip::CarAppearing {
+            depart,
+            start,
+            goal,
+            is_bike,
+        } => {
+            let noun = if *is_bike { "bike" } else { "car" };
+            format!(
+                "{}: {} appears at {}, goes to {}",
+                depart,
+                noun,
+                start.lane(),
+                driving_goal(goal)
+            )
+        }
+        SpawnTrip::UsingBike(depart, start, goal) => format!(
+            "{}: bike from {} to {}",
+            depart,
+            sidewalk_spot(start),
+            driving_goal(goal)
+        ),
+        SpawnTrip::JustWalking(depart, start, goal) => format!(
+            "{}: walk from {} to {}",
+            depart,
+            sidewalk_spot(start),
+            sidewalk_spot(goal)
+        ),
+        SpawnTrip::UsingTransit(depart, start, goal, route, _, _) => format!(
+            "{}: bus from {} to {} using {}",
+            depart,
+            sidewalk_spot(start),
+            sidewalk_spot(goal),
+            route
+        ),
     }
 }
