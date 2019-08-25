@@ -292,6 +292,17 @@ Still in the `map_model` crate.
   - Later when figuring out which bus to use for a pedestrian, the resulting
     list of nodes is scanned for the first and last bus stop along the same
     route.
+- `make/parking_blackholes.rs`: Find well-connected roads near "blackhole"
+  lanes.
+  - Starting from most driving/biking lanes, most other lanes are reachable.
+    Some aren't -- such as one-way highways inevitably leading from or to a
+    border. These are "blackholes" -- pathfinding to or from here may fail.
+  - Find the largest strongly-connected component (SCC) in the driving graph.
+    From every other lane (a blackhole), floodfill both forwards and backwards
+    to find the nearest driving lane part of the main SCC.
+  - Later, if a car needs to park by a building on a blackhole road, it'll
+    instead start searching for parking at the redirect. This prevents it from
+    being forced to instead exit the map through a border.
 
 ## Live edits
 

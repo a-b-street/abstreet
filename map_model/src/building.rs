@@ -17,7 +17,6 @@ impl fmt::Display for BuildingID {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct FrontPath {
-    pub bldg: BuildingID,
     pub sidewalk: Position,
     // Goes from the building to the sidewalk
     pub line: Line,

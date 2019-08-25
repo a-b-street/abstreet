@@ -50,7 +50,6 @@ pub fn make_all_buildings(
                 osm_tags: input[idx].osm_tags.clone(),
                 osm_way_id: input[idx].osm_way_id,
                 front_path: FrontPath {
-                    bldg: id,
                     sidewalk: *sidewalk_pos,
                     line,
                 },
