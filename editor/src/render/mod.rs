@@ -33,7 +33,7 @@ use std::collections::HashMap;
 pub const MIN_ZOOM_FOR_DETAIL: f64 = 1.0;
 
 const EXTRA_SHAPE_THICKNESS: Distance = Distance::const_meters(1.0);
-const EXTRA_SHAPE_POINT_RADIUS: Distance = Distance::const_meters(1.0);
+const EXTRA_SHAPE_POINT_RADIUS: Distance = Distance::const_meters(10.0);
 
 const BIG_ARROW_THICKNESS: Distance = Distance::const_meters(0.5);
 

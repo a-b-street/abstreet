@@ -79,6 +79,11 @@ if [ ! -f data/input/commute_mode.kml ]; then
 	get_if_needed https://www.arcgis.com/sharing/rest/content/items/1da9717ca5ff4505826aba40a7ac0a58/info/metadata/metadata.xml data/input/commute_mode.xml;
 fi
 
+if [ ! -f data/input/offstreet_parking.kml ]; then
+	# From https://data.seattle.gov/Transportation/Public-Garages-or-Parking-Lots/xefx-khzm
+	get_if_needed http://data-seattlecitygis.opendata.arcgis.com/datasets/8e52dfde6d5d45948f7a90654c8d50cd_0.kml data/input/offstreet_parking.kml;
+fi
+
 cd convert_osm
 for poly in `ls ../data/polygons/`; do
 	name=`basename -s .poly $poly`;
