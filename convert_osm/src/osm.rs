@@ -79,6 +79,7 @@ pub fn osm_to_raw_roads(
                 osm_way_id: way.id,
                 points: pts,
                 osm_tags: tags,
+                parking: None,
             });
         } else if let Some(at) = get_area_type(&tags) {
             areas.push(raw_data::Area {

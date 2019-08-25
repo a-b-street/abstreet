@@ -5,9 +5,9 @@ mod remove_disconnected;
 mod split_ways;
 
 use abstutil::Timer;
-use geom::{FindClosest, GPSBounds, LonLat, PolyLine, Pt2D};
+use geom::{Distance, FindClosest, GPSBounds, LonLat, PolyLine, Polygon, Pt2D};
 use kml::ExtraShapes;
-use map_model::{raw_data, LANE_THICKNESS};
+use map_model::{raw_data, OffstreetParking, LANE_THICKNESS};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use structopt::StructOpt;
@@ -22,6 +22,10 @@ pub struct Flags {
     /// ExtraShapes file with blockface, produced using the kml crate. Optional.
     #[structopt(long = "parking_shapes", default_value = "")]
     pub parking_shapes: String,
+
+    /// KML file with offstreet parking info. Optional.
+    #[structopt(long = "offstreet_parking", default_value = "")]
+    pub offstreet_parking: String,
 
     /// GTFS directory. Optional.
     #[structopt(long = "gtfs", default_value = "")]
@@ -66,6 +70,9 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
 
     if !flags.parking_shapes.is_empty() {
         use_parking_hints(&mut map, &flags.parking_shapes, timer);
+    }
+    if !flags.offstreet_parking.is_empty() {
+        use_offstreet_parking(&mut map, &flags.offstreet_parking, timer);
     }
     if !flags.gtfs.is_empty() {
         timer.start("load GTFS");
@@ -154,4 +161,41 @@ fn read_osmosis_polygon(path: &str) -> Vec<LonLat> {
         pts.push(LonLat::new(lon, lat));
     }
     pts
+}
+
+fn use_offstreet_parking(map: &mut raw_data::Map, path: &str, timer: &mut Timer) {
+    timer.start("match offstreet parking points");
+    let shapes = kml::load(path, &map.gps_bounds, timer).expect("loading offstreet_parking failed");
+
+    // Building indices
+    let mut closest: FindClosest<usize> = FindClosest::new(&map.gps_bounds.to_bounds());
+    for (idx, b) in map.buildings.iter().enumerate() {
+        let mut pts = map.gps_bounds.must_convert(&b.points);
+        // Close off the polygon
+        pts.push(pts[0]);
+        closest.add(idx, &pts);
+    }
+
+    // TODO Another function just to use ?. Try blocks would rock.
+    let mut handle_shape: Box<dyn FnMut(kml::ExtraShape) -> Option<()>> = Box::new(|s| {
+        assert_eq!(s.points.len(), 1);
+        let pt = Pt2D::from_gps(s.points[0], &map.gps_bounds)?;
+        let (idx, _) = closest.closest_pt(pt, Distance::meters(50.0))?;
+        // TODO If we ditched LonLat up-front, things like this would be much easier.
+        let poly = Polygon::new(&map.gps_bounds.must_convert(&map.buildings[idx].points));
+        // TODO Handle parking lots.
+        if !poly.contains_pt(pt) {
+            return None;
+        }
+        let name = s.attributes.get("DEA_FACILITY_NAME")?.to_string();
+        let num_stalls = s.attributes.get("DEA_STALLS")?.parse::<usize>().ok()?;
+        assert_eq!(map.buildings[idx].parking, None);
+        map.buildings[idx].parking = Some(OffstreetParking { name, num_stalls });
+        None
+    });
+
+    for s in shapes.shapes.into_iter() {
+        handle_shape(s);
+    }
+    timer.stop("match offstreet parking points");
 }

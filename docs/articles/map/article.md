@@ -47,7 +47,8 @@ for some portion of Seattle. Each map has these objects:
   distinguish crosswalks at each end of a sidewalk.)
 - **Buildings**: A building has a position, OSM metadata, and a **front path**
   connecting the edge of the building to the nearest sidewalk. Most trips in A/B
-  Street begin and end at buildings.
+  Street begin and end at buildings. Some buildings also contain a number of
+  off-street parking spots.
 - **Area**: An area has geometry and OSM metadata and represents a body of
   water, forest, park, etc. They're just used for drawing.
 - **Bus stop**: A bus stop is placed some distance along a sidewalk, with a
@@ -130,6 +131,9 @@ it only takes a few seconds to load a serialized map.
 - `lib.rs`: Apply parking hints from a King County GIS blockface dataset
   - Match each blockface to the nearest edge of a road
   - Interpret the metadata to assign on-street parking there or not
+- `lib.rs`: Apply offstreet parking hints from a King County GIS dataset
+  - Match each point to the building containing it, plumbing through the number
+    of spots
 - `lib.rs` using the `gtfs` crate: Load bus route info from GTFS
 - `neighborhoods.rs`: Load neighborhood polygons from an extra geojson file
   - If the polygon isn't completely in-bounds, just remove it

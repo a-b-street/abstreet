@@ -1,6 +1,6 @@
 use crate::make::get_lane_types;
 pub use crate::make::{Hint, Hints, InitialMap};
-use crate::{AreaType, IntersectionType, RoadSpec};
+use crate::{AreaType, IntersectionType, OffstreetParking, RoadSpec};
 use geom::{GPSBounds, LonLat};
 use gtfs::Route;
 use serde_derive::{Deserialize, Serialize};
@@ -164,6 +164,7 @@ pub struct Building {
     pub points: Vec<LonLat>,
     pub osm_tags: BTreeMap<String, String>,
     pub osm_way_id: i64,
+    pub parking: Option<OffstreetParking>,
 }
 
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]

@@ -363,6 +363,7 @@ impl Model {
                 points: b.polygon().points().iter().map(|p| pt(*p)).collect(),
                 osm_tags,
                 osm_way_id: idx as i64,
+                parking: None,
             });
         }
 

@@ -54,6 +54,7 @@ pub fn make_all_buildings(
                     sidewalk: *sidewalk_pos,
                     line,
                 },
+                parking: input[idx].parking.clone(),
                 label_center: Polygon::polylabel(&points),
             });
         }

@@ -23,6 +23,12 @@ pub struct FrontPath {
     pub line: Line,
 }
 
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
+pub struct OffstreetParking {
+    pub name: String,
+    pub num_stalls: usize,
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Building {
     pub id: BuildingID,
@@ -34,6 +40,7 @@ pub struct Building {
     pub label_center: Pt2D,
 
     pub front_path: FrontPath,
+    pub parking: Option<OffstreetParking>,
 }
 
 impl Building {

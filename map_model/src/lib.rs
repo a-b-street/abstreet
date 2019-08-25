@@ -16,7 +16,7 @@ mod traversable;
 mod turn;
 
 pub use crate::area::{Area, AreaID, AreaType};
-pub use crate::building::{Building, BuildingID, FrontPath};
+pub use crate::building::{Building, BuildingID, FrontPath, OffstreetParking};
 pub use crate::bus_stop::{BusRoute, BusRouteID, BusStop, BusStopID};
 pub use crate::edits::MapEdits;
 pub use crate::intersection::{Intersection, IntersectionID, IntersectionType};

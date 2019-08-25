@@ -112,9 +112,16 @@ impl CommonState {
                 osd.append(map.get_parent(*l).get_name(), Some(name_color));
             }
             Some(ID::Building(b)) => {
+                let bldg = map.get_b(*b);
                 osd.append(format!("{}", b), Some(id_color));
                 osd.append(" is ".to_string(), None);
-                osd.append(map.get_b(*b).get_name(), Some(name_color));
+                osd.append(bldg.get_name(), Some(name_color));
+                if let Some(ref p) = bldg.parking {
+                    osd.append(
+                        format!(" ({} parking spots via {})", p.num_stalls, p.name),
+                        None,
+                    );
+                }
             }
             Some(ID::Turn(t)) => {
                 osd.append(

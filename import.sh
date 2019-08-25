@@ -95,10 +95,11 @@ for poly in `ls ../data/polygons/`; do
 	RUST_BACKTRACE=1 cargo run --release -- \
 		--osm=../data/input/$name.osm \
 		--parking_shapes=../data/shapes/blockface.bin \
+		--offstreet_parking=../data/input/offstreet_parking.kml \
 		--gtfs=../data/input/google_transit_2018_18_08 \
 		--neighborhoods=../data/input/neighborhoods.geojson \
 		--clip=../data/polygons/$name.poly \
 		--output=../data/raw_maps/$name.bin
 done
 
-# To run manually: cargo run -- --osm=../data/input/montlake.osm --parking_shapes=../data/shapes/blockface.bin --gtfs=../data/input/google_transit_2018_18_08 --neighborhoods=../data/input/neighborhoods.geojson --clip=../data/polygons/montlake.poly --output=../data/raw_maps/montlake.bin --fast_dev
+# To run manually: cargo run -- --osm=../data/input/montlake.osm --parking_shapes=../data/shapes/blockface.bin --offstreet_parking=../data/input/offstreet_parking.kml --gtfs=../data/input/google_transit_2018_18_08 --neighborhoods=../data/input/neighborhoods.geojson --clip=../data/polygons/montlake.poly --output=../data/raw_maps/montlake.bin --fast_dev
