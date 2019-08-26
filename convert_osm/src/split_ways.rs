@@ -1,5 +1,5 @@
 use abstutil::Timer;
-use geom::{HashablePt2D, LonLat};
+use geom::{GPSBounds, HashablePt2D, LonLat};
 use map_model::{raw_data, IntersectionType};
 use std::collections::{BTreeMap, HashMap, HashSet};
 
@@ -11,6 +11,7 @@ pub fn split_up_roads(
         HashSet<HashablePt2D>,
         BTreeMap<i64, Vec<(String, i64)>>,
     ),
+    gps_bounds: GPSBounds,
     timer: &mut Timer,
 ) -> raw_data::Map {
     timer.start("splitting up roads");
@@ -60,6 +61,7 @@ pub fn split_up_roads(
     }
 
     let mut map = raw_data::Map::blank();
+    map.gps_bounds = gps_bounds;
     map.buildings = buildings;
     map.areas = areas;
     map.turn_restrictions = turn_restrictions;

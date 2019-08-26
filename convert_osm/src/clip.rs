@@ -1,14 +1,11 @@
 use abstutil::{retain_btreemap, Timer};
-use geom::{GPSBounds, PolyLine, Polygon};
+use geom::{PolyLine, Polygon};
 use map_model::{raw_data, IntersectionType};
 
 pub fn clip_map(map: &mut raw_data::Map, timer: &mut Timer) {
     timer.start("clipping map to boundary");
-    // TODO Is this weird? Can't we just compute the bounds from the boundary polygon directly?
-    map.compute_gps_bounds();
-    let bounds = std::mem::replace(&mut map.gps_bounds, GPSBounds::new());
 
-    let boundary_poly = Polygon::new(&bounds.must_convert(&map.boundary_polygon));
+    let boundary_poly = Polygon::new(&map.gps_bounds.must_convert(&map.boundary_polygon));
     let boundary_lines: Vec<PolyLine> = boundary_poly
         .points()
         .windows(2)
@@ -17,8 +14,9 @@ pub fn clip_map(map: &mut raw_data::Map, timer: &mut Timer) {
 
     // This is kind of indirect and slow, but first pass -- just remove roads that start or end
     // outside the boundary polygon.
+    let gps_bounds = map.gps_bounds.clone();
     retain_btreemap(&mut map.roads, |_, r| {
-        let center_pts = bounds.must_convert(&r.points);
+        let center_pts = gps_bounds.forcibly_convert(&r.points);
         let first_in = boundary_poly.contains_pt(center_pts[0]);
         let last_in = boundary_poly.contains_pt(*center_pts.last().unwrap());
         first_in || last_in
@@ -27,7 +25,7 @@ pub fn clip_map(map: &mut raw_data::Map, timer: &mut Timer) {
     let road_ids: Vec<raw_data::StableRoadID> = map.roads.keys().cloned().collect();
     for id in road_ids {
         let r = &map.roads[&id];
-        let center_pts = bounds.must_convert(&r.points);
+        let center_pts = map.gps_bounds.forcibly_convert(&r.points);
         let first_in = boundary_poly.contains_pt(center_pts[0]);
         let last_in = boundary_poly.contains_pt(*center_pts.last().unwrap());
 
@@ -71,14 +69,15 @@ pub fn clip_map(map: &mut raw_data::Map, timer: &mut Timer) {
             .find_map(|l| center.intersection(l).map(|(pt, _)| pt))
             .unwrap();
         if first_in {
-            mut_r.points =
-                bounds.must_convert_back(center.get_slice_ending_at(border_pt).unwrap().points());
+            mut_r.points = map
+                .gps_bounds
+                .must_convert_back(center.get_slice_ending_at(border_pt).unwrap().points());
             i.point = *mut_r.points.last().unwrap();
             // This has no effect unless we made a copy of the intersection to disconnect it from
             // other roads.
             mut_r.i2 = move_i;
         } else {
-            mut_r.points = bounds.must_convert_back(
+            mut_r.points = map.gps_bounds.must_convert_back(
                 center
                     .reversed()
                     .get_slice_ending_at(border_pt)
@@ -92,8 +91,8 @@ pub fn clip_map(map: &mut raw_data::Map, timer: &mut Timer) {
     }
 
     map.buildings.retain(|b| {
-        bounds
-            .must_convert(&b.points)
+        gps_bounds
+            .forcibly_convert(&b.points)
             .into_iter()
             .all(|pt| boundary_poly.contains_pt(pt))
     });

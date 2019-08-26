@@ -367,7 +367,8 @@ impl Model {
             });
         }
 
-        map.compute_gps_bounds();
+        // TODO Argh need to do this manually now
+        //map.compute_gps_bounds();
         map.boundary_polygon = map.gps_bounds.get_corners();
         // Close off the polygon
         map.boundary_polygon.push(map.boundary_polygon[0]);

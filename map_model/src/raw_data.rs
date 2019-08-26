@@ -54,34 +54,6 @@ impl Map {
         }
     }
 
-    pub fn compute_gps_bounds(&mut self) {
-        assert_eq!(self.gps_bounds, GPSBounds::new());
-
-        for r in self.roads.values() {
-            for pt in &r.points {
-                self.gps_bounds.update(*pt);
-            }
-        }
-        for i in self.intersections.values() {
-            self.gps_bounds.update(i.point);
-        }
-        for b in &self.buildings {
-            for pt in &b.points {
-                self.gps_bounds.update(*pt);
-            }
-        }
-        for a in &self.areas {
-            for pt in &a.points {
-                self.gps_bounds.update(*pt);
-            }
-        }
-        for pt in &self.boundary_polygon {
-            self.gps_bounds.update(*pt);
-        }
-
-        self.gps_bounds.represents_world_space = self.coordinates_in_world_space;
-    }
-
     pub fn find_r(&self, orig: OriginalRoad) -> Option<StableRoadID> {
         if !self.gps_bounds.contains(orig.pt1) || !self.gps_bounds.contains(orig.pt2) {
             return None;

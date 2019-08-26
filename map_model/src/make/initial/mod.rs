@@ -122,7 +122,7 @@ impl InitialMap {
                 .roads
                 .insert(*stable_id);
 
-            let original_center_pts = PolyLine::new(gps_bounds.must_convert(&r.points));
+            let original_center_pts = PolyLine::new(gps_bounds.forcibly_convert(&r.points));
 
             let lane_specs = get_lane_specs(
                 &r.osm_tags,

@@ -35,7 +35,7 @@ pub struct Flags {
     #[structopt(long = "neighborhoods", default_value = "")]
     pub neighborhoods: String,
 
-    /// Osmosis clipping polgon. Optional.
+    /// Osmosis clipping polgon. Required.
     #[structopt(long = "clip", default_value = "")]
     pub clip: String,
 
@@ -49,24 +49,24 @@ pub struct Flags {
 }
 
 pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
-    let mut map = split_ways::split_up_roads(osm::osm_to_raw_roads(&flags.osm, timer), timer);
-    if !flags.clip.is_empty() {
-        map.boundary_polygon = read_osmosis_polygon(&flags.clip);
-    } else {
-        // Default to a rectangle covering everything.
-        map.compute_gps_bounds();
-        map.boundary_polygon = map.gps_bounds.get_corners();
-        map.boundary_polygon.push(map.boundary_polygon[0]);
-        map.gps_bounds = GPSBounds::new();
+    if flags.clip.is_empty() {
+        panic!("You must specify an Osmosis boundary polygon with --clip");
     }
+    let boundary_polygon_pts = read_osmosis_polygon(&flags.clip);
+    let mut gps_bounds = GPSBounds::new();
+    for pt in &boundary_polygon_pts {
+        gps_bounds.update(*pt);
+    }
+
+    let mut map =
+        split_ways::split_up_roads(osm::osm_to_raw_roads(&flags.osm, timer), gps_bounds, timer);
+    map.boundary_polygon = boundary_polygon_pts;
     clip::clip_map(&mut map, timer);
     remove_disconnected::remove_disconnected_roads(&mut map, timer);
 
     if flags.fast_dev {
         return map;
     }
-    // Do this after removing stuff.
-    map.compute_gps_bounds();
 
     if !flags.parking_shapes.is_empty() {
         use_parking_hints(&mut map, &flags.parking_shapes, timer);
@@ -99,7 +99,7 @@ fn use_parking_hints(map: &mut raw_data::Map, path: &str, timer: &mut Timer) {
     let mut closest: FindClosest<(raw_data::StableRoadID, bool)> =
         FindClosest::new(&map.gps_bounds.to_bounds());
     for (id, r) in &map.roads {
-        let pts = PolyLine::new(map.gps_bounds.must_convert(&r.points));
+        let pts = PolyLine::new(map.gps_bounds.forcibly_convert(&r.points));
         closest.add(
             (*id, true),
             pts.shift_right(LANE_THICKNESS).get(timer).points(),
@@ -170,7 +170,7 @@ fn use_offstreet_parking(map: &mut raw_data::Map, path: &str, timer: &mut Timer)
     // Building indices
     let mut closest: FindClosest<usize> = FindClosest::new(&map.gps_bounds.to_bounds());
     for (idx, b) in map.buildings.iter().enumerate() {
-        let mut pts = map.gps_bounds.must_convert(&b.points);
+        let mut pts = map.gps_bounds.forcibly_convert(&b.points);
         // Close off the polygon
         pts.push(pts[0]);
         closest.add(idx, &pts);
@@ -182,7 +182,7 @@ fn use_offstreet_parking(map: &mut raw_data::Map, path: &str, timer: &mut Timer)
         let pt = Pt2D::from_gps(s.points[0], &map.gps_bounds)?;
         let (idx, _) = closest.closest_pt(pt, Distance::meters(50.0))?;
         // TODO If we ditched LonLat up-front, things like this would be much easier.
-        let poly = Polygon::new(&map.gps_bounds.must_convert(&map.buildings[idx].points));
+        let poly = Polygon::new(&map.gps_bounds.forcibly_convert(&map.buildings[idx].points));
         // TODO Handle parking lots.
         if !poly.contains_pt(pt) {
             return None;

@@ -158,6 +158,13 @@ impl GPSBounds {
         Some(result)
     }
 
+    // Results can be out-of-bounds.
+    pub fn forcibly_convert(&self, pts: &Vec<LonLat>) -> Vec<Pt2D> {
+        pts.iter()
+            .map(|pt| Pt2D::forcibly_from_gps(*pt, self))
+            .collect()
+    }
+
     pub fn must_convert(&self, pts: &Vec<LonLat>) -> Vec<Pt2D> {
         self.try_convert(pts).unwrap()
     }
