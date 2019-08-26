@@ -1,5 +1,5 @@
 use abstutil::Timer;
-use geom::{GPSBounds, HashablePt2D, LonLat};
+use geom::{GPSBounds, HashablePt2D, LonLat, Pt2D};
 use map_model::{raw_data, IntersectionType};
 use std::collections::{BTreeMap, HashMap, HashSet};
 
@@ -72,7 +72,8 @@ pub fn split_up_roads(
         map.intersections.insert(
             *id,
             raw_data::Intersection {
-                point,
+                point: Pt2D::forcibly_from_gps(point, &map.gps_bounds),
+                orig_id: raw_data::OriginalIntersection { point },
                 intersection_type: if traffic_signals.contains(&point.to_hashable()) {
                     IntersectionType::TrafficSignal
                 } else {
@@ -87,7 +88,8 @@ pub fn split_up_roads(
         map.intersections.insert(
             *id,
             raw_data::Intersection {
-                point: *pt,
+                point: Pt2D::forcibly_from_gps(*pt, &map.gps_bounds),
+                orig_id: raw_data::OriginalIntersection { point: *pt },
                 intersection_type: if traffic_signals.contains(&pt.to_hashable()) {
                     IntersectionType::TrafficSignal
                 } else {

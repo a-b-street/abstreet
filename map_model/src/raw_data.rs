@@ -79,7 +79,7 @@ impl Map {
             return None;
         }
         for (id, i) in &self.intersections {
-            if i.point == orig.point {
+            if i.orig_id == orig {
                 return Some(*id);
             }
         }
@@ -120,19 +120,14 @@ impl Road {
     }
 }
 
-#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Intersection {
     // Represents the original place where OSM center-lines meet. This is meaningless beyond
     // raw_data; roads and intersections get merged and deleted.
-    pub point: LonLat,
+    pub point: Pt2D,
     pub intersection_type: IntersectionType,
     pub label: Option<String>,
-}
-
-impl Intersection {
-    pub fn orig_id(&self) -> OriginalIntersection {
-        OriginalIntersection { point: self.point }
-    }
+    pub orig_id: OriginalIntersection,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -194,7 +189,7 @@ impl Ord for OriginalRoad {
 }
 
 // A way to refer to intersections across many maps.
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq)]
 pub struct OriginalIntersection {
     pub point: LonLat,
 }

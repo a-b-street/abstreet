@@ -1,5 +1,5 @@
 use abstutil::{retain_btreemap, Timer};
-use geom::{LonLat, PolyLine, Polygon};
+use geom::{LonLat, PolyLine, Polygon, Pt2D};
 use map_model::{raw_data, IntersectionType};
 
 pub fn clip_map(map: &mut raw_data::Map, boundary_poly_pts: Vec<LonLat>, timer: &mut Timer) {
@@ -73,7 +73,8 @@ pub fn clip_map(map: &mut raw_data::Map, boundary_poly_pts: Vec<LonLat>, timer: 
             mut_r.points = map
                 .gps_bounds
                 .must_convert_back(center.get_slice_ending_at(border_pt).unwrap().points());
-            i.point = *mut_r.points.last().unwrap();
+            i.orig_id.point = *mut_r.points.last().unwrap();
+            i.point = Pt2D::forcibly_from_gps(i.orig_id.point, &map.gps_bounds);
             // This has no effect unless we made a copy of the intersection to disconnect it from
             // other roads.
             mut_r.i2 = move_i;
@@ -86,7 +87,8 @@ pub fn clip_map(map: &mut raw_data::Map, boundary_poly_pts: Vec<LonLat>, timer: 
                     .reversed()
                     .points(),
             );
-            i.point = mut_r.points[0];
+            i.orig_id.point = mut_r.points[0];
+            i.point = Pt2D::forcibly_from_gps(i.orig_id.point, &map.gps_bounds);
             mut_r.i1 = move_i;
         }
     }

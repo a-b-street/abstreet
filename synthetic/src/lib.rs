@@ -346,7 +346,10 @@ impl Model {
             map.intersections.insert(
                 *id,
                 raw_data::Intersection {
-                    point: pt(i.center),
+                    point: i.center,
+                    orig_id: raw_data::OriginalIntersection {
+                        point: pt(i.center),
+                    },
                     intersection_type: i.intersection_type,
                     label: i.label.clone(),
                 },
@@ -386,9 +389,8 @@ impl Model {
         let mut quadtree = QuadTree::default(data.gps_bounds.to_bounds().as_bbox());
 
         for (id, raw_i) in &data.intersections {
-            let center = Pt2D::from_gps(raw_i.point, &data.gps_bounds).unwrap();
             let i = Intersection {
-                center,
+                center: raw_i.point,
                 intersection_type: raw_i.intersection_type,
                 label: raw_i.label.clone(),
             };
