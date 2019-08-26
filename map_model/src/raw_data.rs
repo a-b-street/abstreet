@@ -36,7 +36,6 @@ pub struct Map {
 
     pub boundary_polygon: Polygon,
     pub gps_bounds: GPSBounds,
-    pub coordinates_in_world_space: bool,
 }
 
 impl Map {
@@ -55,7 +54,6 @@ impl Map {
                 Distance::meters(1.0),
             ),
             gps_bounds: GPSBounds::new(),
-            coordinates_in_world_space: false,
         }
     }
 

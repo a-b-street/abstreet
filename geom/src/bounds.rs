@@ -74,9 +74,6 @@ pub struct GPSBounds {
     pub(crate) min_lat: f64,
     pub(crate) max_lon: f64,
     pub(crate) max_lat: f64,
-
-    // TODO hack to easily construct test maps
-    pub represents_world_space: bool,
 }
 
 impl GPSBounds {
@@ -86,7 +83,6 @@ impl GPSBounds {
             min_lat: f64::MAX,
             max_lon: f64::MIN,
             max_lat: f64::MIN,
-            represents_world_space: false,
         }
     }
 

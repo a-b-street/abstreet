@@ -310,7 +310,6 @@ impl Model {
     // Returns path to raw map
     pub fn export(&self) -> String {
         let mut map = raw_data::Map::blank();
-        map.coordinates_in_world_space = true;
 
         fn gps(p: Pt2D) -> LonLat {
             LonLat::new(p.x(), p.y())

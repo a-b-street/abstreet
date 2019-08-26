@@ -36,11 +36,6 @@ impl Pt2D {
     }
 
     pub fn from_gps(gps: LonLat, b: &GPSBounds) -> Option<Pt2D> {
-        // TODO hack to construct test maps more easily
-        if b.represents_world_space {
-            return Some(Pt2D::new(gps.longitude, gps.latitude));
-        }
-
         if !b.contains(gps) {
             return None;
         }
@@ -63,10 +58,6 @@ impl Pt2D {
 
     // Can go out of bounds.
     pub fn forcibly_to_gps(self, b: &GPSBounds) -> LonLat {
-        if b.represents_world_space {
-            return LonLat::new(self.x(), self.y());
-        }
-
         let (width, height) = {
             let pt = b.get_max_world_pt();
             (pt.x(), pt.y())
@@ -77,15 +68,6 @@ impl Pt2D {
     }
 
     pub fn to_gps(self, b: &GPSBounds) -> Option<LonLat> {
-        if b.represents_world_space {
-            let pt = LonLat::new(self.x(), self.y());
-            if b.contains(pt) {
-                return Some(pt);
-            } else {
-                return None;
-            }
-        }
-
         let (width, height) = {
             let pt = b.get_max_world_pt();
             (pt.x(), pt.y())
