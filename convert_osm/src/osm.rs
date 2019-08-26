@@ -1,21 +1,19 @@
 use abstutil::{FileWithProgress, Timer};
-use geom::{GPSBounds, HashablePt2D, LonLat, Polygon, Pt2D};
+use geom::{HashablePt2D, LonLat, Polygon, Pt2D};
 use map_model::{raw_data, AreaType};
 use osm_xml;
 use std::collections::{BTreeMap, HashMap, HashSet};
 
-pub fn osm_to_raw_roads(
+pub fn extract_osm(
     osm_path: &str,
-    gps_bounds: &GPSBounds,
+    mut map: raw_data::Map,
     timer: &mut Timer,
 ) -> (
+    raw_data::Map,
+    // Un-split roads
     Vec<raw_data::Road>,
-    Vec<raw_data::Building>,
-    Vec<raw_data::Area>,
-    // traffic signals as Pt2D
+    // Traffic signals
     HashSet<HashablePt2D>,
-    // turn restrictions
-    BTreeMap<i64, Vec<(String, i64)>>,
 ) {
     let (reader, done) = FileWithProgress::new(osm_path).unwrap();
     let doc = osm_xml::OSM::parse(reader).expect("OSM parsing failed");
@@ -27,11 +25,8 @@ pub fn osm_to_raw_roads(
     );
     done(timer);
 
-    let mut id_to_way: HashMap<i64, Vec<LonLat>> = HashMap::new();
+    let mut id_to_way: HashMap<i64, Vec<Pt2D>> = HashMap::new();
     let mut roads: Vec<raw_data::Road> = Vec::new();
-    let mut buildings: Vec<raw_data::Building> = Vec::new();
-    let mut areas: Vec<raw_data::Area> = Vec::new();
-    let mut turn_restrictions: BTreeMap<i64, Vec<(String, i64)>> = BTreeMap::new();
     let mut traffic_signals: HashSet<HashablePt2D> = HashSet::new();
 
     timer.start_iter("processing OSM nodes", doc.nodes.len());
@@ -40,7 +35,8 @@ pub fn osm_to_raw_roads(
         let tags = tags_to_map(&node.tags);
         if tags.get("highway") == Some(&"traffic_signals".to_string()) {
             traffic_signals.insert(
-                Pt2D::forcibly_from_gps(LonLat::new(node.lon, node.lat), gps_bounds).to_hashable(),
+                Pt2D::forcibly_from_gps(LonLat::new(node.lon, node.lat), &map.gps_bounds)
+                    .to_hashable(),
             );
         }
     }
@@ -50,11 +46,11 @@ pub fn osm_to_raw_roads(
         timer.next();
 
         let mut valid = true;
-        let mut pts = Vec::new();
+        let mut gps_pts = Vec::new();
         for node_ref in &way.nodes {
             match doc.resolve_reference(node_ref) {
                 osm_xml::Reference::Node(node) => {
-                    pts.push(LonLat::new(node.lon, node.lat));
+                    gps_pts.push(LonLat::new(node.lon, node.lat));
                 }
                 // Don't handle nested ways/relations yet
                 _ => {
@@ -65,14 +61,15 @@ pub fn osm_to_raw_roads(
         if !valid {
             continue;
         }
+        let pts = map.gps_bounds.forcibly_convert(&gps_pts);
         let tags = tags_to_map(&way.tags);
         if is_road(&tags) {
             roads.push(raw_data::Road {
                 osm_way_id: way.id,
-                center_points: gps_bounds.forcibly_convert(&pts),
+                center_points: pts,
                 orig_id: raw_data::OriginalRoad {
-                    pt1: pts[0],
-                    pt2: *pts.last().unwrap(),
+                    pt1: gps_pts[0],
+                    pt2: *gps_pts.last().unwrap(),
                 },
                 osm_tags: tags,
                 // We'll fill this out later
@@ -82,20 +79,17 @@ pub fn osm_to_raw_roads(
                 parking_lane_back: false,
             });
         } else if is_bldg(&tags) {
-            buildings.push(raw_data::Building {
+            map.buildings.push(raw_data::Building {
                 osm_way_id: way.id,
-                polygon: Polygon::new(&Pt2D::approx_dedupe(
-                    gps_bounds.forcibly_convert(&pts),
-                    geom::EPSILON_DIST,
-                )),
+                polygon: Polygon::new(&Pt2D::approx_dedupe(pts, geom::EPSILON_DIST)),
                 osm_tags: tags,
                 parking: None,
             });
         } else if let Some(at) = get_area_type(&tags) {
-            areas.push(raw_data::Area {
+            map.areas.push(raw_data::Area {
                 area_type: at,
                 osm_id: way.id,
-                polygon: Polygon::new(&gps_bounds.forcibly_convert(&pts)),
+                polygon: Polygon::new(&pts),
                 osm_tags: tags,
             });
         } else {
@@ -111,7 +105,7 @@ pub fn osm_to_raw_roads(
         if let Some(at) = get_area_type(&tags) {
             if tags.get("type") == Some(&"multipolygon".to_string()) {
                 let mut ok = true;
-                let mut pts_per_way: Vec<Vec<LonLat>> = Vec::new();
+                let mut pts_per_way: Vec<Vec<Pt2D>> = Vec::new();
                 for member in &rel.members {
                     match member {
                         osm_xml::Member::Way(osm_xml::UnresolvedReference::Way(id), ref role) => {
@@ -138,11 +132,11 @@ pub fn osm_to_raw_roads(
                     if polygons.is_empty() {
                         println!("Relation {} failed to glue multipolygon", rel.id);
                     } else {
-                        for points in polygons {
-                            areas.push(raw_data::Area {
+                        for polygon in polygons {
+                            map.areas.push(raw_data::Area {
                                 area_type: at,
                                 osm_id: rel.id,
-                                polygon: Polygon::new(&gps_bounds.forcibly_convert(&points)),
+                                polygon,
                                 osm_tags: tags.clone(),
                             });
                         }
@@ -165,7 +159,7 @@ pub fn osm_to_raw_roads(
             }
             if let (Some(from_way_id), Some(to_way_id)) = (from_way_id, to_way_id) {
                 if let Some(restriction) = tags.get("restriction") {
-                    turn_restrictions
+                    map.turn_restrictions
                         .entry(from_way_id)
                         .or_insert_with(Vec::new)
                         .push((restriction.to_string(), to_way_id));
@@ -174,7 +168,7 @@ pub fn osm_to_raw_roads(
         }
     }
 
-    (roads, buildings, areas, traffic_signals, turn_restrictions)
+    (map, roads, traffic_signals)
 }
 
 fn tags_to_map(raw_tags: &[osm_xml::Tag]) -> BTreeMap<String, String> {
@@ -247,12 +241,12 @@ fn get_area_type(tags: &BTreeMap<String, String>) -> Option<AreaType> {
 }
 
 // The result could be more than one disjoint polygon.
-fn glue_multipolygon(mut pts_per_way: Vec<Vec<LonLat>>) -> Vec<Vec<LonLat>> {
+fn glue_multipolygon(mut pts_per_way: Vec<Vec<Pt2D>>) -> Vec<Polygon> {
     // First deal with all of the closed loops.
-    let mut polygons: Vec<Vec<LonLat>> = Vec::new();
+    let mut polygons: Vec<Polygon> = Vec::new();
     pts_per_way.retain(|pts| {
         if pts[0] == *pts.last().unwrap() {
-            polygons.push(pts.to_vec());
+            polygons.push(Polygon::new(pts));
             false
         } else {
             true
@@ -294,6 +288,6 @@ fn glue_multipolygon(mut pts_per_way: Vec<Vec<LonLat>>) -> Vec<Vec<LonLat>> {
     if result[0] != *result.last().unwrap() {
         result.push(result[0]);
     }
-    polygons.push(result);
+    polygons.push(Polygon::new(&result));
     polygons
 }

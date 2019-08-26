@@ -1,13 +1,14 @@
 use abstutil::{retain_btreemap, Timer};
-use geom::{LonLat, PolyLine, Polygon};
+use geom::PolyLine;
 use map_model::{raw_data, IntersectionType};
 
-pub fn clip_map(map: &mut raw_data::Map, boundary_poly_pts: Vec<LonLat>, timer: &mut Timer) {
+pub fn clip_map(map: &mut raw_data::Map, timer: &mut Timer) {
     timer.start("clipping map to boundary");
 
-    let boundary_poly = Polygon::new(&map.gps_bounds.must_convert(&boundary_poly_pts));
-    map.boundary_polygon = boundary_poly.clone();
-    let boundary_lines: Vec<PolyLine> = boundary_poly
+    // So we can use retain_btreemap without borrowing issues
+    let boundary_polygon = map.boundary_polygon.clone();
+    let boundary_lines: Vec<PolyLine> = map
+        .boundary_polygon
         .points()
         .windows(2)
         .map(|pair| PolyLine::new(pair.to_vec()))
@@ -16,16 +17,18 @@ pub fn clip_map(map: &mut raw_data::Map, boundary_poly_pts: Vec<LonLat>, timer: 
     // This is kind of indirect and slow, but first pass -- just remove roads that start or end
     // outside the boundary polygon.
     retain_btreemap(&mut map.roads, |_, r| {
-        let first_in = boundary_poly.contains_pt(r.center_points[0]);
-        let last_in = boundary_poly.contains_pt(*r.center_points.last().unwrap());
+        let first_in = boundary_polygon.contains_pt(r.center_points[0]);
+        let last_in = boundary_polygon.contains_pt(*r.center_points.last().unwrap());
         first_in || last_in
     });
 
     let road_ids: Vec<raw_data::StableRoadID> = map.roads.keys().cloned().collect();
     for id in road_ids {
         let r = &map.roads[&id];
-        let first_in = boundary_poly.contains_pt(r.center_points[0]);
-        let last_in = boundary_poly.contains_pt(*r.center_points.last().unwrap());
+        let first_in = map.boundary_polygon.contains_pt(r.center_points[0]);
+        let last_in = map
+            .boundary_polygon
+            .contains_pt(*r.center_points.last().unwrap());
 
         // Some roads start and end in-bounds, but dip out of bounds. Leave those alone for now.
         if first_in && last_in {
@@ -93,7 +96,7 @@ pub fn clip_map(map: &mut raw_data::Map, boundary_poly_pts: Vec<LonLat>, timer: 
         b.polygon
             .points()
             .iter()
-            .all(|pt| boundary_poly.contains_pt(*pt))
+            .all(|pt| boundary_polygon.contains_pt(*pt))
     });
 
     let mut result_areas = Vec::new();

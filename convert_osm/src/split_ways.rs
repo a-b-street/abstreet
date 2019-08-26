@@ -1,17 +1,14 @@
 use abstutil::Timer;
-use geom::{GPSBounds, HashablePt2D, Pt2D};
+use geom::{HashablePt2D, Pt2D};
 use map_model::{raw_data, IntersectionType};
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::{HashMap, HashSet};
 
 pub fn split_up_roads(
-    (mut roads, buildings, areas, traffic_signals, turn_restrictions): (
+    (mut map, mut roads, traffic_signals): (
+        raw_data::Map,
         Vec<raw_data::Road>,
-        Vec<raw_data::Building>,
-        Vec<raw_data::Area>,
         HashSet<HashablePt2D>,
-        BTreeMap<i64, Vec<(String, i64)>>,
     ),
-    gps_bounds: GPSBounds,
     timer: &mut Timer,
 ) -> raw_data::Map {
     timer.start("splitting up roads");
@@ -59,12 +56,6 @@ pub fn split_up_roads(
             }
         }
     }
-
-    let mut map = raw_data::Map::blank();
-    map.gps_bounds = gps_bounds;
-    map.buildings = buildings;
-    map.areas = areas;
-    map.turn_restrictions = turn_restrictions;
 
     // All of the roundabout points will just keep moving the intersection
     for (pt, id) in &pt_to_intersection {
