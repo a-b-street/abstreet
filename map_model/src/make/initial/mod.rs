@@ -149,14 +149,15 @@ impl InitialMap {
                 original_center_pts = original_center_pts.shift_left(fwd_width / 2.0);
             }*/
 
+            let center_pts = PolyLine::new(r.center_points.clone());
             m.roads.insert(
                 *stable_id,
                 Road {
                     id: *stable_id,
                     src_i: r.i1,
                     dst_i: r.i2,
-                    original_center_pts: r.center_points.clone(),
-                    trimmed_center_pts: r.center_points.clone(),
+                    original_center_pts: center_pts.clone(),
+                    trimmed_center_pts: center_pts,
                     fwd_width,
                     back_width,
                     lane_specs,

@@ -1,5 +1,5 @@
 use abstutil::{FileWithProgress, Timer};
-use geom::{GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D};
+use geom::{GPSBounds, HashablePt2D, LonLat, Polygon, Pt2D};
 use map_model::{raw_data, AreaType};
 use osm_xml;
 use std::collections::{BTreeMap, HashMap, HashSet};
@@ -67,15 +67,9 @@ pub fn osm_to_raw_roads(
         }
         let tags = tags_to_map(&way.tags);
         if is_road(&tags) {
-            // TODO Support cul-de-sacs properly. They mess up the PolyLines, parking hints,
-            // pathfinding...
-            if pts[0] == *pts.last().unwrap() {
-                continue;
-            }
-
             roads.push(raw_data::Road {
                 osm_way_id: way.id,
-                center_points: PolyLine::new(gps_bounds.forcibly_convert(&pts)),
+                center_points: gps_bounds.forcibly_convert(&pts),
                 orig_id: raw_data::OriginalRoad {
                     pt1: pts[0],
                     pt2: *pts.last().unwrap(),

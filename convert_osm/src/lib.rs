@@ -101,19 +101,14 @@ fn use_parking_hints(map: &mut raw_data::Map, path: &str, timer: &mut Timer) {
     let mut closest: FindClosest<(raw_data::StableRoadID, bool)> =
         FindClosest::new(&map.gps_bounds.to_bounds());
     for (id, r) in &map.roads {
+        let center = PolyLine::new(r.center_points.clone());
         closest.add(
             (*id, true),
-            r.center_points
-                .shift_right(LANE_THICKNESS)
-                .get(timer)
-                .points(),
+            center.shift_right(LANE_THICKNESS).get(timer).points(),
         );
         closest.add(
             (*id, false),
-            r.center_points
-                .shift_left(LANE_THICKNESS)
-                .get(timer)
-                .points(),
+            center.shift_left(LANE_THICKNESS).get(timer).points(),
         );
     }
 

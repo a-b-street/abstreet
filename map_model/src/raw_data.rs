@@ -1,7 +1,7 @@
 use crate::make::get_lane_types;
 pub use crate::make::{Hint, Hints, InitialMap};
 use crate::{AreaType, IntersectionType, OffstreetParking, RoadSpec};
-use geom::{Distance, GPSBounds, LonLat, PolyLine, Polygon, Pt2D};
+use geom::{Distance, GPSBounds, LonLat, Polygon, Pt2D};
 use gtfs::Route;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -95,7 +95,9 @@ pub struct Road {
     // The first and last point may not match up with i1 and i2.
     pub i1: StableIntersectionID,
     pub i2: StableIntersectionID,
-    pub center_points: PolyLine,
+    // This is effectively a PolyLine, except there's a case where we need to plumb forward
+    // cul-de-sac roads for roundabout handling.
+    pub center_points: Vec<Pt2D>,
     pub orig_id: OriginalRoad,
     pub osm_tags: BTreeMap<String, String>,
     pub osm_way_id: i64,

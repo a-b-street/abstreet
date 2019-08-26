@@ -330,10 +330,10 @@ impl Model {
                 raw_data::Road {
                     i1: r.i1,
                     i2: r.i2,
-                    center_points: PolyLine::new(vec![
+                    center_points: vec![
                         self.intersections[&r.i1].center,
                         self.intersections[&r.i2].center,
-                    ]),
+                    ],
                     orig_id: raw_data::OriginalRoad {
                         pt1: gps(self.intersections[&r.i1].center),
                         pt2: gps(self.intersections[&r.i2].center),

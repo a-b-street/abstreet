@@ -1,5 +1,5 @@
 use abstutil::Timer;
-use geom::{GPSBounds, HashablePt2D, PolyLine, Pt2D};
+use geom::{GPSBounds, HashablePt2D, Pt2D};
 use map_model::{raw_data, IntersectionType};
 use std::collections::{BTreeMap, HashMap, HashSet};
 
@@ -29,8 +29,8 @@ pub fn split_up_roads(
             let id = raw_data::StableIntersectionID(next_intersection_id);
             next_intersection_id += 1;
 
-            roundabout_centers.insert(id, Pt2D::center(r.center_points.points()));
-            for pt in r.center_points.points() {
+            roundabout_centers.insert(id, Pt2D::center(&r.center_points));
+            for pt in &r.center_points {
                 pt_to_intersection.insert(pt.to_hashable(), id);
             }
 
@@ -43,14 +43,14 @@ pub fn split_up_roads(
     // Find normal intersections
     let mut counts_per_pt: HashMap<HashablePt2D, usize> = HashMap::new();
     for r in &roads {
-        for (idx, raw_pt) in r.center_points.points().iter().enumerate() {
+        for (idx, raw_pt) in r.center_points.iter().enumerate() {
             let pt = raw_pt.to_hashable();
             counts_per_pt.entry(pt).or_insert(0);
             let count = counts_per_pt[&pt] + 1;
             counts_per_pt.insert(pt, count);
 
             // All start and endpoints of ways are also intersections.
-            if count == 2 || idx == 0 || idx == r.center_points.points().len() - 1 {
+            if count == 2 || idx == 0 || idx == r.center_points.len() - 1 {
                 if !pt_to_intersection.contains_key(&pt) {
                     let id = raw_data::StableIntersectionID(next_intersection_id);
                     next_intersection_id += 1;
@@ -110,19 +110,17 @@ pub fn split_up_roads(
         timer.next();
         let mut r = orig_road.clone();
         let mut pts = Vec::new();
-        let endpt1 = pt_to_intersection[&orig_road.center_points.first_pt().to_hashable()];
-        let endpt2 = pt_to_intersection[&orig_road.center_points.last_pt().to_hashable()];
+        let endpt1 = pt_to_intersection[&orig_road.center_points[0].to_hashable()];
+        let endpt2 = pt_to_intersection[&orig_road.center_points.last().unwrap().to_hashable()];
         r.i1 = endpt1;
 
-        for (idx, pt) in orig_road.center_points.points().iter().enumerate() {
+        for (idx, pt) in orig_road.center_points.iter().enumerate() {
             pts.push(*pt);
             if pts.len() == 1 {
                 continue;
             }
             if let Some(i2) = pt_to_intersection.get(&pt.to_hashable()) {
-                if roundabout_centers.contains_key(i2)
-                    && idx != orig_road.center_points.points().len() - 1
-                {
+                if roundabout_centers.contains_key(i2) && idx != orig_road.center_points.len() - 1 {
                     panic!(
                         "OSM way {} hits a roundabout in the middle of a way. idx {} of length {}",
                         r.osm_way_id,
@@ -140,7 +138,7 @@ pub fn split_up_roads(
                     r.osm_tags
                         .insert("abst:endpt_fwd".to_string(), "true".to_string());
                 }
-                r.center_points = PolyLine::new(std::mem::replace(&mut pts, Vec::new()));
+                r.center_points = std::mem::replace(&mut pts, Vec::new());
                 // Start a new road
                 map.roads
                     .insert(raw_data::StableRoadID(map.roads.len()), r.clone());

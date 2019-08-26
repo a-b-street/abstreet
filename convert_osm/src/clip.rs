@@ -16,16 +16,16 @@ pub fn clip_map(map: &mut raw_data::Map, boundary_poly_pts: Vec<LonLat>, timer: 
     // This is kind of indirect and slow, but first pass -- just remove roads that start or end
     // outside the boundary polygon.
     retain_btreemap(&mut map.roads, |_, r| {
-        let first_in = boundary_poly.contains_pt(r.center_points.first_pt());
-        let last_in = boundary_poly.contains_pt(r.center_points.last_pt());
+        let first_in = boundary_poly.contains_pt(r.center_points[0]);
+        let last_in = boundary_poly.contains_pt(*r.center_points.last().unwrap());
         first_in || last_in
     });
 
     let road_ids: Vec<raw_data::StableRoadID> = map.roads.keys().cloned().collect();
     for id in road_ids {
         let r = &map.roads[&id];
-        let first_in = boundary_poly.contains_pt(r.center_points.first_pt());
-        let last_in = boundary_poly.contains_pt(r.center_points.last_pt());
+        let first_in = boundary_poly.contains_pt(r.center_points[0]);
+        let last_in = boundary_poly.contains_pt(*r.center_points.last().unwrap());
 
         // Some roads start and end in-bounds, but dip out of bounds. Leave those alone for now.
         if first_in && last_in {
@@ -59,25 +59,31 @@ pub fn clip_map(map: &mut raw_data::Map, boundary_poly_pts: Vec<LonLat>, timer: 
 
         // Now trim it.
         let mut_r = map.roads.get_mut(&id).unwrap();
+        let center = PolyLine::new(mut_r.center_points.clone());
         let border_pt = boundary_lines
             .iter()
-            .find_map(|l| mut_r.center_points.intersection(l).map(|(pt, _)| pt))
+            .find_map(|l| center.intersection(l).map(|(pt, _)| pt))
             .unwrap();
         if first_in {
-            mut_r.center_points = mut_r.center_points.get_slice_ending_at(border_pt).unwrap();
-            i.point = mut_r.center_points.last_pt();
+            mut_r.center_points = center
+                .get_slice_ending_at(border_pt)
+                .unwrap()
+                .points()
+                .clone();
+            i.point = *mut_r.center_points.last().unwrap();
             i.orig_id.point = i.point.to_gps(&map.gps_bounds).unwrap();
             // This has no effect unless we made a copy of the intersection to disconnect it from
             // other roads.
             mut_r.i2 = move_i;
         } else {
-            mut_r.center_points = mut_r
-                .center_points
+            mut_r.center_points = center
                 .reversed()
                 .get_slice_ending_at(border_pt)
                 .unwrap()
-                .reversed();
-            i.point = mut_r.center_points.first_pt();
+                .reversed()
+                .points()
+                .clone();
+            i.point = mut_r.center_points[0];
             i.orig_id.point = i.point.to_gps(&map.gps_bounds).unwrap();
             mut_r.i1 = move_i;
         }

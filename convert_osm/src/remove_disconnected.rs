@@ -52,6 +52,10 @@ pub fn remove_disconnected_roads(map: &mut raw_data::Map, timer: &mut Timer) {
         }
     }
 
+    // Also remove cul-de-sacs here. TODO Support them properly, but for now, they mess up parking
+    // hint matching (loop PolyLine) and pathfinding later.
+    retain_btreemap(&mut map.roads, |_, r| r.i1 != r.i2);
+
     // Remove intersections without any roads
     retain_btreemap(&mut map.intersections, |id, _| {
         !next_roads.get(*id).is_empty()
