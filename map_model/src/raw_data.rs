@@ -1,7 +1,7 @@
 use crate::make::get_lane_types;
 pub use crate::make::{Hint, Hints, InitialMap};
 use crate::{AreaType, IntersectionType, OffstreetParking, RoadSpec};
-use geom::{Distance, GPSBounds, LonLat, Polygon, Pt2D};
+use geom::{Distance, GPSBounds, LonLat, PolyLine, Polygon, Pt2D};
 use gtfs::Route;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -64,7 +64,7 @@ impl Map {
             return None;
         }
         for (id, r) in &self.roads {
-            if r.points[0] == orig.pt1 && *r.points.last().unwrap() == orig.pt2 {
+            if r.orig_id == orig {
                 return Some(*id);
             }
         }
@@ -90,12 +90,13 @@ impl Map {
     }
 }
 
-#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Road {
     // The first and last point may not match up with i1 and i2.
     pub i1: StableIntersectionID,
     pub i2: StableIntersectionID,
-    pub points: Vec<LonLat>,
+    pub center_points: PolyLine,
+    pub orig_id: OriginalRoad,
     pub osm_tags: BTreeMap<String, String>,
     pub osm_way_id: i64,
     pub parking_lane_fwd: bool,
@@ -110,13 +111,6 @@ impl Road {
             self.parking_lane_back,
         );
         RoadSpec { fwd, back }
-    }
-
-    pub fn orig_id(&self) -> OriginalRoad {
-        OriginalRoad {
-            pt1: self.points[0],
-            pt2: *self.points.last().unwrap(),
-        }
     }
 }
 

@@ -44,20 +44,6 @@ impl LonLat {
         .unwrap()
     }
 
-    pub fn center(pts: &Vec<LonLat>) -> LonLat {
-        let mut lon = 0.0;
-        let mut lat = 0.0;
-        for pt in pts {
-            lon += pt.longitude;
-            lat += pt.latitude;
-        }
-        let len = pts.len() as f64;
-        LonLat {
-            longitude: lon / len,
-            latitude: lat / len,
-        }
-    }
-
     pub fn to_hashable(&self) -> HashablePt2D {
         HashablePt2D::new(self.longitude, self.latitude)
     }

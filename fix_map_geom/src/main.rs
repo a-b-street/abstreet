@@ -60,14 +60,7 @@ impl UI {
         ctx.loading_screen(&format!("load {}", filename), |ctx, mut timer| {
             let raw: Map = abstutil::read_binary(filename, &mut timer).unwrap();
             let map_name = abstutil::basename(filename);
-            let gps_bounds = &raw.gps_bounds;
-            let mut data = InitialMap::new(
-                map_name,
-                &raw,
-                gps_bounds,
-                &gps_bounds.to_bounds(),
-                &mut timer,
-            );
+            let mut data = InitialMap::new(map_name, &raw, &raw.gps_bounds.to_bounds(), &mut timer);
             let hints = Hints::load();
             data.apply_hints(&hints, &raw, &mut timer);
 
@@ -230,12 +223,10 @@ impl GUI for UI {
                     if recalc {
                         *selected = None;
                         ctx.loading_screen("recalculate map from hints", |ctx, mut timer| {
-                            let gps_bounds = &self.raw.gps_bounds;
                             self.data = InitialMap::new(
                                 self.data.name.clone(),
                                 &self.raw,
-                                gps_bounds,
-                                &gps_bounds.to_bounds(),
+                                &self.raw.gps_bounds.to_bounds(),
                                 &mut timer,
                             );
                             self.data.apply_hints(&self.hints, &self.raw, &mut timer);

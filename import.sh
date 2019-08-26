@@ -3,8 +3,13 @@
 set -e
 
 only_map=""
+release="--release"
 for arg in "$@"; do
-	only_map=$arg;
+	if [ "$arg" == "--debug" ]; then
+		release="";
+	else
+		only_map=$arg;
+	fi
 done
 
 # First prepare input.
@@ -92,7 +97,7 @@ for poly in `ls ../data/polygons/`; do
 	fi
 
 	rm -rf ../data/neighborhoods/$name ../data/maps/${name}.bin;
-	RUST_BACKTRACE=1 cargo run --release -- \
+	RUST_BACKTRACE=1 cargo run $release -- \
 		--osm=../data/input/$name.osm \
 		--parking_shapes=../data/shapes/blockface.bin \
 		--offstreet_parking=../data/input/offstreet_parking.kml \

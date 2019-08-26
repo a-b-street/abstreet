@@ -1,5 +1,5 @@
 use abstutil::{FileWithProgress, Timer};
-use geom::{GPSBounds, HashablePt2D, LonLat, Polygon, Pt2D};
+use geom::{GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D};
 use map_model::{raw_data, AreaType};
 use osm_xml;
 use std::collections::{BTreeMap, HashMap, HashSet};
@@ -12,7 +12,7 @@ pub fn osm_to_raw_roads(
     Vec<raw_data::Road>,
     Vec<raw_data::Building>,
     Vec<raw_data::Area>,
-    // traffic signals
+    // traffic signals as Pt2D
     HashSet<HashablePt2D>,
     // turn restrictions
     BTreeMap<i64, Vec<(String, i64)>>,
@@ -39,7 +39,9 @@ pub fn osm_to_raw_roads(
         timer.next();
         let tags = tags_to_map(&node.tags);
         if tags.get("highway") == Some(&"traffic_signals".to_string()) {
-            traffic_signals.insert(LonLat::new(node.lon, node.lat).to_hashable());
+            traffic_signals.insert(
+                Pt2D::forcibly_from_gps(LonLat::new(node.lon, node.lat), gps_bounds).to_hashable(),
+            );
         }
     }
 
@@ -65,9 +67,19 @@ pub fn osm_to_raw_roads(
         }
         let tags = tags_to_map(&way.tags);
         if is_road(&tags) {
+            // TODO Support cul-de-sacs properly. They mess up the PolyLines, parking hints,
+            // pathfinding...
+            if pts[0] == *pts.last().unwrap() {
+                continue;
+            }
+
             roads.push(raw_data::Road {
                 osm_way_id: way.id,
-                points: pts,
+                center_points: PolyLine::new(gps_bounds.forcibly_convert(&pts)),
+                orig_id: raw_data::OriginalRoad {
+                    pt1: pts[0],
+                    pt2: *pts.last().unwrap(),
+                },
                 osm_tags: tags,
                 // We'll fill this out later
                 i1: raw_data::StableIntersectionID(0),

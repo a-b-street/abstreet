@@ -312,7 +312,7 @@ impl Model {
         let mut map = raw_data::Map::blank();
         map.coordinates_in_world_space = true;
 
-        fn pt(p: Pt2D) -> LonLat {
+        fn gps(p: Pt2D) -> LonLat {
             LonLat::new(p.x(), p.y())
         }
 
@@ -330,10 +330,14 @@ impl Model {
                 raw_data::Road {
                     i1: r.i1,
                     i2: r.i2,
-                    points: vec![
-                        pt(self.intersections[&r.i1].center),
-                        pt(self.intersections[&r.i2].center),
-                    ],
+                    center_points: PolyLine::new(vec![
+                        self.intersections[&r.i1].center,
+                        self.intersections[&r.i2].center,
+                    ]),
+                    orig_id: raw_data::OriginalRoad {
+                        pt1: gps(self.intersections[&r.i1].center),
+                        pt2: gps(self.intersections[&r.i2].center),
+                    },
                     osm_tags,
                     osm_way_id: id.0 as i64,
                     parking_lane_fwd: r.lanes.fwd.contains(&LaneType::Parking),
@@ -348,7 +352,7 @@ impl Model {
                 raw_data::Intersection {
                     point: i.center,
                     orig_id: raw_data::OriginalIntersection {
-                        point: pt(i.center),
+                        point: gps(i.center),
                     },
                     intersection_type: i.intersection_type,
                     label: i.label.clone(),

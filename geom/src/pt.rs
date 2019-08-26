@@ -61,6 +61,21 @@ impl Pt2D {
         Pt2D::new(x, y)
     }
 
+    // Can go out of bounds.
+    pub fn forcibly_to_gps(self, b: &GPSBounds) -> LonLat {
+        if b.represents_world_space {
+            return LonLat::new(self.x(), self.y());
+        }
+
+        let (width, height) = {
+            let pt = b.get_max_world_pt();
+            (pt.x(), pt.y())
+        };
+        let lon = (self.x() / width * (b.max_lon - b.min_lon)) + b.min_lon;
+        let lat = b.min_lat + ((b.max_lat - b.min_lat) * (height - self.y()) / height);
+        LonLat::new(lon, lat)
+    }
+
     pub fn to_gps(self, b: &GPSBounds) -> Option<LonLat> {
         if b.represents_world_space {
             let pt = LonLat::new(self.x(), self.y());

@@ -6,7 +6,7 @@ mod merge;
 use crate::raw_data::{StableIntersectionID, StableRoadID};
 use crate::{raw_data, IntersectionType, LaneType, LANE_THICKNESS};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Timer};
-use geom::{Bounds, Distance, GPSBounds, PolyLine, Pt2D};
+use geom::{Bounds, Distance, PolyLine, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -80,7 +80,6 @@ impl InitialMap {
     pub fn new(
         name: String,
         data: &raw_data::Map,
-        gps_bounds: &GPSBounds,
         bounds: &Bounds,
         timer: &mut Timer,
     ) -> InitialMap {
@@ -122,8 +121,6 @@ impl InitialMap {
                 .roads
                 .insert(*stable_id);
 
-            let original_center_pts = PolyLine::new(gps_bounds.forcibly_convert(&r.points));
-
             let lane_specs = get_lane_specs(
                 &r.osm_tags,
                 r.parking_lane_fwd,
@@ -158,8 +155,8 @@ impl InitialMap {
                     id: *stable_id,
                     src_i: r.i1,
                     dst_i: r.i2,
-                    original_center_pts: original_center_pts.clone(),
-                    trimmed_center_pts: original_center_pts,
+                    original_center_pts: r.center_points.clone(),
+                    trimmed_center_pts: r.center_points.clone(),
                     fwd_width,
                     back_width,
                     lane_specs,
