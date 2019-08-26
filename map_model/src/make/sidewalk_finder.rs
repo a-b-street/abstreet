@@ -31,7 +31,8 @@ pub fn find_sidewalk_points(
     timer.start_iter("find closest sidewalk point", pts.len());
     for query_pt in pts {
         timer.next();
-        if let Some((sidewalk, sidewalk_pt)) = closest.closest_pt(query_pt.into(), max_dist_away) {
+        if let Some((sidewalk, sidewalk_pt)) = closest.closest_pt(query_pt.to_pt2d(), max_dist_away)
+        {
             if let Some(dist_along) = lanes[sidewalk.0].dist_along_of_point(sidewalk_pt) {
                 results.insert(query_pt, Position::new(sidewalk, dist_along));
             } else {

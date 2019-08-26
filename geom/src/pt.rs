@@ -200,7 +200,10 @@ impl Pt2D {
     }
 
     pub fn to_hashable(self) -> HashablePt2D {
-        HashablePt2D::new(self.x(), self.y())
+        HashablePt2D {
+            x_nan: NotNan::new(self.x()).unwrap(),
+            y_nan: NotNan::new(self.y()).unwrap(),
+        }
     }
 }
 
@@ -210,13 +213,7 @@ impl fmt::Display for Pt2D {
     }
 }
 
-impl From<HashablePt2D> for Pt2D {
-    fn from(pt: HashablePt2D) -> Self {
-        Pt2D::new(pt.x(), pt.y())
-    }
-}
-
-// This isn't opinionated about what the (x, y) represents -- could be lat/lon or world space.
+// This represents world space, NOT LonLat.
 // TODO So rename it HashablePair or something
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub struct HashablePt2D {
@@ -225,24 +222,7 @@ pub struct HashablePt2D {
 }
 
 impl HashablePt2D {
-    pub fn new(x: f64, y: f64) -> HashablePt2D {
-        HashablePt2D {
-            x_nan: NotNan::new(x).unwrap(),
-            y_nan: NotNan::new(y).unwrap(),
-        }
-    }
-
-    pub fn x(&self) -> f64 {
-        self.x_nan.into_inner()
-    }
-
-    pub fn y(&self) -> f64 {
-        self.y_nan.into_inner()
-    }
-}
-
-impl From<Pt2D> for HashablePt2D {
-    fn from(pt: Pt2D) -> Self {
-        HashablePt2D::new(pt.x(), pt.y())
+    pub fn to_pt2d(self) -> Pt2D {
+        Pt2D::new(self.x_nan.into_inner(), self.y_nan.into_inner())
     }
 }

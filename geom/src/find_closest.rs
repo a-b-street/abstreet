@@ -1,4 +1,4 @@
-use crate::{Bounds, Distance, GPSBounds, LonLat, Pt2D};
+use crate::{Bounds, Distance, Pt2D};
 use aabb_quadtree::geom::{Point, Rect};
 use aabb_quadtree::QuadTree;
 use geo;
@@ -26,14 +26,6 @@ where
         self.geometries.insert(key.clone(), pts_to_line_string(pts));
         self.quadtree
             .insert_with_box(key, Bounds::from(pts).as_bbox());
-    }
-
-    pub fn add_gps(&mut self, key: K, raw_pts: &Vec<LonLat>, gps_bounds: &GPSBounds) {
-        let pts: Vec<Pt2D> = gps_bounds.must_convert(raw_pts);
-        self.geometries
-            .insert(key.clone(), pts_to_line_string(&pts));
-        self.quadtree
-            .insert_with_box(key, Bounds::from(&pts).as_bbox());
     }
 
     // Finds the closest point on the existing geometry to the query pt.

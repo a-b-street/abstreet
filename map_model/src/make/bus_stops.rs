@@ -20,7 +20,7 @@ pub fn make_bus_stops(
     for route in bus_routes {
         for gps in &route.stops {
             if let Some(pt) = Pt2D::from_gps(*gps, gps_bounds) {
-                let hash_pt: HashablePt2D = pt.into();
+                let hash_pt = pt.to_hashable();
                 bus_stop_pts.insert(hash_pt);
                 route_lookups
                     .entry(route.name.clone())

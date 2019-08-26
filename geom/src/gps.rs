@@ -1,4 +1,4 @@
-use crate::{Distance, HashablePt2D};
+use crate::Distance;
 use ordered_float::NotNan;
 use serde_derive::{Deserialize, Serialize};
 use std::f64;
@@ -42,10 +42,6 @@ impl LonLat {
             (self.longitude - other.longitude).powi(2) + (self.latitude - other.latitude).powi(2),
         )
         .unwrap()
-    }
-
-    pub fn to_hashable(&self) -> HashablePt2D {
-        HashablePt2D::new(self.longitude, self.latitude)
     }
 }
 

@@ -17,7 +17,7 @@ pub fn make_all_buildings(
     timer.start_iter("get building center points", input.len());
     for b in input {
         timer.next();
-        let center: HashablePt2D = b.polygon.center().into();
+        let center = b.polygon.center().to_hashable();
         center_per_bldg.push(center);
         query.insert(center);
     }
@@ -32,12 +32,12 @@ pub fn make_all_buildings(
             let sidewalk_pt = lanes[sidewalk_pos.lane().0]
                 .dist_along(sidewalk_pos.dist_along())
                 .0;
-            if sidewalk_pt.epsilon_eq(bldg_center.into()) {
+            if sidewalk_pt.epsilon_eq(bldg_center.to_pt2d()) {
                 timer.warn("Skipping a building because front path has 0 length".to_string());
                 continue;
             }
             let polygon = &input[idx].polygon;
-            let line = trim_front_path(polygon, Line::new(bldg_center.into(), sidewalk_pt));
+            let line = trim_front_path(polygon, Line::new(bldg_center.to_pt2d(), sidewalk_pt));
 
             let id = BuildingID(results.len());
             results.push(Building {

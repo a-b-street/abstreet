@@ -106,7 +106,7 @@ impl PolyLine {
             // TODO Measure the length of the thing being clipped out, to be sure this isn't
             // running amok.
             for (other_rev_idx, pt) in other_pts.iter().rev().enumerate() {
-                if pl1.contains(&HashablePt2D::from(*pt)) {
+                if pl1.contains(&pt.to_hashable()) {
                     while self_pts.last().unwrap() != pt {
                         self_pts.pop();
                     }
@@ -675,5 +675,5 @@ fn check_angles(orig: &PolyLine, fixed: PolyLine) -> Warn<PolyLine> {
 }
 
 fn to_set(pts: &[Pt2D]) -> HashSet<HashablePt2D> {
-    pts.iter().map(|pt| HashablePt2D::from(*pt)).collect()
+    pts.iter().map(|pt| pt.to_hashable()).collect()
 }

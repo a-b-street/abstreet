@@ -1,7 +1,7 @@
 use crate::make::initial::{Intersection, Road};
 use crate::raw_data::{StableIntersectionID, StableRoadID};
 use abstutil::{wraparound_get, Timer, Warn};
-use geom::{Distance, HashablePt2D, Line, PolyLine, Pt2D};
+use geom::{Distance, Line, PolyLine, Pt2D};
 use std::collections::{BTreeMap, HashMap};
 
 const DEGENERATE_INTERSECTION_HALF_LENGTH: Distance = Distance::const_meters(5.0);
@@ -51,7 +51,7 @@ pub fn intersection_polygon(
 
     // Find the average of all road endpoints at the intersection. This is usually just a single
     // point, except for merged intersections.
-    road_endpts.sort_by_key(|pt| HashablePt2D::from(*pt));
+    road_endpts.sort_by_key(|pt| pt.to_hashable());
     road_endpts.dedup();
     let intersection_center = Pt2D::center(&road_endpts);
 
@@ -286,7 +286,7 @@ fn generalized_trim_back(
     // around its center.
     let mut deduped = main_result.clone();
     deduped.pop();
-    deduped.sort_by_key(|pt| HashablePt2D::from(*pt));
+    deduped.sort_by_key(|pt| pt.to_hashable());
     deduped = Pt2D::approx_dedupe(deduped, Distance::meters(0.1));
     let center = Pt2D::center(&deduped);
     deduped.sort_by_key(|pt| pt.angle_to(center).normalized_degrees() as i64);

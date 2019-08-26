@@ -130,10 +130,10 @@ impl Polygon {
 
     pub fn center(&self) -> Pt2D {
         // TODO dedupe just out of fear of the first/last point being repeated
-        let mut pts: Vec<HashablePt2D> = self.points.iter().map(|pt| (*pt).into()).collect();
+        let mut pts: Vec<HashablePt2D> = self.points.iter().map(|pt| pt.to_hashable()).collect();
         pts.sort();
         pts.dedup();
-        Pt2D::center(&pts.iter().map(|pt| Pt2D::from(*pt)).collect())
+        Pt2D::center(&pts.iter().map(|pt| pt.to_pt2d()).collect())
     }
 
     pub fn rectangle(center: Pt2D, width: Distance, height: Distance) -> Polygon {

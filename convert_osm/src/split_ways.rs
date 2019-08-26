@@ -68,7 +68,7 @@ pub fn split_up_roads(
 
     // All of the roundabout points will just keep moving the intersection
     for (pt, id) in &pt_to_intersection {
-        let point: Pt2D = (*pt).into();
+        let point = pt.to_pt2d();
         map.intersections.insert(
             *id,
             raw_data::Intersection {
