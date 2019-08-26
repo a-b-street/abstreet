@@ -92,10 +92,10 @@ pub fn clip_map(map: &mut raw_data::Map, boundary_poly_pts: Vec<LonLat>, timer: 
     }
 
     map.buildings.retain(|b| {
-        gps_bounds
-            .forcibly_convert(&b.points)
-            .into_iter()
-            .all(|pt| boundary_poly.contains_pt(pt))
+        b.polygon
+            .points()
+            .iter()
+            .all(|pt| boundary_poly.contains_pt(*pt))
     });
 
     let mut result_areas = Vec::new();

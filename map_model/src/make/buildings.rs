@@ -1,27 +1,23 @@
 use crate::make::sidewalk_finder::find_sidewalk_points;
 use crate::{raw_data, Building, BuildingID, FrontPath, Lane};
 use abstutil::Timer;
-use geom::{Bounds, Distance, GPSBounds, HashablePt2D, Line, Polygon, Pt2D};
+use geom::{Bounds, Distance, HashablePt2D, Line, Polygon};
 use std::collections::HashSet;
 
 pub fn make_all_buildings(
     results: &mut Vec<Building>,
     input: &Vec<raw_data::Building>,
-    gps_bounds: &GPSBounds,
     bounds: &Bounds,
     lanes: &Vec<Lane>,
     timer: &mut Timer,
 ) {
     timer.start("convert buildings");
-    let mut pts_per_bldg: Vec<Vec<Pt2D>> = Vec::new();
     let mut center_per_bldg: Vec<HashablePt2D> = Vec::new();
     let mut query: HashSet<HashablePt2D> = HashSet::new();
     timer.start_iter("get building center points", input.len());
     for b in input {
         timer.next();
-        let pts = Pt2D::approx_dedupe(gps_bounds.must_convert(&b.points), geom::EPSILON_DIST);
-        let center: HashablePt2D = Pt2D::center(&pts).into();
-        pts_per_bldg.push(pts);
+        let center: HashablePt2D = b.polygon.center().into();
         center_per_bldg.push(center);
         query.insert(center);
     }
@@ -29,10 +25,9 @@ pub fn make_all_buildings(
     // Skip buildings that're too far away from their sidewalk
     let sidewalk_pts = find_sidewalk_points(bounds, query, lanes, Distance::meters(100.0), timer);
 
-    timer.start_iter("create building front paths", pts_per_bldg.len());
-    for (idx, points) in pts_per_bldg.into_iter().enumerate() {
+    timer.start_iter("create building front paths", center_per_bldg.len());
+    for (idx, bldg_center) in center_per_bldg.into_iter().enumerate() {
         timer.next();
-        let bldg_center = center_per_bldg[idx];
         if let Some(sidewalk_pos) = sidewalk_pts.get(&bldg_center) {
             let sidewalk_pt = lanes[sidewalk_pos.lane().0]
                 .dist_along(sidewalk_pos.dist_along())
@@ -41,12 +36,13 @@ pub fn make_all_buildings(
                 timer.warn("Skipping a building because front path has 0 length".to_string());
                 continue;
             }
-            let line = trim_front_path(&points, Line::new(bldg_center.into(), sidewalk_pt));
+            let polygon = &input[idx].polygon;
+            let line = trim_front_path(polygon, Line::new(bldg_center.into(), sidewalk_pt));
 
             let id = BuildingID(results.len());
             results.push(Building {
                 id,
-                polygon: Polygon::new(&points),
+                polygon: polygon.clone(),
                 osm_tags: input[idx].osm_tags.clone(),
                 osm_way_id: input[idx].osm_way_id,
                 front_path: FrontPath {
@@ -54,7 +50,7 @@ pub fn make_all_buildings(
                     line,
                 },
                 parking: input[idx].parking.clone(),
-                label_center: Polygon::polylabel(&points),
+                label_center: polygon.polylabel(),
             });
         }
     }
@@ -70,8 +66,8 @@ pub fn make_all_buildings(
 }
 
 // Adjust the path to start on the building's border, not center
-fn trim_front_path(bldg_points: &Vec<Pt2D>, path: Line) -> Line {
-    for bldg_line in bldg_points.windows(2) {
+fn trim_front_path(poly: &Polygon, path: Line) -> Line {
+    for bldg_line in poly.points().windows(2) {
         let l = Line::new(bldg_line[0], bldg_line[1]);
         if let Some(hit) = l.intersection(&path) {
             if let Some(l) = Line::maybe_new(hit, path.pt2()) {

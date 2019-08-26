@@ -181,8 +181,8 @@ impl Polygon {
             .collect()
     }
 
-    pub fn polylabel(pts: &Vec<Pt2D>) -> Pt2D {
-        let pt = polylabel::polylabel(&to_geo(pts), &1.0);
+    pub fn polylabel(&self) -> Pt2D {
+        let pt = polylabel::polylabel(&to_geo(&self.points()), &1.0);
         Pt2D::new(pt.x(), pt.y())
     }
 }

@@ -359,8 +359,7 @@ impl Model {
                 osm_tags.insert("label".to_string(), label.to_string());
             }
             map.buildings.push(raw_data::Building {
-                // TODO Duplicate points :(
-                points: b.polygon().points().iter().map(|p| pt(*p)).collect(),
+                polygon: b.polygon(),
                 osm_tags,
                 osm_way_id: idx as i64,
                 parking: None,

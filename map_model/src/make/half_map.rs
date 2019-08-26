@@ -3,7 +3,7 @@ use crate::{
     LaneID, Road, RoadID, Turn, TurnID, LANE_THICKNESS,
 };
 use abstutil::Timer;
-use geom::{Bounds, GPSBounds, Polygon};
+use geom::{Bounds, Polygon};
 use std::collections::BTreeMap;
 
 pub struct HalfMap {
@@ -20,7 +20,6 @@ pub struct HalfMap {
 pub fn make_half_map(
     data: &raw_data::Map,
     initial_map: make::InitialMap,
-    gps_bounds: &GPSBounds,
     bounds: &Bounds,
     timer: &mut Timer,
 ) -> HalfMap {
@@ -189,7 +188,6 @@ pub fn make_half_map(
     make::make_all_buildings(
         &mut half_map.buildings,
         &data.buildings,
-        &gps_bounds,
         &bounds,
         &half_map.lanes,
         timer,

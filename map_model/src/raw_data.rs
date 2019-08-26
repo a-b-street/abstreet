@@ -135,10 +135,9 @@ impl Intersection {
     }
 }
 
-#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Building {
-    // last point never the first?
-    pub points: Vec<LonLat>,
+    pub polygon: Polygon,
     pub osm_tags: BTreeMap<String, String>,
     pub osm_way_id: i64,
     pub parking: Option<OffstreetParking>,

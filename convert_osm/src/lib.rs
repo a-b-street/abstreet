@@ -5,7 +5,7 @@ mod remove_disconnected;
 mod split_ways;
 
 use abstutil::Timer;
-use geom::{Distance, FindClosest, GPSBounds, LonLat, PolyLine, Polygon, Pt2D};
+use geom::{Distance, FindClosest, GPSBounds, LonLat, PolyLine, Pt2D};
 use kml::ExtraShapes;
 use map_model::{raw_data, OffstreetParking, LANE_THICKNESS};
 use std::fs::File;
@@ -172,10 +172,7 @@ fn use_offstreet_parking(map: &mut raw_data::Map, path: &str, timer: &mut Timer)
     // Building indices
     let mut closest: FindClosest<usize> = FindClosest::new(&map.gps_bounds.to_bounds());
     for (idx, b) in map.buildings.iter().enumerate() {
-        let mut pts = map.gps_bounds.forcibly_convert(&b.points);
-        // Close off the polygon
-        pts.push(pts[0]);
-        closest.add(idx, &pts);
+        closest.add(idx, b.polygon.points());
     }
 
     // TODO Another function just to use ?. Try blocks would rock.
@@ -183,10 +180,8 @@ fn use_offstreet_parking(map: &mut raw_data::Map, path: &str, timer: &mut Timer)
         assert_eq!(s.points.len(), 1);
         let pt = Pt2D::from_gps(s.points[0], &map.gps_bounds)?;
         let (idx, _) = closest.closest_pt(pt, Distance::meters(50.0))?;
-        // TODO If we ditched LonLat up-front, things like this would be much easier.
-        let poly = Polygon::new(&map.gps_bounds.forcibly_convert(&map.buildings[idx].points));
         // TODO Handle parking lots.
-        if !poly.contains_pt(pt) {
+        if !map.buildings[idx].polygon.contains_pt(pt) {
             return None;
         }
         let name = s.attributes.get("DEA_FACILITY_NAME")?.to_string();

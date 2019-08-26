@@ -94,7 +94,7 @@ impl Map {
         timer.stop("raw_map to InitialMap");
 
         timer.start("InitialMap to HalfMap");
-        let half_map = make::make_half_map(&data, initial_map, &gps_bounds, &bounds, timer);
+        let half_map = make::make_half_map(&data, initial_map, &bounds, timer);
         timer.stop("InitialMap to HalfMap");
 
         timer.start("finalize Map");

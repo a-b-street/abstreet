@@ -1,5 +1,5 @@
 use abstutil::{FileWithProgress, Timer};
-use geom::{GPSBounds, HashablePt2D, LonLat, Polygon};
+use geom::{GPSBounds, HashablePt2D, LonLat, Polygon, Pt2D};
 use map_model::{raw_data, AreaType};
 use osm_xml;
 use std::collections::{BTreeMap, HashMap, HashSet};
@@ -78,7 +78,10 @@ pub fn osm_to_raw_roads(
         } else if is_bldg(&tags) {
             buildings.push(raw_data::Building {
                 osm_way_id: way.id,
-                points: pts,
+                polygon: Polygon::new(&Pt2D::approx_dedupe(
+                    gps_bounds.forcibly_convert(&pts),
+                    geom::EPSILON_DIST,
+                )),
                 osm_tags: tags,
                 parking: None,
             });
