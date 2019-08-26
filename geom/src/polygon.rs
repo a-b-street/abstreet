@@ -1,4 +1,4 @@
-use crate::{Bounds, Distance, HashablePt2D, LonLat, Pt2D};
+use crate::{Bounds, Distance, HashablePt2D, Pt2D};
 use geo_booleanop::boolean::BooleanOp;
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
@@ -163,18 +163,20 @@ impl Polygon {
         Polygon::precomputed(points, indices)
     }
 
-    // Weird to operate on Vec<LonLat>, but this is the one use case right now...
-    pub fn gps_intersection(p1: &Vec<LonLat>, p2: &Vec<LonLat>) -> Vec<Vec<LonLat>> {
-        let multi = gps_to_geo(p1).intersection(&gps_to_geo(p2));
+    pub fn intersection(&self, other: &Polygon) -> Vec<Polygon> {
+        let multi = to_geo(self.points()).intersection(&to_geo(other.points()));
         multi
             .into_iter()
             .map(|poly| {
-                poly.into_inner()
-                    .0
-                    .into_points()
-                    .into_iter()
-                    .map(|pt| LonLat::new(pt.x(), pt.y()))
-                    .collect()
+                Polygon::new(
+                    &poly
+                        .into_inner()
+                        .0
+                        .into_points()
+                        .into_iter()
+                        .map(|pt| Pt2D::new(pt.x(), pt.y()))
+                        .collect(),
+                )
             })
             .collect()
     }
@@ -263,17 +265,6 @@ fn is_clockwise_polygon(pts: &Vec<Pt2D>) -> bool {
         sum += (pts[i + 1].x() - pts[i].x()) * (pts[i + 1].y() + pts[i].y());
     }
     sum > 0.0
-}
-
-fn gps_to_geo(pts: &Vec<LonLat>) -> geo::Polygon<f64> {
-    geo::Polygon::new(
-        geo::LineString::from(
-            pts.iter()
-                .map(|pt| geo::Point::new(pt.longitude, pt.latitude))
-                .collect::<Vec<_>>(),
-        ),
-        Vec::new(),
-    )
 }
 
 fn to_geo(pts: &Vec<Pt2D>) -> geo::Polygon<f64> {

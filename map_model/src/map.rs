@@ -107,7 +107,7 @@ impl Map {
             bus_stops: BTreeMap::new(),
             bus_routes: Vec::new(),
             areas: half_map.areas,
-            boundary_polygon: Polygon::new(&gps_bounds.must_convert(&data.boundary_polygon)),
+            boundary_polygon: data.boundary_polygon.clone(),
             stop_signs: BTreeMap::new(),
             traffic_signals: BTreeMap::new(),
             gps_bounds,

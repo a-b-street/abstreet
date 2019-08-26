@@ -58,10 +58,12 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
         gps_bounds.update(*pt);
     }
 
-    let mut map =
-        split_ways::split_up_roads(osm::osm_to_raw_roads(&flags.osm, timer), gps_bounds, timer);
-    map.boundary_polygon = boundary_polygon_pts;
-    clip::clip_map(&mut map, timer);
+    let mut map = split_ways::split_up_roads(
+        osm::osm_to_raw_roads(&flags.osm, &gps_bounds, timer),
+        gps_bounds,
+        timer,
+    );
+    clip::clip_map(&mut map, boundary_polygon_pts, timer);
     remove_disconnected::remove_disconnected_roads(&mut map, timer);
 
     if flags.fast_dev {

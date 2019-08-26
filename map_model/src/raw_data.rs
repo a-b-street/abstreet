@@ -1,7 +1,7 @@
 use crate::make::get_lane_types;
 pub use crate::make::{Hint, Hints, InitialMap};
 use crate::{AreaType, IntersectionType, OffstreetParking, RoadSpec};
-use geom::{GPSBounds, LonLat};
+use geom::{Distance, GPSBounds, LonLat, Polygon, Pt2D};
 use gtfs::Route;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -24,7 +24,7 @@ impl fmt::Display for StableIntersectionID {
     }
 }
 
-#[derive(PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Map {
     pub roads: BTreeMap<StableRoadID, Road>,
     pub intersections: BTreeMap<StableIntersectionID, Intersection>,
@@ -34,7 +34,7 @@ pub struct Map {
     // from OSM way => [(restriction, to OSM way)]
     pub turn_restrictions: BTreeMap<i64, Vec<(String, i64)>>,
 
-    pub boundary_polygon: Vec<LonLat>,
+    pub boundary_polygon: Polygon,
     pub gps_bounds: GPSBounds,
     pub coordinates_in_world_space: bool,
 }
@@ -48,7 +48,12 @@ impl Map {
             bus_routes: Vec::new(),
             areas: Vec::new(),
             turn_restrictions: BTreeMap::new(),
-            boundary_polygon: Vec::new(),
+            // Some nonsense thing
+            boundary_polygon: Polygon::rectangle(
+                Pt2D::new(50.0, 50.0),
+                Distance::meters(1.0),
+                Distance::meters(1.0),
+            ),
             gps_bounds: GPSBounds::new(),
             coordinates_in_world_space: false,
         }
@@ -139,11 +144,10 @@ pub struct Building {
     pub parking: Option<OffstreetParking>,
 }
 
-#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Area {
     pub area_type: AreaType,
-    // last point is always the same as the first
-    pub points: Vec<LonLat>,
+    pub polygon: Polygon,
     pub osm_tags: BTreeMap<String, String>,
     pub osm_id: i64,
 }

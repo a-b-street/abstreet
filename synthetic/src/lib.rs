@@ -369,9 +369,9 @@ impl Model {
 
         // TODO Argh need to do this manually now
         //map.compute_gps_bounds();
-        map.boundary_polygon = map.gps_bounds.get_corners();
+        //map.boundary_polygon = map.gps_bounds.get_corners();
         // Close off the polygon
-        map.boundary_polygon.push(map.boundary_polygon[0]);
+        //map.boundary_polygon.push(map.boundary_polygon[0]);
 
         let path = abstutil::path_raw_map(self.name.as_ref().expect("Model hasn't been named yet"));
         abstutil::write_binary(&path, &map).expect(&format!("Saving {} failed", path));

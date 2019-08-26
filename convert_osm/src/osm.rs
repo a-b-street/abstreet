@@ -1,11 +1,12 @@
 use abstutil::{FileWithProgress, Timer};
-use geom::{HashablePt2D, LonLat};
+use geom::{GPSBounds, HashablePt2D, LonLat, Polygon};
 use map_model::{raw_data, AreaType};
 use osm_xml;
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 pub fn osm_to_raw_roads(
     osm_path: &str,
+    gps_bounds: &GPSBounds,
     timer: &mut Timer,
 ) -> (
     Vec<raw_data::Road>,
@@ -85,7 +86,7 @@ pub fn osm_to_raw_roads(
             areas.push(raw_data::Area {
                 area_type: at,
                 osm_id: way.id,
-                points: pts,
+                polygon: Polygon::new(&gps_bounds.forcibly_convert(&pts)),
                 osm_tags: tags,
             });
         } else {
@@ -132,7 +133,7 @@ pub fn osm_to_raw_roads(
                             areas.push(raw_data::Area {
                                 area_type: at,
                                 osm_id: rel.id,
-                                points,
+                                polygon: Polygon::new(&gps_bounds.forcibly_convert(&points)),
                                 osm_tags: tags.clone(),
                             });
                         }

@@ -1,11 +1,12 @@
 use abstutil::{retain_btreemap, Timer};
-use geom::{PolyLine, Polygon};
+use geom::{LonLat, PolyLine, Polygon};
 use map_model::{raw_data, IntersectionType};
 
-pub fn clip_map(map: &mut raw_data::Map, timer: &mut Timer) {
+pub fn clip_map(map: &mut raw_data::Map, boundary_poly_pts: Vec<LonLat>, timer: &mut Timer) {
     timer.start("clipping map to boundary");
 
-    let boundary_poly = Polygon::new(&map.gps_bounds.must_convert(&map.boundary_polygon));
+    let boundary_poly = Polygon::new(&map.gps_bounds.must_convert(&boundary_poly_pts));
+    map.boundary_polygon = boundary_poly.clone();
     let boundary_lines: Vec<PolyLine> = boundary_poly
         .points()
         .windows(2)
@@ -99,10 +100,9 @@ pub fn clip_map(map: &mut raw_data::Map, timer: &mut Timer) {
 
     let mut result_areas = Vec::new();
     for orig_area in map.areas.drain(..) {
-        for pts in Polygon::gps_intersection(&map.boundary_polygon, &orig_area.points) {
+        for polygon in map.boundary_polygon.intersection(&orig_area.polygon) {
             let mut area = orig_area.clone();
-            area.points = pts;
-            assert_eq!(area.points[0], *area.points.last().unwrap());
+            area.polygon = polygon;
             result_areas.push(area);
         }
     }
