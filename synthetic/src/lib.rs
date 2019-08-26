@@ -372,11 +372,38 @@ impl Model {
             });
         }
 
-        // TODO Argh need to do this manually now
-        //map.compute_gps_bounds();
-        //map.boundary_polygon = map.gps_bounds.get_corners();
-        // Close off the polygon
-        //map.boundary_polygon.push(map.boundary_polygon[0]);
+        // Leave gps_bounds alone. We'll get nonsense answers when converting back to it, which is
+        // fine.
+
+        let mut max_x = 0.0;
+        let mut max_y = 0.0;
+        for b in &map.buildings {
+            for pt in b.polygon.points() {
+                if pt.x() > max_x {
+                    max_x = pt.x();
+                }
+                if pt.y() > max_y {
+                    max_y = pt.y();
+                }
+            }
+        }
+        for r in map.roads.values() {
+            for pt in &r.center_points {
+                if pt.x() > max_x {
+                    max_x = pt.x();
+                }
+                if pt.y() > max_y {
+                    max_y = pt.y();
+                }
+            }
+        }
+        map.boundary_polygon = Polygon::new(&vec![
+            Pt2D::new(0.0, 0.0),
+            Pt2D::new(max_x, 0.0),
+            Pt2D::new(max_x, max_y),
+            Pt2D::new(0.0, max_y),
+            Pt2D::new(0.0, 0.0),
+        ]);
 
         let path = abstutil::path_raw_map(self.name.as_ref().expect("Model hasn't been named yet"));
         abstutil::write_binary(&path, &map).expect(&format!("Saving {} failed", path));

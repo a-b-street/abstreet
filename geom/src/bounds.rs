@@ -86,14 +86,6 @@ impl GPSBounds {
         }
     }
 
-    pub fn from(pts: &Vec<LonLat>) -> GPSBounds {
-        let mut b = GPSBounds::new();
-        for pt in pts {
-            b.update(*pt);
-        }
-        b
-    }
-
     pub fn update(&mut self, pt: LonLat) {
         self.min_lon = self.min_lon.min(pt.longitude);
         self.max_lon = self.max_lon.max(pt.longitude);
@@ -106,28 +98,6 @@ impl GPSBounds {
             && pt.longitude <= self.max_lon
             && pt.latitude >= self.min_lat
             && pt.latitude <= self.max_lat
-    }
-
-    pub fn as_bbox(&self) -> Rect {
-        Rect {
-            top_left: Point {
-                x: self.min_lon as f32,
-                y: self.min_lat as f32,
-            },
-            bottom_right: Point {
-                x: self.max_lon as f32,
-                y: self.max_lat as f32,
-            },
-        }
-    }
-
-    pub fn get_corners(&self) -> Vec<LonLat> {
-        vec![
-            LonLat::new(self.min_lon, self.min_lat),
-            LonLat::new(self.max_lon, self.min_lat),
-            LonLat::new(self.max_lon, self.max_lat),
-            LonLat::new(self.min_lon, self.max_lat),
-        ]
     }
 
     // TODO cache this
