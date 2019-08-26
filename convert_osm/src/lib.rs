@@ -186,7 +186,14 @@ fn use_offstreet_parking(map: &mut raw_data::Map, path: &str, timer: &mut Timer)
         }
         let name = s.attributes.get("DEA_FACILITY_NAME")?.to_string();
         let num_stalls = s.attributes.get("DEA_STALLS")?.parse::<usize>().ok()?;
-        assert_eq!(map.buildings[idx].parking, None);
+        // TODO Update the existing one instead
+        if let Some(ref existing) = map.buildings[idx].parking {
+            // TODO Can't use timer inside this closure
+            println!(
+                "Two offstreet parking hints apply to building {}: {} @ {}, and {} @ {}",
+                idx, existing.num_stalls, existing.name, num_stalls, name
+            );
+        }
         map.buildings[idx].parking = Some(OffstreetParking { name, num_stalls });
         None
     });
