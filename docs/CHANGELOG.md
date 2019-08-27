@@ -80,3 +80,17 @@ changes here.
 - dont attempt to cross a traffic signal if there's absolutely no hope
 - improve bus route UI tools and make routes using transit more sane
 - user-defined shortcuts for jumping between views of a map
+
+0.1.9
+
+- sliders to pick times in wizards
+- fix hidpi scaling
+- traffic signal diagram scrolls properly
+- easier to instantiate a scenario, show all trips involving a building for a scenario
+- colorschemes to show trip duration or time blocked
+- label buses with route number
+- represent overlapping pedestrians as a labeled crowd
+- massive performance boost via real priority queue
+- prevent cars from "blocking the box"
+- prevent all? aborted trips (due to parking blackholes mostly)
+- smarter roam-around-for-parking router
