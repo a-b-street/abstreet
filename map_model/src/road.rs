@@ -56,6 +56,9 @@ impl fmt::Display for DirectedRoadID {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Road {
     pub id: RoadID,
+    // I've previously tried storing these in a compressed lookup table (since the keys and values
+    // are often common), but the performance benefit was negligible, and the increased API
+    // complexity was annoying.
     pub osm_tags: BTreeMap<String, String>,
     // self is 'from'
     pub turn_restrictions: Vec<(String, RoadID)>,

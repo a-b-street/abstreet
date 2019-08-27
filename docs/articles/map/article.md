@@ -317,7 +317,7 @@ responds. The possible edits include:
 
 The map conversion process outlined above takes a few minutes, so reusing this
 process directly to compute a map with edits wouldn't work at all for real
-gameplay. Instead, he process for applying edits is incremental:
+gameplay. Instead, the process for applying edits is incremental:
 
 - Figure out the actual diff between edits and the current map
   - This is necessary for correctness, but also speeds up a sequence of edits

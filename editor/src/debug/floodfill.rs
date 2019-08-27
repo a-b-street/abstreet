@@ -10,7 +10,6 @@ use std::collections::{HashMap, HashSet};
 pub struct Floodfiller {
     menu: ModalMenu,
     colorer: RoadColorer,
-    prompt: Text,
 }
 
 impl Floodfiller {
@@ -79,9 +78,9 @@ impl Floodfiller {
                 "Floodfiller",
                 vec![vec![(hotkey(Key::Escape), "quit")]],
                 ctx,
-            ),
+            )
+            .set_prompt(ctx, prompt),
             colorer: colorer.build(ctx, map),
-            prompt,
         }))
     }
 }
@@ -93,7 +92,7 @@ impl State for Floodfiller {
         }
         ctx.canvas.handle_event(ctx.input);
 
-        self.menu.handle_event(ctx, Some(self.prompt.clone()));
+        self.menu.handle_event(ctx, None);
         if self.menu.action("quit") {
             return Transition::Pop;
         }

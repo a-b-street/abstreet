@@ -60,6 +60,11 @@ impl ModalMenu {
         }
     }
 
+    pub fn set_prompt(mut self, ctx: &mut EventCtx, prompt: Text) -> ModalMenu {
+        self.menu.change_prompt(prompt, ctx.canvas);
+        self
+    }
+
     pub fn action(&mut self, name: &str) -> bool {
         if let Some(ref action) = self.chosen_action {
             if name == action {

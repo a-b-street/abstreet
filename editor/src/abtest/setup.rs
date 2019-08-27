@@ -52,6 +52,12 @@ fn pick_ab_test(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
         t
     };
 
+    let mut txt = Text::prompt("A/B Test Editor");
+    txt.add_line(ab_test.test_name.clone());
+    for line in ab_test.describe() {
+        txt.add_line(line);
+    }
+
     Some(Transition::Replace(Box::new(ABTestSetup {
         menu: ModalMenu::new(
             "A/B Test Editor",
@@ -61,7 +67,8 @@ fn pick_ab_test(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
                 (hotkey(Key::L), "load savestate"),
             ]],
             ctx,
-        ),
+        )
+        .set_prompt(ctx, txt),
         ab_test,
     })))
 }
@@ -73,14 +80,7 @@ struct ABTestSetup {
 
 impl State for ABTestSetup {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        {
-            let mut txt = Text::prompt("A/B Test Editor");
-            txt.add_line(self.ab_test.test_name.clone());
-            for line in self.ab_test.describe() {
-                txt.add_line(line);
-            }
-            self.menu.handle_event(ctx, Some(txt));
-        }
+        self.menu.handle_event(ctx, None);
         ctx.canvas.handle_event(ctx.input);
 
         if self.menu.action("quit") {
