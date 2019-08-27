@@ -2,7 +2,7 @@ use abstutil::Timer;
 use ezgui::{
     hotkey, Color, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, WarpingItemSlider, GUI,
 };
-use geom::{Circle, Distance, PolyLine, Polygon, Pt2D};
+use geom::{Circle, Distance, PolyLine, Polygon};
 use map_model::raw_data::{Hint, Hints, InitialMap, Map, StableIntersectionID, StableRoadID};
 use map_model::LANE_THICKNESS;
 use std::collections::HashSet;
@@ -189,17 +189,16 @@ impl GUI for UI {
                                 .hints
                                 .iter()
                                 .filter_map(|h| {
-                                    let gps_pt = match h {
+                                    let pt = match h {
                                         Hint::MergeRoad(r)
                                         | Hint::DeleteRoad(r)
                                         | Hint::BanTurnsBetween(r, _) => {
-                                            self.raw.roads[&self.raw.find_r(*r)?].points[0]
+                                            self.raw.roads[&self.raw.find_r(*r)?].center_points[0]
                                         }
                                         Hint::MergeDegenerateIntersection(i) => {
                                             self.raw.intersections[&self.raw.find_i(*i)?].point
                                         }
                                     };
-                                    let pt = Pt2D::from_gps(gps_pt, &self.raw.gps_bounds)?;
                                     Some((pt, h.clone(), Text::from_line(describe(h))))
                                 })
                                 .collect(),
@@ -240,14 +239,14 @@ impl GUI for UI {
                     if ctx.input.key_pressed(Key::M, "merge") {
                         self.hints
                             .hints
-                            .push(Hint::MergeRoad(self.raw.roads[&r].orig_id()));
+                            .push(Hint::MergeRoad(self.raw.roads[&r].orig_id));
                         self.data.merge_road(*r, &mut Timer::new("merge road"));
                         self.world = initial_map_to_world(&self.data, ctx);
                         *selected = None;
                     } else if ctx.input.key_pressed(Key::D, "delete") {
                         self.hints
                             .hints
-                            .push(Hint::DeleteRoad(self.raw.roads[r].orig_id()));
+                            .push(Hint::DeleteRoad(self.raw.roads[r].orig_id));
                         self.data.delete_road(*r, &mut Timer::new("delete road"));
                         self.world = initial_map_to_world(&self.data, ctx);
                         *selected = None;
@@ -255,7 +254,7 @@ impl GUI for UI {
                         let has_parking = !self.data.roads[&r].has_parking();
                         self.hints
                             .parking_overrides
-                            .insert(self.raw.roads[r].orig_id(), has_parking);
+                            .insert(self.raw.roads[r].orig_id, has_parking);
                         self.data.override_parking(
                             *r,
                             has_parking,
@@ -279,7 +278,7 @@ impl GUI for UI {
                         && ctx.input.key_pressed(Key::M, "merge")
                     {
                         self.hints.hints.push(Hint::MergeDegenerateIntersection(
-                            self.raw.intersections[i].orig_id(),
+                            self.raw.intersections[i].orig_id,
                         ));
                         self.data.merge_degenerate_intersection(
                             *i,
@@ -327,8 +326,8 @@ impl GUI for UI {
                         && ctx.input.key_pressed(Key::T, "ban turns to this road")
                     {
                         self.hints.hints.push(Hint::BanTurnsBetween(
-                            self.raw.roads[&from].orig_id(),
-                            self.raw.roads[r].orig_id(),
+                            self.raw.roads[&from].orig_id,
+                            self.raw.roads[r].orig_id,
                         ));
                         // There's nothing to change about our model here.
                         self.state = State::main(ctx);
@@ -362,25 +361,22 @@ impl GUI for UI {
                 g.draw_blocking_text(osd, ezgui::BOTTOM_LEFT);
             }
             State::BrowsingHints(ref slider) => {
-                let poly =
-                    match slider.get().1 {
-                        Hint::MergeRoad(r) | Hint::DeleteRoad(r) | Hint::BanTurnsBetween(r, _) => {
-                            PolyLine::new(self.raw.gps_bounds.must_convert(
-                                &self.raw.roads[&self.raw.find_r(*r).unwrap()].points,
-                            ))
-                            // Just make up a width
-                            .make_polygons(4.0 * LANE_THICKNESS)
-                        }
-                        Hint::MergeDegenerateIntersection(i) => Circle::new(
-                            Pt2D::from_gps(
-                                self.raw.intersections[&self.raw.find_i(*i).unwrap()].point,
-                                &self.raw.gps_bounds,
-                            )
-                            .unwrap(),
-                            Distance::meters(10.0),
+                let poly = match slider.get().1 {
+                    Hint::MergeRoad(r) | Hint::DeleteRoad(r) | Hint::BanTurnsBetween(r, _) => {
+                        PolyLine::new(
+                            self.raw.roads[&self.raw.find_r(*r).unwrap()]
+                                .center_points
+                                .clone(),
                         )
-                        .to_polygon(),
-                    };
+                        // Just make up a width
+                        .make_polygons(4.0 * LANE_THICKNESS)
+                    }
+                    Hint::MergeDegenerateIntersection(i) => Circle::new(
+                        self.raw.intersections[&self.raw.find_i(*i).unwrap()].point,
+                        Distance::meters(10.0),
+                    )
+                    .to_polygon(),
+                };
                 g.draw_polygon(Color::PURPLE.alpha(0.7), &poly);
 
                 slider.draw(g);

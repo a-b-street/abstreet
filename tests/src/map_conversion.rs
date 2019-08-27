@@ -19,7 +19,7 @@ pub fn run(t: &mut TestRunner) {
         let map1 = convert_osm::convert(&flags, &mut abstutil::Timer::throwaway());
         let map2 = convert_osm::convert(&flags, &mut abstutil::Timer::throwaway());
 
-        if map1 != map2 {
+        if abstutil::to_json(&map1) != abstutil::to_json(&map2) {
             // TODO tmp files
             abstutil::write_json("map1.json", &map1).unwrap();
             abstutil::write_json("map2.json", &map2).unwrap();
