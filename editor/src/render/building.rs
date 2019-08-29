@@ -1,7 +1,7 @@
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, GeomBatch, GfxCtx, Text};
-use geom::{Distance, Line, PolyLine, Polygon, Pt2D};
+use geom::{Circle, Distance, Line, PolyLine, Polygon, Pt2D};
 use map_model::{Building, BuildingID, Map, LANE_THICKNESS};
 
 pub struct DrawBuilding {
@@ -36,6 +36,42 @@ impl DrawBuilding {
             txt.add_styled_line(num.to_string(), Some(Color::BLACK), None, Some(50));
             txt
         });
+
+        if bldg.parking.is_some() {
+            let center = bldg.label_center;
+            batch.push(
+                cs.get_def("parking icon background", Color::BLACK),
+                Circle::new(center, Distance::meters(5.0)).to_polygon(),
+            );
+            // Draw a 'P'
+            // TODO The result here looks pretty bad and is quite tedious to define. Figure out a
+            // reasonable way to import SVG sprites. Still need to programatically fill up the
+            // circle with color, though.
+            batch.push(
+                cs.get_def("parking icon foreground", Color::WHITE),
+                Polygon::rectangle(
+                    center.offset(Distance::meters(-1.0), Distance::ZERO),
+                    Distance::meters(1.5),
+                    Distance::meters(4.5),
+                ),
+            );
+            batch.push(
+                cs.get("parking icon foreground"),
+                Circle::new(
+                    center.offset(Distance::meters(0.5), Distance::meters(-0.5)),
+                    Distance::meters(1.5),
+                )
+                .to_polygon(),
+            );
+            batch.push(
+                cs.get("parking icon background"),
+                Circle::new(
+                    center.offset(Distance::meters(0.5), Distance::meters(-0.5)),
+                    Distance::meters(0.5),
+                )
+                .to_polygon(),
+            );
+        }
 
         DrawBuilding {
             id: bldg.id,
