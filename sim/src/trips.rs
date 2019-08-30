@@ -139,7 +139,7 @@ impl TripManager {
         let parked_car = parking.get_car_at_spot(spot).unwrap();
         assert_eq!(parked_car.vehicle.id, car);
 
-        let start = parked_car.get_driving_pos(parking, map);
+        let start = parking.spot_to_driving_pos(parked_car.spot, &parked_car.vehicle, map);
         let end = drive_to.goal_pos(map);
         let path = if let Some(p) = map.pathfind(PathRequest {
             start,
@@ -162,7 +162,7 @@ impl TripManager {
         scheduler.push(
             now,
             Command::SpawnCar(
-                CreateCar::for_parked_car(parked_car, router, trip.id, parking, map),
+                CreateCar::for_parked_car(parked_car.clone(), router, trip.id, parking, map),
                 true,
             ),
         );

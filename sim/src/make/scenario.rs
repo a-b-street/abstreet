@@ -722,14 +722,12 @@ fn seed_parked_cars(
     for id in neighborhoods_roads {
         let r = map.get_r(*id);
         let mut spots: Vec<ParkingSpot> = Vec::new();
-        for (lane, lane_type) in r
+        for (lane, _) in r
             .children_forwards
             .iter()
             .chain(r.children_backwards.iter())
         {
-            if *lane_type == LaneType::Parking {
-                spots.extend(sim.get_free_spots(*lane));
-            }
+            spots.extend(sim.get_free_spots(*lane));
         }
         total_spots += spots.len();
         spots.shuffle(&mut fork_rng(base_rng));

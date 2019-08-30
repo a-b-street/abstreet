@@ -143,14 +143,20 @@ impl VehicleSpec {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
-pub struct ParkingSpot {
-    pub lane: LaneID,
-    pub idx: usize,
+pub enum ParkingSpot {
+    // Lane and idx
+    Onstreet(LaneID, usize),
+    // Building and idx (pretty meaningless)
+    Offstreet(BuildingID, usize),
 }
 
 impl ParkingSpot {
-    pub fn new(lane: LaneID, idx: usize) -> ParkingSpot {
-        ParkingSpot { lane, idx }
+    pub fn onstreet(lane: LaneID, idx: usize) -> ParkingSpot {
+        ParkingSpot::Onstreet(lane, idx)
+    }
+
+    pub fn offstreet(bldg: BuildingID, idx: usize) -> ParkingSpot {
+        ParkingSpot::Offstreet(bldg, idx)
     }
 }
 
@@ -158,12 +164,6 @@ impl ParkingSpot {
 pub struct ParkedCar {
     pub vehicle: Vehicle,
     pub spot: ParkingSpot,
-}
-
-impl ParkedCar {
-    pub fn get_driving_pos(&self, parking: &ParkingSimState, map: &Map) -> Position {
-        parking.spot_to_driving_pos(self.spot, &self.vehicle, map)
-    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -228,13 +228,9 @@ impl SidewalkSpot {
         map: &Map,
         parking_sim: &ParkingSimState,
     ) -> SidewalkSpot {
-        // TODO Consider precomputing this.
-        let sidewalk = map
-            .find_closest_lane(spot.lane, vec![LaneType::Sidewalk])
-            .unwrap();
         SidewalkSpot {
             connection: SidewalkPOI::ParkingSpot(spot),
-            sidewalk_pos: parking_sim.spot_to_sidewalk_pos(spot, sidewalk, map),
+            sidewalk_pos: parking_sim.spot_to_sidewalk_pos(spot, map),
         }
     }
 
@@ -331,6 +327,7 @@ impl SidewalkSpot {
 // Point of interest, that is
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum SidewalkPOI {
+    // Note that for offstreet parking, the path will be the same as the building's front path.
     ParkingSpot(ParkingSpot),
     Building(BuildingID),
     BusStop(BusStopID),
@@ -448,7 +445,9 @@ impl CreateCar {
         CreateCar {
             vehicle: parked_car.vehicle.clone(),
             router,
-            start_dist: parked_car.get_driving_pos(parking, map).dist_along(),
+            start_dist: parking
+                .spot_to_driving_pos(parked_car.spot, &parked_car.vehicle, map)
+                .dist_along(),
             maybe_parked_car: Some(parked_car),
             trip,
         }
