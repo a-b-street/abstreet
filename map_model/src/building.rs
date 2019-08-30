@@ -26,6 +26,8 @@ pub struct FrontPath {
 pub struct OffstreetParking {
     pub name: String,
     pub num_stalls: usize,
+    pub driveway_line: Line,
+    pub driving_pos: Position,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

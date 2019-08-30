@@ -1,7 +1,7 @@
 use crate::make::sidewalk_finder::find_sidewalk_points;
-use crate::{raw_data, Building, BuildingID, FrontPath, Lane};
+use crate::{raw_data, Building, BuildingID, FrontPath, Lane, LaneID, Position};
 use abstutil::Timer;
-use geom::{Bounds, Distance, HashablePt2D, Line, Polygon};
+use geom::{Bounds, Distance, FindClosest, HashablePt2D, Line, Polygon};
 use std::collections::HashSet;
 
 pub fn make_all_buildings(
@@ -17,9 +17,19 @@ pub fn make_all_buildings(
     timer.start_iter("get building center points", input.len());
     for b in input {
         timer.next();
+        // TODO Use the polylabel? Want to have visually distinct lines for front path and
+        // driveway; using two different "centers" is a lazy way for now.
         let center = b.polygon.center().to_hashable();
         center_per_bldg.push(center);
         query.insert(center);
+    }
+
+    let mut closest_driving: FindClosest<LaneID> = FindClosest::new(bounds);
+    for l in lanes {
+        // TODO And is the rightmost driving lane...
+        if l.is_driving() {
+            closest_driving.add(l.id, l.lane_center_pts.points());
+        }
     }
 
     // Skip buildings that're too far away from their sidewalk
@@ -37,10 +47,10 @@ pub fn make_all_buildings(
                 continue;
             }
             let polygon = &input[idx].polygon;
-            let line = trim_front_path(polygon, Line::new(bldg_center.to_pt2d(), sidewalk_pt));
+            let line = trim_path(polygon, Line::new(bldg_center.to_pt2d(), sidewalk_pt));
 
             let id = BuildingID(results.len());
-            results.push(Building {
+            let mut bldg = Building {
                 id,
                 polygon: polygon.clone(),
                 osm_tags: input[idx].osm_tags.clone(),
@@ -51,7 +61,23 @@ pub fn make_all_buildings(
                 },
                 parking: input[idx].parking.clone(),
                 label_center: polygon.polylabel(),
-            });
+            };
+
+            // Make a driveway from the parking icon to the nearest road.
+            if let Some(ref mut p) = bldg.parking {
+                // TODO Is it a problem if the driveway is too close to the start/end of a lane?
+                let (driving_lane, driving_pt) = closest_driving
+                    .closest_pt(bldg.label_center, Distance::meters(100.0))
+                    .expect("Can't find driveway!");
+                let dist_along = lanes[driving_lane.0]
+                    .dist_along_of_point(driving_pt)
+                    .expect("Can't find dist_along_of_point for driveway");
+                p.driveway_line =
+                    trim_path(&bldg.polygon, Line::new(bldg.label_center, driving_pt));
+                p.driving_pos = Position::new(driving_lane, dist_along);
+            }
+
+            results.push(bldg);
         }
     }
 
@@ -66,7 +92,7 @@ pub fn make_all_buildings(
 }
 
 // Adjust the path to start on the building's border, not center
-fn trim_front_path(poly: &Polygon, path: Line) -> Line {
+fn trim_path(poly: &Polygon, path: Line) -> Line {
     for bldg_line in poly.points().windows(2) {
         let l = Line::new(bldg_line[0], bldg_line[1]);
         if let Some(hit) = l.intersection(&path) {

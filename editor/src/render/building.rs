@@ -31,6 +31,14 @@ impl DrawBuilding {
         );
         batch.push(cs.get_def("building path", Color::grey(0.6)), front_path);
 
+        // TODO Do similar trim_back for driveway
+        if let Some(ref p) = bldg.parking {
+            batch.push(
+                cs.get_def("driveway", Color::grey(0.1)),
+                p.driveway_line.make_polygons(LANE_THICKNESS),
+            );
+        }
+
         let label = bldg.osm_tags.get("addr:housenumber").map(|num| {
             let mut txt = Text::with_bg_color(None);
             txt.add_styled_line(num.to_string(), Some(Color::BLACK), None, Some(50));

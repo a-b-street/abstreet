@@ -5,9 +5,9 @@ mod remove_disconnected;
 mod split_ways;
 
 use abstutil::Timer;
-use geom::{Distance, FindClosest, GPSBounds, LonLat, PolyLine, Polygon, Pt2D};
+use geom::{Distance, FindClosest, GPSBounds, Line, LonLat, PolyLine, Polygon, Pt2D};
 use kml::ExtraShapes;
-use map_model::{raw_data, OffstreetParking, LANE_THICKNESS};
+use map_model::{raw_data, LaneID, OffstreetParking, Position, LANE_THICKNESS};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use structopt::StructOpt;
@@ -195,7 +195,13 @@ fn use_offstreet_parking(map: &mut raw_data::Map, path: &str, timer: &mut Timer)
                 idx, existing.num_stalls, existing.name, num_stalls, name
             );
         }
-        map.buildings[idx].parking = Some(OffstreetParking { name, num_stalls });
+        map.buildings[idx].parking = Some(OffstreetParking {
+            name,
+            num_stalls,
+            // Temporary values, populate later
+            driveway_line: Line::new(Pt2D::new(0.0, 0.0), Pt2D::new(1.0, 1.0)),
+            driving_pos: Position::new(LaneID(0), Distance::ZERO),
+        });
         None
     });
 
