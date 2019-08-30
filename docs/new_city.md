@@ -30,7 +30,7 @@ cargo run --release -- ../data/raw_maps/your_city.bin
 ```
 
 You should now be able to load the map using the option from the main game menu,
-or by running `cd editor; cargo run --release ../data/maps/your_city.osm`.
+or by running `cd editor; cargo run --release ../data/maps/your_city.bin`.
 
 ## Future work
 
