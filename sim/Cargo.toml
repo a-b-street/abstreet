@@ -9,7 +9,6 @@ abstutil = { path = "../abstutil" }
 derivative = "1.0.0"
 geom = { path = "../geom" }
 map_model = { path = "../map_model" }
-more-asserts = "0.2.1"
 petgraph = "0.4.13"
 rand = "0.7.0"
 rand_xorshift = "0.2.0"
