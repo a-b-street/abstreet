@@ -79,7 +79,7 @@ impl ParkingSimState {
         let mut spots: Vec<ParkingSpot> = Vec::new();
         if let Some(lane) = self.onstreet_lanes.get(&l) {
             for spot in lane.spots() {
-                if !self.occupants.contains_key(&spot) {
+                if self.is_free(spot) {
                     spots.push(spot);
                 }
             }
@@ -87,7 +87,7 @@ impl ParkingSimState {
         for b in self.driving_to_offstreet.get(l) {
             for idx in 0..self.num_spots_per_offstreet[&b] {
                 let spot = ParkingSpot::offstreet(*b, idx);
-                if !self.occupants.contains_key(&spot) {
+                if self.is_free(spot) {
                     spots.push(spot);
                 }
             }
@@ -96,7 +96,7 @@ impl ParkingSimState {
     }
 
     pub fn reserve_spot(&mut self, spot: ParkingSpot) {
-        assert!(!self.occupants.contains_key(&spot));
+        assert!(self.is_free(spot));
         self.reserved_spots.insert(spot);
     }
 
@@ -179,17 +179,49 @@ impl ParkingSimState {
         vehicle: &Vehicle,
         map: &Map,
     ) -> Option<(ParkingSpot, Position)> {
-        let l = *self.driving_to_parking_lane.get(&driving_pos.lane())?;
-        let parking_dist = driving_pos.equiv_pos(l, map).dist_along();
-        let lane = &self.onstreet_lanes[&l];
-        // Bit hacky to enumerate here to conveniently get idx.
-        for (idx, spot) in lane.spots().into_iter().enumerate() {
-            if self.is_free(spot) && parking_dist <= lane.dist_along_for_car(idx, vehicle) {
-                // Could just directly construct the Position here...
-                return Some((spot, self.spot_to_driving_pos(spot, vehicle, map)));
+        let mut maybe_spot = None;
+        if let Some(l) = self.driving_to_parking_lane.get(&driving_pos.lane()) {
+            let parking_dist = driving_pos.equiv_pos(*l, map).dist_along();
+            let lane = &self.onstreet_lanes[l];
+            // Bit hacky to enumerate here to conveniently get idx.
+            for (idx, spot) in lane.spots().into_iter().enumerate() {
+                if self.is_free(spot) && parking_dist <= lane.dist_along_for_car(idx, vehicle) {
+                    maybe_spot = Some(spot);
+                    break;
+                }
             }
         }
-        None
+
+        for b in self.driving_to_offstreet.get(driving_pos.lane()) {
+            let bldg_dist = map
+                .get_b(*b)
+                .parking
+                .as_ref()
+                .unwrap()
+                .driving_pos
+                .dist_along();
+            if driving_pos.dist_along() > bldg_dist {
+                continue;
+            }
+            // Is this potential spot closer than the current best spot?
+            if maybe_spot
+                .map(|spot| bldg_dist > self.spot_to_driving_pos(spot, vehicle, map).dist_along())
+                .unwrap_or(false)
+            {
+                continue;
+            }
+
+            for idx in 0..self.num_spots_per_offstreet[&b] {
+                let spot = ParkingSpot::offstreet(*b, idx);
+                if self.is_free(spot) {
+                    maybe_spot = Some(spot);
+                    break;
+                }
+            }
+        }
+
+        let spot = maybe_spot?;
+        Some((spot, self.spot_to_driving_pos(spot, vehicle, map)))
     }
 
     pub fn spot_to_driving_pos(&self, spot: ParkingSpot, vehicle: &Vehicle, map: &Map) -> Position {
