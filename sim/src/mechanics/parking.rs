@@ -270,7 +270,7 @@ impl ParkingSimState {
 
     pub fn get_offstreet_parked_cars(&self, b: BuildingID) -> Vec<&ParkedCar> {
         let mut results = Vec::new();
-        for idx in 0..self.num_spots_per_offstreet[&b] {
+        for idx in 0..self.num_spots_per_offstreet.get(&b).cloned().unwrap_or(0) {
             if let Some(car) = self.occupants.get(&ParkingSpot::offstreet(b, idx)) {
                 results.push(&self.parked_cars[&car]);
             }

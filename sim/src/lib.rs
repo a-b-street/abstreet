@@ -472,6 +472,7 @@ impl TripPositions {
 // We have to do this in the crate where these types are defined. Bit annoying, since it's really
 // kind of an ezgui concept.
 impl Cloneable for ABTest {}
+impl Cloneable for CarID {}
 impl Cloneable for Scenario {}
 impl Cloneable for TripID {}
 impl Cloneable for TripMode {}

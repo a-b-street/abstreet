@@ -8,6 +8,7 @@ use crate::common::{
 use crate::debug::DebugMode;
 use crate::edit::EditMode;
 use crate::game::{State, Transition, WizardState};
+use crate::helpers::ID;
 use crate::ui::{ShowEverything, UI};
 use ezgui::{hotkey, lctrl, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard};
 use geom::Duration;
@@ -116,6 +117,27 @@ impl State for SandboxMode {
         }
         if self.menu.action("edit mode") {
             return Transition::Replace(Box::new(EditMode::new(ctx, ui)));
+        }
+        if let Some(ID::Building(b)) = ui.primary.current_selection {
+            let cars = ui
+                .primary
+                .sim
+                .get_offstreet_parked_cars(b)
+                .into_iter()
+                .map(|p| p.vehicle.id)
+                .collect::<Vec<_>>();
+            if !cars.is_empty()
+                && ctx
+                    .input
+                    .contextual_action(Key::P, &format!("examine {} cars parked here", cars.len()))
+            {
+                return Transition::Push(WizardState::new(Box::new(move |wiz, ctx, _| {
+                    let _id = wiz.wrap(ctx).choose_something("Examine which car?", || {
+                        cars.iter().map(|c| (c.to_string(), *c)).collect()
+                    })?;
+                    Some(Transition::Pop)
+                })));
+            }
         }
 
         if let Some(dt) = self.speed.event(ctx, &mut self.menu, ui.primary.sim.time()) {
