@@ -282,6 +282,8 @@ impl State for EditMode {
         ui.primary
             .map
             .recalculate_pathfinding_after_edits(&mut Timer::new("apply pending map edits"));
+        // Parking state might've changed
+        ui.primary.reset_sim();
     }
 }
 
