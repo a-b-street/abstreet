@@ -1,4 +1,4 @@
-use crate::{LonLat, Pt2D};
+use crate::{LonLat, Polygon, Pt2D};
 use aabb_quadtree::geom::{Point, Rect};
 use serde_derive::{Deserialize, Serialize};
 use std::f64;
@@ -58,13 +58,14 @@ impl Bounds {
         }
     }
 
-    pub fn get_corners(&self) -> Vec<Pt2D> {
-        vec![
+    pub fn get_rectangle(&self) -> Polygon {
+        Polygon::new(&vec![
             Pt2D::new(self.min_x, self.min_y),
             Pt2D::new(self.max_x, self.min_y),
             Pt2D::new(self.max_x, self.max_y),
             Pt2D::new(self.min_x, self.max_y),
-        ]
+            Pt2D::new(self.min_x, self.min_y),
+        ])
     }
 }
 

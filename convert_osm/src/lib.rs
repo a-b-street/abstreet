@@ -5,11 +5,9 @@ mod remove_disconnected;
 mod split_ways;
 
 use abstutil::Timer;
-use geom::{Distance, FindClosest, GPSBounds, Line, LonLat, PolyLine, Polygon, Pt2D};
+use geom::{Distance, FindClosest, Line, PolyLine, Pt2D};
 use kml::ExtraShapes;
 use map_model::{raw_data, LaneID, OffstreetParking, Position, LANE_THICKNESS};
-use std::fs::File;
-use std::io::{BufRead, BufReader};
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
@@ -49,13 +47,8 @@ pub struct Flags {
 }
 
 pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
-    if flags.clip.is_empty() {
-        panic!("You must specify an Osmosis boundary polygon with --clip");
-    }
-    let mut map = split_ways::split_up_roads(
-        osm::extract_osm(&flags.osm, read_osmosis_polygon(&flags.clip), timer),
-        timer,
-    );
+    let mut map =
+        split_ways::split_up_roads(osm::extract_osm(&flags.osm, &flags.clip, timer), timer);
     clip::clip_map(&mut map, timer);
     remove_disconnected::remove_disconnected_roads(&mut map, timer);
 
@@ -134,36 +127,6 @@ fn use_parking_hints(map: &mut raw_data::Map, path: &str, timer: &mut Timer) {
         }
     }
     timer.stop("apply parking hints");
-}
-
-fn read_osmosis_polygon(path: &str) -> raw_data::Map {
-    let mut pts: Vec<LonLat> = Vec::new();
-    let mut gps_bounds = GPSBounds::new();
-    for (idx, maybe_line) in BufReader::new(File::open(path).unwrap())
-        .lines()
-        .enumerate()
-    {
-        if idx == 0 || idx == 1 {
-            continue;
-        }
-        let line = maybe_line.unwrap();
-        if line == "END" {
-            break;
-        }
-        let parts: Vec<&str> = line.trim_start().split("    ").collect();
-        assert!(parts.len() == 2);
-        let pt = LonLat::new(
-            parts[0].parse::<f64>().unwrap(),
-            parts[1].parse::<f64>().unwrap(),
-        );
-        pts.push(pt);
-        gps_bounds.update(pt);
-    }
-
-    let mut map = raw_data::Map::blank();
-    map.boundary_polygon = Polygon::new(&gps_bounds.must_convert(&pts));
-    map.gps_bounds = gps_bounds;
-    map
 }
 
 fn use_offstreet_parking(map: &mut raw_data::Map, path: &str, timer: &mut Timer) {

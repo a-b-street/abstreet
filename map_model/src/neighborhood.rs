@@ -81,12 +81,10 @@ impl Neighborhood {
     }
 
     fn make_everywhere(map: &Map) -> Neighborhood {
-        let mut pts = map.get_bounds().get_corners();
-        pts.push(pts[0]);
         Neighborhood {
             map_name: map.get_name().to_string(),
             name: "_everywhere_".to_string(),
-            polygon: Polygon::new(&pts),
+            polygon: map.get_bounds().get_rectangle(),
         }
     }
 }

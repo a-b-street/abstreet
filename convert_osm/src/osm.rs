@@ -1,12 +1,14 @@
 use abstutil::{FileWithProgress, Timer};
-use geom::{HashablePt2D, LonLat, Polygon, Pt2D};
+use geom::{GPSBounds, HashablePt2D, LonLat, Polygon, Pt2D};
 use map_model::{raw_data, AreaType};
 use osm_xml;
 use std::collections::{BTreeMap, HashMap, HashSet};
+use std::fs::File;
+use std::io::{BufRead, BufReader};
 
 pub fn extract_osm(
     osm_path: &str,
-    mut map: raw_data::Map,
+    maybe_clip_path: &str,
     timer: &mut Timer,
 ) -> (
     raw_data::Map,
@@ -24,6 +26,17 @@ pub fn extract_osm(
         doc.relations.len()
     );
     done(timer);
+
+    let mut map = if maybe_clip_path.is_empty() {
+        let mut m = raw_data::Map::blank();
+        for node in doc.nodes.values() {
+            m.gps_bounds.update(LonLat::new(node.lon, node.lat));
+        }
+        m.boundary_polygon = m.gps_bounds.to_bounds().get_rectangle();
+        m
+    } else {
+        read_osmosis_polygon(maybe_clip_path)
+    };
 
     let mut id_to_way: HashMap<i64, Vec<Pt2D>> = HashMap::new();
     let mut roads: Vec<raw_data::Road> = Vec::new();
@@ -79,13 +92,20 @@ pub fn extract_osm(
                 parking_lane_back: false,
             });
         } else if is_bldg(&tags) {
+            let deduped = Pt2D::approx_dedupe(pts, geom::EPSILON_DIST);
+            if deduped.len() < 3 {
+                continue;
+            }
             map.buildings.push(raw_data::Building {
                 osm_way_id: way.id,
-                polygon: Polygon::new(&Pt2D::approx_dedupe(pts, geom::EPSILON_DIST)),
+                polygon: Polygon::new(&deduped),
                 osm_tags: tags,
                 parking: None,
             });
         } else if let Some(at) = get_area_type(&tags) {
+            if pts.len() < 3 {
+                continue;
+            }
             map.areas.push(raw_data::Area {
                 area_type: at,
                 osm_id: way.id,
@@ -290,4 +310,34 @@ fn glue_multipolygon(mut pts_per_way: Vec<Vec<Pt2D>>) -> Vec<Polygon> {
     }
     polygons.push(Polygon::new(&result));
     polygons
+}
+
+fn read_osmosis_polygon(path: &str) -> raw_data::Map {
+    let mut pts: Vec<LonLat> = Vec::new();
+    let mut gps_bounds = GPSBounds::new();
+    for (idx, maybe_line) in BufReader::new(File::open(path).unwrap())
+        .lines()
+        .enumerate()
+    {
+        if idx == 0 || idx == 1 {
+            continue;
+        }
+        let line = maybe_line.unwrap();
+        if line == "END" {
+            break;
+        }
+        let parts: Vec<&str> = line.trim_start().split("    ").collect();
+        assert!(parts.len() == 2);
+        let pt = LonLat::new(
+            parts[0].parse::<f64>().unwrap(),
+            parts[1].parse::<f64>().unwrap(),
+        );
+        pts.push(pt);
+        gps_bounds.update(pt);
+    }
+
+    let mut map = raw_data::Map::blank();
+    map.boundary_polygon = Polygon::new(&gps_bounds.must_convert(&pts));
+    map.gps_bounds = gps_bounds;
+    map
 }
