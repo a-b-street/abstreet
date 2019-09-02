@@ -1,7 +1,7 @@
 use crate::{
     AgentID, Command, CreatePedestrian, DistanceInterval, DrawPedCrowdInput, DrawPedestrianInput,
-    IntersectionSimState, ParkingSimState, PedestrianID, Scheduler, SidewalkPOI, SidewalkSpot,
-    TimeInterval, TransitSimState, TripID, TripManager, TripPositions, UnzoomedAgent,
+    IntersectionSimState, ParkingSimState, ParkingSpot, PedestrianID, Scheduler, SidewalkPOI,
+    SidewalkSpot, TimeInterval, TransitSimState, TripID, TripManager, TripPositions, UnzoomedAgent,
 };
 use abstutil::{deserialize_multimap, serialize_multimap, MultiMap};
 use geom::{Distance, Duration, Line, PolyLine, Speed};
@@ -60,10 +60,12 @@ impl WalkingSimState {
             trip: params.trip,
         };
         ped.state = match params.start.connection {
-            SidewalkPOI::Building(b) => PedState::LeavingBuilding(
-                b,
-                TimeInterval::new(now, now + map.get_b(b).front_path.line.length() / ped.speed),
-            ),
+            SidewalkPOI::Building(b) | SidewalkPOI::ParkingSpot(ParkingSpot::Offstreet(b, _)) => {
+                PedState::LeavingBuilding(
+                    b,
+                    TimeInterval::new(now, now + map.get_b(b).front_path.line.length() / ped.speed),
+                )
+            }
             SidewalkPOI::BikeRack(driving_pos) => PedState::FinishingBiking(
                 params.start.clone(),
                 Line::new(driving_pos.pt(map), params.start.sidewalk_pos.pt(map)),

@@ -191,6 +191,10 @@ impl Sim {
         self.parking.get_parked_cars_by_owner(bldg)
     }
 
+    pub fn get_offstreet_parked_cars(&self, bldg: BuildingID) -> Vec<&ParkedCar> {
+        self.parking.get_offstreet_parked_cars(bldg)
+    }
+
     pub fn seed_bus_route(&mut self, route: &BusRoute, map: &Map, timer: &mut Timer) -> Vec<CarID> {
         let mut results: Vec<CarID> = Vec::new();
 

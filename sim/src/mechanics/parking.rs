@@ -260,12 +260,22 @@ impl ParkingSimState {
         )])
     }
 
-    pub fn get_parked_cars_by_owner(&self, id: BuildingID) -> Vec<&ParkedCar> {
+    pub fn get_parked_cars_by_owner(&self, b: BuildingID) -> Vec<&ParkedCar> {
         self.owned_cars_per_building
-            .get(id)
+            .get(b)
             .iter()
-            .filter_map(|id| self.parked_cars.get(&id))
+            .filter_map(|car| self.parked_cars.get(&car))
             .collect()
+    }
+
+    pub fn get_offstreet_parked_cars(&self, b: BuildingID) -> Vec<&ParkedCar> {
+        let mut results = Vec::new();
+        for idx in 0..self.num_spots_per_offstreet[&b] {
+            if let Some(car) = self.occupants.get(&ParkingSpot::offstreet(b, idx)) {
+                results.push(&self.parked_cars[&car]);
+            }
+        }
+        results
     }
 
     pub fn get_owner_of_car(&self, id: CarID) -> Option<BuildingID> {

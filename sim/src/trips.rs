@@ -105,6 +105,21 @@ impl TripManager {
             _ => unreachable!(),
         };
 
+        match &trip.legs[0] {
+            TripLeg::Walk(_, _, to) => match (spot, &to.connection) {
+                (ParkingSpot::Offstreet(b1, _), SidewalkPOI::Building(b2)) if b1 == *b2 => {
+                    // Do the relevant parts of ped_reached_parking_spot.
+                    assert_eq!(trip.legs.len(), 1);
+                    assert!(!trip.finished_at.is_some());
+                    trip.finished_at = Some(now);
+                    self.unfinished_trips -= 1;
+                    return;
+                }
+                _ => {}
+            },
+            _ => unreachable!(),
+        };
+
         if !trip.spawn_ped(
             now,
             SidewalkSpot::parking_spot(spot, map, parking),
