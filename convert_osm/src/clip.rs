@@ -109,5 +109,9 @@ pub fn clip_map(map: &mut raw_data::Map, timer: &mut Timer) {
     }
     map.areas = result_areas;
 
+    if map.roads.is_empty() {
+        panic!("There are no roads inside the clipping polygon");
+    }
+
     timer.stop("clipping map to boundary");
 }
