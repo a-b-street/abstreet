@@ -808,9 +808,12 @@ impl Sim {
         TripResult::ModeChange
     }
 
-    fn canonical_pt_for_agent(&self, id: AgentID, map: &Map) -> Option<Pt2D> {
+    pub fn canonical_pt_for_agent(&self, id: AgentID, map: &Map) -> Option<Pt2D> {
         match id {
-            AgentID::Car(id) => Some(self.get_draw_car(id, map)?.body.last_pt()),
+            AgentID::Car(id) => self
+                .parking
+                .canonical_pt(id, map)
+                .or_else(|| Some(self.get_draw_car(id, map)?.body.last_pt())),
             AgentID::Pedestrian(id) => Some(self.get_draw_ped(id, map)?.pos),
         }
     }

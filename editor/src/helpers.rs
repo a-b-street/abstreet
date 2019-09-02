@@ -5,7 +5,7 @@ use ezgui::Color;
 use geom::Pt2D;
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, RoadID, TurnID};
 use serde_derive::{Deserialize, Serialize};
-use sim::{AgentID, CarID, GetDrawAgents, PedestrianID, TripID};
+use sim::{AgentID, CarID, PedestrianID, TripID};
 use std::collections::{BTreeMap, HashMap};
 use std::io::Error;
 
@@ -54,13 +54,13 @@ impl ID {
             ID::Building(id) => primary.map.maybe_get_b(id).map(|b| b.polygon.center()),
             ID::Car(id) => primary
                 .sim
-                .get_draw_car(id, &primary.map)
-                .map(|c| c.body.last_pt()),
-            ID::Pedestrian(id) => primary.sim.get_draw_ped(id, &primary.map).map(|p| p.pos),
+                .canonical_pt_for_agent(AgentID::Car(id), &primary.map),
+            ID::Pedestrian(id) => primary
+                .sim
+                .canonical_pt_for_agent(AgentID::Pedestrian(id), &primary.map),
             ID::PedCrowd(ref members) => primary
                 .sim
-                .get_draw_ped(members[0], &primary.map)
-                .map(|p| p.pos),
+                .canonical_pt_for_agent(AgentID::Pedestrian(members[0]), &primary.map),
             // TODO maybe_get_es
             ID::ExtraShape(id) => Some(primary.draw_map.get_es(id).center()),
             ID::BusStop(id) => primary

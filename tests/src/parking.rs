@@ -3,6 +3,10 @@ use abstutil::Timer;
 use geom::Duration;
 use sim::{DrivingGoal, Event, ParkingSpot, Scenario, SidewalkSpot, SimFlags, TripSpec};
 
+// TODO park in a garage, then walk somewhere else
+// TODO park in a garage that's also the trip destination
+// TODO ped walks to a garage to start driving somewhere else
+
 pub fn run(t: &mut TestRunner) {
     // TODO Lots of boilerplate between these two. Can we do better?
 
@@ -36,7 +40,7 @@ pub fn run(t: &mut TestRunner) {
             &map,
             vec![Event::CarReachedParkingSpot(
                 car,
-                ParkingSpot::new(north_parking, 4),
+                ParkingSpot::Onstreet(north_parking, 4),
             )],
             Duration::minutes(6),
         );
@@ -74,7 +78,7 @@ pub fn run(t: &mut TestRunner) {
             &map,
             vec![Event::CarReachedParkingSpot(
                 car,
-                ParkingSpot::new(south_parking, 0),
+                ParkingSpot::Onstreet(south_parking, 0),
             )],
             Duration::minutes(6),
         );

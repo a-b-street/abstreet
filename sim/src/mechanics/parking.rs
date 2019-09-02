@@ -2,7 +2,7 @@ use crate::{CarID, CarStatus, DrawCarInput, ParkedCar, ParkingSpot, Vehicle};
 use abstutil::{
     deserialize_btreemap, deserialize_multimap, serialize_btreemap, serialize_multimap, MultiMap,
 };
-use geom::{Distance, Duration};
+use geom::{Distance, Duration, Pt2D};
 use map_model;
 use map_model::{BuildingID, Lane, LaneID, LaneType, Map, Position, Traversable};
 use serde_derive::{Deserialize, Serialize};
@@ -152,6 +152,15 @@ impl ParkingSimState {
                 })
             }
             ParkingSpot::Offstreet(_, _) => None,
+        }
+    }
+
+    // There's no DrawCarInput for cars parked offstreet, so we need this.
+    pub fn canonical_pt(&self, id: CarID, map: &Map) -> Option<Pt2D> {
+        let p = self.parked_cars.get(&id)?;
+        match p.spot {
+            ParkingSpot::Onstreet(_, _) => self.get_draw_car(id, map).map(|c| c.body.last_pt()),
+            ParkingSpot::Offstreet(b, _) => Some(map.get_b(b).label_center),
         }
     }
 

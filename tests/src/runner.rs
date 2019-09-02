@@ -278,7 +278,7 @@ impl TestHelper {
     ) -> Vec<(ParkingSpot, CarID)> {
         let mut results: Vec<(ParkingSpot, CarID)> = Vec::new();
         for idx in spots.into_iter() {
-            let spot = ParkingSpot::new(lane, idx);
+            let spot = ParkingSpot::Onstreet(lane, idx);
             let car = sim.seed_parked_car(Scenario::rand_car(rng), spot, owner);
             results.push((spot, car));
         }
