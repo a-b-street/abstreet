@@ -2,7 +2,7 @@ use crate::{BuildingID, BusStopID, DirectedRoadID, IntersectionID, Map, Road, Ro
 use abstutil;
 use geom::{Angle, Distance, Line, PolyLine, Pt2D};
 use serde_derive::{Deserialize, Serialize};
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 use std::fmt;
 
 // Bit longer than the longest car.
@@ -164,7 +164,7 @@ impl Lane {
         }
     }
 
-    pub fn get_turn_restrictions(&self, road: &Road) -> Option<HashSet<TurnType>> {
+    pub fn get_turn_restrictions(&self, road: &Road) -> Option<BTreeSet<TurnType>> {
         if !self.is_driving() {
             return None;
         }

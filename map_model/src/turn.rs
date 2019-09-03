@@ -21,7 +21,7 @@ impl fmt::Display for TurnID {
     }
 }
 
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialOrd, Ord, PartialEq, Serialize, Deserialize)]
 pub enum TurnType {
     Crosswalk,
     SharedSidewalkCorner,

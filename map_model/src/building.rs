@@ -26,6 +26,7 @@ pub struct FrontPath {
 pub struct OffstreetParking {
     pub name: String,
     pub num_stalls: usize,
+    // Goes from the building to the driving lane
     pub driveway_line: Line,
     pub driving_pos: Position,
 }

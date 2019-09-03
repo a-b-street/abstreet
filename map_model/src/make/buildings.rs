@@ -74,6 +74,13 @@ pub fn make_all_buildings(
                     .expect("Can't find dist_along_of_point for driveway");
                 p.driveway_line =
                     trim_path(&bldg.polygon, Line::new(bldg.label_center, driving_pt));
+                if p.driveway_line.length() < Distance::meters(1.0) {
+                    timer.warn(format!(
+                        "Driveway of {} is very short: {}",
+                        bldg.id,
+                        p.driveway_line.length()
+                    ));
+                }
                 p.driving_pos = Position::new(driving_lane, dist_along);
             }
 

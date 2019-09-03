@@ -103,9 +103,23 @@ impl Car {
             CarState::Unparking(_, ref time_int) => raw_body
                 .shift_right(LANE_THICKNESS * (1.0 - time_int.percent(now)))
                 .unwrap(),
-            CarState::Parking(_, _, ref time_int) => raw_body
-                .shift_right(LANE_THICKNESS * time_int.percent(now))
-                .unwrap(),
+            CarState::Parking(_, ref spot, ref time_int) => match spot {
+                ParkingSpot::Onstreet(_, _) => raw_body
+                    .shift_right(LANE_THICKNESS * time_int.percent(now))
+                    .unwrap(),
+                ParkingSpot::Offstreet(b, _) => {
+                    // Append the car's polyline on the street with the driveway
+                    let driveway = &map.get_b(*b).parking.as_ref().unwrap().driveway_line;
+                    let full_piece = raw_body.extend(driveway.reverse().to_polyline());
+                    // Then make the car creep along the added length of the driveway (which could
+                    // be really short)
+                    let creep_along = driveway.length() * time_int.percent(now);
+                    // TODO Ideally the car would slowly disappear into the building, but some
+                    // stuff downstream needs to understand that the windows and such will get cut
+                    // off. :)
+                    full_piece.exact_slice(creep_along, creep_along + self.vehicle.length)
+                }
+            },
             _ => raw_body,
         };
 
