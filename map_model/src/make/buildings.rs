@@ -1,5 +1,5 @@
 use crate::make::sidewalk_finder::find_sidewalk_points;
-use crate::{raw_data, Building, BuildingID, FrontPath, Lane, LaneID, Position};
+use crate::{raw_data, Building, BuildingID, FrontPath, Lane, LaneID, Position, Road};
 use abstutil::Timer;
 use geom::{Bounds, Distance, FindClosest, HashablePt2D, Line, Polygon};
 use std::collections::HashSet;
@@ -9,6 +9,7 @@ pub fn make_all_buildings(
     input: &Vec<raw_data::Building>,
     bounds: &Bounds,
     lanes: &Vec<Lane>,
+    roads: &Vec<Road>,
     timer: &mut Timer,
 ) {
     timer.start("convert buildings");
@@ -27,9 +28,17 @@ pub fn make_all_buildings(
     let mut closest_driving: FindClosest<LaneID> = FindClosest::new(bounds);
     for l in lanes {
         // TODO And is the rightmost driving lane...
-        if l.is_driving() {
-            closest_driving.add(l.id, l.lane_center_pts.points());
+        if !l.is_driving() {
+            continue;
         }
+        let tags = &roads[l.parent.0].osm_tags;
+        if tags.get("highway") == Some(&"motorway".to_string())
+            || tags.get("tunnel") == Some(&"yes".to_string())
+        {
+            continue;
+        }
+
+        closest_driving.add(l.id, l.lane_center_pts.points());
     }
 
     // Skip buildings that're too far away from their sidewalk

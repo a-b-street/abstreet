@@ -190,6 +190,7 @@ pub fn make_half_map(
         &data.buildings,
         &bounds,
         &half_map.lanes,
+        &half_map.roads,
         timer,
     );
     for b in &half_map.buildings {
