@@ -4,7 +4,7 @@ use crate::helpers::ID;
 use crate::mission::pick_time_range;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
-use abstutil::{MultiMap, WeightedUsizeChoice};
+use abstutil::{prettyprint_usize, MultiMap, WeightedUsizeChoice};
 use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu, Text, Wizard, WrappedWizard};
 use geom::Duration;
 use map_model::{BuildingID, IntersectionID, Map, Neighborhood};
@@ -12,23 +12,33 @@ use sim::{
     BorderSpawnOverTime, DrivingGoal, OriginDestination, Scenario, SeedParkedCars, SidewalkPOI,
     SidewalkSpot, SpawnOverTime, SpawnTrip,
 };
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, HashMap};
 
 pub struct ScenarioManager {
     menu: ModalMenu,
     scenario: Scenario,
+
     // The usizes are indices into scenario.individ_trips
     trips_from_bldg: MultiMap<BuildingID, usize>,
     trips_to_bldg: MultiMap<BuildingID, usize>,
+    cars_needed_per_bldg: HashMap<BuildingID, usize>,
+    total_cars_needed: usize,
 }
 
 impl ScenarioManager {
     pub fn new(scenario: Scenario, ctx: &mut EventCtx) -> ScenarioManager {
         let mut trips_from_bldg = MultiMap::new();
         let mut trips_to_bldg = MultiMap::new();
+        let mut cars_needed_per_bldg = HashMap::new();
+        let mut total_cars_needed = 0;
         for (idx, trip) in scenario.individ_trips.iter().enumerate() {
+            // trips_from_bldg
             match trip {
-                SpawnTrip::CarAppearing { .. } => {}
+                SpawnTrip::CarAppearing { ref start_bldg, .. } => {
+                    if let Some(b) = start_bldg {
+                        trips_from_bldg.insert(*b, idx);
+                    }
+                }
                 SpawnTrip::UsingBike(_, ref spot, _)
                 | SpawnTrip::JustWalking(_, ref spot, _)
                 | SpawnTrip::UsingTransit(_, ref spot, _, _, _, _) => {
@@ -38,6 +48,7 @@ impl ScenarioManager {
                 }
             }
 
+            // trips_to_bldg
             match trip {
                 SpawnTrip::CarAppearing { ref goal, .. } | SpawnTrip::UsingBike(_, _, ref goal) => {
                     if let DrivingGoal::ParkNear(b) = goal {
@@ -48,6 +59,21 @@ impl ScenarioManager {
                 | SpawnTrip::UsingTransit(_, _, ref spot, _, _, _) => {
                     if let SidewalkPOI::Building(b) = spot.connection {
                         trips_to_bldg.insert(b, idx);
+                    }
+                }
+            }
+
+            // Parked cars
+            if let SpawnTrip::CarAppearing {
+                is_bike,
+                ref start_bldg,
+                ..
+            } = trip
+            {
+                if !is_bike {
+                    if let Some(b) = start_bldg {
+                        *cars_needed_per_bldg.entry(*b).or_insert(0) += 1;
+                        total_cars_needed += 1;
                     }
                 }
             }
@@ -67,6 +93,8 @@ impl ScenarioManager {
             scenario,
             trips_from_bldg,
             trips_to_bldg,
+            cars_needed_per_bldg,
+            total_cars_needed,
         }
     }
 }
@@ -81,6 +109,10 @@ impl State for ScenarioManager {
             for line in self.scenario.describe() {
                 txt.add_line(line);
             }
+            txt.add_line(format!(
+                "{} total parked cars needed",
+                prettyprint_usize(self.total_cars_needed)
+            ));
             self.menu.handle_event(ctx, Some(txt));
         }
         ctx.canvas.handle_event(ctx.input);
@@ -142,9 +174,10 @@ impl State for ScenarioManager {
             let to = self.trips_to_bldg.get(b);
             osd.append(
                 format!(
-                    ". {} trips from here, {} trips to here",
+                    ". {} trips from here, {} trips to here, {} parked cars needed",
                     from.len(),
-                    to.len()
+                    to.len(),
+                    self.cars_needed_per_bldg.get(&b).unwrap_or(&0)
                 ),
                 None,
             );
@@ -358,16 +391,18 @@ fn describe(trip: &SpawnTrip, home: BuildingID) -> String {
             start,
             goal,
             is_bike,
-        } => {
-            let noun = if *is_bike { "bike" } else { "car" };
-            format!(
-                "{}: {} appears at {}, goes to {}",
-                depart,
-                noun,
-                start.lane(),
-                driving_goal(goal)
-            )
-        }
+            start_bldg,
+        } => format!(
+            "{}: {} appears {}, goes to {}",
+            depart,
+            if *is_bike { "bike" } else { "car" },
+            if start_bldg == &Some(home) {
+                "HERE".to_string()
+            } else {
+                format!("at {}", start.lane())
+            },
+            driving_goal(goal)
+        ),
         SpawnTrip::UsingBike(depart, start, goal) => format!(
             "{}: bike from {} to {}",
             depart,

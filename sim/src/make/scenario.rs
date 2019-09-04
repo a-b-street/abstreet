@@ -142,6 +142,7 @@ impl Scenario {
                     start,
                     goal,
                     is_bike,
+                    ..
                 } => {
                     sim.schedule_trip(
                         depart,
@@ -826,7 +827,9 @@ fn rand_time(rng: &mut XorShiftRng, low: Duration, high: Duration) -> Duration {
 pub enum SpawnTrip {
     CarAppearing {
         depart: Duration,
+        // TODO Replace start with building|border
         start: Position,
+        start_bldg: Option<BuildingID>,
         goal: DrivingGoal,
         is_bike: bool,
     },

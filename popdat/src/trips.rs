@@ -274,6 +274,10 @@ pub fn trips_to_scenario(map: &Map, t1: Duration, t2: Duration, timer: &mut Time
                         Some(SpawnTrip::CarAppearing {
                             depart: trip.depart_at,
                             start,
+                            start_bldg: match trip.from {
+                                TripEndpt::Building(b) => Some(b),
+                                TripEndpt::Border(_, _) => None,
+                            },
                             goal: trip.to.driving_goal(vec![LaneType::Driving], map),
                             is_bike: false,
                         })
@@ -297,6 +301,7 @@ pub fn trips_to_scenario(map: &Map, t1: Duration, t2: Duration, timer: &mut Time
                             Some(SpawnTrip::CarAppearing {
                                 depart: trip.depart_at,
                                 start,
+                                start_bldg: None,
                                 goal: trip
                                     .to
                                     .driving_goal(vec![LaneType::Biking, LaneType::Driving], map),
