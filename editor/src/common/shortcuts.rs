@@ -1,4 +1,4 @@
-use crate::common::warp::Warping;
+use crate::common::Warping;
 use crate::game::{State, Transition, WizardState};
 use crate::ui::UI;
 use abstutil::Cloneable;

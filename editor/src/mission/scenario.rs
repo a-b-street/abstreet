@@ -1,11 +1,13 @@
-use crate::common::CommonState;
+use crate::common::{CommonState, Warping};
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::mission::pick_time_range;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, MultiMap, WeightedUsizeChoice};
-use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu, Text, Wizard, WrappedWizard};
+use ezgui::{
+    hotkey, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Warper, Wizard, WrappedWizard,
+};
 use geom::Duration;
 use map_model::{BuildingID, IntersectionID, Map, Neighborhood};
 use sim::{
@@ -350,15 +352,26 @@ fn make_trip_picker(
     indices: BTreeSet<usize>,
     home: BuildingID,
 ) -> Box<dyn State> {
-    WizardState::new(Box::new(move |wiz, ctx, _| {
-        wiz.wrap(ctx)
+    WizardState::new(Box::new(move |wiz, ctx, ui| {
+        let warp_to = wiz
+            .wrap(ctx)
             .choose_something("Trips from/to this building", || {
                 indices
                     .iter()
-                    .map(|idx| (describe(&scenario.individ_trips[*idx], home), ()))
+                    .map(|idx| {
+                        let trip = &scenario.individ_trips[*idx];
+                        (describe(trip, home), other_endpt(trip, home))
+                    })
                     .collect()
-            })?;
-        Some(Transition::Pop)
+            })?
+            .1;
+        Some(Transition::ReplaceWithMode(
+            Box::new(Warping {
+                warper: Warper::new(ctx, warp_to.canonical_point(&ui.primary).unwrap(), None),
+                id: Some(warp_to),
+            }),
+            EventLoopMode::Animation,
+        ))
     }))
 }
 
@@ -422,5 +435,43 @@ fn describe(trip: &SpawnTrip, home: BuildingID) -> String {
             sidewalk_spot(goal),
             route
         ),
+    }
+}
+
+fn other_endpt(trip: &SpawnTrip, home: BuildingID) -> ID {
+    let driving_goal = |goal: &DrivingGoal| match goal {
+        DrivingGoal::ParkNear(b) => ID::Building(*b),
+        DrivingGoal::Border(i, _) => ID::Intersection(*i),
+    };
+    let sidewalk_spot = |spot: &SidewalkSpot| match &spot.connection {
+        SidewalkPOI::Building(b) => ID::Building(*b),
+        SidewalkPOI::Border(i) => ID::Intersection(*i),
+        x => panic!("other_endpt for {:?}?", x),
+    };
+
+    let (from, to) = match trip {
+        SpawnTrip::CarAppearing {
+            start,
+            goal,
+            start_bldg,
+            ..
+        } => (
+            start_bldg
+                .map(|b| ID::Building(b))
+                .unwrap_or(ID::Lane(start.lane())),
+            driving_goal(goal),
+        ),
+        SpawnTrip::UsingBike(_, start, goal) => (sidewalk_spot(start), driving_goal(goal)),
+        SpawnTrip::JustWalking(_, start, goal) => (sidewalk_spot(start), sidewalk_spot(goal)),
+        SpawnTrip::UsingTransit(_, start, goal, _, _, _) => {
+            (sidewalk_spot(start), sidewalk_spot(goal))
+        }
+    };
+    if from == ID::Building(home) {
+        to
+    } else if to == ID::Building(home) {
+        from
+    } else {
+        panic!("other_endpt broke when homed at {} for {:?}", home, trip)
     }
 }

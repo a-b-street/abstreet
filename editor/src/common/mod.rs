@@ -15,6 +15,7 @@ pub use self::route_explorer::RouteExplorer;
 pub use self::speed::SpeedControls;
 pub use self::time::time_controls;
 pub use self::trip_explorer::TripExplorer;
+pub use self::warp::Warping;
 use crate::game::{Transition, WizardState};
 use crate::helpers::ID;
 use crate::render::{AgentColorScheme, DrawOptions};
