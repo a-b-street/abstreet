@@ -19,12 +19,9 @@ impl EnteringWarp {
 fn warp_to(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
     let mut wizard = wiz.wrap(ctx);
     let to = wizard.input_string("Warp to what?")?;
-    if let Some((id, pt)) = warp_point(&to, &ui.primary) {
+    if let Some((id, pt, cam_zoom)) = warp_point(&to, &ui.primary) {
         return Some(Transition::ReplaceWithMode(
-            Box::new(Warping {
-                warper: Warper::new(ctx, pt, Some(WARP_TO_CAM_ZOOM)),
-                id: Some(id),
-            }),
+            Warping::new(ctx, pt, Some(cam_zoom), id, &mut ui.primary),
             EventLoopMode::Animation,
         ));
     }
@@ -35,8 +32,24 @@ fn warp_to(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transiti
 }
 
 pub struct Warping {
-    pub warper: Warper,
-    pub id: Option<ID>,
+    warper: Warper,
+    id: Option<ID>,
+}
+
+impl Warping {
+    pub fn new(
+        ctx: &EventCtx,
+        pt: Pt2D,
+        target_cam_zoom: Option<f64>,
+        id: Option<ID>,
+        primary: &mut PerMapUI,
+    ) -> Box<dyn State> {
+        primary.last_warped_from = Some((ctx.canvas.center_to_map_pt(), ctx.canvas.cam_zoom));
+        Box::new(Warping {
+            warper: Warper::new(ctx, pt, target_cam_zoom),
+            id,
+        })
+    }
 }
 
 impl State for Warping {
@@ -52,8 +65,15 @@ impl State for Warping {
     fn draw(&self, _: &mut GfxCtx, _: &UI) {}
 }
 
-fn warp_point(line: &str, primary: &PerMapUI) -> Option<(ID, Pt2D)> {
+fn warp_point(line: &str, primary: &PerMapUI) -> Option<(Option<ID>, Pt2D, f64)> {
     if line.is_empty() {
+        return None;
+    }
+    // TODO Weird magic shortcut to go to last spot. What should this be?
+    if line == "j" {
+        if let Some((pt, zoom)) = primary.last_warped_from {
+            return Some((None, pt, zoom));
+        }
         return None;
     }
 
@@ -124,7 +144,7 @@ fn warp_point(line: &str, primary: &PerMapUI) -> Option<(ID, Pt2D)> {
     };
     if let Some(pt) = id.canonical_point(primary) {
         println!("Warping to {:?}", id);
-        Some((id, pt))
+        Some((Some(id), pt, WARP_TO_CAM_ZOOM))
     } else {
         None
     }

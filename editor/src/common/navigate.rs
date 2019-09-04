@@ -2,7 +2,7 @@ use crate::common::Warping;
 use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::ui::UI;
-use ezgui::{Autocomplete, EventCtx, EventLoopMode, GfxCtx, InputResult, Warper};
+use ezgui::{Autocomplete, EventCtx, EventLoopMode, GfxCtx, InputResult};
 use map_model::RoadID;
 use std::collections::HashSet;
 
@@ -80,14 +80,13 @@ impl State for CrossStreet {
                 let road = map.get_r(self.first);
                 println!("Warping to {}", road.get_name());
                 Transition::ReplaceWithMode(
-                    Box::new(Warping {
-                        warper: Warper::new(
-                            ctx,
-                            road.center_pts.dist_along(road.center_pts.length() / 2.0).0,
-                            None,
-                        ),
-                        id: Some(ID::Lane(road.all_lanes()[0])),
-                    }),
+                    Warping::new(
+                        ctx,
+                        road.center_pts.dist_along(road.center_pts.length() / 2.0).0,
+                        None,
+                        Some(ID::Lane(road.all_lanes()[0])),
+                        &mut ui.primary,
+                    ),
                     EventLoopMode::Animation,
                 )
             }
@@ -104,10 +103,13 @@ impl State for CrossStreet {
                     map.get_i(road.dst_i).polygon.center()
                 };
                 Transition::ReplaceWithMode(
-                    Box::new(Warping {
-                        warper: Warper::new(ctx, pt, None),
-                        id: Some(ID::Lane(road.all_lanes()[0])),
-                    }),
+                    Warping::new(
+                        ctx,
+                        pt,
+                        None,
+                        Some(ID::Lane(road.all_lanes()[0])),
+                        &mut ui.primary,
+                    ),
                     EventLoopMode::Animation,
                 )
             }

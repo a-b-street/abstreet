@@ -272,6 +272,7 @@ impl ABTestMode {
             sim: ss.secondary_sim,
             current_selection: secondary.current_selection,
             current_flags: secondary.current_flags,
+            last_warped_from: None,
         });
     }
 }

@@ -223,6 +223,7 @@ fn launch_savestate(test: &ABTest, ss_path: String, ui: &mut UI, ctx: &mut Event
                 current_selection: None,
                 // TODO Hack... can we just remove these?
                 current_flags: ui.primary.current_flags.clone(),
+                last_warped_from: None,
             };
             ui.secondary = Some(secondary);
             timer.stop("setup secondary");

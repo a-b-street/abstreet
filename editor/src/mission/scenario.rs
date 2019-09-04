@@ -5,9 +5,7 @@ use crate::mission::pick_time_range;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, MultiMap, WeightedUsizeChoice};
-use ezgui::{
-    hotkey, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Warper, Wizard, WrappedWizard,
-};
+use ezgui::{hotkey, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard, WrappedWizard};
 use geom::Duration;
 use map_model::{BuildingID, IntersectionID, Map, Neighborhood};
 use sim::{
@@ -366,10 +364,13 @@ fn make_trip_picker(
             })?
             .1;
         Some(Transition::ReplaceWithMode(
-            Box::new(Warping {
-                warper: Warper::new(ctx, warp_to.canonical_point(&ui.primary).unwrap(), None),
-                id: Some(warp_to),
-            }),
+            Warping::new(
+                ctx,
+                warp_to.canonical_point(&ui.primary).unwrap(),
+                None,
+                Some(warp_to),
+                &mut ui.primary,
+            ),
             EventLoopMode::Animation,
         ))
     }))

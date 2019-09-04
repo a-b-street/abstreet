@@ -6,7 +6,7 @@ use crate::render::{
 use abstutil;
 use abstutil::{MeasureMemory, Timer};
 use ezgui::{Canvas, Color, EventCtx, GfxCtx, Prerender};
-use geom::{Bounds, Circle, Distance};
+use geom::{Bounds, Circle, Distance, Pt2D};
 use map_model::{Map, Traversable};
 use rand::seq::SliceRandom;
 use serde_derive::{Deserialize, Serialize};
@@ -459,6 +459,7 @@ pub struct PerMapUI {
 
     pub current_selection: Option<ID>,
     pub current_flags: Flags,
+    pub last_warped_from: Option<(Pt2D, f64)>,
 }
 
 impl PerMapUI {
@@ -478,6 +479,7 @@ impl PerMapUI {
             sim,
             current_selection: None,
             current_flags: flags.clone(),
+            last_warped_from: None,
         }
     }
 

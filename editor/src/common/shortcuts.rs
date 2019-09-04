@@ -2,7 +2,7 @@ use crate::common::Warping;
 use crate::game::{State, Transition, WizardState};
 use crate::ui::UI;
 use abstutil::Cloneable;
-use ezgui::{hotkey, EventCtx, EventLoopMode, Key, Warper, Wizard};
+use ezgui::{hotkey, EventCtx, EventLoopMode, Key, Wizard};
 use geom::Pt2D;
 use serde_derive::{Deserialize, Serialize};
 
@@ -73,10 +73,7 @@ fn choose_shortcut(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<
         Some(Transition::Pop)
     } else {
         Some(Transition::ReplaceWithMode(
-            Box::new(Warping {
-                warper: Warper::new(ctx, s.center, Some(s.cam_zoom)),
-                id: None,
-            }),
+            Warping::new(ctx, s.center, Some(s.cam_zoom), None, &mut ui.primary),
             EventLoopMode::Animation,
         ))
     }
