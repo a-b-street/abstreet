@@ -16,6 +16,7 @@ use std::collections::{BTreeSet, HashMap};
 
 pub struct ScenarioManager {
     menu: ModalMenu,
+    common: CommonState,
     scenario: Scenario,
 
     // The usizes are indices into scenario.individ_trips
@@ -82,14 +83,23 @@ impl ScenarioManager {
         ScenarioManager {
             menu: ModalMenu::new(
                 "Scenario Editor",
-                vec![vec![
-                    (hotkey(Key::Escape), "quit"),
-                    (hotkey(Key::S), "save"),
-                    (hotkey(Key::E), "edit"),
-                    (hotkey(Key::I), "instantiate"),
-                ]],
+                vec![
+                    vec![
+                        (hotkey(Key::S), "save"),
+                        (hotkey(Key::E), "edit"),
+                        (hotkey(Key::I), "instantiate"),
+                    ],
+                    vec![
+                        (hotkey(Key::Escape), "quit"),
+                        (hotkey(Key::J), "warp"),
+                        (hotkey(Key::K), "navigate"),
+                        (hotkey(Key::SingleQuote), "shortcuts"),
+                        (hotkey(Key::F1), "take a screenshot"),
+                    ],
+                ],
                 ctx,
             ),
+            common: CommonState::new(),
             scenario,
             trips_from_bldg,
             trips_to_bldg,
@@ -118,6 +128,9 @@ impl State for ScenarioManager {
         ctx.canvas.handle_event(ctx.input);
         if ctx.redo_mouseover() {
             ui.recalculate_current_selection(ctx);
+        }
+        if let Some(t) = self.common.event(ctx, ui, &mut self.menu) {
+            return t;
         }
 
         if self.menu.action("quit") {
@@ -161,6 +174,7 @@ impl State for ScenarioManager {
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         self.menu.draw(g);
+        // TODO Weird to not draw common (turn cycler), but we want the custom OSD...
 
         if let Some(ID::Building(b)) = ui.primary.current_selection {
             let mut osd = Text::new();
@@ -354,6 +368,7 @@ fn make_trip_picker(
         let warp_to = wiz
             .wrap(ctx)
             .choose_something("Trips from/to this building", || {
+                // TODO Panics if there are two duplicate trips (b1124 in montlake)
                 indices
                     .iter()
                     .map(|idx| {
