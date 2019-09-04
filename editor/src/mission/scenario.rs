@@ -26,11 +26,12 @@ pub struct ScenarioManager {
     trips_to_bldg: MultiMap<BuildingID, usize>,
     cars_needed_per_bldg: HashMap<BuildingID, usize>,
     total_cars_needed: usize,
+    total_parking_spots: usize,
     override_colors: HashMap<ID, Color>,
 }
 
 impl ScenarioManager {
-    pub fn new(scenario: Scenario, ctx: &mut EventCtx) -> ScenarioManager {
+    pub fn new(scenario: Scenario, ctx: &mut EventCtx, ui: &UI) -> ScenarioManager {
         let mut trips_from_bldg = MultiMap::new();
         let mut trips_to_bldg = MultiMap::new();
         let mut cars_needed_per_bldg = HashMap::new();
@@ -88,6 +89,9 @@ impl ScenarioManager {
             }
         }
 
+        let (filled_spots, total_parking_spots) = ui.primary.sim.get_total_parking_spots();
+        assert_eq!(filled_spots, 0);
+
         ScenarioManager {
             menu: ModalMenu::new(
                 "Scenario Editor",
@@ -113,6 +117,7 @@ impl ScenarioManager {
             trips_to_bldg,
             cars_needed_per_bldg,
             total_cars_needed,
+            total_parking_spots,
             override_colors,
         }
     }
@@ -129,8 +134,9 @@ impl State for ScenarioManager {
                 txt.add_line(line);
             }
             txt.add_line(format!(
-                "{} total parked cars needed",
-                prettyprint_usize(self.total_cars_needed)
+                "{} total parked cars needed, {} spots",
+                prettyprint_usize(self.total_cars_needed),
+                prettyprint_usize(self.total_parking_spots),
             ));
             self.menu.handle_event(ctx, Some(txt));
         }

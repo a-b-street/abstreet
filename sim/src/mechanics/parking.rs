@@ -290,6 +290,31 @@ impl ParkingSimState {
     pub fn get_owner_of_car(&self, id: CarID) -> Option<BuildingID> {
         self.parked_cars.get(&id).and_then(|p| p.vehicle.owner)
     }
+
+    // (Filled, available)
+    pub fn get_total_parking_spots(&self) -> (usize, usize) {
+        let mut filled = 0;
+        let mut available = 0;
+
+        for lane in self.onstreet_lanes.values() {
+            for spot in lane.spots() {
+                if self.is_free(spot) {
+                    available += 1;
+                } else {
+                    filled += 1;
+                }
+            }
+        }
+        for (b, idx) in &self.num_spots_per_offstreet {
+            if self.is_free(ParkingSpot::Offstreet(*b, *idx)) {
+                available += 1;
+            } else {
+                filled += 1;
+            }
+        }
+
+        (filled, available)
+    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq)]

@@ -170,6 +170,11 @@ impl Sim {
         self.parking.get_free_spots(l)
     }
 
+    // (Filled, available)
+    pub fn get_total_parking_spots(&self) -> (usize, usize) {
+        self.parking.get_total_parking_spots()
+    }
+
     pub fn seed_parked_car(
         &mut self,
         vehicle: VehicleSpec,

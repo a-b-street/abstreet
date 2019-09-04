@@ -122,7 +122,7 @@ fn load_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tr
     )
     .unwrap();
     Some(Transition::Replace(Box::new(
-        scenario::ScenarioManager::new(scenario, ctx),
+        scenario::ScenarioManager::new(scenario, ctx, ui),
     )))
 }
 
@@ -139,6 +139,7 @@ fn create_new_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Opt
                 individ_trips: Vec::new(),
             },
             ctx,
+            ui,
         ),
     )))
 }
