@@ -107,8 +107,8 @@ impl ScenarioManager {
             }
         }
 
-        let (filled_spots, total_parking_spots) = ui.primary.sim.get_total_parking_spots();
-        assert_eq!(filled_spots, 0);
+        let (filled_spots, free_parking_spots) = ui.primary.sim.get_all_parking_spots();
+        assert!(filled_spots.is_empty());
 
         ScenarioManager {
             menu: ModalMenu::new(
@@ -135,7 +135,7 @@ impl ScenarioManager {
             trips_to_bldg,
             cars_needed_per_bldg,
             total_cars_needed,
-            total_parking_spots,
+            total_parking_spots: free_parking_spots.len(),
             override_colors,
         }
     }

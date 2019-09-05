@@ -12,6 +12,7 @@ use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu, Wizard, WrappedWizard};
 use geom::Duration;
 use popdat::trips_to_scenario;
 use sim::Scenario;
+use std::collections::BTreeMap;
 
 pub struct MissionEditMode {
     menu: ModalMenu,
@@ -137,6 +138,7 @@ fn create_new_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Opt
                 spawn_over_time: Vec::new(),
                 border_spawn_over_time: Vec::new(),
                 individ_trips: Vec::new(),
+                individ_parked_cars: BTreeMap::new(),
             },
             ctx,
             ui,

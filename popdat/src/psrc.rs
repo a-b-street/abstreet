@@ -32,7 +32,7 @@ pub struct Parcel {
     pub offstreet_parking_spaces: usize,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq)]
 pub enum Mode {
     Walk,
     Bike,

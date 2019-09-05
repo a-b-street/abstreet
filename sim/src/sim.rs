@@ -171,8 +171,8 @@ impl Sim {
     }
 
     // (Filled, available)
-    pub fn get_total_parking_spots(&self) -> (usize, usize) {
-        self.parking.get_total_parking_spots()
+    pub fn get_all_parking_spots(&self) -> (Vec<ParkingSpot>, Vec<ParkingSpot>) {
+        self.parking.get_all_parking_spots()
     }
 
     pub fn seed_parked_car(

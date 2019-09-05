@@ -4,9 +4,9 @@ use abstutil::Timer;
 use geom::{Distance, Duration, LonLat, PolyLine, Polygon, Pt2D};
 use map_model::{BuildingID, IntersectionID, LaneType, Map, PathRequest, Position};
 use sim::{DrivingGoal, Scenario, SidewalkSpot, SpawnTrip, TripSpec};
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Trip {
     pub from: TripEndpt,
     pub to: TripEndpt,
@@ -20,7 +20,7 @@ pub struct Trip {
     pub route: Option<PolyLine>,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum TripEndpt {
     Building(BuildingID),
     // The Pt2D is the original point. It'll be outside the map and likely out-of-bounds entirely,
@@ -259,8 +259,9 @@ pub fn clip_trips(map: &Map, timer: &mut Timer) -> (Vec<Trip>, HashMap<BuildingI
 
 pub fn trips_to_scenario(map: &Map, t1: Duration, t2: Duration, timer: &mut Timer) -> Scenario {
     let (trips, _) = clip_trips(map, timer);
+    // TODO Don't clone trips for parallelize
     let individ_trips = timer
-        .parallelize("turn PSRC trips into SpawnTrips", trips, |trip| {
+        .parallelize("turn PSRC trips into SpawnTrips", trips.clone(), |trip| {
             if trip.depart_at < t1 || trip.depart_at > t2 {
                 return None;
             }
@@ -343,6 +344,29 @@ pub fn trips_to_scenario(map: &Map, t1: Duration, t2: Duration, timer: &mut Time
         .flatten()
         .collect();
 
+    // This is another variation of the 'recycle' algorithm in editor's ScenarioManager.
+    let mut individ_parked_cars = BTreeMap::new();
+    let mut avail_per_bldg = BTreeMap::new();
+    for b in map.all_buildings() {
+        individ_parked_cars.insert(b.id, 0);
+        avail_per_bldg.insert(b.id, 0);
+    }
+    for trip in trips {
+        if trip.depart_at < t1 || trip.depart_at > t2 || trip.mode != Mode::Drive {
+            continue;
+        }
+        if let TripEndpt::Building(b) = trip.from {
+            if avail_per_bldg[&b] > 0 {
+                *avail_per_bldg.get_mut(&b).unwrap() -= 1;
+            } else {
+                *individ_parked_cars.get_mut(&b).unwrap() += 1;
+            }
+        }
+        if let TripEndpt::Building(b) = trip.to {
+            *avail_per_bldg.get_mut(&b).unwrap() += 1;
+        }
+    }
+
     Scenario {
         scenario_name: format!("psrc {} to {}", t1, t2),
         map_name: map.get_name().to_string(),
@@ -350,5 +374,6 @@ pub fn trips_to_scenario(map: &Map, t1: Duration, t2: Duration, timer: &mut Time
         spawn_over_time: Vec::new(),
         border_spawn_over_time: Vec::new(),
         individ_trips,
+        individ_parked_cars,
     }
 }

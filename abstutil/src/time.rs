@@ -295,6 +295,7 @@ impl<'a> Timer<'a> {
         }
     }
 
+    // The order of the result is deterministic / matches the input.
     pub fn parallelize<I, O, F: Fn(I) -> O>(
         &mut self,
         timer_name: &str,

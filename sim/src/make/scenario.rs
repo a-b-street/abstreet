@@ -13,17 +13,21 @@ use rand::seq::SliceRandom;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
 use serde_derive::{Deserialize, Serialize};
-use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Scenario {
     pub scenario_name: String,
     pub map_name: String,
 
+    // Higher-level ways of specifying stuff
     pub seed_parked_cars: Vec<SeedParkedCars>,
     pub spawn_over_time: Vec<SpawnOverTime>,
     pub border_spawn_over_time: Vec<BorderSpawnOverTime>,
+
+    // Much more detailed
     pub individ_trips: Vec<SpawnTrip>,
+    pub individ_parked_cars: BTreeMap<BuildingID, usize>,
 }
 
 // SpawnOverTime and BorderSpawnOverTime should be kept separate. Agents in SpawnOverTime pick
@@ -78,6 +82,10 @@ impl Scenario {
                 prettyprint_usize(self.border_spawn_over_time.len())
             ),
             format!("{} SpawnTrip", prettyprint_usize(self.individ_trips.len())),
+            format!(
+                "{} specific parked cars at buildings",
+                prettyprint_usize(self.individ_parked_cars.len())
+            ),
         ]
     }
 
@@ -133,6 +141,15 @@ impl Scenario {
             s.spawn_cars(rng, sim, &neighborhoods, map, timer);
             s.spawn_bikes(rng, sim, &neighborhoods, map, timer);
         }
+
+        let mut individ_parked_cars: Vec<(BuildingID, usize)> = Vec::new();
+        for (b, cnt) in &self.individ_parked_cars {
+            if *cnt != 0 {
+                individ_parked_cars.push((*b, *cnt));
+            }
+        }
+        individ_parked_cars.shuffle(rng);
+        seed_individ_parked_cars(individ_parked_cars, sim, map, rng, timer);
 
         timer.start_iter("SpawnTrip", self.individ_trips.len());
         for t in &self.individ_trips {
@@ -249,6 +266,7 @@ impl Scenario {
                 })
                 .collect(),
             individ_trips: Vec::new(),
+            individ_parked_cars: BTreeMap::new(),
         };
         for i in map.all_outgoing_borders() {
             s.spawn_over_time.push(SpawnOverTime {
@@ -273,6 +291,7 @@ impl Scenario {
             spawn_over_time: Vec::new(),
             border_spawn_over_time: Vec::new(),
             individ_trips: Vec::new(),
+            individ_parked_cars: BTreeMap::new(),
         }
     }
 
@@ -298,6 +317,7 @@ impl Scenario {
             }],
             border_spawn_over_time: Vec::new(),
             individ_trips: Vec::new(),
+            individ_parked_cars: BTreeMap::new(),
         }
     }
 
@@ -771,6 +791,47 @@ fn seed_parked_cars(
         total_spots,
         owner_buildings.len() - new_cars
     ));
+}
+
+fn seed_individ_parked_cars(
+    individ_parked_cars: Vec<(BuildingID, usize)>,
+    sim: &mut Sim,
+    map: &Map,
+    base_rng: &mut XorShiftRng,
+    timer: &mut Timer,
+) {
+    let mut open_spots_per_road: HashMap<RoadID, Vec<ParkingSpot>> = HashMap::new();
+    for spot in sim.get_all_parking_spots().1 {
+        let r = match spot {
+            ParkingSpot::Onstreet(l, _) => map.get_l(l).parent,
+            ParkingSpot::Offstreet(b, _) => map.get_l(map.get_b(b).sidewalk()).parent,
+        };
+        open_spots_per_road
+            .entry(r)
+            .or_insert_with(Vec::new)
+            .push(spot);
+    }
+    let all_roads = map
+        .all_roads()
+        .iter()
+        .map(|r| r.id)
+        .collect::<BTreeSet<_>>();
+
+    timer.start_iter("seed individual parked cars", individ_parked_cars.len());
+    for (b, cnt) in individ_parked_cars {
+        timer.next();
+        for _ in 0..cnt {
+            // TODO Fork?
+            if let Some(spot) =
+                find_spot_near_building(b, &mut open_spots_per_road, &all_roads, map, timer)
+            {
+                sim.seed_parked_car(Scenario::rand_car(base_rng), spot, Some(b));
+            } else {
+                // TODO Guard against this outright just by total counts.
+                panic!("No room to seed individual parked cars.");
+            }
+        }
+    }
 }
 
 // Pick a parking spot for this building. If the building's road has a free spot, use it. If not,

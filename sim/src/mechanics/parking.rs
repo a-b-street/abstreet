@@ -292,24 +292,25 @@ impl ParkingSimState {
     }
 
     // (Filled, available)
-    pub fn get_total_parking_spots(&self) -> (usize, usize) {
-        let mut filled = 0;
-        let mut available = 0;
+    pub fn get_all_parking_spots(&self) -> (Vec<ParkingSpot>, Vec<ParkingSpot>) {
+        let mut filled = Vec::new();
+        let mut available = Vec::new();
 
         for lane in self.onstreet_lanes.values() {
             for spot in lane.spots() {
                 if self.is_free(spot) {
-                    available += 1;
+                    available.push(spot);
                 } else {
-                    filled += 1;
+                    filled.push(spot);
                 }
             }
         }
         for (b, idx) in &self.num_spots_per_offstreet {
-            if self.is_free(ParkingSpot::Offstreet(*b, *idx)) {
-                available += 1;
+            let spot = ParkingSpot::Offstreet(*b, *idx);
+            if self.is_free(spot) {
+                available.push(spot);
             } else {
-                filled += 1;
+                filled.push(spot);
             }
         }
 
