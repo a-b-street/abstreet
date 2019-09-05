@@ -21,7 +21,7 @@ pub struct ParkingSimState {
     )]
     occupants: BTreeMap<ParkingSpot, CarID>,
     reserved_spots: BTreeSet<ParkingSpot>,
-    // This only ever grows; this could point to cars not currently parked.
+    dynamically_reserved_cars: BTreeSet<CarID>,
     #[serde(
         serialize_with = "serialize_multimap",
         deserialize_with = "deserialize_multimap"
@@ -48,6 +48,7 @@ impl ParkingSimState {
         let mut sim = ParkingSimState {
             parked_cars: BTreeMap::new(),
             occupants: BTreeMap::new(),
+            dynamically_reserved_cars: BTreeSet::new(),
             reserved_spots: BTreeSet::new(),
             owned_cars_per_building: MultiMap::new(),
 
@@ -107,6 +108,10 @@ impl ParkingSimState {
         self.occupants
             .remove(&p.spot)
             .expect("remove_parked_car missing from occupants");
+        if let Some(b) = p.vehicle.owner {
+            self.owned_cars_per_building.remove(b, p.vehicle.id);
+        }
+        self.dynamically_reserved_cars.remove(&p.vehicle.id);
     }
 
     pub fn add_parked_car(&mut self, p: ParkedCar) {
@@ -116,6 +121,17 @@ impl ParkingSimState {
             self.owned_cars_per_building.insert(b, p.vehicle.id);
         }
         self.parked_cars.insert(p.vehicle.id, p);
+    }
+
+    pub fn dynamically_reserve_car(&mut self, b: BuildingID) -> Option<ParkedCar> {
+        for c in self.owned_cars_per_building.get(b) {
+            if self.dynamically_reserved_cars.contains(c) {
+                continue;
+            }
+            self.dynamically_reserved_cars.insert(*c);
+            return Some(self.parked_cars[c].clone());
+        }
+        None
     }
 
     pub fn get_draw_cars(&self, id: LaneID, map: &Map) -> Vec<DrawCarInput> {

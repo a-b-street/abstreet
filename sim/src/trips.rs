@@ -78,6 +78,13 @@ impl TripManager {
         id
     }
 
+    pub fn dynamically_override_legs(&mut self, id: TripID, legs: Vec<TripLeg>) {
+        let trip = &mut self.trips[id.0];
+        trip.legs = VecDeque::from(legs);
+        // This is only for peds using a previously unknown parked car
+        trip.mode = TripMode::Drive;
+    }
+
     pub fn agent_starting_trip_leg(&mut self, agent: AgentID, trip: TripID) {
         assert!(!self.active_trip_mode.contains_key(&agent));
         // TODO ensure a trip only has one active agent (aka, not walking and driving at the same
