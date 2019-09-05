@@ -739,7 +739,7 @@ fn seed_parked_cars(
     // Track the available parking spots per road, only for the roads in the appropriate
     // neighborhood.
     let mut total_spots = 0;
-    let mut open_spots_per_road: HashMap<RoadID, Vec<ParkingSpot>> = HashMap::new();
+    let mut open_spots_per_road: BTreeMap<RoadID, Vec<ParkingSpot>> = BTreeMap::new();
     for id in neighborhoods_roads {
         let r = map.get_r(*id);
         let mut spots: Vec<ParkingSpot> = Vec::new();
@@ -800,7 +800,7 @@ fn seed_individ_parked_cars(
     base_rng: &mut XorShiftRng,
     timer: &mut Timer,
 ) {
-    let mut open_spots_per_road: HashMap<RoadID, Vec<ParkingSpot>> = HashMap::new();
+    let mut open_spots_per_road: BTreeMap<RoadID, Vec<ParkingSpot>> = BTreeMap::new();
     for spot in sim.get_all_parking_spots().1 {
         let r = match spot {
             ParkingSpot::Onstreet(l, _) => map.get_l(l).parent,
@@ -810,6 +810,9 @@ fn seed_individ_parked_cars(
             .entry(r)
             .or_insert_with(Vec::new)
             .push(spot);
+    }
+    for spots in open_spots_per_road.values_mut() {
+        spots.shuffle(base_rng);
     }
     let all_roads = map
         .all_roads()
@@ -839,7 +842,7 @@ fn seed_individ_parked_cars(
 // spot.
 fn find_spot_near_building(
     b: BuildingID,
-    open_spots_per_road: &mut HashMap<RoadID, Vec<ParkingSpot>>,
+    open_spots_per_road: &mut BTreeMap<RoadID, Vec<ParkingSpot>>,
     neighborhoods_roads: &BTreeSet<RoadID>,
     map: &Map,
     timer: &mut Timer,
