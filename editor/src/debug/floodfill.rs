@@ -1,11 +1,11 @@
+use crate::common::{RoadColorer, RoadColorerBuilder};
 use crate::game::{State, Transition};
 use crate::helpers::ID;
-use crate::render::{DrawOptions, MIN_ZOOM_FOR_DETAIL};
-use crate::ui::{ShowEverything, UI};
-use ezgui::{hotkey, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu, Text};
-use map_model::{LaneID, Map, RoadID};
+use crate::ui::UI;
+use ezgui::{hotkey, Color, EventCtx, GfxCtx, Key, ModalMenu, Text};
+use map_model::{LaneID, Map};
 use petgraph::graphmap::DiGraphMap;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
 pub struct Floodfiller {
     menu: ModalMenu,
@@ -128,66 +128,4 @@ fn find_reachable_from(start: LaneID, map: &Map) -> HashSet<LaneID> {
         }
     }
     visited
-}
-
-// TODO Useful elsewhere?
-struct RoadColorerBuilder {
-    prioritized_colors: Vec<Color>,
-    zoomed_override_colors: HashMap<ID, Color>,
-    roads: HashMap<RoadID, Color>,
-}
-
-struct RoadColorer {
-    zoomed_override_colors: HashMap<ID, Color>,
-    unzoomed: Drawable,
-}
-
-impl RoadColorer {
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        let mut opts = DrawOptions::new();
-        if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
-            ui.draw(g, opts, &ui.primary.sim, &ShowEverything::new());
-            g.redraw(&self.unzoomed);
-        } else {
-            opts.override_colors = self.zoomed_override_colors.clone();
-            ui.draw(g, opts, &ui.primary.sim, &ShowEverything::new());
-        }
-    }
-}
-
-impl RoadColorerBuilder {
-    // Colors listed earlier override those listed later. This is used in unzoomed mode, when one
-    // road has lanes of different colors.
-    fn new(prioritized_colors: Vec<Color>) -> RoadColorerBuilder {
-        RoadColorerBuilder {
-            prioritized_colors,
-            zoomed_override_colors: HashMap::new(),
-            roads: HashMap::new(),
-        }
-    }
-
-    fn add(&mut self, l: LaneID, color: Color, map: &Map) {
-        self.zoomed_override_colors.insert(ID::Lane(l), color);
-        let r = map.get_parent(l).id;
-        if let Some(existing) = self.roads.get(&r) {
-            if self.prioritized_colors.iter().position(|c| *c == color)
-                < self.prioritized_colors.iter().position(|c| c == existing)
-            {
-                self.roads.insert(r, color);
-            }
-        } else {
-            self.roads.insert(r, color);
-        }
-    }
-
-    fn build(self, ctx: &mut EventCtx, map: &Map) -> RoadColorer {
-        let mut batch = GeomBatch::new();
-        for (r, color) in self.roads {
-            batch.push(color, map.get_r(r).get_thick_polygon().unwrap());
-        }
-        RoadColorer {
-            zoomed_override_colors: self.zoomed_override_colors,
-            unzoomed: ctx.prerender.upload(batch),
-        }
-    }
 }

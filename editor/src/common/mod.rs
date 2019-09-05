@@ -1,5 +1,6 @@
 mod agent;
 mod associated;
+mod colors;
 mod navigate;
 mod route_explorer;
 mod route_viewer;
@@ -11,6 +12,7 @@ mod turn_cycler;
 mod warp;
 
 pub use self::agent::AgentTools;
+pub use self::colors::{BuildingColorer, BuildingColorerBuilder, RoadColorer, RoadColorerBuilder};
 pub use self::route_explorer::RouteExplorer;
 pub use self::speed::SpeedControls;
 pub use self::time::time_controls;

@@ -1,9 +1,9 @@
-use crate::common::{CommonState, Warping};
+use crate::common::{BuildingColorer, BuildingColorerBuilder, CommonState, Warping};
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::mission::pick_time_range;
 use crate::sandbox::SandboxMode;
-use crate::ui::{ShowEverything, UI};
+use crate::ui::UI;
 use abstutil::{prettyprint_usize, MultiMap, WeightedUsizeChoice};
 use ezgui::{
     hotkey, Color, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard, WrappedWizard,
@@ -28,7 +28,7 @@ pub struct ScenarioManager {
     cars_needed_per_bldg: HashMap<BuildingID, CarCount>,
     total_cars_needed: CarCount,
     total_parking_spots: usize,
-    override_colors: HashMap<ID, Color>,
+    bldg_colors: BuildingColorer,
 }
 
 impl ScenarioManager {
@@ -40,14 +40,14 @@ impl ScenarioManager {
             cars_needed_per_bldg.insert(b.id, CarCount::new());
         }
         let mut total_cars_needed = CarCount::new();
-        let mut override_colors = HashMap::new();
+        let mut bldg_colors = BuildingColorerBuilder::new();
         for (idx, trip) in scenario.individ_trips.iter().enumerate() {
             // trips_from_bldg
             match trip {
                 SpawnTrip::CarAppearing { ref start_bldg, .. } => {
                     if let Some(b) = start_bldg {
                         trips_from_bldg.insert(*b, idx);
-                        override_colors.insert(ID::Building(*b), Color::BLUE);
+                        bldg_colors.add(*b, Color::BLUE);
                     }
                 }
                 SpawnTrip::UsingBike(_, ref spot, _)
@@ -55,7 +55,7 @@ impl ScenarioManager {
                 | SpawnTrip::UsingTransit(_, ref spot, _, _, _, _) => {
                     if let SidewalkPOI::Building(b) = spot.connection {
                         trips_from_bldg.insert(b, idx);
-                        override_colors.insert(ID::Building(b), Color::BLUE);
+                        bldg_colors.add(b, Color::BLUE);
                     }
                 }
             }
@@ -65,14 +65,14 @@ impl ScenarioManager {
                 SpawnTrip::CarAppearing { ref goal, .. } | SpawnTrip::UsingBike(_, _, ref goal) => {
                     if let DrivingGoal::ParkNear(b) = goal {
                         trips_to_bldg.insert(*b, idx);
-                        override_colors.insert(ID::Building(*b), Color::BLUE);
+                        bldg_colors.add(*b, Color::BLUE);
                     }
                 }
                 SpawnTrip::JustWalking(_, _, ref spot)
                 | SpawnTrip::UsingTransit(_, _, ref spot, _, _, _) => {
                     if let SidewalkPOI::Building(b) = spot.connection {
                         trips_to_bldg.insert(b, idx);
-                        override_colors.insert(ID::Building(b), Color::BLUE);
+                        bldg_colors.add(b, Color::BLUE);
                     }
                 }
             }
@@ -136,7 +136,7 @@ impl ScenarioManager {
             cars_needed_per_bldg,
             total_cars_needed,
             total_parking_spots: free_parking_spots.len(),
-            override_colors,
+            bldg_colors: bldg_colors.build(ctx, &ui.primary.map),
         }
     }
 }
@@ -210,10 +210,8 @@ impl State for ScenarioManager {
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        let mut opts = self.common.draw_options(ui);
-        // TODO expensive!
-        opts.override_colors.extend(self.override_colors.clone());
-        ui.draw(g, opts, &ui.primary.sim, &ShowEverything::new());
+        // TODO Let common contribute draw_options...
+        self.bldg_colors.draw(g, ui);
 
         self.menu.draw(g);
         // TODO Weird to not draw common (turn cycler), but we want the custom OSD...
