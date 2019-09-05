@@ -135,6 +135,7 @@ impl Sim {
                 (ped, Some(car))
             }
             TripSpec::UsingParkedCar { .. }
+            | TripSpec::MaybeUsingParkedCar { .. }
             | TripSpec::JustWalking { .. }
             | TripSpec::UsingTransit { .. } => {
                 let id = PedestrianID(self.ped_id_counter);

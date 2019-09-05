@@ -176,6 +176,17 @@ impl Scenario {
                         map,
                     );
                 }
+                SpawnTrip::MaybeUsingParkedCar(depart, start_bldg, goal) => {
+                    sim.schedule_trip(
+                        depart,
+                        TripSpec::MaybeUsingParkedCar {
+                            start_bldg,
+                            goal,
+                            ped_speed: Scenario::rand_ped_speed(rng),
+                        },
+                        map,
+                    );
+                }
                 SpawnTrip::UsingBike(depart, start, goal) => {
                     sim.schedule_trip(
                         depart,
@@ -893,10 +904,11 @@ pub enum SpawnTrip {
         depart: Duration,
         // TODO Replace start with building|border
         start: Position,
-        start_bldg: Option<BuildingID>,
         goal: DrivingGoal,
+        // For bikes starting at a border, use CarAppearing. UsingBike implies a walk->bike trip.
         is_bike: bool,
     },
+    MaybeUsingParkedCar(Duration, BuildingID, DrivingGoal),
     UsingBike(Duration, SidewalkSpot, DrivingGoal),
     JustWalking(Duration, SidewalkSpot, SidewalkSpot),
     UsingTransit(

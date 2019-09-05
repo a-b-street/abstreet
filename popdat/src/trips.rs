@@ -267,27 +267,29 @@ pub fn trips_to_scenario(map: &Map, t1: Duration, t2: Duration, timer: &mut Time
             }
 
             match trip.mode {
-                Mode::Drive => {
-                    // TODO Use a parked car, but first have to figure out what cars to seed.
-                    if let Some(start) =
-                        TripSpec::spawn_car_at(trip.from.start_pos_driving(map), map)
-                    {
-                        Some(SpawnTrip::CarAppearing {
-                            depart: trip.depart_at,
-                            start,
-                            start_bldg: match trip.from {
-                                TripEndpt::Building(b) => Some(b),
-                                TripEndpt::Border(_, _) => None,
-                            },
-                            goal: trip.to.driving_goal(vec![LaneType::Driving], map),
-                            is_bike: false,
-                        })
-                    } else {
-                        // TODO need to be able to emit warnings from parallelize
-                        //timer.warn(format!("No room for car to appear at {:?}", trip.from));
-                        None
+                Mode::Drive => match trip.from {
+                    TripEndpt::Border(_, _) => {
+                        if let Some(start) =
+                            TripSpec::spawn_car_at(trip.from.start_pos_driving(map), map)
+                        {
+                            Some(SpawnTrip::CarAppearing {
+                                depart: trip.depart_at,
+                                start,
+                                goal: trip.to.driving_goal(vec![LaneType::Driving], map),
+                                is_bike: false,
+                            })
+                        } else {
+                            // TODO need to be able to emit warnings from parallelize
+                            //timer.warn(format!("No room for car to appear at {:?}", trip.from));
+                            None
+                        }
                     }
-                }
+                    TripEndpt::Building(b) => Some(SpawnTrip::MaybeUsingParkedCar(
+                        trip.depart_at,
+                        b,
+                        trip.to.driving_goal(vec![LaneType::Driving], map),
+                    )),
+                },
                 Mode::Bike => match trip.from {
                     TripEndpt::Building(b) => Some(SpawnTrip::UsingBike(
                         trip.depart_at,
@@ -302,7 +304,6 @@ pub fn trips_to_scenario(map: &Map, t1: Duration, t2: Duration, timer: &mut Time
                             Some(SpawnTrip::CarAppearing {
                                 depart: trip.depart_at,
                                 start,
-                                start_bldg: None,
                                 goal: trip
                                     .to
                                     .driving_goal(vec![LaneType::Biking, LaneType::Driving], map),

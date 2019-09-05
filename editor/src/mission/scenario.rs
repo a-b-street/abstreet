@@ -44,11 +44,10 @@ impl ScenarioManager {
         for (idx, trip) in scenario.individ_trips.iter().enumerate() {
             // trips_from_bldg
             match trip {
-                SpawnTrip::CarAppearing { ref start_bldg, .. } => {
-                    if let Some(b) = start_bldg {
-                        trips_from_bldg.insert(*b, idx);
-                        bldg_colors.add(*b, Color::BLUE);
-                    }
+                SpawnTrip::CarAppearing { .. } => {}
+                SpawnTrip::MaybeUsingParkedCar(_, b, _) => {
+                    trips_from_bldg.insert(*b, idx);
+                    bldg_colors.add(*b, Color::BLUE);
                 }
                 SpawnTrip::UsingBike(_, ref spot, _)
                 | SpawnTrip::JustWalking(_, ref spot, _)
@@ -62,7 +61,9 @@ impl ScenarioManager {
 
             // trips_to_bldg
             match trip {
-                SpawnTrip::CarAppearing { ref goal, .. } | SpawnTrip::UsingBike(_, _, ref goal) => {
+                SpawnTrip::CarAppearing { ref goal, .. }
+                | SpawnTrip::MaybeUsingParkedCar(_, _, ref goal)
+                | SpawnTrip::UsingBike(_, _, ref goal) => {
                     if let DrivingGoal::ParkNear(b) = goal {
                         trips_to_bldg.insert(*b, idx);
                         bldg_colors.add(*b, Color::BLUE);
@@ -78,31 +79,22 @@ impl ScenarioManager {
             }
 
             // Parked cars
-            if let SpawnTrip::CarAppearing {
-                is_bike,
-                ref start_bldg,
-                ref goal,
-                ..
-            } = trip
-            {
-                if !is_bike {
-                    if let Some(b) = start_bldg {
-                        let mut cnt = cars_needed_per_bldg.get_mut(b).unwrap();
+            if let SpawnTrip::MaybeUsingParkedCar(_, start_bldg, ref goal) = trip {
+                let mut cnt = cars_needed_per_bldg.get_mut(start_bldg).unwrap();
 
-                        cnt.naive += 1;
-                        total_cars_needed.naive += 1;
+                cnt.naive += 1;
+                total_cars_needed.naive += 1;
 
-                        if cnt.available > 0 {
-                            cnt.available -= 1;
-                        } else {
-                            cnt.recycle += 1;
-                            total_cars_needed.recycle += 1;
-                        }
-                    }
-                    // Cars appearing at borders and driving in contribute parked cars.
-                    if let DrivingGoal::ParkNear(b) = goal {
-                        cars_needed_per_bldg.get_mut(b).unwrap().available += 1;
-                    }
+                if cnt.available > 0 {
+                    cnt.available -= 1;
+                } else {
+                    cnt.recycle += 1;
+                    total_cars_needed.recycle += 1;
+                }
+
+                // Cars appearing at borders and driving in contribute parked cars.
+                if let DrivingGoal::ParkNear(b) = goal {
+                    cars_needed_per_bldg.get_mut(b).unwrap().available += 1;
                 }
             }
         }
@@ -460,17 +452,22 @@ fn describe(trip: &SpawnTrip, home: BuildingID) -> String {
             start,
             goal,
             is_bike,
-            start_bldg,
         } => format!(
-            "{}: {} appears {}, goes to {}",
+            "{}: {} appears at {}, goes to {}",
             depart,
             if *is_bike { "bike" } else { "car" },
-            if start_bldg == &Some(home) {
+            start.lane(),
+            driving_goal(goal)
+        ),
+        SpawnTrip::MaybeUsingParkedCar(depart, start_bldg, goal) => format!(
+            "{}: try to drive from {} to {}",
+            depart,
+            if *start_bldg == home {
                 "HERE".to_string()
             } else {
-                format!("at {}", start.lane())
+                start_bldg.to_string()
             },
-            driving_goal(goal)
+            driving_goal(goal),
         ),
         SpawnTrip::UsingBike(depart, start, goal) => format!(
             "{}: bike from {} to {}",
@@ -506,17 +503,10 @@ fn other_endpt(trip: &SpawnTrip, home: BuildingID) -> ID {
     };
 
     let (from, to) = match trip {
-        SpawnTrip::CarAppearing {
-            start,
-            goal,
-            start_bldg,
-            ..
-        } => (
-            start_bldg
-                .map(|b| ID::Building(b))
-                .unwrap_or(ID::Lane(start.lane())),
-            driving_goal(goal),
-        ),
+        SpawnTrip::CarAppearing { start, goal, .. } => (ID::Lane(start.lane()), driving_goal(goal)),
+        SpawnTrip::MaybeUsingParkedCar(_, start_bldg, goal) => {
+            (ID::Building(*start_bldg), driving_goal(goal))
+        }
         SpawnTrip::UsingBike(_, start, goal) => (sidewalk_spot(start), driving_goal(goal)),
         SpawnTrip::JustWalking(_, start, goal) => (sidewalk_spot(start), sidewalk_spot(goal)),
         SpawnTrip::UsingTransit(_, start, goal, _, _, _) => {

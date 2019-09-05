@@ -5,7 +5,7 @@ use crate::{
 };
 use abstutil::Timer;
 use geom::{Duration, Speed, EPSILON_DIST};
-use map_model::{BusRouteID, BusStopID, Map, PathRequest, Position};
+use map_model::{BuildingID, BusRouteID, BusStopID, Map, PathRequest, Position};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 
@@ -21,6 +21,11 @@ pub enum TripSpec {
     UsingParkedCar {
         start: SidewalkSpot,
         spot: ParkingSpot,
+        goal: DrivingGoal,
+        ped_speed: Speed,
+    },
+    MaybeUsingParkedCar {
+        start_bldg: BuildingID,
         goal: DrivingGoal,
         ped_speed: Speed,
     },
@@ -110,6 +115,7 @@ impl TripSpawner {
                 }
                 self.parked_cars_claimed.insert(car_id);
             }
+            TripSpec::MaybeUsingParkedCar { .. } => {}
             TripSpec::JustWalking { start, goal, .. } => {
                 if start == goal {
                     panic!(
@@ -239,6 +245,30 @@ impl TripSpawner {
                             speed: ped_speed,
                             start,
                             goal: parking_spot,
+                            path,
+                            trip,
+                        }),
+                    );
+                }
+                TripSpec::MaybeUsingParkedCar {
+                    start_bldg,
+                    goal,
+                    ped_speed,
+                } => {
+                    let walk_to = SidewalkSpot::deferred_parking_spot(start_bldg, goal, map);
+                    // Can't add TripLeg::Drive, because we don't know the vehicle yet! Plumb along
+                    // the DrivingGoal, so we can expand the trip later.
+                    let legs = vec![TripLeg::Walk(ped_id.unwrap(), ped_speed, walk_to.clone())];
+                    let trip = trips.new_trip(start_time, Some(TripStart::Bldg(start_bldg)), legs);
+
+                    scheduler.quick_push(
+                        start_time,
+                        Command::SpawnPed(CreatePedestrian {
+                            id: ped_id.unwrap(),
+                            speed: ped_speed,
+                            start: SidewalkSpot::building(start_bldg, map),
+                            goal: walk_to,
+                            // This is junk
                             path,
                             trip,
                         }),
@@ -406,6 +436,17 @@ impl TripSpec {
                 can_use_bike_lanes: false,
                 can_use_bus_lanes: false,
             },
+            // Don't know where the parked car will be, so just make a dummy path that'll never
+            // fail.
+            TripSpec::MaybeUsingParkedCar { start_bldg, .. } => {
+                let pos = map.get_b(*start_bldg).front_path.sidewalk;
+                PathRequest {
+                    start: pos,
+                    end: pos,
+                    can_use_bike_lanes: false,
+                    can_use_bus_lanes: false,
+                }
+            }
             TripSpec::JustWalking { start, goal, .. } => PathRequest {
                 start: start.sidewalk_pos,
                 end: goal.sidewalk_pos,
