@@ -15,6 +15,7 @@ use sim::{
     SidewalkSpot, SpawnOverTime, SpawnTrip,
 };
 use std::collections::{BTreeSet, HashMap};
+use std::fmt;
 
 pub struct ScenarioManager {
     menu: ModalMenu,
@@ -24,8 +25,8 @@ pub struct ScenarioManager {
     // The usizes are indices into scenario.individ_trips
     trips_from_bldg: MultiMap<BuildingID, usize>,
     trips_to_bldg: MultiMap<BuildingID, usize>,
-    cars_needed_per_bldg: HashMap<BuildingID, usize>,
-    total_cars_needed: usize,
+    cars_needed_per_bldg: HashMap<BuildingID, CarCount>,
+    total_cars_needed: CarCount,
     total_parking_spots: usize,
     override_colors: HashMap<ID, Color>,
 }
@@ -35,7 +36,10 @@ impl ScenarioManager {
         let mut trips_from_bldg = MultiMap::new();
         let mut trips_to_bldg = MultiMap::new();
         let mut cars_needed_per_bldg = HashMap::new();
-        let mut total_cars_needed = 0;
+        for b in ui.primary.map.all_buildings() {
+            cars_needed_per_bldg.insert(b.id, CarCount::new());
+        }
+        let mut total_cars_needed = CarCount::new();
         let mut override_colors = HashMap::new();
         for (idx, trip) in scenario.individ_trips.iter().enumerate() {
             // trips_from_bldg
@@ -77,13 +81,27 @@ impl ScenarioManager {
             if let SpawnTrip::CarAppearing {
                 is_bike,
                 ref start_bldg,
+                ref goal,
                 ..
             } = trip
             {
                 if !is_bike {
                     if let Some(b) = start_bldg {
-                        *cars_needed_per_bldg.entry(*b).or_insert(0) += 1;
-                        total_cars_needed += 1;
+                        let mut cnt = cars_needed_per_bldg.get_mut(b).unwrap();
+
+                        cnt.naive += 1;
+                        total_cars_needed.naive += 1;
+
+                        if cnt.available > 0 {
+                            cnt.available -= 1;
+                        } else {
+                            cnt.recycle += 1;
+                            total_cars_needed.recycle += 1;
+                        }
+                    }
+                    // Cars appearing at borders and driving in contribute parked cars.
+                    if let DrivingGoal::ParkNear(b) = goal {
+                        cars_needed_per_bldg.get_mut(b).unwrap().available += 1;
                     }
                 }
             }
@@ -135,7 +153,7 @@ impl State for ScenarioManager {
             }
             txt.add_line(format!(
                 "{} total parked cars needed, {} spots",
-                prettyprint_usize(self.total_cars_needed),
+                self.total_cars_needed,
                 prettyprint_usize(self.total_parking_spots),
             ));
             self.menu.handle_event(ctx, Some(txt));
@@ -215,7 +233,7 @@ impl State for ScenarioManager {
                     ". {} trips from here, {} trips to here, {} parked cars needed",
                     from.len(),
                     to.len(),
-                    self.cars_needed_per_bldg.get(&b).unwrap_or(&0)
+                    self.cars_needed_per_bldg[&b]
                 ),
                 None,
             );
@@ -513,5 +531,34 @@ fn other_endpt(trip: &SpawnTrip, home: BuildingID) -> ID {
         from
     } else {
         panic!("other_endpt broke when homed at {} for {:?}", home, trip)
+    }
+}
+
+struct CarCount {
+    naive: usize,
+    recycle: usize,
+
+    // Intermediate state
+    available: usize,
+}
+
+impl CarCount {
+    fn new() -> CarCount {
+        CarCount {
+            naive: 0,
+            recycle: 0,
+            available: 0,
+        }
+    }
+}
+
+impl fmt::Display for CarCount {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "{} / {}",
+            prettyprint_usize(self.naive),
+            prettyprint_usize(self.recycle),
+        )
     }
 }
