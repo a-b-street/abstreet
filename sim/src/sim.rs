@@ -382,53 +382,72 @@ impl Sim {
                     }
                 }
                 Command::SpawnPed(mut create_ped) => {
-                    if let SidewalkPOI::DeferredParkingSpot(b, driving_goal) =
-                        create_ped.goal.connection
+                    let ok = if let SidewalkPOI::DeferredParkingSpot(b, driving_goal) =
+                        create_ped.goal.connection.clone()
                     {
                         if let Some(parked_car) = self.parking.dynamically_reserve_car(b) {
                             create_ped.goal =
                                 SidewalkSpot::parking_spot(parked_car.spot, map, &self.parking);
-                            create_ped.path = map
-                                .pathfind(PathRequest {
-                                    start: create_ped.start.sidewalk_pos,
-                                    end: create_ped.goal.sidewalk_pos,
-                                    can_use_bike_lanes: false,
-                                    can_use_bus_lanes: false,
-                                })
-                                .expect("no path for ped going to dynamically chosen car");
-
-                            let mut legs = vec![
-                                TripLeg::Walk(
-                                    create_ped.id,
-                                    create_ped.speed,
-                                    create_ped.goal.clone(),
-                                ),
-                                TripLeg::Drive(parked_car.vehicle.clone(), driving_goal.clone()),
-                            ];
-                            match driving_goal {
-                                DrivingGoal::ParkNear(b) => {
-                                    legs.push(TripLeg::Walk(
+                            if let Some(path) = map.pathfind(PathRequest {
+                                start: create_ped.start.sidewalk_pos,
+                                end: create_ped.goal.sidewalk_pos,
+                                can_use_bike_lanes: false,
+                                can_use_bus_lanes: false,
+                            }) {
+                                create_ped.path = path;
+                                let mut legs = vec![
+                                    TripLeg::Walk(
                                         create_ped.id,
                                         create_ped.speed,
-                                        SidewalkSpot::building(b, map),
-                                    ));
+                                        create_ped.goal.clone(),
+                                    ),
+                                    TripLeg::Drive(
+                                        parked_car.vehicle.clone(),
+                                        driving_goal.clone(),
+                                    ),
+                                ];
+                                match driving_goal {
+                                    DrivingGoal::ParkNear(b) => {
+                                        legs.push(TripLeg::Walk(
+                                            create_ped.id,
+                                            create_ped.speed,
+                                            SidewalkSpot::building(b, map),
+                                        ));
+                                    }
+                                    DrivingGoal::Border(_, _) => {}
                                 }
-                                DrivingGoal::Border(_, _) => {}
+                                self.trips.dynamically_override_legs(create_ped.trip, legs);
+                                true
+                            } else {
+                                println!(
+                                    "WARNING: At {}, {} giving up because no path from {} to {:?}",
+                                    self.time, create_ped.id, b, create_ped.goal.connection
+                                );
+                                self.parking.dynamically_return_car(parked_car);
+                                false
                             }
-                            self.trips.dynamically_override_legs(create_ped.trip, legs);
                         } else {
-                            panic!("No free car for {} spawning at {}", create_ped.id, b);
+                            println!(
+                                "WARNING: At {}, no free car for {} spawning at {}",
+                                self.time, create_ped.id, b
+                            );
+                            false
                         }
+                    } else {
+                        true
+                    };
+                    if ok {
+                        // Do the order a bit backwards so we don't have to clone the
+                        // CreatePedestrian.  spawn_ped can't fail.
+                        self.trips.agent_starting_trip_leg(
+                            AgentID::Pedestrian(create_ped.id),
+                            create_ped.trip,
+                        );
+                        self.walking
+                            .spawn_ped(self.time, create_ped, map, &mut self.scheduler);
+                    } else {
+                        self.trips.abort_trip_failed_start(create_ped.trip);
                     }
-
-                    // Do the order a bit backwards so we don't have to clone the CreatePedestrian.
-                    // spawn_ped can't fail.
-                    self.trips.agent_starting_trip_leg(
-                        AgentID::Pedestrian(create_ped.id),
-                        create_ped.trip,
-                    );
-                    self.walking
-                        .spawn_ped(self.time, create_ped, map, &mut self.scheduler);
                 }
                 Command::UpdateCar(car) => {
                     self.driving.update_car(

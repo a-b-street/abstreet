@@ -134,6 +134,10 @@ impl ParkingSimState {
         None
     }
 
+    pub fn dynamically_return_car(&mut self, p: ParkedCar) {
+        self.dynamically_reserved_cars.remove(&p.vehicle.id);
+    }
+
     pub fn get_draw_cars(&self, id: LaneID, map: &Map) -> Vec<DrawCarInput> {
         let mut cars = Vec::new();
         if let Some(ref lane) = self.onstreet_lanes.get(&id) {

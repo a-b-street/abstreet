@@ -22,6 +22,8 @@
 ## Sim layer
 
 - rename Car->Vehicle?
+- spawning is convoluted
+	- popdat trip -> Scenario SpawnTrip -> pick ped speed and make spawner's TripSpec -> create trip and schedule a Command -> last minute rewriting when executing the command
 
 ## ezgui layer
 
