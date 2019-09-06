@@ -1,7 +1,7 @@
 use crate::helpers::ID;
 use crate::render::{DrawOptions, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::{ShowEverything, UI};
-use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, ScreenPt, Text};
+use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, ScreenPt, Text, LINE_HEIGHT};
 use geom::{Distance, Polygon, Pt2D};
 use map_model::{BuildingID, LaneID, Map, RoadID};
 use std::collections::HashMap;
@@ -154,13 +154,11 @@ impl ColorLegend {
         for (label, _) in &self.rows {
             txt.add_line(label.to_string());
         }
-        // TODO better ezgui constant for default line height, assert it matches font upon init
-        let line_height = 30.0;
         g.draw_text_at_screenspace_topleft(
             &txt,
             ScreenPt::new(
                 50.0,
-                g.canvas.window_height - (line_height * ((self.rows.len() + 2) as f64)),
+                g.canvas.window_height - (LINE_HEIGHT * ((self.rows.len() + 2) as f64)),
             ),
         );
 
@@ -172,7 +170,7 @@ impl ColorLegend {
                 Polygon::rectangle_topleft(
                     Pt2D::new(
                         20.0,
-                        g.canvas.window_height - line_height * (offset_from_bottom as f64),
+                        g.canvas.window_height - LINE_HEIGHT * (offset_from_bottom as f64),
                     ),
                     Distance::meters(10.0),
                     Distance::meters(10.0),

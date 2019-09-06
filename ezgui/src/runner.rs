@@ -1,5 +1,5 @@
 use crate::input::ContextMenu;
-use crate::{text, widgets, Canvas, Event, EventCtx, GfxCtx, Prerender, UserInput};
+use crate::{text, widgets, Canvas, Event, EventCtx, GfxCtx, Prerender, UserInput, LINE_HEIGHT};
 use glium::glutin;
 use glium_glyph::glyph_brush::rusttype::Font;
 use glium_glyph::{GlyphBrush, GlyphBrushBuilder};
@@ -250,6 +250,7 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(
         screenspace_glyphs,
         mapspace_glyphs,
     );
+    assert_eq!(LINE_HEIGHT, canvas.line_height(text::FONT_SIZE));
     let prerender = Prerender {
         display: &display,
         num_uploads: Cell::new(0),

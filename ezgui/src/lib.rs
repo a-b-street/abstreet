@@ -28,3 +28,7 @@ pub enum InputResult<T: Clone> {
     StillActive,
     Done(String, T),
 }
+
+// At the default text size. Exposed for convenience outside, but ideally, this shouldn't be
+// needed...
+pub const LINE_HEIGHT: f64 = 30.0;
