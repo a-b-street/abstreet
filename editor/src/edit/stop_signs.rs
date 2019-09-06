@@ -3,7 +3,7 @@ use crate::edit::apply_map_edits;
 use crate::game::{State, Transition};
 use crate::render::{DrawIntersection, DrawOptions};
 use crate::ui::{ShowEverything, UI};
-use ezgui::{hotkey, Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu, Text};
+use ezgui::{hotkey, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu, Text};
 use geom::Polygon;
 use map_model::{IntersectionID, RoadID};
 use std::collections::HashMap;
@@ -119,11 +119,9 @@ impl State for StopSignEditor {
 
         self.menu.draw(g);
         if let Some(r) = self.selected_sign {
-            let mut osd = Text::from_line("Stop sign for ".to_string());
-            osd.append(
-                ui.primary.map.get_r(r).get_name(),
-                Some(ui.cs.get("OSD name color")),
-            );
+            let mut osd = Text::new();
+            osd.add(Line("Stop sign for "));
+            osd.append(Line(ui.primary.map.get_r(r).get_name()).fg(ui.cs.get("OSD name color")));
             CommonState::draw_custom_osd(g, osd);
         } else {
             CommonState::draw_osd(g, ui, &None);

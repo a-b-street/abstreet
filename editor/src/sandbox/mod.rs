@@ -12,7 +12,9 @@ use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::ui::{PerMapUI, ShowEverything, UI};
 use abstutil::Counter;
-use ezgui::{hotkey, lctrl, Color, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard};
+use ezgui::{
+    hotkey, lctrl, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, ModalMenu, Text, Wizard,
+};
 use geom::Duration;
 use sim::{ParkingSpot, Sim};
 use std::collections::HashSet;
@@ -83,7 +85,7 @@ impl State for SandboxMode {
         self.time_travel.record(ui);
 
         let mut txt = Text::prompt("Sandbox Mode");
-        txt.add_line(ui.primary.sim.summary());
+        txt.add(Line(ui.primary.sim.summary()));
         self.agent_tools.update_menu_info(&mut txt);
         self.menu.handle_event(ctx, Some(txt));
 

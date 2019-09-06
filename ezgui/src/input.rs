@@ -1,5 +1,5 @@
 use crate::widgets::{Menu, Position};
-use crate::{hotkey, text, Canvas, Event, InputResult, Key, ScreenPt, Text};
+use crate::{hotkey, text, Canvas, Event, InputResult, Key, Line, ScreenPt, Text};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 // As we check for user input, record the input and the thing that would happen. This will let us
@@ -304,9 +304,9 @@ impl UserInput {
 
     pub fn populate_osd(&mut self, osd: &mut Text) {
         for (key, a) in self.important_actions.drain(..) {
-            osd.add_line("Press ".to_string());
-            osd.append(key.describe(), Some(text::HOTKEY_COLOR));
-            osd.append(format!(" to {}", a), None);
+            osd.add(Line("Press "));
+            osd.append(Line(key.describe()).fg(text::HOTKEY_COLOR));
+            osd.append(Line(format!(" to {}", a)));
         }
     }
 

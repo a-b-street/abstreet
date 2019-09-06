@@ -7,7 +7,9 @@ use crate::common::{
 use crate::game::{State, Transition};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::{PerMapUI, UI};
-use ezgui::{hotkey, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, ModalMenu, Text};
+use ezgui::{
+    hotkey, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu, Text,
+};
 use geom::{Circle, Distance, Line, PolyLine};
 use map_model::{Map, LANE_THICKNESS};
 use serde_derive::{Deserialize, Serialize};
@@ -74,18 +76,18 @@ impl ABTestMode {
 impl State for ABTestMode {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         let mut txt = Text::prompt("A/B Test Mode");
-        txt.add_line(ui.primary.map.get_edits().edits_name.clone());
+        txt.add(Line(&ui.primary.map.get_edits().edits_name));
         if let Some(ref diff) = self.diff_trip {
-            txt.add_line(format!("Showing diff for {}", diff.trip));
+            txt.add(Line(format!("Showing diff for {}", diff.trip)));
         } else if let Some(ref diff) = self.diff_all {
-            txt.add_line(format!(
+            txt.add(Line(format!(
                 "Showing diffs for all. {} trips same, {} differ",
                 diff.same_trips,
                 diff.lines.len()
-            ));
+            )));
         }
         self.primary_agent_tools.update_menu_info(&mut txt);
-        txt.add_line(ui.primary.sim.summary());
+        txt.add(Line(ui.primary.sim.summary()));
         self.menu.handle_event(ctx, Some(txt));
 
         ctx.canvas.handle_event(ctx.input);

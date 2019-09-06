@@ -1,6 +1,6 @@
 use crate::common::route_viewer::RouteViewer;
 use crate::ui::UI;
-use ezgui::{EventCtx, GfxCtx, Key, ModalMenu, Text};
+use ezgui::{EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
 use geom::{Duration, Pt2D};
 use sim::{TripID, TripResult};
 
@@ -19,10 +19,10 @@ impl AgentTools {
 
     pub fn update_menu_info(&self, txt: &mut Text) {
         if let Some((trip, _, _)) = self.following {
-            txt.add_line(format!("Following {}", trip));
+            txt.add(Line(format!("Following {}", trip)));
         }
         if let RouteViewer::Active(_, trip, _) = self.route_viewer {
-            txt.add_line(format!("Showing {}'s route", trip));
+            txt.add(Line(format!("Showing {}'s route", trip)));
         }
     }
 

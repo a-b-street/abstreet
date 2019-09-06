@@ -1,6 +1,6 @@
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{AgentColorScheme, DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
-use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender, Text};
+use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Circle, Distance, PolyLine, Polygon};
 use map_model::{Map, LANE_THICKNESS};
 use sim::{DrawPedCrowdInput, DrawPedestrianInput, PedestrianID};
@@ -203,12 +203,11 @@ impl DrawPedCrowd {
         let draw_default = prerender.upload_borrowed(vec![(cs.get("pedestrian"), &blob)]);
 
         let mut label = Text::with_bg_color(None);
-        label.add_styled_line(
-            format!("{}", input.members.len()),
-            // Ideally "pedestrian head", but it looks really faded...
-            Some(Color::BLACK),
-            None,
-            Some(15),
+        // Ideally "pedestrian head", but it looks really faded...
+        label.add(
+            Line(format!("{}", input.members.len()))
+                .fg(Color::BLACK)
+                .size(15),
         );
 
         DrawPedCrowd {

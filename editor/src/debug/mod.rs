@@ -18,8 +18,8 @@ use crate::ui::{ShowLayers, ShowObject, UI};
 use abstutil::wraparound_get;
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, ModalMenu,
-    Text, Wizard,
+    hotkey, lctrl, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line,
+    ModalMenu, Text, Wizard,
 };
 use geom::{Distance, PolyLine, Polygon};
 use map_model::{IntersectionID, Map, RoadID};
@@ -112,35 +112,35 @@ impl State for DebugMode {
 
         let mut txt = Text::prompt("Debug Mode");
         if self.chokepoints.is_some() {
-            txt.add_line("Showing chokepoints".to_string());
+            txt.add(Line("Showing chokepoints"));
         }
         if !self.show_original_roads.is_empty() {
-            txt.add_line(format!(
+            txt.add(Line(format!(
                 "Showing {} original roads",
                 self.show_original_roads.len()
-            ));
+            )));
         }
         if !self.intersection_geom.is_empty() {
-            txt.add_line(format!(
+            txt.add(Line(format!(
                 "Showing {} attempts at intersection geometry",
                 self.intersection_geom.len()
-            ));
+            )));
         }
         if !self.hidden.is_empty() {
-            txt.add_line(format!("Hiding {} things", self.hidden.len()));
+            txt.add(Line(format!("Hiding {} things", self.hidden.len())));
         }
         if let Some(ref results) = self.search_results {
-            txt.add_line(format!(
+            txt.add(Line(format!(
                 "Search for {} has {} results",
                 results.query,
                 results.ids.len()
-            ));
+            )));
         }
         if self.neighborhood_summary.active {
-            txt.add_line("Showing neighborhood summaries".to_string());
+            txt.add(Line("Showing neighborhood summaries"));
         }
         if let routes::AllRoutesViewer::Active(_, ref traces) = self.all_routes {
-            txt.add_line(format!("Showing {} routes", traces.len()));
+            txt.add(Line(format!("Showing {} routes", traces.len())));
         }
         self.menu.handle_event(ctx, Some(txt));
 

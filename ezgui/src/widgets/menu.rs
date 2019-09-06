@@ -1,6 +1,6 @@
 use crate::screen_geom::ScreenRectangle;
 use crate::{
-    hotkey, lctrl, text, Canvas, Color, Event, GeomBatch, GfxCtx, InputResult, Key, MultiKey,
+    hotkey, lctrl, text, Canvas, Color, Event, GeomBatch, GfxCtx, InputResult, Key, Line, MultiKey,
     ScreenPt, Text, LINE_HEIGHT,
 };
 use geom::{Circle, Distance, Polygon, Pt2D};
@@ -77,9 +77,9 @@ impl<T: Clone> Menu<T> {
                 let dy1 =
                     ((txt.num_lines() - prompt_lines) as f64) * LINE_HEIGHT + separator_offset;
                 if let Some(key) = maybe_key {
-                    txt.add_line(format!("{} - {}", key.describe(), label));
+                    txt.add(Line(format!("{} - {}", key.describe(), label)));
                 } else {
-                    txt.add_line(label.clone());
+                    txt.add(Line(&label));
                 }
 
                 choices.push(Choice {
@@ -337,26 +337,19 @@ impl<T: Clone> Menu<T> {
             txt.override_width = Some(self.total_width);
             if choice.active {
                 if let Some(key) = choice.hotkey {
-                    txt.add_styled_line(key.describe(), Some(text::HOTKEY_COLOR), None, None);
-                    txt.append(format!(" - {}", choice.label), None);
+                    txt.add(Line(key.describe()).fg(text::HOTKEY_COLOR));
+                    txt.append(Line(format!(" - {}", choice.label)));
                 } else {
-                    txt.add_line(choice.label.clone());
+                    txt.add(Line(&choice.label));
                 }
             } else {
                 if let Some(key) = choice.hotkey {
-                    txt.add_styled_line(
-                        format!("{} - {}", key.describe(), choice.label),
-                        Some(text::INACTIVE_CHOICE_COLOR),
-                        None,
-                        None,
+                    txt.add(
+                        Line(format!("{} - {}", key.describe(), choice.label))
+                            .fg(text::INACTIVE_CHOICE_COLOR),
                     );
                 } else {
-                    txt.add_styled_line(
-                        choice.label.clone(),
-                        Some(text::INACTIVE_CHOICE_COLOR),
-                        None,
-                        None,
-                    );
+                    txt.add(Line(&choice.label).fg(text::INACTIVE_CHOICE_COLOR));
                 }
             }
             // Is drawing each row individually slower?
@@ -421,9 +414,9 @@ impl<T: Clone> Menu<T> {
         if !self.hidden {
             for choice in &self.choices {
                 if let Some(key) = choice.hotkey {
-                    txt.add_line(format!("{} - {}", key.describe(), choice.label));
+                    txt.add(Line(format!("{} - {}", key.describe(), choice.label)));
                 } else {
-                    txt.add_line(choice.label.clone());
+                    txt.add(Line(&choice.label));
                 }
             }
         }

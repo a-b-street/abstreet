@@ -1,4 +1,4 @@
-use crate::{text, Event, GfxCtx, InputResult, Key, Text, UserInput, CENTERED};
+use crate::{text, Event, GfxCtx, InputResult, Key, Line, Text, UserInput, CENTERED};
 use simsearch::SimSearch;
 use std::collections::{BTreeMap, HashSet};
 use std::hash::Hash;
@@ -56,26 +56,21 @@ impl<T: Clone + Hash + Eq> Autocomplete<T> {
     pub fn draw(&self, g: &mut GfxCtx) {
         let mut txt = Text::prompt(&self.prompt);
 
-        txt.add_line(self.line[0..self.cursor_x].to_string());
+        txt.add(Line(&self.line[0..self.cursor_x]));
         if self.cursor_x < self.line.len() {
             // TODO This "cursor" looks awful!
-            txt.append("|".to_string(), Some(text::SELECTED_COLOR));
-            txt.append(self.line[self.cursor_x..=self.cursor_x].to_string(), None);
-            txt.append(self.line[self.cursor_x + 1..].to_string(), None);
+            txt.append(Line("|").fg(text::SELECTED_COLOR));
+            txt.append(Line(&self.line[self.cursor_x..=self.cursor_x]));
+            txt.append(Line(&self.line[self.cursor_x + 1..]));
         } else {
-            txt.append("|".to_string(), Some(text::SELECTED_COLOR));
+            txt.append(Line("|").fg(text::SELECTED_COLOR));
         }
 
         for (idx, id) in self.current_results.iter().enumerate() {
             if idx == self.cursor_y {
-                txt.add_styled_line(
-                    self.search_map[*id].clone(),
-                    None,
-                    Some(text::SELECTED_COLOR),
-                    None,
-                );
+                txt.add_highlighted(Line(&self.search_map[*id]), text::SELECTED_COLOR);
             } else {
-                txt.add_line(self.search_map[*id].clone());
+                txt.add(Line(&self.search_map[*id]));
             }
         }
 

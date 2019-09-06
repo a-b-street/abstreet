@@ -1,5 +1,5 @@
 use aabb_quadtree::QuadTree;
-use ezgui::{Color, GfxCtx, Prerender, Text};
+use ezgui::{Color, GfxCtx, Line, Prerender, Text};
 use geom::{Bounds, Distance, Line, Polygon, Pt2D};
 use map_model::{Building, BuildingID, Map, RoadID, LANE_THICKNESS};
 use std::collections::HashSet;
@@ -48,7 +48,7 @@ impl DrawMap {
                 r.center_pts
                     .make_polygons(LANE_THICKNESS * (num_lanes as f64)),
                 ROAD,
-                Text::from_line(format!("{}", r.id)),
+                Text::from(Line(r.id.to_string())),
             );
         }
 

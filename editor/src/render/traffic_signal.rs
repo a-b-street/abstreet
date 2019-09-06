@@ -1,5 +1,7 @@
 use crate::render::{DrawCtx, DrawTurn};
-use ezgui::{Color, EventCtx, GeomBatch, GfxCtx, ModalMenu, ScreenDims, ScreenPt, Scroller, Text};
+use ezgui::{
+    Color, EventCtx, GeomBatch, GfxCtx, Line, ModalMenu, ScreenDims, ScreenPt, Scroller, Text,
+};
 use geom::{Circle, Distance, Duration, PolyLine, Polygon, Pt2D};
 use map_model::{Cycle, IntersectionID, Map, TurnPriority, TurnType, LANE_THICKNESS};
 use ordered_float::NotNan;
@@ -182,11 +184,11 @@ impl TrafficSignalDiagram {
         // Precalculate maximum text width.
         let mut labels = Vec::new();
         for (idx, cycle) in cycles.iter().enumerate() {
-            labels.push(Text::from_line(format!(
+            labels.push(Text::from(Line(format!(
                 "Cycle {}: {}",
                 idx + 1,
                 cycle.duration
-            )));
+            ))));
         }
         let label_length = labels
             .iter()
@@ -205,7 +207,6 @@ impl TrafficSignalDiagram {
                 .enumerate()
                 .collect(),
             current_cycle,
-            ctx,
         );
 
         TrafficSignalDiagram {

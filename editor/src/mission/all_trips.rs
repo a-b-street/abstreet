@@ -3,7 +3,8 @@ use crate::game::{State, Transition};
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, ModalMenu, ScreenPt, Slider, Text,
+    hotkey, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu, ScreenPt, Slider,
+    Text,
 };
 use geom::{Circle, Distance, Duration};
 use map_model::{PathRequest, LANE_THICKNESS};
@@ -95,10 +96,10 @@ impl State for TripsVisualizer {
         let time = self.current_time();
 
         let mut txt = Text::prompt("Trips Visualizer");
-        txt.add_line(format!(
+        txt.add(Line(format!(
             "{} active trips",
             prettyprint_usize(self.active_trips.len())
-        ));
+        )));
         self.menu.handle_event(ctx, Some(txt));
         ctx.canvas.handle_event(ctx.input);
 
@@ -187,7 +188,7 @@ impl State for TripsVisualizer {
 
         self.menu.draw(g);
         self.time_slider
-            .draw(g, Some(Text::from_line(format!("At {}", time))));
+            .draw(g, Some(Text::from(Line(format!("At {}", time)))));
         self.speed.draw(g);
         CommonState::draw_osd(g, ui, &ui.primary.current_selection);
     }

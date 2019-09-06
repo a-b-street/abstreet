@@ -1,7 +1,7 @@
 use crate::input::ContextMenu;
 use crate::text::FONT_SIZE;
 use crate::{
-    Canvas, Color, GeomBatch, GfxCtx, HorizontalAlignment, Text, UserInput, VerticalAlignment,
+    Canvas, Color, GeomBatch, GfxCtx, HorizontalAlignment, Line, Text, UserInput, VerticalAlignment,
 };
 use abstutil::{elapsed_seconds, Timer, TimerSink};
 use geom::Polygon;
@@ -211,7 +211,7 @@ impl<'a> LoadingScreen<'a> {
         txt.override_width = Some(self.canvas.window_width * 0.8);
         txt.override_height = Some(self.canvas.window_height * 0.8);
         for l in &self.lines {
-            txt.add_line(l.to_string());
+            txt.add(Line(l));
         }
 
         let mut target = self.prerender.display.draw();

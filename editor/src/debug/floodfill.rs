@@ -2,7 +2,7 @@ use crate::common::{RoadColorer, RoadColorerBuilder};
 use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::ui::UI;
-use ezgui::{hotkey, Color, EventCtx, GfxCtx, Key, ModalMenu, Text};
+use ezgui::{hotkey, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
 use map_model::{LaneID, Map};
 use petgraph::graphmap::DiGraphMap;
 use std::collections::HashSet;
@@ -77,7 +77,7 @@ impl Floodfiller {
                 map,
             );
         }
-        prompt.add_line(format!("{} unreachable lanes", num_unreachable));
+        prompt.add(Line(format!("{} unreachable lanes", num_unreachable)));
 
         Some(Box::new(Floodfiller {
             menu: ModalMenu::new(

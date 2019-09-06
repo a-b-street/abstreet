@@ -2,7 +2,7 @@ use crate::common::CommonState;
 use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::ui::UI;
-use ezgui::{EventCtx, GfxCtx, Key, Text, WarpingItemSlider};
+use ezgui::{EventCtx, GfxCtx, Key, Line, Text, WarpingItemSlider};
 use geom::Pt2D;
 use sim::{TripEnd, TripStart};
 
@@ -31,15 +31,15 @@ impl TripExplorer {
                 TripStart::Bldg(b) => (
                     map.get_b(b).front_path.line.pt1(),
                     ID::Building(b),
-                    Text::from_line(format!("start at {}", map.get_b(b).get_name())),
+                    Text::from(Line(format!("start at {}", map.get_b(b).get_name()))),
                 ),
                 TripStart::Appearing(pos) => (
                     pos.pt(map),
                     ID::Lane(pos.lane()),
-                    Text::from_line(format!(
+                    Text::from(Line(format!(
                         "start by appearing at {}",
                         map.get_parent(pos.lane()).get_name()
-                    )),
+                    ))),
                 ),
             },
             (
@@ -49,18 +49,18 @@ impl TripExplorer {
                     .ok()
                     .unwrap(),
                 ID::from_agent(agent),
-                Text::from_line("currently here".to_string()),
+                Text::from(Line("currently here")),
             ),
             match status.end {
                 TripEnd::Bldg(b) => (
                     map.get_b(b).front_path.line.pt1(),
                     ID::Building(b),
-                    Text::from_line(format!("end at {}", map.get_b(b).get_name())),
+                    Text::from(Line(format!("end at {}", map.get_b(b).get_name()))),
                 ),
                 TripEnd::Border(i) => (
                     map.get_i(i).polygon.center(),
                     ID::Intersection(i),
-                    Text::from_line(format!("leave map via {}", i)),
+                    Text::from(Line(format!("leave map via {}", i))),
                 ),
             },
         ];

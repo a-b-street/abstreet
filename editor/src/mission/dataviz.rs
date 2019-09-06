@@ -4,7 +4,8 @@ use crate::helpers::{rotating_color_total, ID};
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Timer};
 use ezgui::{
-    hotkey, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, ModalMenu, Text, VerticalAlignment,
+    hotkey, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ModalMenu, Text,
+    VerticalAlignment,
 };
 use geom::{Distance, Polygon, Pt2D};
 use popdat::{Estimate, PopDat};
@@ -65,18 +66,21 @@ impl State for DataVisualizer {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         let mut txt = Text::prompt("Data Visualizer");
         if let Some(ref name) = self.current_tract {
-            txt.add_line("Census ".to_string());
-            txt.append(name.clone(), Some(ui.cs.get("OSD name color")));
+            txt.add(Line("Census "));
+            txt.append(Line(name).fg(ui.cs.get("OSD name color")));
             let tract = &self.tracts[name];
-            txt.add_line(format!("{} buildings", prettyprint_usize(tract.num_bldgs)));
-            txt.add_line(format!(
+            txt.add(Line(format!(
+                "{} buildings",
+                prettyprint_usize(tract.num_bldgs)
+            )));
+            txt.add(Line(format!(
                 "{} parking spots ",
                 prettyprint_usize(tract.num_parking_spots)
-            ));
-            txt.add_line(format!(
+            )));
+            txt.add(Line(format!(
                 "{} total owned cars",
                 prettyprint_usize(tract.total_owned_cars)
-            ));
+            )));
         }
         self.menu.handle_event(ctx, Some(txt));
         ctx.canvas.handle_event(ctx.input);
@@ -122,8 +126,8 @@ impl State for DataVisualizer {
         self.menu.draw(g);
         if let Some(ref name) = self.current_tract {
             let mut osd = Text::new();
-            osd.add_line("Census ".to_string());
-            osd.append(name.clone(), Some(ui.cs.get("OSD name color")));
+            osd.add(Line("Census "));
+            osd.append(Line(name).fg(ui.cs.get("OSD name color")));
             CommonState::draw_custom_osd(g, osd);
         } else {
             CommonState::draw_osd(g, ui, &None);
@@ -146,9 +150,9 @@ impl State for DataVisualizer {
             } else {
                 let mut txt = Text::new();
                 for (k, v) in kv {
-                    txt.add_styled_line(k.to_string(), Some(Color::RED), None, None);
-                    txt.append(" = ".to_string(), None);
-                    txt.append(v.to_string(), Some(Color::CYAN));
+                    txt.add(Line(k).fg(Color::RED));
+                    txt.append(Line(" = "));
+                    txt.append(Line(v.to_string()).fg(Color::CYAN));
                 }
                 g.draw_blocking_text(&txt, (HorizontalAlignment::Left, VerticalAlignment::Top));
             }
@@ -232,21 +236,19 @@ fn bar_chart(g: &mut GfxCtx, data: &BTreeMap<String, Estimate>) {
         if name == "Total:" {
             continue;
         }
-        labels.add_styled_line(format!("{} (", name), None, None, Some(40));
+        labels.add(Line(format!("{} (", name)).size(40));
         labels.append(
-            format!("{}%", ((est.value as f64) / (sum as f64) * 100.0) as usize),
-            Some(Color::RED),
+            Line(format!(
+                "{}%",
+                ((est.value as f64) / (sum as f64) * 100.0) as usize
+            ))
+            .fg(Color::RED),
         );
-        labels.append(")".to_string(), None);
+        labels.append(Line(")"));
     }
     let (txt_width, total_height) = g.text_dims(&labels);
     let line_height = total_height / ((data.len() as f64) - 1.0);
-    labels.add_styled_line(
-        format!("{} samples", prettyprint_usize(sum)),
-        None,
-        None,
-        Some(40),
-    );
+    labels.add(Line(format!("{} samples", prettyprint_usize(sum))).size(40));
 
     // This is, uh, pixels. :P
     let max_bar_width = 300.0;

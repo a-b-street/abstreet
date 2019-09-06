@@ -2,7 +2,7 @@ use crate::common::CommonState;
 use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::ui::UI;
-use ezgui::{hotkey, Color, EventCtx, GfxCtx, ItemSlider, Key, Text};
+use ezgui::{hotkey, Color, EventCtx, GfxCtx, ItemSlider, Key, Line, Text};
 use geom::{Circle, Distance, Line, Speed};
 use map_model::BuildingID;
 use popdat::{clip_trips, psrc, Trip, TripEndpt};
@@ -23,18 +23,18 @@ impl TripsVisualizer {
                     .into_iter()
                     .map(|trip| {
                         let mut txt = Text::new();
-                        txt.add_line(format!("Leave at {}", trip.depart_at));
-                        txt.add_line(format!(
+                        txt.add(Line(format!("Leave at {}", trip.depart_at)));
+                        txt.add(Line(format!(
                             "Purpose: {:?} -> {:?}",
                             trip.purpose.0, trip.purpose.1
-                        ));
-                        txt.add_line(format!("Mode: {:?}", trip.mode));
-                        txt.add_line(format!("Trip time: {}", trip.trip_time));
-                        txt.add_line(format!("Trip distance: {}", trip.trip_dist));
-                        txt.add_line(format!(
+                        )));
+                        txt.add(Line(format!("Mode: {:?}", trip.mode)));
+                        txt.add(Line(format!("Trip time: {}", trip.trip_time)));
+                        txt.add(Line(format!("Trip distance: {}", trip.trip_dist)));
+                        txt.add(Line(format!(
                             "Average speed {}",
                             Speed::from_dist_time(trip.trip_dist, trip.trip_time)
-                        ));
+                        )));
                         (trip, txt)
                     })
                     .collect(),
@@ -108,20 +108,14 @@ impl State for TripsVisualizer {
         self.slider.draw(g);
         if let Some(ID::Building(b)) = ui.primary.current_selection {
             let mut osd = Text::new();
-            osd.append(format!("{}", b), Some(ui.cs.get("OSD ID color")));
-            osd.append(" is ".to_string(), None);
-            osd.append(
-                ui.primary.map.get_b(b).get_name(),
-                Some(ui.cs.get("OSD name color")),
-            );
+            osd.add(Line(b.to_string()).fg(ui.cs.get("OSD ID color")));
+            osd.append(Line(" is "));
+            osd.append(Line(ui.primary.map.get_b(b).get_name()).fg(ui.cs.get("OSD name color")));
             if let Some(md) = self.bldgs.get(&b) {
-                osd.append(
-                    format!(
-                        ". {} households, {} employees, {} offstreet parking spaces",
-                        md.num_households, md.num_employees, md.offstreet_parking_spaces
-                    ),
-                    None,
-                );
+                osd.append(Line(format!(
+                    ". {} households, {} employees, {} offstreet parking spaces",
+                    md.num_households, md.num_employees, md.offstreet_parking_spaces
+                )));
             }
             CommonState::draw_custom_osd(g, osd);
         } else {

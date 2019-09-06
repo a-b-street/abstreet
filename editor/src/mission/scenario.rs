@@ -6,7 +6,8 @@ use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, MultiMap, WeightedUsizeChoice};
 use ezgui::{
-    hotkey, Color, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard, WrappedWizard,
+    hotkey, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, ModalMenu, Text, Wizard,
+    WrappedWizard,
 };
 use geom::Duration;
 use map_model::{BuildingID, IntersectionID, Map, Neighborhood};
@@ -141,15 +142,15 @@ impl State for ScenarioManager {
         // changes...
         {
             let mut txt = Text::prompt("Scenario Editor");
-            txt.add_line(self.scenario.scenario_name.clone());
+            txt.add(Line(&self.scenario.scenario_name));
             for line in self.scenario.describe() {
-                txt.add_line(line);
+                txt.add(Line(line));
             }
-            txt.add_line(format!(
+            txt.add(Line(format!(
                 "{} total parked cars needed, {} spots",
                 self.total_cars_needed,
                 prettyprint_usize(self.total_parking_spots),
-            ));
+            )));
             self.menu.handle_event(ctx, Some(txt));
         }
         ctx.canvas.handle_event(ctx.input);
@@ -212,23 +213,17 @@ impl State for ScenarioManager {
 
         if let Some(ID::Building(b)) = ui.primary.current_selection {
             let mut osd = Text::new();
-            osd.append(format!("{}", b), Some(ui.cs.get("OSD ID color")));
-            osd.append(" is ".to_string(), None);
-            osd.append(
-                ui.primary.map.get_b(b).get_name(),
-                Some(ui.cs.get("OSD name color")),
-            );
+            osd.add(Line(b.to_string()).fg(ui.cs.get("OSD ID color")));
+            osd.append(Line(" is "));
+            osd.append(Line(ui.primary.map.get_b(b).get_name()).fg(ui.cs.get("OSD name color")));
             let from = self.trips_from_bldg.get(b);
             let to = self.trips_to_bldg.get(b);
-            osd.append(
-                format!(
-                    ". {} trips from here, {} trips to here, {} parked cars needed",
-                    from.len(),
-                    to.len(),
-                    self.cars_needed_per_bldg[&b]
-                ),
-                None,
-            );
+            osd.append(Line(format!(
+                ". {} trips from here, {} trips to here, {} parked cars needed",
+                from.len(),
+                to.len(),
+                self.cars_needed_per_bldg[&b]
+            )));
             CommonState::draw_custom_osd(g, osd);
         } else {
             CommonState::draw_osd(g, ui, &ui.primary.current_selection);

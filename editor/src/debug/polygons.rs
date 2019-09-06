@@ -3,7 +3,7 @@ use crate::helpers::ID;
 use crate::render::calculate_corners;
 use crate::ui::UI;
 use abstutil::Timer;
-use ezgui::{hotkey, EventCtx, GfxCtx, ItemSlider, Key, Text};
+use ezgui::{hotkey, EventCtx, GfxCtx, ItemSlider, Key, Line, Text};
 use geom::{Polygon, Pt2D, Triangle};
 
 pub struct PolygonDebugger {
@@ -167,21 +167,21 @@ impl State for PolygonDebugger {
 
         match item {
             Item::Point(pt) => {
-                g.draw_text_at(&Text::from_line(format!("{}", idx)), *pt);
+                g.draw_text_at(&Text::from(Line(idx.to_string())), *pt);
             }
             Item::Triangle(ref tri) => {
                 for pt in &[tri.pt1, tri.pt2, tri.pt3] {
-                    g.draw_text_at(&Text::from_line(format!("{}", idx)), *pt);
+                    g.draw_text_at(&Text::from(Line(idx.to_string())), *pt);
                 }
                 g.draw_polygon(ui.cs.get("selected"), &Polygon::from_triangle(tri));
             }
             Item::Polygon(ref poly) => {
                 g.draw_polygon(ui.cs.get("selected"), poly);
-                g.draw_text_at(&Text::from_line(format!("{}", idx)), poly.center());
+                g.draw_text_at(&Text::from(Line(idx.to_string())), poly.center());
             }
         }
         if let Some(pt) = self.center {
-            g.draw_text_at(&Text::from_line("c".to_string()), pt);
+            g.draw_text_at(&Text::from(Line("c")), pt);
         }
 
         self.slider.draw(g);

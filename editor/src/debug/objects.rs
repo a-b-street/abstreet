@@ -2,7 +2,7 @@ use crate::helpers::ID;
 use crate::render::DrawMap;
 use crate::ui::PerMapUI;
 use crate::ui::UI;
-use ezgui::{Color, EventCtx, GfxCtx, Key, Text};
+use ezgui::{Color, EventCtx, GfxCtx, Key, Line, Text};
 use map_model::raw_data::StableRoadID;
 use map_model::Map;
 use sim::{CarID, Sim};
@@ -66,9 +66,9 @@ impl ObjectDebugger {
             if let Some(pt) = g.canvas.get_cursor_in_map_space() {
                 if let Some(gps) = pt.to_gps(ui.primary.map.get_gps_bounds()) {
                     let mut txt = Text::new();
-                    txt.add_line(format!("{}", pt));
-                    txt.add_line(format!("{}", gps));
-                    txt.add_line(format!("zoom: {}", g.canvas.cam_zoom));
+                    txt.add(Line(pt.to_string()));
+                    txt.add(Line(gps.to_string()));
+                    txt.add(Line(format!("zoom: {}", g.canvas.cam_zoom)));
                     g.draw_mouse_tooltip(&txt);
                 }
             }
@@ -149,74 +149,77 @@ fn tooltip_lines(id: ID, g: &mut GfxCtx, ctx: &PerMapUI) -> Text {
     match id {
         ID::Road(id) => {
             let r = map.get_r(id);
-            txt.add_line(format!("{} (originally {}) is ", r.id, r.stable_id));
-            txt.append(r.get_name(), Some(Color::CYAN));
-            txt.add_line(format!("From OSM way {}", r.osm_way_id));
+            txt.add(Line(format!("{} (originally {}) is ", r.id, r.stable_id)));
+            txt.append(Line(r.get_name()).fg(Color::CYAN));
+            txt.add(Line(format!("From OSM way {}", r.osm_way_id)));
         }
         ID::Lane(id) => {
             let l = map.get_l(id);
             let r = map.get_r(l.parent);
 
-            txt.add_line(format!("{} is ", l.id));
-            txt.append(r.get_name(), Some(Color::CYAN));
-            txt.add_line(format!("From OSM way {}", r.osm_way_id));
-            txt.add_line(format!(
+            txt.add(Line(format!("{} is ", l.id)));
+            txt.append(Line(r.get_name()).fg(Color::CYAN));
+            txt.add(Line(format!("From OSM way {}", r.osm_way_id)));
+            txt.add(Line(format!(
                 "Parent {} (originally {}) points to {}",
                 r.id, r.stable_id, r.dst_i
-            ));
-            txt.add_line(format!(
+            )));
+            txt.add(Line(format!(
                 "Lane is {} long, parent {} is {} long",
                 l.length(),
                 r.id,
                 r.center_pts.length()
-            ));
+            )));
             styled_kv(&mut txt, &r.osm_tags);
             if l.is_parking() {
-                txt.add_line(format!("Has {} parking spots", l.number_parking_spots()));
+                txt.add(Line(format!(
+                    "Has {} parking spots",
+                    l.number_parking_spots()
+                )));
             } else if l.is_driving() {
-                txt.add_line(format!(
+                txt.add(Line(format!(
                     "Parking blackhole redirect? {:?}",
                     l.parking_blackhole
-                ));
+                )));
             }
             if let Some(types) = l.get_turn_restrictions(r) {
-                txt.add_line(format!("Turn restriction for this lane: {:?}", types));
+                txt.add(Line(format!("Turn restriction for this lane: {:?}", types)));
             }
             for (restriction, to) in &r.turn_restrictions {
-                txt.add_line(format!(
+                txt.add(Line(format!(
                     "Restriction from this road to {}: {}",
                     to, restriction
-                ));
+                )));
             }
         }
         ID::Intersection(id) => {
-            txt.add_line(id.to_string());
+            txt.add(Line(id.to_string()));
             let i = map.get_i(id);
-            txt.add_line(format!("Roads: {:?}", i.roads));
-            txt.add_line(format!(
+            txt.add(Line(format!("Roads: {:?}", i.roads)));
+            txt.add(Line(format!(
                 "Orig roads: {:?}",
                 i.roads
                     .iter()
                     .map(|r| map.get_r(*r).stable_id)
                     .collect::<Vec<StableRoadID>>()
-            ));
-            txt.add_line(format!("Originally {}", i.stable_id));
+            )));
+            txt.add(Line(format!("Originally {}", i.stable_id)));
         }
         ID::Turn(id) => {
             let t = map.get_t(id);
-            txt.add_line(format!("{}", id));
-            txt.add_line(format!("{:?}", t.turn_type));
+            txt.add(Line(format!("{}", id)));
+            txt.add(Line(format!("{:?}", t.turn_type)));
         }
         ID::Building(id) => {
             let b = map.get_b(id);
-            txt.add_line(format!(
+            txt.add(Line(format!(
                 "Building #{:?} (from OSM way {})",
                 id, b.osm_way_id
-            ));
-            txt.add_line(format!(
+            )));
+            txt.add(Line(format!(
                 "Dist along sidewalk: {}",
                 b.front_path.sidewalk.dist_along()
-            ));
+            )));
             styled_kv(&mut txt, &b.osm_tags);
         }
         ID::Car(id) => {
@@ -230,22 +233,22 @@ fn tooltip_lines(id: ID, g: &mut GfxCtx, ctx: &PerMapUI) -> Text {
             }
         }
         ID::PedCrowd(members) => {
-            txt.add_line(format!("Crowd of {}", members.len()));
+            txt.add(Line(format!("Crowd of {}", members.len())));
         }
         ID::ExtraShape(id) => {
             styled_kv(&mut txt, &draw_map.get_es(id).attributes);
         }
         ID::BusStop(id) => {
-            txt.add_line(id.to_string());
+            txt.add(Line(id.to_string()));
             for r in map.get_all_bus_routes() {
                 if r.stops.contains(&id) {
-                    txt.add_line(format!("- Route {}", r.name));
+                    txt.add(Line(format!("- Route {}", r.name)));
                 }
             }
         }
         ID::Area(id) => {
             let a = map.get_a(id);
-            txt.add_line(format!("{} (from OSM {})", id, a.osm_id));
+            txt.add(Line(format!("{} (from OSM {})", id, a.osm_id)));
             styled_kv(&mut txt, &a.osm_tags);
         }
         ID::Trip(_) => {}
@@ -255,8 +258,8 @@ fn tooltip_lines(id: ID, g: &mut GfxCtx, ctx: &PerMapUI) -> Text {
 
 fn styled_kv(txt: &mut Text, tags: &BTreeMap<String, String>) {
     for (k, v) in tags {
-        txt.add_styled_line(k.to_string(), Some(Color::RED), None, None);
-        txt.append(" = ".to_string(), None);
-        txt.append(v.to_string(), Some(Color::CYAN));
+        txt.add(Line(k).fg(Color::RED));
+        txt.append(Line(" = "));
+        txt.append(Line(v).fg(Color::CYAN));
     }
 }

@@ -19,7 +19,7 @@ const MAX_CHAR_WIDTH: f64 = 25.0;
 pub const SCALE_DOWN: f64 = 10.0;
 
 #[derive(Debug, Clone)]
-struct TextSpan {
+pub struct TextSpan {
     text: String,
     fg_color: Color,
     size: usize,
@@ -27,12 +27,26 @@ struct TextSpan {
 }
 
 impl TextSpan {
-    fn default_style(text: String) -> TextSpan {
-        TextSpan {
-            text,
-            fg_color: FG_COLOR,
-            size: FONT_SIZE,
-        }
+    pub fn fg(mut self, color: Color) -> TextSpan {
+        assert_eq!(self.fg_color, FG_COLOR);
+        self.fg_color = color;
+        self
+    }
+
+    pub fn size(mut self, size: usize) -> TextSpan {
+        assert_eq!(self.size, FONT_SIZE);
+        self.size = size;
+        self
+    }
+}
+
+// TODO What's the better way of doing this? Also "Line" is a bit of a misnomer
+#[allow(non_snake_case)]
+pub fn Line<S: Into<String>>(text: S) -> TextSpan {
+    TextSpan {
+        text: text.into(),
+        fg_color: FG_COLOR,
+        size: FONT_SIZE,
     }
 }
 
@@ -55,12 +69,20 @@ impl Text {
         }
     }
 
-    pub fn prompt(line: &str) -> Text {
+    pub fn from(line: TextSpan) -> Text {
         let mut txt = Text::new();
-        txt.add_styled_line(line.to_string(), None, Some(PROMPT_COLOR), None);
+        txt.add(line);
         txt
     }
 
+    // TODO nope
+    pub fn prompt(line: &str) -> Text {
+        let mut txt = Text::new();
+        txt.add_highlighted(Line(line), PROMPT_COLOR);
+        txt
+    }
+
+    // TODO nope
     pub fn with_bg_color(bg_color: Option<Color>) -> Text {
         Text {
             lines: Vec::new(),
@@ -70,70 +92,40 @@ impl Text {
         }
     }
 
-    pub fn from_line(line: String) -> Text {
-        let mut txt = Text::new();
-        txt.add_line(line);
-        txt
+    pub fn add(&mut self, line: TextSpan) {
+        self.lines.push((None, vec![line]));
     }
 
-    pub fn from_styled_line(
-        line: String,
-        fg_color: Option<Color>,
-        highlight_color: Option<Color>,
-        font_size: Option<usize>,
-    ) -> Text {
-        let mut txt = Text::new();
-        txt.add_styled_line(line, fg_color, highlight_color, font_size);
-        txt
+    pub fn add_highlighted(&mut self, line: TextSpan, highlight: Color) {
+        self.lines.push((Some(highlight), vec![line]));
     }
 
-    pub fn add_line(&mut self, line: String) {
-        self.lines.push((None, vec![TextSpan::default_style(line)]));
-    }
-
-    // TODO Ideally we'd wrap last-minute when drawing, but eh, start somewhere.
-    pub fn add_wrapped_line(&mut self, canvas: &Canvas, line: String) {
-        let wrap_to = canvas.window_width / MAX_CHAR_WIDTH;
-        for l in textwrap::wrap(&line, wrap_to as usize).into_iter() {
-            self.add_line(l.to_string());
-        }
-    }
-
-    pub fn add_styled_line(
-        &mut self,
-        line: String,
-        fg_color: Option<Color>,
-        highlight_color: Option<Color>,
-        font_size: Option<usize>,
-    ) {
-        self.lines.push((
-            highlight_color,
-            vec![TextSpan {
-                text: line,
-                fg_color: fg_color.unwrap_or(FG_COLOR),
-                size: font_size.unwrap_or(FONT_SIZE),
-            }],
-        ));
-    }
-
-    pub fn append(&mut self, text: String, fg_color: Option<Color>) {
+    pub fn append(&mut self, mut line: TextSpan) {
         if self.lines.is_empty() {
-            self.lines.push((None, Vec::new()));
+            self.add(line);
+            return;
         }
 
-        let size = self
+        // Can't override the size mid-line.
+        assert_eq!(line.size, FONT_SIZE);
+        line.size = self
             .lines
             .last()
             .unwrap()
             .1
             .last()
             .map(|span| span.size)
-            .unwrap_or(FONT_SIZE);
-        self.lines.last_mut().unwrap().1.push(TextSpan {
-            text,
-            fg_color: fg_color.unwrap_or(FG_COLOR),
-            size,
-        });
+            .unwrap();
+
+        self.lines.last_mut().unwrap().1.push(line);
+    }
+
+    // TODO Ideally we'd wrap last-minute when drawing, but eh, start somewhere.
+    pub fn add_wrapped_line(&mut self, canvas: &Canvas, line: String) {
+        let wrap_to = canvas.window_width / MAX_CHAR_WIDTH;
+        for l in textwrap::wrap(&line, wrap_to as usize).into_iter() {
+            self.add(Line(l));
+        }
     }
 
     pub fn num_lines(&self) -> usize {

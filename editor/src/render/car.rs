@@ -1,6 +1,6 @@
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{AgentColorScheme, DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
-use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender, Text};
+use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Angle, Circle, Distance, PolyLine, Polygon, Pt2D};
 use map_model::{Map, TurnType};
 use sim::{CarID, DrawCarInput};
@@ -142,7 +142,7 @@ impl DrawCar {
             zorder: input.on.get_zorder(map),
             label: input.label.map(|line| {
                 let mut txt = Text::with_bg_color(None);
-                txt.add_styled_line(line, Some(Color::rgb(249, 206, 24)), None, Some(20));
+                txt.add(Line(line).fg(Color::rgb(249, 206, 24)).size(20));
                 txt
             }),
             draw_default: prerender.upload(draw_default),

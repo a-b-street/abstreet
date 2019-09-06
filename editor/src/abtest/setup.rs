@@ -3,7 +3,7 @@ use crate::edit::apply_map_edits;
 use crate::game::{State, Transition, WizardState};
 use crate::render::DrawMap;
 use crate::ui::{Flags, PerMapUI, UI};
-use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu, Text, Wizard, WrappedWizard};
+use ezgui::{hotkey, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, Wizard, WrappedWizard};
 use geom::Duration;
 use map_model::MapEdits;
 use sim::{ABTest, Scenario, SimFlags};
@@ -53,9 +53,9 @@ fn pick_ab_test(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
     };
 
     let mut txt = Text::prompt("A/B Test Editor");
-    txt.add_line(ab_test.test_name.clone());
+    txt.add(Line(&ab_test.test_name));
     for line in ab_test.describe() {
-        txt.add_line(line);
+        txt.add(Line(line));
     }
 
     Some(Transition::Replace(Box::new(ABTestSetup {

@@ -1,8 +1,8 @@
 use crate::screen_geom::ScreenRectangle;
 use crate::widgets::text_box::TextBox;
 use crate::{
-    hotkey, Canvas, Color, EventCtx, EventLoopMode, GfxCtx, InputResult, Key, ModalMenu, MultiKey,
-    ScreenPt, Text, Warper, LINE_HEIGHT,
+    hotkey, Canvas, Color, EventCtx, EventLoopMode, GfxCtx, InputResult, Key, Line, ModalMenu,
+    MultiKey, ScreenPt, Text, Warper, LINE_HEIGHT,
 };
 use geom::{Distance, Duration, Polygon, Pt2D};
 use std::str::FromStr;
@@ -253,12 +253,12 @@ impl<T> ItemSlider<T> {
         self.menu.draw(g);
 
         let idx = self.slider.get_value(self.items.len());
-        let mut txt = Text::from_line(format!(
+        let mut txt = Text::from(Line(format!(
             "{} {}/{}",
             self.noun,
             abstutil::prettyprint_usize(idx + 1),
             abstutil::prettyprint_usize(self.items.len())
-        ));
+        )));
         txt.extend(&self.items[idx].1);
         self.slider.draw(g, Some(txt));
     }

@@ -1,4 +1,4 @@
-use crate::{text, Event, GfxCtx, Key, Text, UserInput, CENTERED};
+use crate::{text, Event, GfxCtx, Key, Line, Text, UserInput, CENTERED};
 
 // TODO Just displays text, no scrolling.
 pub struct LogScroller {
@@ -8,9 +8,9 @@ pub struct LogScroller {
 impl LogScroller {
     pub fn new(title: String, lines: Vec<String>) -> LogScroller {
         let mut text = Text::new();
-        text.add_styled_line(title, None, Some(text::PROMPT_COLOR), Some(50));
+        text.add_highlighted(Line(title).size(50), text::PROMPT_COLOR);
         for line in lines {
-            text.add_line(line);
+            text.add(Line(line));
         }
         LogScroller { text }
     }

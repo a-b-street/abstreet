@@ -2,7 +2,7 @@ use crate::helpers::rotating_color;
 use crate::render::DrawMap;
 use crate::ui::UI;
 use abstutil;
-use ezgui::{Color, Drawable, GfxCtx, ModalMenu, Prerender, Text};
+use ezgui::{Color, Drawable, GfxCtx, Line, ModalMenu, Prerender, Text};
 use geom::{Duration, Polygon, Pt2D};
 use map_model::{LaneID, Map, Neighborhood};
 use std::collections::HashSet;
@@ -100,29 +100,29 @@ impl Region {
             center,
             lanes: HashSet::new(),
             color: rotating_color(idx),
-            summary: Text::from_line(format!("{} - no summary yet", n.name)),
+            summary: Text::from(Line(format!("{} - no summary yet", n.name))),
         }
     }
 
     fn update_summary(&mut self) {
         let mut txt = Text::new();
-        txt.add_styled_line(self.name.clone(), None, Some(Color::GREEN), Some(50));
-        txt.add_line(format!("contains {} lanes", self.lanes.len()));
+        txt.add_highlighted(Line(&self.name).size(50), Color::GREEN);
+        txt.add(Line(format!("contains {} lanes", self.lanes.len())));
 
         /*let s1 = primary.summarize(&self.lanes);
-        txt.add_line(format!(
+        txt.add(Line(format!(
             "{} cars parked, {} spots free",
             s1.cars_parked, s1.open_parking_spots
-        ));
-        txt.add_line(format!(
+        )));
+        txt.add(Line(format!(
             "{} moving cars, {} stuck",
             s1.moving_cars, s1.stuck_cars
-        ));
-        txt.add_line(format!(
+        )));
+        txt.add(Line(format!(
             "{} moving peds, {} stuck",
             s1.moving_peds, s1.stuck_peds
-        ));
-        txt.add_line(format!("{} buses", s1.buses));*/
+        )));
+        txt.add(Line(format!("{} buses", s1.buses)));*/
 
         self.summary = txt;
     }

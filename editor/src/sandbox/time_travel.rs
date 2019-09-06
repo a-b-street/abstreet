@@ -3,7 +3,7 @@ use crate::render::DrawOptions;
 use crate::sandbox::SandboxMode;
 use crate::ui::{ShowEverything, UI};
 use abstutil::MultiMap;
-use ezgui::{hotkey, EventCtx, GfxCtx, ItemSlider, Key, Text};
+use ezgui::{hotkey, EventCtx, GfxCtx, ItemSlider, Key, Line, Text};
 use geom::Duration;
 use map_model::{Map, Traversable};
 use sim::{
@@ -88,7 +88,7 @@ impl InactiveTimeTravel {
             state.peds_per_traversable.insert(draw.on, draw.id);
             state.peds.insert(draw.id, draw);
         }
-        let label = Text::from_line(state.time.to_string());
+        let label = Text::from(Line(state.time.to_string()));
         self.moments.push((state, label));
     }
 }

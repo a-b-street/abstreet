@@ -2,8 +2,8 @@ use crate::game::{State, Transition, WizardState};
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, ModalMenu, Text, VerticalAlignment,
-    Wizard,
+    hotkey, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ModalMenu, Text,
+    VerticalAlignment, Wizard,
 };
 use geom::{Duration, DurationHistogram};
 use itertools::Itertools;
@@ -26,15 +26,11 @@ impl Scoreboard {
         );
         let t = ui.primary.sim.get_finished_trips();
 
-        let mut summary = Text::from_line("Score at ".to_string());
-        summary.append(ui.primary.sim.time().to_string(), Some(Color::RED));
-        summary.add_styled_line(
-            prettyprint_usize(t.unfinished_trips),
-            Some(Color::CYAN),
-            None,
-            None,
-        );
-        summary.append(" unfinished trips".to_string(), None);
+        let mut summary = Text::new();
+        summary.add(Line("Score at "));
+        summary.append(Line(ui.primary.sim.time().to_string()).fg(Color::RED));
+        summary.add(Line(prettyprint_usize(t.unfinished_trips)).fg(Color::CYAN));
+        summary.append(Line(" unfinished trips"));
 
         for (mode, trips) in &t
             .finished_trips
@@ -46,8 +42,8 @@ impl Scoreboard {
             for (_, _, dt) in trips {
                 distrib.add(dt);
             }
-            summary.add_styled_line(format!("{:?}", mode), Some(Color::CYAN), None, None);
-            summary.append(format!(" trips: {}", distrib.describe()), None);
+            summary.add(Line(format!("{:?}", mode)).fg(Color::CYAN));
+            summary.append(Line(format!(" trips: {}", distrib.describe())));
         }
 
         Scoreboard { menu, summary }

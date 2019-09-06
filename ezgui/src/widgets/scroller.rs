@@ -1,5 +1,5 @@
 use crate::screen_geom::ScreenRectangle;
-use crate::{Canvas, Color, EventCtx, GfxCtx, ScreenDims, ScreenPt, Text};
+use crate::{Canvas, Color, EventCtx, GfxCtx, Line, ScreenDims, ScreenPt, Text, LINE_HEIGHT};
 use geom::{Distance, Polygon, Pt2D};
 use ordered_float::NotNan;
 
@@ -32,19 +32,17 @@ impl<T: Clone + Copy> Scroller<T> {
         master_topleft: ScreenPt,
         actual_items: Vec<(T, ScreenDims)>,
         current_selection: usize,
-        ctx: &EventCtx,
     ) -> Scroller<T> {
         let max_width = actual_items
             .iter()
             .map(|(_, dims)| dims.width)
             .max_by_key(|w| NotNan::new(*w).unwrap())
             .unwrap();
-        let (_, button_height) = ctx.canvas.text_dims(&Text::from_line("dummy".to_string()));
-        let mut items = vec![(Item::UpButton, ScreenDims::new(max_width, button_height))];
+        let mut items = vec![(Item::UpButton, ScreenDims::new(max_width, LINE_HEIGHT))];
         for (item, dims) in actual_items {
             items.push((Item::Actual(item), dims));
         }
-        items.push((Item::DownButton, ScreenDims::new(max_width, button_height)));
+        items.push((Item::DownButton, ScreenDims::new(max_width, LINE_HEIGHT)));
 
         let top_idx = current_selection;
         // TODO Try to start with current_selection centered, ideally. Or at least start a bit up
@@ -203,14 +201,9 @@ impl<T: Clone + Copy> Scroller<T> {
                     let mut txt = Text::with_bg_color(None);
                     if self.top_idx == 0 {
                         // TODO text::INACTIVE_CHOICE_COLOR
-                        txt.add_styled_line(
-                            "scroll up".to_string(),
-                            Some(Color::grey(0.4)),
-                            None,
-                            None,
-                        );
+                        txt.add(Line("scroll up").fg(Color::grey(0.4)));
                     } else {
-                        txt.add_line(format!("scroll up ({} more items)", self.top_idx));
+                        txt.add(Line(format!("scroll up ({} more items)", self.top_idx)));
                     }
                     g.draw_text_at_screenspace_topleft(&txt, ScreenPt::new(rect.x1, rect.y1));
                 }
@@ -218,14 +211,9 @@ impl<T: Clone + Copy> Scroller<T> {
                     let mut txt = Text::with_bg_color(None);
                     let num_items = self.num_items_hidden_below(g.canvas);
                     if num_items == 0 {
-                        txt.add_styled_line(
-                            "scroll down".to_string(),
-                            Some(Color::grey(0.4)),
-                            None,
-                            None,
-                        );
+                        txt.add(Line("scroll down").fg(Color::grey(0.4)));
                     } else {
-                        txt.add_line(format!("scroll down ({} more items)", num_items));
+                        txt.add(Line(format!("scroll down ({} more items)", num_items)));
                     }
                     g.draw_text_at_screenspace_topleft(&txt, ScreenPt::new(rect.x1, rect.y1));
                 }

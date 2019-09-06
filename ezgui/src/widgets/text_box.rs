@@ -1,4 +1,4 @@
-use crate::{text, Event, GfxCtx, InputResult, Key, Text, UserInput, CENTERED};
+use crate::{text, Event, GfxCtx, InputResult, Key, Line, Text, UserInput, CENTERED};
 
 // TODO right now, only a single line
 
@@ -23,14 +23,14 @@ impl TextBox {
 
     pub(crate) fn get_text(&self) -> Text {
         let mut txt = Text::prompt(&self.prompt);
-        txt.add_line(self.line[0..self.cursor_x].to_string());
+        txt.add(Line(&self.line[0..self.cursor_x]));
         if self.cursor_x < self.line.len() {
             // TODO This "cursor" looks awful!
-            txt.append("|".to_string(), Some(text::SELECTED_COLOR));
-            txt.append(self.line[self.cursor_x..=self.cursor_x].to_string(), None);
-            txt.append(self.line[self.cursor_x + 1..].to_string(), None);
+            txt.append(Line("|").fg(text::SELECTED_COLOR));
+            txt.append(Line(&self.line[self.cursor_x..=self.cursor_x]));
+            txt.append(Line(&self.line[self.cursor_x + 1..]));
         } else {
-            txt.append("|".to_string(), Some(text::SELECTED_COLOR));
+            txt.append(Line("|").fg(text::SELECTED_COLOR));
         }
         txt
     }

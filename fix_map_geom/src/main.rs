@@ -1,6 +1,7 @@
 use abstutil::Timer;
 use ezgui::{
-    hotkey, Color, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, WarpingItemSlider, GUI,
+    hotkey, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, ModalMenu, Text, WarpingItemSlider,
+    GUI,
 };
 use geom::{Circle, Distance, PolyLine, Polygon};
 use map_model::raw_data::{Hint, Hints, InitialMap, Map, StableIntersectionID, StableRoadID};
@@ -88,36 +89,32 @@ impl GUI for UI {
                 {
                     let len = self.hints.hints.len();
                     let mut txt = Text::prompt("Fix Map Geometry");
-                    txt.add_styled_line(len.to_string(), Some(Color::CYAN), None, None);
-                    txt.append(" hints, ".to_string(), None);
+                    txt.add(Line(len.to_string()).fg(Color::CYAN));
+                    txt.append(Line(" hints, "));
                     txt.append(
-                        self.hints.parking_overrides.len().to_string(),
-                        Some(Color::CYAN),
+                        Line(self.hints.parking_overrides.len().to_string()).fg(Color::CYAN),
                     );
-                    txt.append(" parking overrides".to_string(), None);
+                    txt.append(Line(" parking overrides"));
                     if let Some(ID::Road(r)) = selected {
-                        txt.add_styled_line(r.to_string(), Some(Color::RED), None, None);
-                        txt.append(
-                            format!(
-                                " is {} long",
-                                self.data.roads[&r].trimmed_center_pts.length()
-                            ),
-                            None,
-                        );
+                        txt.add(Line(r.to_string()).fg(Color::RED));
+                        txt.append(Line(format!(
+                            " is {} long",
+                            self.data.roads[&r].trimmed_center_pts.length()
+                        )));
                         if self.data.roads[&r].has_parking() {
-                            txt.add_line("Has parking".to_string());
+                            txt.add(Line("Has parking"));
                         } else {
-                            txt.add_line("No parking".to_string());
+                            txt.add(Line("No parking"));
                         }
                         for (k, v) in &self.raw.roads[&r].osm_tags {
-                            txt.add_styled_line(k.to_string(), Some(Color::RED), None, None);
-                            txt.append(" = ".to_string(), None);
-                            txt.append(v.to_string(), Some(Color::CYAN));
+                            txt.add(Line(k).fg(Color::RED));
+                            txt.append(Line(" = "));
+                            txt.append(Line(v).fg(Color::CYAN));
                         }
                     }
                     if let Some(ID::Intersection(i)) = selected {
-                        txt.add_styled_line(i.to_string(), Some(Color::RED), None, None);
-                        txt.append(" OSM tag diffs:".to_string(), None);
+                        txt.add(Line(i.to_string()).fg(Color::RED));
+                        txt.append(Line(" OSM tag diffs:"));
                         let roads = &self.data.intersections[&i].roads;
                         if roads.len() == 2 {
                             let mut iter = roads.iter();
@@ -127,40 +124,27 @@ impl GUI for UI {
                             for (k, v1) in r1_tags {
                                 if let Some(v2) = r2_tags.get(k) {
                                     if v1 != v2 {
-                                        txt.add_styled_line(
-                                            k.to_string(),
-                                            Some(Color::RED),
-                                            None,
-                                            None,
-                                        );
-                                        txt.append(" = ".to_string(), None);
-                                        txt.append(v1.to_string(), Some(Color::CYAN));
-                                        txt.append(" / ".to_string(), None);
-                                        txt.append(v2.to_string(), Some(Color::CYAN));
+                                        txt.add(Line(k).fg(Color::RED));
+                                        txt.append(Line(" = "));
+                                        txt.append(Line(v1).fg(Color::CYAN));
+                                        txt.append(Line(" / "));
+                                        txt.append(Line(v2).fg(Color::CYAN));
                                     }
                                 } else {
-                                    txt.add_styled_line(
-                                        k.to_string(),
-                                        Some(Color::RED),
-                                        None,
-                                        None,
-                                    );
-                                    txt.append(" = ".to_string(), None);
-                                    txt.append(v1.to_string(), Some(Color::CYAN));
-                                    txt.append(" / MISSING".to_string(), None);
+                                    txt.add(Line(k).fg(Color::RED));
+                                    txt.append(Line(" = "));
+                                    txt.append(Line(v1).fg(Color::CYAN));
+                                    txt.append(Line(" / "));
+                                    txt.append(Line("MISSING").fg(Color::CYAN));
                                 }
                             }
                             for (k, v2) in r2_tags {
                                 if !r1_tags.contains_key(k) {
-                                    txt.add_styled_line(
-                                        k.to_string(),
-                                        Some(Color::RED),
-                                        None,
-                                        None,
-                                    );
-                                    txt.append(" = ".to_string(), None);
-                                    txt.append("MISSING / ".to_string(), None);
-                                    txt.append(v2.to_string(), Some(Color::CYAN));
+                                    txt.add(Line(k).fg(Color::RED));
+                                    txt.append(Line(" = "));
+                                    txt.append(Line("MISSING").fg(Color::CYAN));
+                                    txt.append(Line(" / "));
+                                    txt.append(Line(v2).fg(Color::CYAN));
                                 }
                             }
                         }
@@ -199,7 +183,7 @@ impl GUI for UI {
                                             self.raw.intersections[&self.raw.find_i(*i)?].point
                                         }
                                     };
-                                    Some((pt, h.clone(), Text::from_line(describe(h))))
+                                    Some((pt, h.clone(), Text::from(Line(describe(h)))))
                                 })
                                 .collect(),
                             "Hints Browser",
@@ -442,7 +426,7 @@ fn initial_map_to_world(data: &InitialMap, ctx: &mut EventCtx) -> World<ID> {
             } else {
                 Color::grey(0.8)
             },
-            Text::from_line(r.id.to_string()),
+            Text::from(Line(r.id.to_string())),
         );
     }
 
@@ -456,7 +440,7 @@ fn initial_map_to_world(data: &InitialMap, ctx: &mut EventCtx) -> World<ID> {
             } else {
                 Color::BLACK
             },
-            Text::from_line(format!("{}", i.id)),
+            Text::from(Line(i.id.to_string())),
         );
     }
 

@@ -1,5 +1,5 @@
 use abstutil::elapsed_seconds;
-use ezgui::{EventCtx, GfxCtx, ModalMenu, ScreenPt, Slider, Text};
+use ezgui::{EventCtx, GfxCtx, Line, ModalMenu, ScreenPt, Slider, Text};
 use geom::Duration;
 use std::time::Instant;
 
@@ -100,16 +100,16 @@ impl SpeedControls {
             ..
         } = self.state
         {
-            txt.add_line(format!(
+            txt.add(Line(format!(
                 "Speed: {} / desired {:.2}x",
                 speed_description,
                 self.desired_speed()
-            ))
+            )));
         } else {
-            txt.add_line(format!(
+            txt.add(Line(format!(
                 "Speed: paused / desired {:.2}x",
                 self.desired_speed()
-            ))
+            )));
         }
         self.slider.draw(g, Some(txt));
     }

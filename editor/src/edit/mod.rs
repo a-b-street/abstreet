@@ -12,7 +12,7 @@ use crate::render::{
 use crate::sandbox::SandboxMode;
 use crate::ui::{PerMapUI, ShowEverything, UI};
 use abstutil::Timer;
-use ezgui::{hotkey, lctrl, Color, EventCtx, GfxCtx, Key, ModalMenu, Text, Wizard};
+use ezgui::{hotkey, lctrl, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, Wizard};
 use map_model::{
     IntersectionID, Lane, LaneID, LaneType, Map, MapEdits, Road, RoadID, TurnID, TurnType,
 };
@@ -60,17 +60,17 @@ impl State for EditMode {
         let orig_edits = ui.primary.map.get_edits().clone();
         let mut txt = Text::prompt("Map Edit Mode");
         {
-            txt.add_line(orig_edits.edits_name.clone());
-            txt.add_line(format!("{} lanes", orig_edits.lane_overrides.len()));
-            txt.add_line(format!(
+            txt.add(Line(&orig_edits.edits_name));
+            txt.add(Line(format!("{} lanes", orig_edits.lane_overrides.len())));
+            txt.add(Line(format!(
                 "{} stop signs ",
                 orig_edits.stop_sign_overrides.len()
-            ));
-            txt.add_line(format!(
+            )));
+            txt.add(Line(format!(
                 "{} traffic signals",
                 orig_edits.traffic_signal_overrides.len()
-            ));
-            txt.add_line("Right-click a lane or intersection to start editing".to_string());
+            )));
+            txt.add(Line("Right-click a lane or intersection to start editing"));
         }
         self.menu.handle_event(ctx, Some(txt));
 

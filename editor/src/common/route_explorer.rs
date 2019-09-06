@@ -2,7 +2,7 @@ use crate::common::CommonState;
 use crate::game::{State, Transition};
 use crate::render::DrawTurn;
 use crate::ui::UI;
-use ezgui::{Color, EventCtx, GfxCtx, Key, Text, WarpingItemSlider};
+use ezgui::{Color, EventCtx, GfxCtx, Key, Line, Text, WarpingItemSlider};
 use geom::{Distance, Polygon, Pt2D};
 use map_model::{Traversable, LANE_THICKNESS};
 use sim::AgentID;
@@ -53,7 +53,7 @@ impl RouteExplorer {
                     t.dist_along(t.length(&ui.primary.map) / 2.0, &ui.primary.map)
                         .0,
                     t,
-                    Text::from_line(format!("{:?}", t)),
+                    Text::from(Line(format!("{:?}", t))),
                 )
             })
             .collect();

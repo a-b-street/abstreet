@@ -23,7 +23,8 @@ use crate::helpers::ID;
 use crate::render::{AgentColorScheme, DrawOptions};
 use crate::ui::UI;
 use ezgui::{
-    Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, ModalMenu, Text, VerticalAlignment,
+    Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Line, ModalMenu, Text,
+    VerticalAlignment,
 };
 use std::collections::BTreeSet;
 
@@ -107,38 +108,35 @@ impl CommonState {
         let mut osd = Text::new();
         match id {
             None => {
-                osd.append("...".to_string(), None);
+                osd.append(Line("..."));
             }
             Some(ID::Lane(l)) => {
-                osd.append(format!("{}", l), Some(id_color));
-                osd.append(" is ".to_string(), None);
-                osd.append(map.get_parent(*l).get_name(), Some(name_color));
+                osd.append(Line(l.to_string()).fg(id_color));
+                osd.append(Line(" is "));
+                osd.append(Line(map.get_parent(*l).get_name()).fg(name_color));
             }
             Some(ID::Building(b)) => {
                 let bldg = map.get_b(*b);
-                osd.append(format!("{}", b), Some(id_color));
-                osd.append(" is ".to_string(), None);
-                osd.append(bldg.get_name(), Some(name_color));
+                osd.append(Line(b.to_string()).fg(id_color));
+                osd.append(Line(" is "));
+                osd.append(Line(bldg.get_name()).fg(name_color));
                 if let Some(ref p) = bldg.parking {
-                    osd.append(
-                        format!(" ({} parking spots via {})", p.num_stalls, p.name),
-                        None,
-                    );
+                    osd.append(Line(format!(
+                        " ({} parking spots via {})",
+                        p.num_stalls, p.name
+                    )));
                 }
             }
             Some(ID::Turn(t)) => {
-                osd.append(
-                    format!("TurnID({})", map.get_t(*t).lookup_idx),
-                    Some(id_color),
-                );
-                osd.append(" between ".to_string(), None);
-                osd.append(map.get_parent(t.src).get_name(), Some(name_color));
-                osd.append(" and ".to_string(), None);
-                osd.append(map.get_parent(t.dst).get_name(), Some(name_color));
+                osd.append(Line(format!("TurnID({})", map.get_t(*t).lookup_idx)).fg(id_color));
+                osd.append(Line(" between "));
+                osd.append(Line(map.get_parent(t.src).get_name()).fg(name_color));
+                osd.append(Line(" and "));
+                osd.append(Line(map.get_parent(t.dst).get_name()).fg(name_color));
             }
             Some(ID::Intersection(i)) => {
-                osd.append(format!("{}", i), Some(id_color));
-                osd.append(" of ".to_string(), None);
+                osd.append(Line(i.to_string()).fg(id_color));
+                osd.append(Line(" of "));
 
                 let mut road_names = BTreeSet::new();
                 for r in &map.get_i(*i).roads {
@@ -146,34 +144,34 @@ impl CommonState {
                 }
                 let len = road_names.len();
                 for (idx, n) in road_names.into_iter().enumerate() {
-                    osd.append(n, Some(name_color));
+                    osd.append(Line(n).fg(name_color));
                     if idx != len - 1 {
-                        osd.append(", ".to_string(), None);
+                        osd.append(Line(", "));
                     }
                 }
             }
             Some(ID::Car(c)) => {
-                osd.append(format!("{}", c), Some(id_color));
+                osd.append(Line(c.to_string()).fg(id_color));
                 if let Some(r) = ui.primary.sim.bus_route_id(*c) {
-                    osd.append(" serving ".to_string(), None);
-                    osd.append(map.get_br(r).name.to_string(), Some(name_color));
+                    osd.append(Line(" serving "));
+                    osd.append(Line(&map.get_br(r).name).fg(name_color));
                 }
             }
             Some(ID::BusStop(bs)) => {
-                osd.append(format!("{}", bs), Some(id_color));
-                osd.append(" serving ".to_string(), None);
+                osd.append(Line(bs.to_string()).fg(id_color));
+                osd.append(Line(" serving "));
 
                 let routes = map.get_routes_serving_stop(*bs);
                 let len = routes.len();
                 for (idx, n) in routes.into_iter().enumerate() {
-                    osd.append(n.name.clone(), Some(name_color));
+                    osd.append(Line(&n.name).fg(name_color));
                     if idx != len - 1 {
-                        osd.append(", ".to_string(), None);
+                        osd.append(Line(", "));
                     }
                 }
             }
             Some(id) => {
-                osd.append(format!("{:?}", id), Some(id_color));
+                osd.append(Line(format!("{:?}", id)).fg(id_color));
             }
         }
         CommonState::draw_custom_osd(g, osd);
@@ -182,12 +180,12 @@ impl CommonState {
     pub fn draw_custom_osd(g: &mut GfxCtx, mut osd: Text) {
         let keys = g.get_active_context_menu_keys();
         if !keys.is_empty() {
-            osd.append("   Hotkeys: ".to_string(), None);
+            osd.append(Line("   Hotkeys: "));
             for (idx, key) in keys.into_iter().enumerate() {
                 if idx != 0 {
-                    osd.append(", ".to_string(), None);
+                    osd.append(Line(", "));
                 }
-                osd.append(key.describe(), Some(ezgui::HOTKEY_COLOR));
+                osd.append(Line(key.describe()).fg(ezgui::HOTKEY_COLOR));
             }
         }
 

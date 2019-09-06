@@ -1,6 +1,6 @@
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
-use ezgui::{Color, GeomBatch, GfxCtx, Text};
+use ezgui::{Color, GeomBatch, GfxCtx, Line, Text};
 use geom::{Circle, Distance, Line, PolyLine, Polygon, Pt2D};
 use map_model::{Building, BuildingID, Map, LANE_THICKNESS};
 
@@ -41,7 +41,7 @@ impl DrawBuilding {
 
         let label = bldg.osm_tags.get("addr:housenumber").map(|num| {
             let mut txt = Text::with_bg_color(None);
-            txt.add_styled_line(num.to_string(), Some(Color::BLACK), None, Some(50));
+            txt.add(Line(num.to_string()).fg(Color::BLACK).size(50));
             txt
         });
 

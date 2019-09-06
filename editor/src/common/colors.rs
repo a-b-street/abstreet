@@ -1,7 +1,7 @@
 use crate::helpers::ID;
 use crate::render::{DrawOptions, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::{ShowEverything, UI};
-use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, ScreenPt, Text, LINE_HEIGHT};
+use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ScreenPt, Text, LINE_HEIGHT};
 use geom::{Distance, Polygon, Pt2D};
 use map_model::{BuildingID, LaneID, Map, RoadID};
 use std::collections::HashMap;
@@ -152,7 +152,7 @@ impl ColorLegend {
         // TODO Need to recalculate all this if the panel moves
         let mut txt = Text::prompt(&self.title);
         for (label, _) in &self.rows {
-            txt.add_line(label.to_string());
+            txt.add(Line(label));
         }
         g.draw_text_at_screenspace_topleft(
             &txt,

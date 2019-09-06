@@ -1,6 +1,6 @@
 use aabb_quadtree::QuadTree;
 use abstutil::{deserialize_btreemap, read_binary, serialize_btreemap, write_json, Timer};
-use ezgui::{Canvas, Color, GfxCtx, Text};
+use ezgui::{Canvas, Color, GfxCtx, Line, Text};
 use geom::{Circle, Distance, LonLat, PolyLine, Polygon, Pt2D};
 use map_model::raw_data::{StableIntersectionID, StableRoadID};
 use map_model::{raw_data, IntersectionType, LaneType, RoadSpec, LANE_THICKNESS};
@@ -123,13 +123,13 @@ impl Road {
 
         if let Some(ref label) = self.fwd_label {
             g.draw_text_at(
-                &Text::from_line(label.to_string()),
+                &Text::from(Line(label)),
                 self.polygon(FORWARDS, model).center(),
             );
         }
         if let Some(ref label) = self.back_label {
             g.draw_text_at(
-                &Text::from_line(label.to_string()),
+                &Text::from(Line(label)),
                 self.polygon(BACKWARDS, model).center(),
             );
         }
@@ -226,7 +226,7 @@ impl Model {
             g.draw_circle(color, &i.circle());
 
             if let Some(ref label) = i.label {
-                g.draw_text_at(&Text::from_line(label.to_string()), i.center);
+                g.draw_text_at(&Text::from(Line(label)), i.center);
             }
         }
 
@@ -240,7 +240,7 @@ impl Model {
             g.draw_polygon(color, &b.polygon());
 
             if let Some(ref label) = b.label {
-                g.draw_text_at(&Text::from_line(label.to_string()), b.center);
+                g.draw_text_at(&Text::from(Line(label)), b.center);
             }
         }
     }

@@ -1,6 +1,6 @@
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{DrawCtx, DrawOptions, Renderable, BIG_ARROW_THICKNESS, OUTLINE_THICKNESS};
-use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender, Text};
+use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Polygon, Pt2D};
 use map_model::{Map, Road, RoadID};
 
@@ -22,12 +22,7 @@ impl DrawRoad {
         );
 
         let mut label = Text::new();
-        label.add_styled_line(
-            r.get_name(),
-            None, //Some(Color::BLACK),
-            None,
-            Some(50),
-        );
+        label.add(Line(r.get_name()).size(50));
 
         DrawRoad {
             id: r.id,

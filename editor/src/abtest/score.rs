@@ -3,8 +3,8 @@ use crate::ui::PerMapUI;
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, ModalMenu, Text, VerticalAlignment,
-    Wizard,
+    hotkey, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ModalMenu, Text,
+    VerticalAlignment, Wizard,
 };
 use geom::Duration;
 use itertools::Itertools;
@@ -30,25 +30,17 @@ impl Scoreboard {
         let t2 = secondary.sim.get_finished_trips();
 
         let mut summary = Text::new();
-        summary.add_line("Score at ".to_string());
-        summary.append(primary.sim.time().to_string(), Some(Color::RED));
-        summary.append(
-            format!(
-                "... {} / {}",
-                primary.map.get_edits().edits_name,
-                secondary.map.get_edits().edits_name
-            ),
-            None,
-        );
-        summary.add_styled_line(
-            prettyprint_usize(t1.unfinished_trips),
-            Some(Color::CYAN),
-            None,
-            None,
-        );
-        summary.append(" | ".to_string(), None);
-        summary.append(prettyprint_usize(t2.unfinished_trips), Some(Color::RED));
-        summary.append(" unfinished trips".to_string(), None);
+        summary.add(Line("Score at "));
+        summary.append(Line(primary.sim.time().to_string()).fg(Color::RED));
+        summary.append(Line(format!(
+            "... {} / {}",
+            primary.map.get_edits().edits_name,
+            secondary.map.get_edits().edits_name
+        )));
+        summary.add(Line(prettyprint_usize(t1.unfinished_trips)).fg(Color::CYAN));
+        summary.append(Line(" | "));
+        summary.append(Line(prettyprint_usize(t2.unfinished_trips)).fg(Color::RED));
+        summary.append(Line(" unfinished trips"));
 
         let cmp = CompareTrips::new(t1, t2);
         for (mode, trips) in &cmp
@@ -72,41 +64,29 @@ impl Scoreboard {
             deltas.sort();
             let len = deltas.len() as f64;
 
-            summary.add_styled_line(format!("{:?}", mode), Some(Color::CYAN), None, None);
-            summary.append(
-                format!(
-                    " trips: {} same, {} different",
-                    abstutil::prettyprint_usize(num_same),
-                    abstutil::prettyprint_usize(deltas.len())
-                ),
-                None,
-            );
+            summary.add(Line(format!("{:?}", mode)).fg(Color::CYAN));
+            summary.append(Line(format!(
+                " trips: {} same, {} different",
+                abstutil::prettyprint_usize(num_same),
+                abstutil::prettyprint_usize(deltas.len())
+            )));
             if !deltas.is_empty() {
-                summary.add_line("  deltas: ".to_string());
-                summary.append("50%ile".to_string(), Some(Color::RED));
-                summary.append(
-                    format!(
-                        " {}, ",
-                        handle_negative(deltas[(0.5 * len).floor() as usize])
-                    ),
-                    None,
-                );
-                summary.append("90%ile".to_string(), Some(Color::RED));
-                summary.append(
-                    format!(
-                        " {}, ",
-                        handle_negative(deltas[(0.9 * len).floor() as usize])
-                    ),
-                    None,
-                );
-                summary.append("99%ile".to_string(), Some(Color::RED));
-                summary.append(
-                    format!(
-                        " {}",
-                        handle_negative(deltas[(0.99 * len).floor() as usize])
-                    ),
-                    None,
-                );
+                summary.add(Line("  deltas: "));
+                summary.append(Line("50%ile").fg(Color::RED));
+                summary.append(Line(format!(
+                    " {}, ",
+                    handle_negative(deltas[(0.5 * len).floor() as usize])
+                )));
+                summary.append(Line("90%ile").fg(Color::RED));
+                summary.append(Line(format!(
+                    " {}, ",
+                    handle_negative(deltas[(0.9 * len).floor() as usize])
+                )));
+                summary.append(Line("99%ile").fg(Color::RED));
+                summary.append(Line(format!(
+                    " {}",
+                    handle_negative(deltas[(0.99 * len).floor() as usize])
+                )));
             }
         }
 

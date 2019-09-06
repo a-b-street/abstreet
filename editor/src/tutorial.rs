@@ -1,6 +1,6 @@
 use crate::game::{State, Transition};
 use crate::ui::UI;
-use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu, Text};
+use ezgui::{hotkey, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
 use geom::Pt2D;
 
 pub struct TutorialMode {
@@ -23,12 +23,12 @@ impl TutorialMode {
 impl State for TutorialMode {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
         let mut txt = Text::prompt("Tutorial");
-        txt.add_line("Click and drag to pan around".to_string());
+        txt.add(Line("Click and drag to pan around"));
 
         // TODO Zooming also changes this. :(
         if ctx.canvas.center_to_map_pt() != self.orig_center {
-            txt.add_line("".to_string());
-            txt.add_line("Great! Press ENTER to continue.".to_string());
+            txt.add(Line(""));
+            txt.add(Line("Great! Press ENTER to continue."));
             if ctx.input.key_pressed(Key::Enter, "next step of tutorial") {
                 return Transition::Replace(Box::new(Part2 {
                     orig_cam_zoom: ctx.canvas.cam_zoom,
@@ -67,11 +67,11 @@ struct Part2 {
 impl State for Part2 {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
         let mut txt = Text::prompt("Tutorial");
-        txt.add_line("Use your mouse wheel or touchpad to zoom in and out".to_string());
+        txt.add(Line("Use your mouse wheel or touchpad to zoom in and out"));
 
         if ctx.canvas.cam_zoom != self.orig_cam_zoom {
-            txt.add_line("".to_string());
-            txt.add_line("Great! Press ENTER to continue.".to_string());
+            txt.add(Line(""));
+            txt.add(Line("Great! Press ENTER to continue."));
             if ctx.input.key_pressed(Key::Enter, "next step of tutorial") {
                 return Transition::Pop;
             }
