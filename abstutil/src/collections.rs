@@ -55,6 +55,28 @@ where
     }
 }
 
+pub struct Counter<T: Ord + PartialEq> {
+    map: BTreeMap<T, usize>,
+}
+
+impl<T: Ord + PartialEq> Counter<T> {
+    pub fn new() -> Counter<T> {
+        Counter {
+            map: BTreeMap::new(),
+        }
+    }
+
+    pub fn inc(&mut self, val: T) -> usize {
+        let entry = self.map.entry(val).or_insert(0);
+        *entry += 1;
+        *entry
+    }
+
+    pub fn get(&self, val: T) -> usize {
+        self.map.get(&val).cloned().unwrap_or(0)
+    }
+}
+
 pub fn wraparound_get<T>(vec: &Vec<T>, idx: isize) -> &T {
     let len = vec.len() as isize;
     let idx = idx % len;

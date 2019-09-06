@@ -1,4 +1,4 @@
-use abstutil::Timer;
+use abstutil::{Counter, Timer};
 use geom::{HashablePt2D, Pt2D};
 use map_model::{raw_data, IntersectionType};
 use std::collections::{HashMap, HashSet};
@@ -38,13 +38,11 @@ pub fn split_up_roads(
     });
 
     // Find normal intersections
-    let mut counts_per_pt: HashMap<HashablePt2D, usize> = HashMap::new();
+    let mut counts_per_pt = Counter::new();
     for r in &roads {
         for (idx, raw_pt) in r.center_points.iter().enumerate() {
             let pt = raw_pt.to_hashable();
-            counts_per_pt.entry(pt).or_insert(0);
-            let count = counts_per_pt[&pt] + 1;
-            counts_per_pt.insert(pt, count);
+            let count = counts_per_pt.inc(pt);
 
             // All start and endpoints of ways are also intersections.
             if count == 2 || idx == 0 || idx == r.center_points.len() - 1 {

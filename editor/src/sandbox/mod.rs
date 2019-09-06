@@ -11,10 +11,11 @@ use crate::edit::EditMode;
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::ui::{PerMapUI, ShowEverything, UI};
+use abstutil::Counter;
 use ezgui::{hotkey, lctrl, Color, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard};
 use geom::Duration;
 use sim::{ParkingSpot, Sim};
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
 pub struct SandboxMode {
     speed: SpeedControls,
@@ -292,24 +293,24 @@ fn calculate_parking_heatmap(ctx: &mut EventCtx, primary: &PerMapUI) -> RoadColo
             .lane(),
     };
 
-    let mut filled = HashMap::new();
-    let mut avail = HashMap::new();
+    let mut filled = Counter::new();
+    let mut avail = Counter::new();
     let mut keys = HashSet::new();
     let (filled_spots, avail_spots) = primary.sim.get_all_parking_spots();
     for spot in filled_spots {
         let l = lane(spot);
         keys.insert(l);
-        *filled.entry(l).or_insert(0) += 1;
+        filled.inc(l);
     }
     for spot in avail_spots {
         let l = lane(spot);
         keys.insert(l);
-        *avail.entry(l).or_insert(0) += 1;
+        avail.inc(l);
     }
 
     for l in keys {
-        let open = *avail.get(&l).unwrap_or(&0);
-        let closed = *filled.get(&l).unwrap_or(&0);
+        let open = avail.get(l);
+        let closed = filled.get(l);
         let percent = (open as f64) / ((open + closed) as f64);
         let color = if percent > 0.6 {
             good
