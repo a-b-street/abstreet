@@ -53,7 +53,13 @@ impl Floodfiller {
         let reachable_color = ui.cs.get_def("reachable lane", Color::GREEN);
         let unreachable_color = ui.cs.get_def("unreachable lane", Color::RED);
 
-        let mut colorer = RoadColorerBuilder::new(vec![unreachable_color, reachable_color]);
+        let mut colorer = RoadColorerBuilder::new(
+            "lane connectivity",
+            vec![
+                ("unreachable", unreachable_color),
+                ("reachable", reachable_color),
+            ],
+        );
         let mut num_unreachable = 0;
         for lane in map.all_lanes() {
             if !lane.is_driving() {

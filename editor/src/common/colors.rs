@@ -1,7 +1,8 @@
 use crate::helpers::ID;
 use crate::render::{DrawOptions, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::{ShowEverything, UI};
-use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx};
+use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, ScreenPt, Text};
+use geom::{Distance, Polygon, Pt2D};
 use map_model::{BuildingID, LaneID, Map, RoadID};
 use std::collections::HashMap;
 
@@ -9,11 +10,13 @@ pub struct RoadColorerBuilder {
     prioritized_colors: Vec<Color>,
     zoomed_override_colors: HashMap<ID, Color>,
     roads: HashMap<RoadID, Color>,
+    legend: ColorLegend,
 }
 
 pub struct RoadColorer {
     zoomed_override_colors: HashMap<ID, Color>,
     unzoomed: Drawable,
+    legend: ColorLegend,
 }
 
 impl RoadColorer {
@@ -26,17 +29,20 @@ impl RoadColorer {
             opts.override_colors = self.zoomed_override_colors.clone();
             ui.draw(g, opts, &ui.primary.sim, &ShowEverything::new());
         }
+
+        self.legend.draw(g);
     }
 }
 
 impl RoadColorerBuilder {
     // Colors listed earlier override those listed later. This is used in unzoomed mode, when one
     // road has lanes of different colors.
-    pub fn new(prioritized_colors: Vec<Color>) -> RoadColorerBuilder {
+    pub fn new(title: &str, prioritized_colors: Vec<(&str, Color)>) -> RoadColorerBuilder {
         RoadColorerBuilder {
-            prioritized_colors,
+            prioritized_colors: prioritized_colors.iter().map(|(_, c)| *c).collect(),
             zoomed_override_colors: HashMap::new(),
             roads: HashMap::new(),
+            legend: ColorLegend::new(title, prioritized_colors),
         }
     }
 
@@ -62,17 +68,20 @@ impl RoadColorerBuilder {
         RoadColorer {
             zoomed_override_colors: self.zoomed_override_colors,
             unzoomed: ctx.prerender.upload(batch),
+            legend: self.legend,
         }
     }
 }
 
 pub struct BuildingColorerBuilder {
     zoomed_override_colors: HashMap<ID, Color>,
+    legend: ColorLegend,
 }
 
 pub struct BuildingColorer {
     zoomed_override_colors: HashMap<ID, Color>,
     unzoomed: Drawable,
+    legend: ColorLegend,
 }
 
 impl BuildingColorer {
@@ -85,13 +94,16 @@ impl BuildingColorer {
             opts.override_colors = self.zoomed_override_colors.clone();
             ui.draw(g, opts, &ui.primary.sim, &ShowEverything::new());
         }
+
+        self.legend.draw(g);
     }
 }
 
 impl BuildingColorerBuilder {
-    pub fn new() -> BuildingColorerBuilder {
+    pub fn new(title: &str, rows: Vec<(&str, Color)>) -> BuildingColorerBuilder {
         BuildingColorerBuilder {
             zoomed_override_colors: HashMap::new(),
+            legend: ColorLegend::new(title, rows),
         }
     }
 
@@ -111,6 +123,64 @@ impl BuildingColorerBuilder {
         BuildingColorer {
             zoomed_override_colors: self.zoomed_override_colors,
             unzoomed: ctx.prerender.upload(batch),
+            legend: self.legend,
         }
+    }
+}
+
+struct ColorLegend {
+    title: String,
+    rows: Vec<(String, Color)>,
+}
+
+impl ColorLegend {
+    pub fn new(title: &str, rows: Vec<(&str, Color)>) -> ColorLegend {
+        ColorLegend {
+            title: title.to_string(),
+            rows: rows
+                .into_iter()
+                .map(|(label, c)| (label.to_string(), c))
+                .collect(),
+        }
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx) {
+        // TODO Want to draw a little rectangular box on each row, but how do we know positioning?
+        // - v1: manually figure it out here with line height, padding, etc
+        // - v2: be able to say something like "row: rectangle with width=30, height=80% of row.
+        // then 10px spacing. then this text"
+        // TODO Need to recalculate all this if the panel moves
+        let mut txt = Text::prompt(&self.title);
+        for (label, _) in &self.rows {
+            txt.add_line(label.to_string());
+        }
+        // TODO better ezgui constant for default line height, assert it matches font upon init
+        let line_height = 30.0;
+        g.draw_text_at_screenspace_topleft(
+            &txt,
+            ScreenPt::new(
+                50.0,
+                g.canvas.window_height - (line_height * ((self.rows.len() + 2) as f64)),
+            ),
+        );
+
+        let mut batch = GeomBatch::new();
+        for (idx, (_, c)) in self.rows.iter().enumerate() {
+            let offset_from_bottom = 1 + self.rows.len() - idx;
+            batch.push(
+                *c,
+                Polygon::rectangle_topleft(
+                    Pt2D::new(
+                        20.0,
+                        g.canvas.window_height - line_height * (offset_from_bottom as f64),
+                    ),
+                    Distance::meters(10.0),
+                    Distance::meters(10.0),
+                ),
+            );
+        }
+        g.fork_screenspace();
+        batch.draw(g);
+        g.unfork();
     }
 }

@@ -40,21 +40,23 @@ impl ScenarioManager {
             cars_needed_per_bldg.insert(b.id, CarCount::new());
         }
         let mut total_cars_needed = CarCount::new();
-        let mut bldg_colors = BuildingColorerBuilder::new();
+        let color = Color::BLUE;
+        let mut bldg_colors =
+            BuildingColorerBuilder::new("trips", vec![("building with trips from/to it", color)]);
         for (idx, trip) in scenario.individ_trips.iter().enumerate() {
             // trips_from_bldg
             match trip {
                 SpawnTrip::CarAppearing { .. } => {}
                 SpawnTrip::MaybeUsingParkedCar(_, b, _) => {
                     trips_from_bldg.insert(*b, idx);
-                    bldg_colors.add(*b, Color::BLUE);
+                    bldg_colors.add(*b, color);
                 }
                 SpawnTrip::UsingBike(_, ref spot, _)
                 | SpawnTrip::JustWalking(_, ref spot, _)
                 | SpawnTrip::UsingTransit(_, ref spot, _, _, _, _) => {
                     if let SidewalkPOI::Building(b) = spot.connection {
                         trips_from_bldg.insert(b, idx);
-                        bldg_colors.add(b, Color::BLUE);
+                        bldg_colors.add(b, color);
                     }
                 }
             }
@@ -66,14 +68,14 @@ impl ScenarioManager {
                 | SpawnTrip::UsingBike(_, _, ref goal) => {
                     if let DrivingGoal::ParkNear(b) = goal {
                         trips_to_bldg.insert(*b, idx);
-                        bldg_colors.add(*b, Color::BLUE);
+                        bldg_colors.add(*b, color);
                     }
                 }
                 SpawnTrip::JustWalking(_, _, ref spot)
                 | SpawnTrip::UsingTransit(_, _, ref spot, _, _, _) => {
                     if let SidewalkPOI::Building(b) = spot.connection {
                         trips_to_bldg.insert(b, idx);
-                        bldg_colors.add(b, Color::BLUE);
+                        bldg_colors.add(b, color);
                     }
                 }
             }

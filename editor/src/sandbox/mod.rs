@@ -279,7 +279,15 @@ fn calculate_parking_heatmap(ctx: &mut EventCtx, primary: &PerMapUI) -> RoadColo
     let bad = Color::RED;
     let meh = Color::YELLOW;
     let good = Color::GREEN;
-    let mut colorer = RoadColorerBuilder::new(vec![awful, bad, meh, good]);
+    let mut colorer = RoadColorerBuilder::new(
+        "parking availability",
+        vec![
+            ("< 10%", awful),
+            ("< 30%", bad),
+            ("< 60%", meh),
+            (">= 60%", good),
+        ],
+    );
 
     let lane = |spot| match spot {
         ParkingSpot::Onstreet(l, _) => l,
@@ -312,7 +320,7 @@ fn calculate_parking_heatmap(ctx: &mut EventCtx, primary: &PerMapUI) -> RoadColo
         let open = avail.get(l);
         let closed = filled.get(l);
         let percent = (open as f64) / ((open + closed) as f64);
-        let color = if percent > 0.6 {
+        let color = if percent >= 0.6 {
             good
         } else if percent > 0.3 {
             meh
