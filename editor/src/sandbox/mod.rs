@@ -3,22 +3,25 @@ mod spawner;
 mod time_travel;
 
 use crate::common::{
-    time_controls, AgentTools, CommonState, RouteExplorer, SpeedControls, TripExplorer,
+    time_controls, AgentTools, CommonState, RoadColorer, RoadColorerBuilder, RouteExplorer,
+    SpeedControls, TripExplorer,
 };
 use crate::debug::DebugMode;
 use crate::edit::EditMode;
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
-use crate::ui::{ShowEverything, UI};
-use ezgui::{hotkey, lctrl, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard};
+use crate::ui::{PerMapUI, ShowEverything, UI};
+use ezgui::{hotkey, lctrl, Color, EventCtx, EventLoopMode, GfxCtx, Key, ModalMenu, Text, Wizard};
 use geom::Duration;
-use sim::Sim;
+use sim::{ParkingSpot, Sim};
+use std::collections::{HashMap, HashSet};
 
 pub struct SandboxMode {
     speed: SpeedControls,
     agent_tools: AgentTools,
     pub time_travel: time_travel::InactiveTimeTravel,
     common: CommonState,
+    parking_heatmap: Option<(Duration, RoadColorer)>,
     menu: ModalMenu,
 }
 
@@ -29,6 +32,7 @@ impl SandboxMode {
             agent_tools: AgentTools::new(),
             time_travel: time_travel::InactiveTimeTravel::new(),
             common: CommonState::new(),
+            parking_heatmap: None,
             menu: ModalMenu::new(
                 "Sandbox Mode",
                 vec![
@@ -52,7 +56,7 @@ impl SandboxMode {
                         // TODO Strange to always have this. Really it's a case of stacked modal?
                         (hotkey(Key::F), "stop following agent"),
                         (hotkey(Key::R), "stop showing agent's route"),
-                        (hotkey(Key::A), "show/hide active traffic"),
+                        (hotkey(Key::A), "show/hide parking availability"),
                         (hotkey(Key::T), "start time traveling"),
                         (hotkey(Key::Q), "scoreboard"),
                     ],
@@ -106,6 +110,27 @@ impl State for SandboxMode {
         }
         if self.menu.action("scoreboard") {
             return Transition::Push(Box::new(score::Scoreboard::new(ctx, ui)));
+        }
+        if self.menu.action("show/hide parking availability") {
+            if self.parking_heatmap.is_some() {
+                self.parking_heatmap = None;
+            } else {
+                self.parking_heatmap = Some((
+                    ui.primary.sim.time(),
+                    calculate_parking_heatmap(ctx, &ui.primary),
+                ));
+            }
+        }
+        if self
+            .parking_heatmap
+            .as_ref()
+            .map(|(t, _)| *t != ui.primary.sim.time())
+            .unwrap_or(false)
+        {
+            self.parking_heatmap = Some((
+                ui.primary.sim.time(),
+                calculate_parking_heatmap(ctx, &ui.primary),
+            ));
         }
 
         if self.menu.action("quit") {
@@ -213,12 +238,16 @@ impl State for SandboxMode {
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        ui.draw(
-            g,
-            self.common.draw_options(ui),
-            &ui.primary.sim,
-            &ShowEverything::new(),
-        );
+        if let Some((_, ref c)) = self.parking_heatmap {
+            c.draw(g, ui);
+        } else {
+            ui.draw(
+                g,
+                self.common.draw_options(ui),
+                &ui.primary.sim,
+                &ShowEverything::new(),
+            );
+        }
         self.common.draw(g, ui);
         self.agent_tools.draw(g, ui);
         self.menu.draw(g);
@@ -242,4 +271,57 @@ fn load_savestate(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<T
         ui.recalculate_current_selection(ctx);
     });
     Some(Transition::Pop)
+}
+
+fn calculate_parking_heatmap(ctx: &mut EventCtx, primary: &PerMapUI) -> RoadColorer {
+    let awful = Color::BLACK;
+    let bad = Color::RED;
+    let meh = Color::YELLOW;
+    let good = Color::GREEN;
+    let mut colorer = RoadColorerBuilder::new(vec![awful, bad, meh, good]);
+
+    let lane = |spot| match spot {
+        ParkingSpot::Onstreet(l, _) => l,
+        ParkingSpot::Offstreet(b, _) => primary
+            .map
+            .get_b(b)
+            .parking
+            .as_ref()
+            .unwrap()
+            .driving_pos
+            .lane(),
+    };
+
+    let mut filled = HashMap::new();
+    let mut avail = HashMap::new();
+    let mut keys = HashSet::new();
+    let (filled_spots, avail_spots) = primary.sim.get_all_parking_spots();
+    for spot in filled_spots {
+        let l = lane(spot);
+        keys.insert(l);
+        *filled.entry(l).or_insert(0) += 1;
+    }
+    for spot in avail_spots {
+        let l = lane(spot);
+        keys.insert(l);
+        *avail.entry(l).or_insert(0) += 1;
+    }
+
+    for l in keys {
+        let open = *avail.get(&l).unwrap_or(&0);
+        let closed = *filled.get(&l).unwrap_or(&0);
+        let percent = (open as f64) / ((open + closed) as f64);
+        let color = if percent > 0.6 {
+            good
+        } else if percent > 0.3 {
+            meh
+        } else if percent > 0.1 {
+            bad
+        } else {
+            awful
+        };
+        colorer.add(l, color, &primary.map);
+    }
+
+    colorer.build(ctx, &primary.map)
 }
