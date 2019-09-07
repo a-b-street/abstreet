@@ -1,6 +1,6 @@
 use crate::{
-    CarStatus, DistanceInterval, DrawCarInput, ParkingSpot, Router, TimeInterval, TransitSimState,
-    TripID, Vehicle, VehicleType,
+    AgentMetadata, CarStatus, DistanceInterval, DrawCarInput, ParkingSpot, Router, TimeInterval,
+    TransitSimState, TripID, Vehicle, VehicleType,
 };
 use geom::{Distance, Duration, PolyLine};
 use map_model::{Map, Traversable, LANE_THICKNESS};
@@ -123,7 +123,6 @@ impl Car {
             _ => raw_body,
         };
 
-        let path = self.router.get_path();
         DrawCarInput {
             id: self.vehicle.id,
             waiting_for_turn: match self.state {
@@ -156,11 +155,17 @@ impl Car {
                 None
             },
             body,
+            metadata: self.metadata(now),
+        }
+    }
+
+    pub fn metadata(&self, now: Duration) -> AgentMetadata {
+        AgentMetadata {
             time_spent_blocked: self
                 .blocked_since
                 .map(|t| now - t)
                 .unwrap_or(Duration::ZERO),
-            percent_dist_crossed: path.percent_dist_crossed(),
+            percent_dist_crossed: self.router.get_path().percent_dist_crossed(),
             trip_time_so_far: now - self.started_at,
         }
     }

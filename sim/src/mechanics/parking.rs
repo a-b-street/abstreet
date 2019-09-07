@@ -1,4 +1,4 @@
-use crate::{CarID, CarStatus, DrawCarInput, ParkedCar, ParkingSpot, Vehicle};
+use crate::{AgentMetadata, CarID, CarStatus, DrawCarInput, ParkedCar, ParkingSpot, Vehicle};
 use abstutil::{
     deserialize_btreemap, deserialize_multimap, serialize_btreemap, serialize_multimap, MultiMap,
 };
@@ -161,9 +161,11 @@ impl ParkingSimState {
                     status: CarStatus::Parked,
                     on: Traversable::Lane(lane),
                     label: None,
-                    time_spent_blocked: Duration::ZERO,
-                    percent_dist_crossed: 0.0,
-                    trip_time_so_far: Duration::ZERO,
+                    metadata: AgentMetadata {
+                        time_spent_blocked: Duration::ZERO,
+                        percent_dist_crossed: 0.0,
+                        trip_time_so_far: Duration::ZERO,
+                    },
 
                     body: map
                         .get_l(lane)

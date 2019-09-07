@@ -18,7 +18,9 @@ use map_model::{
     AreaID, BuildingID, BusStopID, DirectedRoadID, IntersectionID, IntersectionType, Lane, LaneID,
     Map, RoadID, Traversable, Turn, TurnID, TurnType, LANE_THICKNESS,
 };
-use sim::{CarStatus, DrawCarInput, DrawPedestrianInput, UnzoomedAgent, VehicleType};
+use sim::{
+    AgentMetadata, CarStatus, DrawCarInput, DrawPedestrianInput, UnzoomedAgent, VehicleType,
+};
 use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -434,9 +436,7 @@ impl AgentColorScheme {
                 Some(VehicleType::Bus) => cs.get_def("unzoomed bus", Color::BLUE.alpha(0.5)),
                 None => cs.get_def("unzoomed pedestrian", Color::ORANGE.alpha(0.5)),
             },
-            AgentColorScheme::Delay => delay_color(agent.time_spent_blocked),
-            AgentColorScheme::DistanceCrossedSoFar => percent_color(agent.percent_dist_crossed),
-            AgentColorScheme::TripTimeSoFar => delay_color(agent.trip_time_so_far),
+            _ => self.by_metadata(&agent.metadata),
         }
     }
 
@@ -454,9 +454,7 @@ impl AgentColorScheme {
                     }
                 }
             }
-            AgentColorScheme::Delay => delay_color(input.time_spent_blocked),
-            AgentColorScheme::DistanceCrossedSoFar => percent_color(input.percent_dist_crossed),
-            AgentColorScheme::TripTimeSoFar => delay_color(input.trip_time_so_far),
+            _ => self.by_metadata(&input.metadata),
         }
     }
 
@@ -469,9 +467,7 @@ impl AgentColorScheme {
                 CarStatus::Stuck => cs.get_def("stuck bike", Color::RED),
                 CarStatus::Parked => panic!("Can't have a parked bike {}", input.id),
             },
-            AgentColorScheme::Delay => delay_color(input.time_spent_blocked),
-            AgentColorScheme::DistanceCrossedSoFar => percent_color(input.percent_dist_crossed),
-            AgentColorScheme::TripTimeSoFar => delay_color(input.trip_time_so_far),
+            _ => self.by_metadata(&input.metadata),
         }
     }
 
@@ -484,9 +480,16 @@ impl AgentColorScheme {
                     cs.get_def("pedestrian", Color::rgb_f(0.2, 0.7, 0.7))
                 }
             }
-            AgentColorScheme::Delay => delay_color(input.time_spent_blocked),
-            AgentColorScheme::DistanceCrossedSoFar => percent_color(input.percent_dist_crossed),
-            AgentColorScheme::TripTimeSoFar => delay_color(input.trip_time_so_far),
+            _ => self.by_metadata(&input.metadata),
+        }
+    }
+
+    fn by_metadata(self, md: &AgentMetadata) -> Color {
+        match self {
+            AgentColorScheme::VehicleTypes => unreachable!(),
+            AgentColorScheme::Delay => delay_color(md.time_spent_blocked),
+            AgentColorScheme::DistanceCrossedSoFar => percent_color(md.percent_dist_crossed),
+            AgentColorScheme::TripTimeSoFar => delay_color(md.trip_time_so_far),
         }
     }
 

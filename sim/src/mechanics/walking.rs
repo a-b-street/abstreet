@@ -1,7 +1,8 @@
 use crate::{
-    AgentID, Command, CreatePedestrian, DistanceInterval, DrawPedCrowdInput, DrawPedestrianInput,
-    IntersectionSimState, ParkingSimState, ParkingSpot, PedestrianID, Scheduler, SidewalkPOI,
-    SidewalkSpot, TimeInterval, TransitSimState, TripID, TripManager, TripPositions, UnzoomedAgent,
+    AgentID, AgentMetadata, Command, CreatePedestrian, DistanceInterval, DrawPedCrowdInput,
+    DrawPedestrianInput, IntersectionSimState, ParkingSimState, ParkingSpot, PedestrianID,
+    Scheduler, SidewalkPOI, SidewalkSpot, TimeInterval, TransitSimState, TripID, TripManager,
+    TripPositions, UnzoomedAgent,
 };
 use abstutil::{deserialize_multimap, serialize_multimap, MultiMap};
 use geom::{Distance, Duration, Line, PolyLine, Speed};
@@ -274,9 +275,7 @@ impl WalkingSimState {
             peds.push(UnzoomedAgent {
                 vehicle_type: None,
                 pos: ped.get_draw_ped(now, map).pos,
-                time_spent_blocked: ped.blocked_since.map(|t| now - t).unwrap_or(Duration::ZERO),
-                percent_dist_crossed: ped.path.percent_dist_crossed(),
-                trip_time_so_far: now - ped.started_at,
+                metadata: ped.metadata(now),
             });
         }
 
@@ -508,6 +507,12 @@ impl Pedestrian {
                 _ => false,
             },
             on,
+            metadata: self.metadata(now),
+        }
+    }
+
+    fn metadata(&self, now: Duration) -> AgentMetadata {
+        AgentMetadata {
             time_spent_blocked: self
                 .blocked_since
                 .map(|t| now - t)

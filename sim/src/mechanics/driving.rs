@@ -650,16 +650,10 @@ impl DrivingSimState {
 
             for (c, dist) in queue.get_car_positions(now, &self.cars, &self.queues) {
                 let car = &self.cars[&c];
-                let path = car.router.get_path();
                 result.push(UnzoomedAgent {
                     vehicle_type: Some(car.vehicle.vehicle_type),
                     pos: queue.id.dist_along(dist, map).0,
-                    time_spent_blocked: car
-                        .blocked_since
-                        .map(|t| now - t)
-                        .unwrap_or(Duration::ZERO),
-                    percent_dist_crossed: path.percent_dist_crossed(),
-                    trip_time_so_far: now - car.started_at,
+                    metadata: car.metadata(now),
                 });
             }
         }
