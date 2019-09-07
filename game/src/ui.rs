@@ -46,8 +46,8 @@ impl UI {
         if splash {
             ctx.canvas.center_on_map_pt(rand_focus_pt);
         } else {
-            let path = abstutil::path_editor_state(primary.map.get_name());
-            match abstutil::read_json::<EditorState>(&path) {
+            let path = abstutil::path_camera_state(primary.map.get_name());
+            match abstutil::read_json::<CameraState>(&path) {
                 Ok(ref loaded) => {
                     println!("Loaded {}", path);
                     ctx.canvas.cam_x = loaded.cam_x;
@@ -350,21 +350,21 @@ impl UI {
         borrows
     }
 
-    pub fn save_editor_state(&self, canvas: &Canvas) {
-        let state = EditorState {
+    pub fn save_camera_state(&self, canvas: &Canvas) {
+        let state = CameraState {
             map_name: self.primary.map.get_name().clone(),
             cam_x: canvas.cam_x,
             cam_y: canvas.cam_y,
             cam_zoom: canvas.cam_zoom,
         };
-        let path = abstutil::path_editor_state(&state.map_name);
+        let path = abstutil::path_camera_state(&state.map_name);
         abstutil::write_json(&path, &state).unwrap();
         println!("Saved {}", path);
     }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-struct EditorState {
+struct CameraState {
     pub map_name: String,
     pub cam_x: f64,
     pub cam_y: f64,
@@ -423,7 +423,7 @@ impl ShowObject for ShowEverything {
 }
 
 #[derive(StructOpt, Debug, Clone)]
-#[structopt(name = "editor")]
+#[structopt(name = "game")]
 pub struct Flags {
     #[structopt(flatten)]
     pub sim_flags: SimFlags,

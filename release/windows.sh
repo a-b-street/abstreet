@@ -10,9 +10,9 @@ common_release $OUT
 
 cp release/play_abstreet.bat $OUT
 
-mkdir $OUT/editor
-cross build --release --target x86_64-pc-windows-gnu --bin editor
-cp target/x86_64-pc-windows-gnu/release/editor.exe $OUT/editor
+mkdir $OUT/game
+cross build --release --target x86_64-pc-windows-gnu --bin game
+cp target/x86_64-pc-windows-gnu/release/game.exe $OUT/game
 
 zip -r $OUT $OUT
 rm -rf $OUT

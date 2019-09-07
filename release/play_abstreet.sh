@@ -1,4 +1,4 @@
 #!/bin/bash
 
-cd editor
-./editor
+cd game
+./game

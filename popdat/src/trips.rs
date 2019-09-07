@@ -345,7 +345,7 @@ pub fn trips_to_scenario(map: &Map, t1: Duration, t2: Duration, timer: &mut Time
         .flatten()
         .collect();
 
-    // This is another variation of the 'recycle' algorithm in editor's ScenarioManager.
+    // This is another variation of the 'recycle' algorithm in game's ScenarioManager.
     let mut individ_parked_cars = BTreeMap::new();
     let mut avail_per_bldg = BTreeMap::new();
     for b in map.all_buildings() {

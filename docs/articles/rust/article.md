@@ -113,7 +113,7 @@ macro cleverness could avoid this.
 
 No surprises here: compile times suck. It's especially frustrating to add a few
 lines to `geom` for debugging (not affecting any of the crate's external APIs),
-then wait for the dependent crates `map_model`, `sim`, and `editor` to recompile
+then wait for the dependent crates `map_model`, `sim`, and `game` to recompile
 (or maybe just link again, but it sure is slow). It's also frustrating to
 recompile all dependencies from scratch when I switch between compiling for
 Linux and Windows.
@@ -128,7 +128,7 @@ something awkwardly, but mostly it's forced me to avoid bad ideas.
 ## Appendix: Code organization
 
 If you're going to dig into the code, it helps to know what all the crates are.
-The most interesting crates are `map_model`, `sim`, and `editor`.
+The most interesting crates are `map_model`, `sim`, and `game`.
 
 Constructing the map:
 
@@ -152,7 +152,7 @@ Traffic simulation:
 
 Graphics:
 
-- `editor`: the GUI and main gameplay
+- `game`: the GUI and main gameplay
 - `ezgui`: an immediate-mode GUI library
 
 Common utilities:

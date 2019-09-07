@@ -13,9 +13,9 @@ common_release $OUT
 
 cp release/play_abstreet.sh $OUT
 
-mkdir $OUT/editor
-cargo build --release --bin editor
-cp target/release/editor $OUT/editor
+mkdir $OUT/game
+cargo build --release --bin game
+cp target/release/game $OUT/game
 
 zip -r $OUT $OUT
 rm -rf $OUT

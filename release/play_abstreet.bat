@@ -1,2 +1,2 @@
-cd editor
-editor.exe > ..\\output.txt
+cd game
+game.exe > ..\\output.txt

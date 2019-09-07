@@ -35,7 +35,7 @@ If you build from source, you won't have the convenient launcher scripts
 referenced below. Instead:
 
 ```
-cd editor
+cd game
 cargo run --release
 ```
 

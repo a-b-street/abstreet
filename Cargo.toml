@@ -3,9 +3,9 @@
 members = [
   "abstutil",
   "convert_osm",
-  "editor",
   "ezgui",
   "fix_map_geom",
+  "game",
   "geom",
   "gtfs",
   "headless",

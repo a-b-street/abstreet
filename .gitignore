@@ -4,7 +4,7 @@
 
 data/ab_test_saves/*
 data/ab_tests/*
-data/editor_state/*
+data/camera_state/*
 data/edits/*
 data/input/*
 data/maps/*

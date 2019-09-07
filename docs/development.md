@@ -4,7 +4,8 @@ Find packages to upgrade: `cargo outdated -R`
 
 Deal with compile tile: `cargo bloat --time`
 
-Find why two binary crates aren't sharing dependencies: https://old.reddit.com/r/rust/comments/cqceu4/common_crates_in_cargo_workspace_recompiled/
+Find why two binary crates aren't sharing dependencies:
+https://old.reddit.com/r/rust/comments/cqceu4/common_crates_in_cargo_workspace_recompiled/
 
 Where's a dependency coming from? `cargo tree -i -p syn`
 
@@ -13,9 +14,9 @@ Diff screencaps: http://www.imagemagick.org/Usage/compare/#methods
 Debug OpenGL calls:
 
 ```
-apitrace trace --api gl ../target/debug/editor ../data/raw_maps/montlake.bin
-qapitrace editor.trace
-apitrace dump editor.trace
+apitrace trace --api gl ../target/debug/game ../data/raw_maps/montlake.bin
+qapitrace game.trace
+apitrace dump game.trace
 ```
 
 Understand XML: just use firefox
@@ -26,10 +27,10 @@ Understand XML: just use firefox
 
 Follow Usage from https://crates.io/crates/cpuprofiler
 
-Run editor or headless with `--enable_profiler`
+Run game or headless with `--enable_profiler`
 
 ```
-google-pprof --no_strip_temp ../target/debug/editor profile
+google-pprof --no_strip_temp ../target/debug/game profile
 google-pprof --no_strip_temp ../target/release/headless profile
 top30 --cum
 ```
@@ -49,8 +50,8 @@ Then:
 
 ```
 sudo systemctl start docker
-cross build --release --target x86_64-pc-windows-gnu --bin editor
-wine target/x86_64-pc-windows-gnu/release/editor.exe data/maps/montlake.bin
+cross build --release --target x86_64-pc-windows-gnu --bin game
+wine target/x86_64-pc-windows-gnu/release/game.exe data/maps/montlake.bin
 ```
 
 ## Markdown

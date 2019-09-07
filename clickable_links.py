@@ -15,6 +15,6 @@ if arg.startswith('http://most/'):
 if arg.startswith('http://tail/'):
     os.execvp('urxvt', ['urxvt', '-e', 'sh', '-c', 'tail -f ' + arg[len('http://tail/'):]])
 elif arg.startswith('http://ui/'):
-    os.execvp('urxvt', ['urxvt', '-e', 'sh', '-c', 'cd ~/abstreet/editor; cargo run ' + arg[len('http://ui/'):]])
+    os.execvp('urxvt', ['urxvt', '-e', 'sh', '-c', 'cd ~/abstreet/game; cargo run ' + arg[len('http://ui/'):]])
 else:
     os.execvp('xdg-open', ['xdg-open', arg])

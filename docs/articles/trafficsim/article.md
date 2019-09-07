@@ -164,7 +164,7 @@ do exactly this.
 
 A/B Street imports data from PSRC using the `popdat` crate (the canonically
 trendy rendering of "population data"). This is further processed in
-`editor/src/mission/trips.rs`.
+`game/src/mission/trips.rs`.
 
 ## Appendix: discrete-time simulation
 
