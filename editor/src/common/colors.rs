@@ -163,6 +163,19 @@ impl ColorLegend {
         );
 
         let mut batch = GeomBatch::new();
+        // Hacky way to extend the text box's background a little...
+        batch.push(
+            Color::grey(0.2),
+            Polygon::rectangle_topleft(
+                Pt2D::new(
+                    0.0,
+                    g.canvas.window_height - (LINE_HEIGHT * ((self.rows.len() + 2) as f64)),
+                ),
+                Distance::meters(50.0),
+                Distance::meters(LINE_HEIGHT * ((self.rows.len() + 2) as f64)),
+            ),
+        );
+        let square_dims = 0.8 * LINE_HEIGHT;
         for (idx, (_, c)) in self.rows.iter().enumerate() {
             let offset_from_bottom = 1 + self.rows.len() - idx;
             batch.push(
@@ -170,10 +183,11 @@ impl ColorLegend {
                 Polygon::rectangle_topleft(
                     Pt2D::new(
                         20.0,
-                        g.canvas.window_height - LINE_HEIGHT * (offset_from_bottom as f64),
+                        g.canvas.window_height - LINE_HEIGHT * (offset_from_bottom as f64)
+                            + (LINE_HEIGHT - square_dims) / 2.0,
                     ),
-                    Distance::meters(10.0),
-                    Distance::meters(10.0),
+                    Distance::meters(square_dims),
+                    Distance::meters(square_dims),
                 ),
             );
         }
