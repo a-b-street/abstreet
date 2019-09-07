@@ -3,13 +3,15 @@ use crate::{
     DrivingGoal, DrivingSimState, Event, FinishedTrips, GetDrawAgents, IntersectionSimState,
     ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, Router, Scheduler, SidewalkPOI,
     SidewalkSpot, TransitSimState, TripID, TripLeg, TripManager, TripPositions, TripSpawner,
-    TripSpec, TripStatus, UnzoomedAgent, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
+    TripSpec, TripStart, TripStatus, UnzoomedAgent, VehicleSpec, VehicleType, WalkingSimState,
+    BUS_LENGTH,
 };
 use abstutil::{elapsed_seconds, Timer};
 use derivative::Derivative;
 use geom::{Distance, Duration, PolyLine, Pt2D};
 use map_model::{
-    BuildingID, BusRoute, BusRouteID, IntersectionID, LaneID, Map, Path, PathRequest, Traversable,
+    BuildingID, BusRoute, BusRouteID, IntersectionID, LaneID, Map, Path, PathRequest, Position,
+    Traversable,
 };
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{HashSet, VecDeque};
@@ -233,9 +235,11 @@ impl Sim {
 
             // Bypass some layers of abstraction that don't make sense for buses.
 
-            let trip =
-                self.trips
-                    .new_trip(self.time, None, vec![TripLeg::ServeBusRoute(id, route.id)]);
+            let trip = self.trips.new_trip(
+                self.time,
+                TripStart::Appearing(Position::new(path.current_step().as_lane(), start_dist)),
+                vec![TripLeg::ServeBusRoute(id, route.id)],
+            );
             if self.driving.start_car_on_lane(
                 self.time,
                 CreateCar {
@@ -795,7 +799,7 @@ impl Sim {
         self.trips.trip_to_agent(id)
     }
 
-    pub fn trip_status(&self, id: TripID) -> Option<TripStatus> {
+    pub fn trip_status(&self, id: TripID) -> TripStatus {
         self.trips.trip_status(id)
     }
 

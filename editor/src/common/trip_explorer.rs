@@ -21,7 +21,7 @@ impl TripExplorer {
             .as_ref()
             .and_then(|id| id.agent_id())?;
         let trip = ui.primary.sim.agent_to_trip(agent)?;
-        let status = ui.primary.sim.trip_status(trip)?;
+        let status = ui.primary.sim.trip_status(trip);
         if !ctx.input.contextual_action(Key::T, "explore trip") {
             return None;
         }
@@ -32,6 +32,11 @@ impl TripExplorer {
                     map.get_b(b).front_path.line.pt1(),
                     ID::Building(b),
                     Text::from(Line(format!("start at {}", map.get_b(b).get_name()))),
+                ),
+                TripStart::Border(i) => (
+                    map.get_i(i).polygon.center(),
+                    ID::Intersection(i),
+                    Text::from(Line(format!("enter map via {}", i))),
                 ),
                 TripStart::Appearing(pos) => (
                     pos.pt(map),
@@ -62,6 +67,15 @@ impl TripExplorer {
                     ID::Intersection(i),
                     Text::from(Line(format!("leave map via {}", i))),
                 ),
+                TripEnd::ServeBusRoute(br) => {
+                    let route = map.get_br(br);
+                    let stop = map.get_bs(route.stops[0]);
+                    (
+                        stop.driving_pos.pt(map),
+                        ID::BusStop(stop.id),
+                        Text::from(Line(format!("serve route {} forever", route.name))),
+                    )
+                }
             },
         ];
 

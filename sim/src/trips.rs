@@ -38,7 +38,7 @@ impl TripManager {
     pub fn new_trip(
         &mut self,
         spawned_at: Duration,
-        start: Option<TripStart>,
+        start: TripStart,
         legs: Vec<TripLeg>,
     ) -> TripID {
         assert!(!legs.is_empty());
@@ -62,6 +62,19 @@ impl TripManager {
                 }
             }
         }
+        let end = match legs.last() {
+            Some(TripLeg::Walk(_, _, ref spot)) => match spot.connection {
+                SidewalkPOI::Building(b) => TripEnd::Bldg(b),
+                SidewalkPOI::Border(i) => TripEnd::Border(i),
+                _ => unreachable!(),
+            },
+            Some(TripLeg::Drive(_, ref goal)) => match goal {
+                DrivingGoal::ParkNear(b) => TripEnd::Bldg(*b),
+                DrivingGoal::Border(i, _) => TripEnd::Border(*i),
+            },
+            Some(TripLeg::ServeBusRoute(_, route)) => TripEnd::ServeBusRoute(*route),
+            _ => unreachable!(),
+        };
         let trip = Trip {
             id,
             spawned_at,
@@ -70,6 +83,7 @@ impl TripManager {
             mode,
             legs: VecDeque::from(legs),
             start,
+            end,
         };
         if !trip.is_bus_trip() {
             self.unfinished_trips += 1;
@@ -464,22 +478,12 @@ impl TripManager {
         self.events.drain(..).collect()
     }
 
-    pub fn trip_status(&self, id: TripID) -> Option<TripStatus> {
+    pub fn trip_status(&self, id: TripID) -> TripStatus {
         let trip = &self.trips[id.0];
-        let start = trip.start.clone()?;
-        let end = match trip.legs.back() {
-            Some(TripLeg::Walk(_, _, ref spot)) => match spot.connection {
-                SidewalkPOI::Building(b) => TripEnd::Bldg(b),
-                SidewalkPOI::Border(i) => TripEnd::Border(i),
-                _ => unreachable!(),
-            },
-            Some(TripLeg::Drive(_, ref goal)) => match goal {
-                DrivingGoal::ParkNear(b) => TripEnd::Bldg(*b),
-                DrivingGoal::Border(i, _) => TripEnd::Border(*i),
-            },
-            _ => unreachable!(),
-        };
-        Some(TripStatus { start, end })
+        TripStatus {
+            start: trip.start.clone(),
+            end: trip.end.clone(),
+        }
     }
 }
 
@@ -491,7 +495,8 @@ struct Trip {
     aborted: bool,
     legs: VecDeque<TripLeg>,
     mode: TripMode,
-    start: Option<TripStart>,
+    start: TripStart,
+    end: TripEnd,
 }
 
 impl Trip {
@@ -586,12 +591,16 @@ pub enum TripMode {
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub enum TripStart {
     Bldg(BuildingID),
+    Border(IntersectionID),
     Appearing(Position),
 }
 
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub enum TripEnd {
     Bldg(BuildingID),
     Border(IntersectionID),
+    // No end!
+    ServeBusRoute(BusRouteID),
 }
 
 pub struct TripStatus {
