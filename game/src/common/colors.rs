@@ -139,7 +139,7 @@ impl ColorLegend {
             title: title.to_string(),
             rows: rows
                 .into_iter()
-                .map(|(label, c)| (label.to_string(), c))
+                .map(|(label, c)| (label.to_string(), c.alpha(1.0)))
                 .collect(),
         }
     }
