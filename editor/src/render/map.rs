@@ -1,3 +1,4 @@
+use crate::common::ColorLegend;
 use crate::helpers::{rotating_color, ColorScheme, ID};
 use crate::render::area::DrawArea;
 use crate::render::building::DrawBuilding;
@@ -418,7 +419,7 @@ fn osm_rank_to_color(cs: &ColorScheme, rank: usize) -> Color {
 pub enum AgentColorScheme {
     VehicleTypes,
     Delay,
-    RemainingDistance,
+    DistanceCrossedSoFar,
     TripTimeSoFar,
 }
 
@@ -434,7 +435,7 @@ impl AgentColorScheme {
                 None => cs.get_def("unzoomed pedestrian", Color::ORANGE.alpha(0.5)),
             },
             AgentColorScheme::Delay => delay_color(agent.time_spent_blocked),
-            AgentColorScheme::RemainingDistance => percent_color(agent.percent_dist_crossed),
+            AgentColorScheme::DistanceCrossedSoFar => percent_color(agent.percent_dist_crossed),
             AgentColorScheme::TripTimeSoFar => delay_color(agent.trip_time_so_far),
         }
     }
@@ -454,7 +455,7 @@ impl AgentColorScheme {
                 }
             }
             AgentColorScheme::Delay => delay_color(input.time_spent_blocked),
-            AgentColorScheme::RemainingDistance => percent_color(input.percent_dist_crossed),
+            AgentColorScheme::DistanceCrossedSoFar => percent_color(input.percent_dist_crossed),
             AgentColorScheme::TripTimeSoFar => delay_color(input.trip_time_so_far),
         }
     }
@@ -469,7 +470,7 @@ impl AgentColorScheme {
                 CarStatus::Parked => panic!("Can't have a parked bike {}", input.id),
             },
             AgentColorScheme::Delay => delay_color(input.time_spent_blocked),
-            AgentColorScheme::RemainingDistance => percent_color(input.percent_dist_crossed),
+            AgentColorScheme::DistanceCrossedSoFar => percent_color(input.percent_dist_crossed),
             AgentColorScheme::TripTimeSoFar => delay_color(input.trip_time_so_far),
         }
     }
@@ -484,8 +485,54 @@ impl AgentColorScheme {
                 }
             }
             AgentColorScheme::Delay => delay_color(input.time_spent_blocked),
-            AgentColorScheme::RemainingDistance => percent_color(input.percent_dist_crossed),
+            AgentColorScheme::DistanceCrossedSoFar => percent_color(input.percent_dist_crossed),
             AgentColorScheme::TripTimeSoFar => delay_color(input.trip_time_so_far),
+        }
+    }
+
+    // TODO Lots of duplicated values here. :\
+    pub fn make_color_legend(self, cs: &ColorScheme) -> ColorLegend {
+        match self {
+            AgentColorScheme::VehicleTypes => ColorLegend::new(
+                "vehicle types",
+                vec![
+                    ("car", cs.get("unzoomed car")),
+                    ("bike", cs.get("unzoomed bike")),
+                    ("bus", cs.get("unzoomed bus")),
+                    ("pedestrian", cs.get("unzoomed pedestrian")),
+                ],
+            ),
+            AgentColorScheme::Delay => ColorLegend::new(
+                "time spent delayed/blocked",
+                vec![
+                    ("<= 1 minute", Color::BLUE.alpha(0.3)),
+                    ("<= 5 minutes", Color::ORANGE.alpha(0.5)),
+                    ("> 5 minutes", Color::RED.alpha(0.8)),
+                ],
+            ),
+            AgentColorScheme::DistanceCrossedSoFar => ColorLegend::new(
+                "distance crossed to goal so far",
+                vec![
+                    ("<= 10%", rotating_color(0)),
+                    ("<= 20%", rotating_color(1)),
+                    ("<= 30%", rotating_color(2)),
+                    ("<= 40%", rotating_color(3)),
+                    ("<= 50%", rotating_color(4)),
+                    ("<= 60%", rotating_color(5)),
+                    ("<= 70%", rotating_color(6)),
+                    ("<= 80%", rotating_color(7)),
+                    ("<= 90%", rotating_color(8)),
+                    ("> 90%", rotating_color(9)),
+                ],
+            ),
+            AgentColorScheme::TripTimeSoFar => ColorLegend::new(
+                "trip time so far",
+                vec![
+                    ("<= 1 minute", Color::BLUE.alpha(0.3)),
+                    ("<= 5 minutes", Color::ORANGE.alpha(0.5)),
+                    ("> 5 minutes", Color::RED.alpha(0.8)),
+                ],
+            ),
         }
     }
 
@@ -500,8 +547,8 @@ impl AgentColorScheme {
                 "by time spent delayed/blocked".to_string(),
             ),
             (
-                AgentColorScheme::RemainingDistance,
-                "by distance remaining to goal".to_string(),
+                AgentColorScheme::DistanceCrossedSoFar,
+                "by distance crossed to goal so far".to_string(),
             ),
             (
                 AgentColorScheme::TripTimeSoFar,

@@ -128,7 +128,7 @@ impl BuildingColorerBuilder {
     }
 }
 
-struct ColorLegend {
+pub struct ColorLegend {
     title: String,
     rows: Vec<(String, Color)>,
 }

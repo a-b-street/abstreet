@@ -12,7 +12,9 @@ mod turn_cycler;
 mod warp;
 
 pub use self::agent::AgentTools;
-pub use self::colors::{BuildingColorer, BuildingColorerBuilder, RoadColorer, RoadColorerBuilder};
+pub use self::colors::{
+    BuildingColorer, BuildingColorerBuilder, ColorLegend, RoadColorer, RoadColorerBuilder,
+};
 pub use self::route_explorer::RouteExplorer;
 pub use self::speed::SpeedControls;
 pub use self::time::time_controls;
@@ -20,17 +22,20 @@ pub use self::trip_explorer::TripExplorer;
 pub use self::warp::Warping;
 use crate::game::{Transition, WizardState};
 use crate::helpers::ID;
-use crate::render::{AgentColorScheme, DrawOptions};
+use crate::render::{AgentColorScheme, DrawOptions, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::UI;
 use ezgui::{
     Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Line, ModalMenu, Text,
     VerticalAlignment,
 };
+use std::cell::RefCell;
 use std::collections::BTreeSet;
 
 pub struct CommonState {
     associated: associated::ShowAssociatedState,
     turn_cycler: turn_cycler::TurnCyclerState,
+    // Weird to stash this here and lazily sync it, but...
+    agent_cs_legend: RefCell<Option<(AgentColorScheme, ColorLegend)>>,
 }
 
 impl CommonState {
@@ -38,6 +43,7 @@ impl CommonState {
         CommonState {
             associated: associated::ShowAssociatedState::Inactive,
             turn_cycler: turn_cycler::TurnCyclerState::Inactive,
+            agent_cs_legend: RefCell::new(None),
         }
     }
 
@@ -99,6 +105,18 @@ impl CommonState {
         self.turn_cycler.draw(g, ui);
 
         CommonState::draw_osd(g, ui, &ui.primary.current_selection);
+
+        if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
+            let mut maybe_legend = self.agent_cs_legend.borrow_mut();
+            if maybe_legend
+                .as_ref()
+                .map(|(acs, _)| *acs != ui.agent_cs)
+                .unwrap_or(true)
+            {
+                *maybe_legend = Some((ui.agent_cs, ui.agent_cs.make_color_legend(&ui.cs)));
+            }
+            maybe_legend.as_ref().unwrap().1.draw(g);
+        }
     }
 
     pub fn draw_osd(g: &mut GfxCtx, ui: &UI, id: &Option<ID>) {
