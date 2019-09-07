@@ -157,7 +157,7 @@ impl State for SandboxMode {
             if !cars.is_empty()
                 && ctx
                     .input
-                    .contextual_action(Key::P, &format!("examine {} cars parked here", cars.len()))
+                    .contextual_action(Key::P, format!("examine {} cars parked here", cars.len()))
             {
                 return Transition::Push(WizardState::new(Box::new(move |wiz, ctx, _| {
                     let _id = wiz.wrap(ctx).choose_something("Examine which car?", || {

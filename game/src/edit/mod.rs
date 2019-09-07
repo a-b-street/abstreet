@@ -113,7 +113,7 @@ impl State for EditMode {
                     if let Some(new_type) = next_valid_type(road, lane, &ui.primary.map) {
                         if ctx
                             .input
-                            .contextual_action(Key::Space, &format!("toggle to {:?}", new_type))
+                            .contextual_action(Key::Space, format!("toggle to {:?}", new_type))
                         {
                             let mut new_edits = orig_edits.clone();
                             new_edits.lane_overrides.insert(lane.id, new_type);
@@ -135,7 +135,7 @@ impl State for EditMode {
                         if can_change_lane_type(road, lane, *lt, &ui.primary.map)
                             && ctx
                                 .input
-                                .contextual_action(*key, &format!("change to {} lane", name))
+                                .contextual_action(*key, format!("change to {} lane", name))
                         {
                             let mut new_edits = orig_edits.clone();
                             new_edits.lane_overrides.insert(lane.id, *lt);
@@ -163,7 +163,7 @@ impl State for EditMode {
             if ui.primary.map.maybe_get_stop_sign(id).is_some() {
                 if ctx
                     .input
-                    .contextual_action(Key::E, &format!("edit stop signs for {}", id))
+                    .contextual_action(Key::E, format!("edit stop signs for {}", id))
                 {
                     return Transition::Push(Box::new(stop_signs::StopSignEditor::new(
                         id, ctx, ui,
@@ -179,7 +179,7 @@ impl State for EditMode {
             if ui.primary.map.maybe_get_traffic_signal(id).is_some() {
                 if ctx
                     .input
-                    .contextual_action(Key::E, &format!("edit traffic signal for {}", id))
+                    .contextual_action(Key::E, format!("edit traffic signal for {}", id))
                 {
                     return Transition::Push(Box::new(traffic_signals::TrafficSignalEditor::new(
                         id, ctx, ui,

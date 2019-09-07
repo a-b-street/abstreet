@@ -108,7 +108,7 @@ impl State for TrafficSignalEditor {
             if let Some(pri) = next_priority {
                 if ctx.input.contextual_action(
                     Key::Space,
-                    &format!("toggle from {:?} to {:?}", cycle.get_priority(id), pri),
+                    format!("toggle from {:?} to {:?}", cycle.get_priority(id), pri),
                 ) {
                     cycle.edit_turn(ui.primary.map.get_t(id), pri);
                     change_traffic_signal(signal, self.diagram.i, ui, ctx);

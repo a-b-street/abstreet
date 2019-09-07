@@ -54,7 +54,7 @@ impl RouteViewer {
                 let trip = ui.primary.sim.agent_to_trip(agent).unwrap();
                 if ctx
                     .input
-                    .contextual_action(Key::R, &format!("show {}'s route", agent))
+                    .contextual_action(Key::R, format!("show {}'s route", agent))
                 {
                     *self = show_route(trip, ui);
                 }

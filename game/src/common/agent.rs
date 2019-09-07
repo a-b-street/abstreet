@@ -37,7 +37,7 @@ impl AgentTools {
                 if let Some(trip) = ui.primary.sim.agent_to_trip(agent) {
                     if ctx
                         .input
-                        .contextual_action(Key::F, &format!("follow {}", agent))
+                        .contextual_action(Key::F, format!("follow {}", agent))
                     {
                         self.following = Some((
                             trip,

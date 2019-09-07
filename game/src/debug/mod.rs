@@ -183,7 +183,7 @@ impl State for DebugMode {
                 let id = ui.primary.current_selection.clone().unwrap();
                 if ctx
                     .input
-                    .contextual_action(Key::H, &format!("hide {:?}", id))
+                    .contextual_action(Key::H, format!("hide {:?}", id))
                 {
                     println!("Hiding {:?}", id);
                     ui.primary.current_selection = None;
@@ -205,7 +205,7 @@ impl State for DebugMode {
             if !self.show_original_roads.contains(&id)
                 && ctx
                     .input
-                    .contextual_action(Key::V, &format!("show original geometry of {}", id))
+                    .contextual_action(Key::V, format!("show original geometry of {}", id))
             {
                 self.show_original_roads.insert(id);
             }
@@ -214,7 +214,7 @@ impl State for DebugMode {
             if !self.intersection_geom.contains(&i)
                 && ctx.input.contextual_action(
                     Key::G,
-                    &format!("recalculate intersection geometry of {}", i),
+                    format!("recalculate intersection geometry of {}", i),
                 )
             {
                 self.intersection_geom.insert(i);

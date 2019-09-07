@@ -131,7 +131,8 @@ impl UserInput {
         false
     }
 
-    pub fn contextual_action(&mut self, hotkey: Key, action: &str) -> bool {
+    pub fn contextual_action<S: Into<String>>(&mut self, hotkey: Key, raw_action: S) -> bool {
+        let action = raw_action.into();
         match self.context_menu {
             ContextMenu::Inactive(ref mut keys) => {
                 // If the menu's not active (the user hasn't right-clicked yet), then still allow the
@@ -143,7 +144,7 @@ impl UserInput {
                 // The event this round was the right click, so don't check if the right keypress
                 // happened.
                 if let Some(prev_action) = actions.get(&hotkey) {
-                    if prev_action != action {
+                    if prev_action != &action {
                         panic!(
                             "Context menu uses hotkey {:?} for both {} and {}",
                             hotkey, prev_action, action
