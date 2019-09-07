@@ -164,9 +164,5 @@ Common utilities:
 
 Less interesting stuff:
 
-- `analyze_code`: a static analysis attempt to construct a call-graph using
-  `syn`
-- `halloween`: a toy to render maps in a "creepy" way
-- `playground_gui`: interactive debugging of basic geometric algorithms
 - `synthetic`: GUI for creating and editing "synthetic" maps from scratch
 - `viewer`: an experiment in making generic applications for manipulating maps

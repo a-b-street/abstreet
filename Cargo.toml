@@ -2,18 +2,15 @@
 
 members = [
   "abstutil",
-  "analyze_code",
   "convert_osm",
   "editor",
   "ezgui",
   "fix_map_geom",
   "geom",
   "gtfs",
-  "halloween",
   "headless",
   "kml",
   "map_model",
-  "playground_gui",
   "popdat",
   "precompute",
   "sim",
