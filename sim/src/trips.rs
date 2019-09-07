@@ -66,6 +66,10 @@ impl TripManager {
             Some(TripLeg::Walk(_, _, ref spot)) => match spot.connection {
                 SidewalkPOI::Building(b) => TripEnd::Bldg(b),
                 SidewalkPOI::Border(i) => TripEnd::Border(i),
+                SidewalkPOI::DeferredParkingSpot(_, ref goal) => match goal {
+                    DrivingGoal::ParkNear(b) => TripEnd::Bldg(*b),
+                    DrivingGoal::Border(i, _) => TripEnd::Border(*i),
+                },
                 _ => unreachable!(),
             },
             Some(TripLeg::Drive(_, ref goal)) => match goal {

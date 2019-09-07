@@ -21,7 +21,7 @@ use ezgui::{
     hotkey, lctrl, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line,
     ModalMenu, Text, Wizard,
 };
-use geom::{Distance, PolyLine, Polygon};
+use geom::{Distance, Duration, PolyLine, Polygon};
 use map_model::{IntersectionID, Map, RoadID};
 use std::collections::HashSet;
 
@@ -218,6 +218,16 @@ impl State for DebugMode {
                 )
             {
                 self.intersection_geom.insert(i);
+            }
+        }
+        if let Some(ID::Car(id)) = ui.primary.current_selection {
+            if ctx
+                .input
+                .contextual_action(Key::Backspace, "forcibly kill this car")
+            {
+                ui.primary.sim.kill_stuck_car(id, &ui.primary.map);
+                ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
+                ui.primary.current_selection = None;
             }
         }
         self.connected_roads.event(ctx, ui);

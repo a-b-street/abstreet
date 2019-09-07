@@ -484,12 +484,58 @@ impl DrivingSimState {
             }
         }
 
+        self.delete_car(car, dists, idx, now, map, scheduler, intersections);
+
+        false
+    }
+
+    pub fn kill_stuck_car(
+        &mut self,
+        c: CarID,
+        now: Duration,
+        map: &Map,
+        scheduler: &mut Scheduler,
+        intersections: &mut IntersectionSimState,
+    ) {
+        let dists = self.queues[&self.cars[&c].router.head()].get_car_positions(
+            now,
+            &self.cars,
+            &self.queues,
+        );
+        let idx = dists.iter().position(|(id, _)| *id == c).unwrap();
+        let mut car = self.cars.remove(&c).unwrap();
+
+        // Hacks to delete cars that're mid-turn
+        if let Traversable::Turn(_) = car.router.head() {
+            let queue = self.queues.get_mut(&car.router.head()).unwrap();
+            queue.reserved_length += car.vehicle.length + FOLLOWING_DISTANCE;
+        }
+
+        self.delete_car(&mut car, dists, idx, now, map, scheduler, intersections);
+        // delete_car cancels UpdateLaggyHead
+        scheduler.cancel(Command::UpdateCar(c));
+    }
+
+    fn delete_car(
+        &mut self,
+        car: &mut Car,
+        dists: Vec<(CarID, Distance)>,
+        idx: usize,
+        now: Duration,
+        map: &Map,
+        scheduler: &mut Scheduler,
+        intersections: &mut IntersectionSimState,
+    ) {
         {
             let queue = self.queues.get_mut(&car.router.head()).unwrap();
             assert_eq!(queue.cars.remove(idx).unwrap(), car.vehicle.id);
             // clear_last_steps doesn't actually include the current queue!
             queue.free_reserved_space(car);
-            intersections.space_freed(now, map.get_l(queue.id.as_lane()).src_i, scheduler);
+            let i = match queue.id {
+                Traversable::Lane(l) => map.get_l(l).src_i,
+                Traversable::Turn(t) => t.parent,
+            };
+            intersections.space_freed(now, i, scheduler);
         }
 
         // We might be vanishing while partly clipping into other stuff.
@@ -524,8 +570,6 @@ impl DrivingSimState {
                 CarState::WaitingToAdvance => unreachable!(),
             }
         }
-
-        false
     }
 
     pub fn update_laggy_head(

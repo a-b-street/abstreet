@@ -893,6 +893,25 @@ impl Sim {
     }
 }
 
+// Invasive debugging
+impl Sim {
+    pub fn kill_stuck_car(&mut self, id: CarID, map: &Map) {
+        if let Some(trip) = self.agent_to_trip(AgentID::Car(id)) {
+            self.trips.abort_trip_failed_start(trip);
+            self.driving.kill_stuck_car(
+                id,
+                self.time,
+                map,
+                &mut self.scheduler,
+                &mut self.intersections,
+            );
+            println!("Forcibly killed {}", id);
+        } else {
+            println!("{} has no trip?!", id);
+        }
+    }
+}
+
 pub enum TripResult {
     Ok(Pt2D),
     ModeChange,
