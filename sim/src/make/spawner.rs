@@ -5,7 +5,7 @@ use crate::{
 };
 use abstutil::Timer;
 use geom::{Duration, Speed, EPSILON_DIST};
-use map_model::{BuildingID, BusRouteID, BusStopID, IntersectionType, Map, PathRequest, Position};
+use map_model::{BuildingID, BusRouteID, BusStopID, Map, PathRequest, Position};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 
@@ -195,7 +195,7 @@ impl TripSpawner {
                     }
                     let trip_start = {
                         let src_i = map.get_i(map.get_l(start_pos.lane()).src_i);
-                        if src_i.intersection_type == IntersectionType::Border {
+                        if src_i.is_border() {
                             TripStart::Border(src_i.id)
                         } else {
                             TripStart::Appearing(start_pos)

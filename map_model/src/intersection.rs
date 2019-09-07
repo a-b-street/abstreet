@@ -42,12 +42,16 @@ pub struct Intersection {
 }
 
 impl Intersection {
-    pub fn is_dead_end(&self) -> bool {
-        self.roads.len() == 1
+    pub fn is_border(&self) -> bool {
+        self.intersection_type == IntersectionType::Border
     }
 
-    pub fn is_degenerate(&self) -> bool {
-        self.roads.len() == 2
+    pub fn is_stop_sign(&self) -> bool {
+        self.intersection_type == IntersectionType::StopSign
+    }
+
+    pub fn is_traffic_signal(&self) -> bool {
+        self.intersection_type == IntersectionType::TrafficSignal
     }
 
     pub fn get_incoming_lanes(&self, map: &Map, lt: LaneType) -> Vec<LaneID> {

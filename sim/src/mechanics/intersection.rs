@@ -4,8 +4,8 @@ use crate::{AgentID, Command, Scheduler, Speed};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::Duration;
 use map_model::{
-    ControlStopSign, ControlTrafficSignal, IntersectionID, IntersectionType, LaneID, Map, TurnID,
-    TurnPriority, TurnType,
+    ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, Map, TurnID, TurnPriority,
+    TurnType,
 };
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet};
@@ -52,7 +52,7 @@ impl IntersectionSimState {
                     waiting: BTreeMap::new(),
                 },
             );
-            if i.intersection_type == IntersectionType::TrafficSignal {
+            if i.is_traffic_signal() {
                 sim.update_intersection(Duration::ZERO, i.id, map, scheduler);
             }
         }

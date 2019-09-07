@@ -15,8 +15,8 @@ use abstutil::{Cloneable, Timer};
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
 use geom::{Bounds, Circle, Distance, Duration, FindClosest};
 use map_model::{
-    AreaID, BuildingID, BusStopID, DirectedRoadID, IntersectionID, IntersectionType, Lane, LaneID,
-    Map, RoadID, Traversable, Turn, TurnID, TurnType, LANE_THICKNESS,
+    AreaID, BuildingID, BusStopID, DirectedRoadID, IntersectionID, Lane, LaneID, Map, RoadID,
+    Traversable, Turn, TurnID, TurnType, LANE_THICKNESS,
 };
 use sim::{
     AgentMetadata, CarStatus, DrawCarInput, DrawPedestrianInput, UnzoomedAgent, VehicleType,
@@ -118,7 +118,7 @@ impl DrawMap {
         for i in map.all_intersections() {
             timer.next();
             let draw_i = DrawIntersection::new(i, map, cs, prerender, timer);
-            if i.intersection_type == IntersectionType::StopSign {
+            if i.is_stop_sign() {
                 all_intersections.push(osm_rank_to_color(cs, i.get_rank(map)), i.polygon.clone());
                 all_intersections.push(cs.get("unzoomed outline"), draw_i.get_outline(map));
             } else {

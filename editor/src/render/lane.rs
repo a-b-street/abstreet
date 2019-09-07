@@ -81,11 +81,6 @@ impl DrawLane {
                 }
                 LaneType::Biking => {}
             };
-            /*if lane.lane_type.is_for_moving_vehicles()
-                && map.get_i(lane.dst_i).intersection_type == IntersectionType::StopSign
-            {
-                draw.extend(calculate_stop_sign_line(road, lane, map, cs));
-            }*/
         }
 
         AlmostDrawLane {

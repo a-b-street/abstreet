@@ -1,6 +1,6 @@
 use crate::{
-    Intersection, IntersectionID, IntersectionType, Lane, LaneID, LaneType, Road, RoadID, Turn,
-    TurnID, TurnType, LANE_THICKNESS,
+    Intersection, IntersectionID, Lane, LaneID, LaneType, Road, RoadID, Turn, TurnID, TurnType,
+    LANE_THICKNESS,
 };
 use abstutil::{Timer, Warn};
 use geom::{Distance, Line, PolyLine, Pt2D};
@@ -15,7 +15,7 @@ pub fn make_all_turns(
     lanes: &Vec<Lane>,
     timer: &mut Timer,
 ) -> Vec<Turn> {
-    assert!(i.intersection_type != IntersectionType::Border);
+    assert!(!i.is_border());
 
     let mut raw_turns: Vec<Turn> = Vec::new();
     raw_turns.extend(make_vehicle_turns(i, roads, lanes, timer));
@@ -116,7 +116,7 @@ fn make_vehicle_turns(
     let mut result: Vec<Option<Turn>> = Vec::new();
 
     for lane_type in lane_types.into_iter() {
-        if i.is_dead_end() {
+        if i.roads.len() == 1 {
             result
                 .extend(make_vehicle_turns_for_dead_end(i, all_roads, lanes, lane_type).get(timer));
             continue;

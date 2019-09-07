@@ -218,14 +218,14 @@ pub fn make_half_map(
 
 fn is_border(intersection: &Intersection, lanes: &Vec<Lane>) -> bool {
     // Raw data said it is.
-    if intersection.intersection_type == IntersectionType::Border {
+    if intersection.is_border() {
         return true;
     }
 
     // This only detects one-way borders! Two-way ones will just look like dead-ends.
 
     // Bias for driving
-    if !intersection.is_dead_end() {
+    if intersection.roads.len() != 1 {
         return false;
     }
     let has_driving_in = intersection

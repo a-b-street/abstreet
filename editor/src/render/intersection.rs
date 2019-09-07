@@ -34,13 +34,10 @@ impl DrawIntersection {
         // Order matters... main polygon first, then sidewalk corners.
         let mut default_geom = GeomBatch::new();
         default_geom.push(
-            match i.intersection_type {
-                IntersectionType::Border => {
-                    cs.get_def("border intersection", Color::rgb(50, 205, 50))
-                }
-                IntersectionType::StopSign | IntersectionType::TrafficSignal => {
-                    cs.get_def("normal intersection", Color::grey(0.6))
-                }
+            if i.is_border() {
+                cs.get_def("border intersection", Color::rgb(50, 205, 50))
+            } else {
+                cs.get_def("normal intersection", Color::grey(0.6))
             },
             i.polygon.clone(),
         );
@@ -50,7 +47,7 @@ impl DrawIntersection {
         for turn in &map.get_turns_in_intersection(i.id) {
             // Avoid double-rendering
             if turn.turn_type == TurnType::Crosswalk && map.get_l(turn.id.src).dst_i == i.id {
-                if i.intersection_type == IntersectionType::TrafficSignal {
+                if i.is_traffic_signal() {
                     let mut batch = GeomBatch::new();
                     make_crosswalk(&mut batch, turn, cs);
                     crosswalks.push((turn.id, batch));

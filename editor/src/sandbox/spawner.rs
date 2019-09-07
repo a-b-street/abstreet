@@ -6,9 +6,7 @@ use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu, Wizard};
 use geom::{Duration, PolyLine};
-use map_model::{
-    BuildingID, IntersectionID, IntersectionType, LaneType, PathRequest, Position, LANE_THICKNESS,
-};
+use map_model::{BuildingID, IntersectionID, LaneType, PathRequest, Position, LANE_THICKNESS};
 use rand::seq::SliceRandom;
 use rand::Rng;
 use sim::{DrivingGoal, Scenario, SidewalkSpot, TripSpec};
@@ -119,11 +117,7 @@ impl State for AgentSpawner {
 
         let new_goal = match ui.primary.current_selection {
             Some(ID::Building(b)) => Goal::Building(b),
-            Some(ID::Intersection(i))
-                if map.get_i(i).intersection_type == IntersectionType::Border =>
-            {
-                Goal::Border(i)
-            }
+            Some(ID::Intersection(i)) if map.get_i(i).is_border() => Goal::Border(i),
             _ => {
                 self.maybe_goal = None;
                 return Transition::Keep;

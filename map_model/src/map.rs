@@ -436,7 +436,7 @@ impl Map {
     pub fn all_incoming_borders(&self) -> Vec<&Intersection> {
         let mut result: Vec<&Intersection> = Vec::new();
         for i in &self.intersections {
-            if i.intersection_type == IntersectionType::Border && !i.outgoing_lanes.is_empty() {
+            if i.is_border() && !i.outgoing_lanes.is_empty() {
                 result.push(i);
             }
         }
@@ -446,7 +446,7 @@ impl Map {
     pub fn all_outgoing_borders(&self) -> Vec<&Intersection> {
         let mut result: Vec<&Intersection> = Vec::new();
         for i in &self.intersections {
-            if i.intersection_type == IntersectionType::Border && !i.incoming_lanes.is_empty() {
+            if i.is_border() && !i.incoming_lanes.is_empty() {
                 result.push(i);
             }
         }
@@ -712,7 +712,7 @@ impl Map {
         for id in changed_intersections {
             let i = &mut self.intersections[id.0];
 
-            if i.intersection_type == IntersectionType::Border {
+            if i.is_border() {
                 assert!(i.turns.is_empty());
                 continue;
             }
