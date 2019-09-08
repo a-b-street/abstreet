@@ -88,6 +88,12 @@ impl IntersectionSimState {
         }
     }
 
+    // For deleting cars
+    pub fn cancel_request(&mut self, agent: AgentID, turn: TurnID) {
+        let state = self.state.get_mut(&turn.parent).unwrap();
+        state.waiting.remove(&Request { agent, turn });
+    }
+
     pub fn space_freed(&mut self, now: Duration, i: IntersectionID, scheduler: &mut Scheduler) {
         let state = self.state.get_mut(&i).unwrap();
 

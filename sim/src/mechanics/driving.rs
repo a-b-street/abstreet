@@ -510,6 +510,9 @@ impl DrivingSimState {
             let queue = self.queues.get_mut(&car.router.head()).unwrap();
             queue.reserved_length += car.vehicle.length + FOLLOWING_DISTANCE;
         }
+        if let Some(Traversable::Turn(t)) = car.router.maybe_next() {
+            intersections.cancel_request(AgentID::Car(c), t);
+        }
 
         self.delete_car(&mut car, dists, idx, now, map, scheduler, intersections);
         // delete_car cancels UpdateLaggyHead
