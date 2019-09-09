@@ -38,11 +38,14 @@ impl DrawExtraShape {
         }
 
         if pts.len() == 1 {
+            let road = closest
+                .closest_pt(pts[0], LANE_THICKNESS * 5.0)
+                .map(|(r, _)| r);
             Some(DrawExtraShape {
                 id,
                 polygon: Circle::new(pts[0], EXTRA_SHAPE_POINT_RADIUS).to_polygon(),
                 attributes: s.attributes,
-                road: None,
+                road,
             })
         } else if pts[0] == *pts.last().unwrap() {
             Some(DrawExtraShape {

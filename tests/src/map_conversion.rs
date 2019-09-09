@@ -8,6 +8,7 @@ pub fn run(t: &mut TestRunner) {
         let flags = convert_osm::Flags {
             osm: "../data/input/montlake.osm".to_string(),
             parking_shapes: "../data/shapes/blockface.bin".to_string(),
+            street_signs: "../data/shapes/street_signs.bin".to_string(),
             offstreet_parking: "../data/input/offstreet_parking.kml".to_string(),
             gtfs: "../data/input/google_transit_2018_18_08".to_string(),
             neighborhoods: "../data/input/neighborhoods.geojson".to_string(),

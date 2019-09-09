@@ -66,6 +66,17 @@ if [ ! -f data/shapes/blockface.bin ]; then
 	cd ..
 fi
 
+if [ ! -f data/shapes/street_signs.bin ]; then
+	# From http://data-seattlecitygis.opendata.arcgis.com/datasets/411a96b39c834a2380a256b8afa5003b_0
+	get_if_needed https://opendata.arcgis.com/datasets/411a96b39c834a2380a256b8afa5003b_0.kml data/input/street_signs.kml;
+
+	cd kml
+	time cargo run --release -- \
+		--input=../data/input/street_signs.kml \
+		--output=../data/shapes/street_signs.bin
+	cd ..
+fi
+
 if [ ! -f data/input/household_vehicles.kml ]; then
 	# From https://gis-kingcounty.opendata.arcgis.com/datasets/acs-household-size-by-vehicles-available-acs-b08201-householdvehicles
 	get_if_needed https://opendata.arcgis.com/datasets/7842d815523c4f1b9564e0301e2eafa4_2372.kml data/input/household_vehicles.kml;
@@ -105,6 +116,8 @@ for poly in `ls ../data/polygons/`; do
 		--neighborhoods=../data/input/neighborhoods.geojson \
 		--clip=../data/polygons/$name.poly \
 		--output=../data/raw_maps/$name.bin
+	# Disabled, because it removes lots of parking that's really there.
+	#--street_signs=../data/shapes/street_signs.bin \
 done
 
-# To run manually: cargo run -- --osm=../data/input/montlake.osm --parking_shapes=../data/shapes/blockface.bin --offstreet_parking=../data/input/offstreet_parking.kml --gtfs=../data/input/google_transit_2018_18_08 --neighborhoods=../data/input/neighborhoods.geojson --clip=../data/polygons/montlake.poly --output=../data/raw_maps/montlake.bin --fast_dev
+# To run manually: cargo run -- --osm=../data/input/montlake.osm --parking_shapes=../data/shapes/blockface.bin --street_signs=../data/shapes/street_signs.bin --offstreet_parking=../data/input/offstreet_parking.kml --gtfs=../data/input/google_transit_2018_18_08 --neighborhoods=../data/input/neighborhoods.geojson --clip=../data/polygons/montlake.poly --output=../data/raw_maps/montlake.bin --fast_dev

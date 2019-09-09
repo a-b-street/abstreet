@@ -6,7 +6,7 @@ become the complex maps in A/B Street. As always,
 process generalizes to most cities in OpenStreetMap. Some extra data specific to
 Seattle is used, but could be ommitted.
 
-Everything here should be up-to-date as of August 2019.
+Everything here should be up-to-date as of September 2019.
 
 <!--ts-->
 
@@ -131,6 +131,10 @@ it only takes a few seconds to load a serialized map.
 - `lib.rs`: Apply parking hints from a King County GIS blockface dataset
   - Match each blockface to the nearest edge of a road
   - Interpret the metadata to assign on-street parking there or not
+- `lib.rs`: Use a King County GIS street signs dataset to prune on-street
+  parking (**Currently disabled** due to too many bad overrides)
+  - Match street signs indicating "no parking allowed" to the nearest edge of a
+    road
 - `lib.rs`: Apply offstreet parking hints from a King County GIS dataset
   - Match each point to the building containing it, plumbing through the number
     of spots

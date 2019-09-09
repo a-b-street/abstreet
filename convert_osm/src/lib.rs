@@ -4,7 +4,7 @@ mod osm;
 mod remove_disconnected;
 mod split_ways;
 
-use abstutil::Timer;
+use abstutil::{prettyprint_usize, Timer};
 use geom::{Distance, FindClosest, Line, PolyLine, Pt2D};
 use kml::ExtraShapes;
 use map_model::{raw_data, LaneID, OffstreetParking, Position, LANE_THICKNESS};
@@ -20,6 +20,10 @@ pub struct Flags {
     /// ExtraShapes file with blockface, produced using the kml crate. Optional.
     #[structopt(long = "parking_shapes", default_value = "")]
     pub parking_shapes: String,
+
+    /// ExtraShapes file with street signs, produced using the kml crate. Optional.
+    #[structopt(long = "street_signs", default_value = "")]
+    pub street_signs: String,
 
     /// KML file with offstreet parking info. Optional.
     #[structopt(long = "offstreet_parking", default_value = "")]
@@ -59,6 +63,9 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
     if !flags.parking_shapes.is_empty() {
         use_parking_hints(&mut map, &flags.parking_shapes, timer);
     }
+    if !flags.street_signs.is_empty() {
+        use_street_signs(&mut map, &flags.street_signs, timer);
+    }
     if !flags.offstreet_parking.is_empty() {
         use_offstreet_parking(&mut map, &flags.offstreet_parking, timer);
     }
@@ -80,7 +87,6 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
 
 fn use_parking_hints(map: &mut raw_data::Map, path: &str, timer: &mut Timer) {
     timer.start("apply parking hints");
-    println!("Loading blockface shapes from {}", path);
     let shapes: ExtraShapes = abstutil::read_binary(path, timer).expect("loading blockface failed");
 
     // Match shapes with the nearest road + direction (true for forwards)
@@ -98,15 +104,12 @@ fn use_parking_hints(map: &mut raw_data::Map, path: &str, timer: &mut Timer) {
         );
     }
 
-    'SHAPE: for s in shapes.shapes.into_iter() {
-        let mut pts: Vec<Pt2D> = Vec::new();
-        for pt in s.points.into_iter() {
-            if let Some(pt) = Pt2D::from_gps(pt, &map.gps_bounds) {
-                pts.push(pt);
-            } else {
-                continue 'SHAPE;
-            }
-        }
+    for s in shapes.shapes.into_iter() {
+        let pts = if let Some(pts) = map.gps_bounds.try_convert(&s.points) {
+            pts
+        } else {
+            continue;
+        };
         if pts.len() > 1 {
             // The blockface line endpoints will be close to other roads, so match based on the
             // middle of the blockface.
@@ -127,6 +130,56 @@ fn use_parking_hints(map: &mut raw_data::Map, path: &str, timer: &mut Timer) {
         }
     }
     timer.stop("apply parking hints");
+}
+
+fn use_street_signs(map: &mut raw_data::Map, path: &str, timer: &mut Timer) {
+    timer.start("apply street signs to override parking hints");
+    let shapes: ExtraShapes =
+        abstutil::read_binary(path, timer).expect("loading street_signs failed");
+
+    // Match shapes with the nearest road + direction (true for forwards)
+    let mut closest: FindClosest<(raw_data::StableRoadID, bool)> =
+        FindClosest::new(&map.gps_bounds.to_bounds());
+    for (id, r) in &map.roads {
+        let center = PolyLine::new(r.center_points.clone());
+        closest.add(
+            (*id, true),
+            center.shift_right(LANE_THICKNESS).get(timer).points(),
+        );
+        closest.add(
+            (*id, false),
+            center.shift_left(LANE_THICKNESS).get(timer).points(),
+        );
+    }
+
+    let mut applied = 0;
+    for s in shapes.shapes.into_iter() {
+        let pts = if let Some(pts) = map.gps_bounds.try_convert(&s.points) {
+            pts
+        } else {
+            continue;
+        };
+        if pts.len() == 1 {
+            if let Some(((r, fwds), _)) = closest.closest_pt(pts[0], LANE_THICKNESS * 5.0) {
+                // TODO Model RPZ, paid on-street spots, limited times, etc.
+                let no_parking =
+                    s.attributes.get("TEXT") == Some(&"NO PARKING ANYTIME".to_string());
+                if no_parking {
+                    applied += 1;
+                    if fwds {
+                        map.roads.get_mut(&r).unwrap().parking_lane_fwd = false;
+                    } else {
+                        map.roads.get_mut(&r).unwrap().parking_lane_back = false;
+                    }
+                }
+            }
+        }
+    }
+    timer.note(format!(
+        "Applied {} street signs",
+        prettyprint_usize(applied)
+    ));
+    timer.stop("apply street signs to override parking hints");
 }
 
 fn use_offstreet_parking(map: &mut raw_data::Map, path: &str, timer: &mut Timer) {
