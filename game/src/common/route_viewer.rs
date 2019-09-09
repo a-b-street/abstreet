@@ -12,51 +12,41 @@ pub enum RouteViewer {
 }
 
 impl RouteViewer {
+    fn recalc(ui: &UI) -> RouteViewer {
+        if let Some(agent) = ui
+            .primary
+            .current_selection
+            .as_ref()
+            .and_then(|id| id.agent_id())
+        {
+            if let Some(trace) = ui.primary.sim.trace_route(agent, &ui.primary.map, None) {
+                return RouteViewer::Hovering(ui.primary.sim.time(), agent, trace);
+            }
+        }
+        RouteViewer::Inactive
+    }
+
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI, menu: &mut ModalMenu) {
         match self {
             RouteViewer::Inactive => {
-                if let Some(agent) = ui
-                    .primary
-                    .current_selection
-                    .as_ref()
-                    .and_then(|id| id.agent_id())
-                {
-                    if let Some(trace) = ui.primary.sim.trace_route(agent, &ui.primary.map, None) {
-                        *self = RouteViewer::Hovering(ui.primary.sim.time(), agent, trace);
-                    }
-                }
+                *self = RouteViewer::recalc(ui);
             }
             RouteViewer::Hovering(time, agent, _) => {
-                // Argh, borrow checker.
-                let mut agent = *agent;
-
                 if *time != ui.primary.sim.time()
-                    || ui.primary.current_selection != Some(ID::from_agent(agent))
+                    || ui.primary.current_selection != Some(ID::from_agent(*agent))
                 {
-                    *self = RouteViewer::Inactive;
-                    if let Some(new_agent) = ui
-                        .primary
-                        .current_selection
-                        .as_ref()
-                        .and_then(|id| id.agent_id())
-                    {
-                        // Gross.
-                        agent = new_agent;
-                        if let Some(trace) =
-                            ui.primary.sim.trace_route(new_agent, &ui.primary.map, None)
-                        {
-                            *self = RouteViewer::Hovering(ui.primary.sim.time(), new_agent, trace);
-                        }
-                    }
+                    *self = RouteViewer::recalc(ui);
                 }
 
-                // If there's a current route, then there must be a trip.
-                let trip = ui.primary.sim.agent_to_trip(agent).unwrap();
-                if ctx
-                    .input
-                    .contextual_action(Key::R, format!("show {}'s route", agent))
-                {
-                    *self = show_route(trip, ui);
+                if let RouteViewer::Hovering(_, agent, _) = self {
+                    // If there's a current route, then there must be a trip.
+                    let trip = ui.primary.sim.agent_to_trip(*agent).unwrap();
+                    if ctx
+                        .input
+                        .contextual_action(Key::R, format!("show {}'s route", agent))
+                    {
+                        *self = show_route(trip, ui);
+                    }
                 }
             }
             RouteViewer::Active(time, trip, _) => {
