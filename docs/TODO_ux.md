@@ -52,6 +52,7 @@
 - general inspiration
 	- https://gifer.com/en/2svr
 	- https://www.fhwa.dot.gov/publications/research/safety/05078/images/fig6.gif
+	- http://gamma.cs.unc.edu/HYBRID_TRAFFIC/images/3d-topdown.jpg
 - color tuning
 	- neutral (white or offwhite) color and make noncritical info close to
 	  that. http://davidjohnstone.net/pages/lch-lab-colour-gradient-picker,

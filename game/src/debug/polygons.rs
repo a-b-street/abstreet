@@ -3,11 +3,11 @@ use crate::helpers::ID;
 use crate::render::calculate_corners;
 use crate::ui::UI;
 use abstutil::Timer;
-use ezgui::{hotkey, EventCtx, GfxCtx, ItemSlider, Key, Line, Text};
+use ezgui::{EventCtx, GfxCtx, Key, Line, Text, WarpingItemSlider};
 use geom::{Polygon, Pt2D, Triangle};
 
 pub struct PolygonDebugger {
-    slider: ItemSlider<Item>,
+    slider: WarpingItemSlider<Item>,
     center: Option<Pt2D>,
 }
 
@@ -30,13 +30,12 @@ impl PolygonDebugger {
                     let mut pts_without_last = pts.clone();
                     pts_without_last.pop();
                     return Some(PolygonDebugger {
-                        slider: ItemSlider::new(
+                        slider: WarpingItemSlider::new(
                             pts.iter()
-                                .map(|pt| (Item::Point(*pt), Text::new()))
+                                .map(|pt| (*pt, Item::Point(*pt), Text::new()))
                                 .collect(),
                             "Polygon Debugger",
                             "point",
-                            vec![vec![(hotkey(Key::Escape), "quit")]],
                             ctx,
                         ),
                         center: Some(Pt2D::center(&pts_without_last)),
@@ -46,18 +45,17 @@ impl PolygonDebugger {
                     .contextual_action(Key::F2, "debug sidewalk corners")
                 {
                     return Some(PolygonDebugger {
-                        slider: ItemSlider::new(
+                        slider: WarpingItemSlider::new(
                             calculate_corners(
                                 i,
                                 &ui.primary.map,
                                 &mut Timer::new("calculate corners"),
                             )
                             .into_iter()
-                            .map(|poly| (Item::Polygon(poly), Text::new()))
+                            .map(|poly| (poly.center(), Item::Polygon(poly), Text::new()))
                             .collect(),
                             "Polygon Debugger",
                             "corner",
-                            vec![vec![(hotkey(Key::Escape), "quit")]],
                             ctx,
                         ),
                         center: None,
@@ -67,36 +65,40 @@ impl PolygonDebugger {
             Some(ID::Lane(id)) => {
                 if ctx.input.contextual_action(Key::X, "debug lane geometry") {
                     return Some(PolygonDebugger {
-                        slider: ItemSlider::new(
+                        slider: WarpingItemSlider::new(
                             ui.primary
                                 .map
                                 .get_l(id)
                                 .lane_center_pts
                                 .points()
                                 .iter()
-                                .map(|pt| (Item::Point(*pt), Text::new()))
+                                .map(|pt| (*pt, Item::Point(*pt), Text::new()))
                                 .collect(),
                             "Polygon Debugger",
                             "point",
-                            vec![vec![(hotkey(Key::Escape), "quit")]],
                             ctx,
                         ),
                         center: None,
                     });
                 } else if ctx.input.contextual_action(Key::F2, "debug lane triangles") {
                     return Some(PolygonDebugger {
-                        slider: ItemSlider::new(
+                        slider: WarpingItemSlider::new(
                             ui.primary
                                 .draw_map
                                 .get_l(id)
                                 .polygon
                                 .triangles()
                                 .into_iter()
-                                .map(|tri| (Item::Triangle(tri), Text::new()))
+                                .map(|tri| {
+                                    (
+                                        Pt2D::center(&vec![tri.pt1, tri.pt2, tri.pt3]),
+                                        Item::Triangle(tri),
+                                        Text::new(),
+                                    )
+                                })
                                 .collect(),
                             "Polygon Debugger",
                             "triangle",
-                            vec![vec![(hotkey(Key::Escape), "quit")]],
                             ctx,
                         ),
                         center: None,
@@ -114,31 +116,35 @@ impl PolygonDebugger {
                         Pt2D::center(pts)
                     };
                     return Some(PolygonDebugger {
-                        slider: ItemSlider::new(
+                        slider: WarpingItemSlider::new(
                             pts.iter()
-                                .map(|pt| (Item::Point(*pt), Text::new()))
+                                .map(|pt| (*pt, Item::Point(*pt), Text::new()))
                                 .collect(),
                             "Polygon Debugger",
                             "point",
-                            vec![vec![(hotkey(Key::Escape), "quit")]],
                             ctx,
                         ),
                         center: Some(center),
                     });
                 } else if ctx.input.contextual_action(Key::F2, "debug area triangles") {
                     return Some(PolygonDebugger {
-                        slider: ItemSlider::new(
+                        slider: WarpingItemSlider::new(
                             ui.primary
                                 .map
                                 .get_a(id)
                                 .polygon
                                 .triangles()
                                 .into_iter()
-                                .map(|tri| (Item::Triangle(tri), Text::new()))
+                                .map(|tri| {
+                                    (
+                                        Pt2D::center(&vec![tri.pt1, tri.pt2, tri.pt3]),
+                                        Item::Triangle(tri),
+                                        Text::new(),
+                                    )
+                                })
                                 .collect(),
                             "Polygon Debugger",
                             "triangle",
-                            vec![vec![(hotkey(Key::Escape), "quit")]],
                             ctx,
                         ),
                         center: None,
@@ -153,13 +159,13 @@ impl PolygonDebugger {
 
 impl State for PolygonDebugger {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
-        self.slider.event(ctx);
         ctx.canvas.handle_event(ctx.input);
 
-        if self.slider.action("quit") {
-            return Transition::Pop;
+        if let Some((evmode, _)) = self.slider.event(ctx) {
+            Transition::KeepWithMode(evmode)
+        } else {
+            Transition::Pop
         }
-        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
