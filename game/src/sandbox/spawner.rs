@@ -19,10 +19,14 @@ pub struct AgentSpawner {
     maybe_goal: Option<(Goal, Option<PolyLine>)>,
 }
 
-#[derive(Clone)]
 enum Source {
-    Walking(BuildingID),
+    Walking(WalkingSource),
     Driving(Position),
+}
+
+enum WalkingSource {
+    Bldg(BuildingID),
+    Sidewalk(Position),
 }
 
 #[derive(PartialEq)]
@@ -51,7 +55,7 @@ impl AgentSpawner {
                 {
                     return Some(Box::new(AgentSpawner {
                         menu,
-                        from: Source::Walking(id),
+                        from: Source::Walking(WalkingSource::Bldg(id)),
                         maybe_goal: None,
                     }));
                 }
@@ -72,11 +76,24 @@ impl AgentSpawner {
                 if map.get_l(id).is_driving()
                     && ctx
                         .input
-                        .contextual_action(Key::F3, "spawn an agent starting here")
+                        .contextual_action(Key::F3, "spawn a car starting here")
                 {
                     return Some(Box::new(AgentSpawner {
                         menu,
                         from: Source::Driving(Position::new(id, map.get_l(id).length() / 2.0)),
+                        maybe_goal: None,
+                    }));
+                } else if map.get_l(id).is_sidewalk()
+                    && ctx
+                        .input
+                        .contextual_action(Key::F3, "spawn a pedestrian starting here")
+                {
+                    return Some(Box::new(AgentSpawner {
+                        menu,
+                        from: Source::Walking(WalkingSource::Sidewalk(Position::new(
+                            id,
+                            map.get_l(id).length() / 2.0,
+                        ))),
                         maybe_goal: None,
                     }));
                 }
@@ -131,8 +148,8 @@ impl State for AgentSpawner {
 
         if recalculate {
             let start = match self.from {
-                Source::Walking(b) => Position::bldg_via_walking(b, map),
-                Source::Driving(pos) => pos,
+                Source::Walking(WalkingSource::Bldg(b)) => Position::bldg_via_walking(b, map),
+                Source::Walking(WalkingSource::Sidewalk(pos)) | Source::Driving(pos) => pos,
             };
             let end = match new_goal {
                 Goal::Building(to) => match self.from {
@@ -176,9 +193,14 @@ impl State for AgentSpawner {
         if self.maybe_goal.is_some() && ctx.input.contextual_action(Key::F3, "end the agent here") {
             let mut rng = ui.primary.current_flags.sim_flags.make_rng();
             let sim = &mut ui.primary.sim;
-            match (self.from.clone(), self.maybe_goal.take().unwrap().0) {
-                (Source::Walking(from), Goal::Building(to)) => {
-                    let start = SidewalkSpot::building(from, map);
+            match (&self.from, self.maybe_goal.take().unwrap().0) {
+                (Source::Walking(src), Goal::Building(to)) => {
+                    let start = match src {
+                        WalkingSource::Bldg(b) => SidewalkSpot::building(*b, map),
+                        WalkingSource::Sidewalk(pos) => {
+                            SidewalkSpot::suddenly_appear(pos.lane(), pos.dist_along(), map)
+                        }
+                    };
                     let goal = SidewalkSpot::building(to, map);
                     let ped_speed = Scenario::rand_ped_speed(&mut rng);
 
@@ -209,12 +231,18 @@ impl State for AgentSpawner {
                         );
                     }
                 }
-                (Source::Walking(from), Goal::Border(to)) => {
+                (Source::Walking(src), Goal::Border(to)) => {
                     if let Some(goal) = SidewalkSpot::end_at_border(to, map) {
+                        let start = match src {
+                            WalkingSource::Bldg(b) => SidewalkSpot::building(*b, map),
+                            WalkingSource::Sidewalk(pos) => {
+                                SidewalkSpot::suddenly_appear(pos.lane(), pos.dist_along(), map)
+                            }
+                        };
                         sim.schedule_trip(
                             sim.time(),
                             TripSpec::JustWalking {
-                                start: SidewalkSpot::building(from, map),
+                                start,
                                 goal,
                                 ped_speed: Scenario::rand_ped_speed(&mut rng),
                             },
@@ -225,7 +253,7 @@ impl State for AgentSpawner {
                     }
                 }
                 (Source::Driving(from), Goal::Building(to)) => {
-                    if let Some(start_pos) = TripSpec::spawn_car_at(from, map) {
+                    if let Some(start_pos) = TripSpec::spawn_car_at(*from, map) {
                         sim.schedule_trip(
                             sim.time(),
                             TripSpec::CarAppearing {
@@ -246,7 +274,7 @@ impl State for AgentSpawner {
                         sim.schedule_trip(
                             sim.time(),
                             TripSpec::CarAppearing {
-                                start_pos: from,
+                                start_pos: *from,
                                 vehicle_spec: Scenario::rand_car(&mut rng),
                                 goal,
                                 ped_speed: Scenario::rand_ped_speed(&mut rng),
@@ -273,8 +301,10 @@ impl State for AgentSpawner {
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         let src = match self.from {
-            Source::Walking(b1) => ID::Building(b1),
-            Source::Driving(pos1) => ID::Lane(pos1.lane()),
+            Source::Walking(WalkingSource::Bldg(b)) => ID::Building(b),
+            Source::Driving(pos) | Source::Walking(WalkingSource::Sidewalk(pos)) => {
+                ID::Lane(pos.lane())
+            }
         };
         let mut opts = DrawOptions::new();
         opts.override_colors.insert(src, ui.cs.get("selected"));
