@@ -2,6 +2,7 @@ use crate::{IntersectionID, LaneID};
 use abstutil;
 use geom::{Angle, PolyLine};
 use serde_derive::{Deserialize, Serialize};
+use std::collections::BTreeSet;
 use std::fmt;
 
 // Turns are uniquely identified by their (src, dst) lanes and their parent intersection.
@@ -70,6 +71,8 @@ pub struct Turn {
     // TODO Some turns might not actually have geometry. Currently encoded by two equal points.
     // Represent more directly?
     pub geom: PolyLine,
+    // Empty except for TurnType::Crosswalk.
+    pub other_crosswalk_ids: BTreeSet<TurnID>,
 
     // Just for convenient debugging lookup.
     pub lookup_idx: usize,
@@ -106,14 +109,6 @@ impl Turn {
 
     pub fn between_sidewalks(&self) -> bool {
         self.turn_type == TurnType::SharedSidewalkCorner || self.turn_type == TurnType::Crosswalk
-    }
-    pub(crate) fn other_crosswalk_id(&self) -> TurnID {
-        assert_eq!(self.turn_type, TurnType::Crosswalk);
-        TurnID {
-            parent: self.id.parent,
-            src: self.id.dst,
-            dst: self.id.src,
-        }
     }
 
     pub fn dump_debug(&self) {

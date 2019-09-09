@@ -451,7 +451,7 @@ impl Cycle {
     pub fn edit_turn(&mut self, t: &Turn, pri: TurnPriority) {
         let mut ids = vec![t.id];
         if t.turn_type == TurnType::Crosswalk {
-            ids.push(t.other_crosswalk_id());
+            ids.extend(t.other_crosswalk_ids.clone());
         }
         for id in ids {
             self.priority_turns.remove(&id);

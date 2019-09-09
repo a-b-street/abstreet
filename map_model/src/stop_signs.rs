@@ -158,7 +158,9 @@ impl ControlStopSign {
         let turn = map.get_t(t);
         self.turns.insert(t, pri);
         if turn.turn_type == TurnType::Crosswalk {
-            self.turns.insert(turn.other_crosswalk_id(), pri);
+            for id in &turn.other_crosswalk_ids {
+                self.turns.insert(*id, pri);
+            }
         }
         self.recalculate_stop_signs(map);
     }

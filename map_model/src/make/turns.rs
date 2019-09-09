@@ -293,12 +293,14 @@ fn make_walking_turns(
                         result.push(Turn {
                             id: turn_id(i.id, l1.id, l2.id),
                             turn_type: TurnType::SharedSidewalkCorner,
+                            other_crosswalk_ids: BTreeSet::new(),
                             geom: geom.clone(),
                             lookup_idx: 0,
                         });
                         result.push(Turn {
                             id: turn_id(i.id, l2.id, l1.id),
                             turn_type: TurnType::SharedSidewalkCorner,
+                            other_crosswalk_ids: BTreeSet::new(),
                             geom: geom.reversed(),
                             lookup_idx: 0,
                         });
@@ -340,12 +342,14 @@ fn make_crosswalks(i: IntersectionID, l1: &Lane, l2: &Lane) -> Vec<Turn> {
         Turn {
             id: turn_id(i, l1.id, l2.id),
             turn_type: TurnType::Crosswalk,
+            other_crosswalk_ids: vec![turn_id(i, l2.id, l1.id)].into_iter().collect(),
             geom: geom_fwds.clone(),
             lookup_idx: 0,
         },
         Turn {
             id: turn_id(i, l2.id, l1.id),
             turn_type: TurnType::Crosswalk,
+            other_crosswalk_ids: vec![turn_id(i, l1.id, l2.id)].into_iter().collect(),
             geom: geom_fwds.reversed(),
             lookup_idx: 0,
         },
@@ -371,32 +375,50 @@ fn make_degenerate_crosswalks(
         return None;
     }
 
-    Some(vec![
-        Turn {
-            id: turn_id(i, l1_in.id, l1_out.id),
-            turn_type: TurnType::Crosswalk,
-            geom: PolyLine::new(vec![l1_in.last_pt(), pt1, pt2, l1_out.first_pt()]),
-            lookup_idx: 0,
-        },
-        Turn {
-            id: turn_id(i, l1_out.id, l1_in.id),
-            turn_type: TurnType::Crosswalk,
-            geom: PolyLine::new(vec![l1_out.first_pt(), pt2, pt1, l1_in.last_pt()]),
-            lookup_idx: 0,
-        },
-        Turn {
-            id: turn_id(i, l2_in.id, l2_out.id),
-            turn_type: TurnType::Crosswalk,
-            geom: PolyLine::new(vec![l2_in.last_pt(), pt2, pt1, l2_out.first_pt()]),
-            lookup_idx: 0,
-        },
-        Turn {
-            id: turn_id(i, l2_out.id, l2_in.id),
-            turn_type: TurnType::Crosswalk,
-            geom: PolyLine::new(vec![l2_out.first_pt(), pt1, pt2, l2_in.last_pt()]),
-            lookup_idx: 0,
-        },
-    ])
+    let mut all_ids = BTreeSet::new();
+    all_ids.insert(turn_id(i, l1_in.id, l1_out.id));
+    all_ids.insert(turn_id(i, l1_out.id, l1_in.id));
+    all_ids.insert(turn_id(i, l2_in.id, l2_out.id));
+    all_ids.insert(turn_id(i, l2_out.id, l2_in.id));
+
+    Some(
+        vec![
+            Turn {
+                id: turn_id(i, l1_in.id, l1_out.id),
+                turn_type: TurnType::Crosswalk,
+                other_crosswalk_ids: all_ids.clone(),
+                geom: PolyLine::new(vec![l1_in.last_pt(), pt1, pt2, l1_out.first_pt()]),
+                lookup_idx: 0,
+            },
+            Turn {
+                id: turn_id(i, l1_out.id, l1_in.id),
+                turn_type: TurnType::Crosswalk,
+                other_crosswalk_ids: all_ids.clone(),
+                geom: PolyLine::new(vec![l1_out.first_pt(), pt2, pt1, l1_in.last_pt()]),
+                lookup_idx: 0,
+            },
+            Turn {
+                id: turn_id(i, l2_in.id, l2_out.id),
+                turn_type: TurnType::Crosswalk,
+                other_crosswalk_ids: all_ids.clone(),
+                geom: PolyLine::new(vec![l2_in.last_pt(), pt2, pt1, l2_out.first_pt()]),
+                lookup_idx: 0,
+            },
+            Turn {
+                id: turn_id(i, l2_out.id, l2_in.id),
+                turn_type: TurnType::Crosswalk,
+                other_crosswalk_ids: all_ids.clone(),
+                geom: PolyLine::new(vec![l2_out.first_pt(), pt1, pt2, l2_in.last_pt()]),
+                lookup_idx: 0,
+            },
+        ]
+        .into_iter()
+        .map(|mut t| {
+            t.other_crosswalk_ids.remove(&t.id);
+            t
+        })
+        .collect(),
+    )
 }
 
 fn make_shared_sidewalk_corner(
@@ -535,6 +557,7 @@ fn make_vehicle_turn(lanes: &Vec<Lane>, i: IntersectionID, l1: LaneID, l2: LaneI
     Some(Turn {
         id: turn_id(i, l1, l2),
         turn_type,
+        other_crosswalk_ids: BTreeSet::new(),
         geom,
         lookup_idx: 0,
     })

@@ -46,7 +46,9 @@ impl DrawIntersection {
         let mut crosswalks = Vec::new();
         for turn in &map.get_turns_in_intersection(i.id) {
             // Avoid double-rendering
-            if turn.turn_type == TurnType::Crosswalk && map.get_l(turn.id.src).dst_i == i.id {
+            if turn.turn_type == TurnType::Crosswalk
+                && !turn.other_crosswalk_ids.iter().any(|id| *id < turn.id)
+            {
                 if i.is_traffic_signal() {
                     let mut batch = GeomBatch::new();
                     make_crosswalk(&mut batch, turn, cs);
