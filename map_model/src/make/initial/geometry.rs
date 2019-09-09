@@ -4,7 +4,7 @@ use abstutil::{wraparound_get, Timer, Warn};
 use geom::{Distance, Line, PolyLine, Pt2D};
 use std::collections::{BTreeMap, HashMap};
 
-const DEGENERATE_INTERSECTION_HALF_LENGTH: Distance = Distance::const_meters(5.0);
+const DEGENERATE_INTERSECTION_HALF_LENGTH: Distance = Distance::const_meters(2.5);
 
 // The polygon should exist entirely within the thick bands around all original roads -- it just
 // carves up part of that space, doesn't reach past it.
@@ -93,14 +93,15 @@ fn generalized_trim_back(
         };
 
         // Always trim back a minimum amount, if possible.
-        let mut shortest_center = if road_center.length() >= DEGENERATE_INTERSECTION_HALF_LENGTH {
-            road_center.exact_slice(
-                Distance::ZERO,
-                road_center.length() - DEGENERATE_INTERSECTION_HALF_LENGTH,
-            )
-        } else {
-            road_center.clone()
-        };
+        let mut shortest_center =
+            if road_center.length() >= DEGENERATE_INTERSECTION_HALF_LENGTH + geom::EPSILON_DIST {
+                road_center.exact_slice(
+                    Distance::ZERO,
+                    road_center.length() - DEGENERATE_INTERSECTION_HALF_LENGTH,
+                )
+            } else {
+                road_center.clone()
+            };
 
         for (r2, pl2, _) in &road_lines {
             if r1 == r2 {
@@ -307,27 +308,21 @@ fn deadend(
     i: StableIntersectionID,
     lines: &Vec<(StableRoadID, Line, PolyLine, PolyLine)>,
 ) -> Warn<Vec<Pt2D>> {
+    let len = DEGENERATE_INTERSECTION_HALF_LENGTH * 4.0;
+
     let (id, _, pl_a, pl_b) = &lines[0];
-    let pt1 = pl_a
-        .reversed()
-        .safe_dist_along(DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0)
-        .map(|(pt, _)| pt);
-    let pt2 = pl_b
-        .reversed()
-        .safe_dist_along(DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0)
-        .map(|(pt, _)| pt);
+    let pt1 = pl_a.reversed().safe_dist_along(len).map(|(pt, _)| pt);
+    let pt2 = pl_b.reversed().safe_dist_along(len).map(|(pt, _)| pt);
     if pt1.is_some() && pt2.is_some() {
         let r = roads.get_mut(&id).unwrap();
         if r.src_i == i {
-            r.trimmed_center_pts = r.trimmed_center_pts.exact_slice(
-                DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0,
-                r.trimmed_center_pts.length(),
-            );
+            r.trimmed_center_pts = r
+                .trimmed_center_pts
+                .exact_slice(len, r.trimmed_center_pts.length());
         } else {
-            r.trimmed_center_pts = r.trimmed_center_pts.exact_slice(
-                Distance::ZERO,
-                r.trimmed_center_pts.length() - DEGENERATE_INTERSECTION_HALF_LENGTH * 2.0,
-            );
+            r.trimmed_center_pts = r
+                .trimmed_center_pts
+                .exact_slice(Distance::ZERO, r.trimmed_center_pts.length() - len);
         }
 
         Warn::ok(close_off_polygon(vec![

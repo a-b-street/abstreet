@@ -276,7 +276,9 @@ fn make_walking_turns(
         if let Some(l1) = get_sidewalk(lanes, roads[idx1].incoming_lanes(i.id)) {
             // Make the crosswalk to the other side
             if let Some(l2) = get_sidewalk(lanes, roads[idx1].outgoing_lanes(i.id)) {
-                result.extend(make_crosswalks(i.id, l1, l2));
+                if roads.len() != 2 {
+                    result.extend(make_crosswalks(i.id, l1, l2));
+                }
             }
 
             // Find the shared corner
@@ -315,6 +317,13 @@ fn make_walking_turns(
             }
         }
     }
+
+    if roads.len() == 2 {
+        if let Some(turns) = make_degenerate_crosswalks(i.id, lanes, roads[0], roads[1]) {
+            result.extend(turns);
+        }
+    }
+
     result
 }
 
@@ -341,6 +350,53 @@ fn make_crosswalks(i: IntersectionID, l1: &Lane, l2: &Lane) -> Vec<Turn> {
             lookup_idx: 0,
         },
     ]
+}
+
+// Only one physical crosswalk for degenerate intersections, right in the middle.
+fn make_degenerate_crosswalks(
+    i: IntersectionID,
+    lanes: &Vec<Lane>,
+    r1: &Road,
+    r2: &Road,
+) -> Option<Vec<Turn>> {
+    let l1_in = get_sidewalk(lanes, r1.incoming_lanes(i))?;
+    let l1_out = get_sidewalk(lanes, r1.outgoing_lanes(i))?;
+    let l2_in = get_sidewalk(lanes, r2.incoming_lanes(i))?;
+    let l2_out = get_sidewalk(lanes, r2.outgoing_lanes(i))?;
+
+    let pt1 = Line::new(l1_in.last_pt(), l2_out.first_pt()).percent_along(0.5);
+    let pt2 = Line::new(l1_out.first_pt(), l2_in.last_pt()).percent_along(0.5);
+
+    if pt1.epsilon_eq(pt2) {
+        return None;
+    }
+
+    Some(vec![
+        Turn {
+            id: turn_id(i, l1_in.id, l1_out.id),
+            turn_type: TurnType::Crosswalk,
+            geom: PolyLine::new(vec![l1_in.last_pt(), pt1, pt2, l1_out.first_pt()]),
+            lookup_idx: 0,
+        },
+        Turn {
+            id: turn_id(i, l1_out.id, l1_in.id),
+            turn_type: TurnType::Crosswalk,
+            geom: PolyLine::new(vec![l1_out.first_pt(), pt2, pt1, l1_in.last_pt()]),
+            lookup_idx: 0,
+        },
+        Turn {
+            id: turn_id(i, l2_in.id, l2_out.id),
+            turn_type: TurnType::Crosswalk,
+            geom: PolyLine::new(vec![l2_in.last_pt(), pt2, pt1, l2_out.first_pt()]),
+            lookup_idx: 0,
+        },
+        Turn {
+            id: turn_id(i, l2_out.id, l2_in.id),
+            turn_type: TurnType::Crosswalk,
+            geom: PolyLine::new(vec![l2_out.first_pt(), pt1, pt2, l2_in.last_pt()]),
+            lookup_idx: 0,
+        },
+    ])
 }
 
 fn make_shared_sidewalk_corner(
