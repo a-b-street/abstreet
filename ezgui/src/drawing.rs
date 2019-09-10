@@ -4,27 +4,53 @@ use crate::{
     VerticalAlignment,
 };
 use geom::{Bounds, Circle, Distance, Line, Polygon, Pt2D};
-use glium::{uniform, Surface};
+use glium::uniforms::UniformValue;
+use glium::Surface;
 
-// transform is (cam_x, cam_y, cam_zoom)
-// window is (window_width, window_height, weird enum)
-//    - weird enum = 0.0 (map-space, no hatching)
-//                 = 1.0 (map-space, hatching)
-//                 = 2.0 (screen-space, no hatching)
-// Things are awkwardly grouped because passing uniforms is either broken or horribly documented.
-type Uniforms<'a> = glium::uniforms::UniformsStorage<
-    'a,
-    [f32; 3],
-    glium::uniforms::UniformsStorage<'a, [f32; 3], glium::uniforms::EmptyUniforms>,
->;
 const NO_HATCHING: f32 = 0.0;
 const HATCHING: f32 = 1.0;
 const SCREENSPACE: f32 = 2.0;
 
+struct Uniforms {
+    // (cam_x, cam_y, cam_zoom)
+    transform: [f32; 3],
+    // (window_width, window_height, weird enum)
+    //    - weird enum = 0.0 (map-space, no hatching)
+    //                 = 1.0 (map-space, hatching)
+    //                 = 2.0 (screen-space, no hatching)
+    // Things are awkwardly grouped because passing uniforms is either broken or horribly
+    // documented.
+    window: [f32; 3],
+}
+
+impl Uniforms {
+    fn new(canvas: &Canvas) -> Uniforms {
+        Uniforms {
+            transform: [
+                canvas.cam_x as f32,
+                canvas.cam_y as f32,
+                canvas.cam_zoom as f32,
+            ],
+            window: [
+                canvas.window_width as f32,
+                canvas.window_height as f32,
+                NO_HATCHING,
+            ],
+        }
+    }
+}
+
+impl glium::uniforms::Uniforms for Uniforms {
+    fn visit_values<'a, F: FnMut(&str, UniformValue<'a>)>(&'a self, mut output: F) {
+        output("transform", UniformValue::Vec3(self.transform));
+        output("window", UniformValue::Vec3(self.window));
+    }
+}
+
 pub struct GfxCtx<'a> {
     pub(crate) target: &'a mut glium::Frame,
     program: &'a glium::Program,
-    uniforms: Uniforms<'a>,
+    uniforms: Uniforms,
     params: glium::DrawParameters<'a>,
 
     screencap_mode: bool,
@@ -58,10 +84,7 @@ impl<'a> GfxCtx<'a> {
             ..Default::default()
         };
 
-        let uniforms = uniform! {
-            transform: [canvas.cam_x as f32, canvas.cam_y as f32, canvas.cam_zoom as f32],
-            window: [canvas.window_width as f32, canvas.window_height as f32, NO_HATCHING],
-        };
+        let uniforms = Uniforms::new(&canvas);
 
         GfxCtx {
             canvas,
@@ -86,24 +109,26 @@ impl<'a> GfxCtx<'a> {
         let cam_x = (top_left_map.x() * zoom) - top_left_screen.x;
         let cam_y = (top_left_map.y() * zoom) - top_left_screen.y;
 
-        self.uniforms = uniform! {
-            transform: [cam_x as f32, cam_y as f32, zoom as f32],
-            window: [self.canvas.window_width as f32, self.canvas.window_height as f32, SCREENSPACE],
-        };
+        self.uniforms.transform = [cam_x as f32, cam_y as f32, zoom as f32];
+        self.uniforms.window = [
+            self.canvas.window_width as f32,
+            self.canvas.window_height as f32,
+            SCREENSPACE,
+        ];
     }
 
     pub fn fork_screenspace(&mut self) {
-        self.uniforms = uniform! {
-            transform: [0.0, 0.0, 1.0],
-            window: [self.canvas.window_width as f32, self.canvas.window_height as f32, SCREENSPACE],
-        };
+        self.uniforms.transform = [0.0, 0.0, 1.0];
+        self.uniforms.window = [
+            self.canvas.window_width as f32,
+            self.canvas.window_height as f32,
+            SCREENSPACE,
+        ];
     }
 
     pub fn unfork(&mut self) {
-        self.uniforms = uniform! {
-            transform: [self.canvas.cam_x as f32, self.canvas.cam_y as f32, self.canvas.cam_zoom as f32],
-            window: [self.canvas.window_width as f32, self.canvas.window_height as f32, self.hatching],
-        };
+        self.uniforms = Uniforms::new(&self.canvas);
+        self.uniforms.window[2] = self.hatching;
     }
 
     pub fn clear(&mut self, color: Color) {
