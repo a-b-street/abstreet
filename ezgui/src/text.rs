@@ -205,7 +205,10 @@ pub fn draw_text_bubble(
                     max_size = max_size.max(span.size);
                     SectionText {
                         text: &span.text,
-                        color: span.fg_color.0,
+                        color: match span.fg_color {
+                            Color::RGBA(r, g, b, a) => [r, g, b, a],
+                            _ => unreachable!(),
+                        },
                         scale: Scale::uniform(span.size as f32),
                         ..SectionText::default()
                     }
@@ -273,7 +276,10 @@ pub fn draw_text_bubble_mapspace(
                     max_size = max_size.max(span.size);
                     SectionText {
                         text: &span.text,
-                        color: span.fg_color.0,
+                        color: match span.fg_color {
+                            Color::RGBA(r, g, b, a) => [r, g, b, a],
+                            _ => unreachable!(),
+                        },
                         scale: Scale::uniform(span.size as f32),
                         ..SectionText::default()
                     }

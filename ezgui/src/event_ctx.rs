@@ -67,27 +67,24 @@ impl<'a> Prerender<'a> {
         for (color, poly) in list {
             let idx_offset = vertices.len();
             let (pts, raw_indices) = poly.raw_for_rendering();
-            let bounds = poly.get_bounds();
+            let mut maybe_bounds = None;
             for pt in pts {
-                // TODO Encode this more directly in Color!
-                let style = if color == Color::rgb(170, 211, 223) {
-                    [
-                        0.0,
-                        ((pt.x() - bounds.min_x) / (bounds.max_x - bounds.min_x)) as f32,
-                        // TODO Maybe need to do y inversion here
-                        ((pt.y() - bounds.min_y) / (bounds.max_y - bounds.min_y)) as f32,
-                        0.0,
-                    ]
-                } else if color == Color::rgb(200, 250, 204) {
-                    [
-                        1.0,
-                        ((pt.x() - bounds.min_x) / (bounds.max_x - bounds.min_x)) as f32,
-                        // TODO Maybe need to do y inversion here
-                        ((pt.y() - bounds.min_y) / (bounds.max_y - bounds.min_y)) as f32,
-                        0.0,
-                    ]
-                } else {
-                    [color.0[0], color.0[1], color.0[2], color.0[3]]
+                let style = match color {
+                    Color::RGBA(r, g, b, a) => [r, g, b, a],
+                    Color::Texture(id) => {
+                        if maybe_bounds.is_none() {
+                            maybe_bounds = Some(poly.get_bounds());
+                        }
+                        let b = maybe_bounds.as_ref().unwrap();
+
+                        [
+                            id,
+                            ((pt.x() - b.min_x) / (b.max_x - b.min_x)) as f32,
+                            // TODO Maybe need to do y inversion here
+                            ((pt.y() - b.min_y) / (b.max_y - b.min_y)) as f32,
+                            0.0,
+                        ]
+                    }
                 };
                 vertices.push(Vertex {
                     position: [pt.x() as f32, pt.y() as f32],
@@ -166,6 +163,15 @@ impl<'a> EventCtx<'a> {
     pub fn redo_mouseover(&self) -> bool {
         self.input.window_lost_cursor()
             || (!self.canvas.is_dragging() && self.input.get_moved_mouse().is_some())
+    }
+
+    pub fn texture(&self, filename: &str) -> Color {
+        for (idx, (name, _)) in self.canvas.textures.iter().enumerate() {
+            if filename == name {
+                return Color::Texture(idx as f32);
+            }
+        }
+        panic!("Don't know texture {}", filename);
     }
 }
 

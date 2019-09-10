@@ -1,6 +1,6 @@
-use crate::helpers::{ColorScheme, ID};
+use crate::helpers::ID;
 use crate::render::{DrawCtx, DrawOptions, Renderable};
-use ezgui::{Color, GeomBatch, GfxCtx};
+use ezgui::{EventCtx, GeomBatch, GfxCtx};
 use geom::Polygon;
 use map_model::{Area, AreaID, AreaType, Map};
 
@@ -9,11 +9,13 @@ pub struct DrawArea {
 }
 
 impl DrawArea {
-    pub fn new(area: &Area, cs: &ColorScheme, batch: &mut GeomBatch) -> DrawArea {
+    pub fn new(area: &Area, ctx: &EventCtx, batch: &mut GeomBatch) -> DrawArea {
         batch.push(
             match area.area_type {
-                AreaType::Park => cs.get_def("park area", Color::rgb(200, 250, 204)),
-                AreaType::Water => cs.get_def("water area", Color::rgb(170, 211, 223)),
+                //AreaType::Park => cs.get_def("park area", Color::rgb(200, 250, 204)),
+                //AreaType::Water => cs.get_def("water area", Color::rgb(170, 211, 223)),
+                AreaType::Park => ctx.texture("assets/grass_texture.png"),
+                AreaType::Water => ctx.texture("assets/water_texture.png"),
             },
             area.polygon.clone(),
         );

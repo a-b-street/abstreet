@@ -204,7 +204,7 @@ fn launch_savestate(test: &ABTest, ss_path: String, ui: &mut UI, ctx: &mut Event
                 &ui.primary.map,
                 &ui.primary.current_flags,
                 &ui.cs,
-                ctx.prerender,
+                ctx,
                 &mut timer,
             );
             timer.stop("setup primary");
@@ -215,7 +215,7 @@ fn launch_savestate(test: &ABTest, ss_path: String, ui: &mut UI, ctx: &mut Event
                     &ss.secondary_map,
                     &ui.primary.current_flags,
                     &ui.cs,
-                    ctx.prerender,
+                    ctx,
                     &mut timer,
                 ),
                 map: ss.secondary_map,

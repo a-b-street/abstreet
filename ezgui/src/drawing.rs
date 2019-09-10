@@ -136,9 +136,14 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn clear(&mut self, color: Color) {
-        // Without this, SRGB gets enabled and post-processes the color from the fragment shader.
-        self.target
-            .clear_color_srgb_and_depth((color.0[0], color.0[1], color.0[2], color.0[3]), 1.0);
+        match color {
+            Color::RGBA(r, g, b, a) => {
+                // Without this, SRGB gets enabled and post-processes the color from the fragment
+                // shader.
+                self.target.clear_color_srgb_and_depth((r, g, b, a), 1.0);
+            }
+            _ => unreachable!(),
+        }
     }
 
     pub fn draw_line(&mut self, color: Color, thickness: Distance, line: &Line) {

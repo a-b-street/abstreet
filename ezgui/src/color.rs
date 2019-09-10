@@ -3,15 +3,18 @@ use std::fmt;
 
 // Copy could be reconsidered, but eh
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
-pub struct Color(pub(crate) [f32; 4]);
+pub enum Color {
+    RGBA(f32, f32, f32, f32),
+    // The texture ID to pass to the shader
+    Texture(f32),
+}
 
 impl fmt::Display for Color {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "Color(r={}, g={}, b={}, a={})",
-            self.0[0], self.0[1], self.0[2], self.0[3]
-        )
+        match self {
+            Color::RGBA(r, g, b, a) => write!(f, "Color(r={}, g={}, b={}, a={})", r, g, b, a),
+            Color::Texture(id) => write!(f, "Color::Texture({})", id),
+        }
     }
 }
 
@@ -36,28 +39,31 @@ impl Color {
     }
 
     pub const fn rgb_f(r: f32, g: f32, b: f32) -> Color {
-        Color([r, g, b, 1.0])
+        Color::RGBA(r, g, b, 1.0)
     }
 
     pub fn rgba(r: usize, g: usize, b: usize, a: f32) -> Color {
-        Color([
+        Color::RGBA(
             (r as f32) / 255.0,
             (g as f32) / 255.0,
             (b as f32) / 255.0,
             a,
-        ])
+        )
     }
 
     pub const fn rgba_f(r: f32, g: f32, b: f32, a: f32) -> Color {
-        Color([r, g, b, a])
+        Color::RGBA(r, g, b, a)
     }
 
     pub const fn grey(f: f32) -> Color {
-        Color([f, f, f, 1.0])
+        Color::RGBA(f, f, f, 1.0)
     }
 
-    pub const fn alpha(&self, a: f32) -> Color {
-        Color([self.0[0], self.0[1], self.0[2], a])
+    pub fn alpha(&self, a: f32) -> Color {
+        match self {
+            Color::RGBA(r, g, b, _) => Color::RGBA(*r, *g, *b, a),
+            _ => unreachable!(),
+        }
     }
 
     pub fn from_hex(raw: &str) -> Color {

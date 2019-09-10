@@ -469,7 +469,7 @@ impl PerMapUI {
         mem.reset("Map and Sim", timer);
 
         timer.start("draw_map");
-        let draw_map = DrawMap::new(&map, &flags, cs, ctx.prerender, timer);
+        let draw_map = DrawMap::new(&map, &flags, cs, ctx, timer);
         timer.stop("draw_map");
         mem.reset("DrawMap", timer);
 

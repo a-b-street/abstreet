@@ -12,7 +12,7 @@ use crate::render::Renderable;
 use crate::ui::{Flags, PerMapUI};
 use aabb_quadtree::QuadTree;
 use abstutil::{Cloneable, Timer};
-use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
+use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx};
 use geom::{Bounds, Circle, Distance, Duration, FindClosest};
 use map_model::{
     AreaID, BuildingID, BusStopID, DirectedRoadID, IntersectionID, Lane, LaneID, Map, RoadID,
@@ -52,7 +52,7 @@ impl DrawMap {
         map: &Map,
         flags: &Flags,
         cs: &ColorScheme,
-        prerender: &Prerender,
+        ctx: &EventCtx,
         timer: &mut Timer,
     ) -> DrawMap {
         let mut roads: Vec<DrawRoad> = Vec::new();
@@ -60,7 +60,7 @@ impl DrawMap {
         timer.start_iter("make DrawRoads", map.all_roads().len());
         for r in map.all_roads() {
             timer.next();
-            let draw_r = DrawRoad::new(r, cs, prerender);
+            let draw_r = DrawRoad::new(r, cs, ctx.prerender);
             all_roads.push(
                 osm_rank_to_color(cs, r.get_rank()),
                 r.get_thick_polygon().get(timer),
@@ -72,7 +72,7 @@ impl DrawMap {
             roads.push(draw_r);
         }
         timer.start("upload thick roads");
-        let draw_all_thick_roads = prerender.upload(all_roads);
+        let draw_all_thick_roads = ctx.prerender.upload(all_roads);
         timer.stop("upload thick roads");
 
         let almost_lanes =
@@ -91,7 +91,7 @@ impl DrawMap {
         let mut lanes: Vec<DrawLane> = Vec::new();
         for almost in almost_lanes {
             timer.next();
-            lanes.push(almost.finish(prerender));
+            lanes.push(almost.finish(ctx.prerender));
         }
 
         timer.start_iter("compute_turn_to_lane_offset", map.all_lanes().len());
@@ -117,7 +117,7 @@ impl DrawMap {
         timer.start_iter("make DrawIntersections", map.all_intersections().len());
         for i in map.all_intersections() {
             timer.next();
-            let draw_i = DrawIntersection::new(i, map, cs, prerender, timer);
+            let draw_i = DrawIntersection::new(i, map, cs, ctx.prerender, timer);
             if i.is_stop_sign() {
                 all_intersections.push(osm_rank_to_color(cs, i.get_rank(map)), i.polygon.clone());
                 all_intersections.push(cs.get("unzoomed outline"), draw_i.get_outline(map));
@@ -130,7 +130,7 @@ impl DrawMap {
             intersections.push(draw_i);
         }
         timer.start("upload all intersections");
-        let draw_all_unzoomed_intersections = prerender.upload(all_intersections);
+        let draw_all_unzoomed_intersections = ctx.prerender.upload(all_intersections);
         timer.stop("upload all intersections");
 
         let mut buildings: Vec<DrawBuilding> = Vec::new();
@@ -141,7 +141,7 @@ impl DrawMap {
             buildings.push(DrawBuilding::new(b, cs, &mut all_buildings));
         }
         timer.start("upload all buildings");
-        let draw_all_buildings = prerender.upload(all_buildings);
+        let draw_all_buildings = ctx.prerender.upload(all_buildings);
         timer.stop("upload all buildings");
 
         let mut extra_shapes: Vec<DrawExtraShape> = Vec::new();
@@ -182,7 +182,7 @@ impl DrawMap {
         let mut bus_stops: HashMap<BusStopID, DrawBusStop> = HashMap::new();
         for s in map.all_bus_stops().values() {
             timer.next();
-            bus_stops.insert(s.id, DrawBusStop::new(s, map, cs, prerender));
+            bus_stops.insert(s.id, DrawBusStop::new(s, map, cs, ctx.prerender));
         }
 
         let mut areas: Vec<DrawArea> = Vec::new();
@@ -190,13 +190,13 @@ impl DrawMap {
         timer.start_iter("make DrawAreas", map.all_areas().len());
         for a in map.all_areas() {
             timer.next();
-            areas.push(DrawArea::new(a, cs, &mut all_areas));
+            areas.push(DrawArea::new(a, ctx, &mut all_areas));
         }
         timer.start("upload all areas");
-        let draw_all_areas = prerender.upload(all_areas);
+        let draw_all_areas = ctx.prerender.upload(all_areas);
         timer.stop("upload all areas");
 
-        let boundary_polygon = prerender.upload_borrowed(vec![(
+        let boundary_polygon = ctx.prerender.upload_borrowed(vec![(
             cs.get_def("map background", Color::rgb(242, 239, 233)),
             map.get_boundary_polygon(),
         )]);
@@ -227,7 +227,7 @@ impl DrawMap {
 
         timer.note(format!(
             "static DrawMap consumes {} MB on the GPU",
-            abstutil::prettyprint_usize(prerender.get_total_bytes_uploaded() / 1024 / 1024)
+            abstutil::prettyprint_usize(ctx.prerender.get_total_bytes_uploaded() / 1024 / 1024)
         ));
 
         DrawMap {
