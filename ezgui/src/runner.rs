@@ -156,6 +156,7 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(
     window_title: &str,
     initial_width: f64,
     initial_height: f64,
+    textures: Vec<&str>,
     make_gui: F,
 ) {
     let events_loop = glutin::EventsLoop::new();
@@ -251,6 +252,21 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(
         num_uploads: Cell::new(0),
         total_bytes_uploaded: Cell::new(0),
     };
+
+    if textures.len() > 10 {
+        panic!("Due to lovely hacks, only 10 textures supported");
+    }
+    for filename in textures {
+        println!("Uploading texture {}...", filename);
+        let img = image::open(filename).unwrap().to_rgba();
+        let dims = img.dimensions();
+        let tex = glium::texture::Texture2d::new(
+            &display,
+            glium::texture::RawImage2d::from_raw_rgba_reversed(&img.into_raw(), dims),
+        )
+        .unwrap();
+        canvas.textures.push((filename.to_string(), tex));
+    }
 
     let gui = make_gui(&mut EventCtx {
         input: &mut UserInput::new(Event::NoOp, ContextMenu::new(), &mut canvas),

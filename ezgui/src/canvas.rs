@@ -39,7 +39,7 @@ pub struct Canvas {
     pub(crate) lctrl_held: bool,
 
     // TODO Definitely a weird place to stash this!
-    pub(crate) textures: HashMap<String, Texture2d>,
+    pub(crate) textures: Vec<(String, Texture2d)>,
 }
 
 impl Canvas {
@@ -70,7 +70,7 @@ impl Canvas {
             hide_modal_menus: false,
             lctrl_held: false,
 
-            textures: HashMap::new(),
+            textures: Vec::new(),
         }
     }
 

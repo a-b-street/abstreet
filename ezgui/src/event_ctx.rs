@@ -76,6 +76,8 @@ impl<'a> Prerender<'a> {
                     tex_coords: [
                         if color == Color::rgb(170, 211, 223) {
                             1.0
+                        } else if color == Color::rgb(200, 250, 204) {
+                            2.0
                         } else {
                             0.0
                         },
@@ -163,19 +165,6 @@ impl<'a> EventCtx<'a> {
         self.input.window_lost_cursor()
             || (!self.canvas.is_dragging() && self.input.get_moved_mouse().is_some())
     }
-
-    // TODO Belongs on Prerender?
-    pub fn upload_texture(&mut self, filename: &str) {
-        assert!(!self.canvas.textures.contains_key(filename));
-        let img = image::open(filename).unwrap().to_rgba();
-        let dims = img.dimensions();
-        let tex = glium::texture::Texture2d::new(
-            self.prerender.display,
-            glium::texture::RawImage2d::from_raw_rgba_reversed(&img.into_raw(), dims),
-        )
-        .unwrap();
-        self.canvas.textures.insert(filename.to_string(), tex);
-    }
 }
 
 pub struct LoadingScreen<'a> {
@@ -202,17 +191,11 @@ impl<'a> LoadingScreen<'a> {
             GlyphBrush::new(prerender.display, vec![Font::from_bytes(dejavu).unwrap()]);
         let mapspace_glyphs =
             GlyphBrush::new(prerender.display, vec![Font::from_bytes(dejavu).unwrap()]);
-        let mut canvas = Canvas::new(
+        let canvas = Canvas::new(
             initial_width,
             initial_height,
             screenspace_glyphs,
             mapspace_glyphs,
-        );
-
-        // TODO Hack
-        canvas.textures.insert(
-            "assets/water_texture.png".to_string(),
-            glium::texture::Texture2d::empty(prerender.display, 800, 600).unwrap(),
         );
 
         // TODO Dupe code

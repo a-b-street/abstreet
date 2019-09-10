@@ -45,10 +45,9 @@ impl<'b> glium::uniforms::Uniforms for Uniforms<'b> {
     fn visit_values<'a, F: FnMut(&str, UniformValue<'a>)>(&'a self, mut output: F) {
         output("transform", UniformValue::Vec3(self.transform));
         output("window", UniformValue::Vec3(self.window));
-        output(
-            "tex",
-            UniformValue::Texture2d(&self.canvas.textures["assets/water_texture.png"], None),
-        );
+        for (idx, (_, tex)) in self.canvas.textures.iter().enumerate() {
+            output(&format!("tex{}", idx), UniformValue::Texture2d(tex, None));
+        }
     }
 }
 

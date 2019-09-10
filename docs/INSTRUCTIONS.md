@@ -66,4 +66,4 @@ A/B Street binary releases contain pre-built maps that combine data from:
 - DejaVuSans.ttf (https://dejavu-fonts.github.io/License.html)
 - Puget Sound Regional Council
   (https://www.psrc.org/activity-based-travel-model-soundcast)
-- http://www.textures4photoshop.com for water textures
+- http://www.textures4photoshop.com for textures

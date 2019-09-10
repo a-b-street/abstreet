@@ -427,7 +427,7 @@ impl GUI for UI {
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    ezgui::run("InitialMap debugger", 1800.0, 800.0, |ctx| {
+    ezgui::run("InitialMap debugger", 1800.0, 800.0, vec![], |ctx| {
         ctx.canvas.cam_zoom = 4.0;
         UI::new(&args[1], ctx)
     });
