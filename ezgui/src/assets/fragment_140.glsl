@@ -16,33 +16,32 @@ uniform sampler2D tex7;
 uniform sampler2D tex8;
 uniform sampler2D tex9;
 
-in vec4 pass_color;
-in vec3 pass_tex_coords;
+in vec4 pass_style;
 out vec4 f_color;
 
 void main() {
-    if (pass_tex_coords[0] == 0.0) {
-        f_color = pass_color;
-    } else if (pass_tex_coords[0] == 1.0) {
-        f_color = texture(tex0, vec2(pass_tex_coords[1], pass_tex_coords[2]));
-    } else if (pass_tex_coords[0] == 2.0) {
-        f_color = texture(tex1, vec2(pass_tex_coords[1], pass_tex_coords[2]));
-    } else if (pass_tex_coords[0] == 3.0) {
-        f_color = texture(tex2, vec2(pass_tex_coords[1], pass_tex_coords[2]));
-    } else if (pass_tex_coords[0] == 4.0) {
-        f_color = texture(tex3, vec2(pass_tex_coords[1], pass_tex_coords[2]));
-    } else if (pass_tex_coords[0] == 5.0) {
-        f_color = texture(tex4, vec2(pass_tex_coords[1], pass_tex_coords[2]));
-    } else if (pass_tex_coords[0] == 6.0) {
-        f_color = texture(tex5, vec2(pass_tex_coords[1], pass_tex_coords[2]));
-    } else if (pass_tex_coords[0] == 7.0) {
-        f_color = texture(tex6, vec2(pass_tex_coords[1], pass_tex_coords[2]));
-    } else if (pass_tex_coords[0] == 8.0) {
-        f_color = texture(tex7, vec2(pass_tex_coords[1], pass_tex_coords[2]));
-    } else if (pass_tex_coords[0] == 9.0) {
-        f_color = texture(tex8, vec2(pass_tex_coords[1], pass_tex_coords[2]));
-    } else if (pass_tex_coords[0] == 10.0) {
-        f_color = texture(tex9, vec2(pass_tex_coords[1], pass_tex_coords[2]));
+    if (pass_style[3] != 0.0) {
+        f_color = pass_style;
+    } else if (pass_style[0] == 0.0) {
+        f_color = texture(tex0, vec2(pass_style[1], pass_style[2]));
+    } else if (pass_style[0] == 1.0) {
+        f_color = texture(tex1, vec2(pass_style[1], pass_style[2]));
+    } else if (pass_style[0] == 2.0) {
+        f_color = texture(tex2, vec2(pass_style[1], pass_style[2]));
+    } else if (pass_style[0] == 3.0) {
+        f_color = texture(tex3, vec2(pass_style[1], pass_style[2]));
+    } else if (pass_style[0] == 4.0) {
+        f_color = texture(tex4, vec2(pass_style[1], pass_style[2]));
+    } else if (pass_style[0] == 5.0) {
+        f_color = texture(tex5, vec2(pass_style[1], pass_style[2]));
+    } else if (pass_style[0] == 6.0) {
+        f_color = texture(tex6, vec2(pass_style[1], pass_style[2]));
+    } else if (pass_style[0] == 7.0) {
+        f_color = texture(tex7, vec2(pass_style[1], pass_style[2]));
+    } else if (pass_style[0] == 8.0) {
+        f_color = texture(tex8, vec2(pass_style[1], pass_style[2]));
+    } else if (pass_style[0] == 9.0) {
+        f_color = texture(tex9, vec2(pass_style[1], pass_style[2]));
     }
 
     if (window[2] == 1.0) {

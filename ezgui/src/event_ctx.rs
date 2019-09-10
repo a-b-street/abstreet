@@ -23,14 +23,13 @@ pub struct Drawable {
 #[derive(Copy, Clone)]
 pub(crate) struct Vertex {
     position: [f32; 2],
-    // TODO For everything? :(   First is (0=no texture, 1=the one fixed texture)
-    tex_coords: [f32; 3],
-    // TODO Maybe pass color as a uniform instead
-    // TODO Or have a fixed palette of colors and just index into it
-    color: [u8; 4],
+    // If the last component is non-zero, then this is an RGBA value.
+    // When the last component is 0, then this is (texture ID, tex coord X, text coord Y, 0)
+    // TODO Make this u8?
+    style: [f32; 4],
 }
 
-implement_vertex!(Vertex, position, tex_coords, color);
+implement_vertex!(Vertex, position, style);
 
 // TODO Don't expose this directly
 pub struct Prerender<'a> {
@@ -70,26 +69,29 @@ impl<'a> Prerender<'a> {
             let (pts, raw_indices) = poly.raw_for_rendering();
             let bounds = poly.get_bounds();
             for pt in pts {
+                // TODO Encode this more directly in Color!
+                let style = if color == Color::rgb(170, 211, 223) {
+                    [
+                        0.0,
+                        ((pt.x() - bounds.min_x) / (bounds.max_x - bounds.min_x)) as f32,
+                        // TODO Maybe need to do y inversion here
+                        ((pt.y() - bounds.min_y) / (bounds.max_y - bounds.min_y)) as f32,
+                        0.0,
+                    ]
+                } else if color == Color::rgb(200, 250, 204) {
+                    [
+                        1.0,
+                        ((pt.x() - bounds.min_x) / (bounds.max_x - bounds.min_x)) as f32,
+                        // TODO Maybe need to do y inversion here
+                        ((pt.y() - bounds.min_y) / (bounds.max_y - bounds.min_y)) as f32,
+                        0.0,
+                    ]
+                } else {
+                    [color.0[0], color.0[1], color.0[2], color.0[3]]
+                };
                 vertices.push(Vertex {
                     position: [pt.x() as f32, pt.y() as f32],
-                    // TODO Maybe need to do y inversion here
-                    tex_coords: [
-                        if color == Color::rgb(170, 211, 223) {
-                            1.0
-                        } else if color == Color::rgb(200, 250, 204) {
-                            2.0
-                        } else {
-                            0.0
-                        },
-                        ((pt.x() - bounds.min_x) / (bounds.max_x - bounds.min_x)) as f32,
-                        ((pt.y() - bounds.min_y) / (bounds.max_y - bounds.min_y)) as f32,
-                    ],
-                    color: [
-                        f32_to_u8(color.0[0]),
-                        f32_to_u8(color.0[1]),
-                        f32_to_u8(color.0[2]),
-                        f32_to_u8(color.0[3]),
-                    ],
+                    style,
                 });
             }
             for idx in raw_indices {
@@ -270,8 +272,4 @@ impl<'a> TimerSink for LoadingScreen<'a> {
         self.lines.push_back(line);
         self.redraw();
     }
-}
-
-fn f32_to_u8(x: f32) -> u8 {
-    (x * 255.0) as u8
 }
