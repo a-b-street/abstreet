@@ -280,6 +280,34 @@ impl InitialMap {
         }
     }
 
+    pub fn move_intersection(&mut self, i: StableIntersectionID, pt: Pt2D, timer: &mut Timer) {
+        for r in &self.intersections[&i].roads {
+            let road = self.roads.get_mut(r).unwrap();
+            road.reset_pts_on_side(i);
+            let mut orig_pts = road.original_center_pts.points().clone();
+            let mut trimmed_pts = road.trimmed_center_pts.points().clone();
+            if road.src_i == i {
+                orig_pts[0] = pt;
+                trimmed_pts[0] = pt;
+            } else if road.dst_i == i {
+                trimmed_pts.pop();
+                trimmed_pts.push(pt);
+
+                orig_pts.pop();
+                orig_pts.push(pt);
+            } else {
+                unreachable!()
+            }
+            road.trimmed_center_pts = PolyLine::new(trimmed_pts);
+            road.original_center_pts = PolyLine::new(orig_pts);
+        }
+
+        // TODO Also fix up the other intersections... make sure to just do it once though!
+
+        let intersection = self.intersections.get_mut(&i).unwrap();
+        intersection.polygon = geometry::intersection_polygon(intersection, &mut self.roads, timer);
+    }
+
     pub fn override_parking(&mut self, r: StableRoadID, has_parking: bool, timer: &mut Timer) {
         let (src_i, dst_i) = {
             let mut road = self.roads.get_mut(&r).unwrap();

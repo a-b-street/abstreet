@@ -34,6 +34,7 @@ enum State {
         selected: Option<ID>,
         osd: Text,
     },
+    MovingIntersection(StableIntersectionID, Text),
 }
 
 impl State {
@@ -255,9 +256,23 @@ impl GUI for UI {
                             osd: Text::new(),
                         };
                         return EventLoopMode::InputOnly;
+                    } else if ctx.input.key_pressed(Key::E, "examine") {
+                        let road = &self.data.roads[r];
+                        println!("{} between {} and {}", road.id, road.src_i, road.dst_i);
+                        println!("Orig pts: {}", road.original_center_pts);
+                        println!("Trimmed pts: {}", road.trimmed_center_pts);
                     }
                 }
                 if let Some(ID::Intersection(i)) = selected {
+                    if ctx.input.key_pressed(Key::LeftControl, "move intersection") {
+                        self.state = State::MovingIntersection(*i, Text::new());
+                        return EventLoopMode::InputOnly;
+                    }
+                    if ctx.input.key_pressed(Key::E, "examine") {
+                        let intersection = &self.data.intersections[i];
+                        println!("{} has roads: {:?}", intersection.id, intersection.roads);
+                        println!("Points: {:?}", intersection.polygon);
+                    }
                     if self.data.intersections[i].roads.len() == 2
                         && ctx.input.key_pressed(Key::M, "merge")
                     {
@@ -323,6 +338,32 @@ impl GUI for UI {
                 ctx.input.populate_osd(osd);
                 EventLoopMode::InputOnly
             }
+            State::MovingIntersection(i, ref mut osd) => {
+                ctx.canvas.handle_event(ctx.input);
+
+                if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+                    if ctx
+                        .input
+                        .key_pressed(Key::LeftControl, "move intersection here")
+                    {
+                        // TODO Record a hint... but have to overwrite
+                        self.data
+                            .move_intersection(i, pt, &mut Timer::new("move intersection"));
+                        self.world = initial_map_to_world(&self.data, ctx);
+                    }
+                }
+
+                if ctx
+                    .input
+                    .key_pressed(Key::Escape, "stop moving intersection")
+                {
+                    self.state = State::main(ctx);
+                    return EventLoopMode::InputOnly;
+                }
+                *osd = Text::new();
+                ctx.input.populate_osd(osd);
+                EventLoopMode::InputOnly
+            }
         }
     }
 
@@ -374,6 +415,10 @@ impl GUI for UI {
                     self.world.draw_selected(g, *id);
                 }
 
+                g.draw_blocking_text(osd, ezgui::BOTTOM_LEFT);
+            }
+            State::MovingIntersection(i, ref osd) => {
+                self.world.draw_selected(g, ID::Intersection(i));
                 g.draw_blocking_text(osd, ezgui::BOTTOM_LEFT);
             }
         }
