@@ -1,6 +1,7 @@
 use crate::screen_geom::ScreenRectangle;
 use crate::{ScreenPt, Text, UserInput};
 use geom::{Bounds, Pt2D};
+use glium::texture::Texture2d;
 use glium_glyph::glyph_brush::rusttype::Scale;
 use glium_glyph::glyph_brush::GlyphCruncher;
 use glium_glyph::GlyphBrush;
@@ -36,6 +37,9 @@ pub struct Canvas {
     // Kind of just ezgui state awkwardly stuck here...
     pub(crate) hide_modal_menus: bool,
     pub(crate) lctrl_held: bool,
+
+    // TODO Definitely a weird place to stash this!
+    pub(crate) textures: HashMap<String, Texture2d>,
 }
 
 impl Canvas {
@@ -65,6 +69,8 @@ impl Canvas {
 
             hide_modal_menus: false,
             lctrl_held: false,
+
+            textures: HashMap::new(),
         }
     }
 

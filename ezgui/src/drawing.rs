@@ -6,12 +6,11 @@ use crate::{
 use geom::{Bounds, Circle, Distance, Line, Polygon, Pt2D};
 use glium::uniforms::UniformValue;
 use glium::Surface;
-
 const NO_HATCHING: f32 = 0.0;
 const HATCHING: f32 = 1.0;
 const SCREENSPACE: f32 = 2.0;
 
-struct Uniforms {
+struct Uniforms<'a> {
     // (cam_x, cam_y, cam_zoom)
     transform: [f32; 3],
     // (window_width, window_height, weird enum)
@@ -21,10 +20,11 @@ struct Uniforms {
     // Things are awkwardly grouped because passing uniforms is either broken or horribly
     // documented.
     window: [f32; 3],
+    canvas: &'a Canvas,
 }
 
-impl Uniforms {
-    fn new(canvas: &Canvas) -> Uniforms {
+impl<'a> Uniforms<'a> {
+    fn new(canvas: &'a Canvas) -> Uniforms<'a> {
         Uniforms {
             transform: [
                 canvas.cam_x as f32,
@@ -36,21 +36,26 @@ impl Uniforms {
                 canvas.window_height as f32,
                 NO_HATCHING,
             ],
+            canvas,
         }
     }
 }
 
-impl glium::uniforms::Uniforms for Uniforms {
+impl<'b> glium::uniforms::Uniforms for Uniforms<'b> {
     fn visit_values<'a, F: FnMut(&str, UniformValue<'a>)>(&'a self, mut output: F) {
         output("transform", UniformValue::Vec3(self.transform));
         output("window", UniformValue::Vec3(self.window));
+        output(
+            "tex",
+            UniformValue::Texture2d(&self.canvas.textures["assets/water_texture.png"], None),
+        );
     }
 }
 
 pub struct GfxCtx<'a> {
     pub(crate) target: &'a mut glium::Frame,
     program: &'a glium::Program,
-    uniforms: Uniforms,
+    uniforms: Uniforms<'a>,
     params: glium::DrawParameters<'a>,
 
     screencap_mode: bool,

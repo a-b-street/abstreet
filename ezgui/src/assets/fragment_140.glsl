@@ -5,11 +5,18 @@ uniform vec3 transform;
 // (window width, window height, hatching == 1.0)
 uniform vec3 window;
 
+uniform sampler2D tex;
+
 in vec4 pass_color;
+in vec3 pass_tex_coords;
 out vec4 f_color;
 
 void main() {
-    f_color = pass_color;
+    if (pass_tex_coords[0] == 0.0) {
+        f_color = pass_color;
+    } else {
+        f_color = texture(tex, vec2(pass_tex_coords[1], pass_tex_coords[2]));
+    }
 
     if (window[2] == 1.0) {
         // The hatching should be done in map-space, so panning/zooming doesn't move the stripes.

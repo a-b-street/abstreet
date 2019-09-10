@@ -23,12 +23,14 @@ pub struct Drawable {
 #[derive(Copy, Clone)]
 pub(crate) struct Vertex {
     position: [f32; 2],
+    // TODO For everything? :(   First is (0=no texture, 1=the one fixed texture)
+    tex_coords: [f32; 3],
     // TODO Maybe pass color as a uniform instead
     // TODO Or have a fixed palette of colors and just index into it
     color: [u8; 4],
 }
 
-implement_vertex!(Vertex, position, color);
+implement_vertex!(Vertex, position, tex_coords, color);
 
 // TODO Don't expose this directly
 pub struct Prerender<'a> {
@@ -66,9 +68,20 @@ impl<'a> Prerender<'a> {
         for (color, poly) in list {
             let idx_offset = vertices.len();
             let (pts, raw_indices) = poly.raw_for_rendering();
+            let bounds = poly.get_bounds();
             for pt in pts {
                 vertices.push(Vertex {
                     position: [pt.x() as f32, pt.y() as f32],
+                    // TODO Maybe need to do y inversion here
+                    tex_coords: [
+                        if color == Color::rgb(170, 211, 223) {
+                            1.0
+                        } else {
+                            0.0
+                        },
+                        ((pt.x() - bounds.min_x) / (bounds.max_x - bounds.min_x)) as f32,
+                        ((pt.y() - bounds.min_y) / (bounds.max_y - bounds.min_y)) as f32,
+                    ],
                     color: [
                         f32_to_u8(color.0[0]),
                         f32_to_u8(color.0[1]),
@@ -150,6 +163,19 @@ impl<'a> EventCtx<'a> {
         self.input.window_lost_cursor()
             || (!self.canvas.is_dragging() && self.input.get_moved_mouse().is_some())
     }
+
+    // TODO Belongs on Prerender?
+    pub fn upload_texture(&mut self, filename: &str) {
+        assert!(!self.canvas.textures.contains_key(filename));
+        let img = image::open(filename).unwrap().to_rgba();
+        let dims = img.dimensions();
+        let tex = glium::texture::Texture2d::new(
+            self.prerender.display,
+            glium::texture::RawImage2d::from_raw_rgba_reversed(&img.into_raw(), dims),
+        )
+        .unwrap();
+        self.canvas.textures.insert(filename.to_string(), tex);
+    }
 }
 
 pub struct LoadingScreen<'a> {
@@ -176,12 +202,19 @@ impl<'a> LoadingScreen<'a> {
             GlyphBrush::new(prerender.display, vec![Font::from_bytes(dejavu).unwrap()]);
         let mapspace_glyphs =
             GlyphBrush::new(prerender.display, vec![Font::from_bytes(dejavu).unwrap()]);
-        let canvas = Canvas::new(
+        let mut canvas = Canvas::new(
             initial_width,
             initial_height,
             screenspace_glyphs,
             mapspace_glyphs,
         );
+
+        // TODO Hack
+        canvas.textures.insert(
+            "assets/water_texture.png".to_string(),
+            glium::texture::Texture2d::empty(prerender.display, 800, 600).unwrap(),
+        );
+
         // TODO Dupe code
         let vmetrics = canvas.screenspace_glyphs.borrow().fonts()[0]
             .v_metrics(Scale::uniform(FONT_SIZE as f32));

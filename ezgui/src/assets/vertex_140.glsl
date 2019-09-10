@@ -6,11 +6,14 @@ uniform vec3 transform;
 uniform vec3 window;
 
 in vec2 position;
+in vec3 tex_coords;
 in vec4 color;
 out vec4 pass_color;
+out vec3 pass_tex_coords;
 
 void main() {
     pass_color = color / 255.0;
+    pass_tex_coords = tex_coords;
 
     // This is map_to_screen
     float screen_x = (position[0] * transform[2]) - transform[0];
