@@ -185,14 +185,9 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(
                 include_str!("assets/vertex_140.glsl"),
                 include_str!("assets/fragment_140.glsl"),
             )
-        } else if display.is_glsl_version_supported(&glium::Version(glium::Api::Gl, 1, 1)) {
-            (
-                include_str!("assets/vertex_110.glsl"),
-                include_str!("assets/fragment_110.glsl"),
-            )
         } else {
             panic!(
-                "GLSL 140 and 110 not supported. Try {:?} or {:?}",
+                "GLSL 140 not supported. Try {:?} or {:?}",
                 display.get_opengl_version(),
                 display.get_supported_glsl_version()
             );
