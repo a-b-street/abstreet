@@ -3,7 +3,7 @@ use crate::ui::PerMapUI;
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ModalMenu, Text,
+    hotkey, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ModalMenu, Text,
     VerticalAlignment, Wizard,
 };
 use geom::Duration;
@@ -118,16 +118,16 @@ impl State for Scoreboard {
 fn browse_trips(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
     let mut wizard = wiz.wrap(ctx);
     let mode = wizard
-        .choose_something("Browse which trips?", || {
+        .choose("Browse which trips?", || {
             vec![
-                ("walk".to_string(), TripMode::Walk),
-                ("bike".to_string(), TripMode::Bike),
-                ("transit".to_string(), TripMode::Transit),
-                ("drive".to_string(), TripMode::Drive),
+                Choice::new("walk", TripMode::Walk),
+                Choice::new("bike", TripMode::Bike),
+                Choice::new("transit", TripMode::Transit),
+                Choice::new("drive", TripMode::Drive),
             ]
         })?
         .1;
-    wizard.choose_something("Examine which trip?", || {
+    wizard.choose("Examine which trip?", || {
         let trips = CompareTrips::new(
             ui.primary.sim.get_finished_trips(),
             ui.secondary.as_ref().unwrap().sim.get_finished_trips(),
@@ -141,7 +141,7 @@ fn browse_trips(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
         filtered.reverse();
         filtered
             .into_iter()
-            .map(|(id, _, t1, t2)| (format!("{} taking {} vs {}", id, t1, t2), *id))
+            .map(|(id, _, t1, t2)| Choice::new(format!("{} taking {} vs {}", id, t1, t2), *id))
             .collect()
     })?;
     // TODO show more details...

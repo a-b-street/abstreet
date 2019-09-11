@@ -12,7 +12,7 @@ use crate::render::{
 use crate::sandbox::SandboxMode;
 use crate::ui::{PerMapUI, ShowEverything, UI};
 use abstutil::Timer;
-use ezgui::{hotkey, lctrl, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, Wizard};
+use ezgui::{hotkey, lctrl, Choice, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, Wizard};
 use map_model::{
     IntersectionID, Lane, LaneID, LaneType, Map, MapEdits, Road, RoadID, TurnID, TurnType,
 };
@@ -300,7 +300,7 @@ fn save_edits(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Trans
     let save = "save edits";
     let cancel = "cancel";
     if wizard
-        .choose_str("Overwrite edits?", vec![save, cancel])?
+        .choose_string("Overwrite edits?", || vec![save, cancel])?
         .as_str()
         == save
     {
@@ -320,9 +320,9 @@ fn load_edits(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Trans
 
     // TODO Exclude current
     let map_name = map.get_name().to_string();
-    let (_, new_edits) = wizard.choose_something("Load which map edits?", || {
-        let mut list = abstutil::load_all_objects("edits", &map_name);
-        list.push(("no_edits".to_string(), MapEdits::new(map_name.clone())));
+    let (_, new_edits) = wizard.choose("Load which map edits?", || {
+        let mut list = Choice::from(abstutil::load_all_objects("edits", &map_name));
+        list.push(Choice::new("no_edits", MapEdits::new(map_name.clone())));
         list
     })?;
     apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
@@ -479,23 +479,23 @@ pub fn apply_map_edits(
 fn make_bulk_edit_lanes(road: RoadID) -> Box<dyn State> {
     WizardState::new(Box::new(move |wiz, ctx, ui| {
         let mut wizard = wiz.wrap(ctx);
-        let (_, from) = wizard.choose_something("Change all lanes of type...", || {
+        let (_, from) = wizard.choose("Change all lanes of type...", || {
             vec![
-                ("driving".to_string(), LaneType::Driving),
-                ("parking".to_string(), LaneType::Parking),
-                ("biking".to_string(), LaneType::Biking),
-                ("bus".to_string(), LaneType::Bus),
+                Choice::new("driving", LaneType::Driving),
+                Choice::new("parking", LaneType::Parking),
+                Choice::new("biking", LaneType::Biking),
+                Choice::new("bus", LaneType::Bus),
             ]
         })?;
-        let (_, to) = wizard.choose_something("Change to all lanes of type...", || {
+        let (_, to) = wizard.choose("Change to all lanes of type...", || {
             vec![
-                ("driving".to_string(), LaneType::Driving),
-                ("parking".to_string(), LaneType::Parking),
-                ("biking".to_string(), LaneType::Biking),
-                ("bus".to_string(), LaneType::Bus),
+                Choice::new("driving", LaneType::Driving),
+                Choice::new("parking", LaneType::Parking),
+                Choice::new("biking", LaneType::Biking),
+                Choice::new("bus", LaneType::Bus),
             ]
             .into_iter()
-            .filter(|(_, lt)| *lt != from)
+            .filter(|c| c.data != from)
             .collect()
         })?;
 

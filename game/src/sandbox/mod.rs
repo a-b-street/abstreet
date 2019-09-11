@@ -13,7 +13,8 @@ use crate::helpers::ID;
 use crate::ui::{PerMapUI, ShowEverything, UI};
 use abstutil::Counter;
 use ezgui::{
-    hotkey, lctrl, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, ModalMenu, Text, Wizard,
+    hotkey, lctrl, Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, ModalMenu, Text,
+    Wizard,
 };
 use geom::Duration;
 use sim::{ParkingSpot, Sim};
@@ -160,8 +161,10 @@ impl State for SandboxMode {
                     .contextual_action(Key::P, format!("examine {} cars parked here", cars.len()))
             {
                 return Transition::Push(WizardState::new(Box::new(move |wiz, ctx, _| {
-                    let _id = wiz.wrap(ctx).choose_something("Examine which car?", || {
-                        cars.iter().map(|c| (c.to_string(), *c)).collect()
+                    let _id = wiz.wrap(ctx).choose("Examine which car?", || {
+                        cars.iter()
+                            .map(|c| Choice::new(c.to_string(), *c))
+                            .collect()
                     })?;
                     Some(Transition::Pop)
                 })));

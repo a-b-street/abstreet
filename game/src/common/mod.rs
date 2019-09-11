@@ -25,7 +25,7 @@ use crate::helpers::ID;
 use crate::render::{AgentColorScheme, DrawOptions, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::UI;
 use ezgui::{
-    Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Line, ModalMenu, Text,
+    Choice, Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Line, ModalMenu, Text,
     VerticalAlignment,
 };
 use std::cell::RefCell;
@@ -67,17 +67,15 @@ impl CommonState {
         if menu.action("change agent colorscheme") {
             return Some(Transition::Push(WizardState::new(Box::new(
                 |wiz, ctx, ui| {
-                    let (_, acs) =
-                        wiz.wrap(ctx)
-                            .choose_something("Which colorscheme for agents?", || {
-                                let mut choices = Vec::new();
-                                for (acs, name) in AgentColorScheme::all() {
-                                    if ui.agent_cs != acs {
-                                        choices.push((name, acs));
-                                    }
-                                }
-                                choices
-                            })?;
+                    let (_, acs) = wiz.wrap(ctx).choose("Which colorscheme for agents?", || {
+                        let mut choices = Vec::new();
+                        for (acs, name) in AgentColorScheme::all() {
+                            if ui.agent_cs != acs {
+                                choices.push(Choice::new(name, acs));
+                            }
+                        }
+                        choices
+                    })?;
                     ui.agent_cs = acs;
                     ui.primary.draw_map.agents.borrow_mut().invalidate_cache();
                     if let Some(ref mut s) = ui.secondary {

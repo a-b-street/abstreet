@@ -2,7 +2,7 @@ use crate::common::CommonState;
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::ui::UI;
-use ezgui::{EventCtx, GfxCtx, Key, ModalMenu, Text, WarpingItemSlider};
+use ezgui::{Choice, EventCtx, GfxCtx, Key, ModalMenu, Text, WarpingItemSlider};
 use geom::Pt2D;
 use map_model::{BusRoute, BusRouteID, BusStopID, Map};
 
@@ -101,14 +101,12 @@ impl BusRoutePicker {
 
 fn make_bus_route_picker(choices: Vec<BusRouteID>) -> Box<dyn State> {
     WizardState::new(Box::new(move |wiz, ctx, ui| {
-        let (_, id) = wiz
-            .wrap(ctx)
-            .choose_something("Explore which bus route?", || {
-                choices
-                    .iter()
-                    .map(|id| (ui.primary.map.get_br(*id).name.clone(), *id))
-                    .collect()
-            })?;
+        let (_, id) = wiz.wrap(ctx).choose("Explore which bus route?", || {
+            choices
+                .iter()
+                .map(|id| Choice::new(&ui.primary.map.get_br(*id).name, *id))
+                .collect()
+        })?;
         Some(Transition::Replace(Box::new(BusRouteExplorer::for_route(
             ui.primary.map.get_br(id),
             &ui.primary.map,

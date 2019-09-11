@@ -6,7 +6,7 @@ use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, MultiMap, WeightedUsizeChoice};
 use ezgui::{
-    hotkey, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, ModalMenu, Text, Wizard,
+    hotkey, Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, ModalMenu, Text, Wizard,
     WrappedWizard,
 };
 use geom::Duration;
@@ -268,10 +268,9 @@ fn edit_scenario(map: &Map, scenario: &mut Scenario, mut wizard: WrappedWizard) 
     let spawn_border = "Spawn agents from a border";
     let randomize = "Randomly spawn stuff from/to every neighborhood";
     match wizard
-        .choose_str(
-            "What kind of edit?",
-            vec![seed_parked, spawn, spawn_border, randomize],
-        )?
+        .choose_string("What kind of edit?", || {
+            vec![seed_parked, spawn, spawn_border, randomize]
+        })?
         .as_str()
     {
         x if x == seed_parked => {
@@ -351,8 +350,8 @@ fn edit_scenario(map: &Map, scenario: &mut Scenario, mut wizard: WrappedWizard) 
 fn choose_neighborhood(map: &Map, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
     // Load the full object, since we usually visualize the neighborhood when menuing over it
     wizard
-        .choose_something(query, || {
-            Neighborhood::load_all(map.get_name(), map.get_gps_bounds())
+        .choose(query, || {
+            Choice::from(Neighborhood::load_all(map.get_name(), map.get_gps_bounds()))
         })
         .map(|(n, _)| n)
 }
@@ -381,7 +380,7 @@ fn choose_origin_destination(
 ) -> Option<OriginDestination> {
     let neighborhood = "Neighborhood";
     let border = "Border intersection";
-    if wizard.choose_str(query, vec![neighborhood, border])? == neighborhood {
+    if wizard.choose_string(query, || vec![neighborhood, border])? == neighborhood {
         choose_neighborhood(map, wizard, query).map(OriginDestination::Neighborhood)
     } else {
         choose_intersection(wizard, query).map(OriginDestination::Border)
@@ -396,13 +395,13 @@ fn make_trip_picker(
     WizardState::new(Box::new(move |wiz, ctx, ui| {
         let warp_to = wiz
             .wrap(ctx)
-            .choose_something("Trips from/to this building", || {
+            .choose("Trips from/to this building", || {
                 // TODO Panics if there are two duplicate trips (b1124 in montlake)
                 indices
                     .iter()
                     .map(|idx| {
                         let trip = &scenario.individ_trips[*idx];
-                        (describe(trip, home), other_endpt(trip, home))
+                        Choice::new(describe(trip, home), other_endpt(trip, home))
                     })
                     .collect()
             })?

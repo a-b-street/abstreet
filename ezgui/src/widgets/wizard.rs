@@ -328,30 +328,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         }
     }
 
-    pub fn choose_something<R: 'static + Clone + Cloneable, F: FnOnce() -> Vec<(String, R)>>(
-        &mut self,
-        query: &str,
-        choices_generator: F,
-    ) -> Option<(String, R)> {
-        self.choose(query, || {
-            choices_generator()
-                .into_iter()
-                .map(|(s, data)| Choice::new(s, data))
-                .collect()
-        })
-    }
-
-    pub fn choose_str(&mut self, query: &str, choices: Vec<&str>) -> Option<String> {
-        self.choose(query, || {
-            choices
-                .into_iter()
-                .map(|s| Choice::new(s.to_string(), ()))
-                .collect()
-        })
-        .map(|(s, _)| s)
-    }
-
-    pub fn choose_string<F: Fn() -> Vec<String>>(
+    pub fn choose_string<S: Into<String>, F: Fn() -> Vec<S>>(
         &mut self,
         query: &str,
         choices_generator: F,
@@ -404,7 +381,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
 
 pub struct Choice<T: Clone> {
     label: String,
-    data: T,
+    pub data: T,
     hotkey: Option<MultiKey>,
     active: bool,
 }
@@ -417,6 +394,13 @@ impl<T: Clone> Choice<T> {
             hotkey: None,
             active: true,
         }
+    }
+
+    pub fn from(tuples: Vec<(String, T)>) -> Vec<Choice<T>> {
+        tuples
+            .into_iter()
+            .map(|(label, data)| Choice::new(label, data))
+            .collect()
     }
 
     pub fn key(mut self, key: Key) -> Choice<T> {

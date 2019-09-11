@@ -1,6 +1,6 @@
 use crate::game::{State, Transition};
 use crate::ui::UI;
-use ezgui::{hotkey, Color, EventCtx, GfxCtx, Key, ModalMenu, Wizard, WrappedWizard};
+use ezgui::{hotkey, Choice, Color, EventCtx, GfxCtx, Key, ModalMenu, Wizard, WrappedWizard};
 use geom::{Circle, Distance, Line, Polygon, Pt2D};
 use map_model::{Map, NeighborhoodBuilder};
 
@@ -170,10 +170,9 @@ impl State for NeighborhoodEditor {
 fn pick_neighborhood(map: &Map, mut wizard: WrappedWizard) -> Option<NeighborhoodBuilder> {
     let load_existing = "Load existing neighborhood";
     let create_new = "Create new neighborhood";
-    if wizard.choose_str(
-        "What neighborhood to edit?",
-        vec![load_existing, create_new],
-    )? == load_existing
+    if wizard.choose_string("What neighborhood to edit?", || {
+        vec![load_existing, create_new]
+    })? == load_existing
     {
         load_neighborhood_builder(map, &mut wizard, "Load which neighborhood?")
     } else {
@@ -192,8 +191,11 @@ fn load_neighborhood_builder(
     query: &str,
 ) -> Option<NeighborhoodBuilder> {
     wizard
-        .choose_something(query, || {
-            abstutil::load_all_objects(abstutil::NEIGHBORHOODS, &map.get_name())
+        .choose(query, || {
+            Choice::from(abstutil::load_all_objects(
+                abstutil::NEIGHBORHOODS,
+                &map.get_name(),
+            ))
         })
         .map(|(_, n)| n)
 }

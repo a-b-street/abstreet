@@ -3,7 +3,7 @@ use crate::edit::apply_map_edits;
 use crate::game::{State, Transition, WizardState};
 use crate::render::DrawMap;
 use crate::ui::{Flags, PerMapUI, UI};
-use ezgui::{hotkey, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, Wizard, WrappedWizard};
+use ezgui::{hotkey, Choice, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, Wizard, WrappedWizard};
 use geom::Duration;
 use map_model::MapEdits;
 use sim::{ABTest, Scenario, SimFlags};
@@ -20,13 +20,16 @@ fn pick_ab_test(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
     let mut wizard = wiz.wrap(ctx);
     let load_existing = "Load existing A/B test";
     let create_new = "Create new A/B test";
-    let ab_test = if wizard
-        .choose_str("What A/B test to manage?", vec![load_existing, create_new])?
-        == load_existing
+    let ab_test = if wizard.choose_string("What A/B test to manage?", || {
+        vec![load_existing, create_new]
+    })? == load_existing
     {
         wizard
-            .choose_something("Load which A/B test?", || {
-                abstutil::load_all_objects(abstutil::AB_TESTS, ui.primary.map.get_name())
+            .choose("Load which A/B test?", || {
+                Choice::from(abstutil::load_all_objects(
+                    abstutil::AB_TESTS,
+                    ui.primary.map.get_name(),
+                ))
             })?
             .1
     } else {

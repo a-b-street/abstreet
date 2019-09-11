@@ -73,12 +73,12 @@ impl State for Scoreboard {
 
 fn browse_trips(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
     let mut wizard = wiz.wrap(ctx);
-    let (_, mode) = wizard.choose_something("Browse which trips?", || {
+    let (_, mode) = wizard.choose("Browse which trips?", || {
         vec![
-            ("walk".to_string(), TripMode::Walk),
-            ("bike".to_string(), TripMode::Bike),
-            ("transit".to_string(), TripMode::Transit),
-            ("drive".to_string(), TripMode::Drive),
+            Choice::new("walk", TripMode::Walk),
+            Choice::new("bike", TripMode::Bike),
+            Choice::new("transit", TripMode::Transit),
+            Choice::new("drive", TripMode::Drive),
         ]
     })?;
     wizard.choose("Examine which trip?", || {

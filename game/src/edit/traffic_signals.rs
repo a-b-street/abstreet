@@ -5,7 +5,7 @@ use crate::helpers::ID;
 use crate::render::{draw_signal_cycle, DrawCtx, DrawOptions, DrawTurn, TrafficSignalDiagram};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
-use ezgui::{hotkey, Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu};
+use ezgui::{hotkey, Choice, Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu};
 use geom::Duration;
 use map_model::{ControlTrafficSignal, Cycle, IntersectionID, TurnID, TurnPriority, TurnType};
 
@@ -292,11 +292,14 @@ fn make_change_cycle_duration(current_duration: Duration) -> Box<dyn State> {
 
 fn make_change_preset(i: IntersectionID) -> Box<dyn State> {
     WizardState::new(Box::new(move |wiz, ctx, ui| {
-        let (_, new_signal) = wiz
-            .wrap(ctx)
-            .choose_something("Use which preset for this intersection?", || {
-                ControlTrafficSignal::get_possible_policies(&ui.primary.map, i)
-            })?;
+        let (_, new_signal) =
+            wiz.wrap(ctx)
+                .choose("Use which preset for this intersection?", || {
+                    Choice::from(ControlTrafficSignal::get_possible_policies(
+                        &ui.primary.map,
+                        i,
+                    ))
+                })?;
         Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
             let mut editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
             change_traffic_signal(new_signal, editor.diagram.i, ui, ctx);
