@@ -1,17 +1,15 @@
 use abstutil::{read_binary, Timer};
-use viewer::World;
-use ezgui::{EventCtx, Prerender, Color, GfxCtx, Text};
-use geom::{Circle, Bounds, Distance, LonLat, PolyLine, Polygon, Pt2D};
+use ezgui::{Color, EventCtx, GfxCtx, Prerender, Text};
+use geom::{Bounds, Circle, Distance, LonLat, PolyLine, Polygon, Pt2D};
 use map_model::raw_data::{StableIntersectionID, StableRoadID};
 use map_model::{raw_data, IntersectionType, LaneType, RoadSpec, LANE_THICKNESS};
-use std::collections::{HashSet, BTreeMap};
+use std::collections::BTreeMap;
 use std::mem;
+use viewer::World;
 
 const INTERSECTION_RADIUS: Distance = Distance::const_meters(5.0);
 const BUILDING_LENGTH: Distance = Distance::const_meters(30.0);
 const CENTER_LINE_THICKNESS: Distance = Distance::const_meters(0.5);
-
-const HIGHLIGHT_COLOR: Color = Color::CYAN;
 
 pub type BuildingID = usize;
 pub type Direction = bool;
@@ -145,9 +143,7 @@ impl Model {
     pub fn draw(&self, g: &mut GfxCtx) {
         g.clear(Color::WHITE);
 
-        self.world.draw(g, &HashSet::new());
-
-        // TODO HIGHLIGHT_COLOR
+        self.world.draw(g);
 
         // TODO Always draw labels?
         /*if let Some(ref label) = i.label {
@@ -155,8 +151,12 @@ impl Model {
         }*/
     }
 
-    pub fn mouseover_something(&self, ctx: &EventCtx) -> Option<ID> {
-        self.world.mouseover_something(ctx, &HashSet::new())
+    pub fn handle_mouseover(&mut self, ctx: &EventCtx) {
+        self.world.handle_mouseover(ctx);
+    }
+
+    pub fn get_selection(&self) -> Option<ID> {
+        self.world.get_selection()
     }
 
     fn compute_bounds(&self) -> Bounds {
@@ -302,7 +302,8 @@ impl Model {
                 b.polygon(),
                 Color::BLUE,
                 // TODO Always show its label?
-                Text::new());
+                Text::new(),
+            );
         }
 
         for (id, i) in &self.intersections {
@@ -315,17 +316,14 @@ impl Model {
                     IntersectionType::StopSign => Color::RED,
                     IntersectionType::Border => Color::BLUE,
                 },
-                Text::new());
+                Text::new(),
+            );
         }
 
         for (id, r) in &self.roads {
             for (dir, idx, poly, color) in r.polygons(self) {
-                self.world.add_obj(
-                    prerender,
-                    ID::Lane(*id, dir, idx),
-                    poly,
-                    color,
-                    Text::new());
+                self.world
+                    .add_obj(prerender, ID::Lane(*id, dir, idx), poly, color, Text::new());
             }
         }
     }

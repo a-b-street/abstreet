@@ -1,7 +1,7 @@
 use aabb_quadtree::QuadTree;
 use ezgui::{Color, Drawable, EventCtx, GfxCtx, Prerender, Text};
-use geom::{Bounds, Circle, Distance, Polygon, Pt2D};
-use std::collections::{HashMap, HashSet};
+use geom::{Bounds, Circle, Distance, Polygon};
+use std::collections::HashMap;
 use std::fmt::Debug;
 use std::hash::Hash;
 
@@ -19,6 +19,7 @@ struct Object {
 pub struct World<ID: ObjectID> {
     objects: HashMap<ID, Object>,
     quadtree: QuadTree<ID>,
+    current_selection: Option<ID>,
 }
 
 impl<ID: ObjectID> World<ID> {
@@ -26,31 +27,39 @@ impl<ID: ObjectID> World<ID> {
         World {
             objects: HashMap::new(),
             quadtree: QuadTree::default(bounds.as_bbox()),
+            current_selection: None,
         }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, hide: &HashSet<ID>) {
+    pub fn draw(&self, g: &mut GfxCtx) {
         let mut objects: Vec<ID> = Vec::new();
         for &(id, _, _) in &self.quadtree.query(g.get_screen_bounds().as_bbox()) {
-            if !hide.contains(id) {
-                objects.push(*id);
-            }
+            objects.push(*id);
         }
         objects.sort_by_key(|id| id.zorder());
 
         for id in objects {
             g.redraw(&self.objects[&id].draw);
         }
+
+        if let Some(id) = self.current_selection {
+            let obj = &self.objects[&id];
+            g.draw_polygon(Color::BLUE, &obj.polygon);
+            g.draw_mouse_tooltip(&obj.info);
+        }
     }
 
-    pub fn draw_selected(&self, g: &mut GfxCtx, id: ID) {
-        let obj = &self.objects[&id];
-        g.draw_polygon(Color::BLUE, &obj.polygon);
-        g.draw_mouse_tooltip(&obj.info);
-    }
+    pub fn handle_mouseover(&mut self, ctx: &EventCtx) {
+        if !ctx.redo_mouseover() {
+            return;
+        }
+        self.current_selection = None;
 
-    pub fn mouseover_something(&self, ctx: &EventCtx, hide: &HashSet<ID>) -> Option<ID> {
-        let cursor = ctx.canvas.get_cursor_in_map_space()?;
+        let cursor = if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+            pt
+        } else {
+            return;
+        };
 
         let mut objects: Vec<ID> = Vec::new();
         for &(id, _, _) in &self.quadtree.query(
@@ -58,19 +67,21 @@ impl<ID: ObjectID> World<ID> {
                 .get_bounds()
                 .as_bbox(),
         ) {
-            if !hide.contains(id) {
-                objects.push(*id);
-            }
+            objects.push(*id);
         }
         objects.sort_by_key(|id| id.zorder());
         objects.reverse();
 
         for id in objects {
             if self.objects[&id].polygon.contains_pt(cursor) {
-                return Some(id);
+                self.current_selection = Some(id);
+                return;
             }
         }
-        None
+    }
+
+    pub fn get_selection(&self) -> Option<ID> {
+        self.current_selection
     }
 
     pub fn add_obj(
@@ -92,9 +103,5 @@ impl<ID: ObjectID> World<ID> {
                 info,
             },
         );
-    }
-
-    pub fn get_center(&self, id: ID) -> Pt2D {
-        self.objects[&id].polygon.center()
     }
 }

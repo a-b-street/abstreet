@@ -6,7 +6,6 @@ use ezgui::{
 use geom::{Circle, Distance, PolyLine, Polygon};
 use map_model::raw_data::{Hint, Hints, InitialMap, Map, StableIntersectionID, StableRoadID};
 use map_model::LANE_THICKNESS;
-use std::collections::HashSet;
 use std::{env, process};
 use viewer::World;
 
@@ -22,18 +21,9 @@ struct UI {
 }
 
 enum State {
-    Main {
-        menu: ModalMenu,
-        // TODO Or, if these are common things, the World could also hold this state.
-        selected: Option<ID>,
-        osd: Text,
-    },
+    Main { menu: ModalMenu, osd: Text },
     BrowsingHints(WarpingItemSlider<Hint>),
-    BanTurnsBetween {
-        from: StableRoadID,
-        selected: Option<ID>,
-        osd: Text,
-    },
+    BanTurnsBetween { from: StableRoadID, osd: Text },
     MovingIntersection(StableIntersectionID, Text),
 }
 
@@ -51,7 +41,6 @@ impl State {
                 ]],
                 ctx,
             ),
-            selected: None,
             osd: Text::new(),
         }
     }
@@ -84,10 +73,11 @@ impl GUI for UI {
         match self.state {
             State::Main {
                 ref mut menu,
-                ref mut selected,
                 ref mut osd,
             } => {
                 {
+                    self.world.handle_mouseover(ctx);
+
                     let len = self.hints.hints.len();
                     let mut txt = Text::prompt("Fix Map Geometry");
                     txt.add(Line(len.to_string()).fg(Color::CYAN));
@@ -96,7 +86,7 @@ impl GUI for UI {
                         Line(self.hints.parking_overrides.len().to_string()).fg(Color::CYAN),
                     );
                     txt.append(Line(" parking overrides"));
-                    if let Some(ID::Road(r)) = selected {
+                    if let Some(ID::Road(r)) = self.world.get_selection() {
                         txt.add(Line(r.to_string()).fg(Color::RED));
                         txt.append(Line(format!(
                             " is {} long",
@@ -113,7 +103,7 @@ impl GUI for UI {
                             txt.append(Line(v).fg(Color::CYAN));
                         }
                     }
-                    if let Some(ID::Intersection(i)) = selected {
+                    if let Some(ID::Intersection(i)) = self.world.get_selection() {
                         txt.add(Line(i.to_string()).fg(Color::RED));
                         txt.append(Line(" OSM tag diffs:"));
                         let roads = &self.data.intersections[&i].roads;
@@ -153,10 +143,6 @@ impl GUI for UI {
                     menu.handle_event(ctx, Some(txt));
                 }
                 ctx.canvas.handle_event(ctx.input);
-
-                if ctx.redo_mouseover() {
-                    *selected = self.world.mouseover_something(ctx, &HashSet::new());
-                }
 
                 if menu.action("quit") {
                     process::exit(0);
@@ -205,7 +191,6 @@ impl GUI for UI {
                         false
                     };
                     if recalc {
-                        *selected = None;
                         ctx.loading_screen("recalculate map from hints", |ctx, mut timer| {
                             self.data = InitialMap::new(
                                 self.data.name.clone(),
@@ -220,28 +205,26 @@ impl GUI for UI {
                     }
                 }
 
-                if let Some(ID::Road(r)) = selected {
+                if let Some(ID::Road(r)) = self.world.get_selection() {
                     if ctx.input.key_pressed(Key::M, "merge") {
                         self.hints
                             .hints
                             .push(Hint::MergeRoad(self.raw.roads[&r].orig_id));
-                        self.data.merge_road(*r, &mut Timer::new("merge road"));
+                        self.data.merge_road(r, &mut Timer::new("merge road"));
                         self.world = initial_map_to_world(&self.data, ctx);
-                        *selected = None;
                     } else if ctx.input.key_pressed(Key::D, "delete") {
                         self.hints
                             .hints
-                            .push(Hint::DeleteRoad(self.raw.roads[r].orig_id));
-                        self.data.delete_road(*r, &mut Timer::new("delete road"));
+                            .push(Hint::DeleteRoad(self.raw.roads[&r].orig_id));
+                        self.data.delete_road(r, &mut Timer::new("delete road"));
                         self.world = initial_map_to_world(&self.data, ctx);
-                        *selected = None;
                     } else if ctx.input.key_pressed(Key::P, "toggle parking") {
                         let has_parking = !self.data.roads[&r].has_parking();
                         self.hints
                             .parking_overrides
-                            .insert(self.raw.roads[r].orig_id, has_parking);
+                            .insert(self.raw.roads[&r].orig_id, has_parking);
                         self.data.override_parking(
-                            *r,
+                            r,
                             has_parking,
                             &mut Timer::new("override parking"),
                         );
@@ -251,40 +234,38 @@ impl GUI for UI {
                         .key_pressed(Key::T, "ban turns between this road and another")
                     {
                         self.state = State::BanTurnsBetween {
-                            from: *r,
-                            selected: *selected,
+                            from: r,
                             osd: Text::new(),
                         };
                         return EventLoopMode::InputOnly;
                     } else if ctx.input.key_pressed(Key::E, "examine") {
-                        let road = &self.data.roads[r];
+                        let road = &self.data.roads[&r];
                         println!("{} between {} and {}", road.id, road.src_i, road.dst_i);
                         println!("Orig pts: {}", road.original_center_pts);
                         println!("Trimmed pts: {}", road.trimmed_center_pts);
                     }
                 }
-                if let Some(ID::Intersection(i)) = selected {
+                if let Some(ID::Intersection(i)) = self.world.get_selection() {
                     if ctx.input.key_pressed(Key::LeftControl, "move intersection") {
-                        self.state = State::MovingIntersection(*i, Text::new());
+                        self.state = State::MovingIntersection(i, Text::new());
                         return EventLoopMode::InputOnly;
                     }
                     if ctx.input.key_pressed(Key::E, "examine") {
-                        let intersection = &self.data.intersections[i];
+                        let intersection = &self.data.intersections[&i];
                         println!("{} has roads: {:?}", intersection.id, intersection.roads);
                         println!("Points: {:?}", intersection.polygon);
                     }
-                    if self.data.intersections[i].roads.len() == 2
+                    if self.data.intersections[&i].roads.len() == 2
                         && ctx.input.key_pressed(Key::M, "merge")
                     {
                         self.hints.hints.push(Hint::MergeDegenerateIntersection(
-                            self.raw.intersections[i].orig_id,
+                            self.raw.intersections[&i].orig_id,
                         ));
                         self.data.merge_degenerate_intersection(
-                            *i,
+                            i,
                             &mut Timer::new("merge intersection"),
                         );
                         self.world = initial_map_to_world(&self.data, ctx);
-                        *selected = None;
                     }
                 }
 
@@ -301,32 +282,25 @@ impl GUI for UI {
                     EventLoopMode::InputOnly
                 }
             }
-            State::BanTurnsBetween {
-                from,
-                ref mut selected,
-                ref mut osd,
-            } => {
+            State::BanTurnsBetween { from, ref mut osd } => {
                 ctx.canvas.handle_event(ctx.input);
-
-                if ctx.redo_mouseover() {
-                    *selected = self.world.mouseover_something(ctx, &HashSet::new());
-                }
+                self.world.handle_mouseover(ctx);
 
                 if ctx.input.key_pressed(Key::Escape, "cancel") {
                     self.state = State::main(ctx);
                     return EventLoopMode::InputOnly;
-                } else if let Some(ID::Road(r)) = selected {
+                } else if let Some(ID::Road(r)) = self.world.get_selection() {
                     // TODO Why do we use data and not raw here?
                     let (i1, i2) = (self.data.roads[&from].src_i, self.data.roads[&from].dst_i);
-                    let (i3, i4) = (self.data.roads[r].src_i, self.data.roads[r].dst_i);
+                    let (i3, i4) = (self.data.roads[&r].src_i, self.data.roads[&r].dst_i);
 
-                    if from != *r
+                    if from != r
                         && (i1 == i3 || i1 == i4 || i2 == i3 || i2 == i4)
                         && ctx.input.key_pressed(Key::T, "ban turns to this road")
                     {
                         self.hints.hints.push(Hint::BanTurnsBetween(
                             self.raw.roads[&from].orig_id,
-                            self.raw.roads[r].orig_id,
+                            self.raw.roads[&r].orig_id,
                         ));
                         // There's nothing to change about our model here.
                         self.state = State::main(ctx);
@@ -370,18 +344,10 @@ impl GUI for UI {
     fn draw(&self, g: &mut GfxCtx) {
         g.clear(Color::WHITE);
 
-        self.world.draw(g, &HashSet::new());
+        self.world.draw(g);
 
         match self.state {
-            State::Main {
-                ref selected,
-                ref menu,
-                ref osd,
-            } => {
-                if let Some(id) = selected {
-                    self.world.draw_selected(g, *id);
-                }
-
+            State::Main { ref menu, ref osd } => {
                 menu.draw(g);
                 g.draw_blocking_text(osd, ezgui::BOTTOM_LEFT);
             }
@@ -406,19 +372,10 @@ impl GUI for UI {
 
                 slider.draw(g);
             }
-            State::BanTurnsBetween {
-                ref selected,
-                ref osd,
-                ..
-            } => {
-                if let Some(id) = selected {
-                    self.world.draw_selected(g, *id);
-                }
-
+            State::BanTurnsBetween { ref osd, .. } => {
                 g.draw_blocking_text(osd, ezgui::BOTTOM_LEFT);
             }
-            State::MovingIntersection(i, ref osd) => {
-                self.world.draw_selected(g, ID::Intersection(i));
+            State::MovingIntersection(_, ref osd) => {
                 g.draw_blocking_text(osd, ezgui::BOTTOM_LEFT);
             }
         }

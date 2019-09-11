@@ -40,6 +40,8 @@ impl UI {
 impl GUI for UI {
     fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode {
         ctx.canvas.handle_event(ctx.input);
+        self.model.handle_mouseover(ctx);
+
         let cursor = {
             if let Some(c) = ctx.canvas.get_cursor_in_map_space() {
                 c
@@ -47,7 +49,6 @@ impl GUI for UI {
                 return EventLoopMode::InputOnly;
             }
         };
-        let selected = self.model.mouseover_something(ctx);
 
         match self.state {
             State::MovingIntersection(id) => {
@@ -98,7 +99,7 @@ impl GUI for UI {
             State::CreatingRoad(i1) => {
                 if ctx.input.key_pressed(Key::Escape, "stop defining road") {
                     self.state = State::Viewing;
-                } else if let Some(ID::Intersection(i2)) = selected {
+                } else if let Some(ID::Intersection(i2)) = self.model.get_selection() {
                     if i1 != i2 && ctx.input.key_pressed(Key::R, "finalize road") {
                         self.model.create_road(i1, i2);
                         self.state = State::Viewing;
@@ -126,7 +127,7 @@ impl GUI for UI {
                 }
             }
             State::Viewing => {
-                if let Some(ID::Intersection(i)) = selected {
+                if let Some(ID::Intersection(i)) = self.model.get_selection() {
                     if ctx.input.key_pressed(Key::LeftControl, "move intersection") {
                         self.state = State::MovingIntersection(i);
                     } else if ctx.input.key_pressed(Key::R, "create road") {
@@ -138,7 +139,7 @@ impl GUI for UI {
                     } else if ctx.input.key_pressed(Key::L, "label intersection") {
                         self.state = State::LabelingIntersection(i, Wizard::new());
                     }
-                } else if let Some(ID::Building(b)) = selected {
+                } else if let Some(ID::Building(b)) = self.model.get_selection() {
                     if ctx.input.key_pressed(Key::LeftControl, "move building") {
                         self.state = State::MovingBuilding(b);
                     } else if ctx.input.key_pressed(Key::Backspace, "delete building") {
@@ -146,7 +147,7 @@ impl GUI for UI {
                     } else if ctx.input.key_pressed(Key::L, "label building") {
                         self.state = State::LabelingBuilding(b, Wizard::new());
                     }
-                } else if let Some(ID::Lane(r, dir, _)) = selected {
+                } else if let Some(ID::Lane(r, dir, _)) = self.model.get_selection() {
                     if ctx
                         .input
                         .key_pressed(Key::Backspace, &format!("delete road {}", r))
@@ -210,6 +211,10 @@ impl GUI for UI {
 fn main() {
     let args: Vec<String> = env::args().collect();
     ezgui::run("Synthetic map editor", 1024.0, 768.0, |ctx| {
-        UI::new(args.get(1), args.get(2) == Some(&"--nobldgs".to_string()), ctx)
+        UI::new(
+            args.get(1),
+            args.get(2) == Some(&"--nobldgs".to_string()),
+            ctx,
+        )
     });
 }
