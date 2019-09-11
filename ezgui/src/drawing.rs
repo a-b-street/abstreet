@@ -1,7 +1,7 @@
 use crate::input::ContextMenu;
 use crate::{text, Canvas, Color, HorizontalAlignment, Key, ScreenPt, Text, VerticalAlignment};
 use geom::{Bounds, Circle, Distance, Line, Polygon, Pt2D};
-use glium::uniforms::UniformValue;
+use glium::uniforms::{SamplerBehavior, SamplerWrapFunction, UniformValue};
 use glium::Surface;
 use std::cell::Cell;
 
@@ -44,8 +44,20 @@ impl<'b> glium::uniforms::Uniforms for Uniforms<'b> {
     fn visit_values<'a, F: FnMut(&str, UniformValue<'a>)>(&'a self, mut output: F) {
         output("transform", UniformValue::Vec3(self.transform));
         output("window", UniformValue::Vec3(self.window));
+
+        let tile = SamplerBehavior {
+            wrap_function: (
+                SamplerWrapFunction::Repeat,
+                SamplerWrapFunction::Repeat,
+                SamplerWrapFunction::Repeat,
+            ),
+            ..Default::default()
+        };
         for (idx, (_, tex)) in self.canvas.textures.iter().enumerate() {
-            output(&format!("tex{}", idx), UniformValue::Texture2d(tex, None));
+            output(
+                &format!("tex{}", idx),
+                UniformValue::Texture2d(tex, Some(tile)),
+            );
         }
     }
 }
@@ -408,23 +420,16 @@ impl<'a> Prerender<'a> {
         for (color, poly) in list {
             let idx_offset = vertices.len();
             let (pts, raw_indices) = poly.raw_for_rendering();
-            let mut maybe_bounds = None;
             for pt in pts {
                 let style = match color {
                     Color::RGBA(r, g, b, a) => [r, g, b, a],
-                    Color::Texture(id) => {
-                        if maybe_bounds.is_none() {
-                            maybe_bounds = Some(poly.get_bounds());
-                        }
-                        let b = maybe_bounds.as_ref().unwrap();
-
-                        [
-                            id,
-                            ((pt.x() - b.min_x) / (b.max_x - b.min_x)) as f32,
-                            // TODO Maybe need to do y inversion here
-                            ((pt.y() - b.min_y) / (b.max_y - b.min_y)) as f32,
-                            0.0,
-                        ]
+                    Color::Texture(id, (tex_width, tex_height)) => {
+                        // The texture uses SamplerWrapFunction::Repeat, so don't clamp to [0, 1].
+                        // Also don't offset based on the polygon's bounds -- even if there are
+                        // separate but adjacent polygons, we want seamless tiling.
+                        let tx = pt.x() / tex_width;
+                        let ty = pt.y() / tex_height;
+                        [id, tx as f32, ty as f32, 0.0]
                     }
                 };
                 vertices.push(Vertex {
