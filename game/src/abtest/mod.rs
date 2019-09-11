@@ -129,7 +129,9 @@ impl State for ABTestMode {
             return Transition::Push(Box::new(explorer));
         }
 
-        self.primary_agent_tools.event(ctx, ui, &mut self.menu);
+        if let Some(t) = self.primary_agent_tools.event(ctx, ui, &mut self.menu) {
+            return t;
+        }
 
         if self.menu.action("save state") {
             ctx.loading_screen("savestate", |_, timer| {

@@ -391,11 +391,10 @@ impl<T: Clone> Menu<T> {
                 return;
             }
         }
-        // TODO Fix a violation of this, then enable.
-        /*panic!(
+        panic!(
             "Menu with prompt {:?} has no choice {} to mark active",
             self.prompt, label
-        );*/
+        );
     }
 
     pub fn mark_all_inactive(&mut self) {

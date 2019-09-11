@@ -108,7 +108,9 @@ impl State for SandboxMode {
             return Transition::Push(Box::new(explorer));
         }
 
-        self.agent_tools.event(ctx, ui, &mut self.menu);
+        if let Some(t) = self.agent_tools.event(ctx, ui, &mut self.menu) {
+            return t;
+        }
         if ui.primary.current_selection.is_none() && self.menu.action("start time traveling") {
             return self.time_travel.start(ctx, ui);
         }

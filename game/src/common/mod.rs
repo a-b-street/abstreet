@@ -20,22 +20,19 @@ pub use self::speed::SpeedControls;
 pub use self::time::time_controls;
 pub use self::trip_explorer::TripExplorer;
 pub use self::warp::Warping;
-use crate::game::{Transition, WizardState};
+use crate::game::Transition;
 use crate::helpers::ID;
-use crate::render::{AgentColorScheme, DrawOptions, MIN_ZOOM_FOR_DETAIL};
+use crate::render::DrawOptions;
 use crate::ui::UI;
 use ezgui::{
-    Choice, Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Line, ModalMenu, Text,
+    Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Line, ModalMenu, Text,
     VerticalAlignment,
 };
-use std::cell::RefCell;
 use std::collections::BTreeSet;
 
 pub struct CommonState {
     associated: associated::ShowAssociatedState,
     turn_cycler: turn_cycler::TurnCyclerState,
-    // Weird to stash this here and lazily sync it, but...
-    agent_cs_legend: RefCell<Option<(AgentColorScheme, ColorLegend)>>,
 }
 
 impl CommonState {
@@ -43,7 +40,6 @@ impl CommonState {
         CommonState {
             associated: associated::ShowAssociatedState::Inactive,
             turn_cycler: turn_cycler::TurnCyclerState::Inactive,
-            agent_cs_legend: RefCell::new(None),
         }
     }
 
@@ -61,29 +57,6 @@ impl CommonState {
         }
         if menu.action("shortcuts") {
             return Some(Transition::Push(shortcuts::ChoosingShortcut::new()));
-        }
-        // TODO Maybe move this to AgentTools. Maybe add a menu status note showing what scheme is
-        // currently active.
-        if menu.action("change agent colorscheme") {
-            return Some(Transition::Push(WizardState::new(Box::new(
-                |wiz, ctx, ui| {
-                    let (_, acs) = wiz.wrap(ctx).choose("Which colorscheme for agents?", || {
-                        let mut choices = Vec::new();
-                        for (acs, name) in AgentColorScheme::all() {
-                            if ui.agent_cs != acs {
-                                choices.push(Choice::new(name, acs));
-                            }
-                        }
-                        choices
-                    })?;
-                    ui.agent_cs = acs;
-                    ui.primary.draw_map.agents.borrow_mut().invalidate_cache();
-                    if let Some(ref mut s) = ui.secondary {
-                        s.draw_map.agents.borrow_mut().invalidate_cache();
-                    }
-                    Some(Transition::Pop)
-                },
-            ))));
         }
 
         self.associated.event(ui);
@@ -103,18 +76,6 @@ impl CommonState {
         self.turn_cycler.draw(g, ui);
 
         CommonState::draw_osd(g, ui, &ui.primary.current_selection);
-
-        if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
-            let mut maybe_legend = self.agent_cs_legend.borrow_mut();
-            if maybe_legend
-                .as_ref()
-                .map(|(acs, _)| *acs != ui.agent_cs)
-                .unwrap_or(true)
-            {
-                *maybe_legend = Some((ui.agent_cs, ui.agent_cs.make_color_legend(&ui.cs)));
-            }
-            maybe_legend.as_ref().unwrap().1.draw(g);
-        }
     }
 
     pub fn draw_osd(g: &mut GfxCtx, ui: &UI, id: &Option<ID>) {
