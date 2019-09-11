@@ -7,7 +7,7 @@ use crate::sandbox::SandboxMode;
 use crate::tutorial::TutorialMode;
 use crate::ui::UI;
 use abstutil::elapsed_seconds;
-use ezgui::{hotkey, Canvas, EventCtx, EventLoopMode, GfxCtx, Key, UserInput, Wizard};
+use ezgui::{Canvas, Choice, EventCtx, EventLoopMode, GfxCtx, Key, UserInput, Wizard};
 use geom::{Duration, Line, Pt2D, Speed};
 use map_model::Map;
 use rand::Rng;
@@ -141,17 +141,17 @@ fn splash_screen(
 
     // TODO No hotkey for quit because it's just the normal menu escape?
     match wizard
-        .choose_something_hotkeys("Welcome to A/B Street!", || {
+        .choose("Welcome to A/B Street!", || {
             vec![
-                (hotkey(Key::S), sandbox.to_string(), ()),
-                (hotkey(Key::L), load_map.to_string(), ()),
-                (hotkey(Key::E), edit.to_string(), ()),
-                (hotkey(Key::T), tutorial.to_string(), ()),
-                (hotkey(Key::D), debug.to_string(), ()),
-                (hotkey(Key::M), mission.to_string(), ()),
-                (hotkey(Key::A), abtest.to_string(), ()),
-                (None, about.to_string(), ()),
-                (None, quit.to_string(), ()),
+                Choice::new(sandbox, ()).key(Key::S),
+                Choice::new(load_map, ()).key(Key::L),
+                Choice::new(edit, ()).key(Key::E),
+                Choice::new(tutorial, ()).key(Key::T),
+                Choice::new(debug, ()).key(Key::D),
+                Choice::new(mission, ()).key(Key::M),
+                Choice::new(abtest, ()).key(Key::A),
+                Choice::new(about, ()),
+                Choice::new(quit, ()),
             ]
         })?
         .0

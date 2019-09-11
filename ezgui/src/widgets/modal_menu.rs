@@ -72,7 +72,7 @@ impl ModalMenu {
                 return true;
             }
         } else {
-            self.menu.mark_active(name);
+            self.menu.mark_active(name, true);
         }
         false
     }

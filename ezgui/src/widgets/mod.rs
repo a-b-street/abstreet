@@ -16,4 +16,4 @@ pub(crate) use self::screenshot::{screenshot_current, screenshot_everything};
 pub use self::scroller::Scroller;
 pub use self::slider::{ItemSlider, Slider, SliderWithTextBox, WarpingItemSlider};
 pub use self::warper::Warper;
-pub use self::wizard::{Wizard, WrappedWizard};
+pub use self::wizard::{Choice, Wizard, WrappedWizard};

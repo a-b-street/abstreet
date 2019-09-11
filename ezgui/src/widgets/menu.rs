@@ -378,17 +378,24 @@ impl<T: Clone> Menu<T> {
             .collect()
     }
 
-    // If there's no matching choice, be silent. The two callers don't care.
-    pub fn mark_active(&mut self, label: &str) {
+    pub fn mark_active(&mut self, label: &str, is_active: bool) {
         for choice in self.choices.iter_mut() {
             if choice.label == label {
-                if choice.active {
-                    panic!("Menu choice for {} was already active", choice.label);
+                if choice.active == is_active {
+                    panic!(
+                        "Menu choice for {} already had active={}",
+                        choice.label, is_active
+                    );
                 }
-                choice.active = true;
+                choice.active = is_active;
                 return;
             }
         }
+        // TODO Fix a violation of this, then enable.
+        /*panic!(
+            "Menu with prompt {:?} has no choice {} to mark active",
+            self.prompt, label
+        );*/
     }
 
     pub fn mark_all_inactive(&mut self) {

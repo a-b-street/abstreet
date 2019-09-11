@@ -1,7 +1,7 @@
 use crate::widgets::log_scroller::LogScroller;
 use crate::widgets::text_box::TextBox;
 use crate::widgets::{Menu, Position};
-use crate::{EventCtx, GfxCtx, InputResult, MultiKey, SliderWithTextBox, Text, UserInput};
+use crate::{EventCtx, GfxCtx, InputResult, Key, MultiKey, SliderWithTextBox, Text, UserInput};
 use abstutil::Cloneable;
 use geom::Duration;
 use std::collections::VecDeque;
@@ -233,10 +233,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         )
     }
 
-    pub fn choose_something_hotkeys<
-        R: 'static + Clone + Cloneable,
-        F: FnOnce() -> Vec<(Option<MultiKey>, String, R)>,
-    >(
+    pub fn choose<R: 'static + Clone + Cloneable, F: FnOnce() -> Vec<Choice<R>>>(
         &mut self,
         query: &str,
         choices_generator: F,
@@ -269,7 +266,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         }
 
         if self.wizard.menu.is_none() {
-            let choices: Vec<(Option<MultiKey>, String, R)> = choices_generator();
+            let choices: Vec<Choice<R>> = choices_generator();
             if choices.is_empty() {
                 self.wizard.log_scroller = Some(LogScroller::new(
                     "Wizard".to_string(),
@@ -277,18 +274,26 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
                 ));
                 return None;
             }
-            let boxed_choices: Vec<(Option<MultiKey>, String, Box<dyn Cloneable>)> = choices
-                .into_iter()
-                .map(|(multikey, s, item)| (multikey, s, item.clone_box()))
-                .collect();
-            self.wizard.menu = Some(Menu::new(
+            let mut boxed_choices = Vec::new();
+            let mut inactive_labels = Vec::new();
+            for choice in choices {
+                if !choice.active {
+                    inactive_labels.push(choice.label.clone());
+                }
+                boxed_choices.push((choice.hotkey, choice.label, choice.data.clone_box()));
+            }
+            let mut menu = Menu::new(
                 Text::prompt(query),
                 vec![boxed_choices],
                 true,
                 false,
                 Position::ScreenCenter,
                 self.ctx.canvas,
-            ));
+            );
+            for label in inactive_labels {
+                menu.mark_active(&label, false);
+            }
+            self.wizard.menu = Some(menu);
         }
 
         assert!(self.wizard.alive);
@@ -328,19 +333,19 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         query: &str,
         choices_generator: F,
     ) -> Option<(String, R)> {
-        self.choose_something_hotkeys(query, || {
+        self.choose(query, || {
             choices_generator()
                 .into_iter()
-                .map(|(s, data)| (None, s, data))
+                .map(|(s, data)| Choice::new(s, data))
                 .collect()
         })
     }
 
     pub fn choose_str(&mut self, query: &str, choices: Vec<&str>) -> Option<String> {
-        self.choose_something_hotkeys(query, || {
+        self.choose(query, || {
             choices
                 .into_iter()
-                .map(|s| (None, s.to_string(), ()))
+                .map(|s| Choice::new(s.to_string(), ()))
                 .collect()
         })
         .map(|(s, _)| s)
@@ -351,10 +356,10 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         query: &str,
         choices_generator: F,
     ) -> Option<String> {
-        self.choose_something_hotkeys(query, || {
+        self.choose(query, || {
             choices_generator()
                 .into_iter()
-                .map(|s| (None, s, ()))
+                .map(|s| Choice::new(s, ()))
                 .collect()
         })
         .map(|(s, _)| s)
@@ -394,5 +399,35 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         } else {
             false
         }
+    }
+}
+
+pub struct Choice<T: Clone> {
+    label: String,
+    data: T,
+    hotkey: Option<MultiKey>,
+    active: bool,
+}
+
+impl<T: Clone> Choice<T> {
+    pub fn new<S: Into<String>>(label: S, data: T) -> Choice<T> {
+        Choice {
+            label: label.into(),
+            data,
+            hotkey: None,
+            active: true,
+        }
+    }
+
+    pub fn key(mut self, key: Key) -> Choice<T> {
+        assert_eq!(self.hotkey, None);
+        self.hotkey = Some(MultiKey { key, lctrl: false });
+        self
+    }
+
+    pub fn inactive(mut self) -> Choice<T> {
+        assert!(self.active);
+        self.active = false;
+        self
     }
 }

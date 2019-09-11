@@ -2,7 +2,7 @@ use crate::common::Warping;
 use crate::game::{State, Transition, WizardState};
 use crate::ui::UI;
 use abstutil::Cloneable;
-use ezgui::{hotkey, EventCtx, EventLoopMode, Key, Wizard};
+use ezgui::{Choice, EventCtx, EventLoopMode, Key, Wizard};
 use geom::Pt2D;
 use serde_derive::{Deserialize, Serialize};
 
@@ -27,7 +27,7 @@ fn choose_shortcut(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<
     let cam_zoom = ctx.canvas.cam_zoom;
 
     let mut wizard = wiz.wrap(ctx);
-    let (_, mut s) = wizard.choose_something_hotkeys("Jump to which shortcut?", || {
+    let (_, mut s) = wizard.choose("Jump to which shortcut?", || {
         // TODO Handle >9
         // TODO Allow deleting
         let keys = vec![
@@ -57,9 +57,9 @@ fn choose_shortcut(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<
             .enumerate()
             .map(|(idx, s)| {
                 if idx == 0 {
-                    (None, s.name.clone(), s)
+                    Choice::new(s.name.clone(), s)
                 } else {
-                    (hotkey(keys[idx - 1]), s.name.clone(), s)
+                    Choice::new(s.name.clone(), s).key(keys[idx - 1])
                 }
             })
             .collect()

@@ -2,7 +2,7 @@ use crate::game::{State, Transition, WizardState};
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ModalMenu, Text,
+    hotkey, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ModalMenu, Text,
     VerticalAlignment, Wizard,
 };
 use geom::{Duration, DurationHistogram};
@@ -81,7 +81,7 @@ fn browse_trips(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
             ("drive".to_string(), TripMode::Drive),
         ]
     })?;
-    wizard.choose_something_hotkeys("Examine which trip?", || {
+    wizard.choose("Examine which trip?", || {
         let trips = ui.primary.sim.get_finished_trips();
         let mut filtered: Vec<&(TripID, TripMode, Duration)> = trips
             .finished_trips
@@ -93,7 +93,7 @@ fn browse_trips(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
         filtered
             .into_iter()
             // TODO Show percentile for time
-            .map(|(id, _, dt)| (None, format!("{} taking {}", id, dt), *id))
+            .map(|(id, _, dt)| Choice::new(format!("{} taking {}", id, dt), *id))
             .collect()
     })?;
     // TODO show trip departure, where it started and ended
