@@ -1,9 +1,8 @@
-use abstutil::{deserialize_btreemap, read_binary, serialize_btreemap, write_json, Timer};
+use abstutil::{read_binary, Timer};
 use ezgui::{Canvas, Color, GfxCtx, Line, Text};
 use geom::{Circle, Distance, LonLat, PolyLine, Polygon, Pt2D};
 use map_model::raw_data::{StableIntersectionID, StableRoadID};
 use map_model::{raw_data, IntersectionType, LaneType, RoadSpec, LANE_THICKNESS};
-use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::mem;
 
@@ -26,27 +25,13 @@ pub enum ID {
 const FORWARDS: Direction = true;
 const BACKWARDS: Direction = false;
 
-#[derive(Serialize, Deserialize)]
 pub struct Model {
     pub name: Option<String>,
-    #[serde(
-        serialize_with = "serialize_btreemap",
-        deserialize_with = "deserialize_btreemap"
-    )]
     intersections: BTreeMap<StableIntersectionID, Intersection>,
-    #[serde(
-        serialize_with = "serialize_btreemap",
-        deserialize_with = "deserialize_btreemap"
-    )]
     roads: BTreeMap<StableRoadID, Road>,
-    #[serde(
-        serialize_with = "serialize_btreemap",
-        deserialize_with = "deserialize_btreemap"
-    )]
     buildings: BTreeMap<BuildingID, Building>,
 }
 
-#[derive(Serialize, Deserialize)]
 struct Intersection {
     center: Pt2D,
     intersection_type: IntersectionType,
@@ -59,7 +44,6 @@ impl Intersection {
     }
 }
 
-#[derive(Serialize, Deserialize)]
 struct Road {
     i1: StableIntersectionID,
     i2: StableIntersectionID,
@@ -146,7 +130,6 @@ impl Road {
     }
 }
 
-#[derive(Serialize, Deserialize)]
 struct Building {
     label: Option<String>,
     center: Pt2D,
@@ -239,13 +222,6 @@ impl Model {
         }
 
         None
-    }
-
-    pub fn save(&self) {
-        let path =
-            abstutil::path_synthetic_map(self.name.as_ref().expect("Model hasn't been named yet"));
-        write_json(&path, self).expect(&format!("Saving {} failed", path));
-        println!("Saved {}", path);
     }
 
     // Returns path to raw map
@@ -357,6 +333,7 @@ impl Model {
         let data: raw_data::Map = read_binary(path, &mut Timer::new("load map")).unwrap();
 
         let mut m = Model::new();
+        m.name = Some(abstutil::basename(path));
 
         for (id, raw_i) in &data.intersections {
             let i = Intersection {
@@ -381,14 +358,13 @@ impl Model {
             );
         }
 
-        // TODO Too slow!
-        /*for (idx, b) in data.buildings.iter().enumerate() {
+        for (idx, b) in data.buildings.iter().enumerate() {
             let b = Building {
                 label: None,
-                center: Pt2D::center(&data.gps_bounds.must_convert(&b.points)),
+                center: b.polygon.center(),
             };
             m.buildings.insert(idx, b);
-        }*/
+        }
 
         m
     }

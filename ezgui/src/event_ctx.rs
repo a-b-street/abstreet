@@ -77,7 +77,7 @@ impl<'a> EventCtx<'a> {
                 self.canvas.textures.push((filename.to_string(), tex));
                 self.canvas.texture_lookups.insert(
                     filename.to_string(),
-                    Color::Texture(idx as f32, (dims.0 as f64, dims.1 as f64)),
+                    Color::Texture(idx as f32, (f64::from(dims.0), f64::from(dims.1))),
                 );
             } else {
                 self.canvas

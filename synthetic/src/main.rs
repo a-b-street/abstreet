@@ -25,11 +25,7 @@ enum State {
 impl UI {
     fn new(load: Option<&String>) -> UI {
         let model = if let Some(path) = load {
-            if path.contains("raw_maps/") {
-                Model::import(path)
-            } else {
-                abstutil::read_json(path).expect(&format!("Couldn't load {}", path))
-            }
+            Model::import(path)
         } else {
             Model::new()
         };
@@ -123,7 +119,6 @@ impl GUI for UI {
             State::SavingModel(ref mut wizard) => {
                 if let Some(name) = wizard.wrap(ctx).input_string("Name the synthetic map") {
                     self.model.name = Some(name);
-                    self.model.save();
                     self.model.export();
                     self.state = State::Viewing;
                 } else if wizard.aborted() {
@@ -169,7 +164,6 @@ impl GUI for UI {
                     process::exit(0);
                 } else if ctx.input.key_pressed(Key::S, "save") {
                     if self.model.name.is_some() {
-                        self.model.save();
                         self.model.export();
                     } else {
                         self.state = State::SavingModel(Wizard::new());

@@ -91,7 +91,3 @@ pub fn path_camera_state(map_name: &str) -> String {
 pub fn path_pending_screenshots(map_name: &str) -> String {
     format!("../data/screenshots/pending_{}", map_name)
 }
-
-pub fn path_synthetic_map(map_name: &str) -> String {
-    format!("../data/synthetic_maps/{}.json", map_name)
-}

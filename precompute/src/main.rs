@@ -20,15 +20,7 @@ fn main() {
     let flags = Flags::from_args();
     let mut timer = Timer::new(&format!("precompute {}", flags.load,));
 
-    let raw_map_path = if flags.load.contains("synthetic") {
-        let model: synthetic::Model =
-            abstutil::read_json(&flags.load).expect(&format!("Couldn't load {}", &flags.load));
-        model.export()
-    } else {
-        flags.load
-    };
-
-    let map = Map::new(&raw_map_path, &mut timer).unwrap();
+    let map = Map::new(&flags.load, &mut timer).unwrap();
     timer.start("save map");
     map.save();
     timer.stop("save map");

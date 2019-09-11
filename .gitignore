@@ -16,3 +16,6 @@ data/screenshots/*/*.png
 data/screenshots/*/combine.sh
 data/shapes/*
 data/shortcuts/*
+
+!data/raw_maps/ban_left_turn.bin
+!data/raw_maps/parking_test.bin

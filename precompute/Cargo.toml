@@ -10,4 +10,3 @@ geom = { path = "../geom" }
 map_model = { path = "../map_model" }
 popdat = { path = "../popdat" }
 structopt = "0.2.18"
-synthetic = { path = "../synthetic" }
