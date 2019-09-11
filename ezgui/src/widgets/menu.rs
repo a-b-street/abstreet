@@ -28,6 +28,7 @@ pub struct Menu<T: Clone> {
     icon_selected: bool,
 }
 
+// TODO Maybe reuse the public Choice from wizard
 struct Choice<T: Clone> {
     hotkey: Option<MultiKey>,
     label: String,

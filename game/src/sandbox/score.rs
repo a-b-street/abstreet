@@ -8,6 +8,7 @@ use ezgui::{
 use geom::{Duration, DurationHistogram};
 use itertools::Itertools;
 use sim::{TripID, TripMode};
+use std::collections::BTreeSet;
 
 pub struct Scoreboard {
     menu: ModalMenu,
@@ -74,11 +75,18 @@ impl State for Scoreboard {
 fn browse_trips(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
     let mut wizard = wiz.wrap(ctx);
     let (_, mode) = wizard.choose("Browse which trips?", || {
+        let trips = ui.primary.sim.get_finished_trips();
+        let modes = trips
+            .finished_trips
+            .iter()
+            .map(|(_, m, _)| *m)
+            .collect::<BTreeSet<TripMode>>();
+
         vec![
-            Choice::new("walk", TripMode::Walk),
-            Choice::new("bike", TripMode::Bike),
-            Choice::new("transit", TripMode::Transit),
-            Choice::new("drive", TripMode::Drive),
+            Choice::new("walk", TripMode::Walk).active(modes.contains(&TripMode::Walk)),
+            Choice::new("bike", TripMode::Bike).active(modes.contains(&TripMode::Bike)),
+            Choice::new("transit", TripMode::Transit).active(modes.contains(&TripMode::Transit)),
+            Choice::new("drive", TripMode::Drive).active(modes.contains(&TripMode::Drive)),
         ]
     })?;
     wizard.choose("Examine which trip?", || {

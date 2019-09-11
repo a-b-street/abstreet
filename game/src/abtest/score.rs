@@ -9,7 +9,7 @@ use ezgui::{
 use geom::Duration;
 use itertools::Itertools;
 use sim::{FinishedTrips, TripID, TripMode};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 pub struct Scoreboard {
     menu: ModalMenu,
@@ -119,11 +119,22 @@ fn browse_trips(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
     let mut wizard = wiz.wrap(ctx);
     let mode = wizard
         .choose("Browse which trips?", || {
+            let trips = CompareTrips::new(
+                ui.primary.sim.get_finished_trips(),
+                ui.secondary.as_ref().unwrap().sim.get_finished_trips(),
+            );
+            let modes = trips
+                .finished_trips
+                .iter()
+                .map(|(_, m, _, _)| *m)
+                .collect::<BTreeSet<TripMode>>();
+
             vec![
-                Choice::new("walk", TripMode::Walk),
-                Choice::new("bike", TripMode::Bike),
-                Choice::new("transit", TripMode::Transit),
-                Choice::new("drive", TripMode::Drive),
+                Choice::new("walk", TripMode::Walk).active(modes.contains(&TripMode::Walk)),
+                Choice::new("bike", TripMode::Bike).active(modes.contains(&TripMode::Bike)),
+                Choice::new("transit", TripMode::Transit)
+                    .active(modes.contains(&TripMode::Transit)),
+                Choice::new("drive", TripMode::Drive).active(modes.contains(&TripMode::Drive)),
             ]
         })?
         .1;

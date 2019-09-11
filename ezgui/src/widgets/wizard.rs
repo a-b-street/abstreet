@@ -409,9 +409,8 @@ impl<T: Clone> Choice<T> {
         self
     }
 
-    pub fn inactive(mut self) -> Choice<T> {
-        assert!(self.active);
-        self.active = false;
+    pub fn active(mut self, active: bool) -> Choice<T> {
+        self.active = active;
         self
     }
 }
