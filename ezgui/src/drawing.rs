@@ -1,11 +1,10 @@
 use crate::input::ContextMenu;
-use crate::{
-    text, Canvas, Color, Drawable, HorizontalAlignment, Key, Prerender, ScreenPt, Text,
-    VerticalAlignment,
-};
+use crate::{text, Canvas, Color, HorizontalAlignment, Key, ScreenPt, Text, VerticalAlignment};
 use geom::{Bounds, Circle, Distance, Line, Polygon, Pt2D};
 use glium::uniforms::UniformValue;
 use glium::Surface;
+use std::cell::Cell;
+
 const NO_HATCHING: f32 = 0.0;
 const HATCHING: f32 = 1.0;
 const SCREENSPACE: f32 = 2.0;
@@ -327,7 +326,7 @@ impl<'a> GfxCtx<'a> {
 }
 
 pub struct GeomBatch {
-    pub(crate) list: Vec<(Color, Polygon)>,
+    list: Vec<(Color, Polygon)>,
 }
 
 impl GeomBatch {
@@ -353,5 +352,123 @@ impl GeomBatch {
         let refs = self.list.iter().map(|(color, p)| (*color, p)).collect();
         let obj = g.prerender.upload_temporary(refs);
         g.redraw(&obj);
+    }
+}
+
+// Something that's been sent to the GPU already.
+pub struct Drawable {
+    vertex_buffer: glium::VertexBuffer<Vertex>,
+    index_buffer: glium::IndexBuffer<u32>,
+}
+
+#[derive(Copy, Clone)]
+pub(crate) struct Vertex {
+    position: [f32; 2],
+    // If the last component is non-zero, then this is an RGBA value.
+    // When the last component is 0, then this is (texture ID, tex coord X, text coord Y, 0)
+    // TODO Make this u8?
+    style: [f32; 4],
+}
+
+glium::implement_vertex!(Vertex, position, style);
+
+// TODO Don't expose this directly
+pub struct Prerender<'a> {
+    pub(crate) display: &'a glium::Display,
+    pub(crate) num_uploads: Cell<usize>,
+    // TODO Prerender doesn't know what things are temporary and permanent. Could make the API more
+    // detailed (and use the corresponding persistent glium types).
+    pub(crate) total_bytes_uploaded: Cell<usize>,
+}
+
+impl<'a> Prerender<'a> {
+    pub fn upload_borrowed(&self, list: Vec<(Color, &Polygon)>) -> Drawable {
+        self.actually_upload(true, list)
+    }
+
+    pub fn upload(&self, batch: GeomBatch) -> Drawable {
+        let borrows = batch.list.iter().map(|(c, p)| (*c, p)).collect();
+        self.actually_upload(true, borrows)
+    }
+
+    pub fn get_total_bytes_uploaded(&self) -> usize {
+        self.total_bytes_uploaded.get()
+    }
+
+    pub(crate) fn upload_temporary(&self, list: Vec<(Color, &Polygon)>) -> Drawable {
+        self.actually_upload(false, list)
+    }
+
+    fn actually_upload(&self, permanent: bool, list: Vec<(Color, &Polygon)>) -> Drawable {
+        self.num_uploads.set(self.num_uploads.get() + 1);
+
+        let mut vertices: Vec<Vertex> = Vec::new();
+        let mut indices: Vec<u32> = Vec::new();
+
+        for (color, poly) in list {
+            let idx_offset = vertices.len();
+            let (pts, raw_indices) = poly.raw_for_rendering();
+            let mut maybe_bounds = None;
+            for pt in pts {
+                let style = match color {
+                    Color::RGBA(r, g, b, a) => [r, g, b, a],
+                    Color::Texture(id) => {
+                        if maybe_bounds.is_none() {
+                            maybe_bounds = Some(poly.get_bounds());
+                        }
+                        let b = maybe_bounds.as_ref().unwrap();
+
+                        [
+                            id,
+                            ((pt.x() - b.min_x) / (b.max_x - b.min_x)) as f32,
+                            // TODO Maybe need to do y inversion here
+                            ((pt.y() - b.min_y) / (b.max_y - b.min_y)) as f32,
+                            0.0,
+                        ]
+                    }
+                };
+                vertices.push(Vertex {
+                    position: [pt.x() as f32, pt.y() as f32],
+                    style,
+                });
+            }
+            for idx in raw_indices {
+                indices.push((idx_offset + *idx) as u32);
+            }
+        }
+
+        let vertex_buffer = if permanent {
+            glium::VertexBuffer::immutable(self.display, &vertices).unwrap()
+        } else {
+            glium::VertexBuffer::new(self.display, &vertices).unwrap()
+        };
+        let index_buffer = if permanent {
+            glium::IndexBuffer::immutable(
+                self.display,
+                glium::index::PrimitiveType::TrianglesList,
+                &indices,
+            )
+            .unwrap()
+        } else {
+            glium::IndexBuffer::new(
+                self.display,
+                glium::index::PrimitiveType::TrianglesList,
+                &indices,
+            )
+            .unwrap()
+        };
+
+        if permanent {
+            self.total_bytes_uploaded.set(
+                self.total_bytes_uploaded.get()
+                    + vertex_buffer.get_size()
+                    + index_buffer.get_size(),
+            );
+        }
+
+        Drawable {
+            vertex_buffer,
+            index_buffer,
+        }
     }
 }
