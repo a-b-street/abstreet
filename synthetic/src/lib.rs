@@ -1,4 +1,3 @@
-use aabb_quadtree::QuadTree;
 use abstutil::{deserialize_btreemap, read_binary, serialize_btreemap, write_json, Timer};
 use ezgui::{Canvas, Color, GfxCtx, Line, Text};
 use geom::{Circle, Distance, LonLat, PolyLine, Polygon, Pt2D};
@@ -169,52 +168,26 @@ impl Model {
         }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, quadtree: Option<&QuadTree<ID>>) {
+    pub fn draw(&self, g: &mut GfxCtx) {
         g.clear(Color::WHITE);
 
-        let mut roads: Vec<StableRoadID> = Vec::new();
-        let mut buildings: Vec<BuildingID> = Vec::new();
-        let mut intersections: Vec<StableIntersectionID> = Vec::new();
-        if let Some(ref qt) = quadtree {
-            let bbox = g.get_screen_bounds().as_bbox();
-            for &(id, _, _) in &qt.query(bbox) {
-                match *id {
-                    ID::Road(id) => {
-                        roads.push(id);
-                    }
-                    ID::Building(id) => {
-                        buildings.push(id);
-                    }
-                    ID::Intersection(id) => {
-                        intersections.push(id);
-                    }
-                }
-            }
-        } else {
-            roads.extend(self.roads.keys());
-            buildings.extend(self.buildings.keys());
-            intersections.extend(self.intersections.keys());
-        }
-
-        let selected = self.mouseover_something(g.canvas, quadtree);
+        let selected = self.mouseover_something(g.canvas);
         let current_r = match selected {
             Some(ID::Road(r)) => self.mouseover_road(r, g.get_cursor_in_map_space().unwrap()),
             _ => None,
         };
 
-        for id in roads {
-            let r = &self.roads[&id];
+        for (id, r) in &self.roads {
             r.draw(
                 self,
                 g,
-                Some((id, FORWARDS)) == current_r,
-                Some((id, BACKWARDS)) == current_r,
+                Some((*id, FORWARDS)) == current_r,
+                Some((*id, BACKWARDS)) == current_r,
             );
         }
 
-        for id in intersections {
-            let i = &self.intersections[&id];
-            let color = if Some(ID::Intersection(id)) == selected {
+        for (id, i) in &self.intersections {
+            let color = if Some(ID::Intersection(*id)) == selected {
                 HIGHLIGHT_COLOR
             } else {
                 match i.intersection_type {
@@ -230,9 +203,8 @@ impl Model {
             }
         }
 
-        for id in buildings {
-            let b = &self.buildings[&id];
-            let color = if Some(ID::Building(id)) == selected {
+        for (id, b) in &self.buildings {
+            let color = if Some(ID::Building(*id)) == selected {
                 HIGHLIGHT_COLOR
             } else {
                 Color::BLUE
@@ -245,55 +217,24 @@ impl Model {
         }
     }
 
-    pub fn mouseover_something(
-        &self,
-        canvas: &Canvas,
-        quadtree: Option<&QuadTree<ID>>,
-    ) -> Option<ID> {
+    pub fn mouseover_something(&self, canvas: &Canvas) -> Option<ID> {
         let cursor = canvas.get_cursor_in_map_space()?;
 
-        // TODO Duplicated with draw
-        let mut roads: Vec<StableRoadID> = Vec::new();
-        let mut buildings: Vec<BuildingID> = Vec::new();
-        let mut intersections: Vec<StableIntersectionID> = Vec::new();
-        if let Some(ref qt) = quadtree {
-            let bbox = canvas.get_screen_bounds().as_bbox();
-            for &(id, _, _) in &qt.query(bbox) {
-                match *id {
-                    ID::Road(id) => {
-                        roads.push(id);
-                    }
-                    ID::Building(id) => {
-                        buildings.push(id);
-                    }
-                    ID::Intersection(id) => {
-                        intersections.push(id);
-                    }
-                }
-            }
-        } else {
-            roads.extend(self.roads.keys());
-            buildings.extend(self.buildings.keys());
-            intersections.extend(self.intersections.keys());
-        }
-
-        for id in intersections {
-            let i = &self.intersections[&id];
+        for (id, i) in &self.intersections {
             if i.circle().contains_pt(cursor) {
-                return Some(ID::Intersection(id));
+                return Some(ID::Intersection(*id));
             }
         }
 
-        for id in buildings {
-            let b = &self.buildings[&id];
+        for (id, b) in &self.buildings {
             if b.polygon().contains_pt(cursor) {
-                return Some(ID::Building(id));
+                return Some(ID::Building(*id));
             }
         }
 
-        for id in roads {
-            if self.mouseover_road(id, cursor).is_some() {
-                return Some(ID::Road(id));
+        for id in self.roads.keys() {
+            if self.mouseover_road(*id, cursor).is_some() {
+                return Some(ID::Road(*id));
             }
         }
 
@@ -412,11 +353,10 @@ impl Model {
     }
 
     // TODO Directly use raw_data and get rid of Model? Might be more maintainable long-term.
-    pub fn import(path: &str) -> (Model, QuadTree<ID>) {
+    pub fn import(path: &str) -> Model {
         let data: raw_data::Map = read_binary(path, &mut Timer::new("load map")).unwrap();
 
         let mut m = Model::new();
-        let mut quadtree = QuadTree::default(data.gps_bounds.to_bounds().as_bbox());
 
         for (id, raw_i) in &data.intersections {
             let i = Intersection {
@@ -424,7 +364,6 @@ impl Model {
                 intersection_type: raw_i.intersection_type,
                 label: raw_i.label.clone(),
             };
-            quadtree.insert_with_box(ID::Intersection(*id), i.circle().get_bounds().as_bbox());
             m.intersections.insert(*id, i);
         }
 
@@ -440,16 +379,6 @@ impl Model {
                     back_label: r.osm_tags.get("back_label").cloned(),
                 },
             );
-            let pl = PolyLine::new(vec![
-                m.intersections[&i1].center,
-                m.intersections[&i2].center,
-            ]);
-            quadtree.insert_with_box(
-                ID::Road(*id),
-                pl.make_polygons(LANE_THICKNESS * 6.0)
-                    .get_bounds()
-                    .as_bbox(),
-            );
         }
 
         // TODO Too slow!
@@ -458,11 +387,10 @@ impl Model {
                 label: None,
                 center: Pt2D::center(&data.gps_bounds.must_convert(&b.points)),
             };
-            quadtree.insert_with_box(ID::Building(idx), b.polygon().get_bounds().as_bbox());
             m.buildings.insert(idx, b);
         }*/
 
-        (m, quadtree)
+        m
     }
 }
 

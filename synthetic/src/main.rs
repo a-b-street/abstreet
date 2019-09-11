@@ -1,4 +1,3 @@
-use aabb_quadtree::QuadTree;
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, Wizard, GUI};
 use geom::{Distance, Line};
 use map_model::raw_data::{StableIntersectionID, StableRoadID};
@@ -7,7 +6,6 @@ use synthetic::{BuildingID, Direction, Model, ID};
 
 struct UI {
     model: Model,
-    quadtree: Option<QuadTree<ID>>,
     state: State,
     osd: Text,
 }
@@ -26,22 +24,17 @@ enum State {
 
 impl UI {
     fn new(load: Option<&String>) -> UI {
-        let (model, quadtree): (Model, Option<QuadTree<ID>>) = if let Some(path) = load {
+        let model = if let Some(path) = load {
             if path.contains("raw_maps/") {
-                let (m, q) = Model::import(path);
-                (m, Some(q))
+                Model::import(path)
             } else {
-                (
-                    abstutil::read_json(path).expect(&format!("Couldn't load {}", path)),
-                    None,
-                )
+                abstutil::read_json(path).expect(&format!("Couldn't load {}", path))
             }
         } else {
-            (Model::new(), None)
+            Model::new()
         };
         UI {
             model,
-            quadtree,
             state: State::Viewing,
             osd: Text::new(),
         }
@@ -58,9 +51,7 @@ impl GUI for UI {
                 return EventLoopMode::InputOnly;
             }
         };
-        let selected = self
-            .model
-            .mouseover_something(ctx.canvas, self.quadtree.as_ref());
+        let selected = self.model.mouseover_something(ctx.canvas);
 
         match self.state {
             State::MovingIntersection(id) => {
@@ -197,7 +188,7 @@ impl GUI for UI {
     }
 
     fn draw(&self, g: &mut GfxCtx) {
-        self.model.draw(g, self.quadtree.as_ref());
+        self.model.draw(g);
 
         match self.state {
             State::CreatingRoad(i1) => {

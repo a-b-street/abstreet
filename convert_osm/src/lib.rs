@@ -37,7 +37,7 @@ pub struct Flags {
     #[structopt(long = "neighborhoods", default_value = "")]
     pub neighborhoods: String,
 
-    /// Osmosis clipping polgon. Required.
+    /// Osmosis clipping polgon. Optional.
     #[structopt(long = "clip", default_value = "")]
     pub clip: String,
 
