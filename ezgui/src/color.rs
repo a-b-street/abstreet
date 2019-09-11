@@ -9,6 +9,7 @@ pub enum Color {
     // TODO Plumbing dimensions here is a hack. Need to rearrange Prerender to be able to hold onto
     // textures.
     Texture(f32, (f64, f64)),
+    Hatching,
 }
 
 impl fmt::Display for Color {
@@ -18,6 +19,7 @@ impl fmt::Display for Color {
             Color::Texture(id, (w, h)) => {
                 write!(f, "Color::Texture({}, width={}, height={})", id, w, h)
             }
+            Color::Hatching => write!(f, "Color::Hatching"),
         }
     }
 }

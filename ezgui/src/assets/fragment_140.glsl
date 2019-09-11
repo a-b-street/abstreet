@@ -2,7 +2,7 @@
 
 // (x offset, y offset, zoom)
 uniform vec3 transform;
-// (window width, window height, hatching == 1.0)
+// (window width, window height, _)
 uniform vec3 window;
 
 uniform sampler2D tex0;
@@ -42,18 +42,18 @@ void main() {
         f_color = texture(tex8, vec2(pass_style[1], pass_style[2]));
     } else if (pass_style[0] == 9.0) {
         f_color = texture(tex9, vec2(pass_style[1], pass_style[2]));
-    }
-
-    if (window[2] == 1.0) {
+    } else if (pass_style[0] == 10.0) {
         // The hatching should be done in map-space, so panning/zooming doesn't move the stripes.
         // This is screen_to_map, also accounting for the y-inversion done by the vertex shader.
         float map_x = (gl_FragCoord.x + transform[0]) / transform[2];
         float map_y = (window[1] - gl_FragCoord.y + transform[1]) / transform[2];
         if (mod(map_x + map_y, 2.0) <= 0.1) {
             f_color = vec4(0.0, 1.0, 1.0, 1.0);
-        }
-        if (mod(map_x - map_y, 2.0) <= 0.1) {
+        } else if (mod(map_x - map_y, 2.0) <= 0.1) {
             f_color = vec4(0.0, 1.0, 1.0, 1.0);
-        }
+        } else {
+            // Let the polygon with its original colors show instead.
+            discard;
+	}
     }
 }

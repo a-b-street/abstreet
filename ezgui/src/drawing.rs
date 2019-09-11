@@ -5,19 +5,13 @@ use glium::uniforms::{SamplerBehavior, SamplerWrapFunction, UniformValue};
 use glium::Surface;
 use std::cell::Cell;
 
-const NO_HATCHING: f32 = 0.0;
-const HATCHING: f32 = 1.0;
-const SCREENSPACE: f32 = 2.0;
+const MAPSPACE: f32 = 0.0;
+const SCREENSPACE: f32 = 1.0;
 
 struct Uniforms<'a> {
     // (cam_x, cam_y, cam_zoom)
     transform: [f32; 3],
-    // (window_width, window_height, weird enum)
-    //    - weird enum = 0.0 (map-space, no hatching)
-    //                 = 1.0 (map-space, hatching)
-    //                 = 2.0 (screen-space, no hatching)
-    // Things are awkwardly grouped because passing uniforms is either broken or horribly
-    // documented.
+    // (window_width, window_height, 0.0 for mapspace or 1.0 for screenspace)
     window: [f32; 3],
     canvas: &'a Canvas,
 }
@@ -33,7 +27,7 @@ impl<'a> Uniforms<'a> {
             window: [
                 canvas.window_width as f32,
                 canvas.window_height as f32,
-                NO_HATCHING,
+                MAPSPACE,
             ],
             canvas,
         }
@@ -77,7 +71,6 @@ pub struct GfxCtx<'a> {
     context_menu: &'a ContextMenu,
 
     pub num_draw_calls: usize,
-    hatching: f32,
 }
 
 impl<'a> GfxCtx<'a> {
@@ -112,7 +105,6 @@ impl<'a> GfxCtx<'a> {
             screencap_mode,
             naming_hint: None,
             context_menu,
-            hatching: NO_HATCHING,
         }
     }
 
@@ -143,7 +135,6 @@ impl<'a> GfxCtx<'a> {
 
     pub fn unfork(&mut self) {
         self.uniforms = Uniforms::new(&self.canvas);
-        self.uniforms.window[2] = self.hatching;
     }
 
     pub fn clear(&mut self, color: Color) {
@@ -205,18 +196,6 @@ impl<'a> GfxCtx<'a> {
         self.num_draw_calls += 1;
 
         // println!("{:?}", backtrace::Backtrace::new());
-    }
-
-    pub fn enable_hatching(&mut self) {
-        assert_eq!(self.hatching, NO_HATCHING);
-        self.hatching = HATCHING;
-        self.unfork();
-    }
-
-    pub fn disable_hatching(&mut self) {
-        assert_eq!(self.hatching, HATCHING);
-        self.hatching = NO_HATCHING;
-        self.unfork();
     }
 
     // Canvas stuff.
@@ -378,6 +357,7 @@ pub(crate) struct Vertex {
     position: [f32; 2],
     // If the last component is non-zero, then this is an RGBA value.
     // When the last component is 0, then this is (texture ID, tex coord X, text coord Y, 0)
+    // And one more case -- (10, 0, 0, 0) means to just draw hatching.
     // TODO Make this u8?
     style: [f32; 4],
 }
@@ -431,6 +411,7 @@ impl<'a> Prerender<'a> {
                         let ty = pt.y() / tex_height;
                         [id, tx as f32, ty as f32, 0.0]
                     }
+                    Color::Hatching => [10.0, 0.0, 0.0, 0.0],
                 };
                 vertices.push(Vertex {
                     position: [pt.x() as f32, pt.y() as f32],

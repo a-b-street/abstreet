@@ -225,9 +225,8 @@ impl State for EditMode {
         // supply a set of things to highlight and have something else take care of drawing
         // with detail or not.
         if g.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL {
-            g.enable_hatching();
-
             for l in edits.lane_overrides.keys() {
+                opts.override_colors.insert(ID::Lane(*l), Color::Hatching);
                 ctx.draw_map.get_l(*l).draw(g, &opts, &ctx);
             }
             for i in edits
@@ -235,10 +234,10 @@ impl State for EditMode {
                 .keys()
                 .chain(edits.traffic_signal_overrides.keys())
             {
+                opts.override_colors
+                    .insert(ID::Intersection(*i), Color::Hatching);
                 ctx.draw_map.get_i(*i).draw(g, &opts, &ctx);
             }
-
-            g.disable_hatching();
 
             // The hatching covers up the selection outline, so redraw it.
             match ui.primary.current_selection {

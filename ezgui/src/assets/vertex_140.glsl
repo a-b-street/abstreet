@@ -2,7 +2,7 @@
 
 // (x offset, y offset, zoom)
 uniform vec3 transform;
-// (window width, window height, weird enum)
+// (window width, window height, 0.0=mapspace and 1.0=screenspace)
 uniform vec3 window;
 
 in vec2 position;
@@ -21,7 +21,7 @@ void main() {
 
     // Screen-space is at z=0.0
     float z = 0.5;
-    if (window[2] == 2.0) {
+    if (window[2] == 1.0) {
         z = 0.0;
     }
 
