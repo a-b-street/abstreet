@@ -1,5 +1,5 @@
+use crate::{Color, Drawable, EventCtx, GfxCtx, Prerender, Text};
 use aabb_quadtree::QuadTree;
-use ezgui::{Color, Drawable, EventCtx, GfxCtx, Prerender, Text};
 use geom::{Bounds, Circle, Distance, Polygon};
 use std::collections::HashMap;
 use std::fmt::Debug;

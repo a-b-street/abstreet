@@ -144,6 +144,7 @@ Constructing the map:
   right now
 - `fix_map_geom`: tool to manually merge/delete weird intersections and short
   roads
+- `synthetic`: GUI for creating and editing "synthetic" maps from scratch
 
 Traffic simulation:
 
@@ -153,7 +154,7 @@ Traffic simulation:
 Graphics:
 
 - `game`: the GUI and main gameplay
-- `ezgui`: an immediate-mode GUI library
+- `ezgui`: a GUI and 2D rendering library built on glium
 
 Common utilities:
 
@@ -161,8 +162,3 @@ Common utilities:
 - `geom`: types for GPS and map-space points, lines, angles, polylines,
   polygons, circles, durations, speeds
 - `tests`: a custom test runner and some tests using it
-
-Less interesting stuff:
-
-- `synthetic`: GUI for creating and editing "synthetic" maps from scratch
-- `viewer`: an experiment in making generic applications for manipulating maps

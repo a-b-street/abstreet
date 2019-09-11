@@ -1,11 +1,11 @@
 use abstutil::{read_binary, Timer};
+use ezgui::world::{ObjectID, World};
 use ezgui::{Color, EventCtx, GfxCtx, Prerender, Text};
 use geom::{Bounds, Circle, Distance, LonLat, PolyLine, Polygon, Pt2D};
 use map_model::raw_data::{StableIntersectionID, StableRoadID};
 use map_model::{raw_data, IntersectionType, LaneType, RoadSpec, LANE_THICKNESS};
 use std::collections::BTreeMap;
 use std::mem;
-use viewer::World;
 
 const INTERSECTION_RADIUS: Distance = Distance::const_meters(5.0);
 const BUILDING_LENGTH: Distance = Distance::const_meters(30.0);
@@ -23,7 +23,7 @@ pub enum ID {
     Lane(StableRoadID, Direction, usize),
 }
 
-impl viewer::ObjectID for ID {
+impl ObjectID for ID {
     fn zorder(&self) -> usize {
         match self {
             ID::Lane(_, _, _) => 0,

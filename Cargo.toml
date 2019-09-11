@@ -16,5 +16,4 @@ members = [
   "sim",
   "synthetic",
   "tests",
-  "viewer",
 ]

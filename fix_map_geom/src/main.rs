@@ -1,4 +1,5 @@
 use abstutil::Timer;
+use ezgui::world::{ObjectID, World};
 use ezgui::{
     hotkey, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, ModalMenu, Text, WarpingItemSlider,
     GUI,
@@ -7,7 +8,6 @@ use geom::{Circle, Distance, PolyLine, Polygon};
 use map_model::raw_data::{Hint, Hints, InitialMap, Map, StableIntersectionID, StableRoadID};
 use map_model::LANE_THICKNESS;
 use std::{env, process};
-use viewer::World;
 
 // Bit bigger than buses
 const MIN_ROAD_LENGTH: Distance = Distance::const_meters(13.0);
@@ -396,7 +396,7 @@ enum ID {
     Intersection(StableIntersectionID),
 }
 
-impl viewer::ObjectID for ID {
+impl ObjectID for ID {
     fn zorder(&self) -> usize {
         match self {
             ID::Road(_) => 0,
