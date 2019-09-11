@@ -23,9 +23,9 @@ enum State {
 }
 
 impl UI {
-    fn new(load: Option<&String>) -> UI {
+    fn new(load: Option<&String>, exclude_bldgs: bool, ctx: &EventCtx) -> UI {
         let model = if let Some(path) = load {
-            Model::import(path)
+            Model::import(path, exclude_bldgs, ctx.prerender)
         } else {
             Model::new()
         };
@@ -47,7 +47,7 @@ impl GUI for UI {
                 return EventLoopMode::InputOnly;
             }
         };
-        let selected = self.model.mouseover_something(ctx.canvas);
+        let selected = self.model.mouseover_something(ctx);
 
         match self.state {
             State::MovingIntersection(id) => {
@@ -146,8 +146,7 @@ impl GUI for UI {
                     } else if ctx.input.key_pressed(Key::L, "label building") {
                         self.state = State::LabelingBuilding(b, Wizard::new());
                     }
-                } else if let Some(ID::Road(r)) = selected {
-                    let (_, dir) = self.model.mouseover_road(r, cursor).unwrap();
+                } else if let Some(ID::Lane(r, dir, _)) = selected {
                     if ctx
                         .input
                         .key_pressed(Key::Backspace, &format!("delete road {}", r))
@@ -210,7 +209,7 @@ impl GUI for UI {
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    ezgui::run("Synthetic map editor", 1024.0, 768.0, |_| {
-        UI::new(args.get(1))
+    ezgui::run("Synthetic map editor", 1024.0, 768.0, |ctx| {
+        UI::new(args.get(1), args.get(2) == Some(&"--nobldgs".to_string()), ctx)
     });
 }

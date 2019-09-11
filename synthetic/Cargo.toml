@@ -9,3 +9,4 @@ abstutil = { path = "../abstutil" }
 ezgui = { path = "../ezgui" }
 geom = { path = "../geom" }
 map_model = { path = "../map_model" }
+viewer = { path = "../viewer" }

@@ -1,9 +1,10 @@
 use abstutil::{read_binary, Timer};
-use ezgui::{Canvas, Color, GfxCtx, Line, Text};
-use geom::{Circle, Distance, LonLat, PolyLine, Polygon, Pt2D};
+use viewer::World;
+use ezgui::{EventCtx, Prerender, Color, GfxCtx, Text};
+use geom::{Circle, Bounds, Distance, LonLat, PolyLine, Polygon, Pt2D};
 use map_model::raw_data::{StableIntersectionID, StableRoadID};
 use map_model::{raw_data, IntersectionType, LaneType, RoadSpec, LANE_THICKNESS};
-use std::collections::BTreeMap;
+use std::collections::{HashSet, BTreeMap};
 use std::mem;
 
 const INTERSECTION_RADIUS: Distance = Distance::const_meters(5.0);
@@ -14,22 +15,33 @@ const HIGHLIGHT_COLOR: Color = Color::CYAN;
 
 pub type BuildingID = usize;
 pub type Direction = bool;
+const FORWARDS: Direction = true;
+const BACKWARDS: Direction = false;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
 pub enum ID {
     Building(BuildingID),
     Intersection(StableIntersectionID),
-    Road(StableRoadID),
+    Lane(StableRoadID, Direction, usize),
 }
 
-const FORWARDS: Direction = true;
-const BACKWARDS: Direction = false;
+impl viewer::ObjectID for ID {
+    fn zorder(&self) -> usize {
+        match self {
+            ID::Lane(_, _, _) => 0,
+            ID::Intersection(_) => 1,
+            ID::Building(_) => 2,
+        }
+    }
+}
 
 pub struct Model {
     pub name: Option<String>,
     intersections: BTreeMap<StableIntersectionID, Intersection>,
     roads: BTreeMap<StableRoadID, Road>,
     buildings: BTreeMap<BuildingID, Building>,
+
+    world: World<ID>,
 }
 
 struct Intersection {
@@ -53,55 +65,33 @@ struct Road {
 }
 
 impl Road {
-    fn polygon(&self, direction: Direction, model: &Model) -> Polygon {
-        let pl = PolyLine::new(vec![
-            model.intersections[&self.i1].center,
-            model.intersections[&self.i2].center,
-        ]);
-        if direction {
-            let width = LANE_THICKNESS * (self.lanes.fwd.len() as f64);
-            pl.shift_right(width / 2.0).unwrap().make_polygons(width)
-        } else {
-            let width = LANE_THICKNESS * (self.lanes.back.len() as f64);
-            pl.shift_left(width / 2.0).unwrap().make_polygons(width)
-        }
-    }
-
-    fn draw(&self, model: &Model, g: &mut GfxCtx, highlight_fwd: bool, highlight_back: bool) {
+    fn polygons(&self, model: &Model) -> Vec<(Direction, usize, Polygon, Color)> {
         let base = PolyLine::new(vec![
             model.intersections[&self.i1].center,
             model.intersections[&self.i2].center,
         ]);
+
+        let mut result = Vec::new();
 
         for (idx, lt) in self.lanes.fwd.iter().enumerate() {
             let polygon = base
                 .shift_right(LANE_THICKNESS * ((idx as f64) + 0.5))
                 .unwrap()
                 .make_polygons(LANE_THICKNESS);
-            g.draw_polygon(
-                if highlight_fwd {
-                    HIGHLIGHT_COLOR
-                } else {
-                    Road::lt_to_color(*lt)
-                },
-                &polygon,
-            );
+            result.push((FORWARDS, idx, polygon, Road::lt_to_color(*lt)));
         }
         for (idx, lt) in self.lanes.back.iter().enumerate() {
             let polygon = base
                 .shift_left(LANE_THICKNESS * ((idx as f64) + 0.5))
                 .unwrap()
                 .make_polygons(LANE_THICKNESS);
-            g.draw_polygon(
-                if highlight_back {
-                    HIGHLIGHT_COLOR
-                } else {
-                    Road::lt_to_color(*lt)
-                },
-                &polygon,
-            );
+            result.push((BACKWARDS, idx, polygon, Road::lt_to_color(*lt)));
         }
 
+        result
+    }
+
+    /*fn draw(&self, model: &Model, g: &mut GfxCtx, highlight_fwd: bool, highlight_back: bool) {
         g.draw_polygon(Color::YELLOW, &base.make_polygons(CENTER_LINE_THICKNESS));
 
         if let Some(ref label) = self.fwd_label {
@@ -116,7 +106,7 @@ impl Road {
                 self.polygon(BACKWARDS, model).center(),
             );
         }
-    }
+    }*/
 
     // Copied from render/lane.rs. :(
     fn lt_to_color(lt: LaneType) -> Color {
@@ -148,80 +138,38 @@ impl Model {
             intersections: BTreeMap::new(),
             roads: BTreeMap::new(),
             buildings: BTreeMap::new(),
+            world: World::new(&Bounds::new()),
         }
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
         g.clear(Color::WHITE);
 
-        let selected = self.mouseover_something(g.canvas);
-        let current_r = match selected {
-            Some(ID::Road(r)) => self.mouseover_road(r, g.get_cursor_in_map_space().unwrap()),
-            _ => None,
-        };
+        self.world.draw(g, &HashSet::new());
 
-        for (id, r) in &self.roads {
-            r.draw(
-                self,
-                g,
-                Some((*id, FORWARDS)) == current_r,
-                Some((*id, BACKWARDS)) == current_r,
-            );
-        }
+        // TODO HIGHLIGHT_COLOR
 
-        for (id, i) in &self.intersections {
-            let color = if Some(ID::Intersection(*id)) == selected {
-                HIGHLIGHT_COLOR
-            } else {
-                match i.intersection_type {
-                    IntersectionType::TrafficSignal => Color::GREEN,
-                    IntersectionType::StopSign => Color::RED,
-                    IntersectionType::Border => Color::BLUE,
-                }
-            };
-            g.draw_circle(color, &i.circle());
-
-            if let Some(ref label) = i.label {
-                g.draw_text_at(&Text::from(Line(label)), i.center);
-            }
-        }
-
-        for (id, b) in &self.buildings {
-            let color = if Some(ID::Building(*id)) == selected {
-                HIGHLIGHT_COLOR
-            } else {
-                Color::BLUE
-            };
-            g.draw_polygon(color, &b.polygon());
-
-            if let Some(ref label) = b.label {
-                g.draw_text_at(&Text::from(Line(label)), b.center);
-            }
-        }
+        // TODO Always draw labels?
+        /*if let Some(ref label) = i.label {
+            g.draw_text_at(&Text::from(Line(label)), i.center);
+        }*/
     }
 
-    pub fn mouseover_something(&self, canvas: &Canvas) -> Option<ID> {
-        let cursor = canvas.get_cursor_in_map_space()?;
+    pub fn mouseover_something(&self, ctx: &EventCtx) -> Option<ID> {
+        self.world.mouseover_something(ctx, &HashSet::new())
+    }
 
-        for (id, i) in &self.intersections {
-            if i.circle().contains_pt(cursor) {
-                return Some(ID::Intersection(*id));
+    fn compute_bounds(&self) -> Bounds {
+        let mut bounds = Bounds::new();
+        for b in self.buildings.values() {
+            for pt in b.polygon().points() {
+                bounds.update(*pt);
             }
         }
-
-        for (id, b) in &self.buildings {
-            if b.polygon().contains_pt(cursor) {
-                return Some(ID::Building(*id));
-            }
+        for i in self.intersections.values() {
+            bounds.update(i.center);
         }
-
-        for id in self.roads.keys() {
-            if self.mouseover_road(*id, cursor).is_some() {
-                return Some(ID::Road(*id));
-            }
-        }
-
-        None
+        bounds
     }
 
     // Returns path to raw map
@@ -291,36 +239,7 @@ impl Model {
 
         // Leave gps_bounds alone. We'll get nonsense answers when converting back to it, which is
         // fine.
-
-        let mut max_x = 0.0;
-        let mut max_y = 0.0;
-        for b in &map.buildings {
-            for pt in b.polygon.points() {
-                if pt.x() > max_x {
-                    max_x = pt.x();
-                }
-                if pt.y() > max_y {
-                    max_y = pt.y();
-                }
-            }
-        }
-        for r in map.roads.values() {
-            for pt in &r.center_points {
-                if pt.x() > max_x {
-                    max_x = pt.x();
-                }
-                if pt.y() > max_y {
-                    max_y = pt.y();
-                }
-            }
-        }
-        map.boundary_polygon = Polygon::new(&vec![
-            Pt2D::new(0.0, 0.0),
-            Pt2D::new(max_x, 0.0),
-            Pt2D::new(max_x, max_y),
-            Pt2D::new(0.0, max_y),
-            Pt2D::new(0.0, 0.0),
-        ]);
+        map.boundary_polygon = self.compute_bounds().get_rectangle();
 
         let path = abstutil::path_raw_map(self.name.as_ref().expect("Model hasn't been named yet"));
         abstutil::write_binary(&path, &map).expect(&format!("Saving {} failed", path));
@@ -329,7 +248,7 @@ impl Model {
     }
 
     // TODO Directly use raw_data and get rid of Model? Might be more maintainable long-term.
-    pub fn import(path: &str) -> Model {
+    pub fn import(path: &str, exclude_bldgs: bool, prerender: &Prerender) -> Model {
         let data: raw_data::Map = read_binary(path, &mut Timer::new("load map")).unwrap();
 
         let mut m = Model::new();
@@ -358,15 +277,57 @@ impl Model {
             );
         }
 
-        for (idx, b) in data.buildings.iter().enumerate() {
-            let b = Building {
-                label: None,
-                center: b.polygon.center(),
-            };
-            m.buildings.insert(idx, b);
+        if !exclude_bldgs {
+            for (idx, b) in data.buildings.iter().enumerate() {
+                let b = Building {
+                    label: None,
+                    center: b.polygon.center(),
+                };
+                m.buildings.insert(idx, b);
+            }
         }
 
+        m.recompute_world(prerender);
+
         m
+    }
+
+    fn recompute_world(&mut self, prerender: &Prerender) {
+        self.world = World::new(&self.compute_bounds());
+
+        for (id, b) in &self.buildings {
+            self.world.add_obj(
+                prerender,
+                ID::Building(*id),
+                b.polygon(),
+                Color::BLUE,
+                // TODO Always show its label?
+                Text::new());
+        }
+
+        for (id, i) in &self.intersections {
+            self.world.add_obj(
+                prerender,
+                ID::Intersection(*id),
+                i.circle().to_polygon(),
+                match i.intersection_type {
+                    IntersectionType::TrafficSignal => Color::GREEN,
+                    IntersectionType::StopSign => Color::RED,
+                    IntersectionType::Border => Color::BLUE,
+                },
+                Text::new());
+        }
+
+        for (id, r) in &self.roads {
+            for (dir, idx, poly, color) in r.polygons(self) {
+                self.world.add_obj(
+                    prerender,
+                    ID::Lane(*id, dir, idx),
+                    poly,
+                    color,
+                    Text::new());
+            }
+        }
     }
 }
 
@@ -488,18 +449,6 @@ impl Model {
 
     pub fn remove_road(&mut self, id: StableRoadID) {
         self.roads.remove(&id);
-    }
-
-    // TODO Make (StableRoadID, Direction) be the primitive, I guess.
-    pub fn mouseover_road(&self, id: StableRoadID, pt: Pt2D) -> Option<(StableRoadID, Direction)> {
-        let r = &self.roads[&id];
-        if r.polygon(FORWARDS, self).contains_pt(pt) {
-            return Some((id, FORWARDS));
-        }
-        if r.polygon(BACKWARDS, self).contains_pt(pt) {
-            return Some((id, BACKWARDS));
-        }
-        None
     }
 
     pub fn get_lanes(&self, id: StableRoadID) -> String {
