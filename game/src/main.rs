@@ -14,11 +14,7 @@ mod ui;
 use structopt::StructOpt;
 
 fn main() {
-    ezgui::run(
-        "A/B Street",
-        1800.0,
-        800.0,
-        vec!["assets/water_texture.png", "assets/grass_texture.png"],
-        |ctx| game::Game::new(ui::Flags::from_args(), ctx),
-    );
+    ezgui::run("A/B Street", 1800.0, 800.0, |ctx| {
+        game::Game::new(ui::Flags::from_args(), ctx)
+    });
 }

@@ -166,12 +166,45 @@ impl<'a> EventCtx<'a> {
     }
 
     pub fn texture(&self, filename: &str) -> Color {
-        for (idx, (name, _)) in self.canvas.textures.iter().enumerate() {
-            if filename == name {
-                return Color::Texture(idx as f32);
-            }
+        if let Some(c) = self.canvas.texture_lookups.get(filename) {
+            return *c;
         }
         panic!("Don't know texture {}", filename);
+    }
+
+    pub fn set_textures(
+        &mut self,
+        upload_textures: bool,
+        textures: Vec<(&str, Color)>,
+        timer: &mut Timer,
+    ) {
+        self.canvas.textures.clear();
+        self.canvas.texture_lookups.clear();
+
+        if textures.len() > 10 {
+            panic!("Due to lovely hacks, only 10 textures supported");
+        }
+        timer.start_iter("upload textures", textures.len());
+        for (idx, (filename, fallback)) in textures.into_iter().enumerate() {
+            timer.next();
+            if upload_textures {
+                let img = image::open(filename).unwrap().to_rgba();
+                let dims = img.dimensions();
+                let tex = glium::texture::Texture2d::new(
+                    self.prerender.display,
+                    glium::texture::RawImage2d::from_raw_rgba_reversed(&img.into_raw(), dims),
+                )
+                .unwrap();
+                self.canvas.textures.push((filename.to_string(), tex));
+                self.canvas
+                    .texture_lookups
+                    .insert(filename.to_string(), Color::Texture(idx as f32));
+            } else {
+                self.canvas
+                    .texture_lookups
+                    .insert(filename.to_string(), fallback);
+            }
+        }
     }
 }
 

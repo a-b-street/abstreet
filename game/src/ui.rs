@@ -25,6 +25,15 @@ impl UI {
     pub fn new(flags: Flags, ctx: &mut EventCtx, splash: bool) -> UI {
         let cs = ColorScheme::load().unwrap();
         let primary = ctx.loading_screen("load map", |ctx, mut timer| {
+            ctx.set_textures(
+                !flags.no_textures,
+                vec![
+                    ("assets/water_texture.png", Color::rgb(170, 211, 223)),
+                    ("assets/grass_texture.png", Color::rgb(200, 250, 204)),
+                ],
+                &mut timer,
+            );
+
             PerMapUI::new(flags, &cs, ctx, &mut timer)
         });
 
@@ -449,6 +458,10 @@ pub struct Flags {
     /// Don't start with the splash screen and menu
     #[structopt(long = "no_splash")]
     pub no_splash: bool,
+
+    /// Don't upload textures
+    #[structopt(long = "no_textures")]
+    pub no_textures: bool,
 }
 
 // All of the state that's bound to a specific map+edit has to live here.

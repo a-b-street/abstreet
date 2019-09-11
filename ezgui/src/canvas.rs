@@ -1,5 +1,5 @@
 use crate::screen_geom::ScreenRectangle;
-use crate::{ScreenPt, Text, UserInput};
+use crate::{Color, ScreenPt, Text, UserInput};
 use geom::{Bounds, Pt2D};
 use glium::texture::Texture2d;
 use glium_glyph::glyph_brush::rusttype::Scale;
@@ -40,6 +40,7 @@ pub struct Canvas {
 
     // TODO Definitely a weird place to stash this!
     pub(crate) textures: Vec<(String, Texture2d)>,
+    pub(crate) texture_lookups: HashMap<String, Color>,
 }
 
 impl Canvas {
@@ -71,6 +72,7 @@ impl Canvas {
             lctrl_held: false,
 
             textures: Vec::new(),
+            texture_lookups: HashMap::new(),
         }
     }
 

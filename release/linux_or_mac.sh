@@ -16,6 +16,7 @@ cp release/play_abstreet.sh $OUT
 mkdir $OUT/game
 cargo build --release --bin game
 cp target/release/game $OUT/game
+cp -Rv game/assets $OUT/game
 
 zip -r $OUT $OUT
 rm -rf $OUT

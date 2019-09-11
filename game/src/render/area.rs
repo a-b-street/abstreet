@@ -12,8 +12,6 @@ impl DrawArea {
     pub fn new(area: &Area, ctx: &EventCtx, batch: &mut GeomBatch) -> DrawArea {
         batch.push(
             match area.area_type {
-                //AreaType::Park => cs.get_def("park area", Color::rgb(200, 250, 204)),
-                //AreaType::Water => cs.get_def("water area", Color::rgb(170, 211, 223)),
                 AreaType::Park => ctx.texture("assets/grass_texture.png"),
                 AreaType::Water => ctx.texture("assets/water_texture.png"),
             },
