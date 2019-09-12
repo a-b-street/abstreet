@@ -4,7 +4,7 @@ use ezgui::{Color, EventCtx, GfxCtx, Prerender, Text};
 use geom::{Bounds, Circle, Distance, LonLat, PolyLine, Polygon, Pt2D};
 use map_model::raw_data::{StableIntersectionID, StableRoadID};
 use map_model::{raw_data, IntersectionType, LaneType, RoadSpec, LANE_THICKNESS};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashSet};
 use std::mem;
 
 const INTERSECTION_RADIUS: Distance = Distance::const_meters(5.0);
@@ -46,6 +46,7 @@ struct Intersection {
     center: Pt2D,
     intersection_type: IntersectionType,
     label: Option<String>,
+    roads: HashSet<StableRoadID>,
 }
 
 impl Intersection {
@@ -259,6 +260,7 @@ impl Model {
                 center: raw_i.point,
                 intersection_type: raw_i.intersection_type,
                 label: raw_i.label.clone(),
+                roads: HashSet::new(),
             };
             m.intersections.insert(*id, i);
         }
@@ -275,6 +277,8 @@ impl Model {
                     back_label: r.osm_tags.get("back_label").cloned(),
                 },
             );
+            m.intersections.get_mut(&i1).unwrap().roads.insert(*id);
+            m.intersections.get_mut(&i2).unwrap().roads.insert(*id);
         }
 
         if !exclude_bldgs {
@@ -295,42 +299,35 @@ impl Model {
     fn recompute_world(&mut self, prerender: &Prerender) {
         self.world = World::new(&self.compute_bounds());
 
-        for (id, b) in &self.buildings {
-            self.world.add_obj(
-                prerender,
-                ID::Building(*id),
-                b.polygon(),
-                Color::BLUE,
-                // TODO Always show its label?
-                Text::new(),
-            );
+        for id in self.buildings.keys().cloned().collect::<Vec<_>>() {
+            self.bldg_added(id, prerender);
         }
-
-        for (id, i) in &self.intersections {
-            self.world.add_obj(
-                prerender,
-                ID::Intersection(*id),
-                i.circle().to_polygon(),
-                match i.intersection_type {
-                    IntersectionType::TrafficSignal => Color::GREEN,
-                    IntersectionType::StopSign => Color::RED,
-                    IntersectionType::Border => Color::BLUE,
-                },
-                Text::new(),
-            );
+        for id in self.intersections.keys().cloned().collect::<Vec<_>>() {
+            self.intersection_added(id, prerender);
         }
-
-        for (id, r) in &self.roads {
-            for (dir, idx, poly, color) in r.polygons(self) {
-                self.world
-                    .add_obj(prerender, ID::Lane(*id, dir, idx), poly, color, Text::new());
-            }
+        for id in self.roads.keys().cloned().collect::<Vec<_>>() {
+            self.road_added(id, prerender);
         }
     }
 }
 
 impl Model {
-    pub fn create_i(&mut self, center: Pt2D) {
+    fn intersection_added(&mut self, id: StableIntersectionID, prerender: &Prerender) {
+        let i = &self.intersections[&id];
+        self.world.add_obj(
+            prerender,
+            ID::Intersection(id),
+            i.circle().to_polygon(),
+            match i.intersection_type {
+                IntersectionType::TrafficSignal => Color::GREEN,
+                IntersectionType::StopSign => Color::RED,
+                IntersectionType::Border => Color::BLUE,
+            },
+            Text::new(),
+        );
+    }
+
+    pub fn create_i(&mut self, center: Pt2D, prerender: &Prerender) {
         let id = StableIntersectionID(self.intersections.len());
         self.intersections.insert(
             id,
@@ -338,12 +335,25 @@ impl Model {
                 center,
                 intersection_type: IntersectionType::StopSign,
                 label: None,
+                roads: HashSet::new(),
             },
         );
+
+        self.intersection_added(id, prerender);
     }
 
-    pub fn move_i(&mut self, id: StableIntersectionID, center: Pt2D) {
+    pub fn move_i(&mut self, id: StableIntersectionID, center: Pt2D, prerender: &Prerender) {
+        self.world.delete_obj(ID::Intersection(id));
+
         self.intersections.get_mut(&id).unwrap().center = center;
+
+        self.intersection_added(id, prerender);
+
+        // Now update all the roads.
+        for r in self.intersections[&id].roads.clone() {
+            self.road_deleted(r);
+            self.road_added(r, prerender);
+        }
     }
 
     pub fn set_i_label(&mut self, id: StableIntersectionID, label: String) {
@@ -354,7 +364,9 @@ impl Model {
         self.intersections[&id].label.clone()
     }
 
-    pub fn toggle_i_type(&mut self, id: StableIntersectionID) {
+    pub fn toggle_i_type(&mut self, id: StableIntersectionID, prerender: &Prerender) {
+        self.world.delete_obj(ID::Intersection(id));
+
         let i = self.intersections.get_mut(&id).unwrap();
         i.intersection_type = match i.intersection_type {
             IntersectionType::StopSign => IntersectionType::TrafficSignal,
@@ -372,16 +384,18 @@ impl Model {
             }
             IntersectionType::Border => IntersectionType::StopSign,
         };
+
+        self.intersection_added(id, prerender);
     }
 
     pub fn remove_i(&mut self, id: StableIntersectionID) {
-        for r in self.roads.values() {
-            if r.i1 == id || r.i2 == id {
-                println!("Can't delete intersection used by roads");
-                return;
-            }
+        if !self.intersections[&id].roads.is_empty() {
+            println!("Can't delete intersection used by roads");
+            return;
         }
         self.intersections.remove(&id);
+
+        self.world.delete_obj(ID::Intersection(id));
     }
 
     pub fn get_i_center(&self, id: StableIntersectionID) -> Pt2D {
@@ -390,7 +404,25 @@ impl Model {
 }
 
 impl Model {
-    pub fn create_road(&mut self, i1: StableIntersectionID, i2: StableIntersectionID) {
+    fn road_added(&mut self, id: StableRoadID, prerender: &Prerender) {
+        for (dir, idx, poly, color) in self.roads[&id].polygons(self) {
+            self.world
+                .add_obj(prerender, ID::Lane(id, dir, idx), poly, color, Text::new());
+        }
+    }
+
+    fn road_deleted(&mut self, id: StableRoadID) {
+        for (dir, idx, _, _) in self.roads[&id].polygons(self) {
+            self.world.delete_obj(ID::Lane(id, dir, idx));
+        }
+    }
+
+    pub fn create_road(
+        &mut self,
+        i1: StableIntersectionID,
+        i2: StableIntersectionID,
+        prerender: &Prerender,
+    ) {
         if self
             .roads
             .values()
@@ -399,8 +431,9 @@ impl Model {
             println!("Road already exists");
             return;
         }
+        let id = StableRoadID(self.roads.len());
         self.roads.insert(
-            StableRoadID(self.roads.len()),
+            id,
             Road {
                 i1,
                 i2,
@@ -412,19 +445,29 @@ impl Model {
                 back_label: None,
             },
         );
+        self.intersections.get_mut(&i1).unwrap().roads.insert(id);
+        self.intersections.get_mut(&i2).unwrap().roads.insert(id);
+
+        self.road_added(id, prerender);
     }
 
-    pub fn edit_lanes(&mut self, id: StableRoadID, spec: String) {
+    pub fn edit_lanes(&mut self, id: StableRoadID, spec: String, prerender: &Prerender) {
+        self.road_deleted(id);
+
         if let Some(s) = RoadSpec::parse(spec.clone()) {
             self.roads.get_mut(&id).unwrap().lanes = s;
         } else {
             println!("Bad RoadSpec: {}", spec);
         }
+
+        self.road_added(id, prerender);
     }
 
-    pub fn swap_lanes(&mut self, id: StableRoadID) {
+    pub fn swap_lanes(&mut self, id: StableRoadID, prerender: &Prerender) {
         let lanes = &mut self.roads.get_mut(&id).unwrap().lanes;
         mem::swap(&mut lanes.fwd, &mut lanes.back);
+
+        self.road_added(id, prerender);
     }
 
     pub fn set_r_label(&mut self, pair: (StableRoadID, Direction), label: String) {
@@ -446,7 +489,11 @@ impl Model {
     }
 
     pub fn remove_road(&mut self, id: StableRoadID) {
-        self.roads.remove(&id);
+        self.road_deleted(id);
+
+        let r = self.roads.remove(&id).unwrap();
+        self.intersections.get_mut(&r.i1).unwrap().roads.remove(&id);
+        self.intersections.get_mut(&r.i2).unwrap().roads.remove(&id);
     }
 
     pub fn get_lanes(&self, id: StableRoadID) -> String {
@@ -455,7 +502,18 @@ impl Model {
 }
 
 impl Model {
-    pub fn create_b(&mut self, center: Pt2D) {
+    fn bldg_added(&mut self, id: BuildingID, prerender: &Prerender) {
+        self.world.add_obj(
+            prerender,
+            ID::Building(id),
+            self.buildings[&id].polygon(),
+            Color::BLUE,
+            // TODO Always show its label?
+            Text::new(),
+        );
+    }
+
+    pub fn create_b(&mut self, center: Pt2D, prerender: &Prerender) {
         let id = self.buildings.len();
         self.buildings.insert(
             id,
@@ -464,10 +522,16 @@ impl Model {
                 label: None,
             },
         );
+
+        self.bldg_added(id, prerender);
     }
 
-    pub fn move_b(&mut self, id: BuildingID, center: Pt2D) {
+    pub fn move_b(&mut self, id: BuildingID, center: Pt2D, prerender: &Prerender) {
+        self.world.delete_obj(ID::Building(id));
+
         self.buildings.get_mut(&id).unwrap().center = center;
+
+        self.bldg_added(id, prerender);
     }
 
     pub fn set_b_label(&mut self, id: BuildingID, label: String) {
@@ -479,6 +543,8 @@ impl Model {
     }
 
     pub fn remove_b(&mut self, id: BuildingID) {
+        self.world.delete_obj(ID::Building(id));
+
         self.buildings.remove(&id);
     }
 }

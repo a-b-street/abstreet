@@ -1,5 +1,5 @@
 use crate::{Color, Drawable, EventCtx, GfxCtx, Prerender, Text};
-use aabb_quadtree::QuadTree;
+use aabb_quadtree::{ItemId, QuadTree};
 use geom::{Bounds, Circle, Distance, Polygon};
 use std::collections::HashMap;
 use std::fmt::Debug;
@@ -14,6 +14,7 @@ struct Object {
     polygon: Polygon,
     draw: Drawable,
     info: Text,
+    quadtree_id: ItemId,
 }
 
 pub struct World<ID: ObjectID> {
@@ -44,7 +45,7 @@ impl<ID: ObjectID> World<ID> {
 
         if let Some(id) = self.current_selection {
             let obj = &self.objects[&id];
-            g.draw_polygon(Color::BLUE, &obj.polygon);
+            g.draw_polygon(Color::CYAN, &obj.polygon);
             g.draw_mouse_tooltip(&obj.info);
         }
     }
@@ -84,6 +85,7 @@ impl<ID: ObjectID> World<ID> {
         self.current_selection
     }
 
+    // TODO This and delete_obj assume the original bounds passed to the quadtree are still valid.
     pub fn add_obj(
         &mut self,
         prerender: &Prerender,
@@ -92,7 +94,8 @@ impl<ID: ObjectID> World<ID> {
         color: Color,
         info: Text,
     ) {
-        self.quadtree
+        let quadtree_id = self
+            .quadtree
             .insert_with_box(id, polygon.get_bounds().as_bbox());
         let draw = prerender.upload_borrowed(vec![(color, &polygon)]);
         self.objects.insert(
@@ -101,7 +104,13 @@ impl<ID: ObjectID> World<ID> {
                 polygon,
                 draw,
                 info,
+                quadtree_id,
             },
         );
+    }
+
+    pub fn delete_obj(&mut self, id: ID) {
+        let obj = self.objects.remove(&id).unwrap();
+        self.quadtree.remove(obj.quadtree_id);
     }
 }

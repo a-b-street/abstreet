@@ -52,13 +52,13 @@ impl GUI for UI {
 
         match self.state {
             State::MovingIntersection(id) => {
-                self.model.move_i(id, cursor);
+                self.model.move_i(id, cursor, ctx.prerender);
                 if ctx.input.key_released(Key::LeftControl) {
                     self.state = State::Viewing;
                 }
             }
             State::MovingBuilding(id) => {
-                self.model.move_b(id, cursor);
+                self.model.move_b(id, cursor, ctx.prerender);
                 if ctx.input.key_released(Key::LeftControl) {
                     self.state = State::Viewing;
                 }
@@ -101,7 +101,7 @@ impl GUI for UI {
                     self.state = State::Viewing;
                 } else if let Some(ID::Intersection(i2)) = self.model.get_selection() {
                     if i1 != i2 && ctx.input.key_pressed(Key::R, "finalize road") {
-                        self.model.create_road(i1, i2);
+                        self.model.create_road(i1, i2, ctx.prerender);
                         self.state = State::Viewing;
                     }
                 }
@@ -111,7 +111,7 @@ impl GUI for UI {
                     .wrap(ctx)
                     .input_string_prefilled("Specify the lanes", self.model.get_lanes(id))
                 {
-                    self.model.edit_lanes(id, s);
+                    self.model.edit_lanes(id, s, ctx.prerender);
                     self.state = State::Viewing;
                 } else if wizard.aborted() {
                     self.state = State::Viewing;
@@ -135,7 +135,7 @@ impl GUI for UI {
                     } else if ctx.input.key_pressed(Key::Backspace, "delete intersection") {
                         self.model.remove_i(i);
                     } else if ctx.input.key_pressed(Key::T, "toggle intersection type") {
-                        self.model.toggle_i_type(i);
+                        self.model.toggle_i_type(i, ctx.prerender);
                     } else if ctx.input.key_pressed(Key::L, "label intersection") {
                         self.state = State::LabelingIntersection(i, Wizard::new());
                     }
@@ -156,7 +156,7 @@ impl GUI for UI {
                     } else if ctx.input.key_pressed(Key::E, "edit lanes") {
                         self.state = State::EditingRoad(r, Wizard::new());
                     } else if ctx.input.key_pressed(Key::S, "swap lanes") {
-                        self.model.swap_lanes(r);
+                        self.model.swap_lanes(r, ctx.prerender);
                     } else if ctx.input.key_pressed(Key::L, "label side of the road") {
                         self.state = State::LabelingRoad((r, dir), Wizard::new());
                     }
@@ -169,9 +169,9 @@ impl GUI for UI {
                         self.state = State::SavingModel(Wizard::new());
                     }
                 } else if ctx.input.key_pressed(Key::I, "create intersection") {
-                    self.model.create_i(cursor);
+                    self.model.create_i(cursor, ctx.prerender);
                 } else if ctx.input.key_pressed(Key::B, "create building") {
-                    self.model.create_b(cursor);
+                    self.model.create_b(cursor, ctx.prerender);
                 }
             }
         }
