@@ -70,7 +70,7 @@ impl GUI for UI {
                     "Label the building",
                     self.model.get_b_label(id).unwrap_or_else(String::new),
                 ) {
-                    self.model.set_b_label(id, label);
+                    self.model.set_b_label(id, label, ctx.prerender);
                     self.state = State::Viewing;
                 } else if wizard.aborted() {
                     self.state = State::Viewing;
@@ -81,7 +81,7 @@ impl GUI for UI {
                     "Label this side of the road",
                     self.model.get_r_label(pair).unwrap_or_else(String::new),
                 ) {
-                    self.model.set_r_label(pair, label);
+                    self.model.set_r_label(pair, label, ctx.prerender);
                     self.state = State::Viewing;
                 } else if wizard.aborted() {
                     self.state = State::Viewing;
@@ -92,7 +92,7 @@ impl GUI for UI {
                     "Label the intersection",
                     self.model.get_i_label(id).unwrap_or_else(String::new),
                 ) {
-                    self.model.set_i_label(id, label);
+                    self.model.set_i_label(id, label, ctx.prerender);
                     self.state = State::Viewing;
                 } else if wizard.aborted() {
                     self.state = State::Viewing;

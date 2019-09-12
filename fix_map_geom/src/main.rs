@@ -1,5 +1,5 @@
 use abstutil::Timer;
-use ezgui::world::{ObjectID, World};
+use ezgui::world::{Object, ObjectID, World};
 use ezgui::{
     hotkey, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, ModalMenu, Text, WarpingItemSlider,
     GUI,
@@ -413,10 +413,10 @@ fn initial_map_to_world(data: &InitialMap, ctx: &mut EventCtx) -> World<ID> {
     let mut w = World::new(&data.bounds);
 
     for r in data.roads.values() {
-        w.add_obj(
+        w.add(
             ctx.prerender,
-            ID::Road(r.id),
-            vec![(
+            Object::new(
+                ID::Road(r.id),
                 if r.trimmed_center_pts.length() < MIN_ROAD_LENGTH {
                     Color::CYAN
                 } else if r.has_parking() {
@@ -433,24 +433,24 @@ fn initial_map_to_world(data: &InitialMap, ctx: &mut EventCtx) -> World<ID> {
                 })
                 .unwrap()
                 .make_polygons(r.fwd_width + r.back_width),
-            )],
-            Text::from(Line(r.id.to_string())),
+            )
+            .tooltip(Text::from(Line(r.id.to_string()))),
         );
     }
 
     for i in data.intersections.values() {
-        w.add_obj(
+        w.add(
             ctx.prerender,
-            ID::Intersection(i.id),
-            vec![(
+            Object::new(
+                ID::Intersection(i.id),
                 if i.roads.len() == 2 {
                     Color::RED
                 } else {
                     Color::BLACK
                 },
                 Polygon::new(&i.polygon),
-            )],
-            Text::from(Line(i.id.to_string())),
+            )
+            .tooltip(Text::from(Line(i.id.to_string()))),
         );
     }
 

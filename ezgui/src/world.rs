@@ -1,4 +1,4 @@
-use crate::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Prerender, Text};
+use crate::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Prerender, Text};
 use aabb_quadtree::{ItemId, QuadTree};
 use geom::{Bounds, Circle, Distance, Polygon};
 use std::collections::HashMap;
@@ -10,15 +10,63 @@ pub trait ObjectID: Clone + Copy + Debug + Eq + Hash {
     fn zorder(&self) -> usize;
 }
 
-struct Object {
+pub struct Object<ID: ObjectID> {
+    id: ID,
+    geometry: Vec<(Color, Polygon)>,
+    tooltip: Option<Text>,
+    label: Option<Text>,
+}
+
+impl<ID: ObjectID> Object<ID> {
+    pub fn new(id: ID, color: Color, poly: Polygon) -> Object<ID> {
+        Object {
+            id,
+            geometry: vec![(color, poly)],
+            tooltip: None,
+            label: None,
+        }
+    }
+
+    pub fn get_id(&self) -> ID {
+        self.id
+    }
+
+    pub fn push(mut self, color: Color, poly: Polygon) -> Object<ID> {
+        self.geometry.push((color, poly));
+        self
+    }
+
+    pub fn tooltip(mut self, txt: Text) -> Object<ID> {
+        assert!(self.tooltip.is_none());
+        self.tooltip = Some(txt);
+        self
+    }
+
+    pub fn label(mut self, txt: Text) -> Object<ID> {
+        assert!(self.label.is_none());
+        self.label = Some(txt);
+        self
+    }
+
+    pub fn maybe_label(mut self, label: Option<String>) -> Object<ID> {
+        assert!(self.label.is_none());
+        if let Some(s) = label {
+            self.label = Some(Text::from(Line(s)));
+        }
+        self
+    }
+}
+
+struct WorldObject {
     unioned_polygon: Polygon,
     draw: Drawable,
-    info: Text,
+    tooltip: Option<Text>,
+    label: Option<Text>,
     quadtree_id: ItemId,
 }
 
 pub struct World<ID: ObjectID> {
-    objects: HashMap<ID, Object>,
+    objects: HashMap<ID, WorldObject>,
     quadtree: QuadTree<ID>,
     current_selection: Option<ID>,
 }
@@ -40,13 +88,19 @@ impl<ID: ObjectID> World<ID> {
         objects.sort_by_key(|id| id.zorder());
 
         for id in objects {
-            g.redraw(&self.objects[&id].draw);
+            let obj = &self.objects[&id];
+            g.redraw(&obj.draw);
+            if let Some(ref txt) = obj.label {
+                g.draw_text_at(txt, obj.unioned_polygon.center());
+            }
         }
 
         if let Some(id) = self.current_selection {
             let obj = &self.objects[&id];
             g.draw_polygon(Color::CYAN, &obj.unioned_polygon);
-            g.draw_mouse_tooltip(&obj.info);
+            if let Some(ref txt) = obj.tooltip {
+                g.draw_mouse_tooltip(txt);
+            }
         }
     }
 
@@ -82,35 +136,30 @@ impl<ID: ObjectID> World<ID> {
         self.current_selection
     }
 
-    // TODO This and delete_obj assume the original bounds passed to the quadtree are still valid.
-    pub fn add_obj(
-        &mut self,
-        prerender: &Prerender,
-        id: ID,
-        geometry: Vec<(Color, Polygon)>,
-        info: Text,
-    ) {
-        let mut unioned_polygon = geometry[0].1.clone();
-        for (_, p) in &geometry[1..] {
+    // TODO This and delete assume the original bounds passed to the quadtree are still valid.
+    pub fn add(&mut self, prerender: &Prerender, obj: Object<ID>) {
+        let mut unioned_polygon = obj.geometry[0].1.clone();
+        for (_, p) in &obj.geometry[1..] {
             unioned_polygon = unioned_polygon.union(p.clone());
         }
 
         let quadtree_id = self
             .quadtree
-            .insert_with_box(id, unioned_polygon.get_bounds().as_bbox());
-        let draw = prerender.upload(GeomBatch::from(geometry));
+            .insert_with_box(obj.id, unioned_polygon.get_bounds().as_bbox());
+        let draw = prerender.upload(GeomBatch::from(obj.geometry));
         self.objects.insert(
-            id,
-            Object {
+            obj.id,
+            WorldObject {
                 unioned_polygon,
                 draw,
-                info,
                 quadtree_id,
+                tooltip: obj.tooltip,
+                label: obj.label,
             },
         );
     }
 
-    pub fn delete_obj(&mut self, id: ID) {
+    pub fn delete(&mut self, id: ID) {
         let obj = self.objects.remove(&id).unwrap();
         self.quadtree.remove(obj.quadtree_id).unwrap();
     }
