@@ -44,25 +44,21 @@ impl GUI for UI {
             self.model.handle_mouseover(ctx);
         }
 
-        let cursor = {
-            if let Some(c) = ctx.canvas.get_cursor_in_map_space() {
-                c
-            } else {
-                return EventLoopMode::InputOnly;
-            }
-        };
-
         match self.state {
             State::MovingIntersection(id) => {
-                self.model.move_i(id, cursor, ctx.prerender);
-                if ctx.input.key_released(Key::LeftControl) {
-                    self.state = State::Viewing;
+                if let Some(cursor) = ctx.canvas.get_cursor_in_map_space() {
+                    self.model.move_i(id, cursor, ctx.prerender);
+                    if ctx.input.key_released(Key::LeftControl) {
+                        self.state = State::Viewing;
+                    }
                 }
             }
             State::MovingBuilding(id) => {
-                self.model.move_b(id, cursor, ctx.prerender);
-                if ctx.input.key_released(Key::LeftControl) {
-                    self.state = State::Viewing;
+                if let Some(cursor) = ctx.canvas.get_cursor_in_map_space() {
+                    self.model.move_b(id, cursor, ctx.prerender);
+                    if ctx.input.key_released(Key::LeftControl) {
+                        self.state = State::Viewing;
+                    }
                 }
             }
             State::LabelingBuilding(id, ref mut wizard) => {
@@ -133,6 +129,7 @@ impl GUI for UI {
                 }
             }
             State::Viewing => {
+                let cursor = ctx.canvas.get_cursor_in_map_space();
                 if let Some(ID::Intersection(i)) = self.model.get_selection() {
                     if ctx.input.key_pressed(Key::LeftControl, "move intersection") {
                         self.state = State::MovingIntersection(i);
@@ -177,13 +174,13 @@ impl GUI for UI {
                     } else {
                         self.state = State::SavingModel(Wizard::new());
                     }
-                } else if ctx.input.key_pressed(Key::I, "create intersection") {
-                    self.model.create_i(cursor, ctx.prerender);
+                } else if cursor.is_some() && ctx.input.key_pressed(Key::I, "create intersection") {
+                    self.model.create_i(cursor.unwrap(), ctx.prerender);
                     self.model.handle_mouseover(ctx);
                 // TODO Silly bug: Mouseover doesn't actually work! I think the cursor being
                 // dead-center messes up the precomputed triangles.
-                } else if ctx.input.key_pressed(Key::B, "create building") {
-                    self.model.create_b(cursor, ctx.prerender);
+                } else if cursor.is_some() && ctx.input.key_pressed(Key::B, "create building") {
+                    self.model.create_b(cursor.unwrap(), ctx.prerender);
                     self.model.handle_mouseover(ctx);
                 }
             }
