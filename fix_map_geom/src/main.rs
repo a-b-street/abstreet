@@ -416,22 +416,24 @@ fn initial_map_to_world(data: &InitialMap, ctx: &mut EventCtx) -> World<ID> {
         w.add_obj(
             ctx.prerender,
             ID::Road(r.id),
-            (if r.fwd_width >= r.back_width {
-                r.trimmed_center_pts
-                    .shift_right((r.fwd_width - r.back_width) / 2.0)
-            } else {
-                r.trimmed_center_pts
-                    .shift_left((r.back_width - r.fwd_width) / 2.0)
-            })
-            .unwrap()
-            .make_polygons(r.fwd_width + r.back_width),
-            if r.trimmed_center_pts.length() < MIN_ROAD_LENGTH {
-                Color::CYAN
-            } else if r.has_parking() {
-                Color::grey(0.5)
-            } else {
-                Color::grey(0.8)
-            },
+            vec![(
+                if r.trimmed_center_pts.length() < MIN_ROAD_LENGTH {
+                    Color::CYAN
+                } else if r.has_parking() {
+                    Color::grey(0.5)
+                } else {
+                    Color::grey(0.8)
+                },
+                (if r.fwd_width >= r.back_width {
+                    r.trimmed_center_pts
+                        .shift_right((r.fwd_width - r.back_width) / 2.0)
+                } else {
+                    r.trimmed_center_pts
+                        .shift_left((r.back_width - r.fwd_width) / 2.0)
+                })
+                .unwrap()
+                .make_polygons(r.fwd_width + r.back_width),
+            )],
             Text::from(Line(r.id.to_string())),
         );
     }
@@ -440,12 +442,14 @@ fn initial_map_to_world(data: &InitialMap, ctx: &mut EventCtx) -> World<ID> {
         w.add_obj(
             ctx.prerender,
             ID::Intersection(i.id),
-            Polygon::new(&i.polygon),
-            if i.roads.len() == 2 {
-                Color::RED
-            } else {
-                Color::BLACK
-            },
+            vec![(
+                if i.roads.len() == 2 {
+                    Color::RED
+                } else {
+                    Color::BLACK
+                },
+                Polygon::new(&i.polygon),
+            )],
             Text::from(Line(i.id.to_string())),
         );
     }

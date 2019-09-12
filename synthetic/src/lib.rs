@@ -66,27 +66,42 @@ struct Road {
 }
 
 impl Road {
-    fn polygons(&self, model: &Model) -> Vec<(Direction, usize, Polygon, Color)> {
+    fn lane_polygons(&self, model: &Model) -> Vec<(Direction, usize, Vec<(Color, Polygon)>)> {
         let base = PolyLine::new(vec![
             model.intersections[&self.i1].center,
             model.intersections[&self.i2].center,
         ]);
+        // Same logic as get_thick_polyline
+        let width_right = (self.lanes.fwd.len() as f64) * LANE_THICKNESS;
+        let width_left = (self.lanes.back.len() as f64) * LANE_THICKNESS;
+        let centered_base = if width_right >= width_left {
+            base.shift_right((width_right - width_left) / 2.0).unwrap()
+        } else {
+            base.shift_left((width_left - width_right) / 2.0).unwrap()
+        };
 
         let mut result = Vec::new();
 
         for (idx, lt) in self.lanes.fwd.iter().enumerate() {
-            let polygon = base
+            let polygon = centered_base
                 .shift_right(LANE_THICKNESS * ((idx as f64) + 0.5))
                 .unwrap()
                 .make_polygons(LANE_THICKNESS);
-            result.push((FORWARDS, idx, polygon, Road::lt_to_color(*lt)));
+            let mut geom = vec![(Road::lt_to_color(*lt), polygon)];
+            if idx == 0 {
+                geom.push((
+                    Color::YELLOW,
+                    centered_base.make_polygons(CENTER_LINE_THICKNESS),
+                ));
+            }
+            result.push((FORWARDS, idx, geom));
         }
         for (idx, lt) in self.lanes.back.iter().enumerate() {
-            let polygon = base
+            let polygon = centered_base
                 .shift_left(LANE_THICKNESS * ((idx as f64) + 0.5))
                 .unwrap()
                 .make_polygons(LANE_THICKNESS);
-            result.push((BACKWARDS, idx, polygon, Road::lt_to_color(*lt)));
+            result.push((BACKWARDS, idx, vec![(Road::lt_to_color(*lt), polygon)]));
         }
 
         result
@@ -323,12 +338,14 @@ impl Model {
         self.world.add_obj(
             prerender,
             ID::Intersection(id),
-            i.circle().to_polygon(),
-            match i.intersection_type {
-                IntersectionType::TrafficSignal => Color::GREEN,
-                IntersectionType::StopSign => Color::RED,
-                IntersectionType::Border => Color::BLUE,
-            },
+            vec![(
+                match i.intersection_type {
+                    IntersectionType::TrafficSignal => Color::GREEN,
+                    IntersectionType::StopSign => Color::RED,
+                    IntersectionType::Border => Color::BLUE,
+                },
+                i.circle().to_polygon(),
+            )],
             Text::new(),
         );
     }
@@ -412,14 +429,14 @@ impl Model {
 
 impl Model {
     fn road_added(&mut self, id: StableRoadID, prerender: &Prerender) {
-        for (dir, idx, poly, color) in self.roads[&id].polygons(self) {
+        for (dir, idx, geom) in self.roads[&id].lane_polygons(self) {
             self.world
-                .add_obj(prerender, ID::Lane(id, dir, idx), poly, color, Text::new());
+                .add_obj(prerender, ID::Lane(id, dir, idx), geom, Text::new());
         }
     }
 
     fn road_deleted(&mut self, id: StableRoadID) {
-        for (dir, idx, _, _) in self.roads[&id].polygons(self) {
+        for (dir, idx, _) in self.roads[&id].lane_polygons(self) {
             self.world.delete_obj(ID::Lane(id, dir, idx));
         }
     }
@@ -514,8 +531,7 @@ impl Model {
         self.world.add_obj(
             prerender,
             ID::Building(id),
-            self.buildings[&id].polygon(),
-            Color::BLUE,
+            vec![(Color::BLUE, self.buildings[&id].polygon())],
             // TODO Always show its label?
             Text::new(),
         );

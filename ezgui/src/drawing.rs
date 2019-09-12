@@ -325,6 +325,10 @@ impl GeomBatch {
         GeomBatch { list: Vec::new() }
     }
 
+    pub fn from(list: Vec<(Color, Polygon)>) -> GeomBatch {
+        GeomBatch { list }
+    }
+
     pub fn push(&mut self, color: Color, p: Polygon) {
         self.list.push((color, p));
     }

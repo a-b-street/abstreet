@@ -1,4 +1,4 @@
-use crate::{Color, Drawable, EventCtx, GfxCtx, Prerender, Text};
+use crate::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Prerender, Text};
 use aabb_quadtree::{ItemId, QuadTree};
 use geom::{Bounds, Circle, Distance, Polygon};
 use std::collections::HashMap;
@@ -11,7 +11,7 @@ pub trait ObjectID: Clone + Copy + Debug + Eq + Hash {
 }
 
 struct Object {
-    polygon: Polygon,
+    unioned_polygon: Polygon,
     draw: Drawable,
     info: Text,
     quadtree_id: ItemId,
@@ -45,7 +45,7 @@ impl<ID: ObjectID> World<ID> {
 
         if let Some(id) = self.current_selection {
             let obj = &self.objects[&id];
-            g.draw_polygon(Color::CYAN, &obj.polygon);
+            g.draw_polygon(Color::CYAN, &obj.unioned_polygon);
             g.draw_mouse_tooltip(&obj.info);
         }
     }
@@ -71,7 +71,7 @@ impl<ID: ObjectID> World<ID> {
         objects.reverse();
 
         for id in objects {
-            if self.objects[&id].polygon.contains_pt(cursor) {
+            if self.objects[&id].unioned_polygon.contains_pt(cursor) {
                 self.current_selection = Some(id);
                 return;
             }
@@ -87,18 +87,22 @@ impl<ID: ObjectID> World<ID> {
         &mut self,
         prerender: &Prerender,
         id: ID,
-        polygon: Polygon,
-        color: Color,
+        geometry: Vec<(Color, Polygon)>,
         info: Text,
     ) {
+        let mut unioned_polygon = geometry[0].1.clone();
+        for (_, p) in &geometry[1..] {
+            unioned_polygon = unioned_polygon.union(p.clone());
+        }
+
         let quadtree_id = self
             .quadtree
-            .insert_with_box(id, polygon.get_bounds().as_bbox());
-        let draw = prerender.upload_borrowed(vec![(color, &polygon)]);
+            .insert_with_box(id, unioned_polygon.get_bounds().as_bbox());
+        let draw = prerender.upload(GeomBatch::from(geometry));
         self.objects.insert(
             id,
             Object {
-                polygon,
+                unioned_polygon,
                 draw,
                 info,
                 quadtree_id,
