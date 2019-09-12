@@ -38,6 +38,8 @@ pub struct Model {
     intersections: BTreeMap<StableIntersectionID, Intersection>,
     roads: BTreeMap<StableRoadID, Road>,
     buildings: BTreeMap<BuildingID, Building>,
+    // Never reuse IDs, and don't worry about being sequential
+    id_counter: usize,
 
     world: World<ID>,
 }
@@ -137,6 +139,7 @@ impl Model {
             intersections: BTreeMap::new(),
             roads: BTreeMap::new(),
             buildings: BTreeMap::new(),
+            id_counter: 0,
             world: World::new(&Bounds::new()),
         }
     }
@@ -263,6 +266,7 @@ impl Model {
                 roads: HashSet::new(),
             };
             m.intersections.insert(*id, i);
+            m.id_counter = m.id_counter.max(id.0 + 1);
         }
 
         for (id, r) in &data.roads {
@@ -279,6 +283,7 @@ impl Model {
             );
             m.intersections.get_mut(&i1).unwrap().roads.insert(*id);
             m.intersections.get_mut(&i2).unwrap().roads.insert(*id);
+            m.id_counter = m.id_counter.max(id.0 + 1);
         }
 
         if !exclude_bldgs {
@@ -288,6 +293,7 @@ impl Model {
                     center: b.polygon.center(),
                 };
                 m.buildings.insert(idx, b);
+                m.id_counter = m.id_counter.max(idx + 1);
             }
         }
 
@@ -328,7 +334,8 @@ impl Model {
     }
 
     pub fn create_i(&mut self, center: Pt2D, prerender: &Prerender) {
-        let id = StableIntersectionID(self.intersections.len());
+        let id = StableIntersectionID(self.id_counter);
+        self.id_counter += 1;
         self.intersections.insert(
             id,
             Intersection {
@@ -431,7 +438,8 @@ impl Model {
             println!("Road already exists");
             return;
         }
-        let id = StableRoadID(self.roads.len());
+        let id = StableRoadID(self.id_counter);
+        self.id_counter += 1;
         self.roads.insert(
             id,
             Road {
@@ -514,7 +522,8 @@ impl Model {
     }
 
     pub fn create_b(&mut self, center: Pt2D, prerender: &Prerender) {
-        let id = self.buildings.len();
+        let id = self.id_counter;
+        self.id_counter += 1;
         self.buildings.insert(
             id,
             Building {

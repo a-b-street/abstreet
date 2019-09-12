@@ -51,9 +51,6 @@ impl<ID: ObjectID> World<ID> {
     }
 
     pub fn handle_mouseover(&mut self, ctx: &EventCtx) {
-        if !ctx.redo_mouseover() {
-            return;
-        }
         self.current_selection = None;
 
         let cursor = if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
@@ -111,6 +108,6 @@ impl<ID: ObjectID> World<ID> {
 
     pub fn delete_obj(&mut self, id: ID) {
         let obj = self.objects.remove(&id).unwrap();
-        self.quadtree.remove(obj.quadtree_id);
+        self.quadtree.remove(obj.quadtree_id).unwrap();
     }
 }

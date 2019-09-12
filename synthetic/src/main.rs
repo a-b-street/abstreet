@@ -40,7 +40,9 @@ impl UI {
 impl GUI for UI {
     fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode {
         ctx.canvas.handle_event(ctx.input);
-        self.model.handle_mouseover(ctx);
+        if ctx.redo_mouseover() {
+            self.model.handle_mouseover(ctx);
+        }
 
         let cursor = {
             if let Some(c) = ctx.canvas.get_cursor_in_map_space() {
@@ -99,10 +101,12 @@ impl GUI for UI {
             State::CreatingRoad(i1) => {
                 if ctx.input.key_pressed(Key::Escape, "stop defining road") {
                     self.state = State::Viewing;
+                    self.model.handle_mouseover(ctx);
                 } else if let Some(ID::Intersection(i2)) = self.model.get_selection() {
                     if i1 != i2 && ctx.input.key_pressed(Key::R, "finalize road") {
                         self.model.create_road(i1, i2, ctx.prerender);
                         self.state = State::Viewing;
+                        self.model.handle_mouseover(ctx);
                     }
                 }
             }
@@ -113,8 +117,10 @@ impl GUI for UI {
                 {
                     self.model.edit_lanes(id, s, ctx.prerender);
                     self.state = State::Viewing;
+                    self.model.handle_mouseover(ctx);
                 } else if wizard.aborted() {
                     self.state = State::Viewing;
+                    self.model.handle_mouseover(ctx);
                 }
             }
             State::SavingModel(ref mut wizard) => {
@@ -134,6 +140,7 @@ impl GUI for UI {
                         self.state = State::CreatingRoad(i);
                     } else if ctx.input.key_pressed(Key::Backspace, "delete intersection") {
                         self.model.remove_i(i);
+                        self.model.handle_mouseover(ctx);
                     } else if ctx.input.key_pressed(Key::T, "toggle intersection type") {
                         self.model.toggle_i_type(i, ctx.prerender);
                     } else if ctx.input.key_pressed(Key::L, "label intersection") {
@@ -144,6 +151,7 @@ impl GUI for UI {
                         self.state = State::MovingBuilding(b);
                     } else if ctx.input.key_pressed(Key::Backspace, "delete building") {
                         self.model.remove_b(b);
+                        self.model.handle_mouseover(ctx);
                     } else if ctx.input.key_pressed(Key::L, "label building") {
                         self.state = State::LabelingBuilding(b, Wizard::new());
                     }
@@ -153,6 +161,7 @@ impl GUI for UI {
                         .key_pressed(Key::Backspace, &format!("delete road {}", r))
                     {
                         self.model.remove_road(r);
+                        self.model.handle_mouseover(ctx);
                     } else if ctx.input.key_pressed(Key::E, "edit lanes") {
                         self.state = State::EditingRoad(r, Wizard::new());
                     } else if ctx.input.key_pressed(Key::S, "swap lanes") {
@@ -170,8 +179,12 @@ impl GUI for UI {
                     }
                 } else if ctx.input.key_pressed(Key::I, "create intersection") {
                     self.model.create_i(cursor, ctx.prerender);
+                    self.model.handle_mouseover(ctx);
+                // TODO Silly bug: Mouseover doesn't actually work! I think the cursor being
+                // dead-center messes up the precomputed triangles.
                 } else if ctx.input.key_pressed(Key::B, "create building") {
                     self.model.create_b(cursor, ctx.prerender);
+                    self.model.handle_mouseover(ctx);
                 }
             }
         }
@@ -187,11 +200,9 @@ impl GUI for UI {
         match self.state {
             State::CreatingRoad(i1) => {
                 if let Some(cursor) = g.get_cursor_in_map_space() {
-                    g.draw_line(
-                        Color::GREEN,
-                        Distance::meters(5.0),
-                        &Line::new(self.model.get_i_center(i1), cursor),
-                    );
+                    if let Some(l) = Line::maybe_new(self.model.get_i_center(i1), cursor) {
+                        g.draw_line(Color::GREEN, Distance::meters(5.0), &l);
+                    }
                 }
             }
             State::LabelingBuilding(_, ref wizard)

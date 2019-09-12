@@ -148,7 +148,7 @@ impl Polygon {
                 top_left.offset(width, height),
                 top_left.offset(Distance::ZERO, height),
             ],
-            indices: vec![0, 1, 2, 2, 3, 0],
+            indices: vec![0, 1, 2, 0, 2, 3],
         }
     }
 

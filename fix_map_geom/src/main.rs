@@ -76,7 +76,9 @@ impl GUI for UI {
                 ref mut osd,
             } => {
                 {
-                    self.world.handle_mouseover(ctx);
+                    if ctx.redo_mouseover() {
+                        self.world.handle_mouseover(ctx);
+                    }
 
                     let len = self.hints.hints.len();
                     let mut txt = Text::prompt("Fix Map Geometry");
@@ -284,7 +286,9 @@ impl GUI for UI {
             }
             State::BanTurnsBetween { from, ref mut osd } => {
                 ctx.canvas.handle_event(ctx.input);
-                self.world.handle_mouseover(ctx);
+                if ctx.redo_mouseover() {
+                    self.world.handle_mouseover(ctx);
+                }
 
                 if ctx.input.key_pressed(Key::Escape, "cancel") {
                     self.state = State::main(ctx);
