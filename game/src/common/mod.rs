@@ -88,15 +88,19 @@ impl CommonState {
                 osd.append(Line("..."));
             }
             Some(ID::Lane(l)) => {
-                osd.append(Line(l.to_string()).fg(id_color));
-                osd.append(Line(" is "));
-                osd.append(Line(map.get_parent(*l).get_name()).fg(name_color));
+                osd.append_all(vec![
+                    Line(l.to_string()).fg(id_color),
+                    Line(" is "),
+                    Line(map.get_parent(*l).get_name()).fg(name_color),
+                ]);
             }
             Some(ID::Building(b)) => {
                 let bldg = map.get_b(*b);
-                osd.append(Line(b.to_string()).fg(id_color));
-                osd.append(Line(" is "));
-                osd.append(Line(bldg.get_name()).fg(name_color));
+                osd.append_all(vec![
+                    Line(b.to_string()).fg(id_color),
+                    Line(" is "),
+                    Line(bldg.get_name()).fg(name_color),
+                ]);
                 if let Some(ref p) = bldg.parking {
                     osd.append(Line(format!(
                         " ({} parking spots via {})",
@@ -105,15 +109,16 @@ impl CommonState {
                 }
             }
             Some(ID::Turn(t)) => {
-                osd.append(Line(format!("TurnID({})", map.get_t(*t).lookup_idx)).fg(id_color));
-                osd.append(Line(" between "));
-                osd.append(Line(map.get_parent(t.src).get_name()).fg(name_color));
-                osd.append(Line(" and "));
-                osd.append(Line(map.get_parent(t.dst).get_name()).fg(name_color));
+                osd.append_all(vec![
+                    Line(format!("TurnID({})", map.get_t(*t).lookup_idx)).fg(id_color),
+                    Line(" between "),
+                    Line(map.get_parent(t.src).get_name()).fg(name_color),
+                    Line(" and "),
+                    Line(map.get_parent(t.dst).get_name()).fg(name_color),
+                ]);
             }
             Some(ID::Intersection(i)) => {
-                osd.append(Line(i.to_string()).fg(id_color));
-                osd.append(Line(" of "));
+                osd.append_all(vec![Line(i.to_string()).fg(id_color), Line(" of ")]);
 
                 let mut road_names = BTreeSet::new();
                 for r in &map.get_i(*i).roads {
@@ -130,13 +135,14 @@ impl CommonState {
             Some(ID::Car(c)) => {
                 osd.append(Line(c.to_string()).fg(id_color));
                 if let Some(r) = ui.primary.sim.bus_route_id(*c) {
-                    osd.append(Line(" serving "));
-                    osd.append(Line(&map.get_br(r).name).fg(name_color));
+                    osd.append_all(vec![
+                        Line(" serving "),
+                        Line(&map.get_br(r).name).fg(name_color),
+                    ]);
                 }
             }
             Some(ID::BusStop(bs)) => {
-                osd.append(Line(bs.to_string()).fg(id_color));
-                osd.append(Line(" serving "));
+                osd.append_all(vec![Line(bs.to_string()).fg(id_color), Line(" serving ")]);
 
                 let routes = map.get_routes_serving_stop(*bs);
                 let len = routes.len();

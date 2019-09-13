@@ -108,9 +108,11 @@ impl State for TripsVisualizer {
         self.slider.draw(g);
         if let Some(ID::Building(b)) = ui.primary.current_selection {
             let mut osd = Text::new();
-            osd.add(Line(b.to_string()).fg(ui.cs.get("OSD ID color")));
-            osd.append(Line(" is "));
-            osd.append(Line(ui.primary.map.get_b(b).get_name()).fg(ui.cs.get("OSD name color")));
+            osd.add_appended(vec![
+                Line(b.to_string()).fg(ui.cs.get("OSD ID color")),
+                Line(" is "),
+                Line(ui.primary.map.get_b(b).get_name()).fg(ui.cs.get("OSD name color")),
+            ]);
             if let Some(md) = self.bldgs.get(&b) {
                 osd.append(Line(format!(
                     ". {} households, {} employees, {} offstreet parking spaces",

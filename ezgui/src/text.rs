@@ -120,6 +120,23 @@ impl Text {
         self.lines.last_mut().unwrap().1.push(line);
     }
 
+    pub fn add_appended(&mut self, lines: Vec<TextSpan>) {
+        assert!(lines.len() > 1);
+        for (idx, l) in lines.into_iter().enumerate() {
+            if idx == 0 {
+                self.add(l);
+            } else {
+                self.append(l);
+            }
+        }
+    }
+
+    pub fn append_all(&mut self, lines: Vec<TextSpan>) {
+        for l in lines {
+            self.append(l);
+        }
+    }
+
     // TODO Ideally we'd wrap last-minute when drawing, but eh, start somewhere.
     pub fn add_wrapped_line(&mut self, canvas: &Canvas, line: String) {
         let wrap_to = canvas.window_width / MAX_CHAR_WIDTH;

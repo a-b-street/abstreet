@@ -149,16 +149,20 @@ fn tooltip_lines(id: ID, g: &mut GfxCtx, ctx: &PerMapUI) -> Text {
     match id {
         ID::Road(id) => {
             let r = map.get_r(id);
-            txt.add(Line(format!("{} (originally {}) is ", r.id, r.stable_id)));
-            txt.append(Line(r.get_name()).fg(Color::CYAN));
+            txt.add_appended(vec![
+                Line(format!("{} (originally {}) is ", r.id, r.stable_id)),
+                Line(r.get_name()).fg(Color::CYAN),
+            ]);
             txt.add(Line(format!("From OSM way {}", r.osm_way_id)));
         }
         ID::Lane(id) => {
             let l = map.get_l(id);
             let r = map.get_r(l.parent);
 
-            txt.add(Line(format!("{} is ", l.id)));
-            txt.append(Line(r.get_name()).fg(Color::CYAN));
+            txt.add_appended(vec![
+                Line(format!("{} is ", l.id)),
+                Line(r.get_name()).fg(Color::CYAN),
+            ]);
             txt.add(Line(format!("From OSM way {}", r.osm_way_id)));
             txt.add(Line(format!(
                 "Parent {} (originally {}) points to {}",
@@ -258,8 +262,10 @@ fn tooltip_lines(id: ID, g: &mut GfxCtx, ctx: &PerMapUI) -> Text {
 
 fn styled_kv(txt: &mut Text, tags: &BTreeMap<String, String>) {
     for (k, v) in tags {
-        txt.add(Line(k).fg(Color::RED));
-        txt.append(Line(" = "));
-        txt.append(Line(v).fg(Color::CYAN));
+        txt.add_appended(vec![
+            Line(k).fg(Color::RED),
+            Line(" = "),
+            Line(v).fg(Color::CYAN),
+        ]);
     }
 }

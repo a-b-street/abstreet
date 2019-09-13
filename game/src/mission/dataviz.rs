@@ -66,8 +66,10 @@ impl State for DataVisualizer {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         let mut txt = Text::prompt("Data Visualizer");
         if let Some(ref name) = self.current_tract {
-            txt.add(Line("Census "));
-            txt.append(Line(name).fg(ui.cs.get("OSD name color")));
+            txt.add_appended(vec![
+                Line("Census "),
+                Line(name).fg(ui.cs.get("OSD name color")),
+            ]);
             let tract = &self.tracts[name];
             txt.add(Line(format!(
                 "{} buildings",
@@ -126,8 +128,10 @@ impl State for DataVisualizer {
         self.menu.draw(g);
         if let Some(ref name) = self.current_tract {
             let mut osd = Text::new();
-            osd.add(Line("Census "));
-            osd.append(Line(name).fg(ui.cs.get("OSD name color")));
+            osd.add_appended(vec![
+                Line("Census "),
+                Line(name).fg(ui.cs.get("OSD name color")),
+            ]);
             CommonState::draw_custom_osd(g, osd);
         } else {
             CommonState::draw_osd(g, ui, &None);
@@ -150,9 +154,11 @@ impl State for DataVisualizer {
             } else {
                 let mut txt = Text::new();
                 for (k, v) in kv {
-                    txt.add(Line(k).fg(Color::RED));
-                    txt.append(Line(" = "));
-                    txt.append(Line(v.to_string()).fg(Color::CYAN));
+                    txt.add_appended(vec![
+                        Line(k).fg(Color::RED),
+                        Line(" = "),
+                        Line(v.to_string()).fg(Color::CYAN),
+                    ]);
                 }
                 g.draw_blocking_text(&txt, (HorizontalAlignment::Left, VerticalAlignment::Top));
             }
@@ -236,15 +242,15 @@ fn bar_chart(g: &mut GfxCtx, data: &BTreeMap<String, Estimate>) {
         if name == "Total:" {
             continue;
         }
-        labels.add(Line(format!("{} (", name)).size(40));
-        labels.append(
+        labels.add_appended(vec![
+            Line(format!("{} (", name)).size(40),
             Line(format!(
                 "{}%",
                 ((est.value as f64) / (sum as f64) * 100.0) as usize
             ))
             .fg(Color::RED),
-        );
-        labels.append(Line(")"));
+            Line(")"),
+        ]);
     }
     let (txt_width, total_height) = g.text_dims(&labels);
     let line_height = total_height / ((data.len() as f64) - 1.0);

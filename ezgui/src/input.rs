@@ -305,9 +305,11 @@ impl UserInput {
 
     pub fn populate_osd(&mut self, osd: &mut Text) {
         for (key, a) in self.important_actions.drain(..) {
-            osd.add(Line("Press "));
-            osd.append(Line(key.describe()).fg(text::HOTKEY_COLOR));
-            osd.append(Line(format!(" to {}", a)));
+            osd.add_appended(vec![
+                Line("Press "),
+                Line(key.describe()).fg(text::HOTKEY_COLOR),
+                Line(format!(" to {}", a)),
+            ]);
         }
     }
 

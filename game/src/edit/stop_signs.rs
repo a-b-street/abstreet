@@ -120,8 +120,10 @@ impl State for StopSignEditor {
         self.menu.draw(g);
         if let Some(r) = self.selected_sign {
             let mut osd = Text::new();
-            osd.add(Line("Stop sign for "));
-            osd.append(Line(ui.primary.map.get_r(r).get_name()).fg(ui.cs.get("OSD name color")));
+            osd.add_appended(vec![
+                Line("Stop sign for "),
+                Line(ui.primary.map.get_r(r).get_name()).fg(ui.cs.get("OSD name color")),
+            ]);
             CommonState::draw_custom_osd(g, osd);
         } else {
             CommonState::draw_osd(g, ui, &None);

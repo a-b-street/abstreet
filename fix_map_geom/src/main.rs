@@ -82,32 +82,38 @@ impl GUI for UI {
 
                     let len = self.hints.hints.len();
                     let mut txt = Text::prompt("Fix Map Geometry");
-                    txt.add(Line(len.to_string()).fg(Color::CYAN));
-                    txt.append(Line(" hints, "));
-                    txt.append(
+                    txt.add_appended(vec![
+                        Line(len.to_string()).fg(Color::CYAN),
+                        Line(" hints, "),
                         Line(self.hints.parking_overrides.len().to_string()).fg(Color::CYAN),
-                    );
-                    txt.append(Line(" parking overrides"));
+                        Line(" parking overrides"),
+                    ]);
                     if let Some(ID::Road(r)) = self.world.get_selection() {
-                        txt.add(Line(r.to_string()).fg(Color::RED));
-                        txt.append(Line(format!(
-                            " is {} long",
-                            self.data.roads[&r].trimmed_center_pts.length()
-                        )));
+                        txt.add_appended(vec![
+                            Line(r.to_string()).fg(Color::RED),
+                            Line(format!(
+                                " is {} long",
+                                self.data.roads[&r].trimmed_center_pts.length()
+                            )),
+                        ]);
                         if self.data.roads[&r].has_parking() {
                             txt.add(Line("Has parking"));
                         } else {
                             txt.add(Line("No parking"));
                         }
                         for (k, v) in &self.raw.roads[&r].osm_tags {
-                            txt.add(Line(k).fg(Color::RED));
-                            txt.append(Line(" = "));
-                            txt.append(Line(v).fg(Color::CYAN));
+                            txt.add_appended(vec![
+                                Line(k).fg(Color::RED),
+                                Line(" = "),
+                                Line(v).fg(Color::CYAN),
+                            ]);
                         }
                     }
                     if let Some(ID::Intersection(i)) = self.world.get_selection() {
-                        txt.add(Line(i.to_string()).fg(Color::RED));
-                        txt.append(Line(" OSM tag diffs:"));
+                        txt.add_appended(vec![
+                            Line(i.to_string()).fg(Color::RED),
+                            Line(" OSM tag diffs:"),
+                        ]);
                         let roads = &self.data.intersections[&i].roads;
                         if roads.len() == 2 {
                             let mut iter = roads.iter();
@@ -117,27 +123,33 @@ impl GUI for UI {
                             for (k, v1) in r1_tags {
                                 if let Some(v2) = r2_tags.get(k) {
                                     if v1 != v2 {
-                                        txt.add(Line(k).fg(Color::RED));
-                                        txt.append(Line(" = "));
-                                        txt.append(Line(v1).fg(Color::CYAN));
-                                        txt.append(Line(" / "));
-                                        txt.append(Line(v2).fg(Color::CYAN));
+                                        txt.add_appended(vec![
+                                            Line(k).fg(Color::RED),
+                                            Line(" = "),
+                                            Line(v1).fg(Color::CYAN),
+                                            Line(" / "),
+                                            Line(v2).fg(Color::CYAN),
+                                        ]);
                                     }
                                 } else {
-                                    txt.add(Line(k).fg(Color::RED));
-                                    txt.append(Line(" = "));
-                                    txt.append(Line(v1).fg(Color::CYAN));
-                                    txt.append(Line(" / "));
-                                    txt.append(Line("MISSING").fg(Color::CYAN));
+                                    txt.add_appended(vec![
+                                        Line(k).fg(Color::RED),
+                                        Line(" = "),
+                                        Line(v1).fg(Color::CYAN),
+                                        Line(" / "),
+                                        Line("MISSING").fg(Color::CYAN),
+                                    ]);
                                 }
                             }
                             for (k, v2) in r2_tags {
                                 if !r1_tags.contains_key(k) {
-                                    txt.add(Line(k).fg(Color::RED));
-                                    txt.append(Line(" = "));
-                                    txt.append(Line("MISSING").fg(Color::CYAN));
-                                    txt.append(Line(" / "));
-                                    txt.append(Line(v2).fg(Color::CYAN));
+                                    txt.add_appended(vec![
+                                        Line(k).fg(Color::RED),
+                                        Line(" = "),
+                                        Line("MISSING").fg(Color::CYAN),
+                                        Line(" / "),
+                                        Line(v2).fg(Color::CYAN),
+                                    ]);
                                 }
                             }
                         }

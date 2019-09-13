@@ -26,9 +26,11 @@ impl TextBox {
         txt.add(Line(&self.line[0..self.cursor_x]));
         if self.cursor_x < self.line.len() {
             // TODO This "cursor" looks awful!
-            txt.append(Line("|").fg(text::SELECTED_COLOR));
-            txt.append(Line(&self.line[self.cursor_x..=self.cursor_x]));
-            txt.append(Line(&self.line[self.cursor_x + 1..]));
+            txt.append_all(vec![
+                Line("|").fg(text::SELECTED_COLOR),
+                Line(&self.line[self.cursor_x..=self.cursor_x]),
+                Line(&self.line[self.cursor_x + 1..]),
+            ]);
         } else {
             txt.append(Line("|").fg(text::SELECTED_COLOR));
         }

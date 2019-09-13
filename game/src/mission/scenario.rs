@@ -213,17 +213,19 @@ impl State for ScenarioManager {
 
         if let Some(ID::Building(b)) = ui.primary.current_selection {
             let mut osd = Text::new();
-            osd.add(Line(b.to_string()).fg(ui.cs.get("OSD ID color")));
-            osd.append(Line(" is "));
-            osd.append(Line(ui.primary.map.get_b(b).get_name()).fg(ui.cs.get("OSD name color")));
             let from = self.trips_from_bldg.get(b);
             let to = self.trips_to_bldg.get(b);
-            osd.append(Line(format!(
-                ". {} trips from here, {} trips to here, {} parked cars needed",
-                from.len(),
-                to.len(),
-                self.cars_needed_per_bldg[&b]
-            )));
+            osd.add_appended(vec![
+                Line(b.to_string()).fg(ui.cs.get("OSD ID color")),
+                Line(" is "),
+                Line(ui.primary.map.get_b(b).get_name()).fg(ui.cs.get("OSD name color")),
+                Line(format!(
+                    ". {} trips from here, {} trips to here, {} parked cars needed",
+                    from.len(),
+                    to.len(),
+                    self.cars_needed_per_bldg[&b]
+                )),
+            ]);
             CommonState::draw_custom_osd(g, osd);
         } else {
             CommonState::draw_osd(g, ui, &ui.primary.current_selection);

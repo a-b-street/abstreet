@@ -28,10 +28,14 @@ impl Scoreboard {
         let t = ui.primary.sim.get_finished_trips();
 
         let mut summary = Text::new();
-        summary.add(Line("Score at "));
-        summary.append(Line(ui.primary.sim.time().to_string()).fg(Color::RED));
-        summary.add(Line(prettyprint_usize(t.unfinished_trips)).fg(Color::CYAN));
-        summary.append(Line(" unfinished trips"));
+        summary.add_appended(vec![
+            Line("Score at "),
+            Line(ui.primary.sim.time().to_string()).fg(Color::RED),
+        ]);
+        summary.add_appended(vec![
+            Line(prettyprint_usize(t.unfinished_trips)).fg(Color::CYAN),
+            Line(" unfinished trips"),
+        ]);
 
         for (mode, trips) in &t
             .finished_trips
@@ -43,8 +47,10 @@ impl Scoreboard {
             for (_, _, dt) in trips {
                 distrib.add(dt);
             }
-            summary.add(Line(format!("{:?}", mode)).fg(Color::CYAN));
-            summary.append(Line(format!(" trips: {}", distrib.describe())));
+            summary.add_appended(vec![
+                Line(format!("{:?}", mode)).fg(Color::CYAN),
+                Line(format!(" trips: {}", distrib.describe())),
+            ]);
         }
 
         Scoreboard { menu, summary }

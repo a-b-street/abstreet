@@ -213,9 +213,11 @@ impl GUI for UI {
                 if let Some(ID::Lane(id, _, _)) = self.model.get_selection() {
                     let mut txt = Text::new();
                     for (k, v) in self.model.get_tags(id) {
-                        txt.add(Line(k).fg(Color::RED));
-                        txt.append(Line(" = "));
-                        txt.append(Line(v).fg(Color::CYAN));
+                        txt.add_appended(vec![
+                            Line(k).fg(Color::RED),
+                            Line(" = "),
+                            Line(v).fg(Color::CYAN),
+                        ]);
                     }
                     g.draw_blocking_text(
                         &txt,

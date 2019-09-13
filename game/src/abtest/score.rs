@@ -30,17 +30,21 @@ impl Scoreboard {
         let t2 = secondary.sim.get_finished_trips();
 
         let mut summary = Text::new();
-        summary.add(Line("Score at "));
-        summary.append(Line(primary.sim.time().to_string()).fg(Color::RED));
-        summary.append(Line(format!(
-            "... {} / {}",
-            primary.map.get_edits().edits_name,
-            secondary.map.get_edits().edits_name
-        )));
-        summary.add(Line(prettyprint_usize(t1.unfinished_trips)).fg(Color::CYAN));
-        summary.append(Line(" | "));
-        summary.append(Line(prettyprint_usize(t2.unfinished_trips)).fg(Color::RED));
-        summary.append(Line(" unfinished trips"));
+        summary.add_appended(vec![
+            Line("Score at "),
+            Line(primary.sim.time().to_string()).fg(Color::RED),
+            Line(format!(
+                "... {} / {}",
+                primary.map.get_edits().edits_name,
+                secondary.map.get_edits().edits_name
+            )),
+        ]);
+        summary.add_appended(vec![
+            Line(prettyprint_usize(t1.unfinished_trips)).fg(Color::CYAN),
+            Line(" | "),
+            Line(prettyprint_usize(t2.unfinished_trips)).fg(Color::RED),
+            Line(" unfinished trips"),
+        ]);
 
         let cmp = CompareTrips::new(t1, t2);
         for (mode, trips) in &cmp
@@ -64,29 +68,33 @@ impl Scoreboard {
             deltas.sort();
             let len = deltas.len() as f64;
 
-            summary.add(Line(format!("{:?}", mode)).fg(Color::CYAN));
-            summary.append(Line(format!(
-                " trips: {} same, {} different",
-                abstutil::prettyprint_usize(num_same),
-                abstutil::prettyprint_usize(deltas.len())
-            )));
+            summary.add_appended(vec![
+                Line(format!("{:?}", mode)).fg(Color::CYAN),
+                Line(format!(
+                    " trips: {} same, {} different",
+                    abstutil::prettyprint_usize(num_same),
+                    abstutil::prettyprint_usize(deltas.len())
+                )),
+            ]);
             if !deltas.is_empty() {
-                summary.add(Line("  deltas: "));
-                summary.append(Line("50%ile").fg(Color::RED));
-                summary.append(Line(format!(
-                    " {}, ",
-                    handle_negative(deltas[(0.5 * len).floor() as usize])
-                )));
-                summary.append(Line("90%ile").fg(Color::RED));
-                summary.append(Line(format!(
-                    " {}, ",
-                    handle_negative(deltas[(0.9 * len).floor() as usize])
-                )));
-                summary.append(Line("99%ile").fg(Color::RED));
-                summary.append(Line(format!(
-                    " {}",
-                    handle_negative(deltas[(0.99 * len).floor() as usize])
-                )));
+                summary.add_appended(vec![
+                    Line("  deltas: "),
+                    Line("50%ile").fg(Color::RED),
+                    Line(format!(
+                        " {}, ",
+                        handle_negative(deltas[(0.5 * len).floor() as usize])
+                    )),
+                    Line("90%ile").fg(Color::RED),
+                    Line(format!(
+                        " {}, ",
+                        handle_negative(deltas[(0.9 * len).floor() as usize])
+                    )),
+                    Line("99%ile").fg(Color::RED),
+                    Line(format!(
+                        " {}",
+                        handle_negative(deltas[(0.99 * len).floor() as usize])
+                    )),
+                ]);
             }
         }
 

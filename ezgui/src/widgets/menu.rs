@@ -338,8 +338,10 @@ impl<T: Clone> Menu<T> {
             txt.override_width = Some(self.total_width);
             if choice.active {
                 if let Some(key) = choice.hotkey {
-                    txt.add(Line(key.describe()).fg(text::HOTKEY_COLOR));
-                    txt.append(Line(format!(" - {}", choice.label)));
+                    txt.add_appended(vec![
+                        Line(key.describe()).fg(text::HOTKEY_COLOR),
+                        Line(format!(" - {}", choice.label)),
+                    ]);
                 } else {
                     txt.add(Line(&choice.label));
                 }
