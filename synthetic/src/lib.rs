@@ -1,6 +1,6 @@
 use abstutil::{read_binary, Timer};
 use ezgui::world::{Object, ObjectID, World};
-use ezgui::{Color, EventCtx, GfxCtx, Prerender};
+use ezgui::{Color, EventCtx, GfxCtx, Line, Prerender, Text};
 use geom::{Bounds, Circle, Distance, LonLat, PolyLine, Polygon, Pt2D};
 use map_model::raw_data::{StableIntersectionID, StableRoadID};
 use map_model::{raw_data, IntersectionType, LaneType, RoadSpec, LANE_THICKNESS};
@@ -63,10 +63,20 @@ struct Road {
     lanes: RoadSpec,
     fwd_label: Option<String>,
     back_label: Option<String>,
+    osm_tags: BTreeMap<String, String>,
 }
 
 impl Road {
     fn lanes(&self, id: StableRoadID, model: &Model) -> Vec<Object<ID>> {
+        let mut tooltip = Text::new();
+        if let Some(name) = self.osm_tags.get("name") {
+            tooltip.add(Line(name));
+        } else if let Some(name) = self.osm_tags.get("ref") {
+            tooltip.add(Line(name));
+        } else {
+            tooltip.add(Line("some road"));
+        }
+
         let base = PolyLine::new(vec![
             model.intersections[&self.i1].center,
             model.intersections[&self.i2].center,
@@ -100,7 +110,7 @@ impl Road {
             if idx == self.lanes.fwd.len() / 2 {
                 obj = obj.maybe_label(self.fwd_label.clone());
             }
-            result.push(obj);
+            result.push(obj.tooltip(tooltip.clone()));
         }
         for (idx, lt) in self.lanes.back.iter().enumerate() {
             let mut obj = Object::new(
@@ -114,7 +124,7 @@ impl Road {
             if idx == self.lanes.back.len() / 2 {
                 obj = obj.maybe_label(self.back_label.clone());
             }
-            result.push(obj);
+            result.push(obj.tooltip(tooltip.clone()));
         }
 
         result
@@ -285,6 +295,7 @@ impl Model {
                     lanes: r.get_spec(),
                     fwd_label: r.osm_tags.get("fwd_label").cloned(),
                     back_label: r.osm_tags.get("back_label").cloned(),
+                    osm_tags: r.osm_tags.clone(),
                 },
             );
             m.intersections.get_mut(&i1).unwrap().roads.insert(*id);
@@ -462,6 +473,7 @@ impl Model {
                 },
                 fwd_label: None,
                 back_label: None,
+                osm_tags: BTreeMap::new(),
             },
         );
         self.intersections.get_mut(&i1).unwrap().roads.insert(id);
@@ -528,6 +540,10 @@ impl Model {
 
     pub fn get_lanes(&self, id: StableRoadID) -> String {
         self.roads[&id].lanes.to_string()
+    }
+
+    pub fn get_tags(&self, id: StableRoadID) -> &BTreeMap<String, String> {
+        &self.roads[&id].osm_tags
     }
 }
 

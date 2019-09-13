@@ -1,4 +1,4 @@
-use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Text, Wizard, GUI};
+use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, Text, Wizard, GUI};
 use geom::{Distance, Line};
 use map_model::raw_data::{StableIntersectionID, StableRoadID};
 use std::{env, process};
@@ -209,7 +209,24 @@ impl GUI for UI {
             | State::SavingModel(ref wizard) => {
                 wizard.draw(g);
             }
-            _ => {}
+            State::Viewing => {
+                if let Some(ID::Lane(id, _, _)) = self.model.get_selection() {
+                    let mut txt = Text::new();
+                    for (k, v) in self.model.get_tags(id) {
+                        txt.add(Line(k).fg(Color::RED));
+                        txt.append(Line(" = "));
+                        txt.append(Line(v).fg(Color::CYAN));
+                    }
+                    g.draw_blocking_text(
+                        &txt,
+                        (
+                            ezgui::HorizontalAlignment::Right,
+                            ezgui::VerticalAlignment::Top,
+                        ),
+                    );
+                }
+            }
+            State::MovingIntersection(_) | State::MovingBuilding(_) => {}
         };
 
         g.draw_blocking_text(&self.osd, ezgui::BOTTOM_LEFT);
