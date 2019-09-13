@@ -194,7 +194,14 @@ pub fn extract_osm(
 fn tags_to_map(raw_tags: &[osm_xml::Tag]) -> BTreeMap<String, String> {
     raw_tags
         .iter()
-        .map(|tag| (tag.key.clone(), tag.val.clone()))
+        .filter_map(|tag| {
+            // Toss out really useless metadata.
+            if tag.key.starts_with("tiger:") || tag.key.starts_with("old_name:") {
+                None
+            } else {
+                Some((tag.key.clone(), tag.val.clone()))
+            }
+        })
         .collect()
 }
 
