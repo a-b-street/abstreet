@@ -121,23 +121,14 @@ impl GUI for UI {
                             let r2_tags = &self.raw.roads[iter.next().unwrap()].osm_tags;
 
                             for (k, v1) in r1_tags {
-                                if let Some(v2) = r2_tags.get(k) {
-                                    if v1 != v2 {
-                                        txt.add_appended(vec![
-                                            Line(k).fg(Color::RED),
-                                            Line(" = "),
-                                            Line(v1).fg(Color::CYAN),
-                                            Line(" / "),
-                                            Line(v2).fg(Color::CYAN),
-                                        ]);
-                                    }
-                                } else {
+                                let v2 = r2_tags.get(k).unwrap_or("MISSING");
+                                if v1 != v2 {
                                     txt.add_appended(vec![
                                         Line(k).fg(Color::RED),
                                         Line(" = "),
                                         Line(v1).fg(Color::CYAN),
                                         Line(" / "),
-                                        Line("MISSING").fg(Color::CYAN),
+                                        Line(v2).fg(Color::CYAN),
                                     ]);
                                 }
                             }

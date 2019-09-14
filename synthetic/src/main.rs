@@ -163,6 +163,7 @@ impl GUI for UI {
                         self.state = State::EditingRoad(r, Wizard::new());
                     } else if ctx.input.key_pressed(Key::S, "swap lanes") {
                         self.model.swap_lanes(r, ctx.prerender);
+                        self.model.handle_mouseover(ctx);
                     } else if ctx.input.key_pressed(Key::L, "label side of the road") {
                         self.state = State::LabelingRoad((r, dir), Wizard::new());
                     }

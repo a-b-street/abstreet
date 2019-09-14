@@ -287,6 +287,35 @@ impl Model {
 
         for (id, r) in &data.roads {
             let (i1, i2) = (r.i1, r.i2);
+
+            if let Some(other) = m
+                .roads
+                .values()
+                .find(|r| (r.i1 == i1 && r.i2 == i2) || (r.i1 == i2 && r.i2 == i1))
+            {
+                println!("Two roads go between the same intersections...");
+                for (k, v1) in &r.osm_tags {
+                    let v2 = other
+                        .osm_tags
+                        .get(k)
+                        .cloned()
+                        .unwrap_or("MISSING".to_string());
+                    println!("  {} = {}   /   {}", k, v1, v2);
+                }
+                for (k, v2) in &other.osm_tags {
+                    if !r.osm_tags.contains_key(k) {
+                        println!("  {} = MISSING   /   {}", k, v2);
+                    }
+                }
+                // Strip these out for now
+                continue;
+            }
+
+            let mut stripped_tags = r.osm_tags.clone();
+            stripped_tags.remove("synthetic_lanes");
+            stripped_tags.remove("fwd_label");
+            stripped_tags.remove("back_label");
+
             m.roads.insert(
                 *id,
                 Road {
@@ -295,7 +324,7 @@ impl Model {
                     lanes: r.get_spec(),
                     fwd_label: r.osm_tags.get("fwd_label").cloned(),
                     back_label: r.osm_tags.get("back_label").cloned(),
-                    osm_tags: r.osm_tags.clone(),
+                    osm_tags: stripped_tags,
                 },
             );
             m.intersections.get_mut(&i1).unwrap().roads.insert(*id);
@@ -486,7 +515,8 @@ impl Model {
         self.road_deleted(id);
 
         if let Some(s) = RoadSpec::parse(spec.clone()) {
-            self.roads.get_mut(&id).unwrap().lanes = s;
+            let r = self.roads.get_mut(&id).unwrap();
+            r.lanes = s;
         } else {
             println!("Bad RoadSpec: {}", spec);
         }
@@ -497,8 +527,10 @@ impl Model {
     pub fn swap_lanes(&mut self, id: StableRoadID, prerender: &Prerender) {
         self.road_deleted(id);
 
-        let lanes = &mut self.roads.get_mut(&id).unwrap().lanes;
+        let r = self.roads.get_mut(&id).unwrap();
+        let lanes = &mut r.lanes;
         mem::swap(&mut lanes.fwd, &mut lanes.back);
+        mem::swap(&mut r.fwd_label, &mut r.back_label);
 
         self.road_added(id, prerender);
     }
@@ -581,7 +613,8 @@ impl Model {
     pub fn set_b_label(&mut self, id: BuildingID, label: String, prerender: &Prerender) {
         self.world.delete(ID::Building(id));
 
-        self.buildings.get_mut(&id).unwrap().label = Some(label);
+        let b = self.buildings.get_mut(&id).unwrap();
+        b.label = Some(label.clone());
 
         self.bldg_added(id, prerender);
     }
