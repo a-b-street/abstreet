@@ -121,8 +121,8 @@ impl GUI for UI {
                             let r2_tags = &self.raw.roads[iter.next().unwrap()].osm_tags;
 
                             for (k, v1) in r1_tags {
-                                let v2 = r2_tags.get(k).unwrap_or("MISSING");
-                                if v1 != v2 {
+                                let v2 = r2_tags.get(k).cloned().unwrap_or("MISSING".to_string());
+                                if *v1 != v2 {
                                     txt.add_appended(vec![
                                         Line(k).fg(Color::RED),
                                         Line(" = "),

@@ -1,8 +1,10 @@
+mod model;
+
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, Text, Wizard, GUI};
 use geom::{Distance, Line};
 use map_model::raw_data::{StableIntersectionID, StableRoadID};
+use model::{BuildingID, Direction, Model, ID};
 use std::{env, process};
-use synthetic::{BuildingID, Direction, Model, ID};
 
 struct UI {
     model: Model,

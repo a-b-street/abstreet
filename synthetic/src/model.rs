@@ -515,8 +515,7 @@ impl Model {
         self.road_deleted(id);
 
         if let Some(s) = RoadSpec::parse(spec.clone()) {
-            let r = self.roads.get_mut(&id).unwrap();
-            r.lanes = s;
+            self.roads.get_mut(&id).unwrap().lanes = s;
         } else {
             println!("Bad RoadSpec: {}", spec);
         }
@@ -613,8 +612,7 @@ impl Model {
     pub fn set_b_label(&mut self, id: BuildingID, label: String, prerender: &Prerender) {
         self.world.delete(ID::Building(id));
 
-        let b = self.buildings.get_mut(&id).unwrap();
-        b.label = Some(label.clone());
+        self.buildings.get_mut(&id).unwrap().label = Some(label.clone());
 
         self.bldg_added(id, prerender);
     }
