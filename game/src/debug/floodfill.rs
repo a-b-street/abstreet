@@ -106,15 +106,13 @@ impl State for Floodfiller {
         Transition::Keep
     }
 
-    // TODO Want this, but DebugMode acts a base. Unclear what plugins are useful to stack there,
-    // actually...
-    /*fn draw_default_ui(&self) -> bool {
+    fn draw_default_ui(&self) -> bool {
         false
-    }*/
+    }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        self.menu.draw(g);
         self.colorer.draw(g, ui);
+        self.menu.draw(g);
     }
 }
 

@@ -302,10 +302,6 @@ impl State for DebugMode {
         false
     }
 
-    fn draw_as_base_for_substates(&self) -> bool {
-        true
-    }
-
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         let mut opts = self.common.draw_options(ui);
         opts.label_buildings = self.layers.show_labels;

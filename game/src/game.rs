@@ -10,8 +10,6 @@ pub struct Game {
     // A stack of states
     pub states: Vec<Box<dyn State>>,
     pub ui: UI,
-
-    idx_draw_base: Option<usize>,
 }
 
 impl Game {
@@ -27,16 +25,7 @@ impl Game {
                 Box::new(SandboxMode::new(ctx)),
             ]
         };
-        let idx_draw_base = if states.last().as_ref().unwrap().draw_as_base_for_substates() {
-            Some(states.len() - 1)
-        } else {
-            None
-        };
-        Game {
-            states,
-            ui,
-            idx_draw_base,
-        }
+        Game { states, ui }
     }
 }
 
@@ -62,44 +51,20 @@ impl GUI for Game {
                     self.before_quit(ctx.canvas);
                     std::process::exit(0);
                 }
-                if self.idx_draw_base == Some(self.states.len()) {
-                    self.idx_draw_base = None;
-                }
                 evmode
             }
             Transition::PopWithData(cb) => {
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
                 cb(self.states.last_mut().unwrap(), &mut self.ui, ctx);
-                if self.idx_draw_base == Some(self.states.len()) {
-                    self.idx_draw_base = None;
-                }
                 EventLoopMode::InputOnly
             }
             Transition::PushWithMode(state, evmode) => {
                 self.states.last_mut().unwrap().on_suspend(&mut self.ui);
-                if self.idx_draw_base.is_some() {
-                    assert!(!state.draw_as_base_for_substates());
-                    assert!(state.draw_default_ui());
-                } else if state.draw_as_base_for_substates() {
-                    assert!(!state.draw_default_ui());
-                    self.idx_draw_base = Some(self.states.len());
-                }
                 self.states.push(state);
                 evmode
             }
             Transition::ReplaceWithMode(state, evmode) => {
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
-                if self.idx_draw_base == Some(self.states.len()) {
-                    self.idx_draw_base = None;
-                }
-
-                if self.idx_draw_base.is_some() {
-                    assert!(!state.draw_as_base_for_substates());
-                    assert!(state.draw_default_ui());
-                } else if state.draw_as_base_for_substates() {
-                    assert!(!state.draw_default_ui());
-                    self.idx_draw_base = Some(self.states.len());
-                }
                 self.states.push(state);
                 evmode
             }
@@ -110,22 +75,15 @@ impl GUI for Game {
     fn draw(&self, g: &mut GfxCtx) {
         let state = self.states.last().unwrap();
 
-        if let Some(idx) = self.idx_draw_base {
-            self.states[idx].draw(g, &self.ui);
-            if idx != self.states.len() - 1 {
-                state.draw(g, &self.ui);
-            }
-        } else if state.draw_default_ui() {
+        if state.draw_default_ui() {
             self.ui.draw(
                 g,
                 DrawOptions::new(),
                 &self.ui.primary.sim,
                 &ShowEverything::new(),
             );
-            state.draw(g, &self.ui);
-        } else {
-            state.draw(g, &self.ui);
         }
+        state.draw(g, &self.ui);
 
         /*println!(
             "{} uploads, {} draw calls",
@@ -166,9 +124,6 @@ pub trait State: downcast_rs::Downcast {
 
     fn draw_default_ui(&self) -> bool {
         true
-    }
-    fn draw_as_base_for_substates(&self) -> bool {
-        false
     }
 
     // Before we push a new state on top of this one, call this.
