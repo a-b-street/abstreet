@@ -1,7 +1,8 @@
-use crate::{ParkingSimState, ParkingSpot, SidewalkSpot, Vehicle};
+use crate::{ParkingSimState, ParkingSpot, SidewalkSpot, Vehicle, VehicleType};
 use geom::Distance;
 use map_model::{
-    BuildingID, IntersectionID, LaneID, Map, Path, PathStep, Position, Traversable, TurnID,
+    BuildingID, IntersectionID, LaneID, LaneType, Map, Path, PathStep, Position, Traversable,
+    TurnID,
 };
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
@@ -121,6 +122,21 @@ impl Router {
             // Do this to trigger the side-effect of looking for parking.
             self.maybe_handle_end(Distance::ZERO, vehicle, parking, map);
         }
+
+        // Sanity check laws haven't been broken
+        if let Traversable::Lane(l) = self.head() {
+            let lt = map.get_l(l).lane_type;
+            let ok = match lt {
+                LaneType::Driving => true,
+                LaneType::Parking | LaneType::Sidewalk => false,
+                LaneType::Biking => vehicle.vehicle_type == VehicleType::Bike,
+                LaneType::Bus => vehicle.vehicle_type == VehicleType::Bus,
+            };
+            if !ok {
+                panic!("{} just wound up on {}, a {:?}", vehicle.id, l, lt);
+            }
+        }
+
         prev
     }
 
