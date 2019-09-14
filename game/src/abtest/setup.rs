@@ -35,21 +35,26 @@ fn pick_ab_test(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
     } else {
         let test_name = wizard.input_string("Name the A/B test")?;
         let map_name = ui.primary.map.get_name();
+
+        let scenario_name = choose_scenario(map_name, &mut wizard, "What scenario to run?")?;
+        let edits1_name = choose_edits(
+            map_name,
+            &mut wizard,
+            "For the 1st run, what map edits to use?",
+            "".to_string(),
+        )?;
+        let edits2_name = choose_edits(
+            map_name,
+            &mut wizard,
+            "For the 2nd run, what map edits to use?",
+            edits1_name.clone(),
+        )?;
         let t = ABTest {
             test_name,
             map_name: map_name.to_string(),
-            scenario_name: choose_scenario(map_name, &mut wizard, "What scenario to run?")?,
-            edits1_name: choose_edits(
-                map_name,
-                &mut wizard,
-                "For the 1st run, what map edits to use?",
-            )?,
-            // TODO Filter out the first edits
-            edits2_name: choose_edits(
-                map_name,
-                &mut wizard,
-                "For the 2nd run, what map edits to use?",
-            )?,
+            scenario_name,
+            edits1_name,
+            edits2_name,
         };
         t.save();
         t
@@ -242,10 +247,15 @@ fn choose_scenario(map_name: &str, wizard: &mut WrappedWizard, query: &str) -> O
     })
 }
 
-fn choose_edits(map_name: &str, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
+fn choose_edits(
+    map_name: &str,
+    wizard: &mut WrappedWizard,
+    query: &str,
+    exclude: String,
+) -> Option<String> {
     wizard.choose_string(query, || {
         let mut list = abstutil::list_all_objects("edits", map_name);
         list.push("no_edits".to_string());
-        list
+        list.into_iter().filter(|x| x != &exclude).collect()
     })
 }
