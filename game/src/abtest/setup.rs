@@ -125,20 +125,21 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
     let secondary = ctx.loading_screen(
         &format!("Launching A/B test {}", test.test_name),
         |ctx, mut timer| {
-            let load = PathBuf::from(abstutil::path1_bin(
-                &test.map_name,
-                abstutil::SCENARIOS,
-                &test.scenario_name,
-            ));
-            if ui.primary.current_flags.sim_flags.rng_seed.is_none() {
-                ui.primary.current_flags.sim_flags.rng_seed = Some(42);
-            }
+            let scenario: Scenario = abstutil::read_binary(
+                &abstutil::path1_bin(&test.map_name, abstutil::SCENARIOS, &test.scenario_name),
+                &mut timer,
+            )
+            .expect("loading scenario failed");
 
             {
                 timer.start("load primary");
+                if ui.primary.current_flags.sim_flags.rng_seed.is_none() {
+                    ui.primary.current_flags.sim_flags.rng_seed = Some(42);
+                }
                 ui.primary.current_flags.sim_flags.run_name =
                     Some(format!("{} with {}", test.test_name, test.edits1_name));
                 ui.primary.current_flags.sim_flags.savestate_every = None;
+
                 apply_map_edits(
                     &mut ui.primary,
                     &ui.cs,
@@ -149,8 +150,6 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
                     .map
                     .recalculate_pathfinding_after_edits(&mut timer);
 
-                let scenario: Scenario = abstutil::read_binary(load.to_str().unwrap(), &mut timer)
-                    .expect("loading scenario failed");
                 ui.primary.reset_sim();
                 let mut rng = ui.primary.current_flags.sim_flags.make_rng();
                 scenario.instantiate(&mut ui.primary.sim, &ui.primary.map, &mut rng, &mut timer);
@@ -166,7 +165,7 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
                 let mut secondary = PerMapUI::new(
                     Flags {
                         sim_flags: SimFlags {
-                            load,
+                            load: PathBuf::from(abstutil::path_map(&test.map_name)),
                             rng_seed: current_flags.sim_flags.rng_seed,
                             run_name: Some(format!("{} with {}", test.test_name, test.edits2_name)),
                             savestate_every: None,
@@ -188,6 +187,9 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
                 secondary
                     .map
                     .recalculate_pathfinding_after_edits(&mut timer);
+
+                let mut rng = secondary.current_flags.sim_flags.make_rng();
+                scenario.instantiate(&mut secondary.sim, &secondary.map, &mut rng, &mut timer);
                 secondary.sim.step(&secondary.map, Duration::seconds(0.1));
                 timer.stop("load secondary");
                 secondary
