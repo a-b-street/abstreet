@@ -51,6 +51,7 @@ impl ABTestMode {
                         (hotkey(Key::R), "stop showing agent's route"),
                         (hotkey(Key::Q), "scoreboard"),
                         (hotkey(Key::O), "save state"),
+                        // TODO load arbitrary savestate
                     ],
                     vec![
                         (hotkey(Key::Escape), "quit"),
@@ -108,6 +109,7 @@ impl State for ABTestMode {
             return t;
         }
 
+        // TODO Confirm first
         if self.menu.action("quit") {
             return Transition::Pop;
         }
@@ -333,8 +335,8 @@ impl DiffOneTrip {
         } else {
             None
         };
-        let primary_agent = primary.sim.trip_to_agent(trip);
-        let secondary_agent = secondary.sim.trip_to_agent(trip);
+        let primary_agent = primary.sim.trip_to_agent(trip).ok();
+        let secondary_agent = secondary.sim.trip_to_agent(trip).ok();
         if primary_agent.is_none() || secondary_agent.is_none() {
             println!("{} isn't present in both sims", trip);
         }

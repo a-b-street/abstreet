@@ -420,14 +420,22 @@ impl TripManager {
         self.active_trip_mode.values().cloned().collect()
     }
 
-    pub fn trip_to_agent(&self, id: TripID) -> Option<AgentID> {
-        let trip = self.trips.get(id.0)?;
-        match trip.legs.get(0)? {
-            TripLeg::Walk(id, _, _) => Some(AgentID::Pedestrian(*id)),
-            TripLeg::Drive(vehicle, _) => Some(AgentID::Car(vehicle.id)),
+    pub fn trip_to_agent(&self, id: TripID) -> TripResult<AgentID> {
+        if id.0 >= self.trips.len() {
+            return TripResult::TripDoesntExist;
+        }
+        let trip = &self.trips[id.0];
+
+        if trip.finished_at.is_some() || trip.aborted {
+            return TripResult::TripDone;
+        }
+
+        match &trip.legs[0] {
+            TripLeg::Walk(id, _, _) => TripResult::Ok(AgentID::Pedestrian(*id)),
+            TripLeg::Drive(vehicle, _) => TripResult::Ok(AgentID::Car(vehicle.id)),
             // TODO Should be the bus, but apparently transit sim tracks differently?
-            TripLeg::RideBus(ped, _, _) => Some(AgentID::Pedestrian(*ped)),
-            TripLeg::ServeBusRoute(id, _) => Some(AgentID::Car(*id)),
+            TripLeg::RideBus(ped, _, _) => TripResult::Ok(AgentID::Pedestrian(*ped)),
+            TripLeg::ServeBusRoute(id, _) => TripResult::Ok(AgentID::Car(*id)),
         }
     }
 
@@ -471,11 +479,6 @@ impl TripManager {
 
     pub fn is_done(&self) -> bool {
         self.unfinished_trips == 0
-    }
-
-    pub fn is_trip_done_or_aborted(&self, id: TripID) -> bool {
-        let trip = &self.trips[id.0];
-        trip.finished_at.is_some() || trip.aborted
     }
 
     pub fn collect_events(&mut self) -> Vec<Event> {
@@ -610,4 +613,29 @@ pub enum TripEnd {
 pub struct TripStatus {
     pub start: TripStart,
     pub end: TripEnd,
+}
+
+pub enum TripResult<T> {
+    Ok(T),
+    ModeChange,
+    TripDone,
+    TripDoesntExist,
+}
+
+impl<T> TripResult<T> {
+    pub fn ok(self) -> Option<T> {
+        match self {
+            TripResult::Ok(data) => Some(data),
+            _ => None,
+        }
+    }
+
+    pub fn propagate_error<X>(self) -> TripResult<X> {
+        match self {
+            TripResult::Ok(_) => panic!("TripResult is Ok, can't propagate_error"),
+            TripResult::ModeChange => TripResult::ModeChange,
+            TripResult::TripDone => TripResult::TripDone,
+            TripResult::TripDoesntExist => TripResult::TripDoesntExist,
+        }
+    }
 }

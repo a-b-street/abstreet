@@ -3,7 +3,7 @@ use crate::ui::UI;
 use ezgui::{Color, EventCtx, GfxCtx, Key, ModalMenu};
 use geom::{Duration, PolyLine};
 use map_model::LANE_THICKNESS;
-use sim::{AgentID, TripID};
+use sim::{AgentID, TripID, TripResult};
 
 pub enum RouteViewer {
     Inactive,
@@ -81,19 +81,23 @@ impl RouteViewer {
 
 fn show_route(trip: TripID, ui: &UI) -> RouteViewer {
     let time = ui.primary.sim.time();
-    if let Some(agent) = ui.primary.sim.trip_to_agent(trip) {
-        // Trace along the entire route by passing in max distance
-        if let Some(trace) = ui.primary.sim.trace_route(agent, &ui.primary.map, None) {
-            RouteViewer::Active(time, trip, Some(trace))
-        } else {
-            println!("{} has no trace right now", agent);
+    match ui.primary.sim.trip_to_agent(trip) {
+        TripResult::Ok(agent) => RouteViewer::Active(
+            time,
+            trip,
+            ui.primary.sim.trace_route(agent, &ui.primary.map, None),
+        ),
+        TripResult::ModeChange => {
+            println!("{} is doing a mode change", trip);
             RouteViewer::Active(time, trip, None)
         }
-    } else {
-        println!(
-            "{} has no agent associated right now; is the trip done?",
-            trip
-        );
-        RouteViewer::Active(time, trip, None)
+        TripResult::TripDone => {
+            println!("{} is done or aborted, so no more showing route", trip);
+            RouteViewer::Inactive
+        }
+        TripResult::TripDoesntExist => {
+            println!("{} doesn't exist yet, so not showing route", trip);
+            RouteViewer::Inactive
+        }
     }
 }

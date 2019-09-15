@@ -47,7 +47,7 @@ fn debug_all_routes(ui: &mut UI) -> AllRoutesViewer {
         .cloned()
         .collect();
     for trip in trips {
-        if let Some(agent) = ui.primary.sim.trip_to_agent(trip) {
+        if let Some(agent) = ui.primary.sim.trip_to_agent(trip).ok() {
             if let Some(trace) = ui.primary.sim.trace_route(agent, &ui.primary.map, None) {
                 traces.push(trace);
             }

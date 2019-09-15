@@ -2,9 +2,9 @@ use crate::{
     AgentID, CarID, Command, CreateCar, DrawCarInput, DrawPedCrowdInput, DrawPedestrianInput,
     DrivingGoal, DrivingSimState, Event, FinishedTrips, GetDrawAgents, IntersectionSimState,
     ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, Router, Scheduler, SidewalkPOI,
-    SidewalkSpot, TransitSimState, TripID, TripLeg, TripManager, TripPositions, TripSpawner,
-    TripSpec, TripStart, TripStatus, UnzoomedAgent, VehicleSpec, VehicleType, WalkingSimState,
-    BUS_LENGTH,
+    SidewalkSpot, TransitSimState, TripID, TripLeg, TripManager, TripPositions, TripResult,
+    TripSpawner, TripSpec, TripStart, TripStatus, UnzoomedAgent, VehicleSpec, VehicleType,
+    WalkingSimState, BUS_LENGTH,
 };
 use abstutil::{elapsed_seconds, Timer};
 use derivative::Derivative;
@@ -785,9 +785,11 @@ impl Sim {
 
     pub fn debug_trip(&self, id: TripID) {
         match self.trips.trip_to_agent(id) {
-            Some(AgentID::Car(id)) => self.debug_car(id),
-            Some(AgentID::Pedestrian(id)) => self.debug_ped(id),
-            None => println!("{} doesn't exist", id),
+            TripResult::Ok(AgentID::Car(id)) => self.debug_car(id),
+            TripResult::Ok(AgentID::Pedestrian(id)) => self.debug_ped(id),
+            TripResult::ModeChange => println!("{} is doing a mode-change right now", id),
+            TripResult::TripDone => println!("{} is done", id),
+            TripResult::TripDoesntExist => println!("{} doesn't exist", id),
         }
     }
 
@@ -795,7 +797,7 @@ impl Sim {
         self.trips.agent_to_trip(id)
     }
 
-    pub fn trip_to_agent(&self, id: TripID) -> Option<AgentID> {
+    pub fn trip_to_agent(&self, id: TripID) -> TripResult<AgentID> {
         self.trips.trip_to_agent(id)
     }
 
@@ -864,16 +866,15 @@ impl Sim {
         &self.events_since_last_step
     }
 
-    pub fn get_canonical_pt_per_trip(&self, trip: TripID, map: &Map) -> TripResult {
-        if let Some(pt) = self
-            .trips
-            .trip_to_agent(trip)
-            .and_then(|id| self.canonical_pt_for_agent(id, map))
-        {
+    pub fn get_canonical_pt_per_trip(&self, trip: TripID, map: &Map) -> TripResult<Pt2D> {
+        let agent = match self.trips.trip_to_agent(trip) {
+            TripResult::Ok(a) => a,
+            x => {
+                return x.propagate_error();
+            }
+        };
+        if let Some(pt) = self.canonical_pt_for_agent(agent, map) {
             return TripResult::Ok(pt);
-        }
-        if self.trips.is_trip_done_or_aborted(trip) {
-            return TripResult::TripDone;
         }
         TripResult::ModeChange
     }
@@ -908,21 +909,6 @@ impl Sim {
             println!("Forcibly killed {}", id);
         } else {
             println!("{} has no trip?!", id);
-        }
-    }
-}
-
-pub enum TripResult {
-    Ok(Pt2D),
-    ModeChange,
-    TripDone,
-}
-
-impl TripResult {
-    pub fn ok(self) -> Option<Pt2D> {
-        match self {
-            TripResult::Ok(pt) => Some(pt),
-            _ => None,
         }
     }
 }

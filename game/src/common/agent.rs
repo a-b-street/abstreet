@@ -81,6 +81,10 @@ impl AgentTools {
                         println!("{} is done or aborted, so no more following", trip);
                         self.following = None;
                     }
+                    TripResult::TripDoesntExist => {
+                        println!("{} doesn't exist yet, so not following", trip);
+                        self.following = None;
+                    }
                 }
             }
             if menu.action("stop following agent") {
