@@ -9,17 +9,15 @@ mod polygons;
 mod routes;
 
 use crate::common::CommonState;
-use crate::edit::EditMode;
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::render::MIN_ZOOM_FOR_DETAIL;
-use crate::sandbox::SandboxMode;
 use crate::ui::{ShowLayers, ShowObject, UI};
 use abstutil::wraparound_get;
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line,
-    ModalMenu, Text, Wizard,
+    hotkey, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu,
+    Text, Wizard,
 };
 use geom::{Distance, Duration, PolyLine, Polygon};
 use map_model::{IntersectionID, Map, RoadID};
@@ -72,9 +70,7 @@ impl DebugMode {
                         (None, "explore a bus route"),
                     ],
                     vec![
-                        (hotkey(Key::Escape), "quit"),
-                        (lctrl(Key::S), "sandbox mode"),
-                        (lctrl(Key::E), "edit mode"),
+                        (hotkey(Key::Escape), "return to previous mode"),
                         (hotkey(Key::J), "warp"),
                         (hotkey(Key::K), "navigate"),
                         (hotkey(Key::SingleQuote), "shortcuts"),
@@ -149,14 +145,8 @@ impl State for DebugMode {
             return t;
         }
 
-        if self.menu.action("quit") {
+        if self.menu.action("return to previous mode") {
             return Transition::Pop;
-        }
-        if self.menu.action("sandbox mode") {
-            return Transition::Replace(Box::new(SandboxMode::new(ctx)));
-        }
-        if self.menu.action("edit mode") {
-            return Transition::Replace(Box::new(EditMode::new(ctx, ui)));
         }
 
         if self.menu.action("show/hide chokepoints") {

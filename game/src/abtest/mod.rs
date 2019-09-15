@@ -4,11 +4,12 @@ pub mod setup;
 use crate::common::{
     time_controls, AgentTools, CommonState, RouteExplorer, SpeedControls, TripExplorer,
 };
+use crate::debug::DebugMode;
 use crate::game::{State, Transition};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::{PerMapUI, UI};
 use ezgui::{
-    hotkey, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu, Text,
+    hotkey, lctrl, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu, Text,
 };
 use geom::{Circle, Distance, Line, PolyLine};
 use map_model::{Map, LANE_THICKNESS};
@@ -55,6 +56,7 @@ impl ABTestMode {
                     ],
                     vec![
                         (hotkey(Key::Escape), "quit"),
+                        (lctrl(Key::D), "debug mode"),
                         (hotkey(Key::J), "warp"),
                         (hotkey(Key::K), "navigate"),
                         (hotkey(Key::Semicolon), "change agent colorscheme"),
@@ -112,6 +114,9 @@ impl State for ABTestMode {
         // TODO Confirm first
         if self.menu.action("quit") {
             return Transition::Pop;
+        }
+        if self.menu.action("debug mode") {
+            return Transition::Push(Box::new(DebugMode::new(ctx, ui)));
         }
 
         if self.menu.action("swap") {

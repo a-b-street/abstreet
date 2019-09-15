@@ -94,7 +94,7 @@ impl State for EditMode {
             return Transition::Replace(Box::new(SandboxMode::new(ctx)));
         }
         if self.menu.action("debug mode") {
-            return Transition::Replace(Box::new(DebugMode::new(ctx, ui)));
+            return Transition::Push(Box::new(DebugMode::new(ctx, ui)));
         }
 
         // TODO Only if current edits are unsaved

@@ -143,8 +143,7 @@ impl State for SandboxMode {
             return Transition::Pop;
         }
         if self.menu.action("debug mode") {
-            // TODO Replace or Push?
-            return Transition::Replace(Box::new(DebugMode::new(ctx, ui)));
+            return Transition::Push(Box::new(DebugMode::new(ctx, ui)));
         }
         if self.menu.action("edit mode") {
             return Transition::Replace(Box::new(EditMode::new(ctx, ui)));
