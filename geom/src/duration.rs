@@ -96,6 +96,23 @@ impl Duration {
         )
     }
 
+    pub fn minimal_tostring(self) -> String {
+        let (hours, minutes, seconds, remainder) = self.get_parts();
+        let mut s = String::new();
+        if hours != 0 {
+            s.push_str(&format!("{}h", hours));
+        }
+        if hours != 0 || minutes != 0 {
+            s.push_str(&format!("{}m", minutes));
+        }
+        if remainder != 0 {
+            s.push_str(&format!("{}.{:01}s", seconds, remainder));
+        } else {
+            s.push_str(&format!("{}s", seconds));
+        }
+        s
+    }
+
     pub fn as_filename(self) -> String {
         let (hours, minutes, seconds, remainder) = self.get_parts();
         format!(

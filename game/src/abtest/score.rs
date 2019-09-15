@@ -4,7 +4,7 @@ use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{
     hotkey, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ModalMenu, Text,
-    VerticalAlignment, Wizard,
+    TextSpan, VerticalAlignment, Wizard,
 };
 use geom::Duration;
 use itertools::Itertools;
@@ -31,19 +31,22 @@ impl Scoreboard {
 
         let mut summary = Text::new();
         summary.add_appended(vec![
-            Line("Score at "),
-            Line(primary.sim.time().to_string()).fg(Color::RED),
-            Line(format!(
-                "... {} / {}",
-                primary.map.get_edits().edits_name,
-                secondary.map.get_edits().edits_name
-            )),
+            Line(format!("Score at {}... ", primary.sim.time())),
+            // TODO Should we use consistent colors for the A and B?
+            Line(&primary.map.get_edits().edits_name).fg(Color::RED),
+            Line(" / "),
+            Line(&secondary.map.get_edits().edits_name).fg(Color::CYAN),
         ]);
         summary.add_appended(vec![
-            Line(prettyprint_usize(t1.unfinished_trips)).fg(Color::CYAN),
+            Line(prettyprint_usize(t1.unfinished_trips)).fg(Color::RED),
             Line(" | "),
-            Line(prettyprint_usize(t2.unfinished_trips)).fg(Color::RED),
+            Line(prettyprint_usize(t2.unfinished_trips)).fg(Color::CYAN),
             Line(" unfinished trips"),
+        ]);
+        summary.add_appended(vec![
+            Line("faster (better)").fg(Color::GREEN),
+            Line(" / "),
+            Line("slower (worse)").fg(Color::YELLOW),
         ]);
 
         let cmp = CompareTrips::new(t1, t2);
@@ -62,6 +65,7 @@ impl Scoreboard {
                 if t1 == t2 {
                     num_same += 1;
                 } else {
+                    // Negative means the primary is faster
                     deltas.push(t1 - t2);
                 }
             }
@@ -69,7 +73,7 @@ impl Scoreboard {
             let len = deltas.len() as f64;
 
             summary.add_appended(vec![
-                Line(format!("{:?}", mode)).fg(Color::CYAN),
+                Line(format!("{:?}", mode)).fg(Color::PURPLE),
                 Line(format!(
                     " trips: {} same, {} different",
                     abstutil::prettyprint_usize(num_same),
@@ -78,22 +82,12 @@ impl Scoreboard {
             ]);
             if !deltas.is_empty() {
                 summary.add_appended(vec![
-                    Line("  deltas: "),
-                    Line("50%ile").fg(Color::RED),
-                    Line(format!(
-                        " {}, ",
-                        handle_negative(deltas[(0.5 * len).floor() as usize])
-                    )),
-                    Line("90%ile").fg(Color::RED),
-                    Line(format!(
-                        " {}, ",
-                        handle_negative(deltas[(0.9 * len).floor() as usize])
-                    )),
-                    Line("99%ile").fg(Color::RED),
-                    Line(format!(
-                        " {}",
-                        handle_negative(deltas[(0.99 * len).floor() as usize])
-                    )),
+                    Line("  deltas: 50%ile "),
+                    print_delta(deltas[(0.5 * len).floor() as usize]),
+                    Line(", 90%ile "),
+                    print_delta(deltas[(0.9 * len).floor() as usize]),
+                    Line(", 99%ile "),
+                    print_delta(deltas[(0.99 * len).floor() as usize]),
                 ]);
             }
         }
@@ -198,10 +192,10 @@ impl CompareTrips {
 }
 
 // TODO I think it's time for a proper Time and Duration distinction.
-fn handle_negative(x: Duration) -> String {
+fn print_delta(x: Duration) -> TextSpan {
     if x >= Duration::ZERO {
-        format!("+{}", x)
+        Line(x.minimal_tostring()).fg(Color::YELLOW)
     } else {
-        format!("-{}", -x)
+        Line((-x).minimal_tostring()).fg(Color::GREEN)
     }
 }

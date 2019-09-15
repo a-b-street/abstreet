@@ -257,16 +257,27 @@ impl ABTestMode {
     }
 
     fn savestate(&mut self, ui: &mut UI) {
+        // Preserve the original order!
+        if self.flipped {
+            let secondary = ui.secondary.take().unwrap();
+            let primary = std::mem::replace(&mut ui.primary, secondary);
+            ui.secondary = Some(primary);
+        }
+
         // Temporarily move everything into this structure.
         let blank_map = Map::blank();
         let mut secondary = ui.secondary.take().unwrap();
-        let mut opts = SimOptions::new("run");
-        opts.use_freeform_policy_everywhere = ui.primary.current_flags.sim_flags.freeform_policy;
         let ss = ABTestSavestate {
             primary_map: std::mem::replace(&mut ui.primary.map, Map::blank()),
-            primary_sim: std::mem::replace(&mut ui.primary.sim, Sim::new(&blank_map, opts.clone())),
+            primary_sim: std::mem::replace(
+                &mut ui.primary.sim,
+                Sim::new(&blank_map, SimOptions::new("tmp")),
+            ),
             secondary_map: std::mem::replace(&mut secondary.map, Map::blank()),
-            secondary_sim: std::mem::replace(&mut secondary.sim, Sim::new(&blank_map, opts)),
+            secondary_sim: std::mem::replace(
+                &mut secondary.sim,
+                Sim::new(&blank_map, SimOptions::new("tmp")),
+            ),
         };
 
         let path = abstutil::path2_bin(
@@ -289,6 +300,12 @@ impl ABTestMode {
             current_flags: secondary.current_flags,
             last_warped_from: None,
         });
+
+        if self.flipped {
+            let secondary = ui.secondary.take().unwrap();
+            let primary = std::mem::replace(&mut ui.primary, secondary);
+            ui.secondary = Some(primary);
+        }
     }
 }
 
