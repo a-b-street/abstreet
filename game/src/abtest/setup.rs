@@ -188,6 +188,7 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
                     .map
                     .recalculate_pathfinding_after_edits(&mut timer);
 
+                secondary.reset_sim();
                 let mut rng = secondary.current_flags.sim_flags.make_rng();
                 scenario.instantiate(&mut secondary.sim, &secondary.map, &mut rng, &mut timer);
                 secondary.sim.step(&secondary.map, Duration::seconds(0.1));
