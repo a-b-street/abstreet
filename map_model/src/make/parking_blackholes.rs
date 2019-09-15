@@ -1,4 +1,4 @@
-use crate::{LaneID, Map};
+use crate::{LaneID, LaneType, Map};
 use abstutil::Timer;
 use petgraph::graphmap::DiGraphMap;
 use std::collections::{HashSet, VecDeque};
@@ -68,10 +68,8 @@ fn bidi_flood(map: &Map, start: LaneID, largest_group: &HashSet<LaneID>) -> Opti
                 queue.push_back(turn.id.src);
             }
         }
-        for turn in map.get_turns_from_lane(current) {
-            if map.is_turn_allowed(turn.id) {
-                queue.push_back(turn.id.dst);
-            }
+        for turn in map.get_legal_turns(current, vec![LaneType::Driving]) {
+            queue.push_back(turn.id.dst);
         }
     }
     None

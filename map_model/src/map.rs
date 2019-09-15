@@ -369,6 +369,15 @@ impl Map {
             .collect()
     }
 
+    pub fn get_legal_turns(&self, from: LaneID, lane_types: Vec<LaneType>) -> Vec<&Turn> {
+        let valid_types: HashSet<LaneType> = lane_types.into_iter().collect();
+        self.get_next_turns_and_lanes(from, self.get_l(from).dst_i)
+            .into_iter()
+            .filter(|(t, l)| self.is_turn_allowed(t.id) && valid_types.contains(&l.lane_type))
+            .map(|(t, _)| t)
+            .collect()
+    }
+
     // These come back sorted
     pub fn get_next_roads(&self, from: RoadID) -> Vec<RoadID> {
         let mut roads: BTreeSet<RoadID> = BTreeSet::new();

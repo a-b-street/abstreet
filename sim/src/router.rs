@@ -263,8 +263,8 @@ fn path_to_free_parking_spot(
                 current = turn.src;
             }
         }
-        for turn in map.get_turns_from_lane(current) {
-            if map.is_turn_allowed(turn.id) && !backrefs.contains_key(&turn.id.dst) {
+        for turn in map.get_legal_turns(current, vec![LaneType::Driving]) {
+            if !backrefs.contains_key(&turn.id.dst) {
                 backrefs.insert(turn.id.dst, turn.id);
                 queue.push_back(turn.id.dst);
             }
