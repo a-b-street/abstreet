@@ -1,4 +1,4 @@
-use crate::{notes, PROGRESS_FREQUENCY_SECONDS};
+use crate::PROGRESS_FREQUENCY_SECONDS;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{stdout, BufReader, Error, Read, Write};
@@ -386,7 +386,6 @@ impl<'a> std::ops::Drop for Timer<'a> {
             }
             self.println(String::new());
         }
-        notes::dump_notes();
 
         if !self.warnings.is_empty() {
             self.println(format!("{} warnings:", self.warnings.len()));

@@ -3,7 +3,6 @@ mod collections;
 mod error;
 mod io;
 mod logs;
-mod notes;
 mod random;
 mod time;
 
@@ -19,7 +18,6 @@ pub use crate::io::{
     FileWithProgress,
 };
 pub use crate::logs::Warn;
-pub use crate::notes::note;
 pub use crate::random::{fork_rng, WeightedUsizeChoice};
 pub use crate::time::{
     elapsed_seconds, prettyprint_usize, MeasureMemory, Profiler, Timer, TimerSink,
