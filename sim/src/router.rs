@@ -171,12 +171,9 @@ impl Router {
                     ) {
                         *spot = Some((new_spot, new_pos.dist_along()));
                     } else {
-                        if let Some((new_path_steps, new_spot, new_pos)) = path_to_free_parking_spot(
-                            self.path.current_step().as_lane(),
-                            vehicle,
-                            map,
-                            parking,
-                        ) {
+                        if let Some((new_path_steps, new_spot, new_pos)) =
+                            path_to_free_parking_spot(current_lane, vehicle, map, parking)
+                        {
                             *spot = Some((new_spot, new_pos.dist_along()));
                             for step in new_path_steps {
                                 self.path.add(step, map);
@@ -238,22 +235,26 @@ fn path_to_free_parking_spot(
 
     while !queue.is_empty() {
         let current = queue.pop_front().unwrap();
-        if let Some((spot, pos)) =
-            parking.get_first_free_spot(Position::new(current, Distance::ZERO), vehicle, map)
-        {
-            let mut steps = vec![PathStep::Lane(current)];
-            let mut current = current;
-            loop {
-                if current == start {
-                    // Don't include PathStep::Lane(start)
-                    steps.pop();
-                    steps.reverse();
-                    return Some((steps, spot, pos));
+        // If the current lane has a spot open, we wouldn't be asking. This can happen if a spot
+        // opens up on the 'start' lane, but behind the car.
+        if current != start {
+            if let Some((spot, pos)) =
+                parking.get_first_free_spot(Position::new(current, Distance::ZERO), vehicle, map)
+            {
+                let mut steps = vec![PathStep::Lane(current)];
+                let mut current = current;
+                loop {
+                    if current == start {
+                        // Don't include PathStep::Lane(start)
+                        steps.pop();
+                        steps.reverse();
+                        return Some((steps, spot, pos));
+                    }
+                    let turn = backrefs[&current];
+                    steps.push(PathStep::Turn(turn));
+                    steps.push(PathStep::Lane(turn.src));
+                    current = turn.src;
                 }
-                let turn = backrefs[&current];
-                steps.push(PathStep::Turn(turn));
-                steps.push(PathStep::Lane(turn.src));
-                current = turn.src;
             }
         }
         for turn in map.get_legal_turns(current, vec![LaneType::Driving]) {
