@@ -388,16 +388,7 @@ impl TripManager {
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
         match trip.legs.pop_front().unwrap() {
             TripLeg::Drive(_, DrivingGoal::Border(int, _)) => assert_eq!(i, int),
-            _ => {
-                // TODO Should be unreachable
-                println!(
-                    "Aborting {} at {} because {} couldn't find parking and got stuck",
-                    trip.id, now, car
-                );
-                self.unfinished_trips -= 1;
-                trip.aborted = true;
-                return;
-            }
+            _ => unreachable!(),
         };
         assert!(trip.legs.is_empty());
         assert!(!trip.finished_at.is_some());

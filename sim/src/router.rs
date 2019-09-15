@@ -182,14 +182,7 @@ impl Router {
                                 self.path.add(step, map);
                             }
                         } else {
-                            // TODO Fix by avoiding parking blackholes in the first place.
-                            println!("{} can't find parking on {}, and also it's a dead-end, so they'll be stuck there forever. Vanishing.", vehicle.id, current_lane);
-                            // TODO Hmm, actually, this might not be a border -- it just inevitably
-                            // leads only to a border.
-                            self.goal = Goal::EndAtBorder {
-                                end_dist: map.get_l(current_lane).length(),
-                                i: map.get_l(current_lane).dst_i,
-                            };
+                            panic!("{} can't find parking on {}, and also it's a dead-end, so they'll be stuck there forever. Vanishing. Parking blackholes were wrong?", vehicle.id, current_lane);
                         }
                         return Some(ActionAtEnd::GotoLaneEnd);
                     }
