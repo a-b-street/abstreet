@@ -24,6 +24,7 @@ pub struct ABTestMode {
     diff_all: Option<DiffAllTrips>,
     common: CommonState,
     test_name: String,
+    flipped: bool,
 }
 
 impl ABTestMode {
@@ -69,6 +70,7 @@ impl ABTestMode {
             diff_all: None,
             common: CommonState::new(),
             test_name: test_name.to_string(),
+            flipped: false,
         }
     }
 }
@@ -76,7 +78,15 @@ impl ABTestMode {
 impl State for ABTestMode {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         let mut txt = Text::prompt("A/B Test Mode");
-        txt.add(Line(&ui.primary.map.get_edits().edits_name));
+        if self.flipped {
+            txt.add(Line("B").fg(Color::CYAN));
+        } else {
+            txt.add(Line("A").fg(Color::RED));
+        }
+        txt.append(Line(format!(
+            " - {}",
+            ui.primary.map.get_edits().edits_name
+        )));
         if let Some(ref diff) = self.diff_trip {
             txt.add(Line(format!("Showing diff for {}", diff.trip)));
         } else if let Some(ref diff) = self.diff_all {
@@ -112,6 +122,7 @@ impl State for ABTestMode {
                 &mut self.primary_agent_tools,
                 &mut self.secondary_agent_tools,
             );
+            self.flipped = !self.flipped;
         }
 
         if self.menu.action("scoreboard") {
