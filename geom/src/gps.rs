@@ -19,7 +19,7 @@ impl LonLat {
         }
     }
 
-    pub fn gps_dist_meters(&self, other: LonLat) -> Distance {
+    pub fn gps_dist_meters(self, other: LonLat) -> Distance {
         // Haversine distance
         let earth_radius_m = 6_371_000.0;
         let lon1 = self.longitude.to_radians();
@@ -37,11 +37,17 @@ impl LonLat {
     }
 
     // Pretty meaningless units, for comparing distances very roughly
-    pub fn fast_dist(&self, other: LonLat) -> NotNan<f64> {
+    pub fn fast_dist(self, other: LonLat) -> NotNan<f64> {
         NotNan::new(
             (self.longitude - other.longitude).powi(2) + (self.latitude - other.latitude).powi(2),
         )
         .unwrap()
+    }
+
+    pub fn approx_eq(self, other: LonLat) -> bool {
+        let epsilon = 1e-8;
+        (self.longitude - other.longitude).abs() < epsilon
+            && (self.latitude - other.latitude).abs() < epsilon
     }
 }
 

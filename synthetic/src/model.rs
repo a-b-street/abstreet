@@ -274,9 +274,12 @@ impl Model {
 
     // TODO Directly use raw_data and get rid of Model? Might be more maintainable long-term.
     pub fn import(path: &str, exclude_bldgs: bool, prerender: &Prerender) -> Model {
-        let data: raw_data::Map = read_binary(path, &mut Timer::new("load map")).unwrap();
-
+        let mut timer = Timer::new("import map");
         let mut m = Model::new();
+
+        let mut data: raw_data::Map = read_binary(path, &mut timer).unwrap();
+        data.apply_fixes(&m.fixes, &mut timer);
+
         m.name = Some(abstutil::basename(path));
         m.gps_bounds = data.gps_bounds.clone();
 

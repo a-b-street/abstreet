@@ -51,7 +51,8 @@ pub struct Map {
 
 impl Map {
     pub fn new(path: &str, timer: &mut Timer) -> Result<Map, io::Error> {
-        let data: raw_data::Map = abstutil::read_binary(path, timer)?;
+        let mut data: raw_data::Map = abstutil::read_binary(path, timer)?;
+        data.apply_fixes(&raw_data::MapFixes::load(), timer);
         Ok(Map::create_from_raw(abstutil::basename(path), data, timer))
     }
 

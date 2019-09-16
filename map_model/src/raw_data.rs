@@ -1,6 +1,7 @@
 use crate::make::get_lane_types;
 pub use crate::make::{Hint, Hints, InitialMap};
 use crate::{AreaType, IntersectionType, OffstreetParking, RoadSpec};
+use abstutil::Timer;
 use geom::{Distance, GPSBounds, LonLat, Polygon, Pt2D};
 use gtfs::Route;
 use serde_derive::{Deserialize, Serialize};
@@ -62,7 +63,7 @@ impl Map {
             return None;
         }
         for (id, r) in &self.roads {
-            if r.orig_id == orig {
+            if r.orig_id.pt1.approx_eq(orig.pt1) && r.orig_id.pt2.approx_eq(orig.pt2) {
                 return Some(*id);
             }
         }
@@ -77,7 +78,7 @@ impl Map {
             return None;
         }
         for (id, i) in &self.intersections {
-            if i.orig_id == orig {
+            if i.orig_id.point.approx_eq(orig.point) {
                 return Some(*id);
             }
         }
@@ -85,6 +86,27 @@ impl Map {
         // TODO There will be cases where the point fits in the bounding box, but isn't inside the
         // clipping polygon.
         None
+    }
+
+    pub fn apply_fixes(&mut self, fixes: &MapFixes, timer: &mut Timer) {
+        let mut cnt = 0;
+        for fix in &fixes.fixes {
+            match fix {
+                MapFix::DeleteRoad(orig) => {
+                    if let Some(r) = self.find_r(*orig) {
+                        self.roads.remove(&r).unwrap();
+                        cnt += 1;
+                    }
+                }
+                MapFix::DeleteIntersection(orig) => {
+                    if let Some(i) = self.find_i(*orig) {
+                        self.intersections.remove(&i).unwrap();
+                        cnt += 1;
+                    }
+                }
+            }
+        }
+        timer.note(format!("Applied {} of {} fixes ", cnt, fixes.fixes.len()));
     }
 }
 
