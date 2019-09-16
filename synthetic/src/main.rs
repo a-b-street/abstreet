@@ -1,7 +1,7 @@
 mod model;
 
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, Text, Wizard, GUI};
-use geom::{Distance, Line};
+use geom::{Distance, Line, Polygon, Pt2D};
 use map_model::raw_data::{StableIntersectionID, StableRoadID};
 use model::{BuildingID, Direction, Model, ID};
 use std::{env, process};
@@ -22,6 +22,8 @@ enum State {
     CreatingRoad(StableIntersectionID),
     EditingRoad(StableRoadID, Wizard),
     SavingModel(Wizard),
+    // bool is if key is down
+    SelectingRectangle(Pt2D, Pt2D, bool),
 }
 
 impl UI {
@@ -102,7 +104,7 @@ impl GUI for UI {
                     self.model.handle_mouseover(ctx);
                 } else if let Some(ID::Intersection(i2)) = self.model.get_selection() {
                     if i1 != i2 && ctx.input.key_pressed(Key::R, "finalize road") {
-                        self.model.create_road(i1, i2, ctx.prerender);
+                        self.model.create_r(i1, i2, ctx.prerender);
                         self.state = State::Viewing;
                         self.model.handle_mouseover(ctx);
                     }
@@ -159,7 +161,7 @@ impl GUI for UI {
                         .input
                         .key_pressed(Key::Backspace, &format!("delete road {}", r))
                     {
-                        self.model.remove_road(r);
+                        self.model.remove_r(r);
                         self.model.handle_mouseover(ctx);
                     } else if ctx.input.key_pressed(Key::E, "edit lanes") {
                         self.state = State::EditingRoad(r, Wizard::new());
@@ -185,6 +187,33 @@ impl GUI for UI {
                 } else if cursor.is_some() && ctx.input.key_pressed(Key::B, "create building") {
                     self.model.create_b(cursor.unwrap(), ctx.prerender);
                     self.model.handle_mouseover(ctx);
+                } else if cursor.is_some() && ctx.input.key_pressed(Key::LeftShift, "select area") {
+                    self.state = State::SelectingRectangle(cursor.unwrap(), cursor.unwrap(), true);
+                }
+            }
+            State::SelectingRectangle(pt1, ref mut pt2, ref mut keydown) => {
+                if ctx.input.key_pressed(Key::LeftShift, "select area") {
+                    *keydown = true;
+                } else if ctx.input.key_released(Key::LeftShift) {
+                    *keydown = false;
+                }
+
+                if *keydown {
+                    if let Some(cursor) = ctx.canvas.get_cursor_in_map_space() {
+                        *pt2 = cursor;
+                    }
+                }
+                if ctx.input.key_pressed(Key::Escape, "stop selecting area") {
+                    self.state = State::Viewing;
+                } else if ctx
+                    .input
+                    .key_pressed(Key::Backspace, "delete everything area")
+                {
+                    if let Some(rect) = Polygon::rectangle_two_corners(pt1, *pt2) {
+                        self.model.delete_everything_inside(rect);
+                        self.model.handle_mouseover(ctx);
+                    }
+                    self.state = State::Viewing;
                 }
             }
         }
@@ -232,6 +261,11 @@ impl GUI for UI {
                 }
             }
             State::MovingIntersection(_) | State::MovingBuilding(_) => {}
+            State::SelectingRectangle(pt1, pt2, _) => {
+                if let Some(rect) = Polygon::rectangle_two_corners(pt1, pt2) {
+                    g.draw_polygon(Color::BLUE.alpha(0.5), &rect);
+                }
+            }
         };
 
         g.draw_blocking_text(&self.osd, ezgui::BOTTOM_LEFT);

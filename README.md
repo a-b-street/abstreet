@@ -77,5 +77,6 @@ Street strives to set the accessibility bar high, by being a fun, engaging game.
 I'm a one-person team. If you want to bring this to your city or if you're
 skilled in user experience design, traffic simulation, data visualization, or
 civic/government outreach, please contact Dustin Carlino at
-<dabreegster@gmail.com>. I also welcome any contributions on
-[Patreon](https://www.patreon.com/abstreet).
+<dabreegster@gmail.com> or post at
+[r/abstreet](https://www.reddit.com/r/abstreet/). I also welcome any
+contributions on [Patreon](https://www.patreon.com/abstreet).

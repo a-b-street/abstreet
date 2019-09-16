@@ -361,6 +361,25 @@ impl Model {
             self.road_added(id, prerender);
         }
     }
+
+    pub fn delete_everything_inside(&mut self, area: Polygon) {
+        for id in self.buildings.keys().cloned().collect::<Vec<_>>() {
+            if area.contains_pt(self.buildings[&id].center) {
+                self.remove_b(id);
+            }
+        }
+
+        for id in self.roads.keys().cloned().collect::<Vec<_>>() {
+            if area.contains_pt(self.intersections[&self.roads[&id].i1].center) {
+                self.remove_r(id);
+            }
+        }
+        for id in self.intersections.keys().cloned().collect::<Vec<_>>() {
+            if area.contains_pt(self.intersections[&id].center) {
+                self.remove_i(id);
+            }
+        }
+    }
 }
 
 impl Model {
@@ -475,7 +494,7 @@ impl Model {
         }
     }
 
-    pub fn create_road(
+    pub fn create_r(
         &mut self,
         i1: StableIntersectionID,
         i2: StableIntersectionID,
@@ -561,7 +580,7 @@ impl Model {
         }
     }
 
-    pub fn remove_road(&mut self, id: StableRoadID) {
+    pub fn remove_r(&mut self, id: StableRoadID) {
         self.road_deleted(id);
 
         let r = self.roads.remove(&id).unwrap();

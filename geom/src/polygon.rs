@@ -152,6 +152,26 @@ impl Polygon {
         }
     }
 
+    pub fn rectangle_two_corners(pt1: Pt2D, pt2: Pt2D) -> Option<Polygon> {
+        if Pt2D::new(pt1.x(), 0.0).epsilon_eq(Pt2D::new(pt2.x(), 0.0))
+            || Pt2D::new(0.0, pt1.y()).epsilon_eq(Pt2D::new(0.0, pt2.y()))
+        {
+            return None;
+        }
+
+        let (x1, width) = if pt1.x() < pt2.x() {
+            (pt1.x(), Distance::meters(pt2.x() - pt1.x()))
+        } else {
+            (pt2.x(), Distance::meters(pt1.x() - pt2.x()))
+        };
+        let (y1, height) = if pt1.y() < pt2.y() {
+            (pt1.y(), Distance::meters(pt2.y() - pt1.y()))
+        } else {
+            (pt2.y(), Distance::meters(pt1.y() - pt2.y()))
+        };
+        Some(Polygon::rectangle_topleft(Pt2D::new(x1, y1), width, height))
+    }
+
     pub fn union(self, other: Polygon) -> Polygon {
         let mut points = self.points;
         let mut indices = self.indices;
