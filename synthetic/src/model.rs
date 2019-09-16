@@ -1,8 +1,8 @@
 use abstutil::{read_binary, Timer};
 use ezgui::world::{Object, ObjectID, World};
 use ezgui::{Color, EventCtx, GfxCtx, Line, Prerender, Text};
-use geom::{Bounds, Circle, Distance, LonLat, PolyLine, Polygon, Pt2D};
-use map_model::raw_data::{StableIntersectionID, StableRoadID};
+use geom::{Bounds, Circle, Distance, GPSBounds, PolyLine, Polygon, Pt2D};
+use map_model::raw_data::{MapFix, MapFixes, StableIntersectionID, StableRoadID};
 use map_model::{raw_data, IntersectionType, LaneType, RoadSpec, LANE_THICKNESS};
 use std::collections::{BTreeMap, HashSet};
 use std::mem;
@@ -40,6 +40,8 @@ pub struct Model {
     buildings: BTreeMap<BuildingID, Building>,
     // Never reuse IDs, and don't worry about being sequential
     id_counter: usize,
+    fixes: MapFixes,
+    gps_bounds: GPSBounds,
 
     world: World<ID>,
 }
@@ -49,6 +51,7 @@ struct Intersection {
     intersection_type: IntersectionType,
     label: Option<String>,
     roads: HashSet<StableRoadID>,
+    orig_id: raw_data::OriginalIntersection,
 }
 
 impl Intersection {
@@ -64,6 +67,7 @@ struct Road {
     fwd_label: Option<String>,
     back_label: Option<String>,
     osm_tags: BTreeMap<String, String>,
+    orig_id: raw_data::OriginalRoad,
 }
 
 impl Road {
@@ -161,6 +165,12 @@ impl Model {
             roads: BTreeMap::new(),
             buildings: BTreeMap::new(),
             id_counter: 0,
+            // TODO Only if we're editing something, not if we're truly creating from scratch,
+            // right?
+            fixes: MapFixes::load(),
+            // We'll get nonsense answers unless we import() from a real raw_data map, which is
+            // fine.
+            gps_bounds: GPSBounds::new(),
             world: World::new(&Bounds::new()),
         }
     }
@@ -196,10 +206,6 @@ impl Model {
     pub fn export(&self) -> String {
         let mut map = raw_data::Map::blank();
 
-        fn gps(p: Pt2D) -> LonLat {
-            LonLat::new(p.x(), p.y())
-        }
-
         for (id, r) in &self.roads {
             let mut osm_tags = BTreeMap::new();
             osm_tags.insert("synthetic_lanes".to_string(), r.lanes.to_string());
@@ -218,10 +224,7 @@ impl Model {
                         self.intersections[&r.i1].center,
                         self.intersections[&r.i2].center,
                     ],
-                    orig_id: raw_data::OriginalRoad {
-                        pt1: gps(self.intersections[&r.i1].center),
-                        pt2: gps(self.intersections[&r.i2].center),
-                    },
+                    orig_id: r.orig_id,
                     osm_tags,
                     osm_way_id: id.0 as i64,
                     parking_lane_fwd: r.lanes.fwd.contains(&LaneType::Parking),
@@ -235,9 +238,7 @@ impl Model {
                 *id,
                 raw_data::Intersection {
                     point: i.center,
-                    orig_id: raw_data::OriginalIntersection {
-                        point: gps(i.center),
-                    },
+                    orig_id: i.orig_id,
                     intersection_type: i.intersection_type,
                     label: i.label.clone(),
                 },
@@ -257,8 +258,7 @@ impl Model {
             });
         }
 
-        // Leave gps_bounds alone. We'll get nonsense answers when converting back to it, which is
-        // fine.
+        map.gps_bounds = self.gps_bounds.clone();
         map.boundary_polygon = self.compute_bounds().get_rectangle();
 
         let path = abstutil::path_raw_map(self.name.as_ref().expect("Model hasn't been named yet"));
@@ -267,12 +267,18 @@ impl Model {
         path
     }
 
+    pub fn save_fixes(&self) {
+        abstutil::write_json("../data/fixes.json", &self.fixes).unwrap();
+        println!("Wrote ../data/fixes.json");
+    }
+
     // TODO Directly use raw_data and get rid of Model? Might be more maintainable long-term.
     pub fn import(path: &str, exclude_bldgs: bool, prerender: &Prerender) -> Model {
         let data: raw_data::Map = read_binary(path, &mut Timer::new("load map")).unwrap();
 
         let mut m = Model::new();
         m.name = Some(abstutil::basename(path));
+        m.gps_bounds = data.gps_bounds.clone();
 
         for (id, raw_i) in &data.intersections {
             let i = Intersection {
@@ -280,6 +286,7 @@ impl Model {
                 intersection_type: raw_i.intersection_type,
                 label: raw_i.label.clone(),
                 roads: HashSet::new(),
+                orig_id: raw_i.orig_id,
             };
             m.intersections.insert(*id, i);
             m.id_counter = m.id_counter.max(id.0 + 1);
@@ -325,6 +332,7 @@ impl Model {
                     fwd_label: r.osm_tags.get("fwd_label").cloned(),
                     back_label: r.osm_tags.get("back_label").cloned(),
                     osm_tags: stripped_tags,
+                    orig_id: r.orig_id,
                 },
             );
             m.intersections.get_mut(&i1).unwrap().roads.insert(*id);
@@ -365,18 +373,18 @@ impl Model {
     pub fn delete_everything_inside(&mut self, area: Polygon) {
         for id in self.buildings.keys().cloned().collect::<Vec<_>>() {
             if area.contains_pt(self.buildings[&id].center) {
-                self.remove_b(id);
+                self.delete_b(id);
             }
         }
 
         for id in self.roads.keys().cloned().collect::<Vec<_>>() {
             if area.contains_pt(self.intersections[&self.roads[&id].i1].center) {
-                self.remove_r(id);
+                self.delete_r(id);
             }
         }
         for id in self.intersections.keys().cloned().collect::<Vec<_>>() {
             if area.contains_pt(self.intersections[&id].center) {
-                self.remove_i(id);
+                self.delete_i(id);
             }
         }
     }
@@ -410,6 +418,9 @@ impl Model {
                 intersection_type: IntersectionType::StopSign,
                 label: None,
                 roads: HashSet::new(),
+                orig_id: raw_data::OriginalIntersection {
+                    point: center.to_gps(&self.gps_bounds).unwrap(),
+                },
             },
         );
 
@@ -466,14 +477,16 @@ impl Model {
         self.intersection_added(id, prerender);
     }
 
-    pub fn remove_i(&mut self, id: StableIntersectionID) {
+    pub fn delete_i(&mut self, id: StableIntersectionID) {
         if !self.intersections[&id].roads.is_empty() {
             println!("Can't delete intersection used by roads");
             return;
         }
-        self.intersections.remove(&id);
+        let i = self.intersections.remove(&id).unwrap();
 
         self.world.delete(ID::Intersection(id));
+
+        self.fixes.fixes.push(MapFix::DeleteIntersection(i.orig_id));
     }
 
     pub fn get_i_center(&self, id: StableIntersectionID) -> Pt2D {
@@ -522,6 +535,16 @@ impl Model {
                 fwd_label: None,
                 back_label: None,
                 osm_tags: BTreeMap::new(),
+                orig_id: raw_data::OriginalRoad {
+                    pt1: self.intersections[&i1]
+                        .center
+                        .to_gps(&self.gps_bounds)
+                        .unwrap(),
+                    pt2: self.intersections[&i2]
+                        .center
+                        .to_gps(&self.gps_bounds)
+                        .unwrap(),
+                },
             },
         );
         self.intersections.get_mut(&i1).unwrap().roads.insert(id);
@@ -580,12 +603,14 @@ impl Model {
         }
     }
 
-    pub fn remove_r(&mut self, id: StableRoadID) {
+    pub fn delete_r(&mut self, id: StableRoadID) {
         self.road_deleted(id);
 
         let r = self.roads.remove(&id).unwrap();
         self.intersections.get_mut(&r.i1).unwrap().roads.remove(&id);
         self.intersections.get_mut(&r.i2).unwrap().roads.remove(&id);
+
+        self.fixes.fixes.push(MapFix::DeleteRoad(r.orig_id));
     }
 
     pub fn get_lanes(&self, id: StableRoadID) -> String {
@@ -640,7 +665,7 @@ impl Model {
         self.buildings[&id].label.clone()
     }
 
-    pub fn remove_b(&mut self, id: BuildingID) {
+    pub fn delete_b(&mut self, id: BuildingID) {
         self.world.delete(ID::Building(id));
 
         self.buildings.remove(&id);

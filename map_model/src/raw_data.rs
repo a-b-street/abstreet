@@ -187,3 +187,25 @@ impl Ord for OriginalRoad {
 pub struct OriginalIntersection {
     pub point: LonLat,
 }
+
+// Directives from the synthetic crate to apply to the raw_data layer.
+#[derive(Serialize, Deserialize)]
+pub struct MapFixes {
+    pub fixes: Vec<MapFix>,
+}
+
+impl MapFixes {
+    pub fn load() -> MapFixes {
+        if let Ok(f) = abstutil::read_json::<MapFixes>("../data/fixes.json") {
+            f
+        } else {
+            MapFixes { fixes: Vec::new() }
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+pub enum MapFix {
+    DeleteIntersection(OriginalIntersection),
+    DeleteRoad(OriginalRoad),
+}

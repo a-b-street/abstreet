@@ -140,7 +140,7 @@ impl GUI for UI {
                     } else if ctx.input.key_pressed(Key::R, "create road") {
                         self.state = State::CreatingRoad(i);
                     } else if ctx.input.key_pressed(Key::Backspace, "delete intersection") {
-                        self.model.remove_i(i);
+                        self.model.delete_i(i);
                         self.model.handle_mouseover(ctx);
                     } else if ctx.input.key_pressed(Key::T, "toggle intersection type") {
                         self.model.toggle_i_type(i, ctx.prerender);
@@ -151,7 +151,7 @@ impl GUI for UI {
                     if ctx.input.key_pressed(Key::LeftControl, "move building") {
                         self.state = State::MovingBuilding(b);
                     } else if ctx.input.key_pressed(Key::Backspace, "delete building") {
-                        self.model.remove_b(b);
+                        self.model.delete_b(b);
                         self.model.handle_mouseover(ctx);
                     } else if ctx.input.key_pressed(Key::L, "label building") {
                         self.state = State::LabelingBuilding(b, Wizard::new());
@@ -161,7 +161,7 @@ impl GUI for UI {
                         .input
                         .key_pressed(Key::Backspace, &format!("delete road {}", r))
                     {
-                        self.model.remove_r(r);
+                        self.model.delete_r(r);
                         self.model.handle_mouseover(ctx);
                     } else if ctx.input.key_pressed(Key::E, "edit lanes") {
                         self.state = State::EditingRoad(r, Wizard::new());
@@ -179,6 +179,8 @@ impl GUI for UI {
                     } else {
                         self.state = State::SavingModel(Wizard::new());
                     }
+                } else if ctx.input.key_pressed(Key::F, "save map fixes") {
+                    self.model.save_fixes();
                 } else if cursor.is_some() && ctx.input.key_pressed(Key::I, "create intersection") {
                     self.model.create_i(cursor.unwrap(), ctx.prerender);
                     self.model.handle_mouseover(ctx);
