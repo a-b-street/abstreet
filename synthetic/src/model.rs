@@ -95,11 +95,12 @@ impl Road {
         };
 
         let mut result = Vec::new();
+        let synthetic = self.osm_tags.get("abst:synthetic") == Some(&"true".to_string());
 
         for (idx, lt) in self.lanes.fwd.iter().enumerate() {
             let mut obj = Object::new(
                 ID::Lane(id, FORWARDS, idx),
-                Road::lt_to_color(*lt),
+                Road::lt_to_color(*lt, synthetic),
                 centered_base
                     .shift_right(LANE_THICKNESS * ((idx as f64) + 0.5))
                     .unwrap()
@@ -119,7 +120,7 @@ impl Road {
         for (idx, lt) in self.lanes.back.iter().enumerate() {
             let mut obj = Object::new(
                 ID::Lane(id, BACKWARDS, idx),
-                Road::lt_to_color(*lt),
+                Road::lt_to_color(*lt, synthetic),
                 centered_base
                     .shift_left(LANE_THICKNESS * ((idx as f64) + 0.5))
                     .unwrap()
@@ -135,13 +136,18 @@ impl Road {
     }
 
     // Copied from render/lane.rs. :(
-    fn lt_to_color(lt: LaneType) -> Color {
-        match lt {
+    fn lt_to_color(lt: LaneType, synthetic: bool) -> Color {
+        let color = match lt {
             LaneType::Driving => Color::BLACK,
             LaneType::Bus => Color::rgb(190, 74, 76),
             LaneType::Parking => Color::grey(0.2),
             LaneType::Sidewalk => Color::grey(0.8),
             LaneType::Biking => Color::rgb(15, 125, 75),
+        };
+        if synthetic {
+            color.alpha(0.5)
+        } else {
+            color
         }
     }
 }
@@ -524,6 +530,8 @@ impl Model {
             println!("Road already exists");
             return;
         }
+        let mut osm_tags = BTreeMap::new();
+        osm_tags.insert("abst:synthetic".to_string(), "true".to_string());
         let id = StableRoadID(self.id_counter);
         self.id_counter += 1;
         self.roads.insert(
@@ -537,7 +545,7 @@ impl Model {
                 },
                 fwd_label: None,
                 back_label: None,
-                osm_tags: BTreeMap::new(),
+                osm_tags,
                 orig_id: raw_data::OriginalRoad {
                     pt1: self.intersections[&i1]
                         .center
