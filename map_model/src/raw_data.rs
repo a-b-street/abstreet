@@ -69,32 +69,22 @@ impl Map {
     }
 
     pub fn find_r(&self, orig: OriginalRoad) -> Option<StableRoadID> {
-        if !self.gps_bounds.contains(orig.pt1) || !self.gps_bounds.contains(orig.pt2) {
-            return None;
-        }
+        // We could quickly bail out by checking that GPSBounds contain the two points, but then
+        // this breaks with valid roads that run very slightly out of bounds.
         for (id, r) in &self.roads {
             if r.orig_id.pt1.approx_eq(orig.pt1) && r.orig_id.pt2.approx_eq(orig.pt2) {
                 return Some(*id);
             }
         }
-
-        // There will be cases where the point fits in the bounding box, but isn't inside the
-        // clipping polygon.
         None
     }
 
     pub fn find_i(&self, orig: OriginalIntersection) -> Option<StableIntersectionID> {
-        if !self.gps_bounds.contains(orig.point) {
-            return None;
-        }
         for (id, i) in &self.intersections {
             if i.orig_id.point.approx_eq(orig.point) {
                 return Some(*id);
             }
         }
-
-        // TODO There will be cases where the point fits in the bounding box, but isn't inside the
-        // clipping polygon.
         None
     }
 

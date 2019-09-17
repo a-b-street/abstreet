@@ -86,8 +86,8 @@ impl Model {
 // General
 impl Model {
     pub fn draw(&self, g: &mut GfxCtx) {
-        g.clear(Color::WHITE);
-        // TODO Boundary polygon?
+        g.clear(Color::BLACK);
+        g.draw_polygon(Color::rgb(242, 239, 233), &self.map.boundary_polygon);
         self.world.draw(g);
     }
 
@@ -415,8 +415,11 @@ impl Model {
         self.map.roads[&id].get_spec().to_string()
     }
 
-    pub fn get_tags(&self, id: StableRoadID) -> &BTreeMap<String, String> {
-        &self.map.roads[&id].osm_tags
+    pub fn get_tags(&self, id: StableRoadID) -> BTreeMap<String, String> {
+        let r = &self.map.roads[&id];
+        let mut tags = r.osm_tags.clone();
+        tags.insert("abst:osm_way_id".to_string(), r.osm_way_id.to_string());
+        tags
     }
 
     fn lanes(&self, id: StableRoadID) -> Vec<Object<ID>> {
