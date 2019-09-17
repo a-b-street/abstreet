@@ -44,21 +44,17 @@ pub struct Flags {
     /// Output .bin path
     #[structopt(long = "output")]
     pub output: String,
-
-    /// Disable blockface
-    #[structopt(long = "fast_dev")]
-    pub fast_dev: bool,
 }
 
 pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
     let mut map =
         split_ways::split_up_roads(osm::extract_osm(&flags.osm, &flags.clip, timer), timer);
     clip::clip_map(&mut map, timer);
-    check_orig_ids(&map);
 
-    if flags.fast_dev {
-        return map;
-    }
+    // Need to do a first pass of removing cul-de-sacs here, or we wind up with loop PolyLines when doing the parking hint matching.
+    abstutil::retain_btreemap(&mut map.roads, |_, r| r.i1 != r.i2);
+
+    check_orig_ids(&map);
 
     if !flags.parking_shapes.is_empty() {
         use_parking_hints(&mut map, &flags.parking_shapes, timer);

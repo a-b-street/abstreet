@@ -14,7 +14,6 @@ pub fn run(t: &mut TestRunner) {
             neighborhoods: "../data/input/neighborhoods.geojson".to_string(),
             clip: abstutil::path_polygon("montlake"),
             output: "convert_osm_twice.bin".to_string(),
-            fast_dev: false,
         };
 
         let map1 = convert_osm::convert(&flags, &mut abstutil::Timer::throwaway());

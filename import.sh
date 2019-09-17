@@ -119,5 +119,3 @@ for poly in `ls ../data/polygons/`; do
 	# Disabled, because it removes lots of parking that's really there.
 	#--street_signs=../data/shapes/street_signs.bin \
 done
-
-# To run manually: cargo run -- --osm=../data/input/montlake.osm --parking_shapes=../data/shapes/blockface.bin --street_signs=../data/shapes/street_signs.bin --offstreet_parking=../data/input/offstreet_parking.kml --gtfs=../data/input/google_transit_2018_18_08 --neighborhoods=../data/input/neighborhoods.geojson --clip=../data/polygons/montlake.poly --output=../data/raw_maps/montlake.bin --fast_dev
