@@ -28,7 +28,7 @@ pub fn extract_osm(
     done(timer);
 
     let mut map = if maybe_clip_path.is_empty() {
-        let mut m = raw_data::Map::blank();
+        let mut m = raw_data::Map::blank(abstutil::basename(osm_path));
         for node in doc.nodes.values() {
             m.gps_bounds.update(LonLat::new(node.lon, node.lat));
         }
@@ -344,7 +344,7 @@ fn read_osmosis_polygon(path: &str) -> raw_data::Map {
         gps_bounds.update(pt);
     }
 
-    let mut map = raw_data::Map::blank();
+    let mut map = raw_data::Map::blank(abstutil::basename(path));
     map.boundary_polygon = Polygon::new(&gps_bounds.must_convert(&pts));
     map.gps_bounds = gps_bounds;
     map

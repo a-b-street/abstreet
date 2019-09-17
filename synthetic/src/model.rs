@@ -210,7 +210,7 @@ impl Model {
 
     // Returns path to raw map
     pub fn export(&self) -> String {
-        let mut map = raw_data::Map::blank();
+        let mut map = raw_data::Map::blank(self.name.clone().expect("Model hasn't been named yet"));
 
         for (id, r) in &self.roads {
             let mut osm_tags = BTreeMap::new();
@@ -267,7 +267,7 @@ impl Model {
         map.gps_bounds = self.gps_bounds.clone();
         map.boundary_polygon = self.compute_bounds().get_rectangle();
 
-        let path = abstutil::path_raw_map(self.name.as_ref().expect("Model hasn't been named yet"));
+        let path = abstutil::path_raw_map(&map.name);
         abstutil::write_binary(&path, &map).expect(&format!("Saving {} failed", path));
         println!("Exported {}", path);
         path
@@ -286,7 +286,7 @@ impl Model {
         let mut data: raw_data::Map = read_binary(path, &mut timer).unwrap();
         data.apply_fixes(&m.fixes, &mut timer);
 
-        m.name = Some(abstutil::basename(path));
+        m.name = Some(data.name.clone());
         m.gps_bounds = data.gps_bounds.clone();
 
         for (id, raw_i) in &data.intersections {
@@ -315,7 +315,7 @@ impl Model {
                         .osm_tags
                         .get(k)
                         .cloned()
-                        .unwrap_or("MISSING".to_string());
+                        .unwrap_or_else(|| "MISSING".to_string());
                     println!("  {} = {}   /   {}", k, v1, v2);
                 }
                 for (k, v2) in &other.osm_tags {

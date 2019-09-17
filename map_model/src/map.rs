@@ -55,7 +55,7 @@ impl Map {
         data.apply_fixes(&raw_data::MapFixes::load(), timer);
         // Do this after applying fixes, which might split off pieces of the map.
         make::remove_disconnected_roads(&mut data, timer);
-        Ok(Map::create_from_raw(abstutil::basename(path), data, timer))
+        Ok(Map::create_from_raw(data, timer))
     }
 
     // Just for temporary std::mem::replace tricks.
@@ -86,11 +86,11 @@ impl Map {
         }
     }
 
-    pub fn create_from_raw(name: String, data: raw_data::Map, timer: &mut Timer) -> Map {
+    fn create_from_raw(data: raw_data::Map, timer: &mut Timer) -> Map {
         timer.start("raw_map to InitialMap");
         let gps_bounds = data.gps_bounds.clone();
         let bounds = gps_bounds.to_bounds();
-        let mut initial_map = make::InitialMap::new(name.clone(), &data, &bounds, timer);
+        let mut initial_map = make::InitialMap::new(data.name.clone(), &data, &bounds, timer);
         let hints = raw_data::Hints::load();
         initial_map.apply_hints(&hints, &data, timer);
         timer.stop("raw_map to InitialMap");
@@ -117,8 +117,8 @@ impl Map {
             turn_lookup: half_map.turn_lookup,
             pathfinder: None,
             pathfinder_dirty: false,
-            name: name.clone(),
-            edits: MapEdits::new(name),
+            name: data.name.clone(),
+            edits: MapEdits::new(data.name),
         };
 
         // Extra setup that's annoying to do as HalfMap, since we want to pass around a Map.

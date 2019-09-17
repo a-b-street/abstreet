@@ -50,8 +50,12 @@ impl UI {
     fn new(filename: &str, ctx: &mut EventCtx) -> UI {
         ctx.loading_screen(&format!("load {}", filename), |ctx, mut timer| {
             let raw: Map = abstutil::read_binary(filename, &mut timer).unwrap();
-            let map_name = abstutil::basename(filename);
-            let mut data = InitialMap::new(map_name, &raw, &raw.gps_bounds.to_bounds(), &mut timer);
+            let mut data = InitialMap::new(
+                raw.name.clone(),
+                &raw,
+                &raw.gps_bounds.to_bounds(),
+                &mut timer,
+            );
             let hints = Hints::load();
             data.apply_hints(&hints, &raw, &mut timer);
 
@@ -121,7 +125,10 @@ impl GUI for UI {
                             let r2_tags = &self.raw.roads[iter.next().unwrap()].osm_tags;
 
                             for (k, v1) in r1_tags {
-                                let v2 = r2_tags.get(k).cloned().unwrap_or("MISSING".to_string());
+                                let v2 = r2_tags
+                                    .get(k)
+                                    .cloned()
+                                    .unwrap_or_else(|| "MISSING".to_string());
                                 if *v1 != v2 {
                                     txt.add_appended(vec![
                                         Line(k).fg(Color::RED),

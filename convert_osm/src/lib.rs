@@ -77,8 +77,7 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
 
     if !flags.neighborhoods.is_empty() {
         timer.start("convert neighborhood polygons");
-        let map_name = abstutil::basename(&flags.output);
-        neighborhoods::convert(&flags.neighborhoods, map_name, &map.gps_bounds);
+        neighborhoods::convert(&flags.neighborhoods, map.name.clone(), &map.gps_bounds);
         timer.stop("convert neighborhood polygons");
     }
 

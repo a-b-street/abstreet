@@ -27,6 +27,7 @@ impl fmt::Display for StableIntersectionID {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Map {
+    pub name: String,
     pub roads: BTreeMap<StableRoadID, Road>,
     pub intersections: BTreeMap<StableIntersectionID, Intersection>,
     pub buildings: Vec<Building>,
@@ -40,8 +41,9 @@ pub struct Map {
 }
 
 impl Map {
-    pub fn blank() -> Map {
+    pub fn blank(name: String) -> Map {
         Map {
+            name,
             roads: BTreeMap::new(),
             intersections: BTreeMap::new(),
             buildings: Vec::new(),
