@@ -1,5 +1,5 @@
+use crate::raw_data;
 use abstutil::{retain_btreemap, MultiMap, Timer};
-use map_model::raw_data;
 use std::collections::HashSet;
 
 pub fn remove_disconnected_roads(map: &mut raw_data::Map, timer: &mut Timer) {

@@ -1,7 +1,6 @@
 mod clip;
 mod neighborhoods;
 mod osm;
-mod remove_disconnected;
 mod split_ways;
 
 use abstutil::{prettyprint_usize, Timer};
@@ -55,7 +54,6 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
     let mut map =
         split_ways::split_up_roads(osm::extract_osm(&flags.osm, &flags.clip, timer), timer);
     clip::clip_map(&mut map, timer);
-    remove_disconnected::remove_disconnected_roads(&mut map, timer);
     check_orig_ids(&map);
 
     if flags.fast_dev {

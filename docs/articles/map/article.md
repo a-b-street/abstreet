@@ -122,12 +122,6 @@ it only takes a few seconds to load a serialized map.
     to preserve lots of out-of-bounds geometry.
   - Area polygons are intersected with the boundary polygon using the `clipping`
     crate
-- `remove_disconnected.rs`: Remove disconnected roads
-  - Just floodfill from some road, assuming all roads are bidirectional, to get
-    different partitions.
-  - Remove roads from all but the largest partition
-  - Also remove cul-de-sacs (roads that begin and end at the same intersection),
-    because they mess up parking hints and pathfinding.
 - `lib.rs`: Apply parking hints from a King County GIS blockface dataset
   - Match each blockface to the nearest edge of a road
   - Interpret the metadata to assign on-street parking there or not
@@ -148,6 +142,12 @@ The remainder of map construction is done in the `map_model` crate, driven by
 the `precompute.sh` script. There are two awkwardly named intermediate phases
 before the final Map: InitialMap and HalfMap.
 
+- `make/remove_disconnected.rs`: Remove disconnected roads
+  - Just floodfill from some road, assuming all roads are bidirectional, to get
+    different partitions.
+  - Remove roads from all but the largest partition
+  - Also remove cul-de-sacs (roads that begin and end at the same intersection),
+    because they mess up parking hints and pathfinding.
 - `make/initial/mod.rs` and `make/initial/lane_specs.rs`: Interpret OSM tags and
   parking hints to figure out what lanes are on each side of each road, also
   figuring out the total width of the road.

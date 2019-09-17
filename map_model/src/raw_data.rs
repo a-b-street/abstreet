@@ -166,6 +166,7 @@ pub struct Area {
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq)]
 pub struct OriginalRoad {
     // This is needed to distinguish cul-de-sacs.
+    // ... which is a bit weird, because we remove those in a later stage anyway.
     // TODO Maybe replace pt1 and pt2 with OSM node IDs? OSM node IDs may change over time
     // upstream, but as long as everything is internally consistent within A/B Street...
     pub osm_way_id: i64,
