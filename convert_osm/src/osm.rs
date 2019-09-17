@@ -97,12 +97,16 @@ pub fn extract_osm(
             if deduped.len() < 3 {
                 continue;
             }
-            map.buildings.push(raw_data::Building {
-                osm_way_id: way.id,
-                polygon: Polygon::new(&deduped),
-                osm_tags: tags,
-                parking: None,
-            });
+            let id = raw_data::StableBuildingID(map.buildings.len());
+            map.buildings.insert(
+                id,
+                raw_data::Building {
+                    osm_way_id: way.id,
+                    polygon: Polygon::new(&deduped),
+                    osm_tags: tags,
+                    parking: None,
+                },
+            );
         } else if let Some(at) = get_area_type(&tags) {
             if pts.len() < 3 {
                 continue;

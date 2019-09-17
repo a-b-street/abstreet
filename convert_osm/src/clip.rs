@@ -92,7 +92,7 @@ pub fn clip_map(map: &mut raw_data::Map, timer: &mut Timer) {
         }
     }
 
-    map.buildings.retain(|b| {
+    retain_btreemap(&mut map.buildings, |_, b| {
         b.polygon
             .points()
             .iter()

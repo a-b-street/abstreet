@@ -211,32 +211,32 @@ fn use_offstreet_parking(map: &mut raw_data::Map, path: &str, timer: &mut Timer)
     timer.start("match offstreet parking points");
     let shapes = kml::load(path, &map.gps_bounds, timer).expect("loading offstreet_parking failed");
 
-    // Building indices
-    let mut closest: FindClosest<usize> = FindClosest::new(&map.gps_bounds.to_bounds());
-    for (idx, b) in map.buildings.iter().enumerate() {
-        closest.add(idx, b.polygon.points());
+    let mut closest: FindClosest<raw_data::StableBuildingID> =
+        FindClosest::new(&map.gps_bounds.to_bounds());
+    for (id, b) in &map.buildings {
+        closest.add(*id, b.polygon.points());
     }
 
     // TODO Another function just to use ?. Try blocks would rock.
     let mut handle_shape: Box<dyn FnMut(kml::ExtraShape) -> Option<()>> = Box::new(|s| {
         assert_eq!(s.points.len(), 1);
         let pt = Pt2D::from_gps(s.points[0], &map.gps_bounds)?;
-        let (idx, _) = closest.closest_pt(pt, Distance::meters(50.0))?;
+        let (id, _) = closest.closest_pt(pt, Distance::meters(50.0))?;
         // TODO Handle parking lots.
-        if !map.buildings[idx].polygon.contains_pt(pt) {
+        if !map.buildings[&id].polygon.contains_pt(pt) {
             return None;
         }
         let name = s.attributes.get("DEA_FACILITY_NAME")?.to_string();
         let num_stalls = s.attributes.get("DEA_STALLS")?.parse::<usize>().ok()?;
         // TODO Update the existing one instead
-        if let Some(ref existing) = map.buildings[idx].parking {
+        if let Some(ref existing) = map.buildings[&id].parking {
             // TODO Can't use timer inside this closure
             println!(
-                "Two offstreet parking hints apply to building {}: {} @ {}, and {} @ {}",
-                idx, existing.num_stalls, existing.name, num_stalls, name
+                "Two offstreet parking hints apply to {}: {} @ {}, and {} @ {}",
+                id, existing.num_stalls, existing.name, num_stalls, name
             );
         }
-        map.buildings[idx].parking = Some(OffstreetParking {
+        map.buildings.get_mut(&id).unwrap().parking = Some(OffstreetParking {
             name,
             num_stalls,
             // Temporary values, populate later

@@ -25,12 +25,20 @@ impl fmt::Display for StableIntersectionID {
     }
 }
 
+#[derive(PartialEq, Eq, Debug, Serialize, Deserialize, PartialOrd, Ord, Clone, Copy, Hash)]
+pub struct StableBuildingID(pub usize);
+impl fmt::Display for StableBuildingID {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "StableBuildingID({0})", self.0)
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Map {
     pub name: String,
     pub roads: BTreeMap<StableRoadID, Road>,
     pub intersections: BTreeMap<StableIntersectionID, Intersection>,
-    pub buildings: Vec<Building>,
+    pub buildings: BTreeMap<StableBuildingID, Building>,
     pub bus_routes: Vec<Route>,
     pub areas: Vec<Area>,
     // from OSM way => [(restriction, to OSM way)]
@@ -46,7 +54,7 @@ impl Map {
             name,
             roads: BTreeMap::new(),
             intersections: BTreeMap::new(),
-            buildings: Vec::new(),
+            buildings: BTreeMap::new(),
             bus_routes: Vec::new(),
             areas: Vec::new(),
             turn_restrictions: BTreeMap::new(),

@@ -2,7 +2,7 @@ use abstutil::{read_binary, MultiMap, Timer};
 use ezgui::world::{Object, ObjectID, World};
 use ezgui::{Color, EventCtx, GfxCtx, Line, Prerender, Text};
 use geom::{Bounds, Circle, Distance, PolyLine, Polygon, Pt2D};
-use map_model::raw_data::{MapFix, MapFixes, StableIntersectionID, StableRoadID};
+use map_model::raw_data::{MapFix, MapFixes, StableBuildingID, StableIntersectionID, StableRoadID};
 use map_model::{raw_data, IntersectionType, LaneType, RoadSpec, LANE_THICKNESS};
 use std::collections::BTreeMap;
 use std::mem;
@@ -13,7 +13,6 @@ const CENTER_LINE_THICKNESS: Distance = Distance::const_meters(0.5);
 
 const SYNTHETIC_OSM_WAY_ID: i64 = -1;
 
-pub type BuildingID = usize;
 pub type Direction = bool;
 const FORWARDS: Direction = true;
 const BACKWARDS: Direction = false;
@@ -52,6 +51,10 @@ impl Model {
         model.map = read_binary(path, &mut timer).unwrap();
         model.map.apply_fixes(&model.fixes, &mut timer);
 
+        for id in model.map.buildings.keys() {
+            model.id_counter = model.id_counter.max(id.0 + 1);
+        }
+
         for id in model.map.intersections.keys() {
             model.id_counter = model.id_counter.max(id.0 + 1);
         }
@@ -65,7 +68,7 @@ impl Model {
 
         model.world = World::new(&model.compute_bounds());
         if !model.exclude_bldgs {
-            for id in 0..model.map.buildings.len() {
+            for id in model.map.buildings.keys().cloned().collect::<Vec<_>>() {
                 model.bldg_added(id, prerender);
             }
         }
@@ -114,7 +117,7 @@ impl Model {
 
     fn compute_bounds(&self) -> Bounds {
         let mut bounds = Bounds::new();
-        for b in &self.map.buildings {
+        for b in self.map.buildings.values() {
             for pt in b.polygon.points() {
                 bounds.update(*pt);
             }
@@ -132,8 +135,8 @@ impl Model {
 
     pub fn delete_everything_inside(&mut self, area: Polygon) {
         if !self.exclude_bldgs {
-            for id in 0..self.map.buildings.len() {
-                if area.contains_pt(self.map.buildings[id].polygon.center()) {
+            for id in self.map.buildings.keys().cloned().collect::<Vec<_>>() {
+                if area.contains_pt(self.map.buildings[&id].polygon.center()) {
                     self.delete_b(id);
                 }
             }
@@ -496,8 +499,8 @@ impl Model {
 }
 
 impl Model {
-    fn bldg_added(&mut self, id: BuildingID, prerender: &Prerender) {
-        let b = &self.map.buildings[id];
+    fn bldg_added(&mut self, id: StableBuildingID, prerender: &Prerender) {
+        let b = &self.map.buildings[&id];
         self.world.add(
             prerender,
             Object::new(ID::Building(id), Color::BLUE, b.polygon.clone())
@@ -506,21 +509,25 @@ impl Model {
     }
 
     pub fn create_b(&mut self, center: Pt2D, prerender: &Prerender) {
-        let id = self.map.buildings.len();
-        self.map.buildings.push(raw_data::Building {
-            polygon: Polygon::rectangle(center, BUILDING_LENGTH, BUILDING_LENGTH),
-            osm_tags: BTreeMap::new(),
-            osm_way_id: SYNTHETIC_OSM_WAY_ID,
-            parking: None,
-        });
+        let id = StableBuildingID(self.id_counter);
+        self.id_counter += 1;
+        self.map.buildings.insert(
+            id,
+            raw_data::Building {
+                polygon: Polygon::rectangle(center, BUILDING_LENGTH, BUILDING_LENGTH),
+                osm_tags: BTreeMap::new(),
+                osm_way_id: SYNTHETIC_OSM_WAY_ID,
+                parking: None,
+            },
+        );
 
         self.bldg_added(id, prerender);
     }
 
-    pub fn move_b(&mut self, id: BuildingID, new_center: Pt2D, prerender: &Prerender) {
+    pub fn move_b(&mut self, id: StableBuildingID, new_center: Pt2D, prerender: &Prerender) {
         self.world.delete(ID::Building(id));
 
-        let b = &mut self.map.buildings[id];
+        let b = self.map.buildings.get_mut(&id).unwrap();
         let old_center = b.polygon.center();
         b.polygon = b.polygon.translate(
             Distance::meters(new_center.x() - old_center.x()),
@@ -530,30 +537,33 @@ impl Model {
         self.bldg_added(id, prerender);
     }
 
-    pub fn set_b_label(&mut self, id: BuildingID, label: String, prerender: &Prerender) {
+    pub fn set_b_label(&mut self, id: StableBuildingID, label: String, prerender: &Prerender) {
         self.world.delete(ID::Building(id));
 
-        self.map.buildings[id]
+        self.map
+            .buildings
+            .get_mut(&id)
+            .unwrap()
             .osm_tags
             .insert("abst:label".to_string(), label);
 
         self.bldg_added(id, prerender);
     }
 
-    pub fn get_b_label(&self, id: BuildingID) -> Option<String> {
-        self.map.buildings[id].osm_tags.get("abst:label").cloned()
+    pub fn get_b_label(&self, id: StableBuildingID) -> Option<String> {
+        self.map.buildings[&id].osm_tags.get("abst:label").cloned()
     }
 
-    pub fn delete_b(&mut self, id: BuildingID) {
+    pub fn delete_b(&mut self, id: StableBuildingID) {
         self.world.delete(ID::Building(id));
 
-        self.map.buildings.remove(id);
+        self.map.buildings.remove(&id);
     }
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
 pub enum ID {
-    Building(BuildingID),
+    Building(StableBuildingID),
     Intersection(StableIntersectionID),
     Lane(StableRoadID, Direction, usize),
 }

@@ -2,8 +2,8 @@ mod model;
 
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, Text, Wizard, GUI};
 use geom::{Distance, Line, Polygon, Pt2D};
-use map_model::raw_data::{StableIntersectionID, StableRoadID};
-use model::{BuildingID, Direction, Model, ID};
+use map_model::raw_data::{StableBuildingID, StableIntersectionID, StableRoadID};
+use model::{Direction, Model, ID};
 use std::{env, process};
 
 struct UI {
@@ -15,8 +15,8 @@ struct UI {
 enum State {
     Viewing,
     MovingIntersection(StableIntersectionID),
-    MovingBuilding(BuildingID),
-    LabelingBuilding(BuildingID, Wizard),
+    MovingBuilding(StableBuildingID),
+    LabelingBuilding(StableBuildingID, Wizard),
     LabelingRoad((StableRoadID, Direction), Wizard),
     LabelingIntersection(StableIntersectionID, Wizard),
     CreatingRoad(StableIntersectionID),

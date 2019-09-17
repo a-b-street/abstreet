@@ -2,26 +2,26 @@ use crate::make::sidewalk_finder::find_sidewalk_points;
 use crate::{raw_data, Building, BuildingID, FrontPath, Lane, LaneID, Position, Road};
 use abstutil::Timer;
 use geom::{Bounds, Distance, FindClosest, HashablePt2D, Line, Polygon};
-use std::collections::HashSet;
+use std::collections::{BTreeMap, HashSet};
 
 pub fn make_all_buildings(
     results: &mut Vec<Building>,
-    input: &Vec<raw_data::Building>,
+    input: &BTreeMap<raw_data::StableBuildingID, raw_data::Building>,
     bounds: &Bounds,
     lanes: &Vec<Lane>,
     roads: &Vec<Road>,
     timer: &mut Timer,
 ) {
     timer.start("convert buildings");
-    let mut center_per_bldg: Vec<HashablePt2D> = Vec::new();
+    let mut center_per_bldg: BTreeMap<raw_data::StableBuildingID, HashablePt2D> = BTreeMap::new();
     let mut query: HashSet<HashablePt2D> = HashSet::new();
     timer.start_iter("get building center points", input.len());
-    for b in input {
+    for (id, b) in input {
         timer.next();
         // TODO Use the polylabel? Want to have visually distinct lines for front path and
         // driveway; using two different "centers" is a lazy way for now.
         let center = b.polygon.center().to_hashable();
-        center_per_bldg.push(center);
+        center_per_bldg.insert(*id, center);
         query.insert(center);
     }
 
@@ -45,7 +45,7 @@ pub fn make_all_buildings(
     let sidewalk_pts = find_sidewalk_points(bounds, query, lanes, Distance::meters(100.0), timer);
 
     timer.start_iter("create building front paths", center_per_bldg.len());
-    for (idx, bldg_center) in center_per_bldg.into_iter().enumerate() {
+    for (stable_id, bldg_center) in center_per_bldg {
         timer.next();
         if let Some(sidewalk_pos) = sidewalk_pts.get(&bldg_center) {
             let sidewalk_pt = lanes[sidewalk_pos.lane().0]
@@ -55,21 +55,21 @@ pub fn make_all_buildings(
                 timer.warn("Skipping a building because front path has 0 length".to_string());
                 continue;
             }
-            let polygon = &input[idx].polygon;
-            let line = trim_path(polygon, Line::new(bldg_center.to_pt2d(), sidewalk_pt));
+            let b = &input[&stable_id];
+            let line = trim_path(&b.polygon, Line::new(bldg_center.to_pt2d(), sidewalk_pt));
 
             let id = BuildingID(results.len());
             let mut bldg = Building {
                 id,
-                polygon: polygon.clone(),
-                osm_tags: input[idx].osm_tags.clone(),
-                osm_way_id: input[idx].osm_way_id,
+                polygon: b.polygon.clone(),
+                osm_tags: b.osm_tags.clone(),
+                osm_way_id: b.osm_way_id,
                 front_path: FrontPath {
                     sidewalk: *sidewalk_pos,
                     line,
                 },
-                parking: input[idx].parking.clone(),
-                label_center: polygon.polylabel(),
+                parking: b.parking.clone(),
+                label_center: b.polygon.polylabel(),
             };
 
             // Make a driveway from the parking icon to the nearest road.
