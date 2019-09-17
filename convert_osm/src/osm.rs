@@ -75,7 +75,8 @@ pub fn extract_osm(
             continue;
         }
         let pts = map.gps_bounds.forcibly_convert(&gps_pts);
-        let tags = tags_to_map(&way.tags);
+        let mut tags = tags_to_map(&way.tags);
+        tags.insert("abst:osm_way_id".to_string(), way.id.to_string());
         if is_road(&tags) {
             roads.push(raw_data::Road {
                 osm_way_id: way.id,
@@ -126,7 +127,8 @@ pub fn extract_osm(
     timer.start_iter("processing OSM relations", doc.relations.len());
     for rel in doc.relations.values() {
         timer.next();
-        let tags = tags_to_map(&rel.tags);
+        let mut tags = tags_to_map(&rel.tags);
+        tags.insert("abst:osm_rel_id".to_string(), rel.id.to_string());
         if let Some(at) = get_area_type(&tags) {
             if tags.get("type") == Some(&"multipolygon".to_string()) {
                 let mut ok = true;

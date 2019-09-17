@@ -313,6 +313,10 @@ impl Model {
         );
         osm_tags.insert("abst:endpt_fwd".to_string(), "true".to_string());
         osm_tags.insert("abst:endpt_back".to_string(), "true".to_string());
+        osm_tags.insert(
+            "abst:osm_way_id".to_string(),
+            SYNTHETIC_OSM_WAY_ID.to_string(),
+        );
         let center_points = vec![
             self.map.intersections[&i1].point,
             self.map.intersections[&i2].point,
@@ -423,11 +427,8 @@ impl Model {
         self.map.roads[&id].get_spec().to_string()
     }
 
-    pub fn get_tags(&self, id: StableRoadID) -> BTreeMap<String, String> {
-        let r = &self.map.roads[&id];
-        let mut tags = r.osm_tags.clone();
-        tags.insert("abst:osm_way_id".to_string(), r.osm_way_id.to_string());
-        tags
+    pub fn get_tags(&self, id: StableRoadID) -> &BTreeMap<String, String> {
+        &self.map.roads[&id].osm_tags
     }
 
     fn lanes(&self, id: StableRoadID) -> Vec<Object<ID>> {

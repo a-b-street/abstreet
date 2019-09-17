@@ -462,7 +462,6 @@ fn search_osm(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Trans
         if r.osm_tags
             .iter()
             .any(|(k, v)| format!("{} = {}", k, v).contains(&filter))
-            || format!("{}", r.osm_way_id).contains(&filter)
         {
             for l in r.all_lanes() {
                 ids.insert(ID::Lane(l));
@@ -474,7 +473,6 @@ fn search_osm(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Trans
         if b.osm_tags
             .iter()
             .any(|(k, v)| format!("{} = {}", k, v).contains(&filter))
-            || format!("{}", b.osm_way_id).contains(&filter)
         {
             ids.insert(ID::Building(b.id));
             batch.push(color, b.polygon.clone());

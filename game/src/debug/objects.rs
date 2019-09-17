@@ -163,7 +163,6 @@ fn tooltip_lines(id: ID, g: &mut GfxCtx, ctx: &PerMapUI) -> Text {
                 Line(format!("{} is ", l.id)),
                 Line(r.get_name()).fg(Color::CYAN),
             ]);
-            txt.add(Line(format!("From OSM way {}", r.osm_way_id)));
             txt.add(Line(format!(
                 "Parent {} (originally {}) points to {}",
                 r.id, r.stable_id, r.dst_i
@@ -216,10 +215,7 @@ fn tooltip_lines(id: ID, g: &mut GfxCtx, ctx: &PerMapUI) -> Text {
         }
         ID::Building(id) => {
             let b = map.get_b(id);
-            txt.add(Line(format!(
-                "Building #{:?} (from OSM way {})",
-                id, b.osm_way_id
-            )));
+            txt.add(Line(format!("Building #{:?}", id)));
             txt.add(Line(format!(
                 "Dist along sidewalk: {}",
                 b.front_path.sidewalk.dist_along()
@@ -252,7 +248,7 @@ fn tooltip_lines(id: ID, g: &mut GfxCtx, ctx: &PerMapUI) -> Text {
         }
         ID::Area(id) => {
             let a = map.get_a(id);
-            txt.add(Line(format!("{} (from OSM {})", id, a.osm_id)));
+            txt.add(Line(format!("{}", id)));
             styled_kv(&mut txt, &a.osm_tags);
         }
         ID::Trip(_) => {}
