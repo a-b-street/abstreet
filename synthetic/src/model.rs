@@ -303,6 +303,8 @@ impl Model {
             }
             .to_string(),
         );
+        osm_tags.insert("abst:endpt_fwd".to_string(), "true".to_string());
+        osm_tags.insert("abst:endpt_back".to_string(), "true".to_string());
         let center_points = vec![
             self.map.intersections[&i1].point,
             self.map.intersections[&i2].point,
@@ -429,33 +431,23 @@ impl Model {
             tooltip.add(Line("some road"));
         }
 
-        let spec = r.get_spec();
-        let base = PolyLine::new(r.center_points.clone());
-        // Same logic as get_thick_polyline
-        let width_right = (spec.fwd.len() as f64) * LANE_THICKNESS;
-        let width_left = (spec.back.len() as f64) * LANE_THICKNESS;
-        let centered_base = if width_right >= width_left {
-            base.shift_right((width_right - width_left) / 2.0).unwrap()
-        } else {
-            base.shift_left((width_left - width_right) / 2.0).unwrap()
-        };
-
         let mut result = Vec::new();
         let synthetic = r.osm_tags.get("abst:synthetic") == Some(&"true".to_string());
-
+        let spec = r.get_spec();
+        let center_pts = PolyLine::new(r.center_points.clone());
         for (idx, lt) in spec.fwd.iter().enumerate() {
             let mut obj = Object::new(
                 ID::Lane(id, FORWARDS, idx),
                 Model::lt_to_color(*lt, synthetic),
-                centered_base
-                    .shift_right(LANE_THICKNESS * ((idx as f64) + 0.5))
+                center_pts
+                    .shift_right(LANE_THICKNESS * (0.5 + (idx as f64)))
                     .unwrap()
                     .make_polygons(LANE_THICKNESS),
             );
             if idx == 0 {
                 obj = obj.push(
                     Color::YELLOW,
-                    centered_base.make_polygons(CENTER_LINE_THICKNESS),
+                    center_pts.make_polygons(CENTER_LINE_THICKNESS),
                 );
             }
             if idx == spec.fwd.len() / 2 {
@@ -467,8 +459,9 @@ impl Model {
             let mut obj = Object::new(
                 ID::Lane(id, BACKWARDS, idx),
                 Model::lt_to_color(*lt, synthetic),
-                centered_base
-                    .shift_left(LANE_THICKNESS * ((idx as f64) + 0.5))
+                center_pts
+                    .reversed()
+                    .shift_right(LANE_THICKNESS * (0.5 + (idx as f64)))
                     .unwrap()
                     .make_polygons(LANE_THICKNESS),
             );
