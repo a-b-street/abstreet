@@ -10,11 +10,11 @@ pub fn get_lane_types(
     parking_lane_back: bool,
 ) -> (Vec<LaneType>, Vec<LaneType>) {
     // The raw_data might come from the synthetic map editor.
-    if let Some(s) = osm_tags.get("synthetic_lanes") {
+    if let Some(s) = osm_tags.get("abst:synthetic_lanes") {
         if let Some(spec) = RoadSpec::parse(s.to_string()) {
             return (spec.fwd, spec.back);
         } else {
-            panic!("Bad synthetic_lanes RoadSpec: {}", s);
+            panic!("Bad abst:synthetic_lanes RoadSpec: {}", s);
         }
     }
 

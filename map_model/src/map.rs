@@ -512,9 +512,9 @@ impl Map {
                 continue;
             }
             let r = self.get_parent(l.id);
-            if (r.is_forwards(l.id) && r.osm_tags.get("fwd_label") == Some(&label.to_string()))
+            if (r.is_forwards(l.id) && r.osm_tags.get("abst:fwd_label") == Some(&label.to_string()))
                 || (r.is_backwards(l.id)
-                    && r.osm_tags.get("back_label") == Some(&label.to_string()))
+                    && r.osm_tags.get("abst:back_label") == Some(&label.to_string()))
             {
                 return l;
             }
@@ -528,9 +528,9 @@ impl Map {
                 continue;
             }
             let r = self.get_parent(l.id);
-            if (r.is_forwards(l.id) && r.osm_tags.get("fwd_label") == Some(&label.to_string()))
+            if (r.is_forwards(l.id) && r.osm_tags.get("abst:fwd_label") == Some(&label.to_string()))
                 || (r.is_backwards(l.id)
-                    && r.osm_tags.get("back_label") == Some(&label.to_string()))
+                    && r.osm_tags.get("abst:back_label") == Some(&label.to_string()))
             {
                 let actual_spots = l.number_parking_spots();
                 if expected_spots != actual_spots {

@@ -1,93 +1,436 @@
-use abstutil::{read_binary, Timer};
+use abstutil::{read_binary, MultiMap, Timer};
 use ezgui::world::{Object, ObjectID, World};
 use ezgui::{Color, EventCtx, GfxCtx, Line, Prerender, Text};
-use geom::{Bounds, Circle, Distance, GPSBounds, PolyLine, Polygon, Pt2D};
+use geom::{Bounds, Circle, Distance, PolyLine, Polygon, Pt2D};
 use map_model::raw_data::{MapFix, MapFixes, StableIntersectionID, StableRoadID};
 use map_model::{raw_data, IntersectionType, LaneType, RoadSpec, LANE_THICKNESS};
-use std::collections::{BTreeMap, HashSet};
+use std::collections::BTreeMap;
 use std::mem;
 
 const INTERSECTION_RADIUS: Distance = Distance::const_meters(5.0);
 const BUILDING_LENGTH: Distance = Distance::const_meters(30.0);
 const CENTER_LINE_THICKNESS: Distance = Distance::const_meters(0.5);
 
+const SYNTHETIC_OSM_WAY_ID: i64 = -1;
+
 pub type BuildingID = usize;
 pub type Direction = bool;
 const FORWARDS: Direction = true;
 const BACKWARDS: Direction = false;
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
-pub enum ID {
-    Building(BuildingID),
-    Intersection(StableIntersectionID),
-    Lane(StableRoadID, Direction, usize),
+pub struct Model {
+    pub map: raw_data::Map,
+    roads_per_intersection: MultiMap<StableIntersectionID, StableRoadID>,
+    // Never reuse IDs, and don't worry about being sequential
+    id_counter: usize,
+    fixes: MapFixes,
+
+    exclude_bldgs: bool,
+    world: World<ID>,
 }
 
-impl ObjectID for ID {
-    fn zorder(&self) -> usize {
-        match self {
-            ID::Lane(_, _, _) => 0,
-            ID::Intersection(_) => 1,
-            ID::Building(_) => 2,
+// Construction
+impl Model {
+    pub fn blank() -> Model {
+        Model {
+            map: raw_data::Map::blank(String::new()),
+            roads_per_intersection: MultiMap::new(),
+            id_counter: 0,
+            // TODO Only if we're editing something, not if we're truly creating from scratch,
+            // right?
+            fixes: MapFixes::load(),
+
+            exclude_bldgs: false,
+            world: World::new(&Bounds::new()),
+        }
+    }
+
+    pub fn import(path: &str, exclude_bldgs: bool, prerender: &Prerender) -> Model {
+        let mut timer = Timer::new("import map");
+        let mut model = Model::blank();
+        model.exclude_bldgs = exclude_bldgs;
+        model.map = read_binary(path, &mut timer).unwrap();
+        model.map.apply_fixes(&model.fixes, &mut timer);
+
+        for id in model.map.intersections.keys() {
+            model.id_counter = model.id_counter.max(id.0 + 1);
+        }
+
+        for (id, r) in &model.map.roads {
+            model.id_counter = model.id_counter.max(id.0 + 1);
+
+            model.roads_per_intersection.insert(r.i1, *id);
+            model.roads_per_intersection.insert(r.i2, *id);
+        }
+
+        model.world = World::new(&model.compute_bounds());
+        if !model.exclude_bldgs {
+            for id in 0..model.map.buildings.len() {
+                model.bldg_added(id, prerender);
+            }
+        }
+        for id in model.map.intersections.keys().cloned().collect::<Vec<_>>() {
+            model.intersection_added(id, prerender);
+        }
+        for id in model.map.roads.keys().cloned().collect::<Vec<_>>() {
+            model.road_added(id, prerender);
+        }
+
+        model
+    }
+}
+
+// General
+impl Model {
+    pub fn draw(&self, g: &mut GfxCtx) {
+        g.clear(Color::WHITE);
+        // TODO Boundary polygon?
+        self.world.draw(g);
+    }
+
+    pub fn handle_mouseover(&mut self, ctx: &EventCtx) {
+        self.world.handle_mouseover(ctx);
+    }
+
+    pub fn get_selection(&self) -> Option<ID> {
+        self.world.get_selection()
+    }
+
+    // TODO Only for truly synthetic maps...
+    pub fn export(&mut self) {
+        assert!(self.map.name != "");
+        // TODO Or maybe we should do this more regularly?
+        self.map.boundary_polygon = self.compute_bounds().get_rectangle();
+
+        let path = abstutil::path_raw_map(&self.map.name);
+        abstutil::write_binary(&path, &self.map).expect(&format!("Saving {} failed", path));
+        println!("Exported {}", path);
+    }
+
+    pub fn save_fixes(&self) {
+        abstutil::write_json("../data/fixes.json", &self.fixes).unwrap();
+        println!("Wrote ../data/fixes.json");
+    }
+
+    fn compute_bounds(&self) -> Bounds {
+        let mut bounds = Bounds::new();
+        for b in &self.map.buildings {
+            for pt in b.polygon.points() {
+                bounds.update(*pt);
+            }
+        }
+        for i in self.map.intersections.values() {
+            bounds.update(i.point);
+        }
+        for r in self.map.roads.values() {
+            for pt in &r.center_points {
+                bounds.update(*pt);
+            }
+        }
+        bounds
+    }
+
+    pub fn delete_everything_inside(&mut self, area: Polygon) {
+        if !self.exclude_bldgs {
+            for id in 0..self.map.buildings.len() {
+                if area.contains_pt(self.map.buildings[id].polygon.center()) {
+                    self.delete_b(id);
+                }
+            }
+        }
+
+        for id in self.map.roads.keys().cloned().collect::<Vec<_>>() {
+            if self.map.roads[&id]
+                .center_points
+                .iter()
+                .any(|pt| area.contains_pt(*pt))
+            {
+                self.delete_r(id);
+            }
+        }
+        for id in self.map.intersections.keys().cloned().collect::<Vec<_>>() {
+            if area.contains_pt(self.map.intersections[&id].point) {
+                self.delete_i(id);
+            }
         }
     }
 }
 
-pub struct Model {
-    pub name: Option<String>,
-    intersections: BTreeMap<StableIntersectionID, Intersection>,
-    roads: BTreeMap<StableRoadID, Road>,
-    buildings: BTreeMap<BuildingID, Building>,
-    // Never reuse IDs, and don't worry about being sequential
-    id_counter: usize,
-    fixes: MapFixes,
-    gps_bounds: GPSBounds,
+// Intersections
+impl Model {
+    fn intersection_added(&mut self, id: StableIntersectionID, prerender: &Prerender) {
+        let i = &self.map.intersections[&id];
+        self.world.add(
+            prerender,
+            Object::new(
+                ID::Intersection(id),
+                match i.intersection_type {
+                    IntersectionType::TrafficSignal => Color::GREEN,
+                    IntersectionType::StopSign => Color::RED,
+                    IntersectionType::Border => Color::BLUE,
+                },
+                Circle::new(i.point, INTERSECTION_RADIUS).to_polygon(),
+            )
+            .maybe_label(i.label.clone()),
+        );
+    }
 
-    world: World<ID>,
-}
+    pub fn create_i(&mut self, point: Pt2D, prerender: &Prerender) {
+        let id = StableIntersectionID(self.id_counter);
+        self.id_counter += 1;
+        self.map.intersections.insert(
+            id,
+            raw_data::Intersection {
+                point,
+                intersection_type: IntersectionType::StopSign,
+                label: None,
+                orig_id: raw_data::OriginalIntersection {
+                    point: point.forcibly_to_gps(&self.map.gps_bounds),
+                },
+            },
+        );
 
-struct Intersection {
-    center: Pt2D,
-    intersection_type: IntersectionType,
-    label: Option<String>,
-    roads: HashSet<StableRoadID>,
-    orig_id: raw_data::OriginalIntersection,
-}
+        self.intersection_added(id, prerender);
+    }
 
-impl Intersection {
-    fn circle(&self) -> Circle {
-        Circle::new(self.center, INTERSECTION_RADIUS)
+    pub fn move_i(&mut self, id: StableIntersectionID, point: Pt2D, prerender: &Prerender) {
+        self.world.delete(ID::Intersection(id));
+
+        {
+            let i = self.map.intersections.get_mut(&id).unwrap();
+            i.point = point;
+            i.orig_id.point = point.forcibly_to_gps(&self.map.gps_bounds);
+        }
+
+        self.intersection_added(id, prerender);
+
+        // Now update all the roads.
+        for r in self.roads_per_intersection.get(id).clone() {
+            self.road_deleted(r);
+            // TODO Do the mutation
+            self.road_added(r, prerender);
+        }
+    }
+
+    pub fn set_i_label(&mut self, id: StableIntersectionID, label: String, prerender: &Prerender) {
+        self.world.delete(ID::Intersection(id));
+
+        self.map.intersections.get_mut(&id).unwrap().label = Some(label);
+
+        self.intersection_added(id, prerender);
+    }
+
+    pub fn get_i_label(&self, id: StableIntersectionID) -> Option<String> {
+        self.map.intersections[&id].label.clone()
+    }
+
+    pub fn toggle_i_type(&mut self, id: StableIntersectionID, prerender: &Prerender) {
+        self.world.delete(ID::Intersection(id));
+
+        let i = self.map.intersections.get_mut(&id).unwrap();
+        i.intersection_type = match i.intersection_type {
+            IntersectionType::StopSign => IntersectionType::TrafficSignal,
+            IntersectionType::TrafficSignal => {
+                if self.roads_per_intersection.get(id).len() == 1 {
+                    IntersectionType::Border
+                } else {
+                    IntersectionType::StopSign
+                }
+            }
+            IntersectionType::Border => IntersectionType::StopSign,
+        };
+
+        self.intersection_added(id, prerender);
+    }
+
+    pub fn delete_i(&mut self, id: StableIntersectionID) {
+        if !self.roads_per_intersection.get(id).is_empty() {
+            println!("Can't delete intersection used by roads");
+            return;
+        }
+        let i = self.map.intersections.remove(&id).unwrap();
+
+        self.world.delete(ID::Intersection(id));
+
+        self.fixes.fixes.push(MapFix::DeleteIntersection(i.orig_id));
+    }
+
+    pub fn get_i_center(&self, id: StableIntersectionID) -> Pt2D {
+        self.map.intersections[&id].point
     }
 }
 
-struct Road {
-    i1: StableIntersectionID,
-    i2: StableIntersectionID,
-    lanes: RoadSpec,
-    fwd_label: Option<String>,
-    back_label: Option<String>,
-    osm_tags: BTreeMap<String, String>,
-    orig_id: raw_data::OriginalRoad,
-}
+impl Model {
+    fn road_added(&mut self, id: StableRoadID, prerender: &Prerender) {
+        for obj in self.lanes(id) {
+            self.world.add(prerender, obj);
+        }
+    }
 
-impl Road {
-    fn lanes(&self, id: StableRoadID, model: &Model) -> Vec<Object<ID>> {
+    fn road_deleted(&mut self, id: StableRoadID) {
+        for obj in self.lanes(id) {
+            self.world.delete(obj.get_id());
+        }
+    }
+
+    pub fn create_r(
+        &mut self,
+        i1: StableIntersectionID,
+        i2: StableIntersectionID,
+        prerender: &Prerender,
+    ) {
+        // Ban cul-de-sacs, since they get stripped out later anyway.
+        if self
+            .map
+            .roads
+            .values()
+            .any(|r| (r.i1 == i1 && r.i2 == i2) || (r.i1 == i2 && r.i2 == i1))
+        {
+            println!("Road already exists");
+            return;
+        }
+
+        let mut osm_tags = BTreeMap::new();
+        osm_tags.insert("abst:synthetic".to_string(), "true".to_string());
+        osm_tags.insert(
+            "abst:synthetic_lanes".to_string(),
+            RoadSpec {
+                fwd: vec![LaneType::Driving, LaneType::Parking, LaneType::Sidewalk],
+                back: vec![LaneType::Driving, LaneType::Parking, LaneType::Sidewalk],
+            }
+            .to_string(),
+        );
+        let center_points = vec![
+            self.map.intersections[&i1].point,
+            self.map.intersections[&i2].point,
+        ];
+        let id = StableRoadID(self.id_counter);
+        self.id_counter += 1;
+        self.map.roads.insert(
+            id,
+            raw_data::Road {
+                i1,
+                i2,
+                orig_id: raw_data::OriginalRoad {
+                    osm_way_id: SYNTHETIC_OSM_WAY_ID,
+                    pt1: center_points[0].forcibly_to_gps(&self.map.gps_bounds),
+                    pt2: center_points[1].forcibly_to_gps(&self.map.gps_bounds),
+                },
+                center_points,
+                osm_tags,
+                osm_way_id: SYNTHETIC_OSM_WAY_ID,
+                parking_lane_fwd: false,
+                parking_lane_back: false,
+            },
+        );
+        self.roads_per_intersection.insert(i1, id);
+        self.roads_per_intersection.insert(i2, id);
+
+        self.road_added(id, prerender);
+    }
+
+    pub fn edit_lanes(&mut self, id: StableRoadID, spec: String, prerender: &Prerender) {
+        self.road_deleted(id);
+
+        if let Some(s) = RoadSpec::parse(spec.clone()) {
+            self.map
+                .roads
+                .get_mut(&id)
+                .unwrap()
+                .osm_tags
+                .insert("abst:synthetic_lanes".to_string(), s.to_string());
+        } else {
+            println!("Bad RoadSpec: {}", spec);
+        }
+
+        self.road_added(id, prerender);
+    }
+
+    pub fn swap_lanes(&mut self, id: StableRoadID, prerender: &Prerender) {
+        self.road_deleted(id);
+
+        let r = self.map.roads.get_mut(&id).unwrap();
+        let mut lanes = r.get_spec();
+        mem::swap(&mut lanes.fwd, &mut lanes.back);
+        r.osm_tags
+            .insert("abst:synthetic_lanes".to_string(), lanes.to_string());
+
+        let fwd_label = r.osm_tags.remove("abst:fwd_label");
+        let back_label = r.osm_tags.remove("abst:back_label");
+        if let Some(l) = fwd_label {
+            r.osm_tags.insert("abst:back_label".to_string(), l);
+        }
+        if let Some(l) = back_label {
+            r.osm_tags.insert("abst:fwd_label".to_string(), l);
+        }
+
+        self.road_added(id, prerender);
+    }
+
+    pub fn set_r_label(
+        &mut self,
+        pair: (StableRoadID, Direction),
+        label: String,
+        prerender: &Prerender,
+    ) {
+        self.road_deleted(pair.0);
+
+        let r = self.map.roads.get_mut(&pair.0).unwrap();
+        if pair.1 {
+            r.osm_tags
+                .insert("abst:fwd_label".to_string(), label.to_string());
+        } else {
+            r.osm_tags
+                .insert("abst:back_label".to_string(), label.to_string());
+        }
+
+        self.road_added(pair.0, prerender);
+    }
+
+    pub fn get_r_label(&self, pair: (StableRoadID, Direction)) -> Option<String> {
+        let r = &self.map.roads[&pair.0];
+        if pair.1 {
+            r.osm_tags.get("abst:fwd_label").cloned()
+        } else {
+            r.osm_tags.get("abst:back_label").cloned()
+        }
+    }
+
+    pub fn delete_r(&mut self, id: StableRoadID) {
+        self.road_deleted(id);
+
+        let r = self.map.roads.remove(&id).unwrap();
+        self.roads_per_intersection.remove(r.i1, id);
+        self.roads_per_intersection.remove(r.i2, id);
+
+        self.fixes.fixes.push(MapFix::DeleteRoad(r.orig_id));
+    }
+
+    pub fn get_road_spec(&self, id: StableRoadID) -> String {
+        self.map.roads[&id].get_spec().to_string()
+    }
+
+    pub fn get_tags(&self, id: StableRoadID) -> &BTreeMap<String, String> {
+        &self.map.roads[&id].osm_tags
+    }
+
+    fn lanes(&self, id: StableRoadID) -> Vec<Object<ID>> {
+        let r = &self.map.roads[&id];
+
         let mut tooltip = Text::new();
-        if let Some(name) = self.osm_tags.get("name") {
+        if let Some(name) = r.osm_tags.get("name") {
             tooltip.add(Line(name));
-        } else if let Some(name) = self.osm_tags.get("ref") {
+        } else if let Some(name) = r.osm_tags.get("ref") {
             tooltip.add(Line(name));
         } else {
             tooltip.add(Line("some road"));
         }
 
-        let base = PolyLine::new(vec![
-            model.intersections[&self.i1].center,
-            model.intersections[&self.i2].center,
-        ]);
+        let spec = r.get_spec();
+        let base = PolyLine::new(r.center_points.clone());
         // Same logic as get_thick_polyline
-        let width_right = (self.lanes.fwd.len() as f64) * LANE_THICKNESS;
-        let width_left = (self.lanes.back.len() as f64) * LANE_THICKNESS;
+        let width_right = (spec.fwd.len() as f64) * LANE_THICKNESS;
+        let width_left = (spec.back.len() as f64) * LANE_THICKNESS;
         let centered_base = if width_right >= width_left {
             base.shift_right((width_right - width_left) / 2.0).unwrap()
         } else {
@@ -95,12 +438,12 @@ impl Road {
         };
 
         let mut result = Vec::new();
-        let synthetic = self.osm_tags.get("abst:synthetic") == Some(&"true".to_string());
+        let synthetic = r.osm_tags.get("abst:synthetic") == Some(&"true".to_string());
 
-        for (idx, lt) in self.lanes.fwd.iter().enumerate() {
+        for (idx, lt) in spec.fwd.iter().enumerate() {
             let mut obj = Object::new(
                 ID::Lane(id, FORWARDS, idx),
-                Road::lt_to_color(*lt, synthetic),
+                Model::lt_to_color(*lt, synthetic),
                 centered_base
                     .shift_right(LANE_THICKNESS * ((idx as f64) + 0.5))
                     .unwrap()
@@ -112,22 +455,22 @@ impl Road {
                     centered_base.make_polygons(CENTER_LINE_THICKNESS),
                 );
             }
-            if idx == self.lanes.fwd.len() / 2 {
-                obj = obj.maybe_label(self.fwd_label.clone());
+            if idx == spec.fwd.len() / 2 {
+                obj = obj.maybe_label(r.osm_tags.get("abst:fwd_label").cloned());
             }
             result.push(obj.tooltip(tooltip.clone()));
         }
-        for (idx, lt) in self.lanes.back.iter().enumerate() {
+        for (idx, lt) in spec.back.iter().enumerate() {
             let mut obj = Object::new(
                 ID::Lane(id, BACKWARDS, idx),
-                Road::lt_to_color(*lt, synthetic),
+                Model::lt_to_color(*lt, synthetic),
                 centered_base
                     .shift_left(LANE_THICKNESS * ((idx as f64) + 0.5))
                     .unwrap()
                     .make_polygons(LANE_THICKNESS),
             );
-            if idx == self.lanes.back.len() / 2 {
-                obj = obj.maybe_label(self.back_label.clone());
+            if idx == spec.back.len() / 2 {
+                obj = obj.maybe_label(r.osm_tags.get("abst:back_label").cloned());
             }
             result.push(obj.tooltip(tooltip.clone()));
         }
@@ -152,518 +495,37 @@ impl Road {
     }
 }
 
-struct Building {
-    label: Option<String>,
-    center: Pt2D,
-}
-
-impl Building {
-    fn polygon(&self) -> Polygon {
-        Polygon::rectangle(self.center, BUILDING_LENGTH, BUILDING_LENGTH)
-    }
-}
-
-impl Model {
-    pub fn new() -> Model {
-        Model {
-            name: None,
-            intersections: BTreeMap::new(),
-            roads: BTreeMap::new(),
-            buildings: BTreeMap::new(),
-            id_counter: 0,
-            // TODO Only if we're editing something, not if we're truly creating from scratch,
-            // right?
-            fixes: MapFixes::load(),
-            // We'll get nonsense answers unless we import() from a real raw_data map, which is
-            // fine.
-            gps_bounds: GPSBounds::new(),
-            world: World::new(&Bounds::new()),
-        }
-    }
-
-    pub fn draw(&self, g: &mut GfxCtx) {
-        g.clear(Color::WHITE);
-
-        self.world.draw(g);
-    }
-
-    pub fn handle_mouseover(&mut self, ctx: &EventCtx) {
-        self.world.handle_mouseover(ctx);
-    }
-
-    pub fn get_selection(&self) -> Option<ID> {
-        self.world.get_selection()
-    }
-
-    fn compute_bounds(&self) -> Bounds {
-        let mut bounds = Bounds::new();
-        for b in self.buildings.values() {
-            for pt in b.polygon().points() {
-                bounds.update(*pt);
-            }
-        }
-        for i in self.intersections.values() {
-            bounds.update(i.center);
-        }
-        bounds
-    }
-
-    // Returns path to raw map
-    pub fn export(&self) -> String {
-        let mut map = raw_data::Map::blank(self.name.clone().expect("Model hasn't been named yet"));
-
-        for (id, r) in &self.roads {
-            let mut osm_tags = BTreeMap::new();
-            osm_tags.insert("synthetic_lanes".to_string(), r.lanes.to_string());
-            if let Some(ref label) = r.fwd_label {
-                osm_tags.insert("fwd_label".to_string(), label.to_string());
-            }
-            if let Some(ref label) = r.back_label {
-                osm_tags.insert("back_label".to_string(), label.to_string());
-            }
-            map.roads.insert(
-                *id,
-                raw_data::Road {
-                    i1: r.i1,
-                    i2: r.i2,
-                    center_points: vec![
-                        self.intersections[&r.i1].center,
-                        self.intersections[&r.i2].center,
-                    ],
-                    orig_id: r.orig_id,
-                    osm_tags,
-                    osm_way_id: id.0 as i64,
-                    parking_lane_fwd: r.lanes.fwd.contains(&LaneType::Parking),
-                    parking_lane_back: r.lanes.back.contains(&LaneType::Parking),
-                },
-            );
-        }
-
-        for (id, i) in &self.intersections {
-            map.intersections.insert(
-                *id,
-                raw_data::Intersection {
-                    point: i.center,
-                    orig_id: i.orig_id,
-                    intersection_type: i.intersection_type,
-                    label: i.label.clone(),
-                },
-            );
-        }
-
-        for (idx, b) in self.buildings.values().enumerate() {
-            let mut osm_tags = BTreeMap::new();
-            if let Some(ref label) = b.label {
-                osm_tags.insert("label".to_string(), label.to_string());
-            }
-            map.buildings.push(raw_data::Building {
-                polygon: b.polygon(),
-                osm_tags,
-                osm_way_id: idx as i64,
-                parking: None,
-            });
-        }
-
-        map.gps_bounds = self.gps_bounds.clone();
-        map.boundary_polygon = self.compute_bounds().get_rectangle();
-
-        let path = abstutil::path_raw_map(&map.name);
-        abstutil::write_binary(&path, &map).expect(&format!("Saving {} failed", path));
-        println!("Exported {}", path);
-        path
-    }
-
-    pub fn save_fixes(&self) {
-        abstutil::write_json("../data/fixes.json", &self.fixes).unwrap();
-        println!("Wrote ../data/fixes.json");
-    }
-
-    // TODO Directly use raw_data and get rid of Model? Might be more maintainable long-term.
-    pub fn import(path: &str, exclude_bldgs: bool, prerender: &Prerender) -> Model {
-        let mut timer = Timer::new("import map");
-        let mut m = Model::new();
-
-        let mut data: raw_data::Map = read_binary(path, &mut timer).unwrap();
-        data.apply_fixes(&m.fixes, &mut timer);
-
-        m.name = Some(data.name.clone());
-        m.gps_bounds = data.gps_bounds.clone();
-
-        for (id, raw_i) in &data.intersections {
-            let i = Intersection {
-                center: raw_i.point,
-                intersection_type: raw_i.intersection_type,
-                label: raw_i.label.clone(),
-                roads: HashSet::new(),
-                orig_id: raw_i.orig_id,
-            };
-            m.intersections.insert(*id, i);
-            m.id_counter = m.id_counter.max(id.0 + 1);
-        }
-
-        for (id, r) in &data.roads {
-            let (i1, i2) = (r.i1, r.i2);
-
-            if let Some(other) = m
-                .roads
-                .values()
-                .find(|r| (r.i1 == i1 && r.i2 == i2) || (r.i1 == i2 && r.i2 == i1))
-            {
-                println!("Two roads go between the same intersections...");
-                for (k, v1) in &r.osm_tags {
-                    let v2 = other
-                        .osm_tags
-                        .get(k)
-                        .cloned()
-                        .unwrap_or_else(|| "MISSING".to_string());
-                    println!("  {} = {}   /   {}", k, v1, v2);
-                }
-                for (k, v2) in &other.osm_tags {
-                    if !r.osm_tags.contains_key(k) {
-                        println!("  {} = MISSING   /   {}", k, v2);
-                    }
-                }
-                // Strip these out for now
-                continue;
-            }
-
-            let mut stripped_tags = r.osm_tags.clone();
-            stripped_tags.remove("synthetic_lanes");
-            stripped_tags.remove("fwd_label");
-            stripped_tags.remove("back_label");
-
-            m.roads.insert(
-                *id,
-                Road {
-                    i1,
-                    i2,
-                    lanes: r.get_spec(),
-                    fwd_label: r.osm_tags.get("fwd_label").cloned(),
-                    back_label: r.osm_tags.get("back_label").cloned(),
-                    osm_tags: stripped_tags,
-                    orig_id: r.orig_id,
-                },
-            );
-            m.intersections.get_mut(&i1).unwrap().roads.insert(*id);
-            m.intersections.get_mut(&i2).unwrap().roads.insert(*id);
-            m.id_counter = m.id_counter.max(id.0 + 1);
-        }
-
-        if !exclude_bldgs {
-            for (idx, b) in data.buildings.iter().enumerate() {
-                let b = Building {
-                    label: b.osm_tags.get("label").cloned(),
-                    center: b.polygon.center(),
-                };
-                m.buildings.insert(idx, b);
-                m.id_counter = m.id_counter.max(idx + 1);
-            }
-        }
-
-        m.recompute_world(prerender);
-
-        m
-    }
-
-    fn recompute_world(&mut self, prerender: &Prerender) {
-        self.world = World::new(&self.compute_bounds());
-
-        for id in self.buildings.keys().cloned().collect::<Vec<_>>() {
-            self.bldg_added(id, prerender);
-        }
-        for id in self.intersections.keys().cloned().collect::<Vec<_>>() {
-            self.intersection_added(id, prerender);
-        }
-        for id in self.roads.keys().cloned().collect::<Vec<_>>() {
-            self.road_added(id, prerender);
-        }
-    }
-
-    pub fn delete_everything_inside(&mut self, area: Polygon) {
-        for id in self.buildings.keys().cloned().collect::<Vec<_>>() {
-            if area.contains_pt(self.buildings[&id].center) {
-                self.delete_b(id);
-            }
-        }
-
-        for id in self.roads.keys().cloned().collect::<Vec<_>>() {
-            if area.contains_pt(self.intersections[&self.roads[&id].i1].center)
-                || area.contains_pt(self.intersections[&self.roads[&id].i2].center)
-            {
-                self.delete_r(id);
-            }
-        }
-        for id in self.intersections.keys().cloned().collect::<Vec<_>>() {
-            if area.contains_pt(self.intersections[&id].center) {
-                self.delete_i(id);
-            }
-        }
-    }
-}
-
-impl Model {
-    fn intersection_added(&mut self, id: StableIntersectionID, prerender: &Prerender) {
-        let i = &self.intersections[&id];
-        self.world.add(
-            prerender,
-            Object::new(
-                ID::Intersection(id),
-                match i.intersection_type {
-                    IntersectionType::TrafficSignal => Color::GREEN,
-                    IntersectionType::StopSign => Color::RED,
-                    IntersectionType::Border => Color::BLUE,
-                },
-                i.circle().to_polygon(),
-            )
-            .maybe_label(i.label.clone()),
-        );
-    }
-
-    pub fn create_i(&mut self, center: Pt2D, prerender: &Prerender) {
-        let id = StableIntersectionID(self.id_counter);
-        self.id_counter += 1;
-        self.intersections.insert(
-            id,
-            Intersection {
-                center,
-                intersection_type: IntersectionType::StopSign,
-                label: None,
-                roads: HashSet::new(),
-                orig_id: raw_data::OriginalIntersection {
-                    point: center.to_gps(&self.gps_bounds).unwrap(),
-                },
-            },
-        );
-
-        self.intersection_added(id, prerender);
-    }
-
-    pub fn move_i(&mut self, id: StableIntersectionID, center: Pt2D, prerender: &Prerender) {
-        self.world.delete(ID::Intersection(id));
-
-        self.intersections.get_mut(&id).unwrap().center = center;
-
-        self.intersection_added(id, prerender);
-
-        // Now update all the roads.
-        for r in self.intersections[&id].roads.clone() {
-            self.road_deleted(r);
-            self.road_added(r, prerender);
-        }
-    }
-
-    pub fn set_i_label(&mut self, id: StableIntersectionID, label: String, prerender: &Prerender) {
-        self.world.delete(ID::Intersection(id));
-
-        self.intersections.get_mut(&id).unwrap().label = Some(label);
-
-        self.intersection_added(id, prerender);
-    }
-
-    pub fn get_i_label(&self, id: StableIntersectionID) -> Option<String> {
-        self.intersections[&id].label.clone()
-    }
-
-    pub fn toggle_i_type(&mut self, id: StableIntersectionID, prerender: &Prerender) {
-        self.world.delete(ID::Intersection(id));
-
-        let i = self.intersections.get_mut(&id).unwrap();
-        i.intersection_type = match i.intersection_type {
-            IntersectionType::StopSign => IntersectionType::TrafficSignal,
-            IntersectionType::TrafficSignal => {
-                let num_roads = self
-                    .roads
-                    .values()
-                    .filter(|r| r.i1 == id || r.i2 == id)
-                    .count();
-                if num_roads == 1 {
-                    IntersectionType::Border
-                } else {
-                    IntersectionType::StopSign
-                }
-            }
-            IntersectionType::Border => IntersectionType::StopSign,
-        };
-
-        self.intersection_added(id, prerender);
-    }
-
-    pub fn delete_i(&mut self, id: StableIntersectionID) {
-        if !self.intersections[&id].roads.is_empty() {
-            println!("Can't delete intersection used by roads");
-            return;
-        }
-        let i = self.intersections.remove(&id).unwrap();
-
-        self.world.delete(ID::Intersection(id));
-
-        self.fixes.fixes.push(MapFix::DeleteIntersection(i.orig_id));
-    }
-
-    pub fn get_i_center(&self, id: StableIntersectionID) -> Pt2D {
-        self.intersections[&id].center
-    }
-}
-
-impl Model {
-    fn road_added(&mut self, id: StableRoadID, prerender: &Prerender) {
-        for obj in self.roads[&id].lanes(id, self) {
-            self.world.add(prerender, obj);
-        }
-    }
-
-    fn road_deleted(&mut self, id: StableRoadID) {
-        for obj in self.roads[&id].lanes(id, self) {
-            self.world.delete(obj.get_id());
-        }
-    }
-
-    pub fn create_r(
-        &mut self,
-        i1: StableIntersectionID,
-        i2: StableIntersectionID,
-        prerender: &Prerender,
-    ) {
-        if self
-            .roads
-            .values()
-            .any(|r| (r.i1 == i1 && r.i2 == i2) || (r.i1 == i2 && r.i2 == i1))
-        {
-            println!("Road already exists");
-            return;
-        }
-        let mut osm_tags = BTreeMap::new();
-        osm_tags.insert("abst:synthetic".to_string(), "true".to_string());
-        let id = StableRoadID(self.id_counter);
-        self.id_counter += 1;
-        self.roads.insert(
-            id,
-            Road {
-                i1,
-                i2,
-                lanes: RoadSpec {
-                    fwd: vec![LaneType::Driving, LaneType::Parking, LaneType::Sidewalk],
-                    back: vec![LaneType::Driving, LaneType::Parking, LaneType::Sidewalk],
-                },
-                fwd_label: None,
-                back_label: None,
-                osm_tags,
-                orig_id: raw_data::OriginalRoad {
-                    // Just fix to 0.
-                    osm_way_id: 0,
-                    pt1: self.intersections[&i1]
-                        .center
-                        .to_gps(&self.gps_bounds)
-                        .unwrap(),
-                    pt2: self.intersections[&i2]
-                        .center
-                        .to_gps(&self.gps_bounds)
-                        .unwrap(),
-                },
-            },
-        );
-        self.intersections.get_mut(&i1).unwrap().roads.insert(id);
-        self.intersections.get_mut(&i2).unwrap().roads.insert(id);
-
-        self.road_added(id, prerender);
-    }
-
-    pub fn edit_lanes(&mut self, id: StableRoadID, spec: String, prerender: &Prerender) {
-        self.road_deleted(id);
-
-        if let Some(s) = RoadSpec::parse(spec.clone()) {
-            self.roads.get_mut(&id).unwrap().lanes = s;
-        } else {
-            println!("Bad RoadSpec: {}", spec);
-        }
-
-        self.road_added(id, prerender);
-    }
-
-    pub fn swap_lanes(&mut self, id: StableRoadID, prerender: &Prerender) {
-        self.road_deleted(id);
-
-        let r = self.roads.get_mut(&id).unwrap();
-        let lanes = &mut r.lanes;
-        mem::swap(&mut lanes.fwd, &mut lanes.back);
-        mem::swap(&mut r.fwd_label, &mut r.back_label);
-
-        self.road_added(id, prerender);
-    }
-
-    pub fn set_r_label(
-        &mut self,
-        pair: (StableRoadID, Direction),
-        label: String,
-        prerender: &Prerender,
-    ) {
-        self.road_deleted(pair.0);
-
-        let r = self.roads.get_mut(&pair.0).unwrap();
-        if pair.1 {
-            r.fwd_label = Some(label);
-        } else {
-            r.back_label = Some(label);
-        }
-
-        self.road_added(pair.0, prerender);
-    }
-
-    pub fn get_r_label(&self, pair: (StableRoadID, Direction)) -> Option<String> {
-        let r = &self.roads[&pair.0];
-        if pair.1 {
-            r.fwd_label.clone()
-        } else {
-            r.back_label.clone()
-        }
-    }
-
-    pub fn delete_r(&mut self, id: StableRoadID) {
-        self.road_deleted(id);
-
-        let r = self.roads.remove(&id).unwrap();
-        self.intersections.get_mut(&r.i1).unwrap().roads.remove(&id);
-        self.intersections.get_mut(&r.i2).unwrap().roads.remove(&id);
-
-        self.fixes.fixes.push(MapFix::DeleteRoad(r.orig_id));
-    }
-
-    pub fn get_lanes(&self, id: StableRoadID) -> String {
-        self.roads[&id].lanes.to_string()
-    }
-
-    pub fn get_tags(&self, id: StableRoadID) -> &BTreeMap<String, String> {
-        &self.roads[&id].osm_tags
-    }
-}
-
 impl Model {
     fn bldg_added(&mut self, id: BuildingID, prerender: &Prerender) {
-        let b = &self.buildings[&id];
+        let b = &self.map.buildings[id];
         self.world.add(
             prerender,
-            Object::new(ID::Building(id), Color::BLUE, b.polygon()).maybe_label(b.label.clone()),
+            Object::new(ID::Building(id), Color::BLUE, b.polygon.clone())
+                .maybe_label(b.osm_tags.get("abst:label").cloned()),
         );
     }
 
     pub fn create_b(&mut self, center: Pt2D, prerender: &Prerender) {
-        let id = self.id_counter;
-        self.id_counter += 1;
-        self.buildings.insert(
-            id,
-            Building {
-                center,
-                label: None,
-            },
-        );
+        let id = self.map.buildings.len();
+        self.map.buildings.push(raw_data::Building {
+            polygon: Polygon::rectangle(center, BUILDING_LENGTH, BUILDING_LENGTH),
+            osm_tags: BTreeMap::new(),
+            osm_way_id: SYNTHETIC_OSM_WAY_ID,
+            parking: None,
+        });
 
         self.bldg_added(id, prerender);
     }
 
-    pub fn move_b(&mut self, id: BuildingID, center: Pt2D, prerender: &Prerender) {
+    pub fn move_b(&mut self, id: BuildingID, new_center: Pt2D, prerender: &Prerender) {
         self.world.delete(ID::Building(id));
 
-        self.buildings.get_mut(&id).unwrap().center = center;
+        let b = &mut self.map.buildings[id];
+        let old_center = b.polygon.center();
+        b.polygon = b.polygon.translate(
+            Distance::meters(new_center.x() - old_center.x()),
+            Distance::meters(new_center.y() - old_center.y()),
+        );
 
         self.bldg_added(id, prerender);
     }
@@ -671,18 +533,37 @@ impl Model {
     pub fn set_b_label(&mut self, id: BuildingID, label: String, prerender: &Prerender) {
         self.world.delete(ID::Building(id));
 
-        self.buildings.get_mut(&id).unwrap().label = Some(label.clone());
+        self.map.buildings[id]
+            .osm_tags
+            .insert("abst:label".to_string(), label);
 
         self.bldg_added(id, prerender);
     }
 
     pub fn get_b_label(&self, id: BuildingID) -> Option<String> {
-        self.buildings[&id].label.clone()
+        self.map.buildings[id].osm_tags.get("abst:label").cloned()
     }
 
     pub fn delete_b(&mut self, id: BuildingID) {
         self.world.delete(ID::Building(id));
 
-        self.buildings.remove(&id);
+        self.map.buildings.remove(id);
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
+pub enum ID {
+    Building(BuildingID),
+    Intersection(StableIntersectionID),
+    Lane(StableRoadID, Direction, usize),
+}
+
+impl ObjectID for ID {
+    fn zorder(&self) -> usize {
+        match self {
+            ID::Lane(_, _, _) => 0,
+            ID::Intersection(_) => 1,
+            ID::Building(_) => 2,
+        }
     }
 }

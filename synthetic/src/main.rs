@@ -31,7 +31,7 @@ impl UI {
         let model = if let Some(path) = load {
             Model::import(path, exclude_bldgs, ctx.prerender)
         } else {
-            Model::new()
+            Model::blank()
         };
         UI {
             model,
@@ -113,7 +113,7 @@ impl GUI for UI {
             State::EditingRoad(id, ref mut wizard) => {
                 if let Some(s) = wizard
                     .wrap(ctx)
-                    .input_string_prefilled("Specify the lanes", self.model.get_lanes(id))
+                    .input_string_prefilled("Specify the lanes", self.model.get_road_spec(id))
                 {
                     self.model.edit_lanes(id, s, ctx.prerender);
                     self.state = State::Viewing;
@@ -125,7 +125,7 @@ impl GUI for UI {
             }
             State::SavingModel(ref mut wizard) => {
                 if let Some(name) = wizard.wrap(ctx).input_string("Name the synthetic map") {
-                    self.model.name = Some(name);
+                    self.model.map.name = name;
                     self.model.export();
                     self.state = State::Viewing;
                 } else if wizard.aborted() {
@@ -174,7 +174,7 @@ impl GUI for UI {
                 } else if ctx.input.unimportant_key_pressed(Key::Escape, "quit") {
                     process::exit(0);
                 } else if ctx.input.key_pressed(Key::S, "save") {
-                    if self.model.name.is_some() {
+                    if self.model.map.name != "" {
                         self.model.export();
                     } else {
                         self.state = State::SavingModel(Wizard::new());
