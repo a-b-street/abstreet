@@ -8,6 +8,7 @@ use abstutil::{prettyprint_usize, Timer};
 use geom::{Distance, FindClosest, Line, PolyLine, Pt2D};
 use kml::ExtraShapes;
 use map_model::{raw_data, LaneID, OffstreetParking, Position, LANE_THICKNESS};
+use std::collections::BTreeMap;
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
@@ -55,6 +56,7 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
         split_ways::split_up_roads(osm::extract_osm(&flags.osm, &flags.clip, timer), timer);
     clip::clip_map(&mut map, timer);
     remove_disconnected::remove_disconnected_roads(&mut map, timer);
+    check_orig_ids(&map);
 
     if flags.fast_dev {
         return map;
@@ -83,6 +85,36 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
     }
 
     map
+}
+
+fn check_orig_ids(map: &raw_data::Map) {
+    {
+        let mut ids = BTreeMap::new();
+        for (id, r) in &map.roads {
+            if let Some(id2) = ids.get(&r.orig_id) {
+                panic!(
+                    "Both {} and {} have the same orig_id: {:?}",
+                    id, id2, r.orig_id
+                );
+            } else {
+                ids.insert(r.orig_id, *id);
+            }
+        }
+    }
+
+    {
+        let mut ids = BTreeMap::new();
+        for (id, i) in &map.intersections {
+            if let Some(id2) = ids.get(&i.orig_id) {
+                panic!(
+                    "Both {} and {} have the same orig_id: {:?}",
+                    id, id2, i.orig_id
+                );
+            } else {
+                ids.insert(i.orig_id, *id);
+            }
+        }
+    }
 }
 
 fn use_parking_hints(map: &mut raw_data::Map, path: &str, timer: &mut Timer) {

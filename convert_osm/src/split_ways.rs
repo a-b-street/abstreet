@@ -127,6 +127,8 @@ pub fn split_up_roads(
                     r.osm_tags
                         .insert("abst:endpt_fwd".to_string(), "true".to_string());
                 }
+                r.orig_id.pt1 = pts[0].forcibly_to_gps(&map.gps_bounds);
+                r.orig_id.pt2 = pts.last().unwrap().forcibly_to_gps(&map.gps_bounds);
                 r.center_points = std::mem::replace(&mut pts, Vec::new());
                 // Start a new road
                 map.roads

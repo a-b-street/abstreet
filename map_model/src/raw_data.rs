@@ -165,6 +165,10 @@ pub struct Area {
 // A way to refer to roads across many maps.
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq)]
 pub struct OriginalRoad {
+    // This is needed to distinguish cul-de-sacs.
+    // TODO Maybe replace pt1 and pt2 with OSM node IDs? OSM node IDs may change over time
+    // upstream, but as long as everything is internally consistent within A/B Street...
+    pub osm_way_id: i64,
     pub pt1: LonLat,
     pub pt2: LonLat,
 }
@@ -179,6 +183,11 @@ impl PartialOrd for OriginalRoad {
 impl Eq for OriginalRoad {}
 impl Ord for OriginalRoad {
     fn cmp(&self, other: &OriginalRoad) -> std::cmp::Ordering {
+        let ord = self.osm_way_id.cmp(&other.osm_way_id);
+        if ord != std::cmp::Ordering::Equal {
+            return ord;
+        }
+
         // We know all the f64's are finite. then_with() produces ugly nesting, so manually do it.
         let ord = self
             .pt1
@@ -208,6 +217,28 @@ impl Ord for OriginalRoad {
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq)]
 pub struct OriginalIntersection {
     pub point: LonLat,
+}
+
+impl PartialOrd for OriginalIntersection {
+    fn partial_cmp(&self, other: &OriginalIntersection) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+impl Eq for OriginalIntersection {}
+impl Ord for OriginalIntersection {
+    fn cmp(&self, other: &OriginalIntersection) -> std::cmp::Ordering {
+        // We know all the f64's are finite.
+        self.point
+            .longitude
+            .partial_cmp(&other.point.longitude)
+            .unwrap()
+            .then_with(|| {
+                self.point
+                    .latitude
+                    .partial_cmp(&other.point.latitude)
+                    .unwrap()
+            })
+    }
 }
 
 // Directives from the synthetic crate to apply to the raw_data layer.

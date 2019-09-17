@@ -81,6 +81,7 @@ pub fn extract_osm(
                 osm_way_id: way.id,
                 center_points: pts,
                 orig_id: raw_data::OriginalRoad {
+                    osm_way_id: way.id,
                     pt1: gps_pts[0],
                     pt2: *gps_pts.last().unwrap(),
                 },

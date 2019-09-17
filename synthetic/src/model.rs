@@ -387,7 +387,9 @@ impl Model {
         }
 
         for id in self.roads.keys().cloned().collect::<Vec<_>>() {
-            if area.contains_pt(self.intersections[&self.roads[&id].i1].center) {
+            if area.contains_pt(self.intersections[&self.roads[&id].i1].center)
+                || area.contains_pt(self.intersections[&self.roads[&id].i2].center)
+            {
                 self.delete_r(id);
             }
         }
@@ -547,6 +549,8 @@ impl Model {
                 back_label: None,
                 osm_tags,
                 orig_id: raw_data::OriginalRoad {
+                    // Just fix to 0.
+                    osm_way_id: 0,
                     pt1: self.intersections[&i1]
                         .center
                         .to_gps(&self.gps_bounds)
