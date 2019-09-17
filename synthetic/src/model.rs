@@ -210,7 +210,15 @@ impl Model {
         // Now update all the roads.
         for r in self.roads_per_intersection.get(id).clone() {
             self.road_deleted(r);
-            // TODO Do the mutation
+
+            let road = self.map.roads.get_mut(&r).unwrap();
+            if road.i1 == id {
+                road.center_points[0] = point;
+            } else {
+                assert_eq!(road.i2, id);
+                *road.center_points.last_mut().unwrap() = point;
+            }
+
             self.road_added(r, prerender);
         }
     }
