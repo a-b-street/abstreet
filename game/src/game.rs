@@ -13,7 +13,13 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(flags: Flags, ctx: &mut EventCtx) -> Game {
+    pub fn new(mut flags: Flags, ctx: &mut EventCtx) -> Game {
+        if flags.dev {
+            flags.no_splash = true;
+            flags.no_textures = true;
+            flags.sim_flags.rng_seed = Some(42);
+        }
+
         let splash = !flags.no_splash
             && !format!("{}", flags.sim_flags.load.display()).contains("data/save");
         let ui = UI::new(flags, ctx, splash);

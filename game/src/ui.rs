@@ -462,6 +462,10 @@ pub struct Flags {
     /// Don't upload textures
     #[structopt(long = "no_textures")]
     pub no_textures: bool,
+
+    /// "Dev" mode = --no_splash --no_textures --rng_seed=42
+    #[structopt(long = "dev")]
+    pub dev: bool,
 }
 
 // All of the state that's bound to a specific map+edit has to live here.
