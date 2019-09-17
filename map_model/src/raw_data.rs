@@ -89,24 +89,65 @@ impl Map {
     }
 
     pub fn apply_fixes(&mut self, fixes: &MapFixes, timer: &mut Timer) {
-        let mut cnt = 0;
-        for fix in &fixes.fixes {
-            match fix {
-                MapFix::DeleteRoad(orig) => {
-                    if let Some(r) = self.find_r(*orig) {
-                        self.roads.remove(&r).unwrap();
-                        cnt += 1;
-                    }
+        let mut applied = 0;
+        let mut skipped = 0;
+
+        for orig in &fixes.delete_roads {
+            if let Some(r) = self.find_r(*orig) {
+                self.roads.remove(&r).unwrap();
+                applied += 1;
+            } else {
+                skipped += 1;
+            }
+        }
+
+        for orig in &fixes.delete_intersections {
+            if let Some(i) = self.find_i(*orig) {
+                self.intersections.remove(&i).unwrap();
+                applied += 1;
+            } else {
+                skipped += 1;
+            }
+        }
+
+        for i in &fixes.add_intersections {
+            if self.gps_bounds.contains(i.orig_id.point) {
+                let id = StableIntersectionID(self.intersections.keys().max().unwrap().0 + 1);
+                self.intersections.insert(id, i.clone());
+                applied += 1;
+            } else {
+                skipped += 1;
+            }
+        }
+
+        for r in &fixes.add_roads {
+            match (
+                self.find_i(OriginalIntersection {
+                    point: r.orig_id.pt1,
+                }),
+                self.find_i(OriginalIntersection {
+                    point: r.orig_id.pt2,
+                }),
+            ) {
+                (Some(i1), Some(i2)) => {
+                    let mut road = r.clone();
+                    road.i1 = i1;
+                    road.i2 = i2;
+                    let id = StableRoadID(self.roads.keys().max().unwrap().0 + 1);
+                    self.roads.insert(id, road);
+                    applied += 1;
                 }
-                MapFix::DeleteIntersection(orig) => {
-                    if let Some(i) = self.find_i(*orig) {
-                        self.intersections.remove(&i).unwrap();
-                        cnt += 1;
-                    }
+                _ => {
+                    skipped += 1;
                 }
             }
         }
-        timer.note(format!("Applied {} of {} fixes ", cnt, fixes.fixes.len()));
+
+        timer.note(format!(
+            "Applied {} of {} fixes ",
+            applied,
+            applied + skipped
+        ));
     }
 }
 
@@ -144,6 +185,7 @@ pub struct Intersection {
     pub intersection_type: IntersectionType,
     pub label: Option<String>,
     pub orig_id: OriginalIntersection,
+    pub synthetic: bool,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -243,9 +285,12 @@ impl Ord for OriginalIntersection {
 }
 
 // Directives from the synthetic crate to apply to the raw_data layer.
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct MapFixes {
-    pub fixes: Vec<MapFix>,
+    pub delete_roads: Vec<OriginalRoad>,
+    pub delete_intersections: Vec<OriginalIntersection>,
+    pub add_intersections: Vec<Intersection>,
+    pub add_roads: Vec<Road>,
 }
 
 impl MapFixes {
@@ -253,13 +298,12 @@ impl MapFixes {
         if let Ok(f) = abstutil::read_json::<MapFixes>("../data/fixes.json") {
             f
         } else {
-            MapFixes { fixes: Vec::new() }
+            MapFixes {
+                delete_roads: Vec::new(),
+                delete_intersections: Vec::new(),
+                add_intersections: Vec::new(),
+                add_roads: Vec::new(),
+            }
         }
     }
-}
-
-#[derive(Serialize, Deserialize)]
-pub enum MapFix {
-    DeleteIntersection(OriginalIntersection),
-    DeleteRoad(OriginalRoad),
 }

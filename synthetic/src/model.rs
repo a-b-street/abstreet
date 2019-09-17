@@ -2,7 +2,7 @@ use abstutil::{read_binary, MultiMap, Timer};
 use ezgui::world::{Object, ObjectID, World};
 use ezgui::{Color, EventCtx, GfxCtx, Line, Prerender, Text};
 use geom::{Bounds, Circle, Distance, PolyLine, Polygon, Pt2D};
-use map_model::raw_data::{MapFix, MapFixes, StableBuildingID, StableIntersectionID, StableRoadID};
+use map_model::raw_data::{MapFixes, StableBuildingID, StableIntersectionID, StableRoadID};
 use map_model::{raw_data, IntersectionType, LaneType, RoadSpec, LANE_THICKNESS};
 use std::collections::BTreeMap;
 use std::mem;
@@ -111,7 +111,22 @@ impl Model {
     }
 
     pub fn save_fixes(&self) {
-        abstutil::write_json("../data/fixes.json", &self.fixes).unwrap();
+        let mut fixes = self.fixes.clone();
+        // It's easiest to just go back and detect all of these
+        fixes.add_intersections.clear();
+        fixes.add_roads.clear();
+        for i in self.map.intersections.values() {
+            if i.synthetic {
+                fixes.add_intersections.push(i.clone());
+            }
+        }
+        for r in self.map.roads.values() {
+            if r.osm_tags.get("abst:synthetic") == Some(&"true".to_string()) {
+                fixes.add_roads.push(r.clone());
+            }
+        }
+
+        abstutil::write_json("../data/fixes.json", &fixes).unwrap();
         println!("Wrote ../data/fixes.json");
     }
 
@@ -163,15 +178,16 @@ impl Model {
 impl Model {
     fn intersection_added(&mut self, id: StableIntersectionID, prerender: &Prerender) {
         let i = &self.map.intersections[&id];
+        let color = match i.intersection_type {
+            IntersectionType::TrafficSignal => Color::GREEN,
+            IntersectionType::StopSign => Color::RED,
+            IntersectionType::Border => Color::BLUE,
+        };
         self.world.add(
             prerender,
             Object::new(
                 ID::Intersection(id),
-                match i.intersection_type {
-                    IntersectionType::TrafficSignal => Color::GREEN,
-                    IntersectionType::StopSign => Color::RED,
-                    IntersectionType::Border => Color::BLUE,
-                },
+                if i.synthetic { color.alpha(0.5) } else { color },
                 Circle::new(i.point, INTERSECTION_RADIUS).to_polygon(),
             )
             .maybe_label(i.label.clone()),
@@ -190,6 +206,7 @@ impl Model {
                 orig_id: raw_data::OriginalIntersection {
                     point: point.forcibly_to_gps(&self.map.gps_bounds),
                 },
+                synthetic: true,
             },
         );
 
@@ -199,11 +216,12 @@ impl Model {
     pub fn move_i(&mut self, id: StableIntersectionID, point: Pt2D, prerender: &Prerender) {
         self.world.delete(ID::Intersection(id));
 
-        {
+        let gps_pt = {
             let i = self.map.intersections.get_mut(&id).unwrap();
             i.point = point;
             i.orig_id.point = point.forcibly_to_gps(&self.map.gps_bounds);
-        }
+            i.orig_id.point
+        };
 
         self.intersection_added(id, prerender);
 
@@ -214,9 +232,12 @@ impl Model {
             let road = self.map.roads.get_mut(&r).unwrap();
             if road.i1 == id {
                 road.center_points[0] = point;
+                // TODO This is valid for synthetic roads, but maybe weird otherwise...
+                road.orig_id.pt1 = gps_pt;
             } else {
                 assert_eq!(road.i2, id);
                 *road.center_points.last_mut().unwrap() = point;
+                road.orig_id.pt2 = gps_pt;
             }
 
             self.road_added(r, prerender);
@@ -263,7 +284,7 @@ impl Model {
 
         self.world.delete(ID::Intersection(id));
 
-        self.fixes.fixes.push(MapFix::DeleteIntersection(i.orig_id));
+        self.fixes.delete_intersections.push(i.orig_id);
     }
 
     pub fn get_i_center(&self, id: StableIntersectionID) -> Pt2D {
@@ -420,7 +441,7 @@ impl Model {
         self.roads_per_intersection.remove(r.i1, id);
         self.roads_per_intersection.remove(r.i2, id);
 
-        self.fixes.fixes.push(MapFix::DeleteRoad(r.orig_id));
+        self.fixes.delete_roads.push(r.orig_id);
     }
 
     pub fn get_road_spec(&self, id: StableRoadID) -> String {
