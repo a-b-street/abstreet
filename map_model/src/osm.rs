@@ -4,6 +4,7 @@
 // These're normal OSM keys.
 pub const NAME: &str = "name";
 pub const HIGHWAY: &str = "highway";
+pub const MAXSPEED: &str = "maxspeed";
 
 // The rest of these are all inserted by A/B Street to plumb data between different stages of map
 // construction. They could be plumbed another way, but this is the most convenient.

@@ -187,7 +187,7 @@ impl Road {
 
     pub fn get_speed_limit(&self) -> Speed {
         // TODO Should probably cache this
-        if let Some(limit) = self.osm_tags.get("maxspeed") {
+        if let Some(limit) = self.osm_tags.get(osm::MAXSPEED) {
             // TODO handle other units
             if limit.ends_with(" mph") {
                 if let Ok(mph) = limit[0..limit.len() - 4].parse::<f64>() {

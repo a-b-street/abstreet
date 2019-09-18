@@ -20,7 +20,8 @@ enum State {
     LabelingRoad((StableRoadID, Direction), Wizard),
     LabelingIntersection(StableIntersectionID, Wizard),
     CreatingRoad(StableIntersectionID),
-    EditingRoad(StableRoadID, Wizard),
+    EditingLanes(StableRoadID, Wizard),
+    EditingRoadAttribs(StableRoadID, Wizard),
     SavingModel(Wizard),
     // bool is if key is down
     SelectingRectangle(Pt2D, Pt2D, bool),
@@ -115,7 +116,7 @@ impl GUI for UI {
                     }
                 }
             }
-            State::EditingRoad(id, ref mut wizard) => {
+            State::EditingLanes(id, ref mut wizard) => {
                 if let Some(s) = wizard
                     .wrap(ctx)
                     .input_string_prefilled("Specify the lanes", self.model.get_road_spec(id))
@@ -124,6 +125,22 @@ impl GUI for UI {
                     self.state = State::Viewing;
                     self.model.handle_mouseover(ctx);
                 } else if wizard.aborted() {
+                    self.state = State::Viewing;
+                    self.model.handle_mouseover(ctx);
+                }
+            }
+            State::EditingRoadAttribs(id, ref mut wizard) => {
+                let (orig_name, orig_speed) = self.model.get_r_name_and_speed(id);
+
+                let mut wiz = wizard.wrap(ctx);
+                let mut done = false;
+                if let Some(n) = wiz.input_string_prefilled("Name the road", orig_name) {
+                    if let Some(s) = wiz.input_string_prefilled("What speed limit?", orig_speed) {
+                        self.model.set_r_name_and_speed(id, n, s, ctx.prerender);
+                        done = true;
+                    }
+                }
+                if done || wizard.aborted() {
                     self.state = State::Viewing;
                     self.model.handle_mouseover(ctx);
                 }
@@ -169,7 +186,9 @@ impl GUI for UI {
                         self.model.delete_r(r);
                         self.model.handle_mouseover(ctx);
                     } else if ctx.input.key_pressed(Key::E, "edit lanes") {
-                        self.state = State::EditingRoad(r, Wizard::new());
+                        self.state = State::EditingLanes(r, Wizard::new());
+                    } else if ctx.input.key_pressed(Key::N, "edit name/speed") {
+                        self.state = State::EditingRoadAttribs(r, Wizard::new());
                     } else if ctx.input.key_pressed(Key::S, "swap lanes") {
                         self.model.swap_lanes(r, ctx.prerender);
                         self.model.handle_mouseover(ctx);
@@ -244,7 +263,8 @@ impl GUI for UI {
             State::LabelingBuilding(_, ref wizard)
             | State::LabelingRoad(_, ref wizard)
             | State::LabelingIntersection(_, ref wizard)
-            | State::EditingRoad(_, ref wizard)
+            | State::EditingLanes(_, ref wizard)
+            | State::EditingRoadAttribs(_, ref wizard)
             | State::SavingModel(ref wizard) => {
                 wizard.draw(g);
             }

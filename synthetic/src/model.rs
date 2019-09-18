@@ -335,11 +335,11 @@ impl Model {
 
         if let Some(ref name) = self.edit_fixes {
             if !i.synthetic {
-            self.all_fixes
-                .get_mut(name)
-                .unwrap()
-                .delete_intersections
-                .push(i.orig_id);
+                self.all_fixes
+                    .get_mut(name)
+                    .unwrap()
+                    .delete_intersections
+                    .push(i.orig_id);
             }
         } else {
             println!("This won't be saved in any MapFixes!");
@@ -397,6 +397,9 @@ impl Model {
             osm::OSM_WAY_ID.to_string(),
             SYNTHETIC_OSM_WAY_ID.to_string(),
         );
+        // Reasonable defaults.
+        osm_tags.insert(osm::NAME.to_string(), "Streety McStreetFace".to_string());
+        osm_tags.insert(osm::MAXSPEED.to_string(), "25 mph".to_string());
         let center_points = vec![
             self.map.intersections[&i1].point,
             self.map.intersections[&i2].point,
@@ -491,6 +494,36 @@ impl Model {
         } else {
             r.osm_tags.get(osm::BACK_LABEL).cloned()
         }
+    }
+
+    pub fn set_r_name_and_speed(
+        &mut self,
+        id: StableRoadID,
+        name: String,
+        speed: String,
+        prerender: &Prerender,
+    ) {
+        self.road_deleted(id);
+
+        let r = self.map.roads.get_mut(&id).unwrap();
+        r.osm_tags.insert(osm::NAME.to_string(), name);
+        r.osm_tags.insert(osm::MAXSPEED.to_string(), speed);
+
+        self.road_added(id, prerender);
+    }
+
+    pub fn get_r_name_and_speed(&self, id: StableRoadID) -> (String, String) {
+        let r = &self.map.roads[&id];
+        (
+            r.osm_tags
+                .get(osm::NAME)
+                .cloned()
+                .unwrap_or_else(String::new),
+            r.osm_tags
+                .get(osm::MAXSPEED)
+                .cloned()
+                .unwrap_or_else(String::new),
+        )
     }
 
     pub fn delete_r(&mut self, id: StableRoadID) {
