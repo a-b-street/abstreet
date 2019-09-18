@@ -48,6 +48,21 @@ impl CmdArgs {
         self.bits.remove(key)
     }
 
+    pub fn required_free(&mut self) -> String {
+        if self.free.is_empty() {
+            panic!("Required free argument not provided");
+        }
+        self.free.remove(0)
+    }
+
+    pub fn optional_free(&mut self) -> Option<String> {
+        if self.free.is_empty() {
+            None
+        } else {
+            Some(self.free.remove(0))
+        }
+    }
+
     // TODO Drop?
     pub fn done(&mut self) {
         if !self.kv.is_empty() {

@@ -1,4 +1,4 @@
-use abstutil::Timer;
+use abstutil::{CmdArgs, Timer};
 use ezgui::world::{Object, ObjectID, World};
 use ezgui::{
     hotkey, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, ModalMenu, Text, WarpingItemSlider,
@@ -7,7 +7,7 @@ use ezgui::{
 use geom::{Circle, Distance, PolyLine, Polygon};
 use map_model::raw_data::{Hint, Hints, InitialMap, Map, StableIntersectionID, StableRoadID};
 use map_model::LANE_THICKNESS;
-use std::{env, process};
+use std::process;
 
 // Bit bigger than buses
 const MIN_ROAD_LENGTH: Distance = Distance::const_meters(13.0);
@@ -397,10 +397,12 @@ impl GUI for UI {
 }
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
     ezgui::run("InitialMap debugger", 1800.0, 800.0, |ctx| {
+        let mut args = CmdArgs::new();
+        let path = args.required_free();
+        args.done();
         ctx.canvas.cam_zoom = 4.0;
-        UI::new(&args[1], ctx)
+        UI::new(&path, ctx)
     });
 }
 

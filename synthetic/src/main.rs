@@ -1,10 +1,11 @@
 mod model;
 
+use abstutil::CmdArgs;
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, Text, Wizard, GUI};
 use geom::{Distance, Line, Polygon, Pt2D};
 use map_model::raw_data::{StableBuildingID, StableIntersectionID, StableRoadID};
 use model::{Direction, Model, ID};
-use std::{env, process};
+use std::process;
 
 struct UI {
     model: Model,
@@ -29,14 +30,15 @@ enum State {
 }
 
 impl UI {
-    fn new(
-        load: Option<&String>,
-        exclude_bldgs: bool,
-        edit_fixes: Option<String>,
-        ctx: &EventCtx,
-    ) -> UI {
+    fn new(ctx: &EventCtx) -> UI {
+        let mut args = CmdArgs::new();
+        let load = args.optional_free();
+        let exclude_bldgs = args.enabled("--nobldgs");
+        let edit_fixes = args.optional("--fixes");
+        args.done();
+
         let model = if let Some(path) = load {
-            Model::import(path, exclude_bldgs, edit_fixes, ctx.prerender)
+            Model::import(&path, exclude_bldgs, edit_fixes, ctx.prerender)
         } else {
             Model::blank()
         };
@@ -327,20 +329,5 @@ impl GUI for UI {
 }
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    ezgui::run("Synthetic map editor", 1024.0, 768.0, |ctx| {
-        UI::new(
-            args.get(1),
-            args.get(2) == Some(&"--nobldgs".to_string()),
-            args.get(3).and_then(|s| {
-                let parts: Vec<&str> = s.split('=').collect();
-                if parts[0] == "--fixes" && parts.len() == 2 {
-                    Some(parts[1].to_string())
-                } else {
-                    None
-                }
-            }),
-            ctx,
-        )
-    });
+    ezgui::run("Synthetic map editor", 1024.0, 768.0, |ctx| UI::new(ctx));
 }

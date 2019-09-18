@@ -1,15 +1,9 @@
-use structopt::StructOpt;
-
-#[derive(StructOpt)]
-#[structopt(name = "popdat")]
-struct Flags {
-    /// Stop after this many trips, for faster development
-    #[structopt(long = "cap")]
-    pub cap: Option<usize>,
-}
+use abstutil::CmdArgs;
 
 fn main() {
-    let flags = Flags::from_args();
+    let mut args = CmdArgs::new();
+    let cap_trips = args.optional("--cap").and_then(|s| s.parse::<usize>().ok());
+    args.done();
 
     let mut timer = abstutil::Timer::new("creating popdat");
     let mut popdat = popdat::PopDat::import_all(&mut timer);
@@ -25,7 +19,7 @@ fn main() {
     .unwrap();
     popdat.trips = trips;
     popdat.parcels = parcels;
-    if let Some(n) = flags.cap {
+    if let Some(n) = cap_trips {
         popdat.trips = popdat.trips.into_iter().take(n).collect();
     }
 
