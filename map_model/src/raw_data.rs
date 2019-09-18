@@ -144,6 +144,15 @@ impl Map {
                 }
             }
 
+            for (orig, osm_tags) in &fixes.override_tags {
+                if let Some(r) = self.find_r(*orig) {
+                    self.roads.get_mut(&r).unwrap().osm_tags = osm_tags.clone();
+                    applied += 1;
+                } else {
+                    skipped += 1;
+                }
+            }
+
             timer.note(format!(
                 "Applied {} of {} fixes for {}",
                 applied,
@@ -294,6 +303,8 @@ pub struct MapFixes {
     pub delete_intersections: Vec<OriginalIntersection>,
     pub add_intersections: Vec<Intersection>,
     pub add_roads: Vec<Road>,
+    // For non-synthetic (original OSM) roads
+    pub override_tags: BTreeMap<OriginalRoad, BTreeMap<String, String>>,
 }
 
 impl MapFixes {
@@ -335,6 +346,7 @@ impl MapFixes {
         for r in &self.add_roads {
             roads.insert(r.orig_id);
         }
+        roads.extend(self.override_tags.keys().cloned());
 
         let mut intersections: BTreeSet<OriginalIntersection> =
             self.delete_intersections.iter().cloned().collect();

@@ -73,6 +73,7 @@ impl Model {
                         delete_intersections: Vec::new(),
                         add_intersections: Vec::new(),
                         add_roads: Vec::new(),
+                        override_tags: BTreeMap::new(),
                     },
                 );
             }
@@ -362,6 +363,22 @@ impl Model {
         }
     }
 
+    fn road_tags_modified(&mut self, id: StableRoadID) {
+        let r = &self.map.roads[&id];
+        if r.osm_tags.get(osm::SYNTHETIC) == Some(&"true".to_string()) {
+            return;
+        }
+        if let Some(ref name) = self.edit_fixes {
+            self.all_fixes
+                .get_mut(name)
+                .unwrap()
+                .override_tags
+                .insert(r.orig_id, r.osm_tags.clone());
+        } else {
+            println!("This won't be saved in any MapFixes!");
+        }
+    }
+
     fn road_deleted(&mut self, id: StableRoadID) {
         for obj in self.lanes(id) {
             self.world.delete(obj.get_id());
@@ -443,6 +460,7 @@ impl Model {
                 .unwrap()
                 .osm_tags
                 .insert(osm::SYNTHETIC_LANES.to_string(), s.to_string());
+            self.road_tags_modified(id);
         } else {
             println!("Bad RoadSpec: {}", spec);
         }
@@ -468,6 +486,7 @@ impl Model {
             r.osm_tags.insert(osm::FWD_LABEL.to_string(), l);
         }
 
+        self.road_tags_modified(id);
         self.road_added(id, prerender);
     }
 
@@ -488,6 +507,7 @@ impl Model {
                 .insert(osm::BACK_LABEL.to_string(), label.to_string());
         }
 
+        self.road_tags_modified(pair.0);
         self.road_added(pair.0, prerender);
     }
 
@@ -513,6 +533,7 @@ impl Model {
         r.osm_tags.insert(osm::NAME.to_string(), name);
         r.osm_tags.insert(osm::MAXSPEED.to_string(), speed);
 
+        self.road_tags_modified(id);
         self.road_added(id, prerender);
     }
 
