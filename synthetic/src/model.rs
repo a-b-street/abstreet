@@ -146,8 +146,9 @@ impl Model {
         // It's easiest to just go back and detect all of the added roads and intersections. But we
         // have to avoid picking up changes from other fixes.
         // TODO Ideally fixes would have a Polygon of where they influence, and all of the polygons
-        // would be disjoint. Nothing prevents fixes from being saved in the wrong group -- we're
-        // just sure that a fix isn't repeated.
+        // would be disjoint. Nothing prevents fixes from being saved in the wrong group, or a
+        // created road from one set to be deleted in another -- we're just sure that a fix isn't
+        // repeated.
         let mut ignore_roads: BTreeSet<OriginalRoad> = BTreeSet::new();
         let mut ignore_intersections: BTreeSet<OriginalIntersection> = BTreeSet::new();
         for f in self.all_fixes.values() {
@@ -333,11 +334,13 @@ impl Model {
         self.world.delete(ID::Intersection(id));
 
         if let Some(ref name) = self.edit_fixes {
+            if !i.synthetic {
             self.all_fixes
                 .get_mut(name)
                 .unwrap()
                 .delete_intersections
                 .push(i.orig_id);
+            }
         } else {
             println!("This won't be saved in any MapFixes!");
         }
@@ -498,11 +501,13 @@ impl Model {
         self.roads_per_intersection.remove(r.i2, id);
 
         if let Some(ref name) = self.edit_fixes {
-            self.all_fixes
-                .get_mut(name)
-                .unwrap()
-                .delete_roads
-                .push(r.orig_id);
+            if r.osm_tags.get(osm::SYNTHETIC) != Some(&"true".to_string()) {
+                self.all_fixes
+                    .get_mut(name)
+                    .unwrap()
+                    .delete_roads
+                    .push(r.orig_id);
+            }
         } else {
             println!("This won't be saved in any MapFixes!");
         }
