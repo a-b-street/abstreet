@@ -1,4 +1,4 @@
-use crate::LaneType;
+use crate::{osm, LaneType};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::iter;
@@ -9,12 +9,11 @@ pub fn get_lane_types(
     parking_lane_fwd: bool,
     parking_lane_back: bool,
 ) -> (Vec<LaneType>, Vec<LaneType>) {
-    // The raw_data might come from the synthetic map editor.
-    if let Some(s) = osm_tags.get("abst:synthetic_lanes") {
+    if let Some(s) = osm_tags.get(osm::SYNTHETIC_LANES) {
         if let Some(spec) = RoadSpec::parse(s.to_string()) {
             return (spec.fwd, spec.back);
         } else {
-            panic!("Bad abst:synthetic_lanes RoadSpec: {}", s);
+            panic!("Bad {} RoadSpec: {}", osm::SYNTHETIC_LANES, s);
         }
     }
 
@@ -22,7 +21,7 @@ pub fn get_lane_types(
     if osm_tags.get("junction") == Some(&"roundabout".to_string()) {
         return (vec![LaneType::Driving, LaneType::Sidewalk], Vec::new());
     }
-    if osm_tags.get("highway") == Some(&"footway".to_string()) {
+    if osm_tags.get(osm::HIGHWAY) == Some(&"footway".to_string()) {
         return (vec![LaneType::Sidewalk], Vec::new());
     }
 
@@ -105,7 +104,7 @@ pub fn get_lane_types(
     }
 
     // TODO Should we warn when a link road has parking assigned to it from the blockface?
-    let is_link = match osm_tags.get("highway") {
+    let is_link = match osm_tags.get(osm::HIGHWAY) {
         Some(hwy) => hwy.ends_with("_link"),
         None => false,
     };
@@ -116,13 +115,13 @@ pub fn get_lane_types(
         back_side.push(LaneType::Parking);
     }
 
-    let has_sidewalk = osm_tags.get("highway") != Some(&"motorway".to_string())
-        && osm_tags.get("highway") != Some(&"motorway_link".to_string());
+    let has_sidewalk = osm_tags.get(osm::HIGHWAY) != Some(&"motorway".to_string())
+        && osm_tags.get(osm::HIGHWAY) != Some(&"motorway_link".to_string());
     if has_sidewalk {
         fwd_side.push(LaneType::Sidewalk);
         if oneway {
             // Only residential streets have a sidewalk on the other side of a one-way.
-            if osm_tags.get("highway") == Some(&"residential".to_string())
+            if osm_tags.get(osm::HIGHWAY) == Some(&"residential".to_string())
                 || osm_tags.get("sidewalk") == Some(&"both".to_string())
             {
                 back_side.push(LaneType::Sidewalk);

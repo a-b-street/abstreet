@@ -1,10 +1,10 @@
 use crate::make::get_lane_types;
 use crate::pathfind::Pathfinder;
 use crate::{
-    make, raw_data, Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop, BusStopID,
-    ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, IntersectionType, Lane,
-    LaneID, LaneType, MapEdits, Path, PathRequest, Position, Road, RoadID, Turn, TurnID,
-    TurnPriority,
+    make, osm, raw_data, Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop,
+    BusStopID, ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID,
+    IntersectionType, Lane, LaneID, LaneType, MapEdits, Path, PathRequest, Position, Road, RoadID,
+    Turn, TurnID, TurnPriority,
 };
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
@@ -499,7 +499,7 @@ impl Map {
 
     pub fn bldg(&self, label: &str) -> &Building {
         for b in &self.buildings {
-            if b.osm_tags.get("label") == Some(&label.to_string()) {
+            if b.osm_tags.get(osm::LABEL) == Some(&label.to_string()) {
                 return b;
             }
         }
@@ -512,9 +512,9 @@ impl Map {
                 continue;
             }
             let r = self.get_parent(l.id);
-            if (r.is_forwards(l.id) && r.osm_tags.get("abst:fwd_label") == Some(&label.to_string()))
+            if (r.is_forwards(l.id) && r.osm_tags.get(osm::FWD_LABEL) == Some(&label.to_string()))
                 || (r.is_backwards(l.id)
-                    && r.osm_tags.get("abst:back_label") == Some(&label.to_string()))
+                    && r.osm_tags.get(osm::BACK_LABEL) == Some(&label.to_string()))
             {
                 return l;
             }
@@ -528,9 +528,9 @@ impl Map {
                 continue;
             }
             let r = self.get_parent(l.id);
-            if (r.is_forwards(l.id) && r.osm_tags.get("abst:fwd_label") == Some(&label.to_string()))
+            if (r.is_forwards(l.id) && r.osm_tags.get(osm::FWD_LABEL) == Some(&label.to_string()))
                 || (r.is_backwards(l.id)
-                    && r.osm_tags.get("abst:back_label") == Some(&label.to_string()))
+                    && r.osm_tags.get(osm::BACK_LABEL) == Some(&label.to_string()))
             {
                 let actual_spots = l.number_parking_spots();
                 if expected_spots != actual_spots {

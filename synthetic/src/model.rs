@@ -3,7 +3,7 @@ use ezgui::world::{Object, ObjectID, World};
 use ezgui::{Color, EventCtx, GfxCtx, Line, Prerender, Text};
 use geom::{Bounds, Circle, Distance, PolyLine, Polygon, Pt2D};
 use map_model::raw_data::{MapFixes, StableBuildingID, StableIntersectionID, StableRoadID};
-use map_model::{raw_data, IntersectionType, LaneType, RoadSpec, LANE_THICKNESS};
+use map_model::{osm, raw_data, IntersectionType, LaneType, RoadSpec, LANE_THICKNESS};
 use std::collections::BTreeMap;
 use std::mem;
 
@@ -121,7 +121,7 @@ impl Model {
             }
         }
         for r in self.map.roads.values() {
-            if r.osm_tags.get("abst:synthetic") == Some(&"true".to_string()) {
+            if r.osm_tags.get(osm::SYNTHETIC) == Some(&"true".to_string()) {
                 fixes.add_roads.push(r.clone());
             }
         }
@@ -323,19 +323,19 @@ impl Model {
         }
 
         let mut osm_tags = BTreeMap::new();
-        osm_tags.insert("abst:synthetic".to_string(), "true".to_string());
+        osm_tags.insert(osm::SYNTHETIC.to_string(), "true".to_string());
         osm_tags.insert(
-            "abst:synthetic_lanes".to_string(),
+            osm::SYNTHETIC_LANES.to_string(),
             RoadSpec {
                 fwd: vec![LaneType::Driving, LaneType::Parking, LaneType::Sidewalk],
                 back: vec![LaneType::Driving, LaneType::Parking, LaneType::Sidewalk],
             }
             .to_string(),
         );
-        osm_tags.insert("abst:endpt_fwd".to_string(), "true".to_string());
-        osm_tags.insert("abst:endpt_back".to_string(), "true".to_string());
+        osm_tags.insert(osm::ENDPT_FWD.to_string(), "true".to_string());
+        osm_tags.insert(osm::ENDPT_BACK.to_string(), "true".to_string());
         osm_tags.insert(
-            "abst:osm_way_id".to_string(),
+            osm::OSM_WAY_ID.to_string(),
             SYNTHETIC_OSM_WAY_ID.to_string(),
         );
         let center_points = vec![
@@ -376,7 +376,7 @@ impl Model {
                 .get_mut(&id)
                 .unwrap()
                 .osm_tags
-                .insert("abst:synthetic_lanes".to_string(), s.to_string());
+                .insert(osm::SYNTHETIC_LANES.to_string(), s.to_string());
         } else {
             println!("Bad RoadSpec: {}", spec);
         }
@@ -391,15 +391,15 @@ impl Model {
         let mut lanes = r.get_spec();
         mem::swap(&mut lanes.fwd, &mut lanes.back);
         r.osm_tags
-            .insert("abst:synthetic_lanes".to_string(), lanes.to_string());
+            .insert(osm::SYNTHETIC_LANES.to_string(), lanes.to_string());
 
-        let fwd_label = r.osm_tags.remove("abst:fwd_label");
-        let back_label = r.osm_tags.remove("abst:back_label");
+        let fwd_label = r.osm_tags.remove(osm::FWD_LABEL);
+        let back_label = r.osm_tags.remove(osm::BACK_LABEL);
         if let Some(l) = fwd_label {
-            r.osm_tags.insert("abst:back_label".to_string(), l);
+            r.osm_tags.insert(osm::BACK_LABEL.to_string(), l);
         }
         if let Some(l) = back_label {
-            r.osm_tags.insert("abst:fwd_label".to_string(), l);
+            r.osm_tags.insert(osm::FWD_LABEL.to_string(), l);
         }
 
         self.road_added(id, prerender);
@@ -416,10 +416,10 @@ impl Model {
         let r = self.map.roads.get_mut(&pair.0).unwrap();
         if pair.1 {
             r.osm_tags
-                .insert("abst:fwd_label".to_string(), label.to_string());
+                .insert(osm::FWD_LABEL.to_string(), label.to_string());
         } else {
             r.osm_tags
-                .insert("abst:back_label".to_string(), label.to_string());
+                .insert(osm::BACK_LABEL.to_string(), label.to_string());
         }
 
         self.road_added(pair.0, prerender);
@@ -428,9 +428,9 @@ impl Model {
     pub fn get_r_label(&self, pair: (StableRoadID, Direction)) -> Option<String> {
         let r = &self.map.roads[&pair.0];
         if pair.1 {
-            r.osm_tags.get("abst:fwd_label").cloned()
+            r.osm_tags.get(osm::FWD_LABEL).cloned()
         } else {
-            r.osm_tags.get("abst:back_label").cloned()
+            r.osm_tags.get(osm::BACK_LABEL).cloned()
         }
     }
 
@@ -456,7 +456,7 @@ impl Model {
         let r = &self.map.roads[&id];
 
         let mut tooltip = Text::new();
-        if let Some(name) = r.osm_tags.get("name") {
+        if let Some(name) = r.osm_tags.get(osm::NAME) {
             tooltip.add(Line(name));
         } else if let Some(name) = r.osm_tags.get("ref") {
             tooltip.add(Line(name));
@@ -465,7 +465,7 @@ impl Model {
         }
 
         let mut result = Vec::new();
-        let synthetic = r.osm_tags.get("abst:synthetic") == Some(&"true".to_string());
+        let synthetic = r.osm_tags.get(osm::SYNTHETIC) == Some(&"true".to_string());
         let spec = r.get_spec();
         let center_pts = PolyLine::new(r.center_points.clone());
         for (idx, lt) in spec.fwd.iter().enumerate() {
@@ -484,7 +484,7 @@ impl Model {
                 );
             }
             if idx == spec.fwd.len() / 2 {
-                obj = obj.maybe_label(r.osm_tags.get("abst:fwd_label").cloned());
+                obj = obj.maybe_label(r.osm_tags.get(osm::FWD_LABEL).cloned());
             }
             result.push(obj.tooltip(tooltip.clone()));
         }
@@ -499,7 +499,7 @@ impl Model {
                     .make_polygons(LANE_THICKNESS),
             );
             if idx == spec.back.len() / 2 {
-                obj = obj.maybe_label(r.osm_tags.get("abst:back_label").cloned());
+                obj = obj.maybe_label(r.osm_tags.get(osm::BACK_LABEL).cloned());
             }
             result.push(obj.tooltip(tooltip.clone()));
         }
@@ -530,7 +530,7 @@ impl Model {
         self.world.add(
             prerender,
             Object::new(ID::Building(id), Color::BLUE, b.polygon.clone())
-                .maybe_label(b.osm_tags.get("abst:label").cloned()),
+                .maybe_label(b.osm_tags.get(osm::LABEL).cloned()),
         );
     }
 
@@ -571,13 +571,13 @@ impl Model {
             .get_mut(&id)
             .unwrap()
             .osm_tags
-            .insert("abst:label".to_string(), label);
+            .insert(osm::LABEL.to_string(), label);
 
         self.bldg_added(id, prerender);
     }
 
     pub fn get_b_label(&self, id: StableBuildingID) -> Option<String> {
-        self.map.buildings[&id].osm_tags.get("abst:label").cloned()
+        self.map.buildings[&id].osm_tags.get(osm::LABEL).cloned()
     }
 
     pub fn delete_b(&mut self, id: StableBuildingID) {

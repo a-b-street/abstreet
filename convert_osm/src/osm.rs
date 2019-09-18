@@ -1,6 +1,6 @@
 use abstutil::{FileWithProgress, Timer};
 use geom::{GPSBounds, HashablePt2D, LonLat, Polygon, Pt2D};
-use map_model::{raw_data, AreaType};
+use map_model::{osm, raw_data, AreaType};
 use osm_xml;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::fs::File;
@@ -46,7 +46,7 @@ pub fn extract_osm(
     for node in doc.nodes.values() {
         timer.next();
         let tags = tags_to_map(&node.tags);
-        if tags.get("highway") == Some(&"traffic_signals".to_string()) {
+        if tags.get(osm::HIGHWAY) == Some(&"traffic_signals".to_string()) {
             traffic_signals.insert(
                 Pt2D::forcibly_from_gps(LonLat::new(node.lon, node.lat), &map.gps_bounds)
                     .to_hashable(),
@@ -76,7 +76,7 @@ pub fn extract_osm(
         }
         let pts = map.gps_bounds.forcibly_convert(&gps_pts);
         let mut tags = tags_to_map(&way.tags);
-        tags.insert("abst:osm_way_id".to_string(), way.id.to_string());
+        tags.insert(osm::OSM_WAY_ID.to_string(), way.id.to_string());
         if is_road(&tags) {
             roads.push(raw_data::Road {
                 osm_way_id: way.id,
@@ -128,7 +128,7 @@ pub fn extract_osm(
     for rel in doc.relations.values() {
         timer.next();
         let mut tags = tags_to_map(&rel.tags);
-        tags.insert("abst:osm_rel_id".to_string(), rel.id.to_string());
+        tags.insert(osm::OSM_REL_ID.to_string(), rel.id.to_string());
         if let Some(at) = get_area_type(&tags) {
             if tags.get("type") == Some(&"multipolygon".to_string()) {
                 let mut ok = true;
@@ -213,7 +213,7 @@ fn tags_to_map(raw_tags: &[osm_xml::Tag]) -> BTreeMap<String, String> {
 }
 
 fn is_road(tags: &BTreeMap<String, String>) -> bool {
-    if !tags.contains_key("highway") {
+    if !tags.contains_key(osm::HIGHWAY) {
         return false;
     }
 
@@ -243,7 +243,7 @@ fn is_road(tags: &BTreeMap<String, String>) -> bool {
         "planned",
         "razed",
     ] {
-        if tags.get("highway") == Some(&String::from(value)) {
+        if tags.get(osm::HIGHWAY) == Some(&String::from(value)) {
             return false;
         }
     }

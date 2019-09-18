@@ -1,4 +1,4 @@
-use crate::{LaneID, Position};
+use crate::{osm, LaneID, Position};
 use abstutil;
 use geom::{Line, Polygon, Pt2D};
 use serde_derive::{Deserialize, Serialize};
@@ -63,7 +63,7 @@ impl Building {
             (None, Some(st)) => format!("??? {}", st),
             _ => "???".to_string(),
         };
-        if let Some(name) = self.osm_tags.get("name") {
+        if let Some(name) = self.osm_tags.get(osm::NAME) {
             format!("{} (at {})", name, address)
         } else {
             address

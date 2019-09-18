@@ -7,6 +7,7 @@ mod lane;
 mod make;
 mod map;
 mod neighborhood;
+pub mod osm;
 mod pathfind;
 pub mod raw_data;
 mod road;

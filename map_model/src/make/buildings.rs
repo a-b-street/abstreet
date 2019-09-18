@@ -1,5 +1,5 @@
 use crate::make::sidewalk_finder::find_sidewalk_points;
-use crate::{raw_data, Building, BuildingID, FrontPath, Lane, LaneID, Position, Road};
+use crate::{osm, raw_data, Building, BuildingID, FrontPath, Lane, LaneID, Position, Road};
 use abstutil::Timer;
 use geom::{Bounds, Distance, FindClosest, HashablePt2D, Line, Polygon};
 use std::collections::{BTreeMap, HashSet};
@@ -32,7 +32,7 @@ pub fn make_all_buildings(
             continue;
         }
         let tags = &roads[l.parent.0].osm_tags;
-        if tags.get("highway") == Some(&"motorway".to_string())
+        if tags.get(osm::HIGHWAY) == Some(&"motorway".to_string())
             || tags.get("tunnel") == Some(&"yes".to_string())
         {
             continue;

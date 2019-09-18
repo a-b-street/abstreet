@@ -1,4 +1,6 @@
-use crate::{BuildingID, BusStopID, DirectedRoadID, IntersectionID, Map, Road, RoadID, TurnType};
+use crate::{
+    osm, BuildingID, BusStopID, DirectedRoadID, IntersectionID, Map, Road, RoadID, TurnType,
+};
 use abstutil;
 use geom::{Angle, Distance, Line, PolyLine, Pt2D};
 use serde_derive::{Deserialize, Serialize};
@@ -170,11 +172,11 @@ impl Lane {
         }
 
         let (dir, offset) = road.dir_and_offset(self.id);
-        let all = if dir && road.osm_tags.contains_key("abst:endpt_fwd") {
+        let all = if dir && road.osm_tags.contains_key(osm::ENDPT_FWD) {
             road.osm_tags
                 .get("turn:lanes:forward")
                 .or_else(|| road.osm_tags.get("turn:lanes"))?
-        } else if !dir && road.osm_tags.contains_key("abst:endpt_back") {
+        } else if !dir && road.osm_tags.contains_key(osm::ENDPT_BACK) {
             road.osm_tags.get("turn:lanes:backward")?
         } else {
             return None;

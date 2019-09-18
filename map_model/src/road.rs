@@ -1,4 +1,4 @@
-use crate::{raw_data, BusStopID, IntersectionID, LaneID, LaneType, Map, LANE_THICKNESS};
+use crate::{osm, raw_data, BusStopID, IntersectionID, LaneID, LaneType, Map, LANE_THICKNESS};
 use abstutil::{Error, Warn};
 use geom::{Distance, PolyLine, Polygon, Speed};
 use serde_derive::{Deserialize, Serialize};
@@ -196,8 +196,8 @@ impl Road {
             }
         }
 
-        if self.osm_tags.get("highway") == Some(&"primary".to_string())
-            || self.osm_tags.get("highway") == Some(&"secondary".to_string())
+        if self.osm_tags.get(osm::HIGHWAY) == Some(&"primary".to_string())
+            || self.osm_tags.get(osm::HIGHWAY) == Some(&"secondary".to_string())
         {
             return Speed::miles_per_hour(40.0);
         }
@@ -349,7 +349,7 @@ impl Road {
     }
 
     pub fn get_name(&self) -> String {
-        if let Some(name) = self.osm_tags.get("name") {
+        if let Some(name) = self.osm_tags.get(osm::NAME) {
             return name.to_string();
         }
         if let Some(name) = self.osm_tags.get("ref") {
@@ -357,7 +357,7 @@ impl Road {
         }
         if self
             .osm_tags
-            .get("highway")
+            .get(osm::HIGHWAY)
             .map(|hwy| hwy.ends_with("_link"))
             .unwrap_or(false)
         {
@@ -376,7 +376,7 @@ impl Road {
     }
 
     pub fn get_rank(&self) -> usize {
-        if let Some(highway) = self.osm_tags.get("highway") {
+        if let Some(highway) = self.osm_tags.get(osm::HIGHWAY) {
             match highway.as_ref() {
                 "motorway" => 20,
                 "motorway_link" => 19,

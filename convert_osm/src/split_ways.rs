@@ -1,6 +1,6 @@
 use abstutil::{Counter, Timer};
 use geom::{HashablePt2D, Pt2D};
-use map_model::{raw_data, IntersectionType};
+use map_model::{osm, raw_data, IntersectionType};
 use std::collections::{HashMap, HashSet};
 
 pub fn split_up_roads(
@@ -123,11 +123,11 @@ pub fn split_up_roads(
                 r.i2 = *i2;
                 if r.i1 == endpt1 {
                     r.osm_tags
-                        .insert("abst:endpt_back".to_string(), "true".to_string());
+                        .insert(osm::ENDPT_BACK.to_string(), "true".to_string());
                 }
                 if r.i2 == endpt2 {
                     r.osm_tags
-                        .insert("abst:endpt_fwd".to_string(), "true".to_string());
+                        .insert(osm::ENDPT_FWD.to_string(), "true".to_string());
                 }
                 r.orig_id.pt1 = pts[0].forcibly_to_gps(&map.gps_bounds);
                 r.orig_id.pt2 = pts.last().unwrap().forcibly_to_gps(&map.gps_bounds);
@@ -135,8 +135,8 @@ pub fn split_up_roads(
                 // Start a new road
                 map.roads
                     .insert(raw_data::StableRoadID(map.roads.len()), r.clone());
-                r.osm_tags.remove("abst:endpt_fwd");
-                r.osm_tags.remove("abst:endpt_back");
+                r.osm_tags.remove(osm::ENDPT_FWD);
+                r.osm_tags.remove(osm::ENDPT_BACK);
                 r.i1 = *i2;
                 pts.push(*pt);
             }
