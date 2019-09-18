@@ -26,6 +26,8 @@ pub struct Model {
     // Never reuse IDs, and don't worry about being sequential
     id_counter: usize,
     all_fixes: BTreeMap<String, MapFixes>,
+    // TODO Not sure this should be pub...
+    pub showing_pts: Option<StableRoadID>,
 
     exclude_bldgs: bool,
     edit_fixes: Option<String>,
@@ -40,6 +42,7 @@ impl Model {
             roads_per_intersection: MultiMap::new(),
             id_counter: 0,
             all_fixes: BTreeMap::new(),
+            showing_pts: None,
 
             exclude_bldgs: false,
             edit_fixes: None,
@@ -351,6 +354,7 @@ impl Model {
     }
 }
 
+// Roads
 impl Model {
     fn road_added(&mut self, id: StableRoadID, prerender: &Prerender) {
         for obj in self.lanes(id) {
@@ -527,6 +531,7 @@ impl Model {
     }
 
     pub fn delete_r(&mut self, id: StableRoadID) {
+        assert!(self.showing_pts != Some(id));
         self.road_deleted(id);
 
         let r = self.map.roads.remove(&id).unwrap();
@@ -624,8 +629,67 @@ impl Model {
             color
         }
     }
+
+    pub fn show_r_points(&mut self, id: StableRoadID, prerender: &Prerender) {
+        assert_eq!(self.showing_pts, None);
+        self.showing_pts = Some(id);
+
+        let r = &self.map.roads[&id];
+        for (idx, pt) in r.center_points.iter().enumerate() {
+            // Don't show handles for the intersections
+            if idx != 0 && idx != r.center_points.len() - 1 {
+                self.world.add(
+                    prerender,
+                    Object::new(
+                        ID::RoadPoint(id, idx),
+                        Color::GREEN,
+                        Circle::new(*pt, INTERSECTION_RADIUS / 2.0).to_polygon(),
+                    ),
+                );
+            }
+        }
+    }
+
+    pub fn stop_showing_pts(&mut self) {
+        let id = self.showing_pts.take().unwrap();
+
+        let r = &self.map.roads[&id];
+        for idx in 1..=r.center_points.len() - 2 {
+            self.world.delete(ID::RoadPoint(id, idx));
+        }
+    }
+
+    pub fn move_r_pt(&mut self, id: StableRoadID, idx: usize, point: Pt2D, prerender: &Prerender) {
+        assert_eq!(self.showing_pts, Some(id));
+
+        self.stop_showing_pts();
+        self.road_deleted(id);
+
+        self.map.roads.get_mut(&id).unwrap().center_points[idx] = point;
+
+        self.road_added(id, prerender);
+        self.show_r_points(id, prerender);
+    }
+
+    pub fn delete_r_pt(&mut self, id: StableRoadID, idx: usize, prerender: &Prerender) {
+        assert_eq!(self.showing_pts, Some(id));
+
+        self.stop_showing_pts();
+        self.road_deleted(id);
+
+        self.map
+            .roads
+            .get_mut(&id)
+            .unwrap()
+            .center_points
+            .remove(idx);
+
+        self.road_added(id, prerender);
+        self.show_r_points(id, prerender);
+    }
 }
 
+// Buildings
 impl Model {
     fn bldg_added(&mut self, id: StableBuildingID, prerender: &Prerender) {
         let b = &self.map.buildings[&id];
@@ -694,6 +758,7 @@ pub enum ID {
     Building(StableBuildingID),
     Intersection(StableIntersectionID),
     Lane(StableRoadID, Direction, usize),
+    RoadPoint(StableRoadID, usize),
 }
 
 impl ObjectID for ID {
@@ -702,6 +767,7 @@ impl ObjectID for ID {
             ID::Lane(_, _, _) => 0,
             ID::Intersection(_) => 1,
             ID::Building(_) => 2,
+            ID::RoadPoint(_, _) => 3,
         }
     }
 }

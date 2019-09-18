@@ -16,6 +16,7 @@ enum State {
     Viewing,
     MovingIntersection(StableIntersectionID),
     MovingBuilding(StableBuildingID),
+    MovingRoadPoint(StableRoadID, usize),
     LabelingBuilding(StableBuildingID, Wizard),
     LabelingRoad((StableRoadID, Direction), Wizard),
     LabelingIntersection(StableIntersectionID, Wizard),
@@ -66,6 +67,14 @@ impl GUI for UI {
             State::MovingBuilding(id) => {
                 if let Some(cursor) = ctx.canvas.get_cursor_in_map_space() {
                     self.model.move_b(id, cursor, ctx.prerender);
+                    if ctx.input.key_released(Key::LeftControl) {
+                        self.state = State::Viewing;
+                    }
+                }
+            }
+            State::MovingRoadPoint(r, idx) => {
+                if let Some(cursor) = ctx.canvas.get_cursor_in_map_space() {
+                    self.model.move_r_pt(r, idx, cursor, ctx.prerender);
                     if ctx.input.key_released(Key::LeftControl) {
                         self.state = State::Viewing;
                     }
@@ -194,6 +203,18 @@ impl GUI for UI {
                         self.model.handle_mouseover(ctx);
                     } else if ctx.input.key_pressed(Key::L, "label side of the road") {
                         self.state = State::LabelingRoad((r, dir), Wizard::new());
+                    } else if self.model.showing_pts.is_none()
+                        && ctx.input.key_pressed(Key::P, "move road points")
+                    {
+                        self.model.show_r_points(r, ctx.prerender);
+                        self.model.handle_mouseover(ctx);
+                    }
+                } else if let Some(ID::RoadPoint(r, idx)) = self.model.get_selection() {
+                    if ctx.input.key_pressed(Key::LeftControl, "move point") {
+                        self.state = State::MovingRoadPoint(r, idx);
+                    } else if ctx.input.key_pressed(Key::Backspace, "delete point") {
+                        self.model.delete_r_pt(r, idx, ctx.prerender);
+                        self.model.handle_mouseover(ctx);
                     }
                 } else if ctx.input.unimportant_key_pressed(Key::Escape, "quit") {
                     process::exit(0);
@@ -215,6 +236,10 @@ impl GUI for UI {
                     self.model.handle_mouseover(ctx);
                 } else if cursor.is_some() && ctx.input.key_pressed(Key::LeftShift, "select area") {
                     self.state = State::SelectingRectangle(cursor.unwrap(), cursor.unwrap(), true);
+                } else if self.model.showing_pts.is_some()
+                    && ctx.input.key_pressed(Key::P, "stop moving road points")
+                {
+                    self.model.stop_showing_pts();
                 }
             }
             State::SelectingRectangle(pt1, ref mut pt2, ref mut keydown) => {
@@ -287,7 +312,9 @@ impl GUI for UI {
                     );
                 }
             }
-            State::MovingIntersection(_) | State::MovingBuilding(_) => {}
+            State::MovingIntersection(_)
+            | State::MovingBuilding(_)
+            | State::MovingRoadPoint(_, _) => {}
             State::SelectingRectangle(pt1, pt2, _) => {
                 if let Some(rect) = Polygon::rectangle_two_corners(pt1, pt2) {
                     g.draw_polygon(Color::BLUE.alpha(0.5), &rect);
