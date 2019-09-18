@@ -5,7 +5,7 @@ use abstutil::Timer;
 use geom::{Distance, GPSBounds, LonLat, Polygon, Pt2D};
 use gtfs::Route;
 use serde_derive::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
 
 // Stable IDs don't get compacted as we merge and delete things.
@@ -88,66 +88,69 @@ impl Map {
         None
     }
 
-    pub fn apply_fixes(&mut self, fixes: &MapFixes, timer: &mut Timer) {
-        let mut applied = 0;
-        let mut skipped = 0;
+    pub fn apply_fixes(&mut self, all_fixes: &BTreeMap<String, MapFixes>, timer: &mut Timer) {
+        for (name, fixes) in all_fixes {
+            let mut applied = 0;
+            let mut skipped = 0;
 
-        for orig in &fixes.delete_roads {
-            if let Some(r) = self.find_r(*orig) {
-                self.roads.remove(&r).unwrap();
-                applied += 1;
-            } else {
-                skipped += 1;
-            }
-        }
-
-        for orig in &fixes.delete_intersections {
-            if let Some(i) = self.find_i(*orig) {
-                self.intersections.remove(&i).unwrap();
-                applied += 1;
-            } else {
-                skipped += 1;
-            }
-        }
-
-        for i in &fixes.add_intersections {
-            if self.gps_bounds.contains(i.orig_id.point) {
-                let id = StableIntersectionID(self.intersections.keys().max().unwrap().0 + 1);
-                self.intersections.insert(id, i.clone());
-                applied += 1;
-            } else {
-                skipped += 1;
-            }
-        }
-
-        for r in &fixes.add_roads {
-            match (
-                self.find_i(OriginalIntersection {
-                    point: r.orig_id.pt1,
-                }),
-                self.find_i(OriginalIntersection {
-                    point: r.orig_id.pt2,
-                }),
-            ) {
-                (Some(i1), Some(i2)) => {
-                    let mut road = r.clone();
-                    road.i1 = i1;
-                    road.i2 = i2;
-                    let id = StableRoadID(self.roads.keys().max().unwrap().0 + 1);
-                    self.roads.insert(id, road);
+            for orig in &fixes.delete_roads {
+                if let Some(r) = self.find_r(*orig) {
+                    self.roads.remove(&r).unwrap();
                     applied += 1;
-                }
-                _ => {
+                } else {
                     skipped += 1;
                 }
             }
-        }
 
-        timer.note(format!(
-            "Applied {} of {} fixes ",
-            applied,
-            applied + skipped
-        ));
+            for orig in &fixes.delete_intersections {
+                if let Some(i) = self.find_i(*orig) {
+                    self.intersections.remove(&i).unwrap();
+                    applied += 1;
+                } else {
+                    skipped += 1;
+                }
+            }
+
+            for i in &fixes.add_intersections {
+                if self.gps_bounds.contains(i.orig_id.point) {
+                    let id = StableIntersectionID(self.intersections.keys().max().unwrap().0 + 1);
+                    self.intersections.insert(id, i.clone());
+                    applied += 1;
+                } else {
+                    skipped += 1;
+                }
+            }
+
+            for r in &fixes.add_roads {
+                match (
+                    self.find_i(OriginalIntersection {
+                        point: r.orig_id.pt1,
+                    }),
+                    self.find_i(OriginalIntersection {
+                        point: r.orig_id.pt2,
+                    }),
+                ) {
+                    (Some(i1), Some(i2)) => {
+                        let mut road = r.clone();
+                        road.i1 = i1;
+                        road.i2 = i2;
+                        let id = StableRoadID(self.roads.keys().max().unwrap().0 + 1);
+                        self.roads.insert(id, road);
+                        applied += 1;
+                    }
+                    _ => {
+                        skipped += 1;
+                    }
+                }
+            }
+
+            timer.note(format!(
+                "Applied {} of {} fixes for {}",
+                applied,
+                applied + skipped,
+                name
+            ));
+        }
     }
 }
 
@@ -294,16 +297,51 @@ pub struct MapFixes {
 }
 
 impl MapFixes {
-    pub fn load() -> MapFixes {
-        if let Ok(f) = abstutil::read_json::<MapFixes>("../data/fixes.json") {
-            f
-        } else {
-            MapFixes {
-                delete_roads: Vec::new(),
-                delete_intersections: Vec::new(),
-                add_intersections: Vec::new(),
-                add_roads: Vec::new(),
+    // The fixes should be applicable in any order, theoretically...
+    pub fn load(timer: &mut Timer) -> BTreeMap<String, MapFixes> {
+        // Make sure different groups of fixes don't conflict.
+        let mut seen_roads = BTreeSet::new();
+        let mut seen_intersections = BTreeSet::new();
+
+        let mut results = BTreeMap::new();
+        for name in abstutil::list_all_objects("fixes", "") {
+            let fixes: MapFixes =
+                abstutil::read_binary(&abstutil::path_fixes(&name), timer).unwrap();
+            let (new_roads, new_intersections) = fixes.all_touched_ids();
+            if !seen_roads.is_disjoint(&new_roads) {
+                // The error could be much better (which road and other MapFixes), but since we
+                // guard against this happening in the first place, don't bother.
+                panic!(
+                    "{} MapFixes and some other MapFixes both touch the same road!",
+                    name
+                );
             }
+            seen_roads.extend(new_roads);
+            if !seen_intersections.is_disjoint(&new_intersections) {
+                panic!(
+                    "{} MapFixes and some other MapFixes both touch the same intersection!",
+                    name
+                );
+            }
+            seen_intersections.extend(new_intersections);
+
+            results.insert(name, fixes);
         }
+        results
+    }
+
+    pub fn all_touched_ids(&self) -> (BTreeSet<OriginalRoad>, BTreeSet<OriginalIntersection>) {
+        let mut roads: BTreeSet<OriginalRoad> = self.delete_roads.iter().cloned().collect();
+        for r in &self.add_roads {
+            roads.insert(r.orig_id);
+        }
+
+        let mut intersections: BTreeSet<OriginalIntersection> =
+            self.delete_intersections.iter().cloned().collect();
+        for i in &self.add_intersections {
+            intersections.insert(i.orig_id);
+        }
+
+        (roads, intersections)
     }
 }

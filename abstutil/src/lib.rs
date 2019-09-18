@@ -82,6 +82,10 @@ pub fn path_raw_map(map_name: &str) -> String {
     format!("../data/raw_maps/{}.bin", map_name)
 }
 
+pub fn path_fixes(name: &str) -> String {
+    format!("../data/fixes/{}.bin", name)
+}
+
 pub fn path_camera_state(map_name: &str) -> String {
     format!("../data/camera_state/{}.json", map_name)
 }

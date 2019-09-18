@@ -2,9 +2,12 @@ use abstutil::{read_binary, MultiMap, Timer};
 use ezgui::world::{Object, ObjectID, World};
 use ezgui::{Color, EventCtx, GfxCtx, Line, Prerender, Text};
 use geom::{Bounds, Circle, Distance, PolyLine, Polygon, Pt2D};
-use map_model::raw_data::{MapFixes, StableBuildingID, StableIntersectionID, StableRoadID};
+use map_model::raw_data::{
+    MapFixes, OriginalIntersection, OriginalRoad, StableBuildingID, StableIntersectionID,
+    StableRoadID,
+};
 use map_model::{osm, raw_data, IntersectionType, LaneType, RoadSpec, LANE_THICKNESS};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::mem;
 
 const INTERSECTION_RADIUS: Distance = Distance::const_meters(5.0);
@@ -22,9 +25,10 @@ pub struct Model {
     roads_per_intersection: MultiMap<StableIntersectionID, StableRoadID>,
     // Never reuse IDs, and don't worry about being sequential
     id_counter: usize,
-    fixes: MapFixes,
+    all_fixes: BTreeMap<String, MapFixes>,
 
     exclude_bldgs: bool,
+    edit_fixes: Option<String>,
     world: World<ID>,
 }
 
@@ -35,21 +39,41 @@ impl Model {
             map: raw_data::Map::blank(String::new()),
             roads_per_intersection: MultiMap::new(),
             id_counter: 0,
-            // TODO Only if we're editing something, not if we're truly creating from scratch,
-            // right?
-            fixes: MapFixes::load(),
+            all_fixes: BTreeMap::new(),
 
             exclude_bldgs: false,
+            edit_fixes: None,
             world: World::new(&Bounds::new()),
         }
     }
 
-    pub fn import(path: &str, exclude_bldgs: bool, prerender: &Prerender) -> Model {
+    pub fn import(
+        path: &str,
+        exclude_bldgs: bool,
+        edit_fixes: Option<String>,
+        prerender: &Prerender,
+    ) -> Model {
         let mut timer = Timer::new("import map");
         let mut model = Model::blank();
+        model.all_fixes = MapFixes::load(&mut timer);
         model.exclude_bldgs = exclude_bldgs;
+        model.edit_fixes = edit_fixes;
         model.map = read_binary(path, &mut timer).unwrap();
-        model.map.apply_fixes(&model.fixes, &mut timer);
+        model.map.apply_fixes(&model.all_fixes, &mut timer);
+
+        if let Some(ref name) = model.edit_fixes {
+            if !model.all_fixes.contains_key(name) {
+                model.all_fixes.insert(
+                    name.clone(),
+                    MapFixes {
+                        delete_roads: Vec::new(),
+                        delete_intersections: Vec::new(),
+                        add_intersections: Vec::new(),
+                        add_roads: Vec::new(),
+                    },
+                );
+            }
+        }
 
         for id in model.map.buildings.keys() {
             model.id_counter = model.id_counter.max(id.0 + 1);
@@ -110,24 +134,48 @@ impl Model {
         println!("Exported {}", path);
     }
 
-    pub fn save_fixes(&self) {
-        let mut fixes = self.fixes.clone();
-        // It's easiest to just go back and detect all of these
+    pub fn save_fixes(&mut self) {
+        let name = if let Some(ref n) = self.edit_fixes {
+            n.clone()
+        } else {
+            println!("Not editing any fixes, so can't save them");
+            return;
+        };
+        let mut fixes = self.all_fixes.remove(&name).unwrap();
+
+        // It's easiest to just go back and detect all of the added roads and intersections. But we
+        // have to avoid picking up changes from other fixes.
+        // TODO Ideally fixes would have a Polygon of where they influence, and all of the polygons
+        // would be disjoint. Nothing prevents fixes from being saved in the wrong group -- we're
+        // just sure that a fix isn't repeated.
+        let mut ignore_roads: BTreeSet<OriginalRoad> = BTreeSet::new();
+        let mut ignore_intersections: BTreeSet<OriginalIntersection> = BTreeSet::new();
+        for f in self.all_fixes.values() {
+            let (r, i) = f.all_touched_ids();
+            ignore_roads.extend(r);
+            ignore_intersections.extend(i);
+        }
+
         fixes.add_intersections.clear();
         fixes.add_roads.clear();
         for i in self.map.intersections.values() {
-            if i.synthetic {
+            if i.synthetic && !ignore_intersections.contains(&i.orig_id) {
                 fixes.add_intersections.push(i.clone());
             }
         }
         for r in self.map.roads.values() {
-            if r.osm_tags.get(osm::SYNTHETIC) == Some(&"true".to_string()) {
+            if r.osm_tags.get(osm::SYNTHETIC) == Some(&"true".to_string())
+                && !ignore_roads.contains(&r.orig_id)
+            {
                 fixes.add_roads.push(r.clone());
             }
         }
 
-        abstutil::write_json("../data/fixes.json", &fixes).unwrap();
-        println!("Wrote ../data/fixes.json");
+        let path = abstutil::path_fixes(&name);
+        abstutil::write_binary(&path, &fixes).unwrap();
+        println!("Wrote {}", path);
+
+        self.all_fixes.insert(name, fixes);
     }
 
     fn compute_bounds(&self) -> Bounds {
@@ -284,7 +332,15 @@ impl Model {
 
         self.world.delete(ID::Intersection(id));
 
-        self.fixes.delete_intersections.push(i.orig_id);
+        if let Some(ref name) = self.edit_fixes {
+            self.all_fixes
+                .get_mut(name)
+                .unwrap()
+                .delete_intersections
+                .push(i.orig_id);
+        } else {
+            println!("This won't be saved in any MapFixes!");
+        }
     }
 
     pub fn get_i_center(&self, id: StableIntersectionID) -> Pt2D {
@@ -441,7 +497,15 @@ impl Model {
         self.roads_per_intersection.remove(r.i1, id);
         self.roads_per_intersection.remove(r.i2, id);
 
-        self.fixes.delete_roads.push(r.orig_id);
+        if let Some(ref name) = self.edit_fixes {
+            self.all_fixes
+                .get_mut(name)
+                .unwrap()
+                .delete_roads
+                .push(r.orig_id);
+        } else {
+            println!("This won't be saved in any MapFixes!");
+        }
     }
 
     pub fn get_road_spec(&self, id: StableRoadID) -> String {

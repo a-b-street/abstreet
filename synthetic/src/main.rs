@@ -27,9 +27,14 @@ enum State {
 }
 
 impl UI {
-    fn new(load: Option<&String>, exclude_bldgs: bool, ctx: &EventCtx) -> UI {
+    fn new(
+        load: Option<&String>,
+        exclude_bldgs: bool,
+        edit_fixes: Option<String>,
+        ctx: &EventCtx,
+    ) -> UI {
         let model = if let Some(path) = load {
-            Model::import(path, exclude_bldgs, ctx.prerender)
+            Model::import(path, exclude_bldgs, edit_fixes, ctx.prerender)
         } else {
             Model::blank()
         };
@@ -280,6 +285,14 @@ fn main() {
         UI::new(
             args.get(1),
             args.get(2) == Some(&"--nobldgs".to_string()),
+            args.get(3).and_then(|s| {
+                let parts: Vec<&str> = s.split('=').collect();
+                if parts[0] == "--fixes" && parts.len() == 2 {
+                    Some(parts[1].to_string())
+                } else {
+                    None
+                }
+            }),
             ctx,
         )
     });
