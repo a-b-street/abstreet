@@ -8,41 +8,15 @@ use geom::{Distance, FindClosest, Line, PolyLine, Pt2D};
 use kml::ExtraShapes;
 use map_model::{raw_data, LaneID, OffstreetParking, Position, LANE_THICKNESS};
 use std::collections::BTreeMap;
-use structopt::StructOpt;
 
-#[derive(StructOpt, Debug)]
-#[structopt(name = "convert_osm")]
 pub struct Flags {
-    /// OSM XML file to read
-    #[structopt(long = "osm")]
     pub osm: String,
-
-    /// ExtraShapes file with blockface, produced using the kml crate. Optional.
-    #[structopt(long = "parking_shapes", default_value = "")]
-    pub parking_shapes: String,
-
-    /// ExtraShapes file with street signs, produced using the kml crate. Optional.
-    #[structopt(long = "street_signs", default_value = "")]
-    pub street_signs: String,
-
-    /// KML file with offstreet parking info. Optional.
-    #[structopt(long = "offstreet_parking", default_value = "")]
-    pub offstreet_parking: String,
-
-    /// GTFS directory. Optional.
-    #[structopt(long = "gtfs", default_value = "")]
-    pub gtfs: String,
-
-    /// Neighborhood GeoJSON path. Optional.
-    #[structopt(long = "neighborhoods", default_value = "")]
-    pub neighborhoods: String,
-
-    /// Osmosis clipping polgon. Optional.
-    #[structopt(long = "clip", default_value = "")]
-    pub clip: String,
-
-    /// Output .bin path
-    #[structopt(long = "output")]
+    pub parking_shapes: Option<String>,
+    pub street_signs: Option<String>,
+    pub offstreet_parking: Option<String>,
+    pub gtfs: Option<String>,
+    pub neighborhoods: Option<String>,
+    pub clip: Option<String>,
     pub output: String,
 }
 
@@ -56,24 +30,24 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
 
     check_orig_ids(&map);
 
-    if !flags.parking_shapes.is_empty() {
-        use_parking_hints(&mut map, &flags.parking_shapes, timer);
+    if let Some(ref path) = flags.parking_shapes {
+        use_parking_hints(&mut map, path, timer);
     }
-    if !flags.street_signs.is_empty() {
-        use_street_signs(&mut map, &flags.street_signs, timer);
+    if let Some(ref path) = flags.street_signs {
+        use_street_signs(&mut map, path, timer);
     }
-    if !flags.offstreet_parking.is_empty() {
-        use_offstreet_parking(&mut map, &flags.offstreet_parking, timer);
+    if let Some(ref path) = flags.offstreet_parking {
+        use_offstreet_parking(&mut map, path, timer);
     }
-    if !flags.gtfs.is_empty() {
+    if let Some(ref path) = flags.gtfs {
         timer.start("load GTFS");
-        map.bus_routes = gtfs::load(&flags.gtfs).unwrap();
+        map.bus_routes = gtfs::load(path).unwrap();
         timer.stop("load GTFS");
     }
 
-    if !flags.neighborhoods.is_empty() {
+    if let Some(ref path) = flags.neighborhoods {
         timer.start("convert neighborhood polygons");
-        neighborhoods::convert(&flags.neighborhoods, map.name.clone(), &map.gps_bounds);
+        neighborhoods::convert(path, map.name.clone(), &map.gps_bounds);
         timer.stop("convert neighborhood polygons");
     }
 

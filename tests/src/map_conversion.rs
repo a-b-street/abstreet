@@ -7,12 +7,12 @@ pub fn run(t: &mut TestRunner) {
     t.run_slow("convert_osm_twice", |_| {
         let flags = convert_osm::Flags {
             osm: "../data/input/montlake.osm".to_string(),
-            parking_shapes: "../data/shapes/blockface.bin".to_string(),
-            street_signs: "../data/shapes/street_signs.bin".to_string(),
-            offstreet_parking: "../data/input/offstreet_parking.kml".to_string(),
-            gtfs: "../data/input/google_transit_2018_18_08".to_string(),
-            neighborhoods: "../data/input/neighborhoods.geojson".to_string(),
-            clip: abstutil::path_polygon("montlake"),
+            parking_shapes: Some("../data/shapes/blockface.bin".to_string()),
+            street_signs: Some("../data/shapes/street_signs.bin".to_string()),
+            offstreet_parking: Some("../data/input/offstreet_parking.kml".to_string()),
+            gtfs: Some("../data/input/google_transit_2018_18_08".to_string()),
+            neighborhoods: Some("../data/input/neighborhoods.geojson".to_string()),
+            clip: Some(abstutil::path_polygon("montlake")),
             output: "convert_osm_twice.bin".to_string(),
         };
 

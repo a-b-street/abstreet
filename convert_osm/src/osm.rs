@@ -8,7 +8,7 @@ use std::io::{BufRead, BufReader};
 
 pub fn extract_osm(
     osm_path: &str,
-    maybe_clip_path: &str,
+    maybe_clip_path: &Option<String>,
     timer: &mut Timer,
 ) -> (
     raw_data::Map,
@@ -27,15 +27,15 @@ pub fn extract_osm(
     );
     done(timer);
 
-    let mut map = if maybe_clip_path.is_empty() {
+    let mut map = if let Some(ref path) = maybe_clip_path {
+        read_osmosis_polygon(path)
+    } else {
         let mut m = raw_data::Map::blank(abstutil::basename(osm_path));
         for node in doc.nodes.values() {
             m.gps_bounds.update(LonLat::new(node.lon, node.lat));
         }
         m.boundary_polygon = m.gps_bounds.to_bounds().get_rectangle();
         m
-    } else {
-        read_osmosis_polygon(maybe_clip_path)
     };
 
     let mut id_to_way: HashMap<i64, Vec<Pt2D>> = HashMap::new();

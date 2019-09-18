@@ -1,3 +1,4 @@
+mod cli;
 mod clone;
 mod collections;
 mod error;
@@ -6,6 +7,7 @@ mod logs;
 mod random;
 mod time;
 
+pub use crate::cli::CmdArgs;
 pub use crate::clone::Cloneable;
 pub use crate::collections::{
     contains_duplicates, retain_btreemap, wraparound_get, Counter, MultiMap,
