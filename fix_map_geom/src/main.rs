@@ -6,7 +6,7 @@ use ezgui::{
 };
 use geom::{Circle, Distance, PolyLine, Polygon};
 use map_model::raw_data::{Hint, Hints, InitialMap, Map, StableIntersectionID, StableRoadID};
-use map_model::LANE_THICKNESS;
+use map_model::{raw_data, LANE_THICKNESS};
 use std::process;
 
 // Bit bigger than buses
@@ -49,7 +49,8 @@ impl State {
 impl UI {
     fn new(filename: &str, ctx: &mut EventCtx) -> UI {
         ctx.loading_screen(&format!("load {}", filename), |ctx, mut timer| {
-            let raw: Map = abstutil::read_binary(filename, &mut timer).unwrap();
+            let mut raw: Map = abstutil::read_binary(filename, &mut timer).unwrap();
+            raw_data::remove_disconnected_roads(&mut raw, &mut timer);
             let mut data = InitialMap::new(
                 raw.name.clone(),
                 &raw,

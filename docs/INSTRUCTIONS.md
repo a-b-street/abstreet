@@ -29,7 +29,10 @@ screen-capture plugin, you need `scrot`.
     `git clone https://github.com/dabreegster/abstreet.git`
 
 3.  Download all input data and build maps. Compilation times will be very slow
-    at first. `cd abstreet; ./import.sh && ./precompute.sh --release`
+    the first time.
+    `cd abstreet; ./import.sh && ./precompute.sh --release --disable_psrc_scenarios`.
+    Alternatively, you could seed the entire `data` directory from this
+    [9/19/2019 copy](https://drive.google.com/open?id=1tpHuojh1e14ZQLBhjLWf_rB6dLKy-hV7).
 
 If you build from source, you won't have the convenient launcher scripts
 referenced below. Instead:

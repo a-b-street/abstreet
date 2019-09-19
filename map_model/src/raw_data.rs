@@ -1,5 +1,5 @@
 use crate::make::get_lane_types;
-pub use crate::make::{Hint, Hints, InitialMap};
+pub use crate::make::{remove_disconnected_roads, Hint, Hints, InitialMap};
 use crate::{AreaType, IntersectionType, OffstreetParking, RoadSpec};
 use abstutil::Timer;
 use geom::{Distance, GPSBounds, LonLat, Polygon, Pt2D};
