@@ -174,17 +174,11 @@ pub struct Road {
     pub orig_id: OriginalRoad,
     pub osm_tags: BTreeMap<String, String>,
     pub osm_way_id: i64,
-    pub parking_lane_fwd: bool,
-    pub parking_lane_back: bool,
 }
 
 impl Road {
     pub fn get_spec(&self) -> RoadSpec {
-        let (fwd, back) = get_lane_types(
-            &self.osm_tags,
-            self.parking_lane_fwd,
-            self.parking_lane_back,
-        );
+        let (fwd, back) = get_lane_types(&self.osm_tags);
         RoadSpec { fwd, back }
     }
 }
@@ -308,7 +302,7 @@ pub struct MapFixes {
 }
 
 impl MapFixes {
-    // The fixes should be applicable in any order, theoretically...
+    // The groups of fixes should be applicable in any order, theoretically...
     pub fn load(timer: &mut Timer) -> BTreeMap<String, MapFixes> {
         // Make sure different groups of fixes don't conflict.
         let mut seen_roads = BTreeSet::new();

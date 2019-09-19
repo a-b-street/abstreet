@@ -4,11 +4,7 @@ use std::collections::BTreeMap;
 use std::iter;
 
 // (original direction, reversed direction)
-pub fn get_lane_types(
-    osm_tags: &BTreeMap<String, String>,
-    parking_lane_fwd: bool,
-    parking_lane_back: bool,
-) -> (Vec<LaneType>, Vec<LaneType>) {
+pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Vec<LaneType>) {
     if let Some(s) = osm_tags.get(osm::SYNTHETIC_LANES) {
         if let Some(spec) = RoadSpec::parse(s.to_string()) {
             return (spec.fwd, spec.back);
@@ -16,6 +12,9 @@ pub fn get_lane_types(
             panic!("Bad {} RoadSpec: {}", osm::SYNTHETIC_LANES, s);
         }
     }
+
+    let parking_lane_fwd = osm_tags.get(osm::PARKING_LANE_FWD) == Some(&"true".to_string());
+    let parking_lane_back = osm_tags.get(osm::PARKING_LANE_BACK) == Some(&"true".to_string());
 
     // Easy special cases first.
     if osm_tags.get("junction") == Some(&"roundabout".to_string()) {

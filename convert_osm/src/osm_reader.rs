@@ -90,8 +90,6 @@ pub fn extract_osm(
                 // We'll fill this out later
                 i1: raw_data::StableIntersectionID(0),
                 i2: raw_data::StableIntersectionID(0),
-                parking_lane_fwd: false,
-                parking_lane_back: false,
             });
         } else if is_bldg(&tags) {
             let deduped = Pt2D::approx_dedupe(pts, geom::EPSILON_DIST);

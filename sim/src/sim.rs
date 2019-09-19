@@ -561,7 +561,7 @@ impl Sim {
         println!(
             "********************************************************************************"
         );
-        println!("At {}", self.time,);
+        println!("At {}", self.time);
         if let Some(path) = self.find_previous_savestate(self.time) {
             println!("Debug from {}", path);
         }

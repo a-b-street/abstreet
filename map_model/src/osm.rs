@@ -9,6 +9,8 @@ pub const MAXSPEED: &str = "maxspeed";
 // The rest of these are all inserted by A/B Street to plumb data between different stages of map
 // construction. They could be plumbed another way, but this is the most convenient.
 
+// TODO Comparing to Some(&"true".to_string()) is annoying
+
 // Just a copy of OSM IDs, so that things displaying/searching tags will also pick these up.
 pub const OSM_WAY_ID: &str = "abst:osm_way_id";
 pub const OSM_REL_ID: &str = "abst:osm_rel_id";
@@ -25,3 +27,7 @@ pub const BACK_LABEL: &str = "abst:back_label";
 
 // Synthetic buildings may have these.
 pub const LABEL: &str = "abst:label";
+
+// Any roads might have these.
+pub const PARKING_LANE_FWD: &str = "abst:parking_lane_fwd";
+pub const PARKING_LANE_BACK: &str = "abst:parking_lane_back";

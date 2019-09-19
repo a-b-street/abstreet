@@ -83,8 +83,6 @@ pub fn make_half_map(
             original_center_pts: r.original_center_pts.clone(),
             src_i: i1,
             dst_i: i2,
-            parking_lane_fwd: r.parking_lane_fwd,
-            parking_lane_back: r.parking_lane_back,
         };
         for stable_id in &r.override_turn_restrictions_to {
             road.turn_restrictions

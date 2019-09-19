@@ -1,12 +1,12 @@
 mod clip;
 mod neighborhoods;
-mod osm;
+mod osm_reader;
 mod split_ways;
 
 use abstutil::{prettyprint_usize, Timer};
 use geom::{Distance, FindClosest, Line, PolyLine, Pt2D};
 use kml::ExtraShapes;
-use map_model::{raw_data, LaneID, OffstreetParking, Position, LANE_THICKNESS};
+use map_model::{osm, raw_data, LaneID, OffstreetParking, Position, LANE_THICKNESS};
 use std::collections::BTreeMap;
 
 pub struct Flags {
@@ -21,8 +21,10 @@ pub struct Flags {
 }
 
 pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
-    let mut map =
-        split_ways::split_up_roads(osm::extract_osm(&flags.osm, &flags.clip, timer), timer);
+    let mut map = split_ways::split_up_roads(
+        osm_reader::extract_osm(&flags.osm, &flags.clip, timer),
+        timer,
+    );
     clip::clip_map(&mut map, timer);
 
     // Need to do a first pass of removing cul-de-sacs here, or we wind up with loop PolyLines when doing the parking hint matching.
@@ -120,10 +122,21 @@ fn use_parking_hints(map: &mut raw_data::Map, path: &str, timer: &mut Timer) {
                 let has_parking = category != Some(&"None".to_string())
                     && category != Some(&"No Parking Allowed".to_string());
                 // Blindly override prior values.
-                if fwds {
-                    map.roads.get_mut(&r).unwrap().parking_lane_fwd = has_parking;
+                if has_parking {
+                    map.roads.get_mut(&r).unwrap().osm_tags.insert(
+                        if fwds {
+                            osm::PARKING_LANE_FWD.to_string()
+                        } else {
+                            osm::PARKING_LANE_BACK.to_string()
+                        },
+                        "true".to_string(),
+                    );
                 } else {
-                    map.roads.get_mut(&r).unwrap().parking_lane_back = has_parking;
+                    map.roads.get_mut(&r).unwrap().osm_tags.remove(if fwds {
+                        osm::PARKING_LANE_FWD
+                    } else {
+                        osm::PARKING_LANE_BACK
+                    });
                 }
             }
         }
@@ -165,11 +178,11 @@ fn use_street_signs(map: &mut raw_data::Map, path: &str, timer: &mut Timer) {
                     s.attributes.get("TEXT") == Some(&"NO PARKING ANYTIME".to_string());
                 if no_parking {
                     applied += 1;
-                    if fwds {
-                        map.roads.get_mut(&r).unwrap().parking_lane_fwd = false;
+                    map.roads.get_mut(&r).unwrap().osm_tags.remove(if fwds {
+                        osm::PARKING_LANE_FWD
                     } else {
-                        map.roads.get_mut(&r).unwrap().parking_lane_back = false;
-                    }
+                        osm::PARKING_LANE_BACK
+                    });
                 }
             }
         }

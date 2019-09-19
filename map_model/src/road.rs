@@ -78,10 +78,6 @@ pub struct Road {
 
     // For debugging.
     pub original_center_pts: PolyLine,
-
-    // Need to retain for map editing.
-    pub parking_lane_fwd: bool,
-    pub parking_lane_back: bool,
 }
 
 impl Road {

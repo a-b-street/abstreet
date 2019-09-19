@@ -843,11 +843,7 @@ impl Map {
 
     fn get_original_lt(&self, id: LaneID) -> LaneType {
         let parent = self.get_parent(id);
-        let (side1, side2) = get_lane_types(
-            &parent.osm_tags,
-            parent.parking_lane_fwd,
-            parent.parking_lane_back,
-        );
+        let (side1, side2) = get_lane_types(&parent.osm_tags);
         let (fwds, idx) = parent.dir_and_offset(id);
         if fwds {
             side1[idx]

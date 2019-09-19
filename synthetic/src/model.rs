@@ -440,8 +440,6 @@ impl Model {
                 center_points,
                 osm_tags,
                 osm_way_id: SYNTHETIC_OSM_WAY_ID,
-                parking_lane_fwd: false,
-                parking_lane_back: false,
             },
         );
         self.roads_per_intersection.insert(i1, id);

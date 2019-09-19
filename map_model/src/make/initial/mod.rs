@@ -4,7 +4,7 @@ pub mod lane_specs;
 mod merge;
 
 use crate::raw_data::{StableIntersectionID, StableRoadID};
-use crate::{raw_data, IntersectionType, LaneType, LANE_THICKNESS};
+use crate::{osm, raw_data, IntersectionType, LaneType, LANE_THICKNESS};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Timer};
 use geom::{Bounds, Distance, PolyLine, Pt2D};
 use serde_derive::{Deserialize, Serialize};
@@ -30,8 +30,6 @@ pub struct Road {
     // Copied here from the raw layer, because merge_degenerate_intersection and other fix_map_geom
     // tools need to modify them.
     pub osm_tags: BTreeMap<String, String>,
-    pub parking_lane_fwd: bool,
-    pub parking_lane_back: bool,
     pub override_turn_restrictions_to: Vec<StableRoadID>,
 }
 
@@ -47,7 +45,8 @@ impl Road {
     }
 
     pub fn has_parking(&self) -> bool {
-        self.parking_lane_fwd || self.parking_lane_back
+        self.osm_tags.get(osm::PARKING_LANE_FWD) == Some(&"true".to_string())
+            || self.osm_tags.get(osm::PARKING_LANE_BACK) == Some(&"true".to_string())
     }
 
     pub fn reset_pts_on_side(&mut self, i: StableIntersectionID) {
@@ -121,12 +120,7 @@ impl InitialMap {
                 .roads
                 .insert(*stable_id);
 
-            let lane_specs = get_lane_specs(
-                &r.osm_tags,
-                r.parking_lane_fwd,
-                r.parking_lane_back,
-                *stable_id,
-            );
+            let lane_specs = get_lane_specs(&r.osm_tags, *stable_id);
             let mut fwd_width = Distance::ZERO;
             let mut back_width = Distance::ZERO;
             for l in &lane_specs {
@@ -162,8 +156,6 @@ impl InitialMap {
                     back_width,
                     lane_specs,
                     osm_tags: r.osm_tags.clone(),
-                    parking_lane_fwd: r.parking_lane_fwd,
-                    parking_lane_back: r.parking_lane_back,
                     override_turn_restrictions_to: Vec::new(),
                 },
             );
@@ -311,10 +303,17 @@ impl InitialMap {
     pub fn override_parking(&mut self, r: StableRoadID, has_parking: bool, timer: &mut Timer) {
         let (src_i, dst_i) = {
             let mut road = self.roads.get_mut(&r).unwrap();
-            road.parking_lane_fwd = has_parking;
-            road.parking_lane_back = has_parking;
+            if has_parking {
+                road.osm_tags
+                    .insert(osm::PARKING_LANE_FWD.to_string(), "true".to_string());
+                road.osm_tags
+                    .insert(osm::PARKING_LANE_BACK.to_string(), "true".to_string());
+            } else {
+                road.osm_tags.remove(osm::PARKING_LANE_FWD);
+                road.osm_tags.remove(osm::PARKING_LANE_BACK);
+            }
 
-            let lane_specs = get_lane_specs(&road.osm_tags, has_parking, has_parking, r);
+            let lane_specs = get_lane_specs(&road.osm_tags, r);
             let mut fwd_width = Distance::ZERO;
             let mut back_width = Distance::ZERO;
             for l in &lane_specs {
@@ -445,12 +444,9 @@ pub struct LaneSpec {
 
 fn get_lane_specs(
     osm_tags: &BTreeMap<String, String>,
-    parking_lane_fwd: bool,
-    parking_lane_back: bool,
     id: raw_data::StableRoadID,
 ) -> Vec<LaneSpec> {
-    let (side1_types, side2_types) =
-        lane_specs::get_lane_types(osm_tags, parking_lane_fwd, parking_lane_back);
+    let (side1_types, side2_types) = lane_specs::get_lane_types(osm_tags);
 
     let mut specs: Vec<LaneSpec> = Vec::new();
     for lane_type in side1_types {
