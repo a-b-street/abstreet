@@ -55,7 +55,7 @@ impl UI {
             ctx.canvas.center_on_map_pt(rand_focus_pt);
         } else {
             let path = abstutil::path_camera_state(primary.map.get_name());
-            match abstutil::read_json::<CameraState>(&path) {
+            match abstutil::read_json::<CameraState>(&path, &mut Timer::throwaway()) {
                 Ok(ref loaded) => {
                     println!("Loaded {}", path);
                     ctx.canvas.cam_x = loaded.cam_x;

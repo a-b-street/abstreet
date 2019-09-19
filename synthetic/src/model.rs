@@ -178,7 +178,7 @@ impl Model {
         }
 
         let path = abstutil::path_fixes(&name);
-        abstutil::write_binary(&path, &fixes).unwrap();
+        abstutil::write_json(&path, &fixes).unwrap();
         println!("Wrote {}", path);
 
         self.all_fixes.insert(name, fixes);

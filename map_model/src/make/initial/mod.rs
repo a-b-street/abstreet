@@ -418,7 +418,7 @@ pub struct Hints {
 
 impl Hints {
     pub fn load() -> Hints {
-        if let Ok(h) = abstutil::read_json::<Hints>("../data/hints.json") {
+        if let Ok(h) = abstutil::read_json::<Hints>("../data/hints.json", &mut Timer::throwaway()) {
             h
         } else {
             Hints {

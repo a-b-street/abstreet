@@ -348,8 +348,7 @@ impl MapFixes {
 
         let mut results = BTreeMap::new();
         for name in abstutil::list_all_objects("fixes", "") {
-            let fixes: MapFixes =
-                abstutil::read_binary(&abstutil::path_fixes(&name), timer).unwrap();
+            let fixes: MapFixes = abstutil::read_json(&abstutil::path_fixes(&name), timer).unwrap();
             let (new_roads, new_intersections) = fixes.all_touched_ids();
             if !seen_roads.is_disjoint(&new_roads) {
                 // The error could be much better (which road and other MapFixes), but since we

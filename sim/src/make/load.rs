@@ -75,7 +75,10 @@ impl SimFlags {
 
             let mut map: Map =
                 abstutil::read_binary(&abstutil::path_map(&sim.map_name), timer).unwrap();
-            map.apply_edits(MapEdits::load(map.get_name(), &sim.edits_name), timer);
+            map.apply_edits(
+                MapEdits::load(map.get_name(), &sim.edits_name, timer),
+                timer,
+            );
             map.recalculate_pathfinding_after_edits(timer);
 
             (map, sim, rng)

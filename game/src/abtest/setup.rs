@@ -143,7 +143,7 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
                     &mut ui.primary,
                     &ui.cs,
                     ctx,
-                    MapEdits::load(&test.map_name, &test.edits1_name),
+                    MapEdits::load(&test.map_name, &test.edits1_name, &mut timer),
                 );
                 ui.primary
                     .map
@@ -181,7 +181,7 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
                     &mut secondary,
                     &ui.cs,
                     ctx,
-                    MapEdits::load(&test.map_name, &test.edits2_name),
+                    MapEdits::load(&test.map_name, &test.edits2_name, &mut timer),
                 );
                 secondary
                     .map

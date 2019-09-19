@@ -1,4 +1,5 @@
 use crate::{ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, LaneType};
+use abstutil::Timer;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
@@ -24,11 +25,15 @@ impl MapEdits {
         }
     }
 
-    pub fn load(map_name: &str, edits_name: &str) -> MapEdits {
+    pub fn load(map_name: &str, edits_name: &str, timer: &mut Timer) -> MapEdits {
         if edits_name == "no_edits" {
             return MapEdits::new(map_name.to_string());
         }
-        abstutil::read_json(&abstutil::path1_json(map_name, abstutil::EDITS, edits_name)).unwrap()
+        abstutil::read_json(
+            &abstutil::path1_json(map_name, abstutil::EDITS, edits_name),
+            timer,
+        )
+        .unwrap()
     }
 
     pub fn save(&self) {

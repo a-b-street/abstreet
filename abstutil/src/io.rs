@@ -29,20 +29,18 @@ pub fn write_json<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
     Ok(())
 }
 
-pub fn read_json<T: DeserializeOwned>(path: &str) -> Result<T, Error> {
+pub fn read_json<T: DeserializeOwned>(path: &str, timer: &mut Timer) -> Result<T, Error> {
     if !path.ends_with(".json") && !path.ends_with(".geojson") {
         panic!("read_json needs {} to end with .json or .geojson", path);
     }
 
-    // TODO easier way to map_err for anything in a block that has ?
-    inner_read_json(path).map_err(|e| Error::new(e.kind(), format!("read_json({}): {}", path, e)))
-}
-
-fn inner_read_json<T: DeserializeOwned>(path: &str) -> Result<T, Error> {
+    timer.start(&format!("parse {}", path));
+    // TODO timer.read_file isn't working here. :(
     let mut file = File::open(path)?;
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
     let obj: T = serde_json::from_str(&contents)?;
+    timer.stop(&format!("parse {}", path));
     Ok(obj)
 }
 
@@ -171,7 +169,11 @@ pub fn load_all_objects<T: DeserializeOwned>(dir: &str, map_name: &str) -> Vec<(
                     .into_string()
                     .unwrap();
                 let load: T = if path_str.ends_with(".json") {
-                    read_json(&format!("../data/{}/{}/{}.json", dir, map_name, name)).unwrap()
+                    read_json(
+                        &format!("../data/{}/{}/{}.json", dir, map_name, name),
+                        &mut timer,
+                    )
+                    .unwrap()
                 } else if path_str.ends_with(".bin") {
                     read_binary(
                         &format!("../data/{}/{}/{}.bin", dir, map_name, name),

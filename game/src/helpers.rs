@@ -1,6 +1,6 @@
 use crate::render::ExtraShapeID;
 use crate::ui::PerMapUI;
-use abstutil;
+use abstutil::Timer;
 use ezgui::Color;
 use geom::Pt2D;
 use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, RoadID, TurnID};
@@ -89,7 +89,8 @@ struct ModifiedColors {
 
 impl ColorScheme {
     pub fn load() -> Result<ColorScheme, Error> {
-        let modified: ModifiedColors = abstutil::read_json("../data/color_scheme.json")?;
+        let modified: ModifiedColors =
+            abstutil::read_json("../data/color_scheme.json", &mut Timer::throwaway())?;
         let mut map: HashMap<String, Color> = default_colors();
         for (name, c) in &modified.map {
             map.insert(name.clone(), *c);
