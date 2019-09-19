@@ -120,12 +120,8 @@ impl Duration {
             hours, minutes, seconds, remainder
         )
     }
-}
 
-impl std::str::FromStr for Duration {
-    type Err = abstutil::Error;
-
-    fn from_str(string: &str) -> Result<Duration, Self::Err> {
+    pub fn parse(string: &str) -> Result<Duration, abstutil::Error> {
         let parts: Vec<&str> = string.split(':').collect();
         if parts.is_empty() {
             return Err(abstutil::Error::new(format!("Duration {}: no :'s", string)));

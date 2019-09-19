@@ -18,7 +18,7 @@ impl CmdArgs {
             let parts: Vec<&str> = arg.split('=').collect();
             if parts.len() == 1 {
                 if arg.starts_with("--") {
-                    args.bits.insert(arg[2..].to_string());
+                    args.bits.insert(arg);
                 } else {
                     args.free.push(arg);
                 }

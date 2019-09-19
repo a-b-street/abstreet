@@ -10,4 +10,3 @@ cpuprofiler = "0.0.3"
 geom = { path = "../geom" }
 map_model = { path = "../map_model" }
 sim = { path = "../sim" }
-structopt = "0.2.18"

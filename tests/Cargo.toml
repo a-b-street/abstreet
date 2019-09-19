@@ -13,5 +13,4 @@ map_model = { path = "../map_model" }
 rand = "0.7.0"
 rand_xorshift = "0.2.0"
 sim = { path = "../sim" }
-structopt = "0.2.18"
 termion = "1.5.1"

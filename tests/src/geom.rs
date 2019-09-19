@@ -1,6 +1,5 @@
 use crate::runner::TestRunner;
 use geom::{Duration, Line, PolyLine, Pt2D};
-use std::str::FromStr;
 
 #[allow(clippy::unreadable_literal)]
 pub fn run(t: &mut TestRunner) {
@@ -42,18 +41,12 @@ pub fn run(t: &mut TestRunner) {
     });
 
     t.run_fast("time_parsing", |_| {
-        assert_eq!(Duration::from_str("2.3"), Ok(Duration::seconds(2.3)));
-        assert_eq!(Duration::from_str("02.3"), Ok(Duration::seconds(2.3)));
-        assert_eq!(Duration::from_str("00:00:02.3"), Ok(Duration::seconds(2.3)));
+        assert_eq!(Duration::parse("2.3"), Ok(Duration::seconds(2.3)));
+        assert_eq!(Duration::parse("02.3"), Ok(Duration::seconds(2.3)));
+        assert_eq!(Duration::parse("00:00:02.3"), Ok(Duration::seconds(2.3)));
 
-        assert_eq!(
-            Duration::from_str("00:02:03.5"),
-            Ok(Duration::seconds(123.5))
-        );
-        assert_eq!(
-            Duration::from_str("01:02:03.5"),
-            Ok(Duration::seconds(3723.5))
-        );
+        assert_eq!(Duration::parse("00:02:03.5"), Ok(Duration::seconds(123.5)));
+        assert_eq!(Duration::parse("01:02:03.5"), Ok(Duration::seconds(3723.5)));
     });
 }
 

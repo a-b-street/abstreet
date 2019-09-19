@@ -7,7 +7,6 @@ use ezgui::{hotkey, Choice, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, Wizard
 use geom::Duration;
 use map_model::MapEdits;
 use sim::{ABTest, Scenario, SimFlags};
-use std::path::PathBuf;
 
 pub struct PickABTest;
 impl PickABTest {
@@ -165,7 +164,7 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
                 let mut secondary = PerMapUI::new(
                     Flags {
                         sim_flags: SimFlags {
-                            load: PathBuf::from(abstutil::path_map(&test.map_name)),
+                            load: abstutil::path_map(&test.map_name),
                             rng_seed: current_flags.sim_flags.rng_seed,
                             run_name: Some(format!("{} with {}", test.test_name, test.edits2_name)),
                             savestate_every: None,

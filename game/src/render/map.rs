@@ -80,7 +80,7 @@ impl DrawMap {
                 DrawLane::new(
                     l,
                     map,
-                    !flags.dont_draw_lane_markings,
+                    flags.draw_lane_markings,
                     cs,
                     // TODO Really parallelize should give us something thread-safe that can at
                     // least take notes.

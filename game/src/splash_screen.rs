@@ -12,7 +12,6 @@ use geom::{Duration, Line, Pt2D, Speed};
 use map_model::Map;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
-use std::path::PathBuf;
 use std::time::Instant;
 
 pub struct SplashScreen {
@@ -169,7 +168,7 @@ fn splash_screen(
                 ui.save_camera_state(ctx.canvas);
                 // This retains no state, but that's probably fine.
                 let mut flags = ui.primary.current_flags.clone();
-                flags.sim_flags.load = PathBuf::from(abstutil::path_map(&name));
+                flags.sim_flags.load = abstutil::path_map(&name);
                 *ui = UI::new(flags, ctx, false);
                 // TODO want to clear wizard and screensaver as we leave this state.
                 Some(Transition::Push(Box::new(SandboxMode::new(ctx))))

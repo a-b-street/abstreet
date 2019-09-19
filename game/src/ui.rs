@@ -11,7 +11,6 @@ use map_model::{Map, Traversable};
 use rand::seq::SliceRandom;
 use serde_derive::{Deserialize, Serialize};
 use sim::{GetDrawAgents, Sim, SimFlags, SimOptions};
-use structopt::StructOpt;
 
 pub struct UI {
     pub primary: PerMapUI,
@@ -26,7 +25,7 @@ impl UI {
         let cs = ColorScheme::load().unwrap();
         let primary = ctx.loading_screen("load map", |ctx, mut timer| {
             ctx.set_textures(
-                !flags.no_textures,
+                flags.textures,
                 vec![
                     ("assets/water_texture.png", Color::rgb(170, 211, 223)),
                     ("assets/grass_texture.png", Color::rgb(200, 250, 204)),
@@ -431,41 +430,17 @@ impl ShowObject for ShowEverything {
     }
 }
 
-#[derive(StructOpt, Debug, Clone)]
-#[structopt(name = "game")]
+#[derive(Clone)]
 pub struct Flags {
-    #[structopt(flatten)]
     pub sim_flags: SimFlags,
-
-    /// Extra KML or ExtraShapes to display
-    #[structopt(long = "kml")]
     pub kml: Option<String>,
-
-    // TODO Ideally these'd be phrased positively, but can't easily make them default to true.
-    /// Should lane markings be drawn? Sometimes they eat too much GPU memory.
-    #[structopt(long = "dont_draw_lane_markings")]
-    pub dont_draw_lane_markings: bool,
-
-    /// Enable cpuprofiler?
-    #[structopt(long = "enable_profiler")]
+    pub draw_lane_markings: bool,
     pub enable_profiler: bool,
-
-    /// Number of agents to generate when requested. If unspecified, trips to/from borders will be
-    /// included.
-    #[structopt(long = "num_agents")]
+    // Number of agents to generate when requested. If unspecified, trips to/from borders will be
+    // included.
     pub num_agents: Option<usize>,
-
-    /// Don't start with the splash screen and menu
-    #[structopt(long = "no_splash")]
-    pub no_splash: bool,
-
-    /// Don't upload textures
-    #[structopt(long = "no_textures")]
-    pub no_textures: bool,
-
-    /// "Dev" mode = --no_splash --no_textures --rng_seed=42
-    #[structopt(long = "dev")]
-    pub dev: bool,
+    pub splash: bool,
+    pub textures: bool,
 }
 
 // All of the state that's bound to a specific map+edit has to live here.

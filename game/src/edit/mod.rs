@@ -426,7 +426,7 @@ pub fn apply_map_edits(
         bundle.draw_map.lanes[l.0] = DrawLane::new(
             bundle.map.get_l(l),
             &bundle.map,
-            !bundle.current_flags.dont_draw_lane_markings,
+            bundle.current_flags.draw_lane_markings,
             cs,
             &mut timer,
         )

@@ -1,35 +1,22 @@
 // https://github.com/rust-lang/rust/issues/50297 would hopefully obsolete this approach.
 
-use abstutil;
-use abstutil::Error;
 use gag::Redirect;
 use map_model::{BuildingID, LaneID};
 use rand_xorshift::XorShiftRng;
 use sim::{CarID, ParkingSpot, Scenario, Sim};
-use std;
 use std::io::Write;
-use structopt::StructOpt;
 use termion;
 use termion::color;
 
-#[derive(StructOpt)]
-#[structopt(name = "tests")]
 pub struct Flags {
-    /// Which tests to run?
-    #[structopt(long = "filter", default_value = "All")]
-    filter: Filter,
-
-    /// If specified, only run tests with names containing this substring.
-    #[structopt(long = "test_names")]
-    test_names: Option<String>,
-
-    /// Keep the log and savestate even for passing tests.
-    #[structopt(long = "keep_output")]
-    keep_output: bool,
-
-    /// Print debug output as clickable HTTP links.
-    #[structopt(long = "clickable_links")]
-    clickable_links: bool,
+    // Which tests to run? Default to All
+    pub filter: Filter,
+    // If specified, only run tests with names containing this substring.
+    pub test_names: Option<String>,
+    // Keep the log and savestate even for passing tests.
+    pub keep_output: bool,
+    // Print debug output as clickable HTTP links.
+    pub clickable_links: bool,
 }
 
 pub struct TestRunner {
@@ -291,17 +278,4 @@ pub enum Filter {
     All,
     Slow,
     Fast,
-}
-
-impl std::str::FromStr for Filter {
-    type Err = Error;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "All" => Ok(Filter::All),
-            "Slow" => Ok(Filter::Slow),
-            "Fast" => Ok(Filter::Fast),
-            _ => Err(Error::new(format!("{} isn't a valid Filter", s))),
-        }
-    }
 }
