@@ -210,6 +210,9 @@ impl GUI for UI {
                     {
                         self.model.show_r_points(r, ctx.prerender);
                         self.model.handle_mouseover(ctx);
+                    } else if ctx.input.key_pressed(Key::M, "merge road") {
+                        self.model.merge_r(r, ctx.prerender);
+                        self.model.handle_mouseover(ctx);
                     }
                 } else if let Some(ID::RoadPoint(r, idx)) = self.model.get_selection() {
                     if ctx.input.key_pressed(Key::LeftControl, "move point") {

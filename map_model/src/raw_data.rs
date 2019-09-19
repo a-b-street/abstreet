@@ -144,6 +144,43 @@ impl Map {
                 }
             }
 
+            for orig in &fixes.merge_short_roads {
+                if let Some(id) = self.find_r(*orig) {
+                    // TODO Whoa, this one is complicated!
+
+                    let (i1, i2) = {
+                        let r = self.roads.remove(&id).unwrap();
+                        (r.i1, r.i2)
+                    };
+                    let (i1_pt, i1_orig_id_pt) = {
+                        let i = &self.intersections[&i1];
+                        (i.point, i.orig_id.point)
+                    };
+
+                    // Arbitrarily keep i1 and destroy i2.
+                    // TODO Make sure intersection types are the same. Make sure i2 isn't synthetic.
+                    self.intersections.remove(&i2).unwrap();
+
+                    // Fix up all roads connected to i2.
+                    // TODO Maintain roads_per_intersection in raw_data? This will get slow.
+                    for r in self.roads.values_mut() {
+                        if r.i1 == i2 {
+                            r.i1 = i1;
+                            r.center_points[0] = i1_pt;
+                            r.orig_id.pt1 = i1_orig_id_pt;
+                        } else if r.i2 == i2 {
+                            r.i2 = i1;
+                            *r.center_points.last_mut().unwrap() = i1_pt;
+                            r.orig_id.pt2 = i1_orig_id_pt;
+                        }
+                    }
+
+                    applied += 1;
+                } else {
+                    skipped += 1;
+                }
+            }
+
             for (orig, osm_tags) in &fixes.override_tags {
                 if let Some(r) = self.find_r(*orig) {
                     self.roads.get_mut(&r).unwrap().osm_tags = osm_tags.clone();
@@ -297,6 +334,7 @@ pub struct MapFixes {
     pub delete_intersections: Vec<OriginalIntersection>,
     pub add_intersections: Vec<Intersection>,
     pub add_roads: Vec<Road>,
+    pub merge_short_roads: Vec<OriginalRoad>,
     // For non-synthetic (original OSM) roads
     pub override_tags: BTreeMap<OriginalRoad, BTreeMap<String, String>>,
 }
@@ -340,6 +378,7 @@ impl MapFixes {
         for r in &self.add_roads {
             roads.insert(r.orig_id);
         }
+        roads.extend(self.merge_short_roads.clone());
         roads.extend(self.override_tags.keys().cloned());
 
         let mut intersections: BTreeSet<OriginalIntersection> =

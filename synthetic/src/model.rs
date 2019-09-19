@@ -73,6 +73,7 @@ impl Model {
                         delete_intersections: Vec::new(),
                         add_intersections: Vec::new(),
                         add_roads: Vec::new(),
+                        merge_short_roads: Vec::new(),
                         override_tags: BTreeMap::new(),
                     },
                 );
@@ -705,6 +706,57 @@ impl Model {
 
         self.road_added(id, prerender);
         self.show_r_points(id, prerender);
+    }
+
+    pub fn merge_r(&mut self, id: StableRoadID, prerender: &Prerender) {
+        // TODO Make sure nothing involved is synthetic.
+        assert!(self.showing_pts != Some(id));
+        self.road_deleted(id);
+
+        let (i1, i2, merged_orig_id) = {
+            let r = self.map.roads.remove(&id).unwrap();
+            self.roads_per_intersection.remove(r.i1, id);
+            self.roads_per_intersection.remove(r.i2, id);
+            (r.i1, r.i2, r.orig_id)
+        };
+        let (i1_pt, i1_orig_id_pt) = {
+            let i = &self.map.intersections[&i1];
+            (i.point, i.orig_id.point)
+        };
+
+        // Arbitrarily keep i1 and destroy i2.
+        // TODO Make sure intersection types are the same. Make sure i2 isn't synthetic.
+        self.map.intersections.remove(&i2).unwrap();
+        self.world.delete(ID::Intersection(i2));
+
+        // Fix up all roads connected to i2.
+        for fix_id in self.roads_per_intersection.get(i2).clone() {
+            self.road_deleted(fix_id);
+
+            let mut fix = self.map.roads.get_mut(&fix_id).unwrap();
+            if fix.i1 == i2 {
+                fix.i1 = i1;
+                fix.center_points[0] = i1_pt;
+                fix.orig_id.pt1 = i1_orig_id_pt;
+            } else {
+                assert_eq!(fix.i2, i2);
+                fix.i2 = i1;
+                *fix.center_points.last_mut().unwrap() = i1_pt;
+                fix.orig_id.pt2 = i1_orig_id_pt;
+            }
+
+            self.road_added(fix_id, prerender);
+        }
+
+        if let Some(ref name) = self.edit_fixes {
+            self.all_fixes
+                .get_mut(name)
+                .unwrap()
+                .merge_short_roads
+                .push(merged_orig_id);
+        } else {
+            println!("This won't be saved in any MapFixes!");
+        }
     }
 }
 
