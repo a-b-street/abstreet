@@ -21,13 +21,9 @@ impl SimFlags {
             load: args
                 .optional_free()
                 .unwrap_or_else(|| "../data/maps/montlake.bin".to_string()),
-            rng_seed: args
-                .optional("--rng_seed")
-                .map(|s| s.parse::<u8>().unwrap()),
+            rng_seed: args.optional_parse("--rng_seed", |s| s.parse()),
             run_name: args.optional("--run_name"),
-            savestate_every: args
-                .optional("--savestate_every")
-                .map(|s| Duration::parse(&s).unwrap()),
+            savestate_every: args.optional_parse("--savestate_every", Duration::parse),
             freeform_policy: args.enabled("--freeform_policy"),
             disable_block_the_box: args.enabled("--disable_block_the_box"),
         }

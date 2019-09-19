@@ -16,6 +16,7 @@ cargo clippy -- \
 	-A clippy::large_enum_variant \
 	-A clippy::many_single_char_names \
 	-A clippy::map_entry \
+	-A clippy::match_wild_err_arm \
 	-A clippy::needless_pass_by_value \
 	-A clippy::new_ret_no_self \
 	-A clippy::new_without_default \

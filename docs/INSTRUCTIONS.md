@@ -2,7 +2,7 @@
 
 General disclaimer: This is a very rough demo. The user interface is clunky, and
 gameplay is not cohesively tied together yet. Please email
-`dabreegster@gmail.com` or file a Github issue if you hit problems.
+<dabreegster@gmail.com> or file a Github issue if you hit problems.
 
 ## Installing the game
 
@@ -23,7 +23,7 @@ To build, you need a Linux-like environment with `bash`, `wget`, `unzip`, etc.
 You also `osmosis` for the import script. At runtime if you want to use the
 screen-capture plugin, you need `scrot`.
 
-1.  Install Rust, at least 1.31. https://www.rust-lang.org/tools/install
+1.  Install Rust, at least 1.37. https://www.rust-lang.org/tools/install
 
 2.  Download the repository:
     `git clone https://github.com/dabreegster/abstreet.git`

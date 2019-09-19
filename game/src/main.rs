@@ -22,9 +22,7 @@ fn main() {
         kml: args.optional("--kml"),
         draw_lane_markings: !args.enabled("--dont_draw_lane_markings"),
         enable_profiler: args.enabled("--enable_profiler"),
-        num_agents: args
-            .optional("--num_agents")
-            .map(|s| s.parse::<usize>().unwrap()),
+        num_agents: args.optional_parse("--num_agents", |s| s.parse()),
         splash: !args.enabled("--no_splash"),
         textures: !args.enabled("--no_textures"),
     };

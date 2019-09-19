@@ -2,7 +2,7 @@ use abstutil::CmdArgs;
 
 fn main() {
     let mut args = CmdArgs::new();
-    let cap_trips = args.optional("--cap").and_then(|s| s.parse::<usize>().ok());
+    let cap_trips = args.optional_parse("--cap", |s| s.parse::<usize>());
     args.done();
 
     let mut timer = abstutil::Timer::new("creating popdat");

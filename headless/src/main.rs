@@ -5,12 +5,8 @@ use sim::{GetDrawAgents, Scenario, SimFlags};
 fn main() {
     let mut args = CmdArgs::new();
     let sim_flags = SimFlags::from_args(&mut args);
-    let save_at = args
-        .optional("--save_at")
-        .map(|s| Duration::parse(&s).unwrap());
-    let num_agents = args
-        .optional("--num_agents")
-        .map(|s| s.parse::<usize>().unwrap());
+    let save_at = args.optional_parse("--save_at", Duration::parse);
+    let num_agents = args.optional_parse("--num_agents", |s| s.parse::<usize>());
     let enable_profiler = args.enabled("--enable_profiler");
     // Every 0.1s, pretend to draw everything to make sure there are no bugs.
     let paranoia = args.enabled("--paranoia");

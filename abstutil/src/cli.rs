@@ -44,6 +44,18 @@ impl CmdArgs {
         self.kv.remove(key)
     }
 
+    pub fn optional_parse<T, E, F: Fn(&str) -> Result<T, E>>(
+        &mut self,
+        key: &str,
+        parser: F,
+    ) -> Option<T> {
+        let value = self.optional(key)?;
+        match parser(&value) {
+            Ok(result) => Some(result),
+            Err(_) => panic!("Bad argument {}={}", key, value),
+        }
+    }
+
     pub fn enabled(&mut self, key: &str) -> bool {
         self.bits.remove(key)
     }
