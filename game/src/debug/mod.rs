@@ -13,22 +13,18 @@ use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::{ShowLayers, ShowObject, UI};
-use abstutil::wraparound_get;
 use abstutil::Timer;
 use ezgui::{
     hotkey, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu,
     Text, Wizard,
 };
-use geom::{Distance, Duration, PolyLine, Polygon};
-use map_model::{IntersectionID, Map, RoadID};
+use geom::Duration;
 use std::collections::HashSet;
 
 pub struct DebugMode {
     menu: ModalMenu,
     common: CommonState,
     chokepoints: Option<chokepoints::ChokepointsFinder>,
-    show_original_roads: HashSet<RoadID>,
-    intersection_geom: HashSet<IntersectionID>,
     connected_roads: connected_roads::ShowConnectedRoads,
     objects: objects::ObjectDebugger,
     hidden: HashSet<ID>,
@@ -58,8 +54,6 @@ impl DebugMode {
                         (None, "show strongly-connected component roads"),
                     ],
                     vec![
-                        (hotkey(Key::O), "clear original roads shown"),
-                        (hotkey(Key::G), "clear intersection geometry"),
                         (hotkey(Key::H), "unhide everything"),
                         (hotkey(Key::M), "clear OSM search results"),
                     ],
@@ -81,8 +75,6 @@ impl DebugMode {
             ),
             common: CommonState::new(),
             chokepoints: None,
-            show_original_roads: HashSet::new(),
-            intersection_geom: HashSet::new(),
             connected_roads: connected_roads::ShowConnectedRoads::new(),
             objects: objects::ObjectDebugger::new(),
             hidden: HashSet::new(),
@@ -109,18 +101,6 @@ impl State for DebugMode {
         let mut txt = Text::prompt("Debug Mode");
         if self.chokepoints.is_some() {
             txt.add(Line("Showing chokepoints"));
-        }
-        if !self.show_original_roads.is_empty() {
-            txt.add(Line(format!(
-                "Showing {} original roads",
-                self.show_original_roads.len()
-            )));
-        }
-        if !self.intersection_geom.is_empty() {
-            txt.add(Line(format!(
-                "Showing {} attempts at intersection geometry",
-                self.intersection_geom.len()
-            )));
         }
         if !self.hidden.is_empty() {
             txt.add(Line(format!("Hiding {} things", self.hidden.len())));
@@ -158,16 +138,6 @@ impl State for DebugMode {
             }
         }
         self.all_routes.event(ui, &mut self.menu);
-        if !self.show_original_roads.is_empty() {
-            if self.menu.action("clear original roads shown") {
-                self.show_original_roads.clear();
-            }
-        }
-        if !self.intersection_geom.is_empty() && ui.primary.current_selection.is_none() {
-            if self.menu.action("clear intersection geometry") {
-                self.intersection_geom.clear();
-            }
-        }
         match ui.primary.current_selection {
             Some(ID::Lane(_)) | Some(ID::Intersection(_)) | Some(ID::ExtraShape(_)) => {
                 let id = ui.primary.current_selection.clone().unwrap();
@@ -190,26 +160,6 @@ impl State for DebugMode {
             _ => {}
         }
 
-        if let Some(ID::Lane(l)) = ui.primary.current_selection {
-            let id = ui.primary.map.get_l(l).parent;
-            if !self.show_original_roads.contains(&id)
-                && ctx
-                    .input
-                    .contextual_action(Key::V, format!("show original geometry of {}", id))
-            {
-                self.show_original_roads.insert(id);
-            }
-        }
-        if let Some(ID::Intersection(i)) = ui.primary.current_selection {
-            if !self.intersection_geom.contains(&i)
-                && ctx.input.contextual_action(
-                    Key::G,
-                    format!("recalculate intersection geometry of {}", i),
-                )
-            {
-                self.intersection_geom.insert(i);
-            }
-        }
         if let Some(ID::Car(id)) = ui.primary.current_selection {
             if ctx
                 .input
@@ -331,29 +281,6 @@ impl State for DebugMode {
 
         self.common.draw(g, ui);
 
-        for id in &self.show_original_roads {
-            let r = ui.primary.map.get_r(*id);
-            if let Some(pair) = r.get_center_for_side(true) {
-                let (pl, width) = pair.unwrap();
-                g.draw_polygon(
-                    ui.cs
-                        .get_def("original road forwards", Color::RED.alpha(0.5)),
-                    &pl.make_polygons(width),
-                );
-            }
-            if let Some(pair) = r.get_center_for_side(false) {
-                let (pl, width) = pair.unwrap();
-                g.draw_polygon(
-                    ui.cs
-                        .get_def("original road backwards", Color::BLUE.alpha(0.5)),
-                    &pl.make_polygons(width),
-                );
-            }
-        }
-        for id in &self.intersection_geom {
-            recalc_intersection_geom(*id, &ui.primary.map, g);
-        }
-
         self.objects.draw(g, ui);
         self.neighborhood_summary.draw(g);
         self.all_routes.draw(g, ui);
@@ -382,72 +309,6 @@ impl ShowObject for DebugMode {
 
     fn layers(&self) -> &ShowLayers {
         &self.layers
-    }
-}
-
-fn recalc_intersection_geom(id: IntersectionID, map: &Map, g: &mut GfxCtx) {
-    if false {
-        // Get road center lines sorted by angle into the intersection, to find adjacent roads.
-        // TODO Maybe do this by directed roads instead. Otherwise the corner is too big? But not
-        // sure what the intersections will look like yet.
-        let mut road_centers: Vec<(PolyLine, Distance)> = map
-            .get_i(id)
-            .roads
-            .iter()
-            .map(|r| {
-                let road = map.get_r(*r);
-                let (pl, width) = road.get_thick_polyline(true).unwrap();
-                if road.dst_i == id {
-                    (pl, width)
-                } else {
-                    (pl.reversed(), width)
-                }
-            })
-            .collect();
-        // TODO This used to be the original OSM center-line node. No longer!
-        let common_pt = map.get_i(id).polygon.center();
-        // TODO Brittle because of f64->i64 and for short last lines
-        road_centers.sort_by_key(|(pl, _)| {
-            pl.last_line()
-                .pt1()
-                .angle_to(common_pt)
-                .normalized_degrees() as i64
-        });
-
-        for idx in 0..road_centers.len() as isize {
-            // pl1 to pl2 moves clockwise
-            let (pl1, width1) = wraparound_get(&road_centers, idx);
-            let (pl2, width2) = wraparound_get(&road_centers, idx + 1);
-
-            let glued = pl1.clone().extend(pl2.reversed());
-            let max_width = (*width1).max(*width2);
-            let poly = Polygon::new(&glued.to_thick_boundary_pts(max_width));
-            g.draw_polygon(Color::RED.alpha(0.4), &poly);
-        }
-    }
-
-    if true {
-        for r in &map.get_i(id).roads {
-            let road = map.get_r(*r);
-            let (orig_pl, width) = road.get_thick_polyline(true).unwrap();
-            let dir_pl = if road.dst_i == id {
-                orig_pl
-            } else {
-                orig_pl.reversed()
-            };
-            // Extend the last line by, say, the length of the original road.
-            let last_pt = dir_pl
-                .last_line()
-                .pt2()
-                .project_away(dir_pl.length(), dir_pl.last_line().angle());
-            let mut pts = dir_pl.points().clone();
-            pts.pop();
-            pts.push(last_pt);
-
-            // This is different than pl.make_polygons(width) because of the order of the points!!!
-            let poly = Polygon::new(&PolyLine::new(pts).to_thick_boundary_pts(width));
-            g.draw_polygon(Color::RED.alpha(0.4), &poly);
-        }
     }
 }
 

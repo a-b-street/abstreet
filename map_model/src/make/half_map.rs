@@ -80,7 +80,6 @@ pub fn make_half_map(
             children_forwards: Vec::new(),
             children_backwards: Vec::new(),
             center_pts: r.trimmed_center_pts.clone(),
-            original_center_pts: r.original_center_pts.clone(),
             src_i: i1,
             dst_i: i2,
         };

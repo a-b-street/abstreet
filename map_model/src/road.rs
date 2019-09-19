@@ -75,9 +75,6 @@ pub struct Road {
     pub center_pts: PolyLine,
     pub src_i: IntersectionID,
     pub dst_i: IntersectionID,
-
-    // For debugging.
-    pub original_center_pts: PolyLine,
 }
 
 impl Road {
@@ -295,53 +292,24 @@ impl Road {
         search.iter().find(|(_, t)| lt == *t).map(|(id, _)| *id)
     }
 
-    pub fn get_thick_polyline(&self, orig_pts: bool) -> Warn<(PolyLine, Distance)> {
+    pub fn get_thick_polyline(&self) -> Warn<(PolyLine, Distance)> {
         let width_right = (self.children_forwards.len() as f64) * LANE_THICKNESS;
         let width_left = (self.children_backwards.len() as f64) * LANE_THICKNESS;
         let total_width = width_right + width_left;
-        let pts = if orig_pts {
-            &self.original_center_pts
-        } else {
-            &self.center_pts
-        };
         if width_right >= width_left {
-            pts.shift_right((width_right - width_left) / 2.0)
+            self.center_pts
+                .shift_right((width_right - width_left) / 2.0)
                 .map(|pl| (pl, total_width))
         } else {
-            pts.shift_left((width_left - width_right) / 2.0)
+            self.center_pts
+                .shift_left((width_left - width_right) / 2.0)
                 .map(|pl| (pl, total_width))
         }
     }
 
     pub fn get_thick_polygon(&self) -> Warn<Polygon> {
-        self.get_thick_polyline(false)
+        self.get_thick_polyline()
             .map(|(pl, width)| pl.make_polygons(width))
-    }
-
-    // Also returns width. The polyline points the correct direction. None if no lanes that
-    // direction.
-    pub fn get_center_for_side(&self, fwds: bool) -> Option<Warn<(PolyLine, Distance)>> {
-        if fwds {
-            if self.children_forwards.is_empty() {
-                return None;
-            }
-            let width = LANE_THICKNESS * (self.children_forwards.len() as f64);
-            Some(
-                self.center_pts
-                    .shift_right(width / 2.0)
-                    .map(|pl| (pl, width)),
-            )
-        } else {
-            if self.children_backwards.is_empty() {
-                return None;
-            }
-            let width = LANE_THICKNESS * (self.children_backwards.len() as f64);
-            Some(
-                self.center_pts
-                    .shift_left(width / 2.0)
-                    .map(|pl| (pl.reversed(), width)),
-            )
-        }
     }
 
     pub fn get_name(&self) -> String {
