@@ -6,6 +6,7 @@
 - https://www.reddit.com/r/SeattleWA/comments/9oqkz9/how_traffic_patterns_will_change_after_seattles/
 - https://www.reddit.com/r/Seattle/comments/9orqne/4_fresh_ideas_to_ease_seattles_coming_traffic/
 - https://www.reddit.com/r/SeattleWA/comments/cr1r1l/why_the_fuck_does_the_right_lane_convert_to/
+- https://twitter.com/transitrunner/status/1175068582142599168
 
 ## Groups that may be eventually interested
 

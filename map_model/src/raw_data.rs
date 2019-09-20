@@ -1,6 +1,6 @@
 use crate::make::get_lane_types;
 pub use crate::make::{remove_disconnected_roads, Hint, Hints, InitialMap};
-use crate::{AreaType, IntersectionType, OffstreetParking, RoadSpec};
+use crate::{osm, AreaType, IntersectionType, OffstreetParking, RoadSpec};
 use abstutil::Timer;
 use geom::{Distance, GPSBounds, LonLat, Polygon, Pt2D};
 use gtfs::Route;
@@ -94,8 +94,7 @@ impl Map {
             let mut skipped = 0;
 
             for orig in &fixes.delete_roads {
-                if let Some(r) = self.find_r(*orig) {
-                    self.roads.remove(&r).unwrap();
+                if self.delete_road(*orig, None).is_some() {
                     applied += 1;
                 } else {
                     skipped += 1;
@@ -103,8 +102,7 @@ impl Map {
             }
 
             for orig in &fixes.delete_intersections {
-                if let Some(i) = self.find_i(*orig) {
-                    self.intersections.remove(&i).unwrap();
+                if self.delete_intersection(*orig, None).is_some() {
                     applied += 1;
                 } else {
                     skipped += 1;
@@ -112,9 +110,7 @@ impl Map {
             }
 
             for i in &fixes.add_intersections {
-                if self.gps_bounds.contains(i.orig_id.point) {
-                    let id = StableIntersectionID(self.intersections.keys().max().unwrap().0 + 1);
-                    self.intersections.insert(id, i.clone());
+                if self.create_intersection(i.clone()).is_some() {
                     applied += 1;
                 } else {
                     skipped += 1;
@@ -122,59 +118,15 @@ impl Map {
             }
 
             for r in &fixes.add_roads {
-                match (
-                    self.find_i(OriginalIntersection {
-                        point: r.orig_id.pt1,
-                    }),
-                    self.find_i(OriginalIntersection {
-                        point: r.orig_id.pt2,
-                    }),
-                ) {
-                    (Some(i1), Some(i2)) => {
-                        let mut road = r.clone();
-                        road.i1 = i1;
-                        road.i2 = i2;
-                        let id = StableRoadID(self.roads.keys().max().unwrap().0 + 1);
-                        self.roads.insert(id, road);
-                        applied += 1;
-                    }
-                    _ => {
-                        skipped += 1;
-                    }
+                if self.create_road(r.clone()).is_some() {
+                    applied += 1;
+                } else {
+                    skipped += 1;
                 }
             }
 
             for orig in &fixes.merge_short_roads {
-                if let Some(id) = self.find_r(*orig) {
-                    // TODO Whoa, this one is complicated!
-
-                    let (i1, i2) = {
-                        let r = self.roads.remove(&id).unwrap();
-                        (r.i1, r.i2)
-                    };
-                    let (i1_pt, i1_orig_id_pt) = {
-                        let i = &self.intersections[&i1];
-                        (i.point, i.orig_id.point)
-                    };
-
-                    // Arbitrarily keep i1 and destroy i2.
-                    // TODO Make sure intersection types are the same. Make sure i2 isn't synthetic.
-                    self.intersections.remove(&i2).unwrap();
-
-                    // Fix up all roads connected to i2.
-                    // TODO Maintain roads_per_intersection in raw_data? This will get slow.
-                    for r in self.roads.values_mut() {
-                        if r.i1 == i2 {
-                            r.i1 = i1;
-                            r.center_points[0] = i1_pt;
-                            r.orig_id.pt1 = i1_orig_id_pt;
-                        } else if r.i2 == i2 {
-                            r.i2 = i1;
-                            *r.center_points.last_mut().unwrap() = i1_pt;
-                            r.orig_id.pt2 = i1_orig_id_pt;
-                        }
-                    }
-
+                if self.merge_short_road(*orig, None).is_some() {
                     applied += 1;
                 } else {
                     skipped += 1;
@@ -182,8 +134,7 @@ impl Map {
             }
 
             for (orig, osm_tags) in &fixes.override_tags {
-                if let Some(r) = self.find_r(*orig) {
-                    self.roads.get_mut(&r).unwrap().osm_tags = osm_tags.clone();
+                if self.override_tags(*orig, osm_tags.clone()).is_some() {
                     applied += 1;
                 } else {
                     skipped += 1;
@@ -198,7 +149,141 @@ impl Map {
             ));
         }
     }
+
+    // TODO Might be better to maintain this instead of doing a search everytime.
+    // TODO make private
+    pub fn roads_per_intersection(&self, i: StableIntersectionID) -> Vec<StableRoadID> {
+        let mut results = Vec::new();
+        for (id, r) in &self.roads {
+            if r.i1 == i || r.i2 == i {
+                results.push(*id);
+            }
+        }
+        results
+    }
 }
+
+// Mutations
+impl Map {
+    pub fn delete_road(
+        &mut self,
+        orig: OriginalRoad,
+        fixes: Option<&mut MapFixes>,
+    ) -> Option<StableRoadID> {
+        let r = self.find_r(orig)?;
+        let road = self.roads.remove(&r).unwrap();
+        if road.osm_tags.get(osm::SYNTHETIC) != Some(&"true".to_string()) {
+            fixes.map(|f| f.delete_roads.push(orig));
+        }
+        Some(r)
+    }
+
+    pub fn can_delete_intersection(&self, i: StableIntersectionID) -> bool {
+        self.roads_per_intersection(i).is_empty()
+    }
+
+    pub fn delete_intersection(
+        &mut self,
+        orig: OriginalIntersection,
+        fixes: Option<&mut MapFixes>,
+    ) -> Option<StableIntersectionID> {
+        let id = self.find_i(orig)?;
+        assert!(self.can_delete_intersection(id));
+        let i = self.intersections.remove(&id).unwrap();
+        if i.synthetic {
+            fixes.map(|f| f.delete_intersections.push(orig));
+        }
+        Some(id)
+    }
+
+    pub fn create_intersection(&mut self, i: Intersection) -> Option<StableIntersectionID> {
+        if self.gps_bounds.contains(i.orig_id.point) {
+            let id = StableIntersectionID(self.intersections.keys().max().unwrap().0 + 1);
+            self.intersections.insert(id, i.clone());
+            Some(id)
+        } else {
+            None
+        }
+    }
+
+    pub fn create_road(&mut self, mut r: Road) -> Option<StableRoadID> {
+        match (
+            self.find_i(OriginalIntersection {
+                point: r.orig_id.pt1,
+            }),
+            self.find_i(OriginalIntersection {
+                point: r.orig_id.pt2,
+            }),
+        ) {
+            (Some(i1), Some(i2)) => {
+                r.i1 = i1;
+                r.i2 = i2;
+                let id = StableRoadID(self.roads.keys().max().unwrap().0 + 1);
+                self.roads.insert(id, r);
+                Some(id)
+            }
+            _ => None,
+        }
+    }
+
+    // (the merged road, the deleted intersection, list of modified roads connected to deleted
+    // intersection)
+    pub fn merge_short_road(
+        &mut self,
+        orig: OriginalRoad,
+        fixes: Option<&mut MapFixes>,
+    ) -> Option<(StableRoadID, StableIntersectionID, Vec<StableRoadID>)> {
+        let id = self.find_r(orig)?;
+
+        let (i1, i2) = {
+            let r = self.roads.remove(&id).unwrap();
+            (r.i1, r.i2)
+        };
+        let (i1_pt, i1_orig_id_pt) = {
+            let i = &self.intersections[&i1];
+            (i.point, i.orig_id.point)
+        };
+
+        // Arbitrarily keep i1 and destroy i2.
+        // TODO Make sure intersection types are the same. Make sure i2 isn't synthetic.
+        self.intersections.remove(&i2).unwrap();
+
+        // Fix up all roads connected to i2.
+        let mut fixed = Vec::new();
+        for r in self.roads_per_intersection(i2) {
+            fixed.push(r);
+            let road = self.roads.get_mut(&r).unwrap();
+            if road.i1 == i2 {
+                road.i1 = i1;
+                road.center_points[0] = i1_pt;
+                road.orig_id.pt1 = i1_orig_id_pt;
+            } else {
+                assert_eq!(road.i2, i2);
+                road.i2 = i1;
+                *road.center_points.last_mut().unwrap() = i1_pt;
+                road.orig_id.pt2 = i1_orig_id_pt;
+            }
+        }
+
+        fixes.map(|f| f.merge_short_roads.push(orig));
+
+        Some((id, i2, fixed))
+    }
+
+    pub fn override_tags(
+        &mut self,
+        orig: OriginalRoad,
+        osm_tags: BTreeMap<String, String>,
+    ) -> Option<StableRoadID> {
+        let r = self.find_r(orig)?;
+        self.roads.get_mut(&r).unwrap().osm_tags = osm_tags;
+        Some(r)
+    }
+}
+
+// Mutations not recorded in MapFixes yet
+// TODO Fix that!
+impl Map {}
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Road {

@@ -1,4 +1,4 @@
-use abstutil::{read_binary, MultiMap, Timer};
+use abstutil::{read_binary, Timer};
 use ezgui::world::{Object, ObjectID, World};
 use ezgui::{Color, EventCtx, GfxCtx, Line, Prerender, Text};
 use geom::{Bounds, Circle, Distance, PolyLine, Polygon, Pt2D};
@@ -22,9 +22,6 @@ const BACKWARDS: Direction = false;
 
 pub struct Model {
     pub map: raw_data::Map,
-    roads_per_intersection: MultiMap<StableIntersectionID, StableRoadID>,
-    // Never reuse IDs, and don't worry about being sequential
-    id_counter: usize,
     all_fixes: BTreeMap<String, MapFixes>,
     // TODO Not sure this should be pub...
     pub showing_pts: Option<StableRoadID>,
@@ -39,8 +36,6 @@ impl Model {
     pub fn blank() -> Model {
         Model {
             map: raw_data::Map::blank(String::new()),
-            roads_per_intersection: MultiMap::new(),
-            id_counter: 0,
             all_fixes: BTreeMap::new(),
             showing_pts: None,
 
@@ -78,21 +73,6 @@ impl Model {
                     },
                 );
             }
-        }
-
-        for id in model.map.buildings.keys() {
-            model.id_counter = model.id_counter.max(id.0 + 1);
-        }
-
-        for id in model.map.intersections.keys() {
-            model.id_counter = model.id_counter.max(id.0 + 1);
-        }
-
-        for (id, r) in &model.map.roads {
-            model.id_counter = model.id_counter.max(id.0 + 1);
-
-            model.roads_per_intersection.insert(r.i1, *id);
-            model.roads_per_intersection.insert(r.i2, *id);
         }
 
         model.world = World::new(&model.compute_bounds());
@@ -249,11 +229,9 @@ impl Model {
     }
 
     pub fn create_i(&mut self, point: Pt2D, prerender: &Prerender) {
-        let id = StableIntersectionID(self.id_counter);
-        self.id_counter += 1;
-        self.map.intersections.insert(
-            id,
-            raw_data::Intersection {
+        let id = self
+            .map
+            .create_intersection(raw_data::Intersection {
                 point,
                 intersection_type: IntersectionType::StopSign,
                 label: None,
@@ -261,8 +239,8 @@ impl Model {
                     point: point.forcibly_to_gps(&self.map.gps_bounds),
                 },
                 synthetic: true,
-            },
-        );
+            })
+            .unwrap();
 
         self.intersection_added(id, prerender);
     }
@@ -280,7 +258,7 @@ impl Model {
         self.intersection_added(id, prerender);
 
         // Now update all the roads.
-        for r in self.roads_per_intersection.get(id).clone() {
+        for r in self.map.roads_per_intersection(id) {
             self.road_deleted(r);
 
             let road = self.map.roads.get_mut(&r).unwrap();
@@ -313,11 +291,12 @@ impl Model {
     pub fn toggle_i_type(&mut self, id: StableIntersectionID, prerender: &Prerender) {
         self.world.delete(ID::Intersection(id));
 
+        let num_roads = self.map.roads_per_intersection(id).len();
         let i = self.map.intersections.get_mut(&id).unwrap();
         i.intersection_type = match i.intersection_type {
             IntersectionType::StopSign => IntersectionType::TrafficSignal,
             IntersectionType::TrafficSignal => {
-                if self.roads_per_intersection.get(id).len() == 1 {
+                if num_roads == 1 {
                     IntersectionType::Border
                 } else {
                     IntersectionType::StopSign
@@ -330,25 +309,14 @@ impl Model {
     }
 
     pub fn delete_i(&mut self, id: StableIntersectionID) {
-        if !self.roads_per_intersection.get(id).is_empty() {
+        let orig = self.map.intersections[&id].orig_id;
+        if !self.map.can_delete_intersection(id) {
             println!("Can't delete intersection used by roads");
             return;
         }
-        let i = self.map.intersections.remove(&id).unwrap();
-
+        // TODO pass in fixes
+        let id = self.map.delete_intersection(orig, None).unwrap();
         self.world.delete(ID::Intersection(id));
-
-        if let Some(ref name) = self.edit_fixes {
-            if !i.synthetic {
-                self.all_fixes
-                    .get_mut(name)
-                    .unwrap()
-                    .delete_intersections
-                    .push(i.orig_id);
-            }
-        } else {
-            println!("This won't be saved in any MapFixes!");
-        }
     }
 
     pub fn get_i_center(&self, id: StableIntersectionID) -> Pt2D {
@@ -426,11 +394,10 @@ impl Model {
             self.map.intersections[&i1].point,
             self.map.intersections[&i2].point,
         ];
-        let id = StableRoadID(self.id_counter);
-        self.id_counter += 1;
-        self.map.roads.insert(
-            id,
-            raw_data::Road {
+
+        let id = self
+            .map
+            .create_road(raw_data::Road {
                 i1,
                 i2,
                 orig_id: raw_data::OriginalRoad {
@@ -441,11 +408,8 @@ impl Model {
                 center_points,
                 osm_tags,
                 osm_way_id: SYNTHETIC_OSM_WAY_ID,
-            },
-        );
-        self.roads_per_intersection.insert(i1, id);
-        self.roads_per_intersection.insert(i2, id);
-
+            })
+            .unwrap();
         self.road_added(id, prerender);
     }
 
@@ -554,21 +518,9 @@ impl Model {
         assert!(self.showing_pts != Some(id));
         self.road_deleted(id);
 
-        let r = self.map.roads.remove(&id).unwrap();
-        self.roads_per_intersection.remove(r.i1, id);
-        self.roads_per_intersection.remove(r.i2, id);
-
-        if let Some(ref name) = self.edit_fixes {
-            if r.osm_tags.get(osm::SYNTHETIC) != Some(&"true".to_string()) {
-                self.all_fixes
-                    .get_mut(name)
-                    .unwrap()
-                    .delete_roads
-                    .push(r.orig_id);
-            }
-        } else {
-            println!("This won't be saved in any MapFixes!");
-        }
+        let orig = self.map.roads[&id].orig_id;
+        // TODO pass in fixes
+        self.map.delete_road(orig, None).unwrap();
     }
 
     pub fn get_road_spec(&self, id: StableRoadID) -> String {
@@ -709,53 +661,20 @@ impl Model {
     }
 
     pub fn merge_r(&mut self, id: StableRoadID, prerender: &Prerender) {
-        // TODO Make sure nothing involved is synthetic.
         assert!(self.showing_pts != Some(id));
+
+        // TODO Bit hacky, but we have to do this before doing the mutation, so we know the number
+        // of lanes and can generate all the IDs.
         self.road_deleted(id);
 
-        let (i1, i2, merged_orig_id) = {
-            let r = self.map.roads.remove(&id).unwrap();
-            self.roads_per_intersection.remove(r.i1, id);
-            self.roads_per_intersection.remove(r.i2, id);
-            (r.i1, r.i2, r.orig_id)
-        };
-        let (i1_pt, i1_orig_id_pt) = {
-            let i = &self.map.intersections[&i1];
-            (i.point, i.orig_id.point)
-        };
+        let orig = self.map.roads[&id].orig_id;
+        // TODO pass fixes
+        let (_, deleted_i, changed_roads) = self.map.merge_short_road(orig, None).unwrap();
 
-        // Arbitrarily keep i1 and destroy i2.
-        // TODO Make sure intersection types are the same. Make sure i2 isn't synthetic.
-        self.map.intersections.remove(&i2).unwrap();
-        self.world.delete(ID::Intersection(i2));
-
-        // Fix up all roads connected to i2.
-        for fix_id in self.roads_per_intersection.get(i2).clone() {
-            self.road_deleted(fix_id);
-
-            let mut fix = self.map.roads.get_mut(&fix_id).unwrap();
-            if fix.i1 == i2 {
-                fix.i1 = i1;
-                fix.center_points[0] = i1_pt;
-                fix.orig_id.pt1 = i1_orig_id_pt;
-            } else {
-                assert_eq!(fix.i2, i2);
-                fix.i2 = i1;
-                *fix.center_points.last_mut().unwrap() = i1_pt;
-                fix.orig_id.pt2 = i1_orig_id_pt;
-            }
-
-            self.road_added(fix_id, prerender);
-        }
-
-        if let Some(ref name) = self.edit_fixes {
-            self.all_fixes
-                .get_mut(name)
-                .unwrap()
-                .merge_short_roads
-                .push(merged_orig_id);
-        } else {
-            println!("This won't be saved in any MapFixes!");
+        self.world.delete(ID::Intersection(deleted_i));
+        for r in changed_roads {
+            self.road_deleted(r);
+            self.road_added(r, prerender);
         }
     }
 }
@@ -772,8 +691,7 @@ impl Model {
     }
 
     pub fn create_b(&mut self, center: Pt2D, prerender: &Prerender) {
-        let id = StableBuildingID(self.id_counter);
-        self.id_counter += 1;
+        let id = StableBuildingID(self.map.buildings.keys().max().unwrap().0 + 1);
         self.map.buildings.insert(
             id,
             raw_data::Building {
