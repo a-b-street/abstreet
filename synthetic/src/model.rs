@@ -236,22 +236,20 @@ impl Model {
 
     pub fn move_i(&mut self, id: StableIntersectionID, point: Pt2D, prerender: &Prerender) {
         self.world.delete(ID::Intersection(id));
-        let orig = self.map.intersections[&id].orig_id;
-        let (id, fixed) = self.map.move_intersection(orig, point).unwrap();
-        self.intersection_added(id, prerender);
-        for r in fixed {
+        for r in self.map.move_intersection(id, point).unwrap() {
             self.road_deleted(r);
             self.road_added(r, prerender);
         }
+        self.intersection_added(id, prerender);
     }
 
     pub fn set_i_label(&mut self, id: StableIntersectionID, label: String, prerender: &Prerender) {
         self.world.delete(ID::Intersection(id));
-        let (orig, it) = {
-            let i = &self.map.intersections[&id];
-            (i.orig_id, i.intersection_type)
-        };
-        let id = self.map.modify_intersection(orig, it, Some(label)).unwrap();
+        self.map.modify_intersection(
+            id,
+            self.map.intersections[&id].intersection_type,
+            Some(label),
+        );
         self.intersection_added(id, prerender);
     }
 
@@ -261,7 +259,7 @@ impl Model {
 
     pub fn toggle_i_type(&mut self, id: StableIntersectionID, prerender: &Prerender) {
         self.world.delete(ID::Intersection(id));
-        let (orig, it, label) = {
+        let (it, label) = {
             let i = &self.map.intersections[&id];
             let it = match i.intersection_type {
                 IntersectionType::StopSign => IntersectionType::TrafficSignal,
@@ -274,19 +272,18 @@ impl Model {
                 }
                 IntersectionType::Border => IntersectionType::StopSign,
             };
-            (i.orig_id, it, i.label.clone())
+            (it, i.label.clone())
         };
-        let id = self.map.modify_intersection(orig, it, label).unwrap();
+        self.map.modify_intersection(id, it, label);
         self.intersection_added(id, prerender);
     }
 
     pub fn delete_i(&mut self, id: StableIntersectionID) {
-        let orig = self.map.intersections[&id].orig_id;
         if !self.map.can_delete_intersection(id) {
             println!("Can't delete intersection used by roads");
             return;
         }
-        let id = self.map.delete_intersection(orig, &mut self.fixes).unwrap();
+        self.map.delete_intersection(id, &mut self.fixes);
         self.world.delete(ID::Intersection(id));
     }
 
@@ -374,9 +371,7 @@ impl Model {
         if let Some(s) = RoadSpec::parse(spec.clone()) {
             let mut osm_tags = self.map.roads[&id].osm_tags.clone();
             osm_tags.insert(osm::SYNTHETIC_LANES.to_string(), s.to_string());
-            self.map
-                .override_tags(self.map.roads[&id].orig_id, osm_tags, &mut self.fixes)
-                .unwrap();
+            self.map.override_tags(id, osm_tags, &mut self.fixes);
         } else {
             println!("Bad RoadSpec: {}", spec);
         }
@@ -387,9 +382,9 @@ impl Model {
     pub fn swap_lanes(&mut self, id: StableRoadID, prerender: &Prerender) {
         self.road_deleted(id);
 
-        let (orig, mut lanes, mut osm_tags) = {
+        let (mut lanes, mut osm_tags) = {
             let r = &self.map.roads[&id];
-            (r.orig_id, r.get_spec(), r.osm_tags.clone())
+            (r.get_spec(), r.osm_tags.clone())
         };
         mem::swap(&mut lanes.fwd, &mut lanes.back);
         osm_tags.insert(osm::SYNTHETIC_LANES.to_string(), lanes.to_string());
@@ -403,9 +398,7 @@ impl Model {
             osm_tags.insert(osm::FWD_LABEL.to_string(), l);
         }
 
-        self.map
-            .override_tags(orig, osm_tags, &mut self.fixes)
-            .unwrap();
+        self.map.override_tags(id, osm_tags, &mut self.fixes);
         self.road_added(id, prerender);
     }
 
@@ -424,9 +417,7 @@ impl Model {
             osm_tags.insert(osm::BACK_LABEL.to_string(), label.to_string());
         }
 
-        self.map
-            .override_tags(self.map.roads[&pair.0].orig_id, osm_tags, &mut self.fixes)
-            .unwrap();
+        self.map.override_tags(pair.0, osm_tags, &mut self.fixes);
         self.road_added(pair.0, prerender);
     }
 
@@ -452,9 +443,7 @@ impl Model {
         osm_tags.insert(osm::NAME.to_string(), name);
         osm_tags.insert(osm::MAXSPEED.to_string(), speed);
 
-        self.map
-            .override_tags(self.map.roads[&id].orig_id, osm_tags, &mut self.fixes)
-            .unwrap();
+        self.map.override_tags(id, osm_tags, &mut self.fixes);
         self.road_added(id, prerender);
     }
 
@@ -475,9 +464,7 @@ impl Model {
     pub fn delete_r(&mut self, id: StableRoadID) {
         assert!(self.showing_pts != Some(id));
         self.road_deleted(id);
-
-        let orig = self.map.roads[&id].orig_id;
-        self.map.delete_road(orig, &mut self.fixes).unwrap();
+        self.map.delete_road(id, &mut self.fixes);
     }
 
     pub fn get_road_spec(&self, id: StableRoadID) -> String {
@@ -596,9 +583,7 @@ impl Model {
 
         let mut pts = self.map.roads[&id].center_points.clone();
         pts[idx] = point;
-        self.map
-            .override_road_points(self.map.roads[&id].orig_id, pts)
-            .unwrap();
+        self.map.override_road_points(id, pts);
 
         self.road_added(id, prerender);
         self.show_r_points(id, prerender);
@@ -612,9 +597,7 @@ impl Model {
 
         let mut pts = self.map.roads[&id].center_points.clone();
         pts.remove(idx);
-        self.map
-            .override_road_points(self.map.roads[&id].orig_id, pts)
-            .unwrap();
+        self.map.override_road_points(id, pts);
 
         self.road_added(id, prerender);
         self.show_r_points(id, prerender);
@@ -627,9 +610,7 @@ impl Model {
         // of lanes and can generate all the IDs.
         self.road_deleted(id);
 
-        let orig = self.map.roads[&id].orig_id;
-        let (_, deleted_i, changed_roads) =
-            self.map.merge_short_road(orig, &mut self.fixes).unwrap();
+        let (deleted_i, changed_roads) = self.map.merge_short_road(id, &mut self.fixes).unwrap();
 
         self.world.delete(ID::Intersection(deleted_i));
         for r in changed_roads {

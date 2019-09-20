@@ -96,7 +96,8 @@ impl Map {
             let mut skipped = 0;
 
             for orig in &fixes.delete_roads {
-                if self.delete_road(*orig, &mut dummy_fixes).is_some() {
+                if let Some(r) = self.find_r(*orig) {
+                    self.delete_road(r, &mut dummy_fixes);
                     applied += 1;
                 } else {
                     skipped += 1;
@@ -104,7 +105,8 @@ impl Map {
             }
 
             for orig in &fixes.delete_intersections {
-                if self.delete_intersection(*orig, &mut dummy_fixes).is_some() {
+                if let Some(i) = self.find_i(*orig) {
+                    self.delete_intersection(i, &mut dummy_fixes);
                     applied += 1;
                 } else {
                     skipped += 1;
@@ -128,7 +130,8 @@ impl Map {
             }
 
             for orig in &fixes.merge_short_roads {
-                if self.merge_short_road(*orig, &mut dummy_fixes).is_some() {
+                if let Some(r) = self.find_r(*orig) {
+                    self.merge_short_road(r, &mut dummy_fixes);
                     applied += 1;
                 } else {
                     skipped += 1;
@@ -136,10 +139,8 @@ impl Map {
             }
 
             for (orig, osm_tags) in &fixes.override_tags {
-                if self
-                    .override_tags(*orig, osm_tags.clone(), &mut dummy_fixes)
-                    .is_some()
-                {
+                if let Some(r) = self.find_r(*orig) {
+                    self.override_tags(r, osm_tags.clone(), &mut dummy_fixes);
                     applied += 1;
                 } else {
                     skipped += 1;
@@ -170,35 +171,23 @@ impl Map {
 
 // Mutations
 impl Map {
-    pub fn delete_road(
-        &mut self,
-        orig: OriginalRoad,
-        fixes: &mut MapFixes,
-    ) -> Option<StableRoadID> {
-        let r = self.find_r(orig)?;
+    pub fn delete_road(&mut self, r: StableRoadID, fixes: &mut MapFixes) {
         let road = self.roads.remove(&r).unwrap();
         if road.osm_tags.get(osm::SYNTHETIC) != Some(&"true".to_string()) {
-            fixes.delete_roads.push(orig);
+            fixes.delete_roads.push(road.orig_id);
         }
-        Some(r)
     }
 
     pub fn can_delete_intersection(&self, i: StableIntersectionID) -> bool {
         self.roads_per_intersection(i).is_empty()
     }
 
-    pub fn delete_intersection(
-        &mut self,
-        orig: OriginalIntersection,
-        fixes: &mut MapFixes,
-    ) -> Option<StableIntersectionID> {
-        let id = self.find_i(orig)?;
+    pub fn delete_intersection(&mut self, id: StableIntersectionID, fixes: &mut MapFixes) {
         assert!(self.can_delete_intersection(id));
         let i = self.intersections.remove(&id).unwrap();
-        if i.synthetic {
-            fixes.delete_intersections.push(orig);
+        if !i.synthetic {
+            fixes.delete_intersections.push(i.orig_id);
         }
-        Some(id)
     }
 
     pub fn create_intersection(&mut self, i: Intersection) -> Option<StableIntersectionID> {
@@ -231,17 +220,15 @@ impl Map {
         }
     }
 
-    // (the merged road, the deleted intersection, list of modified roads connected to deleted
-    // intersection)
+    // (the deleted intersection, list of modified roads connected to deleted intersection)
     pub fn merge_short_road(
         &mut self,
-        orig: OriginalRoad,
+        id: StableRoadID,
         fixes: &mut MapFixes,
-    ) -> Option<(StableRoadID, StableIntersectionID, Vec<StableRoadID>)> {
-        let id = self.find_r(orig)?;
-
+    ) -> Option<(StableIntersectionID, Vec<StableRoadID>)> {
         let (i1, i2) = {
             let r = self.roads.remove(&id).unwrap();
+            fixes.merge_short_roads.push(r.orig_id);
             (r.i1, r.i2)
         };
         let (i1_pt, i1_orig_id_pt) = {
@@ -270,24 +257,22 @@ impl Map {
             }
         }
 
-        fixes.merge_short_roads.push(orig);
-
-        Some((id, i2, fixed))
+        Some((i2, fixed))
     }
 
     pub fn override_tags(
         &mut self,
-        orig: OriginalRoad,
+        r: StableRoadID,
         osm_tags: BTreeMap<String, String>,
         fixes: &mut MapFixes,
-    ) -> Option<StableRoadID> {
-        let r = self.find_r(orig)?;
+    ) {
         let road = self.roads.get_mut(&r).unwrap();
         road.osm_tags = osm_tags;
         if road.osm_tags.get(osm::SYNTHETIC) != Some(&"true".to_string()) {
-            fixes.override_tags.insert(orig, road.osm_tags.clone());
+            fixes
+                .override_tags
+                .insert(road.orig_id, road.osm_tags.clone());
         }
-        Some(r)
     }
 }
 
@@ -296,12 +281,10 @@ impl Map {
 impl Map {
     pub fn move_intersection(
         &mut self,
-        orig: OriginalIntersection,
+        id: StableIntersectionID,
         point: Pt2D,
-    ) -> Option<(StableIntersectionID, Vec<StableRoadID>)> {
+    ) -> Option<Vec<StableRoadID>> {
         // TODO Only for synthetic intersections, right?
-        let id = self.find_i(orig)?;
-
         let gps_pt = {
             let i = self.intersections.get_mut(&id).unwrap();
             i.point = point;
@@ -325,31 +308,23 @@ impl Map {
             }
         }
 
-        Some((id, fixed))
+        Some(fixed)
     }
 
     pub fn modify_intersection(
         &mut self,
-        orig: OriginalIntersection,
+        id: StableIntersectionID,
         it: IntersectionType,
         label: Option<String>,
-    ) -> Option<StableIntersectionID> {
-        let id = self.find_i(orig)?;
+    ) {
         let i = self.intersections.get_mut(&id).unwrap();
         i.intersection_type = it;
         i.label = label;
-        Some(id)
     }
 
     // This shouldn't modify the endpoints, so don't have to mess around with intersections.
-    pub fn override_road_points(
-        &mut self,
-        orig: OriginalRoad,
-        pts: Vec<Pt2D>,
-    ) -> Option<StableRoadID> {
-        let id = self.find_r(orig)?;
+    pub fn override_road_points(&mut self, id: StableRoadID, pts: Vec<Pt2D>) {
         self.roads.get_mut(&id).unwrap().center_points = pts;
-        Some(id)
     }
 
     pub fn create_building(&mut self, bldg: Building) -> Option<StableBuildingID> {
@@ -362,7 +337,6 @@ impl Map {
         }
     }
 
-    // TODO Need OriginalBuilding ;)
     pub fn modify_building(
         &mut self,
         id: StableBuildingID,
