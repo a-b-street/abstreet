@@ -111,7 +111,6 @@ it only takes a few seconds to load a serialized map.
   - OSM ways cross many intersections, so treat points with multiple ways and
     the points at the beginning and end of a way as intersections, then split
     the way into road segments between two intersections.
-  - There's some mangling to try to simplify roundabouts
   - This phase remembers which road segment is the beginning and end of the OSM
     way, for per-lane turn restrictions later
 - `clip.rs`: Clip the map to the boundary polygon
