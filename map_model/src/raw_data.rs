@@ -89,12 +89,14 @@ impl Map {
     }
 
     pub fn apply_fixes(&mut self, all_fixes: &BTreeMap<String, MapFixes>, timer: &mut Timer) {
+        let mut dummy_fixes = MapFixes::new();
+
         for (name, fixes) in all_fixes {
             let mut applied = 0;
             let mut skipped = 0;
 
             for orig in &fixes.delete_roads {
-                if self.delete_road(*orig, None).is_some() {
+                if self.delete_road(*orig, &mut dummy_fixes).is_some() {
                     applied += 1;
                 } else {
                     skipped += 1;
@@ -102,7 +104,7 @@ impl Map {
             }
 
             for orig in &fixes.delete_intersections {
-                if self.delete_intersection(*orig, None).is_some() {
+                if self.delete_intersection(*orig, &mut dummy_fixes).is_some() {
                     applied += 1;
                 } else {
                     skipped += 1;
@@ -126,7 +128,7 @@ impl Map {
             }
 
             for orig in &fixes.merge_short_roads {
-                if self.merge_short_road(*orig, None).is_some() {
+                if self.merge_short_road(*orig, &mut dummy_fixes).is_some() {
                     applied += 1;
                 } else {
                     skipped += 1;
@@ -168,12 +170,12 @@ impl Map {
     pub fn delete_road(
         &mut self,
         orig: OriginalRoad,
-        fixes: Option<&mut MapFixes>,
+        fixes: &mut MapFixes,
     ) -> Option<StableRoadID> {
         let r = self.find_r(orig)?;
         let road = self.roads.remove(&r).unwrap();
         if road.osm_tags.get(osm::SYNTHETIC) != Some(&"true".to_string()) {
-            fixes.map(|f| f.delete_roads.push(orig));
+            fixes.delete_roads.push(orig);
         }
         Some(r)
     }
@@ -185,13 +187,13 @@ impl Map {
     pub fn delete_intersection(
         &mut self,
         orig: OriginalIntersection,
-        fixes: Option<&mut MapFixes>,
+        fixes: &mut MapFixes,
     ) -> Option<StableIntersectionID> {
         let id = self.find_i(orig)?;
         assert!(self.can_delete_intersection(id));
         let i = self.intersections.remove(&id).unwrap();
         if i.synthetic {
-            fixes.map(|f| f.delete_intersections.push(orig));
+            fixes.delete_intersections.push(orig);
         }
         Some(id)
     }
@@ -231,7 +233,7 @@ impl Map {
     pub fn merge_short_road(
         &mut self,
         orig: OriginalRoad,
-        fixes: Option<&mut MapFixes>,
+        fixes: &mut MapFixes,
     ) -> Option<(StableRoadID, StableIntersectionID, Vec<StableRoadID>)> {
         let id = self.find_r(orig)?;
 
@@ -265,7 +267,7 @@ impl Map {
             }
         }
 
-        fixes.map(|f| f.merge_short_roads.push(orig));
+        fixes.merge_short_roads.push(orig);
 
         Some((id, i2, fixed))
     }
@@ -425,6 +427,17 @@ pub struct MapFixes {
 }
 
 impl MapFixes {
+    pub fn new() -> MapFixes {
+        MapFixes {
+            delete_roads: Vec::new(),
+            delete_intersections: Vec::new(),
+            add_intersections: Vec::new(),
+            add_roads: Vec::new(),
+            merge_short_roads: Vec::new(),
+            override_tags: BTreeMap::new(),
+        }
+    }
+
     // The groups of fixes should be applicable in any order, theoretically...
     pub fn load(timer: &mut Timer) -> BTreeMap<String, MapFixes> {
         // Make sure different groups of fixes don't conflict.

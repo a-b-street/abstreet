@@ -22,11 +22,11 @@ const BACKWARDS: Direction = false;
 
 pub struct Model {
     pub map: raw_data::Map,
-    all_fixes: BTreeMap<String, MapFixes>,
     // TODO Not sure this should be pub...
     pub showing_pts: Option<StableRoadID>,
 
     exclude_bldgs: bool,
+    fixes: MapFixes,
     edit_fixes: Option<String>,
     world: World<ID>,
 }
@@ -36,10 +36,10 @@ impl Model {
     pub fn blank() -> Model {
         Model {
             map: raw_data::Map::blank(String::new()),
-            all_fixes: BTreeMap::new(),
             showing_pts: None,
 
             exclude_bldgs: false,
+            fixes: MapFixes::new(),
             edit_fixes: None,
             world: World::new(&Bounds::new()),
         }
@@ -53,25 +53,15 @@ impl Model {
     ) -> Model {
         let mut timer = Timer::new("import map");
         let mut model = Model::blank();
-        model.all_fixes = MapFixes::load(&mut timer);
         model.exclude_bldgs = exclude_bldgs;
         model.edit_fixes = edit_fixes;
         model.map = read_binary(path, &mut timer).unwrap();
-        model.map.apply_fixes(&model.all_fixes, &mut timer);
 
+        let mut all_fixes = MapFixes::load(&mut timer);
+        model.map.apply_fixes(&all_fixes, &mut timer);
         if let Some(ref name) = model.edit_fixes {
-            if !model.all_fixes.contains_key(name) {
-                model.all_fixes.insert(
-                    name.clone(),
-                    MapFixes {
-                        delete_roads: Vec::new(),
-                        delete_intersections: Vec::new(),
-                        add_intersections: Vec::new(),
-                        add_roads: Vec::new(),
-                        merge_short_roads: Vec::new(),
-                        override_tags: BTreeMap::new(),
-                    },
-                );
+            if let Some(fixes) = all_fixes.remove(name) {
+                model.fixes = fixes;
             }
         }
 
@@ -126,7 +116,6 @@ impl Model {
             println!("Not editing any fixes, so can't save them");
             return;
         };
-        let mut fixes = self.all_fixes.remove(&name).unwrap();
 
         // It's easiest to just go back and detect all of the added roads and intersections. But we
         // have to avoid picking up changes from other fixes.
@@ -136,32 +125,33 @@ impl Model {
         // repeated.
         let mut ignore_roads: BTreeSet<OriginalRoad> = BTreeSet::new();
         let mut ignore_intersections: BTreeSet<OriginalIntersection> = BTreeSet::new();
-        for f in self.all_fixes.values() {
-            let (r, i) = f.all_touched_ids();
-            ignore_roads.extend(r);
-            ignore_intersections.extend(i);
+
+        for (n, f) in MapFixes::load(&mut Timer::throwaway()) {
+            if n != name {
+                let (r, i) = f.all_touched_ids();
+                ignore_roads.extend(r);
+                ignore_intersections.extend(i);
+            }
         }
 
-        fixes.add_intersections.clear();
-        fixes.add_roads.clear();
+        self.fixes.add_intersections.clear();
+        self.fixes.add_roads.clear();
         for i in self.map.intersections.values() {
             if i.synthetic && !ignore_intersections.contains(&i.orig_id) {
-                fixes.add_intersections.push(i.clone());
+                self.fixes.add_intersections.push(i.clone());
             }
         }
         for r in self.map.roads.values() {
             if r.osm_tags.get(osm::SYNTHETIC) == Some(&"true".to_string())
                 && !ignore_roads.contains(&r.orig_id)
             {
-                fixes.add_roads.push(r.clone());
+                self.fixes.add_roads.push(r.clone());
             }
         }
 
         let path = abstutil::path_fixes(&name);
-        abstutil::write_json(&path, &fixes).unwrap();
+        abstutil::write_json(&path, &self.fixes).unwrap();
         println!("Wrote {}", path);
-
-        self.all_fixes.insert(name, fixes);
     }
 
     fn compute_bounds(&self) -> Bounds {
@@ -314,8 +304,7 @@ impl Model {
             println!("Can't delete intersection used by roads");
             return;
         }
-        // TODO pass in fixes
-        let id = self.map.delete_intersection(orig, None).unwrap();
+        let id = self.map.delete_intersection(orig, &mut self.fixes).unwrap();
         self.world.delete(ID::Intersection(id));
     }
 
@@ -337,7 +326,7 @@ impl Model {
         if r.osm_tags.get(osm::SYNTHETIC) == Some(&"true".to_string()) {
             return;
         }
-        if let Some(ref name) = self.edit_fixes {
+        /*if let Some(ref name) = self.edit_fixes {
             self.all_fixes
                 .get_mut(name)
                 .unwrap()
@@ -345,7 +334,7 @@ impl Model {
                 .insert(r.orig_id, r.osm_tags.clone());
         } else {
             println!("This won't be saved in any MapFixes!");
-        }
+        }*/
     }
 
     fn road_deleted(&mut self, id: StableRoadID) {
@@ -519,8 +508,7 @@ impl Model {
         self.road_deleted(id);
 
         let orig = self.map.roads[&id].orig_id;
-        // TODO pass in fixes
-        self.map.delete_road(orig, None).unwrap();
+        self.map.delete_road(orig, &mut self.fixes).unwrap();
     }
 
     pub fn get_road_spec(&self, id: StableRoadID) -> String {
@@ -668,8 +656,8 @@ impl Model {
         self.road_deleted(id);
 
         let orig = self.map.roads[&id].orig_id;
-        // TODO pass fixes
-        let (_, deleted_i, changed_roads) = self.map.merge_short_road(orig, None).unwrap();
+        let (_, deleted_i, changed_roads) =
+            self.map.merge_short_road(orig, &mut self.fixes).unwrap();
 
         self.world.delete(ID::Intersection(deleted_i));
         for r in changed_roads {
