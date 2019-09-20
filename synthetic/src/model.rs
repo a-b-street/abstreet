@@ -606,6 +606,11 @@ impl Model {
     pub fn merge_r(&mut self, id: StableRoadID, prerender: &Prerender) {
         assert!(self.showing_pts != Some(id));
 
+        if !self.map.can_merge_short_road(id) {
+            println!("Can't merge this road; intersection types must differ or there must be synthetic stuff");
+            return;
+        }
+
         // TODO Bit hacky, but we have to do this before doing the mutation, so we know the number
         // of lanes and can generate all the IDs.
         self.road_deleted(id);

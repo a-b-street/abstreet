@@ -220,12 +220,33 @@ impl Map {
         }
     }
 
+    pub fn can_merge_short_road(&self, id: StableRoadID) -> bool {
+        let road = &self.roads[&id];
+        let it1 = self.intersections[&road.i1].intersection_type;
+        let it2 = self.intersections[&road.i2].intersection_type;
+        if it1 != it2 {
+            return false;
+        }
+
+        for r in self.roads_per_intersection(road.i2) {
+            if self.roads[&r].osm_tags.get(osm::SYNTHETIC) == Some(&"true".to_string()) {
+                return false;
+            }
+        }
+        if self.intersections[&road.i1].synthetic || self.intersections[&road.i2].synthetic {
+            return false;
+        }
+
+        true
+    }
+
     // (the deleted intersection, list of modified roads connected to deleted intersection)
     pub fn merge_short_road(
         &mut self,
         id: StableRoadID,
         fixes: &mut MapFixes,
     ) -> Option<(StableIntersectionID, Vec<StableRoadID>)> {
+        assert!(self.can_merge_short_road(id));
         let (i1, i2) = {
             let r = self.roads.remove(&id).unwrap();
             fixes.merge_short_roads.push(r.orig_id);
