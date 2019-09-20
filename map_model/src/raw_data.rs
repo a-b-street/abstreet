@@ -403,6 +403,7 @@ pub struct Intersection {
     pub label: Option<String>,
     pub orig_id: OriginalIntersection,
     pub synthetic: bool,
+    pub osm_node_id: i64,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

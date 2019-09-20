@@ -219,6 +219,28 @@ impl Model {
     }
 
     pub fn create_i(&mut self, point: Pt2D, prerender: &Prerender) {
+        // Since these are negative, they shouldn't conflict with OSM IDs.
+        let mut osm_node_id = -1
+            * (std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_secs() as i64);
+        // Silly edge case: creating many intersections in the same second. ;)
+        loop {
+            let mut ok = true;
+            for i in self.map.intersections.values() {
+                if i.osm_node_id == osm_node_id {
+                    ok = false;
+                    break;
+                }
+            }
+            if ok {
+                break;
+            } else {
+                osm_node_id -= 1;
+            }
+        }
+
         let id = self
             .map
             .create_intersection(raw_data::Intersection {
@@ -229,6 +251,7 @@ impl Model {
                     point: point.forcibly_to_gps(&self.map.gps_bounds),
                 },
                 synthetic: true,
+                osm_node_id,
             })
             .unwrap();
         self.intersection_added(id, prerender);

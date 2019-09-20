@@ -16,6 +16,8 @@ pub fn extract_osm(
     Vec<raw_data::Road>,
     // Traffic signals
     HashSet<HashablePt2D>,
+    // OSM Node IDs
+    HashMap<HashablePt2D, i64>,
 ) {
     let (reader, done) = FileWithProgress::new(osm_path).unwrap();
     let doc = osm_xml::OSM::parse(reader).expect("OSM parsing failed");
@@ -41,16 +43,18 @@ pub fn extract_osm(
     let mut id_to_way: HashMap<i64, Vec<Pt2D>> = HashMap::new();
     let mut roads: Vec<raw_data::Road> = Vec::new();
     let mut traffic_signals: HashSet<HashablePt2D> = HashSet::new();
+    let mut osm_node_ids = HashMap::new();
 
     timer.start_iter("processing OSM nodes", doc.nodes.len());
     for node in doc.nodes.values() {
         timer.next();
+        let pt =
+            Pt2D::forcibly_from_gps(LonLat::new(node.lon, node.lat), &map.gps_bounds).to_hashable();
+        osm_node_ids.insert(pt, node.id);
+
         let tags = tags_to_map(&node.tags);
         if tags.get(osm::HIGHWAY) == Some(&"traffic_signals".to_string()) {
-            traffic_signals.insert(
-                Pt2D::forcibly_from_gps(LonLat::new(node.lon, node.lat), &map.gps_bounds)
-                    .to_hashable(),
-            );
+            traffic_signals.insert(pt);
         }
     }
 
@@ -193,7 +197,7 @@ pub fn extract_osm(
         }
     }
 
-    (map, roads, traffic_signals)
+    (map, roads, traffic_signals, osm_node_ids)
 }
 
 fn tags_to_map(raw_tags: &[osm_xml::Tag]) -> BTreeMap<String, String> {

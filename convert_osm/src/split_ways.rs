@@ -4,10 +4,11 @@ use map_model::{osm, raw_data, IntersectionType};
 use std::collections::{HashMap, HashSet};
 
 pub fn split_up_roads(
-    (mut map, mut roads, traffic_signals): (
+    (mut map, mut roads, traffic_signals, osm_node_ids): (
         raw_data::Map,
         Vec<raw_data::Road>,
         HashSet<HashablePt2D>,
+        HashMap<HashablePt2D, i64>,
     ),
     timer: &mut Timer,
 ) -> raw_data::Map {
@@ -50,6 +51,7 @@ pub fn split_up_roads(
                 },
                 label: None,
                 synthetic: false,
+                osm_node_id: osm_node_ids[pt],
             },
         );
     }
