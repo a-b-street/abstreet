@@ -231,46 +231,27 @@ impl Model {
                 synthetic: true,
             })
             .unwrap();
-
         self.intersection_added(id, prerender);
     }
 
     pub fn move_i(&mut self, id: StableIntersectionID, point: Pt2D, prerender: &Prerender) {
         self.world.delete(ID::Intersection(id));
-
-        let gps_pt = {
-            let i = self.map.intersections.get_mut(&id).unwrap();
-            i.point = point;
-            i.orig_id.point = point.forcibly_to_gps(&self.map.gps_bounds);
-            i.orig_id.point
-        };
-
+        let orig = self.map.intersections[&id].orig_id;
+        let (id, fixed) = self.map.move_intersection(orig, point).unwrap();
         self.intersection_added(id, prerender);
-
-        // Now update all the roads.
-        for r in self.map.roads_per_intersection(id) {
+        for r in fixed {
             self.road_deleted(r);
-
-            let road = self.map.roads.get_mut(&r).unwrap();
-            if road.i1 == id {
-                road.center_points[0] = point;
-                // TODO This is valid for synthetic roads, but maybe weird otherwise...
-                road.orig_id.pt1 = gps_pt;
-            } else {
-                assert_eq!(road.i2, id);
-                *road.center_points.last_mut().unwrap() = point;
-                road.orig_id.pt2 = gps_pt;
-            }
-
             self.road_added(r, prerender);
         }
     }
 
     pub fn set_i_label(&mut self, id: StableIntersectionID, label: String, prerender: &Prerender) {
         self.world.delete(ID::Intersection(id));
-
-        self.map.intersections.get_mut(&id).unwrap().label = Some(label);
-
+        let (orig, it) = {
+            let i = &self.map.intersections[&id];
+            (i.orig_id, i.intersection_type)
+        };
+        let id = self.map.modify_intersection(orig, it, Some(label)).unwrap();
         self.intersection_added(id, prerender);
     }
 
@@ -280,21 +261,22 @@ impl Model {
 
     pub fn toggle_i_type(&mut self, id: StableIntersectionID, prerender: &Prerender) {
         self.world.delete(ID::Intersection(id));
-
-        let num_roads = self.map.roads_per_intersection(id).len();
-        let i = self.map.intersections.get_mut(&id).unwrap();
-        i.intersection_type = match i.intersection_type {
-            IntersectionType::StopSign => IntersectionType::TrafficSignal,
-            IntersectionType::TrafficSignal => {
-                if num_roads == 1 {
-                    IntersectionType::Border
-                } else {
-                    IntersectionType::StopSign
+        let (orig, it, label) = {
+            let i = &self.map.intersections[&id];
+            let it = match i.intersection_type {
+                IntersectionType::StopSign => IntersectionType::TrafficSignal,
+                IntersectionType::TrafficSignal => {
+                    if self.map.roads_per_intersection(id).len() == 1 {
+                        IntersectionType::Border
+                    } else {
+                        IntersectionType::StopSign
+                    }
                 }
-            }
-            IntersectionType::Border => IntersectionType::StopSign,
+                IntersectionType::Border => IntersectionType::StopSign,
+            };
+            (i.orig_id, it, i.label.clone())
         };
-
+        let id = self.map.modify_intersection(orig, it, label).unwrap();
         self.intersection_added(id, prerender);
     }
 
@@ -319,22 +301,6 @@ impl Model {
         for obj in self.lanes(id) {
             self.world.add(prerender, obj);
         }
-    }
-
-    fn road_tags_modified(&mut self, id: StableRoadID) {
-        let r = &self.map.roads[&id];
-        if r.osm_tags.get(osm::SYNTHETIC) == Some(&"true".to_string()) {
-            return;
-        }
-        /*if let Some(ref name) = self.edit_fixes {
-            self.all_fixes
-                .get_mut(name)
-                .unwrap()
-                .override_tags
-                .insert(r.orig_id, r.osm_tags.clone());
-        } else {
-            println!("This won't be saved in any MapFixes!");
-        }*/
     }
 
     fn road_deleted(&mut self, id: StableRoadID) {
@@ -406,13 +372,11 @@ impl Model {
         self.road_deleted(id);
 
         if let Some(s) = RoadSpec::parse(spec.clone()) {
+            let mut osm_tags = self.map.roads[&id].osm_tags.clone();
+            osm_tags.insert(osm::SYNTHETIC_LANES.to_string(), s.to_string());
             self.map
-                .roads
-                .get_mut(&id)
-                .unwrap()
-                .osm_tags
-                .insert(osm::SYNTHETIC_LANES.to_string(), s.to_string());
-            self.road_tags_modified(id);
+                .override_tags(self.map.roads[&id].orig_id, osm_tags, &mut self.fixes)
+                .unwrap();
         } else {
             println!("Bad RoadSpec: {}", spec);
         }
@@ -423,22 +387,25 @@ impl Model {
     pub fn swap_lanes(&mut self, id: StableRoadID, prerender: &Prerender) {
         self.road_deleted(id);
 
-        let r = self.map.roads.get_mut(&id).unwrap();
-        let mut lanes = r.get_spec();
+        let (orig, mut lanes, mut osm_tags) = {
+            let r = &self.map.roads[&id];
+            (r.orig_id, r.get_spec(), r.osm_tags.clone())
+        };
         mem::swap(&mut lanes.fwd, &mut lanes.back);
-        r.osm_tags
-            .insert(osm::SYNTHETIC_LANES.to_string(), lanes.to_string());
+        osm_tags.insert(osm::SYNTHETIC_LANES.to_string(), lanes.to_string());
 
-        let fwd_label = r.osm_tags.remove(osm::FWD_LABEL);
-        let back_label = r.osm_tags.remove(osm::BACK_LABEL);
+        let fwd_label = osm_tags.remove(osm::FWD_LABEL);
+        let back_label = osm_tags.remove(osm::BACK_LABEL);
         if let Some(l) = fwd_label {
-            r.osm_tags.insert(osm::BACK_LABEL.to_string(), l);
+            osm_tags.insert(osm::BACK_LABEL.to_string(), l);
         }
         if let Some(l) = back_label {
-            r.osm_tags.insert(osm::FWD_LABEL.to_string(), l);
+            osm_tags.insert(osm::FWD_LABEL.to_string(), l);
         }
 
-        self.road_tags_modified(id);
+        self.map
+            .override_tags(orig, osm_tags, &mut self.fixes)
+            .unwrap();
         self.road_added(id, prerender);
     }
 
@@ -450,16 +417,16 @@ impl Model {
     ) {
         self.road_deleted(pair.0);
 
-        let r = self.map.roads.get_mut(&pair.0).unwrap();
+        let mut osm_tags = self.map.roads[&pair.0].osm_tags.clone();
         if pair.1 {
-            r.osm_tags
-                .insert(osm::FWD_LABEL.to_string(), label.to_string());
+            osm_tags.insert(osm::FWD_LABEL.to_string(), label.to_string());
         } else {
-            r.osm_tags
-                .insert(osm::BACK_LABEL.to_string(), label.to_string());
+            osm_tags.insert(osm::BACK_LABEL.to_string(), label.to_string());
         }
 
-        self.road_tags_modified(pair.0);
+        self.map
+            .override_tags(self.map.roads[&pair.0].orig_id, osm_tags, &mut self.fixes)
+            .unwrap();
         self.road_added(pair.0, prerender);
     }
 
@@ -481,11 +448,13 @@ impl Model {
     ) {
         self.road_deleted(id);
 
-        let r = self.map.roads.get_mut(&id).unwrap();
-        r.osm_tags.insert(osm::NAME.to_string(), name);
-        r.osm_tags.insert(osm::MAXSPEED.to_string(), speed);
+        let mut osm_tags = self.map.roads[&id].osm_tags.clone();
+        osm_tags.insert(osm::NAME.to_string(), name);
+        osm_tags.insert(osm::MAXSPEED.to_string(), speed);
 
-        self.road_tags_modified(id);
+        self.map
+            .override_tags(self.map.roads[&id].orig_id, osm_tags, &mut self.fixes)
+            .unwrap();
         self.road_added(id, prerender);
     }
 
@@ -625,7 +594,11 @@ impl Model {
         self.stop_showing_pts();
         self.road_deleted(id);
 
-        self.map.roads.get_mut(&id).unwrap().center_points[idx] = point;
+        let mut pts = self.map.roads[&id].center_points.clone();
+        pts[idx] = point;
+        self.map
+            .override_road_points(self.map.roads[&id].orig_id, pts)
+            .unwrap();
 
         self.road_added(id, prerender);
         self.show_r_points(id, prerender);
@@ -637,12 +610,11 @@ impl Model {
         self.stop_showing_pts();
         self.road_deleted(id);
 
+        let mut pts = self.map.roads[&id].center_points.clone();
+        pts.remove(idx);
         self.map
-            .roads
-            .get_mut(&id)
-            .unwrap()
-            .center_points
-            .remove(idx);
+            .override_road_points(self.map.roads[&id].orig_id, pts)
+            .unwrap();
 
         self.road_added(id, prerender);
         self.show_r_points(id, prerender);
@@ -679,29 +651,31 @@ impl Model {
     }
 
     pub fn create_b(&mut self, center: Pt2D, prerender: &Prerender) {
-        let id = StableBuildingID(self.map.buildings.keys().max().unwrap().0 + 1);
-        self.map.buildings.insert(
-            id,
-            raw_data::Building {
+        let id = self
+            .map
+            .create_building(raw_data::Building {
                 polygon: Polygon::rectangle(center, BUILDING_LENGTH, BUILDING_LENGTH),
                 osm_tags: BTreeMap::new(),
                 osm_way_id: SYNTHETIC_OSM_WAY_ID,
                 parking: None,
-            },
-        );
-
+            })
+            .unwrap();
         self.bldg_added(id, prerender);
     }
 
     pub fn move_b(&mut self, id: StableBuildingID, new_center: Pt2D, prerender: &Prerender) {
         self.world.delete(ID::Building(id));
 
-        let b = self.map.buildings.get_mut(&id).unwrap();
-        let old_center = b.polygon.center();
-        b.polygon = b.polygon.translate(
-            Distance::meters(new_center.x() - old_center.x()),
-            Distance::meters(new_center.y() - old_center.y()),
-        );
+        let (polygon, osm_tags) = {
+            let b = &self.map.buildings[&id];
+            let old_center = b.polygon.center();
+            let polygon = b.polygon.translate(
+                Distance::meters(new_center.x() - old_center.x()),
+                Distance::meters(new_center.y() - old_center.y()),
+            );
+            (polygon, b.osm_tags.clone())
+        };
+        self.map.modify_building(id, polygon, osm_tags);
 
         self.bldg_added(id, prerender);
     }
@@ -709,12 +683,13 @@ impl Model {
     pub fn set_b_label(&mut self, id: StableBuildingID, label: String, prerender: &Prerender) {
         self.world.delete(ID::Building(id));
 
-        self.map
-            .buildings
-            .get_mut(&id)
-            .unwrap()
-            .osm_tags
-            .insert(osm::LABEL.to_string(), label);
+        let (polygon, osm_tags) = {
+            let b = &self.map.buildings[&id];
+            let mut osm_tags = b.osm_tags.clone();
+            osm_tags.insert(osm::LABEL.to_string(), label);
+            (b.polygon.clone(), osm_tags)
+        };
+        self.map.modify_building(id, polygon, osm_tags);
 
         self.bldg_added(id, prerender);
     }
@@ -726,7 +701,7 @@ impl Model {
     pub fn delete_b(&mut self, id: StableBuildingID) {
         self.world.delete(ID::Building(id));
 
-        self.map.buildings.remove(&id);
+        self.map.delete_building(id);
     }
 }
 

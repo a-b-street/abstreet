@@ -136,7 +136,10 @@ impl Map {
             }
 
             for (orig, osm_tags) in &fixes.override_tags {
-                if self.override_tags(*orig, osm_tags.clone()).is_some() {
+                if self
+                    .override_tags(*orig, osm_tags.clone(), &mut dummy_fixes)
+                    .is_some()
+                {
                     applied += 1;
                 } else {
                     skipped += 1;
@@ -276,16 +279,105 @@ impl Map {
         &mut self,
         orig: OriginalRoad,
         osm_tags: BTreeMap<String, String>,
+        fixes: &mut MapFixes,
     ) -> Option<StableRoadID> {
         let r = self.find_r(orig)?;
-        self.roads.get_mut(&r).unwrap().osm_tags = osm_tags;
+        let road = self.roads.get_mut(&r).unwrap();
+        road.osm_tags = osm_tags;
+        if road.osm_tags.get(osm::SYNTHETIC) != Some(&"true".to_string()) {
+            fixes.override_tags.insert(orig, road.osm_tags.clone());
+        }
         Some(r)
     }
 }
 
 // Mutations not recorded in MapFixes yet
 // TODO Fix that!
-impl Map {}
+impl Map {
+    pub fn move_intersection(
+        &mut self,
+        orig: OriginalIntersection,
+        point: Pt2D,
+    ) -> Option<(StableIntersectionID, Vec<StableRoadID>)> {
+        // TODO Only for synthetic intersections, right?
+        let id = self.find_i(orig)?;
+
+        let gps_pt = {
+            let i = self.intersections.get_mut(&id).unwrap();
+            i.point = point;
+            i.orig_id.point = point.forcibly_to_gps(&self.gps_bounds);
+            i.orig_id.point
+        };
+
+        // Update all the roads.
+        let mut fixed = Vec::new();
+        for r in self.roads_per_intersection(id) {
+            fixed.push(r);
+            let road = self.roads.get_mut(&r).unwrap();
+            if road.i1 == id {
+                road.center_points[0] = point;
+                // TODO This is valid for synthetic roads, but maybe weird otherwise...
+                road.orig_id.pt1 = gps_pt;
+            } else {
+                assert_eq!(road.i2, id);
+                *road.center_points.last_mut().unwrap() = point;
+                road.orig_id.pt2 = gps_pt;
+            }
+        }
+
+        Some((id, fixed))
+    }
+
+    pub fn modify_intersection(
+        &mut self,
+        orig: OriginalIntersection,
+        it: IntersectionType,
+        label: Option<String>,
+    ) -> Option<StableIntersectionID> {
+        let id = self.find_i(orig)?;
+        let i = self.intersections.get_mut(&id).unwrap();
+        i.intersection_type = it;
+        i.label = label;
+        Some(id)
+    }
+
+    // This shouldn't modify the endpoints, so don't have to mess around with intersections.
+    pub fn override_road_points(
+        &mut self,
+        orig: OriginalRoad,
+        pts: Vec<Pt2D>,
+    ) -> Option<StableRoadID> {
+        let id = self.find_r(orig)?;
+        self.roads.get_mut(&id).unwrap().center_points = pts;
+        Some(id)
+    }
+
+    pub fn create_building(&mut self, bldg: Building) -> Option<StableBuildingID> {
+        if bldg.polygon.center().to_gps(&self.gps_bounds).is_some() {
+            let id = StableBuildingID(self.buildings.keys().max().unwrap().0 + 1);
+            self.buildings.insert(id, bldg);
+            Some(id)
+        } else {
+            None
+        }
+    }
+
+    // TODO Need OriginalBuilding ;)
+    pub fn modify_building(
+        &mut self,
+        id: StableBuildingID,
+        polygon: Polygon,
+        osm_tags: BTreeMap<String, String>,
+    ) {
+        let bldg = self.buildings.get_mut(&id).unwrap();
+        bldg.polygon = polygon;
+        bldg.osm_tags = osm_tags;
+    }
+
+    pub fn delete_building(&mut self, id: StableBuildingID) {
+        self.buildings.remove(&id);
+    }
+}
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Road {
