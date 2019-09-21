@@ -1,10 +1,10 @@
 use abstutil::{Counter, Timer};
-use geom::{HashablePt2D, Pt2D};
+use geom::HashablePt2D;
 use map_model::{osm, raw_data, IntersectionType};
 use std::collections::{HashMap, HashSet};
 
 pub fn split_up_roads(
-    (mut map, mut roads, traffic_signals, osm_node_ids): (
+    (mut map, roads, traffic_signals, osm_node_ids): (
         raw_data::Map,
         Vec<raw_data::Road>,
         HashSet<HashablePt2D>,
@@ -66,7 +66,7 @@ pub fn split_up_roads(
         let endpt2 = pt_to_intersection[&orig_road.center_points.last().unwrap().to_hashable()];
         r.i1 = endpt1;
 
-        for (idx, pt) in orig_road.center_points.iter().enumerate() {
+        for pt in &orig_road.center_points {
             pts.push(*pt);
             if pts.len() == 1 {
                 continue;
