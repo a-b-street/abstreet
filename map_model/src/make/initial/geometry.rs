@@ -93,15 +93,16 @@ fn generalized_trim_back(
         };
 
         // Always trim back a minimum amount, if possible.
-        let mut shortest_center =
-            if road_center.length() >= DEGENERATE_INTERSECTION_HALF_LENGTH + geom::EPSILON_DIST {
-                road_center.exact_slice(
-                    Distance::ZERO,
-                    road_center.length() - DEGENERATE_INTERSECTION_HALF_LENGTH,
-                )
-            } else {
-                road_center.clone()
-            };
+        let mut shortest_center = if road_center.length()
+            >= DEGENERATE_INTERSECTION_HALF_LENGTH + 3.0 * geom::EPSILON_DIST
+        {
+            road_center.exact_slice(
+                Distance::ZERO,
+                road_center.length() - DEGENERATE_INTERSECTION_HALF_LENGTH,
+            )
+        } else {
+            road_center.clone()
+        };
 
         for (r2, pl2, _) in &road_lines {
             if r1 == r2 {
