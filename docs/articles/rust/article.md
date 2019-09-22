@@ -13,7 +13,6 @@ Background:
     - [Wizard and WrappedWizard](#wizard-and-wrappedwizard)
   - [Test runner](#test-runner)
   - [Grievances](#grievances)
-  - [Appendix: Code organization](#appendix-code-organization)
 
 <!-- Added by: dabreegster, at: Mon Apr 22 15:46:36 PDT 2019 -->
 
@@ -124,41 +123,3 @@ underneath), and act as a min-heap instead of a max-heap.
 
 Otherwise, Rust is amazing! Sometimes the borrow checker makes me express
 something awkwardly, but mostly it's forced me to avoid bad ideas.
-
-## Appendix: Code organization
-
-If you're going to dig into the code, it helps to know what all the crates are.
-The most interesting crates are `map_model`, `sim`, and `game`.
-
-Constructing the map:
-
-- `convert_osm`: extract useful data from OpenStreetMap and other data sources,
-  emit intermediate map format
-- `gtfs`: simple library to just extract coordinates of bus stops
-- `kml`: extract shapes from KML shapefiles
-- `map_model`: the final representation of the map, also conversion from the
-  intermediate map format into the final format
-- `precompute`: small tool to run the second stage of map conversion and write
-  final output
-- `popdat`: importing extra census-based data specific to Seattle, optional
-  right now
-- `fix_map_geom`: tool to manually merge/delete weird intersections and short
-  roads
-- `synthetic`: GUI for creating and editing "synthetic" maps from scratch
-
-Traffic simulation:
-
-- `sim`: all of the agent-based simulation logic
-- `headless`: tool to run a simulation without any visualization
-
-Graphics:
-
-- `game`: the GUI and main gameplay
-- `ezgui`: a GUI and 2D rendering library built on glium
-
-Common utilities:
-
-- `abstutil`: a grab-bag of IO helpers, timing and logging utilities, etc
-- `geom`: types for GPS and map-space points, lines, angles, polylines,
-  polygons, circles, durations, speeds
-- `tests`: a custom test runner and some tests using it

@@ -14,8 +14,9 @@ Watching overall traffic patterns and zooming into a few slow areas:
 
 ![exploring_traffic](docs/videos/exploring_traffic.gif)
 
-## Technical articles
+## Documentation for developers
 
+- [Developer onboarding](docs/onboarding.md)
 - [Map model](docs/articles/map/article.md)
 - [Traffic simulation](docs/articles/trafficsim/article.md)
 - [Rust implementation notes](docs/articles/rust/article.md)

@@ -29,3 +29,7 @@ There are Seattleisms baked into the code.
 - `import.sh` should be generalized.
 - The driving side of the road is hard-coded to the right. Look for "driving on
   the left" in `map_model/src/make/half_map.rs`.
+- On-street parking is inferred from a dataset specific to King County GIS. If
+  your city has this information elsewhere, it should be easy to import.
+- Demand data to generate a realistic set of trips comes from an agency specific
+  to the Puget Sound, but again, importing this from other sources isn't hard.
