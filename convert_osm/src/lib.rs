@@ -62,8 +62,8 @@ fn check_orig_ids(map: &raw_data::Map) {
         for (id, r) in &map.roads {
             if let Some(id2) = ids.get(&r.orig_id) {
                 panic!(
-                    "Both {} and {} have the same orig_id: {:?}",
-                    id, id2, r.orig_id
+                    "Both {} and {} have the same orig_id: {:?}. {:?} vs {:?}",
+                    id, id2, r.orig_id, map.roads[id], map.roads[id2]
                 );
             } else {
                 ids.insert(r.orig_id, *id);
@@ -76,8 +76,8 @@ fn check_orig_ids(map: &raw_data::Map) {
         for (id, i) in &map.intersections {
             if let Some(id2) = ids.get(&i.orig_id) {
                 panic!(
-                    "Both {} and {} have the same orig_id: {:?}",
-                    id, id2, i.orig_id
+                    "Both {} and {} have the same orig_id: {:?}. {:?} vs {:?}",
+                    id, id2, i.orig_id, map.intersections[id], map.intersections[id2]
                 );
             } else {
                 ids.insert(i.orig_id, *id);

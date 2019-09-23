@@ -2,7 +2,7 @@ use crate::make::get_lane_types;
 pub use crate::make::{remove_disconnected_roads, Hint, Hints, InitialMap};
 use crate::{osm, AreaType, IntersectionType, OffstreetParking, RoadSpec};
 use abstutil::Timer;
-use geom::{Distance, GPSBounds, LonLat, Polygon, Pt2D};
+use geom::{Distance, GPSBounds, Polygon, Pt2D};
 use gtfs::Route;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -68,11 +68,10 @@ impl Map {
         }
     }
 
+    // TODO pub(crate) for these
     pub fn find_r(&self, orig: OriginalRoad) -> Option<StableRoadID> {
-        // We could quickly bail out by checking that GPSBounds contain the two points, but then
-        // this breaks with valid roads that run very slightly out of bounds.
         for (id, r) in &self.roads {
-            if r.orig_id.pt1.approx_eq(orig.pt1) && r.orig_id.pt2.approx_eq(orig.pt2) {
+            if r.orig_id == orig {
                 return Some(*id);
             }
         }
@@ -81,7 +80,7 @@ impl Map {
 
     pub fn find_i(&self, orig: OriginalIntersection) -> Option<StableIntersectionID> {
         for (id, i) in &self.intersections {
-            if i.orig_id.point.approx_eq(orig.point) {
+            if i.orig_id == orig {
                 return Some(*id);
             }
         }
@@ -167,6 +166,39 @@ impl Map {
         }
         results
     }
+
+    pub fn new_osm_node_id(&self) -> i64 {
+        // Slow, but deterministic.
+        // TODO Argh, these will conflict between different maps! Is that a problem?
+        let mut osm_node_id = -1;
+        loop {
+            if self
+                .intersections
+                .values()
+                .any(|i| i.osm_node_id == osm_node_id)
+            {
+                osm_node_id -= 1;
+            } else {
+                return osm_node_id;
+            }
+        }
+    }
+
+    pub fn new_osm_way_id(&self) -> i64 {
+        // Slow, but deterministic.
+        // TODO Argh, these will conflict between different maps! Is that a problem?
+        let mut osm_way_id = -1;
+        loop {
+            if self.roads.values().any(|r| r.osm_way_id == osm_way_id)
+                || self.buildings.values().any(|b| b.osm_way_id == osm_way_id)
+                || self.areas.iter().any(|a| a.osm_id == osm_way_id)
+            {
+                osm_way_id -= 1;
+            } else {
+                return osm_way_id;
+            }
+        }
+    }
 }
 
 // Mutations
@@ -191,7 +223,10 @@ impl Map {
     }
 
     pub fn create_intersection(&mut self, i: Intersection) -> Option<StableIntersectionID> {
-        if self.gps_bounds.contains(i.orig_id.point) {
+        if self
+            .gps_bounds
+            .contains(i.point.forcibly_to_gps(&self.gps_bounds))
+        {
             let id = StableIntersectionID(self.intersections.keys().max().unwrap().0 + 1);
             self.intersections.insert(id, i.clone());
             Some(id)
@@ -203,10 +238,10 @@ impl Map {
     pub fn create_road(&mut self, mut r: Road) -> Option<StableRoadID> {
         match (
             self.find_i(OriginalIntersection {
-                point: r.orig_id.pt1,
+                osm_node_id: r.orig_id.node1,
             }),
             self.find_i(OriginalIntersection {
-                point: r.orig_id.pt2,
+                osm_node_id: r.orig_id.node2,
             }),
         ) {
             (Some(i1), Some(i2)) => {
@@ -252,9 +287,9 @@ impl Map {
             fixes.merge_short_roads.push(r.orig_id);
             (r.i1, r.i2)
         };
-        let (i1_pt, i1_orig_id_pt) = {
+        let (i1_pt, i1_orig_id) = {
             let i = &self.intersections[&i1];
-            (i.point, i.orig_id.point)
+            (i.point, i.orig_id)
         };
 
         // Arbitrarily keep i1 and destroy i2.
@@ -269,12 +304,14 @@ impl Map {
             if road.i1 == i2 {
                 road.i1 = i1;
                 road.center_points[0] = i1_pt;
-                road.orig_id.pt1 = i1_orig_id_pt;
+                // TODO Should we even do this?
+                road.orig_id.node1 = i1_orig_id.osm_node_id;
             } else {
                 assert_eq!(road.i2, i2);
                 road.i2 = i1;
                 *road.center_points.last_mut().unwrap() = i1_pt;
-                road.orig_id.pt2 = i1_orig_id_pt;
+                // TODO Should we even do this?
+                road.orig_id.node2 = i1_orig_id.osm_node_id;
             }
         }
 
@@ -306,12 +343,7 @@ impl Map {
         point: Pt2D,
     ) -> Option<Vec<StableRoadID>> {
         // TODO Only for synthetic intersections, right?
-        let gps_pt = {
-            let i = self.intersections.get_mut(&id).unwrap();
-            i.point = point;
-            i.orig_id.point = point.forcibly_to_gps(&self.gps_bounds);
-            i.orig_id.point
-        };
+        self.intersections.get_mut(&id).unwrap().point = point;
 
         // Update all the roads.
         let mut fixed = Vec::new();
@@ -320,12 +352,9 @@ impl Map {
             let road = self.roads.get_mut(&r).unwrap();
             if road.i1 == id {
                 road.center_points[0] = point;
-                // TODO This is valid for synthetic roads, but maybe weird otherwise...
-                road.orig_id.pt1 = gps_pt;
             } else {
                 assert_eq!(road.i2, id);
                 *road.center_points.last_mut().unwrap() = point;
-                road.orig_id.pt2 = gps_pt;
             }
         }
 
@@ -423,83 +452,26 @@ pub struct Area {
 }
 
 // A way to refer to roads across many maps.
-#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq)]
+//
+// Previously, OriginalRoad and OriginalIntersection used LonLat to reference objects across maps.
+// This had some problems:
+// - f64's need to be trimmed and compared carefully with epsilon checks.
+// - It was confusing to modify these IDs when applying MapFixes.
+// Using OSM IDs could also have problems as new OSM input is used over time, because MapFixes may
+// refer to stale IDs.
+// TODO Look at some stable ID standard like linear referencing
+// (https://github.com/opentraffic/architecture/issues/1).
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct OriginalRoad {
-    // This is needed to distinguish cul-de-sacs.
-    // ... which is a bit weird, because we remove those in a later stage anyway.
-    // TODO Maybe replace pt1 and pt2 with OSM node IDs? OSM node IDs may change over time
-    // upstream, but as long as everything is internally consistent within A/B Street...
     pub osm_way_id: i64,
-    pub pt1: LonLat,
-    pub pt2: LonLat,
-}
-
-// Since we don't do arithmetic on the original LonLat's, it's reasonably safe to declare these Eq
-// and Ord.
-impl PartialOrd for OriginalRoad {
-    fn partial_cmp(&self, other: &OriginalRoad) -> Option<std::cmp::Ordering> {
-        Some(self.cmp(other))
-    }
-}
-impl Eq for OriginalRoad {}
-impl Ord for OriginalRoad {
-    fn cmp(&self, other: &OriginalRoad) -> std::cmp::Ordering {
-        let ord = self.osm_way_id.cmp(&other.osm_way_id);
-        if ord != std::cmp::Ordering::Equal {
-            return ord;
-        }
-
-        // We know all the f64's are finite. then_with() produces ugly nesting, so manually do it.
-        let ord = self
-            .pt1
-            .longitude
-            .partial_cmp(&other.pt1.longitude)
-            .unwrap();
-        if ord != std::cmp::Ordering::Equal {
-            return ord;
-        }
-        let ord = self.pt1.latitude.partial_cmp(&other.pt1.latitude).unwrap();
-        if ord != std::cmp::Ordering::Equal {
-            return ord;
-        }
-        let ord = self
-            .pt2
-            .longitude
-            .partial_cmp(&other.pt2.longitude)
-            .unwrap();
-        if ord != std::cmp::Ordering::Equal {
-            return ord;
-        }
-        self.pt2.latitude.partial_cmp(&other.pt2.latitude).unwrap()
-    }
+    pub node1: i64,
+    pub node2: i64,
 }
 
 // A way to refer to intersections across many maps.
-#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct OriginalIntersection {
-    pub point: LonLat,
-}
-
-impl PartialOrd for OriginalIntersection {
-    fn partial_cmp(&self, other: &OriginalIntersection) -> Option<std::cmp::Ordering> {
-        Some(self.cmp(other))
-    }
-}
-impl Eq for OriginalIntersection {}
-impl Ord for OriginalIntersection {
-    fn cmp(&self, other: &OriginalIntersection) -> std::cmp::Ordering {
-        // We know all the f64's are finite.
-        self.point
-            .longitude
-            .partial_cmp(&other.point.longitude)
-            .unwrap()
-            .then_with(|| {
-                self.point
-                    .latitude
-                    .partial_cmp(&other.point.latitude)
-                    .unwrap()
-            })
-    }
+    pub osm_node_id: i64,
 }
 
 // Directives from the synthetic crate to apply to the raw_data layer.

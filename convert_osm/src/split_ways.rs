@@ -37,13 +37,12 @@ pub fn split_up_roads(
 
     for (pt, id) in &pt_to_intersection {
         let point = pt.to_pt2d();
+        let osm_node_id = osm_node_ids[pt];
         map.intersections.insert(
             *id,
             raw_data::Intersection {
                 point,
-                orig_id: raw_data::OriginalIntersection {
-                    point: point.forcibly_to_gps(&map.gps_bounds),
-                },
+                orig_id: raw_data::OriginalIntersection { osm_node_id },
                 intersection_type: if traffic_signals.contains(&point.to_hashable()) {
                     IntersectionType::TrafficSignal
                 } else {
@@ -51,7 +50,7 @@ pub fn split_up_roads(
                 },
                 label: None,
                 synthetic: false,
-                osm_node_id: osm_node_ids[pt],
+                osm_node_id,
             },
         );
     }
@@ -81,8 +80,8 @@ pub fn split_up_roads(
                     r.osm_tags
                         .insert(osm::ENDPT_FWD.to_string(), "true".to_string());
                 }
-                r.orig_id.pt1 = pts[0].forcibly_to_gps(&map.gps_bounds);
-                r.orig_id.pt2 = pts.last().unwrap().forcibly_to_gps(&map.gps_bounds);
+                r.orig_id.node1 = osm_node_ids[&pts[0].to_hashable()];
+                r.orig_id.node2 = osm_node_ids[&pts.last().unwrap().to_hashable()];
                 r.center_points = std::mem::replace(&mut pts, Vec::new());
                 // Start a new road
                 map.roads

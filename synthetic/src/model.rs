@@ -14,8 +14,6 @@ const INTERSECTION_RADIUS: Distance = Distance::const_meters(5.0);
 const BUILDING_LENGTH: Distance = Distance::const_meters(30.0);
 const CENTER_LINE_THICKNESS: Distance = Distance::const_meters(0.5);
 
-const SYNTHETIC_OSM_WAY_ID: i64 = -1;
-
 pub type Direction = bool;
 const FORWARDS: Direction = true;
 const BACKWARDS: Direction = false;
@@ -219,28 +217,7 @@ impl Model {
     }
 
     pub fn create_i(&mut self, point: Pt2D, prerender: &Prerender) {
-        // Since these are negative, they shouldn't conflict with OSM IDs.
-        let mut osm_node_id = -1
-            * (std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
-                .as_secs() as i64);
-        // Silly edge case: creating many intersections in the same second. ;)
-        loop {
-            let mut ok = true;
-            for i in self.map.intersections.values() {
-                if i.osm_node_id == osm_node_id {
-                    ok = false;
-                    break;
-                }
-            }
-            if ok {
-                break;
-            } else {
-                osm_node_id -= 1;
-            }
-        }
-
+        let osm_node_id = self.map.new_osm_node_id();
         let id = self
             .map
             .create_intersection(raw_data::Intersection {
@@ -248,7 +225,7 @@ impl Model {
                 intersection_type: IntersectionType::StopSign,
                 label: None,
                 orig_id: raw_data::OriginalIntersection {
-                    point: point.forcibly_to_gps(&self.map.gps_bounds),
+                    osm_node_id,
                 },
                 synthetic: true,
                 osm_node_id,
@@ -346,6 +323,7 @@ impl Model {
             return;
         }
 
+        let osm_way_id = self.map.new_osm_way_id();
         let mut osm_tags = BTreeMap::new();
         osm_tags.insert(osm::SYNTHETIC.to_string(), "true".to_string());
         osm_tags.insert(
@@ -358,17 +336,10 @@ impl Model {
         );
         osm_tags.insert(osm::ENDPT_FWD.to_string(), "true".to_string());
         osm_tags.insert(osm::ENDPT_BACK.to_string(), "true".to_string());
-        osm_tags.insert(
-            osm::OSM_WAY_ID.to_string(),
-            SYNTHETIC_OSM_WAY_ID.to_string(),
-        );
+        osm_tags.insert(osm::OSM_WAY_ID.to_string(), osm_way_id.to_string());
         // Reasonable defaults.
         osm_tags.insert(osm::NAME.to_string(), "Streety McStreetFace".to_string());
         osm_tags.insert(osm::MAXSPEED.to_string(), "25 mph".to_string());
-        let center_points = vec![
-            self.map.intersections[&i1].point,
-            self.map.intersections[&i2].point,
-        ];
 
         let id = self
             .map
@@ -376,13 +347,16 @@ impl Model {
                 i1,
                 i2,
                 orig_id: raw_data::OriginalRoad {
-                    osm_way_id: SYNTHETIC_OSM_WAY_ID,
-                    pt1: center_points[0].forcibly_to_gps(&self.map.gps_bounds),
-                    pt2: center_points[1].forcibly_to_gps(&self.map.gps_bounds),
+                    osm_way_id,
+                    node1: self.map.intersections[&i1].osm_node_id,
+                    node2: self.map.intersections[&i2].osm_node_id,
                 },
-                center_points,
+                center_points: vec![
+                    self.map.intersections[&i1].point,
+                    self.map.intersections[&i2].point,
+                ],
                 osm_tags,
-                osm_way_id: SYNTHETIC_OSM_WAY_ID,
+                osm_way_id,
             })
             .unwrap();
         self.road_added(id, prerender);
@@ -665,7 +639,7 @@ impl Model {
             .create_building(raw_data::Building {
                 polygon: Polygon::rectangle(center, BUILDING_LENGTH, BUILDING_LENGTH),
                 osm_tags: BTreeMap::new(),
-                osm_way_id: SYNTHETIC_OSM_WAY_ID,
+                osm_way_id: self.map.new_osm_way_id(),
                 parking: None,
             })
             .unwrap();

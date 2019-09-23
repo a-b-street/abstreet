@@ -84,12 +84,12 @@ pub fn extract_osm(
         if is_road(&tags) {
             roads.push(raw_data::Road {
                 osm_way_id: way.id,
-                center_points: pts,
                 orig_id: raw_data::OriginalRoad {
                     osm_way_id: way.id,
-                    pt1: gps_pts[0],
-                    pt2: *gps_pts.last().unwrap(),
+                    node1: osm_node_ids[&pts[0].to_hashable()],
+                    node2: osm_node_ids[&pts.last().unwrap().to_hashable()],
                 },
+                center_points: pts,
                 osm_tags: tags,
                 // We'll fill this out later
                 i1: raw_data::StableIntersectionID(0),

@@ -48,7 +48,10 @@ pub fn clip_map(map: &mut raw_data::Map, timer: &mut Timer) {
             .count()
             > 1
         {
-            let copy = map.intersections[&move_i].clone();
+            let mut copy = map.intersections[&move_i].clone();
+            copy.osm_node_id = map.new_osm_node_id();
+            copy.orig_id.osm_node_id = copy.osm_node_id;
+
             // Nothing deletes intersections yet, so this is safe.
             move_i = raw_data::StableIntersectionID(map.intersections.len());
             map.intersections.insert(move_i, copy);
@@ -74,10 +77,10 @@ pub fn clip_map(map: &mut raw_data::Map, timer: &mut Timer) {
                 .points()
                 .clone();
             i.point = *mut_r.center_points.last().unwrap();
-            i.orig_id.point = i.point.to_gps(&map.gps_bounds).unwrap();
             // This has no effect unless we made a copy of the intersection to disconnect it from
             // other roads.
             mut_r.i2 = move_i;
+            mut_r.orig_id.node2 = map.intersections[&move_i].osm_node_id;
         } else {
             mut_r.center_points = center
                 .reversed()
@@ -87,8 +90,8 @@ pub fn clip_map(map: &mut raw_data::Map, timer: &mut Timer) {
                 .points()
                 .clone();
             i.point = mut_r.center_points[0];
-            i.orig_id.point = i.point.to_gps(&map.gps_bounds).unwrap();
             mut_r.i1 = move_i;
+            mut_r.orig_id.node1 = map.intersections[&move_i].osm_node_id;
         }
     }
 
