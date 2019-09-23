@@ -16,9 +16,6 @@
 	- sim state?
 	- Sidewalk, Parking, Street
 
-- make synthetic use raw stuff directly?
-	- lonlat vs pt is annoying; have to use bounds to balloon to world at least once
-
 ## Sim layer
 
 - rename Car->Vehicle?

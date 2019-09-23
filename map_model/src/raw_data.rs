@@ -477,7 +477,7 @@ pub struct OriginalIntersection {
     pub osm_node_id: i64,
 }
 
-// Directives from the synthetic crate to apply to the raw_data layer.
+// Directives from the map_editor crate to apply to the raw_data layer.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct MapFixes {
     pub delete_roads: Vec<OriginalRoad>,

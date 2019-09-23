@@ -26,8 +26,8 @@ pub struct Road {
     pub fwd_width: Distance,
     pub back_width: Distance,
     pub lane_specs: Vec<LaneSpec>,
-    // Copied here from the raw layer, because merge_degenerate_intersection and other fix_map_geom
-    // tools need to modify them.
+    // Copied here from the raw layer, because merge_degenerate_intersection needs to modify this.
+    // TODO Maybe don't need this now?
     pub osm_tags: BTreeMap<String, String>,
     pub override_turn_restrictions_to: Vec<StableRoadID>,
 }

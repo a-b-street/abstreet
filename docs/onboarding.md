@@ -21,9 +21,8 @@ Constructing the map:
   final output
 - `popdat`: importing extra census-based data specific to Seattle, optional
   right now
-- `fix_map_geom`: tool to manually merge/delete weird intersections and short
-  roads
-- `synthetic`: GUI for creating and editing "synthetic" maps from scratch
+- `map_editor`: GUI for modifying geometry of maps and creating maps from
+  scratch
 
 Traffic simulation:
 

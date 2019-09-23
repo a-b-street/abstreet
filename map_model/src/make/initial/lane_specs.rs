@@ -133,7 +133,7 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
     (fwd_side, back_side)
 }
 
-// This is a convenient way for the synthetic map editor to plumb instructions here.
+// This is a convenient way for map_editor to plumb instructions here.
 #[derive(Serialize, Deserialize)]
 pub struct RoadSpec {
     pub fwd: Vec<LaneType>,
