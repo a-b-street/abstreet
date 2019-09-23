@@ -90,9 +90,7 @@ impl Map {
         timer.start("raw_map to InitialMap");
         let gps_bounds = data.gps_bounds.clone();
         let bounds = gps_bounds.to_bounds();
-        let mut initial_map = make::InitialMap::new(data.name.clone(), &data, &bounds, timer);
-        let hints = raw_data::Hints::load();
-        initial_map.apply_hints(&hints, &data, timer);
+        let initial_map = make::InitialMap::new(data.name.clone(), &data, &bounds, timer);
         timer.stop("raw_map to InitialMap");
 
         timer.start("InitialMap to HalfMap");
