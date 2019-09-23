@@ -166,8 +166,6 @@ before the final Map: InitialMap and HalfMap.
     adjacent roads' polylines
   - Deal with short roads and floating point issues by deduping any adjacent
     points closer than 0.1m
-- `make/initial/fix_ramps.rs`: An old hack to deal with weird highway on/off
-  ramps. Probably need to rethink this.
 - `make/initial/mod.rs`: Apply manually-written hints
   - There's a separate crate, `fix_map_geom`, that displays InitialMaps and
     allows me to manually add hints to fix weird geometry problems.

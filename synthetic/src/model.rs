@@ -346,8 +346,8 @@ impl Model {
                 i2,
                 orig_id: raw_data::OriginalRoad {
                     osm_way_id,
-                    node1: self.map.intersections[&i1].osm_node_id,
-                    node2: self.map.intersections[&i2].osm_node_id,
+                    node1: self.map.intersections[&i1].orig_id.osm_node_id,
+                    node2: self.map.intersections[&i2].orig_id.osm_node_id,
                 },
                 center_points: vec![
                     self.map.intersections[&i1].point,

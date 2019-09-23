@@ -1,4 +1,3 @@
-mod fix_ramps;
 mod geometry;
 pub mod lane_specs;
 mod merge;
@@ -167,8 +166,6 @@ impl InitialMap {
 
             i.polygon = geometry::intersection_polygon(i, &mut m.roads, timer);
         }
-
-        fix_ramps::fix_ramps(&mut m, timer);
 
         merge::short_roads(&mut m, timer);
 
