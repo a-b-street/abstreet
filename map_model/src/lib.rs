@@ -9,7 +9,7 @@ mod map;
 mod neighborhood;
 pub mod osm;
 mod pathfind;
-pub mod raw_data;
+pub mod raw;
 mod road;
 mod stop_signs;
 mod traffic_signals;

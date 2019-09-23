@@ -1,26 +1,24 @@
-use crate::raw_data;
+use crate::raw::{RawMap, StableIntersectionID, StableRoadID};
 use abstutil::{retain_btreemap, MultiMap, Timer};
 use std::collections::HashSet;
 
-pub fn remove_disconnected_roads(map: &mut raw_data::Map, timer: &mut Timer) {
+pub fn remove_disconnected_roads(map: &mut RawMap, timer: &mut Timer) {
     timer.start("removing disconnected roads");
     // This is a simple floodfill, not Tarjan's. Assumes all roads bidirectional.
     // All the usizes are indices into the original list of roads
 
-    let mut next_roads: MultiMap<raw_data::StableIntersectionID, raw_data::StableRoadID> =
-        MultiMap::new();
+    let mut next_roads: MultiMap<StableIntersectionID, StableRoadID> = MultiMap::new();
     for (id, r) in &map.roads {
         next_roads.insert(r.i1, *id);
         next_roads.insert(r.i2, *id);
     }
 
-    let mut partitions: Vec<Vec<raw_data::StableRoadID>> = Vec::new();
-    let mut unvisited_roads: HashSet<raw_data::StableRoadID> = map.roads.keys().cloned().collect();
+    let mut partitions: Vec<Vec<StableRoadID>> = Vec::new();
+    let mut unvisited_roads: HashSet<StableRoadID> = map.roads.keys().cloned().collect();
 
     while !unvisited_roads.is_empty() {
-        let mut queue_roads: Vec<raw_data::StableRoadID> =
-            vec![*unvisited_roads.iter().next().unwrap()];
-        let mut current_partition: Vec<raw_data::StableRoadID> = Vec::new();
+        let mut queue_roads: Vec<StableRoadID> = vec![*unvisited_roads.iter().next().unwrap()];
+        let mut current_partition: Vec<StableRoadID> = Vec::new();
         while !queue_roads.is_empty() {
             let current = queue_roads.pop().unwrap();
             if !unvisited_roads.contains(&current) {

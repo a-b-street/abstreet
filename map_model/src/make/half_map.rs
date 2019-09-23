@@ -1,6 +1,7 @@
+use crate::raw::{RawMap, StableIntersectionID, StableRoadID};
 use crate::{
-    make, raw_data, Area, AreaID, Building, Intersection, IntersectionID, IntersectionType, Lane,
-    LaneID, Road, RoadID, Turn, TurnID, LANE_THICKNESS,
+    make, Area, AreaID, Building, Intersection, IntersectionID, IntersectionType, Lane, LaneID,
+    Road, RoadID, Turn, TurnID, LANE_THICKNESS,
 };
 use abstutil::Timer;
 use geom::{Bounds, Polygon};
@@ -18,7 +19,7 @@ pub struct HalfMap {
 }
 
 pub fn make_half_map(
-    data: &raw_data::Map,
+    data: &RawMap,
     initial_map: make::InitialMap,
     bounds: &Bounds,
     timer: &mut Timer,
@@ -33,13 +34,13 @@ pub fn make_half_map(
         turn_lookup: Vec::new(),
     };
 
-    let road_id_mapping: BTreeMap<raw_data::StableRoadID, RoadID> = initial_map
+    let road_id_mapping: BTreeMap<StableRoadID, RoadID> = initial_map
         .roads
         .keys()
         .enumerate()
         .map(|(idx, id)| (*id, RoadID(idx)))
         .collect();
-    let mut intersection_id_mapping: BTreeMap<raw_data::StableIntersectionID, IntersectionID> =
+    let mut intersection_id_mapping: BTreeMap<StableIntersectionID, IntersectionID> =
         BTreeMap::new();
     for (idx, i) in initial_map.intersections.values().enumerate() {
         let raw_i = &data.intersections[&i.id];

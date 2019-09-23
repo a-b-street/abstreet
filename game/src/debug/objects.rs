@@ -3,7 +3,7 @@ use crate::render::DrawMap;
 use crate::ui::PerMapUI;
 use crate::ui::UI;
 use ezgui::{Color, EventCtx, GfxCtx, Key, Line, Text};
-use map_model::raw_data::StableRoadID;
+use map_model::raw::StableRoadID;
 use map_model::Map;
 use sim::{CarID, Sim};
 use std::collections::BTreeMap;

@@ -33,13 +33,13 @@ impl fmt::Display for StableBuildingID {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Map {
+pub struct RawMap {
     pub name: String,
-    pub roads: BTreeMap<StableRoadID, Road>,
-    pub intersections: BTreeMap<StableIntersectionID, Intersection>,
-    pub buildings: BTreeMap<StableBuildingID, Building>,
+    pub roads: BTreeMap<StableRoadID, RawRoad>,
+    pub intersections: BTreeMap<StableIntersectionID, RawIntersection>,
+    pub buildings: BTreeMap<StableBuildingID, RawBuilding>,
     pub bus_routes: Vec<Route>,
-    pub areas: Vec<Area>,
+    pub areas: Vec<RawArea>,
     // from OSM way => [(restriction, to OSM way)]
     pub turn_restrictions: BTreeMap<i64, Vec<(String, i64)>>,
 
@@ -47,9 +47,9 @@ pub struct Map {
     pub gps_bounds: GPSBounds,
 }
 
-impl Map {
-    pub fn blank(name: String) -> Map {
-        Map {
+impl RawMap {
+    pub fn blank(name: String) -> RawMap {
+        RawMap {
             name,
             roads: BTreeMap::new(),
             intersections: BTreeMap::new(),
@@ -204,7 +204,7 @@ impl Map {
 }
 
 // Mutations
-impl Map {
+impl RawMap {
     pub fn delete_road(&mut self, r: StableRoadID, fixes: &mut MapFixes) {
         let road = self.roads.remove(&r).unwrap();
         if road.osm_tags.get(osm::SYNTHETIC) != Some(&"true".to_string()) {
@@ -224,7 +224,7 @@ impl Map {
         }
     }
 
-    pub fn create_intersection(&mut self, i: Intersection) -> Option<StableIntersectionID> {
+    pub fn create_intersection(&mut self, i: RawIntersection) -> Option<StableIntersectionID> {
         if self
             .gps_bounds
             .contains(i.point.forcibly_to_gps(&self.gps_bounds))
@@ -237,7 +237,7 @@ impl Map {
         }
     }
 
-    pub fn create_road(&mut self, mut r: Road) -> Option<StableRoadID> {
+    pub fn create_road(&mut self, mut r: RawRoad) -> Option<StableRoadID> {
         match (
             self.find_i(OriginalIntersection {
                 osm_node_id: r.orig_id.node1,
@@ -338,7 +338,7 @@ impl Map {
 
 // Mutations not recorded in MapFixes yet
 // TODO Fix that!
-impl Map {
+impl RawMap {
     pub fn move_intersection(
         &mut self,
         id: StableIntersectionID,
@@ -379,7 +379,7 @@ impl Map {
         self.roads.get_mut(&id).unwrap().center_points = pts;
     }
 
-    pub fn create_building(&mut self, bldg: Building) -> Option<StableBuildingID> {
+    pub fn create_building(&mut self, bldg: RawBuilding) -> Option<StableBuildingID> {
         if bldg.polygon.center().to_gps(&self.gps_bounds).is_some() {
             let id = StableBuildingID(self.buildings.keys().max().unwrap().0 + 1);
             self.buildings.insert(id, bldg);
@@ -406,7 +406,7 @@ impl Map {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Road {
+pub struct RawRoad {
     // The first and last point may not match up with i1 and i2.
     pub i1: StableIntersectionID,
     pub i2: StableIntersectionID,
@@ -419,7 +419,7 @@ pub struct Road {
     pub osm_tags: BTreeMap<String, String>,
 }
 
-impl Road {
+impl RawRoad {
     pub fn get_spec(&self) -> RoadSpec {
         let (fwd, back) = get_lane_types(&self.osm_tags);
         RoadSpec { fwd, back }
@@ -427,9 +427,9 @@ impl Road {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Intersection {
+pub struct RawIntersection {
     // Represents the original place where OSM center-lines meet. This is meaningless beyond
-    // raw_data; roads and intersections get merged and deleted.
+    // RawMap; roads and intersections get merged and deleted.
     pub point: Pt2D,
     pub intersection_type: IntersectionType,
     pub label: Option<String>,
@@ -438,7 +438,7 @@ pub struct Intersection {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Building {
+pub struct RawBuilding {
     pub polygon: Polygon,
     pub osm_tags: BTreeMap<String, String>,
     pub osm_way_id: i64,
@@ -446,7 +446,7 @@ pub struct Building {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Area {
+pub struct RawArea {
     pub area_type: AreaType,
     pub polygon: Polygon,
     pub osm_tags: BTreeMap<String, String>,
@@ -476,13 +476,13 @@ pub struct OriginalIntersection {
     pub osm_node_id: i64,
 }
 
-// Directives from the map_editor crate to apply to the raw_data layer.
+// Directives from the map_editor crate to apply to the RawMap layer.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct MapFixes {
     pub delete_roads: Vec<OriginalRoad>,
     pub delete_intersections: Vec<OriginalIntersection>,
-    pub add_intersections: Vec<Intersection>,
-    pub add_roads: Vec<Road>,
+    pub add_intersections: Vec<RawIntersection>,
+    pub add_roads: Vec<RawRoad>,
     pub merge_short_roads: Vec<OriginalRoad>,
     // For non-synthetic (original OSM) roads
     pub override_tags: BTreeMap<OriginalRoad, BTreeMap<String, String>>,

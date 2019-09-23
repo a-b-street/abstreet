@@ -1,19 +1,20 @@
 use crate::make::sidewalk_finder::find_sidewalk_points;
-use crate::{osm, raw_data, Building, BuildingID, FrontPath, Lane, LaneID, Position, Road};
+use crate::raw::{RawBuilding, StableBuildingID};
+use crate::{osm, Building, BuildingID, FrontPath, Lane, LaneID, Position, Road};
 use abstutil::Timer;
 use geom::{Bounds, Distance, FindClosest, HashablePt2D, Line, Polygon};
 use std::collections::{BTreeMap, HashSet};
 
 pub fn make_all_buildings(
     results: &mut Vec<Building>,
-    input: &BTreeMap<raw_data::StableBuildingID, raw_data::Building>,
+    input: &BTreeMap<StableBuildingID, RawBuilding>,
     bounds: &Bounds,
     lanes: &Vec<Lane>,
     roads: &Vec<Road>,
     timer: &mut Timer,
 ) {
     timer.start("convert buildings");
-    let mut center_per_bldg: BTreeMap<raw_data::StableBuildingID, HashablePt2D> = BTreeMap::new();
+    let mut center_per_bldg: BTreeMap<StableBuildingID, HashablePt2D> = BTreeMap::new();
     let mut query: HashSet<HashablePt2D> = HashSet::new();
     timer.start_iter("get building center points", input.len());
     for (id, b) in input {

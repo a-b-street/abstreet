@@ -1,23 +1,25 @@
 use abstutil::{Counter, Timer};
 use geom::HashablePt2D;
-use map_model::{osm, raw_data, IntersectionType};
+use map_model::raw::{
+    OriginalIntersection, RawIntersection, RawMap, RawRoad, StableIntersectionID, StableRoadID,
+};
+use map_model::{osm, IntersectionType};
 use std::collections::{HashMap, HashSet};
 
 pub fn split_up_roads(
     (mut map, roads, traffic_signals, osm_node_ids): (
-        raw_data::Map,
-        Vec<raw_data::Road>,
+        RawMap,
+        Vec<RawRoad>,
         HashSet<HashablePt2D>,
         HashMap<HashablePt2D, i64>,
     ),
     timer: &mut Timer,
-) -> raw_data::Map {
+) -> RawMap {
     timer.start("splitting up roads");
 
     let mut next_intersection_id = 0;
 
-    let mut pt_to_intersection: HashMap<HashablePt2D, raw_data::StableIntersectionID> =
-        HashMap::new();
+    let mut pt_to_intersection: HashMap<HashablePt2D, StableIntersectionID> = HashMap::new();
     let mut counts_per_pt = Counter::new();
     for r in &roads {
         for (idx, raw_pt) in r.center_points.iter().enumerate() {
@@ -27,7 +29,7 @@ pub fn split_up_roads(
             // All start and endpoints of ways are also intersections.
             if count == 2 || idx == 0 || idx == r.center_points.len() - 1 {
                 if !pt_to_intersection.contains_key(&pt) {
-                    let id = raw_data::StableIntersectionID(next_intersection_id);
+                    let id = StableIntersectionID(next_intersection_id);
                     next_intersection_id += 1;
                     pt_to_intersection.insert(pt, id);
                 }
@@ -38,9 +40,9 @@ pub fn split_up_roads(
     for (pt, id) in &pt_to_intersection {
         map.intersections.insert(
             *id,
-            raw_data::Intersection {
+            RawIntersection {
                 point: pt.to_pt2d(),
-                orig_id: raw_data::OriginalIntersection {
+                orig_id: OriginalIntersection {
                     osm_node_id: osm_node_ids[pt],
                 },
                 intersection_type: if traffic_signals.contains(pt) {
@@ -83,8 +85,7 @@ pub fn split_up_roads(
                 r.orig_id.node2 = osm_node_ids[&pts.last().unwrap().to_hashable()];
                 r.center_points = std::mem::replace(&mut pts, Vec::new());
                 // Start a new road
-                map.roads
-                    .insert(raw_data::StableRoadID(map.roads.len()), r.clone());
+                map.roads.insert(StableRoadID(map.roads.len()), r.clone());
                 r.osm_tags.remove(osm::ENDPT_FWD);
                 r.osm_tags.remove(osm::ENDPT_BACK);
                 r.i1 = *i2;

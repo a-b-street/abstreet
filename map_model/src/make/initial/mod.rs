@@ -1,8 +1,8 @@
 mod geometry;
 pub mod lane_specs;
 
-use crate::raw_data::{StableIntersectionID, StableRoadID};
-use crate::{raw_data, IntersectionType, LaneType, LANE_THICKNESS};
+use crate::raw::{RawMap, StableIntersectionID, StableRoadID};
+use crate::{IntersectionType, LaneType, LANE_THICKNESS};
 use abstutil::Timer;
 use geom::{Bounds, Distance, PolyLine, Pt2D};
 use std::collections::{BTreeMap, BTreeSet};
@@ -47,12 +47,7 @@ pub struct Intersection {
 }
 
 impl InitialMap {
-    pub fn new(
-        name: String,
-        data: &raw_data::Map,
-        bounds: &Bounds,
-        timer: &mut Timer,
-    ) -> InitialMap {
+    pub fn new(name: String, data: &RawMap, bounds: &Bounds, timer: &mut Timer) -> InitialMap {
         let mut m = InitialMap {
             roads: BTreeMap::new(),
             intersections: BTreeMap::new(),
@@ -147,10 +142,7 @@ pub struct LaneSpec {
     pub reverse_pts: bool,
 }
 
-fn get_lane_specs(
-    osm_tags: &BTreeMap<String, String>,
-    id: raw_data::StableRoadID,
-) -> Vec<LaneSpec> {
+fn get_lane_specs(osm_tags: &BTreeMap<String, String>, id: StableRoadID) -> Vec<LaneSpec> {
     let (side1_types, side2_types) = lane_specs::get_lane_types(osm_tags);
 
     let mut specs: Vec<LaneSpec> = Vec::new();

@@ -1,5 +1,5 @@
 use crate::make::initial::{Intersection, Road};
-use crate::raw_data::{StableIntersectionID, StableRoadID};
+use crate::raw::{StableIntersectionID, StableRoadID};
 use abstutil::{wraparound_get, Timer, Warn};
 use geom::{Distance, Line, PolyLine, Pt2D};
 use std::collections::{BTreeMap, HashMap};

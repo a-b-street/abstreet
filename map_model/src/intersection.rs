@@ -1,4 +1,5 @@
-use crate::{raw_data, LaneID, LaneType, Map, Road, RoadID, TurnID};
+use crate::raw::StableIntersectionID;
+use crate::{LaneID, LaneType, Map, Road, RoadID, TurnID};
 use abstutil;
 use geom::Polygon;
 use serde_derive::{Deserialize, Serialize};
@@ -31,7 +32,7 @@ pub struct Intersection {
 
     pub intersection_type: IntersectionType,
     pub label: Option<String>,
-    pub stable_id: raw_data::StableIntersectionID,
+    pub stable_id: StableIntersectionID,
 
     // Note that a lane may belong to both incoming_lanes and outgoing_lanes.
     // TODO narrow down when and why. is it just sidewalks in weird cases?

@@ -3,7 +3,7 @@ mod model;
 use abstutil::CmdArgs;
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, Text, Wizard, GUI};
 use geom::{Distance, Line, Polygon, Pt2D};
-use map_model::raw_data::{StableBuildingID, StableIntersectionID, StableRoadID};
+use map_model::raw::{StableBuildingID, StableIntersectionID, StableRoadID};
 use model::{Direction, Model, ID};
 use std::process;
 

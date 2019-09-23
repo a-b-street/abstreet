@@ -6,7 +6,8 @@ mod split_ways;
 use abstutil::{prettyprint_usize, Timer};
 use geom::{Distance, FindClosest, Line, PolyLine, Pt2D};
 use kml::ExtraShapes;
-use map_model::{osm, raw_data, LaneID, OffstreetParking, Position, LANE_THICKNESS};
+use map_model::raw::{RawMap, StableBuildingID, StableRoadID};
+use map_model::{osm, LaneID, OffstreetParking, Position, LANE_THICKNESS};
 use std::collections::BTreeMap;
 
 pub struct Flags {
@@ -20,7 +21,7 @@ pub struct Flags {
     pub output: String,
 }
 
-pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
+pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> RawMap {
     let mut map = split_ways::split_up_roads(
         osm_reader::extract_osm(&flags.osm, &flags.clip, timer),
         timer,
@@ -56,7 +57,7 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> raw_data::Map {
     map
 }
 
-fn check_orig_ids(map: &raw_data::Map) {
+fn check_orig_ids(map: &RawMap) {
     {
         let mut ids = BTreeMap::new();
         for (id, r) in &map.roads {
@@ -86,12 +87,12 @@ fn check_orig_ids(map: &raw_data::Map) {
     }
 }
 
-fn use_parking_hints(map: &mut raw_data::Map, path: &str, timer: &mut Timer) {
+fn use_parking_hints(map: &mut RawMap, path: &str, timer: &mut Timer) {
     timer.start("apply parking hints");
     let shapes: ExtraShapes = abstutil::read_binary(path, timer).expect("loading blockface failed");
 
     // Match shapes with the nearest road + direction (true for forwards)
-    let mut closest: FindClosest<(raw_data::StableRoadID, bool)> =
+    let mut closest: FindClosest<(StableRoadID, bool)> =
         FindClosest::new(&map.gps_bounds.to_bounds());
     for (id, r) in &map.roads {
         let center = PolyLine::new(r.center_points.clone());
@@ -144,13 +145,13 @@ fn use_parking_hints(map: &mut raw_data::Map, path: &str, timer: &mut Timer) {
     timer.stop("apply parking hints");
 }
 
-fn use_street_signs(map: &mut raw_data::Map, path: &str, timer: &mut Timer) {
+fn use_street_signs(map: &mut RawMap, path: &str, timer: &mut Timer) {
     timer.start("apply street signs to override parking hints");
     let shapes: ExtraShapes =
         abstutil::read_binary(path, timer).expect("loading street_signs failed");
 
     // Match shapes with the nearest road + direction (true for forwards)
-    let mut closest: FindClosest<(raw_data::StableRoadID, bool)> =
+    let mut closest: FindClosest<(StableRoadID, bool)> =
         FindClosest::new(&map.gps_bounds.to_bounds());
     for (id, r) in &map.roads {
         let center = PolyLine::new(r.center_points.clone());
@@ -194,12 +195,11 @@ fn use_street_signs(map: &mut raw_data::Map, path: &str, timer: &mut Timer) {
     timer.stop("apply street signs to override parking hints");
 }
 
-fn use_offstreet_parking(map: &mut raw_data::Map, path: &str, timer: &mut Timer) {
+fn use_offstreet_parking(map: &mut RawMap, path: &str, timer: &mut Timer) {
     timer.start("match offstreet parking points");
     let shapes = kml::load(path, &map.gps_bounds, timer).expect("loading offstreet_parking failed");
 
-    let mut closest: FindClosest<raw_data::StableBuildingID> =
-        FindClosest::new(&map.gps_bounds.to_bounds());
+    let mut closest: FindClosest<StableBuildingID> = FindClosest::new(&map.gps_bounds.to_bounds());
     for (id, b) in &map.buildings {
         closest.add(*id, b.polygon.points());
     }

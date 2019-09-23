@@ -1,4 +1,5 @@
-use crate::{osm, raw_data, BusStopID, IntersectionID, LaneID, LaneType, Map, LANE_THICKNESS};
+use crate::raw::StableRoadID;
+use crate::{osm, BusStopID, IntersectionID, LaneID, LaneType, Map, LANE_THICKNESS};
 use abstutil::{Error, Warn};
 use geom::{Distance, PolyLine, Polygon, Speed};
 use serde_derive::{Deserialize, Serialize};
@@ -63,7 +64,7 @@ pub struct Road {
     // self is 'from'
     pub turn_restrictions: Vec<(String, RoadID)>,
     pub osm_way_id: i64,
-    pub stable_id: raw_data::StableRoadID,
+    pub stable_id: StableRoadID,
 
     // Invariant: A road must contain at least one child
     // These are ordered from left-most lane (closest to center lane) to rightmost (sidewalk)

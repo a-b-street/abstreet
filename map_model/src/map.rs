@@ -1,10 +1,11 @@
 use crate::make::get_lane_types;
 use crate::pathfind::Pathfinder;
+use crate::raw::{MapFixes, RawMap};
 use crate::{
-    make, osm, raw_data, Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop,
-    BusStopID, ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID,
-    IntersectionType, Lane, LaneID, LaneType, MapEdits, Path, PathRequest, Position, Road, RoadID,
-    Turn, TurnID, TurnPriority,
+    make, osm, Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop, BusStopID,
+    ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, IntersectionType, Lane,
+    LaneID, LaneType, MapEdits, Path, PathRequest, Position, Road, RoadID, Turn, TurnID,
+    TurnPriority,
 };
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
@@ -51,8 +52,8 @@ pub struct Map {
 
 impl Map {
     pub fn new(path: &str, timer: &mut Timer) -> Result<Map, io::Error> {
-        let mut data: raw_data::Map = abstutil::read_binary(path, timer)?;
-        data.apply_fixes(&raw_data::MapFixes::load(timer), timer);
+        let mut data: RawMap = abstutil::read_binary(path, timer)?;
+        data.apply_fixes(&MapFixes::load(timer), timer);
         // Do this after applying fixes, which might split off pieces of the map.
         make::remove_disconnected_roads(&mut data, timer);
         Ok(Map::create_from_raw(data, timer))
@@ -86,7 +87,7 @@ impl Map {
         }
     }
 
-    fn create_from_raw(data: raw_data::Map, timer: &mut Timer) -> Map {
+    fn create_from_raw(data: RawMap, timer: &mut Timer) -> Map {
         timer.start("raw_map to InitialMap");
         let gps_bounds = data.gps_bounds.clone();
         let bounds = gps_bounds.to_bounds();

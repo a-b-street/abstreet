@@ -1,6 +1,9 @@
 use abstutil::{FileWithProgress, Timer};
 use geom::{GPSBounds, HashablePt2D, LonLat, Polygon, Pt2D};
-use map_model::{osm, raw_data, AreaType};
+use map_model::raw::{
+    OriginalRoad, RawArea, RawBuilding, RawMap, RawRoad, StableBuildingID, StableIntersectionID,
+};
+use map_model::{osm, AreaType};
 use osm_xml;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::fs::File;
@@ -11,9 +14,9 @@ pub fn extract_osm(
     maybe_clip_path: &Option<String>,
     timer: &mut Timer,
 ) -> (
-    raw_data::Map,
+    RawMap,
     // Un-split roads
-    Vec<raw_data::Road>,
+    Vec<RawRoad>,
     // Traffic signals
     HashSet<HashablePt2D>,
     // OSM Node IDs
@@ -32,7 +35,7 @@ pub fn extract_osm(
     let mut map = if let Some(ref path) = maybe_clip_path {
         read_osmosis_polygon(path)
     } else {
-        let mut m = raw_data::Map::blank(abstutil::basename(osm_path));
+        let mut m = RawMap::blank(abstutil::basename(osm_path));
         for node in doc.nodes.values() {
             m.gps_bounds.update(LonLat::new(node.lon, node.lat));
         }
@@ -41,7 +44,7 @@ pub fn extract_osm(
     };
 
     let mut id_to_way: HashMap<i64, Vec<Pt2D>> = HashMap::new();
-    let mut roads: Vec<raw_data::Road> = Vec::new();
+    let mut roads: Vec<RawRoad> = Vec::new();
     let mut traffic_signals: HashSet<HashablePt2D> = HashSet::new();
     let mut osm_node_ids = HashMap::new();
 
@@ -82,8 +85,8 @@ pub fn extract_osm(
         let mut tags = tags_to_map(&way.tags);
         tags.insert(osm::OSM_WAY_ID.to_string(), way.id.to_string());
         if is_road(&tags) {
-            roads.push(raw_data::Road {
-                orig_id: raw_data::OriginalRoad {
+            roads.push(RawRoad {
+                orig_id: OriginalRoad {
                     osm_way_id: way.id,
                     node1: osm_node_ids[&pts[0].to_hashable()],
                     node2: osm_node_ids[&pts.last().unwrap().to_hashable()],
@@ -91,18 +94,18 @@ pub fn extract_osm(
                 center_points: pts,
                 osm_tags: tags,
                 // We'll fill this out later
-                i1: raw_data::StableIntersectionID(0),
-                i2: raw_data::StableIntersectionID(0),
+                i1: StableIntersectionID(0),
+                i2: StableIntersectionID(0),
             });
         } else if is_bldg(&tags) {
             let deduped = Pt2D::approx_dedupe(pts, geom::EPSILON_DIST);
             if deduped.len() < 3 {
                 continue;
             }
-            let id = raw_data::StableBuildingID(map.buildings.len());
+            let id = StableBuildingID(map.buildings.len());
             map.buildings.insert(
                 id,
-                raw_data::Building {
+                RawBuilding {
                     osm_way_id: way.id,
                     polygon: Polygon::new(&deduped),
                     osm_tags: tags,
@@ -113,7 +116,7 @@ pub fn extract_osm(
             if pts.len() < 3 {
                 continue;
             }
-            map.areas.push(raw_data::Area {
+            map.areas.push(RawArea {
                 area_type: at,
                 osm_id: way.id,
                 polygon: Polygon::new(&pts),
@@ -161,7 +164,7 @@ pub fn extract_osm(
                         println!("Relation {} failed to glue multipolygon", rel.id);
                     } else {
                         for polygon in polygons {
-                            map.areas.push(raw_data::Area {
+                            map.areas.push(RawArea {
                                 area_type: at,
                                 osm_id: rel.id,
                                 polygon,
@@ -327,7 +330,7 @@ fn glue_multipolygon(mut pts_per_way: Vec<Vec<Pt2D>>) -> Vec<Polygon> {
     polygons
 }
 
-fn read_osmosis_polygon(path: &str) -> raw_data::Map {
+fn read_osmosis_polygon(path: &str) -> RawMap {
     let mut pts: Vec<LonLat> = Vec::new();
     let mut gps_bounds = GPSBounds::new();
     for (idx, maybe_line) in BufReader::new(File::open(path).unwrap())
@@ -351,7 +354,7 @@ fn read_osmosis_polygon(path: &str) -> raw_data::Map {
         gps_bounds.update(pt);
     }
 
-    let mut map = raw_data::Map::blank(abstutil::basename(path));
+    let mut map = RawMap::blank(abstutil::basename(path));
     map.boundary_polygon = Polygon::new(&gps_bounds.must_convert(&pts));
     map.gps_bounds = gps_bounds;
     map

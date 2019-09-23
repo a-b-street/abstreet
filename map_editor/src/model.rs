@@ -2,11 +2,11 @@ use abstutil::{read_binary, Timer};
 use ezgui::world::{Object, ObjectID, World};
 use ezgui::{Color, EventCtx, GfxCtx, Line, Prerender, Text};
 use geom::{Bounds, Circle, Distance, PolyLine, Polygon, Pt2D};
-use map_model::raw_data::{
-    MapFixes, OriginalIntersection, OriginalRoad, StableBuildingID, StableIntersectionID,
-    StableRoadID,
+use map_model::raw::{
+    MapFixes, OriginalIntersection, OriginalRoad, RawBuilding, RawIntersection, RawMap, RawRoad,
+    StableBuildingID, StableIntersectionID, StableRoadID,
 };
-use map_model::{osm, raw_data, IntersectionType, LaneType, RoadSpec, LANE_THICKNESS};
+use map_model::{osm, IntersectionType, LaneType, RoadSpec, LANE_THICKNESS};
 use std::collections::{BTreeMap, BTreeSet};
 use std::mem;
 
@@ -19,7 +19,7 @@ const FORWARDS: Direction = true;
 const BACKWARDS: Direction = false;
 
 pub struct Model {
-    pub map: raw_data::Map,
+    pub map: RawMap,
     // TODO Not sure this should be pub...
     pub showing_pts: Option<StableRoadID>,
 
@@ -33,7 +33,7 @@ pub struct Model {
 impl Model {
     pub fn blank() -> Model {
         Model {
-            map: raw_data::Map::blank(String::new()),
+            map: RawMap::blank(String::new()),
             showing_pts: None,
 
             exclude_bldgs: false,
@@ -219,11 +219,11 @@ impl Model {
     pub fn create_i(&mut self, point: Pt2D, prerender: &Prerender) {
         let id = self
             .map
-            .create_intersection(raw_data::Intersection {
+            .create_intersection(RawIntersection {
                 point,
                 intersection_type: IntersectionType::StopSign,
                 label: None,
-                orig_id: raw_data::OriginalIntersection {
+                orig_id: OriginalIntersection {
                     osm_node_id: self.map.new_osm_node_id(),
                 },
                 synthetic: true,
@@ -341,10 +341,10 @@ impl Model {
 
         let id = self
             .map
-            .create_road(raw_data::Road {
+            .create_road(RawRoad {
                 i1,
                 i2,
-                orig_id: raw_data::OriginalRoad {
+                orig_id: OriginalRoad {
                     osm_way_id,
                     node1: self.map.intersections[&i1].orig_id.osm_node_id,
                     node2: self.map.intersections[&i2].orig_id.osm_node_id,
@@ -633,7 +633,7 @@ impl Model {
     pub fn create_b(&mut self, center: Pt2D, prerender: &Prerender) {
         let id = self
             .map
-            .create_building(raw_data::Building {
+            .create_building(RawBuilding {
                 polygon: Polygon::rectangle(center, BUILDING_LENGTH, BUILDING_LENGTH),
                 osm_tags: BTreeMap::new(),
                 osm_way_id: self.map.new_osm_way_id(),

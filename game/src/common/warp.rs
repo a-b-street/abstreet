@@ -3,7 +3,8 @@ use crate::helpers::ID;
 use crate::ui::{PerMapUI, UI};
 use ezgui::{EventCtx, EventLoopMode, GfxCtx, Warper, Wizard};
 use geom::Pt2D;
-use map_model::{raw_data, AreaID, BuildingID, IntersectionID, LaneID, RoadID};
+use map_model::raw::{StableIntersectionID, StableRoadID};
+use map_model::{AreaID, BuildingID, IntersectionID, LaneID, RoadID};
 use sim::{PedestrianID, TripID};
 use std::usize;
 
@@ -109,7 +110,7 @@ fn warp_point(line: &str, primary: &PerMapUI) -> Option<(Option<ID>, Pt2D, f64)>
                 }
             }
             'I' => {
-                let stable_id = raw_data::StableIntersectionID(idx);
+                let stable_id = StableIntersectionID(idx);
                 if let Some(i) = primary
                     .map
                     .all_intersections()
@@ -122,7 +123,7 @@ fn warp_point(line: &str, primary: &PerMapUI) -> Option<(Option<ID>, Pt2D, f64)>
                 }
             }
             'R' => {
-                let stable_id = raw_data::StableRoadID(idx);
+                let stable_id = StableRoadID(idx);
                 if let Some(r) = primary
                     .map
                     .all_roads()
