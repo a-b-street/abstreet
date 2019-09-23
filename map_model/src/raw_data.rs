@@ -175,7 +175,7 @@ impl Map {
             if self
                 .intersections
                 .values()
-                .any(|i| i.osm_node_id == osm_node_id)
+                .any(|i| i.orig_id.osm_node_id == osm_node_id)
             {
                 osm_node_id -= 1;
             } else {
@@ -189,7 +189,10 @@ impl Map {
         // TODO Argh, these will conflict between different maps! Is that a problem?
         let mut osm_way_id = -1;
         loop {
-            if self.roads.values().any(|r| r.osm_way_id == osm_way_id)
+            if self
+                .roads
+                .values()
+                .any(|r| r.orig_id.osm_way_id == osm_way_id)
                 || self.buildings.values().any(|b| b.osm_way_id == osm_way_id)
                 || self.areas.iter().any(|a| a.osm_id == osm_way_id)
             {
@@ -411,9 +414,10 @@ pub struct Road {
     // This is effectively a PolyLine, except there's a case where we need to plumb forward
     // cul-de-sac roads for roundabout handling.
     pub center_points: Vec<Pt2D>,
+    // TODO There's redundancy between this and i1/i2 that has to be kept in sync. But removing
+    // orig_id means we don't have osm_node_id embedded in MapFixes.
     pub orig_id: OriginalRoad,
     pub osm_tags: BTreeMap<String, String>,
-    pub osm_way_id: i64,
 }
 
 impl Road {
@@ -432,7 +436,6 @@ pub struct Intersection {
     pub label: Option<String>,
     pub orig_id: OriginalIntersection,
     pub synthetic: bool,
-    pub osm_node_id: i64,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

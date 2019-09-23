@@ -83,7 +83,6 @@ pub fn extract_osm(
         tags.insert(osm::OSM_WAY_ID.to_string(), way.id.to_string());
         if is_road(&tags) {
             roads.push(raw_data::Road {
-                osm_way_id: way.id,
                 orig_id: raw_data::OriginalRoad {
                     osm_way_id: way.id,
                     node1: osm_node_ids[&pts[0].to_hashable()],

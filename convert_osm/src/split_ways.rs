@@ -36,21 +36,20 @@ pub fn split_up_roads(
     }
 
     for (pt, id) in &pt_to_intersection {
-        let point = pt.to_pt2d();
-        let osm_node_id = osm_node_ids[pt];
         map.intersections.insert(
             *id,
             raw_data::Intersection {
-                point,
-                orig_id: raw_data::OriginalIntersection { osm_node_id },
-                intersection_type: if traffic_signals.contains(&point.to_hashable()) {
+                point: pt.to_pt2d(),
+                orig_id: raw_data::OriginalIntersection {
+                    osm_node_id: osm_node_ids[pt],
+                },
+                intersection_type: if traffic_signals.contains(pt) {
                     IntersectionType::TrafficSignal
                 } else {
                     IntersectionType::StopSign
                 },
                 label: None,
                 synthetic: false,
-                osm_node_id,
             },
         );
     }

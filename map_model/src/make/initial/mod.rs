@@ -105,7 +105,7 @@ impl InitialMap {
             if r.i1 == r.i2 {
                 timer.warn(format!(
                     "OSM way {} is a loop on {}, skipping what would've been {}",
-                    r.osm_way_id, r.i1, stable_id
+                    r.orig_id.osm_way_id, r.i1, stable_id
                 ));
                 continue;
             }

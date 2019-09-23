@@ -217,7 +217,6 @@ impl Model {
     }
 
     pub fn create_i(&mut self, point: Pt2D, prerender: &Prerender) {
-        let osm_node_id = self.map.new_osm_node_id();
         let id = self
             .map
             .create_intersection(raw_data::Intersection {
@@ -225,10 +224,9 @@ impl Model {
                 intersection_type: IntersectionType::StopSign,
                 label: None,
                 orig_id: raw_data::OriginalIntersection {
-                    osm_node_id,
+                    osm_node_id: self.map.new_osm_node_id(),
                 },
                 synthetic: true,
-                osm_node_id,
             })
             .unwrap();
         self.intersection_added(id, prerender);
@@ -356,7 +354,6 @@ impl Model {
                     self.map.intersections[&i2].point,
                 ],
                 osm_tags,
-                osm_way_id,
             })
             .unwrap();
         self.road_added(id, prerender);
