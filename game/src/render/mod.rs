@@ -25,7 +25,7 @@ pub use crate::render::road::DrawRoad;
 pub use crate::render::traffic_signal::{draw_signal_cycle, TrafficSignalDiagram};
 pub use crate::render::turn::DrawTurn;
 use ezgui::{Color, GfxCtx, Prerender};
-use geom::{Distance, Polygon, Pt2D};
+use geom::{Distance, PolyLine, Polygon, Pt2D, EPSILON_DIST};
 use map_model::{IntersectionID, Map};
 use sim::{DrawCarInput, Sim, VehicleType};
 use std::collections::HashMap;
@@ -74,6 +74,17 @@ pub fn draw_vehicle(
     } else {
         Box::new(DrawCar::new(input, map, prerender, cs, acs))
     }
+}
+
+pub fn dashed_lines(pl: &PolyLine, dash_len: Distance, dash_separation: Distance) -> Vec<Polygon> {
+    let width = Distance::meters(0.25);
+
+    if pl.length() < dash_separation * 2.0 + EPSILON_DIST {
+        return vec![pl.make_polygons(width)];
+    }
+    // Don't draw the dashes too close to the ends.
+    pl.exact_slice(dash_separation, pl.length() - dash_separation)
+        .dashed_polygons(width, dash_len, dash_separation)
 }
 
 pub struct DrawCtx<'a> {

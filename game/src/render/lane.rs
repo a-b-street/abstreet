@@ -1,8 +1,8 @@
 use crate::helpers::{ColorScheme, ID};
-use crate::render::{DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
+use crate::render::{dashed_lines, DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
-use geom::{Circle, Distance, Line, PolyLine, Polygon, Pt2D, EPSILON_DIST};
+use geom::{Circle, Distance, Line, PolyLine, Polygon, Pt2D};
 use map_model::{Lane, LaneID, LaneType, Map, Road, TurnType, LANE_THICKNESS, PARKING_SPOT_LENGTH};
 
 // Split into two phases like this, because AlmostDrawLane can be created in parallel, but GPU
@@ -202,21 +202,11 @@ fn calculate_driving_lines(lane: &Lane, parent: &Road, timer: &mut Timer) -> Vec
     if parent.dir_and_offset(lane.id).1 == 0 {
         return Vec::new();
     }
-
-    let dash_separation = Distance::meters(1.5);
-    let dash_len = Distance::meters(1.0);
-
     let lane_edge_pts = lane
         .lane_center_pts
         .shift_left(LANE_THICKNESS / 2.0)
         .get(timer);
-    if lane_edge_pts.length() < dash_separation * 2.0 + EPSILON_DIST {
-        return Vec::new();
-    }
-    // Don't draw the dashes too close to the ends.
-    lane_edge_pts
-        .exact_slice(dash_separation, lane_edge_pts.length() - dash_separation)
-        .dashed_polygons(Distance::meters(0.25), dash_len, dash_separation)
+    dashed_lines(&lane_edge_pts, Distance::meters(1.0), Distance::meters(1.5))
 }
 
 fn calculate_turn_markings(map: &Map, lane: &Lane, timer: &mut Timer) -> Vec<Polygon> {

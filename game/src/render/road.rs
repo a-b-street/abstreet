@@ -1,7 +1,7 @@
 use crate::helpers::{ColorScheme, ID};
-use crate::render::{DrawCtx, DrawOptions, Renderable, BIG_ARROW_THICKNESS, OUTLINE_THICKNESS};
+use crate::render::{dashed_lines, DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
-use geom::{Polygon, Pt2D};
+use geom::{Distance, Polygon, Pt2D};
 use map_model::{Map, Road, RoadID};
 
 pub struct DrawRoad {
@@ -16,9 +16,9 @@ pub struct DrawRoad {
 impl DrawRoad {
     pub fn new(r: &Road, cs: &ColorScheme, prerender: &Prerender) -> DrawRoad {
         let mut draw = GeomBatch::new();
-        draw.push(
+        draw.extend(
             cs.get_def("road center line", Color::YELLOW),
-            r.center_pts.make_polygons(BIG_ARROW_THICKNESS),
+            dashed_lines(&r.center_pts, Distance::meters(2.0), Distance::meters(1.0)),
         );
 
         let mut label = Text::new();
