@@ -27,7 +27,8 @@ Understand XML: just use firefox
 
 Follow Usage from https://crates.io/crates/cpuprofiler
 
-Run game or headless with `--enable_profiler`
+Modify `editor/Cargo.toml` to include the `profiler` feature on `ezgui`. Then
+run game or headless with `--enable_profiler`
 
 ```
 google-pprof --no_strip_temp ../target/debug/game profile
