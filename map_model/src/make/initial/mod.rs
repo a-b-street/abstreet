@@ -1,6 +1,5 @@
 mod geometry;
 pub mod lane_specs;
-mod merge;
 
 use crate::raw_data::{StableIntersectionID, StableRoadID};
 use crate::{raw_data, IntersectionType, LaneType, LANE_THICKNESS};
@@ -25,9 +24,6 @@ pub struct Road {
     pub fwd_width: Distance,
     pub back_width: Distance,
     pub lane_specs: Vec<LaneSpec>,
-    // Copied here from the raw layer, because merge_degenerate_intersection needs to modify this.
-    // TODO Maybe don't need this now?
-    pub osm_tags: BTreeMap<String, String>,
     pub override_turn_restrictions_to: Vec<StableRoadID>,
 }
 
@@ -39,24 +35,6 @@ impl Road {
             self.original_center_pts.last_pt()
         } else {
             panic!("{} doesn't end at {}", self.id, i);
-        }
-    }
-
-    pub fn reset_pts_on_side(&mut self, i: StableIntersectionID) {
-        if self.dst_i == i {
-            if let Some(append) = self
-                .original_center_pts
-                .get_slice_starting_at(self.trimmed_center_pts.last_pt())
-            {
-                self.trimmed_center_pts = self.trimmed_center_pts.clone().extend(append);
-            }
-        } else {
-            if let Some(prepend) = self
-                .original_center_pts
-                .get_slice_ending_at(self.trimmed_center_pts.first_pt())
-            {
-                self.trimmed_center_pts = prepend.extend(self.trimmed_center_pts.clone());
-            }
         }
     }
 }
@@ -148,7 +126,6 @@ impl InitialMap {
                     fwd_width,
                     back_width,
                     lane_specs,
-                    osm_tags: r.osm_tags.clone(),
                     override_turn_restrictions_to: Vec::new(),
                 },
             );
@@ -160,8 +137,6 @@ impl InitialMap {
 
             i.polygon = geometry::intersection_polygon(i, &mut m.roads, timer);
         }
-
-        merge::short_roads(&mut m, timer);
 
         m
     }
