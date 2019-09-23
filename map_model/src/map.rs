@@ -1,11 +1,11 @@
 use crate::make::get_lane_types;
 use crate::pathfind::Pathfinder;
-use crate::raw::{MapFixes, RawMap};
+use crate::raw::{MapFixes, RawMap, StableIntersectionID, StableRoadID};
 use crate::{
     make, osm, Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop, BusStopID,
     ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, IntersectionType, Lane,
     LaneID, LaneType, MapEdits, Path, PathRequest, Position, Road, RoadID, Turn, TurnID,
-    TurnPriority,
+    TurnPriority, LANE_THICKNESS,
 };
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
@@ -52,11 +52,11 @@ pub struct Map {
 
 impl Map {
     pub fn new(path: &str, timer: &mut Timer) -> Result<Map, io::Error> {
-        let mut data: RawMap = abstutil::read_binary(path, timer)?;
-        data.apply_fixes(&MapFixes::load(timer), timer);
+        let mut raw: RawMap = abstutil::read_binary(path, timer)?;
+        raw.apply_fixes(&MapFixes::load(timer), timer);
         // Do this after applying fixes, which might split off pieces of the map.
-        make::remove_disconnected_roads(&mut data, timer);
-        Ok(Map::create_from_raw(data, timer))
+        make::remove_disconnected_roads(&mut raw, timer);
+        Ok(Map::create_from_raw(raw, timer))
     }
 
     // Just for temporary std::mem::replace tricks.
@@ -87,40 +87,20 @@ impl Map {
         }
     }
 
-    fn create_from_raw(data: RawMap, timer: &mut Timer) -> Map {
+    fn create_from_raw(raw: RawMap, timer: &mut Timer) -> Map {
         timer.start("raw_map to InitialMap");
-        let gps_bounds = data.gps_bounds.clone();
+        let gps_bounds = raw.gps_bounds.clone();
         let bounds = gps_bounds.to_bounds();
-        let initial_map = make::InitialMap::new(data.name.clone(), &data, &bounds, timer);
+        let initial_map = make::InitialMap::new(raw.name.clone(), &raw, &bounds, timer);
         timer.stop("raw_map to InitialMap");
 
-        timer.start("InitialMap to HalfMap");
-        let half_map = make::make_half_map(&data, initial_map, &bounds, timer);
-        timer.stop("InitialMap to HalfMap");
+        timer.start("InitialMap to half of Map");
+        let mut m = make_half_map(&raw, initial_map, gps_bounds, bounds, timer);
+        timer.stop("InitialMap to half of Map");
 
         timer.start("finalize Map");
-        let mut m = Map {
-            roads: half_map.roads,
-            lanes: half_map.lanes,
-            intersections: half_map.intersections,
-            turns: half_map.turns,
-            buildings: half_map.buildings,
-            bus_stops: BTreeMap::new(),
-            bus_routes: Vec::new(),
-            areas: half_map.areas,
-            boundary_polygon: data.boundary_polygon.clone(),
-            stop_signs: BTreeMap::new(),
-            traffic_signals: BTreeMap::new(),
-            gps_bounds,
-            bounds,
-            turn_lookup: half_map.turn_lookup,
-            pathfinder: None,
-            pathfinder_dirty: false,
-            name: data.name.clone(),
-            edits: MapEdits::new(data.name),
-        };
 
-        // Extra setup that's annoying to do as HalfMap, since we want to pass around a Map.
+        // TODO Can probably move this into make_half_map.
         {
             let mut stop_signs: BTreeMap<IntersectionID, ControlStopSign> = BTreeMap::new();
             let mut traffic_signals: BTreeMap<IntersectionID, ControlTrafficSignal> =
@@ -149,7 +129,7 @@ impl Map {
 
         {
             let (stops, routes) =
-                make::make_bus_stops(&m, &data.bus_routes, &m.gps_bounds, &m.bounds, timer);
+                make::make_bus_stops(&m, &raw.bus_routes, &m.gps_bounds, &m.bounds, timer);
             m.bus_stops = stops;
             // The IDs are sorted in the BTreeMap, so this order winds up correct.
             for id in m.bus_stops.keys() {
@@ -850,4 +830,234 @@ impl Map {
             side2[idx]
         }
     }
+}
+
+fn make_half_map(
+    raw: &RawMap,
+    initial_map: make::InitialMap,
+    gps_bounds: GPSBounds,
+    bounds: Bounds,
+    timer: &mut Timer,
+) -> Map {
+    let mut map = Map {
+        roads: Vec::new(),
+        lanes: Vec::new(),
+        intersections: Vec::new(),
+        turns: BTreeMap::new(),
+        buildings: Vec::new(),
+        bus_stops: BTreeMap::new(),
+        bus_routes: Vec::new(),
+        areas: Vec::new(),
+        boundary_polygon: raw.boundary_polygon.clone(),
+        stop_signs: BTreeMap::new(),
+        traffic_signals: BTreeMap::new(),
+        gps_bounds,
+        bounds,
+        turn_lookup: Vec::new(),
+        pathfinder: None,
+        pathfinder_dirty: false,
+        name: raw.name.clone(),
+        edits: MapEdits::new(raw.name.clone()),
+    };
+
+    let road_id_mapping: BTreeMap<StableRoadID, RoadID> = initial_map
+        .roads
+        .keys()
+        .enumerate()
+        .map(|(idx, id)| (*id, RoadID(idx)))
+        .collect();
+    let mut intersection_id_mapping: BTreeMap<StableIntersectionID, IntersectionID> =
+        BTreeMap::new();
+    for (idx, i) in initial_map.intersections.values().enumerate() {
+        let raw_i = &raw.intersections[&i.id];
+
+        let id = IntersectionID(idx);
+        map.intersections.push(Intersection {
+            id,
+            // IMPORTANT! We're relying on the triangulation algorithm not to mess with the order
+            // of the points. Sidewalk corner rendering depends on it later.
+            polygon: Polygon::new(&i.polygon),
+            turns: Vec::new(),
+            // Might change later
+            intersection_type: i.intersection_type,
+            label: raw_i.label.clone(),
+            stable_id: i.id,
+            incoming_lanes: Vec::new(),
+            outgoing_lanes: Vec::new(),
+            roads: i.roads.iter().map(|id| road_id_mapping[id]).collect(),
+        });
+        intersection_id_mapping.insert(i.id, id);
+    }
+
+    timer.start_iter("expand roads to lanes", initial_map.roads.len());
+    for r in initial_map.roads.values() {
+        timer.next();
+
+        let road_id = road_id_mapping[&r.id];
+        let i1 = intersection_id_mapping[&r.src_i];
+        let i2 = intersection_id_mapping[&r.dst_i];
+
+        let mut road = Road {
+            id: road_id,
+            osm_tags: raw.roads[&r.id].osm_tags.clone(),
+            turn_restrictions: Vec::new(),
+            osm_way_id: raw.roads[&r.id].orig_id.osm_way_id,
+            stable_id: r.id,
+            children_forwards: Vec::new(),
+            children_backwards: Vec::new(),
+            center_pts: r.trimmed_center_pts.clone(),
+            src_i: i1,
+            dst_i: i2,
+        };
+        for stable_id in &r.override_turn_restrictions_to {
+            road.turn_restrictions
+                .push(("no_anything".to_string(), road_id_mapping[stable_id]));
+        }
+
+        for lane in &r.lane_specs {
+            let id = LaneID(map.lanes.len());
+
+            let (src_i, dst_i) = if lane.reverse_pts { (i2, i1) } else { (i1, i2) };
+            map.intersections[src_i.0].outgoing_lanes.push(id);
+            map.intersections[dst_i.0].incoming_lanes.push(id);
+
+            let (unshifted_pts, offset) = if lane.reverse_pts {
+                road.children_backwards.push((id, lane.lane_type));
+                (
+                    road.center_pts.reversed(),
+                    road.children_backwards.len() - 1,
+                )
+            } else {
+                road.children_forwards.push((id, lane.lane_type));
+                (road.center_pts.clone(), road.children_forwards.len() - 1)
+            };
+            // TODO probably different behavior for oneways
+            // TODO need to factor in yellow center lines (but what's the right thing to even do?
+            // Reverse points for British-style driving on the left
+            let width = LANE_THICKNESS * (0.5 + (offset as f64));
+            let lane_center_pts = unshifted_pts
+                .shift_right(width)
+                .with_context(timer, format!("shift for {}", id));
+
+            map.lanes.push(Lane {
+                id,
+                lane_center_pts,
+                src_i,
+                dst_i,
+                lane_type: lane.lane_type,
+                parent: road_id,
+                building_paths: Vec::new(),
+                bus_stops: Vec::new(),
+                parking_blackhole: None,
+            });
+        }
+        if road.get_name() == "???" {
+            timer.warn(format!(
+                "{} has no name. Tags: {:?}",
+                road.id, road.osm_tags
+            ));
+        }
+        map.roads.push(road);
+    }
+
+    let mut filtered_restrictions = Vec::new();
+    for r in &map.roads {
+        if let Some(restrictions) = raw.turn_restrictions.get(&r.osm_way_id) {
+            for (restriction, to) in restrictions {
+                // Make sure the restriction actually applies to this road.
+                if let Some(to_road) = map.intersections[r.src_i.0]
+                    .roads
+                    .iter()
+                    .chain(map.intersections[r.dst_i.0].roads.iter())
+                    .find(|r| map.roads[r.0].osm_way_id == *to)
+                {
+                    filtered_restrictions.push((r.id, restriction, to_road));
+                }
+            }
+        }
+    }
+    for (from, restriction, to) in filtered_restrictions {
+        map.roads[from.0]
+            .turn_restrictions
+            .push((restriction.to_string(), *to));
+    }
+
+    for i in map.intersections.iter_mut() {
+        if is_border(i, &map.lanes) {
+            i.intersection_type = IntersectionType::Border;
+            continue;
+        }
+
+        if i.incoming_lanes.is_empty() || i.outgoing_lanes.is_empty() {
+            timer.warn(format!("{:?} is orphaned!", i));
+            continue;
+        }
+
+        for t in make::make_all_turns(i, &map.roads, &map.lanes, timer) {
+            assert!(!map.turns.contains_key(&t.id));
+            i.turns.push(t.id);
+            map.turns.insert(t.id, t);
+        }
+    }
+
+    for t in map.turns.values_mut() {
+        t.lookup_idx = map.turn_lookup.len();
+        map.turn_lookup.push(t.id);
+        if t.geom.length() < geom::EPSILON_DIST {
+            timer.warn(format!("u{} is a very short turn", t.lookup_idx));
+        }
+    }
+
+    make::make_all_buildings(
+        &mut map.buildings,
+        &raw.buildings,
+        &map.bounds,
+        &map.lanes,
+        &map.roads,
+        timer,
+    );
+    for b in &map.buildings {
+        let lane = b.sidewalk();
+
+        // TODO Could be more performant and cleanly written
+        let mut bldgs = map.lanes[lane.0].building_paths.clone();
+        bldgs.push(b.id);
+        bldgs.sort_by_key(|b| map.buildings[b.0].front_path.sidewalk.dist_along());
+        map.lanes[lane.0].building_paths = bldgs;
+    }
+
+    for (idx, a) in raw.areas.iter().enumerate() {
+        map.areas.push(Area {
+            id: AreaID(idx),
+            area_type: a.area_type,
+            polygon: a.polygon.clone(),
+            osm_tags: a.osm_tags.clone(),
+            osm_id: a.osm_id,
+        });
+    }
+
+    map
+}
+
+fn is_border(intersection: &Intersection, lanes: &Vec<Lane>) -> bool {
+    // RawIntersection said it is.
+    if intersection.is_border() {
+        return true;
+    }
+
+    // This only detects one-way borders! Two-way ones will just look like dead-ends.
+
+    // Bias for driving
+    if intersection.roads.len() != 1 {
+        return false;
+    }
+    let has_driving_in = intersection
+        .incoming_lanes
+        .iter()
+        .any(|l| lanes[l.0].is_driving());
+    let has_driving_out = intersection
+        .outgoing_lanes
+        .iter()
+        .any(|l| lanes[l.0].is_driving());
+    has_driving_in != has_driving_out
 }

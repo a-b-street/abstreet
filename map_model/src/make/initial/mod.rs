@@ -47,7 +47,7 @@ pub struct Intersection {
 }
 
 impl InitialMap {
-    pub fn new(name: String, data: &RawMap, bounds: &Bounds, timer: &mut Timer) -> InitialMap {
+    pub fn new(name: String, raw: &RawMap, bounds: &Bounds, timer: &mut Timer) -> InitialMap {
         let mut m = InitialMap {
             roads: BTreeMap::new(),
             intersections: BTreeMap::new(),
@@ -55,7 +55,7 @@ impl InitialMap {
             bounds: bounds.clone(),
         };
 
-        for (stable_id, i) in &data.intersections {
+        for (stable_id, i) in &raw.intersections {
             m.intersections.insert(
                 *stable_id,
                 Intersection {
@@ -67,7 +67,7 @@ impl InitialMap {
             );
         }
 
-        for (stable_id, r) in &data.roads {
+        for (stable_id, r) in &raw.roads {
             if r.i1 == r.i2 {
                 timer.warn(format!(
                     "OSM way {} is a loop on {}, skipping what would've been {}",
