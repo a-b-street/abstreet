@@ -93,12 +93,12 @@ messy and for now, most of these aren't quite guaranteed to be true.
   the map, it may be forced to disappear on the opposie border of the map, if
   the highway happens to not have any exits within the map boundary.
 
-## From OSM to raw_data (`convert_osm` crate)
+## From OSM to RawMap (`convert_osm` crate)
 
 The first phase of map building reads in data from OSM files and a few others,
-producing a serialized `raw_data::Map`. Importing all maps (one for each
-pre-defined bounding polygon) takes a few minutes. Players don't see this cost;
-it only takes a few seconds to load a serialized map.
+producing a serialized `RawMap`. Importing all maps (one for each pre-defined
+bounding polygon) takes a few minutes. Players don't see this cost; it only
+takes a few seconds to load a serialized map.
 
 - `osm.rs`: Read .osm, extracting the points for road-like ways, buildings, and
   areas
@@ -135,12 +135,22 @@ it only takes a few seconds to load a serialized map.
 - `neighborhoods.rs`: Load neighborhood polygons from an extra geojson file
   - If the polygon isn't completely in-bounds, just remove it
 
-## raw_data to InitialMap
+## RawMap to InitialMap
 
 The remainder of map construction is done in the `map_model` crate, driven by
-the `precompute.sh` script. There are two awkwardly named intermediate phases
-before the final Map: InitialMap and HalfMap.
+the `precompute.sh` script. There's one intermediate structure between `RawMap`
+and `Map`, called `InitialMap`.
 
+- `raw.rs`: Apply manually-defined fixes
+  - There's a separate crate, `map_editor`, that displays RawMaps and allows me
+    to manually specify fixes for weird geometry problems.
+  - The `MapFixes` can delete roads and intersections, then create new ones with
+    custom tags and geometry. Sometimes OSM's model of a complicated
+    intersection is so hard to use that it's easier to just start over from
+    scratch.
+  - There's also a fix to merge short roads. This arbitrarily deletes one
+    intersection connected to the short road, then extends the geometry of all
+    roads connected to the other.
 - `make/remove_disconnected.rs`: Remove disconnected roads
   - Just floodfill from some road, assuming all roads are bidirectional, to get
     different partitions.
@@ -166,30 +176,14 @@ before the final Map: InitialMap and HalfMap.
     adjacent roads' polylines
   - Deal with short roads and floating point issues by deduping any adjacent
     points closer than 0.1m
-- `make/initial/mod.rs`: Apply manually-written hints
-  - There's a separate crate, `fix_map_geom`, that displays InitialMaps and
-    allows me to manually add hints to fix weird geometry problems.
-  - The merge short road hint: delete one intersection, extend the geometry of
-    anything connected accordingly, recalculate intersection polygon.
-  - The delete road hint: completely delete a road, disconnecting two
-    intersections.
-  - The merge degenerate intersection hint: destroy an intersection with just
-    two roads, merging the roads. The OSM tags get unioned. `fix_map_geom`
-    displays the OSM tag diff, so it's clear if there's a different number of
-    lanes, speed limit, or some other reason to preserve the intersection.
-  - The hint to override parking on a road: the blockface dataset is inaccurate
-    sometimes, so manually toggle parking on a road.
-  - The ban turns hint: don't allow turns from one road to another. In areas
-    with many close intersections, there are some U-turns that may be valid in
-    reality, but quickly cause gridlock in the simulation.
 
-## InitialMap to HalfMap
+## InitialMap to Map
 
 Still in the `map_model` crate.
 
-- `make/half_map.rs`: Expand roads to lanes, using the list of lane types from
-  before
-- `make/half_map.rs`: Apply the raw OSM turn restrictions to roads
+- `map.rs`'s `make_half_map`: Expand roads to lanes, using the list of lane
+  types from before
+- `map.rs`'s `make_half_map`: Apply the raw OSM turn restrictions to roads
   - Since OSM ways cross many intersections, the turn restrictions only apply to
     one particular road segment that gets created from the way. Make sure the
     destination of the restriction is actually incident to a particular source
@@ -224,18 +218,13 @@ Still in the `map_model` crate.
       lanes created
     - Some of these OSM tags are just completely wrong sometimes. If the filter
       makes an incoming lane lose all of its turns, then ignore that tag.
-- Match buildings up with sidewalks
+- `make/buildings.rs`: Match buildings up with sidewalks
   - Find the closest sidewalk polyline to each building's center. Then draw a
     straight line for the front path between the edge of the building and the
     sidewalk point.
   - Filter out buildings too far away from any sidewalk
   - The front path might cross through other buildings; this is probably not
     worth fixing.
-
-## HalfMap to Map
-
-Still in the `map_model` crate.
-
 - `stop_signs.rs`: Instantiate default stop sign policies
   - Rank incoming roads by OSM priority (arterial beats residential)
   - If there's only one rank, then make an all-way stop
@@ -351,9 +340,10 @@ drawing layer, which uploads new geometry to the GPU accordingly.
 - Don't be afraid of manual intervention
   - The data isn't perfect. It's easy to spend lots of time fiddling with code
     to automatically handle all problems
-  - But it's sometimes faster to just manually point at problems, have a human
-    determine some fix, and add a hint. This is what the `fix_map_geom` crate
-    does.
+  - But it's sometimes faster to just manually point at problems and have a
+    human determine some fix. This is what the `map_editor` crate does.
+  - It can be sometimes easier to completely delete funky OSM data, and just map
+    it again from scratch.
 - Screenshot diff testing
   - When working on the code for intersection geometry, it's easy to check a few
     example cases get fixed by some change. But what if another part of the map
@@ -370,8 +360,9 @@ drawing layer, which uploads new geometry to the GPU accordingly.
   - For the final product, lanes and such are just a contiguous array, indxed by
     numeric IDs.
   - But sometimes, we need IDs that're the same between different boundary
-    polygons of maps, like for hints. Refer to roads as two (longitude,
-    latitude) points for these.
+    polygons of maps, like for MapFixes. Using (longitude, latitude) pairs hits
+    floating-point serialization and comparison issues, so referring to roads as
+    (OSM way ID, OSM node ID 1, OSM node ID 2) works instead.
   - InitialMap has roads and intersections being deleted and merged. Compacting
     IDs is tedious, so instead just store the temporary road objects in a map,
     not array.
