@@ -170,9 +170,14 @@ impl DrawMap {
 
             let gps_bounds = map.get_gps_bounds();
             for s in raw_shapes.into_iter() {
-                if let Some(es) =
-                    DrawExtraShape::new(ExtraShapeID(extra_shapes.len()), s, gps_bounds, &closest)
-                {
+                if let Some(es) = DrawExtraShape::new(
+                    ExtraShapeID(extra_shapes.len()),
+                    s,
+                    gps_bounds,
+                    &closest,
+                    ctx.prerender,
+                    cs,
+                ) {
                     extra_shapes.push(es);
                 }
             }

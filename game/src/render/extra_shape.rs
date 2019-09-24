@@ -1,8 +1,8 @@
-use crate::helpers::ID;
+use crate::helpers::{ColorScheme, ID};
 use crate::render::{
     DrawCtx, DrawOptions, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS,
 };
-use ezgui::{Color, GfxCtx};
+use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
 use geom::{Circle, FindClosest, GPSBounds, PolyLine, Polygon, Pt2D};
 use kml::ExtraShape;
 use map_model::{DirectedRoadID, Map, LANE_THICKNESS};
@@ -21,6 +21,7 @@ impl fmt::Display for ExtraShapeID {
 pub struct DrawExtraShape {
     pub id: ExtraShapeID,
     polygon: Polygon,
+    draw_default: Drawable,
     pub attributes: BTreeMap<String, String>,
     pub road: Option<DirectedRoadID>,
 }
@@ -31,45 +32,45 @@ impl DrawExtraShape {
         s: ExtraShape,
         gps_bounds: &GPSBounds,
         closest: &FindClosest<DirectedRoadID>,
+        prerender: &Prerender,
+        cs: &ColorScheme,
     ) -> Option<DrawExtraShape> {
         let mut pts: Vec<Pt2D> = Vec::new();
         for pt in s.points.into_iter() {
             pts.push(Pt2D::from_gps(pt, gps_bounds)?);
         }
 
-        if pts.len() == 1 {
-            let road = closest
-                .closest_pt(pts[0], LANE_THICKNESS * 5.0)
-                .map(|(r, _)| r);
-            Some(DrawExtraShape {
-                id,
-                polygon: Circle::new(pts[0], EXTRA_SHAPE_POINT_RADIUS).to_polygon(),
-                attributes: s.attributes,
-                road,
-            })
-        } else if pts[0] == *pts.last().unwrap() {
-            Some(DrawExtraShape {
-                id,
-                polygon: Polygon::new(&pts),
-                attributes: s.attributes,
-                road: None,
-            })
-        } else {
-            let pl = PolyLine::new(pts);
-            // The blockface line endpoints will be close to other roads, so match based on the
-            // middle of the blockface.
-            // TODO Long blockfaces sometimes cover two roads. Should maybe find ALL matches within
-            // the threshold distance?
-            let road = closest
-                .closest_pt(pl.middle(), LANE_THICKNESS * 5.0)
-                .map(|(r, _)| r);
-            Some(DrawExtraShape {
-                id,
-                polygon: pl.make_polygons(EXTRA_SHAPE_THICKNESS),
-                attributes: s.attributes,
-                road,
-            })
+        // TODO Can we do something better?
+        if pts.windows(2).any(|pair| pair[0].epsilon_eq(pair[1])) {
+            return None;
         }
+
+        let road = closest
+            .closest_pt(Pt2D::center(&pts), LANE_THICKNESS * 5.0)
+            .map(|(r, _)| r);
+
+        let polygon = if pts.len() == 1 {
+            Circle::new(pts[0], EXTRA_SHAPE_POINT_RADIUS).to_polygon()
+        } else if pts[0] == *pts.last().unwrap() {
+            // TODO Toggle between these better
+            //Polygon::new(&pts)
+            PolyLine::make_polygons_for_boundary(pts, EXTRA_SHAPE_THICKNESS)
+        } else {
+            PolyLine::make_polygons_for_boundary(pts, EXTRA_SHAPE_THICKNESS)
+        };
+        let mut batch = GeomBatch::new();
+        batch.push(
+            cs.get_def("extra shape", Color::RED.alpha(0.5)),
+            polygon.clone(),
+        );
+
+        Some(DrawExtraShape {
+            id,
+            polygon,
+            draw_default: prerender.upload(batch),
+            attributes: s.attributes,
+            road,
+        })
     }
 
     pub fn center(&self) -> Pt2D {
@@ -82,15 +83,20 @@ impl Renderable for DrawExtraShape {
         ID::ExtraShape(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, ctx: &DrawCtx) {
-        let color = opts
-            .color(self.get_id())
-            .unwrap_or_else(|| ctx.cs.get_def("extra shape", Color::RED.alpha(0.5)));
-        g.draw_polygon(color, &self.polygon);
+    fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, _: &DrawCtx) {
+        if let Some(color) = opts.color(self.get_id()) {
+            g.draw_polygon(color, &self.polygon);
+        } else {
+            g.redraw(&self.draw_default);
+        }
     }
 
     fn get_outline(&self, _: &Map) -> Polygon {
         // TODO This depends on the original input type
         self.polygon.clone()
+    }
+
+    fn get_zorder(&self) -> isize {
+        5
     }
 }
