@@ -308,6 +308,14 @@ impl GUI for UI {
                             Line(v).fg(Color::CYAN),
                         ]);
                     }
+                    for (restriction, dst) in self.model.get_turn_restrictions(id) {
+                        txt.add_appended(vec![
+                            Line("Restriction: "),
+                            Line(restriction).fg(Color::RED),
+                            Line(" to "),
+                            Line(dst).fg(Color::CYAN),
+                        ]);
+                    }
                     g.draw_blocking_text(
                         &txt,
                         (

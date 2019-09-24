@@ -615,6 +615,23 @@ impl Model {
             self.road_added(r, prerender);
         }
     }
+
+    pub fn get_turn_restrictions(&self, id: StableRoadID) -> Vec<(String, String)> {
+        self.map
+            .get_turn_restrictions(id)
+            .into_iter()
+            .map(|(r, to)| {
+                let tags = &self.map.roads[&to].osm_tags;
+                (
+                    r,
+                    tags.get(osm::NAME)
+                        .or_else(|| tags.get("ref"))
+                        .cloned()
+                        .unwrap_or_else(|| format!("way {}", to)),
+                )
+            })
+            .collect()
+    }
 }
 
 // Buildings

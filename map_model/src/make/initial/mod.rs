@@ -24,7 +24,6 @@ pub struct Road {
     pub fwd_width: Distance,
     pub back_width: Distance,
     pub lane_specs: Vec<LaneSpec>,
-    pub override_turn_restrictions_to: Vec<StableRoadID>,
 }
 
 impl Road {
@@ -121,7 +120,6 @@ impl InitialMap {
                     fwd_width,
                     back_width,
                     lane_specs,
-                    override_turn_restrictions_to: Vec::new(),
                 },
             );
         }

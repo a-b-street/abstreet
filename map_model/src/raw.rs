@@ -201,6 +201,26 @@ impl RawMap {
             }
         }
     }
+
+    // TODO Apply the direction!
+    pub fn get_turn_restrictions(&self, id: StableRoadID) -> Vec<(String, StableRoadID)> {
+        let mut results = Vec::new();
+        let road = &self.roads[&id];
+        if let Some(restrictions) = self.turn_restrictions.get(&road.orig_id.osm_way_id) {
+            for (restriction, to) in restrictions {
+                // Make sure the restriction actually applies to this road.
+                if let Some(to_road) = self
+                    .roads_per_intersection(road.i1)
+                    .into_iter()
+                    .chain(self.roads_per_intersection(road.i2))
+                    .find(|r| self.roads[&r].orig_id.osm_way_id == *to)
+                {
+                    results.push((restriction.clone(), to_road));
+                }
+            }
+        }
+        results
+    }
 }
 
 // Mutations

@@ -909,10 +909,6 @@ fn make_half_map(
             src_i: i1,
             dst_i: i2,
         };
-        for stable_id in &r.override_turn_restrictions_to {
-            road.turn_restrictions
-                .push(("no_anything".to_string(), road_id_mapping[stable_id]));
-        }
 
         for lane in &r.lane_specs {
             let id = LaneID(map.lanes.len());
@@ -962,24 +958,14 @@ fn make_half_map(
 
     let mut filtered_restrictions = Vec::new();
     for r in &map.roads {
-        if let Some(restrictions) = raw.turn_restrictions.get(&r.osm_way_id) {
-            for (restriction, to) in restrictions {
-                // Make sure the restriction actually applies to this road.
-                if let Some(to_road) = map.intersections[r.src_i.0]
-                    .roads
-                    .iter()
-                    .chain(map.intersections[r.dst_i.0].roads.iter())
-                    .find(|r| map.roads[r.0].osm_way_id == *to)
-                {
-                    filtered_restrictions.push((r.id, restriction, to_road));
-                }
-            }
+        for (restriction, to) in raw.get_turn_restrictions(r.stable_id) {
+            filtered_restrictions.push((r.id, restriction, road_id_mapping[&to]));
         }
     }
     for (from, restriction, to) in filtered_restrictions {
         map.roads[from.0]
             .turn_restrictions
-            .push((restriction.to_string(), *to));
+            .push((restriction.to_string(), to));
     }
 
     for i in map.intersections.iter_mut() {
