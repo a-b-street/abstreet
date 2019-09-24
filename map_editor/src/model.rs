@@ -23,7 +23,7 @@ pub struct Model {
     // TODO Not sure this should be pub...
     pub showing_pts: Option<StableRoadID>,
 
-    exclude_bldgs: bool,
+    include_bldgs: bool,
     fixes: MapFixes,
     edit_fixes: Option<String>,
     world: World<ID>,
@@ -36,7 +36,7 @@ impl Model {
             map: RawMap::blank(String::new()),
             showing_pts: None,
 
-            exclude_bldgs: false,
+            include_bldgs: false,
             fixes: MapFixes::new(),
             edit_fixes: None,
             world: World::new(&Bounds::new()),
@@ -45,13 +45,13 @@ impl Model {
 
     pub fn import(
         path: &str,
-        exclude_bldgs: bool,
+        include_bldgs: bool,
         edit_fixes: Option<String>,
         prerender: &Prerender,
     ) -> Model {
         let mut timer = Timer::new("import map");
         let mut model = Model::blank();
-        model.exclude_bldgs = exclude_bldgs;
+        model.include_bldgs = include_bldgs;
         model.edit_fixes = edit_fixes;
         model.map = read_binary(path, &mut timer).unwrap();
 
@@ -64,7 +64,7 @@ impl Model {
         }
 
         model.world = World::new(&model.compute_bounds());
-        if !model.exclude_bldgs {
+        if model.include_bldgs {
             for id in model.map.buildings.keys().cloned().collect::<Vec<_>>() {
                 model.bldg_added(id, prerender);
             }
@@ -140,9 +140,7 @@ impl Model {
             }
         }
         for r in self.map.roads.values() {
-            if r.osm_tags.get(osm::SYNTHETIC) == Some(&"true".to_string())
-                && !ignore_roads.contains(&r.orig_id)
-            {
+            if r.synthetic() && !ignore_roads.contains(&r.orig_id) {
                 self.fixes.add_roads.push(r.clone());
             }
         }
@@ -171,7 +169,7 @@ impl Model {
     }
 
     pub fn delete_everything_inside(&mut self, area: Polygon) {
-        if !self.exclude_bldgs {
+        if self.include_bldgs {
             for id in self.map.buildings.keys().cloned().collect::<Vec<_>>() {
                 if area.contains_pt(self.map.buildings[&id].polygon.center()) {
                     self.delete_b(id);
@@ -482,7 +480,7 @@ impl Model {
         }
 
         let mut result = Vec::new();
-        let synthetic = r.osm_tags.get(osm::SYNTHETIC) == Some(&"true".to_string());
+        let synthetic = r.synthetic();
         let spec = r.get_spec();
         let center_pts = PolyLine::new(r.center_points.clone());
         for (idx, lt) in spec.fwd.iter().enumerate() {
@@ -600,7 +598,7 @@ impl Model {
     pub fn merge_r(&mut self, id: StableRoadID, prerender: &Prerender) {
         assert!(self.showing_pts != Some(id));
 
-        if !self.map.can_merge_short_road(id) {
+        if !self.map.can_merge_short_road(id, &self.fixes) {
             println!("Can't merge this road; intersection types must differ or there must be synthetic stuff");
             return;
         }

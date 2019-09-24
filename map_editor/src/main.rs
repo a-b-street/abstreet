@@ -33,12 +33,12 @@ impl UI {
     fn new(ctx: &EventCtx) -> UI {
         let mut args = CmdArgs::new();
         let load = args.optional_free();
-        let exclude_bldgs = args.enabled("--nobldgs");
+        let include_bldgs = args.enabled("--bldgs");
         let edit_fixes = args.optional("--fixes");
         args.done();
 
         let model = if let Some(path) = load {
-            Model::import(&path, exclude_bldgs, edit_fixes, ctx.prerender)
+            Model::import(&path, include_bldgs, edit_fixes, ctx.prerender)
         } else {
             Model::blank()
         };

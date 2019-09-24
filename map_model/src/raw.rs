@@ -207,7 +207,7 @@ impl RawMap {
 impl RawMap {
     pub fn delete_road(&mut self, r: StableRoadID, fixes: &mut MapFixes) {
         let road = self.roads.remove(&r).unwrap();
-        if road.osm_tags.get(osm::SYNTHETIC) != Some(&"true".to_string()) {
+        if !road.synthetic() {
             fixes.delete_roads.push(road.orig_id);
         }
     }
@@ -225,6 +225,7 @@ impl RawMap {
     }
 
     pub fn create_intersection(&mut self, i: RawIntersection) -> Option<StableIntersectionID> {
+        assert!(i.synthetic);
         if self
             .gps_bounds
             .contains(i.point.forcibly_to_gps(&self.gps_bounds))
@@ -238,6 +239,7 @@ impl RawMap {
     }
 
     pub fn create_road(&mut self, mut r: RawRoad) -> Option<StableRoadID> {
+        assert!(r.synthetic());
         match (
             self.find_i(OriginalIntersection {
                 osm_node_id: r.orig_id.node1,
@@ -257,20 +259,23 @@ impl RawMap {
         }
     }
 
-    pub fn can_merge_short_road(&self, id: StableRoadID) -> bool {
+    pub fn can_merge_short_road(&self, id: StableRoadID, fixes: &MapFixes) -> bool {
         let road = &self.roads[&id];
-        let it1 = self.intersections[&road.i1].intersection_type;
-        let it2 = self.intersections[&road.i2].intersection_type;
-        if it1 != it2 {
+        let i1 = &self.intersections[&road.i1];
+        let i2 = &self.intersections[&road.i2];
+        if i1.intersection_type != i2.intersection_type {
             return false;
         }
 
         for r in self.roads_per_intersection(road.i2) {
-            if self.roads[&r].osm_tags.get(osm::SYNTHETIC) == Some(&"true".to_string()) {
+            if self.roads[&r].synthetic() {
                 return false;
             }
         }
-        if self.intersections[&road.i1].synthetic || self.intersections[&road.i2].synthetic {
+        if i1.synthetic || i2.synthetic {
+            return false;
+        }
+        if fixes.override_tags.contains_key(&road.orig_id) {
             return false;
         }
 
@@ -283,7 +288,7 @@ impl RawMap {
         id: StableRoadID,
         fixes: &mut MapFixes,
     ) -> Option<(StableIntersectionID, Vec<StableRoadID>)> {
-        assert!(self.can_merge_short_road(id));
+        assert!(self.can_merge_short_road(id, fixes));
         let (i1, i2) = {
             let r = self.roads.remove(&id).unwrap();
             fixes.merge_short_roads.push(r.orig_id);
@@ -295,7 +300,6 @@ impl RawMap {
         };
 
         // Arbitrarily keep i1 and destroy i2.
-        // TODO Make sure intersection types are the same. Make sure i2 isn't synthetic.
         self.intersections.remove(&i2).unwrap();
 
         // Fix up all roads connected to i2.
@@ -328,7 +332,7 @@ impl RawMap {
     ) {
         let road = self.roads.get_mut(&r).unwrap();
         road.osm_tags = osm_tags;
-        if road.osm_tags.get(osm::SYNTHETIC) != Some(&"true".to_string()) {
+        if !road.synthetic() {
             fixes
                 .override_tags
                 .insert(road.orig_id, road.osm_tags.clone());
@@ -423,6 +427,10 @@ impl RawRoad {
     pub fn get_spec(&self) -> RoadSpec {
         let (fwd, back) = get_lane_types(&self.osm_tags);
         RoadSpec { fwd, back }
+    }
+
+    pub fn synthetic(&self) -> bool {
+        self.osm_tags.get(osm::SYNTHETIC) == Some(&"true".to_string())
     }
 }
 
