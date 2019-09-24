@@ -67,8 +67,8 @@ impl ABTestMode {
                 ctx,
             ),
             speed: SpeedControls::new(ctx, None),
-            primary_agent_tools: AgentTools::new(),
-            secondary_agent_tools: AgentTools::new(),
+            primary_agent_tools: AgentTools::new(ctx),
+            secondary_agent_tools: AgentTools::new(ctx),
             diff_trip: None,
             diff_all: None,
             common: CommonState::new(),
@@ -99,7 +99,6 @@ impl State for ABTestMode {
                 diff.lines.len()
             )));
         }
-        self.primary_agent_tools.update_menu_info(&mut txt);
         txt.add(Line(ui.primary.sim.summary()));
         self.menu.handle_event(ctx, Some(txt));
 
@@ -147,9 +146,9 @@ impl State for ABTestMode {
             return Transition::Push(Box::new(explorer));
         }
 
-        if let Some(t) = self.primary_agent_tools.event(ctx, ui, &mut self.menu) {
+        /*if let Some(t) = self.primary_agent_tools.event(ctx, ui, &mut self.menu) {
             return t;
-        }
+        }*/
 
         if self.menu.action("save state") {
             ctx.loading_screen("savestate", |_, timer| {

@@ -33,7 +33,7 @@ impl SandboxMode {
     pub fn new(ctx: &mut EventCtx) -> SandboxMode {
         SandboxMode {
             speed: SpeedControls::new(ctx, None),
-            agent_tools: AgentTools::new(),
+            agent_tools: AgentTools::new(ctx),
             time_travel: time_travel::InactiveTimeTravel::new(),
             common: CommonState::new(),
             parking_heatmap: None,
@@ -58,8 +58,6 @@ impl SandboxMode {
                     ],
                     vec![
                         // TODO Strange to always have this. Really it's a case of stacked modal?
-                        (hotkey(Key::F), "stop following agent"),
-                        (hotkey(Key::R), "stop showing agent's route"),
                         (hotkey(Key::A), "show/hide parking availability"),
                         (hotkey(Key::T), "start time traveling"),
                         (hotkey(Key::Q), "scoreboard"),
@@ -70,7 +68,6 @@ impl SandboxMode {
                         (lctrl(Key::E), "edit mode"),
                         (hotkey(Key::J), "warp"),
                         (hotkey(Key::K), "navigate"),
-                        (hotkey(Key::Semicolon), "change agent colorscheme"),
                         (hotkey(Key::SingleQuote), "shortcuts"),
                         (hotkey(Key::F1), "take a screenshot"),
                     ],
@@ -85,10 +82,11 @@ impl State for SandboxMode {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         self.time_travel.record(ui);
 
-        let mut txt = Text::prompt("Sandbox Mode");
-        txt.add(Line(ui.primary.sim.summary()));
-        self.agent_tools.update_menu_info(&mut txt);
-        self.menu.handle_event(ctx, Some(txt));
+        {
+            let mut txt = Text::prompt("Sandbox Mode");
+            txt.add(Line(ui.primary.sim.summary()));
+            self.menu.handle_event(ctx, Some(txt));
+        }
 
         ctx.canvas.handle_event(ctx.input);
         if ctx.redo_mouseover() {
@@ -108,7 +106,7 @@ impl State for SandboxMode {
             return Transition::Push(Box::new(explorer));
         }
 
-        if let Some(t) = self.agent_tools.event(ctx, ui, &mut self.menu) {
+        if let Some(t) = self.agent_tools.event(ctx, ui) {
             return t;
         }
         if ui.primary.current_selection.is_none() && self.menu.action("start time traveling") {

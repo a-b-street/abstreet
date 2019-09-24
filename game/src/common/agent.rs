@@ -3,7 +3,7 @@ use crate::common::ColorLegend;
 use crate::game::{Transition, WizardState};
 use crate::render::{AgentColorScheme, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::UI;
-use ezgui::{Choice, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
+use ezgui::{hotkey, Choice, DynamicMenu, EventCtx, GfxCtx, Key};
 use geom::{Duration, Pt2D};
 use sim::{TripID, TripResult};
 use std::cell::RefCell;
@@ -13,32 +13,26 @@ pub struct AgentTools {
     route_viewer: RouteViewer,
     // Weird to stash this here and lazily sync it, but...
     agent_cs_legend: RefCell<Option<(AgentColorScheme, ColorLegend)>>,
+
+    menu: DynamicMenu,
 }
 
 impl AgentTools {
-    pub fn new() -> AgentTools {
+    pub fn new(ctx: &mut EventCtx) -> AgentTools {
+        let mut menu = DynamicMenu::new("Agent Tools", ctx);
+        menu.add_action(hotkey(Key::Semicolon), "change agent colorscheme", ctx);
+
         AgentTools {
             following: None,
             route_viewer: RouteViewer::Inactive,
             agent_cs_legend: RefCell::new(None),
+            menu,
         }
     }
 
-    pub fn update_menu_info(&self, txt: &mut Text) {
-        if let Some((trip, _, _)) = self.following {
-            txt.add(Line(format!("Following {}", trip)));
-        }
-        if let RouteViewer::Active(_, trip, _) = self.route_viewer {
-            txt.add(Line(format!("Showing {}'s route", trip)));
-        }
-    }
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI) -> Option<Transition> {
+        self.menu.handle_event(ctx);
 
-    pub fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        ui: &UI,
-        menu: &mut ModalMenu,
-    ) -> Option<Transition> {
         if self.following.is_none() {
             if let Some(agent) = ui
                 .primary
@@ -59,6 +53,8 @@ impl AgentTools {
                                 .ok(),
                             ui.primary.sim.time(),
                         ));
+                        self.menu
+                            .add_action(hotkey(Key::F), "stop following agent", ctx);
                     }
                 }
             }
@@ -80,20 +76,22 @@ impl AgentTools {
                     TripResult::TripDone => {
                         println!("{} is done or aborted, so no more following", trip);
                         self.following = None;
+                        self.menu.remove_action("stop following agent", ctx);
                     }
                     TripResult::TripDoesntExist => {
                         println!("{} doesn't exist yet, so not following", trip);
                         self.following = None;
+                        self.menu.remove_action("stop following agent", ctx);
                     }
                 }
             }
-            if menu.action("stop following agent") {
+            if self.menu.consume_action("stop following agent", ctx) {
                 self.following = None;
             }
         }
-        self.route_viewer.event(ctx, ui, menu);
+        self.route_viewer.event(ctx, ui, &mut self.menu);
 
-        if menu.action("change agent colorscheme") {
+        if self.menu.action("change agent colorscheme") {
             return Some(Transition::Push(WizardState::new(Box::new(
                 |wiz, ctx, ui| {
                     let (_, acs) = wiz.wrap(ctx).choose("Which colorscheme for agents?", || {
@@ -119,6 +117,7 @@ impl AgentTools {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        self.menu.draw(g);
         self.route_viewer.draw(g, ui);
 
         if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {

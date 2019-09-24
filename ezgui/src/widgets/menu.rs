@@ -43,6 +43,7 @@ pub enum Position {
     ScreenCenter,
     SomeCornerAt(ScreenPt),
     TopRightOfScreen,
+    CenterLeft,
 }
 
 impl<T: Clone> Menu<T> {
@@ -98,7 +99,7 @@ impl<T: Clone> Menu<T> {
         separators.pop();
 
         if choices.is_empty() {
-            panic!("Can't create a menu without choices for {:?}", prompt);
+            //panic!("Can't create a menu without choices for {:?}", prompt);
         }
 
         let (total_width, total_height) = canvas.text_dims(&txt);
@@ -275,23 +276,26 @@ impl<T: Clone> Menu<T> {
 
         let base_y = self.top_left.y + (self.prompt.num_lines() as f64) * LINE_HEIGHT;
 
-        let choices_total_height = self.choices.last().unwrap().dy1 + LINE_HEIGHT;
         let mut batch = GeomBatch::new();
 
-        batch.push(
-            text::BG_COLOR,
-            Polygon::rectangle_topleft(
-                Pt2D::new(self.top_left.x, base_y),
-                Distance::meters(self.total_width),
-                Distance::meters(choices_total_height),
-            ),
-        );
-        g.canvas.mark_covered_area(ScreenRectangle {
-            x1: self.top_left.x,
-            y1: base_y,
-            x2: self.top_left.x + self.total_width,
-            y2: base_y + choices_total_height,
-        });
+        if let Some(c) = self.choices.last() {
+            let choices_total_height = c.dy1 + LINE_HEIGHT;
+
+            batch.push(
+                text::BG_COLOR,
+                Polygon::rectangle_topleft(
+                    Pt2D::new(self.top_left.x, base_y),
+                    Distance::meters(self.total_width),
+                    Distance::meters(choices_total_height),
+                ),
+            );
+            g.canvas.mark_covered_area(ScreenRectangle {
+                x1: self.top_left.x,
+                y1: base_y,
+                x2: self.top_left.x + self.total_width,
+                y2: base_y + choices_total_height,
+            });
+        }
 
         for dy1 in &self.separators {
             batch.push(
@@ -479,6 +483,7 @@ impl Position {
                 pt
             }
             Position::TopRightOfScreen => ScreenPt::new(canvas.window_width - total_width, 0.0),
+            Position::CenterLeft => ScreenPt::new(0.0, (canvas.window_height - total_height) / 2.0),
         }
     }
 }

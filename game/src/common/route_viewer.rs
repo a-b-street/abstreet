@@ -1,6 +1,6 @@
 use crate::helpers::ID;
 use crate::ui::UI;
-use ezgui::{Color, EventCtx, GfxCtx, Key, ModalMenu};
+use ezgui::{hotkey, Color, DynamicMenu, EventCtx, GfxCtx, Key};
 use geom::{Duration, PolyLine};
 use map_model::LANE_THICKNESS;
 use sim::{AgentID, TripID, TripResult};
@@ -26,7 +26,7 @@ impl RouteViewer {
         RouteViewer::Inactive
     }
 
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI, menu: &mut ModalMenu) {
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI, menu: &mut DynamicMenu) {
         match self {
             RouteViewer::Inactive => {
                 *self = RouteViewer::recalc(ui);
@@ -46,12 +46,12 @@ impl RouteViewer {
                         .contextual_action(Key::R, format!("show {}'s route", agent))
                     {
                         *self = show_route(trip, ui);
+                        menu.add_action(hotkey(Key::R), "stop showing agent's route", ctx);
                     }
                 }
             }
             RouteViewer::Active(time, trip, _) => {
-                // TODO Using the modal menu from parent is weird...
-                if menu.action("stop showing agent's route") {
+                if menu.consume_action("stop showing agent's route", ctx) {
                     *self = RouteViewer::Inactive;
                 } else if *time != ui.primary.sim.time() {
                     *self = show_route(*trip, ui);
