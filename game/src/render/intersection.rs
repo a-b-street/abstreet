@@ -37,7 +37,7 @@ impl DrawIntersection {
             if i.is_border() {
                 cs.get_def("border intersection", Color::rgb(50, 205, 50))
             } else {
-                cs.get_def("normal intersection", Color::grey(0.6))
+                cs.get_def("normal intersection", Color::grey(0.2))
             },
             i.polygon.clone(),
         );
