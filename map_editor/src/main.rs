@@ -400,5 +400,5 @@ impl GUI for UI {
 }
 
 fn main() {
-    ezgui::run("Synthetic map editor", 1024.0, 768.0, |ctx| UI::new(ctx));
+    ezgui::run("Synthetic map editor", 1800.0, 800.0, |ctx| UI::new(ctx));
 }

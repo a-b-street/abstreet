@@ -455,8 +455,15 @@ impl Model {
 
     pub fn delete_r(&mut self, id: StableRoadID) {
         assert!(self.showing_pts != Some(id));
-        self.road_deleted(id);
-        self.map.delete_road(id, &mut self.fixes);
+        if self.map.can_delete_road(id) {
+            self.road_deleted(id);
+            self.map.delete_road(id, &mut self.fixes);
+        } else {
+            println!(
+                "Can't delete {}, it must have turn restriction from/to it",
+                id
+            );
+        }
     }
 
     pub fn get_road_spec(&self, id: StableRoadID) -> String {

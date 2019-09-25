@@ -225,7 +225,24 @@ impl RawMap {
 
 // Mutations
 impl RawMap {
+    pub fn can_delete_road(&self, r: StableRoadID) -> bool {
+        if !self.get_turn_restrictions(r).is_empty() {
+            return false;
+        }
+        // Brute force search the other direction
+        let osm_id = self.roads[&r].orig_id.osm_way_id;
+        for restrictions in self.turn_restrictions.values() {
+            for (_, to) in restrictions {
+                if *to == osm_id {
+                    return false;
+                }
+            }
+        }
+        true
+    }
+
     pub fn delete_road(&mut self, r: StableRoadID, fixes: &mut MapFixes) {
+        assert!(self.can_delete_road(r));
         let road = self.roads.remove(&r).unwrap();
         if !road.synthetic() {
             fixes.delete_roads.push(road.orig_id);
