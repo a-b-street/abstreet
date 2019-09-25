@@ -671,7 +671,8 @@ impl Model {
     ) {
         self.road_deleted(from);
 
-        self.map.add_turn_restriction(from, restriction, to);
+        self.map
+            .add_turn_restriction(from, restriction, to, &mut self.fixes);
 
         self.road_added(from, prerender);
     }
@@ -685,7 +686,8 @@ impl Model {
     ) {
         self.road_deleted(from);
 
-        self.map.delete_turn_restriction(from, restriction, to);
+        self.map
+            .delete_turn_restriction(from, restriction, to, &mut self.fixes);
 
         self.road_added(from, prerender);
     }

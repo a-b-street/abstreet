@@ -145,6 +145,32 @@ impl RawMap {
                 }
             }
 
+            // TODO Turn restrictions are weird in a few ways.
+            // - Can't detect original vs synthetic restrictions. Mitigated by deleting before
+            // adding.
+            // - Hard to know if a restriction applies to the current map, because just OSM way IDs
+            // are kind of ambiguous.
+            // TODO Try to reformulate turn restrictions to live on RawRoad up-front.
+            for (from, restriction, to) in &fixes.delete_turn_restrictions {
+                if let Some(ref mut list) = self.turn_restrictions.get_mut(from) {
+                    let len = list.len();
+                    list.retain(|(r, t)| r != restriction || t != to);
+                    if list.len() != len {
+                        applied += 1;
+                    } else {
+                        skipped += 1;
+                    }
+                }
+            }
+
+            for (from, restriction, to) in &fixes.add_turn_restrictions {
+                self.turn_restrictions
+                    .entry(*from)
+                    .or_insert_with(Vec::new)
+                    .push((*restriction, *to));
+                applied += 1;
+            }
+
             timer.note(format!(
                 "Applied {} of {} fixes for {}",
                 applied,
@@ -450,13 +476,16 @@ impl RawMap {
         from: StableRoadID,
         restriction: RestrictionType,
         to: StableRoadID,
+        fixes: &mut MapFixes,
     ) {
+        let from_way_id = self.roads[&from].orig_id.osm_way_id;
         let to_way_id = self.roads[&to].orig_id.osm_way_id;
-        let list = self
-            .turn_restrictions
-            .get_mut(&self.roads[&from].orig_id.osm_way_id)
-            .unwrap();
+        let list = self.turn_restrictions.get_mut(&from_way_id).unwrap();
         list.retain(|(r, way_id)| *r != restriction || *way_id != to_way_id);
+
+        fixes
+            .delete_turn_restrictions
+            .push((from_way_id, restriction, to_way_id));
     }
 
     pub fn can_add_turn_restriction(&self, from: StableRoadID, to: StableRoadID) -> bool {
@@ -471,17 +500,25 @@ impl RawMap {
         i1 == i3 || i1 == i4 || i2 == i3 || i2 == i4
     }
 
+    // TODO Worry about duplicates?
     pub fn add_turn_restriction(
         &mut self,
         from: StableRoadID,
         restriction: RestrictionType,
         to: StableRoadID,
+        fixes: &mut MapFixes,
     ) {
         assert!(self.can_add_turn_restriction(from, to));
+        let from_way_id = self.roads[&from].orig_id.osm_way_id;
+        let to_way_id = self.roads[&to].orig_id.osm_way_id;
         self.turn_restrictions
-            .entry(self.roads[&from].orig_id.osm_way_id)
+            .entry(from_way_id)
             .or_insert_with(Vec::new)
-            .push((restriction, self.roads[&to].orig_id.osm_way_id));
+            .push((restriction, to_way_id));
+
+        fixes
+            .add_turn_restrictions
+            .push((from_way_id, restriction, to_way_id));
     }
 }
 
@@ -594,6 +631,8 @@ pub struct MapFixes {
     pub merge_short_roads: Vec<OriginalRoad>,
     // For non-synthetic (original OSM) roads
     pub override_tags: BTreeMap<OriginalRoad, BTreeMap<String, String>>,
+    pub delete_turn_restrictions: Vec<(i64, RestrictionType, i64)>,
+    pub add_turn_restrictions: Vec<(i64, RestrictionType, i64)>,
 }
 
 impl MapFixes {
@@ -605,6 +644,8 @@ impl MapFixes {
             add_roads: Vec::new(),
             merge_short_roads: Vec::new(),
             override_tags: BTreeMap::new(),
+            delete_turn_restrictions: Vec::new(),
+            add_turn_restrictions: Vec::new(),
         }
     }
 
