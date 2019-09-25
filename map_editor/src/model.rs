@@ -4,7 +4,7 @@ use ezgui::{Color, EventCtx, GfxCtx, Line, Prerender, Text};
 use geom::{Bounds, Circle, Distance, PolyLine, Polygon, Pt2D};
 use map_model::raw::{
     MapFixes, OriginalIntersection, OriginalRoad, RawBuilding, RawIntersection, RawMap, RawRoad,
-    StableBuildingID, StableIntersectionID, StableRoadID,
+    RestrictionType, StableBuildingID, StableIntersectionID, StableRoadID,
 };
 use map_model::{osm, IntersectionType, LaneType, RoadSpec, LANE_THICKNESS};
 use std::collections::{BTreeMap, BTreeSet};
@@ -519,7 +519,7 @@ impl Model {
             result.push(obj.tooltip(tooltip.clone()));
         }
 
-        for (turn_id, restriction, to) in self.get_turn_restrictions(id) {
+        for (restriction, to) in self.get_turn_restrictions(id) {
             let polygon = if id == to {
                 // TODO Ideally a hollow circle with an arrow
                 Circle::new(
@@ -534,7 +534,12 @@ impl Model {
             };
 
             result.push(
-                Object::new(turn_id, Color::PURPLE, polygon).tooltip(Text::from(Line(restriction))),
+                Object::new(
+                    ID::TurnRestriction(id, restriction, to),
+                    Color::PURPLE,
+                    polygon,
+                )
+                .tooltip(Text::from(Line(format!("{:?}", restriction)))),
             );
         }
 
@@ -642,19 +647,14 @@ impl Model {
 
 // Turn restrictions
 impl Model {
-    pub fn get_turn_restrictions(&self, id: StableRoadID) -> Vec<(ID, String, StableRoadID)> {
-        self.map
-            .get_turn_restrictions(id)
-            .into_iter()
-            .enumerate()
-            .map(|(idx, (r, to))| (ID::TurnRestriction(id, to, idx), r, to))
-            .collect()
+    pub fn get_turn_restrictions(&self, id: StableRoadID) -> Vec<(RestrictionType, StableRoadID)> {
+        self.map.get_turn_restrictions(id)
     }
 
     pub fn add_tr(
         &mut self,
         from: StableRoadID,
-        restriction: String,
+        restriction: RestrictionType,
         to: StableRoadID,
         prerender: &Prerender,
     ) {
@@ -668,15 +668,13 @@ impl Model {
     pub fn delete_tr(
         &mut self,
         from: StableRoadID,
+        restriction: RestrictionType,
         to: StableRoadID,
-        idx: usize,
         prerender: &Prerender,
     ) {
         self.road_deleted(from);
 
-        let (_, ref restriction, _) = self.get_turn_restrictions(from)[idx];
-        self.map
-            .delete_turn_restriction(from, restriction.clone(), to);
+        self.map.delete_turn_restriction(from, restriction, to);
 
         self.road_added(from, prerender);
     }
@@ -754,7 +752,7 @@ pub enum ID {
     Intersection(StableIntersectionID),
     Lane(StableRoadID, Direction, usize),
     RoadPoint(StableRoadID, usize),
-    TurnRestriction(StableRoadID, StableRoadID, usize),
+    TurnRestriction(StableRoadID, RestrictionType, StableRoadID),
 }
 
 impl ObjectID for ID {

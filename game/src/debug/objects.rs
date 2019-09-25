@@ -190,7 +190,7 @@ fn tooltip_lines(id: ID, g: &mut GfxCtx, ctx: &PerMapUI) -> Text {
             }
             for (restriction, to) in &r.turn_restrictions {
                 txt.add(Line(format!(
-                    "Restriction from this road to {}: {}",
+                    "Restriction from this road to {}: {:?}",
                     to, restriction
                 )));
             }

@@ -1,7 +1,8 @@
 use abstutil::{FileWithProgress, Timer};
 use geom::{GPSBounds, HashablePt2D, LonLat, Polygon, Pt2D};
 use map_model::raw::{
-    OriginalRoad, RawArea, RawBuilding, RawMap, RawRoad, StableBuildingID, StableIntersectionID,
+    OriginalRoad, RawArea, RawBuilding, RawMap, RawRoad, RestrictionType, StableBuildingID,
+    StableIntersectionID,
 };
 use map_model::{osm, AreaType};
 use osm_xml;
@@ -193,7 +194,7 @@ pub fn extract_osm(
                     map.turn_restrictions
                         .entry(from_way_id)
                         .or_insert_with(Vec::new)
-                        .push((restriction.to_string(), to_way_id));
+                        .push((RestrictionType::new(restriction), to_way_id));
                 }
             }
         }

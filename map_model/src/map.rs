@@ -963,9 +963,7 @@ fn make_half_map(
         }
     }
     for (from, restriction, to) in filtered_restrictions {
-        map.roads[from.0]
-            .turn_restrictions
-            .push((restriction.to_string(), to));
+        map.roads[from.0].turn_restrictions.push((restriction, to));
     }
 
     for i in map.intersections.iter_mut() {

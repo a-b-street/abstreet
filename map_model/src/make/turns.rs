@@ -1,3 +1,4 @@
+use crate::raw::RestrictionType;
 use crate::{
     Intersection, IntersectionID, Lane, LaneID, LaneType, Road, RoadID, Turn, TurnID, TurnType,
     LANE_THICKNESS,
@@ -599,23 +600,17 @@ fn does_turn_pass_restrictions(
         if !intersection_roads.contains(to) {
             continue;
         }
-
-        // Ignore the TurnType. Between two roads, there's only one category of TurnType (treating
-        // Straight/LaneChangeLeft/LaneChangeRight as the same).
-        //
-        // Strip off time restrictions (like " @ (Mo-Fr 06:00-09:00, 15:00-18:30)")
-        match restriction.split(" @ ").next().unwrap() {
-            "no_left_turn" | "no_right_turn" | "no_straight_on" | "no_u_turn" | "no_anything" => {
+        match restriction {
+            RestrictionType::BanTurns => {
                 if dst == *to {
                     return false;
                 }
             }
-            "only_left_turn" | "only_right_turn" | "only_straight_on" => {
+            RestrictionType::OnlyAllowTurns => {
                 if dst != *to {
                     return false;
                 }
             }
-            _ => panic!("Unknown restriction {}", restriction),
         }
     }
 

@@ -1,4 +1,4 @@
-use crate::raw::StableRoadID;
+use crate::raw::{RestrictionType, StableRoadID};
 use crate::{osm, BusStopID, IntersectionID, LaneID, LaneType, Map, LANE_THICKNESS};
 use abstutil::{Error, Warn};
 use geom::{Distance, PolyLine, Polygon, Speed};
@@ -62,7 +62,7 @@ pub struct Road {
     // complexity was annoying.
     pub osm_tags: BTreeMap<String, String>,
     // self is 'from'
-    pub turn_restrictions: Vec<(String, RoadID)>,
+    pub turn_restrictions: Vec<(RestrictionType, RoadID)>,
     pub osm_way_id: i64,
     pub stable_id: StableRoadID,
 

@@ -41,7 +41,7 @@ pub struct RawMap {
     pub bus_routes: Vec<Route>,
     pub areas: Vec<RawArea>,
     // from OSM way => [(restriction, to OSM way)]
-    pub turn_restrictions: BTreeMap<i64, Vec<(String, i64)>>,
+    pub turn_restrictions: BTreeMap<i64, Vec<(RestrictionType, i64)>>,
 
     pub boundary_polygon: Polygon,
     pub gps_bounds: GPSBounds,
@@ -203,7 +203,7 @@ impl RawMap {
     }
 
     // TODO Apply the direction!
-    pub fn get_turn_restrictions(&self, id: StableRoadID) -> Vec<(String, StableRoadID)> {
+    pub fn get_turn_restrictions(&self, id: StableRoadID) -> Vec<(RestrictionType, StableRoadID)> {
         let mut results = Vec::new();
         let road = &self.roads[&id];
         if let Some(restrictions) = self.turn_restrictions.get(&road.orig_id.osm_way_id) {
@@ -215,7 +215,7 @@ impl RawMap {
                     .chain(self.roads_per_intersection(road.i2))
                     .find(|r| self.roads[&r].orig_id.osm_way_id == *to)
                 {
-                    results.push((restriction.clone(), to_road));
+                    results.push((*restriction, to_road));
                 }
             }
         }
@@ -431,7 +431,7 @@ impl RawMap {
     pub fn delete_turn_restriction(
         &mut self,
         from: StableRoadID,
-        restriction: String,
+        restriction: RestrictionType,
         to: StableRoadID,
     ) {
         let to_way_id = self.roads[&to].orig_id.osm_way_id;
@@ -439,13 +439,13 @@ impl RawMap {
             .turn_restrictions
             .get_mut(&self.roads[&from].orig_id.osm_way_id)
             .unwrap();
-        list.retain(|(r, way_id)| r != &restriction || *way_id != to_way_id);
+        list.retain(|(r, way_id)| *r != restriction || *way_id != to_way_id);
     }
 
     pub fn add_turn_restriction(
         &mut self,
         from: StableRoadID,
-        restriction: String,
+        restriction: RestrictionType,
         to: StableRoadID,
     ) {
         self.turn_restrictions
@@ -505,6 +505,30 @@ pub struct RawArea {
     pub polygon: Polygon,
     pub osm_tags: BTreeMap<String, String>,
     pub osm_id: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum RestrictionType {
+    BanTurns,
+    OnlyAllowTurns,
+}
+
+impl RestrictionType {
+    pub fn new(restriction: &str) -> RestrictionType {
+        // Ignore the TurnType. Between two roads, there's only one category of TurnType (treating
+        // Straight/LaneChangeLeft/LaneChangeRight as the same).
+        //
+        // Strip off time restrictions (like " @ (Mo-Fr 06:00-09:00, 15:00-18:30)")
+        match restriction.split(" @ ").next().unwrap() {
+            "no_left_turn" | "no_right_turn" | "no_straight_on" | "no_u_turn" | "no_anything" => {
+                RestrictionType::BanTurns
+            }
+            "only_left_turn" | "only_right_turn" | "only_straight_on" => {
+                RestrictionType::OnlyAllowTurns
+            }
+            _ => panic!("Unknown turn restriction {}", restriction),
+        }
+    }
 }
 
 // A way to refer to roads across many maps.

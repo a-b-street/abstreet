@@ -43,3 +43,4 @@ impl Cloneable for LaneType {}
 impl Cloneable for MapEdits {}
 impl Cloneable for Neighborhood {}
 impl Cloneable for NeighborhoodBuilder {}
+impl Cloneable for raw::RestrictionType {}

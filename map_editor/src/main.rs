@@ -1,9 +1,9 @@
 mod model;
 
 use abstutil::CmdArgs;
-use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, Text, Wizard, GUI};
+use ezgui::{Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, Text, Wizard, GUI};
 use geom::{Distance, Line, Polygon, Pt2D};
-use map_model::raw::{StableBuildingID, StableIntersectionID, StableRoadID};
+use map_model::raw::{RestrictionType, StableBuildingID, StableIntersectionID, StableRoadID};
 use map_model::LANE_THICKNESS;
 use model::{Direction, Model, ID};
 use std::process;
@@ -300,8 +300,17 @@ impl GUI for UI {
                 }
             }
             State::CreatingTurnRestrictionPt2(from, to, ref mut wizard) => {
-                // TODO choose from enums
-                if let Some(restriction) = wizard.wrap(ctx).input_string("What turn restriction?") {
+                if let Some((_, restriction)) =
+                    wizard.wrap(ctx).choose("What turn restriction?", || {
+                        vec![
+                            Choice::new("ban turns between", RestrictionType::BanTurns),
+                            Choice::new(
+                                "only allow turns between",
+                                RestrictionType::OnlyAllowTurns,
+                            ),
+                        ]
+                    })
+                {
                     self.model.add_tr(from, restriction, to, ctx.prerender);
                     self.state = State::Viewing;
                 } else if wizard.aborted() {
@@ -344,10 +353,10 @@ impl GUI for UI {
                             Line(v).fg(Color::CYAN),
                         ]);
                     }
-                    for (_, restriction, dst) in self.model.get_turn_restrictions(id) {
+                    for (restriction, dst) in self.model.get_turn_restrictions(id) {
                         txt.add_appended(vec![
                             Line("Restriction: "),
-                            Line(restriction).fg(Color::RED),
+                            Line(format!("{:?}", restriction)).fg(Color::RED),
                             Line(" to "),
                             Line(format!("way {}", dst)).fg(Color::CYAN),
                         ]);
