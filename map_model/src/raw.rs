@@ -427,6 +427,32 @@ impl RawMap {
     pub fn delete_building(&mut self, id: StableBuildingID) {
         self.buildings.remove(&id);
     }
+
+    pub fn delete_turn_restriction(
+        &mut self,
+        from: StableRoadID,
+        restriction: String,
+        to: StableRoadID,
+    ) {
+        let to_way_id = self.roads[&to].orig_id.osm_way_id;
+        let list = self
+            .turn_restrictions
+            .get_mut(&self.roads[&from].orig_id.osm_way_id)
+            .unwrap();
+        list.retain(|(r, way_id)| r != &restriction || *way_id != to_way_id);
+    }
+
+    pub fn add_turn_restriction(
+        &mut self,
+        from: StableRoadID,
+        restriction: String,
+        to: StableRoadID,
+    ) {
+        self.turn_restrictions
+            .entry(self.roads[&from].orig_id.osm_way_id)
+            .or_insert_with(Vec::new)
+            .push((restriction, self.roads[&to].orig_id.osm_way_id));
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

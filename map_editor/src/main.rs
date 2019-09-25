@@ -4,6 +4,7 @@ use abstutil::CmdArgs;
 use ezgui::{Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, Text, Wizard, GUI};
 use geom::{Distance, Line, Polygon, Pt2D};
 use map_model::raw::{StableBuildingID, StableIntersectionID, StableRoadID};
+use map_model::LANE_THICKNESS;
 use model::{Direction, Model, ID};
 use std::process;
 
@@ -27,6 +28,8 @@ enum State {
     SavingModel(Wizard),
     // bool is if key is down
     SelectingRectangle(Pt2D, Pt2D, bool),
+    CreatingTurnRestrictionPt1(StableRoadID),
+    CreatingTurnRestrictionPt2(StableRoadID, StableRoadID, Wizard),
 }
 
 impl UI {
@@ -213,12 +216,26 @@ impl GUI for UI {
                     } else if ctx.input.key_pressed(Key::M, "merge road") {
                         self.model.merge_r(r, ctx.prerender);
                         self.model.handle_mouseover(ctx);
+                    } else if ctx
+                        .input
+                        .key_pressed(Key::R, "create turn restriction from here")
+                    {
+                        self.state = State::CreatingTurnRestrictionPt1(r);
                     }
                 } else if let Some(ID::RoadPoint(r, idx)) = self.model.get_selection() {
                     if ctx.input.key_pressed(Key::LeftControl, "move point") {
                         self.state = State::MovingRoadPoint(r, idx);
                     } else if ctx.input.key_pressed(Key::Backspace, "delete point") {
                         self.model.delete_r_pt(r, idx, ctx.prerender);
+                        self.model.handle_mouseover(ctx);
+                    }
+                } else if let Some(ID::TurnRestriction(from, to, idx)) = self.model.get_selection()
+                {
+                    if ctx
+                        .input
+                        .key_pressed(Key::Backspace, "delete turn restriction")
+                    {
+                        self.model.delete_tr(from, to, idx, ctx.prerender);
                         self.model.handle_mouseover(ctx);
                     }
                 } else if ctx.input.unimportant_key_pressed(Key::Escape, "quit") {
@@ -272,6 +289,25 @@ impl GUI for UI {
                     self.state = State::Viewing;
                 }
             }
+            State::CreatingTurnRestrictionPt1(from) => {
+                if let Some(ID::Lane(to, _, _)) = self.model.get_selection() {
+                    if ctx
+                        .input
+                        .key_pressed(Key::R, "create turn restriction to here")
+                    {
+                        self.state = State::CreatingTurnRestrictionPt2(from, to, Wizard::new());
+                    }
+                }
+            }
+            State::CreatingTurnRestrictionPt2(from, to, ref mut wizard) => {
+                // TODO choose from enums
+                if let Some(restriction) = wizard.wrap(ctx).input_string("What turn restriction?") {
+                    self.model.add_tr(from, restriction, to, ctx.prerender);
+                    self.state = State::Viewing;
+                } else if wizard.aborted() {
+                    self.state = State::Viewing;
+                }
+            }
         }
 
         self.osd = Text::new();
@@ -308,12 +344,12 @@ impl GUI for UI {
                             Line(v).fg(Color::CYAN),
                         ]);
                     }
-                    for (restriction, dst) in self.model.get_turn_restrictions(id) {
+                    for (_, restriction, dst) in self.model.get_turn_restrictions(id) {
                         txt.add_appended(vec![
                             Line("Restriction: "),
                             Line(restriction).fg(Color::RED),
                             Line(" to "),
-                            Line(dst).fg(Color::CYAN),
+                            Line(format!("way {}", dst)).fg(Color::CYAN),
                         ]);
                     }
                     g.draw_blocking_text(
@@ -332,6 +368,21 @@ impl GUI for UI {
                 if let Some(rect) = Polygon::rectangle_two_corners(pt1, pt2) {
                     g.draw_polygon(Color::BLUE.alpha(0.5), &rect);
                 }
+            }
+            State::CreatingTurnRestrictionPt1(from) => {
+                if let Some(cursor) = g.get_cursor_in_map_space() {
+                    if let Some(l) = Line::maybe_new(self.model.get_r_center(from), cursor) {
+                        g.draw_arrow(Color::PURPLE, LANE_THICKNESS, &l);
+                    }
+                }
+            }
+            State::CreatingTurnRestrictionPt2(from, to, ref wizard) => {
+                if let Some(l) =
+                    Line::maybe_new(self.model.get_r_center(from), self.model.get_r_center(to))
+                {
+                    g.draw_arrow(Color::PURPLE, LANE_THICKNESS, &l);
+                }
+                wizard.draw(g);
             }
         };
 

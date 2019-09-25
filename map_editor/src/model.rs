@@ -519,7 +519,7 @@ impl Model {
             result.push(obj.tooltip(tooltip.clone()));
         }
 
-        for (idx, (restriction, to)) in self.map.get_turn_restrictions(id).into_iter().enumerate() {
+        for (turn_id, restriction, to) in self.get_turn_restrictions(id) {
             let polygon = if id == to {
                 // TODO Ideally a hollow circle with an arrow
                 Circle::new(
@@ -528,17 +528,13 @@ impl Model {
                 )
                 .to_polygon()
             } else {
-                PolyLine::new(vec![
-                    PolyLine::new(self.map.roads[&id].center_points.clone()).middle(),
-                    PolyLine::new(self.map.roads[&to].center_points.clone()).middle(),
-                ])
-                .make_arrow(LANE_THICKNESS)
-                .unwrap()
+                PolyLine::new(vec![self.get_r_center(id), self.get_r_center(to)])
+                    .make_arrow(LANE_THICKNESS)
+                    .unwrap()
             };
 
             result.push(
-                Object::new(ID::TurnRestriction(id, to, idx), Color::PURPLE, polygon)
-                    .tooltip(Text::from(Line(restriction))),
+                Object::new(turn_id, Color::PURPLE, polygon).tooltip(Text::from(Line(restriction))),
             );
         }
 
@@ -639,21 +635,50 @@ impl Model {
         }
     }
 
-    pub fn get_turn_restrictions(&self, id: StableRoadID) -> Vec<(String, String)> {
+    pub fn get_r_center(&self, id: StableRoadID) -> Pt2D {
+        PolyLine::new(self.map.roads[&id].center_points.clone()).middle()
+    }
+}
+
+// Turn restrictions
+impl Model {
+    pub fn get_turn_restrictions(&self, id: StableRoadID) -> Vec<(ID, String, StableRoadID)> {
         self.map
             .get_turn_restrictions(id)
             .into_iter()
-            .map(|(r, to)| {
-                let tags = &self.map.roads[&to].osm_tags;
-                (
-                    r,
-                    tags.get(osm::NAME)
-                        .or_else(|| tags.get("ref"))
-                        .cloned()
-                        .unwrap_or_else(|| format!("way {}", to)),
-                )
-            })
+            .enumerate()
+            .map(|(idx, (r, to))| (ID::TurnRestriction(id, to, idx), r, to))
             .collect()
+    }
+
+    pub fn add_tr(
+        &mut self,
+        from: StableRoadID,
+        restriction: String,
+        to: StableRoadID,
+        prerender: &Prerender,
+    ) {
+        self.road_deleted(from);
+
+        self.map.add_turn_restriction(from, restriction, to);
+
+        self.road_added(from, prerender);
+    }
+
+    pub fn delete_tr(
+        &mut self,
+        from: StableRoadID,
+        to: StableRoadID,
+        idx: usize,
+        prerender: &Prerender,
+    ) {
+        self.road_deleted(from);
+
+        let (_, ref restriction, _) = self.get_turn_restrictions(from)[idx];
+        self.map
+            .delete_turn_restriction(from, restriction.clone(), to);
+
+        self.road_added(from, prerender);
     }
 }
 
