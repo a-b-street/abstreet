@@ -459,12 +459,25 @@ impl RawMap {
         list.retain(|(r, way_id)| *r != restriction || *way_id != to_way_id);
     }
 
+    pub fn can_add_turn_restriction(&self, from: StableRoadID, to: StableRoadID) -> bool {
+        let (i1, i2) = {
+            let r = &self.roads[&from];
+            (r.i1, r.i2)
+        };
+        let (i3, i4) = {
+            let r = &self.roads[&to];
+            (r.i1, r.i2)
+        };
+        i1 == i3 || i1 == i4 || i2 == i3 || i2 == i4
+    }
+
     pub fn add_turn_restriction(
         &mut self,
         from: StableRoadID,
         restriction: RestrictionType,
         to: StableRoadID,
     ) {
+        assert!(self.can_add_turn_restriction(from, to));
         self.turn_restrictions
             .entry(self.roads[&from].orig_id.osm_way_id)
             .or_insert_with(Vec::new)

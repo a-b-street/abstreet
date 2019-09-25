@@ -658,6 +658,10 @@ impl Model {
         self.map.get_turn_restrictions(id)
     }
 
+    pub fn can_add_tr(&self, from: StableRoadID, to: StableRoadID) -> bool {
+        self.map.can_add_turn_restriction(from, to)
+    }
+
     pub fn add_tr(
         &mut self,
         from: StableRoadID,

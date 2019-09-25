@@ -290,12 +290,22 @@ impl GUI for UI {
                 }
             }
             State::CreatingTurnRestrictionPt1(from) => {
-                if let Some(ID::Lane(to, _, _)) = self.model.get_selection() {
+                if ctx
+                    .input
+                    .key_pressed(Key::Escape, "stop defining turn restriction")
+                {
+                    self.state = State::Viewing;
+                    self.model.handle_mouseover(ctx);
+                } else if let Some(ID::Lane(to, _, _)) = self.model.get_selection() {
                     if ctx
                         .input
                         .key_pressed(Key::R, "create turn restriction to here")
                     {
-                        self.state = State::CreatingTurnRestrictionPt2(from, to, Wizard::new());
+                        if self.model.can_add_tr(from, to) {
+                            self.state = State::CreatingTurnRestrictionPt2(from, to, Wizard::new());
+                        } else {
+                            println!("These roads aren't connected");
+                        }
                     }
                 }
             }
