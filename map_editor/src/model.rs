@@ -519,6 +519,29 @@ impl Model {
             result.push(obj.tooltip(tooltip.clone()));
         }
 
+        for (idx, (restriction, to)) in self.map.get_turn_restrictions(id).into_iter().enumerate() {
+            let polygon = if id == to {
+                // TODO Ideally a hollow circle with an arrow
+                Circle::new(
+                    PolyLine::new(self.map.roads[&id].center_points.clone()).middle(),
+                    LANE_THICKNESS,
+                )
+                .to_polygon()
+            } else {
+                PolyLine::new(vec![
+                    PolyLine::new(self.map.roads[&id].center_points.clone()).middle(),
+                    PolyLine::new(self.map.roads[&to].center_points.clone()).middle(),
+                ])
+                .make_arrow(LANE_THICKNESS)
+                .unwrap()
+            };
+
+            result.push(
+                Object::new(ID::TurnRestriction(id, to, idx), Color::PURPLE, polygon)
+                    .tooltip(Text::from(Line(restriction))),
+            );
+        }
+
         result
     }
 
@@ -706,6 +729,7 @@ pub enum ID {
     Intersection(StableIntersectionID),
     Lane(StableRoadID, Direction, usize),
     RoadPoint(StableRoadID, usize),
+    TurnRestriction(StableRoadID, StableRoadID, usize),
 }
 
 impl ObjectID for ID {
@@ -715,6 +739,7 @@ impl ObjectID for ID {
             ID::Intersection(_) => 1,
             ID::Building(_) => 2,
             ID::RoadPoint(_, _) => 3,
+            ID::TurnRestriction(_, _, _) => 4,
         }
     }
 }
