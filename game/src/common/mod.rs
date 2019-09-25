@@ -78,24 +78,21 @@ impl CommonState {
         CommonState::draw_osd(g, ui, &ui.primary.current_selection);
     }
 
-    pub fn draw_osd(g: &mut GfxCtx, ui: &UI, id: &Option<ID>) {
+    pub fn default_osd(id: ID, ui: &UI) -> Text {
         let map = &ui.primary.map;
         let id_color = ui.cs.get_def("OSD ID color", Color::RED);
         let name_color = ui.cs.get_def("OSD name color", Color::CYAN);
         let mut osd = Text::new();
         match id {
-            None => {
-                osd.append(Line("..."));
-            }
-            Some(ID::Lane(l)) => {
+            ID::Lane(l) => {
                 osd.append_all(vec![
                     Line(l.to_string()).fg(id_color),
                     Line(" is "),
-                    Line(map.get_parent(*l).get_name()).fg(name_color),
+                    Line(map.get_parent(l).get_name()).fg(name_color),
                 ]);
             }
-            Some(ID::Building(b)) => {
-                let bldg = map.get_b(*b);
+            ID::Building(b) => {
+                let bldg = map.get_b(b);
                 osd.append_all(vec![
                     Line(b.to_string()).fg(id_color),
                     Line(" is "),
@@ -108,20 +105,20 @@ impl CommonState {
                     )));
                 }
             }
-            Some(ID::Turn(t)) => {
+            ID::Turn(t) => {
                 osd.append_all(vec![
-                    Line(format!("TurnID({})", map.get_t(*t).lookup_idx)).fg(id_color),
+                    Line(format!("TurnID({})", map.get_t(t).lookup_idx)).fg(id_color),
                     Line(" between "),
                     Line(map.get_parent(t.src).get_name()).fg(name_color),
                     Line(" and "),
                     Line(map.get_parent(t.dst).get_name()).fg(name_color),
                 ]);
             }
-            Some(ID::Intersection(i)) => {
+            ID::Intersection(i) => {
                 osd.append_all(vec![Line(i.to_string()).fg(id_color), Line(" of ")]);
 
                 let mut road_names = BTreeSet::new();
-                for r in &map.get_i(*i).roads {
+                for r in &map.get_i(i).roads {
                     road_names.insert(map.get_r(*r).get_name());
                 }
                 let len = road_names.len();
@@ -132,19 +129,19 @@ impl CommonState {
                     }
                 }
             }
-            Some(ID::Car(c)) => {
+            ID::Car(c) => {
                 osd.append(Line(c.to_string()).fg(id_color));
-                if let Some(r) = ui.primary.sim.bus_route_id(*c) {
+                if let Some(r) = ui.primary.sim.bus_route_id(c) {
                     osd.append_all(vec![
                         Line(" serving "),
                         Line(&map.get_br(r).name).fg(name_color),
                     ]);
                 }
             }
-            Some(ID::BusStop(bs)) => {
+            ID::BusStop(bs) => {
                 osd.append_all(vec![Line(bs.to_string()).fg(id_color), Line(" serving ")]);
 
-                let routes = map.get_routes_serving_stop(*bs);
+                let routes = map.get_routes_serving_stop(bs);
                 let len = routes.len();
                 for (idx, n) in routes.into_iter().enumerate() {
                     osd.append(Line(&n.name).fg(name_color));
@@ -153,10 +150,19 @@ impl CommonState {
                     }
                 }
             }
-            Some(id) => {
+            _ => {
                 osd.append(Line(format!("{:?}", id)).fg(id_color));
             }
         }
+        osd
+    }
+
+    pub fn draw_osd(g: &mut GfxCtx, ui: &UI, id: &Option<ID>) {
+        let osd = if let Some(id) = id {
+            CommonState::default_osd(id.clone(), ui)
+        } else {
+            Text::from(Line("..."))
+        };
         CommonState::draw_custom_osd(g, osd);
     }
 

@@ -252,41 +252,16 @@ impl State for ScenarioManager {
         // TODO Weird to not draw common (turn cycler), but we want the custom OSD...
 
         if let Some(ID::Building(b)) = ui.primary.current_selection {
-            let mut osd = Text::new();
-            let from = self.trips_from_bldg.get(b);
-            let to = self.trips_to_bldg.get(b);
-            osd.add_appended(vec![
-                Line(b.to_string()).fg(ui.cs.get("OSD ID color")),
-                Line(" is "),
-                Line(ui.primary.map.get_b(b).get_name()).fg(ui.cs.get("OSD name color")),
-                Line(format!(
-                    ". {} trips from here, {} trips to here, {} parked cars needed",
-                    from.len(),
-                    to.len(),
-                    self.cars_needed_per_bldg[&b]
-                )),
-            ]);
+            let mut osd = CommonState::default_osd(ID::Building(b), ui);
+            osd.append(Line(format!(
+                ". {} trips from here, {} trips to here, {} parked cars needed",
+                self.trips_from_bldg.get(b).len(),
+                self.trips_to_bldg.get(b).len(),
+                self.cars_needed_per_bldg[&b]
+            )));
             CommonState::draw_custom_osd(g, osd);
         } else if let Some(ID::Intersection(i)) = ui.primary.current_selection {
-            let mut osd = Text::new();
-            // TODO Ahh, refactor this.
-            osd.append_all(vec![
-                Line(i.to_string()).fg(ui.cs.get("OSD ID color")),
-                Line(" of "),
-            ]);
-
-            let mut road_names = BTreeSet::new();
-            for r in &ui.primary.map.get_i(i).roads {
-                road_names.insert(ui.primary.map.get_r(*r).get_name());
-            }
-            let len = road_names.len();
-            for (idx, n) in road_names.into_iter().enumerate() {
-                osd.append(Line(n).fg(ui.cs.get("OSD name color")));
-                if idx != len - 1 {
-                    osd.append(Line(", "));
-                }
-            }
-
+            let mut osd = CommonState::default_osd(ID::Intersection(i), ui);
             osd.append(Line(format!(
                 ". {} trips from here, {} trips to here",
                 self.trips_from_border.get(i).len(),
