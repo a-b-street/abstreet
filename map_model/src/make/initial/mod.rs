@@ -1,6 +1,7 @@
 mod geometry;
 pub mod lane_specs;
 
+pub use self::geometry::intersection_polygon;
 use crate::raw::{RawMap, StableIntersectionID, StableRoadID};
 use crate::{IntersectionType, LaneType, LANE_THICKNESS};
 use abstutil::Timer;
@@ -128,7 +129,7 @@ impl InitialMap {
         for i in m.intersections.values_mut() {
             timer.next();
 
-            i.polygon = geometry::intersection_polygon(i, &mut m.roads, timer);
+            i.polygon = intersection_polygon(i, &mut m.roads, timer);
         }
 
         m
@@ -140,7 +141,7 @@ pub struct LaneSpec {
     pub reverse_pts: bool,
 }
 
-fn get_lane_specs(osm_tags: &BTreeMap<String, String>, id: StableRoadID) -> Vec<LaneSpec> {
+pub fn get_lane_specs(osm_tags: &BTreeMap<String, String>, id: StableRoadID) -> Vec<LaneSpec> {
     let (side1_types, side2_types) = lane_specs::get_lane_types(osm_tags);
 
     let mut specs: Vec<LaneSpec> = Vec::new();

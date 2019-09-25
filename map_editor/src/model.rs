@@ -286,6 +286,11 @@ impl Model {
     pub fn get_i_center(&self, id: StableIntersectionID) -> Pt2D {
         self.map.intersections[&id].point
     }
+
+    // (Intersection polygon, polygons for roads)
+    pub fn preview_i(&self, id: StableIntersectionID) -> (Polygon, Vec<Polygon>) {
+        self.map.preview_intersection(id)
+    }
 }
 
 // Roads

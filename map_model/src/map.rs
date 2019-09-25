@@ -91,7 +91,7 @@ impl Map {
         timer.start("raw_map to InitialMap");
         let gps_bounds = raw.gps_bounds.clone();
         let bounds = gps_bounds.to_bounds();
-        let initial_map = make::InitialMap::new(raw.name.clone(), &raw, &bounds, timer);
+        let initial_map = make::initial::InitialMap::new(raw.name.clone(), &raw, &bounds, timer);
         timer.stop("raw_map to InitialMap");
 
         timer.start("InitialMap to half of Map");
@@ -834,7 +834,7 @@ impl Map {
 
 fn make_half_map(
     raw: &RawMap,
-    initial_map: make::InitialMap,
+    initial_map: make::initial::InitialMap,
     gps_bounds: GPSBounds,
     bounds: Bounds,
     timer: &mut Timer,

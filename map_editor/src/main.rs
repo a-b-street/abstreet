@@ -1,7 +1,10 @@
 mod model;
 
 use abstutil::CmdArgs;
-use ezgui::{Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, Text, Wizard, GUI};
+use ezgui::{
+    Choice, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, Text, Wizard,
+    GUI,
+};
 use geom::{Distance, Line, Polygon, Pt2D};
 use map_model::raw::{RestrictionType, StableBuildingID, StableIntersectionID, StableRoadID};
 use map_model::LANE_THICKNESS;
@@ -30,6 +33,7 @@ enum State {
     SelectingRectangle(Pt2D, Pt2D, bool),
     CreatingTurnRestrictionPt1(StableRoadID),
     CreatingTurnRestrictionPt2(StableRoadID, StableRoadID, Wizard),
+    PreviewIntersection(Drawable),
 }
 
 impl UI {
@@ -182,6 +186,12 @@ impl GUI for UI {
                         self.model.toggle_i_type(i, ctx.prerender);
                     } else if ctx.input.key_pressed(Key::L, "label intersection") {
                         self.state = State::LabelingIntersection(i, Wizard::new());
+                    } else if ctx
+                        .input
+                        .key_pressed(Key::P, "preview intersection geometry")
+                    {
+                        self.state =
+                            State::PreviewIntersection(preview_intersection(i, &self.model, ctx));
                     }
                 } else if let Some(ID::Building(b)) = self.model.get_selection() {
                     if ctx.input.key_pressed(Key::LeftControl, "move building") {
@@ -323,8 +333,19 @@ impl GUI for UI {
                 {
                     self.model.add_tr(from, restriction, to, ctx.prerender);
                     self.state = State::Viewing;
+                    self.model.handle_mouseover(ctx);
                 } else if wizard.aborted() {
                     self.state = State::Viewing;
+                    self.model.handle_mouseover(ctx);
+                }
+            }
+            State::PreviewIntersection(_) => {
+                if ctx
+                    .input
+                    .key_pressed(Key::Escape, "stop previewing intersection")
+                {
+                    self.state = State::Viewing;
+                    self.model.handle_mouseover(ctx);
                 }
             }
         }
@@ -403,10 +424,23 @@ impl GUI for UI {
                 }
                 wizard.draw(g);
             }
+            State::PreviewIntersection(ref draw) => {
+                g.redraw(draw);
+            }
         };
 
         g.draw_blocking_text(&self.osd, ezgui::BOTTOM_LEFT);
     }
+}
+
+fn preview_intersection(i: StableIntersectionID, model: &Model, ctx: &EventCtx) -> Drawable {
+    let (intersection, roads) = model.preview_i(i);
+    let mut batch = GeomBatch::new();
+    batch.push(Color::ORANGE.alpha(0.5), intersection);
+    for r in roads {
+        batch.push(Color::GREEN.alpha(0.5), r);
+    }
+    ctx.prerender.upload(batch)
 }
 
 fn main() {

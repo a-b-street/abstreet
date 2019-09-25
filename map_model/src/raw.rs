@@ -1,7 +1,7 @@
 use crate::make::get_lane_types;
-use crate::{osm, AreaType, IntersectionType, OffstreetParking, RoadSpec};
+use crate::{osm, AreaType, IntersectionType, OffstreetParking, RoadSpec, LANE_THICKNESS};
 use abstutil::Timer;
-use geom::{Distance, GPSBounds, Polygon, Pt2D};
+use geom::{Distance, GPSBounds, PolyLine, Polygon, Pt2D};
 use gtfs::Route;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -246,6 +246,69 @@ impl RawMap {
             }
         }
         results
+    }
+
+    // (Intersection polygon, polygons for roads)
+    pub fn preview_intersection(&self, id: StableIntersectionID) -> (Polygon, Vec<Polygon>) {
+        use crate::make::initial;
+
+        let i = initial::Intersection {
+            id,
+            polygon: Vec::new(),
+            roads: self.roads_per_intersection(id).into_iter().collect(),
+            intersection_type: self.intersections[&id].intersection_type,
+        };
+        let mut roads = BTreeMap::new();
+        for r in &i.roads {
+            let road = &self.roads[r];
+            // TODO refactor
+            let lane_specs = initial::get_lane_specs(&road.osm_tags, *r);
+            let mut fwd_width = Distance::ZERO;
+            let mut back_width = Distance::ZERO;
+            for l in &lane_specs {
+                if l.reverse_pts {
+                    back_width += LANE_THICKNESS;
+                } else {
+                    fwd_width += LANE_THICKNESS;
+                }
+            }
+
+            let center_pts = PolyLine::new(road.center_points.clone());
+            roads.insert(
+                *r,
+                initial::Road {
+                    id: *r,
+                    src_i: road.i1,
+                    dst_i: road.i2,
+                    original_center_pts: center_pts.clone(),
+                    trimmed_center_pts: center_pts,
+                    fwd_width,
+                    back_width,
+                    lane_specs,
+                },
+            );
+        }
+
+        let i_pts = initial::intersection_polygon(&i, &mut roads, &mut Timer::throwaway());
+        (
+            Polygon::new(&i_pts),
+            roads
+                .values()
+                .map(|r| {
+                    // A little of get_thick_polyline
+                    let pl = if r.fwd_width >= r.back_width {
+                        r.trimmed_center_pts
+                            .shift_right((r.fwd_width - r.back_width) / 2.0)
+                            .unwrap()
+                    } else {
+                        r.trimmed_center_pts
+                            .shift_left((r.back_width - r.fwd_width) / 2.0)
+                            .unwrap()
+                    };
+                    pl.make_polygons(r.fwd_width + r.back_width)
+                })
+                .collect(),
+        )
     }
 }
 
