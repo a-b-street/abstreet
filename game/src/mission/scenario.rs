@@ -26,6 +26,8 @@ pub struct ScenarioManager {
     // The usizes are indices into scenario.individ_trips
     trips_from_bldg: MultiMap<BuildingID, usize>,
     trips_to_bldg: MultiMap<BuildingID, usize>,
+    trips_from_border: MultiMap<IntersectionID, usize>,
+    trips_to_border: MultiMap<IntersectionID, usize>,
     cars_needed_per_bldg: HashMap<BuildingID, CarCount>,
     total_cars_needed: CarCount,
     total_parking_spots: usize,
@@ -36,6 +38,8 @@ impl ScenarioManager {
     pub fn new(scenario: Scenario, ctx: &mut EventCtx, ui: &UI) -> ScenarioManager {
         let mut trips_from_bldg = MultiMap::new();
         let mut trips_to_bldg = MultiMap::new();
+        let mut trips_from_border = MultiMap::new();
+        let mut trips_to_border = MultiMap::new();
         let mut cars_needed_per_bldg = HashMap::new();
         for b in ui.primary.map.all_buildings() {
             cars_needed_per_bldg.insert(b.id, CarCount::new());
@@ -45,8 +49,9 @@ impl ScenarioManager {
         let mut bldg_colors =
             BuildingColorerBuilder::new("trips", vec![("building with trips from/to it", color)]);
         for (idx, trip) in scenario.individ_trips.iter().enumerate() {
-            // trips_from_bldg
+            // trips_from_bldg and trips_from_border
             match trip {
+                // TODO CarAppearing might be from a border
                 SpawnTrip::CarAppearing { .. } => {}
                 SpawnTrip::MaybeUsingParkedCar(_, b, _) => {
                     trips_from_bldg.insert(*b, idx);
@@ -54,31 +59,42 @@ impl ScenarioManager {
                 }
                 SpawnTrip::UsingBike(_, ref spot, _)
                 | SpawnTrip::JustWalking(_, ref spot, _)
-                | SpawnTrip::UsingTransit(_, ref spot, _, _, _, _) => {
-                    if let SidewalkPOI::Building(b) = spot.connection {
+                | SpawnTrip::UsingTransit(_, ref spot, _, _, _, _) => match spot.connection {
+                    SidewalkPOI::Building(b) => {
                         trips_from_bldg.insert(b, idx);
                         bldg_colors.add(b, color);
                     }
-                }
+                    SidewalkPOI::Border(i) => {
+                        trips_from_border.insert(i, idx);
+                    }
+                    _ => {}
+                },
             }
 
-            // trips_to_bldg
+            // trips_to_bldg and trips_to_border
             match trip {
                 SpawnTrip::CarAppearing { ref goal, .. }
                 | SpawnTrip::MaybeUsingParkedCar(_, _, ref goal)
-                | SpawnTrip::UsingBike(_, _, ref goal) => {
-                    if let DrivingGoal::ParkNear(b) = goal {
+                | SpawnTrip::UsingBike(_, _, ref goal) => match goal {
+                    DrivingGoal::ParkNear(b) => {
                         trips_to_bldg.insert(*b, idx);
                         bldg_colors.add(*b, color);
                     }
-                }
+                    DrivingGoal::Border(i, _) => {
+                        trips_to_border.insert(*i, idx);
+                    }
+                },
                 SpawnTrip::JustWalking(_, _, ref spot)
-                | SpawnTrip::UsingTransit(_, _, ref spot, _, _, _) => {
-                    if let SidewalkPOI::Building(b) = spot.connection {
+                | SpawnTrip::UsingTransit(_, _, ref spot, _, _, _) => match spot.connection {
+                    SidewalkPOI::Building(b) => {
                         trips_to_bldg.insert(b, idx);
                         bldg_colors.add(b, color);
                     }
-                }
+                    SidewalkPOI::Border(i) => {
+                        trips_to_border.insert(i, idx);
+                    }
+                    _ => {}
+                },
             }
 
             // Parked cars
@@ -128,6 +144,8 @@ impl ScenarioManager {
             scenario,
             trips_from_bldg,
             trips_to_bldg,
+            trips_from_border,
+            trips_to_border,
             cars_needed_per_bldg,
             total_cars_needed,
             total_parking_spots: free_parking_spots.len(),
@@ -193,7 +211,29 @@ impl State for ScenarioManager {
                 let mut all_trips = from.clone();
                 all_trips.extend(to);
 
-                return Transition::Push(make_trip_picker(self.scenario.clone(), all_trips, b));
+                return Transition::Push(make_trip_picker(
+                    self.scenario.clone(),
+                    all_trips,
+                    "building",
+                    OD::Bldg(b),
+                ));
+            }
+        } else if let Some(ID::Intersection(i)) = ui.primary.current_selection {
+            let from = self.trips_from_border.get(i);
+            let to = self.trips_to_border.get(i);
+            if (!from.is_empty() || !to.is_empty())
+                && ctx.input.contextual_action(Key::T, "browse trips")
+            {
+                // TODO Avoid the clone? Just happens once though.
+                let mut all_trips = from.clone();
+                all_trips.extend(to);
+
+                return Transition::Push(make_trip_picker(
+                    self.scenario.clone(),
+                    all_trips,
+                    "border",
+                    OD::Border(i),
+                ));
             }
         }
 
@@ -226,6 +266,32 @@ impl State for ScenarioManager {
                     self.cars_needed_per_bldg[&b]
                 )),
             ]);
+            CommonState::draw_custom_osd(g, osd);
+        } else if let Some(ID::Intersection(i)) = ui.primary.current_selection {
+            let mut osd = Text::new();
+            // TODO Ahh, refactor this.
+            osd.append_all(vec![
+                Line(i.to_string()).fg(ui.cs.get("OSD ID color")),
+                Line(" of "),
+            ]);
+
+            let mut road_names = BTreeSet::new();
+            for r in &ui.primary.map.get_i(i).roads {
+                road_names.insert(ui.primary.map.get_r(*r).get_name());
+            }
+            let len = road_names.len();
+            for (idx, n) in road_names.into_iter().enumerate() {
+                osd.append(Line(n).fg(ui.cs.get("OSD name color")));
+                if idx != len - 1 {
+                    osd.append(Line(", "));
+                }
+            }
+
+            osd.append(Line(format!(
+                ". {} trips from here, {} trips to here",
+                self.trips_from_border.get(i).len(),
+                self.trips_to_border.get(i).len(),
+            )));
             CommonState::draw_custom_osd(g, osd);
         } else {
             CommonState::draw_osd(g, ui, &ui.primary.current_selection);
@@ -389,15 +455,23 @@ fn choose_origin_destination(
     }
 }
 
+// TODO Yet another one of these... something needs to change.
+#[derive(PartialEq, Debug, Clone, Copy)]
+enum OD {
+    Bldg(BuildingID),
+    Border(IntersectionID),
+}
+
 fn make_trip_picker(
     scenario: Scenario,
     indices: BTreeSet<usize>,
-    home: BuildingID,
+    noun: &'static str,
+    home: OD,
 ) -> Box<dyn State> {
     WizardState::new(Box::new(move |wiz, ctx, ui| {
         let warp_to = wiz
             .wrap(ctx)
-            .choose("Trips from/to this building", || {
+            .choose(&format!("Trips from/to this {}", noun), || {
                 // TODO Panics if there are two duplicate trips (b1124 in montlake)
                 indices
                     .iter()
@@ -421,26 +495,38 @@ fn make_trip_picker(
     }))
 }
 
-fn describe(trip: &SpawnTrip, home: BuildingID) -> String {
+fn describe(trip: &SpawnTrip, home: OD) -> String {
     let driving_goal = |goal: &DrivingGoal| match goal {
         DrivingGoal::ParkNear(b) => {
-            if *b == home {
+            if OD::Bldg(*b) == home {
                 "HERE".to_string()
             } else {
                 b.to_string()
             }
         }
-        DrivingGoal::Border(i, _) => i.to_string(),
+        DrivingGoal::Border(i, _) => {
+            if OD::Border(*i) == home {
+                "HERE".to_string()
+            } else {
+                i.to_string()
+            }
+        }
     };
     let sidewalk_spot = |spot: &SidewalkSpot| match &spot.connection {
         SidewalkPOI::Building(b) => {
-            if *b == home {
+            if OD::Bldg(*b) == home {
                 "HERE".to_string()
             } else {
                 b.to_string()
             }
         }
-        SidewalkPOI::Border(i) => i.to_string(),
+        SidewalkPOI::Border(i) => {
+            if OD::Border(*i) == home {
+                "HERE".to_string()
+            } else {
+                i.to_string()
+            }
+        }
         x => format!("{:?}", x),
     };
 
@@ -460,7 +546,7 @@ fn describe(trip: &SpawnTrip, home: BuildingID) -> String {
         SpawnTrip::MaybeUsingParkedCar(depart, start_bldg, goal) => format!(
             "{}: try to drive from {} to {}",
             depart,
-            if *start_bldg == home {
+            if OD::Bldg(*start_bldg) == home {
                 "HERE".to_string()
             } else {
                 start_bldg.to_string()
@@ -489,7 +575,7 @@ fn describe(trip: &SpawnTrip, home: BuildingID) -> String {
     }
 }
 
-fn other_endpt(trip: &SpawnTrip, home: BuildingID) -> ID {
+fn other_endpt(trip: &SpawnTrip, home: OD) -> ID {
     let driving_goal = |goal: &DrivingGoal| match goal {
         DrivingGoal::ParkNear(b) => ID::Building(*b),
         DrivingGoal::Border(i, _) => ID::Intersection(*i),
@@ -511,12 +597,16 @@ fn other_endpt(trip: &SpawnTrip, home: BuildingID) -> ID {
             (sidewalk_spot(start), sidewalk_spot(goal))
         }
     };
-    if from == ID::Building(home) {
+    let home_id = match home {
+        OD::Bldg(b) => ID::Building(b),
+        OD::Border(i) => ID::Intersection(i),
+    };
+    if from == home_id {
         to
-    } else if to == ID::Building(home) {
+    } else if to == home_id {
         from
     } else {
-        panic!("other_endpt broke when homed at {} for {:?}", home, trip)
+        panic!("other_endpt broke when homed at {:?} for {:?}", home, trip)
     }
 }
 
