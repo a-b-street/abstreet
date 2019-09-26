@@ -1,18 +1,19 @@
 use crate::make::initial::{Intersection, Road};
 use crate::raw::{StableIntersectionID, StableRoadID};
-use abstutil::{wraparound_get, Timer, Warn};
-use geom::{Distance, Line, PolyLine, Pt2D};
+use abstutil::{wraparound_get, Timer};
+use geom::{Distance, Line, PolyLine, Polygon, Pt2D};
 use std::collections::{BTreeMap, HashMap};
 
 const DEGENERATE_INTERSECTION_HALF_LENGTH: Distance = Distance::const_meters(2.5);
 
 // The polygon should exist entirely within the thick bands around all original roads -- it just
 // carves up part of that space, doesn't reach past it.
+// Also returns a list of labeled polygons for debugging.
 pub fn intersection_polygon(
     i: &Intersection,
     roads: &mut BTreeMap<StableRoadID, Road>,
     timer: &mut Timer,
-) -> Vec<Pt2D> {
+) -> (Vec<Pt2D>, Vec<(String, Polygon)>) {
     if i.roads.is_empty() {
         panic!("{} has no roads", i.id);
     }
@@ -62,7 +63,7 @@ pub fn intersection_polygon(
     });
 
     if lines.len() == 1 {
-        deadend(roads, i.id, &lines).get(timer)
+        deadend(roads, i.id, &lines, timer)
     } else {
         generalized_trim_back(roads, i.id, &lines, timer)
     }
@@ -73,7 +74,9 @@ fn generalized_trim_back(
     i: StableIntersectionID,
     lines: &Vec<(StableRoadID, Line, PolyLine, PolyLine)>,
     timer: &mut Timer,
-) -> Vec<Pt2D> {
+) -> (Vec<Pt2D>, Vec<(String, Polygon)>) {
+    let mut debug = Vec::new();
+
     let mut road_lines: Vec<(StableRoadID, PolyLine, PolyLine)> = Vec::new();
     for (r, _, pl1, pl2) in lines {
         // TODO Argh, just use original lines.
@@ -83,7 +86,8 @@ fn generalized_trim_back(
 
     let mut new_road_centers: HashMap<StableRoadID, PolyLine> = HashMap::new();
 
-    // Intersect every road's boundary lines with all the other lines
+    // Intersect every road's boundary lines with all the other lines. Only side effect here is to
+    // populate new_road_centers.
     for (r1, pl1, other_pl1) in &road_lines {
         // road_center ends at the intersection.
         let road_center = if roads[r1].dst_i == i {
@@ -195,7 +199,8 @@ fn generalized_trim_back(
         }
     }
 
-    // After doing all the intersection checks, copy over the new centers.
+    // After doing all the intersection checks, copy over the new centers. Also fill out the
+    // intersection polygon's points along the way.
     let mut endpoints: Vec<Pt2D> = Vec::new();
     for idx in 0..lines.len() as isize {
         let (id, _, fwd_pl, back_pl) = wraparound_get(&lines, idx);
@@ -218,8 +223,10 @@ fn generalized_trim_back(
                     // TODO This cuts some corners nicely, but also causes lots of problems.
                     // If the original roads didn't end at the same intersection (due to intersection
                     // merging), then use infinite lines.
-                    if let Some((hit, _)) =
-                        fwd_pl.second_half().intersection(&adj_fwd_pl.second_half())
+                    if let Some(hit) = fwd_pl
+                        .last_line()
+                        .infinite()
+                        .intersection(&adj_fwd_pl.last_line().infinite())
                     {
                         endpoints.push(hit);
                     }
@@ -294,13 +301,13 @@ fn generalized_trim_back(
     deduped.sort_by_key(|pt| pt.angle_to(center).normalized_degrees() as i64);
     deduped = close_off_polygon(deduped);
     if main_result.len() == deduped.len() {
-        main_result
+        (main_result, debug)
     } else {
         timer.warn(format!(
             "{}'s polygon has weird repeats, forcibly removing points",
             i
         ));
-        deduped
+        (deduped, debug)
     }
 }
 
@@ -308,7 +315,8 @@ fn deadend(
     roads: &mut BTreeMap<StableRoadID, Road>,
     i: StableIntersectionID,
     lines: &Vec<(StableRoadID, Line, PolyLine, PolyLine)>,
-) -> Warn<Vec<Pt2D>> {
+    timer: &mut Timer,
+) -> (Vec<Pt2D>, Vec<(String, Polygon)>) {
     let len = DEGENERATE_INTERSECTION_HALF_LENGTH * 4.0;
 
     let (id, _, pl_a, pl_b) = &lines[0];
@@ -326,19 +334,23 @@ fn deadend(
                 .exact_slice(Distance::ZERO, r.trimmed_center_pts.length() - len);
         }
 
-        Warn::ok(close_off_polygon(vec![
-            pt1.unwrap(),
-            pt2.unwrap(),
-            pl_b.last_pt(),
-            pl_a.last_pt(),
-        ]))
+        (
+            close_off_polygon(vec![
+                pt1.unwrap(),
+                pt2.unwrap(),
+                pl_b.last_pt(),
+                pl_a.last_pt(),
+            ]),
+            Vec::new(),
+        )
     } else {
-        Warn::warn(
-            vec![pl_a.last_pt(), pl_b.last_pt(), pl_a.last_pt()],
-            format!(
+        timer.warn(format!(
             "{} is a dead-end for {}, which is too short to make degenerate intersection geometry",
             i, id
-        ),
+        ));
+        (
+            vec![pl_a.last_pt(), pl_b.last_pt(), pl_a.last_pt()],
+            Vec::new(),
         )
     }
 }

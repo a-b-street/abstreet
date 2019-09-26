@@ -287,8 +287,11 @@ impl Model {
         self.map.intersections[&id].point
     }
 
-    // (Intersection polygon, polygons for roads)
-    pub fn preview_i(&self, id: StableIntersectionID) -> (Polygon, Vec<Polygon>) {
+    // (Intersection polygon, polygons for roads, labeled polygons to debug)
+    pub fn preview_i(
+        &self,
+        id: StableIntersectionID,
+    ) -> (Polygon, Vec<Polygon>, Vec<(String, Polygon)>) {
         self.map.preview_intersection(id)
     }
 }

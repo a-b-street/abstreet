@@ -33,7 +33,7 @@ enum State {
     SelectingRectangle(Pt2D, Pt2D, bool),
     CreatingTurnRestrictionPt1(StableRoadID),
     CreatingTurnRestrictionPt2(StableRoadID, StableRoadID, Wizard),
-    PreviewIntersection(Drawable),
+    PreviewIntersection(Drawable, Vec<(Text, Pt2D)>),
 }
 
 impl UI {
@@ -190,8 +190,8 @@ impl GUI for UI {
                         .input
                         .key_pressed(Key::P, "preview intersection geometry")
                     {
-                        self.state =
-                            State::PreviewIntersection(preview_intersection(i, &self.model, ctx));
+                        let (draw, labels) = preview_intersection(i, &self.model, ctx);
+                        self.state = State::PreviewIntersection(draw, labels);
                     }
                 } else if let Some(ID::Building(b)) = self.model.get_selection() {
                     if ctx.input.key_pressed(Key::LeftControl, "move building") {
@@ -339,7 +339,7 @@ impl GUI for UI {
                     self.model.handle_mouseover(ctx);
                 }
             }
-            State::PreviewIntersection(_) => {
+            State::PreviewIntersection(_, _) => {
                 if ctx
                     .input
                     .key_pressed(Key::Escape, "stop previewing intersection")
@@ -424,8 +424,16 @@ impl GUI for UI {
                 }
                 wizard.draw(g);
             }
-            State::PreviewIntersection(ref draw) => {
+            State::PreviewIntersection(ref draw, ref labels) => {
                 g.redraw(draw);
+                for (txt, pt) in labels {
+                    g.draw_text_at_mapspace(txt, *pt);
+                }
+
+                // TODO Argh, covers up mouseover tooltip.
+                if let Some(cursor) = g.canvas.get_cursor_in_map_space() {
+                    g.draw_mouse_tooltip(&Text::from(Line(cursor.to_string())));
+                }
             }
         };
 
@@ -433,14 +441,23 @@ impl GUI for UI {
     }
 }
 
-fn preview_intersection(i: StableIntersectionID, model: &Model, ctx: &EventCtx) -> Drawable {
-    let (intersection, roads) = model.preview_i(i);
+fn preview_intersection(
+    i: StableIntersectionID,
+    model: &Model,
+    ctx: &EventCtx,
+) -> (Drawable, Vec<(Text, Pt2D)>) {
+    let (intersection, roads, debug) = model.preview_i(i);
     let mut batch = GeomBatch::new();
+    let mut labels = Vec::new();
     batch.push(Color::ORANGE.alpha(0.5), intersection);
     for r in roads {
         batch.push(Color::GREEN.alpha(0.5), r);
     }
-    ctx.prerender.upload(batch)
+    for (label, poly) in debug {
+        labels.push((Text::from(Line(label)), poly.center()));
+        batch.push(Color::RED.alpha(0.5), poly);
+    }
+    (ctx.prerender.upload(batch), labels)
 }
 
 fn main() {

@@ -248,8 +248,11 @@ impl RawMap {
         results
     }
 
-    // (Intersection polygon, polygons for roads)
-    pub fn preview_intersection(&self, id: StableIntersectionID) -> (Polygon, Vec<Polygon>) {
+    // (Intersection polygon, polygons for roads, list of labeled polylines to debug)
+    pub fn preview_intersection(
+        &self,
+        id: StableIntersectionID,
+    ) -> (Polygon, Vec<Polygon>, Vec<(String, Polygon)>) {
         use crate::make::initial;
 
         let i = initial::Intersection {
@@ -289,7 +292,11 @@ impl RawMap {
             );
         }
 
-        let i_pts = initial::intersection_polygon(&i, &mut roads, &mut Timer::throwaway());
+        let (i_pts, debug) = initial::intersection_polygon(
+            &i,
+            &mut roads,
+            &mut Timer::new("calculate intersection_polygon"),
+        );
         (
             Polygon::new(&i_pts),
             roads
@@ -308,6 +315,7 @@ impl RawMap {
                     pl.make_polygons(r.fwd_width + r.back_width)
                 })
                 .collect(),
+            debug,
         )
     }
 }

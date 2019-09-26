@@ -129,7 +129,7 @@ impl InitialMap {
         for i in m.intersections.values_mut() {
             timer.next();
 
-            i.polygon = intersection_polygon(i, &mut m.roads, timer);
+            i.polygon = intersection_polygon(i, &mut m.roads, timer).0;
         }
 
         m
