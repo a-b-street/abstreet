@@ -1,7 +1,7 @@
 use crate::{osm, LaneType};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
-use std::iter;
+use std::{fmt, iter};
 
 // (original direction, reversed direction)
 pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Vec<LaneType>) {
@@ -140,19 +140,20 @@ pub struct RoadSpec {
     pub back: Vec<LaneType>,
 }
 
-impl RoadSpec {
-    pub fn to_string(&self) -> String {
-        let mut s: Vec<char> = Vec::new();
+impl fmt::Display for RoadSpec {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for lt in &self.fwd {
-            s.push(RoadSpec::lt_to_char(*lt));
+            write!(f, "{}", RoadSpec::lt_to_char(*lt))?;
         }
-        s.push('/');
+        write!(f, "/")?;
         for lt in &self.back {
-            s.push(RoadSpec::lt_to_char(*lt));
+            write!(f, "{}", RoadSpec::lt_to_char(*lt))?;
         }
-        s.into_iter().collect()
+        Ok(())
     }
+}
 
+impl RoadSpec {
     pub fn parse(s: String) -> Option<RoadSpec> {
         let mut fwd: Vec<LaneType> = Vec::new();
         let mut back: Vec<LaneType> = Vec::new();

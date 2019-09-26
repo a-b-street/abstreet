@@ -146,11 +146,11 @@ impl SidewalkPathfinder {
             let back_t = map.get_turn_between(lane1.id, l2, lane1.src_i);
             // TODO If both are available, we sort of need to lookahead to pick the better one.
             // Oh well.
-            if fwd_t.is_some() {
+            if let Some(t) = fwd_t {
                 if current_i != Some(lane1.dst_i) {
                     steps.push(PathStep::Lane(lane1.id));
                 }
-                steps.push(PathStep::Turn(fwd_t.unwrap()));
+                steps.push(PathStep::Turn(t));
                 current_i = Some(lane1.dst_i);
             } else {
                 if current_i != Some(lane1.src_i) {

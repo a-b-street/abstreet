@@ -322,7 +322,7 @@ fn deadend(
     let (id, _, pl_a, pl_b) = &lines[0];
     let pt1 = pl_a.reversed().safe_dist_along(len).map(|(pt, _)| pt);
     let pt2 = pl_b.reversed().safe_dist_along(len).map(|(pt, _)| pt);
-    if pt1.is_some() && pt2.is_some() {
+    if let (Some(pt1), Some(pt2)) = (pt1, pt2) {
         let r = roads.get_mut(&id).unwrap();
         if r.src_i == i {
             r.trimmed_center_pts = r
@@ -335,12 +335,7 @@ fn deadend(
         }
 
         (
-            close_off_polygon(vec![
-                pt1.unwrap(),
-                pt2.unwrap(),
-                pl_b.last_pt(),
-                pl_a.last_pt(),
-            ]),
+            close_off_polygon(vec![pt1, pt2, pl_b.last_pt(), pl_a.last_pt()]),
             Vec::new(),
         )
     } else {

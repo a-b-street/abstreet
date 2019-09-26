@@ -23,7 +23,7 @@ To build, you need a Linux-like environment with `bash`, `wget`, `unzip`, etc.
 You also `osmosis` for the import script. At runtime if you want to use the
 screen-capture plugin, you need `scrot`.
 
-1.  Install Rust, at least 1.37. https://www.rust-lang.org/tools/install
+1.  Install Rust, at least 1.38. https://www.rust-lang.org/tools/install
 
 2.  Download the repository:
     `git clone https://github.com/dabreegster/abstreet.git`

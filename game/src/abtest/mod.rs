@@ -334,8 +334,8 @@ impl DiffOneTrip {
             .sim
             .get_canonical_pt_per_trip(trip, &secondary.map)
             .ok();
-        let line = if pt1.is_some() && pt2.is_some() {
-            Line::maybe_new(pt1.unwrap(), pt2.unwrap())
+        let line = if let (Some(pt1), Some(pt2)) = (pt1, pt2) {
+            Line::maybe_new(pt1, pt2)
         } else {
             None
         };

@@ -258,16 +258,22 @@ impl GUI for UI {
                     }
                 } else if ctx.input.key_pressed(Key::F, "save map fixes") {
                     self.model.save_fixes();
-                } else if cursor.is_some() && ctx.input.key_pressed(Key::I, "create intersection") {
-                    self.model.create_i(cursor.unwrap(), ctx.prerender);
-                    self.model.handle_mouseover(ctx);
+                } else if ctx.input.key_pressed(Key::I, "create intersection") {
+                    if let Some(pt) = cursor {
+                        self.model.create_i(pt, ctx.prerender);
+                        self.model.handle_mouseover(ctx);
+                    }
                 // TODO Silly bug: Mouseover doesn't actually work! I think the cursor being
                 // dead-center messes up the precomputed triangles.
-                } else if cursor.is_some() && ctx.input.key_pressed(Key::B, "create building") {
-                    self.model.create_b(cursor.unwrap(), ctx.prerender);
-                    self.model.handle_mouseover(ctx);
-                } else if cursor.is_some() && ctx.input.key_pressed(Key::LeftShift, "select area") {
-                    self.state = State::SelectingRectangle(cursor.unwrap(), cursor.unwrap(), true);
+                } else if ctx.input.key_pressed(Key::B, "create building") {
+                    if let Some(pt) = cursor {
+                        self.model.create_b(pt, ctx.prerender);
+                        self.model.handle_mouseover(ctx);
+                    }
+                } else if ctx.input.key_pressed(Key::LeftShift, "select area") {
+                    if let Some(pt) = cursor {
+                        self.state = State::SelectingRectangle(pt, pt, true);
+                    }
                 } else if self.model.showing_pts.is_some()
                     && ctx.input.key_pressed(Key::P, "stop moving road points")
                 {
