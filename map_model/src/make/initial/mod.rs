@@ -27,18 +27,6 @@ pub struct Road {
     pub lane_specs: Vec<LaneSpec>,
 }
 
-impl Road {
-    pub fn original_endpoint(&self, i: StableIntersectionID) -> Pt2D {
-        if self.src_i == i {
-            self.original_center_pts.first_pt()
-        } else if self.dst_i == i {
-            self.original_center_pts.last_pt()
-        } else {
-            panic!("{} doesn't end at {}", self.id, i);
-        }
-    }
-}
-
 pub struct Intersection {
     pub id: StableIntersectionID,
     pub polygon: Vec<Pt2D>,

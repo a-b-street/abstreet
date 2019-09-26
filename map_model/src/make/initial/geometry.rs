@@ -75,7 +75,7 @@ fn generalized_trim_back(
     lines: &Vec<(StableRoadID, Line, PolyLine, PolyLine)>,
     timer: &mut Timer,
 ) -> (Vec<Pt2D>, Vec<(String, Polygon)>) {
-    let mut debug = Vec::new();
+    let debug = Vec::new();
 
     let mut road_lines: Vec<(StableRoadID, PolyLine, PolyLine)> = Vec::new();
     for (r, _, pl1, pl2) in lines {
@@ -204,6 +204,7 @@ fn generalized_trim_back(
     let mut endpoints: Vec<Pt2D> = Vec::new();
     for idx in 0..lines.len() as isize {
         let (id, _, fwd_pl, back_pl) = wraparound_get(&lines, idx);
+        // TODO Ahhh these names are confusing. Adjacent to the fwd_pl, but it's a back pl.
         let (adj_back_id, _, adj_back_pl, _) = wraparound_get(&lines, idx + 1);
         let (adj_fwd_id, _, _, adj_fwd_pl) = wraparound_get(&lines, idx - 1);
 
@@ -218,19 +219,19 @@ fn generalized_trim_back(
         {
             if let Some((hit, _)) = fwd_pl.second_half().intersection(&adj_fwd_pl.second_half()) {
                 endpoints.push(hit);
-            } else if r.original_endpoint(i) != roads[&adj_fwd_id].original_endpoint(i) {
-                if false {
-                    // TODO This cuts some corners nicely, but also causes lots of problems.
-                    // If the original roads didn't end at the same intersection (due to intersection
-                    // merging), then use infinite lines.
-                    if let Some(hit) = fwd_pl
-                        .last_line()
-                        .infinite()
-                        .intersection(&adj_fwd_pl.last_line().infinite())
-                    {
-                        endpoints.push(hit);
-                    }
-                }
+            } else {
+                // Style 1
+                /*endpoints.push(fwd_pl.last_pt());
+                endpoints.push(adj_fwd_pl.last_pt());*/
+
+                // Style 2
+                /*if let Some(hit) = fwd_pl
+                    .last_line()
+                    .infinite()
+                    .intersection(&adj_fwd_pl.last_line().infinite())
+                {
+                    endpoints.push(hit);
+                }*/
             }
         } else {
             timer.warn(format!("Excluding collision between original polylines of {} and something, because stuff's too short", id));
@@ -273,21 +274,34 @@ fn generalized_trim_back(
                 .intersection(&adj_back_pl.second_half())
             {
                 endpoints.push(hit);
-            } else if r.original_endpoint(i) != roads[&adj_back_id].original_endpoint(i) {
-                if false {
-                    if let Some(hit) = back_pl
-                        .last_line()
-                        .infinite()
-                        .intersection(&adj_back_pl.last_line().infinite())
-                    {
-                        endpoints.push(hit);
-                    }
-                }
+            } else {
+                // Style 1
+                /*endpoints.push(back_pl.last_pt());
+                endpoints.push(adj_back_pl.last_pt());*/
+
+                // Style 2
+                /*if let Some(hit) = back_pl
+                    .last_line()
+                    .infinite()
+                    .intersection(&adj_back_pl.last_line().infinite())
+                {
+                    endpoints.push(hit);
+                }*/
             }
         } else {
             timer.warn(format!("Excluding collision between original polylines of {} and something, because stuff's too short", id));
         }
+
+        /*if *id == StableRoadID(384) {
+            let thin = Distance::meters(1.0);
+            debug.push((format!("back of {}", id), back_pl.make_polygons(thin)));
+            debug.push((
+                format!("adj back of {}", adj_back_id),
+                adj_back_pl.make_polygons(thin),
+            ));
+        }*/
     }
+
     let main_result = close_off_polygon(Pt2D::approx_dedupe(endpoints, Distance::meters(0.1)));
 
     // There are bad polygons caused by weird short roads. As a temporary workaround, detect cases
@@ -309,6 +323,13 @@ fn generalized_trim_back(
         ));
         (deduped, debug)
     }
+
+    // TODO Or always sort points?
+    /*endpoints.sort_by_key(|pt| pt.to_hashable());
+    endpoints = Pt2D::approx_dedupe(endpoints, Distance::meters(0.1));
+    let center = Pt2D::center(&endpoints);
+    endpoints.sort_by_key(|pt| pt.angle_to(center).normalized_degrees() as i64);
+    (close_off_polygon(endpoints), debug)*/
 }
 
 fn deadend(

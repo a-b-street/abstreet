@@ -33,7 +33,7 @@ enum State {
     SelectingRectangle(Pt2D, Pt2D, bool),
     CreatingTurnRestrictionPt1(StableRoadID),
     CreatingTurnRestrictionPt2(StableRoadID, StableRoadID, Wizard),
-    PreviewIntersection(Drawable, Vec<(Text, Pt2D)>),
+    PreviewIntersection(Drawable, Vec<(Text, Pt2D)>, bool),
 }
 
 impl UI {
@@ -179,7 +179,10 @@ impl GUI for UI {
                         self.state = State::MovingIntersection(i);
                     } else if ctx.input.key_pressed(Key::R, "create road") {
                         self.state = State::CreatingRoad(i);
-                    } else if ctx.input.key_pressed(Key::Backspace, "delete intersection") {
+                    } else if ctx
+                        .input
+                        .key_pressed(Key::Backspace, &format!("delete {}", i))
+                    {
                         self.model.delete_i(i);
                         self.model.handle_mouseover(ctx);
                     } else if ctx.input.key_pressed(Key::T, "toggle intersection type") {
@@ -191,12 +194,15 @@ impl GUI for UI {
                         .key_pressed(Key::P, "preview intersection geometry")
                     {
                         let (draw, labels) = preview_intersection(i, &self.model, ctx);
-                        self.state = State::PreviewIntersection(draw, labels);
+                        self.state = State::PreviewIntersection(draw, labels, false);
                     }
                 } else if let Some(ID::Building(b)) = self.model.get_selection() {
                     if ctx.input.key_pressed(Key::LeftControl, "move building") {
                         self.state = State::MovingBuilding(b);
-                    } else if ctx.input.key_pressed(Key::Backspace, "delete building") {
+                    } else if ctx
+                        .input
+                        .key_pressed(Key::Backspace, &format!("delete {}", b))
+                    {
                         self.model.delete_b(b);
                         self.model.handle_mouseover(ctx);
                     } else if ctx.input.key_pressed(Key::L, "label building") {
@@ -205,7 +211,7 @@ impl GUI for UI {
                 } else if let Some(ID::Lane(r, dir, _)) = self.model.get_selection() {
                     if ctx
                         .input
-                        .key_pressed(Key::Backspace, &format!("delete road {}", r))
+                        .key_pressed(Key::Backspace, &format!("delete {}", r))
                     {
                         self.model.delete_r(r);
                         self.model.handle_mouseover(ctx);
@@ -345,10 +351,16 @@ impl GUI for UI {
                     self.model.handle_mouseover(ctx);
                 }
             }
-            State::PreviewIntersection(_, _) => {
+            State::PreviewIntersection(_, _, ref mut show_tooltip) => {
+                if *show_tooltip && ctx.input.key_released(Key::RightAlt) {
+                    *show_tooltip = false;
+                } else if !*show_tooltip && ctx.input.key_pressed(Key::RightAlt, "show map pt") {
+                    *show_tooltip = true;
+                }
+
                 if ctx
                     .input
-                    .key_pressed(Key::Escape, "stop previewing intersection")
+                    .key_pressed(Key::P, "stop previewing intersection")
                 {
                     self.state = State::Viewing;
                     self.model.handle_mouseover(ctx);
@@ -430,15 +442,17 @@ impl GUI for UI {
                 }
                 wizard.draw(g);
             }
-            State::PreviewIntersection(ref draw, ref labels) => {
+            State::PreviewIntersection(ref draw, ref labels, show_tooltip) => {
                 g.redraw(draw);
                 for (txt, pt) in labels {
                     g.draw_text_at_mapspace(txt, *pt);
                 }
 
-                // TODO Argh, covers up mouseover tooltip.
-                if let Some(cursor) = g.canvas.get_cursor_in_map_space() {
-                    g.draw_mouse_tooltip(&Text::from(Line(cursor.to_string())));
+                if show_tooltip {
+                    // TODO Argh, covers up mouseover tooltip.
+                    if let Some(cursor) = g.canvas.get_cursor_in_map_space() {
+                        g.draw_mouse_tooltip(&Text::from(Line(cursor.to_string())));
+                    }
                 }
             }
         };
