@@ -360,6 +360,7 @@ impl Model {
                     self.map.intersections[&i2].point,
                 ],
                 osm_tags,
+                turn_restrictions: Vec::new(),
             })
             .unwrap();
         self.road_added(id, prerender);
@@ -534,8 +535,8 @@ impl Model {
             result.push(obj.tooltip(tooltip.clone()));
         }
 
-        for (restriction, to) in self.get_turn_restrictions(id) {
-            let polygon = if id == to {
+        for (restriction, to) in &r.turn_restrictions {
+            let polygon = if id == *to {
                 // TODO Ideally a hollow circle with an arrow
                 Circle::new(
                     PolyLine::new(self.map.roads[&id].center_points.clone()).middle(),
@@ -543,14 +544,14 @@ impl Model {
                 )
                 .to_polygon()
             } else {
-                PolyLine::new(vec![self.get_r_center(id), self.get_r_center(to)])
+                PolyLine::new(vec![self.get_r_center(id), self.get_r_center(*to)])
                     .make_arrow(LANE_THICKNESS)
                     .unwrap()
             };
 
             result.push(
                 Object::new(
-                    ID::TurnRestriction(id, restriction, to),
+                    ID::TurnRestriction(id, *restriction, *to),
                     Color::PURPLE,
                     polygon,
                 )
@@ -662,8 +663,8 @@ impl Model {
 
 // Turn restrictions
 impl Model {
-    pub fn get_turn_restrictions(&self, id: StableRoadID) -> Vec<(RestrictionType, StableRoadID)> {
-        self.map.get_turn_restrictions(id)
+    pub fn get_turn_restrictions(&self, id: StableRoadID) -> &Vec<(RestrictionType, StableRoadID)> {
+        &self.map.roads[&id].turn_restrictions
     }
 
     pub fn can_add_tr(&self, from: StableRoadID, to: StableRoadID) -> bool {

@@ -1,17 +1,19 @@
 use abstutil::{Counter, Timer};
 use geom::HashablePt2D;
 use map_model::raw::{
-    OriginalIntersection, RawIntersection, RawMap, RawRoad, StableIntersectionID, StableRoadID,
+    OriginalIntersection, RawIntersection, RawMap, RawRoad, RestrictionType, StableIntersectionID,
+    StableRoadID,
 };
 use map_model::{osm, IntersectionType};
 use std::collections::{HashMap, HashSet};
 
 pub fn split_up_roads(
-    (mut map, roads, traffic_signals, osm_node_ids): (
+    (mut map, roads, traffic_signals, osm_node_ids, turn_restrictions): (
         RawMap,
         Vec<RawRoad>,
         HashSet<HashablePt2D>,
         HashMap<HashablePt2D, i64>,
+        Vec<(RestrictionType, i64, i64, i64)>,
     ),
     timer: &mut Timer,
 ) -> RawMap {
@@ -93,6 +95,45 @@ pub fn split_up_roads(
             }
         }
         assert!(pts.len() == 1);
+    }
+
+    // Resolve turn restrictions
+    let mut restrictions = Vec::new();
+    for (restriction, from_osm, via_osm, to_osm) in turn_restrictions {
+        // TODO Brute less force.
+        let mut found = false;
+        'OUTER: for (r, road) in &map.roads {
+            if road.orig_id.osm_way_id != from_osm {
+                continue;
+            }
+            let i = if road.orig_id.node1 == via_osm {
+                road.i1
+            } else if road.orig_id.node2 == via_osm {
+                road.i2
+            } else {
+                continue;
+            };
+            for r_to in map.roads_per_intersection(i) {
+                if map.roads[&r_to].orig_id.osm_way_id == to_osm {
+                    restrictions.push((*r, restriction, r_to));
+                    found = true;
+                    break 'OUTER;
+                }
+            }
+        }
+        if !found {
+            timer.warn(format!(
+                "Couldn't resolve {:?} from {} to {} via node {}",
+                restriction, from_osm, to_osm, via_osm
+            ));
+        }
+    }
+    for (from, rt, to) in restrictions {
+        map.roads
+            .get_mut(&from)
+            .unwrap()
+            .turn_restrictions
+            .push((rt, to));
     }
 
     timer.stop("splitting up roads");

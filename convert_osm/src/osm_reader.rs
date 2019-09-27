@@ -22,6 +22,8 @@ pub fn extract_osm(
     HashSet<HashablePt2D>,
     // OSM Node IDs
     HashMap<HashablePt2D, i64>,
+    // Turn restrictions: (restriction type, from way ID, via node ID, to way ID)
+    Vec<(RestrictionType, i64, i64, i64)>,
 ) {
     let (reader, done) = FileWithProgress::new(osm_path).unwrap();
     let doc = osm_xml::OSM::parse(reader).expect("OSM parsing failed");
@@ -97,6 +99,7 @@ pub fn extract_osm(
                 // We'll fill this out later
                 i1: StableIntersectionID(0),
                 i2: StableIntersectionID(0),
+                turn_restrictions: Vec::new(),
             });
         } else if is_bldg(&tags) {
             let deduped = Pt2D::approx_dedupe(pts, geom::EPSILON_DIST);
@@ -129,6 +132,7 @@ pub fn extract_osm(
         }
     }
 
+    let mut turn_restrictions = Vec::new();
     timer.start_iter("processing OSM relations", doc.relations.len());
     for rel in doc.relations.values() {
         timer.next();
@@ -177,30 +181,42 @@ pub fn extract_osm(
             }
         } else if tags.get("type") == Some(&"restriction".to_string()) {
             let mut from_way_id: Option<i64> = None;
+            let mut via_node_id: Option<i64> = None;
             let mut to_way_id: Option<i64> = None;
             for member in &rel.members {
-                if let osm_xml::Member::Way(osm_xml::UnresolvedReference::Way(id), ref role) =
-                    member
-                {
-                    if role == "from" {
-                        from_way_id = Some(*id);
-                    } else if role == "to" {
-                        to_way_id = Some(*id);
+                match member {
+                    osm_xml::Member::Way(osm_xml::UnresolvedReference::Way(id), ref role) => {
+                        if role == "from" {
+                            from_way_id = Some(*id);
+                        } else if role == "to" {
+                            to_way_id = Some(*id);
+                        }
+                        // TODO Handle 'via' ways
                     }
+                    osm_xml::Member::Node(osm_xml::UnresolvedReference::Node(id), ref role) => {
+                        if role == "via" {
+                            via_node_id = Some(*id);
+                        }
+                    }
+                    _ => unreachable!(),
                 }
             }
-            if let (Some(from_way_id), Some(to_way_id)) = (from_way_id, to_way_id) {
+            if let (Some(from_way_id), Some(via_node_id), Some(to_way_id)) =
+                (from_way_id, via_node_id, to_way_id)
+            {
                 if let Some(restriction) = tags.get("restriction") {
-                    map.turn_restrictions
-                        .entry(from_way_id)
-                        .or_insert_with(Vec::new)
-                        .push((RestrictionType::new(restriction), to_way_id));
+                    turn_restrictions.push((
+                        RestrictionType::new(restriction),
+                        from_way_id,
+                        via_node_id,
+                        to_way_id,
+                    ));
                 }
             }
         }
     }
 
-    (map, roads, traffic_signals, osm_node_ids)
+    (map, roads, traffic_signals, osm_node_ids, turn_restrictions)
 }
 
 fn tags_to_map(raw_tags: &[osm_xml::Tag]) -> BTreeMap<String, String> {

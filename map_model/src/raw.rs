@@ -40,8 +40,6 @@ pub struct RawMap {
     pub buildings: BTreeMap<StableBuildingID, RawBuilding>,
     pub bus_routes: Vec<Route>,
     pub areas: Vec<RawArea>,
-    // from OSM way => [(restriction, to OSM way)]
-    pub turn_restrictions: BTreeMap<i64, Vec<(RestrictionType, i64)>>,
 
     pub boundary_polygon: Polygon,
     pub gps_bounds: GPSBounds,
@@ -56,7 +54,6 @@ impl RawMap {
             buildings: BTreeMap::new(),
             bus_routes: Vec::new(),
             areas: Vec::new(),
-            turn_restrictions: BTreeMap::new(),
             // Some nonsense thing
             boundary_polygon: Polygon::rectangle(
                 Pt2D::new(50.0, 50.0),
@@ -145,32 +142,6 @@ impl RawMap {
                 }
             }
 
-            // TODO Turn restrictions are weird in a few ways.
-            // - Can't detect original vs synthetic restrictions. Mitigated by deleting before
-            // adding.
-            // - Hard to know if a restriction applies to the current map, because just OSM way IDs
-            // are kind of ambiguous.
-            // TODO Try to reformulate turn restrictions to live on RawRoad up-front.
-            for (from, restriction, to) in &fixes.delete_turn_restrictions {
-                if let Some(ref mut list) = self.turn_restrictions.get_mut(from) {
-                    let len = list.len();
-                    list.retain(|(r, t)| r != restriction || t != to);
-                    if list.len() != len {
-                        applied += 1;
-                    } else {
-                        skipped += 1;
-                    }
-                }
-            }
-
-            for (from, restriction, to) in &fixes.add_turn_restrictions {
-                self.turn_restrictions
-                    .entry(*from)
-                    .or_insert_with(Vec::new)
-                    .push((*restriction, *to));
-                applied += 1;
-            }
-
             timer.note(format!(
                 "Applied {} of {} fixes for {}",
                 applied,
@@ -226,26 +197,6 @@ impl RawMap {
                 return osm_way_id;
             }
         }
-    }
-
-    // TODO Apply the direction!
-    pub fn get_turn_restrictions(&self, id: StableRoadID) -> Vec<(RestrictionType, StableRoadID)> {
-        let mut results = Vec::new();
-        let road = &self.roads[&id];
-        if let Some(restrictions) = self.turn_restrictions.get(&road.orig_id.osm_way_id) {
-            for (restriction, to) in restrictions {
-                // Make sure the restriction actually applies to this road.
-                if let Some(to_road) = self
-                    .roads_per_intersection(road.i1)
-                    .into_iter()
-                    .chain(self.roads_per_intersection(road.i2))
-                    .find(|r| self.roads[&r].orig_id.osm_way_id == *to)
-                {
-                    results.push((*restriction, to_road));
-                }
-            }
-        }
-        results
     }
 
     // (Intersection polygon, polygons for roads, list of labeled polylines to debug)
@@ -323,14 +274,13 @@ impl RawMap {
 // Mutations
 impl RawMap {
     pub fn can_delete_road(&self, r: StableRoadID) -> bool {
-        if !self.get_turn_restrictions(r).is_empty() {
+        if !self.roads[&r].turn_restrictions.is_empty() {
             return false;
         }
         // Brute force search the other direction
-        let osm_id = self.roads[&r].orig_id.osm_way_id;
-        for restrictions in self.turn_restrictions.values() {
-            for (_, to) in restrictions {
-                if *to == osm_id {
+        for road in self.roads.values() {
+            for (_, to) in &road.turn_restrictions {
+                if r == *to {
                     return false;
                 }
             }
@@ -394,6 +344,10 @@ impl RawMap {
     }
 
     pub fn can_merge_short_road(&self, id: StableRoadID, fixes: &MapFixes) -> bool {
+        if !self.can_delete_road(id) {
+            return false;
+        }
+
         let road = &self.roads[&id];
         let i1 = &self.intersections[&road.i1];
         let i2 = &self.intersections[&road.i2];
@@ -549,14 +503,11 @@ impl RawMap {
         to: StableRoadID,
         fixes: &mut MapFixes,
     ) {
-        let from_way_id = self.roads[&from].orig_id.osm_way_id;
-        let to_way_id = self.roads[&to].orig_id.osm_way_id;
-        let list = self.turn_restrictions.get_mut(&from_way_id).unwrap();
-        list.retain(|(r, way_id)| *r != restriction || *way_id != to_way_id);
+        let road = self.roads.get_mut(&from).unwrap();
+        road.turn_restrictions
+            .retain(|(this_r, this_to)| *this_r != restriction || *this_to != to);
 
-        fixes
-            .delete_turn_restrictions
-            .push((from_way_id, restriction, to_way_id));
+        // TODO Capture in fixes as an override, probably.
     }
 
     pub fn can_add_turn_restriction(&self, from: StableRoadID, to: StableRoadID) -> bool {
@@ -580,16 +531,10 @@ impl RawMap {
         fixes: &mut MapFixes,
     ) {
         assert!(self.can_add_turn_restriction(from, to));
-        let from_way_id = self.roads[&from].orig_id.osm_way_id;
-        let to_way_id = self.roads[&to].orig_id.osm_way_id;
-        self.turn_restrictions
-            .entry(from_way_id)
-            .or_insert_with(Vec::new)
-            .push((restriction, to_way_id));
+        let road = self.roads.get_mut(&from).unwrap();
+        road.turn_restrictions.push((restriction, to));
 
-        fixes
-            .add_turn_restrictions
-            .push((from_way_id, restriction, to_way_id));
+        // TODO Capture in fixes as an override, probably.
     }
 }
 
@@ -605,6 +550,7 @@ pub struct RawRoad {
     // orig_id means we don't have osm_node_id embedded in MapFixes.
     pub orig_id: OriginalRoad,
     pub osm_tags: BTreeMap<String, String>,
+    pub turn_restrictions: Vec<(RestrictionType, StableRoadID)>,
 }
 
 impl RawRoad {
@@ -701,9 +647,9 @@ pub struct MapFixes {
     pub add_roads: Vec<RawRoad>,
     pub merge_short_roads: Vec<OriginalRoad>,
     // For non-synthetic (original OSM) roads
+    // TODO Also overwrite all turn restrictions there. Rename as override_road_metadata or
+    // something.
     pub override_tags: BTreeMap<OriginalRoad, BTreeMap<String, String>>,
-    pub delete_turn_restrictions: Vec<(i64, RestrictionType, i64)>,
-    pub add_turn_restrictions: Vec<(i64, RestrictionType, i64)>,
 }
 
 impl MapFixes {
@@ -715,8 +661,6 @@ impl MapFixes {
             add_roads: Vec::new(),
             merge_short_roads: Vec::new(),
             override_tags: BTreeMap::new(),
-            delete_turn_restrictions: Vec::new(),
-            add_turn_restrictions: Vec::new(),
         }
     }
 

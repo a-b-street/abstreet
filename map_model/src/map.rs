@@ -900,7 +900,11 @@ fn make_half_map(
         let mut road = Road {
             id: road_id,
             osm_tags: raw.roads[&r.id].osm_tags.clone(),
-            turn_restrictions: Vec::new(),
+            turn_restrictions: raw.roads[&r.id]
+                .turn_restrictions
+                .iter()
+                .map(|(rt, to)| (*rt, road_id_mapping[to]))
+                .collect(),
             osm_way_id: raw.roads[&r.id].orig_id.osm_way_id,
             stable_id: r.id,
             children_forwards: Vec::new(),
@@ -954,16 +958,6 @@ fn make_half_map(
             ));
         }
         map.roads.push(road);
-    }
-
-    let mut filtered_restrictions = Vec::new();
-    for r in &map.roads {
-        for (restriction, to) in raw.get_turn_restrictions(r.stable_id) {
-            filtered_restrictions.push((r.id, restriction, road_id_mapping[&to]));
-        }
-    }
-    for (from, restriction, to) in filtered_restrictions {
-        map.roads[from.0].turn_restrictions.push((restriction, to));
     }
 
     for i in map.intersections.iter_mut() {
