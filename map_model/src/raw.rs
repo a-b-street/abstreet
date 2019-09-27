@@ -1,6 +1,6 @@
 use crate::make::get_lane_types;
 use crate::{osm, AreaType, IntersectionType, OffstreetParking, RoadSpec, LANE_THICKNESS};
-use abstutil::Timer;
+use abstutil::{deserialize_btreemap, serialize_btreemap, Timer};
 use geom::{Distance, GPSBounds, PolyLine, Polygon, Pt2D};
 use gtfs::Route;
 use serde_derive::{Deserialize, Serialize};
@@ -133,9 +133,15 @@ impl RawMap {
                 }
             }
 
-            for (orig, osm_tags) in &fixes.override_tags {
+            for (orig, (osm_tags, raw_restrictions)) in &fixes.override_metadata {
                 if let Some(r) = self.find_r(*orig) {
-                    self.override_tags(r, osm_tags.clone(), &mut dummy_fixes);
+                    // If this road is in the map, it better not have any turn restrictions linking
+                    // it to a road outside the map!
+                    let restrictions = raw_restrictions
+                        .iter()
+                        .map(|(rt, to)| (*rt, self.find_r(*to).unwrap()))
+                        .collect();
+                    self.override_metadata(r, osm_tags.clone(), restrictions, &mut dummy_fixes);
                     applied += 1;
                 } else {
                     skipped += 1;
@@ -363,7 +369,7 @@ impl RawMap {
         if i1.synthetic || i2.synthetic {
             return false;
         }
-        if fixes.override_tags.contains_key(&road.orig_id) {
+        if fixes.override_metadata.contains_key(&road.orig_id) {
             return false;
         }
 
@@ -412,19 +418,77 @@ impl RawMap {
         Some((i2, fixed))
     }
 
-    pub fn override_tags(
+    pub fn override_metadata(
         &mut self,
         r: StableRoadID,
         osm_tags: BTreeMap<String, String>,
+        restrictions: Vec<(RestrictionType, StableRoadID)>,
         fixes: &mut MapFixes,
     ) {
-        let road = self.roads.get_mut(&r).unwrap();
-        road.osm_tags = osm_tags;
-        if !road.synthetic() {
-            fixes
-                .override_tags
-                .insert(road.orig_id, road.osm_tags.clone());
+        {
+            let road = self.roads.get_mut(&r).unwrap();
+            road.osm_tags = osm_tags;
+            road.turn_restrictions = restrictions;
         }
+
+        let road = &self.roads[&r];
+        if !road.synthetic() {
+            fixes.override_metadata.insert(
+                road.orig_id,
+                (
+                    road.osm_tags.clone(),
+                    road.turn_restrictions
+                        .iter()
+                        .map(|(rt, to)| (*rt, self.roads[to].orig_id))
+                        .collect(),
+                ),
+            );
+        }
+    }
+
+    pub fn delete_turn_restriction(
+        &mut self,
+        from: StableRoadID,
+        restriction: RestrictionType,
+        to: StableRoadID,
+        fixes: &mut MapFixes,
+    ) {
+        let (osm_tags, mut restrictions) = {
+            let r = &self.roads[&from];
+            (r.osm_tags.clone(), r.turn_restrictions.clone())
+        };
+        restrictions.retain(|(this_r, this_to)| *this_r != restriction || *this_to != to);
+
+        self.override_metadata(from, osm_tags, restrictions, fixes);
+    }
+
+    pub fn can_add_turn_restriction(&self, from: StableRoadID, to: StableRoadID) -> bool {
+        let (i1, i2) = {
+            let r = &self.roads[&from];
+            (r.i1, r.i2)
+        };
+        let (i3, i4) = {
+            let r = &self.roads[&to];
+            (r.i1, r.i2)
+        };
+        i1 == i3 || i1 == i4 || i2 == i3 || i2 == i4
+    }
+
+    // TODO Worry about duplicates?
+    pub fn add_turn_restriction(
+        &mut self,
+        from: StableRoadID,
+        restriction: RestrictionType,
+        to: StableRoadID,
+        fixes: &mut MapFixes,
+    ) {
+        assert!(self.can_add_turn_restriction(from, to));
+        let (osm_tags, mut restrictions) = {
+            let r = &self.roads[&from];
+            (r.osm_tags.clone(), r.turn_restrictions.clone())
+        };
+        restrictions.push((restriction, to));
+        self.override_metadata(from, osm_tags, restrictions, fixes);
     }
 }
 
@@ -494,47 +558,6 @@ impl RawMap {
 
     pub fn delete_building(&mut self, id: StableBuildingID) {
         self.buildings.remove(&id);
-    }
-
-    pub fn delete_turn_restriction(
-        &mut self,
-        from: StableRoadID,
-        restriction: RestrictionType,
-        to: StableRoadID,
-        fixes: &mut MapFixes,
-    ) {
-        let road = self.roads.get_mut(&from).unwrap();
-        road.turn_restrictions
-            .retain(|(this_r, this_to)| *this_r != restriction || *this_to != to);
-
-        // TODO Capture in fixes as an override, probably.
-    }
-
-    pub fn can_add_turn_restriction(&self, from: StableRoadID, to: StableRoadID) -> bool {
-        let (i1, i2) = {
-            let r = &self.roads[&from];
-            (r.i1, r.i2)
-        };
-        let (i3, i4) = {
-            let r = &self.roads[&to];
-            (r.i1, r.i2)
-        };
-        i1 == i3 || i1 == i4 || i2 == i3 || i2 == i4
-    }
-
-    // TODO Worry about duplicates?
-    pub fn add_turn_restriction(
-        &mut self,
-        from: StableRoadID,
-        restriction: RestrictionType,
-        to: StableRoadID,
-        fixes: &mut MapFixes,
-    ) {
-        assert!(self.can_add_turn_restriction(from, to));
-        let road = self.roads.get_mut(&from).unwrap();
-        road.turn_restrictions.push((restriction, to));
-
-        // TODO Capture in fixes as an override, probably.
     }
 }
 
@@ -646,10 +669,18 @@ pub struct MapFixes {
     pub add_intersections: Vec<RawIntersection>,
     pub add_roads: Vec<RawRoad>,
     pub merge_short_roads: Vec<OriginalRoad>,
-    // For non-synthetic (original OSM) roads
-    // TODO Also overwrite all turn restrictions there. Rename as override_road_metadata or
-    // something.
-    pub override_tags: BTreeMap<OriginalRoad, BTreeMap<String, String>>,
+    // For non-synthetic (original OSM) roads. (OSM tags, turn restrictions).
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
+    pub override_metadata: BTreeMap<
+        OriginalRoad,
+        (
+            BTreeMap<String, String>,
+            Vec<(RestrictionType, OriginalRoad)>,
+        ),
+    >,
 }
 
 impl MapFixes {
@@ -660,7 +691,7 @@ impl MapFixes {
             add_intersections: Vec::new(),
             add_roads: Vec::new(),
             merge_short_roads: Vec::new(),
-            override_tags: BTreeMap::new(),
+            override_metadata: BTreeMap::new(),
         }
     }
 
@@ -702,7 +733,7 @@ impl MapFixes {
             roads.insert(r.orig_id);
         }
         roads.extend(self.merge_short_roads.clone());
-        roads.extend(self.override_tags.keys().cloned());
+        roads.extend(self.override_metadata.keys().cloned());
 
         let mut intersections: BTreeSet<OriginalIntersection> =
             self.delete_intersections.iter().cloned().collect();

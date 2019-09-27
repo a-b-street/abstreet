@@ -372,7 +372,12 @@ impl Model {
         if let Some(s) = RoadSpec::parse(spec.clone()) {
             let mut osm_tags = self.map.roads[&id].osm_tags.clone();
             osm_tags.insert(osm::SYNTHETIC_LANES.to_string(), s.to_string());
-            self.map.override_tags(id, osm_tags, &mut self.fixes);
+            self.map.override_metadata(
+                id,
+                osm_tags,
+                self.map.roads[&id].turn_restrictions.clone(),
+                &mut self.fixes,
+            );
         } else {
             println!("Bad RoadSpec: {}", spec);
         }
@@ -399,7 +404,12 @@ impl Model {
             osm_tags.insert(osm::FWD_LABEL.to_string(), l);
         }
 
-        self.map.override_tags(id, osm_tags, &mut self.fixes);
+        self.map.override_metadata(
+            id,
+            osm_tags,
+            self.map.roads[&id].turn_restrictions.clone(),
+            &mut self.fixes,
+        );
         self.road_added(id, prerender);
     }
 
@@ -418,7 +428,12 @@ impl Model {
             osm_tags.insert(osm::BACK_LABEL.to_string(), label.to_string());
         }
 
-        self.map.override_tags(pair.0, osm_tags, &mut self.fixes);
+        self.map.override_metadata(
+            pair.0,
+            osm_tags,
+            self.map.roads[&pair.0].turn_restrictions.clone(),
+            &mut self.fixes,
+        );
         self.road_added(pair.0, prerender);
     }
 
@@ -444,7 +459,12 @@ impl Model {
         osm_tags.insert(osm::NAME.to_string(), name);
         osm_tags.insert(osm::MAXSPEED.to_string(), speed);
 
-        self.map.override_tags(id, osm_tags, &mut self.fixes);
+        self.map.override_metadata(
+            id,
+            osm_tags,
+            self.map.roads[&id].turn_restrictions.clone(),
+            &mut self.fixes,
+        );
         self.road_added(id, prerender);
     }
 
