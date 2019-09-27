@@ -403,6 +403,12 @@ impl TripManager {
         }
     }
 
+    pub fn abort_trip_impossible_parking(&mut self, id: TripID) {
+        assert!(!self.trips[id.0].is_bus_trip());
+        self.trips[id.0].aborted = true;
+        self.unfinished_trips -= 1;
+    }
+
     pub fn active_agents(&self) -> Vec<AgentID> {
         self.active_trip_mode.keys().cloned().collect()
     }

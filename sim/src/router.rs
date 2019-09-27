@@ -21,6 +21,7 @@ pub enum ActionAtEnd {
     GotoLaneEnd,
     StopBiking(SidewalkSpot),
     BusAtStop,
+    AbortTrip,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -30,6 +31,8 @@ enum Goal {
     ParkNearBuilding {
         target: BuildingID,
         spot: Option<(ParkingSpot, Distance)>,
+        // No parking available at all!
+        stuck_end_dist: Option<Distance>,
     },
     EndAtBorder {
         end_dist: Distance,
@@ -57,6 +60,7 @@ impl Router {
             goal: Goal::ParkNearBuilding {
                 target: bldg,
                 spot: None,
+                stuck_end_dist: None,
             },
         }
     }
@@ -100,7 +104,11 @@ impl Router {
         assert!(self.last_step());
         match self.goal {
             Goal::EndAtBorder { end_dist, .. } => end_dist,
-            Goal::ParkNearBuilding { spot, .. } => spot.unwrap().1,
+            Goal::ParkNearBuilding {
+                spot,
+                stuck_end_dist,
+                ..
+            } => stuck_end_dist.unwrap_or_else(|| spot.unwrap().1),
             Goal::BikeThenStop { end_dist } => end_dist,
             Goal::FollowBusRoute { end_dist } => end_dist,
         }
@@ -157,7 +165,19 @@ impl Router {
                     None
                 }
             }
-            Goal::ParkNearBuilding { ref mut spot, .. } => {
+            Goal::ParkNearBuilding {
+                ref mut spot,
+                ref mut stuck_end_dist,
+                ..
+            } => {
+                if let Some(d) = stuck_end_dist {
+                    if *d == front {
+                        return Some(ActionAtEnd::AbortTrip);
+                    } else {
+                        return None;
+                    }
+                }
+
                 let need_new_spot = match spot {
                     Some((s, _)) => !parking.is_free(*s),
                     None => true,
@@ -179,7 +199,8 @@ impl Router {
                                 self.path.add(step, map);
                             }
                         } else {
-                            panic!("{} can't find parking on {}, and also it's a dead-end, so they'll be stuck there forever. Vanishing. Parking blackholes were wrong?", vehicle.id, current_lane);
+                            println!("WARNING: {} can't find parking on {} or anywhere reachable from it. Possibly we're just totally out of parking space!", vehicle.id, current_lane);
+                            *stuck_end_dist = Some(map.get_l(current_lane).length());
                         }
                         return Some(ActionAtEnd::GotoLaneEnd);
                     }
