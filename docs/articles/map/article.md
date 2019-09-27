@@ -113,6 +113,10 @@ takes a few seconds to load a serialized map.
     the way into road segments between two intersections.
   - This phase remembers which road segment is the beginning and end of the OSM
     way, for per-lane turn restrictions later
+  - Apply turn restrictions between roads here. Since OSM ways cross many
+    intersections, the turn restrictions only apply to one particular road
+    segment that gets created from the way. Make sure the destination of the
+    restriction is actually incident to a particular source road.
 - `clip.rs`: Clip the map to the boundary polygon
   - Osmosis options in `import.sh` preserve ways that cross the boundary
   - Trim roads that cross the boundary. There may be cases where a road dips out
@@ -183,11 +187,6 @@ Still in the `map_model` crate.
 
 - `map.rs`'s `make_half_map`: Expand roads to lanes, using the list of lane
   types from before
-- `map.rs`'s `make_half_map`: Apply the raw OSM turn restrictions to roads
-  - Since OSM ways cross many intersections, the turn restrictions only apply to
-    one particular road segment that gets created from the way. Make sure the
-    destination of the restriction is actually incident to a particular source
-    road.
 - `make/turns.rs`: Generate turns for every intersection.
   - Vehicle turns (for cars, bikes, buses)
     - Consider every pair of roads in the intersection. Try to match up lane

@@ -305,7 +305,7 @@ impl GUI for UI {
                     .key_pressed(Key::Backspace, "delete everything area")
                 {
                     if let Some(rect) = Polygon::rectangle_two_corners(pt1, *pt2) {
-                        self.model.delete_everything_inside(rect);
+                        self.model.delete_everything_inside(rect, ctx.prerender);
                         self.model.handle_mouseover(ctx);
                     }
                     self.state = State::Viewing;

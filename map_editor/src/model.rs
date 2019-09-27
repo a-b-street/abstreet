@@ -168,7 +168,7 @@ impl Model {
         bounds
     }
 
-    pub fn delete_everything_inside(&mut self, area: Polygon) {
+    pub fn delete_everything_inside(&mut self, area: Polygon, prerender: &Prerender) {
         if self.include_bldgs {
             for id in self.map.buildings.keys().cloned().collect::<Vec<_>>() {
                 if area.contains_pt(self.map.buildings[&id].polygon.center()) {
@@ -177,15 +177,24 @@ impl Model {
             }
         }
 
+        let mut delete_roads = Vec::new();
         for id in self.map.roads.keys().cloned().collect::<Vec<_>>() {
             if self.map.roads[&id]
                 .center_points
                 .iter()
                 .any(|pt| area.contains_pt(*pt))
             {
-                self.delete_r(id);
+                for (rt, to) in self.get_turn_restrictions(id).clone() {
+                    self.delete_tr(id, rt, to, prerender);
+                }
+
+                delete_roads.push(id);
             }
         }
+        for id in delete_roads {
+            self.delete_r(id);
+        }
+
         for id in self.map.intersections.keys().cloned().collect::<Vec<_>>() {
             if area.contains_pt(self.map.intersections[&id].point) {
                 self.delete_i(id);
