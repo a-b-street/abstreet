@@ -90,6 +90,23 @@ impl RawMap {
             let mut applied = 0;
             let mut skipped = 0;
 
+            // Do these first, because we're not allowed to delete roads if they have turn
+            // restrictions.
+            for (orig, (osm_tags, raw_restrictions)) in &fixes.override_metadata {
+                if let Some(r) = self.find_r(*orig) {
+                    // If this road is in the map, it better not have any turn restrictions linking
+                    // it to a road outside the map!
+                    let restrictions = raw_restrictions
+                        .iter()
+                        .map(|(rt, to)| (*rt, self.find_r(*to).unwrap()))
+                        .collect();
+                    self.override_metadata(r, osm_tags.clone(), restrictions, &mut dummy_fixes);
+                    applied += 1;
+                } else {
+                    skipped += 1;
+                }
+            }
+
             for orig in &fixes.delete_roads {
                 if let Some(r) = self.find_r(*orig) {
                     self.delete_road(r, &mut dummy_fixes);
@@ -127,21 +144,6 @@ impl RawMap {
             for orig in &fixes.merge_short_roads {
                 if let Some(r) = self.find_r(*orig) {
                     self.merge_short_road(r, &mut dummy_fixes);
-                    applied += 1;
-                } else {
-                    skipped += 1;
-                }
-            }
-
-            for (orig, (osm_tags, raw_restrictions)) in &fixes.override_metadata {
-                if let Some(r) = self.find_r(*orig) {
-                    // If this road is in the map, it better not have any turn restrictions linking
-                    // it to a road outside the map!
-                    let restrictions = raw_restrictions
-                        .iter()
-                        .map(|(rt, to)| (*rt, self.find_r(*to).unwrap()))
-                        .collect();
-                    self.override_metadata(r, osm_tags.clone(), restrictions, &mut dummy_fixes);
                     applied += 1;
                 } else {
                     skipped += 1;
@@ -664,11 +666,6 @@ pub struct OriginalIntersection {
 // Directives from the map_editor crate to apply to the RawMap layer.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct MapFixes {
-    pub delete_roads: Vec<OriginalRoad>,
-    pub delete_intersections: Vec<OriginalIntersection>,
-    pub add_intersections: Vec<RawIntersection>,
-    pub add_roads: Vec<RawRoad>,
-    pub merge_short_roads: Vec<OriginalRoad>,
     // For non-synthetic (original OSM) roads. (OSM tags, turn restrictions).
     #[serde(
         serialize_with = "serialize_btreemap",
@@ -681,6 +678,11 @@ pub struct MapFixes {
             Vec<(RestrictionType, OriginalRoad)>,
         ),
     >,
+    pub delete_roads: Vec<OriginalRoad>,
+    pub delete_intersections: Vec<OriginalIntersection>,
+    pub add_intersections: Vec<RawIntersection>,
+    pub add_roads: Vec<RawRoad>,
+    pub merge_short_roads: Vec<OriginalRoad>,
 }
 
 impl MapFixes {
