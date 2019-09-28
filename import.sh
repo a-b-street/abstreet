@@ -45,6 +45,13 @@ if [ ! -f data/input/Seattle.osm ]; then
 	gunzip data/input/Seattle.osm.gz;
 fi
 
+# PSRC data comes from https://github.com/psrc/soundcast/releases.
+if [ ! -f data/input/parcels_urbansim.txt ]; then
+	get_if_needed https://www.dropbox.com/s/t9oug9lwhdwfc04/psrc_2014.zip?dl=0 data/input/psrc_2014.zip;
+	unzip data/input/psrc_2014.zip -d data/input;
+	rm -f data/input/psrc_2014.zip;
+fi
+
 for poly in `ls data/polygons/`; do
 	name=`basename -s .poly $poly`;
 	if [ ! -f data/input/$name.osm ]; then
