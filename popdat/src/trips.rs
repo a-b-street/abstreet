@@ -369,7 +369,7 @@ pub fn trips_to_scenario(map: &Map, t1: Duration, t2: Duration, timer: &mut Time
     }
 
     Scenario {
-        scenario_name: format!("psrc {} to {}", t1, t2),
+        scenario_name: format!("psrc_{}_to_{}", t1.as_filename(), t2.as_filename()),
         map_name: map.get_name().to_string(),
         seed_parked_cars: Vec::new(),
         spawn_over_time: Vec::new(),
