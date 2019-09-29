@@ -125,16 +125,31 @@ impl RawMap {
                 }
             }
 
-            for i in &fixes.add_intersections {
-                if self.create_intersection(i.clone()).is_some() {
+            for mut i in fixes.add_intersections.clone() {
+                // Fix up the geometry, maybe.
+                if self.gps_bounds != fixes.gps_bounds {
+                    i.point = Pt2D::forcibly_from_gps(
+                        i.point.to_gps(&fixes.gps_bounds).unwrap(),
+                        &self.gps_bounds,
+                    );
+                }
+
+                if self.create_intersection(i).is_some() {
                     applied += 1;
                 } else {
                     skipped += 1;
                 }
             }
 
-            for r in &fixes.add_roads {
-                if self.create_road(r.clone()).is_some() {
+            for mut r in fixes.add_roads.clone() {
+                // Fix up the geometry, maybe.
+                if self.gps_bounds != fixes.gps_bounds {
+                    r.center_points = self
+                        .gps_bounds
+                        .forcibly_convert(&fixes.gps_bounds.must_convert_back(&r.center_points));
+                }
+
+                if self.create_road(r).is_some() {
                     applied += 1;
                 } else {
                     skipped += 1;
@@ -666,6 +681,8 @@ pub struct OriginalIntersection {
 // Directives from the map_editor crate to apply to the RawMap layer.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct MapFixes {
+    // Any Pt2Ds in the rest of the fixes are relative to these GPSBounds.
+    pub gps_bounds: GPSBounds,
     // For non-synthetic (original OSM) roads. (OSM tags, turn restrictions).
     #[serde(
         serialize_with = "serialize_btreemap",
@@ -688,6 +705,7 @@ pub struct MapFixes {
 impl MapFixes {
     pub fn new() -> MapFixes {
         MapFixes {
+            gps_bounds: GPSBounds::new(),
             delete_roads: Vec::new(),
             delete_intersections: Vec::new(),
             add_intersections: Vec::new(),
