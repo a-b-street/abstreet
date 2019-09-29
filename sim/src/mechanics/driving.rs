@@ -407,7 +407,7 @@ impl DrivingSimState {
                         trips.car_or_bike_reached_border(now, car.vehicle.id, i);
                     }
                     Some(ActionAtEnd::AbortTrip) => {
-                        trips.abort_trip_impossible_parking(car.trip);
+                        trips.abort_trip_impossible_parking(car.vehicle.id);
                     }
                     Some(ActionAtEnd::StartParking(spot)) => {
                         car.state = CarState::Parking(

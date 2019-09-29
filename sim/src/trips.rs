@@ -403,9 +403,10 @@ impl TripManager {
         }
     }
 
-    pub fn abort_trip_impossible_parking(&mut self, id: TripID) {
-        assert!(!self.trips[id.0].is_bus_trip());
-        self.trips[id.0].aborted = true;
+    pub fn abort_trip_impossible_parking(&mut self, car: CarID) {
+        let trip = self.active_trip_mode.remove(&AgentID::Car(car)).unwrap();
+        assert!(!self.trips[trip.0].is_bus_trip());
+        self.trips[trip.0].aborted = true;
         self.unfinished_trips -= 1;
     }
 
