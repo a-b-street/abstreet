@@ -23,7 +23,8 @@
           "lanes:backward": "1",
           "lanes:forward": "2",
           "maxspeed": "30 mph",
-          "name": "East Roanoke Street"
+          "name": "East Roanoke Street",
+          "trolley_wire": "yes"
         },
         []
       ]
@@ -66,6 +67,7 @@
           "name": "East Montlake Place East",
           "old_ref": "WA 513 (Old SSH 1J)",
           "oneway": "yes",
+          "trolley_wire": "yes",
           "turn:lanes": "left|through|through"
         },
         []
@@ -105,7 +107,8 @@
           "maxspeed": "30 mph",
           "name": "Montlake Boulevard East",
           "old_ref": "SSH 1J",
-          "oneway": "yes"
+          "oneway": "yes",
+          "trolley_wire": "yes"
         },
         []
       ]
@@ -126,7 +129,8 @@
           "maxspeed": "30 mph",
           "name": "East Montlake Place East",
           "old_ref": "SSH 1J",
-          "oneway": "yes"
+          "oneway": "yes",
+          "trolley_wire": "yes"
         },
         []
       ]
@@ -148,7 +152,8 @@
           "name": "Montlake Boulevard East",
           "old_ref": "SSH 1J",
           "oneway": "yes",
-          "ref": "WA 513"
+          "ref": "WA 513",
+          "trolley_wire": "yes"
         },
         []
       ]
@@ -190,7 +195,8 @@
           "name": "Montlake Boulevard East",
           "old_ref": "SSH 1J",
           "oneway": "yes",
-          "ref": "WA 513"
+          "ref": "WA 513",
+          "trolley_wire": "yes"
         },
         []
       ]
@@ -211,7 +217,8 @@
           "name": "Montlake Boulevard East",
           "old_ref": "SSH 1J",
           "oneway": "yes",
-          "ref": "WA 513"
+          "ref": "WA 513",
+          "trolley_wire": "yes"
         },
         []
       ]
@@ -233,6 +240,7 @@
           "old_ref": "SSH 1J",
           "oneway": "yes",
           "ref": "WA 513",
+          "trolley_wire": "yes",
           "turn:lanes": "left||"
         },
         []
@@ -257,7 +265,8 @@
           "name": "Montlake Boulevard East",
           "old_ref": "SSH 1J",
           "oneway": "yes",
-          "ref": "WA 513"
+          "ref": "WA 513",
+          "trolley_wire": "yes"
         },
         []
       ]
@@ -360,6 +369,11 @@
       "node2": 4240312868
     },
     {
+      "osm_way_id": 428224936,
+      "node1": 53198127,
+      "node2": 1635790583
+    },
+    {
       "osm_way_id": 4636105,
       "node1": 29463657,
       "node2": 488959736
@@ -368,6 +382,11 @@
       "osm_way_id": 424807771,
       "node1": 4240312862,
       "node2": 4136765600
+    },
+    {
+      "osm_way_id": 40416106,
+      "node1": 29449871,
+      "node2": 29449867
     },
     {
       "osm_way_id": 428343454,
@@ -420,6 +439,11 @@
       "node2": 4828090657
     },
     {
+      "osm_way_id": 332060258,
+      "node1": 3391701875,
+      "node2": 1635790583
+    },
+    {
       "osm_way_id": 332060259,
       "node1": 3391701877,
       "node2": 53128052
@@ -428,6 +452,11 @@
       "osm_way_id": 431103957,
       "node1": 4303514204,
       "node2": 4303514203
+    },
+    {
+      "osm_way_id": 332060261,
+      "node1": 3391701875,
+      "node2": 3391701872
     },
     {
       "osm_way_id": 332060243,
@@ -505,6 +534,11 @@
       "node2": 3391701883
     },
     {
+      "osm_way_id": 157189000,
+      "node1": 53128052,
+      "node2": 3391701875
+    },
+    {
       "osm_way_id": 431103955,
       "node1": 4240314159,
       "node2": 5413301445
@@ -515,71 +549,6 @@
       "node2": 29449863
     },
     {
-      "osm_way_id": 157188999,
-      "node1": 53128052,
-      "node2": 3391701872
-    },
-    {
-      "osm_way_id": 332060253,
-      "node1": 3391701869,
-      "node2": 53198127
-    },
-    {
-      "osm_way_id": 428224936,
-      "node1": 53198127,
-      "node2": 1635790583
-    },
-    {
-      "osm_way_id": 6444010,
-      "node1": 53198127,
-      "node2": 53198128
-    },
-    {
-      "osm_way_id": 332060258,
-      "node1": 3391701875,
-      "node2": 1635790583
-    },
-    {
-      "osm_way_id": 332060261,
-      "node1": 3391701875,
-      "node2": 3391701872
-    },
-    {
-      "osm_way_id": 332060261,
-      "node1": 3391701872,
-      "node2": 3391701869
-    },
-    {
-      "osm_way_id": 157189000,
-      "node1": 53128052,
-      "node2": 3391701875
-    },
-    {
-      "osm_way_id": 40416106,
-      "node1": 29449871,
-      "node2": 29449867
-    },
-    {
-      "osm_way_id": 4635028,
-      "node1": 29447670,
-      "node2": 29449871
-    },
-    {
-      "osm_way_id": 455437650,
-      "node1": 2247309277,
-      "node2": 491979463
-    },
-    {
-      "osm_way_id": 537697092,
-      "node1": 2247309277,
-      "node2": 4549993731
-    },
-    {
-      "osm_way_id": 40416113,
-      "node1": 59677231,
-      "node2": 2247309277
-    },
-    {
       "osm_way_id": 428224939,
       "node1": 4273590092,
       "node2": 59677231
@@ -588,6 +557,11 @@
       "osm_way_id": 459083143,
       "node1": 4549993731,
       "node2": 4550007326
+    },
+    {
+      "osm_way_id": 537697092,
+      "node1": 2247309277,
+      "node2": 4549993731
     },
     {
       "osm_way_id": 130470644,
@@ -605,9 +579,19 @@
       "node2": 59677236
     },
     {
+      "osm_way_id": 428224941,
+      "node1": 4550007325,
+      "node2": 4273590092
+    },
+    {
       "osm_way_id": 459084309,
       "node1": 4550007325,
       "node2": 4550007326
+    },
+    {
+      "osm_way_id": 459084307,
+      "node1": 59710790,
+      "node2": 4550007325
     },
     {
       "osm_way_id": 455809716,
@@ -615,14 +599,39 @@
       "node2": 4550007326
     },
     {
-      "osm_way_id": 428224941,
-      "node1": 4550007325,
-      "node2": 4273590092
+      "osm_way_id": 459084306,
+      "node1": 59710787,
+      "node2": 491979474
     },
     {
-      "osm_way_id": 459084307,
-      "node1": 59710790,
-      "node2": 4550007325
+      "osm_way_id": 455437650,
+      "node1": 2247309277,
+      "node2": 491979463
+    },
+    {
+      "osm_way_id": 40416113,
+      "node1": 59677231,
+      "node2": 2247309277
+    },
+    {
+      "osm_way_id": 157188999,
+      "node1": 53128052,
+      "node2": 3391701872
+    },
+    {
+      "osm_way_id": 332060261,
+      "node1": 3391701872,
+      "node2": 3391701869
+    },
+    {
+      "osm_way_id": 332060253,
+      "node1": 3391701869,
+      "node2": 53198127
+    },
+    {
+      "osm_way_id": 6444010,
+      "node1": 53198127,
+      "node2": 53198128
     }
   ],
   "delete_intersections": [
@@ -651,6 +660,9 @@
       "osm_node_id": 53128053
     },
     {
+      "osm_node_id": 29449867
+    },
+    {
       "osm_node_id": 720880672
     },
     {
@@ -675,6 +687,9 @@
       "osm_node_id": 29464212
     },
     {
+      "osm_node_id": 1635790583
+    },
+    {
       "osm_node_id": 4240312862
     },
     {
@@ -691,6 +706,9 @@
     },
     {
       "osm_node_id": 3391701882
+    },
+    {
+      "osm_node_id": 3391701875
     },
     {
       "osm_node_id": 4828090657
@@ -711,303 +729,265 @@
       "osm_node_id": 4303514198
     },
     {
-      "osm_node_id": 3391701872
-    },
-    {
-      "osm_node_id": 53198127
-    },
-    {
-      "osm_node_id": 1635790583
-    },
-    {
-      "osm_node_id": 3391701875
-    },
-    {
-      "osm_node_id": 29449867
-    },
-    {
-      "osm_node_id": 29449871
-    },
-    {
-      "osm_node_id": 2247309277
-    },
-    {
       "osm_node_id": 4549993731
     },
     {
       "osm_node_id": 59677236
     },
     {
-      "osm_node_id": 4550007326
-    },
-    {
       "osm_node_id": 4273590092
     },
     {
       "osm_node_id": 4550007325
+    },
+    {
+      "osm_node_id": 4550007326
+    },
+    {
+      "osm_node_id": 491979474
+    },
+    {
+      "osm_node_id": 2247309277
+    },
+    {
+      "osm_node_id": 3391701872
+    },
+    {
+      "osm_node_id": 53198127
     }
   ],
   "add_intersections": [
     {
       "point": {
-        "inner_x": 1294.7783,
-        "inner_y": 253.2462
+        "inner_x": 1284.7098,
+        "inner_y": 120.6835
+      },
+      "intersection_type": "TrafficSignal",
+      "label": null,
+      "orig_id": {
+        "osm_node_id": -1569786688
+      },
+      "synthetic": true
+    },
+    {
+      "point": {
+        "inner_x": 1293.1381,
+        "inner_y": 189.8009
       },
       "intersection_type": "StopSign",
       "label": null,
       "orig_id": {
-        "osm_node_id": -5
+        "osm_node_id": -1569786699
       },
       "synthetic": true
     },
     {
       "point": {
-        "inner_x": 1297.2,
-        "inner_y": 303.1549
+        "inner_x": 1293.5267,
+        "inner_y": 292.4207
       },
       "intersection_type": "TrafficSignal",
       "label": null,
       "orig_id": {
-        "osm_node_id": -6
+        "osm_node_id": -1569786719
       },
       "synthetic": true
     },
     {
       "point": {
-        "inner_x": 1304.7472,
-        "inner_y": 377.3359
+        "inner_x": 1331.3542,
+        "inner_y": 393.7066
       },
       "intersection_type": "TrafficSignal",
       "label": null,
       "orig_id": {
-        "osm_node_id": -7
+        "osm_node_id": -1569786822
       },
       "synthetic": true
     },
     {
       "point": {
-        "inner_x": 1397.4275,
-        "inner_y": 447.0176
+        "inner_x": 1362.5729,
+        "inner_y": 444.7162
       },
       "intersection_type": "TrafficSignal",
       "label": null,
       "orig_id": {
-        "osm_node_id": -8
-      },
-      "synthetic": true
-    },
-    {
-      "point": {
-        "inner_x": 1240.592,
-        "inner_y": 416.6637
-      },
-      "intersection_type": "StopSign",
-      "label": null,
-      "orig_id": {
-        "osm_node_id": -9
-      },
-      "synthetic": true
-    },
-    {
-      "point": {
-        "inner_x": 1290.9184,
-        "inner_y": 217.555
-      },
-      "intersection_type": "StopSign",
-      "label": null,
-      "orig_id": {
-        "osm_node_id": -10
-      },
-      "synthetic": true
-    },
-    {
-      "point": {
-        "inner_x": 1281.8972,
-        "inner_y": 122.8649
-      },
-      "intersection_type": "TrafficSignal",
-      "label": null,
-      "orig_id": {
-        "osm_node_id": -11
+        "osm_node_id": -1569786907
       },
       "synthetic": true
     }
   ],
   "add_roads": [
     {
-      "i1": 238,
-      "i2": 385,
+      "i1": 384,
+      "i2": 158,
       "center_points": [
         {
-          "inner_x": 1680.4515,
-          "inner_y": 249.9217
+          "inner_x": 1284.7098,
+          "inner_y": 120.6835
         },
         {
-          "inner_x": 1297.2,
-          "inner_y": 303.1549
+          "inner_x": 1286.9589,
+          "inner_y": 66.2166
         }
       ],
       "orig_id": {
-        "osm_way_id": -1,
-        "node1": 5413301452,
-        "node2": -6
+        "osm_way_id": -1569786691,
+        "node1": -1569786688,
+        "node2": 1437096596
       },
       "osm_tags": {
         "abst:endpt_back": "true",
         "abst:endpt_fwd": "true",
-        "abst:osm_way_id": "-1",
+        "abst:osm_way_id": "-1569786691",
         "abst:synthetic": "true",
-        "abst:synthetic_lanes": "d/",
+        "abst:synthetic_lanes": "dds/dds",
         "maxspeed": "25 mph",
         "name": "Streety McStreetFace"
       },
-      "turn_restrictions": [
-        [
-          "OnlyAllowTurns",
-          508
-        ]
-      ]
+      "turn_restrictions": []
+    },
+    {
+      "i1": 384,
+      "i2": 239,
+      "center_points": [
+        {
+          "inner_x": 1284.7098,
+          "inner_y": 120.6835
+        },
+        {
+          "inner_x": 1236.2587,
+          "inner_y": 121.2136
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569786693,
+        "node1": -1569786688,
+        "node2": 59710790
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569786693",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "s/dps",
+        "maxspeed": "25 mph",
+        "name": "Streety McStreetFace"
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 384,
+      "i2": 259,
+      "center_points": [
+        {
+          "inner_x": 1284.7098,
+          "inner_y": 120.6835
+        },
+        {
+          "inner_x": 1340.5141,
+          "inner_y": 122.3589
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569786695,
+        "node1": -1569786688,
+        "node2": 59710787
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569786695",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "s/dps",
+        "maxspeed": "25 mph",
+        "name": "Streety McStreetFace"
+      },
+      "turn_restrictions": []
     },
     {
       "i1": 385,
       "i2": 384,
       "center_points": [
         {
-          "inner_x": 1297.2,
-          "inner_y": 303.1549
+          "inner_x": 1293.1381,
+          "inner_y": 189.8009
         },
         {
-          "inner_x": 1294.7783,
-          "inner_y": 253.2462
+          "inner_x": 1284.7098,
+          "inner_y": 120.6835
         }
       ],
       "orig_id": {
-        "osm_way_id": -2,
-        "node1": -6,
-        "node2": -5
+        "osm_way_id": -1569786702,
+        "node1": -1569786699,
+        "node2": -1569786688
       },
       "osm_tags": {
         "abst:endpt_back": "true",
         "abst:endpt_fwd": "true",
-        "abst:osm_way_id": "-2",
+        "abst:osm_way_id": "-1569786702",
         "abst:synthetic": "true",
-        "abst:synthetic_lanes": "dps/dps",
+        "abst:synthetic_lanes": "dds/dds",
         "maxspeed": "25 mph",
         "name": "Streety McStreetFace"
       },
       "turn_restrictions": []
     },
     {
-      "i1": 387,
-      "i2": 40,
+      "i1": 385,
+      "i2": 227,
       "center_points": [
         {
-          "inner_x": 1397.4275,
-          "inner_y": 447.0176
+          "inner_x": 1293.1381,
+          "inner_y": 189.8009
         },
         {
-          "inner_x": 1350.4503,
-          "inner_y": 480.3287
+          "inner_x": 1277.1575,
+          "inner_y": 216.0962
         }
       ],
       "orig_id": {
-        "osm_way_id": -4,
-        "node1": -8,
-        "node2": 53128052
+        "osm_way_id": -1569786708,
+        "node1": -1569786699,
+        "node2": 59677231
       },
       "osm_tags": {
         "abst:endpt_back": "true",
         "abst:endpt_fwd": "true",
-        "abst:osm_way_id": "-4",
+        "abst:osm_way_id": "-1569786708",
         "abst:synthetic": "true",
-        "abst:synthetic_lanes": "dps/dps",
+        "abst:synthetic_lanes": "ds/s",
         "maxspeed": "25 mph",
         "name": "Streety McStreetFace"
       },
       "turn_restrictions": []
     },
     {
-      "i1": 230,
-      "i2": 387,
+      "i1": 385,
+      "i2": 3,
       "center_points": [
         {
-          "inner_x": 1473.132,
-          "inner_y": 446.2364
+          "inner_x": 1293.1381,
+          "inner_y": 189.8009
         },
         {
-          "inner_x": 1397.4275,
-          "inner_y": 447.0176
+          "inner_x": 1307.8055,
+          "inner_y": 216.1629
         }
       ],
       "orig_id": {
-        "osm_way_id": -6,
-        "node1": 53070282,
-        "node2": -8
+        "osm_way_id": -1569786711,
+        "node1": -1569786699,
+        "node2": 491979463
       },
       "osm_tags": {
         "abst:endpt_back": "true",
         "abst:endpt_fwd": "true",
-        "abst:osm_way_id": "-6",
+        "abst:osm_way_id": "-1569786711",
         "abst:synthetic": "true",
-        "abst:synthetic_lanes": "dps/dps",
-        "maxspeed": "25 mph",
-        "name": "Streety McStreetFace"
-      },
-      "turn_restrictions": []
-    },
-    {
-      "i1": 387,
-      "i2": 386,
-      "center_points": [
-        {
-          "inner_x": 1397.4275,
-          "inner_y": 447.0176
-        },
-        {
-          "inner_x": 1304.7472,
-          "inner_y": 377.3359
-        }
-      ],
-      "orig_id": {
-        "osm_way_id": -7,
-        "node1": -8,
-        "node2": -7
-      },
-      "osm_tags": {
-        "abst:endpt_back": "true",
-        "abst:endpt_fwd": "true",
-        "abst:osm_way_id": "-7",
-        "abst:synthetic": "true",
-        "abst:synthetic_lanes": "dps/dps",
-        "maxspeed": "25 mph",
-        "name": "Streety McStreetFace"
-      },
-      "turn_restrictions": []
-    },
-    {
-      "i1": 73,
-      "i2": 386,
-      "center_points": [
-        {
-          "inner_x": 1479.9061,
-          "inner_y": 371.2687
-        },
-        {
-          "inner_x": 1304.7472,
-          "inner_y": 377.3359
-        }
-      ],
-      "orig_id": {
-        "osm_way_id": -8,
-        "node1": 5417462688,
-        "node2": -7
-      },
-      "osm_tags": {
-        "abst:endpt_back": "true",
-        "abst:endpt_fwd": "true",
-        "abst:osm_way_id": "-8",
-        "abst:synthetic": "true",
-        "abst:synthetic_lanes": "dps/dps",
+        "abst:synthetic_lanes": "ds/s",
         "maxspeed": "25 mph",
         "name": "Streety McStreetFace"
       },
@@ -1018,83 +998,112 @@
       "i2": 385,
       "center_points": [
         {
-          "inner_x": 1304.7472,
-          "inner_y": 377.3359
+          "inner_x": 1293.5267,
+          "inner_y": 292.4207
         },
         {
-          "inner_x": 1297.2,
-          "inner_y": 303.1549
+          "inner_x": 1293.1381,
+          "inner_y": 189.8009
         }
       ],
       "orig_id": {
-        "osm_way_id": -9,
-        "node1": -7,
-        "node2": -6
+        "osm_way_id": -1569786722,
+        "node1": -1569786719,
+        "node2": -1569786699
       },
       "osm_tags": {
         "abst:endpt_back": "true",
         "abst:endpt_fwd": "true",
-        "abst:osm_way_id": "-9",
+        "abst:osm_way_id": "-1569786722",
         "abst:synthetic": "true",
-        "abst:synthetic_lanes": "dps/dps",
+        "abst:synthetic_lanes": "dds/dds",
         "maxspeed": "25 mph",
         "name": "Streety McStreetFace"
       },
       "turn_restrictions": []
     },
     {
-      "i1": 307,
-      "i2": 152,
+      "i1": 238,
+      "i2": 386,
       "center_points": [
         {
-          "inner_x": 1683.2241,
-          "inner_y": 263.065
+          "inner_x": 1681.2533,
+          "inner_y": 254.7476
         },
+        {
+          "inner_x": 1293.5267,
+          "inner_y": 292.4207
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569786736,
+        "node1": 5413301452,
+        "node2": -1569786719
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569786736",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "d/",
+        "maxspeed": "25 mph",
+        "name": "Streety McStreetFace"
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 386,
+      "i2": 189,
+      "center_points": [
+        {
+          "inner_x": 1293.5267,
+          "inner_y": 292.4207
+        },
+        {
+          "inner_x": 1156.7763,
+          "inner_y": 385.435
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569786754,
+        "node1": -1569786719,
+        "node2": 488959736
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569786754",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "d/",
+        "maxspeed": "25 mph",
+        "name": "Streety McStreetFace"
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 152,
+      "i2": 307,
+      "center_points": [
         {
           "inner_x": 1154.9404,
           "inner_y": 396.2431
-        }
-      ],
-      "orig_id": {
-        "osm_way_id": -10,
-        "node1": 5413301451,
-        "node2": 488959741
-      },
-      "osm_tags": {
-        "abst:endpt_back": "true",
-        "abst:endpt_fwd": "true",
-        "abst:osm_way_id": "-10",
-        "abst:synthetic": "true",
-        "abst:synthetic_lanes": "dd/",
-        "maxspeed": "25 mph",
-        "name": "Streety McStreetFace"
-      },
-      "turn_restrictions": []
-    },
-    {
-      "i1": 244,
-      "i2": 388,
-      "center_points": [
-        {
-          "inner_x": 965.74,
-          "inner_y": 465.9623
         },
         {
-          "inner_x": 1240.592,
-          "inner_y": 416.6637
+          "inner_x": 1681.613,
+          "inner_y": 271.1043
         }
       ],
       "orig_id": {
-        "osm_way_id": -3,
-        "node1": 29447670,
-        "node2": -9
+        "osm_way_id": -1569786768,
+        "node1": 488959741,
+        "node2": 5413301451
       },
       "osm_tags": {
         "abst:endpt_back": "true",
         "abst:endpt_fwd": "true",
-        "abst:osm_way_id": "-3",
+        "abst:osm_way_id": "-1569786768",
         "abst:synthetic": "true",
-        "abst:synthetic_lanes": "d/",
+        "abst:synthetic_lanes": "/dd",
         "maxspeed": "25 mph",
         "name": "Streety McStreetFace"
       },
@@ -1114,16 +1123,103 @@
         }
       ],
       "orig_id": {
-        "osm_way_id": -11,
+        "osm_way_id": -1569786800,
         "node1": 29447668,
         "node2": 4240312871
       },
       "osm_tags": {
         "abst:endpt_back": "true",
         "abst:endpt_fwd": "true",
-        "abst:osm_way_id": "-11",
+        "abst:osm_way_id": "-1569786800",
         "abst:synthetic": "true",
-        "abst:synthetic_lanes": "ddd/",
+        "abst:synthetic_lanes": "dd/",
+        "maxspeed": "25 mph",
+        "name": "Streety McStreetFace"
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 387,
+      "i2": 386,
+      "center_points": [
+        {
+          "inner_x": 1331.3542,
+          "inner_y": 393.7066
+        },
+        {
+          "inner_x": 1293.5267,
+          "inner_y": 292.4207
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569786827,
+        "node1": -1569786822,
+        "node2": -1569786719
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569786827",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "dds/dds",
+        "maxspeed": "25 mph",
+        "name": "Streety McStreetFace"
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 73,
+      "i2": 387,
+      "center_points": [
+        {
+          "inner_x": 1479.9061,
+          "inner_y": 371.2687
+        },
+        {
+          "inner_x": 1331.3542,
+          "inner_y": 393.7066
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569786886,
+        "node1": 5417462688,
+        "node2": -1569786822
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569786886",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "dps/dps",
+        "maxspeed": "25 mph",
+        "name": "Streety McStreetFace"
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 199,
+      "i2": 387,
+      "center_points": [
+        {
+          "inner_x": 1186.2178,
+          "inner_y": 460.1913
+        },
+        {
+          "inner_x": 1331.3542,
+          "inner_y": 393.7066
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569786900,
+        "node1": 29449871,
+        "node2": -1569786822
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569786900",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "d/",
         "maxspeed": "25 mph",
         "name": "Streety McStreetFace"
       },
@@ -1131,55 +1227,55 @@
     },
     {
       "i1": 388,
-      "i2": 386,
+      "i2": 387,
       "center_points": [
         {
-          "inner_x": 1240.592,
-          "inner_y": 416.6637
+          "inner_x": 1362.5729,
+          "inner_y": 444.7162
         },
         {
-          "inner_x": 1304.7472,
-          "inner_y": 377.3359
+          "inner_x": 1331.3542,
+          "inner_y": 393.7066
         }
       ],
       "orig_id": {
-        "osm_way_id": -12,
-        "node1": -9,
-        "node2": -7
+        "osm_way_id": -1569786914,
+        "node1": -1569786907,
+        "node2": -1569786822
       },
       "osm_tags": {
         "abst:endpt_back": "true",
         "abst:endpt_fwd": "true",
-        "abst:osm_way_id": "-12",
+        "abst:osm_way_id": "-1569786914",
         "abst:synthetic": "true",
-        "abst:synthetic_lanes": "d/",
+        "abst:synthetic_lanes": "dds/dds",
         "maxspeed": "25 mph",
         "name": "Streety McStreetFace"
       },
       "turn_restrictions": []
     },
     {
-      "i1": 389,
-      "i2": 384,
+      "i1": 388,
+      "i2": 230,
       "center_points": [
         {
-          "inner_x": 1290.9184,
-          "inner_y": 217.555
+          "inner_x": 1362.5729,
+          "inner_y": 444.7162
         },
         {
-          "inner_x": 1294.7783,
-          "inner_y": 253.2462
+          "inner_x": 1473.132,
+          "inner_y": 446.2364
         }
       ],
       "orig_id": {
-        "osm_way_id": -13,
-        "node1": -10,
-        "node2": -5
+        "osm_way_id": -1569786927,
+        "node1": -1569786907,
+        "node2": 53070282
       },
       "osm_tags": {
         "abst:endpt_back": "true",
         "abst:endpt_fwd": "true",
-        "abst:osm_way_id": "-13",
+        "abst:osm_way_id": "-1569786927",
         "abst:synthetic": "true",
         "abst:synthetic_lanes": "dps/dps",
         "maxspeed": "25 mph",
@@ -1188,203 +1284,58 @@
       "turn_restrictions": []
     },
     {
-      "i1": 227,
-      "i2": 389,
+      "i1": 388,
+      "i2": 100,
       "center_points": [
         {
-          "inner_x": 1277.1575,
-          "inner_y": 216.0962
+          "inner_x": 1362.5729,
+          "inner_y": 444.7162
         },
         {
-          "inner_x": 1290.9184,
-          "inner_y": 217.555
+          "inner_x": 1418.3329,
+          "inner_y": 497.4861
         }
       ],
       "orig_id": {
-        "osm_way_id": -14,
-        "node1": 59677231,
-        "node2": -10
+        "osm_way_id": -1569786951,
+        "node1": -1569786907,
+        "node2": 3391701869
       },
       "osm_tags": {
         "abst:endpt_back": "true",
         "abst:endpt_fwd": "true",
-        "abst:osm_way_id": "-14",
+        "abst:osm_way_id": "-1569786951",
         "abst:synthetic": "true",
-        "abst:synthetic_lanes": "s/dps",
+        "abst:synthetic_lanes": "dds/dds",
         "maxspeed": "25 mph",
         "name": "Streety McStreetFace"
       },
       "turn_restrictions": []
     },
     {
-      "i1": 389,
-      "i2": 3,
+      "i1": 40,
+      "i2": 388,
       "center_points": [
         {
-          "inner_x": 1290.9184,
-          "inner_y": 217.555
+          "inner_x": 1350.4503,
+          "inner_y": 480.3287
         },
         {
-          "inner_x": 1307.8055,
-          "inner_y": 216.1629
+          "inner_x": 1362.5729,
+          "inner_y": 444.7162
         }
       ],
       "orig_id": {
-        "osm_way_id": -15,
-        "node1": -10,
-        "node2": 491979463
+        "osm_way_id": -1569786954,
+        "node1": 53128052,
+        "node2": -1569786907
       },
       "osm_tags": {
         "abst:endpt_back": "true",
         "abst:endpt_fwd": "true",
-        "abst:osm_way_id": "-15",
-        "abst:synthetic": "true",
-        "abst:synthetic_lanes": "dps/s",
-        "maxspeed": "25 mph",
-        "name": "Streety McStreetFace"
-      },
-      "turn_restrictions": []
-    },
-    {
-      "i1": 390,
-      "i2": 158,
-      "center_points": [
-        {
-          "inner_x": 1281.8972,
-          "inner_y": 122.8649
-        },
-        {
-          "inner_x": 1286.9589,
-          "inner_y": 66.2166
-        }
-      ],
-      "orig_id": {
-        "osm_way_id": -16,
-        "node1": -11,
-        "node2": 1437096596
-      },
-      "osm_tags": {
-        "abst:endpt_back": "true",
-        "abst:endpt_fwd": "true",
-        "abst:osm_way_id": "-16",
+        "abst:osm_way_id": "-1569786954",
         "abst:synthetic": "true",
         "abst:synthetic_lanes": "dps/dps",
-        "maxspeed": "25 mph",
-        "name": "Streety McStreetFace"
-      },
-      "turn_restrictions": []
-    },
-    {
-      "i1": 239,
-      "i2": 390,
-      "center_points": [
-        {
-          "inner_x": 1236.2587,
-          "inner_y": 121.2136
-        },
-        {
-          "inner_x": 1281.8972,
-          "inner_y": 122.8649
-        }
-      ],
-      "orig_id": {
-        "osm_way_id": -17,
-        "node1": 59710790,
-        "node2": -11
-      },
-      "osm_tags": {
-        "abst:endpt_back": "true",
-        "abst:endpt_fwd": "true",
-        "abst:osm_way_id": "-17",
-        "abst:synthetic": "true",
-        "abst:synthetic_lanes": "dps/s",
-        "maxspeed": "25 mph",
-        "name": "Streety McStreetFace"
-      },
-      "turn_restrictions": []
-    },
-    {
-      "i1": 390,
-      "i2": 212,
-      "center_points": [
-        {
-          "inner_x": 1281.8972,
-          "inner_y": 122.8649
-        },
-        {
-          "inner_x": 1308.937,
-          "inner_y": 122.1031
-        }
-      ],
-      "orig_id": {
-        "osm_way_id": -18,
-        "node1": -11,
-        "node2": 491979474
-      },
-      "osm_tags": {
-        "abst:endpt_back": "true",
-        "abst:endpt_fwd": "true",
-        "abst:osm_way_id": "-18",
-        "abst:synthetic": "true",
-        "abst:synthetic_lanes": "s/dds",
-        "maxspeed": "25 mph",
-        "name": "Streety McStreetFace"
-      },
-      "turn_restrictions": []
-    },
-    {
-      "i1": 390,
-      "i2": 389,
-      "center_points": [
-        {
-          "inner_x": 1281.8972,
-          "inner_y": 122.8649
-        },
-        {
-          "inner_x": 1290.9184,
-          "inner_y": 217.555
-        }
-      ],
-      "orig_id": {
-        "osm_way_id": -19,
-        "node1": -11,
-        "node2": -10
-      },
-      "osm_tags": {
-        "abst:endpt_back": "true",
-        "abst:endpt_fwd": "true",
-        "abst:osm_way_id": "-19",
-        "abst:synthetic": "true",
-        "abst:synthetic_lanes": "dps/dps",
-        "maxspeed": "25 mph",
-        "name": "Streety McStreetFace"
-      },
-      "turn_restrictions": []
-    },
-    {
-      "i1": 385,
-      "i2": 189,
-      "center_points": [
-        {
-          "inner_x": 1297.2,
-          "inner_y": 303.1549
-        },
-        {
-          "inner_x": 1156.7763,
-          "inner_y": 385.435
-        }
-      ],
-      "orig_id": {
-        "osm_way_id": -5,
-        "node1": -6,
-        "node2": 488959736
-      },
-      "osm_tags": {
-        "abst:endpt_back": "true",
-        "abst:endpt_fwd": "true",
-        "abst:osm_way_id": "-5",
-        "abst:synthetic": "true",
-        "abst:synthetic_lanes": "d/",
         "maxspeed": "25 mph",
         "name": "Streety McStreetFace"
       },
