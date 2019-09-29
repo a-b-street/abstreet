@@ -62,7 +62,21 @@ impl DrawIntersection {
         match i.intersection_type {
             IntersectionType::Border => {
                 if i.roads.len() != 1 {
-                    panic!("Border {} has {} roads!", i.id, i.roads.len());
+                    println!(
+                        "Border {} ({}) has {} roads!",
+                        i.id,
+                        i.stable_id,
+                        i.roads.len()
+                    );
+                    for r in &i.roads {
+                        println!("- {} ({})", r, map.get_r(*r).stable_id);
+                    }
+                    panic!(
+                        "Border {} ({}) has {} roads!",
+                        i.id,
+                        i.stable_id,
+                        i.roads.len()
+                    );
                 }
                 let r = map.get_r(*i.roads.iter().next().unwrap());
                 default_geom.extend(

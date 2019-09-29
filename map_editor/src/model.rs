@@ -296,8 +296,18 @@ impl Model {
         self.world.delete(ID::Intersection(id));
     }
 
+    // TODO Reconsider this spammy amount of stuff, just expose RawMap to main in some readonly
+    // way.
     pub fn get_i_center(&self, id: StableIntersectionID) -> Pt2D {
         self.map.intersections[&id].point
+    }
+
+    pub fn get_i_orig_id(&self, id: StableIntersectionID) -> OriginalIntersection {
+        self.map.intersections[&id].orig_id
+    }
+
+    pub fn get_roads_per_i(&self, id: StableIntersectionID) -> Vec<StableRoadID> {
+        self.map.roads_per_intersection(id)
     }
 
     // (Intersection polygon, polygons for roads, labeled polygons to debug)
