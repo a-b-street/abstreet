@@ -186,10 +186,9 @@ impl RawMap {
         results
     }
 
-    pub fn new_osm_node_id(&self) -> i64 {
+    pub fn new_osm_node_id(&self, start: i64) -> i64 {
         // Slow, but deterministic.
-        // TODO Argh, these will conflict between different maps! Is that a problem?
-        let mut osm_node_id = -1;
+        let mut osm_node_id = start;
         loop {
             if self
                 .intersections
@@ -203,10 +202,9 @@ impl RawMap {
         }
     }
 
-    pub fn new_osm_way_id(&self) -> i64 {
+    pub fn new_osm_way_id(&self, start: i64) -> i64 {
         // Slow, but deterministic.
-        // TODO Argh, these will conflict between different maps! Is that a problem?
-        let mut osm_way_id = -1;
+        let mut osm_way_id = start;
         loop {
             if self
                 .roads
