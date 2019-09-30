@@ -61,7 +61,7 @@ impl Model {
         if let Some(ref name) = model.edit_fixes {
             if let Some(fixes) = all_fixes.remove(name) {
                 model.fixes = fixes;
-                if model.fixes.gps_bounds != model.map.gps_bounds {
+                if !model.fixes.gps_bounds.approx_eq(&model.map.gps_bounds) {
                     panic!("Can't edit {} with this map; use the original map", name);
                 }
             }

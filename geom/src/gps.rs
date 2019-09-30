@@ -43,6 +43,12 @@ impl LonLat {
         )
         .unwrap()
     }
+
+    pub(crate) fn approx_eq(self, other: LonLat) -> bool {
+        let epsilon = 1e-8;
+        (self.longitude - other.longitude).abs() < epsilon
+            && (self.latitude - other.latitude).abs() < epsilon
+    }
 }
 
 impl fmt::Display for LonLat {

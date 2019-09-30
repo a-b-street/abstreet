@@ -3,7 +3,7 @@ use aabb_quadtree::geom::{Point, Rect};
 use serde_derive::{Deserialize, Serialize};
 use std::f64;
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Bounds {
     pub min_x: f64,
     pub min_y: f64,
@@ -69,7 +69,7 @@ impl Bounds {
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct GPSBounds {
     pub(crate) min_lon: f64,
     pub(crate) min_lat: f64,
@@ -146,5 +146,11 @@ impl GPSBounds {
         b.update(LonLat::new(-122.4416, 47.5793));
         b.update(LonLat::new(-122.2421, 47.7155));
         b
+    }
+
+    pub fn approx_eq(&self, other: &GPSBounds) -> bool {
+        LonLat::new(self.min_lon, self.min_lat).approx_eq(LonLat::new(other.min_lon, other.min_lat))
+            && LonLat::new(self.max_lon, self.max_lat)
+                .approx_eq(LonLat::new(other.max_lon, other.max_lat))
     }
 }

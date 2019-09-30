@@ -1,11 +1,64 @@
 {
   "gps_bounds": {
-    "min_lon": -122.31036966897095,
+    "min_lon": -122.31036966897096,
     "min_lat": 47.597290174872846,
-    "max_lon": -122.29152725418099,
+    "max_lon": -122.291527254181,
     "max_lat": 47.65513966206871
   },
-  "override_metadata": [],
+  "override_metadata": [
+    [
+      {
+        "osm_way_id": 385214478,
+        "node1": 31429758,
+        "node2": 29464758
+      },
+      [
+        {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "385214478",
+          "highway": "primary",
+          "lanes": "5",
+          "lanes:backward": "3",
+          "lanes:forward": "2",
+          "maxspeed": "30 mph",
+          "name": "Montlake Boulevard Northeast",
+          "old_ref": "SSH 1J",
+          "ref": "WA 513",
+          "shoulder": "no",
+          "sidewalk": "both",
+          "surface": "asphalt",
+          "turn:lanes:backward": "left|through|through"
+        },
+        [
+          [
+            "BanTurns",
+            {
+              "osm_way_id": 385214478,
+              "node1": 31429758,
+              "node2": 29464758
+            }
+          ],
+          [
+            "BanTurns",
+            {
+              "osm_way_id": 499392305,
+              "node1": 32103268,
+              "node2": 31429758
+            }
+          ],
+          [
+            "BanTurns",
+            {
+              "osm_way_id": 4910588,
+              "node1": 29464758,
+              "node2": 32103268
+            }
+          ]
+        ]
+      ]
+    ]
+  ],
   "delete_roads": [],
   "delete_intersections": [],
   "add_intersections": [],
