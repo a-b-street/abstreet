@@ -259,6 +259,10 @@ impl DurationHistogram {
     }
 
     pub fn describe(&self) -> String {
+        if self.count == 0 {
+            return "no data yet".to_string();
+        }
+
         format!(
             "{} count, 50%ile {}, 90%ile {}, 99%ile {}",
             abstutil::prettyprint_usize(self.count),
@@ -266,5 +270,13 @@ impl DurationHistogram {
             Duration::from_u64(self.histogram.percentile(90.0).unwrap()),
             Duration::from_u64(self.histogram.percentile(99.0).unwrap()),
         )
+    }
+
+    // None if empty
+    pub fn percentile(&self, p: f64) -> Option<Duration> {
+        if self.count == 0 {
+            return None;
+        }
+        Some(Duration::from_u64(self.histogram.percentile(p).unwrap()))
     }
 }

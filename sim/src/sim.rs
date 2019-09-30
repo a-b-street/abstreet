@@ -8,7 +8,7 @@ use crate::{
 };
 use abstutil::{elapsed_seconds, Timer};
 use derivative::Derivative;
-use geom::{Distance, Duration, PolyLine, Pt2D};
+use geom::{Distance, Duration, DurationHistogram, PolyLine, Pt2D};
 use map_model::{
     BuildingID, BusRoute, BusRouteID, IntersectionID, LaneID, Map, Path, PathRequest, Position,
     Traversable,
@@ -891,6 +891,10 @@ impl Sim {
 
     pub fn get_accepted_agents(&self, id: IntersectionID) -> HashSet<AgentID> {
         self.intersections.get_accepted_agents(id)
+    }
+
+    pub fn get_intersection_delays(&self, id: IntersectionID) -> &DurationHistogram {
+        self.intersections.get_intersection_delays(id)
     }
 }
 

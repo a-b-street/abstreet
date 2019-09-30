@@ -3,7 +3,7 @@ use crate::render::{DrawOptions, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::{ShowEverything, UI};
 use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ScreenPt, Text, LINE_HEIGHT};
 use geom::{Distance, Polygon, Pt2D};
-use map_model::{BuildingID, LaneID, Map, RoadID};
+use map_model::{LaneID, Map, RoadID};
 use std::collections::HashMap;
 
 pub struct RoadColorerBuilder {
@@ -73,18 +73,18 @@ impl RoadColorerBuilder {
     }
 }
 
-pub struct BuildingColorerBuilder {
+pub struct ObjectColorerBuilder {
     zoomed_override_colors: HashMap<ID, Color>,
     legend: ColorLegend,
 }
 
-pub struct BuildingColorer {
+pub struct ObjectColorer {
     zoomed_override_colors: HashMap<ID, Color>,
     unzoomed: Drawable,
     legend: ColorLegend,
 }
 
-impl BuildingColorer {
+impl ObjectColorer {
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         let mut opts = DrawOptions::new();
         if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
@@ -99,28 +99,29 @@ impl BuildingColorer {
     }
 }
 
-impl BuildingColorerBuilder {
-    pub fn new(title: &str, rows: Vec<(&str, Color)>) -> BuildingColorerBuilder {
-        BuildingColorerBuilder {
+impl ObjectColorerBuilder {
+    pub fn new(title: &str, rows: Vec<(&str, Color)>) -> ObjectColorerBuilder {
+        ObjectColorerBuilder {
             zoomed_override_colors: HashMap::new(),
             legend: ColorLegend::new(title, rows),
         }
     }
 
-    pub fn add(&mut self, b: BuildingID, color: Color) {
-        self.zoomed_override_colors.insert(ID::Building(b), color);
+    pub fn add(&mut self, id: ID, color: Color) {
+        self.zoomed_override_colors.insert(id, color);
     }
 
-    pub fn build(self, ctx: &mut EventCtx, map: &Map) -> BuildingColorer {
+    pub fn build(self, ctx: &mut EventCtx, map: &Map) -> ObjectColorer {
         let mut batch = GeomBatch::new();
         for (id, color) in &self.zoomed_override_colors {
-            if let ID::Building(b) = id {
-                batch.push(*color, map.get_b(*b).polygon.clone());
-            } else {
-                unreachable!()
-            }
+            let poly = match id {
+                ID::Building(b) => map.get_b(*b).polygon.clone(),
+                ID::Intersection(i) => map.get_i(*i).polygon.clone(),
+                _ => unreachable!(),
+            };
+            batch.push(*color, poly);
         }
-        BuildingColorer {
+        ObjectColorer {
             zoomed_override_colors: self.zoomed_override_colors,
             unzoomed: ctx.prerender.upload(batch),
             legend: self.legend,

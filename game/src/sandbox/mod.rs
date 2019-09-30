@@ -3,8 +3,8 @@ mod spawner;
 mod time_travel;
 
 use crate::common::{
-    time_controls, AgentTools, CommonState, RoadColorer, RoadColorerBuilder, RouteExplorer,
-    SpeedControls, TripExplorer,
+    time_controls, AgentTools, CommonState, ObjectColorer, ObjectColorerBuilder, RoadColorer,
+    RoadColorerBuilder, RouteExplorer, SpeedControls, TripExplorer,
 };
 use crate::debug::DebugMode;
 use crate::edit::EditMode;
@@ -26,6 +26,7 @@ pub struct SandboxMode {
     pub time_travel: time_travel::InactiveTimeTravel,
     common: CommonState,
     parking_heatmap: Option<(Duration, RoadColorer)>,
+    intersection_delay_heatmap: Option<(Duration, ObjectColorer)>,
     menu: ModalMenu,
 }
 
@@ -37,6 +38,7 @@ impl SandboxMode {
             time_travel: time_travel::InactiveTimeTravel::new(),
             common: CommonState::new(),
             parking_heatmap: None,
+            intersection_delay_heatmap: None,
             menu: ModalMenu::new(
                 "Sandbox Mode",
                 vec![
@@ -59,6 +61,7 @@ impl SandboxMode {
                     vec![
                         // TODO Strange to always have this. Really it's a case of stacked modal?
                         (hotkey(Key::A), "show/hide parking availability"),
+                        (hotkey(Key::I), "show/hide intersection delay"),
                         (hotkey(Key::T), "start time traveling"),
                         (hotkey(Key::Q), "scoreboard"),
                     ],
@@ -134,6 +137,27 @@ impl State for SandboxMode {
             self.parking_heatmap = Some((
                 ui.primary.sim.time(),
                 calculate_parking_heatmap(ctx, &ui.primary),
+            ));
+        }
+        if self.menu.action("show/hide intersection delay") {
+            if self.intersection_delay_heatmap.is_some() {
+                self.intersection_delay_heatmap = None;
+            } else {
+                self.intersection_delay_heatmap = Some((
+                    ui.primary.sim.time(),
+                    calculate_intersection_delay(ctx, &ui.primary),
+                ));
+            }
+        }
+        if self
+            .intersection_delay_heatmap
+            .as_ref()
+            .map(|(t, _)| *t != ui.primary.sim.time())
+            .unwrap_or(false)
+        {
+            self.intersection_delay_heatmap = Some((
+                ui.primary.sim.time(),
+                calculate_intersection_delay(ctx, &ui.primary),
             ));
         }
 
@@ -243,7 +267,10 @@ impl State for SandboxMode {
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        // TODO Oh no, these're actually exclusive, represent that better.
         if let Some((_, ref c)) = self.parking_heatmap {
+            c.draw(g, ui);
+        } else if let Some((_, ref c)) = self.intersection_delay_heatmap {
             c.draw(g, ui);
         } else {
             ui.draw(
@@ -334,6 +361,32 @@ fn calculate_parking_heatmap(ctx: &mut EventCtx, primary: &PerMapUI) -> RoadColo
             awful
         };
         colorer.add(l, color, &primary.map);
+    }
+
+    colorer.build(ctx, &primary.map)
+}
+
+fn calculate_intersection_delay(ctx: &mut EventCtx, primary: &PerMapUI) -> ObjectColorer {
+    let fast = Color::GREEN;
+    let meh = Color::YELLOW;
+    let slow = Color::RED;
+    let mut colorer = ObjectColorerBuilder::new(
+        "intersection delay (90%ile)",
+        vec![("< 10s", fast), ("<= 60s", meh), ("> 60s", slow)],
+    );
+
+    for i in primary.map.all_intersections() {
+        let delays = primary.sim.get_intersection_delays(i.id);
+        if let Some(d) = delays.percentile(90.0) {
+            let color = if d < Duration::seconds(10.0) {
+                fast
+            } else if d <= Duration::seconds(60.0) {
+                meh
+            } else {
+                slow
+            };
+            colorer.add(ID::Intersection(i.id), color);
+        }
     }
 
     colorer.build(ctx, &primary.map)

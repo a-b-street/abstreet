@@ -13,7 +13,7 @@ mod warp;
 
 pub use self::agent::AgentTools;
 pub use self::colors::{
-    BuildingColorer, BuildingColorerBuilder, ColorLegend, RoadColorer, RoadColorerBuilder,
+    ColorLegend, ObjectColorer, ObjectColorerBuilder, RoadColorer, RoadColorerBuilder,
 };
 pub use self::route_explorer::RouteExplorer;
 pub use self::speed::SpeedControls;

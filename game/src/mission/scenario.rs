@@ -1,4 +1,4 @@
-use crate::common::{BuildingColorer, BuildingColorerBuilder, CommonState, Warping};
+use crate::common::{CommonState, ObjectColorer, ObjectColorerBuilder, Warping};
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::mission::pick_time_range;
@@ -31,7 +31,7 @@ pub struct ScenarioManager {
     cars_needed_per_bldg: HashMap<BuildingID, CarCount>,
     total_cars_needed: CarCount,
     total_parking_spots: usize,
-    bldg_colors: BuildingColorer,
+    bldg_colors: ObjectColorer,
 }
 
 impl ScenarioManager {
@@ -47,7 +47,7 @@ impl ScenarioManager {
         let mut total_cars_needed = CarCount::new();
         let color = Color::BLUE;
         let mut bldg_colors =
-            BuildingColorerBuilder::new("trips", vec![("building with trips from/to it", color)]);
+            ObjectColorerBuilder::new("trips", vec![("building with trips from/to it", color)]);
         for (idx, trip) in scenario.individ_trips.iter().enumerate() {
             // trips_from_bldg and trips_from_border
             match trip {
@@ -55,14 +55,14 @@ impl ScenarioManager {
                 SpawnTrip::CarAppearing { .. } => {}
                 SpawnTrip::MaybeUsingParkedCar(_, b, _) => {
                     trips_from_bldg.insert(*b, idx);
-                    bldg_colors.add(*b, color);
+                    bldg_colors.add(ID::Building(*b), color);
                 }
                 SpawnTrip::UsingBike(_, ref spot, _)
                 | SpawnTrip::JustWalking(_, ref spot, _)
                 | SpawnTrip::UsingTransit(_, ref spot, _, _, _, _) => match spot.connection {
                     SidewalkPOI::Building(b) => {
                         trips_from_bldg.insert(b, idx);
-                        bldg_colors.add(b, color);
+                        bldg_colors.add(ID::Building(b), color);
                     }
                     SidewalkPOI::Border(i) => {
                         trips_from_border.insert(i, idx);
@@ -78,7 +78,7 @@ impl ScenarioManager {
                 | SpawnTrip::UsingBike(_, _, ref goal) => match goal {
                     DrivingGoal::ParkNear(b) => {
                         trips_to_bldg.insert(*b, idx);
-                        bldg_colors.add(*b, color);
+                        bldg_colors.add(ID::Building(*b), color);
                     }
                     DrivingGoal::Border(i, _) => {
                         trips_to_border.insert(*i, idx);
@@ -88,7 +88,7 @@ impl ScenarioManager {
                 | SpawnTrip::UsingTransit(_, _, ref spot, _, _, _) => match spot.connection {
                     SidewalkPOI::Building(b) => {
                         trips_to_bldg.insert(b, idx);
-                        bldg_colors.add(b, color);
+                        bldg_colors.add(ID::Building(b), color);
                     }
                     SidewalkPOI::Border(i) => {
                         trips_to_border.insert(i, idx);

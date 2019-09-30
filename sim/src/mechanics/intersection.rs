@@ -2,7 +2,8 @@ use crate::mechanics::car::Car;
 use crate::mechanics::queue::Queue;
 use crate::{AgentID, Command, Scheduler, Speed};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
-use geom::Duration;
+use derivative::Derivative;
+use geom::{Duration, DurationHistogram};
 use map_model::{
     ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, Map, TurnID, TurnPriority,
     TurnType,
@@ -19,7 +20,8 @@ pub struct IntersectionSimState {
     force_queue_entry: bool,
 }
 
-#[derive(Serialize, Deserialize, PartialEq)]
+#[derive(Serialize, Deserialize, Derivative)]
+#[derivative(PartialEq)]
 struct State {
     id: IntersectionID,
     accepted: BTreeSet<Request>,
@@ -29,6 +31,9 @@ struct State {
         deserialize_with = "deserialize_btreemap"
     )]
     waiting: BTreeMap<Request, Duration>,
+    #[derivative(PartialEq = "ignore")]
+    #[serde(skip_serializing, skip_deserializing)]
+    delays: DurationHistogram,
 }
 
 impl IntersectionSimState {
@@ -50,6 +55,7 @@ impl IntersectionSimState {
                     id: i.id,
                     accepted: BTreeSet::new(),
                     waiting: BTreeMap::new(),
+                    delays: std::default::Default::default(),
                 },
             );
             if i.is_traffic_signal() {
@@ -169,7 +175,7 @@ impl IntersectionSimState {
         }
 
         assert!(!state.any_accepted_conflict_with(turn, map));
-        state.waiting.remove(&req).unwrap();
+        state.delays.add(now - state.waiting.remove(&req).unwrap());
         state.accepted.insert(req);
         true
     }
@@ -183,6 +189,7 @@ impl IntersectionSimState {
         } else {
             println!("Border");
         }
+        println!("Delays: {}", self.state[&id].delays.describe());
     }
 
     pub fn get_accepted_agents(&self, id: IntersectionID) -> HashSet<AgentID> {
@@ -191,6 +198,10 @@ impl IntersectionSimState {
             .iter()
             .map(|req| req.agent)
             .collect()
+    }
+
+    pub fn get_intersection_delays(&self, id: IntersectionID) -> &DurationHistogram {
+        &self.state[&id].delays
     }
 }
 
