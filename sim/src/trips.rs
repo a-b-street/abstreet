@@ -463,6 +463,7 @@ impl TripManager {
     pub fn get_finished_trips(&self) -> FinishedTrips {
         let mut result = FinishedTrips {
             unfinished_trips: self.unfinished_trips,
+            aborted_trips: 0,
             finished_trips: Vec::new(),
         };
         for t in &self.trips {
@@ -470,6 +471,8 @@ impl TripManager {
                 result
                     .finished_trips
                     .push((t.id, t.mode, end - t.spawned_at));
+            } else if t.aborted {
+                result.aborted_trips += 1;
             }
         }
         result
@@ -579,6 +582,7 @@ pub enum TripLeg {
 // As of a moment in time, not necessarily the end of the simulation
 pub struct FinishedTrips {
     pub unfinished_trips: usize,
+    pub aborted_trips: usize,
     // (..., ..., time to complete trip)
     pub finished_trips: Vec<(TripID, TripMode, Duration)>,
 }

@@ -44,6 +44,12 @@ impl Scoreboard {
             Line(" unfinished trips"),
         ]);
         summary.add_appended(vec![
+            Line(prettyprint_usize(t1.aborted_trips)).fg(Color::RED),
+            Line(" | "),
+            Line(prettyprint_usize(t2.aborted_trips)).fg(Color::CYAN),
+            Line(" aborted trips"),
+        ]);
+        summary.add_appended(vec![
             Line("faster (better)").fg(Color::GREEN),
             Line(" / "),
             Line("slower (worse)").fg(Color::YELLOW),
