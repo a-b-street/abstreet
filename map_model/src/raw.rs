@@ -367,7 +367,7 @@ impl RawMap {
         }
     }
 
-    pub fn can_merge_short_road(&self, id: StableRoadID, fixes: &MapFixes) -> Result<(), Error> {
+    pub fn can_merge_short_road(&self, id: StableRoadID) -> Result<(), Error> {
         self.can_delete_road(id)?;
 
         let road = &self.roads[&id];
@@ -393,9 +393,8 @@ impl RawMap {
                 id
             )));
         }
-        if fixes.override_metadata.contains_key(&road.orig_id) {
-            return Err(Error::new(format!("Already overriding metadata of {}", id)));
-        }
+        // It's fine if we're overriding the metadata for this road already; we'll just delete it
+        // if so. We might be forced to do that to delete turn restrictions. ;)
 
         Ok(())
     }
@@ -411,10 +410,11 @@ impl RawMap {
         StableIntersectionID,
         Vec<StableRoadID>,
     )> {
-        assert!(self.can_merge_short_road(id, fixes).is_ok());
+        assert!(self.can_merge_short_road(id).is_ok());
         let (i1, i2) = {
             let r = self.roads.remove(&id).unwrap();
             fixes.merge_short_roads.push(r.orig_id);
+            fixes.override_metadata.remove(&r.orig_id);
             (r.i1, r.i2)
         };
         let (i1_pt, i1_orig_id) = {

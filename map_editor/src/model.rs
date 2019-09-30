@@ -679,7 +679,7 @@ impl Model {
     pub fn merge_r(&mut self, id: StableRoadID, prerender: &Prerender) {
         assert!(self.showing_pts != Some(id));
 
-        if let Err(e) = self.map.can_merge_short_road(id, &self.fixes) {
+        if let Err(e) = self.map.can_merge_short_road(id) {
             println!("Can't merge this road: {}", e);
             return;
         }

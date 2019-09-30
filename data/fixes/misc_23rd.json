@@ -8,6 +8,126 @@
   "override_metadata": [
     [
       {
+        "osm_way_id": 6343960,
+        "node1": 246758543,
+        "node2": 53068959
+      },
+      [
+        {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "6343960",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "East Olive Street",
+          "oneway": "yes",
+          "surface": "asphalt"
+        },
+        []
+      ]
+    ],
+    [
+      {
+        "osm_way_id": 92170540,
+        "node1": 53211694,
+        "node2": 53211693
+      },
+      [
+        {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "92170540",
+          "highway": "secondary",
+          "lanes": "4",
+          "maxspeed": "30 mph",
+          "name": "23rd Avenue East",
+          "surface": "concrete"
+        },
+        []
+      ]
+    ],
+    [
+      {
+        "osm_way_id": 243334881,
+        "node1": 53211693,
+        "node2": 53100545
+      },
+      [
+        {
+          "abst:endpt_back": "true",
+          "abst:osm_way_id": "243334881",
+          "abst:parking_lane_back": "true",
+          "abst:parking_lane_fwd": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "East Denny Way"
+        },
+        []
+      ]
+    ],
+    [
+      {
+        "osm_way_id": 337739267,
+        "node1": 3448781094,
+        "node2": 3447973924
+      },
+      [
+        {
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "337739267",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "20th Avenue",
+          "oneway": "yes",
+          "surface": "asphalt"
+        },
+        []
+      ]
+    ],
+    [
+      {
+        "osm_way_id": 337739271,
+        "node1": 3447973929,
+        "node2": 246758543
+      },
+      [
+        {
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "337739271",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "East Olive Street",
+          "oneway": "yes"
+        },
+        []
+      ]
+    ],
+    [
+      {
+        "osm_way_id": 338701493,
+        "node1": 3458337321,
+        "node2": 53211693
+      },
+      [
+        {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "338701493",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "East Denny Way",
+          "oneway": "yes"
+        },
+        []
+      ]
+    ],
+    [
+      {
         "osm_way_id": 385214478,
         "node1": 31429758,
         "node2": 29464758
@@ -59,10 +179,246 @@
       ]
     ]
   ],
-  "delete_roads": [],
-  "delete_intersections": [],
+  "delete_roads": [
+    {
+      "osm_way_id": 92170540,
+      "node1": 53211694,
+      "node2": 53211693
+    },
+    {
+      "osm_way_id": 428235514,
+      "node1": 4273706425,
+      "node2": 3458337321
+    },
+    {
+      "osm_way_id": 338701493,
+      "node1": 3458337321,
+      "node2": 53211693
+    },
+    {
+      "osm_way_id": 537678339,
+      "node1": 3458337321,
+      "node2": 53211694
+    },
+    {
+      "osm_way_id": 243334881,
+      "node1": 53211693,
+      "node2": 53100545
+    },
+    {
+      "osm_way_id": 396055523,
+      "node1": 53211693,
+      "node2": 53068963
+    },
+    {
+      "osm_way_id": 337739271,
+      "node1": 3447973929,
+      "node2": 246758543
+    },
+    {
+      "osm_way_id": 6343960,
+      "node1": 246758543,
+      "node2": 53068959
+    },
+    {
+      "osm_way_id": 337818462,
+      "node1": 3448781094,
+      "node2": 3447973929
+    },
+    {
+      "osm_way_id": 337739267,
+      "node1": 3448781094,
+      "node2": 3447973924
+    },
+    {
+      "osm_way_id": 337739271,
+      "node1": 3447973924,
+      "node2": 3447973929
+    },
+    {
+      "osm_way_id": 337739269,
+      "node1": 246758543,
+      "node2": 53068961
+    },
+    {
+      "osm_way_id": 481291488,
+      "node1": 53168891,
+      "node2": 3447973924
+    },
+    {
+      "osm_way_id": 337739267,
+      "node1": 53068959,
+      "node2": 3448781094
+    }
+  ],
+  "delete_intersections": [
+    {
+      "osm_node_id": 53211693
+    },
+    {
+      "osm_node_id": 3458337321
+    },
+    {
+      "osm_node_id": 3447973929
+    },
+    {
+      "osm_node_id": 246758543
+    },
+    {
+      "osm_node_id": 3447973924
+    },
+    {
+      "osm_node_id": 3448781094
+    }
+  ],
   "add_intersections": [],
-  "add_roads": [],
+  "add_roads": [
+    {
+      "i1": 425,
+      "i2": 350,
+      "center_points": [
+        {
+          "inner_x": 546.3455,
+          "inner_y": 4038.4176
+        },
+        {
+          "inner_x": 586.6938,
+          "inner_y": 3998.0761
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569862944,
+        "node1": 4273706425,
+        "node2": 53211694
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569862944",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "ddps/ddps",
+        "maxspeed": "25 mph",
+        "name": "Streety McStreetFace"
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 350,
+      "i2": 465,
+      "center_points": [
+        {
+          "inner_x": 586.6938,
+          "inner_y": 3998.0761
+        },
+        {
+          "inner_x": 688.0182,
+          "inner_y": 4026.5086
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569862946,
+        "node1": 53211694,
+        "node2": 53100545
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569862946",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "dps/dps",
+        "maxspeed": "25 mph",
+        "name": "Streety McStreetFace"
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 350,
+      "i2": 743,
+      "center_points": [
+        {
+          "inner_x": 586.6938,
+          "inner_y": 3998.0761
+        },
+        {
+          "inner_x": 584.4518,
+          "inner_y": 4228.3497
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569862953,
+        "node1": 53211694,
+        "node2": 53068963
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569862953",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "dds/dds",
+        "maxspeed": "25 mph",
+        "name": "Streety McStreetFace"
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 70,
+      "i2": 31,
+      "center_points": [
+        {
+          "inner_x": 315.8406,
+          "inner_y": 4211.3591
+        },
+        {
+          "inner_x": 312.084,
+          "inner_y": 4431.1359
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569863408,
+        "node1": 53068959,
+        "node2": 53168891
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569863408",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "dps/dps",
+        "maxspeed": "25 mph",
+        "name": "Streety McStreetFace"
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 70,
+      "i2": 68,
+      "center_points": [
+        {
+          "inner_x": 315.8406,
+          "inner_y": 4211.3591
+        },
+        {
+          "inner_x": 411.6012,
+          "inner_y": 4227.0376
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569863411,
+        "node1": 53068959,
+        "node2": 53068961
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569863411",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "dps/dps",
+        "maxspeed": "25 mph",
+        "name": "Streety McStreetFace"
+      },
+      "turn_restrictions": []
+    }
+  ],
   "merge_short_roads": [
     {
       "osm_way_id": 6460085,
