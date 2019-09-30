@@ -493,6 +493,7 @@ fn make_cycles(
 
     for specs in cycle_specs {
         let mut cycle = Cycle::new(i);
+        let mut empty = true;
 
         for (roads, turn_type, protected) in specs.into_iter() {
             for turn in map.get_turns_in_intersection(i) {
@@ -514,7 +515,13 @@ fn make_cycles(
                         TurnPriority::Yield
                     },
                 );
+                empty = false;
             }
+        }
+
+        // Filter out empty cycles if they happen.
+        if empty {
+            continue;
         }
 
         cycles.push(cycle);
