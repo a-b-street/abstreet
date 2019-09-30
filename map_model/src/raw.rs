@@ -1,6 +1,6 @@
 use crate::make::get_lane_types;
 use crate::{osm, AreaType, IntersectionType, OffstreetParking, RoadSpec, LANE_THICKNESS};
-use abstutil::{deserialize_btreemap, serialize_btreemap, Timer};
+use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
 use geom::{Distance, GPSBounds, PolyLine, Polygon, Pt2D};
 use gtfs::Route;
 use serde_derive::{Deserialize, Serialize};
@@ -294,23 +294,26 @@ impl RawMap {
 
 // Mutations
 impl RawMap {
-    pub fn can_delete_road(&self, r: StableRoadID) -> bool {
+    pub fn can_delete_road(&self, r: StableRoadID) -> Result<(), Error> {
         if !self.roads[&r].turn_restrictions.is_empty() {
-            return false;
+            return Err(Error::new(format!("{} has turn restrictions from it", r)));
         }
         // Brute force search the other direction
-        for road in self.roads.values() {
+        for (src, road) in &self.roads {
             for (_, to) in &road.turn_restrictions {
                 if r == *to {
-                    return false;
+                    return Err(Error::new(format!(
+                        "There's a turn restriction from {} to {}",
+                        src, r
+                    )));
                 }
             }
         }
-        true
+        Ok(())
     }
 
     pub fn delete_road(&mut self, r: StableRoadID, fixes: &mut MapFixes) {
-        assert!(self.can_delete_road(r));
+        assert!(self.can_delete_road(r).is_ok());
         let road = self.roads.remove(&r).unwrap();
         if !road.synthetic() {
             fixes.delete_roads.push(road.orig_id);
@@ -364,10 +367,8 @@ impl RawMap {
         }
     }
 
-    pub fn can_merge_short_road(&self, id: StableRoadID, fixes: &MapFixes) -> bool {
-        if !self.can_delete_road(id) {
-            return false;
-        }
+    pub fn can_merge_short_road(&self, id: StableRoadID, fixes: &MapFixes) -> Result<(), Error> {
+        self.can_delete_road(id)?;
 
         let road = &self.roads[&id];
         let i1 = &self.intersections[&road.i1];
@@ -375,22 +376,28 @@ impl RawMap {
         if i1.intersection_type == IntersectionType::Border
             || i2.intersection_type == IntersectionType::Border
         {
-            return false;
+            return Err(Error::new(format!("{} touches a border", id)));
         }
 
         for r in self.roads_per_intersection(road.i2) {
             if self.roads[&r].synthetic() {
-                return false;
+                return Err(Error::new(format!(
+                    "Surviving {} touches a synthetic road",
+                    r
+                )));
             }
         }
         if i1.synthetic || i2.synthetic {
-            return false;
+            return Err(Error::new(format!(
+                "{} touches a synthetic intersection",
+                id
+            )));
         }
         if fixes.override_metadata.contains_key(&road.orig_id) {
-            return false;
+            return Err(Error::new(format!("Already overriding metadata of {}", id)));
         }
 
-        true
+        Ok(())
     }
 
     // (the surviving intersection, the deleted intersection, list of modified roads connected to
@@ -404,7 +411,7 @@ impl RawMap {
         StableIntersectionID,
         Vec<StableRoadID>,
     )> {
-        assert!(self.can_merge_short_road(id, fixes));
+        assert!(self.can_merge_short_road(id, fixes).is_ok());
         let (i1, i2) = {
             let r = self.roads.remove(&id).unwrap();
             fixes.merge_short_roads.push(r.orig_id);

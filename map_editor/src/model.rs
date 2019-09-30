@@ -507,14 +507,12 @@ impl Model {
 
     pub fn delete_r(&mut self, id: StableRoadID) {
         assert!(self.showing_pts != Some(id));
-        if self.map.can_delete_road(id) {
-            self.road_deleted(id);
-            self.map.delete_road(id, &mut self.fixes);
-        } else {
-            println!(
-                "Can't delete {}, it must have turn restriction from/to it",
-                id
-            );
+        match self.map.can_delete_road(id) {
+            Ok(()) => {
+                self.road_deleted(id);
+                self.map.delete_road(id, &mut self.fixes);
+            }
+            Err(e) => println!("Can't delete this road: {}", e),
         }
     }
 
@@ -681,8 +679,8 @@ impl Model {
     pub fn merge_r(&mut self, id: StableRoadID, prerender: &Prerender) {
         assert!(self.showing_pts != Some(id));
 
-        if !self.map.can_merge_short_road(id, &self.fixes) {
-            println!("Can't merge this road; intersection types must differ or there must be synthetic stuff");
+        if let Err(e) = self.map.can_merge_short_road(id, &self.fixes) {
+            println!("Can't merge this road: {}", e);
             return;
         }
 
