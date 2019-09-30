@@ -690,8 +690,11 @@ impl Model {
         // of lanes and can generate all the IDs.
         self.road_deleted(id);
 
-        let (deleted_i, changed_roads) = self.map.merge_short_road(id, &mut self.fixes).unwrap();
+        let (retained_i, deleted_i, changed_roads) =
+            self.map.merge_short_road(id, &mut self.fixes).unwrap();
 
+        self.world.delete(ID::Intersection(retained_i));
+        self.intersection_added(retained_i, prerender);
         self.world.delete(ID::Intersection(deleted_i));
         for r in changed_roads {
             self.road_deleted(r);

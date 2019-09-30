@@ -372,7 +372,9 @@ impl RawMap {
         let road = &self.roads[&id];
         let i1 = &self.intersections[&road.i1];
         let i2 = &self.intersections[&road.i2];
-        if i1.intersection_type != i2.intersection_type {
+        if i1.intersection_type == IntersectionType::Border
+            || i2.intersection_type == IntersectionType::Border
+        {
             return false;
         }
 
@@ -391,12 +393,17 @@ impl RawMap {
         true
     }
 
-    // (the deleted intersection, list of modified roads connected to deleted intersection)
+    // (the surviving intersection, the deleted intersection, list of modified roads connected to
+    // deleted intersection)
     pub fn merge_short_road(
         &mut self,
         id: StableRoadID,
         fixes: &mut MapFixes,
-    ) -> Option<(StableIntersectionID, Vec<StableRoadID>)> {
+    ) -> Option<(
+        StableIntersectionID,
+        StableIntersectionID,
+        Vec<StableRoadID>,
+    )> {
         assert!(self.can_merge_short_road(id, fixes));
         let (i1, i2) = {
             let r = self.roads.remove(&id).unwrap();
@@ -408,8 +415,15 @@ impl RawMap {
             (i.point, i.orig_id)
         };
 
-        // Arbitrarily keep i1 and destroy i2.
-        self.intersections.remove(&i2).unwrap();
+        // Arbitrarily keep i1 and destroy i2. If the intersection types differ, upgrade the
+        // surviving interesting.
+        {
+            let i = self.intersections.remove(&i2).unwrap();
+            if i.intersection_type == IntersectionType::TrafficSignal {
+                self.intersections.get_mut(&i1).unwrap().intersection_type =
+                    IntersectionType::TrafficSignal;
+            }
+        }
 
         // Fix up all roads connected to i2.
         let mut fixed = Vec::new();
@@ -430,7 +444,7 @@ impl RawMap {
             }
         }
 
-        Some((i2, fixed))
+        Some((i1, i2, fixed))
     }
 
     pub fn override_metadata(
