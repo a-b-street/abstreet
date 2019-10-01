@@ -13,6 +13,7 @@ pub struct SimFlags {
     pub savestate_every: Option<Duration>,
     pub freeform_policy: bool,
     pub disable_block_the_box: bool,
+    pub record_stats: bool,
 }
 
 impl SimFlags {
@@ -26,6 +27,7 @@ impl SimFlags {
             savestate_every: args.optional_parse("--savestate_every", Duration::parse),
             freeform_policy: args.enabled("--freeform_policy"),
             disable_block_the_box: args.enabled("--disable_block_the_box"),
+            record_stats: args.enabled("--record_stats"),
         }
     }
 
@@ -42,6 +44,7 @@ impl SimFlags {
             savestate_every: None,
             freeform_policy: false,
             disable_block_the_box: false,
+            record_stats: false,
         }
     }
 
@@ -65,6 +68,7 @@ impl SimFlags {
             savestate_every: self.savestate_every,
             use_freeform_policy_everywhere: self.freeform_policy,
             disable_block_the_box: self.disable_block_the_box,
+            record_stats: self.record_stats,
         };
 
         if self.load.starts_with("../data/save/") {

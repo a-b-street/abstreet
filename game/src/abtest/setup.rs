@@ -170,6 +170,7 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
                             savestate_every: None,
                             freeform_policy: current_flags.sim_flags.freeform_policy,
                             disable_block_the_box: current_flags.sim_flags.disable_block_the_box,
+                            record_stats: false,
                         },
                         ..current_flags.clone()
                     },

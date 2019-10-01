@@ -488,6 +488,7 @@ impl PerMapUI {
                 savestate_every: flags.savestate_every,
                 use_freeform_policy_everywhere: flags.freeform_policy,
                 disable_block_the_box: flags.disable_block_the_box,
+                record_stats: flags.record_stats,
             },
         );
     }

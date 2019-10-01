@@ -21,7 +21,7 @@ impl Game {
         } else {
             vec![
                 Box::new(SplashScreen::new_without_screensaver()),
-                Box::new(SandboxMode::new(ctx)),
+                Box::new(SandboxMode::new(ctx, &ui)),
             ]
         };
         Game { states, ui }

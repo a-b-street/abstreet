@@ -78,7 +78,7 @@ impl State for MissionEditMode {
                     .sim
                     .step(&ui.primary.map, Duration::const_seconds(0.1));
             });
-            return Transition::Replace(Box::new(SandboxMode::new(ctx)));
+            return Transition::Replace(Box::new(SandboxMode::new(ctx, ui)));
         } else if self.menu.action("create scenario from PSRC trips") {
             return Transition::Push(WizardState::new(Box::new(convert_trips_to_scenario)));
         } else if self.menu.action("manage neighborhoods") {

@@ -62,6 +62,7 @@ pub struct SimOptions {
     pub savestate_every: Option<Duration>,
     pub use_freeform_policy_everywhere: bool,
     pub disable_block_the_box: bool,
+    pub record_stats: bool,
 }
 
 impl SimOptions {
@@ -71,6 +72,7 @@ impl SimOptions {
             savestate_every: None,
             use_freeform_policy_everywhere: false,
             disable_block_the_box: false,
+            record_stats: false,
         }
     }
 }

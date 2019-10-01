@@ -91,7 +91,7 @@ impl State for EditMode {
             return Transition::Pop;
         }
         if self.menu.action("sandbox mode") {
-            return Transition::Replace(Box::new(SandboxMode::new(ctx)));
+            return Transition::Replace(Box::new(SandboxMode::new(ctx, ui)));
         }
         if self.menu.action("debug mode") {
             return Transition::Push(Box::new(DebugMode::new(ctx, ui)));

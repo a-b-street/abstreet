@@ -198,7 +198,7 @@ impl State for ScenarioManager {
                 );
                 ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
             });
-            return Transition::Replace(Box::new(SandboxMode::new(ctx)));
+            return Transition::Replace(Box::new(SandboxMode::new(ctx, ui)));
         }
 
         if let Some(ID::Building(b)) = ui.primary.current_selection {

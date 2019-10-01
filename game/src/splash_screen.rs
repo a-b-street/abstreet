@@ -156,7 +156,7 @@ fn splash_screen(
         .0
         .as_str()
     {
-        x if x == sandbox => Some(Transition::Push(Box::new(SandboxMode::new(ctx)))),
+        x if x == sandbox => Some(Transition::Push(Box::new(SandboxMode::new(ctx, ui)))),
         x if x == load_map => {
             if let Some(name) = wizard.choose_string("Load which map?", || {
                 let current_map = ui.primary.map.get_name();
@@ -171,7 +171,7 @@ fn splash_screen(
                 flags.sim_flags.load = abstutil::path_map(&name);
                 *ui = UI::new(flags, ctx, false);
                 // TODO want to clear wizard and screensaver as we leave this state.
-                Some(Transition::Push(Box::new(SandboxMode::new(ctx))))
+                Some(Transition::Push(Box::new(SandboxMode::new(ctx, ui))))
             } else if wizard.aborted() {
                 Some(Transition::ReplaceWithMode(
                     Box::new(SplashScreen {

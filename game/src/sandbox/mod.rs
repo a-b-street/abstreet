@@ -1,5 +1,6 @@
 mod score;
 mod spawner;
+mod stats;
 mod time_travel;
 
 use crate::common::{
@@ -24,6 +25,7 @@ pub struct SandboxMode {
     speed: SpeedControls,
     agent_tools: AgentTools,
     pub time_travel: time_travel::InactiveTimeTravel,
+    stats: stats::TripStats,
     common: CommonState,
     parking_heatmap: Option<(Duration, RoadColorer)>,
     intersection_delay_heatmap: Option<(Duration, ObjectColorer)>,
@@ -31,11 +33,12 @@ pub struct SandboxMode {
 }
 
 impl SandboxMode {
-    pub fn new(ctx: &mut EventCtx) -> SandboxMode {
+    pub fn new(ctx: &mut EventCtx, ui: &UI) -> SandboxMode {
         SandboxMode {
             speed: SpeedControls::new(ctx, None),
             agent_tools: AgentTools::new(ctx),
             time_travel: time_travel::InactiveTimeTravel::new(),
+            stats: stats::TripStats::new(ui.primary.current_flags.sim_flags.record_stats),
             common: CommonState::new(),
             parking_heatmap: None,
             intersection_delay_heatmap: None,
@@ -64,6 +67,7 @@ impl SandboxMode {
                         (hotkey(Key::I), "show/hide intersection delay"),
                         (hotkey(Key::T), "start time traveling"),
                         (hotkey(Key::Q), "scoreboard"),
+                        (None, "trip stats"),
                     ],
                     vec![
                         (hotkey(Key::Escape), "quit"),
@@ -84,6 +88,7 @@ impl SandboxMode {
 impl State for SandboxMode {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         self.time_travel.record(ui);
+        self.stats.record(ui);
 
         {
             let mut txt = Text::prompt("Sandbox Mode");
@@ -117,6 +122,9 @@ impl State for SandboxMode {
         }
         if self.menu.action("scoreboard") {
             return Transition::Push(Box::new(score::Scoreboard::new(ctx, ui)));
+        }
+        if self.menu.action("trip stats") {
+            return Transition::Push(Box::new(stats::ShowStats::new(&self.stats, ui, ctx)));
         }
         if self.menu.action("show/hide parking availability") {
             if self.parking_heatmap.is_some() {
@@ -206,7 +214,7 @@ impl State for SandboxMode {
         if self.speed.is_paused() {
             if !ui.primary.sim.is_empty() && self.menu.action("reset sim") {
                 ui.primary.reset_sim();
-                return Transition::Replace(Box::new(SandboxMode::new(ctx)));
+                return Transition::Replace(Box::new(SandboxMode::new(ctx, ui)));
             }
             if self.menu.action("save sim state") {
                 ctx.loading_screen("savestate", |_, timer| {
