@@ -106,6 +106,13 @@ impl DrivingSimState {
                             panic!("Car with one-step route {:?} had unexpected result from maybe_handle_end: {:?}", car.router, x);
                         }
                     }
+                    if params.start_dist > car.router.get_end_dist() {
+                        println!(
+                            "WARNING: {} wants to spawn past their end on a one-step path",
+                            car.vehicle.id
+                        );
+                        return false;
+                    }
                 }
 
                 car.state = car.crossing_state(params.start_dist, now, map);
