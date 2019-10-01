@@ -1,6 +1,6 @@
 use abstutil::{read_binary, Timer};
 use ezgui::world::{Object, ObjectID, World};
-use ezgui::{Color, EventCtx, GfxCtx, Line, Prerender, Text};
+use ezgui::{Color, Line, Prerender, Text};
 use geom::{Bounds, Circle, Distance, PolyLine, Polygon, Pt2D};
 use map_model::raw::{
     MapFixes, OriginalIntersection, OriginalRoad, RawBuilding, RawIntersection, RawMap, RawRoad,
@@ -19,14 +19,16 @@ const FORWARDS: Direction = true;
 const BACKWARDS: Direction = false;
 
 pub struct Model {
+    // map and world are pub. The main crate should use them directly for simple stuff, to avoid
+    // boilerplate delegation methods. Complex changes should be proper methods on the model.
     pub map: RawMap,
     // TODO Not sure this should be pub...
     pub showing_pts: Option<StableRoadID>,
+    pub world: World<ID>,
 
     include_bldgs: bool,
     fixes: MapFixes,
     edit_fixes: Option<String>,
-    world: World<ID>,
 }
 
 // Construction
@@ -86,20 +88,6 @@ impl Model {
 
 // General
 impl Model {
-    pub fn draw(&self, g: &mut GfxCtx) {
-        g.clear(Color::BLACK);
-        g.draw_polygon(Color::rgb(242, 239, 233), &self.map.boundary_polygon);
-        self.world.draw(g);
-    }
-
-    pub fn handle_mouseover(&mut self, ctx: &EventCtx) {
-        self.world.handle_mouseover(ctx);
-    }
-
-    pub fn get_selection(&self) -> Option<ID> {
-        self.world.get_selection()
-    }
-
     // TODO Only for truly synthetic maps...
     pub fn export(&mut self) {
         assert!(self.map.name != "");
@@ -188,7 +176,7 @@ impl Model {
                 .iter()
                 .any(|pt| area.contains_pt(*pt))
             {
-                for (rt, to) in self.get_turn_restrictions(id).clone() {
+                for (rt, to) in self.map.roads[&id].turn_restrictions.clone() {
                     self.delete_tr(id, rt, to, prerender);
                 }
 
@@ -262,10 +250,6 @@ impl Model {
         self.intersection_added(id, prerender);
     }
 
-    pub fn get_i_label(&self, id: StableIntersectionID) -> Option<String> {
-        self.map.intersections[&id].label.clone()
-    }
-
     pub fn toggle_i_type(&mut self, id: StableIntersectionID, prerender: &Prerender) {
         self.world.delete(ID::Intersection(id));
         let (it, label) = {
@@ -294,28 +278,6 @@ impl Model {
         }
         self.map.delete_intersection(id, &mut self.fixes);
         self.world.delete(ID::Intersection(id));
-    }
-
-    // TODO Reconsider this spammy amount of stuff, just expose RawMap to main in some readonly
-    // way.
-    pub fn get_i_center(&self, id: StableIntersectionID) -> Pt2D {
-        self.map.intersections[&id].point
-    }
-
-    pub fn get_i_orig_id(&self, id: StableIntersectionID) -> OriginalIntersection {
-        self.map.intersections[&id].orig_id
-    }
-
-    pub fn get_roads_per_i(&self, id: StableIntersectionID) -> Vec<StableRoadID> {
-        self.map.roads_per_intersection(id)
-    }
-
-    // (Intersection polygon, polygons for roads, labeled polygons to debug)
-    pub fn preview_i(
-        &self,
-        id: StableIntersectionID,
-    ) -> (Polygon, Vec<Polygon>, Vec<(String, Polygon)>) {
-        self.map.preview_intersection(id)
     }
 }
 
@@ -491,20 +453,6 @@ impl Model {
         self.road_added(id, prerender);
     }
 
-    pub fn get_r_name_and_speed(&self, id: StableRoadID) -> (String, String) {
-        let r = &self.map.roads[&id];
-        (
-            r.osm_tags
-                .get(osm::NAME)
-                .cloned()
-                .unwrap_or_else(String::new),
-            r.osm_tags
-                .get(osm::MAXSPEED)
-                .cloned()
-                .unwrap_or_else(String::new),
-        )
-    }
-
     pub fn delete_r(&mut self, id: StableRoadID) {
         assert!(self.showing_pts != Some(id));
         match self.map.can_delete_road(id) {
@@ -514,14 +462,6 @@ impl Model {
             }
             Err(e) => println!("Can't delete this road: {}", e),
         }
-    }
-
-    pub fn get_road_spec(&self, id: StableRoadID) -> String {
-        self.map.roads[&id].get_spec().to_string()
-    }
-
-    pub fn get_tags(&self, id: StableRoadID) -> &BTreeMap<String, String> {
-        &self.map.roads[&id].osm_tags
     }
 
     fn lanes(&self, id: StableRoadID) -> Vec<Object<ID>> {
@@ -707,14 +647,6 @@ impl Model {
 
 // Turn restrictions
 impl Model {
-    pub fn get_turn_restrictions(&self, id: StableRoadID) -> &Vec<(RestrictionType, StableRoadID)> {
-        &self.map.roads[&id].turn_restrictions
-    }
-
-    pub fn can_add_tr(&self, from: StableRoadID, to: StableRoadID) -> bool {
-        self.map.can_add_turn_restriction(from, to)
-    }
-
     pub fn add_tr(
         &mut self,
         from: StableRoadID,
@@ -799,10 +731,6 @@ impl Model {
         self.map.modify_building(id, polygon, osm_tags);
 
         self.bldg_added(id, prerender);
-    }
-
-    pub fn get_b_label(&self, id: StableBuildingID) -> Option<String> {
-        self.map.buildings[&id].osm_tags.get(osm::LABEL).cloned()
     }
 
     pub fn delete_b(&mut self, id: StableBuildingID) {

@@ -7,7 +7,7 @@ use ezgui::{
 };
 use geom::{Distance, Line, Polygon, Pt2D};
 use map_model::raw::{RestrictionType, StableBuildingID, StableIntersectionID, StableRoadID};
-use map_model::LANE_THICKNESS;
+use map_model::{osm, LANE_THICKNESS};
 use model::{Direction, Model, ID};
 use std::process;
 
@@ -62,7 +62,7 @@ impl GUI for UI {
     fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode {
         ctx.canvas.handle_event(ctx.input);
         if ctx.redo_mouseover() {
-            self.model.handle_mouseover(ctx);
+            self.model.world.handle_mouseover(ctx);
         }
 
         match self.state {
@@ -93,7 +93,11 @@ impl GUI for UI {
             State::LabelingBuilding(id, ref mut wizard) => {
                 if let Some(label) = wizard.wrap(ctx).input_string_prefilled(
                     "Label the building",
-                    self.model.get_b_label(id).unwrap_or_else(String::new),
+                    self.model.map.buildings[&id]
+                        .osm_tags
+                        .get(osm::LABEL)
+                        .cloned()
+                        .unwrap_or_else(String::new),
                 ) {
                     self.model.set_b_label(id, label, ctx.prerender);
                     self.state = State::Viewing;
@@ -115,7 +119,10 @@ impl GUI for UI {
             State::LabelingIntersection(id, ref mut wizard) => {
                 if let Some(label) = wizard.wrap(ctx).input_string_prefilled(
                     "Label the intersection",
-                    self.model.get_i_label(id).unwrap_or_else(String::new),
+                    self.model.map.intersections[&id]
+                        .label
+                        .clone()
+                        .unwrap_or_else(String::new),
                 ) {
                     self.model.set_i_label(id, label, ctx.prerender);
                     self.state = State::Viewing;
@@ -126,30 +133,42 @@ impl GUI for UI {
             State::CreatingRoad(i1) => {
                 if ctx.input.key_pressed(Key::Escape, "stop defining road") {
                     self.state = State::Viewing;
-                    self.model.handle_mouseover(ctx);
-                } else if let Some(ID::Intersection(i2)) = self.model.get_selection() {
+                    self.model.world.handle_mouseover(ctx);
+                } else if let Some(ID::Intersection(i2)) = self.model.world.get_selection() {
                     if i1 != i2 && ctx.input.key_pressed(Key::R, "finalize road") {
                         self.model.create_r(i1, i2, ctx.prerender);
                         self.state = State::Viewing;
-                        self.model.handle_mouseover(ctx);
+                        self.model.world.handle_mouseover(ctx);
                     }
                 }
             }
             State::EditingLanes(id, ref mut wizard) => {
-                if let Some(s) = wizard
-                    .wrap(ctx)
-                    .input_string_prefilled("Specify the lanes", self.model.get_road_spec(id))
-                {
+                if let Some(s) = wizard.wrap(ctx).input_string_prefilled(
+                    "Specify the lanes",
+                    self.model.map.roads[&id].get_spec().to_string(),
+                ) {
                     self.model.edit_lanes(id, s, ctx.prerender);
                     self.state = State::Viewing;
-                    self.model.handle_mouseover(ctx);
+                    self.model.world.handle_mouseover(ctx);
                 } else if wizard.aborted() {
                     self.state = State::Viewing;
-                    self.model.handle_mouseover(ctx);
+                    self.model.world.handle_mouseover(ctx);
                 }
             }
             State::EditingRoadAttribs(id, ref mut wizard) => {
-                let (orig_name, orig_speed) = self.model.get_r_name_and_speed(id);
+                let (orig_name, orig_speed) = {
+                    let r = &self.model.map.roads[&id];
+                    (
+                        r.osm_tags
+                            .get(osm::NAME)
+                            .cloned()
+                            .unwrap_or_else(String::new),
+                        r.osm_tags
+                            .get(osm::MAXSPEED)
+                            .cloned()
+                            .unwrap_or_else(String::new),
+                    )
+                };
 
                 let mut wiz = wizard.wrap(ctx);
                 let mut done = false;
@@ -161,7 +180,7 @@ impl GUI for UI {
                 }
                 if done || wizard.aborted() {
                     self.state = State::Viewing;
-                    self.model.handle_mouseover(ctx);
+                    self.model.world.handle_mouseover(ctx);
                 }
             }
             State::SavingModel(ref mut wizard) => {
@@ -175,7 +194,7 @@ impl GUI for UI {
             }
             State::Viewing => {
                 let cursor = ctx.canvas.get_cursor_in_map_space();
-                match self.model.get_selection() {
+                match self.model.world.get_selection() {
                     Some(ID::Intersection(i)) => {
                         if ctx.input.key_pressed(Key::LeftControl, "move intersection") {
                             self.state = State::MovingIntersection(i);
@@ -186,7 +205,7 @@ impl GUI for UI {
                             .key_pressed(Key::Backspace, &format!("delete {}", i))
                         {
                             self.model.delete_i(i);
-                            self.model.handle_mouseover(ctx);
+                            self.model.world.handle_mouseover(ctx);
                         } else if ctx.input.key_pressed(Key::T, "toggle intersection type") {
                             self.model.toggle_i_type(i, ctx.prerender);
                         } else if ctx.input.key_pressed(Key::L, "label intersection") {
@@ -207,7 +226,7 @@ impl GUI for UI {
                             .key_pressed(Key::Backspace, &format!("delete {}", b))
                         {
                             self.model.delete_b(b);
-                            self.model.handle_mouseover(ctx);
+                            self.model.world.handle_mouseover(ctx);
                         } else if ctx.input.key_pressed(Key::L, "label building") {
                             self.state = State::LabelingBuilding(b, Wizard::new());
                         }
@@ -218,24 +237,24 @@ impl GUI for UI {
                             .key_pressed(Key::Backspace, &format!("delete {}", r))
                         {
                             self.model.delete_r(r);
-                            self.model.handle_mouseover(ctx);
+                            self.model.world.handle_mouseover(ctx);
                         } else if ctx.input.key_pressed(Key::E, "edit lanes") {
                             self.state = State::EditingLanes(r, Wizard::new());
                         } else if ctx.input.key_pressed(Key::N, "edit name/speed") {
                             self.state = State::EditingRoadAttribs(r, Wizard::new());
                         } else if ctx.input.key_pressed(Key::S, "swap lanes") {
                             self.model.swap_lanes(r, ctx.prerender);
-                            self.model.handle_mouseover(ctx);
+                            self.model.world.handle_mouseover(ctx);
                         } else if ctx.input.key_pressed(Key::L, "label side of the road") {
                             self.state = State::LabelingRoad((r, dir), Wizard::new());
                         } else if self.model.showing_pts.is_none()
                             && ctx.input.key_pressed(Key::P, "move road points")
                         {
                             self.model.show_r_points(r, ctx.prerender);
-                            self.model.handle_mouseover(ctx);
+                            self.model.world.handle_mouseover(ctx);
                         } else if ctx.input.key_pressed(Key::M, "merge road") {
                             self.model.merge_r(r, ctx.prerender);
-                            self.model.handle_mouseover(ctx);
+                            self.model.world.handle_mouseover(ctx);
                         } else if ctx
                             .input
                             .key_pressed(Key::R, "create turn restriction from here")
@@ -248,7 +267,7 @@ impl GUI for UI {
                             self.state = State::MovingRoadPoint(r, idx);
                         } else if ctx.input.key_pressed(Key::Backspace, "delete point") {
                             self.model.delete_r_pt(r, idx, ctx.prerender);
-                            self.model.handle_mouseover(ctx);
+                            self.model.world.handle_mouseover(ctx);
                         }
                     }
                     Some(ID::TurnRestriction(from, to, idx)) => {
@@ -257,7 +276,7 @@ impl GUI for UI {
                             .key_pressed(Key::Backspace, "delete turn restriction")
                         {
                             self.model.delete_tr(from, to, idx, ctx.prerender);
-                            self.model.handle_mouseover(ctx);
+                            self.model.world.handle_mouseover(ctx);
                         }
                     }
                     None => {
@@ -274,14 +293,14 @@ impl GUI for UI {
                         } else if ctx.input.key_pressed(Key::I, "create intersection") {
                             if let Some(pt) = cursor {
                                 self.model.create_i(pt, ctx.prerender);
-                                self.model.handle_mouseover(ctx);
+                                self.model.world.handle_mouseover(ctx);
                             }
                         // TODO Silly bug: Mouseover doesn't actually work! I think the cursor being
                         // dead-center messes up the precomputed triangles.
                         } else if ctx.input.key_pressed(Key::B, "create building") {
                             if let Some(pt) = cursor {
                                 self.model.create_b(pt, ctx.prerender);
-                                self.model.handle_mouseover(ctx);
+                                self.model.world.handle_mouseover(ctx);
                             }
                         } else if ctx.input.key_pressed(Key::LeftShift, "select area") {
                             if let Some(pt) = cursor {
@@ -317,7 +336,7 @@ impl GUI for UI {
                 {
                     if let Some(rect) = Polygon::rectangle_two_corners(pt1, *pt2) {
                         self.model.delete_everything_inside(rect, ctx.prerender);
-                        self.model.handle_mouseover(ctx);
+                        self.model.world.handle_mouseover(ctx);
                     }
                     self.state = State::Viewing;
                 }
@@ -328,13 +347,13 @@ impl GUI for UI {
                     .key_pressed(Key::Escape, "stop defining turn restriction")
                 {
                     self.state = State::Viewing;
-                    self.model.handle_mouseover(ctx);
-                } else if let Some(ID::Lane(to, _, _)) = self.model.get_selection() {
+                    self.model.world.handle_mouseover(ctx);
+                } else if let Some(ID::Lane(to, _, _)) = self.model.world.get_selection() {
                     if ctx
                         .input
                         .key_pressed(Key::R, "create turn restriction to here")
                     {
-                        if self.model.can_add_tr(from, to) {
+                        if self.model.map.can_add_turn_restriction(from, to) {
                             self.state = State::CreatingTurnRestrictionPt2(from, to, Wizard::new());
                         } else {
                             println!("These roads aren't connected");
@@ -356,10 +375,10 @@ impl GUI for UI {
                 {
                     self.model.add_tr(from, restriction, to, ctx.prerender);
                     self.state = State::Viewing;
-                    self.model.handle_mouseover(ctx);
+                    self.model.world.handle_mouseover(ctx);
                 } else if wizard.aborted() {
                     self.state = State::Viewing;
-                    self.model.handle_mouseover(ctx);
+                    self.model.world.handle_mouseover(ctx);
                 }
             }
             State::PreviewIntersection(_, _, ref mut show_tooltip) => {
@@ -374,7 +393,7 @@ impl GUI for UI {
                     .key_pressed(Key::P, "stop previewing intersection")
                 {
                     self.state = State::Viewing;
-                    self.model.handle_mouseover(ctx);
+                    self.model.world.handle_mouseover(ctx);
                 }
             }
             State::EnteringWarp(ref mut wizard) => {
@@ -383,7 +402,8 @@ impl GUI for UI {
                     if let Ok(num) = usize::from_str_radix(&line[1..line.len()], 10) {
                         if &line[0..=0] == "i" {
                             let id = StableIntersectionID(num);
-                            ctx.canvas.center_on_map_pt(self.model.get_i_center(id));
+                            ctx.canvas
+                                .center_on_map_pt(self.model.map.intersections[&id].point);
                             ok = true;
                         } else if &line[0..=0] == "r" {
                             let id = StableRoadID(num);
@@ -395,10 +415,10 @@ impl GUI for UI {
                         println!("Sorry, don't understand {}", line);
                     }
                     self.state = State::Viewing;
-                    self.model.handle_mouseover(ctx);
+                    self.model.world.handle_mouseover(ctx);
                 } else if wizard.aborted() {
                     self.state = State::Viewing;
-                    self.model.handle_mouseover(ctx);
+                    self.model.world.handle_mouseover(ctx);
                 }
             }
         }
@@ -409,12 +429,16 @@ impl GUI for UI {
     }
 
     fn draw(&self, g: &mut GfxCtx) {
-        self.model.draw(g);
+        g.clear(Color::BLACK);
+        g.draw_polygon(Color::rgb(242, 239, 233), &self.model.map.boundary_polygon);
+        self.model.world.draw(g);
 
         match self.state {
             State::CreatingRoad(i1) => {
                 if let Some(cursor) = g.get_cursor_in_map_space() {
-                    if let Some(l) = Line::maybe_new(self.model.get_i_center(i1), cursor) {
+                    if let Some(l) =
+                        Line::maybe_new(self.model.map.intersections[&i1].point, cursor)
+                    {
                         g.draw_line(Color::GREEN, Distance::meters(5.0), &l);
                     }
                 }
@@ -429,16 +453,16 @@ impl GUI for UI {
                 wizard.draw(g);
             }
             State::Viewing => {
-                if let Some(ID::Lane(id, _, _)) = self.model.get_selection() {
+                if let Some(ID::Lane(id, _, _)) = self.model.world.get_selection() {
                     let mut txt = Text::new();
-                    for (k, v) in self.model.get_tags(id) {
+                    for (k, v) in &self.model.map.roads[&id].osm_tags {
                         txt.add_appended(vec![
                             Line(k).fg(Color::RED),
                             Line(" = "),
                             Line(v).fg(Color::CYAN),
                         ]);
                     }
-                    for (restriction, dst) in self.model.get_turn_restrictions(id) {
+                    for (restriction, dst) in &self.model.map.roads[&id].turn_restrictions {
                         txt.add_appended(vec![
                             Line("Restriction: "),
                             Line(format!("{:?}", restriction)).fg(Color::RED),
@@ -453,10 +477,13 @@ impl GUI for UI {
                             ezgui::VerticalAlignment::Top,
                         ),
                     );
-                } else if let Some(ID::Intersection(i)) = self.model.get_selection() {
+                } else if let Some(ID::Intersection(i)) = self.model.world.get_selection() {
                     let mut txt = Text::new();
-                    txt.add(Line(format!("{} is {:?}", i, self.model.get_i_orig_id(i))));
-                    for r in self.model.get_roads_per_i(i) {
+                    txt.add(Line(format!(
+                        "{} is {:?}",
+                        i, self.model.map.intersections[&i].orig_id
+                    )));
+                    for r in self.model.map.roads_per_intersection(i) {
                         txt.add(Line(format!("- {}", r)));
                     }
                     g.draw_blocking_text(
@@ -515,7 +542,7 @@ fn preview_intersection(
     model: &Model,
     ctx: &EventCtx,
 ) -> (Drawable, Vec<(Text, Pt2D)>) {
-    let (intersection, roads, debug) = model.preview_i(i);
+    let (intersection, roads, debug) = model.map.preview_intersection(i);
     let mut batch = GeomBatch::new();
     let mut labels = Vec::new();
     batch.push(Color::ORANGE.alpha(0.5), intersection);
