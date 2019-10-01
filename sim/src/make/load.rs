@@ -9,11 +9,7 @@ use rand_xorshift::XorShiftRng;
 pub struct SimFlags {
     pub load: String,
     pub rng_seed: Option<u8>,
-    pub run_name: Option<String>,
-    pub savestate_every: Option<Duration>,
-    pub freeform_policy: bool,
-    pub disable_block_the_box: bool,
-    pub record_stats: bool,
+    pub opts: SimOptions,
 }
 
 impl SimFlags {
@@ -23,11 +19,15 @@ impl SimFlags {
                 .optional_free()
                 .unwrap_or_else(|| "../data/maps/montlake.bin".to_string()),
             rng_seed: args.optional_parse("--rng_seed", |s| s.parse()),
-            run_name: args.optional("--run_name"),
-            savestate_every: args.optional_parse("--savestate_every", Duration::parse),
-            freeform_policy: args.enabled("--freeform_policy"),
-            disable_block_the_box: args.enabled("--disable_block_the_box"),
-            record_stats: args.enabled("--record_stats"),
+            opts: SimOptions {
+                run_name: args
+                    .optional("--run_name")
+                    .unwrap_or_else(|| "unnamed".to_string()),
+                savestate_every: args.optional_parse("--savestate_every", Duration::parse),
+                use_freeform_policy_everywhere: args.enabled("--freeform_policy"),
+                disable_block_the_box: args.enabled("--disable_block_the_box"),
+                record_stats: args.enabled("--record_stats"),
+            },
         }
     }
 
@@ -40,11 +40,13 @@ impl SimFlags {
         SimFlags {
             load: abstutil::path_map(map),
             rng_seed: Some(42),
-            run_name: Some(run_name.to_string()),
-            savestate_every: None,
-            freeform_policy: false,
-            disable_block_the_box: false,
-            record_stats: false,
+            opts: SimOptions {
+                run_name: run_name.to_string(),
+                savestate_every: None,
+                use_freeform_policy_everywhere: false,
+                disable_block_the_box: false,
+                record_stats: false,
+            },
         }
     }
 
@@ -60,16 +62,7 @@ impl SimFlags {
     pub fn load(&self, timer: &mut abstutil::Timer) -> (Map, Sim, XorShiftRng) {
         let mut rng = self.make_rng();
 
-        let mut opts = SimOptions {
-            run_name: self
-                .run_name
-                .clone()
-                .unwrap_or_else(|| "unnamed".to_string()),
-            savestate_every: self.savestate_every,
-            use_freeform_policy_everywhere: self.freeform_policy,
-            disable_block_the_box: self.disable_block_the_box,
-            record_stats: self.record_stats,
-        };
+        let mut opts = self.opts.clone();
 
         if self.load.starts_with("../data/save/") {
             timer.note(format!("Resuming from {}", self.load));
@@ -98,10 +91,9 @@ impl SimFlags {
             let map: Map =
                 abstutil::read_binary(&abstutil::path_map(&scenario.map_name), timer).unwrap();
 
-            opts.run_name = self
-                .run_name
-                .clone()
-                .unwrap_or_else(|| scenario.scenario_name.clone());
+            if opts.run_name == "unnamed" {
+                opts.run_name = scenario.scenario_name.clone();
+            }
             let mut sim = Sim::new(&map, opts);
             scenario.instantiate(&mut sim, &map, &mut rng, timer);
 

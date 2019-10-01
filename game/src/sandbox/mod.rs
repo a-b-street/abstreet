@@ -38,7 +38,7 @@ impl SandboxMode {
             speed: SpeedControls::new(ctx, None),
             agent_tools: AgentTools::new(ctx),
             time_travel: time_travel::InactiveTimeTravel::new(),
-            stats: stats::TripStats::new(ui.primary.current_flags.sim_flags.record_stats),
+            stats: stats::TripStats::new(ui.primary.current_flags.sim_flags.opts.record_stats),
             common: CommonState::new(),
             parking_heatmap: None,
             intersection_delay_heatmap: None,

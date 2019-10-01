@@ -6,7 +6,7 @@ use crate::ui::{Flags, PerMapUI, UI};
 use ezgui::{hotkey, Choice, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, Wizard, WrappedWizard};
 use geom::Duration;
 use map_model::MapEdits;
-use sim::{ABTest, Scenario, SimFlags};
+use sim::{ABTest, Scenario, SimFlags, SimOptions};
 
 pub struct PickABTest;
 impl PickABTest {
@@ -135,9 +135,9 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
                 if ui.primary.current_flags.sim_flags.rng_seed.is_none() {
                     ui.primary.current_flags.sim_flags.rng_seed = Some(42);
                 }
-                ui.primary.current_flags.sim_flags.run_name =
-                    Some(format!("{} with {}", test.test_name, test.edits1_name));
-                ui.primary.current_flags.sim_flags.savestate_every = None;
+                ui.primary.current_flags.sim_flags.opts.run_name =
+                    format!("{} with {}", test.test_name, test.edits1_name);
+                ui.primary.current_flags.sim_flags.opts.savestate_every = None;
 
                 apply_map_edits(
                     &mut ui.primary,
@@ -166,11 +166,19 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
                         sim_flags: SimFlags {
                             load: abstutil::path_map(&test.map_name),
                             rng_seed: current_flags.sim_flags.rng_seed,
-                            run_name: Some(format!("{} with {}", test.test_name, test.edits2_name)),
-                            savestate_every: None,
-                            freeform_policy: current_flags.sim_flags.freeform_policy,
-                            disable_block_the_box: current_flags.sim_flags.disable_block_the_box,
-                            record_stats: false,
+                            opts: SimOptions {
+                                run_name: format!("{} with {}", test.test_name, test.edits2_name),
+                                savestate_every: None,
+                                use_freeform_policy_everywhere: current_flags
+                                    .sim_flags
+                                    .opts
+                                    .use_freeform_policy_everywhere,
+                                disable_block_the_box: current_flags
+                                    .sim_flags
+                                    .opts
+                                    .disable_block_the_box,
+                                record_stats: false,
+                            },
                         },
                         ..current_flags.clone()
                     },

@@ -6,7 +6,7 @@ use sim::{Scenario, SimFlags};
 pub fn run(t: &mut TestRunner) {
     t.run_slow("small_spawn_completes", |h| {
         let mut flags = SimFlags::for_test("aorta_model_completes");
-        flags.savestate_every = Some(Duration::seconds(30.0));
+        flags.opts.savestate_every = Some(Duration::seconds(30.0));
         let (map, mut sim, mut rng) = flags.load(&mut Timer::throwaway());
         Scenario::small_run(&map).instantiate(&mut sim, &map, &mut rng, &mut Timer::throwaway());
         h.setup_done(&sim);
