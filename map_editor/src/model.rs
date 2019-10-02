@@ -478,12 +478,14 @@ impl Model {
 
         let mut result = Vec::new();
         let synthetic = r.synthetic();
+        let unset =
+            synthetic && r.osm_tags.get(osm::NAME) == Some(&"Streety McStreetFace".to_string());
         let spec = r.get_spec();
         let center_pts = PolyLine::new(r.center_points.clone());
         for (idx, lt) in spec.fwd.iter().enumerate() {
             let mut obj = Object::new(
                 ID::Lane(id, FORWARDS, idx),
-                Model::lt_to_color(*lt, synthetic),
+                Model::lt_to_color(*lt, synthetic, unset),
                 center_pts
                     .shift_right(LANE_THICKNESS * (0.5 + (idx as f64)))
                     .unwrap()
@@ -503,7 +505,7 @@ impl Model {
         for (idx, lt) in spec.back.iter().enumerate() {
             let mut obj = Object::new(
                 ID::Lane(id, BACKWARDS, idx),
-                Model::lt_to_color(*lt, synthetic),
+                Model::lt_to_color(*lt, synthetic, unset),
                 center_pts
                     .reversed()
                     .shift_right(LANE_THICKNESS * (0.5 + (idx as f64)))
@@ -544,7 +546,7 @@ impl Model {
     }
 
     // Copied from render/lane.rs. :(
-    fn lt_to_color(lt: LaneType, synthetic: bool) -> Color {
+    fn lt_to_color(lt: LaneType, synthetic: bool, unset: bool) -> Color {
         let color = match lt {
             LaneType::Driving => Color::BLACK,
             LaneType::Bus => Color::rgb(190, 74, 76),
@@ -553,7 +555,14 @@ impl Model {
             LaneType::Biking => Color::rgb(15, 125, 75),
         };
         if synthetic {
-            color.alpha(0.5)
+            if unset {
+                match color {
+                    Color::RGBA(_, g, b, _) => Color::rgba_f(0.9, g, b, 0.5),
+                    _ => unreachable!(),
+                }
+            } else {
+                color.alpha(0.5)
+            }
         } else {
             color
         }

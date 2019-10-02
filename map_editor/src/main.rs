@@ -35,6 +35,7 @@ enum State {
     CreatingTurnRestrictionPt2(StableRoadID, StableRoadID, Wizard),
     PreviewIntersection(Drawable, Vec<(Text, Pt2D)>, bool),
     EnteringWarp(Wizard),
+    StampingRoads(String, String, String),
 }
 
 impl UI {
@@ -66,6 +67,146 @@ impl GUI for UI {
         }
 
         match self.state {
+            State::Viewing => {
+                let cursor = ctx.canvas.get_cursor_in_map_space();
+                match self.model.world.get_selection() {
+                    Some(ID::Intersection(i)) => {
+                        if ctx.input.key_pressed(Key::LeftControl, "move intersection") {
+                            self.state = State::MovingIntersection(i);
+                        } else if ctx.input.key_pressed(Key::R, "create road") {
+                            self.state = State::CreatingRoad(i);
+                        } else if ctx
+                            .input
+                            .key_pressed(Key::Backspace, &format!("delete {}", i))
+                        {
+                            self.model.delete_i(i);
+                            self.model.world.handle_mouseover(ctx);
+                        } else if ctx.input.key_pressed(Key::T, "toggle intersection type") {
+                            self.model.toggle_i_type(i, ctx.prerender);
+                        } else if ctx.input.key_pressed(Key::L, "label intersection") {
+                            self.state = State::LabelingIntersection(i, Wizard::new());
+                        } else if ctx
+                            .input
+                            .key_pressed(Key::P, "preview intersection geometry")
+                        {
+                            let (draw, labels) = preview_intersection(i, &self.model, ctx);
+                            self.state = State::PreviewIntersection(draw, labels, false);
+                        }
+                    }
+                    Some(ID::Building(b)) => {
+                        if ctx.input.key_pressed(Key::LeftControl, "move building") {
+                            self.state = State::MovingBuilding(b);
+                        } else if ctx
+                            .input
+                            .key_pressed(Key::Backspace, &format!("delete {}", b))
+                        {
+                            self.model.delete_b(b);
+                            self.model.world.handle_mouseover(ctx);
+                        } else if ctx.input.key_pressed(Key::L, "label building") {
+                            self.state = State::LabelingBuilding(b, Wizard::new());
+                        }
+                    }
+                    Some(ID::Lane(r, dir, _)) => {
+                        if ctx
+                            .input
+                            .key_pressed(Key::Backspace, &format!("delete {}", r))
+                        {
+                            self.model.delete_r(r);
+                            self.model.world.handle_mouseover(ctx);
+                        } else if ctx.input.key_pressed(Key::E, "edit lanes") {
+                            self.state = State::EditingLanes(r, Wizard::new());
+                        } else if ctx.input.key_pressed(Key::N, "edit name/speed") {
+                            self.state = State::EditingRoadAttribs(r, Wizard::new());
+                        } else if ctx.input.key_pressed(Key::S, "swap lanes") {
+                            self.model.swap_lanes(r, ctx.prerender);
+                            self.model.world.handle_mouseover(ctx);
+                        } else if ctx.input.key_pressed(Key::L, "label side of the road") {
+                            self.state = State::LabelingRoad((r, dir), Wizard::new());
+                        } else if self.model.showing_pts.is_none()
+                            && ctx.input.key_pressed(Key::P, "move road points")
+                        {
+                            self.model.show_r_points(r, ctx.prerender);
+                            self.model.world.handle_mouseover(ctx);
+                        } else if ctx.input.key_pressed(Key::M, "merge road") {
+                            self.model.merge_r(r, ctx.prerender);
+                            self.model.world.handle_mouseover(ctx);
+                        } else if ctx
+                            .input
+                            .key_pressed(Key::R, "create turn restriction from here")
+                        {
+                            self.state = State::CreatingTurnRestrictionPt1(r);
+                        } else if ctx
+                            .input
+                            .key_pressed(Key::C, "copy road name and speed to other roads")
+                        {
+                            let road = &self.model.map.roads[&r];
+                            self.state = State::StampingRoads(
+                                road.get_spec().to_string(),
+                                road.osm_tags
+                                    .get(osm::NAME)
+                                    .cloned()
+                                    .unwrap_or_else(String::new),
+                                road.osm_tags
+                                    .get(osm::MAXSPEED)
+                                    .cloned()
+                                    .unwrap_or_else(String::new),
+                            );
+                        }
+                    }
+                    Some(ID::RoadPoint(r, idx)) => {
+                        if ctx.input.key_pressed(Key::LeftControl, "move point") {
+                            self.state = State::MovingRoadPoint(r, idx);
+                        } else if ctx.input.key_pressed(Key::Backspace, "delete point") {
+                            self.model.delete_r_pt(r, idx, ctx.prerender);
+                            self.model.world.handle_mouseover(ctx);
+                        }
+                    }
+                    Some(ID::TurnRestriction(from, to, idx)) => {
+                        if ctx
+                            .input
+                            .key_pressed(Key::Backspace, "delete turn restriction")
+                        {
+                            self.model.delete_tr(from, to, idx, ctx.prerender);
+                            self.model.world.handle_mouseover(ctx);
+                        }
+                    }
+                    None => {
+                        if ctx.input.unimportant_key_pressed(Key::Escape, "quit") {
+                            process::exit(0);
+                        } else if ctx.input.key_pressed(Key::S, "save") {
+                            if self.model.map.name != "" {
+                                self.model.export();
+                            } else {
+                                self.state = State::SavingModel(Wizard::new());
+                            }
+                        } else if ctx.input.key_pressed(Key::F, "save map fixes") {
+                            self.model.save_fixes();
+                        } else if ctx.input.key_pressed(Key::I, "create intersection") {
+                            if let Some(pt) = cursor {
+                                self.model.create_i(pt, ctx.prerender);
+                                self.model.world.handle_mouseover(ctx);
+                            }
+                        // TODO Silly bug: Mouseover doesn't actually work! I think the cursor being
+                        // dead-center messes up the precomputed triangles.
+                        } else if ctx.input.key_pressed(Key::B, "create building") {
+                            if let Some(pt) = cursor {
+                                self.model.create_b(pt, ctx.prerender);
+                                self.model.world.handle_mouseover(ctx);
+                            }
+                        } else if ctx.input.key_pressed(Key::LeftShift, "select area") {
+                            if let Some(pt) = cursor {
+                                self.state = State::SelectingRectangle(pt, pt, true);
+                            }
+                        } else if self.model.showing_pts.is_some()
+                            && ctx.input.key_pressed(Key::P, "stop moving road points")
+                        {
+                            self.model.stop_showing_pts();
+                        } else if ctx.input.key_pressed(Key::J, "warp to something") {
+                            self.state = State::EnteringWarp(Wizard::new());
+                        }
+                    }
+                }
+            }
             State::MovingIntersection(id) => {
                 if let Some(cursor) = ctx.canvas.get_cursor_in_map_space() {
                     self.model.move_i(id, cursor, ctx.prerender);
@@ -192,130 +333,6 @@ impl GUI for UI {
                     self.state = State::Viewing;
                 }
             }
-            State::Viewing => {
-                let cursor = ctx.canvas.get_cursor_in_map_space();
-                match self.model.world.get_selection() {
-                    Some(ID::Intersection(i)) => {
-                        if ctx.input.key_pressed(Key::LeftControl, "move intersection") {
-                            self.state = State::MovingIntersection(i);
-                        } else if ctx.input.key_pressed(Key::R, "create road") {
-                            self.state = State::CreatingRoad(i);
-                        } else if ctx
-                            .input
-                            .key_pressed(Key::Backspace, &format!("delete {}", i))
-                        {
-                            self.model.delete_i(i);
-                            self.model.world.handle_mouseover(ctx);
-                        } else if ctx.input.key_pressed(Key::T, "toggle intersection type") {
-                            self.model.toggle_i_type(i, ctx.prerender);
-                        } else if ctx.input.key_pressed(Key::L, "label intersection") {
-                            self.state = State::LabelingIntersection(i, Wizard::new());
-                        } else if ctx
-                            .input
-                            .key_pressed(Key::P, "preview intersection geometry")
-                        {
-                            let (draw, labels) = preview_intersection(i, &self.model, ctx);
-                            self.state = State::PreviewIntersection(draw, labels, false);
-                        }
-                    }
-                    Some(ID::Building(b)) => {
-                        if ctx.input.key_pressed(Key::LeftControl, "move building") {
-                            self.state = State::MovingBuilding(b);
-                        } else if ctx
-                            .input
-                            .key_pressed(Key::Backspace, &format!("delete {}", b))
-                        {
-                            self.model.delete_b(b);
-                            self.model.world.handle_mouseover(ctx);
-                        } else if ctx.input.key_pressed(Key::L, "label building") {
-                            self.state = State::LabelingBuilding(b, Wizard::new());
-                        }
-                    }
-                    Some(ID::Lane(r, dir, _)) => {
-                        if ctx
-                            .input
-                            .key_pressed(Key::Backspace, &format!("delete {}", r))
-                        {
-                            self.model.delete_r(r);
-                            self.model.world.handle_mouseover(ctx);
-                        } else if ctx.input.key_pressed(Key::E, "edit lanes") {
-                            self.state = State::EditingLanes(r, Wizard::new());
-                        } else if ctx.input.key_pressed(Key::N, "edit name/speed") {
-                            self.state = State::EditingRoadAttribs(r, Wizard::new());
-                        } else if ctx.input.key_pressed(Key::S, "swap lanes") {
-                            self.model.swap_lanes(r, ctx.prerender);
-                            self.model.world.handle_mouseover(ctx);
-                        } else if ctx.input.key_pressed(Key::L, "label side of the road") {
-                            self.state = State::LabelingRoad((r, dir), Wizard::new());
-                        } else if self.model.showing_pts.is_none()
-                            && ctx.input.key_pressed(Key::P, "move road points")
-                        {
-                            self.model.show_r_points(r, ctx.prerender);
-                            self.model.world.handle_mouseover(ctx);
-                        } else if ctx.input.key_pressed(Key::M, "merge road") {
-                            self.model.merge_r(r, ctx.prerender);
-                            self.model.world.handle_mouseover(ctx);
-                        } else if ctx
-                            .input
-                            .key_pressed(Key::R, "create turn restriction from here")
-                        {
-                            self.state = State::CreatingTurnRestrictionPt1(r);
-                        }
-                    }
-                    Some(ID::RoadPoint(r, idx)) => {
-                        if ctx.input.key_pressed(Key::LeftControl, "move point") {
-                            self.state = State::MovingRoadPoint(r, idx);
-                        } else if ctx.input.key_pressed(Key::Backspace, "delete point") {
-                            self.model.delete_r_pt(r, idx, ctx.prerender);
-                            self.model.world.handle_mouseover(ctx);
-                        }
-                    }
-                    Some(ID::TurnRestriction(from, to, idx)) => {
-                        if ctx
-                            .input
-                            .key_pressed(Key::Backspace, "delete turn restriction")
-                        {
-                            self.model.delete_tr(from, to, idx, ctx.prerender);
-                            self.model.world.handle_mouseover(ctx);
-                        }
-                    }
-                    None => {
-                        if ctx.input.unimportant_key_pressed(Key::Escape, "quit") {
-                            process::exit(0);
-                        } else if ctx.input.key_pressed(Key::S, "save") {
-                            if self.model.map.name != "" {
-                                self.model.export();
-                            } else {
-                                self.state = State::SavingModel(Wizard::new());
-                            }
-                        } else if ctx.input.key_pressed(Key::F, "save map fixes") {
-                            self.model.save_fixes();
-                        } else if ctx.input.key_pressed(Key::I, "create intersection") {
-                            if let Some(pt) = cursor {
-                                self.model.create_i(pt, ctx.prerender);
-                                self.model.world.handle_mouseover(ctx);
-                            }
-                        // TODO Silly bug: Mouseover doesn't actually work! I think the cursor being
-                        // dead-center messes up the precomputed triangles.
-                        } else if ctx.input.key_pressed(Key::B, "create building") {
-                            if let Some(pt) = cursor {
-                                self.model.create_b(pt, ctx.prerender);
-                                self.model.world.handle_mouseover(ctx);
-                            }
-                        } else if ctx.input.key_pressed(Key::LeftShift, "select area") {
-                            if let Some(pt) = cursor {
-                                self.state = State::SelectingRectangle(pt, pt, true);
-                            }
-                        } else if self.model.showing_pts.is_some()
-                            && ctx.input.key_pressed(Key::P, "stop moving road points")
-                        {
-                            self.model.stop_showing_pts();
-                        } else if ctx.input.key_pressed(Key::J, "warp to something") {
-                            self.state = State::EnteringWarp(Wizard::new());
-                        }
-                    }
-                }
-            }
             State::SelectingRectangle(pt1, ref mut pt2, ref mut keydown) => {
                 if ctx.input.key_pressed(Key::LeftShift, "select area") {
                     *keydown = true;
@@ -421,6 +438,29 @@ impl GUI for UI {
                     self.model.world.handle_mouseover(ctx);
                 }
             }
+            State::StampingRoads(ref lanespec, ref name, ref speed) => {
+                if ctx
+                    .input
+                    .key_pressed(Key::Escape, "stop copying road metadata")
+                {
+                    self.state = State::Viewing;
+                    self.model.world.handle_mouseover(ctx);
+                } else if let Some(ID::Lane(id, _, _)) = self.model.world.get_selection() {
+                    if ctx.input.key_pressed(
+                        Key::C,
+                        &format!("set name={}, speed={}, lanes={}", name, speed, lanespec),
+                    ) {
+                        self.model.set_r_name_and_speed(
+                            id,
+                            name.to_string(),
+                            speed.to_string(),
+                            ctx.prerender,
+                        );
+                        self.model
+                            .edit_lanes(id, lanespec.to_string(), ctx.prerender);
+                    }
+                }
+            }
         }
 
         self.osd = Text::new();
@@ -497,7 +537,8 @@ impl GUI for UI {
             }
             State::MovingIntersection(_)
             | State::MovingBuilding(_)
-            | State::MovingRoadPoint(_, _) => {}
+            | State::MovingRoadPoint(_, _)
+            | State::StampingRoads(_, _, _) => {}
             State::SelectingRectangle(pt1, pt2, _) => {
                 if let Some(rect) = Polygon::rectangle_two_corners(pt1, pt2) {
                     g.draw_polygon(Color::BLUE.alpha(0.5), &rect);

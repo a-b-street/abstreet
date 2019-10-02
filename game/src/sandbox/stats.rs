@@ -2,7 +2,8 @@ use crate::common::ColorLegend;
 use crate::game::{State, Transition};
 use crate::ui::UI;
 use ezgui::{
-    ScreenPt, hotkey, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu, MultiText, Text,
+    hotkey, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu, MultiText,
+    ScreenPt, Text,
 };
 use geom::{Distance, Duration, PolyLine, Polygon, Pt2D};
 use sim::TripMode;
@@ -154,21 +155,31 @@ impl ShowStats {
                 .map(|(name, color, _)| (*name, *color))
                 .collect(),
         );
-        let max_y = stats.samples.iter().map(|s|
-            lines.iter().map(|(_, _, getter)| getter(s)).max().unwrap()
-        ).max().unwrap();
+        let max_y = stats
+            .samples
+            .iter()
+            .map(|s| lines.iter().map(|(_, _, getter)| getter(s)).max().unwrap())
+            .max()
+            .unwrap();
         // Y-axis labels
         for i in 0..=5 {
             let percent = (i as f64) / 5.0;
-            labels.add(Text::from(Line(((percent * (max_y as f64)) as usize).to_string())), ScreenPt::new(x1, y2 - percent * (y2 - y1)));
+            labels.add(
+                Text::from(Line(((percent * (max_y as f64)) as usize).to_string())),
+                ScreenPt::new(x1, y2 - percent * (y2 - y1)),
+            );
         }
         // X-axis labels (currently nonlinear!)
         {
             let num_pts = stats.samples.len().min(5);
             for i in 0..num_pts {
                 let percent_x = (i as f64) / ((num_pts - 1) as f64);
-                let t = stats.samples[(percent_x * ((stats.samples.len() - 1) as f64)) as usize].time;
-                labels.add(Text::from(Line(t.to_string())), ScreenPt::new(x1 + percent_x * (x2 - x1), y2));
+                let t =
+                    stats.samples[(percent_x * ((stats.samples.len() - 1) as f64)) as usize].time;
+                labels.add(
+                    Text::from(Line(t.to_string())),
+                    ScreenPt::new(x1 + percent_x * (x2 - x1), y2),
+                );
             }
         }
 
