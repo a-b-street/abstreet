@@ -1,7 +1,9 @@
 use crate::common::ColorLegend;
 use crate::game::{State, Transition};
 use crate::ui::UI;
-use ezgui::{hotkey, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu, Text};
+use ezgui::{
+    ScreenPt, hotkey, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu, MultiText, Text,
+};
 use geom::{Distance, Duration, PolyLine, Polygon, Pt2D};
 use sim::TripMode;
 
@@ -77,6 +79,7 @@ pub struct ShowStats {
     menu: ModalMenu,
     draw: Drawable,
     legend: ColorLegend,
+    labels: MultiText,
 }
 
 impl State for ShowStats {
@@ -95,12 +98,14 @@ impl State for ShowStats {
         g.fork_screenspace();
         g.redraw(&self.draw);
         g.unfork();
+        self.labels.draw(g);
     }
 }
 
 impl ShowStats {
     pub fn new(stats: &TripStats, ui: &UI, ctx: &mut EventCtx) -> ShowStats {
         let mut batch = GeomBatch::new();
+        let mut labels = MultiText::new();
 
         let x1 = 0.2 * ctx.canvas.window_width;
         let x2 = 0.8 * ctx.canvas.window_width;
@@ -118,25 +123,29 @@ impl ShowStats {
         let lines: Vec<(&str, Color, Box<dyn Fn(&StateAtTime) -> usize>)> = vec![
             (
                 "walking",
-                ui.cs.get("unzoomed pedestrian").alpha(1.0),
+                ui.cs.get("unzoomed pedestrian"),
                 Box::new(|s| s.finished_walk_trips),
             ),
             (
                 "biking",
-                ui.cs.get("unzoomed bike").alpha(1.0),
+                ui.cs.get("unzoomed bike"),
                 Box::new(|s| s.finished_bike_trips),
             ),
             (
                 "transit",
-                ui.cs.get("unzoomed bus").alpha(1.0),
+                ui.cs.get("unzoomed bus"),
                 Box::new(|s| s.finished_transit_trips),
             ),
             (
                 "driving",
-                ui.cs.get("unzoomed car").alpha(1.0),
+                ui.cs.get("unzoomed car"),
                 Box::new(|s| s.finished_drive_trips),
             ),
-            ("aborted", Color::PURPLE, Box::new(|s| s.aborted_trips)),
+            (
+                "aborted",
+                Color::PURPLE.alpha(0.5),
+                Box::new(|s| s.aborted_trips),
+            ),
         ];
         let legend = ColorLegend::new(
             "finished trips",
@@ -145,11 +154,28 @@ impl ShowStats {
                 .map(|(name, color, _)| (*name, *color))
                 .collect(),
         );
+        let max_y = stats.samples.iter().map(|s|
+            lines.iter().map(|(_, _, getter)| getter(s)).max().unwrap()
+        ).max().unwrap();
+        // Y-axis labels
+        for i in 0..=5 {
+            let percent = (i as f64) / 5.0;
+            labels.add(Text::from(Line(((percent * (max_y as f64)) as usize).to_string())), ScreenPt::new(x1, y2 - percent * (y2 - y1)));
+        }
+        // X-axis labels (currently nonlinear!)
+        {
+            let num_pts = stats.samples.len().min(5);
+            for i in 0..num_pts {
+                let percent_x = (i as f64) / ((num_pts - 1) as f64);
+                let t = stats.samples[(percent_x * ((stats.samples.len() - 1) as f64)) as usize].time;
+                labels.add(Text::from(Line(t.to_string())), ScreenPt::new(x1 + percent_x * (x2 - x1), y2));
+            }
+        }
+
         for (_, color, getter) in lines {
             if stats.samples.is_empty() {
                 continue;
             }
-            let max_y = stats.samples.iter().map(&getter).max().unwrap();
             let mut pts = Vec::new();
             if max_y == 0 {
                 pts.push(Pt2D::new(x1, y2));
@@ -184,6 +210,7 @@ impl ShowStats {
             menu: ModalMenu::new("Trip Stats", vec![vec![(hotkey(Key::Escape), "quit")]], ctx)
                 .set_prompt(ctx, txt),
             draw: ctx.prerender.upload(batch),
+            labels,
             legend,
         }
     }

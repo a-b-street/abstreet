@@ -462,3 +462,23 @@ impl<'a> Prerender<'a> {
         }
     }
 }
+
+pub struct MultiText {
+    list: Vec<(Text, ScreenPt)>,
+}
+
+impl MultiText {
+    pub fn new() -> MultiText {
+        MultiText { list: Vec::new() }
+    }
+
+    pub fn add(&mut self, txt: Text, pt: ScreenPt) {
+        self.list.push((txt, pt));
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx) {
+        for (txt, pt) in &self.list {
+            g.draw_text_at_screenspace_topleft(txt, *pt);
+        }
+    }
+}
