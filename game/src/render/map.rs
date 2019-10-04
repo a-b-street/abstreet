@@ -9,7 +9,7 @@ use crate::render::lane::DrawLane;
 use crate::render::road::DrawRoad;
 use crate::render::turn::DrawTurn;
 use crate::render::Renderable;
-use crate::ui::{Flags, PerMapUI};
+use crate::ui::Flags;
 use aabb_quadtree::QuadTree;
 use abstutil::{Cloneable, Timer};
 use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx};
@@ -19,7 +19,8 @@ use map_model::{
     Traversable, Turn, TurnID, TurnType, LANE_THICKNESS,
 };
 use sim::{
-    AgentMetadata, CarStatus, DrawCarInput, DrawPedestrianInput, UnzoomedAgent, VehicleType,
+    AgentMetadata, CarStatus, DrawCarInput, DrawPedestrianInput, GetDrawAgents, UnzoomedAgent,
+    VehicleType,
 };
 use std::borrow::Borrow;
 use std::cell::RefCell;
@@ -376,12 +377,13 @@ impl AgentCache {
 
     pub fn draw_unzoomed_agents(
         &mut self,
-        primary: &PerMapUI,
+        source: &dyn GetDrawAgents,
+        map: &Map,
         acs: AgentColorScheme,
         cs: &ColorScheme,
         g: &mut GfxCtx,
     ) {
-        let now = primary.sim.time();
+        let now = source.time();
         if let Some((z, ref draw)) = self.unzoomed {
             if g.canvas.cam_zoom == z && Some(now) == self.time {
                 g.redraw(draw);
@@ -393,7 +395,7 @@ impl AgentCache {
         // without the extra data. Try plumbing a callback that directly populates batch.
         let mut batch = GeomBatch::new();
         let radius = Distance::meters(10.0) / g.canvas.cam_zoom;
-        for agent in primary.sim.get_unzoomed_agents(&primary.map) {
+        for agent in source.get_unzoomed_agents(map) {
             batch.push(
                 acs.unzoomed_color(&agent, cs),
                 Circle::new(agent.pos, radius).to_polygon(),

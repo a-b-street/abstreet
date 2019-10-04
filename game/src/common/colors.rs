@@ -4,6 +4,7 @@ use crate::ui::{ShowEverything, UI};
 use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ScreenPt, Text, LINE_HEIGHT};
 use geom::{Distance, Polygon, Pt2D};
 use map_model::{LaneID, Map, RoadID};
+use sim::DontDrawAgents;
 use std::collections::HashMap;
 
 pub struct RoadColorerBuilder {
@@ -23,7 +24,7 @@ impl RoadColorer {
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         let mut opts = DrawOptions::new();
         if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
-            ui.draw(g, opts, &ui.primary.sim, &ShowEverything::new());
+            ui.draw(g, opts, &DontDrawAgents {}, &ShowEverything::new());
             g.redraw(&self.unzoomed);
         } else {
             opts.override_colors = self.zoomed_override_colors.clone();
@@ -89,7 +90,7 @@ impl ObjectColorer {
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         let mut opts = DrawOptions::new();
         if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
-            ui.draw(g, opts, &ui.primary.sim, &ShowEverything::new());
+            ui.draw(g, opts, &DontDrawAgents {}, &ShowEverything::new());
             g.redraw(&self.unzoomed);
         } else {
             opts.override_colors = self.zoomed_override_colors.clone();

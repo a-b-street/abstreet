@@ -4,7 +4,10 @@ This article describes how data from OpenStreetMap (OSM) and King County GIS
 become the complex maps in A/B Street. As always, email <dabreegster@gmail.com>
 if you'd like more details or pictures. This process generalizes to most cities
 in OpenStreetMap. Some extra data specific to Seattle is used, but could be
-ommitted.
+omitted.
+
+TODO: Integrate pictures from
+[these slides](https://docs.google.com/presentation/d/1cF7qFtjAzkXL_r62CjxBvgQnLvuQ9I2WTE2iX_5tMCY/edit?usp=sharing).
 
 Everything here should be up-to-date as of September 2019.
 

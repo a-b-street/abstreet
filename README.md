@@ -22,6 +22,9 @@ Watching overall traffic patterns and zooming into a few slow areas:
 - [Rust implementation notes](docs/articles/rust/article.md)
 - [Running A/B Street in a new city](docs/new_city.md)
 - [Features (outdated)](docs/articles/features/article.md)
+- Presentations (nice pictures, but may not be easy to follow without me
+  speaking ;) ) -
+  [Map construction](https://docs.google.com/presentation/d/1cF7qFtjAzkXL_r62CjxBvgQnLvuQ9I2WTE2iX_5tMCY/edit?usp=sharing)
 
 ## Features
 

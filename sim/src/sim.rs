@@ -320,11 +320,8 @@ impl GetDrawAgents for Sim {
     fn get_all_draw_peds(&self, map: &Map) -> Vec<DrawPedestrianInput> {
         self.walking.get_all_draw_peds(self.time, map)
     }
-}
 
-// Drawing
-impl Sim {
-    pub fn get_unzoomed_agents(&self, map: &Map) -> Vec<UnzoomedAgent> {
+    fn get_unzoomed_agents(&self, map: &Map) -> Vec<UnzoomedAgent> {
         let mut result = self.driving.get_unzoomed_agents(self.time, map);
         result.extend(self.walking.get_unzoomed_agents(self.time, map));
         result

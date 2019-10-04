@@ -136,7 +136,7 @@ impl UI {
             }
 
             let mut cache = self.primary.draw_map.agents.borrow_mut();
-            cache.draw_unzoomed_agents(&self.primary, self.agent_cs, &self.cs, g);
+            cache.draw_unzoomed_agents(source, &self.primary.map, self.agent_cs, &self.cs, g);
         } else {
             let mut cache = self.primary.draw_map.agents.borrow_mut();
             let objects = self.get_renderables_back_to_front(

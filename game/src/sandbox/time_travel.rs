@@ -8,6 +8,7 @@ use geom::Duration;
 use map_model::{Map, Traversable};
 use sim::{
     CarID, DrawCarInput, DrawPedCrowdInput, DrawPedestrianInput, GetDrawAgents, PedestrianID,
+    UnzoomedAgent,
 };
 use std::collections::BTreeMap;
 
@@ -134,15 +135,15 @@ impl GetDrawAgents for TimeTraveler {
         self.slider.get().0
     }
 
-    fn get_draw_car(&self, id: CarID, _map: &Map) -> Option<DrawCarInput> {
+    fn get_draw_car(&self, id: CarID, _: &Map) -> Option<DrawCarInput> {
         self.get_current_state().cars.get(&id).cloned()
     }
 
-    fn get_draw_ped(&self, id: PedestrianID, _map: &Map) -> Option<DrawPedestrianInput> {
+    fn get_draw_ped(&self, id: PedestrianID, _: &Map) -> Option<DrawPedestrianInput> {
         self.get_current_state().peds.get(&id).cloned()
     }
 
-    fn get_draw_cars(&self, on: Traversable, _map: &Map) -> Vec<DrawCarInput> {
+    fn get_draw_cars(&self, on: Traversable, _: &Map) -> Vec<DrawCarInput> {
         let state = self.get_current_state();
         // TODO sort by ID to be deterministic?
         state
@@ -157,7 +158,7 @@ impl GetDrawAgents for TimeTraveler {
     fn get_draw_peds(
         &self,
         on: Traversable,
-        _map: &Map,
+        _: &Map,
     ) -> (Vec<DrawPedestrianInput>, Vec<DrawPedCrowdInput>) {
         let state = self.get_current_state();
         (
@@ -171,11 +172,16 @@ impl GetDrawAgents for TimeTraveler {
         )
     }
 
-    fn get_all_draw_cars(&self, _map: &Map) -> Vec<DrawCarInput> {
+    fn get_all_draw_cars(&self, _: &Map) -> Vec<DrawCarInput> {
         self.get_current_state().cars.values().cloned().collect()
     }
 
-    fn get_all_draw_peds(&self, _map: &Map) -> Vec<DrawPedestrianInput> {
+    fn get_all_draw_peds(&self, _: &Map) -> Vec<DrawPedestrianInput> {
         self.get_current_state().peds.values().cloned().collect()
+    }
+
+    fn get_unzoomed_agents(&self, _: &Map) -> Vec<UnzoomedAgent> {
+        // TODO Doesn't work yet.
+        Vec::new()
     }
 }

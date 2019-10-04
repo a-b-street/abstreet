@@ -74,4 +74,41 @@ pub trait GetDrawAgents {
     ) -> (Vec<DrawPedestrianInput>, Vec<DrawPedCrowdInput>);
     fn get_all_draw_cars(&self, map: &Map) -> Vec<DrawCarInput>;
     fn get_all_draw_peds(&self, map: &Map) -> Vec<DrawPedestrianInput>;
+    fn get_unzoomed_agents(&self, map: &Map) -> Vec<UnzoomedAgent>;
+}
+
+pub struct DontDrawAgents;
+
+impl GetDrawAgents for DontDrawAgents {
+    fn time(&self) -> Duration {
+        Duration::ZERO
+    }
+    fn step_count(&self) -> usize {
+        0
+    }
+    fn get_draw_car(&self, _: CarID, _: &Map) -> Option<DrawCarInput> {
+        None
+    }
+    fn get_draw_ped(&self, _: PedestrianID, _: &Map) -> Option<DrawPedestrianInput> {
+        None
+    }
+    fn get_draw_cars(&self, _: Traversable, _: &Map) -> Vec<DrawCarInput> {
+        Vec::new()
+    }
+    fn get_draw_peds(
+        &self,
+        _: Traversable,
+        _: &Map,
+    ) -> (Vec<DrawPedestrianInput>, Vec<DrawPedCrowdInput>) {
+        (Vec::new(), Vec::new())
+    }
+    fn get_all_draw_cars(&self, _: &Map) -> Vec<DrawCarInput> {
+        Vec::new()
+    }
+    fn get_all_draw_peds(&self, _: &Map) -> Vec<DrawPedestrianInput> {
+        Vec::new()
+    }
+    fn get_unzoomed_agents(&self, _: &Map) -> Vec<UnzoomedAgent> {
+        Vec::new()
+    }
 }
