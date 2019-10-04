@@ -120,14 +120,29 @@ impl IntersectionSimState {
         scheduler: &mut Scheduler,
     ) {
         let state = &self.state[&id];
-        let (_, _, remaining) = map
+        let (_, cycle, remaining) = map
             .get_traffic_signal(id)
             .current_cycle_and_remaining_time(now);
 
-        // TODO Wake up everyone, for now.
-        // TODO Use update in case turn_finished scheduled an event for them already.
+        // Wake up Priority turns before Yield turns. Don't wake up Banned turns at all. This makes
+        // sure priority vehicles should get the head-start, without blocking yield vehicles
+        // unnecessarily.
+        let mut yields = Vec::new();
         for req in state.waiting.keys() {
-            scheduler.update(now, Command::update_agent(req.agent));
+            match cycle.get_priority(req.turn) {
+                TurnPriority::Banned => {}
+                TurnPriority::Stop => unreachable!(),
+                TurnPriority::Yield => {
+                    yields.push(req.agent);
+                }
+                TurnPriority::Priority => {
+                    // TODO Use update in case turn_finished scheduled an event for them already.
+                    scheduler.update(now, Command::update_agent(req.agent));
+                }
+            }
+        }
+        for a in yields {
+            scheduler.update(now, Command::update_agent(a));
         }
 
         scheduler.push(now + remaining, Command::UpdateIntersection(id));
@@ -294,15 +309,10 @@ impl State {
             return false;
         }
 
-        // A yield loses to a conflicting Priority turn.
-        if cycle.get_priority(new_req.turn) == TurnPriority::Yield {
-            if self.waiting.keys().any(|r| {
-                turn.conflicts_with(map.get_t(r.turn))
-                    && cycle.get_priority(r.turn) == TurnPriority::Priority
-            }) {
-                return false;
-            }
-        }
+        // Previously: A yield loses to a conflicting Priority turn.
+        // But similar to the description in stop_sign_policy, this caused unnecessary gridlock.
+        // Priority vehicles getting scheduled first just requires a little tweak in
+        // update_intersection.
 
         // TODO Make sure we can optimistically finish this turn before an approaching
         // higher-priority vehicle wants to begin.
