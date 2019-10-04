@@ -29,11 +29,14 @@ fn main() {
     timer.done();
 
     if enable_profiler {
-        cpuprofiler::PROFILER
-            .lock()
-            .unwrap()
-            .start("./profile")
-            .unwrap();
+        #[cfg(feature = "profiler")]
+        {
+            cpuprofiler::PROFILER
+                .lock()
+                .unwrap()
+                .start("./profile")
+                .unwrap();
+        }
     }
     let timer = Timer::new("run sim until done");
     sim.run_until_done(
@@ -44,7 +47,10 @@ fn main() {
                 sim.save();
                 // Some simulations run for a really long time, just do this.
                 if enable_profiler {
-                    cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
+                    #[cfg(feature = "profiler")]
+                    {
+                        cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
+                    }
                 }
             }
             if paranoia {
@@ -56,6 +62,9 @@ fn main() {
     timer.done();
     println!("Done at {}", sim.time());
     if enable_profiler && save_at.is_none() {
-        cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
+        #[cfg(feature = "profiler")]
+        {
+            cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();
+        }
     }
 }
