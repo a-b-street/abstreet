@@ -1,6 +1,6 @@
 use crate::{
     AgentID, AgentMetadata, Command, CreatePedestrian, DistanceInterval, DrawPedCrowdInput,
-    DrawPedestrianInput, IntersectionSimState, ParkingSimState, ParkingSpot, PedestrianID,
+    DrawPedestrianInput, Event, IntersectionSimState, ParkingSimState, ParkingSpot, PedestrianID,
     Scheduler, SidewalkPOI, SidewalkSpot, TimeInterval, TransitSimState, TripID, TripManager,
     TripPositions, UnzoomedAgent,
 };
@@ -22,6 +22,7 @@ pub struct WalkingSimState {
         deserialize_with = "deserialize_multimap"
     )]
     peds_per_traversable: MultiMap<Traversable, PedestrianID>,
+    events: Vec<Event>,
 }
 
 impl WalkingSimState {
@@ -29,6 +30,7 @@ impl WalkingSimState {
         WalkingSimState {
             peds: BTreeMap::new(),
             peds_per_traversable: MultiMap::new(),
+            events: Vec::new(),
         }
     }
 
@@ -164,6 +166,7 @@ impl WalkingSimState {
                         map,
                         intersections,
                         &mut self.peds_per_traversable,
+                        &mut self.events,
                         scheduler,
                     ) {
                         scheduler.push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
@@ -180,6 +183,7 @@ impl WalkingSimState {
                     map,
                     intersections,
                     &mut self.peds_per_traversable,
+                    &mut self.events,
                     scheduler,
                 ) {
                     scheduler.push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
@@ -377,6 +381,10 @@ impl WalkingSimState {
 
         (loners, crowds)
     }
+
+    pub fn collect_events(&mut self) -> Vec<Event> {
+        std::mem::replace(&mut self.events, Vec::new())
+    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq)]
@@ -529,6 +537,7 @@ impl Pedestrian {
         map: &Map,
         intersections: &mut IntersectionSimState,
         peds_per_traversable: &mut MultiMap<Traversable, PedestrianID>,
+        events: &mut Vec<Event>,
         scheduler: &mut Scheduler,
     ) -> bool {
         if let PathStep::Turn(t) = self.path.next_step() {
@@ -554,6 +563,10 @@ impl Pedestrian {
         };
         self.state = self.crossing_state(start_dist, now, map);
         peds_per_traversable.insert(self.path.current_step().as_traversable(), self.id);
+        events.push(Event::AgentEntersTraversable(
+            AgentID::Pedestrian(self.id),
+            self.path.current_step().as_traversable(),
+        ));
         true
     }
 }

@@ -22,9 +22,6 @@
 	- deal with loop roads?
 	- model U-turns
 
-- degenerate-2's should only have one crosswalk
-	- then make them thinner
-
 - car turns often clip sidewalk corners now
 - draw SharedSidewalkCorners just around the ped path, not arbitrarily thick
 	- dont forget to draw the notches
@@ -84,10 +81,6 @@
 		- just revert intersection and warn
 		- or store overrides more granularly and warn or do something reasonable
 
-## Release
-
-- publish the map data
-
 ## Sim bugs/tests needed
 
 - do bikes use bike lanes?
@@ -95,11 +88,11 @@
 	- make sure that we can jump to a ped on a bus and see the bus
 - park/unpark needs to jump two lanes in the case of crossing a bike lane or something
 	- should only be able to park from the closest lane, though!
+- explicit tests making cars park at 0 and max_dist, peds walk to 0 and max_dist
 
 ## Discrete-event sim model
 
 - cleanup after the cutover
-	- explicit tests making cars park at 0 and max_dist, peds walk to 0 and max_dist
 	- proper intersection policies, by seeing full view
 	- time travel mode can be very smart
 	- dupe code for initially spawning vs spawning when a trip leg starts.

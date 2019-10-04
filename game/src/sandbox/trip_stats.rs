@@ -104,7 +104,11 @@ impl State for ShowStats {
 }
 
 impl ShowStats {
-    pub fn new(stats: &TripStats, ui: &UI, ctx: &mut EventCtx) -> ShowStats {
+    pub fn new(stats: &TripStats, ui: &UI, ctx: &mut EventCtx) -> Option<ShowStats> {
+        if stats.samples.is_empty() {
+            return None;
+        }
+
         let mut batch = GeomBatch::new();
         let mut labels = MultiText::new();
 
@@ -184,9 +188,6 @@ impl ShowStats {
         }
 
         for (_, color, getter) in lines {
-            if stats.samples.is_empty() {
-                continue;
-            }
             let mut pts = Vec::new();
             if max_y == 0 {
                 pts.push(Pt2D::new(x1, y2));
@@ -217,12 +218,12 @@ impl ShowStats {
             "{} samples",
             abstutil::prettyprint_usize(stats.samples.len())
         )));
-        ShowStats {
+        Some(ShowStats {
             menu: ModalMenu::new("Trip Stats", vec![vec![(hotkey(Key::Escape), "quit")]], ctx)
                 .set_prompt(ctx, txt),
             draw: ctx.prerender.upload(batch),
             labels,
             legend,
-        }
+        })
     }
 }

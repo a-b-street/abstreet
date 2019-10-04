@@ -50,10 +50,7 @@ pub struct Sim {
     #[derivative(PartialEq = "ignore")]
     #[serde(skip_serializing, skip_deserializing)]
     trip_positions: Option<TripPositions>,
-
-    #[derivative(PartialEq = "ignore")]
-    #[serde(skip_serializing, skip_deserializing)]
-    events_since_last_step: Vec<Event>,
+    // TODO Maybe the buffered events in child objects should also have this.
 }
 
 #[derive(Clone)]
@@ -112,7 +109,6 @@ impl Sim {
             run_name: opts.run_name,
             step_count: 0,
             trip_positions: None,
-            events_since_last_step: Vec::new(),
         }
     }
 
@@ -518,12 +514,6 @@ impl Sim {
         self.time = target_time;
 
         self.trip_positions = None;
-
-        self.events_since_last_step.clear();
-        self.events_since_last_step
-            .extend(self.trips.collect_events());
-        self.events_since_last_step
-            .extend(self.transit.collect_events());
     }
 
     pub fn timed_step(&mut self, map: &Map, dt: Duration, timer: &mut Timer) {
@@ -646,8 +636,8 @@ impl Sim {
 
         let mut expectations = VecDeque::from(all_expectations);
         self.step(&map, self.time() + time_limit);
-        for ev in self.get_events_since_last_step() {
-            if ev == expectations.front().unwrap() {
+        for ev in self.collect_events() {
+            if &ev == expectations.front().unwrap() {
                 println!("At {}, met expectation {:?}", self.time, ev);
                 expectations.pop_front();
                 if expectations.is_empty() {
@@ -864,8 +854,15 @@ impl Sim {
         self.trip_positions.as_ref().unwrap()
     }
 
-    pub fn get_events_since_last_step(&self) -> &Vec<Event> {
-        &self.events_since_last_step
+    // This only supports one caller! And the result isn't time-sorted.
+    // TODO If nobody calls this, slow sad memory leak. Push style would probably be much nicer.
+    pub fn collect_events(&mut self) -> Vec<Event> {
+        let mut events = Vec::new();
+        events.extend(self.trips.collect_events());
+        events.extend(self.transit.collect_events());
+        events.extend(self.driving.collect_events());
+        events.extend(self.walking.collect_events());
+        events
     }
 
     pub fn get_canonical_pt_per_trip(&self, trip: TripID, map: &Map) -> TripResult<Pt2D> {

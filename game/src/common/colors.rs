@@ -76,6 +76,7 @@ impl RoadColorerBuilder {
 pub struct ObjectColorerBuilder {
     zoomed_override_colors: HashMap<ID, Color>,
     legend: ColorLegend,
+    roads: Vec<(RoadID, Color)>,
 }
 
 pub struct ObjectColorer {
@@ -104,14 +105,19 @@ impl ObjectColorerBuilder {
         ObjectColorerBuilder {
             zoomed_override_colors: HashMap::new(),
             legend: ColorLegend::new(title, rows),
+            roads: Vec::new(),
         }
     }
 
     pub fn add(&mut self, id: ID, color: Color) {
-        self.zoomed_override_colors.insert(id, color);
+        if let ID::Road(r) = id {
+            self.roads.push((r, color));
+        } else {
+            self.zoomed_override_colors.insert(id, color);
+        }
     }
 
-    pub fn build(self, ctx: &mut EventCtx, map: &Map) -> ObjectColorer {
+    pub fn build(mut self, ctx: &mut EventCtx, map: &Map) -> ObjectColorer {
         let mut batch = GeomBatch::new();
         for (id, color) in &self.zoomed_override_colors {
             let poly = match id {
@@ -120,6 +126,12 @@ impl ObjectColorerBuilder {
                 _ => unreachable!(),
             };
             batch.push(*color, poly);
+        }
+        for (r, color) in self.roads {
+            batch.push(color, map.get_r(r).get_thick_polygon().unwrap());
+            for l in map.get_r(r).all_lanes() {
+                self.zoomed_override_colors.insert(ID::Lane(l), color);
+            }
         }
         ObjectColorer {
             zoomed_override_colors: self.zoomed_override_colors,

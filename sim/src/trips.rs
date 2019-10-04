@@ -483,7 +483,7 @@ impl TripManager {
     }
 
     pub fn collect_events(&mut self) -> Vec<Event> {
-        self.events.drain(..).collect()
+        std::mem::replace(&mut self.events, Vec::new())
     }
 
     pub fn trip_status(&self, id: TripID) -> TripStatus {

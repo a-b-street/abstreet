@@ -2,9 +2,6 @@
 
 ## Fix existing stuff
 
-- try showing traffic signals by little boxes at the end of lanes
-	- red circle means right turn on red OK, red right arrow means nope, green means normal turns ok, green arrow means protected left, crosswalk hand or stick figure
-
 - if a lane could feasibly have multiple turn options but doesnt, print "ONLY"
 - audit all panics
 - tune text color, size, padding
@@ -14,8 +11,6 @@
 - toggle rewind mode
 - yellow or flashing red/yellow for yields
 - text box entry: highlight char looks like replace mode; draw it btwn chars
-
-- traffic signal cycles go offscreen sometimes!
 
 - navigator
 	- show options on map
@@ -27,7 +22,6 @@
 - when dragging, dont give mouse movement to UI elements
 - start context menu when left click releases and we're not dragging
 - can we change labels in modal or top menu? show/hide
-- label sections of modal menus
 - distinguish hints from status of modal menus, for hiding purposes
 - move context menus out of ezgui
 	- simplify/remove UserInput.
@@ -43,8 +37,6 @@
 ## Better rendering
 
 - depict residential bldg occupany size somehow
-- render overlapping peds reasonably
-- draw moving / blocked colors (gradually more red as they wait longer)
 - render cars with textures?
 - rooftops
 	- https://thumbs.dreamstime.com/b/top-view-city-street-asphalt-transport-people-walking-down-sidewalk-intersecting-road-pedestrian-81034411.jpg

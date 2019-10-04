@@ -19,6 +19,5 @@ pub enum Event {
 
     BikeStoppedAtSidewalk(CarID, LaneID),
 
-    // TODO Remove this one
     AgentEntersTraversable(AgentID, Traversable),
 }

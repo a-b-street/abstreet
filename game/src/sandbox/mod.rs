@@ -1,7 +1,8 @@
 mod score;
 mod spawner;
-mod stats;
+mod thruput_stats;
 mod time_travel;
+mod trip_stats;
 
 use crate::common::{
     time_controls, AgentTools, CommonState, ObjectColorer, ObjectColorerBuilder, RoadColorer,
@@ -25,7 +26,8 @@ pub struct SandboxMode {
     speed: SpeedControls,
     agent_tools: AgentTools,
     pub time_travel: time_travel::InactiveTimeTravel,
-    stats: stats::TripStats,
+    trip_stats: trip_stats::TripStats,
+    thruput_stats: thruput_stats::ThruputStats,
     common: CommonState,
     parking_heatmap: Option<(Duration, RoadColorer)>,
     intersection_delay_heatmap: Option<(Duration, ObjectColorer)>,
@@ -38,7 +40,10 @@ impl SandboxMode {
             speed: SpeedControls::new(ctx, None),
             agent_tools: AgentTools::new(ctx),
             time_travel: time_travel::InactiveTimeTravel::new(),
-            stats: stats::TripStats::new(ui.primary.current_flags.sim_flags.opts.record_stats),
+            trip_stats: trip_stats::TripStats::new(
+                ui.primary.current_flags.sim_flags.opts.record_stats,
+            ),
+            thruput_stats: thruput_stats::ThruputStats::new(),
             common: CommonState::new(),
             parking_heatmap: None,
             intersection_delay_heatmap: None,
@@ -68,6 +73,7 @@ impl SandboxMode {
                         (hotkey(Key::T), "start time traveling"),
                         (hotkey(Key::Q), "scoreboard"),
                         (None, "trip stats"),
+                        (None, "throughput stats"),
                     ],
                     vec![
                         (hotkey(Key::Escape), "quit"),
@@ -88,7 +94,8 @@ impl SandboxMode {
 impl State for SandboxMode {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         self.time_travel.record(ui);
-        self.stats.record(ui);
+        self.trip_stats.record(ui);
+        self.thruput_stats.record(ui);
 
         {
             let mut txt = Text::prompt("Sandbox Mode");
@@ -124,7 +131,18 @@ impl State for SandboxMode {
             return Transition::Push(Box::new(score::Scoreboard::new(ctx, ui)));
         }
         if self.menu.action("trip stats") {
-            return Transition::Push(Box::new(stats::ShowStats::new(&self.stats, ui, ctx)));
+            if let Some(s) = trip_stats::ShowStats::new(&self.trip_stats, ui, ctx) {
+                return Transition::Push(Box::new(s));
+            } else {
+                println!("No trip stats available");
+            }
+        }
+        if self.menu.action("throughput stats") {
+            return Transition::Push(Box::new(thruput_stats::ShowStats::new(
+                &self.thruput_stats,
+                ui,
+                ctx,
+            )));
         }
         if self.menu.action("show/hide parking availability") {
             if self.parking_heatmap.is_some() {

@@ -75,6 +75,12 @@ impl<T: Ord + PartialEq> Counter<T> {
     pub fn get(&self, val: T) -> usize {
         self.map.get(&val).cloned().unwrap_or(0)
     }
+
+    pub fn sorted_asc(&self) -> Vec<&T> {
+        let mut list = self.map.iter().collect::<Vec<_>>();
+        list.sort_by_key(|(_, cnt)| *cnt);
+        list.into_iter().map(|(t, _)| t).collect()
+    }
 }
 
 pub fn wraparound_get<T>(vec: &Vec<T>, idx: isize) -> &T {

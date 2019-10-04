@@ -1,7 +1,7 @@
 use crate::mechanics::car::{Car, CarState};
 use crate::mechanics::queue::Queue;
 use crate::{
-    ActionAtEnd, AgentID, CarID, Command, CreateCar, DistanceInterval, DrawCarInput,
+    ActionAtEnd, AgentID, CarID, Command, CreateCar, DistanceInterval, DrawCarInput, Event,
     IntersectionSimState, ParkedCar, ParkingSimState, Scheduler, TimeInterval, TransitSimState,
     TripManager, TripPositions, UnzoomedAgent, WalkingSimState, FOLLOWING_DISTANCE,
 };
@@ -32,6 +32,7 @@ pub struct DrivingSimState {
         deserialize_with = "deserialize_btreemap"
     )]
     queues: BTreeMap<Traversable, Queue>,
+    events: Vec<Event>,
 }
 
 impl DrivingSimState {
@@ -39,6 +40,7 @@ impl DrivingSimState {
         let mut sim = DrivingSimState {
             cars: BTreeMap::new(),
             queues: BTreeMap::new(),
+            events: Vec::new(),
         };
 
         for l in map.all_lanes() {
@@ -342,6 +344,10 @@ impl DrivingSimState {
                 car.state = car.crossing_state(Distance::ZERO, now, map);
                 car.blocked_since = None;
                 scheduler.push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
+                self.events.push(Event::AgentEntersTraversable(
+                    AgentID::Car(car.vehicle.id),
+                    goto,
+                ));
 
                 car.last_steps.push_front(last_step);
                 if goto.length(map) >= car.vehicle.length + FOLLOWING_DISTANCE {
@@ -898,5 +904,9 @@ impl DrivingSimState {
             return true;
         }
         false
+    }
+
+    pub fn collect_events(&mut self) -> Vec<Event> {
+        std::mem::replace(&mut self.events, Vec::new())
     }
 }
