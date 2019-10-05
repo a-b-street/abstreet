@@ -1,7 +1,6 @@
-use crate::screen_geom::ScreenRectangle;
 use crate::{
     hotkey, lctrl, text, Canvas, Color, Event, GeomBatch, GfxCtx, InputResult, Key, Line, MultiKey,
-    ScreenPt, Text, LINE_HEIGHT,
+    ScreenPt, ScreenRectangle, Text, LINE_HEIGHT,
 };
 use geom::{Circle, Distance, Polygon, Pt2D};
 use std::collections::HashSet;

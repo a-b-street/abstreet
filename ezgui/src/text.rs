@@ -1,5 +1,4 @@
-use crate::screen_geom::ScreenRectangle;
-use crate::{Canvas, Color, GfxCtx, ScreenPt};
+use crate::{Canvas, Color, GfxCtx, ScreenPt, ScreenRectangle};
 use geom::{Distance, Polygon, Pt2D};
 use glium_glyph::glyph_brush::rusttype::Scale;
 use glium_glyph::glyph_brush::GlyphCruncher;

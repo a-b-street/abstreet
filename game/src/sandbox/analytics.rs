@@ -1,8 +1,10 @@
+use super::trip_stats::{ShowTripStats, TripStats};
 use crate::common::{ObjectColorer, ObjectColorerBuilder, RoadColorer, RoadColorerBuilder};
 use crate::game::{Transition, WizardState};
 use crate::helpers::ID;
+use crate::render::DrawOptions;
 use crate::sandbox::SandboxMode;
-use crate::ui::UI;
+use crate::ui::{ShowEverything, UI};
 use abstutil::Counter;
 use ezgui::{Choice, Color, EventCtx, GfxCtx, ModalMenu};
 use geom::Duration;
@@ -15,6 +17,7 @@ pub enum Analytics {
     ParkingAvailability(Duration, RoadColorer),
     IntersectionDelay(Duration, ObjectColorer),
     Throughput(Duration, ObjectColorer),
+    FinishedTrips(Duration, ShowTripStats),
 }
 
 impl Analytics {
@@ -24,6 +27,7 @@ impl Analytics {
         ui: &UI,
         menu: &mut ModalMenu,
         thruput_stats: &ThruputStats,
+        trip_stats: &TripStats,
     ) -> Option<Transition> {
         if menu.action("change analytics overlay") {
             return Some(Transition::Push(WizardState::new(Box::new(
@@ -35,12 +39,18 @@ impl Analytics {
                                 Choice::new("parking availability", ()),
                                 Choice::new("intersection delay", ()),
                                 Choice::new("cumulative throughput", ()),
+                                Choice::new("finished trips", ()),
                             ]
                         })?;
                     Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
                         let mut sandbox = state.downcast_mut::<SandboxMode>().unwrap();
-                        sandbox.analytics =
-                            Analytics::recalc(&choice, &sandbox.thruput_stats, ui, ctx);
+                        sandbox.analytics = Analytics::recalc(
+                            &choice,
+                            &sandbox.thruput_stats,
+                            &sandbox.trip_stats,
+                            ui,
+                            ctx,
+                        );
                     })))
                 },
             ))));
@@ -53,9 +63,10 @@ impl Analytics {
             Analytics::ParkingAvailability(t, _) => ("parking availability", *t),
             Analytics::IntersectionDelay(t, _) => ("intersection delay", *t),
             Analytics::Throughput(t, _) => ("cumulative throughput", *t),
+            Analytics::FinishedTrips(t, _) => ("finished trips", *t),
         };
         if time != ui.primary.sim.time() {
-            *self = Analytics::recalc(choice, thruput_stats, ui, ctx);
+            *self = Analytics::recalc(choice, thruput_stats, trip_stats, ui, ctx);
         }
         None
     }
@@ -73,12 +84,23 @@ impl Analytics {
                 heatmap.draw(g, ui);
                 true
             }
+            Analytics::FinishedTrips(_, ref s) => {
+                ui.draw(
+                    g,
+                    DrawOptions::new(),
+                    &ui.primary.sim,
+                    &ShowEverything::new(),
+                );
+                s.draw(g);
+                true
+            }
         }
     }
 
     fn recalc(
         choice: &str,
         thruput_stats: &ThruputStats,
+        trip_stats: &TripStats,
         ui: &UI,
         ctx: &mut EventCtx,
     ) -> Analytics {
@@ -93,6 +115,14 @@ impl Analytics {
             }
             "cumulative throughput" => {
                 Analytics::Throughput(time, calculate_thruput(thruput_stats, ctx, ui))
+            }
+            "finished trips" => {
+                if let Some(s) = ShowTripStats::new(trip_stats, ui, ctx) {
+                    Analytics::FinishedTrips(time, s)
+                } else {
+                    println!("No trip stats available. Pass --record_stats or make sure at least one trip is done.");
+                    Analytics::Inactive
+                }
             }
             _ => unreachable!(),
         }

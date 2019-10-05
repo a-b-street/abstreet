@@ -1,9 +1,7 @@
 use crate::common::ColorLegend;
-use crate::game::{State, Transition};
 use crate::ui::UI;
 use ezgui::{
-    hotkey, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu, MultiText,
-    ScreenPt, Text,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, MultiText, ScreenPt, ScreenRectangle, Text,
 };
 use geom::{Distance, Duration, PolyLine, Polygon, Pt2D};
 use sim::TripMode;
@@ -76,35 +74,15 @@ impl TripStats {
     }
 }
 
-pub struct ShowStats {
-    menu: ModalMenu,
+pub struct ShowTripStats {
     draw: Drawable,
     legend: ColorLegend,
     labels: MultiText,
+    rect: ScreenRectangle,
 }
 
-impl State for ShowStats {
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
-        self.menu.handle_event(ctx, None);
-        if self.menu.action("quit") {
-            return Transition::Pop;
-        }
-        Transition::Keep
-    }
-
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
-        self.menu.draw(g);
-        self.legend.draw(g);
-
-        g.fork_screenspace();
-        g.redraw(&self.draw);
-        g.unfork();
-        self.labels.draw(g);
-    }
-}
-
-impl ShowStats {
-    pub fn new(stats: &TripStats, ui: &UI, ctx: &mut EventCtx) -> Option<ShowStats> {
+impl ShowTripStats {
+    pub fn new(stats: &TripStats, ui: &UI, ctx: &mut EventCtx) -> Option<ShowTripStats> {
         if stats.samples.is_empty() {
             return None;
         }
@@ -174,7 +152,7 @@ impl ShowStats {
             );
         }
         // X-axis labels (currently nonlinear!)
-        {
+        if stats.samples.len() > 1 {
             let num_pts = stats.samples.len().min(5);
             for i in 0..num_pts {
                 let percent_x = (i as f64) / ((num_pts - 1) as f64);
@@ -218,12 +196,22 @@ impl ShowStats {
             "{} samples",
             abstutil::prettyprint_usize(stats.samples.len())
         )));
-        Some(ShowStats {
-            menu: ModalMenu::new("Trip Stats", vec![vec![(hotkey(Key::Escape), "quit")]], ctx)
-                .set_prompt(ctx, txt),
+        Some(ShowTripStats {
             draw: ctx.prerender.upload(batch),
             labels,
             legend,
+            rect: ScreenRectangle { x1, y1, x2, y2 },
         })
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx) {
+        self.legend.draw(g);
+
+        g.fork_screenspace();
+        g.redraw(&self.draw);
+        g.unfork();
+        self.labels.draw(g);
+
+        g.canvas.mark_covered_area(self.rect.clone());
     }
 }

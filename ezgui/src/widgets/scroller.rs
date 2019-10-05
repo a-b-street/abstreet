@@ -1,5 +1,6 @@
-use crate::screen_geom::ScreenRectangle;
-use crate::{Canvas, Color, EventCtx, GfxCtx, Line, ScreenDims, ScreenPt, Text, LINE_HEIGHT};
+use crate::{
+    Canvas, Color, EventCtx, GfxCtx, Line, ScreenDims, ScreenPt, ScreenRectangle, Text, LINE_HEIGHT,
+};
 use geom::{Distance, Polygon, Pt2D};
 use ordered_float::NotNan;
 

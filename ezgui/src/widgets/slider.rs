@@ -1,8 +1,7 @@
-use crate::screen_geom::ScreenRectangle;
 use crate::widgets::text_box::TextBox;
 use crate::{
     hotkey, Canvas, Color, EventCtx, EventLoopMode, GfxCtx, InputResult, Key, Line, ModalMenu,
-    MultiKey, ScreenPt, Text, Warper, LINE_HEIGHT,
+    MultiKey, ScreenPt, ScreenRectangle, Text, Warper, LINE_HEIGHT,
 };
 use geom::{Distance, Duration, Polygon, Pt2D};
 

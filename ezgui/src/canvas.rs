@@ -1,5 +1,4 @@
-use crate::screen_geom::ScreenRectangle;
-use crate::{Color, ScreenPt, Text, UserInput};
+use crate::{Color, ScreenPt, ScreenRectangle, Text, UserInput};
 use geom::{Bounds, Pt2D};
 use glium::texture::Texture2d;
 use glium_glyph::glyph_brush::rusttype::Scale;

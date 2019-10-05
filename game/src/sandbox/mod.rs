@@ -64,7 +64,6 @@ impl SandboxMode {
                         // TODO Strange to always have this. Really it's a case of stacked modal?
                         (hotkey(Key::T), "start time traveling"),
                         (hotkey(Key::Q), "scoreboard"),
-                        (None, "trip stats"),
                         (hotkey(Key::L), "change analytics overlay"),
                     ],
                     vec![
@@ -102,10 +101,13 @@ impl State for SandboxMode {
         if let Some(t) = self.common.event(ctx, ui, &mut self.menu) {
             return t;
         }
-        if let Some(t) = self
-            .analytics
-            .event(ctx, ui, &mut self.menu, &self.thruput_stats)
-        {
+        if let Some(t) = self.analytics.event(
+            ctx,
+            ui,
+            &mut self.menu,
+            &self.thruput_stats,
+            &self.trip_stats,
+        ) {
             return t;
         }
 
@@ -127,13 +129,6 @@ impl State for SandboxMode {
         }
         if self.menu.action("scoreboard") {
             return Transition::Push(Box::new(score::Scoreboard::new(ctx, ui)));
-        }
-        if self.menu.action("trip stats") {
-            if let Some(s) = trip_stats::ShowStats::new(&self.trip_stats, ui, ctx) {
-                return Transition::Push(Box::new(s));
-            } else {
-                println!("No trip stats available");
-            }
         }
 
         if self.menu.action("quit") {
