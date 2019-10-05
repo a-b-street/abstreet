@@ -8,7 +8,7 @@ use crate::ui::{ShowEverything, UI};
 use abstutil::Counter;
 use ezgui::{Choice, Color, EventCtx, GfxCtx, ModalMenu};
 use geom::Duration;
-use map_model::{IntersectionID, RoadID, Traversable};
+use map_model::{IntersectionID, PathStep, RoadID, Traversable};
 use sim::{Event, ParkingSpot};
 use std::collections::HashSet;
 
@@ -18,6 +18,7 @@ pub enum Analytics {
     IntersectionDelay(Duration, ObjectColorer),
     Throughput(Duration, ObjectColorer),
     FinishedTrips(Duration, ShowTripStats),
+    Chokepoints(Duration, ObjectColorer),
 }
 
 impl Analytics {
@@ -40,6 +41,7 @@ impl Analytics {
                                 Choice::new("intersection delay", ()),
                                 Choice::new("cumulative throughput", ()),
                                 Choice::new("finished trips", ()),
+                                Choice::new("chokepoints", ()),
                             ]
                         })?;
                     Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
@@ -64,6 +66,7 @@ impl Analytics {
             Analytics::IntersectionDelay(t, _) => ("intersection delay", *t),
             Analytics::Throughput(t, _) => ("cumulative throughput", *t),
             Analytics::FinishedTrips(t, _) => ("finished trips", *t),
+            Analytics::Chokepoints(t, _) => ("chokepoints", *t),
         };
         if time != ui.primary.sim.time() {
             *self = Analytics::recalc(choice, thruput_stats, trip_stats, ui, ctx);
@@ -80,7 +83,8 @@ impl Analytics {
                 true
             }
             Analytics::IntersectionDelay(_, ref heatmap)
-            | Analytics::Throughput(_, ref heatmap) => {
+            | Analytics::Throughput(_, ref heatmap)
+            | Analytics::Chokepoints(_, ref heatmap) => {
                 heatmap.draw(g, ui);
                 true
             }
@@ -124,6 +128,7 @@ impl Analytics {
                     Analytics::Inactive
                 }
             }
+            "chokepoints" => Analytics::Chokepoints(time, calculate_chokepoints(ctx, ui)),
             _ => unreachable!(),
         }
     }
@@ -212,6 +217,45 @@ fn calculate_intersection_delay(ctx: &mut EventCtx, ui: &UI) -> ObjectColorer {
             };
             colorer.add(ID::Intersection(i.id), color);
         }
+    }
+
+    colorer.build(ctx, &ui.primary.map)
+}
+
+fn calculate_chokepoints(ctx: &mut EventCtx, ui: &UI) -> ObjectColorer {
+    const TOP_N: usize = 10;
+
+    let mut colorer = ObjectColorerBuilder::new("chokepoints", vec![("chokepoint", Color::RED)]);
+
+    let mut per_road = Counter::new();
+    let mut per_intersection = Counter::new();
+
+    for a in ui.primary.sim.active_agents() {
+        // Why would an active agent not have a path? Pedestrian riding a bus.
+        if let Some(path) = ui.primary.sim.get_path(a) {
+            for step in path.get_steps() {
+                match step {
+                    PathStep::Lane(l) | PathStep::ContraflowLane(l) => {
+                        per_road.inc(ui.primary.map.get_l(*l).parent);
+                    }
+                    PathStep::Turn(t) => {
+                        per_intersection.inc(t.parent);
+                    }
+                }
+            }
+        }
+    }
+
+    let mut roads = per_road.sorted_asc();
+    roads.reverse();
+    for r in roads.into_iter().take(TOP_N) {
+        colorer.add(ID::Road(*r), Color::RED);
+    }
+
+    let mut intersections = per_intersection.sorted_asc();
+    intersections.reverse();
+    for i in intersections.into_iter().take(TOP_N) {
+        colorer.add(ID::Intersection(*i), Color::RED);
     }
 
     colorer.build(ctx, &ui.primary.map)

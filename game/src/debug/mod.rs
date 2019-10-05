@@ -1,5 +1,4 @@
 mod bus_explorer;
-mod chokepoints;
 mod color_picker;
 mod connected_roads;
 mod floodfill;
@@ -24,7 +23,6 @@ use std::collections::HashSet;
 pub struct DebugMode {
     menu: ModalMenu,
     common: CommonState,
-    chokepoints: Option<chokepoints::ChokepointsFinder>,
     connected_roads: connected_roads::ShowConnectedRoads,
     objects: objects::ObjectDebugger,
     hidden: HashSet<ID>,
@@ -41,7 +39,6 @@ impl DebugMode {
                 "Debug Mode",
                 vec![
                     vec![
-                        (hotkey(Key::C), "show/hide chokepoints"),
                         (hotkey(Key::Num1), "show/hide buildings"),
                         (hotkey(Key::Num2), "show/hide intersections"),
                         (hotkey(Key::Num3), "show/hide lanes"),
@@ -74,7 +71,6 @@ impl DebugMode {
                 ctx,
             ),
             common: CommonState::new(),
-            chokepoints: None,
             connected_roads: connected_roads::ShowConnectedRoads::new(),
             objects: objects::ObjectDebugger::new(),
             hidden: HashSet::new(),
@@ -99,9 +95,6 @@ impl State for DebugMode {
         }
 
         let mut txt = Text::prompt("Debug Mode");
-        if self.chokepoints.is_some() {
-            txt.add(Line("Showing chokepoints"));
-        }
         if !self.hidden.is_empty() {
             txt.add(Line(format!("Hiding {} things", self.hidden.len())));
         }
@@ -129,14 +122,6 @@ impl State for DebugMode {
             return Transition::Pop;
         }
 
-        if self.menu.action("show/hide chokepoints") {
-            if self.chokepoints.is_some() {
-                self.chokepoints = None;
-            } else {
-                // TODO Nothing will actually exist. ;)
-                self.chokepoints = Some(chokepoints::ChokepointsFinder::new(&ui.primary.sim));
-            }
-        }
         self.all_routes.event(ui, &mut self.menu);
         match ui.primary.current_selection {
             Some(ID::Lane(_)) | Some(ID::Intersection(_)) | Some(ID::ExtraShape(_)) => {
@@ -247,15 +232,6 @@ impl State for DebugMode {
         opts.label_buildings = self.layers.show_labels;
         opts.label_roads = self.layers.show_labels;
         opts.geom_debug_mode = self.layers.geom_debug_mode;
-        if let Some(ref chokepoints) = self.chokepoints {
-            let color = ui.cs.get_def("chokepoint", Color::RED);
-            for l in &chokepoints.lanes {
-                opts.override_colors.insert(ID::Lane(*l), color);
-            }
-            for i in &chokepoints.intersections {
-                opts.override_colors.insert(ID::Intersection(*i), color);
-            }
-        }
         for l in &self.connected_roads.lanes {
             opts.override_colors.insert(
                 ID::Lane(*l),
