@@ -1,36 +1,31 @@
+mod analytics;
 mod score;
 mod spawner;
-mod thruput_stats;
 mod time_travel;
 mod trip_stats;
 
 use crate::common::{
-    time_controls, AgentTools, CommonState, ObjectColorer, ObjectColorerBuilder, RoadColorer,
-    RoadColorerBuilder, RouteExplorer, SpeedControls, TripExplorer,
+    time_controls, AgentTools, CommonState, RouteExplorer, SpeedControls, TripExplorer,
 };
 use crate::debug::DebugMode;
 use crate::edit::EditMode;
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
-use crate::ui::{PerMapUI, ShowEverything, UI};
-use abstutil::Counter;
+use crate::ui::{ShowEverything, UI};
 use ezgui::{
-    hotkey, lctrl, Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, ModalMenu, Text,
-    Wizard,
+    hotkey, lctrl, Choice, EventCtx, EventLoopMode, GfxCtx, Key, Line, ModalMenu, Text, Wizard,
 };
 use geom::Duration;
-use sim::{ParkingSpot, Sim};
-use std::collections::HashSet;
+use sim::Sim;
 
 pub struct SandboxMode {
     speed: SpeedControls,
     agent_tools: AgentTools,
     pub time_travel: time_travel::InactiveTimeTravel,
     trip_stats: trip_stats::TripStats,
-    thruput_stats: thruput_stats::ThruputStats,
+    thruput_stats: analytics::ThruputStats,
+    analytics: analytics::Analytics,
     common: CommonState,
-    parking_heatmap: Option<(Duration, RoadColorer)>,
-    intersection_delay_heatmap: Option<(Duration, ObjectColorer)>,
     menu: ModalMenu,
 }
 
@@ -43,10 +38,9 @@ impl SandboxMode {
             trip_stats: trip_stats::TripStats::new(
                 ui.primary.current_flags.sim_flags.opts.record_stats,
             ),
-            thruput_stats: thruput_stats::ThruputStats::new(),
+            thruput_stats: analytics::ThruputStats::new(),
+            analytics: analytics::Analytics::Inactive,
             common: CommonState::new(),
-            parking_heatmap: None,
-            intersection_delay_heatmap: None,
             menu: ModalMenu::new(
                 "Sandbox Mode",
                 vec![
@@ -68,12 +62,10 @@ impl SandboxMode {
                     ],
                     vec![
                         // TODO Strange to always have this. Really it's a case of stacked modal?
-                        (hotkey(Key::A), "show/hide parking availability"),
-                        (hotkey(Key::I), "show/hide intersection delay"),
                         (hotkey(Key::T), "start time traveling"),
                         (hotkey(Key::Q), "scoreboard"),
                         (None, "trip stats"),
-                        (None, "throughput stats"),
+                        (hotkey(Key::L), "change analytics overlay"),
                     ],
                     vec![
                         (hotkey(Key::Escape), "quit"),
@@ -110,6 +102,12 @@ impl State for SandboxMode {
         if let Some(t) = self.common.event(ctx, ui, &mut self.menu) {
             return t;
         }
+        if let Some(t) = self
+            .analytics
+            .event(ctx, ui, &mut self.menu, &self.thruput_stats)
+        {
+            return t;
+        }
 
         if let Some(new_state) = spawner::AgentSpawner::new(ctx, ui, &mut self.menu) {
             return Transition::Push(new_state);
@@ -136,55 +134,6 @@ impl State for SandboxMode {
             } else {
                 println!("No trip stats available");
             }
-        }
-        if self.menu.action("throughput stats") {
-            return Transition::Push(Box::new(thruput_stats::ShowStats::new(
-                &self.thruput_stats,
-                ui,
-                ctx,
-            )));
-        }
-        if self.menu.action("show/hide parking availability") {
-            if self.parking_heatmap.is_some() {
-                self.parking_heatmap = None;
-            } else {
-                self.parking_heatmap = Some((
-                    ui.primary.sim.time(),
-                    calculate_parking_heatmap(ctx, &ui.primary),
-                ));
-            }
-        }
-        if self
-            .parking_heatmap
-            .as_ref()
-            .map(|(t, _)| *t != ui.primary.sim.time())
-            .unwrap_or(false)
-        {
-            self.parking_heatmap = Some((
-                ui.primary.sim.time(),
-                calculate_parking_heatmap(ctx, &ui.primary),
-            ));
-        }
-        if self.menu.action("show/hide intersection delay") {
-            if self.intersection_delay_heatmap.is_some() {
-                self.intersection_delay_heatmap = None;
-            } else {
-                self.intersection_delay_heatmap = Some((
-                    ui.primary.sim.time(),
-                    calculate_intersection_delay(ctx, &ui.primary),
-                ));
-            }
-        }
-        if self
-            .intersection_delay_heatmap
-            .as_ref()
-            .map(|(t, _)| *t != ui.primary.sim.time())
-            .unwrap_or(false)
-        {
-            self.intersection_delay_heatmap = Some((
-                ui.primary.sim.time(),
-                calculate_intersection_delay(ctx, &ui.primary),
-            ));
         }
 
         if self.menu.action("quit") {
@@ -293,11 +242,8 @@ impl State for SandboxMode {
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        // TODO Oh no, these're actually exclusive, represent that better.
-        if let Some((_, ref c)) = self.parking_heatmap {
-            c.draw(g, ui);
-        } else if let Some((_, ref c)) = self.intersection_delay_heatmap {
-            c.draw(g, ui);
+        if self.analytics.draw(g, ui) {
+            // Don't draw agent tools!
         } else {
             ui.draw(
                 g,
@@ -305,9 +251,9 @@ impl State for SandboxMode {
                 &ui.primary.sim,
                 &ShowEverything::new(),
             );
+            self.agent_tools.draw(g, ui);
         }
         self.common.draw(g, ui);
-        self.agent_tools.draw(g, ui);
         self.menu.draw(g);
         self.speed.draw(g);
     }
@@ -329,91 +275,4 @@ fn load_savestate(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<T
         ui.recalculate_current_selection(ctx);
     });
     Some(Transition::Pop)
-}
-
-fn calculate_parking_heatmap(ctx: &mut EventCtx, primary: &PerMapUI) -> RoadColorer {
-    let awful = Color::BLACK;
-    let bad = Color::RED;
-    let meh = Color::YELLOW;
-    let good = Color::GREEN;
-    let mut colorer = RoadColorerBuilder::new(
-        "parking availability",
-        vec![
-            ("< 10%", awful),
-            ("< 30%", bad),
-            ("< 60%", meh),
-            (">= 60%", good),
-        ],
-    );
-
-    let lane = |spot| match spot {
-        ParkingSpot::Onstreet(l, _) => l,
-        ParkingSpot::Offstreet(b, _) => primary
-            .map
-            .get_b(b)
-            .parking
-            .as_ref()
-            .unwrap()
-            .driving_pos
-            .lane(),
-    };
-
-    let mut filled = Counter::new();
-    let mut avail = Counter::new();
-    let mut keys = HashSet::new();
-    let (filled_spots, avail_spots) = primary.sim.get_all_parking_spots();
-    for spot in filled_spots {
-        let l = lane(spot);
-        keys.insert(l);
-        filled.inc(l);
-    }
-    for spot in avail_spots {
-        let l = lane(spot);
-        keys.insert(l);
-        avail.inc(l);
-    }
-
-    for l in keys {
-        let open = avail.get(l);
-        let closed = filled.get(l);
-        let percent = (open as f64) / ((open + closed) as f64);
-        let color = if percent >= 0.6 {
-            good
-        } else if percent > 0.3 {
-            meh
-        } else if percent > 0.1 {
-            bad
-        } else {
-            awful
-        };
-        colorer.add(l, color, &primary.map);
-    }
-
-    colorer.build(ctx, &primary.map)
-}
-
-fn calculate_intersection_delay(ctx: &mut EventCtx, primary: &PerMapUI) -> ObjectColorer {
-    let fast = Color::GREEN;
-    let meh = Color::YELLOW;
-    let slow = Color::RED;
-    let mut colorer = ObjectColorerBuilder::new(
-        "intersection delay (90%ile)",
-        vec![("< 10s", fast), ("<= 60s", meh), ("> 60s", slow)],
-    );
-
-    for i in primary.map.all_intersections() {
-        let delays = primary.sim.get_intersection_delays(i.id);
-        if let Some(d) = delays.percentile(90.0) {
-            let color = if d < Duration::seconds(10.0) {
-                fast
-            } else if d <= Duration::seconds(60.0) {
-                meh
-            } else {
-                slow
-            };
-            colorer.add(ID::Intersection(i.id), color);
-        }
-    }
-
-    colorer.build(ctx, &primary.map)
 }
