@@ -3,7 +3,7 @@ use crate::common::ColorLegend;
 use crate::game::{Transition, WizardState};
 use crate::render::{AgentColorScheme, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::UI;
-use ezgui::{hotkey, Choice, DynamicMenu, EventCtx, GfxCtx, Key};
+use ezgui::{hotkey, Choice, DynamicMenu, EventCtx, GfxCtx, Key, ModalMenu};
 use geom::{Duration, Pt2D};
 use sim::{TripID, TripResult};
 use std::cell::RefCell;
@@ -19,18 +19,20 @@ pub struct AgentTools {
 
 impl AgentTools {
     pub fn new(ctx: &mut EventCtx) -> AgentTools {
-        let mut menu = DynamicMenu::new("Agent Tools", ctx);
-        menu.add_action(hotkey(Key::Semicolon), "change agent colorscheme", ctx);
-
         AgentTools {
             following: None,
             route_viewer: RouteViewer::Inactive,
             agent_cs_legend: RefCell::new(None),
-            menu,
+            menu: DynamicMenu::new("Agent Tools", ctx),
         }
     }
 
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI) -> Option<Transition> {
+    pub fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        ui: &UI,
+        menu: &mut ModalMenu,
+    ) -> Option<Transition> {
         self.menu.handle_event(ctx);
 
         if self.following.is_none() {
@@ -91,7 +93,7 @@ impl AgentTools {
         }
         self.route_viewer.event(ctx, ui, &mut self.menu);
 
-        if self.menu.action("change agent colorscheme") {
+        if menu.action("change agent colorscheme") {
             return Some(Transition::Push(WizardState::new(Box::new(
                 |wiz, ctx, ui| {
                     let (_, acs) = wiz.wrap(ctx).choose("Which colorscheme for agents?", || {

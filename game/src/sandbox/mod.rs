@@ -61,10 +61,10 @@ impl SandboxMode {
                         (hotkey(Key::S), "start a scenario"),
                     ],
                     vec![
-                        // TODO Strange to always have this. Really it's a case of stacked modal?
                         (hotkey(Key::T), "start time traveling"),
                         (hotkey(Key::Q), "scoreboard"),
                         (hotkey(Key::L), "change analytics overlay"),
+                        (hotkey(Key::Semicolon), "change agent colorscheme"),
                     ],
                     vec![
                         (hotkey(Key::Escape), "quit"),
@@ -121,7 +121,7 @@ impl State for SandboxMode {
             return Transition::Push(Box::new(explorer));
         }
 
-        if let Some(t) = self.agent_tools.event(ctx, ui) {
+        if let Some(t) = self.agent_tools.event(ctx, ui, &mut self.menu) {
             return t;
         }
         if ui.primary.current_selection.is_none() && self.menu.action("start time traveling") {
