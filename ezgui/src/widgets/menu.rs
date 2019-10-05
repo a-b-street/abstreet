@@ -12,7 +12,7 @@ const ICON_SYMBOL_SELECTED: Color = Color::grey(0.2);
 
 // Stores some associated data with each choice
 pub struct Menu<T: Clone> {
-    prompt: Text,
+    pub prompt: Text,
     choices: Vec<Choice<T>>,
     current_idx: Option<usize>,
     mouse_in_bounds: bool,
@@ -42,7 +42,6 @@ pub enum Position {
     ScreenCenter,
     SomeCornerAt(ScreenPt),
     TopRightOfScreen,
-    CenterLeft,
 }
 
 impl<T: Clone> Menu<T> {
@@ -482,7 +481,6 @@ impl Position {
                 pt
             }
             Position::TopRightOfScreen => ScreenPt::new(canvas.window_width - total_width, 0.0),
-            Position::CenterLeft => ScreenPt::new(0.0, (canvas.window_height - total_height) / 2.0),
         }
     }
 }

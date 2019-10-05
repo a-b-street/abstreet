@@ -1,6 +1,6 @@
 use crate::helpers::ID;
 use crate::ui::UI;
-use ezgui::{hotkey, Color, DynamicMenu, EventCtx, GfxCtx, Key};
+use ezgui::{hotkey, Color, EventCtx, GfxCtx, Key, ModalMenu};
 use geom::{Duration, PolyLine};
 use map_model::LANE_THICKNESS;
 use sim::{AgentID, TripID, TripResult};
@@ -26,7 +26,7 @@ impl RouteViewer {
         RouteViewer::Inactive
     }
 
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI, menu: &mut DynamicMenu) {
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI, menu: &mut ModalMenu) {
         match self {
             RouteViewer::Inactive => {
                 *self = RouteViewer::recalc(ui);

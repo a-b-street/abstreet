@@ -33,7 +33,7 @@ impl SandboxMode {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> SandboxMode {
         SandboxMode {
             speed: SpeedControls::new(ctx, None),
-            agent_tools: AgentTools::new(ctx),
+            agent_tools: AgentTools::new(),
             time_travel: time_travel::InactiveTimeTravel::new(),
             trip_stats: trip_stats::TripStats::new(
                 ui.primary.current_flags.sim_flags.opts.record_stats,
