@@ -122,9 +122,10 @@ impl GUI for UI {
                             self.model.world.handle_mouseover(ctx);
                         } else if ctx.input.key_pressed(Key::L, "label side of the road") {
                             self.state = State::LabelingRoad((r, dir), Wizard::new());
-                        } else if self.model.showing_pts.is_none()
-                            && ctx.input.key_pressed(Key::P, "move road points")
-                        {
+                        } else if ctx.input.key_pressed(Key::P, "move road points") {
+                            if self.model.showing_pts.is_some() {
+                                self.model.stop_showing_pts();
+                            }
                             self.model.show_r_points(r, ctx.prerender);
                             self.model.world.handle_mouseover(ctx);
                         } else if ctx.input.key_pressed(Key::M, "merge road") {

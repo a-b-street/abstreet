@@ -1,4 +1,4 @@
-use abstutil::{FileWithProgress, Timer};
+use abstutil::{prettyprint_usize, FileWithProgress, Timer};
 use geom::{GPSBounds, LonLat};
 use quick_xml::events::Event;
 use quick_xml::Reader;
@@ -97,9 +97,9 @@ pub fn load(
 
     println!(
         "Got {} shapes from {} and skipped {} shapes",
-        shapes.len(),
+        prettyprint_usize(shapes.len()),
         path,
-        skipped_count
+        prettyprint_usize(skipped_count)
     );
     done(timer);
 
