@@ -13,7 +13,8 @@ use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::ui::{ShowEverything, UI};
 use ezgui::{
-    hotkey, lctrl, Choice, EventCtx, EventLoopMode, GfxCtx, Key, Line, ModalMenu, Text, Wizard,
+    hotkey, lctrl, Choice, EventCtx, EventLoopMode, GfxCtx, Key, Line, ModalMenu, ScreenPt, Text,
+    Wizard,
 };
 use geom::Duration;
 use sim::Sim;
@@ -32,7 +33,7 @@ pub struct SandboxMode {
 impl SandboxMode {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> SandboxMode {
         SandboxMode {
-            speed: SpeedControls::new(ctx, None),
+            speed: SpeedControls::new(ctx, ScreenPt::new(0.0, 0.0)),
             agent_tools: AgentTools::new(),
             time_travel: time_travel::InactiveTimeTravel::new(),
             trip_stats: trip_stats::TripStats::new(
@@ -45,9 +46,6 @@ impl SandboxMode {
                 "Sandbox Mode",
                 vec![
                     vec![
-                        (hotkey(Key::RightBracket), "speed up"),
-                        (hotkey(Key::LeftBracket), "slow down"),
-                        (hotkey(Key::Space), "pause/resume"),
                         (hotkey(Key::M), "step forwards 0.1s"),
                         (hotkey(Key::N), "step forwards 10 mins"),
                         (hotkey(Key::B), "jump to specific time"),
@@ -164,7 +162,7 @@ impl State for SandboxMode {
             }
         }
 
-        if let Some(dt) = self.speed.event(ctx, &mut self.menu, ui.primary.sim.time()) {
+        if let Some(dt) = self.speed.event(ctx, ui.primary.sim.time()) {
             // If speed is too high, don't be unresponsive for too long.
             // TODO This should probably match the ezgui framerate.
             ui.primary

@@ -9,7 +9,8 @@ use crate::game::{State, Transition};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::{PerMapUI, UI};
 use ezgui::{
-    hotkey, lctrl, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu, Text,
+    hotkey, lctrl, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu,
+    ScreenPt, Text,
 };
 use geom::{Circle, Distance, Line, PolyLine};
 use map_model::{Map, LANE_THICKNESS};
@@ -37,9 +38,6 @@ impl ABTestMode {
                 "A/B Test Mode",
                 vec![
                     vec![
-                        (hotkey(Key::LeftBracket), "slow down"),
-                        (hotkey(Key::RightBracket), "speed up"),
-                        (hotkey(Key::Space), "pause/resume"),
                         (hotkey(Key::M), "step forwards 0.1s"),
                         (hotkey(Key::N), "step forwards 10 mins"),
                         (hotkey(Key::B), "jump to specific time"),
@@ -64,7 +62,7 @@ impl ABTestMode {
                 ],
                 ctx,
             ),
-            speed: SpeedControls::new(ctx, None),
+            speed: SpeedControls::new(ctx, ScreenPt::new(0.0, 0.0)),
             primary_agent_tools: AgentTools::new(),
             secondary_agent_tools: AgentTools::new(),
             diff_trip: None,
@@ -191,7 +189,7 @@ impl State for ABTestMode {
             }
         }
 
-        if let Some(dt) = self.speed.event(ctx, &mut self.menu, ui.primary.sim.time()) {
+        if let Some(dt) = self.speed.event(ctx, ui.primary.sim.time()) {
             ui.primary.sim.step(&ui.primary.map, dt);
             {
                 let s = ui.secondary.as_mut().unwrap();

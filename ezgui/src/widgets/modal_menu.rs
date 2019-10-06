@@ -1,10 +1,18 @@
 use crate::widgets::{Menu, Position};
-use crate::{EventCtx, GfxCtx, InputResult, MultiKey, Text};
+use crate::{EventCtx, GfxCtx, InputResult, MultiKey, ScreenPt, Slider, Text};
+
+#[derive(Clone, Copy)]
+pub enum SidebarPos {
+    Left,
+    Right,
+    At(ScreenPt),
+}
 
 pub struct ModalMenu {
     menu: Menu<()>,
     chosen_action: Option<String>,
     choice_groups: Vec<Vec<(Option<MultiKey>, String, ())>>,
+    pos: SidebarPos,
 }
 
 impl ModalMenu {
@@ -22,12 +30,13 @@ impl ModalMenu {
                     .collect()
             })
             .collect();
+        let pos = SidebarPos::Right;
         let mut menu = Menu::new(
             Text::prompt(prompt_line),
             choice_groups.clone(),
             false,
             true,
-            Position::TopRightOfScreen,
+            pos.pos(),
             ctx.canvas,
         );
         menu.mark_all_inactive();
@@ -38,7 +47,19 @@ impl ModalMenu {
             menu,
             chosen_action: None,
             choice_groups,
+            pos,
         }
+    }
+
+    pub fn set_prompt(mut self, ctx: &mut EventCtx, prompt: Text) -> ModalMenu {
+        self.menu.change_prompt(prompt, ctx.canvas);
+        self
+    }
+
+    pub fn set_pos(mut self, ctx: &mut EventCtx, pos: SidebarPos) -> ModalMenu {
+        self.pos = pos;
+        self.rebuild_menu(ctx);
+        self
     }
 
     pub fn handle_event(&mut self, ctx: &mut EventCtx, new_prompt: Option<Text>) {
@@ -61,11 +82,6 @@ impl ModalMenu {
         if let Some(txt) = new_prompt {
             self.menu.change_prompt(txt, ctx.canvas);
         }
-    }
-
-    pub fn set_prompt(mut self, ctx: &mut EventCtx, prompt: Text) -> ModalMenu {
-        self.menu.change_prompt(prompt, ctx.canvas);
-        self
     }
 
     pub fn add_action(&mut self, key: Option<MultiKey>, name: &str, ctx: &mut EventCtx) {
@@ -115,7 +131,7 @@ impl ModalMenu {
             self.choice_groups.clone(),
             false,
             true,
-            Position::TopRightOfScreen,
+            self.pos.pos(),
             ctx.canvas,
         );
         menu.mark_all_inactive();
@@ -125,5 +141,20 @@ impl ModalMenu {
         menu.change_prompt(self.menu.prompt.clone(), ctx.canvas);
 
         self.menu = menu;
+    }
+}
+
+impl SidebarPos {
+    fn pos(&self) -> Position {
+        match self {
+            SidebarPos::Left => Position::SomeCornerAt(ScreenPt::new(0.0, 0.0)),
+            SidebarPos::Right => Position::TopRightOfScreen,
+            SidebarPos::At(pt) => Position::SomeCornerAt(*pt),
+        }
+    }
+
+    // TODO Assumes the slider never moves
+    pub fn below(slider: &Slider) -> SidebarPos {
+        SidebarPos::At(slider.below_top_left())
     }
 }

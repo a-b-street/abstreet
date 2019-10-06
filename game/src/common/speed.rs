@@ -1,5 +1,5 @@
 use abstutil::elapsed_seconds;
-use ezgui::{EventCtx, GfxCtx, Line, ModalMenu, ScreenPt, Slider, Text};
+use ezgui::{hotkey, EventCtx, GfxCtx, Key, Line, ModalMenu, ScreenPt, SidebarPos, Slider, Text};
 use geom::Duration;
 use std::time::Instant;
 
@@ -9,6 +9,7 @@ const SPEED_CAP: f64 = 10.0 * 60.0;
 
 pub struct SpeedControls {
     slider: Slider,
+    menu: ModalMenu,
     state: State,
 }
 
@@ -23,27 +24,54 @@ enum State {
 }
 
 impl SpeedControls {
-    pub fn new(ctx: &mut EventCtx, top_left_at: Option<ScreenPt>) -> SpeedControls {
+    pub fn new(ctx: &mut EventCtx, top_left_at: ScreenPt) -> SpeedControls {
         let mut slider = Slider::new(top_left_at);
         slider.set_percent(ctx, 1.0 / SPEED_CAP);
+
+        let menu = ModalMenu::new(
+            "Speed",
+            vec![vec![
+                (hotkey(Key::LeftBracket), "slow down"),
+                (hotkey(Key::RightBracket), "speed up"),
+                (hotkey(Key::Space), "pause/resume"),
+            ]],
+            ctx,
+        )
+        .set_pos(ctx, SidebarPos::below(&slider));
+
         SpeedControls {
             slider,
+            menu,
             state: State::Paused,
         }
     }
 
     // Returns the amount of simulation time to step, if running.
-    pub fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        menu: &mut ModalMenu,
-        current_sim_time: Duration,
-    ) -> Option<Duration> {
+    pub fn event(&mut self, ctx: &mut EventCtx, current_sim_time: Duration) -> Option<Duration> {
+        let mut txt = Text::prompt("Speed");
+        if let State::Running {
+            ref speed_description,
+            ..
+        } = self.state
+        {
+            txt.add(Line(format!(
+                "{} / desired {:.2}x",
+                speed_description,
+                self.desired_speed()
+            )));
+        } else {
+            txt.add(Line(format!(
+                "paused / desired {:.2}x",
+                self.desired_speed()
+            )));
+        }
+        self.menu.handle_event(ctx, Some(txt));
+
         let desired_speed = self.desired_speed();
-        if desired_speed != SPEED_CAP && menu.action("speed up") {
+        if desired_speed != SPEED_CAP && self.menu.action("speed up") {
             self.slider
                 .set_percent(ctx, ((desired_speed + ADJUST_SPEED) / SPEED_CAP).min(1.0));
-        } else if desired_speed != 0.0 && menu.action("slow down") {
+        } else if desired_speed != 0.0 && self.menu.action("slow down") {
             self.slider
                 .set_percent(ctx, ((desired_speed - ADJUST_SPEED) / SPEED_CAP).max(0.0));
         } else if self.slider.event(ctx) {
@@ -52,7 +80,7 @@ impl SpeedControls {
 
         match self.state {
             State::Paused => {
-                if menu.action("pause/resume") {
+                if self.menu.action("pause/resume") {
                     let now = Instant::now();
                     self.state = State::Running {
                         last_step: now,
@@ -70,7 +98,7 @@ impl SpeedControls {
                 ref mut last_measurement,
                 ref mut last_measurement_sim,
             } => {
-                if menu.action("pause/resume") {
+                if self.menu.action("pause/resume") {
                     self.state = State::Paused;
                 } else if ctx.input.nonblocking_is_update_event() {
                     ctx.input.use_update_event();
@@ -94,24 +122,8 @@ impl SpeedControls {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        let mut txt = Text::new();
-        if let State::Running {
-            ref speed_description,
-            ..
-        } = self.state
-        {
-            txt.add(Line(format!(
-                "Speed: {} / desired {:.2}x",
-                speed_description,
-                self.desired_speed()
-            )));
-        } else {
-            txt.add(Line(format!(
-                "Speed: paused / desired {:.2}x",
-                self.desired_speed()
-            )));
-        }
-        self.slider.draw(g, Some(txt));
+        self.slider.draw(g);
+        self.menu.draw(g);
     }
 
     pub fn pause(&mut self) {

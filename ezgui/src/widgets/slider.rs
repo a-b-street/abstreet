@@ -15,17 +15,16 @@ const HORIZ_PADDING: f64 = 60.0;
 const VERT_PADDING: f64 = 20.0;
 
 pub struct Slider {
-    top_left: ScreenPt,
+    pub top_left: ScreenPt,
     current_percent: f64,
     mouse_on_slider: bool,
     dragging: bool,
 }
 
 impl Slider {
-    // TODO Easier placement options.
-    pub fn new(top_left_at: Option<ScreenPt>) -> Slider {
+    pub fn new(top_left: ScreenPt) -> Slider {
         Slider {
-            top_left: top_left_at.unwrap_or_else(|| ScreenPt::new(0.0, 0.0)),
+            top_left,
             current_percent: 0.0,
             mouse_on_slider: false,
             dragging: false,
@@ -99,7 +98,7 @@ impl Slider {
         false
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, label: Option<Text>) {
+    pub fn draw(&self, g: &mut GfxCtx) {
         g.fork_screenspace();
 
         // A nice background for the entire thing
@@ -155,16 +154,13 @@ impl Slider {
             },
             &self.slider_geom(),
         );
+    }
 
-        if let Some(ref txt) = label {
-            g.draw_text_at_screenspace_topleft(
-                txt,
-                ScreenPt::new(
-                    self.top_left.x,
-                    self.top_left.y + BAR_HEIGHT + 2.0 * VERT_PADDING,
-                ),
-            );
-        }
+    pub fn below_top_left(&self) -> ScreenPt {
+        ScreenPt::new(
+            self.top_left.x,
+            self.top_left.y + BAR_HEIGHT + 2.0 * VERT_PADDING,
+        )
     }
 
     fn slider_geom(&self) -> Polygon {
@@ -216,7 +212,7 @@ impl<T> ItemSlider<T> {
 
         ItemSlider {
             items,
-            slider: Slider::new(None),
+            slider: Slider::new(ScreenPt::new(0.0, 0.0)),
             menu: ModalMenu::new(menu_title, choices, ctx),
 
             noun: noun.to_string(),
@@ -249,6 +245,7 @@ impl<T> ItemSlider<T> {
 
     pub fn draw(&self, g: &mut GfxCtx) {
         self.menu.draw(g);
+        self.slider.draw(g);
 
         let idx = self.slider.get_value(self.items.len());
         let mut txt = Text::from(Line(format!(
@@ -258,7 +255,7 @@ impl<T> ItemSlider<T> {
             abstutil::prettyprint_usize(self.items.len())
         )));
         txt.extend(&self.items[idx].1);
-        self.slider.draw(g, Some(txt));
+        g.draw_text_at_screenspace_topleft(&txt, self.slider.below_top_left());
     }
 
     pub fn get(&self) -> (usize, &T) {
@@ -358,7 +355,7 @@ impl SliderWithTextBox {
         top_left.y -= (BAR_HEIGHT + 2.0 * VERT_PADDING + LINE_HEIGHT) / 2.0;
 
         SliderWithTextBox {
-            slider: Slider::new(Some(top_left)),
+            slider: Slider::new(top_left),
             tb: TextBox::new(prompt, None),
             low,
             high,
@@ -401,6 +398,7 @@ impl SliderWithTextBox {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        self.slider.draw(g, Some(self.tb.get_text()));
+        self.slider.draw(g);
+        g.draw_text_at_screenspace_topleft(&self.tb.get_text(), self.slider.below_top_left());
     }
 }

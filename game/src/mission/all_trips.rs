@@ -69,19 +69,14 @@ impl TripsVisualizer {
                         (hotkey(Key::F), "goto start of day"),
                         (hotkey(Key::L), "goto end of day"),
                     ],
-                    vec![
-                        (hotkey(Key::LeftBracket), "slow down"),
-                        (hotkey(Key::RightBracket), "speed up"),
-                        (hotkey(Key::Space), "pause/resume"),
-                    ],
                     vec![(hotkey(Key::Escape), "quit")],
                 ],
                 ctx,
             ),
             trips,
-            time_slider: Slider::new(None),
+            time_slider: Slider::new(ScreenPt::new(0.0, 0.0)),
             // TODO hardcoding placement...
-            speed: SpeedControls::new(ctx, Some(ScreenPt::new(500.0, 0.0))),
+            speed: SpeedControls::new(ctx, ScreenPt::new(500.0, 0.0)),
             active_trips: Vec::new(),
         }
     }
@@ -132,7 +127,7 @@ impl State for TripsVisualizer {
             self.time_slider.set_percent(ctx, 1.0);
         } else if self.time_slider.event(ctx) {
             // Value changed, fall-through
-        } else if let Some(dt) = self.speed.event(ctx, &mut self.menu, time) {
+        } else if let Some(dt) = self.speed.event(ctx, time) {
             // TODO Speed description is briefly weird when we jump backwards with the other
             // control.
             self.time_slider
@@ -187,8 +182,11 @@ impl State for TripsVisualizer {
         batch.draw(g);
 
         self.menu.draw(g);
-        self.time_slider
-            .draw(g, Some(Text::from(Line(format!("At {}", time)))));
+        self.time_slider.draw(g);
+        g.draw_text_at_screenspace_topleft(
+            &Text::from(Line(format!("At {}", time))),
+            self.time_slider.below_top_left(),
+        );
         self.speed.draw(g);
         CommonState::draw_osd(g, ui, &ui.primary.current_selection);
     }
