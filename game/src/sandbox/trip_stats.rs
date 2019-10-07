@@ -145,7 +145,7 @@ impl ShowTripStats {
             .unwrap();
         // Y-axis labels
         for i in 0..=5 {
-            let percent = (i as f64) / 5.0;
+            let percent = f64::from(i) / 5.0;
             labels.add(
                 Text::from(Line(((percent * (max_y as f64)) as usize).to_string())),
                 ScreenPt::new(x1, y2 - percent * (y2 - y1)),

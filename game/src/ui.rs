@@ -435,7 +435,6 @@ pub struct Flags {
     pub sim_flags: SimFlags,
     pub kml: Option<String>,
     pub draw_lane_markings: bool,
-    pub enable_profiler: bool,
     // Number of agents to generate when requested. If unspecified, trips to/from borders will be
     // included.
     pub num_agents: Option<usize>,

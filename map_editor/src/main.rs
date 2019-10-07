@@ -599,5 +599,8 @@ fn preview_intersection(
 }
 
 fn main() {
-    ezgui::run("Synthetic map editor", 1800.0, 800.0, |ctx| UI::new(ctx));
+    ezgui::run(
+        ezgui::Settings::new("Synthetic map editor", (1800.0, 800.0)),
+        |ctx| UI::new(ctx),
+    );
 }

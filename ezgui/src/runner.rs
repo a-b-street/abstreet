@@ -17,10 +17,6 @@ pub trait GUI {
     fn dump_before_abort(&self, _canvas: &Canvas) {}
     // Only before a normal exit, like window close
     fn before_quit(&self, _canvas: &Canvas) {}
-
-    fn profiling_enabled(&self) -> bool {
-        false
-    }
 }
 
 #[derive(Clone, PartialEq)]
@@ -152,17 +148,33 @@ impl<G: GUI> State<G> {
     }
 }
 
-pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(
-    window_title: &str,
-    initial_width: f64,
-    initial_height: f64,
-    make_gui: F,
-) {
+pub struct Settings {
+    window_title: String,
+    initial_dims: (f64, f64),
+    profiling_enabled: bool,
+}
+
+impl Settings {
+    pub fn new(window_title: &str, initial_dims: (f64, f64)) -> Settings {
+        Settings {
+            window_title: window_title.to_string(),
+            initial_dims,
+            profiling_enabled: false,
+        }
+    }
+
+    pub fn enable_profiling(&mut self) {
+        assert!(!self.profiling_enabled);
+        self.profiling_enabled = true;
+    }
+}
+
+pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: F) {
     let events_loop = glutin::EventsLoop::new();
     let window = glutin::WindowBuilder::new()
-        .with_title(window_title)
+        .with_title(settings.window_title)
         .with_dimensions(glutin::dpi::LogicalSize::from_physical(
-            glutin::dpi::PhysicalSize::new(initial_width, initial_height),
+            glutin::dpi::PhysicalSize::new(settings.initial_dims.0, settings.initial_dims.1),
             events_loop.get_primary_monitor().get_hidpi_factor(),
         ));
     // multisampling: 2 looks bad, 4 looks fine
@@ -240,8 +252,8 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(
         .build(&display);
 
     let mut canvas = Canvas::new(
-        initial_width,
-        initial_height,
+        settings.initial_dims.0,
+        settings.initial_dims.1,
         screenspace_glyphs,
         mapspace_glyphs,
     );
@@ -265,7 +277,13 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(
         gui,
     };
 
-    loop_forever(state, events_loop, program, prerender);
+    loop_forever(
+        state,
+        events_loop,
+        program,
+        prerender,
+        settings.profiling_enabled,
+    );
 }
 
 fn loop_forever<G: GUI>(
@@ -273,8 +291,9 @@ fn loop_forever<G: GUI>(
     mut events_loop: glutin::EventsLoop,
     program: glium::Program,
     prerender: Prerender,
+    profiling_enabled: bool,
 ) {
-    if state.gui.profiling_enabled() {
+    if profiling_enabled {
         #[cfg(feature = "profiler")]
         {
             cpuprofiler::PROFILER
@@ -295,7 +314,7 @@ fn loop_forever<G: GUI>(
         events_loop.poll_events(|event| {
             if let glutin::Event::WindowEvent { event, .. } = event {
                 if event == glutin::WindowEvent::CloseRequested {
-                    if state.gui.profiling_enabled() {
+                    if profiling_enabled {
                         #[cfg(feature = "profiler")]
                         {
                             cpuprofiler::PROFILER.lock().unwrap().stop().unwrap();

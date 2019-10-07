@@ -109,10 +109,6 @@ impl GUI for Game {
         self.ui.cs.save();
         println!("Saved data/color_scheme.json");
     }
-
-    fn profiling_enabled(&self) -> bool {
-        self.ui.primary.current_flags.enable_profiler
-    }
 }
 
 pub trait State: downcast_rs::Downcast {

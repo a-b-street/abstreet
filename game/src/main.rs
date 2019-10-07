@@ -21,7 +21,6 @@ fn main() {
         sim_flags: SimFlags::from_args(&mut args),
         kml: args.optional("--kml"),
         draw_lane_markings: !args.enabled("--dont_draw_lane_markings"),
-        enable_profiler: args.enabled("--enable_profiler"),
         num_agents: args.optional_parse("--num_agents", |s| s.parse()),
         splash: !args.enabled("--no_splash"),
         textures: !args.enabled("--no_textures"),
@@ -31,9 +30,11 @@ fn main() {
         flags.textures = false;
         flags.sim_flags.rng_seed = Some(42);
     }
+    let mut settings = ezgui::Settings::new("A/B Street", (1800.0, 800.0));
+    if args.enabled("--enable_profiler") {
+        settings.enable_profiling();
+    }
     args.done();
 
-    ezgui::run("A/B Street", 1800.0, 800.0, |ctx| {
-        game::Game::new(flags, ctx)
-    });
+    ezgui::run(settings, |ctx| game::Game::new(flags, ctx));
 }
