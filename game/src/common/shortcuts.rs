@@ -1,15 +1,15 @@
 use crate::common::Warping;
 use crate::game::{State, Transition, WizardState};
 use crate::ui::UI;
-use abstutil::Cloneable;
+use abstutil::{Cloneable, Timer};
 use ezgui::{Choice, EventCtx, EventLoopMode, Key, Wizard};
-use geom::Pt2D;
+use geom::{LonLat, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 
 #[derive(Clone, Serialize, Deserialize)]
 struct Shortcut {
     name: String,
-    center: Pt2D,
+    center: LonLat,
     cam_zoom: f64,
 }
 
@@ -23,7 +23,10 @@ impl ChoosingShortcut {
 }
 
 fn choose_shortcut(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
-    let center = ctx.canvas.center_to_map_pt();
+    let center = ctx
+        .canvas
+        .center_to_map_pt()
+        .forcibly_to_gps(&ui.primary.map.get_gps_bounds());
     let cam_zoom = ctx.canvas.cam_zoom;
 
     let mut wizard = wiz.wrap(ctx);
@@ -47,11 +50,22 @@ fn choose_shortcut(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<
             center,
             cam_zoom,
         }];
-        shortcuts.extend(
-            abstutil::load_all_objects::<Shortcut>(abstutil::SHORTCUTS, ui.primary.map.get_name())
-                .into_iter()
-                .map(|(_, s)| s),
-        );
+        let mut timer = Timer::new("load shortcuts");
+        for name in abstutil::list_all_objects(abstutil::SHORTCUTS, "") {
+            let s: Shortcut =
+                abstutil::read_json(&abstutil::path_shortcut(&name), &mut timer).unwrap();
+            if ui
+                .primary
+                .map
+                .get_boundary_polygon()
+                .contains_pt(Pt2D::forcibly_from_gps(
+                    s.center,
+                    &ui.primary.map.get_gps_bounds(),
+                ))
+            {
+                shortcuts.push(s);
+            }
+        }
         shortcuts
             .into_iter()
             .enumerate()
@@ -68,12 +82,18 @@ fn choose_shortcut(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<
         // TODO Enforce non-empty, unique names
         let name = wizard.input_string("Name this shortcut")?;
         s.name = name;
-        abstutil::save_json_object(abstutil::SHORTCUTS, ui.primary.map.get_name(), &s.name, &s);
+        abstutil::write_json(&abstutil::path_shortcut(&s.name), &s).unwrap();
         wizard.abort();
         Some(Transition::Pop)
     } else {
         Some(Transition::ReplaceWithMode(
-            Warping::new(ctx, s.center, Some(s.cam_zoom), None, &mut ui.primary),
+            Warping::new(
+                ctx,
+                Pt2D::forcibly_from_gps(s.center, &ui.primary.map.get_gps_bounds()),
+                Some(s.cam_zoom),
+                None,
+                &mut ui.primary,
+            ),
             EventLoopMode::Animation,
         ))
     }

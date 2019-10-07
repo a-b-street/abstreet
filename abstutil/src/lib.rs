@@ -95,3 +95,7 @@ pub fn path_camera_state(map_name: &str) -> String {
 pub fn path_pending_screenshots(map_name: &str) -> String {
     format!("../data/screenshots/pending_{}", map_name)
 }
+
+pub fn path_shortcut(name: &str) -> String {
+    format!("../data/shortcuts/{}.json", name)
+}
