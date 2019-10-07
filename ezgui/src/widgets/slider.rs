@@ -1,7 +1,7 @@
 use crate::widgets::text_box::TextBox;
 use crate::{
     hotkey, Canvas, Color, EventCtx, EventLoopMode, GfxCtx, InputResult, Key, Line, ModalMenu,
-    MultiKey, ScreenPt, ScreenRectangle, Text, Warper, LINE_HEIGHT,
+    MultiKey, ScreenPt, ScreenRectangle, Text, Warper,
 };
 use geom::{Distance, Duration, Polygon, Pt2D};
 
@@ -352,7 +352,7 @@ impl SliderWithTextBox {
         // TODO Need to re-center when window is resized
         let mut top_left = canvas.center_to_screen_pt();
         top_left.x -= (BAR_WIDTH + 2.0 * HORIZ_PADDING) / 2.0;
-        top_left.y -= (BAR_HEIGHT + 2.0 * VERT_PADDING + LINE_HEIGHT) / 2.0;
+        top_left.y -= (BAR_HEIGHT + 2.0 * VERT_PADDING + canvas.line_height) / 2.0;
 
         SliderWithTextBox {
             slider: Slider::new(top_left),

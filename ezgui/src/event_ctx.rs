@@ -1,12 +1,9 @@
 use crate::input::ContextMenu;
-use crate::text::FONT_SIZE;
 use crate::{
     Canvas, Color, GfxCtx, HorizontalAlignment, Line, Prerender, Text, UserInput, VerticalAlignment,
 };
 use abstutil::{elapsed_seconds, Timer, TimerSink};
 use glium_glyph::glyph_brush::rusttype::Font;
-use glium_glyph::glyph_brush::rusttype::Scale;
-use glium_glyph::glyph_brush::GlyphCruncher;
 use glium_glyph::GlyphBrush;
 use std::collections::VecDeque;
 use std::time::Instant;
@@ -33,6 +30,7 @@ impl<'a> EventCtx<'a> {
                 self.program,
                 self.canvas.window_width,
                 self.canvas.window_height,
+                self.canvas.font_size,
                 timer_name.to_string(),
             )),
         );
@@ -104,6 +102,7 @@ impl<'a> LoadingScreen<'a> {
         program: &'a glium::Program,
         initial_width: f64,
         initial_height: f64,
+        font_size: usize,
         title: String,
     ) -> LoadingScreen<'a> {
         // TODO Ew! Expensive and wacky. Fix by not storing GlyphBrush in Canvas at all.
@@ -117,21 +116,17 @@ impl<'a> LoadingScreen<'a> {
             initial_height,
             screenspace_glyphs,
             mapspace_glyphs,
+            font_size,
         );
 
-        // TODO Dupe code
-        let vmetrics = canvas.screenspace_glyphs.borrow().fonts()[0]
-            .v_metrics(Scale::uniform(FONT_SIZE as f32));
-        let line_height = f64::from(vmetrics.ascent - vmetrics.descent + vmetrics.line_gap);
-
         LoadingScreen {
-            canvas,
             prerender,
             program,
             lines: VecDeque::new(),
-            max_capacity: (0.8 * initial_height / line_height) as usize,
+            max_capacity: (0.8 * initial_height / canvas.line_height) as usize,
             last_drawn: None,
             title,
+            canvas,
         }
     }
 

@@ -1,6 +1,6 @@
 use crate::{
     hotkey, lctrl, text, Canvas, Color, Event, GeomBatch, GfxCtx, InputResult, Key, Line, MultiKey,
-    ScreenPt, ScreenRectangle, Text, LINE_HEIGHT,
+    ScreenPt, ScreenRectangle, Text,
 };
 use geom::{Circle, Distance, Polygon, Pt2D};
 use std::collections::HashSet;
@@ -74,8 +74,8 @@ impl<T: Clone> Menu<T> {
                 }
                 used_labels.insert(label.clone());
 
-                let dy1 =
-                    ((txt.num_lines() - prompt_lines) as f64) * LINE_HEIGHT + separator_offset;
+                let dy1 = ((txt.num_lines() - prompt_lines) as f64) * canvas.line_height
+                    + separator_offset;
                 if let Some(key) = maybe_key {
                     txt.add(Line(format!("{} - {}", key.describe(), label)));
                 } else {
@@ -90,8 +90,8 @@ impl<T: Clone> Menu<T> {
                     dy1,
                 });
             }
-            separator_offset += LINE_HEIGHT / 2.0;
-            separators.push(choices.last().unwrap().dy1 + LINE_HEIGHT);
+            separator_offset += canvas.line_height / 2.0;
+            separators.push(choices.last().unwrap().dy1 + canvas.line_height);
         }
         // The last one would be at the very bottom of the menu
         separators.pop();
@@ -125,7 +125,9 @@ impl<T: Clone> Menu<T> {
         if self.hideable {
             if let Event::MouseMovedTo(pt) = ev {
                 if !canvas.is_dragging() {
-                    self.icon_selected = self.get_expand_icon().contains_pt(Pt2D::new(pt.x, pt.y));
+                    self.icon_selected = self
+                        .get_expand_icon(canvas)
+                        .contains_pt(Pt2D::new(pt.x, pt.y));
                 }
             }
 
@@ -164,14 +166,14 @@ impl<T: Clone> Menu<T> {
                     for (idx, choice) in self.choices.iter().enumerate() {
                         let y1 = self.top_left.y
                             + choice.dy1
-                            + (self.prompt.num_lines() as f64) * LINE_HEIGHT;
+                            + (self.prompt.num_lines() as f64) * canvas.line_height;
 
                         if choice.active
                             && (ScreenRectangle {
                                 x1: self.top_left.x,
                                 y1,
                                 x2: self.top_left.x + self.total_width,
-                                y2: y1 + LINE_HEIGHT,
+                                y2: y1 + canvas.line_height,
                             }
                             .contains(pt))
                         {
@@ -240,7 +242,7 @@ impl<T: Clone> Menu<T> {
         if self.hidden {
             let mut batch = GeomBatch::new();
             // Draw the expand icon. Hopefully it doesn't clobber the prompt.
-            let icon = self.get_expand_icon();
+            let icon = self.get_expand_icon(g.canvas);
             batch.push(
                 if self.icon_selected {
                     ICON_BACKGROUND_SELECTED
@@ -272,12 +274,12 @@ impl<T: Clone> Menu<T> {
             return;
         }
 
-        let base_y = self.top_left.y + (self.prompt.num_lines() as f64) * LINE_HEIGHT;
+        let base_y = self.top_left.y + (self.prompt.num_lines() as f64) * g.canvas.line_height;
 
         let mut batch = GeomBatch::new();
 
         if let Some(c) = self.choices.last() {
-            let choices_total_height = c.dy1 + LINE_HEIGHT;
+            let choices_total_height = c.dy1 + g.canvas.line_height;
 
             batch.push(
                 text::BG_COLOR,
@@ -299,16 +301,19 @@ impl<T: Clone> Menu<T> {
             batch.push(
                 Color::grey(0.4),
                 Polygon::rectangle_topleft(
-                    Pt2D::new(self.top_left.x, base_y + *dy1 + (LINE_HEIGHT / 4.0)),
+                    Pt2D::new(
+                        self.top_left.x,
+                        base_y + *dy1 + (g.canvas.line_height / 4.0),
+                    ),
                     Distance::meters(self.total_width),
-                    Distance::meters(LINE_HEIGHT / 4.0),
+                    Distance::meters(g.canvas.line_height / 4.0),
                 ),
             );
         }
 
         // Draw the minimize icon. Hopefully it doesn't clobber the prompt.
         if self.hideable {
-            let icon = self.get_expand_icon();
+            let icon = self.get_expand_icon(g.canvas);
             batch.push(
                 if self.icon_selected {
                     ICON_BACKGROUND_SELECTED
@@ -437,8 +442,8 @@ impl<T: Clone> Menu<T> {
         self.prompt.override_width = Some(total_width);
     }
 
-    fn get_expand_icon(&self) -> Circle {
-        let radius = LINE_HEIGHT / 2.0;
+    fn get_expand_icon(&self, canvas: &Canvas) -> Circle {
+        let radius = canvas.line_height / 2.0;
         Circle::new(
             Pt2D::new(
                 self.top_left.x + self.total_width - radius,

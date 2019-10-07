@@ -276,6 +276,7 @@ impl TrafficSignalDiagram {
                 .enumerate()
                 .collect(),
             current_cycle,
+            &ctx.canvas,
         );
 
         TrafficSignalDiagram {

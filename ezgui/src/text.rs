@@ -12,7 +12,6 @@ pub const SELECTED_COLOR: Color = Color::RED;
 pub const HOTKEY_COLOR: Color = Color::GREEN;
 pub const INACTIVE_CHOICE_COLOR: Color = Color::grey(0.4);
 
-pub const FONT_SIZE: usize = 30;
 // TODO Don't do this!
 const MAX_CHAR_WIDTH: f64 = 25.0;
 pub const SCALE_DOWN: f64 = 10.0;
@@ -21,7 +20,7 @@ pub const SCALE_DOWN: f64 = 10.0;
 pub struct TextSpan {
     text: String,
     fg_color: Color,
-    size: usize,
+    size: Option<usize>,
     // TODO bold, italic, font style
 }
 
@@ -33,8 +32,8 @@ impl TextSpan {
     }
 
     pub fn size(mut self, size: usize) -> TextSpan {
-        assert_eq!(self.size, FONT_SIZE);
-        self.size = size;
+        assert_eq!(self.size, None);
+        self.size = Some(size);
         self
     }
 }
@@ -45,7 +44,7 @@ pub fn Line<S: Into<String>>(text: S) -> TextSpan {
     TextSpan {
         text: text.into(),
         fg_color: FG_COLOR,
-        size: FONT_SIZE,
+        size: None,
     }
 }
 
@@ -106,14 +105,14 @@ impl Text {
         }
 
         // Can't override the size mid-line.
-        assert_eq!(line.size, FONT_SIZE);
+        assert_eq!(line.size, None);
         line.size = self
             .lines
             .last()
             .unwrap()
             .1
             .last()
-            .map(|span| span.size)
+            .map(|span| span.size.clone())
             .unwrap();
 
         self.lines.last_mut().unwrap().1.push(line);
@@ -165,7 +164,7 @@ impl Text {
             let mut max_size = 0;
             for span in line {
                 full_line.push_str(&span.text);
-                max_size = max_size.max(span.size);
+                max_size = max_size.max(span.size.unwrap_or(canvas.font_size));
             }
             // Empty lines or whitespace-only lines effectively have 0 width.
             let width = canvas
@@ -218,14 +217,14 @@ pub fn draw_text_bubble(
             text: line
                 .iter()
                 .map(|span| {
-                    max_size = max_size.max(span.size);
+                    max_size = max_size.max(span.size.unwrap_or(g.canvas.font_size));
                     SectionText {
                         text: &span.text,
                         color: match span.fg_color {
                             Color::RGBA(r, g, b, a) => [r, g, b, a],
                             _ => unreachable!(),
                         },
-                        scale: Scale::uniform(span.size as f32),
+                        scale: Scale::uniform(span.size.unwrap_or(g.canvas.font_size) as f32),
                         ..SectionText::default()
                     }
                 })
@@ -289,14 +288,14 @@ pub fn draw_text_bubble_mapspace(
             text: line
                 .iter()
                 .map(|span| {
-                    max_size = max_size.max(span.size);
+                    max_size = max_size.max(span.size.unwrap_or(g.canvas.font_size));
                     SectionText {
                         text: &span.text,
                         color: match span.fg_color {
                             Color::RGBA(r, g, b, a) => [r, g, b, a],
                             _ => unreachable!(),
                         },
-                        scale: Scale::uniform(span.size as f32),
+                        scale: Scale::uniform(span.size.unwrap_or(g.canvas.font_size) as f32),
                         ..SectionText::default()
                     }
                 })

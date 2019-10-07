@@ -1,6 +1,4 @@
-use crate::{
-    Canvas, Color, EventCtx, GfxCtx, Line, ScreenDims, ScreenPt, ScreenRectangle, Text, LINE_HEIGHT,
-};
+use crate::{Canvas, Color, EventCtx, GfxCtx, Line, ScreenDims, ScreenPt, ScreenRectangle, Text};
 use geom::{Distance, Polygon, Pt2D};
 use ordered_float::NotNan;
 
@@ -33,17 +31,24 @@ impl<T: Clone + Copy> Scroller<T> {
         master_topleft: ScreenPt,
         actual_items: Vec<(T, ScreenDims)>,
         current_selection: usize,
+        canvas: &Canvas,
     ) -> Scroller<T> {
         let max_width = actual_items
             .iter()
             .map(|(_, dims)| dims.width)
             .max_by_key(|w| NotNan::new(*w).unwrap())
             .unwrap();
-        let mut items = vec![(Item::UpButton, ScreenDims::new(max_width, LINE_HEIGHT))];
+        let mut items = vec![(
+            Item::UpButton,
+            ScreenDims::new(max_width, canvas.line_height),
+        )];
         for (item, dims) in actual_items {
             items.push((Item::Actual(item), dims));
         }
-        items.push((Item::DownButton, ScreenDims::new(max_width, LINE_HEIGHT)));
+        items.push((
+            Item::DownButton,
+            ScreenDims::new(max_width, canvas.line_height),
+        ));
 
         let top_idx = current_selection;
         // TODO Try to start with current_selection centered, ideally. Or at least start a bit up

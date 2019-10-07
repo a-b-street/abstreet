@@ -40,6 +40,9 @@ pub struct Canvas {
     // TODO Definitely a weird place to stash this!
     pub(crate) textures: Vec<(String, Texture2d)>,
     pub(crate) texture_lookups: HashMap<String, Color>,
+    // Of the default font size
+    pub line_height: f64,
+    pub(crate) font_size: usize,
 }
 
 impl Canvas {
@@ -48,8 +51,9 @@ impl Canvas {
         initial_height: f64,
         screenspace_glyphs: GlyphBrush<'static, 'static>,
         mapspace_glyphs: GlyphBrush<'static, 'static>,
+        font_size: usize,
     ) -> Canvas {
-        Canvas {
+        let mut c = Canvas {
             cam_x: 0.0,
             cam_y: 0.0,
             cam_zoom: 1.0,
@@ -72,7 +76,11 @@ impl Canvas {
 
             textures: Vec::new(),
             texture_lookups: HashMap::new(),
-        }
+            line_height: 0.0,
+            font_size,
+        };
+        c.line_height = c.line_height(c.font_size);
+        c
     }
 
     pub(crate) fn is_dragging(&self) -> bool {

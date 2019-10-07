@@ -34,6 +34,9 @@ fn main() {
     if args.enabled("--enable_profiler") {
         settings.enable_profiling();
     }
+    if let Some(n) = args.optional_parse("--font_size", |s| s.parse::<usize>()) {
+        settings.default_font_size(n);
+    }
     args.done();
 
     ezgui::run(settings, |ctx| game::Game::new(flags, ctx));

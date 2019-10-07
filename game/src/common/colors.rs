@@ -1,7 +1,7 @@
 use crate::helpers::ID;
 use crate::render::{DrawOptions, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::{ShowEverything, UI};
-use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ScreenPt, Text, LINE_HEIGHT};
+use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ScreenPt, Text};
 use geom::{Distance, Polygon, Pt2D};
 use map_model::{LaneID, Map, RoadID};
 use sim::DontDrawAgents;
@@ -172,7 +172,7 @@ impl ColorLegend {
             &txt,
             ScreenPt::new(
                 50.0,
-                g.canvas.window_height - (LINE_HEIGHT * ((self.rows.len() + 2) as f64)),
+                g.canvas.window_height - (g.canvas.line_height * ((self.rows.len() + 2) as f64)),
             ),
         );
 
@@ -183,13 +183,14 @@ impl ColorLegend {
             Polygon::rectangle_topleft(
                 Pt2D::new(
                     0.0,
-                    g.canvas.window_height - (LINE_HEIGHT * ((self.rows.len() + 2) as f64)),
+                    g.canvas.window_height
+                        - (g.canvas.line_height * ((self.rows.len() + 2) as f64)),
                 ),
                 Distance::meters(50.0),
-                Distance::meters(LINE_HEIGHT * ((self.rows.len() + 2) as f64)),
+                Distance::meters(g.canvas.line_height * ((self.rows.len() + 2) as f64)),
             ),
         );
-        let square_dims = 0.8 * LINE_HEIGHT;
+        let square_dims = 0.8 * g.canvas.line_height;
         for (idx, (_, c)) in self.rows.iter().enumerate() {
             let offset_from_bottom = 1 + self.rows.len() - idx;
             batch.push(
@@ -197,8 +198,8 @@ impl ColorLegend {
                 Polygon::rectangle_topleft(
                     Pt2D::new(
                         20.0,
-                        g.canvas.window_height - LINE_HEIGHT * (offset_from_bottom as f64)
-                            + (LINE_HEIGHT - square_dims) / 2.0,
+                        g.canvas.window_height - g.canvas.line_height * (offset_from_bottom as f64)
+                            + (g.canvas.line_height - square_dims) / 2.0,
                     ),
                     Distance::meters(square_dims),
                     Distance::meters(square_dims),

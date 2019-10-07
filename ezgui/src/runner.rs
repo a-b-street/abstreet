@@ -1,5 +1,5 @@
 use crate::input::ContextMenu;
-use crate::{text, widgets, Canvas, Event, EventCtx, GfxCtx, Prerender, UserInput, LINE_HEIGHT};
+use crate::{text, widgets, Canvas, Event, EventCtx, GfxCtx, Prerender, UserInput};
 use glium::glutin;
 use glium_glyph::glyph_brush::rusttype::Font;
 use glium_glyph::{GlyphBrush, GlyphBrushBuilder};
@@ -152,6 +152,7 @@ pub struct Settings {
     window_title: String,
     initial_dims: (f64, f64),
     profiling_enabled: bool,
+    default_font_size: usize,
 }
 
 impl Settings {
@@ -160,12 +161,17 @@ impl Settings {
             window_title: window_title.to_string(),
             initial_dims,
             profiling_enabled: false,
+            default_font_size: 30,
         }
     }
 
     pub fn enable_profiling(&mut self) {
         assert!(!self.profiling_enabled);
         self.profiling_enabled = true;
+    }
+
+    pub fn default_font_size(&mut self, size: usize) {
+        self.default_font_size = size;
     }
 }
 
@@ -256,8 +262,8 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: 
         settings.initial_dims.1,
         screenspace_glyphs,
         mapspace_glyphs,
+        settings.default_font_size,
     );
-    assert_eq!(LINE_HEIGHT, canvas.line_height(text::FONT_SIZE));
     let prerender = Prerender {
         display: &display,
         num_uploads: Cell::new(0),
