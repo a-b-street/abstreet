@@ -45,9 +45,6 @@ impl ScenarioManager {
             cars_needed_per_bldg.insert(b.id, CarCount::new());
         }
         let mut total_cars_needed = CarCount::new();
-        let color = Color::BLUE;
-        let mut bldg_colors =
-            ObjectColorerBuilder::new("trips", vec![("building with trips from/to it", color)]);
         for (idx, trip) in scenario.individ_trips.iter().enumerate() {
             // trips_from_bldg and trips_from_border
             match trip {
@@ -55,14 +52,12 @@ impl ScenarioManager {
                 SpawnTrip::CarAppearing { .. } => {}
                 SpawnTrip::MaybeUsingParkedCar(_, b, _) => {
                     trips_from_bldg.insert(*b, idx);
-                    bldg_colors.add(ID::Building(*b), color);
                 }
                 SpawnTrip::UsingBike(_, ref spot, _)
                 | SpawnTrip::JustWalking(_, ref spot, _)
                 | SpawnTrip::UsingTransit(_, ref spot, _, _, _, _) => match spot.connection {
                     SidewalkPOI::Building(b) => {
                         trips_from_bldg.insert(b, idx);
-                        bldg_colors.add(ID::Building(b), color);
                     }
                     SidewalkPOI::Border(i) => {
                         trips_from_border.insert(i, idx);
@@ -78,7 +73,6 @@ impl ScenarioManager {
                 | SpawnTrip::UsingBike(_, _, ref goal) => match goal {
                     DrivingGoal::ParkNear(b) => {
                         trips_to_bldg.insert(*b, idx);
-                        bldg_colors.add(ID::Building(*b), color);
                     }
                     DrivingGoal::Border(i, _) => {
                         trips_to_border.insert(*i, idx);
@@ -88,7 +82,6 @@ impl ScenarioManager {
                 | SpawnTrip::UsingTransit(_, _, ref spot, _, _, _) => match spot.connection {
                     SidewalkPOI::Building(b) => {
                         trips_to_bldg.insert(b, idx);
-                        bldg_colors.add(ID::Building(b), color);
                     }
                     SidewalkPOI::Border(i) => {
                         trips_to_border.insert(i, idx);
@@ -116,6 +109,27 @@ impl ScenarioManager {
                     cars_needed_per_bldg.get_mut(b).unwrap().available += 1;
                 }
             }
+        }
+
+        let mut bldg_colors = ObjectColorerBuilder::new(
+            "buildings",
+            vec![
+                ("1-2 cars needed", Color::BLUE),
+                ("3-4 cars needed", Color::RED),
+                (">= 5 cars needed", Color::BLACK),
+            ],
+        );
+        for (b, count) in &cars_needed_per_bldg {
+            let color = if count.recycle == 0 {
+                continue;
+            } else if count.recycle == 1 || count.recycle == 2 {
+                Color::BLUE
+            } else if count.recycle == 3 || count.recycle == 4 {
+                Color::RED
+            } else {
+                Color::BLACK
+            };
+            bldg_colors.add(ID::Building(*b), color);
         }
 
         let (filled_spots, free_parking_spots) = ui.primary.sim.get_all_parking_spots();

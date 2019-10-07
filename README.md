@@ -23,8 +23,9 @@ Watching overall traffic patterns and zooming into a few slow areas:
 - [Running A/B Street in a new city](docs/new_city.md)
 - [Features (outdated)](docs/articles/features/article.md)
 - Presentations (nice pictures, but may not be easy to follow without me
-  speaking ;) ) -
-  [Map construction](https://docs.google.com/presentation/d/1cF7qFtjAzkXL_r62CjxBvgQnLvuQ9I2WTE2iX_5tMCY/edit?usp=sharing)
+  speaking ;) )
+  - [Traffic sim and current challenges](https://docs.google.com/presentation/d/1PJRFoXmJAyenkqHIwo48zxqu1LSH6pc7XKSzhyC1raw/edit?usp=sharing)
+  - [Map construction](https://docs.google.com/presentation/d/1cF7qFtjAzkXL_r62CjxBvgQnLvuQ9I2WTE2iX_5tMCY/edit?usp=sharing)
 
 ## Features
 
