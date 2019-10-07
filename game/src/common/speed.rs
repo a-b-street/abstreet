@@ -33,7 +33,7 @@ impl SpeedControls {
             vec![vec![
                 (hotkey(Key::LeftBracket), "slow down"),
                 (hotkey(Key::RightBracket), "speed up"),
-                (hotkey(Key::Space), "pause/resume"),
+                (hotkey(Key::Space), "resume"),
             ]],
             ctx,
         )
@@ -80,7 +80,7 @@ impl SpeedControls {
 
         match self.state {
             State::Paused => {
-                if self.menu.action("pause/resume") {
+                if self.menu.consume_action("resume", ctx) {
                     let now = Instant::now();
                     self.state = State::Running {
                         last_step: now,
@@ -88,6 +88,7 @@ impl SpeedControls {
                         last_measurement: now,
                         last_measurement_sim: current_sim_time,
                     };
+                    self.menu.add_action(hotkey(Key::Space), "pause", ctx);
                     // Sorta hack to trigger EventLoopMode::Animation.
                     return Some(Duration::ZERO);
                 }
@@ -98,8 +99,9 @@ impl SpeedControls {
                 ref mut last_measurement,
                 ref mut last_measurement_sim,
             } => {
-                if self.menu.action("pause/resume") {
+                if self.menu.consume_action("pause", ctx) {
                     self.state = State::Paused;
+                    self.menu.add_action(hotkey(Key::Space), "resume", ctx);
                 } else if ctx.input.nonblocking_is_update_event() {
                     ctx.input.use_update_event();
                     let dt = Duration::seconds(elapsed_seconds(*last_step)) * desired_speed;
