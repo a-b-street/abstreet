@@ -23,11 +23,10 @@ fn main() {
         draw_lane_markings: !args.enabled("--dont_draw_lane_markings"),
         num_agents: args.optional_parse("--num_agents", |s| s.parse()),
         splash: !args.enabled("--no_splash"),
-        textures: !args.enabled("--no_textures"),
+        textures: args.enabled("--textures"),
     };
     if args.enabled("--dev") {
         flags.splash = false;
-        flags.textures = false;
         flags.sim_flags.rng_seed = Some(42);
     }
     let mut settings = ezgui::Settings::new("A/B Street", (1800.0, 800.0));

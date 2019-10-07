@@ -1,7 +1,7 @@
 use crate::widgets::text_box::TextBox;
 use crate::{
     hotkey, Canvas, Color, EventCtx, EventLoopMode, GfxCtx, InputResult, Key, Line, ModalMenu,
-    MultiKey, ScreenPt, ScreenRectangle, Text, Warper,
+    MultiKey, ScreenPt, ScreenRectangle, SidebarPos, Text, Warper,
 };
 use geom::{Distance, Duration, Polygon, Pt2D};
 
@@ -106,14 +106,14 @@ impl Slider {
             Color::grey(0.3),
             &Polygon::rectangle_topleft(
                 Pt2D::new(self.top_left.x, self.top_left.y),
-                Distance::meters(BAR_WIDTH + 2.0 * HORIZ_PADDING),
+                Distance::meters(Slider::total_width()),
                 Distance::meters(BAR_HEIGHT + 2.0 * VERT_PADDING),
             ),
         );
         g.canvas.mark_covered_area(ScreenRectangle {
             x1: self.top_left.x,
             y1: self.top_left.y,
-            x2: self.top_left.x + BAR_WIDTH + 2.0 * HORIZ_PADDING,
+            x2: self.top_left.x + Slider::total_width(),
             y2: self.top_left.y + BAR_HEIGHT + 2.0 * VERT_PADDING,
         });
 
@@ -174,6 +174,10 @@ impl Slider {
             Distance::meters(SLIDER_HEIGHT),
         )
     }
+
+    pub fn total_width() -> f64 {
+        BAR_WIDTH + 2.0 * HORIZ_PADDING
+    }
 }
 
 pub struct ItemSlider<T> {
@@ -210,10 +214,17 @@ impl<T> ItemSlider<T> {
             (hotkey(Key::Dot), last.as_str()),
         ]);
 
+        let slider = Slider::new(ScreenPt::new(
+            ctx.canvas.window_width - Slider::total_width(),
+            0.0,
+        ));
+        let menu =
+            ModalMenu::new(menu_title, choices, ctx).set_pos(ctx, SidebarPos::below(&slider));
+
         ItemSlider {
             items,
-            slider: Slider::new(ScreenPt::new(0.0, 0.0)),
-            menu: ModalMenu::new(menu_title, choices, ctx),
+            slider,
+            menu,
 
             noun: noun.to_string(),
             prev,
@@ -225,7 +236,17 @@ impl<T> ItemSlider<T> {
 
     // Returns true if the value changed.
     pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
-        self.menu.handle_event(ctx, None);
+        {
+            let idx = self.slider.get_value(self.items.len());
+            let mut txt = Text::from(Line(format!(
+                "{} {}/{}",
+                self.noun,
+                abstutil::prettyprint_usize(idx + 1),
+                abstutil::prettyprint_usize(self.items.len())
+            )));
+            txt.extend(&self.items[idx].1);
+            self.menu.handle_event(ctx, Some(txt));
+        }
 
         let current = self.slider.get_value(self.items.len());
         if current != self.items.len() - 1 && self.menu.action(&self.next) {
@@ -246,16 +267,6 @@ impl<T> ItemSlider<T> {
     pub fn draw(&self, g: &mut GfxCtx) {
         self.menu.draw(g);
         self.slider.draw(g);
-
-        let idx = self.slider.get_value(self.items.len());
-        let mut txt = Text::from(Line(format!(
-            "{} {}/{}",
-            self.noun,
-            abstutil::prettyprint_usize(idx + 1),
-            abstutil::prettyprint_usize(self.items.len())
-        )));
-        txt.extend(&self.items[idx].1);
-        g.draw_text_at_screenspace_topleft(&txt, self.slider.below_top_left());
     }
 
     pub fn get(&self) -> (usize, &T) {
@@ -351,7 +362,7 @@ impl SliderWithTextBox {
     pub fn new(prompt: &str, low: Duration, high: Duration, canvas: &Canvas) -> SliderWithTextBox {
         // TODO Need to re-center when window is resized
         let mut top_left = canvas.center_to_screen_pt();
-        top_left.x -= (BAR_WIDTH + 2.0 * HORIZ_PADDING) / 2.0;
+        top_left.x -= Slider::total_width() / 2.0;
         top_left.y -= (BAR_HEIGHT + 2.0 * VERT_PADDING + canvas.line_height) / 2.0;
 
         SliderWithTextBox {

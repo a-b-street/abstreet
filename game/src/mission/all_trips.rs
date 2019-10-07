@@ -3,8 +3,8 @@ use crate::game::{State, Transition};
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu, ScreenPt, Slider,
-    Text,
+    hotkey, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu, ScreenPt, SidebarPos,
+    Slider, Text,
 };
 use geom::{Circle, Distance, Duration};
 use map_model::{PathRequest, LANE_THICKNESS};
@@ -57,26 +57,32 @@ impl TripsVisualizer {
             final_trips
         });
 
-        TripsVisualizer {
-            menu: ModalMenu::new(
-                "Trips Visualizer",
+        let time_slider = Slider::new(ScreenPt::new(
+            ctx.canvas.window_width - Slider::total_width(),
+            0.0,
+        ));
+        let menu = ModalMenu::new(
+            "Trips Visualizer",
+            vec![
                 vec![
-                    vec![
-                        (hotkey(Key::Dot), "forwards 10 seconds"),
-                        (hotkey(Key::RightArrow), "forwards 30 minutes"),
-                        (hotkey(Key::Comma), "backwards 10 seconds"),
-                        (hotkey(Key::LeftArrow), "backwards 30 minutes"),
-                        (hotkey(Key::F), "goto start of day"),
-                        (hotkey(Key::L), "goto end of day"),
-                    ],
-                    vec![(hotkey(Key::Escape), "quit")],
+                    (hotkey(Key::Dot), "forwards 10 seconds"),
+                    (hotkey(Key::RightArrow), "forwards 30 minutes"),
+                    (hotkey(Key::Comma), "backwards 10 seconds"),
+                    (hotkey(Key::LeftArrow), "backwards 30 minutes"),
+                    (hotkey(Key::F), "goto start of day"),
+                    (hotkey(Key::L), "goto end of day"),
                 ],
-                ctx,
-            ),
+                vec![(hotkey(Key::Escape), "quit")],
+            ],
+            ctx,
+        )
+        .set_pos(ctx, SidebarPos::below(&time_slider));
+
+        TripsVisualizer {
+            menu,
             trips,
-            time_slider: Slider::new(ScreenPt::new(0.0, 0.0)),
-            // TODO hardcoding placement...
-            speed: SpeedControls::new(ctx, ScreenPt::new(500.0, 0.0)),
+            time_slider,
+            speed: SpeedControls::new(ctx, ScreenPt::new(0.0, 0.0)),
             active_trips: Vec::new(),
         }
     }
@@ -91,6 +97,7 @@ impl State for TripsVisualizer {
         let time = self.current_time();
 
         let mut txt = Text::prompt("Trips Visualizer");
+        txt.add(Line(format!("At {}", time)));
         txt.add(Line(format!(
             "{} active trips",
             prettyprint_usize(self.active_trips.len())
@@ -183,10 +190,6 @@ impl State for TripsVisualizer {
 
         self.menu.draw(g);
         self.time_slider.draw(g);
-        g.draw_text_at_screenspace_topleft(
-            &Text::from(Line(format!("At {}", time))),
-            self.time_slider.below_top_left(),
-        );
         self.speed.draw(g);
         CommonState::draw_osd(g, ui, &ui.primary.current_selection);
     }
