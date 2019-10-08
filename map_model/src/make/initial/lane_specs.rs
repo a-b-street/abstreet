@@ -102,15 +102,15 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
         }
     }
 
-    // TODO Should we warn when a link road has parking assigned to it from the blockface?
-    let is_link = match osm_tags.get(osm::HIGHWAY) {
-        Some(hwy) => hwy.ends_with("_link"),
+    // TODO Should we warn when one of these has parking assigned to it from the blockface?
+    let definitely_no_parking = match osm_tags.get(osm::HIGHWAY) {
+        Some(hwy) => hwy.ends_with("_link") || hwy == "motorway",
         None => false,
     };
-    if parking_lane_fwd && !is_link {
+    if parking_lane_fwd && !definitely_no_parking {
         fwd_side.push(LaneType::Parking);
     }
-    if parking_lane_back && !is_link && !back_side.is_empty() {
+    if parking_lane_back && !definitely_no_parking && !back_side.is_empty() {
         back_side.push(LaneType::Parking);
     }
 
