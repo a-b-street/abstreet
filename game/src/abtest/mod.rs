@@ -223,8 +223,8 @@ impl State for ABTestMode {
         self.primary_agent_tools.draw(g, ui);
     }
 
-    fn on_suspend(&mut self, _: &mut UI) {
-        self.speed.pause();
+    fn on_suspend(&mut self, ctx: &mut EventCtx, _: &mut UI) {
+        self.speed.pause(ctx);
     }
 
     fn on_destroy(&mut self, ctx: &mut EventCtx, ui: &mut UI) {

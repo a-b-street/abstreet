@@ -99,9 +99,8 @@ impl SpeedControls {
                 ref mut last_measurement,
                 ref mut last_measurement_sim,
             } => {
-                if self.menu.consume_action("pause", ctx) {
-                    self.state = State::Paused;
-                    self.menu.add_action(hotkey(Key::Space), "resume", ctx);
+                if self.menu.action("pause") {
+                    self.pause(ctx);
                 } else if ctx.input.nonblocking_is_update_event() {
                     ctx.input.use_update_event();
                     let dt = Duration::seconds(elapsed_seconds(*last_step)) * desired_speed;
@@ -128,8 +127,12 @@ impl SpeedControls {
         self.menu.draw(g);
     }
 
-    pub fn pause(&mut self) {
-        self.state = State::Paused;
+    pub fn pause(&mut self, ctx: &mut EventCtx) {
+        if !self.is_paused() {
+            self.state = State::Paused;
+            self.menu.remove_action("pause", ctx);
+            self.menu.add_action(hotkey(Key::Space), "resume", ctx);
+        }
     }
 
     pub fn is_paused(&self) -> bool {

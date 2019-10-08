@@ -58,7 +58,10 @@ impl GUI for Game {
                 EventLoopMode::InputOnly
             }
             Transition::PushWithMode(state, evmode) => {
-                self.states.last_mut().unwrap().on_suspend(&mut self.ui);
+                self.states
+                    .last_mut()
+                    .unwrap()
+                    .on_suspend(ctx, &mut self.ui);
                 self.states.push(state);
                 evmode
             }
@@ -122,7 +125,7 @@ pub trait State: downcast_rs::Downcast {
     }
 
     // Before we push a new state on top of this one, call this.
-    fn on_suspend(&mut self, _: &mut UI) {}
+    fn on_suspend(&mut self, _: &mut EventCtx, _: &mut UI) {}
     // Before this state is popped or replaced, call this.
     fn on_destroy(&mut self, _: &mut EventCtx, _: &mut UI) {}
     // We don't need an on_enter -- the constructor for the state can just do it.
