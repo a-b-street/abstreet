@@ -726,14 +726,14 @@ impl Map {
             if dst_i == r.dst_i {
                 assert_eq!(r.children_backwards.remove(0).0, id);
                 r.children_forwards.insert(0, (id, l.lane_type));
-                for (l, _) in &r.children_forwards {
-                    changed_lanes.insert(*l);
+                for l in r.all_lanes() {
+                    changed_lanes.insert(l);
                 }
             } else {
                 assert_eq!(r.children_forwards.remove(0).0, id);
                 r.children_backwards.insert(0, (id, l.lane_type));
-                for (l, _) in &r.children_backwards {
-                    changed_lanes.insert(*l);
+                for l in r.all_lanes() {
+                    changed_lanes.insert(l);
                 }
             }
             changed_contraflow_roads.insert(r.id);
