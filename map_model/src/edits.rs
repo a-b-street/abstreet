@@ -8,6 +8,9 @@ pub struct MapEdits {
     pub(crate) map_name: String,
     pub edits_name: String,
     pub lane_overrides: BTreeMap<LaneID, LaneType>,
+    // TODO Order matters if validity checks happen...
+    // The IntersectionID says where this lane now points. Used to detect reverts.
+    pub contraflow_lanes: BTreeMap<LaneID, IntersectionID>,
     // TODO Storing the entire thing is maybe a bit dramatic, but works for now.
     pub stop_sign_overrides: BTreeMap<IntersectionID, ControlStopSign>,
     pub traffic_signal_overrides: BTreeMap<IntersectionID, ControlTrafficSignal>,
@@ -20,6 +23,7 @@ impl MapEdits {
             // Something has to fill this out later
             edits_name: "no_edits".to_string(),
             lane_overrides: BTreeMap::new(),
+            contraflow_lanes: BTreeMap::new(),
             stop_sign_overrides: BTreeMap::new(),
             traffic_signal_overrides: BTreeMap::new(),
         }

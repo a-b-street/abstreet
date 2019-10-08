@@ -61,7 +61,7 @@ impl DrawMap {
         timer.start_iter("make DrawRoads", map.all_roads().len());
         for r in map.all_roads() {
             timer.next();
-            let draw_r = DrawRoad::new(r, cs, ctx.prerender);
+            let draw_r = DrawRoad::new(r, map, cs, ctx.prerender);
             all_roads.push(
                 osm_rank_to_color(cs, r.get_rank()),
                 r.get_thick_polygon().get(timer),

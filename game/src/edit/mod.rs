@@ -6,7 +6,7 @@ use crate::debug::DebugMode;
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{
-    DrawCtx, DrawIntersection, DrawLane, DrawMap, DrawOptions, DrawTurn, Renderable,
+    DrawCtx, DrawIntersection, DrawLane, DrawMap, DrawOptions, DrawRoad, DrawTurn, Renderable,
     MIN_ZOOM_FOR_DETAIL,
 };
 use crate::sandbox::SandboxMode;
@@ -145,6 +145,18 @@ impl State for EditMode {
                     }
                 }
             }
+            {
+                let lane = ui.primary.map.get_l(id);
+                let road = ui.primary.map.get_r(lane.parent);
+                // TODO More validity checks
+                if lane.lane_type.is_for_moving_vehicles() && road.dir_and_offset(id).1 == 0 {
+                    if ctx.input.contextual_action(Key::F, "swap lane direction") {
+                        let mut new_edits = orig_edits.clone();
+                        new_edits.contraflow_lanes.insert(lane.id, lane.src_i);
+                        apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
+                    }
+                }
+            }
 
             if ctx
                 .input
@@ -156,6 +168,7 @@ impl State for EditMode {
             {
                 let mut new_edits = orig_edits.clone();
                 new_edits.lane_overrides.remove(&id);
+                new_edits.contraflow_lanes.remove(&id);
                 apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
             }
         }
@@ -225,7 +238,11 @@ impl State for EditMode {
         // supply a set of things to highlight and have something else take care of drawing
         // with detail or not.
         if g.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL {
-            for l in edits.lane_overrides.keys() {
+            for l in edits
+                .lane_overrides
+                .keys()
+                .chain(edits.contraflow_lanes.keys())
+            {
                 opts.override_colors.insert(ID::Lane(*l), Color::Hatching);
                 ctx.draw_map.get_l(*l).draw(g, &opts, &ctx);
             }
@@ -420,7 +437,8 @@ pub fn apply_map_edits(
 ) {
     let mut timer = Timer::new("apply map edits");
 
-    let (lanes_changed, turns_deleted, turns_added) = bundle.map.apply_edits(edits, &mut timer);
+    let (lanes_changed, roads_changed, turns_deleted, turns_added) =
+        bundle.map.apply_edits(edits, &mut timer);
 
     for l in lanes_changed {
         bundle.draw_map.lanes[l.0] = DrawLane::new(
@@ -432,6 +450,11 @@ pub fn apply_map_edits(
         )
         .finish(ctx.prerender);
     }
+    for r in roads_changed {
+        bundle.draw_map.roads[r.0] =
+            DrawRoad::new(bundle.map.get_r(r), &bundle.map, cs, ctx.prerender);
+    }
+
     let mut modified_intersections: BTreeSet<IntersectionID> = BTreeSet::new();
     let mut lanes_of_modified_turns: BTreeSet<LaneID> = BTreeSet::new();
     for t in turns_deleted {

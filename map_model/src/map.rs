@@ -1,4 +1,3 @@
-use crate::make::get_lane_types;
 use crate::pathfind::Pathfinder;
 use crate::raw::{MapFixes, RawMap, StableIntersectionID, StableRoadID};
 use crate::{
@@ -610,20 +609,32 @@ impl Map {
         &self.edits
     }
 
-    // new_edits assumed to be valid. Returns actual lanes that changed, turns deleted, turns added. Doesn't update pathfinding yet.
+    // new_edits assumed to be valid. Returns actual lanes that changed, roads changed, turns
+    // deleted, turns added. Doesn't update pathfinding yet.
     pub fn apply_edits(
         &mut self,
         new_edits: MapEdits,
         timer: &mut Timer,
-    ) -> (BTreeSet<LaneID>, BTreeSet<TurnID>, BTreeSet<TurnID>) {
+    ) -> (
+        BTreeSet<LaneID>,
+        BTreeSet<RoadID>,
+        BTreeSet<TurnID>,
+        BTreeSet<TurnID>,
+    ) {
         // Ignore if there's no change from current
         let mut all_lane_edits: BTreeMap<LaneID, LaneType> = BTreeMap::new();
+        let mut all_contraflow_lanes: BTreeMap<LaneID, IntersectionID> = BTreeMap::new();
         let mut all_stop_sign_edits: BTreeMap<IntersectionID, ControlStopSign> = BTreeMap::new();
         let mut all_traffic_signals: BTreeMap<IntersectionID, ControlTrafficSignal> =
             BTreeMap::new();
         for (id, lt) in &new_edits.lane_overrides {
             if self.edits.lane_overrides.get(id) != Some(lt) {
                 all_lane_edits.insert(*id, *lt);
+            }
+        }
+        for (id, i) in &new_edits.contraflow_lanes {
+            if self.edits.contraflow_lanes.get(id) != Some(i) {
+                all_contraflow_lanes.insert(*id, *i);
             }
         }
         for (id, ss) in &new_edits.stop_sign_overrides {
@@ -643,6 +654,11 @@ impl Map {
                 all_lane_edits.insert(*id, self.get_original_lt(*id));
             }
         }
+        for id in self.edits.contraflow_lanes.keys() {
+            if !new_edits.contraflow_lanes.contains_key(id) {
+                all_contraflow_lanes.insert(*id, self.get_original_endpt(*id));
+            }
+        }
         for id in self.edits.stop_sign_overrides.keys() {
             if !new_edits.stop_sign_overrides.contains_key(id) {
                 all_stop_sign_edits.insert(*id, ControlStopSign::new(self, *id, timer));
@@ -655,8 +671,9 @@ impl Map {
         }
 
         timer.note(format!(
-            "Total diff: {} lanes, {} stop signs, {} traffic signals",
+            "Total diff: {} lane types, {} contraflow lanes, {} stop signs, {} traffic signals",
             all_lane_edits.len(),
+            all_contraflow_lanes.len(),
             all_stop_sign_edits.len(),
             all_traffic_signals.len()
         ));
@@ -664,6 +681,8 @@ impl Map {
         let mut changed_lanes = BTreeSet::new();
         let mut changed_intersections = BTreeSet::new();
         let mut changed_roads = BTreeSet::new();
+        let mut changed_contraflow_roads = BTreeSet::new();
+
         for (id, lt) in all_lane_edits {
             changed_lanes.insert(id);
 
@@ -677,6 +696,47 @@ impl Map {
             } else {
                 r.children_backwards[idx] = (l.id, l.lane_type);
             }
+
+            changed_intersections.insert(l.src_i);
+            changed_intersections.insert(l.dst_i);
+            changed_roads.insert(l.parent);
+        }
+
+        for (id, dst_i) in all_contraflow_lanes {
+            changed_lanes.insert(id);
+
+            let l = &mut self.lanes[id.0];
+
+            self.intersections[l.src_i.0]
+                .outgoing_lanes
+                .retain(|x| *x != id);
+            self.intersections[l.dst_i.0]
+                .incoming_lanes
+                .retain(|x| *x != id);
+
+            std::mem::swap(&mut l.src_i, &mut l.dst_i);
+            assert_eq!(l.dst_i, dst_i);
+            l.lane_center_pts = l.lane_center_pts.reversed();
+
+            self.intersections[l.src_i.0].outgoing_lanes.push(id);
+            self.intersections[l.dst_i.0].incoming_lanes.push(id);
+
+            // We can only reverse the lane closest to the center.
+            let r = &mut self.roads[l.parent.0];
+            if dst_i == r.dst_i {
+                assert_eq!(r.children_backwards.remove(0).0, id);
+                r.children_forwards.insert(0, (id, l.lane_type));
+                for (l, _) in &r.children_forwards {
+                    changed_lanes.insert(*l);
+                }
+            } else {
+                assert_eq!(r.children_forwards.remove(0).0, id);
+                r.children_backwards.insert(0, (id, l.lane_type));
+                for (l, _) in &r.children_backwards {
+                    changed_lanes.insert(*l);
+                }
+            }
+            changed_contraflow_roads.insert(r.id);
 
             changed_intersections.insert(l.src_i);
             changed_intersections.insert(l.dst_i);
@@ -763,7 +823,12 @@ impl Map {
 
         self.edits = new_edits;
         self.pathfinder_dirty = true;
-        (changed_lanes, delete_turns, add_turns)
+        (
+            changed_lanes,
+            changed_contraflow_roads,
+            delete_turns,
+            add_turns,
+        )
     }
 
     pub fn recalculate_pathfinding_after_edits(&mut self, timer: &mut Timer) {
@@ -799,6 +864,16 @@ impl Map {
             self.edits.lane_overrides.remove(&id);
         }
 
+        let mut delete_contraflow_lanes = Vec::new();
+        for (id, dst_i) in &self.edits.contraflow_lanes {
+            if *dst_i == self.get_original_endpt(*id) {
+                delete_contraflow_lanes.push(*id);
+            }
+        }
+        for id in delete_contraflow_lanes {
+            self.edits.contraflow_lanes.remove(&id);
+        }
+
         let mut delete_stop_signs = Vec::new();
         for (id, ss) in &self.edits.stop_sign_overrides {
             if *ss == ControlStopSign::new(self, *id, timer) {
@@ -822,13 +897,27 @@ impl Map {
 
     fn get_original_lt(&self, id: LaneID) -> LaneType {
         let parent = self.get_parent(id);
-        let (side1, side2) = get_lane_types(&parent.osm_tags);
-        let (fwds, idx) = parent.dir_and_offset(id);
-        if fwds {
-            side1[idx]
-        } else {
-            side2[idx]
+        for (l, lt) in parent
+            .orig_children_forwards
+            .iter()
+            .chain(parent.orig_children_backwards.iter())
+        {
+            if id == *l {
+                return *lt;
+            }
         }
+        panic!("get_original_lt broke for {}", id);
+    }
+
+    fn get_original_endpt(&self, id: LaneID) -> IntersectionID {
+        let parent = self.get_parent(id);
+        if parent.orig_children_forwards.iter().any(|(l, _)| *l == id) {
+            return parent.dst_i;
+        }
+        if parent.orig_children_backwards.iter().any(|(l, _)| *l == id) {
+            return parent.src_i;
+        }
+        panic!("get_original_endpt broke for {}", id);
     }
 }
 
@@ -909,6 +998,8 @@ fn make_half_map(
             stable_id: r.id,
             children_forwards: Vec::new(),
             children_backwards: Vec::new(),
+            orig_children_forwards: Vec::new(),
+            orig_children_backwards: Vec::new(),
             center_pts: r.trimmed_center_pts.clone(),
             src_i: i1,
             dst_i: i2,
@@ -923,12 +1014,14 @@ fn make_half_map(
 
             let (unshifted_pts, offset) = if lane.reverse_pts {
                 road.children_backwards.push((id, lane.lane_type));
+                road.orig_children_backwards.push((id, lane.lane_type));
                 (
                     road.center_pts.reversed(),
                     road.children_backwards.len() - 1,
                 )
             } else {
                 road.children_forwards.push((id, lane.lane_type));
+                road.orig_children_forwards.push((id, lane.lane_type));
                 (road.center_pts.clone(), road.children_forwards.len() - 1)
             };
             // TODO probably different behavior for oneways

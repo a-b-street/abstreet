@@ -36,7 +36,8 @@ Watching overall traffic patterns and zooming into a few slow areas:
   - Intersections governed by stop signs and traffic signals, with default
     signal timings heuristically inferred. Hand-tuned geometry to reasonably
     model Seattle's strangest intersections.
-  - You can adjust lane types, stop signs, and traffic signals.
+  - You can adjust lane types, stop signs, and traffic signals, and reverse
+    lanes.
 - The traffic
   - Individual cars, buses, bikes, and pedestrians move through the map.
   - Most trips are multi-modal -- for example, a pedestrian exits a building,

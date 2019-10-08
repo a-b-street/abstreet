@@ -70,9 +70,12 @@ pub struct Road {
     // These are ordered from left-most lane (closest to center lane) to rightmost (sidewalk)
     pub children_forwards: Vec<(LaneID, LaneType)>,
     pub children_backwards: Vec<(LaneID, LaneType)>,
-    // TODO should consider having a redundant lookup from LaneID
+    // Same as above, but not changed as map edits happen.
+    pub orig_children_forwards: Vec<(LaneID, LaneType)>,
+    pub orig_children_backwards: Vec<(LaneID, LaneType)>,
 
-    // Unshifted center points. Order implies road orientation.
+    // Unshifted original center points. Order implies road orientation. Reversing lanes doesn't
+    // change this.
     pub center_pts: PolyLine,
     pub src_i: IntersectionID,
     pub dst_i: IntersectionID,
@@ -168,15 +171,6 @@ impl Road {
                 .find(|(_, lt)| *lt == LaneType::Sidewalk)
                 .map(|(id, _)| *id)
         }
-    }
-
-    // Is this lane the arbitrary canonical lane of this road? Used for deciding who should draw
-    // yellow center lines.
-    pub fn is_canonical_lane(&self, lane: LaneID) -> bool {
-        if !self.children_forwards.is_empty() {
-            return lane == self.children_forwards[0].0;
-        }
-        lane == self.children_backwards[0].0
     }
 
     pub fn get_speed_limit(&self) -> Speed {

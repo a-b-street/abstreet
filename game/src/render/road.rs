@@ -2,7 +2,7 @@ use crate::helpers::{ColorScheme, ID};
 use crate::render::{dashed_lines, DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Distance, Polygon, Pt2D};
-use map_model::{Map, Road, RoadID};
+use map_model::{Map, Road, RoadID, LANE_THICKNESS};
 
 pub struct DrawRoad {
     pub id: RoadID,
@@ -14,11 +14,21 @@ pub struct DrawRoad {
 }
 
 impl DrawRoad {
-    pub fn new(r: &Road, cs: &ColorScheme, prerender: &Prerender) -> DrawRoad {
+    pub fn new(r: &Road, map: &Map, cs: &ColorScheme, prerender: &Prerender) -> DrawRoad {
         let mut draw = GeomBatch::new();
+        // The road's original center_pts don't account for contraflow lane edits.
+        let center = map
+            .get_l(if !r.children_forwards.is_empty() {
+                r.children_forwards[0].0
+            } else {
+                r.children_backwards[0].0
+            })
+            .lane_center_pts
+            .shift_left(LANE_THICKNESS / 2.0)
+            .unwrap();
         draw.extend(
             cs.get_def("road center line", Color::YELLOW),
-            dashed_lines(&r.center_pts, Distance::meters(2.0), Distance::meters(1.0)),
+            dashed_lines(&center, Distance::meters(2.0), Distance::meters(1.0)),
         );
 
         let mut label = Text::new();

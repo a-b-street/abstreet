@@ -302,10 +302,10 @@ A key feature of A/B Street is the player editing the map and seeing how traffic
 responds. The possible edits include:
 
 - Change lane types (driving, bus, bike, parking -- sidewalks are fixed)
+- Reverse a lane
 - Change a stop sign policy (which roads have a stop sign and which have
   priority)
 - Change a traffic signal policy
-- Planned eventually: Convert between two- and one-way roads
 
 The map conversion process outlined above takes a few minutes, so reusing this
 process directly to compute a map with edits wouldn't work at all for real
