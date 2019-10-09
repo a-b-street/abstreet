@@ -147,9 +147,9 @@ impl ModalMenu {
 impl SidebarPos {
     fn pos(&self) -> Position {
         match self {
-            SidebarPos::Left => Position::SomeCornerAt(ScreenPt::new(0.0, 0.0)),
+            SidebarPos::Left => Position::TopLeftAt(ScreenPt::new(0.0, 0.0)),
             SidebarPos::Right => Position::TopRightOfScreen,
-            SidebarPos::At(pt) => Position::SomeCornerAt(*pt),
+            SidebarPos::At(pt) => Position::TopLeftAt(*pt),
         }
     }
 

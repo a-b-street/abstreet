@@ -40,6 +40,7 @@ struct Choice<T: Clone> {
 #[derive(Clone)]
 pub enum Position {
     ScreenCenter,
+    TopLeftAt(ScreenPt),
     SomeCornerAt(ScreenPt),
     TopRightOfScreen,
 }
@@ -501,6 +502,7 @@ impl Position {
                     }
                 }
             }
+            Position::TopLeftAt(pt) => *pt,
             Position::ScreenCenter => {
                 let mut pt = canvas.center_to_screen_pt();
                 pt.x -= total_width / 2.0;
