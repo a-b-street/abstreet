@@ -271,6 +271,19 @@ impl<T: Clone> Menu<T> {
             batch.draw(g);
             g.unfork();
 
+            // TODO This doesn't look great:
+            // 1) Goes off-screen sometimes (could draw it left/right of the cursor based on window
+            //    width)
+            // 2) Covers up the icon
+            if self.icon_selected {
+                let mut txt = Text::with_bg_color(Some(text::BG_COLOR.alpha(0.5)));
+                txt.add_appended(vec![
+                    Line(Key::Tab.describe()).fg(text::HOTKEY_COLOR.alpha(0.5)),
+                    Line(" - expand menu").fg(Color::WHITE.alpha(0.5)),
+                ]);
+                g.draw_mouse_tooltip(&txt);
+            }
+
             return;
         }
 
@@ -335,6 +348,15 @@ impl<T: Clone> Menu<T> {
         g.fork_screenspace();
         batch.draw(g);
         g.unfork();
+
+        if self.icon_selected {
+            let mut txt = Text::with_bg_color(Some(text::BG_COLOR.alpha(0.5)));
+            txt.add_appended(vec![
+                Line(Key::Tab.describe()).fg(text::HOTKEY_COLOR),
+                Line(" - hide menu"),
+            ]);
+            g.draw_mouse_tooltip(&txt);
+        }
 
         for (idx, choice) in self.choices.iter().enumerate() {
             let mut txt = Text::with_bg_color(if Some(idx) == self.current_idx {

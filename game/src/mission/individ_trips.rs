@@ -3,7 +3,7 @@ use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::ui::UI;
 use ezgui::{hotkey, Color, EventCtx, GfxCtx, ItemSlider, Key, Line, Text};
-use geom::{Circle, Duration, Distance, Line, Speed};
+use geom::{Circle, Distance, Duration, Line, Speed};
 use map_model::BuildingID;
 use popdat::{clip_trips, psrc, Trip, TripEndpt};
 use std::collections::HashMap;
