@@ -3,7 +3,7 @@ use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::ui::UI;
 use ezgui::{hotkey, Color, EventCtx, GfxCtx, ItemSlider, Key, Line, Text};
-use geom::{Circle, Distance, Line, Speed};
+use geom::{Circle, Duration, Distance, Line, Speed};
 use map_model::BuildingID;
 use popdat::{clip_trips, psrc, Trip, TripEndpt};
 use std::collections::HashMap;
@@ -31,10 +31,12 @@ impl TripsVisualizer {
                         txt.add(Line(format!("Mode: {:?}", trip.mode)));
                         txt.add(Line(format!("Trip time: {}", trip.trip_time)));
                         txt.add(Line(format!("Trip distance: {}", trip.trip_dist)));
-                        txt.add(Line(format!(
-                            "Average speed {}",
-                            Speed::from_dist_time(trip.trip_dist, trip.trip_time)
-                        )));
+                        if trip.trip_time > Duration::ZERO {
+                            txt.add(Line(format!(
+                                "Average speed {}",
+                                Speed::from_dist_time(trip.trip_dist, trip.trip_time)
+                            )));
+                        }
                         (trip, txt)
                     })
                     .collect(),
