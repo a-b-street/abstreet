@@ -5,17 +5,43 @@ use crate::{
 };
 use geom::{Distance, Duration, Polygon, Pt2D};
 
-// Pixels
-const BAR_WIDTH: f64 = 300.0;
-const BAR_HEIGHT: f64 = 100.0;
-const SLIDER_WIDTH: f64 = 50.0;
-const SLIDER_HEIGHT: f64 = 120.0;
+#[derive(Debug)]
+struct Dims {
+    // Pixels
+    bar_width: f64,
+    bar_height: f64,
+    slider_width: f64,
+    slider_height: f64,
+    horiz_padding: f64,
+    vert_padding: f64,
+    total_width: f64,
+}
 
-const HORIZ_PADDING: f64 = 60.0;
-const VERT_PADDING: f64 = 20.0;
+impl Dims {
+    fn fit_total_width(total_width: f64) -> Dims {
+        let horiz_padding = total_width / 7.0;
+        let bar_width = total_width - 2.0 * horiz_padding;
+        let slider_width = bar_width / 6.0;
+
+        let bar_height = bar_width / 3.0;
+        let slider_height = bar_height * 1.2;
+        let vert_padding = bar_height / 5.0;
+
+        Dims {
+            bar_width,
+            bar_height,
+            slider_width,
+            slider_height,
+            horiz_padding,
+            vert_padding,
+            total_width,
+        }
+    }
+}
 
 pub struct Slider {
     pub top_left: ScreenPt,
+    dims: Dims,
     current_percent: f64,
     mouse_on_slider: bool,
     dragging: bool,
@@ -25,10 +51,17 @@ impl Slider {
     pub fn new(top_left: ScreenPt) -> Slider {
         Slider {
             top_left,
+            // Placeholderish
+            dims: Dims::fit_total_width(420.0),
             current_percent: 0.0,
             mouse_on_slider: false,
             dragging: false,
         }
+    }
+
+    pub fn snap_above(&mut self, menu: &ModalMenu) {
+        self.dims = Dims::fit_total_width(menu.get_total_width());
+        // TODO move top left...
     }
 
     pub fn get_percent(&self) -> f64 {
@@ -56,9 +89,10 @@ impl Slider {
     pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
         if self.dragging {
             if ctx.input.get_moved_mouse().is_some() {
-                let percent =
-                    (ctx.canvas.get_cursor_in_screen_space().x - HORIZ_PADDING - self.top_left.x)
-                        / BAR_WIDTH;
+                let percent = (ctx.canvas.get_cursor_in_screen_space().x
+                    - self.dims.horiz_padding
+                    - self.top_left.x)
+                    / self.dims.bar_width;
                 self.current_percent = percent.min(1.0).max(0.0);
                 return true;
             }
@@ -78,15 +112,16 @@ impl Slider {
                     let pt = ctx.canvas.get_cursor_in_screen_space();
                     if Polygon::rectangle_topleft(
                         Pt2D::new(
-                            HORIZ_PADDING + self.top_left.x,
-                            VERT_PADDING + self.top_left.y,
+                            self.dims.horiz_padding + self.top_left.x,
+                            self.dims.vert_padding + self.top_left.y,
                         ),
-                        Distance::meters(BAR_WIDTH),
-                        Distance::meters(BAR_HEIGHT),
+                        Distance::meters(self.dims.bar_width),
+                        Distance::meters(self.dims.bar_height),
                     )
                     .contains_pt(Pt2D::new(pt.x, pt.y))
                     {
-                        let percent = (pt.x - HORIZ_PADDING - self.top_left.x) / BAR_WIDTH;
+                        let percent = (pt.x - self.dims.horiz_padding - self.top_left.x)
+                            / self.dims.bar_width;
                         self.current_percent = percent.min(1.0).max(0.0);
                         self.mouse_on_slider = true;
                         self.dragging = true;
@@ -106,15 +141,15 @@ impl Slider {
             Color::grey(0.3),
             &Polygon::rectangle_topleft(
                 Pt2D::new(self.top_left.x, self.top_left.y),
-                Distance::meters(Slider::total_width()),
-                Distance::meters(BAR_HEIGHT + 2.0 * VERT_PADDING),
+                Distance::meters(self.dims.total_width),
+                Distance::meters(self.dims.bar_height + 2.0 * self.dims.vert_padding),
             ),
         );
         g.canvas.mark_covered_area(ScreenRectangle {
             x1: self.top_left.x,
             y1: self.top_left.y,
-            x2: self.top_left.x + Slider::total_width(),
-            y2: self.top_left.y + BAR_HEIGHT + 2.0 * VERT_PADDING,
+            x2: self.top_left.x + self.dims.total_width,
+            y2: self.top_left.y + self.dims.bar_height + 2.0 * self.dims.vert_padding,
         });
 
         // The bar
@@ -122,11 +157,11 @@ impl Slider {
             Color::WHITE,
             &Polygon::rectangle_topleft(
                 Pt2D::new(
-                    self.top_left.x + HORIZ_PADDING,
-                    self.top_left.y + VERT_PADDING,
+                    self.top_left.x + self.dims.horiz_padding,
+                    self.top_left.y + self.dims.vert_padding,
                 ),
-                Distance::meters(BAR_WIDTH),
-                Distance::meters(BAR_HEIGHT),
+                Distance::meters(self.dims.bar_width),
+                Distance::meters(self.dims.bar_height),
             ),
         );
 
@@ -136,11 +171,11 @@ impl Slider {
                 Color::GREEN,
                 &Polygon::rectangle_topleft(
                     Pt2D::new(
-                        self.top_left.x + HORIZ_PADDING,
-                        self.top_left.y + VERT_PADDING,
+                        self.top_left.x + self.dims.horiz_padding,
+                        self.top_left.y + self.dims.vert_padding,
                     ),
-                    Distance::meters(self.current_percent * BAR_WIDTH),
-                    Distance::meters(BAR_HEIGHT),
+                    Distance::meters(self.current_percent * self.dims.bar_width),
+                    Distance::meters(self.dims.bar_height),
                 ),
             );
         }
@@ -159,24 +194,27 @@ impl Slider {
     pub fn below_top_left(&self) -> ScreenPt {
         ScreenPt::new(
             self.top_left.x,
-            self.top_left.y + BAR_HEIGHT + 2.0 * VERT_PADDING,
+            self.top_left.y + self.dims.bar_height + 2.0 * self.dims.vert_padding,
         )
     }
 
     fn slider_geom(&self) -> Polygon {
         Polygon::rectangle_topleft(
             Pt2D::new(
-                self.top_left.x + HORIZ_PADDING + self.current_percent * BAR_WIDTH
-                    - (SLIDER_WIDTH / 2.0),
-                self.top_left.y + VERT_PADDING - (SLIDER_HEIGHT - BAR_HEIGHT) / 2.0,
+                self.top_left.x
+                    + self.dims.horiz_padding
+                    + self.current_percent * self.dims.bar_width
+                    - (self.dims.slider_width / 2.0),
+                self.top_left.y + self.dims.vert_padding
+                    - (self.dims.slider_height - self.dims.bar_height) / 2.0,
             ),
-            Distance::meters(SLIDER_WIDTH),
-            Distance::meters(SLIDER_HEIGHT),
+            Distance::meters(self.dims.slider_width),
+            Distance::meters(self.dims.slider_height),
         )
     }
 
-    pub fn total_width() -> f64 {
-        BAR_WIDTH + 2.0 * HORIZ_PADDING
+    pub fn total_width(&self) -> f64 {
+        self.dims.total_width
     }
 }
 
@@ -214,12 +252,15 @@ impl<T> ItemSlider<T> {
             (hotkey(Key::Dot), last.as_str()),
         ]);
 
-        let slider = Slider::new(ScreenPt::new(
-            ctx.canvas.window_width - Slider::total_width(),
+        // Placeholderish
+        let dims = Dims::fit_total_width(420.0);
+        let mut slider = Slider::new(ScreenPt::new(
+            ctx.canvas.window_width - dims.total_width,
             0.0,
         ));
         let menu =
             ModalMenu::new(menu_title, choices, ctx).set_pos(ctx, SidebarPos::below(&slider));
+        slider.snap_above(&menu);
 
         ItemSlider {
             items,
@@ -362,8 +403,9 @@ impl SliderWithTextBox {
     pub fn new(prompt: &str, low: Duration, high: Duration, canvas: &Canvas) -> SliderWithTextBox {
         // TODO Need to re-center when window is resized
         let mut top_left = canvas.center_to_screen_pt();
-        top_left.x -= Slider::total_width() / 2.0;
-        top_left.y -= (BAR_HEIGHT + 2.0 * VERT_PADDING + canvas.line_height) / 2.0;
+        let dims = Dims::fit_total_width(420.0);
+        top_left.x -= dims.total_width / 2.0;
+        top_left.y -= (dims.bar_height + 2.0 * dims.vert_padding + canvas.line_height) / 2.0;
 
         SliderWithTextBox {
             slider: Slider::new(top_left),

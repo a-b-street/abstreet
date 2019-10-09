@@ -38,6 +38,7 @@ impl SpeedControls {
             ctx,
         )
         .set_pos(ctx, SidebarPos::below(&slider));
+        slider.snap_above(&menu);
 
         SpeedControls {
             slider,
@@ -66,6 +67,7 @@ impl SpeedControls {
             )));
         }
         self.menu.handle_event(ctx, Some(txt));
+        self.slider.snap_above(&self.menu);
 
         let desired_speed = self.desired_speed();
         if desired_speed != SPEED_CAP && self.menu.action("speed up") {

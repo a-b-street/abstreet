@@ -142,6 +142,10 @@ impl ModalMenu {
 
         self.menu = menu;
     }
+
+    pub fn get_total_width(&self) -> f64 {
+        self.menu.get_total_width()
+    }
 }
 
 impl SidebarPos {

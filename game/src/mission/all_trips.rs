@@ -57,10 +57,8 @@ impl TripsVisualizer {
             final_trips
         });
 
-        let time_slider = Slider::new(ScreenPt::new(
-            ctx.canvas.window_width - Slider::total_width(),
-            0.0,
-        ));
+        // TODO tmp hardcoding this width
+        let mut time_slider = Slider::new(ScreenPt::new(ctx.canvas.window_width - 420.0, 0.0));
         let menu = ModalMenu::new(
             "Trips Visualizer",
             vec![
@@ -77,6 +75,7 @@ impl TripsVisualizer {
             ctx,
         )
         .set_pos(ctx, SidebarPos::below(&time_slider));
+        time_slider.snap_above(&menu);
 
         TripsVisualizer {
             menu,

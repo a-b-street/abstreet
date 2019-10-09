@@ -477,6 +477,10 @@ impl<T: Clone> Menu<T> {
             Distance::meters(radius),
         )
     }
+
+    pub fn get_total_width(&self) -> f64 {
+        self.total_width
+    }
 }
 
 impl Position {
