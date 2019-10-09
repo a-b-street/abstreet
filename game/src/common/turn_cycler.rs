@@ -42,7 +42,7 @@ impl TurnCyclerState {
                     {
                         ui.primary.current_selection = None;
                         let (idx, _, _) =
-                            signal.current_cycle_and_remaining_time(ui.primary.sim.time());
+                            signal.current_phase_and_remaining_time(ui.primary.sim.time());
                         return Some(Transition::Push(Box::new(ShowTrafficSignal {
                             menu: ModalMenu::new(
                                 "Traffic Signal Diagram",

@@ -1,6 +1,6 @@
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{
-    draw_signal_cycle, DrawCtx, DrawOptions, Renderable, CROSSWALK_LINE_THICKNESS,
+    draw_signal_phase, DrawCtx, DrawOptions, Renderable, CROSSWALK_LINE_THICKNESS,
     OUTLINE_THICKNESS,
 };
 use abstutil::Timer;
@@ -159,9 +159,9 @@ impl Renderable for DrawIntersection {
                     .map(|(_, t)| *t != ctx.sim.time())
                     .unwrap_or(true);
                 if recalc {
-                    let (_, cycle, t) = signal.current_cycle_and_remaining_time(ctx.sim.time());
+                    let (_, phase, t) = signal.current_phase_and_remaining_time(ctx.sim.time());
                     let mut batch = GeomBatch::new();
-                    draw_signal_cycle(cycle, Some(t), &mut batch, ctx);
+                    draw_signal_phase(phase, Some(t), &mut batch, ctx);
                     *maybe_redraw = Some((g.prerender.upload(batch), ctx.sim.time()));
                 }
                 g.redraw(&maybe_redraw.as_ref().unwrap().0);

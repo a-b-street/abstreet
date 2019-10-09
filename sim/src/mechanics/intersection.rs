@@ -120,16 +120,16 @@ impl IntersectionSimState {
         scheduler: &mut Scheduler,
     ) {
         let state = &self.state[&id];
-        let (_, cycle, remaining) = map
+        let (_, phase, remaining) = map
             .get_traffic_signal(id)
-            .current_cycle_and_remaining_time(now);
+            .current_phase_and_remaining_time(now);
 
         // Wake up Priority turns before Yield turns. Don't wake up Banned turns at all. This makes
         // sure priority vehicles should get the head-start, without blocking yield vehicles
         // unnecessarily.
         let mut yields = Vec::new();
         for req in state.waiting.keys() {
-            match cycle.get_priority(req.turn) {
+            match phase.get_priority(req.turn) {
                 TurnPriority::Banned => {}
                 TurnPriority::Stop => unreachable!(),
                 TurnPriority::Yield => {
@@ -297,10 +297,10 @@ impl State {
             return true;
         }
 
-        let (_, cycle, remaining_cycle_time) = signal.current_cycle_and_remaining_time(now);
+        let (_, phase, remaining_phase_time) = signal.current_phase_and_remaining_time(now);
 
-        // Can't go at all this cycle.
-        if cycle.get_priority(new_req.turn) == TurnPriority::Banned {
+        // Can't go at all this phase.
+        if phase.get_priority(new_req.turn) == TurnPriority::Banned {
             return false;
         }
 
@@ -321,10 +321,10 @@ impl State {
         // turn. Don't start the turn if we won't finish by the time the light changes. If we get
         // it wrong, that's fine -- block the box a bit.
         let time_to_cross = turn.geom.length() / speed;
-        if time_to_cross > remaining_cycle_time {
+        if time_to_cross > remaining_phase_time {
             // Actually, we might have bigger problems...
-            if time_to_cross > cycle.duration {
-                println!("OYYY! {:?} is impossible to fit into cycle duration of {}. Allowing, but fix the policy!", new_req, cycle.duration);
+            if time_to_cross > phase.duration {
+                println!("OYYY! {:?} is impossible to fit into phase duration of {}. Allowing, but fix the policy!", new_req, phase.duration);
             } else {
                 return false;
             }

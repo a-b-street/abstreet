@@ -6,7 +6,7 @@ a city affect the movement of drivers, cyclists, transit users, and pedestrians.
 
 [Play A/B Street on Windows, Mac, Linux](docs/INSTRUCTIONS.md)
 
-Removing dedicated left-turn cycles from a traffic signal:
+Removing dedicated left-turn phases from a traffic signal:
 
 ![fix_traffic_signal](docs/videos/fix_traffic_signal.gif)
 

@@ -527,9 +527,9 @@ impl Map {
         if let Some(ss) = self.stop_signs.get(&t.parent) {
             ss.get_priority(t) != TurnPriority::Banned
         } else if let Some(ts) = self.traffic_signals.get(&t.parent) {
-            ts.cycles
+            ts.phases
                 .iter()
-                .any(|c| c.get_priority(t) != TurnPriority::Banned)
+                .any(|p| p.get_priority(t) != TurnPriority::Banned)
         } else {
             // Border nodes have no turns...
             panic!("{}'s intersection isn't a stop sign or traffic signal", t);

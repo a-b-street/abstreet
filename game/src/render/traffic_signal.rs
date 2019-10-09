@@ -3,18 +3,18 @@ use ezgui::{
     Color, EventCtx, GeomBatch, GfxCtx, Line, ModalMenu, ScreenDims, ScreenPt, Scroller, Text,
 };
 use geom::{Circle, Distance, Duration, Line, Polygon, Pt2D};
-use map_model::{Cycle, IntersectionID, Map, TurnPriority, TurnType, LANE_THICKNESS};
+use map_model::{IntersectionID, Map, Phase, TurnPriority, TurnType, LANE_THICKNESS};
 use ordered_float::NotNan;
 
 // Only draws a box when time_left is present
-pub fn draw_signal_cycle(
-    cycle: &Cycle,
+pub fn draw_signal_phase(
+    phase: &Phase,
     time_left: Option<Duration>,
     batch: &mut GeomBatch,
     ctx: &DrawCtx,
 ) {
     if false {
-        draw_signal_cycle_with_icons(cycle, batch, ctx);
+        draw_signal_phase_with_icons(phase, batch, ctx);
         return;
     }
 
@@ -26,19 +26,19 @@ pub fn draw_signal_cycle(
         Color::rgba(255, 105, 180, 0.8),
     );
 
-    for (id, crosswalk) in &ctx.draw_map.get_i(cycle.parent).crosswalks {
-        if cycle.get_priority(*id) == TurnPriority::Priority {
+    for (id, crosswalk) in &ctx.draw_map.get_i(phase.parent).crosswalks {
+        if phase.get_priority(*id) == TurnPriority::Priority {
             batch.append(crosswalk);
         }
     }
 
-    for t in &cycle.priority_turns {
+    for t in &phase.priority_turns {
         let turn = ctx.map.get_t(*t);
         if !turn.between_sidewalks() {
             DrawTurn::full_geom(turn, batch, priority_color);
         }
     }
-    for t in &cycle.yield_turns {
+    for t in &phase.yield_turns {
         let turn = ctx.map.get_t(*t);
         // Lane-changing as yield is implied and very messy to show.
         if !turn.between_sidewalks()
@@ -56,9 +56,9 @@ pub fn draw_signal_cycle(
     let radius = Distance::meters(0.5);
     let box_width = 2.5 * radius;
     let box_height = 6.5 * radius;
-    let center = ctx.map.get_i(cycle.parent).polygon.center();
+    let center = ctx.map.get_i(phase.parent).polygon.center();
     let top_left = center.offset(-box_width / 2.0, -box_height / 2.0);
-    let percent = time_left.unwrap() / cycle.duration;
+    let percent = time_left.unwrap() / phase.duration;
     // TODO Tune colors.
     batch.push(
         ctx.cs.get_def("traffic signal box", Color::grey(0.2)),
@@ -80,14 +80,14 @@ pub fn draw_signal_cycle(
 }
 
 // TODO Written in a complicated way, and still doesn't look right.
-fn draw_signal_cycle_with_icons(cycle: &Cycle, batch: &mut GeomBatch, ctx: &DrawCtx) {
-    for (id, crosswalk) in &ctx.draw_map.get_i(cycle.parent).crosswalks {
-        if cycle.get_priority(*id) == TurnPriority::Priority {
+fn draw_signal_phase_with_icons(phase: &Phase, batch: &mut GeomBatch, ctx: &DrawCtx) {
+    for (id, crosswalk) in &ctx.draw_map.get_i(phase.parent).crosswalks {
+        if phase.get_priority(*id) == TurnPriority::Priority {
             batch.append(crosswalk);
         }
     }
 
-    for l in &ctx.map.get_i(cycle.parent).incoming_lanes {
+    for l in &ctx.map.get_i(phase.parent).incoming_lanes {
         let lane = ctx.map.get_l(*l);
         // TODO Show a hand or a walking sign for crosswalks
         if lane.is_parking() || lane.is_sidewalk() {
@@ -97,14 +97,14 @@ fn draw_signal_cycle_with_icons(cycle: &Cycle, batch: &mut GeomBatch, ctx: &Draw
         let mut green = Vec::new();
         let mut yellow = Vec::new();
         let mut red = Vec::new();
-        for (turn, _) in ctx.map.get_next_turns_and_lanes(lane.id, cycle.parent) {
+        for (turn, _) in ctx.map.get_next_turns_and_lanes(lane.id, phase.parent) {
             if turn.turn_type == TurnType::LaneChangeLeft
                 || turn.turn_type == TurnType::LaneChangeRight
             {
                 continue;
             }
 
-            match cycle.get_priority(turn.id) {
+            match phase.get_priority(turn.id) {
                 TurnPriority::Priority => {
                     green.push(turn.id);
                 }
@@ -228,14 +228,14 @@ pub struct TrafficSignalDiagram {
     labels: Vec<Text>,
     top_left: Pt2D,
     intersection_width: f64, // TODO needed?
-    // The usizes are cycle indices
+    // The usizes are phase indices
     scroller: Scroller<usize>,
 }
 
 impl TrafficSignalDiagram {
     pub fn new(
         i: IntersectionID,
-        current_cycle: usize,
+        current_phase: usize,
         map: &Map,
         ctx: &EventCtx,
     ) -> TrafficSignalDiagram {
@@ -248,15 +248,15 @@ impl TrafficSignalDiagram {
                 b.max_y - b.min_y,
             )
         };
-        let cycles = &map.get_traffic_signal(i).cycles;
+        let phases = &map.get_traffic_signal(i).phases;
 
         // Precalculate maximum text width.
         let mut labels = Vec::new();
-        for (idx, cycle) in cycles.iter().enumerate() {
+        for (idx, phase) in phases.iter().enumerate() {
             labels.push(Text::from(Line(format!(
-                "Cycle {}: {}",
+                "Phase {}: {}",
                 idx + 1,
-                cycle.duration
+                phase.duration
             ))));
         }
         let label_length = labels
@@ -272,10 +272,10 @@ impl TrafficSignalDiagram {
         let scroller = Scroller::new(
             ScreenPt::new(0.0, 0.0),
             std::iter::repeat(item_dims)
-                .take(cycles.len())
+                .take(phases.len())
                 .enumerate()
                 .collect(),
-            current_cycle,
+            current_phase,
             &ctx.canvas,
         );
 
@@ -291,29 +291,29 @@ impl TrafficSignalDiagram {
     pub fn event(&mut self, ctx: &mut EventCtx, menu: &mut ModalMenu) {
         self.scroller.event(ctx);
 
-        if self.scroller.current_idx() != 0 && menu.action("select previous cycle") {
+        if self.scroller.current_idx() != 0 && menu.action("select previous phase") {
             self.scroller.select_previous();
             return;
         }
         if self.scroller.current_idx() != self.scroller.num_items() - 1
-            && menu.action("select next cycle")
+            && menu.action("select next phase")
         {
             self.scroller.select_next(ctx.canvas);
             return;
         }
     }
 
-    pub fn current_cycle(&self) -> usize {
+    pub fn current_phase(&self) -> usize {
         self.scroller.current_idx()
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
-        let cycles = &ctx.map.get_traffic_signal(self.i).cycles;
+        let phases = &ctx.map.get_traffic_signal(self.i).phases;
 
         for (idx, rect) in self.scroller.draw(g) {
             g.fork(self.top_left, ScreenPt::new(rect.x1, rect.y1), ZOOM);
             let mut batch = GeomBatch::new();
-            draw_signal_cycle(&cycles[idx], None, &mut batch, ctx);
+            draw_signal_phase(&phases[idx], None, &mut batch, ctx);
             batch.draw(g);
 
             g.draw_text_at_screenspace_topleft(

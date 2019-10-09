@@ -4,12 +4,12 @@ use geom::Duration;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 
-const CYCLE_DURATION: Duration = Duration::const_seconds(30.0);
+const PHASE_DURATION: Duration = Duration::const_seconds(30.0);
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ControlTrafficSignal {
     pub id: IntersectionID,
-    pub cycles: Vec<Cycle>,
+    pub phases: Vec<Phase>,
 }
 
 impl ControlTrafficSignal {
@@ -48,13 +48,13 @@ impl ControlTrafficSignal {
         results
     }
 
-    pub fn current_cycle_and_remaining_time(&self, now: Duration) -> (usize, &Cycle, Duration) {
-        let cycle_idx = (now / CYCLE_DURATION).floor() as usize;
-        let normalized_cycle_idx = cycle_idx % self.cycles.len();
-        let cycle = &self.cycles[normalized_cycle_idx];
-        let next_cycle_time = CYCLE_DURATION * (cycle_idx + 1) as f64;
-        let remaining_cycle_time = next_cycle_time - now;
-        (normalized_cycle_idx, cycle, remaining_cycle_time)
+    pub fn current_phase_and_remaining_time(&self, now: Duration) -> (usize, &Phase, Duration) {
+        let phase_idx = (now / PHASE_DURATION).floor() as usize;
+        let normalized_phase_idx = phase_idx % self.phases.len();
+        let phase = &self.phases[normalized_phase_idx];
+        let next_phase_time = PHASE_DURATION * (phase_idx + 1) as f64;
+        let remaining_phase_time = next_phase_time - now;
+        (normalized_phase_idx, phase, remaining_phase_time)
     }
 
     fn validate(&self, map: &Map) -> Result<(), Error> {
@@ -63,21 +63,21 @@ impl ControlTrafficSignal {
         // Does the assignment cover the correct set of turns?
         let expected_turns: BTreeSet<TurnID> = map.get_i(self.id).turns.iter().cloned().collect();
         let mut actual_turns: BTreeSet<TurnID> = BTreeSet::new();
-        for cycle in &self.cycles {
-            actual_turns.extend(cycle.priority_turns.iter());
-            actual_turns.extend(cycle.yield_turns.iter());
+        for phase in &self.phases {
+            actual_turns.extend(phase.priority_turns.iter());
+            actual_turns.extend(phase.yield_turns.iter());
         }
         if expected_turns != actual_turns {
             return Err(Error::new(format!("Traffic signal assignment for {} broken. Missing turns {:?}, contains irrelevant turns {:?}", self.id, expected_turns.difference(&actual_turns).cloned().collect::<Vec<TurnID>>(), actual_turns.difference(&expected_turns).cloned().collect::<Vec<TurnID>>())));
         }
 
-        for cycle in &self.cycles {
-            // Do any of the priority turns in one cycle conflict?
-            for t1 in cycle.priority_turns.iter().map(|t| map.get_t(*t)) {
-                for t2 in cycle.priority_turns.iter().map(|t| map.get_t(*t)) {
+        for phase in &self.phases {
+            // Do any of the priority turns in one phase conflict?
+            for t1 in phase.priority_turns.iter().map(|t| map.get_t(*t)) {
+                for t2 in phase.priority_turns.iter().map(|t| map.get_t(*t)) {
                     if t1.conflicts_with(t2) {
                         return Err(Error::new(format!(
-                            "Traffic signal has conflicting priority turns in one cycle:\n{:?}\n\n{:?}",
+                            "Traffic signal has conflicting priority turns in one phase:\n{:?}\n\n{:?}",
                             t1, t2
                         )));
                     }
@@ -88,10 +88,10 @@ impl ControlTrafficSignal {
             for t in map.get_turns_in_intersection(self.id) {
                 match t.turn_type {
                     TurnType::Crosswalk => {
-                        assert!(!cycle.yield_turns.contains(&t.id));
+                        assert!(!phase.yield_turns.contains(&t.id));
                     }
                     TurnType::SharedSidewalkCorner => {
-                        assert!(cycle.priority_turns.contains(&t.id));
+                        assert!(phase.priority_turns.contains(&t.id));
                     }
                     _ => {}
                 }
@@ -106,28 +106,28 @@ impl ControlTrafficSignal {
             panic!("{} has no turns", intersection);
         }
 
-        let mut cycles = Vec::new();
+        let mut phases = Vec::new();
 
-        // Greedily partition turns into cycles. More clever things later. No yields.
+        // Greedily partition turns into phases. More clever things later. No yields.
         let mut remaining_turns: Vec<TurnID> = map
             .get_turns_in_intersection(intersection)
             .iter()
             .map(|t| t.id)
             .collect();
-        let mut current_cycle = Cycle::new(intersection);
+        let mut current_phase = Phase::new(intersection);
         loop {
             let add_turn = remaining_turns
                 .iter()
-                .position(|&t| current_cycle.could_be_priority_turn(t, map));
+                .position(|&t| current_phase.could_be_priority_turn(t, map));
             match add_turn {
                 Some(idx) => {
-                    current_cycle
+                    current_phase
                         .priority_turns
                         .insert(remaining_turns.remove(idx));
                 }
                 None => {
-                    cycles.push(current_cycle);
-                    current_cycle = Cycle::new(intersection);
+                    phases.push(current_phase);
+                    current_phase = Phase::new(intersection);
                     if remaining_turns.is_empty() {
                         break;
                     }
@@ -135,11 +135,11 @@ impl ControlTrafficSignal {
             }
         }
 
-        expand_all_cycles(&mut cycles, map, intersection);
+        expand_all_phases(&mut phases, map, intersection);
 
         let ts = ControlTrafficSignal {
             id: intersection,
-            cycles,
+            phases,
         };
         // This must succeed
         ts.validate(map).unwrap();
@@ -166,9 +166,9 @@ impl ControlTrafficSignal {
             phases.push(vec![(vec![r1, r2], TurnType::Crosswalk, PROTECTED)]);
         }
 
-        let cycles = make_cycles(map, i, phases);
+        let phases = make_phases(map, i, phases);
 
-        let ts = ControlTrafficSignal { id: i, cycles };
+        let ts = ControlTrafficSignal { id: i, phases };
         if ts.validate(map).is_ok() {
             Some(ts)
         } else {
@@ -196,7 +196,7 @@ impl ControlTrafficSignal {
         let east = roads.into_iter().next().unwrap();
 
         // Two-phase with no protected lefts, right turn on red, turning cars yield to peds
-        let cycles = make_cycles(
+        let phases = make_phases(
             map,
             i,
             vec![
@@ -221,7 +221,7 @@ impl ControlTrafficSignal {
             ],
         );
 
-        let ts = ControlTrafficSignal { id: i, cycles };
+        let ts = ControlTrafficSignal { id: i, phases };
         if ts.validate(map).is_ok() {
             Some(ts)
         } else {
@@ -242,7 +242,7 @@ impl ControlTrafficSignal {
 
         // Four-phase with protected lefts, right turn on red (except for the protected lefts), turning
         // cars yield to peds
-        let cycles = make_cycles(
+        let phases = make_phases(
             map,
             i,
             vec![
@@ -267,7 +267,7 @@ impl ControlTrafficSignal {
             ],
         );
 
-        let ts = ControlTrafficSignal { id: i, cycles };
+        let ts = ControlTrafficSignal { id: i, phases };
         if ts.validate(map).is_ok() {
             Some(ts)
         } else {
@@ -287,7 +287,7 @@ impl ControlTrafficSignal {
         let (north, west, south, east) = (roads[0], roads[1], roads[2], roads[3]);
 
         // Two-phase with no protected lefts, right turn on red, turning cars yielding to peds
-        let cycles = make_cycles(
+        let phases = make_phases(
             map,
             i,
             vec![
@@ -312,7 +312,7 @@ impl ControlTrafficSignal {
             ],
         );
 
-        let ts = ControlTrafficSignal { id: i, cycles };
+        let ts = ControlTrafficSignal { id: i, phases };
         if ts.validate(map).is_ok() {
             Some(ts)
         } else {
@@ -338,7 +338,7 @@ impl ControlTrafficSignal {
         let r2 = incomings[1];
 
         // TODO This may not generalize...
-        let cycles = make_cycles(
+        let phases = make_phases(
             map,
             i,
             vec![
@@ -368,7 +368,7 @@ impl ControlTrafficSignal {
             ],
         );
 
-        let ts = ControlTrafficSignal { id: i, cycles };
+        let ts = ControlTrafficSignal { id: i, phases };
         if ts.validate(map).is_ok() {
             Some(ts)
         } else {
@@ -377,54 +377,54 @@ impl ControlTrafficSignal {
     }
 
     pub fn convert_to_ped_scramble(&mut self, map: &Map) {
-        // Remove Crosswalk turns from existing cycles.
-        for cycle in self.cycles.iter_mut() {
+        // Remove Crosswalk turns from existing phases.
+        for phase in self.phases.iter_mut() {
             // Crosswalks are usually only priority_turns, but also clear out from yield_turns.
             for t in map.get_turns_in_intersection(self.id) {
                 if t.turn_type == TurnType::Crosswalk {
-                    cycle.priority_turns.remove(&t.id);
-                    cycle.yield_turns.remove(&t.id);
+                    phase.priority_turns.remove(&t.id);
+                    phase.yield_turns.remove(&t.id);
                 }
             }
 
             // Blindly try to promote yield turns to protected, now that crosswalks are gone.
             let mut promoted = Vec::new();
-            for t in &cycle.yield_turns {
-                if cycle.could_be_priority_turn(*t, map) {
-                    cycle.priority_turns.insert(*t);
+            for t in &phase.yield_turns {
+                if phase.could_be_priority_turn(*t, map) {
+                    phase.priority_turns.insert(*t);
                     promoted.push(*t);
                 }
             }
             for t in promoted {
-                cycle.yield_turns.remove(&t);
+                phase.yield_turns.remove(&t);
             }
         }
 
-        let mut cycle = Cycle::new(self.id);
+        let mut phase = Phase::new(self.id);
         for t in map.get_turns_in_intersection(self.id) {
             if t.between_sidewalks() {
-                cycle.edit_turn(t, TurnPriority::Priority);
+                phase.edit_turn(t, TurnPriority::Priority);
             }
         }
-        self.cycles.push(cycle);
+        self.phases.push(phase);
     }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
-pub struct Cycle {
+pub struct Phase {
     pub parent: IntersectionID,
     pub priority_turns: BTreeSet<TurnID>,
     pub yield_turns: BTreeSet<TurnID>,
     pub duration: Duration,
 }
 
-impl Cycle {
-    pub fn new(parent: IntersectionID) -> Cycle {
-        Cycle {
+impl Phase {
+    pub fn new(parent: IntersectionID) -> Phase {
+        Phase {
             parent,
             priority_turns: BTreeSet::new(),
             yield_turns: BTreeSet::new(),
-            duration: CYCLE_DURATION,
+            duration: PHASE_DURATION,
         }
     }
 
@@ -465,17 +465,17 @@ impl Cycle {
     }
 }
 
-// Add all legal priority turns to existing cycles.
-fn expand_all_cycles(cycles: &mut Vec<Cycle>, map: &Map, intersection: IntersectionID) {
+// Add all legal priority turns to existing phases.
+fn expand_all_phases(phases: &mut Vec<Phase>, map: &Map, intersection: IntersectionID) {
     let all_turns: Vec<TurnID> = map
         .get_turns_in_intersection(intersection)
         .iter()
         .map(|t| t.id)
         .collect();
-    for cycle in cycles.iter_mut() {
+    for phase in phases.iter_mut() {
         for t in &all_turns {
-            if !cycle.priority_turns.contains(t) && cycle.could_be_priority_turn(*t, map) {
-                cycle.priority_turns.insert(*t);
+            if !phase.priority_turns.contains(t) && phase.could_be_priority_turn(*t, map) {
+                phase.priority_turns.insert(*t);
             }
         }
     }
@@ -484,22 +484,22 @@ fn expand_all_cycles(cycles: &mut Vec<Cycle>, map: &Map, intersection: Intersect
 const PROTECTED: bool = true;
 const YIELD: bool = false;
 
-fn make_cycles(
+fn make_phases(
     map: &Map,
     i: IntersectionID,
-    cycle_specs: Vec<Vec<(Vec<RoadID>, TurnType, bool)>>,
-) -> Vec<Cycle> {
-    let mut cycles: Vec<Cycle> = Vec::new();
+    phase_specs: Vec<Vec<(Vec<RoadID>, TurnType, bool)>>,
+) -> Vec<Phase> {
+    let mut phases: Vec<Phase> = Vec::new();
 
-    for specs in cycle_specs {
-        let mut cycle = Cycle::new(i);
+    for specs in phase_specs {
+        let mut phase = Phase::new(i);
         let mut empty = true;
 
         for (roads, turn_type, protected) in specs.into_iter() {
             for turn in map.get_turns_in_intersection(i) {
                 // These never conflict with anything.
                 if turn.turn_type == TurnType::SharedSidewalkCorner {
-                    cycle.priority_turns.insert(turn.id);
+                    phase.priority_turns.insert(turn.id);
                     continue;
                 }
 
@@ -507,7 +507,7 @@ fn make_cycles(
                     continue;
                 }
 
-                cycle.edit_turn(
+                phase.edit_turn(
                     turn,
                     if protected {
                         TurnPriority::Priority
@@ -519,13 +519,13 @@ fn make_cycles(
             }
         }
 
-        // Filter out empty cycles if they happen.
+        // Filter out empty phases if they happen.
         if empty {
             continue;
         }
 
-        cycles.push(cycle);
+        phases.push(phase);
     }
 
-    cycles
+    phases
 }
