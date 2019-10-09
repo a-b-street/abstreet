@@ -1,3 +1,5 @@
+use crate::Canvas;
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct ScreenPt {
     pub x: f64,
@@ -50,5 +52,28 @@ pub struct ScreenDims {
 impl ScreenDims {
     pub fn new(width: f64, height: f64) -> ScreenDims {
         ScreenDims { width, height }
+    }
+
+    pub fn top_left_for_corner(&self, corner: ScreenPt, canvas: &Canvas) -> ScreenPt {
+        // TODO Ideally also avoid covered canvas areas
+        if corner.x + self.width < canvas.window_width {
+            // corner.x is the left corner
+            if corner.y + self.height < canvas.window_height {
+                // corner.y is the top corner
+                corner
+            } else {
+                // corner.y is the bottom corner
+                ScreenPt::new(corner.x, corner.y - self.height)
+            }
+        } else {
+            // corner.x is the right corner
+            if corner.y + self.height < canvas.window_height {
+                // corner.y is the top corner
+                ScreenPt::new(corner.x - self.width, corner.y)
+            } else {
+                // corner.y is the bottom corner
+                ScreenPt::new(corner.x - self.width, corner.y - self.height)
+            }
+        }
     }
 }

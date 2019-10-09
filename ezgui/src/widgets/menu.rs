@@ -1,6 +1,6 @@
 use crate::{
     hotkey, lctrl, text, Canvas, Color, Event, GeomBatch, GfxCtx, InputResult, Key, Line, MultiKey,
-    ScreenPt, ScreenRectangle, Text,
+    ScreenDims, ScreenPt, ScreenRectangle, Text,
 };
 use geom::{Circle, Distance, Polygon, Pt2D};
 use std::collections::HashSet;
@@ -102,7 +102,7 @@ impl<T: Clone> Menu<T> {
         }
 
         let (total_width, total_height) = canvas.text_dims(&txt);
-        let top_left = pos.get_top_left(canvas, total_width, total_height);
+        let top_left = pos.get_top_left(canvas, ScreenDims::new(total_width, total_height));
         prompt.override_width = Some(total_width);
 
         Menu {
@@ -273,14 +273,14 @@ impl<T: Clone> Menu<T> {
             g.unfork();
 
             // TODO This doesn't look great:
-            // 1) Goes off-screen sometimes (could draw it left/right of the cursor based on window
-            //    width)
-            // 2) Covers up the icon
+            // 1) Partly covers up the icon
+            // 2) Doesn't properly cover menu text underneath
+            // 3) Color blends in with menu
             if self.icon_selected {
-                let mut txt = Text::with_bg_color(Some(text::BG_COLOR.alpha(0.5)));
+                let mut txt = Text::new();
                 txt.add_appended(vec![
-                    Line(Key::Tab.describe()).fg(text::HOTKEY_COLOR.alpha(0.5)),
-                    Line(" - expand menu").fg(Color::WHITE.alpha(0.5)),
+                    Line(Key::Tab.describe()).fg(text::HOTKEY_COLOR),
+                    Line(" - expand menu"),
                 ]);
                 g.draw_mouse_tooltip(&txt);
             }
@@ -351,7 +351,7 @@ impl<T: Clone> Menu<T> {
         g.unfork();
 
         if self.icon_selected {
-            let mut txt = Text::with_bg_color(Some(text::BG_COLOR.alpha(0.5)));
+            let mut txt = Text::new();
             txt.add_appended(vec![
                 Line(Key::Tab.describe()).fg(text::HOTKEY_COLOR),
                 Line(" - hide menu"),
@@ -460,7 +460,9 @@ impl<T: Clone> Menu<T> {
             }
         }
         let (total_width, total_height) = canvas.text_dims(&txt);
-        self.top_left = self.pos.get_top_left(canvas, total_width, total_height);
+        self.top_left = self
+            .pos
+            .get_top_left(canvas, ScreenDims::new(total_width, total_height));
         self.total_width = total_width;
         self.prompt.override_width = Some(total_width);
     }
@@ -478,38 +480,17 @@ impl<T: Clone> Menu<T> {
 }
 
 impl Position {
-    fn get_top_left(&self, canvas: &Canvas, total_width: f64, total_height: f64) -> ScreenPt {
+    fn get_top_left(&self, canvas: &Canvas, menu_dims: ScreenDims) -> ScreenPt {
         match self {
-            Position::SomeCornerAt(pt) => {
-                // TODO Ideally also avoid covered canvas areas (modal menu)
-                if pt.x + total_width < canvas.window_width {
-                    // pt.x is the left corner
-                    if pt.y + total_height < canvas.window_height {
-                        // pt.y is the top corner
-                        *pt
-                    } else {
-                        // pt.y is the bottom corner
-                        ScreenPt::new(pt.x, pt.y - total_height)
-                    }
-                } else {
-                    // pt.x is the right corner
-                    if pt.y + total_height < canvas.window_height {
-                        // pt.y is the top corner
-                        ScreenPt::new(pt.x - total_width, pt.y)
-                    } else {
-                        // pt.y is the bottom corner
-                        ScreenPt::new(pt.x - total_width, pt.y - total_height)
-                    }
-                }
-            }
+            Position::SomeCornerAt(pt) => menu_dims.top_left_for_corner(*pt, canvas),
             Position::TopLeftAt(pt) => *pt,
             Position::ScreenCenter => {
                 let mut pt = canvas.center_to_screen_pt();
-                pt.x -= total_width / 2.0;
-                pt.y -= total_height / 2.0;
+                pt.x -= menu_dims.width / 2.0;
+                pt.y -= menu_dims.height / 2.0;
                 pt
             }
-            Position::TopRightOfScreen => ScreenPt::new(canvas.window_width - total_width, 0.0),
+            Position::TopRightOfScreen => ScreenPt::new(canvas.window_width - menu_dims.width, 0.0),
         }
     }
 }

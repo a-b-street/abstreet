@@ -195,6 +195,7 @@ impl Canvas {
         b
     }
 
+    // TODO Maybe return ScreenDims
     pub fn text_dims(&self, txt: &Text) -> (f64, f64) {
         txt.dims(self)
     }

@@ -1,5 +1,7 @@
 use crate::input::ContextMenu;
-use crate::{text, Canvas, Color, HorizontalAlignment, Key, ScreenPt, Text, VerticalAlignment};
+use crate::{
+    text, Canvas, Color, HorizontalAlignment, Key, ScreenDims, ScreenPt, Text, VerticalAlignment,
+};
 use geom::{Bounds, Circle, Distance, Line, Polygon, Pt2D};
 use glium::uniforms::{SamplerBehavior, SamplerWrapFunction, UniformValue};
 use glium::Surface;
@@ -273,10 +275,14 @@ impl<'a> GfxCtx<'a> {
 
     pub fn draw_mouse_tooltip(&mut self, txt: &Text) {
         let (width, height) = self.text_dims(&txt);
-        let x1 = self.canvas.cursor_x - (width / 2.0);
-        let y1 = self.canvas.cursor_y - (height / 2.0);
+        // TODO Maybe also consider the cursor as a valid center. After context menus go away, this
+        // makes even more sense.
+        let pt = ScreenDims::new(width, height).top_left_for_corner(
+            ScreenPt::new(self.canvas.cursor_x, self.canvas.cursor_y),
+            &self.canvas,
+        );
         // No need to cover the tooltip; this tooltip follows the mouse anyway.
-        text::draw_text_bubble(self, ScreenPt::new(x1, y1), txt, (width, height));
+        text::draw_text_bubble(self, pt, txt, (width, height));
     }
 
     pub fn screen_to_map(&self, pt: ScreenPt) -> Pt2D {
