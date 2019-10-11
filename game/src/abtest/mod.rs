@@ -94,7 +94,9 @@ impl State for ABTestMode {
                 diff.lines.len()
             )));
         }
-        txt.add(Line(ui.primary.sim.summary()));
+        let (active, unfinished) = ui.primary.sim.num_trips();
+        txt.add(Line(format!("{} active", active)));
+        txt.add(Line(format!("{} unfinished", unfinished)));
         self.menu.handle_event(ctx, Some(txt));
 
         ctx.canvas.handle_event(ctx.input);

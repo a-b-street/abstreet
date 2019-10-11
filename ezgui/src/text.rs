@@ -116,7 +116,7 @@ impl Text {
             .unwrap()
             .1
             .last()
-            .map(|span| span.size.clone())
+            .map(|span| span.size)
             .unwrap();
 
         self.lines.last_mut().unwrap().1.push(line);

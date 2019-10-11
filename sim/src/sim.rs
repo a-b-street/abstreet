@@ -595,9 +595,12 @@ impl Sim {
 
             let dt_real = Duration::seconds(elapsed_seconds(last_print));
             if dt_real >= Duration::seconds(1.0) {
+                let (active, unfinished) = self.num_trips();
                 println!(
-                    "{}, speed = {:.2}x, {}",
-                    self.summary(),
+                    "{}: {} active / {} unfinished, speed = {:.2}x, {}",
+                    self.time(),
+                    active,
+                    unfinished,
                     (self.time() - last_sim_time) / dt_real,
                     self.scheduler.describe_stats()
                 );
@@ -607,8 +610,8 @@ impl Sim {
             callback(self, map);
             if self.is_done() {
                 println!(
-                    "{}, speed = {:.2}x, {}",
-                    self.summary(),
+                    "{}: speed = {:.2}x, {}",
+                    self.time(),
                     (self.time() - last_sim_time) / dt_real,
                     self.scheduler.describe_stats()
                 );
@@ -708,13 +711,12 @@ impl Sim {
         self.time == Duration::ZERO && self.is_done()
     }
 
-    pub fn summary(&self) -> String {
+    // (active, unfinished) prettyprinted
+    pub fn num_trips(&self) -> (String, String) {
         let (active, unfinished) = self.trips.num_trips();
-        format!(
-            "{}: {} active / {} unfinished",
-            self.time,
+        (
             abstutil::prettyprint_usize(active),
-            abstutil::prettyprint_usize(unfinished)
+            abstutil::prettyprint_usize(unfinished),
         )
     }
 

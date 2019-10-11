@@ -87,7 +87,10 @@ impl State for SandboxMode {
 
         {
             let mut txt = Text::prompt("Sandbox Mode");
-            txt.add(Line(ui.primary.sim.summary()));
+            txt.add(Line(ui.primary.sim.time().to_string()));
+            let (active, unfinished) = ui.primary.sim.num_trips();
+            txt.add(Line(format!("{} active", active)));
+            txt.add(Line(format!("{} unfinished", unfinished)));
             self.menu.handle_event(ctx, Some(txt));
         }
 
