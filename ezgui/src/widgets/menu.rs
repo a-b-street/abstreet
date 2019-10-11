@@ -40,9 +40,7 @@ struct Choice<T: Clone> {
 #[derive(Clone)]
 pub enum Position {
     ScreenCenter,
-    TopLeftAt(ScreenPt),
     SomeCornerAt(ScreenPt),
-    TopRightOfScreen,
 }
 
 impl<T: Clone> Menu<T> {
@@ -430,24 +428,6 @@ impl<T: Clone> Menu<T> {
         );
     }
 
-    pub fn mark_all_inactive(&mut self) {
-        for choice in self.choices.iter_mut() {
-            choice.active = false;
-        }
-    }
-
-    pub fn make_hidden(&mut self, canvas: &Canvas) {
-        assert!(!self.hidden);
-        assert!(self.hideable);
-        self.hidden = true;
-        self.recalculate_geom(canvas);
-    }
-
-    pub fn change_prompt(&mut self, prompt: Text, canvas: &Canvas) {
-        self.prompt = prompt;
-        self.recalculate_geom(canvas);
-    }
-
     fn recalculate_geom(&mut self, canvas: &Canvas) {
         let mut txt = self.prompt.clone();
         if !self.hidden {
@@ -477,24 +457,18 @@ impl<T: Clone> Menu<T> {
             Distance::meters(radius),
         )
     }
-
-    pub fn get_total_width(&self) -> f64 {
-        self.total_width
-    }
 }
 
 impl Position {
     fn get_top_left(&self, canvas: &Canvas, menu_dims: ScreenDims) -> ScreenPt {
         match self {
             Position::SomeCornerAt(pt) => menu_dims.top_left_for_corner(*pt, canvas),
-            Position::TopLeftAt(pt) => *pt,
             Position::ScreenCenter => {
                 let mut pt = canvas.center_to_screen_pt();
                 pt.x -= menu_dims.width / 2.0;
                 pt.y -= menu_dims.height / 2.0;
                 pt
             }
-            Position::TopRightOfScreen => ScreenPt::new(canvas.window_width - menu_dims.width, 0.0),
         }
     }
 }

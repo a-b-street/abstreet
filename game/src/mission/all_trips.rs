@@ -3,8 +3,7 @@ use crate::game::{State, Transition};
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu, ScreenPt, SidebarPos,
-    Slider, Text,
+    hotkey, layout, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu, Slider, Text,
 };
 use geom::{Circle, Distance, Duration};
 use map_model::{PathRequest, LANE_THICKNESS};
@@ -57,9 +56,8 @@ impl TripsVisualizer {
             final_trips
         });
 
-        // TODO tmp hardcoding this width
-        let mut time_slider = Slider::new(ScreenPt::new(ctx.canvas.window_width - 420.0, 0.0));
-        let menu = ModalMenu::new(
+        let mut time_slider = Slider::new();
+        let mut menu = ModalMenu::new(
             "Trips Visualizer",
             vec![
                 vec![
@@ -73,15 +71,18 @@ impl TripsVisualizer {
                 vec![(hotkey(Key::Escape), "quit")],
             ],
             ctx,
-        )
-        .set_pos(ctx, SidebarPos::below(&time_slider));
-        time_slider.snap_above(&menu);
+        );
+        layout::stack_vertically(
+            layout::ContainerOrientation::TopRight,
+            ctx.canvas,
+            vec![&mut time_slider, &mut menu],
+        );
 
         TripsVisualizer {
             menu,
             trips,
             time_slider,
-            speed: SpeedControls::new(ctx, ScreenPt::new(0.0, 0.0)),
+            speed: SpeedControls::new(ctx),
             active_trips: Vec::new(),
         }
     }
@@ -103,6 +104,11 @@ impl State for TripsVisualizer {
         )));
         self.menu.handle_event(ctx, Some(txt));
         ctx.canvas.handle_event(ctx.input);
+        layout::stack_vertically(
+            layout::ContainerOrientation::TopRight,
+            ctx.canvas,
+            vec![&mut self.time_slider, &mut self.menu],
+        );
 
         if ctx.redo_mouseover() {
             ui.recalculate_current_selection(ctx);

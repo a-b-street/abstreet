@@ -9,8 +9,7 @@ use crate::game::{State, Transition};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::{PerMapUI, UI};
 use ezgui::{
-    hotkey, lctrl, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu,
-    ScreenPt, Text,
+    hotkey, lctrl, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu, Text,
 };
 use geom::{Circle, Distance, Line, PolyLine};
 use map_model::{Map, LANE_THICKNESS};
@@ -62,7 +61,7 @@ impl ABTestMode {
                 ],
                 ctx,
             ),
-            speed: SpeedControls::new(ctx, ScreenPt::new(0.0, 0.0)),
+            speed: SpeedControls::new(ctx),
             primary_agent_tools: AgentTools::new(),
             secondary_agent_tools: AgentTools::new(),
             diff_trip: None,

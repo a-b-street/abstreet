@@ -13,8 +13,7 @@ use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::ui::{ShowEverything, UI};
 use ezgui::{
-    hotkey, lctrl, Choice, EventCtx, EventLoopMode, GfxCtx, Key, Line, ModalMenu, ScreenPt, Text,
-    Wizard,
+    hotkey, lctrl, Choice, EventCtx, EventLoopMode, GfxCtx, Key, Line, ModalMenu, Text, Wizard,
 };
 use geom::Duration;
 use sim::Sim;
@@ -33,7 +32,7 @@ pub struct SandboxMode {
 impl SandboxMode {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> SandboxMode {
         SandboxMode {
-            speed: SpeedControls::new(ctx, ScreenPt::new(0.0, 0.0)),
+            speed: SpeedControls::new(ctx),
             agent_tools: AgentTools::new(),
             time_travel: time_travel::InactiveTimeTravel::new(),
             trip_stats: trip_stats::TripStats::new(

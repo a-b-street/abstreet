@@ -1,67 +1,31 @@
+use crate::layout::{stack_vertically, ContainerOrientation, Widget};
 use crate::widgets::text_box::TextBox;
 use crate::{
     hotkey, Canvas, Color, EventCtx, EventLoopMode, GfxCtx, InputResult, Key, Line, ModalMenu,
-    MultiKey, ScreenPt, ScreenRectangle, SidebarPos, Text, Warper,
+    MultiKey, ScreenDims, ScreenPt, ScreenRectangle, Text, Warper,
 };
 use geom::{Distance, Duration, Polygon, Pt2D};
 
-#[derive(Debug)]
-struct Dims {
-    // Pixels
-    bar_width: f64,
-    bar_height: f64,
-    slider_width: f64,
-    slider_height: f64,
-    horiz_padding: f64,
-    vert_padding: f64,
-    total_width: f64,
-}
-
-impl Dims {
-    fn fit_total_width(total_width: f64) -> Dims {
-        let horiz_padding = total_width / 7.0;
-        let bar_width = total_width - 2.0 * horiz_padding;
-        let slider_width = bar_width / 6.0;
-
-        let bar_height = bar_width / 3.0;
-        let slider_height = bar_height * 1.2;
-        let vert_padding = bar_height / 5.0;
-
-        Dims {
-            bar_width,
-            bar_height,
-            slider_width,
-            slider_height,
-            horiz_padding,
-            vert_padding,
-            total_width,
-        }
-    }
-}
-
 pub struct Slider {
-    pub top_left: ScreenPt,
-    dims: Dims,
     current_percent: f64,
     mouse_on_slider: bool,
     dragging: bool,
+
+    top_left: ScreenPt,
+    dims: Dims,
 }
 
 impl Slider {
-    pub fn new(top_left: ScreenPt) -> Slider {
+    pub fn new() -> Slider {
         Slider {
-            top_left,
-            // Placeholderish
-            dims: Dims::fit_total_width(420.0),
             current_percent: 0.0,
             mouse_on_slider: false,
             dragging: false,
-        }
-    }
 
-    pub fn snap_above(&mut self, menu: &ModalMenu) {
-        self.dims = Dims::fit_total_width(menu.get_total_width());
-        // TODO move top left...
+            // Placeholders
+            top_left: ScreenPt::new(0.0, 0.0),
+            dims: Dims::fit_total_width(10.0),
+        }
     }
 
     pub fn get_percent(&self) -> f64 {
@@ -191,13 +155,6 @@ impl Slider {
         );
     }
 
-    pub fn below_top_left(&self) -> ScreenPt {
-        ScreenPt::new(
-            self.top_left.x,
-            self.top_left.y + self.dims.bar_height + 2.0 * self.dims.vert_padding,
-        )
-    }
-
     fn slider_geom(&self) -> Polygon {
         Polygon::rectangle_topleft(
             Pt2D::new(
@@ -212,9 +169,53 @@ impl Slider {
             Distance::meters(self.dims.slider_height),
         )
     }
+}
 
-    pub fn total_width(&self) -> f64 {
-        self.dims.total_width
+impl Widget for Slider {
+    fn get_dims(&self) -> ScreenDims {
+        ScreenDims::new(
+            self.dims.total_width,
+            self.dims.bar_height + 2.0 * self.dims.vert_padding,
+        )
+    }
+
+    fn set_pos(&mut self, top_left: ScreenPt, total_width: f64) {
+        self.top_left = top_left;
+        self.dims = Dims::fit_total_width(total_width);
+    }
+}
+
+#[derive(Debug)]
+struct Dims {
+    // Pixels
+    bar_width: f64,
+    bar_height: f64,
+    slider_width: f64,
+    slider_height: f64,
+    horiz_padding: f64,
+    vert_padding: f64,
+    total_width: f64,
+}
+
+impl Dims {
+    fn fit_total_width(total_width: f64) -> Dims {
+        let horiz_padding = total_width / 7.0;
+        let bar_width = total_width - 2.0 * horiz_padding;
+        let slider_width = bar_width / 6.0;
+
+        let bar_height = bar_width / 3.0;
+        let slider_height = bar_height * 1.2;
+        let vert_padding = bar_height / 5.0;
+
+        Dims {
+            bar_width,
+            bar_height,
+            slider_width,
+            slider_height,
+            horiz_padding,
+            vert_padding,
+            total_width,
+        }
     }
 }
 
@@ -252,15 +253,13 @@ impl<T> ItemSlider<T> {
             (hotkey(Key::Dot), last.as_str()),
         ]);
 
-        // Placeholderish
-        let dims = Dims::fit_total_width(420.0);
-        let mut slider = Slider::new(ScreenPt::new(
-            ctx.canvas.window_width - dims.total_width,
-            0.0,
-        ));
-        let menu =
-            ModalMenu::new(menu_title, choices, ctx).set_pos(ctx, SidebarPos::below(&slider));
-        slider.snap_above(&menu);
+        let mut slider = Slider::new();
+        let mut menu = ModalMenu::new(menu_title, choices, ctx);
+        stack_vertically(
+            ContainerOrientation::TopRight,
+            ctx.canvas,
+            vec![&mut slider, &mut menu],
+        );
 
         ItemSlider {
             items,
@@ -288,6 +287,11 @@ impl<T> ItemSlider<T> {
             txt.extend(&self.items[idx].1);
             self.menu.handle_event(ctx, Some(txt));
         }
+        stack_vertically(
+            ContainerOrientation::TopRight,
+            ctx.canvas,
+            vec![&mut self.slider, &mut self.menu],
+        );
 
         let current = self.slider.get_value(self.items.len());
         if current != self.items.len() - 1 && self.menu.action(&self.next) {
@@ -401,15 +405,17 @@ pub struct SliderWithTextBox {
 
 impl SliderWithTextBox {
     pub fn new(prompt: &str, low: Duration, high: Duration, canvas: &Canvas) -> SliderWithTextBox {
-        // TODO Need to re-center when window is resized
-        let mut top_left = canvas.center_to_screen_pt();
-        let dims = Dims::fit_total_width(420.0);
-        top_left.x -= dims.total_width / 2.0;
-        top_left.y -= (dims.bar_height + 2.0 * dims.vert_padding + canvas.line_height) / 2.0;
+        let mut slider = Slider::new();
+        let mut tb = TextBox::new(prompt, None, canvas);
+        stack_vertically(
+            ContainerOrientation::Centered,
+            canvas,
+            vec![&mut slider, &mut tb],
+        );
 
         SliderWithTextBox {
-            slider: Slider::new(top_left),
-            tb: TextBox::new(prompt, None),
+            slider,
+            tb,
             low,
             high,
         }
@@ -417,6 +423,11 @@ impl SliderWithTextBox {
 
     pub fn event(&mut self, ctx: &mut EventCtx) -> InputResult<Duration> {
         ctx.canvas.handle_event(ctx.input);
+        stack_vertically(
+            ContainerOrientation::Centered,
+            ctx.canvas,
+            vec![&mut self.slider, &mut self.tb],
+        );
 
         if self.slider.event(ctx) {
             let value = self.low + self.slider.get_percent() * (self.high - self.low);
@@ -452,6 +463,6 @@ impl SliderWithTextBox {
 
     pub fn draw(&self, g: &mut GfxCtx) {
         self.slider.draw(g);
-        g.draw_text_at_screenspace_topleft(&self.tb.get_text(), self.slider.below_top_left());
+        self.tb.draw(g);
     }
 }

@@ -1,4 +1,7 @@
-use crate::{text, Event, GfxCtx, InputResult, Key, Line, Text, UserInput, CENTERED};
+use crate::layout::Widget;
+use crate::{
+    text, Canvas, Event, GfxCtx, InputResult, Key, Line, ScreenDims, ScreenPt, Text, UserInput,
+};
 
 // TODO right now, only a single line
 
@@ -8,17 +11,28 @@ pub struct TextBox {
     line: String,
     cursor_x: usize,
     shift_pressed: bool,
+
+    top_left: ScreenPt,
+    dims: ScreenDims,
 }
 
 impl TextBox {
-    pub fn new(prompt: &str, prefilled: Option<String>) -> TextBox {
+    pub fn new(prompt: &str, prefilled: Option<String>, canvas: &Canvas) -> TextBox {
         let line = prefilled.unwrap_or_else(String::new);
-        TextBox {
+        let mut tb = TextBox {
             prompt: prompt.to_string(),
             cursor_x: line.len(),
             line,
             shift_pressed: false,
-        }
+
+            top_left: ScreenPt::new(0.0, 0.0),
+            dims: ScreenDims::new(0.0, 0.0),
+        };
+        // TODO Assume the dims never exceed the prompt width?
+        // TODO Return dims directly
+        let (w, h) = canvas.text_dims(&tb.get_text());
+        tb.dims = ScreenDims::new(w, h);
+        tb
     }
 
     pub(crate) fn get_text(&self) -> Text {
@@ -44,10 +58,6 @@ impl TextBox {
     pub(crate) fn set_text(&mut self, line: String) {
         self.line = line;
         self.cursor_x = self.line.len();
-    }
-
-    pub fn draw(&self, g: &mut GfxCtx) {
-        g.draw_blocking_text(&self.get_text(), CENTERED);
     }
 
     pub fn event(&mut self, input: &mut UserInput) -> InputResult<()> {
@@ -83,5 +93,20 @@ impl TextBox {
             }
         };
         InputResult::StillActive
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx) {
+        g.draw_text_at_screenspace_topleft(&self.get_text(), self.top_left);
+    }
+}
+
+impl Widget for TextBox {
+    fn get_dims(&self) -> ScreenDims {
+        self.dims
+    }
+
+    fn set_pos(&mut self, top_left: ScreenPt, _total_width: f64) {
+        self.top_left = top_left;
+        // TODO Center ourselves within the total_width?
     }
 }

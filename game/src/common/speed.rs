@@ -1,5 +1,5 @@
 use abstutil::elapsed_seconds;
-use ezgui::{hotkey, EventCtx, GfxCtx, Key, Line, ModalMenu, ScreenPt, SidebarPos, Slider, Text};
+use ezgui::{hotkey, layout, EventCtx, GfxCtx, Key, Line, ModalMenu, Slider, Text};
 use geom::Duration;
 use std::time::Instant;
 
@@ -24,11 +24,11 @@ enum State {
 }
 
 impl SpeedControls {
-    pub fn new(ctx: &mut EventCtx, top_left_at: ScreenPt) -> SpeedControls {
-        let mut slider = Slider::new(top_left_at);
+    pub fn new(ctx: &mut EventCtx) -> SpeedControls {
+        let mut slider = Slider::new();
         slider.set_percent(ctx, 1.0 / SPEED_CAP);
 
-        let menu = ModalMenu::new(
+        let mut menu = ModalMenu::new(
             "Speed",
             vec![vec![
                 (hotkey(Key::LeftBracket), "slow down"),
@@ -36,9 +36,12 @@ impl SpeedControls {
                 (hotkey(Key::Space), "resume"),
             ]],
             ctx,
-        )
-        .set_pos(ctx, SidebarPos::below(&slider));
-        slider.snap_above(&menu);
+        );
+        layout::stack_vertically(
+            layout::ContainerOrientation::TopLeft,
+            ctx.canvas,
+            vec![&mut slider, &mut menu],
+        );
 
         SpeedControls {
             slider,
@@ -67,7 +70,11 @@ impl SpeedControls {
             )));
         }
         self.menu.handle_event(ctx, Some(txt));
-        self.slider.snap_above(&self.menu);
+        layout::stack_vertically(
+            layout::ContainerOrientation::TopLeft,
+            ctx.canvas,
+            vec![&mut self.slider, &mut self.menu],
+        );
 
         let desired_speed = self.desired_speed();
         if desired_speed != SPEED_CAP && self.menu.action("speed up") {

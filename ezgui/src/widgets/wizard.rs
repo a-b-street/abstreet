@@ -1,7 +1,10 @@
 use crate::widgets::log_scroller::LogScroller;
 use crate::widgets::text_box::TextBox;
 use crate::widgets::{Menu, Position};
-use crate::{EventCtx, GfxCtx, InputResult, Key, MultiKey, SliderWithTextBox, Text, UserInput};
+use crate::{
+    layout, Canvas, EventCtx, GfxCtx, InputResult, Key, MultiKey, SliderWithTextBox, Text,
+    UserInput,
+};
 use abstutil::Cloneable;
 use geom::Duration;
 use std::collections::VecDeque;
@@ -82,6 +85,7 @@ impl Wizard {
         prefilled: Option<String>,
         input: &mut UserInput,
         parser: Box<dyn Fn(String) -> Option<R>>,
+        canvas: &Canvas,
     ) -> Option<R> {
         assert!(self.alive);
 
@@ -91,8 +95,13 @@ impl Wizard {
         }
 
         if self.tb.is_none() {
-            self.tb = Some(TextBox::new(query, prefilled));
+            self.tb = Some(TextBox::new(query, prefilled, canvas));
         }
+        layout::stack_vertically(
+            layout::ContainerOrientation::Centered,
+            canvas,
+            vec![self.tb.as_mut().unwrap()],
+        );
 
         match self.tb.as_mut().unwrap().event(input) {
             InputResult::StillActive => None,
@@ -166,10 +175,13 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
             let item: &R = first.as_any().downcast_ref::<R>().unwrap();
             return Some(item.clone());
         }
-        if let Some(obj) = self
-            .wizard
-            .input_with_text_box(query, prefilled, self.ctx.input, parser)
-        {
+        if let Some(obj) = self.wizard.input_with_text_box(
+            query,
+            prefilled,
+            self.ctx.input,
+            parser,
+            self.ctx.canvas,
+        ) {
             self.wizard.confirmed_state.push(Box::new(obj.clone()));
             Some(obj)
         } else {

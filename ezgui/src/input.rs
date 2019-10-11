@@ -1,5 +1,5 @@
 use crate::widgets::{Menu, Position};
-use crate::{hotkey, text, Canvas, Event, InputResult, Key, Line, ScreenPt, Text};
+use crate::{hotkey, lctrl, text, Canvas, Event, InputResult, Key, Line, MultiKey, ScreenPt, Text};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 // As we check for user input, record the input and the thing that would happen. This will let us
@@ -17,6 +17,8 @@ pub struct UserInput {
     // TODO Logically these are borrowed, but I think that requires lots of lifetime plumbing right
     // now...
     pub(crate) context_menu: ContextMenu,
+
+    lctrl_held: bool,
 }
 
 pub enum ContextMenu {
@@ -63,6 +65,7 @@ impl UserInput {
             important_actions: Vec::new(),
             context_menu,
             reserved_keys: HashMap::new(),
+            lctrl_held: canvas.lctrl_held,
         };
 
         // First things first...
@@ -184,6 +187,32 @@ impl UserInput {
         if self.event == Event::KeyPress(key) {
             self.consume_event();
             return true;
+        }
+        false
+    }
+
+    pub(crate) fn new_was_pressed(&mut self, multikey: MultiKey) -> bool {
+        if self.context_menu_active() {
+            return false;
+        }
+
+        // TODO Reserve?
+
+        if self.event_consumed {
+            return false;
+        }
+
+        if let Event::KeyPress(pressed) = self.event {
+            let mk = if self.lctrl_held {
+                lctrl(pressed)
+            } else {
+                hotkey(pressed)
+            }
+            .unwrap();
+            if mk == multikey {
+                self.consume_event();
+                return true;
+            }
         }
         false
     }
