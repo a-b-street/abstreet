@@ -4,9 +4,7 @@ mod spawner;
 mod time_travel;
 mod trip_stats;
 
-use crate::common::{
-    time_controls, AgentTools, CommonState, RouteExplorer, SpeedControls, TripExplorer,
-};
+use crate::common::{time_controls, AgentTools, CommonState, SpeedControls};
 use crate::debug::DebugMode;
 use crate::edit::EditMode;
 use crate::game::{State, Transition, WizardState};
@@ -113,12 +111,6 @@ impl State for SandboxMode {
 
         if let Some(new_state) = spawner::AgentSpawner::new(ctx, ui, &mut self.menu) {
             return Transition::Push(new_state);
-        }
-        if let Some(explorer) = RouteExplorer::new(ctx, ui) {
-            return Transition::Push(Box::new(explorer));
-        }
-        if let Some(explorer) = TripExplorer::new(ctx, ui) {
-            return Transition::Push(Box::new(explorer));
         }
 
         if let Some(t) = self.agent_tools.event(ctx, ui, &mut self.menu) {

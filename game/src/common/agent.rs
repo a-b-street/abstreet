@@ -1,5 +1,5 @@
 use crate::common::route_viewer::RouteViewer;
-use crate::common::ColorLegend;
+use crate::common::{ColorLegend, RouteExplorer, TripExplorer};
 use crate::game::{Transition, WizardState};
 use crate::render::{AgentColorScheme, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::UI;
@@ -107,6 +107,13 @@ impl AgentTools {
                     Some(Transition::Pop)
                 },
             ))));
+        }
+
+        if let Some(explorer) = RouteExplorer::new(ctx, ui) {
+            return Some(Transition::Push(Box::new(explorer)));
+        }
+        if let Some(explorer) = TripExplorer::new(ctx, ui) {
+            return Some(Transition::Push(Box::new(explorer)));
         }
 
         None
