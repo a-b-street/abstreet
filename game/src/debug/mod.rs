@@ -101,9 +101,6 @@ impl State for DebugMode {
                 results.ids.len()
             )));
         }
-        if self.neighborhood_summary.active {
-            txt.add(Line("Showing neighborhood summaries"));
-        }
         if let routes::AllRoutesViewer::Active(_, ref traces) = self.all_routes {
             txt.add(Line(format!("Showing {} routes", traces.len())));
         }
@@ -178,13 +175,11 @@ impl State for DebugMode {
                 let show = format!("show {}", label);
                 let hide = format!("hide {}", label);
 
-                if *value && self.menu.action(&hide) {
+                if *value && self.menu.swap_action(&hide, &show, ctx) {
                     *value = false;
-                    self.menu.change_action(&hide, &show, ctx);
                     changed = true;
-                } else if !*value && self.menu.action(&show) {
+                } else if !*value && self.menu.swap_action(&show, &hide, ctx) {
                     *value = true;
-                    self.menu.change_action(&show, &hide, ctx);
                     changed = true;
                 }
             }
@@ -207,14 +202,16 @@ impl State for DebugMode {
         }
 
         if self.search_results.is_some() {
-            if self.menu.action("clear OSM search results") {
-                self.menu
-                    .change_action("clear OSM search results", "search OSM metadata", ctx);
+            if self
+                .menu
+                .swap_action("clear OSM search results", "search OSM metadata", ctx)
+            {
                 self.search_results = None;
             }
-        } else if self.menu.action("search OSM metadata") {
-            self.menu
-                .change_action("search OSM metadata", "clear OSM search results", ctx);
+        } else if self
+            .menu
+            .swap_action("search OSM metadata", "clear OSM search results", ctx)
+        {
             return Transition::Push(WizardState::new(Box::new(search_osm)));
         } else if self.menu.action("configure colors") {
             return Transition::Push(color_picker::ColorChooser::new());

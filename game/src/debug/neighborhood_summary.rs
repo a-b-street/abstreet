@@ -49,12 +49,10 @@ impl NeighborhoodSummary {
     pub fn event(&mut self, ui: &UI, menu: &mut ModalMenu, ctx: &EventCtx) {
         let show = "show neighborhood summaries";
         let hide = "hide neighborhood summaries";
-        if self.active && menu.action(hide) {
+        if self.active && menu.swap_action(hide, show, ctx) {
             self.active = false;
-            menu.change_action(hide, show, ctx);
-        } else if !self.active && menu.action(show) {
+        } else if !self.active && menu.swap_action(show, hide, ctx) {
             self.active = true;
-            menu.change_action(show, hide, ctx);
         }
 
         if self.active && Some(ui.primary.sim.time()) != self.last_summary {

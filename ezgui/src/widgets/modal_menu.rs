@@ -149,6 +149,15 @@ impl ModalMenu {
         panic!("Menu doesn't have {}", old_label);
     }
 
+    pub fn swap_action(&mut self, old_label: &str, new_label: &str, ctx: &EventCtx) -> bool {
+        if self.action(old_label) {
+            self.change_action(old_label, new_label, ctx);
+            true
+        } else {
+            false
+        }
+    }
+
     pub fn consume_action(&mut self, name: &str, ctx: &EventCtx) -> bool {
         if self.action(name) {
             self.remove_action(name, ctx);

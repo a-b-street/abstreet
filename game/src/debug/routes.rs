@@ -16,14 +16,12 @@ impl AllRoutesViewer {
 
         match self {
             AllRoutesViewer::Inactive => {
-                if menu.action(show) {
-                    menu.change_action(show, hide, ctx);
+                if menu.swap_action(show, hide, ctx) {
                     *self = debug_all_routes(ui);
                 }
             }
             AllRoutesViewer::Active(time, _) => {
-                if menu.action(hide) {
-                    menu.change_action(hide, show, ctx);
+                if menu.swap_action(hide, show, ctx) {
                     *self = AllRoutesViewer::Inactive;
                 } else if *time != ui.primary.sim.time() {
                     *self = debug_all_routes(ui);

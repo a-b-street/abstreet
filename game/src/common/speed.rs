@@ -89,7 +89,7 @@ impl SpeedControls {
 
         match self.state {
             State::Paused => {
-                if self.menu.action("resume") {
+                if self.menu.swap_action("resume", "pause", ctx) {
                     let now = Instant::now();
                     self.state = State::Running {
                         last_step: now,
@@ -97,7 +97,6 @@ impl SpeedControls {
                         last_measurement: now,
                         last_measurement_sim: current_sim_time,
                     };
-                    self.menu.change_action("resume", "pause", ctx);
                     // Sorta hack to trigger EventLoopMode::Animation.
                     return Some(Duration::ZERO);
                 }
