@@ -2,7 +2,7 @@ use crate::helpers::rotating_color;
 use crate::render::DrawMap;
 use crate::ui::UI;
 use abstutil;
-use ezgui::{Color, Drawable, GfxCtx, Line, ModalMenu, Prerender, Text};
+use ezgui::{Color, Drawable, EventCtx, GfxCtx, Line, ModalMenu, Prerender, Text};
 use geom::{Duration, Polygon, Pt2D};
 use map_model::{LaneID, Map, Neighborhood};
 use std::collections::HashSet;
@@ -46,9 +46,15 @@ impl NeighborhoodSummary {
         }
     }
 
-    pub fn event(&mut self, ui: &UI, menu: &mut ModalMenu) {
-        if menu.action("show/hide neighborhood summaries") {
-            self.active = !self.active;
+    pub fn event(&mut self, ui: &UI, menu: &mut ModalMenu, ctx: &EventCtx) {
+        let show = "show neighborhood summaries";
+        let hide = "hide neighborhood summaries";
+        if self.active && menu.action(hide) {
+            self.active = false;
+            menu.change_action(hide, show, ctx);
+        } else if !self.active && menu.action(show) {
+            self.active = true;
+            menu.change_action(show, hide, ctx);
         }
 
         if self.active && Some(ui.primary.sim.time()) != self.last_summary {

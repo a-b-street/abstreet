@@ -124,7 +124,7 @@ impl ModalMenu {
         }
     }
 
-    pub fn add_action(&mut self, hotkey: Option<MultiKey>, label: &str, ctx: &EventCtx) {
+    pub fn push_action(&mut self, hotkey: Option<MultiKey>, label: &str, ctx: &EventCtx) {
         self.choices.push(Choice {
             hotkey,
             label: label.to_string(),
@@ -136,6 +136,17 @@ impl ModalMenu {
     pub fn remove_action(&mut self, label: &str, ctx: &EventCtx) {
         self.choices.retain(|c| c.label != label);
         self.recalculate_dims(ctx);
+    }
+
+    pub fn change_action(&mut self, old_label: &str, new_label: &str, ctx: &EventCtx) {
+        for c in self.choices.iter_mut() {
+            if c.label == old_label {
+                c.label = new_label.to_string();
+                self.recalculate_dims(ctx);
+                return;
+            }
+        }
+        panic!("Menu doesn't have {}", old_label);
     }
 
     pub fn consume_action(&mut self, name: &str, ctx: &EventCtx) -> bool {

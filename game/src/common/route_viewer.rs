@@ -46,7 +46,7 @@ impl RouteViewer {
                         .contextual_action(Key::R, format!("show {}'s route", agent))
                     {
                         *self = show_route(trip, ui);
-                        menu.add_action(hotkey(Key::R), "stop showing agent's route", ctx);
+                        menu.push_action(hotkey(Key::R), "stop showing agent's route", ctx);
                     }
                 }
             }

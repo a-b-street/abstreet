@@ -39,20 +39,16 @@ impl DebugMode {
                 "Debug Mode",
                 vec![
                     vec![
-                        (hotkey(Key::Num1), "show/hide buildings"),
-                        (hotkey(Key::Num2), "show/hide intersections"),
-                        (hotkey(Key::Num3), "show/hide lanes"),
-                        (hotkey(Key::Num4), "show/hide areas"),
-                        (hotkey(Key::Num5), "show/hide extra shapes"),
-                        (hotkey(Key::Num6), "show/hide geometry debug mode"),
-                        (hotkey(Key::Num7), "show/hide labels"),
-                        (hotkey(Key::N), "show/hide neighborhood summaries"),
-                        (hotkey(Key::R), "show/hide route for all agents"),
+                        (hotkey(Key::Num1), "hide buildings"),
+                        (hotkey(Key::Num2), "hide intersections"),
+                        (hotkey(Key::Num3), "hide lanes"),
+                        (hotkey(Key::Num4), "hide areas"),
+                        (hotkey(Key::Num5), "hide extra shapes"),
+                        (hotkey(Key::Num6), "show geometry debug mode"),
+                        (hotkey(Key::Num7), "show labels"),
+                        (hotkey(Key::N), "show neighborhood summaries"),
+                        (hotkey(Key::R), "show route for all agents"),
                         (None, "show strongly-connected component roads"),
-                    ],
-                    vec![
-                        (hotkey(Key::H), "unhide everything"),
-                        (hotkey(Key::M), "clear OSM search results"),
                     ],
                     vec![
                         (None, "screenshot everything"),
@@ -122,7 +118,7 @@ impl State for DebugMode {
             return Transition::Pop;
         }
 
-        self.all_routes.event(ui, &mut self.menu);
+        self.all_routes.event(ui, &mut self.menu, ctx);
         match ui.primary.current_selection {
             Some(ID::Lane(_)) | Some(ID::Intersection(_)) | Some(ID::ExtraShape(_)) => {
                 let id = ui.primary.current_selection.clone().unwrap();
@@ -132,11 +128,15 @@ impl State for DebugMode {
                 {
                     println!("Hiding {:?}", id);
                     ui.primary.current_selection = None;
+                    if self.hidden.is_empty() {
+                        self.menu
+                            .push_action(hotkey(Key::H), "unhide everything", ctx);
+                    }
                     self.hidden.insert(id);
                 }
             }
             None => {
-                if !self.hidden.is_empty() && self.menu.action("unhide everything") {
+                if !self.hidden.is_empty() && self.menu.consume_action("unhide everything", ctx) {
                     self.hidden.clear();
                     ui.primary.current_selection =
                         ui.calculate_current_selection(ctx, &ui.primary.sim, self, true);
@@ -157,30 +157,36 @@ impl State for DebugMode {
         }
         self.connected_roads.event(ctx, ui);
         self.objects.event(ctx, ui);
-        self.neighborhood_summary.event(ui, &mut self.menu);
+        self.neighborhood_summary.event(ui, &mut self.menu, ctx);
 
         if let Some(debugger) = polygons::PolygonDebugger::new(ctx, ui) {
             return Transition::Push(Box::new(debugger));
         }
 
         {
-            let mut changed = true;
-            if self.menu.action("show/hide buildings") {
-                self.layers.show_buildings = !self.layers.show_buildings;
-            } else if self.menu.action("show/hide intersections") {
-                self.layers.show_intersections = !self.layers.show_intersections;
-            } else if self.menu.action("show/hide lanes") {
-                self.layers.show_lanes = !self.layers.show_lanes;
-            } else if self.menu.action("show/hide areas") {
-                self.layers.show_areas = !self.layers.show_areas;
-            } else if self.menu.action("show/hide extra shapes") {
-                self.layers.show_extra_shapes = !self.layers.show_extra_shapes;
-            } else if self.menu.action("show/hide geometry debug mode") {
-                self.layers.geom_debug_mode = !self.layers.geom_debug_mode;
-            } else if self.menu.action("show/hide labels") {
-                self.layers.show_labels = !self.layers.show_labels;
-            } else {
-                changed = false;
+            let mut changed = false;
+
+            for (label, value) in vec![
+                ("buildings", &mut self.layers.show_buildings),
+                ("intersections", &mut self.layers.show_intersections),
+                ("lanes", &mut self.layers.show_lanes),
+                ("areas", &mut self.layers.show_areas),
+                ("extra shapes", &mut self.layers.show_extra_shapes),
+                ("geometry debug mode", &mut self.layers.geom_debug_mode),
+                ("labels", &mut self.layers.show_labels),
+            ] {
+                let show = format!("show {}", label);
+                let hide = format!("hide {}", label);
+
+                if *value && self.menu.action(&hide) {
+                    *value = false;
+                    self.menu.change_action(&hide, &show, ctx);
+                    changed = true;
+                } else if !*value && self.menu.action(&show) {
+                    *value = true;
+                    self.menu.change_action(&show, &hide, ctx);
+                    changed = true;
+                }
             }
 
             if changed {
@@ -202,9 +208,13 @@ impl State for DebugMode {
 
         if self.search_results.is_some() {
             if self.menu.action("clear OSM search results") {
+                self.menu
+                    .change_action("clear OSM search results", "search OSM metadata", ctx);
                 self.search_results = None;
             }
         } else if self.menu.action("search OSM metadata") {
+            self.menu
+                .change_action("search OSM metadata", "clear OSM search results", ctx);
             return Transition::Push(WizardState::new(Box::new(search_osm)));
         } else if self.menu.action("configure colors") {
             return Transition::Push(color_picker::ColorChooser::new());

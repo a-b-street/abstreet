@@ -50,7 +50,7 @@ impl AgentTools {
                                 .ok(),
                             ui.primary.sim.time(),
                         ));
-                        menu.add_action(hotkey(Key::F), "stop following agent", ctx);
+                        menu.push_action(hotkey(Key::F), "stop following agent", ctx);
                     }
                 }
             }

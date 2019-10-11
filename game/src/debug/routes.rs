@@ -1,5 +1,5 @@
 use crate::ui::UI;
-use ezgui::{GfxCtx, ModalMenu};
+use ezgui::{EventCtx, GfxCtx, ModalMenu};
 use geom::{Duration, PolyLine};
 use map_model::LANE_THICKNESS;
 use sim::TripID;
@@ -10,15 +10,20 @@ pub enum AllRoutesViewer {
 }
 
 impl AllRoutesViewer {
-    pub fn event(&mut self, ui: &mut UI, menu: &mut ModalMenu) {
+    pub fn event(&mut self, ui: &mut UI, menu: &mut ModalMenu, ctx: &EventCtx) {
+        let show = "show route for all agents";
+        let hide = "hide route for all agents";
+
         match self {
             AllRoutesViewer::Inactive => {
-                if menu.action("show/hide route for all agents") {
+                if menu.action(show) {
+                    menu.change_action(show, hide, ctx);
                     *self = debug_all_routes(ui);
                 }
             }
             AllRoutesViewer::Active(time, _) => {
-                if menu.action("show/hide route for all agents") {
+                if menu.action(hide) {
+                    menu.change_action(hide, show, ctx);
                     *self = AllRoutesViewer::Inactive;
                 } else if *time != ui.primary.sim.time() {
                     *self = debug_all_routes(ui);

@@ -31,9 +31,9 @@ impl SpeedControls {
         let mut menu = ModalMenu::new(
             "Speed",
             vec![vec![
+                (hotkey(Key::Space), "resume"),
                 (hotkey(Key::LeftBracket), "slow down"),
                 (hotkey(Key::RightBracket), "speed up"),
-                (hotkey(Key::Space), "resume"),
             ]],
             ctx,
         );
@@ -89,7 +89,7 @@ impl SpeedControls {
 
         match self.state {
             State::Paused => {
-                if self.menu.consume_action("resume", ctx) {
+                if self.menu.action("resume") {
                     let now = Instant::now();
                     self.state = State::Running {
                         last_step: now,
@@ -97,7 +97,7 @@ impl SpeedControls {
                         last_measurement: now,
                         last_measurement_sim: current_sim_time,
                     };
-                    self.menu.add_action(hotkey(Key::Space), "pause", ctx);
+                    self.menu.change_action("resume", "pause", ctx);
                     // Sorta hack to trigger EventLoopMode::Animation.
                     return Some(Duration::ZERO);
                 }
@@ -139,8 +139,7 @@ impl SpeedControls {
     pub fn pause(&mut self, ctx: &mut EventCtx) {
         if !self.is_paused() {
             self.state = State::Paused;
-            self.menu.remove_action("pause", ctx);
-            self.menu.add_action(hotkey(Key::Space), "resume", ctx);
+            self.menu.change_action("pause", "resume", ctx);
         }
     }
 
