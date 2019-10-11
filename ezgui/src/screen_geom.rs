@@ -43,7 +43,7 @@ impl ScreenRectangle {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct ScreenDims {
     pub width: f64,
     pub height: f64,

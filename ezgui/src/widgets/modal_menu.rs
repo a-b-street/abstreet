@@ -1,9 +1,10 @@
 use crate::layout::Widget;
+use crate::widgets::Button;
 use crate::{
     layout, text, EventCtx, GfxCtx, Line, MultiKey, ScreenDims, ScreenPt, ScreenRectangle, Text,
 };
 
-// TODO No separators, hiding
+// TODO No separators
 
 pub struct ModalMenu {
     prompt: Text,
@@ -11,6 +12,9 @@ pub struct ModalMenu {
     choices: Vec<Choice>,
     // This can be inactive entries too.
     hovering_idx: Option<usize>,
+
+    show_hide_btn: Button,
+    visible: bool,
 
     top_left: ScreenPt,
     dims: ScreenDims,
@@ -47,6 +51,9 @@ impl ModalMenu {
             choices,
             hovering_idx: None,
 
+            show_hide_btn: Button::hide_btn(ctx),
+            visible: true,
+
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(0.0, 0.0),
         };
@@ -68,40 +75,41 @@ impl ModalMenu {
         self
     }
 
+    // TODO Rename event, get rid of new_prompt
     pub fn handle_event(&mut self, ctx: &mut EventCtx, new_prompt: Option<Text>) {
         if let Some(ref action) = self.chosen_action {
             panic!("Caller didn't consume modal action '{}'", action);
         }
 
         // Handle the mouse
-        {
-            if ctx.redo_mouseover() {
-                let cursor = ctx.canvas.get_cursor_in_screen_space();
-                self.hovering_idx = None;
-                let mut top_left = self.top_left;
-                top_left.y += ctx.canvas.text_dims(&self.prompt).1;
-                for idx in 0..self.choices.len() {
-                    let rect = ScreenRectangle {
-                        x1: top_left.x,
-                        y1: top_left.y,
-                        x2: top_left.x + self.dims.width,
-                        y2: top_left.y + ctx.canvas.line_height,
-                    };
-                    if rect.contains(cursor) {
-                        self.hovering_idx = Some(idx);
-                        break;
-                    }
-                    top_left.y += ctx.canvas.line_height;
+        if self.visible && ctx.redo_mouseover() {
+            let cursor = ctx.canvas.get_cursor_in_screen_space();
+            self.hovering_idx = None;
+            let mut top_left = self.top_left;
+            top_left.y += ctx.canvas.text_dims(&self.prompt).1;
+            for idx in 0..self.choices.len() {
+                let rect = ScreenRectangle {
+                    x1: top_left.x,
+                    y1: top_left.y,
+                    x2: top_left.x + self.dims.width,
+                    y2: top_left.y + ctx.canvas.line_height,
+                };
+                if rect.contains(cursor) {
+                    self.hovering_idx = Some(idx);
+                    break;
                 }
+                top_left.y += ctx.canvas.line_height;
             }
-            if let Some(idx) = self.hovering_idx {
-                if ctx.input.left_mouse_button_pressed() && self.choices[idx].active {
-                    self.chosen_action = Some(self.choices[idx].label.clone());
-                }
+        }
+        if let Some(idx) = self.hovering_idx {
+            if ctx.input.left_mouse_button_pressed() && self.choices[idx].active {
+                self.chosen_action = Some(self.choices[idx].label.clone());
             }
         }
 
         // TODO See what happens with escaping out of context menu
+
+        // Handle hotkeys
         for choice in &self.choices {
             if !choice.active {
                 continue;
@@ -114,6 +122,26 @@ impl ModalMenu {
             }
         }
 
+        // Handle showing/hiding
+        // TODO Layouting of nested widgets...
+        self.show_hide_btn.set_pos(
+            ScreenPt::new(self.top_left.x + self.dims.width, self.top_left.y),
+            self.dims.width,
+        );
+        self.show_hide_btn.event(ctx);
+        if self.show_hide_btn.clicked() {
+            self.visible = !self.visible;
+            if self.visible {
+                self.show_hide_btn = Button::hide_btn(ctx);
+            } else {
+                self.show_hide_btn = Button::show_btn(ctx);
+                self.hovering_idx = None;
+            }
+            self.show_hide_btn.just_replaced();
+            self.recalculate_dims(ctx);
+        }
+
+        // Reset for next round
         for choice in self.choices.iter_mut() {
             choice.active = false;
         }
@@ -187,6 +215,7 @@ impl ModalMenu {
 
     pub fn draw(&self, g: &mut GfxCtx) {
         g.draw_text_at_screenspace_topleft(&self.calculate_txt(), self.top_left);
+        self.show_hide_btn.draw(g);
     }
 
     fn recalculate_dims(&mut self, ctx: &EventCtx) {
@@ -196,6 +225,10 @@ impl ModalMenu {
 
     fn calculate_txt(&self) -> Text {
         let mut txt = self.prompt.clone();
+        if !self.visible {
+            return txt;
+        }
+
         for (idx, choice) in self.choices.iter().enumerate() {
             if choice.active {
                 if let Some(key) = choice.hotkey {
@@ -228,7 +261,10 @@ impl ModalMenu {
 
 impl Widget for ModalMenu {
     fn get_dims(&self) -> ScreenDims {
-        self.dims
+        ScreenDims::new(
+            self.dims.width + self.show_hide_btn.get_dims().width,
+            self.dims.height,
+        )
     }
 
     fn set_pos(&mut self, top_left: ScreenPt, _total_width: f64) {

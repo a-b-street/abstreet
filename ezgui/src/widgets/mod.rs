@@ -1,4 +1,5 @@
 mod autocomplete;
+mod button;
 mod log_scroller;
 mod menu;
 mod modal_menu;
@@ -10,6 +11,7 @@ mod warper;
 mod wizard;
 
 pub use self::autocomplete::Autocomplete;
+pub use self::button::Button;
 pub use self::menu::{Menu, Position};
 pub use self::modal_menu::ModalMenu;
 pub(crate) use self::screenshot::{screenshot_current, screenshot_everything};

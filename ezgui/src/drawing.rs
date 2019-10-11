@@ -354,6 +354,10 @@ impl GeomBatch {
         let obj = g.prerender.upload_temporary(refs);
         g.redraw(&obj);
     }
+
+    pub(crate) fn members(&self) -> &Vec<(Color, Polygon)> {
+        &self.list
+    }
 }
 
 // Something that's been sent to the GPU already.
