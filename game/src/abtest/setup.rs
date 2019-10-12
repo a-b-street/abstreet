@@ -59,25 +59,23 @@ fn pick_ab_test(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
         t
     };
 
-    let mut txt = Text::prompt("A/B Test Editor");
+    let mut menu = ModalMenu::new(
+        "A/B Test Editor",
+        vec![vec![
+            (hotkey(Key::Escape), "quit"),
+            (hotkey(Key::R), "run A/B test"),
+            (hotkey(Key::L), "load savestate"),
+        ]],
+        ctx,
+    );
+    let mut txt = Text::new();
     txt.add(Line(&ab_test.test_name));
     for line in ab_test.describe() {
         txt.add(Line(line));
     }
+    menu.set_info(ctx, txt);
 
-    Some(Transition::Replace(Box::new(ABTestSetup {
-        menu: ModalMenu::new(
-            "A/B Test Editor",
-            vec![vec![
-                (hotkey(Key::Escape), "quit"),
-                (hotkey(Key::R), "run A/B test"),
-                (hotkey(Key::L), "load savestate"),
-            ]],
-            ctx,
-        )
-        .set_prompt(ctx, txt),
-        ab_test,
-    })))
+    Some(Transition::Replace(Box::new(ABTestSetup { menu, ab_test })))
 }
 
 struct ABTestSetup {
@@ -87,7 +85,7 @@ struct ABTestSetup {
 
 impl State for ABTestSetup {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        self.menu.handle_event(ctx, None);
+        self.menu.event(ctx);
         ctx.canvas.handle_event(ctx.input);
 
         if self.menu.action("quit") {

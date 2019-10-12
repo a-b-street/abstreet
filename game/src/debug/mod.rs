@@ -90,21 +90,24 @@ impl State for DebugMode {
                 ui.calculate_current_selection(ctx, &ui.primary.sim, self, true);
         }
 
-        let mut txt = Text::prompt("Debug Mode");
-        if !self.hidden.is_empty() {
-            txt.add(Line(format!("Hiding {} things", self.hidden.len())));
+        {
+            let mut txt = Text::new();
+            if !self.hidden.is_empty() {
+                txt.add(Line(format!("Hiding {} things", self.hidden.len())));
+            }
+            if let Some(ref results) = self.search_results {
+                txt.add(Line(format!(
+                    "Search for {} has {} results",
+                    results.query,
+                    results.ids.len()
+                )));
+            }
+            if let routes::AllRoutesViewer::Active(_, ref traces) = self.all_routes {
+                txt.add(Line(format!("Showing {} routes", traces.len())));
+            }
+            self.menu.set_info(ctx, txt);
         }
-        if let Some(ref results) = self.search_results {
-            txt.add(Line(format!(
-                "Search for {} has {} results",
-                results.query,
-                results.ids.len()
-            )));
-        }
-        if let routes::AllRoutesViewer::Active(_, ref traces) = self.all_routes {
-            txt.add(Line(format!("Showing {} routes", traces.len())));
-        }
-        self.menu.handle_event(ctx, Some(txt));
+        self.menu.event(ctx);
 
         ctx.canvas.handle_event(ctx.input);
         if let Some(t) = self.common.event(ctx, ui, &mut self.menu) {

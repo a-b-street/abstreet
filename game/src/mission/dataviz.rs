@@ -84,7 +84,7 @@ impl State for DataVisualizer {
                 prettyprint_usize(tract.total_owned_cars)
             )));
         }
-        self.menu.handle_event(ctx, Some(txt));
+        self.menu.event(ctx);
         ctx.canvas.handle_event(ctx.input);
 
         // TODO Remember which dataset we're showing and don't allow reseting to the same.

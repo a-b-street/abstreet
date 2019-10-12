@@ -22,7 +22,7 @@ impl TutorialMode {
 
 impl State for TutorialMode {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
-        let mut txt = Text::prompt("Tutorial");
+        let mut txt = Text::new();
         txt.add(Line("Click and drag to pan around"));
 
         // TODO Zooming also changes this. :(
@@ -40,7 +40,8 @@ impl State for TutorialMode {
                 }));
             }
         }
-        self.menu.handle_event(ctx, Some(txt));
+        self.menu.set_info(ctx, txt);
+        self.menu.event(ctx);
         ctx.canvas.handle_event(ctx.input);
 
         if self.menu.action("quit") {
@@ -66,7 +67,7 @@ struct Part2 {
 
 impl State for Part2 {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
-        let mut txt = Text::prompt("Tutorial");
+        let mut txt = Text::new();
         txt.add(Line("Use your mouse wheel or touchpad to zoom in and out"));
 
         if ctx.canvas.cam_zoom != self.orig_cam_zoom {
@@ -76,7 +77,8 @@ impl State for Part2 {
                 return Transition::Pop;
             }
         }
-        self.menu.handle_event(ctx, Some(txt));
+        self.menu.set_info(ctx, txt);
+        self.menu.event(ctx);
         ctx.canvas.handle_event(ctx.input);
 
         if self.menu.action("quit") {

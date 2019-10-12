@@ -84,13 +84,14 @@ impl State for SandboxMode {
         self.thruput_stats.record(ui);
 
         {
-            let mut txt = Text::prompt("Sandbox Mode");
+            let mut txt = Text::new();
             txt.add(Line(ui.primary.sim.time().to_string()));
             let (active, unfinished) = ui.primary.sim.num_trips();
             txt.add(Line(format!("{} active", active)));
             txt.add(Line(format!("{} unfinished", unfinished)));
-            self.menu.handle_event(ctx, Some(txt));
+            self.menu.set_info(ctx, txt);
         }
+        self.menu.event(ctx);
 
         ctx.canvas.handle_event(ctx.input);
         if ctx.redo_mouseover() {

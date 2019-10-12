@@ -7,13 +7,15 @@ use crate::{
 // TODO No separators
 
 pub struct ModalMenu {
-    prompt: Text,
+    title: String,
+    info: Text,
     chosen_action: Option<String>,
     choices: Vec<Choice>,
     // This can be inactive entries too.
     hovering_idx: Option<usize>,
 
     show_hide_btn: Button,
+    // TODO Actually, 3 states: full, no controls, just title
     visible: bool,
 
     top_left: ScreenPt,
@@ -26,10 +28,9 @@ struct Choice {
     active: bool,
 }
 
-// TODO Keep this API for now, but reconsider lots of things with it ;)
 impl ModalMenu {
-    pub fn new(
-        prompt_line: &str,
+    pub fn new<S: Into<String>>(
+        title: S,
         raw_choice_groups: Vec<Vec<(Option<MultiKey>, &str)>>,
         ctx: &EventCtx,
     ) -> ModalMenu {
@@ -43,10 +44,10 @@ impl ModalMenu {
                 });
             }
         }
-        let prompt = Text::prompt(prompt_line);
 
         let mut m = ModalMenu {
-            prompt,
+            title: title.into(),
+            info: Text::new(),
             chosen_action: None,
             choices,
             hovering_idx: None,
@@ -69,14 +70,12 @@ impl ModalMenu {
         m
     }
 
-    pub fn set_prompt(mut self, ctx: &EventCtx, prompt: Text) -> ModalMenu {
-        self.prompt = prompt;
+    pub fn set_info(&mut self, ctx: &EventCtx, info: Text) {
+        self.info = info;
         self.recalculate_dims(ctx);
-        self
     }
 
-    // TODO Rename event, get rid of new_prompt
-    pub fn handle_event(&mut self, ctx: &mut EventCtx, new_prompt: Option<Text>) {
+    pub fn event(&mut self, ctx: &mut EventCtx) {
         if let Some(ref action) = self.chosen_action {
             panic!("Caller didn't consume modal action '{}'", action);
         }
@@ -86,7 +85,7 @@ impl ModalMenu {
             let cursor = ctx.canvas.get_cursor_in_screen_space();
             self.hovering_idx = None;
             let mut top_left = self.top_left;
-            top_left.y += ctx.canvas.text_dims(&self.prompt).1;
+            top_left.y += ctx.canvas.line_height + ctx.canvas.text_dims(&self.info).1;
             for idx in 0..self.choices.len() {
                 let rect = ScreenRectangle {
                     x1: top_left.x,
@@ -106,8 +105,6 @@ impl ModalMenu {
                 self.chosen_action = Some(self.choices[idx].label.clone());
             }
         }
-
-        // TODO See what happens with escaping out of context menu
 
         // Handle hotkeys
         for choice in &self.choices {
@@ -144,11 +141,6 @@ impl ModalMenu {
         // Reset for next round
         for choice in self.choices.iter_mut() {
             choice.active = false;
-        }
-
-        if let Some(txt) = new_prompt {
-            self.prompt = txt;
-            self.recalculate_dims(ctx);
         }
     }
 
@@ -224,10 +216,11 @@ impl ModalMenu {
     }
 
     fn calculate_txt(&self) -> Text {
-        let mut txt = self.prompt.clone();
+        let mut txt = Text::prompt(&self.title);
         if !self.visible {
             return txt;
         }
+        txt.extend(&self.info);
 
         for (idx, choice) in self.choices.iter().enumerate() {
             if choice.active {

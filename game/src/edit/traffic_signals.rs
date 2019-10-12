@@ -56,7 +56,7 @@ impl TrafficSignalEditor {
 
 impl State for TrafficSignalEditor {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        self.menu.handle_event(ctx, None);
+        self.menu.event(ctx);
         ctx.canvas.handle_event(ctx.input);
         self.diagram.event(ctx, &mut self.menu);
 

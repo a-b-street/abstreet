@@ -96,13 +96,16 @@ impl State for TripsVisualizer {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         let time = self.current_time();
 
-        let mut txt = Text::prompt("Trips Visualizer");
-        txt.add(Line(format!("At {}", time)));
-        txt.add(Line(format!(
-            "{} active trips",
-            prettyprint_usize(self.active_trips.len())
-        )));
-        self.menu.handle_event(ctx, Some(txt));
+        {
+            let mut txt = Text::new();
+            txt.add(Line(format!("At {}", time)));
+            txt.add(Line(format!(
+                "{} active trips",
+                prettyprint_usize(self.active_trips.len())
+            )));
+            self.menu.set_info(ctx, txt);
+        }
+        self.menu.event(ctx);
         ctx.canvas.handle_event(ctx.input);
         layout::stack_vertically(
             layout::ContainerOrientation::TopRight,

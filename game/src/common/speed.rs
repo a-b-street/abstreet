@@ -52,24 +52,29 @@ impl SpeedControls {
 
     // Returns the amount of simulation time to step, if running.
     pub fn event(&mut self, ctx: &mut EventCtx, current_sim_time: Duration) -> Option<Duration> {
-        let mut txt = Text::prompt("Speed");
         if let State::Running {
             ref speed_description,
             ..
         } = self.state
         {
-            txt.add(Line(format!(
-                "{} / desired {:.2}x",
-                speed_description,
-                self.desired_speed()
-            )));
+            self.menu.set_info(
+                ctx,
+                Text::from(Line(format!(
+                    "{} / desired {:.2}x",
+                    speed_description,
+                    self.desired_speed()
+                ))),
+            );
         } else {
-            txt.add(Line(format!(
-                "paused / desired {:.2}x",
-                self.desired_speed()
-            )));
+            self.menu.set_info(
+                ctx,
+                Text::from(Line(format!(
+                    "paused / desired {:.2}x",
+                    self.desired_speed()
+                ))),
+            );
         }
-        self.menu.handle_event(ctx, Some(txt));
+        self.menu.event(ctx);
         layout::stack_vertically(
             layout::ContainerOrientation::TopLeft,
             ctx.canvas,

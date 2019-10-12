@@ -173,7 +173,7 @@ impl State for ScenarioManager {
         // TODO Calculate this once? Except when we modify it, nice to automatically pick up
         // changes...
         {
-            let mut txt = Text::prompt("Scenario Editor");
+            let mut txt = Text::new();
             txt.add(Line(&self.scenario.scenario_name));
             for line in self.scenario.describe() {
                 txt.add(Line(line));
@@ -183,8 +183,9 @@ impl State for ScenarioManager {
                 self.total_cars_needed,
                 prettyprint_usize(self.total_parking_spots),
             )));
-            self.menu.handle_event(ctx, Some(txt));
+            self.menu.set_info(ctx, txt);
         }
+        self.menu.event(ctx);
         ctx.canvas.handle_event(ctx.input);
         if ctx.redo_mouseover() {
             ui.recalculate_current_selection(ctx);

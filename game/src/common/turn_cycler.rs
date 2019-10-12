@@ -128,7 +128,7 @@ struct ShowTrafficSignal {
 
 impl State for ShowTrafficSignal {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
-        self.menu.handle_event(ctx, None);
+        self.menu.event(ctx);
         ctx.canvas.handle_event(ctx.input);
         if self.menu.action("quit") {
             return Transition::Pop;

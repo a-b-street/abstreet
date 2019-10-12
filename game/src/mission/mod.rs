@@ -49,7 +49,7 @@ impl MissionEditMode {
 
 impl State for MissionEditMode {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        self.menu.handle_event(ctx, None);
+        self.menu.event(ctx);
         ctx.canvas.handle_event(ctx.input);
 
         if self.menu.action("quit") {

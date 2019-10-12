@@ -73,7 +73,7 @@ impl State for NeighborhoodEditor {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         let gps_bounds = ui.primary.map.get_gps_bounds();
 
-        self.menu.handle_event(ctx, None);
+        self.menu.event(ctx);
         ctx.canvas.handle_event(ctx.input);
 
         if self.moving_pt {

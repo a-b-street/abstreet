@@ -63,7 +63,7 @@ impl Scoreboard {
 
 impl State for Scoreboard {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
-        self.menu.handle_event(ctx, None);
+        self.menu.event(ctx);
         if self.menu.action("quit") {
             return Transition::Pop;
         }

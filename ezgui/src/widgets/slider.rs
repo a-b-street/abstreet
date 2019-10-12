@@ -285,7 +285,8 @@ impl<T> ItemSlider<T> {
                 abstutil::prettyprint_usize(self.items.len())
             )));
             txt.extend(&self.items[idx].1);
-            self.menu.handle_event(ctx, Some(txt));
+            self.menu.set_info(ctx, txt);
+            self.menu.event(ctx);
         }
         stack_vertically(
             ContainerOrientation::TopRight,

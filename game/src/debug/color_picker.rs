@@ -41,7 +41,7 @@ struct ColorChanger {
 
 impl State for ColorChanger {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        self.menu.handle_event(ctx, None);
+        self.menu.event(ctx);
         if self.menu.action("revert") {
             ui.cs.reset_modified(&self.name, self.original);
             return Transition::Pop;

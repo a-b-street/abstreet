@@ -120,7 +120,7 @@ impl AgentSpawner {
 impl State for AgentSpawner {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         // TODO Instructions to select target building/lane
-        self.menu.handle_event(ctx, None);
+        self.menu.event(ctx);
         if self.menu.action("quit") {
             return Transition::Pop;
         }

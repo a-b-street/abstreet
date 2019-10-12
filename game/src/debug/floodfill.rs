@@ -15,8 +15,7 @@ pub struct Floodfiller {
 impl Floodfiller {
     pub fn new(ctx: &mut EventCtx, ui: &UI, parent_menu: &mut ModalMenu) -> Option<Box<dyn State>> {
         let map = &ui.primary.map;
-        let (reachable_lanes, mut prompt) = if let Some(ID::Lane(l)) = ui.primary.current_selection
-        {
+        let (reachable_lanes, title) = if let Some(ID::Lane(l)) = ui.primary.current_selection {
             if map.get_l(l).is_driving()
                 && ctx
                     .input
@@ -24,7 +23,7 @@ impl Floodfiller {
             {
                 (
                     find_reachable_from(l, map),
-                    Text::prompt(format!("Floodfiller from {}", l).as_str()),
+                    format!("Floodfiller from {}", l),
                 )
             } else {
                 return None;
@@ -44,7 +43,7 @@ impl Floodfiller {
                     .unwrap()
                     .into_iter()
                     .collect(),
-                Text::prompt("Strongy-connected component"),
+                "Strongy-connected component".to_string(),
             )
         } else {
             return None;
@@ -77,15 +76,15 @@ impl Floodfiller {
                 map,
             );
         }
-        prompt.add(Line(format!("{} unreachable lanes", num_unreachable)));
+
+        let mut menu = ModalMenu::new(title, vec![vec![(hotkey(Key::Escape), "quit")]], ctx);
+        menu.set_info(
+            ctx,
+            Text::from(Line(format!("{} unreachable lanes", num_unreachable))),
+        );
 
         Some(Box::new(Floodfiller {
-            menu: ModalMenu::new(
-                "Floodfiller",
-                vec![vec![(hotkey(Key::Escape), "quit")]],
-                ctx,
-            )
-            .set_prompt(ctx, prompt),
+            menu,
             colorer: colorer.build(ctx, map),
         }))
     }
@@ -98,7 +97,7 @@ impl State for Floodfiller {
         }
         ctx.canvas.handle_event(ctx.input);
 
-        self.menu.handle_event(ctx, None);
+        self.menu.event(ctx);
         if self.menu.action("quit") {
             return Transition::Pop;
         }

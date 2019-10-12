@@ -73,29 +73,32 @@ impl ABTestMode {
 
 impl State for ABTestMode {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        let mut txt = Text::prompt("A/B Test Mode");
-        if self.flipped {
-            txt.add(Line("B").fg(Color::CYAN));
-        } else {
-            txt.add(Line("A").fg(Color::RED));
-        }
-        txt.append(Line(format!(
-            " - {}",
-            ui.primary.map.get_edits().edits_name
-        )));
-        if let Some(ref diff) = self.diff_trip {
-            txt.add(Line(format!("Showing diff for {}", diff.trip)));
-        } else if let Some(ref diff) = self.diff_all {
-            txt.add(Line(format!(
-                "Showing diffs for all. {} trips same, {} differ",
-                diff.same_trips,
-                diff.lines.len()
+        {
+            let mut txt = Text::new();
+            if self.flipped {
+                txt.add(Line("B").fg(Color::CYAN));
+            } else {
+                txt.add(Line("A").fg(Color::RED));
+            }
+            txt.append(Line(format!(
+                " - {}",
+                ui.primary.map.get_edits().edits_name
             )));
+            if let Some(ref diff) = self.diff_trip {
+                txt.add(Line(format!("Showing diff for {}", diff.trip)));
+            } else if let Some(ref diff) = self.diff_all {
+                txt.add(Line(format!(
+                    "Showing diffs for all. {} trips same, {} differ",
+                    diff.same_trips,
+                    diff.lines.len()
+                )));
+            }
+            let (active, unfinished) = ui.primary.sim.num_trips();
+            txt.add(Line(format!("{} active", active)));
+            txt.add(Line(format!("{} unfinished", unfinished)));
+            self.menu.set_info(ctx, txt);
         }
-        let (active, unfinished) = ui.primary.sim.num_trips();
-        txt.add(Line(format!("{} active", active)));
-        txt.add(Line(format!("{} unfinished", unfinished)));
-        self.menu.handle_event(ctx, Some(txt));
+        self.menu.event(ctx);
 
         ctx.canvas.handle_event(ctx.input);
         if ctx.redo_mouseover() {

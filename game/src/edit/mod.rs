@@ -58,8 +58,8 @@ impl State for EditMode {
         // The .clone() is probably not that expensive, and it makes later code a bit
         // easier to read. :)
         let orig_edits = ui.primary.map.get_edits().clone();
-        let mut txt = Text::prompt("Map Edit Mode");
         {
+            let mut txt = Text::new();
             txt.add(Line(&orig_edits.edits_name));
             txt.add(Line(format!("{} lanes", orig_edits.lane_overrides.len())));
             txt.add(Line(format!(
@@ -71,8 +71,9 @@ impl State for EditMode {
                 orig_edits.traffic_signal_overrides.len()
             )));
             txt.add(Line("Right-click a lane or intersection to start editing"));
+            self.menu.set_info(ctx, txt);
         }
-        self.menu.handle_event(ctx, Some(txt));
+        self.menu.event(ctx);
 
         ctx.canvas.handle_event(ctx.input);
 
