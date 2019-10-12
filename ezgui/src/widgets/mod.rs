@@ -1,7 +1,7 @@
 mod autocomplete;
 mod button;
+mod context_menu;
 mod log_scroller;
-mod menu;
 mod modal_menu;
 mod popup_menu;
 mod screenshot;
@@ -13,7 +13,7 @@ mod wizard;
 
 pub use self::autocomplete::Autocomplete;
 pub use self::button::Button;
-pub use self::menu::{Menu, Position};
+pub(crate) use self::context_menu::ContextMenu;
 pub use self::modal_menu::ModalMenu;
 pub(crate) use self::popup_menu::PopupMenu;
 pub(crate) use self::screenshot::{screenshot_current, screenshot_everything};

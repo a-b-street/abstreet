@@ -1,6 +1,6 @@
-use crate::widgets::{Menu, Position};
+use crate::widgets::ContextMenu;
 use crate::{hotkey, lctrl, text, Canvas, Event, InputResult, Key, Line, MultiKey, ScreenPt, Text};
-use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::collections::{BTreeMap, HashMap};
 
 // As we check for user input, record the input and the thing that would happen. This will let us
 // build up some kind of OSD of possible actions.
@@ -19,42 +19,6 @@ pub struct UserInput {
     pub(crate) context_menu: ContextMenu,
 
     lctrl_held: bool,
-}
-
-pub enum ContextMenu {
-    Inactive(BTreeSet<Key>),
-    Building(ScreenPt, BTreeMap<Key, String>),
-    Displaying(Menu<Key>),
-    Clicked(Key),
-}
-
-impl ContextMenu {
-    pub fn new() -> ContextMenu {
-        ContextMenu::Inactive(BTreeSet::new())
-    }
-
-    pub fn maybe_build(self, canvas: &Canvas) -> ContextMenu {
-        match self {
-            ContextMenu::Building(origin, actions) => {
-                if actions.is_empty() {
-                    ContextMenu::new()
-                } else {
-                    ContextMenu::Displaying(Menu::new(
-                        Text::new(),
-                        vec![actions
-                            .into_iter()
-                            .map(|(key, action)| (hotkey(key), action, key))
-                            .collect()],
-                        false,
-                        false,
-                        Position::SomeCornerAt(origin),
-                        canvas,
-                    ))
-                }
-            }
-            _ => self,
-        }
-    }
 }
 
 impl UserInput {
@@ -119,8 +83,8 @@ impl UserInput {
                         input.context_menu = ContextMenu::new();
                     }
                     InputResult::StillActive => {}
-                    InputResult::Done(_, hotkey) => {
-                        input.context_menu = ContextMenu::Clicked(hotkey);
+                    InputResult::Done(action, _) => {
+                        input.context_menu = ContextMenu::Clicked(action);
                     }
                 }
                 return input;
@@ -182,8 +146,8 @@ impl UserInput {
                     return true;
                 }
             }
-            ContextMenu::Clicked(key) => {
-                if key == hotkey {
+            ContextMenu::Clicked(ref this_action) => {
+                if &action == this_action {
                     self.context_menu = ContextMenu::new();
                     return true;
                 }

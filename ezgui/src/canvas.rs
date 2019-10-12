@@ -34,7 +34,6 @@ pub struct Canvas {
     pub(crate) covered_areas: RefCell<Vec<ScreenRectangle>>,
 
     // Kind of just ezgui state awkwardly stuck here...
-    pub(crate) hide_modal_menus: bool,
     pub(crate) lctrl_held: bool,
 
     // TODO Definitely a weird place to stash this!
@@ -71,7 +70,6 @@ impl Canvas {
             line_height_per_font_size: RefCell::new(HashMap::new()),
             covered_areas: RefCell::new(Vec::new()),
 
-            hide_modal_menus: false,
             lctrl_held: false,
 
             textures: Vec::new(),

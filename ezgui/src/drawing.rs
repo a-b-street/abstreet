@@ -1,4 +1,4 @@
-use crate::input::ContextMenu;
+use crate::widgets::ContextMenu;
 use crate::{
     text, Canvas, Color, HorizontalAlignment, Key, ScreenDims, ScreenPt, Text, VerticalAlignment,
 };
@@ -310,9 +310,7 @@ impl<'a> GfxCtx<'a> {
     pub fn get_active_context_menu_keys(&self) -> Vec<Key> {
         match self.context_menu {
             ContextMenu::Inactive(ref keys) => keys.iter().cloned().collect(),
-            ContextMenu::Displaying(ref menu) => {
-                menu.active_choices().into_iter().cloned().collect()
-            }
+            ContextMenu::Displaying(ref menu) => menu.all_keys(),
             _ => Vec::new(),
         }
     }

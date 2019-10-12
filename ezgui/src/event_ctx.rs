@@ -1,4 +1,4 @@
-use crate::input::ContextMenu;
+use crate::widgets::ContextMenu;
 use crate::{
     Canvas, Color, GfxCtx, HorizontalAlignment, Line, Prerender, Text, UserInput, VerticalAlignment,
 };

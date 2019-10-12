@@ -1,4 +1,4 @@
-use crate::input::ContextMenu;
+use crate::widgets::ContextMenu;
 use crate::{text, widgets, Canvas, Event, EventCtx, GfxCtx, Prerender, UserInput};
 use glium::glutin;
 use glium_glyph::glyph_brush::rusttype::Font;
