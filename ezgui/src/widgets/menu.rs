@@ -39,7 +39,6 @@ struct Choice<T: Clone> {
 
 #[derive(Clone)]
 pub enum Position {
-    ScreenCenter,
     SomeCornerAt(ScreenPt),
 }
 
@@ -391,11 +390,6 @@ impl<T: Clone> Menu<T> {
         }
     }
 
-    pub fn current_choice(&self) -> Option<&T> {
-        let idx = self.current_idx?;
-        Some(&self.choices[idx].data)
-    }
-
     pub fn active_choices(&self) -> Vec<&T> {
         self.choices
             .iter()
@@ -407,25 +401,6 @@ impl<T: Clone> Menu<T> {
                 }
             })
             .collect()
-    }
-
-    pub fn mark_active(&mut self, label: &str, is_active: bool) {
-        for choice in self.choices.iter_mut() {
-            if choice.label == label {
-                if choice.active == is_active {
-                    panic!(
-                        "Menu choice for {} already had active={}",
-                        choice.label, is_active
-                    );
-                }
-                choice.active = is_active;
-                return;
-            }
-        }
-        panic!(
-            "Menu with prompt {:?} has no choice {} to mark active",
-            self.prompt, label
-        );
     }
 
     fn recalculate_geom(&mut self, canvas: &Canvas) {
@@ -463,12 +438,6 @@ impl Position {
     fn get_top_left(&self, canvas: &Canvas, menu_dims: ScreenDims) -> ScreenPt {
         match self {
             Position::SomeCornerAt(pt) => menu_dims.top_left_for_corner(*pt, canvas),
-            Position::ScreenCenter => {
-                let mut pt = canvas.center_to_screen_pt();
-                pt.x -= menu_dims.width / 2.0;
-                pt.y -= menu_dims.height / 2.0;
-                pt
-            }
         }
     }
 }

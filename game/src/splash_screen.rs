@@ -138,7 +138,6 @@ fn splash_screen(
         EventLoopMode::InputOnly
     };
 
-    // TODO No hotkey for quit because it's just the normal menu escape?
     match wizard
         .choose("Welcome to A/B Street!", || {
             vec![

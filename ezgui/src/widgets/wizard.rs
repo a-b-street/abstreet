@@ -1,6 +1,6 @@
 use crate::widgets::log_scroller::LogScroller;
 use crate::widgets::text_box::TextBox;
-use crate::widgets::{Menu, Position};
+use crate::widgets::PopupMenu;
 use crate::{
     layout, Canvas, EventCtx, GfxCtx, InputResult, Key, MultiKey, SliderWithTextBox, Text,
     UserInput,
@@ -12,7 +12,7 @@ use std::collections::VecDeque;
 pub struct Wizard {
     alive: bool,
     tb: Option<TextBox>,
-    menu: Option<Menu<Box<dyn Cloneable>>>,
+    menu: Option<PopupMenu<Box<dyn Cloneable>>>,
     log_scroller: Option<LogScroller>,
     slider: Option<SliderWithTextBox>,
 
@@ -65,7 +65,7 @@ impl Wizard {
     // The caller can ask for any type at any time
     pub fn current_menu_choice<R: 'static + Cloneable>(&self) -> Option<&R> {
         if let Some(ref menu) = self.menu {
-            let item: &R = menu.current_choice()?.as_any().downcast_ref::<R>()?;
+            let item: &R = menu.current_choice().as_any().downcast_ref::<R>()?;
             return Some(item);
         }
         None
@@ -286,26 +286,19 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
                 ));
                 return None;
             }
-            let mut boxed_choices = Vec::new();
-            let mut inactive_labels = Vec::new();
-            for choice in choices {
-                if !choice.active {
-                    inactive_labels.push(choice.label.clone());
-                }
-                boxed_choices.push((choice.hotkey, choice.label, choice.data.clone_box()));
-            }
-            let mut menu = Menu::new(
+            self.wizard.menu = Some(PopupMenu::new(
                 Text::prompt(query),
-                vec![boxed_choices],
-                true,
-                false,
-                Position::ScreenCenter,
-                self.ctx.canvas,
-            );
-            for label in inactive_labels {
-                menu.mark_active(&label, false);
-            }
-            self.wizard.menu = Some(menu);
+                choices
+                    .into_iter()
+                    .map(|c| Choice {
+                        label: c.label,
+                        data: c.data.clone_box(),
+                        hotkey: c.hotkey,
+                        active: c.active,
+                    })
+                    .collect(),
+                self.ctx,
+            ));
         }
 
         assert!(self.wizard.alive);
@@ -315,14 +308,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
             return None;
         }
 
-        let ev = self.ctx.input.use_event_directly().unwrap();
-        match self
-            .wizard
-            .menu
-            .as_mut()
-            .unwrap()
-            .event(ev, self.ctx.canvas)
-        {
+        match self.wizard.menu.as_mut().unwrap().event(self.ctx) {
             InputResult::Canceled => {
                 self.wizard.menu = None;
                 self.wizard.alive = false;
@@ -392,10 +378,10 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
 }
 
 pub struct Choice<T: Clone> {
-    label: String,
+    pub(crate) label: String,
     pub data: T,
-    hotkey: Option<MultiKey>,
-    active: bool,
+    pub(crate) hotkey: Option<MultiKey>,
+    pub(crate) active: bool,
 }
 
 impl<T: Clone> Choice<T> {

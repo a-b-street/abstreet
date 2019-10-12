@@ -19,9 +19,9 @@ pub struct Canvas {
     // TODO We probably shouldn't even track screen-space cursor when we don't have the cursor.
     pub(crate) cursor_x: f64,
     pub(crate) cursor_y: f64,
-    window_has_cursor: bool,
+    pub(crate) window_has_cursor: bool,
 
-    left_mouse_drag_from: Option<ScreenPt>,
+    pub(crate) left_mouse_drag_from: Option<ScreenPt>,
 
     pub window_width: f64,
     pub window_height: f64,
@@ -88,16 +88,6 @@ impl Canvas {
     }
 
     pub fn handle_event(&mut self, input: &mut UserInput) {
-        if let Some(pt) = input.get_moved_mouse() {
-            self.cursor_x = pt.x;
-            self.cursor_y = pt.y;
-
-            if let Some(click) = self.left_mouse_drag_from {
-                self.cam_x += click.x - pt.x;
-                self.cam_y += click.y - pt.y;
-                self.left_mouse_drag_from = Some(pt);
-            }
-        }
         // Can't start dragging or zooming on top of covered area
         let mouse_on_map = self.get_cursor_in_map_space().is_some();
         if input.left_mouse_button_pressed() && mouse_on_map {
@@ -112,12 +102,6 @@ impl Canvas {
                 let delta = scroll * ZOOM_SPEED * self.cam_zoom;
                 self.zoom_towards_mouse(delta);
             }
-        }
-        if input.window_gained_cursor() {
-            self.window_has_cursor = true;
-        }
-        if input.window_lost_cursor() {
-            self.window_has_cursor = false;
         }
     }
 

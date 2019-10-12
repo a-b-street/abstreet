@@ -81,6 +81,25 @@ impl UserInput {
             canvas.lctrl_held = false;
         }
 
+        if let Some(pt) = input.get_moved_mouse() {
+            canvas.cursor_x = pt.x;
+            canvas.cursor_y = pt.y;
+
+            // OK to update this here; the drag has to be initiated from canvas.handle_event, which
+            // the caller must invoke.
+            if let Some(click) = canvas.left_mouse_drag_from {
+                canvas.cam_x += click.x - pt.x;
+                canvas.cam_y += click.y - pt.y;
+                canvas.left_mouse_drag_from = Some(pt);
+            }
+        }
+        if input.event == Event::WindowGainedCursor {
+            canvas.window_has_cursor = true;
+        }
+        if input.window_lost_cursor() {
+            canvas.window_has_cursor = false;
+        }
+
         // Create the context menu here, even if one already existed.
         if input.right_mouse_button_pressed() {
             assert!(!input.event_consumed);
@@ -253,9 +272,6 @@ impl UserInput {
         self.event == Event::RightMouseButtonDown
     }
 
-    pub(crate) fn window_gained_cursor(&mut self) -> bool {
-        self.event == Event::WindowGainedCursor
-    }
     pub fn window_lost_cursor(&self) -> bool {
         self.event == Event::WindowLostCursor
     }
