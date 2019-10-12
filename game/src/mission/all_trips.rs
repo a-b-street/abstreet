@@ -56,7 +56,6 @@ impl TripsVisualizer {
             final_trips
         });
 
-        let mut time_slider = Slider::new();
         let mut menu = ModalMenu::new(
             "Trips Visualizer",
             vec![
@@ -72,16 +71,12 @@ impl TripsVisualizer {
             ],
             ctx,
         );
-        layout::stack_vertically(
-            layout::ContainerOrientation::TopRight,
-            ctx.canvas,
-            vec![&mut time_slider, &mut menu],
-        );
+        menu.disable_standalone_layout();
 
         TripsVisualizer {
             menu,
             trips,
-            time_slider,
+            time_slider: Slider::new(),
             speed: SpeedControls::new(ctx),
             active_trips: Vec::new(),
         }

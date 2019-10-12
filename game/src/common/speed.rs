@@ -37,11 +37,7 @@ impl SpeedControls {
             ]],
             ctx,
         );
-        layout::stack_vertically(
-            layout::ContainerOrientation::TopLeft,
-            ctx.canvas,
-            vec![&mut slider, &mut menu],
-        );
+        menu.disable_standalone_layout();
 
         SpeedControls {
             slider,

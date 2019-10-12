@@ -13,6 +13,7 @@ pub struct ModalMenu {
     choices: Vec<Choice>,
     // This can be inactive entries too.
     hovering_idx: Option<usize>,
+    standalone_layout: Option<layout::ContainerOrientation>,
 
     show_hide_btn: Button,
     // TODO Actually, 3 states: full, no controls, just title
@@ -51,6 +52,7 @@ impl ModalMenu {
             chosen_action: None,
             choices,
             hovering_idx: None,
+            standalone_layout: Some(layout::ContainerOrientation::TopRight),
 
             show_hide_btn: Button::hide_btn(ctx),
             visible: true,
@@ -60,14 +62,13 @@ impl ModalMenu {
         };
         m.recalculate_dims(ctx);
 
-        // TODO For legacy behavior, standalone menus
-        layout::stack_vertically(
-            layout::ContainerOrientation::TopRight,
-            ctx.canvas,
-            vec![&mut m],
-        );
-
         m
+    }
+
+    // It's part of something bigger
+    pub fn disable_standalone_layout(&mut self) {
+        assert!(self.standalone_layout.is_some());
+        self.standalone_layout = None;
     }
 
     pub fn set_info(&mut self, ctx: &EventCtx, info: Text) {
@@ -78,6 +79,11 @@ impl ModalMenu {
     pub fn event(&mut self, ctx: &mut EventCtx) {
         if let Some(ref action) = self.chosen_action {
             panic!("Caller didn't consume modal action '{}'", action);
+        }
+
+        if let Some(o) = self.standalone_layout {
+            layout::stack_vertically(o, ctx.canvas, vec![self]);
+            self.recalculate_dims(ctx);
         }
 
         // Handle the mouse

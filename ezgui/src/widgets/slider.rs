@@ -253,17 +253,12 @@ impl<T> ItemSlider<T> {
             (hotkey(Key::Dot), last.as_str()),
         ]);
 
-        let mut slider = Slider::new();
         let mut menu = ModalMenu::new(menu_title, choices, ctx);
-        stack_vertically(
-            ContainerOrientation::TopRight,
-            ctx.canvas,
-            vec![&mut slider, &mut menu],
-        );
+        menu.disable_standalone_layout();
 
         ItemSlider {
             items,
-            slider,
+            slider: Slider::new(),
             menu,
 
             noun: noun.to_string(),
@@ -406,17 +401,9 @@ pub struct SliderWithTextBox {
 
 impl SliderWithTextBox {
     pub fn new(prompt: &str, low: Duration, high: Duration, canvas: &Canvas) -> SliderWithTextBox {
-        let mut slider = Slider::new();
-        let mut tb = TextBox::new(prompt, None, canvas);
-        stack_vertically(
-            ContainerOrientation::Centered,
-            canvas,
-            vec![&mut slider, &mut tb],
-        );
-
         SliderWithTextBox {
-            slider,
-            tb,
+            slider: Slider::new(),
+            tb: TextBox::new(prompt, None, canvas),
             low,
             high,
         }

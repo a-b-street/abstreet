@@ -8,6 +8,7 @@ pub trait Widget {
     fn set_pos(&mut self, top_left: ScreenPt, total_width: f64);
 }
 
+#[derive(Clone, Copy)]
 pub enum ContainerOrientation {
     TopLeft,
     TopRight,
