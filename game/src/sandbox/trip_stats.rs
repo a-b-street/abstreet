@@ -191,11 +191,6 @@ impl ShowTripStats {
             );
         }
 
-        let mut txt = Text::prompt("Trip Stats");
-        txt.add(Line(format!(
-            "{} samples",
-            abstutil::prettyprint_usize(stats.samples.len())
-        )));
         Some(ShowTripStats {
             draw: ctx.prerender.upload(batch),
             labels,

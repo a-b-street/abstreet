@@ -34,9 +34,12 @@ struct Tract {
 
 impl DataVisualizer {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> DataVisualizer {
-        let mut timer = Timer::new("initialize popdat");
-        let popdat: PopDat = abstutil::read_binary("../data/shapes/popdat.bin", &mut timer)
-            .expect("Couldn't load popdat.bin");
+        let (popdat, tracts) = ctx.loading_screen("initialize popdat", |_, mut timer| {
+            let popdat: PopDat = abstutil::read_binary("../data/shapes/popdat.bin", &mut timer)
+                .expect("Couldn't load popdat.bin");
+            let tracts = clip_tracts(&popdat, ui, &mut timer);
+            (popdat, tracts)
+        });
 
         DataVisualizer {
             menu: ModalMenu::new(
@@ -54,7 +57,7 @@ impl DataVisualizer {
                 ],
                 ctx,
             ),
-            tracts: clip_tracts(&popdat, ui, &mut timer),
+            tracts,
             popdat,
             show_bars: false,
             current_dataset: 0,
@@ -64,25 +67,28 @@ impl DataVisualizer {
 }
 impl State for DataVisualizer {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        let mut txt = Text::prompt("Data Visualizer");
-        if let Some(ref name) = self.current_tract {
-            txt.add_appended(vec![
-                Line("Census "),
-                Line(name).fg(ui.cs.get("OSD name color")),
-            ]);
-            let tract = &self.tracts[name];
-            txt.add(Line(format!(
-                "{} buildings",
-                prettyprint_usize(tract.num_bldgs)
-            )));
-            txt.add(Line(format!(
-                "{} parking spots ",
-                prettyprint_usize(tract.num_parking_spots)
-            )));
-            txt.add(Line(format!(
-                "{} total owned cars",
-                prettyprint_usize(tract.total_owned_cars)
-            )));
+        {
+            let mut txt = Text::new();
+            if let Some(ref name) = self.current_tract {
+                txt.add_appended(vec![
+                    Line("Census "),
+                    Line(name).fg(ui.cs.get("OSD name color")),
+                ]);
+                let tract = &self.tracts[name];
+                txt.add(Line(format!(
+                    "{} buildings",
+                    prettyprint_usize(tract.num_bldgs)
+                )));
+                txt.add(Line(format!(
+                    "{} parking spots ",
+                    prettyprint_usize(tract.num_parking_spots)
+                )));
+                txt.add(Line(format!(
+                    "{} total owned cars",
+                    prettyprint_usize(tract.total_owned_cars)
+                )));
+            }
+            self.menu.set_info(ctx, txt);
         }
         self.menu.event(ctx);
         ctx.canvas.handle_event(ctx.input);

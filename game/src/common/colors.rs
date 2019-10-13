@@ -164,7 +164,8 @@ impl ColorLegend {
         // - v2: be able to say something like "row: rectangle with width=30, height=80% of row.
         // then 10px spacing. then this text"
         // TODO Need to recalculate all this if the panel moves
-        let mut txt = Text::prompt(&self.title);
+        let mut txt = Text::new();
+        txt.add_highlighted(Line(&self.title), Color::BLUE);
         for (label, _) in &self.rows {
             txt.add(Line(label));
         }
