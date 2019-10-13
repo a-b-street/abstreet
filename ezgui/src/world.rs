@@ -25,13 +25,20 @@ impl<ID: ObjectID> Object<ID> {
         }
     }
 
+    pub fn blank(id: ID) -> Object<ID> {
+        Object {
+            id,
+            geometry: Vec::new(),
+            label: None,
+        }
+    }
+
     pub fn get_id(&self) -> ID {
         self.id
     }
 
-    pub fn push(mut self, color: Color, poly: Polygon) -> Object<ID> {
+    pub fn push(&mut self, color: Color, poly: Polygon) {
         self.geometry.push((color, poly));
-        self
     }
 
     pub fn label(mut self, txt: Text) -> Object<ID> {
@@ -88,7 +95,7 @@ impl<ID: ObjectID> World<ID> {
 
         if let Some(id) = self.current_selection {
             let obj = &self.objects[&id];
-            g.draw_polygon(Color::CYAN, &obj.unioned_polygon);
+            g.draw_polygon(Color::CYAN.alpha(0.5), &obj.unioned_polygon);
         }
     }
 

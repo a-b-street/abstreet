@@ -8,7 +8,7 @@ use ezgui::{
 use geom::{Distance, Line, Polygon, Pt2D};
 use map_model::raw::{RestrictionType, StableBuildingID, StableIntersectionID, StableRoadID};
 use map_model::{osm, LANE_THICKNESS};
-use model::{Direction, Model, ID};
+use model::{Model, ID};
 use std::process;
 
 struct UI {
@@ -24,7 +24,7 @@ enum State {
     MovingBuilding(StableBuildingID),
     MovingRoadPoint(StableRoadID, usize),
     LabelingBuilding(StableBuildingID, Wizard),
-    LabelingRoad((StableRoadID, Direction), Wizard),
+    LabelingRoad(StableRoadID, Wizard),
     LabelingIntersection(StableIntersectionID, Wizard),
     CreatingRoad(StableIntersectionID),
     EditingLanes(StableRoadID, Wizard),
@@ -112,7 +112,12 @@ impl GUI for UI {
                             self.state = State::LabelingBuilding(b, Wizard::new());
                         }
                     }
-                    Some(ID::Lane(r, dir, _)) => {
+                    Some(ID::Road(r)) => {
+                        let could_swap = {
+                            let lanes = self.model.map.roads[&r].get_spec();
+                            lanes.fwd != lanes.back
+                        };
+
                         if ctx.input.key_pressed(Key::Backspace, "delete road") {
                             self.model.delete_r(r);
                             self.model.world.handle_mouseover(ctx);
@@ -120,11 +125,11 @@ impl GUI for UI {
                             self.state = State::EditingLanes(r, Wizard::new());
                         } else if ctx.input.key_pressed(Key::N, "edit name/speed") {
                             self.state = State::EditingRoadAttribs(r, Wizard::new());
-                        } else if ctx.input.key_pressed(Key::S, "swap lanes") {
+                        } else if could_swap && ctx.input.key_pressed(Key::S, "swap lanes") {
                             self.model.swap_lanes(r, ctx.prerender);
                             self.model.world.handle_mouseover(ctx);
                         } else if ctx.input.key_pressed(Key::L, "label side of the road") {
-                            self.state = State::LabelingRoad((r, dir), Wizard::new());
+                            self.state = State::LabelingRoad(r, Wizard::new());
                         } else if ctx.input.key_pressed(Key::P, "move road points") {
                             if self.model.showing_pts.is_some() {
                                 self.model.stop_showing_pts();
@@ -250,12 +255,16 @@ impl GUI for UI {
                     self.state = State::Viewing;
                 }
             }
-            State::LabelingRoad(pair, ref mut wizard) => {
+            State::LabelingRoad(r, ref mut wizard) => {
                 if let Some(label) = wizard.wrap(ctx).input_string_prefilled(
                     "Label this side of the road",
-                    self.model.get_r_label(pair).unwrap_or_else(String::new),
+                    self.model.map.roads[&r]
+                        .osm_tags
+                        .get(osm::FWD_LABEL)
+                        .cloned()
+                        .unwrap_or_else(String::new),
                 ) {
-                    self.model.set_r_label(pair, label, ctx.prerender);
+                    self.model.set_r_label(r, label, ctx.prerender);
                     self.state = State::Viewing;
                 } else if wizard.aborted() {
                     self.state = State::Viewing;
@@ -369,7 +378,7 @@ impl GUI for UI {
                 {
                     self.state = State::Viewing;
                     self.model.world.handle_mouseover(ctx);
-                } else if let Some(ID::Lane(to, _, _)) = self.model.world.get_selection() {
+                } else if let Some(ID::Road(to)) = self.model.world.get_selection() {
                     if ctx
                         .input
                         .key_pressed(Key::R, "create turn restriction to here")
@@ -449,7 +458,7 @@ impl GUI for UI {
                 {
                     self.state = State::Viewing;
                     self.model.world.handle_mouseover(ctx);
-                } else if let Some(ID::Lane(id, _, _)) = self.model.world.get_selection() {
+                } else if let Some(ID::Road(id)) = self.model.world.get_selection() {
                     if ctx.input.key_pressed(
                         Key::C,
                         &format!("set name={}, speed={}, lanes={}", name, speed, lanespec),

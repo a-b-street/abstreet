@@ -14,10 +14,6 @@ const INTERSECTION_RADIUS: Distance = Distance::const_meters(5.0);
 const BUILDING_LENGTH: Distance = Distance::const_meters(30.0);
 const CENTER_LINE_THICKNESS: Distance = Distance::const_meters(0.5);
 
-pub type Direction = bool;
-const FORWARDS: Direction = true;
-const BACKWARDS: Direction = false;
-
 pub struct Model {
     // map and world are pub. The main crate should use them directly for simple stuff, to avoid
     // boilerplate delegation methods. Complex changes should be proper methods on the model.
@@ -213,7 +209,7 @@ impl Model {
                     txt.add(Line(format!("- {}", r)));
                 }
             }
-            ID::Lane(r, _, _) => {
+            ID::Road(r) => {
                 txt.add_highlighted(Line(r.to_string()), Color::BLUE);
                 let road = &self.map.roads[&r];
 
@@ -343,13 +339,13 @@ impl Model {
 // Roads
 impl Model {
     fn road_added(&mut self, id: StableRoadID, prerender: &Prerender) {
-        for obj in self.lanes(id) {
+        for obj in self.road_objects(id) {
             self.world.add(prerender, obj);
         }
     }
 
     fn road_deleted(&mut self, id: StableRoadID) {
-        for obj in self.lanes(id) {
+        for obj in self.road_objects(id) {
             self.world.delete(obj.get_id());
         }
     }
@@ -457,37 +453,20 @@ impl Model {
         self.road_added(id, prerender);
     }
 
-    pub fn set_r_label(
-        &mut self,
-        pair: (StableRoadID, Direction),
-        label: String,
-        prerender: &Prerender,
-    ) {
-        self.road_deleted(pair.0);
+    pub fn set_r_label(&mut self, r: StableRoadID, label: String, prerender: &Prerender) {
+        self.road_deleted(r);
 
-        let mut osm_tags = self.map.roads[&pair.0].osm_tags.clone();
-        if pair.1 {
-            osm_tags.insert(osm::FWD_LABEL.to_string(), label.to_string());
-        } else {
-            osm_tags.insert(osm::BACK_LABEL.to_string(), label.to_string());
-        }
+        let mut osm_tags = self.map.roads[&r].osm_tags.clone();
+        // Always insert the forward label. Can fiddle with swap_lanes to change it.
+        osm_tags.insert(osm::FWD_LABEL.to_string(), label.to_string());
 
         self.map.override_metadata(
-            pair.0,
+            r,
             osm_tags,
-            self.map.roads[&pair.0].turn_restrictions.clone(),
+            self.map.roads[&r].turn_restrictions.clone(),
             &mut self.fixes,
         );
-        self.road_added(pair.0, prerender);
-    }
-
-    pub fn get_r_label(&self, pair: (StableRoadID, Direction)) -> Option<String> {
-        let r = &self.map.roads[&pair.0];
-        if pair.1 {
-            r.osm_tags.get(osm::FWD_LABEL).cloned()
-        } else {
-            r.osm_tags.get(osm::BACK_LABEL).cloned()
-        }
+        self.road_added(r, prerender);
     }
 
     pub fn set_r_name_and_speed(
@@ -523,18 +502,21 @@ impl Model {
         }
     }
 
-    fn lanes(&self, id: StableRoadID) -> Vec<Object<ID>> {
+    fn road_objects(&self, id: StableRoadID) -> Vec<Object<ID>> {
         let r = &self.map.roads[&id];
-
-        let mut result = Vec::new();
         let synthetic = r.synthetic();
         let unset =
             synthetic && r.osm_tags.get(osm::NAME) == Some(&"Streety McStreetFace".to_string());
         let spec = r.get_spec();
         let center_pts = PolyLine::new(r.center_points.clone());
+
+        let mut obj = Object::blank(ID::Road(id));
+        // TODO Labels are kinda unused. Just blindly use FWD_LABEL, whatever.
+        obj = obj.maybe_label(r.osm_tags.get(osm::FWD_LABEL).cloned());
+        //obj = obj.maybe_label(r.osm_tags.get(osm::BACK_LABEL).cloned());
+
         for (idx, lt) in spec.fwd.iter().enumerate() {
-            let mut obj = Object::new(
-                ID::Lane(id, FORWARDS, idx),
+            obj.push(
                 Model::lt_to_color(*lt, synthetic, unset),
                 center_pts
                     .shift_right(LANE_THICKNESS * (0.5 + (idx as f64)))
@@ -542,19 +524,14 @@ impl Model {
                     .make_polygons(LANE_THICKNESS),
             );
             if idx == 0 {
-                obj = obj.push(
+                obj.push(
                     Color::YELLOW,
                     center_pts.make_polygons(CENTER_LINE_THICKNESS),
                 );
             }
-            if idx == spec.fwd.len() / 2 {
-                obj = obj.maybe_label(r.osm_tags.get(osm::FWD_LABEL).cloned());
-            }
-            result.push(obj);
         }
         for (idx, lt) in spec.back.iter().enumerate() {
-            let mut obj = Object::new(
-                ID::Lane(id, BACKWARDS, idx),
+            obj.push(
                 Model::lt_to_color(*lt, synthetic, unset),
                 center_pts
                     .reversed()
@@ -562,12 +539,9 @@ impl Model {
                     .unwrap()
                     .make_polygons(LANE_THICKNESS),
             );
-            if idx == spec.back.len() / 2 {
-                obj = obj.maybe_label(r.osm_tags.get(osm::BACK_LABEL).cloned());
-            }
-            result.push(obj);
         }
 
+        let mut result = vec![obj];
         for (restriction, to) in &r.turn_restrictions {
             let polygon = if id == *to {
                 // TODO Ideally a hollow circle with an arrow
@@ -800,7 +774,7 @@ impl Model {
 pub enum ID {
     Building(StableBuildingID),
     Intersection(StableIntersectionID),
-    Lane(StableRoadID, Direction, usize),
+    Road(StableRoadID),
     RoadPoint(StableRoadID, usize),
     TurnRestriction(StableRoadID, RestrictionType, StableRoadID),
 }
@@ -808,7 +782,7 @@ pub enum ID {
 impl ObjectID for ID {
     fn zorder(&self) -> usize {
         match self {
-            ID::Lane(_, _, _) => 0,
+            ID::Road(_) => 0,
             ID::Intersection(_) => 1,
             ID::Building(_) => 2,
             ID::RoadPoint(_, _) => 3,
