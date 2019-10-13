@@ -11,7 +11,7 @@ mod text;
 mod widgets;
 pub mod world;
 
-pub use crate::canvas::{Canvas, HorizontalAlignment, VerticalAlignment, BOTTOM_LEFT, CENTERED};
+pub use crate::canvas::{Canvas, HorizontalAlignment, VerticalAlignment};
 pub use crate::color::Color;
 pub use crate::drawing::{Drawable, GeomBatch, GfxCtx, MultiText, Prerender};
 pub use crate::event::{hotkey, lctrl, Event, Key, MultiKey};

@@ -1,4 +1,7 @@
-use crate::{text, Event, GfxCtx, InputResult, Key, Line, Text, UserInput, CENTERED};
+use crate::{
+    text, Event, GfxCtx, HorizontalAlignment, InputResult, Key, Line, Text, UserInput,
+    VerticalAlignment,
+};
 use simsearch::SimSearch;
 use std::collections::{BTreeMap, HashSet};
 use std::hash::Hash;
@@ -76,7 +79,10 @@ impl<T: Clone + Hash + Eq> Autocomplete<T> {
             }
         }
 
-        g.draw_blocking_text(&txt, CENTERED);
+        g.draw_blocking_text(
+            &txt,
+            (HorizontalAlignment::Center, VerticalAlignment::Center),
+        );
     }
 
     pub fn event(&mut self, input: &mut UserInput) -> InputResult<HashSet<T>> {

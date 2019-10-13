@@ -1,4 +1,6 @@
-use crate::{text, Event, GfxCtx, Key, Line, Text, UserInput, CENTERED};
+use crate::{
+    text, Event, GfxCtx, HorizontalAlignment, Key, Line, Text, UserInput, VerticalAlignment,
+};
 
 // TODO Just displays text, no scrolling.
 pub struct LogScroller {
@@ -34,6 +36,9 @@ impl LogScroller {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        g.draw_blocking_text(&self.text, CENTERED);
+        g.draw_blocking_text(
+            &self.text,
+            (HorizontalAlignment::Center, VerticalAlignment::Center),
+        );
     }
 }

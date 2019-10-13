@@ -209,8 +209,3 @@ pub enum VerticalAlignment {
     Center,
     Bottom,
 }
-
-pub const BOTTOM_LEFT: (HorizontalAlignment, VerticalAlignment) =
-    (HorizontalAlignment::Left, VerticalAlignment::Bottom);
-pub const CENTERED: (HorizontalAlignment, VerticalAlignment) =
-    (HorizontalAlignment::Center, VerticalAlignment::Center);

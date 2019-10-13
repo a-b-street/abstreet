@@ -312,14 +312,16 @@ impl UserInput {
         self.event_consumed
     }
 
-    pub fn populate_osd(&mut self, osd: &mut Text) {
+    pub fn populate_osd(&mut self) -> Text {
+        let mut txt = Text::new();
         for (key, a) in self.important_actions.drain(..) {
-            osd.add_appended(vec![
+            txt.add_appended(vec![
                 Line("Press "),
                 Line(key.describe()).fg(text::HOTKEY_COLOR),
                 Line(format!(" to {}", a)),
             ]);
         }
+        txt
     }
 
     fn reserve_key(&mut self, key: Key, action: &str) {
