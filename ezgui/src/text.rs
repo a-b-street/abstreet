@@ -53,8 +53,8 @@ pub struct Text {
     // The bg_color will cover the entire block, but some lines can have extra highlighting.
     lines: Vec<(Option<Color>, Vec<TextSpan>)>,
     bg_color: Option<Color>,
-    pub(crate) override_width: Option<f64>,
-    pub(crate) override_height: Option<f64>,
+    pub override_width: Option<f64>,
+    pub override_height: Option<f64>,
 }
 
 impl Text {
@@ -153,10 +153,6 @@ impl Text {
 
     pub fn extend(&mut self, other: &Text) {
         self.lines.extend(other.lines.clone())
-    }
-
-    pub(crate) fn is_empty(&self) -> bool {
-        self.lines.is_empty()
     }
 
     pub(crate) fn dims(&self, canvas: &Canvas) -> (f64, f64) {
@@ -269,7 +265,6 @@ pub fn draw_text_bubble_mapspace(
     // Callers almost always calculate this anyway
     (total_width, total_height): (f64, f64),
 ) {
-    // TODO If this works, share most code with draw_text_bubble.
     if let Some(c) = txt.bg_color {
         g.draw_polygon(
             c,

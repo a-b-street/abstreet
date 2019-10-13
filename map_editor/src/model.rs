@@ -193,6 +193,65 @@ impl Model {
             }
         }
     }
+
+    pub fn populate_obj_info(&self, id: ID, txt: &mut Text) {
+        match id {
+            ID::Building(b) => {
+                txt.add_highlighted(Line(b.to_string()), Color::BLUE);
+                for (k, v) in &self.map.buildings[&b].osm_tags {
+                    txt.add_appended(vec![
+                        Line(k).fg(Color::RED),
+                        Line(" = "),
+                        Line(v).fg(Color::CYAN),
+                    ]);
+                }
+            }
+            ID::Intersection(i) => {
+                txt.add_highlighted(Line(i.to_string()), Color::BLUE);
+                txt.add(Line(format!("{:?}", self.map.intersections[&i].orig_id)));
+                for r in self.map.roads_per_intersection(i) {
+                    txt.add(Line(format!("- {}", r)));
+                }
+            }
+            ID::Lane(r, _, _) => {
+                txt.add_highlighted(Line(r.to_string()), Color::BLUE);
+                let road = &self.map.roads[&r];
+
+                if let Some(name) = road.osm_tags.get(osm::NAME) {
+                    txt.add(Line(name));
+                } else if let Some(name) = road.osm_tags.get("ref") {
+                    txt.add(Line(name));
+                } else {
+                    txt.add(Line("some road"));
+                }
+
+                for (k, v) in &road.osm_tags {
+                    txt.add_appended(vec![
+                        Line(k).fg(Color::RED),
+                        Line(" = "),
+                        Line(v).fg(Color::CYAN),
+                    ]);
+                }
+                for (restriction, dst) in &road.turn_restrictions {
+                    txt.add_appended(vec![
+                        Line("Restriction: "),
+                        Line(format!("{:?}", restriction)).fg(Color::RED),
+                        Line(" to "),
+                        Line(format!("way {}", dst)).fg(Color::CYAN),
+                    ]);
+                }
+            }
+            ID::RoadPoint(r, idx) => {
+                txt.add_highlighted(Line(format!("Point {}", idx)), Color::BLUE);
+                txt.add(Line(format!("of {}", r)));
+            }
+            ID::TurnRestriction(from, restriction, to) => {
+                txt.add_highlighted(Line(format!("{:?}", restriction)), Color::BLUE);
+                txt.add(Line(format!("from {}", from)));
+                txt.add(Line(format!("to {}", to)));
+            }
+        }
+    }
 }
 
 // Intersections
@@ -467,15 +526,6 @@ impl Model {
     fn lanes(&self, id: StableRoadID) -> Vec<Object<ID>> {
         let r = &self.map.roads[&id];
 
-        let mut tooltip = Text::new();
-        if let Some(name) = r.osm_tags.get(osm::NAME) {
-            tooltip.add(Line(name));
-        } else if let Some(name) = r.osm_tags.get("ref") {
-            tooltip.add(Line(name));
-        } else {
-            tooltip.add(Line("some road"));
-        }
-
         let mut result = Vec::new();
         let synthetic = r.synthetic();
         let unset =
@@ -500,7 +550,7 @@ impl Model {
             if idx == spec.fwd.len() / 2 {
                 obj = obj.maybe_label(r.osm_tags.get(osm::FWD_LABEL).cloned());
             }
-            result.push(obj.tooltip(tooltip.clone()));
+            result.push(obj);
         }
         for (idx, lt) in spec.back.iter().enumerate() {
             let mut obj = Object::new(
@@ -515,7 +565,7 @@ impl Model {
             if idx == spec.back.len() / 2 {
                 obj = obj.maybe_label(r.osm_tags.get(osm::BACK_LABEL).cloned());
             }
-            result.push(obj.tooltip(tooltip.clone()));
+            result.push(obj);
         }
 
         for (restriction, to) in &r.turn_restrictions {
@@ -532,14 +582,11 @@ impl Model {
                     .unwrap()
             };
 
-            result.push(
-                Object::new(
-                    ID::TurnRestriction(id, *restriction, *to),
-                    Color::PURPLE,
-                    polygon,
-                )
-                .tooltip(Text::from(Line(format!("{:?}", restriction)))),
-            );
+            result.push(Object::new(
+                ID::TurnRestriction(id, *restriction, *to),
+                Color::PURPLE,
+                polygon,
+            ));
         }
 
         result

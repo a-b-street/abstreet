@@ -13,7 +13,6 @@ pub trait ObjectID: Clone + Copy + Debug + Eq + Hash {
 pub struct Object<ID: ObjectID> {
     id: ID,
     geometry: Vec<(Color, Polygon)>,
-    tooltip: Option<Text>,
     label: Option<Text>,
 }
 
@@ -22,7 +21,6 @@ impl<ID: ObjectID> Object<ID> {
         Object {
             id,
             geometry: vec![(color, poly)],
-            tooltip: None,
             label: None,
         }
     }
@@ -33,12 +31,6 @@ impl<ID: ObjectID> Object<ID> {
 
     pub fn push(mut self, color: Color, poly: Polygon) -> Object<ID> {
         self.geometry.push((color, poly));
-        self
-    }
-
-    pub fn tooltip(mut self, txt: Text) -> Object<ID> {
-        assert!(self.tooltip.is_none());
-        self.tooltip = Some(txt);
         self
     }
 
@@ -60,7 +52,6 @@ impl<ID: ObjectID> Object<ID> {
 struct WorldObject {
     unioned_polygon: Polygon,
     draw: Drawable,
-    tooltip: Option<Text>,
     label: Option<Text>,
     quadtree_id: ItemId,
 }
@@ -98,9 +89,6 @@ impl<ID: ObjectID> World<ID> {
         if let Some(id) = self.current_selection {
             let obj = &self.objects[&id];
             g.draw_polygon(Color::CYAN, &obj.unioned_polygon);
-            if let Some(ref txt) = obj.tooltip {
-                g.draw_mouse_tooltip(txt);
-            }
         }
     }
 
@@ -153,7 +141,6 @@ impl<ID: ObjectID> World<ID> {
                 unioned_polygon,
                 draw,
                 quadtree_id,
-                tooltip: obj.tooltip,
                 label: obj.label,
             },
         );

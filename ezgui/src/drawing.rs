@@ -208,9 +208,6 @@ impl<'a> GfxCtx<'a> {
         txt: &Text,
         (horiz, vert): (HorizontalAlignment, VerticalAlignment),
     ) {
-        if txt.is_empty() {
-            return;
-        }
         let (mut width, height) = self.text_dims(&txt);
         let x1 = match horiz {
             HorizontalAlignment::Left => 0.0,
@@ -264,7 +261,7 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn text_dims(&self, txt: &Text) -> (f64, f64) {
-        self.canvas.text_dims(txt)
+        txt.dims(&self.canvas)
     }
 
     pub fn draw_text_at_screenspace_topleft(&mut self, txt: &Text, pt: ScreenPt) {

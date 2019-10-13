@@ -479,33 +479,17 @@ impl GUI for UI {
         }
 
         self.osd_info = Text::new();
-        if let Some(ID::Lane(id, _, _)) = self.model.world.get_selection() {
-            for (k, v) in &self.model.map.roads[&id].osm_tags {
-                self.osd_info.add_appended(vec![
-                    Line(k).fg(Color::RED),
-                    Line(" = "),
-                    Line(v).fg(Color::CYAN),
-                ]);
-            }
-            for (restriction, dst) in &self.model.map.roads[&id].turn_restrictions {
-                self.osd_info.add_appended(vec![
-                    Line("Restriction: "),
-                    Line(format!("{:?}", restriction)).fg(Color::RED),
-                    Line(" to "),
-                    Line(format!("way {}", dst)).fg(Color::CYAN),
-                ]);
-            }
-        } else if let Some(ID::Intersection(i)) = self.model.world.get_selection() {
-            self.osd_info.add(Line(format!(
-                "{} is {:?}",
-                i, self.model.map.intersections[&i].orig_id
-            )));
-            for r in self.model.map.roads_per_intersection(i) {
-                self.osd_info.add(Line(format!("- {}", r)));
-            }
+        self.osd_info.override_width = Some(0.3 * ctx.canvas.window_width);
+        self.osd_info.override_height = Some(0.4 * ctx.canvas.window_height);
+        if let Some(id) = self.model.world.get_selection() {
+            self.model.populate_obj_info(id, &mut self.osd_info);
+        } else {
+            self.osd_info.add_highlighted(Line("..."), Color::BLUE);
         }
 
         self.osd_controls = ctx.input.populate_osd();
+        self.osd_controls.override_width = Some(0.3 * ctx.canvas.window_width);
+        self.osd_controls.override_height = Some(0.4 * ctx.canvas.window_height);
         EventLoopMode::InputOnly
     }
 
