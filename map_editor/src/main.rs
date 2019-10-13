@@ -15,8 +15,7 @@ struct UI {
     model: Model,
     state: State,
     menu: ModalMenu,
-    osd_controls: Text,
-    osd_info: Text,
+    sidebar: Text,
 }
 
 enum State {
@@ -66,8 +65,7 @@ impl UI {
                 ]],
                 ctx,
             ),
-            osd_controls: Text::new(),
-            osd_info: Text::new(),
+            sidebar: Text::new(),
         }
     }
 }
@@ -89,10 +87,7 @@ impl GUI for UI {
                             self.state = State::MovingIntersection(i);
                         } else if ctx.input.key_pressed(Key::R, "create road") {
                             self.state = State::CreatingRoad(i);
-                        } else if ctx
-                            .input
-                            .key_pressed(Key::Backspace, &format!("delete {}", i))
-                        {
+                        } else if ctx.input.key_pressed(Key::Backspace, "delete building") {
                             self.model.delete_i(i);
                             self.model.world.handle_mouseover(ctx);
                         } else if ctx.input.key_pressed(Key::T, "toggle intersection type") {
@@ -110,10 +105,7 @@ impl GUI for UI {
                     Some(ID::Building(b)) => {
                         if ctx.input.key_pressed(Key::LeftControl, "move building") {
                             self.state = State::MovingBuilding(b);
-                        } else if ctx
-                            .input
-                            .key_pressed(Key::Backspace, &format!("delete {}", b))
-                        {
+                        } else if ctx.input.key_pressed(Key::Backspace, "delete building") {
                             self.model.delete_b(b);
                             self.model.world.handle_mouseover(ctx);
                         } else if ctx.input.key_pressed(Key::L, "label building") {
@@ -121,10 +113,7 @@ impl GUI for UI {
                         }
                     }
                     Some(ID::Lane(r, dir, _)) => {
-                        if ctx
-                            .input
-                            .key_pressed(Key::Backspace, &format!("delete {}", r))
-                        {
+                        if ctx.input.key_pressed(Key::Backspace, "delete road") {
                             self.model.delete_r(r);
                             self.model.world.handle_mouseover(ctx);
                         } else if ctx.input.key_pressed(Key::E, "edit lanes") {
@@ -364,7 +353,7 @@ impl GUI for UI {
                     self.state = State::Viewing;
                 } else if ctx
                     .input
-                    .key_pressed(Key::Backspace, "delete everything area")
+                    .key_pressed(Key::Backspace, "delete everything in area")
                 {
                     if let Some(rect) = Polygon::rectangle_two_corners(pt1, *pt2) {
                         self.model.delete_everything_inside(rect, ctx.prerender);
@@ -478,18 +467,21 @@ impl GUI for UI {
             }
         }
 
-        self.osd_info = Text::new();
-        self.osd_info.override_width = Some(0.3 * ctx.canvas.window_width);
-        self.osd_info.override_height = Some(0.4 * ctx.canvas.window_height);
+        self.sidebar = Text::new();
+        self.sidebar.override_width = Some(0.3 * ctx.canvas.window_width);
+        self.sidebar.override_height = Some(ctx.canvas.window_height);
         if let Some(id) = self.model.world.get_selection() {
-            self.model.populate_obj_info(id, &mut self.osd_info);
+            self.model.populate_obj_info(id, &mut self.sidebar);
         } else {
-            self.osd_info.add_highlighted(Line("..."), Color::BLUE);
+            self.sidebar.add_highlighted(Line("..."), Color::BLUE);
         }
 
-        self.osd_controls = ctx.input.populate_osd();
-        self.osd_controls.override_width = Some(0.3 * ctx.canvas.window_width);
-        self.osd_controls.override_height = Some(0.4 * ctx.canvas.window_height);
+        // I don't think a clickable menu of buttons makes sense here. These controls need to
+        // operate on the thing where the mouse is currently. Sometimes that's not even an object
+        // (like selecting an area or placing a new building).
+        self.sidebar.add(Line(""));
+        self.sidebar.add_highlighted(Line("Controls"), Color::BLUE);
+        ctx.input.populate_osd(&mut self.sidebar);
         EventLoopMode::InputOnly
     }
 
@@ -559,14 +551,7 @@ impl GUI for UI {
 
         self.menu.draw(g);
         g.draw_blocking_text(
-            &self.osd_controls,
-            (
-                ezgui::HorizontalAlignment::Left,
-                ezgui::VerticalAlignment::Bottom,
-            ),
-        );
-        g.draw_blocking_text(
-            &self.osd_info,
+            &self.sidebar,
             (
                 ezgui::HorizontalAlignment::Left,
                 ezgui::VerticalAlignment::Top,
