@@ -27,6 +27,7 @@ impl SimFlags {
                 use_freeform_policy_everywhere: args.enabled("--freeform_policy"),
                 disable_block_the_box: args.enabled("--disable_block_the_box"),
                 record_stats: args.enabled("--record_stats"),
+                recalc_lanechanging: !args.enabled("--dont_recalc_lc"),
             },
         }
     }
@@ -40,13 +41,7 @@ impl SimFlags {
         SimFlags {
             load: abstutil::path_map(map),
             rng_seed: Some(42),
-            opts: SimOptions {
-                run_name: run_name.to_string(),
-                savestate_every: None,
-                use_freeform_policy_everywhere: false,
-                disable_block_the_box: false,
-                record_stats: false,
-            },
+            opts: SimOptions::new(run_name),
         }
     }
 

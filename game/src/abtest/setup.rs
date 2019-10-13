@@ -176,6 +176,10 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
                                     .opts
                                     .disable_block_the_box,
                                 record_stats: false,
+                                recalc_lanechanging: current_flags
+                                    .sim_flags
+                                    .opts
+                                    .recalc_lanechanging,
                             },
                         },
                         ..current_flags.clone()

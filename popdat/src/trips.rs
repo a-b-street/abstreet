@@ -224,7 +224,7 @@ pub fn clip_trips(map: &Map, timer: &mut Timer) -> (Vec<Trip>, HashMap<BuildingI
                 if false {
                     // TODO Figure out why some paths fail.
                     // TODO Since we're doing the work anyway, store the result?
-                    let dist = map.pathfind(trip.path_req(map))?.total_dist(map);
+                    let dist = map.pathfind(trip.path_req(map))?.total_length();
                     // TODO This is failing all over the place, why?
                     assert!(dist <= trip.trip_dist);
                     let trip_time = (dist / trip.trip_dist) * trip.trip_time;
@@ -235,7 +235,7 @@ pub fn clip_trips(map: &Map, timer: &mut Timer) -> (Vec<Trip>, HashMap<BuildingI
             }
             (TripEndpt::Building(_), TripEndpt::Border(_, _)) => {
                 if false {
-                    let dist = map.pathfind(trip.path_req(map))?.total_dist(map);
+                    let dist = map.pathfind(trip.path_req(map))?.total_length();
                     assert!(dist <= trip.trip_dist);
                     trip.trip_time = (dist / trip.trip_dist) * trip.trip_time;
                     trip.trip_dist = dist;

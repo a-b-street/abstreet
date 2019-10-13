@@ -1,5 +1,5 @@
 use crate::mechanics::car::{Car, CarState};
-use crate::mechanics::queue::Queue;
+use crate::mechanics::Queue;
 use crate::{
     ActionAtEnd, AgentID, CarID, Command, CreateCar, DistanceInterval, DrawCarInput, Event,
     IntersectionSimState, ParkedCar, ParkingSimState, Scheduler, TimeInterval, TransitSimState,
@@ -33,14 +33,17 @@ pub struct DrivingSimState {
     )]
     queues: BTreeMap<Traversable, Queue>,
     events: Vec<Event>,
+
+    recalc_lanechanging: bool,
 }
 
 impl DrivingSimState {
-    pub fn new(map: &Map) -> DrivingSimState {
+    pub fn new(map: &Map, recalc_lanechanging: bool) -> DrivingSimState {
         let mut sim = DrivingSimState {
             cars: BTreeMap::new(),
             queues: BTreeMap::new(),
             events: Vec::new(),
+            recalc_lanechanging,
         };
 
         for l in map.all_lanes() {
@@ -245,6 +248,9 @@ impl DrivingSimState {
                 if queue.cars[0] == car.vehicle.id && queue.laggy_head.is_none() {
                     // Want to re-run, but no urgency about it happening immediately.
                     car.state = CarState::WaitingToAdvance;
+                    if self.recalc_lanechanging {
+                        car.router.opportunistically_lanechange(&self.queues, map);
+                    }
                     scheduler.push(now, Command::UpdateCar(car.vehicle.id));
                 }
             }
@@ -685,7 +691,12 @@ impl DrivingSimState {
                                 // The follower has been smoothly following while the laggy head gets out
                                 // of the way. So immediately promote them to WaitingToAdvance.
                                 follower.state = CarState::WaitingToAdvance;
-                                scheduler.push(now, Command::UpdateCar(*follower_id));
+                                if self.recalc_lanechanging {
+                                    follower
+                                        .router
+                                        .opportunistically_lanechange(&self.queues, map);
+                                }
+                                scheduler.push(now, Command::UpdateCar(follower.vehicle.id));
                             }
                         }
                         CarState::WaitingToAdvance => unreachable!(),

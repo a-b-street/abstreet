@@ -89,6 +89,7 @@
 - park/unpark needs to jump two lanes in the case of crossing a bike lane or something
 	- should only be able to park from the closest lane, though!
 - explicit tests making cars park at 0 and max_dist, peds walk to 0 and max_dist
+- lanechange rebalancing
 
 ## Discrete-event sim model
 

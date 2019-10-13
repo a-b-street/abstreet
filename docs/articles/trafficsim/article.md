@@ -118,6 +118,11 @@ gridlock. This LCing model was using a detailed discrete-time model with cars
 accelerating properly; maybe it's easier with A/B Street's simplified movement
 model.
 
+Currently in A/B Street, cars will pick the least backed-up lane when there's a
+choice. They make this decision once when they reach the front of a queue; look
+for `opportunistically_lanechange` in `router.rs`. The decision could be
+improved.
+
 ### Pedestrians
 
 Pedestrian modeling -- in `mechanics/walking.rs` is way simpler. Pedestrians

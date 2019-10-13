@@ -159,6 +159,14 @@ impl Path {
         self.steps.push_back(step);
     }
 
+    // Trusting the caller to do this in valid ways.
+    pub fn modify_step(&mut self, idx: usize, step: PathStep, map: &Map) {
+        assert!(idx != 0);
+        self.total_length -= self.steps[idx].as_traversable().length(map);
+        self.steps[idx] = step;
+        self.total_length += self.steps[idx].as_traversable().length(map);
+    }
+
     pub fn current_step(&self) -> PathStep {
         self.steps[0]
     }
@@ -262,14 +270,6 @@ impl Path {
 
     pub fn get_steps(&self) -> &VecDeque<PathStep> {
         &self.steps
-    }
-
-    pub fn total_dist(&self, map: &Map) -> Distance {
-        let mut dist = Distance::ZERO;
-        for s in &self.steps {
-            dist += s.as_traversable().length(map);
-        }
-        dist
     }
 }
 

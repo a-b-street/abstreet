@@ -1,5 +1,5 @@
 use crate::mechanics::car::Car;
-use crate::mechanics::queue::Queue;
+use crate::mechanics::Queue;
 use crate::{AgentID, Command, Scheduler, Speed};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use derivative::Derivative;

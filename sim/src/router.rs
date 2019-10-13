@@ -1,3 +1,4 @@
+use crate::mechanics::Queue;
 use crate::{ParkingSimState, ParkingSpot, SidewalkSpot, Vehicle, VehicleType};
 use geom::Distance;
 use map_model::{
@@ -5,7 +6,7 @@ use map_model::{
     TurnID,
 };
 use serde_derive::{Deserialize, Serialize};
-use std::collections::{HashMap, VecDeque};
+use std::collections::{BTreeMap, HashMap, VecDeque};
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Router {
@@ -236,6 +237,76 @@ impl Router {
                 }
             }
         }
+    }
+
+    pub fn opportunistically_lanechange(
+        &mut self,
+        queues: &BTreeMap<Traversable, Queue>,
+        map: &Map,
+    ) {
+        let (current_turn, next_lane) = {
+            let steps = self.path.get_steps();
+            if steps.len() < 5 {
+                return;
+            }
+            match (steps[1], steps[4]) {
+                (PathStep::Turn(t), PathStep::Lane(l)) => (t, l),
+                _ => {
+                    return;
+                }
+            }
+        };
+
+        let orig_target_lane = current_turn.dst;
+        let parent = map.get_parent(orig_target_lane);
+        let next_parent = map.get_l(next_lane).src_i;
+
+        // Look for other candidate lanes. Must be the same lane type -- if there was a bus/bike
+        // lane originally and pathfinding already decided to use it, stick with that decision.
+        let orig_lt = map.get_l(orig_target_lane).lane_type;
+        let siblings = if parent.is_forwards(orig_target_lane) {
+            &parent.children_forwards
+        } else {
+            &parent.children_backwards
+        };
+
+        let (_, turn1, best_lane, turn2) = siblings
+            .iter()
+            .filter_map(|(l, lt)| {
+                let turn1 = TurnID {
+                    parent: current_turn.parent,
+                    src: current_turn.src,
+                    dst: *l,
+                };
+                if orig_lt == *lt && map.maybe_get_t(turn1).is_some() && map.is_turn_allowed(turn1)
+                {
+                    // Now make sure we can go from this lane to next_lane.
+                    let turn2 = TurnID {
+                        parent: next_parent,
+                        src: *l,
+                        dst: next_lane,
+                    };
+                    if map.maybe_get_t(turn2).is_some() && map.is_turn_allowed(turn2) {
+                        Some((queues[&Traversable::Lane(*l)].cars.len(), turn1, *l, turn2))
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
+            })
+            .min_by_key(|(len, _, _, _)| *len)
+            .unwrap();
+        // TODO Only switch if the target queue is some amount better; don't oscillate
+        // unnecessarily.
+        // TODO Better weight function... any slower vehicles in one?
+        if best_lane == orig_target_lane {
+            return;
+        }
+
+        self.path.modify_step(1, PathStep::Turn(turn1), map);
+        self.path.modify_step(2, PathStep::Lane(best_lane), map);
+        self.path.modify_step(3, PathStep::Turn(turn2), map);
     }
 }
 
