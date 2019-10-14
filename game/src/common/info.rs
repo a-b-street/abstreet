@@ -49,6 +49,9 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
     txt.override_height = Some(0.7 * ctx.canvas.window_height);
 
     txt.extend(&CommonState::default_osd(id.clone(), ui));
+    txt.highlight_last_line(Color::BLUE);
+    let id_color = ui.cs.get("OSD ID color");
+    let name_color = ui.cs.get("OSD name color");
 
     match id {
         ID::Road(_) => unreachable!(),
@@ -57,20 +60,24 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
             let r = map.get_r(l.parent);
 
             txt.add_appended(vec![
-                Line(format!("{} is ", l.id)),
-                Line(r.get_name()).fg(Color::CYAN),
+                Line("Parent "),
+                Line(r.id.to_string()).fg(id_color),
+                Line(" ("),
+                Line(r.stable_id.to_string()).fg(id_color),
+                Line(" ) points to "),
+                Line(r.dst_i.to_string()).fg(id_color),
             ]);
-            txt.add(Line(format!(
-                "Parent {} (originally {}) points to {}",
-                r.id, r.stable_id, r.dst_i
-            )));
             txt.add(Line(format!(
                 "Lane is {} long, parent {} is {} long",
                 l.length(),
                 r.id,
                 r.center_pts.length()
             )));
+
+            txt.add(Line(""));
             styled_kv(&mut txt, &r.osm_tags);
+
+            txt.add(Line(""));
             if l.is_parking() {
                 txt.add(Line(format!(
                     "Has {} parking spots",
@@ -82,6 +89,8 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
                     l.parking_blackhole
                 )));
             }
+
+            txt.add(Line(""));
             if let Some(types) = l.get_turn_restrictions(r) {
                 txt.add(Line(format!("Turn restriction for this lane: {:?}", types)));
             }
@@ -93,37 +102,76 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
             }
         }
         ID::Intersection(id) => {
-            txt.add(Line(id.to_string()));
             let i = map.get_i(id);
-            txt.add(Line(format!("Roads: {:?}", i.roads)));
-            txt.add(Line(format!(
-                "Orig roads: {:?}",
-                i.roads
-                    .iter()
-                    .map(|r| map.get_r(*r).stable_id)
-                    .collect::<Vec<_>>()
-            )));
-            txt.add(Line(format!("Originally {}", i.stable_id)));
+            txt.add(Line(i.stable_id.to_string()).fg(id_color));
+            txt.add(Line("Connecting"));
+            for r in &i.roads {
+                let road = map.get_r(*r);
+                txt.add_appended(vec![
+                    Line("- "),
+                    Line(road.get_name()).fg(name_color),
+                    Line(" ("),
+                    Line(road.id.to_string()).fg(id_color),
+                    Line(" = "),
+                    Line(road.stable_id.to_string()).fg(id_color),
+                    Line(")"),
+                ]);
+            }
+
+            txt.add(Line(""));
+            let delays = ui.primary.sim.get_intersection_delays(id);
+            if let Some(p) = delays.percentile(50.0) {
+                txt.add(Line(format!("50%ile delay: {}", p)));
+            }
+            if let Some(p) = delays.percentile(90.0) {
+                txt.add(Line(format!("90%ile delay: {}", p)));
+            }
+
+            let accepted = ui.primary.sim.get_accepted_agents(id);
+            if !accepted.is_empty() {
+                txt.add(Line(""));
+                txt.add(Line(format!("{} turning", accepted.len())));
+            }
         }
+        // TODO No way to trigger the info panel for this yet.
         ID::Turn(id) => {
             let t = map.get_t(id);
-            txt.add(Line(format!("{}", id)));
             txt.add(Line(format!("{:?}", t.turn_type)));
         }
         ID::Building(id) => {
             let b = map.get_b(id);
-            txt.add(Line(format!("Building #{:?}", id)));
             txt.add(Line(format!(
                 "Dist along sidewalk: {}",
                 b.front_path.sidewalk.dist_along()
             )));
+
+            txt.add(Line(""));
             styled_kv(&mut txt, &b.osm_tags);
+
+            if let Some(ref p) = b.parking {
+                txt.add(Line(""));
+                txt.add_appended(vec![
+                    Line(format!("{} parking spots via ", p.num_stalls)),
+                    Line(&p.name).fg(name_color),
+                ]);
+            }
+
+            // TODO Trips to/from here
+            // TODO Associated cars
         }
         ID::Car(id) => {
             for line in sim.car_tooltip(id) {
                 // TODO Wrap
                 txt.add(Line(line));
             }
+
+            // TODO blocked since when
+            // TODO dist along trip
+            //
+            // actions:
+            // TODO show route
+            // TODO follow
+            // TODO jump to src/dst/current spot
         }
         ID::Pedestrian(id) => {
             for line in sim.ped_tooltip(id) {
@@ -138,16 +186,14 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
             styled_kv(&mut txt, &draw_map.get_es(id).attributes);
         }
         ID::BusStop(id) => {
-            txt.add(Line(id.to_string()));
-            for r in map.get_all_bus_routes() {
+            for r in map.get_routes_serving_stop(id) {
                 if r.stops.contains(&id) {
-                    txt.add(Line(format!("- Route {}", r.name)));
+                    txt.add_appended(vec![Line("- Route "), Line(&r.name).fg(name_color)]);
                 }
             }
         }
         ID::Area(id) => {
             let a = map.get_a(id);
-            txt.add(Line(format!("{}", id)));
             styled_kv(&mut txt, &a.osm_tags);
         }
     };
