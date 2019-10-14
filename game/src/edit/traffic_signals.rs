@@ -2,7 +2,7 @@ use crate::common::CommonState;
 use crate::edit::apply_map_edits;
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
-use crate::render::{draw_signal_phase, DrawCtx, DrawOptions, DrawTurn, TrafficSignalDiagram};
+use crate::render::{draw_signal_phase, DrawOptions, DrawTurn, TrafficSignalDiagram};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{hotkey, Choice, Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu};
@@ -49,7 +49,7 @@ impl TrafficSignalEditor {
         TrafficSignalEditor {
             menu,
             icon_selected: None,
-            diagram: TrafficSignalDiagram::new(id, 0, &ui.primary.map, ctx),
+            diagram: TrafficSignalDiagram::new(id, 0, ui, ctx),
         }
     }
 }
@@ -132,7 +132,7 @@ impl State for TrafficSignalEditor {
                 .remove(0)
                 .1;
             change_traffic_signal(signal, self.diagram.i, ui, ctx);
-            self.diagram = TrafficSignalDiagram::new(self.diagram.i, 0, &ui.primary.map, ctx);
+            self.diagram = TrafficSignalDiagram::new(self.diagram.i, 0, ui, ctx);
             return Transition::Keep;
         }
 
@@ -148,15 +148,13 @@ impl State for TrafficSignalEditor {
         if current_phase != 0 && self.menu.action("move current phase up") {
             signal.phases.swap(current_phase, current_phase - 1);
             change_traffic_signal(signal, self.diagram.i, ui, ctx);
-            self.diagram =
-                TrafficSignalDiagram::new(self.diagram.i, current_phase - 1, &ui.primary.map, ctx);
+            self.diagram = TrafficSignalDiagram::new(self.diagram.i, current_phase - 1, ui, ctx);
         } else if current_phase != signal.phases.len() - 1
             && self.menu.action("move current phase down")
         {
             signal.phases.swap(current_phase, current_phase + 1);
             change_traffic_signal(signal, self.diagram.i, ui, ctx);
-            self.diagram =
-                TrafficSignalDiagram::new(self.diagram.i, current_phase + 1, &ui.primary.map, ctx);
+            self.diagram = TrafficSignalDiagram::new(self.diagram.i, current_phase + 1, ui, ctx);
         } else if signal.phases.len() > 1 && self.menu.action("delete current phase") {
             signal.phases.remove(current_phase);
             let num_phases = signal.phases.len();
@@ -168,7 +166,7 @@ impl State for TrafficSignalEditor {
                 } else {
                     current_phase
                 },
-                &ui.primary.map,
+                ui,
                 ctx,
             );
         } else if self.menu.action("add a new empty phase") {
@@ -176,8 +174,7 @@ impl State for TrafficSignalEditor {
                 .phases
                 .insert(current_phase, Phase::new(self.diagram.i));
             change_traffic_signal(signal, self.diagram.i, ui, ctx);
-            self.diagram =
-                TrafficSignalDiagram::new(self.diagram.i, current_phase, &ui.primary.map, ctx);
+            self.diagram = TrafficSignalDiagram::new(self.diagram.i, current_phase, ui, ctx);
         } else if has_sidewalks && self.menu.action("add a new pedestrian scramble phase") {
             let mut phase = Phase::new(self.diagram.i);
             for t in ui.primary.map.get_turns_in_intersection(self.diagram.i) {
@@ -187,8 +184,7 @@ impl State for TrafficSignalEditor {
             }
             signal.phases.insert(current_phase, phase);
             change_traffic_signal(signal, self.diagram.i, ui, ctx);
-            self.diagram =
-                TrafficSignalDiagram::new(self.diagram.i, current_phase, &ui.primary.map, ctx);
+            self.diagram = TrafficSignalDiagram::new(self.diagram.i, current_phase, ui, ctx);
         } else if has_sidewalks
             && self
                 .menu
@@ -196,7 +192,7 @@ impl State for TrafficSignalEditor {
         {
             signal.convert_to_ped_scramble(&ui.primary.map);
             change_traffic_signal(signal, self.diagram.i, ui, ctx);
-            self.diagram = TrafficSignalDiagram::new(self.diagram.i, 0, &ui.primary.map, ctx);
+            self.diagram = TrafficSignalDiagram::new(self.diagram.i, 0, ui, ctx);
         }
 
         Transition::Keep
@@ -210,12 +206,7 @@ impl State for TrafficSignalEditor {
         }
 
         let mut batch = GeomBatch::new();
-        let ctx = DrawCtx {
-            cs: &ui.cs,
-            map: &ui.primary.map,
-            draw_map: &ui.primary.draw_map,
-            sim: &ui.primary.sim,
-        };
+        let ctx = ui.draw_ctx();
         let map = &ui.primary.map;
         let phase = &map.get_traffic_signal(self.diagram.i).phases[self.diagram.current_phase()];
         for t in &ui.primary.draw_map.get_turns(self.diagram.i, map) {
@@ -285,7 +276,7 @@ fn make_change_phase_duration(current_duration: Duration) -> Box<dyn State> {
             let idx = editor.diagram.current_phase();
             signal.phases[idx].duration = Duration::seconds(new_duration as f64);
             change_traffic_signal(signal, editor.diagram.i, ui, ctx);
-            editor.diagram = TrafficSignalDiagram::new(editor.diagram.i, idx, &ui.primary.map, ctx);
+            editor.diagram = TrafficSignalDiagram::new(editor.diagram.i, idx, ui, ctx);
         })))
     }))
 }
@@ -303,7 +294,7 @@ fn make_change_preset(i: IntersectionID) -> Box<dyn State> {
         Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
             let mut editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
             change_traffic_signal(new_signal, editor.diagram.i, ui, ctx);
-            editor.diagram = TrafficSignalDiagram::new(editor.diagram.i, 0, &ui.primary.map, ctx);
+            editor.diagram = TrafficSignalDiagram::new(editor.diagram.i, 0, ui, ctx);
         })))
     }))
 }

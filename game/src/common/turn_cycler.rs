@@ -1,6 +1,6 @@
 use crate::game::{State, Transition};
 use crate::helpers::ID;
-use crate::render::{DrawCtx, DrawOptions, DrawTurn, TrafficSignalDiagram};
+use crate::render::{DrawOptions, DrawTurn, TrafficSignalDiagram};
 use crate::ui::{ShowEverything, UI};
 use ezgui::{hotkey, Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu};
 use map_model::{IntersectionID, LaneID, Map, TurnType};
@@ -48,14 +48,14 @@ impl TurnCyclerState {
                                 "Traffic Signal Diagram",
                                 vec![
                                     vec![
-                                        (hotkey(Key::UpArrow), "select previous cycle"),
-                                        (hotkey(Key::DownArrow), "select next cycle"),
+                                        (hotkey(Key::UpArrow), "select previous phase"),
+                                        (hotkey(Key::DownArrow), "select next phase"),
                                     ],
                                     vec![(hotkey(Key::Escape), "quit")],
                                 ],
                                 ctx,
                             ),
-                            diagram: TrafficSignalDiagram::new(i, idx, &ui.primary.map, ctx),
+                            diagram: TrafficSignalDiagram::new(i, idx, ui, ctx),
                         })));
                     }
                 }
@@ -144,13 +144,7 @@ impl State for ShowTrafficSignal {
             &ui.primary.sim,
             &ShowEverything::new(),
         );
-        let ctx = DrawCtx {
-            cs: &ui.cs,
-            map: &ui.primary.map,
-            draw_map: &ui.primary.draw_map,
-            sim: &ui.primary.sim,
-        };
-        self.diagram.draw(g, &ctx);
+        self.diagram.draw(g, &ui.draw_ctx());
 
         self.menu.draw(g);
     }

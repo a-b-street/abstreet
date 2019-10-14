@@ -1,6 +1,6 @@
 use crate::layout::Widget;
 use crate::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenPt, ScreenRectangle};
-use geom::{Bounds, Circle, Distance, Polygon, Pt2D};
+use geom::{Circle, Distance, Polygon, Pt2D};
 
 // TODO Tooltips?
 // TODO Hotkeys?
@@ -17,8 +17,8 @@ pub struct Button {
 impl Button {
     // Top-left should be at Pt2D::new(0.0, 0.0). Must have same dimensions.
     pub fn new(normal: GeomBatch, hovered: GeomBatch, ctx: &EventCtx) -> Button {
-        let dims = geom_to_dims(&normal);
-        assert_eq!(dims, geom_to_dims(&hovered));
+        let dims = normal.get_dims();
+        assert_eq!(dims, hovered.get_dims());
         Button {
             draw_normal: ctx.prerender.upload(normal),
             draw_hovered: ctx.prerender.upload(hovered),
@@ -78,16 +78,6 @@ impl Widget for Button {
         self.top_left = top_left;
         // TODO Center?
     }
-}
-
-fn geom_to_dims(batch: &GeomBatch) -> ScreenDims {
-    let mut bounds = Bounds::new();
-    for (_, poly) in batch.members() {
-        bounds.union(poly.get_bounds());
-    }
-    assert!(bounds.min_x >= 0.0);
-    assert!(bounds.min_y >= 0.0);
-    ScreenDims::new(bounds.max_x, bounds.max_y)
 }
 
 const ICON_BACKGROUND: Color = Color::grey(0.5);

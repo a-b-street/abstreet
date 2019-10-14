@@ -1,4 +1,7 @@
-use crate::{Canvas, Color, EventCtx, GfxCtx, Line, ScreenDims, ScreenPt, ScreenRectangle, Text};
+use crate::{
+    text, Canvas, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, MultiText, ScreenDims,
+    ScreenPt, ScreenRectangle, Text,
+};
 use geom::{Distance, Polygon, Pt2D};
 use ordered_float::NotNan;
 
@@ -264,5 +267,88 @@ impl<T: Clone + Copy> Scroller<T> {
 
     pub fn num_items(&self) -> usize {
         self.items.len() - 2
+    }
+}
+
+pub struct NewScroller {
+    draw: Drawable,
+    multi_txt: MultiText,
+    total_dims: ScreenDims,
+    zoom: f64,
+
+    offset: f64,
+
+    top_left: ScreenPt,
+    dims: ScreenDims,
+}
+
+impl NewScroller {
+    // geom and multi_txt should be in screen-space, with the top_left as (0.0, 0.0).
+    pub fn new(geom: GeomBatch, multi_txt: MultiText, zoom: f64, ctx: &EventCtx) -> NewScroller {
+        let mut total_dims = geom.get_dims();
+        for (txt, top_left) in &multi_txt.list {
+            let (mut w, mut h) = ctx.canvas.text_dims(txt);
+            w += top_left.x;
+            h += top_left.y;
+            if w > total_dims.width {
+                total_dims.width = w;
+            }
+            if h > total_dims.height {
+                total_dims.height = h;
+            }
+        }
+
+        NewScroller {
+            draw: ctx.prerender.upload(geom),
+            multi_txt,
+            total_dims,
+            zoom,
+
+            offset: 0.0,
+
+            // TODO The layouting is hardcoded
+            top_left: ScreenPt::new(0.0, 0.0),
+            dims: ScreenDims::new(100.0, 100.0),
+        }
+    }
+
+    pub fn event(&mut self, ctx: &mut EventCtx) {
+        let rect = ScreenRectangle::top_left(self.top_left, self.dims);
+        if rect.contains(ctx.canvas.get_cursor_in_screen_space()) {
+            if let Some(scroll) = ctx.input.get_mouse_scroll() {
+                self.offset -= scroll;
+                // TODO Clamp... or maybe last minute, based on dims, which'll get updated by
+                // window resizing and such
+            }
+        }
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx) {
+        let rect = ScreenRectangle::top_left(self.top_left, self.dims);
+        g.canvas.mark_covered_area(rect);
+
+        g.fork_screenspace();
+        g.draw_polygon(
+            text::BG_COLOR,
+            &Polygon::rectangle_topleft(
+                Pt2D::new(0.0, 0.0),
+                Distance::meters(self.dims.width),
+                Distance::meters(self.dims.height),
+            ),
+        );
+        g.unfork();
+
+        g.fork(Pt2D::new(0.0, self.offset), self.top_left, self.zoom);
+        g.redraw(&self.draw);
+        g.unfork();
+
+        for (txt, pt) in &self.multi_txt.list {
+            g.draw_text_at_screenspace_topleft(
+                txt,
+                ScreenPt::new(pt.x, pt.y - self.offset * self.zoom),
+            );
+        }
+
+        // TODO draw scrollbar
     }
 }

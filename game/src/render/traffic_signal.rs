@@ -1,9 +1,11 @@
 use crate::render::{DrawCtx, DrawTurn};
+use crate::ui::UI;
 use ezgui::{
-    Color, EventCtx, GeomBatch, GfxCtx, Line, ModalMenu, ScreenDims, ScreenPt, Scroller, Text,
+    Color, EventCtx, GeomBatch, GfxCtx, Line, ModalMenu, MultiText, NewScroller, ScreenDims,
+    ScreenPt, Scroller, Text,
 };
 use geom::{Circle, Distance, Duration, Line, Polygon, Pt2D};
-use map_model::{IntersectionID, Map, Phase, TurnPriority, TurnType, LANE_THICKNESS};
+use map_model::{IntersectionID, Phase, TurnPriority, TurnType, LANE_THICKNESS};
 use ordered_float::NotNan;
 
 // Only draws a box when time_left is present
@@ -221,7 +223,7 @@ fn draw_signal_phase_with_icons(phase: &Phase, batch: &mut GeomBatch, ctx: &Draw
 }
 
 const PADDING: f64 = 5.0;
-const ZOOM: f64 = 10.0;
+const ZOOM: f64 = 15.0;
 
 pub struct TrafficSignalDiagram {
     pub i: IntersectionID,
@@ -230,17 +232,19 @@ pub struct TrafficSignalDiagram {
     intersection_width: f64, // TODO needed?
     // The usizes are phase indices
     scroller: Scroller<usize>,
+
+    new_scroller: NewScroller,
 }
 
 impl TrafficSignalDiagram {
     pub fn new(
         i: IntersectionID,
         current_phase: usize,
-        map: &Map,
+        ui: &UI,
         ctx: &EventCtx,
     ) -> TrafficSignalDiagram {
         let (top_left, intersection_width, intersection_height) = {
-            let b = map.get_i(i).polygon.get_bounds();
+            let b = ui.primary.map.get_i(i).polygon.get_bounds();
             (
                 Pt2D::new(b.min_x, b.min_y),
                 b.max_x - b.min_x,
@@ -248,7 +252,7 @@ impl TrafficSignalDiagram {
                 b.max_y - b.min_y,
             )
         };
-        let phases = &map.get_traffic_signal(i).phases;
+        let phases = &ui.primary.map.get_traffic_signal(i).phases;
 
         // Precalculate maximum text width.
         let mut labels = Vec::new();
@@ -285,6 +289,8 @@ impl TrafficSignalDiagram {
             top_left,
             intersection_width,
             scroller,
+
+            new_scroller: make_new_scroller(i, &ui.draw_ctx(), ctx),
         }
     }
 
@@ -301,6 +307,8 @@ impl TrafficSignalDiagram {
             self.scroller.select_next(ctx.canvas);
             return;
         }
+
+        //self.new_scroller.event(ctx);
     }
 
     pub fn current_phase(&self) -> usize {
@@ -324,5 +332,39 @@ impl TrafficSignalDiagram {
         }
 
         g.unfork();
+
+        //self.new_scroller.draw(g);
     }
+}
+
+fn make_new_scroller(i: IntersectionID, draw_ctx: &DrawCtx, ctx: &EventCtx) -> NewScroller {
+    // TODO Nicer API would be passing in a list of (GeomBatch, MultiText)s each starting at the
+    // origin, then do the translation later.
+    let mut master_batch = GeomBatch::new();
+    let mut txt = MultiText::new();
+
+    // Slightly inaccurate -- the turn rendering may slightly exceed the intersection polygon --
+    // but this is close enough.
+    let bounds = draw_ctx.map.get_i(i).polygon.get_bounds();
+    let mut y_offset = 0.0;
+    for (idx, phase) in draw_ctx.map.get_traffic_signal(i).phases.iter().enumerate() {
+        let mut batch = GeomBatch::new();
+        draw_signal_phase(phase, None, &mut batch, draw_ctx);
+        for (color, poly) in batch.consume() {
+            master_batch.push(
+                color,
+                poly.translate(
+                    Distance::meters(-bounds.min_x),
+                    Distance::meters(y_offset - bounds.min_y),
+                ),
+            );
+        }
+        txt.add(
+            Text::from(Line(format!("Phase {}: {}", idx + 1, phase.duration))),
+            ScreenPt::new(10.0 + (bounds.max_x - bounds.min_x) * ZOOM, y_offset * ZOOM),
+        );
+        y_offset += bounds.max_y - bounds.min_y;
+    }
+
+    NewScroller::new(master_batch, txt, ZOOM, ctx)
 }

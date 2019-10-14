@@ -80,6 +80,15 @@ impl UI {
         }
     }
 
+    pub fn draw_ctx<'a>(&'a self) -> DrawCtx<'a> {
+        DrawCtx {
+            cs: &self.cs,
+            map: &self.primary.map,
+            draw_map: &self.primary.draw_map,
+            sim: &self.primary.sim,
+        }
+    }
+
     pub fn draw(
         &self,
         g: &mut GfxCtx,
@@ -87,12 +96,7 @@ impl UI {
         source: &dyn GetDrawAgents,
         show_objs: &dyn ShowObject,
     ) {
-        let ctx = DrawCtx {
-            cs: &self.cs,
-            map: &self.primary.map,
-            draw_map: &self.primary.draw_map,
-            sim: &self.primary.sim,
-        };
+        let ctx = self.draw_ctx();
         let mut sample_intersection: Option<String> = None;
 
         g.clear(self.cs.get_def("true background", Color::BLACK));

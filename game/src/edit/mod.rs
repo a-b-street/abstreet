@@ -6,7 +6,7 @@ use crate::debug::DebugMode;
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{
-    DrawCtx, DrawIntersection, DrawLane, DrawMap, DrawOptions, DrawRoad, DrawTurn, Renderable,
+    DrawIntersection, DrawLane, DrawMap, DrawOptions, DrawRoad, DrawTurn, Renderable,
     MIN_ZOOM_FOR_DETAIL,
 };
 use crate::sandbox::SandboxMode;
@@ -227,12 +227,7 @@ impl State for EditMode {
         // just show diff relative to basemap.
         let edits = ui.primary.map.get_edits();
 
-        let ctx = DrawCtx {
-            cs: &ui.cs,
-            map: &ui.primary.map,
-            draw_map: &ui.primary.draw_map,
-            sim: &ui.primary.sim,
-        };
+        let ctx = ui.draw_ctx();
         let mut opts = DrawOptions::new();
 
         // TODO Similar to drawing areas with traffic or not -- would be convenient to just

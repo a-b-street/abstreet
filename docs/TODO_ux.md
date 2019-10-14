@@ -19,18 +19,16 @@
 ## General ezgui stuff
 
 - optionally limit canvas scrolling/zooming to some map bounds
-- when dragging, dont give mouse movement to UI elements
 - start context menu when left click releases and we're not dragging
-- can we change labels in modal or top menu? show/hide
 - distinguish hints from status of modal menus, for hiding purposes
 - move context menus out of ezgui
 	- simplify/remove UserInput.
 	- maybe separate impls for context, wizard, modal menu make sense.
+- arbitrary viewports?!
+- tiling wm
 
 ## New features
 
-- swap direction of one-way
-- convert between one- and two-way if there's enough space
 - collapse smaller roads/neighborhoods and just show aggregate stats about them (in/out flow, moving/blocked within)
 - undo support for edits
 

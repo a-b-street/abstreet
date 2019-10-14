@@ -344,14 +344,22 @@ impl GeomBatch {
         self.list.extend(other.list.clone());
     }
 
+    pub fn consume(self) -> Vec<(Color, Polygon)> {
+        self.list
+    }
+
     pub fn draw(self, g: &mut GfxCtx) {
         let refs = self.list.iter().map(|(color, p)| (*color, p)).collect();
         let obj = g.prerender.upload_temporary(refs);
         g.redraw(&obj);
     }
 
-    pub(crate) fn members(&self) -> &Vec<(Color, Polygon)> {
-        &self.list
+    pub(crate) fn get_dims(&self) -> ScreenDims {
+        let mut bounds = Bounds::new();
+        for (_, poly) in &self.list {
+            bounds.union(poly.get_bounds());
+        }
+        ScreenDims::new(bounds.max_x - bounds.min_x, bounds.max_y - bounds.min_y)
     }
 }
 
@@ -469,7 +477,7 @@ impl<'a> Prerender<'a> {
 }
 
 pub struct MultiText {
-    list: Vec<(Text, ScreenPt)>,
+    pub(crate) list: Vec<(Text, ScreenPt)>,
 }
 
 impl MultiText {
