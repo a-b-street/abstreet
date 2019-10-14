@@ -233,7 +233,7 @@ pub struct TrafficSignalDiagram {
     // The usizes are phase indices
     scroller: Scroller<usize>,
 
-    new_scroller: NewScroller,
+    _new_scroller: NewScroller,
 }
 
 impl TrafficSignalDiagram {
@@ -290,7 +290,7 @@ impl TrafficSignalDiagram {
             intersection_width,
             scroller,
 
-            new_scroller: make_new_scroller(i, &ui.draw_ctx(), ctx),
+            _new_scroller: make_new_scroller(i, &ui.draw_ctx(), ctx),
         }
     }
 

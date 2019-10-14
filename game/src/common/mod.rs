@@ -1,6 +1,7 @@
 mod agent;
 mod associated;
 mod colors;
+mod info;
 mod navigate;
 mod route_explorer;
 mod route_viewer;
@@ -25,7 +26,7 @@ use crate::helpers::ID;
 use crate::render::DrawOptions;
 use crate::ui::UI;
 use ezgui::{
-    Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Line, ModalMenu, Text,
+    Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Key, Line, ModalMenu, Text,
     VerticalAlignment,
 };
 use std::collections::BTreeSet;
@@ -67,6 +68,16 @@ impl CommonState {
             return Some(Transition::KeepWithMode(
                 EventLoopMode::ScreenCaptureCurrentShot,
             ));
+        }
+
+        if let Some(ref id) = ui.primary.current_selection {
+            if ctx.input.contextual_action(Key::I, "info") {
+                return Some(Transition::Push(Box::new(info::InfoPanel::new(
+                    id.clone(),
+                    ui,
+                    ctx,
+                ))));
+            }
         }
 
         None
