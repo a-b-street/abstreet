@@ -40,6 +40,7 @@ impl<'a> EventCtx<'a> {
     pub fn redo_mouseover(&self) -> bool {
         self.input.window_lost_cursor()
             || (!self.canvas.is_dragging() && self.input.get_moved_mouse().is_some())
+            || self.input.get_mouse_scroll().is_some()
     }
 
     pub fn texture(&self, filename: &str) -> Color {
