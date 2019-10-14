@@ -776,16 +776,6 @@ impl Sim {
         self.trips.active_agents()
     }
 
-    pub fn debug_trip(&self, id: TripID) {
-        match self.trips.trip_to_agent(id) {
-            TripResult::Ok(AgentID::Car(id)) => self.debug_car(id),
-            TripResult::Ok(AgentID::Pedestrian(id)) => self.debug_ped(id),
-            TripResult::ModeChange => println!("{} is doing a mode-change right now", id),
-            TripResult::TripDone => println!("{} is done", id),
-            TripResult::TripDoesntExist => println!("{} doesn't exist", id),
-        }
-    }
-
     pub fn agent_to_trip(&self, id: AgentID) -> Option<TripID> {
         self.trips.agent_to_trip(id)
     }

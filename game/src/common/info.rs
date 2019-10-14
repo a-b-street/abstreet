@@ -52,7 +52,6 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
 
     match id {
         ID::Road(_) => unreachable!(),
-        ID::Trip(_) => {}
         ID::Lane(id) => {
             let l = map.get_l(id);
             let r = map.get_r(l.parent);

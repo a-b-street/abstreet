@@ -113,8 +113,5 @@ fn dump_debug(id: ID, map: &Map, sim: &Sim, draw_map: &DrawMap) {
         ID::Area(id) => {
             map.get_a(id).dump_debug();
         }
-        ID::Trip(id) => {
-            sim.debug_trip(id);
-        }
     }
 }

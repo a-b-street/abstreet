@@ -81,12 +81,8 @@ fn warp_point(line: &str, primary: &PerMapUI) -> Option<(Option<ID>, Pt2D, f64)>
     let id = match usize::from_str_radix(&line[1..line.len()], 10) {
         Ok(idx) => match line.chars().next().unwrap() {
             'r' => {
-                let id = RoadID(idx);
-                if let Some(r) = primary.map.maybe_get_r(id) {
-                    ID::Lane(r.children_forwards[0].0)
-                } else {
-                    return None;
-                }
+                let r = primary.map.maybe_get_r(RoadID(idx))?;
+                ID::Lane(r.children_forwards[0].0)
             }
             'l' => ID::Lane(LaneID(idx)),
             'i' => ID::Intersection(IntersectionID(idx)),
@@ -95,45 +91,34 @@ fn warp_point(line: &str, primary: &PerMapUI) -> Option<(Option<ID>, Pt2D, f64)>
             'p' => ID::Pedestrian(PedestrianID(idx)),
             'c' => {
                 // This one gets more complicated. :)
-                if let Some(id) = primary.sim.lookup_car_id(idx) {
-                    ID::Car(id)
-                } else {
-                    return None;
-                }
+                let c = primary.sim.lookup_car_id(idx)?;
+                ID::Car(c)
             }
-            't' => ID::Trip(TripID(idx)),
+            't' => {
+                let a = primary.sim.trip_to_agent(TripID(idx)).ok()?;
+                ID::from_agent(a)
+            }
             'T' => {
-                if let Some(id) = primary.map.lookup_turn_by_idx(idx) {
-                    ID::Turn(id)
-                } else {
-                    return None;
-                }
+                let t = primary.map.lookup_turn_by_idx(idx)?;
+                ID::Turn(t)
             }
             'I' => {
                 let stable_id = StableIntersectionID(idx);
-                if let Some(i) = primary
+                let i = primary
                     .map
                     .all_intersections()
                     .iter()
-                    .find(|i| i.stable_id == stable_id)
-                {
-                    ID::Intersection(i.id)
-                } else {
-                    return None;
-                }
+                    .find(|i| i.stable_id == stable_id)?;
+                ID::Intersection(i.id)
             }
             'R' => {
                 let stable_id = StableRoadID(idx);
-                if let Some(r) = primary
+                let r = primary
                     .map
                     .all_roads()
                     .iter()
-                    .find(|r| r.stable_id == stable_id)
-                {
-                    ID::Lane(r.children_forwards[0].0)
-                } else {
-                    return None;
-                }
+                    .find(|r| r.stable_id == stable_id)?;
+                ID::Lane(r.children_forwards[0].0)
             }
             _ => {
                 return None;
