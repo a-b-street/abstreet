@@ -94,10 +94,16 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
         }
     }
 
-    let has_bike_lane = osm_tags.get("cycleway") == Some(&"lane".to_string());
-    if has_bike_lane {
+    if osm_tags.get("cycleway") == Some(&"lane".to_string()) {
         fwd_side.push(LaneType::Biking);
         if !back_side.is_empty() {
+            back_side.push(LaneType::Biking);
+        }
+    } else {
+        if osm_tags.get("cycleway:right") == Some(&"lane".to_string()) {
+            fwd_side.push(LaneType::Biking);
+        }
+        if osm_tags.get("cycleway:left") == Some(&"lane".to_string()) {
             back_side.push(LaneType::Biking);
         }
     }
