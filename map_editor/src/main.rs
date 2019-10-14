@@ -16,6 +16,8 @@ struct UI {
     state: State,
     menu: ModalMenu,
     sidebar: Text,
+
+    last_id: Option<ID>,
 }
 
 enum State {
@@ -66,6 +68,8 @@ impl UI {
                 ctx,
             ),
             sidebar: Text::new(),
+
+            last_id: None,
         }
     }
 }
@@ -80,6 +84,26 @@ impl GUI for UI {
 
         match self.state {
             State::Viewing => {
+                {
+                    let before = match self.last_id {
+                        Some(ID::Road(r)) | Some(ID::RoadPoint(r, _)) => Some(r),
+                        _ => None,
+                    };
+                    let after = match self.model.world.get_selection() {
+                        Some(ID::Road(r)) | Some(ID::RoadPoint(r, _)) => Some(r),
+                        _ => None,
+                    };
+                    if before != after {
+                        if let Some(_) = before {
+                            self.model.stop_showing_pts();
+                        }
+                        if let Some(r) = after {
+                            self.model.show_r_points(r, ctx.prerender);
+                            self.model.world.handle_mouseover(ctx);
+                        }
+                    }
+                }
+
                 let cursor = ctx.canvas.get_cursor_in_map_space();
                 match self.model.world.get_selection() {
                     Some(ID::Intersection(i)) => {
@@ -130,12 +154,6 @@ impl GUI for UI {
                             self.model.world.handle_mouseover(ctx);
                         } else if ctx.input.key_pressed(Key::L, "label side of the road") {
                             self.state = State::LabelingRoad(r, Wizard::new());
-                        } else if ctx.input.key_pressed(Key::P, "move road points") {
-                            if self.model.showing_pts.is_some() {
-                                self.model.stop_showing_pts();
-                            }
-                            self.model.show_r_points(r, ctx.prerender);
-                            self.model.world.handle_mouseover(ctx);
                         } else if ctx.input.key_pressed(Key::M, "merge road") {
                             self.model.merge_r(r, ctx.prerender);
                             self.model.world.handle_mouseover(ctx);
@@ -206,10 +224,6 @@ impl GUI for UI {
                             if let Some(pt) = cursor {
                                 self.state = State::SelectingRectangle(pt, pt, true);
                             }
-                        } else if self.model.showing_pts.is_some()
-                            && ctx.input.key_pressed(Key::P, "stop moving road points")
-                        {
-                            self.model.stop_showing_pts();
                         } else if self.menu.action("warp to something") {
                             self.state = State::EnteringWarp(Wizard::new());
                         }
@@ -491,6 +505,9 @@ impl GUI for UI {
         self.sidebar.add(Line(""));
         self.sidebar.add_highlighted(Line("Controls"), Color::BLUE);
         ctx.input.populate_osd(&mut self.sidebar);
+
+        self.last_id = self.model.world.get_selection();
+
         EventLoopMode::InputOnly
     }
 

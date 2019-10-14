@@ -18,8 +18,7 @@ pub struct Model {
     // map and world are pub. The main crate should use them directly for simple stuff, to avoid
     // boilerplate delegation methods. Complex changes should be proper methods on the model.
     pub map: RawMap,
-    // TODO Not sure this should be pub...
-    pub showing_pts: Option<StableRoadID>,
+    showing_pts: Option<StableRoadID>,
     pub world: World<ID>,
 
     include_bldgs: bool,
@@ -492,7 +491,10 @@ impl Model {
     }
 
     pub fn delete_r(&mut self, id: StableRoadID) {
-        assert!(self.showing_pts != Some(id));
+        if self.showing_pts == Some(id) {
+            self.stop_showing_pts();
+        }
+
         match self.map.can_delete_road(id) {
             Ok(()) => {
                 self.road_deleted(id);
@@ -609,12 +611,13 @@ impl Model {
         }
     }
 
+    // Idempotent
     pub fn stop_showing_pts(&mut self) {
-        let id = self.showing_pts.take().unwrap();
-
-        let r = &self.map.roads[&id];
-        for idx in 1..=r.center_points.len() - 2 {
-            self.world.delete(ID::RoadPoint(id, idx));
+        if let Some(id) = self.showing_pts.take() {
+            let r = &self.map.roads[&id];
+            for idx in 1..=r.center_points.len() - 2 {
+                self.world.delete(ID::RoadPoint(id, idx));
+            }
         }
     }
 
@@ -646,12 +649,15 @@ impl Model {
         self.show_r_points(id, prerender);
     }
 
+    // TODO Need to show_r_points of the thing we wind up selecting after this.
     pub fn merge_r(&mut self, id: StableRoadID, prerender: &Prerender) {
-        assert!(self.showing_pts != Some(id));
-
         if let Err(e) = self.map.can_merge_short_road(id) {
             println!("Can't merge this road: {}", e);
             return;
+        }
+
+        if self.showing_pts == Some(id) {
+            self.stop_showing_pts();
         }
 
         // TODO Bit hacky, but we have to do this before doing the mutation, so we know the number
