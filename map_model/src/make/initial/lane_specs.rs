@@ -13,8 +13,15 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
         }
     }
 
-    let parking_lane_fwd = osm_tags.get(osm::PARKING_LANE_FWD) == Some(&"true".to_string());
-    let parking_lane_back = osm_tags.get(osm::PARKING_LANE_BACK) == Some(&"true".to_string());
+    fn has_parking(value: Option<&String>) -> bool {
+        value == Some(&"parallel".to_string())
+            || value == Some(&"diagonal".to_string())
+            || value == Some(&"perpendicular".to_string())
+    }
+    let parking_lane_fwd = has_parking(osm_tags.get(osm::PARKING_RIGHT))
+        || has_parking(osm_tags.get(osm::PARKING_BOTH));
+    let parking_lane_back = has_parking(osm_tags.get(osm::PARKING_LEFT))
+        || has_parking(osm_tags.get(osm::PARKING_BOTH));
 
     // Easy special cases first.
     if osm_tags.get("junction") == Some(&"roundabout".to_string()) {

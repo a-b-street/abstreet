@@ -5,6 +5,9 @@
 pub const NAME: &str = "name";
 pub const HIGHWAY: &str = "highway";
 pub const MAXSPEED: &str = "maxspeed";
+pub const PARKING_RIGHT: &str = "parking:lane:right";
+pub const PARKING_LEFT: &str = "parking:lane:left";
+pub const PARKING_BOTH: &str = "parking:lane:both";
 
 // The rest of these are all inserted by A/B Street to plumb data between different stages of map
 // construction. They could be plumbed another way, but this is the most convenient.
@@ -29,5 +32,4 @@ pub const BACK_LABEL: &str = "abst:back_label";
 pub const LABEL: &str = "abst:label";
 
 // Any roads might have these.
-pub const PARKING_LANE_FWD: &str = "abst:parking_lane_fwd";
-pub const PARKING_LANE_BACK: &str = "abst:parking_lane_back";
+pub const INFERRED_PARKING: &str = "abst:parking_inferred";

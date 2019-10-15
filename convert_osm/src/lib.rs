@@ -119,26 +119,37 @@ fn use_parking_hints(map: &mut RawMap, path: &str, timer: &mut Timer) {
             // the threshold distance?
             let middle = PolyLine::new(pts).middle();
             if let Some(((r, fwds), _)) = closest.closest_pt(middle, LANE_THICKNESS * 5.0) {
+                // Skip if the road already has this mapped.
+                let tags = &map.roads[&r].osm_tags;
+                if !tags.contains_key(osm::INFERRED_PARKING)
+                    && (tags.contains_key(osm::PARKING_LEFT)
+                        || tags.contains_key(osm::PARKING_RIGHT)
+                        || tags.contains_key(osm::PARKING_BOTH))
+                {
+                    continue;
+                }
+
                 let category = s.attributes.get("PARKING_CATEGORY");
                 let has_parking = category != Some(&"None".to_string())
                     && category != Some(&"No Parking Allowed".to_string());
                 // Blindly override prior values.
-                if has_parking {
-                    map.roads.get_mut(&r).unwrap().osm_tags.insert(
-                        if fwds {
-                            osm::PARKING_LANE_FWD.to_string()
-                        } else {
-                            osm::PARKING_LANE_BACK.to_string()
-                        },
-                        "true".to_string(),
-                    );
-                } else {
-                    map.roads.get_mut(&r).unwrap().osm_tags.remove(if fwds {
-                        osm::PARKING_LANE_FWD
+                map.roads.get_mut(&r).unwrap().osm_tags.insert(
+                    if fwds {
+                        osm::PARKING_RIGHT.to_string()
                     } else {
-                        osm::PARKING_LANE_BACK
-                    });
-                }
+                        osm::PARKING_LEFT.to_string()
+                    },
+                    if has_parking {
+                        "parallel".to_string()
+                    } else {
+                        "no_parking".to_string()
+                    },
+                );
+                map.roads
+                    .get_mut(&r)
+                    .unwrap()
+                    .osm_tags
+                    .insert(osm::INFERRED_PARKING.to_string(), "true".to_string());
             }
         }
     }
@@ -174,16 +185,30 @@ fn use_street_signs(map: &mut RawMap, path: &str, timer: &mut Timer) {
         };
         if pts.len() == 1 {
             if let Some(((r, fwds), _)) = closest.closest_pt(pts[0], LANE_THICKNESS * 5.0) {
+                // Skip if the road already has this mapped.
+                let tags = &map.roads[&r].osm_tags;
+                if !tags.contains_key(osm::INFERRED_PARKING)
+                    && (tags.contains_key(osm::PARKING_LEFT)
+                        || tags.contains_key(osm::PARKING_RIGHT)
+                        || tags.contains_key(osm::PARKING_BOTH))
+                {
+                    continue;
+                }
+
                 // TODO Model RPZ, paid on-street spots, limited times, etc.
                 let no_parking =
                     s.attributes.get("TEXT") == Some(&"NO PARKING ANYTIME".to_string());
                 if no_parking {
                     applied += 1;
-                    map.roads.get_mut(&r).unwrap().osm_tags.remove(if fwds {
-                        osm::PARKING_LANE_FWD
-                    } else {
-                        osm::PARKING_LANE_BACK
-                    });
+                    map.roads.get_mut(&r).unwrap().osm_tags.insert(
+                        if fwds {
+                            osm::PARKING_RIGHT
+                        } else {
+                            osm::PARKING_LEFT
+                        }
+                        .to_string(),
+                        "no_parking".to_string(),
+                    );
                 }
             }
         }
