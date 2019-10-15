@@ -120,12 +120,7 @@ fn use_parking_hints(map: &mut RawMap, path: &str, timer: &mut Timer) {
             let middle = PolyLine::new(pts).middle();
             if let Some(((r, fwds), _)) = closest.closest_pt(middle, LANE_THICKNESS * 5.0) {
                 // Skip if the road already has this mapped.
-                let tags = &map.roads[&r].osm_tags;
-                if !tags.contains_key(osm::INFERRED_PARKING)
-                    && (tags.contains_key(osm::PARKING_LEFT)
-                        || tags.contains_key(osm::PARKING_RIGHT)
-                        || tags.contains_key(osm::PARKING_BOTH))
-                {
+                if !map.roads[&r].osm_tags.contains_key(osm::INFERRED_PARKING) {
                     continue;
                 }
 
@@ -149,7 +144,7 @@ fn use_parking_hints(map: &mut RawMap, path: &str, timer: &mut Timer) {
                     .get_mut(&r)
                     .unwrap()
                     .osm_tags
-                    .insert(osm::INFERRED_PARKING.to_string(), "true".to_string());
+                    .remove(osm::PARKING_BOTH);
             }
         }
     }
@@ -186,12 +181,7 @@ fn use_street_signs(map: &mut RawMap, path: &str, timer: &mut Timer) {
         if pts.len() == 1 {
             if let Some(((r, fwds), _)) = closest.closest_pt(pts[0], LANE_THICKNESS * 5.0) {
                 // Skip if the road already has this mapped.
-                let tags = &map.roads[&r].osm_tags;
-                if !tags.contains_key(osm::INFERRED_PARKING)
-                    && (tags.contains_key(osm::PARKING_LEFT)
-                        || tags.contains_key(osm::PARKING_RIGHT)
-                        || tags.contains_key(osm::PARKING_BOTH))
-                {
+                if !map.roads[&r].osm_tags.contains_key(osm::INFERRED_PARKING) {
                     continue;
                 }
 
@@ -209,6 +199,11 @@ fn use_street_signs(map: &mut RawMap, path: &str, timer: &mut Timer) {
                         .to_string(),
                         "no_parking".to_string(),
                     );
+                    map.roads
+                        .get_mut(&r)
+                        .unwrap()
+                        .osm_tags
+                        .remove(osm::PARKING_BOTH);
                 }
             }
         }

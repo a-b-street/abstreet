@@ -9,6 +9,7 @@ use geom::{Distance, Line, Polygon, Pt2D};
 use map_model::raw::{RestrictionType, StableBuildingID, StableIntersectionID, StableRoadID};
 use map_model::{osm, LANE_THICKNESS};
 use model::{Model, ID};
+use std::collections::HashSet;
 use std::process;
 
 struct UI {
@@ -54,7 +55,7 @@ impl UI {
         } else {
             Model::blank()
         };
-        UI {
+        let mut ui = UI {
             model,
             state: State::Viewing,
             menu: ModalMenu::new(
@@ -70,7 +71,32 @@ impl UI {
             sidebar: Text::new(),
 
             last_id: None,
+        };
+        ui.recount_parking_tags(ctx);
+        ui
+    }
+
+    fn recount_parking_tags(&mut self, ctx: &EventCtx) {
+        let mut ways_audited = HashSet::new();
+        let mut ways_missing = HashSet::new();
+        for r in self.model.map.roads.values() {
+            if r.synthetic() {
+                continue;
+            }
+            if r.osm_tags.contains_key(osm::INFERRED_PARKING) {
+                ways_missing.insert(r.osm_tags[osm::OSM_WAY_ID].clone());
+            } else {
+                ways_audited.insert(r.osm_tags[osm::OSM_WAY_ID].clone());
+            }
         }
+        self.menu.set_info(
+            ctx,
+            Text::from(Line(format!(
+                "Parking data audited: {} / {} ways",
+                abstutil::prettyprint_usize(ways_audited.len()),
+                abstutil::prettyprint_usize(ways_audited.len() + ways_missing.len())
+            ))),
+        );
     }
 }
 
@@ -160,6 +186,7 @@ impl GUI for UI {
                         } else if ctx.input.key_pressed(Key::T, "toggle parking") {
                             self.model.toggle_r_parking(r, ctx.prerender);
                             self.model.world.handle_mouseover(ctx);
+                            self.recount_parking_tags(ctx);
                         } else if ctx
                             .input
                             .key_pressed(Key::R, "create turn restriction from here")

@@ -87,6 +87,18 @@ pub fn extract_osm(
         let pts = map.gps_bounds.forcibly_convert(&gps_pts);
         let mut tags = tags_to_map(&way.tags);
         tags.insert(osm::OSM_WAY_ID.to_string(), way.id.to_string());
+        // If there's no parking data in OSM already, then assume no parking and mark that it's
+        // inferred.
+        if !tags.contains_key(osm::PARKING_LEFT)
+            && !tags.contains_key(osm::PARKING_RIGHT)
+            && !tags.contains_key(osm::PARKING_BOTH)
+            && tags.get(osm::HIGHWAY) != Some(&"motorway".to_string())
+            && tags.get(osm::HIGHWAY) != Some(&"motorway_link".to_string())
+        {
+            tags.insert(osm::PARKING_BOTH.to_string(), "no_parking".to_string());
+            tags.insert(osm::INFERRED_PARKING.to_string(), "true".to_string());
+        }
+
         if is_road(&tags) {
             roads.push(RawRoad {
                 orig_id: OriginalRoad {
