@@ -9,3 +9,5 @@ abstutil = { path = "../abstutil" }
 ezgui = { path = "../ezgui" }
 geom = { path = "../geom" }
 map_model = { path = "../map_model" }
+reqwest = "0.9.22"
+xmltree = "0.8.0"

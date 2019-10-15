@@ -1,4 +1,5 @@
 mod model;
+mod upstream;
 
 use abstutil::CmdArgs;
 use ezgui::{
@@ -65,6 +66,7 @@ impl UI {
                     (hotkey(Key::S), "save raw map"),
                     (hotkey(Key::F), "save map fixes"),
                     (hotkey(Key::J), "warp to something"),
+                    (None, "produce OSM parking diff"),
                 ]],
                 ctx,
             ),
@@ -256,6 +258,8 @@ impl GUI for UI {
                             }
                         } else if self.menu.action("warp to something") {
                             self.state = State::EnteringWarp(Wizard::new());
+                        } else if self.menu.action("produce OSM parking diff") {
+                            upstream::find_parking_diffs(&self.model.map);
                         }
                     }
                 }
