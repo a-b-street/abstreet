@@ -490,6 +490,53 @@ impl Model {
         self.road_added(id, prerender);
     }
 
+    pub fn toggle_r_parking(&mut self, some_id: StableRoadID, prerender: &Prerender) {
+        // Assume every road matching the way is the same.
+        let osm_id = self.map.roads[&some_id].osm_tags[osm::OSM_WAY_ID].clone();
+        let matching_roads = self
+            .map
+            .roads
+            .iter()
+            .filter_map(|(k, v)| {
+                if v.osm_tags[osm::OSM_WAY_ID] == osm_id {
+                    Some(*k)
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<_>>();
+        for id in matching_roads {
+            self.road_deleted(id);
+
+            let mut osm_tags = self.map.roads[&id].osm_tags.clone();
+            osm_tags.remove(osm::INFERRED_PARKING);
+            let yes = "parallel".to_string();
+            let no = "no_parking".to_string();
+            if osm_tags.get(osm::PARKING_BOTH) == Some(&yes) {
+                osm_tags.insert(osm::PARKING_BOTH.to_string(), no);
+            } else if osm_tags.get(osm::PARKING_BOTH) == Some(&no) {
+                osm_tags.remove(osm::PARKING_BOTH);
+                osm_tags.insert(osm::PARKING_LEFT.to_string(), yes);
+                osm_tags.insert(osm::PARKING_RIGHT.to_string(), no);
+            } else if osm_tags.get(osm::PARKING_LEFT) == Some(&yes) {
+                osm_tags.insert(osm::PARKING_LEFT.to_string(), no);
+                osm_tags.insert(osm::PARKING_RIGHT.to_string(), yes);
+            } else if osm_tags.get(osm::PARKING_RIGHT) == Some(&yes) {
+                osm_tags.remove(osm::PARKING_LEFT);
+                osm_tags.remove(osm::PARKING_RIGHT);
+                osm_tags.insert(osm::PARKING_BOTH.to_string(), yes);
+            }
+
+            self.map.override_metadata(
+                id,
+                osm_tags,
+                self.map.roads[&id].turn_restrictions.clone(),
+                &mut self.fixes,
+            );
+            self.road_added(id, prerender);
+        }
+    }
+
     pub fn delete_r(&mut self, id: StableRoadID) {
         if self.showing_pts == Some(id) {
             self.stop_showing_pts();
@@ -509,6 +556,7 @@ impl Model {
         let synthetic = r.synthetic();
         let unset =
             synthetic && r.osm_tags.get(osm::NAME) == Some(&"Streety McStreetFace".to_string());
+        let parking_unknown = r.osm_tags.contains_key(osm::INFERRED_PARKING);
         let spec = r.get_spec();
         let center_pts = PolyLine::new(r.center_points.clone());
 
@@ -519,7 +567,7 @@ impl Model {
 
         for (idx, lt) in spec.fwd.iter().enumerate() {
             obj.push(
-                Model::lt_to_color(*lt, synthetic, unset),
+                Model::lt_to_color(*lt, synthetic, unset, parking_unknown),
                 center_pts
                     .shift_right(LANE_THICKNESS * (0.5 + (idx as f64)))
                     .unwrap()
@@ -534,7 +582,7 @@ impl Model {
         }
         for (idx, lt) in spec.back.iter().enumerate() {
             obj.push(
-                Model::lt_to_color(*lt, synthetic, unset),
+                Model::lt_to_color(*lt, synthetic, unset, parking_unknown),
                 center_pts
                     .reversed()
                     .shift_right(LANE_THICKNESS * (0.5 + (idx as f64)))
@@ -569,7 +617,7 @@ impl Model {
     }
 
     // Copied from render/lane.rs. :(
-    fn lt_to_color(lt: LaneType, synthetic: bool, unset: bool) -> Color {
+    fn lt_to_color(lt: LaneType, synthetic: bool, unset: bool, parking_unknown: bool) -> Color {
         let color = match lt {
             LaneType::Driving => Color::BLACK,
             LaneType::Bus => Color::rgb(190, 74, 76),
@@ -586,12 +634,20 @@ impl Model {
             } else {
                 color.alpha(0.5)
             }
+        } else if parking_unknown {
+            match color {
+                Color::RGBA(r, g, _, _) => Color::rgba_f(r, g, 0.9, 0.5),
+                _ => unreachable!(),
+            }
         } else {
             color
         }
     }
 
     pub fn show_r_points(&mut self, id: StableRoadID, prerender: &Prerender) {
+        if self.showing_pts == Some(id) {
+            return;
+        }
         assert_eq!(self.showing_pts, None);
         self.showing_pts = Some(id);
 

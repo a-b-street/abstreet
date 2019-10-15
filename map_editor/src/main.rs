@@ -157,6 +157,9 @@ impl GUI for UI {
                         } else if ctx.input.key_pressed(Key::M, "merge road") {
                             self.model.merge_r(r, ctx.prerender);
                             self.model.world.handle_mouseover(ctx);
+                        } else if ctx.input.key_pressed(Key::T, "toggle parking") {
+                            self.model.toggle_r_parking(r, ctx.prerender);
+                            self.model.world.handle_mouseover(ctx);
                         } else if ctx
                             .input
                             .key_pressed(Key::R, "create turn restriction from here")
