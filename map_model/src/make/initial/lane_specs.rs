@@ -123,7 +123,7 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
     if parking_lane_fwd && !definitely_no_parking {
         fwd_side.push(LaneType::Parking);
     }
-    if parking_lane_back && !definitely_no_parking && !back_side.is_empty() {
+    if parking_lane_back && !definitely_no_parking {
         back_side.push(LaneType::Parking);
     }
 

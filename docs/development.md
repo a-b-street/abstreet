@@ -96,6 +96,13 @@ Press (and release T), then click to pan. Download a relevant layer, select the
 
 http://download.geofabrik.de/north-america/us/washington.html
 
+```
 wget http://download.geofabrik.de/north-america/us/washington-latest.osm.pbf
-
 osmosis --read-pbf ~/Downloads/washington-latest.osm.pbf --bounding-polygon file=~/abstreet/data/polygons/huge_seattle.poly completeWays=true --write-xml ~/Seattle.osm
+```
+
+Produces huge files, but seems fresh:
+
+```
+osmupdate -v data/input/montlake.osm new_montlake.osm
+```
