@@ -9,7 +9,6 @@ mod runner;
 mod screen_geom;
 mod text;
 mod widgets;
-pub mod world;
 
 pub use crate::canvas::{Canvas, HorizontalAlignment, VerticalAlignment};
 pub use crate::color::Color;

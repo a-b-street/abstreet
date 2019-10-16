@@ -86,6 +86,7 @@ impl RawMap {
     pub fn apply_fixes(&mut self, all_fixes: &BTreeMap<String, MapFixes>, timer: &mut Timer) {
         let mut dummy_fixes = MapFixes::new();
 
+        timer.start("applying all fixes");
         for (name, fixes) in all_fixes {
             let mut applied = 0;
             let mut skipped = 0;
@@ -172,6 +173,7 @@ impl RawMap {
                 name
             ));
         }
+        timer.stop("applying all fixes");
     }
 
     // TODO Might be better to maintain this instead of doing a search everytime.
@@ -224,6 +226,7 @@ impl RawMap {
     pub fn preview_intersection(
         &self,
         id: StableIntersectionID,
+        timer: &mut Timer,
     ) -> (Polygon, Vec<Polygon>, Vec<(String, Polygon)>) {
         use crate::make::initial;
 
@@ -238,11 +241,7 @@ impl RawMap {
             roads.insert(*r, initial::Road::new(*r, &self.roads[r]));
         }
 
-        let (i_pts, debug) = initial::intersection_polygon(
-            &i,
-            &mut roads,
-            &mut Timer::new("calculate intersection_polygon"),
-        );
+        let (i_pts, debug) = initial::intersection_polygon(&i, &mut roads, timer);
         (
             Polygon::new(&i_pts),
             roads

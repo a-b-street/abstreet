@@ -1,5 +1,5 @@
+use crate::world::{Object, ObjectID, World};
 use abstutil::{read_binary, Timer};
-use ezgui::world::{Object, ObjectID, World};
 use ezgui::{Color, Line, Prerender, Text};
 use geom::{Bounds, Circle, Distance, PolyLine, Polygon, Pt2D};
 use map_model::raw::{
@@ -70,10 +70,17 @@ impl Model {
                 model.bldg_added(id, prerender);
             }
         }
+        timer.start_iter(
+            "fill out world with intersections",
+            model.map.intersections.len(),
+        );
         for id in model.map.intersections.keys().cloned().collect::<Vec<_>>() {
+            timer.next();
             model.intersection_added(id, prerender);
         }
+        timer.start_iter("fill out world with roads", model.map.roads.len());
         for id in model.map.roads.keys().cloned().collect::<Vec<_>>() {
+            timer.next();
             model.road_added(id, prerender);
         }
 

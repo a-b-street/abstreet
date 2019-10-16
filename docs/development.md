@@ -101,7 +101,7 @@ wget http://download.geofabrik.de/north-america/us/washington-latest.osm.pbf
 osmosis --read-pbf ~/Downloads/washington-latest.osm.pbf --bounding-polygon file=~/abstreet/data/polygons/huge_seattle.poly completeWays=true --write-xml ~/Seattle.osm
 ```
 
-Produces huge files, but seems fresh:
+Much fresher, but dumps in loads of random nodes:
 
 ```
 osmupdate -v data/input/montlake.osm new_montlake.osm

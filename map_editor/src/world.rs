@@ -1,5 +1,5 @@
-use crate::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Prerender, Text};
 use aabb_quadtree::{ItemId, QuadTree};
+use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Bounds, Circle, Distance, Polygon};
 use std::collections::HashMap;
 use std::fmt::Debug;
@@ -41,12 +41,6 @@ impl<ID: ObjectID> Object<ID> {
         self.geometry.push((color, poly));
     }
 
-    pub fn label(mut self, txt: Text) -> Object<ID> {
-        assert!(self.label.is_none());
-        self.label = Some(txt);
-        self
-    }
-
     pub fn maybe_label(mut self, label: Option<String>) -> Object<ID> {
         assert!(self.label.is_none());
         if let Some(s) = label {
@@ -78,10 +72,12 @@ impl<ID: ObjectID> World<ID> {
         }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx) {
+    pub fn draw<F: Fn(ID) -> bool>(&self, g: &mut GfxCtx, show: F) {
         let mut objects: Vec<ID> = Vec::new();
         for &(id, _, _) in &self.quadtree.query(g.get_screen_bounds().as_bbox()) {
-            objects.push(*id);
+            if show(*id) {
+                objects.push(*id);
+            }
         }
         objects.sort_by_key(|id| id.zorder());
 

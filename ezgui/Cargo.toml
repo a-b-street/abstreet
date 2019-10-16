@@ -9,7 +9,6 @@ default = []
 profiler = ["cpuprofiler"]
 
 [dependencies]
-aabb-quadtree = "0.1.0"
 abstutil = { path = "../abstutil" }
 cpuprofiler = { version = "0.0.3", optional = true }
 geom = { path = "../geom" }

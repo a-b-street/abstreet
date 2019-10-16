@@ -1,7 +1,8 @@
 mod model;
 mod upstream;
+mod world;
 
-use abstutil::CmdArgs;
+use abstutil::{CmdArgs, Timer};
 use ezgui::{
     hotkey, Choice, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line,
     ModalMenu, Text, Wizard, GUI,
@@ -38,6 +39,7 @@ enum State {
     SelectingRectangle(Pt2D, Pt2D, bool),
     CreatingTurnRestrictionPt1(StableRoadID),
     CreatingTurnRestrictionPt2(StableRoadID, StableRoadID, Wizard),
+    // bool is show_tooltip
     PreviewIntersection(Drawable, Vec<(Text, Pt2D)>, bool),
     EnteringWarp(Wizard),
     StampingRoads(String, String, String),
@@ -67,6 +69,8 @@ impl UI {
                     (hotkey(Key::F), "save map fixes"),
                     (hotkey(Key::J), "warp to something"),
                     (None, "produce OSM parking diff"),
+                    (hotkey(Key::G), "preview all intersections"),
+                    (None, "find overlapping intersections"),
                 ]],
                 ctx,
             ),
@@ -260,6 +264,12 @@ impl GUI for UI {
                             self.state = State::EnteringWarp(Wizard::new());
                         } else if self.menu.action("produce OSM parking diff") {
                             upstream::find_parking_diffs(&self.model.map);
+                        } else if self.menu.action("preview all intersections") {
+                            let (draw, labels) = preview_all_intersections(&self.model, ctx);
+                            self.state = State::PreviewIntersection(draw, labels, false);
+                        } else if self.menu.action("find overlapping intersections") {
+                            let (draw, labels) = find_overlapping_intersections(&self.model, ctx);
+                            self.state = State::PreviewIntersection(draw, labels, false);
                         }
                     }
                 }
@@ -548,7 +558,13 @@ impl GUI for UI {
     fn draw(&self, g: &mut GfxCtx) {
         g.clear(Color::BLACK);
         g.draw_polygon(Color::rgb(242, 239, 233), &self.model.map.boundary_polygon);
-        self.model.world.draw(g);
+        match self.state {
+            State::PreviewIntersection(_, _, _) => self.model.world.draw(g, |id| match id {
+                ID::Intersection(_) => false,
+                _ => true,
+            }),
+            _ => self.model.world.draw(g, |_| true),
+        }
 
         match self.state {
             State::CreatingRoad(i1) => {
@@ -625,7 +641,9 @@ fn preview_intersection(
     model: &Model,
     ctx: &EventCtx,
 ) -> (Drawable, Vec<(Text, Pt2D)>) {
-    let (intersection, roads, debug) = model.map.preview_intersection(i);
+    let (intersection, roads, debug) = model
+        .map
+        .preview_intersection(i, &mut Timer::new("calculate intersection_polygon"));
     let mut batch = GeomBatch::new();
     let mut labels = Vec::new();
     batch.push(Color::ORANGE.alpha(0.5), intersection);
@@ -637,6 +655,56 @@ fn preview_intersection(
         batch.push(Color::RED.alpha(0.5), poly);
     }
     (ctx.prerender.upload(batch), labels)
+}
+
+fn preview_all_intersections(model: &Model, ctx: &EventCtx) -> (Drawable, Vec<(Text, Pt2D)>) {
+    let mut batch = GeomBatch::new();
+    let mut timer = Timer::new("preview all intersections");
+    timer.start_iter("preview", model.map.intersections.len());
+    for i in model.map.intersections.keys() {
+        timer.next();
+        if model.map.roads_per_intersection(*i).is_empty() {
+            continue;
+        }
+        let (intersection, _, _) = model.map.preview_intersection(*i, &mut timer);
+        batch.push(Color::ORANGE.alpha(0.5), intersection);
+    }
+    (ctx.prerender.upload(batch), Vec::new())
+}
+
+fn find_overlapping_intersections(model: &Model, ctx: &EventCtx) -> (Drawable, Vec<(Text, Pt2D)>) {
+    let mut timer = Timer::new("find overlapping intersections");
+    let mut polygons = Vec::new();
+    for i in model.map.intersections.keys() {
+        if model.map.roads_per_intersection(*i).is_empty() {
+            continue;
+        }
+        let (intersection, _, _) = model.map.preview_intersection(*i, &mut timer);
+        polygons.push((*i, intersection));
+    }
+
+    let mut overlap = Vec::new();
+    timer.start_iter(
+        "terrible quadratic intersection check",
+        polygons.len().pow(2),
+    );
+    for (i1, poly1) in &polygons {
+        for (i2, poly2) in &polygons {
+            timer.next();
+            if i1 >= i2 {
+                continue;
+            }
+            let hits = poly1.intersection(poly2);
+            if !hits.is_empty() {
+                overlap.extend(hits);
+                timer.warn(format!("{} hits {}", i1, i2));
+            }
+        }
+    }
+
+    let mut batch = GeomBatch::new();
+    batch.extend(Color::RED.alpha(0.5), overlap);
+    (ctx.prerender.upload(batch), Vec::new())
 }
 
 fn main() {
