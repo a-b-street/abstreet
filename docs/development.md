@@ -82,3 +82,12 @@ ffmpeg -f x11grab -r 25 -s 1800x800 -i :0.0+28,92 -vcodec huffyuv raw.avi
 
 ffmpeg -ss 10.0 -t 5.0 -i raw.avi -f gif -filter_complex "[0:v] fps=12,scale=1024:-1,split [a][b];[a] palettegen [p];[b][p] paletteuse" screencast.gif
 ```
+
+## JOSM
+
+```
+java -jar ~/Downloads/josm-tested.jar ~/abstreet/map_editor/parking_diff.osc
+```
+
+Press (and release T), then click to pan. Download a relevant layer, select the
+.osc, merge, then upload.
