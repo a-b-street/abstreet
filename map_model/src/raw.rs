@@ -1,7 +1,7 @@
 use crate::make::get_lane_types;
-use crate::{osm, AreaType, IntersectionType, OffstreetParking, RoadSpec, LANE_THICKNESS};
+use crate::{osm, AreaType, IntersectionType, OffstreetParking, RoadSpec};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
-use geom::{Distance, GPSBounds, PolyLine, Polygon, Pt2D};
+use geom::{Distance, GPSBounds, Polygon, Pt2D};
 use gtfs::Route;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -235,33 +235,7 @@ impl RawMap {
         };
         let mut roads = BTreeMap::new();
         for r in &i.roads {
-            let road = &self.roads[r];
-            // TODO refactor
-            let lane_specs = initial::get_lane_specs(&road.osm_tags, *r);
-            let mut fwd_width = Distance::ZERO;
-            let mut back_width = Distance::ZERO;
-            for l in &lane_specs {
-                if l.reverse_pts {
-                    back_width += LANE_THICKNESS;
-                } else {
-                    fwd_width += LANE_THICKNESS;
-                }
-            }
-
-            let center_pts = PolyLine::new(road.center_points.clone());
-            roads.insert(
-                *r,
-                initial::Road {
-                    id: *r,
-                    src_i: road.i1,
-                    dst_i: road.i2,
-                    original_center_pts: center_pts.clone(),
-                    trimmed_center_pts: center_pts,
-                    fwd_width,
-                    back_width,
-                    lane_specs,
-                },
-            );
+            roads.insert(*r, initial::Road::new(*r, &self.roads[r]));
         }
 
         let (i_pts, debug) = initial::intersection_polygon(

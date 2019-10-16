@@ -2,7 +2,7 @@ mod geometry;
 pub mod lane_specs;
 
 pub use self::geometry::intersection_polygon;
-use crate::raw::{RawMap, StableIntersectionID, StableRoadID};
+use crate::raw::{RawMap, RawRoad, StableIntersectionID, StableRoadID};
 use crate::{IntersectionType, LaneType, LANE_THICKNESS};
 use abstutil::Timer;
 use geom::{Bounds, Distance, PolyLine, Pt2D};
@@ -25,6 +25,33 @@ pub struct Road {
     pub fwd_width: Distance,
     pub back_width: Distance,
     pub lane_specs: Vec<LaneSpec>,
+}
+
+impl Road {
+    pub fn new(stable_id: StableRoadID, r: &RawRoad) -> Road {
+        let lane_specs = get_lane_specs(&r.osm_tags, stable_id);
+        let mut fwd_width = Distance::ZERO;
+        let mut back_width = Distance::ZERO;
+        for l in &lane_specs {
+            if l.reverse_pts {
+                back_width += LANE_THICKNESS;
+            } else {
+                fwd_width += LANE_THICKNESS;
+            }
+        }
+
+        let center_pts = PolyLine::new(r.center_points.clone());
+        Road {
+            id: stable_id,
+            src_i: r.i1,
+            dst_i: r.i2,
+            original_center_pts: center_pts.clone(),
+            trimmed_center_pts: center_pts,
+            fwd_width,
+            back_width,
+            lane_specs,
+        }
+    }
 }
 
 pub struct Intersection {
@@ -74,43 +101,7 @@ impl InitialMap {
                 .roads
                 .insert(*stable_id);
 
-            let lane_specs = get_lane_specs(&r.osm_tags, *stable_id);
-            let mut fwd_width = Distance::ZERO;
-            let mut back_width = Distance::ZERO;
-            for l in &lane_specs {
-                if l.reverse_pts {
-                    back_width += LANE_THICKNESS;
-                } else {
-                    fwd_width += LANE_THICKNESS;
-                }
-            }
-
-            // TODO I can't find anything online that describes how to interpret the given OSM
-            // geometry of one-ways. I'm interpreting the way as the edge of the road (and only
-            // shift_right()ing from there). But could also uncomment this and interpret the way as
-            // the actual center of the one-way road. It looks quite bad -- dual carriageways get
-            // smooshed together.
-            /*assert_ne!(fwd_width, Distance::ZERO);
-            if back_width == Distance::ZERO {
-                // Interpret the original OSM geometry of one-ways as the actual center of the
-                // road.
-                original_center_pts = original_center_pts.shift_left(fwd_width / 2.0);
-            }*/
-
-            let center_pts = PolyLine::new(r.center_points.clone());
-            m.roads.insert(
-                *stable_id,
-                Road {
-                    id: *stable_id,
-                    src_i: r.i1,
-                    dst_i: r.i2,
-                    original_center_pts: center_pts.clone(),
-                    trimmed_center_pts: center_pts,
-                    fwd_width,
-                    back_width,
-                    lane_specs,
-                },
-            );
+            m.roads.insert(*stable_id, Road::new(*stable_id, r));
         }
 
         timer.start_iter("find each intersection polygon", m.intersections.len());
