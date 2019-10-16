@@ -91,3 +91,11 @@ java -jar ~/Downloads/josm-tested.jar ~/abstreet/map_editor/parking_diff.osc
 
 Press (and release T), then click to pan. Download a relevant layer, select the
 .osc, merge, then upload.
+
+## Fresh data
+
+http://download.geofabrik.de/north-america/us/washington.html
+
+wget http://download.geofabrik.de/north-america/us/washington-latest.osm.pbf
+
+osmosis --read-pbf ~/Downloads/washington-latest.osm.pbf --bounding-polygon file=~/abstreet/data/polygons/huge_seattle.poly completeWays=true --write-xml ~/Seattle.osm

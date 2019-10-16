@@ -491,7 +491,7 @@ impl Model {
     }
 
     pub fn toggle_r_parking(&mut self, some_id: StableRoadID, prerender: &Prerender) {
-        // Assume every road matching the way is the same.
+        // Update every road belonging to the way.
         let osm_id = self.map.roads[&some_id].osm_tags[osm::OSM_WAY_ID].clone();
         let matching_roads = self
             .map
@@ -505,6 +505,32 @@ impl Model {
                 }
             })
             .collect::<Vec<_>>();
+
+        // Verify every road has the same parking tags. Blockface hints might've applied to just
+        // some parts. If this is really true, then the way has to be split. Example is McGraw St.
+        let both = self.map.roads[&matching_roads[0]]
+            .osm_tags
+            .get(osm::PARKING_BOTH);
+        let left = self.map.roads[&matching_roads[0]]
+            .osm_tags
+            .get(osm::PARKING_LEFT);
+        let right = self.map.roads[&matching_roads[0]]
+            .osm_tags
+            .get(osm::PARKING_RIGHT);
+        for r in matching_roads.iter().skip(1) {
+            let tags = &self.map.roads[r].osm_tags;
+            if tags.get(osm::PARKING_BOTH) != both
+                || tags.get(osm::PARKING_LEFT) != left
+                || tags.get(osm::PARKING_RIGHT) != right
+            {
+                println!(
+                    "{} and {} belong to same way, but have different parking tags!",
+                    matching_roads[0], r
+                );
+                return;
+            }
+        }
+
         for id in matching_roads {
             self.road_deleted(id);
 
