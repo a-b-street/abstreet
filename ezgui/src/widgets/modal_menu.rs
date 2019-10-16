@@ -16,11 +16,17 @@ pub struct ModalMenu {
     standalone_layout: Option<layout::ContainerOrientation>,
 
     show_hide_btn: Button,
-    // TODO Actually, 3 states: full, no controls, just title
-    visible: bool,
+    visible: Visibility,
 
     top_left: ScreenPt,
     dims: ScreenDims,
+}
+
+#[derive(PartialEq)]
+enum Visibility {
+    Full,
+    Info,
+    JustTitle,
 }
 
 struct Choice {
@@ -55,7 +61,7 @@ impl ModalMenu {
             standalone_layout: Some(layout::ContainerOrientation::TopRight),
 
             show_hide_btn: Button::hide_btn(ctx),
-            visible: true,
+            visible: Visibility::Full,
 
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(0.0, 0.0),
@@ -87,7 +93,7 @@ impl ModalMenu {
         }
 
         // Handle the mouse
-        if self.visible && ctx.redo_mouseover() {
+        if self.visible == Visibility::Full && ctx.redo_mouseover() {
             let cursor = ctx.canvas.get_cursor_in_screen_space();
             self.hovering_idx = None;
             let mut top_left = self.top_left;
@@ -133,12 +139,19 @@ impl ModalMenu {
         );
         self.show_hide_btn.event(ctx);
         if self.show_hide_btn.clicked() {
-            self.visible = !self.visible;
-            if self.visible {
-                self.show_hide_btn = Button::hide_btn(ctx);
-            } else {
-                self.show_hide_btn = Button::show_btn(ctx);
-                self.hovering_idx = None;
+            match self.visible {
+                Visibility::Full => {
+                    self.visible = Visibility::Info;
+                    self.hovering_idx = None;
+                }
+                Visibility::Info => {
+                    self.visible = Visibility::JustTitle;
+                    self.show_hide_btn = Button::show_btn(ctx);
+                }
+                Visibility::JustTitle => {
+                    self.visible = Visibility::Full;
+                    self.show_hide_btn = Button::hide_btn(ctx);
+                }
             }
             self.show_hide_btn.just_replaced();
             self.recalculate_dims(ctx);
@@ -223,10 +236,13 @@ impl ModalMenu {
 
     fn calculate_txt(&self) -> Text {
         let mut txt = Text::prompt(&self.title);
-        if !self.visible {
+        if self.visible == Visibility::JustTitle {
             return txt;
         }
         txt.extend(&self.info);
+        if self.visible == Visibility::Info {
+            return txt;
+        }
 
         for (idx, choice) in self.choices.iter().enumerate() {
             if choice.active {
