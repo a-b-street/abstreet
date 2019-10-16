@@ -122,8 +122,8 @@ impl GUI for UI {
                         _ => None,
                     };
                     if before != after {
-                        if let Some(_) = before {
-                            self.model.stop_showing_pts();
+                        if let Some(id) = before {
+                            self.model.stop_showing_pts(id);
                         }
                         if let Some(r) = after {
                             self.model.show_r_points(r, ctx.prerender);

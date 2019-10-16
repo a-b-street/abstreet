@@ -564,9 +564,7 @@ impl Model {
     }
 
     pub fn delete_r(&mut self, id: StableRoadID) {
-        if self.showing_pts == Some(id) {
-            self.stop_showing_pts();
-        }
+        self.stop_showing_pts(id);
 
         match self.map.can_delete_road(id) {
             Ok(()) => {
@@ -674,7 +672,9 @@ impl Model {
         if self.showing_pts == Some(id) {
             return;
         }
-        assert_eq!(self.showing_pts, None);
+        if let Some(other) = self.showing_pts {
+            self.stop_showing_pts(other);
+        }
         self.showing_pts = Some(id);
 
         let r = &self.map.roads[&id];
@@ -693,20 +693,21 @@ impl Model {
         }
     }
 
-    // Idempotent
-    pub fn stop_showing_pts(&mut self) {
-        if let Some(id) = self.showing_pts.take() {
-            let r = &self.map.roads[&id];
-            for idx in 1..=r.center_points.len() - 2 {
-                self.world.delete(ID::RoadPoint(id, idx));
-            }
+    pub fn stop_showing_pts(&mut self, id: StableRoadID) {
+        if self.showing_pts != Some(id) {
+            return;
+        }
+        self.showing_pts = None;
+        let r = &self.map.roads[&id];
+        for idx in 1..=r.center_points.len() - 2 {
+            self.world.delete(ID::RoadPoint(id, idx));
         }
     }
 
     pub fn move_r_pt(&mut self, id: StableRoadID, idx: usize, point: Pt2D, prerender: &Prerender) {
         assert_eq!(self.showing_pts, Some(id));
 
-        self.stop_showing_pts();
+        self.stop_showing_pts(id);
         self.road_deleted(id);
 
         let mut pts = self.map.roads[&id].center_points.clone();
@@ -720,7 +721,7 @@ impl Model {
     pub fn delete_r_pt(&mut self, id: StableRoadID, idx: usize, prerender: &Prerender) {
         assert_eq!(self.showing_pts, Some(id));
 
-        self.stop_showing_pts();
+        self.stop_showing_pts(id);
         self.road_deleted(id);
 
         let mut pts = self.map.roads[&id].center_points.clone();
@@ -738,9 +739,7 @@ impl Model {
             return;
         }
 
-        if self.showing_pts == Some(id) {
-            self.stop_showing_pts();
-        }
+        self.stop_showing_pts(id);
 
         // TODO Bit hacky, but we have to do this before doing the mutation, so we know the number
         // of lanes and can generate all the IDs.
