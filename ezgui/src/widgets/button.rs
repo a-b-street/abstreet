@@ -1,12 +1,16 @@
 use crate::layout::Widget;
-use crate::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenPt, ScreenRectangle};
+use crate::{
+    hotkey, text, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, MultiKey, ScreenDims,
+    ScreenPt, ScreenRectangle, Text,
+};
 use geom::{Circle, Distance, Polygon, Pt2D};
 
-// TODO Tooltips?
-// TODO Hotkeys?
 pub struct Button {
     draw_normal: Drawable,
     draw_hovered: Drawable,
+    hotkey: Option<MultiKey>,
+    tooltip: Text,
+
     hovering: bool,
     clicked: bool,
 
@@ -15,13 +19,28 @@ pub struct Button {
 }
 
 impl Button {
-    // Top-left should be at Pt2D::new(0.0, 0.0). Must have same dimensions.
-    pub fn new(normal: GeomBatch, hovered: GeomBatch, ctx: &EventCtx) -> Button {
+    // Top-left should be at Pt2D::new(0.0, 0.0). normal and hovered must have same dimensions.
+    pub fn new(
+        normal: GeomBatch,
+        hovered: GeomBatch,
+        hotkey: Option<MultiKey>,
+        tooltip: &str,
+        ctx: &EventCtx,
+    ) -> Button {
         let dims = normal.get_dims();
         assert_eq!(dims, hovered.get_dims());
         Button {
             draw_normal: ctx.prerender.upload(normal),
             draw_hovered: ctx.prerender.upload(hovered),
+            hotkey,
+            tooltip: if let Some(key) = hotkey {
+                let mut txt = Text::from(Line(key.describe()).fg(text::HOTKEY_COLOR));
+                txt.append(Line(format!(" - {}", tooltip)));
+                txt
+            } else {
+                Text::from(Line(tooltip))
+            },
+
             hovering: false,
             clicked: false,
 
@@ -42,6 +61,17 @@ impl Button {
         if self.hovering && ctx.input.left_mouse_button_pressed() {
             self.clicked = true;
         }
+
+        if let Some(hotkey) = self.hotkey {
+            if ctx.input.new_was_pressed(hotkey) {
+                self.clicked = true;
+            }
+        }
+    }
+
+    pub fn just_replaced(&mut self, ctx: &EventCtx) {
+        self.hovering = ScreenRectangle::top_left(self.top_left, self.dims)
+            .contains(ctx.canvas.get_cursor_in_screen_space());
     }
 
     pub fn clicked(&mut self) -> bool {
@@ -53,15 +83,11 @@ impl Button {
         }
     }
 
-    // When the caller replaces one button with another, they know it's being hovered on.
-    pub fn just_replaced(&mut self) {
-        self.hovering = true;
-    }
-
     pub fn draw(&self, g: &mut GfxCtx) {
         g.fork(Pt2D::new(0.0, 0.0), self.top_left, 1.0);
         if self.hovering {
             g.redraw(&self.draw_hovered);
+            g.draw_mouse_tooltip(&self.tooltip);
         } else {
             g.redraw(&self.draw_normal);
         }
@@ -86,7 +112,7 @@ const ICON_SYMBOL: Color = Color::grey(0.8);
 const ICON_SYMBOL_SELECTED: Color = Color::grey(0.2);
 
 impl Button {
-    fn show_hide_btn(is_show: bool, ctx: &EventCtx) -> Button {
+    fn show_hide_btn(is_show: bool, tooltip: &str, ctx: &EventCtx) -> Button {
         let radius = ctx.canvas.line_height / 2.0;
         let circle = Circle::new(Pt2D::new(radius, radius), Distance::meters(radius));
 
@@ -116,14 +142,15 @@ impl Button {
             );
         }
 
-        Button::new(normal, hovered, ctx)
+        // TODO Arbitrarilyish the first user to be event()'d will eat this key.
+        Button::new(normal, hovered, hotkey(Key::Tab), tooltip, ctx)
     }
 
-    pub fn show_btn(ctx: &EventCtx) -> Button {
-        Button::show_hide_btn(true, ctx)
+    pub fn show_btn(ctx: &EventCtx, tooltip: &str) -> Button {
+        Button::show_hide_btn(true, tooltip, ctx)
     }
 
-    pub fn hide_btn(ctx: &EventCtx) -> Button {
-        Button::show_hide_btn(false, ctx)
+    pub fn hide_btn(ctx: &EventCtx, tooltip: &str) -> Button {
+        Button::show_hide_btn(false, tooltip, ctx)
     }
 }

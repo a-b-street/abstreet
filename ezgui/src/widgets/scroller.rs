@@ -273,7 +273,7 @@ impl<T: Clone + Copy> Scroller<T> {
 pub struct NewScroller {
     draw: Drawable,
     multi_txt: MultiText,
-    total_dims: ScreenDims,
+    _total_dims: ScreenDims,
     zoom: f64,
 
     offset: f64,
@@ -301,7 +301,7 @@ impl NewScroller {
         NewScroller {
             draw: ctx.prerender.upload(geom),
             multi_txt,
-            total_dims,
+            _total_dims: total_dims,
             zoom,
 
             offset: 0.0,

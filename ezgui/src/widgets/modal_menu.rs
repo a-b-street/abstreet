@@ -60,7 +60,7 @@ impl ModalMenu {
             hovering_idx: None,
             standalone_layout: Some(layout::ContainerOrientation::TopRight),
 
-            show_hide_btn: Button::hide_btn(ctx),
+            show_hide_btn: Button::hide_btn(ctx, "just show info"),
             visible: Visibility::Full,
 
             top_left: ScreenPt::new(0.0, 0.0),
@@ -143,18 +143,24 @@ impl ModalMenu {
                 Visibility::Full => {
                     self.visible = Visibility::Info;
                     self.hovering_idx = None;
+                    self.show_hide_btn = Button::show_btn(ctx, "hide");
                 }
                 Visibility::Info => {
                     self.visible = Visibility::JustTitle;
-                    self.show_hide_btn = Button::show_btn(ctx);
+                    self.show_hide_btn = Button::hide_btn(ctx, "show");
                 }
                 Visibility::JustTitle => {
                     self.visible = Visibility::Full;
-                    self.show_hide_btn = Button::hide_btn(ctx);
+                    self.show_hide_btn = Button::hide_btn(ctx, "just show info");
                 }
             }
-            self.show_hide_btn.just_replaced();
+            // Recalculate hovering immediately.
             self.recalculate_dims(ctx);
+            self.show_hide_btn.set_pos(
+                ScreenPt::new(self.top_left.x + self.dims.width, self.top_left.y),
+                self.dims.width,
+            );
+            self.show_hide_btn.just_replaced(ctx);
         }
 
         // Reset for next round
