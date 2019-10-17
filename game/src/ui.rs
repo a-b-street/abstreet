@@ -80,7 +80,7 @@ impl UI {
         }
     }
 
-    pub fn draw_ctx<'a>(&'a self) -> DrawCtx<'a> {
+    pub fn draw_ctx(&self) -> DrawCtx<'_> {
         DrawCtx {
             cs: &self.cs,
             map: &self.primary.map,

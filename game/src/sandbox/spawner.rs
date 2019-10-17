@@ -6,10 +6,11 @@ use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu, Wizard};
 use geom::{Duration, PolyLine};
-use map_model::{BuildingID, IntersectionID, LaneType, PathRequest, Position, LANE_THICKNESS};
+use map_model::{BuildingID, IntersectionID, LaneType, Map, PathRequest, Position, LANE_THICKNESS};
 use rand::seq::SliceRandom;
 use rand::Rng;
-use sim::{DrivingGoal, Scenario, SidewalkSpot, TripSpec};
+use rand_xorshift::XorShiftRng;
+use sim::{DrivingGoal, Scenario, SidewalkSpot, Sim, TripSpec};
 
 const SMALL_DT: Duration = Duration::const_seconds(0.1);
 
@@ -20,13 +21,10 @@ pub struct AgentSpawner {
 }
 
 enum Source {
-    Walking(WalkingSource),
-    Driving(Position),
-}
-
-enum WalkingSource {
-    Bldg(BuildingID),
-    Sidewalk(Position),
+    WalkFromBldg(BuildingID),
+    WalkFromBldgThenMaybeUseCar(BuildingID),
+    WalkFromSidewalk(Position),
+    Drive(Position),
 }
 
 #[derive(PartialEq)]
@@ -51,11 +49,25 @@ impl AgentSpawner {
             Some(ID::Building(id)) => {
                 if ctx
                     .input
-                    .contextual_action(Key::F3, "spawn a pedestrian starting here")
+                    .contextual_action(Key::F3, "spawn a pedestrian starting here just walking")
                 {
                     return Some(Box::new(AgentSpawner {
                         menu,
-                        from: Source::Walking(WalkingSource::Bldg(id)),
+                        from: Source::WalkFromBldg(id),
+                        maybe_goal: None,
+                    }));
+                }
+                let parked = ui.primary.sim.get_parked_cars_by_owner(id);
+                // TODO Check if it's claimed... Haha if it is, MaybeUsingParkedCar still snags it!
+                if !parked.is_empty()
+                    && ctx.input.contextual_action(
+                        Key::F5,
+                        "spawn a pedestrian here using an owned parked car",
+                    )
+                {
+                    return Some(Box::new(AgentSpawner {
+                        menu,
+                        from: Source::WalkFromBldgThenMaybeUseCar(id),
                         maybe_goal: None,
                     }));
                 }
@@ -66,7 +78,7 @@ impl AgentSpawner {
                     {
                         return Some(Box::new(AgentSpawner {
                             menu,
-                            from: Source::Driving(pos),
+                            from: Source::Drive(pos),
                             maybe_goal: None,
                         }));
                     }
@@ -80,7 +92,7 @@ impl AgentSpawner {
                 {
                     return Some(Box::new(AgentSpawner {
                         menu,
-                        from: Source::Driving(Position::new(id, map.get_l(id).length() / 2.0)),
+                        from: Source::Drive(Position::new(id, map.get_l(id).length() / 2.0)),
                         maybe_goal: None,
                     }));
                 } else if map.get_l(id).is_sidewalk()
@@ -90,10 +102,10 @@ impl AgentSpawner {
                 {
                     return Some(Box::new(AgentSpawner {
                         menu,
-                        from: Source::Walking(WalkingSource::Sidewalk(Position::new(
+                        from: Source::WalkFromSidewalk(Position::new(
                             id,
                             map.get_l(id).length() / 2.0,
-                        ))),
+                        )),
                         maybe_goal: None,
                     }));
                 }
@@ -147,24 +159,31 @@ impl State for AgentSpawner {
         };
 
         if recalculate {
-            let start = match self.from {
-                Source::Walking(WalkingSource::Bldg(b)) => Position::bldg_via_walking(b, map),
-                Source::Walking(WalkingSource::Sidewalk(pos)) | Source::Driving(pos) => pos,
+            let (start, driving) = match self.from {
+                Source::WalkFromBldg(b) => (Position::bldg_via_walking(b, map), false),
+                // TODO Find the driving lane in this case.
+                Source::WalkFromBldgThenMaybeUseCar(b) => {
+                    (Position::bldg_via_walking(b, map), false)
+                }
+                Source::WalkFromSidewalk(pos) => (pos, false),
+                Source::Drive(pos) => (pos, true),
             };
             let end = match new_goal {
-                Goal::Building(to) => match self.from {
-                    Source::Walking(_) => Position::bldg_via_walking(to, map),
-                    Source::Driving(_) => {
+                Goal::Building(to) => {
+                    if driving {
                         let end = map.find_driving_lane_near_building(to);
                         Position::new(end, map.get_l(end).length())
+                    } else {
+                        Position::bldg_via_walking(to, map)
                     }
-                },
+                }
                 Goal::Border(to) => {
                     let lanes = map.get_i(to).get_incoming_lanes(
                         map,
-                        match self.from {
-                            Source::Walking(_) => LaneType::Sidewalk,
-                            Source::Driving(_) => LaneType::Driving,
+                        if driving {
+                            LaneType::Driving
+                        } else {
+                            LaneType::Sidewalk
                         },
                     );
                     if lanes.is_empty() {
@@ -193,99 +212,13 @@ impl State for AgentSpawner {
         if self.maybe_goal.is_some() && ctx.input.contextual_action(Key::F3, "end the agent here") {
             let mut rng = ui.primary.current_flags.sim_flags.make_rng();
             let sim = &mut ui.primary.sim;
-            match (&self.from, self.maybe_goal.take().unwrap().0) {
-                (Source::Walking(src), Goal::Building(to)) => {
-                    let start = match src {
-                        WalkingSource::Bldg(b) => SidewalkSpot::building(*b, map),
-                        WalkingSource::Sidewalk(pos) => {
-                            SidewalkSpot::suddenly_appear(pos.lane(), pos.dist_along(), map)
-                        }
-                    };
-                    let goal = SidewalkSpot::building(to, map);
-                    let ped_speed = Scenario::rand_ped_speed(&mut rng);
-
-                    if let Some((stop1, stop2, route)) =
-                        map.should_use_transit(start.sidewalk_pos, goal.sidewalk_pos)
-                    {
-                        sim.schedule_trip(
-                            sim.time(),
-                            TripSpec::UsingTransit {
-                                start,
-                                goal,
-                                route,
-                                stop1,
-                                stop2,
-                                ped_speed,
-                            },
-                            map,
-                        );
-                    } else {
-                        sim.schedule_trip(
-                            sim.time(),
-                            TripSpec::JustWalking {
-                                start,
-                                goal,
-                                ped_speed,
-                            },
-                            map,
-                        );
-                    }
-                }
-                (Source::Walking(src), Goal::Border(to)) => {
-                    if let Some(goal) = SidewalkSpot::end_at_border(to, map) {
-                        let start = match src {
-                            WalkingSource::Bldg(b) => SidewalkSpot::building(*b, map),
-                            WalkingSource::Sidewalk(pos) => {
-                                SidewalkSpot::suddenly_appear(pos.lane(), pos.dist_along(), map)
-                            }
-                        };
-                        sim.schedule_trip(
-                            sim.time(),
-                            TripSpec::JustWalking {
-                                start,
-                                goal,
-                                ped_speed: Scenario::rand_ped_speed(&mut rng),
-                            },
-                            map,
-                        );
-                    } else {
-                        println!("Can't end a walking trip at {}; no sidewalks", to);
-                    }
-                }
-                (Source::Driving(from), Goal::Building(to)) => {
-                    if let Some(start_pos) = TripSpec::spawn_car_at(*from, map) {
-                        sim.schedule_trip(
-                            sim.time(),
-                            TripSpec::CarAppearing {
-                                start_pos,
-                                vehicle_spec: Scenario::rand_car(&mut rng),
-                                goal: DrivingGoal::ParkNear(to),
-                                ped_speed: Scenario::rand_ped_speed(&mut rng),
-                            },
-                            map,
-                        );
-                    } else {
-                        println!("Can't make a car appear at {:?}", from);
-                    }
-                }
-                (Source::Driving(from), Goal::Border(to)) => {
-                    if let Some(goal) = DrivingGoal::end_at_border(to, vec![LaneType::Driving], map)
-                    {
-                        sim.schedule_trip(
-                            sim.time(),
-                            TripSpec::CarAppearing {
-                                start_pos: *from,
-                                vehicle_spec: Scenario::rand_car(&mut rng),
-                                goal,
-                                ped_speed: Scenario::rand_ped_speed(&mut rng),
-                            },
-                            map,
-                        );
-                    } else {
-                        println!("Can't end a car trip at {}; no driving lanes", to);
-                    }
-                }
-            };
+            schedule_trip(
+                &self.from,
+                self.maybe_goal.take().unwrap().0,
+                map,
+                sim,
+                &mut rng,
+            );
             sim.spawn_all_trips(map, &mut Timer::new("spawn trip"), false);
             sim.step(map, SMALL_DT);
             ui.recalculate_current_selection(ctx);
@@ -301,10 +234,8 @@ impl State for AgentSpawner {
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         let src = match self.from {
-            Source::Walking(WalkingSource::Bldg(b)) => ID::Building(b),
-            Source::Driving(pos) | Source::Walking(WalkingSource::Sidewalk(pos)) => {
-                ID::Lane(pos.lane())
-            }
+            Source::WalkFromBldg(b) | Source::WalkFromBldgThenMaybeUseCar(b) => ID::Building(b),
+            Source::WalkFromSidewalk(pos) | Source::Drive(pos) => ID::Lane(pos.lane()),
         };
         let mut opts = DrawOptions::new();
         opts.override_colors.insert(src, ui.cs.get("selected"));
@@ -424,4 +355,100 @@ fn instantiate_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Op
         ui.primary.sim.step(&ui.primary.map, SMALL_DT);
     });
     Some(Transition::Pop)
+}
+
+fn schedule_trip(src: &Source, raw_goal: Goal, map: &Map, sim: &mut Sim, rng: &mut XorShiftRng) {
+    match src {
+        Source::WalkFromBldg(_) | Source::WalkFromSidewalk(_) => {
+            let start = match src {
+                Source::WalkFromBldg(b) => SidewalkSpot::building(*b, map),
+                Source::WalkFromSidewalk(pos) => {
+                    SidewalkSpot::suddenly_appear(pos.lane(), pos.dist_along(), map)
+                }
+                _ => unreachable!(),
+            };
+            let goal = match raw_goal {
+                Goal::Building(to) => SidewalkSpot::building(to, map),
+                Goal::Border(to) => {
+                    if let Some(goal) = SidewalkSpot::end_at_border(to, map) {
+                        goal
+                    } else {
+                        println!("Can't end a walking trip at {}; no sidewalks", to);
+                        return;
+                    }
+                }
+            };
+            let ped_speed = Scenario::rand_ped_speed(rng);
+            if let Some((stop1, stop2, route)) =
+                map.should_use_transit(start.sidewalk_pos, goal.sidewalk_pos)
+            {
+                sim.schedule_trip(
+                    sim.time(),
+                    TripSpec::UsingTransit {
+                        start,
+                        goal,
+                        route,
+                        stop1,
+                        stop2,
+                        ped_speed,
+                    },
+                    map,
+                );
+            } else {
+                sim.schedule_trip(
+                    sim.time(),
+                    TripSpec::JustWalking {
+                        start,
+                        goal,
+                        ped_speed,
+                    },
+                    map,
+                );
+            }
+        }
+        _ => {
+            // Driving
+            let goal = match raw_goal {
+                Goal::Building(to) => DrivingGoal::ParkNear(to),
+                Goal::Border(to) => {
+                    if let Some(g) = DrivingGoal::end_at_border(to, vec![LaneType::Driving], map) {
+                        g
+                    } else {
+                        println!("Can't end a car trip at {}; no driving lanes", to);
+                        return;
+                    }
+                }
+            };
+            match src {
+                Source::Drive(from) => {
+                    if let Some(start_pos) = TripSpec::spawn_car_at(*from, map) {
+                        sim.schedule_trip(
+                            sim.time(),
+                            TripSpec::CarAppearing {
+                                start_pos,
+                                vehicle_spec: Scenario::rand_car(rng),
+                                goal,
+                                ped_speed: Scenario::rand_ped_speed(rng),
+                            },
+                            map,
+                        );
+                    } else {
+                        println!("Can't make a car appear at {:?}", from);
+                    }
+                }
+                Source::WalkFromBldgThenMaybeUseCar(b) => {
+                    sim.schedule_trip(
+                        sim.time(),
+                        TripSpec::MaybeUsingParkedCar {
+                            start_bldg: *b,
+                            goal,
+                            ped_speed: Scenario::rand_ped_speed(rng),
+                        },
+                        map,
+                    );
+                }
+                _ => unreachable!(),
+            }
+        }
+    }
 }
