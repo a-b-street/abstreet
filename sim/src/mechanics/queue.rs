@@ -112,7 +112,7 @@ impl Queue {
                     // calculate this before moving this car from Crossing to another state.
                     dist_int.lerp(time_int.percent_clamp_end(now)).min(bound)
                 }
-                CarState::Unparking(front, _) => front,
+                CarState::Unparking(front, _, _) => front,
                 CarState::Parking(front, _, _) => front,
                 CarState::Idling(front, _) => front,
             };
@@ -226,7 +226,7 @@ fn dump_cars(
             CarState::WaitingToAdvance => {
                 println!("  WaitingToAdvance currently");
             }
-            CarState::Unparking(_, ref time_int) => {
+            CarState::Unparking(_, _, ref time_int) => {
                 println!("  Unparking during {} .. {}", time_int.start, time_int.end);
             }
             CarState::Parking(_, _, ref time_int) => {

@@ -66,7 +66,11 @@ impl Position {
         let driving_lane = map
             .find_closest_lane(bldg.sidewalk(), vec![LaneType::Driving])
             .ok()?;
-        Some(bldg.front_path.sidewalk.equiv_pos(driving_lane, Distance::ZERO, map))
+        Some(
+            bldg.front_path
+                .sidewalk
+                .equiv_pos(driving_lane, Distance::ZERO, map),
+        )
     }
 }
 

@@ -99,27 +99,42 @@ impl Car {
         };
 
         let body = match self.state {
-            // Assume the parking lane is to the right of us!
-            CarState::Unparking(_, ref time_int) => raw_body
-                .shift_right(LANE_THICKNESS * (1.0 - time_int.percent(now)))
-                .unwrap(),
-            CarState::Parking(_, ref spot, ref time_int) => match spot {
-                ParkingSpot::Onstreet(_, _) => raw_body
-                    .shift_right(LANE_THICKNESS * time_int.percent(now))
-                    .unwrap(),
-                ParkingSpot::Offstreet(b, _) => {
-                    // Append the car's polyline on the street with the driveway
-                    let driveway = &map.get_b(*b).parking.as_ref().unwrap().driveway_line;
-                    let full_piece = raw_body.extend(driveway.reverse().to_polyline());
-                    // Then make the car creep along the added length of the driveway (which could
-                    // be really short)
-                    let creep_along = driveway.length() * time_int.percent(now);
-                    // TODO Ideally the car would slowly disappear into the building, but some
-                    // stuff downstream needs to understand that the windows and such will get cut
-                    // off. :)
-                    full_piece.exact_slice(creep_along, creep_along + self.vehicle.length)
+            CarState::Unparking(_, ref spot, ref time_int)
+            | CarState::Parking(_, ref spot, ref time_int) => {
+                let percent_time = match self.state {
+                    CarState::Unparking(_, _, _) => 1.0 - time_int.percent(now),
+                    CarState::Parking(_, _, _) => time_int.percent(now),
+                    _ => unreachable!(),
+                };
+                match spot {
+                    ParkingSpot::Onstreet(parking_l, _) => {
+                        let width = LANE_THICKNESS * percent_time;
+                        let driving_l = self.router.head().as_lane();
+                        let parent = map.get_parent(driving_l);
+                        // Is the parking lane to the left or right of the driving lane?
+                        let shift = if parent.dir_and_offset(driving_l).0
+                            == parent.dir_and_offset(*parking_l).0
+                        {
+                            width
+                        } else {
+                            -width
+                        };
+                        raw_body.shift_right(shift).unwrap()
+                    }
+                    ParkingSpot::Offstreet(b, _) => {
+                        // Append the car's polyline on the street with the driveway
+                        let driveway = &map.get_b(*b).parking.as_ref().unwrap().driveway_line;
+                        let full_piece = raw_body.extend(driveway.reverse().to_polyline());
+                        // Then make the car creep along the added length of the driveway (which could
+                        // be really short)
+                        let creep_along = driveway.length() * percent_time;
+                        // TODO Ideally the car would slowly disappear into the building, but some
+                        // stuff downstream needs to understand that the windows and such will get cut
+                        // off. :)
+                        full_piece.exact_slice(creep_along, creep_along + self.vehicle.length)
+                    }
                 }
-            },
+            }
             _ => raw_body,
         };
 
@@ -139,7 +154,7 @@ impl Car {
                 CarState::WaitingToAdvance => CarStatus::Stuck,
                 CarState::Crossing(_, _) => CarStatus::Moving,
                 // Eh they're technically moving, but this is a bit easier to spot
-                CarState::Unparking(_, _) => CarStatus::Parked,
+                CarState::Unparking(_, _, _) => CarStatus::Parked,
                 CarState::Parking(_, _, _) => CarStatus::Parked,
                 // Changing color for idling buses is helpful
                 CarState::Idling(_, _) => CarStatus::Parked,
@@ -177,7 +192,7 @@ pub enum CarState {
     Queued,
     WaitingToAdvance,
     // Where's the front of the car while this is happening?
-    Unparking(Distance, TimeInterval),
+    Unparking(Distance, ParkingSpot, TimeInterval),
     Parking(Distance, ParkingSpot, TimeInterval),
     Idling(Distance, TimeInterval),
 }
@@ -188,7 +203,7 @@ impl CarState {
             CarState::Crossing(ref time_int, _) => time_int.end,
             CarState::Queued => unreachable!(),
             CarState::WaitingToAdvance => unreachable!(),
-            CarState::Unparking(_, ref time_int) => time_int.end,
+            CarState::Unparking(_, _, ref time_int) => time_int.end,
             CarState::Parking(_, _, ref time_int) => time_int.end,
             CarState::Idling(_, ref time_int) => time_int.end,
         }

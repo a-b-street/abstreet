@@ -94,9 +94,10 @@ impl DrivingSimState {
                 started_at: now,
                 trip: params.trip,
             };
-            if params.maybe_parked_car.is_some() {
+            if let Some(p) = params.maybe_parked_car {
                 car.state = CarState::Unparking(
                     params.start_dist,
+                    p.spot,
                     TimeInterval::new(now, now + TIME_TO_UNPARK),
                 );
             } else {
@@ -254,7 +255,7 @@ impl DrivingSimState {
                     scheduler.push(now, Command::UpdateCar(car.vehicle.id));
                 }
             }
-            CarState::Unparking(front, _) => {
+            CarState::Unparking(front, _, _) => {
                 if car.router.last_step() {
                     // Actually, we need to do this first. Ignore the answer -- if we're
                     // doing something weird like vanishing or re-parking immediately
@@ -302,7 +303,7 @@ impl DrivingSimState {
                         // They weren't blocked. Note that there's no way the Crossing state could jump
                         // forwards here; the leader is still in front of them.
                         CarState::Crossing(_, _)
-                        | CarState::Unparking(_, _)
+                        | CarState::Unparking(_, _, _)
                         | CarState::Parking(_, _, _)
                         | CarState::Idling(_, _) => {}
                     }
@@ -414,7 +415,7 @@ impl DrivingSimState {
         car.blocked_since = None;
         match car.state {
             CarState::Crossing(_, _)
-            | CarState::Unparking(_, _)
+            | CarState::Unparking(_, _, _)
             | CarState::Idling(_, _)
             | CarState::WaitingToAdvance => unreachable!(),
             CarState::Queued => {
@@ -590,8 +591,9 @@ impl DrivingSimState {
                     );
                 }
                 // They weren't blocked
-                CarState::Unparking(_, _) | CarState::Parking(_, _, _) | CarState::Idling(_, _) => {
-                }
+                CarState::Unparking(_, _, _)
+                | CarState::Parking(_, _, _)
+                | CarState::Idling(_, _) => {}
                 CarState::WaitingToAdvance => unreachable!(),
             }
         }
@@ -703,7 +705,7 @@ impl DrivingSimState {
                         // They weren't blocked. Note that there's no way the Crossing state could jump
                         // forwards here; the leader vanished from the end of the traversable.
                         CarState::Crossing(_, _)
-                        | CarState::Unparking(_, _)
+                        | CarState::Unparking(_, _, _)
                         | CarState::Parking(_, _, _)
                         | CarState::Idling(_, _) => {}
                     }
