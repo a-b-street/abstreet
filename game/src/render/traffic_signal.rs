@@ -63,7 +63,7 @@ pub fn draw_signal_phase(
     let percent = time_left.unwrap() / phase.duration;
     // TODO Tune colors.
     batch.push(
-        ctx.cs.get_def("traffic signal box", Color::grey(0.2)),
+        ctx.cs.get_def("traffic signal box", Color::grey(0.5)),
         Polygon::rectangle_topleft(top_left, box_width, box_height),
     );
     batch.push(
