@@ -493,6 +493,12 @@ impl TripManager {
             end: trip.end.clone(),
         }
     }
+
+    // Return trip start time too
+    pub fn find_trip_using_car(&self, id: CarID, home: BuildingID) -> Option<(TripID, Duration)> {
+        let t = self.trips.iter().find(|t| t.uses_car(id, home))?;
+        Some((t.id, t.spawned_at))
+    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
@@ -508,6 +514,19 @@ struct Trip {
 }
 
 impl Trip {
+    fn uses_car(&self, id: CarID, home: BuildingID) -> bool {
+        self.legs.iter().any(|l| match l {
+            TripLeg::Walk(_, _, ref walk_to) => match walk_to.connection {
+                SidewalkPOI::DeferredParkingSpot(b, _) => b == home,
+                _ => false,
+            },
+            // No need to look up the contents of a SidewalkPOI::ParkingSpot. If a trip uses a
+            // specific parked car, then there'll be a TripLeg::Drive with it already.
+            TripLeg::Drive(ref vehicle, _) => vehicle.id == id,
+            _ => false,
+        })
+    }
+
     fn is_bus_trip(&self) -> bool {
         self.legs.len() == 1
             && match self.legs[0] {

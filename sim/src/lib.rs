@@ -226,11 +226,15 @@ pub struct SidewalkSpot {
 
 impl SidewalkSpot {
     // Pretty hacky case
-    pub fn deferred_parking_spot(b: BuildingID, goal: DrivingGoal, map: &Map) -> SidewalkSpot {
+    pub fn deferred_parking_spot(
+        start_bldg: BuildingID,
+        goal: DrivingGoal,
+        map: &Map,
+    ) -> SidewalkSpot {
         SidewalkSpot {
-            connection: SidewalkPOI::DeferredParkingSpot(b, goal),
+            connection: SidewalkPOI::DeferredParkingSpot(start_bldg, goal),
             // Dummy value
-            sidewalk_pos: map.get_b(b).front_path.sidewalk,
+            sidewalk_pos: map.get_b(start_bldg).front_path.sidewalk,
         }
     }
 
