@@ -37,7 +37,7 @@ impl Position {
         map.get_l(self.lane).dist_along(self.dist_along)
     }
 
-    pub fn equiv_pos(&self, lane: LaneID, map: &Map) -> Position {
+    pub fn equiv_pos(&self, lane: LaneID, our_len: Distance, map: &Map) -> Position {
         let r = map.get_parent(lane);
         assert_eq!(map.get_l(self.lane).parent, r.id);
 
@@ -48,7 +48,12 @@ impl Position {
         if r.is_forwards(lane) == r.is_forwards(self.lane) {
             Position::new(lane, self.dist_along.min(len))
         } else {
-            Position::new(lane, (len - self.dist_along).max(Distance::ZERO))
+            Position::new(
+                lane,
+                (len - self.dist_along + our_len)
+                    .max(Distance::ZERO)
+                    .min(len),
+            )
         }
     }
 
@@ -61,7 +66,7 @@ impl Position {
         let driving_lane = map
             .find_closest_lane(bldg.sidewalk(), vec![LaneType::Driving])
             .ok()?;
-        Some(bldg.front_path.sidewalk.equiv_pos(driving_lane, map))
+        Some(bldg.front_path.sidewalk.equiv_pos(driving_lane, Distance::ZERO, map))
     }
 }
 

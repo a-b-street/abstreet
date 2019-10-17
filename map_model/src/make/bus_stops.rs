@@ -59,7 +59,7 @@ pub fn make_bus_stops(
                 };
                 point_to_stop_id.insert(orig_pt, stop_id);
                 let sidewalk_pos = Position::new(sidewalk_id, dist_along);
-                let driving_pos = sidewalk_pos.equiv_pos(driving_lane, map);
+                let driving_pos = sidewalk_pos.equiv_pos(driving_lane, Distance::ZERO, map);
                 bus_stops.insert(
                     stop_id,
                     BusStop {

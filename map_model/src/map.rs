@@ -8,7 +8,7 @@ use crate::{
 };
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
-use geom::{Bounds, GPSBounds, Polygon, Pt2D};
+use geom::{Bounds, Distance, GPSBounds, Polygon, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 use std::io;
@@ -752,7 +752,7 @@ impl Map {
                     .get_r(id)
                     .find_closest_lane(sidewalk_pos.lane(), vec![LaneType::Driving, LaneType::Bus])
                     .unwrap();
-                let driving_pos = sidewalk_pos.equiv_pos(driving_lane, self);
+                let driving_pos = sidewalk_pos.equiv_pos(driving_lane, Distance::ZERO, self);
                 self.bus_stops.get_mut(&s).unwrap().driving_pos = driving_pos;
             }
         }

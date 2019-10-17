@@ -217,7 +217,7 @@ impl ParkingSimState {
         let mut maybe_spot = None;
         // TODO Ideally don't fill in one side first before considering the other.
         for l in self.driving_to_parking_lanes.get(driving_pos.lane()) {
-            let parking_dist = driving_pos.equiv_pos(*l, map).dist_along();
+            let parking_dist = driving_pos.equiv_pos(*l, vehicle.length, map).dist_along();
             let lane = &self.onstreet_lanes[l];
             // Bit hacky to enumerate here to conveniently get idx.
             for (idx, spot) in lane.spots().into_iter().enumerate() {
@@ -264,8 +264,11 @@ impl ParkingSimState {
         match spot {
             ParkingSpot::Onstreet(l, idx) => {
                 let lane = &self.onstreet_lanes[&l];
-                Position::new(l, lane.dist_along_for_car(idx, vehicle))
-                    .equiv_pos(lane.driving_lane, map)
+                Position::new(l, lane.dist_along_for_car(idx, vehicle)).equiv_pos(
+                    lane.driving_lane,
+                    vehicle.length,
+                    map,
+                )
             }
             ParkingSpot::Offstreet(b, _) => map.get_b(b).parking.as_ref().unwrap().driving_pos,
         }
@@ -282,7 +285,7 @@ impl ParkingSimState {
                     self.onstreet_lanes[&l].spot_dist_along[idx]
                         - (map_model::PARKING_SPOT_LENGTH / 2.0),
                 )
-                .equiv_pos(sidewalk, map)
+                .equiv_pos(sidewalk, Distance::ZERO, map)
             }
             ParkingSpot::Offstreet(b, _) => map.get_b(b).front_path.sidewalk,
         }

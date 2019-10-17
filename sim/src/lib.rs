@@ -262,7 +262,7 @@ impl SidewalkSpot {
         let driving_lane = map.get_parent(sidewalk).sidewalk_to_bike(sidewalk)?;
         // TODO Arbitrary, but safe
         let sidewalk_pos = Position::new(sidewalk, map.get_l(sidewalk).length() / 2.0);
-        let driving_pos = sidewalk_pos.equiv_pos(driving_lane, map);
+        let driving_pos = sidewalk_pos.equiv_pos(driving_lane, Distance::ZERO, map);
         Some(SidewalkSpot {
             connection: SidewalkPOI::BikeRack(driving_pos),
             sidewalk_pos,
