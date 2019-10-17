@@ -1,4 +1,6 @@
-use crate::{AgentMetadata, CarID, CarStatus, DrawCarInput, ParkedCar, ParkingSpot, Vehicle};
+use crate::{
+    AgentMetadata, CarID, CarStatus, DrawCarInput, ParkedCar, ParkingSpot, TripManager, Vehicle,
+};
 use abstutil::{
     deserialize_btreemap, deserialize_multimap, serialize_btreemap, serialize_multimap, MultiMap,
 };
@@ -142,27 +144,37 @@ impl ParkingSimState {
         self.dynamically_reserved_cars.remove(&p.vehicle.id);
     }
 
-    pub fn get_draw_cars(&self, id: LaneID, map: &Map) -> Vec<DrawCarInput> {
+    pub fn get_draw_cars(&self, id: LaneID, map: &Map, trips: &TripManager) -> Vec<DrawCarInput> {
         let mut cars = Vec::new();
         if let Some(ref lane) = self.onstreet_lanes.get(&id) {
             for spot in lane.spots() {
                 if let Some(car) = self.occupants.get(&spot) {
-                    cars.push(self.get_draw_car(*car, map).unwrap());
+                    cars.push(self.get_draw_car(*car, map, trips).unwrap());
                 }
             }
         }
         cars
     }
 
-    pub fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput> {
+    pub fn get_draw_car(&self, id: CarID, map: &Map, trips: &TripManager) -> Option<DrawCarInput> {
         let p = self.parked_cars.get(&id)?;
         match p.spot {
             ParkingSpot::Onstreet(lane, idx) => {
                 let front_dist = self.onstreet_lanes[&lane].dist_along_for_car(idx, &p.vehicle);
+                // TODO Is this expensive to do constantly?
+                let status = if let Some(b) = p.vehicle.owner {
+                    if trips.find_trip_using_car(id, b).is_some() {
+                        CarStatus::ParkedWithTrip
+                    } else {
+                        CarStatus::ParkedWithoutTrip
+                    }
+                } else {
+                    CarStatus::ParkedWithoutTrip
+                };
                 Some(DrawCarInput {
                     id: p.vehicle.id,
                     waiting_for_turn: None,
-                    status: CarStatus::Parked,
+                    status,
                     on: Traversable::Lane(lane),
                     label: None,
                     metadata: AgentMetadata {
@@ -182,18 +194,20 @@ impl ParkingSimState {
     }
 
     // There's no DrawCarInput for cars parked offstreet, so we need this.
-    pub fn canonical_pt(&self, id: CarID, map: &Map) -> Option<Pt2D> {
+    pub fn canonical_pt(&self, id: CarID, map: &Map, trips: &TripManager) -> Option<Pt2D> {
         let p = self.parked_cars.get(&id)?;
         match p.spot {
-            ParkingSpot::Onstreet(_, _) => self.get_draw_car(id, map).map(|c| c.body.last_pt()),
+            ParkingSpot::Onstreet(_, _) => {
+                self.get_draw_car(id, map, trips).map(|c| c.body.last_pt())
+            }
             ParkingSpot::Offstreet(b, _) => Some(map.get_b(b).label_center),
         }
     }
 
-    pub fn get_all_draw_cars(&self, map: &Map) -> Vec<DrawCarInput> {
+    pub fn get_all_draw_cars(&self, map: &Map, trips: &TripManager) -> Vec<DrawCarInput> {
         self.parked_cars
             .keys()
-            .filter_map(|id| self.get_draw_car(*id, map))
+            .filter_map(|id| self.get_draw_car(*id, map, trips))
             .collect()
     }
 

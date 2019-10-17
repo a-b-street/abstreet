@@ -46,7 +46,8 @@ pub struct DrawCarInput {
 pub enum CarStatus {
     Moving,
     Stuck,
-    Parked,
+    ParkedWithoutTrip,
+    ParkedWithTrip,
     Debug,
 }
 
