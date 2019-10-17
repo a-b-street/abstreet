@@ -515,26 +515,28 @@ impl Model {
 
         // Verify every road has the same parking tags. Blockface hints might've applied to just
         // some parts. If this is really true, then the way has to be split. Example is McGraw St.
-        let both = self.map.roads[&matching_roads[0]]
+        let both = self.map.roads[&some_id]
             .osm_tags
-            .get(osm::PARKING_BOTH);
-        let left = self.map.roads[&matching_roads[0]]
+            .get(osm::PARKING_BOTH)
+            .cloned();
+        let left = self.map.roads[&some_id]
             .osm_tags
-            .get(osm::PARKING_LEFT);
-        let right = self.map.roads[&matching_roads[0]]
+            .get(osm::PARKING_LEFT)
+            .cloned();
+        let right = self.map.roads[&some_id]
             .osm_tags
-            .get(osm::PARKING_RIGHT);
-        for r in matching_roads.iter().skip(1) {
+            .get(osm::PARKING_RIGHT)
+            .cloned();
+        for r in &matching_roads {
             let tags = &self.map.roads[r].osm_tags;
-            if tags.get(osm::PARKING_BOTH) != both
-                || tags.get(osm::PARKING_LEFT) != left
-                || tags.get(osm::PARKING_RIGHT) != right
+            if tags.get(osm::PARKING_BOTH) != both.as_ref()
+                || tags.get(osm::PARKING_LEFT) != left.as_ref()
+                || tags.get(osm::PARKING_RIGHT) != right.as_ref()
             {
                 println!(
-                    "{} and {} belong to same way, but have different parking tags!",
-                    matching_roads[0], r
+                    "WARNING: {} and {} belong to same way, but have different parking tags!",
+                    some_id, r
                 );
-                return;
             }
         }
 
@@ -545,16 +547,16 @@ impl Model {
             osm_tags.remove(osm::INFERRED_PARKING);
             let yes = "parallel".to_string();
             let no = "no_parking".to_string();
-            if osm_tags.get(osm::PARKING_BOTH) == Some(&yes) {
+            if both.as_ref() == Some(&yes) {
                 osm_tags.insert(osm::PARKING_BOTH.to_string(), no);
-            } else if osm_tags.get(osm::PARKING_BOTH) == Some(&no) {
+            } else if both.as_ref() == Some(&no) {
                 osm_tags.remove(osm::PARKING_BOTH);
                 osm_tags.insert(osm::PARKING_LEFT.to_string(), yes);
                 osm_tags.insert(osm::PARKING_RIGHT.to_string(), no);
-            } else if osm_tags.get(osm::PARKING_LEFT) == Some(&yes) {
+            } else if left.as_ref() == Some(&yes) {
                 osm_tags.insert(osm::PARKING_LEFT.to_string(), no);
                 osm_tags.insert(osm::PARKING_RIGHT.to_string(), yes);
-            } else if osm_tags.get(osm::PARKING_RIGHT) == Some(&yes) {
+            } else if right.as_ref() == Some(&yes) {
                 osm_tags.remove(osm::PARKING_LEFT);
                 osm_tags.remove(osm::PARKING_RIGHT);
                 osm_tags.insert(osm::PARKING_BOTH.to_string(), yes);
