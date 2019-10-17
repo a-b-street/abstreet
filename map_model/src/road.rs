@@ -125,12 +125,14 @@ impl Road {
             self.children_forwards[0..idx]
                 .iter()
                 .rev()
+                .chain(self.children_backwards.iter())
                 .find(|(_, lt)| *lt == LaneType::Driving)
                 .map(|(id, _)| *id)
         } else {
             self.children_backwards[0..idx]
                 .iter()
                 .rev()
+                .chain(self.children_forwards.iter())
                 .find(|(_, lt)| *lt == LaneType::Driving)
                 .map(|(id, _)| *id)
         }

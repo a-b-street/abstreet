@@ -30,7 +30,12 @@ pub struct ParkingSimState {
 
     // On-street specific
     onstreet_lanes: BTreeMap<LaneID, ParkingLane>,
-    driving_to_parking_lane: BTreeMap<LaneID, LaneID>,
+    // TODO Really this could be 0, 1, or 2 lanes. Full MultiMap is overkill.
+    #[serde(
+        serialize_with = "serialize_multimap",
+        deserialize_with = "deserialize_multimap"
+    )]
+    driving_to_parking_lanes: MultiMap<LaneID, LaneID>,
 
     // Off-street specific
     num_spots_per_offstreet: BTreeMap<BuildingID, usize>,
@@ -53,14 +58,13 @@ impl ParkingSimState {
             owned_cars_per_building: MultiMap::new(),
 
             onstreet_lanes: BTreeMap::new(),
-            driving_to_parking_lane: BTreeMap::new(),
+            driving_to_parking_lanes: MultiMap::new(),
             num_spots_per_offstreet: BTreeMap::new(),
             driving_to_offstreet: MultiMap::new(),
         };
         for l in map.all_lanes() {
             if let Some(lane) = ParkingLane::new(l, map) {
-                assert!(!sim.driving_to_parking_lane.contains_key(&lane.driving_lane));
-                sim.driving_to_parking_lane.insert(lane.driving_lane, l.id);
+                sim.driving_to_parking_lanes.insert(lane.driving_lane, l.id);
                 sim.onstreet_lanes.insert(lane.parking_lane, lane);
             }
         }
@@ -211,7 +215,8 @@ impl ParkingSimState {
         map: &Map,
     ) -> Option<(ParkingSpot, Position)> {
         let mut maybe_spot = None;
-        if let Some(l) = self.driving_to_parking_lane.get(&driving_pos.lane()) {
+        // TODO Ideally don't fill in one side first before considering the other.
+        for l in self.driving_to_parking_lanes.get(driving_pos.lane()) {
             let parking_dist = driving_pos.equiv_pos(*l, map).dist_along();
             let lane = &self.onstreet_lanes[l];
             // Bit hacky to enumerate here to conveniently get idx.
@@ -357,9 +362,7 @@ impl ParkingLane {
         let driving_lane = if let Some(l) = map.get_parent(l.id).parking_to_driving(l.id) {
             l
         } else {
-            // TODO Should be a warning
-            println!("Parking lane {} has no driving lane!", l.id);
-            return None;
+            panic!("Parking lane {} has no driving lane!", l.id);
         };
         if map.get_l(driving_lane).parking_blackhole.is_some() {
             return None;

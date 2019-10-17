@@ -90,6 +90,7 @@
 	- should only be able to park from the closest lane, though!
 - explicit tests making cars park at 0 and max_dist, peds walk to 0 and max_dist
 - lanechange rebalancing
+- parking/unparking on offside of oneway
 
 ## Discrete-event sim model
 
