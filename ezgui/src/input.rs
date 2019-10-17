@@ -223,7 +223,7 @@ impl UserInput {
         }
         self.event == Event::LeftMouseButtonDown
     }
-    pub(crate) fn left_mouse_button_released(&mut self) -> bool {
+    pub fn left_mouse_button_released(&mut self) -> bool {
         if self.context_menu_active() {
             return false;
         }

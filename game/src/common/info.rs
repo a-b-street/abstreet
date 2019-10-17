@@ -22,7 +22,11 @@ impl InfoPanel {
 impl State for InfoPanel {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
         self.menu.event(ctx);
-        if self.menu.action("quit") {
+        // Can click on the map to cancel
+        if self.menu.action("quit")
+            || (ctx.input.left_mouse_button_released()
+                && ctx.canvas.get_cursor_in_map_space().is_some())
+        {
             Transition::Pop
         } else {
             Transition::Keep
