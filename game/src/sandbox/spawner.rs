@@ -322,11 +322,9 @@ fn instantiate_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Op
     let scenario_name = wiz
         .wrap(ctx)
         .choose_string("Instantiate which scenario?", || {
-            let mut list = vec![builtin.clone(), "just buses".to_string()];
-            list.extend(abstutil::list_all_objects(
-                abstutil::SCENARIOS,
-                map.get_name(),
-            ));
+            let mut list = abstutil::list_all_objects(abstutil::SCENARIOS, map.get_name());
+            list.push(builtin.clone());
+            list.push("just buses".to_string());
             list
         })?;
 
