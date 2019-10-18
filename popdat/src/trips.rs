@@ -345,7 +345,9 @@ pub fn trips_to_scenario(map: &Map, t1: Duration, t2: Duration, timer: &mut Time
         .flatten()
         .collect();
 
-    // This is another variation of the 'recycle' algorithm in game's ScenarioManager.
+    // How many parked cars do we need to spawn near each building?
+    // TODO This assumes trips are instantaneous. At runtime, somebody might try to use a parked
+    // car from a building, but one hasn't been delivered yet.
     let mut individ_parked_cars = BTreeMap::new();
     let mut avail_per_bldg = BTreeMap::new();
     for b in map.all_buildings() {

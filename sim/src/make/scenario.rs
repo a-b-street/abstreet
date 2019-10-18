@@ -82,10 +82,6 @@ impl Scenario {
                 prettyprint_usize(self.border_spawn_over_time.len())
             ),
             format!("{} SpawnTrip", prettyprint_usize(self.individ_trips.len())),
-            format!(
-                "{} specific parked cars at buildings",
-                prettyprint_usize(self.individ_parked_cars.len())
-            ),
         ]
     }
 

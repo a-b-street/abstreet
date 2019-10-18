@@ -15,8 +15,7 @@ use sim::{
     BorderSpawnOverTime, DrivingGoal, OriginDestination, Scenario, SeedParkedCars, SidewalkPOI,
     SidewalkSpot, SpawnOverTime, SpawnTrip,
 };
-use std::collections::{BTreeSet, HashMap};
-use std::fmt;
+use std::collections::BTreeSet;
 
 pub struct ScenarioManager {
     menu: ModalMenu,
@@ -28,8 +27,7 @@ pub struct ScenarioManager {
     trips_to_bldg: MultiMap<BuildingID, usize>,
     trips_from_border: MultiMap<IntersectionID, usize>,
     trips_to_border: MultiMap<IntersectionID, usize>,
-    cars_needed_per_bldg: HashMap<BuildingID, CarCount>,
-    total_cars_needed: CarCount,
+    total_cars_needed: usize,
     total_parking_spots: usize,
     bldg_colors: ObjectColorer,
 }
@@ -40,11 +38,6 @@ impl ScenarioManager {
         let mut trips_to_bldg = MultiMap::new();
         let mut trips_from_border = MultiMap::new();
         let mut trips_to_border = MultiMap::new();
-        let mut cars_needed_per_bldg = HashMap::new();
-        for b in ui.primary.map.all_buildings() {
-            cars_needed_per_bldg.insert(b.id, CarCount::new());
-        }
-        let mut total_cars_needed = CarCount::new();
         for (idx, trip) in scenario.individ_trips.iter().enumerate() {
             // trips_from_bldg and trips_from_border
             match trip {
@@ -89,26 +82,6 @@ impl ScenarioManager {
                     _ => {}
                 },
             }
-
-            // Parked cars
-            if let SpawnTrip::MaybeUsingParkedCar(_, start_bldg, ref goal) = trip {
-                let mut cnt = cars_needed_per_bldg.get_mut(start_bldg).unwrap();
-
-                cnt.naive += 1;
-                total_cars_needed.naive += 1;
-
-                if cnt.available > 0 {
-                    cnt.available -= 1;
-                } else {
-                    cnt.recycle += 1;
-                    total_cars_needed.recycle += 1;
-                }
-
-                // Cars appearing at borders and driving in contribute parked cars.
-                if let DrivingGoal::ParkNear(b) = goal {
-                    cars_needed_per_bldg.get_mut(b).unwrap().available += 1;
-                }
-            }
         }
 
         let mut bldg_colors = ObjectColorerBuilder::new(
@@ -119,12 +92,14 @@ impl ScenarioManager {
                 (">= 5 cars needed", Color::BLACK),
             ],
         );
-        for (b, count) in &cars_needed_per_bldg {
-            let color = if count.recycle == 0 {
+        let mut total_cars_needed = 0;
+        for (b, count) in &scenario.individ_parked_cars {
+            total_cars_needed += count;
+            let color = if *count == 0 {
                 continue;
-            } else if count.recycle == 1 || count.recycle == 2 {
+            } else if *count == 1 || *count == 2 {
                 Color::BLUE
-            } else if count.recycle == 3 || count.recycle == 4 {
+            } else if *count == 3 || *count == 4 {
                 Color::RED
             } else {
                 Color::BLACK
@@ -142,7 +117,7 @@ impl ScenarioManager {
                     vec![
                         (hotkey(Key::S), "save"),
                         (hotkey(Key::E), "edit"),
-                        (hotkey(Key::I), "instantiate"),
+                        (hotkey(Key::R), "instantiate"),
                     ],
                     vec![
                         (hotkey(Key::Escape), "quit"),
@@ -160,7 +135,6 @@ impl ScenarioManager {
             trips_to_bldg,
             trips_from_border,
             trips_to_border,
-            cars_needed_per_bldg,
             total_cars_needed,
             total_parking_spots: free_parking_spots.len(),
             bldg_colors: bldg_colors.build(ctx, &ui.primary.map),
@@ -175,12 +149,16 @@ impl State for ScenarioManager {
         {
             let mut txt = Text::new();
             txt.add(Line(&self.scenario.scenario_name));
-            for line in self.scenario.describe() {
-                txt.add(Line(line));
-            }
             txt.add(Line(format!(
-                "{} total parked cars needed, {} spots",
-                self.total_cars_needed,
+                "{} total trips",
+                prettyprint_usize(self.scenario.individ_trips.len())
+            )));
+            txt.add(Line(format!(
+                "seed {} parked cars",
+                prettyprint_usize(self.total_cars_needed)
+            )));
+            txt.add(Line(format!(
+                "{} parking spots",
                 prettyprint_usize(self.total_parking_spots),
             )));
             self.menu.set_info(ctx, txt);
@@ -272,7 +250,7 @@ impl State for ScenarioManager {
                 ". {} trips from here, {} trips to here, {} parked cars needed",
                 self.trips_from_bldg.get(b).len(),
                 self.trips_to_bldg.get(b).len(),
-                self.cars_needed_per_bldg[&b]
+                self.scenario.individ_parked_cars[&b]
             )));
             CommonState::draw_custom_osd(g, osd);
         } else if let Some(ID::Intersection(i)) = ui.primary.current_selection {
@@ -597,34 +575,5 @@ fn other_endpt(trip: &SpawnTrip, home: OD) -> ID {
         from
     } else {
         panic!("other_endpt broke when homed at {:?} for {:?}", home, trip)
-    }
-}
-
-struct CarCount {
-    naive: usize,
-    recycle: usize,
-
-    // Intermediate state
-    available: usize,
-}
-
-impl CarCount {
-    fn new() -> CarCount {
-        CarCount {
-            naive: 0,
-            recycle: 0,
-            available: 0,
-        }
-    }
-}
-
-impl fmt::Display for CarCount {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "{} / {}",
-            prettyprint_usize(self.naive),
-            prettyprint_usize(self.recycle),
-        )
     }
 }
