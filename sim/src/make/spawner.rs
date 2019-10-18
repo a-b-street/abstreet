@@ -184,7 +184,15 @@ impl TripSpawner {
                     goal,
                     ped_speed,
                 } => {
-                    let vehicle = vehicle_spec.make(car_id.unwrap(), None);
+                    // Assumption: If a car is appearing at a border and driving to a building,
+                    // then it's owned by that building. Otherwise we wind up with endless waves of
+                    // parked cars that're never reused.
+                    let owner = if let DrivingGoal::ParkNear(b) = goal {
+                        Some(b)
+                    } else {
+                        None
+                    };
+                    let vehicle = vehicle_spec.make(car_id.unwrap(), owner);
                     let mut legs = vec![TripLeg::Drive(vehicle.clone(), goal.clone())];
                     if let DrivingGoal::ParkNear(b) = goal {
                         legs.push(TripLeg::Walk(
