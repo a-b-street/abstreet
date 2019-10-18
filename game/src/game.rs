@@ -39,6 +39,9 @@ impl GUI for Game {
             Transition::Replace(state) => {
                 Transition::ReplaceWithMode(state, EventLoopMode::InputOnly)
             }
+            Transition::PopThenReplace(state) => {
+                Transition::PopThenReplaceWithMode(state, EventLoopMode::InputOnly)
+            }
             x => x,
         };
 
@@ -66,6 +69,13 @@ impl GUI for Game {
                 evmode
             }
             Transition::ReplaceWithMode(state, evmode) => {
+                self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
+                self.states.push(state);
+                evmode
+            }
+            Transition::PopThenReplaceWithMode(state, evmode) => {
+                self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
+                assert!(!self.states.is_empty());
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
                 self.states.push(state);
                 evmode
@@ -141,12 +151,14 @@ pub enum Transition {
     PopWithData(Box<dyn FnOnce(&mut Box<dyn State>, &mut UI, &mut EventCtx)>),
     Push(Box<dyn State>),
     Replace(Box<dyn State>),
+    PopThenReplace(Box<dyn State>),
 
     // These don't.
     KeepWithMode(EventLoopMode),
     PopWithMode(EventLoopMode),
     PushWithMode(Box<dyn State>, EventLoopMode),
     ReplaceWithMode(Box<dyn State>, EventLoopMode),
+    PopThenReplaceWithMode(Box<dyn State>, EventLoopMode),
 }
 
 pub struct WizardState {
