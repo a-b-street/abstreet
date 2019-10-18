@@ -5,8 +5,8 @@ use crate::helpers::ID;
 use crate::render::DrawOptions;
 use crate::sandbox::SandboxMode;
 use crate::ui::{ShowEverything, UI};
-use abstutil::Counter;
-use ezgui::{Choice, Color, EventCtx, GfxCtx, ModalMenu};
+use abstutil::{prettyprint_usize, Counter};
+use ezgui::{Choice, Color, EventCtx, GfxCtx, Line, ModalMenu, Text};
 use geom::Duration;
 use map_model::{IntersectionID, PathStep, RoadID, Traversable};
 use sim::{Event, ParkingSpot};
@@ -35,6 +35,7 @@ impl Analytics {
                 |wiz, ctx, _| {
                     let (choice, _) =
                         wiz.wrap(ctx).choose("Show which analytics overlay?", || {
+                            // TODO Filter out the current
                             vec![
                                 Choice::new("none", ()),
                                 Choice::new("parking availability", ()),
@@ -135,12 +136,23 @@ impl Analytics {
 }
 
 fn calculate_parking_heatmap(ctx: &mut EventCtx, ui: &UI) -> RoadColorer {
+    let (filled_spots, avail_spots) = ui.primary.sim.get_all_parking_spots();
+    let mut txt = Text::prompt("parking availability");
+    txt.add(Line(format!(
+        "{} spots filled",
+        prettyprint_usize(filled_spots.len())
+    )));
+    txt.add(Line(format!(
+        "{} spots available ",
+        prettyprint_usize(avail_spots.len())
+    )));
+
     let awful = Color::BLACK;
     let bad = Color::RED;
     let meh = Color::YELLOW;
     let good = Color::GREEN;
     let mut colorer = RoadColorerBuilder::new(
-        "parking availability",
+        txt,
         vec![
             ("< 10%", awful),
             ("< 30%", bad),
@@ -165,7 +177,6 @@ fn calculate_parking_heatmap(ctx: &mut EventCtx, ui: &UI) -> RoadColorer {
     let mut filled = Counter::new();
     let mut avail = Counter::new();
     let mut keys = HashSet::new();
-    let (filled_spots, avail_spots) = ui.primary.sim.get_all_parking_spots();
     for spot in filled_spots {
         let l = lane(spot);
         keys.insert(l);
@@ -201,7 +212,7 @@ fn calculate_intersection_delay(ctx: &mut EventCtx, ui: &UI) -> ObjectColorer {
     let meh = Color::YELLOW;
     let slow = Color::RED;
     let mut colorer = ObjectColorerBuilder::new(
-        "intersection delay (90%ile)",
+        Text::prompt("intersection delay (90%ile)"),
         vec![("< 10s", fast), ("<= 60s", meh), ("> 60s", slow)],
     );
 
@@ -225,7 +236,10 @@ fn calculate_intersection_delay(ctx: &mut EventCtx, ui: &UI) -> ObjectColorer {
 fn calculate_chokepoints(ctx: &mut EventCtx, ui: &UI) -> ObjectColorer {
     const TOP_N: usize = 10;
 
-    let mut colorer = ObjectColorerBuilder::new("chokepoints", vec![("chokepoint", Color::RED)]);
+    let mut colorer = ObjectColorerBuilder::new(
+        Text::prompt("chokepoints"),
+        vec![("chokepoint", Color::RED)],
+    );
 
     let mut per_road = Counter::new();
     let mut per_intersection = Counter::new();
@@ -266,7 +280,7 @@ fn calculate_thruput(stats: &ThruputStats, ctx: &mut EventCtx, ui: &UI) -> Objec
     let medium = Color::YELLOW;
     let heavy = Color::RED;
     let mut colorer = ObjectColorerBuilder::new(
-        "Throughput",
+        Text::prompt("Throughput"),
         vec![
             ("< 50%ile", light),
             ("< 90%ile", medium),

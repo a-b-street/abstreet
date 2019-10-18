@@ -74,7 +74,7 @@ impl Text {
     }
 
     // TODO nope
-    pub(crate) fn prompt(line: &str) -> Text {
+    pub fn prompt(line: &str) -> Text {
         let mut txt = Text::new();
         txt.add_highlighted(Line(line), PROMPT_COLOR);
         txt

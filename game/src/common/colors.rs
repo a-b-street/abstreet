@@ -38,12 +38,12 @@ impl RoadColorer {
 impl RoadColorerBuilder {
     // Colors listed earlier override those listed later. This is used in unzoomed mode, when one
     // road has lanes of different colors.
-    pub fn new(title: &str, prioritized_colors: Vec<(&str, Color)>) -> RoadColorerBuilder {
+    pub fn new(header: Text, prioritized_colors: Vec<(&str, Color)>) -> RoadColorerBuilder {
         RoadColorerBuilder {
             prioritized_colors: prioritized_colors.iter().map(|(_, c)| *c).collect(),
             zoomed_override_colors: HashMap::new(),
             roads: HashMap::new(),
-            legend: ColorLegend::new(title, prioritized_colors),
+            legend: ColorLegend::new(header, prioritized_colors),
         }
     }
 
@@ -102,10 +102,10 @@ impl ObjectColorer {
 }
 
 impl ObjectColorerBuilder {
-    pub fn new(title: &str, rows: Vec<(&str, Color)>) -> ObjectColorerBuilder {
+    pub fn new(header: Text, rows: Vec<(&str, Color)>) -> ObjectColorerBuilder {
         ObjectColorerBuilder {
             zoomed_override_colors: HashMap::new(),
-            legend: ColorLegend::new(title, rows),
+            legend: ColorLegend::new(header, rows),
             roads: Vec::new(),
         }
     }
@@ -143,14 +143,14 @@ impl ObjectColorerBuilder {
 }
 
 pub struct ColorLegend {
-    title: String,
+    header: Text,
     rows: Vec<(String, Color)>,
 }
 
 impl ColorLegend {
-    pub fn new(title: &str, rows: Vec<(&str, Color)>) -> ColorLegend {
+    pub fn new(header: Text, rows: Vec<(&str, Color)>) -> ColorLegend {
         ColorLegend {
-            title: title.to_string(),
+            header,
             rows: rows
                 .into_iter()
                 .map(|(label, c)| (label.to_string(), c.alpha(1.0)))
@@ -164,8 +164,7 @@ impl ColorLegend {
         // - v2: be able to say something like "row: rectangle with width=30, height=80% of row.
         // then 10px spacing. then this text"
         // TODO Need to recalculate all this if the panel moves
-        let mut txt = Text::new();
-        txt.add_highlighted(Line(&self.title), Color::BLUE);
+        let mut txt = self.header.clone();
         for (label, _) in &self.rows {
             txt.add(Line(label));
         }
@@ -173,7 +172,9 @@ impl ColorLegend {
             &txt,
             ScreenPt::new(
                 50.0,
-                g.canvas.window_height - (g.canvas.line_height * ((self.rows.len() + 2) as f64)),
+                g.canvas.window_height
+                    - (g.canvas.line_height
+                        * ((self.rows.len() + self.header.num_lines() + 1) as f64)),
             ),
         );
 
@@ -185,10 +186,13 @@ impl ColorLegend {
                 Pt2D::new(
                     0.0,
                     g.canvas.window_height
-                        - (g.canvas.line_height * ((self.rows.len() + 2) as f64)),
+                        - (g.canvas.line_height
+                            * ((self.rows.len() + self.header.num_lines() + 1) as f64)),
                 ),
                 Distance::meters(50.0),
-                Distance::meters(g.canvas.line_height * ((self.rows.len() + 2) as f64)),
+                Distance::meters(
+                    g.canvas.line_height * ((self.rows.len() + self.header.num_lines() + 1) as f64),
+                ),
             ),
         );
         let square_dims = 0.8 * g.canvas.line_height;

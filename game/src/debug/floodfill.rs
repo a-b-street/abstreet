@@ -53,7 +53,7 @@ impl Floodfiller {
         let unreachable_color = ui.cs.get_def("unreachable lane", Color::RED);
 
         let mut colorer = RoadColorerBuilder::new(
-            "lane connectivity",
+            Text::prompt("lane connectivity"),
             vec![
                 ("unreachable", unreachable_color),
                 ("reachable", reachable_color),

@@ -85,7 +85,7 @@ impl ScenarioManager {
         }
 
         let mut bldg_colors = ObjectColorerBuilder::new(
-            "buildings",
+            Text::prompt("buildings"),
             vec![
                 ("1-2 cars needed", Color::BLUE),
                 ("3-4 cars needed", Color::RED),

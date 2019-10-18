@@ -12,7 +12,7 @@ use crate::render::Renderable;
 use crate::ui::Flags;
 use aabb_quadtree::QuadTree;
 use abstutil::{Cloneable, Timer};
-use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx};
+use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Text};
 use geom::{Bounds, Circle, Distance, Duration, FindClosest};
 use map_model::{
     AreaID, BuildingID, BusStopID, DirectedRoadID, IntersectionID, Lane, LaneID, Map, RoadID,
@@ -509,7 +509,7 @@ impl AgentColorScheme {
     pub fn make_color_legend(self, cs: &ColorScheme) -> ColorLegend {
         match self {
             AgentColorScheme::VehicleTypes => ColorLegend::new(
-                "vehicle types",
+                Text::prompt("vehicle types"),
                 vec![
                     ("car", cs.get("unzoomed car")),
                     ("bike", cs.get("unzoomed bike")),
@@ -518,7 +518,7 @@ impl AgentColorScheme {
                 ],
             ),
             AgentColorScheme::Delay => ColorLegend::new(
-                "time spent delayed/blocked",
+                Text::prompt("time spent delayed/blocked"),
                 vec![
                     ("<= 1 minute", Color::BLUE.alpha(0.3)),
                     ("<= 5 minutes", Color::ORANGE.alpha(0.5)),
@@ -526,7 +526,7 @@ impl AgentColorScheme {
                 ],
             ),
             AgentColorScheme::DistanceCrossedSoFar => ColorLegend::new(
-                "distance crossed to goal so far",
+                Text::prompt("distance crossed to goal so far"),
                 vec![
                     ("<= 10%", rotating_color(0)),
                     ("<= 20%", rotating_color(1)),
@@ -541,7 +541,7 @@ impl AgentColorScheme {
                 ],
             ),
             AgentColorScheme::TripTimeSoFar => ColorLegend::new(
-                "trip time so far",
+                Text::prompt("trip time so far"),
                 vec![
                     ("<= 1 minute", Color::BLUE.alpha(0.3)),
                     ("<= 5 minutes", Color::ORANGE.alpha(0.5)),

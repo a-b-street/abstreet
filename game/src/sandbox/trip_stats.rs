@@ -131,7 +131,7 @@ impl ShowTripStats {
             ),
         ];
         let legend = ColorLegend::new(
-            "finished trips",
+            Text::prompt("finished trips"),
             lines
                 .iter()
                 .map(|(name, color, _)| (*name, *color))
