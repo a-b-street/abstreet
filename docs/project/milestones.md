@@ -30,7 +30,7 @@ list.
 
 ## caphill
 
-- crashes, l4720 isn't near a sidewalk
+- short roads at: 12th/union/madison, john/olive, boylston/roanoke
 
 ## downtown
 
@@ -38,14 +38,18 @@ list.
 
 ## lightrail
 
-- something crashed when instantiating
+- uninvestigated crash a while in
 
 ## ballard
 
-- crashes, l11123 isn't near a sidewalk
+- short roads: aurora/winoa
+- uninvestigated crash a while in
 - super weird lane geometry near 26th and gilman
-	- redundant points in a straight line
+  - redundant points in a straight line
 
 ## huge_seattle
 
-- crashes, l77611 isn't near a sidewalk
+- short roads: lake city, ne 115th
+- 12th and ravenna seems stuck, not sure why
+- running zoomed-in is super laggy
+- Car with one-step route Router, crash around 6am

@@ -131,16 +131,7 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
         && osm_tags.get(osm::HIGHWAY) != Some(&"motorway_link".to_string());
     if has_sidewalk {
         fwd_side.push(LaneType::Sidewalk);
-        if oneway {
-            // Only residential streets have a sidewalk on the other side of a one-way.
-            if osm_tags.get(osm::HIGHWAY) == Some(&"residential".to_string())
-                || osm_tags.get("sidewalk") == Some(&"both".to_string())
-            {
-                back_side.push(LaneType::Sidewalk);
-            }
-        } else {
-            back_side.push(LaneType::Sidewalk);
-        }
+        back_side.push(LaneType::Sidewalk);
     }
 
     (fwd_side, back_side)
