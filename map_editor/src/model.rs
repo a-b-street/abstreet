@@ -480,6 +480,7 @@ impl Model {
         id: StableRoadID,
         name: String,
         speed: String,
+        highway: String,
         prerender: &Prerender,
     ) {
         self.road_deleted(id);
@@ -487,6 +488,7 @@ impl Model {
         let mut osm_tags = self.map.roads[&id].osm_tags.clone();
         osm_tags.insert(osm::NAME.to_string(), name);
         osm_tags.insert(osm::MAXSPEED.to_string(), speed);
+        osm_tags.insert(osm::HIGHWAY.to_string(), highway);
 
         self.map.override_metadata(
             id,

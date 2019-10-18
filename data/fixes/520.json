@@ -820,7 +820,7 @@
   ],
   "add_roads": [
     {
-      "i1": 384,
+      "i1": 383,
       "i2": 158,
       "center_points": [
         {
@@ -843,13 +843,14 @@
         "abst:osm_way_id": "-1569786691",
         "abst:synthetic": "true",
         "abst:synthetic_lanes": "dds/dds",
-        "maxspeed": "25 mph",
-        "name": "Streety McStreetFace"
+        "highway": "secondary",
+        "maxspeed": "30 mph",
+        "name": "East Montlake Place East"
       },
       "turn_restrictions": []
     },
     {
-      "i1": 384,
+      "i1": 383,
       "i2": 239,
       "center_points": [
         {
@@ -878,8 +879,8 @@
       "turn_restrictions": []
     },
     {
-      "i1": 384,
-      "i2": 259,
+      "i1": 383,
+      "i2": 257,
       "center_points": [
         {
           "inner_x": 1284.7098,
@@ -907,8 +908,8 @@
       "turn_restrictions": []
     },
     {
-      "i1": 385,
-      "i2": 384,
+      "i1": 384,
+      "i2": 383,
       "center_points": [
         {
           "inner_x": 1293.1381,
@@ -930,13 +931,14 @@
         "abst:osm_way_id": "-1569786702",
         "abst:synthetic": "true",
         "abst:synthetic_lanes": "dds/dds",
-        "maxspeed": "25 mph",
-        "name": "Streety McStreetFace"
+        "highway": "secondary",
+        "maxspeed": "30 mph",
+        "name": "East Montlake Place East"
       },
       "turn_restrictions": []
     },
     {
-      "i1": 385,
+      "i1": 384,
       "i2": 227,
       "center_points": [
         {
@@ -965,7 +967,7 @@
       "turn_restrictions": []
     },
     {
-      "i1": 385,
+      "i1": 384,
       "i2": 3,
       "center_points": [
         {
@@ -994,8 +996,8 @@
       "turn_restrictions": []
     },
     {
-      "i1": 386,
-      "i2": 385,
+      "i1": 385,
+      "i2": 384,
       "center_points": [
         {
           "inner_x": 1293.5267,
@@ -1017,14 +1019,15 @@
         "abst:osm_way_id": "-1569786722",
         "abst:synthetic": "true",
         "abst:synthetic_lanes": "dds/dds",
-        "maxspeed": "25 mph",
-        "name": "Streety McStreetFace"
+        "highway": "secondary",
+        "maxspeed": "30 mph",
+        "name": "East Montlake Place East"
       },
       "turn_restrictions": []
     },
     {
       "i1": 238,
-      "i2": 386,
+      "i2": 385,
       "center_points": [
         {
           "inner_x": 1681.2533,
@@ -1046,13 +1049,14 @@
         "abst:osm_way_id": "-1569786736",
         "abst:synthetic": "true",
         "abst:synthetic_lanes": "d/",
-        "maxspeed": "25 mph",
-        "name": "Streety McStreetFace"
+        "highway": "motorway_link",
+        "maxspeed": "60 mph",
+        "name": ""
       },
       "turn_restrictions": []
     },
     {
-      "i1": 386,
+      "i1": 385,
       "i2": 189,
       "center_points": [
         {
@@ -1075,14 +1079,15 @@
         "abst:osm_way_id": "-1569786754",
         "abst:synthetic": "true",
         "abst:synthetic_lanes": "d/",
-        "maxspeed": "25 mph",
-        "name": "Streety McStreetFace"
+        "highway": "motorway_link",
+        "maxspeed": "60 mph",
+        "name": ""
       },
       "turn_restrictions": []
     },
     {
       "i1": 152,
-      "i2": 307,
+      "i2": 305,
       "center_points": [
         {
           "inner_x": 1154.9404,
@@ -1104,8 +1109,9 @@
         "abst:osm_way_id": "-1569786768",
         "abst:synthetic": "true",
         "abst:synthetic_lanes": "/dd",
-        "maxspeed": "25 mph",
-        "name": "Streety McStreetFace"
+        "highway": "motorway",
+        "maxspeed": "60 mph",
+        "name": "Portage Bay Viaduct"
       },
       "turn_restrictions": []
     },
@@ -1133,14 +1139,15 @@
         "abst:osm_way_id": "-1569786800",
         "abst:synthetic": "true",
         "abst:synthetic_lanes": "dd/",
-        "maxspeed": "25 mph",
-        "name": "Streety McStreetFace"
+        "highway": "motorway",
+        "maxspeed": "60 mph",
+        "name": "Portage Bay Viaduct"
       },
       "turn_restrictions": []
     },
     {
-      "i1": 387,
-      "i2": 386,
+      "i1": 386,
+      "i2": 385,
       "center_points": [
         {
           "inner_x": 1331.3542,
@@ -1162,14 +1169,15 @@
         "abst:osm_way_id": "-1569786827",
         "abst:synthetic": "true",
         "abst:synthetic_lanes": "dds/dds",
-        "maxspeed": "25 mph",
-        "name": "Streety McStreetFace"
+        "highway": "secondary",
+        "maxspeed": "30 mph",
+        "name": "East Montlake Place East"
       },
       "turn_restrictions": []
     },
     {
       "i1": 73,
-      "i2": 387,
+      "i2": 386,
       "center_points": [
         {
           "inner_x": 1479.9061,
@@ -1198,7 +1206,7 @@
     },
     {
       "i1": 199,
-      "i2": 387,
+      "i2": 386,
       "center_points": [
         {
           "inner_x": 1186.2178,
@@ -1220,14 +1228,15 @@
         "abst:osm_way_id": "-1569786900",
         "abst:synthetic": "true",
         "abst:synthetic_lanes": "d/",
-        "maxspeed": "25 mph",
-        "name": "Streety McStreetFace"
+        "highway": "motorway_link",
+        "maxspeed": "",
+        "name": ""
       },
       "turn_restrictions": []
     },
     {
-      "i1": 388,
-      "i2": 387,
+      "i1": 387,
+      "i2": 386,
       "center_points": [
         {
           "inner_x": 1362.5729,
@@ -1249,13 +1258,14 @@
         "abst:osm_way_id": "-1569786914",
         "abst:synthetic": "true",
         "abst:synthetic_lanes": "dds/dds",
-        "maxspeed": "25 mph",
-        "name": "Streety McStreetFace"
+        "highway": "secondary",
+        "maxspeed": "30 mph",
+        "name": "East Montlake Place East"
       },
       "turn_restrictions": []
     },
     {
-      "i1": 388,
+      "i1": 387,
       "i2": 230,
       "center_points": [
         {
@@ -1284,7 +1294,7 @@
       "turn_restrictions": []
     },
     {
-      "i1": 388,
+      "i1": 387,
       "i2": 100,
       "center_points": [
         {
@@ -1307,14 +1317,15 @@
         "abst:osm_way_id": "-1569786951",
         "abst:synthetic": "true",
         "abst:synthetic_lanes": "dds/dds",
-        "maxspeed": "25 mph",
-        "name": "Streety McStreetFace"
+        "highway": "secondary",
+        "maxspeed": "30 mph",
+        "name": "East Montlake Place East"
       },
       "turn_restrictions": []
     },
     {
       "i1": 40,
-      "i2": 388,
+      "i2": 387,
       "center_points": [
         {
           "inner_x": 1350.4503,

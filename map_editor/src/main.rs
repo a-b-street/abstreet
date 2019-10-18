@@ -42,7 +42,7 @@ enum State {
     // bool is show_tooltip
     PreviewIntersection(Drawable, Vec<(Text, Pt2D)>, bool),
     EnteringWarp(Wizard),
-    StampingRoads(String, String, String),
+    StampingRoads(String, String, String, String),
 }
 
 impl UI {
@@ -211,6 +211,10 @@ impl GUI for UI {
                                     .unwrap_or_else(String::new),
                                 road.osm_tags
                                     .get(osm::MAXSPEED)
+                                    .cloned()
+                                    .unwrap_or_else(String::new),
+                                road.osm_tags
+                                    .get(osm::HIGHWAY)
                                     .cloned()
                                     .unwrap_or_else(String::new),
                             );
@@ -386,8 +390,14 @@ impl GUI for UI {
                 let mut done = false;
                 if let Some(n) = wiz.input_string_prefilled("Name the road", orig_name) {
                     if let Some(s) = wiz.input_string_prefilled("What speed limit?", orig_speed) {
-                        self.model.set_r_name_and_speed(id, n, s, ctx.prerender);
-                        done = true;
+                        if let Some(h) = wiz
+                            .choose_string("What highway type (for coloring)?", || {
+                                vec!["motorway", "primary", "residential"]
+                            })
+                        {
+                            self.model.set_r_name_and_speed(id, n, s, h, ctx.prerender);
+                            done = true;
+                        }
                     }
                 }
                 if done || wizard.aborted() {
@@ -509,7 +519,7 @@ impl GUI for UI {
                     self.model.world.handle_mouseover(ctx);
                 }
             }
-            State::StampingRoads(ref lanespec, ref name, ref speed) => {
+            State::StampingRoads(ref lanespec, ref name, ref speed, ref highway) => {
                 if ctx
                     .input
                     .key_pressed(Key::Escape, "stop copying road metadata")
@@ -519,12 +529,16 @@ impl GUI for UI {
                 } else if let Some(ID::Road(id)) = self.model.world.get_selection() {
                     if ctx.input.key_pressed(
                         Key::C,
-                        &format!("set name={}, speed={}, lanes={}", name, speed, lanespec),
+                        &format!(
+                            "set name={}, speed={}, lanes={}, highway={}",
+                            name, speed, lanespec, highway
+                        ),
                     ) {
                         self.model.set_r_name_and_speed(
                             id,
                             name.to_string(),
                             speed.to_string(),
+                            highway.to_string(),
                             ctx.prerender,
                         );
                         self.model
@@ -589,7 +603,7 @@ impl GUI for UI {
             State::MovingIntersection(_)
             | State::MovingBuilding(_)
             | State::MovingRoadPoint(_, _)
-            | State::StampingRoads(_, _, _) => {}
+            | State::StampingRoads(_, _, _, _) => {}
             State::SelectingRectangle(pt1, pt2, _) => {
                 if let Some(rect) = Polygon::rectangle_two_corners(pt1, pt2) {
                     g.draw_polygon(Color::BLUE.alpha(0.5), &rect);
