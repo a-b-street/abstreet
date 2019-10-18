@@ -2,7 +2,7 @@ use crate::helpers::{ColorScheme, ID};
 use crate::render::{dashed_lines, DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Distance, Polygon, Pt2D};
-use map_model::{Map, Road, RoadID, LANE_THICKNESS};
+use map_model::{LaneType, Map, Road, RoadID, LANE_THICKNESS};
 
 pub struct DrawRoad {
     pub id: RoadID,
@@ -26,10 +26,19 @@ impl DrawRoad {
             .lane_center_pts
             .shift_left(LANE_THICKNESS / 2.0)
             .unwrap();
-        draw.extend(
-            cs.get_def("road center line", Color::YELLOW),
-            dashed_lines(&center, Distance::meters(2.0), Distance::meters(1.0)),
-        );
+        let width = Distance::meters(0.25);
+        // If the road is a one-way (only parking and sidewalk on the off-side), draw a solid line
+        if r.children_backwards
+            .iter()
+            .all(|(_, lt)| *lt == LaneType::Parking || *lt == LaneType::Sidewalk)
+        {
+            draw.push(cs.get("road center line"), center.make_polygons(width));
+        } else {
+            draw.extend(
+                cs.get_def("road center line", Color::YELLOW),
+                dashed_lines(&center, width, Distance::meters(2.0), Distance::meters(1.0)),
+            );
+        }
 
         let mut label = Text::new();
         label.add(Line(r.get_name()).size(50));

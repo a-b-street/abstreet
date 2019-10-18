@@ -76,9 +76,12 @@ pub fn draw_vehicle(
     }
 }
 
-pub fn dashed_lines(pl: &PolyLine, dash_len: Distance, dash_separation: Distance) -> Vec<Polygon> {
-    let width = Distance::meters(0.25);
-
+pub fn dashed_lines(
+    pl: &PolyLine,
+    width: Distance,
+    dash_len: Distance,
+    dash_separation: Distance,
+) -> Vec<Polygon> {
     if pl.length() < dash_separation * 2.0 + EPSILON_DIST {
         return vec![pl.make_polygons(width)];
     }

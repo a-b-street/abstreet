@@ -206,7 +206,12 @@ fn calculate_driving_lines(lane: &Lane, parent: &Road, timer: &mut Timer) -> Vec
         .lane_center_pts
         .shift_left(LANE_THICKNESS / 2.0)
         .get(timer);
-    dashed_lines(&lane_edge_pts, Distance::meters(1.0), Distance::meters(1.5))
+    dashed_lines(
+        &lane_edge_pts,
+        Distance::meters(0.25),
+        Distance::meters(1.0),
+        Distance::meters(1.5),
+    )
 }
 
 fn calculate_turn_markings(map: &Map, lane: &Lane, timer: &mut Timer) -> Vec<Polygon> {
