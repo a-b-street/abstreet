@@ -85,6 +85,15 @@ impl WalkingSimState {
         );
     }
 
+    pub fn get_draw_ped(
+        &self,
+        id: PedestrianID,
+        now: Duration,
+        map: &Map,
+    ) -> Option<DrawPedestrianInput> {
+        self.peds.get(&id).map(|p| p.get_draw_ped(now, map))
+    }
+
     pub fn get_all_draw_peds(&self, now: Duration, map: &Map) -> Vec<DrawPedestrianInput> {
         self.peds
             .values()

@@ -771,6 +771,20 @@ impl DrivingSimState {
         result
     }
 
+    // This is about as expensive as get_draw_cars_on.
+    pub fn get_single_draw_car(
+        &self,
+        id: CarID,
+        now: Duration,
+        map: &Map,
+        transit: &TransitSimState,
+    ) -> Option<DrawCarInput> {
+        let car = self.cars.get(&id)?;
+        self.get_draw_cars_on(now, car.router.head(), map, transit)
+            .into_iter()
+            .find(|d| d.id == id)
+    }
+
     pub fn get_draw_cars_on(
         &self,
         now: Duration,

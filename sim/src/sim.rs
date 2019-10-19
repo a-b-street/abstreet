@@ -288,13 +288,14 @@ impl GetDrawAgents for Sim {
     }
 
     fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput> {
-        // TODO Faster
-        self.get_all_draw_cars(map).into_iter().find(|d| d.id == id)
+        self.parking.get_draw_car(id, map, &self.trips).or_else(|| {
+            self.driving
+                .get_single_draw_car(id, self.time, map, &self.transit)
+        })
     }
 
     fn get_draw_ped(&self, id: PedestrianID, map: &Map) -> Option<DrawPedestrianInput> {
-        // TODO Faster
-        self.get_all_draw_peds(map).into_iter().find(|d| d.id == id)
+        self.walking.get_draw_ped(id, self.time, map)
     }
 
     fn get_draw_cars(&self, on: Traversable, map: &Map) -> Vec<DrawCarInput> {
