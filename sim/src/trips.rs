@@ -304,14 +304,14 @@ impl TripManager {
         self.unfinished_trips -= 1;
     }
 
-    // If true, the pedestrian boarded a bus immediately.
+    // If no route is returned, the pedestrian boarded a bus immediately.
     pub fn ped_reached_bus_stop(
         &mut self,
         ped: PedestrianID,
         stop: BusStopID,
         map: &Map,
         transit: &mut TransitSimState,
-    ) -> bool {
+    ) -> Option<BusRouteID> {
         self.events.push(Event::PedReachedBusStop(ped, stop));
         let trip = &mut self.trips[self.active_trip_mode[&AgentID::Pedestrian(ped)].0];
         match trip.legs[0] {
@@ -325,9 +325,9 @@ impl TripManager {
             TripLeg::RideBus(_, route, stop2) => {
                 if transit.ped_waiting_for_bus(ped, stop, route, stop2) {
                     trip.legs.pop_front();
-                    true
+                    None
                 } else {
-                    false
+                    Some(route)
                 }
             }
             _ => unreachable!(),

@@ -747,8 +747,8 @@ impl Sim {
         self.driving.debug_lane(id);
     }
 
-    pub fn ped_tooltip(&self, p: PedestrianID) -> Vec<String> {
-        let mut lines = self.walking.ped_tooltip(p, self.time);
+    pub fn ped_tooltip(&self, p: PedestrianID, map: &Map) -> Vec<String> {
+        let mut lines = self.walking.ped_tooltip(p, self.time, map);
         lines.extend(self.trips.tooltip_lines(AgentID::Pedestrian(p)));
         lines
     }

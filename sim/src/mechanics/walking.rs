@@ -6,7 +6,7 @@ use crate::{
 };
 use abstutil::{deserialize_multimap, serialize_multimap, MultiMap};
 use geom::{Distance, Duration, Line, PolyLine, Speed};
-use map_model::{BuildingID, Map, Path, PathStep, Traversable, LANE_THICKNESS};
+use map_model::{BuildingID, BusRouteID, Map, Path, PathStep, Traversable, LANE_THICKNESS};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
@@ -136,13 +136,15 @@ impl WalkingSimState {
                             scheduler.push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
                         }
                         SidewalkPOI::BusStop(stop) => {
-                            if trips.ped_reached_bus_stop(ped.id, stop, map, transit) {
+                            if let Some(route) =
+                                trips.ped_reached_bus_stop(ped.id, stop, map, transit)
+                            {
+                                ped.state = PedState::WaitingForBus(route);
+                                ped.blocked_since = Some(now);
+                            } else {
                                 self.peds_per_traversable
                                     .remove(ped.path.current_step().as_traversable(), ped.id);
                                 self.peds.remove(&id);
-                            } else {
-                                ped.state = PedState::WaitingForBus;
-                                ped.blocked_since = Some(now);
                             }
                         }
                         SidewalkPOI::Border(i) => {
@@ -220,14 +222,14 @@ impl WalkingSimState {
                 ped.state = ped.crossing_state(spot.sidewalk_pos.dist_along(), now, map);
                 scheduler.push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
             }
-            PedState::WaitingForBus => unreachable!(),
+            PedState::WaitingForBus(_) => unreachable!(),
         }
     }
 
     pub fn ped_boarded_bus(&mut self, id: PedestrianID) {
         let ped = self.peds.remove(&id).unwrap();
         match ped.state {
-            PedState::WaitingForBus => {
+            PedState::WaitingForBus(_) => {
                 self.peds_per_traversable
                     .remove(ped.path.current_step().as_traversable(), id);
             }
@@ -243,9 +245,9 @@ impl WalkingSimState {
         }
     }
 
-    pub fn ped_tooltip(&self, id: PedestrianID, now: Duration) -> Vec<String> {
+    pub fn ped_tooltip(&self, id: PedestrianID, now: Duration, map: &Map) -> Vec<String> {
         let p = &self.peds[&id];
-        vec![
+        let mut lines = vec![
             format!("{} on {:?}", p.id, p.path.current_step()),
             format!("{} lanes left in path", p.path.num_lanes()),
             format!(
@@ -258,8 +260,11 @@ impl WalkingSimState {
                 p.blocked_since.map(|t| now - t).unwrap_or(Duration::ZERO)
             ),
             format!("Trip time so far: {}", now - p.started_at),
-            format!("{:?}", p.state),
-        ]
+        ];
+        if let PedState::WaitingForBus(r) = p.state {
+            lines.push(format!("Waiting for bus {}", map.get_br(r).name));
+        }
+        lines
     }
 
     pub fn trace_route(
@@ -346,7 +351,7 @@ impl WalkingSimState {
                 }
                 PedState::StartingToBike(_, _, _)
                 | PedState::FinishingBiking(_, _, _)
-                | PedState::WaitingForBus => {
+                | PedState::WaitingForBus(_) => {
                     // The backwards half of the sidewalk is closer to the road.
                     backwards.push((*id, dist));
                 }
@@ -435,7 +440,7 @@ impl Pedestrian {
             PedState::EnteringBuilding(b, _) => map.get_b(b).front_path.sidewalk.dist_along(),
             PedState::StartingToBike(ref spot, _, _) => spot.sidewalk_pos.dist_along(),
             PedState::FinishingBiking(ref spot, _, _) => spot.sidewalk_pos.dist_along(),
-            PedState::WaitingForBus => self.goal.sidewalk_pos.dist_along(),
+            PedState::WaitingForBus(_) => self.goal.sidewalk_pos.dist_along(),
         }
     }
 
@@ -504,7 +509,7 @@ impl Pedestrian {
             PedState::FinishingBiking(_, ref line, ref time_int) => {
                 (line.percent_along(time_int.percent(now)), line.angle())
             }
-            PedState::WaitingForBus => {
+            PedState::WaitingForBus(_) => {
                 let (pt, angle) = self.goal.sidewalk_pos.pt_and_angle(map);
                 // Face the road
                 (pt, angle.rotate_degs(90.0))
@@ -589,7 +594,7 @@ enum PedState {
     EnteringBuilding(BuildingID, TimeInterval),
     StartingToBike(SidewalkSpot, Line, TimeInterval),
     FinishingBiking(SidewalkSpot, Line, TimeInterval),
-    WaitingForBus,
+    WaitingForBus(BusRouteID),
 }
 
 impl PedState {
@@ -601,7 +606,7 @@ impl PedState {
             PedState::EnteringBuilding(_, ref time_int) => time_int.end,
             PedState::StartingToBike(_, _, ref time_int) => time_int.end,
             PedState::FinishingBiking(_, _, ref time_int) => time_int.end,
-            PedState::WaitingForBus => unreachable!(),
+            PedState::WaitingForBus(_) => unreachable!(),
         }
     }
 }

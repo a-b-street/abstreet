@@ -178,7 +178,7 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
             // TODO jump to src/dst/current spot
         }
         ID::Pedestrian(id) => {
-            for line in sim.ped_tooltip(id) {
+            for line in sim.ped_tooltip(id, map) {
                 // TODO Wrap
                 txt.add(Line(line));
             }
