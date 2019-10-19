@@ -457,12 +457,7 @@ impl AgentColorScheme {
                         CarStatus::Debug => cs.get_def("debug car", Color::BLUE.alpha(0.8)),
                         CarStatus::Moving => cs.get_def("moving car", Color::CYAN),
                         CarStatus::Stuck => cs.get_def("stuck car", Color::rgb(222, 184, 135)),
-                        CarStatus::ParkedWithoutTrip => {
-                            cs.get_def("parked car without trip", Color::rgb(200, 233, 176))
-                        }
-                        CarStatus::ParkedWithTrip => {
-                            cs.get_def("parked car with trip", Color::rgb(180, 233, 76))
-                        }
+                        CarStatus::Parked => cs.get_def("parked car", Color::rgb(180, 233, 76)),
                     }
                 }
             }
@@ -477,7 +472,7 @@ impl AgentColorScheme {
                 // TODO Hard to see on the greenish bike lanes? :P
                 CarStatus::Moving => cs.get_def("moving bike", Color::GREEN),
                 CarStatus::Stuck => cs.get_def("stuck bike", Color::RED),
-                CarStatus::ParkedWithoutTrip | CarStatus::ParkedWithTrip => unreachable!(),
+                CarStatus::Parked => unreachable!(),
             },
             _ => self.by_metadata(&input.metadata),
         }

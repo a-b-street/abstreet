@@ -288,7 +288,7 @@ impl GetDrawAgents for Sim {
     }
 
     fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput> {
-        self.parking.get_draw_car(id, map, &self.trips).or_else(|| {
+        self.parking.get_draw_car(id, map).or_else(|| {
             self.driving
                 .get_single_draw_car(id, self.time, map, &self.transit)
         })
@@ -301,7 +301,7 @@ impl GetDrawAgents for Sim {
     fn get_draw_cars(&self, on: Traversable, map: &Map) -> Vec<DrawCarInput> {
         if let Traversable::Lane(l) = on {
             if map.get_l(l).is_parking() {
-                return self.parking.get_draw_cars(l, map, &self.trips);
+                return self.parking.get_draw_cars(l, map);
             }
         }
         self.driving
@@ -320,7 +320,7 @@ impl GetDrawAgents for Sim {
         let mut result = self
             .driving
             .get_all_draw_cars(self.time, map, &self.transit);
-        result.extend(self.parking.get_all_draw_cars(map, &self.trips));
+        result.extend(self.parking.get_all_draw_cars(map));
         result
     }
 
@@ -889,7 +889,7 @@ impl Sim {
         match id {
             AgentID::Car(id) => self
                 .parking
-                .canonical_pt(id, map, &self.trips)
+                .canonical_pt(id, map)
                 .or_else(|| Some(self.get_draw_car(id, map)?.body.last_pt())),
             AgentID::Pedestrian(id) => Some(self.get_draw_ped(id, map)?.pos),
         }

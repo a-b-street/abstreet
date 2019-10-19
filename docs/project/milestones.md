@@ -27,6 +27,7 @@ list.
   - 23rd and madison traffic signal is the biggest problem
 - lots of unfinished trips, pedestrians waiting for missing buses
 - sometimes crashes with queue spillover?!
+	- unparking from driveways has bugs
 
 ## caphill
 
@@ -51,5 +52,4 @@ list.
 
 - short roads: lake city, ne 115th
 - 12th and ravenna seems stuck, not sure why
-- running zoomed-in is super laggy
 - Car with one-step route Router, crash around 6am

@@ -154,10 +154,10 @@ impl Car {
                 CarState::WaitingToAdvance => CarStatus::Stuck,
                 CarState::Crossing(_, _) => CarStatus::Moving,
                 // Eh they're technically moving, but this is a bit easier to spot
-                CarState::Unparking(_, _, _) => CarStatus::ParkedWithTrip,
-                CarState::Parking(_, _, _) => CarStatus::ParkedWithTrip,
+                CarState::Unparking(_, _, _) => CarStatus::Parked,
+                CarState::Parking(_, _, _) => CarStatus::Parked,
                 // Changing color for idling buses is helpful
-                CarState::Idling(_, _) => CarStatus::ParkedWithTrip,
+                CarState::Idling(_, _) => CarStatus::Parked,
             },
             on: self.router.head(),
             label: if self.vehicle.vehicle_type == VehicleType::Bus {
