@@ -452,11 +452,12 @@ impl TripManager {
         )]
     }
 
-    // Not including buses. (active, unfinished)
-    pub fn num_trips(&self) -> (usize, usize) {
+    // (active not including buses, unfinished, buses)
+    pub fn num_trips(&self) -> (usize, usize, usize) {
         (
             self.active_trip_mode.len() - self.num_bus_trips,
             self.unfinished_trips,
+            self.num_bus_trips,
         )
     }
 

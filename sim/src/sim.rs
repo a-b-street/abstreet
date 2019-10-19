@@ -10,8 +10,8 @@ use abstutil::{elapsed_seconds, Timer};
 use derivative::Derivative;
 use geom::{Distance, Duration, DurationHistogram, PolyLine, Pt2D};
 use map_model::{
-    BuildingID, BusRoute, BusRouteID, IntersectionID, LaneID, Map, Path, PathRequest, Position,
-    Traversable,
+    BuildingID, BusRoute, BusRouteID, IntersectionID, LaneID, Map, Path, PathRequest, PathStep,
+    Position, Traversable,
 };
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{HashSet, VecDeque};
@@ -208,61 +208,74 @@ impl Sim {
     pub fn seed_bus_route(&mut self, route: &BusRoute, map: &Map, timer: &mut Timer) -> Vec<CarID> {
         let mut results: Vec<CarID> = Vec::new();
 
-        // Try to spawn a bus at each stop
-        for (next_stop_idx, start_dist, path, end_dist) in
+        // Try to spawn just ONE bus anywhere.
+        // TODO Be more realistic. One bus per stop is too much, one is too little.
+        for (next_stop_idx, mut path, end_dist) in
             self.transit.create_empty_route(route, map).into_iter()
         {
-            // For now, no desire for randomness. Caller can pass in list of specs if that ever
-            // changes.
-            let vehicle_spec = VehicleSpec {
-                vehicle_type: VehicleType::Bus,
-                length: BUS_LENGTH,
-                max_speed: None,
-            };
-
-            // TODO Do this validation more up-front in the map layer
-            if start_dist < vehicle_spec.length {
-                timer.warn(format!(
-                    "Stop at {:?} is too short to spawn a bus there; giving up on one bus for {}",
-                    path.current_step(),
-                    route.id
-                ));
-                continue;
-            }
-
             let id = CarID(self.car_id_counter, VehicleType::Bus);
             self.car_id_counter += 1;
 
-            // Bypass some layers of abstraction that don't make sense for buses.
+            // For now, no desire for randomness. Caller can pass in list of specs if that ever
+            // changes.
+            let vehicle = VehicleSpec {
+                vehicle_type: VehicleType::Bus,
+                length: BUS_LENGTH,
+                max_speed: None,
+            }
+            .make(id, None);
 
+            // TODO The path analytics (total dist, dist crossed so far) will be wrong for the
+            // first round of buses.
+            // Same for this TripStart, though it doesn't matter too much.
             let trip = self.trips.new_trip(
                 self.time,
-                TripStart::Appearing(Position::new(path.current_step().as_lane(), start_dist)),
+                TripStart::Appearing(Position::new(path.current_step().as_lane(), Distance::ZERO)),
                 vec![TripLeg::ServeBusRoute(id, route.id)],
             );
-            if self.driving.start_car_on_lane(
-                self.time,
-                CreateCar {
-                    vehicle: vehicle_spec.make(id, None),
-                    router: Router::follow_bus_route(path, end_dist),
-                    start_dist,
-                    maybe_parked_car: None,
-                    trip,
-                },
-                map,
-                &self.intersections,
-                &self.parking,
-                &mut self.scheduler,
-            ) {
-                self.trips.agent_starting_trip_leg(AgentID::Car(id), trip);
-                self.transit.bus_created(id, route.id, next_stop_idx);
-                results.push(id);
-            } else {
-                timer.warn(format!(
-                    "No room for a bus headed towards stop {} of {} ({}), giving up",
-                    next_stop_idx, route.name, route.id
-                ));
-                self.trips.abort_trip_failed_start(trip);
+
+            loop {
+                if path.is_last_step() {
+                    timer.warn(format!(
+                        "Giving up on seeding a bus headed towards stop {} of {} ({})",
+                        next_stop_idx, route.name, route.id
+                    ));
+                    self.trips.abort_trip_failed_start(trip);
+                    break;
+                }
+                let start_lane = if let PathStep::Lane(l) = path.current_step() {
+                    l
+                } else {
+                    path.shift(map);
+                    continue;
+                };
+                if map.get_l(start_lane).length() < vehicle.length {
+                    path.shift(map);
+                    continue;
+                }
+
+                // Bypass some layers of abstraction that don't make sense for buses.
+                if self.driving.start_car_on_lane(
+                    self.time,
+                    CreateCar {
+                        start_dist: vehicle.length,
+                        vehicle: vehicle.clone(),
+                        router: Router::follow_bus_route(path.clone(), end_dist),
+                        maybe_parked_car: None,
+                        trip,
+                    },
+                    map,
+                    &self.intersections,
+                    &self.parking,
+                    &mut self.scheduler,
+                ) {
+                    self.trips.agent_starting_trip_leg(AgentID::Car(id), trip);
+                    self.transit.bus_created(id, route.id, next_stop_idx);
+                    results.push(id);
+                    return results;
+                } else {
+                    path.shift(map);
+                }
             }
         }
         if results.is_empty() {
@@ -602,7 +615,7 @@ impl Sim {
 
             let dt_real = Duration::seconds(elapsed_seconds(last_print));
             if dt_real >= Duration::seconds(1.0) {
-                let (active, unfinished) = self.num_trips();
+                let (active, unfinished, _) = self.num_trips();
                 println!(
                     "{}: {} active / {} unfinished, speed = {:.2}x, {}",
                     self.time(),
@@ -718,12 +731,13 @@ impl Sim {
         self.time == Duration::ZERO && self.is_done()
     }
 
-    // (active, unfinished) prettyprinted
-    pub fn num_trips(&self) -> (String, String) {
-        let (active, unfinished) = self.trips.num_trips();
+    // (active, unfinished, buses) prettyprinted
+    pub fn num_trips(&self) -> (String, String, String) {
+        let (active, unfinished, buses) = self.trips.num_trips();
         (
             abstutil::prettyprint_usize(active),
             abstutil::prettyprint_usize(unfinished),
+            abstutil::prettyprint_usize(buses),
         )
     }
 

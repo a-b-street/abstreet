@@ -86,8 +86,8 @@ impl State for SandboxMode {
         {
             let mut txt = Text::new();
             txt.add(Line(ui.primary.sim.time().to_string()));
-            let (active, unfinished) = ui.primary.sim.num_trips();
-            txt.add(Line(format!("{} active", active)));
+            let (active, unfinished, buses) = ui.primary.sim.num_trips();
+            txt.add(Line(format!("{} active (+{} buses)", active, buses)));
             txt.add(Line(format!("{} unfinished", unfinished)));
             self.menu.set_info(ctx, txt);
         }

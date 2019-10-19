@@ -93,8 +93,8 @@ impl State for ABTestMode {
                     diff.lines.len()
                 )));
             }
-            let (active, unfinished) = ui.primary.sim.num_trips();
-            txt.add(Line(format!("{} active", active)));
+            let (active, unfinished, buses) = ui.primary.sim.num_trips();
+            txt.add(Line(format!("{} active (+{} buses)", active, buses)));
             txt.add(Line(format!("{} unfinished", unfinished)));
             self.menu.set_info(ctx, txt);
         }

@@ -477,5 +477,11 @@
       "turn_restrictions": []
     }
   ],
-  "merge_short_roads": []
+  "merge_short_roads": [
+    {
+      "osm_way_id": 256990067,
+      "node1": 542743474,
+      "node2": 53207165
+    }
+  ]
 }

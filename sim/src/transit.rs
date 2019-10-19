@@ -66,13 +66,13 @@ impl TransitSimState {
         }
     }
 
-    // Returns (next stop, start distance on the driving lane, first path, end distance for next
-    // stop) for all of the stops in the route.
+    // Returns (next stop, first path, end distance for next stop) for all of the stops in the
+    // route.
     pub fn create_empty_route(
         &mut self,
         bus_route: &BusRoute,
         map: &Map,
-    ) -> Vec<(StopIdx, Distance, Path, Distance)> {
+    ) -> Vec<(StopIdx, Path, Distance)> {
         assert!(bus_route.stops.len() > 1);
 
         let route = Route {
@@ -115,7 +115,6 @@ impl TransitSimState {
             .map(|s| {
                 (
                     s.next_stop_idx,
-                    s.driving_pos.dist_along(),
                     s.path_to_next_stop.clone(),
                     route.stops[s.next_stop_idx].driving_pos.dist_along(),
                 )
