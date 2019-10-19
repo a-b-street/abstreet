@@ -241,4 +241,12 @@ impl TransitSimState {
     pub fn bus_route(&self, bus: CarID) -> BusRouteID {
         self.buses[&bus].route
     }
+
+    pub fn buses_for_route(&self, route: BusRouteID) -> Vec<CarID> {
+        if let Some(ref r) = self.routes.get(&route) {
+            r.buses.clone()
+        } else {
+            Vec::new()
+        }
+    }
 }

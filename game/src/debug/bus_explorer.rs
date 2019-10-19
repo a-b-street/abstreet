@@ -2,14 +2,17 @@ use crate::common::{CommonState, RoadColorer, RoadColorerBuilder};
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::ui::UI;
-use ezgui::{Choice, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, WarpingItemSlider};
-use geom::Pt2D;
-use map_model::{BusRoute, BusRouteID, BusStopID, Map, PathRequest, PathStep};
+use ezgui::{
+    Choice, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu, Text, WarpingItemSlider,
+};
+use geom::{Circle, Distance, Pt2D};
+use map_model::{BusRoute, BusRouteID, BusStopID, PathRequest, PathStep};
 
 pub struct BusRouteExplorer {
     slider: WarpingItemSlider<BusStopID>,
     colorer: RoadColorer,
-    stop_labels: Vec<(Text, Pt2D)>,
+    labels: Vec<(Text, Pt2D)>,
+    bus_locations: Vec<Pt2D>,
 }
 
 impl BusRouteExplorer {
@@ -28,11 +31,7 @@ impl BusRouteExplorer {
             return None;
         }
         if routes.len() == 1 {
-            Some(Box::new(BusRouteExplorer::for_route(
-                routes[0],
-                &ui.primary.map,
-                ctx,
-            )))
+            Some(Box::new(BusRouteExplorer::for_route(routes[0], ui, ctx)))
         } else {
             Some(make_bus_route_picker(
                 routes.into_iter().map(|r| r.id).collect(),
@@ -40,7 +39,8 @@ impl BusRouteExplorer {
         }
     }
 
-    fn for_route(route: &BusRoute, map: &Map, ctx: &mut EventCtx) -> BusRouteExplorer {
+    fn for_route(route: &BusRoute, ui: &UI, ctx: &mut EventCtx) -> BusRouteExplorer {
+        let map = &ui.primary.map;
         let stops: Vec<(Pt2D, BusStopID, Text)> = route
             .stops
             .iter()
@@ -50,8 +50,14 @@ impl BusRouteExplorer {
             })
             .collect();
 
-        let mut colorer =
-            RoadColorerBuilder::new(Text::prompt(&route.name), vec![("route", Color::RED)]);
+        let mut bus_locations = Vec::new();
+        for (_, pt) in ui.primary.sim.location_of_buses(route.id, map) {
+            bus_locations.push(pt);
+        }
+
+        let mut txt = Text::prompt(&route.name);
+        txt.add(Line(format!("{} buses", bus_locations.len())));
+        let mut colorer = RoadColorerBuilder::new(txt, vec![("route", Color::RED)]);
         for (stop1, stop2) in
             route
                 .stops
@@ -80,9 +86,9 @@ impl BusRouteExplorer {
             }
         }
 
-        let mut stop_labels = Vec::new();
+        let mut labels = Vec::new();
         for (idx, bs) in route.stops.iter().enumerate() {
-            stop_labels.push((
+            labels.push((
                 Text::from(Line(format!("{}", idx + 1))),
                 map.get_bs(*bs).sidewalk_pos.pt(map),
             ));
@@ -96,7 +102,8 @@ impl BusRouteExplorer {
                 ctx,
             ),
             colorer: colorer.build(ctx, map),
-            stop_labels,
+            labels,
+            bus_locations,
         }
     }
 }
@@ -125,9 +132,17 @@ impl State for BusRouteExplorer {
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         self.colorer.draw(g, ui);
-        for (label, pt) in &self.stop_labels {
+        for (label, pt) in &self.labels {
             g.draw_text_at(label, *pt);
         }
+
+        let mut batch = GeomBatch::new();
+        let radius = Distance::meters(20.0) / g.canvas.cam_zoom;
+        for pt in &self.bus_locations {
+            batch.push(Color::BLUE, Circle::new(*pt, radius).to_polygon());
+        }
+        batch.draw(g);
+
         self.slider.draw(g);
         CommonState::draw_osd(g, ui, &ui.primary.current_selection);
     }
@@ -136,7 +151,7 @@ impl State for BusRouteExplorer {
 pub struct BusRoutePicker;
 impl BusRoutePicker {
     pub fn new(ui: &UI, menu: &mut ModalMenu) -> Option<Box<dyn State>> {
-        if !menu.action("explore a bus route") {
+        if ui.primary.current_selection.is_some() || !menu.action("explore a bus route") {
             return None;
         }
         Some(make_bus_route_picker(
@@ -166,7 +181,7 @@ fn make_bus_route_picker(routes: Vec<BusRouteID>) -> Box<dyn State> {
         })?;
         Some(Transition::Replace(Box::new(BusRouteExplorer::for_route(
             ui.primary.map.get_br(id),
-            &ui.primary.map,
+            ui,
             ctx,
         ))))
     }))

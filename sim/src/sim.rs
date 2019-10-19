@@ -265,6 +265,10 @@ impl Sim {
                 self.trips.abort_trip_failed_start(trip);
             }
         }
+        if results.is_empty() {
+            // TODO Bigger failure
+            timer.warn(format!("Failed to make ANY buses for {}!", route.name));
+        }
         results
     }
 
@@ -896,6 +900,18 @@ impl Sim {
 
     pub fn get_intersection_delays(&self, id: IntersectionID) -> &DurationHistogram {
         self.intersections.get_intersection_delays(id)
+    }
+
+    pub fn location_of_buses(&self, route: BusRouteID, map: &Map) -> Vec<(CarID, Pt2D)> {
+        let mut results = Vec::new();
+        for car in self.transit.buses_for_route(route) {
+            // TODO This is a slow, indirect method!
+            results.push((
+                car,
+                self.canonical_pt_for_agent(AgentID::Car(car), map).unwrap(),
+            ));
+        }
+        results
     }
 }
 
