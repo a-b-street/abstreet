@@ -54,7 +54,7 @@ impl DebugMode {
                         (None, "screenshot everything"),
                         (hotkey(Key::Slash), "search OSM metadata"),
                         (hotkey(Key::S), "configure colors"),
-                        (None, "explore a bus route"),
+                        (hotkey(Key::E), "explore a bus route"),
                     ],
                     vec![
                         (hotkey(Key::Escape), "return to previous mode"),

@@ -1,13 +1,15 @@
-use crate::common::CommonState;
+use crate::common::{CommonState, RoadColorer, RoadColorerBuilder};
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::ui::UI;
-use ezgui::{Choice, EventCtx, GfxCtx, Key, ModalMenu, Text, WarpingItemSlider};
+use ezgui::{Choice, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, WarpingItemSlider};
 use geom::Pt2D;
-use map_model::{BusRoute, BusRouteID, BusStopID, Map};
+use map_model::{BusRoute, BusRouteID, BusStopID, Map, PathRequest, PathStep};
 
 pub struct BusRouteExplorer {
     slider: WarpingItemSlider<BusStopID>,
+    colorer: RoadColorer,
+    stop_labels: Vec<(Text, Pt2D)>,
 }
 
 impl BusRouteExplorer {
@@ -47,6 +49,45 @@ impl BusRouteExplorer {
                 (stop.sidewalk_pos.pt(map), stop.id, Text::new())
             })
             .collect();
+
+        let mut colorer =
+            RoadColorerBuilder::new(Text::prompt(&route.name), vec![("route", Color::RED)]);
+        for (stop1, stop2) in
+            route
+                .stops
+                .iter()
+                .zip(route.stops.iter().skip(1))
+                .chain(std::iter::once((
+                    route.stops.last().unwrap(),
+                    &route.stops[0],
+                )))
+        {
+            let bs1 = map.get_bs(*stop1);
+            let bs2 = map.get_bs(*stop2);
+            for step in map
+                .pathfind(PathRequest {
+                    start: bs1.driving_pos,
+                    end: bs2.driving_pos,
+                    can_use_bike_lanes: false,
+                    can_use_bus_lanes: true,
+                })
+                .unwrap()
+                .get_steps()
+            {
+                if let PathStep::Lane(l) = step {
+                    colorer.add(*l, Color::RED, map);
+                }
+            }
+        }
+
+        let mut stop_labels = Vec::new();
+        for (idx, bs) in route.stops.iter().enumerate() {
+            stop_labels.push((
+                Text::from(Line(format!("{}", idx + 1))),
+                map.get_bs(*bs).sidewalk_pos.pt(map),
+            ));
+        }
+
         BusRouteExplorer {
             slider: WarpingItemSlider::new(
                 stops,
@@ -54,6 +95,8 @@ impl BusRouteExplorer {
                 "stop",
                 ctx,
             ),
+            colorer: colorer.build(ctx, map),
+            stop_labels,
         }
     }
 }
@@ -76,7 +119,15 @@ impl State for BusRouteExplorer {
         }
     }
 
+    fn draw_default_ui(&self) -> bool {
+        false
+    }
+
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        self.colorer.draw(g, ui);
+        for (label, pt) in &self.stop_labels {
+            g.draw_text_at(label, *pt);
+        }
         self.slider.draw(g);
         CommonState::draw_osd(g, ui, &ui.primary.current_selection);
     }
@@ -99,12 +150,18 @@ impl BusRoutePicker {
     }
 }
 
-fn make_bus_route_picker(choices: Vec<BusRouteID>) -> Box<dyn State> {
+fn make_bus_route_picker(routes: Vec<BusRouteID>) -> Box<dyn State> {
     WizardState::new(Box::new(move |wiz, ctx, ui| {
         let (_, id) = wiz.wrap(ctx).choose("Explore which bus route?", || {
-            choices
+            let mut choices: Vec<(&String, BusRouteID)> = routes
                 .iter()
-                .map(|id| Choice::new(&ui.primary.map.get_br(*id).name, *id))
+                .map(|id| (&ui.primary.map.get_br(*id).name, *id))
+                .collect();
+            // TODO Sort first by length, then lexicographically
+            choices.sort_by_key(|(name, _)| name.to_string());
+            choices
+                .into_iter()
+                .map(|(name, id)| Choice::new(name, id))
                 .collect()
         })?;
         Some(Transition::Replace(Box::new(BusRouteExplorer::for_route(
