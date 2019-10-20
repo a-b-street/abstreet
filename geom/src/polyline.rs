@@ -92,7 +92,7 @@ impl PolyLine {
     }
 
     pub fn extend(self, other: PolyLine) -> PolyLine {
-        assert_eq!(*self.pts.last().unwrap(), other.pts[0]);
+        assert!(self.pts.last().unwrap().epsilon_eq(other.pts[0]));
 
         let pl1 = to_set(self.points());
         let pl2 = to_set(&other.points()[1..]);
@@ -116,7 +116,7 @@ impl PolyLine {
             }
         }
         // Repeat this for sanity
-        assert_eq!(*self_pts.last().unwrap(), other_pts[0]);
+        assert!(self_pts.last().unwrap().epsilon_eq(other_pts[0]));
 
         // There's an exciting edge case: the next point to add is on self's last line.
         let same_line = self_pts[self_pts.len() - 2]
