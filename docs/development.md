@@ -44,7 +44,9 @@ https://github.com/japaric/trust
 Initially have to:
 
 ```shell
-rustup target add x86_64-pc-windows-gnu
+cargo install cross
+sudo apt-get install docker.io
+sudo usermod -aG docker ${USER}
 ```
 
 Then:

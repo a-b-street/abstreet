@@ -94,3 +94,33 @@ changes here.
 - prevent cars from "blocking the box"
 - prevent all? aborted trips (due to parking blackholes mostly)
 - smarter roam-around-for-parking router
+
+0.1.10
+
+- sim
+  - parking in off-street garages and on-street lanes on the off-side of oneways now mostly works
+  - detect and handle parking blackholes; cars should never get stuck looking for parking now
+  - let lower-priority turns happen at traffic signals when higher-priority ones blocked
+  - get closer to FCFS ordering at stop signs
+  - basic opportunistic lane-changing
+  - a bus should be seeded for every route now
+- demand data
+  - show trips to/from buildings and borders
+  - make PSRC trips seed and attempt to use parked cars
+- UI
+  - different heatmap overlays, like parking availability and busiest areas
+  - show colorscheme legends when relevant
+  - interactively seed parked cars, spawn more types of trips
+  - fix major A/B test mode bug (mismatched scenarios and map edits)
+  - adjusting sliders, menu placement, dynamic items
+  - consolidating different tools into a single info panel for objects
+  - bus route explorer shows entire route, current bus location
+- map quality
+  - degenerate intersections only have one crosswalk now
+  - revamped the map editor for fixing geometry problems, used it in many places
+  - nicer yellow center lines (dashed when appropriate)
+  - handling OSM turn restriction relations properly
+  - fix empty traffic signal phases
+  - handling bike lanes on certain sides of the road
+  - starting to upstream manually-verified parking lanes into OSM
+- new gameplay: reverse direction of lanes

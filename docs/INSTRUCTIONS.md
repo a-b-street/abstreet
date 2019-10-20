@@ -11,9 +11,9 @@ https://github.com/dabreegster/abstreet/releases for the latest version, though
 I'll try to keep these links up-to-date:
 
 - Linux:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.9/abstreet_linux.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.10/abstreet_linux.zip
 - Windows:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.9/abstreet_windows.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.10/abstreet_windows.zip
 - Mac (old; I don't have regular access to a Mac to compile):
   https://github.com/dabreegster/abstreet/releases/download/v0.1.6/abstreet_mac.zip
 
