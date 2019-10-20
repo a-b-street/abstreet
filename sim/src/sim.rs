@@ -461,13 +461,36 @@ impl Sim {
                     };
                     if ok {
                         // Do the order a bit backwards so we don't have to clone the
-                        // CreatePedestrian.  spawn_ped can't fail.
+                        // CreatePedestrian. spawn_ped can't fail.
                         self.trips.agent_starting_trip_leg(
                             AgentID::Pedestrian(create_ped.id),
                             create_ped.trip,
                         );
-                        self.walking
-                            .spawn_ped(self.time, create_ped, map, &mut self.scheduler);
+
+                        // Maybe there's actually no work to do!
+                        match (&create_ped.start.connection, &create_ped.goal.connection) {
+                            (
+                                SidewalkPOI::Building(b1),
+                                SidewalkPOI::ParkingSpot(ParkingSpot::Offstreet(b2, idx)),
+                            ) if b1 == b2 => {
+                                self.trips.ped_reached_parking_spot(
+                                    self.time,
+                                    create_ped.id,
+                                    ParkingSpot::Offstreet(*b2, *idx),
+                                    map,
+                                    &self.parking,
+                                    &mut self.scheduler,
+                                );
+                            }
+                            _ => {
+                                self.walking.spawn_ped(
+                                    self.time,
+                                    create_ped,
+                                    map,
+                                    &mut self.scheduler,
+                                );
+                            }
+                        }
                     } else {
                         self.trips.abort_trip_failed_start(create_ped.trip);
                     }
