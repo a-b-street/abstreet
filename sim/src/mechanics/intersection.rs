@@ -58,7 +58,7 @@ impl IntersectionSimState {
                     delays: std::default::Default::default(),
                 },
             );
-            if i.is_traffic_signal() {
+            if i.is_traffic_signal() && !use_freeform_policy_everywhere {
                 sim.update_intersection(Duration::ZERO, i.id, map, scheduler);
             }
         }
@@ -80,18 +80,8 @@ impl IntersectionSimState {
         scheduler: &mut Scheduler,
     ) {
         let state = self.state.get_mut(&turn.parent).unwrap();
-
         assert!(state.accepted.remove(&Request { agent, turn }));
-
-        // TODO Could be smarter here. For both policies, only wake up agents that would then be
-        // accepted. For now, wake up everyone -- for traffic signals, maybe a Yield and Priority
-        // finished and could let another one in.
-
-        for req in state.waiting.keys() {
-            // Use update because multiple agents could finish a turn at the same time, before the
-            // waiting one has a chance to try again.
-            scheduler.update(now, Command::update_agent(req.agent));
-        }
+        self.wakeup_waiting(now, turn.parent, scheduler);
     }
 
     // For deleting cars
@@ -101,12 +91,22 @@ impl IntersectionSimState {
     }
 
     pub fn space_freed(&mut self, now: Duration, i: IntersectionID, scheduler: &mut Scheduler) {
-        let state = self.state.get_mut(&i).unwrap();
+        self.wakeup_waiting(now, i, scheduler);
+    }
 
-        // TODO Be smarter and wake up less people here too.
+    fn wakeup_waiting(&self, now: Duration, i: IntersectionID, scheduler: &mut Scheduler) {
+        // TODO Only wake up agents that would then be accepted.
 
-        for req in state.waiting.keys() {
-            // Use update for similar reasons to turn_finished.
+        // Sort by waiting time, so things like stop signs actually are first-come, first-served.
+        let mut waiting: Vec<(Request, Duration)> = self.state[&i]
+            .waiting
+            .iter()
+            .map(|(req, t)| (req.clone(), *t))
+            .collect();
+        waiting.sort_by_key(|(_, t)| *t);
+        for (req, _) in waiting {
+            // Use update because multiple agents could finish a turn at the same time, before the
+            // waiting one has a chance to try again.
             scheduler.update(now, Command::update_agent(req.agent));
         }
     }
