@@ -47,6 +47,20 @@ impl AgentSpawner {
         let map = &ui.primary.map;
         match ui.primary.current_selection {
             Some(ID::Building(id)) => {
+                let spots = ui.primary.sim.get_free_offstreet_spots(id);
+                if !spots.is_empty()
+                    && ctx
+                        .input
+                        .contextual_action(Key::F6, "seed a parked car here")
+                {
+                    let mut rng = ui.primary.current_flags.sim_flags.make_rng();
+                    ui.primary.sim.seed_parked_car(
+                        Scenario::rand_car(&mut rng),
+                        spots[0],
+                        Some(id),
+                    );
+                    return None;
+                }
                 if ctx
                     .input
                     .contextual_action(Key::F3, "spawn a pedestrian starting here just walking")

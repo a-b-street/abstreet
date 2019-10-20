@@ -175,6 +175,10 @@ impl Sim {
         self.parking.get_free_spots(l)
     }
 
+    pub fn get_free_offstreet_spots(&self, b: BuildingID) -> Vec<ParkingSpot> {
+        self.parking.get_free_offstreet_spots(b)
+    }
+
     // (Filled, available)
     pub fn get_all_parking_spots(&self) -> (Vec<ParkingSpot>, Vec<ParkingSpot>) {
         self.parking.get_all_parking_spots()

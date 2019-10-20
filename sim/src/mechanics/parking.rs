@@ -90,11 +90,17 @@ impl ParkingSimState {
             }
         }
         for b in self.driving_to_offstreet.get(l) {
-            for idx in 0..self.num_spots_per_offstreet[&b] {
-                let spot = ParkingSpot::offstreet(*b, idx);
-                if self.is_free(spot) {
-                    spots.push(spot);
-                }
+            spots.extend(self.get_free_offstreet_spots(*b));
+        }
+        spots
+    }
+
+    pub fn get_free_offstreet_spots(&self, b: BuildingID) -> Vec<ParkingSpot> {
+        let mut spots: Vec<ParkingSpot> = Vec::new();
+        for idx in 0..self.num_spots_per_offstreet.get(&b).cloned().unwrap_or(0) {
+            let spot = ParkingSpot::offstreet(b, idx);
+            if self.is_free(spot) {
+                spots.push(spot);
             }
         }
         spots
