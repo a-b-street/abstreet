@@ -1,0 +1,51 @@
+{
+  "gps_bounds": {
+    "min_lon": -122.33521557443338,
+    "min_lat": 47.605453088643266,
+    "max_lon": -122.28604060126838,
+    "max_lat": 47.65727694392701
+  },
+  "override_metadata": [],
+  "delete_roads": [
+    {
+      "osm_way_id": 160553203,
+      "node1": 60407342,
+      "node2": 1726088128
+    }
+  ],
+  "delete_intersections": [],
+  "add_intersections": [],
+  "add_roads": [],
+  "merge_short_roads": [
+    {
+      "osm_way_id": 6521205,
+      "node1": 1758004075,
+      "node2": 53118266
+    },
+    {
+      "osm_way_id": 8071894,
+      "node1": 53110518,
+      "node2": 60407342
+    },
+    {
+      "osm_way_id": 462701470,
+      "node1": 53110518,
+      "node2": 1726088128
+    },
+    {
+      "osm_way_id": 6470834,
+      "node1": 4272388261,
+      "node2": 53110518
+    },
+    {
+      "osm_way_id": 428098986,
+      "node1": 4274312036,
+      "node2": 4272388261
+    },
+    {
+      "osm_way_id": 6457203,
+      "node1": 53209418,
+      "node2": 60799506
+    }
+  ]
+}

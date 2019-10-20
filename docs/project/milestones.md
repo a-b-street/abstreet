@@ -29,7 +29,7 @@ list.
 
 ## caphill
 
-- short roads at: 12th/union/madison, john/olive, boylston/roanoke
+- short roads at: 12th/union/madison, boylston/roanoke
 
 ## downtown
 
