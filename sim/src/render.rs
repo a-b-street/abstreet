@@ -19,6 +19,7 @@ pub struct AgentMetadata {
     pub time_spent_blocked: Duration,
     pub percent_dist_crossed: f64,
     pub trip_time_so_far: Duration,
+    pub occupying_intersection: bool,
 }
 
 pub struct DrawPedCrowdInput {

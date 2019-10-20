@@ -11,6 +11,9 @@ How usable is each map overall? Different milestones (roughly in order):
   - parked cars are available when trips need them
   - no disconnected paths
 - no geometry problems; map looks reasonble and represents reality
+- simulation results match available measurements of reality
+  - known vehicle counts for roads
+  - example problem: lots of traffic cutting through UW
 
 The different map slices are pretty arbitrary, but roughly get bigger down the
 list.

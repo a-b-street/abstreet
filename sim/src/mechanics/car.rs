@@ -187,6 +187,8 @@ impl Car {
                 .unwrap_or(Duration::ZERO),
             percent_dist_crossed: self.router.get_path().percent_dist_crossed(),
             trip_time_so_far: now - self.started_at,
+            occupying_intersection: self.router.head().maybe_turn().is_some()
+                || self.last_steps.iter().any(|s| s.maybe_turn().is_some()),
         }
     }
 }

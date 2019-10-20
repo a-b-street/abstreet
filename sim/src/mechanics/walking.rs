@@ -541,6 +541,10 @@ impl Pedestrian {
                 .unwrap_or(Duration::ZERO),
             percent_dist_crossed: self.path.percent_dist_crossed(),
             trip_time_so_far: now - self.started_at,
+            // TODO Slight lie. Pedestrians might be sitting at the end of a turn, but it's
+            // technically been finished. Maybe use WaitingToTurn to detect. Not important, since
+            // pedestrians can't get stuck in an intersection.
+            occupying_intersection: false,
         }
     }
 

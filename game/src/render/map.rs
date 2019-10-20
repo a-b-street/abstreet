@@ -394,11 +394,11 @@ impl AgentCache {
         // TODO The perf is a little slow compared to when we just returned a bunch of Pt2Ds
         // without the extra data. Try plumbing a callback that directly populates batch.
         let mut batch = GeomBatch::new();
-        let radius = Distance::meters(10.0) / g.canvas.cam_zoom;
         for agent in source.get_unzoomed_agents(map) {
             batch.push(
                 acs.unzoomed_color(&agent, cs),
-                Circle::new(agent.pos, radius).to_polygon(),
+                Circle::new(agent.pos, acs.unzoomed_radius(&agent) / g.canvas.cam_zoom)
+                    .to_polygon(),
             );
         }
 
@@ -445,6 +445,16 @@ impl AgentColorScheme {
             },
             _ => self.by_metadata(&agent.metadata),
         }
+    }
+
+    pub fn unzoomed_radius(self, agent: &UnzoomedAgent) -> Distance {
+        if self == AgentColorScheme::Delay
+            && agent.metadata.occupying_intersection
+            && agent.metadata.time_spent_blocked > Duration::minutes(1)
+        {
+            return Distance::meters(20.0);
+        }
+        Distance::meters(10.)
     }
 
     pub fn zoomed_color_car(self, input: &DrawCarInput, cs: &ColorScheme) -> Color {
@@ -494,7 +504,13 @@ impl AgentColorScheme {
     fn by_metadata(self, md: &AgentMetadata) -> Color {
         match self {
             AgentColorScheme::VehicleTypes => unreachable!(),
-            AgentColorScheme::Delay => delay_color(md.time_spent_blocked),
+            AgentColorScheme::Delay => {
+                if md.occupying_intersection && md.time_spent_blocked > Duration::minutes(1) {
+                    Color::YELLOW
+                } else {
+                    delay_color(md.time_spent_blocked)
+                }
+            }
             AgentColorScheme::DistanceCrossedSoFar => percent_color(md.percent_dist_crossed),
             AgentColorScheme::TripTimeSoFar => delay_color(md.trip_time_so_far),
         }
@@ -518,6 +534,7 @@ impl AgentColorScheme {
                     ("<= 1 minute", Color::BLUE.alpha(0.3)),
                     ("<= 5 minutes", Color::ORANGE.alpha(0.5)),
                     ("> 5 minutes", Color::RED.alpha(0.8)),
+                    ("stuck blocking intersection", Color::YELLOW),
                 ],
             ),
             AgentColorScheme::DistanceCrossedSoFar => ColorLegend::new(
