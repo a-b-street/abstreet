@@ -75,7 +75,6 @@ pub fn make_all_buildings(
 
             // Make a driveway from the parking icon to the nearest road.
             if let Some(ref mut p) = bldg.parking {
-                // TODO Is it a problem if the driveway is too close to the start/end of a lane?
                 let (driving_lane, driving_pt) = closest_driving
                     .closest_pt(bldg.label_center, Distance::meters(100.0))
                     .expect("Can't find driveway!");
@@ -92,6 +91,13 @@ pub fn make_all_buildings(
                     ));
                 }
                 p.driving_pos = Position::new(driving_lane, dist_along);
+                if lanes[driving_lane.0].length() - dist_along < Distance::meters(7.0) {
+                    timer.warn(format!("Skipping driveway of {}, too close to the end of the road. Forfeiting {} stalls!", bldg.id, p.num_stalls));
+                    bldg.parking = None;
+                } else if dist_along < Distance::meters(1.0) {
+                    timer.warn(format!("Skipping driveway of {}, too close to the start of the road. Forfeiting {} stalls!", bldg.id, p.num_stalls));
+                    bldg.parking = None;
+                }
             }
 
             results.push(bldg);

@@ -452,19 +452,17 @@ impl CreateCar {
         }
     }
 
+    // TODO Maybe inline in trips, the only caller.
     pub fn for_parked_car(
         parked_car: ParkedCar,
         router: Router,
+        start_dist: Distance,
         trip: TripID,
-        parking: &ParkingSimState,
-        map: &Map,
     ) -> CreateCar {
         CreateCar {
             vehicle: parked_car.vehicle.clone(),
             router,
-            start_dist: parking
-                .spot_to_driving_pos(parked_car.spot, &parked_car.vehicle, map)
-                .dist_along(),
+            start_dist,
             maybe_parked_car: Some(parked_car),
             trip,
         }

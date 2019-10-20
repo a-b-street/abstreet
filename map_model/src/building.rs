@@ -28,6 +28,7 @@ pub struct OffstreetParking {
     pub num_stalls: usize,
     // Goes from the building to the driving lane
     pub driveway_line: Line,
+    // Guaranteed to be at least 7m before the end of the lane
     pub driving_pos: Position,
 }
 

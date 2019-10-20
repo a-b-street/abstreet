@@ -26,8 +26,6 @@ list.
 - full PSRC day doesn't gridlock with freeform policy
   - 23rd and madison traffic signal is the biggest problem, try manual traffic
     signals
-- sometimes crashes with queue spillover?!
-  - unparking from driveways has bugs
 
 ## caphill
 

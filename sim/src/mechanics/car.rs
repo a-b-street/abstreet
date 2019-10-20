@@ -63,6 +63,7 @@ impl Car {
         transit: &TransitSimState,
     ) -> DrawCarInput {
         assert!(front >= Distance::ZERO);
+        // This goes from back to front
         let raw_body = if front >= self.vehicle.length {
             self.router
                 .head()
@@ -101,9 +102,9 @@ impl Car {
         let body = match self.state {
             CarState::Unparking(_, ref spot, ref time_int)
             | CarState::Parking(_, ref spot, ref time_int) => {
-                let percent_time = match self.state {
-                    CarState::Unparking(_, _, _) => 1.0 - time_int.percent(now),
-                    CarState::Parking(_, _, _) => time_int.percent(now),
+                let (percent_time, is_parking) = match self.state {
+                    CarState::Unparking(_, _, _) => (1.0 - time_int.percent(now), false),
+                    CarState::Parking(_, _, _) => (time_int.percent(now), true),
                     _ => unreachable!(),
                 };
                 match spot {
@@ -124,13 +125,17 @@ impl Car {
                     ParkingSpot::Offstreet(b, _) => {
                         // Append the car's polyline on the street with the driveway
                         let driveway = &map.get_b(*b).parking.as_ref().unwrap().driveway_line;
-                        let full_piece = raw_body.extend(driveway.reverse().to_polyline());
+                        let full_piece = if is_parking {
+                            raw_body.extend(driveway.reverse().to_polyline())
+                        } else {
+                            driveway.to_polyline().extend(raw_body).reversed()
+                        };
                         // Then make the car creep along the added length of the driveway (which could
                         // be really short)
                         let creep_along = driveway.length() * percent_time;
-                        // TODO Ideally the car would slowly disappear into the building, but some
-                        // stuff downstream needs to understand that the windows and such will get cut
-                        // off. :)
+                        // TODO Ideally the car would slowly (dis)appear into the building, but
+                        // some stuff downstream needs to understand that the windows and such will
+                        // get cut off. :)
                         full_piece.exact_slice(creep_along, creep_along + self.vehicle.length)
                     }
                 }
