@@ -14,8 +14,8 @@ I'll try to keep these links up-to-date:
   https://github.com/dabreegster/abstreet/releases/download/v0.1.10/abstreet_linux.zip
 - Windows:
   https://github.com/dabreegster/abstreet/releases/download/v0.1.10/abstreet_windows.zip
-- Mac (old; I don't have regular access to a Mac to compile):
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.6/abstreet_mac.zip
+- Mac (seems to have a HiDPI bug, text is offset):
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.10/abstreet_mac.zip
 
 ### Compiling from source
 
