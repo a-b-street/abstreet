@@ -11,7 +11,6 @@ fast_paths = "0.1.1"
 geom = { path = "../geom" }
 gtfs = { path = "../gtfs" }
 nbez = "0.1.0"
-ordered-float = "1.0.1"
 petgraph = "0.4.13"
 serde = "1.0.89"
 serde_derive = "1.0.98"
