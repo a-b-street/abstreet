@@ -57,7 +57,7 @@ impl ControlTrafficSignal {
         (normalized_phase_idx, phase, remaining_phase_time)
     }
 
-    fn validate(&self, map: &Map) -> Result<(), Error> {
+    fn validate(self, map: &Map) -> Result<ControlTrafficSignal, Error> {
         // TODO Reuse assertions from edit_turn.
 
         // Does the assignment cover the correct set of turns?
@@ -98,7 +98,7 @@ impl ControlTrafficSignal {
             }
         }
 
-        Ok(())
+        Ok(self)
     }
 
     fn greedy_assignment(map: &Map, intersection: IntersectionID) -> ControlTrafficSignal {
@@ -142,8 +142,7 @@ impl ControlTrafficSignal {
             phases,
         };
         // This must succeed
-        ts.validate(map).unwrap();
-        ts
+        ts.validate(map).unwrap()
     }
 
     fn degenerate(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
@@ -169,11 +168,7 @@ impl ControlTrafficSignal {
         let phases = make_phases(map, i, phases);
 
         let ts = ControlTrafficSignal { id: i, phases };
-        if ts.validate(map).is_ok() {
-            Some(ts)
-        } else {
-            None
-        }
+        ts.validate(map).ok()
     }
 
     fn three_way(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
@@ -222,11 +217,7 @@ impl ControlTrafficSignal {
         );
 
         let ts = ControlTrafficSignal { id: i, phases };
-        if ts.validate(map).is_ok() {
-            Some(ts)
-        } else {
-            None
-        }
+        ts.validate(map).ok()
     }
 
     fn four_way_four_phase(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
@@ -268,11 +259,7 @@ impl ControlTrafficSignal {
         );
 
         let ts = ControlTrafficSignal { id: i, phases };
-        if ts.validate(map).is_ok() {
-            Some(ts)
-        } else {
-            None
-        }
+        ts.validate(map).ok()
     }
 
     fn four_way_two_phase(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
@@ -313,11 +300,7 @@ impl ControlTrafficSignal {
         );
 
         let ts = ControlTrafficSignal { id: i, phases };
-        if ts.validate(map).is_ok() {
-            Some(ts)
-        } else {
-            None
-        }
+        ts.validate(map).ok()
     }
 
     fn four_oneways(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
@@ -369,11 +352,7 @@ impl ControlTrafficSignal {
         );
 
         let ts = ControlTrafficSignal { id: i, phases };
-        if ts.validate(map).is_ok() {
-            Some(ts)
-        } else {
-            None
-        }
+        ts.validate(map).ok()
     }
 
     pub fn convert_to_ped_scramble(&mut self, map: &Map) {

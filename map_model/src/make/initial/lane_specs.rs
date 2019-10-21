@@ -89,6 +89,9 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
     let mut back_side: Vec<LaneType> = iter::repeat(LaneType::Driving)
         .take(num_driving_back)
         .collect();
+    if osm_tags.get("lanes:both_ways") == Some(&"1".to_string()) {
+        fwd_side.insert(0, LaneType::SharedLeftTurn);
+    }
 
     // TODO Handle bus lanes properly.
     let has_bus_lane = osm_tags.contains_key("bus:lanes");
@@ -189,6 +192,7 @@ impl RoadSpec {
             LaneType::Sidewalk => 's',
             LaneType::Biking => 'b',
             LaneType::Bus => 'u',
+            LaneType::SharedLeftTurn => 'l',
         }
     }
 
@@ -199,6 +203,7 @@ impl RoadSpec {
             's' => Some(LaneType::Sidewalk),
             'b' => Some(LaneType::Biking),
             'u' => Some(LaneType::Bus),
+            'l' => Some(LaneType::SharedLeftTurn),
             _ => None,
         }
     }

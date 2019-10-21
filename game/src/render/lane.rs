@@ -52,6 +52,7 @@ impl DrawLane {
                 LaneType::Parking => cs.get_def("parking lane", Color::grey(0.2)),
                 LaneType::Sidewalk => cs.get_def("sidewalk", Color::grey(0.8)),
                 LaneType::Biking => cs.get_def("bike lane", Color::rgb(15, 125, 75)),
+                LaneType::SharedLeftTurn => cs.get("driving lane"),
             },
             polygon.clone(),
         );
@@ -80,6 +81,22 @@ impl DrawLane {
                     );
                 }
                 LaneType::Biking => {}
+                LaneType::SharedLeftTurn => {
+                    draw.push(
+                        cs.get("road center line"),
+                        lane.lane_center_pts
+                            .shift_right(LANE_THICKNESS / 2.0)
+                            .get(timer)
+                            .make_polygons(Distance::meters(0.25)),
+                    );
+                    draw.push(
+                        cs.get("road center line"),
+                        lane.lane_center_pts
+                            .shift_left(LANE_THICKNESS / 2.0)
+                            .get(timer)
+                            .make_polygons(Distance::meters(0.25)),
+                    );
+                }
             };
         }
 
@@ -199,7 +216,8 @@ fn calculate_parking_lines(lane: &Lane) -> Vec<Polygon> {
 
 fn calculate_driving_lines(lane: &Lane, parent: &Road, timer: &mut Timer) -> Vec<Polygon> {
     // The leftmost lanes don't have dashed white lines.
-    if parent.dir_and_offset(lane.id).1 == 0 {
+    let (dir, idx) = parent.dir_and_offset(lane.id);
+    if idx == 0 || (dir && parent.children_forwards[idx - 1].1 == LaneType::SharedLeftTurn) {
         return Vec::new();
     }
     let lane_edge_pts = lane

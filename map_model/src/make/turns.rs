@@ -44,7 +44,9 @@ pub fn make_all_turns(
     // turn leading to it. Except for parking lanes, of course.
     let mut incoming_missing: HashSet<LaneID> = HashSet::new();
     for l in &i.incoming_lanes {
-        if lanes[l.0].lane_type != LaneType::Parking {
+        if lanes[l.0].lane_type != LaneType::Parking
+            && lanes[l.0].lane_type != LaneType::SharedLeftTurn
+        {
             incoming_missing.insert(*l);
         }
     }
@@ -65,7 +67,9 @@ pub fn make_all_turns(
 
     let mut outgoing_missing: HashSet<LaneID> = HashSet::new();
     for l in &i.outgoing_lanes {
-        if lanes[l.0].lane_type != LaneType::Parking {
+        if lanes[l.0].lane_type != LaneType::Parking
+            && lanes[l.0].lane_type != LaneType::SharedLeftTurn
+        {
             outgoing_missing.insert(*l);
         }
     }
@@ -112,6 +116,7 @@ fn make_vehicle_turns(
         }
     }
     lane_types.remove(&LaneType::Parking);
+    lane_types.remove(&LaneType::SharedLeftTurn);
     lane_types.remove(&LaneType::Sidewalk);
 
     let mut result: Vec<Option<Turn>> = Vec::new();

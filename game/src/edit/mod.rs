@@ -110,7 +110,9 @@ impl State for EditMode {
             {
                 let lane = ui.primary.map.get_l(id);
                 let road = ui.primary.map.get_r(lane.parent);
-                if lane.lane_type != LaneType::Sidewalk {
+                if lane.lane_type != LaneType::Sidewalk
+                    && lane.lane_type != LaneType::SharedLeftTurn
+                {
                     if let Some(new_type) = next_valid_type(road, lane, &ui.primary.map) {
                         if ctx
                             .input
@@ -126,7 +128,9 @@ impl State for EditMode {
             {
                 let lane = ui.primary.map.get_l(id);
                 let road = ui.primary.map.get_r(lane.parent);
-                if lane.lane_type != LaneType::Sidewalk {
+                if lane.lane_type != LaneType::Sidewalk
+                    && lane.lane_type != LaneType::SharedLeftTurn
+                {
                     for (lt, name, key) in &[
                         (LaneType::Driving, "driving", Key::D),
                         (LaneType::Parking, "parking", Key::P),
@@ -362,6 +366,7 @@ fn next_type(lt: LaneType) -> LaneType {
         LaneType::Biking => LaneType::Bus,
         LaneType::Bus => LaneType::Driving,
 
+        LaneType::SharedLeftTurn => unreachable!(),
         LaneType::Sidewalk => unreachable!(),
     }
 }

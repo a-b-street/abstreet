@@ -28,12 +28,15 @@ impl DrawRoad {
             .unwrap();
         let width = Distance::meters(0.25);
         // If the road is a one-way (only parking and sidewalk on the off-side), draw a solid line
+        // No center line at all if there's a shared left turn lane
         if r.children_backwards
             .iter()
             .all(|(_, lt)| *lt == LaneType::Parking || *lt == LaneType::Sidewalk)
         {
             draw.push(cs.get("road center line"), center.make_polygons(width));
-        } else {
+        } else if r.children_forwards.is_empty()
+            || r.children_forwards[0].1 != LaneType::SharedLeftTurn
+        {
             draw.extend(
                 cs.get_def("road center line", Color::YELLOW),
                 dashed_lines(&center, width, Distance::meters(2.0), Distance::meters(1.0)),

@@ -137,7 +137,7 @@ impl Router {
             let lt = map.get_l(l).lane_type;
             let ok = match lt {
                 LaneType::Driving => true,
-                LaneType::Parking | LaneType::Sidewalk => false,
+                LaneType::Parking | LaneType::Sidewalk | LaneType::SharedLeftTurn => false,
                 LaneType::Biking => vehicle.vehicle_type == VehicleType::Bike,
                 LaneType::Bus => vehicle.vehicle_type == VehicleType::Bus,
             };

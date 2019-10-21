@@ -27,6 +27,7 @@ pub enum LaneType {
     Sidewalk,
     Biking,
     Bus,
+    SharedLeftTurn,
 }
 
 impl LaneType {
@@ -37,6 +38,7 @@ impl LaneType {
             LaneType::Bus => true,
             LaneType::Parking => false,
             LaneType::Sidewalk => false,
+            LaneType::SharedLeftTurn => false,
         }
     }
 }
