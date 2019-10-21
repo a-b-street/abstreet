@@ -60,6 +60,7 @@ impl ModalMenu {
             hovering_idx: None,
             standalone_layout: Some(layout::ContainerOrientation::TopRight),
 
+            // TODO If no info gets set, this should just be "hide". Woops.
             show_hide_btn: Button::hide_btn(ctx, "just show info"),
             visible: Visibility::Full,
 
@@ -141,17 +142,27 @@ impl ModalMenu {
         if self.show_hide_btn.clicked() {
             match self.visible {
                 Visibility::Full => {
-                    self.visible = Visibility::Info;
+                    // Skip the Info phase if there's nothing there.
+                    if self.info.num_lines() == 0 {
+                        self.visible = Visibility::JustTitle;
+                        self.show_hide_btn = Button::show_btn(ctx, "show");
+                    } else {
+                        self.visible = Visibility::Info;
+                        self.show_hide_btn = Button::hide_btn(ctx, "hide");
+                    }
                     self.hovering_idx = None;
-                    self.show_hide_btn = Button::show_btn(ctx, "hide");
                 }
                 Visibility::Info => {
                     self.visible = Visibility::JustTitle;
-                    self.show_hide_btn = Button::hide_btn(ctx, "show");
+                    self.show_hide_btn = Button::show_btn(ctx, "show");
                 }
                 Visibility::JustTitle => {
                     self.visible = Visibility::Full;
-                    self.show_hide_btn = Button::hide_btn(ctx, "just show info");
+                    if self.info.num_lines() == 0 {
+                        self.show_hide_btn = Button::hide_btn(ctx, "hide");
+                    } else {
+                        self.show_hide_btn = Button::hide_btn(ctx, "just show info");
+                    }
                 }
             }
             // Recalculate hovering immediately.
