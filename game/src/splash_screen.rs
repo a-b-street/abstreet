@@ -125,10 +125,10 @@ fn splash_screen(
     let sandbox = "Sandbox mode";
     let load_map = "Load another map";
     let edit = "Edit map";
-    let tutorial = "Tutorial";
-    let debug = "Debug mode";
-    let mission = "Mission Edit Mode";
     let abtest = "A/B Test Mode";
+    let tutorial = "Tutorial (unfinished)";
+    let debug = "Debug mode";
+    let mission = "Internal developer tools";
     let about = "About";
     let quit = "Quit";
 
@@ -144,10 +144,10 @@ fn splash_screen(
                 Choice::new(sandbox, ()).key(Key::S),
                 Choice::new(load_map, ()).key(Key::L),
                 Choice::new(edit, ()).key(Key::E),
+                Choice::new(abtest, ()).key(Key::A),
                 Choice::new(tutorial, ()).key(Key::T),
                 Choice::new(debug, ()).key(Key::D),
                 Choice::new(mission, ()).key(Key::M),
-                Choice::new(abtest, ()).key(Key::A),
                 Choice::new(about, ()),
                 Choice::new(quit, ()),
             ]
@@ -184,10 +184,10 @@ fn splash_screen(
             }
         }
         x if x == edit => Some(Transition::Push(Box::new(EditMode::new(ctx, ui)))),
+        x if x == abtest => Some(Transition::Push(PickABTest::new())),
         x if x == tutorial => Some(Transition::Push(Box::new(TutorialMode::new(ctx, ui)))),
         x if x == debug => Some(Transition::Push(Box::new(DebugMode::new(ctx, ui)))),
         x if x == mission => Some(Transition::Push(Box::new(MissionEditMode::new(ctx, ui)))),
-        x if x == abtest => Some(Transition::Push(PickABTest::new())),
         x if x == about => {
             if wizard.acknowledge(
                 "About A/B Street",

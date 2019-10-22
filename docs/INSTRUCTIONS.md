@@ -17,7 +17,34 @@ I'll try to keep these links up-to-date:
 - Mac (seems to have a HiDPI bug, text is offset):
   https://github.com/dabreegster/abstreet/releases/download/v0.1.10/abstreet_mac.zip
 
-### Compiling from source
+## Running the game
+
+Start the game by running `play_abstreet.sh` or `play_abstreet.bat`. On Windows,
+you'll probably get a warning about running software from an unknown publisher.
+
+General controls:
+
+- Click and drag to move
+- Scroll wheel or touchpad to zoom
+- Menus should work as expected. Most actions have a keybinding.
+- You can hover over an object and right-click to see more actions.
+
+Things to try:
+
+- In sandbox mode, hover over an intersection, right click, and spawn agents.
+  Then you can start the simulation by pressing **space** to "resume".
+- To run a realistic, full day's worth of traffic, go to sandbox mode and "reset
+  sim" if needed. Then "start a scenario" and choose the "psrc" entry (this
+  needs a better name). Time (shown in the top-right corner) starts at midnight.
+  Things tend to get interesting around 6am. Try zooming in for details, and
+  zooming out to see an overview.
+- Go to edit mode (note this will reset the simulation). Pick a lane, right
+  click, and change it to another type. You can also change which roads see a
+  stop sign by right clicking the intersection, choosing to edit, hovering over
+  a stop sign, and pressing **space** to toggle it. You can do the same for
+  intersections with traffic signals.
+
+## For developers: Compiling from source
 
 To build, you need a Linux-like environment with `bash`, `wget`, `unzip`, etc.
 You also `osmosis` for the import script. At runtime if you want to use the
@@ -41,19 +68,6 @@ referenced below. Instead:
 cd game
 cargo run --release
 ```
-
-## Running the game
-
-Start the game by running `play_abstreet.sh` or `play_abstreet.bat`. On Windows,
-you'll probably get a warning about running software from an unknown publisher.
-
-General controls:
-
-- Click and drag to move
-- Scroll wheel or touchpad to zoom
-- Follow on-screen controls otherwise. You can also try hovering over an object
-  and right-clicking to see more actions. (These controls will show up more
-  clearly soon.)
 
 ## Data source licensing
 
