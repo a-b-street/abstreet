@@ -41,10 +41,9 @@ impl ControlTrafficSignal {
         if let Some(ts) = ControlTrafficSignal::four_oneways(map, id) {
             results.push(("two-phase for 4 one-ways".to_string(), ts));
         }
-        results.push((
-            "phase per road".to_string(),
-            ControlTrafficSignal::phase_per_road(map, id),
-        ));
+        if let Some(ts) = ControlTrafficSignal::phase_per_road(map, id) {
+            results.push(("phase per road".to_string(), ts));
+        }
         results.push((
             "arbitrary assignment".to_string(),
             ControlTrafficSignal::greedy_assignment(map, id),
@@ -390,7 +389,7 @@ impl ControlTrafficSignal {
         ts.validate(map).unwrap()
     }
 
-    fn phase_per_road(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
+    fn phase_per_road(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
         let mut phases = Vec::new();
         let sorted_roads = map
             .get_i(i)
@@ -413,11 +412,13 @@ impl ControlTrafficSignal {
                     phase.yield_turns.insert(turn.id);
                 }
             }
-            phases.push(phase);
+            // Might have a one-way outgoing road. Skip it.
+            if !phase.yield_turns.is_empty() {
+                phases.push(phase);
+            }
         }
         let ts = ControlTrafficSignal { id: i, phases };
-        // This must succeed
-        ts.validate(map).unwrap()
+        ts.validate(map).ok()
     }
 
     pub fn convert_to_ped_scramble(&mut self, map: &Map) {

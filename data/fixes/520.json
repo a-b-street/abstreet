@@ -816,6 +816,18 @@
         "osm_node_id": -1569786907
       },
       "synthetic": true
+    },
+    {
+      "point": {
+        "inner_x": 1195.7391,
+        "inner_y": 418.7821
+      },
+      "intersection_type": "StopSign",
+      "label": null,
+      "orig_id": {
+        "osm_node_id": -1571780064
+      },
+      "synthetic": true
     }
   ],
   "add_roads": [
@@ -1347,6 +1359,64 @@
         "abst:osm_way_id": "-1569786954",
         "abst:synthetic": "true",
         "abst:synthetic_lanes": "dps/dps",
+        "maxspeed": "25 mph",
+        "name": "Streety McStreetFace"
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 386,
+      "i2": 389,
+      "center_points": [
+        {
+          "inner_x": 1331.3542,
+          "inner_y": 393.7066
+        },
+        {
+          "inner_x": 1195.7391,
+          "inner_y": 418.7821
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1571780069,
+        "node1": -1569786822,
+        "node2": -1571780064
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1571780069",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "d/",
+        "maxspeed": "25 mph",
+        "name": "Streety McStreetFace"
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 389,
+      "i2": 235,
+      "center_points": [
+        {
+          "inner_x": 1195.7391,
+          "inner_y": 418.7821
+        },
+        {
+          "inner_x": 1166.8399,
+          "inner_y": 401.814
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1571780074,
+        "node1": -1571780064,
+        "node2": 29447668
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1571780074",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "d/",
         "maxspeed": "25 mph",
         "name": "Streety McStreetFace"
       },

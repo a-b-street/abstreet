@@ -659,6 +659,7 @@ impl Model {
             LaneType::Parking => Color::grey(0.2),
             LaneType::Sidewalk => Color::grey(0.8),
             LaneType::Biking => Color::rgb(15, 125, 75),
+            LaneType::SharedLeftTurn => Color::YELLOW,
         };
         if synthetic {
             if unset {

@@ -21,8 +21,7 @@ list.
 ## montlake
 
 - full PSRC day finishes with traffic signals
-- ~800 aborted trips, mostly from incomplete 520 fixes
-  - adding the eastbound onramp breaks the traffic signal
+- ~300 aborted trips, no free car available
 
 ## 23rd
 
