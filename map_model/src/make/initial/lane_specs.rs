@@ -89,7 +89,10 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
     let mut back_side: Vec<LaneType> = iter::repeat(LaneType::Driving)
         .take(num_driving_back)
         .collect();
-    if osm_tags.get("lanes:both_ways") == Some(&"1".to_string()) {
+    // TODO Fix upstream. https://wiki.openstreetmap.org/wiki/Key:centre_turn_lane
+    if osm_tags.get("lanes:both_ways") == Some(&"1".to_string())
+        || osm_tags.get("centre_turn_lane") == Some(&"yes".to_string())
+    {
         fwd_side.insert(0, LaneType::SharedLeftTurn);
     }
 
