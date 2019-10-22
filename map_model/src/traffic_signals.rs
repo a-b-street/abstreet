@@ -45,6 +45,10 @@ impl ControlTrafficSignal {
             "arbitrary assignment".to_string(),
             ControlTrafficSignal::greedy_assignment(map, id),
         ));
+        results.push((
+            "all walk, then free-for-all yield".to_string(),
+            ControlTrafficSignal::all_walk_all_yield(map, id),
+        ));
         results
     }
 
@@ -353,6 +357,33 @@ impl ControlTrafficSignal {
 
         let ts = ControlTrafficSignal { id: i, phases };
         ts.validate(map).ok()
+    }
+
+    fn all_walk_all_yield(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
+        let mut all_walk = Phase::new(i);
+        let mut all_yield = Phase::new(i);
+
+        for turn in map.get_turns_in_intersection(i) {
+            match turn.turn_type {
+                TurnType::SharedSidewalkCorner => {
+                    all_walk.priority_turns.insert(turn.id);
+                    all_yield.priority_turns.insert(turn.id);
+                }
+                TurnType::Crosswalk => {
+                    all_walk.priority_turns.insert(turn.id);
+                }
+                _ => {
+                    all_yield.yield_turns.insert(turn.id);
+                }
+            }
+        }
+
+        let ts = ControlTrafficSignal {
+            id: i,
+            phases: vec![all_walk, all_yield],
+        };
+        // This must succeed
+        ts.validate(map).unwrap()
     }
 
     pub fn convert_to_ped_scramble(&mut self, map: &Map) {
