@@ -75,28 +75,34 @@ pub fn make_all_buildings(
 
             // Make a driveway from the parking icon to the nearest road.
             if let Some(ref mut p) = bldg.parking {
-                let (driving_lane, driving_pt) = closest_driving
-                    .closest_pt(bldg.label_center, Distance::meters(100.0))
-                    .expect("Can't find driveway!");
-                let dist_along = lanes[driving_lane.0]
-                    .dist_along_of_point(driving_pt)
-                    .expect("Can't find dist_along_of_point for driveway");
-                p.driveway_line =
-                    trim_path(&bldg.polygon, Line::new(bldg.label_center, driving_pt));
-                if p.driveway_line.length() < Distance::meters(1.0) {
+                if let Some((driving_lane, driving_pt)) =
+                    closest_driving.closest_pt(bldg.label_center, Distance::meters(100.0))
+                {
+                    let dist_along = lanes[driving_lane.0]
+                        .dist_along_of_point(driving_pt)
+                        .expect("Can't find dist_along_of_point for driveway");
+                    p.driveway_line =
+                        trim_path(&bldg.polygon, Line::new(bldg.label_center, driving_pt));
+                    if p.driveway_line.length() < Distance::meters(1.0) {
+                        timer.warn(format!(
+                            "Driveway of {} is very short: {}",
+                            bldg.id,
+                            p.driveway_line.length()
+                        ));
+                    }
+                    p.driving_pos = Position::new(driving_lane, dist_along);
+                    if lanes[driving_lane.0].length() - dist_along < Distance::meters(7.0) {
+                        timer.warn(format!("Skipping driveway of {}, too close to the end of the road. Forfeiting {} stalls!", bldg.id, p.num_stalls));
+                        bldg.parking = None;
+                    } else if dist_along < Distance::meters(1.0) {
+                        timer.warn(format!("Skipping driveway of {}, too close to the start of the road. Forfeiting {} stalls!", bldg.id, p.num_stalls));
+                        bldg.parking = None;
+                    }
+                } else {
                     timer.warn(format!(
-                        "Driveway of {} is very short: {}",
-                        bldg.id,
-                        p.driveway_line.length()
+                        "Can't find driveway for {}, forfeiting {} stalls",
+                        bldg.id, p.num_stalls
                     ));
-                }
-                p.driving_pos = Position::new(driving_lane, dist_along);
-                if lanes[driving_lane.0].length() - dist_along < Distance::meters(7.0) {
-                    timer.warn(format!("Skipping driveway of {}, too close to the end of the road. Forfeiting {} stalls!", bldg.id, p.num_stalls));
-                    bldg.parking = None;
-                } else if dist_along < Distance::meters(1.0) {
-                    timer.warn(format!("Skipping driveway of {}, too close to the start of the road. Forfeiting {} stalls!", bldg.id, p.num_stalls));
-                    bldg.parking = None;
                 }
             }
 

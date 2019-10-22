@@ -1,5 +1,5 @@
 use abstutil::{Counter, Timer};
-use geom::HashablePt2D;
+use geom::{HashablePt2D, Pt2D};
 use map_model::raw::{
     OriginalIntersection, RawIntersection, RawMap, RawRoad, RestrictionType, StableIntersectionID,
     StableRoadID,
@@ -85,7 +85,7 @@ pub fn split_up_roads(
                 }
                 r.orig_id.node1 = osm_node_ids[&pts[0].to_hashable()];
                 r.orig_id.node2 = osm_node_ids[&pts.last().unwrap().to_hashable()];
-                r.center_points = std::mem::replace(&mut pts, Vec::new());
+                r.center_points = dedupe_angles(std::mem::replace(&mut pts, Vec::new()));
                 // Start a new road
                 map.roads.insert(StableRoadID(map.roads.len()), r.clone());
                 r.osm_tags.remove(osm::ENDPT_FWD);
@@ -138,4 +138,24 @@ pub fn split_up_roads(
 
     timer.stop("splitting up roads");
     map
+}
+
+// TODO Consider doing this in PolyLine::new always. extend() there does this too.
+fn dedupe_angles(pts: Vec<Pt2D>) -> Vec<Pt2D> {
+    let mut result = Vec::new();
+    for (idx, pt) in pts.into_iter().enumerate() {
+        let l = result.len();
+        if idx == 0 || idx == 1 {
+            result.push(pt);
+        } else if result[l - 2]
+            .angle_to(result[l - 1])
+            .approx_eq(result[l - 1].angle_to(pt), 0.1)
+        {
+            result.pop();
+            result.push(pt);
+        } else {
+            result.push(pt);
+        }
+    }
+    result
 }
