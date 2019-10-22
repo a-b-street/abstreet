@@ -194,7 +194,7 @@ impl TripManager {
             p
         } else {
             println!(
-                "Aborting {} at {} because no path for the car portion! {:?} to {:?}",
+                "Aborting {} at {} because no path for the car portion! {} to {}",
                 trip.id, now, start, end
             );
             self.unfinished_trips -= 1;
@@ -246,7 +246,7 @@ impl TripManager {
             p
         } else {
             println!(
-                "Aborting {} at {} because no path for the bike portion! {:?} to {:?}",
+                "Aborting {} at {} because no path for the bike portion! {} to {}",
                 trip.id, now, driving_pos, end
             );
             self.unfinished_trips -= 1;

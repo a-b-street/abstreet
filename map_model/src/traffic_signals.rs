@@ -42,6 +42,10 @@ impl ControlTrafficSignal {
             results.push(("two-phase for 4 one-ways".to_string(), ts));
         }
         results.push((
+            "phase per road".to_string(),
+            ControlTrafficSignal::phase_per_road(map, id),
+        ));
+        results.push((
             "arbitrary assignment".to_string(),
             ControlTrafficSignal::greedy_assignment(map, id),
         ));
@@ -382,6 +386,36 @@ impl ControlTrafficSignal {
             id: i,
             phases: vec![all_walk, all_yield],
         };
+        // This must succeed
+        ts.validate(map).unwrap()
+    }
+
+    fn phase_per_road(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
+        let mut phases = Vec::new();
+        let sorted_roads = map
+            .get_i(i)
+            .get_roads_sorted_by_incoming_angle(map.all_roads());
+        for idx in 0..sorted_roads.len() {
+            let r = sorted_roads[idx];
+            let adj1 = *abstutil::wraparound_get(&sorted_roads, (idx as isize) - 1);
+            let adj2 = *abstutil::wraparound_get(&sorted_roads, (idx as isize) + 1);
+
+            let mut phase = Phase::new(i);
+            for turn in map.get_turns_in_intersection(i) {
+                let parent = map.get_l(turn.id.src).parent;
+                if turn.turn_type == TurnType::SharedSidewalkCorner {
+                    phase.priority_turns.insert(turn.id);
+                } else if turn.turn_type == TurnType::Crosswalk {
+                    if parent == adj1 || parent == adj2 {
+                        phase.priority_turns.insert(turn.id);
+                    }
+                } else if parent == r {
+                    phase.yield_turns.insert(turn.id);
+                }
+            }
+            phases.push(phase);
+        }
+        let ts = ControlTrafficSignal { id: i, phases };
         // This must succeed
         ts.validate(map).unwrap()
     }
