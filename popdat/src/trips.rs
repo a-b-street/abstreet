@@ -257,15 +257,11 @@ pub fn clip_trips(map: &Map, timer: &mut Timer) -> (Vec<Trip>, HashMap<BuildingI
     (trips, bldgs)
 }
 
-pub fn trips_to_scenario(map: &Map, t1: Duration, t2: Duration, timer: &mut Timer) -> Scenario {
+pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
     let (trips, _) = clip_trips(map, timer);
     // TODO Don't clone trips for parallelize
     let individ_trips = timer
         .parallelize("turn PSRC trips into SpawnTrips", trips.clone(), |trip| {
-            if trip.depart_at < t1 || trip.depart_at > t2 {
-                return None;
-            }
-
             match trip.mode {
                 Mode::Drive => match trip.from {
                     TripEndpt::Border(_, _) => {
@@ -355,7 +351,7 @@ pub fn trips_to_scenario(map: &Map, t1: Duration, t2: Duration, timer: &mut Time
         avail_per_bldg.insert(b.id, 0);
     }
     for trip in trips {
-        if trip.depart_at < t1 || trip.depart_at > t2 || trip.mode != Mode::Drive {
+        if trip.mode != Mode::Drive {
             continue;
         }
         if let TripEndpt::Building(b) = trip.from {
@@ -371,7 +367,7 @@ pub fn trips_to_scenario(map: &Map, t1: Duration, t2: Duration, timer: &mut Time
     }
 
     Scenario {
-        scenario_name: format!("psrc_{}_to_{}", t1.as_filename(), t2.as_filename()),
+        scenario_name: "weekday_typical_traffic_from_psrc".to_string(),
         map_name: map.get_name().to_string(),
         seed_parked_cars: Vec::new(),
         spawn_over_time: Vec::new(),

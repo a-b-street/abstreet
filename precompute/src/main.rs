@@ -1,5 +1,4 @@
 use abstutil::{CmdArgs, Timer};
-use geom::Duration;
 use map_model::Map;
 use popdat::trips_to_scenario;
 
@@ -17,6 +16,6 @@ fn main() {
     timer.stop("save map");
 
     if !disable_psrc_scenarios {
-        trips_to_scenario(&map, Duration::ZERO, Duration::END_OF_DAY, &mut timer).save();
+        trips_to_scenario(&map, &mut timer).save();
     }
 }

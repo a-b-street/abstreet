@@ -12,7 +12,7 @@ function common_release {
 	for map in 23rd ballard caphill downtown montlake; do
 		cp -v data/maps/$map.bin $OUT/data/maps/
 		mkdir -p $OUT/data/scenarios/$map
-		cp -v data/scenarios/$map/psrc* $OUT/data/scenarios/$map/
+		cp -v data/scenarios/$map/weekday_typical_traffic_from_psrc.bin $OUT/data/scenarios/$map/
 	done
 
 	mkdir $OUT/data/shapes
