@@ -24,6 +24,7 @@ pub struct Model {
     include_bldgs: bool,
     fixes: MapFixes,
     edit_fixes: Option<String>,
+    pub intersection_geom: bool,
 }
 
 // Construction
@@ -37,6 +38,7 @@ impl Model {
             fixes: MapFixes::new(),
             edit_fixes: None,
             world: World::new(&Bounds::new()),
+            intersection_geom: false,
         }
     }
 
@@ -44,6 +46,7 @@ impl Model {
         path: &str,
         include_bldgs: bool,
         edit_fixes: Option<String>,
+        intersection_geom: bool,
         prerender: &Prerender,
     ) -> Model {
         let mut timer = Timer::new("import map");
@@ -52,6 +55,7 @@ impl Model {
         model.edit_fixes = edit_fixes;
         model.map = read_binary(path, &mut timer).unwrap();
         model.fixes.gps_bounds = model.map.gps_bounds.clone();
+        model.intersection_geom = intersection_geom;
 
         let mut all_fixes = MapFixes::load(&mut timer);
         model.map.apply_fixes(&all_fixes, &mut timer);
@@ -265,12 +269,20 @@ impl Model {
             IntersectionType::StopSign => Color::RED,
             IntersectionType::Border => Color::BLUE,
         };
+
+        let poly = if self.intersection_geom && !self.map.roads_per_intersection(id).is_empty() {
+            let (poly, _, _) = self.map.preview_intersection(id, &mut Timer::throwaway());
+            poly
+        } else {
+            Circle::new(i.point, INTERSECTION_RADIUS).to_polygon()
+        };
+
         self.world.add(
             prerender,
             Object::new(
                 ID::Intersection(id),
                 if i.synthetic { color.alpha(0.5) } else { color },
-                Circle::new(i.point, INTERSECTION_RADIUS).to_polygon(),
+                poly,
             )
             .maybe_label(i.label.clone()),
         );
@@ -721,12 +733,16 @@ impl Model {
 
         self.stop_showing_pts(id);
         self.road_deleted(id);
+        self.world.delete(ID::Intersection(self.map.roads[&id].i1));
+        self.world.delete(ID::Intersection(self.map.roads[&id].i2));
 
         let mut pts = self.map.roads[&id].center_points.clone();
         pts[idx] = point;
         self.map.override_road_points(id, pts);
 
         self.road_added(id, prerender);
+        self.intersection_added(self.map.roads[&id].i1, prerender);
+        self.intersection_added(self.map.roads[&id].i2, prerender);
         self.show_r_points(id, prerender);
     }
 
@@ -735,12 +751,16 @@ impl Model {
 
         self.stop_showing_pts(id);
         self.road_deleted(id);
+        self.world.delete(ID::Intersection(self.map.roads[&id].i1));
+        self.world.delete(ID::Intersection(self.map.roads[&id].i2));
 
         let mut pts = self.map.roads[&id].center_points.clone();
         pts.remove(idx);
         self.map.override_road_points(id, pts);
 
         self.road_added(id, prerender);
+        self.intersection_added(self.map.roads[&id].i1, prerender);
+        self.intersection_added(self.map.roads[&id].i2, prerender);
         self.show_r_points(id, prerender);
     }
 

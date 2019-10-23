@@ -51,10 +51,17 @@ impl UI {
         let load = args.optional_free();
         let include_bldgs = args.enabled("--bldgs");
         let edit_fixes = args.optional("--fixes");
+        let intersection_geom = args.enabled("--geom");
         args.done();
 
         let model = if let Some(path) = load {
-            Model::import(&path, include_bldgs, edit_fixes, ctx.prerender)
+            Model::import(
+                &path,
+                include_bldgs,
+                edit_fixes,
+                intersection_geom,
+                ctx.prerender,
+            )
         } else {
             Model::blank()
         };
@@ -150,9 +157,10 @@ impl GUI for UI {
                             self.model.toggle_i_type(i, ctx.prerender);
                         } else if ctx.input.key_pressed(Key::L, "label intersection") {
                             self.state = State::LabelingIntersection(i, Wizard::new());
-                        } else if ctx
-                            .input
-                            .key_pressed(Key::P, "preview intersection geometry")
+                        } else if !self.model.intersection_geom
+                            && ctx
+                                .input
+                                .key_pressed(Key::P, "preview intersection geometry")
                         {
                             let (draw, labels) = preview_intersection(i, &self.model, ctx);
                             self.state = State::PreviewIntersection(draw, labels, false);
@@ -268,7 +276,9 @@ impl GUI for UI {
                             self.state = State::EnteringWarp(Wizard::new());
                         } else if self.menu.action("produce OSM parking diff") {
                             upstream::find_parking_diffs(&self.model.map);
-                        } else if self.menu.action("preview all intersections") {
+                        } else if !self.model.intersection_geom
+                            && self.menu.action("preview all intersections")
+                        {
                             let (draw, labels) = preview_all_intersections(&self.model, ctx);
                             self.state = State::PreviewIntersection(draw, labels, false);
                         } else if self.menu.action("find overlapping intersections") {
