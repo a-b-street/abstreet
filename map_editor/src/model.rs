@@ -586,6 +586,63 @@ impl Model {
         }
     }
 
+    // TODO Refactor with toggle_r_parking?
+    pub fn toggle_r_sidewalks(&mut self, some_id: StableRoadID, prerender: &Prerender) {
+        // Update every road belonging to the way.
+        let osm_id = self.map.roads[&some_id].osm_tags[osm::OSM_WAY_ID].clone();
+        let matching_roads = self
+            .map
+            .roads
+            .iter()
+            .filter_map(|(k, v)| {
+                if v.osm_tags[osm::OSM_WAY_ID] == osm_id {
+                    Some(*k)
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<_>>();
+
+        // Verify every road has the same sidewalk tags. Hints might've applied to just some parts.
+        // If this is really true, then the way has to be split.
+        let value = self.map.roads[&some_id]
+            .osm_tags
+            .get(osm::SIDEWALK)
+            .cloned();
+        for r in &matching_roads {
+            if self.map.roads[r].osm_tags.get(osm::SIDEWALK) != value.as_ref() {
+                println!(
+                    "WARNING: {} and {} belong to same way, but have different parking tags!",
+                    some_id, r
+                );
+            }
+        }
+
+        for id in matching_roads {
+            self.road_deleted(id);
+
+            let mut osm_tags = self.map.roads[&id].osm_tags.clone();
+            osm_tags.remove(osm::INFERRED_SIDEWALKS);
+            if value == Some("both".to_string()) {
+                osm_tags.insert(osm::SIDEWALK.to_string(), "right".to_string());
+            } else if value == Some("right".to_string()) {
+                osm_tags.insert(osm::SIDEWALK.to_string(), "left".to_string());
+            } else if value == Some("left".to_string()) {
+                osm_tags.insert(osm::SIDEWALK.to_string(), "none".to_string());
+            } else if value == Some("none".to_string()) {
+                osm_tags.insert(osm::SIDEWALK.to_string(), "both".to_string());
+            }
+
+            self.map.override_metadata(
+                id,
+                osm_tags,
+                self.map.roads[&id].turn_restrictions.clone(),
+                &mut self.fixes,
+            );
+            self.road_added(id, prerender);
+        }
+    }
+
     pub fn delete_r(&mut self, id: StableRoadID) {
         self.stop_showing_pts(id);
 
@@ -603,7 +660,8 @@ impl Model {
         let synthetic = r.synthetic();
         let unset =
             synthetic && r.osm_tags.get(osm::NAME) == Some(&"Streety McStreetFace".to_string());
-        let parking_unknown = r.osm_tags.contains_key(osm::INFERRED_PARKING);
+        let lanes_unknown = r.osm_tags.contains_key(osm::INFERRED_PARKING)
+            || r.osm_tags.contains_key(osm::INFERRED_SIDEWALKS);
         let spec = r.get_spec();
         let center_pts = PolyLine::new(r.center_points.clone());
 
@@ -614,7 +672,7 @@ impl Model {
 
         for (idx, lt) in spec.fwd.iter().enumerate() {
             obj.push(
-                Model::lt_to_color(*lt, synthetic, unset, parking_unknown),
+                Model::lt_to_color(*lt, synthetic, unset, lanes_unknown),
                 center_pts
                     .shift_right(LANE_THICKNESS * (0.5 + (idx as f64)))
                     .unwrap()
@@ -629,7 +687,7 @@ impl Model {
         }
         for (idx, lt) in spec.back.iter().enumerate() {
             obj.push(
-                Model::lt_to_color(*lt, synthetic, unset, parking_unknown),
+                Model::lt_to_color(*lt, synthetic, unset, lanes_unknown),
                 center_pts
                     .reversed()
                     .shift_right(LANE_THICKNESS * (0.5 + (idx as f64)))
@@ -664,7 +722,7 @@ impl Model {
     }
 
     // Copied from render/lane.rs. :(
-    fn lt_to_color(lt: LaneType, synthetic: bool, unset: bool, parking_unknown: bool) -> Color {
+    fn lt_to_color(lt: LaneType, synthetic: bool, unset: bool, lanes_unknown: bool) -> Color {
         let color = match lt {
             LaneType::Driving => Color::BLACK,
             LaneType::Bus => Color::rgb(190, 74, 76),
@@ -682,7 +740,7 @@ impl Model {
             } else {
                 color.alpha(0.5)
             }
-        } else if parking_unknown {
+        } else if lanes_unknown {
             match color {
                 Color::RGBA(r, g, _, _) => Color::rgba_f(r, g, 0.9, 0.5),
                 _ => unreachable!(),

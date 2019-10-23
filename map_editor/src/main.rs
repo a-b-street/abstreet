@@ -75,7 +75,7 @@ impl UI {
                     (hotkey(Key::S), "save raw map"),
                     (hotkey(Key::F), "save map fixes"),
                     (hotkey(Key::J), "warp to something"),
-                    (None, "produce OSM parking diff"),
+                    (None, "produce OSM parking+sidewalk diff"),
                     (hotkey(Key::G), "preview all intersections"),
                     (None, "find overlapping intersections"),
                 ]],
@@ -201,6 +201,9 @@ impl GUI for UI {
                             self.model.toggle_r_parking(r, ctx.prerender);
                             self.model.world.handle_mouseover(ctx);
                             self.recount_parking_tags(ctx);
+                        } else if ctx.input.key_pressed(Key::F, "toggle sidewalks") {
+                            self.model.toggle_r_sidewalks(r, ctx.prerender);
+                            self.model.world.handle_mouseover(ctx);
                         } else if ctx
                             .input
                             .key_pressed(Key::R, "create turn restriction from here")
@@ -274,8 +277,8 @@ impl GUI for UI {
                             }
                         } else if self.menu.action("warp to something") {
                             self.state = State::EnteringWarp(Wizard::new());
-                        } else if self.menu.action("produce OSM parking diff") {
-                            upstream::find_parking_diffs(&self.model.map);
+                        } else if self.menu.action("produce OSM parking+sidewalk diff") {
+                            upstream::find_diffs(&self.model.map);
                         } else if !self.model.intersection_geom
                             && self.menu.action("preview all intersections")
                         {

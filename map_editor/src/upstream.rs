@@ -4,16 +4,20 @@ use std::collections::BTreeMap;
 use std::fs::File;
 use std::io::Write;
 
-pub fn find_parking_diffs(map: &RawMap) {
+pub fn find_diffs(map: &RawMap) {
     let mut way_to_tags: BTreeMap<String, BTreeMap<String, String>> = BTreeMap::new();
     for r in map.roads.values() {
-        if r.synthetic() || r.osm_tags.contains_key(osm::INFERRED_PARKING) {
+        if r.synthetic()
+            || r.osm_tags.contains_key(osm::INFERRED_PARKING)
+            || r.osm_tags.contains_key(osm::INFERRED_SIDEWALKS)
+        {
             continue;
         }
         let tags = r.osm_tags.clone();
         if !tags.contains_key(osm::PARKING_LEFT)
             && !tags.contains_key(osm::PARKING_RIGHT)
             && !tags.contains_key(osm::PARKING_BOTH)
+            && !tags.contains_key(osm::SIDEWALK)
         {
             continue;
         }
@@ -43,13 +47,19 @@ pub fn find_parking_diffs(map: &RawMap) {
         if abst_tags.get(osm::PARKING_LEFT) == osm_tags.get(osm::PARKING_LEFT)
             && abst_tags.get(osm::PARKING_RIGHT) == osm_tags.get(osm::PARKING_RIGHT)
             && abst_tags.get(osm::PARKING_BOTH) == osm_tags.get(osm::PARKING_BOTH)
+            && abst_tags.get(osm::SIDEWALK) == osm_tags.get(osm::SIDEWALK)
         {
             println!("{} is already up-to-date in OSM", way);
             continue;
         }
 
         // Fill out these tags.
-        for tag_key in vec![osm::PARKING_LEFT, osm::PARKING_RIGHT, osm::PARKING_BOTH] {
+        for tag_key in vec![
+            osm::PARKING_LEFT,
+            osm::PARKING_RIGHT,
+            osm::PARKING_BOTH,
+            osm::SIDEWALK,
+        ] {
             if let Some(value) = abst_tags.get(tag_key) {
                 osm_tags.insert(tag_key.to_string(), value.to_string());
             } else {
@@ -81,7 +91,7 @@ pub fn find_parking_diffs(map: &RawMap) {
     if modified_ways.is_empty() {
         return;
     }
-    let path = "parking_diff.osc";
+    let path = "diff.osc";
     let mut f = File::create(path).unwrap();
     writeln!(f, "<osmChange version=\"0.6\" generator=\"abst\"><modify>").unwrap();
     for w in modified_ways {

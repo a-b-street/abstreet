@@ -88,7 +88,7 @@ ffmpeg -ss 10.0 -t 5.0 -i raw.avi -f gif -filter_complex "[0:v] fps=12,scale=102
 ## JOSM
 
 ```
-java -jar ~/Downloads/josm-tested.jar ~/abstreet/map_editor/parking_diff.osc
+java -jar ~/Downloads/josm-tested.jar ~/abstreet/map_editor/diff.osc
 ```
 
 Press (and release T), then click to pan. Download a relevant layer, select the
