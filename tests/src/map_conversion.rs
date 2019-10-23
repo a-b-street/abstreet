@@ -9,6 +9,7 @@ pub fn run(t: &mut TestRunner) {
             osm: "../data/input/montlake.osm".to_string(),
             parking_shapes: Some("../data/shapes/blockface.bin".to_string()),
             offstreet_parking: Some("../data/input/offstreet_parking.kml".to_string()),
+            sidewalks: Some("../data/shapes/sidewalks.bin".to_string()),
             gtfs: Some("../data/input/google_transit_2018_18_08".to_string()),
             neighborhoods: Some("../data/input/neighborhoods.geojson".to_string()),
             clip: Some(abstutil::path_polygon("montlake")),

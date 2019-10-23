@@ -123,4 +123,5 @@ for poly in `ls ../data/polygons/`; do
 		--neighborhoods=../data/input/neighborhoods.geojson \
 		--clip=../data/polygons/$name.poly \
 		--output=../data/raw_maps/$name.bin
+		#--sidewalks=../data/shapes/sidewalks.bin \
 done

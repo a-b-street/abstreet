@@ -131,13 +131,12 @@ takes a few seconds to load a serialized map.
 - `lib.rs`: Apply parking hints from a King County GIS blockface dataset
   - Match each blockface to the nearest edge of a road
   - Interpret the metadata to assign on-street parking there or not
-- `lib.rs`: Use a King County GIS street signs dataset to prune on-street
-  parking (**Currently disabled** due to too many bad overrides)
-  - Match street signs indicating "no parking allowed" to the nearest edge of a
-    road
 - `lib.rs`: Apply offstreet parking hints from a King County GIS dataset
   - Match each point to the building containing it, plumbing through the number
     of spots
+- `lib.rs`: Apply sidewalk presence hints from a King County GIS dataset
+  - Match each sidewalk line to the nearest edge of a road
+  - Update the road to have a sidewalk on none, one, or both sides
 - `lib.rs` using the `gtfs` crate: Load bus route info from GTFS
 - `neighborhoods.rs`: Load neighborhood polygons from an extra geojson file
   - If the polygon isn't completely in-bounds, just remove it
@@ -164,9 +163,9 @@ and `Map`, called `InitialMap`.
   - Remove roads from all but the largest partition
   - Also remove cul-de-sacs (roads that begin and end at the same intersection),
     because they mess up parking hints and pathfinding.
-- `make/initial/mod.rs` and `make/initial/lane_specs.rs`: Interpret OSM tags and
-  parking hints to figure out what lanes are on each side of each road, also
-  figuring out the total width of the road.
+- `make/initial/mod.rs` and `make/initial/lane_specs.rs`: Interpret OSM tags to
+  figure out what lanes are on each side of each road, also figuring out the
+  total width of the road.
 - `make/initial/geometry.rs`: Figure out the polygon for each intersection, and
   trim back road center-lines to end at a face of the polygon.
   - For every road touching the intersection, get the polyline of each side,

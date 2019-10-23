@@ -101,6 +101,16 @@ pub fn extract_osm(
                 tags.insert(osm::INFERRED_PARKING.to_string(), "true".to_string());
             }
 
+            // If there's no sidewalk data in OSM already, then assume both sides and mark that
+            // it's inferred.
+            if !tags.contains_key(osm::SIDEWALK)
+                && tags.get(osm::HIGHWAY) != Some(&"motorway".to_string())
+                && tags.get(osm::HIGHWAY) != Some(&"motorway_link".to_string())
+            {
+                tags.insert(osm::SIDEWALK.to_string(), "both".to_string());
+                tags.insert(osm::INFERRED_SIDEWALKS.to_string(), "true".to_string());
+            }
+
             roads.push(RawRoad {
                 orig_id: OriginalRoad {
                     osm_way_id: way.id,

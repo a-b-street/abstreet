@@ -14,6 +14,7 @@ pub struct Flags {
     pub osm: String,
     pub parking_shapes: Option<String>,
     pub offstreet_parking: Option<String>,
+    pub sidewalks: Option<String>,
     pub gtfs: Option<String>,
     pub neighborhoods: Option<String>,
     pub clip: Option<String>,
@@ -37,6 +38,9 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> RawMap {
     }
     if let Some(ref path) = flags.offstreet_parking {
         use_offstreet_parking(&mut map, path, timer);
+    }
+    if let Some(ref path) = flags.sidewalks {
+        use_sidewalk_hints(&mut map, path, timer);
     }
     if let Some(ref path) = flags.gtfs {
         timer.start("load GTFS");
@@ -203,4 +207,76 @@ fn use_offstreet_parking(map: &mut RawMap, path: &str, timer: &mut Timer) {
         handle_shape(s);
     }
     timer.stop("match offstreet parking points");
+}
+
+fn use_sidewalk_hints(map: &mut RawMap, path: &str, timer: &mut Timer) {
+    timer.start("apply sidewalk hints");
+    let shapes: ExtraShapes = abstutil::read_binary(path, timer).unwrap();
+
+    // Match shapes with the nearest road + direction (true for forwards)
+    let mut closest: FindClosest<(StableRoadID, bool)> =
+        FindClosest::new(&map.gps_bounds.to_bounds());
+    for (id, r) in &map.roads {
+        let center = PolyLine::new(r.center_points.clone());
+        closest.add(
+            (*id, true),
+            center.shift_right(LANE_THICKNESS).get(timer).points(),
+        );
+        closest.add(
+            (*id, false),
+            center.shift_left(LANE_THICKNESS).get(timer).points(),
+        );
+    }
+
+    for s in shapes.shapes.into_iter() {
+        let pts = if let Some(pts) = map.gps_bounds.try_convert(&s.points) {
+            pts
+        } else {
+            continue;
+        };
+        if pts.len() <= 1 {
+            continue;
+        }
+        // The endpoints will be close to other roads, so match based on the middle of the
+        // blockface.
+        // TODO Long lines sometimes cover two roads. Should maybe find ALL matches within the
+        // threshold distance?
+        if let Some(middle) = PolyLine::maybe_new(pts).map(|pl| pl.middle()) {
+            if let Some(((r, fwds), _)) = closest.closest_pt(middle, LANE_THICKNESS * 5.0) {
+                let osm_tags = &mut map.roads.get_mut(&r).unwrap().osm_tags;
+
+                // Skip if the road already has this mapped.
+                if !osm_tags.contains_key(osm::INFERRED_SIDEWALKS) {
+                    continue;
+                }
+
+                let definitely_no_sidewalks = match osm_tags.get(osm::HIGHWAY) {
+                    Some(hwy) => hwy == "motorway" || hwy == "motorway_link",
+                    None => false,
+                };
+                if definitely_no_sidewalks {
+                    timer.warn(format!(
+                        "Sidewalks shapefile says there's something along motorway {}, ignoring",
+                        r
+                    ));
+                    continue;
+                }
+
+                if fwds {
+                    if osm_tags.get(osm::SIDEWALK) == Some(&"left".to_string()) {
+                        osm_tags.insert(osm::SIDEWALK.to_string(), "both".to_string());
+                    } else {
+                        osm_tags.insert(osm::SIDEWALK.to_string(), "right".to_string());
+                    }
+                } else {
+                    if osm_tags.get(osm::SIDEWALK) == Some(&"right".to_string()) {
+                        osm_tags.insert(osm::SIDEWALK.to_string(), "both".to_string());
+                    } else {
+                        osm_tags.insert(osm::SIDEWALK.to_string(), "left".to_string());
+                    }
+                }
+            }
+        }
+    }
+    timer.stop("apply sidewalk hints");
 }

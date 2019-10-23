@@ -46,6 +46,28 @@ impl PolyLine {
         result
     }
 
+    pub fn maybe_new(pts: Vec<Pt2D>) -> Option<PolyLine> {
+        if pts.len() < 2 {
+            return None;
+        }
+        let length = pts.windows(2).fold(Distance::ZERO, |so_far, pair| {
+            so_far + pair[0].dist_to(pair[1])
+        });
+
+        if pts.windows(2).any(|pair| pair[0].epsilon_eq(pair[1])) {
+            return None;
+        }
+
+        let result = PolyLine { pts, length };
+
+        let seen_pts = to_set(result.points());
+        if seen_pts.len() != result.points().len() {
+            return None;
+        }
+
+        Some(result)
+    }
+
     pub fn make_polygons_for_boundary(pts: Vec<Pt2D>, thickness: Distance) -> Polygon {
         // Points WILL repeat -- fast-path some stuff.
         let pl = PolyLine {

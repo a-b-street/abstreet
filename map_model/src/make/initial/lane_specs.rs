@@ -127,10 +127,12 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
         back_side.push(LaneType::Parking);
     }
 
-    let has_sidewalk = osm_tags.get(osm::HIGHWAY) != Some(&"motorway".to_string())
-        && osm_tags.get(osm::HIGHWAY) != Some(&"motorway_link".to_string());
-    if has_sidewalk {
+    if osm_tags.get(osm::SIDEWALK) == Some(&"both".to_string()) {
         fwd_side.push(LaneType::Sidewalk);
+        back_side.push(LaneType::Sidewalk);
+    } else if osm_tags.get(osm::SIDEWALK) == Some(&"right".to_string()) {
+        fwd_side.push(LaneType::Sidewalk);
+    } else if osm_tags.get(osm::SIDEWALK) == Some(&"left".to_string()) {
         back_side.push(LaneType::Sidewalk);
     }
 

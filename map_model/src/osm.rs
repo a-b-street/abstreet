@@ -8,6 +8,7 @@ pub const MAXSPEED: &str = "maxspeed";
 pub const PARKING_RIGHT: &str = "parking:lane:right";
 pub const PARKING_LEFT: &str = "parking:lane:left";
 pub const PARKING_BOTH: &str = "parking:lane:both";
+pub const SIDEWALK: &str = "sidewalk";
 
 // The rest of these are all inserted by A/B Street to plumb data between different stages of map
 // construction. They could be plumbed another way, but this is the most convenient.
@@ -33,3 +34,4 @@ pub const LABEL: &str = "abst:label";
 
 // Any roads might have these.
 pub const INFERRED_PARKING: &str = "abst:parking_inferred";
+pub const INFERRED_SIDEWALKS: &str = "abst:sidewalks_inferred";
