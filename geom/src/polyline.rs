@@ -436,7 +436,7 @@ impl PolyLine {
         let head_size = thickness * 2.0;
         let triangle_height = head_size / 2.0_f64.sqrt();
 
-        if self.length() < triangle_height {
+        if self.length() < triangle_height + EPSILON_DIST {
             return Warn::warn(
                 self.make_polygons(thickness),
                 format!("Can't make_arrow of thickness {} for {}", thickness, self),

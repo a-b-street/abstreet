@@ -14,6 +14,8 @@
 		- as you zoom in, overhear conversations and such
 	- some buildings could have extra detail
 	- zoom in too much, what might you see? ;)
+	- loading screen: snakey cars
+	- game intro/backstory: history of seattle urban planning
 
 ## Tutorial
 
