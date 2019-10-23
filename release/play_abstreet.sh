@@ -1,4 +1,4 @@
 #!/bin/bash
 
 cd game
-./game
+RUST_BACKTRACE=1 ./game
