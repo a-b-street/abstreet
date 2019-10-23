@@ -13,16 +13,6 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
         }
     }
 
-    fn has_parking(value: Option<&String>) -> bool {
-        value == Some(&"parallel".to_string())
-            || value == Some(&"diagonal".to_string())
-            || value == Some(&"perpendicular".to_string())
-    }
-    let parking_lane_fwd = has_parking(osm_tags.get(osm::PARKING_RIGHT))
-        || has_parking(osm_tags.get(osm::PARKING_BOTH));
-    let parking_lane_back = has_parking(osm_tags.get(osm::PARKING_LEFT))
-        || has_parking(osm_tags.get(osm::PARKING_BOTH));
-
     // Easy special cases first.
     if osm_tags.get("junction") == Some(&"roundabout".to_string()) {
         return (vec![LaneType::Driving, LaneType::Sidewalk], Vec::new());
@@ -121,15 +111,19 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
         }
     }
 
-    // TODO Should we warn when one of these has parking assigned to it from the blockface?
-    let definitely_no_parking = match osm_tags.get(osm::HIGHWAY) {
-        Some(hwy) => hwy.ends_with("_link") || hwy == "motorway",
-        None => false,
-    };
-    if parking_lane_fwd && !definitely_no_parking {
+    fn has_parking(value: Option<&String>) -> bool {
+        value == Some(&"parallel".to_string())
+            || value == Some(&"diagonal".to_string())
+            || value == Some(&"perpendicular".to_string())
+    }
+    let parking_lane_fwd = has_parking(osm_tags.get(osm::PARKING_RIGHT))
+        || has_parking(osm_tags.get(osm::PARKING_BOTH));
+    let parking_lane_back = has_parking(osm_tags.get(osm::PARKING_LEFT))
+        || has_parking(osm_tags.get(osm::PARKING_BOTH));
+    if parking_lane_fwd {
         fwd_side.push(LaneType::Parking);
     }
-    if parking_lane_back && !definitely_no_parking {
+    if parking_lane_back {
         back_side.push(LaneType::Parking);
     }
 

@@ -6,7 +6,6 @@ fn main() {
     let flags = Flags {
         osm: args.required("--osm"),
         parking_shapes: args.optional("--parking_shapes"),
-        street_signs: args.optional("--street_signs"),
         offstreet_parking: args.optional("--offstreet_parking"),
         gtfs: args.optional("--gtfs"),
         neighborhoods: args.optional("--neighborhoods"),

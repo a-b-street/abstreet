@@ -3,7 +3,7 @@ mod neighborhoods;
 mod osm_reader;
 mod split_ways;
 
-use abstutil::{prettyprint_usize, Timer};
+use abstutil::Timer;
 use geom::{Distance, FindClosest, Line, PolyLine, Pt2D};
 use kml::ExtraShapes;
 use map_model::raw::{RawMap, StableBuildingID, StableRoadID};
@@ -13,7 +13,6 @@ use std::collections::BTreeMap;
 pub struct Flags {
     pub osm: String,
     pub parking_shapes: Option<String>,
-    pub street_signs: Option<String>,
     pub offstreet_parking: Option<String>,
     pub gtfs: Option<String>,
     pub neighborhoods: Option<String>,
@@ -35,9 +34,6 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> RawMap {
 
     if let Some(ref path) = flags.parking_shapes {
         use_parking_hints(&mut map, path, timer);
-    }
-    if let Some(ref path) = flags.street_signs {
-        use_street_signs(&mut map, path, timer);
     }
     if let Some(ref path) = flags.offstreet_parking {
         use_offstreet_parking(&mut map, path, timer);
@@ -112,107 +108,57 @@ fn use_parking_hints(map: &mut RawMap, path: &str, timer: &mut Timer) {
         } else {
             continue;
         };
-        if pts.len() > 1 {
-            // The blockface line endpoints will be close to other roads, so match based on the
-            // middle of the blockface.
-            // TODO Long blockfaces sometimes cover two roads. Should maybe find ALL matches within
-            // the threshold distance?
-            let middle = PolyLine::new(pts).middle();
-            if let Some(((r, fwds), _)) = closest.closest_pt(middle, LANE_THICKNESS * 5.0) {
-                // Skip if the road already has this mapped.
-                if !map.roads[&r].osm_tags.contains_key(osm::INFERRED_PARKING) {
-                    continue;
-                }
-
-                let category = s.attributes.get("PARKING_CATEGORY");
-                let has_parking = category != Some(&"None".to_string())
-                    && category != Some(&"No Parking Allowed".to_string());
-                // Blindly override prior values.
-                map.roads.get_mut(&r).unwrap().osm_tags.insert(
-                    if fwds {
-                        osm::PARKING_RIGHT.to_string()
-                    } else {
-                        osm::PARKING_LEFT.to_string()
-                    },
-                    if has_parking {
-                        "parallel".to_string()
-                    } else {
-                        "no_parking".to_string()
-                    },
-                );
-                map.roads
-                    .get_mut(&r)
-                    .unwrap()
-                    .osm_tags
-                    .remove(osm::PARKING_BOTH);
+        if pts.len() <= 1 {
+            continue;
+        }
+        // The blockface line endpoints will be close to other roads, so match based on the
+        // middle of the blockface.
+        // TODO Long blockfaces sometimes cover two roads. Should maybe find ALL matches within
+        // the threshold distance?
+        let middle = PolyLine::new(pts).middle();
+        if let Some(((r, fwds), _)) = closest.closest_pt(middle, LANE_THICKNESS * 5.0) {
+            // Skip if the road already has this mapped.
+            if !map.roads[&r].osm_tags.contains_key(osm::INFERRED_PARKING) {
+                continue;
             }
+
+            let category = s.attributes.get("PARKING_CATEGORY");
+            let has_parking = category != Some(&"None".to_string())
+                && category != Some(&"No Parking Allowed".to_string());
+
+            let definitely_no_parking = match map.roads[&r].osm_tags.get(osm::HIGHWAY) {
+                Some(hwy) => hwy == "motorway" || hwy == "motorway_link",
+                None => false,
+            };
+            if has_parking && definitely_no_parking {
+                timer.warn(format!(
+                    "Blockface says there's parking along motorway {}, ignoring",
+                    r
+                ));
+                continue;
+            }
+
+            // Blindly override prior values.
+            map.roads.get_mut(&r).unwrap().osm_tags.insert(
+                if fwds {
+                    osm::PARKING_RIGHT.to_string()
+                } else {
+                    osm::PARKING_LEFT.to_string()
+                },
+                if has_parking {
+                    "parallel".to_string()
+                } else {
+                    "no_parking".to_string()
+                },
+            );
+            map.roads
+                .get_mut(&r)
+                .unwrap()
+                .osm_tags
+                .remove(osm::PARKING_BOTH);
         }
     }
     timer.stop("apply parking hints");
-}
-
-fn use_street_signs(map: &mut RawMap, path: &str, timer: &mut Timer) {
-    timer.start("apply street signs to override parking hints");
-    let shapes: ExtraShapes =
-        abstutil::read_binary(path, timer).expect("loading street_signs failed");
-
-    // Match shapes with the nearest road + direction (true for forwards)
-    let mut closest: FindClosest<(StableRoadID, bool)> =
-        FindClosest::new(&map.gps_bounds.to_bounds());
-    for (id, r) in &map.roads {
-        let center = PolyLine::new(r.center_points.clone());
-        closest.add(
-            (*id, true),
-            center.shift_right(LANE_THICKNESS).get(timer).points(),
-        );
-        closest.add(
-            (*id, false),
-            center.shift_left(LANE_THICKNESS).get(timer).points(),
-        );
-    }
-
-    let mut applied = 0;
-    for s in shapes.shapes.into_iter() {
-        let pts = if let Some(pts) = map.gps_bounds.try_convert(&s.points) {
-            pts
-        } else {
-            continue;
-        };
-        if pts.len() == 1 {
-            if let Some(((r, fwds), _)) = closest.closest_pt(pts[0], LANE_THICKNESS * 5.0) {
-                // Skip if the road already has this mapped.
-                if !map.roads[&r].osm_tags.contains_key(osm::INFERRED_PARKING) {
-                    continue;
-                }
-
-                // TODO Model RPZ, paid on-street spots, limited times, etc.
-                let no_parking =
-                    s.attributes.get("TEXT") == Some(&"NO PARKING ANYTIME".to_string());
-                if no_parking {
-                    applied += 1;
-                    map.roads.get_mut(&r).unwrap().osm_tags.insert(
-                        if fwds {
-                            osm::PARKING_RIGHT
-                        } else {
-                            osm::PARKING_LEFT
-                        }
-                        .to_string(),
-                        "no_parking".to_string(),
-                    );
-                    map.roads
-                        .get_mut(&r)
-                        .unwrap()
-                        .osm_tags
-                        .remove(osm::PARKING_BOTH);
-                }
-            }
-        }
-    }
-    timer.note(format!(
-        "Applied {} street signs",
-        prettyprint_usize(applied)
-    ));
-    timer.stop("apply street signs to override parking hints");
 }
 
 fn use_offstreet_parking(map: &mut RawMap, path: &str, timer: &mut Timer) {

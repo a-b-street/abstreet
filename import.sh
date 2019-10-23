@@ -73,14 +73,14 @@ if [ ! -f data/shapes/blockface.bin ]; then
 	cd ..
 fi
 
-if [ ! -f data/shapes/street_signs.bin ]; then
-	# From http://data-seattlecitygis.opendata.arcgis.com/datasets/411a96b39c834a2380a256b8afa5003b_0
-	get_if_needed https://opendata.arcgis.com/datasets/411a96b39c834a2380a256b8afa5003b_0.kml data/input/street_signs.kml;
+if [ ! -f data/shapes/sidewalks.bin ]; then
+	# From https://data-seattlecitygis.opendata.arcgis.com/datasets/sidewalks
+	get_if_needed https://opendata.arcgis.com/datasets/ee6d0642d2a04e35892d0eab77d971d6_2.kml data/input/sidewalks.kml;
 
 	cd kml
 	time cargo run --release -- \
-		--input=../data/input/street_signs.kml \
-		--output=../data/shapes/street_signs.bin
+		--input=../data/input/sidewalks.kml \
+		--output=../data/shapes/sidewalks.bin
 	cd ..
 fi
 
@@ -123,6 +123,4 @@ for poly in `ls ../data/polygons/`; do
 		--neighborhoods=../data/input/neighborhoods.geojson \
 		--clip=../data/polygons/$name.poly \
 		--output=../data/raw_maps/$name.bin
-	# Disabled, because it removes lots of parking that's really there.
-	#--street_signs=../data/shapes/street_signs.bin \
 done
