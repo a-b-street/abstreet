@@ -3,7 +3,7 @@ use crate::{
     Intersection, IntersectionID, Lane, LaneID, LaneType, Road, RoadID, Turn, TurnID, TurnType,
     LANE_THICKNESS,
 };
-use abstutil::{Timer, Warn};
+use abstutil::{wraparound_get, Timer, Warn};
 use geom::{Distance, Line, PolyLine, Pt2D};
 use nbez::{Bez3o, BezCurve, Point2d};
 use std::collections::{BTreeSet, HashMap, HashSet};
@@ -107,9 +107,13 @@ fn make_vehicle_turns(
     lanes: &Vec<Lane>,
     timer: &mut Timer,
 ) -> Vec<Turn> {
-    let roads: Vec<&Road> = i.roads.iter().map(|r| &all_roads[r.0]).collect();
+    let sorted_roads: Vec<&Road> = i
+        .get_roads_sorted_by_incoming_angle(all_roads)
+        .iter()
+        .map(|r| &all_roads[r.0])
+        .collect();
     let mut lane_types: BTreeSet<LaneType> = BTreeSet::new();
-    for r in &roads {
+    for r in &sorted_roads {
         let (t1, t2) = r.get_lane_types();
         for lt in t1.into_iter().chain(t2.into_iter()) {
             lane_types.insert(lt);
@@ -128,7 +132,7 @@ fn make_vehicle_turns(
             continue;
         }
 
-        for r1 in &roads {
+        for (idx1, r1) in sorted_roads.iter().enumerate() {
             // We can't filter incoming just on the preferred type, because we might be forced to
             // make a turn from a driving lane to a bike/bus lane.
             let incoming = filter_vehicle_lanes(r1.incoming_lanes(i.id), lane_type);
@@ -139,7 +143,7 @@ fn make_vehicle_turns(
             let mut maybe_add_turns = Vec::new();
             let mut all_incoming_lanes_covered = false;
 
-            for r2 in &roads {
+            for r2 in &sorted_roads {
                 if r1.id == r2.id {
                     continue;
                 }
@@ -160,7 +164,22 @@ fn make_vehicle_turns(
                 let angle1 = lanes[incoming[0].0].last_line().angle();
                 let angle2 = lanes[outgoing[0].0].first_line().angle();
 
-                match TurnType::from_angles(angle1, angle2) {
+                let type_from_angle = TurnType::from_angles(angle1, angle2);
+                let tt = if type_from_angle == TurnType::Right {
+                    // This one's fragile, based on angles. Really we care that there aren't roads
+                    // between the two.
+                    if wraparound_get(&sorted_roads, (idx1 as isize) - 1).id == r2.id
+                        || wraparound_get(&sorted_roads, (idx1 as isize) + 1).id == r2.id
+                    {
+                        TurnType::Right
+                    } else {
+                        TurnType::Straight
+                    }
+                } else {
+                    type_from_angle
+                };
+
+                match tt {
                     TurnType::Straight => {
                         // Cartesian product. Additionally detect where the lane-changing movements
                         // happen. But we have to use the indices assuming all travel lanes, not
@@ -193,7 +212,7 @@ fn make_vehicle_turns(
                                 if !incoming.contains(&l1) || !outgoing.contains(l2) {
                                     continue;
                                 }
-                                if let Some(mut t) = make_vehicle_turn(lanes, i.id, l1, *l2) {
+                                if let Some(mut t) = make_vehicle_turn(lanes, i.id, l1, *l2, tt) {
                                     if idx1 < idx2 {
                                         t.turn_type = TurnType::LaneChangeRight;
                                     } else if idx1 > idx2 {
@@ -208,7 +227,7 @@ fn make_vehicle_turns(
                     TurnType::Right => {
                         for (idx, l1) in incoming.iter().enumerate() {
                             for l2 in &outgoing {
-                                let turn = make_vehicle_turn(lanes, i.id, *l1, *l2);
+                                let turn = make_vehicle_turn(lanes, i.id, *l1, *l2, tt);
                                 if idx == incoming.len() - 1 {
                                     result.push(turn);
                                 } else {
@@ -220,7 +239,7 @@ fn make_vehicle_turns(
                     TurnType::Left => {
                         for (idx, l1) in incoming.iter().enumerate() {
                             for l2 in &outgoing {
-                                let turn = make_vehicle_turn(lanes, i.id, *l1, *l2);
+                                let turn = make_vehicle_turn(lanes, i.id, *l1, *l2, tt);
                                 if idx == 0 {
                                     result.push(turn);
                                 } else {
@@ -258,7 +277,16 @@ fn make_vehicle_turns_for_dead_end(
     let mut result = Vec::new();
     for l1 in incoming {
         for l2 in &outgoing {
-            result.push(make_vehicle_turn(lanes, i.id, l1, *l2));
+            result.push(make_vehicle_turn(
+                lanes,
+                i.id,
+                l1,
+                *l2,
+                TurnType::from_angles(
+                    lanes[l1.0].last_line().angle(),
+                    lanes[l2.0].first_line().angle(),
+                ),
+            ));
         }
     }
 
@@ -521,10 +549,15 @@ fn filter_lanes(lanes: &Vec<(LaneID, LaneType)>, filter: LaneType) -> Vec<LaneID
         .collect()
 }
 
-fn make_vehicle_turn(lanes: &Vec<Lane>, i: IntersectionID, l1: LaneID, l2: LaneID) -> Option<Turn> {
+fn make_vehicle_turn(
+    lanes: &Vec<Lane>,
+    i: IntersectionID,
+    l1: LaneID,
+    l2: LaneID,
+    turn_type: TurnType,
+) -> Option<Turn> {
     let src = &lanes[l1.0];
     let dst = &lanes[l2.0];
-    let turn_type = TurnType::from_angles(src.last_line().angle(), dst.first_line().angle());
 
     if src.last_pt().epsilon_eq(dst.first_pt()) {
         return None;
