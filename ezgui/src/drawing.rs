@@ -430,11 +430,20 @@ impl<'a> Prerender<'a> {
                         let ty = pt.y() / tex_height;
                         [id, tx as f32, ty as f32, 0.0]
                     }
-                    Color::StretchTexture(id) => {
+                    Color::StretchTexture(id, angle) => {
                         // TODO Cache
                         let b = poly.get_bounds();
-                        let tx = (pt.x() - b.min_x) / (b.max_x - b.min_x);
-                        let ty = (pt.y() - b.min_y) / (b.max_y - b.min_y);
+                        let center = poly.center();
+                        let origin_pt = Pt2D::new(pt.x() - center.x(), pt.y() - center.y());
+                        // TODO Needs Y-inversion!
+                        let (sin, cos) = angle.normalized_radians().sin_cos();
+                        let rot_pt = Pt2D::new(
+                            center.x() + origin_pt.x() * cos - origin_pt.y() * sin,
+                            center.y() + origin_pt.y() * cos + origin_pt.x() * sin,
+                        );
+
+                        let tx = (rot_pt.x() - b.min_x) / (b.max_x - b.min_x);
+                        let ty = (rot_pt.y() - b.min_y) / (b.max_y - b.min_y);
                         [id, tx as f32, ty as f32, 0.0]
                     }
                     Color::Hatching => [10.0, 0.0, 0.0, 0.0],

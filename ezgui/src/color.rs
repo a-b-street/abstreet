@@ -1,3 +1,4 @@
+use geom::Angle;
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 
@@ -8,8 +9,9 @@ pub enum Color {
     // (The texture ID to pass to the shader, (texture width, height)). Tiles seamlessly through
     // all of map-space.
     TileTexture(f32, (f64, f64)),
-    // Stretches the entire texture to fit the entire polygon.
-    StretchTexture(f32),
+    // Stretches the entire texture to fit the entire polygon. Rotates from the center of the
+    // polygon. Not sure what this means for anything but circles right now.
+    StretchTexture(f32, Angle),
     Hatching,
 }
 
@@ -20,7 +22,9 @@ impl fmt::Display for Color {
             Color::TileTexture(id, (w, h)) => {
                 write!(f, "Color::TileTexture({}, width={}, height={})", id, w, h)
             }
-            Color::StretchTexture(id) => write!(f, "Color::StretchTexture({})", id),
+            Color::StretchTexture(id, angle) => {
+                write!(f, "Color::StretchTexture({}, {})", id, angle)
+            }
             Color::Hatching => write!(f, "Color::Hatching"),
         }
     }
@@ -80,5 +84,12 @@ impl Color {
         let g = usize::from_str_radix(&raw[3..5], 16).unwrap();
         let b = usize::from_str_radix(&raw[5..7], 16).unwrap();
         Color::rgb(r, g, b)
+    }
+
+    pub fn rotate(&self, angle: Angle) -> Color {
+        match self {
+            Color::StretchTexture(id, _) => Color::StretchTexture(*id, angle),
+            _ => unreachable!(),
+        }
     }
 }

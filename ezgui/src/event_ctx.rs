@@ -3,6 +3,7 @@ use crate::{
     Canvas, Color, GfxCtx, HorizontalAlignment, Line, Prerender, Text, UserInput, VerticalAlignment,
 };
 use abstutil::{elapsed_seconds, Timer, TimerSink};
+use geom::Angle;
 use glium_glyph::glyph_brush::rusttype::Font;
 use glium_glyph::GlyphBrush;
 use std::collections::VecDeque;
@@ -70,7 +71,7 @@ impl<'a> EventCtx<'a> {
                 self.canvas.texture_lookups.insert(
                     filename.to_string(),
                     match tex_type {
-                        TextureType::Stretch => Color::StretchTexture(idx as f32),
+                        TextureType::Stretch => Color::StretchTexture(idx as f32, Angle::ZERO),
                         TextureType::Tile => {
                             Color::TileTexture(idx as f32, (f64::from(dims.0), f64::from(dims.1)))
                         }

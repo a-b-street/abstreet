@@ -8,6 +8,8 @@ use std::fmt;
 pub struct Angle(f64);
 
 impl Angle {
+    pub const ZERO: Angle = Angle(0.0);
+
     pub(crate) fn new(rads: f64) -> Angle {
         // Retain more precision for angles...
         Angle((rads * 10_000_000.0).round() / 10_000_000.0)

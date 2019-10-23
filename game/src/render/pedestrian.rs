@@ -35,7 +35,7 @@ impl DrawPedestrian {
 
         if use_textures {
             draw_default.push(
-                canvas.texture("assets/pedestrian.png"),
+                canvas.texture("assets/pedestrian.png").rotate(input.facing),
                 body_circle.to_polygon(),
             );
         } else {
