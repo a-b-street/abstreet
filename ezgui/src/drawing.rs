@@ -41,6 +41,8 @@ impl<'b> glium::uniforms::Uniforms for Uniforms<'b> {
         output("transform", UniformValue::Vec3(self.transform));
         output("window", UniformValue::Vec3(self.window));
 
+        // This is fine to use for all of the texture styles; all but non-tiling textures clamp to
+        // [0, 1] anyway.
         let tile = SamplerBehavior {
             wrap_function: (
                 SamplerWrapFunction::Repeat,
@@ -420,12 +422,19 @@ impl<'a> Prerender<'a> {
             for pt in pts {
                 let style = match color {
                     Color::RGBA(r, g, b, a) => [r, g, b, a],
-                    Color::Texture(id, (tex_width, tex_height)) => {
+                    Color::TileTexture(id, (tex_width, tex_height)) => {
                         // The texture uses SamplerWrapFunction::Repeat, so don't clamp to [0, 1].
                         // Also don't offset based on the polygon's bounds -- even if there are
                         // separate but adjacent polygons, we want seamless tiling.
                         let tx = pt.x() / tex_width;
                         let ty = pt.y() / tex_height;
+                        [id, tx as f32, ty as f32, 0.0]
+                    }
+                    Color::StretchTexture(id) => {
+                        // TODO Cache
+                        let b = poly.get_bounds();
+                        let tx = (pt.x() - b.min_x) / (b.max_x - b.min_x);
+                        let ty = (pt.y() - b.min_y) / (b.max_y - b.min_y);
                         [id, tx as f32, ty as f32, 0.0]
                     }
                     Color::Hatching => [10.0, 0.0, 0.0, 0.0],

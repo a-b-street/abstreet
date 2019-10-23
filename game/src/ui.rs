@@ -5,7 +5,7 @@ use crate::render::{
 };
 use abstutil;
 use abstutil::{MeasureMemory, Timer};
-use ezgui::{Canvas, Color, EventCtx, GfxCtx, Prerender};
+use ezgui::{Canvas, Color, EventCtx, GfxCtx, Prerender, TextureType};
 use geom::{Bounds, Circle, Distance, Pt2D};
 use map_model::{Map, Traversable};
 use rand::seq::SliceRandom;
@@ -27,8 +27,21 @@ impl UI {
             ctx.set_textures(
                 flags.textures,
                 vec![
-                    ("assets/water_texture.png", Color::rgb(170, 211, 223)),
-                    ("assets/grass_texture.png", Color::rgb(200, 250, 204)),
+                    (
+                        "assets/water_texture.png",
+                        TextureType::Tile,
+                        Color::rgb(170, 211, 223),
+                    ),
+                    (
+                        "assets/grass_texture.png",
+                        TextureType::Tile,
+                        Color::rgb(200, 250, 204),
+                    ),
+                    (
+                        "assets/pedestrian.png",
+                        TextureType::Stretch,
+                        Color::rgb(51, 178, 178),
+                    ),
                 ],
                 &mut timer,
             );
@@ -146,6 +159,7 @@ impl UI {
             let objects = self.get_renderables_back_to_front(
                 g.get_screen_bounds(),
                 &g.prerender,
+                &g.canvas,
                 &mut cache,
                 source,
                 show_objs,
@@ -220,6 +234,7 @@ impl UI {
         let mut objects = self.get_renderables_back_to_front(
             Circle::new(pt, Distance::meters(3.0)).get_bounds(),
             ctx.prerender,
+            ctx.canvas,
             &mut cache,
             source,
             show_objs,
@@ -257,6 +272,7 @@ impl UI {
         &'a self,
         bounds: Bounds,
         prerender: &Prerender,
+        canvas: &Canvas,
         agents: &'a mut AgentCache,
         source: &dyn GetDrawAgents,
         show_objs: &dyn ShowObject,
@@ -335,8 +351,10 @@ impl UI {
                             step_count,
                             map,
                             prerender,
+                            canvas,
                             &self.cs,
                             self.agent_cs,
+                            self.primary.current_flags.textures,
                         )));
                     }
                     for c in crowds {

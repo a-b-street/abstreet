@@ -12,8 +12,8 @@ impl DrawArea {
     pub fn new(area: &Area, ctx: &EventCtx, batch: &mut GeomBatch) -> DrawArea {
         batch.push(
             match area.area_type {
-                AreaType::Park => ctx.texture("assets/grass_texture.png"),
-                AreaType::Water => ctx.texture("assets/water_texture.png"),
+                AreaType::Park => ctx.canvas.texture("assets/grass_texture.png"),
+                AreaType::Water => ctx.canvas.texture("assets/water_texture.png"),
             },
             area.polygon.clone(),
         );

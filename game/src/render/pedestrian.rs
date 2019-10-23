@@ -1,6 +1,6 @@
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{AgentColorScheme, DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
-use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
+use ezgui::{Canvas, Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Circle, Distance, PolyLine, Polygon};
 use map_model::{Map, LANE_THICKNESS};
 use sim::{DrawPedCrowdInput, DrawPedestrianInput, PedestrianID};
@@ -19,115 +19,124 @@ impl DrawPedestrian {
         step_count: usize,
         map: &Map,
         prerender: &Prerender,
+        canvas: &Canvas,
         cs: &ColorScheme,
         acs: AgentColorScheme,
+        use_textures: bool,
     ) -> DrawPedestrian {
         // TODO Slight issues with rendering small pedestrians:
         // - route visualization is thick
         // - there are little skips when making turns
         // - front paths are too skinny
         let radius = LANE_THICKNESS / 4.0; // TODO make const after const fn is better
+        let body_circle = Circle::new(input.pos, radius);
 
         let mut draw_default = GeomBatch::new();
 
-        let foot_radius = 0.2 * radius;
-        let hand_radius = 0.2 * radius;
-        let left_foot_angle = 30.0;
-        let right_foot_angle = -30.0;
-        let left_hand_angle = 70.0;
-        let right_hand_angle = -70.0;
-
-        let left_foot = Circle::new(
-            input
-                .pos
-                .project_away(radius, input.facing.rotate_degs(left_foot_angle)),
-            foot_radius,
-        );
-        let right_foot = Circle::new(
-            input
-                .pos
-                .project_away(radius, input.facing.rotate_degs(right_foot_angle)),
-            foot_radius,
-        );
-        let left_hand = Circle::new(
-            input
-                .pos
-                .project_away(radius, input.facing.rotate_degs(left_hand_angle)),
-            hand_radius,
-        );
-        let right_hand = Circle::new(
-            input
-                .pos
-                .project_away(radius, input.facing.rotate_degs(right_hand_angle)),
-            hand_radius,
-        );
-        let foot_color = cs.get_def("pedestrian foot", Color::BLACK);
-        let hand_color = cs.get("pedestrian head");
-        // Jitter based on ID so we don't all walk synchronized.
-        let jitter = input.id.0 % 2 == 0;
-        let remainder = step_count % 6;
-        if input.waiting_for_turn.is_some() {
-            draw_default.push(foot_color, left_foot.to_polygon());
-            draw_default.push(foot_color, right_foot.to_polygon());
-            draw_default.push(hand_color, left_hand.to_polygon());
-            draw_default.push(hand_color, right_hand.to_polygon());
-        } else if jitter == (remainder < 3) {
-            draw_default.push(foot_color, left_foot.to_polygon());
+        if use_textures {
             draw_default.push(
-                foot_color,
-                Circle::new(
-                    input
-                        .pos
-                        .project_away(0.9 * radius, input.facing.rotate_degs(right_foot_angle)),
-                    foot_radius,
-                )
-                .to_polygon(),
-            );
-
-            draw_default.push(hand_color, right_hand.to_polygon());
-            draw_default.push(
-                hand_color,
-                Circle::new(
-                    input
-                        .pos
-                        .project_away(0.9 * radius, input.facing.rotate_degs(left_hand_angle)),
-                    hand_radius,
-                )
-                .to_polygon(),
+                canvas.texture("assets/pedestrian.png"),
+                body_circle.to_polygon(),
             );
         } else {
-            draw_default.push(foot_color, right_foot.to_polygon());
-            draw_default.push(
-                foot_color,
-                Circle::new(
-                    input
-                        .pos
-                        .project_away(0.9 * radius, input.facing.rotate_degs(left_foot_angle)),
-                    foot_radius,
-                )
-                .to_polygon(),
-            );
+            let foot_radius = 0.2 * radius;
+            let hand_radius = 0.2 * radius;
+            let left_foot_angle = 30.0;
+            let right_foot_angle = -30.0;
+            let left_hand_angle = 70.0;
+            let right_hand_angle = -70.0;
 
-            draw_default.push(hand_color, left_hand.to_polygon());
-            draw_default.push(
-                hand_color,
-                Circle::new(
-                    input
-                        .pos
-                        .project_away(0.9 * radius, input.facing.rotate_degs(right_hand_angle)),
-                    hand_radius,
-                )
-                .to_polygon(),
+            let left_foot = Circle::new(
+                input
+                    .pos
+                    .project_away(radius, input.facing.rotate_degs(left_foot_angle)),
+                foot_radius,
             );
-        };
+            let right_foot = Circle::new(
+                input
+                    .pos
+                    .project_away(radius, input.facing.rotate_degs(right_foot_angle)),
+                foot_radius,
+            );
+            let left_hand = Circle::new(
+                input
+                    .pos
+                    .project_away(radius, input.facing.rotate_degs(left_hand_angle)),
+                hand_radius,
+            );
+            let right_hand = Circle::new(
+                input
+                    .pos
+                    .project_away(radius, input.facing.rotate_degs(right_hand_angle)),
+                hand_radius,
+            );
+            let foot_color = cs.get_def("pedestrian foot", Color::BLACK);
+            let hand_color = cs.get("pedestrian head");
+            // Jitter based on ID so we don't all walk synchronized.
+            let jitter = input.id.0 % 2 == 0;
+            let remainder = step_count % 6;
+            if input.waiting_for_turn.is_some() {
+                draw_default.push(foot_color, left_foot.to_polygon());
+                draw_default.push(foot_color, right_foot.to_polygon());
+                draw_default.push(hand_color, left_hand.to_polygon());
+                draw_default.push(hand_color, right_hand.to_polygon());
+            } else if jitter == (remainder < 3) {
+                draw_default.push(foot_color, left_foot.to_polygon());
+                draw_default.push(
+                    foot_color,
+                    Circle::new(
+                        input
+                            .pos
+                            .project_away(0.9 * radius, input.facing.rotate_degs(right_foot_angle)),
+                        foot_radius,
+                    )
+                    .to_polygon(),
+                );
 
-        let body_circle = Circle::new(input.pos, radius);
-        let head_circle = Circle::new(input.pos, 0.5 * radius);
-        draw_default.push(acs.zoomed_color_ped(&input, cs), body_circle.to_polygon());
-        draw_default.push(
-            cs.get_def("pedestrian head", Color::rgb(139, 69, 19)),
-            head_circle.to_polygon(),
-        );
+                draw_default.push(hand_color, right_hand.to_polygon());
+                draw_default.push(
+                    hand_color,
+                    Circle::new(
+                        input
+                            .pos
+                            .project_away(0.9 * radius, input.facing.rotate_degs(left_hand_angle)),
+                        hand_radius,
+                    )
+                    .to_polygon(),
+                );
+            } else {
+                draw_default.push(foot_color, right_foot.to_polygon());
+                draw_default.push(
+                    foot_color,
+                    Circle::new(
+                        input
+                            .pos
+                            .project_away(0.9 * radius, input.facing.rotate_degs(left_foot_angle)),
+                        foot_radius,
+                    )
+                    .to_polygon(),
+                );
+
+                draw_default.push(hand_color, left_hand.to_polygon());
+                draw_default.push(
+                    hand_color,
+                    Circle::new(
+                        input
+                            .pos
+                            .project_away(0.9 * radius, input.facing.rotate_degs(right_hand_angle)),
+                        hand_radius,
+                    )
+                    .to_polygon(),
+                );
+            };
+
+            let head_circle = Circle::new(input.pos, 0.5 * radius);
+            draw_default.push(acs.zoomed_color_ped(&input, cs), body_circle.to_polygon());
+            draw_default.push(
+                cs.get_def("pedestrian head", Color::rgb(139, 69, 19)),
+                head_circle.to_polygon(),
+            );
+        }
 
         if let Some(t) = input.waiting_for_turn {
             // A silly idea for peds... use hands to point at their turn?

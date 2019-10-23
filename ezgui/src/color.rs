@@ -5,10 +5,11 @@ use std::fmt;
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub enum Color {
     RGBA(f32, f32, f32, f32),
-    // (The texture ID to pass to the shader, (texture width, height))
-    // TODO Plumbing dimensions here is a hack. Need to rearrange Prerender to be able to hold onto
-    // textures.
-    Texture(f32, (f64, f64)),
+    // (The texture ID to pass to the shader, (texture width, height)). Tiles seamlessly through
+    // all of map-space.
+    TileTexture(f32, (f64, f64)),
+    // Stretches the entire texture to fit the entire polygon.
+    StretchTexture(f32),
     Hatching,
 }
 
@@ -16,9 +17,10 @@ impl fmt::Display for Color {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Color::RGBA(r, g, b, a) => write!(f, "Color(r={}, g={}, b={}, a={})", r, g, b, a),
-            Color::Texture(id, (w, h)) => {
-                write!(f, "Color::Texture({}, width={}, height={})", id, w, h)
+            Color::TileTexture(id, (w, h)) => {
+                write!(f, "Color::TileTexture({}, width={}, height={})", id, w, h)
             }
+            Color::StretchTexture(id) => write!(f, "Color::StretchTexture({})", id),
             Color::Hatching => write!(f, "Color::Hatching"),
         }
     }

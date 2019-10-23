@@ -195,6 +195,13 @@ impl Canvas {
         hash.insert(font_size, line_height);
         line_height
     }
+
+    pub fn texture(&self, filename: &str) -> Color {
+        if let Some(c) = self.texture_lookups.get(filename) {
+            return *c;
+        }
+        panic!("Don't know texture {}", filename);
+    }
 }
 
 pub enum HorizontalAlignment {

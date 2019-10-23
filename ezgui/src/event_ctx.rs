@@ -43,17 +43,10 @@ impl<'a> EventCtx<'a> {
             || self.input.get_mouse_scroll().is_some()
     }
 
-    pub fn texture(&self, filename: &str) -> Color {
-        if let Some(c) = self.canvas.texture_lookups.get(filename) {
-            return *c;
-        }
-        panic!("Don't know texture {}", filename);
-    }
-
     pub fn set_textures(
         &mut self,
         upload_textures: bool,
-        textures: Vec<(&str, Color)>,
+        textures: Vec<(&str, TextureType, Color)>,
         timer: &mut Timer,
     ) {
         self.canvas.textures.clear();
@@ -63,7 +56,7 @@ impl<'a> EventCtx<'a> {
             panic!("Due to lovely hacks, only 10 textures supported");
         }
         timer.start_iter("upload textures", textures.len());
-        for (idx, (filename, fallback)) in textures.into_iter().enumerate() {
+        for (idx, (filename, tex_type, fallback)) in textures.into_iter().enumerate() {
             timer.next();
             if upload_textures {
                 let img = image::open(filename).unwrap().to_rgba();
@@ -76,7 +69,12 @@ impl<'a> EventCtx<'a> {
                 self.canvas.textures.push((filename.to_string(), tex));
                 self.canvas.texture_lookups.insert(
                     filename.to_string(),
-                    Color::Texture(idx as f32, (f64::from(dims.0), f64::from(dims.1))),
+                    match tex_type {
+                        TextureType::Stretch => Color::StretchTexture(idx as f32),
+                        TextureType::Tile => {
+                            Color::TileTexture(idx as f32, (f64::from(dims.0), f64::from(dims.1)))
+                        }
+                    },
                 );
             } else {
                 self.canvas
@@ -187,4 +185,9 @@ impl<'a> TimerSink for LoadingScreen<'a> {
         self.lines.push_back(line);
         self.redraw();
     }
+}
+
+pub enum TextureType {
+    Stretch,
+    Tile,
 }
