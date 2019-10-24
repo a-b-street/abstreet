@@ -9,10 +9,8 @@ use ezgui::{
     hotkey, Choice, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line,
     ModalMenu, Text, Wizard, WrappedWizard,
 };
-use geom::Duration;
-use map_model::{
-    BuildingID, IntersectionID, LaneType, Map, Neighborhood, PathRequest, Position, LANE_THICKNESS,
-};
+use geom::{Distance, Duration, PolyLine};
+use map_model::{BuildingID, IntersectionID, LaneType, Map, Neighborhood, Position};
 use sim::{
     BorderSpawnOverTime, DrivingGoal, OriginDestination, Scenario, SeedParkedCars, SidewalkPOI,
     SidewalkSpot, SpawnOverTime, SpawnTrip,
@@ -34,7 +32,7 @@ pub struct ScenarioManager {
     total_parking_spots: usize,
     bldg_colors: ObjectColorer,
 
-    trip_paths: Option<Drawable>,
+    demand: Option<Drawable>,
 }
 
 impl ScenarioManager {
@@ -143,7 +141,7 @@ impl ScenarioManager {
             total_cars_needed,
             total_parking_spots: free_parking_spots.len(),
             bldg_colors: bldg_colors.build(ctx, &ui.primary.map),
-            trip_paths: None,
+            demand: None,
         }
     }
 }
@@ -200,8 +198,8 @@ impl State for ScenarioManager {
             return Transition::PopThenReplace(Box::new(SandboxMode::new(ctx, ui)));
         }
 
-        if self.trip_paths.is_some() && self.menu.consume_action("stop showing paths", ctx) {
-            self.trip_paths = None;
+        if self.demand.is_some() && self.menu.consume_action("stop showing demand", ctx) {
+            self.demand = None;
         }
 
         if let Some(ID::Building(b)) = ui.primary.current_selection {
@@ -219,20 +217,12 @@ impl State for ScenarioManager {
                         "building",
                         OD::Bldg(b),
                     ));
-                } else if self.trip_paths.is_none()
+                } else if self.demand.is_none()
                     && ctx
                         .input
-                        .contextual_action(Key::P, "show paths to and from")
+                        .contextual_action(Key::P, "show trips to and from")
                 {
-                    let mut all_trips = from.clone();
-                    all_trips.extend(to);
-                    self.trip_paths = Some(calculate_paths(
-                        &self.scenario,
-                        all_trips,
-                        OD::Bldg(b),
-                        &ui.primary.map,
-                        ctx,
-                    ));
+                    self.demand = Some(show_demand(&self.scenario, from, to, OD::Bldg(b), ui, ctx));
                     self.menu
                         .push_action(hotkey(Key::P), "stop showing paths", ctx);
                 }
@@ -252,18 +242,17 @@ impl State for ScenarioManager {
                         "border",
                         OD::Border(i),
                     ));
-                } else if self.trip_paths.is_none()
+                } else if self.demand.is_none()
                     && ctx
                         .input
-                        .contextual_action(Key::P, "show paths to and from")
+                        .contextual_action(Key::P, "show trips to and from")
                 {
-                    let mut all_trips = from.clone();
-                    all_trips.extend(to);
-                    self.trip_paths = Some(calculate_paths(
+                    self.demand = Some(show_demand(
                         &self.scenario,
-                        all_trips,
+                        from,
+                        to,
                         OD::Border(i),
-                        &ui.primary.map,
+                        ui,
                         ctx,
                     ));
                     self.menu
@@ -281,7 +270,7 @@ impl State for ScenarioManager {
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         // TODO Let common contribute draw_options...
-        if let Some(ref p) = self.trip_paths {
+        if let Some(ref p) = self.demand {
             ui.draw(
                 g,
                 self.common.draw_options(ui),
@@ -650,57 +639,47 @@ fn other_endpt(trip: &SpawnTrip, home: OD) -> ID {
     }
 }
 
-// TODO Hard to understand anything here.
-// - Show the src/sink
-// - Distinguish to/from trips
-// - Show the other endpoints, weighted more clearly
-// - Make more visible when unzoomed
-fn calculate_paths(
+// TODO Understand demand better.
+// - Be able to select an area, see trips to/from it
+// - Weight the arrow size by how many trips go there
+// - Legend, counting the number of trips
+fn show_demand(
     scenario: &Scenario,
-    indices: BTreeSet<usize>,
-    src_sink: OD,
-    map: &Map,
+    from: &BTreeSet<usize>,
+    to: &BTreeSet<usize>,
+    home: OD,
+    ui: &UI,
     ctx: &EventCtx,
 ) -> Drawable {
-    // TODO Lots of repeated code to get paths
-    let mut timer = Timer::new(&format!("find paths to/from {}", src_sink));
-    let paths = timer.parallelize("calculate paths", indices.into_iter().collect(), |idx| {
-        let trip = &scenario.individ_trips[idx];
-        let (start, end) = match trip {
-            SpawnTrip::CarAppearing { start, goal, .. } => (start.clone(), goal.goal_pos(map)),
-            SpawnTrip::MaybeUsingParkedCar(_, b, goal) => {
-                (OD::Bldg(*b).driving_pos(map), goal.goal_pos(map))
-            }
-            // TODO
-            SpawnTrip::UsingBike(_, _, _) => {
-                return None;
-            }
-            SpawnTrip::JustWalking(_, spot1, spot2)
-            | SpawnTrip::UsingTransit(_, spot1, spot2, _, _, _) => {
-                (spot1.sidewalk_pos, spot2.sidewalk_pos)
-            }
-        };
-        map.pathfind(PathRequest {
-            start,
-            end,
-            // TODO
-            can_use_bike_lanes: false,
-            can_use_bus_lanes: false,
-        })
-        .and_then(|path| path.trace(map, start.dist_along(), None))
-    });
-
     let mut batch = GeomBatch::new();
-    let mut skipped = 0;
-    for maybe_trace in paths {
-        if let Some(trace) = maybe_trace {
-            batch.push(Color::RED.alpha(0.3), trace.make_polygons(LANE_THICKNESS));
-        } else {
-            skipped += 1;
-        }
+    let home_pt = match home {
+        OD::Bldg(b) => ui.primary.map.get_b(b).polygon.center(),
+        OD::Border(i) => ui.primary.map.get_i(i).polygon.center(),
+    };
+
+    for idx in from {
+        let other = other_endpt(&scenario.individ_trips[*idx], home)
+            .canonical_point(&ui.primary)
+            .unwrap();
+        batch.push(
+            Color::RED.alpha(0.8),
+            PolyLine::new(vec![home_pt, other])
+                .make_arrow(Distance::meters(1.0))
+                .unwrap(),
+        );
     }
-    if skipped != 0 {
-        timer.warn(format!("Not showing {} paths", prettyprint_usize(skipped)));
+
+    for idx in to {
+        let other = other_endpt(&scenario.individ_trips[*idx], home)
+            .canonical_point(&ui.primary)
+            .unwrap();
+        batch.push(
+            Color::BLUE.alpha(0.8),
+            PolyLine::new(vec![other, home_pt])
+                .make_arrow(Distance::meters(1.0))
+                .unwrap(),
+        );
     }
+
     ctx.prerender.upload(batch)
 }
