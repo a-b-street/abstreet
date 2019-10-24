@@ -66,10 +66,12 @@ impl DrawMap {
                 osm_rank_to_color(cs, r.get_rank()),
                 r.get_thick_polygon().get(timer),
             );
-            all_roads.push(
-                cs.get_def("unzoomed outline", Color::BLACK),
-                draw_r.get_outline(map),
-            );
+            if false {
+                all_roads.push(
+                    cs.get_def("unzoomed outline", Color::BLACK),
+                    draw_r.get_outline(map),
+                );
+            }
             roads.push(draw_r);
         }
         timer.start("upload thick roads");
@@ -121,7 +123,9 @@ impl DrawMap {
             let draw_i = DrawIntersection::new(i, map, cs, ctx.prerender, timer);
             if i.is_stop_sign() {
                 all_intersections.push(osm_rank_to_color(cs, i.get_rank(map)), i.polygon.clone());
-                all_intersections.push(cs.get("unzoomed outline"), draw_i.get_outline(map));
+                if false {
+                    all_intersections.push(cs.get("unzoomed outline"), draw_i.get_outline(map));
+                }
             } else {
                 all_intersections.push(
                     cs.get_def("unzoomed interesting intersection", Color::BLACK),
@@ -203,7 +207,7 @@ impl DrawMap {
         timer.stop("upload all areas");
 
         let boundary_polygon = ctx.prerender.upload_borrowed(vec![(
-            cs.get_def("map background", Color::rgb(242, 239, 233)),
+            cs.get_def("map background", Color::grey(0.87)),
             map.get_boundary_polygon(),
         )]);
 
@@ -416,7 +420,7 @@ fn osm_rank_to_color(cs: &ColorScheme, rank: usize) -> Color {
     if rank >= 16 {
         cs.get_def("unzoomed highway road", Color::rgb(232, 146, 162))
     } else if rank >= 6 {
-        cs.get_def("unzoomed arterial road", Color::rgb(247, 250, 191))
+        cs.get_def("unzoomed arterial road", Color::rgb(255, 199, 62))
     } else {
         cs.get_def("unzoomed residential road", Color::WHITE)
     }

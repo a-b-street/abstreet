@@ -30,12 +30,12 @@ impl UI {
                     (
                         "assets/water_texture.png",
                         TextureType::Tile,
-                        Color::rgb(170, 211, 223),
+                        Color::rgb(164, 200, 234),
                     ),
                     (
                         "assets/grass_texture.png",
                         TextureType::Tile,
-                        Color::rgb(200, 250, 204),
+                        Color::rgb(148, 200, 74),
                     ),
                     (
                         "assets/pedestrian.png",
