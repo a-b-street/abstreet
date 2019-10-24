@@ -1,5 +1,6 @@
 use crate::{Bounds, Distance, HashablePt2D, Pt2D};
 use geo_booleanop::boolean::BooleanOp;
+use geo_offset::Offset;
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 
@@ -184,26 +185,16 @@ impl Polygon {
     }
 
     pub fn intersection(&self, other: &Polygon) -> Vec<Polygon> {
-        let multi = to_geo(self.points()).intersection(&to_geo(other.points()));
-        multi
-            .into_iter()
-            .map(|poly| {
-                Polygon::new(
-                    &poly
-                        .into_inner()
-                        .0
-                        .into_points()
-                        .into_iter()
-                        .map(|pt| Pt2D::new(pt.x(), pt.y()))
-                        .collect(),
-                )
-            })
-            .collect()
+        from_multi(to_geo(self.points()).intersection(&to_geo(other.points())))
     }
 
     pub fn polylabel(&self) -> Pt2D {
         let pt = polylabel::polylabel(&to_geo(&self.points()), &1.0);
         Pt2D::new(pt.x(), pt.y())
+    }
+
+    pub fn shrink(&self, distance: f64) -> Vec<Polygon> {
+        from_multi(to_geo(self.points()).offset(distance).unwrap())
     }
 }
 
@@ -296,4 +287,21 @@ fn to_geo(pts: &Vec<Pt2D>) -> geo::Polygon<f64> {
         ),
         Vec::new(),
     )
+}
+
+fn from_multi(multi: geo::MultiPolygon<f64>) -> Vec<Polygon> {
+    multi
+        .into_iter()
+        .map(|poly| {
+            Polygon::new(
+                &poly
+                    .into_inner()
+                    .0
+                    .into_points()
+                    .into_iter()
+                    .map(|pt| Pt2D::new(pt.x(), pt.y()))
+                    .collect(),
+            )
+        })
+        .collect()
 }

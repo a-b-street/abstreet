@@ -81,6 +81,11 @@ impl DrawBuilding {
             );
         }
 
+        // TODO Slow and looks silly, but it's a nice experiment.
+        /*for poly in bldg.polygon.shrink(-3.0) {
+            batch.push(cs.get_def("building roof", Color::rgb(150, 75, 0)), poly);
+        }*/
+
         DrawBuilding {
             id: bldg.id,
             label,

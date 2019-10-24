@@ -9,6 +9,7 @@ aabb-quadtree = "0.1.0"
 abstutil = { path = "../abstutil" }
 geo = "0.12.0"
 geo-booleanop = "0.2.0"
+geo-offset = "0.1.0"
 histogram = "0.6.9"
 ordered-float = "1.0.1"
 polylabel = "1.3.0"

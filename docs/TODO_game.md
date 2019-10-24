@@ -16,6 +16,7 @@
 	- zoom in too much, what might you see? ;)
 	- loading screen: snakey cars
 	- game intro/backstory: history of seattle urban planning
+	- player context: a drone. people will look up eventually.
 
 ## Tutorial
 
