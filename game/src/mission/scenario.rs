@@ -4,19 +4,18 @@ use crate::helpers::ID;
 use crate::mission::pick_time_range;
 use crate::sandbox::SandboxMode;
 use crate::ui::{ShowEverything, UI};
-use abstutil::{prettyprint_usize, MultiMap, Timer, WeightedUsizeChoice};
+use abstutil::{prettyprint_usize, MultiMap, WeightedUsizeChoice};
 use ezgui::{
     hotkey, Choice, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line,
     ModalMenu, Text, Wizard, WrappedWizard,
 };
 use geom::{Distance, Duration, PolyLine};
-use map_model::{BuildingID, IntersectionID, LaneType, Map, Neighborhood, Position};
+use map_model::{BuildingID, IntersectionID, Map, Neighborhood};
 use sim::{
     BorderSpawnOverTime, DrivingGoal, OriginDestination, Scenario, SeedParkedCars, SidewalkPOI,
     SidewalkSpot, SpawnOverTime, SpawnTrip,
 };
 use std::collections::BTreeSet;
-use std::fmt;
 
 pub struct ScenarioManager {
     menu: ModalMenu,
@@ -469,26 +468,6 @@ fn choose_origin_destination(
 enum OD {
     Bldg(BuildingID),
     Border(IntersectionID),
-}
-
-impl fmt::Display for OD {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            OD::Bldg(b) => write!(f, "{}", b),
-            OD::Border(i) => write!(f, "border {}", i),
-        }
-    }
-}
-
-impl OD {
-    fn driving_pos(&self, map: &Map) -> Position {
-        match self {
-            OD::Bldg(b) => DrivingGoal::ParkNear(*b).goal_pos(map),
-            OD::Border(i) => DrivingGoal::end_at_border(*i, vec![LaneType::Driving], map)
-                .unwrap()
-                .goal_pos(map),
-        }
-    }
 }
 
 fn make_trip_picker(

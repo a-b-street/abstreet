@@ -42,6 +42,7 @@ impl UI {
                         TextureType::Stretch,
                         Color::rgb(51, 178, 178),
                     ),
+                    ("assets/car.png", TextureType::CustomUV, Color::CYAN),
                 ],
                 &mut timer,
             );
@@ -342,7 +343,15 @@ impl UI {
                 if !agents.has(time, *on) {
                     let mut list: Vec<Box<dyn Renderable>> = Vec::new();
                     for c in source.get_draw_cars(*on, map).into_iter() {
-                        list.push(draw_vehicle(c, map, prerender, &self.cs, self.agent_cs));
+                        list.push(draw_vehicle(
+                            c,
+                            map,
+                            prerender,
+                            canvas,
+                            &self.cs,
+                            self.agent_cs,
+                            self.primary.current_flags.textures,
+                        ));
                     }
                     let (loners, crowds) = source.get_draw_peds(*on, map);
                     for p in loners {

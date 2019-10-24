@@ -75,6 +75,7 @@ impl<'a> EventCtx<'a> {
                         TextureType::Tile => {
                             Color::TileTexture(idx as f32, (f64::from(dims.0), f64::from(dims.1)))
                         }
+                        TextureType::CustomUV => Color::CustomUVTexture(idx as f32),
                     },
                 );
             } else {
@@ -191,4 +192,5 @@ impl<'a> TimerSink for LoadingScreen<'a> {
 pub enum TextureType {
     Stretch,
     Tile,
+    CustomUV,
 }

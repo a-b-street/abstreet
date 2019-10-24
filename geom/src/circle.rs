@@ -53,7 +53,7 @@ impl Circle {
                 indices.pop();
             }
         }
-        Polygon::precomputed(pts, indices)
+        Polygon::precomputed(pts, indices, None)
     }
 }
 

@@ -12,6 +12,8 @@ pub enum Color {
     // Stretches the entire texture to fit the entire polygon. Rotates from the center of the
     // polygon. Not sure what this means for anything but circles right now.
     StretchTexture(f32, Angle),
+    // A polygon with UV coordinates for each point must be used.
+    CustomUVTexture(f32),
     Hatching,
 }
 
@@ -25,6 +27,7 @@ impl fmt::Display for Color {
             Color::StretchTexture(id, angle) => {
                 write!(f, "Color::StretchTexture({}, {})", id, angle)
             }
+            Color::CustomUVTexture(id) => write!(f, "Color::CustomUVTexture({})", id),
             Color::Hatching => write!(f, "Color::Hatching"),
         }
     }

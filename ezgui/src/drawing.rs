@@ -418,8 +418,8 @@ impl<'a> Prerender<'a> {
 
         for (color, poly) in list {
             let idx_offset = vertices.len();
-            let (pts, raw_indices) = poly.raw_for_rendering();
-            for pt in pts {
+            let (pts, raw_indices, maybe_uv) = poly.raw_for_rendering();
+            for (idx, pt) in pts.iter().enumerate() {
                 let style = match color {
                     Color::RGBA(r, g, b, a) => [r, g, b, a],
                     Color::TileTexture(id, (tex_width, tex_height)) => {
@@ -445,6 +445,11 @@ impl<'a> Prerender<'a> {
                         let tx = (rot_pt.x() - b.min_x) / (b.max_x - b.min_x);
                         let ty = (rot_pt.y() - b.min_y) / (b.max_y - b.min_y);
                         [id, tx as f32, ty as f32, 0.0]
+                    }
+                    Color::CustomUVTexture(id) => {
+                        let (tx, ty) =
+                            maybe_uv.expect("CustomUVTexture with polygon lacking UV")[idx];
+                        [id, tx, ty, 0.0]
                     }
                     Color::Hatching => [10.0, 0.0, 0.0, 0.0],
                 };
