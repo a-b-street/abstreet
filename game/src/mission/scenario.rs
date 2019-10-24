@@ -3,19 +3,22 @@ use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::mission::pick_time_range;
 use crate::sandbox::SandboxMode;
-use crate::ui::UI;
-use abstutil::{prettyprint_usize, MultiMap, WeightedUsizeChoice};
+use crate::ui::{ShowEverything, UI};
+use abstutil::{prettyprint_usize, MultiMap, Timer, WeightedUsizeChoice};
 use ezgui::{
-    hotkey, Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, ModalMenu, Text, Wizard,
-    WrappedWizard,
+    hotkey, Choice, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line,
+    ModalMenu, Text, Wizard, WrappedWizard,
 };
 use geom::Duration;
-use map_model::{BuildingID, IntersectionID, Map, Neighborhood};
+use map_model::{
+    BuildingID, IntersectionID, LaneType, Map, Neighborhood, PathRequest, Position, LANE_THICKNESS,
+};
 use sim::{
     BorderSpawnOverTime, DrivingGoal, OriginDestination, Scenario, SeedParkedCars, SidewalkPOI,
     SidewalkSpot, SpawnOverTime, SpawnTrip,
 };
 use std::collections::BTreeSet;
+use std::fmt;
 
 pub struct ScenarioManager {
     menu: ModalMenu,
@@ -30,6 +33,8 @@ pub struct ScenarioManager {
     total_cars_needed: usize,
     total_parking_spots: usize,
     bldg_colors: ObjectColorer,
+
+    trip_paths: Option<Drawable>,
 }
 
 impl ScenarioManager {
@@ -138,6 +143,7 @@ impl ScenarioManager {
             total_cars_needed,
             total_parking_spots: free_parking_spots.len(),
             bldg_colors: bldg_colors.build(ctx, &ui.primary.map),
+            trip_paths: None,
         }
     }
 }
@@ -194,39 +200,75 @@ impl State for ScenarioManager {
             return Transition::PopThenReplace(Box::new(SandboxMode::new(ctx, ui)));
         }
 
+        if self.trip_paths.is_some() && self.menu.consume_action("stop showing paths", ctx) {
+            self.trip_paths = None;
+        }
+
         if let Some(ID::Building(b)) = ui.primary.current_selection {
             let from = self.trips_from_bldg.get(b);
             let to = self.trips_to_bldg.get(b);
-            if (!from.is_empty() || !to.is_empty())
-                && ctx.input.contextual_action(Key::T, "browse trips")
-            {
-                // TODO Avoid the clone? Just happens once though.
-                let mut all_trips = from.clone();
-                all_trips.extend(to);
+            if !from.is_empty() || !to.is_empty() {
+                if ctx.input.contextual_action(Key::T, "browse trips") {
+                    // TODO Avoid the clone? Just happens once though.
+                    let mut all_trips = from.clone();
+                    all_trips.extend(to);
 
-                return Transition::Push(make_trip_picker(
-                    self.scenario.clone(),
-                    all_trips,
-                    "building",
-                    OD::Bldg(b),
-                ));
+                    return Transition::Push(make_trip_picker(
+                        self.scenario.clone(),
+                        all_trips,
+                        "building",
+                        OD::Bldg(b),
+                    ));
+                } else if self.trip_paths.is_none()
+                    && ctx
+                        .input
+                        .contextual_action(Key::P, "show paths to and from")
+                {
+                    let mut all_trips = from.clone();
+                    all_trips.extend(to);
+                    self.trip_paths = Some(calculate_paths(
+                        &self.scenario,
+                        all_trips,
+                        OD::Bldg(b),
+                        &ui.primary.map,
+                        ctx,
+                    ));
+                    self.menu
+                        .push_action(hotkey(Key::P), "stop showing paths", ctx);
+                }
             }
         } else if let Some(ID::Intersection(i)) = ui.primary.current_selection {
             let from = self.trips_from_border.get(i);
             let to = self.trips_to_border.get(i);
-            if (!from.is_empty() || !to.is_empty())
-                && ctx.input.contextual_action(Key::T, "browse trips")
-            {
-                // TODO Avoid the clone? Just happens once though.
-                let mut all_trips = from.clone();
-                all_trips.extend(to);
+            if !from.is_empty() || !to.is_empty() {
+                if ctx.input.contextual_action(Key::T, "browse trips") {
+                    // TODO Avoid the clone? Just happens once though.
+                    let mut all_trips = from.clone();
+                    all_trips.extend(to);
 
-                return Transition::Push(make_trip_picker(
-                    self.scenario.clone(),
-                    all_trips,
-                    "border",
-                    OD::Border(i),
-                ));
+                    return Transition::Push(make_trip_picker(
+                        self.scenario.clone(),
+                        all_trips,
+                        "border",
+                        OD::Border(i),
+                    ));
+                } else if self.trip_paths.is_none()
+                    && ctx
+                        .input
+                        .contextual_action(Key::P, "show paths to and from")
+                {
+                    let mut all_trips = from.clone();
+                    all_trips.extend(to);
+                    self.trip_paths = Some(calculate_paths(
+                        &self.scenario,
+                        all_trips,
+                        OD::Border(i),
+                        &ui.primary.map,
+                        ctx,
+                    ));
+                    self.menu
+                        .push_action(hotkey(Key::P), "stop showing paths", ctx);
+                }
             }
         }
 
@@ -239,7 +281,17 @@ impl State for ScenarioManager {
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         // TODO Let common contribute draw_options...
-        self.bldg_colors.draw(g, ui);
+        if let Some(ref p) = self.trip_paths {
+            ui.draw(
+                g,
+                self.common.draw_options(ui),
+                &ui.primary.sim,
+                &ShowEverything::new(),
+            );
+            g.redraw(p);
+        } else {
+            self.bldg_colors.draw(g, ui);
+        }
 
         self.menu.draw(g);
         // TODO Weird to not draw common (turn cycler), but we want the custom OSD...
@@ -430,6 +482,26 @@ enum OD {
     Border(IntersectionID),
 }
 
+impl fmt::Display for OD {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            OD::Bldg(b) => write!(f, "{}", b),
+            OD::Border(i) => write!(f, "border {}", i),
+        }
+    }
+}
+
+impl OD {
+    fn driving_pos(&self, map: &Map) -> Position {
+        match self {
+            OD::Bldg(b) => DrivingGoal::ParkNear(*b).goal_pos(map),
+            OD::Border(i) => DrivingGoal::end_at_border(*i, vec![LaneType::Driving], map)
+                .unwrap()
+                .goal_pos(map),
+        }
+    }
+}
+
 fn make_trip_picker(
     scenario: Scenario,
     indices: BTreeSet<usize>,
@@ -576,4 +648,59 @@ fn other_endpt(trip: &SpawnTrip, home: OD) -> ID {
     } else {
         panic!("other_endpt broke when homed at {:?} for {:?}", home, trip)
     }
+}
+
+// TODO Hard to understand anything here.
+// - Show the src/sink
+// - Distinguish to/from trips
+// - Show the other endpoints, weighted more clearly
+// - Make more visible when unzoomed
+fn calculate_paths(
+    scenario: &Scenario,
+    indices: BTreeSet<usize>,
+    src_sink: OD,
+    map: &Map,
+    ctx: &EventCtx,
+) -> Drawable {
+    // TODO Lots of repeated code to get paths
+    let mut timer = Timer::new(&format!("find paths to/from {}", src_sink));
+    let paths = timer.parallelize("calculate paths", indices.into_iter().collect(), |idx| {
+        let trip = &scenario.individ_trips[idx];
+        let (start, end) = match trip {
+            SpawnTrip::CarAppearing { start, goal, .. } => (start.clone(), goal.goal_pos(map)),
+            SpawnTrip::MaybeUsingParkedCar(_, b, goal) => {
+                (OD::Bldg(*b).driving_pos(map), goal.goal_pos(map))
+            }
+            // TODO
+            SpawnTrip::UsingBike(_, _, _) => {
+                return None;
+            }
+            SpawnTrip::JustWalking(_, spot1, spot2)
+            | SpawnTrip::UsingTransit(_, spot1, spot2, _, _, _) => {
+                (spot1.sidewalk_pos, spot2.sidewalk_pos)
+            }
+        };
+        map.pathfind(PathRequest {
+            start,
+            end,
+            // TODO
+            can_use_bike_lanes: false,
+            can_use_bus_lanes: false,
+        })
+        .and_then(|path| path.trace(map, start.dist_along(), None))
+    });
+
+    let mut batch = GeomBatch::new();
+    let mut skipped = 0;
+    for maybe_trace in paths {
+        if let Some(trace) = maybe_trace {
+            batch.push(Color::RED.alpha(0.3), trace.make_polygons(LANE_THICKNESS));
+        } else {
+            skipped += 1;
+        }
+    }
+    if skipped != 0 {
+        timer.warn(format!("Not showing {} paths", prettyprint_usize(skipped)));
+    }
+    ctx.prerender.upload(batch)
 }

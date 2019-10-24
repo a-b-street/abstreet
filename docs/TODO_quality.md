@@ -105,3 +105,13 @@
 - perf
 	- dig into individual events, still too many?
 		- for laggy heads, often round down and try slightly too early
+
+## Laundry list of intersection geometry ideas
+
+- make sure road widths are reasonable first
+	- SDOT dataset
+	- channelization
+- extend all the thick roads until they poke out of stuff (except for roads continuing straight)
+- play with https://github.com/w8r/polygon-offset
+- https://github.com/migurski/Skeletron
+- stitch together orig center line of adj roads. then do polyline shifting, which already handles angle eating?

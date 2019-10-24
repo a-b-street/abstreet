@@ -61,7 +61,7 @@ impl RoadColorerBuilder {
         }
     }
 
-    pub fn build(self, ctx: &mut EventCtx, map: &Map) -> RoadColorer {
+    pub fn build(self, ctx: &EventCtx, map: &Map) -> RoadColorer {
         let mut batch = GeomBatch::new();
         for (r, color) in self.roads {
             batch.push(color, map.get_r(r).get_thick_polygon().unwrap());
@@ -118,7 +118,7 @@ impl ObjectColorerBuilder {
         }
     }
 
-    pub fn build(mut self, ctx: &mut EventCtx, map: &Map) -> ObjectColorer {
+    pub fn build(mut self, ctx: &EventCtx, map: &Map) -> ObjectColorer {
         let mut batch = GeomBatch::new();
         for (id, color) in &self.zoomed_override_colors {
             let poly = match id {
