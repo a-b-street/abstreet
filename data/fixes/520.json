@@ -1,0 +1,1427 @@
+{
+  "gps_bounds": {
+    "min_lon": -122.3218,
+    "min_lat": 47.6315,
+    "max_lon": -122.2985,
+    "max_lat": 47.6475
+  },
+  "override_metadata": [
+    [
+      {
+        "osm_way_id": 157189000,
+        "node1": 53128052,
+        "node2": 3391701875
+      },
+      [
+        {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "157189000",
+          "abst:parking_lane_fwd": "true",
+          "highway": "tertiary",
+          "lanes": "3",
+          "lanes:backward": "1",
+          "lanes:forward": "2",
+          "maxspeed": "30 mph",
+          "name": "East Roanoke Street",
+          "trolley_wire": "yes"
+        },
+        []
+      ]
+    ],
+    [
+      {
+        "osm_way_id": 332060228,
+        "node1": 3391701887,
+        "node2": 5417462688
+      },
+      [
+        {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "332060228",
+          "abst:parking_lane_back": "true",
+          "abst:parking_lane_fwd": "true",
+          "highway": "secondary",
+          "lanes": "2",
+          "maxspeed": "30 mph",
+          "name": "East Lake Washington Boulevard"
+        },
+        []
+      ]
+    ],
+    [
+      {
+        "osm_way_id": 332060248,
+        "node1": 53128053,
+        "node2": 3391701883
+      },
+      [
+        {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "332060248",
+          "highway": "secondary",
+          "lanes": "3",
+          "maxspeed": "30 mph",
+          "name": "East Montlake Place East",
+          "old_ref": "WA 513 (Old SSH 1J)",
+          "oneway": "yes",
+          "trolley_wire": "yes",
+          "turn:lanes": "left|through|through"
+        },
+        []
+      ]
+    ],
+    [
+      {
+        "osm_way_id": 332060259,
+        "node1": 3391701877,
+        "node2": 53128052
+      },
+      [
+        {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "332060259",
+          "highway": "secondary_link",
+          "lanes": "1",
+          "maxspeed": "30 mph",
+          "oneway": "yes"
+        },
+        []
+      ]
+    ],
+    [
+      {
+        "osm_way_id": 332060261,
+        "node1": 3391701872,
+        "node2": 3391701869
+      },
+      [
+        {
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "332060261",
+          "highway": "secondary",
+          "lanes": "2",
+          "maxspeed": "30 mph",
+          "name": "Montlake Boulevard East",
+          "old_ref": "SSH 1J",
+          "oneway": "yes",
+          "trolley_wire": "yes"
+        },
+        []
+      ]
+    ],
+    [
+      {
+        "osm_way_id": 332060263,
+        "node1": 3391701877,
+        "node2": 3391701875
+      },
+      [
+        {
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "332060263",
+          "abst:parking_lane_fwd": "true",
+          "highway": "secondary",
+          "lanes": "2",
+          "maxspeed": "30 mph",
+          "name": "East Montlake Place East",
+          "old_ref": "SSH 1J",
+          "oneway": "yes",
+          "trolley_wire": "yes"
+        },
+        []
+      ]
+    ],
+    [
+      {
+        "osm_way_id": 361443212,
+        "node1": 5413301445,
+        "node2": 2247309277
+      },
+      [
+        {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "361443212",
+          "abst:parking_lane_fwd": "true",
+          "highway": "primary",
+          "lanes": "2",
+          "name": "Montlake Boulevard East",
+          "old_ref": "SSH 1J",
+          "oneway": "yes",
+          "ref": "WA 513",
+          "trolley_wire": "yes"
+        },
+        []
+      ]
+    ],
+    [
+      {
+        "osm_way_id": 426250826,
+        "node1": 4240312878,
+        "node2": 3391701887
+      },
+      [
+        {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "426250826",
+          "highway": "secondary",
+          "lanes": "2",
+          "name": "East Lake Washington Boulevard",
+          "oneway": "yes"
+        },
+        []
+      ]
+    ],
+    [
+      {
+        "osm_way_id": 459083143,
+        "node1": 4549993731,
+        "node2": 4550007326
+      },
+      [
+        {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "459083143",
+          "access:lanes": "||no",
+          "bus:lanes": "||designated",
+          "highway": "primary",
+          "lanes": "3",
+          "name": "Montlake Boulevard East",
+          "old_ref": "SSH 1J",
+          "oneway": "yes",
+          "ref": "WA 513",
+          "trolley_wire": "yes"
+        },
+        []
+      ]
+    ],
+    [
+      {
+        "osm_way_id": 459084308,
+        "node1": 59677236,
+        "node2": 4550007325
+      },
+      [
+        {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "459084308",
+          "highway": "primary",
+          "lanes": "2",
+          "name": "Montlake Boulevard East",
+          "old_ref": "SSH 1J",
+          "oneway": "yes",
+          "ref": "WA 513",
+          "trolley_wire": "yes"
+        },
+        []
+      ]
+    ],
+    [
+      {
+        "osm_way_id": 490622980,
+        "node1": 4828090661,
+        "node2": 29464223
+      },
+      [
+        {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "490622980",
+          "highway": "primary",
+          "lanes": "3",
+          "name": "Montlake Boulevard East",
+          "old_ref": "SSH 1J",
+          "oneway": "yes",
+          "ref": "WA 513",
+          "trolley_wire": "yes",
+          "turn:lanes": "left||"
+        },
+        []
+      ]
+    ],
+    [
+      {
+        "osm_way_id": 532912457,
+        "node1": 4550007326,
+        "node2": 59677236
+      },
+      [
+        {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "532912457",
+          "abst:parking_lane_fwd": "true",
+          "access:lanes": "||no",
+          "bus:lanes": "||designated",
+          "highway": "primary",
+          "lanes": "3",
+          "name": "Montlake Boulevard East",
+          "old_ref": "SSH 1J",
+          "oneway": "yes",
+          "ref": "WA 513",
+          "trolley_wire": "yes"
+        },
+        []
+      ]
+    ],
+    [
+      {
+        "osm_way_id": 607798222,
+        "node1": 720880672,
+        "node2": 3391701882
+      },
+      [
+        {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "607798222",
+          "bicycle": "no",
+          "highway": "motorway_link",
+          "lanes": "2",
+          "oneway": "yes",
+          "toll": "no"
+        },
+        []
+      ]
+    ]
+  ],
+  "delete_roads": [
+    {
+      "osm_way_id": 428224942,
+      "node1": 29463657,
+      "node2": 4303514198
+    },
+    {
+      "osm_way_id": 428224942,
+      "node1": 4303514198,
+      "node2": 4240331992
+    },
+    {
+      "osm_way_id": 426250826,
+      "node1": 4240312878,
+      "node2": 3391701887
+    },
+    {
+      "osm_way_id": 426250827,
+      "node1": 29449863,
+      "node2": 29464223
+    },
+    {
+      "osm_way_id": 424636849,
+      "node1": 4240312868,
+      "node2": 4240312871
+    },
+    {
+      "osm_way_id": 424636850,
+      "node1": 3391701887,
+      "node2": 29449863
+    },
+    {
+      "osm_way_id": 332060228,
+      "node1": 3391701887,
+      "node2": 5417462688
+    },
+    {
+      "osm_way_id": 424636852,
+      "node1": 53128053,
+      "node2": 4240312878
+    },
+    {
+      "osm_way_id": 4634847,
+      "node1": 29449867,
+      "node2": 720880672
+    },
+    {
+      "osm_way_id": 431103956,
+      "node1": 4240331992,
+      "node2": 4240312872
+    },
+    {
+      "osm_way_id": 431103958,
+      "node1": 4303514203,
+      "node2": 29464222
+    },
+    {
+      "osm_way_id": 424636846,
+      "node1": 4136765600,
+      "node2": 488959741
+    },
+    {
+      "osm_way_id": 332060248,
+      "node1": 53128053,
+      "node2": 3391701883
+    },
+    {
+      "osm_way_id": 361443212,
+      "node1": 5413301445,
+      "node2": 2247309277
+    },
+    {
+      "osm_way_id": 424807773,
+      "node1": 29464212,
+      "node2": 4240312868
+    },
+    {
+      "osm_way_id": 428224936,
+      "node1": 53198127,
+      "node2": 1635790583
+    },
+    {
+      "osm_way_id": 4636105,
+      "node1": 29463657,
+      "node2": 488959736
+    },
+    {
+      "osm_way_id": 424807771,
+      "node1": 4240312862,
+      "node2": 4136765600
+    },
+    {
+      "osm_way_id": 40416106,
+      "node1": 29449871,
+      "node2": 29449867
+    },
+    {
+      "osm_way_id": 428343454,
+      "node1": 720880672,
+      "node2": 3391701880
+    },
+    {
+      "osm_way_id": 481291029,
+      "node1": 53128052,
+      "node2": 3391701878
+    },
+    {
+      "osm_way_id": 424807772,
+      "node1": 29447666,
+      "node2": 4240312865
+    },
+    {
+      "osm_way_id": 40416108,
+      "node1": 29447668,
+      "node2": 29447666
+    },
+    {
+      "osm_way_id": 561381711,
+      "node1": 5413301452,
+      "node2": 5413301445
+    },
+    {
+      "osm_way_id": 332060263,
+      "node1": 3391701882,
+      "node2": 3391701880
+    },
+    {
+      "osm_way_id": 332060263,
+      "node1": 3391701880,
+      "node2": 3391701878
+    },
+    {
+      "osm_way_id": 332060263,
+      "node1": 3391701878,
+      "node2": 3391701877
+    },
+    {
+      "osm_way_id": 332060263,
+      "node1": 3391701877,
+      "node2": 3391701875
+    },
+    {
+      "osm_way_id": 4636259,
+      "node1": 29449863,
+      "node2": 4828090657
+    },
+    {
+      "osm_way_id": 332060258,
+      "node1": 3391701875,
+      "node2": 1635790583
+    },
+    {
+      "osm_way_id": 332060259,
+      "node1": 3391701877,
+      "node2": 53128052
+    },
+    {
+      "osm_way_id": 431103957,
+      "node1": 4303514204,
+      "node2": 4303514203
+    },
+    {
+      "osm_way_id": 332060261,
+      "node1": 3391701875,
+      "node2": 3391701872
+    },
+    {
+      "osm_way_id": 332060243,
+      "node1": 1635790583,
+      "node2": 53128053
+    },
+    {
+      "osm_way_id": 428224940,
+      "node1": 4240312872,
+      "node2": 4828090661
+    },
+    {
+      "osm_way_id": 424636848,
+      "node1": 4240312865,
+      "node2": 4240312871
+    },
+    {
+      "osm_way_id": 561381710,
+      "node1": 5413301451,
+      "node2": 4240312862
+    },
+    {
+      "osm_way_id": 490622980,
+      "node1": 4828090661,
+      "node2": 29464223
+    },
+    {
+      "osm_way_id": 607798222,
+      "node1": 720880672,
+      "node2": 3391701882
+    },
+    {
+      "osm_way_id": 424636851,
+      "node1": 3391701883,
+      "node2": 4240312878
+    },
+    {
+      "osm_way_id": 490622982,
+      "node1": 4828090657,
+      "node2": 4240314159
+    },
+    {
+      "osm_way_id": 431103954,
+      "node1": 4303514198,
+      "node2": 4303514204
+    },
+    {
+      "osm_way_id": 332060260,
+      "node1": 29464223,
+      "node2": 3391701882
+    },
+    {
+      "osm_way_id": 531617255,
+      "node1": 29464223,
+      "node2": 29464222
+    },
+    {
+      "osm_way_id": 4636141,
+      "node1": 29464222,
+      "node2": 29464212
+    },
+    {
+      "osm_way_id": 6390208,
+      "node1": 53128053,
+      "node2": 53137203
+    },
+    {
+      "osm_way_id": 130470645,
+      "node1": 59677231,
+      "node2": 29463657
+    },
+    {
+      "osm_way_id": 426250828,
+      "node1": 3391701882,
+      "node2": 3391701883
+    },
+    {
+      "osm_way_id": 157189000,
+      "node1": 53128052,
+      "node2": 3391701875
+    },
+    {
+      "osm_way_id": 431103955,
+      "node1": 4240314159,
+      "node2": 5413301445
+    },
+    {
+      "osm_way_id": 332060236,
+      "node1": 3391701883,
+      "node2": 29449863
+    },
+    {
+      "osm_way_id": 428224939,
+      "node1": 4273590092,
+      "node2": 59677231
+    },
+    {
+      "osm_way_id": 459083143,
+      "node1": 4549993731,
+      "node2": 4550007326
+    },
+    {
+      "osm_way_id": 537697092,
+      "node1": 2247309277,
+      "node2": 4549993731
+    },
+    {
+      "osm_way_id": 130470644,
+      "node1": 1437096596,
+      "node2": 59677236
+    },
+    {
+      "osm_way_id": 459084308,
+      "node1": 59677236,
+      "node2": 4550007325
+    },
+    {
+      "osm_way_id": 532912457,
+      "node1": 4550007326,
+      "node2": 59677236
+    },
+    {
+      "osm_way_id": 428224941,
+      "node1": 4550007325,
+      "node2": 4273590092
+    },
+    {
+      "osm_way_id": 459084309,
+      "node1": 4550007325,
+      "node2": 4550007326
+    },
+    {
+      "osm_way_id": 459084307,
+      "node1": 59710790,
+      "node2": 4550007325
+    },
+    {
+      "osm_way_id": 455809716,
+      "node1": 491979474,
+      "node2": 4550007326
+    },
+    {
+      "osm_way_id": 459084306,
+      "node1": 59710787,
+      "node2": 491979474
+    },
+    {
+      "osm_way_id": 455437650,
+      "node1": 2247309277,
+      "node2": 491979463
+    },
+    {
+      "osm_way_id": 40416113,
+      "node1": 59677231,
+      "node2": 2247309277
+    },
+    {
+      "osm_way_id": 157188999,
+      "node1": 53128052,
+      "node2": 3391701872
+    },
+    {
+      "osm_way_id": 332060261,
+      "node1": 3391701872,
+      "node2": 3391701869
+    },
+    {
+      "osm_way_id": 332060253,
+      "node1": 3391701869,
+      "node2": 53198127
+    },
+    {
+      "osm_way_id": 6444010,
+      "node1": 53198127,
+      "node2": 53198128
+    }
+  ],
+  "delete_intersections": [
+    {
+      "osm_node_id": 29463657
+    },
+    {
+      "osm_node_id": 4240331992
+    },
+    {
+      "osm_node_id": 4240312878
+    },
+    {
+      "osm_node_id": 3391701887
+    },
+    {
+      "osm_node_id": 29449863
+    },
+    {
+      "osm_node_id": 29464223
+    },
+    {
+      "osm_node_id": 4240312868
+    },
+    {
+      "osm_node_id": 53128053
+    },
+    {
+      "osm_node_id": 29449867
+    },
+    {
+      "osm_node_id": 720880672
+    },
+    {
+      "osm_node_id": 4240312872
+    },
+    {
+      "osm_node_id": 4303514203
+    },
+    {
+      "osm_node_id": 29464222
+    },
+    {
+      "osm_node_id": 4136765600
+    },
+    {
+      "osm_node_id": 3391701883
+    },
+    {
+      "osm_node_id": 5413301445
+    },
+    {
+      "osm_node_id": 29464212
+    },
+    {
+      "osm_node_id": 1635790583
+    },
+    {
+      "osm_node_id": 4240312862
+    },
+    {
+      "osm_node_id": 3391701880
+    },
+    {
+      "osm_node_id": 3391701878
+    },
+    {
+      "osm_node_id": 29447666
+    },
+    {
+      "osm_node_id": 4240312865
+    },
+    {
+      "osm_node_id": 3391701882
+    },
+    {
+      "osm_node_id": 3391701875
+    },
+    {
+      "osm_node_id": 4828090657
+    },
+    {
+      "osm_node_id": 3391701877
+    },
+    {
+      "osm_node_id": 4303514204
+    },
+    {
+      "osm_node_id": 4828090661
+    },
+    {
+      "osm_node_id": 4240314159
+    },
+    {
+      "osm_node_id": 4303514198
+    },
+    {
+      "osm_node_id": 4549993731
+    },
+    {
+      "osm_node_id": 59677236
+    },
+    {
+      "osm_node_id": 4273590092
+    },
+    {
+      "osm_node_id": 4550007325
+    },
+    {
+      "osm_node_id": 4550007326
+    },
+    {
+      "osm_node_id": 491979474
+    },
+    {
+      "osm_node_id": 2247309277
+    },
+    {
+      "osm_node_id": 3391701872
+    },
+    {
+      "osm_node_id": 53198127
+    }
+  ],
+  "add_intersections": [
+    {
+      "point": {
+        "inner_x": 1284.7098,
+        "inner_y": 120.6835
+      },
+      "intersection_type": "TrafficSignal",
+      "label": null,
+      "orig_id": {
+        "osm_node_id": -1569786688
+      },
+      "synthetic": true
+    },
+    {
+      "point": {
+        "inner_x": 1293.1381,
+        "inner_y": 189.8009
+      },
+      "intersection_type": "StopSign",
+      "label": null,
+      "orig_id": {
+        "osm_node_id": -1569786699
+      },
+      "synthetic": true
+    },
+    {
+      "point": {
+        "inner_x": 1293.5267,
+        "inner_y": 292.4207
+      },
+      "intersection_type": "TrafficSignal",
+      "label": null,
+      "orig_id": {
+        "osm_node_id": -1569786719
+      },
+      "synthetic": true
+    },
+    {
+      "point": {
+        "inner_x": 1331.3542,
+        "inner_y": 393.7066
+      },
+      "intersection_type": "TrafficSignal",
+      "label": null,
+      "orig_id": {
+        "osm_node_id": -1569786822
+      },
+      "synthetic": true
+    },
+    {
+      "point": {
+        "inner_x": 1362.5729,
+        "inner_y": 444.7162
+      },
+      "intersection_type": "TrafficSignal",
+      "label": null,
+      "orig_id": {
+        "osm_node_id": -1569786907
+      },
+      "synthetic": true
+    },
+    {
+      "point": {
+        "inner_x": 1195.7391,
+        "inner_y": 418.7821
+      },
+      "intersection_type": "StopSign",
+      "label": null,
+      "orig_id": {
+        "osm_node_id": -1571780064
+      },
+      "synthetic": true
+    }
+  ],
+  "add_roads": [
+    {
+      "i1": 383,
+      "i2": 158,
+      "center_points": [
+        {
+          "inner_x": 1284.7098,
+          "inner_y": 120.6835
+        },
+        {
+          "inner_x": 1286.9589,
+          "inner_y": 66.2166
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569786691,
+        "node1": -1569786688,
+        "node2": 1437096596
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569786691",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "dds/dds",
+        "highway": "secondary",
+        "maxspeed": "30 mph",
+        "name": "East Montlake Place East"
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 383,
+      "i2": 239,
+      "center_points": [
+        {
+          "inner_x": 1284.7098,
+          "inner_y": 120.6835
+        },
+        {
+          "inner_x": 1236.2587,
+          "inner_y": 121.2136
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569786693,
+        "node1": -1569786688,
+        "node2": 59710790
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569786693",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "s/dps",
+        "maxspeed": "25 mph",
+        "name": "Streety McStreetFace"
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 383,
+      "i2": 257,
+      "center_points": [
+        {
+          "inner_x": 1284.7098,
+          "inner_y": 120.6835
+        },
+        {
+          "inner_x": 1340.5141,
+          "inner_y": 122.3589
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569786695,
+        "node1": -1569786688,
+        "node2": 59710787
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569786695",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "s/dps",
+        "maxspeed": "25 mph",
+        "name": "Streety McStreetFace"
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 384,
+      "i2": 383,
+      "center_points": [
+        {
+          "inner_x": 1293.1381,
+          "inner_y": 189.8009
+        },
+        {
+          "inner_x": 1284.7098,
+          "inner_y": 120.6835
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569786702,
+        "node1": -1569786699,
+        "node2": -1569786688
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569786702",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "dds/dds",
+        "highway": "secondary",
+        "maxspeed": "30 mph",
+        "name": "East Montlake Place East"
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 384,
+      "i2": 227,
+      "center_points": [
+        {
+          "inner_x": 1293.1381,
+          "inner_y": 189.8009
+        },
+        {
+          "inner_x": 1277.1575,
+          "inner_y": 216.0962
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569786708,
+        "node1": -1569786699,
+        "node2": 59677231
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569786708",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "ds/s",
+        "maxspeed": "25 mph",
+        "name": "Streety McStreetFace"
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 384,
+      "i2": 3,
+      "center_points": [
+        {
+          "inner_x": 1293.1381,
+          "inner_y": 189.8009
+        },
+        {
+          "inner_x": 1307.8055,
+          "inner_y": 216.1629
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569786711,
+        "node1": -1569786699,
+        "node2": 491979463
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569786711",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "ds/s",
+        "maxspeed": "25 mph",
+        "name": "Streety McStreetFace"
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 385,
+      "i2": 384,
+      "center_points": [
+        {
+          "inner_x": 1293.5267,
+          "inner_y": 292.4207
+        },
+        {
+          "inner_x": 1293.1381,
+          "inner_y": 189.8009
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569786722,
+        "node1": -1569786719,
+        "node2": -1569786699
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569786722",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "dds/dds",
+        "highway": "secondary",
+        "maxspeed": "30 mph",
+        "name": "East Montlake Place East"
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 238,
+      "i2": 385,
+      "center_points": [
+        {
+          "inner_x": 1681.2533,
+          "inner_y": 254.7476
+        },
+        {
+          "inner_x": 1293.5267,
+          "inner_y": 292.4207
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569786736,
+        "node1": 5413301452,
+        "node2": -1569786719
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569786736",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "d/",
+        "highway": "motorway_link",
+        "maxspeed": "60 mph",
+        "name": ""
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 385,
+      "i2": 189,
+      "center_points": [
+        {
+          "inner_x": 1293.5267,
+          "inner_y": 292.4207
+        },
+        {
+          "inner_x": 1156.7763,
+          "inner_y": 385.435
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569786754,
+        "node1": -1569786719,
+        "node2": 488959736
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569786754",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "d/",
+        "highway": "motorway_link",
+        "maxspeed": "60 mph",
+        "name": ""
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 152,
+      "i2": 305,
+      "center_points": [
+        {
+          "inner_x": 1154.9404,
+          "inner_y": 396.2431
+        },
+        {
+          "inner_x": 1681.613,
+          "inner_y": 271.1043
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569786768,
+        "node1": 488959741,
+        "node2": 5413301451
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569786768",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "/dd",
+        "highway": "motorway",
+        "maxspeed": "60 mph",
+        "name": "Portage Bay Viaduct"
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 235,
+      "i2": 45,
+      "center_points": [
+        {
+          "inner_x": 1166.8399,
+          "inner_y": 401.814
+        },
+        {
+          "inner_x": 1463.1209,
+          "inner_y": 349.6636
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569786800,
+        "node1": 29447668,
+        "node2": 4240312871
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569786800",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "dd/",
+        "highway": "motorway",
+        "maxspeed": "60 mph",
+        "name": "Portage Bay Viaduct"
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 386,
+      "i2": 385,
+      "center_points": [
+        {
+          "inner_x": 1331.3542,
+          "inner_y": 393.7066
+        },
+        {
+          "inner_x": 1293.5267,
+          "inner_y": 292.4207
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569786827,
+        "node1": -1569786822,
+        "node2": -1569786719
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569786827",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "dds/dds",
+        "highway": "secondary",
+        "maxspeed": "30 mph",
+        "name": "East Montlake Place East"
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 73,
+      "i2": 386,
+      "center_points": [
+        {
+          "inner_x": 1479.9061,
+          "inner_y": 371.2687
+        },
+        {
+          "inner_x": 1331.3542,
+          "inner_y": 393.7066
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569786886,
+        "node1": 5417462688,
+        "node2": -1569786822
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569786886",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "dps/dps",
+        "maxspeed": "25 mph",
+        "name": "Streety McStreetFace"
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 199,
+      "i2": 386,
+      "center_points": [
+        {
+          "inner_x": 1186.2178,
+          "inner_y": 460.1913
+        },
+        {
+          "inner_x": 1331.3542,
+          "inner_y": 393.7066
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569786900,
+        "node1": 29449871,
+        "node2": -1569786822
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569786900",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "d/",
+        "highway": "motorway_link",
+        "maxspeed": "",
+        "name": ""
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 387,
+      "i2": 386,
+      "center_points": [
+        {
+          "inner_x": 1362.5729,
+          "inner_y": 444.7162
+        },
+        {
+          "inner_x": 1331.3542,
+          "inner_y": 393.7066
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569786914,
+        "node1": -1569786907,
+        "node2": -1569786822
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569786914",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "dds/dds",
+        "highway": "secondary",
+        "maxspeed": "30 mph",
+        "name": "East Montlake Place East"
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 387,
+      "i2": 230,
+      "center_points": [
+        {
+          "inner_x": 1362.5729,
+          "inner_y": 444.7162
+        },
+        {
+          "inner_x": 1473.132,
+          "inner_y": 446.2364
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569786927,
+        "node1": -1569786907,
+        "node2": 53070282
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569786927",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "dps/dps",
+        "maxspeed": "25 mph",
+        "name": "Streety McStreetFace"
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 387,
+      "i2": 100,
+      "center_points": [
+        {
+          "inner_x": 1362.5729,
+          "inner_y": 444.7162
+        },
+        {
+          "inner_x": 1418.3329,
+          "inner_y": 497.4861
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569786951,
+        "node1": -1569786907,
+        "node2": 3391701869
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569786951",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "dds/dds",
+        "highway": "secondary",
+        "maxspeed": "30 mph",
+        "name": "East Montlake Place East"
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 40,
+      "i2": 387,
+      "center_points": [
+        {
+          "inner_x": 1350.4503,
+          "inner_y": 480.3287
+        },
+        {
+          "inner_x": 1362.5729,
+          "inner_y": 444.7162
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1569786954,
+        "node1": 53128052,
+        "node2": -1569786907
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1569786954",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "dps/dps",
+        "maxspeed": "25 mph",
+        "name": "Streety McStreetFace"
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 386,
+      "i2": 389,
+      "center_points": [
+        {
+          "inner_x": 1331.3542,
+          "inner_y": 393.7066
+        },
+        {
+          "inner_x": 1195.7391,
+          "inner_y": 418.7821
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1571780069,
+        "node1": -1569786822,
+        "node2": -1571780064
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1571780069",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "d/",
+        "maxspeed": "25 mph",
+        "name": "Streety McStreetFace"
+      },
+      "turn_restrictions": []
+    },
+    {
+      "i1": 389,
+      "i2": 235,
+      "center_points": [
+        {
+          "inner_x": 1195.7391,
+          "inner_y": 418.7821
+        },
+        {
+          "inner_x": 1166.8399,
+          "inner_y": 401.814
+        }
+      ],
+      "orig_id": {
+        "osm_way_id": -1571780074,
+        "node1": -1571780064,
+        "node2": 29447668
+      },
+      "osm_tags": {
+        "abst:endpt_back": "true",
+        "abst:endpt_fwd": "true",
+        "abst:osm_way_id": "-1571780074",
+        "abst:synthetic": "true",
+        "abst:synthetic_lanes": "d/",
+        "maxspeed": "25 mph",
+        "name": "Streety McStreetFace"
+      },
+      "turn_restrictions": []
+    }
+  ],
+  "merge_short_roads": []
+}

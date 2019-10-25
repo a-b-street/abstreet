@@ -1,0 +1,24 @@
+{
+  "gps_bounds": {
+    "min_lon": -122.3218,
+    "min_lat": 47.6315,
+    "max_lon": -122.2985,
+    "max_lat": 47.6475
+  },
+  "override_metadata": [],
+  "delete_roads": [
+    {
+      "osm_way_id": 6413596,
+      "node1": 1726081485,
+      "node2": 53149395
+    }
+  ],
+  "delete_intersections": [
+    {
+      "osm_node_id": 1726081485
+    }
+  ],
+  "add_intersections": [],
+  "add_roads": [],
+  "merge_short_roads": []
+}

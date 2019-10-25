@@ -115,3 +115,5 @@
 - play with https://github.com/w8r/polygon-offset
 - https://github.com/migurski/Skeletron
 - stitch together orig center line of adj roads. then do polyline shifting, which already handles angle eating?
+- manually draw intersections
+	- montlake/520 4 traffic signal case. existing road geometry in OSM doesn't even cover everything.
