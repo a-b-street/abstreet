@@ -359,8 +359,8 @@ fn glue_multipolygon(
                 // far and try to glue it up.
                 println!(
                     "Throwing away {} chunks from relation {}",
-                    rel_id,
-                    pts_per_way.len()
+                    pts_per_way.len(),
+                    rel_id
                 );
                 break;
             } else {

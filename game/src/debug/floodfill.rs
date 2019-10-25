@@ -3,7 +3,7 @@ use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::ui::UI;
 use ezgui::{hotkey, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
-use map_model::{LaneID, Map};
+use map_model::{LaneID, LaneType, Map};
 use petgraph::graphmap::DiGraphMap;
 use std::collections::HashSet;
 
@@ -15,39 +15,43 @@ pub struct Floodfiller {
 impl Floodfiller {
     pub fn new(ctx: &mut EventCtx, ui: &UI, parent_menu: &mut ModalMenu) -> Option<Box<dyn State>> {
         let map = &ui.primary.map;
-        let (reachable_lanes, title) = if let Some(ID::Lane(l)) = ui.primary.current_selection {
-            if map.get_l(l).is_driving()
-                && ctx
-                    .input
-                    .contextual_action(Key::F, "floodfill from this lane")
-            {
+        let (reachable_lanes, is_sidewalk, title) =
+            if let Some(ID::Lane(l)) = ui.primary.current_selection {
+                if !map.get_l(l).is_parking()
+                    && map.get_l(l).lane_type != LaneType::SharedLeftTurn
+                    && ctx
+                        .input
+                        .contextual_action(Key::F, "floodfill from this lane")
+                {
+                    (
+                        find_reachable_from(l, map),
+                        map.get_l(l).is_sidewalk(),
+                        format!("Floodfiller from {}", l),
+                    )
+                } else {
+                    return None;
+                }
+            } else if parent_menu.action("show strongly-connected component roads") {
+                let mut graph = DiGraphMap::new();
+                for turn in map.all_turns().values() {
+                    if map.is_turn_allowed(turn.id) && !turn.between_sidewalks() {
+                        graph.add_edge(turn.id.src, turn.id.dst, 1);
+                    }
+                }
+                let components = petgraph::algo::kosaraju_scc(&graph);
                 (
-                    find_reachable_from(l, map),
-                    format!("Floodfiller from {}", l),
+                    components
+                        .into_iter()
+                        .max_by_key(|c| c.len())
+                        .unwrap()
+                        .into_iter()
+                        .collect(),
+                    false,
+                    "Strongy-connected component".to_string(),
                 )
             } else {
                 return None;
-            }
-        } else if parent_menu.action("show strongly-connected component roads") {
-            let mut graph = DiGraphMap::new();
-            for turn in map.all_turns().values() {
-                if map.is_turn_allowed(turn.id) && !turn.between_sidewalks() {
-                    graph.add_edge(turn.id.src, turn.id.dst, 1);
-                }
-            }
-            let components = petgraph::algo::kosaraju_scc(&graph);
-            (
-                components
-                    .into_iter()
-                    .max_by_key(|c| c.len())
-                    .unwrap()
-                    .into_iter()
-                    .collect(),
-                "Strongy-connected component".to_string(),
-            )
-        } else {
-            return None;
-        };
+            };
 
         let reachable_color = ui.cs.get_def("reachable lane", Color::GREEN);
         let unreachable_color = ui.cs.get_def("unreachable lane", Color::RED);
@@ -61,7 +65,10 @@ impl Floodfiller {
         );
         let mut num_unreachable = 0;
         for lane in map.all_lanes() {
-            if !lane.is_driving() {
+            if lane.is_parking() || lane.lane_type == LaneType::SharedLeftTurn {
+                continue;
+            }
+            if is_sidewalk != lane.is_sidewalk() {
                 continue;
             }
             colorer.add(
