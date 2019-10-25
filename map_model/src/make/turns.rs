@@ -322,7 +322,7 @@ fn make_walking_turns(
                     lanes,
                     abstutil::wraparound_get(&roads, (idx1 as isize) - 1).outgoing_lanes(i.id),
                 ) {
-                    if !l1.last_pt().epsilon_eq(l2.first_pt()) {
+                    if l1.last_pt() != l2.first_pt() {
                         let geom = make_shared_sidewalk_corner(i, l1, l2, timer);
                         result.push(Turn {
                             id: turn_id(i.id, l1.id, l2.id),
@@ -364,7 +364,7 @@ fn make_walking_turns(
 }
 
 fn make_crosswalks(i: IntersectionID, l1: &Lane, l2: &Lane) -> Vec<Turn> {
-    if l1.last_pt().epsilon_eq(l2.first_pt()) {
+    if l1.last_pt() == l2.first_pt() {
         return Vec::new();
     }
 
@@ -405,7 +405,7 @@ fn make_degenerate_crosswalks(
     let pt1 = Line::maybe_new(l1_in.last_pt(), l2_out.first_pt())?.percent_along(0.5);
     let pt2 = Line::maybe_new(l1_out.first_pt(), l2_in.last_pt())?.percent_along(0.5);
 
-    if pt1.epsilon_eq(pt2) {
+    if pt1 == pt2 {
         return None;
     }
 
@@ -474,7 +474,8 @@ fn make_shared_sidewalk_corner(
     if let Some(pts) =
         Pt2D::find_pts_between(&i.polygon.points(), corner2, corner1, Distance::meters(0.5))
     {
-        let deduped = Pt2D::approx_dedupe(pts, geom::EPSILON_DIST);
+        let mut deduped = pts.clone();
+        deduped.dedup();
         if deduped.len() >= 2 {
             if abstutil::contains_duplicates(&deduped.iter().map(|pt| pt.to_hashable()).collect()) {
                 timer.warn(format!("SharedSidewalkCorner between {} and {} has weird duplicate geometry, so just doing straight line", l1.id, l2.id));
@@ -501,7 +502,8 @@ fn make_shared_sidewalk_corner(
             "SharedSidewalkCorner between {} and {} couldn't do final smoothing",
             l1.id, l2.id
         ));
-        final_pts = Pt2D::approx_dedupe(pts_between, geom::EPSILON_DIST);
+        final_pts = pts_between;
+        final_pts.dedup()
     }
     // The last point might be removed as a duplicate, but we want the start/end to exactly match
     // up at least.
@@ -559,7 +561,7 @@ fn make_vehicle_turn(
     let src = &lanes[l1.0];
     let dst = &lanes[l2.0];
 
-    if src.last_pt().epsilon_eq(dst.first_pt()) {
+    if src.last_pt() == dst.first_pt() {
         return None;
     }
 
@@ -579,18 +581,17 @@ fn make_vehicle_turn(
             to_pt(dst.first_pt()),
         );
         let pieces = 5;
-        PolyLine::new(Pt2D::approx_dedupe(
-            (0..=pieces)
-                .map(|i| {
-                    from_pt(
-                        curve
-                            .interp(1.0 / f64::from(pieces) * f64::from(i))
-                            .unwrap(),
-                    )
-                })
-                .collect(),
-            geom::EPSILON_DIST,
-        ))
+        let mut curve: Vec<Pt2D> = (0..=pieces)
+            .map(|i| {
+                from_pt(
+                    curve
+                        .interp(1.0 / f64::from(pieces) * f64::from(i))
+                        .unwrap(),
+                )
+            })
+            .collect();
+        curve.dedup();
+        PolyLine::new(curve)
     };
 
     Some(Turn {

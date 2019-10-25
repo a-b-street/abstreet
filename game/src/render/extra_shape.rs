@@ -41,7 +41,7 @@ impl DrawExtraShape {
         }
 
         // TODO Can we do something better?
-        if pts.windows(2).any(|pair| pair[0].epsilon_eq(pair[1])) {
+        if pts.windows(2).any(|pair| pair[0] == pair[1]) {
             return None;
         }
 

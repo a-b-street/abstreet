@@ -1,4 +1,4 @@
-use crate::{trim_f64, Duration, Speed, EPSILON_DIST};
+use crate::{trim_f64, Duration, Speed};
 use serde_derive::{Deserialize, Serialize};
 use std::{cmp, f64, fmt, ops};
 
@@ -16,8 +16,6 @@ impl Ord for Distance {
 
 impl Distance {
     pub const ZERO: Distance = Distance::const_meters(0.0);
-    // TODO Different than EPSILON_DIST... the true minimum representable difference.
-    pub const EPSILON: Distance = Distance::const_meters(0.0001);
 
     pub fn meters(value: f64) -> Distance {
         if !value.is_finite() {
@@ -59,10 +57,6 @@ impl Distance {
     // TODO Remove if possible.
     pub fn inner_meters(self) -> f64 {
         self.0
-    }
-
-    pub fn epsilon_eq(self, other: Distance) -> bool {
-        (self - other).abs() <= EPSILON_DIST
     }
 }
 

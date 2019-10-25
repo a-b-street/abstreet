@@ -127,7 +127,8 @@ pub fn extract_osm(
                 turn_restrictions: Vec::new(),
             });
         } else if is_bldg(&tags) {
-            let deduped = Pt2D::approx_dedupe(pts, geom::EPSILON_DIST);
+            let mut deduped = pts.clone();
+            deduped.dedup();
             if deduped.len() < 3 {
                 continue;
             }

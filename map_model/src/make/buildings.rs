@@ -52,7 +52,7 @@ pub fn make_all_buildings(
             let sidewalk_pt = lanes[sidewalk_pos.lane().0]
                 .dist_along(sidewalk_pos.dist_along())
                 .0;
-            if sidewalk_pt.epsilon_eq(bldg_center.to_pt2d()) {
+            if sidewalk_pt == bldg_center.to_pt2d() {
                 timer.warn("Skipping a building because front path has 0 length".to_string());
                 continue;
             }

@@ -16,7 +16,7 @@ impl Line {
     }
 
     pub fn maybe_new(pt1: Pt2D, pt2: Pt2D) -> Option<Line> {
-        if pt1.epsilon_eq(pt2) {
+        if pt1 == pt2 {
             return None;
         }
         Some(Line::new(pt1, pt2))

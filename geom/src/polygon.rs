@@ -172,8 +172,8 @@ impl Polygon {
     }
 
     pub fn rectangle_two_corners(pt1: Pt2D, pt2: Pt2D) -> Option<Polygon> {
-        if Pt2D::new(pt1.x(), 0.0).epsilon_eq(Pt2D::new(pt2.x(), 0.0))
-            || Pt2D::new(0.0, pt1.y()).epsilon_eq(Pt2D::new(0.0, pt2.y()))
+        if Pt2D::new(pt1.x(), 0.0) == Pt2D::new(pt2.x(), 0.0)
+            || Pt2D::new(0.0, pt1.y()) == Pt2D::new(0.0, pt2.y())
         {
             return None;
         }

@@ -1,14 +1,19 @@
 use crate::{trim_f64, Angle, Distance, GPSBounds, LonLat, EPSILON_DIST};
 use ordered_float::NotNan;
 use serde_derive::{Deserialize, Serialize};
-use std::f64;
 use std::fmt;
 
 // This represents world-space in meters.
-#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct Pt2D {
     inner_x: f64,
     inner_y: f64,
+}
+
+impl std::cmp::PartialEq for Pt2D {
+    fn eq(&self, other: &Pt2D) -> bool {
+        self.approx_eq(*other, EPSILON_DIST)
+    }
 }
 
 impl Pt2D {
@@ -28,11 +33,6 @@ impl Pt2D {
     // TODO This is a small first step...
     pub fn approx_eq(self, other: Pt2D, threshold: Distance) -> bool {
         self.dist_to(other) <= threshold
-    }
-
-    // Useful shortcut that's easy to refactor in the future.
-    pub fn epsilon_eq(self, other: Pt2D) -> bool {
-        self.approx_eq(other, EPSILON_DIST)
     }
 
     pub fn from_gps(gps: LonLat, b: &GPSBounds) -> Option<Pt2D> {
@@ -137,6 +137,8 @@ impl Pt2D {
 
     // Temporary until Pt2D has proper resolution.
     pub fn approx_dedupe(pts: Vec<Pt2D>, threshold: Distance) -> Vec<Pt2D> {
+        // Just use dedup() on the Vec.
+        assert_ne!(threshold, EPSILON_DIST);
         let mut result: Vec<Pt2D> = Vec::new();
         for pt in pts {
             if result.is_empty() || !result.last().unwrap().approx_eq(pt, threshold) {

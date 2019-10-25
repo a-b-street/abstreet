@@ -25,7 +25,7 @@ impl PolyLine {
         // squish down points here and make sure the final result is at least EPSILON_DIST.
         // But probably better for the callers to do this -- they have better understanding of what
         // needs to be squished down, why, and how.
-        if pts.windows(2).any(|pair| pair[0].epsilon_eq(pair[1])) {
+        if pts.windows(2).any(|pair| pair[0] == pair[1]) {
             panic!(
                 "PL with total length {} and {} pts has ~dupe pts: {:?}",
                 length,
@@ -54,7 +54,7 @@ impl PolyLine {
             so_far + pair[0].dist_to(pair[1])
         });
 
-        if pts.windows(2).any(|pair| pair[0].epsilon_eq(pair[1])) {
+        if pts.windows(2).any(|pair| pair[0] == pair[1]) {
             return None;
         }
 
@@ -101,10 +101,8 @@ impl PolyLine {
         side2.reverse();
         side1.extend(side2);
         side1.push(side1[0]);
-        Some(PolyLine::make_polygons_for_boundary(
-            Pt2D::approx_dedupe(side1, EPSILON_DIST),
-            boundary_width,
-        ))
+        side1.dedup();
+        Some(PolyLine::make_polygons_for_boundary(side1, boundary_width))
     }
 
     pub fn reversed(&self) -> PolyLine {
@@ -114,7 +112,7 @@ impl PolyLine {
     }
 
     pub fn extend(self, other: PolyLine) -> PolyLine {
-        assert!(self.pts.last().unwrap().epsilon_eq(other.pts[0]));
+        assert_eq!(*self.pts.last().unwrap(), other.pts[0]);
 
         let pl1 = to_set(self.points());
         let pl2 = to_set(&other.points()[1..]);
@@ -138,7 +136,7 @@ impl PolyLine {
             }
         }
         // Repeat this for sanity
-        assert!(self_pts.last().unwrap().epsilon_eq(other_pts[0]));
+        assert_eq!(*self_pts.last().unwrap(), other_pts[0]);
 
         // There's an exciting edge case: the next point to add is on self's last line.
         let same_line = self_pts[self_pts.len() - 2]
@@ -214,7 +212,7 @@ impl PolyLine {
             // Does this line contain the last point of the slice?
             if dist_so_far + length >= end {
                 let last_pt = line.dist_along(end - dist_so_far);
-                if result.last().unwrap().epsilon_eq(last_pt) {
+                if *result.last().unwrap() == last_pt {
                     result.pop();
                 }
                 result.push(last_pt);
@@ -227,7 +225,7 @@ impl PolyLine {
 
             // If we're in the middle, just collect the endpoint. But not if it's too close to the
             // previous point (namely, the start, which could be somewhere far along a line)
-            if !result.is_empty() && !result.last().unwrap().epsilon_eq(line.pt2()) {
+            if !result.is_empty() && *result.last().unwrap() != line.pt2() {
                 result.push(line.pt2());
             }
 
@@ -343,10 +341,9 @@ impl PolyLine {
     // - the length before and after probably don't match up
     // - the number of points will match
     fn shift_with_corrections(&self, width: Distance) -> Warn<PolyLine> {
-        let result = PolyLine::new(Pt2D::approx_dedupe(
-            self.shift_with_sharp_angles(width),
-            EPSILON_DIST,
-        ));
+        let mut raw = self.shift_with_sharp_angles(width);
+        raw.dedup();
+        let result = PolyLine::new(raw);
         let fixed = if result.pts.len() == self.pts.len() {
             fix_angles(self, result)
         } else {
@@ -606,7 +603,7 @@ impl PolyLine {
             let mut pts = self.pts.clone();
             pts.split_off(idx + 1);
             // Make sure the last line isn't too tiny
-            if pts.last().unwrap().epsilon_eq(pt) {
+            if *pts.last().unwrap() == pt {
                 pts.pop();
             }
             pts.push(pt);
