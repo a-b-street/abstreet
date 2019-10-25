@@ -370,19 +370,27 @@ fn glue_multipolygon(mut pts_per_way: Vec<Vec<Pt2D>>, boundary: &Ring) -> Vec<Po
         polygons.push(Polygon::new(&result));
         return polygons;
     }
-
-    // Some ways of the multipolygon must be clipped out. First try to trace along the boundary.
-    let result_pl = PolyLine::new(result);
-    let hits = boundary.all_intersections(&result_pl);
-    if hits.len() != 2 {
+    if let Some(poly) = glue_to_boundary(PolyLine::new(result.clone()), boundary) {
+        polygons.push(poly);
+    } else {
         // Give up and just connect the ends directly.
-        let mut pts = result_pl.points().clone();
-        pts.push(pts[0]);
-        polygons.push(Polygon::new(&pts));
-        return polygons;
+        result.push(result[0]);
+        polygons.push(Polygon::new(&result));
     }
-    let trimmed_result = result_pl.trim_to_endpts(hits[0], hits[1]);
-    let boundary_glue = boundary.get_shorter_slice_btwn(hits[0], hits[1]);
+
+    polygons
+}
+
+fn glue_to_boundary(result_pl: PolyLine, boundary: &Ring) -> Option<Polygon> {
+    // Some ways of the multipolygon must be clipped out. First try to trace along the boundary.
+    let hit1 = boundary.first_intersection(&result_pl)?;
+    let hit2 = boundary.first_intersection(&result_pl.reversed())?;
+    if hit1 == hit2 {
+        return None;
+    }
+
+    let trimmed_result = result_pl.trim_to_endpts(hit1, hit2);
+    let boundary_glue = boundary.get_shorter_slice_btwn(hit1, hit2);
 
     let mut trimmed_pts = trimmed_result.points().clone();
     if trimmed_result.last_pt() == boundary_glue.first_pt() {
@@ -394,8 +402,7 @@ fn glue_multipolygon(mut pts_per_way: Vec<Vec<Pt2D>>, boundary: &Ring) -> Vec<Po
         trimmed_pts.extend(boundary_glue.reversed().points().clone());
     }
     assert_eq!(trimmed_pts[0], *trimmed_pts.last().unwrap());
-    polygons.push(Polygon::new(&trimmed_pts));
-    polygons
+    Some(Polygon::new(&trimmed_pts))
 }
 
 fn read_osmosis_polygon(path: &str) -> RawMap {

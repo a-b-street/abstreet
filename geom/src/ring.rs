@@ -41,16 +41,16 @@ impl Ring {
         PolyLine::new_for_ring(self.pts.clone()).make_polygons(thickness)
     }
 
-    pub fn all_intersections(&self, other: &PolyLine) -> Vec<Pt2D> {
-        let mut hits = Vec::new();
-        for l1 in self.pts.windows(2).map(|pair| Line::new(pair[0], pair[1])) {
-            for l2 in other.lines() {
+    // Searches other in order
+    pub fn first_intersection(&self, other: &PolyLine) -> Option<Pt2D> {
+        for l1 in other.lines() {
+            for l2 in self.pts.windows(2).map(|pair| Line::new(pair[0], pair[1])) {
                 if let Some(pt) = l1.intersection(&l2) {
-                    hits.push(pt);
+                    return Some(pt);
                 }
             }
         }
-        hits
+        None
     }
 
     pub fn get_shorter_slice_btwn(&self, pt1: Pt2D, pt2: Pt2D) -> PolyLine {
