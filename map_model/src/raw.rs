@@ -286,7 +286,9 @@ impl RawMap {
     }
 
     pub fn delete_road(&mut self, r: StableRoadID, fixes: &mut MapFixes) {
-        assert!(self.can_delete_road(r).is_ok());
+        if let Err(e) = self.can_delete_road(r) {
+            panic!("Can't delete_road {:?}: {}", self.roads[&r].orig_id, e);
+        }
         let road = self.roads.remove(&r).unwrap();
         if !road.synthetic() {
             fixes.delete_roads.push(road.orig_id);
@@ -298,7 +300,12 @@ impl RawMap {
     }
 
     pub fn delete_intersection(&mut self, id: StableIntersectionID, fixes: &mut MapFixes) {
-        assert!(self.can_delete_intersection(id));
+        if !self.can_delete_intersection(id) {
+            panic!(
+                "Can't delete_intersection {:?}, must have roads connected",
+                self.intersections[&id].orig_id
+            );
+        }
         let i = self.intersections.remove(&id).unwrap();
         if !i.synthetic {
             fixes.delete_intersections.push(i.orig_id);
