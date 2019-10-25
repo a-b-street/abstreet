@@ -3,7 +3,7 @@ use crate::render::{
     DrawCtx, DrawOptions, Renderable, EXTRA_SHAPE_POINT_RADIUS, EXTRA_SHAPE_THICKNESS,
 };
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
-use geom::{Circle, FindClosest, GPSBounds, PolyLine, Polygon, Pt2D};
+use geom::{Circle, FindClosest, GPSBounds, PolyLine, Polygon, Pt2D, Ring};
 use kml::ExtraShape;
 use map_model::{DirectedRoadID, Map, LANE_THICKNESS};
 use std::collections::BTreeMap;
@@ -54,9 +54,9 @@ impl DrawExtraShape {
         } else if pts[0] == *pts.last().unwrap() {
             // TODO Toggle between these better
             //Polygon::new(&pts)
-            PolyLine::make_polygons_for_boundary(pts, EXTRA_SHAPE_THICKNESS)
+            Ring::new(pts).make_polygons(EXTRA_SHAPE_THICKNESS)
         } else {
-            PolyLine::make_polygons_for_boundary(pts, EXTRA_SHAPE_THICKNESS)
+            PolyLine::new(pts).make_polygons(EXTRA_SHAPE_THICKNESS)
         };
         let mut batch = GeomBatch::new();
         batch.push(

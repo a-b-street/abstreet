@@ -1,5 +1,5 @@
 use crate::{
-    Angle, Bounds, Distance, HashablePt2D, InfiniteLine, Line, Polygon, Pt2D, EPSILON_DIST,
+    Angle, Bounds, Distance, HashablePt2D, InfiniteLine, Line, Polygon, Pt2D, Ring, EPSILON_DIST,
 };
 use abstutil::Warn;
 use serde_derive::{Deserialize, Serialize};
@@ -27,7 +27,7 @@ impl PolyLine {
         // needs to be squished down, why, and how.
         if pts.windows(2).any(|pair| pair[0] == pair[1]) {
             panic!(
-                "PL with total length {} and {} pts has ~dupe pts: {:?}",
+                "PL with total length {} and {} pts has ~dupe adjacent pts: {:?}",
                 length,
                 pts.len(),
                 pts
@@ -68,22 +68,13 @@ impl PolyLine {
         Some(result)
     }
 
-    pub fn make_polygons_for_boundary(pts: Vec<Pt2D>, thickness: Distance) -> Polygon {
+    pub(crate) fn make_polygons_for_boundary(pts: Vec<Pt2D>, thickness: Distance) -> Polygon {
         // Points WILL repeat -- fast-path some stuff.
         let pl = PolyLine {
             pts,
             length: Distance::ZERO,
         };
         pl.make_polygons(thickness)
-    }
-
-    pub fn to_thick_boundary_pts(&self, width: Distance) -> Vec<Pt2D> {
-        let mut side1 = self.shift_with_sharp_angles(width / 2.0);
-        let mut side2 = self.shift_with_sharp_angles(-width / 2.0);
-        side2.reverse();
-        side1.extend(side2);
-        side1.push(side1[0]);
-        side1
     }
 
     pub fn to_thick_boundary(
@@ -102,7 +93,7 @@ impl PolyLine {
         side1.extend(side2);
         side1.push(side1[0]);
         side1.dedup();
-        Some(PolyLine::make_polygons_for_boundary(side1, boundary_width))
+        Some(Ring::new(side1).make_polygons(boundary_width))
     }
 
     pub fn reversed(&self) -> PolyLine {
@@ -534,17 +525,15 @@ impl PolyLine {
             let angle = slice.last_pt().angle_to(self.last_pt());
             Warn::ok(vec![
                 p,
-                PolyLine::make_polygons_for_boundary(
-                    vec![
-                        self.last_pt(),
-                        self.last_pt()
-                            .project_away(head_size, angle.rotate_degs(-135.0)),
-                        self.last_pt()
-                            .project_away(head_size, angle.rotate_degs(135.0)),
-                        self.last_pt(),
-                    ],
-                    outline_thickness,
-                ),
+                Ring::new(vec![
+                    self.last_pt(),
+                    self.last_pt()
+                        .project_away(head_size, angle.rotate_degs(-135.0)),
+                    self.last_pt()
+                        .project_away(head_size, angle.rotate_degs(135.0)),
+                    self.last_pt(),
+                ])
+                .make_polygons(outline_thickness),
             ])
         } else {
             Warn::warn(
