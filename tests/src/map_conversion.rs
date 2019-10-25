@@ -30,11 +30,13 @@ pub fn run(t: &mut TestRunner) {
     t.run_slow("raw_to_map_twice", |_| {
         let map1 = map_model::Map::new(
             &abstutil::path_raw_map("montlake"),
+            true,
             &mut abstutil::Timer::throwaway(),
         )
         .unwrap();
         let map2 = map_model::Map::new(
             &abstutil::path_raw_map("montlake"),
+            true,
             &mut abstutil::Timer::throwaway(),
         )
         .unwrap();
@@ -50,6 +52,7 @@ pub fn run(t: &mut TestRunner) {
     t.run_slow("bigger_map_loads", |_| {
         map_model::Map::new(
             &abstutil::path_raw_map("23rd"),
+            true,
             &mut abstutil::Timer::throwaway(),
         )
         .expect("23rd broke");
@@ -58,6 +61,7 @@ pub fn run(t: &mut TestRunner) {
     t.run_slow("biggest_map_loads", |_| {
         map_model::Map::new(
             &abstutil::path_raw_map("huge_seattle"),
+            true,
             &mut abstutil::Timer::throwaway(),
         )
         .expect("huge_seattle broke");

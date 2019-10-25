@@ -8,6 +8,7 @@ use rand_xorshift::XorShiftRng;
 #[derive(Clone)]
 pub struct SimFlags {
     pub load: String,
+    pub use_map_fixes: bool,
     pub rng_seed: Option<u8>,
     pub opts: SimOptions,
 }
@@ -18,6 +19,7 @@ impl SimFlags {
             load: args
                 .optional_free()
                 .unwrap_or_else(|| "../data/maps/montlake.bin".to_string()),
+            use_map_fixes: !args.enabled("--nofixes"),
             rng_seed: args.optional_parse("--rng_seed", |s| s.parse()),
             opts: SimOptions {
                 run_name: args
@@ -40,6 +42,7 @@ impl SimFlags {
     pub fn synthetic_test(map: &str, run_name: &str) -> SimFlags {
         SimFlags {
             load: abstutil::path_map(map),
+            use_map_fixes: true,
             rng_seed: Some(42),
             opts: SimOptions::new(run_name),
         }
@@ -96,7 +99,7 @@ impl SimFlags {
         } else if self.load.starts_with("../data/raw_maps/") {
             timer.note(format!("Loading map {}", self.load));
 
-            let map = Map::new(&self.load, timer)
+            let map = Map::new(&self.load, self.use_map_fixes, timer)
                 .expect(&format!("Couldn't load map from {}", self.load));
 
             timer.start("create sim");

@@ -10,7 +10,7 @@ fn main() {
 
     let mut timer = Timer::new(&format!("precompute {}", load));
 
-    let map = Map::new(&load, &mut timer).unwrap();
+    let map = Map::new(&load, true, &mut timer).unwrap();
     timer.start("save map");
     map.save();
     timer.stop("save map");

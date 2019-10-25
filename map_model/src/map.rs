@@ -50,9 +50,11 @@ pub struct Map {
 }
 
 impl Map {
-    pub fn new(path: &str, timer: &mut Timer) -> Result<Map, io::Error> {
+    pub fn new(path: &str, use_map_fixes: bool, timer: &mut Timer) -> Result<Map, io::Error> {
         let mut raw: RawMap = abstutil::read_binary(path, timer)?;
-        raw.apply_fixes(&MapFixes::load(timer), timer);
+        if use_map_fixes {
+            raw.apply_fixes(&MapFixes::load(timer), timer);
+        }
         // Do this after applying fixes, which might split off pieces of the map.
         make::remove_disconnected_roads(&mut raw, timer);
         Ok(Map::create_from_raw(raw, timer))

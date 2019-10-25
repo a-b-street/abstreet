@@ -52,6 +52,7 @@ impl UI {
         let include_bldgs = args.enabled("--bldgs");
         let edit_fixes = args.optional("--fixes");
         let intersection_geom = args.enabled("--geom");
+        let no_fixes = args.enabled("--nofixes");
         args.done();
 
         let model = if let Some(path) = load {
@@ -60,6 +61,7 @@ impl UI {
                 include_bldgs,
                 edit_fixes,
                 intersection_geom,
+                no_fixes,
                 ctx.prerender,
             )
         } else {

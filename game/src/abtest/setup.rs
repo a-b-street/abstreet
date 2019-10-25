@@ -163,6 +163,7 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
                     Flags {
                         sim_flags: SimFlags {
                             load: abstutil::path_map(&test.map_name),
+                            use_map_fixes: current_flags.sim_flags.use_map_fixes,
                             rng_seed: current_flags.sim_flags.rng_seed,
                             opts: SimOptions {
                                 run_name: format!("{} with {}", test.test_name, test.edits2_name),

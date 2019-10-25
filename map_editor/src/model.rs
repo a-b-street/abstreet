@@ -47,6 +47,7 @@ impl Model {
         include_bldgs: bool,
         edit_fixes: Option<String>,
         intersection_geom: bool,
+        no_fixes: bool,
         prerender: &Prerender,
     ) -> Model {
         let mut timer = Timer::new("import map");
@@ -57,13 +58,15 @@ impl Model {
         model.fixes.gps_bounds = model.map.gps_bounds.clone();
         model.intersection_geom = intersection_geom;
 
-        let mut all_fixes = MapFixes::load(&mut timer);
-        model.map.apply_fixes(&all_fixes, &mut timer);
-        if let Some(ref name) = model.edit_fixes {
-            if let Some(fixes) = all_fixes.remove(name) {
-                model.fixes = fixes;
-                if !model.fixes.gps_bounds.approx_eq(&model.map.gps_bounds) {
-                    panic!("Can't edit {} with this map; use the original map", name);
+        if !no_fixes {
+            let mut all_fixes = MapFixes::load(&mut timer);
+            model.map.apply_fixes(&all_fixes, &mut timer);
+            if let Some(ref name) = model.edit_fixes {
+                if let Some(fixes) = all_fixes.remove(name) {
+                    model.fixes = fixes;
+                    if !model.fixes.gps_bounds.approx_eq(&model.map.gps_bounds) {
+                        panic!("Can't edit {} with this map; use the original map", name);
+                    }
                 }
             }
         }

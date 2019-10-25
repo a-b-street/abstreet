@@ -54,16 +54,16 @@ pub fn find_diffs(map: &RawMap) {
         }
 
         // Fill out these tags.
-        for tag_key in vec![
+        for tag_key in &[
             osm::PARKING_LEFT,
             osm::PARKING_RIGHT,
             osm::PARKING_BOTH,
             osm::SIDEWALK,
         ] {
-            if let Some(value) = abst_tags.get(tag_key) {
+            if let Some(value) = abst_tags.get(*tag_key) {
                 osm_tags.insert(tag_key.to_string(), value.to_string());
             } else {
-                osm_tags.remove(tag_key);
+                osm_tags.remove(*tag_key);
             }
         }
         tree.children = other_children;
