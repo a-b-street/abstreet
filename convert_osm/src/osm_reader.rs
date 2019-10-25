@@ -192,18 +192,13 @@ pub fn extract_osm(
                     }
                 }
                 if ok {
-                    let polygons = glue_multipolygon(pts_per_way, &boundary);
-                    if polygons.is_empty() {
-                        println!("Relation {} failed to glue multipolygon", rel.id);
-                    } else {
-                        for polygon in polygons {
-                            map.areas.push(RawArea {
-                                area_type: at,
-                                osm_id: rel.id,
-                                polygon,
-                                osm_tags: tags.clone(),
-                            });
-                        }
+                    for polygon in glue_multipolygon(rel.id, pts_per_way, &boundary) {
+                        map.areas.push(RawArea {
+                            area_type: at,
+                            osm_id: rel.id,
+                            polygon,
+                            osm_tags: tags.clone(),
+                        });
                     }
                 }
             }
@@ -324,7 +319,11 @@ fn get_area_type(tags: &BTreeMap<String, String>) -> Option<AreaType> {
 }
 
 // The result could be more than one disjoint polygon.
-fn glue_multipolygon(mut pts_per_way: Vec<Vec<Pt2D>>, boundary: &Ring) -> Vec<Polygon> {
+fn glue_multipolygon(
+    rel_id: i64,
+    mut pts_per_way: Vec<Vec<Pt2D>>,
+    boundary: &Ring,
+) -> Vec<Polygon> {
     // First deal with all of the closed loops.
     let mut polygons: Vec<Polygon> = Vec::new();
     pts_per_way.retain(|pts| {
@@ -356,8 +355,14 @@ fn glue_multipolygon(mut pts_per_way: Vec<Vec<Pt2D>>, boundary: &Ring) -> Vec<Po
             result.extend(append);
         } else {
             if reversed {
-                // Totally filter the thing out, since something clearly broke.
-                return Vec::new();
+                // TODO Investigate what's going on here. At the very least, take what we have so
+                // far and try to glue it up.
+                println!(
+                    "Throwing away {} chunks from relation {}",
+                    rel_id,
+                    pts_per_way.len()
+                );
+                break;
             } else {
                 reversed = true;
                 result.reverse();
