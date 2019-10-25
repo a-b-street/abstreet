@@ -96,6 +96,7 @@ pub fn extract_osm(
                 && !tags.contains_key(osm::PARKING_BOTH)
                 && tags.get(osm::HIGHWAY) != Some(&"motorway".to_string())
                 && tags.get(osm::HIGHWAY) != Some(&"motorway_link".to_string())
+                && tags.get("junction") != Some(&"roundabout".to_string())
             {
                 tags.insert(osm::PARKING_BOTH.to_string(), "no_parking".to_string());
                 tags.insert(osm::INFERRED_PARKING.to_string(), "true".to_string());
@@ -106,6 +107,7 @@ pub fn extract_osm(
             if !tags.contains_key(osm::SIDEWALK)
                 && tags.get(osm::HIGHWAY) != Some(&"motorway".to_string())
                 && tags.get(osm::HIGHWAY) != Some(&"motorway_link".to_string())
+                && tags.get("junction") != Some(&"roundabout".to_string())
             {
                 tags.insert(osm::SIDEWALK.to_string(), "both".to_string());
                 tags.insert(osm::INFERRED_SIDEWALKS.to_string(), "true".to_string());
