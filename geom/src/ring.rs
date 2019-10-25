@@ -1,4 +1,4 @@
-use crate::{Distance, PolyLine, Polygon, Pt2D};
+use crate::{Distance, Line, PolyLine, Polygon, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::fmt;
@@ -37,9 +37,41 @@ impl Ring {
     }
 
     pub fn make_polygons(&self, thickness: Distance) -> Polygon {
-        // TODO Has a weird corner. Use the polygon offset thing instead? And move the
-        // implementation here, ideally.
-        PolyLine::make_polygons_for_boundary(self.pts.clone(), thickness)
+        // TODO Has a weird corner. Use the polygon offset thing instead?
+        PolyLine::new_for_ring(self.pts.clone()).make_polygons(thickness)
+    }
+
+    pub fn all_intersections(&self, other: &PolyLine) -> Vec<Pt2D> {
+        let mut hits = Vec::new();
+        for l1 in self.pts.windows(2).map(|pair| Line::new(pair[0], pair[1])) {
+            for l2 in other.lines() {
+                if let Some(pt) = l1.intersection(&l2) {
+                    hits.push(pt);
+                }
+            }
+        }
+        hits
+    }
+
+    pub fn get_shorter_slice_btwn(&self, pt1: Pt2D, pt2: Pt2D) -> PolyLine {
+        assert!(pt1 != pt2);
+        let pl = PolyLine::new_for_ring(self.pts.clone());
+
+        let mut dist1 = pl.dist_along_of_point(pt1).unwrap().0;
+        let mut dist2 = pl.dist_along_of_point(pt2).unwrap().0;
+        if dist1 > dist2 {
+            std::mem::swap(&mut dist1, &mut dist2);
+        }
+
+        let candidate1 = pl.exact_slice(dist1, dist2);
+        let candidate2 = pl
+            .exact_slice(dist2, pl.length())
+            .extend(pl.exact_slice(Distance::ZERO, dist1));
+        if candidate1.length() < candidate2.length() {
+            candidate1
+        } else {
+            candidate2
+        }
     }
 }
 

@@ -1,5 +1,5 @@
 use abstutil::{FileWithProgress, Timer};
-use geom::{GPSBounds, HashablePt2D, LonLat, Polygon, Pt2D};
+use geom::{GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D, Ring};
 use map_model::raw::{
     OriginalRoad, RawArea, RawBuilding, RawMap, RawRoad, RestrictionType, StableBuildingID,
     StableIntersectionID,
@@ -158,6 +158,8 @@ pub fn extract_osm(
         }
     }
 
+    let boundary = Ring::new(map.boundary_polygon.points().clone());
+
     let mut turn_restrictions = Vec::new();
     timer.start_iter("processing OSM relations", doc.relations.len());
     for rel in doc.relations.values() {
@@ -190,7 +192,7 @@ pub fn extract_osm(
                     }
                 }
                 if ok {
-                    let polygons = glue_multipolygon(pts_per_way);
+                    let polygons = glue_multipolygon(pts_per_way, &boundary);
                     if polygons.is_empty() {
                         println!("Relation {} failed to glue multipolygon", rel.id);
                     } else {
@@ -322,7 +324,7 @@ fn get_area_type(tags: &BTreeMap<String, String>) -> Option<AreaType> {
 }
 
 // The result could be more than one disjoint polygon.
-fn glue_multipolygon(mut pts_per_way: Vec<Vec<Pt2D>>) -> Vec<Polygon> {
+fn glue_multipolygon(mut pts_per_way: Vec<Vec<Pt2D>>, boundary: &Ring) -> Vec<Polygon> {
     // First deal with all of the closed loops.
     let mut polygons: Vec<Polygon> = Vec::new();
     pts_per_way.retain(|pts| {
@@ -364,12 +366,35 @@ fn glue_multipolygon(mut pts_per_way: Vec<Vec<Pt2D>>) -> Vec<Polygon> {
         }
     }
 
-    // Some ways of the multipolygon are clipped out. Connect the ends in the most straightforward
-    // way. Later polygon clipping will trim to the boundary.
-    if result[0] != *result.last().unwrap() {
-        result.push(result[0]);
+    if result[0] == *result.last().unwrap() {
+        polygons.push(Polygon::new(&result));
+        return polygons;
     }
-    polygons.push(Polygon::new(&result));
+
+    // Some ways of the multipolygon must be clipped out. First try to trace along the boundary.
+    let result_pl = PolyLine::new(result);
+    let hits = boundary.all_intersections(&result_pl);
+    if hits.len() != 2 {
+        // Give up and just connect the ends directly.
+        let mut pts = result_pl.points().clone();
+        pts.push(pts[0]);
+        polygons.push(Polygon::new(&pts));
+        return polygons;
+    }
+    let trimmed_result = result_pl.trim_to_endpts(hits[0], hits[1]);
+    let boundary_glue = boundary.get_shorter_slice_btwn(hits[0], hits[1]);
+
+    let mut trimmed_pts = trimmed_result.points().clone();
+    if trimmed_result.last_pt() == boundary_glue.first_pt() {
+        trimmed_pts.pop();
+        trimmed_pts.extend(boundary_glue.points().clone());
+    } else {
+        assert_eq!(trimmed_result.last_pt(), boundary_glue.last_pt());
+        trimmed_pts.pop();
+        trimmed_pts.extend(boundary_glue.reversed().points().clone());
+    }
+    assert_eq!(trimmed_pts[0], *trimmed_pts.last().unwrap());
+    polygons.push(Polygon::new(&trimmed_pts));
     polygons
 }
 

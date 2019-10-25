@@ -68,13 +68,12 @@ impl PolyLine {
         Some(result)
     }
 
-    pub(crate) fn make_polygons_for_boundary(pts: Vec<Pt2D>, thickness: Distance) -> Polygon {
-        // Points WILL repeat -- fast-path some stuff.
-        let pl = PolyLine {
-            pts,
-            length: Distance::ZERO,
-        };
-        pl.make_polygons(thickness)
+    // Only to be called by Ring.
+    pub(crate) fn new_for_ring(pts: Vec<Pt2D>) -> PolyLine {
+        let length = pts.windows(2).fold(Distance::ZERO, |so_far, pair| {
+            so_far + pair[0].dist_to(pair[1])
+        });
+        PolyLine { pts, length }
     }
 
     pub fn to_thick_boundary(
@@ -634,6 +633,16 @@ impl PolyLine {
             }
         }
         None
+    }
+
+    pub fn trim_to_endpts(&self, pt1: Pt2D, pt2: Pt2D) -> PolyLine {
+        assert!(pt1 != pt2);
+        let mut dist1 = self.dist_along_of_point(pt1).unwrap().0;
+        let mut dist2 = self.dist_along_of_point(pt2).unwrap().0;
+        if dist1 > dist2 {
+            std::mem::swap(&mut dist1, &mut dist2);
+        }
+        self.exact_slice(dist1, dist2)
     }
 
     pub fn get_bounds(&self) -> Bounds {

@@ -107,8 +107,9 @@ takes a few seconds to load a serialized map.
   areas
   - Areas usually come from a relation of multiple ways, with the points out of
     order. Gluing all the points together fails when the .osm has some ways
-    clipped out. In that case, just use a straight line to try to close off the
-    polygon.
+    clipped out. In that case, try to trace along the map boundary if the
+    partial area intersects the boundary in a clear way. Otherwise, just use a
+    straight line to try to close off the polygon.
   - Also read traffic signal locations and turn restrictions between OSM ways
 - `split_ways.rs`: Split OSM ways into road segments
   - OSM ways cross many intersections, so treat points with multiple ways and
