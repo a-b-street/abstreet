@@ -121,8 +121,10 @@ fn use_parking_hints(map: &mut RawMap, path: &str, timer: &mut Timer) {
         // the threshold distance?
         let middle = PolyLine::new(pts).middle();
         if let Some(((r, fwds), _)) = closest.closest_pt(middle, LANE_THICKNESS * 5.0) {
+            let tags = &mut map.roads.get_mut(&r).unwrap().osm_tags;
+
             // Skip if the road already has this mapped.
-            if !map.roads[&r].osm_tags.contains_key(osm::INFERRED_PARKING) {
+            if !tags.contains_key(osm::INFERRED_PARKING) {
                 continue;
             }
 
@@ -130,7 +132,7 @@ fn use_parking_hints(map: &mut RawMap, path: &str, timer: &mut Timer) {
             let has_parking = category != Some(&"None".to_string())
                 && category != Some(&"No Parking Allowed".to_string());
 
-            let definitely_no_parking = match map.roads[&r].osm_tags.get(osm::HIGHWAY) {
+            let definitely_no_parking = match tags.get(osm::HIGHWAY) {
                 Some(hwy) => hwy == "motorway" || hwy == "motorway_link",
                 None => false,
             };
@@ -142,8 +144,12 @@ fn use_parking_hints(map: &mut RawMap, path: &str, timer: &mut Timer) {
                 continue;
             }
 
-            // Blindly override prior values.
-            map.roads.get_mut(&r).unwrap().osm_tags.insert(
+            if let Some(both) = tags.remove(osm::PARKING_BOTH) {
+                tags.insert(osm::PARKING_LEFT.to_string(), both.clone());
+                tags.insert(osm::PARKING_RIGHT.to_string(), both.clone());
+            }
+
+            tags.insert(
                 if fwds {
                     osm::PARKING_RIGHT.to_string()
                 } else {
@@ -155,11 +161,15 @@ fn use_parking_hints(map: &mut RawMap, path: &str, timer: &mut Timer) {
                     "no_parking".to_string()
                 },
             );
-            map.roads
-                .get_mut(&r)
-                .unwrap()
-                .osm_tags
-                .remove(osm::PARKING_BOTH);
+
+            // Maybe fold back into "both"
+            if tags.contains_key(osm::PARKING_LEFT)
+                && tags.get(osm::PARKING_LEFT) == tags.get(osm::PARKING_RIGHT)
+            {
+                let value = tags.remove(osm::PARKING_LEFT).unwrap();
+                tags.remove(osm::PARKING_RIGHT).unwrap();
+                tags.insert(osm::PARKING_BOTH.to_string(), value);
+            }
         }
     }
     timer.stop("apply parking hints");
