@@ -419,13 +419,21 @@ impl RawMap {
             let road = self.roads.get_mut(&r).unwrap();
             if road.i1 == i2 {
                 road.i1 = i1;
+
                 road.center_points[0] = i1_pt;
+                // TODO More extreme: All of the points of the short road. Except there usually
+                // aren't many, since they're short.
+                //road.center_points.insert(0, i1_pt);
+
                 // TODO Should we even do this?
                 road.orig_id.node1 = i1_orig_id.osm_node_id;
             } else {
                 assert_eq!(road.i2, i2);
                 road.i2 = i1;
+
                 *road.center_points.last_mut().unwrap() = i1_pt;
+                //road.center_points.push(i1_pt);
+
                 // TODO Should we even do this?
                 road.orig_id.node2 = i1_orig_id.osm_node_id;
             }

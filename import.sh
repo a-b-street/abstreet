@@ -55,6 +55,7 @@ fi
 for poly in `ls data/polygons/`; do
 	name=`basename -s .poly $poly`;
 	if [ ! -f data/input/$name.osm ]; then
+		echo "Running osmconvert for $name"
 		osmconvert data/input/Seattle.osm \
 			-B=data/polygons/$name.poly \
 			--complete-ways \

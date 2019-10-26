@@ -153,4 +153,8 @@ impl<ID: ObjectID> World<ID> {
         let obj = self.objects.remove(&id).unwrap();
         self.quadtree.remove(obj.quadtree_id).unwrap();
     }
+
+    pub fn get_unioned_polygon(&self, id: ID) -> Option<&Polygon> {
+        Some(&self.objects.get(&id)?.unioned_polygon)
+    }
 }
