@@ -64,6 +64,7 @@ pub fn extract_osm(
         }
     }
 
+    let mut coastline_groups: Vec<Vec<Pt2D>> = Vec::new();
     timer.start_iter("processing OSM ways", doc.ways.len());
     for way in doc.ways.values() {
         timer.next();
@@ -152,6 +153,8 @@ pub fn extract_osm(
                 polygon: Polygon::new(&pts),
                 osm_tags: tags,
             });
+        } else if tags.get("natural") == Some(&"coastline".to_string()) {
+            coastline_groups.push(pts);
         } else {
             // The way might be part of a relation later.
             id_to_way.insert(way.id, pts);
@@ -237,6 +240,17 @@ pub fn extract_osm(
                 }
             }
         }
+    }
+
+    // Special case the coastline.
+    println!("{} ways of coastline", coastline_groups.len());
+    for polygon in glue_multipolygon(-1, coastline_groups, &boundary) {
+        map.areas.push(RawArea {
+            area_type: AreaType::Water,
+            osm_id: -1,
+            polygon,
+            osm_tags: BTreeMap::new(),
+        });
     }
 
     (map, roads, traffic_signals, osm_node_ids, turn_restrictions)
