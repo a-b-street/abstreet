@@ -8,8 +8,8 @@ use crate::ui::{ShowEverything, UI};
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{Choice, Color, EventCtx, GfxCtx, Line, ModalMenu, Text};
 use geom::Duration;
-use map_model::{IntersectionID, PathStep, RoadID, Traversable};
-use sim::{Event, ParkingSpot};
+use map_model::PathStep;
+use sim::ParkingSpot;
 use std::collections::HashSet;
 
 pub enum Analytics {
@@ -27,7 +27,6 @@ impl Analytics {
         ctx: &mut EventCtx,
         ui: &UI,
         menu: &mut ModalMenu,
-        thruput_stats: &ThruputStats,
         trip_stats: &TripStats,
     ) -> Option<Transition> {
         if menu.action("change analytics overlay") {
@@ -47,13 +46,8 @@ impl Analytics {
                         })?;
                     Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
                         let mut sandbox = state.downcast_mut::<SandboxMode>().unwrap();
-                        sandbox.analytics = Analytics::recalc(
-                            &choice,
-                            &sandbox.thruput_stats,
-                            &sandbox.trip_stats,
-                            ui,
-                            ctx,
-                        );
+                        sandbox.analytics =
+                            Analytics::recalc(&choice, &sandbox.trip_stats, ui, ctx);
                     })))
                 },
             ))));
@@ -70,7 +64,7 @@ impl Analytics {
             Analytics::Chokepoints(t, _) => ("chokepoints", *t),
         };
         if time != ui.primary.sim.time() {
-            *self = Analytics::recalc(choice, thruput_stats, trip_stats, ui, ctx);
+            *self = Analytics::recalc(choice, trip_stats, ui, ctx);
         }
         None
     }
@@ -102,13 +96,7 @@ impl Analytics {
         }
     }
 
-    fn recalc(
-        choice: &str,
-        thruput_stats: &ThruputStats,
-        trip_stats: &TripStats,
-        ui: &UI,
-        ctx: &mut EventCtx,
-    ) -> Analytics {
+    fn recalc(choice: &str, trip_stats: &TripStats, ui: &UI, ctx: &mut EventCtx) -> Analytics {
         let time = ui.primary.sim.time();
         match choice {
             "none" => Analytics::Inactive,
@@ -118,9 +106,7 @@ impl Analytics {
             "intersection delay" => {
                 Analytics::IntersectionDelay(time, calculate_intersection_delay(ctx, ui))
             }
-            "cumulative throughput" => {
-                Analytics::Throughput(time, calculate_thruput(thruput_stats, ctx, ui))
-            }
+            "cumulative throughput" => Analytics::Throughput(time, calculate_thruput(ctx, ui)),
             "finished trips" => {
                 if let Some(s) = ShowTripStats::new(trip_stats, ui, ctx) {
                     Analytics::FinishedTrips(time, s)
@@ -275,7 +261,7 @@ fn calculate_chokepoints(ctx: &mut EventCtx, ui: &UI) -> ObjectColorer {
     colorer.build(ctx, &ui.primary.map)
 }
 
-fn calculate_thruput(stats: &ThruputStats, ctx: &mut EventCtx, ui: &UI) -> ObjectColorer {
+fn calculate_thruput(ctx: &mut EventCtx, ui: &UI) -> ObjectColorer {
     let light = Color::GREEN;
     let medium = Color::YELLOW;
     let heavy = Color::RED;
@@ -287,6 +273,8 @@ fn calculate_thruput(stats: &ThruputStats, ctx: &mut EventCtx, ui: &UI) -> Objec
             (">= 90%ile", heavy),
         ],
     );
+
+    let stats = &ui.primary.sim.get_analytics().thruput_stats;
 
     // TODO If there are many duplicate counts, arbitrarily some will look heavier! Find the
     // disribution of counts instead.
@@ -325,29 +313,4 @@ fn calculate_thruput(stats: &ThruputStats, ctx: &mut EventCtx, ui: &UI) -> Objec
     }
 
     colorer.build(ctx, &ui.primary.map)
-}
-
-pub struct ThruputStats {
-    count_per_road: Counter<RoadID>,
-    count_per_intersection: Counter<IntersectionID>,
-}
-
-impl ThruputStats {
-    pub fn new() -> ThruputStats {
-        ThruputStats {
-            count_per_road: Counter::new(),
-            count_per_intersection: Counter::new(),
-        }
-    }
-
-    pub fn record(&mut self, ui: &mut UI) {
-        for ev in ui.primary.sim.collect_events() {
-            if let Event::AgentEntersTraversable(_, to) = ev {
-                match to {
-                    Traversable::Lane(l) => self.count_per_road.inc(ui.primary.map.get_l(l).parent),
-                    Traversable::Turn(t) => self.count_per_intersection.inc(t.parent),
-                };
-            }
-        }
-    }
 }

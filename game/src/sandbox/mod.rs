@@ -21,7 +21,6 @@ pub struct SandboxMode {
     agent_tools: AgentTools,
     pub time_travel: time_travel::InactiveTimeTravel,
     trip_stats: trip_stats::TripStats,
-    thruput_stats: analytics::ThruputStats,
     analytics: analytics::Analytics,
     common: CommonState,
     menu: ModalMenu,
@@ -36,7 +35,6 @@ impl SandboxMode {
             trip_stats: trip_stats::TripStats::new(
                 ui.primary.current_flags.sim_flags.opts.record_stats,
             ),
-            thruput_stats: analytics::ThruputStats::new(),
             analytics: analytics::Analytics::Inactive,
             common: CommonState::new(),
             menu: ModalMenu::new(
@@ -81,7 +79,6 @@ impl State for SandboxMode {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         self.time_travel.record(ui);
         self.trip_stats.record(ui);
-        self.thruput_stats.record(ui);
 
         {
             let mut txt = Text::new();
@@ -100,13 +97,10 @@ impl State for SandboxMode {
         if let Some(t) = self.common.event(ctx, ui, &mut self.menu) {
             return t;
         }
-        if let Some(t) = self.analytics.event(
-            ctx,
-            ui,
-            &mut self.menu,
-            &self.thruput_stats,
-            &self.trip_stats,
-        ) {
+        if let Some(t) = self
+            .analytics
+            .event(ctx, ui, &mut self.menu, &self.trip_stats)
+        {
             return t;
         }
 

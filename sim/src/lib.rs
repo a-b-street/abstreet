@@ -1,3 +1,4 @@
+mod analytics;
 mod events;
 mod make;
 mod mechanics;
@@ -8,6 +9,7 @@ mod sim;
 mod transit;
 mod trips;
 
+pub use self::analytics::Analytics;
 pub use self::events::Event;
 pub use self::make::{
     ABTest, BorderSpawnOverTime, OriginDestination, Scenario, SeedParkedCars, SimFlags,

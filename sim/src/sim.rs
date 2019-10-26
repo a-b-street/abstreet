@@ -1,10 +1,10 @@
 use crate::{
-    AgentID, CarID, Command, CreateCar, DrawCarInput, DrawPedCrowdInput, DrawPedestrianInput,
-    DrivingGoal, DrivingSimState, Event, FinishedTrips, GetDrawAgents, IntersectionSimState,
-    ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, Router, Scheduler, SidewalkPOI,
-    SidewalkSpot, TransitSimState, TripID, TripLeg, TripManager, TripPositions, TripResult,
-    TripSpawner, TripSpec, TripStart, TripStatus, UnzoomedAgent, VehicleSpec, VehicleType,
-    WalkingSimState, BUS_LENGTH,
+    AgentID, Analytics, CarID, Command, CreateCar, DrawCarInput, DrawPedCrowdInput,
+    DrawPedestrianInput, DrivingGoal, DrivingSimState, Event, FinishedTrips, GetDrawAgents,
+    IntersectionSimState, ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, Router, Scheduler,
+    SidewalkPOI, SidewalkSpot, TransitSimState, TripID, TripLeg, TripManager, TripPositions,
+    TripResult, TripSpawner, TripSpec, TripStart, TripStatus, UnzoomedAgent, VehicleSpec,
+    VehicleType, WalkingSimState, BUS_LENGTH,
 };
 use abstutil::{elapsed_seconds, Timer};
 use derivative::Derivative;
@@ -14,7 +14,7 @@ use map_model::{
     Position, Traversable,
 };
 use serde_derive::{Deserialize, Serialize};
-use std::collections::{HashSet, VecDeque};
+use std::collections::HashSet;
 use std::panic;
 use std::time::Instant;
 
@@ -51,6 +51,9 @@ pub struct Sim {
     #[serde(skip_serializing, skip_deserializing)]
     trip_positions: Option<TripPositions>,
     // TODO Maybe the buffered events in child objects should also have this.
+    #[derivative(PartialEq = "ignore")]
+    #[serde(skip_serializing, skip_deserializing)]
+    analytics: Analytics,
 }
 
 #[derive(Clone)]
@@ -111,6 +114,8 @@ impl Sim {
             run_name: opts.run_name,
             step_count: 0,
             trip_positions: None,
+
+            analytics: Default::default(),
         }
     }
 
@@ -558,6 +563,15 @@ impl Sim {
         self.time = target_time;
 
         self.trip_positions = None;
+
+        let mut events = Vec::new();
+        events.extend(self.trips.collect_events());
+        events.extend(self.transit.collect_events());
+        events.extend(self.driving.collect_events());
+        events.extend(self.walking.collect_events());
+        for ev in events {
+            self.analytics.event(ev, self.time, map);
+        }
     }
 
     pub fn timed_step(&mut self, map: &Map, dt: Duration, timer: &mut Timer) {
@@ -680,24 +694,14 @@ impl Sim {
     ) {
         // TODO No benchmark printing at all this way.
         // TODO Doesn't stop early once all expectations are met.
-
-        let mut expectations = VecDeque::from(all_expectations);
+        self.analytics.test_expectations.extend(all_expectations);
         self.step(&map, self.time() + time_limit);
-        for ev in self.collect_events() {
-            if &ev == expectations.front().unwrap() {
-                println!("At {}, met expectation {:?}", self.time, ev);
-                expectations.pop_front();
-                if expectations.is_empty() {
-                    return;
-                }
-            }
-        }
-        if expectations.is_empty() {
+        if self.analytics.test_expectations.is_empty() {
             return;
         }
         panic!(
             "Time limit {} hit, but some expectations never met: {:?}",
-            time_limit, expectations
+            time_limit, self.analytics.test_expectations
         );
     }
 }
@@ -902,17 +906,6 @@ impl Sim {
         self.trip_positions.as_ref().unwrap()
     }
 
-    // This only supports one caller! And the result isn't time-sorted.
-    // TODO If nobody calls this, slow sad memory leak. Push style would probably be much nicer.
-    pub fn collect_events(&mut self) -> Vec<Event> {
-        let mut events = Vec::new();
-        events.extend(self.trips.collect_events());
-        events.extend(self.transit.collect_events());
-        events.extend(self.driving.collect_events());
-        events.extend(self.walking.collect_events());
-        events
-    }
-
     pub fn get_canonical_pt_per_trip(&self, trip: TripID, map: &Map) -> TripResult<Pt2D> {
         let agent = match self.trips.trip_to_agent(trip) {
             TripResult::Ok(a) => a,
@@ -954,6 +947,10 @@ impl Sim {
             ));
         }
         results
+    }
+
+    pub fn get_analytics(&self) -> &Analytics {
+        &self.analytics
     }
 }
 

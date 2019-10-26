@@ -151,7 +151,8 @@ impl TransitSimState {
             BusState::DrivingToStop(stop_idx) => {
                 bus.state = BusState::AtStop(stop_idx);
                 let stop = self.routes[&bus.route].stops[stop_idx].id;
-                self.events.push(Event::BusArrivedAtStop(id, stop));
+                self.events
+                    .push(Event::BusArrivedAtStop(id, bus.route, stop));
 
                 // Deboard existing passengers.
                 let mut still_riding = Vec::new();
@@ -191,7 +192,8 @@ impl TransitSimState {
                 let stop = &route.stops[stop_idx];
 
                 bus.state = BusState::DrivingToStop(stop.next_stop_idx);
-                self.events.push(Event::BusDepartedFromStop(id, stop.id));
+                self.events
+                    .push(Event::BusDepartedFromStop(id, bus.route, stop.id));
                 Router::follow_bus_route(
                     stop.path_to_next_stop.clone(),
                     route.stops[stop.next_stop_idx].driving_pos.dist_along(),

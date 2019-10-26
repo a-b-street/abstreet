@@ -190,9 +190,13 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
             styled_kv(&mut txt, &draw_map.get_es(id).attributes);
         }
         ID::BusStop(id) => {
+            let arrivals = &sim.get_analytics().latest_bus_arrival;
             for r in map.get_routes_serving_stop(id) {
-                if r.stops.contains(&id) {
-                    txt.add_appended(vec![Line("- Route "), Line(&r.name).fg(name_color)]);
+                txt.add_appended(vec![Line("- Route "), Line(&r.name).fg(name_color)]);
+                if let Some(t) = arrivals.get(&(id, r.id)) {
+                    txt.append(Line(format!(" (last bus arrived {} ago)", sim.time() - *t)));
+                } else {
+                    txt.append(Line(" (no arrivals yet)"));
                 }
             }
         }

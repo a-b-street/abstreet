@@ -1,5 +1,5 @@
 use crate::{AgentID, CarID, ParkingSpot, PedestrianID};
-use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, Traversable};
+use map_model::{BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, Traversable};
 use serde_derive::{Deserialize, Serialize};
 
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -7,8 +7,8 @@ pub enum Event {
     CarReachedParkingSpot(CarID, ParkingSpot),
     CarOrBikeReachedBorder(CarID, IntersectionID),
 
-    BusArrivedAtStop(CarID, BusStopID),
-    BusDepartedFromStop(CarID, BusStopID),
+    BusArrivedAtStop(CarID, BusRouteID, BusStopID),
+    BusDepartedFromStop(CarID, BusRouteID, BusStopID),
 
     PedReachedParkingSpot(PedestrianID, ParkingSpot),
     PedReachedBuilding(PedestrianID, BuildingID),
