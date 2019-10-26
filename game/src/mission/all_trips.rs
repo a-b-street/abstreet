@@ -5,14 +5,14 @@ use abstutil::prettyprint_usize;
 use ezgui::{
     hotkey, layout, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu, Slider, Text,
 };
-use geom::{Circle, Distance, Duration};
-use map_model::{PathRequest, LANE_THICKNESS};
+use geom::{Circle, Distance, Duration, PolyLine};
+use map_model::LANE_THICKNESS;
 use popdat::psrc::Mode;
 use popdat::{clip_trips, Trip};
 
 pub struct TripsVisualizer {
     menu: ModalMenu,
-    trips: Vec<Trip>,
+    trips: Vec<(Trip, PolyLine)>,
     time_slider: Slider,
     speed: SpeedControls,
 
@@ -20,8 +20,8 @@ pub struct TripsVisualizer {
 }
 
 enum MaybeTrip {
-    Success(Trip),
-    Failure(PathRequest),
+    Success(Trip, PolyLine),
+    Failure(String),
 }
 
 impl TripsVisualizer {
@@ -30,26 +30,31 @@ impl TripsVisualizer {
             let (all_trips, _) = clip_trips(&ui.primary.map, &mut timer);
             let map = &ui.primary.map;
             let maybe_trips =
-                timer.parallelize("calculate paths with geometry", all_trips, |mut trip| {
-                    let req = trip.path_req(map);
-                    if let Some(route) = map
-                        .pathfind(req.clone())
-                        .and_then(|path| path.trace(map, req.start.dist_along(), None))
-                    {
-                        trip.route = Some(route);
-                        MaybeTrip::Success(trip)
+                timer.parallelize("calculate paths with geometry", all_trips, |trip| {
+                    if let Some(req) = trip.path_req(map) {
+                        if let Some(route) = map
+                            .pathfind(req.clone())
+                            .and_then(|path| path.trace(map, req.start.dist_along(), None))
+                        {
+                            MaybeTrip::Success(trip, route)
+                        } else {
+                            MaybeTrip::Failure(req.to_string())
+                        }
                     } else {
-                        MaybeTrip::Failure(req)
+                        MaybeTrip::Failure(format!(
+                            "{:?} trip from {:?} to {:?}",
+                            trip.mode, trip.from, trip.to
+                        ))
                     }
                 });
             let mut final_trips = Vec::new();
             for maybe in maybe_trips {
                 match maybe {
-                    MaybeTrip::Success(t) => {
-                        final_trips.push(t);
+                    MaybeTrip::Success(t, route) => {
+                        final_trips.push((t, route));
                     }
-                    MaybeTrip::Failure(req) => {
-                        timer.warn(format!("Couldn't satisfy {}", req));
+                    MaybeTrip::Failure(err) => {
+                        timer.warn(format!("Skipping trip: {}", err));
                     }
                 }
             }
@@ -152,7 +157,7 @@ impl State for TripsVisualizer {
             .trips
             .iter()
             .enumerate()
-            .filter(|(_, trip)| time >= trip.depart_at && time <= trip.end_time())
+            .filter(|(_, (trip, _))| time >= trip.depart_at && time <= trip.end_time())
             .map(|(idx, _)| idx)
             .collect();
 
@@ -167,10 +172,9 @@ impl State for TripsVisualizer {
         let time = self.current_time();
         let mut batch = GeomBatch::new();
         for idx in &self.active_trips {
-            let trip = &self.trips[*idx];
+            let (trip, pl) = (&self.trips[*idx].0, &self.trips[*idx].1);
             let percent = (time - trip.depart_at) / trip.trip_time;
 
-            let pl = trip.route.as_ref().unwrap();
             let color = match trip.mode {
                 Mode::Drive => ui.cs.get("unzoomed car"),
                 Mode::Walk => ui.cs.get("unzoomed pedestrian"),

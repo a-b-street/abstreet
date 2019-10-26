@@ -1,7 +1,7 @@
 use crate::psrc::{Endpoint, Mode, Parcel, Purpose};
 use crate::PopDat;
 use abstutil::Timer;
-use geom::{Distance, Duration, LonLat, PolyLine, Polygon, Pt2D};
+use geom::{Distance, Duration, LonLat, Polygon, Pt2D};
 use map_model::{BuildingID, IntersectionID, LaneType, Map, PathRequest, Position};
 use sim::{DrivingGoal, Scenario, SidewalkSpot, SpawnTrip, TripSpec};
 use std::collections::{BTreeMap, HashMap};
@@ -16,8 +16,6 @@ pub struct Trip {
     // These are an upper bound when TripEndpt::Border is involved.
     pub trip_time: Duration,
     pub trip_dist: Distance,
-    // clip_trips doesn't populate this.
-    pub route: Option<PolyLine>,
 }
 
 #[derive(Clone, Debug)]
@@ -33,8 +31,8 @@ impl Trip {
         self.depart_at + self.trip_time
     }
 
-    pub fn path_req(&self, map: &Map) -> PathRequest {
-        match self.mode {
+    pub fn path_req(&self, map: &Map) -> Option<PathRequest> {
+        Some(match self.mode {
             Mode::Walk => PathRequest {
                 start: self.from.start_sidewalk_spot(map).sidewalk_pos,
                 end: self.from.end_sidewalk_spot(map).sidewalk_pos,
@@ -42,7 +40,7 @@ impl Trip {
                 can_use_bus_lanes: false,
             },
             Mode::Bike => PathRequest {
-                start: self.from.start_pos_driving(map),
+                start: self.from.start_pos_driving(map)?,
                 end: self
                     .to
                     .driving_goal(vec![LaneType::Biking, LaneType::Driving], map)
@@ -51,7 +49,7 @@ impl Trip {
                 can_use_bus_lanes: false,
             },
             Mode::Drive => PathRequest {
-                start: self.from.start_pos_driving(map),
+                start: self.from.start_pos_driving(map)?,
                 end: self
                     .to
                     .driving_goal(vec![LaneType::Driving], map)
@@ -79,7 +77,7 @@ impl Trip {
                     }
                 }
             }
-        }
+        })
     }
 }
 
@@ -121,13 +119,13 @@ impl TripEndpt {
     // TODO or biking
     // TODO bldg_via_driving needs to do find_driving_lane_near_building sometimes
     // Doesn't adjust for starting length yet.
-    fn start_pos_driving(&self, map: &Map) -> Position {
+    fn start_pos_driving(&self, map: &Map) -> Option<Position> {
         match self {
-            TripEndpt::Building(b) => Position::bldg_via_driving(*b, map).unwrap(),
-            TripEndpt::Border(i, _) => {
-                let lane = map.get_i(*i).get_outgoing_lanes(map, LaneType::Driving)[0];
-                Position::new(lane, Distance::ZERO)
-            }
+            TripEndpt::Building(b) => Position::bldg_via_driving(*b, map),
+            TripEndpt::Border(i, _) => Some(Position::new(
+                map.get_i(*i).get_outgoing_lanes(map, LaneType::Driving)[0],
+                Distance::ZERO,
+            )),
         }
     }
 
@@ -209,7 +207,6 @@ pub fn clip_trips(map: &Map, timer: &mut Timer) -> (Vec<Trip>, HashMap<BuildingI
             mode: trip.mode,
             trip_time: trip.trip_time,
             trip_dist: trip.trip_dist,
-            route: None,
         };
 
         match (&trip.from, &trip.to) {
@@ -224,7 +221,7 @@ pub fn clip_trips(map: &Map, timer: &mut Timer) -> (Vec<Trip>, HashMap<BuildingI
                 if false {
                     // TODO Figure out why some paths fail.
                     // TODO Since we're doing the work anyway, store the result?
-                    let dist = map.pathfind(trip.path_req(map))?.total_length();
+                    let dist = map.pathfind(trip.path_req(map)?)?.total_length();
                     // TODO This is failing all over the place, why?
                     assert!(dist <= trip.trip_dist);
                     let trip_time = (dist / trip.trip_dist) * trip.trip_time;
@@ -235,7 +232,7 @@ pub fn clip_trips(map: &Map, timer: &mut Timer) -> (Vec<Trip>, HashMap<BuildingI
             }
             (TripEndpt::Building(_), TripEndpt::Border(_, _)) => {
                 if false {
-                    let dist = map.pathfind(trip.path_req(map))?.total_length();
+                    let dist = map.pathfind(trip.path_req(map)?)?.total_length();
                     assert!(dist <= trip.trip_dist);
                     trip.trip_time = (dist / trip.trip_dist) * trip.trip_time;
                     trip.trip_dist = dist;
@@ -264,10 +261,14 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
         .parallelize("turn PSRC trips into SpawnTrips", trips.clone(), |trip| {
             match trip.mode {
                 Mode::Drive => match trip.from {
-                    TripEndpt::Border(_, _) => {
-                        if let Some(start) =
-                            TripSpec::spawn_car_at(trip.from.start_pos_driving(map), map)
-                        {
+                    TripEndpt::Border(i, _) => {
+                        if let Some(start) = TripSpec::spawn_car_at(
+                            Position::new(
+                                map.get_i(i).get_outgoing_lanes(map, LaneType::Driving)[0],
+                                Distance::ZERO,
+                            ),
+                            map,
+                        ) {
                             Some(SpawnTrip::CarAppearing {
                                 depart: trip.depart_at,
                                 start,
@@ -293,10 +294,14 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
                         trip.to
                             .driving_goal(vec![LaneType::Biking, LaneType::Driving], map),
                     )),
-                    TripEndpt::Border(_, _) => {
-                        if let Some(start) =
-                            TripSpec::spawn_car_at(trip.from.start_pos_driving(map), map)
-                        {
+                    TripEndpt::Border(i, _) => {
+                        if let Some(start) = TripSpec::spawn_car_at(
+                            Position::new(
+                                map.get_i(i).get_outgoing_lanes(map, LaneType::Driving)[0],
+                                Distance::ZERO,
+                            ),
+                            map,
+                        ) {
                             Some(SpawnTrip::CarAppearing {
                                 depart: trip.depart_at,
                                 start,
