@@ -55,10 +55,10 @@ fi
 for poly in `ls data/polygons/`; do
 	name=`basename -s .poly $poly`;
 	if [ ! -f data/input/$name.osm ]; then
-		osmosis \
-			--read-xml enableDateParsing=no file=data/input/Seattle.osm \
-			--bounding-polygon file=data/polygons/$name.poly completeWays=true \
-			--write-xml data/input/$name.osm
+		osmconvert data/input/Seattle.osm \
+			-B=data/polygons/$name.poly \
+			--complete-ways \
+			-o=data/input/$name.osm
 	fi
 done
 
