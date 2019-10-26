@@ -114,11 +114,11 @@ impl GUI for Game {
             println!("Secondary sim:");
             s.sim.dump_before_abort();
         }
-        self.ui.save_camera_state(canvas);
+        canvas.save_camera_state(self.ui.primary.map.get_name());
     }
 
     fn before_quit(&self, canvas: &Canvas) {
-        self.ui.save_camera_state(canvas);
+        canvas.save_camera_state(self.ui.primary.map.get_name());
         self.ui.cs.save();
         println!("Saved data/color_scheme.json");
     }

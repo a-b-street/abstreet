@@ -164,7 +164,7 @@ fn splash_screen(
                     .filter(|n| n != current_map)
                     .collect()
             }) {
-                ui.save_camera_state(ctx.canvas);
+                ctx.canvas.save_camera_state(ui.primary.map.get_name());
                 // This retains no state, but that's probably fine.
                 let mut flags = ui.primary.current_flags.clone();
                 flags.sim_flags.load = abstutil::path_map(&name);

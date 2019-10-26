@@ -9,7 +9,6 @@ use ezgui::{Canvas, Color, EventCtx, GfxCtx, Prerender, TextureType};
 use geom::{Bounds, Circle, Distance, Pt2D};
 use map_model::{Map, Traversable};
 use rand::seq::SliceRandom;
-use serde_derive::{Deserialize, Serialize};
 use sim::{GetDrawAgents, Sim, SimFlags};
 
 pub struct UI {
@@ -68,21 +67,9 @@ impl UI {
         if splash {
             ctx.canvas.center_on_map_pt(rand_focus_pt);
         } else {
-            let path = abstutil::path_camera_state(primary.map.get_name());
-            match abstutil::read_json::<CameraState>(&path, &mut Timer::throwaway()) {
-                Ok(ref loaded) => {
-                    println!("Loaded {}", path);
-                    ctx.canvas.cam_x = loaded.cam_x;
-                    ctx.canvas.cam_y = loaded.cam_y;
-                    ctx.canvas.cam_zoom = loaded.cam_zoom;
-                }
-                _ => {
-                    println!(
-                        "Couldn't load {}, so just focusing on an arbitrary building",
-                        path
-                    );
-                    ctx.canvas.center_on_map_pt(rand_focus_pt);
-                }
+            if !ctx.canvas.load_camera_state(primary.map.get_name()) {
+                println!("Couldn't load camera state, just focusing on an arbitrary building");
+                ctx.canvas.center_on_map_pt(rand_focus_pt);
             }
         }
 
@@ -385,26 +372,6 @@ impl UI {
 
         borrows
     }
-
-    pub fn save_camera_state(&self, canvas: &Canvas) {
-        let state = CameraState {
-            map_name: self.primary.map.get_name().clone(),
-            cam_x: canvas.cam_x,
-            cam_y: canvas.cam_y,
-            cam_zoom: canvas.cam_zoom,
-        };
-        let path = abstutil::path_camera_state(&state.map_name);
-        abstutil::write_json(&path, &state).unwrap();
-        println!("Saved {}", path);
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct CameraState {
-    pub map_name: String,
-    pub cam_x: f64,
-    pub cam_y: f64,
-    pub cam_zoom: f64,
 }
 
 pub struct ShowLayers {

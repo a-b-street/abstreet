@@ -4,7 +4,7 @@ mod world;
 
 use abstutil::{CmdArgs, Timer};
 use ezgui::{
-    hotkey, Choice, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line,
+    hotkey, Canvas, Choice, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line,
     ModalMenu, Text, Wizard, GUI,
 };
 use geom::{Distance, Line, Polygon, Pt2D};
@@ -12,7 +12,6 @@ use map_model::raw::{RestrictionType, StableBuildingID, StableIntersectionID, St
 use map_model::{osm, LANE_THICKNESS};
 use model::{Model, ID};
 use std::collections::HashSet;
-use std::process;
 
 struct UI {
     model: Model,
@@ -54,7 +53,7 @@ impl State {
 }
 
 impl UI {
-    fn new(ctx: &EventCtx) -> UI {
+    fn new(ctx: &mut EventCtx) -> UI {
         let mut args = CmdArgs::new();
         let load = args.optional_free();
         let include_bldgs = args.enabled("--bldgs");
@@ -75,6 +74,7 @@ impl UI {
         } else {
             Model::blank()
         };
+        ctx.canvas.load_camera_state(&model.map.name);
         let mut ui = UI {
             model,
             state: State::viewing(),
@@ -264,7 +264,8 @@ impl GUI for UI {
                     }
                     None => {
                         if self.menu.action("quit") {
-                            process::exit(0);
+                            self.before_quit(ctx.canvas);
+                            std::process::exit(0);
                         } else if self.menu.action("save raw map") {
                             if self.model.map.name != "" {
                                 self.model.export();
@@ -684,6 +685,14 @@ impl GUI for UI {
                 ezgui::VerticalAlignment::Top,
             ),
         );
+    }
+
+    fn dump_before_abort(&self, canvas: &Canvas) {
+        canvas.save_camera_state(&self.model.map.name);
+    }
+
+    fn before_quit(&self, canvas: &Canvas) {
+        canvas.save_camera_state(&self.model.map.name);
     }
 }
 

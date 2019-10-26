@@ -1,9 +1,11 @@
 use crate::{Color, ScreenPt, ScreenRectangle, Text, UserInput};
+use abstutil::Timer;
 use geom::{Bounds, Pt2D};
 use glium::texture::Texture2d;
 use glium_glyph::glyph_brush::rusttype::Scale;
 use glium_glyph::glyph_brush::GlyphCruncher;
 use glium_glyph::GlyphBrush;
+use serde_derive::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::collections::HashMap;
 
@@ -202,6 +204,32 @@ impl Canvas {
         }
         panic!("Don't know texture {}", filename);
     }
+
+    pub fn save_camera_state(&self, map_name: &str) {
+        let state = CameraState {
+            cam_x: self.cam_x,
+            cam_y: self.cam_y,
+            cam_zoom: self.cam_zoom,
+        };
+        let path = abstutil::path_camera_state(map_name);
+        abstutil::write_json(&path, &state).unwrap();
+        println!("Saved {}", path);
+    }
+
+    // True if this succeeds
+    pub fn load_camera_state(&mut self, map_name: &str) -> bool {
+        let path = abstutil::path_camera_state(map_name);
+        match abstutil::read_json::<CameraState>(&path, &mut Timer::throwaway()) {
+            Ok(ref loaded) => {
+                println!("Loaded {}", path);
+                self.cam_x = loaded.cam_x;
+                self.cam_y = loaded.cam_y;
+                self.cam_zoom = loaded.cam_zoom;
+                true
+            }
+            _ => false,
+        }
+    }
 }
 
 pub enum HorizontalAlignment {
@@ -215,4 +243,11 @@ pub enum VerticalAlignment {
     Top,
     Center,
     Bottom,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct CameraState {
+    cam_x: f64,
+    cam_y: f64,
+    cam_zoom: f64,
 }
