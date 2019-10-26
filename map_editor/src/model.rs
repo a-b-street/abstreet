@@ -1,7 +1,7 @@
 use crate::world::{Object, ObjectID, World};
 use abstutil::{read_binary, Timer};
 use ezgui::{Color, Line, Prerender, Text};
-use geom::{Bounds, Circle, Distance, PolyLine, Polygon, Pt2D};
+use geom::{Bounds, Circle, Distance, FindClosest, PolyLine, Polygon, Pt2D};
 use map_model::raw::{
     MapFixes, OriginalIntersection, OriginalRoad, RawBuilding, RawIntersection, RawMap, RawRoad,
     RestrictionType, StableBuildingID, StableIntersectionID, StableRoadID,
@@ -825,6 +825,36 @@ impl Model {
         self.show_r_points(id, prerender);
     }
 
+    pub fn insert_r_pt(&mut self, id: StableRoadID, pt: Pt2D, prerender: &Prerender) -> Option<ID> {
+        assert_eq!(self.showing_pts, Some(id));
+
+        self.stop_showing_pts(id);
+        self.road_deleted(id);
+        self.world.delete(ID::Intersection(self.map.roads[&id].i1));
+        self.world.delete(ID::Intersection(self.map.roads[&id].i2));
+
+        let mut pts = self.map.roads[&id].center_points.clone();
+        let mut closest = FindClosest::new(&self.compute_bounds());
+        for (idx, pair) in pts.windows(2).enumerate() {
+            closest.add(idx + 1, &vec![pair[0], pair[1]]);
+        }
+        let new_id = if let Some((idx, _)) = closest.closest_pt(pt, Distance::meters(5.0)) {
+            pts.insert(idx, pt);
+            Some(ID::RoadPoint(id, idx))
+        } else {
+            println!("Couldn't figure out where to insert new point");
+            None
+        };
+        self.map.override_road_points(id, pts);
+
+        self.road_added(id, prerender);
+        self.intersection_added(self.map.roads[&id].i1, prerender);
+        self.intersection_added(self.map.roads[&id].i2, prerender);
+        self.show_r_points(id, prerender);
+
+        new_id
+    }
+
     // TODO Need to show_r_points of the thing we wind up selecting after this.
     pub fn merge_r(&mut self, id: StableRoadID, prerender: &Prerender) {
         if let Err(e) = self.map.can_merge_short_road(id) {
@@ -899,7 +929,7 @@ impl Model {
         );
     }
 
-    pub fn create_b(&mut self, center: Pt2D, prerender: &Prerender) {
+    pub fn create_b(&mut self, center: Pt2D, prerender: &Prerender) -> ID {
         let id = self
             .map
             .create_building(RawBuilding {
@@ -910,6 +940,7 @@ impl Model {
             })
             .unwrap();
         self.bldg_added(id, prerender);
+        ID::Building(id)
     }
 
     pub fn move_b(&mut self, id: StableBuildingID, new_center: Pt2D, prerender: &Prerender) {

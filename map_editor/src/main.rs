@@ -243,6 +243,14 @@ impl GUI for UI {
                                     .cloned()
                                     .unwrap_or_else(String::new),
                             );
+                        } else if cursor.is_some()
+                            && ctx.input.key_pressed(Key::P, "create new point")
+                        {
+                            if let Some(id) =
+                                self.model.insert_r_pt(r, cursor.unwrap(), ctx.prerender)
+                            {
+                                self.model.world.force_set_selection(id);
+                            }
                         }
                     }
                     Some(ID::RoadPoint(r, idx)) => {
@@ -283,8 +291,8 @@ impl GUI for UI {
                         // dead-center messes up the precomputed triangles.
                         } else if ctx.input.key_pressed(Key::B, "create building") {
                             if let Some(pt) = cursor {
-                                self.model.create_b(pt, ctx.prerender);
-                                self.model.world.handle_mouseover(ctx);
+                                let id = self.model.create_b(pt, ctx.prerender);
+                                self.model.world.force_set_selection(id);
                             }
                         } else if ctx.input.key_pressed(Key::LeftShift, "select area") {
                             if let Some(pt) = cursor {

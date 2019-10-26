@@ -123,6 +123,10 @@ impl<ID: ObjectID> World<ID> {
         }
     }
 
+    pub fn force_set_selection(&mut self, id: ID) {
+        self.current_selection = Some(id);
+    }
+
     pub fn get_selection(&self) -> Option<ID> {
         self.current_selection
     }
