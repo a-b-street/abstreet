@@ -19,6 +19,7 @@ pub enum Analytics {
     Throughput(Duration, ObjectColorer),
     FinishedTrips(Duration, ShowTripStats),
     Chokepoints(Duration, ObjectColorer),
+    BikeNetwork(RoadColorer),
 }
 
 impl Analytics {
@@ -42,6 +43,7 @@ impl Analytics {
                                 Choice::new("cumulative throughput", ()),
                                 Choice::new("finished trips", ()),
                                 Choice::new("chokepoints", ()),
+                                Choice::new("bike network", ()),
                             ]
                         })?;
                     Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
@@ -62,6 +64,7 @@ impl Analytics {
             Analytics::Throughput(t, _) => ("cumulative throughput", *t),
             Analytics::FinishedTrips(t, _) => ("finished trips", *t),
             Analytics::Chokepoints(t, _) => ("chokepoints", *t),
+            Analytics::BikeNetwork(_) => ("bike network", ui.primary.sim.time()),
         };
         if time != ui.primary.sim.time() {
             *self = Analytics::recalc(choice, trip_stats, ui, ctx);
@@ -73,7 +76,8 @@ impl Analytics {
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) -> bool {
         match self {
             Analytics::Inactive => false,
-            Analytics::ParkingAvailability(_, ref heatmap) => {
+            Analytics::ParkingAvailability(_, ref heatmap)
+            | Analytics::BikeNetwork(ref heatmap) => {
                 heatmap.draw(g, ui);
                 true
             }
@@ -116,6 +120,7 @@ impl Analytics {
                 }
             }
             "chokepoints" => Analytics::Chokepoints(time, calculate_chokepoints(ctx, ui)),
+            "bike network" => Analytics::BikeNetwork(calculate_bike_network(ctx, ui)),
             _ => unreachable!(),
         }
     }
@@ -312,5 +317,18 @@ fn calculate_thruput(ctx: &mut EventCtx, ui: &UI) -> ObjectColorer {
         }
     }
 
+    colorer.build(ctx, &ui.primary.map)
+}
+
+fn calculate_bike_network(ctx: &mut EventCtx, ui: &UI) -> RoadColorer {
+    let mut colorer = RoadColorerBuilder::new(
+        Text::prompt("bike networks"),
+        vec![("bike lanes", Color::GREEN)],
+    );
+    for l in ui.primary.map.all_lanes() {
+        if l.is_biking() {
+            colorer.add(l.id, Color::GREEN, &ui.primary.map);
+        }
+    }
     colorer.build(ctx, &ui.primary.map)
 }
