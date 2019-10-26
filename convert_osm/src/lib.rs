@@ -195,6 +195,10 @@ fn use_offstreet_parking(map: &mut RawMap, path: &str, timer: &mut Timer) {
         }
         let name = s.attributes.get("DEA_FACILITY_NAME")?.to_string();
         let num_stalls = s.attributes.get("DEA_STALLS")?.parse::<usize>().ok()?;
+        // Well that's silly. Why's it listed?
+        if num_stalls == 0 {
+            return None;
+        }
         // TODO Update the existing one instead
         if let Some(ref existing) = map.buildings[&id].parking {
             // TODO Can't use timer inside this closure

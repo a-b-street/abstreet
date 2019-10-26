@@ -29,7 +29,7 @@ pub fn draw_signal_phase(
 
     for (id, crosswalk) in &ctx.draw_map.get_i(phase.parent).crosswalks {
         if phase.get_priority(*id) == TurnPriority::Priority {
-            batch.append(crosswalk);
+            batch.append(crosswalk.clone());
         }
     }
 
@@ -84,7 +84,7 @@ pub fn draw_signal_phase(
 fn draw_signal_phase_with_icons(phase: &Phase, batch: &mut GeomBatch, ctx: &DrawCtx) {
     for (id, crosswalk) in &ctx.draw_map.get_i(phase.parent).crosswalks {
         if phase.get_priority(*id) == TurnPriority::Priority {
-            batch.append(crosswalk);
+            batch.append(crosswalk.clone());
         }
     }
 

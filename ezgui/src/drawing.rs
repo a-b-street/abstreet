@@ -319,6 +319,7 @@ impl<'a> GfxCtx<'a> {
     }
 }
 
+#[derive(Clone)]
 pub struct GeomBatch {
     list: Vec<(Color, Polygon)>,
 }
@@ -342,8 +343,8 @@ impl GeomBatch {
         }
     }
 
-    pub fn append(&mut self, other: &GeomBatch) {
-        self.list.extend(other.list.clone());
+    pub fn append(&mut self, other: GeomBatch) {
+        self.list.extend(other.list);
     }
 
     pub fn consume(self) -> Vec<(Color, Polygon)> {

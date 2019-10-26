@@ -245,11 +245,13 @@ pub fn extract_osm(
     // Special case the coastline.
     println!("{} ways of coastline", coastline_groups.len());
     for polygon in glue_multipolygon(-1, coastline_groups, &boundary) {
+        let mut osm_tags = BTreeMap::new();
+        osm_tags.insert("water".to_string(), "ocean".to_string());
         map.areas.push(RawArea {
             area_type: AreaType::Water,
             osm_id: -1,
             polygon,
-            osm_tags: BTreeMap::new(),
+            osm_tags,
         });
     }
 

@@ -9,14 +9,26 @@ pub struct DrawArea {
 }
 
 impl DrawArea {
-    pub fn new(area: &Area, ctx: &EventCtx, batch: &mut GeomBatch) -> DrawArea {
-        batch.push(
-            match area.area_type {
-                AreaType::Park => ctx.canvas.texture("assets/grass_texture.png"),
-                AreaType::Water => ctx.canvas.texture("assets/water_texture.png"),
-            },
-            area.polygon.clone(),
-        );
+    pub fn new(
+        area: &Area,
+        ctx: &EventCtx,
+        all_park_areas: &mut GeomBatch,
+        all_water_areas: &mut GeomBatch,
+    ) -> DrawArea {
+        match area.area_type {
+            AreaType::Park => {
+                all_park_areas.push(
+                    ctx.canvas.texture("assets/grass_texture.png"),
+                    area.polygon.clone(),
+                );
+            }
+            AreaType::Water => {
+                all_water_areas.push(
+                    ctx.canvas.texture("assets/water_texture.png"),
+                    area.polygon.clone(),
+                );
+            }
+        }
         DrawArea { id: area.id }
     }
 }
