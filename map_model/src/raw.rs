@@ -126,9 +126,10 @@ impl RawMap {
                 }
             }
 
+            let remap_pts = !self.gps_bounds.approx_eq(&fixes.gps_bounds);
+
             for mut i in fixes.add_intersections.clone() {
-                // Fix up the geometry, maybe.
-                if !self.gps_bounds.approx_eq(&fixes.gps_bounds) {
+                if remap_pts {
                     i.point = Pt2D::forcibly_from_gps(
                         i.point.to_gps(&fixes.gps_bounds).unwrap(),
                         &self.gps_bounds,
@@ -143,8 +144,7 @@ impl RawMap {
             }
 
             for mut r in fixes.add_roads.clone() {
-                // Fix up the geometry, maybe.
-                if !self.gps_bounds.approx_eq(&fixes.gps_bounds) {
+                if remap_pts {
                     r.center_points = self
                         .gps_bounds
                         .forcibly_convert(&fixes.gps_bounds.must_convert_back(&r.center_points));

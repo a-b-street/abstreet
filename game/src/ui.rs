@@ -470,6 +470,10 @@ impl PerMapUI {
     }
 
     pub fn reset_sim(&mut self) {
-        self.sim = Sim::new(&self.map, self.current_flags.sim_flags.opts.clone());
+        self.sim = Sim::new(
+            &self.map,
+            self.current_flags.sim_flags.opts.clone(),
+            &mut Timer::new("reset simulation"),
+        );
     }
 }

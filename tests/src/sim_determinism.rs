@@ -19,7 +19,11 @@ pub fn run(t: &mut TestRunner) {
         println!("Creating two simulations");
         let flags = SimFlags::for_test("from_scratch_1");
         let (map, mut sim1, _) = flags.load(&mut Timer::throwaway());
-        let mut sim2 = Sim::new(&map, SimOptions::new("from_scratch_2"));
+        let mut sim2 = Sim::new(
+            &map,
+            SimOptions::new("from_scratch_2"),
+            &mut Timer::throwaway(),
+        );
         Scenario::small_run(&map).instantiate(
             &mut sim1,
             &map,
@@ -52,7 +56,11 @@ pub fn run(t: &mut TestRunner) {
         println!("Creating two simulations");
         let flags = SimFlags::for_test("with_savestating_1");
         let (map, mut sim1, _) = flags.load(&mut Timer::throwaway());
-        let mut sim2 = Sim::new(&map, SimOptions::new("with_savestating_2"));
+        let mut sim2 = Sim::new(
+            &map,
+            SimOptions::new("with_savestating_2"),
+            &mut Timer::throwaway(),
+        );
         Scenario::small_run(&map).instantiate(
             &mut sim1,
             &map,

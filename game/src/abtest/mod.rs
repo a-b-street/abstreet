@@ -6,6 +6,7 @@ use crate::debug::DebugMode;
 use crate::game::{State, Transition};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::{PerMapUI, UI};
+use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu, Text,
 };
@@ -268,12 +269,12 @@ impl ABTestMode {
             primary_map: std::mem::replace(&mut ui.primary.map, Map::blank()),
             primary_sim: std::mem::replace(
                 &mut ui.primary.sim,
-                Sim::new(&blank_map, SimOptions::new("tmp")),
+                Sim::new(&blank_map, SimOptions::new("tmp"), &mut Timer::throwaway()),
             ),
             secondary_map: std::mem::replace(&mut secondary.map, Map::blank()),
             secondary_sim: std::mem::replace(
                 &mut secondary.sim,
-                Sim::new(&blank_map, SimOptions::new("tmp")),
+                Sim::new(&blank_map, SimOptions::new("tmp"), &mut Timer::throwaway()),
             ),
         };
 

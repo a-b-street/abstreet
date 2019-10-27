@@ -92,7 +92,7 @@ impl SimFlags {
             if opts.run_name == "unnamed" {
                 opts.run_name = scenario.scenario_name.clone();
             }
-            let mut sim = Sim::new(&map, opts);
+            let mut sim = Sim::new(&map, opts, timer);
             scenario.instantiate(&mut sim, &map, &mut rng, timer);
 
             (map, sim, rng)
@@ -103,7 +103,7 @@ impl SimFlags {
                 .expect(&format!("Couldn't load map from {}", self.load));
 
             timer.start("create sim");
-            let sim = Sim::new(&map, opts);
+            let sim = Sim::new(&map, opts, timer);
             timer.stop("create sim");
 
             (map, sim, rng)
@@ -114,7 +114,7 @@ impl SimFlags {
                 .expect(&format!("Couldn't load map from {}", self.load));
 
             timer.start("create sim");
-            let sim = Sim::new(&map, opts);
+            let sim = Sim::new(&map, opts, timer);
             timer.stop("create sim");
 
             (map, sim, rng)

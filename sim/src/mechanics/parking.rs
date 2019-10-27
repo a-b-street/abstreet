@@ -1,6 +1,7 @@
 use crate::{AgentMetadata, CarID, CarStatus, DrawCarInput, ParkedCar, ParkingSpot, Vehicle};
 use abstutil::{
     deserialize_btreemap, deserialize_multimap, serialize_btreemap, serialize_multimap, MultiMap,
+    Timer,
 };
 use geom::{Distance, Duration, Pt2D};
 use map_model;
@@ -49,7 +50,7 @@ pub struct ParkingSimState {
 impl ParkingSimState {
     // Counterintuitive: any spots located in blackholes are just not represented here. If somebody
     // tries to drive from a blackholed spot, they couldn't reach most places.
-    pub fn new(map: &Map) -> ParkingSimState {
+    pub fn new(map: &Map, timer: &mut Timer) -> ParkingSimState {
         let mut sim = ParkingSimState {
             parked_cars: BTreeMap::new(),
             occupants: BTreeMap::new(),
@@ -63,7 +64,7 @@ impl ParkingSimState {
             driving_to_offstreet: MultiMap::new(),
         };
         for l in map.all_lanes() {
-            if let Some(lane) = ParkingLane::new(l, map) {
+            if let Some(lane) = ParkingLane::new(l, map, timer) {
                 sim.driving_to_parking_lanes.insert(lane.driving_lane, l.id);
                 sim.onstreet_lanes.insert(lane.parking_lane, lane);
             }
@@ -284,15 +285,13 @@ impl ParkingSimState {
     pub fn spot_to_sidewalk_pos(&self, spot: ParkingSpot, map: &Map) -> Position {
         match spot {
             ParkingSpot::Onstreet(l, idx) => {
-                // TODO Consider precomputing this.
-                let sidewalk = map.find_closest_lane(l, vec![LaneType::Sidewalk]).unwrap();
+                let lane = &self.onstreet_lanes[&l];
                 // Always centered in the entire parking spot
                 Position::new(
                     l,
-                    self.onstreet_lanes[&l].spot_dist_along[idx]
-                        - (map_model::PARKING_SPOT_LENGTH / 2.0),
+                    lane.spot_dist_along[idx] - (map_model::PARKING_SPOT_LENGTH / 2.0),
                 )
-                .equiv_pos(sidewalk, Distance::ZERO, map)
+                .equiv_pos(lane.sidewalk, Distance::ZERO, map)
             }
             ParkingSpot::Offstreet(b, _) => map.get_b(b).front_path.sidewalk,
         }
@@ -359,29 +358,38 @@ impl ParkingSimState {
 struct ParkingLane {
     parking_lane: LaneID,
     driving_lane: LaneID,
+    sidewalk: LaneID,
     // The front of the parking spot (farthest along the lane)
     spot_dist_along: Vec<Distance>,
 }
 
 impl ParkingLane {
-    fn new(l: &Lane, map: &Map) -> Option<ParkingLane> {
-        if l.lane_type != LaneType::Parking {
+    fn new(lane: &Lane, map: &Map, timer: &mut Timer) -> Option<ParkingLane> {
+        if lane.lane_type != LaneType::Parking {
             return None;
         }
 
-        let driving_lane = if let Some(l) = map.get_parent(l.id).parking_to_driving(l.id) {
+        let driving_lane = if let Some(l) = map.get_parent(lane.id).parking_to_driving(lane.id) {
             l
         } else {
-            panic!("Parking lane {} has no driving lane!", l.id);
+            // Serious enough to blow up loudly.
+            panic!("Parking lane {} has no driving lane!", lane.id);
         };
         if map.get_l(driving_lane).parking_blackhole.is_some() {
             return None;
         }
+        let sidewalk = if let Ok(l) = map.find_closest_lane(lane.id, vec![LaneType::Sidewalk]) {
+            l
+        } else {
+            timer.warn(format!("Parking lane {} has no sidewalk!", lane.id));
+            return None;
+        };
 
         Some(ParkingLane {
-            parking_lane: l.id,
+            parking_lane: lane.id,
             driving_lane,
-            spot_dist_along: (0..l.number_parking_spots())
+            sidewalk,
+            spot_dist_along: (0..lane.number_parking_spots())
                 .map(|idx| map_model::PARKING_SPOT_LENGTH * (2.0 + idx as f64))
                 .collect(),
         })

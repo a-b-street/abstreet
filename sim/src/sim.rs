@@ -81,7 +81,7 @@ impl SimOptions {
 
 // Setup
 impl Sim {
-    pub fn new(map: &Map, opts: SimOptions) -> Sim {
+    pub fn new(map: &Map, opts: SimOptions, timer: &mut Timer) -> Sim {
         let mut scheduler = Scheduler::new();
         // TODO Gridlock detection doesn't add value right now.
         if false {
@@ -92,7 +92,7 @@ impl Sim {
         }
         Sim {
             driving: DrivingSimState::new(map, opts.recalc_lanechanging),
-            parking: ParkingSimState::new(map),
+            parking: ParkingSimState::new(map, timer),
             walking: WalkingSimState::new(),
             intersections: IntersectionSimState::new(
                 map,
