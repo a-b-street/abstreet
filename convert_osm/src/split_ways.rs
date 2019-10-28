@@ -1,8 +1,8 @@
 use abstutil::{Counter, Timer};
 use geom::{HashablePt2D, Pt2D};
 use map_model::raw::{
-    OriginalIntersection, RawIntersection, RawMap, RawRoad, RestrictionType, StableIntersectionID,
-    StableRoadID,
+    OriginalIntersection, RawIntersection, RawMap, RawRoad, RestrictionType, OriginalIntersection,
+    OriginalRoad,
 };
 use map_model::{osm, IntersectionType};
 use std::collections::{HashMap, HashSet};
@@ -21,7 +21,7 @@ pub fn split_up_roads(
 
     let mut next_intersection_id = 0;
 
-    let mut pt_to_intersection: HashMap<HashablePt2D, StableIntersectionID> = HashMap::new();
+    let mut pt_to_intersection: HashMap<HashablePt2D, OriginalIntersection> = HashMap::new();
     let mut counts_per_pt = Counter::new();
     for r in &roads {
         for (idx, raw_pt) in r.center_points.iter().enumerate() {
@@ -31,7 +31,7 @@ pub fn split_up_roads(
             // All start and endpoints of ways are also intersections.
             if count == 2 || idx == 0 || idx == r.center_points.len() - 1 {
                 if !pt_to_intersection.contains_key(&pt) {
-                    let id = StableIntersectionID(next_intersection_id);
+                    let id = OriginalIntersection(next_intersection_id);
                     next_intersection_id += 1;
                     pt_to_intersection.insert(pt, id);
                 }
@@ -87,7 +87,7 @@ pub fn split_up_roads(
                 r.orig_id.node2 = osm_node_ids[&pts.last().unwrap().to_hashable()];
                 r.center_points = dedupe_angles(std::mem::replace(&mut pts, Vec::new()));
                 // Start a new road
-                map.roads.insert(StableRoadID(map.roads.len()), r.clone());
+                map.roads.insert(OriginalRoad(map.roads.len()), r.clone());
                 r.osm_tags.remove(osm::ENDPT_FWD);
                 r.osm_tags.remove(osm::ENDPT_BACK);
                 r.i1 = *i2;

@@ -7,37 +7,63 @@ use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
 
-// Stable IDs don't get compacted as we merge and delete things.
-#[derive(PartialEq, Eq, Debug, Serialize, Deserialize, PartialOrd, Ord, Clone, Copy, Hash)]
-pub struct StableRoadID(pub usize);
-impl fmt::Display for StableRoadID {
+// A way to refer to roads across many maps.
+//
+// Previously, OriginalRoad and OriginalIntersection used LonLat to reference objects across maps.
+// This had some problems:
+// - f64's need to be trimmed and compared carefully with epsilon checks.
+// - It was confusing to modify these IDs when applying MapFixes.
+// Using OSM IDs could also have problems as new OSM input is used over time, because MapFixes may
+// refer to stale IDs.
+// TODO Look at some stable ID standard like linear referencing
+// (https://github.com/opentraffic/architecture/issues/1).
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct OriginalRoad {
+    pub osm_way_id: i64,
+    pub i1: OriginalIntersection,
+    pub i2: OriginalIntersection,
+}
+
+// A way to refer to intersections across many maps.
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct OriginalIntersection {
+    pub osm_node_id: i64,
+}
+
+// A way to refer to buildings across many maps.
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct OriginalBuilding {
+    pub osm_way_id: i64,
+}
+
+impl fmt::Display for OriginalRoad {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "StableRoadID({0})", self.0)
+        write!(
+            f,
+            "OriginalRoad(way {} between node {} to {})",
+            self.osm_way_id, self.i1.osm_node_id, self.i2.osm_node_id
+        )
     }
 }
 
-#[derive(PartialEq, Eq, Debug, Serialize, Deserialize, PartialOrd, Ord, Clone, Copy, Hash)]
-pub struct StableIntersectionID(pub usize);
-impl fmt::Display for StableIntersectionID {
+impl fmt::Display for OriginalIntersection {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "StableIntersectionID({0})", self.0)
+        write!(f, "OriginalIntersection({})", self.osm_node_id)
     }
 }
 
-#[derive(PartialEq, Eq, Debug, Serialize, Deserialize, PartialOrd, Ord, Clone, Copy, Hash)]
-pub struct StableBuildingID(pub usize);
-impl fmt::Display for StableBuildingID {
+impl fmt::Display for OriginalBuilding {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "StableBuildingID({0})", self.0)
+        write!(f, "OriginalBuilding({})", self.osm_way_id)
     }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RawMap {
     pub name: String,
-    pub roads: BTreeMap<StableRoadID, RawRoad>,
-    pub intersections: BTreeMap<StableIntersectionID, RawIntersection>,
-    pub buildings: BTreeMap<StableBuildingID, RawBuilding>,
+    pub roads: BTreeMap<OriginalRoad, RawRoad>,
+    pub intersections: BTreeMap<OriginalIntersection, RawIntersection>,
+    pub buildings: BTreeMap<OriginalBuilding, RawBuilding>,
     pub bus_routes: Vec<Route>,
     pub areas: Vec<RawArea>,
 
@@ -64,42 +90,24 @@ impl RawMap {
         }
     }
 
-    fn find_r(&self, orig: OriginalRoad) -> Option<StableRoadID> {
-        for (id, r) in &self.roads {
-            if r.orig_id == orig {
-                return Some(*id);
-            }
-        }
-        None
-    }
-
-    fn find_i(&self, orig: OriginalIntersection) -> Option<StableIntersectionID> {
-        for (id, i) in &self.intersections {
-            if i.orig_id == orig {
-                return Some(*id);
-            }
-        }
-        None
-    }
-
     pub fn apply_fixes(&mut self, all_fixes: &BTreeMap<String, MapFixes>, timer: &mut Timer) {
         timer.start("applying all fixes");
         for (name, fixes) in all_fixes {
             let mut applied = 0;
             let mut skipped = 0;
 
-            for orig in &fixes.delete_roads {
-                if let Some(r) = self.find_r(*orig) {
-                    self.delete_road(r);
+            for r in &fixes.delete_roads {
+                if self.roads.contains_key(r) {
+                    self.delete_road(*r);
                     applied += 1;
                 } else {
                     skipped += 1;
                 }
             }
 
-            for orig in &fixes.delete_intersections {
-                if let Some(i) = self.find_i(*orig) {
-                    self.delete_intersection(i);
+            for i in &fixes.delete_intersections {
+                if self.intersections.contains_key(i) {
+                    self.delete_intersection(*i);
                     applied += 1;
                 } else {
                     skipped += 1;
@@ -108,7 +116,7 @@ impl RawMap {
 
             let remap_pts = !self.gps_bounds.approx_eq(&fixes.gps_bounds);
 
-            for mut i in fixes.override_intersections.clone() {
+            for (id, mut i) in fixes.override_intersections.clone() {
                 if remap_pts {
                     i.point = Pt2D::forcibly_from_gps(
                         i.point.to_gps(&fixes.gps_bounds).unwrap(),
@@ -116,21 +124,28 @@ impl RawMap {
                     );
                 }
 
-                if self.override_intersection(i).is_some() {
+                if self
+                    .gps_bounds
+                    .contains(i.point.forcibly_to_gps(&self.gps_bounds))
+                {
+                    self.intersections.insert(id, i);
                     applied += 1;
                 } else {
                     skipped += 1;
                 }
             }
 
-            for mut r in fixes.override_roads.clone() {
+            for (id, mut r) in fixes.override_roads.clone() {
                 if remap_pts {
                     r.center_points = self
                         .gps_bounds
                         .forcibly_convert(&fixes.gps_bounds.must_convert_back(&r.center_points));
                 }
 
-                if self.override_road(r).is_some() {
+                if self.intersections.contains_key(&id.i1)
+                    && self.intersections.contains_key(&id.i2)
+                {
+                    self.roads.insert(id, r);
                     applied += 1;
                 } else {
                     skipped += 1;
@@ -148,10 +163,10 @@ impl RawMap {
     }
 
     // TODO Might be better to maintain this instead of doing a search everytime.
-    pub fn roads_per_intersection(&self, i: StableIntersectionID) -> Vec<StableRoadID> {
+    pub fn roads_per_intersection(&self, i: OriginalIntersection) -> Vec<OriginalRoad> {
         let mut results = Vec::new();
-        for (id, r) in &self.roads {
-            if r.i1 == i || r.i2 == i {
+        for id in self.roads.keys() {
+            if id.i1 == i || id.i2 == i {
                 results.push(*id);
             }
         }
@@ -159,13 +174,14 @@ impl RawMap {
     }
 
     pub fn new_osm_node_id(&self, start: i64) -> i64 {
+        assert!(start < 0);
         // Slow, but deterministic.
         let mut osm_node_id = start;
         loop {
             if self
                 .intersections
-                .values()
-                .any(|i| i.orig_id.osm_node_id == osm_node_id)
+                .keys()
+                .any(|i| i.osm_node_id == osm_node_id)
             {
                 osm_node_id -= 1;
             } else {
@@ -175,14 +191,12 @@ impl RawMap {
     }
 
     pub fn new_osm_way_id(&self, start: i64) -> i64 {
+        assert!(start < 0);
         // Slow, but deterministic.
         let mut osm_way_id = start;
         loop {
-            if self
-                .roads
-                .values()
-                .any(|r| r.orig_id.osm_way_id == osm_way_id)
-                || self.buildings.values().any(|b| b.osm_way_id == osm_way_id)
+            if self.roads.keys().any(|r| r.osm_way_id == osm_way_id)
+                || self.buildings.keys().any(|b| b.osm_way_id == osm_way_id)
                 || self.areas.iter().any(|a| a.osm_id == osm_way_id)
             {
                 osm_way_id -= 1;
@@ -195,7 +209,7 @@ impl RawMap {
     // (Intersection polygon, polygons for roads, list of labeled polylines to debug)
     pub fn preview_intersection(
         &self,
-        id: StableIntersectionID,
+        id: OriginalIntersection,
         timer: &mut Timer,
     ) -> (Polygon, Vec<Polygon>, Vec<(String, Polygon)>) {
         use crate::make::initial;
@@ -237,7 +251,7 @@ impl RawMap {
 
 // Mutations and supporting queries
 impl RawMap {
-    pub fn delete_road(&mut self, r: StableRoadID) {
+    pub fn delete_road(&mut self, r: OriginalRoad) {
         // First delete and warn about turn restrictions
         if !self.roads[&r].turn_restrictions.is_empty() {
             println!("Deleting {}, but note it has turn restrictions from it", r);
@@ -266,74 +280,23 @@ impl RawMap {
         self.roads.remove(&r).unwrap();
     }
 
-    pub fn can_delete_intersection(&self, i: StableIntersectionID) -> bool {
+    pub fn can_delete_intersection(&self, i: OriginalIntersection) -> bool {
         self.roads_per_intersection(i).is_empty()
     }
 
-    pub fn delete_intersection(&mut self, id: StableIntersectionID) {
+    pub fn delete_intersection(&mut self, id: OriginalIntersection) {
         if !self.can_delete_intersection(id) {
             panic!(
-                "Can't delete_intersection {:?}, must have roads connected",
-                self.intersections[&id].orig_id
+                "Can't delete_intersection {}, must have roads connected",
+                id
             );
         }
         self.intersections.remove(&id).unwrap();
     }
 
-    // These two are kind of just for apply_fixes, except they're also useful to create new stuff,
-    // since they allocate a new ID.
-    pub fn override_intersection(&mut self, i: RawIntersection) -> Option<StableIntersectionID> {
-        // Existing?
-        if let Some(id) = self.find_i(i.orig_id) {
-            self.intersections.insert(id, i);
-            return Some(id);
-        }
-
-        // New
-        if self
-            .gps_bounds
-            .contains(i.point.forcibly_to_gps(&self.gps_bounds))
-        {
-            let id = StableIntersectionID(self.intersections.keys().max().unwrap().0 + 1);
-            self.intersections.insert(id, i);
-            Some(id)
-        } else {
-            None
-        }
-    }
-
-    pub fn override_road(&mut self, mut r: RawRoad) -> Option<StableRoadID> {
-        // Existing?
-        if let Some(id) = self.find_r(r.orig_id) {
-            // TODO Do we need to rewrite i1 and i2?
-            self.roads.insert(id, r);
-            return Some(id);
-        }
-
-        // New
-        match (
-            self.find_i(OriginalIntersection {
-                osm_node_id: r.orig_id.node1,
-            }),
-            self.find_i(OriginalIntersection {
-                osm_node_id: r.orig_id.node2,
-            }),
-        ) {
-            (Some(i1), Some(i2)) => {
-                r.i1 = i1;
-                r.i2 = i2;
-                let id = StableRoadID(self.roads.keys().max().unwrap().0 + 1);
-                self.roads.insert(id, r);
-                Some(id)
-            }
-            _ => None,
-        }
-    }
-
-    pub fn can_merge_short_road(&self, id: StableRoadID) -> Result<(), Error> {
-        let road = &self.roads[&id];
-        let i1 = &self.intersections[&road.i1];
-        let i2 = &self.intersections[&road.i2];
+    pub fn can_merge_short_road(&self, id: OriginalRoad) -> Result<(), Error> {
+        let i1 = &self.intersections[&id.i1];
+        let i2 = &self.intersections[&id.i2];
         if i1.intersection_type == IntersectionType::Border
             || i2.intersection_type == IntersectionType::Border
         {
@@ -343,27 +306,21 @@ impl RawMap {
         Ok(())
     }
 
-    // (the surviving intersection, the deleted intersection, list of modified roads connected to
-    // deleted intersection)
+    // (the surviving intersection, the deleted intersection, deleted roads, new roads)
     pub fn merge_short_road(
         &mut self,
-        id: StableRoadID,
+        short: OriginalRoad,
     ) -> Option<(
-        StableIntersectionID,
-        StableIntersectionID,
-        Vec<StableRoadID>,
+        OriginalIntersection,
+        OriginalIntersection,
+        Vec<OriginalRoad>,
+        Vec<OriginalRoad>,
     )> {
-        assert!(self.can_merge_short_road(id).is_ok());
-        let (i1, i2) = {
-            let r = &self.roads[&id];
-            (r.i1, r.i2)
-        };
-        let (i1_pt, i1_orig_id) = {
-            let i = &self.intersections[&i1];
-            (i.point, i.orig_id)
-        };
+        assert!(self.can_merge_short_road(short).is_ok());
+        let (i1, i2) = (short.i1, short.i2);
+        let i1_pt = self.intersections[&i1].point;
 
-        self.delete_road(id);
+        self.delete_road(short);
 
         // Arbitrarily keep i1 and destroy i2. If the intersection types differ, upgrade the
         // surviving interesting.
@@ -376,53 +333,47 @@ impl RawMap {
             }
         }
 
-        // Fix up all roads connected to i2.
-        let mut fixed = Vec::new();
+        // Fix up all roads connected to i2. Delete them and create a new copy; the ID changes,
+        // since one intersection changes.
+        let mut deleted = Vec::new();
+        let mut created = Vec::new();
         for r in self.roads_per_intersection(i2) {
-            fixed.push(r);
-            let road = self.roads.get_mut(&r).unwrap();
-            if road.i1 == i2 {
-                road.i1 = i1;
+            deleted.push(r);
+            let mut road = self.roads.remove(&r).unwrap();
+            let mut new_id = r;
+            if r.i1 == i2 {
+                new_id.i1 = i1;
 
                 road.center_points[0] = i1_pt;
-                // TODO More extreme: All of the points of the short road. Except there usually
-                // aren't many, since they're short.
-                //road.center_points.insert(0, i1_pt);
-
-                // TODO Should we even do this?
-                road.orig_id.node1 = i1_orig_id.osm_node_id;
+            // TODO More extreme: All of the points of the short road. Except there usually
+            // aren't many, since they're short.
+            //road.center_points.insert(0, i1_pt);
             } else {
-                assert_eq!(road.i2, i2);
-                road.i2 = i1;
+                assert_eq!(r.i2, i2);
+                new_id.i2 = i1;
 
                 *road.center_points.last_mut().unwrap() = i1_pt;
                 //road.center_points.push(i1_pt);
-
-                // TODO Should we even do this?
-                road.orig_id.node2 = i1_orig_id.osm_node_id;
             }
+
+            self.roads.insert(new_id, road);
+            created.push(new_id);
         }
 
-        Some((i1, i2, fixed))
+        Some((i1, i2, deleted, created))
     }
 
-    pub fn can_add_turn_restriction(&self, from: StableRoadID, to: StableRoadID) -> bool {
-        let (i1, i2) = {
-            let r = &self.roads[&from];
-            (r.i1, r.i2)
-        };
-        let (i3, i4) = {
-            let r = &self.roads[&to];
-            (r.i1, r.i2)
-        };
+    pub fn can_add_turn_restriction(&self, from: OriginalRoad, to: OriginalRoad) -> bool {
+        let (i1, i2) = (from.i1, from.i2);
+        let (i3, i4) = (to.i1, to.i2);
         i1 == i3 || i1 == i4 || i2 == i3 || i2 == i4
     }
 
     pub fn move_intersection(
         &mut self,
-        id: StableIntersectionID,
+        id: OriginalIntersection,
         point: Pt2D,
-    ) -> Option<Vec<StableRoadID>> {
+    ) -> Option<Vec<OriginalRoad>> {
         self.intersections.get_mut(&id).unwrap().point = point;
 
         // Update all the roads.
@@ -430,54 +381,15 @@ impl RawMap {
         for r in self.roads_per_intersection(id) {
             fixed.push(r);
             let road = self.roads.get_mut(&r).unwrap();
-            if road.i1 == id {
+            if r.i1 == id {
                 road.center_points[0] = point;
             } else {
-                assert_eq!(road.i2, id);
+                assert_eq!(r.i2, id);
                 *road.center_points.last_mut().unwrap() = point;
-                // TODO Don't update orig_id, right?
             }
         }
 
         Some(fixed)
-    }
-
-    // TODO Some of these are pretty silly
-
-    pub fn modify_intersection(
-        &mut self,
-        id: StableIntersectionID,
-        it: IntersectionType,
-        label: Option<String>,
-    ) {
-        let i = self.intersections.get_mut(&id).unwrap();
-        i.intersection_type = it;
-        i.label = label;
-    }
-
-    pub fn create_building(&mut self, bldg: RawBuilding) -> Option<StableBuildingID> {
-        if bldg.polygon.center().to_gps(&self.gps_bounds).is_some() {
-            let id = StableBuildingID(self.buildings.keys().max().unwrap().0 + 1);
-            self.buildings.insert(id, bldg);
-            Some(id)
-        } else {
-            None
-        }
-    }
-
-    pub fn modify_building(
-        &mut self,
-        id: StableBuildingID,
-        polygon: Polygon,
-        osm_tags: BTreeMap<String, String>,
-    ) {
-        let bldg = self.buildings.get_mut(&id).unwrap();
-        bldg.polygon = polygon;
-        bldg.osm_tags = osm_tags;
-    }
-
-    pub fn delete_building(&mut self, id: StableBuildingID) {
-        self.buildings.remove(&id);
     }
 
     pub fn generate_fixes(&self, fixes_name: &str, timer: &mut Timer) -> MapFixes {
@@ -493,34 +405,35 @@ impl RawMap {
         };
 
         // What'd we delete?
-        for r in orig.roads.values() {
-            if self.find_r(r.orig_id).is_none() {
-                fixes.delete_roads.push(r.orig_id);
-            }
-        }
-        for i in orig.intersections.values() {
-            if self.find_i(i.orig_id).is_none() {
-                fixes.delete_intersections.push(i.orig_id);
-            }
-        }
+        fixes.delete_roads.extend(
+            orig.roads
+                .keys()
+                .cloned()
+                .collect::<BTreeSet<_>>()
+                .difference(&self.roads.keys().cloned().collect::<BTreeSet<_>>()),
+        );
+        fixes.delete_intersections.extend(
+            orig.intersections
+                .keys()
+                .cloned()
+                .collect::<BTreeSet<_>>()
+                .difference(&self.intersections.keys().cloned().collect::<BTreeSet<_>>()),
+        );
 
         // What'd we create or modify?
-        for i in self.intersections.values() {
+        for (id, i) in &self.intersections {
             if orig
-                .find_i(i.orig_id)
-                .map(|id| orig.intersections[&id] != *i)
+                .intersections
+                .get(id)
+                .map(|orig_i| orig_i != i)
                 .unwrap_or(true)
             {
-                fixes.override_intersections.push(i.clone());
+                fixes.override_intersections.push((*id, i.clone()));
             }
         }
-        for r in self.roads.values() {
-            if orig
-                .find_r(r.orig_id)
-                .map(|id| orig.roads[&id] != *r)
-                .unwrap_or(true)
-            {
-                fixes.override_roads.push(r.clone());
+        for (id, r) in &self.roads {
+            if orig.roads.get(id).map(|orig_r| orig_r != r).unwrap_or(true) {
+                fixes.override_roads.push((*id, r.clone()));
             }
         }
 
@@ -545,10 +458,10 @@ impl RawMap {
             .retain(|i| !seen_intersections.contains(i));
         fixes
             .override_intersections
-            .retain(|i| !seen_intersections.contains(&i.orig_id));
+            .retain(|(id, _)| !seen_intersections.contains(id));
         fixes
             .override_roads
-            .retain(|r| !seen_roads.contains(&r.orig_id));
+            .retain(|(id, _)| !seen_roads.contains(id));
 
         fixes
     }
@@ -556,17 +469,11 @@ impl RawMap {
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct RawRoad {
-    // The first and last point may not match up with i1 and i2.
-    pub i1: StableIntersectionID,
-    pub i2: StableIntersectionID,
     // This is effectively a PolyLine, except there's a case where we need to plumb forward
     // cul-de-sac roads for roundabout handling.
     pub center_points: Vec<Pt2D>,
-    // TODO There's redundancy between this and i1/i2 that has to be kept in sync. But removing
-    // orig_id means we don't have osm_node_id embedded in MapFixes.
-    pub orig_id: OriginalRoad,
     pub osm_tags: BTreeMap<String, String>,
-    pub turn_restrictions: Vec<(RestrictionType, StableRoadID)>,
+    pub turn_restrictions: Vec<(RestrictionType, OriginalRoad)>,
 }
 
 impl RawRoad {
@@ -587,7 +494,6 @@ pub struct RawIntersection {
     pub point: Pt2D,
     pub intersection_type: IntersectionType,
     pub label: Option<String>,
-    pub orig_id: OriginalIntersection,
     pub synthetic: bool,
 }
 
@@ -595,7 +501,6 @@ pub struct RawIntersection {
 pub struct RawBuilding {
     pub polygon: Polygon,
     pub osm_tags: BTreeMap<String, String>,
-    pub osm_way_id: i64,
     pub parking: Option<OffstreetParking>,
 }
 
@@ -631,29 +536,6 @@ impl RestrictionType {
     }
 }
 
-// A way to refer to roads across many maps.
-//
-// Previously, OriginalRoad and OriginalIntersection used LonLat to reference objects across maps.
-// This had some problems:
-// - f64's need to be trimmed and compared carefully with epsilon checks.
-// - It was confusing to modify these IDs when applying MapFixes.
-// Using OSM IDs could also have problems as new OSM input is used over time, because MapFixes may
-// refer to stale IDs.
-// TODO Look at some stable ID standard like linear referencing
-// (https://github.com/opentraffic/architecture/issues/1).
-#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-pub struct OriginalRoad {
-    pub osm_way_id: i64,
-    pub node1: i64,
-    pub node2: i64,
-}
-
-// A way to refer to intersections across many maps.
-#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-pub struct OriginalIntersection {
-    pub osm_node_id: i64,
-}
-
 // Directives from the map_editor crate to apply to the RawMap layer.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct MapFixes {
@@ -663,8 +545,8 @@ pub struct MapFixes {
     pub delete_roads: Vec<OriginalRoad>,
     pub delete_intersections: Vec<OriginalIntersection>,
     // Create or modify
-    pub override_intersections: Vec<RawIntersection>,
-    pub override_roads: Vec<RawRoad>,
+    pub override_intersections: Vec<(OriginalIntersection, RawIntersection)>,
+    pub override_roads: Vec<(OriginalRoad, RawRoad)>,
 }
 
 impl MapFixes {
@@ -702,14 +584,14 @@ impl MapFixes {
 
     fn all_touched_ids(&self) -> (BTreeSet<OriginalRoad>, BTreeSet<OriginalIntersection>) {
         let mut roads: BTreeSet<OriginalRoad> = self.delete_roads.iter().cloned().collect();
-        for r in &self.override_roads {
-            roads.insert(r.orig_id);
+        for (id, _) in &self.override_roads {
+            roads.insert(*id);
         }
 
         let mut intersections: BTreeSet<OriginalIntersection> =
             self.delete_intersections.iter().cloned().collect();
-        for i in &self.override_intersections {
-            intersections.insert(i.orig_id);
+        for (id, _) in &self.override_intersections {
+            intersections.insert(*id);
         }
 
         (roads, intersections)

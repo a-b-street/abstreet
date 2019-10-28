@@ -8,7 +8,7 @@ use ezgui::{
     ModalMenu, Text, Wizard, GUI,
 };
 use geom::{Distance, Line, Polygon, Pt2D};
-use map_model::raw::{RestrictionType, StableBuildingID, StableIntersectionID, StableRoadID};
+use map_model::raw::{OriginalBuilding, OriginalIntersection, OriginalRoad, RestrictionType};
 use map_model::{osm, LANE_THICKNESS};
 use model::{Model, ID};
 use std::collections::HashSet;
@@ -23,21 +23,21 @@ struct UI {
 }
 
 enum State {
-    Viewing { short_roads: HashSet<StableRoadID> },
-    MovingIntersection(StableIntersectionID),
-    MovingBuilding(StableBuildingID),
-    MovingRoadPoint(StableRoadID, usize),
-    LabelingBuilding(StableBuildingID, Wizard),
-    LabelingRoad(StableRoadID, Wizard),
-    LabelingIntersection(StableIntersectionID, Wizard),
-    CreatingRoad(StableIntersectionID),
-    EditingLanes(StableRoadID, Wizard),
-    EditingRoadAttribs(StableRoadID, Wizard),
+    Viewing { short_roads: HashSet<OriginalRoad> },
+    MovingIntersection(OriginalIntersection),
+    MovingBuilding(OriginalBuilding),
+    MovingRoadPoint(OriginalRoad, usize),
+    LabelingBuilding(OriginalBuilding, Wizard),
+    LabelingRoad(OriginalRoad, Wizard),
+    LabelingIntersection(OriginalIntersection, Wizard),
+    CreatingRoad(OriginalIntersection),
+    EditingLanes(OriginalRoad, Wizard),
+    EditingRoadAttribs(OriginalRoad, Wizard),
     SavingModel(Wizard),
     // bool is if key is down
     SelectingRectangle(Pt2D, Pt2D, bool),
-    CreatingTurnRestrictionPt1(StableRoadID),
-    CreatingTurnRestrictionPt2(StableRoadID, StableRoadID, Wizard),
+    CreatingTurnRestrictionPt1(OriginalRoad),
+    CreatingTurnRestrictionPt2(OriginalRoad, OriginalRoad, Wizard),
     // bool is show_tooltip
     PreviewIntersection(Drawable, Vec<(Text, Pt2D)>, bool),
     EnteringWarp(Wizard),
@@ -537,15 +537,11 @@ impl GUI for UI {
             State::EnteringWarp(ref mut wizard) => {
                 if let Some(line) = wizard.wrap(ctx).input_string("Warp to what?") {
                     let mut ok = false;
-                    if let Ok(num) = usize::from_str_radix(&line[1..line.len()], 10) {
+                    if let Ok(num) = i64::from_str_radix(&line[1..line.len()], 10) {
                         if &line[0..=0] == "i" {
-                            let id = StableIntersectionID(num);
+                            let id = OriginalIntersection { osm_node_id: num };
                             ctx.canvas
                                 .center_on_map_pt(self.model.map.intersections[&id].point);
-                            ok = true;
-                        } else if &line[0..=0] == "r" {
-                            let id = StableRoadID(num);
-                            ctx.canvas.center_on_map_pt(self.model.get_r_center(id));
                             ok = true;
                         }
                     }
@@ -705,7 +701,7 @@ impl GUI for UI {
 }
 
 fn preview_intersection(
-    i: StableIntersectionID,
+    i: OriginalIntersection,
     model: &Model,
     ctx: &EventCtx,
 ) -> (Drawable, Vec<(Text, Pt2D)>) {
@@ -775,8 +771,8 @@ fn find_overlapping_intersections(model: &Model, ctx: &EventCtx) -> (Drawable, V
     (ctx.prerender.upload(batch), Vec::new())
 }
 
-// TODO StableRoadID is dangerous, as this map changes. :\
-fn find_short_roads(model: &Model) -> HashSet<StableRoadID> {
+// TODO OriginalRoad is dangerous, as this map changes. :\
+fn find_short_roads(model: &Model) -> HashSet<OriginalRoad> {
     // Assume the full map has been built. We really care about short lanes there.
     let map: map_model::Map = abstutil::read_binary(
         &abstutil::path_map(&model.map.name),
@@ -785,10 +781,10 @@ fn find_short_roads(model: &Model) -> HashSet<StableRoadID> {
     .unwrap();
     // Buses are 12.5
     let threshold = Distance::meters(13.0);
-    let mut roads: HashSet<StableRoadID> = HashSet::new();
+    let mut roads: HashSet<OriginalRoad> = HashSet::new();
     for l in map.all_lanes() {
         if l.length() < threshold {
-            roads.insert(map.get_r(l.parent).stable_id);
+            roads.insert(map.get_r(l.parent).orig_id);
         }
     }
     println!("{} short roads", roads.len());

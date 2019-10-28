@@ -1,5 +1,5 @@
 use crate::make::sidewalk_finder::find_sidewalk_points;
-use crate::raw::{RawBuilding, StableBuildingID};
+use crate::raw::{OriginalBuilding, RawBuilding};
 use crate::{osm, Building, BuildingID, FrontPath, Lane, LaneID, Position, Road};
 use abstutil::Timer;
 use geom::{Bounds, Distance, FindClosest, HashablePt2D, Line, Polygon};
@@ -7,14 +7,14 @@ use std::collections::{BTreeMap, HashSet};
 
 pub fn make_all_buildings(
     results: &mut Vec<Building>,
-    input: &BTreeMap<StableBuildingID, RawBuilding>,
+    input: &BTreeMap<OriginalBuilding, RawBuilding>,
     bounds: &Bounds,
     lanes: &Vec<Lane>,
     roads: &Vec<Road>,
     timer: &mut Timer,
 ) {
     timer.start("convert buildings");
-    let mut center_per_bldg: BTreeMap<StableBuildingID, HashablePt2D> = BTreeMap::new();
+    let mut center_per_bldg: BTreeMap<OriginalBuilding, HashablePt2D> = BTreeMap::new();
     let mut query: HashSet<HashablePt2D> = HashSet::new();
     timer.start_iter("get building center points", input.len());
     for (id, b) in input {
@@ -46,7 +46,7 @@ pub fn make_all_buildings(
     let sidewalk_pts = find_sidewalk_points(bounds, query, lanes, Distance::meters(100.0), timer);
 
     timer.start_iter("create building front paths", center_per_bldg.len());
-    for (stable_id, bldg_center) in center_per_bldg {
+    for (orig_id, bldg_center) in center_per_bldg {
         timer.next();
         if let Some(sidewalk_pos) = sidewalk_pts.get(&bldg_center) {
             let sidewalk_pt = lanes[sidewalk_pos.lane().0]
@@ -56,7 +56,7 @@ pub fn make_all_buildings(
                 timer.warn("Skipping a building because front path has 0 length".to_string());
                 continue;
             }
-            let b = &input[&stable_id];
+            let b = &input[&orig_id];
             let line = trim_path(&b.polygon, Line::new(bldg_center.to_pt2d(), sidewalk_pt));
 
             let id = BuildingID(results.len());
@@ -64,7 +64,7 @@ pub fn make_all_buildings(
                 id,
                 polygon: b.polygon.clone(),
                 osm_tags: b.osm_tags.clone(),
-                osm_way_id: b.osm_way_id,
+                osm_way_id: orig_id.osm_way_id,
                 front_path: FrontPath {
                     sidewalk: *sidewalk_pos,
                     line,

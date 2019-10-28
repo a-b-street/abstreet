@@ -1,24 +1,24 @@
-use crate::raw::{RawMap, StableIntersectionID, StableRoadID};
+use crate::raw::{OriginalIntersection, OriginalRoad, RawMap};
 use abstutil::{retain_btreemap, MultiMap, Timer};
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 
 pub fn remove_disconnected_roads(map: &mut RawMap, timer: &mut Timer) {
     timer.start("removing disconnected roads");
     // This is a simple floodfill, not Tarjan's. Assumes all roads bidirectional.
     // All the usizes are indices into the original list of roads
 
-    let mut next_roads: MultiMap<StableIntersectionID, StableRoadID> = MultiMap::new();
-    for (id, r) in &map.roads {
-        next_roads.insert(r.i1, *id);
-        next_roads.insert(r.i2, *id);
+    let mut next_roads: MultiMap<OriginalIntersection, OriginalRoad> = MultiMap::new();
+    for id in map.roads.keys() {
+        next_roads.insert(id.i1, *id);
+        next_roads.insert(id.i2, *id);
     }
 
-    let mut partitions: Vec<Vec<StableRoadID>> = Vec::new();
-    let mut unvisited_roads: HashSet<StableRoadID> = map.roads.keys().cloned().collect();
+    let mut partitions: Vec<Vec<OriginalRoad>> = Vec::new();
+    let mut unvisited_roads: BTreeSet<OriginalRoad> = map.roads.keys().cloned().collect();
 
     while !unvisited_roads.is_empty() {
-        let mut queue_roads: Vec<StableRoadID> = vec![*unvisited_roads.iter().next().unwrap()];
-        let mut current_partition: Vec<StableRoadID> = Vec::new();
+        let mut queue_roads: Vec<OriginalRoad> = vec![*unvisited_roads.iter().next().unwrap()];
+        let mut current_partition: Vec<OriginalRoad> = Vec::new();
         while !queue_roads.is_empty() {
             let current = queue_roads.pop().unwrap();
             if !unvisited_roads.contains(&current) {
@@ -27,11 +27,10 @@ pub fn remove_disconnected_roads(map: &mut RawMap, timer: &mut Timer) {
             unvisited_roads.remove(&current);
             current_partition.push(current);
 
-            let current_r = &map.roads[&current];
-            for other_r in next_roads.get(current_r.i1).iter() {
+            for other_r in next_roads.get(current.i1).iter() {
                 queue_roads.push(*other_r);
             }
-            for other_r in next_roads.get(current_r.i2).iter() {
+            for other_r in next_roads.get(current.i2).iter() {
                 queue_roads.push(*other_r);
             }
         }
@@ -44,15 +43,15 @@ pub fn remove_disconnected_roads(map: &mut RawMap, timer: &mut Timer) {
     for p in partitions.iter().skip(1) {
         println!("Removing disconnected partition with {} roads", p.len());
         for id in p {
-            let r = map.roads.remove(id).unwrap();
-            next_roads.remove(r.i1, *id);
-            next_roads.remove(r.i2, *id);
+            map.roads.remove(id).unwrap();
+            next_roads.remove(id.i1, *id);
+            next_roads.remove(id.i2, *id);
         }
     }
 
     // Also remove cul-de-sacs here. TODO Support them properly, but for now, they mess up parking
     // hint matching (loop PolyLine) and pathfinding later.
-    retain_btreemap(&mut map.roads, |_, r| r.i1 != r.i2);
+    retain_btreemap(&mut map.roads, |id, _| id.i1 != id.i2);
 
     // Remove intersections without any roads
     retain_btreemap(&mut map.intersections, |id, _| {

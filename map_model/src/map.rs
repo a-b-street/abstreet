@@ -1,5 +1,5 @@
 use crate::pathfind::Pathfinder;
-use crate::raw::{MapFixes, RawMap, StableIntersectionID, StableRoadID};
+use crate::raw::{MapFixes, OriginalIntersection, OriginalRoad, RawMap};
 use crate::{
     make, osm, Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop, BusStopID,
     ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, IntersectionType, Lane,
@@ -951,13 +951,13 @@ fn make_half_map(
         edits: MapEdits::new(raw.name.clone()),
     };
 
-    let road_id_mapping: BTreeMap<StableRoadID, RoadID> = initial_map
+    let road_id_mapping: BTreeMap<OriginalRoad, RoadID> = initial_map
         .roads
         .keys()
         .enumerate()
         .map(|(idx, id)| (*id, RoadID(idx)))
         .collect();
-    let mut intersection_id_mapping: BTreeMap<StableIntersectionID, IntersectionID> =
+    let mut intersection_id_mapping: BTreeMap<OriginalIntersection, IntersectionID> =
         BTreeMap::new();
     for (idx, i) in initial_map.intersections.values().enumerate() {
         let raw_i = &raw.intersections[&i.id];
@@ -972,7 +972,7 @@ fn make_half_map(
             // Might change later
             intersection_type: i.intersection_type,
             label: raw_i.label.clone(),
-            stable_id: i.id,
+            orig_id: i.id,
             incoming_lanes: Vec::new(),
             outgoing_lanes: Vec::new(),
             roads: i.roads.iter().map(|id| road_id_mapping[id]).collect(),
@@ -996,8 +996,7 @@ fn make_half_map(
                 .iter()
                 .map(|(rt, to)| (*rt, road_id_mapping[to]))
                 .collect(),
-            osm_way_id: raw.roads[&r.id].orig_id.osm_way_id,
-            stable_id: r.id,
+            orig_id: r.id,
             children_forwards: Vec::new(),
             children_backwards: Vec::new(),
             orig_children_forwards: Vec::new(),

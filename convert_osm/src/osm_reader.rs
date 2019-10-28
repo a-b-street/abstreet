@@ -1,8 +1,8 @@
 use abstutil::{FileWithProgress, Timer};
 use geom::{GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D, Ring};
 use map_model::raw::{
-    OriginalRoad, RawArea, RawBuilding, RawMap, RawRoad, RestrictionType, StableBuildingID,
-    StableIntersectionID,
+    OriginalRoad, RawArea, RawBuilding, RawMap, RawRoad, RestrictionType, OriginalBuilding,
+    OriginalIntersection,
 };
 use map_model::{osm, AreaType};
 use osm_xml;
@@ -123,8 +123,8 @@ pub fn extract_osm(
                 center_points: pts,
                 osm_tags: tags,
                 // We'll fill this out later
-                i1: StableIntersectionID(0),
-                i2: StableIntersectionID(0),
+                i1: OriginalIntersection(0),
+                i2: OriginalIntersection(0),
                 turn_restrictions: Vec::new(),
             });
         } else if is_bldg(&tags) {
@@ -133,7 +133,7 @@ pub fn extract_osm(
             if deduped.len() < 3 {
                 continue;
             }
-            let id = StableBuildingID(map.buildings.len());
+            let id = OriginalBuilding(map.buildings.len());
             map.buildings.insert(
                 id,
                 RawBuilding {

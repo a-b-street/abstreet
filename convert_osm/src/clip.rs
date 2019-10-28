@@ -1,6 +1,6 @@
 use abstutil::{retain_btreemap, Timer};
 use geom::PolyLine;
-use map_model::raw::{RawMap, StableIntersectionID, StableRoadID};
+use map_model::raw::{RawMap, OriginalIntersection, OriginalRoad};
 use map_model::IntersectionType;
 
 pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
@@ -23,7 +23,7 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
         first_in || last_in
     });
 
-    let road_ids: Vec<StableRoadID> = map.roads.keys().cloned().collect();
+    let road_ids: Vec<OriginalRoad> = map.roads.keys().cloned().collect();
     for id in road_ids {
         let r = &map.roads[&id];
         let first_in = map.boundary_polygon.contains_pt(r.center_points[0]);
@@ -54,7 +54,7 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
             copy.orig_id.osm_node_id = map.new_osm_node_id(-1);
 
             // Nothing deletes intersections yet, so this is safe.
-            move_i = StableIntersectionID(map.intersections.len());
+            move_i = OriginalIntersection(map.intersections.len());
             map.intersections.insert(move_i, copy);
             println!("Disconnecting {} from some other stuff", id);
             // We don't need to mark the existing intersection as a border and make sure to split

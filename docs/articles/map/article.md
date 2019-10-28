@@ -365,9 +365,6 @@ drawing layer, which uploads new geometry to the GPU accordingly.
     polygons of maps, like for MapFixes. Using (longitude, latitude) pairs hits
     floating-point serialization and comparison issues, so referring to roads as
     (OSM way ID, OSM node ID 1, OSM node ID 2) works instead.
-  - InitialMap has roads and intersections being deleted and merged. Compacting
-    IDs is tedious, so instead just store the temporary road objects in a map,
-    not array.
 
 ## Appendix: PolyLines
 

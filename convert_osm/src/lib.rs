@@ -6,7 +6,7 @@ mod split_ways;
 use abstutil::Timer;
 use geom::{Distance, FindClosest, Line, PolyLine, Pt2D};
 use kml::ExtraShapes;
-use map_model::raw::{RawMap, StableBuildingID, StableRoadID};
+use map_model::raw::{RawMap, OriginalBuilding, OriginalRoad};
 use map_model::{osm, LaneID, OffstreetParking, Position, LANE_THICKNESS};
 use std::collections::BTreeMap;
 
@@ -92,7 +92,7 @@ fn use_parking_hints(map: &mut RawMap, path: &str, timer: &mut Timer) {
     let shapes: ExtraShapes = abstutil::read_binary(path, timer).expect("loading blockface failed");
 
     // Match shapes with the nearest road + direction (true for forwards)
-    let mut closest: FindClosest<(StableRoadID, bool)> =
+    let mut closest: FindClosest<(OriginalRoad, bool)> =
         FindClosest::new(&map.gps_bounds.to_bounds());
     for (id, r) in &map.roads {
         let center = PolyLine::new(r.center_points.clone());
@@ -179,7 +179,7 @@ fn use_offstreet_parking(map: &mut RawMap, path: &str, timer: &mut Timer) {
     timer.start("match offstreet parking points");
     let shapes = kml::load(path, &map.gps_bounds, timer).expect("loading offstreet_parking failed");
 
-    let mut closest: FindClosest<StableBuildingID> = FindClosest::new(&map.gps_bounds.to_bounds());
+    let mut closest: FindClosest<OriginalBuilding> = FindClosest::new(&map.gps_bounds.to_bounds());
     for (id, b) in &map.buildings {
         closest.add(*id, b.polygon.points());
     }
@@ -228,7 +228,7 @@ fn use_sidewalk_hints(map: &mut RawMap, path: &str, timer: &mut Timer) {
     let shapes: ExtraShapes = abstutil::read_binary(path, timer).unwrap();
 
     // Match shapes with the nearest road + direction (true for forwards)
-    let mut closest: FindClosest<(StableRoadID, bool)> =
+    let mut closest: FindClosest<(OriginalRoad, bool)> =
         FindClosest::new(&map.gps_bounds.to_bounds());
     for (id, r) in &map.roads {
         let center = PolyLine::new(r.center_points.clone());

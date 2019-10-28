@@ -1,8 +1,8 @@
 use crate::make::initial::{Intersection, Road};
-use crate::raw::{StableIntersectionID, StableRoadID};
+use crate::raw::{OriginalIntersection, OriginalRoad};
 use abstutil::{wraparound_get, Timer};
 use geom::{Distance, Line, PolyLine, Polygon, Pt2D};
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 
 const DEGENERATE_INTERSECTION_HALF_LENGTH: Distance = Distance::const_meters(2.5);
 
@@ -11,7 +11,7 @@ const DEGENERATE_INTERSECTION_HALF_LENGTH: Distance = Distance::const_meters(2.5
 // Also returns a list of labeled polygons for debugging.
 pub fn intersection_polygon(
     i: &Intersection,
-    roads: &mut BTreeMap<StableRoadID, Road>,
+    roads: &mut BTreeMap<OriginalRoad, Road>,
     timer: &mut Timer,
 ) -> (Vec<Pt2D>, Vec<(String, Polygon)>) {
     if i.roads.is_empty() {
@@ -24,7 +24,7 @@ pub fn intersection_polygon(
     // at the intersection (which may be different points for merged intersections!), and the last
     // segment of the center line.
     // TODO Maybe express the two incoming PolyLines as the "right" and "left"
-    let mut lines: Vec<(StableRoadID, Line, PolyLine, PolyLine)> = i
+    let mut lines: Vec<(OriginalRoad, Line, PolyLine, PolyLine)> = i
         .roads
         .iter()
         .map(|id| {
@@ -70,21 +70,21 @@ pub fn intersection_polygon(
 }
 
 fn generalized_trim_back(
-    roads: &mut BTreeMap<StableRoadID, Road>,
-    i: StableIntersectionID,
-    lines: &Vec<(StableRoadID, Line, PolyLine, PolyLine)>,
+    roads: &mut BTreeMap<OriginalRoad, Road>,
+    i: OriginalIntersection,
+    lines: &Vec<(OriginalRoad, Line, PolyLine, PolyLine)>,
     timer: &mut Timer,
 ) -> (Vec<Pt2D>, Vec<(String, Polygon)>) {
     let debug = Vec::new();
 
-    let mut road_lines: Vec<(StableRoadID, PolyLine, PolyLine)> = Vec::new();
+    let mut road_lines: Vec<(OriginalRoad, PolyLine, PolyLine)> = Vec::new();
     for (r, _, pl1, pl2) in lines {
         // TODO Argh, just use original lines.
         road_lines.push((*r, pl1.clone(), pl2.clone()));
         road_lines.push((*r, pl2.clone(), pl1.clone()));
     }
 
-    let mut new_road_centers: HashMap<StableRoadID, PolyLine> = HashMap::new();
+    let mut new_road_centers: BTreeMap<OriginalRoad, PolyLine> = BTreeMap::new();
 
     // Intersect every road's boundary lines with all the other lines. Only side effect here is to
     // populate new_road_centers.
@@ -292,7 +292,7 @@ fn generalized_trim_back(
             timer.warn(format!("Excluding collision between original polylines of {} and something, because stuff's too short", id));
         }
 
-        /*if *id == StableRoadID(384) {
+        /*if *id == OriginalRoad(384) {
             let thin = Distance::meters(1.0);
             debug.push((format!("back of {}", id), back_pl.make_polygons(thin)));
             debug.push((
@@ -333,9 +333,9 @@ fn generalized_trim_back(
 }
 
 fn deadend(
-    roads: &mut BTreeMap<StableRoadID, Road>,
-    i: StableIntersectionID,
-    lines: &Vec<(StableRoadID, Line, PolyLine, PolyLine)>,
+    roads: &mut BTreeMap<OriginalRoad, Road>,
+    i: OriginalIntersection,
+    lines: &Vec<(OriginalRoad, Line, PolyLine, PolyLine)>,
     timer: &mut Timer,
 ) -> (Vec<Pt2D>, Vec<(String, Polygon)>) {
     let len = DEGENERATE_INTERSECTION_HALF_LENGTH * 4.0;

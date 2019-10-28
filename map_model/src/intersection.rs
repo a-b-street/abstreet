@@ -1,4 +1,4 @@
-use crate::raw::StableIntersectionID;
+use crate::raw::OriginalIntersection;
 use crate::{LaneID, LaneType, Map, Road, RoadID, TurnID};
 use abstutil;
 use geom::Polygon;
@@ -32,7 +32,7 @@ pub struct Intersection {
 
     pub intersection_type: IntersectionType,
     pub label: Option<String>,
-    pub stable_id: StableIntersectionID,
+    pub orig_id: OriginalIntersection,
 
     // Note that a lane may belong to both incoming_lanes and outgoing_lanes.
     // TODO narrow down when and why. is it just sidewalks in weird cases?

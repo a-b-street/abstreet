@@ -1,4 +1,4 @@
-use crate::raw::{RestrictionType, StableRoadID};
+use crate::raw::{OriginalRoad, RestrictionType};
 use crate::{osm, BusStopID, IntersectionID, LaneID, LaneType, Map, LANE_THICKNESS};
 use abstutil::{Error, Warn};
 use geom::{Distance, PolyLine, Polygon, Speed};
@@ -63,8 +63,7 @@ pub struct Road {
     pub osm_tags: BTreeMap<String, String>,
     // self is 'from'
     pub turn_restrictions: Vec<(RestrictionType, RoadID)>,
-    pub osm_way_id: i64,
-    pub stable_id: StableRoadID,
+    pub orig_id: OriginalRoad,
 
     // Invariant: A road must contain at least one child
     // These are ordered from left-most lane (closest to center lane) to rightmost (sidewalk)
