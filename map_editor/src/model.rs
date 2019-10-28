@@ -578,7 +578,9 @@ impl Model {
     pub fn delete_r(&mut self, id: OriginalRoad) {
         self.stop_showing_pts(id);
         self.road_deleted(id);
-        self.map.delete_road(id);
+        for (src, rt, to) in self.map.delete_road(id) {
+            self.world.delete(ID::TurnRestriction(src, rt, to));
+        }
     }
 
     fn road_objects(&self, id: OriginalRoad) -> Vec<Object<ID>> {

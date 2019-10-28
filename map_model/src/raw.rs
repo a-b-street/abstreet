@@ -251,25 +251,30 @@ impl RawMap {
 
 // Mutations and supporting queries
 impl RawMap {
-    pub fn delete_road(&mut self, r: OriginalRoad) {
+    // Return a list of turn restrictions deleted along the way, aside from those originating from
+    // r.
+    pub fn delete_road(
+        &mut self,
+        r: OriginalRoad,
+    ) -> Vec<(OriginalRoad, RestrictionType, OriginalRoad)> {
         // First delete and warn about turn restrictions
         if !self.roads[&r].turn_restrictions.is_empty() {
             println!("Deleting {}, but note it has turn restrictions from it", r);
         }
         // Brute force search the other direction
-        let mut cleanup_other_roads = Vec::new();
+        let mut deleted_restrictions = Vec::new();
         for (src, road) in &self.roads {
-            for (_, to) in &road.turn_restrictions {
+            for (rt, to) in &road.turn_restrictions {
                 if r == *to {
                     println!(
                         "Deleting turn restriction from other road {} to {}",
                         src, to
                     );
-                    cleanup_other_roads.push(*src);
+                    deleted_restrictions.push((*src, *rt, *to));
                 }
             }
         }
-        for src in cleanup_other_roads {
+        for (src, _, _) in &deleted_restrictions {
             self.roads
                 .get_mut(&src)
                 .unwrap()
@@ -278,6 +283,7 @@ impl RawMap {
         }
 
         self.roads.remove(&r).unwrap();
+        deleted_restrictions
     }
 
     pub fn can_delete_intersection(&self, i: OriginalIntersection) -> bool {
