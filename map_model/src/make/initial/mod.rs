@@ -43,7 +43,7 @@ impl Road {
 
         let center_pts = PolyLine::new(r.center_points.clone());
         Road {
-            id: id,
+            id,
             src_i: id.i1,
             dst_i: id.i2,
             original_center_pts: center_pts.clone(),

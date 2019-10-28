@@ -359,8 +359,8 @@ drawing layer, which uploads new geometry to the GPU accordingly.
     to each section of the map, render it, call an external screenshot utility,
     and move on -- just don't wiggle the mouse during this process!
 - Different IDs for objects make sense during different phases
-  - For the final product, lanes and such are just a contiguous array, indxed by
-    numeric IDs.
+  - For the final product, lanes and such are just a contiguous array, indexed
+    by numeric IDs.
   - But sometimes, we need IDs that're the same between different boundary
     polygons of maps, like for MapFixes. Using (longitude, latitude) pairs hits
     floating-point serialization and comparison issues, so referring to roads as

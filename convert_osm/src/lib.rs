@@ -6,9 +6,8 @@ mod split_ways;
 use abstutil::Timer;
 use geom::{Distance, FindClosest, Line, PolyLine, Pt2D};
 use kml::ExtraShapes;
-use map_model::raw::{RawMap, OriginalBuilding, OriginalRoad};
+use map_model::raw::{OriginalBuilding, OriginalRoad, RawMap};
 use map_model::{osm, LaneID, OffstreetParking, Position, LANE_THICKNESS};
-use std::collections::BTreeMap;
 
 pub struct Flags {
     pub osm: String,
@@ -29,9 +28,7 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> RawMap {
     clip::clip_map(&mut map, timer);
 
     // Need to do a first pass of removing cul-de-sacs here, or we wind up with loop PolyLines when doing the parking hint matching.
-    abstutil::retain_btreemap(&mut map.roads, |_, r| r.i1 != r.i2);
-
-    check_orig_ids(&map);
+    abstutil::retain_btreemap(&mut map.roads, |r, _| r.i1 != r.i2);
 
     if let Some(ref path) = flags.parking_shapes {
         use_parking_hints(&mut map, path, timer);
@@ -55,36 +52,6 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> RawMap {
     }
 
     map
-}
-
-fn check_orig_ids(map: &RawMap) {
-    {
-        let mut ids = BTreeMap::new();
-        for (id, r) in &map.roads {
-            if let Some(id2) = ids.get(&r.orig_id) {
-                panic!(
-                    "Both {} and {} have the same orig_id: {:?}. {:?} vs {:?}",
-                    id, id2, r.orig_id, map.roads[id], map.roads[id2]
-                );
-            } else {
-                ids.insert(r.orig_id, *id);
-            }
-        }
-    }
-
-    {
-        let mut ids = BTreeMap::new();
-        for (id, i) in &map.intersections {
-            if let Some(id2) = ids.get(&i.orig_id) {
-                panic!(
-                    "Both {} and {} have the same orig_id: {:?}. {:?} vs {:?}",
-                    id, id2, i.orig_id, map.intersections[id], map.intersections[id2]
-                );
-            } else {
-                ids.insert(i.orig_id, *id);
-            }
-        }
-    }
 }
 
 fn use_parking_hints(map: &mut RawMap, path: &str, timer: &mut Timer) {

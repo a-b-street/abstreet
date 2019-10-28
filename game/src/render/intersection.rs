@@ -65,16 +65,16 @@ impl DrawIntersection {
                     println!(
                         "Border {} ({}) has {} roads!",
                         i.id,
-                        i.stable_id,
+                        i.orig_id,
                         i.roads.len()
                     );
                     for r in &i.roads {
-                        println!("- {} ({})", r, map.get_r(*r).stable_id);
+                        println!("- {} ({})", r, map.get_r(*r).orig_id);
                     }
                     panic!(
                         "Border {} ({}) has {} roads!",
                         i.id,
-                        i.stable_id,
+                        i.orig_id,
                         i.roads.len()
                     );
                 }

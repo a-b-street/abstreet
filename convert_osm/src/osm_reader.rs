@@ -1,9 +1,6 @@
 use abstutil::{FileWithProgress, Timer};
 use geom::{GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D, Ring};
-use map_model::raw::{
-    OriginalRoad, RawArea, RawBuilding, RawMap, RawRoad, RestrictionType, OriginalBuilding,
-    OriginalIntersection,
-};
+use map_model::raw::{OriginalBuilding, RawArea, RawBuilding, RawMap, RawRoad, RestrictionType};
 use map_model::{osm, AreaType};
 use osm_xml;
 use std::collections::{BTreeMap, HashMap, HashSet};
@@ -17,7 +14,7 @@ pub fn extract_osm(
 ) -> (
     RawMap,
     // Un-split roads
-    Vec<RawRoad>,
+    Vec<(i64, RawRoad)>,
     // Traffic signals
     HashSet<HashablePt2D>,
     // OSM Node IDs
@@ -47,7 +44,7 @@ pub fn extract_osm(
     };
 
     let mut id_to_way: HashMap<i64, Vec<Pt2D>> = HashMap::new();
-    let mut roads: Vec<RawRoad> = Vec::new();
+    let mut roads: Vec<(i64, RawRoad)> = Vec::new();
     let mut traffic_signals: HashSet<HashablePt2D> = HashSet::new();
     let mut osm_node_ids = HashMap::new();
 
@@ -114,30 +111,23 @@ pub fn extract_osm(
                 tags.insert(osm::INFERRED_SIDEWALKS.to_string(), "true".to_string());
             }
 
-            roads.push(RawRoad {
-                orig_id: OriginalRoad {
-                    osm_way_id: way.id,
-                    node1: osm_node_ids[&pts[0].to_hashable()],
-                    node2: osm_node_ids[&pts.last().unwrap().to_hashable()],
+            roads.push((
+                way.id,
+                RawRoad {
+                    center_points: pts,
+                    osm_tags: tags,
+                    turn_restrictions: Vec::new(),
                 },
-                center_points: pts,
-                osm_tags: tags,
-                // We'll fill this out later
-                i1: OriginalIntersection(0),
-                i2: OriginalIntersection(0),
-                turn_restrictions: Vec::new(),
-            });
+            ));
         } else if is_bldg(&tags) {
             let mut deduped = pts.clone();
             deduped.dedup();
             if deduped.len() < 3 {
                 continue;
             }
-            let id = OriginalBuilding(map.buildings.len());
             map.buildings.insert(
-                id,
+                OriginalBuilding { osm_way_id: way.id },
                 RawBuilding {
-                    osm_way_id: way.id,
                     polygon: Polygon::new(&deduped),
                     osm_tags: tags,
                     parking: None,

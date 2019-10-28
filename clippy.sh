@@ -24,5 +24,6 @@ cargo clippy -- \
 	-A clippy::suspicious_arithmetic_impl \
 	-A clippy::too_many_arguments \
 	-A clippy::type_complexity \
+	-A clippy::unnecessary_unwrap \
 	-A clippy::while_let_loop \
 	-A clippy::wrong_self_convention

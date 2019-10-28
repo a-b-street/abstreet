@@ -3,7 +3,6 @@ use crate::helpers::ID;
 use crate::ui::{PerMapUI, UI};
 use ezgui::{EventCtx, EventLoopMode, GfxCtx, Warper, Wizard};
 use geom::Pt2D;
-use map_model::raw::{StableIntersectionID, StableRoadID};
 use map_model::{AreaID, BuildingID, IntersectionID, LaneID, RoadID};
 use sim::{PedestrianID, TripID};
 use std::usize;
@@ -101,24 +100,6 @@ fn warp_point(line: &str, primary: &PerMapUI) -> Option<(Option<ID>, Pt2D, f64)>
             'T' => {
                 let t = primary.map.lookup_turn_by_idx(idx)?;
                 ID::Turn(t)
-            }
-            'I' => {
-                let stable_id = StableIntersectionID(idx);
-                let i = primary
-                    .map
-                    .all_intersections()
-                    .iter()
-                    .find(|i| i.stable_id == stable_id)?;
-                ID::Intersection(i.id)
-            }
-            'R' => {
-                let stable_id = StableRoadID(idx);
-                let r = primary
-                    .map
-                    .all_roads()
-                    .iter()
-                    .find(|r| r.stable_id == stable_id)?;
-                ID::Lane(r.children_forwards[0].0)
             }
             _ => {
                 return None;

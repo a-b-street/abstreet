@@ -67,7 +67,7 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
                 Line("Parent "),
                 Line(r.id.to_string()).fg(id_color),
                 Line(" ("),
-                Line(r.stable_id.to_string()).fg(id_color),
+                Line(r.orig_id.to_string()).fg(id_color),
                 Line(" ) points to "),
                 Line(r.dst_i.to_string()).fg(id_color),
             ]);
@@ -107,7 +107,7 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
         }
         ID::Intersection(id) => {
             let i = map.get_i(id);
-            txt.add(Line(i.stable_id.to_string()).fg(id_color));
+            txt.add(Line(i.orig_id.to_string()).fg(id_color));
             txt.add(Line("Connecting"));
             for r in &i.roads {
                 let road = map.get_r(*r);
@@ -117,7 +117,7 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
                     Line(" ("),
                     Line(road.id.to_string()).fg(id_color),
                     Line(" = "),
-                    Line(road.stable_id.to_string()).fg(id_color),
+                    Line(road.orig_id.to_string()).fg(id_color),
                     Line(")"),
                 ]);
             }

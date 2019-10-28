@@ -16,8 +16,8 @@ pub fn run(t: &mut TestRunner) {
         let mut expectations: Vec<Event> = Vec::new();
         // TODO assert stuff about other buses as well, although the timing is a little unclear
         for stop in route.stops.iter().skip(1) {
-            expectations.push(Event::BusArrivedAtStop(bus, *stop));
-            expectations.push(Event::BusDepartedFromStop(bus, *stop));
+            expectations.push(Event::BusArrivedAtStop(bus, route.id, *stop));
+            expectations.push(Event::BusDepartedFromStop(bus, route.id, *stop));
         }
 
         sim.run_until_expectations_met(&map, expectations, Duration::minutes(10));
@@ -67,14 +67,14 @@ pub fn run(t: &mut TestRunner) {
             &map,
             vec![
                 Event::PedReachedBusStop(ped, ped_stop1),
-                Event::BusArrivedAtStop(bus, ped_stop1),
+                Event::BusArrivedAtStop(bus, route.id, ped_stop1),
                 Event::PedEntersBus(ped, bus),
-                Event::BusDepartedFromStop(bus, ped_stop1),
-                Event::BusArrivedAtStop(bus, ped_stop2),
+                Event::BusDepartedFromStop(bus, route.id, ped_stop1),
+                Event::BusArrivedAtStop(bus, route.id, ped_stop2),
                 Event::PedLeavesBus(ped, bus),
                 Event::PedReachedBuilding(ped, goal_bldg),
-                Event::BusDepartedFromStop(bus, ped_stop2),
-                Event::BusArrivedAtStop(bus, route.stops[3]),
+                Event::BusDepartedFromStop(bus, route.id, ped_stop2),
+                Event::BusArrivedAtStop(bus, route.id, route.stops[3]),
             ],
             Duration::minutes(9),
         );
