@@ -1,0 +1,380 @@
+{
+  "gps_bounds": {
+    "min_lon": -122.3218,
+    "min_lat": 47.6315,
+    "max_lon": -122.2985,
+    "max_lat": 47.6475
+  },
+  "delete_roads": [
+    {
+      "osm_way_id": 394991042,
+      "i1": {
+        "osm_node_id": 2499822233
+      },
+      "i2": {
+        "osm_node_id": 3978753092
+      }
+    },
+    {
+      "osm_way_id": 394991043,
+      "i1": {
+        "osm_node_id": 3978753110
+      },
+      "i2": {
+        "osm_node_id": 3978753097
+      }
+    },
+    {
+      "osm_way_id": 394991044,
+      "i1": {
+        "osm_node_id": 3978753107
+      },
+      "i2": {
+        "osm_node_id": 3978753110
+      }
+    },
+    {
+      "osm_way_id": 394991045,
+      "i1": {
+        "osm_node_id": 3978753087
+      },
+      "i2": {
+        "osm_node_id": 2499822233
+      }
+    },
+    {
+      "osm_way_id": 394991046,
+      "i1": {
+        "osm_node_id": 3978753099
+      },
+      "i2": {
+        "osm_node_id": 3978753097
+      }
+    },
+    {
+      "osm_way_id": 394991047,
+      "i1": {
+        "osm_node_id": 3978753087
+      },
+      "i2": {
+        "osm_node_id": 3978753092
+      }
+    },
+    {
+      "osm_way_id": 394991047,
+      "i1": {
+        "osm_node_id": 3978753092
+      },
+      "i2": {
+        "osm_node_id": 3978753095
+      }
+    },
+    {
+      "osm_way_id": 394991047,
+      "i1": {
+        "osm_node_id": 3978753095
+      },
+      "i2": {
+        "osm_node_id": 3978753096
+      }
+    },
+    {
+      "osm_way_id": 394991047,
+      "i1": {
+        "osm_node_id": 3978753096
+      },
+      "i2": {
+        "osm_node_id": 3978753105
+      }
+    },
+    {
+      "osm_way_id": 394991047,
+      "i1": {
+        "osm_node_id": 3978753097
+      },
+      "i2": {
+        "osm_node_id": 3978753087
+      }
+    },
+    {
+      "osm_way_id": 394991047,
+      "i1": {
+        "osm_node_id": 3978753105
+      },
+      "i2": {
+        "osm_node_id": 3978753107
+      }
+    },
+    {
+      "osm_way_id": 394991047,
+      "i1": {
+        "osm_node_id": 3978753107
+      },
+      "i2": {
+        "osm_node_id": 3978753097
+      }
+    },
+    {
+      "osm_way_id": 394991048,
+      "i1": {
+        "osm_node_id": 3978753110
+      },
+      "i2": {
+        "osm_node_id": 3978753099
+      }
+    }
+  ],
+  "delete_intersections": [
+    {
+      "osm_node_id": 3978753087
+    },
+    {
+      "osm_node_id": 3978753092
+    },
+    {
+      "osm_node_id": 3978753096
+    },
+    {
+      "osm_node_id": 3978753097
+    },
+    {
+      "osm_node_id": 3978753107
+    }
+  ],
+  "override_intersections": [
+    [
+      {
+        "osm_node_id": -1572298628
+      },
+      {
+        "point": {
+          "inner_x": 815.1344,
+          "inner_y": 893.2219
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": true
+      }
+    ],
+    [
+      {
+        "osm_node_id": 3978753095
+      },
+      {
+        "point": {
+          "inner_x": 860.3869,
+          "inner_y": 888.4078
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ]
+  ],
+  "override_roads": [
+    [
+      {
+        "osm_way_id": -1572298642,
+        "i1": {
+          "osm_node_id": -1572298628
+        },
+        "i2": {
+          "osm_node_id": 3978753095
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 815.1344,
+            "inner_y": 893.2219
+          },
+          {
+            "inner_x": 860.3869,
+            "inner_y": 888.4078
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572298642",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "ds/ds",
+          "highway": "primary",
+          "maxspeed": "25 mph",
+          "name": "Boyer/Lynn roundabout"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572298640,
+        "i1": {
+          "osm_node_id": -1572298628
+        },
+        "i2": {
+          "osm_node_id": 2499822233
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 815.1344,
+            "inner_y": 893.2219
+          },
+          {
+            "inner_x": 859.806,
+            "inner_y": 904.4373
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572298640",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "ds/ds",
+          "highway": "primary",
+          "maxspeed": "25 mph",
+          "name": "Boyer/Lynn roundabout"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572298638,
+        "i1": {
+          "osm_node_id": -1572298628
+        },
+        "i2": {
+          "osm_node_id": 3978753099
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 815.1344,
+            "inner_y": 893.2219
+          },
+          {
+            "inner_x": 786.3408,
+            "inner_y": 879.8966
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572298638",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "ds/ds",
+          "highway": "primary",
+          "maxspeed": "25 mph",
+          "name": "Boyer/Lynn roundabout"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572298635,
+        "i1": {
+          "osm_node_id": -1572298628
+        },
+        "i2": {
+          "osm_node_id": 3978753110
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 815.1344,
+            "inner_y": 893.2219
+          },
+          {
+            "inner_x": 798.6749,
+            "inner_y": 861.2825
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572298635",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "ds/ds",
+          "highway": "primary",
+          "maxspeed": "25 mph",
+          "name": "Boyer/Lynn roundabout"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572298632,
+        "i1": {
+          "osm_node_id": -1572298628
+        },
+        "i2": {
+          "osm_node_id": 3978753105
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 815.1344,
+            "inner_y": 893.2219
+          },
+          {
+            "inner_x": 829.4053,
+            "inner_y": 872.1018
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572298632",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "ds/ds",
+          "highway": "primary",
+          "maxspeed": "25 mph",
+          "name": "Boyer/Lynn roundabout"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 40790122,
+        "i1": {
+          "osm_node_id": 3978753095
+        },
+        "i2": {
+          "osm_node_id": 53084803
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 860.3869,
+            "inner_y": 888.4078
+          },
+          {
+            "inner_x": 959.8127,
+            "inner_y": 882.543
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:osm_way_id": "40790122",
+          "highway": "tertiary",
+          "lanes": "2",
+          "maxspeed": "30 mph",
+          "name": "East Lynn Street",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ]
+  ]
+}

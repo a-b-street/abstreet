@@ -370,20 +370,17 @@ impl Model {
         osm_tags.insert(osm::NAME.to_string(), "Streety McStreetFace".to_string());
         osm_tags.insert(osm::MAXSPEED.to_string(), "25 mph".to_string());
 
-        self.map
-            .roads
-            .insert(
-                id,
-                RawRoad {
-                    center_points: vec![
-                        self.map.intersections[&i1].point,
-                        self.map.intersections[&i2].point,
-                    ],
-                    osm_tags,
-                    turn_restrictions: Vec::new(),
-                },
-            )
-            .unwrap();
+        self.map.roads.insert(
+            id,
+            RawRoad {
+                center_points: vec![
+                    self.map.intersections[&i1].point,
+                    self.map.intersections[&i2].point,
+                ],
+                osm_tags,
+                turn_restrictions: Vec::new(),
+            },
+        );
         self.road_added(id, prerender);
     }
 
