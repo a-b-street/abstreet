@@ -303,6 +303,29 @@ impl RawMap {
             return Err(Error::new(format!("{} touches a border", id)));
         }
 
+        for r in self
+            .roads_per_intersection(id.i1)
+            .into_iter()
+            .chain(self.roads_per_intersection(id.i2))
+        {
+            if !self.roads[&r].turn_restrictions.is_empty() {
+                return Err(Error::new(format!(
+                    "First deal with turn restriction from {}",
+                    r
+                )));
+            }
+            for (src, road) in &self.roads {
+                for (_, to) in &road.turn_restrictions {
+                    if r == *to {
+                        return Err(Error::new(format!(
+                            "First deal with turn restriction from {} to {}",
+                            src, r
+                        )));
+                    }
+                }
+            }
+        }
+
         Ok(())
     }
 
@@ -320,7 +343,7 @@ impl RawMap {
         let (i1, i2) = (short.i1, short.i2);
         let i1_pt = self.intersections[&i1].point;
 
-        self.delete_road(short);
+        self.roads.remove(&short).unwrap();
 
         // Arbitrarily keep i1 and destroy i2. If the intersection types differ, upgrade the
         // surviving interesting.
@@ -335,7 +358,7 @@ impl RawMap {
 
         // Fix up all roads connected to i2. Delete them and create a new copy; the ID changes,
         // since one intersection changes.
-        let mut deleted = Vec::new();
+        let mut deleted = vec![short];
         let mut created = Vec::new();
         for r in self.roads_per_intersection(i2) {
             deleted.push(r);
@@ -392,6 +415,7 @@ impl RawMap {
         Some(fixed)
     }
 
+    // TODO Ignores buildings right now.
     pub fn generate_fixes(&self, fixes_name: &str, timer: &mut Timer) -> MapFixes {
         let orig: RawMap =
             abstutil::read_binary(&abstutil::path_raw_map(&self.name), timer).unwrap();

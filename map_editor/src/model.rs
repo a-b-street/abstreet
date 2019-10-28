@@ -787,10 +787,6 @@ impl Model {
 
         self.stop_showing_pts(id);
 
-        // TODO Bit hacky, but we have to do this before doing the mutation, so we know the number
-        // of lanes and can generate all the IDs.
-        self.road_deleted(id);
-
         let (retained_i, deleted_i, deleted_roads, created_roads) =
             self.map.merge_short_road(id).unwrap();
 
@@ -800,7 +796,8 @@ impl Model {
         self.world.delete(ID::Intersection(deleted_i));
 
         for r in deleted_roads {
-            self.road_deleted(r);
+            // This is safe, can_merge_short_road checks for turn restrictions.
+            self.world.delete(ID::Road(r));
         }
         for r in created_roads {
             self.road_added(r, prerender);

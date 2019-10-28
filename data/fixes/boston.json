@@ -1,0 +1,259 @@
+{
+  "gps_bounds": {
+    "min_lon": -122.3218,
+    "min_lat": 47.6315,
+    "max_lon": -122.2985,
+    "max_lat": 47.6475
+  },
+  "delete_roads": [
+    {
+      "osm_way_id": 6403889,
+      "i1": {
+        "osm_node_id": 53153052
+      },
+      "i2": {
+        "osm_node_id": 1726737153
+      }
+    },
+    {
+      "osm_way_id": 346101340,
+      "i1": {
+        "osm_node_id": 1726737153
+      },
+      "i2": {
+        "osm_node_id": 53209424
+      }
+    },
+    {
+      "osm_way_id": 346101340,
+      "i1": {
+        "osm_node_id": 2626074217
+      },
+      "i2": {
+        "osm_node_id": 1726737153
+      }
+    },
+    {
+      "osm_way_id": 732648396,
+      "i1": {
+        "osm_node_id": 60799460
+      },
+      "i2": {
+        "osm_node_id": 53209424
+      }
+    }
+  ],
+  "delete_intersections": [
+    {
+      "osm_node_id": 53209424
+    },
+    {
+      "osm_node_id": 1726737153
+    }
+  ],
+  "override_intersections": [
+    [
+      {
+        "osm_node_id": 60799460
+      },
+      {
+        "point": {
+          "inner_x": 530.5626,
+          "inner_y": 1029.337
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ]
+  ],
+  "override_roads": [
+    [
+      {
+        "osm_way_id": 6403889,
+        "i1": {
+          "osm_node_id": 53153052
+        },
+        "i2": {
+          "osm_node_id": 60799460
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 528.9056,
+            "inner_y": 1279.2865
+          },
+          {
+            "inner_x": 531.0863,
+            "inner_y": 1062.6016
+          },
+          {
+            "inner_x": 530.5626,
+            "inner_y": 1029.337
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "6403889",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "14th Avenue East",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 32143958,
+        "i1": {
+          "osm_node_id": 60799460
+        },
+        "i2": {
+          "osm_node_id": 53130686
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 530.5626,
+            "inner_y": 1029.337
+          },
+          {
+            "inner_x": 545.8183,
+            "inner_y": 1026.0985
+          },
+          {
+            "inner_x": 567.9921,
+            "inner_y": 1050.6297
+          },
+          {
+            "inner_x": 630.4709,
+            "inner_y": 1095.1588
+          },
+          {
+            "inner_x": 643.1497,
+            "inner_y": 1095.081
+          },
+          {
+            "inner_x": 660.3995,
+            "inner_y": 1093.9802
+          },
+          {
+            "inner_x": 672.6737,
+            "inner_y": 1098.1166
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "32143958",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "East Boston Street",
+          "parking:lane:left": "parallel",
+          "parking:lane:right": "no_parking",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 346101340,
+        "i1": {
+          "osm_node_id": 2626074217
+        },
+        "i2": {
+          "osm_node_id": 60799460
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 612.0897,
+            "inner_y": 1113.695
+          },
+          {
+            "inner_x": 609.8416,
+            "inner_y": 1109.6475
+          },
+          {
+            "inner_x": 606.9492,
+            "inner_y": 1106.0114
+          },
+          {
+            "inner_x": 603.195,
+            "inner_y": 1102.3309
+          },
+          {
+            "inner_x": 570.2916,
+            "inner_y": 1070.6626
+          },
+          {
+            "inner_x": 530.5626,
+            "inner_y": 1029.337
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:osm_way_id": "346101340",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "designated",
+          "cycleway": "shared_lane",
+          "highway": "tertiary",
+          "lanes": "2",
+          "maxspeed": "30 mph",
+          "name": "East Boston Street",
+          "parking:lane:left": "parallel",
+          "parking:lane:right": "no_parking",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 732648396,
+        "i1": {
+          "osm_node_id": 53069239
+        },
+        "i2": {
+          "osm_node_id": 60799460
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 492.4802,
+            "inner_y": 1026.4515
+          },
+          {
+            "inner_x": 530.5626,
+            "inner_y": 1029.337
+          }
+        ],
+        "osm_tags": {
+          "abst:osm_way_id": "732648396",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "designated",
+          "cycleway": "shared_lane",
+          "highway": "tertiary",
+          "lanes": "2",
+          "maxspeed": "30 mph",
+          "name": "East Boston Street",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ]
+  ]
+}
