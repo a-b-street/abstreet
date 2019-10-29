@@ -20,6 +20,7 @@ use sim::Sim;
 pub struct SandboxMode {
     speed: SpeedControls,
     info_tools: MenuUnderButton,
+    general_tools: MenuUnderButton,
     agent_tools: AgentTools,
     pub time_travel: time_travel::InactiveTimeTravel,
     trip_stats: trip_stats::TripStats,
@@ -43,6 +44,18 @@ impl SandboxMode {
                 0.5,
                 ctx,
             ),
+            general_tools: MenuUnderButton::new(
+                "assets/ui/hamburger.png",
+                "General",
+                vec![
+                    (hotkey(Key::Escape), "quit"),
+                    (lctrl(Key::D), "debug mode"),
+                    (lctrl(Key::E), "edit mode"),
+                    (hotkey(Key::F1), "take a screenshot"),
+                ],
+                0.3,
+                ctx,
+            ),
             agent_tools: AgentTools::new(),
             time_travel: time_travel::InactiveTimeTravel::new(),
             trip_stats: trip_stats::TripStats::new(
@@ -62,12 +75,6 @@ impl SandboxMode {
                         (hotkey(Key::S), "start a scenario"),
                     ],
                     vec![(hotkey(Key::T), "start time traveling")],
-                    vec![
-                        (hotkey(Key::Escape), "quit"),
-                        (lctrl(Key::D), "debug mode"),
-                        (lctrl(Key::E), "edit mode"),
-                        (hotkey(Key::F1), "take a screenshot"),
-                    ],
                 ],
                 ctx,
             ),
@@ -90,12 +97,13 @@ impl State for SandboxMode {
         }
         self.menu.event(ctx);
         self.info_tools.event(ctx);
+        self.general_tools.event(ctx);
 
         ctx.canvas.handle_event(ctx.input);
         if ctx.redo_mouseover() {
             ui.recalculate_current_selection(ctx);
         }
-        if let Some(t) = self.common.event(ctx, ui, &mut self.menu) {
+        if let Some(t) = self.common.event(ctx, ui) {
             return t;
         }
         if let Some(t) = self
@@ -122,15 +130,19 @@ impl State for SandboxMode {
             return Transition::Push(Box::new(score::Scoreboard::new(ctx, ui)));
         }
 
-        if self.menu.action("quit") {
+        if self.general_tools.action("quit") {
             return Transition::Pop;
         }
-        if self.menu.action("debug mode") {
+        if self.general_tools.action("debug mode") {
             return Transition::Push(Box::new(DebugMode::new(ctx, ui)));
         }
-        if self.menu.action("edit mode") {
+        if self.general_tools.action("edit mode") {
             return Transition::Replace(Box::new(EditMode::new(ctx, ui)));
         }
+        if self.general_tools.action("take a screenshot") {
+            return Transition::KeepWithMode(EventLoopMode::ScreenCaptureCurrentShot);
+        }
+
         if let Some(ID::Building(b)) = ui.primary.current_selection {
             let cars = ui
                 .primary
@@ -243,6 +255,7 @@ impl State for SandboxMode {
         self.menu.draw(g);
         self.speed.draw(g);
         self.info_tools.draw(g);
+        self.general_tools.draw(g);
     }
 
     fn on_suspend(&mut self, ctx: &mut EventCtx, _: &mut UI) {

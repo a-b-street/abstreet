@@ -18,6 +18,7 @@ use sim::{Sim, SimOptions, TripID};
 
 pub struct ABTestMode {
     menu: ModalMenu,
+    general_tools: MenuUnderButton,
     speed: SpeedControls,
     info_tools: MenuUnderButton,
     primary_agent_tools: AgentTools,
@@ -36,20 +37,24 @@ impl ABTestMode {
         ABTestMode {
             menu: ModalMenu::new(
                 "A/B Test Mode",
+                vec![vec![
+                    (hotkey(Key::S), "swap"),
+                    (hotkey(Key::D), "diff all trips"),
+                    (hotkey(Key::A), "stop diffing trips"),
+                    (hotkey(Key::O), "save state"),
+                    // TODO load arbitrary savestate
+                ]],
+                ctx,
+            ),
+            general_tools: MenuUnderButton::new(
+                "assets/ui/hamburger.png",
+                "General",
                 vec![
-                    vec![
-                        (hotkey(Key::S), "swap"),
-                        (hotkey(Key::D), "diff all trips"),
-                        (hotkey(Key::A), "stop diffing trips"),
-                        (hotkey(Key::O), "save state"),
-                        // TODO load arbitrary savestate
-                    ],
-                    vec![
-                        (hotkey(Key::Escape), "quit"),
-                        (lctrl(Key::D), "debug mode"),
-                        (hotkey(Key::F1), "take a screenshot"),
-                    ],
+                    (hotkey(Key::Escape), "quit"),
+                    (lctrl(Key::D), "debug mode"),
+                    (hotkey(Key::F1), "take a screenshot"),
                 ],
+                0.3,
                 ctx,
             ),
             speed: SpeedControls::new(ctx, true),
@@ -102,22 +107,26 @@ impl State for ABTestMode {
             self.menu.set_info(ctx, txt);
         }
         self.menu.event(ctx);
+        self.general_tools.event(ctx);
         self.info_tools.event(ctx);
 
         ctx.canvas.handle_event(ctx.input);
         if ctx.redo_mouseover() {
             ui.recalculate_current_selection(ctx);
         }
-        if let Some(t) = self.common.event(ctx, ui, &mut self.menu) {
+        if let Some(t) = self.common.event(ctx, ui) {
             return t;
         }
 
         // TODO Confirm first
-        if self.menu.action("quit") {
+        if self.general_tools.action("quit") {
             return Transition::Pop;
         }
-        if self.menu.action("debug mode") {
+        if self.general_tools.action("debug mode") {
             return Transition::Push(Box::new(DebugMode::new(ctx, ui)));
+        }
+        if self.general_tools.action("take a screenshot") {
+            return Transition::KeepWithMode(EventLoopMode::ScreenCaptureCurrentShot);
         }
 
         if self.menu.action("swap") {
@@ -224,6 +233,7 @@ impl State for ABTestMode {
         self.speed.draw(g);
         self.primary_agent_tools.draw(g, ui);
         self.info_tools.draw(g);
+        self.general_tools.draw(g);
     }
 
     fn on_suspend(&mut self, ctx: &mut EventCtx, _: &mut UI) {

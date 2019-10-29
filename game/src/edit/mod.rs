@@ -12,7 +12,10 @@ use crate::render::{
 use crate::sandbox::SandboxMode;
 use crate::ui::{PerMapUI, ShowEverything, UI};
 use abstutil::Timer;
-use ezgui::{hotkey, lctrl, Choice, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, Wizard};
+use ezgui::{
+    hotkey, lctrl, Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, MenuUnderButton,
+    ModalMenu, Text, Wizard,
+};
 use map_model::{
     IntersectionID, Lane, LaneID, LaneType, Map, MapEdits, Road, RoadID, TurnID, TurnType,
 };
@@ -21,6 +24,7 @@ use std::collections::{BTreeSet, HashMap};
 pub struct EditMode {
     common: CommonState,
     menu: ModalMenu,
+    general_tools: MenuUnderButton,
 }
 
 impl EditMode {
@@ -32,18 +36,22 @@ impl EditMode {
             common: CommonState::new(ctx),
             menu: ModalMenu::new(
                 "Map Edit Mode",
+                vec![vec![
+                    (hotkey(Key::S), "save edits"),
+                    (hotkey(Key::L), "load different edits"),
+                ]],
+                ctx,
+            ),
+            general_tools: MenuUnderButton::new(
+                "assets/ui/hamburger.png",
+                "General",
                 vec![
-                    vec![
-                        (hotkey(Key::S), "save edits"),
-                        (hotkey(Key::L), "load different edits"),
-                    ],
-                    vec![
-                        (hotkey(Key::Escape), "quit"),
-                        (lctrl(Key::S), "sandbox mode"),
-                        (lctrl(Key::D), "debug mode"),
-                        (hotkey(Key::F1), "take a screenshot"),
-                    ],
+                    (hotkey(Key::Escape), "quit"),
+                    (lctrl(Key::S), "sandbox mode"),
+                    (lctrl(Key::D), "debug mode"),
+                    (hotkey(Key::F1), "take a screenshot"),
                 ],
+                0.3,
                 ctx,
             ),
         }
@@ -71,6 +79,7 @@ impl State for EditMode {
             self.menu.set_info(ctx, txt);
         }
         self.menu.event(ctx);
+        self.general_tools.event(ctx);
 
         ctx.canvas.handle_event(ctx.input);
 
@@ -81,18 +90,21 @@ impl State for EditMode {
         if ctx.redo_mouseover() {
             ui.recalculate_current_selection(ctx);
         }
-        if let Some(t) = self.common.event(ctx, ui, &mut self.menu) {
+        if let Some(t) = self.common.event(ctx, ui) {
             return t;
         }
 
-        if self.menu.action("quit") {
+        if self.general_tools.action("quit") {
             return Transition::Pop;
         }
-        if self.menu.action("sandbox mode") {
+        if self.general_tools.action("sandbox mode") {
             return Transition::Replace(Box::new(SandboxMode::new(ctx, ui)));
         }
-        if self.menu.action("debug mode") {
+        if self.general_tools.action("debug mode") {
             return Transition::Push(Box::new(DebugMode::new(ctx, ui)));
+        }
+        if self.general_tools.action("take a screenshot") {
+            return Transition::KeepWithMode(EventLoopMode::ScreenCaptureCurrentShot);
         }
 
         // TODO Only if current edits are unsaved
@@ -287,6 +299,7 @@ impl State for EditMode {
 
         self.common.draw(g, ui);
         self.menu.draw(g);
+        self.general_tools.draw(g);
     }
 
     fn on_destroy(&mut self, _: &mut EventCtx, ui: &mut UI) {

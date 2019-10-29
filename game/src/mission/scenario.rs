@@ -7,7 +7,7 @@ use crate::ui::{ShowEverything, UI};
 use abstutil::{prettyprint_usize, MultiMap, WeightedUsizeChoice};
 use ezgui::{
     hotkey, Choice, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line,
-    ModalMenu, Text, Wizard, WrappedWizard,
+    MenuUnderButton, ModalMenu, Text, Wizard, WrappedWizard,
 };
 use geom::{Distance, Duration, PolyLine};
 use map_model::{BuildingID, IntersectionID, Map, Neighborhood};
@@ -19,6 +19,7 @@ use std::collections::BTreeSet;
 
 pub struct ScenarioManager {
     menu: ModalMenu,
+    general_tools: MenuUnderButton,
     common: CommonState,
     scenario: Scenario,
 
@@ -115,17 +116,21 @@ impl ScenarioManager {
         ScenarioManager {
             menu: ModalMenu::new(
                 "Scenario Editor",
+                vec![vec![
+                    (hotkey(Key::S), "save"),
+                    (hotkey(Key::E), "edit"),
+                    (hotkey(Key::R), "instantiate"),
+                ]],
+                ctx,
+            ),
+            general_tools: MenuUnderButton::new(
+                "assets/ui/hamburger.png",
+                "General",
                 vec![
-                    vec![
-                        (hotkey(Key::S), "save"),
-                        (hotkey(Key::E), "edit"),
-                        (hotkey(Key::R), "instantiate"),
-                    ],
-                    vec![
-                        (hotkey(Key::Escape), "quit"),
-                        (hotkey(Key::F1), "take a screenshot"),
-                    ],
+                    (hotkey(Key::Escape), "quit"),
+                    (hotkey(Key::F1), "take a screenshot"),
                 ],
+                0.3,
                 ctx,
             ),
             common: CommonState::new(ctx),
@@ -164,16 +169,19 @@ impl State for ScenarioManager {
             self.menu.set_info(ctx, txt);
         }
         self.menu.event(ctx);
+        self.general_tools.event(ctx);
         ctx.canvas.handle_event(ctx.input);
         if ctx.redo_mouseover() {
             ui.recalculate_current_selection(ctx);
         }
-        if let Some(t) = self.common.event(ctx, ui, &mut self.menu) {
+        if let Some(t) = self.common.event(ctx, ui) {
             return t;
         }
 
-        if self.menu.action("quit") {
+        if self.general_tools.action("quit") {
             return Transition::Pop;
+        } else if self.general_tools.action("take a screenshot") {
+            return Transition::KeepWithMode(EventLoopMode::ScreenCaptureCurrentShot);
         } else if self.menu.action("save") {
             self.scenario.save();
         } else if self.menu.action("edit") {
@@ -279,6 +287,7 @@ impl State for ScenarioManager {
         }
 
         self.menu.draw(g);
+        self.general_tools.draw(g);
         self.common.draw(g, ui);
         // TODO Just cover up common's OSD with ours...
 

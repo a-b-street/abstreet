@@ -26,8 +26,8 @@ use crate::helpers::ID;
 use crate::render::DrawOptions;
 use crate::ui::UI;
 use ezgui::{
-    hotkey, Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Key, Line,
-    MenuUnderButton, ModalMenu, Text, VerticalAlignment,
+    hotkey, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, MenuUnderButton, Text,
+    VerticalAlignment,
 };
 use std::collections::BTreeSet;
 
@@ -56,12 +56,7 @@ impl CommonState {
         }
     }
 
-    pub fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        ui: &mut UI,
-        menu: &mut ModalMenu,
-    ) -> Option<Transition> {
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
         self.location_tools.event(ctx);
 
         if self.location_tools.action("warp") {
@@ -77,11 +72,6 @@ impl CommonState {
         self.associated.event(ui);
         if let Some(t) = self.turn_cycler.event(ctx, ui) {
             return Some(t);
-        }
-        if menu.action("take a screenshot") {
-            return Some(Transition::KeepWithMode(
-                EventLoopMode::ScreenCaptureCurrentShot,
-            ));
         }
 
         if let Some(ref id) = ui.primary.current_selection {

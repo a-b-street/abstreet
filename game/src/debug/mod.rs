@@ -14,14 +14,15 @@ use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::{ShowLayers, ShowObject, UI};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu,
-    Text, Wizard,
+    hotkey, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line,
+    MenuUnderButton, ModalMenu, Text, Wizard,
 };
 use geom::Duration;
 use std::collections::HashSet;
 
 pub struct DebugMode {
     menu: ModalMenu,
+    general_tools: MenuUnderButton,
     common: CommonState,
     connected_roads: connected_roads::ShowConnectedRoads,
     objects: objects::ObjectDebugger,
@@ -56,11 +57,17 @@ impl DebugMode {
                         (hotkey(Key::S), "configure colors"),
                         (hotkey(Key::E), "explore a bus route"),
                     ],
-                    vec![
-                        (hotkey(Key::Escape), "return to previous mode"),
-                        (hotkey(Key::F1), "take a screenshot"),
-                    ],
                 ],
+                ctx,
+            ),
+            general_tools: MenuUnderButton::new(
+                "assets/ui/hamburger.png",
+                "General",
+                vec![
+                    (hotkey(Key::Escape), "return to previous mode"),
+                    (hotkey(Key::F1), "take a screenshot"),
+                ],
+                0.3,
                 ctx,
             ),
             common: CommonState::new(ctx),
@@ -105,14 +112,18 @@ impl State for DebugMode {
             self.menu.set_info(ctx, txt);
         }
         self.menu.event(ctx);
+        self.general_tools.event(ctx);
 
         ctx.canvas.handle_event(ctx.input);
-        if let Some(t) = self.common.event(ctx, ui, &mut self.menu) {
+        if let Some(t) = self.common.event(ctx, ui) {
             return t;
         }
 
-        if self.menu.action("return to previous mode") {
+        if self.general_tools.action("return to previous mode") {
             return Transition::Pop;
+        }
+        if self.general_tools.action("take a screenshot") {
+            return Transition::KeepWithMode(EventLoopMode::ScreenCaptureCurrentShot);
         }
 
         self.all_routes.event(ui, &mut self.menu, ctx);
@@ -270,6 +281,7 @@ impl State for DebugMode {
 
         if !g.is_screencap() {
             self.menu.draw(g);
+            self.general_tools.draw(g);
         }
     }
 }
