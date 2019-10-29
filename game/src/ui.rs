@@ -23,28 +23,31 @@ impl UI {
     pub fn new(flags: Flags, ctx: &mut EventCtx, splash: bool) -> UI {
         let cs = ColorScheme::load().unwrap();
         let primary = ctx.loading_screen("load map", |ctx, mut timer| {
-            ctx.set_textures(
-                flags.textures,
+            // Always load some small icons.
+            let mut textures = vec![
+                ("assets/ui/hamburger.png", TextureType::Stretch),
+                ("assets/ui/hide.png", TextureType::Stretch),
+                ("assets/ui/info.png", TextureType::Stretch),
+                ("assets/ui/show.png", TextureType::Stretch),
+            ];
+            let skip_textures = if flags.textures {
+                textures.extend(vec![
+                    ("assets/water_texture.png", TextureType::Tile),
+                    ("assets/grass_texture.png", TextureType::Tile),
+                    ("assets/pedestrian.png", TextureType::Stretch),
+                    ("assets/car.png", TextureType::CustomUV),
+                ]);
+                Vec::new()
+            } else {
                 vec![
-                    (
-                        "assets/water_texture.png",
-                        TextureType::Tile,
-                        Color::rgb(164, 200, 234),
-                    ),
-                    (
-                        "assets/grass_texture.png",
-                        TextureType::Tile,
-                        Color::rgb(148, 200, 74),
-                    ),
-                    (
-                        "assets/pedestrian.png",
-                        TextureType::Stretch,
-                        Color::rgb(51, 178, 178),
-                    ),
-                    ("assets/car.png", TextureType::CustomUV, Color::CYAN),
-                ],
-                &mut timer,
-            );
+                    ("assets/water_texture.png", Color::rgb(164, 200, 234)),
+                    ("assets/grass_texture.png", Color::rgb(148, 200, 74)),
+                    ("assets/pedestrian.png", Color::rgb(51, 178, 178)),
+                    ("assets/car.png", Color::CYAN),
+                ]
+            };
+
+            ctx.set_textures(skip_textures, textures, &mut timer);
 
             PerMapUI::new(flags, &cs, ctx, &mut timer)
         });

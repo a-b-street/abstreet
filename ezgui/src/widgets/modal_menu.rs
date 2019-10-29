@@ -134,8 +134,13 @@ impl ModalMenu {
 
         // Handle showing/hiding
         // TODO Layouting of nested widgets...
+        // TODO Might not be room for the icon on the right side of the menu's top. Oh well. In the
+        // common case, looks better like this.
         self.show_hide_btn.set_pos(
-            ScreenPt::new(self.top_left.x + self.dims.width, self.top_left.y),
+            ScreenPt::new(
+                self.top_left.x + self.dims.width - self.show_hide_btn.get_dims().width,
+                self.top_left.y,
+            ),
             self.dims.width,
         );
         self.show_hide_btn.event(ctx);
@@ -293,10 +298,7 @@ impl ModalMenu {
 
 impl Widget for ModalMenu {
     fn get_dims(&self) -> ScreenDims {
-        ScreenDims::new(
-            self.dims.width + self.show_hide_btn.get_dims().width,
-            self.dims.height,
-        )
+        ScreenDims::new(self.dims.width, self.dims.height)
     }
 
     fn set_pos(&mut self, top_left: ScreenPt, _total_width: f64) {

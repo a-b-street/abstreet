@@ -46,43 +46,43 @@ impl<'a> EventCtx<'a> {
 
     pub fn set_textures(
         &mut self,
-        upload_textures: bool,
-        textures: Vec<(&str, TextureType, Color)>,
+        skip_textures: Vec<(&str, Color)>,
+        textures: Vec<(&str, TextureType)>,
         timer: &mut Timer,
     ) {
         self.canvas.textures.clear();
         self.canvas.texture_lookups.clear();
 
+        for (filename, fallback) in skip_textures {
+            self.canvas
+                .texture_lookups
+                .insert(filename.to_string(), fallback);
+        }
+
         if textures.len() > 10 {
             panic!("Due to lovely hacks, only 10 textures supported");
         }
         timer.start_iter("upload textures", textures.len());
-        for (idx, (filename, tex_type, fallback)) in textures.into_iter().enumerate() {
+        for (idx, (filename, tex_type)) in textures.into_iter().enumerate() {
             timer.next();
-            if upload_textures {
-                let img = image::open(filename).unwrap().to_rgba();
-                let dims = img.dimensions();
-                let tex = glium::texture::Texture2d::new(
-                    self.prerender.display,
-                    glium::texture::RawImage2d::from_raw_rgba_reversed(&img.into_raw(), dims),
-                )
-                .unwrap();
-                self.canvas.textures.push((filename.to_string(), tex));
-                self.canvas.texture_lookups.insert(
-                    filename.to_string(),
-                    match tex_type {
-                        TextureType::Stretch => Color::StretchTexture(idx as f32, Angle::ZERO),
-                        TextureType::Tile => {
-                            Color::TileTexture(idx as f32, (f64::from(dims.0), f64::from(dims.1)))
-                        }
-                        TextureType::CustomUV => Color::CustomUVTexture(idx as f32),
-                    },
-                );
-            } else {
-                self.canvas
-                    .texture_lookups
-                    .insert(filename.to_string(), fallback);
-            }
+            let img = image::open(filename).unwrap().to_rgba();
+            let dims = img.dimensions();
+            let tex = glium::texture::Texture2d::new(
+                self.prerender.display,
+                glium::texture::RawImage2d::from_raw_rgba_reversed(&img.into_raw(), dims),
+            )
+            .unwrap();
+            self.canvas.textures.push((filename.to_string(), tex));
+            self.canvas.texture_lookups.insert(
+                filename.to_string(),
+                match tex_type {
+                    TextureType::Stretch => Color::StretchTexture(idx as f32, Angle::ZERO),
+                    TextureType::Tile => {
+                        Color::TileTexture(idx as f32, (f64::from(dims.0), f64::from(dims.1)))
+                    }
+                    TextureType::CustomUV => Color::CustomUVTexture(idx as f32),
+                },
+            );
         }
     }
 }

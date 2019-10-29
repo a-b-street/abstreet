@@ -3,7 +3,7 @@ use crate::{
     hotkey, text, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, MultiKey, ScreenDims,
     ScreenPt, ScreenRectangle, Text,
 };
-use geom::{Circle, Distance, Polygon, Pt2D};
+use geom::{Circle, Distance, Pt2D};
 
 pub struct Button {
     draw_normal: Drawable,
@@ -108,49 +108,29 @@ impl Widget for Button {
 
 const ICON_BACKGROUND: Color = Color::grey(0.5);
 const ICON_BACKGROUND_SELECTED: Color = Color::YELLOW;
-const ICON_SYMBOL: Color = Color::grey(0.8);
-const ICON_SYMBOL_SELECTED: Color = Color::grey(0.2);
 
 impl Button {
-    fn show_hide_btn(is_show: bool, tooltip: &str, ctx: &EventCtx) -> Button {
+    fn show_hide_btn(icon: &str, tooltip: &str, ctx: &EventCtx) -> Button {
         let radius = ctx.canvas.line_height / 2.0;
         let circle = Circle::new(Pt2D::new(radius, radius), Distance::meters(radius));
 
         let mut normal = GeomBatch::new();
         normal.push(ICON_BACKGROUND, circle.to_polygon());
-        normal.push(
-            ICON_SYMBOL,
-            Polygon::rectangle(circle.center, 1.5 * circle.radius, 0.5 * circle.radius),
-        );
-        if is_show {
-            normal.push(
-                ICON_SYMBOL,
-                Polygon::rectangle(circle.center, 0.5 * circle.radius, 1.5 * circle.radius),
-            );
-        }
+        normal.push(ctx.canvas.texture(icon), circle.to_polygon());
 
         let mut hovered = GeomBatch::new();
         hovered.push(ICON_BACKGROUND_SELECTED, circle.to_polygon());
-        hovered.push(
-            ICON_SYMBOL_SELECTED,
-            Polygon::rectangle(circle.center, 1.5 * circle.radius, 0.5 * circle.radius),
-        );
-        if is_show {
-            hovered.push(
-                ICON_SYMBOL_SELECTED,
-                Polygon::rectangle(circle.center, 0.5 * circle.radius, 1.5 * circle.radius),
-            );
-        }
+        hovered.push(ctx.canvas.texture(icon), circle.to_polygon());
 
         // TODO Arbitrarilyish the first user to be event()'d will eat this key.
         Button::new(normal, hovered, hotkey(Key::Tab), tooltip, ctx)
     }
 
     pub fn show_btn(ctx: &EventCtx, tooltip: &str) -> Button {
-        Button::show_hide_btn(true, tooltip, ctx)
+        Button::show_hide_btn("assets/ui/show.png", tooltip, ctx)
     }
 
     pub fn hide_btn(ctx: &EventCtx, tooltip: &str) -> Button {
-        Button::show_hide_btn(false, tooltip, ctx)
+        Button::show_hide_btn("assets/ui/hide.png", tooltip, ctx)
     }
 }
