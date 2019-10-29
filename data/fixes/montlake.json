@@ -1,0 +1,5778 @@
+{
+  "gps_bounds": {
+    "min_lon": -122.3218,
+    "min_lat": 47.6315,
+    "max_lon": -122.2985,
+    "max_lat": 47.6475
+  },
+  "delete_roads": [
+    {
+      "osm_way_id": 4636259,
+      "i1": {
+        "osm_node_id": 29449863
+      },
+      "i2": {
+        "osm_node_id": 4828090657
+      }
+    },
+    {
+      "osm_way_id": 6341293,
+      "i1": {
+        "osm_node_id": 53063368
+      },
+      "i2": {
+        "osm_node_id": 53063382
+      }
+    },
+    {
+      "osm_way_id": 6348159,
+      "i1": {
+        "osm_node_id": 53084778
+      },
+      "i2": {
+        "osm_node_id": 53084780
+      }
+    },
+    {
+      "osm_way_id": 6348159,
+      "i1": {
+        "osm_node_id": 53084780
+      },
+      "i2": {
+        "osm_node_id": 53084781
+      }
+    },
+    {
+      "osm_way_id": 6348159,
+      "i1": {
+        "osm_node_id": 53084781
+      },
+      "i2": {
+        "osm_node_id": 59702422
+      }
+    },
+    {
+      "osm_way_id": 6348159,
+      "i1": {
+        "osm_node_id": 59702422
+      },
+      "i2": {
+        "osm_node_id": 53069241
+      }
+    },
+    {
+      "osm_way_id": 6348168,
+      "i1": {
+        "osm_node_id": 59710416
+      },
+      "i2": {
+        "osm_node_id": 53084816
+      }
+    },
+    {
+      "osm_way_id": 6383185,
+      "i1": {
+        "osm_node_id": 59710430
+      },
+      "i2": {
+        "osm_node_id": 53128066
+      }
+    },
+    {
+      "osm_way_id": 6403889,
+      "i1": {
+        "osm_node_id": 53153052
+      },
+      "i2": {
+        "osm_node_id": 1726737153
+      }
+    },
+    {
+      "osm_way_id": 6411911,
+      "i1": {
+        "osm_node_id": 53084780
+      },
+      "i2": {
+        "osm_node_id": 53101735
+      }
+    },
+    {
+      "osm_way_id": 6448619,
+      "i1": {
+        "osm_node_id": 53084816
+      },
+      "i2": {
+        "osm_node_id": 1709143541
+      }
+    },
+    {
+      "osm_way_id": 6454265,
+      "i1": {
+        "osm_node_id": 53078459
+      },
+      "i2": {
+        "osm_node_id": 128683528
+      }
+    },
+    {
+      "osm_way_id": 6454433,
+      "i1": {
+        "osm_node_id": 53166005
+      },
+      "i2": {
+        "osm_node_id": 53096949
+      }
+    },
+    {
+      "osm_way_id": 6486418,
+      "i1": {
+        "osm_node_id": 53070282
+      },
+      "i2": {
+        "osm_node_id": 53137203
+      }
+    },
+    {
+      "osm_way_id": 6489874,
+      "i1": {
+        "osm_node_id": 53063382
+      },
+      "i2": {
+        "osm_node_id": 53233987
+      }
+    },
+    {
+      "osm_way_id": 6489874,
+      "i1": {
+        "osm_node_id": 53233985
+      },
+      "i2": {
+        "osm_node_id": 53063382
+      }
+    },
+    {
+      "osm_way_id": 6489874,
+      "i1": {
+        "osm_node_id": 53233987
+      },
+      "i2": {
+        "osm_node_id": 53233985
+      }
+    },
+    {
+      "osm_way_id": 6495789,
+      "i1": {
+        "osm_node_id": 6212789180
+      },
+      "i2": {
+        "osm_node_id": 53238761
+      }
+    },
+    {
+      "osm_way_id": 6511010,
+      "i1": {
+        "osm_node_id": 1709144244
+      },
+      "i2": {
+        "osm_node_id": 53238761
+      }
+    },
+    {
+      "osm_way_id": 7977712,
+      "i1": {
+        "osm_node_id": 59702422
+      },
+      "i2": {
+        "osm_node_id": 53101736
+      }
+    },
+    {
+      "osm_way_id": 7978479,
+      "i1": {
+        "osm_node_id": 53103988
+      },
+      "i2": {
+        "osm_node_id": 53103989
+      }
+    },
+    {
+      "osm_way_id": 13802846,
+      "i1": {
+        "osm_node_id": 128683528
+      },
+      "i2": {
+        "osm_node_id": 53205982
+      }
+    },
+    {
+      "osm_way_id": 40416113,
+      "i1": {
+        "osm_node_id": 59677231
+      },
+      "i2": {
+        "osm_node_id": 2247309277
+      }
+    },
+    {
+      "osm_way_id": 130470644,
+      "i1": {
+        "osm_node_id": 1437096596
+      },
+      "i2": {
+        "osm_node_id": 59677236
+      }
+    },
+    {
+      "osm_way_id": 130470645,
+      "i1": {
+        "osm_node_id": 59677231
+      },
+      "i2": {
+        "osm_node_id": 29463657
+      }
+    },
+    {
+      "osm_way_id": 157188999,
+      "i1": {
+        "osm_node_id": 53128052
+      },
+      "i2": {
+        "osm_node_id": 3391701872
+      }
+    },
+    {
+      "osm_way_id": 157189000,
+      "i1": {
+        "osm_node_id": 53128052
+      },
+      "i2": {
+        "osm_node_id": 3391701875
+      }
+    },
+    {
+      "osm_way_id": 158782115,
+      "i1": {
+        "osm_node_id": 1709141381
+      },
+      "i2": {
+        "osm_node_id": 1709141982
+      }
+    },
+    {
+      "osm_way_id": 158782115,
+      "i1": {
+        "osm_node_id": 1709141982
+      },
+      "i2": {
+        "osm_node_id": 1709142313
+      }
+    },
+    {
+      "osm_way_id": 158782115,
+      "i1": {
+        "osm_node_id": 1709142313
+      },
+      "i2": {
+        "osm_node_id": 1709142595
+      }
+    },
+    {
+      "osm_way_id": 158782115,
+      "i1": {
+        "osm_node_id": 1709142353
+      },
+      "i2": {
+        "osm_node_id": 1709141381
+      }
+    },
+    {
+      "osm_way_id": 158782115,
+      "i1": {
+        "osm_node_id": 1709142595
+      },
+      "i2": {
+        "osm_node_id": 1709142353
+      }
+    },
+    {
+      "osm_way_id": 240176876,
+      "i1": {
+        "osm_node_id": 53153052
+      },
+      "i2": {
+        "osm_node_id": 53207165
+      }
+    },
+    {
+      "osm_way_id": 242518274,
+      "i1": {
+        "osm_node_id": 2499826475
+      },
+      "i2": {
+        "osm_node_id": 3005680107
+      }
+    },
+    {
+      "osm_way_id": 256990067,
+      "i1": {
+        "osm_node_id": 542743474
+      },
+      "i2": {
+        "osm_node_id": 53207165
+      }
+    },
+    {
+      "osm_way_id": 256990068,
+      "i1": {
+        "osm_node_id": 53207165
+      },
+      "i2": {
+        "osm_node_id": 2626074217
+      }
+    },
+    {
+      "osm_way_id": 263665925,
+      "i1": {
+        "osm_node_id": 53096958
+      },
+      "i2": {
+        "osm_node_id": 2499826475
+      }
+    },
+    {
+      "osm_way_id": 263665925,
+      "i1": {
+        "osm_node_id": 2499826475
+      },
+      "i2": {
+        "osm_node_id": 53096959
+      }
+    },
+    {
+      "osm_way_id": 264545450,
+      "i1": {
+        "osm_node_id": 496331163
+      },
+      "i2": {
+        "osm_node_id": 2702114622
+      }
+    },
+    {
+      "osm_way_id": 264545451,
+      "i1": {
+        "osm_node_id": 2702114617
+      },
+      "i2": {
+        "osm_node_id": 2702114618
+      }
+    },
+    {
+      "osm_way_id": 264545452,
+      "i1": {
+        "osm_node_id": 2702114622
+      },
+      "i2": {
+        "osm_node_id": 2702114627
+      }
+    },
+    {
+      "osm_way_id": 264545453,
+      "i1": {
+        "osm_node_id": 496331163
+      },
+      "i2": {
+        "osm_node_id": 53101732
+      }
+    },
+    {
+      "osm_way_id": 264545454,
+      "i1": {
+        "osm_node_id": 53198130
+      },
+      "i2": {
+        "osm_node_id": 2702114622
+      }
+    },
+    {
+      "osm_way_id": 264545454,
+      "i1": {
+        "osm_node_id": 2702114627
+      },
+      "i2": {
+        "osm_node_id": 53198130
+      }
+    },
+    {
+      "osm_way_id": 269583070,
+      "i1": {
+        "osm_node_id": 53084816
+      },
+      "i2": {
+        "osm_node_id": 53084817
+      }
+    },
+    {
+      "osm_way_id": 286505421,
+      "i1": {
+        "osm_node_id": 53070284
+      },
+      "i2": {
+        "osm_node_id": 2901855342
+      }
+    },
+    {
+      "osm_way_id": 292812241,
+      "i1": {
+        "osm_node_id": 59677221
+      },
+      "i2": {
+        "osm_node_id": 2702114617
+      }
+    },
+    {
+      "osm_way_id": 292812244,
+      "i1": {
+        "osm_node_id": 53101732
+      },
+      "i2": {
+        "osm_node_id": 2702114617
+      }
+    },
+    {
+      "osm_way_id": 292812245,
+      "i1": {
+        "osm_node_id": 2702114618
+      },
+      "i2": {
+        "osm_node_id": 496331163
+      }
+    },
+    {
+      "osm_way_id": 332060236,
+      "i1": {
+        "osm_node_id": 3391701883
+      },
+      "i2": {
+        "osm_node_id": 29449863
+      }
+    },
+    {
+      "osm_way_id": 332060243,
+      "i1": {
+        "osm_node_id": 1635790583
+      },
+      "i2": {
+        "osm_node_id": 53128053
+      }
+    },
+    {
+      "osm_way_id": 332060248,
+      "i1": {
+        "osm_node_id": 53128053
+      },
+      "i2": {
+        "osm_node_id": 3391701883
+      }
+    },
+    {
+      "osm_way_id": 332060253,
+      "i1": {
+        "osm_node_id": 3391701869
+      },
+      "i2": {
+        "osm_node_id": 53198127
+      }
+    },
+    {
+      "osm_way_id": 332060258,
+      "i1": {
+        "osm_node_id": 3391701875
+      },
+      "i2": {
+        "osm_node_id": 1635790583
+      }
+    },
+    {
+      "osm_way_id": 332060259,
+      "i1": {
+        "osm_node_id": 3391701877
+      },
+      "i2": {
+        "osm_node_id": 53128052
+      }
+    },
+    {
+      "osm_way_id": 332060260,
+      "i1": {
+        "osm_node_id": 29464223
+      },
+      "i2": {
+        "osm_node_id": 3391701882
+      }
+    },
+    {
+      "osm_way_id": 332060261,
+      "i1": {
+        "osm_node_id": 3391701872
+      },
+      "i2": {
+        "osm_node_id": 3391701869
+      }
+    },
+    {
+      "osm_way_id": 332060261,
+      "i1": {
+        "osm_node_id": 3391701875
+      },
+      "i2": {
+        "osm_node_id": 3391701872
+      }
+    },
+    {
+      "osm_way_id": 332060263,
+      "i1": {
+        "osm_node_id": 3391701877
+      },
+      "i2": {
+        "osm_node_id": 3391701875
+      }
+    },
+    {
+      "osm_way_id": 332060263,
+      "i1": {
+        "osm_node_id": 3391701878
+      },
+      "i2": {
+        "osm_node_id": 3391701877
+      }
+    },
+    {
+      "osm_way_id": 332060263,
+      "i1": {
+        "osm_node_id": 3391701880
+      },
+      "i2": {
+        "osm_node_id": 3391701878
+      }
+    },
+    {
+      "osm_way_id": 332060263,
+      "i1": {
+        "osm_node_id": 3391701882
+      },
+      "i2": {
+        "osm_node_id": 3391701880
+      }
+    },
+    {
+      "osm_way_id": 346101340,
+      "i1": {
+        "osm_node_id": 1726737153
+      },
+      "i2": {
+        "osm_node_id": 53209424
+      }
+    },
+    {
+      "osm_way_id": 346101340,
+      "i1": {
+        "osm_node_id": 2626074217
+      },
+      "i2": {
+        "osm_node_id": 1726737153
+      }
+    },
+    {
+      "osm_way_id": 361443212,
+      "i1": {
+        "osm_node_id": 5413301445
+      },
+      "i2": {
+        "osm_node_id": 2247309277
+      }
+    },
+    {
+      "osm_way_id": 394736758,
+      "i1": {
+        "osm_node_id": 53103988
+      },
+      "i2": {
+        "osm_node_id": 53229344
+      }
+    },
+    {
+      "osm_way_id": 394736758,
+      "i1": {
+        "osm_node_id": 1726088135
+      },
+      "i2": {
+        "osm_node_id": 53103988
+      }
+    },
+    {
+      "osm_way_id": 394991042,
+      "i1": {
+        "osm_node_id": 2499822233
+      },
+      "i2": {
+        "osm_node_id": 3978753092
+      }
+    },
+    {
+      "osm_way_id": 394991043,
+      "i1": {
+        "osm_node_id": 3978753110
+      },
+      "i2": {
+        "osm_node_id": 3978753097
+      }
+    },
+    {
+      "osm_way_id": 394991044,
+      "i1": {
+        "osm_node_id": 3978753107
+      },
+      "i2": {
+        "osm_node_id": 3978753110
+      }
+    },
+    {
+      "osm_way_id": 394991045,
+      "i1": {
+        "osm_node_id": 3978753087
+      },
+      "i2": {
+        "osm_node_id": 2499822233
+      }
+    },
+    {
+      "osm_way_id": 394991046,
+      "i1": {
+        "osm_node_id": 3978753099
+      },
+      "i2": {
+        "osm_node_id": 3978753097
+      }
+    },
+    {
+      "osm_way_id": 394991047,
+      "i1": {
+        "osm_node_id": 3978753087
+      },
+      "i2": {
+        "osm_node_id": 3978753092
+      }
+    },
+    {
+      "osm_way_id": 394991047,
+      "i1": {
+        "osm_node_id": 3978753092
+      },
+      "i2": {
+        "osm_node_id": 3978753095
+      }
+    },
+    {
+      "osm_way_id": 394991047,
+      "i1": {
+        "osm_node_id": 3978753095
+      },
+      "i2": {
+        "osm_node_id": 3978753096
+      }
+    },
+    {
+      "osm_way_id": 394991047,
+      "i1": {
+        "osm_node_id": 3978753096
+      },
+      "i2": {
+        "osm_node_id": 3978753105
+      }
+    },
+    {
+      "osm_way_id": 394991047,
+      "i1": {
+        "osm_node_id": 3978753097
+      },
+      "i2": {
+        "osm_node_id": 3978753087
+      }
+    },
+    {
+      "osm_way_id": 394991047,
+      "i1": {
+        "osm_node_id": 3978753105
+      },
+      "i2": {
+        "osm_node_id": 3978753107
+      }
+    },
+    {
+      "osm_way_id": 394991047,
+      "i1": {
+        "osm_node_id": 3978753107
+      },
+      "i2": {
+        "osm_node_id": 3978753097
+      }
+    },
+    {
+      "osm_way_id": 394991048,
+      "i1": {
+        "osm_node_id": 3978753110
+      },
+      "i2": {
+        "osm_node_id": 3978753099
+      }
+    },
+    {
+      "osm_way_id": 424636850,
+      "i1": {
+        "osm_node_id": 3391701887
+      },
+      "i2": {
+        "osm_node_id": 29449863
+      }
+    },
+    {
+      "osm_way_id": 424636851,
+      "i1": {
+        "osm_node_id": 3391701883
+      },
+      "i2": {
+        "osm_node_id": 4240312878
+      }
+    },
+    {
+      "osm_way_id": 424636852,
+      "i1": {
+        "osm_node_id": 53128053
+      },
+      "i2": {
+        "osm_node_id": 4240312878
+      }
+    },
+    {
+      "osm_way_id": 426250826,
+      "i1": {
+        "osm_node_id": 4240312878
+      },
+      "i2": {
+        "osm_node_id": 3391701887
+      }
+    },
+    {
+      "osm_way_id": 426250827,
+      "i1": {
+        "osm_node_id": 29449863
+      },
+      "i2": {
+        "osm_node_id": 29464223
+      }
+    },
+    {
+      "osm_way_id": 426250828,
+      "i1": {
+        "osm_node_id": 3391701882
+      },
+      "i2": {
+        "osm_node_id": 3391701883
+      }
+    },
+    {
+      "osm_way_id": 428224936,
+      "i1": {
+        "osm_node_id": 53198127
+      },
+      "i2": {
+        "osm_node_id": 1635790583
+      }
+    },
+    {
+      "osm_way_id": 428224939,
+      "i1": {
+        "osm_node_id": 4273590092
+      },
+      "i2": {
+        "osm_node_id": 59677231
+      }
+    },
+    {
+      "osm_way_id": 428224940,
+      "i1": {
+        "osm_node_id": 4240312872
+      },
+      "i2": {
+        "osm_node_id": 4828090661
+      }
+    },
+    {
+      "osm_way_id": 428224941,
+      "i1": {
+        "osm_node_id": 4550007325
+      },
+      "i2": {
+        "osm_node_id": 4273590092
+      }
+    },
+    {
+      "osm_way_id": 428224942,
+      "i1": {
+        "osm_node_id": 29463657
+      },
+      "i2": {
+        "osm_node_id": 4303514198
+      }
+    },
+    {
+      "osm_way_id": 428224942,
+      "i1": {
+        "osm_node_id": 4303514198
+      },
+      "i2": {
+        "osm_node_id": 4240331992
+      }
+    },
+    {
+      "osm_way_id": 428343454,
+      "i1": {
+        "osm_node_id": 720880672
+      },
+      "i2": {
+        "osm_node_id": 3391701880
+      }
+    },
+    {
+      "osm_way_id": 431103954,
+      "i1": {
+        "osm_node_id": 4303514198
+      },
+      "i2": {
+        "osm_node_id": 4303514204
+      }
+    },
+    {
+      "osm_way_id": 431103955,
+      "i1": {
+        "osm_node_id": 4240314159
+      },
+      "i2": {
+        "osm_node_id": 5413301445
+      }
+    },
+    {
+      "osm_way_id": 431103956,
+      "i1": {
+        "osm_node_id": 4240331992
+      },
+      "i2": {
+        "osm_node_id": 4240312872
+      }
+    },
+    {
+      "osm_way_id": 455437650,
+      "i1": {
+        "osm_node_id": 2247309277
+      },
+      "i2": {
+        "osm_node_id": 491979463
+      }
+    },
+    {
+      "osm_way_id": 455808164,
+      "i1": {
+        "osm_node_id": 53188971
+      },
+      "i2": {
+        "osm_node_id": 53198130
+      }
+    },
+    {
+      "osm_way_id": 455809716,
+      "i1": {
+        "osm_node_id": 491979474
+      },
+      "i2": {
+        "osm_node_id": 4550007326
+      }
+    },
+    {
+      "osm_way_id": 459083143,
+      "i1": {
+        "osm_node_id": 4549993731
+      },
+      "i2": {
+        "osm_node_id": 4550007326
+      }
+    },
+    {
+      "osm_way_id": 459084308,
+      "i1": {
+        "osm_node_id": 59677236
+      },
+      "i2": {
+        "osm_node_id": 4550007325
+      }
+    },
+    {
+      "osm_way_id": 459084309,
+      "i1": {
+        "osm_node_id": 4550007325
+      },
+      "i2": {
+        "osm_node_id": 4550007326
+      }
+    },
+    {
+      "osm_way_id": 460423538,
+      "i1": {
+        "osm_node_id": 4560936658
+      },
+      "i2": {
+        "osm_node_id": 53209423
+      }
+    },
+    {
+      "osm_way_id": 460423543,
+      "i1": {
+        "osm_node_id": 128669086
+      },
+      "i2": {
+        "osm_node_id": 4560936658
+      }
+    },
+    {
+      "osm_way_id": 481291028,
+      "i1": {
+        "osm_node_id": 53096949
+      },
+      "i2": {
+        "osm_node_id": 53096951
+      }
+    },
+    {
+      "osm_way_id": 481291028,
+      "i1": {
+        "osm_node_id": 1744641060
+      },
+      "i2": {
+        "osm_node_id": 53096949
+      }
+    },
+    {
+      "osm_way_id": 481291029,
+      "i1": {
+        "osm_node_id": 53128052
+      },
+      "i2": {
+        "osm_node_id": 3391701878
+      }
+    },
+    {
+      "osm_way_id": 490622980,
+      "i1": {
+        "osm_node_id": 4828090661
+      },
+      "i2": {
+        "osm_node_id": 29464223
+      }
+    },
+    {
+      "osm_way_id": 490622982,
+      "i1": {
+        "osm_node_id": 4828090657
+      },
+      "i2": {
+        "osm_node_id": 4240314159
+      }
+    },
+    {
+      "osm_way_id": 531617255,
+      "i1": {
+        "osm_node_id": 29464223
+      },
+      "i2": {
+        "osm_node_id": 29464222
+      }
+    },
+    {
+      "osm_way_id": 532912457,
+      "i1": {
+        "osm_node_id": 4550007326
+      },
+      "i2": {
+        "osm_node_id": 59677236
+      }
+    },
+    {
+      "osm_way_id": 537697092,
+      "i1": {
+        "osm_node_id": 2247309277
+      },
+      "i2": {
+        "osm_node_id": 4549993731
+      }
+    },
+    {
+      "osm_way_id": 537698750,
+      "i1": {
+        "osm_node_id": 2499796158
+      },
+      "i2": {
+        "osm_node_id": 53128066
+      }
+    },
+    {
+      "osm_way_id": 607798222,
+      "i1": {
+        "osm_node_id": 720880672
+      },
+      "i2": {
+        "osm_node_id": 3391701882
+      }
+    },
+    {
+      "osm_way_id": 732648396,
+      "i1": {
+        "osm_node_id": 60799460
+      },
+      "i2": {
+        "osm_node_id": 53209424
+      }
+    }
+  ],
+  "delete_intersections": [
+    {
+      "osm_node_id": 29449863
+    },
+    {
+      "osm_node_id": 29464223
+    },
+    {
+      "osm_node_id": 53063382
+    },
+    {
+      "osm_node_id": 53070282
+    },
+    {
+      "osm_node_id": 53084780
+    },
+    {
+      "osm_node_id": 53084816
+    },
+    {
+      "osm_node_id": 53096949
+    },
+    {
+      "osm_node_id": 53103988
+    },
+    {
+      "osm_node_id": 53128066
+    },
+    {
+      "osm_node_id": 53198130
+    },
+    {
+      "osm_node_id": 53207165
+    },
+    {
+      "osm_node_id": 53209424
+    },
+    {
+      "osm_node_id": 53233985
+    },
+    {
+      "osm_node_id": 53238761
+    },
+    {
+      "osm_node_id": 59677236
+    },
+    {
+      "osm_node_id": 59702422
+    },
+    {
+      "osm_node_id": 128683528
+    },
+    {
+      "osm_node_id": 496331163
+    },
+    {
+      "osm_node_id": 1635790583
+    },
+    {
+      "osm_node_id": 1709142313
+    },
+    {
+      "osm_node_id": 1726737153
+    },
+    {
+      "osm_node_id": 2247309277
+    },
+    {
+      "osm_node_id": 2499826475
+    },
+    {
+      "osm_node_id": 2702114617
+    },
+    {
+      "osm_node_id": 2702114618
+    },
+    {
+      "osm_node_id": 2702114622
+    },
+    {
+      "osm_node_id": 2901855342
+    },
+    {
+      "osm_node_id": 3391701872
+    },
+    {
+      "osm_node_id": 3391701875
+    },
+    {
+      "osm_node_id": 3391701877
+    },
+    {
+      "osm_node_id": 3391701878
+    },
+    {
+      "osm_node_id": 3391701880
+    },
+    {
+      "osm_node_id": 3391701882
+    },
+    {
+      "osm_node_id": 3391701883
+    },
+    {
+      "osm_node_id": 3978753087
+    },
+    {
+      "osm_node_id": 3978753092
+    },
+    {
+      "osm_node_id": 3978753096
+    },
+    {
+      "osm_node_id": 3978753097
+    },
+    {
+      "osm_node_id": 3978753107
+    },
+    {
+      "osm_node_id": 4240312872
+    },
+    {
+      "osm_node_id": 4240312878
+    },
+    {
+      "osm_node_id": 4240314159
+    },
+    {
+      "osm_node_id": 4240331992
+    },
+    {
+      "osm_node_id": 4273590092
+    },
+    {
+      "osm_node_id": 4303514198
+    },
+    {
+      "osm_node_id": 4549993731
+    },
+    {
+      "osm_node_id": 4550007326
+    },
+    {
+      "osm_node_id": 4560936658
+    },
+    {
+      "osm_node_id": 4828090661
+    }
+  ],
+  "override_intersections": [
+    [
+      {
+        "osm_node_id": -1572313928
+      },
+      {
+        "point": {
+          "inner_x": 815.4157,
+          "inner_y": 885.2228
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": true
+      }
+    ],
+    [
+      {
+        "osm_node_id": -1572313561
+      },
+      {
+        "point": {
+          "inner_x": 1668.7289,
+          "inner_y": 1510.4682
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": true
+      }
+    ],
+    [
+      {
+        "osm_node_id": -1572304203
+      },
+      {
+        "point": {
+          "inner_x": 1291.5613,
+          "inner_y": 214.9872
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": true
+      }
+    ],
+    [
+      {
+        "osm_node_id": -1572304177
+      },
+      {
+        "point": {
+          "inner_x": 1293.2707,
+          "inner_y": 243.1074
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": true
+      }
+    ],
+    [
+      {
+        "osm_node_id": -1572304009
+      },
+      {
+        "point": {
+          "inner_x": 1324.0626,
+          "inner_y": 395.5947
+        },
+        "intersection_type": "TrafficSignal",
+        "label": null,
+        "synthetic": true
+      }
+    ],
+    [
+      {
+        "osm_node_id": -1572303923
+      },
+      {
+        "point": {
+          "inner_x": 1378.4252,
+          "inner_y": 462.0367
+        },
+        "intersection_type": "TrafficSignal",
+        "label": null,
+        "synthetic": true
+      }
+    ],
+    [
+      {
+        "osm_node_id": 53084781
+      },
+      {
+        "point": {
+          "inner_x": 419.1567,
+          "inner_y": 884.2104
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 53104018
+      },
+      {
+        "point": {
+          "inner_x": 241.5477,
+          "inner_y": 1689.6848
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 53198127
+      },
+      {
+        "point": {
+          "inner_x": 1408.5647,
+          "inner_y": 494.3916
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 53198688
+      },
+      {
+        "point": {
+          "inner_x": 1118.8946,
+          "inner_y": 1213.6889
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 53219978
+      },
+      {
+        "point": {
+          "inner_x": 32.623,
+          "inner_y": 642.6562
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 53230475
+      },
+      {
+        "point": {
+          "inner_x": 1139.1536,
+          "inner_y": 557.4098
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 53233987
+      },
+      {
+        "point": {
+          "inner_x": 457.5796,
+          "inner_y": 1742.6693
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 59677221
+      },
+      {
+        "point": {
+          "inner_x": 1731.0663,
+          "inner_y": 674.0441
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 59677231
+      },
+      {
+        "point": {
+          "inner_x": 1255.5729,
+          "inner_y": 217.2838
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 59708429
+      },
+      {
+        "point": {
+          "inner_x": 1740.6267,
+          "inner_y": 715.8394
+        },
+        "intersection_type": "Border",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 59710790
+      },
+      {
+        "point": {
+          "inner_x": 1216.2277,
+          "inner_y": 119.376
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 60799460
+      },
+      {
+        "point": {
+          "inner_x": 520.9743,
+          "inner_y": 1025.8538
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 491979463
+      },
+      {
+        "point": {
+          "inner_x": 1330.0072,
+          "inner_y": 217.4858
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 720880672
+      },
+      {
+        "point": {
+          "inner_x": 1300.6469,
+          "inner_y": 420.2311
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 1437096596
+      },
+      {
+        "point": {
+          "inner_x": 1287.9516,
+          "inner_y": 65.9105
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 1694909131
+      },
+      {
+        "point": {
+          "inner_x": 1612.0607,
+          "inner_y": 1567.6107
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 1709141381
+      },
+      {
+        "point": {
+          "inner_x": 1658.1012,
+          "inner_y": 1533.7086
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 1709141982
+      },
+      {
+        "point": {
+          "inner_x": 1700.4995,
+          "inner_y": 1512.7473
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 1709142353
+      },
+      {
+        "point": {
+          "inner_x": 1650.0764,
+          "inner_y": 1490.4267
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 1709142595
+      },
+      {
+        "point": {
+          "inner_x": 1672.8696,
+          "inner_y": 1479.6131
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 1726081485
+      },
+      {
+        "point": {
+          "inner_x": 84.7289,
+          "inner_y": 1388.4765
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 1899337446
+      },
+      {
+        "point": {
+          "inner_x": 1652.7271,
+          "inner_y": 1581.4342
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 2702114627
+      },
+      {
+        "point": {
+          "inner_x": 1737.3471,
+          "inner_y": 481.0138
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 3001734211
+      },
+      {
+        "point": {
+          "inner_x": 207.4183,
+          "inner_y": 335.6925
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 3391701869
+      },
+      {
+        "point": {
+          "inner_x": 1434.2038,
+          "inner_y": 522.6175
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 3978753095
+      },
+      {
+        "point": {
+          "inner_x": 843.9664,
+          "inner_y": 885.2271
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 3978753105
+      },
+      {
+        "point": {
+          "inner_x": 830.4042,
+          "inner_y": 862.2815
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 4273590091
+      },
+      {
+        "point": {
+          "inner_x": 35.3598,
+          "inner_y": 476.9122
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 4303514204
+      },
+      {
+        "point": {
+          "inner_x": 1277.2179,
+          "inner_y": 333.6778
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 4828090664
+      },
+      {
+        "point": {
+          "inner_x": 1479.5632,
+          "inner_y": 342.9388
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 5417462688
+      },
+      {
+        "point": {
+          "inner_x": 1480.1613,
+          "inner_y": 371.7859
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 5761169971
+      },
+      {
+        "point": {
+          "inner_x": 165.4282,
+          "inner_y": 438.766
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 6212789180
+      },
+      {
+        "point": {
+          "inner_x": 1735.6199,
+          "inner_y": 728.2857
+        },
+        "intersection_type": "StopSign",
+        "label": null,
+        "synthetic": false
+      }
+    ]
+  ],
+  "override_roads": [
+    [
+      {
+        "osm_way_id": -1572313961,
+        "i1": {
+          "osm_node_id": -1572313928
+        },
+        "i2": {
+          "osm_node_id": 3978753099
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 815.4157,
+            "inner_y": 885.2228
+          },
+          {
+            "inner_x": 786.3408,
+            "inner_y": 879.8966
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572313961",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "ds/ds",
+          "highway": "primary",
+          "maxspeed": "25 mph",
+          "name": "Montlake roundabout"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572313960,
+        "i1": {
+          "osm_node_id": 2499822233
+        },
+        "i2": {
+          "osm_node_id": -1572313928
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 859.806,
+            "inner_y": 904.4373
+          },
+          {
+            "inner_x": 823.2181,
+            "inner_y": 902.5022
+          },
+          {
+            "inner_x": 815.4157,
+            "inner_y": 885.2228
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572313960",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "ds/ds",
+          "highway": "primary",
+          "maxspeed": "25 mph",
+          "name": "Montlake roundabout"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572313958,
+        "i1": {
+          "osm_node_id": -1572313928
+        },
+        "i2": {
+          "osm_node_id": 3978753095
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 815.4157,
+            "inner_y": 885.2228
+          },
+          {
+            "inner_x": 843.9664,
+            "inner_y": 885.2271
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572313958",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "ds/ds",
+          "highway": "primary",
+          "maxspeed": "25 mph",
+          "name": "Montlake roundabout"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572313956,
+        "i1": {
+          "osm_node_id": -1572313928
+        },
+        "i2": {
+          "osm_node_id": 3978753105
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 815.4157,
+            "inner_y": 885.2228
+          },
+          {
+            "inner_x": 830.4042,
+            "inner_y": 862.2815
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572313956",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "ds/ds",
+          "highway": "primary",
+          "maxspeed": "25 mph",
+          "name": "Montlake roundabout"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572313932,
+        "i1": {
+          "osm_node_id": 3978753110
+        },
+        "i2": {
+          "osm_node_id": -1572313928
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 798.6749,
+            "inner_y": 861.2825
+          },
+          {
+            "inner_x": 815.4157,
+            "inner_y": 885.2228
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572313932",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "ds/ds",
+          "highway": "primary",
+          "maxspeed": "25 mph",
+          "name": "Montlake roundabout"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572313586,
+        "i1": {
+          "osm_node_id": -1572313561
+        },
+        "i2": {
+          "osm_node_id": 1709141982
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1668.7289,
+            "inner_y": 1510.4682
+          },
+          {
+            "inner_x": 1700.4995,
+            "inner_y": 1512.7473
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572313586",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "ds/ds",
+          "highway": "tertiary",
+          "maxspeed": "30 mph",
+          "name": "Boyer Avenue East"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572313585,
+        "i1": {
+          "osm_node_id": 1709142353
+        },
+        "i2": {
+          "osm_node_id": -1572313561
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1650.0764,
+            "inner_y": 1490.4267
+          },
+          {
+            "inner_x": 1668.7289,
+            "inner_y": 1510.4682
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572313585",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "ds/ds",
+          "highway": "tertiary",
+          "maxspeed": "30 mph",
+          "name": "Boyer Avenue East"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572313582,
+        "i1": {
+          "osm_node_id": -1572313561
+        },
+        "i2": {
+          "osm_node_id": 1709142595
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1668.7289,
+            "inner_y": 1510.4682
+          },
+          {
+            "inner_x": 1672.8696,
+            "inner_y": 1479.6131
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572313582",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "ds/ds",
+          "highway": "residential",
+          "maxspeed": "25 mph",
+          "name": "26th Avenue East"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572313581,
+        "i1": {
+          "osm_node_id": 1709141381
+        },
+        "i2": {
+          "osm_node_id": -1572313561
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1658.1012,
+            "inner_y": 1533.7086
+          },
+          {
+            "inner_x": 1668.7289,
+            "inner_y": 1510.4682
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572313581",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "ds/ds",
+          "highway": "residential",
+          "maxspeed": "25 mph",
+          "name": "26th Avenue East"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572311289,
+        "i1": {
+          "osm_node_id": 53101732
+        },
+        "i2": {
+          "osm_node_id": 59677221
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1736.2997,
+            "inner_y": 643.7185
+          },
+          {
+            "inner_x": 1731.0663,
+            "inner_y": 674.0441
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572311289",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "dps/dps",
+          "highway": "secondary",
+          "maxspeed": "30 mph",
+          "name": "Lake Washington Boulevard East"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572304230,
+        "i1": {
+          "osm_node_id": 491979474
+        },
+        "i2": {
+          "osm_node_id": 4550007325
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1308.937,
+            "inner_y": 122.1031
+          },
+          {
+            "inner_x": 1281.2714,
+            "inner_y": 120.7466
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572304230",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "dds/s",
+          "highway": "residential",
+          "maxspeed": "25 mph",
+          "name": "East Shelby Street"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572304227,
+        "i1": {
+          "osm_node_id": 4550007325
+        },
+        "i2": {
+          "osm_node_id": 1437096596
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1281.2714,
+            "inner_y": 120.7466
+          },
+          {
+            "inner_x": 1287.9516,
+            "inner_y": 65.9105
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572304227",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "dds/dds",
+          "highway": "secondary",
+          "maxspeed": "30 mph",
+          "name": "East Montlake Place East"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572304225,
+        "i1": {
+          "osm_node_id": -1572304203
+        },
+        "i2": {
+          "osm_node_id": 4550007325
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1291.5613,
+            "inner_y": 214.9872
+          },
+          {
+            "inner_x": 1281.2714,
+            "inner_y": 120.7466
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572304225",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "dds/dds",
+          "highway": "secondary",
+          "maxspeed": "30 mph",
+          "name": "East Montlake Place East"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572304208,
+        "i1": {
+          "osm_node_id": -1572304203
+        },
+        "i2": {
+          "osm_node_id": 491979463
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1291.5613,
+            "inner_y": 214.9872
+          },
+          {
+            "inner_x": 1330.0072,
+            "inner_y": 217.4858
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572304208",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "dps/ps",
+          "highway": "residential",
+          "maxspeed": "25 mph",
+          "name": "East Hamlin Street"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572304207,
+        "i1": {
+          "osm_node_id": 59677231
+        },
+        "i2": {
+          "osm_node_id": -1572304203
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1255.5729,
+            "inner_y": 217.2838
+          },
+          {
+            "inner_x": 1291.5613,
+            "inner_y": 214.9872
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572304207",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "ps/dps",
+          "highway": "residential",
+          "maxspeed": "25 mph",
+          "name": "East Hamlin Street"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572304205,
+        "i1": {
+          "osm_node_id": -1572304177
+        },
+        "i2": {
+          "osm_node_id": -1572304203
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1293.2707,
+            "inner_y": 243.1074
+          },
+          {
+            "inner_x": 1291.5613,
+            "inner_y": 214.9872
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572304205",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "dds/dds",
+          "highway": "secondary",
+          "maxspeed": "30 mph",
+          "name": "East Montlake Place East"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572304182,
+        "i1": {
+          "osm_node_id": -1572304177
+        },
+        "i2": {
+          "osm_node_id": 29463657
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1293.2707,
+            "inner_y": 243.1074
+          },
+          {
+            "inner_x": 1277.6821,
+            "inner_y": 288.2506
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572304182",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "d/",
+          "highway": "motorway_link",
+          "maxspeed": "",
+          "name": ""
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572304179,
+        "i1": {
+          "osm_node_id": -1572304177
+        },
+        "i2": {
+          "osm_node_id": 5413301445
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1293.2707,
+            "inner_y": 243.1074
+          },
+          {
+            "inner_x": 1298.7085,
+            "inner_y": 310.623
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572304179",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "dds/dds",
+          "highway": "secondary",
+          "maxspeed": "30 mph",
+          "name": "East Montlake Place East"
+        },
+        "turn_restrictions": [
+          [
+            "BanTurns",
+            {
+              "osm_way_id": -1572304182,
+              "i1": {
+                "osm_node_id": -1572304177
+              },
+              "i2": {
+                "osm_node_id": 29463657
+              }
+            }
+          ]
+        ]
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572304159,
+        "i1": {
+          "osm_node_id": 5413301445
+        },
+        "i2": {
+          "osm_node_id": 4303514204
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1298.7085,
+            "inner_y": 310.623
+          },
+          {
+            "inner_x": 1277.2179,
+            "inner_y": 333.6778
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572304159",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "d/",
+          "highway": "motorway_link",
+          "maxspeed": "",
+          "name": ""
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572304143,
+        "i1": {
+          "osm_node_id": -1572304009
+        },
+        "i2": {
+          "osm_node_id": 5413301445
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1324.0626,
+            "inner_y": 395.5947
+          },
+          {
+            "inner_x": 1304.3814,
+            "inner_y": 358.9065
+          },
+          {
+            "inner_x": 1298.7085,
+            "inner_y": 310.623
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572304143",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "dds/dds",
+          "highway": "secondary",
+          "maxspeed": "30 mph",
+          "name": "East Montlake Place East"
+        },
+        "turn_restrictions": [
+          [
+            "OnlyAllowTurns",
+            {
+              "osm_way_id": -1572304179,
+              "i1": {
+                "osm_node_id": -1572304177
+              },
+              "i2": {
+                "osm_node_id": 5413301445
+              }
+            }
+          ]
+        ]
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572304105,
+        "i1": {
+          "osm_node_id": 720880672
+        },
+        "i2": {
+          "osm_node_id": -1572304009
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1300.6469,
+            "inner_y": 420.2311
+          },
+          {
+            "inner_x": 1324.0626,
+            "inner_y": 395.5947
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572304105",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "dd/",
+          "highway": "motorway_link",
+          "maxspeed": "",
+          "name": ""
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572304074,
+        "i1": {
+          "osm_node_id": 29464222
+        },
+        "i2": {
+          "osm_node_id": -1572304009
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1279.3681,
+            "inner_y": 427.5222
+          },
+          {
+            "inner_x": 1298.6419,
+            "inner_y": 405.603
+          },
+          {
+            "inner_x": 1324.0626,
+            "inner_y": 395.5947
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572304074",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "/d",
+          "highway": "motorway_link",
+          "maxspeed": "",
+          "name": ""
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572304022,
+        "i1": {
+          "osm_node_id": 3391701887
+        },
+        "i2": {
+          "osm_node_id": -1572304009
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1381.4655,
+            "inner_y": 376.4504
+          },
+          {
+            "inner_x": 1324.0626,
+            "inner_y": 395.5947
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572304022",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "d/dps",
+          "highway": "secondary",
+          "maxspeed": "30 mph",
+          "name": "East Lake Washington Boulevard"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572304018,
+        "i1": {
+          "osm_node_id": 53128053
+        },
+        "i2": {
+          "osm_node_id": -1572304009
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1349.4238,
+            "inner_y": 420.0944
+          },
+          {
+            "inner_x": 1324.0626,
+            "inner_y": 395.5947
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572304018",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "dds/dds",
+          "highway": "secondary",
+          "maxspeed": "30 mph",
+          "name": "East Montlake Place East"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572303999,
+        "i1": {
+          "osm_node_id": 53128053
+        },
+        "i2": {
+          "osm_node_id": -1572303923
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1349.4238,
+            "inner_y": 420.0944
+          },
+          {
+            "inner_x": 1378.4252,
+            "inner_y": 462.0367
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572303999",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "dds/dds",
+          "highway": "secondary",
+          "maxspeed": "30 mph",
+          "name": "East Montlake Place East"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572303970,
+        "i1": {
+          "osm_node_id": 53198127
+        },
+        "i2": {
+          "osm_node_id": 3391701869
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1408.5647,
+            "inner_y": 494.3916
+          },
+          {
+            "inner_x": 1434.2038,
+            "inner_y": 522.6175
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572303970",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "dds/dds",
+          "highway": "secondary",
+          "maxspeed": "30 mph",
+          "name": "East Montlake Place East"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572303965,
+        "i1": {
+          "osm_node_id": -1572303923
+        },
+        "i2": {
+          "osm_node_id": 53198127
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1378.4252,
+            "inner_y": 462.0367
+          },
+          {
+            "inner_x": 1408.5647,
+            "inner_y": 494.3916
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572303965",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "dds/dds",
+          "highway": "secondary",
+          "maxspeed": "30 mph",
+          "name": "East Montlake Place East"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": -1572303936,
+        "i1": {
+          "osm_node_id": 53128052
+        },
+        "i2": {
+          "osm_node_id": -1572303923
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1350.4503,
+            "inner_y": 480.3287
+          },
+          {
+            "inner_x": 1378.4252,
+            "inner_y": 462.0367
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "-1572303936",
+          "abst:synthetic": "true",
+          "abst:synthetic_lanes": "ds/ds",
+          "highway": "tertiary",
+          "maxspeed": "30 mph",
+          "name": "East Roanoke Street"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 4634847,
+        "i1": {
+          "osm_node_id": 29449867
+        },
+        "i2": {
+          "osm_node_id": 720880672
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1263.04,
+            "inner_y": 455.8881
+          },
+          {
+            "inner_x": 1273.0662,
+            "inner_y": 447.4484
+          },
+          {
+            "inner_x": 1285.6625,
+            "inner_y": 433.8826
+          },
+          {
+            "inner_x": 1289.3643,
+            "inner_y": 429.1457
+          },
+          {
+            "inner_x": 1300.6469,
+            "inner_y": 420.2311
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "4634847",
+          "bicycle": "no",
+          "highway": "motorway_link",
+          "lanes": "2",
+          "oneway": "yes",
+          "toll": "no"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 6341293,
+        "i1": {
+          "osm_node_id": 53063368
+        },
+        "i2": {
+          "osm_node_id": 53233987
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 459.9984,
+            "inner_y": 1779.1188
+          },
+          {
+            "inner_x": 457.5796,
+            "inner_y": 1742.6693
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "6341293",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "lit": "yes",
+          "maxspeed": "25 mph",
+          "name": "Volunteer Park Road",
+          "parking:lane:both": "no_parking",
+          "sidewalk": "both",
+          "surface": "asphalt"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 6348159,
+        "i1": {
+          "osm_node_id": 53084778
+        },
+        "i2": {
+          "osm_node_id": 53084781
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 339.6002,
+            "inner_y": 884.4444
+          },
+          {
+            "inner_x": 419.1567,
+            "inner_y": 884.2104
+          }
+        ],
+        "osm_tags": {
+          "abst:osm_way_id": "6348159",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "East Lynn Street",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 6348159,
+        "i1": {
+          "osm_node_id": 53084781
+        },
+        "i2": {
+          "osm_node_id": 53069241
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 419.1567,
+            "inner_y": 884.2104
+          },
+          {
+            "inner_x": 436.9618,
+            "inner_y": 887.4022
+          },
+          {
+            "inner_x": 450.6672,
+            "inner_y": 887.8804
+          },
+          {
+            "inner_x": 464.7173,
+            "inner_y": 889.2814
+          },
+          {
+            "inner_x": 475.77,
+            "inner_y": 893.3623
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "6348159",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "East Lynn Street",
+          "parking:lane:left": "parallel",
+          "parking:lane:right": "no_parking",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 6357352,
+        "i1": {
+          "osm_node_id": 53096936
+        },
+        "i2": {
+          "osm_node_id": 1709141982
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1745.9587,
+            "inner_y": 1518.7111
+          },
+          {
+            "inner_x": 1716.0076,
+            "inner_y": 1514.2525
+          },
+          {
+            "inner_x": 1700.4995,
+            "inner_y": 1512.7473
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "6357352",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "tertiary",
+          "lanes": "2",
+          "maxspeed": "30 mph",
+          "name": "Boyer Avenue East",
+          "parking:lane:both": "no_parking",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 6386950,
+        "i1": {
+          "osm_node_id": 53072658
+        },
+        "i2": {
+          "osm_node_id": 59710790
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 961.3488,
+            "inner_y": 125.7615
+          },
+          {
+            "inner_x": 961.9633,
+            "inner_y": 125.528
+          },
+          {
+            "inner_x": 968.2053,
+            "inner_y": 123.1373
+          },
+          {
+            "inner_x": 977.9991,
+            "inner_y": 121.992
+          },
+          {
+            "inner_x": 988.5348,
+            "inner_y": 122.092
+          },
+          {
+            "inner_x": 991.3973,
+            "inner_y": 122.1254
+          },
+          {
+            "inner_x": 1216.2277,
+            "inner_y": 119.376
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "6386950",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "1",
+          "maxspeed": "25 mph",
+          "name": "East Shelby Street",
+          "oneway": "yes",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 6390208,
+        "i1": {
+          "osm_node_id": 53128053
+        },
+        "i2": {
+          "osm_node_id": 53137203
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1349.4238,
+            "inner_y": 420.0944
+          },
+          {
+            "inner_x": 1357.8014,
+            "inner_y": 416.614
+          },
+          {
+            "inner_x": 1404.4477,
+            "inner_y": 417.0699
+          },
+          {
+            "inner_x": 1472.8698,
+            "inner_y": 417.4146
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "6390208",
+          "bicycle": "designated",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "East North Street",
+          "parking:lane:left": "no_parking",
+          "parking:lane:right": "parallel",
+          "sidewalk": "right"
+        },
+        "turn_restrictions": [
+          [
+            "OnlyAllowTurns",
+            {
+              "osm_way_id": -1572304018,
+              "i1": {
+                "osm_node_id": 53128053
+              },
+              "i2": {
+                "osm_node_id": -1572304009
+              }
+            }
+          ]
+        ]
+      }
+    ],
+    [
+      {
+        "osm_way_id": 6400839,
+        "i1": {
+          "osm_node_id": 53149378
+        },
+        "i2": {
+          "osm_node_id": 5761169971
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 164.0602,
+            "inner_y": 336.1089
+          },
+          {
+            "inner_x": 165.4282,
+            "inner_y": 438.766
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "6400839",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "yes",
+          "cycleway": "no",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "10th Avenue East",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 6403889,
+        "i1": {
+          "osm_node_id": 53153052
+        },
+        "i2": {
+          "osm_node_id": 60799460
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 528.9056,
+            "inner_y": 1279.2865
+          },
+          {
+            "inner_x": 532.7864,
+            "inner_y": 1059.7395
+          },
+          {
+            "inner_x": 520.9743,
+            "inner_y": 1025.8538
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "6403889",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "14th Avenue East",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 6411911,
+        "i1": {
+          "osm_node_id": 53084778
+        },
+        "i2": {
+          "osm_node_id": 53101735
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 339.6002,
+            "inner_y": 884.4444
+          },
+          {
+            "inner_x": 363.9545,
+            "inner_y": 874.3025
+          },
+          {
+            "inner_x": 359.2179,
+            "inner_y": 739.9355
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "6411911",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "12th Avenue East",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 6413596,
+        "i1": {
+          "osm_node_id": 1726081485
+        },
+        "i2": {
+          "osm_node_id": 53149395
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 84.7289,
+            "inner_y": 1388.4765
+          },
+          {
+            "inner_x": 128.4066,
+            "inner_y": 1388.0018
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:osm_way_id": "6413596",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "East Blaine Street",
+          "parking:lane:left": "parallel",
+          "parking:lane:right": "no_parking",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 6444010,
+        "i1": {
+          "osm_node_id": 53198127
+        },
+        "i2": {
+          "osm_node_id": 53198128
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1408.5647,
+            "inner_y": 494.3916
+          },
+          {
+            "inner_x": 1478.6022,
+            "inner_y": 481.285
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:osm_way_id": "6444010",
+          "highway": "residential",
+          "lanes": "2",
+          "lcn": "yes",
+          "maxspeed": "25 mph",
+          "name": "East Roanoke Street",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both",
+          "turn:lanes:backward": "right"
+        },
+        "turn_restrictions": [
+          [
+            "OnlyAllowTurns",
+            {
+              "osm_way_id": -1572303965,
+              "i1": {
+                "osm_node_id": -1572303923
+              },
+              "i2": {
+                "osm_node_id": 53198127
+              }
+            }
+          ]
+        ]
+      }
+    ],
+    [
+      {
+        "osm_way_id": 6444682,
+        "i1": {
+          "osm_node_id": 53198688
+        },
+        "i2": {
+          "osm_node_id": 53198689
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1118.8946,
+            "inner_y": 1213.6889
+          },
+          {
+            "inner_x": 1140.2159,
+            "inner_y": 1188.0399
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:osm_way_id": "6444682",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "21st Avenue East",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 6448619,
+        "i1": {
+          "osm_node_id": 59710416
+        },
+        "i2": {
+          "osm_node_id": 1709143541
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1596.2933,
+            "inner_y": 887.3133
+          },
+          {
+            "inner_x": 1607.7754,
+            "inner_y": 868.3029
+          },
+          {
+            "inner_x": 1607.1138,
+            "inner_y": 806.4078
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:osm_way_id": "6448619",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "designated",
+          "cycleway": "shared_lane",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "25th Avenue East",
+          "parking:lane:left": "parallel",
+          "parking:lane:right": "no_parking",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 6451636,
+        "i1": {
+          "osm_node_id": 59677231
+        },
+        "i2": {
+          "osm_node_id": 53043722
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1255.5729,
+            "inner_y": 217.2838
+          },
+          {
+            "inner_x": 1236.4385,
+            "inner_y": 215.6737
+          },
+          {
+            "inner_x": 1156.5515,
+            "inner_y": 215.4179
+          },
+          {
+            "inner_x": 1154.4459,
+            "inner_y": 215.4068
+          },
+          {
+            "inner_x": 1104.2627,
+            "inner_y": 215.2511
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:osm_way_id": "6451636",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "1",
+          "maxspeed": "25 mph",
+          "name": "East Hamlin Street",
+          "oneway": "yes",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 6454433,
+        "i1": {
+          "osm_node_id": 53166005
+        },
+        "i2": {
+          "osm_node_id": 1744641060
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1416.5345,
+            "inner_y": 1214.2263
+          },
+          {
+            "inner_x": 1412.0522,
+            "inner_y": 1265.1003
+          },
+          {
+            "inner_x": 1417.4937,
+            "inner_y": 1292.9857
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "6454433",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "East Howe Street",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 6462103,
+        "i1": {
+          "osm_node_id": 53213459
+        },
+        "i2": {
+          "osm_node_id": 53084781
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 418.2358,
+            "inner_y": 1027.1186
+          },
+          {
+            "inner_x": 418.588,
+            "inner_y": 999.887
+          },
+          {
+            "inner_x": 418.6929,
+            "inner_y": 988.7898
+          },
+          {
+            "inner_x": 418.9177,
+            "inner_y": 973.8007
+          },
+          {
+            "inner_x": 418.9102,
+            "inner_y": 971.9104
+          },
+          {
+            "inner_x": 419.1567,
+            "inner_y": 884.2104
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "6462103",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "13th Avenue East",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 6484894,
+        "i1": {
+          "osm_node_id": 53206817
+        },
+        "i2": {
+          "osm_node_id": 53230475
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1180.8825,
+            "inner_y": 558.7434
+          },
+          {
+            "inner_x": 1139.1536,
+            "inner_y": 557.4098
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "6484894",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "East Louisa Street",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 6495789,
+        "i1": {
+          "osm_node_id": 53219809
+        },
+        "i2": {
+          "osm_node_id": 6212789180
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1735.1907,
+            "inner_y": 805.9519
+          },
+          {
+            "inner_x": 1735.6199,
+            "inner_y": 728.2857
+          }
+        ],
+        "osm_tags": {
+          "abst:osm_way_id": "6495789",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "26th Avenue East",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 6495792,
+        "i1": {
+          "osm_node_id": 53214349
+        },
+        "i2": {
+          "osm_node_id": 1709141381
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1642.3402,
+            "inner_y": 1646.9859
+          },
+          {
+            "inner_x": 1629.6239,
+            "inner_y": 1606.6666
+          },
+          {
+            "inner_x": 1628.3126,
+            "inner_y": 1601.7073
+          },
+          {
+            "inner_x": 1627.6906,
+            "inner_y": 1596.6146
+          },
+          {
+            "inner_x": 1627.758,
+            "inner_y": 1591.4885
+          },
+          {
+            "inner_x": 1628.5299,
+            "inner_y": 1586.418
+          },
+          {
+            "inner_x": 1629.9836,
+            "inner_y": 1581.5032
+          },
+          {
+            "inner_x": 1632.0892,
+            "inner_y": 1576.833
+          },
+          {
+            "inner_x": 1634.8168,
+            "inner_y": 1572.4853
+          },
+          {
+            "inner_x": 1658.1012,
+            "inner_y": 1533.7086
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "6495792",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "designated",
+          "cycleway": "shared_lane",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "26th Avenue East",
+          "parking:lane:both": "no_parking",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 6495804,
+        "i1": {
+          "osm_node_id": 1709142595
+        },
+        "i2": {
+          "osm_node_id": 53230466
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1672.8696,
+            "inner_y": 1479.6131
+          },
+          {
+            "inner_x": 1674.2845,
+            "inner_y": 1066.6373
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:osm_way_id": "6495804",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "designated",
+          "cycleway": "shared_lane",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "26th Avenue East",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 6505131,
+        "i1": {
+          "osm_node_id": 3978753105
+        },
+        "i2": {
+          "osm_node_id": 53219805
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 830.4042,
+            "inner_y": 862.2815
+          },
+          {
+            "inner_x": 829.6526,
+            "inner_y": 841.323
+          },
+          {
+            "inner_x": 830.1771,
+            "inner_y": 801.4819
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:osm_way_id": "6505131",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "16th Avenue East",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 6511010,
+        "i1": {
+          "osm_node_id": 1709144244
+        },
+        "i2": {
+          "osm_node_id": 6212789180
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1607.3161,
+            "inner_y": 724.624
+          },
+          {
+            "inner_x": 1735.6199,
+            "inner_y": 728.2857
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "6511010",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "East Calhoun Street",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 7977712,
+        "i1": {
+          "osm_node_id": 53084781
+        },
+        "i2": {
+          "osm_node_id": 53101736
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 419.1567,
+            "inner_y": 884.2104
+          },
+          {
+            "inner_x": 432.6414,
+            "inner_y": 872.9763
+          },
+          {
+            "inner_x": 428.6816,
+            "inner_y": 740.0912
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "7977712",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "13th Avenue East",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 7978479,
+        "i1": {
+          "osm_node_id": 1726088135
+        },
+        "i2": {
+          "osm_node_id": 53103989
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1511.3108,
+            "inner_y": 1675.6074
+          },
+          {
+            "inner_x": 1525.8691,
+            "inner_y": 1692.829
+          },
+          {
+            "inner_x": 1561.3442,
+            "inner_y": 1692.2311
+          },
+          {
+            "inner_x": 1610.216,
+            "inner_y": 1692.5758
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:osm_way_id": "7978479",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "East Galer Street",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 13521798,
+        "i1": {
+          "osm_node_id": 29545020
+        },
+        "i2": {
+          "osm_node_id": 4273590091
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 0.0,
+            "inner_y": 478.6515
+          },
+          {
+            "inner_x": 23.3719,
+            "inner_y": 478.8165
+          },
+          {
+            "inner_x": 35.3598,
+            "inner_y": 476.9122
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "13521798",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "cycleway:both": "no",
+          "highway": "secondary",
+          "lanes": "4",
+          "lanes:backward": "2",
+          "lanes:forward": "2",
+          "maxspeed": "30 mph",
+          "name": "East Roanoke Street",
+          "parking:lane:both": "no_parking",
+          "sidewalk": "both",
+          "trolley_wire": "yes",
+          "turn:lanes:backward": "|right"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 13802846,
+        "i1": {
+          "osm_node_id": 53078459
+        },
+        "i2": {
+          "osm_node_id": 53205982
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 288.3604,
+            "inner_y": 551.082
+          },
+          {
+            "inner_x": 246.3076,
+            "inner_y": 511.341
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "13802846",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "designated",
+          "bridge": "yes",
+          "cycleway": "lane",
+          "highway": "secondary",
+          "lanes": "2",
+          "layer": "1",
+          "maxspeed": "30 mph",
+          "name": "Delmar Drive East",
+          "parking:lane:left": "no_parking",
+          "parking:lane:right": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 32143958,
+        "i1": {
+          "osm_node_id": 60799460
+        },
+        "i2": {
+          "osm_node_id": 53130686
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 520.9743,
+            "inner_y": 1025.8538
+          },
+          {
+            "inner_x": 530.4567,
+            "inner_y": 1024.5834
+          },
+          {
+            "inner_x": 534.6905,
+            "inner_y": 1026.1068
+          },
+          {
+            "inner_x": 539.0591,
+            "inner_y": 1028.731
+          },
+          {
+            "inner_x": 630.4709,
+            "inner_y": 1095.1588
+          },
+          {
+            "inner_x": 643.1497,
+            "inner_y": 1095.081
+          },
+          {
+            "inner_x": 660.3995,
+            "inner_y": 1093.9802
+          },
+          {
+            "inner_x": 672.6737,
+            "inner_y": 1098.1166
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "32143958",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "East Boston Street",
+          "parking:lane:left": "parallel",
+          "parking:lane:right": "no_parking",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 40790122,
+        "i1": {
+          "osm_node_id": 3978753095
+        },
+        "i2": {
+          "osm_node_id": 53084803
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 843.9664,
+            "inner_y": 885.2271
+          },
+          {
+            "inner_x": 959.8127,
+            "inner_y": 882.543
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:osm_way_id": "40790122",
+          "highway": "tertiary",
+          "lanes": "2",
+          "maxspeed": "30 mph",
+          "name": "East Lynn Street",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 40790429,
+        "i1": {
+          "osm_node_id": 128669086
+        },
+        "i2": {
+          "osm_node_id": 53233987
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 697.6042,
+            "inner_y": 1687.3607
+          },
+          {
+            "inner_x": 648.0129,
+            "inner_y": 1736.0085
+          },
+          {
+            "inner_x": 621.1492,
+            "inner_y": 1745.8604
+          },
+          {
+            "inner_x": 591.6552,
+            "inner_y": 1749.6299
+          },
+          {
+            "inner_x": 514.1586,
+            "inner_y": 1741.2792
+          },
+          {
+            "inner_x": 495.3385,
+            "inner_y": 1744.3396
+          },
+          {
+            "inner_x": 486.4049,
+            "inner_y": 1743.9141
+          },
+          {
+            "inner_x": 457.5796,
+            "inner_y": 1742.6693
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "40790429",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "lit": "yes",
+          "maxspeed": "25 mph",
+          "name": "East Highland Drive",
+          "oneway": "yes",
+          "parking:lane:both": "no_parking",
+          "sidewalk": "both",
+          "surface": "asphalt"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 51538522,
+        "i1": {
+          "osm_node_id": 53149378
+        },
+        "i2": {
+          "osm_node_id": 3001734211
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 164.0602,
+            "inner_y": 336.1089
+          },
+          {
+            "inner_x": 207.4183,
+            "inner_y": 335.6925
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "51538522",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "East Edgar Street",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 149669467,
+        "i1": {
+          "osm_node_id": 53200539
+        },
+        "i2": {
+          "osm_node_id": 3391701869
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1472.585,
+            "inner_y": 561.1007
+          },
+          {
+            "inner_x": 1469.0781,
+            "inner_y": 554.429
+          },
+          {
+            "inner_x": 1464.7994,
+            "inner_y": 548.2132
+          },
+          {
+            "inner_x": 1459.8163,
+            "inner_y": 542.5534
+          },
+          {
+            "inner_x": 1434.2038,
+            "inner_y": 522.6175
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "149669467",
+          "highway": "secondary",
+          "lanes": "4",
+          "maxspeed": "30 mph",
+          "name": "East Montlake Place East",
+          "old_ref": "WA 513 (Old SSH 1J)",
+          "parking:lane:both": "no_parking",
+          "sidewalk": "both",
+          "trolley_wire": "yes"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 157279808,
+        "i1": {
+          "osm_node_id": 53217949
+        },
+        "i2": {
+          "osm_node_id": 1899337446
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1745.9587,
+            "inner_y": 1588.5621
+          },
+          {
+            "inner_x": 1745.007,
+            "inner_y": 1587.5744
+          },
+          {
+            "inner_x": 1732.1934,
+            "inner_y": 1579.1903
+          },
+          {
+            "inner_x": 1711.4966,
+            "inner_y": 1573.2748
+          },
+          {
+            "inner_x": 1698.6829,
+            "inner_y": 1573.2748
+          },
+          {
+            "inner_x": 1652.7271,
+            "inner_y": 1581.4342
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "157279808",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "designated",
+          "cycleway": "no",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "East Interlaken Boulevard",
+          "parking:lane:both": "no_parking",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 158780999,
+        "i1": {
+          "osm_node_id": 1709142353
+        },
+        "i2": {
+          "osm_node_id": 53096943
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1650.0764,
+            "inner_y": 1490.4267
+          },
+          {
+            "inner_x": 1639.2154,
+            "inner_y": 1476.5129
+          },
+          {
+            "inner_x": 1623.2021,
+            "inner_y": 1452.3948
+          },
+          {
+            "inner_x": 1592.2993,
+            "inner_y": 1400.2666
+          },
+          {
+            "inner_x": 1587.541,
+            "inner_y": 1393.9507
+          },
+          {
+            "inner_x": 1583.0525,
+            "inner_y": 1389.7475
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:osm_way_id": "158780999",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "tertiary",
+          "lanes": "2",
+          "maxspeed": "30 mph",
+          "name": "Boyer Avenue East",
+          "parking:lane:left": "parallel",
+          "parking:lane:right": "no_parking",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 179553345,
+        "i1": {
+          "osm_node_id": 1694909131
+        },
+        "i2": {
+          "osm_node_id": 1694909181
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1612.0607,
+            "inner_y": 1567.6107
+          },
+          {
+            "inner_x": 1599.8002,
+            "inner_y": 1554.2493
+          },
+          {
+            "inner_x": 1592.4792,
+            "inner_y": 1544.7199
+          },
+          {
+            "inner_x": 1584.199,
+            "inner_y": 1532.7664
+          },
+          {
+            "inner_x": 1579.3957,
+            "inner_y": 1514.8974
+          },
+          {
+            "inner_x": 1575.7989,
+            "inner_y": 1492.4249
+          },
+          {
+            "inner_x": 1571.9623,
+            "inner_y": 1468.796
+          },
+          {
+            "inner_x": 1569.0773,
+            "inner_y": 1459.4445
+          },
+          {
+            "inner_x": 1563.4198,
+            "inner_y": 1453.0953
+          },
+          {
+            "inner_x": 1554.2929,
+            "inner_y": 1447.1241
+          },
+          {
+            "inner_x": 1540.4976,
+            "inner_y": 1440.23
+          },
+          {
+            "inner_x": 1522.6259,
+            "inner_y": 1437.6725
+          },
+          {
+            "inner_x": 1514.4281,
+            "inner_y": 1435.8823
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:osm_way_id": "179553345",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "designated",
+          "cycleway": "no",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "East Interlaken Boulevard",
+          "parking:lane:both": "no_parking",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 179553349,
+        "i1": {
+          "osm_node_id": 1899337446
+        },
+        "i2": {
+          "osm_node_id": 1694909131
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1652.7271,
+            "inner_y": 1581.4342
+          },
+          {
+            "inner_x": 1612.0607,
+            "inner_y": 1567.6107
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "179553349",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "designated",
+          "bridge": "yes",
+          "cycleway": "no",
+          "highway": "residential",
+          "lanes": "2",
+          "layer": "1",
+          "maxspeed": "25 mph",
+          "name": "East Interlaken Boulevard",
+          "parking:lane:left": "parallel",
+          "parking:lane:right": "no_parking",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 240176876,
+        "i1": {
+          "osm_node_id": 53153052
+        },
+        "i2": {
+          "osm_node_id": 542743474
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 528.9056,
+            "inner_y": 1279.2865
+          },
+          {
+            "inner_x": 580.0148,
+            "inner_y": 1280.4022
+          },
+          {
+            "inner_x": 599.059,
+            "inner_y": 1281.0173
+          },
+          {
+            "inner_x": 615.1545,
+            "inner_y": 1284.9018
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "240176876",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "East Howe Street",
+          "parking:lane:both": "no_parking",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 240177901,
+        "i1": {
+          "osm_node_id": 2479349251
+        },
+        "i2": {
+          "osm_node_id": 53104018
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 198.3349,
+            "inner_y": 1690.3297
+          },
+          {
+            "inner_x": 241.5477,
+            "inner_y": 1689.6848
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "240177901",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "lit": "yes",
+          "maxspeed": "25 mph",
+          "name": "East Galer Street",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both",
+          "surface": "asphalt"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 242518274,
+        "i1": {
+          "osm_node_id": 53096958
+        },
+        "i2": {
+          "osm_node_id": 3005680107
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 711.6917,
+            "inner_y": 802.0935
+          },
+          {
+            "inner_x": 706.3304,
+            "inner_y": 774.0271
+          },
+          {
+            "inner_x": 706.6037,
+            "inner_y": 732.2408
+          },
+          {
+            "inner_x": 706.2365,
+            "inner_y": 722.856
+          },
+          {
+            "inner_x": 703.8162,
+            "inner_y": 717.9745
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "242518274",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "15th Avenue East",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 256990068,
+        "i1": {
+          "osm_node_id": 542743474
+        },
+        "i2": {
+          "osm_node_id": 2626074217
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 615.1545,
+            "inner_y": 1284.9018
+          },
+          {
+            "inner_x": 614.57,
+            "inner_y": 1127.5499
+          },
+          {
+            "inner_x": 614.5175,
+            "inner_y": 1122.8019
+          },
+          {
+            "inner_x": 613.6783,
+            "inner_y": 1118.1206
+          },
+          {
+            "inner_x": 612.0897,
+            "inner_y": 1113.695
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "256990068",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "designated",
+          "cycleway": "shared_lane",
+          "highway": "tertiary",
+          "lanes": "2",
+          "maxspeed": "30 mph",
+          "name": "15th Avenue East",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both",
+          "surface": "asphalt"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 263665925,
+        "i1": {
+          "osm_node_id": 53096958
+        },
+        "i2": {
+          "osm_node_id": 53096959
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 711.6917,
+            "inner_y": 802.0935
+          },
+          {
+            "inner_x": 625.9749,
+            "inner_y": 723.045
+          }
+        ],
+        "osm_tags": {
+          "abst:osm_way_id": "263665925",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "designated",
+          "cycleway": "shared_lane",
+          "highway": "tertiary",
+          "lanes": "2",
+          "maxspeed": "30 mph",
+          "name": "Boyer Avenue East",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 264545450,
+        "i1": {
+          "osm_node_id": 53101732
+        },
+        "i2": {
+          "osm_node_id": 2702114627
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1736.2997,
+            "inner_y": 643.7185
+          },
+          {
+            "inner_x": 1737.3471,
+            "inner_y": 481.0138
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "264545450",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "designated",
+          "cycleway": "shared_lane",
+          "highway": "secondary",
+          "lanes": "2",
+          "maxspeed": "30 mph",
+          "name": "Lake Washington Boulevard East",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 264545455,
+        "i1": {
+          "osm_node_id": 2702114627
+        },
+        "i2": {
+          "osm_node_id": 3919025363
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1737.3471,
+            "inner_y": 481.0138
+          },
+          {
+            "inner_x": 1736.4946,
+            "inner_y": 460.3915
+          },
+          {
+            "inner_x": 1732.006,
+            "inner_y": 445.2245
+          },
+          {
+            "inner_x": 1725.4418,
+            "inner_y": 430.8359
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "264545455",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "designated",
+          "cycleway": "shared_lane",
+          "highway": "secondary",
+          "lanes": "2",
+          "maxspeed": "30 mph",
+          "name": "Lake Washington Boulevard East",
+          "parking:lane:both": "no_parking",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 269583070,
+        "i1": {
+          "osm_node_id": 59710416
+        },
+        "i2": {
+          "osm_node_id": 53084817
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1596.2933,
+            "inner_y": 887.3133
+          },
+          {
+            "inner_x": 1678.5857,
+            "inner_y": 886.1012
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "269583070",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "designated",
+          "cycleway": "shared_lane",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "East Lynn Street",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 284562225,
+        "i1": {
+          "osm_node_id": 59677221
+        },
+        "i2": {
+          "osm_node_id": 6212789180
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1731.0663,
+            "inner_y": 674.0441
+          },
+          {
+            "inner_x": 1726.9011,
+            "inner_y": 698.2982
+          },
+          {
+            "inner_x": 1726.2675,
+            "inner_y": 712.0812
+          },
+          {
+            "inner_x": 1735.6199,
+            "inner_y": 728.2857
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "284562225",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "1",
+          "maxspeed": "25 mph",
+          "name": "26th Avenue East",
+          "oneway": "yes",
+          "parking:lane:both": "no_parking",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 290257899,
+        "i1": {
+          "osm_node_id": 2938080342
+        },
+        "i2": {
+          "osm_node_id": 1437096596
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1287.6189,
+            "inner_y": 0.0
+          },
+          {
+            "inner_x": 1287.9516,
+            "inner_y": 65.9105
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "290257899",
+          "bridge": "movable",
+          "bridge:movable": "bascule",
+          "bridge:name": "Montlake Bridge",
+          "heritage": "2",
+          "heritage:operator": "nrhp",
+          "highway": "primary",
+          "historic": "yes",
+          "lanes": "4",
+          "layer": "1",
+          "maxspeed": "30 mph",
+          "name": "Montlake Boulevard East",
+          "old_ref": "SSH 1J",
+          "parking:lane:both": "no_stopping",
+          "ref": "WA 513",
+          "ref:nrhp": "82004242",
+          "sidewalk": "both",
+          "surface": "metal",
+          "trolley_wire": "yes",
+          "wikidata": "Q6906049",
+          "wikipedia": "en:Montlake Bridge"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 332060228,
+        "i1": {
+          "osm_node_id": 3391701887
+        },
+        "i2": {
+          "osm_node_id": 5417462688
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1381.4655,
+            "inner_y": 376.4504
+          },
+          {
+            "inner_x": 1412.9227,
+            "inner_y": 373.5038
+          },
+          {
+            "inner_x": 1433.2298,
+            "inner_y": 371.9248
+          },
+          {
+            "inner_x": 1451.8808,
+            "inner_y": 371.291
+          },
+          {
+            "inner_x": 1474.9005,
+            "inner_y": 370.9685
+          },
+          {
+            "inner_x": 1480.1613,
+            "inner_y": 371.7859
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "332060228",
+          "highway": "secondary",
+          "lanes": "2",
+          "maxspeed": "30 mph",
+          "name": "East Lake Washington Boulevard",
+          "parking:lane:left": "no_parking",
+          "parking:lane:right": "parallel",
+          "sidewalk": "right"
+        },
+        "turn_restrictions": [
+          [
+            "BanTurns",
+            {
+              "osm_way_id": 332060228,
+              "i1": {
+                "osm_node_id": 3391701887
+              },
+              "i2": {
+                "osm_node_id": 5417462688
+              }
+            }
+          ]
+        ]
+      }
+    ],
+    [
+      {
+        "osm_way_id": 346101340,
+        "i1": {
+          "osm_node_id": 2626074217
+        },
+        "i2": {
+          "osm_node_id": 60799460
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 612.0897,
+            "inner_y": 1113.695
+          },
+          {
+            "inner_x": 609.8416,
+            "inner_y": 1109.6475
+          },
+          {
+            "inner_x": 606.9492,
+            "inner_y": 1106.0114
+          },
+          {
+            "inner_x": 603.195,
+            "inner_y": 1102.3309
+          },
+          {
+            "inner_x": 570.2916,
+            "inner_y": 1070.6626
+          },
+          {
+            "inner_x": 520.9743,
+            "inner_y": 1025.8538
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:osm_way_id": "346101340",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "designated",
+          "cycleway": "shared_lane",
+          "highway": "tertiary",
+          "lanes": "2",
+          "maxspeed": "30 mph",
+          "name": "East Boston Street",
+          "parking:lane:left": "parallel",
+          "parking:lane:right": "no_parking",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 364254479,
+        "i1": {
+          "osm_node_id": 59708429
+        },
+        "i2": {
+          "osm_node_id": 59677221
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1740.6267,
+            "inner_y": 715.8394
+          },
+          {
+            "inner_x": 1731.0663,
+            "inner_y": 674.0441
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "364254479",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "designated",
+          "cycleway": "shared_lane",
+          "highway": "secondary",
+          "lanes": "2",
+          "maxspeed": "30 mph",
+          "name": "Lake Washington Boulevard East",
+          "parking:lane:both": "no_parking",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 389992586,
+        "i1": {
+          "osm_node_id": 5417462688
+        },
+        "i2": {
+          "osm_node_id": 3931498585
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1480.1613,
+            "inner_y": 371.7859
+          },
+          {
+            "inner_x": 1634.7494,
+            "inner_y": 372.1361
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "389992586",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "designated",
+          "cycleway": "shared_lane",
+          "highway": "secondary",
+          "lanes": "2",
+          "maxspeed": "30 mph",
+          "name": "East Lake Washington Boulevard",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both",
+          "surface": "asphalt"
+        },
+        "turn_restrictions": [
+          [
+            "BanTurns",
+            {
+              "osm_way_id": 389992586,
+              "i1": {
+                "osm_node_id": 5417462688
+              },
+              "i2": {
+                "osm_node_id": 3931498585
+              }
+            }
+          ]
+        ]
+      }
+    ],
+    [
+      {
+        "osm_way_id": 394736758,
+        "i1": {
+          "osm_node_id": 1726088135
+        },
+        "i2": {
+          "osm_node_id": 53229344
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1511.3108,
+            "inner_y": 1675.6074
+          },
+          {
+            "inner_x": 1510.1269,
+            "inner_y": 1779.1188
+          }
+        ],
+        "osm_tags": {
+          "abst:osm_way_id": "394736758",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "secondary",
+          "lanes": "4",
+          "maxspeed": "30 mph",
+          "name": "24th Avenue East",
+          "old_ref": "WA 513 (Old SSH 1J)",
+          "parking:lane:both": "no_parking",
+          "sidewalk": "both",
+          "trolley_wire": "yes"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 428224938,
+        "i1": {
+          "osm_node_id": 4273590091
+        },
+        "i2": {
+          "osm_node_id": 53198132
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 35.3598,
+            "inner_y": 476.9122
+          },
+          {
+            "inner_x": 70.8949,
+            "inner_y": 479.05
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "428224938",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "secondary",
+          "lanes": "4",
+          "maxspeed": "30 mph",
+          "name": "East Roanoke Street",
+          "parking:lane:both": "no_parking",
+          "sidewalk": "both",
+          "trolley_wire": "yes"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 431103957,
+        "i1": {
+          "osm_node_id": 4303514204
+        },
+        "i2": {
+          "osm_node_id": 4303514203
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1277.2179,
+            "inner_y": 333.6778
+          },
+          {
+            "inner_x": 1289.5131,
+            "inner_y": 345.1604
+          },
+          {
+            "inner_x": 1294.8045,
+            "inner_y": 360.594
+          },
+          {
+            "inner_x": 1296.2357,
+            "inner_y": 368.411
+          },
+          {
+            "inner_x": 1296.4755,
+            "inner_y": 376.8952
+          },
+          {
+            "inner_x": 1296.2057,
+            "inner_y": 384.0228
+          },
+          {
+            "inner_x": 1294.9543,
+            "inner_y": 391.2171
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "431103957",
+          "bridge": "yes",
+          "foot": "yes",
+          "highway": "motorway_link",
+          "lanes": "1",
+          "oneway": "yes"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 432829181,
+        "i1": {
+          "osm_node_id": 53137203
+        },
+        "i2": {
+          "osm_node_id": 5417462688
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1472.8698,
+            "inner_y": 417.4146
+          },
+          {
+            "inner_x": 1475.6049,
+            "inner_y": 410.5094
+          },
+          {
+            "inner_x": 1478.8195,
+            "inner_y": 401.3247
+          },
+          {
+            "inner_x": 1479.996,
+            "inner_y": 391.0726
+          },
+          {
+            "inner_x": 1480.1613,
+            "inner_y": 371.7859
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "432829181",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "yes",
+          "cycleway": "shared_lane",
+          "highway": "residential",
+          "horse": "no",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "motor_vehicle": "destination",
+          "name": "24th Avenue East",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both",
+          "surface": "paving_stones"
+        },
+        "turn_restrictions": [
+          [
+            "BanTurns",
+            {
+              "osm_way_id": 432829181,
+              "i1": {
+                "osm_node_id": 53137203
+              },
+              "i2": {
+                "osm_node_id": 5417462688
+              }
+            }
+          ]
+        ]
+      }
+    ],
+    [
+      {
+        "osm_way_id": 455808164,
+        "i1": {
+          "osm_node_id": 53188971
+        },
+        "i2": {
+          "osm_node_id": 2702114627
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1672.4036,
+            "inner_y": 484.4318
+          },
+          {
+            "inner_x": 1737.3471,
+            "inner_y": 481.0138
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "455808164",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "lcn": "yes",
+          "maxspeed": "25 mph",
+          "name": "East Roanoke Street",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 459084307,
+        "i1": {
+          "osm_node_id": 59710790
+        },
+        "i2": {
+          "osm_node_id": 4550007325
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1216.2277,
+            "inner_y": 119.376
+          },
+          {
+            "inner_x": 1266.2247,
+            "inner_y": 120.6131
+          },
+          {
+            "inner_x": 1281.2714,
+            "inner_y": 120.7466
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "459084307",
+          "highway": "residential",
+          "lanes": "3",
+          "maxspeed": "25 mph",
+          "name": "East Shelby Street",
+          "oneway": "yes",
+          "parking:lane:both": "no_parking",
+          "sidewalk": "both",
+          "turn:lanes": "left|left|right"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 460235934,
+        "i1": {
+          "osm_node_id": 491979463
+        },
+        "i2": {
+          "osm_node_id": 53204599
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1330.0072,
+            "inner_y": 217.4858
+          },
+          {
+            "inner_x": 1478.0177,
+            "inner_y": 216.7856
+          },
+          {
+            "inner_x": 1484.1548,
+            "inner_y": 216.819
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "460235934",
+          "bicycle": "designated",
+          "cycleway": "shared_lane",
+          "highway": "residential",
+          "lanes": "1",
+          "maxspeed": "25 mph",
+          "name": "East Hamlin Street",
+          "oneway": "yes",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 460423538,
+        "i1": {
+          "osm_node_id": 128669086
+        },
+        "i2": {
+          "osm_node_id": 53209423
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 697.6042,
+            "inner_y": 1687.3607
+          },
+          {
+            "inner_x": 698.7956,
+            "inner_y": 1529.6752
+          },
+          {
+            "inner_x": 698.331,
+            "inner_y": 1509.9492
+          },
+          {
+            "inner_x": 696.2554,
+            "inner_y": 1496.5725
+          },
+          {
+            "inner_x": 691.9317,
+            "inner_y": 1486.7206
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "460423538",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "designated",
+          "cycleway": "lane",
+          "highway": "tertiary",
+          "lanes": "2",
+          "maxspeed": "30 mph",
+          "name": "15th Avenue East",
+          "parking:lane:left": "no_parking",
+          "parking:lane:right": "parallel",
+          "sidewalk": "both",
+          "surface": "asphalt",
+          "trolley_wire": "yes"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 481291028,
+        "i1": {
+          "osm_node_id": 1744641060
+        },
+        "i2": {
+          "osm_node_id": 53096951
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1417.4937,
+            "inner_y": 1292.9857
+          },
+          {
+            "inner_x": 1232.984,
+            "inner_y": 1163.5103
+          }
+        ],
+        "osm_tags": {
+          "abst:osm_way_id": "481291028",
+          "bicycle": "designated",
+          "cycleway": "shared_lane",
+          "highway": "tertiary",
+          "lanes": "2",
+          "maxspeed": "30 mph",
+          "name": "Boyer Avenue East",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 490622979,
+        "i1": {
+          "osm_node_id": 4828090664
+        },
+        "i2": {
+          "osm_node_id": 5417462688
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1479.5632,
+            "inner_y": 342.9388
+          },
+          {
+            "inner_x": 1480.1613,
+            "inner_y": 371.7859
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "490622979",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "no",
+          "highway": "residential",
+          "lanes": "2",
+          "name": "24th Avenue East",
+          "oneway": "yes",
+          "oneway:conditional": "no @ destination",
+          "parking:lane:both": "no_parking",
+          "sidewalk": "both",
+          "surface": "paved",
+          "turn:lanes": "left|right"
+        },
+        "turn_restrictions": [
+          [
+            "BanTurns",
+            {
+              "osm_way_id": 432829181,
+              "i1": {
+                "osm_node_id": 53137203
+              },
+              "i2": {
+                "osm_node_id": 5417462688
+              }
+            }
+          ]
+        ]
+      }
+    ],
+    [
+      {
+        "osm_way_id": 502082219,
+        "i1": {
+          "osm_node_id": 53101738
+        },
+        "i2": {
+          "osm_node_id": 53219978
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 32.7536,
+            "inner_y": 683.2483
+          },
+          {
+            "inner_x": 32.623,
+            "inner_y": 642.6562
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "502082219",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "Broadway East",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 537698750,
+        "i1": {
+          "osm_node_id": 2499796158
+        },
+        "i2": {
+          "osm_node_id": 59710430
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1426.9878,
+            "inner_y": 1474.3557
+          },
+          {
+            "inner_x": 1407.9771,
+            "inner_y": 1458.2992
+          },
+          {
+            "inner_x": 1398.5504,
+            "inner_y": 1446.9128
+          },
+          {
+            "inner_x": 1382.5295,
+            "inner_y": 1424.1401
+          },
+          {
+            "inner_x": 1372.8855,
+            "inner_y": 1415.5448
+          },
+          {
+            "inner_x": 1354.5342,
+            "inner_y": 1415.5892
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "537698750",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "Interlaken Place East",
+          "parking:lane:both": "no_parking",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 540575274,
+        "i1": {
+          "osm_node_id": 5229494418
+        },
+        "i2": {
+          "osm_node_id": 4828090664
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1481.075,
+            "inner_y": 303.7623
+          },
+          {
+            "inner_x": 1479.5632,
+            "inner_y": 342.9388
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "540575274",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "no",
+          "bridge": "yes",
+          "highway": "residential",
+          "lanes": "2",
+          "layer": "2",
+          "name": "24th Avenue East",
+          "oneway": "yes",
+          "oneway:conditional": "no @ destination",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both",
+          "surface": "paved",
+          "turn:lanes": "left|right"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 561381711,
+        "i1": {
+          "osm_node_id": 5413301452
+        },
+        "i2": {
+          "osm_node_id": 5413301445
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1681.7554,
+            "inner_y": 256.8603
+          },
+          {
+            "inner_x": 1556.5034,
+            "inner_y": 277.587
+          },
+          {
+            "inner_x": 1499.1116,
+            "inner_y": 288.6287
+          },
+          {
+            "inner_x": 1393.7696,
+            "inner_y": 308.0433
+          },
+          {
+            "inner_x": 1374.4592,
+            "inner_y": 310.1671
+          },
+          {
+            "inner_x": 1353.9947,
+            "inner_y": 312.7802
+          },
+          {
+            "inner_x": 1309.4091,
+            "inner_y": 313.4919
+          },
+          {
+            "inner_x": 1298.7085,
+            "inner_y": 310.623
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "561381711",
+          "destination": "Montlake Boulevard East",
+          "highway": "motorway_link",
+          "lanes": "2",
+          "maxspeed": "60 mph",
+          "oneway": "yes"
+        },
+        "turn_restrictions": [
+          [
+            "OnlyAllowTurns",
+            {
+              "osm_way_id": -1572304179,
+              "i1": {
+                "osm_node_id": -1572304177
+              },
+              "i2": {
+                "osm_node_id": 5413301445
+              }
+            }
+          ]
+        ]
+      }
+    ],
+    [
+      {
+        "osm_way_id": 642752076,
+        "i1": {
+          "osm_node_id": 5761169971
+        },
+        "i2": {
+          "osm_node_id": 53149377
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 165.4282,
+            "inner_y": 438.766
+          },
+          {
+            "inner_x": 164.8919,
+            "inner_y": 479.3724
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "642752076",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "yes",
+          "cycleway": "no",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "10th Avenue East",
+          "oneway": "yes",
+          "parking:lane:both": "no_parking",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 732648396,
+        "i1": {
+          "osm_node_id": 53069239
+        },
+        "i2": {
+          "osm_node_id": 60799460
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 492.4802,
+            "inner_y": 1026.4515
+          },
+          {
+            "inner_x": 520.9743,
+            "inner_y": 1025.8538
+          }
+        ],
+        "osm_tags": {
+          "abst:osm_way_id": "732648396",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "designated",
+          "cycleway": "shared_lane",
+          "highway": "tertiary",
+          "lanes": "2",
+          "maxspeed": "30 mph",
+          "name": "East Boston Street",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ]
+  ]
+}

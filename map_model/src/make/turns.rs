@@ -349,6 +349,16 @@ fn make_walking_turns(
                     ) {
                         result.extend(make_crosswalks(i.id, l1, l2));
                     }
+                    // TODO Yup, the hack has come to pass.
+                    if roads.len() > 3 {
+                        if let Some(l2) = get_sidewalk(
+                            lanes,
+                            abstutil::wraparound_get(&roads, (idx1 as isize) - 3)
+                                .outgoing_lanes(i.id),
+                        ) {
+                            result.extend(make_crosswalks(i.id, l1, l2));
+                        }
+                    }
                 }
             }
         }

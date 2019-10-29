@@ -88,8 +88,7 @@ impl UI {
                     (None, "produce OSM parking+sidewalk diff"),
                     (hotkey(Key::G), "preview all intersections"),
                     (None, "find overlapping intersections"),
-                    (None, "find short roads"),
-                    (None, "clear short roads"),
+                    (hotkey(Key::Z), "find short roads"),
                 ]],
                 ctx,
             ),
@@ -310,9 +309,24 @@ impl GUI for UI {
                         } else if self.menu.action("find overlapping intersections") {
                             let (draw, labels) = find_overlapping_intersections(&self.model, ctx);
                             self.state = State::PreviewIntersection(draw, labels, false);
-                        } else if self.menu.action("find short roads") {
+                        } else if short_roads.is_empty()
+                            && self
+                                .menu
+                                .swap_action("find short roads", "clear short roads", ctx)
+                        {
                             *short_roads = find_short_roads(&self.model);
-                        } else if self.menu.action("clear short roads") {
+                            if short_roads.is_empty() {
+                                self.menu.change_action(
+                                    "clear short roads",
+                                    "find short roads",
+                                    ctx,
+                                );
+                            }
+                        } else if !short_roads.is_empty()
+                            && self
+                                .menu
+                                .swap_action("clear short roads", "find short roads", ctx)
+                        {
                             short_roads.clear();
                         }
                     }
