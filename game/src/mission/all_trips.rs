@@ -64,15 +64,13 @@ impl TripsVisualizer {
         let mut menu = ModalMenu::new(
             "Trips Visualizer",
             vec![
-                vec![
-                    (hotkey(Key::Dot), "forwards 10 seconds"),
-                    (hotkey(Key::RightArrow), "forwards 30 minutes"),
-                    (hotkey(Key::Comma), "backwards 10 seconds"),
-                    (hotkey(Key::LeftArrow), "backwards 30 minutes"),
-                    (hotkey(Key::F), "goto start of day"),
-                    (hotkey(Key::L), "goto end of day"),
-                ],
-                vec![(hotkey(Key::Escape), "quit")],
+                (hotkey(Key::Dot), "forwards 10 seconds"),
+                (hotkey(Key::RightArrow), "forwards 30 minutes"),
+                (hotkey(Key::Comma), "backwards 10 seconds"),
+                (hotkey(Key::LeftArrow), "backwards 30 minutes"),
+                (hotkey(Key::F), "goto start of day"),
+                (hotkey(Key::L), "goto end of day"),
+                (hotkey(Key::Escape), "quit"),
             ],
             ctx,
         );

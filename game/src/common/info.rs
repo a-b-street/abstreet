@@ -14,7 +14,7 @@ impl InfoPanel {
     pub fn new(id: ID, ui: &UI, ctx: &EventCtx) -> InfoPanel {
         InfoPanel {
             txt: info_for(id, ui, ctx),
-            menu: ModalMenu::new("Info Panel", vec![vec![(hotkey(Key::Escape), "quit")]], ctx),
+            menu: ModalMenu::new("Info Panel", vec![(hotkey(Key::Escape), "quit")], ctx),
         }
     }
 }

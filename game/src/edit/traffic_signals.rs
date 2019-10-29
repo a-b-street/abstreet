@@ -22,27 +22,21 @@ impl TrafficSignalEditor {
         let menu = ModalMenu::new(
             &format!("Traffic Signal Editor for {}", id),
             vec![
-                vec![
-                    (hotkey(Key::UpArrow), "select previous phase"),
-                    (hotkey(Key::DownArrow), "select next phase"),
-                ],
-                vec![
-                    (hotkey(Key::D), "change phase duration"),
-                    (hotkey(Key::K), "move current phase up"),
-                    (hotkey(Key::J), "move current phase down"),
-                    (hotkey(Key::Backspace), "delete current phase"),
-                    (hotkey(Key::N), "add a new empty phase"),
-                    (hotkey(Key::M), "add a new pedestrian scramble phase"),
-                ],
-                vec![
-                    (hotkey(Key::R), "reset to original"),
-                    (hotkey(Key::P), "choose a preset signal"),
-                    (
-                        hotkey(Key::B),
-                        "convert to dedicated pedestrian scramble phase",
-                    ),
-                ],
-                vec![(hotkey(Key::Escape), "quit")],
+                (hotkey(Key::UpArrow), "select previous phase"),
+                (hotkey(Key::DownArrow), "select next phase"),
+                (hotkey(Key::D), "change phase duration"),
+                (hotkey(Key::K), "move current phase up"),
+                (hotkey(Key::J), "move current phase down"),
+                (hotkey(Key::Backspace), "delete current phase"),
+                (hotkey(Key::N), "add a new empty phase"),
+                (hotkey(Key::M), "add a new pedestrian scramble phase"),
+                (hotkey(Key::R), "reset to original"),
+                (hotkey(Key::P), "choose a preset signal"),
+                (
+                    hotkey(Key::B),
+                    "convert to dedicated pedestrian scramble phase",
+                ),
+                (hotkey(Key::Escape), "quit"),
             ],
             ctx,
         );

@@ -14,7 +14,7 @@ impl TutorialMode {
         ui.primary.reset_sim();
 
         TutorialMode {
-            menu: ModalMenu::new("Tutorial", vec![vec![(hotkey(Key::Escape), "quit")]], ctx),
+            menu: ModalMenu::new("Tutorial", vec![(hotkey(Key::Escape), "quit")], ctx),
             orig_center: ctx.canvas.center_to_map_pt(),
         }
     }
@@ -32,11 +32,7 @@ impl State for TutorialMode {
             if ctx.input.key_pressed(Key::Enter, "next step of tutorial") {
                 return Transition::Replace(Box::new(Part2 {
                     orig_cam_zoom: ctx.canvas.cam_zoom,
-                    menu: ModalMenu::new(
-                        "Tutorial",
-                        vec![vec![(hotkey(Key::Escape), "quit")]],
-                        ctx,
-                    ),
+                    menu: ModalMenu::new("Tutorial", vec![(hotkey(Key::Escape), "quit")], ctx),
                 }));
             }
         }

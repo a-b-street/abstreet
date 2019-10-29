@@ -36,10 +36,10 @@ impl EditMode {
             common: CommonState::new(ctx),
             menu: ModalMenu::new(
                 "Map Edit Mode",
-                vec![vec![
+                vec![
                     (hotkey(Key::S), "save edits"),
                     (hotkey(Key::L), "load different edits"),
-                ]],
+                ],
                 ctx,
             ),
             general_tools: MenuUnderButton::new(

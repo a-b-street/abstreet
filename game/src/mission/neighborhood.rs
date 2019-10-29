@@ -27,12 +27,12 @@ impl State for NeighborhoodPicker {
             return Transition::Push(Box::new(NeighborhoodEditor {
                 menu: ModalMenu::new(
                     &format!("Neighborhood Editor for {}", n.name),
-                    vec![vec![
+                    vec![
                         (hotkey(Key::Escape), "quit"),
                         (hotkey(Key::S), "save"),
                         (hotkey(Key::X), "export as an Osmosis polygon filter"),
                         (hotkey(Key::P), "add a new point"),
-                    ]],
+                    ],
                     ctx,
                 ),
                 neighborhood: n,

@@ -37,13 +37,13 @@ impl ABTestMode {
         ABTestMode {
             menu: ModalMenu::new(
                 "A/B Test Mode",
-                vec![vec![
+                vec![
                     (hotkey(Key::S), "swap"),
                     (hotkey(Key::D), "diff all trips"),
                     (hotkey(Key::A), "stop diffing trips"),
                     (hotkey(Key::O), "save state"),
                     // TODO load arbitrary savestate
-                ]],
+                ],
                 ctx,
             ),
             general_tools: MenuUnderButton::new(

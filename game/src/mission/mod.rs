@@ -25,17 +25,13 @@ impl MissionEditMode {
             menu: ModalMenu::new(
                 "Mission Edit Mode",
                 vec![
-                    vec![
-                        (hotkey(Key::D), "visualize population data"),
-                        (hotkey(Key::T), "visualize individual PSRC trips"),
-                        (hotkey(Key::A), "visualize all PSRC trips"),
-                    ],
-                    vec![
-                        (hotkey(Key::N), "manage neighborhoods"),
-                        (hotkey(Key::W), "load scenario"),
-                        (None, "create new scenario"),
-                    ],
-                    vec![(hotkey(Key::Escape), "quit")],
+                    (hotkey(Key::D), "visualize population data"),
+                    (hotkey(Key::T), "visualize individual PSRC trips"),
+                    (hotkey(Key::A), "visualize all PSRC trips"),
+                    (hotkey(Key::N), "manage neighborhoods"),
+                    (hotkey(Key::W), "load scenario"),
+                    (None, "create new scenario"),
+                    (hotkey(Key::Escape), "quit"),
                 ],
                 ctx,
             ),

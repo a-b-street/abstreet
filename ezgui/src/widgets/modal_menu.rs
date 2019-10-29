@@ -4,8 +4,6 @@ use crate::{
     layout, text, EventCtx, GfxCtx, Line, MultiKey, ScreenDims, ScreenPt, ScreenRectangle, Text,
 };
 
-// TODO No separators
-
 pub struct ModalMenu {
     title: String,
     info: Text,
@@ -38,25 +36,21 @@ struct Choice {
 impl ModalMenu {
     pub fn new<S: Into<String>>(
         title: S,
-        raw_choice_groups: Vec<Vec<(Option<MultiKey>, &str)>>,
+        raw_choices: Vec<(Option<MultiKey>, &str)>,
         ctx: &EventCtx,
     ) -> ModalMenu {
-        let mut choices = Vec::new();
-        for group in raw_choice_groups {
-            for (hotkey, label) in group {
-                choices.push(Choice {
-                    hotkey,
-                    label: label.to_string(),
-                    active: false,
-                });
-            }
-        }
-
         let mut m = ModalMenu {
             title: title.into(),
             info: Text::new(),
             chosen_action: None,
-            choices,
+            choices: raw_choices
+                .into_iter()
+                .map(|(hotkey, label)| Choice {
+                    hotkey,
+                    label: label.to_string(),
+                    active: false,
+                })
+                .collect(),
             hovering_idx: None,
             standalone_layout: Some(layout::ContainerOrientation::TopRight),
 

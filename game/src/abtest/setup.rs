@@ -61,11 +61,11 @@ fn pick_ab_test(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
 
     let mut menu = ModalMenu::new(
         "A/B Test Editor",
-        vec![vec![
+        vec![
             (hotkey(Key::Escape), "quit"),
             (hotkey(Key::R), "run A/B test"),
             (hotkey(Key::L), "load savestate"),
-        ]],
+        ],
         ctx,
     );
     let mut txt = Text::new();

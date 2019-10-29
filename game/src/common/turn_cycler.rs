@@ -47,11 +47,9 @@ impl TurnCyclerState {
                             menu: ModalMenu::new(
                                 "Traffic Signal Diagram",
                                 vec![
-                                    vec![
-                                        (hotkey(Key::UpArrow), "select previous phase"),
-                                        (hotkey(Key::DownArrow), "select next phase"),
-                                    ],
-                                    vec![(hotkey(Key::Escape), "quit")],
+                                    (hotkey(Key::UpArrow), "select previous phase"),
+                                    (hotkey(Key::DownArrow), "select next phase"),
+                                    (hotkey(Key::Escape), "quit"),
                                 ],
                                 ctx,
                             ),

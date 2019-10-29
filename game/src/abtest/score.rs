@@ -20,10 +20,10 @@ impl Scoreboard {
     pub fn new(ctx: &mut EventCtx, primary: &PerMapUI, secondary: &PerMapUI) -> Scoreboard {
         let menu = ModalMenu::new(
             "Scoreboard",
-            vec![vec![
+            vec![
                 (hotkey(Key::Escape), "quit"),
                 (hotkey(Key::B), "browse trips"),
-            ]],
+            ],
             ctx,
         );
         let t1 = primary.sim.get_finished_trips();

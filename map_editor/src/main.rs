@@ -80,7 +80,7 @@ impl UI {
             state: State::viewing(),
             menu: ModalMenu::new(
                 "Map Editor",
-                vec![vec![
+                vec![
                     (hotkey(Key::Escape), "quit"),
                     (hotkey(Key::S), "save raw map"),
                     (hotkey(Key::F), "save map fixes"),
@@ -89,7 +89,7 @@ impl UI {
                     (hotkey(Key::G), "preview all intersections"),
                     (None, "find overlapping intersections"),
                     (hotkey(Key::Z), "find short roads"),
-                ]],
+                ],
                 ctx,
             ),
             sidebar: Text::new(),

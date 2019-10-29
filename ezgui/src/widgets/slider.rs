@@ -236,7 +236,7 @@ impl<T> ItemSlider<T> {
         items: Vec<(T, Text)>,
         menu_title: &str,
         noun: &str,
-        other_choices: Vec<Vec<(Option<MultiKey>, &str)>>,
+        other_choices: Vec<(Option<MultiKey>, &str)>,
         ctx: &mut EventCtx,
     ) -> ItemSlider<T> {
         // Lifetime funniness...
@@ -246,7 +246,7 @@ impl<T> ItemSlider<T> {
         let next = format!("next {}", noun);
         let first = format!("first {}", noun);
         let last = format!("last {}", noun);
-        choices.push(vec![
+        choices.extend(vec![
             (hotkey(Key::LeftArrow), prev.as_str()),
             (hotkey(Key::RightArrow), next.as_str()),
             (hotkey(Key::Comma), first.as_str()),
@@ -347,7 +347,7 @@ impl<T> WarpingItemSlider<T> {
                     .collect(),
                 menu_title,
                 noun,
-                vec![vec![(hotkey(Key::Escape), "quit")]],
+                vec![(hotkey(Key::Escape), "quit")],
                 ctx,
             ),
         }

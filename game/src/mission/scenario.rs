@@ -116,11 +116,11 @@ impl ScenarioManager {
         ScenarioManager {
             menu: ModalMenu::new(
                 "Scenario Editor",
-                vec![vec![
+                vec![
                     (hotkey(Key::S), "save"),
                     (hotkey(Key::E), "edit"),
                     (hotkey(Key::R), "instantiate"),
-                ]],
+                ],
                 ctx,
             ),
             general_tools: MenuUnderButton::new(

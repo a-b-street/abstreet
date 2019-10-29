@@ -30,11 +30,11 @@ impl SpeedControls {
 
         let mut menu = ModalMenu::new(
             "Speed",
-            vec![vec![
+            vec![
                 (hotkey(Key::Space), "resume"),
                 (hotkey(Key::LeftBracket), "slow down"),
                 (hotkey(Key::RightBracket), "speed up"),
-            ]],
+            ],
             ctx,
         );
         if step_controls {

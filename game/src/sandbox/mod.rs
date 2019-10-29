@@ -66,15 +66,13 @@ impl SandboxMode {
             menu: ModalMenu::new(
                 "Sandbox Mode",
                 vec![
-                    vec![
-                        (hotkey(Key::O), "save sim state"),
-                        (hotkey(Key::Y), "load previous sim state"),
-                        (hotkey(Key::U), "load next sim state"),
-                        (None, "pick a savestate to load"),
-                        (hotkey(Key::X), "reset sim"),
-                        (hotkey(Key::S), "start a scenario"),
-                    ],
-                    vec![(hotkey(Key::T), "start time traveling")],
+                    (hotkey(Key::O), "save sim state"),
+                    (hotkey(Key::Y), "load previous sim state"),
+                    (hotkey(Key::U), "load next sim state"),
+                    (None, "pick a savestate to load"),
+                    (hotkey(Key::X), "reset sim"),
+                    (hotkey(Key::S), "start a scenario"),
+                    (hotkey(Key::T), "start time traveling"),
                 ],
                 ctx,
             ),

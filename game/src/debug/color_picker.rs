@@ -24,10 +24,10 @@ fn pick_color(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Trans
         original: ui.cs.get_modified(&name),
         menu: ModalMenu::new(
             &format!("Color Picker for {}", name),
-            vec![vec![
+            vec![
                 (hotkey(Key::Backspace), "revert"),
                 (hotkey(Key::Escape), "finalize"),
-            ]],
+            ],
             ctx,
         ),
     })))
