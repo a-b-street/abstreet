@@ -9,8 +9,6 @@ use serde_derive::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::collections::HashMap;
 
-const ZOOM_SPEED: f64 = 0.1;
-
 pub struct Canvas {
     // All of these f64's are in screen-space, so do NOT use Pt2D.
     // Public for saving/loading... should probably do better
@@ -98,9 +96,14 @@ impl Canvas {
         }
         if mouse_on_map {
             if let Some(scroll) = input.get_mouse_scroll() {
-                // Zoom slower at low zooms, faster at high.
-                let delta = scroll * ZOOM_SPEED * self.cam_zoom;
-                self.zoom_towards_mouse(delta);
+                let old_zoom = self.cam_zoom;
+                self.cam_zoom = 1.1_f64.powf(old_zoom.log(1.1) + scroll);
+
+                // Make screen_to_map of cursor_{x,y} still point to the same thing after zooming.
+                self.cam_x =
+                    ((self.cam_zoom / old_zoom) * (self.cursor_x + self.cam_x)) - self.cursor_x;
+                self.cam_y =
+                    ((self.cam_zoom / old_zoom) * (self.cursor_y + self.cam_y)) - self.cursor_y;
             }
         }
     }
@@ -111,18 +114,6 @@ impl Canvas {
 
     pub fn mark_covered_area(&self, rect: ScreenRectangle) {
         self.covered_areas.borrow_mut().push(rect);
-    }
-
-    fn zoom_towards_mouse(&mut self, delta_zoom: f64) {
-        let old_zoom = self.cam_zoom;
-        self.cam_zoom += delta_zoom;
-        if self.cam_zoom <= ZOOM_SPEED {
-            self.cam_zoom = ZOOM_SPEED;
-        }
-
-        // Make screen_to_map of cursor_{x,y} still point to the same thing after zooming.
-        self.cam_x = ((self.cam_zoom / old_zoom) * (self.cursor_x + self.cam_x)) - self.cursor_x;
-        self.cam_y = ((self.cam_zoom / old_zoom) * (self.cursor_y + self.cam_y)) - self.cursor_y;
     }
 
     pub fn get_cursor_in_screen_space(&self) -> ScreenPt {
