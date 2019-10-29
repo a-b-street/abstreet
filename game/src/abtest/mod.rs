@@ -36,11 +36,6 @@ impl ABTestMode {
                 "A/B Test Mode",
                 vec![
                     vec![
-                        (hotkey(Key::M), "step forwards 0.1s"),
-                        (hotkey(Key::N), "step forwards 10 mins"),
-                        (hotkey(Key::B), "jump to specific time"),
-                    ],
-                    vec![
                         (hotkey(Key::S), "swap"),
                         (hotkey(Key::D), "diff all trips"),
                         (hotkey(Key::A), "stop diffing trips"),
@@ -60,7 +55,7 @@ impl ABTestMode {
                 ],
                 ctx,
             ),
-            speed: SpeedControls::new(ctx),
+            speed: SpeedControls::new(ctx, true),
             primary_agent_tools: AgentTools::new(),
             secondary_agent_tools: AgentTools::new(),
             diff_trip: None,
@@ -195,7 +190,7 @@ impl State for ABTestMode {
         }
 
         if self.speed.is_paused() {
-            if let Some(t) = time_controls(ctx, ui, &mut self.menu) {
+            if let Some(t) = time_controls(ctx, ui, &mut self.speed.menu) {
                 // TODO Need to trigger recalculate_stuff in a few cases...
                 return t;
             }

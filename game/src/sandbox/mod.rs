@@ -29,7 +29,7 @@ pub struct SandboxMode {
 impl SandboxMode {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> SandboxMode {
         SandboxMode {
-            speed: SpeedControls::new(ctx),
+            speed: SpeedControls::new(ctx, true),
             agent_tools: AgentTools::new(),
             time_travel: time_travel::InactiveTimeTravel::new(),
             trip_stats: trip_stats::TripStats::new(
@@ -40,11 +40,6 @@ impl SandboxMode {
             menu: ModalMenu::new(
                 "Sandbox Mode",
                 vec![
-                    vec![
-                        (hotkey(Key::M), "step forwards 0.1s"),
-                        (hotkey(Key::N), "step forwards 10 mins"),
-                        (hotkey(Key::B), "jump to specific time"),
-                    ],
                     vec![
                         (hotkey(Key::O), "save sim state"),
                         (hotkey(Key::Y), "load previous sim state"),
@@ -209,7 +204,7 @@ impl State for SandboxMode {
                 return Transition::Push(WizardState::new(Box::new(load_savestate)));
             }
 
-            if let Some(t) = time_controls(ctx, ui, &mut self.menu) {
+            if let Some(t) = time_controls(ctx, ui, &mut self.speed.menu) {
                 return t;
             }
 

@@ -9,7 +9,7 @@ const SPEED_CAP: f64 = 10.0 * 60.0;
 
 pub struct SpeedControls {
     slider: Slider,
-    menu: ModalMenu,
+    pub menu: ModalMenu,
     state: State,
 }
 
@@ -24,7 +24,7 @@ enum State {
 }
 
 impl SpeedControls {
-    pub fn new(ctx: &mut EventCtx) -> SpeedControls {
+    pub fn new(ctx: &mut EventCtx, step_controls: bool) -> SpeedControls {
         let mut slider = Slider::new();
         slider.set_percent(ctx, 1.0 / SPEED_CAP);
 
@@ -37,6 +37,11 @@ impl SpeedControls {
             ]],
             ctx,
         );
+        if step_controls {
+            menu.push_action(hotkey(Key::M), "step forwards 0.1s", ctx);
+            menu.push_action(hotkey(Key::N), "step forwards 10 mins", ctx);
+            menu.push_action(hotkey(Key::B), "jump to specific time", ctx);
+        }
         menu.disable_standalone_layout();
 
         SpeedControls {

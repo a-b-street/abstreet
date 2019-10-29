@@ -82,7 +82,7 @@ impl TripsVisualizer {
             menu,
             trips,
             time_slider: Slider::new(),
-            speed: SpeedControls::new(ctx),
+            speed: SpeedControls::new(ctx, false),
             active_trips: Vec::new(),
         }
     }
