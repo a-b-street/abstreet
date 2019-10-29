@@ -111,12 +111,9 @@ impl Widget for MenuUnderButton {
 
     fn set_pos(&mut self, top_left: ScreenPt, total_width: f64) {
         self.button.set_pos(top_left, total_width);
-        // TODO Brittle centering depends where these buttons are being placed right now
+        // TODO Brittle, convenient only for where these buttons are being placed right now
         self.menu.set_pos(
-            ScreenPt::new(
-                top_left.x - self.menu.get_dims().width / 2.0,
-                top_left.y + self.get_dims().height,
-            ),
+            ScreenPt::new(top_left.x, top_left.y + self.get_dims().height),
             total_width,
         );
     }

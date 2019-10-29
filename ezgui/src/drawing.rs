@@ -436,8 +436,7 @@ impl<'a> Prerender<'a> {
                         let b = poly.get_bounds();
                         let center = poly.center();
                         let origin_pt = Pt2D::new(pt.x() - center.x(), pt.y() - center.y());
-                        // TODO Needs Y-inversion!
-                        let (sin, cos) = angle.normalized_radians().sin_cos();
+                        let (sin, cos) = angle.invert_y().normalized_radians().sin_cos();
                         let rot_pt = Pt2D::new(
                             center.x() + origin_pt.x() * cos - origin_pt.y() * sin,
                             center.y() + origin_pt.y() * cos + origin_pt.x() * sin,

@@ -23,6 +23,10 @@ impl Angle {
         Angle::new(self.0 + f64::consts::PI)
     }
 
+    pub fn invert_y(self) -> Angle {
+        Angle::new(2.0 * f64::consts::PI - self.0)
+    }
+
     pub fn rotate_degs(self, degrees: f64) -> Angle {
         Angle::new(self.0 + degrees.to_radians())
     }

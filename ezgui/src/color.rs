@@ -10,7 +10,8 @@ pub enum Color {
     // all of map-space.
     TileTexture(f32, (f64, f64)),
     // Stretches the entire texture to fit the entire polygon. Rotates from the center of the
-    // polygon. Not sure what this means for anything but circles right now.
+    // polygon. Not sure what this means for anything but circles right now. Have to manually
+    // fiddle with the original orientation to fix y inversion.
     StretchTexture(f32, Angle),
     // A polygon with UV coordinates for each point must be used.
     CustomUVTexture(f32),
