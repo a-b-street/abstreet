@@ -634,6 +634,11 @@ impl Model {
                 )
                 .to_polygon()
             } else {
+                if !self.map.roads.contains_key(to) {
+                    // TODO Fix. When roads are clipped, need to update IDS.
+                    println!("Turn restriction to spot is missing!{}->{}", id, to);
+                    continue;
+                }
                 PolyLine::new(vec![self.get_r_center(id), self.get_r_center(*to)])
                     .make_arrow(LANE_THICKNESS)
                     .unwrap()

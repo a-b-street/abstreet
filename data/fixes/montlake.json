@@ -1,9 +1,9 @@
 {
   "gps_bounds": {
-    "min_lon": -122.3218,
-    "min_lat": 47.6315,
-    "max_lon": -122.2985,
-    "max_lat": 47.6475
+    "min_lon": -122.4416,
+    "min_lat": 47.5793,
+    "max_lon": -122.2421,
+    "max_lat": 47.7155
   },
   "delete_roads": [
     {
@@ -184,15 +184,6 @@
       },
       "i2": {
         "osm_node_id": 53101736
-      }
-    },
-    {
-      "osm_way_id": 7978479,
-      "i1": {
-        "osm_node_id": 53103988
-      },
-      "i2": {
-        "osm_node_id": 53103989
       }
     },
     {
@@ -589,24 +580,6 @@
       },
       "i2": {
         "osm_node_id": 2247309277
-      }
-    },
-    {
-      "osm_way_id": 394736758,
-      "i1": {
-        "osm_node_id": 53103988
-      },
-      "i2": {
-        "osm_node_id": 53229344
-      }
-    },
-    {
-      "osm_way_id": 394736758,
-      "i1": {
-        "osm_node_id": 1726088135
-      },
-      "i2": {
-        "osm_node_id": 53103988
       }
     },
     {
@@ -1065,9 +1038,6 @@
       "osm_node_id": 53096949
     },
     {
-      "osm_node_id": 53103988
-    },
-    {
       "osm_node_id": 53128066
     },
     {
@@ -1198,8 +1168,8 @@
       },
       {
         "point": {
-          "inner_x": 815.4157,
-          "inner_y": 885.2228
+          "inner_x": 9802.2652,
+          "inner_y": 8446.4778
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1212,8 +1182,8 @@
       },
       {
         "point": {
-          "inner_x": 1668.7289,
-          "inner_y": 1510.4682
+          "inner_x": 10656.4302,
+          "inner_y": 9071.7232
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1226,8 +1196,8 @@
       },
       {
         "point": {
-          "inner_x": 1291.5613,
-          "inner_y": 214.9872
+          "inner_x": 10278.8861,
+          "inner_y": 7776.2422
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1240,8 +1210,8 @@
       },
       {
         "point": {
-          "inner_x": 1293.2707,
-          "inner_y": 243.1074
+          "inner_x": 10280.5972,
+          "inner_y": 7804.3624
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1254,8 +1224,8 @@
       },
       {
         "point": {
-          "inner_x": 1324.0626,
-          "inner_y": 395.5947
+          "inner_x": 10311.4198,
+          "inner_y": 7956.8497
         },
         "intersection_type": "TrafficSignal",
         "label": null,
@@ -1268,8 +1238,8 @@
       },
       {
         "point": {
-          "inner_x": 1378.4252,
-          "inner_y": 462.0367
+          "inner_x": 10365.8367,
+          "inner_y": 8023.2917
         },
         "intersection_type": "TrafficSignal",
         "label": null,
@@ -1282,8 +1252,8 @@
       },
       {
         "point": {
-          "inner_x": 419.1567,
-          "inner_y": 884.2104
+          "inner_x": 9405.6107,
+          "inner_y": 8445.4654
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1296,8 +1266,8 @@
       },
       {
         "point": {
-          "inner_x": 241.5477,
-          "inner_y": 1689.6848
+          "inner_x": 9227.8244,
+          "inner_y": 9250.9398
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1310,8 +1280,8 @@
       },
       {
         "point": {
-          "inner_x": 1408.5647,
-          "inner_y": 494.3916
+          "inner_x": 10396.0063,
+          "inner_y": 8055.6466
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1324,8 +1294,8 @@
       },
       {
         "point": {
-          "inner_x": 1118.8946,
-          "inner_y": 1213.6889
+          "inner_x": 10106.047,
+          "inner_y": 8774.9439
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1338,8 +1308,8 @@
       },
       {
         "point": {
-          "inner_x": 32.623,
-          "inner_y": 642.6562
+          "inner_x": 9018.6912,
+          "inner_y": 8203.9112
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1352,8 +1322,8 @@
       },
       {
         "point": {
-          "inner_x": 1139.1536,
-          "inner_y": 557.4098
+          "inner_x": 10126.3263,
+          "inner_y": 8118.6648
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1366,8 +1336,8 @@
       },
       {
         "point": {
-          "inner_x": 457.5796,
-          "inner_y": 1742.6693
+          "inner_x": 9444.072,
+          "inner_y": 9303.9243
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1380,8 +1350,8 @@
       },
       {
         "point": {
-          "inner_x": 1731.0663,
-          "inner_y": 674.0441
+          "inner_x": 10718.8298,
+          "inner_y": 8235.2991
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1394,8 +1364,8 @@
       },
       {
         "point": {
-          "inner_x": 1255.5729,
-          "inner_y": 217.2838
+          "inner_x": 10242.8618,
+          "inner_y": 7778.5388
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1408,8 +1378,8 @@
       },
       {
         "point": {
-          "inner_x": 1740.6267,
-          "inner_y": 715.8394
+          "inner_x": 10728.3997,
+          "inner_y": 8277.0944
         },
         "intersection_type": "Border",
         "label": null,
@@ -1422,8 +1392,8 @@
       },
       {
         "point": {
-          "inner_x": 1216.2277,
-          "inner_y": 119.376
+          "inner_x": 10203.4773,
+          "inner_y": 7680.631
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1436,8 +1406,8 @@
       },
       {
         "point": {
-          "inner_x": 520.9743,
-          "inner_y": 1025.8538
+          "inner_x": 9507.5299,
+          "inner_y": 8587.1088
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1450,8 +1420,8 @@
       },
       {
         "point": {
-          "inner_x": 1330.0072,
-          "inner_y": 217.4858
+          "inner_x": 10317.3704,
+          "inner_y": 7778.7408
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1464,8 +1434,8 @@
       },
       {
         "point": {
-          "inner_x": 1300.6469,
-          "inner_y": 420.2311
+          "inner_x": 10287.9808,
+          "inner_y": 7981.4861
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1478,8 +1448,8 @@
       },
       {
         "point": {
-          "inner_x": 1287.9516,
-          "inner_y": 65.9105
+          "inner_x": 10275.2728,
+          "inner_y": 7627.1655
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1492,8 +1462,8 @@
       },
       {
         "point": {
-          "inner_x": 1612.0607,
-          "inner_y": 1567.6107
+          "inner_x": 10599.7054,
+          "inner_y": 9128.8657
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1506,8 +1476,8 @@
       },
       {
         "point": {
-          "inner_x": 1658.1012,
-          "inner_y": 1533.7086
+          "inner_x": 10645.7918,
+          "inner_y": 9094.9636
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1520,8 +1490,8 @@
       },
       {
         "point": {
-          "inner_x": 1700.4995,
-          "inner_y": 1512.7473
+          "inner_x": 10688.2325,
+          "inner_y": 9074.0023
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1534,8 +1504,8 @@
       },
       {
         "point": {
-          "inner_x": 1650.0764,
-          "inner_y": 1490.4267
+          "inner_x": 10637.759,
+          "inner_y": 9051.6817
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1548,8 +1518,8 @@
       },
       {
         "point": {
-          "inner_x": 1672.8696,
-          "inner_y": 1479.6131
+          "inner_x": 10660.575,
+          "inner_y": 9040.8681
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1562,8 +1532,8 @@
       },
       {
         "point": {
-          "inner_x": 84.7289,
-          "inner_y": 1388.4765
+          "inner_x": 9070.8491,
+          "inner_y": 8949.7315
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1576,8 +1546,8 @@
       },
       {
         "point": {
-          "inner_x": 1652.7271,
-          "inner_y": 1581.4342
+          "inner_x": 10640.4124,
+          "inner_y": 9142.6892
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1590,8 +1560,8 @@
       },
       {
         "point": {
-          "inner_x": 1737.3471,
-          "inner_y": 481.0138
+          "inner_x": 10725.1168,
+          "inner_y": 8042.2688
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1604,8 +1574,8 @@
       },
       {
         "point": {
-          "inner_x": 207.4183,
-          "inner_y": 335.6925
+          "inner_x": 9193.661,
+          "inner_y": 7896.9475
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1618,8 +1588,8 @@
       },
       {
         "point": {
-          "inner_x": 1434.2038,
-          "inner_y": 522.6175
+          "inner_x": 10421.671,
+          "inner_y": 8083.8725
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1632,8 +1602,8 @@
       },
       {
         "point": {
-          "inner_x": 843.9664,
-          "inner_y": 885.2271
+          "inner_x": 9830.8444,
+          "inner_y": 8446.4821
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1646,8 +1616,8 @@
       },
       {
         "point": {
-          "inner_x": 830.4042,
-          "inner_y": 862.2815
+          "inner_x": 9817.2687,
+          "inner_y": 8423.5365
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1660,8 +1630,8 @@
       },
       {
         "point": {
-          "inner_x": 35.3598,
-          "inner_y": 476.9122
+          "inner_x": 9021.4307,
+          "inner_y": 8038.1672
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1674,8 +1644,8 @@
       },
       {
         "point": {
-          "inner_x": 1277.2179,
-          "inner_y": 333.6778
+          "inner_x": 10264.5284,
+          "inner_y": 7894.9328
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1688,8 +1658,8 @@
       },
       {
         "point": {
-          "inner_x": 1479.5632,
-          "inner_y": 342.9388
+          "inner_x": 10467.0756,
+          "inner_y": 7904.1938
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1702,8 +1672,8 @@
       },
       {
         "point": {
-          "inner_x": 1480.1613,
-          "inner_y": 371.7859
+          "inner_x": 10467.6743,
+          "inner_y": 7933.0409
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1716,8 +1686,8 @@
       },
       {
         "point": {
-          "inner_x": 165.4282,
-          "inner_y": 438.766
+          "inner_x": 9151.6289,
+          "inner_y": 8000.021
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1730,8 +1700,8 @@
       },
       {
         "point": {
-          "inner_x": 1735.6199,
-          "inner_y": 728.2857
+          "inner_x": 10723.3879,
+          "inner_y": 8289.5407
         },
         "intersection_type": "StopSign",
         "label": null,
@@ -1753,12 +1723,12 @@
       {
         "center_points": [
           {
-            "inner_x": 815.4157,
-            "inner_y": 885.2228
+            "inner_x": 9802.2652,
+            "inner_y": 8446.4778
           },
           {
-            "inner_x": 786.3408,
-            "inner_y": 879.8966
+            "inner_x": 9773.1613,
+            "inner_y": 8441.1516
           }
         ],
         "osm_tags": {
@@ -1787,16 +1757,16 @@
       {
         "center_points": [
           {
-            "inner_x": 859.806,
-            "inner_y": 904.4373
+            "inner_x": 9846.6998,
+            "inner_y": 8465.6923
           },
           {
-            "inner_x": 823.2181,
-            "inner_y": 902.5022
+            "inner_x": 9810.0754,
+            "inner_y": 8463.7572
           },
           {
-            "inner_x": 815.4157,
-            "inner_y": 885.2228
+            "inner_x": 9802.2652,
+            "inner_y": 8446.4778
           }
         ],
         "osm_tags": {
@@ -1825,12 +1795,12 @@
       {
         "center_points": [
           {
-            "inner_x": 815.4157,
-            "inner_y": 885.2228
+            "inner_x": 9802.2652,
+            "inner_y": 8446.4778
           },
           {
-            "inner_x": 843.9664,
-            "inner_y": 885.2271
+            "inner_x": 9830.8444,
+            "inner_y": 8446.4821
           }
         ],
         "osm_tags": {
@@ -1859,12 +1829,12 @@
       {
         "center_points": [
           {
-            "inner_x": 815.4157,
-            "inner_y": 885.2228
+            "inner_x": 9802.2652,
+            "inner_y": 8446.4778
           },
           {
-            "inner_x": 830.4042,
-            "inner_y": 862.2815
+            "inner_x": 9817.2687,
+            "inner_y": 8423.5365
           }
         ],
         "osm_tags": {
@@ -1893,12 +1863,12 @@
       {
         "center_points": [
           {
-            "inner_x": 798.6749,
-            "inner_y": 861.2825
+            "inner_x": 9785.5077,
+            "inner_y": 8422.5375
           },
           {
-            "inner_x": 815.4157,
-            "inner_y": 885.2228
+            "inner_x": 9802.2652,
+            "inner_y": 8446.4778
           }
         ],
         "osm_tags": {
@@ -1927,12 +1897,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1668.7289,
-            "inner_y": 1510.4682
+            "inner_x": 10656.4302,
+            "inner_y": 9071.7232
           },
           {
-            "inner_x": 1700.4995,
-            "inner_y": 1512.7473
+            "inner_x": 10688.2325,
+            "inner_y": 9074.0023
           }
         ],
         "osm_tags": {
@@ -1961,12 +1931,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1650.0764,
-            "inner_y": 1490.4267
+            "inner_x": 10637.759,
+            "inner_y": 9051.6817
           },
           {
-            "inner_x": 1668.7289,
-            "inner_y": 1510.4682
+            "inner_x": 10656.4302,
+            "inner_y": 9071.7232
           }
         ],
         "osm_tags": {
@@ -1995,12 +1965,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1668.7289,
-            "inner_y": 1510.4682
+            "inner_x": 10656.4302,
+            "inner_y": 9071.7232
           },
           {
-            "inner_x": 1672.8696,
-            "inner_y": 1479.6131
+            "inner_x": 10660.575,
+            "inner_y": 9040.8681
           }
         ],
         "osm_tags": {
@@ -2029,12 +1999,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1658.1012,
-            "inner_y": 1533.7086
+            "inner_x": 10645.7918,
+            "inner_y": 9094.9636
           },
           {
-            "inner_x": 1668.7289,
-            "inner_y": 1510.4682
+            "inner_x": 10656.4302,
+            "inner_y": 9071.7232
           }
         ],
         "osm_tags": {
@@ -2063,12 +2033,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1736.2997,
-            "inner_y": 643.7185
+            "inner_x": 10724.0684,
+            "inner_y": 8204.9735
           },
           {
-            "inner_x": 1731.0663,
-            "inner_y": 674.0441
+            "inner_x": 10718.8298,
+            "inner_y": 8235.2991
           }
         ],
         "osm_tags": {
@@ -2097,12 +2067,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1308.937,
-            "inner_y": 122.1031
+            "inner_x": 10296.2791,
+            "inner_y": 7683.3581
           },
           {
-            "inner_x": 1281.2714,
-            "inner_y": 120.7466
+            "inner_x": 10268.5859,
+            "inner_y": 7682.0016
           }
         ],
         "osm_tags": {
@@ -2131,12 +2101,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1281.2714,
-            "inner_y": 120.7466
+            "inner_x": 10268.5859,
+            "inner_y": 7682.0016
           },
           {
-            "inner_x": 1287.9516,
-            "inner_y": 65.9105
+            "inner_x": 10275.2728,
+            "inner_y": 7627.1655
           }
         ],
         "osm_tags": {
@@ -2165,12 +2135,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1291.5613,
-            "inner_y": 214.9872
+            "inner_x": 10278.8861,
+            "inner_y": 7776.2422
           },
           {
-            "inner_x": 1281.2714,
-            "inner_y": 120.7466
+            "inner_x": 10268.5859,
+            "inner_y": 7682.0016
           }
         ],
         "osm_tags": {
@@ -2199,12 +2169,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1291.5613,
-            "inner_y": 214.9872
+            "inner_x": 10278.8861,
+            "inner_y": 7776.2422
           },
           {
-            "inner_x": 1330.0072,
-            "inner_y": 217.4858
+            "inner_x": 10317.3704,
+            "inner_y": 7778.7408
           }
         ],
         "osm_tags": {
@@ -2233,12 +2203,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1255.5729,
-            "inner_y": 217.2838
+            "inner_x": 10242.8618,
+            "inner_y": 7778.5388
           },
           {
-            "inner_x": 1291.5613,
-            "inner_y": 214.9872
+            "inner_x": 10278.8861,
+            "inner_y": 7776.2422
           }
         ],
         "osm_tags": {
@@ -2267,12 +2237,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1293.2707,
-            "inner_y": 243.1074
+            "inner_x": 10280.5972,
+            "inner_y": 7804.3624
           },
           {
-            "inner_x": 1291.5613,
-            "inner_y": 214.9872
+            "inner_x": 10278.8861,
+            "inner_y": 7776.2422
           }
         ],
         "osm_tags": {
@@ -2301,12 +2271,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1293.2707,
-            "inner_y": 243.1074
+            "inner_x": 10280.5972,
+            "inner_y": 7804.3624
           },
           {
-            "inner_x": 1277.6821,
-            "inner_y": 288.2506
+            "inner_x": 10264.993,
+            "inner_y": 7849.5056
           }
         ],
         "osm_tags": {
@@ -2335,12 +2305,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1293.2707,
-            "inner_y": 243.1074
+            "inner_x": 10280.5972,
+            "inner_y": 7804.3624
           },
           {
-            "inner_x": 1298.7085,
-            "inner_y": 310.623
+            "inner_x": 10286.0404,
+            "inner_y": 7871.878
           }
         ],
         "osm_tags": {
@@ -2382,12 +2352,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1298.7085,
-            "inner_y": 310.623
+            "inner_x": 10286.0404,
+            "inner_y": 7871.878
           },
           {
-            "inner_x": 1277.2179,
-            "inner_y": 333.6778
+            "inner_x": 10264.5284,
+            "inner_y": 7894.9328
           }
         ],
         "osm_tags": {
@@ -2416,16 +2386,16 @@
       {
         "center_points": [
           {
-            "inner_x": 1324.0626,
-            "inner_y": 395.5947
+            "inner_x": 10311.4198,
+            "inner_y": 7956.8497
           },
           {
-            "inner_x": 1304.3814,
-            "inner_y": 358.9065
+            "inner_x": 10291.719,
+            "inner_y": 7920.1615
           },
           {
-            "inner_x": 1298.7085,
-            "inner_y": 310.623
+            "inner_x": 10286.0404,
+            "inner_y": 7871.878
           }
         ],
         "osm_tags": {
@@ -2467,12 +2437,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1300.6469,
-            "inner_y": 420.2311
+            "inner_x": 10287.9808,
+            "inner_y": 7981.4861
           },
           {
-            "inner_x": 1324.0626,
-            "inner_y": 395.5947
+            "inner_x": 10311.4198,
+            "inner_y": 7956.8497
           }
         ],
         "osm_tags": {
@@ -2501,16 +2471,16 @@
       {
         "center_points": [
           {
-            "inner_x": 1279.3681,
-            "inner_y": 427.5222
+            "inner_x": 10266.6807,
+            "inner_y": 7988.7772
           },
           {
-            "inner_x": 1298.6419,
-            "inner_y": 405.603
+            "inner_x": 10285.9738,
+            "inner_y": 7966.858
           },
           {
-            "inner_x": 1324.0626,
-            "inner_y": 395.5947
+            "inner_x": 10311.4198,
+            "inner_y": 7956.8497
           }
         ],
         "osm_tags": {
@@ -2539,12 +2509,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1381.4655,
-            "inner_y": 376.4504
+            "inner_x": 10368.88,
+            "inner_y": 7937.7054
           },
           {
-            "inner_x": 1324.0626,
-            "inner_y": 395.5947
+            "inner_x": 10311.4198,
+            "inner_y": 7956.8497
           }
         ],
         "osm_tags": {
@@ -2573,12 +2543,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1349.4238,
-            "inner_y": 420.0944
+            "inner_x": 10336.8063,
+            "inner_y": 7981.3494
           },
           {
-            "inner_x": 1324.0626,
-            "inner_y": 395.5947
+            "inner_x": 10311.4198,
+            "inner_y": 7956.8497
           }
         ],
         "osm_tags": {
@@ -2607,12 +2577,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1349.4238,
-            "inner_y": 420.0944
+            "inner_x": 10336.8063,
+            "inner_y": 7981.3494
           },
           {
-            "inner_x": 1378.4252,
-            "inner_y": 462.0367
+            "inner_x": 10365.8367,
+            "inner_y": 8023.2917
           }
         ],
         "osm_tags": {
@@ -2641,12 +2611,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1408.5647,
-            "inner_y": 494.3916
+            "inner_x": 10396.0063,
+            "inner_y": 8055.6466
           },
           {
-            "inner_x": 1434.2038,
-            "inner_y": 522.6175
+            "inner_x": 10421.671,
+            "inner_y": 8083.8725
           }
         ],
         "osm_tags": {
@@ -2675,12 +2645,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1378.4252,
-            "inner_y": 462.0367
+            "inner_x": 10365.8367,
+            "inner_y": 8023.2917
           },
           {
-            "inner_x": 1408.5647,
-            "inner_y": 494.3916
+            "inner_x": 10396.0063,
+            "inner_y": 8055.6466
           }
         ],
         "osm_tags": {
@@ -2709,12 +2679,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1350.4503,
-            "inner_y": 480.3287
+            "inner_x": 10337.8339,
+            "inner_y": 8041.5837
           },
           {
-            "inner_x": 1378.4252,
-            "inner_y": 462.0367
+            "inner_x": 10365.8367,
+            "inner_y": 8023.2917
           }
         ],
         "osm_tags": {
@@ -2743,24 +2713,24 @@
       {
         "center_points": [
           {
-            "inner_x": 1263.04,
-            "inner_y": 455.8881
+            "inner_x": 10250.3363,
+            "inner_y": 8017.1431
           },
           {
-            "inner_x": 1273.0662,
-            "inner_y": 447.4484
+            "inner_x": 10260.3725,
+            "inner_y": 8008.7034
           },
           {
-            "inner_x": 1285.6625,
-            "inner_y": 433.8826
+            "inner_x": 10272.9814,
+            "inner_y": 7995.1376
           },
           {
-            "inner_x": 1289.3643,
-            "inner_y": 429.1457
+            "inner_x": 10276.6869,
+            "inner_y": 7990.4007
           },
           {
-            "inner_x": 1300.6469,
-            "inner_y": 420.2311
+            "inner_x": 10287.9808,
+            "inner_y": 7981.4861
           }
         ],
         "osm_tags": {
@@ -2789,12 +2759,12 @@
       {
         "center_points": [
           {
-            "inner_x": 459.9984,
-            "inner_y": 1779.1188
+            "inner_x": 9446.4932,
+            "inner_y": 9340.3738
           },
           {
-            "inner_x": 457.5796,
-            "inner_y": 1742.6693
+            "inner_x": 9444.072,
+            "inner_y": 9303.9243
           }
         ],
         "osm_tags": {
@@ -2828,12 +2798,12 @@
       {
         "center_points": [
           {
-            "inner_x": 339.6002,
-            "inner_y": 884.4444
+            "inner_x": 9325.9748,
+            "inner_y": 8445.6994
           },
           {
-            "inner_x": 419.1567,
-            "inner_y": 884.2104
+            "inner_x": 9405.6107,
+            "inner_y": 8445.4654
           }
         ],
         "osm_tags": {
@@ -2863,24 +2833,24 @@
       {
         "center_points": [
           {
-            "inner_x": 419.1567,
-            "inner_y": 884.2104
+            "inner_x": 9405.6107,
+            "inner_y": 8445.4654
           },
           {
-            "inner_x": 436.9618,
-            "inner_y": 887.4022
+            "inner_x": 9423.4336,
+            "inner_y": 8448.6572
           },
           {
-            "inner_x": 450.6672,
-            "inner_y": 887.8804
+            "inner_x": 9437.1527,
+            "inner_y": 8449.1354
           },
           {
-            "inner_x": 464.7173,
-            "inner_y": 889.2814
+            "inner_x": 9451.2168,
+            "inner_y": 8450.5364
           },
           {
-            "inner_x": 475.77,
-            "inner_y": 893.3623
+            "inner_x": 9462.2805,
+            "inner_y": 8454.6173
           }
         ],
         "osm_tags": {
@@ -2912,16 +2882,16 @@
       {
         "center_points": [
           {
-            "inner_x": 1745.9587,
-            "inner_y": 1518.7111
+            "inner_x": 10733.737,
+            "inner_y": 9079.9661
           },
           {
-            "inner_x": 1716.0076,
-            "inner_y": 1514.2525
+            "inner_x": 10703.756,
+            "inner_y": 9075.5075
           },
           {
-            "inner_x": 1700.4995,
-            "inner_y": 1512.7473
+            "inner_x": 10688.2325,
+            "inner_y": 9074.0023
           }
         ],
         "osm_tags": {
@@ -2953,32 +2923,32 @@
       {
         "center_points": [
           {
-            "inner_x": 961.3488,
-            "inner_y": 125.7615
+            "inner_x": 9948.344,
+            "inner_y": 7687.0165
           },
           {
-            "inner_x": 961.9633,
-            "inner_y": 125.528
+            "inner_x": 9948.9591,
+            "inner_y": 7686.783
           },
           {
-            "inner_x": 968.2053,
-            "inner_y": 123.1373
+            "inner_x": 9955.2073,
+            "inner_y": 7684.3923
           },
           {
-            "inner_x": 977.9991,
-            "inner_y": 121.992
+            "inner_x": 9965.0109,
+            "inner_y": 7683.247
           },
           {
-            "inner_x": 988.5348,
-            "inner_y": 122.092
+            "inner_x": 9975.5571,
+            "inner_y": 7683.347
           },
           {
-            "inner_x": 991.3973,
-            "inner_y": 122.1254
+            "inner_x": 9978.4225,
+            "inner_y": 7683.3804
           },
           {
-            "inner_x": 1216.2277,
-            "inner_y": 119.376
+            "inner_x": 10203.4773,
+            "inner_y": 7680.631
           }
         ],
         "osm_tags": {
@@ -3011,20 +2981,20 @@
       {
         "center_points": [
           {
-            "inner_x": 1349.4238,
-            "inner_y": 420.0944
+            "inner_x": 10336.8063,
+            "inner_y": 7981.3494
           },
           {
-            "inner_x": 1357.8014,
-            "inner_y": 416.614
+            "inner_x": 10345.1923,
+            "inner_y": 7977.869
           },
           {
-            "inner_x": 1404.4477,
-            "inner_y": 417.0699
+            "inner_x": 10391.8852,
+            "inner_y": 7978.3249
           },
           {
-            "inner_x": 1472.8698,
-            "inner_y": 417.4146
+            "inner_x": 10460.3756,
+            "inner_y": 7978.6696
           }
         ],
         "osm_tags": {
@@ -3069,12 +3039,12 @@
       {
         "center_points": [
           {
-            "inner_x": 164.0602,
-            "inner_y": 336.1089
+            "inner_x": 9150.2596,
+            "inner_y": 7897.3639
           },
           {
-            "inner_x": 165.4282,
-            "inner_y": 438.766
+            "inner_x": 9151.6289,
+            "inner_y": 8000.021
           }
         ],
         "osm_tags": {
@@ -3107,16 +3077,16 @@
       {
         "center_points": [
           {
-            "inner_x": 528.9056,
-            "inner_y": 1279.2865
+            "inner_x": 9515.4691,
+            "inner_y": 8840.5415
           },
           {
-            "inner_x": 532.7864,
-            "inner_y": 1059.7395
+            "inner_x": 9519.3538,
+            "inner_y": 8620.9945
           },
           {
-            "inner_x": 520.9743,
-            "inner_y": 1025.8538
+            "inner_x": 9507.5299,
+            "inner_y": 8587.1088
           }
         ],
         "osm_tags": {
@@ -3147,16 +3117,16 @@
       {
         "center_points": [
           {
-            "inner_x": 339.6002,
-            "inner_y": 884.4444
+            "inner_x": 9325.9748,
+            "inner_y": 8445.6994
           },
           {
-            "inner_x": 363.9545,
-            "inner_y": 874.3025
+            "inner_x": 9350.3534,
+            "inner_y": 8435.5575
           },
           {
-            "inner_x": 359.2179,
-            "inner_y": 739.9355
+            "inner_x": 9345.6121,
+            "inner_y": 8301.1905
           }
         ],
         "osm_tags": {
@@ -3188,12 +3158,12 @@
       {
         "center_points": [
           {
-            "inner_x": 84.7289,
-            "inner_y": 1388.4765
+            "inner_x": 9070.8491,
+            "inner_y": 8949.7315
           },
           {
-            "inner_x": 128.4066,
-            "inner_y": 1388.0018
+            "inner_x": 9114.5704,
+            "inner_y": 8949.2568
           }
         ],
         "osm_tags": {
@@ -3225,12 +3195,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1408.5647,
-            "inner_y": 494.3916
+            "inner_x": 10396.0063,
+            "inner_y": 8055.6466
           },
           {
-            "inner_x": 1478.6022,
-            "inner_y": 481.285
+            "inner_x": 10466.1137,
+            "inner_y": 8042.54
           }
         ],
         "osm_tags": {
@@ -3274,12 +3244,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1118.8946,
-            "inner_y": 1213.6889
+            "inner_x": 10106.047,
+            "inner_y": 8774.9439
           },
           {
-            "inner_x": 1140.2159,
-            "inner_y": 1188.0399
+            "inner_x": 10127.3896,
+            "inner_y": 8749.2949
           }
         ],
         "osm_tags": {
@@ -3310,16 +3280,16 @@
       {
         "center_points": [
           {
-            "inner_x": 1596.2933,
-            "inner_y": 887.3133
+            "inner_x": 10583.9223,
+            "inner_y": 8448.5683
           },
           {
-            "inner_x": 1607.7754,
-            "inner_y": 868.3029
+            "inner_x": 10595.4158,
+            "inner_y": 8429.5579
           },
           {
-            "inner_x": 1607.1138,
-            "inner_y": 806.4078
+            "inner_x": 10594.7536,
+            "inner_y": 8367.6628
           }
         ],
         "osm_tags": {
@@ -3353,24 +3323,24 @@
       {
         "center_points": [
           {
-            "inner_x": 1255.5729,
-            "inner_y": 217.2838
+            "inner_x": 10242.8618,
+            "inner_y": 7778.5388
           },
           {
-            "inner_x": 1236.4385,
-            "inner_y": 215.6737
+            "inner_x": 10223.7083,
+            "inner_y": 7776.9287
           },
           {
-            "inner_x": 1156.5515,
-            "inner_y": 215.4179
+            "inner_x": 10143.7415,
+            "inner_y": 7776.6729
           },
           {
-            "inner_x": 1154.4459,
-            "inner_y": 215.4068
+            "inner_x": 10141.6338,
+            "inner_y": 7776.6618
           },
           {
-            "inner_x": 1104.2627,
-            "inner_y": 215.2511
+            "inner_x": 10091.4005,
+            "inner_y": 7776.5061
           }
         ],
         "osm_tags": {
@@ -3402,16 +3372,16 @@
       {
         "center_points": [
           {
-            "inner_x": 1416.5345,
-            "inner_y": 1214.2263
+            "inner_x": 10403.984,
+            "inner_y": 8775.4813
           },
           {
-            "inner_x": 1412.0522,
-            "inner_y": 1265.1003
+            "inner_x": 10399.4973,
+            "inner_y": 8826.3553
           },
           {
-            "inner_x": 1417.4937,
-            "inner_y": 1292.9857
+            "inner_x": 10404.9442,
+            "inner_y": 8854.2407
           }
         ],
         "osm_tags": {
@@ -3442,28 +3412,28 @@
       {
         "center_points": [
           {
-            "inner_x": 418.2358,
-            "inner_y": 1027.1186
+            "inner_x": 9404.6889,
+            "inner_y": 8588.3736
           },
           {
-            "inner_x": 418.588,
-            "inner_y": 999.887
+            "inner_x": 9405.0414,
+            "inner_y": 8561.142
           },
           {
-            "inner_x": 418.6929,
-            "inner_y": 988.7898
+            "inner_x": 9405.1464,
+            "inner_y": 8550.0448
           },
           {
-            "inner_x": 418.9177,
-            "inner_y": 973.8007
+            "inner_x": 9405.3715,
+            "inner_y": 8535.0557
           },
           {
-            "inner_x": 418.9102,
-            "inner_y": 971.9104
+            "inner_x": 9405.364,
+            "inner_y": 8533.1654
           },
           {
-            "inner_x": 419.1567,
-            "inner_y": 884.2104
+            "inner_x": 9405.6107,
+            "inner_y": 8445.4654
           }
         ],
         "osm_tags": {
@@ -3495,12 +3465,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1180.8825,
-            "inner_y": 558.7434
+            "inner_x": 10168.0968,
+            "inner_y": 8119.9984
           },
           {
-            "inner_x": 1139.1536,
-            "inner_y": 557.4098
+            "inner_x": 10126.3263,
+            "inner_y": 8118.6648
           }
         ],
         "osm_tags": {
@@ -3532,12 +3502,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1735.1907,
-            "inner_y": 805.9519
+            "inner_x": 10722.9583,
+            "inner_y": 8367.2069
           },
           {
-            "inner_x": 1735.6199,
-            "inner_y": 728.2857
+            "inner_x": 10723.3879,
+            "inner_y": 8289.5407
           }
         ],
         "osm_tags": {
@@ -3567,44 +3537,44 @@
       {
         "center_points": [
           {
-            "inner_x": 1642.3402,
-            "inner_y": 1646.9859
+            "inner_x": 10630.0151,
+            "inner_y": 9208.2409
           },
           {
-            "inner_x": 1629.6239,
-            "inner_y": 1606.6666
+            "inner_x": 10617.2861,
+            "inner_y": 9167.9216
           },
           {
-            "inner_x": 1628.3126,
-            "inner_y": 1601.7073
+            "inner_x": 10615.9735,
+            "inner_y": 9162.9623
           },
           {
-            "inner_x": 1627.6906,
-            "inner_y": 1596.6146
+            "inner_x": 10615.3509,
+            "inner_y": 9157.8696
           },
           {
-            "inner_x": 1627.758,
-            "inner_y": 1591.4885
+            "inner_x": 10615.4184,
+            "inner_y": 9152.7435
           },
           {
-            "inner_x": 1628.5299,
-            "inner_y": 1586.418
+            "inner_x": 10616.191,
+            "inner_y": 9147.673
           },
           {
-            "inner_x": 1629.9836,
-            "inner_y": 1581.5032
+            "inner_x": 10617.6462,
+            "inner_y": 9142.7582
           },
           {
-            "inner_x": 1632.0892,
-            "inner_y": 1576.833
+            "inner_x": 10619.7539,
+            "inner_y": 9138.088
           },
           {
-            "inner_x": 1634.8168,
-            "inner_y": 1572.4853
+            "inner_x": 10622.4842,
+            "inner_y": 9133.7403
           },
           {
-            "inner_x": 1658.1012,
-            "inner_y": 1533.7086
+            "inner_x": 10645.7918,
+            "inner_y": 9094.9636
           }
         ],
         "osm_tags": {
@@ -3637,12 +3607,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1672.8696,
-            "inner_y": 1479.6131
+            "inner_x": 10660.575,
+            "inner_y": 9040.8681
           },
           {
-            "inner_x": 1674.2845,
-            "inner_y": 1066.6373
+            "inner_x": 10661.9913,
+            "inner_y": 8627.8923
           }
         ],
         "osm_tags": {
@@ -3675,16 +3645,16 @@
       {
         "center_points": [
           {
-            "inner_x": 830.4042,
-            "inner_y": 862.2815
+            "inner_x": 9817.2687,
+            "inner_y": 8423.5365
           },
           {
-            "inner_x": 829.6526,
-            "inner_y": 841.323
+            "inner_x": 9816.5163,
+            "inner_y": 8402.578
           },
           {
-            "inner_x": 830.1771,
-            "inner_y": 801.4819
+            "inner_x": 9817.0414,
+            "inner_y": 8362.7369
           }
         ],
         "osm_tags": {
@@ -3713,12 +3683,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1607.3161,
-            "inner_y": 724.624
+            "inner_x": 10594.9561,
+            "inner_y": 8285.879
           },
           {
-            "inner_x": 1735.6199,
-            "inner_y": 728.2857
+            "inner_x": 10723.3879,
+            "inner_y": 8289.5407
           }
         ],
         "osm_tags": {
@@ -3748,16 +3718,16 @@
       {
         "center_points": [
           {
-            "inner_x": 419.1567,
-            "inner_y": 884.2104
+            "inner_x": 9405.6107,
+            "inner_y": 8445.4654
           },
           {
-            "inner_x": 432.6414,
-            "inner_y": 872.9763
+            "inner_x": 9419.1089,
+            "inner_y": 8434.2313
           },
           {
-            "inner_x": 428.6816,
-            "inner_y": 740.0912
+            "inner_x": 9415.1451,
+            "inner_y": 8301.3462
           }
         ],
         "osm_tags": {
@@ -3778,50 +3748,6 @@
     ],
     [
       {
-        "osm_way_id": 7978479,
-        "i1": {
-          "osm_node_id": 1726088135
-        },
-        "i2": {
-          "osm_node_id": 53103989
-        }
-      },
-      {
-        "center_points": [
-          {
-            "inner_x": 1511.3108,
-            "inner_y": 1675.6074
-          },
-          {
-            "inner_x": 1525.8691,
-            "inner_y": 1692.829
-          },
-          {
-            "inner_x": 1561.3442,
-            "inner_y": 1692.2311
-          },
-          {
-            "inner_x": 1610.216,
-            "inner_y": 1692.5758
-          }
-        ],
-        "osm_tags": {
-          "abst:endpt_back": "true",
-          "abst:osm_way_id": "7978479",
-          "abst:parking_inferred": "true",
-          "abst:sidewalks_inferred": "true",
-          "highway": "residential",
-          "lanes": "2",
-          "maxspeed": "25 mph",
-          "name": "East Galer Street",
-          "parking:lane:both": "parallel",
-          "sidewalk": "both"
-        },
-        "turn_restrictions": []
-      }
-    ],
-    [
-      {
         "osm_way_id": 13521798,
         "i1": {
           "osm_node_id": 29545020
@@ -3833,16 +3759,16 @@
       {
         "center_points": [
           {
-            "inner_x": 0.0,
-            "inner_y": 478.6515
+            "inner_x": 8986.0356,
+            "inner_y": 8039.9065
           },
           {
-            "inner_x": 23.3719,
-            "inner_y": 478.8165
+            "inner_x": 9009.4309,
+            "inner_y": 8040.0715
           },
           {
-            "inner_x": 35.3598,
-            "inner_y": 476.9122
+            "inner_x": 9021.4307,
+            "inner_y": 8038.1672
           }
         ],
         "osm_tags": {
@@ -3879,12 +3805,12 @@
       {
         "center_points": [
           {
-            "inner_x": 288.3604,
-            "inner_y": 551.082
+            "inner_x": 9274.6838,
+            "inner_y": 8112.337
           },
           {
-            "inner_x": 246.3076,
-            "inner_y": 511.341
+            "inner_x": 9232.5891,
+            "inner_y": 8072.596
           }
         ],
         "osm_tags": {
@@ -3921,36 +3847,36 @@
       {
         "center_points": [
           {
-            "inner_x": 520.9743,
-            "inner_y": 1025.8538
+            "inner_x": 9507.5299,
+            "inner_y": 8587.1088
           },
           {
-            "inner_x": 530.4567,
-            "inner_y": 1024.5834
+            "inner_x": 9517.0218,
+            "inner_y": 8585.8384
           },
           {
-            "inner_x": 534.6905,
-            "inner_y": 1026.1068
+            "inner_x": 9521.2598,
+            "inner_y": 8587.3618
           },
           {
-            "inner_x": 539.0591,
-            "inner_y": 1028.731
+            "inner_x": 9525.6328,
+            "inner_y": 8589.986
           },
           {
-            "inner_x": 630.4709,
-            "inner_y": 1095.1588
+            "inner_x": 9617.1358,
+            "inner_y": 8656.4138
           },
           {
-            "inner_x": 643.1497,
-            "inner_y": 1095.081
+            "inner_x": 9629.8273,
+            "inner_y": 8656.336
           },
           {
-            "inner_x": 660.3995,
-            "inner_y": 1093.9802
+            "inner_x": 9647.0943,
+            "inner_y": 8655.2352
           },
           {
-            "inner_x": 672.6737,
-            "inner_y": 1098.1166
+            "inner_x": 9659.3808,
+            "inner_y": 8659.3716
           }
         ],
         "osm_tags": {
@@ -3982,12 +3908,12 @@
       {
         "center_points": [
           {
-            "inner_x": 843.9664,
-            "inner_y": 885.2271
+            "inner_x": 9830.8444,
+            "inner_y": 8446.4821
           },
           {
-            "inner_x": 959.8127,
-            "inner_y": 882.543
+            "inner_x": 9946.8064,
+            "inner_y": 8443.798
           }
         ],
         "osm_tags": {
@@ -4016,36 +3942,36 @@
       {
         "center_points": [
           {
-            "inner_x": 697.6042,
-            "inner_y": 1687.3607
+            "inner_x": 9684.3361,
+            "inner_y": 9248.6157
           },
           {
-            "inner_x": 648.0129,
-            "inner_y": 1736.0085
+            "inner_x": 9634.6953,
+            "inner_y": 9297.2635
           },
           {
-            "inner_x": 621.1492,
-            "inner_y": 1745.8604
+            "inner_x": 9607.8048,
+            "inner_y": 9307.1154
           },
           {
-            "inner_x": 591.6552,
-            "inner_y": 1749.6299
+            "inner_x": 9578.2814,
+            "inner_y": 9310.8849
           },
           {
-            "inner_x": 514.1586,
-            "inner_y": 1741.2792
+            "inner_x": 9500.7074,
+            "inner_y": 9302.5342
           },
           {
-            "inner_x": 495.3385,
-            "inner_y": 1744.3396
+            "inner_x": 9481.8685,
+            "inner_y": 9305.5946
           },
           {
-            "inner_x": 486.4049,
-            "inner_y": 1743.9141
+            "inner_x": 9472.926,
+            "inner_y": 9305.1691
           },
           {
-            "inner_x": 457.5796,
-            "inner_y": 1742.6693
+            "inner_x": 9444.072,
+            "inner_y": 9303.9243
           }
         ],
         "osm_tags": {
@@ -4080,12 +4006,12 @@
       {
         "center_points": [
           {
-            "inner_x": 164.0602,
-            "inner_y": 336.1089
+            "inner_x": 9150.2596,
+            "inner_y": 7897.3639
           },
           {
-            "inner_x": 207.4183,
-            "inner_y": 335.6925
+            "inner_x": 9193.661,
+            "inner_y": 7896.9475
           }
         ],
         "osm_tags": {
@@ -4116,24 +4042,24 @@
       {
         "center_points": [
           {
-            "inner_x": 1472.585,
-            "inner_y": 561.1007
+            "inner_x": 10460.0905,
+            "inner_y": 8122.3557
           },
           {
-            "inner_x": 1469.0781,
-            "inner_y": 554.429
+            "inner_x": 10456.5801,
+            "inner_y": 8115.684
           },
           {
-            "inner_x": 1464.7994,
-            "inner_y": 548.2132
+            "inner_x": 10452.2971,
+            "inner_y": 8109.4682
           },
           {
-            "inner_x": 1459.8163,
-            "inner_y": 542.5534
+            "inner_x": 10447.309,
+            "inner_y": 8103.8084
           },
           {
-            "inner_x": 1434.2038,
-            "inner_y": 522.6175
+            "inner_x": 10421.671,
+            "inner_y": 8083.8725
           }
         ],
         "osm_tags": {
@@ -4165,28 +4091,28 @@
       {
         "center_points": [
           {
-            "inner_x": 1745.9587,
-            "inner_y": 1588.5621
+            "inner_x": 10733.737,
+            "inner_y": 9149.8171
           },
           {
-            "inner_x": 1745.007,
-            "inner_y": 1587.5744
+            "inner_x": 10732.7844,
+            "inner_y": 9148.8294
           },
           {
-            "inner_x": 1732.1934,
-            "inner_y": 1579.1903
+            "inner_x": 10719.958,
+            "inner_y": 9140.4453
           },
           {
-            "inner_x": 1711.4966,
-            "inner_y": 1573.2748
+            "inner_x": 10699.2405,
+            "inner_y": 9134.5298
           },
           {
-            "inner_x": 1698.6829,
-            "inner_y": 1573.2748
+            "inner_x": 10686.4141,
+            "inner_y": 9134.5298
           },
           {
-            "inner_x": 1652.7271,
-            "inner_y": 1581.4342
+            "inner_x": 10640.4124,
+            "inner_y": 9142.6892
           }
         ],
         "osm_tags": {
@@ -4220,28 +4146,28 @@
       {
         "center_points": [
           {
-            "inner_x": 1650.0764,
-            "inner_y": 1490.4267
+            "inner_x": 10637.759,
+            "inner_y": 9051.6817
           },
           {
-            "inner_x": 1639.2154,
-            "inner_y": 1476.5129
+            "inner_x": 10626.8872,
+            "inner_y": 9037.7679
           },
           {
-            "inner_x": 1623.2021,
-            "inner_y": 1452.3948
+            "inner_x": 10610.8579,
+            "inner_y": 9013.6498
           },
           {
-            "inner_x": 1592.2993,
-            "inner_y": 1400.2666
+            "inner_x": 10579.9243,
+            "inner_y": 8961.5216
           },
           {
-            "inner_x": 1587.541,
-            "inner_y": 1393.9507
+            "inner_x": 10575.1612,
+            "inner_y": 8955.2057
           },
           {
-            "inner_x": 1583.0525,
-            "inner_y": 1389.7475
+            "inner_x": 10570.6682,
+            "inner_y": 8951.0025
           }
         ],
         "osm_tags": {
@@ -4273,56 +4199,56 @@
       {
         "center_points": [
           {
-            "inner_x": 1612.0607,
-            "inner_y": 1567.6107
+            "inner_x": 10599.7054,
+            "inner_y": 9128.8657
           },
           {
-            "inner_x": 1599.8002,
-            "inner_y": 1554.2493
+            "inner_x": 10587.4327,
+            "inner_y": 9115.5043
           },
           {
-            "inner_x": 1592.4792,
-            "inner_y": 1544.7199
+            "inner_x": 10580.1043,
+            "inner_y": 9105.9749
           },
           {
-            "inner_x": 1584.199,
-            "inner_y": 1532.7664
+            "inner_x": 10571.8159,
+            "inner_y": 9094.0214
           },
           {
-            "inner_x": 1579.3957,
-            "inner_y": 1514.8974
+            "inner_x": 10567.0078,
+            "inner_y": 9076.1524
           },
           {
-            "inner_x": 1575.7989,
-            "inner_y": 1492.4249
+            "inner_x": 10563.4074,
+            "inner_y": 9053.6799
           },
           {
-            "inner_x": 1571.9623,
-            "inner_y": 1468.796
+            "inner_x": 10559.567,
+            "inner_y": 9030.051
           },
           {
-            "inner_x": 1569.0773,
-            "inner_y": 1459.4445
+            "inner_x": 10556.6791,
+            "inner_y": 9020.6995
           },
           {
-            "inner_x": 1563.4198,
-            "inner_y": 1453.0953
+            "inner_x": 10551.0159,
+            "inner_y": 9014.3503
           },
           {
-            "inner_x": 1554.2929,
-            "inner_y": 1447.1241
+            "inner_x": 10541.8799,
+            "inner_y": 9008.3791
           },
           {
-            "inner_x": 1540.4976,
-            "inner_y": 1440.23
+            "inner_x": 10528.0709,
+            "inner_y": 9001.485
           },
           {
-            "inner_x": 1522.6259,
-            "inner_y": 1437.6725
+            "inner_x": 10510.1813,
+            "inner_y": 8998.9275
           },
           {
-            "inner_x": 1514.4281,
-            "inner_y": 1435.8823
+            "inner_x": 10501.9753,
+            "inner_y": 8997.1373
           }
         ],
         "osm_tags": {
@@ -4355,12 +4281,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1652.7271,
-            "inner_y": 1581.4342
+            "inner_x": 10640.4124,
+            "inner_y": 9142.6892
           },
           {
-            "inner_x": 1612.0607,
-            "inner_y": 1567.6107
+            "inner_x": 10599.7054,
+            "inner_y": 9128.8657
           }
         ],
         "osm_tags": {
@@ -4397,20 +4323,20 @@
       {
         "center_points": [
           {
-            "inner_x": 528.9056,
-            "inner_y": 1279.2865
+            "inner_x": 9515.4691,
+            "inner_y": 8840.5415
           },
           {
-            "inner_x": 580.0148,
-            "inner_y": 1280.4022
+            "inner_x": 9566.6294,
+            "inner_y": 8841.6572
           },
           {
-            "inner_x": 599.059,
-            "inner_y": 1281.0173
+            "inner_x": 9585.6926,
+            "inner_y": 8842.2723
           },
           {
-            "inner_x": 615.1545,
-            "inner_y": 1284.9018
+            "inner_x": 9601.8041,
+            "inner_y": 8846.1568
           }
         ],
         "osm_tags": {
@@ -4441,12 +4367,12 @@
       {
         "center_points": [
           {
-            "inner_x": 198.3349,
-            "inner_y": 1690.3297
+            "inner_x": 9184.5685,
+            "inner_y": 9251.5847
           },
           {
-            "inner_x": 241.5477,
-            "inner_y": 1689.6848
+            "inner_x": 9227.8244,
+            "inner_y": 9250.9398
           }
         ],
         "osm_tags": {
@@ -4480,24 +4406,24 @@
       {
         "center_points": [
           {
-            "inner_x": 711.6917,
-            "inner_y": 802.0935
+            "inner_x": 9698.4377,
+            "inner_y": 8363.3485
           },
           {
-            "inner_x": 706.3304,
-            "inner_y": 774.0271
+            "inner_x": 9693.071,
+            "inner_y": 8335.2821
           },
           {
-            "inner_x": 706.6037,
-            "inner_y": 732.2408
+            "inner_x": 9693.3446,
+            "inner_y": 8293.4958
           },
           {
-            "inner_x": 706.2365,
-            "inner_y": 722.856
+            "inner_x": 9692.9771,
+            "inner_y": 8284.111
           },
           {
-            "inner_x": 703.8162,
-            "inner_y": 717.9745
+            "inner_x": 9690.5543,
+            "inner_y": 8279.2295
           }
         ],
         "osm_tags": {
@@ -4529,24 +4455,24 @@
       {
         "center_points": [
           {
-            "inner_x": 615.1545,
-            "inner_y": 1284.9018
+            "inner_x": 9601.8041,
+            "inner_y": 8846.1568
           },
           {
-            "inner_x": 614.57,
-            "inner_y": 1127.5499
+            "inner_x": 9601.2191,
+            "inner_y": 8688.8049
           },
           {
-            "inner_x": 614.5175,
-            "inner_y": 1122.8019
+            "inner_x": 9601.1665,
+            "inner_y": 8684.0569
           },
           {
-            "inner_x": 613.6783,
-            "inner_y": 1118.1206
+            "inner_x": 9600.3265,
+            "inner_y": 8679.3756
           },
           {
-            "inner_x": 612.0897,
-            "inner_y": 1113.695
+            "inner_x": 9598.7363,
+            "inner_y": 8674.95
           }
         ],
         "osm_tags": {
@@ -4581,12 +4507,12 @@
       {
         "center_points": [
           {
-            "inner_x": 711.6917,
-            "inner_y": 802.0935
+            "inner_x": 9698.4377,
+            "inner_y": 8363.3485
           },
           {
-            "inner_x": 625.9749,
-            "inner_y": 723.045
+            "inner_x": 9612.6353,
+            "inner_y": 8284.3
           }
         ],
         "osm_tags": {
@@ -4618,12 +4544,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1736.2997,
-            "inner_y": 643.7185
+            "inner_x": 10724.0684,
+            "inner_y": 8204.9735
           },
           {
-            "inner_x": 1737.3471,
-            "inner_y": 481.0138
+            "inner_x": 10725.1168,
+            "inner_y": 8042.2688
           }
         ],
         "osm_tags": {
@@ -4657,20 +4583,20 @@
       {
         "center_points": [
           {
-            "inner_x": 1737.3471,
-            "inner_y": 481.0138
+            "inner_x": 10725.1168,
+            "inner_y": 8042.2688
           },
           {
-            "inner_x": 1736.4946,
-            "inner_y": 460.3915
+            "inner_x": 10724.2635,
+            "inner_y": 8021.6465
           },
           {
-            "inner_x": 1732.006,
-            "inner_y": 445.2245
+            "inner_x": 10719.7704,
+            "inner_y": 8006.4795
           },
           {
-            "inner_x": 1725.4418,
-            "inner_y": 430.8359
+            "inner_x": 10713.1997,
+            "inner_y": 7992.0909
           }
         ],
         "osm_tags": {
@@ -4704,12 +4630,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1596.2933,
-            "inner_y": 887.3133
+            "inner_x": 10583.9223,
+            "inner_y": 8448.5683
           },
           {
-            "inner_x": 1678.5857,
-            "inner_y": 886.1012
+            "inner_x": 10666.2968,
+            "inner_y": 8447.3562
           }
         ],
         "osm_tags": {
@@ -4743,20 +4669,20 @@
       {
         "center_points": [
           {
-            "inner_x": 1731.0663,
-            "inner_y": 674.0441
+            "inner_x": 10718.8298,
+            "inner_y": 8235.2991
           },
           {
-            "inner_x": 1726.9011,
-            "inner_y": 698.2982
+            "inner_x": 10714.6604,
+            "inner_y": 8259.5532
           },
           {
-            "inner_x": 1726.2675,
-            "inner_y": 712.0812
+            "inner_x": 10714.0262,
+            "inner_y": 8273.3362
           },
           {
-            "inner_x": 1735.6199,
-            "inner_y": 728.2857
+            "inner_x": 10723.3879,
+            "inner_y": 8289.5407
           }
         ],
         "osm_tags": {
@@ -4789,12 +4715,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1287.6189,
-            "inner_y": 0.0
+            "inner_x": 10274.9398,
+            "inner_y": 7561.255
           },
           {
-            "inner_x": 1287.9516,
-            "inner_y": 65.9105
+            "inner_x": 10275.2728,
+            "inner_y": 7627.1655
           }
         ],
         "osm_tags": {
@@ -4838,28 +4764,28 @@
       {
         "center_points": [
           {
-            "inner_x": 1381.4655,
-            "inner_y": 376.4504
+            "inner_x": 10368.88,
+            "inner_y": 7937.7054
           },
           {
-            "inner_x": 1412.9227,
-            "inner_y": 373.5038
+            "inner_x": 10400.3686,
+            "inner_y": 7934.7588
           },
           {
-            "inner_x": 1433.2298,
-            "inner_y": 371.9248
+            "inner_x": 10420.696,
+            "inner_y": 7933.1798
           },
           {
-            "inner_x": 1451.8808,
-            "inner_y": 371.291
+            "inner_x": 10439.3656,
+            "inner_y": 7932.546
           },
           {
-            "inner_x": 1474.9005,
-            "inner_y": 370.9685
+            "inner_x": 10462.4083,
+            "inner_y": 7932.2235
           },
           {
-            "inner_x": 1480.1613,
-            "inner_y": 371.7859
+            "inner_x": 10467.6743,
+            "inner_y": 7933.0409
           }
         ],
         "osm_tags": {
@@ -4903,28 +4829,28 @@
       {
         "center_points": [
           {
-            "inner_x": 612.0897,
-            "inner_y": 1113.695
+            "inner_x": 9598.7363,
+            "inner_y": 8674.95
           },
           {
-            "inner_x": 609.8416,
-            "inner_y": 1109.6475
+            "inner_x": 9596.4859,
+            "inner_y": 8670.9025
           },
           {
-            "inner_x": 606.9492,
-            "inner_y": 1106.0114
+            "inner_x": 9593.5906,
+            "inner_y": 8667.2664
           },
           {
-            "inner_x": 603.195,
-            "inner_y": 1102.3309
+            "inner_x": 9589.8327,
+            "inner_y": 8663.5859
           },
           {
-            "inner_x": 570.2916,
-            "inner_y": 1070.6626
+            "inner_x": 9556.8965,
+            "inner_y": 8631.9176
           },
           {
-            "inner_x": 520.9743,
-            "inner_y": 1025.8538
+            "inner_x": 9507.5299,
+            "inner_y": 8587.1088
           }
         ],
         "osm_tags": {
@@ -4957,12 +4883,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1740.6267,
-            "inner_y": 715.8394
+            "inner_x": 10728.3997,
+            "inner_y": 8277.0944
           },
           {
-            "inner_x": 1731.0663,
-            "inner_y": 674.0441
+            "inner_x": 10718.8298,
+            "inner_y": 8235.2991
           }
         ],
         "osm_tags": {
@@ -4996,12 +4922,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1480.1613,
-            "inner_y": 371.7859
+            "inner_x": 10467.6743,
+            "inner_y": 7933.0409
           },
           {
-            "inner_x": 1634.7494,
-            "inner_y": 372.1361
+            "inner_x": 10622.4167,
+            "inner_y": 7933.3911
           }
         ],
         "osm_tags": {
@@ -5038,43 +4964,6 @@
     ],
     [
       {
-        "osm_way_id": 394736758,
-        "i1": {
-          "osm_node_id": 1726088135
-        },
-        "i2": {
-          "osm_node_id": 53229344
-        }
-      },
-      {
-        "center_points": [
-          {
-            "inner_x": 1511.3108,
-            "inner_y": 1675.6074
-          },
-          {
-            "inner_x": 1510.1269,
-            "inner_y": 1779.1188
-          }
-        ],
-        "osm_tags": {
-          "abst:osm_way_id": "394736758",
-          "abst:parking_inferred": "true",
-          "abst:sidewalks_inferred": "true",
-          "highway": "secondary",
-          "lanes": "4",
-          "maxspeed": "30 mph",
-          "name": "24th Avenue East",
-          "old_ref": "WA 513 (Old SSH 1J)",
-          "parking:lane:both": "no_parking",
-          "sidewalk": "both",
-          "trolley_wire": "yes"
-        },
-        "turn_restrictions": []
-      }
-    ],
-    [
-      {
         "osm_way_id": 428224938,
         "i1": {
           "osm_node_id": 4273590091
@@ -5086,12 +4975,12 @@
       {
         "center_points": [
           {
-            "inner_x": 35.3598,
-            "inner_y": 476.9122
+            "inner_x": 9021.4307,
+            "inner_y": 8038.1672
           },
           {
-            "inner_x": 70.8949,
-            "inner_y": 479.05
+            "inner_x": 9057.0013,
+            "inner_y": 8040.305
           }
         ],
         "osm_tags": {
@@ -5124,32 +5013,32 @@
       {
         "center_points": [
           {
-            "inner_x": 1277.2179,
-            "inner_y": 333.6778
+            "inner_x": 10264.5284,
+            "inner_y": 7894.9328
           },
           {
-            "inner_x": 1289.5131,
-            "inner_y": 345.1604
+            "inner_x": 10276.8358,
+            "inner_y": 7906.4154
           },
           {
-            "inner_x": 1294.8045,
-            "inner_y": 360.594
+            "inner_x": 10282.1325,
+            "inner_y": 7921.849
           },
           {
-            "inner_x": 1296.2357,
-            "inner_y": 368.411
+            "inner_x": 10283.5652,
+            "inner_y": 7929.666
           },
           {
-            "inner_x": 1296.4755,
-            "inner_y": 376.8952
+            "inner_x": 10283.8052,
+            "inner_y": 7938.1502
           },
           {
-            "inner_x": 1296.2057,
-            "inner_y": 384.0228
+            "inner_x": 10283.5351,
+            "inner_y": 7945.2778
           },
           {
-            "inner_x": 1294.9543,
-            "inner_y": 391.2171
+            "inner_x": 10282.2825,
+            "inner_y": 7952.4721
           }
         ],
         "osm_tags": {
@@ -5178,24 +5067,24 @@
       {
         "center_points": [
           {
-            "inner_x": 1472.8698,
-            "inner_y": 417.4146
+            "inner_x": 10460.3756,
+            "inner_y": 7978.6696
           },
           {
-            "inner_x": 1475.6049,
-            "inner_y": 410.5094
+            "inner_x": 10463.1134,
+            "inner_y": 7971.7644
           },
           {
-            "inner_x": 1478.8195,
-            "inner_y": 401.3247
+            "inner_x": 10466.3312,
+            "inner_y": 7962.5797
           },
           {
-            "inner_x": 1479.996,
-            "inner_y": 391.0726
+            "inner_x": 10467.5089,
+            "inner_y": 7952.3276
           },
           {
-            "inner_x": 1480.1613,
-            "inner_y": 371.7859
+            "inner_x": 10467.6743,
+            "inner_y": 7933.0409
           }
         ],
         "osm_tags": {
@@ -5245,12 +5134,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1672.4036,
-            "inner_y": 484.4318
+            "inner_x": 10660.1085,
+            "inner_y": 8045.6868
           },
           {
-            "inner_x": 1737.3471,
-            "inner_y": 481.0138
+            "inner_x": 10725.1168,
+            "inner_y": 8042.2688
           }
         ],
         "osm_tags": {
@@ -5282,16 +5171,16 @@
       {
         "center_points": [
           {
-            "inner_x": 1216.2277,
-            "inner_y": 119.376
+            "inner_x": 10203.4773,
+            "inner_y": 7680.631
           },
           {
-            "inner_x": 1266.2247,
-            "inner_y": 120.6131
+            "inner_x": 10253.5242,
+            "inner_y": 7681.8681
           },
           {
-            "inner_x": 1281.2714,
-            "inner_y": 120.7466
+            "inner_x": 10268.5859,
+            "inner_y": 7682.0016
           }
         ],
         "osm_tags": {
@@ -5323,16 +5212,16 @@
       {
         "center_points": [
           {
-            "inner_x": 1330.0072,
-            "inner_y": 217.4858
+            "inner_x": 10317.3704,
+            "inner_y": 7778.7408
           },
           {
-            "inner_x": 1478.0177,
-            "inner_y": 216.7856
+            "inner_x": 10465.5286,
+            "inner_y": 7778.0406
           },
           {
-            "inner_x": 1484.1548,
-            "inner_y": 216.819
+            "inner_x": 10471.6718,
+            "inner_y": 7778.074
           }
         ],
         "osm_tags": {
@@ -5365,24 +5254,24 @@
       {
         "center_points": [
           {
-            "inner_x": 697.6042,
-            "inner_y": 1687.3607
+            "inner_x": 9684.3361,
+            "inner_y": 9248.6157
           },
           {
-            "inner_x": 698.7956,
-            "inner_y": 1529.6752
+            "inner_x": 9685.5287,
+            "inner_y": 9090.9302
           },
           {
-            "inner_x": 698.331,
-            "inner_y": 1509.9492
+            "inner_x": 9685.0637,
+            "inner_y": 9071.2042
           },
           {
-            "inner_x": 696.2554,
-            "inner_y": 1496.5725
+            "inner_x": 9682.986,
+            "inner_y": 9057.8275
           },
           {
-            "inner_x": 691.9317,
-            "inner_y": 1486.7206
+            "inner_x": 9678.658,
+            "inner_y": 9047.9756
           }
         ],
         "osm_tags": {
@@ -5419,12 +5308,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1417.4937,
-            "inner_y": 1292.9857
+            "inner_x": 10404.9442,
+            "inner_y": 8854.2407
           },
           {
-            "inner_x": 1232.984,
-            "inner_y": 1163.5103
+            "inner_x": 10220.2503,
+            "inner_y": 8724.7653
           }
         ],
         "osm_tags": {
@@ -5454,12 +5343,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1479.5632,
-            "inner_y": 342.9388
+            "inner_x": 10467.0756,
+            "inner_y": 7904.1938
           },
           {
-            "inner_x": 1480.1613,
-            "inner_y": 371.7859
+            "inner_x": 10467.6743,
+            "inner_y": 7933.0409
           }
         ],
         "osm_tags": {
@@ -5508,12 +5397,12 @@
       {
         "center_points": [
           {
-            "inner_x": 32.7536,
-            "inner_y": 683.2483
+            "inner_x": 9018.8219,
+            "inner_y": 8244.5033
           },
           {
-            "inner_x": 32.623,
-            "inner_y": 642.6562
+            "inner_x": 9018.6912,
+            "inner_y": 8203.9112
           }
         ],
         "osm_tags": {
@@ -5544,28 +5433,28 @@
       {
         "center_points": [
           {
-            "inner_x": 1426.9878,
-            "inner_y": 1474.3557
+            "inner_x": 10414.4478,
+            "inner_y": 9035.6107
           },
           {
-            "inner_x": 1407.9771,
-            "inner_y": 1458.2992
+            "inner_x": 10395.4181,
+            "inner_y": 9019.5542
           },
           {
-            "inner_x": 1398.5504,
-            "inner_y": 1446.9128
+            "inner_x": 10385.982,
+            "inner_y": 9008.1678
           },
           {
-            "inner_x": 1382.5295,
-            "inner_y": 1424.1401
+            "inner_x": 10369.9451,
+            "inner_y": 8985.3951
           },
           {
-            "inner_x": 1372.8855,
-            "inner_y": 1415.5448
+            "inner_x": 10360.2915,
+            "inner_y": 8976.7998
           },
           {
-            "inner_x": 1354.5342,
-            "inner_y": 1415.5892
+            "inner_x": 10341.9218,
+            "inner_y": 8976.8442
           }
         ],
         "osm_tags": {
@@ -5597,12 +5486,12 @@
       {
         "center_points": [
           {
-            "inner_x": 1481.075,
-            "inner_y": 303.7623
+            "inner_x": 10468.589,
+            "inner_y": 7865.0173
           },
           {
-            "inner_x": 1479.5632,
-            "inner_y": 342.9388
+            "inner_x": 10467.0756,
+            "inner_y": 7904.1938
           }
         ],
         "osm_tags": {
@@ -5640,36 +5529,36 @@
       {
         "center_points": [
           {
-            "inner_x": 1681.7554,
-            "inner_y": 256.8603
+            "inner_x": 10669.4697,
+            "inner_y": 7818.1153
           },
           {
-            "inner_x": 1556.5034,
-            "inner_y": 277.587
+            "inner_x": 10544.0926,
+            "inner_y": 7838.842
           },
           {
-            "inner_x": 1499.1116,
-            "inner_y": 288.6287
+            "inner_x": 10486.6436,
+            "inner_y": 7849.8837
           },
           {
-            "inner_x": 1393.7696,
-            "inner_y": 308.0433
+            "inner_x": 10381.1964,
+            "inner_y": 7869.2983
           },
           {
-            "inner_x": 1374.4592,
-            "inner_y": 310.1671
+            "inner_x": 10361.8667,
+            "inner_y": 7871.4221
           },
           {
-            "inner_x": 1353.9947,
-            "inner_y": 312.7802
+            "inner_x": 10341.3818,
+            "inner_y": 7874.0352
           },
           {
-            "inner_x": 1309.4091,
-            "inner_y": 313.4919
+            "inner_x": 10296.7517,
+            "inner_y": 7874.7469
           },
           {
-            "inner_x": 1298.7085,
-            "inner_y": 310.623
+            "inner_x": 10286.0404,
+            "inner_y": 7871.878
           }
         ],
         "osm_tags": {
@@ -5711,12 +5600,12 @@
       {
         "center_points": [
           {
-            "inner_x": 165.4282,
-            "inner_y": 438.766
+            "inner_x": 9151.6289,
+            "inner_y": 8000.021
           },
           {
-            "inner_x": 164.8919,
-            "inner_y": 479.3724
+            "inner_x": 9151.0921,
+            "inner_y": 8040.6274
           }
         ],
         "osm_tags": {
@@ -5751,12 +5640,12 @@
       {
         "center_points": [
           {
-            "inner_x": 492.4802,
-            "inner_y": 1026.4515
+            "inner_x": 9479.0074,
+            "inner_y": 8587.7065
           },
           {
-            "inner_x": 520.9743,
-            "inner_y": 1025.8538
+            "inner_x": 9507.5299,
+            "inner_y": 8587.1088
           }
         ],
         "osm_tags": {
