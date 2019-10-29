@@ -28,6 +28,7 @@ impl UI {
                 ("assets/ui/hamburger.png", TextureType::Stretch),
                 ("assets/ui/hide.png", TextureType::Stretch),
                 ("assets/ui/info.png", TextureType::Stretch),
+                ("assets/ui/location.png", TextureType::Stretch),
                 ("assets/ui/show.png", TextureType::Stretch),
             ];
             let skip_textures = if flags.textures {

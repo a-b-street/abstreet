@@ -20,8 +20,8 @@ pub use crate::runner::{run, EventLoopMode, Settings, GUI};
 pub use crate::screen_geom::{ScreenDims, ScreenPt, ScreenRectangle};
 pub use crate::text::{Line, Text, TextSpan, HOTKEY_COLOR};
 pub use crate::widgets::{
-    Autocomplete, Choice, ItemSlider, ModalMenu, NewScroller, Scroller, Slider, SliderWithTextBox,
-    Warper, WarpingItemSlider, Wizard, WrappedWizard,
+    Autocomplete, Choice, ItemSlider, MenuUnderButton, ModalMenu, NewScroller, Scroller, Slider,
+    SliderWithTextBox, Warper, WarpingItemSlider, Wizard, WrappedWizard,
 };
 
 pub enum InputResult<T: Clone> {

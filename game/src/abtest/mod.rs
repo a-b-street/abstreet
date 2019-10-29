@@ -8,7 +8,8 @@ use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::{PerMapUI, UI};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu, Text,
+    hotkey, lctrl, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, MenuUnderButton,
+    ModalMenu, Text,
 };
 use geom::{Circle, Distance, Line, PolyLine};
 use map_model::{Map, LANE_THICKNESS};
@@ -18,6 +19,7 @@ use sim::{Sim, SimOptions, TripID};
 pub struct ABTestMode {
     menu: ModalMenu,
     speed: SpeedControls,
+    info_tools: MenuUnderButton,
     primary_agent_tools: AgentTools,
     secondary_agent_tools: AgentTools,
     diff_trip: Option<DiffOneTrip>,
@@ -39,28 +41,33 @@ impl ABTestMode {
                         (hotkey(Key::S), "swap"),
                         (hotkey(Key::D), "diff all trips"),
                         (hotkey(Key::A), "stop diffing trips"),
-                        (hotkey(Key::Q), "scoreboard"),
                         (hotkey(Key::O), "save state"),
                         // TODO load arbitrary savestate
                     ],
                     vec![
                         (hotkey(Key::Escape), "quit"),
                         (lctrl(Key::D), "debug mode"),
-                        (hotkey(Key::J), "warp"),
-                        (hotkey(Key::K), "navigate"),
-                        (hotkey(Key::Semicolon), "change agent colorscheme"),
-                        (hotkey(Key::SingleQuote), "shortcuts"),
                         (hotkey(Key::F1), "take a screenshot"),
                     ],
                 ],
                 ctx,
             ),
             speed: SpeedControls::new(ctx, true),
+            info_tools: MenuUnderButton::new(
+                "assets/ui/info.png",
+                "Info",
+                vec![
+                    (hotkey(Key::Q), "scoreboard"),
+                    (hotkey(Key::Semicolon), "change agent colorscheme"),
+                ],
+                0.5,
+                ctx,
+            ),
             primary_agent_tools: AgentTools::new(),
             secondary_agent_tools: AgentTools::new(),
             diff_trip: None,
             diff_all: None,
-            common: CommonState::new(),
+            common: CommonState::new(ctx),
             test_name: test_name.to_string(),
             flipped: false,
         }
@@ -95,6 +102,7 @@ impl State for ABTestMode {
             self.menu.set_info(ctx, txt);
         }
         self.menu.event(ctx);
+        self.info_tools.event(ctx);
 
         ctx.canvas.handle_event(ctx.input);
         if ctx.redo_mouseover() {
@@ -125,7 +133,7 @@ impl State for ABTestMode {
             self.flipped = !self.flipped;
         }
 
-        if self.menu.action("scoreboard") {
+        if self.info_tools.action("scoreboard") {
             return Transition::Push(Box::new(score::Scoreboard::new(
                 ctx,
                 &ui.primary,
@@ -133,7 +141,10 @@ impl State for ABTestMode {
             )));
         }
 
-        if let Some(t) = self.primary_agent_tools.event(ctx, ui, &mut self.menu) {
+        if let Some(t) =
+            self.primary_agent_tools
+                .event(ctx, ui, &mut self.menu, &mut self.info_tools)
+        {
             return t;
         }
 
@@ -212,6 +223,7 @@ impl State for ABTestMode {
         self.menu.draw(g);
         self.speed.draw(g);
         self.primary_agent_tools.draw(g, ui);
+        self.info_tools.draw(g);
     }
 
     fn on_suspend(&mut self, ctx: &mut EventCtx, _: &mut UI) {

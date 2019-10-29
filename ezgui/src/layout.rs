@@ -13,6 +13,8 @@ pub enum ContainerOrientation {
     TopLeft,
     TopRight,
     Centered,
+    // Place the widget this percentage along the width of the screen
+    Top(f64),
 }
 
 pub fn stack_vertically(
@@ -39,6 +41,7 @@ pub fn stack_vertically(
             pt.y -= total_height / 2.0;
             pt
         }
+        ContainerOrientation::Top(percent) => ScreenPt::new(canvas.window_width * percent, 0.0),
     };
     for (w, dims) in widgets.into_iter().zip(dims_per_widget) {
         w.set_pos(top_left, total_width);

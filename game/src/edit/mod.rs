@@ -29,7 +29,7 @@ impl EditMode {
         ui.primary.reset_sim();
 
         EditMode {
-            common: CommonState::new(),
+            common: CommonState::new(ctx),
             menu: ModalMenu::new(
                 "Map Edit Mode",
                 vec![
@@ -41,9 +41,6 @@ impl EditMode {
                         (hotkey(Key::Escape), "quit"),
                         (lctrl(Key::S), "sandbox mode"),
                         (lctrl(Key::D), "debug mode"),
-                        (hotkey(Key::J), "warp"),
-                        (hotkey(Key::K), "navigate"),
-                        (hotkey(Key::SingleQuote), "shortcuts"),
                         (hotkey(Key::F1), "take a screenshot"),
                     ],
                 ],

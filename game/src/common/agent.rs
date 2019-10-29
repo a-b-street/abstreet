@@ -3,7 +3,7 @@ use crate::common::{ColorLegend, RouteExplorer, TripExplorer};
 use crate::game::{Transition, WizardState};
 use crate::render::{AgentColorScheme, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::UI;
-use ezgui::{hotkey, Choice, EventCtx, GfxCtx, Key, ModalMenu};
+use ezgui::{hotkey, Choice, EventCtx, GfxCtx, Key, MenuUnderButton, ModalMenu};
 use geom::{Duration, Pt2D};
 use sim::{TripID, TripResult};
 use std::cell::RefCell;
@@ -29,6 +29,7 @@ impl AgentTools {
         ctx: &mut EventCtx,
         ui: &UI,
         menu: &mut ModalMenu,
+        info_menu: &mut MenuUnderButton,
     ) -> Option<Transition> {
         if self.following.is_none() {
             if let Some(agent) = ui
@@ -87,7 +88,7 @@ impl AgentTools {
         }
         self.route_viewer.event(ctx, ui, menu);
 
-        if menu.action("change agent colorscheme") {
+        if info_menu.action("change agent colorscheme") {
             return Some(Transition::Push(WizardState::new(Box::new(
                 |wiz, ctx, ui| {
                     let (_, acs) = wiz.wrap(ctx).choose("Which colorscheme for agents?", || {

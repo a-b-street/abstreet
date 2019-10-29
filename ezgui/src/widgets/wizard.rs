@@ -407,6 +407,11 @@ impl<T: Clone> Choice<T> {
         self
     }
 
+    pub fn multikey(mut self, mk: Option<MultiKey>) -> Choice<T> {
+        self.hotkey = mk;
+        self
+    }
+
     pub fn active(mut self, active: bool) -> Choice<T> {
         self.active = active;
         self

@@ -110,8 +110,13 @@ const ICON_BACKGROUND: Color = Color::grey(0.5);
 const ICON_BACKGROUND_SELECTED: Color = Color::YELLOW;
 
 impl Button {
-    fn show_hide_btn(icon: &str, tooltip: &str, ctx: &EventCtx) -> Button {
-        let radius = ctx.canvas.line_height / 2.0;
+    pub fn icon_btn(
+        icon: &str,
+        radius: f64,
+        tooltip: &str,
+        key: Option<MultiKey>,
+        ctx: &EventCtx,
+    ) -> Button {
         let circle = Circle::new(Pt2D::new(radius, radius), Distance::meters(radius));
 
         let mut normal = GeomBatch::new();
@@ -122,15 +127,27 @@ impl Button {
         hovered.push(ICON_BACKGROUND_SELECTED, circle.to_polygon());
         hovered.push(ctx.canvas.texture(icon), circle.to_polygon());
 
-        // TODO Arbitrarilyish the first user to be event()'d will eat this key.
-        Button::new(normal, hovered, hotkey(Key::Tab), tooltip, ctx)
+        Button::new(normal, hovered, key, tooltip, ctx)
     }
 
     pub fn show_btn(ctx: &EventCtx, tooltip: &str) -> Button {
-        Button::show_hide_btn("assets/ui/show.png", tooltip, ctx)
+        // TODO Arbitrarilyish the first user to be event()'d will eat this key.
+        Button::icon_btn(
+            "assets/ui/show.png",
+            ctx.canvas.line_height / 2.0,
+            tooltip,
+            hotkey(Key::Tab),
+            ctx,
+        )
     }
 
     pub fn hide_btn(ctx: &EventCtx, tooltip: &str) -> Button {
-        Button::show_hide_btn("assets/ui/hide.png", tooltip, ctx)
+        Button::icon_btn(
+            "assets/ui/hide.png",
+            ctx.canvas.line_height / 2.0,
+            tooltip,
+            hotkey(Key::Tab),
+            ctx,
+        )
     }
 }

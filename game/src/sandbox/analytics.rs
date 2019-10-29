@@ -6,7 +6,7 @@ use crate::render::DrawOptions;
 use crate::sandbox::SandboxMode;
 use crate::ui::{ShowEverything, UI};
 use abstutil::{prettyprint_usize, Counter};
-use ezgui::{Choice, Color, EventCtx, GfxCtx, Line, ModalMenu, Text};
+use ezgui::{Choice, Color, EventCtx, GfxCtx, Line, MenuUnderButton, Text};
 use geom::Duration;
 use map_model::PathStep;
 use sim::ParkingSpot;
@@ -27,7 +27,7 @@ impl Analytics {
         &mut self,
         ctx: &mut EventCtx,
         ui: &UI,
-        menu: &mut ModalMenu,
+        menu: &mut MenuUnderButton,
         trip_stats: &TripStats,
     ) -> Option<Transition> {
         if menu.action("change analytics overlay") {

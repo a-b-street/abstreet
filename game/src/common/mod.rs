@@ -26,21 +26,33 @@ use crate::helpers::ID;
 use crate::render::DrawOptions;
 use crate::ui::UI;
 use ezgui::{
-    Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Key, Line, ModalMenu, Text,
-    VerticalAlignment,
+    hotkey, Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Key, Line,
+    MenuUnderButton, ModalMenu, Text, VerticalAlignment,
 };
 use std::collections::BTreeSet;
 
 pub struct CommonState {
     associated: associated::ShowAssociatedState,
     turn_cycler: turn_cycler::TurnCyclerState,
+    location_tools: MenuUnderButton,
 }
 
 impl CommonState {
-    pub fn new() -> CommonState {
+    pub fn new(ctx: &EventCtx) -> CommonState {
         CommonState {
             associated: associated::ShowAssociatedState::Inactive,
             turn_cycler: turn_cycler::TurnCyclerState::Inactive,
+            location_tools: MenuUnderButton::new(
+                "assets/ui/location.png",
+                "Location",
+                vec![
+                    (hotkey(Key::J), "warp"),
+                    (hotkey(Key::K), "navigate"),
+                    (hotkey(Key::SingleQuote), "shortcuts"),
+                ],
+                0.4,
+                ctx,
+            ),
         }
     }
 
@@ -50,13 +62,15 @@ impl CommonState {
         ui: &mut UI,
         menu: &mut ModalMenu,
     ) -> Option<Transition> {
-        if menu.action("warp") {
+        self.location_tools.event(ctx);
+
+        if self.location_tools.action("warp") {
             return Some(Transition::Push(warp::EnteringWarp::new()));
         }
-        if menu.action("navigate") {
+        if self.location_tools.action("navigate") {
             return Some(Transition::Push(Box::new(navigate::Navigator::new(ui))));
         }
-        if menu.action("shortcuts") {
+        if self.location_tools.action("shortcuts") {
             return Some(Transition::Push(shortcuts::ChoosingShortcut::new()));
         }
 
@@ -85,6 +99,7 @@ impl CommonState {
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         self.turn_cycler.draw(g, ui);
+        self.location_tools.draw(g);
 
         CommonState::draw_osd(g, ui, &ui.primary.current_selection);
     }

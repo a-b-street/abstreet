@@ -32,6 +32,12 @@ impl<T: Clone> PopupMenu<T> {
         m
     }
 
+    // It's part of something bigger
+    pub fn disable_standalone_layout(&mut self) {
+        assert!(self.standalone_layout.is_some());
+        self.standalone_layout = None;
+    }
+
     pub fn event(&mut self, ctx: &mut EventCtx) -> InputResult<T> {
         if let Some(o) = self.standalone_layout {
             layout::stack_vertically(o, ctx.canvas, vec![self]);
@@ -59,8 +65,12 @@ impl<T: Clone> PopupMenu<T> {
         }
         {
             let choice = &self.choices[self.current_idx];
-            if ctx.input.left_mouse_button_pressed() && choice.active {
-                return InputResult::Done(choice.label.clone(), choice.data.clone());
+            if ctx.input.left_mouse_button_pressed() {
+                if choice.active && ctx.canvas.get_cursor_in_map_space().is_none() {
+                    return InputResult::Done(choice.label.clone(), choice.data.clone());
+                } else {
+                    return InputResult::Canceled;
+                }
             }
         }
 

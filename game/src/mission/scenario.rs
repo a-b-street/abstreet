@@ -123,15 +123,12 @@ impl ScenarioManager {
                     ],
                     vec![
                         (hotkey(Key::Escape), "quit"),
-                        (hotkey(Key::J), "warp"),
-                        (hotkey(Key::K), "navigate"),
-                        (hotkey(Key::SingleQuote), "shortcuts"),
                         (hotkey(Key::F1), "take a screenshot"),
                     ],
                 ],
                 ctx,
             ),
-            common: CommonState::new(),
+            common: CommonState::new(ctx),
             scenario,
             trips_from_bldg,
             trips_to_bldg,
@@ -282,7 +279,8 @@ impl State for ScenarioManager {
         }
 
         self.menu.draw(g);
-        // TODO Weird to not draw common (turn cycler), but we want the custom OSD...
+        self.common.draw(g, ui);
+        // TODO Just cover up common's OSD with ours...
 
         if let Some(ID::Building(b)) = ui.primary.current_selection {
             let mut osd = CommonState::default_osd(ID::Building(b), ui);

@@ -11,13 +11,15 @@ use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::ui::{ShowEverything, UI};
 use ezgui::{
-    hotkey, lctrl, Choice, EventCtx, EventLoopMode, GfxCtx, Key, Line, ModalMenu, Text, Wizard,
+    hotkey, lctrl, Choice, EventCtx, EventLoopMode, GfxCtx, Key, Line, MenuUnderButton, ModalMenu,
+    Text, Wizard,
 };
 use geom::Duration;
 use sim::Sim;
 
 pub struct SandboxMode {
     speed: SpeedControls,
+    info_tools: MenuUnderButton,
     agent_tools: AgentTools,
     pub time_travel: time_travel::InactiveTimeTravel,
     trip_stats: trip_stats::TripStats,
@@ -30,13 +32,24 @@ impl SandboxMode {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> SandboxMode {
         SandboxMode {
             speed: SpeedControls::new(ctx, true),
+            info_tools: MenuUnderButton::new(
+                "assets/ui/info.png",
+                "Info",
+                vec![
+                    (hotkey(Key::Q), "scoreboard"),
+                    (hotkey(Key::L), "change analytics overlay"),
+                    (hotkey(Key::Semicolon), "change agent colorscheme"),
+                ],
+                0.5,
+                ctx,
+            ),
             agent_tools: AgentTools::new(),
             time_travel: time_travel::InactiveTimeTravel::new(),
             trip_stats: trip_stats::TripStats::new(
                 ui.primary.current_flags.sim_flags.opts.record_stats,
             ),
             analytics: analytics::Analytics::Inactive,
-            common: CommonState::new(),
+            common: CommonState::new(ctx),
             menu: ModalMenu::new(
                 "Sandbox Mode",
                 vec![
@@ -48,19 +61,11 @@ impl SandboxMode {
                         (hotkey(Key::X), "reset sim"),
                         (hotkey(Key::S), "start a scenario"),
                     ],
-                    vec![
-                        (hotkey(Key::T), "start time traveling"),
-                        (hotkey(Key::Q), "scoreboard"),
-                        (hotkey(Key::L), "change analytics overlay"),
-                        (hotkey(Key::Semicolon), "change agent colorscheme"),
-                    ],
+                    vec![(hotkey(Key::T), "start time traveling")],
                     vec![
                         (hotkey(Key::Escape), "quit"),
                         (lctrl(Key::D), "debug mode"),
                         (lctrl(Key::E), "edit mode"),
-                        (hotkey(Key::J), "warp"),
-                        (hotkey(Key::K), "navigate"),
-                        (hotkey(Key::SingleQuote), "shortcuts"),
                         (hotkey(Key::F1), "take a screenshot"),
                     ],
                 ],
@@ -84,6 +89,7 @@ impl State for SandboxMode {
             self.menu.set_info(ctx, txt);
         }
         self.menu.event(ctx);
+        self.info_tools.event(ctx);
 
         ctx.canvas.handle_event(ctx.input);
         if ctx.redo_mouseover() {
@@ -94,7 +100,7 @@ impl State for SandboxMode {
         }
         if let Some(t) = self
             .analytics
-            .event(ctx, ui, &mut self.menu, &self.trip_stats)
+            .event(ctx, ui, &mut self.info_tools, &self.trip_stats)
         {
             return t;
         }
@@ -103,13 +109,16 @@ impl State for SandboxMode {
             return Transition::Push(new_state);
         }
 
-        if let Some(t) = self.agent_tools.event(ctx, ui, &mut self.menu) {
+        if let Some(t) = self
+            .agent_tools
+            .event(ctx, ui, &mut self.menu, &mut self.info_tools)
+        {
             return t;
         }
         if ui.primary.current_selection.is_none() && self.menu.action("start time traveling") {
             return self.time_travel.start(ctx, ui);
         }
-        if self.menu.action("scoreboard") {
+        if self.info_tools.action("scoreboard") {
             return Transition::Push(Box::new(score::Scoreboard::new(ctx, ui)));
         }
 
@@ -233,6 +242,7 @@ impl State for SandboxMode {
         self.common.draw(g, ui);
         self.menu.draw(g);
         self.speed.draw(g);
+        self.info_tools.draw(g);
     }
 
     fn on_suspend(&mut self, ctx: &mut EventCtx, _: &mut UI) {
