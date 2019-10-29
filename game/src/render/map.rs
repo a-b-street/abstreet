@@ -15,8 +15,8 @@ use abstutil::{Cloneable, Timer};
 use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Text};
 use geom::{Bounds, Circle, Distance, Duration, FindClosest};
 use map_model::{
-    AreaID, BuildingID, BusStopID, DirectedRoadID, IntersectionID, Lane, LaneID, Map, RoadID,
-    Traversable, Turn, TurnID, TurnType, LANE_THICKNESS,
+    AreaID, BuildingID, BusStopID, DirectedRoadID, Intersection, IntersectionID, Lane, LaneID, Map,
+    Road, RoadID, Traversable, Turn, TurnID, TurnType, LANE_THICKNESS,
 };
 use sim::{
     AgentMetadata, CarStatus, DrawCarInput, DrawPedestrianInput, GetDrawAgents, UnzoomedAgent,
@@ -57,11 +57,17 @@ impl DrawMap {
         timer: &mut Timer,
     ) -> DrawMap {
         let mut roads: Vec<DrawRoad> = Vec::new();
-        let mut all_roads = GeomBatch::new();
         timer.start_iter("make DrawRoads", map.all_roads().len());
         for r in map.all_roads() {
             timer.next();
-            let draw_r = DrawRoad::new(r, map, cs, ctx.prerender);
+            roads.push(DrawRoad::new(r, map, cs, ctx.prerender));
+        }
+
+        timer.start("generate thick roads");
+        let mut road_refs: Vec<&Road> = map.all_roads().iter().collect();
+        road_refs.sort_by_key(|r| r.get_zorder());
+        let mut all_roads = GeomBatch::new();
+        for r in road_refs {
             all_roads.push(
                 osm_rank_to_color(cs, r.get_rank()),
                 r.get_thick_polygon().get(timer),
@@ -69,14 +75,12 @@ impl DrawMap {
             if false {
                 all_roads.push(
                     cs.get_def("unzoomed outline", Color::BLACK),
-                    draw_r.get_outline(map),
+                    roads[r.id.0].get_outline(map),
                 );
             }
-            roads.push(draw_r);
         }
-        timer.start("upload thick roads");
         let draw_all_thick_roads = ctx.prerender.upload(all_roads);
-        timer.stop("upload thick roads");
+        timer.stop("generate thick roads");
 
         let almost_lanes =
             timer.parallelize("prepare DrawLanes", map.all_lanes().iter().collect(), |l| {
@@ -116,15 +120,24 @@ impl DrawMap {
         }
 
         let mut intersections: Vec<DrawIntersection> = Vec::new();
-        let mut all_intersections = GeomBatch::new();
         timer.start_iter("make DrawIntersections", map.all_intersections().len());
         for i in map.all_intersections() {
             timer.next();
-            let draw_i = DrawIntersection::new(i, map, cs, ctx.prerender, timer);
+            intersections.push(DrawIntersection::new(i, map, cs, ctx.prerender, timer));
+        }
+
+        timer.start("generate unzoomed intersections");
+        let mut intersection_refs: Vec<&Intersection> = map.all_intersections().iter().collect();
+        intersection_refs.sort_by_key(|i| i.get_zorder(map));
+        let mut all_intersections = GeomBatch::new();
+        for i in intersection_refs {
             if i.is_stop_sign() {
                 all_intersections.push(osm_rank_to_color(cs, i.get_rank(map)), i.polygon.clone());
                 if false {
-                    all_intersections.push(cs.get("unzoomed outline"), draw_i.get_outline(map));
+                    all_intersections.push(
+                        cs.get("unzoomed outline"),
+                        intersections[i.id.0].get_outline(map),
+                    );
                 }
             } else {
                 all_intersections.push(
@@ -132,11 +145,9 @@ impl DrawMap {
                     i.polygon.clone(),
                 );
             }
-            intersections.push(draw_i);
         }
-        timer.start("upload all intersections");
         let draw_all_unzoomed_intersections = ctx.prerender.upload(all_intersections);
-        timer.stop("upload all intersections");
+        timer.stop("generate unzoomed intersections");
 
         let mut buildings: Vec<DrawBuilding> = Vec::new();
         let mut all_buildings = GeomBatch::new();
