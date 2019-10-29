@@ -63,7 +63,7 @@ impl DebugMode {
                     (hotkey(Key::Escape), "return to previous mode"),
                     (hotkey(Key::F1), "take a screenshot"),
                 ],
-                0.3,
+                0.2,
                 ctx,
             ),
             common: CommonState::new(ctx),

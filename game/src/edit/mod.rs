@@ -51,7 +51,7 @@ impl EditMode {
                     (lctrl(Key::D), "debug mode"),
                     (hotkey(Key::F1), "take a screenshot"),
                 ],
-                0.3,
+                0.2,
                 ctx,
             ),
         }

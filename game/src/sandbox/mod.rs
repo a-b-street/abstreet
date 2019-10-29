@@ -41,7 +41,7 @@ impl SandboxMode {
                     (hotkey(Key::L), "change analytics overlay"),
                     (hotkey(Key::Semicolon), "change agent colorscheme"),
                 ],
-                0.5,
+                0.3,
                 ctx,
             ),
             general_tools: MenuUnderButton::new(
@@ -53,7 +53,7 @@ impl SandboxMode {
                     (lctrl(Key::E), "edit mode"),
                     (hotkey(Key::F1), "take a screenshot"),
                 ],
-                0.3,
+                0.2,
                 ctx,
             ),
             agent_tools: AgentTools::new(),

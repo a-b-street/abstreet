@@ -130,7 +130,7 @@ impl ScenarioManager {
                     (hotkey(Key::Escape), "quit"),
                     (hotkey(Key::F1), "take a screenshot"),
                 ],
-                0.3,
+                0.2,
                 ctx,
             ),
             common: CommonState::new(ctx),

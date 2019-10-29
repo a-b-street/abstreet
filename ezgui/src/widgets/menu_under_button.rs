@@ -60,6 +60,11 @@ impl MenuUnderButton {
         layout::stack_vertically(self.standalone_layout, ctx.canvas, vec![self]);
 
         self.button.event(ctx);
+        if self.button.clicked() {
+            self.expanded = !self.expanded;
+            return;
+        }
+
         if self.expanded {
             match self.menu.event(ctx) {
                 InputResult::StillActive => {}
@@ -72,14 +77,10 @@ impl MenuUnderButton {
                 }
             }
         } else {
-            if self.button.clicked() {
-                self.expanded = true;
-            } else {
-                for (mk, name) in &self.unexpanded_choices {
-                    if ctx.input.new_was_pressed(*mk) {
-                        self.chosen_action = Some(name.to_string());
-                        break;
-                    }
+            for (mk, name) in &self.unexpanded_choices {
+                if ctx.input.new_was_pressed(*mk) {
+                    self.chosen_action = Some(name.to_string());
+                    break;
                 }
             }
         }
