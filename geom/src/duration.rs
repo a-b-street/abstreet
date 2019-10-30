@@ -59,6 +59,14 @@ impl Duration {
         }
     }
 
+    pub fn max(self, other: Duration) -> Duration {
+        if self >= other {
+            self
+        } else {
+            other
+        }
+    }
+
     // TODO Remove if possible.
     pub fn inner_seconds(self) -> f64 {
         self.0
@@ -246,14 +254,33 @@ impl ops::Div<Duration> for Duration {
     }
 }
 
-#[derive(Default)]
 pub struct DurationHistogram {
     count: usize,
     histogram: Histogram,
+    min: Duration,
+    max: Duration,
+}
+
+impl Default for DurationHistogram {
+    fn default() -> DurationHistogram {
+        DurationHistogram {
+            count: 0,
+            histogram: Default::default(),
+            min: Duration::ZERO,
+            max: Duration::ZERO,
+        }
+    }
 }
 
 impl DurationHistogram {
     pub fn add(&mut self, t: Duration) {
+        if self.count == 0 {
+            self.min = t;
+            self.max = t;
+        } else {
+            self.min = self.min.min(t);
+            self.max = self.max.max(t);
+        }
         self.count += 1;
         self.histogram.increment(t.to_u64()).unwrap();
     }
@@ -264,11 +291,13 @@ impl DurationHistogram {
         }
 
         format!(
-            "{} count, 50%ile {}, 90%ile {}, 99%ile {}",
+            "{} count, 50%ile {}, 90%ile {}, 99%ile {}, min {}, max {}",
             abstutil::prettyprint_usize(self.count),
-            Duration::from_u64(self.histogram.percentile(50.0).unwrap()),
-            Duration::from_u64(self.histogram.percentile(90.0).unwrap()),
-            Duration::from_u64(self.histogram.percentile(99.0).unwrap()),
+            Duration::from_u64(self.histogram.percentile(50.0).unwrap()).minimal_tostring(),
+            Duration::from_u64(self.histogram.percentile(90.0).unwrap()).minimal_tostring(),
+            Duration::from_u64(self.histogram.percentile(99.0).unwrap()).minimal_tostring(),
+            self.min.minimal_tostring(),
+            self.max.minimal_tostring(),
         )
     }
 

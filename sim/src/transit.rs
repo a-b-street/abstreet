@@ -158,7 +158,7 @@ impl TransitSimState {
                 let mut still_riding = Vec::new();
                 for (ped, stop2) in bus.passengers.drain(..) {
                     if stop == stop2 {
-                        self.events.push(Event::PedLeavesBus(ped, id));
+                        self.events.push(Event::PedLeavesBus(ped, id, bus.route));
                         trips.ped_left_bus(now, ped, map, scheduler);
                     } else {
                         still_riding.push((ped, stop2));
@@ -171,7 +171,7 @@ impl TransitSimState {
                 for (ped, stop1, route, stop2) in self.peds_waiting.drain(..) {
                     if stop == stop1 && bus.route == route {
                         bus.passengers.push((ped, stop2));
-                        self.events.push(Event::PedEntersBus(ped, id));
+                        self.events.push(Event::PedEntersBus(ped, id, route));
                         trips.ped_boarded_bus(ped, walking);
                     } else {
                         still_waiting.push((ped, stop1, route, stop2));
@@ -221,7 +221,7 @@ impl TransitSimState {
                         .passengers
                         .push((ped, stop2));
                     // TODO shift trips
-                    self.events.push(Event::PedEntersBus(ped, *bus));
+                    self.events.push(Event::PedEntersBus(ped, *bus, route_id));
                     return true;
                 }
             }

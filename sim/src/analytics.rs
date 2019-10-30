@@ -9,7 +9,8 @@ use std::collections::{HashMap, VecDeque};
 pub struct Analytics {
     pub thruput_stats: ThruputStats,
     pub(crate) test_expectations: VecDeque<Event>,
-    pub latest_bus_arrival: HashMap<(BusStopID, BusRouteID), Duration>,
+    pub bus_arrivals: HashMap<(BusStopID, BusRouteID), Vec<Duration>>,
+    pub total_bus_passengers: Counter<BusRouteID>,
 }
 
 pub struct ThruputStats {
@@ -25,7 +26,8 @@ impl Default for Analytics {
                 count_per_intersection: Counter::new(),
             },
             test_expectations: VecDeque::new(),
-            latest_bus_arrival: HashMap::new(),
+            bus_arrivals: HashMap::new(),
+            total_bus_passengers: Counter::new(),
         }
     }
 }
@@ -48,7 +50,15 @@ impl Analytics {
 
         // Bus arrivals
         if let Event::BusArrivedAtStop(_, route, stop) = ev {
-            self.latest_bus_arrival.insert((stop, route), time);
+            self.bus_arrivals
+                .entry((stop, route))
+                .or_insert(Vec::new())
+                .push(time);
+        }
+
+        // Bus passengers
+        if let Event::PedEntersBus(_, _, route) = ev {
+            self.total_bus_passengers.inc(route);
         }
     }
 }
