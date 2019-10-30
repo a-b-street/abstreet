@@ -21,6 +21,7 @@ pub struct SandboxMode {
     speed: SpeedControls,
     info_tools: MenuUnderButton,
     general_tools: MenuUnderButton,
+    save_tools: MenuUnderButton,
     agent_tools: AgentTools,
     pub time_travel: time_travel::InactiveTimeTravel,
     trip_stats: trip_stats::TripStats,
@@ -56,6 +57,18 @@ impl SandboxMode {
                 0.2,
                 ctx,
             ),
+            save_tools: MenuUnderButton::new(
+                "assets/ui/save.png",
+                "Savestates",
+                vec![
+                    (hotkey(Key::O), "save sim state"),
+                    (hotkey(Key::Y), "load previous sim state"),
+                    (hotkey(Key::U), "load next sim state"),
+                    (None, "pick a savestate to load"),
+                ],
+                0.35,
+                ctx,
+            ),
             agent_tools: AgentTools::new(),
             time_travel: time_travel::InactiveTimeTravel::new(),
             trip_stats: trip_stats::TripStats::new(
@@ -66,10 +79,6 @@ impl SandboxMode {
             menu: ModalMenu::new(
                 "Sandbox Mode",
                 vec![
-                    (hotkey(Key::O), "save sim state"),
-                    (hotkey(Key::Y), "load previous sim state"),
-                    (hotkey(Key::U), "load next sim state"),
-                    (None, "pick a savestate to load"),
                     (hotkey(Key::X), "reset sim"),
                     (hotkey(Key::S), "start a scenario"),
                     (hotkey(Key::T), "start time traveling"),
@@ -96,6 +105,7 @@ impl State for SandboxMode {
         self.menu.event(ctx);
         self.info_tools.event(ctx);
         self.general_tools.event(ctx);
+        self.save_tools.event(ctx);
 
         ctx.canvas.handle_event(ctx.input);
         if ctx.redo_mouseover() {
@@ -165,6 +175,54 @@ impl State for SandboxMode {
             }
         }
 
+        if self.save_tools.action("save sim state") {
+            self.speed.pause(ctx);
+            ctx.loading_screen("savestate", |_, timer| {
+                timer.start("save sim state");
+                ui.primary.sim.save();
+                timer.stop("save sim state");
+            });
+        }
+        if self.save_tools.action("load previous sim state") {
+            self.speed.pause(ctx);
+            ctx.loading_screen("load previous savestate", |ctx, mut timer| {
+                let prev_state = ui
+                    .primary
+                    .sim
+                    .find_previous_savestate(ui.primary.sim.time());
+                match prev_state
+                    .clone()
+                    .and_then(|path| Sim::load_savestate(path, &mut timer).ok())
+                {
+                    Some(new_sim) => {
+                        ui.primary.sim = new_sim;
+                        ui.recalculate_current_selection(ctx);
+                    }
+                    None => println!("Couldn't load previous savestate {:?}", prev_state),
+                }
+            });
+        }
+        if self.save_tools.action("load next sim state") {
+            self.speed.pause(ctx);
+            ctx.loading_screen("load next savestate", |ctx, mut timer| {
+                let next_state = ui.primary.sim.find_next_savestate(ui.primary.sim.time());
+                match next_state
+                    .clone()
+                    .and_then(|path| Sim::load_savestate(path, &mut timer).ok())
+                {
+                    Some(new_sim) => {
+                        ui.primary.sim = new_sim;
+                        ui.recalculate_current_selection(ctx);
+                    }
+                    None => println!("Couldn't load next savestate {:?}", next_state),
+                }
+            });
+        }
+        if self.save_tools.action("pick a savestate to load") {
+            self.speed.pause(ctx);
+            return Transition::Push(WizardState::new(Box::new(load_savestate)));
+        }
+
         if let Some(dt) = self.speed.event(ctx, ui.primary.sim.time()) {
             // If speed is too high, don't be unresponsive for too long.
             // TODO This should probably match the ezgui framerate.
@@ -178,49 +236,6 @@ impl State for SandboxMode {
             if !ui.primary.sim.is_empty() && self.menu.action("reset sim") {
                 ui.primary.reset_sim();
                 return Transition::Replace(Box::new(SandboxMode::new(ctx, ui)));
-            }
-            if self.menu.action("save sim state") {
-                ctx.loading_screen("savestate", |_, timer| {
-                    timer.start("save sim state");
-                    ui.primary.sim.save();
-                    timer.stop("save sim state");
-                });
-            }
-            if self.menu.action("load previous sim state") {
-                ctx.loading_screen("load previous savestate", |ctx, mut timer| {
-                    let prev_state = ui
-                        .primary
-                        .sim
-                        .find_previous_savestate(ui.primary.sim.time());
-                    match prev_state
-                        .clone()
-                        .and_then(|path| Sim::load_savestate(path, &mut timer).ok())
-                    {
-                        Some(new_sim) => {
-                            ui.primary.sim = new_sim;
-                            ui.recalculate_current_selection(ctx);
-                        }
-                        None => println!("Couldn't load previous savestate {:?}", prev_state),
-                    }
-                });
-            }
-            if self.menu.action("load next sim state") {
-                ctx.loading_screen("load next savestate", |ctx, mut timer| {
-                    let next_state = ui.primary.sim.find_next_savestate(ui.primary.sim.time());
-                    match next_state
-                        .clone()
-                        .and_then(|path| Sim::load_savestate(path, &mut timer).ok())
-                    {
-                        Some(new_sim) => {
-                            ui.primary.sim = new_sim;
-                            ui.recalculate_current_selection(ctx);
-                        }
-                        None => println!("Couldn't load next savestate {:?}", next_state),
-                    }
-                });
-            }
-            if self.menu.action("pick a savestate to load") {
-                return Transition::Push(WizardState::new(Box::new(load_savestate)));
             }
 
             if let Some(t) = time_controls(ctx, ui, &mut self.speed.menu) {
@@ -254,6 +269,7 @@ impl State for SandboxMode {
         self.speed.draw(g);
         self.info_tools.draw(g);
         self.general_tools.draw(g);
+        self.save_tools.draw(g);
     }
 
     fn on_suspend(&mut self, ctx: &mut EventCtx, _: &mut UI) {

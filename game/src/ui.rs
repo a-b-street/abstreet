@@ -29,6 +29,8 @@ impl UI {
                 ("assets/ui/hide.png", TextureType::Stretch),
                 ("assets/ui/info.png", TextureType::Stretch),
                 ("assets/ui/location.png", TextureType::Stretch),
+                // I feel so conflicted about perp
+                ("assets/ui/save.png", TextureType::Stretch),
                 ("assets/ui/show.png", TextureType::Stretch),
             ];
             let skip_textures = if flags.textures {
