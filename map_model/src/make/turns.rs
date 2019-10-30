@@ -307,7 +307,7 @@ fn make_walking_turns(
         if let Some(l1) = get_sidewalk(lanes, roads[idx1].incoming_lanes(i.id)) {
             // Make the crosswalk to the other side
             if let Some(l2) = get_sidewalk(lanes, roads[idx1].outgoing_lanes(i.id)) {
-                if roads.len() != 2 {
+                if roads.len() > 2 {
                     result.extend(make_crosswalks(i.id, l1, l2));
                 }
             }
@@ -364,6 +364,27 @@ fn make_walking_turns(
     if roads.len() == 2 {
         if let Some(turns) = make_degenerate_crosswalks(i.id, lanes, roads[0], roads[1]) {
             result.extend(turns);
+        }
+    }
+    if roads.len() == 1 {
+        if let Some(l1) = get_sidewalk(lanes, roads[0].incoming_lanes(i.id)) {
+            if let Some(l2) = get_sidewalk(lanes, roads[0].outgoing_lanes(i.id)) {
+                let geom = make_shared_sidewalk_corner(i, l1, l2, timer);
+                result.push(Turn {
+                    id: turn_id(i.id, l1.id, l2.id),
+                    turn_type: TurnType::SharedSidewalkCorner,
+                    other_crosswalk_ids: BTreeSet::new(),
+                    geom: geom.clone(),
+                    lookup_idx: 0,
+                });
+                result.push(Turn {
+                    id: turn_id(i.id, l2.id, l1.id),
+                    turn_type: TurnType::SharedSidewalkCorner,
+                    other_crosswalk_ids: BTreeSet::new(),
+                    geom: geom.reversed(),
+                    lookup_idx: 0,
+                });
+            }
         }
     }
 

@@ -194,6 +194,12 @@ pub fn calculate_corners(i: &Intersection, map: &Map, timer: &mut Timer) -> Vec<
                 continue;
             }
 
+            // Special case for dead-ends: just thicken the geometry.
+            if i.roads.len() == 1 {
+                corners.push(turn.geom.make_polygons(LANE_THICKNESS));
+                continue;
+            }
+
             let l1 = map.get_l(turn.id.src);
             let l2 = map.get_l(turn.id.dst);
 
