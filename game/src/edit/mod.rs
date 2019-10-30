@@ -140,16 +140,17 @@ impl State for EditMode {
                 if lane.lane_type != LaneType::Sidewalk
                     && lane.lane_type != LaneType::SharedLeftTurn
                 {
-                    for (lt, name, key) in &[
-                        (LaneType::Driving, "driving", Key::D),
-                        (LaneType::Parking, "parking", Key::P),
-                        (LaneType::Biking, "biking", Key::B),
-                        (LaneType::Bus, "bus", Key::T),
+                    for (lt, key) in &[
+                        (LaneType::Driving, Key::D),
+                        (LaneType::Parking, Key::P),
+                        (LaneType::Biking, Key::B),
+                        (LaneType::Bus, Key::T),
+                        (LaneType::Construction, Key::C),
                     ] {
                         if can_change_lane_type(road, lane, *lt, &ui.primary.map)
                             && ctx
                                 .input
-                                .contextual_action(*key, format!("change to {} lane", name))
+                                .contextual_action(*key, format!("change to {}", lt.describe()))
                         {
                             let mut new_edits = orig_edits.clone();
                             new_edits.lane_overrides.insert(lane.id, *lt);
@@ -374,7 +375,8 @@ fn next_type(lt: LaneType) -> LaneType {
         LaneType::Driving => LaneType::Parking,
         LaneType::Parking => LaneType::Biking,
         LaneType::Biking => LaneType::Bus,
-        LaneType::Bus => LaneType::Driving,
+        LaneType::Bus => LaneType::Construction,
+        LaneType::Construction => LaneType::Driving,
 
         LaneType::SharedLeftTurn => unreachable!(),
         LaneType::Sidewalk => unreachable!(),
@@ -519,6 +521,7 @@ fn make_bulk_edit_lanes(road: RoadID) -> Box<dyn State> {
                 Choice::new("parking", LaneType::Parking),
                 Choice::new("biking", LaneType::Biking),
                 Choice::new("bus", LaneType::Bus),
+                Choice::new("construction", LaneType::Construction),
             ]
         })?;
         let (_, to) = wizard.choose("Change to all lanes of type...", || {
@@ -527,6 +530,7 @@ fn make_bulk_edit_lanes(road: RoadID) -> Box<dyn State> {
                 Choice::new("parking", LaneType::Parking),
                 Choice::new("biking", LaneType::Biking),
                 Choice::new("bus", LaneType::Bus),
+                Choice::new("construction", LaneType::Construction),
             ]
             .into_iter()
             .filter(|c| c.data != from)

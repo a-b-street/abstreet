@@ -28,6 +28,7 @@ pub enum LaneType {
     Biking,
     Bus,
     SharedLeftTurn,
+    Construction,
 }
 
 impl LaneType {
@@ -39,6 +40,31 @@ impl LaneType {
             LaneType::Parking => false,
             LaneType::Sidewalk => false,
             LaneType::SharedLeftTurn => false,
+            LaneType::Construction => false,
+        }
+    }
+
+    pub fn supports_any_movement(self) -> bool {
+        match self {
+            LaneType::Driving => true,
+            LaneType::Biking => true,
+            LaneType::Bus => true,
+            LaneType::Parking => false,
+            LaneType::Sidewalk => true,
+            LaneType::SharedLeftTurn => false,
+            LaneType::Construction => false,
+        }
+    }
+
+    pub fn describe(self) -> &'static str {
+        match self {
+            LaneType::Driving => "a general-purpose driving lane",
+            LaneType::Biking => "a protected bike lane",
+            LaneType::Bus => "a bus-only lane",
+            LaneType::Parking => "an on-street parking lane",
+            LaneType::Sidewalk => "a sidewalk",
+            LaneType::SharedLeftTurn => "a shared left-turn lane",
+            LaneType::Construction => "a lane that's closed for construction",
         }
     }
 }

@@ -192,6 +192,7 @@ impl RoadSpec {
             LaneType::Biking => 'b',
             LaneType::Bus => 'u',
             LaneType::SharedLeftTurn => 'l',
+            LaneType::Construction => 'c',
         }
     }
 
@@ -203,6 +204,7 @@ impl RoadSpec {
             'b' => Some(LaneType::Biking),
             'u' => Some(LaneType::Bus),
             'l' => Some(LaneType::SharedLeftTurn),
+            'c' => Some(LaneType::Construction),
             _ => None,
         }
     }

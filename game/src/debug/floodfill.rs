@@ -3,7 +3,7 @@ use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::ui::UI;
 use ezgui::{hotkey, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
-use map_model::{LaneID, LaneType, Map};
+use map_model::{LaneID, Map};
 use petgraph::graphmap::DiGraphMap;
 use std::collections::HashSet;
 
@@ -17,8 +17,7 @@ impl Floodfiller {
         let map = &ui.primary.map;
         let (reachable_lanes, is_sidewalk, title) =
             if let Some(ID::Lane(l)) = ui.primary.current_selection {
-                if !map.get_l(l).is_parking()
-                    && map.get_l(l).lane_type != LaneType::SharedLeftTurn
+                if map.get_l(l).lane_type.supports_any_movement()
                     && ctx
                         .input
                         .contextual_action(Key::F, "floodfill from this lane")
@@ -65,7 +64,7 @@ impl Floodfiller {
         );
         let mut num_unreachable = 0;
         for lane in map.all_lanes() {
-            if lane.is_parking() || lane.lane_type == LaneType::SharedLeftTurn {
+            if !lane.lane_type.supports_any_movement() {
                 continue;
             }
             if is_sidewalk != lane.is_sidewalk() {

@@ -103,7 +103,7 @@ impl CommonState {
             ID::Lane(l) => {
                 osd.append_all(vec![
                     Line(l.to_string()).fg(id_color),
-                    Line(" is "),
+                    Line(format!(" is {} of ", map.get_l(l).lane_type.describe())),
                     Line(map.get_parent(l).get_name()).fg(name_color),
                 ]);
             }
