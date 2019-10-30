@@ -1,4 +1,5 @@
 mod analytics;
+mod bus_explorer;
 mod score;
 mod spawner;
 mod time_travel;
@@ -34,17 +35,6 @@ impl SandboxMode {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> SandboxMode {
         SandboxMode {
             speed: SpeedControls::new(ctx, true),
-            info_tools: MenuUnderButton::new(
-                "assets/ui/info.png",
-                "Info",
-                vec![
-                    (hotkey(Key::Q), "scoreboard"),
-                    (hotkey(Key::L), "change analytics overlay"),
-                    (hotkey(Key::Semicolon), "change agent colorscheme"),
-                ],
-                0.3,
-                ctx,
-            ),
             general_tools: MenuUnderButton::new(
                 "assets/ui/hamburger.png",
                 "General",
@@ -55,6 +45,18 @@ impl SandboxMode {
                     (hotkey(Key::F1), "take a screenshot"),
                 ],
                 0.2,
+                ctx,
+            ),
+            info_tools: MenuUnderButton::new(
+                "assets/ui/info.png",
+                "Info",
+                vec![
+                    (hotkey(Key::Q), "scoreboard"),
+                    (hotkey(Key::L), "change analytics overlay"),
+                    (hotkey(Key::Semicolon), "change agent colorscheme"),
+                    (None, "explore a bus route"),
+                ],
+                0.3,
                 ctx,
             ),
             save_tools: MenuUnderButton::new(
@@ -136,6 +138,12 @@ impl State for SandboxMode {
         }
         if self.info_tools.action("scoreboard") {
             return Transition::Push(Box::new(score::Scoreboard::new(ctx, ui)));
+        }
+        if let Some(explorer) = bus_explorer::BusRouteExplorer::new(ctx, ui) {
+            return Transition::PushWithMode(explorer, EventLoopMode::Animation);
+        }
+        if let Some(picker) = bus_explorer::BusRoutePicker::new(ui, &mut self.info_tools) {
+            return Transition::Push(picker);
         }
 
         if self.general_tools.action("quit") {

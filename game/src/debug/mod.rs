@@ -1,4 +1,3 @@
-mod bus_explorer;
 mod color_picker;
 mod connected_roads;
 mod floodfill;
@@ -52,7 +51,6 @@ impl DebugMode {
                     (None, "screenshot everything"),
                     (hotkey(Key::Slash), "search OSM metadata"),
                     (hotkey(Key::S), "configure colors"),
-                    (hotkey(Key::E), "explore a bus route"),
                 ],
                 ctx,
             ),
@@ -224,12 +222,6 @@ impl State for DebugMode {
             return Transition::Push(color_picker::ColorChooser::new());
         }
 
-        if let Some(explorer) = bus_explorer::BusRouteExplorer::new(ctx, ui) {
-            return Transition::PushWithMode(explorer, EventLoopMode::Animation);
-        }
-        if let Some(picker) = bus_explorer::BusRoutePicker::new(ui, &mut self.menu) {
-            return Transition::Push(picker);
-        }
         if let Some(floodfiller) = floodfill::Floodfiller::new(ctx, ui, &mut self.menu) {
             return Transition::Push(floodfiller);
         }

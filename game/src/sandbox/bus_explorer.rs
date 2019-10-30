@@ -3,7 +3,7 @@ use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::ui::UI;
 use ezgui::{
-    Choice, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu, Text, WarpingItemSlider,
+    Choice, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, MenuUnderButton, Text, WarpingItemSlider,
 };
 use geom::{Circle, Distance, Pt2D};
 use map_model::{BusRoute, BusRouteID, BusStopID, PathRequest, PathStep};
@@ -18,8 +18,8 @@ pub struct BusRouteExplorer {
 impl BusRouteExplorer {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> Option<Box<dyn State>> {
         let map = &ui.primary.map;
-        let routes = match ui.primary.current_selection {
-            Some(ID::BusStop(bs)) => map.get_routes_serving_stop(bs),
+        let (bs, routes) = match ui.primary.current_selection {
+            Some(ID::BusStop(bs)) => (bs, map.get_routes_serving_stop(bs)),
             _ => {
                 return None;
             }
@@ -31,15 +31,26 @@ impl BusRouteExplorer {
             return None;
         }
         if routes.len() == 1 {
-            Some(Box::new(BusRouteExplorer::for_route(routes[0], ui, ctx)))
+            Some(Box::new(BusRouteExplorer::for_route(
+                routes[0],
+                Some(bs),
+                ui,
+                ctx,
+            )))
         } else {
             Some(make_bus_route_picker(
                 routes.into_iter().map(|r| r.id).collect(),
+                Some(bs),
             ))
         }
     }
 
-    fn for_route(route: &BusRoute, ui: &UI, ctx: &mut EventCtx) -> BusRouteExplorer {
+    fn for_route(
+        route: &BusRoute,
+        start: Option<BusStopID>,
+        ui: &UI,
+        ctx: &mut EventCtx,
+    ) -> BusRouteExplorer {
         let map = &ui.primary.map;
         let stops: Vec<(Pt2D, BusStopID, Text)> = route
             .stops
@@ -94,13 +105,18 @@ impl BusRouteExplorer {
             ));
         }
 
+        let mut slider = WarpingItemSlider::new(
+            stops,
+            &format!("Bus Route Explorer for {}", route.name),
+            "stop",
+            ctx,
+        );
+        if let Some(bs) = start {
+            slider.override_initial_value(bs, ctx);
+        }
+
         BusRouteExplorer {
-            slider: WarpingItemSlider::new(
-                stops,
-                &format!("Bus Route Explorer for {}", route.name),
-                "stop",
-                ctx,
-            ),
+            slider,
             colorer: colorer.build(ctx, map),
             labels,
             bus_locations,
@@ -150,7 +166,7 @@ impl State for BusRouteExplorer {
 
 pub struct BusRoutePicker;
 impl BusRoutePicker {
-    pub fn new(ui: &UI, menu: &mut ModalMenu) -> Option<Box<dyn State>> {
+    pub fn new(ui: &UI, menu: &mut MenuUnderButton) -> Option<Box<dyn State>> {
         if ui.primary.current_selection.is_some() || !menu.action("explore a bus route") {
             return None;
         }
@@ -161,11 +177,12 @@ impl BusRoutePicker {
                 .iter()
                 .map(|r| r.id)
                 .collect(),
+            None,
         ))
     }
 }
 
-fn make_bus_route_picker(routes: Vec<BusRouteID>) -> Box<dyn State> {
+fn make_bus_route_picker(routes: Vec<BusRouteID>, start: Option<BusStopID>) -> Box<dyn State> {
     WizardState::new(Box::new(move |wiz, ctx, ui| {
         let (_, id) = wiz.wrap(ctx).choose("Explore which bus route?", || {
             let mut choices: Vec<(&String, BusRouteID)> = routes
@@ -181,6 +198,7 @@ fn make_bus_route_picker(routes: Vec<BusRouteID>) -> Box<dyn State> {
         })?;
         Some(Transition::Replace(Box::new(BusRouteExplorer::for_route(
             ui.primary.map.get_br(id),
+            start,
             ui,
             ctx,
         ))))

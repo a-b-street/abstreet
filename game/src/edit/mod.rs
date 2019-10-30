@@ -75,7 +75,6 @@ impl State for EditMode {
                 "{} traffic signals",
                 orig_edits.traffic_signal_overrides.len()
             )));
-            txt.add(Line("Right-click a lane or intersection to start editing"));
             self.menu.set_info(ctx, txt);
         }
         self.menu.event(ctx);

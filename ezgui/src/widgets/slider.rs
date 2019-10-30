@@ -36,7 +36,7 @@ impl Slider {
         (self.current_percent * (num_items as f64 - 1.0)) as usize
     }
 
-    pub fn set_percent(&mut self, ctx: &mut EventCtx, percent: f64) {
+    pub fn set_percent(&mut self, ctx: &EventCtx, percent: f64) {
         assert!(percent >= 0.0 && percent <= 1.0);
         self.current_percent = percent;
         // Just reset dragging, to prevent chaos
@@ -45,7 +45,7 @@ impl Slider {
         self.mouse_on_slider = self.slider_geom().contains_pt(Pt2D::new(pt.x, pt.y));
     }
 
-    pub fn set_value(&mut self, ctx: &mut EventCtx, idx: usize, num_items: usize) {
+    pub fn set_value(&mut self, ctx: &EventCtx, idx: usize, num_items: usize) {
         self.set_percent(ctx, (idx as f64) / (num_items as f64 - 1.0));
     }
 
@@ -237,7 +237,7 @@ impl<T> ItemSlider<T> {
         menu_title: &str,
         noun: &str,
         other_choices: Vec<(Option<MultiKey>, &str)>,
-        ctx: &mut EventCtx,
+        ctx: &EventCtx,
     ) -> ItemSlider<T> {
         // Lifetime funniness...
         let mut choices = other_choices.clone();
@@ -336,7 +336,7 @@ impl<T> WarpingItemSlider<T> {
         items: Vec<(Pt2D, T, Text)>,
         menu_title: &str,
         noun: &str,
-        ctx: &mut EventCtx,
+        ctx: &EventCtx,
     ) -> WarpingItemSlider<T> {
         WarpingItemSlider {
             warper: Some(Warper::new(ctx, items[0].0, None)),
@@ -388,6 +388,21 @@ impl<T> WarpingItemSlider<T> {
     pub fn get(&self) -> (usize, &T) {
         let (idx, (_, data)) = self.slider.get();
         (idx, data)
+    }
+}
+
+impl<T: PartialEq> WarpingItemSlider<T> {
+    pub fn override_initial_value(&mut self, item: T, ctx: &EventCtx) {
+        let idx = self
+            .slider
+            .items
+            .iter()
+            .position(|((_, x), _)| x == &item)
+            .unwrap();
+        self.slider
+            .slider
+            .set_value(ctx, idx, self.slider.items.len());
+        self.warper = None;
     }
 }
 
