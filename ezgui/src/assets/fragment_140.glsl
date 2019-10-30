@@ -55,5 +55,14 @@ void main() {
             // Let the polygon with its original colors show instead.
             discard;
 	}
+    } else if (pass_style[0] == 11.0) {
+        float map_x = (gl_FragCoord.x + transform[0]) / transform[2];
+        float map_y = (window[1] - gl_FragCoord.y + transform[1]) / transform[2];
+        if (mod(map_x + map_y, 2.0) <= 0.5) {
+            f_color = vec4(1.0, 1.0, 1.0, 1.0);
+        } else {
+            // Let the polygon with its original colors show instead.
+            discard;
+	}
     }
 }

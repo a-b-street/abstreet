@@ -98,7 +98,12 @@ impl DrawLane {
                             .make_polygons(Distance::meters(0.25)),
                     );
                 }
-                LaneType::Construction => {}
+                LaneType::Construction => {
+                    draw.push(
+                        cs.get_def("construction hatching", Color::HatchingStyle2),
+                        polygon.clone(),
+                    );
+                }
             };
         }
 

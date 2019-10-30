@@ -15,7 +15,9 @@ pub enum Color {
     StretchTexture(f32, Angle),
     // A polygon with UV coordinates for each point must be used.
     CustomUVTexture(f32),
-    Hatching,
+    // TODO Figure out how to pack more data into this.
+    HatchingStyle1,
+    HatchingStyle2,
 }
 
 impl fmt::Display for Color {
@@ -29,7 +31,8 @@ impl fmt::Display for Color {
                 write!(f, "Color::StretchTexture({}, {})", id, angle)
             }
             Color::CustomUVTexture(id) => write!(f, "Color::CustomUVTexture({})", id),
-            Color::Hatching => write!(f, "Color::Hatching"),
+            Color::HatchingStyle1 => write!(f, "Color::HatchingStyle1"),
+            Color::HatchingStyle2 => write!(f, "Color::HatchingStyle2"),
         }
     }
 }

@@ -253,7 +253,8 @@ impl State for EditMode {
                 .keys()
                 .chain(edits.contraflow_lanes.keys())
             {
-                opts.override_colors.insert(ID::Lane(*l), Color::Hatching);
+                opts.override_colors
+                    .insert(ID::Lane(*l), Color::HatchingStyle1);
                 ctx.draw_map.get_l(*l).draw(g, &opts, &ctx);
             }
             for i in edits
@@ -262,7 +263,7 @@ impl State for EditMode {
                 .chain(edits.traffic_signal_overrides.keys())
             {
                 opts.override_colors
-                    .insert(ID::Intersection(*i), Color::Hatching);
+                    .insert(ID::Intersection(*i), Color::HatchingStyle1);
                 ctx.draw_map.get_i(*i).draw(g, &opts, &ctx);
             }
 
