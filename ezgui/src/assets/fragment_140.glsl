@@ -15,6 +15,11 @@ uniform sampler2D tex6;
 uniform sampler2D tex7;
 uniform sampler2D tex8;
 uniform sampler2D tex9;
+uniform sampler2D tex10;
+uniform sampler2D tex11;
+uniform sampler2D tex12;
+uniform sampler2D tex13;
+uniform sampler2D tex14;
 
 in vec4 pass_style;
 out vec4 f_color;
@@ -43,6 +48,16 @@ void main() {
     } else if (pass_style[0] == 9.0) {
         f_color = texture(tex9, vec2(pass_style[1], pass_style[2]));
     } else if (pass_style[0] == 10.0) {
+        f_color = texture(tex10, vec2(pass_style[1], pass_style[2]));
+    } else if (pass_style[0] == 11.0) {
+        f_color = texture(tex11, vec2(pass_style[1], pass_style[2]));
+    } else if (pass_style[0] == 12.0) {
+        f_color = texture(tex12, vec2(pass_style[1], pass_style[2]));
+    } else if (pass_style[0] == 13.0) {
+        f_color = texture(tex13, vec2(pass_style[1], pass_style[2]));
+    } else if (pass_style[0] == 14.0) {
+        f_color = texture(tex14, vec2(pass_style[1], pass_style[2]));
+    } else if (pass_style[0] == 100.0) {
         // The hatching should be done in map-space, so panning/zooming doesn't move the stripes.
         // This is screen_to_map, also accounting for the y-inversion done by the vertex shader.
         float map_x = (gl_FragCoord.x + transform[0]) / transform[2];
@@ -55,7 +70,7 @@ void main() {
             // Let the polygon with its original colors show instead.
             discard;
 	}
-    } else if (pass_style[0] == 11.0) {
+    } else if (pass_style[0] == 101.0) {
         float map_x = (gl_FragCoord.x + transform[0]) / transform[2];
         float map_y = (window[1] - gl_FragCoord.y + transform[1]) / transform[2];
         if (mod(map_x + map_y, 2.0) <= 0.5) {

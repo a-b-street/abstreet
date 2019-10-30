@@ -184,7 +184,7 @@ impl State for SandboxMode {
         }
 
         if self.save_tools.action("save sim state") {
-            self.speed.pause(ctx);
+            self.speed.pause();
             ctx.loading_screen("savestate", |_, timer| {
                 timer.start("save sim state");
                 ui.primary.sim.save();
@@ -192,7 +192,7 @@ impl State for SandboxMode {
             });
         }
         if self.save_tools.action("load previous sim state") {
-            self.speed.pause(ctx);
+            self.speed.pause();
             ctx.loading_screen("load previous savestate", |ctx, mut timer| {
                 let prev_state = ui
                     .primary
@@ -211,7 +211,7 @@ impl State for SandboxMode {
             });
         }
         if self.save_tools.action("load next sim state") {
-            self.speed.pause(ctx);
+            self.speed.pause();
             ctx.loading_screen("load next savestate", |ctx, mut timer| {
                 let next_state = ui.primary.sim.find_next_savestate(ui.primary.sim.time());
                 match next_state
@@ -227,7 +227,7 @@ impl State for SandboxMode {
             });
         }
         if self.save_tools.action("pick a savestate to load") {
-            self.speed.pause(ctx);
+            self.speed.pause();
             return Transition::Push(WizardState::new(Box::new(load_savestate)));
         }
 
@@ -246,7 +246,7 @@ impl State for SandboxMode {
                 return Transition::Replace(Box::new(SandboxMode::new(ctx, ui)));
             }
 
-            if let Some(t) = time_controls(ctx, ui, &mut self.speed.menu) {
+            if let Some(t) = time_controls(ctx, ui, &mut self.speed) {
                 return t;
             }
 
@@ -280,8 +280,8 @@ impl State for SandboxMode {
         self.save_tools.draw(g);
     }
 
-    fn on_suspend(&mut self, ctx: &mut EventCtx, _: &mut UI) {
-        self.speed.pause(ctx);
+    fn on_suspend(&mut self, _: &mut EventCtx, _: &mut UI) {
+        self.speed.pause();
     }
 }
 

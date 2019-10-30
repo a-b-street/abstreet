@@ -1,7 +1,7 @@
 use crate::layout::Widget;
-use crate::widgets::Button;
 use crate::{
-    layout, text, EventCtx, GfxCtx, Line, MultiKey, ScreenDims, ScreenPt, ScreenRectangle, Text,
+    layout, text, Button, EventCtx, GfxCtx, Line, MultiKey, ScreenDims, ScreenPt, ScreenRectangle,
+    Text,
 };
 
 pub struct ModalMenu {

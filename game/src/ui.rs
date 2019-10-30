@@ -28,10 +28,16 @@ impl UI {
                 ("assets/ui/hamburger.png", TextureType::Stretch),
                 ("assets/ui/hide.png", TextureType::Stretch),
                 ("assets/ui/info.png", TextureType::Stretch),
+                ("assets/ui/jump_to_time.png", TextureType::Stretch),
+                ("assets/ui/large_step.png", TextureType::Stretch),
                 ("assets/ui/location.png", TextureType::Stretch),
-                // I feel so conflicted about perp
+                ("assets/ui/pause.png", TextureType::Stretch),
+                ("assets/ui/resume.png", TextureType::Stretch),
                 ("assets/ui/save.png", TextureType::Stretch),
                 ("assets/ui/show.png", TextureType::Stretch),
+                ("assets/ui/slow_down.png", TextureType::Stretch),
+                ("assets/ui/small_step.png", TextureType::Stretch),
+                ("assets/ui/speed_up.png", TextureType::Stretch),
             ];
             let skip_textures = if flags.textures {
                 textures.extend(vec![

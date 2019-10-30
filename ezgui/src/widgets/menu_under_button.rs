@@ -1,6 +1,8 @@
 use crate::layout::{ContainerOrientation, Widget};
-use crate::widgets::{Button, PopupMenu};
-use crate::{layout, Choice, EventCtx, GfxCtx, InputResult, MultiKey, ScreenDims, ScreenPt, Text};
+use crate::widgets::PopupMenu;
+use crate::{
+    layout, Button, Choice, EventCtx, GfxCtx, InputResult, MultiKey, ScreenDims, ScreenPt, Text,
+};
 
 // TODO Ideally:
 // - Pause sim while this is active

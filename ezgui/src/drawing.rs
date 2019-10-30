@@ -377,7 +377,7 @@ pub(crate) struct Vertex {
     position: [f32; 2],
     // If the last component is non-zero, then this is an RGBA value.
     // When the last component is 0, then this is (texture ID, tex coord X, text coord Y, 0)
-    // And more cases -- (10, 0, 0, 0) means to just draw hatching style 1. (11, 0, 0, 0) is
+    // And more cases -- (100, 0, 0, 0) means to just draw hatching style 1. (101, 0, 0, 0) is
     // hatching style 2.
     // TODO Make this u8?
     style: [f32; 4],
@@ -452,8 +452,8 @@ impl<'a> Prerender<'a> {
                             maybe_uv.expect("CustomUVTexture with polygon lacking UV")[idx];
                         [id, tx, ty, 0.0]
                     }
-                    Color::HatchingStyle1 => [10.0, 0.0, 0.0, 0.0],
-                    Color::HatchingStyle2 => [11.0, 0.0, 0.0, 0.0],
+                    Color::HatchingStyle1 => [100.0, 0.0, 0.0, 0.0],
+                    Color::HatchingStyle2 => [101.0, 0.0, 0.0, 0.0],
                 };
                 vertices.push(Vertex {
                     position: [pt.x() as f32, pt.y() as f32],

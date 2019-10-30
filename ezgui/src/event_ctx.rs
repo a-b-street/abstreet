@@ -59,8 +59,8 @@ impl<'a> EventCtx<'a> {
                 .insert(filename.to_string(), fallback);
         }
 
-        if textures.len() > 10 {
-            panic!("Due to lovely hacks, only 10 textures supported");
+        if textures.len() > 15 {
+            panic!("Due to lovely hacks, only 15 textures supported");
         }
         timer.start_iter("upload textures", textures.len());
         for (idx, (filename, tex_type)) in textures.into_iter().enumerate() {

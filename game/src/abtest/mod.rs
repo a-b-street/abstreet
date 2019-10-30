@@ -210,7 +210,7 @@ impl State for ABTestMode {
         }
 
         if self.speed.is_paused() {
-            if let Some(t) = time_controls(ctx, ui, &mut self.speed.menu) {
+            if let Some(t) = time_controls(ctx, ui, &mut self.speed) {
                 // TODO Need to trigger recalculate_stuff in a few cases...
                 return t;
             }
@@ -236,8 +236,8 @@ impl State for ABTestMode {
         self.general_tools.draw(g);
     }
 
-    fn on_suspend(&mut self, ctx: &mut EventCtx, _: &mut UI) {
-        self.speed.pause(ctx);
+    fn on_suspend(&mut self, _: &mut EventCtx, _: &mut UI) {
+        self.speed.pause();
     }
 
     fn on_destroy(&mut self, ctx: &mut EventCtx, ui: &mut UI) {
