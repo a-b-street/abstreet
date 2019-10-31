@@ -19,20 +19,20 @@ impl abstutil::Cloneable for Challenge {}
 fn all_challenges() -> Vec<Challenge> {
     vec![
         Challenge {
-            title: "Speed up route 980".to_string(),
+            title: "Speed up route 48 (just Montlake area)".to_string(),
             description:
-                "Decrease the average waiting time between all of 980's stops by at least 30s"
+                "Decrease the average waiting time between all of route 48's stops by at least 30s"
                     .to_string(),
             map_name: "montlake".to_string(),
-            gameplay: GameplayMode::OptimizeBus("980".to_string()),
+            gameplay: GameplayMode::OptimizeBus("48".to_string()),
         },
         Challenge {
-            title: "Speed up route 27 along Yesler".to_string(),
+            title: "Speed up route 48 (larger section)".to_string(),
             description:
-                "Decrease the average waiting time between all of 27's stops by at least 30s"
+                "Decrease the average waiting time between all of 48's stops by at least 30s"
                     .to_string(),
             map_name: "23rd".to_string(),
-            gameplay: GameplayMode::OptimizeBus("27".to_string()),
+            gameplay: GameplayMode::OptimizeBus("48".to_string()),
         },
     ]
 }

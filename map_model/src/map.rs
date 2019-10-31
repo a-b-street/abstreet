@@ -137,7 +137,19 @@ impl Map {
                 m.lanes[id.sidewalk.0].bus_stops.push(*id);
             }
 
-            m.bus_routes = make::verify_bus_routes(&m, routes, timer);
+            timer.start_iter("verify bus routes are connected", routes.len());
+            for mut r in routes {
+                timer.next();
+                if r.stops.is_empty() {
+                    continue;
+                }
+                if make::fix_bus_route(&m, &mut r) {
+                    r.id = BusRouteID(m.bus_routes.len());
+                    m.bus_routes.push(r);
+                } else {
+                    timer.warn(format!("Skipping route {}", r.name));
+                }
+            }
 
             // Remove orphaned bus stops
             let mut remove_stops = HashSet::new();
