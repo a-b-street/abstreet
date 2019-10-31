@@ -193,16 +193,15 @@ fn splash_screen(
         x if x == tutorial => Some(Transition::Push(Box::new(TutorialMode::new(ctx)))),
         x if x == mission => Some(Transition::Push(Box::new(MissionEditMode::new(ctx)))),
         x if x == about => {
-            if wizard.acknowledge(
-                "About A/B Street",
+            if wizard.acknowledge("About A/B Street", || {
                 vec![
                     "Author: Dustin Carlino (dabreegster@gmail.com)",
                     "http://github.com/dabreegster/abstreet",
                     "Map data from OpenStreetMap and King County GIS",
                     "",
                     "Press ENTER to continue",
-                ],
-            ) {
+                ]
+            }) {
                 Some(Transition::Replace(Box::new(SplashScreen {
                     wizard: Wizard::new(),
                     maybe_screensaver: maybe_screensaver.take(),

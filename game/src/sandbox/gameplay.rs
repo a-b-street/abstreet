@@ -40,7 +40,10 @@ impl GameplayState {
                     mode,
                     menu: ModalMenu::new(
                         "Freeform mode",
-                        vec![(hotkey(Key::S), "start a scenario")],
+                        vec![
+                            (hotkey(Key::S), "start a scenario"),
+                            (hotkey(Key::H), "help"),
+                        ],
                         ctx,
                     )
                     .disable_standalone_layout(),
@@ -53,7 +56,10 @@ impl GameplayState {
                     mode,
                     menu: ModalMenu::new(
                         &format!("Playing {}", scenario),
-                        vec![(hotkey(Key::S), "start another scenario")],
+                        vec![
+                            (hotkey(Key::S), "start another scenario"),
+                            (hotkey(Key::H), "help"),
+                        ],
                         ctx,
                     )
                     .disable_standalone_layout(),
@@ -68,7 +74,7 @@ impl GameplayState {
                         mode,
                         menu: ModalMenu::new(
                             &format!("Optimize {}", route_name),
-                            vec![(hotkey(Key::E), "show bus route")],
+                            vec![(hotkey(Key::E), "show bus route"), (hotkey(Key::H), "help")],
                             ctx,
                         )
                         .disable_standalone_layout(),
@@ -135,6 +141,9 @@ impl GameplayState {
                         change_scenario,
                     ))));
                 }
+                if self.menu.action("help") {
+                    return Some(help(vec!["This simulation is empty by default.", "Try right-clicking an intersection and choosing to spawn agents (or just hover over it and press Z).", "You can also spawn agents from buildings or lanes.", "You can also start a full scenario to get realistic traffic."]));
+                }
                 if let Some(new_state) = spawner::AgentSpawner::new(ctx, ui) {
                     return Some(Transition::Push(new_state));
                 }
@@ -145,6 +154,13 @@ impl GameplayState {
                     return Some(Transition::Push(WizardState::new(Box::new(
                         change_scenario,
                     ))));
+                }
+                if self.menu.action("help") {
+                    return Some(help(vec![
+                        "Do things seem a bit quiet?",
+                        "The simulation starts at midnight, so you might need to wait a bit.",
+                        "Try using the speed controls on the left.",
+                    ]));
                 }
             }
             State::OptimizeBus {
@@ -194,6 +210,15 @@ impl GameplayState {
                 {
                     *analytics = analytics::Analytics::Inactive;
                     *show_analytics = false;
+                }
+
+                if self.menu.action("help") {
+                    return Some(help(vec![
+                        "First find where the bus gets stuck.",
+                        "Then use edit mode to try to speed things up.",
+                        "Try making dedicated bus lanes",
+                        "and adjusting traffic signals.",
+                    ]));
                 }
             }
         }
@@ -247,4 +272,15 @@ fn change_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<
         ui,
         GameplayMode::PlayScenario(scenario_name),
     ))))
+}
+
+// TODO Word wrap
+fn help(lines: Vec<&'static str>) -> Transition {
+    Transition::Push(WizardState::new(Box::new(move |wiz, ctx, _| {
+        if wiz.wrap(ctx).acknowledge("Help", || lines.clone()) {
+            Some(Transition::Pop)
+        } else {
+            None
+        }
+    })))
 }

@@ -350,7 +350,11 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
     }
 
     // Note this will abort the wizard once done!
-    pub fn acknowledge(&mut self, title: &str, lines: Vec<&str>) -> bool {
+    pub fn acknowledge<S: Into<String>, F: Fn() -> Vec<S>>(
+        &mut self,
+        title: &str,
+        make_lines: F,
+    ) -> bool {
         if !self.ready_results.is_empty() {
             self.ready_results.pop_front();
             return true;
@@ -359,7 +363,7 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         if self.wizard.log_scroller.is_none() {
             self.wizard.log_scroller = Some(LogScroller::new(
                 title.to_string(),
-                lines.into_iter().map(|l| l.to_string()).collect(),
+                make_lines().into_iter().map(|l| l.into()).collect(),
             ));
         }
         if self

@@ -25,7 +25,7 @@ fn warp_to(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transiti
             EventLoopMode::Animation,
         ));
     }
-    if wizard.acknowledge("Bad warp ID", vec![&format!("{} isn't a valid ID", to)]) {
+    if wizard.acknowledge("Bad warp ID", || vec![format!("{} isn't a valid ID", to)]) {
         return Some(Transition::Pop);
     }
     None
