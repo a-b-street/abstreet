@@ -1,5 +1,6 @@
 mod analytics;
 mod bus_explorer;
+mod challenge_score;
 mod score;
 mod spawner;
 mod time_travel;
@@ -11,6 +12,7 @@ use crate::edit::EditMode;
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::ui::{ShowEverything, UI};
+pub use challenge_score::ChallengeScoreboard;
 use ezgui::{
     hotkey, lctrl, Choice, EventCtx, EventLoopMode, GfxCtx, Key, Line, MenuUnderButton, ModalMenu,
     Text, Wizard,
@@ -27,6 +29,7 @@ pub struct SandboxMode {
     pub time_travel: time_travel::InactiveTimeTravel,
     trip_stats: trip_stats::TripStats,
     analytics: analytics::Analytics,
+    pub challenge_score: ChallengeScoreboard,
     common: CommonState,
     menu: ModalMenu,
 }
@@ -77,6 +80,7 @@ impl SandboxMode {
                 ui.primary.current_flags.sim_flags.opts.record_stats,
             ),
             analytics: analytics::Analytics::Inactive,
+            challenge_score: ChallengeScoreboard::Inactive,
             common: CommonState::new(ctx),
             menu: ModalMenu::new(
                 "Sandbox Mode",
@@ -120,6 +124,9 @@ impl State for SandboxMode {
             .analytics
             .event(ctx, ui, &mut self.info_tools, &self.trip_stats)
         {
+            return t;
+        }
+        if let Some(t) = self.challenge_score.event(ctx, ui) {
             return t;
         }
 
@@ -278,6 +285,7 @@ impl State for SandboxMode {
         self.info_tools.draw(g);
         self.general_tools.draw(g);
         self.save_tools.draw(g);
+        self.challenge_score.draw(g);
     }
 
     fn on_suspend(&mut self, _: &mut EventCtx, _: &mut UI) {

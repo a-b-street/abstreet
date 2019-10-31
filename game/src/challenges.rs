@@ -1,9 +1,11 @@
 use crate::game::{State, Transition, WizardState};
+use crate::sandbox::{ChallengeScoreboard, SandboxMode};
 use crate::ui::UI;
 use ezgui::{
     hotkey, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ModalMenu, Text,
     VerticalAlignment,
 };
+use geom::Duration;
 
 // TODO Also have some kind of screenshot to display for each challenge
 #[derive(Clone)]
@@ -63,6 +65,7 @@ pub fn challenges_picker() -> Box<dyn State> {
                 ],
                 ctx,
             ),
+            challenge,
         })))
     }))
 }
@@ -70,13 +73,32 @@ pub fn challenges_picker() -> Box<dyn State> {
 struct ChallengeSplash {
     menu: ModalMenu,
     summary: Text,
+    challenge: Challenge,
 }
 
 impl State for ChallengeSplash {
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         self.menu.event(ctx);
         if self.menu.action("back to challenges") {
             return Transition::Replace(challenges_picker());
+        }
+        if self.menu.action("start challenge") {
+            if &self.challenge.map_name != ui.primary.map.get_name() {
+                ctx.canvas.save_camera_state(ui.primary.map.get_name());
+                let mut flags = ui.primary.current_flags.clone();
+                flags.sim_flags.load = abstutil::path_map(&self.challenge.map_name);
+                *ui = UI::new(flags, ctx, false);
+            }
+            // TODO Set up the scenario
+            let mut mode = SandboxMode::new(ctx, ui);
+            // TODO Don't hardcode this
+            mode.challenge_score = ChallengeScoreboard::BusRoute {
+                route: ui.primary.map.get_bus_route("980").unwrap().id,
+                time: Duration::ZERO,
+                panel: Text::prompt("980"),
+            };
+
+            return Transition::Replace(Box::new(mode));
         }
         Transition::Keep
     }
