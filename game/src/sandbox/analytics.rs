@@ -3,6 +3,7 @@ use crate::common::{ObjectColorer, ObjectColorerBuilder, RoadColorer, RoadColore
 use crate::game::{Transition, WizardState};
 use crate::helpers::ID;
 use crate::render::DrawOptions;
+use crate::sandbox::bus_explorer::ShowBusRoute;
 use crate::sandbox::SandboxMode;
 use crate::ui::{ShowEverything, UI};
 use abstutil::{prettyprint_usize, Counter};
@@ -20,6 +21,8 @@ pub enum Analytics {
     FinishedTrips(Duration, ShowTripStats),
     Chokepoints(Duration, ObjectColorer),
     BikeNetwork(RoadColorer),
+    // Only set by certain gameplay modes
+    BusRoute(ShowBusRoute),
 }
 
 impl Analytics {
@@ -65,6 +68,10 @@ impl Analytics {
             Analytics::FinishedTrips(t, _) => ("finished trips", *t),
             Analytics::Chokepoints(t, _) => ("chokepoints", *t),
             Analytics::BikeNetwork(_) => ("bike network", ui.primary.sim.time()),
+            Analytics::BusRoute(_) => {
+                // The gameplay mode will update it.
+                return None;
+            }
         };
         if time != ui.primary.sim.time() {
             *self = Analytics::recalc(choice, trip_stats, ui, ctx);
@@ -95,6 +102,10 @@ impl Analytics {
                     &ShowEverything::new(),
                 );
                 s.draw(g);
+                true
+            }
+            Analytics::BusRoute(ref s) => {
+                s.draw(g, ui);
                 true
             }
         }

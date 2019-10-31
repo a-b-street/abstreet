@@ -1,5 +1,5 @@
 use crate::game::{Transition, WizardState};
-use crate::sandbox::{bus_explorer, spawner, SandboxMode};
+use crate::sandbox::{analytics, bus_explorer, spawner, SandboxMode};
 use crate::ui::UI;
 use ezgui::{hotkey, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, Wizard};
 use geom::Duration;
@@ -25,7 +25,11 @@ enum State {
     // TODO Maybe this one could remember what things were spawned, offer to replay this later
     Freeform,
     PlayScenario,
-    OptimizeBus { route: BusRouteID, time: Duration },
+    OptimizeBus {
+        route: BusRouteID,
+        time: Duration,
+        show_analytics: bool,
+    },
 }
 
 impl GameplayState {
@@ -71,6 +75,7 @@ impl GameplayState {
                         state: State::OptimizeBus {
                             route: route.id,
                             time: Duration::ZERO,
+                            show_analytics: false,
                         },
                     },
                     Some("weekday_typical_traffic_from_psrc".to_string()),
@@ -116,7 +121,12 @@ impl GameplayState {
         state
     }
 
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+    pub fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        ui: &mut UI,
+        analytics: &mut analytics::Analytics,
+    ) -> Option<Transition> {
         match self.state {
             State::Freeform => {
                 self.menu.event(ctx);
@@ -140,22 +150,50 @@ impl GameplayState {
             State::OptimizeBus {
                 route,
                 ref mut time,
+                ref mut show_analytics,
             } => {
+                // Something else might've changed analytics.
+                if *show_analytics {
+                    match analytics {
+                        analytics::Analytics::BusRoute(_) => {}
+                        _ => {
+                            *show_analytics = false;
+                            self.menu
+                                .change_action("hide bus route", "show bus route", ctx);
+                        }
+                    }
+                }
+
+                // TODO Expensive
                 if *time != ui.primary.sim.time() {
                     *time = ui.primary.sim.time();
                     self.menu.set_info(ctx, bus_route_panel(route, ui));
+                    if *show_analytics {
+                        *analytics = analytics::Analytics::BusRoute(
+                            bus_explorer::ShowBusRoute::new(ui.primary.map.get_br(route), ui, ctx),
+                        );
+                    }
                 }
 
                 self.menu.event(ctx);
-                if self.menu.action("show bus route") {
-                    return Some(Transition::Push(Box::new(
-                        bus_explorer::BusRouteExplorer::for_route(
-                            ui.primary.map.get_br(route),
-                            None,
-                            ui,
-                            ctx,
-                        ),
-                    )));
+                if !*show_analytics
+                    && self
+                        .menu
+                        .swap_action("show bus route", "hide bus route", ctx)
+                {
+                    *analytics = analytics::Analytics::BusRoute(bus_explorer::ShowBusRoute::new(
+                        ui.primary.map.get_br(route),
+                        ui,
+                        ctx,
+                    ));
+                    *show_analytics = true;
+                } else if *show_analytics
+                    && self
+                        .menu
+                        .swap_action("hide bus route", "show bus route", ctx)
+                {
+                    *analytics = analytics::Analytics::Inactive;
+                    *show_analytics = false;
                 }
             }
         }

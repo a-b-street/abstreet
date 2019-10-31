@@ -8,58 +8,20 @@ use ezgui::{
 use geom::{Circle, Distance, Pt2D};
 use map_model::{BusRoute, BusRouteID, BusStopID, PathRequest, PathStep};
 
-pub struct BusRouteExplorer {
-    slider: WarpingItemSlider<BusStopID>,
+pub struct ShowBusRoute {
     colorer: RoadColorer,
     labels: Vec<(Text, Pt2D)>,
     bus_locations: Vec<Pt2D>,
 }
 
-impl BusRouteExplorer {
-    pub fn new(ctx: &mut EventCtx, ui: &UI) -> Option<Box<dyn State>> {
-        let map = &ui.primary.map;
-        let (bs, routes) = match ui.primary.current_selection {
-            Some(ID::BusStop(bs)) => (bs, map.get_routes_serving_stop(bs)),
-            _ => {
-                return None;
-            }
-        };
-        if routes.is_empty() {
-            return None;
-        }
-        if !ctx.input.contextual_action(Key::E, "explore bus route") {
-            return None;
-        }
-        if routes.len() == 1 {
-            Some(Box::new(BusRouteExplorer::for_route(
-                routes[0],
-                Some(bs),
-                ui,
-                ctx,
-            )))
-        } else {
-            Some(make_bus_route_picker(
-                routes.into_iter().map(|r| r.id).collect(),
-                Some(bs),
-            ))
-        }
-    }
+pub struct BusRouteExplorer {
+    slider: WarpingItemSlider<BusStopID>,
+    show: ShowBusRoute,
+}
 
-    pub fn for_route(
-        route: &BusRoute,
-        start: Option<BusStopID>,
-        ui: &UI,
-        ctx: &mut EventCtx,
-    ) -> BusRouteExplorer {
+impl ShowBusRoute {
+    pub fn new(route: &BusRoute, ui: &UI, ctx: &mut EventCtx) -> ShowBusRoute {
         let map = &ui.primary.map;
-        let stops: Vec<(Pt2D, BusStopID, Text)> = route
-            .stops
-            .iter()
-            .map(|bs| {
-                let stop = map.get_bs(*bs);
-                (stop.sidewalk_pos.pt(map), stop.id, Text::new())
-            })
-            .collect();
 
         let mut bus_locations = Vec::new();
         for (_, pt) in ui.primary.sim.location_of_buses(route.id, map) {
@@ -105,6 +67,72 @@ impl BusRouteExplorer {
             ));
         }
 
+        ShowBusRoute {
+            colorer: colorer.build(ctx, map),
+            labels,
+            bus_locations,
+        }
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        self.colorer.draw(g, ui);
+        for (label, pt) in &self.labels {
+            g.draw_text_at(label, *pt);
+        }
+
+        let mut batch = GeomBatch::new();
+        let radius = Distance::meters(20.0) / g.canvas.cam_zoom;
+        for pt in &self.bus_locations {
+            batch.push(Color::BLUE, Circle::new(*pt, radius).to_polygon());
+        }
+        batch.draw(g);
+    }
+}
+
+impl BusRouteExplorer {
+    pub fn new(ctx: &mut EventCtx, ui: &UI) -> Option<Box<dyn State>> {
+        let map = &ui.primary.map;
+        let (bs, routes) = match ui.primary.current_selection {
+            Some(ID::BusStop(bs)) => (bs, map.get_routes_serving_stop(bs)),
+            _ => {
+                return None;
+            }
+        };
+        if routes.is_empty() {
+            return None;
+        }
+        if !ctx.input.contextual_action(Key::E, "explore bus route") {
+            return None;
+        }
+        if routes.len() == 1 {
+            Some(Box::new(BusRouteExplorer::for_route(
+                routes[0],
+                Some(bs),
+                ui,
+                ctx,
+            )))
+        } else {
+            Some(make_bus_route_picker(
+                routes.into_iter().map(|r| r.id).collect(),
+                Some(bs),
+            ))
+        }
+    }
+
+    pub fn for_route(
+        route: &BusRoute,
+        start: Option<BusStopID>,
+        ui: &UI,
+        ctx: &mut EventCtx,
+    ) -> BusRouteExplorer {
+        let stops: Vec<(Pt2D, BusStopID, Text)> = route
+            .stops
+            .iter()
+            .map(|bs| {
+                let stop = ui.primary.map.get_bs(*bs);
+                (stop.sidewalk_pos.pt(&ui.primary.map), stop.id, Text::new())
+            })
+            .collect();
         let mut slider = WarpingItemSlider::new(
             stops,
             &format!("Bus Route Explorer for {}", route.name),
@@ -117,9 +145,7 @@ impl BusRouteExplorer {
 
         BusRouteExplorer {
             slider,
-            colorer: colorer.build(ctx, map),
-            labels,
-            bus_locations,
+            show: ShowBusRoute::new(route, ui, ctx),
         }
     }
 }
@@ -147,18 +173,7 @@ impl State for BusRouteExplorer {
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        self.colorer.draw(g, ui);
-        for (label, pt) in &self.labels {
-            g.draw_text_at(label, *pt);
-        }
-
-        let mut batch = GeomBatch::new();
-        let radius = Distance::meters(20.0) / g.canvas.cam_zoom;
-        for pt in &self.bus_locations {
-            batch.push(Color::BLUE, Circle::new(*pt, radius).to_polygon());
-        }
-        batch.draw(g);
-
+        self.show.draw(g, ui);
         self.slider.draw(g);
         CommonState::draw_osd(g, ui, &ui.primary.current_selection);
     }

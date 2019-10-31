@@ -132,7 +132,7 @@ impl State for SandboxMode {
         {
             return t;
         }
-        if let Some(t) = self.gameplay.event(ctx, ui) {
+        if let Some(t) = self.gameplay.event(ctx, ui, &mut self.analytics) {
             return t;
         }
 
