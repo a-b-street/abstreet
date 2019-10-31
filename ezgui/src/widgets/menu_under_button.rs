@@ -35,6 +35,7 @@ impl MenuUnderButton {
                     .map(|(mk, name)| Choice::new(*name, ()).multikey(*mk))
                     .collect(),
                 ctx,
+                true,
             )
             .disable_standalone_layout(),
             expanded: false,

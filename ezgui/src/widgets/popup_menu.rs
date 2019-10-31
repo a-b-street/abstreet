@@ -12,18 +12,25 @@ pub struct PopupMenu<T: Clone> {
     choices: Vec<Choice<T>>,
     current_idx: usize,
     standalone_layout: Option<layout::ContainerOrientation>,
+    click_to_cancel: bool,
 
     top_left: ScreenPt,
     dims: ScreenDims,
 }
 
 impl<T: Clone> PopupMenu<T> {
-    pub fn new(prompt: Text, choices: Vec<Choice<T>>, ctx: &EventCtx) -> PopupMenu<T> {
+    pub fn new(
+        prompt: Text,
+        choices: Vec<Choice<T>>,
+        ctx: &EventCtx,
+        click_to_cancel: bool,
+    ) -> PopupMenu<T> {
         let mut m = PopupMenu {
             prompt,
             choices,
             current_idx: 0,
             standalone_layout: Some(layout::ContainerOrientation::Centered),
+            click_to_cancel,
 
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(0.0, 0.0),
@@ -69,7 +76,7 @@ impl<T: Clone> PopupMenu<T> {
             if ctx.input.left_mouse_button_pressed() {
                 if choice.active && ctx.canvas.get_cursor_in_map_space().is_none() {
                     return InputResult::Done(choice.label.clone(), choice.data.clone());
-                } else {
+                } else if self.click_to_cancel {
                     return InputResult::Canceled;
                 }
             }
