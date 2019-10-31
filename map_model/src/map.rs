@@ -1078,6 +1078,14 @@ fn make_half_map(
     for i in map.intersections.iter_mut() {
         if is_border(i, &map.lanes) {
             i.intersection_type = IntersectionType::Border;
+        }
+        if i.is_border() {
+            if i.roads.len() != 1 {
+                panic!(
+                    "{} is a border, but is connected to >1 road: {:?}",
+                    i.id, i.roads
+                );
+            }
             continue;
         }
 

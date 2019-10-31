@@ -4,15 +4,18 @@ set -e
 
 release_mode=""
 psrc_scenarios=""
+no_fixes=""
 for arg in "$@"; do
 	if [ "$arg" == "--release" ]; then
 		release_mode="--release";
 	elif [ "$arg" == "--disable_psrc_scenarios" ]; then
 		psrc_scenarios="--disable_psrc_scenarios";
+	elif [ "$arg" == "--nofixes" ]; then
+		no_fixes="--nofixes";
 	else
 		# Just recompute a single map.
 		cd precompute;
-		RUST_BACKTRACE=1 cargo run $release_mode ../data/raw_maps/$arg.bin $psrc_scenarios;
+		RUST_BACKTRACE=1 cargo run $release_mode ../data/raw_maps/$arg.bin $psrc_scenarios $no_fixes;
 		cd ..;
 		exit;
 	fi
@@ -38,6 +41,6 @@ for map_path in `ls data/raw_maps/`; do
 	map=`basename $map_path .bin`;
 	echo "Precomputing $map";
 	cd precompute;
-	RUST_BACKTRACE=1 cargo run $release_mode ../data/raw_maps/$map.bin $psrc_scenarios;
+	RUST_BACKTRACE=1 cargo run $release_mode ../data/raw_maps/$map.bin $psrc_scenarios $no_fixes;
 	cd ..;
 done
