@@ -67,9 +67,10 @@ impl ModalMenu {
     }
 
     // It's part of something bigger
-    pub fn disable_standalone_layout(&mut self) {
+    pub fn disable_standalone_layout(mut self) -> ModalMenu {
         assert!(self.standalone_layout.is_some());
         self.standalone_layout = None;
+        self
     }
 
     pub fn set_info(&mut self, ctx: &EventCtx, info: Text) {

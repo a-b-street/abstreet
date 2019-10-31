@@ -1,5 +1,5 @@
 use crate::render::DrawOptions;
-use crate::sandbox::SandboxMode;
+use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::splash_screen::SplashScreen;
 use crate::ui::{Flags, ShowEverything, UI};
 use ezgui::{Canvas, EventCtx, EventLoopMode, GfxCtx, Wizard, GUI};
@@ -15,13 +15,13 @@ pub struct Game {
 impl Game {
     pub fn new(flags: Flags, ctx: &mut EventCtx) -> Game {
         let splash = flags.splash && !flags.sim_flags.load.contains("data/save");
-        let ui = UI::new(flags, ctx, splash);
+        let mut ui = UI::new(flags, ctx, splash);
         let states: Vec<Box<dyn State>> = if splash {
             vec![Box::new(SplashScreen::new_with_screensaver(ctx, &ui))]
         } else {
             vec![
                 Box::new(SplashScreen::new_without_screensaver()),
-                Box::new(SandboxMode::new(ctx, &ui)),
+                Box::new(SandboxMode::new(ctx, &mut ui, GameplayMode::Freeform)),
             ]
         };
         Game { states, ui }

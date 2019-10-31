@@ -26,7 +26,7 @@ impl MenuUnderButton {
         percent_along_top_of_screen: f64,
         ctx: &EventCtx,
     ) -> MenuUnderButton {
-        let mut m = MenuUnderButton {
+        MenuUnderButton {
             button: Button::icon_btn(icon, 32.0, title, None, ctx),
             menu: PopupMenu::new(
                 Text::prompt(title),
@@ -35,7 +35,8 @@ impl MenuUnderButton {
                     .map(|(mk, name)| Choice::new(*name, ()).multikey(*mk))
                     .collect(),
                 ctx,
-            ),
+            )
+            .disable_standalone_layout(),
             expanded: false,
             chosen_action: None,
             unexpanded_choices: choices
@@ -49,9 +50,7 @@ impl MenuUnderButton {
                 })
                 .collect(),
             standalone_layout: ContainerOrientation::Top(percent_along_top_of_screen),
-        };
-        m.menu.disable_standalone_layout();
-        m
+        }
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx) {

@@ -4,7 +4,7 @@ use crate::debug::DebugMode;
 use crate::edit::EditMode;
 use crate::game::{State, Transition};
 use crate::mission::MissionEditMode;
-use crate::sandbox::SandboxMode;
+use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::tutorial::TutorialMode;
 use crate::ui::UI;
 use abstutil::elapsed_seconds;
@@ -158,7 +158,11 @@ fn splash_screen(
         .0
         .as_str()
     {
-        x if x == sandbox => Some(Transition::Push(Box::new(SandboxMode::new(ctx, ui)))),
+        x if x == sandbox => Some(Transition::Push(Box::new(SandboxMode::new(
+            ctx,
+            ui,
+            GameplayMode::Freeform,
+        )))),
         x if x == challenge => Some(Transition::Push(challenges_picker())),
         x if x == load_map => {
             if let Some(name) = wizard.choose_string("Load which map?", || {
@@ -174,7 +178,11 @@ fn splash_screen(
                 flags.sim_flags.load = abstutil::path_map(&name);
                 *ui = UI::new(flags, ctx, false);
                 // TODO want to clear wizard and screensaver as we leave this state.
-                Some(Transition::Push(Box::new(SandboxMode::new(ctx, ui))))
+                Some(Transition::Push(Box::new(SandboxMode::new(
+                    ctx,
+                    ui,
+                    GameplayMode::Freeform,
+                ))))
             } else if wizard.aborted() {
                 Some(Transition::ReplaceWithMode(
                     Box::new(SplashScreen {

@@ -1,6 +1,6 @@
 mod analytics;
 mod bus_explorer;
-mod challenge_score;
+mod gameplay;
 mod score;
 mod spawner;
 mod time_travel;
@@ -12,11 +12,11 @@ use crate::edit::EditMode;
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::ui::{ShowEverything, UI};
-pub use challenge_score::ChallengeScoreboard;
 use ezgui::{
-    hotkey, lctrl, Choice, EventCtx, EventLoopMode, GfxCtx, Key, Line, MenuUnderButton, ModalMenu,
-    Text, Wizard,
+    hotkey, layout, lctrl, Choice, EventCtx, EventLoopMode, GfxCtx, Key, Line, MenuUnderButton,
+    ModalMenu, Text, Wizard,
 };
+pub use gameplay::GameplayMode;
 use geom::Duration;
 use sim::Sim;
 
@@ -29,13 +29,13 @@ pub struct SandboxMode {
     pub time_travel: time_travel::InactiveTimeTravel,
     trip_stats: trip_stats::TripStats,
     analytics: analytics::Analytics,
-    pub challenge_score: ChallengeScoreboard,
+    gameplay: gameplay::GameplayState,
     common: CommonState,
     menu: ModalMenu,
 }
 
 impl SandboxMode {
-    pub fn new(ctx: &mut EventCtx, ui: &UI) -> SandboxMode {
+    pub fn new(ctx: &mut EventCtx, ui: &mut UI, mode: GameplayMode) -> SandboxMode {
         SandboxMode {
             speed: SpeedControls::new(ctx, true),
             general_tools: MenuUnderButton::new(
@@ -80,7 +80,7 @@ impl SandboxMode {
                 ui.primary.current_flags.sim_flags.opts.record_stats,
             ),
             analytics: analytics::Analytics::Inactive,
-            challenge_score: ChallengeScoreboard::Inactive,
+            gameplay: gameplay::GameplayState::initialize(mode, ui, ctx),
             common: CommonState::new(ctx),
             menu: ModalMenu::new(
                 "Sandbox Mode",
@@ -90,7 +90,8 @@ impl SandboxMode {
                     (hotkey(Key::T), "start time traveling"),
                 ],
                 ctx,
-            ),
+            )
+            .disable_standalone_layout(),
         }
     }
 }
@@ -99,6 +100,12 @@ impl State for SandboxMode {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         self.time_travel.record(ui);
         self.trip_stats.record(ui);
+
+        layout::stack_vertically(
+            layout::ContainerOrientation::TopRight,
+            ctx.canvas,
+            vec![&mut self.menu, &mut self.gameplay.menu],
+        );
 
         {
             let mut txt = Text::new();
@@ -126,7 +133,7 @@ impl State for SandboxMode {
         {
             return t;
         }
-        if let Some(t) = self.challenge_score.event(ctx, ui) {
+        if let Some(t) = self.gameplay.event(ctx, ui) {
             return t;
         }
 
@@ -250,7 +257,11 @@ impl State for SandboxMode {
         if self.speed.is_paused() {
             if !ui.primary.sim.is_empty() && self.menu.action("reset sim") {
                 ui.primary.reset_sim();
-                return Transition::Replace(Box::new(SandboxMode::new(ctx, ui)));
+                return Transition::Replace(Box::new(SandboxMode::new(
+                    ctx,
+                    ui,
+                    self.gameplay.mode.clone(),
+                )));
             }
 
             if let Some(t) = time_controls(ctx, ui, &mut self.speed) {
@@ -285,7 +296,7 @@ impl State for SandboxMode {
         self.info_tools.draw(g);
         self.general_tools.draw(g);
         self.save_tools.draw(g);
-        self.challenge_score.draw(g);
+        self.gameplay.draw(g);
     }
 
     fn on_suspend(&mut self, _: &mut EventCtx, _: &mut UI) {

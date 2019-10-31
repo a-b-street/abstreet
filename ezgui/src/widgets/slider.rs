@@ -253,13 +253,10 @@ impl<T> ItemSlider<T> {
             (hotkey(Key::Dot), last.as_str()),
         ]);
 
-        let mut menu = ModalMenu::new(menu_title, choices, ctx);
-        menu.disable_standalone_layout();
-
         ItemSlider {
             items,
             slider: Slider::new(),
-            menu,
+            menu: ModalMenu::new(menu_title, choices, ctx).disable_standalone_layout(),
 
             noun: noun.to_string(),
             prev,

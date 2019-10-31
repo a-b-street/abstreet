@@ -61,23 +61,21 @@ impl TripsVisualizer {
             final_trips
         });
 
-        let mut menu = ModalMenu::new(
-            "Trips Visualizer",
-            vec![
-                (hotkey(Key::Dot), "forwards 10 seconds"),
-                (hotkey(Key::RightArrow), "forwards 30 minutes"),
-                (hotkey(Key::Comma), "backwards 10 seconds"),
-                (hotkey(Key::LeftArrow), "backwards 30 minutes"),
-                (hotkey(Key::F), "goto start of day"),
-                (hotkey(Key::L), "goto end of day"),
-                (hotkey(Key::Escape), "quit"),
-            ],
-            ctx,
-        );
-        menu.disable_standalone_layout();
-
         TripsVisualizer {
-            menu,
+            menu: ModalMenu::new(
+                "Trips Visualizer",
+                vec![
+                    (hotkey(Key::Dot), "forwards 10 seconds"),
+                    (hotkey(Key::RightArrow), "forwards 30 minutes"),
+                    (hotkey(Key::Comma), "backwards 10 seconds"),
+                    (hotkey(Key::LeftArrow), "backwards 30 minutes"),
+                    (hotkey(Key::F), "goto start of day"),
+                    (hotkey(Key::L), "goto end of day"),
+                    (hotkey(Key::Escape), "quit"),
+                ],
+                ctx,
+            )
+            .disable_standalone_layout(),
             trips,
             time_slider: Slider::new(),
             speed: SpeedControls::new(ctx, false),

@@ -9,7 +9,7 @@ use crate::render::{
     DrawIntersection, DrawLane, DrawMap, DrawOptions, DrawRoad, DrawTurn, Renderable,
     MIN_ZOOM_FOR_DETAIL,
 };
-use crate::sandbox::SandboxMode;
+use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::{PerMapUI, ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
@@ -97,7 +97,12 @@ impl State for EditMode {
             return Transition::Pop;
         }
         if self.general_tools.action("sandbox mode") {
-            return Transition::Replace(Box::new(SandboxMode::new(ctx, ui)));
+            // TODO Maybe edit mode should be like DebugMode and pop back
+            return Transition::Replace(Box::new(SandboxMode::new(
+                ctx,
+                ui,
+                GameplayMode::Freeform,
+            )));
         }
         if self.general_tools.action("debug mode") {
             return Transition::Push(Box::new(DebugMode::new(ctx, ui)));

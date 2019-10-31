@@ -2,7 +2,7 @@ use crate::common::{CommonState, ObjectColorer, ObjectColorerBuilder, Warping};
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::mission::pick_time_range;
-use crate::sandbox::SandboxMode;
+use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::{ShowEverything, UI};
 use abstutil::{prettyprint_usize, MultiMap, WeightedUsizeChoice};
 use ezgui::{
@@ -190,16 +190,11 @@ impl State for ScenarioManager {
                 wizard: Wizard::new(),
             }));
         } else if self.menu.action("instantiate") {
-            ctx.loading_screen("instantiate scenario", |_, timer| {
-                self.scenario.instantiate(
-                    &mut ui.primary.sim,
-                    &ui.primary.map,
-                    &mut ui.primary.current_flags.sim_flags.make_rng(),
-                    timer,
-                );
-                ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
-            });
-            return Transition::PopThenReplace(Box::new(SandboxMode::new(ctx, ui)));
+            return Transition::PopThenReplace(Box::new(SandboxMode::new(
+                ctx,
+                ui,
+                GameplayMode::PlayScenario(self.scenario.scenario_name.clone()),
+            )));
         }
 
         if self.demand.is_some() && self.menu.consume_action("stop showing demand", ctx) {
