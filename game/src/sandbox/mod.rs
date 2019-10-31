@@ -86,12 +86,6 @@ impl SandboxMode {
 
 impl State for SandboxMode {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        layout::stack_vertically(
-            layout::ContainerOrientation::TopRight,
-            ctx.canvas,
-            vec![&mut self.menu, &mut self.gameplay.menu],
-        );
-
         {
             let mut txt = Text::new();
             txt.add(Line(ui.primary.sim.time().to_string()));
@@ -108,6 +102,16 @@ impl State for SandboxMode {
             }
             self.menu.set_info(ctx, txt);
         }
+        if let Some(t) = self.gameplay.event(ctx, ui, &mut self.analytics) {
+            return t;
+        }
+        // Give both menus a chance to set_info before doing this
+        layout::stack_vertically(
+            layout::ContainerOrientation::TopRight,
+            ctx.canvas,
+            vec![&mut self.menu, &mut self.gameplay.menu],
+        );
+
         self.menu.event(ctx);
         self.info_tools.event(ctx);
         self.general_tools.event(ctx);
@@ -121,9 +125,6 @@ impl State for SandboxMode {
             return t;
         }
         if let Some(t) = self.analytics.event(ctx, ui, &mut self.info_tools) {
-            return t;
-        }
-        if let Some(t) = self.gameplay.event(ctx, ui, &mut self.analytics) {
             return t;
         }
 
