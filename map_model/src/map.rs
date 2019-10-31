@@ -623,6 +623,15 @@ impl Map {
         &self.edits
     }
 
+    pub fn mark_edits_fresh(&mut self) {
+        assert!(self.edits.dirty);
+        self.edits.dirty = false;
+    }
+
+    pub fn save_edits(&mut self) {
+        self.edits.save();
+    }
+
     // new_edits assumed to be valid. Returns actual lanes that changed, roads changed, turns
     // deleted, turns added. Doesn't update pathfinding yet.
     pub fn apply_edits(

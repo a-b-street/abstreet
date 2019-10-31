@@ -99,10 +99,13 @@ impl State for SandboxMode {
             txt.add(Line(format!("{} active (+{} buses)", active, buses)));
             txt.add(Line(format!("{} unfinished", unfinished)));
             txt.add(Line(""));
-            txt.add(Line(format!(
-                "Edits: {}",
-                ui.primary.map.get_edits().edits_name
-            )));
+            {
+                let edits = ui.primary.map.get_edits();
+                txt.add(Line(format!("Edits: {}", edits.edits_name)));
+                if edits.dirty {
+                    txt.append(Line("*"));
+                }
+            }
             self.menu.set_info(ctx, txt);
         }
         self.menu.event(ctx);
@@ -141,7 +144,8 @@ impl State for SandboxMode {
         }
 
         if self.general_tools.action("back to title screen") {
-            // TODO Clear edits?
+            // TODO Clear edits? Warn about unsaved?
+            ui.primary.clear_sim();
             return Transition::Pop;
         }
         if self.general_tools.action("debug mode") {

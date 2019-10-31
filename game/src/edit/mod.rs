@@ -64,6 +64,9 @@ impl State for EditMode {
         {
             let mut txt = Text::new();
             txt.add(Line(format!("Edits: {}", orig_edits.edits_name)));
+            if orig_edits.dirty {
+                txt.append(Line("*"));
+            }
             txt.add(Line(format!("{} lanes", orig_edits.lane_overrides.len())));
             txt.add(Line(format!(
                 "{} stop signs ",
@@ -98,8 +101,7 @@ impl State for EditMode {
             return Transition::KeepWithMode(EventLoopMode::ScreenCaptureCurrentShot);
         }
 
-        // TODO Only if current edits are unsaved
-        if self.menu.action("save edits") {
+        if orig_edits.dirty && self.menu.action("save edits") {
             return Transition::Push(WizardState::new(Box::new(save_edits)));
         } else if self.menu.action("load different edits") {
             return Transition::Push(WizardState::new(Box::new(load_edits)));
@@ -328,7 +330,7 @@ fn save_edits(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Trans
             edits.edits_name = name;
             map.apply_edits(edits, &mut Timer::new("name map edits"));
         }
-        map.get_edits().save();
+        map.save_edits();
     }
     Some(Transition::Pop)
 }
@@ -345,6 +347,7 @@ fn load_edits(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Trans
         list
     })?;
     apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
+    ui.primary.map.mark_edits_fresh();
     Some(Transition::Pop)
 }
 
@@ -437,8 +440,9 @@ pub fn apply_map_edits(
     bundle: &mut PerMapUI,
     cs: &ColorScheme,
     ctx: &mut EventCtx,
-    edits: MapEdits,
+    mut edits: MapEdits,
 ) {
+    edits.dirty = true;
     let mut timer = Timer::new("apply map edits");
 
     let (lanes_changed, roads_changed, turns_deleted, turns_added) =

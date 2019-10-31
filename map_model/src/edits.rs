@@ -14,6 +14,9 @@ pub struct MapEdits {
     // TODO Storing the entire thing is maybe a bit dramatic, but works for now.
     pub stop_sign_overrides: BTreeMap<IntersectionID, ControlStopSign>,
     pub traffic_signal_overrides: BTreeMap<IntersectionID, ControlTrafficSignal>,
+
+    #[serde(skip_serializing, skip_deserializing)]
+    pub dirty: bool,
 }
 
 impl MapEdits {
@@ -26,6 +29,7 @@ impl MapEdits {
             contraflow_lanes: BTreeMap::new(),
             stop_sign_overrides: BTreeMap::new(),
             traffic_signal_overrides: BTreeMap::new(),
+            dirty: false,
         }
     }
 
@@ -40,7 +44,10 @@ impl MapEdits {
         .unwrap()
     }
 
-    pub fn save(&self) {
+    // TODO Version these
+    pub(crate) fn save(&mut self) {
+        assert!(self.dirty);
         abstutil::save_json_object(abstutil::EDITS, &self.map_name, &self.edits_name, self);
+        self.dirty = false;
     }
 }
