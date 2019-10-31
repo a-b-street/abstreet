@@ -1,7 +1,5 @@
 use crate::abtest::setup::PickABTest;
 use crate::challenges::challenges_picker;
-use crate::debug::DebugMode;
-use crate::edit::EditMode;
 use crate::game::{State, Transition};
 use crate::mission::MissionEditMode;
 use crate::sandbox::{GameplayMode, SandboxMode};
@@ -126,10 +124,8 @@ fn splash_screen(
     let sandbox = "Sandbox mode";
     let challenge = "Challenge mode";
     let load_map = "Load another map";
-    let edit = "Edit map";
     let abtest = "A/B Test Mode";
     let tutorial = "Tutorial (unfinished)";
-    let debug = "Debug mode";
     let mission = "Internal developer tools";
     let about = "About";
     let quit = "Quit";
@@ -146,10 +142,8 @@ fn splash_screen(
                 Choice::new(sandbox, ()).key(Key::S),
                 Choice::new(challenge, ()).key(Key::C),
                 Choice::new(load_map, ()).key(Key::L),
-                Choice::new(edit, ()).key(Key::E),
                 Choice::new(abtest, ()).key(Key::A),
                 Choice::new(tutorial, ()).key(Key::T),
-                Choice::new(debug, ()).key(Key::D),
                 Choice::new(mission, ()).key(Key::M),
                 Choice::new(about, ()),
                 Choice::new(quit, ()),
@@ -195,11 +189,9 @@ fn splash_screen(
                 None
             }
         }
-        x if x == edit => Some(Transition::Push(Box::new(EditMode::new(ctx, ui)))),
         x if x == abtest => Some(Transition::Push(PickABTest::new())),
-        x if x == tutorial => Some(Transition::Push(Box::new(TutorialMode::new(ctx, ui)))),
-        x if x == debug => Some(Transition::Push(Box::new(DebugMode::new(ctx, ui)))),
-        x if x == mission => Some(Transition::Push(Box::new(MissionEditMode::new(ctx, ui)))),
+        x if x == tutorial => Some(Transition::Push(Box::new(TutorialMode::new(ctx)))),
+        x if x == mission => Some(Transition::Push(Box::new(MissionEditMode::new(ctx)))),
         x if x == about => {
             if wizard.acknowledge(
                 "About A/B Street",

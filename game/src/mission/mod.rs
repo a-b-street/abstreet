@@ -17,10 +17,7 @@ pub struct MissionEditMode {
 }
 
 impl MissionEditMode {
-    pub fn new(ctx: &EventCtx, ui: &mut UI) -> MissionEditMode {
-        // TODO Warn first?
-        ui.primary.reset_sim();
-
+    pub fn new(ctx: &EventCtx) -> MissionEditMode {
         MissionEditMode {
             menu: ModalMenu::new(
                 "Mission Edit Mode",

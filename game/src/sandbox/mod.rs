@@ -39,9 +39,8 @@ impl SandboxMode {
                 "assets/ui/hamburger.png",
                 "General",
                 vec![
-                    (hotkey(Key::Escape), "quit"),
+                    (hotkey(Key::Escape), "back to title screen"),
                     (lctrl(Key::D), "debug mode"),
-                    (lctrl(Key::E), "edit mode"),
                     (hotkey(Key::F1), "take a screenshot"),
                 ],
                 0.2,
@@ -75,8 +74,12 @@ impl SandboxMode {
             analytics: analytics::Analytics::Inactive,
             gameplay: gameplay::GameplayState::initialize(mode, ui, ctx),
             common: CommonState::new(ctx),
-            menu: ModalMenu::new("Sandbox Mode", vec![(hotkey(Key::X), "reset sim")], ctx)
-                .disable_standalone_layout(),
+            menu: ModalMenu::new(
+                "Sandbox Mode",
+                vec![(lctrl(Key::E), "edit mode"), (hotkey(Key::X), "reset sim")],
+                ctx,
+            )
+            .disable_standalone_layout(),
         }
     }
 }
@@ -95,6 +98,11 @@ impl State for SandboxMode {
             let (active, unfinished, buses) = ui.primary.sim.num_trips();
             txt.add(Line(format!("{} active (+{} buses)", active, buses)));
             txt.add(Line(format!("{} unfinished", unfinished)));
+            txt.add(Line(""));
+            txt.add(Line(format!(
+                "Edits: {}",
+                ui.primary.map.get_edits().edits_name
+            )));
             self.menu.set_info(ctx, txt);
         }
         self.menu.event(ctx);
@@ -132,14 +140,12 @@ impl State for SandboxMode {
             return Transition::Push(picker);
         }
 
-        if self.general_tools.action("quit") {
+        if self.general_tools.action("back to title screen") {
+            // TODO Clear edits?
             return Transition::Pop;
         }
         if self.general_tools.action("debug mode") {
             return Transition::Push(Box::new(DebugMode::new(ctx, ui)));
-        }
-        if self.general_tools.action("edit mode") {
-            return Transition::Replace(Box::new(EditMode::new(ctx, ui)));
         }
         if self.general_tools.action("take a screenshot") {
             return Transition::KeepWithMode(EventLoopMode::ScreenCaptureCurrentShot);
@@ -226,9 +232,13 @@ impl State for SandboxMode {
             ui.recalculate_current_selection(ctx);
         }
 
+        if self.menu.action("edit mode") {
+            ui.primary.clear_sim();
+            return Transition::Replace(Box::new(EditMode::new(ctx, self.gameplay.mode.clone())));
+        }
         if self.speed.is_paused() {
             if !ui.primary.sim.is_empty() && self.menu.action("reset sim") {
-                ui.primary.reset_sim();
+                ui.primary.clear_sim();
                 return Transition::Replace(Box::new(SandboxMode::new(
                     ctx,
                     ui,

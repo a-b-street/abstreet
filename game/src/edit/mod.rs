@@ -25,18 +25,17 @@ pub struct EditMode {
     common: CommonState,
     menu: ModalMenu,
     general_tools: MenuUnderButton,
+    mode: GameplayMode,
 }
 
 impl EditMode {
-    pub fn new(ctx: &EventCtx, ui: &mut UI) -> EditMode {
-        // TODO Warn first?
-        ui.primary.reset_sim();
-
+    pub fn new(ctx: &EventCtx, mode: GameplayMode) -> EditMode {
         EditMode {
             common: CommonState::new(ctx),
             menu: ModalMenu::new(
                 "Map Edit Mode",
                 vec![
+                    (hotkey(Key::Escape), "back to sandbox mode"),
                     (hotkey(Key::S), "save edits"),
                     (hotkey(Key::L), "load different edits"),
                 ],
@@ -46,14 +45,13 @@ impl EditMode {
                 "assets/ui/hamburger.png",
                 "General",
                 vec![
-                    (hotkey(Key::Escape), "quit"),
-                    (lctrl(Key::S), "sandbox mode"),
                     (lctrl(Key::D), "debug mode"),
                     (hotkey(Key::F1), "take a screenshot"),
                 ],
                 0.2,
                 ctx,
             ),
+            mode,
         }
     }
 }
@@ -65,7 +63,7 @@ impl State for EditMode {
         let orig_edits = ui.primary.map.get_edits().clone();
         {
             let mut txt = Text::new();
-            txt.add(Line(&orig_edits.edits_name));
+            txt.add(Line(format!("Edits: {}", orig_edits.edits_name)));
             txt.add(Line(format!("{} lanes", orig_edits.lane_overrides.len())));
             txt.add(Line(format!(
                 "{} stop signs ",
@@ -93,17 +91,6 @@ impl State for EditMode {
             return t;
         }
 
-        if self.general_tools.action("quit") {
-            return Transition::Pop;
-        }
-        if self.general_tools.action("sandbox mode") {
-            // TODO Maybe edit mode should be like DebugMode and pop back
-            return Transition::Replace(Box::new(SandboxMode::new(
-                ctx,
-                ui,
-                GameplayMode::Freeform,
-            )));
-        }
         if self.general_tools.action("debug mode") {
             return Transition::Push(Box::new(DebugMode::new(ctx, ui)));
         }
@@ -116,6 +103,15 @@ impl State for EditMode {
             return Transition::Push(WizardState::new(Box::new(save_edits)));
         } else if self.menu.action("load different edits") {
             return Transition::Push(WizardState::new(Box::new(load_edits)));
+        } else if self.menu.action("back to sandbox mode") {
+            // TODO Warn about unsaved edits
+            // TODO Maybe put a loading screen around these.
+            ui.primary
+                .map
+                .recalculate_pathfinding_after_edits(&mut Timer::new("apply pending map edits"));
+            // Parking state might've changed
+            ui.primary.clear_sim();
+            return Transition::Replace(Box::new(SandboxMode::new(ctx, ui, self.mode.clone())));
         }
 
         if let Some(ID::Lane(id)) = ui.primary.current_selection {
@@ -306,16 +302,6 @@ impl State for EditMode {
         self.common.draw(g, ui);
         self.menu.draw(g);
         self.general_tools.draw(g);
-    }
-
-    fn on_destroy(&mut self, _: &mut EventCtx, ui: &mut UI) {
-        // TODO Warn about unsaved edits
-        // TODO Maybe put a loading screen around these.
-        ui.primary
-            .map
-            .recalculate_pathfinding_after_edits(&mut Timer::new("apply pending map edits"));
-        // Parking state might've changed
-        ui.primary.reset_sim();
     }
 }
 

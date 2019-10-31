@@ -9,10 +9,7 @@ pub struct TutorialMode {
 }
 
 impl TutorialMode {
-    pub fn new(ctx: &EventCtx, ui: &mut UI) -> TutorialMode {
-        // TODO Warn first?
-        ui.primary.reset_sim();
-
+    pub fn new(ctx: &EventCtx) -> TutorialMode {
         TutorialMode {
             menu: ModalMenu::new("Tutorial", vec![(hotkey(Key::Escape), "quit")], ctx),
             orig_center: ctx.canvas.center_to_map_pt(),
@@ -50,10 +47,6 @@ impl State for TutorialMode {
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
         self.menu.draw(g);
     }
-
-    fn on_destroy(&mut self, _: &mut EventCtx, ui: &mut UI) {
-        ui.primary.reset_sim();
-    }
 }
 
 struct Part2 {
@@ -86,9 +79,5 @@ impl State for Part2 {
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
         self.menu.draw(g);
-    }
-
-    fn on_destroy(&mut self, _: &mut EventCtx, ui: &mut UI) {
-        ui.primary.reset_sim();
     }
 }

@@ -244,7 +244,7 @@ impl State for ABTestMode {
         ctx.loading_screen("exit A/B test mode", |_, timer| {
             timer.start("destroy secondary sim");
             // TODO Should we clear edits too?
-            ui.primary.reset_sim();
+            ui.primary.clear_sim();
 
             ui.secondary = None;
             timer.stop("destroy secondary sim");

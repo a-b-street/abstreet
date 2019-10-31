@@ -481,7 +481,7 @@ impl PerMapUI {
         }
     }
 
-    pub fn reset_sim(&mut self) {
+    pub fn clear_sim(&mut self) {
         self.sim = Sim::new(
             &self.map,
             self.current_flags.sim_flags.opts.clone(),
