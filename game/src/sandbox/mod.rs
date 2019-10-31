@@ -3,7 +3,6 @@ mod bus_explorer;
 mod gameplay;
 mod score;
 mod spawner;
-mod time_travel;
 mod trip_stats;
 
 use crate::common::{time_controls, AgentTools, CommonState, SpeedControls};
@@ -26,7 +25,6 @@ pub struct SandboxMode {
     general_tools: MenuUnderButton,
     save_tools: MenuUnderButton,
     agent_tools: AgentTools,
-    pub time_travel: time_travel::InactiveTimeTravel,
     trip_stats: trip_stats::TripStats,
     analytics: analytics::Analytics,
     gameplay: gameplay::GameplayState,
@@ -75,29 +73,20 @@ impl SandboxMode {
                 ctx,
             ),
             agent_tools: AgentTools::new(),
-            time_travel: time_travel::InactiveTimeTravel::new(),
             trip_stats: trip_stats::TripStats::new(
                 ui.primary.current_flags.sim_flags.opts.record_stats,
             ),
             analytics: analytics::Analytics::Inactive,
             gameplay: gameplay::GameplayState::initialize(mode, ui, ctx),
             common: CommonState::new(ctx),
-            menu: ModalMenu::new(
-                "Sandbox Mode",
-                vec![
-                    (hotkey(Key::X), "reset sim"),
-                    (hotkey(Key::T), "start time traveling"),
-                ],
-                ctx,
-            )
-            .disable_standalone_layout(),
+            menu: ModalMenu::new("Sandbox Mode", vec![(hotkey(Key::X), "reset sim")], ctx)
+                .disable_standalone_layout(),
         }
     }
 }
 
 impl State for SandboxMode {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        self.time_travel.record(ui);
         self.trip_stats.record(ui);
 
         layout::stack_vertically(
@@ -141,9 +130,6 @@ impl State for SandboxMode {
             .event(ctx, ui, &mut self.menu, &mut self.info_tools)
         {
             return t;
-        }
-        if ui.primary.current_selection.is_none() && self.menu.action("start time traveling") {
-            return self.time_travel.start(ctx, ui);
         }
         if self.info_tools.action("scoreboard") {
             return Transition::Push(Box::new(score::Scoreboard::new(ctx, ui)));
