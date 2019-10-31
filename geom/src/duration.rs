@@ -293,9 +293,9 @@ impl DurationHistogram {
         format!(
             "{} count, 50%ile {}, 90%ile {}, 99%ile {}, min {}, max {}",
             abstutil::prettyprint_usize(self.count),
-            Duration::from_u64(self.histogram.percentile(50.0).unwrap()).minimal_tostring(),
-            Duration::from_u64(self.histogram.percentile(90.0).unwrap()).minimal_tostring(),
-            Duration::from_u64(self.histogram.percentile(99.0).unwrap()).minimal_tostring(),
+            self.select(Statistic::P50).minimal_tostring(),
+            self.select(Statistic::P90).minimal_tostring(),
+            self.select(Statistic::P99).minimal_tostring(),
             self.min.minimal_tostring(),
             self.max.minimal_tostring(),
         )
@@ -307,5 +307,54 @@ impl DurationHistogram {
             return None;
         }
         Some(Duration::from_u64(self.histogram.percentile(p).unwrap()))
+    }
+
+    pub fn select(&self, stat: Statistic) -> Duration {
+        assert_ne!(self.count, 0);
+        let raw = match stat {
+            Statistic::P50 => self.histogram.percentile(50.0).unwrap(),
+            Statistic::P90 => self.histogram.percentile(90.0).unwrap(),
+            Statistic::P99 => self.histogram.percentile(99.0).unwrap(),
+            Statistic::Min => {
+                return self.min;
+            }
+            Statistic::Max => {
+                return self.max;
+            }
+        };
+        Duration::from_u64(raw)
+    }
+}
+
+#[derive(Clone, Copy, PartialEq)]
+pub enum Statistic {
+    P50,
+    P90,
+    P99,
+    Min,
+    Max,
+}
+
+impl Statistic {
+    pub fn all() -> Vec<Statistic> {
+        vec![
+            Statistic::P50,
+            Statistic::P90,
+            Statistic::P99,
+            Statistic::Min,
+            Statistic::Max,
+        ]
+    }
+}
+
+impl std::fmt::Display for Statistic {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            Statistic::P50 => write!(f, "50%ile"),
+            Statistic::P90 => write!(f, "90%ile"),
+            Statistic::P99 => write!(f, "99%ile"),
+            Statistic::Min => write!(f, "minimum"),
+            Statistic::Max => write!(f, "maximum"),
+        }
     }
 }

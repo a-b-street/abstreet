@@ -1,8 +1,8 @@
 use crate::game::{Transition, WizardState};
 use crate::sandbox::{analytics, bus_explorer, spawner, SandboxMode};
 use crate::ui::UI;
-use ezgui::{hotkey, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, Wizard};
-use geom::Duration;
+use ezgui::{hotkey, Choice, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, Wizard};
+use geom::{Duration, DurationHistogram, Statistic};
 use map_model::BusRouteID;
 use sim::Scenario;
 
@@ -29,6 +29,7 @@ enum State {
         route: BusRouteID,
         time: Duration,
         show_analytics: bool,
+        stat: Statistic,
     },
 }
 
@@ -74,7 +75,11 @@ impl GameplayState {
                         mode,
                         menu: ModalMenu::new(
                             &format!("Optimize {}", route_name),
-                            vec![(hotkey(Key::E), "show bus route"), (hotkey(Key::H), "help")],
+                            vec![
+                                (hotkey(Key::E), "show bus route"),
+                                (hotkey(Key::S), "change statistic"),
+                                (hotkey(Key::H), "help"),
+                            ],
                             ctx,
                         )
                         .disable_standalone_layout(),
@@ -82,6 +87,7 @@ impl GameplayState {
                             route: route.id,
                             time: Duration::ZERO,
                             show_analytics: false,
+                            stat: Statistic::Max,
                         },
                     },
                     Some("weekday_typical_traffic_from_psrc".to_string()),
@@ -167,6 +173,7 @@ impl GameplayState {
                 route,
                 ref mut time,
                 ref mut show_analytics,
+                ref mut stat,
             } => {
                 // Something else might've changed analytics.
                 if *show_analytics {
@@ -183,7 +190,7 @@ impl GameplayState {
                 // TODO Expensive
                 if *time != ui.primary.sim.time() {
                     *time = ui.primary.sim.time();
-                    self.menu.set_info(ctx, bus_route_panel(route, ui));
+                    self.menu.set_info(ctx, bus_route_panel(route, ui, *stat));
                     if *show_analytics {
                         *analytics = analytics::Analytics::BusRoute(
                             bus_explorer::ShowBusRoute::new(ui.primary.map.get_br(route), ui, ctx),
@@ -192,6 +199,7 @@ impl GameplayState {
                 }
 
                 self.menu.event(ctx);
+
                 if !*show_analytics
                     && self
                         .menu
@@ -212,6 +220,37 @@ impl GameplayState {
                     *show_analytics = false;
                 }
 
+                if self.menu.action("change statistic") {
+                    return Some(Transition::Push(WizardState::new(Box::new(
+                        move |wiz, ctx, _| {
+                            // TODO Filter out existing. Make this kind of thing much easier.
+                            let (_, new_stat) = wiz.wrap(ctx).choose(
+                                "Show which statistic on frequency a bus stop is visited?",
+                                || {
+                                    Statistic::all()
+                                        .into_iter()
+                                        .map(|s| Choice::new(s.to_string(), s))
+                                        .collect()
+                                },
+                            )?;
+                            Some(Transition::PopWithData(Box::new(move |state, _, _| {
+                                let sandbox = state.downcast_mut::<SandboxMode>().unwrap();
+                                match sandbox.gameplay.state {
+                                    State::OptimizeBus {
+                                        ref mut stat,
+                                        ref mut time,
+                                        ..
+                                    } => {
+                                        // Force recalculation
+                                        *time = Duration::ZERO;
+                                        *stat = new_stat;
+                                    }
+                                    _ => unreachable!(),
+                                }
+                            })))
+                        },
+                    ))));
+                }
                 if self.menu.action("help") {
                     return Some(help(vec![
                         "First find where the bus gets stuck.",
@@ -230,20 +269,23 @@ impl GameplayState {
     }
 }
 
-fn bus_route_panel(id: BusRouteID, ui: &UI) -> Text {
+fn bus_route_panel(id: BusRouteID, ui: &UI, stat: Statistic) -> Text {
     let route = ui.primary.map.get_br(id);
     let arrivals = &ui.primary.sim.get_analytics().bus_arrivals;
     let mut txt = Text::new();
+    txt.add(Line(format!("{} frequency stop is visited", stat)));
     for (idx, stop) in route.stops.iter().enumerate() {
-        let prev = if idx == 0 { route.stops.len() } else { idx };
-        let this = idx + 1;
-
-        txt.add(Line(format!("Stop {}->{}: ", prev, this)));
+        txt.add(Line(format!("Stop {}: ", idx + 1)));
         if let Some(ref times) = arrivals.get(&(*stop, route.id)) {
-            txt.append(Line(format!(
-                "{} ago",
-                (ui.primary.sim.time() - *times.last().unwrap()).minimal_tostring()
-            )));
+            if times.len() < 2 {
+                txt.append(Line("only one arrival so far"));
+            } else {
+                let mut distrib: DurationHistogram = Default::default();
+                for pair in times.windows(2) {
+                    distrib.add(pair[1] - pair[0]);
+                }
+                txt.append(Line(distrib.select(stat).minimal_tostring()));
+            }
         } else {
             txt.append(Line("no arrivals yet"));
         }
