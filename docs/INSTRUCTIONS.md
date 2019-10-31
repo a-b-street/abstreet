@@ -11,10 +11,11 @@ https://github.com/dabreegster/abstreet/releases for the latest version, though
 I'll try to keep these links up-to-date:
 
 - Linux:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.10/abstreet_linux.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.11/abstreet_linux.zip
 - Windows:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.10/abstreet_windows.zip
-- Mac (seems to have a HiDPI bug, text is offset):
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.11/abstreet_windows.zip
+- Mac (seems to have a HiDPI bug, text is offset -- and is a bit stale, I don't
+  have a Mac to build on):
   https://github.com/dabreegster/abstreet/releases/download/v0.1.10/abstreet_mac.zip
 
 ## Running the game

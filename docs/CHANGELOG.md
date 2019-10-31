@@ -124,3 +124,22 @@ changes here.
   - handling bike lanes on certain sides of the road
   - starting to upstream manually-verified parking lanes into OSM
 - new gameplay: reverse direction of lanes
+
+0.1.11
+
+- small UI fixes: fixed width traffic signal diagram, skip info phase of menus when empty
+- start drawing (but not using) shared left-turn lanes from OSM
+- fix OSM polylines with redundant points (fixing an issue in ballard)
+- improved traffic signal policies in some cases
+- started upstreaming some sidewalk tags in OSM to fix inference issues
+- fixed misclassified right turns
+- adjusting map colors
+- handling lakes/ocean polygons from OSM way better
+- reorganized sim analytics, added stuff for bus arrivals
+- adding new internal road points to map editor. almost ready to really aggressively use it
+- skipping parking lanes with no nearby sidewalks, since they're unusable
+- fix z-order of bridges/tunnels in unzoomed view
+- allow unzooming indefinitely
+- move lots of sandbox mode controls (and other modes) to menus under buttons and dedicated buttons
+- basic support for marking a lane closed for construction
+- improved geometry of sidewalks at dead-ends
