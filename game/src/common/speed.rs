@@ -10,7 +10,7 @@ use std::time::Instant;
 const PANEL_RECT: ScreenRectangle = ScreenRectangle {
     x1: 0.0,
     y1: 0.0,
-    x2: 300.0,
+    x2: 350.0,
     y2: 150.0,
 };
 
