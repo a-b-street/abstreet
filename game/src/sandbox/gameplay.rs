@@ -1,5 +1,5 @@
 use crate::game::{Transition, WizardState};
-use crate::sandbox::{spawner, SandboxMode};
+use crate::sandbox::{bus_explorer, spawner, SandboxMode};
 use crate::ui::UI;
 use ezgui::{hotkey, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, Wizard};
 use geom::Duration;
@@ -62,8 +62,12 @@ impl GameplayState {
                 (
                     GameplayState {
                         mode,
-                        menu: ModalMenu::new(&format!("Optimize {}", route_name), vec![], ctx)
-                            .disable_standalone_layout(),
+                        menu: ModalMenu::new(
+                            &format!("Optimize {}", route_name),
+                            vec![(hotkey(Key::E), "show bus route")],
+                            ctx,
+                        )
+                        .disable_standalone_layout(),
                         state: State::OptimizeBus {
                             route: route.id,
                             time: Duration::ZERO,
@@ -140,6 +144,18 @@ impl GameplayState {
                 if *time != ui.primary.sim.time() {
                     *time = ui.primary.sim.time();
                     self.menu.set_info(ctx, bus_route_panel(route, ui));
+                }
+
+                self.menu.event(ctx);
+                if self.menu.action("show bus route") {
+                    return Some(Transition::Push(Box::new(
+                        bus_explorer::BusRouteExplorer::for_route(
+                            ui.primary.map.get_br(route),
+                            None,
+                            ui,
+                            ctx,
+                        ),
+                    )));
                 }
             }
         }

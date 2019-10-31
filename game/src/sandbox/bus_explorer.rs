@@ -45,7 +45,7 @@ impl BusRouteExplorer {
         }
     }
 
-    fn for_route(
+    pub fn for_route(
         route: &BusRoute,
         start: Option<BusStopID>,
         ui: &UI,
