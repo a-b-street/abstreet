@@ -1,6 +1,7 @@
-use crate::game::Transition;
+use crate::game::{Transition, WizardState};
+use crate::sandbox::{spawner, SandboxMode};
 use crate::ui::UI;
-use ezgui::{EventCtx, GfxCtx, Line, ModalMenu, Text};
+use ezgui::{hotkey, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, Wizard};
 use geom::Duration;
 use map_model::BusRouteID;
 use sim::Scenario;
@@ -29,13 +30,16 @@ enum State {
 
 impl GameplayState {
     pub fn initialize(mode: GameplayMode, ui: &mut UI, ctx: &mut EventCtx) -> GameplayState {
-        // TODO Instantiate scenario, often weekday_typical_traffic_from_psrc
         let (state, maybe_scenario) = match mode.clone() {
             GameplayMode::Freeform => (
                 GameplayState {
                     mode,
-                    // TODO play a scenario instead
-                    menu: ModalMenu::new("Freeform mode", vec![], ctx).disable_standalone_layout(),
+                    menu: ModalMenu::new(
+                        "Freeform mode",
+                        vec![(hotkey(Key::S), "start a scenario")],
+                        ctx,
+                    )
+                    .disable_standalone_layout(),
                     state: State::Freeform,
                 },
                 None,
@@ -43,9 +47,12 @@ impl GameplayState {
             GameplayMode::PlayScenario(scenario) => (
                 GameplayState {
                     mode,
-                    // TODO play different scenario instead
-                    menu: ModalMenu::new(&format!("Playing {}", scenario), vec![], ctx)
-                        .disable_standalone_layout(),
+                    menu: ModalMenu::new(
+                        &format!("Playing {}", scenario),
+                        vec![(hotkey(Key::S), "start another scenario")],
+                        ctx,
+                    )
+                    .disable_standalone_layout(),
                     state: State::PlayScenario,
                 },
                 Some(scenario),
@@ -55,7 +62,6 @@ impl GameplayState {
                 (
                     GameplayState {
                         mode,
-                        // TODO open route
                         menu: ModalMenu::new(&format!("Optimize {}", route_name), vec![], ctx)
                             .disable_standalone_layout(),
                         state: State::OptimizeBus {
@@ -67,13 +73,33 @@ impl GameplayState {
                 )
             }
         };
-        if let Some(scenario) = maybe_scenario {
+        if let Some(scenario_name) = maybe_scenario {
             ctx.loading_screen("instantiate scenario", |_, timer| {
-                let scenario: Scenario = abstutil::read_binary(
-                    &abstutil::path1_bin(ui.primary.map.get_name(), abstutil::SCENARIOS, &scenario),
-                    timer,
-                )
-                .unwrap();
+                let num_agents = ui.primary.current_flags.num_agents;
+                let builtin = if let Some(n) = num_agents {
+                    format!("random scenario with {} agents", n)
+                } else {
+                    "random scenario with some agents".to_string()
+                };
+                let scenario = if scenario_name == builtin {
+                    if let Some(n) = num_agents {
+                        Scenario::scaled_run(&ui.primary.map, n)
+                    } else {
+                        Scenario::small_run(&ui.primary.map)
+                    }
+                } else if scenario_name == "just buses" {
+                    Scenario::empty(&ui.primary.map)
+                } else {
+                    abstutil::read_binary(
+                        &abstutil::path1_bin(
+                            &ui.primary.map.get_name(),
+                            abstutil::SCENARIOS,
+                            &scenario_name,
+                        ),
+                        timer,
+                    )
+                    .unwrap()
+                };
                 scenario.instantiate(
                     &mut ui.primary.sim,
                     &ui.primary.map,
@@ -86,12 +112,27 @@ impl GameplayState {
         state
     }
 
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI) -> Option<Transition> {
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
         match self.state {
             State::Freeform => {
-                // TODO agent spawner
+                self.menu.event(ctx);
+                if self.menu.action("start a scenario") {
+                    return Some(Transition::Push(WizardState::new(Box::new(
+                        change_scenario,
+                    ))));
+                }
+                if let Some(new_state) = spawner::AgentSpawner::new(ctx, ui) {
+                    return Some(Transition::Push(new_state));
+                }
             }
-            State::PlayScenario => {}
+            State::PlayScenario => {
+                self.menu.event(ctx);
+                if self.menu.action("start another scenario") {
+                    return Some(Transition::Push(WizardState::new(Box::new(
+                        change_scenario,
+                    ))));
+                }
+            }
             State::OptimizeBus {
                 route,
                 ref mut time,
@@ -129,4 +170,27 @@ fn bus_route_panel(id: BusRouteID, ui: &UI) -> Text {
         }
     }
     txt
+}
+
+fn change_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+    let num_agents = ui.primary.current_flags.num_agents;
+    let builtin = if let Some(n) = num_agents {
+        format!("random scenario with {} agents", n)
+    } else {
+        "random scenario with some agents".to_string()
+    };
+    let scenario_name = wiz
+        .wrap(ctx)
+        .choose_string("Instantiate which scenario?", || {
+            let mut list =
+                abstutil::list_all_objects(abstutil::SCENARIOS, ui.primary.map.get_name());
+            list.push(builtin.clone());
+            list.push("just buses".to_string());
+            list
+        })?;
+    Some(Transition::Replace(Box::new(SandboxMode::new(
+        ctx,
+        ui,
+        GameplayMode::PlayScenario(scenario_name),
+    ))))
 }

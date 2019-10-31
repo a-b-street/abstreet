@@ -1,10 +1,10 @@
 use crate::common::CommonState;
-use crate::game::{State, Transition, WizardState};
+use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::render::DrawOptions;
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
-use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu, Wizard};
+use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu};
 use geom::{Duration, PolyLine};
 use map_model::{BuildingID, IntersectionID, LaneType, Map, PathRequest, Position, LANE_THICKNESS};
 use rand::seq::SliceRandom;
@@ -34,11 +34,7 @@ enum Goal {
 }
 
 impl AgentSpawner {
-    pub fn new(
-        ctx: &mut EventCtx,
-        ui: &mut UI,
-        sandbox_menu: &mut ModalMenu,
-    ) -> Option<Box<dyn State>> {
+    pub fn new(ctx: &mut EventCtx, ui: &mut UI) -> Option<Box<dyn State>> {
         let menu = ModalMenu::new("Agent Spawner", vec![(hotkey(Key::Escape), "quit")], ctx);
         let map = &ui.primary.map;
         match ui.primary.current_selection {
@@ -126,11 +122,6 @@ impl AgentSpawner {
                     .contextual_action(Key::Z, "spawn agents around this intersection")
                 {
                     spawn_agents_around(i, ui, ctx);
-                }
-            }
-            None => {
-                if ui.primary.sim.is_empty() && sandbox_menu.action("start a scenario") {
-                    return Some(WizardState::new(Box::new(instantiate_scenario)));
                 }
             }
             _ => {}
@@ -318,51 +309,6 @@ fn spawn_agents_around(i: IntersectionID, ui: &mut UI, ctx: &EventCtx) {
     sim.spawn_all_trips(map, &mut Timer::throwaway(), false);
     sim.step(map, SMALL_DT);
     ui.recalculate_current_selection(ctx);
-}
-
-fn instantiate_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
-    let num_agents = ui.primary.current_flags.num_agents;
-    let builtin = if let Some(n) = num_agents {
-        format!("random scenario with {} agents", n)
-    } else {
-        "random scenario with some agents".to_string()
-    };
-    let map = &ui.primary.map;
-
-    let scenario_name = wiz
-        .wrap(ctx)
-        .choose_string("Instantiate which scenario?", || {
-            let mut list = abstutil::list_all_objects(abstutil::SCENARIOS, map.get_name());
-            list.push(builtin.clone());
-            list.push("just buses".to_string());
-            list
-        })?;
-
-    let scenario = if scenario_name == builtin {
-        if let Some(n) = num_agents {
-            Scenario::scaled_run(map, n)
-        } else {
-            Scenario::small_run(map)
-        }
-    } else if scenario_name == "just buses" {
-        Scenario::empty(map)
-    } else {
-        abstutil::read_binary(
-            &abstutil::path1_bin(map.get_name(), abstutil::SCENARIOS, &scenario_name),
-            &mut Timer::throwaway(),
-        )
-        .unwrap()
-    };
-    ctx.loading_screen("instantiate scenario", |_, timer| {
-        scenario.instantiate(
-            &mut ui.primary.sim,
-            &ui.primary.map,
-            &mut ui.primary.current_flags.sim_flags.make_rng(),
-            timer,
-        );
-        ui.primary.sim.step(&ui.primary.map, SMALL_DT);
-    });
-    Some(Transition::Pop)
 }
 
 fn schedule_trip(src: &Source, raw_goal: Goal, map: &Map, sim: &mut Sim, rng: &mut XorShiftRng) {

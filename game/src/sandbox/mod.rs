@@ -86,7 +86,6 @@ impl SandboxMode {
                 "Sandbox Mode",
                 vec![
                     (hotkey(Key::X), "reset sim"),
-                    (hotkey(Key::S), "start a scenario"),
                     (hotkey(Key::T), "start time traveling"),
                 ],
                 ctx,
@@ -135,10 +134,6 @@ impl State for SandboxMode {
         }
         if let Some(t) = self.gameplay.event(ctx, ui) {
             return t;
-        }
-
-        if let Some(new_state) = spawner::AgentSpawner::new(ctx, ui, &mut self.menu) {
-            return Transition::Push(new_state);
         }
 
         if let Some(t) = self
