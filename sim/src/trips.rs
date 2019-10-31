@@ -138,6 +138,7 @@ impl TripManager {
                     assert!(!trip.finished_at.is_some());
                     trip.finished_at = Some(now);
                     self.unfinished_trips -= 1;
+                    self.events.push(Event::TripFinished(trip.id, trip.mode));
                     return;
                 }
                 _ => {}
@@ -199,6 +200,7 @@ impl TripManager {
             );
             self.unfinished_trips -= 1;
             trip.aborted = true;
+            self.events.push(Event::TripAborted(trip.id));
             return;
         };
 
@@ -251,6 +253,7 @@ impl TripManager {
             );
             self.unfinished_trips -= 1;
             trip.aborted = true;
+            self.events.push(Event::TripAborted(trip.id));
             return;
         };
 
@@ -306,6 +309,7 @@ impl TripManager {
         assert!(!trip.finished_at.is_some());
         trip.finished_at = Some(now);
         self.unfinished_trips -= 1;
+        self.events.push(Event::TripFinished(trip.id, trip.mode));
     }
 
     // If no route is returned, the pedestrian boarded a bus immediately.
@@ -385,6 +389,7 @@ impl TripManager {
         assert!(!trip.finished_at.is_some());
         trip.finished_at = Some(now);
         self.unfinished_trips -= 1;
+        self.events.push(Event::TripFinished(trip.id, trip.mode));
     }
 
     pub fn car_or_bike_reached_border(&mut self, now: Duration, car: CarID, i: IntersectionID) {
@@ -398,6 +403,7 @@ impl TripManager {
         assert!(!trip.finished_at.is_some());
         trip.finished_at = Some(now);
         self.unfinished_trips -= 1;
+        self.events.push(Event::TripFinished(trip.id, trip.mode));
     }
 
     pub fn abort_trip_failed_start(&mut self, id: TripID) {
@@ -405,6 +411,7 @@ impl TripManager {
         if !self.trips[id.0].is_bus_trip() {
             self.unfinished_trips -= 1;
         }
+        self.events.push(Event::TripAborted(id));
     }
 
     pub fn abort_trip_impossible_parking(&mut self, car: CarID) {
@@ -412,6 +419,7 @@ impl TripManager {
         assert!(!self.trips[trip.0].is_bus_trip());
         self.trips[trip.0].aborted = true;
         self.unfinished_trips -= 1;
+        self.events.push(Event::TripAborted(trip));
     }
 
     pub fn active_agents(&self) -> Vec<AgentID> {

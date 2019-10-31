@@ -28,7 +28,6 @@ impl SimFlags {
                 savestate_every: args.optional_parse("--savestate_every", Duration::parse),
                 use_freeform_policy_everywhere: args.enabled("--freeform_policy"),
                 disable_block_the_box: args.enabled("--disable_block_the_box"),
-                record_stats: args.enabled("--record_stats"),
                 recalc_lanechanging: !args.enabled("--dont_recalc_lc"),
             },
         }

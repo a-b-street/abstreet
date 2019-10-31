@@ -25,7 +25,6 @@ pub struct SandboxMode {
     general_tools: MenuUnderButton,
     save_tools: MenuUnderButton,
     agent_tools: AgentTools,
-    trip_stats: trip_stats::TripStats,
     analytics: analytics::Analytics,
     gameplay: gameplay::GameplayState,
     common: CommonState,
@@ -73,9 +72,6 @@ impl SandboxMode {
                 ctx,
             ),
             agent_tools: AgentTools::new(),
-            trip_stats: trip_stats::TripStats::new(
-                ui.primary.current_flags.sim_flags.opts.record_stats,
-            ),
             analytics: analytics::Analytics::Inactive,
             gameplay: gameplay::GameplayState::initialize(mode, ui, ctx),
             common: CommonState::new(ctx),
@@ -87,8 +83,6 @@ impl SandboxMode {
 
 impl State for SandboxMode {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        self.trip_stats.record(ui);
-
         layout::stack_vertically(
             layout::ContainerOrientation::TopRight,
             ctx.canvas,
@@ -115,10 +109,7 @@ impl State for SandboxMode {
         if let Some(t) = self.common.event(ctx, ui) {
             return t;
         }
-        if let Some(t) = self
-            .analytics
-            .event(ctx, ui, &mut self.info_tools, &self.trip_stats)
-        {
+        if let Some(t) = self.analytics.event(ctx, ui, &mut self.info_tools) {
             return t;
         }
         if let Some(t) = self.gameplay.event(ctx, ui, &mut self.analytics) {

@@ -1,4 +1,4 @@
-use super::trip_stats::{ShowTripStats, TripStats};
+use super::trip_stats::ShowTripStats;
 use crate::common::{ObjectColorer, ObjectColorerBuilder, RoadColorer, RoadColorerBuilder};
 use crate::game::{Transition, WizardState};
 use crate::helpers::ID;
@@ -31,7 +31,6 @@ impl Analytics {
         ctx: &mut EventCtx,
         ui: &UI,
         menu: &mut MenuUnderButton,
-        trip_stats: &TripStats,
     ) -> Option<Transition> {
         if menu.action("change analytics overlay") {
             return Some(Transition::Push(WizardState::new(Box::new(
@@ -51,8 +50,7 @@ impl Analytics {
                         })?;
                     Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
                         let mut sandbox = state.downcast_mut::<SandboxMode>().unwrap();
-                        sandbox.analytics =
-                            Analytics::recalc(&choice, &sandbox.trip_stats, ui, ctx);
+                        sandbox.analytics = Analytics::recalc(&choice, ui, ctx);
                     })))
                 },
             ))));
@@ -74,7 +72,7 @@ impl Analytics {
             }
         };
         if time != ui.primary.sim.time() {
-            *self = Analytics::recalc(choice, trip_stats, ui, ctx);
+            *self = Analytics::recalc(choice, ui, ctx);
         }
         None
     }
@@ -111,7 +109,7 @@ impl Analytics {
         }
     }
 
-    fn recalc(choice: &str, trip_stats: &TripStats, ui: &UI, ctx: &mut EventCtx) -> Analytics {
+    fn recalc(choice: &str, ui: &UI, ctx: &mut EventCtx) -> Analytics {
         let time = ui.primary.sim.time();
         match choice {
             "none" => Analytics::Inactive,
@@ -123,10 +121,10 @@ impl Analytics {
             }
             "cumulative throughput" => Analytics::Throughput(time, calculate_thruput(ctx, ui)),
             "finished trips" => {
-                if let Some(s) = ShowTripStats::new(trip_stats, ui, ctx) {
+                if let Some(s) = ShowTripStats::new(ui, ctx) {
                     Analytics::FinishedTrips(time, s)
                 } else {
-                    println!("No trip stats available. Pass --record_stats or make sure at least one trip is done.");
+                    println!("No data on finished trips yet");
                     Analytics::Inactive
                 }
             }

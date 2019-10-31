@@ -1,4 +1,4 @@
-use crate::{AgentID, CarID, ParkingSpot, PedestrianID};
+use crate::{AgentID, CarID, ParkingSpot, PedestrianID, TripID, TripMode};
 use map_model::{BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, Traversable};
 use serde_derive::{Deserialize, Serialize};
 
@@ -20,4 +20,7 @@ pub enum Event {
     BikeStoppedAtSidewalk(CarID, LaneID),
 
     AgentEntersTraversable(AgentID, Traversable),
+
+    TripFinished(TripID, TripMode),
+    TripAborted(TripID),
 }

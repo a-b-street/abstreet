@@ -1,4 +1,4 @@
-use crate::Event;
+use crate::{Event, TripMode};
 use abstutil::Counter;
 use geom::Duration;
 use map_model::{BusRouteID, BusStopID, IntersectionID, Map, RoadID, Traversable};
@@ -11,6 +11,8 @@ pub struct Analytics {
     pub(crate) test_expectations: VecDeque<Event>,
     pub bus_arrivals: HashMap<(BusStopID, BusRouteID), Vec<Duration>>,
     pub total_bus_passengers: Counter<BusRouteID>,
+    // TODO Hack: No TripMode means aborted
+    pub finished_trips: Vec<(Duration, Option<TripMode>)>,
 }
 
 pub struct ThruputStats {
@@ -28,6 +30,7 @@ impl Default for Analytics {
             test_expectations: VecDeque::new(),
             bus_arrivals: HashMap::new(),
             total_bus_passengers: Counter::new(),
+            finished_trips: Vec::new(),
         }
     }
 }
@@ -59,6 +62,13 @@ impl Analytics {
         // Bus passengers
         if let Event::PedEntersBus(_, _, route) = ev {
             self.total_bus_passengers.inc(route);
+        }
+
+        // Finished trips
+        if let Event::TripFinished(_, mode) = ev {
+            self.finished_trips.push((time, Some(mode)));
+        } else if let Event::TripAborted(_) = ev {
+            self.finished_trips.push((time, None));
         }
     }
 }
