@@ -1,4 +1,5 @@
 mod abtest;
+mod challenges;
 mod common;
 mod debug;
 mod edit;

@@ -1,4 +1,5 @@
 use crate::abtest::setup::PickABTest;
+use crate::challenges::challenges_picker;
 use crate::debug::DebugMode;
 use crate::edit::EditMode;
 use crate::game::{State, Transition};
@@ -123,6 +124,7 @@ fn splash_screen(
 ) -> Option<Transition> {
     let mut wizard = raw_wizard.wrap(ctx);
     let sandbox = "Sandbox mode";
+    let challenge = "Challenge mode";
     let load_map = "Load another map";
     let edit = "Edit map";
     let abtest = "A/B Test Mode";
@@ -142,6 +144,7 @@ fn splash_screen(
         .choose("Welcome to A/B Street!", || {
             vec![
                 Choice::new(sandbox, ()).key(Key::S),
+                Choice::new(challenge, ()).key(Key::C),
                 Choice::new(load_map, ()).key(Key::L),
                 Choice::new(edit, ()).key(Key::E),
                 Choice::new(abtest, ()).key(Key::A),
@@ -156,6 +159,7 @@ fn splash_screen(
         .as_str()
     {
         x if x == sandbox => Some(Transition::Push(Box::new(SandboxMode::new(ctx, ui)))),
+        x if x == challenge => Some(Transition::Push(challenges_picker())),
         x if x == load_map => {
             if let Some(name) = wizard.choose_string("Load which map?", || {
                 let current_map = ui.primary.map.get_name();
