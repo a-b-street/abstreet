@@ -18,6 +18,13 @@ use sim::SimFlags;
 
 fn main() {
     let mut args = CmdArgs::new();
+
+    // TODO Lift this out of the game crate entirely.
+    if args.enabled("--prebake") {
+        challenges::prebake();
+        return;
+    }
+
     let mut flags = Flags {
         sim_flags: SimFlags::from_args(&mut args),
         kml: args.optional("--kml"),

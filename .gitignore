@@ -10,6 +10,7 @@ data/input/*
 data/maps/*
 data/neighborhoods/*
 data/raw_maps/*
+data/prebaked_results.json
 data/save/*
 data/scenarios/*
 data/screenshots/*/*.png

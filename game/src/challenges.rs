@@ -1,11 +1,15 @@
 use crate::game::{State, Transition, WizardState};
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::UI;
+use abstutil::Timer;
 use ezgui::{
     hotkey, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ModalMenu, Text,
     VerticalAlignment,
 };
-use sim::TripMode;
+use geom::{Duration, DurationHistogram, DurationStats};
+use serde_derive::{Deserialize, Serialize};
+use sim::{SimFlags, SimOptions, TripMode};
+use std::collections::BTreeMap;
 
 // TODO Also have some kind of screenshot to display for each challenge
 #[derive(Clone)]
@@ -124,4 +128,58 @@ impl State for ChallengeSplash {
         );
         self.menu.draw(g);
     }
+}
+
+pub fn prebake() {
+    let mut timer = Timer::new("prebake all challenge results");
+    let mut results = PrebakedResults {
+        faster_trips: BTreeMap::new(),
+    };
+    prebake_faster_trips(&mut results, "montlake", &mut timer);
+    abstutil::write_json("../data/prebaked_results.json", &results).unwrap();
+}
+
+fn prebake_faster_trips(results: &mut PrebakedResults, map_name: &str, timer: &mut Timer) {
+    timer.start(&format!("prebake faster trips on {}", map_name));
+
+    let (map, mut sim, _) = SimFlags {
+        load: abstutil::path1_bin(
+            map_name,
+            abstutil::SCENARIOS,
+            "weekday_typical_traffic_from_psrc",
+        ),
+        use_map_fixes: true,
+        rng_seed: Some(42),
+        opts: SimOptions::new("prebaked"),
+    }
+    .load(timer);
+    sim.timed_step(&map, Duration::END_OF_DAY, timer);
+
+    timer.start("collect results");
+    let mut distribs: BTreeMap<TripMode, DurationHistogram> = BTreeMap::new();
+    for m in vec![
+        TripMode::Walk,
+        TripMode::Bike,
+        TripMode::Transit,
+        TripMode::Drive,
+    ] {
+        distribs.insert(m, Default::default());
+    }
+    for (_, m, dt) in sim.get_finished_trips().finished_trips {
+        distribs.get_mut(&m).unwrap().add(dt);
+    }
+    for (m, distrib) in distribs {
+        results.faster_trips.insert(m, distrib.to_stats());
+    }
+    timer.stop("collect results");
+
+    timer.stop(&format!("prebake faster trips on {}", map_name));
+}
+
+// TODO Something more general?
+// - key by GameplayMode (which needs map name too maybe)
+// - different baselines/benchmarks
+#[derive(Serialize, Deserialize)]
+pub struct PrebakedResults {
+    pub faster_trips: BTreeMap<TripMode, DurationStats>,
 }

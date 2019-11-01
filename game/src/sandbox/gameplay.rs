@@ -1,9 +1,10 @@
+use crate::challenges::PrebakedResults;
 use crate::game::{msg, Transition, WizardState};
 use crate::render::AgentColorScheme;
 use crate::sandbox::{analytics, bus_explorer, spawner, SandboxMode};
 use crate::ui::UI;
-use abstutil::prettyprint_usize;
-use ezgui::{hotkey, Choice, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, Wizard};
+use abstutil::{prettyprint_usize, Timer};
+use ezgui::{hotkey, Choice, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, Wizard};
 use geom::{Duration, DurationHistogram, Statistic};
 use map_model::BusRouteID;
 use sim::{Scenario, TripMode};
@@ -24,6 +25,7 @@ pub struct GameplayState {
     pub mode: GameplayMode,
     pub menu: ModalMenu,
     state: State,
+    prebaked: PrebakedResults,
 }
 
 enum State {
@@ -46,6 +48,9 @@ enum State {
 
 impl GameplayState {
     pub fn initialize(mode: GameplayMode, ui: &mut UI, ctx: &mut EventCtx) -> GameplayState {
+        let prebaked: PrebakedResults =
+            abstutil::read_json("../data/prebaked_results.json", &mut Timer::throwaway()).unwrap();
+
         let (state, maybe_scenario) = match mode.clone() {
             GameplayMode::Freeform => (
                 GameplayState {
@@ -60,6 +65,7 @@ impl GameplayState {
                     )
                     .disable_standalone_layout(),
                     state: State::Freeform,
+                    prebaked,
                 },
                 None,
             ),
@@ -76,6 +82,7 @@ impl GameplayState {
                     )
                     .disable_standalone_layout(),
                     state: State::PlayScenario,
+                    prebaked,
                 },
                 Some(scenario),
             ),
@@ -99,6 +106,7 @@ impl GameplayState {
                             time: Duration::ZERO,
                             stat: Statistic::Max,
                         },
+                        prebaked,
                     },
                     Some("weekday_typical_traffic_from_psrc".to_string()),
                 )
@@ -118,6 +126,7 @@ impl GameplayState {
                     state: State::CreateGridlock {
                         time: Duration::ZERO,
                     },
+                    prebaked,
                 },
                 Some("weekday_typical_traffic_from_psrc".to_string()),
             ),
@@ -126,10 +135,7 @@ impl GameplayState {
                     mode,
                     menu: ModalMenu::new(
                         &format!("Speed up {:?} trips", trip_mode),
-                        vec![
-                            (hotkey(Key::S), "change statistic"),
-                            (hotkey(Key::H), "help"),
-                        ],
+                        vec![(hotkey(Key::H), "help")],
                         ctx,
                     )
                     .disable_standalone_layout(),
@@ -137,6 +143,7 @@ impl GameplayState {
                         mode: trip_mode,
                         time: Duration::ZERO,
                     },
+                    prebaked,
                 },
                 Some("weekday_typical_traffic_from_psrc".to_string()),
             ),
@@ -322,7 +329,8 @@ impl GameplayState {
 
                 if *time != ui.primary.sim.time() {
                     *time = ui.primary.sim.time();
-                    self.menu.set_info(ctx, faster_trips_panel(mode, ui));
+                    self.menu
+                        .set_info(ctx, faster_trips_panel(mode, ui, &self.prebaked));
                 }
 
                 if self.menu.action("help") {
@@ -400,27 +408,45 @@ fn gridlock_panel(ui: &UI) -> Text {
     txt
 }
 
-fn faster_trips_panel(mode: TripMode, ui: &UI) -> Text {
+fn faster_trips_panel(mode: TripMode, ui: &UI, prebaked: &PrebakedResults) -> Text {
     let mut distrib: DurationHistogram = Default::default();
     for (_, m, dt) in ui.primary.sim.get_finished_trips().finished_trips {
         if mode == m {
             distrib.add(dt);
         }
     }
+    let stats = distrib.to_stats();
+
+    let baseline = &prebaked.faster_trips[&mode];
 
     let mut txt = Text::new();
     txt.add(Line(format!(
-        "{} finished {:?} trips",
-        prettyprint_usize(distrib.count()),
-        mode
+        "{} finished {:?} trips (vs {})",
+        prettyprint_usize(stats.count),
+        mode,
+        prettyprint_usize(baseline.count),
     )));
-    if distrib.count() > 0 {
-        for stat in Statistic::all() {
-            txt.add(Line(format!(
-                "{}: {}",
-                stat,
-                distrib.select(stat).minimal_tostring()
-            )));
+    // TODO Which one?
+    if false {
+        for (stat, dt) in &stats.stats {
+            txt.add(Line(format!("{}: ", stat)));
+            let vs = baseline.stats[&stat];
+            let color = if *dt <= vs { Color::GREEN } else { Color::RED };
+            txt.append(Line(dt.minimal_tostring()).fg(color));
+            txt.append(Line(format!(" (vs {})", vs.minimal_tostring())));
+        }
+    }
+    if true {
+        for (stat, dt) in stats.stats {
+            txt.add(Line(format!("{}: ", stat)));
+            let vs = baseline.stats[&stat];
+            if dt <= vs {
+                txt.append(Line((vs - dt).minimal_tostring()).fg(Color::GREEN));
+                txt.append(Line(" faster"));
+            } else {
+                txt.append(Line((dt - vs).minimal_tostring()).fg(Color::RED));
+                txt.append(Line(" slower"));
+            }
         }
     }
     txt
