@@ -4,8 +4,6 @@ use geom::Duration;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 
-const PHASE_DURATION: Duration = Duration::const_seconds(30.0);
-
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ControlTrafficSignal {
     pub id: IntersectionID,
@@ -56,12 +54,20 @@ impl ControlTrafficSignal {
     }
 
     pub fn current_phase_and_remaining_time(&self, now: Duration) -> (usize, &Phase, Duration) {
-        let phase_idx = (now / PHASE_DURATION).floor() as usize;
-        let normalized_phase_idx = phase_idx % self.phases.len();
-        let phase = &self.phases[normalized_phase_idx];
-        let next_phase_time = PHASE_DURATION * (phase_idx + 1) as f64;
-        let remaining_phase_time = next_phase_time - now;
-        (normalized_phase_idx, phase, remaining_phase_time)
+        let mut cycle_length = Duration::ZERO;
+        for p in &self.phases {
+            cycle_length += p.duration;
+        }
+
+        let mut now_offset = now % cycle_length;
+        for (idx, p) in self.phases.iter().enumerate() {
+            if now_offset < p.duration {
+                return (idx, p, p.duration - now_offset);
+            } else {
+                now_offset -= p.duration;
+            }
+        }
+        unreachable!()
     }
 
     fn validate(self, map: &Map) -> Result<ControlTrafficSignal, Error> {
@@ -469,7 +475,7 @@ impl Phase {
             parent,
             priority_turns: BTreeSet::new(),
             yield_turns: BTreeSet::new(),
-            duration: PHASE_DURATION,
+            duration: Duration::seconds(30.0),
         }
     }
 

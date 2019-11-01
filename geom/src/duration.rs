@@ -255,6 +255,14 @@ impl ops::Div<Duration> for Duration {
     }
 }
 
+impl ops::Rem<Duration> for Duration {
+    type Output = Duration;
+
+    fn rem(self, other: Duration) -> Duration {
+        Duration::seconds(self.0 % other.0)
+    }
+}
+
 pub struct DurationHistogram {
     count: usize,
     histogram: Histogram,
