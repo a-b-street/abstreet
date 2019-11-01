@@ -1,5 +1,5 @@
 use crate::{
-    AgentID, Analytics, CarID, Command, CreateCar, DrawCarInput, DrawPedCrowdInput,
+    AgentID, AgentMetadata, Analytics, CarID, Command, CreateCar, DrawCarInput, DrawPedCrowdInput,
     DrawPedestrianInput, DrivingGoal, DrivingSimState, Event, FinishedTrips, GetDrawAgents,
     IntersectionSimState, ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, Router, Scheduler,
     SidewalkPOI, SidewalkSpot, TransitSimState, TripID, TripLeg, TripManager, TripPositions,
@@ -949,6 +949,12 @@ impl Sim {
 
     pub fn get_analytics(&self) -> &Analytics {
         &self.analytics
+    }
+
+    pub fn get_agent_metadata(&self) -> Vec<AgentMetadata> {
+        let mut result = self.driving.get_agent_metadata(self.time);
+        result.extend(self.walking.get_agent_metadata(self.time));
+        result
     }
 }
 

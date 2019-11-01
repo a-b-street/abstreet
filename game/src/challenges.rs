@@ -34,6 +34,12 @@ fn all_challenges() -> Vec<Challenge> {
             map_name: "23rd".to_string(),
             gameplay: GameplayMode::OptimizeBus("48".to_string()),
         },
+        Challenge {
+            title: "Gridlock all of the everything".to_string(),
+            description: "Make traffic as BAD as possible!".to_string(),
+            map_name: "montlake".to_string(),
+            gameplay: GameplayMode::CreateGridlock,
+        },
     ]
 }
 
@@ -50,8 +56,8 @@ pub fn challenges_picker() -> Box<dyn State> {
         summary.add(Line(""));
         summary.add(Line("Proposals:"));
         summary.add(Line(""));
-        summary.add(Line("- bus lane fix (untested)"));
-        summary.add(Line("- signal retiming (score 500)"));
+        summary.add(Line("- example bus lane fix (untested)"));
+        summary.add(Line("- example signal retiming (score 500)"));
 
         Some(Transition::Replace(Box::new(ChallengeSplash {
             summary,

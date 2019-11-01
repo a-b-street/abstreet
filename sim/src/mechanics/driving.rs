@@ -1,9 +1,10 @@
 use crate::mechanics::car::{Car, CarState};
 use crate::mechanics::Queue;
 use crate::{
-    ActionAtEnd, AgentID, CarID, Command, CreateCar, DistanceInterval, DrawCarInput, Event,
-    IntersectionSimState, ParkedCar, ParkingSimState, Scheduler, TimeInterval, TransitSimState,
-    TripManager, TripPositions, UnzoomedAgent, WalkingSimState, FOLLOWING_DISTANCE,
+    ActionAtEnd, AgentID, AgentMetadata, CarID, Command, CreateCar, DistanceInterval, DrawCarInput,
+    Event, IntersectionSimState, ParkedCar, ParkingSimState, Scheduler, TimeInterval,
+    TransitSimState, TripManager, TripPositions, UnzoomedAgent, WalkingSimState,
+    FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Distance, Duration, PolyLine};
@@ -735,6 +736,10 @@ impl DrivingSimState {
         }
 
         result
+    }
+
+    pub fn get_agent_metadata(&self, now: Duration) -> Vec<AgentMetadata> {
+        self.cars.values().map(|car| car.metadata(now)).collect()
     }
 
     pub fn populate_trip_positions(&self, trip_positions: &mut TripPositions, map: &Map) {

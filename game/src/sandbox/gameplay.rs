@@ -1,6 +1,7 @@
 use crate::game::{Transition, WizardState};
 use crate::sandbox::{analytics, bus_explorer, spawner, SandboxMode};
 use crate::ui::UI;
+use abstutil::prettyprint_usize;
 use ezgui::{hotkey, Choice, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, Wizard};
 use geom::{Duration, DurationHistogram, Statistic};
 use map_model::BusRouteID;
@@ -13,6 +14,7 @@ pub enum GameplayMode {
     PlayScenario(String),
     // Route name
     OptimizeBus(String),
+    CreateGridlock,
 }
 
 pub struct GameplayState {
@@ -30,6 +32,9 @@ enum State {
         time: Duration,
         show_analytics: bool,
         stat: Statistic,
+    },
+    CreateGridlock {
+        time: Duration,
     },
 }
 
@@ -93,6 +98,17 @@ impl GameplayState {
                     Some("weekday_typical_traffic_from_psrc".to_string()),
                 )
             }
+            GameplayMode::CreateGridlock => (
+                GameplayState {
+                    mode,
+                    menu: ModalMenu::new("Cause gridlock", vec![(hotkey(Key::H), "help")], ctx)
+                        .disable_standalone_layout(),
+                    state: State::CreateGridlock {
+                        time: Duration::ZERO,
+                    },
+                },
+                Some("weekday_typical_traffic_from_psrc".to_string()),
+            ),
         };
         if let Some(scenario_name) = maybe_scenario {
             ctx.loading_screen("instantiate scenario", |_, timer| {
@@ -260,6 +276,21 @@ impl GameplayState {
                     ]));
                 }
             }
+            State::CreateGridlock { ref mut time } => {
+                if *time != ui.primary.sim.time() {
+                    *time = ui.primary.sim.time();
+                    self.menu.set_info(ctx, gridlock_panel(ui));
+                }
+
+                self.menu.event(ctx);
+                if self.menu.action("help") {
+                    return Some(help(vec![
+                        "You might notice a few places in the map where gridlock forms already.",
+                        "You can make things worse!",
+                        "How few lanes can you close for construction before everything grinds to a halt?",
+                    ]));
+                }
+            }
         }
         None
     }
@@ -290,6 +321,41 @@ fn bus_route_panel(id: BusRouteID, ui: &UI, stat: Statistic) -> Text {
             txt.append(Line("no arrivals yet"));
         }
     }
+    txt
+}
+
+fn gridlock_panel(ui: &UI) -> Text {
+    let mut lt_1m = 0;
+    let mut lt_5m = 0;
+    let mut stuck = 0;
+    for a in ui.primary.sim.get_agent_metadata() {
+        if a.time_spent_blocked < Duration::minutes(1) {
+            lt_1m += 1;
+        } else if a.time_spent_blocked < Duration::minutes(5) {
+            lt_5m += 1;
+        } else {
+            stuck += 1;
+        }
+    }
+    let total = (lt_1m + lt_5m + stuck) as f64;
+
+    let mut txt = Text::new();
+    txt.add(Line("How long have agents been stuck?"));
+    txt.add(Line(format!(
+        "under 1 min: {} ({:.1}%)",
+        prettyprint_usize(lt_1m),
+        (lt_1m as f64) / total * 100.0
+    )));
+    txt.add(Line(format!(
+        "under 5 mins: {} ({:.1}%)",
+        prettyprint_usize(lt_5m),
+        (lt_5m as f64) / total * 100.0
+    )));
+    txt.add(Line(format!(
+        "over 5 mins: {} ({:.1}%)",
+        prettyprint_usize(stuck),
+        (stuck as f64) / total * 100.0
+    )));
     txt
 }
 

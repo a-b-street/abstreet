@@ -306,6 +306,10 @@ impl WalkingSimState {
         peds
     }
 
+    pub fn get_agent_metadata(&self, now: Duration) -> Vec<AgentMetadata> {
+        self.peds.values().map(|ped| ped.metadata(now)).collect()
+    }
+
     pub fn populate_trip_positions(&self, trip_positions: &mut TripPositions, map: &Map) {
         for ped in self.peds.values() {
             trip_positions
