@@ -317,6 +317,10 @@ impl<'a> GfxCtx<'a> {
     pub fn upload(&mut self, batch: GeomBatch) -> Drawable {
         self.prerender.upload(batch)
     }
+
+    pub fn button_tooltip(&self) -> Option<Text> {
+        self.canvas.button_tooltip.clone()
+    }
 }
 
 #[derive(Clone)]

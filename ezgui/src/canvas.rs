@@ -35,6 +35,8 @@ pub struct Canvas {
 
     // Kind of just ezgui state awkwardly stuck here...
     pub(crate) lctrl_held: bool,
+    // This should be mutually exclusive among all buttons and things in map-space.
+    pub(crate) button_tooltip: Option<Text>,
 
     // TODO Definitely a weird place to stash this!
     pub(crate) textures: Vec<(String, Texture2d)>,
@@ -71,6 +73,7 @@ impl Canvas {
             covered_areas: RefCell::new(Vec::new()),
 
             lctrl_held: false,
+            button_tooltip: None,
 
             textures: Vec::new(),
             texture_lookups: HashMap::new(),

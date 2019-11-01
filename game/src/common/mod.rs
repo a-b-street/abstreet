@@ -176,6 +176,8 @@ impl CommonState {
     pub fn draw_osd(g: &mut GfxCtx, ui: &UI, id: &Option<ID>) {
         let osd = if let Some(id) = id {
             CommonState::default_osd(id.clone(), ui)
+        } else if let Some(button) = g.button_tooltip() {
+            button
         } else {
             Text::from(Line("..."))
         };

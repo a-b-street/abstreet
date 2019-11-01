@@ -67,6 +67,11 @@ impl Button {
                 self.clicked = true;
             }
         }
+
+        if self.hovering {
+            assert!(ctx.canvas.button_tooltip.is_none());
+            ctx.canvas.button_tooltip = Some(self.tooltip.clone());
+        }
     }
 
     pub fn just_replaced(&mut self, ctx: &EventCtx) {
@@ -87,7 +92,6 @@ impl Button {
         g.fork(Pt2D::new(0.0, 0.0), self.top_left, 1.0);
         if self.hovering {
             g.redraw(&self.draw_hovered);
-            g.draw_mouse_tooltip(&self.tooltip);
         } else {
             g.redraw(&self.draw_normal);
         }

@@ -33,6 +33,8 @@ impl UserInput {
         };
 
         // First things first...
+        canvas.button_tooltip = None;
+
         if let Event::WindowResized(width, height) = input.event {
             canvas.window_width = width;
             canvas.window_height = height;
