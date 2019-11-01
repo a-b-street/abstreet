@@ -18,7 +18,6 @@ use std::collections::HashSet;
 use std::panic;
 use std::time::Instant;
 
-const CHECK_FOR_GRIDLOCK_FREQUENCY: Duration = Duration::const_seconds(5.0 * 60.0);
 // TODO Do something else.
 const BLIND_RETRY_TO_SPAWN: Duration = Duration::const_seconds(5.0);
 
@@ -81,10 +80,6 @@ impl SimOptions {
 impl Sim {
     pub fn new(map: &Map, opts: SimOptions, timer: &mut Timer) -> Sim {
         let mut scheduler = Scheduler::new();
-        // TODO Gridlock detection doesn't add value right now.
-        if false {
-            scheduler.push(CHECK_FOR_GRIDLOCK_FREQUENCY, Command::CheckForGridlock);
-        }
         if let Some(d) = opts.savestate_every {
             scheduler.push(d, Command::Savestate(d));
         }
@@ -536,16 +531,6 @@ impl Sim {
                     self.intersections
                         .update_intersection(self.time, i, map, &mut self.scheduler);
                 }
-                Command::CheckForGridlock => {
-                    if self.driving.detect_gridlock(map) {
-                        self.save();
-                    } else {
-                        self.scheduler.push(
-                            self.time + CHECK_FOR_GRIDLOCK_FREQUENCY,
-                            Command::CheckForGridlock,
-                        );
-                    }
-                }
                 Command::Savestate(frequency) => {
                     self.scheduler
                         .push(self.time + frequency, Command::Savestate(frequency));
@@ -955,6 +940,11 @@ impl Sim {
         let mut result = self.driving.get_agent_metadata(self.time);
         result.extend(self.walking.get_agent_metadata(self.time));
         result
+    }
+
+    pub fn find_blockage_front(&self, car: CarID, map: &Map) -> String {
+        self.driving
+            .find_blockage_front(car, map, &self.intersections)
     }
 }
 

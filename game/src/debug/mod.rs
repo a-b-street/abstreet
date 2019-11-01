@@ -7,7 +7,7 @@ mod polygons;
 mod routes;
 
 use crate::common::CommonState;
-use crate::game::{State, Transition, WizardState};
+use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::{ShowLayers, ShowObject, UI};
@@ -155,6 +155,18 @@ impl State for DebugMode {
                 ui.primary.sim.kill_stuck_car(id, &ui.primary.map);
                 ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
                 ui.primary.current_selection = None;
+            } else if ctx
+                .input
+                .contextual_action(Key::G, "find front of blockage")
+            {
+                return Transition::Push(msg(
+                    "Blockage results",
+                    vec![format!(
+                        "{} is ultimately blocked by {}",
+                        id,
+                        ui.primary.sim.find_blockage_front(id, &ui.primary.map)
+                    )],
+                ));
             }
         }
         self.connected_roads.event(ctx, ui);

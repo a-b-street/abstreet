@@ -16,7 +16,6 @@ pub enum Command {
     UpdateLaggyHead(CarID),
     UpdatePed(PedestrianID),
     UpdateIntersection(IntersectionID),
-    CheckForGridlock,
     Savestate(Duration),
 }
 
@@ -36,7 +35,6 @@ impl Command {
             Command::UpdateLaggyHead(id) => CommandType::CarLaggyHead(*id),
             Command::UpdatePed(id) => CommandType::Ped(*id),
             Command::UpdateIntersection(id) => CommandType::Intersection(*id),
-            Command::CheckForGridlock => CommandType::CheckForGridlock,
             Command::Savestate(_) => CommandType::Savestate,
         }
     }
@@ -50,7 +48,6 @@ pub enum CommandType {
     CarLaggyHead(CarID),
     Ped(PedestrianID),
     Intersection(IntersectionID),
-    CheckForGridlock,
     Savestate,
 }
 

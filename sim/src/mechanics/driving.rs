@@ -8,10 +8,9 @@ use crate::{
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Distance, Duration, PolyLine};
-use map_model::{BuildingID, IntersectionID, LaneID, Map, Path, Traversable};
-use petgraph::graph::{Graph, NodeIndex};
+use map_model::{BuildingID, LaneID, Map, Path, PathStep, Traversable};
 use serde_derive::{Deserialize, Serialize};
-use std::collections::{BTreeMap, HashMap, VecDeque};
+use std::collections::{BTreeMap, HashSet, VecDeque};
 
 const TIME_TO_UNPARK: Duration = Duration::const_seconds(10.0);
 const TIME_TO_PARK: Duration = Duration::const_seconds(15.0);
@@ -875,73 +874,69 @@ impl DrivingSimState {
         car.vehicle.owner
     }
 
-    // This ignores capacity and pedestrians. So it should yield false positives (thinks there's
-    // gridlock, when there isn't) but never false negatives.
-    pub fn detect_gridlock(&self, map: &Map) -> bool {
-        #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-        enum Node {
-            Lane(LaneID),
-            Intersection(IntersectionID),
-        }
+    // TODO Clean this up
+    pub fn find_blockage_front(
+        &self,
+        start: CarID,
+        map: &Map,
+        intersections: &IntersectionSimState,
+    ) -> String {
+        let mut seen_intersections = HashSet::new();
 
-        // TODO petgraph wrapper to map nodes -> node index and handle duplicate nodes
-        let mut deps: Graph<Node, ()> = Graph::new();
-        let mut nodes: HashMap<Node, NodeIndex<u32>> = HashMap::new();
-
-        for queue in self.queues.values() {
-            if queue.cars.is_empty() {
-                continue;
+        let mut current_head = start;
+        let mut current_lane = match self.cars[&start].router.head() {
+            Traversable::Lane(l) => l,
+            Traversable::Turn(_) => {
+                return "TODO Doesn't support starting from a turn yet".to_string();
             }
-            match queue.id {
-                Traversable::Lane(l) => {
-                    let lane_id = Node::Lane(l);
-                    // Assume lead car will proceed to the intersection
-                    nodes.insert(lane_id, deps.add_node(lane_id));
+        };
+        loop {
+            current_head =
+                if let Some(c) = self.queues[&Traversable::Lane(current_lane)].cars.get(0) {
+                    *c
+                } else {
+                    return format!("no gridlock, {}", current_head);
+                };
 
-                    let int_id = Node::Intersection(map.get_l(l).dst_i);
-                    if !nodes.contains_key(&int_id) {
-                        nodes.insert(int_id, deps.add_node(int_id));
-                    }
+            let i = map.get_l(current_lane).dst_i;
+            if seen_intersections.contains(&i) {
+                return format!("Gridlock near {}! {:?}", i, seen_intersections);
+            }
+            seen_intersections.insert(i);
 
-                    deps.add_edge(nodes[&lane_id], nodes[&int_id], ());
-                }
-                Traversable::Turn(t) => {
-                    let int_id = Node::Intersection(t.parent);
-                    if !nodes.contains_key(&int_id) {
-                        nodes.insert(int_id, deps.add_node(int_id));
-                    }
+            // Why isn't current_head proceeding? Pedestrians can never get stuck in an
+            // intersection.
+            if intersections
+                .get_accepted_agents(i)
+                .iter()
+                .any(|a| match a {
+                    AgentID::Car(_) => true,
+                    _ => false,
+                })
+            {
+                return format!("someone's turning in {} still", i);
+            }
 
-                    let target_lane_id = Node::Lane(t.dst);
-                    if !nodes.contains_key(&target_lane_id) {
-                        nodes.insert(target_lane_id, deps.add_node(target_lane_id));
-                    }
+            current_lane = if let Some(PathStep::Lane(l)) = self.cars[&current_head]
+                .router
+                .get_path()
+                .get_steps()
+                .get(2)
+            {
+                *l
+            } else {
+                return format!(
+                    "{} is near end of path, probably tmp blockage",
+                    current_head
+                );
+            };
 
-                    deps.add_edge(nodes[&int_id], nodes[&target_lane_id], ());
-                }
+            // Lack of capacity?
+            if self.queues[&Traversable::Lane(current_lane)].room_for_car(&self.cars[&current_head])
+            {
+                return format!("{} is about to proceed, tmp blockage", current_head);
             }
         }
-
-        if let Err(cycle) = petgraph::algo::toposort(&deps, None) {
-            // Super lame, we only get one node in the cycle, and A* won't attempt to look for
-            // loops.
-            for start in deps.neighbors(cycle.node_id()) {
-                if let Some((_, raw_nodes)) =
-                    petgraph::algo::astar(&deps, start, |n| n == cycle.node_id(), |_| 0, |_| 0)
-                {
-                    println!("Gridlock involving:");
-                    for n in raw_nodes {
-                        println!("- {:?}", deps[n]);
-                    }
-                    return true;
-                }
-            }
-            println!(
-                "Gridlock involving {:?}, but couldn't find the cycle!",
-                cycle.node_id()
-            );
-            return true;
-        }
-        false
     }
 
     pub fn collect_events(&mut self) -> Vec<Event> {

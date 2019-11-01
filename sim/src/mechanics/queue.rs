@@ -179,6 +179,12 @@ impl Queue {
         false
     }
 
+    // TODO Refactor
+    pub fn room_for_car(&self, car: &Car) -> bool {
+        self.reserved_length == Distance::ZERO
+            || self.reserved_length + car.vehicle.length + FOLLOWING_DISTANCE < self.geom_len
+    }
+
     pub fn free_reserved_space(&mut self, car: &Car) {
         self.reserved_length -= car.vehicle.length + FOLLOWING_DISTANCE;
         assert!(self.reserved_length >= Distance::ZERO);
