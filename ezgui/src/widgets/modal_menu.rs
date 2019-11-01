@@ -205,6 +205,17 @@ impl ModalMenu {
         panic!("Menu doesn't have {}", old_label);
     }
 
+    pub fn maybe_change_action(&mut self, old_label: &str, new_label: &str, ctx: &EventCtx) {
+        for c in self.choices.iter_mut() {
+            if c.label == old_label {
+                c.label = new_label.to_string();
+                self.recalculate_dims(ctx);
+                return;
+            }
+        }
+        // Don't panic
+    }
+
     pub fn swap_action(&mut self, old_label: &str, new_label: &str, ctx: &EventCtx) -> bool {
         if self.action(old_label) {
             self.change_action(old_label, new_label, ctx);

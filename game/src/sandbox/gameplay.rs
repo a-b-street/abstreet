@@ -1,4 +1,5 @@
 use crate::game::{Transition, WizardState};
+use crate::render::AgentColorScheme;
 use crate::sandbox::{analytics, bus_explorer, spawner, SandboxMode};
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
@@ -30,7 +31,6 @@ enum State {
     OptimizeBus {
         route: BusRouteID,
         time: Duration,
-        show_analytics: bool,
         stat: Statistic,
     },
     CreateGridlock {
@@ -91,7 +91,6 @@ impl GameplayState {
                         state: State::OptimizeBus {
                             route: route.id,
                             time: Duration::ZERO,
-                            show_analytics: false,
                             stat: Statistic::Max,
                         },
                     },
@@ -101,8 +100,15 @@ impl GameplayState {
             GameplayMode::CreateGridlock => (
                 GameplayState {
                     mode,
-                    menu: ModalMenu::new("Cause gridlock", vec![(hotkey(Key::H), "help")], ctx)
-                        .disable_standalone_layout(),
+                    menu: ModalMenu::new(
+                        "Cause gridlock",
+                        vec![
+                            (hotkey(Key::E), "show agent delay"),
+                            (hotkey(Key::H), "help"),
+                        ],
+                        ctx,
+                    )
+                    .disable_standalone_layout(),
                     state: State::CreateGridlock {
                         time: Duration::ZERO,
                     },
@@ -188,52 +194,32 @@ impl GameplayState {
             State::OptimizeBus {
                 route,
                 ref mut time,
-                ref mut show_analytics,
                 ref mut stat,
             } => {
-                // Something else might've changed analytics.
-                if *show_analytics {
+                self.menu.event(ctx);
+                if manage_analytics(
+                    &mut self.menu,
+                    ctx,
+                    "show bus route",
+                    "hide bus route",
+                    analytics,
                     match analytics {
-                        analytics::Analytics::BusRoute(_) => {}
-                        _ => {
-                            *show_analytics = false;
-                            self.menu
-                                .change_action("hide bus route", "show bus route", ctx);
-                        }
-                    }
+                        analytics::Analytics::BusRoute(_) => true,
+                        _ => false,
+                    },
+                    *time != ui.primary.sim.time(),
+                ) {
+                    *analytics = analytics::Analytics::BusRoute(bus_explorer::ShowBusRoute::new(
+                        ui.primary.map.get_br(route),
+                        ui,
+                        ctx,
+                    ));
                 }
 
                 // TODO Expensive
                 if *time != ui.primary.sim.time() {
                     *time = ui.primary.sim.time();
                     self.menu.set_info(ctx, bus_route_panel(route, ui, *stat));
-                    if *show_analytics {
-                        *analytics = analytics::Analytics::BusRoute(
-                            bus_explorer::ShowBusRoute::new(ui.primary.map.get_br(route), ui, ctx),
-                        );
-                    }
-                }
-
-                self.menu.event(ctx);
-
-                if !*show_analytics
-                    && self
-                        .menu
-                        .swap_action("show bus route", "hide bus route", ctx)
-                {
-                    *analytics = analytics::Analytics::BusRoute(bus_explorer::ShowBusRoute::new(
-                        ui.primary.map.get_br(route),
-                        ui,
-                        ctx,
-                    ));
-                    *show_analytics = true;
-                } else if *show_analytics
-                    && self
-                        .menu
-                        .swap_action("hide bus route", "show bus route", ctx)
-                {
-                    *analytics = analytics::Analytics::Inactive;
-                    *show_analytics = false;
                 }
 
                 if self.menu.action("change statistic") {
@@ -277,12 +263,21 @@ impl GameplayState {
                 }
             }
             State::CreateGridlock { ref mut time } => {
+                self.menu.event(ctx);
+                manage_acs(
+                    &mut self.menu,
+                    ctx,
+                    ui,
+                    "show agent delay",
+                    "hide agent delay",
+                    AgentColorScheme::Delay,
+                );
+
                 if *time != ui.primary.sim.time() {
                     *time = ui.primary.sim.time();
                     self.menu.set_info(ctx, gridlock_panel(ui));
                 }
 
-                self.menu.event(ctx);
                 if self.menu.action("help") {
                     return Some(help(vec![
                         "You might notice a few places in the map where gridlock forms already.",
@@ -391,4 +386,57 @@ fn help(lines: Vec<&'static str>) -> Transition {
             None
         }
     })))
+}
+
+// Must call menu.event first. Returns true if the caller should set the analytics to the custom
+// thing.
+fn manage_analytics(
+    menu: &mut ModalMenu,
+    ctx: &mut EventCtx,
+    show: &str,
+    hide: &str,
+    analytics: &mut analytics::Analytics,
+    active_originally: bool,
+    time_changed: bool,
+) -> bool {
+    // Synchronize menus if needed. Player can change these separately.
+    if active_originally {
+        menu.maybe_change_action(show, hide, ctx);
+    } else {
+        menu.maybe_change_action(hide, show, ctx);
+    }
+
+    if !active_originally && menu.swap_action(show, hide, ctx) {
+        true
+    } else if active_originally && menu.swap_action(hide, show, ctx) {
+        *analytics = analytics::Analytics::Inactive;
+        false
+    } else {
+        active_originally && time_changed
+    }
+}
+
+// Must call menu.event first.
+fn manage_acs(
+    menu: &mut ModalMenu,
+    ctx: &mut EventCtx,
+    ui: &mut UI,
+    show: &str,
+    hide: &str,
+    acs: AgentColorScheme,
+) {
+    let active_originally = ui.agent_cs == acs;
+
+    // Synchronize menus if needed. Player can change these separately.
+    if active_originally {
+        menu.maybe_change_action(show, hide, ctx);
+    } else {
+        menu.maybe_change_action(hide, show, ctx);
+    }
+
+    if !active_originally && menu.swap_action(show, hide, ctx) {
+        ui.agent_cs = acs;
+    } else if active_originally && menu.swap_action(hide, show, ctx) {
+        ui.agent_cs = AgentColorScheme::VehicleTypes;
+    }
 }
