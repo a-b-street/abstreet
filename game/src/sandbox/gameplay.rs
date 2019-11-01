@@ -1,4 +1,4 @@
-use crate::game::{Transition, WizardState};
+use crate::game::{msg, Transition, WizardState};
 use crate::render::AgentColorScheme;
 use crate::sandbox::{analytics, bus_explorer, spawner, SandboxMode};
 use crate::ui::UI;
@@ -195,7 +195,7 @@ impl GameplayState {
                     ))));
                 }
                 if self.menu.action("help") {
-                    return Some(help(vec!["This simulation is empty by default.", "Try right-clicking an intersection and choosing to spawn agents (or just hover over it and press Z).", "You can also spawn agents from buildings or lanes.", "You can also start a full scenario to get realistic traffic."]));
+                    return Some(Transition::Push(msg("Help", vec!["This simulation is empty by default.", "Try right-clicking an intersection and choosing to spawn agents (or just hover over it and press Z).", "You can also spawn agents from buildings or lanes.", "You can also start a full scenario to get realistic traffic."])));
                 }
                 if let Some(new_state) = spawner::AgentSpawner::new(ctx, ui) {
                     return Some(Transition::Push(new_state));
@@ -209,11 +209,14 @@ impl GameplayState {
                     ))));
                 }
                 if self.menu.action("help") {
-                    return Some(help(vec![
-                        "Do things seem a bit quiet?",
-                        "The simulation starts at midnight, so you might need to wait a bit.",
-                        "Try using the speed controls on the left.",
-                    ]));
+                    return Some(Transition::Push(msg(
+                        "Help",
+                        vec![
+                            "Do things seem a bit quiet?",
+                            "The simulation starts at midnight, so you might need to wait a bit.",
+                            "Try using the speed controls on the left.",
+                        ],
+                    )));
                 }
             }
             State::OptimizeBus {
@@ -279,12 +282,15 @@ impl GameplayState {
                     ))));
                 }
                 if self.menu.action("help") {
-                    return Some(help(vec![
-                        "First find where the bus gets stuck.",
-                        "Then use edit mode to try to speed things up.",
-                        "Try making dedicated bus lanes",
-                        "and adjusting traffic signals.",
-                    ]));
+                    return Some(Transition::Push(msg(
+                        "Help",
+                        vec![
+                            "First find where the bus gets stuck.",
+                            "Then use edit mode to try to speed things up.",
+                            "Try making dedicated bus lanes",
+                            "and adjusting traffic signals.",
+                        ],
+                    )));
                 }
             }
             State::CreateGridlock { ref mut time } => {
@@ -304,11 +310,11 @@ impl GameplayState {
                 }
 
                 if self.menu.action("help") {
-                    return Some(help(vec![
+                    return Some(Transition::Push(msg("Help", vec![
                         "You might notice a few places in the map where gridlock forms already.",
                         "You can make things worse!",
                         "How few lanes can you close for construction before everything grinds to a halt?",
-                    ]));
+                    ])));
                 }
             }
             State::FasterTrips { mode, ref mut time } => {
@@ -320,9 +326,10 @@ impl GameplayState {
                 }
 
                 if self.menu.action("help") {
-                    return Some(help(vec![
-                        "How can you possibly speed up all trips of some mode?",
-                    ]));
+                    return Some(Transition::Push(msg(
+                        "Help",
+                        vec!["How can you possibly speed up all trips of some mode?"],
+                    )));
                 }
             }
         }
@@ -440,17 +447,6 @@ fn change_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<
         ui,
         GameplayMode::PlayScenario(scenario_name),
     ))))
-}
-
-// TODO Word wrap
-fn help(lines: Vec<&'static str>) -> Transition {
-    Transition::Push(WizardState::new(Box::new(move |wiz, ctx, _| {
-        if wiz.wrap(ctx).acknowledge("Help", || lines.clone()) {
-            Some(Transition::Pop)
-        } else {
-            None
-        }
-    })))
 }
 
 // Must call menu.event first. Returns true if the caller should set the analytics to the custom

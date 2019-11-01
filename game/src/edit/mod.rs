@@ -551,11 +551,13 @@ fn make_bulk_edit_lanes(road: RoadID) -> Box<dyn State> {
                 cnt += 1;
             }
         }
-        // TODO pop this up. warn about road names changing and being weird. :)
-        println!(
-            "Changed {} {:?} lanes to {:?} lanes on {}",
-            cnt, from, to, road_name
-        );
+        // TODO warn about road names changing and being weird. :)
+        wizard.acknowledge("Bulk lane edit", || {
+            vec![format!(
+                "Changed {} {:?} lanes to {:?} lanes on {}",
+                cnt, from, to, road_name
+            )]
+        })?;
         apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
         Some(Transition::Pop)
     }))

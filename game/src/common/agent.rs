@@ -1,6 +1,6 @@
 use crate::common::route_viewer::RouteViewer;
 use crate::common::{ColorLegend, RouteExplorer, TripExplorer};
-use crate::game::{Transition, WizardState};
+use crate::game::{msg, Transition, WizardState};
 use crate::render::{AgentColorScheme, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::UI;
 use ezgui::{hotkey, Choice, EventCtx, GfxCtx, Key, MenuUnderButton, ModalMenu};
@@ -71,9 +71,12 @@ impl AgentTools {
                         self.following = Some((trip, None, ui.primary.sim.time()));
                     }
                     TripResult::TripDone => {
-                        println!("{} is done or aborted, so no more following", trip);
                         self.following = None;
                         menu.remove_action("stop following agent", ctx);
+                        return Some(Transition::Push(msg(
+                            "Follower",
+                            vec![format!("{} is done or aborted, so no more following", trip)],
+                        )));
                     }
                     TripResult::TripDoesntExist => {
                         println!("{} doesn't exist yet, so not following", trip);

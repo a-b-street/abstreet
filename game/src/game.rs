@@ -193,3 +193,12 @@ impl State for WizardState {
         self.wizard.draw(g);
     }
 }
+
+// TODO Word wrap
+pub fn msg<S: Into<String>>(title: &'static str, lines: Vec<S>) -> Box<dyn State> {
+    let str_lines: Vec<String> = lines.into_iter().map(|l| l.into()).collect();
+    WizardState::new(Box::new(move |wiz, ctx, _| {
+        wiz.wrap(ctx).acknowledge(title, || str_lines.clone())?;
+        Some(Transition::Pop)
+    }))
+}

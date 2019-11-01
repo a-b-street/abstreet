@@ -349,15 +349,14 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         self.wizard.alive = false;
     }
 
-    // Note this will abort the wizard once done!
     pub fn acknowledge<S: Into<String>, F: Fn() -> Vec<S>>(
         &mut self,
         title: &str,
         make_lines: F,
-    ) -> bool {
+    ) -> Option<()> {
         if !self.ready_results.is_empty() {
             self.ready_results.pop_front();
-            return true;
+            return Some(());
         }
 
         if self.wizard.log_scroller.is_none() {
@@ -375,9 +374,9 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         {
             self.wizard.confirmed_state.push(Box::new(()));
             self.wizard.log_scroller = None;
-            true
+            Some(())
         } else {
-            false
+            None
         }
     }
 }

@@ -1,5 +1,5 @@
 use crate::common::CommonState;
-use crate::game::{State, Transition};
+use crate::game::{msg, State, Transition};
 use crate::helpers::ID;
 use crate::render::DrawOptions;
 use crate::ui::{ShowEverything, UI};
@@ -213,7 +213,7 @@ impl State for AgentSpawner {
         if self.maybe_goal.is_some() && ctx.input.contextual_action(Key::F3, "end the agent here") {
             let mut rng = ui.primary.current_flags.sim_flags.make_rng();
             let sim = &mut ui.primary.sim;
-            schedule_trip(
+            let err = schedule_trip(
                 &self.from,
                 self.maybe_goal.take().unwrap().0,
                 map,
@@ -223,7 +223,11 @@ impl State for AgentSpawner {
             sim.spawn_all_trips(map, &mut Timer::new("spawn trip"), false);
             sim.step(map, SMALL_DT);
             ui.recalculate_current_selection(ctx);
-            return Transition::Pop;
+            if let Some(e) = err {
+                return Transition::Replace(msg("Spawning error", vec![e]));
+            } else {
+                return Transition::Pop;
+            }
         }
 
         Transition::Keep
@@ -311,7 +315,14 @@ fn spawn_agents_around(i: IntersectionID, ui: &mut UI, ctx: &EventCtx) {
     ui.recalculate_current_selection(ctx);
 }
 
-fn schedule_trip(src: &Source, raw_goal: Goal, map: &Map, sim: &mut Sim, rng: &mut XorShiftRng) {
+// Returns optional error message
+fn schedule_trip(
+    src: &Source,
+    raw_goal: Goal,
+    map: &Map,
+    sim: &mut Sim,
+    rng: &mut XorShiftRng,
+) -> Option<String> {
     match src {
         Source::WalkFromBldg(_) | Source::WalkFromSidewalk(_) => {
             let start = match src {
@@ -327,8 +338,7 @@ fn schedule_trip(src: &Source, raw_goal: Goal, map: &Map, sim: &mut Sim, rng: &m
                     if let Some(goal) = SidewalkSpot::end_at_border(to, map) {
                         goal
                     } else {
-                        println!("Can't end a walking trip at {}; no sidewalks", to);
-                        return;
+                        return Some(format!("Can't end a walking trip at {}; no sidewalks", to));
                     }
                 }
             };
@@ -368,8 +378,7 @@ fn schedule_trip(src: &Source, raw_goal: Goal, map: &Map, sim: &mut Sim, rng: &m
                     if let Some(g) = DrivingGoal::end_at_border(to, vec![LaneType::Driving], map) {
                         g
                     } else {
-                        println!("Can't end a car trip at {}; no driving lanes", to);
-                        return;
+                        return Some(format!("Can't end a car trip at {}; no driving lanes", to));
                     }
                 }
             };
@@ -387,7 +396,7 @@ fn schedule_trip(src: &Source, raw_goal: Goal, map: &Map, sim: &mut Sim, rng: &m
                             map,
                         );
                     } else {
-                        println!("Can't make a car appear at {:?}", from);
+                        return Some(format!("Can't make a car appear at {:?}", from));
                     }
                 }
                 Source::WalkFromBldgThenMaybeUseCar(b) => {
@@ -405,4 +414,5 @@ fn schedule_trip(src: &Source, raw_goal: Goal, map: &Map, sim: &mut Sim, rng: &m
             }
         }
     }
+    None
 }

@@ -8,7 +8,7 @@ mod trip_stats;
 use crate::common::{time_controls, AgentTools, CommonState, SpeedControls};
 use crate::debug::DebugMode;
 use crate::edit::EditMode;
-use crate::game::{State, Transition, WizardState};
+use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::ui::{ShowEverything, UI};
 use ezgui::{
@@ -190,7 +190,7 @@ impl State for SandboxMode {
         }
         if self.save_tools.action("load previous sim state") {
             self.speed.pause();
-            ctx.loading_screen("load previous savestate", |ctx, mut timer| {
+            if let Some(t) = ctx.loading_screen("load previous savestate", |ctx, mut timer| {
                 let prev_state = ui
                     .primary
                     .sim
@@ -202,14 +202,20 @@ impl State for SandboxMode {
                     Some(new_sim) => {
                         ui.primary.sim = new_sim;
                         ui.recalculate_current_selection(ctx);
+                        None
                     }
-                    None => println!("Couldn't load previous savestate {:?}", prev_state),
+                    None => Some(Transition::Push(msg(
+                        "Error",
+                        vec![format!("Couldn't load previous savestate {:?}", prev_state)],
+                    ))),
                 }
-            });
+            }) {
+                return t;
+            }
         }
         if self.save_tools.action("load next sim state") {
             self.speed.pause();
-            ctx.loading_screen("load next savestate", |ctx, mut timer| {
+            if let Some(t) = ctx.loading_screen("load next savestate", |ctx, mut timer| {
                 let next_state = ui.primary.sim.find_next_savestate(ui.primary.sim.time());
                 match next_state
                     .clone()
@@ -218,10 +224,16 @@ impl State for SandboxMode {
                     Some(new_sim) => {
                         ui.primary.sim = new_sim;
                         ui.recalculate_current_selection(ctx);
+                        None
                     }
-                    None => println!("Couldn't load next savestate {:?}", next_state),
+                    None => Some(Transition::Push(msg(
+                        "Error",
+                        vec![format!("Couldn't load next savestate {:?}", next_state)],
+                    ))),
                 }
-            });
+            }) {
+                return t;
+            }
         }
         if self.save_tools.action("pick a savestate to load") {
             self.speed.pause();
