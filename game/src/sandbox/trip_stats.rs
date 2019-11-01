@@ -129,7 +129,9 @@ fn plot(
     for i in 0..num_y_labels {
         let percent_y = (i as f64) / ((num_y_labels - 1) as f64);
         labels.add(
-            Text::from(Line(((percent_y * (max_y as f64)) as usize).to_string())),
+            Text::from(Line(abstutil::prettyprint_usize(
+                (percent_y * (max_y as f64)) as usize,
+            ))),
             ScreenPt::new(x1, y2 - percent_y * (y2 - y1)),
         );
     }

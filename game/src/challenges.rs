@@ -5,6 +5,7 @@ use ezgui::{
     hotkey, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ModalMenu, Text,
     VerticalAlignment,
 };
+use sim::TripMode;
 
 // TODO Also have some kind of screenshot to display for each challenge
 #[derive(Clone)]
@@ -39,6 +40,19 @@ fn all_challenges() -> Vec<Challenge> {
             description: "Make traffic as BAD as possible!".to_string(),
             map_name: "montlake".to_string(),
             gameplay: GameplayMode::CreateGridlock,
+        },
+        Challenge {
+            title: "Speed up all bike trips".to_string(),
+            description: "Reduce the 50%ile trip times of bikes by at least 1 minute".to_string(),
+            map_name: "montlake".to_string(),
+            gameplay: GameplayMode::FasterTrips(TripMode::Bike),
+        },
+        Challenge {
+            title: "Speed up all car trips".to_string(),
+            description: "Reduce the 50%ile trip times of drivers by at least 5 minutes"
+                .to_string(),
+            map_name: "montlake".to_string(),
+            gameplay: GameplayMode::FasterTrips(TripMode::Drive),
         },
     ]
 }

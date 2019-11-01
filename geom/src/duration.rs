@@ -324,24 +324,28 @@ impl DurationHistogram {
         };
         Duration::from_u64(raw)
     }
+
+    pub fn count(&self) -> usize {
+        self.count
+    }
 }
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum Statistic {
+    Min,
     P50,
     P90,
     P99,
-    Min,
     Max,
 }
 
 impl Statistic {
     pub fn all() -> Vec<Statistic> {
         vec![
+            Statistic::Min,
             Statistic::P50,
             Statistic::P90,
             Statistic::P99,
-            Statistic::Min,
             Statistic::Max,
         ]
     }
@@ -350,10 +354,10 @@ impl Statistic {
 impl std::fmt::Display for Statistic {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
+            Statistic::Min => write!(f, "minimum"),
             Statistic::P50 => write!(f, "50%ile"),
             Statistic::P90 => write!(f, "90%ile"),
             Statistic::P99 => write!(f, "99%ile"),
-            Statistic::Min => write!(f, "minimum"),
             Statistic::Max => write!(f, "maximum"),
         }
     }

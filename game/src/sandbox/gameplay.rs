@@ -6,7 +6,7 @@ use abstutil::prettyprint_usize;
 use ezgui::{hotkey, Choice, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, Wizard};
 use geom::{Duration, DurationHistogram, Statistic};
 use map_model::BusRouteID;
-use sim::Scenario;
+use sim::{Scenario, TripMode};
 
 #[derive(Clone)]
 pub enum GameplayMode {
@@ -16,6 +16,8 @@ pub enum GameplayMode {
     // Route name
     OptimizeBus(String),
     CreateGridlock,
+    // TODO Be able to filter population by more factors
+    FasterTrips(TripMode),
 }
 
 pub struct GameplayState {
@@ -34,6 +36,10 @@ enum State {
         stat: Statistic,
     },
     CreateGridlock {
+        time: Duration,
+    },
+    FasterTrips {
+        mode: TripMode,
         time: Duration,
     },
 }
@@ -110,6 +116,25 @@ impl GameplayState {
                     )
                     .disable_standalone_layout(),
                     state: State::CreateGridlock {
+                        time: Duration::ZERO,
+                    },
+                },
+                Some("weekday_typical_traffic_from_psrc".to_string()),
+            ),
+            GameplayMode::FasterTrips(trip_mode) => (
+                GameplayState {
+                    mode,
+                    menu: ModalMenu::new(
+                        &format!("Speed up {:?} trips", trip_mode),
+                        vec![
+                            (hotkey(Key::S), "change statistic"),
+                            (hotkey(Key::H), "help"),
+                        ],
+                        ctx,
+                    )
+                    .disable_standalone_layout(),
+                    state: State::FasterTrips {
+                        mode: trip_mode,
                         time: Duration::ZERO,
                     },
                 },
@@ -286,6 +311,20 @@ impl GameplayState {
                     ]));
                 }
             }
+            State::FasterTrips { mode, ref mut time } => {
+                self.menu.event(ctx);
+
+                if *time != ui.primary.sim.time() {
+                    *time = ui.primary.sim.time();
+                    self.menu.set_info(ctx, faster_trips_panel(mode, ui));
+                }
+
+                if self.menu.action("help") {
+                    return Some(help(vec![
+                        "How can you possibly speed up all trips of some mode?",
+                    ]));
+                }
+            }
         }
         None
     }
@@ -351,6 +390,32 @@ fn gridlock_panel(ui: &UI) -> Text {
         prettyprint_usize(stuck),
         (stuck as f64) / total * 100.0
     )));
+    txt
+}
+
+fn faster_trips_panel(mode: TripMode, ui: &UI) -> Text {
+    let mut distrib: DurationHistogram = Default::default();
+    for (_, m, dt) in ui.primary.sim.get_finished_trips().finished_trips {
+        if mode == m {
+            distrib.add(dt);
+        }
+    }
+
+    let mut txt = Text::new();
+    txt.add(Line(format!(
+        "{} finished {:?} trips",
+        prettyprint_usize(distrib.count()),
+        mode
+    )));
+    if distrib.count() > 0 {
+        for stat in Statistic::all() {
+            txt.add(Line(format!(
+                "{}: {}",
+                stat,
+                distrib.select(stat).minimal_tostring()
+            )));
+        }
+    }
     txt
 }
 
