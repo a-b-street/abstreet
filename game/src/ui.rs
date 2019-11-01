@@ -49,8 +49,14 @@ impl UI {
                 Vec::new()
             } else {
                 vec![
-                    ("assets/water_texture.png", Color::rgb(164, 200, 234)),
-                    ("assets/grass_texture.png", Color::rgb(148, 200, 74)),
+                    (
+                        "assets/water_texture.png",
+                        cs.get_def("water", Color::rgb(164, 200, 234)),
+                    ),
+                    (
+                        "assets/grass_texture.png",
+                        cs.get_def("grass", Color::rgb(148, 200, 74)),
+                    ),
                     ("assets/pedestrian.png", Color::rgb(51, 178, 178)),
                     ("assets/car.png", Color::CYAN),
                 ]
