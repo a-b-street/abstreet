@@ -24,6 +24,7 @@ impl State for NeighborhoodPicker {
         ctx.canvas.handle_event(ctx.input);
 
         if let Some(n) = pick_neighborhood(&ui.primary.map, self.wizard.wrap(ctx)) {
+            self.wizard = Wizard::new();
             return Transition::Push(Box::new(NeighborhoodEditor {
                 menu: ModalMenu::new(
                     &format!("Neighborhood Editor for {}", n.name),

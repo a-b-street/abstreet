@@ -4,7 +4,7 @@ use crate::helpers::ID;
 use crate::mission::pick_time_range;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::{ShowEverything, UI};
-use abstutil::{prettyprint_usize, MultiMap, WeightedUsizeChoice};
+use abstutil::{prettyprint_usize, Counter, MultiMap, WeightedUsizeChoice};
 use ezgui::{
     hotkey, Choice, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line,
     MenuUnderButton, ModalMenu, Text, Wizard, WrappedWizard,
@@ -197,7 +197,7 @@ impl State for ScenarioManager {
             )));
         }
 
-        if self.demand.is_some() && self.menu.consume_action("stop showing demand", ctx) {
+        if self.demand.is_some() && self.menu.consume_action("stop showing paths", ctx) {
             self.demand = None;
         }
 
@@ -277,14 +277,14 @@ impl State for ScenarioManager {
                 &ShowEverything::new(),
             );
             g.redraw(p);
+        // TODO Color legend!
         } else {
             self.bldg_colors.draw(g, ui);
         }
 
         self.menu.draw(g);
         self.general_tools.draw(g);
-        self.common.draw(g, ui);
-        // TODO Just cover up common's OSD with ours...
+        self.common.draw_no_osd(g, ui);
 
         if let Some(ID::Building(b)) = ui.primary.current_selection {
             let mut osd = CommonState::default_osd(ID::Building(b), ui);
@@ -487,7 +487,10 @@ fn make_trip_picker(
                     .iter()
                     .map(|idx| {
                         let trip = &scenario.individ_trips[*idx];
-                        Choice::new(describe(trip, home), other_endpt(trip, home))
+                        Choice::new(
+                            describe(trip, home),
+                            other_endpt(trip, home, &ui.primary.map),
+                        )
                     })
                     .collect()
             })?
@@ -585,7 +588,7 @@ fn describe(trip: &SpawnTrip, home: OD) -> String {
     }
 }
 
-fn other_endpt(trip: &SpawnTrip, home: OD) -> ID {
+fn other_endpt(trip: &SpawnTrip, home: OD, map: &Map) -> ID {
     let driving_goal = |goal: &DrivingGoal| match goal {
         DrivingGoal::ParkNear(b) => ID::Building(*b),
         DrivingGoal::Border(i, _) => ID::Intersection(*i),
@@ -597,7 +600,10 @@ fn other_endpt(trip: &SpawnTrip, home: OD) -> ID {
     };
 
     let (from, to) = match trip {
-        SpawnTrip::CarAppearing { start, goal, .. } => (ID::Lane(start.lane()), driving_goal(goal)),
+        SpawnTrip::CarAppearing { start, goal, .. } => (
+            ID::Intersection(map.get_l(start.lane()).src_i),
+            driving_goal(goal),
+        ),
         SpawnTrip::MaybeUsingParkedCar(_, start_bldg, goal) => {
             (ID::Building(*start_bldg), driving_goal(goal))
         }
@@ -632,32 +638,59 @@ fn show_demand(
     ui: &UI,
     ctx: &EventCtx,
 ) -> Drawable {
+    let mut from_ids = Counter::new();
+    for idx in from {
+        from_ids.inc(other_endpt(
+            &scenario.individ_trips[*idx],
+            home,
+            &ui.primary.map,
+        ));
+    }
+    let mut to_ids = Counter::new();
+    for idx in to {
+        to_ids.inc(other_endpt(
+            &scenario.individ_trips[*idx],
+            home,
+            &ui.primary.map,
+        ));
+    }
+    let from_count = from_ids.consume();
+    let mut to_count = to_ids.consume();
+    let max_count =
+        (*from_count.values().max().unwrap()).max(*to_count.values().max().unwrap()) as f64;
+
     let mut batch = GeomBatch::new();
     let home_pt = match home {
         OD::Bldg(b) => ui.primary.map.get_b(b).polygon.center(),
         OD::Border(i) => ui.primary.map.get_i(i).polygon.center(),
     };
 
-    for idx in from {
-        let other = other_endpt(&scenario.individ_trips[*idx], home)
-            .canonical_point(&ui.primary)
-            .unwrap();
-        batch.push(
-            Color::RED.alpha(0.8),
-            PolyLine::new(vec![home_pt, other])
-                .make_arrow(Distance::meters(1.0))
-                .unwrap(),
-        );
+    for (id, cnt) in from_count {
+        // Bidirectional?
+        if let Some(other_cnt) = to_count.remove(&id) {
+            let width = Distance::meters(1.0)
+                + ((cnt.max(other_cnt) as f64) / max_count) * Distance::meters(2.0);
+            batch.push(
+                Color::PURPLE.alpha(0.8),
+                PolyLine::new(vec![home_pt, id.canonical_point(&ui.primary).unwrap()])
+                    .make_polygons(width),
+            );
+        } else {
+            let width = Distance::meters(1.0) + ((cnt as f64) / max_count) * Distance::meters(2.0);
+            batch.push(
+                Color::RED.alpha(0.8),
+                PolyLine::new(vec![home_pt, id.canonical_point(&ui.primary).unwrap()])
+                    .make_arrow(width)
+                    .unwrap(),
+            );
+        }
     }
-
-    for idx in to {
-        let other = other_endpt(&scenario.individ_trips[*idx], home)
-            .canonical_point(&ui.primary)
-            .unwrap();
+    for (id, cnt) in to_count {
+        let width = Distance::meters(1.0) + ((cnt as f64) / max_count) * Distance::meters(2.0);
         batch.push(
             Color::BLUE.alpha(0.8),
-            PolyLine::new(vec![other, home_pt])
-                .make_arrow(Distance::meters(1.0))
+            PolyLine::new(vec![id.canonical_point(&ui.primary).unwrap(), home_pt])
+                .make_arrow(width)
                 .unwrap(),
         );
     }

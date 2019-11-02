@@ -87,10 +87,13 @@ impl CommonState {
         None
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    pub fn draw_no_osd(&self, g: &mut GfxCtx, ui: &UI) {
         self.turn_cycler.draw(g, ui);
         self.location_tools.draw(g);
+    }
 
+    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        self.draw_no_osd(g, ui);
         CommonState::draw_osd(g, ui, &ui.primary.current_selection);
     }
 

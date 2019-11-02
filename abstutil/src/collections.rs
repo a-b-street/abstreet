@@ -81,6 +81,10 @@ impl<T: Ord + PartialEq> Counter<T> {
         list.sort_by_key(|(_, cnt)| *cnt);
         list.into_iter().map(|(t, _)| t).collect()
     }
+
+    pub fn consume(self) -> BTreeMap<T, usize> {
+        self.map
+    }
 }
 
 pub fn wraparound_get<T>(vec: &Vec<T>, idx: isize) -> &T {
