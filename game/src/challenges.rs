@@ -8,7 +8,7 @@ use ezgui::{
 };
 use geom::{Duration, DurationHistogram, DurationStats};
 use serde_derive::{Deserialize, Serialize};
-use sim::{SimFlags, SimOptions, TripMode};
+use sim::{Sim, SimFlags, SimOptions, TripMode};
 use std::collections::BTreeMap;
 
 // TODO Also have some kind of screenshot to display for each challenge
@@ -130,21 +130,15 @@ impl State for ChallengeSplash {
     }
 }
 
+// TODO Move all of this somewhere else, probably
+
 pub fn prebake() {
     let mut timer = Timer::new("prebake all challenge results");
-    let mut results = PrebakedResults {
-        faster_trips: BTreeMap::new(),
-    };
-    prebake_faster_trips(&mut results, "montlake", &mut timer);
-    abstutil::write_json("../data/prebaked_results.json", &results).unwrap();
-}
 
-fn prebake_faster_trips(results: &mut PrebakedResults, map_name: &str, timer: &mut Timer) {
-    timer.start(&format!("prebake faster trips on {}", map_name));
-
+    timer.start("run normal sim");
     let (map, mut sim, _) = SimFlags {
         load: abstutil::path1_bin(
-            map_name,
+            "montlake",
             abstutil::SCENARIOS,
             "weekday_typical_traffic_from_psrc",
         ),
@@ -152,28 +146,15 @@ fn prebake_faster_trips(results: &mut PrebakedResults, map_name: &str, timer: &m
         rng_seed: Some(42),
         opts: SimOptions::new("prebaked"),
     }
-    .load(timer);
-    sim.timed_step(&map, Duration::END_OF_DAY, timer);
+    .load(&mut timer);
+    sim.timed_step(&map, Duration::END_OF_DAY, &mut timer);
+    timer.stop("run normal sim");
 
-    timer.start("collect results");
-    let mut distribs: BTreeMap<TripMode, DurationHistogram> = BTreeMap::new();
-    for m in vec![
-        TripMode::Walk,
-        TripMode::Bike,
-        TripMode::Transit,
-        TripMode::Drive,
-    ] {
-        distribs.insert(m, Default::default());
-    }
-    for (_, m, dt) in sim.get_finished_trips().finished_trips {
-        distribs.get_mut(&m).unwrap().add(dt);
-    }
-    for (m, distrib) in distribs {
-        results.faster_trips.insert(m, distrib.to_stats());
-    }
-    timer.stop("collect results");
-
-    timer.stop(&format!("prebake faster trips on {}", map_name));
+    let results = PrebakedResults {
+        faster_trips: FasterTrips::from(&sim),
+        gridlock_delays: GridlockDelays::from(&sim),
+    };
+    abstutil::write_json("../data/prebaked_results.json", &results).unwrap();
 }
 
 // TODO Something more general?
@@ -181,5 +162,58 @@ fn prebake_faster_trips(results: &mut PrebakedResults, map_name: &str, timer: &m
 // - different baselines/benchmarks
 #[derive(Serialize, Deserialize)]
 pub struct PrebakedResults {
-    pub faster_trips: BTreeMap<TripMode, DurationStats>,
+    pub faster_trips: FasterTrips,
+    pub gridlock_delays: GridlockDelays,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct FasterTrips(pub BTreeMap<TripMode, DurationStats>);
+
+impl FasterTrips {
+    pub fn from(sim: &Sim) -> FasterTrips {
+        let mut distribs: BTreeMap<TripMode, DurationHistogram> = BTreeMap::new();
+        for m in vec![
+            TripMode::Walk,
+            TripMode::Bike,
+            TripMode::Transit,
+            TripMode::Drive,
+        ] {
+            distribs.insert(m, Default::default());
+        }
+        for (_, m, dt) in sim.get_finished_trips().finished_trips {
+            distribs.get_mut(&m).unwrap().add(dt);
+        }
+        let mut results = BTreeMap::new();
+        for (m, distrib) in distribs {
+            results.insert(m, distrib.to_stats());
+        }
+        FasterTrips(results)
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct GridlockDelays {
+    pub lt_1m: usize,
+    pub lt_5m: usize,
+    pub stuck: usize,
+}
+
+impl GridlockDelays {
+    pub fn from(sim: &Sim) -> GridlockDelays {
+        let mut delays = GridlockDelays {
+            lt_1m: 0,
+            lt_5m: 0,
+            stuck: 0,
+        };
+        for a in sim.get_agent_metadata() {
+            if a.time_spent_blocked < Duration::minutes(1) {
+                delays.lt_1m += 1;
+            } else if a.time_spent_blocked < Duration::minutes(5) {
+                delays.lt_5m += 1;
+            } else {
+                delays.stuck += 1;
+            }
+        }
+        delays
+    }
 }

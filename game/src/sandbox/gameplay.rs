@@ -1,4 +1,4 @@
-use crate::challenges::PrebakedResults;
+use crate::challenges::{FasterTrips, GridlockDelays, PrebakedResults};
 use crate::game::{msg, Transition, WizardState};
 use crate::render::AgentColorScheme;
 use crate::sandbox::{analytics, bus_explorer, spawner, SandboxMode};
@@ -313,7 +313,7 @@ impl GameplayState {
 
                 if *time != ui.primary.sim.time() {
                     *time = ui.primary.sim.time();
-                    self.menu.set_info(ctx, gridlock_panel(ui));
+                    self.menu.set_info(ctx, gridlock_panel(ui, &self.prebaked));
                 }
 
                 if self.menu.action("help") {
@@ -373,62 +373,50 @@ fn bus_route_panel(id: BusRouteID, ui: &UI, stat: Statistic) -> Text {
     txt
 }
 
-fn gridlock_panel(ui: &UI) -> Text {
-    let mut lt_1m = 0;
-    let mut lt_5m = 0;
-    let mut stuck = 0;
-    for a in ui.primary.sim.get_agent_metadata() {
-        if a.time_spent_blocked < Duration::minutes(1) {
-            lt_1m += 1;
-        } else if a.time_spent_blocked < Duration::minutes(5) {
-            lt_5m += 1;
-        } else {
-            stuck += 1;
-        }
-    }
-    let total = (lt_1m + lt_5m + stuck) as f64;
+fn gridlock_panel(ui: &UI, prebaked: &PrebakedResults) -> Text {
+    let now = GridlockDelays::from(&ui.primary.sim);
+    let baseline = &prebaked.gridlock_delays;
+
+    let now_total = (now.lt_1m + now.lt_5m + now.stuck) as f64;
+    let baseline_total = (baseline.lt_1m + baseline.lt_5m + baseline.stuck) as f64;
 
     let mut txt = Text::new();
     txt.add(Line("How long have agents been stuck?"));
     txt.add(Line(format!(
-        "under 1 min: {} ({:.1}%)",
-        prettyprint_usize(lt_1m),
-        (lt_1m as f64) / total * 100.0
+        "under 1 min: {} ({:.1}%, vs {:.1}%)",
+        prettyprint_usize(now.lt_1m),
+        (now.lt_1m as f64) / now_total * 100.0,
+        (baseline.lt_1m as f64) / baseline_total * 100.0
     )));
     txt.add(Line(format!(
-        "under 5 mins: {} ({:.1}%)",
-        prettyprint_usize(lt_5m),
-        (lt_5m as f64) / total * 100.0
+        "under 5 mins: {} ({:.1}%, vs {:.1}%)",
+        prettyprint_usize(now.lt_5m),
+        (now.lt_5m as f64) / now_total * 100.0,
+        (baseline.lt_5m as f64) / baseline_total * 100.0
     )));
     txt.add(Line(format!(
-        "over 5 mins: {} ({:.1}%)",
-        prettyprint_usize(stuck),
-        (stuck as f64) / total * 100.0
+        "over 5 mins: {} ({:.1}%, vs {:.1}%)",
+        prettyprint_usize(now.stuck),
+        (now.stuck as f64) / now_total * 100.0,
+        (baseline.stuck as f64) / baseline_total * 100.0
     )));
     txt
 }
 
 fn faster_trips_panel(mode: TripMode, ui: &UI, prebaked: &PrebakedResults) -> Text {
-    let mut distrib: DurationHistogram = Default::default();
-    for (_, m, dt) in ui.primary.sim.get_finished_trips().finished_trips {
-        if mode == m {
-            distrib.add(dt);
-        }
-    }
-    let stats = distrib.to_stats();
-
-    let baseline = &prebaked.faster_trips[&mode];
+    let now = &FasterTrips::from(&ui.primary.sim).0[&mode];
+    let baseline = &prebaked.faster_trips.0[&mode];
 
     let mut txt = Text::new();
     txt.add(Line(format!(
         "{} finished {:?} trips (vs {})",
-        prettyprint_usize(stats.count),
+        prettyprint_usize(now.count),
         mode,
         prettyprint_usize(baseline.count),
     )));
     // TODO Which one?
     if false {
-        for (stat, dt) in &stats.stats {
+        for (stat, dt) in &now.stats {
             txt.add(Line(format!("{}: ", stat)));
             let vs = baseline.stats[&stat];
             let color = if *dt <= vs { Color::GREEN } else { Color::RED };
@@ -437,14 +425,14 @@ fn faster_trips_panel(mode: TripMode, ui: &UI, prebaked: &PrebakedResults) -> Te
         }
     }
     if true {
-        for (stat, dt) in stats.stats {
+        for (stat, dt) in &now.stats {
             txt.add(Line(format!("{}: ", stat)));
             let vs = baseline.stats[&stat];
-            if dt <= vs {
-                txt.append(Line((vs - dt).minimal_tostring()).fg(Color::GREEN));
+            if *dt <= vs {
+                txt.append(Line((vs - *dt).minimal_tostring()).fg(Color::GREEN));
                 txt.append(Line(" faster"));
             } else {
-                txt.append(Line((dt - vs).minimal_tostring()).fg(Color::RED));
+                txt.append(Line((*dt - vs).minimal_tostring()).fg(Color::RED));
                 txt.append(Line(" slower"));
             }
         }
