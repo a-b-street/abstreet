@@ -1,16 +1,20 @@
 use crate::common::CommonState;
-use crate::game::{msg, State, Transition};
+use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::render::DrawOptions;
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu};
-use geom::{Duration, PolyLine};
-use map_model::{BuildingID, IntersectionID, LaneType, Map, PathRequest, Position, LANE_THICKNESS};
+use geom::{Distance, Duration, PolyLine};
+use map_model::{
+    BuildingID, IntersectionID, LaneID, LaneType, Map, PathRequest, Position, LANE_THICKNESS,
+};
 use rand::seq::SliceRandom;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
-use sim::{DrivingGoal, Scenario, SidewalkSpot, Sim, TripSpec};
+use sim::{
+    BorderSpawnOverTime, DrivingGoal, OriginDestination, Scenario, SidewalkSpot, Sim, TripSpec,
+};
 
 const SMALL_DT: Duration = Duration::const_seconds(0.1);
 
@@ -415,4 +419,161 @@ fn schedule_trip(
         }
     }
     None
+}
+
+// New experiment, stop squeezing in all these options into one thing, specialize.
+pub struct SpawnManyAgents {
+    menu: ModalMenu,
+    from: LaneID,
+    maybe_goal: Option<(LaneID, Option<PolyLine>)>,
+    schedule: Option<(usize, Duration)>,
+}
+
+impl SpawnManyAgents {
+    pub fn new(ctx: &mut EventCtx, ui: &mut UI) -> Option<Box<dyn State>> {
+        if let Some(ID::Lane(l)) = ui.primary.current_selection {
+            if ui.primary.map.get_l(l).is_driving()
+                && ctx
+                    .input
+                    .contextual_action(Key::F2, "spawn many cars starting here")
+            {
+                return Some(Box::new(SpawnManyAgents {
+                    menu: ModalMenu::new(
+                        "Spawn many agents",
+                        vec![(hotkey(Key::Escape), "quit")],
+                        ctx,
+                    ),
+                    from: l,
+                    maybe_goal: None,
+                    schedule: None,
+                }));
+            }
+        }
+        None
+    }
+}
+
+impl State for SpawnManyAgents {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+        // TODO Weird pattern for handling "return value" from the wizard we launched? Maybe
+        // PopWithData is a weird pattern; we should have a resume() handler that handles the
+        // context
+        if let Some((count, duration)) = self.schedule {
+            create_swarm(
+                ui,
+                self.from,
+                self.maybe_goal.take().unwrap().0,
+                count,
+                duration,
+            );
+            return Transition::Pop;
+        }
+
+        self.menu.event(ctx);
+        if self.menu.action("quit") {
+            return Transition::Pop;
+        }
+
+        ctx.canvas.handle_event(ctx.input);
+        if ctx.redo_mouseover() {
+            ui.recalculate_current_selection(ctx);
+        }
+
+        let map = &ui.primary.map;
+
+        let new_goal = match ui.primary.current_selection {
+            Some(ID::Lane(l)) if map.get_l(l).is_driving() => l,
+            _ => {
+                self.maybe_goal = None;
+                return Transition::Keep;
+            }
+        };
+
+        let recalculate = match self.maybe_goal {
+            Some((l, _)) => l != new_goal,
+            None => true,
+        };
+
+        if recalculate {
+            if let Some(path) = map.pathfind(PathRequest {
+                start: Position::new(self.from, Distance::ZERO),
+                end: Position::new(new_goal, map.get_l(new_goal).length()),
+                can_use_bike_lanes: false,
+                can_use_bus_lanes: false,
+            }) {
+                self.maybe_goal = Some((new_goal, path.trace(map, Distance::ZERO, None)));
+            } else {
+                self.maybe_goal = None;
+            }
+        }
+
+        if self.maybe_goal.is_some()
+            && self.schedule.is_none()
+            && ctx.input.contextual_action(Key::F2, "end the swarm here")
+        {
+            return Transition::Push(WizardState::new(Box::new(move |wiz, ctx, _| {
+                let mut wizard = wiz.wrap(ctx);
+                let count =
+                    wizard.input_usize_prefilled("How many cars to spawn?", "1000".to_string())?;
+                let duration = Duration::seconds(wizard.input_usize_prefilled(
+                    "How many seconds to spawn them over?",
+                    "90".to_string(),
+                )? as f64);
+                // TODO Or call create_swarm here and pop twice. Nice to play with two patterns
+                // though.
+                // TODO Another alt is to extend the wizard pattern and have a sort of
+                // general-purpose wizard block.
+                Some(Transition::PopWithData(Box::new(move |state, _, _| {
+                    let mut spawn = state.downcast_mut::<SpawnManyAgents>().unwrap();
+                    spawn.schedule = Some((count, duration));
+                })))
+            })));
+        }
+
+        Transition::Keep
+    }
+
+    fn draw_default_ui(&self) -> bool {
+        false
+    }
+
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        // TODO Overkill to do this just for one override?
+        // TODO Maybe invert the control, make the default draw UI ask for overrides from the
+        // state.
+        let mut opts = DrawOptions::new();
+        opts.override_colors
+            .insert(ID::Lane(self.from), ui.cs.get("selected"));
+        ui.draw(g, opts, &ui.primary.sim, &ShowEverything::new());
+
+        if let Some((_, Some(ref trace))) = self.maybe_goal {
+            g.draw_polygon(ui.cs.get("route"), &trace.make_polygons(LANE_THICKNESS));
+        }
+
+        self.menu.draw(g);
+        CommonState::draw_osd(g, ui, &ui.primary.current_selection);
+    }
+}
+
+fn create_swarm(ui: &mut UI, from: LaneID, to: LaneID, count: usize, duration: Duration) {
+    // TODO No buses
+    // TODO Change the name
+    let mut scenario = Scenario::empty(&ui.primary.map);
+    scenario.border_spawn_over_time.push(BorderSpawnOverTime {
+        num_peds: 0,
+        num_cars: count,
+        num_bikes: 0,
+        start_time: ui.primary.sim.time() + SMALL_DT,
+        stop_time: ui.primary.sim.time() + SMALL_DT + duration,
+        start_from_border: ui.primary.map.get_l(from).src_i,
+        goal: OriginDestination::Border(ui.primary.map.get_l(to).dst_i),
+        percent_use_transit: 0.0,
+    });
+    let mut rng = ui.primary.current_flags.sim_flags.make_rng();
+    scenario.instantiate(
+        &mut ui.primary.sim,
+        &ui.primary.map,
+        &mut rng,
+        &mut Timer::throwaway(),
+    );
 }

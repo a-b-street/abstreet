@@ -207,6 +207,9 @@ impl GameplayState {
                 if let Some(new_state) = spawner::AgentSpawner::new(ctx, ui) {
                     return Some(Transition::Push(new_state));
                 }
+                if let Some(new_state) = spawner::SpawnManyAgents::new(ctx, ui) {
+                    return Some(Transition::Push(new_state));
+                }
             }
             State::PlayScenario => {
                 self.menu.event(ctx);
