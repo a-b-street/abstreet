@@ -512,6 +512,77 @@ impl TripManager {
         let t = self.trips.iter().find(|t| t.uses_car(id, home))?;
         Some((t.id, t.spawned_at))
     }
+
+    // TODO Refactor after wrangling the TripStart/TripEnd mess
+    pub fn count_trips_involving_bldg(&self, b: BuildingID, now: Duration) -> Option<Vec<String>> {
+        self.count_trips(TripStart::Bldg(b), TripEnd::Bldg(b), now)
+    }
+    pub fn count_trips_involving_border(
+        &self,
+        i: IntersectionID,
+        now: Duration,
+    ) -> Option<Vec<String>> {
+        self.count_trips(TripStart::Border(i), TripEnd::Border(i), now)
+    }
+    fn count_trips(&self, start: TripStart, end: TripEnd, now: Duration) -> Option<Vec<String>> {
+        let mut from_aborted = 0;
+        let mut from_in_progress = 0;
+        let mut from_completed = 0;
+        let mut from_unstarted = 0;
+        let mut to_aborted = 0;
+        let mut to_in_progress = 0;
+        let mut to_completed = 0;
+        let mut to_unstarted = 0;
+
+        let mut any = false;
+        for trip in &self.trips {
+            if trip.start == start {
+                any = true;
+                if trip.aborted {
+                    from_aborted += 1;
+                } else if trip.finished_at.is_some() {
+                    from_completed += 1;
+                } else if now >= trip.spawned_at {
+                    from_in_progress += 1;
+                } else {
+                    from_unstarted += 1;
+                }
+            } else if trip.end == end {
+                any = true;
+                if trip.aborted {
+                    to_aborted += 1;
+                } else if trip.finished_at.is_some() {
+                    to_completed += 1;
+                } else if now >= trip.spawned_at {
+                    to_in_progress += 1;
+                } else {
+                    to_unstarted += 1;
+                }
+            }
+        }
+        if !any {
+            return None;
+        }
+
+        Some(vec![
+            format!(
+                "Aborted trips: {} from here, {} to here",
+                from_aborted, to_aborted
+            ),
+            format!(
+                "Finished trips: {} from here, {} to here",
+                from_completed, to_completed
+            ),
+            format!(
+                "In-progress trips: {} from here, {} to here",
+                from_in_progress, to_in_progress
+            ),
+            format!(
+                "Future trips: {} from here, {} to here",
+                from_unstarted, to_unstarted
+            ),
+        ])
+    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]

@@ -123,9 +123,9 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
                 ]);
             }
 
-            txt.add(Line(""));
             let delays = ui.primary.sim.get_intersection_delays(id);
             if let Some(p) = delays.percentile(50.0) {
+                txt.add(Line(""));
                 txt.add(Line(format!("50%ile delay: {}", p)));
             }
             if let Some(p) = delays.percentile(90.0) {
@@ -136,6 +136,13 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
             if !accepted.is_empty() {
                 txt.add(Line(""));
                 txt.add(Line(format!("{} turning", accepted.len())));
+            }
+
+            if let Some(lines) = sim.count_trips_involving_border(id) {
+                txt.add(Line(""));
+                for line in lines {
+                    txt.add(Line(line));
+                }
             }
         }
         // TODO No way to trigger the info panel for this yet.
@@ -159,9 +166,16 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
                     Line(format!("{} parking spots via ", p.num_stalls)),
                     Line(&p.name).fg(name_color),
                 ]);
+                txt.add(Line(""));
             }
 
-            // TODO Trips to/from here
+            if let Some(lines) = sim.count_trips_involving_bldg(id) {
+                txt.add(Line(""));
+                for line in lines {
+                    txt.add(Line(line));
+                }
+            }
+
             // TODO Associated cars
         }
         ID::Car(id) => {

@@ -459,7 +459,7 @@ fn change_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<
             list.push("just buses".to_string());
             list
         })?;
-    Some(Transition::Replace(Box::new(SandboxMode::new(
+    Some(Transition::PopThenReplace(Box::new(SandboxMode::new(
         ctx,
         ui,
         GameplayMode::PlayScenario(scenario_name),
