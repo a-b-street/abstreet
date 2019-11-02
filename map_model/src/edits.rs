@@ -47,6 +47,7 @@ impl MapEdits {
     // TODO Version these
     pub(crate) fn save(&mut self) {
         assert!(self.dirty);
+        assert_ne!(self.edits_name, "no_edits");
         abstutil::save_json_object(abstutil::EDITS, &self.map_name, &self.edits_name, self);
         self.dirty = false;
     }

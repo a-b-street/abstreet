@@ -35,6 +35,7 @@ impl GUI for Game {
         let transition = match self.states.last_mut().unwrap().event(ctx, &mut self.ui) {
             Transition::Keep => Transition::KeepWithMode(EventLoopMode::InputOnly),
             Transition::Pop => Transition::PopWithMode(EventLoopMode::InputOnly),
+            Transition::PopTwice => Transition::PopTwiceWithMode(EventLoopMode::InputOnly),
             Transition::Push(state) => Transition::PushWithMode(state, EventLoopMode::InputOnly),
             Transition::Replace(state) => {
                 Transition::ReplaceWithMode(state, EventLoopMode::InputOnly)
@@ -48,6 +49,15 @@ impl GUI for Game {
         match transition {
             Transition::KeepWithMode(evmode) => evmode,
             Transition::PopWithMode(evmode) => {
+                self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
+                if self.states.is_empty() {
+                    self.before_quit(ctx.canvas);
+                    std::process::exit(0);
+                }
+                evmode
+            }
+            Transition::PopTwiceWithMode(evmode) => {
+                self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
                 if self.states.is_empty() {
                     self.before_quit(ctx.canvas);
@@ -147,6 +157,7 @@ pub enum Transition {
     // These variants imply EventLoopMode::InputOnly.
     Keep,
     Pop,
+    PopTwice,
     // If a state needs to pass data back to the parent, use this. Sadly, runtime type casting.
     PopWithData(Box<dyn FnOnce(&mut Box<dyn State>, &mut UI, &mut EventCtx)>),
     Push(Box<dyn State>),
@@ -156,6 +167,7 @@ pub enum Transition {
     // These don't.
     KeepWithMode(EventLoopMode),
     PopWithMode(EventLoopMode),
+    PopTwiceWithMode(EventLoopMode),
     PushWithMode(Box<dyn State>, EventLoopMode),
     ReplaceWithMode(Box<dyn State>, EventLoopMode),
     PopThenReplaceWithMode(Box<dyn State>, EventLoopMode),

@@ -145,9 +145,37 @@ impl State for SandboxMode {
         }
 
         if self.general_tools.action("back to title screen") {
-            // TODO Clear edits? Warn about unsaved?
-            ui.primary.clear_sim();
-            return Transition::Pop;
+            // TODO Clear edits?
+            return Transition::Push(WizardState::new(Box::new(move |wiz, ctx, ui| {
+                // TODO Open up a dialog if the edits need a name!
+                let dirty = ui.primary.map.get_edits().dirty
+                    && ui.primary.map.get_edits().edits_name != "no_edits";
+                let (resp, _) = wiz.wrap(ctx).choose(
+                    "Sure you want to abandon the current challenge?",
+                    || {
+                        let mut choices = Vec::new();
+                        choices.push(Choice::new("keep playing", ()));
+                        if dirty {
+                            choices.push(Choice::new("save edits and quit", ()));
+                        }
+                        choices.push(Choice::new("quit challenge", ()));
+                        choices
+                    },
+                )?;
+                match resp.as_str() {
+                    "save edits and quit" => {
+                        ui.primary.map.save_edits();
+                        ui.primary.clear_sim();
+                        Some(Transition::PopTwice)
+                    }
+                    "quit challenge" => {
+                        ui.primary.clear_sim();
+                        Some(Transition::PopTwice)
+                    }
+                    "keep playing" => Some(Transition::Pop),
+                    _ => unreachable!(),
+                }
+            })));
         }
         if self.general_tools.action("debug mode") {
             return Transition::Push(Box::new(DebugMode::new(ctx, ui)));

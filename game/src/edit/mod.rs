@@ -316,6 +316,7 @@ fn save_edits(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Trans
     } else {
         None
     };
+    // TODO Don't allow naming them no_edits!
 
     // TODO Do it this weird way to avoid saving edits on every event. :P
     let save = "save edits";
