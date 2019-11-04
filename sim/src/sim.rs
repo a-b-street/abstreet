@@ -51,7 +51,6 @@ pub struct Sim {
     trip_positions: Option<TripPositions>,
     // TODO Maybe the buffered events in child objects should also have this.
     #[derivative(PartialEq = "ignore")]
-    #[serde(skip_serializing, skip_deserializing)]
     analytics: Analytics,
 }
 
@@ -108,7 +107,7 @@ impl Sim {
             step_count: 0,
             trip_positions: None,
 
-            analytics: Default::default(),
+            analytics: Analytics::new(),
         }
     }
 

@@ -1,4 +1,3 @@
-use crate::challenges::{BusArrivals, FasterTrips, GridlockDelays, PrebakedResults};
 use crate::game::{msg, Transition, WizardState};
 use crate::render::AgentColorScheme;
 use crate::sandbox::{analytics, bus_explorer, spawner, SandboxMode};
@@ -7,7 +6,7 @@ use abstutil::{prettyprint_usize, Timer};
 use ezgui::{hotkey, Choice, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, Wizard};
 use geom::{Duration, Statistic};
 use map_model::BusRouteID;
-use sim::{Scenario, TripMode};
+use sim::{Analytics, Scenario, Sim, TripMode};
 
 #[derive(Clone)]
 pub enum GameplayMode {
@@ -25,7 +24,7 @@ pub struct GameplayState {
     pub mode: GameplayMode,
     pub menu: ModalMenu,
     state: State,
-    prebaked: PrebakedResults,
+    prebaked: Analytics,
 }
 
 enum State {
@@ -48,7 +47,7 @@ enum State {
 
 impl GameplayState {
     pub fn initialize(mode: GameplayMode, ui: &mut UI, ctx: &mut EventCtx) -> GameplayState {
-        let prebaked: PrebakedResults =
+        let prebaked: Analytics =
             abstutil::read_json("../data/prebaked_results.json", &mut Timer::throwaway()).unwrap();
 
         let (state, maybe_scenario) = match mode.clone() {
@@ -356,9 +355,13 @@ impl GameplayState {
     }
 }
 
-fn bus_route_panel(id: BusRouteID, ui: &UI, stat: Statistic, prebaked: &PrebakedResults) -> Text {
-    let now = BusArrivals::from(&ui.primary.sim).to_stats(id, ui.primary.sim.time());
-    let baseline = prebaked.bus_arrivals.to_stats(id, ui.primary.sim.time());
+fn bus_route_panel(id: BusRouteID, ui: &UI, stat: Statistic, prebaked: &Analytics) -> Text {
+    let now = ui
+        .primary
+        .sim
+        .get_analytics()
+        .bus_arrivals(ui.primary.sim.time(), id);
+    let baseline = prebaked.bus_arrivals(ui.primary.sim.time(), id);
 
     let route = ui.primary.map.get_br(id);
     let mut txt = Text::new();
@@ -394,9 +397,10 @@ fn bus_route_panel(id: BusRouteID, ui: &UI, stat: Statistic, prebaked: &Prebaked
     txt
 }
 
-fn gridlock_panel(ui: &UI, prebaked: &PrebakedResults) -> Text {
+fn gridlock_panel(ui: &UI, _prebaked: &Analytics) -> Text {
     let now = GridlockDelays::from(&ui.primary.sim);
-    let baseline = &prebaked.gridlock_delays;
+    // TODO Derive this from something in Analytics
+    let baseline = GridlockDelays::from(&ui.primary.sim);
 
     let now_total = (now.lt_1m + now.lt_5m + now.stuck) as f64;
     let baseline_total = (baseline.lt_1m + baseline.lt_5m + baseline.stuck) as f64;
@@ -424,16 +428,13 @@ fn gridlock_panel(ui: &UI, prebaked: &PrebakedResults) -> Text {
     txt
 }
 
-fn faster_trips_panel(mode: TripMode, ui: &UI, prebaked: &PrebakedResults) -> Text {
-    let now = FasterTrips::from(&ui.primary.sim)
-        .to_stats(ui.primary.sim.time())
-        .remove(&mode)
-        .unwrap();
-    let baseline = prebaked
-        .faster_trips
-        .to_stats(ui.primary.sim.time())
-        .remove(&mode)
-        .unwrap();
+fn faster_trips_panel(mode: TripMode, ui: &UI, prebaked: &Analytics) -> Text {
+    let now = ui
+        .primary
+        .sim
+        .get_analytics()
+        .finished_trips(ui.primary.sim.time(), mode);
+    let baseline = prebaked.finished_trips(ui.primary.sim.time(), mode);
 
     let mut txt = Text::new();
     txt.add(Line(format!(
@@ -545,5 +546,31 @@ fn manage_acs(
         ui.agent_cs = acs;
     } else if active_originally && menu.swap_action(hide, show, ctx) {
         ui.agent_cs = AgentColorScheme::VehicleTypes;
+    }
+}
+
+// TODO Figure out what we really want to measure here.
+struct GridlockDelays {
+    lt_1m: usize,
+    lt_5m: usize,
+    stuck: usize,
+}
+impl GridlockDelays {
+    fn from(sim: &Sim) -> GridlockDelays {
+        let mut delays = GridlockDelays {
+            lt_1m: 0,
+            lt_5m: 0,
+            stuck: 0,
+        };
+        for a in sim.get_agent_metadata() {
+            if a.time_spent_blocked < Duration::minutes(1) {
+                delays.lt_1m += 1;
+            } else if a.time_spent_blocked < Duration::minutes(5) {
+                delays.lt_5m += 1;
+            } else {
+                delays.stuck += 1;
+            }
+        }
+        delays
     }
 }

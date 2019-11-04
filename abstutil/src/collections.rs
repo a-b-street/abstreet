@@ -59,6 +59,12 @@ pub struct Counter<T: Ord + PartialEq> {
     map: BTreeMap<T, usize>,
 }
 
+impl<T: Ord + PartialEq> Default for Counter<T> {
+    fn default() -> Counter<T> {
+        Counter::new()
+    }
+}
+
 impl<T: Ord + PartialEq> Counter<T> {
     pub fn new() -> Counter<T> {
         Counter {

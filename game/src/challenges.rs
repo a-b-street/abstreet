@@ -6,11 +6,8 @@ use ezgui::{
     hotkey, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ModalMenu, Text,
     VerticalAlignment,
 };
-use geom::{Duration, DurationHistogram, DurationStats};
-use map_model::{BusRouteID, BusStopID};
-use serde_derive::{Deserialize, Serialize};
-use sim::{CarID, Sim, SimFlags, SimOptions, TripMode};
-use std::collections::BTreeMap;
+use geom::Duration;
+use sim::{SimFlags, SimOptions, TripMode};
 
 // TODO Also have some kind of screenshot to display for each challenge
 #[derive(Clone)]
@@ -131,8 +128,7 @@ impl State for ChallengeSplash {
     }
 }
 
-// TODO Move all of this somewhere else, probably
-
+// TODO Move to sim crate
 pub fn prebake() {
     let mut timer = Timer::new("prebake all challenge results");
 
@@ -151,112 +147,5 @@ pub fn prebake() {
     sim.timed_step(&map, Duration::END_OF_DAY, &mut timer);
     timer.stop("run normal sim");
 
-    let results = PrebakedResults {
-        faster_trips: FasterTrips::from(&sim),
-        gridlock_delays: GridlockDelays::from(&sim),
-        bus_arrivals: BusArrivals::from(&sim),
-    };
-    abstutil::write_json("../data/prebaked_results.json", &results).unwrap();
-}
-
-// TODO Something more general?
-// - key by GameplayMode (which needs map name too maybe)
-// - different baselines/benchmarks
-// TODO Actually, can we just store sim Analytics, and move all of this derived stuff there?
-#[derive(Serialize, Deserialize)]
-pub struct PrebakedResults {
-    pub faster_trips: FasterTrips,
-    pub gridlock_delays: GridlockDelays,
-    pub bus_arrivals: BusArrivals,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct FasterTrips(pub Vec<(Duration, Option<TripMode>, Duration)>);
-impl FasterTrips {
-    pub fn from(sim: &Sim) -> FasterTrips {
-        FasterTrips(sim.get_analytics().finished_trips.clone())
-    }
-
-    pub fn to_stats(&self, now: Duration) -> BTreeMap<TripMode, DurationStats> {
-        let mut distribs: BTreeMap<TripMode, DurationHistogram> = BTreeMap::new();
-        for m in TripMode::all() {
-            distribs.insert(m, DurationHistogram::new());
-        }
-        for (t, mode, dt) in &self.0 {
-            if *t > now {
-                break;
-            }
-            // Skip aborted trips
-            if let Some(m) = mode {
-                distribs.get_mut(&m).unwrap().add(*dt);
-            }
-        }
-        let mut results = BTreeMap::new();
-        for (m, distrib) in distribs {
-            results.insert(m, distrib.to_stats());
-        }
-        results
-    }
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct BusArrivals(pub Vec<(Duration, CarID, BusRouteID, BusStopID)>);
-impl BusArrivals {
-    pub fn from(sim: &Sim) -> BusArrivals {
-        BusArrivals(sim.get_analytics().bus_arrivals.clone())
-    }
-
-    pub fn to_stats(&self, r: BusRouteID, now: Duration) -> BTreeMap<BusStopID, DurationStats> {
-        let mut per_bus: BTreeMap<CarID, Vec<(Duration, BusStopID)>> = BTreeMap::new();
-        for (t, car, route, stop) in &self.0 {
-            if *t > now {
-                break;
-            }
-            if *route == r {
-                per_bus
-                    .entry(*car)
-                    .or_insert_with(Vec::new)
-                    .push((*t, *stop));
-            }
-        }
-        let mut delay_to_stop: BTreeMap<BusStopID, DurationHistogram> = BTreeMap::new();
-        for events in per_bus.values() {
-            for pair in events.windows(2) {
-                delay_to_stop
-                    .entry(pair[1].1)
-                    .or_insert_with(DurationHistogram::new)
-                    .add(pair[1].0 - pair[0].0);
-            }
-        }
-        delay_to_stop
-            .into_iter()
-            .map(|(k, v)| (k, v.to_stats()))
-            .collect()
-    }
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct GridlockDelays {
-    pub lt_1m: usize,
-    pub lt_5m: usize,
-    pub stuck: usize,
-}
-impl GridlockDelays {
-    pub fn from(sim: &Sim) -> GridlockDelays {
-        let mut delays = GridlockDelays {
-            lt_1m: 0,
-            lt_5m: 0,
-            stuck: 0,
-        };
-        for a in sim.get_agent_metadata() {
-            if a.time_spent_blocked < Duration::minutes(1) {
-                delays.lt_1m += 1;
-            } else if a.time_spent_blocked < Duration::minutes(5) {
-                delays.lt_5m += 1;
-            } else {
-                delays.stuck += 1;
-            }
-        }
-        delays
-    }
+    abstutil::write_json("../data/prebaked_results.json", sim.get_analytics()).unwrap();
 }
