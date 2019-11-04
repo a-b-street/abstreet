@@ -5,8 +5,115 @@
     "max_lon": -122.2985,
     "max_lat": 47.6475
   },
-  "delete_roads": [],
-  "delete_intersections": [],
+  "delete_roads": [
+    {
+      "osm_way_id": 6361203,
+      "i1": {
+        "osm_node_id": 1709144668
+      },
+      "i2": {
+        "osm_node_id": 53101732
+      }
+    },
+    {
+      "osm_way_id": 6495789,
+      "i1": {
+        "osm_node_id": 6212789180
+      },
+      "i2": {
+        "osm_node_id": 53238761
+      }
+    },
+    {
+      "osm_way_id": 6511010,
+      "i1": {
+        "osm_node_id": 1709144244
+      },
+      "i2": {
+        "osm_node_id": 53238761
+      }
+    },
+    {
+      "osm_way_id": 264545451,
+      "i1": {
+        "osm_node_id": 2702114617
+      },
+      "i2": {
+        "osm_node_id": 2702114618
+      }
+    },
+    {
+      "osm_way_id": 264545453,
+      "i1": {
+        "osm_node_id": 496331163
+      },
+      "i2": {
+        "osm_node_id": 53101732
+      }
+    },
+    {
+      "osm_way_id": 284562225,
+      "i1": {
+        "osm_node_id": 59677221
+      },
+      "i2": {
+        "osm_node_id": 6212789180
+      }
+    },
+    {
+      "osm_way_id": 292812241,
+      "i1": {
+        "osm_node_id": 59677221
+      },
+      "i2": {
+        "osm_node_id": 2702114617
+      }
+    },
+    {
+      "osm_way_id": 292812244,
+      "i1": {
+        "osm_node_id": 53101732
+      },
+      "i2": {
+        "osm_node_id": 2702114617
+      }
+    },
+    {
+      "osm_way_id": 292812245,
+      "i1": {
+        "osm_node_id": 2702114618
+      },
+      "i2": {
+        "osm_node_id": 496331163
+      }
+    },
+    {
+      "osm_way_id": 364254479,
+      "i1": {
+        "osm_node_id": 59708429
+      },
+      "i2": {
+        "osm_node_id": 59677221
+      }
+    }
+  ],
+  "delete_intersections": [
+    {
+      "osm_node_id": 53101732
+    },
+    {
+      "osm_node_id": 53238761
+    },
+    {
+      "osm_node_id": 59677221
+    },
+    {
+      "osm_node_id": 2702114617
+    },
+    {
+      "osm_node_id": 2702114618
+    }
+  ],
   "override_intersections": [
     [
       {
@@ -60,6 +167,20 @@
           "inner_y": 1777.5641
         },
         "intersection_type": "Border",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
+        "osm_node_id": 496331163
+      },
+      {
+        "point": {
+          "inner_x": 1735.7188,
+          "inner_y": 644.3151
+        },
+        "intersection_type": "StopSign",
         "label": null,
         "synthetic": false
       }
@@ -156,6 +277,80 @@
     ],
     [
       {
+        "osm_way_id": 6361203,
+        "i1": {
+          "osm_node_id": 1709144668
+        },
+        "i2": {
+          "osm_node_id": 496331163
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1607.376,
+            "inner_y": 643.3738
+          },
+          {
+            "inner_x": 1613.8054,
+            "inner_y": 643.3961
+          },
+          {
+            "inner_x": 1735.7188,
+            "inner_y": 644.3151
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "6361203",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "East Miller Street",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 6511010,
+        "i1": {
+          "osm_node_id": 1709144244
+        },
+        "i2": {
+          "osm_node_id": 6212789180
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1607.3161,
+            "inner_y": 724.624
+          },
+          {
+            "inner_x": 1732.7778,
+            "inner_y": 724.3793
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "6511010",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "East Calhoun Street",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
         "osm_way_id": 157279808,
         "i1": {
           "osm_node_id": 53217949
@@ -200,6 +395,130 @@
           "maxspeed": "25 mph",
           "name": "East Interlaken Boulevard",
           "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 264545450,
+        "i1": {
+          "osm_node_id": 496331163
+        },
+        "i2": {
+          "osm_node_id": 2702114622
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1735.7188,
+            "inner_y": 644.3151
+          },
+          {
+            "inner_x": 1739.3579,
+            "inner_y": 483.4145
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "264545450",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "designated",
+          "cycleway": "shared_lane",
+          "highway": "secondary",
+          "lanes": "2",
+          "maxspeed": "30 mph",
+          "name": "Lake Washington Boulevard East",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 284562225,
+        "i1": {
+          "osm_node_id": 496331163
+        },
+        "i2": {
+          "osm_node_id": 6212789180
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1735.7188,
+            "inner_y": 644.3151
+          },
+          {
+            "inner_x": 1730.0899,
+            "inner_y": 674.0174
+          },
+          {
+            "inner_x": 1738.7324,
+            "inner_y": 711.7829
+          },
+          {
+            "inner_x": 1732.7778,
+            "inner_y": 724.3793
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "284562225",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "1",
+          "maxspeed": "25 mph",
+          "name": "26th Avenue East",
+          "oneway": "yes",
+          "parking:lane:both": "no_parking",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 364254479,
+        "i1": {
+          "osm_node_id": 59708429
+        },
+        "i2": {
+          "osm_node_id": 496331163
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 1745.9587,
+            "inner_y": 696.1884
+          },
+          {
+            "inner_x": 1735.7188,
+            "inner_y": 644.3151
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "364254479",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "designated",
+          "cycleway": "shared_lane",
+          "highway": "secondary",
+          "lanes": "2",
+          "maxspeed": "30 mph",
+          "name": "Lake Washington Boulevard East",
+          "parking:lane:both": "no_parking",
           "sidewalk": "both"
         },
         "turn_restrictions": []

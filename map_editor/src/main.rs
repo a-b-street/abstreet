@@ -808,6 +808,9 @@ fn find_short_roads(model: &Model) -> HashSet<OriginalRoad> {
         }
     }
     println!("{} short roads", roads.len());
+    for r in &roads {
+        println!("- {}", r);
+    }
     roads
 }
 

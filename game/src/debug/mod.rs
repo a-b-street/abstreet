@@ -273,8 +273,6 @@ impl State for DebugMode {
             }
         }
 
-        self.common.draw(g, ui);
-
         self.objects.draw(g, ui);
         self.neighborhood_summary.draw(g);
         self.all_routes.draw(g, ui);
@@ -282,6 +280,7 @@ impl State for DebugMode {
         if !g.is_screencap() {
             self.menu.draw(g);
             self.general_tools.draw(g);
+            self.common.draw(g, ui);
         }
     }
 }
