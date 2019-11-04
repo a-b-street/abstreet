@@ -7,8 +7,9 @@ use ezgui::{
     VerticalAlignment,
 };
 use geom::{Duration, DurationHistogram, DurationStats};
+use map_model::{BusRouteID, BusStopID};
 use serde_derive::{Deserialize, Serialize};
-use sim::{Sim, SimFlags, SimOptions, TripMode};
+use sim::{CarID, Sim, SimFlags, SimOptions, TripMode};
 use std::collections::BTreeMap;
 
 // TODO Also have some kind of screenshot to display for each challenge
@@ -153,6 +154,7 @@ pub fn prebake() {
     let results = PrebakedResults {
         faster_trips: FasterTrips::from(&sim),
         gridlock_delays: GridlockDelays::from(&sim),
+        bus_arrivals: BusArrivals::from(&sim),
     };
     abstutil::write_json("../data/prebaked_results.json", &results).unwrap();
 }
@@ -160,15 +162,16 @@ pub fn prebake() {
 // TODO Something more general?
 // - key by GameplayMode (which needs map name too maybe)
 // - different baselines/benchmarks
+// TODO Actually, can we just store sim Analytics, and move all of this derived stuff there?
 #[derive(Serialize, Deserialize)]
 pub struct PrebakedResults {
     pub faster_trips: FasterTrips,
     pub gridlock_delays: GridlockDelays,
+    pub bus_arrivals: BusArrivals,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct FasterTrips(pub Vec<(Duration, Option<TripMode>, Duration)>);
-
 impl FasterTrips {
     pub fn from(sim: &Sim) -> FasterTrips {
         FasterTrips(sim.get_analytics().finished_trips.clone())
@@ -202,12 +205,47 @@ impl FasterTrips {
 }
 
 #[derive(Serialize, Deserialize)]
+pub struct BusArrivals(pub Vec<(Duration, CarID, BusRouteID, BusStopID)>);
+impl BusArrivals {
+    pub fn from(sim: &Sim) -> BusArrivals {
+        BusArrivals(sim.get_analytics().bus_arrivals.clone())
+    }
+
+    pub fn to_stats(&self, r: BusRouteID, now: Duration) -> BTreeMap<BusStopID, DurationStats> {
+        let mut per_bus: BTreeMap<CarID, Vec<(Duration, BusStopID)>> = BTreeMap::new();
+        for (t, car, route, stop) in &self.0 {
+            if *t > now {
+                break;
+            }
+            if *route == r {
+                per_bus
+                    .entry(*car)
+                    .or_insert_with(Vec::new)
+                    .push((*t, *stop));
+            }
+        }
+        let mut delay_to_stop: BTreeMap<BusStopID, DurationHistogram> = BTreeMap::new();
+        for events in per_bus.values() {
+            for pair in events.windows(2) {
+                delay_to_stop
+                    .entry(pair[1].1)
+                    .or_insert_with(DurationHistogram::new)
+                    .add(pair[1].0 - pair[0].0);
+            }
+        }
+        delay_to_stop
+            .into_iter()
+            .map(|(k, v)| (k, v.to_stats()))
+            .collect()
+    }
+}
+
+#[derive(Serialize, Deserialize)]
 pub struct GridlockDelays {
     pub lt_1m: usize,
     pub lt_5m: usize,
     pub stuck: usize,
 }
-
 impl GridlockDelays {
     pub fn from(sim: &Sim) -> GridlockDelays {
         let mut delays = GridlockDelays {

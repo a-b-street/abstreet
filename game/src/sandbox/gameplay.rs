@@ -1,14 +1,13 @@
-use crate::challenges::{FasterTrips, GridlockDelays, PrebakedResults};
+use crate::challenges::{BusArrivals, FasterTrips, GridlockDelays, PrebakedResults};
 use crate::game::{msg, Transition, WizardState};
 use crate::render::AgentColorScheme;
 use crate::sandbox::{analytics, bus_explorer, spawner, SandboxMode};
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Timer};
 use ezgui::{hotkey, Choice, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, Wizard};
-use geom::{Duration, DurationHistogram, Statistic};
-use map_model::{BusRouteID, BusStopID};
-use sim::{CarID, Scenario, TripMode};
-use std::collections::BTreeMap;
+use geom::{Duration, Statistic};
+use map_model::BusRouteID;
+use sim::{Scenario, TripMode};
 
 #[derive(Clone)]
 pub enum GameplayMode {
@@ -261,7 +260,8 @@ impl GameplayState {
                 // TODO Expensive
                 if *time != ui.primary.sim.time() {
                     *time = ui.primary.sim.time();
-                    self.menu.set_info(ctx, bus_route_panel(route, ui, *stat));
+                    self.menu
+                        .set_info(ctx, bus_route_panel(route, ui, *stat, &self.prebaked));
                 }
 
                 if self.menu.action("change statistic") {
@@ -356,25 +356,9 @@ impl GameplayState {
     }
 }
 
-fn bus_route_panel(id: BusRouteID, ui: &UI, stat: Statistic) -> Text {
-    let mut per_bus: BTreeMap<CarID, Vec<(Duration, BusStopID)>> = BTreeMap::new();
-    for (t, car, route, stop) in &ui.primary.sim.get_analytics().bus_arrivals {
-        if *route == id {
-            per_bus
-                .entry(*car)
-                .or_insert_with(Vec::new)
-                .push((*t, *stop));
-        }
-    }
-    let mut delay_to_stop: BTreeMap<BusStopID, DurationHistogram> = BTreeMap::new();
-    for events in per_bus.values() {
-        for pair in events.windows(2) {
-            delay_to_stop
-                .entry(pair[1].1)
-                .or_insert_with(DurationHistogram::new)
-                .add(pair[1].0 - pair[0].0);
-        }
-    }
+fn bus_route_panel(id: BusRouteID, ui: &UI, stat: Statistic, prebaked: &PrebakedResults) -> Text {
+    let now = BusArrivals::from(&ui.primary.sim).to_stats(id, ui.primary.sim.time());
+    let baseline = prebaked.bus_arrivals.to_stats(id, ui.primary.sim.time());
 
     let route = ui.primary.map.get_br(id);
     let mut txt = Text::new();
@@ -385,9 +369,24 @@ fn bus_route_panel(id: BusRouteID, ui: &UI, stat: Statistic) -> Text {
         } else {
             idx1 + 1
         };
+        // TODO Also display number of arrivals...
         txt.add(Line(format!("Stop {}->{}: ", idx1 + 1, idx2 + 1)));
-        if let Some(ref distrib) = delay_to_stop.get(&route.stops[idx2]) {
-            txt.append(Line(distrib.select(stat).minimal_tostring()));
+        if let Some(ref stats1) = now.get(&route.stops[idx2]) {
+            let us = stats1.stats[&stat];
+            txt.append(Line(us.minimal_tostring()));
+
+            if let Some(ref stats2) = baseline.get(&route.stops[idx2]) {
+                let vs = stats2.stats[&stat];
+                if us <= vs {
+                    txt.append(Line(" ("));
+                    txt.append(Line((vs - us).minimal_tostring()).fg(Color::GREEN));
+                    txt.append(Line(" faster)"));
+                } else {
+                    txt.append(Line(" ("));
+                    txt.append(Line((us - vs).minimal_tostring()).fg(Color::RED));
+                    txt.append(Line(" slower)"));
+                }
+            }
         } else {
             txt.append(Line("no arrivals yet"));
         }
