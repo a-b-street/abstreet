@@ -13,7 +13,7 @@ use map_model::PathStep;
 use sim::ParkingSpot;
 use std::collections::HashSet;
 
-pub enum Analytics {
+pub enum Overlays {
     Inactive,
     ParkingAvailability(Duration, RoadColorer),
     IntersectionDelay(Duration, ObjectColorer),
@@ -25,7 +25,7 @@ pub enum Analytics {
     BusRoute(ShowBusRoute),
 }
 
-impl Analytics {
+impl Overlays {
     pub fn event(
         &mut self,
         ctx: &mut EventCtx,
@@ -50,29 +50,29 @@ impl Analytics {
                         })?;
                     Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
                         let mut sandbox = state.downcast_mut::<SandboxMode>().unwrap();
-                        sandbox.analytics = Analytics::recalc(&choice, ui, ctx);
+                        sandbox.overlay = Overlays::recalc(&choice, ui, ctx);
                     })))
                 },
             ))));
         }
 
         let (choice, time) = match self {
-            Analytics::Inactive => {
+            Overlays::Inactive => {
                 return None;
             }
-            Analytics::ParkingAvailability(t, _) => ("parking availability", *t),
-            Analytics::IntersectionDelay(t, _) => ("intersection delay", *t),
-            Analytics::Throughput(t, _) => ("cumulative throughput", *t),
-            Analytics::FinishedTrips(t, _) => ("finished trips", *t),
-            Analytics::Chokepoints(t, _) => ("chokepoints", *t),
-            Analytics::BikeNetwork(_) => ("bike network", ui.primary.sim.time()),
-            Analytics::BusRoute(_) => {
+            Overlays::ParkingAvailability(t, _) => ("parking availability", *t),
+            Overlays::IntersectionDelay(t, _) => ("intersection delay", *t),
+            Overlays::Throughput(t, _) => ("cumulative throughput", *t),
+            Overlays::FinishedTrips(t, _) => ("finished trips", *t),
+            Overlays::Chokepoints(t, _) => ("chokepoints", *t),
+            Overlays::BikeNetwork(_) => ("bike network", ui.primary.sim.time()),
+            Overlays::BusRoute(_) => {
                 // The gameplay mode will update it.
                 return None;
             }
         };
         if time != ui.primary.sim.time() {
-            *self = Analytics::recalc(choice, ui, ctx);
+            *self = Overlays::recalc(choice, ui, ctx);
         }
         None
     }
@@ -80,19 +80,18 @@ impl Analytics {
     // True if active and should block normal drawing
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) -> bool {
         match self {
-            Analytics::Inactive => false,
-            Analytics::ParkingAvailability(_, ref heatmap)
-            | Analytics::BikeNetwork(ref heatmap) => {
+            Overlays::Inactive => false,
+            Overlays::ParkingAvailability(_, ref heatmap) | Overlays::BikeNetwork(ref heatmap) => {
                 heatmap.draw(g, ui);
                 true
             }
-            Analytics::IntersectionDelay(_, ref heatmap)
-            | Analytics::Throughput(_, ref heatmap)
-            | Analytics::Chokepoints(_, ref heatmap) => {
+            Overlays::IntersectionDelay(_, ref heatmap)
+            | Overlays::Throughput(_, ref heatmap)
+            | Overlays::Chokepoints(_, ref heatmap) => {
                 heatmap.draw(g, ui);
                 true
             }
-            Analytics::FinishedTrips(_, ref s) => {
+            Overlays::FinishedTrips(_, ref s) => {
                 ui.draw(
                     g,
                     DrawOptions::new(),
@@ -102,34 +101,34 @@ impl Analytics {
                 s.draw(g);
                 true
             }
-            Analytics::BusRoute(ref s) => {
+            Overlays::BusRoute(ref s) => {
                 s.draw(g, ui);
                 true
             }
         }
     }
 
-    fn recalc(choice: &str, ui: &UI, ctx: &mut EventCtx) -> Analytics {
+    fn recalc(choice: &str, ui: &UI, ctx: &mut EventCtx) -> Overlays {
         let time = ui.primary.sim.time();
         match choice {
-            "none" => Analytics::Inactive,
+            "none" => Overlays::Inactive,
             "parking availability" => {
-                Analytics::ParkingAvailability(time, calculate_parking_heatmap(ctx, ui))
+                Overlays::ParkingAvailability(time, calculate_parking_heatmap(ctx, ui))
             }
             "intersection delay" => {
-                Analytics::IntersectionDelay(time, calculate_intersection_delay(ctx, ui))
+                Overlays::IntersectionDelay(time, calculate_intersection_delay(ctx, ui))
             }
-            "cumulative throughput" => Analytics::Throughput(time, calculate_thruput(ctx, ui)),
+            "cumulative throughput" => Overlays::Throughput(time, calculate_thruput(ctx, ui)),
             "finished trips" => {
                 if let Some(s) = ShowTripStats::new(ui, ctx) {
-                    Analytics::FinishedTrips(time, s)
+                    Overlays::FinishedTrips(time, s)
                 } else {
                     println!("No data on finished trips yet");
-                    Analytics::Inactive
+                    Overlays::Inactive
                 }
             }
-            "chokepoints" => Analytics::Chokepoints(time, calculate_chokepoints(ctx, ui)),
-            "bike network" => Analytics::BikeNetwork(calculate_bike_network(ctx, ui)),
+            "chokepoints" => Overlays::Chokepoints(time, calculate_chokepoints(ctx, ui)),
+            "bike network" => Overlays::BikeNetwork(calculate_bike_network(ctx, ui)),
             _ => unreachable!(),
         }
     }

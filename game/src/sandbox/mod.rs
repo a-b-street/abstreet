@@ -1,6 +1,6 @@
-mod analytics;
 mod bus_explorer;
 mod gameplay;
+mod overlays;
 mod score;
 mod spawner;
 mod trip_stats;
@@ -25,7 +25,7 @@ pub struct SandboxMode {
     general_tools: MenuUnderButton,
     save_tools: MenuUnderButton,
     agent_tools: AgentTools,
-    analytics: analytics::Analytics,
+    overlay: overlays::Overlays,
     gameplay: gameplay::GameplayState,
     common: CommonState,
     menu: ModalMenu,
@@ -71,7 +71,7 @@ impl SandboxMode {
                 ctx,
             ),
             agent_tools: AgentTools::new(),
-            analytics: analytics::Analytics::Inactive,
+            overlay: overlays::Overlays::Inactive,
             gameplay: gameplay::GameplayState::initialize(mode, ui, ctx),
             common: CommonState::new(ctx),
             menu: ModalMenu::new(
@@ -102,7 +102,7 @@ impl State for SandboxMode {
             }
             self.menu.set_info(ctx, txt);
         }
-        if let Some(t) = self.gameplay.event(ctx, ui, &mut self.analytics) {
+        if let Some(t) = self.gameplay.event(ctx, ui, &mut self.overlay) {
             return t;
         }
         // Give both menus a chance to set_info before doing this
@@ -124,7 +124,7 @@ impl State for SandboxMode {
         if let Some(t) = self.common.event(ctx, ui) {
             return t;
         }
-        if let Some(t) = self.analytics.event(ctx, ui, &mut self.info_tools) {
+        if let Some(t) = self.overlay.event(ctx, ui, &mut self.info_tools) {
             return t;
         }
 
@@ -306,7 +306,7 @@ impl State for SandboxMode {
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        if self.analytics.draw(g, ui) {
+        if self.overlay.draw(g, ui) {
             // Don't draw agent tools!
         } else {
             ui.draw(

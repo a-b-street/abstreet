@@ -1,6 +1,6 @@
 use crate::game::{msg, Transition, WizardState};
 use crate::render::AgentColorScheme;
-use crate::sandbox::{analytics, bus_explorer, spawner, SandboxMode};
+use crate::sandbox::{bus_explorer, overlays, spawner, SandboxMode};
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Timer};
 use ezgui::{hotkey, Choice, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, Wizard};
@@ -193,7 +193,7 @@ impl GameplayState {
         &mut self,
         ctx: &mut EventCtx,
         ui: &mut UI,
-        analytics: &mut analytics::Analytics,
+        overlays: &mut overlays::Overlays,
     ) -> Option<Transition> {
         match self.state {
             State::Freeform => {
@@ -237,19 +237,19 @@ impl GameplayState {
                 ref mut stat,
             } => {
                 self.menu.event(ctx);
-                if manage_analytics(
+                if manage_overlays(
                     &mut self.menu,
                     ctx,
                     "show bus route",
                     "hide bus route",
-                    analytics,
-                    match analytics {
-                        analytics::Analytics::BusRoute(_) => true,
+                    overlays,
+                    match overlays {
+                        overlays::Overlays::BusRoute(_) => true,
                         _ => false,
                     },
                     *time != ui.primary.sim.time(),
                 ) {
-                    *analytics = analytics::Analytics::BusRoute(bus_explorer::ShowBusRoute::new(
+                    *overlays = overlays::Overlays::BusRoute(bus_explorer::ShowBusRoute::new(
                         ui.primary.map.get_br(route),
                         ui,
                         ctx,
@@ -496,14 +496,14 @@ fn change_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<
     ))))
 }
 
-// Must call menu.event first. Returns true if the caller should set the analytics to the custom
+// Must call menu.event first. Returns true if the caller should set the overlay to the custom
 // thing.
-fn manage_analytics(
+fn manage_overlays(
     menu: &mut ModalMenu,
     ctx: &mut EventCtx,
     show: &str,
     hide: &str,
-    analytics: &mut analytics::Analytics,
+    overlay: &mut overlays::Overlays,
     active_originally: bool,
     time_changed: bool,
 ) -> bool {
@@ -517,7 +517,7 @@ fn manage_analytics(
     if !active_originally && menu.swap_action(show, hide, ctx) {
         true
     } else if active_originally && menu.swap_action(hide, show, ctx) {
-        *analytics = analytics::Analytics::Inactive;
+        *overlay = overlays::Overlays::Inactive;
         false
     } else {
         active_originally && time_changed
