@@ -3,7 +3,8 @@ use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::ui::UI;
 use ezgui::{hotkey, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
-use geom::DurationHistogram;
+use geom::Duration;
+use sim::CarID;
 use std::collections::BTreeMap;
 
 pub struct InfoPanel {
@@ -205,20 +206,21 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
             styled_kv(&mut txt, &draw_map.get_es(id).attributes);
         }
         ID::BusStop(id) => {
-            let arrivals = &sim.get_analytics().bus_arrivals;
+            let all_arrivals = &sim.get_analytics().bus_arrivals;
             let passengers = &sim.get_analytics().total_bus_passengers;
             for r in map.get_routes_serving_stop(id) {
                 txt.add_appended(vec![Line("- Route "), Line(&r.name).fg(name_color)]);
-                if let Some(ref times) = arrivals.get(&(id, r.id)) {
+                let arrivals: Vec<(Duration, CarID)> = all_arrivals
+                    .iter()
+                    .filter(|(_, _, route, stop)| r.id == *route && id == *stop)
+                    .map(|(t, car, _, _)| (*t, *car))
+                    .collect();
+                if let Some((t, car)) = arrivals.last() {
                     txt.add(Line(format!(
-                        "  Last bus arrived {} ago",
-                        (sim.time() - *times.last().unwrap()).minimal_tostring()
+                        "  Last bus arrived {} ago ({})",
+                        (sim.time() - *t).minimal_tostring(),
+                        car
                     )));
-                    let mut distrib: DurationHistogram = Default::default();
-                    for pair in times.windows(2) {
-                        distrib.add(pair[1] - pair[0]);
-                    }
-                    txt.add(Line(format!("  All arrivals: {}", distrib.describe())));
                 } else {
                     txt.add(Line("  No arrivals yet"));
                 }

@@ -182,7 +182,7 @@ impl FasterTrips {
             TripMode::Transit,
             TripMode::Drive,
         ] {
-            distribs.insert(m, Default::default());
+            distribs.insert(m, DurationHistogram::new());
         }
         for (t, mode, dt) in &self.0 {
             if *t > now {

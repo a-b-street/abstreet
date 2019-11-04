@@ -6,8 +6,9 @@ use crate::ui::UI;
 use abstutil::{prettyprint_usize, Timer};
 use ezgui::{hotkey, Choice, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, Wizard};
 use geom::{Duration, DurationHistogram, Statistic};
-use map_model::BusRouteID;
-use sim::{Scenario, TripMode};
+use map_model::{BusRouteID, BusStopID};
+use sim::{CarID, Scenario, TripMode};
+use std::collections::BTreeMap;
 
 #[derive(Clone)]
 pub enum GameplayMode {
@@ -356,22 +357,37 @@ impl GameplayState {
 }
 
 fn bus_route_panel(id: BusRouteID, ui: &UI, stat: Statistic) -> Text {
+    let mut per_bus: BTreeMap<CarID, Vec<(Duration, BusStopID)>> = BTreeMap::new();
+    for (t, car, route, stop) in &ui.primary.sim.get_analytics().bus_arrivals {
+        if *route == id {
+            per_bus
+                .entry(*car)
+                .or_insert_with(Vec::new)
+                .push((*t, *stop));
+        }
+    }
+    let mut delay_to_stop: BTreeMap<BusStopID, DurationHistogram> = BTreeMap::new();
+    for events in per_bus.values() {
+        for pair in events.windows(2) {
+            delay_to_stop
+                .entry(pair[1].1)
+                .or_insert_with(DurationHistogram::new)
+                .add(pair[1].0 - pair[0].0);
+        }
+    }
+
     let route = ui.primary.map.get_br(id);
-    let arrivals = &ui.primary.sim.get_analytics().bus_arrivals;
     let mut txt = Text::new();
-    txt.add(Line(format!("{} frequency stop is visited", stat)));
-    for (idx, stop) in route.stops.iter().enumerate() {
-        txt.add(Line(format!("Stop {}: ", idx + 1)));
-        if let Some(ref times) = arrivals.get(&(*stop, route.id)) {
-            if times.len() < 2 {
-                txt.append(Line("only one arrival so far"));
-            } else {
-                let mut distrib: DurationHistogram = Default::default();
-                for pair in times.windows(2) {
-                    distrib.add(pair[1] - pair[0]);
-                }
-                txt.append(Line(distrib.select(stat).minimal_tostring()));
-            }
+    txt.add(Line(format!("{} delay between stops", stat)));
+    for idx1 in 0..route.stops.len() {
+        let idx2 = if idx1 == route.stops.len() - 1 {
+            0
+        } else {
+            idx1 + 1
+        };
+        txt.add(Line(format!("Stop {}->{}: ", idx1 + 1, idx2 + 1)));
+        if let Some(ref distrib) = delay_to_stop.get(&route.stops[idx2]) {
+            txt.append(Line(distrib.select(stat).minimal_tostring()));
         } else {
             txt.append(Line("no arrivals yet"));
         }

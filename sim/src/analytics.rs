@@ -1,15 +1,15 @@
-use crate::{Event, TripMode};
+use crate::{CarID, Event, TripMode};
 use abstutil::Counter;
 use geom::Duration;
 use map_model::{BusRouteID, BusStopID, IntersectionID, Map, RoadID, Traversable};
-use std::collections::{HashMap, VecDeque};
+use std::collections::VecDeque;
 
 // Embed a deeper structure with its own impl when that makes sense, or feel free to just inline
 // things.
 pub struct Analytics {
     pub thruput_stats: ThruputStats,
     pub(crate) test_expectations: VecDeque<Event>,
-    pub bus_arrivals: HashMap<(BusStopID, BusRouteID), Vec<Duration>>,
+    pub bus_arrivals: Vec<(Duration, CarID, BusRouteID, BusStopID)>,
     pub total_bus_passengers: Counter<BusRouteID>,
     // TODO Hack: No TripMode means aborted
     // Finish time, mode (or None as aborted), trip duration
@@ -29,7 +29,7 @@ impl Default for Analytics {
                 count_per_intersection: Counter::new(),
             },
             test_expectations: VecDeque::new(),
-            bus_arrivals: HashMap::new(),
+            bus_arrivals: Vec::new(),
             total_bus_passengers: Counter::new(),
             finished_trips: Vec::new(),
         }
@@ -53,11 +53,8 @@ impl Analytics {
         }
 
         // Bus arrivals
-        if let Event::BusArrivedAtStop(_, route, stop) = ev {
-            self.bus_arrivals
-                .entry((stop, route))
-                .or_insert(Vec::new())
-                .push(time);
+        if let Event::BusArrivedAtStop(bus, route, stop) = ev {
+            self.bus_arrivals.push((time, bus, route, stop));
         }
 
         // Bus passengers

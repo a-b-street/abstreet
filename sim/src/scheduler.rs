@@ -94,7 +94,7 @@ impl Scheduler {
             items: BinaryHeap::new(),
             queued_commands: BTreeMap::new(),
             latest_time: Duration::ZERO,
-            delta_times: std::default::Default::default(),
+            delta_times: DurationHistogram::new(),
         }
     }
 

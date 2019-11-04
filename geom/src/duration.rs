@@ -282,6 +282,10 @@ impl Default for DurationHistogram {
 }
 
 impl DurationHistogram {
+    pub fn new() -> DurationHistogram {
+        Default::default()
+    }
+
     pub fn add(&mut self, t: Duration) {
         if self.count == 0 {
             self.min = t;

@@ -47,7 +47,7 @@ impl Scoreboard {
             .sorted_by_key(|(_, m, _)| *m)
             .group_by(|(_, m, _)| *m)
         {
-            let mut distrib: DurationHistogram = std::default::Default::default();
+            let mut distrib: DurationHistogram = DurationHistogram::new();
             for (_, _, dt) in trips {
                 distrib.add(dt);
             }

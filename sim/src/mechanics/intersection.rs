@@ -31,6 +31,7 @@ struct State {
         deserialize_with = "deserialize_btreemap"
     )]
     waiting: BTreeMap<Request, Duration>,
+    // TODO Can we move this to analytics?
     #[derivative(PartialEq = "ignore")]
     #[serde(skip_serializing, skip_deserializing)]
     delays: DurationHistogram,
@@ -55,7 +56,7 @@ impl IntersectionSimState {
                     id: i.id,
                     accepted: BTreeSet::new(),
                     waiting: BTreeMap::new(),
-                    delays: std::default::Default::default(),
+                    delays: DurationHistogram::new(),
                 },
             );
             if i.is_traffic_signal() && !use_freeform_policy_everywhere {
