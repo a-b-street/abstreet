@@ -375,11 +375,11 @@ fn bus_route_panel(id: BusRouteID, ui: &UI, stat: Statistic, prebaked: &Analytic
         // TODO Also display number of arrivals...
         txt.add(Line(format!("Stop {}->{}: ", idx1 + 1, idx2 + 1)));
         if let Some(ref stats1) = now.get(&route.stops[idx2]) {
-            let us = stats1.stats[&stat];
+            let us = stats1.select(stat);
             txt.append(Line(us.minimal_tostring()));
 
             if let Some(ref stats2) = baseline.get(&route.stops[idx2]) {
-                let vs = stats2.stats[&stat];
+                let vs = stats2.select(stat);
                 if us <= vs {
                     txt.append(Line(" ("));
                     txt.append(Line((vs - us).minimal_tostring()).fg(Color::GREEN));
@@ -439,33 +439,35 @@ fn faster_trips_panel(mode: TripMode, ui: &UI, prebaked: &Analytics) -> Text {
     let mut txt = Text::new();
     txt.add(Line(format!(
         "{} finished {:?} trips (vs {})",
-        prettyprint_usize(now.count),
+        prettyprint_usize(now.count()),
         mode,
-        prettyprint_usize(baseline.count),
+        prettyprint_usize(baseline.count()),
     )));
-    if now.count == 0 || baseline.count == 0 {
+    if now.count() == 0 || baseline.count() == 0 {
         return txt;
     }
 
     // TODO Which one?
     if false {
-        for (stat, dt) in &now.stats {
+        for stat in Statistic::all() {
+            let dt = now.select(stat);
+            let vs = baseline.select(stat);
             txt.add(Line(format!("{}: ", stat)));
-            let vs = baseline.stats[&stat];
-            let color = if *dt <= vs { Color::GREEN } else { Color::RED };
+            let color = if dt <= vs { Color::GREEN } else { Color::RED };
             txt.append(Line(dt.minimal_tostring()).fg(color));
             txt.append(Line(format!(" (vs {})", vs.minimal_tostring())));
         }
     }
     if true {
-        for (stat, dt) in &now.stats {
+        for stat in Statistic::all() {
+            let dt = now.select(stat);
+            let vs = baseline.select(stat);
             txt.add(Line(format!("{}: ", stat)));
-            let vs = baseline.stats[&stat];
-            if *dt <= vs {
-                txt.append(Line((vs - *dt).minimal_tostring()).fg(Color::GREEN));
+            if dt <= vs {
+                txt.append(Line((vs - dt).minimal_tostring()).fg(Color::GREEN));
                 txt.append(Line(" faster"));
             } else {
-                txt.append(Line((*dt - vs).minimal_tostring()).fg(Color::RED));
+                txt.append(Line((dt - vs).minimal_tostring()).fg(Color::RED));
                 txt.append(Line(" slower"));
             }
         }

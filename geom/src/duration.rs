@@ -1,7 +1,6 @@
 use crate::{trim_f64, Distance, Speed};
 use histogram::Histogram;
 use serde_derive::{Deserialize, Serialize};
-use std::collections::BTreeMap;
 use std::{cmp, f64, ops};
 
 // In seconds. Can be negative.
@@ -341,23 +340,6 @@ impl DurationHistogram {
     pub fn count(&self) -> usize {
         self.count
     }
-
-    pub fn to_stats(self) -> DurationStats {
-        if self.count == 0 {
-            return DurationStats {
-                stats: BTreeMap::new(),
-                count: 0,
-            };
-        }
-
-        DurationStats {
-            stats: Statistic::all()
-                .into_iter()
-                .map(|stat| (stat, self.select(stat)))
-                .collect(),
-            count: self.count,
-        }
-    }
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -391,10 +373,4 @@ impl std::fmt::Display for Statistic {
             Statistic::Max => write!(f, "maximum"),
         }
     }
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct DurationStats {
-    pub stats: BTreeMap<Statistic, Duration>,
-    pub count: usize,
 }

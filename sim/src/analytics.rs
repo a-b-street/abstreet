@@ -1,7 +1,7 @@
 use crate::{CarID, Event, TripMode};
 use abstutil::Counter;
 use derivative::Derivative;
-use geom::{Duration, DurationHistogram, DurationStats};
+use geom::{Duration, DurationHistogram};
 use map_model::{BusRouteID, BusStopID, IntersectionID, Map, RoadID, Traversable};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, VecDeque};
@@ -79,7 +79,7 @@ impl Analytics {
     // TODO If these ever need to be speeded up, just cache the histogram and index in the events
     // list.
 
-    pub fn finished_trips(&self, now: Duration, mode: TripMode) -> DurationStats {
+    pub fn finished_trips(&self, now: Duration, mode: TripMode) -> DurationHistogram {
         let mut distrib = DurationHistogram::new();
         for (t, m, dt) in &self.finished_trips {
             if *t > now {
@@ -89,10 +89,14 @@ impl Analytics {
                 distrib.add(*dt);
             }
         }
-        distrib.to_stats()
+        distrib
     }
 
-    pub fn bus_arrivals(&self, now: Duration, r: BusRouteID) -> BTreeMap<BusStopID, DurationStats> {
+    pub fn bus_arrivals(
+        &self,
+        now: Duration,
+        r: BusRouteID,
+    ) -> BTreeMap<BusStopID, DurationHistogram> {
         let mut per_bus: BTreeMap<CarID, Vec<(Duration, BusStopID)>> = BTreeMap::new();
         for (t, car, route, stop) in &self.bus_arrivals {
             if *t > now {
@@ -115,8 +119,5 @@ impl Analytics {
             }
         }
         delay_to_stop
-            .into_iter()
-            .map(|(k, v)| (k, v.to_stats()))
-            .collect()
     }
 }
