@@ -10,6 +10,20 @@
   "override_intersections": [
     [
       {
+        "osm_node_id": 53063368
+      },
+      {
+        "point": {
+          "inner_x": 458.3261,
+          "inner_y": 1778.3842
+        },
+        "intersection_type": "Border",
+        "label": null,
+        "synthetic": false
+      }
+    ],
+    [
+      {
         "osm_node_id": 53096936
       },
       {
@@ -52,6 +66,45 @@
     ]
   ],
   "override_roads": [
+    [
+      {
+        "osm_way_id": 6341293,
+        "i1": {
+          "osm_node_id": 53063368
+        },
+        "i2": {
+          "osm_node_id": 53233987
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 458.3261,
+            "inner_y": 1778.3842
+          },
+          {
+            "inner_x": 454.5794,
+            "inner_y": 1745.8718
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "6341293",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "lit": "yes",
+          "maxspeed": "25 mph",
+          "name": "Volunteer Park Road",
+          "parking:lane:both": "no_parking",
+          "sidewalk": "both",
+          "surface": "asphalt"
+        },
+        "turn_restrictions": []
+      }
+    ],
     [
       {
         "osm_way_id": 6357352,
