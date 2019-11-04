@@ -163,7 +163,10 @@ impl GameplayState {
                         Scenario::small_run(&ui.primary.map)
                     }
                 } else if scenario_name == "just buses" {
-                    Scenario::empty(&ui.primary.map)
+                    let mut s = Scenario::empty(&ui.primary.map);
+                    s.scenario_name = "just buses".to_string();
+                    s.seed_buses = true;
+                    s
                 } else {
                     abstutil::read_binary(
                         &abstutil::path1_bin(

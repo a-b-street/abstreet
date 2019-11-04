@@ -374,6 +374,7 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
     Scenario {
         scenario_name: "weekday_typical_traffic_from_psrc".to_string(),
         map_name: map.get_name().to_string(),
+        seed_buses: true,
         seed_parked_cars: Vec::new(),
         spawn_over_time: Vec::new(),
         border_spawn_over_time: Vec::new(),

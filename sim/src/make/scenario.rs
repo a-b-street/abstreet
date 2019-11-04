@@ -21,6 +21,7 @@ pub struct Scenario {
     pub map_name: String,
 
     // Higher-level ways of specifying stuff
+    pub seed_buses: bool,
     pub seed_parked_cars: Vec<SeedParkedCars>,
     pub spawn_over_time: Vec<SpawnOverTime>,
     pub border_spawn_over_time: Vec<BorderSpawnOverTime>,
@@ -91,8 +92,10 @@ impl Scenario {
 
         timer.start(&format!("Instantiating {}", self.scenario_name));
 
-        for route in map.get_all_bus_routes() {
-            sim.seed_bus_route(route, map, timer);
+        if self.seed_buses {
+            for route in map.get_all_bus_routes() {
+                sim.seed_bus_route(route, map, timer);
+            }
         }
 
         timer.start("load full neighborhood info");
@@ -240,6 +243,7 @@ impl Scenario {
     pub fn small_run(map: &Map) -> Scenario {
         let mut s = Scenario {
             scenario_name: "small_run".to_string(),
+            seed_buses: true,
             map_name: map.get_name().to_string(),
             seed_parked_cars: vec![SeedParkedCars {
                 neighborhood: "_everywhere_".to_string(),
@@ -289,11 +293,11 @@ impl Scenario {
         s
     }
 
-    // Just buses.
     pub fn empty(map: &Map) -> Scenario {
         Scenario {
-            scenario_name: "just buses".to_string(),
+            scenario_name: "empty".to_string(),
             map_name: map.get_name().to_string(),
+            seed_buses: false,
             seed_parked_cars: Vec::new(),
             spawn_over_time: Vec::new(),
             border_spawn_over_time: Vec::new(),
@@ -307,6 +311,7 @@ impl Scenario {
         Scenario {
             scenario_name: "scaled_run".to_string(),
             map_name: map.get_name().to_string(),
+            seed_buses: false,
             seed_parked_cars: vec![SeedParkedCars {
                 neighborhood: "_everywhere_".to_string(),
                 cars_per_building: WeightedUsizeChoice {

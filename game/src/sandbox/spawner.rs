@@ -556,9 +556,8 @@ impl State for SpawnManyAgents {
 }
 
 fn create_swarm(ui: &mut UI, from: LaneID, to: LaneID, count: usize, duration: Duration) {
-    // TODO No buses
-    // TODO Change the name
     let mut scenario = Scenario::empty(&ui.primary.map);
+    scenario.scenario_name = "swarm".to_string();
     scenario.border_spawn_over_time.push(BorderSpawnOverTime {
         num_peds: 0,
         num_cars: count,

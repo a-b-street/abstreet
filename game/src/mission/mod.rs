@@ -10,7 +10,6 @@ use abstutil::Timer;
 use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu, Wizard, WrappedWizard};
 use geom::Duration;
 use sim::Scenario;
-use std::collections::BTreeMap;
 
 pub struct MissionEditMode {
     menu: ModalMenu,
@@ -81,20 +80,11 @@ fn load_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tr
 
 fn create_new_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
     let name = wiz.wrap(ctx).input_string("Name the scenario")?;
+    let mut s = Scenario::empty(&ui.primary.map);
+    s.seed_buses = true;
+    s.scenario_name = name;
     Some(Transition::Replace(Box::new(
-        scenario::ScenarioManager::new(
-            Scenario {
-                scenario_name: name,
-                map_name: ui.primary.map.get_name().to_string(),
-                seed_parked_cars: Vec::new(),
-                spawn_over_time: Vec::new(),
-                border_spawn_over_time: Vec::new(),
-                individ_trips: Vec::new(),
-                individ_parked_cars: BTreeMap::new(),
-            },
-            ctx,
-            ui,
-        ),
+        scenario::ScenarioManager::new(s, ctx, ui),
     )))
 }
 
