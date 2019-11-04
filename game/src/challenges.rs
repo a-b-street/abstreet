@@ -179,12 +179,7 @@ impl FasterTrips {
 
     pub fn to_stats(&self, now: Duration) -> BTreeMap<TripMode, DurationStats> {
         let mut distribs: BTreeMap<TripMode, DurationHistogram> = BTreeMap::new();
-        for m in vec![
-            TripMode::Walk,
-            TripMode::Bike,
-            TripMode::Transit,
-            TripMode::Drive,
-        ] {
+        for m in TripMode::all() {
             distribs.insert(m, DurationHistogram::new());
         }
         for (t, mode, dt) in &self.0 {

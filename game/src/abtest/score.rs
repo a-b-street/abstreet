@@ -79,7 +79,7 @@ impl Scoreboard {
             let len = deltas.len() as f64;
 
             summary.add_appended(vec![
-                Line(format!("{:?}", mode)).fg(Color::PURPLE),
+                Line(format!("{}", mode)).fg(Color::PURPLE),
                 Line(format!(
                     " trips: {} same, {} different",
                     abstutil::prettyprint_usize(num_same),
@@ -136,14 +136,10 @@ fn browse_trips(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
                 .iter()
                 .map(|(_, m, _, _)| *m)
                 .collect::<BTreeSet<TripMode>>();
-
-            vec![
-                Choice::new("walk", TripMode::Walk).active(modes.contains(&TripMode::Walk)),
-                Choice::new("bike", TripMode::Bike).active(modes.contains(&TripMode::Bike)),
-                Choice::new("transit", TripMode::Transit)
-                    .active(modes.contains(&TripMode::Transit)),
-                Choice::new("drive", TripMode::Drive).active(modes.contains(&TripMode::Drive)),
-            ]
+            TripMode::all()
+                .into_iter()
+                .map(|m| Choice::new(m.to_string(), m).active(modes.contains(&m)))
+                .collect()
         })?
         .1;
     wizard.choose("Examine which trip?", || {

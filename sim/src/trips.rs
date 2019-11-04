@@ -714,6 +714,28 @@ pub enum TripMode {
     Drive,
 }
 
+impl TripMode {
+    pub fn all() -> Vec<TripMode> {
+        vec![
+            TripMode::Walk,
+            TripMode::Bike,
+            TripMode::Transit,
+            TripMode::Drive,
+        ]
+    }
+}
+
+impl std::fmt::Display for TripMode {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            TripMode::Walk => write!(f, "walk"),
+            TripMode::Bike => write!(f, "bike"),
+            TripMode::Transit => write!(f, "transit"),
+            TripMode::Drive => write!(f, "drive"),
+        }
+    }
+}
+
 // TODO Argh no, not more of these variants!
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
