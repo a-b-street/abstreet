@@ -12,7 +12,8 @@ pub struct Analytics {
     pub bus_arrivals: HashMap<(BusStopID, BusRouteID), Vec<Duration>>,
     pub total_bus_passengers: Counter<BusRouteID>,
     // TODO Hack: No TripMode means aborted
-    pub finished_trips: Vec<(Duration, Option<TripMode>)>,
+    // Finish time, mode (or None as aborted), trip duration
+    pub finished_trips: Vec<(Duration, Option<TripMode>, Duration)>,
 }
 
 pub struct ThruputStats {
@@ -65,10 +66,10 @@ impl Analytics {
         }
 
         // Finished trips
-        if let Event::TripFinished(_, mode) = ev {
-            self.finished_trips.push((time, Some(mode)));
+        if let Event::TripFinished(_, mode, dt) = ev {
+            self.finished_trips.push((time, Some(mode), dt));
         } else if let Event::TripAborted(_) = ev {
-            self.finished_trips.push((time, None));
+            self.finished_trips.push((time, None, Duration::ZERO));
         }
     }
 }

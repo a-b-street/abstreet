@@ -407,8 +407,15 @@ fn gridlock_panel(ui: &UI, prebaked: &PrebakedResults) -> Text {
 }
 
 fn faster_trips_panel(mode: TripMode, ui: &UI, prebaked: &PrebakedResults) -> Text {
-    let now = &FasterTrips::from(&ui.primary.sim).0[&mode];
-    let baseline = &prebaked.faster_trips.0[&mode];
+    let now = FasterTrips::from(&ui.primary.sim)
+        .to_stats(ui.primary.sim.time())
+        .remove(&mode)
+        .unwrap();
+    let baseline = prebaked
+        .faster_trips
+        .to_stats(ui.primary.sim.time())
+        .remove(&mode)
+        .unwrap();
 
     let mut txt = Text::new();
     txt.add(Line(format!(
@@ -417,6 +424,10 @@ fn faster_trips_panel(mode: TripMode, ui: &UI, prebaked: &PrebakedResults) -> Te
         mode,
         prettyprint_usize(baseline.count),
     )));
+    if now.count == 0 || baseline.count == 0 {
+        return txt;
+    }
+
     // TODO Which one?
     if false {
         for (stat, dt) in &now.stats {

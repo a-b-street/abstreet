@@ -1,4 +1,5 @@
 use crate::{AgentID, CarID, ParkingSpot, PedestrianID, TripID, TripMode};
+use geom::Duration;
 use map_model::{BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, Traversable};
 use serde_derive::{Deserialize, Serialize};
 
@@ -21,6 +22,6 @@ pub enum Event {
 
     AgentEntersTraversable(AgentID, Traversable),
 
-    TripFinished(TripID, TripMode),
+    TripFinished(TripID, TripMode, Duration),
     TripAborted(TripID),
 }

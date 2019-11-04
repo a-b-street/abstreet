@@ -51,7 +51,7 @@ impl ShowTripStats {
         let mut counts = Counter::new();
         let mut pts_per_mode: BTreeMap<Option<TripMode>, Vec<(Duration, usize)>> =
             lines.iter().map(|(_, _, m)| (*m, Vec::new())).collect();
-        for (t, m) in &ui.primary.sim.get_analytics().finished_trips {
+        for (t, m, _) in &ui.primary.sim.get_analytics().finished_trips {
             counts.inc(*m);
             if *t > times[0] {
                 times.remove(0);

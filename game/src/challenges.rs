@@ -167,10 +167,14 @@ pub struct PrebakedResults {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct FasterTrips(pub BTreeMap<TripMode, DurationStats>);
+pub struct FasterTrips(pub Vec<(Duration, Option<TripMode>, Duration)>);
 
 impl FasterTrips {
     pub fn from(sim: &Sim) -> FasterTrips {
+        FasterTrips(sim.get_analytics().finished_trips.clone())
+    }
+
+    pub fn to_stats(&self, now: Duration) -> BTreeMap<TripMode, DurationStats> {
         let mut distribs: BTreeMap<TripMode, DurationHistogram> = BTreeMap::new();
         for m in vec![
             TripMode::Walk,
@@ -180,14 +184,20 @@ impl FasterTrips {
         ] {
             distribs.insert(m, Default::default());
         }
-        for (_, m, dt) in sim.get_finished_trips().finished_trips {
-            distribs.get_mut(&m).unwrap().add(dt);
+        for (t, mode, dt) in &self.0 {
+            if *t > now {
+                break;
+            }
+            // Skip aborted trips
+            if let Some(m) = mode {
+                distribs.get_mut(&m).unwrap().add(*dt);
+            }
         }
         let mut results = BTreeMap::new();
         for (m, distrib) in distribs {
             results.insert(m, distrib.to_stats());
         }
-        FasterTrips(results)
+        results
     }
 }
 

@@ -138,7 +138,11 @@ impl TripManager {
                     assert!(!trip.finished_at.is_some());
                     trip.finished_at = Some(now);
                     self.unfinished_trips -= 1;
-                    self.events.push(Event::TripFinished(trip.id, trip.mode));
+                    self.events.push(Event::TripFinished(
+                        trip.id,
+                        trip.mode,
+                        now - trip.spawned_at,
+                    ));
                     return;
                 }
                 _ => {}
@@ -309,7 +313,11 @@ impl TripManager {
         assert!(!trip.finished_at.is_some());
         trip.finished_at = Some(now);
         self.unfinished_trips -= 1;
-        self.events.push(Event::TripFinished(trip.id, trip.mode));
+        self.events.push(Event::TripFinished(
+            trip.id,
+            trip.mode,
+            now - trip.spawned_at,
+        ));
     }
 
     // If no route is returned, the pedestrian boarded a bus immediately.
@@ -389,7 +397,11 @@ impl TripManager {
         assert!(!trip.finished_at.is_some());
         trip.finished_at = Some(now);
         self.unfinished_trips -= 1;
-        self.events.push(Event::TripFinished(trip.id, trip.mode));
+        self.events.push(Event::TripFinished(
+            trip.id,
+            trip.mode,
+            now - trip.spawned_at,
+        ));
     }
 
     pub fn car_or_bike_reached_border(&mut self, now: Duration, car: CarID, i: IntersectionID) {
@@ -403,7 +415,11 @@ impl TripManager {
         assert!(!trip.finished_at.is_some());
         trip.finished_at = Some(now);
         self.unfinished_trips -= 1;
-        self.events.push(Event::TripFinished(trip.id, trip.mode));
+        self.events.push(Event::TripFinished(
+            trip.id,
+            trip.mode,
+            now - trip.spawned_at,
+        ));
     }
 
     pub fn abort_trip_failed_start(&mut self, id: TripID) {
