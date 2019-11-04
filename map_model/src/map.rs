@@ -1,5 +1,5 @@
 use crate::pathfind::Pathfinder;
-use crate::raw::{MapFixes, OriginalIntersection, OriginalRoad, RawMap};
+use crate::raw::{OriginalIntersection, OriginalRoad, RawMap};
 use crate::{
     make, osm, Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop, BusStopID,
     ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, IntersectionType, Lane,
@@ -53,7 +53,7 @@ impl Map {
     pub fn new(path: &str, use_map_fixes: bool, timer: &mut Timer) -> Result<Map, io::Error> {
         let mut raw: RawMap = abstutil::read_binary(path, timer)?;
         if use_map_fixes {
-            raw.apply_fixes(&MapFixes::load(timer), timer);
+            raw.apply_all_fixes(timer);
         }
         // Do this after applying fixes, which might split off pieces of the map.
         make::remove_disconnected_roads(&mut raw, timer);

@@ -158,7 +158,7 @@ impl State for SandboxMode {
                         if dirty {
                             choices.push(Choice::new("save edits and quit", ()));
                         }
-                        choices.push(Choice::new("quit challenge", ()));
+                        choices.push(Choice::new("quit challenge", ()).key(Key::Q));
                         choices
                     },
                 )?;

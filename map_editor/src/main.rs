@@ -5,7 +5,7 @@ mod world;
 use abstutil::{CmdArgs, Timer};
 use ezgui::{
     hotkey, Canvas, Choice, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line,
-    ModalMenu, Text, Wizard, GUI,
+    ModalMenu, Text, TextureType, Wizard, GUI,
 };
 use geom::{Distance, Line, Polygon, Pt2D};
 use map_model::raw::{OriginalBuilding, OriginalIntersection, OriginalRoad, RestrictionType};
@@ -57,7 +57,6 @@ impl UI {
         let mut args = CmdArgs::new();
         let load = args.optional_free();
         let include_bldgs = args.enabled("--bldgs");
-        let edit_fixes = args.optional("--fixes");
         let intersection_geom = args.enabled("--geom");
         let no_fixes = args.enabled("--nofixes");
         args.done();
@@ -66,7 +65,6 @@ impl UI {
             Model::import(
                 &path,
                 include_bldgs,
-                edit_fixes,
                 intersection_geom,
                 no_fixes,
                 ctx.prerender,
@@ -74,6 +72,14 @@ impl UI {
         } else {
             Model::blank()
         };
+        ctx.set_textures(
+            Vec::new(),
+            vec![
+                ("assets/ui/hide.png", TextureType::Stretch),
+                ("assets/ui/show.png", TextureType::Stretch),
+            ],
+            &mut Timer::throwaway(),
+        );
         ctx.canvas.load_camera_state(&model.map.name);
         let mut ui = UI {
             model,

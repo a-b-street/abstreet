@@ -3,8 +3,8 @@ use abstutil::{read_binary, Timer};
 use ezgui::{Color, Line, Prerender, Text};
 use geom::{Bounds, Circle, Distance, FindClosest, PolyLine, Polygon, Pt2D};
 use map_model::raw::{
-    MapFixes, OriginalBuilding, OriginalIntersection, OriginalRoad, RawBuilding, RawIntersection,
-    RawMap, RawRoad, RestrictionType,
+    OriginalBuilding, OriginalIntersection, OriginalRoad, RawBuilding, RawIntersection, RawMap,
+    RawRoad, RestrictionType,
 };
 use map_model::{osm, IntersectionType, LaneType, RoadSpec, LANE_THICKNESS};
 use std::collections::BTreeMap;
@@ -22,7 +22,6 @@ pub struct Model {
     pub world: World<ID>,
 
     include_bldgs: bool,
-    edit_fixes: Option<String>,
     pub intersection_geom: bool,
 }
 
@@ -34,7 +33,6 @@ impl Model {
             showing_pts: None,
 
             include_bldgs: false,
-            edit_fixes: None,
             world: World::new(&Bounds::new()),
             intersection_geom: false,
         }
@@ -43,7 +41,6 @@ impl Model {
     pub fn import(
         path: &str,
         include_bldgs: bool,
-        edit_fixes: Option<String>,
         intersection_geom: bool,
         no_fixes: bool,
         prerender: &Prerender,
@@ -51,20 +48,11 @@ impl Model {
         let mut timer = Timer::new("import map");
         let mut model = Model::blank();
         model.include_bldgs = include_bldgs;
-        model.edit_fixes = edit_fixes;
         model.map = read_binary(path, &mut timer).unwrap();
         model.intersection_geom = intersection_geom;
 
         if !no_fixes {
-            let all_fixes = MapFixes::load(&mut timer);
-            model.map.apply_fixes(&all_fixes, &mut timer);
-            if let Some(ref name) = model.edit_fixes {
-                if let Some(fixes) = all_fixes.get(name) {
-                    if !fixes.gps_bounds.approx_eq(&model.map.gps_bounds) {
-                        panic!("Can't edit {} with this map; use the original map", name);
-                    }
-                }
-            }
+            model.map.apply_all_fixes(&mut timer);
         }
 
         model.world = World::new(&model.compute_bounds());
@@ -95,29 +83,23 @@ impl Model {
 impl Model {
     // TODO Only for truly synthetic maps...
     pub fn export(&mut self) {
-        assert!(self.map.name != "");
+        println!("TODO: disabled for now");
+        /*assert!(self.map.name != "");
         // TODO Or maybe we should do this more regularly?
         self.map.boundary_polygon = self.compute_bounds().get_rectangle();
 
         let path = abstutil::path_raw_map(&self.map.name);
         abstutil::write_binary(&path, &self.map).expect(&format!("Saving {} failed", path));
-        println!("Exported {}", path);
+        println!("Exported {}", path);*/
     }
 
     pub fn save_fixes(&mut self) {
-        let name = if let Some(ref n) = self.edit_fixes {
-            n.clone()
-        } else {
-            println!("Not editing any fixes, so can't save them");
-            return;
-        };
-
-        let path = abstutil::path_fixes(&name);
+        let path = abstutil::path_fixes(&self.map.name);
         abstutil::write_json(
             &path,
             &self
                 .map
-                .generate_fixes(&name, &mut Timer::new("calculate MapFixes")),
+                .generate_fixes(&mut Timer::new("calculate MapFixes")),
         )
         .unwrap();
         println!("Wrote {}", path);

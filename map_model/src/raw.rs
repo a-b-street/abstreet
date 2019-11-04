@@ -1,6 +1,6 @@
 use crate::make::get_lane_types;
 use crate::{osm, AreaType, IntersectionType, OffstreetParking, RoadSpec};
-use abstutil::{Error, Timer};
+use abstutil::{deserialize_btreemap, retain_btreemap, serialize_btreemap, Error, Timer};
 use geom::{Distance, GPSBounds, Polygon, Pt2D};
 use gtfs::Route;
 use serde_derive::{Deserialize, Serialize};
@@ -90,76 +90,152 @@ impl RawMap {
         }
     }
 
-    pub fn apply_fixes(&mut self, all_fixes: &BTreeMap<String, MapFixes>, timer: &mut Timer) {
-        timer.start("applying all fixes");
-        for (name, fixes) in all_fixes {
-            let mut applied = 0;
-            let mut skipped = 0;
-
-            for r in &fixes.delete_roads {
-                if self.roads.contains_key(r) {
-                    self.delete_road(*r);
-                    applied += 1;
-                } else {
-                    skipped += 1;
-                }
-            }
-
-            for i in &fixes.delete_intersections {
-                if self.intersections.contains_key(i) {
-                    self.delete_intersection(*i);
-                    applied += 1;
-                } else {
-                    skipped += 1;
-                }
-            }
-
-            let remap_pts = !self.gps_bounds.approx_eq(&fixes.gps_bounds);
-
-            for (id, mut i) in fixes.override_intersections.clone() {
-                if remap_pts {
-                    i.point = Pt2D::forcibly_from_gps(
-                        i.point.to_gps(&fixes.gps_bounds).unwrap(),
-                        &self.gps_bounds,
-                    );
-                }
-
-                if self
-                    .gps_bounds
-                    .contains(i.point.forcibly_to_gps(&self.gps_bounds))
-                {
-                    self.intersections.insert(id, i);
-                    applied += 1;
-                } else {
-                    skipped += 1;
-                }
-            }
-
-            for (id, mut r) in fixes.override_roads.clone() {
-                if remap_pts {
-                    r.center_points = self
-                        .gps_bounds
-                        .forcibly_convert(&fixes.gps_bounds.must_convert_back(&r.center_points));
-                }
-
-                if self.intersections.contains_key(&id.i1)
-                    && self.intersections.contains_key(&id.i2)
-                {
-                    self.roads.insert(id, r);
-                    applied += 1;
-                } else {
-                    skipped += 1;
-                }
-            }
-
-            timer.note(format!(
-                "Applied {} of {} fixes for {}",
-                applied,
-                applied + skipped,
-                name
-            ));
+    pub fn apply_all_fixes(&mut self, timer: &mut Timer) {
+        if self.name == "huge_seattle" {
+            let master_fixes: MapFixes =
+                abstutil::read_json(&abstutil::path_fixes("huge_seattle"), timer)
+                    .unwrap_or_else(|_| MapFixes::new(self.gps_bounds.clone()));
+            self.apply_fixes("huge_seattle", &master_fixes, timer);
+        } else {
+            let mut master_fixes: MapFixes =
+                abstutil::read_json(&abstutil::path_fixes("huge_seattle"), timer)
+                    .expect("No huge_seattle fixes exist");
+            master_fixes.remap_pts(&self.gps_bounds);
+            let local_fixes: MapFixes =
+                abstutil::read_json(&abstutil::path_fixes(&self.name), timer)
+                    .unwrap_or_else(|_| MapFixes::new(self.gps_bounds.clone()));
+            self.apply_fixes("huge_seattle", &master_fixes, timer);
+            self.apply_fixes(&self.name.clone(), &local_fixes, timer);
         }
-        timer.stop("applying all fixes");
+    }
+
+    fn apply_fixes(&mut self, name: &str, fixes: &MapFixes, timer: &mut Timer) {
+        assert!(self.gps_bounds.approx_eq(&fixes.gps_bounds));
+
+        let mut applied = 0;
+        let mut skipped = 0;
+
+        for r in &fixes.delete_roads {
+            if self.roads.contains_key(r) {
+                self.delete_road(*r);
+                applied += 1;
+            } else {
+                skipped += 1;
+            }
+        }
+
+        for i in &fixes.delete_intersections {
+            if self.intersections.contains_key(i) {
+                self.delete_intersection(*i);
+                applied += 1;
+            } else {
+                skipped += 1;
+            }
+        }
+
+        for (id, i) in &fixes.override_intersections {
+            if self
+                .gps_bounds
+                .contains(i.point.forcibly_to_gps(&self.gps_bounds))
+            {
+                self.intersections.insert(*id, i.clone());
+                applied += 1;
+            } else {
+                skipped += 1;
+            }
+        }
+
+        for (id, r) in &fixes.override_roads {
+            if self.intersections.contains_key(&id.i1) && self.intersections.contains_key(&id.i2) {
+                self.roads.insert(*id, r.clone());
+                applied += 1;
+            } else {
+                skipped += 1;
+            }
+        }
+
+        timer.note(format!(
+            "Applied {} of {} {} fixes",
+            applied,
+            applied + skipped,
+            name
+        ));
+    }
+
+    // TODO Ignores buildings right now.
+    pub fn generate_fixes(&self, timer: &mut Timer) -> MapFixes {
+        let orig: RawMap =
+            abstutil::read_binary(&abstutil::path_raw_map(&self.name), timer).unwrap();
+
+        let mut fixes = MapFixes::new(self.gps_bounds.clone());
+
+        // What'd we delete?
+        fixes.delete_roads.extend(
+            orig.roads
+                .keys()
+                .cloned()
+                .collect::<BTreeSet<_>>()
+                .difference(&self.roads.keys().cloned().collect::<BTreeSet<_>>()),
+        );
+        fixes.delete_intersections.extend(
+            orig.intersections
+                .keys()
+                .cloned()
+                .collect::<BTreeSet<_>>()
+                .difference(&self.intersections.keys().cloned().collect::<BTreeSet<_>>()),
+        );
+
+        // What'd we create or modify?
+        for (id, i) in &self.intersections {
+            if orig
+                .intersections
+                .get(id)
+                .map(|orig_i| orig_i != i)
+                .unwrap_or(true)
+            {
+                fixes.override_intersections.insert(*id, i.clone());
+            }
+        }
+        for (id, r) in &self.roads {
+            if orig.roads.get(id).map(|orig_r| orig_r != r).unwrap_or(true) {
+                fixes.override_roads.insert(*id, r.clone());
+            }
+        }
+
+        if self.name != "huge_seattle" {
+            // Filter out things that we just inherited from the master fixes.
+            let mut master_fixes: MapFixes =
+                abstutil::read_json(&abstutil::path_fixes("huge_seattle"), timer)
+                    .expect("No huge_seattle fixes exist");
+            master_fixes.remap_pts(&self.gps_bounds);
+
+            fixes.delete_roads = fixes
+                .delete_roads
+                .difference(&master_fixes.delete_roads)
+                .cloned()
+                .collect();
+            fixes.delete_intersections = fixes
+                .delete_intersections
+                .difference(&master_fixes.delete_intersections)
+                .cloned()
+                .collect();
+            retain_btreemap(&mut fixes.override_intersections, |id, i| {
+                master_fixes
+                    .override_intersections
+                    .get(id)
+                    .map(|orig| orig != i)
+                    .unwrap_or(true)
+            });
+            retain_btreemap(&mut fixes.override_roads, |id, r| {
+                master_fixes
+                    .override_roads
+                    .get(id)
+                    .map(|orig| orig != r)
+                    .unwrap_or(true)
+            });
+        }
+
+        fixes
     }
 
     // TODO Might be better to maintain this instead of doing a search everytime.
@@ -420,81 +496,6 @@ impl RawMap {
 
         Some(fixed)
     }
-
-    // TODO Ignores buildings right now.
-    pub fn generate_fixes(&self, fixes_name: &str, timer: &mut Timer) -> MapFixes {
-        let orig: RawMap =
-            abstutil::read_binary(&abstutil::path_raw_map(&self.name), timer).unwrap();
-
-        let mut fixes = MapFixes {
-            gps_bounds: self.gps_bounds.clone(),
-            delete_roads: Vec::new(),
-            delete_intersections: Vec::new(),
-            override_intersections: Vec::new(),
-            override_roads: Vec::new(),
-        };
-
-        // What'd we delete?
-        fixes.delete_roads.extend(
-            orig.roads
-                .keys()
-                .cloned()
-                .collect::<BTreeSet<_>>()
-                .difference(&self.roads.keys().cloned().collect::<BTreeSet<_>>()),
-        );
-        fixes.delete_intersections.extend(
-            orig.intersections
-                .keys()
-                .cloned()
-                .collect::<BTreeSet<_>>()
-                .difference(&self.intersections.keys().cloned().collect::<BTreeSet<_>>()),
-        );
-
-        // What'd we create or modify?
-        for (id, i) in &self.intersections {
-            if orig
-                .intersections
-                .get(id)
-                .map(|orig_i| orig_i != i)
-                .unwrap_or(true)
-            {
-                fixes.override_intersections.push((*id, i.clone()));
-            }
-        }
-        for (id, r) in &self.roads {
-            if orig.roads.get(id).map(|orig_r| orig_r != r).unwrap_or(true) {
-                fixes.override_roads.push((*id, r.clone()));
-            }
-        }
-
-        // Filter out things from other fixes.
-        // TODO If we accidentally modify something from another set of fixes, then we silently
-        // discard that change. Oops!
-        let mut seen_roads = BTreeSet::new();
-        let mut seen_intersections = BTreeSet::new();
-        for name in abstutil::list_all_objects("fixes", "") {
-            if name == fixes_name {
-                continue;
-            }
-            let f: MapFixes = abstutil::read_json(&abstutil::path_fixes(&name), timer).unwrap();
-            let (new_roads, new_intersections) = f.all_touched_ids();
-            seen_roads.extend(new_roads);
-            seen_intersections.extend(new_intersections);
-        }
-
-        fixes.delete_roads.retain(|r| !seen_roads.contains(r));
-        fixes
-            .delete_intersections
-            .retain(|i| !seen_intersections.contains(i));
-        fixes
-            .override_intersections
-            .retain(|(id, _)| !seen_intersections.contains(id));
-        fixes
-            .override_roads
-            .retain(|(id, _)| !seen_roads.contains(id));
-
-        fixes
-    }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -572,58 +573,48 @@ pub struct MapFixes {
     // Any Pt2Ds in the rest of the fixes are relative to these GPSBounds.
     pub gps_bounds: GPSBounds,
 
-    pub delete_roads: Vec<OriginalRoad>,
-    pub delete_intersections: Vec<OriginalIntersection>,
+    pub delete_roads: BTreeSet<OriginalRoad>,
+    pub delete_intersections: BTreeSet<OriginalIntersection>,
     // Create or modify
-    pub override_intersections: Vec<(OriginalIntersection, RawIntersection)>,
-    pub override_roads: Vec<(OriginalRoad, RawRoad)>,
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
+    pub override_intersections: BTreeMap<OriginalIntersection, RawIntersection>,
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
+    pub override_roads: BTreeMap<OriginalRoad, RawRoad>,
 }
 
 impl MapFixes {
-    // The groups of fixes should be applicable in any order, theoretically...
-    pub fn load(timer: &mut Timer) -> BTreeMap<String, MapFixes> {
-        // Make sure different groups of fixes don't conflict.
-        let mut seen_roads = BTreeSet::new();
-        let mut seen_intersections = BTreeSet::new();
-
-        let mut results = BTreeMap::new();
-        for name in abstutil::list_all_objects("fixes", "") {
-            let fixes: MapFixes = abstutil::read_json(&abstutil::path_fixes(&name), timer).unwrap();
-            let (new_roads, new_intersections) = fixes.all_touched_ids();
-            if !seen_roads.is_disjoint(&new_roads) {
-                // The error could be much better (which road and other MapFixes), but since we
-                // guard against this happening in the first place, don't bother.
-                panic!(
-                    "{} MapFixes and some other MapFixes both touch the same road!",
-                    name
-                );
-            }
-            seen_roads.extend(new_roads);
-            if !seen_intersections.is_disjoint(&new_intersections) {
-                panic!(
-                    "{} MapFixes and some other MapFixes both touch the same intersection!",
-                    name
-                );
-            }
-            seen_intersections.extend(new_intersections);
-
-            results.insert(name, fixes);
+    fn new(gps_bounds: GPSBounds) -> MapFixes {
+        MapFixes {
+            gps_bounds,
+            delete_roads: BTreeSet::new(),
+            delete_intersections: BTreeSet::new(),
+            override_intersections: BTreeMap::new(),
+            override_roads: BTreeMap::new(),
         }
-        results
     }
 
-    fn all_touched_ids(&self) -> (BTreeSet<OriginalRoad>, BTreeSet<OriginalIntersection>) {
-        let mut roads: BTreeSet<OriginalRoad> = self.delete_roads.iter().cloned().collect();
-        for (id, _) in &self.override_roads {
-            roads.insert(*id);
+    // Only makes sense to call for huge_seattle fixes
+    fn remap_pts(&mut self, local_gps_bounds: &GPSBounds) {
+        let master_gps_bounds = &self.gps_bounds;
+        assert!(!master_gps_bounds.approx_eq(local_gps_bounds));
+        for i in self.override_intersections.values_mut() {
+            i.point = Pt2D::forcibly_from_gps(
+                i.point.to_gps(master_gps_bounds).unwrap(),
+                local_gps_bounds,
+            );
         }
 
-        let mut intersections: BTreeSet<OriginalIntersection> =
-            self.delete_intersections.iter().cloned().collect();
-        for (id, _) in &self.override_intersections {
-            intersections.insert(*id);
+        for mut r in self.override_roads.values_mut() {
+            r.center_points = local_gps_bounds
+                .forcibly_convert(&master_gps_bounds.must_convert_back(&r.center_points));
         }
 
-        (roads, intersections)
+        self.gps_bounds = local_gps_bounds.clone();
     }
 }

@@ -3,6 +3,7 @@ use geom::PolyLine;
 use map_model::raw::{OriginalIntersection, OriginalRoad, RawMap};
 use map_model::IntersectionType;
 
+// TODO This needs to update turn restrictions too
 pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
     timer.start("clipping map to boundary");
 
