@@ -1,5 +1,6 @@
-use super::trip_stats::ShowTripStats;
-use crate::common::{ObjectColorer, ObjectColorerBuilder, RoadColorer, RoadColorerBuilder};
+use crate::common::{
+    ObjectColorer, ObjectColorerBuilder, Plot, RoadColorer, RoadColorerBuilder, Series,
+};
 use crate::game::{Transition, WizardState};
 use crate::helpers::ID;
 use crate::render::DrawOptions;
@@ -10,20 +11,20 @@ use abstutil::{prettyprint_usize, Counter};
 use ezgui::{Choice, Color, EventCtx, GfxCtx, Line, MenuUnderButton, Text};
 use geom::Duration;
 use map_model::PathStep;
-use sim::ParkingSpot;
-use std::collections::HashSet;
+use sim::{ParkingSpot, TripMode};
+use std::collections::{BTreeMap, HashSet};
 
 pub enum Overlays {
     Inactive,
     ParkingAvailability(Duration, RoadColorer),
     IntersectionDelay(Duration, ObjectColorer),
     Throughput(Duration, ObjectColorer),
-    FinishedTrips(Duration, ShowTripStats),
+    FinishedTrips(Duration, Plot),
     Chokepoints(Duration, ObjectColorer),
     BikeNetwork(RoadColorer),
     // Only set by certain gameplay modes
     BusRoute(ShowBusRoute),
-    BusDelaysOverTime(ShowTripStats),
+    BusDelaysOverTime(Plot),
 }
 
 impl Overlays {
@@ -121,7 +122,7 @@ impl Overlays {
             }
             "cumulative throughput" => Overlays::Throughput(time, calculate_thruput(ctx, ui)),
             "finished trips" => {
-                if let Some(s) = ShowTripStats::new(ui, ctx) {
+                if let Some(s) = trip_stats(ui, ctx) {
                     Overlays::FinishedTrips(time, s)
                 } else {
                     println!("No data on finished trips yet");
@@ -340,4 +341,65 @@ fn calculate_bike_network(ctx: &mut EventCtx, ui: &UI) -> RoadColorer {
         }
     }
     colorer.build(ctx, &ui.primary.map)
+}
+
+fn trip_stats(ui: &UI, ctx: &mut EventCtx) -> Option<Plot> {
+    if ui.primary.sim.get_analytics().finished_trips.is_empty() {
+        return None;
+    }
+
+    let lines: Vec<(&str, Color, Option<TripMode>)> = vec![
+        (
+            "walking",
+            ui.cs.get("unzoomed pedestrian"),
+            Some(TripMode::Walk),
+        ),
+        ("biking", ui.cs.get("unzoomed bike"), Some(TripMode::Bike)),
+        (
+            "transit",
+            ui.cs.get("unzoomed bus"),
+            Some(TripMode::Transit),
+        ),
+        ("driving", ui.cs.get("unzoomed car"), Some(TripMode::Drive)),
+        ("aborted", Color::PURPLE.alpha(0.5), None),
+    ];
+
+    // What times do we use for interpolation?
+    let num_x_pts = 100;
+    let mut times = Vec::new();
+    for i in 0..num_x_pts {
+        let percent_x = (i as f64) / ((num_x_pts - 1) as f64);
+        let t = ui.primary.sim.time() * percent_x;
+        times.push(t);
+    }
+
+    // Gather the data
+    let mut counts = Counter::new();
+    let mut pts_per_mode: BTreeMap<Option<TripMode>, Vec<(Duration, usize)>> =
+        lines.iter().map(|(_, _, m)| (*m, Vec::new())).collect();
+    for (t, m, _) in &ui.primary.sim.get_analytics().finished_trips {
+        counts.inc(*m);
+        if *t > times[0] {
+            times.remove(0);
+            for (_, _, mode) in &lines {
+                pts_per_mode
+                    .get_mut(mode)
+                    .unwrap()
+                    .push((*t, counts.get(*mode)));
+            }
+        }
+    }
+
+    Plot::new(
+        "finished trips",
+        lines
+            .into_iter()
+            .map(|(name, color, m)| Series {
+                label: name.to_string(),
+                color,
+                pts: pts_per_mode.remove(&m).unwrap(),
+            })
+            .collect(),
+        ctx,
+    )
 }

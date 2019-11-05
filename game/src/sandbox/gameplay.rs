@@ -1,7 +1,8 @@
+use crate::common::{Plot, Series};
 use crate::game::{msg, Transition, WizardState};
 use crate::render::AgentColorScheme;
 use crate::sandbox::overlays::Overlays;
-use crate::sandbox::{bus_explorer, spawner, trip_stats, SandboxMode};
+use crate::sandbox::{bus_explorer, spawner, SandboxMode};
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Timer};
 use ezgui::{hotkey, Choice, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, Wizard};
@@ -275,7 +276,7 @@ impl GameplayState {
                     },
                     *time != ui.primary.sim.time(),
                 ) {
-                    if let Some(s) = trip_stats::ShowTripStats::bus_delays(route, ui, ctx) {
+                    if let Some(s) = bus_delays(route, ui, ctx) {
                         *overlays = Overlays::BusDelaysOverTime(s);
                     } else {
                         println!("No route delay info yet");
@@ -422,6 +423,29 @@ fn bus_route_panel(id: BusRouteID, ui: &UI, stat: Statistic, prebaked: &Analytic
         }
     }
     txt
+}
+
+fn bus_delays(route: BusRouteID, ui: &UI, ctx: &mut EventCtx) -> Option<Plot> {
+    let delays_per_stop = ui
+        .primary
+        .sim
+        .get_analytics()
+        .bus_arrivals_over_time(ui.primary.sim.time(), route);
+    if delays_per_stop.is_empty() {
+        return None;
+    }
+
+    let mut series = Vec::new();
+    for (stop, delays) in delays_per_stop {
+        series.push(Series {
+            // TODO idx
+            label: stop.to_string(),
+            color: Color::RED,
+            pts: delays,
+        });
+        break;
+    }
+    Plot::new(&format!("delays for {}", route), series, ctx)
 }
 
 fn gridlock_panel(ui: &UI, _prebaked: &Analytics) -> Text {

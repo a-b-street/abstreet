@@ -3,7 +3,6 @@ mod gameplay;
 mod overlays;
 mod score;
 mod spawner;
-mod trip_stats;
 
 use crate::common::{time_controls, AgentTools, CommonState, SpeedControls};
 use crate::debug::DebugMode;

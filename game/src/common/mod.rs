@@ -3,6 +3,7 @@ mod associated;
 mod colors;
 mod info;
 mod navigate;
+mod plot;
 mod route_explorer;
 mod route_viewer;
 mod shortcuts;
@@ -16,6 +17,7 @@ pub use self::agent::AgentTools;
 pub use self::colors::{
     ColorLegend, ObjectColorer, ObjectColorerBuilder, RoadColorer, RoadColorerBuilder,
 };
+pub use self::plot::{Plot, Series};
 pub use self::route_explorer::RouteExplorer;
 pub use self::speed::SpeedControls;
 pub use self::time::time_controls;
