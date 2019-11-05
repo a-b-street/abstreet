@@ -6,7 +6,7 @@ function common_release {
 
 	cp docs/INSTRUCTIONS.md $OUT
 	mkdir $OUT/data
-	cp data/color_scheme.json data/prebaked_results.json $OUT/data
+	cp -Rv data/color_scheme.json data/prebaked_results $OUT/data
 
 	mkdir $OUT/data/maps
 	for map in 23rd ballard caphill downtown montlake; do

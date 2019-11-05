@@ -47,8 +47,14 @@ enum State {
 
 impl GameplayState {
     pub fn initialize(mode: GameplayMode, ui: &mut UI, ctx: &mut EventCtx) -> GameplayState {
-        let prebaked: Analytics =
-            abstutil::read_json("../data/prebaked_results.json", &mut Timer::throwaway()).unwrap();
+        let prebaked: Analytics = abstutil::read_binary(
+            &abstutil::path_prebaked_results(ui.primary.map.get_name()),
+            &mut Timer::throwaway(),
+        )
+        .unwrap_or_else(|_| {
+            println!("WARNING! No prebaked sim analytics. Only freeform mode will work.");
+            Analytics::new()
+        });
 
         let (state, maybe_scenario) = match mode.clone() {
             GameplayMode::Freeform => (

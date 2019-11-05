@@ -132,20 +132,26 @@ impl State for ChallengeSplash {
 pub fn prebake() {
     let mut timer = Timer::new("prebake all challenge results");
 
-    timer.start("run normal sim");
-    let (map, mut sim, _) = SimFlags {
-        load: abstutil::path1_bin(
-            "montlake",
-            abstutil::SCENARIOS,
-            "weekday_typical_traffic_from_psrc",
-        ),
-        use_map_fixes: true,
-        rng_seed: Some(42),
-        opts: SimOptions::new("prebaked"),
-    }
-    .load(&mut timer);
-    sim.timed_step(&map, Duration::END_OF_DAY, &mut timer);
-    timer.stop("run normal sim");
+    for map_name in vec!["montlake", "23rd"] {
+        timer.start(&format!("run normal sim for {}", map_name));
+        let (map, mut sim, _) = SimFlags {
+            load: abstutil::path1_bin(
+                map_name,
+                abstutil::SCENARIOS,
+                "weekday_typical_traffic_from_psrc",
+            ),
+            use_map_fixes: true,
+            rng_seed: Some(42),
+            opts: SimOptions::new("prebaked"),
+        }
+        .load(&mut timer);
+        sim.timed_step(&map, Duration::END_OF_DAY, &mut timer);
+        timer.stop(&format!("run normal sim for {}", map_name));
 
-    abstutil::write_json("../data/prebaked_results.json", sim.get_analytics()).unwrap();
+        abstutil::write_binary(
+            &abstutil::path_prebaked_results(map_name),
+            sim.get_analytics(),
+        )
+        .unwrap();
+    }
 }

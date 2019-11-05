@@ -96,6 +96,10 @@ pub fn path_pending_screenshots(map_name: &str) -> String {
     format!("../data/screenshots/pending_{}", map_name)
 }
 
+pub fn path_prebaked_results(map_name: &str) -> String {
+    format!("../data/prebaked_results/{}.bin", map_name)
+}
+
 pub fn path_shortcut(name: &str) -> String {
     format!("../data/shortcuts/{}.json", name)
 }
