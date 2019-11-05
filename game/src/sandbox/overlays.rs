@@ -23,6 +23,7 @@ pub enum Overlays {
     BikeNetwork(RoadColorer),
     // Only set by certain gameplay modes
     BusRoute(ShowBusRoute),
+    BusDelaysOverTime(ShowTripStats),
 }
 
 impl Overlays {
@@ -66,7 +67,7 @@ impl Overlays {
             Overlays::FinishedTrips(t, _) => ("finished trips", *t),
             Overlays::Chokepoints(t, _) => ("chokepoints", *t),
             Overlays::BikeNetwork(_) => ("bike network", ui.primary.sim.time()),
-            Overlays::BusRoute(_) => {
+            Overlays::BusRoute(_) | Overlays::BusDelaysOverTime(_) => {
                 // The gameplay mode will update it.
                 return None;
             }
@@ -91,7 +92,7 @@ impl Overlays {
                 heatmap.draw(g, ui);
                 true
             }
-            Overlays::FinishedTrips(_, ref s) => {
+            Overlays::FinishedTrips(_, ref s) | Overlays::BusDelaysOverTime(ref s) => {
                 ui.draw(
                     g,
                     DrawOptions::new(),

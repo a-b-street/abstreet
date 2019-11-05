@@ -1081,9 +1081,14 @@ fn make_half_map(
         }
         if i.is_border() {
             if i.roads.len() != 1 {
+                let mut roads = Vec::new();
+                let id = i.id;
+                for r in i.roads.clone() {
+                    roads.push(map.get_r(r).orig_id);
+                }
                 panic!(
                     "{} is a border, but is connected to >1 road: {:?}",
-                    i.id, i.roads
+                    id, roads
                 );
             }
             continue;

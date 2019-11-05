@@ -1,6 +1,7 @@
 use crate::game::{msg, Transition, WizardState};
 use crate::render::AgentColorScheme;
-use crate::sandbox::{bus_explorer, overlays, spawner, SandboxMode};
+use crate::sandbox::overlays::Overlays;
+use crate::sandbox::{bus_explorer, spawner, trip_stats, SandboxMode};
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Timer};
 use ezgui::{hotkey, Choice, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, Wizard};
@@ -100,6 +101,7 @@ impl GameplayState {
                             &format!("Optimize {}", route_name),
                             vec![
                                 (hotkey(Key::E), "show bus route"),
+                                (hotkey(Key::T), "show delays over time"),
                                 (hotkey(Key::S), "change statistic"),
                                 (hotkey(Key::H), "help"),
                             ],
@@ -199,7 +201,7 @@ impl GameplayState {
         &mut self,
         ctx: &mut EventCtx,
         ui: &mut UI,
-        overlays: &mut overlays::Overlays,
+        overlays: &mut Overlays,
     ) -> Option<Transition> {
         match self.state {
             State::Freeform => {
@@ -250,16 +252,35 @@ impl GameplayState {
                     "hide bus route",
                     overlays,
                     match overlays {
-                        overlays::Overlays::BusRoute(_) => true,
+                        Overlays::BusRoute(_) => true,
                         _ => false,
                     },
                     *time != ui.primary.sim.time(),
                 ) {
-                    *overlays = overlays::Overlays::BusRoute(bus_explorer::ShowBusRoute::new(
+                    *overlays = Overlays::BusRoute(bus_explorer::ShowBusRoute::new(
                         ui.primary.map.get_br(route),
                         ui,
                         ctx,
                     ));
+                }
+                if manage_overlays(
+                    &mut self.menu,
+                    ctx,
+                    "show delays over time",
+                    "hide delays over time",
+                    overlays,
+                    match overlays {
+                        Overlays::BusDelaysOverTime(_) => true,
+                        _ => false,
+                    },
+                    *time != ui.primary.sim.time(),
+                ) {
+                    if let Some(s) = trip_stats::ShowTripStats::bus_delays(route, ui, ctx) {
+                        *overlays = Overlays::BusDelaysOverTime(s);
+                    } else {
+                        println!("No route delay info yet");
+                        *overlays = Overlays::Inactive;
+                    }
                 }
 
                 // TODO Expensive
@@ -511,7 +532,7 @@ fn manage_overlays(
     ctx: &mut EventCtx,
     show: &str,
     hide: &str,
-    overlay: &mut overlays::Overlays,
+    overlay: &mut Overlays,
     active_originally: bool,
     time_changed: bool,
 ) -> bool {
@@ -525,7 +546,7 @@ fn manage_overlays(
     if !active_originally && menu.swap_action(show, hide, ctx) {
         true
     } else if active_originally && menu.swap_action(hide, show, ctx) {
-        *overlay = overlays::Overlays::Inactive;
+        *overlay = Overlays::Inactive;
         false
     } else {
         active_originally && time_changed

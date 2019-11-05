@@ -120,4 +120,35 @@ impl Analytics {
         }
         delay_to_stop
     }
+
+    // TODO Refactor!
+    // For each stop, a list of (time, delay)
+    pub fn bus_arrivals_over_time(
+        &self,
+        now: Duration,
+        r: BusRouteID,
+    ) -> BTreeMap<BusStopID, Vec<(Duration, Duration)>> {
+        let mut per_bus: BTreeMap<CarID, Vec<(Duration, BusStopID)>> = BTreeMap::new();
+        for (t, car, route, stop) in &self.bus_arrivals {
+            if *t > now {
+                break;
+            }
+            if *route == r {
+                per_bus
+                    .entry(*car)
+                    .or_insert_with(Vec::new)
+                    .push((*t, *stop));
+            }
+        }
+        let mut delays_to_stop: BTreeMap<BusStopID, Vec<(Duration, Duration)>> = BTreeMap::new();
+        for events in per_bus.values() {
+            for pair in events.windows(2) {
+                delays_to_stop
+                    .entry(pair[1].1)
+                    .or_insert_with(Vec::new)
+                    .push((pair[1].0, pair[1].0 - pair[0].0));
+            }
+        }
+        delays_to_stop
+    }
 }
