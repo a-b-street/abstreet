@@ -1,5 +1,6 @@
 use crate::common::{Plot, Series};
 use crate::game::{msg, Transition, WizardState};
+use crate::helpers::rotating_color_total;
 use crate::render::AgentColorScheme;
 use crate::sandbox::overlays::Overlays;
 use crate::sandbox::{bus_explorer, spawner, SandboxMode};
@@ -420,24 +421,30 @@ fn bus_route_panel(id: BusRouteID, ui: &UI, stat: Statistic, prebaked: &Analytic
     txt
 }
 
-fn bus_delays(route: BusRouteID, ui: &UI, ctx: &mut EventCtx) -> Plot {
-    let delays_per_stop = ui
+fn bus_delays(id: BusRouteID, ui: &UI, ctx: &mut EventCtx) -> Plot {
+    let route = ui.primary.map.get_br(id);
+    let mut delays_per_stop = ui
         .primary
         .sim
         .get_analytics()
-        .bus_arrivals_over_time(ui.primary.sim.time(), route);
+        .bus_arrivals_over_time(ui.primary.sim.time(), id);
 
     let mut series = Vec::new();
-    for (stop, delays) in delays_per_stop {
+    for idx1 in 0..route.stops.len() {
+        let idx2 = if idx1 == route.stops.len() - 1 {
+            0
+        } else {
+            idx1 + 1
+        };
         series.push(Series {
-            // TODO idx
-            label: stop.to_string(),
-            color: Color::RED,
-            pts: delays,
+            label: format!("Stop {}->{}", idx1 + 1, idx2 + 1),
+            color: rotating_color_total(idx1, route.stops.len()),
+            pts: delays_per_stop
+                .remove(&route.stops[idx2])
+                .unwrap_or_else(Vec::new),
         });
-        break;
     }
-    Plot::new(&format!("delays for {}", route), series, ctx)
+    Plot::new(&format!("delays for {}", route.name), series, ctx)
 }
 
 fn gridlock_panel(ui: &UI, _prebaked: &Analytics) -> Text {
