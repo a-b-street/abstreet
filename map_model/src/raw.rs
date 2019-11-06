@@ -7,6 +7,19 @@ use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct RawMap {
+    pub name: String,
+    pub roads: BTreeMap<OriginalRoad, RawRoad>,
+    pub intersections: BTreeMap<OriginalIntersection, RawIntersection>,
+    pub buildings: BTreeMap<OriginalBuilding, RawBuilding>,
+    pub bus_routes: Vec<Route>,
+    pub areas: Vec<RawArea>,
+
+    pub boundary_polygon: Polygon,
+    pub gps_bounds: GPSBounds,
+}
+
 // A way to refer to roads across many maps.
 //
 // Previously, OriginalRoad and OriginalIntersection used LonLat to reference objects across maps.
@@ -58,19 +71,6 @@ impl fmt::Display for OriginalBuilding {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct RawMap {
-    pub name: String,
-    pub roads: BTreeMap<OriginalRoad, RawRoad>,
-    pub intersections: BTreeMap<OriginalIntersection, RawIntersection>,
-    pub buildings: BTreeMap<OriginalBuilding, RawBuilding>,
-    pub bus_routes: Vec<Route>,
-    pub areas: Vec<RawArea>,
-
-    pub boundary_polygon: Polygon,
-    pub gps_bounds: GPSBounds,
-}
-
 impl RawMap {
     pub fn blank(name: String) -> RawMap {
         RawMap {
@@ -106,6 +106,15 @@ impl RawMap {
                     .unwrap_or_else(|_| MapFixes::new(self.gps_bounds.clone()));
             self.apply_fixes("huge_seattle", &master_fixes, timer);
             self.apply_fixes(&self.name.clone(), &local_fixes, timer);
+        }
+
+        // Validation round afterwards
+        for (id, r) in &self.roads {
+            if r.center_points[0] != self.intersections[&id.i1].point
+                || *r.center_points.last().unwrap() != self.intersections[&id.i2].point
+            {
+                timer.warn(format!("{} geomtry doesn't match intersections", id));
+            }
         }
     }
 

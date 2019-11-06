@@ -360,12 +360,19 @@ impl<'a> std::ops::Drop for Timer<'a> {
         match self.stack.last() {
             Some(StackEntry::TimerSpan(ref s)) => {
                 if s.name != stop_name {
-                    println!("dropping Timer because of panic");
+                    println!("dropping Timer during {}, due to panic?", s.name);
                     return;
                 }
             }
-            Some(_) => {
-                println!("dropping Timer because of panic");
+            Some(StackEntry::File(ref r)) => {
+                println!("dropping Timer while reading {}, due to panic?", r.path);
+                return;
+            }
+            Some(StackEntry::Progress(ref p)) => {
+                println!(
+                    "dropping Timer while doing progress {}, due to panic?",
+                    p.label
+                );
                 return;
             }
             None => unreachable!(),

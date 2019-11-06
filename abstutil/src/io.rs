@@ -35,13 +35,20 @@ pub fn read_json<T: DeserializeOwned>(path: &str, timer: &mut Timer) -> Result<T
     }
 
     timer.start(&format!("parse {}", path));
-    // TODO timer.read_file isn't working here. :(
-    let mut file = File::open(path)?;
-    let mut contents = String::new();
-    file.read_to_string(&mut contents)?;
-    let obj: T = serde_json::from_str(&contents)?;
-    timer.stop(&format!("parse {}", path));
-    Ok(obj)
+    // TODO timer.read_file isn't working here. And we need to call stop() if there's no file.
+    match File::open(path) {
+        Ok(mut file) => {
+            let mut contents = String::new();
+            file.read_to_string(&mut contents)?;
+            let obj: T = serde_json::from_str(&contents)?;
+            timer.stop(&format!("parse {}", path));
+            Ok(obj)
+        }
+        Err(e) => {
+            timer.stop(&format!("parse {}", path));
+            Err(e)
+        }
+    }
 }
 
 pub fn write_binary<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
