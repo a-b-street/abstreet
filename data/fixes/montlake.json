@@ -125,8 +125,7 @@
           "inner_y": 1778.3842
         },
         "intersection_type": "Border",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -139,8 +138,7 @@
           "inner_y": 1519.3766
         },
         "intersection_type": "Border",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -153,8 +151,7 @@
           "inner_y": 1582.462
         },
         "intersection_type": "Border",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -167,8 +164,7 @@
           "inner_y": 1777.5641
         },
         "intersection_type": "Border",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -181,8 +177,7 @@
           "inner_y": 644.3151
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ]
   ],

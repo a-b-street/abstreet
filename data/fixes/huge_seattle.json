@@ -1319,8 +1319,7 @@
           "inner_y": 7771.4273
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": true
+        "label": null
       }
     ],
     [
@@ -1333,8 +1332,7 @@
           "inner_y": 8445.1221
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": true
+        "label": null
       }
     ],
     [
@@ -1347,8 +1345,7 @@
           "inner_y": 9060.6815
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": true
+        "label": null
       }
     ],
     [
@@ -1361,8 +1358,7 @@
           "inner_y": 7987.9884
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1375,8 +1371,7 @@
           "inner_y": 8108.1985
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1389,8 +1384,7 @@
           "inner_y": 8438.6465
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1403,8 +1397,7 @@
           "inner_y": 8353.1153
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1417,8 +1410,7 @@
           "inner_y": 9245.2339
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1431,8 +1423,7 @@
           "inner_y": 8036.827
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1445,8 +1436,7 @@
           "inner_y": 8027.7614
         },
         "intersection_type": "TrafficSignal",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1459,8 +1449,7 @@
           "inner_y": 8187.1181
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1473,8 +1462,7 @@
           "inner_y": 8111.7091
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1487,8 +1475,7 @@
           "inner_y": 9300.545
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1501,8 +1488,7 @@
           "inner_y": 8440.8655
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1515,8 +1501,7 @@
           "inner_y": 8033.452
         },
         "intersection_type": "TrafficSignal",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1529,8 +1514,7 @@
           "inner_y": 7675.7826
         },
         "intersection_type": "TrafficSignal",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1543,8 +1527,7 @@
           "inner_y": 8838.2062
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1557,8 +1540,7 @@
           "inner_y": 9445.3624
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1571,8 +1553,7 @@
           "inner_y": 9117.1591
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1585,8 +1566,7 @@
           "inner_y": 9080.735
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1599,8 +1579,7 @@
           "inner_y": 9067.3575
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1613,8 +1592,7 @@
           "inner_y": 9048.2283
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1627,8 +1605,7 @@
           "inner_y": 9032.2657
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1641,8 +1618,7 @@
           "inner_y": 8941.9028
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1655,8 +1631,7 @@
           "inner_y": 9246.8074
         },
         "intersection_type": "TrafficSignal",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1669,8 +1644,7 @@
           "inner_y": 8846.172
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1683,8 +1657,7 @@
           "inner_y": 9129.4166
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1697,8 +1670,7 @@
           "inner_y": 8038.0877
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1711,8 +1683,7 @@
           "inner_y": 7955.3369
         },
         "intersection_type": "TrafficSignal",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1725,8 +1696,7 @@
           "inner_y": 8436.4953
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1739,8 +1709,7 @@
           "inner_y": 8436.7662
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1753,8 +1722,7 @@
           "inner_y": 8410.4856
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1767,8 +1735,7 @@
           "inner_y": 8401.6372
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1781,8 +1748,7 @@
           "inner_y": 7930.9696
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1795,8 +1761,7 @@
           "inner_y": 7906.0778
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1809,8 +1774,7 @@
           "inner_y": 8033.1725
         },
         "intersection_type": "TrafficSignal",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1823,8 +1787,7 @@
           "inner_y": 7895.5567
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1837,8 +1800,7 @@
           "inner_y": 7856.8821
         },
         "intersection_type": "TrafficSignal",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1851,8 +1813,7 @@
           "inner_y": 7929.3772
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ],
     [
@@ -1865,8 +1826,7 @@
           "inner_y": 8001.5757
         },
         "intersection_type": "StopSign",
-        "label": null,
-        "synthetic": false
+        "label": null
       }
     ]
   ],

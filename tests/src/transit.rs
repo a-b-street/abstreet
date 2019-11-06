@@ -68,10 +68,10 @@ pub fn run(t: &mut TestRunner) {
             vec![
                 Event::PedReachedBusStop(ped, ped_stop1),
                 Event::BusArrivedAtStop(bus, route.id, ped_stop1),
-                Event::PedEntersBus(ped, bus),
+                Event::PedEntersBus(ped, bus, route.id),
                 Event::BusDepartedFromStop(bus, route.id, ped_stop1),
                 Event::BusArrivedAtStop(bus, route.id, ped_stop2),
-                Event::PedLeavesBus(ped, bus),
+                Event::PedLeavesBus(ped, bus, route.id),
                 Event::PedReachedBuilding(ped, goal_bldg),
                 Event::BusDepartedFromStop(bus, route.id, ped_stop2),
                 Event::BusArrivedAtStop(bus, route.id, route.stops[3]),
