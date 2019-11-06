@@ -227,12 +227,7 @@ impl Model {
 
         self.world.add(
             prerender,
-            Object::new(
-                ID::Intersection(id),
-                if i.synthetic { color.alpha(0.5) } else { color },
-                poly,
-            )
-            .maybe_label(i.label.clone()),
+            Object::new(ID::Intersection(id), color, poly).maybe_label(i.label.clone()),
         );
     }
 
@@ -246,7 +241,6 @@ impl Model {
                 point,
                 intersection_type: IntersectionType::StopSign,
                 label: None,
-                synthetic: true,
             },
         );
         self.intersection_added(id, prerender);
@@ -567,9 +561,8 @@ impl Model {
 
     fn road_objects(&self, id: OriginalRoad) -> Vec<Object<ID>> {
         let r = &self.map.roads[&id];
-        let synthetic = r.synthetic();
         let unset =
-            synthetic && r.osm_tags.get(osm::NAME) == Some(&"Streety McStreetFace".to_string());
+            r.synthetic() && r.osm_tags.get(osm::NAME) == Some(&"Streety McStreetFace".to_string());
         let lanes_unknown = r.osm_tags.contains_key(osm::INFERRED_PARKING)
             || r.osm_tags.contains_key(osm::INFERRED_SIDEWALKS);
         let spec = r.get_spec();
@@ -582,7 +575,7 @@ impl Model {
 
         for (idx, lt) in spec.fwd.iter().enumerate() {
             obj.push(
-                Model::lt_to_color(*lt, synthetic, unset, lanes_unknown),
+                Model::lt_to_color(*lt, unset, lanes_unknown),
                 center_pts
                     .shift_right(LANE_THICKNESS * (0.5 + (idx as f64)))
                     .unwrap()
@@ -597,7 +590,7 @@ impl Model {
         }
         for (idx, lt) in spec.back.iter().enumerate() {
             obj.push(
-                Model::lt_to_color(*lt, synthetic, unset, lanes_unknown),
+                Model::lt_to_color(*lt, unset, lanes_unknown),
                 center_pts
                     .reversed()
                     .shift_right(LANE_THICKNESS * (0.5 + (idx as f64)))
@@ -637,7 +630,7 @@ impl Model {
     }
 
     // Copied from render/lane.rs. :(
-    fn lt_to_color(lt: LaneType, synthetic: bool, unset: bool, lanes_unknown: bool) -> Color {
+    fn lt_to_color(lt: LaneType, unset: bool, lanes_unknown: bool) -> Color {
         let color = match lt {
             LaneType::Driving => Color::BLACK,
             LaneType::Bus => Color::rgb(190, 74, 76),
@@ -647,14 +640,10 @@ impl Model {
             LaneType::SharedLeftTurn => Color::YELLOW,
             LaneType::Construction => Color::rgb(255, 109, 0),
         };
-        if synthetic {
-            if unset {
-                match color {
-                    Color::RGBA(_, g, b, _) => Color::rgba_f(0.9, g, b, 0.5),
-                    _ => unreachable!(),
-                }
-            } else {
-                color.alpha(0.5)
+        if unset {
+            match color {
+                Color::RGBA(_, g, b, _) => Color::rgba_f(0.9, g, b, 0.5),
+                _ => unreachable!(),
             }
         } else if lanes_unknown {
             match color {

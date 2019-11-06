@@ -534,7 +534,6 @@ pub struct RawIntersection {
     pub point: Pt2D,
     pub intersection_type: IntersectionType,
     pub label: Option<String>,
-    pub synthetic: bool,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
