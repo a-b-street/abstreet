@@ -11,9 +11,9 @@ https://github.com/dabreegster/abstreet/releases for the latest version, though
 I'll try to keep these links up-to-date:
 
 - Linux:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.11/abstreet_linux.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.12/abstreet_linux.zip
 - Windows:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.11/abstreet_windows.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.12/abstreet_windows.zip
 - Mac (seems to have a HiDPI bug, text is offset -- and is a bit stale, I don't
   have a Mac to build on):
   https://github.com/dabreegster/abstreet/releases/download/v0.1.10/abstreet_mac.zip
@@ -33,17 +33,19 @@ General controls:
 Things to try:
 
 - In sandbox mode, hover over an intersection, right click, and spawn agents.
-  Then you can start the simulation by pressing **space** to "resume".
-- To run a realistic, full day's worth of traffic, go to sandbox mode and "reset
-  sim" if needed. Then "start a scenario" and choose the "psrc" entry (this
-  needs a better name). Time (shown in the top-right corner) starts at midnight.
-  Things tend to get interesting around 6am. Try zooming in for details, and
-  zooming out to see an overview.
+  Then you can start the simulation by pressing **space** or clicking the icon.
+- To run a realistic, full day's worth of traffic, go to sandbox mode, then
+  "start a scenario" (hotkey **s**) and choose the "weekday_typical_traffic"
+  entry. Time (shown in the top-right corner) starts at midnight. Things tend to
+  get interesting around 6am. Try zooming in for details, and zooming out to see
+  an overview.
 - Go to edit mode (note this will reset the simulation). Pick a lane, right
   click, and change it to another type. You can also change which roads see a
   stop sign by right clicking the intersection, choosing to edit, hovering over
   a stop sign, and pressing **space** to toggle it. You can do the same for
   intersections with traffic signals.
+- Go back to the main menu and pick a challenge. Should be self-explanatory from
+  there -- leave me feedbck if not.
 
 ## For developers: Compiling from source
 

@@ -143,3 +143,10 @@ changes here.
 - move lots of sandbox mode controls (and other modes) to menus under buttons and dedicated buttons
 - basic support for marking a lane closed for construction
 - improved geometry of sidewalks at dead-ends
+
+0.1.12
+
+- reorganize everything as different challenge modes. start implementing 3: optimizing a bus route, speeding up all trips, or causing as much gridlock as possible
+- improved bus route explorer
+- some UI fixes (popup messages in a few places, moving mouse tooltips to the OSD)
+- lots of analytics and time-series plots
