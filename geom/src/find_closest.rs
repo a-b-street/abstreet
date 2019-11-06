@@ -28,8 +28,11 @@ where
             .insert_with_box(key, Bounds::from(pts).as_bbox());
     }
 
-    // Finds the closest point on the existing geometry to the query pt.
-    pub fn closest_pt(&self, query_pt: Pt2D, max_dist_away: Distance) -> Option<(K, Pt2D)> {
+    pub fn all_close_pts(
+        &self,
+        query_pt: Pt2D,
+        max_dist_away: Distance,
+    ) -> Vec<(K, Pt2D, Distance)> {
         let query_geom = geo::Point::new(query_pt.x(), query_pt.y());
         let query_bbox = Rect {
             top_left: Point {
@@ -51,7 +54,7 @@ where
                 {
                     let dist = Distance::meters(pt.euclidean_distance(&query_geom));
                     if dist <= max_dist_away {
-                        Some((key, pt, dist))
+                        Some((key.clone(), Pt2D::new(pt.x(), pt.y()), dist))
                     } else {
                         None
                     }
@@ -59,8 +62,15 @@ where
                     None
                 }
             })
+            .collect()
+    }
+
+    // Finds the closest point on the existing geometry to the query pt.
+    pub fn closest_pt(&self, query_pt: Pt2D, max_dist_away: Distance) -> Option<(K, Pt2D)> {
+        self.all_close_pts(query_pt, max_dist_away)
+            .into_iter()
             .min_by_key(|(_, _, dist)| *dist)
-            .map(|(key, pt, _)| (key.clone(), Pt2D::new(pt.x(), pt.y())))
+            .map(|(k, pt, _)| (k, pt))
     }
 }
 

@@ -2,21 +2,23 @@ use crate::common::ColorLegend;
 use ezgui::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, MultiText, ScreenPt, ScreenRectangle, Text,
 };
-use geom::{Distance, Duration, PolyLine, Polygon, Pt2D};
+use geom::{Bounds, Circle, Distance, Duration, FindClosest, PolyLine, Polygon, Pt2D};
 
-pub struct Plot {
+pub struct Plot<T> {
     draw: Drawable,
     legend: ColorLegend,
     labels: MultiText,
     rect: ScreenRectangle,
+
+    // The geometry here is in screen-space.
+    max_x: Duration,
+    max_y: Box<dyn Yvalue<T>>,
+    closest: FindClosest<String>,
 }
 
-impl Plot {
-    pub fn new<T: Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>>(
-        title: &str,
-        series: Vec<Series<T>>,
-        ctx: &EventCtx,
-    ) -> Plot {
+impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T> {
+    // TODO I want to store y_zero in the trait, but then we can't Box max_y.
+    pub fn new(title: &str, series: Vec<Series<T>>, y_zero: T, ctx: &EventCtx) -> Plot<T> {
         let mut batch = GeomBatch::new();
         let mut labels = MultiText::new();
 
@@ -52,10 +54,10 @@ impl Plot {
                     .iter()
                     .map(|(_, value)| *value)
                     .max()
-                    .unwrap_or(T::zero())
+                    .unwrap_or(y_zero)
             })
             .max()
-            .unwrap_or(T::zero());
+            .unwrap_or(y_zero);
 
         let num_x_labels = 5;
         for i in 0..num_x_labels {
@@ -81,6 +83,8 @@ impl Plot {
             series.iter().map(|s| (s.label.as_str(), s.color)).collect(),
         );
 
+        let mut closest =
+            FindClosest::new(&Bounds::from(&vec![Pt2D::new(x1, y1), Pt2D::new(x2, y2)]));
         for s in series {
             if max_x == Duration::ZERO {
                 continue;
@@ -97,6 +101,7 @@ impl Plot {
             }
             pts.dedup();
             if pts.len() >= 2 {
+                closest.add(s.label.clone(), &pts);
                 batch.push(
                     s.color,
                     PolyLine::new(pts).make_polygons(Distance::meters(5.0)),
@@ -109,31 +114,62 @@ impl Plot {
             labels,
             legend,
             rect: ScreenRectangle { x1, y1, x2, y2 },
+            closest,
+            max_x,
+            max_y: Box::new(max_y),
         }
     }
+
     pub fn draw(&self, g: &mut GfxCtx) {
-        self.legend.draw(g);
+        g.canvas.mark_covered_area(self.rect.clone());
 
         g.fork_screenspace();
         g.redraw(&self.draw);
-        g.unfork();
-        self.labels.draw(g);
 
-        g.canvas.mark_covered_area(self.rect.clone());
+        let cursor = g.canvas.get_cursor_in_screen_space();
+        if self.rect.contains(cursor) {
+            let radius = Distance::meters(5.0);
+            let mut txt = Text::new();
+            for (label, pt, _) in self
+                .closest
+                .all_close_pts(Pt2D::new(cursor.x, cursor.y), radius)
+            {
+                let t = (pt.x() - self.rect.x1) / self.rect.width() * self.max_x;
+                let y_percent = 1.0 - (pt.y() - self.rect.y1) / self.rect.height();
+
+                // TODO Draw this info in the ColorLegend
+                txt.add(Line(format!(
+                    "{}: at {}, {}",
+                    label,
+                    t,
+                    self.max_y.from_percent(y_percent).prettyprint()
+                )));
+            }
+            if txt.num_lines() > 0 {
+                g.draw_circle(
+                    Color::RED,
+                    &Circle::new(Pt2D::new(cursor.x, cursor.y), radius),
+                );
+                g.draw_mouse_tooltip(&txt);
+            }
+        }
+        g.unfork();
+
+        self.labels.draw(g);
+        self.legend.draw(g);
     }
 }
 
 pub trait Yvalue<T> {
     // percent is [0.0, 1.0]
-    fn from_percent(self, percent: f64) -> T;
+    fn from_percent(&self, percent: f64) -> T;
     fn to_percent(self, max: T) -> f64;
     fn prettyprint(self) -> String;
-    fn zero() -> T;
 }
 
 impl Yvalue<usize> for usize {
-    fn from_percent(self, percent: f64) -> usize {
-        ((self as f64) * percent) as usize
+    fn from_percent(&self, percent: f64) -> usize {
+        ((*self as f64) * percent) as usize
     }
     fn to_percent(self, max: usize) -> f64 {
         (self as f64) / (max as f64)
@@ -141,22 +177,16 @@ impl Yvalue<usize> for usize {
     fn prettyprint(self) -> String {
         abstutil::prettyprint_usize(self)
     }
-    fn zero() -> usize {
-        0
-    }
 }
 impl Yvalue<Duration> for Duration {
-    fn from_percent(self, percent: f64) -> Duration {
-        percent * self
+    fn from_percent(&self, percent: f64) -> Duration {
+        percent * *self
     }
     fn to_percent(self, max: Duration) -> f64 {
         self / max
     }
     fn prettyprint(self) -> String {
         self.minimal_tostring()
-    }
-    fn zero() -> Duration {
-        Duration::ZERO
     }
 }
 

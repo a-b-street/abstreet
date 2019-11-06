@@ -19,12 +19,12 @@ pub enum Overlays {
     ParkingAvailability(Duration, RoadColorer),
     IntersectionDelay(Duration, ObjectColorer),
     Throughput(Duration, ObjectColorer),
-    FinishedTrips(Duration, Plot),
+    FinishedTrips(Duration, Plot<usize>),
     Chokepoints(Duration, ObjectColorer),
     BikeNetwork(RoadColorer),
     // Only set by certain gameplay modes
     BusRoute(ShowBusRoute),
-    BusDelaysOverTime(Plot),
+    BusDelaysOverTime(Plot<Duration>),
 }
 
 impl Overlays {
@@ -93,7 +93,17 @@ impl Overlays {
                 heatmap.draw(g, ui);
                 true
             }
-            Overlays::FinishedTrips(_, ref s) | Overlays::BusDelaysOverTime(ref s) => {
+            Overlays::FinishedTrips(_, ref s) => {
+                ui.draw(
+                    g,
+                    DrawOptions::new(),
+                    &ui.primary.sim,
+                    &ShowEverything::new(),
+                );
+                s.draw(g);
+                true
+            }
+            Overlays::BusDelaysOverTime(ref s) => {
                 ui.draw(
                     g,
                     DrawOptions::new(),
@@ -336,7 +346,7 @@ fn calculate_bike_network(ctx: &mut EventCtx, ui: &UI) -> RoadColorer {
     colorer.build(ctx, &ui.primary.map)
 }
 
-fn trip_stats(ui: &UI, ctx: &mut EventCtx) -> Plot {
+fn trip_stats(ui: &UI, ctx: &mut EventCtx) -> Plot<usize> {
     let lines: Vec<(&str, Color, Option<TripMode>)> = vec![
         (
             "walking",
@@ -396,6 +406,7 @@ fn trip_stats(ui: &UI, ctx: &mut EventCtx) -> Plot {
                 pts: pts_per_mode.remove(&m).unwrap(),
             })
             .collect(),
+        0,
         ctx,
     )
 }

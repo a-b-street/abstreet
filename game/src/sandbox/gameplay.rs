@@ -423,7 +423,7 @@ fn bus_route_panel(id: BusRouteID, ui: &UI, stat: Statistic, prebaked: &Analytic
     txt
 }
 
-fn bus_delays(id: BusRouteID, ui: &UI, ctx: &mut EventCtx) -> Plot {
+fn bus_delays(id: BusRouteID, ui: &UI, ctx: &mut EventCtx) -> Plot<Duration> {
     let route = ui.primary.map.get_br(id);
     let mut delays_per_stop = ui
         .primary
@@ -446,7 +446,12 @@ fn bus_delays(id: BusRouteID, ui: &UI, ctx: &mut EventCtx) -> Plot {
                 .unwrap_or_else(Vec::new),
         });
     }
-    Plot::new(&format!("delays for {}", route.name), series, ctx)
+    Plot::new(
+        &format!("delays for {}", route.name),
+        series,
+        Duration::ZERO,
+        ctx,
+    )
 }
 
 fn gridlock_panel(ui: &UI, _prebaked: &Analytics) -> Text {
