@@ -404,14 +404,16 @@ fn bus_route_panel(id: BusRouteID, ui: &UI, stat: Statistic, prebaked: &Analytic
 
             if let Some(ref stats2) = baseline.get(&route.stops[idx2]) {
                 let vs = stats2.select(stat);
-                if us <= vs {
+                if us < vs {
                     txt.append(Line(" ("));
                     txt.append(Line((vs - us).minimal_tostring()).fg(Color::GREEN));
                     txt.append(Line(" faster)"));
-                } else {
+                } else if us > vs {
                     txt.append(Line(" ("));
                     txt.append(Line((us - vs).minimal_tostring()).fg(Color::RED));
                     txt.append(Line(" slower)"));
+                } else {
+                    txt.append(Line(" (same as baseline)"));
                 }
             }
         } else {
@@ -513,12 +515,14 @@ fn faster_trips_panel(mode: TripMode, ui: &UI, prebaked: &Analytics) -> Text {
             let dt = now.select(stat);
             let vs = baseline.select(stat);
             txt.add(Line(format!("{}: ", stat)));
-            if dt <= vs {
+            if dt < vs {
                 txt.append(Line((vs - dt).minimal_tostring()).fg(Color::GREEN));
                 txt.append(Line(" faster"));
-            } else {
+            } else if dt > vs {
                 txt.append(Line((dt - vs).minimal_tostring()).fg(Color::RED));
                 txt.append(Line(" slower"));
+            } else {
+                txt.append(Line(" same as baseline"));
             }
         }
     }

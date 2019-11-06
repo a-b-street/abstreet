@@ -537,6 +537,16 @@ impl Sim {
                     savestate_at = Some(self.time);
                 }
             }
+
+            // Record events at precisely the time they occur.
+            let mut events = Vec::new();
+            events.extend(self.trips.collect_events());
+            events.extend(self.transit.collect_events());
+            events.extend(self.driving.collect_events());
+            events.extend(self.walking.collect_events());
+            for ev in events {
+                self.analytics.event(ev, self.time, map);
+            }
         }
         if let Some(t) = savestate_at {
             self.time = t;
@@ -545,15 +555,6 @@ impl Sim {
         self.time = target_time;
 
         self.trip_positions = None;
-
-        let mut events = Vec::new();
-        events.extend(self.trips.collect_events());
-        events.extend(self.transit.collect_events());
-        events.extend(self.driving.collect_events());
-        events.extend(self.walking.collect_events());
-        for ev in events {
-            self.analytics.event(ev, self.time, map);
-        }
     }
 
     pub fn timed_step(&mut self, map: &Map, dt: Duration, timer: &mut Timer) {
