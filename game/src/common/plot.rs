@@ -12,11 +12,11 @@ pub struct Plot {
 }
 
 impl Plot {
-    pub fn new<T: Ord + PartialEq + Copy + Yvalue<T>>(
+    pub fn new<T: Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>>(
         title: &str,
         series: Vec<Series<T>>,
         ctx: &EventCtx,
-    ) -> Option<Plot> {
+    ) -> Plot {
         let mut batch = GeomBatch::new();
         let mut labels = MultiText::new();
 
@@ -36,17 +36,26 @@ impl Plot {
         // Assume min_x is Duration::ZERO and min_y is 0
         let max_x = series
             .iter()
-            .map(|s| s.pts.iter().map(|(t, _)| *t).max().unwrap())
+            .map(|s| {
+                s.pts
+                    .iter()
+                    .map(|(t, _)| *t)
+                    .max()
+                    .unwrap_or(Duration::ZERO)
+            })
             .max()
-            .unwrap();
+            .unwrap_or(Duration::ZERO);
         let max_y = series
             .iter()
-            .map(|s| s.pts.iter().map(|(_, cnt)| *cnt).max().unwrap())
+            .map(|s| {
+                s.pts
+                    .iter()
+                    .map(|(_, value)| *value)
+                    .max()
+                    .unwrap_or(T::zero())
+            })
             .max()
-            .unwrap();
-        if max_x == Duration::ZERO {
-            return None;
-        }
+            .unwrap_or(T::zero());
 
         let num_x_labels = 5;
         for i in 0..num_x_labels {
@@ -73,33 +82,34 @@ impl Plot {
         );
 
         for s in series {
-            let mut pts = Vec::new();
-            if max_y == T::zero() {
-                pts.push(Pt2D::new(x1, y2));
-                pts.push(Pt2D::new(x2, y2));
-            } else {
-                for (t, y) in s.pts {
-                    let percent_x = t / max_x;
-                    let percent_y = y.to_percent(max_y);
-                    pts.push(Pt2D::new(
-                        x1 + (x2 - x1) * percent_x,
-                        // Y inversion! :D
-                        y2 - (y2 - y1) * percent_y,
-                    ));
-                }
+            if max_x == Duration::ZERO {
+                continue;
             }
-            batch.push(
-                s.color,
-                PolyLine::new(pts).make_polygons(Distance::meters(5.0)),
-            );
+            let mut pts = Vec::new();
+            for (t, y) in s.pts {
+                let percent_x = t / max_x;
+                let percent_y = y.to_percent(max_y);
+                pts.push(Pt2D::new(
+                    x1 + (x2 - x1) * percent_x,
+                    // Y inversion! :D
+                    y2 - (y2 - y1) * percent_y,
+                ));
+            }
+            pts.dedup();
+            if pts.len() >= 2 {
+                batch.push(
+                    s.color,
+                    PolyLine::new(pts).make_polygons(Distance::meters(5.0)),
+                );
+            }
         }
 
-        Some(Plot {
+        Plot {
             draw: ctx.prerender.upload(batch),
             labels,
             legend,
             rect: ScreenRectangle { x1, y1, x2, y2 },
-        })
+        }
     }
     pub fn draw(&self, g: &mut GfxCtx) {
         self.legend.draw(g);

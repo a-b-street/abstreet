@@ -121,14 +121,7 @@ impl Overlays {
                 Overlays::IntersectionDelay(time, calculate_intersection_delay(ctx, ui))
             }
             "cumulative throughput" => Overlays::Throughput(time, calculate_thruput(ctx, ui)),
-            "finished trips" => {
-                if let Some(s) = trip_stats(ui, ctx) {
-                    Overlays::FinishedTrips(time, s)
-                } else {
-                    println!("No data on finished trips yet");
-                    Overlays::Inactive
-                }
-            }
+            "finished trips" => Overlays::FinishedTrips(time, trip_stats(ui, ctx)),
             "chokepoints" => Overlays::Chokepoints(time, calculate_chokepoints(ctx, ui)),
             "bike network" => Overlays::BikeNetwork(calculate_bike_network(ctx, ui)),
             _ => unreachable!(),
@@ -343,11 +336,7 @@ fn calculate_bike_network(ctx: &mut EventCtx, ui: &UI) -> RoadColorer {
     colorer.build(ctx, &ui.primary.map)
 }
 
-fn trip_stats(ui: &UI, ctx: &mut EventCtx) -> Option<Plot> {
-    if ui.primary.sim.get_analytics().finished_trips.is_empty() {
-        return None;
-    }
-
+fn trip_stats(ui: &UI, ctx: &mut EventCtx) -> Plot {
     let lines: Vec<(&str, Color, Option<TripMode>)> = vec![
         (
             "walking",
@@ -388,6 +377,13 @@ fn trip_stats(ui: &UI, ctx: &mut EventCtx) -> Option<Plot> {
                     .push((*t, counts.get(*mode)));
             }
         }
+    }
+    // Don't forget the last batch
+    for (_, _, mode) in &lines {
+        pts_per_mode
+            .get_mut(mode)
+            .unwrap()
+            .push((ui.primary.sim.time(), counts.get(*mode)));
     }
 
     Plot::new(

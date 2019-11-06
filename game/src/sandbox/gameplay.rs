@@ -276,12 +276,7 @@ impl GameplayState {
                     },
                     *time != ui.primary.sim.time(),
                 ) {
-                    if let Some(s) = bus_delays(route, ui, ctx) {
-                        *overlays = Overlays::BusDelaysOverTime(s);
-                    } else {
-                        println!("No route delay info yet");
-                        *overlays = Overlays::Inactive;
-                    }
+                    *overlays = Overlays::BusDelaysOverTime(bus_delays(route, ui, ctx));
                 }
 
                 // TODO Expensive
@@ -425,15 +420,12 @@ fn bus_route_panel(id: BusRouteID, ui: &UI, stat: Statistic, prebaked: &Analytic
     txt
 }
 
-fn bus_delays(route: BusRouteID, ui: &UI, ctx: &mut EventCtx) -> Option<Plot> {
+fn bus_delays(route: BusRouteID, ui: &UI, ctx: &mut EventCtx) -> Plot {
     let delays_per_stop = ui
         .primary
         .sim
         .get_analytics()
         .bus_arrivals_over_time(ui.primary.sim.time(), route);
-    if delays_per_stop.is_empty() {
-        return None;
-    }
 
     let mut series = Vec::new();
     for (stop, delays) in delays_per_stop {
