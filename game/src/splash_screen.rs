@@ -1,6 +1,6 @@
 use crate::abtest::setup::PickABTest;
 use crate::challenges::challenges_picker;
-use crate::game::{State, Transition};
+use crate::game::{State, Transition, WizardState};
 use crate::mission::MissionEditMode;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::tutorial::TutorialMode;
@@ -50,7 +50,7 @@ impl State for SplashScreen {
             EventLoopMode::InputOnly
         };
 
-        if let Some(t) = splash_screen(&mut self.wizard, ctx, ui, &mut self.maybe_screensaver) {
+        if let Some(t) = splash_screen(&mut self.wizard, ctx, ui) {
             t
         } else if self.wizard.aborted() {
             Transition::PopWithMode(evmode)
@@ -114,40 +114,44 @@ impl Screensaver {
     }
 }
 
-fn splash_screen(
-    raw_wizard: &mut Wizard,
-    ctx: &mut EventCtx,
-    ui: &mut UI,
-    maybe_screensaver: &mut Option<(Screensaver, XorShiftRng)>,
-) -> Option<Transition> {
+fn splash_screen(raw_wizard: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
     let mut wizard = raw_wizard.wrap(ctx);
     let sandbox = "Sandbox mode";
     let challenge = "Challenge mode";
-    let load_map = "Load another map";
-    let abtest = "A/B Test Mode";
+    let abtest = "A/B Test Mode (internal/unfinished)";
     let tutorial = "Tutorial (unfinished)";
     let mission = "Internal developer tools";
     let about = "About";
     let quit = "Quit";
 
-    let evmode = if maybe_screensaver.is_some() {
-        EventLoopMode::Animation
-    } else {
-        EventLoopMode::InputOnly
-    };
+    let dev = ui.primary.current_flags.dev;
 
     match wizard
         .choose("Welcome to A/B Street!", || {
             vec![
-                Choice::new(sandbox, ()).key(Key::S),
-                Choice::new(challenge, ()).key(Key::C),
-                Choice::new(load_map, ()).key(Key::L),
-                Choice::new(abtest, ()).key(Key::A),
-                Choice::new(tutorial, ()).key(Key::T),
-                Choice::new(mission, ()).key(Key::M),
-                Choice::new(about, ()),
-                Choice::new(quit, ()),
+                Some(Choice::new(sandbox, ()).key(Key::S)),
+                Some(Choice::new(challenge, ()).key(Key::C)),
+                if dev {
+                    Some(Choice::new(abtest, ()).key(Key::A))
+                } else {
+                    None
+                },
+                if dev {
+                    Some(Choice::new(tutorial, ()).key(Key::T))
+                } else {
+                    None
+                },
+                if dev {
+                    Some(Choice::new(mission, ()).key(Key::M))
+                } else {
+                    None
+                },
+                Some(Choice::new(about, ())),
+                Some(Choice::new(quit, ())),
             ]
+            .into_iter()
+            .flatten()
+            .collect()
         })?
         .0
         .as_str()
@@ -158,55 +162,23 @@ fn splash_screen(
             GameplayMode::Freeform,
         )))),
         x if x == challenge => Some(Transition::Push(challenges_picker())),
-        x if x == load_map => {
-            if let Some(name) = wizard.choose_string("Load which map?", || {
-                let current_map = ui.primary.map.get_name();
-                abstutil::list_all_objects("maps", "")
-                    .into_iter()
-                    .filter(|n| n != current_map)
-                    .collect()
-            }) {
-                ctx.canvas.save_camera_state(ui.primary.map.get_name());
-                // This retains no state, but that's probably fine.
-                let mut flags = ui.primary.current_flags.clone();
-                flags.sim_flags.load = abstutil::path_map(&name);
-                *ui = UI::new(flags, ctx, false);
-                // TODO want to clear wizard and screensaver as we leave this state.
-                Some(Transition::Push(Box::new(SandboxMode::new(
-                    ctx,
-                    ui,
-                    GameplayMode::Freeform,
-                ))))
-            } else if wizard.aborted() {
-                Some(Transition::ReplaceWithMode(
-                    Box::new(SplashScreen {
-                        wizard: Wizard::new(),
-                        maybe_screensaver: maybe_screensaver.take(),
-                    }),
-                    evmode,
-                ))
-            } else {
-                None
-            }
-        }
         x if x == abtest => Some(Transition::Push(PickABTest::new())),
         x if x == tutorial => Some(Transition::Push(Box::new(TutorialMode::new(ctx)))),
         x if x == mission => Some(Transition::Push(Box::new(MissionEditMode::new(ctx)))),
-        x if x == about => {
-            wizard.acknowledge("About A/B Street", || {
-                vec![
-                    "Author: Dustin Carlino (dabreegster@gmail.com)",
-                    "http://github.com/dabreegster/abstreet",
-                    "Map data from OpenStreetMap and King County GIS",
-                    "",
-                    "Press ENTER to continue",
-                ]
-            })?;
-            Some(Transition::Replace(Box::new(SplashScreen {
-                wizard: Wizard::new(),
-                maybe_screensaver: maybe_screensaver.take(),
-            })))
-        }
+        x if x == about => Some(Transition::Push(WizardState::new(Box::new(
+            |wiz, ctx, _| {
+                wiz.wrap(ctx).acknowledge("About A/B Street", || {
+                    vec![
+                        "Author: Dustin Carlino (dabreegster@gmail.com)",
+                        "http://github.com/dabreegster/abstreet",
+                        "Map data from OpenStreetMap and King County GIS",
+                        "",
+                        "Press ENTER to continue",
+                    ]
+                })?;
+                Some(Transition::Pop)
+            },
+        )))),
         x if x == quit => Some(Transition::Pop),
         _ => unreachable!(),
     }

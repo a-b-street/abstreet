@@ -451,8 +451,8 @@ pub struct Flags {
     // Number of agents to generate when requested. If unspecified, trips to/from borders will be
     // included.
     pub num_agents: Option<usize>,
-    pub splash: bool,
     pub textures: bool,
+    pub dev: bool,
 }
 
 // All of the state that's bound to a specific map+edit has to live here.

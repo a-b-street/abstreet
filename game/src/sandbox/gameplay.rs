@@ -7,7 +7,7 @@ use crate::sandbox::{bus_explorer, spawner, SandboxMode};
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Timer};
 use ezgui::{
-    hotkey, Choice, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, TextSpan, Wizard,
+    hotkey, lctrl, Choice, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, TextSpan, Wizard,
 };
 use geom::{Duration, Statistic};
 use map_model::BusRouteID;
@@ -69,6 +69,7 @@ impl GameplayState {
                         "Freeform mode",
                         vec![
                             (hotkey(Key::S), "start a scenario"),
+                            (lctrl(Key::L), "load another map"),
                             (hotkey(Key::H), "help"),
                         ],
                         ctx,
@@ -86,6 +87,7 @@ impl GameplayState {
                         &format!("Playing {}", scenario),
                         vec![
                             (hotkey(Key::S), "start another scenario"),
+                            (lctrl(Key::L), "load another map"),
                             (hotkey(Key::H), "help"),
                         ],
                         ctx,
@@ -215,6 +217,9 @@ impl GameplayState {
                         change_scenario,
                     ))));
                 }
+                if self.menu.action("load another map") {
+                    return Some(Transition::Push(WizardState::new(Box::new(load_map))));
+                }
                 if self.menu.action("help") {
                     return Some(Transition::Push(msg("Help", vec!["This simulation is empty by default.", "Try right-clicking an intersection and choosing to spawn agents (or just hover over it and press Z).", "You can also spawn agents from buildings or lanes.", "You can also start a full scenario to get realistic traffic."])));
                 }
@@ -231,6 +236,9 @@ impl GameplayState {
                     return Some(Transition::Push(WizardState::new(Box::new(
                         change_scenario,
                     ))));
+                }
+                if self.menu.action("load another map") {
+                    return Some(Transition::Push(WizardState::new(Box::new(load_map))));
                 }
                 if self.menu.action("help") {
                     return Some(Transition::Push(msg(
@@ -529,6 +537,31 @@ fn change_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<
         ui,
         GameplayMode::PlayScenario(scenario_name),
     ))))
+}
+
+fn load_map(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+    if let Some(name) = wiz.wrap(ctx).choose_string("Load which map?", || {
+        let current_map = ui.primary.map.get_name();
+        abstutil::list_all_objects("maps", "")
+            .into_iter()
+            .filter(|n| n != current_map)
+            .collect()
+    }) {
+        ctx.canvas.save_camera_state(ui.primary.map.get_name());
+        let mut flags = ui.primary.current_flags.clone();
+        flags.sim_flags.load = abstutil::path_map(&name);
+        *ui = UI::new(flags, ctx, false);
+        Some(Transition::PopThenReplace(Box::new(SandboxMode::new(
+            ctx,
+            ui,
+            // TODO If we were playing a scenario, load that one...
+            GameplayMode::Freeform,
+        ))))
+    } else if wiz.aborted() {
+        Some(Transition::Pop)
+    } else {
+        None
+    }
 }
 
 // Must call menu.event first. Returns true if the caller should set the overlay to the custom

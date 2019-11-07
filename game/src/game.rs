@@ -14,7 +14,7 @@ pub struct Game {
 
 impl Game {
     pub fn new(flags: Flags, ctx: &mut EventCtx) -> Game {
-        let splash = flags.splash && !flags.sim_flags.load.contains("data/save");
+        let splash = !flags.dev && !flags.sim_flags.load.contains("data/save");
         let mut ui = UI::new(flags, ctx, splash);
         let states: Vec<Box<dyn State>> = if splash {
             vec![Box::new(SplashScreen::new_with_screensaver(ctx, &ui))]
