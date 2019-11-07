@@ -25,7 +25,7 @@ pub struct SandboxMode {
     save_tools: MenuUnderButton,
     agent_tools: AgentTools,
     overlay: overlays::Overlays,
-    gameplay: gameplay::GameplayState,
+    gameplay: gameplay::GameplayRunner,
     common: CommonState,
     menu: ModalMenu,
 }
@@ -71,7 +71,7 @@ impl SandboxMode {
             ),
             agent_tools: AgentTools::new(),
             overlay: overlays::Overlays::Inactive,
-            gameplay: gameplay::GameplayState::initialize(mode, ui, ctx),
+            gameplay: gameplay::GameplayRunner::initialize(mode, ui, ctx),
             common: CommonState::new(ctx),
             menu: ModalMenu::new(
                 "Sandbox Mode",
