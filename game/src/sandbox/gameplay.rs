@@ -6,7 +6,9 @@ use crate::sandbox::overlays::Overlays;
 use crate::sandbox::{bus_explorer, spawner, SandboxMode};
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Timer};
-use ezgui::{hotkey, Choice, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, Wizard};
+use ezgui::{
+    hotkey, Choice, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, TextSpan, Wizard,
+};
 use geom::{Duration, Statistic};
 use map_model::BusRouteID;
 use sim::{Analytics, Scenario, TripMode};
@@ -399,22 +401,11 @@ fn bus_route_panel(id: BusRouteID, ui: &UI, stat: Statistic, prebaked: &Analytic
         // TODO Also display number of arrivals...
         txt.add(Line(format!("Stop {}->{}: ", idx1 + 1, idx2 + 1)));
         if let Some(ref stats1) = now.get(&route.stops[idx2]) {
-            let us = stats1.select(stat);
-            txt.append(Line(us.minimal_tostring()));
+            let a = stats1.select(stat);
+            txt.append(Line(a.minimal_tostring()));
 
             if let Some(ref stats2) = baseline.get(&route.stops[idx2]) {
-                let vs = stats2.select(stat);
-                if us < vs {
-                    txt.append(Line(" ("));
-                    txt.append(Line((vs - us).minimal_tostring()).fg(Color::GREEN));
-                    txt.append(Line(" faster)"));
-                } else if us > vs {
-                    txt.append(Line(" ("));
-                    txt.append(Line((us - vs).minimal_tostring()).fg(Color::RED));
-                    txt.append(Line(" slower)"));
-                } else {
-                    txt.append(Line(" (same as baseline)"));
-                }
+                txt.append_all(cmp_duration_shorter(a, stats2.select(stat)));
             }
         } else {
             txt.append(Line("no arrivals yet"));
@@ -463,47 +454,23 @@ fn gridlock_panel(ui: &UI, prebaked: &Analytics) -> Text {
     let (baseline_all, baseline_per_mode) = prebaked.all_finished_trips(ui.primary.sim.time());
 
     let mut txt = Text::new();
-    txt.add(Line(format!(
-        "{} total finished trips (",
-        prettyprint_usize(now_all.count())
-    )));
-    if now_all.count() < baseline_all.count() {
-        txt.append(
-            Line(format!(
-                "{} fewer",
-                prettyprint_usize(baseline_all.count() - now_all.count())
-            ))
-            .fg(Color::GREEN),
-        );
-    } else if now_all.count() > baseline_all.count() {
-        txt.append(
-            Line(format!(
-                "{} more",
-                prettyprint_usize(now_all.count() - baseline_all.count())
-            ))
-            .fg(Color::RED),
-        );
-    } else {
-        txt.append(Line("same as baseline"));
-    }
-    txt.append(Line(")"));
+    txt.add_appended(vec![
+        Line(format!(
+            "{} total finished trips (",
+            prettyprint_usize(now_all.count())
+        )),
+        cmp_count_fewer(now_all.count(), baseline_all.count()),
+        Line(")"),
+    ]);
 
     for mode in TripMode::all() {
         let a = now_per_mode[&mode].count();
         let b = baseline_per_mode[&mode].count();
-        txt.add(Line(format!(
-            "  {}: {} (",
-            mode,
-            prettyprint_usize(now_per_mode[&mode].count())
-        )));
-        if a < b {
-            txt.append(Line(format!("{} fewer", prettyprint_usize(b - a))).fg(Color::GREEN));
-        } else if b > a {
-            txt.append(Line(format!("{} more", prettyprint_usize(a - b))).fg(Color::RED));
-        } else {
-            txt.append(Line("same as baseline"));
-        }
-        txt.append(Line(")"));
+        txt.add_appended(vec![
+            Line(format!("  {}: {} (", mode, prettyprint_usize(a))),
+            cmp_count_fewer(a, b),
+            Line(")"),
+        ]);
     }
 
     txt
@@ -518,42 +485,25 @@ fn faster_trips_panel(mode: TripMode, ui: &UI, prebaked: &Analytics) -> Text {
     let baseline = prebaked.finished_trips(ui.primary.sim.time(), mode);
 
     let mut txt = Text::new();
-    txt.add(Line(format!(
-        "{} finished {} trips (vs {})",
-        prettyprint_usize(now.count()),
-        mode,
-        prettyprint_usize(baseline.count()),
-    )));
+    txt.add_appended(vec![
+        Line(format!(
+            "{} finished {} trips (",
+            prettyprint_usize(now.count()),
+            mode
+        )),
+        cmp_count_more(now.count(), baseline.count()),
+        Line(")"),
+    ]);
     if now.count() == 0 || baseline.count() == 0 {
         return txt;
     }
 
-    // TODO Which one?
-    if false {
-        for stat in Statistic::all() {
-            let dt = now.select(stat);
-            let vs = baseline.select(stat);
-            txt.add(Line(format!("{}: ", stat)));
-            let color = if dt <= vs { Color::GREEN } else { Color::RED };
-            txt.append(Line(dt.minimal_tostring()).fg(color));
-            txt.append(Line(format!(" (vs {})", vs.minimal_tostring())));
-        }
-    }
-    if true {
-        for stat in Statistic::all() {
-            let dt = now.select(stat);
-            let vs = baseline.select(stat);
-            txt.add(Line(format!("{}: ", stat)));
-            if dt < vs {
-                txt.append(Line((vs - dt).minimal_tostring()).fg(Color::GREEN));
-                txt.append(Line(" faster"));
-            } else if dt > vs {
-                txt.append(Line((dt - vs).minimal_tostring()).fg(Color::RED));
-                txt.append(Line(" slower"));
-            } else {
-                txt.append(Line(" same as baseline"));
-            }
-        }
+    for stat in Statistic::all() {
+        txt.add(Line(format!("{}: ", stat)));
+        txt.append_all(cmp_duration_shorter(
+            now.select(stat),
+            baseline.select(stat),
+        ));
     }
     txt
 }
@@ -631,5 +581,48 @@ fn manage_acs(
         ui.agent_cs = acs;
     } else if active_originally && menu.swap_action(hide, show, ctx) {
         ui.agent_cs = AgentColorScheme::VehicleTypes;
+    }
+}
+
+// Shorter is better
+fn cmp_duration_shorter(now: Duration, baseline: Duration) -> Vec<TextSpan> {
+    if now.epsilon_eq(baseline) {
+        vec![Line(" (same as baseline)")]
+    } else if now < baseline {
+        vec![
+            Line(" ("),
+            Line((baseline - now).minimal_tostring()).fg(Color::GREEN),
+            Line(" faster)"),
+        ]
+    } else if now > baseline {
+        vec![
+            Line(" ("),
+            Line((now - baseline).minimal_tostring()).fg(Color::RED),
+            Line(" slower)"),
+        ]
+    } else {
+        unreachable!()
+    }
+}
+
+// Fewer is better
+fn cmp_count_fewer(now: usize, baseline: usize) -> TextSpan {
+    if now < baseline {
+        Line(format!("{} fewer", prettyprint_usize(baseline - now))).fg(Color::GREEN)
+    } else if now > baseline {
+        Line(format!("{} more", prettyprint_usize(now - baseline))).fg(Color::RED)
+    } else {
+        Line("same as baseline")
+    }
+}
+
+// More is better
+fn cmp_count_more(now: usize, baseline: usize) -> TextSpan {
+    if now < baseline {
+        Line(format!("{} fewer", prettyprint_usize(baseline - now))).fg(Color::RED)
+    } else if now > baseline {
+        Line(format!("{} more", prettyprint_usize(now - baseline))).fg(Color::GREEN)
+    } else {
+        Line("same as baseline")
     }
 }

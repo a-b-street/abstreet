@@ -18,7 +18,7 @@ impl Ord for Duration {
 
 impl Duration {
     pub const ZERO: Duration = Duration::const_seconds(0.0);
-    pub const EPSILON: Duration = Duration::const_seconds(0.0001);
+    const EPSILON: Duration = Duration::const_seconds(0.0001);
     // This isn't the last possible time, but for UI control purposes, it'll do.
     pub const END_OF_DAY: Duration =
         Duration::const_seconds(59.9 + (59.0 * 60.0) + (23.0 * 3600.0));
@@ -165,6 +165,18 @@ impl Duration {
                 "Duration {}: weird number of parts",
                 string
             ))),
+        }
+    }
+
+    // If two durations are within this amount, they'll print as if they're the same.
+    pub fn epsilon_eq(self, other: Duration) -> bool {
+        let eps = Duration::seconds(0.1);
+        if self > other {
+            self - other < eps
+        } else if self < other {
+            other - self < eps
+        } else {
+            true
         }
     }
 }
