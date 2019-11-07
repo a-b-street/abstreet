@@ -8,7 +8,7 @@ use crate::sandbox::bus_explorer::ShowBusRoute;
 use crate::sandbox::SandboxMode;
 use crate::ui::{ShowEverything, UI};
 use abstutil::{prettyprint_usize, Counter};
-use ezgui::{Choice, Color, EventCtx, GfxCtx, Line, MenuUnderButton, Text};
+use ezgui::{Choice, Color, EventCtx, GfxCtx, Key, Line, MenuUnderButton, Text};
 use geom::Duration;
 use map_model::PathStep;
 use sim::{ParkingSpot, TripMode};
@@ -41,13 +41,13 @@ impl Overlays {
                         wiz.wrap(ctx).choose("Show which analytics overlay?", || {
                             // TODO Filter out the current
                             vec![
-                                Choice::new("none", ()),
-                                Choice::new("parking availability", ()),
-                                Choice::new("intersection delay", ()),
-                                Choice::new("cumulative throughput", ()),
-                                Choice::new("finished trips", ()),
-                                Choice::new("chokepoints", ()),
-                                Choice::new("bike network", ()),
+                                Choice::new("none", ()).key(Key::N),
+                                Choice::new("parking availability", ()).key(Key::P),
+                                Choice::new("intersection delay", ()).key(Key::I),
+                                Choice::new("cumulative throughput", ()).key(Key::T),
+                                Choice::new("finished trips", ()).key(Key::F),
+                                Choice::new("chokepoints", ()).key(Key::C),
+                                Choice::new("bike network", ()).key(Key::B),
                             ]
                         })?;
                     Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {

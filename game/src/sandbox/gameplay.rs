@@ -9,7 +9,7 @@ use abstutil::{prettyprint_usize, Timer};
 use ezgui::{hotkey, Choice, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, Wizard};
 use geom::{Duration, Statistic};
 use map_model::BusRouteID;
-use sim::{Analytics, Scenario, Sim, TripMode};
+use sim::{Analytics, Scenario, TripMode};
 
 #[derive(Clone)]
 pub enum GameplayMode {
@@ -143,7 +143,7 @@ impl GameplayState {
                 GameplayState {
                     mode,
                     menu: ModalMenu::new(
-                        &format!("Speed up {:?} trips", trip_mode),
+                        &format!("Speed up {} trips", trip_mode),
                         vec![(hotkey(Key::H), "help")],
                         ctx,
                     )
@@ -454,34 +454,58 @@ fn bus_delays(id: BusRouteID, ui: &UI, ctx: &mut EventCtx) -> Plot<Duration> {
     )
 }
 
-fn gridlock_panel(ui: &UI, _prebaked: &Analytics) -> Text {
-    let now = GridlockDelays::from(&ui.primary.sim);
-    // TODO Derive this from something in Analytics
-    let baseline = GridlockDelays::from(&ui.primary.sim);
-
-    let now_total = (now.lt_1m + now.lt_5m + now.stuck) as f64;
-    let baseline_total = (baseline.lt_1m + baseline.lt_5m + baseline.stuck) as f64;
+fn gridlock_panel(ui: &UI, prebaked: &Analytics) -> Text {
+    let (now_all, now_per_mode) = ui
+        .primary
+        .sim
+        .get_analytics()
+        .all_finished_trips(ui.primary.sim.time());
+    let (baseline_all, baseline_per_mode) = prebaked.all_finished_trips(ui.primary.sim.time());
 
     let mut txt = Text::new();
-    txt.add(Line("How long have agents been stuck?"));
     txt.add(Line(format!(
-        "under 1 min: {} ({:.1}%, vs {:.1}%)",
-        prettyprint_usize(now.lt_1m),
-        (now.lt_1m as f64) / now_total * 100.0,
-        (baseline.lt_1m as f64) / baseline_total * 100.0
+        "{} total finished trips (",
+        prettyprint_usize(now_all.count())
     )));
-    txt.add(Line(format!(
-        "under 5 mins: {} ({:.1}%, vs {:.1}%)",
-        prettyprint_usize(now.lt_5m),
-        (now.lt_5m as f64) / now_total * 100.0,
-        (baseline.lt_5m as f64) / baseline_total * 100.0
-    )));
-    txt.add(Line(format!(
-        "over 5 mins: {} ({:.1}%, vs {:.1}%)",
-        prettyprint_usize(now.stuck),
-        (now.stuck as f64) / now_total * 100.0,
-        (baseline.stuck as f64) / baseline_total * 100.0
-    )));
+    if now_all.count() < baseline_all.count() {
+        txt.append(
+            Line(format!(
+                "{} fewer",
+                prettyprint_usize(baseline_all.count() - now_all.count())
+            ))
+            .fg(Color::GREEN),
+        );
+    } else if now_all.count() > baseline_all.count() {
+        txt.append(
+            Line(format!(
+                "{} more",
+                prettyprint_usize(now_all.count() - baseline_all.count())
+            ))
+            .fg(Color::RED),
+        );
+    } else {
+        txt.append(Line("same as baseline"));
+    }
+    txt.append(Line(")"));
+
+    for mode in TripMode::all() {
+        let a = now_per_mode[&mode].count();
+        let b = baseline_per_mode[&mode].count();
+        txt.add(Line(format!(
+            "  {}: {} (",
+            mode,
+            prettyprint_usize(now_per_mode[&mode].count())
+        )));
+        if a < b {
+            txt.append(Line(format!("{} fewer", prettyprint_usize(b - a))).fg(Color::GREEN));
+        } else if b > a {
+            txt.append(Line(format!("{} more", prettyprint_usize(a - b))).fg(Color::RED));
+        } else {
+            txt.append(Line("same as baseline"));
+        }
+        txt.append(Line(")"));
+    }
+
     txt
 }
 
@@ -495,7 +519,7 @@ fn faster_trips_panel(mode: TripMode, ui: &UI, prebaked: &Analytics) -> Text {
 
     let mut txt = Text::new();
     txt.add(Line(format!(
-        "{} finished {:?} trips (vs {})",
+        "{} finished {} trips (vs {})",
         prettyprint_usize(now.count()),
         mode,
         prettyprint_usize(baseline.count()),
@@ -607,31 +631,5 @@ fn manage_acs(
         ui.agent_cs = acs;
     } else if active_originally && menu.swap_action(hide, show, ctx) {
         ui.agent_cs = AgentColorScheme::VehicleTypes;
-    }
-}
-
-// TODO Figure out what we really want to measure here.
-struct GridlockDelays {
-    lt_1m: usize,
-    lt_5m: usize,
-    stuck: usize,
-}
-impl GridlockDelays {
-    fn from(sim: &Sim) -> GridlockDelays {
-        let mut delays = GridlockDelays {
-            lt_1m: 0,
-            lt_5m: 0,
-            stuck: 0,
-        };
-        for a in sim.get_agent_metadata() {
-            if a.time_spent_blocked < Duration::minutes(1) {
-                delays.lt_1m += 1;
-            } else if a.time_spent_blocked < Duration::minutes(5) {
-                delays.lt_5m += 1;
-            } else {
-                delays.stuck += 1;
-            }
-        }
-        delays
     }
 }

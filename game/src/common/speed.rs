@@ -91,7 +91,7 @@ impl SpeedControls {
 
         let mut slider = Slider::new();
         // Start with speed=1.0
-        slider.set_percent(ctx, (SPEED_CAP / 5.0).powf(-1.0 / std::f64::consts::E));
+        slider.set_percent(ctx, (SPEED_CAP / 1.0).powf(-1.0 / std::f64::consts::E));
         slider.set_pos(ScreenPt::new(0.0, 100.0), 150.0);
 
         let (small_step_btn, large_step_btn, jump_to_time_btn) = if step_controls {
