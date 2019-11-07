@@ -1,7 +1,7 @@
 use crate::common::{Plot, Series};
 use crate::game::{msg, Transition, WizardState};
 use crate::helpers::rotating_color_total;
-use crate::sandbox::gameplay::{cmp_duration_shorter, manage_overlays, State};
+use crate::sandbox::gameplay::{cmp_duration_shorter, manage_overlays, GameplayState};
 use crate::sandbox::overlays::Overlays;
 use crate::sandbox::{bus_explorer, SandboxMode};
 use crate::ui::UI;
@@ -17,7 +17,7 @@ pub struct OptimizeBus {
 }
 
 impl OptimizeBus {
-    pub fn new(route_name: String, ctx: &EventCtx, ui: &UI) -> (ModalMenu, State) {
+    pub fn new(route_name: String, ctx: &EventCtx, ui: &UI) -> (ModalMenu, Box<dyn GameplayState>) {
         let route = ui.primary.map.get_bus_route(&route_name).unwrap();
         (
             ModalMenu::new(
@@ -30,15 +30,17 @@ impl OptimizeBus {
                 ],
                 ctx,
             ),
-            State::OptimizeBus(OptimizeBus {
+            Box::new(OptimizeBus {
                 route: route.id,
                 time: Duration::ZERO,
                 stat: Statistic::Max,
             }),
         )
     }
+}
 
-    pub fn event(
+impl GameplayState for OptimizeBus {
+    fn event(
         &mut self,
         ctx: &mut EventCtx,
         ui: &mut UI,
@@ -101,14 +103,14 @@ impl OptimizeBus {
                     )?;
                     Some(Transition::PopWithData(Box::new(move |state, _, _| {
                         let sandbox = state.downcast_mut::<SandboxMode>().unwrap();
-                        match sandbox.gameplay.state {
-                            State::OptimizeBus(ref mut o) => {
-                                // Force recalculation
-                                o.time = Duration::ZERO;
-                                o.stat = new_stat;
-                            }
-                            _ => unreachable!(),
-                        }
+                        let opt = sandbox
+                            .gameplay
+                            .state
+                            .downcast_mut::<OptimizeBus>()
+                            .unwrap();
+                        // Force recalculation
+                        opt.time = Duration::ZERO;
+                        opt.stat = new_stat;
                     })))
                 },
             ))));

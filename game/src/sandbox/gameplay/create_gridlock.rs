@@ -1,6 +1,7 @@
 use crate::game::{msg, Transition};
 use crate::render::AgentColorScheme;
-use crate::sandbox::gameplay::{cmp_count_fewer, manage_acs, State};
+use crate::sandbox::gameplay::{cmp_count_fewer, manage_acs, GameplayState};
+use crate::sandbox::overlays::Overlays;
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{hotkey, EventCtx, Key, Line, ModalMenu, Text};
@@ -12,7 +13,7 @@ pub struct CreateGridlock {
 }
 
 impl CreateGridlock {
-    pub fn new(ctx: &EventCtx) -> (ModalMenu, State) {
+    pub fn new(ctx: &EventCtx) -> (ModalMenu, Box<dyn GameplayState>) {
         (
             ModalMenu::new(
                 "Cause gridlock",
@@ -22,16 +23,19 @@ impl CreateGridlock {
                 ],
                 ctx,
             ),
-            State::CreateGridlock(CreateGridlock {
+            Box::new(CreateGridlock {
                 time: Duration::ZERO,
             }),
         )
     }
+}
 
-    pub fn event(
+impl GameplayState for CreateGridlock {
+    fn event(
         &mut self,
         ctx: &mut EventCtx,
         ui: &mut UI,
+        _: &mut Overlays,
         menu: &mut ModalMenu,
         prebaked: &Analytics,
     ) -> Option<Transition> {

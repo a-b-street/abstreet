@@ -1,14 +1,16 @@
 use crate::game::{msg, Transition, WizardState};
-use crate::sandbox::gameplay::{change_scenario, load_map, State};
+use crate::sandbox::gameplay::{change_scenario, load_map, GameplayState};
+use crate::sandbox::overlays::Overlays;
 use crate::sandbox::spawner;
 use crate::ui::UI;
 use ezgui::{hotkey, lctrl, EventCtx, Key, ModalMenu};
+use sim::Analytics;
 
 // TODO Maybe remember what things were spawned, offer to replay this later
 pub struct Freeform;
 
 impl Freeform {
-    pub fn new(ctx: &EventCtx) -> (ModalMenu, State) {
+    pub fn new(ctx: &EventCtx) -> (ModalMenu, Box<dyn GameplayState>) {
         (
             ModalMenu::new(
                 "Freeform mode",
@@ -19,15 +21,19 @@ impl Freeform {
                 ],
                 ctx,
             ),
-            State::Freeform(Freeform),
+            Box::new(Freeform),
         )
     }
+}
 
-    pub fn event(
+impl GameplayState for Freeform {
+    fn event(
         &mut self,
         ctx: &mut EventCtx,
         ui: &mut UI,
+        _: &mut Overlays,
         menu: &mut ModalMenu,
+        _: &Analytics,
     ) -> Option<Transition> {
         menu.event(ctx);
         if menu.action("start a scenario") {

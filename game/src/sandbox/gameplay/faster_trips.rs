@@ -1,5 +1,6 @@
 use crate::game::{msg, Transition};
-use crate::sandbox::gameplay::{cmp_count_more, cmp_duration_shorter, State};
+use crate::sandbox::gameplay::{cmp_count_more, cmp_duration_shorter, GameplayState};
+use crate::sandbox::overlays::Overlays;
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{hotkey, EventCtx, Key, Line, ModalMenu, Text};
@@ -12,24 +13,27 @@ pub struct FasterTrips {
 }
 
 impl FasterTrips {
-    pub fn new(trip_mode: TripMode, ctx: &EventCtx) -> (ModalMenu, State) {
+    pub fn new(trip_mode: TripMode, ctx: &EventCtx) -> (ModalMenu, Box<dyn GameplayState>) {
         (
             ModalMenu::new(
                 &format!("Speed up {} trips", trip_mode),
                 vec![(hotkey(Key::H), "help")],
                 ctx,
             ),
-            State::FasterTrips(FasterTrips {
+            Box::new(FasterTrips {
                 mode: trip_mode,
                 time: Duration::ZERO,
             }),
         )
     }
+}
 
-    pub fn event(
+impl GameplayState for FasterTrips {
+    fn event(
         &mut self,
         ctx: &mut EventCtx,
         ui: &mut UI,
+        _: &mut Overlays,
         menu: &mut ModalMenu,
         prebaked: &Analytics,
     ) -> Option<Transition> {

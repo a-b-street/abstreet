@@ -17,7 +17,7 @@ use sim::{Analytics, Scenario, TripMode};
 pub struct GameplayRunner {
     pub mode: GameplayMode,
     pub menu: ModalMenu,
-    state: State,
+    state: Box<dyn GameplayState>,
     prebaked: Analytics,
 }
 
@@ -33,13 +33,17 @@ pub enum GameplayMode {
     FasterTrips(TripMode),
 }
 
-pub enum State {
-    Freeform(freeform::Freeform),
-    PlayScenario(play_scenario::PlayScenario),
-    OptimizeBus(optimize_bus::OptimizeBus),
-    CreateGridlock(create_gridlock::CreateGridlock),
-    FasterTrips(faster_trips::FasterTrips),
+pub trait GameplayState: downcast_rs::Downcast {
+    fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        ui: &mut UI,
+        overlays: &mut Overlays,
+        menu: &mut ModalMenu,
+        analytics: &Analytics,
+    ) -> Option<Transition>;
 }
+downcast_rs::impl_downcast!(GameplayState);
 
 impl GameplayRunner {
     pub fn initialize(mode: GameplayMode, ui: &mut UI, ctx: &mut EventCtx) -> GameplayRunner {
@@ -125,34 +129,8 @@ impl GameplayRunner {
         ui: &mut UI,
         overlays: &mut Overlays,
     ) -> Option<Transition> {
-        match self.state {
-            State::Freeform(ref mut f) => {
-                if let Some(t) = f.event(ctx, ui, &mut self.menu) {
-                    return Some(t);
-                }
-            }
-            State::PlayScenario(ref mut p) => {
-                if let Some(t) = p.event(ctx, ui, &mut self.menu) {
-                    return Some(t);
-                }
-            }
-            State::OptimizeBus(ref mut o) => {
-                if let Some(t) = o.event(ctx, ui, overlays, &mut self.menu, &self.prebaked) {
-                    return Some(t);
-                }
-            }
-            State::CreateGridlock(ref mut g) => {
-                if let Some(t) = g.event(ctx, ui, &mut self.menu, &self.prebaked) {
-                    return Some(t);
-                }
-            }
-            State::FasterTrips(ref mut f) => {
-                if let Some(t) = f.event(ctx, ui, &mut self.menu, &self.prebaked) {
-                    return Some(t);
-                }
-            }
-        }
-        None
+        self.state
+            .event(ctx, ui, overlays, &mut self.menu, &self.prebaked)
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {

@@ -1,12 +1,14 @@
 use crate::game::{msg, Transition, WizardState};
-use crate::sandbox::gameplay::{change_scenario, load_map, State};
+use crate::sandbox::gameplay::{change_scenario, load_map, GameplayState};
+use crate::sandbox::overlays::Overlays;
 use crate::ui::UI;
 use ezgui::{hotkey, lctrl, EventCtx, Key, ModalMenu};
+use sim::Analytics;
 
 pub struct PlayScenario;
 
 impl PlayScenario {
-    pub fn new(name: &String, ctx: &EventCtx) -> (ModalMenu, State) {
+    pub fn new(name: &String, ctx: &EventCtx) -> (ModalMenu, Box<dyn GameplayState>) {
         (
             ModalMenu::new(
                 &format!("Playing {}", name),
@@ -17,15 +19,19 @@ impl PlayScenario {
                 ],
                 ctx,
             ),
-            State::PlayScenario(PlayScenario),
+            Box::new(PlayScenario),
         )
     }
+}
 
-    pub fn event(
+impl GameplayState for PlayScenario {
+    fn event(
         &mut self,
         ctx: &mut EventCtx,
-        _ui: &UI,
+        _: &mut UI,
+        _: &mut Overlays,
         menu: &mut ModalMenu,
+        _: &Analytics,
     ) -> Option<Transition> {
         menu.event(ctx);
         if menu.action("start another scenario") {
