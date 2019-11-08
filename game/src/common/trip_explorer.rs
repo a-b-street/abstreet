@@ -38,14 +38,6 @@ impl TripExplorer {
                     ID::Intersection(i),
                     Text::from(Line(format!("enter map via {}", i))),
                 ),
-                TripStart::Appearing(pos) => (
-                    pos.pt(map),
-                    ID::Lane(pos.lane()),
-                    Text::from(Line(format!(
-                        "start by appearing at {}",
-                        map.get_parent(pos.lane()).get_name()
-                    ))),
-                ),
             },
             (
                 ui.primary

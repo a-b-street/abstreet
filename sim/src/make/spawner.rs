@@ -201,14 +201,7 @@ impl TripSpawner {
                             SidewalkSpot::building(b, map),
                         ));
                     }
-                    let trip_start = {
-                        let src_i = map.get_i(map.get_l(start_pos.lane()).src_i);
-                        if src_i.is_border() {
-                            TripStart::Border(src_i.id)
-                        } else {
-                            TripStart::Appearing(start_pos)
-                        }
-                    };
+                    let trip_start = TripStart::Border(map.get_l(start_pos.lane()).src_i);
                     let trip = trips.new_trip(start_time, trip_start, legs);
                     let router = goal.make_router(path, map, vehicle.vehicle_type);
                     scheduler.quick_push(
@@ -295,7 +288,9 @@ impl TripSpawner {
                         start_time,
                         match start.connection {
                             SidewalkPOI::Building(b) => TripStart::Bldg(b),
-                            SidewalkPOI::SuddenlyAppear => TripStart::Appearing(start.sidewalk_pos),
+                            SidewalkPOI::SuddenlyAppear => {
+                                TripStart::Border(map.get_l(start.sidewalk_pos.lane()).src_i)
+                            }
                             SidewalkPOI::Border(i) => TripStart::Border(i),
                             _ => unreachable!(),
                         },
@@ -340,7 +335,9 @@ impl TripSpawner {
                         start_time,
                         match start.connection {
                             SidewalkPOI::Building(b) => TripStart::Bldg(b),
-                            SidewalkPOI::SuddenlyAppear => TripStart::Appearing(start.sidewalk_pos),
+                            SidewalkPOI::SuddenlyAppear => {
+                                TripStart::Border(map.get_l(start.sidewalk_pos.lane()).src_i)
+                            }
                             SidewalkPOI::Border(i) => TripStart::Border(i),
                             _ => unreachable!(),
                         },
@@ -372,7 +369,9 @@ impl TripSpawner {
                         start_time,
                         match start.connection {
                             SidewalkPOI::Building(b) => TripStart::Bldg(b),
-                            SidewalkPOI::SuddenlyAppear => TripStart::Appearing(start.sidewalk_pos),
+                            SidewalkPOI::SuddenlyAppear => {
+                                TripStart::Border(map.get_l(start.sidewalk_pos.lane()).src_i)
+                            }
                             SidewalkPOI::Border(i) => TripStart::Border(i),
                             _ => unreachable!(),
                         },

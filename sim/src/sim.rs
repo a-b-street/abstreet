@@ -11,7 +11,7 @@ use derivative::Derivative;
 use geom::{Distance, Duration, DurationHistogram, PolyLine, Pt2D};
 use map_model::{
     BuildingID, BusRoute, BusRouteID, IntersectionID, LaneID, Map, Path, PathRequest, PathStep,
-    Position, Traversable,
+    Traversable,
 };
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashSet;
@@ -231,7 +231,7 @@ impl Sim {
             // Same for this TripStart, though it doesn't matter too much.
             let trip = self.trips.new_trip(
                 self.time,
-                TripStart::Appearing(Position::new(path.current_step().as_lane(), Distance::ZERO)),
+                TripStart::Border(map.get_l(path.current_step().as_lane()).src_i),
                 vec![TripLeg::ServeBusRoute(id, route.id)],
             );
 

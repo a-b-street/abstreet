@@ -742,7 +742,6 @@ impl std::fmt::Display for TripMode {
 pub enum TripStart {
     Bldg(BuildingID),
     Border(IntersectionID),
-    Appearing(Position),
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
