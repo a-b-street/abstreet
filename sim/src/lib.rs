@@ -31,7 +31,9 @@ pub use crate::render::{
 };
 use abstutil::Cloneable;
 use geom::{Distance, Duration, Pt2D, Speed};
-use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, LaneType, Map, Path, Position};
+use map_model::{
+    BuildingID, BusStopID, DirectedRoadID, IntersectionID, LaneID, LaneType, Map, Path, Position,
+};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fmt;
@@ -178,19 +180,19 @@ pub enum DrivingGoal {
 
 impl DrivingGoal {
     pub fn end_at_border(
-        i: IntersectionID,
+        dr: DirectedRoadID,
         lane_types: Vec<LaneType>,
         map: &Map,
     ) -> Option<DrivingGoal> {
         let mut lanes = Vec::new();
         for lt in lane_types {
-            lanes.extend(map.get_i(i).get_incoming_lanes(map, lt));
+            lanes.extend(dr.lanes(lt, map));
         }
         if lanes.is_empty() {
             None
         } else {
             // TODO ideally could use any
-            Some(DrivingGoal::Border(i, lanes[0]))
+            Some(DrivingGoal::Border(dr.dst_i(map), lanes[0]))
         }
     }
 

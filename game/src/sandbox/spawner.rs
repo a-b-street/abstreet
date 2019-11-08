@@ -379,7 +379,11 @@ fn schedule_trip(
             let goal = match raw_goal {
                 Goal::Building(to) => DrivingGoal::ParkNear(to),
                 Goal::Border(to) => {
-                    if let Some(g) = DrivingGoal::end_at_border(to, vec![LaneType::Driving], map) {
+                    if let Some(g) = DrivingGoal::end_at_border(
+                        map.get_i(to).some_incoming_road(map),
+                        vec![LaneType::Driving],
+                        map,
+                    ) {
                         g
                     } else {
                         return Some(format!("Can't end a car trip at {}; no driving lanes", to));
@@ -564,8 +568,17 @@ fn create_swarm(ui: &mut UI, from: LaneID, to: LaneID, count: usize, duration: D
         num_bikes: 0,
         start_time: ui.primary.sim.time() + SMALL_DT,
         stop_time: ui.primary.sim.time() + SMALL_DT + duration,
-        start_from_border: ui.primary.map.get_l(from).get_directed_parent(&ui.primary.map),
-        goal: OriginDestination::Border(ui.primary.map.get_l(to).dst_i),
+        start_from_border: ui
+            .primary
+            .map
+            .get_l(from)
+            .get_directed_parent(&ui.primary.map),
+        goal: OriginDestination::EndOfRoad(
+            ui.primary
+                .map
+                .get_l(to)
+                .get_directed_parent(&ui.primary.map),
+        ),
         percent_use_transit: 0.0,
     });
     let mut rng = ui.primary.current_flags.sim_flags.make_rng();

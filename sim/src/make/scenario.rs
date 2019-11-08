@@ -6,8 +6,8 @@ use abstutil;
 use abstutil::{fork_rng, prettyprint_usize, Timer, WeightedUsizeChoice};
 use geom::{Distance, Duration, Speed};
 use map_model::{
-    BuildingID, BusRouteID, BusStopID, DirectedRoadID, FullNeighborhoodInfo, IntersectionID,
-    LaneType, Map, Position, RoadID,
+    BuildingID, BusRouteID, BusStopID, DirectedRoadID, FullNeighborhoodInfo, LaneType, Map,
+    Position, RoadID,
 };
 use rand::seq::SliceRandom;
 use rand::Rng;
@@ -284,7 +284,7 @@ impl Scenario {
                 start_time: Duration::ZERO,
                 stop_time: Duration::seconds(5.0),
                 start_from_neighborhood: "_everywhere_".to_string(),
-                goal: OriginDestination::Border(i.id),
+                goal: OriginDestination::EndOfRoad(i.some_incoming_road(map)),
                 percent_biking: 0.5,
                 percent_use_transit: 0.5,
             });
@@ -678,8 +678,7 @@ impl BorderSpawnOverTime {
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub enum OriginDestination {
     Neighborhood(String),
-    // TODO A serialized Scenario won't last well as the map changes...
-    Border(IntersectionID),
+    EndOfRoad(DirectedRoadID),
 }
 
 impl OriginDestination {
@@ -695,12 +694,12 @@ impl OriginDestination {
             OriginDestination::Neighborhood(ref n) => Some(DrivingGoal::ParkNear(
                 *neighborhoods[n].buildings.choose(rng).unwrap(),
             )),
-            OriginDestination::Border(i) => {
-                let goal = DrivingGoal::end_at_border(*i, lane_types, map);
+            OriginDestination::EndOfRoad(dr) => {
+                let goal = DrivingGoal::end_at_border(*dr, lane_types, map);
                 if goal.is_none() {
                     timer.warn(format!(
                         "Can't spawn a car ending at border {}; no appropriate lanes there",
-                        i
+                        dr
                     ));
                 }
                 goal
@@ -720,10 +719,10 @@ impl OriginDestination {
                 *neighborhoods[n].buildings.choose(rng).unwrap(),
                 map,
             )),
-            OriginDestination::Border(i) => {
-                let goal = SidewalkSpot::end_at_border(*i, map);
+            OriginDestination::EndOfRoad(dr) => {
+                let goal = SidewalkSpot::end_at_border(dr.dst_i(map), map);
                 if goal.is_none() {
-                    timer.warn(format!("Can't end_at_border for {} without a sidewalk", i));
+                    timer.warn(format!("Can't end_at_border for {} without a sidewalk", dr));
                 }
                 goal
             }

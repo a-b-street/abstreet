@@ -132,7 +132,10 @@ impl TripEndpt {
     fn driving_goal(&self, lane_types: Vec<LaneType>, map: &Map) -> DrivingGoal {
         match self {
             TripEndpt::Building(b) => DrivingGoal::ParkNear(*b),
-            TripEndpt::Border(i, _) => DrivingGoal::end_at_border(*i, lane_types, map).unwrap(),
+            TripEndpt::Border(i, _) => {
+                DrivingGoal::end_at_border(map.get_i(*i).some_incoming_road(map), lane_types, map)
+                    .unwrap()
+            }
         }
     }
 

@@ -458,11 +458,12 @@ fn choose_origin_destination(
     query: &str,
 ) -> Option<OriginDestination> {
     let neighborhood = "Neighborhood";
-    let border = "Border intersection";
+    let border = "Intersection";
     if wizard.choose_string(query, || vec![neighborhood, border])? == neighborhood {
         choose_neighborhood(map, wizard, query).map(OriginDestination::Neighborhood)
     } else {
-        choose_intersection(wizard, query).map(OriginDestination::Border)
+        choose_intersection(wizard, query)
+            .map(|i| OriginDestination::EndOfRoad(map.get_i(i).some_incoming_road(map)))
     }
 }
 

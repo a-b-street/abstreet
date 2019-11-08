@@ -113,4 +113,8 @@ impl Intersection {
     pub fn some_outgoing_road(&self, map: &Map) -> DirectedRoadID {
         map.get_l(self.outgoing_lanes[0]).get_directed_parent(map)
     }
+
+    pub fn some_incoming_road(&self, map: &Map) -> DirectedRoadID {
+        map.get_l(self.incoming_lanes[0]).get_directed_parent(map)
+    }
 }
