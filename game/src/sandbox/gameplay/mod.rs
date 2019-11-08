@@ -3,6 +3,7 @@ mod faster_trips;
 mod freeform;
 mod optimize_bus;
 mod play_scenario;
+mod spawner;
 
 use crate::game::Transition;
 use crate::render::AgentColorScheme;
@@ -42,6 +43,7 @@ pub trait GameplayState: downcast_rs::Downcast {
         menu: &mut ModalMenu,
         analytics: &Analytics,
     ) -> Option<Transition>;
+    fn draw(&self, _: &mut GfxCtx, _: &UI) {}
 }
 downcast_rs::impl_downcast!(GameplayState);
 
@@ -133,8 +135,9 @@ impl GameplayRunner {
             .event(ctx, ui, overlays, &mut self.menu, &self.prebaked)
     }
 
-    pub fn draw(&self, g: &mut GfxCtx) {
+    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         self.menu.draw(g);
+        self.state.draw(g, ui);
     }
 }
 

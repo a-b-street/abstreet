@@ -1,13 +1,18 @@
 use crate::game::{msg, Transition, WizardState};
-use crate::sandbox::gameplay::{change_scenario, load_map, GameplayState};
+use crate::helpers::ID;
+use crate::sandbox::gameplay::{change_scenario, load_map, spawner, GameplayState};
 use crate::sandbox::overlays::Overlays;
-use crate::sandbox::spawner;
 use crate::ui::UI;
-use ezgui::{hotkey, lctrl, EventCtx, Key, ModalMenu};
+use ezgui::{hotkey, lctrl, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
+use map_model::IntersectionID;
 use sim::Analytics;
+use std::collections::BTreeSet;
 
 // TODO Maybe remember what things were spawned, offer to replay this later
-pub struct Freeform;
+pub struct Freeform {
+    // TODO Clean these up later when done?
+    pub spawn_pts: BTreeSet<IntersectionID>,
+}
 
 impl Freeform {
     pub fn new(ctx: &EventCtx) -> (ModalMenu, Box<dyn GameplayState>) {
@@ -21,7 +26,9 @@ impl Freeform {
                 ],
                 ctx,
             ),
-            Box::new(Freeform),
+            Box::new(Freeform {
+                spawn_pts: BTreeSet::new(),
+            }),
         )
     }
 }
@@ -54,5 +61,23 @@ impl GameplayState for Freeform {
             return Some(Transition::Push(new_state));
         }
         None
+    }
+
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        // TODO Overriding draw options would be ideal, but...
+        for i in &self.spawn_pts {
+            g.draw_polygon(Color::GREEN.alpha(0.8), &ui.primary.map.get_i(*i).polygon);
+        }
+
+        if let Some(ID::Intersection(i)) = ui.primary.current_selection {
+            if self.spawn_pts.contains(&i) {
+                let cnt = ui.primary.sim.count_trips_involving_border(i);
+                let mut txt = Text::new();
+                for line in cnt.describe() {
+                    txt.add(Line(line));
+                }
+                g.draw_mouse_tooltip(&txt);
+            }
+        }
     }
 }

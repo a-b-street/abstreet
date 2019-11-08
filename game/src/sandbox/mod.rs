@@ -2,7 +2,6 @@ mod bus_explorer;
 mod gameplay;
 mod overlays;
 mod score;
-mod spawner;
 
 use crate::common::{time_controls, AgentTools, CommonState, SpeedControls};
 use crate::debug::DebugMode;
@@ -322,7 +321,7 @@ impl State for SandboxMode {
         self.info_tools.draw(g);
         self.general_tools.draw(g);
         self.save_tools.draw(g);
-        self.gameplay.draw(g);
+        self.gameplay.draw(g, ui);
     }
 
     fn on_suspend(&mut self, _: &mut EventCtx, _: &mut UI) {

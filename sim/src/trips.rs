@@ -530,74 +530,49 @@ impl TripManager {
     }
 
     // TODO Refactor after wrangling the TripStart/TripEnd mess
-    pub fn count_trips_involving_bldg(&self, b: BuildingID, now: Duration) -> Option<Vec<String>> {
+    pub fn count_trips_involving_bldg(&self, b: BuildingID, now: Duration) -> TripCount {
         self.count_trips(TripStart::Bldg(b), TripEnd::Bldg(b), now)
     }
-    pub fn count_trips_involving_border(
-        &self,
-        i: IntersectionID,
-        now: Duration,
-    ) -> Option<Vec<String>> {
+    pub fn count_trips_involving_border(&self, i: IntersectionID, now: Duration) -> TripCount {
         self.count_trips(TripStart::Border(i), TripEnd::Border(i), now)
     }
-    fn count_trips(&self, start: TripStart, end: TripEnd, now: Duration) -> Option<Vec<String>> {
-        let mut from_aborted = 0;
-        let mut from_in_progress = 0;
-        let mut from_completed = 0;
-        let mut from_unstarted = 0;
-        let mut to_aborted = 0;
-        let mut to_in_progress = 0;
-        let mut to_completed = 0;
-        let mut to_unstarted = 0;
-
-        let mut any = false;
+    fn count_trips(&self, start: TripStart, end: TripEnd, now: Duration) -> TripCount {
+        let mut cnt = TripCount {
+            from_aborted: 0,
+            from_in_progress: 0,
+            from_completed: 0,
+            from_unstarted: 0,
+            to_aborted: 0,
+            to_in_progress: 0,
+            to_completed: 0,
+            to_unstarted: 0,
+        };
         for trip in &self.trips {
             if trip.start == start {
-                any = true;
                 if trip.aborted {
-                    from_aborted += 1;
+                    cnt.from_aborted += 1;
                 } else if trip.finished_at.is_some() {
-                    from_completed += 1;
+                    cnt.from_completed += 1;
                 } else if now >= trip.spawned_at {
-                    from_in_progress += 1;
+                    cnt.from_in_progress += 1;
                 } else {
-                    from_unstarted += 1;
+                    cnt.from_unstarted += 1;
                 }
-            } else if trip.end == end {
-                any = true;
+            }
+            // One trip might could towards both!
+            if trip.end == end {
                 if trip.aborted {
-                    to_aborted += 1;
+                    cnt.to_aborted += 1;
                 } else if trip.finished_at.is_some() {
-                    to_completed += 1;
+                    cnt.to_completed += 1;
                 } else if now >= trip.spawned_at {
-                    to_in_progress += 1;
+                    cnt.to_in_progress += 1;
                 } else {
-                    to_unstarted += 1;
+                    cnt.to_unstarted += 1;
                 }
             }
         }
-        if !any {
-            return None;
-        }
-
-        Some(vec![
-            format!(
-                "Aborted trips: {} from here, {} to here",
-                from_aborted, to_aborted
-            ),
-            format!(
-                "Finished trips: {} from here, {} to here",
-                from_completed, to_completed
-            ),
-            format!(
-                "In-progress trips: {} from here, {} to here",
-                from_in_progress, to_in_progress
-            ),
-            format!(
-                "Future trips: {} from here, {} to here",
-                from_unstarted, to_unstarted
-            ),
-        ])
+        cnt
     }
 }
 
@@ -779,5 +754,51 @@ impl<T> TripResult<T> {
             TripResult::TripDone => TripResult::TripDone,
             TripResult::TripDoesntExist => TripResult::TripDoesntExist,
         }
+    }
+}
+
+pub struct TripCount {
+    pub from_aborted: usize,
+    pub from_in_progress: usize,
+    pub from_completed: usize,
+    pub from_unstarted: usize,
+    pub to_aborted: usize,
+    pub to_in_progress: usize,
+    pub to_completed: usize,
+    pub to_unstarted: usize,
+}
+
+impl TripCount {
+    pub fn nonzero(&self) -> bool {
+        self.from_aborted
+            + self.from_in_progress
+            + self.from_completed
+            + self.from_unstarted
+            + self.to_aborted
+            + self.to_in_progress
+            + self.to_completed
+            + self.to_unstarted
+            > 0
+    }
+
+    pub fn describe(&self) -> Vec<String> {
+        vec![
+            format!(
+                "Aborted trips: {} from here, {} to here",
+                self.from_aborted, self.to_aborted
+            ),
+            format!(
+                "Finished trips: {} from here, {} to here",
+                self.from_completed, self.to_completed
+            ),
+            format!(
+                "In-progress trips: {} from here, {} to here",
+                self.from_in_progress, self.to_in_progress
+            ),
+            format!(
+                "Future trips: {} from here, {} to here",
+                self.from_unstarted, self.to_unstarted
+            ),
+        ]
     }
 }

@@ -2,9 +2,9 @@ use crate::{
     AgentID, AgentMetadata, Analytics, CarID, Command, CreateCar, DrawCarInput, DrawPedCrowdInput,
     DrawPedestrianInput, DrivingGoal, DrivingSimState, Event, FinishedTrips, GetDrawAgents,
     IntersectionSimState, ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, Router, Scheduler,
-    SidewalkPOI, SidewalkSpot, TransitSimState, TripID, TripLeg, TripManager, TripPositions,
-    TripResult, TripSpawner, TripSpec, TripStart, TripStatus, UnzoomedAgent, VehicleSpec,
-    VehicleType, WalkingSimState, BUS_LENGTH,
+    SidewalkPOI, SidewalkSpot, TransitSimState, TripCount, TripID, TripLeg, TripManager,
+    TripPositions, TripResult, TripSpawner, TripSpec, TripStart, TripStatus, UnzoomedAgent,
+    VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
 };
 use abstutil::{elapsed_seconds, Timer};
 use derivative::Derivative;
@@ -759,10 +759,10 @@ impl Sim {
         self.trips.get_finished_trips()
     }
 
-    pub fn count_trips_involving_bldg(&self, b: BuildingID) -> Option<Vec<String>> {
+    pub fn count_trips_involving_bldg(&self, b: BuildingID) -> TripCount {
         self.trips.count_trips_involving_bldg(b, self.time)
     }
-    pub fn count_trips_involving_border(&self, i: IntersectionID) -> Option<Vec<String>> {
+    pub fn count_trips_involving_border(&self, i: IntersectionID) -> TripCount {
         self.trips.count_trips_involving_border(i, self.time)
     }
 

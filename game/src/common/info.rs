@@ -139,9 +139,10 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
                 txt.add(Line(format!("{} turning", accepted.len())));
             }
 
-            if let Some(lines) = sim.count_trips_involving_border(id) {
+            let cnt = sim.count_trips_involving_border(id);
+            if cnt.nonzero() {
                 txt.add(Line(""));
-                for line in lines {
+                for line in cnt.describe() {
                     txt.add(Line(line));
                 }
             }
@@ -170,9 +171,10 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
                 txt.add(Line(""));
             }
 
-            if let Some(lines) = sim.count_trips_involving_bldg(id) {
+            let cnt = sim.count_trips_involving_bldg(id);
+            if cnt.nonzero() {
                 txt.add(Line(""));
-                for line in lines {
+                for line in cnt.describe() {
                     txt.add(Line(line));
                 }
             }

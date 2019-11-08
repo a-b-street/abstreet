@@ -2,6 +2,8 @@ use crate::common::CommonState;
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::render::DrawOptions;
+use crate::sandbox::gameplay::freeform::Freeform;
+use crate::sandbox::SandboxMode;
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu};
@@ -463,14 +465,16 @@ impl State for SpawnManyAgents {
         // PopWithData is a weird pattern; we should have a resume() handler that handles the
         // context
         if let Some((count, duration)) = self.schedule {
-            create_swarm(
-                ui,
-                self.from,
-                self.maybe_goal.take().unwrap().0,
-                count,
-                duration,
-            );
-            return Transition::Pop;
+            let dst_l = self.maybe_goal.take().unwrap().0;
+            create_swarm(ui, self.from, dst_l, count, duration);
+            let src = ui.primary.map.get_l(self.from).src_i;
+            let dst = ui.primary.map.get_l(dst_l).dst_i;
+            return Transition::PopWithData(Box::new(move |state, _, _| {
+                let sandbox = state.downcast_mut::<SandboxMode>().unwrap();
+                let freeform = sandbox.gameplay.state.downcast_mut::<Freeform>().unwrap();
+                freeform.spawn_pts.insert(src);
+                freeform.spawn_pts.insert(dst);
+            }));
         }
 
         self.menu.event(ctx);
