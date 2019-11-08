@@ -154,9 +154,8 @@ impl Car {
                 _ => None,
             },
             status: match self.state {
-                // TODO Cars can be Queued behind a slow Crossing. Looks kind of weird.
-                CarState::Queued => CarStatus::Stuck,
-                CarState::WaitingToAdvance => CarStatus::Stuck,
+                CarState::Queued => CarStatus::Moving,
+                CarState::WaitingToAdvance => CarStatus::Moving,
                 CarState::Crossing(_, _) => CarStatus::Moving,
                 // Eh they're technically moving, but this is a bit easier to spot
                 CarState::Unparking(_, _, _) => CarStatus::Parked,

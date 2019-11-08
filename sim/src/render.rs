@@ -46,9 +46,7 @@ pub struct DrawCarInput {
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum CarStatus {
     Moving,
-    Stuck,
     Parked,
-    Debug,
 }
 
 pub struct UnzoomedAgent {

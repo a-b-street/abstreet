@@ -486,9 +486,7 @@ impl AgentColorScheme {
                     cs.get_def("bus", Color::rgb(50, 133, 117))
                 } else {
                     match input.status {
-                        CarStatus::Debug => cs.get_def("debug car", Color::BLUE.alpha(0.8)),
                         CarStatus::Moving => cs.get_def("moving car", Color::CYAN),
-                        CarStatus::Stuck => cs.get_def("stuck car", Color::rgb(222, 184, 135)),
                         CarStatus::Parked => cs.get_def("parked car", Color::rgb(180, 233, 76)),
                     }
                 }
@@ -500,10 +498,8 @@ impl AgentColorScheme {
     pub fn zoomed_color_bike(self, input: &DrawCarInput, cs: &ColorScheme) -> Color {
         match self {
             AgentColorScheme::VehicleTypes => match input.status {
-                CarStatus::Debug => cs.get_def("debug bike", Color::BLUE.alpha(0.8)),
                 // TODO Hard to see on the greenish bike lanes? :P
                 CarStatus::Moving => cs.get_def("moving bike", Color::GREEN),
-                CarStatus::Stuck => cs.get_def("stuck bike", Color::RED),
                 CarStatus::Parked => unreachable!(),
             },
             _ => self.by_metadata(&input.metadata),
