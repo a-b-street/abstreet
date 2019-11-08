@@ -39,11 +39,10 @@ impl DrawBuilding {
             );
         }
 
-        let label = bldg.osm_tags.get("addr:housenumber").map(|num| {
-            let mut txt = Text::with_bg_color(None);
-            txt.add(Line(num.to_string()).fg(Color::BLACK).size(50));
-            txt
-        });
+        let label = bldg
+            .osm_tags
+            .get("addr:housenumber")
+            .map(|num| Text::from(Line(num.to_string()).fg(Color::BLACK).size(50)).no_bg());
 
         if bldg.parking.is_some() {
             let center = bldg.label_center;

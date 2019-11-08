@@ -239,7 +239,7 @@ fn bar_chart(g: &mut GfxCtx, data: &BTreeMap<String, Estimate>) {
         sum += est.value;
     }
 
-    let mut labels = Text::with_bg_color(None);
+    let mut labels = Text::new().no_bg();
     for (name, est) in data {
         if name == "Total:" {
             continue;

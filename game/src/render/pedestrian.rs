@@ -211,13 +211,13 @@ impl DrawPedCrowd {
         let blob = pl_shifted.make_polygons(LANE_THICKNESS / 2.0);
         let draw_default = prerender.upload_borrowed(vec![(cs.get("pedestrian"), &blob)]);
 
-        let mut label = Text::with_bg_color(None);
-        // Ideally "pedestrian head", but it looks really faded...
-        label.add(
+        // Ideally "pedestrian head" color, but it looks really faded...
+        let label = Text::from(
             Line(format!("{}", input.members.len()))
                 .fg(Color::BLACK)
                 .size(15),
-        );
+        )
+        .no_bg();
 
         DrawPedCrowd {
             members: input.members,

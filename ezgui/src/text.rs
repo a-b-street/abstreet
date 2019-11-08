@@ -6,7 +6,7 @@ use glium_glyph::glyph_brush::{Section, SectionText, VariedSection};
 use textwrap;
 
 const FG_COLOR: Color = Color::WHITE;
-pub const BG_COLOR: Color = Color::grey(0.2);
+pub const BG_COLOR: Color = Color::grey(0.3);
 pub const PROMPT_COLOR: Color = Color::BLUE;
 pub const SELECTED_COLOR: Color = Color::RED;
 pub const HOTKEY_COLOR: Color = Color::GREEN;
@@ -80,14 +80,9 @@ impl Text {
         txt
     }
 
-    // TODO nope
-    pub fn with_bg_color(bg_color: Option<Color>) -> Text {
-        Text {
-            lines: Vec::new(),
-            bg_color,
-            override_width: None,
-            override_height: None,
-        }
+    pub fn no_bg(mut self) -> Text {
+        self.bg_color = None;
+        self
     }
 
     pub fn add(&mut self, line: TextSpan) {

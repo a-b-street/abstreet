@@ -153,11 +153,9 @@ impl DrawCar {
             body: input.body,
             body_polygon,
             zorder: input.on.get_zorder(map),
-            label: input.label.map(|line| {
-                let mut txt = Text::with_bg_color(None);
-                txt.add(Line(line).fg(Color::rgb(249, 206, 24)).size(20));
-                txt
-            }),
+            label: input
+                .label
+                .map(|line| Text::from(Line(line).fg(Color::rgb(249, 206, 24)).size(20)).no_bg()),
             draw_default: prerender.upload(draw_default),
         }
     }

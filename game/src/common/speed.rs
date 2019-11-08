@@ -214,12 +214,12 @@ impl SpeedControls {
         } = self.state
         {
             g.draw_text_at_screenspace_topleft(
-                &Text::from(Line(format!("Speed: {}", speed_description))),
+                &Text::from(Line(format!("Speed: {}", speed_description))).no_bg(),
                 ScreenPt::new(100.0, 0.0),
             );
         } else {
             g.draw_text_at_screenspace_topleft(
-                &Text::from(Line("Speed")),
+                &Text::from(Line("Speed")).no_bg(),
                 ScreenPt::new(100.0, 0.0),
             );
         }
@@ -236,7 +236,7 @@ impl SpeedControls {
         self.speed_up_btn.draw(g);
         self.slider.draw(g);
         g.draw_text_at_screenspace_topleft(
-            &Text::from(Line(format!("{:.2}x", self.desired_speed()))),
+            &Text::from(Line(format!("{:.2}x", self.desired_speed()))).no_bg(),
             ScreenPt::new(150.0, 100.0),
         );
 
