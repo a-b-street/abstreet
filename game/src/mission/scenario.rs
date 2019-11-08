@@ -397,7 +397,8 @@ fn edit_scenario(map: &Map, scenario: &mut Scenario, mut wizard: WrappedWizard) 
                 start_from_border: choose_intersection(
                     &mut wizard,
                     "Which border should the agents spawn at?",
-                )?,
+                )
+                .map(|i| map.get_i(i).some_outgoing_road(map))?,
                 goal: choose_origin_destination(map, &mut wizard, "Where should the agents go?")?,
                 percent_use_transit: wizard.input_percent(
                     "What percent of the walking trips will consider taking transit?",

@@ -1,5 +1,5 @@
 use crate::raw::OriginalIntersection;
-use crate::{LaneID, LaneType, Map, Road, RoadID, TurnID};
+use crate::{DirectedRoadID, LaneID, LaneType, Map, Road, RoadID, TurnID};
 use abstutil;
 use geom::Polygon;
 use serde_derive::{Deserialize, Serialize};
@@ -89,7 +89,7 @@ impl Intersection {
             .unwrap()
     }
 
-    pub fn get_roads_sorted_by_incoming_angle(&self, all_roads: &Vec<Road>) -> Vec<RoadID> {
+    pub(crate) fn get_roads_sorted_by_incoming_angle(&self, all_roads: &Vec<Road>) -> Vec<RoadID> {
         let center = self.polygon.center();
         let mut roads: Vec<RoadID> = self.roads.iter().cloned().collect();
         roads.sort_by_key(|id| {
@@ -108,5 +108,9 @@ impl Intersection {
 
     pub fn dump_debug(&self) {
         println!("{}", abstutil::to_json(self));
+    }
+
+    pub fn some_outgoing_road(&self, map: &Map) -> DirectedRoadID {
+        map.get_l(self.outgoing_lanes[0]).get_directed_parent(map)
     }
 }

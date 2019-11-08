@@ -564,7 +564,7 @@ fn create_swarm(ui: &mut UI, from: LaneID, to: LaneID, count: usize, duration: D
         num_bikes: 0,
         start_time: ui.primary.sim.time() + SMALL_DT,
         stop_time: ui.primary.sim.time() + SMALL_DT + duration,
-        start_from_border: ui.primary.map.get_l(from).src_i,
+        start_from_border: ui.primary.map.get_l(from).get_directed_parent(&ui.primary.map),
         goal: OriginDestination::Border(ui.primary.map.get_l(to).dst_i),
         percent_use_transit: 0.0,
     });

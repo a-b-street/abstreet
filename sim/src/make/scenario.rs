@@ -6,8 +6,8 @@ use abstutil;
 use abstutil::{fork_rng, prettyprint_usize, Timer, WeightedUsizeChoice};
 use geom::{Distance, Duration, Speed};
 use map_model::{
-    BuildingID, BusRouteID, BusStopID, FullNeighborhoodInfo, IntersectionID, LaneType, Map,
-    Position, RoadID,
+    BuildingID, BusRouteID, BusStopID, DirectedRoadID, FullNeighborhoodInfo, IntersectionID,
+    LaneType, Map, Position, RoadID,
 };
 use rand::seq::SliceRandom;
 use rand::Rng;
@@ -54,8 +54,7 @@ pub struct BorderSpawnOverTime {
     // TODO use https://docs.rs/rand/0.5.5/rand/distributions/struct.Normal.html
     pub start_time: Duration,
     pub stop_time: Duration,
-    // TODO A serialized Scenario won't last well as the map changes...
-    pub start_from_border: IntersectionID,
+    pub start_from_border: DirectedRoadID,
     pub goal: OriginDestination,
     pub percent_use_transit: f64,
 }
@@ -271,7 +270,7 @@ impl Scenario {
                     num_bikes: 10,
                     start_time: Duration::ZERO,
                     stop_time: Duration::seconds(5.0),
-                    start_from_border: i.id,
+                    start_from_border: i.some_outgoing_road(map),
                     goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
                     percent_use_transit: 0.5,
                 })
@@ -523,7 +522,9 @@ impl BorderSpawnOverTime {
             return;
         }
 
-        let start = if let Some(s) = SidewalkSpot::start_at_border(self.start_from_border, map) {
+        let start = if let Some(s) =
+            SidewalkSpot::start_at_border(self.start_from_border.src_i(map), map)
+        {
             s
         } else {
             timer.warn(format!(
@@ -582,9 +583,7 @@ impl BorderSpawnOverTime {
         if self.num_cars == 0 {
             return;
         }
-        let starting_driving_lanes = map
-            .get_i(self.start_from_border)
-            .get_outgoing_lanes(map, LaneType::Driving);
+        let starting_driving_lanes = self.start_from_border.lanes(LaneType::Driving, map);
         if starting_driving_lanes.is_empty() {
             timer.warn(format!(
                 "Can't start car at border for {}",
@@ -637,16 +636,9 @@ impl BorderSpawnOverTime {
         if self.num_bikes == 0 {
             return;
         }
-        let mut starting_biking_lanes = map
-            .get_i(self.start_from_border)
-            .get_outgoing_lanes(map, LaneType::Biking);
-        for l in map
-            .get_i(self.start_from_border)
-            .get_outgoing_lanes(map, LaneType::Driving)
-        {
-            if map.get_parent(l).supports_bikes() {
-                starting_biking_lanes.push(l);
-            }
+        let mut starting_biking_lanes = self.start_from_border.lanes(LaneType::Biking, map);
+        if map.get_r(self.start_from_border.id).supports_bikes() {
+            starting_biking_lanes.extend(self.start_from_border.lanes(LaneType::Driving, map));
         }
         if starting_biking_lanes.is_empty()
             || map.get_l(starting_biking_lanes[0]).length() < BIKE_LENGTH

@@ -53,6 +53,38 @@ impl fmt::Display for DirectedRoadID {
     }
 }
 
+impl DirectedRoadID {
+    pub fn src_i(self, map: &Map) -> IntersectionID {
+        let r = map.get_r(self.id);
+        if self.forwards {
+            r.src_i
+        } else {
+            r.dst_i
+        }
+    }
+
+    pub fn dst_i(self, map: &Map) -> IntersectionID {
+        let r = map.get_r(self.id);
+        if self.forwards {
+            r.dst_i
+        } else {
+            r.src_i
+        }
+    }
+
+    pub fn lanes(self, lt: LaneType, map: &Map) -> Vec<LaneID> {
+        let r = map.get_r(self.id);
+        let list = if self.forwards {
+            &r.children_forwards
+        } else {
+            &r.children_backwards
+        };
+        list.iter()
+            .filter_map(|(l, t)| if lt == *t { Some(*l) } else { None })
+            .collect()
+    }
+}
+
 // These're bidirectional (possibly)
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Road {

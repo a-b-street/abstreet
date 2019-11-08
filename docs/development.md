@@ -93,3 +93,18 @@ java -jar ~/Downloads/josm-tested.jar ~/abstreet/map_editor/diff.osc
 
 Press (and release T), then click to pan. Download a relevant layer, select the
 .osc, merge, then upload.
+
+## Faster linking
+
+```
+sudo apt-get install lld
+```
+
+Stick this in ~/.cargo/config:
+
+```
+[target.x86_64-unknown-linux-gnu]                                                                   
+rustflags = [                                                                                       
+    "-C", "link-arg=-fuse-ld=lld",                                                    
+]
+```
