@@ -1,5 +1,4 @@
 mod agent;
-mod associated;
 mod colors;
 mod info;
 mod navigate;
@@ -34,7 +33,6 @@ use ezgui::{
 use std::collections::BTreeSet;
 
 pub struct CommonState {
-    associated: associated::ShowAssociatedState,
     turn_cycler: turn_cycler::TurnCyclerState,
     location_tools: MenuUnderButton,
 }
@@ -42,7 +40,6 @@ pub struct CommonState {
 impl CommonState {
     pub fn new(ctx: &EventCtx) -> CommonState {
         CommonState {
-            associated: associated::ShowAssociatedState::Inactive,
             turn_cycler: turn_cycler::TurnCyclerState::Inactive,
             location_tools: MenuUnderButton::new(
                 "assets/ui/location.png",
@@ -71,7 +68,6 @@ impl CommonState {
             return Some(Transition::Push(shortcuts::ChoosingShortcut::new()));
         }
 
-        self.associated.event(ui);
         if let Some(t) = self.turn_cycler.event(ctx, ui) {
             return Some(t);
         }
@@ -209,8 +205,6 @@ impl CommonState {
 
     pub fn draw_options(&self, ui: &UI) -> DrawOptions {
         let mut opts = DrawOptions::new();
-        self.associated
-            .override_colors(&mut opts.override_colors, ui);
         opts.suppress_traffic_signal_details = self
             .turn_cycler
             .suppress_traffic_signal_details(&ui.primary.map);

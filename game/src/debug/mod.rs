@@ -1,3 +1,4 @@
+mod associated;
 mod color_picker;
 mod connected_roads;
 mod floodfill;
@@ -23,6 +24,7 @@ pub struct DebugMode {
     menu: ModalMenu,
     general_tools: MenuUnderButton,
     common: CommonState,
+    associated: associated::ShowAssociatedState,
     connected_roads: connected_roads::ShowConnectedRoads,
     objects: objects::ObjectDebugger,
     hidden: HashSet<ID>,
@@ -65,6 +67,7 @@ impl DebugMode {
                 ctx,
             ),
             common: CommonState::new(ctx),
+            associated: associated::ShowAssociatedState::Inactive,
             connected_roads: connected_roads::ShowConnectedRoads::new(),
             objects: objects::ObjectDebugger::new(),
             hidden: HashSet::new(),
@@ -112,6 +115,7 @@ impl State for DebugMode {
         if let Some(t) = self.common.event(ctx, ui) {
             return t;
         }
+        self.associated.event(ui);
 
         if self.general_tools.action("return to previous mode") {
             return Transition::Pop;
@@ -264,6 +268,8 @@ impl State for DebugMode {
                 }
             }
         }
+        self.associated
+            .override_colors(&mut opts.override_colors, ui);
 
         ui.draw(g, opts, &ui.primary.sim, self);
 

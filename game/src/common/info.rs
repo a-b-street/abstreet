@@ -177,7 +177,17 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
                 }
             }
 
-            // TODO Associated cars
+            let cars = sim.get_parked_cars_by_owner(id);
+            if !cars.is_empty() {
+                txt.add(Line(""));
+                txt.add(Line(format!(
+                    "{} parked cars owned by this building",
+                    cars.len()
+                )));
+                for p in cars {
+                    txt.add(Line(format!("- {}", p.vehicle.id)));
+                }
+            }
         }
         ID::Car(id) => {
             for line in sim.car_tooltip(id) {
