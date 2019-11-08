@@ -124,7 +124,7 @@ impl AgentTools {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        self.route_viewer.draw(g, ui);
+        self.route_viewer.draw(g);
 
         if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
             let mut maybe_legend = self.agent_cs_legend.borrow_mut();
