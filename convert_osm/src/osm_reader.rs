@@ -100,15 +100,23 @@ pub fn extract_osm(
                 tags.insert(osm::INFERRED_PARKING.to_string(), "true".to_string());
             }
 
-            // If there's no sidewalk data in OSM already, then assume both sides and mark that
+            // If there's no sidewalk data in OSM already, then make an assumption and mark that
             // it's inferred.
-            if !tags.contains_key(osm::SIDEWALK)
-                && tags.get(osm::HIGHWAY) != Some(&"motorway".to_string())
-                && tags.get(osm::HIGHWAY) != Some(&"motorway_link".to_string())
-                && tags.get("junction") != Some(&"roundabout".to_string())
-            {
-                tags.insert(osm::SIDEWALK.to_string(), "both".to_string());
+            if !tags.contains_key(osm::SIDEWALK) {
                 tags.insert(osm::INFERRED_SIDEWALKS.to_string(), "true".to_string());
+                if tags.get(osm::HIGHWAY) == Some(&"motorway".to_string())
+                    || tags.get(osm::HIGHWAY) == Some(&"motorway_link".to_string())
+                    || tags.get("junction") == Some(&"roundabout".to_string())
+                {
+                    tags.insert(osm::SIDEWALK.to_string(), "none".to_string());
+                } else if tags.get("oneway") == Some(&"yes".to_string()) {
+                    tags.insert(osm::SIDEWALK.to_string(), "right".to_string());
+                    if tags.get(osm::HIGHWAY) == Some(&"residential".to_string()) {
+                        tags.insert(osm::SIDEWALK.to_string(), "both".to_string());
+                    }
+                } else {
+                    tags.insert(osm::SIDEWALK.to_string(), "both".to_string());
+                }
             }
 
             roads.push((
