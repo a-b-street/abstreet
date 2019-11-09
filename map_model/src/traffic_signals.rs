@@ -77,7 +77,7 @@ impl ControlTrafficSignal {
         let expected_turns: BTreeSet<TurnID> = map.get_i(self.id).turns.iter().cloned().collect();
         let mut actual_turns: BTreeSet<TurnID> = BTreeSet::new();
         for phase in &self.phases {
-            actual_turns.extend(phase.priority_turns.iter());
+            actual_turns.extend(phase.protected_turns.iter());
             actual_turns.extend(phase.yield_turns.iter());
         }
         if expected_turns != actual_turns {
@@ -86,8 +86,8 @@ impl ControlTrafficSignal {
 
         for phase in &self.phases {
             // Do any of the priority turns in one phase conflict?
-            for t1 in phase.priority_turns.iter().map(|t| map.get_t(*t)) {
-                for t2 in phase.priority_turns.iter().map(|t| map.get_t(*t)) {
+            for t1 in phase.protected_turns.iter().map(|t| map.get_t(*t)) {
+                for t2 in phase.protected_turns.iter().map(|t| map.get_t(*t)) {
                     if t1.conflicts_with(t2) {
                         return Err(Error::new(format!(
                             "Traffic signal has conflicting priority turns in one phase:\n{:?}\n\n{:?}",
@@ -104,7 +104,7 @@ impl ControlTrafficSignal {
                         assert!(!phase.yield_turns.contains(&t.id));
                     }
                     TurnType::SharedSidewalkCorner => {
-                        assert!(phase.priority_turns.contains(&t.id));
+                        assert!(phase.protected_turns.contains(&t.id));
                     }
                     _ => {}
                 }
@@ -131,11 +131,11 @@ impl ControlTrafficSignal {
         loop {
             let add_turn = remaining_turns
                 .iter()
-                .position(|&t| current_phase.could_be_priority_turn(t, map));
+                .position(|&t| current_phase.could_be_protected_turn(t, map));
             match add_turn {
                 Some(idx) => {
                     current_phase
-                        .priority_turns
+                        .protected_turns
                         .insert(remaining_turns.remove(idx));
                 }
                 None => {
@@ -375,11 +375,11 @@ impl ControlTrafficSignal {
         for turn in map.get_turns_in_intersection(i) {
             match turn.turn_type {
                 TurnType::SharedSidewalkCorner => {
-                    all_walk.priority_turns.insert(turn.id);
-                    all_yield.priority_turns.insert(turn.id);
+                    all_walk.protected_turns.insert(turn.id);
+                    all_yield.protected_turns.insert(turn.id);
                 }
                 TurnType::Crosswalk => {
-                    all_walk.priority_turns.insert(turn.id);
+                    all_walk.protected_turns.insert(turn.id);
                 }
                 _ => {
                     all_yield.yield_turns.insert(turn.id);
@@ -409,10 +409,10 @@ impl ControlTrafficSignal {
             for turn in map.get_turns_in_intersection(i) {
                 let parent = map.get_l(turn.id.src).parent;
                 if turn.turn_type == TurnType::SharedSidewalkCorner {
-                    phase.priority_turns.insert(turn.id);
+                    phase.protected_turns.insert(turn.id);
                 } else if turn.turn_type == TurnType::Crosswalk {
                     if parent == adj1 || parent == adj2 {
-                        phase.priority_turns.insert(turn.id);
+                        phase.protected_turns.insert(turn.id);
                     }
                 } else if parent == r {
                     phase.yield_turns.insert(turn.id);
@@ -430,10 +430,10 @@ impl ControlTrafficSignal {
     pub fn convert_to_ped_scramble(&mut self, map: &Map) {
         // Remove Crosswalk turns from existing phases.
         for phase in self.phases.iter_mut() {
-            // Crosswalks are usually only priority_turns, but also clear out from yield_turns.
+            // Crosswalks are usually only protected_turns, but also clear out from yield_turns.
             for t in map.get_turns_in_intersection(self.id) {
                 if t.turn_type == TurnType::Crosswalk {
-                    phase.priority_turns.remove(&t.id);
+                    phase.protected_turns.remove(&t.id);
                     phase.yield_turns.remove(&t.id);
                 }
             }
@@ -441,8 +441,8 @@ impl ControlTrafficSignal {
             // Blindly try to promote yield turns to protected, now that crosswalks are gone.
             let mut promoted = Vec::new();
             for t in &phase.yield_turns {
-                if phase.could_be_priority_turn(*t, map) {
-                    phase.priority_turns.insert(*t);
+                if phase.could_be_protected_turn(*t, map) {
+                    phase.protected_turns.insert(*t);
                     promoted.push(*t);
                 }
             }
@@ -454,7 +454,7 @@ impl ControlTrafficSignal {
         let mut phase = Phase::new(self.id);
         for t in map.get_turns_in_intersection(self.id) {
             if t.between_sidewalks() {
-                phase.edit_turn(t, TurnPriority::Priority);
+                phase.edit_turn(t, TurnPriority::Protected);
             }
         }
         self.phases.push(phase);
@@ -464,7 +464,7 @@ impl ControlTrafficSignal {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct Phase {
     pub parent: IntersectionID,
-    pub priority_turns: BTreeSet<TurnID>,
+    pub protected_turns: BTreeSet<TurnID>,
     pub yield_turns: BTreeSet<TurnID>,
     pub duration: Duration,
 }
@@ -473,15 +473,15 @@ impl Phase {
     pub fn new(parent: IntersectionID) -> Phase {
         Phase {
             parent,
-            priority_turns: BTreeSet::new(),
+            protected_turns: BTreeSet::new(),
             yield_turns: BTreeSet::new(),
             duration: Duration::seconds(30.0),
         }
     }
 
-    pub fn could_be_priority_turn(&self, t1: TurnID, map: &Map) -> bool {
+    pub fn could_be_protected_turn(&self, t1: TurnID, map: &Map) -> bool {
         let turn1 = map.get_t(t1);
-        for t2 in &self.priority_turns {
+        for t2 in &self.protected_turns {
             if t1 == *t2 || turn1.conflicts_with(map.get_t(*t2)) {
                 return false;
             }
@@ -490,8 +490,8 @@ impl Phase {
     }
 
     pub fn get_priority(&self, t: TurnID) -> TurnPriority {
-        if self.priority_turns.contains(&t) {
-            TurnPriority::Priority
+        if self.protected_turns.contains(&t) {
+            TurnPriority::Protected
         } else if self.yield_turns.contains(&t) {
             TurnPriority::Yield
         } else {
@@ -505,10 +505,10 @@ impl Phase {
             ids.extend(t.other_crosswalk_ids.clone());
         }
         for id in ids {
-            self.priority_turns.remove(&id);
+            self.protected_turns.remove(&id);
             self.yield_turns.remove(&id);
-            if pri == TurnPriority::Priority {
-                self.priority_turns.insert(id);
+            if pri == TurnPriority::Protected {
+                self.protected_turns.insert(id);
             } else if pri == TurnPriority::Yield {
                 self.yield_turns.insert(id);
             }
@@ -516,7 +516,7 @@ impl Phase {
     }
 }
 
-// Add all legal priority turns to existing phases.
+// Add all legal protected turns to existing phases.
 fn expand_all_phases(phases: &mut Vec<Phase>, map: &Map, intersection: IntersectionID) {
     let all_turns: Vec<TurnID> = map
         .get_turns_in_intersection(intersection)
@@ -525,8 +525,8 @@ fn expand_all_phases(phases: &mut Vec<Phase>, map: &Map, intersection: Intersect
         .collect();
     for phase in phases.iter_mut() {
         for t in &all_turns {
-            if !phase.priority_turns.contains(t) && phase.could_be_priority_turn(*t, map) {
-                phase.priority_turns.insert(*t);
+            if !phase.protected_turns.contains(t) && phase.could_be_protected_turn(*t, map) {
+                phase.protected_turns.insert(*t);
             }
         }
     }
@@ -550,7 +550,7 @@ fn make_phases(
             for turn in map.get_turns_in_intersection(i) {
                 // These never conflict with anything.
                 if turn.turn_type == TurnType::SharedSidewalkCorner {
-                    phase.priority_turns.insert(turn.id);
+                    phase.protected_turns.insert(turn.id);
                     continue;
                 }
 
@@ -561,7 +561,7 @@ fn make_phases(
                 phase.edit_turn(
                     turn,
                     if protected {
-                        TurnPriority::Priority
+                        TurnPriority::Protected
                     } else {
                         TurnPriority::Yield
                     },

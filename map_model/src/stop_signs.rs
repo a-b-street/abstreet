@@ -85,9 +85,10 @@ impl ControlStopSign {
         self.turns[&turn]
     }
 
+    // TODO rm
     pub fn could_be_priority_turn(&self, id: TurnID, map: &Map) -> bool {
         for (t, pri) in &self.turns {
-            if *pri == TurnPriority::Priority && map.get_t(id).conflicts_with(map.get_t(*t)) {
+            if *pri == TurnPriority::Protected && map.get_t(id).conflicts_with(map.get_t(*t)) {
                 return false;
             }
         }
@@ -124,7 +125,7 @@ impl ControlStopSign {
             }
             // Are all of the SharedSidewalkCorner prioritized?
             if map.get_t(*t).turn_type == TurnType::SharedSidewalkCorner {
-                assert_eq!(self.turns[t], TurnPriority::Priority);
+                assert_eq!(self.turns[t], TurnPriority::Protected);
             }
         }
 
@@ -133,7 +134,7 @@ impl ControlStopSign {
             .turns
             .iter()
             .filter_map(|(turn, pri)| {
-                if *pri == TurnPriority::Priority {
+                if *pri == TurnPriority::Protected {
                     Some(*turn)
                 } else {
                     None
@@ -171,9 +172,9 @@ impl ControlStopSign {
         let ss = self.roads.get_mut(&r).unwrap();
         ss.enabled = !ss.enabled;
         let new_pri = if ss.enabled {
-            TurnPriority::Stop
-        } else {
             TurnPriority::Yield
+        } else {
+            TurnPriority::Protected
         };
         for l in ss.travel_lanes.clone() {
             for (turn, _) in map.get_next_turns_and_lanes(l, self.id) {
@@ -183,7 +184,7 @@ impl ControlStopSign {
                 if new_pri == TurnPriority::Yield && self.could_be_priority_turn(turn.id, map) {
                     match turn.turn_type {
                         TurnType::Straight | TurnType::Right | TurnType::Crosswalk => {
-                            self.turns.insert(turn.id, TurnPriority::Priority);
+                            self.turns.insert(turn.id, TurnPriority::Protected);
                         }
                         _ => {}
                     }
@@ -198,7 +199,7 @@ impl ControlStopSign {
             for l in &ss.travel_lanes {
                 for (turn, _) in map.get_next_turns_and_lanes(*l, self.id) {
                     match self.turns[&turn.id] {
-                        TurnPriority::Stop | TurnPriority::Banned => {
+                        TurnPriority::Yield | TurnPriority::Banned => {
                             ss.enabled = true;
                         }
                         _ => {}
@@ -250,21 +251,21 @@ fn smart_assignment(map: &Map, id: IntersectionID) -> Warn<ControlStopSign> {
     };
     for t in &map.get_i(id).turns {
         if map.get_t(*t).turn_type == TurnType::SharedSidewalkCorner {
-            ss.turns.insert(*t, TurnPriority::Priority);
+            ss.turns.insert(*t, TurnPriority::Protected);
         } else if rank_per_incoming_lane[&t.src] == highest_rank {
             // If it's the highest rank road, prioritize main turns and make others yield.
             ss.turns.insert(*t, TurnPriority::Yield);
             if ss.could_be_priority_turn(*t, map) {
                 match map.get_t(*t).turn_type {
                     TurnType::Straight | TurnType::Right | TurnType::Crosswalk => {
-                        ss.turns.insert(*t, TurnPriority::Priority);
+                        ss.turns.insert(*t, TurnPriority::Protected);
                     }
                     _ => {}
                 }
             }
         } else {
             // Lower rank roads have to stop.
-            ss.turns.insert(*t, TurnPriority::Stop);
+            ss.turns.insert(*t, TurnPriority::Yield);
         }
     }
     Warn::ok(ss)
@@ -278,9 +279,9 @@ fn all_way_stop(map: &Map, id: IntersectionID) -> ControlStopSign {
     };
     for t in &map.get_i(id).turns {
         if map.get_t(*t).turn_type == TurnType::SharedSidewalkCorner {
-            ss.turns.insert(*t, TurnPriority::Priority);
+            ss.turns.insert(*t, TurnPriority::Protected);
         } else {
-            ss.turns.insert(*t, TurnPriority::Stop);
+            ss.turns.insert(*t, TurnPriority::Yield);
         }
     }
     ss
@@ -295,9 +296,9 @@ fn for_degenerate_and_deadend(map: &Map, id: IntersectionID) -> Warn<ControlStop
     for t in &map.get_i(id).turns {
         // Only the crosswalks should conflict with other turns.
         let priority = match map.get_t(*t).turn_type {
-            TurnType::Crosswalk => TurnPriority::Stop,
+            TurnType::Crosswalk => TurnPriority::Yield,
             TurnType::LaneChangeLeft | TurnType::LaneChangeRight => TurnPriority::Yield,
-            _ => TurnPriority::Priority,
+            _ => TurnPriority::Protected,
         };
         ss.turns.insert(*t, priority);
     }

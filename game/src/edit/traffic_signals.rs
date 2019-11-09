@@ -78,8 +78,8 @@ impl State for TrafficSignalEditor {
             let next_priority = match phase.get_priority(id) {
                 TurnPriority::Banned => {
                     if ui.primary.map.get_t(id).turn_type == TurnType::Crosswalk {
-                        if phase.could_be_priority_turn(id, &ui.primary.map) {
-                            Some(TurnPriority::Priority)
+                        if phase.could_be_protected_turn(id, &ui.primary.map) {
+                            Some(TurnPriority::Protected)
                         } else {
                             None
                         }
@@ -87,17 +87,14 @@ impl State for TrafficSignalEditor {
                         Some(TurnPriority::Yield)
                     }
                 }
-                TurnPriority::Stop => {
-                    panic!("Can't have TurnPriority::Stop in a traffic signal");
-                }
                 TurnPriority::Yield => {
-                    if phase.could_be_priority_turn(id, &ui.primary.map) {
-                        Some(TurnPriority::Priority)
+                    if phase.could_be_protected_turn(id, &ui.primary.map) {
+                        Some(TurnPriority::Protected)
                     } else {
                         Some(TurnPriority::Banned)
                     }
                 }
-                TurnPriority::Priority => Some(TurnPriority::Banned),
+                TurnPriority::Protected => Some(TurnPriority::Banned),
             };
             if let Some(pri) = next_priority {
                 if ctx.input.contextual_action(
@@ -173,7 +170,7 @@ impl State for TrafficSignalEditor {
             let mut phase = Phase::new(self.diagram.i);
             for t in ui.primary.map.get_turns_in_intersection(self.diagram.i) {
                 if t.between_sidewalks() {
-                    phase.edit_turn(t, TurnPriority::Priority);
+                    phase.edit_turn(t, TurnPriority::Protected);
                 }
             }
             signal.phases.insert(current_phase, phase);
@@ -205,14 +202,13 @@ impl State for TrafficSignalEditor {
         let phase = &map.get_traffic_signal(self.diagram.i).phases[self.diagram.current_phase()];
         for t in &ui.primary.draw_map.get_turns(self.diagram.i, map) {
             let arrow_color = match phase.get_priority(t.id) {
-                TurnPriority::Priority => ui
+                TurnPriority::Protected => ui
                     .cs
                     .get_def("priority turn in current phase", Color::GREEN),
                 TurnPriority::Yield => ui
                     .cs
                     .get_def("yield turn in current phase", Color::rgb(255, 105, 180)),
                 TurnPriority::Banned => ui.cs.get_def("turn not in current phase", Color::BLACK),
-                TurnPriority::Stop => panic!("Can't have TurnPriority::Stop in a traffic signal"),
             };
             t.draw_icon(
                 &mut batch,

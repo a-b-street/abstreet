@@ -99,6 +99,7 @@ impl IntersectionSimState {
         // TODO Only wake up agents that would then be accepted.
 
         // Sort by waiting time, so things like stop signs actually are first-come, first-served.
+        // TODO Actually, this should be by priority first.
         let mut waiting: Vec<(Request, Duration)> = self.state[&i]
             .waiting
             .iter()
@@ -132,11 +133,10 @@ impl IntersectionSimState {
         for req in state.waiting.keys() {
             match phase.get_priority(req.turn) {
                 TurnPriority::Banned => {}
-                TurnPriority::Stop => unreachable!(),
                 TurnPriority::Yield => {
                     yields.push(req.agent);
                 }
-                TurnPriority::Priority => {
+                TurnPriority::Protected => {
                     // TODO Use update in case turn_finished scheduled an event for them already.
                     scheduler.update(now, Command::update_agent(req.agent));
                 }
@@ -254,7 +254,7 @@ impl State {
         assert!(our_priority != TurnPriority::Banned);
         let our_time = self.waiting[req];
 
-        if our_priority == TurnPriority::Stop && now < our_time + WAIT_AT_STOP_SIGN {
+        if our_priority == TurnPriority::Yield && now < our_time + WAIT_AT_STOP_SIGN {
             // Since we have "ownership" of scheduling for req.agent, don't need to use
             // scheduler.update.
             scheduler.push(

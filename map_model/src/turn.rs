@@ -54,14 +54,11 @@ pub enum TurnPriority {
     // Can't do this turn at all!
     Banned,
     // For stop signs: cars have to stop before doing this turn, and are accepted with the lowest priority.
-    // For traffic signals: this priority doesn't make sense; can't be used.
-    Stop,
-    // Cars can do this immediately if there are no previously accepted conflicting turns.
+    // For traffic signals: Cars can do this immediately if there are no previously accepted conflicting turns.
     Yield,
-    // These must be non-conflicting, and cars don't have to stop before doing this turn (unless a
-    // conflicting Yield has been accepted).
-    // TODO Rename Protected?
-    Priority,
+    // For stop signs: cars can do this without stopping. These can conflict!
+    // For traffic signals: Must be non-conflicting.
+    Protected,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]

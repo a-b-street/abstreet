@@ -28,12 +28,12 @@ pub fn draw_signal_phase(
     );
 
     for (id, crosswalk) in &ctx.draw_map.get_i(phase.parent).crosswalks {
-        if phase.get_priority(*id) == TurnPriority::Priority {
+        if phase.get_priority(*id) == TurnPriority::Protected {
             batch.append(crosswalk.clone());
         }
     }
 
-    for t in &phase.priority_turns {
+    for t in &phase.protected_turns {
         let turn = ctx.map.get_t(*t);
         if !turn.between_sidewalks() {
             DrawTurn::full_geom(turn, batch, priority_color);
@@ -83,7 +83,7 @@ pub fn draw_signal_phase(
 // TODO Written in a complicated way, and still doesn't look right.
 fn draw_signal_phase_with_icons(phase: &Phase, batch: &mut GeomBatch, ctx: &DrawCtx) {
     for (id, crosswalk) in &ctx.draw_map.get_i(phase.parent).crosswalks {
-        if phase.get_priority(*id) == TurnPriority::Priority {
+        if phase.get_priority(*id) == TurnPriority::Protected {
             batch.append(crosswalk.clone());
         }
     }
@@ -106,7 +106,7 @@ fn draw_signal_phase_with_icons(phase: &Phase, batch: &mut GeomBatch, ctx: &Draw
             }
 
             match phase.get_priority(turn.id) {
-                TurnPriority::Priority => {
+                TurnPriority::Protected => {
                     green.push(turn.id);
                 }
                 TurnPriority::Yield => {
@@ -115,7 +115,6 @@ fn draw_signal_phase_with_icons(phase: &Phase, batch: &mut GeomBatch, ctx: &Draw
                 TurnPriority::Banned => {
                     red.push(turn.id);
                 }
-                TurnPriority::Stop => unreachable!(),
             }
         }
         let count = vec![&green, &yellow, &red]
