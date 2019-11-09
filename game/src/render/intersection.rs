@@ -294,7 +294,7 @@ fn make_octagon(center: Pt2D, radius: Distance, facing: Angle) -> Polygon {
 fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, cs: &ColorScheme) {
     // Start at least LANE_THICKNESS out to not hit sidewalk corners. Also account for the
     // thickness of the crosswalk line itself. Center the lines inside these two boundaries.
-    let boundary = LANE_THICKNESS + CROSSWALK_LINE_THICKNESS;
+    let boundary = LANE_THICKNESS;
     let tile_every = LANE_THICKNESS * 0.6;
     let line = {
         // The middle line in the crosswalk geometry is the main crossing line.
@@ -317,6 +317,16 @@ fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, cs: &ColorScheme) {
                 perp_line(Line::new(pt1, pt2), LANE_THICKNESS)
                     .make_polygons(CROSSWALK_LINE_THICKNESS),
             );
+
+            // Actually every line is a double
+            let pt3 = line.dist_along(dist_along + 2.0 * CROSSWALK_LINE_THICKNESS);
+            let pt4 = pt3.project_away(Distance::meters(1.0), turn.angle());
+            batch.push(
+                cs.get("crosswalk"),
+                perp_line(Line::new(pt3, pt4), LANE_THICKNESS)
+                    .make_polygons(CROSSWALK_LINE_THICKNESS),
+            );
+
             dist_along += tile_every;
         }
     }

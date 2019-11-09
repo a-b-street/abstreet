@@ -10,7 +10,7 @@ use crate::ui::{ShowEverything, UI};
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{Choice, Color, EventCtx, GfxCtx, Key, Line, MenuUnderButton, Text};
 use geom::Duration;
-use map_model::PathStep;
+use map_model::{LaneType, PathStep};
 use sim::{ParkingSpot, TripMode};
 use std::collections::{BTreeMap, HashSet};
 
@@ -22,6 +22,7 @@ pub enum Overlays {
     FinishedTrips(Duration, Plot<usize>),
     Chokepoints(Duration, ObjectColorer),
     BikeNetwork(RoadColorer),
+    BusNetwork(RoadColorer),
     // Only set by certain gameplay modes
     BusRoute(ShowBusRoute),
     BusDelaysOverTime(Plot<Duration>),
@@ -48,6 +49,7 @@ impl Overlays {
                                 Choice::new("finished trips", ()).key(Key::F),
                                 Choice::new("chokepoints", ()).key(Key::C),
                                 Choice::new("bike network", ()).key(Key::B),
+                                Choice::new("bus network", ()).key(Key::U),
                             ]
                         })?;
                     Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
@@ -68,6 +70,7 @@ impl Overlays {
             Overlays::FinishedTrips(t, _) => ("finished trips", *t),
             Overlays::Chokepoints(t, _) => ("chokepoints", *t),
             Overlays::BikeNetwork(_) => ("bike network", ui.primary.sim.time()),
+            Overlays::BusNetwork(_) => ("bus network", ui.primary.sim.time()),
             Overlays::BusRoute(_) | Overlays::BusDelaysOverTime(_) => {
                 // The gameplay mode will update it.
                 return None;
@@ -83,7 +86,9 @@ impl Overlays {
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) -> bool {
         match self {
             Overlays::Inactive => false,
-            Overlays::ParkingAvailability(_, ref heatmap) | Overlays::BikeNetwork(ref heatmap) => {
+            Overlays::ParkingAvailability(_, ref heatmap)
+            | Overlays::BikeNetwork(ref heatmap)
+            | Overlays::BusNetwork(ref heatmap) => {
                 heatmap.draw(g, ui);
                 true
             }
@@ -134,6 +139,7 @@ impl Overlays {
             "finished trips" => Overlays::FinishedTrips(time, trip_stats(ui, ctx)),
             "chokepoints" => Overlays::Chokepoints(time, calculate_chokepoints(ctx, ui)),
             "bike network" => Overlays::BikeNetwork(calculate_bike_network(ctx, ui)),
+            "bus network" => Overlays::BusNetwork(calculate_bus_network(ctx, ui)),
             _ => unreachable!(),
         }
     }
@@ -340,6 +346,19 @@ fn calculate_bike_network(ctx: &mut EventCtx, ui: &UI) -> RoadColorer {
     );
     for l in ui.primary.map.all_lanes() {
         if l.is_biking() {
+            colorer.add(l.id, Color::GREEN, &ui.primary.map);
+        }
+    }
+    colorer.build(ctx, &ui.primary.map)
+}
+
+fn calculate_bus_network(ctx: &mut EventCtx, ui: &UI) -> RoadColorer {
+    let mut colorer = RoadColorerBuilder::new(
+        Text::prompt("bus networks"),
+        vec![("bike lanes", Color::GREEN)],
+    );
+    for l in ui.primary.map.all_lanes() {
+        if l.lane_type == LaneType::Bus {
             colorer.add(l.id, Color::GREEN, &ui.primary.map);
         }
     }
