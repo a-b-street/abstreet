@@ -250,7 +250,7 @@ impl State {
             return false;
         }
 
-        let our_priority = sign.turns[&req.turn];
+        let our_priority = sign.get_priority(req.turn, map);
         assert!(our_priority != TurnPriority::Banned);
         let our_time = self.waiting[req];
 

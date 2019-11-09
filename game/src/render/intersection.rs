@@ -69,7 +69,7 @@ impl DrawIntersection {
             }
             IntersectionType::StopSign => {
                 for ss in map.get_stop_sign(i.id).roads.values() {
-                    if ss.enabled {
+                    if ss.must_stop {
                         if let Some((octagon, pole)) = DrawIntersection::stop_sign_geom(ss, map) {
                             default_geom
                                 .push(cs.get_def("stop sign on side of road", Color::RED), octagon);
@@ -94,7 +94,7 @@ impl DrawIntersection {
     // Returns the (octagon, pole) if there's room to draw it.
     pub fn stop_sign_geom(ss: &RoadWithStopSign, map: &Map) -> Option<(Polygon, Polygon)> {
         let trim_back = Distance::meters(0.1);
-        let rightmost = &map.get_l(*ss.travel_lanes.last().unwrap()).lane_center_pts;
+        let rightmost = &map.get_l(ss.rightmost_lane).lane_center_pts;
         // TODO The dream of trimming f64's was to isolate epsilon checks like this...
         if rightmost.length() - trim_back <= EPSILON_DIST {
             // TODO warn

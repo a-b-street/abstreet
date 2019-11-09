@@ -69,7 +69,7 @@ impl State for StopSignEditor {
         if let Some(r) = self.selected_sign {
             if ctx.input.contextual_action(Key::Space, "toggle stop sign") {
                 let mut sign = ui.primary.map.get_stop_sign(self.id).clone();
-                sign.flip_sign(r, &ui.primary.map);
+                sign.flip_sign(r);
                 let mut new_edits = ui.primary.map.get_edits().clone();
                 new_edits.stop_sign_overrides.insert(self.id, sign);
                 apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
@@ -103,10 +103,10 @@ impl State for StopSignEditor {
                     ui.cs.get_def("selected stop sign", Color::BLUE),
                     octagon.clone(),
                 );
-                if !sign.roads[r].enabled {
+                if !sign.roads[r].must_stop {
                     batch.push(ui.cs.get("stop sign pole").alpha(0.6), pole.clone());
                 }
-            } else if !sign.roads[r].enabled {
+            } else if !sign.roads[r].must_stop {
                 batch.push(
                     ui.cs.get("stop sign on side of road").alpha(0.6),
                     octagon.clone(),

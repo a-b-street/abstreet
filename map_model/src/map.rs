@@ -109,7 +109,7 @@ impl Map {
             for i in &m.intersections {
                 match i.intersection_type {
                     IntersectionType::StopSign => {
-                        stop_signs.insert(i.id, ControlStopSign::new(&m, i.id, timer));
+                        stop_signs.insert(i.id, ControlStopSign::new(&m, i.id));
                     }
                     IntersectionType::TrafficSignal => {
                         traffic_signals.insert(i.id, ControlTrafficSignal::new(&m, i.id, timer));
@@ -539,7 +539,7 @@ impl Map {
 
     pub fn is_turn_allowed(&self, t: TurnID) -> bool {
         if let Some(ss) = self.stop_signs.get(&t.parent) {
-            ss.get_priority(t) != TurnPriority::Banned
+            ss.get_priority(t, self) != TurnPriority::Banned
         } else if let Some(ts) = self.traffic_signals.get(&t.parent) {
             ts.phases
                 .iter()
@@ -684,7 +684,7 @@ impl Map {
         }
         for id in self.edits.stop_sign_overrides.keys() {
             if !new_edits.stop_sign_overrides.contains_key(id) {
-                all_stop_sign_edits.insert(*id, ControlStopSign::new(self, *id, timer));
+                all_stop_sign_edits.insert(*id, ControlStopSign::new(self, *id));
             }
         }
         for id in self.edits.traffic_signal_overrides.keys() {
@@ -812,8 +812,7 @@ impl Map {
             // Do this before applying intersection policy edits.
             match i.intersection_type {
                 IntersectionType::StopSign => {
-                    self.stop_signs
-                        .insert(id, ControlStopSign::new(self, id, timer));
+                    self.stop_signs.insert(id, ControlStopSign::new(self, id));
                 }
                 IntersectionType::TrafficSignal => {
                     self.traffic_signals
@@ -899,7 +898,7 @@ impl Map {
 
         let mut delete_stop_signs = Vec::new();
         for (id, ss) in &self.edits.stop_sign_overrides {
-            if *ss == ControlStopSign::new(self, *id, timer) {
+            if *ss == ControlStopSign::new(self, *id) {
                 delete_stop_signs.push(*id);
             }
         }
