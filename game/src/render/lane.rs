@@ -67,17 +67,17 @@ impl DrawLane {
                 }
                 LaneType::Parking => {
                     draw.extend(
-                        cs.get_def("parking lines", Color::WHITE),
+                        cs.get_def("general road marking", Color::WHITE),
                         calculate_parking_lines(lane),
                     );
                 }
                 LaneType::Driving | LaneType::Bus => {
                     draw.extend(
-                        cs.get_def("dashed lane line", Color::WHITE),
+                        cs.get("general road marking"),
                         calculate_driving_lines(lane, road, timer),
                     );
                     draw.extend(
-                        cs.get_def("turn restrictions on lane", Color::WHITE),
+                        cs.get("general road marking"),
                         calculate_turn_markings(map, lane, timer),
                     );
                 }
@@ -222,7 +222,7 @@ fn calculate_parking_lines(lane: &Lane) -> Vec<Polygon> {
 }
 
 fn calculate_driving_lines(lane: &Lane, parent: &Road, timer: &mut Timer) -> Vec<Polygon> {
-    // The leftmost lanes don't have dashed white lines.
+    // The leftmost lanes don't have dashed lines.
     let (dir, idx) = parent.dir_and_offset(lane.id);
     if idx == 0 || (dir && parent.children_forwards[idx - 1].1 == LaneType::SharedLeftTurn) {
         return Vec::new();

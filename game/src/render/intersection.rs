@@ -313,7 +313,7 @@ fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, cs: &ColorScheme) {
             // Reuse perp_line. Project away an arbitrary amount
             let pt2 = pt1.project_away(Distance::meters(1.0), turn.angle());
             batch.push(
-                cs.get_def("crosswalk", Color::WHITE),
+                cs.get("general road marking"),
                 perp_line(Line::new(pt1, pt2), LANE_THICKNESS)
                     .make_polygons(CROSSWALK_LINE_THICKNESS),
             );
@@ -322,7 +322,7 @@ fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, cs: &ColorScheme) {
             let pt3 = line.dist_along(dist_along + 2.0 * CROSSWALK_LINE_THICKNESS);
             let pt4 = pt3.project_away(Distance::meters(1.0), turn.angle());
             batch.push(
-                cs.get("crosswalk"),
+                cs.get("general road marking"),
                 perp_line(Line::new(pt3, pt4), LANE_THICKNESS)
                     .make_polygons(CROSSWALK_LINE_THICKNESS),
             );

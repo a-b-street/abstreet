@@ -19,11 +19,11 @@ pub fn draw_signal_phase(
         return;
     }
 
-    let priority_color = ctx
+    let protected_color = ctx
         .cs
-        .get_def("turns protected by traffic signal right now", Color::GREEN);
+        .get_def("turn protected by traffic signal", Color::GREEN);
     let yield_color = ctx.cs.get_def(
-        "turns allowed with yielding by traffic signal right now",
+        "turn that can yield by traffic signal",
         Color::rgba(255, 105, 180, 0.8),
     );
 
@@ -36,7 +36,7 @@ pub fn draw_signal_phase(
     for t in &phase.protected_turns {
         let turn = ctx.map.get_t(*t);
         if !turn.between_sidewalks() {
-            DrawTurn::full_geom(turn, batch, priority_color);
+            DrawTurn::full_geom(turn, batch, protected_color);
         }
     }
     for t in &phase.yield_turns {

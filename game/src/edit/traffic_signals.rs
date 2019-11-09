@@ -202,12 +202,11 @@ impl State for TrafficSignalEditor {
         let phase = &map.get_traffic_signal(self.diagram.i).phases[self.diagram.current_phase()];
         for t in &ui.primary.draw_map.get_turns(self.diagram.i, map) {
             let arrow_color = match phase.get_priority(t.id) {
-                TurnPriority::Protected => ui
-                    .cs
-                    .get_def("priority turn in current phase", Color::GREEN),
+                TurnPriority::Protected => ui.cs.get("turn protected by traffic signal"),
                 TurnPriority::Yield => ui
                     .cs
-                    .get_def("yield turn in current phase", Color::rgb(255, 105, 180)),
+                    .get("turn that can yield by traffic signal")
+                    .alpha(1.0),
                 TurnPriority::Banned => ui.cs.get_def("turn not in current phase", Color::BLACK),
             };
             t.draw_icon(
