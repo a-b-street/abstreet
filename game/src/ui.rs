@@ -398,7 +398,6 @@ pub struct ShowLayers {
     pub show_lanes: bool,
     pub show_areas: bool,
     pub show_extra_shapes: bool,
-    pub geom_debug_mode: bool,
     pub show_labels: bool,
 }
 
@@ -410,7 +409,6 @@ impl ShowLayers {
             show_lanes: true,
             show_areas: true,
             show_extra_shapes: true,
-            geom_debug_mode: false,
             show_labels: false,
         }
     }

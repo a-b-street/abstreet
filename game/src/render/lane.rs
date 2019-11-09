@@ -2,7 +2,7 @@ use crate::helpers::{ColorScheme, ID};
 use crate::render::{dashed_lines, DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
-use geom::{Circle, Distance, Line, PolyLine, Polygon, Pt2D};
+use geom::{Distance, Line, PolyLine, Polygon, Pt2D};
 use map_model::{Lane, LaneID, LaneType, Map, Road, TurnType, LANE_THICKNESS, PARKING_SPOT_LENGTH};
 
 // Split into two phases like this, because AlmostDrawLane can be created in parallel, but GPU
@@ -114,22 +114,6 @@ impl DrawLane {
             draw_default: draw,
         }
     }
-
-    fn draw_debug(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
-        let circle_color = ctx
-            .cs
-            .get_def("debug line endpoint", Color::rgb_f(0.8, 0.1, 0.1));
-
-        for l in ctx.map.get_l(self.id).lane_center_pts.lines() {
-            g.draw_line(
-                ctx.cs.get_def("debug line", Color::RED),
-                Distance::meters(0.25),
-                &l,
-            );
-            g.draw_circle(circle_color, &Circle::new(l.pt1(), Distance::meters(0.4)));
-            g.draw_circle(circle_color, &Circle::new(l.pt2(), Distance::meters(0.8)));
-        }
-    }
 }
 
 impl Renderable for DrawLane {
@@ -137,15 +121,11 @@ impl Renderable for DrawLane {
         ID::Lane(self.id)
     }
 
-    fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, ctx: &DrawCtx) {
+    fn draw(&self, g: &mut GfxCtx, opts: &DrawOptions, _: &DrawCtx) {
         if let Some(color) = opts.color(self.get_id()) {
             g.draw_polygon(color, &self.polygon);
         } else {
             g.redraw(&self.draw_default);
-        }
-
-        if opts.geom_debug_mode {
-            self.draw_debug(g, ctx);
         }
     }
 

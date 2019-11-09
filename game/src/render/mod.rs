@@ -110,7 +110,6 @@ pub struct DrawCtx<'a> {
 pub struct DrawOptions {
     pub override_colors: HashMap<ID, Color>,
     pub suppress_traffic_signal_details: Option<IntersectionID>,
-    pub geom_debug_mode: bool,
     pub label_buildings: bool,
     pub label_roads: bool,
 }
@@ -120,7 +119,6 @@ impl DrawOptions {
         DrawOptions {
             override_colors: HashMap::new(),
             suppress_traffic_signal_details: None,
-            geom_debug_mode: false,
             label_buildings: false,
             label_roads: false,
         }

@@ -45,8 +45,7 @@ impl DebugMode {
                     (hotkey(Key::Num3), "hide lanes"),
                     (hotkey(Key::Num4), "hide areas"),
                     (hotkey(Key::Num5), "hide extra shapes"),
-                    (hotkey(Key::Num6), "show geometry debug mode"),
-                    (hotkey(Key::Num7), "show labels"),
+                    (hotkey(Key::Num6), "show labels"),
                     (hotkey(Key::N), "show neighborhood summaries"),
                     (hotkey(Key::R), "show route for all agents"),
                     (None, "show strongly-connected component roads"),
@@ -190,7 +189,6 @@ impl State for DebugMode {
                 ("lanes", &mut self.layers.show_lanes),
                 ("areas", &mut self.layers.show_areas),
                 ("extra shapes", &mut self.layers.show_extra_shapes),
-                ("geometry debug mode", &mut self.layers.geom_debug_mode),
                 ("labels", &mut self.layers.show_labels),
             ] {
                 let show = format!("show {}", label);
@@ -253,7 +251,6 @@ impl State for DebugMode {
         let mut opts = self.common.draw_options(ui);
         opts.label_buildings = self.layers.show_labels;
         opts.label_roads = self.layers.show_labels;
-        opts.geom_debug_mode = self.layers.geom_debug_mode;
         for l in &self.connected_roads.lanes {
             opts.override_colors.insert(
                 ID::Lane(*l),
