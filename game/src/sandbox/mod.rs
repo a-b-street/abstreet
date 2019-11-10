@@ -205,6 +205,37 @@ impl State for SandboxMode {
                 })));
             }
         }
+        if let Some(ID::Lane(l)) = ui.primary.current_selection {
+            if ctx
+                .input
+                .contextual_action(Key::T, "throughput over 1-hour buckets")
+            {
+                let r = ui.primary.map.get_l(l).parent;
+                let t = ui.primary.sim.time();
+                let bucket = Duration::minutes(60);
+                self.overlay = overlays::Overlays::RoadThroughput {
+                    t,
+                    bucket,
+                    r,
+                    plot: overlays::calculate_road_thruput(r, bucket, ctx, ui),
+                };
+            }
+        }
+        if let Some(ID::Intersection(i)) = ui.primary.current_selection {
+            if ctx
+                .input
+                .contextual_action(Key::T, "throughput over 1-hour buckets")
+            {
+                let t = ui.primary.sim.time();
+                let bucket = Duration::minutes(60);
+                self.overlay = overlays::Overlays::IntersectionThroughput {
+                    t,
+                    bucket,
+                    i,
+                    plot: overlays::calculate_intersection_thruput(i, bucket, ctx, ui),
+                };
+            }
+        }
 
         if self.save_tools.action("save sim state") {
             self.speed.pause();

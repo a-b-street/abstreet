@@ -172,7 +172,11 @@ impl Yvalue<usize> for usize {
         ((*self as f64) * percent) as usize
     }
     fn to_percent(self, max: usize) -> f64 {
-        (self as f64) / (max as f64)
+        if max == 0 {
+            0.0
+        } else {
+            (self as f64) / (max as f64)
+        }
     }
     fn prettyprint(self) -> String {
         abstutil::prettyprint_usize(self)
@@ -183,7 +187,11 @@ impl Yvalue<Duration> for Duration {
         percent * *self
     }
     fn to_percent(self, max: Duration) -> f64 {
-        self / max
+        if max == Duration::ZERO {
+            0.0
+        } else {
+            self / max
+        }
     }
     fn prettyprint(self) -> String {
         self.minimal_tostring()

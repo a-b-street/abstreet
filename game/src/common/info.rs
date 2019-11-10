@@ -2,6 +2,7 @@ use crate::common::CommonState;
 use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::ui::UI;
+use abstutil::prettyprint_usize;
 use ezgui::{hotkey, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
 use geom::Duration;
 use sim::CarID;
@@ -106,6 +107,12 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
                     to, restriction
                 )));
             }
+
+            txt.add(Line(""));
+            txt.add(Line(format!(
+                "{} total agents crossed",
+                prettyprint_usize(sim.get_analytics().thruput_stats.count_per_road.get(r.id))
+            )));
         }
         ID::Intersection(id) => {
             let i = map.get_i(id);
@@ -146,6 +153,17 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
                     txt.add(Line(line));
                 }
             }
+
+            txt.add(Line(""));
+            txt.add(Line(format!(
+                "{} total agents crossed",
+                prettyprint_usize(
+                    sim.get_analytics()
+                        .thruput_stats
+                        .count_per_intersection
+                        .get(id)
+                )
+            )));
         }
         // TODO No way to trigger the info panel for this yet.
         ID::Turn(id) => {
@@ -238,7 +256,7 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
                 }
                 txt.add(Line(format!(
                     "  {} passengers total (any stop)",
-                    abstutil::prettyprint_usize(passengers.get(r.id))
+                    prettyprint_usize(passengers.get(r.id))
                 )));
             }
         }

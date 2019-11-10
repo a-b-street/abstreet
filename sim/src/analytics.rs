@@ -1,4 +1,4 @@
-use crate::{CarID, Event, TripMode};
+use crate::{AgentID, CarID, Event, TripMode, VehicleType};
 use abstutil::Counter;
 use derivative::Derivative;
 use geom::{Duration, DurationHistogram};
@@ -27,6 +27,9 @@ pub struct ThruputStats {
     pub count_per_road: Counter<RoadID>,
     #[serde(skip_serializing, skip_deserializing)]
     pub count_per_intersection: Counter<IntersectionID>,
+
+    raw_per_road: Vec<(Duration, TripMode, RoadID)>,
+    raw_per_intersection: Vec<(Duration, TripMode, IntersectionID)>,
 }
 
 impl Analytics {
@@ -35,6 +38,8 @@ impl Analytics {
             thruput_stats: ThruputStats {
                 count_per_road: Counter::new(),
                 count_per_intersection: Counter::new(),
+                raw_per_road: Vec::new(),
+                raw_per_intersection: Vec::new(),
             },
             test_expectations: VecDeque::new(),
             bus_arrivals: Vec::new(),
@@ -44,11 +49,36 @@ impl Analytics {
     }
 
     pub fn event(&mut self, ev: Event, time: Duration, map: &Map) {
+        // TODO Plumb a flag
+        let raw_thruput = true;
+
         // Throughput
-        if let Event::AgentEntersTraversable(_, to) = ev {
+        if let Event::AgentEntersTraversable(a, to) = ev {
+            let mode = match a {
+                AgentID::Pedestrian(_) => TripMode::Walk,
+                AgentID::Car(c) => match c.1 {
+                    VehicleType::Car => TripMode::Drive,
+                    VehicleType::Bike => TripMode::Bike,
+                    VehicleType::Bus => TripMode::Transit,
+                },
+            };
+
             match to {
-                Traversable::Lane(l) => self.thruput_stats.count_per_road.inc(map.get_l(l).parent),
-                Traversable::Turn(t) => self.thruput_stats.count_per_intersection.inc(t.parent),
+                Traversable::Lane(l) => {
+                    let r = map.get_l(l).parent;
+                    self.thruput_stats.count_per_road.inc(r);
+                    if raw_thruput {
+                        self.thruput_stats.raw_per_road.push((time, mode, r));
+                    }
+                }
+                Traversable::Turn(t) => {
+                    self.thruput_stats.count_per_intersection.inc(t.parent);
+                    if raw_thruput {
+                        self.thruput_stats
+                            .raw_per_intersection
+                            .push((time, mode, t.parent));
+                    }
+                }
             };
         }
 
@@ -172,5 +202,65 @@ impl Analytics {
             }
         }
         delays_to_stop
+    }
+
+    // Slightly misleading -- TripMode::Transit means buses, not pedestrians taking transit
+    pub fn throughput_road(
+        &self,
+        now: Duration,
+        road: RoadID,
+        bucket: Duration,
+    ) -> BTreeMap<TripMode, Vec<(Duration, usize)>> {
+        let mut max_this_bucket = now.min(bucket);
+        let mut per_mode = TripMode::all()
+            .into_iter()
+            .map(|m| (m, vec![(Duration::ZERO, 0), (max_this_bucket, 0)]))
+            .collect::<BTreeMap<_, _>>();
+        for (t, m, r) in &self.thruput_stats.raw_per_road {
+            if *r != road {
+                continue;
+            }
+            if *t > now {
+                break;
+            }
+            if *t > max_this_bucket {
+                max_this_bucket = now.min(max_this_bucket + bucket);
+                for vec in per_mode.values_mut() {
+                    vec.push((max_this_bucket, 0));
+                }
+            }
+            per_mode.get_mut(m).unwrap().last_mut().unwrap().1 += 1;
+        }
+        per_mode
+    }
+
+    // TODO Refactor!
+    pub fn throughput_intersection(
+        &self,
+        now: Duration,
+        intersection: IntersectionID,
+        bucket: Duration,
+    ) -> BTreeMap<TripMode, Vec<(Duration, usize)>> {
+        let mut per_mode = TripMode::all()
+            .into_iter()
+            .map(|m| (m, vec![(Duration::ZERO, 0)]))
+            .collect::<BTreeMap<_, _>>();
+        let mut max_this_bucket = bucket;
+        for (t, m, i) in &self.thruput_stats.raw_per_intersection {
+            if *i != intersection {
+                continue;
+            }
+            if *t > now {
+                break;
+            }
+            if *t > max_this_bucket {
+                max_this_bucket = now.min(max_this_bucket + bucket);
+                for vec in per_mode.values_mut() {
+                    vec.push((max_this_bucket, 0));
+                }
+            }
+            per_mode.get_mut(m).unwrap().last_mut().unwrap().1 += 1;
+        }
+        per_mode
     }
 }

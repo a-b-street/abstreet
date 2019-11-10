@@ -10,7 +10,7 @@ use crate::ui::{ShowEverything, UI};
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{Choice, Color, EventCtx, GfxCtx, Key, Line, MenuUnderButton, Text};
 use geom::Duration;
-use map_model::{LaneType, PathStep};
+use map_model::{IntersectionID, LaneType, PathStep, RoadID};
 use sim::{ParkingSpot, TripMode};
 use std::collections::{BTreeMap, HashSet};
 
@@ -19,6 +19,18 @@ pub enum Overlays {
     ParkingAvailability(Duration, RoadColorer),
     IntersectionDelay(Duration, ObjectColorer),
     Throughput(Duration, ObjectColorer),
+    RoadThroughput {
+        t: Duration,
+        bucket: Duration,
+        r: RoadID,
+        plot: Plot<usize>,
+    },
+    IntersectionThroughput {
+        t: Duration,
+        bucket: Duration,
+        i: IntersectionID,
+        plot: Plot<usize>,
+    },
     FinishedTrips(Duration, Plot<usize>),
     Chokepoints(Duration, ObjectColorer),
     BikeNetwork(RoadColorer),
@@ -54,31 +66,79 @@ impl Overlays {
                         })?;
                     Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
                         let mut sandbox = state.downcast_mut::<SandboxMode>().unwrap();
-                        sandbox.overlay = Overlays::recalc(&choice, ui, ctx);
+                        let time = ui.primary.sim.time();
+                        sandbox.overlay = match choice.as_ref() {
+                            "none" => Overlays::Inactive,
+                            "parking availability" => Overlays::ParkingAvailability(
+                                time,
+                                calculate_parking_heatmap(ctx, ui),
+                            ),
+                            "intersection delay" => Overlays::IntersectionDelay(
+                                time,
+                                calculate_intersection_delay(ctx, ui),
+                            ),
+                            "cumulative throughput" => {
+                                Overlays::Throughput(time, calculate_thruput(ctx, ui))
+                            }
+                            "finished trips" => Overlays::FinishedTrips(time, trip_stats(ctx, ui)),
+                            "chokepoints" => {
+                                Overlays::Chokepoints(time, calculate_chokepoints(ctx, ui))
+                            }
+                            "bike network" => {
+                                Overlays::BikeNetwork(calculate_bike_network(ctx, ui))
+                            }
+                            "bus network" => Overlays::BusNetwork(calculate_bus_network(ctx, ui)),
+                            _ => unreachable!(),
+                        };
                     })))
                 },
             ))));
         }
 
-        let (choice, time) = match self {
-            Overlays::Inactive => {
-                return None;
+        let now = ui.primary.sim.time();
+        match self {
+            // Don't bother with Inactive, BusRoute, BusDelaysOverTime, BikeNetwork, BusNetwork --
+            // nothing needed or the gameplay mode will update it.
+            Overlays::ParkingAvailability(ref mut t, ref mut x) if now != *t => {
+                *t = now;
+                *x = calculate_parking_heatmap(ctx, ui);
             }
-            Overlays::ParkingAvailability(t, _) => ("parking availability", *t),
-            Overlays::IntersectionDelay(t, _) => ("intersection delay", *t),
-            Overlays::Throughput(t, _) => ("cumulative throughput", *t),
-            Overlays::FinishedTrips(t, _) => ("finished trips", *t),
-            Overlays::Chokepoints(t, _) => ("chokepoints", *t),
-            Overlays::BikeNetwork(_) => ("bike network", ui.primary.sim.time()),
-            Overlays::BusNetwork(_) => ("bus network", ui.primary.sim.time()),
-            Overlays::BusRoute(_) | Overlays::BusDelaysOverTime(_) => {
-                // The gameplay mode will update it.
-                return None;
+            Overlays::IntersectionDelay(t, x) if now != *t => {
+                *t = now;
+                *x = calculate_intersection_delay(ctx, ui);
             }
+            Overlays::Throughput(t, x) if now != *t => {
+                *t = now;
+                *x = calculate_thruput(ctx, ui);
+            }
+            Overlays::FinishedTrips(t, x) if now != *t => {
+                *t = now;
+                *x = trip_stats(ctx, ui);
+            }
+            Overlays::RoadThroughput {
+                ref mut t,
+                bucket,
+                r,
+                ref mut plot,
+            } if now != *t => {
+                *t = now;
+                *plot = calculate_road_thruput(*r, *bucket, ctx, ui);
+            }
+            Overlays::IntersectionThroughput {
+                ref mut t,
+                bucket,
+                i,
+                ref mut plot,
+            } if now != *t => {
+                *t = now;
+                *plot = calculate_intersection_thruput(*i, *bucket, ctx, ui);
+            }
+            Overlays::Chokepoints(t, x) if now != *t => {
+                *t = now;
+                *x = calculate_chokepoints(ctx, ui);
+            }
+            _ => {}
         };
-        if time != ui.primary.sim.time() {
-            *self = Overlays::recalc(choice, ui, ctx);
-        }
         None
     }
 
@@ -98,14 +158,16 @@ impl Overlays {
                 heatmap.draw(g, ui);
                 true
             }
-            Overlays::FinishedTrips(_, ref s) => {
+            Overlays::RoadThroughput { ref plot, .. }
+            | Overlays::IntersectionThroughput { ref plot, .. }
+            | Overlays::FinishedTrips(_, ref plot) => {
                 ui.draw(
                     g,
                     DrawOptions::new(),
                     &ui.primary.sim,
                     &ShowEverything::new(),
                 );
-                s.draw(g);
+                plot.draw(g);
                 true
             }
             Overlays::BusDelaysOverTime(ref s) => {
@@ -124,28 +186,9 @@ impl Overlays {
             }
         }
     }
-
-    fn recalc(choice: &str, ui: &UI, ctx: &mut EventCtx) -> Overlays {
-        let time = ui.primary.sim.time();
-        match choice {
-            "none" => Overlays::Inactive,
-            "parking availability" => {
-                Overlays::ParkingAvailability(time, calculate_parking_heatmap(ctx, ui))
-            }
-            "intersection delay" => {
-                Overlays::IntersectionDelay(time, calculate_intersection_delay(ctx, ui))
-            }
-            "cumulative throughput" => Overlays::Throughput(time, calculate_thruput(ctx, ui)),
-            "finished trips" => Overlays::FinishedTrips(time, trip_stats(ui, ctx)),
-            "chokepoints" => Overlays::Chokepoints(time, calculate_chokepoints(ctx, ui)),
-            "bike network" => Overlays::BikeNetwork(calculate_bike_network(ctx, ui)),
-            "bus network" => Overlays::BusNetwork(calculate_bus_network(ctx, ui)),
-            _ => unreachable!(),
-        }
-    }
 }
 
-fn calculate_parking_heatmap(ctx: &mut EventCtx, ui: &UI) -> RoadColorer {
+fn calculate_parking_heatmap(ctx: &EventCtx, ui: &UI) -> RoadColorer {
     let (filled_spots, avail_spots) = ui.primary.sim.get_all_parking_spots();
     let mut txt = Text::prompt("parking availability");
     txt.add(Line(format!(
@@ -217,7 +260,7 @@ fn calculate_parking_heatmap(ctx: &mut EventCtx, ui: &UI) -> RoadColorer {
     colorer.build(ctx, &ui.primary.map)
 }
 
-fn calculate_intersection_delay(ctx: &mut EventCtx, ui: &UI) -> ObjectColorer {
+fn calculate_intersection_delay(ctx: &EventCtx, ui: &UI) -> ObjectColorer {
     let fast = Color::GREEN;
     let meh = Color::YELLOW;
     let slow = Color::RED;
@@ -243,7 +286,7 @@ fn calculate_intersection_delay(ctx: &mut EventCtx, ui: &UI) -> ObjectColorer {
     colorer.build(ctx, &ui.primary.map)
 }
 
-fn calculate_chokepoints(ctx: &mut EventCtx, ui: &UI) -> ObjectColorer {
+fn calculate_chokepoints(ctx: &EventCtx, ui: &UI) -> ObjectColorer {
     const TOP_N: usize = 10;
 
     let mut colorer = ObjectColorerBuilder::new(
@@ -285,7 +328,7 @@ fn calculate_chokepoints(ctx: &mut EventCtx, ui: &UI) -> ObjectColorer {
     colorer.build(ctx, &ui.primary.map)
 }
 
-fn calculate_thruput(ctx: &mut EventCtx, ui: &UI) -> ObjectColorer {
+fn calculate_thruput(ctx: &EventCtx, ui: &UI) -> ObjectColorer {
     let light = Color::GREEN;
     let medium = Color::YELLOW;
     let heavy = Color::RED;
@@ -339,7 +382,7 @@ fn calculate_thruput(ctx: &mut EventCtx, ui: &UI) -> ObjectColorer {
     colorer.build(ctx, &ui.primary.map)
 }
 
-fn calculate_bike_network(ctx: &mut EventCtx, ui: &UI) -> RoadColorer {
+fn calculate_bike_network(ctx: &EventCtx, ui: &UI) -> RoadColorer {
     let mut colorer = RoadColorerBuilder::new(
         Text::prompt("bike networks"),
         vec![("bike lanes", Color::GREEN)],
@@ -352,7 +395,7 @@ fn calculate_bike_network(ctx: &mut EventCtx, ui: &UI) -> RoadColorer {
     colorer.build(ctx, &ui.primary.map)
 }
 
-fn calculate_bus_network(ctx: &mut EventCtx, ui: &UI) -> RoadColorer {
+fn calculate_bus_network(ctx: &EventCtx, ui: &UI) -> RoadColorer {
     let mut colorer = RoadColorerBuilder::new(
         Text::prompt("bus networks"),
         vec![("bike lanes", Color::GREEN)],
@@ -365,22 +408,21 @@ fn calculate_bus_network(ctx: &mut EventCtx, ui: &UI) -> RoadColorer {
     colorer.build(ctx, &ui.primary.map)
 }
 
-fn trip_stats(ui: &UI, ctx: &mut EventCtx) -> Plot<usize> {
-    let lines: Vec<(&str, Color, Option<TripMode>)> = vec![
-        (
-            "walking",
-            ui.cs.get("unzoomed pedestrian"),
-            Some(TripMode::Walk),
-        ),
-        ("biking", ui.cs.get("unzoomed bike"), Some(TripMode::Bike)),
-        (
-            "transit",
-            ui.cs.get("unzoomed bus"),
-            Some(TripMode::Transit),
-        ),
-        ("driving", ui.cs.get("unzoomed car"), Some(TripMode::Drive)),
-        ("aborted", Color::PURPLE.alpha(0.5), None),
-    ];
+fn color_for_mode(m: TripMode, ui: &UI) -> Color {
+    match m {
+        TripMode::Walk => ui.cs.get("unzoomed pedestrian"),
+        TripMode::Bike => ui.cs.get("unzoomed bike"),
+        TripMode::Transit => ui.cs.get("unzoomed bus"),
+        TripMode::Drive => ui.cs.get("unzoomed car"),
+    }
+}
+
+fn trip_stats(ctx: &EventCtx, ui: &UI) -> Plot<usize> {
+    let mut lines: Vec<(String, Color, Option<TripMode>)> = TripMode::all()
+        .into_iter()
+        .map(|m| (m.to_string(), color_for_mode(m, ui), Some(m)))
+        .collect();
+    lines.push(("aborted".to_string(), Color::PURPLE.alpha(0.5), None));
 
     // What times do we use for interpolation?
     let num_x_pts = 100;
@@ -419,10 +461,62 @@ fn trip_stats(ui: &UI, ctx: &mut EventCtx) -> Plot<usize> {
         "finished trips",
         lines
             .into_iter()
-            .map(|(name, color, m)| Series {
-                label: name.to_string(),
+            .map(|(label, color, m)| Series {
+                label,
                 color,
                 pts: pts_per_mode.remove(&m).unwrap(),
+            })
+            .collect(),
+        0,
+        ctx,
+    )
+}
+
+// TODO Refactor
+pub fn calculate_road_thruput(r: RoadID, bucket: Duration, ctx: &EventCtx, ui: &UI) -> Plot<usize> {
+    Plot::new(
+        &format!(
+            "throughput of {} in {} buckets",
+            ui.primary.map.get_r(r).get_name(),
+            bucket.minimal_tostring()
+        ),
+        ui.primary
+            .sim
+            .get_analytics()
+            .throughput_road(ui.primary.sim.time(), r, bucket)
+            .into_iter()
+            .map(|(m, pts)| Series {
+                label: m.to_string(),
+                color: color_for_mode(m, ui),
+                pts,
+            })
+            .collect(),
+        0,
+        ctx,
+    )
+}
+
+pub fn calculate_intersection_thruput(
+    i: IntersectionID,
+    bucket: Duration,
+    ctx: &EventCtx,
+    ui: &UI,
+) -> Plot<usize> {
+    Plot::new(
+        &format!(
+            "throughput of {} in {} buckets",
+            i,
+            bucket.minimal_tostring()
+        ),
+        ui.primary
+            .sim
+            .get_analytics()
+            .throughput_intersection(ui.primary.sim.time(), i, bucket)
+            .into_iter()
+            .map(|(m, pts)| Series {
+                label: m.to_string(),
+                color: color_for_mode(m, ui),
+                pts,
             })
             .collect(),
         0,
