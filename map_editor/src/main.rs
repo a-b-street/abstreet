@@ -266,12 +266,12 @@ impl GUI for UI {
                             self.model.world.handle_mouseover(ctx);
                         }
                     }
-                    Some(ID::TurnRestriction(from, to, idx)) => {
+                    Some(ID::TurnRestriction(tr)) => {
                         if ctx
                             .input
                             .key_pressed(Key::Backspace, "delete turn restriction")
                         {
-                            self.model.delete_tr(from, to, idx, ctx.prerender);
+                            self.model.delete_tr(tr);
                             self.model.world.handle_mouseover(ctx);
                         }
                     }

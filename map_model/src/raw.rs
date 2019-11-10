@@ -336,39 +336,19 @@ impl RawMap {
 
 // Mutations and supporting queries
 impl RawMap {
-    // Return a list of turn restrictions deleted along the way, aside from those originating from
-    // r.
-    pub fn delete_road(
-        &mut self,
-        r: OriginalRoad,
-    ) -> Vec<(OriginalRoad, RestrictionType, OriginalRoad)> {
+    // Return a list of turn restrictions deleted along the way.
+    pub fn delete_road(&mut self, r: OriginalRoad) -> BTreeSet<TurnRestriction> {
         // First delete and warn about turn restrictions
-        if !self.roads[&r].turn_restrictions.is_empty() {
-            println!("Deleting {}, but note it has turn restrictions from it", r);
+        let restrictions = self.turn_restrictions_involving(r);
+        for tr in &restrictions {
+            println!(
+                "Deleting {}, but first deleting turn restriction {:?} {}->{}",
+                r, tr.1, tr.0, tr.2
+            );
+            self.delete_turn_restriction(*tr);
         }
-        // Brute force search the other direction
-        let mut deleted_restrictions = Vec::new();
-        for (src, road) in &self.roads {
-            for (rt, to) in &road.turn_restrictions {
-                if r == *to {
-                    println!(
-                        "Deleting turn restriction from other road {} to {}",
-                        src, to
-                    );
-                    deleted_restrictions.push((*src, *rt, *to));
-                }
-            }
-        }
-        for (src, _, _) in &deleted_restrictions {
-            self.roads
-                .get_mut(&src)
-                .unwrap()
-                .turn_restrictions
-                .retain(|(_, to)| *to != r);
-        }
-
         self.roads.remove(&r).unwrap();
-        deleted_restrictions
+        restrictions
     }
 
     pub fn can_delete_intersection(&self, i: OriginalIntersection) -> bool {
@@ -386,6 +366,18 @@ impl RawMap {
     }
 
     pub fn can_merge_short_road(&self, id: OriginalRoad) -> Result<(), Error> {
+        let mut orig_restrictions = BTreeSet::new();
+        for r in self
+            .roads_per_intersection(id.i1)
+            .into_iter()
+            .chain(self.roads_per_intersection(id.i2))
+        {
+            orig_restrictions.extend(self.turn_restrictions_involving(r));
+        }
+        if !orig_restrictions.is_empty() {
+            return Err(Error::new(format!("Some turn restriction near {}", id)));
+        }
+
         let i1 = &self.intersections[&id.i1];
         let i2 = &self.intersections[&id.i2];
         if i1.intersection_type == IntersectionType::Border
@@ -394,33 +386,11 @@ impl RawMap {
             return Err(Error::new(format!("{} touches a border", id)));
         }
 
-        for r in self
-            .roads_per_intersection(id.i1)
-            .into_iter()
-            .chain(self.roads_per_intersection(id.i2))
-        {
-            if !self.roads[&r].turn_restrictions.is_empty() {
-                return Err(Error::new(format!(
-                    "First deal with turn restriction from {}",
-                    r
-                )));
-            }
-            for (src, road) in &self.roads {
-                for (_, to) in &road.turn_restrictions {
-                    if r == *to {
-                        return Err(Error::new(format!(
-                            "First deal with turn restriction from {} to {}",
-                            src, r
-                        )));
-                    }
-                }
-            }
-        }
-
         Ok(())
     }
 
-    // (the surviving intersection, the deleted intersection, deleted roads, new roads)
+    // (the surviving intersection, the deleted intersection, deleted roads, new roads, deleted
+    // turn restrictions)
     pub fn merge_short_road(
         &mut self,
         short: OriginalRoad,
@@ -429,8 +399,23 @@ impl RawMap {
         OriginalIntersection,
         Vec<OriginalRoad>,
         Vec<OriginalRoad>,
+        BTreeSet<TurnRestriction>,
     )> {
         assert!(self.can_merge_short_road(short).is_ok());
+
+        let mut orig_restrictions = BTreeSet::new();
+        for r in self
+            .roads_per_intersection(short.i1)
+            .into_iter()
+            .chain(self.roads_per_intersection(short.i2))
+        {
+            orig_restrictions.extend(self.turn_restrictions_involving(r));
+        }
+        // Clear out these restrictions first
+        /*for tr in &orig_restrictions {
+            self.delete_turn_restriction(*tr);
+        }*/
+
         let (i1, i2) = (short.i1, short.i2);
         let i1_pt = self.intersections[&i1].point;
 
@@ -474,13 +459,36 @@ impl RawMap {
             created.push(new_id);
         }
 
-        Some((i1, i2, deleted, created))
+        Some((i1, i2, deleted, created, orig_restrictions))
     }
 
     pub fn can_add_turn_restriction(&self, from: OriginalRoad, to: OriginalRoad) -> bool {
         let (i1, i2) = (from.i1, from.i2);
         let (i3, i4) = (to.i1, to.i2);
         i1 == i3 || i1 == i4 || i2 == i3 || i2 == i4
+    }
+
+    fn turn_restrictions_involving(&self, r: OriginalRoad) -> BTreeSet<TurnRestriction> {
+        let mut results = BTreeSet::new();
+        for (tr, to) in &self.roads[&r].turn_restrictions {
+            results.insert(TurnRestriction(r, *tr, *to));
+        }
+        for (src, road) in &self.roads {
+            for (tr, to) in &road.turn_restrictions {
+                if r == *to {
+                    results.insert(TurnRestriction(*src, *tr, *to));
+                }
+            }
+        }
+        results
+    }
+
+    pub fn delete_turn_restriction(&mut self, tr: TurnRestriction) {
+        self.roads
+            .get_mut(&tr.0)
+            .unwrap()
+            .turn_restrictions
+            .retain(|(rt, to)| tr.1 != *rt || tr.2 != *to);
     }
 
     pub fn move_intersection(
@@ -551,11 +559,14 @@ pub struct RawArea {
     pub osm_id: i64,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum RestrictionType {
     BanTurns,
     OnlyAllowTurns,
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct TurnRestriction(pub OriginalRoad, pub RestrictionType, pub OriginalRoad);
 
 impl RestrictionType {
     pub fn new(restriction: &str) -> RestrictionType {

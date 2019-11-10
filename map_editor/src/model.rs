@@ -4,7 +4,7 @@ use ezgui::{Color, Line, Prerender, Text};
 use geom::{Bounds, Circle, Distance, FindClosest, PolyLine, Polygon, Pt2D};
 use map_model::raw::{
     OriginalBuilding, OriginalIntersection, OriginalRoad, RawBuilding, RawIntersection, RawMap,
-    RawRoad, RestrictionType,
+    RawRoad, RestrictionType, TurnRestriction,
 };
 use map_model::{osm, IntersectionType, LaneType, RoadSpec, LANE_THICKNESS};
 use std::collections::BTreeMap;
@@ -199,7 +199,7 @@ impl Model {
                 txt.add_highlighted(Line(format!("Point {}", idx)), Color::BLUE);
                 txt.add(Line(format!("of {}", r)));
             }
-            ID::TurnRestriction(from, restriction, to) => {
+            ID::TurnRestriction(TurnRestriction(from, restriction, to)) => {
                 txt.add_highlighted(Line(format!("{:?}", restriction)), Color::BLUE);
                 txt.add(Line(format!("from {}", from)));
                 txt.add(Line(format!("to {}", to)));
@@ -554,8 +554,11 @@ impl Model {
     pub fn delete_r(&mut self, id: OriginalRoad) {
         self.stop_showing_pts(id);
         self.road_deleted(id);
-        for (src, rt, to) in self.map.delete_road(id) {
-            self.world.delete(ID::TurnRestriction(src, rt, to));
+        for tr in self.map.delete_road(id) {
+            // We got these cases above in road_deleted
+            if tr.0 != id {
+                self.world.delete(ID::TurnRestriction(tr));
+            }
         }
     }
 
@@ -620,7 +623,7 @@ impl Model {
             };
 
             result.push(Object::new(
-                ID::TurnRestriction(id, *restriction, *to),
+                ID::TurnRestriction(TurnRestriction(id, *restriction, *to)),
                 Color::PURPLE,
                 polygon,
             ));
@@ -763,8 +766,11 @@ impl Model {
 
         self.stop_showing_pts(id);
 
-        let (retained_i, deleted_i, deleted_roads, created_roads) =
+        let (retained_i, deleted_i, deleted_roads, created_roads, deleted_trs) =
             self.map.merge_short_road(id).unwrap();
+        for tr in deleted_trs {
+            self.world.delete(ID::TurnRestriction(tr));
+        }
 
         self.world.delete(ID::Intersection(retained_i));
         self.intersection_added(retained_i, prerender);
@@ -808,23 +814,9 @@ impl Model {
         self.road_added(from, prerender);
     }
 
-    pub fn delete_tr(
-        &mut self,
-        from: OriginalRoad,
-        restriction: RestrictionType,
-        to: OriginalRoad,
-        prerender: &Prerender,
-    ) {
-        self.road_deleted(from);
-
-        self.map
-            .roads
-            .get_mut(&from)
-            .unwrap()
-            .turn_restrictions
-            .retain(|(this_r, this_to)| *this_r != restriction || *this_to != to);
-
-        self.road_added(from, prerender);
+    pub fn delete_tr(&mut self, tr: TurnRestriction) {
+        self.map.delete_turn_restriction(tr);
+        self.world.delete(ID::TurnRestriction(tr));
     }
 }
 
@@ -889,7 +881,7 @@ pub enum ID {
     Intersection(OriginalIntersection),
     Road(OriginalRoad),
     RoadPoint(OriginalRoad, usize),
-    TurnRestriction(OriginalRoad, RestrictionType, OriginalRoad),
+    TurnRestriction(TurnRestriction),
 }
 
 impl ObjectID for ID {
@@ -899,7 +891,7 @@ impl ObjectID for ID {
             ID::Intersection(_) => 1,
             ID::Building(_) => 2,
             ID::RoadPoint(_, _) => 3,
-            ID::TurnRestriction(_, _, _) => 4,
+            ID::TurnRestriction(_) => 4,
         }
     }
 }
