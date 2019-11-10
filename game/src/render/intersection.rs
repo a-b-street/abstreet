@@ -36,6 +36,8 @@ impl DrawIntersection {
         default_geom.push(
             if i.is_border() {
                 cs.get_def("border intersection", Color::rgb(50, 205, 50))
+            } else if i.is_closed() {
+                cs.get("construction background")
             } else {
                 cs.get_def("normal intersection", Color::grey(0.2))
             },
@@ -77,6 +79,9 @@ impl DrawIntersection {
                         }
                     }
                 }
+            }
+            IntersectionType::Construction => {
+                default_geom.push(cs.get("construction hatching"), i.polygon.clone());
             }
             IntersectionType::TrafficSignal => {}
         }

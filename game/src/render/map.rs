@@ -131,6 +131,8 @@ impl DrawMap {
         intersection_refs.sort_by_key(|i| i.get_zorder(map));
         let mut all_intersections = GeomBatch::new();
         for i in intersection_refs {
+            // TODO Would be neat to show closed intersections here, but then edits need to
+            // regenerate this
             if i.is_stop_sign() {
                 all_intersections.push(osm_rank_to_color(cs, i.get_rank(map)), i.polygon.clone());
                 if false {

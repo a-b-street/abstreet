@@ -53,7 +53,9 @@ impl DrawLane {
                 LaneType::Sidewalk => cs.get_def("sidewalk", Color::grey(0.8)),
                 LaneType::Biking => cs.get_def("bike lane", Color::rgb(15, 125, 75)),
                 LaneType::SharedLeftTurn => cs.get("driving lane"),
-                LaneType::Construction => cs.get_def("construction lane", Color::rgb(255, 109, 0)),
+                LaneType::Construction => {
+                    cs.get_def("construction background", Color::rgb(255, 109, 0))
+                }
             },
             polygon.clone(),
         );

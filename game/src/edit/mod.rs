@@ -222,6 +222,17 @@ impl State for EditMode {
                     apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
                 }
             }
+            if !ui.primary.map.get_i(id).is_closed()
+                && ctx
+                    .input
+                    .contextual_action(Key::C, "close for construction")
+            {
+                let mut new_edits = orig_edits.clone();
+                new_edits.stop_sign_overrides.remove(&id);
+                new_edits.traffic_signal_overrides.remove(&id);
+                new_edits.intersections_under_construction.insert(id);
+                apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
+            }
         }
 
         Transition::Keep

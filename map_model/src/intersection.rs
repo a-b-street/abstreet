@@ -21,6 +21,7 @@ pub enum IntersectionType {
     StopSign,
     TrafficSignal,
     Border,
+    Construction,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -45,6 +46,10 @@ pub struct Intersection {
 impl Intersection {
     pub fn is_border(&self) -> bool {
         self.intersection_type == IntersectionType::Border
+    }
+
+    pub fn is_closed(&self) -> bool {
+        self.intersection_type == IntersectionType::Construction
     }
 
     pub fn is_stop_sign(&self) -> bool {
