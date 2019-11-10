@@ -4,24 +4,21 @@ General disclaimer: This is a very rough demo. The user interface is clunky, and
 gameplay is not cohesively tied together yet. Please email
 <dabreegster@gmail.com> or file a Github issue if you hit problems.
 
-## Installing the game
+## Installing the game from pre-built binaries
 
-The easiest method is to use pre-built binaries. Check
-https://github.com/dabreegster/abstreet/releases for the latest version, though
-I'll try to keep these links up-to-date:
-
-- Linux:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.12/abstreet_linux.zip
 - Windows:
   https://github.com/dabreegster/abstreet/releases/download/v0.1.12/abstreet_windows.zip
 - Mac (seems to have a HiDPI bug, text is offset -- and is a bit stale, I don't
   have a Mac to build on):
   https://github.com/dabreegster/abstreet/releases/download/v0.1.10/abstreet_mac.zip
+- Linux:
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.12/abstreet_linux.zip
 
-## Running the game
+Unzip the folder, then run `play_abstreet.sh` or `play_abstreet.bat`. On
+Windows, you'll probably get a warning about running software from an unknown
+publisher.
 
-Start the game by running `play_abstreet.sh` or `play_abstreet.bat`. On Windows,
-you'll probably get a warning about running software from an unknown publisher.
+## Playing the game
 
 General controls:
 
@@ -37,8 +34,8 @@ Things to try:
 - To run a realistic, full day's worth of traffic, go to sandbox mode, then
   "start a scenario" (hotkey **s**) and choose the "weekday_typical_traffic"
   entry. Time (shown in the top-right corner) starts at midnight. Things tend to
-  get interesting around 6am. Try zooming in for details, and zooming out to see
-  an overview.
+  get interesting around 6am -- use the speed controls in the top-left. Try
+  zooming in for details, and zooming out to see an overview.
 - Go to edit mode (note this will reset the simulation). Pick a lane, right
   click, and change it to another type. You can also change which roads see a
   stop sign by right clicking the intersection, choosing to edit, hovering over
@@ -59,18 +56,9 @@ screen-capture plugin, you need `scrot`.
     `git clone https://github.com/dabreegster/abstreet.git`
 
 3.  Download all input data and build maps. Compilation times will be very slow
-    the first time.
-    `cd abstreet; ./import.sh && ./precompute.sh --release --disable_psrc_scenarios`.
-    Alternatively, you could seed the entire `data` directory from this
-    [9/21/2019 copy](https://drive.google.com/open?id=1tpHuojh1e14ZQLBhjLWf_rB6dLKy-hV7).
+    the first time. `cd abstreet; ./import.sh && ./precompute.sh --release`
 
-If you build from source, you won't have the convenient launcher scripts
-referenced below. Instead:
-
-```
-cd game
-cargo run --release
-```
+4.  Then run the game: `cd game; cargo run --release`
 
 ## Data source licensing
 
