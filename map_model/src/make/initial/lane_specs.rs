@@ -127,7 +127,10 @@ pub fn get_lane_types(osm_tags: &BTreeMap<String, String>) -> (Vec<LaneType>, Ve
         back_side.push(LaneType::Parking);
     }
 
-    if osm_tags.get(osm::SIDEWALK) == Some(&"both".to_string()) {
+    // TODO Need to snap separate sidewalks to ways. Until then, just do this.
+    if osm_tags.get(osm::SIDEWALK) == Some(&"both".to_string())
+        || osm_tags.get(osm::SIDEWALK) == Some(&"separate".to_string())
+    {
         fwd_side.push(LaneType::Sidewalk);
         back_side.push(LaneType::Sidewalk);
     } else if osm_tags.get(osm::SIDEWALK) == Some(&"right".to_string()) {
