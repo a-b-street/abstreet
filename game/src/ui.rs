@@ -9,7 +9,7 @@ use ezgui::{Canvas, Color, EventCtx, GfxCtx, Prerender, TextureType};
 use geom::{Bounds, Circle, Distance, Pt2D};
 use map_model::{Map, Traversable};
 use rand::seq::SliceRandom;
-use sim::{GetDrawAgents, Sim, SimFlags};
+use sim::{Analytics, GetDrawAgents, Sim, SimFlags};
 
 pub struct UI {
     pub primary: PerMapUI,
@@ -17,12 +17,13 @@ pub struct UI {
     pub secondary: Option<PerMapUI>,
     pub cs: ColorScheme,
     pub agent_cs: AgentColorScheme,
+    pub prebaked: Analytics,
 }
 
 impl UI {
     pub fn new(flags: Flags, ctx: &mut EventCtx, splash: bool) -> UI {
         let cs = ColorScheme::load().unwrap();
-        let primary = ctx.loading_screen("load map", |ctx, mut timer| {
+        let (primary, prebaked) = ctx.loading_screen("load map", |ctx, mut timer| {
             // Always load some small icons.
             let mut textures = vec![
                 ("assets/ui/hamburger.png", TextureType::Stretch),
@@ -64,7 +65,16 @@ impl UI {
 
             ctx.set_textures(skip_textures, textures, &mut timer);
 
-            PerMapUI::new(flags, &cs, ctx, &mut timer)
+            let primary = PerMapUI::new(flags, &cs, ctx, &mut timer);
+            let prebaked: Analytics = abstutil::read_binary(
+                &abstutil::path_prebaked_results(primary.map.get_name()),
+                &mut timer,
+            )
+            .unwrap_or_else(|_| {
+                println!("WARNING! No prebaked sim analytics. Only freeform mode will work.");
+                Analytics::new()
+            });
+            (primary, prebaked)
         });
 
         let mut rng = primary.current_flags.sim_flags.make_rng();
@@ -96,6 +106,7 @@ impl UI {
             secondary: None,
             cs,
             agent_cs: AgentColorScheme::VehicleTypes,
+            prebaked,
         }
     }
 

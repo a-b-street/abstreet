@@ -13,13 +13,12 @@ use crate::ui::UI;
 use abstutil::{prettyprint_usize, Timer};
 use ezgui::{Color, EventCtx, GfxCtx, Line, ModalMenu, TextSpan, Wizard};
 use geom::Duration;
-use sim::{Analytics, Scenario, TripMode};
+use sim::{Scenario, TripMode};
 
 pub struct GameplayRunner {
     pub mode: GameplayMode,
     pub menu: ModalMenu,
     state: Box<dyn GameplayState>,
-    prebaked: Analytics,
 }
 
 #[derive(Clone)]
@@ -41,7 +40,6 @@ pub trait GameplayState: downcast_rs::Downcast {
         ui: &mut UI,
         overlays: &mut Overlays,
         menu: &mut ModalMenu,
-        analytics: &Analytics,
     ) -> Option<Transition>;
     fn draw(&self, _: &mut GfxCtx, _: &UI) {}
 }
@@ -85,15 +83,6 @@ impl GameplayMode {
 
 impl GameplayRunner {
     pub fn initialize(mode: GameplayMode, ui: &mut UI, ctx: &mut EventCtx) -> GameplayRunner {
-        let prebaked: Analytics = abstutil::read_binary(
-            &abstutil::path_prebaked_results(ui.primary.map.get_name()),
-            &mut Timer::throwaway(),
-        )
-        .unwrap_or_else(|_| {
-            println!("WARNING! No prebaked sim analytics. Only freeform mode will work.");
-            Analytics::new()
-        });
-
         let (menu, state) = match mode.clone() {
             GameplayMode::Freeform => freeform::Freeform::new(ctx),
             GameplayMode::PlayScenario(scenario) => {
@@ -120,7 +109,6 @@ impl GameplayRunner {
             mode,
             menu: menu.disable_standalone_layout(),
             state,
-            prebaked,
         }
     }
 
@@ -130,8 +118,7 @@ impl GameplayRunner {
         ui: &mut UI,
         overlays: &mut Overlays,
     ) -> Option<Transition> {
-        self.state
-            .event(ctx, ui, overlays, &mut self.menu, &self.prebaked)
+        self.state.event(ctx, ui, overlays, &mut self.menu)
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {

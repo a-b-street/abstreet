@@ -8,7 +8,6 @@ use crate::ui::UI;
 use ezgui::{hotkey, Choice, EventCtx, Key, Line, ModalMenu, Text};
 use geom::{Duration, Statistic};
 use map_model::BusRouteID;
-use sim::Analytics;
 
 pub struct OptimizeBus {
     route: BusRouteID,
@@ -46,7 +45,6 @@ impl GameplayState for OptimizeBus {
         ui: &mut UI,
         overlays: &mut Overlays,
         menu: &mut ModalMenu,
-        prebaked: &Analytics,
     ) -> Option<Transition> {
         menu.event(ctx);
         if manage_overlays(
@@ -85,7 +83,7 @@ impl GameplayState for OptimizeBus {
         // TODO Expensive
         if self.time != ui.primary.sim.time() {
             self.time = ui.primary.sim.time();
-            menu.set_info(ctx, bus_route_panel(self.route, ui, self.stat, prebaked));
+            menu.set_info(ctx, bus_route_panel(self.route, ui, self.stat));
         }
 
         if menu.action("change statistic") {
@@ -130,13 +128,13 @@ impl GameplayState for OptimizeBus {
     }
 }
 
-fn bus_route_panel(id: BusRouteID, ui: &UI, stat: Statistic, prebaked: &Analytics) -> Text {
+fn bus_route_panel(id: BusRouteID, ui: &UI, stat: Statistic) -> Text {
     let now = ui
         .primary
         .sim
         .get_analytics()
         .bus_arrivals(ui.primary.sim.time(), id);
-    let baseline = prebaked.bus_arrivals(ui.primary.sim.time(), id);
+    let baseline = ui.prebaked.bus_arrivals(ui.primary.sim.time(), id);
 
     let route = ui.primary.map.get_br(id);
     let mut txt = Text::new();

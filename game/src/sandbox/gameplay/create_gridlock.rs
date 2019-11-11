@@ -6,7 +6,7 @@ use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{hotkey, EventCtx, Key, Line, ModalMenu, Text};
 use geom::Duration;
-use sim::{Analytics, TripMode};
+use sim::TripMode;
 
 pub struct CreateGridlock {
     time: Duration,
@@ -37,7 +37,6 @@ impl GameplayState for CreateGridlock {
         ui: &mut UI,
         _: &mut Overlays,
         menu: &mut ModalMenu,
-        prebaked: &Analytics,
     ) -> Option<Transition> {
         menu.event(ctx);
         manage_acs(
@@ -51,7 +50,7 @@ impl GameplayState for CreateGridlock {
 
         if self.time != ui.primary.sim.time() {
             self.time = ui.primary.sim.time();
-            menu.set_info(ctx, gridlock_panel(ui, prebaked));
+            menu.set_info(ctx, gridlock_panel(ui));
         }
 
         if menu.action("help") {
@@ -65,13 +64,13 @@ impl GameplayState for CreateGridlock {
     }
 }
 
-fn gridlock_panel(ui: &UI, prebaked: &Analytics) -> Text {
+fn gridlock_panel(ui: &UI) -> Text {
     let (now_all, now_per_mode) = ui
         .primary
         .sim
         .get_analytics()
         .all_finished_trips(ui.primary.sim.time());
-    let (baseline_all, baseline_per_mode) = prebaked.all_finished_trips(ui.primary.sim.time());
+    let (baseline_all, baseline_per_mode) = ui.prebaked.all_finished_trips(ui.primary.sim.time());
 
     let mut txt = Text::new();
     txt.add_appended(vec![

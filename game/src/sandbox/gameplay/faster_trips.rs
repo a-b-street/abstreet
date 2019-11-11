@@ -5,7 +5,7 @@ use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{hotkey, EventCtx, Key, Line, ModalMenu, Text};
 use geom::{Duration, Statistic};
-use sim::{Analytics, TripMode};
+use sim::TripMode;
 
 pub struct FasterTrips {
     mode: TripMode,
@@ -35,13 +35,12 @@ impl GameplayState for FasterTrips {
         ui: &mut UI,
         _: &mut Overlays,
         menu: &mut ModalMenu,
-        prebaked: &Analytics,
     ) -> Option<Transition> {
         menu.event(ctx);
 
         if self.time != ui.primary.sim.time() {
             self.time = ui.primary.sim.time();
-            menu.set_info(ctx, faster_trips_panel(self.mode, ui, prebaked));
+            menu.set_info(ctx, faster_trips_panel(self.mode, ui));
         }
 
         if menu.action("help") {
@@ -54,13 +53,13 @@ impl GameplayState for FasterTrips {
     }
 }
 
-fn faster_trips_panel(mode: TripMode, ui: &UI, prebaked: &Analytics) -> Text {
+fn faster_trips_panel(mode: TripMode, ui: &UI) -> Text {
     let now = ui
         .primary
         .sim
         .get_analytics()
         .finished_trips(ui.primary.sim.time(), mode);
-    let baseline = prebaked.finished_trips(ui.primary.sim.time(), mode);
+    let baseline = ui.prebaked.finished_trips(ui.primary.sim.time(), mode);
 
     let mut txt = Text::new();
     txt.add_appended(vec![

@@ -5,7 +5,6 @@ use crate::sandbox::overlays::Overlays;
 use crate::ui::UI;
 use ezgui::{hotkey, lctrl, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
 use map_model::IntersectionID;
-use sim::Analytics;
 use std::collections::BTreeSet;
 
 // TODO Maybe remember what things were spawned, offer to replay this later
@@ -40,7 +39,6 @@ impl GameplayState for Freeform {
         ui: &mut UI,
         _: &mut Overlays,
         menu: &mut ModalMenu,
-        _: &Analytics,
     ) -> Option<Transition> {
         menu.event(ctx);
         if menu.action("start a scenario") {
