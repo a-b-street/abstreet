@@ -1,9 +1,10 @@
+mod impact;
 mod stop_signs;
 mod traffic_signals;
 
 use crate::common::CommonState;
 use crate::debug::DebugMode;
-use crate::game::{State, Transition, WizardState};
+use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{
     DrawIntersection, DrawLane, DrawMap, DrawOptions, DrawRoad, DrawTurn, Renderable,
@@ -38,6 +39,7 @@ impl EditMode {
                     (hotkey(Key::Escape), "back to sandbox mode"),
                     (hotkey(Key::S), "save edits"),
                     (hotkey(Key::L), "load different edits"),
+                    (None, "measure impact of edits"),
                 ],
                 ctx,
             ),
@@ -114,6 +116,15 @@ impl State for EditMode {
             // Parking state might've changed
             ui.primary.clear_sim();
             return Transition::Replace(Box::new(SandboxMode::new(ctx, ui, self.mode.clone())));
+        } else if self.menu.action("measure impact of edits") {
+            let mut timer = Timer::new("measure impact of edits");
+            ui.primary
+                .map
+                .recalculate_pathfinding_after_edits(&mut timer);
+            return Transition::Push(msg(
+                "Impact of edits",
+                impact::edit_impacts(self.mode.scenario(ui, &mut timer), ui, &mut timer),
+            ));
         }
 
         if let Some(ID::Lane(id)) = ui.primary.current_selection {

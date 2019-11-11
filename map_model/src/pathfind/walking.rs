@@ -152,12 +152,15 @@ impl SidewalkPathfinder {
                 }
                 steps.push(PathStep::Turn(t));
                 current_i = Some(lane1.dst_i);
-            } else {
+            } else if let Some(t) = back_t {
                 if current_i != Some(lane1.src_i) {
                     steps.push(PathStep::ContraflowLane(lane1.id));
                 }
-                steps.push(PathStep::Turn(back_t.unwrap()));
+                steps.push(PathStep::Turn(t));
                 current_i = Some(lane1.src_i);
+            } else {
+                println!("WARNING! No turn between sidewalks {} and {}", lane1.id, l2);
+                return None;
             }
         }
 

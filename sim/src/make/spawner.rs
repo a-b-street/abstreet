@@ -172,11 +172,6 @@ impl TripSpawner {
         timer.start_iter("spawn trips", paths.len());
         for ((start_time, ped_id, car_id, spec), req, maybe_path) in paths {
             timer.next();
-            if maybe_path.is_none() {
-                timer.warn(format!("Some trip couldn't find the first path {}", req));
-                continue;
-            }
-            let path = maybe_path.unwrap();
             match spec {
                 TripSpec::CarAppearing {
                     start_pos,
@@ -203,14 +198,22 @@ impl TripSpawner {
                     }
                     let trip_start = TripStart::Border(map.get_l(start_pos.lane()).src_i);
                     let trip = trips.new_trip(start_time, trip_start, legs);
-                    let router = goal.make_router(path, map, vehicle.vehicle_type);
-                    scheduler.quick_push(
-                        start_time,
-                        Command::SpawnCar(
-                            CreateCar::for_appearing(vehicle, start_pos, router, trip),
-                            retry_if_no_room,
-                        ),
-                    );
+                    if let Some(path) = maybe_path {
+                        let router = goal.make_router(path, map, vehicle.vehicle_type);
+                        scheduler.quick_push(
+                            start_time,
+                            Command::SpawnCar(
+                                CreateCar::for_appearing(vehicle, start_pos, router, trip),
+                                retry_if_no_room,
+                            ),
+                        );
+                    } else {
+                        timer.warn(format!(
+                            "CarAppearing trip couldn't find the first path {}",
+                            req
+                        ));
+                        trips.abort_trip_failed_start(trip);
+                    }
                 }
                 TripSpec::UsingParkedCar {
                     start,
@@ -243,17 +246,25 @@ impl TripSpawner {
                     let trip =
                         trips.new_trip(start_time, TripStart::Bldg(vehicle.owner.unwrap()), legs);
 
-                    scheduler.quick_push(
-                        start_time,
-                        Command::SpawnPed(CreatePedestrian {
-                            id: ped_id.unwrap(),
-                            speed: ped_speed,
-                            start,
-                            goal: parking_spot,
-                            path,
-                            trip,
-                        }),
-                    );
+                    if let Some(path) = maybe_path {
+                        scheduler.quick_push(
+                            start_time,
+                            Command::SpawnPed(CreatePedestrian {
+                                id: ped_id.unwrap(),
+                                speed: ped_speed,
+                                start,
+                                goal: parking_spot,
+                                path,
+                                trip,
+                            }),
+                        );
+                    } else {
+                        timer.warn(format!(
+                            "UsingParkedCar trip couldn't find the first path {}",
+                            req
+                        ));
+                        trips.abort_trip_failed_start(trip);
+                    }
                 }
                 TripSpec::MaybeUsingParkedCar {
                     start_bldg,
@@ -273,8 +284,8 @@ impl TripSpawner {
                             speed: ped_speed,
                             start: SidewalkSpot::building(start_bldg, map),
                             goal: walk_to,
-                            // This is junk
-                            path,
+                            // This is guaranteed to work, and is junk anyway.
+                            path: maybe_path.unwrap(),
                             trip,
                         }),
                     );
@@ -297,17 +308,25 @@ impl TripSpawner {
                         vec![TripLeg::Walk(ped_id.unwrap(), ped_speed, goal.clone())],
                     );
 
-                    scheduler.quick_push(
-                        start_time,
-                        Command::SpawnPed(CreatePedestrian {
-                            id: ped_id.unwrap(),
-                            speed: ped_speed,
-                            start,
-                            goal,
-                            path,
-                            trip,
-                        }),
-                    );
+                    if let Some(path) = maybe_path {
+                        scheduler.quick_push(
+                            start_time,
+                            Command::SpawnPed(CreatePedestrian {
+                                id: ped_id.unwrap(),
+                                speed: ped_speed,
+                                start,
+                                goal,
+                                path,
+                                trip,
+                            }),
+                        );
+                    } else {
+                        timer.warn(format!(
+                            "JustWalking trip couldn't find the first path {}",
+                            req
+                        ));
+                        trips.abort_trip_failed_start(trip);
+                    }
                 }
                 TripSpec::UsingBike {
                     start,
@@ -344,17 +363,25 @@ impl TripSpawner {
                         legs,
                     );
 
-                    scheduler.quick_push(
-                        start_time,
-                        Command::SpawnPed(CreatePedestrian {
-                            id: ped_id.unwrap(),
-                            speed: ped_speed,
-                            start,
-                            goal: walk_to,
-                            path,
-                            trip,
-                        }),
-                    );
+                    if let Some(path) = maybe_path {
+                        scheduler.quick_push(
+                            start_time,
+                            Command::SpawnPed(CreatePedestrian {
+                                id: ped_id.unwrap(),
+                                speed: ped_speed,
+                                start,
+                                goal: walk_to,
+                                path,
+                                trip,
+                            }),
+                        );
+                    } else {
+                        timer.warn(format!(
+                            "UsingBike trip couldn't find the first path {}",
+                            req
+                        ));
+                        trips.abort_trip_failed_start(trip);
+                    }
                 }
                 TripSpec::UsingTransit {
                     start,
@@ -382,17 +409,25 @@ impl TripSpawner {
                         ],
                     );
 
-                    scheduler.quick_push(
-                        start_time,
-                        Command::SpawnPed(CreatePedestrian {
-                            id: ped_id.unwrap(),
-                            speed: ped_speed,
-                            start,
-                            goal: walk_to,
-                            path,
-                            trip,
-                        }),
-                    );
+                    if let Some(path) = maybe_path {
+                        scheduler.quick_push(
+                            start_time,
+                            Command::SpawnPed(CreatePedestrian {
+                                id: ped_id.unwrap(),
+                                speed: ped_speed,
+                                start,
+                                goal: walk_to,
+                                path,
+                                trip,
+                            }),
+                        );
+                    } else {
+                        timer.warn(format!(
+                            "UsingTransit trip couldn't find the first path {}",
+                            req
+                        ));
+                        trips.abort_trip_failed_start(trip);
+                    }
                 }
             }
         }

@@ -47,6 +47,42 @@ pub trait GameplayState: downcast_rs::Downcast {
 }
 downcast_rs::impl_downcast!(GameplayState);
 
+impl GameplayMode {
+    pub fn scenario(&self, ui: &UI, timer: &mut Timer) -> Option<Scenario> {
+        let name = match self {
+            GameplayMode::Freeform => {
+                return None;
+            }
+            GameplayMode::PlayScenario(ref scenario) => scenario,
+            _ => "weekday_typical_traffic_from_psrc",
+        };
+        let num_agents = ui.primary.current_flags.num_agents;
+        let builtin = if let Some(n) = num_agents {
+            format!("random scenario with {} agents", n)
+        } else {
+            "random scenario with some agents".to_string()
+        };
+        Some(if name == builtin {
+            if let Some(n) = num_agents {
+                Scenario::scaled_run(&ui.primary.map, n)
+            } else {
+                Scenario::small_run(&ui.primary.map)
+            }
+        } else if name == "just buses" {
+            let mut s = Scenario::empty(&ui.primary.map);
+            s.scenario_name = "just buses".to_string();
+            s.seed_buses = true;
+            s
+        } else {
+            abstutil::read_binary(
+                &abstutil::path1_bin(&ui.primary.map.get_name(), abstutil::SCENARIOS, &name),
+                timer,
+            )
+            .unwrap()
+        })
+    }
+}
+
 impl GameplayRunner {
     pub fn initialize(mode: GameplayMode, ui: &mut UI, ctx: &mut EventCtx) -> GameplayRunner {
         let prebaked: Analytics = abstutil::read_binary(
@@ -58,61 +94,19 @@ impl GameplayRunner {
             Analytics::new()
         });
 
-        let ((menu, state), maybe_scenario) = match mode.clone() {
-            GameplayMode::Freeform => (freeform::Freeform::new(ctx), None),
-            GameplayMode::PlayScenario(scenario) => (
-                play_scenario::PlayScenario::new(&scenario, ctx),
-                Some(scenario),
-            ),
-            GameplayMode::OptimizeBus(route_name) => (
-                optimize_bus::OptimizeBus::new(route_name, ctx, ui),
-                Some("weekday_typical_traffic_from_psrc".to_string()),
-            ),
-            GameplayMode::CreateGridlock => (
-                create_gridlock::CreateGridlock::new(ctx),
-                Some("weekday_typical_traffic_from_psrc".to_string()),
-            ),
-            GameplayMode::FasterTrips(trip_mode) => (
-                faster_trips::FasterTrips::new(trip_mode, ctx),
-                Some("weekday_typical_traffic_from_psrc".to_string()),
-            ),
+        let (menu, state) = match mode.clone() {
+            GameplayMode::Freeform => freeform::Freeform::new(ctx),
+            GameplayMode::PlayScenario(scenario) => {
+                play_scenario::PlayScenario::new(&scenario, ctx)
+            }
+            GameplayMode::OptimizeBus(route_name) => {
+                optimize_bus::OptimizeBus::new(route_name, ctx, ui)
+            }
+            GameplayMode::CreateGridlock => create_gridlock::CreateGridlock::new(ctx),
+            GameplayMode::FasterTrips(trip_mode) => faster_trips::FasterTrips::new(trip_mode, ctx),
         };
-        let runner = GameplayRunner {
-            mode,
-            menu: menu.disable_standalone_layout(),
-            state,
-            prebaked,
-        };
-        if let Some(scenario_name) = maybe_scenario {
-            ctx.loading_screen("instantiate scenario", |_, timer| {
-                let num_agents = ui.primary.current_flags.num_agents;
-                let builtin = if let Some(n) = num_agents {
-                    format!("random scenario with {} agents", n)
-                } else {
-                    "random scenario with some agents".to_string()
-                };
-                let scenario = if scenario_name == builtin {
-                    if let Some(n) = num_agents {
-                        Scenario::scaled_run(&ui.primary.map, n)
-                    } else {
-                        Scenario::small_run(&ui.primary.map)
-                    }
-                } else if scenario_name == "just buses" {
-                    let mut s = Scenario::empty(&ui.primary.map);
-                    s.scenario_name = "just buses".to_string();
-                    s.seed_buses = true;
-                    s
-                } else {
-                    abstutil::read_binary(
-                        &abstutil::path1_bin(
-                            &ui.primary.map.get_name(),
-                            abstutil::SCENARIOS,
-                            &scenario_name,
-                        ),
-                        timer,
-                    )
-                    .unwrap()
-                };
+        ctx.loading_screen("instantiate scenario", |_, timer| {
+            if let Some(scenario) = mode.scenario(ui, timer) {
                 scenario.instantiate(
                     &mut ui.primary.sim,
                     &ui.primary.map,
@@ -120,9 +114,14 @@ impl GameplayRunner {
                     timer,
                 );
                 ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
-            });
+            }
+        });
+        GameplayRunner {
+            mode,
+            menu: menu.disable_standalone_layout(),
+            state,
+            prebaked,
         }
-        runner
     }
 
     pub fn event(
