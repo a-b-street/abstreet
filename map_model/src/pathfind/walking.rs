@@ -14,6 +14,7 @@ pub struct SidewalkPathfinder {
     graph: FastGraph,
     #[serde(deserialize_with = "deserialize_nodemap")]
     nodes: NodeMap<Node>,
+    use_transit: bool,
 
     #[serde(skip_serializing, skip_deserializing)]
     path_calc: ThreadLocal<RefCell<PathCalculator>>,
@@ -28,62 +29,35 @@ enum Node {
 
 impl SidewalkPathfinder {
     pub fn new(map: &Map, use_transit: bool) -> SidewalkPathfinder {
-        let mut input_graph = InputGraph::new();
         let mut nodes = NodeMap::new();
-
-        for t in map.all_turns().values() {
-            if !t.between_sidewalks() || !map.is_turn_allowed(t.id) {
-                continue;
+        // We're assuming that to start with, no sidewalks are closed for construction!
+        for l in map.all_lanes() {
+            if l.is_sidewalk() {
+                nodes.get_or_insert(lane_to_node(l.id, map));
             }
-            // Duplicate edges in InputGraph will be removed.
-            let length = map.get_l(t.id.src).length() + t.geom.length();
-            let length_cm = (length.inner_meters() * 100.0).round() as usize;
-
-            input_graph.add_edge(
-                nodes.get_or_insert(lane_to_node(t.id.src, map)),
-                nodes.get_or_insert(lane_to_node(t.id.dst, map)),
-                length_cm,
-            );
         }
-
         if use_transit {
-            // Add a node for each bus stop, and a "free" cost of 1 (fast_paths ignores 0-weight
-            // edges) for moving between the stop and sidewalk.
+            // Add a node for each bus stop.
             for stop in map.all_bus_stops().values() {
-                let cross_lane = nodes.get(lane_to_node(stop.sidewalk_pos.lane(), map));
-                let ride_bus = nodes.get_or_insert(Node::RideBus(stop.id));
-                input_graph.add_edge(cross_lane, ride_bus, 1);
-                input_graph.add_edge(ride_bus, cross_lane, 1);
-            }
-
-            // Connect each adjacent stop along a route, again with a "free" cost.
-            for route in map.get_all_bus_routes() {
-                for (stop1, stop2) in
-                    route
-                        .stops
-                        .iter()
-                        .zip(route.stops.iter().skip(1))
-                        .chain(std::iter::once((
-                            route.stops.last().unwrap(),
-                            &route.stops[0],
-                        )))
-                {
-                    input_graph.add_edge(
-                        nodes.get(Node::RideBus(*stop1)),
-                        nodes.get(Node::RideBus(*stop2)),
-                        1,
-                    );
-                }
+                nodes.get_or_insert(Node::RideBus(stop.id));
             }
         }
-        input_graph.freeze();
-        let graph = fast_paths::prepare(&input_graph);
 
+        let graph = fast_paths::prepare(&make_input_graph(map, &nodes, use_transit));
         SidewalkPathfinder {
             graph,
             nodes,
+            use_transit,
             path_calc: ThreadLocal::new(),
         }
+    }
+
+    pub fn apply_edits(&mut self, map: &Map) {
+        // The NodeMap is all sidewalks and bus stops -- it won't change. So we can also reuse the
+        // node ordering.
+        let input_graph = make_input_graph(map, &self.nodes, self.use_transit);
+        let node_ordering = self.graph.get_node_ordering();
+        self.graph = fast_paths::prepare_with_order(&input_graph, &node_ordering).unwrap();
     }
 
     pub fn pathfind(&self, req: &PathRequest, map: &Map) -> Option<Path> {
@@ -152,15 +126,12 @@ impl SidewalkPathfinder {
                 }
                 steps.push(PathStep::Turn(t));
                 current_i = Some(lane1.dst_i);
-            } else if let Some(t) = back_t {
+            } else {
                 if current_i != Some(lane1.src_i) {
                     steps.push(PathStep::ContraflowLane(lane1.id));
                 }
-                steps.push(PathStep::Turn(t));
+                steps.push(PathStep::Turn(back_t.unwrap()));
                 current_i = Some(lane1.src_i);
-            } else {
-                println!("WARNING! No turn between sidewalks {} and {}", lane1.id, l2);
-                return None;
             }
         }
 
@@ -241,4 +212,55 @@ fn get_sidewalk(dr: DirectedRoadID, map: &Map) -> LaneID {
         }
     }
     panic!("{} has no sidewalk", dr);
+}
+
+fn make_input_graph(map: &Map, nodes: &NodeMap<Node>, use_transit: bool) -> InputGraph {
+    let mut input_graph = InputGraph::new();
+    for t in map.all_turns().values() {
+        if !t.between_sidewalks() || !map.is_turn_allowed(t.id) {
+            continue;
+        }
+        // Duplicate edges in InputGraph will be removed.
+        let length = map.get_l(t.id.src).length() + t.geom.length();
+        let length_cm = (length.inner_meters() * 100.0).round() as usize;
+
+        input_graph.add_edge(
+            nodes.get(lane_to_node(t.id.src, map)),
+            nodes.get(lane_to_node(t.id.dst, map)),
+            length_cm,
+        );
+    }
+
+    if use_transit {
+        // Addd a "free" cost of 1 (fast_paths ignores 0-weight edges) for moving between the stop
+        // and sidewalk.
+        for stop in map.all_bus_stops().values() {
+            let cross_lane = nodes.get(lane_to_node(stop.sidewalk_pos.lane(), map));
+            let ride_bus = nodes.get(Node::RideBus(stop.id));
+            input_graph.add_edge(cross_lane, ride_bus, 1);
+            input_graph.add_edge(ride_bus, cross_lane, 1);
+        }
+
+        // Connect each adjacent stop along a route, again with a "free" cost.
+        for route in map.get_all_bus_routes() {
+            for (stop1, stop2) in
+                route
+                    .stops
+                    .iter()
+                    .zip(route.stops.iter().skip(1))
+                    .chain(std::iter::once((
+                        route.stops.last().unwrap(),
+                        &route.stops[0],
+                    )))
+            {
+                input_graph.add_edge(
+                    nodes.get(Node::RideBus(*stop1)),
+                    nodes.get(Node::RideBus(*stop2)),
+                    1,
+                );
+            }
+        }
+    }
+    input_graph.freeze();
+    input_graph
 }

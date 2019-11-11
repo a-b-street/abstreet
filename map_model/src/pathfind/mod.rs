@@ -431,7 +431,15 @@ impl Pathfinder {
         self.bus_graph.apply_edits(map);
         timer.stop("apply edits to bus pathfinding");
 
-        // TODO Can edits ever affect walking or walking+transit? If a crosswalk is entirely
-        // banned, then yes... but actually that sounds like a bad edit to allow.
+        timer.start("apply edits to pedestrian pathfinding");
+        self.walking_graph.apply_edits(map);
+        timer.stop("apply edits to pedestrian pathfinding");
+
+        timer.start("apply edits to pedestrian using transit pathfinding");
+        self.walking_with_transit_graph
+            .as_mut()
+            .unwrap()
+            .apply_edits(map);
+        timer.stop("apply edits to pedestrian using transit pathfinding");
     }
 }
