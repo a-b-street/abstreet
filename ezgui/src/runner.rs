@@ -130,6 +130,7 @@ impl<G: GUI> State<G> {
             let transform = ortho(
                 (top_left.x() as f32, bottom_right.x() as f32),
                 (top_left.y() as f32, bottom_right.y() as f32),
+                text::SCALE_DOWN,
             );
             self.canvas
                 .mapspace_glyphs
@@ -138,10 +139,17 @@ impl<G: GUI> State<G> {
         }
         // The depth buffer doesn't seem to work between mapspace_glyphs and screenspace_glyphs. :\
         // So draw screenspace_glyphs last.
-        self.canvas
-            .screenspace_glyphs
-            .borrow_mut()
-            .draw_queued(display, &mut target);
+        {
+            let transform = ortho(
+                (0.0, self.canvas.window_width as f32),
+                (0.0, self.canvas.window_height as f32),
+                1.0,
+            );
+            self.canvas
+                .screenspace_glyphs
+                .borrow_mut()
+                .draw_queued_with_transform(transform, display, &mut target);
+        }
 
         target.finish().unwrap();
         naming_hint
@@ -179,9 +187,9 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: 
     let events_loop = glutin::EventsLoop::new();
     let window = glutin::WindowBuilder::new()
         .with_title(settings.window_title)
-        .with_dimensions(glutin::dpi::LogicalSize::from_physical(
-            glutin::dpi::PhysicalSize::new(settings.initial_dims.0, settings.initial_dims.1),
-            events_loop.get_primary_monitor().get_hidpi_factor(),
+        .with_dimensions(glutin::dpi::LogicalSize::new(
+            settings.initial_dims.0,
+            settings.initial_dims.1,
         ));
     // multisampling: 2 looks bad, 4 looks fine
     //
@@ -401,9 +409,9 @@ fn loop_forever<G: GUI>(
     }
 }
 
-fn ortho((left, right): (f32, f32), (bottom, top): (f32, f32)) -> [[f32; 4]; 4] {
-    let s_x = 2.0 / (right - left) / (text::SCALE_DOWN as f32);
-    let s_y = 2.0 / (top - bottom) / (text::SCALE_DOWN as f32);
+fn ortho((left, right): (f32, f32), (bottom, top): (f32, f32), scale: f64) -> [[f32; 4]; 4] {
+    let s_x = 2.0 / (right - left) / (scale as f32);
+    let s_y = 2.0 / (top - bottom) / (scale as f32);
     let t_x = -(right + left) / (right - left);
     let t_y = -(top + bottom) / (top - bottom);
     [
