@@ -150,3 +150,12 @@ changes here.
 - improved bus route explorer
 - some UI fixes (popup messages in a few places, moving mouse tooltips to the OSD)
 - lots of analytics and time-series plots
+
+0.1.13
+
+- analytics: prebake baseline results properly. hover over plot series. some new modes to see bus network, throughput of a road/intersection over time
+- log scale for the speed slider
+- add a bulk spawner in freeform mode (F2 on a lane)
+- rendering: nicer routes, crosswalks, zoomed car colors
+- map data: better stop sign and sidewalk heuristics
+- fixed the mac hidpi text rendering issue once and for all?!
