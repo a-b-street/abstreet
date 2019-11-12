@@ -25,6 +25,9 @@
 	- slowly hone away at problems currently with errors printed (like bad pl shift angles)
 	- eventually: every intersection has at least a turn, minimum lengths enforced, etc
 
+- useful unit tests
+	- for a given intersection with lanes, check all the turns generated
+
 ## Code to release
 
 - (from before august 2019) tmp_gfx as a 2D-with-camera glium sample

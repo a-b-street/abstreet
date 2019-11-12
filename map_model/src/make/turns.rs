@@ -301,20 +301,15 @@ fn make_walking_turns(
         .into_iter()
         .map(|id| &all_roads[id.0])
         .collect();
-
     let mut result: Vec<Turn> = Vec::new();
-    for idx1 in 0..roads.len() {
-        if let Some(l1) = get_sidewalk(lanes, roads[idx1].incoming_lanes(i.id)) {
-            // Make the crosswalk to the other side
-            if let Some(l2) = get_sidewalk(lanes, roads[idx1].outgoing_lanes(i.id)) {
-                if roads.len() > 2 {
-                    result.extend(make_crosswalks(i.id, l1, l2));
-                }
-            }
 
-            // Find the shared corner
-            if roads.len() > 1 {
-                // TODO -1 and not +1 is brittle... must be the angle sorting
+    if roads.len() == 2 {
+        if let Some(turns) = make_degenerate_crosswalks(i.id, lanes, roads[0], roads[1]) {
+            result.extend(turns);
+        }
+        // TODO Argh, duplicate logic for SharedSidewalkCorners
+        for idx1 in 0..roads.len() {
+            if let Some(l1) = get_sidewalk(lanes, roads[idx1].incoming_lanes(i.id)) {
                 if let Some(l2) = get_sidewalk(
                     lanes,
                     abstutil::wraparound_get(&roads, (idx1 as isize) - 1).outgoing_lanes(i.id),
@@ -336,35 +331,10 @@ fn make_walking_turns(
                             lookup_idx: 0,
                         });
                     }
-                } else if roads.len() > 2 {
-                    // See if we need to add a crosswalk over this adjacent road.
-                    // TODO This is brittle; I could imagine having to cross two adjacent highway
-                    // ramps to get to the next sidewalk.
-                    if let Some(l2) = get_sidewalk(
-                        lanes,
-                        abstutil::wraparound_get(&roads, (idx1 as isize) - 2).outgoing_lanes(i.id),
-                    ) {
-                        result.extend(make_crosswalks(i.id, l1, l2));
-                    }
-                    // TODO Yup, the hack has come to pass.
-                    if roads.len() > 3 {
-                        if let Some(l2) = get_sidewalk(
-                            lanes,
-                            abstutil::wraparound_get(&roads, (idx1 as isize) - 3)
-                                .outgoing_lanes(i.id),
-                        ) {
-                            result.extend(make_crosswalks(i.id, l1, l2));
-                        }
-                    }
                 }
             }
         }
-    }
-
-    if roads.len() == 2 {
-        if let Some(turns) = make_degenerate_crosswalks(i.id, lanes, roads[0], roads[1]) {
-            result.extend(turns);
-        }
+        return result;
     }
     if roads.len() == 1 {
         if let Some(l1) = get_sidewalk(lanes, roads[0].incoming_lanes(i.id)) {
@@ -386,19 +356,90 @@ fn make_walking_turns(
                 });
             }
         }
+        return result;
+    }
+
+    for idx1 in 0..roads.len() {
+        if let Some(l1) = get_sidewalk(lanes, roads[idx1].incoming_lanes(i.id)) {
+            // Make the crosswalk to the other side
+            if let Some(l2) = get_sidewalk(lanes, roads[idx1].outgoing_lanes(i.id)) {
+                result.extend(make_crosswalks(i.id, l1, l2));
+            }
+
+            // Find the shared corner
+            // TODO -1 and not +1 is brittle... must be the angle sorting
+            if let Some(l2) = get_sidewalk(
+                lanes,
+                abstutil::wraparound_get(&roads, (idx1 as isize) - 1).outgoing_lanes(i.id),
+            ) {
+                if l1.last_pt() != l2.first_pt() {
+                    let geom = make_shared_sidewalk_corner(i, l1, l2, timer);
+                    result.push(Turn {
+                        id: turn_id(i.id, l1.id, l2.id),
+                        turn_type: TurnType::SharedSidewalkCorner,
+                        other_crosswalk_ids: BTreeSet::new(),
+                        geom: geom.clone(),
+                        lookup_idx: 0,
+                    });
+                    result.push(Turn {
+                        id: turn_id(i.id, l2.id, l1.id),
+                        turn_type: TurnType::SharedSidewalkCorner,
+                        other_crosswalk_ids: BTreeSet::new(),
+                        geom: geom.reversed(),
+                        lookup_idx: 0,
+                    });
+                }
+            } else if let Some(l2) = get_sidewalk(
+                lanes,
+                abstutil::wraparound_get(&roads, (idx1 as isize) - 1).incoming_lanes(i.id),
+            ) {
+                // Adjacent road is missing a sidewalk on the near side, but has one on the far
+                // side
+                result.extend(make_crosswalks(i.id, l1, l2));
+            } else {
+                // We may need to add a crosswalk over this intermediate road that has no
+                // sidewalks at all. There might be a few in the way -- think highway onramps.
+                // TODO Refactor and loop until we find something to connect it to?
+                if let Some(l2) = get_sidewalk(
+                    lanes,
+                    abstutil::wraparound_get(&roads, (idx1 as isize) - 2).outgoing_lanes(i.id),
+                ) {
+                    result.extend(make_crosswalks(i.id, l1, l2));
+                } else if let Some(l2) = get_sidewalk(
+                    lanes,
+                    abstutil::wraparound_get(&roads, (idx1 as isize) - 2).incoming_lanes(i.id),
+                ) {
+                    result.extend(make_crosswalks(i.id, l1, l2));
+                } else if roads.len() > 3 {
+                    if let Some(l2) = get_sidewalk(
+                        lanes,
+                        abstutil::wraparound_get(&roads, (idx1 as isize) - 3).outgoing_lanes(i.id),
+                    ) {
+                        result.extend(make_crosswalks(i.id, l1, l2));
+                    }
+                }
+            }
+        }
     }
 
     result
 }
 
 fn make_crosswalks(i: IntersectionID, l1: &Lane, l2: &Lane) -> Vec<Turn> {
-    if l1.last_pt() == l2.first_pt() {
+    let l1_pt = l1.endpoint(i);
+    let l2_pt = l2.endpoint(i);
+    if l1_pt == l2_pt {
         return Vec::new();
     }
-
+    // TODO Not sure this is always right.
+    let direction = if (l1.dst_i == i) == (l2.dst_i == i) {
+        -1.0
+    } else {
+        1.0
+    };
     // Jut out a bit into the intersection, cross over, then jut back in.
-    let line = Line::new(l1.last_pt(), l2.first_pt()).shift_right(LANE_THICKNESS / 2.0);
-    let geom_fwds = PolyLine::new(vec![l1.last_pt(), line.pt1(), line.pt2(), l2.first_pt()]);
+    let line = Line::new(l1_pt, l2_pt).shift_either_direction(direction * LANE_THICKNESS / 2.0);
+    let geom_fwds = PolyLine::new(vec![l1_pt, line.pt1(), line.pt2(), l2_pt]);
 
     vec![
         Turn {

@@ -102,7 +102,7 @@ impl Line {
         )
     }
 
-    pub(crate) fn shift_either_direction(&self, width: Distance) -> Line {
+    pub fn shift_either_direction(&self, width: Distance) -> Line {
         if width >= Distance::ZERO {
             self.shift_right(width)
         } else {
