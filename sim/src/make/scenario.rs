@@ -824,8 +824,12 @@ fn seed_individ_parked_cars(
         .collect::<BTreeSet<_>>();
 
     timer.start_iter("seed individual parked cars", individ_parked_cars.len());
+    let mut ok = true;
     for (b, cnt) in individ_parked_cars {
         timer.next();
+        if !ok {
+            continue;
+        }
         for _ in 0..cnt {
             // TODO Fork?
             if let Some(spot) =
@@ -833,8 +837,9 @@ fn seed_individ_parked_cars(
             {
                 sim.seed_parked_car(Scenario::rand_car(base_rng), spot, Some(b));
             } else {
-                // TODO Guard against this outright just by total counts.
-                panic!("No room to seed individual parked cars.");
+                timer.warn("Not enough room to seed individual parked cars.".to_string());
+                ok = false;
+                break;
             }
         }
     }

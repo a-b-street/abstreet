@@ -125,11 +125,14 @@ impl TripSpawner {
                 }
             }
             TripSpec::UsingBike { start, goal, .. } => {
+                // TODO These trips are just silently erased; they don't even show up as aborted
+                // trips! Really need to fix the underlying problem.
                 if SidewalkSpot::bike_from_bike_rack(start.sidewalk_pos.lane(), map).is_none() {
-                    panic!(
+                    println!(
                         "Can't start biking from {}; no biking or driving lane nearby?",
                         start.sidewalk_pos.lane()
                     );
+                    return;
                 }
                 if let DrivingGoal::ParkNear(_) = goal {
                     let last_lane = goal.goal_pos(map).lane();
@@ -139,10 +142,11 @@ impl TripSpawner {
                         .bike_to_sidewalk(last_lane)
                         .is_none()
                     {
-                        panic!(
+                        println!(
                             "Can't fulfill {:?} for a bike trip; no sidewalk near {}",
                             goal, last_lane
                         );
+                        return;
                     }
                 }
             }
