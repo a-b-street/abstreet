@@ -28,20 +28,11 @@ pub struct EditMode {
     general_tools: MenuUnderButton,
     mode: GameplayMode,
 
-    driving_btn: Button,
-    bike_btn: Button,
-    bus_btn: Button,
-    construction_btn: Button,
-    // TODO Not used yet
-    contraflow_btn: Button,
-    change_lanes_to: Option<LaneType>,
+    lane_editor: LaneEditor,
 }
 
 impl EditMode {
     pub fn new(ctx: &EventCtx, mode: GameplayMode) -> EditMode {
-        // TODO This won't handle resizing well
-        let x1 = 0.5 * ctx.canvas.window_width;
-
         EditMode {
             common: CommonState::new(ctx),
             menu: ModalMenu::new(
@@ -65,48 +56,7 @@ impl EditMode {
                 ctx,
             ),
             mode,
-
-            driving_btn: Button::icon_btn(
-                "assets/ui/edit_driving.png",
-                32.0,
-                "driving lane",
-                hotkey(Key::D),
-                ctx,
-            )
-            .at(ScreenPt::new(x1 + 0.0 * 70.0, 0.0)),
-            bike_btn: Button::icon_btn(
-                "assets/ui/edit_bike.png",
-                32.0,
-                "protected bike lane",
-                hotkey(Key::B),
-                ctx,
-            )
-            .at(ScreenPt::new(x1 + 1.0 * 70.0, 0.0)),
-            bus_btn: Button::icon_btn(
-                "assets/ui/edit_bus.png",
-                32.0,
-                "bus-only lane",
-                hotkey(Key::T),
-                ctx,
-            )
-            .at(ScreenPt::new(x1 + 2.0 * 70.0, 0.0)),
-            construction_btn: Button::icon_btn(
-                "assets/ui/edit_construction.png",
-                32.0,
-                "lane closed for construction",
-                hotkey(Key::C),
-                ctx,
-            )
-            .at(ScreenPt::new(x1 + 3.0 * 70.0, 0.0)),
-            contraflow_btn: Button::icon_btn(
-                "assets/ui/edit_contraflow.png",
-                32.0,
-                "reverse lane direction",
-                hotkey(Key::F),
-                ctx,
-            )
-            .at(ScreenPt::new(x1 + 4.0 * 70.0, 0.0)),
-            change_lanes_to: None,
+            lane_editor: LaneEditor::setup(ctx),
         }
     }
 }
@@ -131,39 +81,29 @@ impl State for EditMode {
                 "{} traffic signals",
                 orig_edits.traffic_signal_overrides.len()
             )));
-            if let Some(lt) = self.change_lanes_to {
-                txt.add(Line(format!("{:?}", lt)).fg(Color::RED));
+            if let Some(idx) = self.lane_editor.active_idx {
+                txt.add(Line(format!("{}", self.lane_editor.brushes[idx].label)).fg(Color::RED));
             }
             self.menu.set_info(ctx, txt);
         }
         self.menu.event(ctx);
         self.general_tools.event(ctx);
 
-        for (b, lt) in vec![
-            (&mut self.driving_btn, LaneType::Driving),
-            (&mut self.bike_btn, LaneType::Biking),
-            (&mut self.bus_btn, LaneType::Bus),
-            (&mut self.construction_btn, LaneType::Construction),
-        ] {
-            b.event(ctx);
-            if b.clicked() {
-                if self.change_lanes_to == Some(lt) {
-                    self.change_lanes_to = None;
-                } else {
-                    self.change_lanes_to = Some(lt);
+        if let Some(t) = self.lane_editor.event(ui, ctx) {
+            return t;
+        }
+        ctx.canvas.handle_event(ctx.input);
+        // It only makes sense to mouseover lanes while painting them.
+        if ctx.redo_mouseover() {
+            ui.recalculate_current_selection(ctx);
+            if let Some(ID::Lane(_)) = ui.primary.current_selection {
+            } else {
+                if self.lane_editor.active_idx.is_some() {
+                    ui.primary.current_selection = None;
                 }
             }
         }
 
-        ctx.canvas.handle_event(ctx.input);
-
-        // TODO Reset when transitioning in/out of this state? Or maybe we just don't draw
-        // the effects of it. Or eventually, the Option<ID> itself will live in here
-        // directly.
-        // TODO Only mouseover lanes and intersections?
-        if ctx.redo_mouseover() {
-            ui.recalculate_current_selection(ctx);
-        }
         if let Some(t) = self.common.event(ctx, ui) {
             return t;
         }
@@ -200,25 +140,6 @@ impl State for EditMode {
         }
 
         if let Some(ID::Lane(id)) = ui.primary.current_selection {
-            // TODO Urgh, borrow checker.
-            {
-                let lane = ui.primary.map.get_l(id);
-                let road = ui.primary.map.get_r(lane.parent);
-                if lane.lane_type != LaneType::Sidewalk
-                    && lane.lane_type != LaneType::SharedLeftTurn
-                {
-                    if let Some(new_type) = next_valid_type(road, lane, &ui.primary.map) {
-                        if ctx
-                            .input
-                            .contextual_action(Key::Space, format!("toggle to {:?}", new_type))
-                        {
-                            let mut new_edits = orig_edits.clone();
-                            new_edits.lane_overrides.insert(lane.id, new_type);
-                            apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
-                        }
-                    }
-                }
-            }
             {
                 let lane = ui.primary.map.get_l(id);
                 let road = ui.primary.map.get_r(lane.parent);
@@ -398,15 +319,7 @@ impl State for EditMode {
         self.common.draw(g, ui);
         self.menu.draw(g);
         self.general_tools.draw(g);
-        for b in vec![
-            &self.driving_btn,
-            &self.bike_btn,
-            &self.bus_btn,
-            &self.construction_btn,
-            &self.contraflow_btn,
-        ] {
-            b.draw(g);
-        }
+        self.lane_editor.draw(g);
     }
 }
 
@@ -453,32 +366,6 @@ fn load_edits(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Trans
     apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
     ui.primary.map.mark_edits_fresh();
     Some(Transition::Pop)
-}
-
-// For lane editing
-
-fn next_valid_type(r: &Road, l: &Lane, map: &Map) -> Option<LaneType> {
-    let mut new_type = next_type(l.lane_type);
-    while new_type != l.lane_type {
-        if can_change_lane_type(r, l, new_type, map) {
-            return Some(new_type);
-        }
-        new_type = next_type(new_type);
-    }
-    None
-}
-
-fn next_type(lt: LaneType) -> LaneType {
-    match lt {
-        LaneType::Driving => LaneType::Parking,
-        LaneType::Parking => LaneType::Biking,
-        LaneType::Biking => LaneType::Bus,
-        LaneType::Bus => LaneType::Construction,
-        LaneType::Construction => LaneType::Driving,
-
-        LaneType::SharedLeftTurn => unreachable!(),
-        LaneType::Sidewalk => unreachable!(),
-    }
 }
 
 fn can_change_lane_type(r: &Road, l: &Lane, new_lt: LaneType, map: &Map) -> bool {
@@ -665,4 +552,125 @@ fn make_bulk_edit_lanes(road: RoadID) -> Box<dyn State> {
         apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
         Some(Transition::Pop)
     }))
+}
+
+struct LaneEditor {
+    brushes: Vec<Paintbrush>,
+    active_idx: Option<usize>,
+}
+
+struct Paintbrush {
+    btn: Button,
+    label: String,
+    apply: Box<dyn Fn(&Map, &mut MapEdits, LaneID)>,
+}
+
+impl LaneEditor {
+    fn setup(ctx: &EventCtx) -> LaneEditor {
+        // TODO This won't handle resizing well
+        let mut x1 = 0.5 * ctx.canvas.window_width;
+        let mut make_btn = |icon: &str, label: &str, key: Key| {
+            //(icon: &str, label: &str, key: Key) -> Button {
+            let btn = Button::icon_btn(
+                &format!("assets/ui/edit_{}.png", icon),
+                32.0,
+                label,
+                hotkey(key),
+                ctx,
+            )
+            .at(ScreenPt::new(x1, 0.0));
+            x1 += 70.0;
+            btn
+        };
+
+        let mut brushes = Vec::new();
+        brushes.push(Paintbrush {
+            btn: make_btn("driving", "driving lane", Key::D),
+            label: "driving lane".to_string(),
+            apply: Box::new(|_, edits, l| {
+                edits.lane_overrides.insert(l, LaneType::Driving);
+            }),
+        });
+        brushes.push(Paintbrush {
+            btn: make_btn("bike", "protected bike lane", Key::B),
+            label: "protected bike lane".to_string(),
+            apply: Box::new(|_, edits, l| {
+                edits.lane_overrides.insert(l, LaneType::Biking);
+            }),
+        });
+        brushes.push(Paintbrush {
+            btn: make_btn("bus", "bus-only lane", Key::T),
+            label: "bus-only lane".to_string(),
+            apply: Box::new(|_, edits, l| {
+                edits.lane_overrides.insert(l, LaneType::Bus);
+            }),
+        });
+        brushes.push(Paintbrush {
+            btn: make_btn("construction", "lane closed for construction", Key::C),
+            label: "lane closed for construction".to_string(),
+            apply: Box::new(|_, edits, l| {
+                edits.lane_overrides.insert(l, LaneType::Construction);
+            }),
+        });
+        brushes.push(Paintbrush {
+            btn: make_btn("contraflow", "reverse lane direction", Key::F),
+            label: "reverse lane direction".to_string(),
+            apply: Box::new(|map, edits, l| {
+                edits.contraflow_lanes.insert(l, map.get_l(l).src_i);
+            }),
+        });
+
+        LaneEditor {
+            brushes,
+            active_idx: None,
+        }
+    }
+
+    fn event(&mut self, ui: &mut UI, ctx: &mut EventCtx) -> Option<Transition> {
+        for (idx, p) in self.brushes.iter_mut().enumerate() {
+            p.btn.event(ctx);
+            if p.btn.clicked() {
+                if self.active_idx == Some(idx) {
+                    self.active_idx = None;
+                } else {
+                    self.active_idx = Some(idx);
+                }
+            }
+        }
+
+        if let Some(ID::Lane(l)) = ui.primary.current_selection {
+            if let Some(idx) = self.active_idx {
+                if ctx
+                    .input
+                    .contextual_action(Key::Space, &self.brushes[idx].label)
+                {
+                    // TODO Do validity checks better...
+                    if ui.primary.map.get_l(l).is_sidewalk() {
+                        return Some(Transition::Push(msg(
+                            "Error",
+                            vec!["Can't modify sidewalks"],
+                        )));
+                    }
+                    if ui.primary.map.get_l(l).lane_type == LaneType::SharedLeftTurn {
+                        return Some(Transition::Push(msg(
+                            "Error",
+                            vec!["Can't modify shared-left turn lanes yet"],
+                        )));
+                    }
+
+                    let mut edits = ui.primary.map.get_edits().clone();
+                    (self.brushes[idx].apply)(&ui.primary.map, &mut edits, l);
+                    apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
+                }
+            }
+        }
+
+        None
+    }
+
+    fn draw(&self, g: &mut GfxCtx) {
+        for p in &self.brushes {
+            p.btn.draw(g);
+        }
+    }
 }
