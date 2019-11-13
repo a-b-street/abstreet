@@ -1,10 +1,10 @@
 use crate::pathfind::Pathfinder;
 use crate::raw::{OriginalIntersection, OriginalRoad, RawMap};
 use crate::{
-    make, osm, Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop, BusStopID,
-    ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, IntersectionType, Lane,
-    LaneID, LaneType, MapEdits, Path, PathRequest, Position, Road, RoadID, Turn, TurnID,
-    TurnPriority, LANE_THICKNESS,
+    connectivity, make, osm, Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop,
+    BusStopID, ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID,
+    IntersectionType, Lane, LaneID, LaneType, MapEdits, Path, PathRequest, Position, Road, RoadID,
+    Turn, TurnID, TurnPriority, LANE_THICKNESS,
 };
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
@@ -177,6 +177,14 @@ impl Map {
             m.lanes[l.0].parking_blackhole = Some(redirect);
         }
         timer.stop("find parking blackholes");
+
+        let (_, disconnected) = connectivity::find_sidewalk_scc(&m);
+        if !disconnected.is_empty() {
+            timer.warn(format!(
+                "{} sidewalks are disconnected!",
+                disconnected.len()
+            ));
+        }
 
         timer.stop("finalize Map");
         m

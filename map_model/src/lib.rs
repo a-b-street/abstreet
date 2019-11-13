@@ -1,6 +1,7 @@
 mod area;
 mod building;
 mod bus_stop;
+pub mod connectivity;
 mod edits;
 mod intersection;
 mod lane;
