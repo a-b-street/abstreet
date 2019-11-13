@@ -216,6 +216,7 @@ impl Model {
             IntersectionType::TrafficSignal => Color::GREEN,
             IntersectionType::StopSign => Color::RED,
             IntersectionType::Border => Color::BLUE,
+            IntersectionType::Construction => Color::ORANGE,
         };
 
         let poly = if self.intersection_geom && !self.map.roads_per_intersection(id).is_empty() {
@@ -274,6 +275,8 @@ impl Model {
                 }
             }
             IntersectionType::Border => IntersectionType::StopSign,
+            // These shouldn't exist in a basemap!
+            IntersectionType::Construction => unreachable!(),
         };
         self.map
             .intersections

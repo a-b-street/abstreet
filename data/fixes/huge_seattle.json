@@ -3433,6 +3433,46 @@
     ],
     [
       {
+        "osm_way_id": 6476906,
+        "i1": {
+          "osm_node_id": 53102366
+        },
+        "i2": {
+          "osm_node_id": 53186790
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 11441.2259,
+            "inner_y": 12651.0703
+          },
+          {
+            "inner_x": 11526.9082,
+            "inner_y": 12643.4645
+          },
+          {
+            "inner_x": 11553.7162,
+            "inner_y": 12643.131
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "6476906",
+          "abst:parking_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "East Yesler Way",
+          "parking:lane:both": "parallel",
+          "sidewalk": "none"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
         "osm_way_id": 6484894,
         "i1": {
           "osm_node_id": 53206817
@@ -4107,6 +4147,54 @@
     ],
     [
       {
+        "osm_way_id": 51817333,
+        "i1": {
+          "osm_node_id": 661057175
+        },
+        "i2": {
+          "osm_node_id": 661057200
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 7625.7287,
+            "inner_y": 12611.4404
+          },
+          {
+            "inner_x": 7656.9097,
+            "inner_y": 12607.1594
+          },
+          {
+            "inner_x": 7663.473,
+            "inner_y": 12607.215
+          },
+          {
+            "inner_x": 7669.8937,
+            "inner_y": 12607.6375
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "51817333",
+          "abst:parking_inferred": "true",
+          "foot": "no",
+          "highway": "primary",
+          "lanes": "2",
+          "maxspeed": "15 mph",
+          "name": "Colman Dock",
+          "parking:lane:both": "no_parking",
+          "ref": "WA 305",
+          "service": "driveway",
+          "sidewalk": "none",
+          "surface": "asphalt"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
         "osm_way_id": 149669467,
         "i1": {
           "osm_node_id": 53200539
@@ -4399,6 +4487,55 @@
           "parking:lane:left": "parallel",
           "parking:lane:right": "no_parking",
           "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 159937575,
+        "i1": {
+          "osm_node_id": 32268716
+        },
+        "i2": {
+          "osm_node_id": 1725944956
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 9697.9898,
+            "inner_y": 7300.6373
+          },
+          {
+            "inner_x": 9703.4429,
+            "inner_y": 7305.2407
+          },
+          {
+            "inner_x": 9739.7845,
+            "inner_y": 7336.342
+          },
+          {
+            "inner_x": 9811.9127,
+            "inner_y": 7404.093
+          },
+          {
+            "inner_x": 9826.0669,
+            "inner_y": 7404.7157
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "159937575",
+          "abst:parking_inferred": "true",
+          "access": "private",
+          "highway": "unclassified",
+          "lanes": "2",
+          "maxspeed": "20 mph",
+          "name": "Northeast San Juan Road",
+          "parking:lane:both": "no_parking",
+          "sidewalk": "none"
         },
         "turn_restrictions": []
       }
@@ -4782,6 +4919,55 @@
           "parking:lane:both": "parallel",
           "sidewalk": "both",
           "surface": "asphalt"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
+        "osm_way_id": 263156357,
+        "i1": {
+          "osm_node_id": 2626092355
+        },
+        "i2": {
+          "osm_node_id": 680389132
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 9999.9367,
+            "inner_y": 7389.1262
+          },
+          {
+            "inner_x": 9996.4188,
+            "inner_y": 7394.4524
+          },
+          {
+            "inner_x": 9991.9408,
+            "inner_y": 7400.8795
+          },
+          {
+            "inner_x": 9978.8593,
+            "inner_y": 7413.7336
+          },
+          {
+            "inner_x": 9954.114,
+            "inner_y": 7445.035
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "263156357",
+          "abst:parking_inferred": "true",
+          "alt_name": "Ferry Place Northeast",
+          "highway": "unclassified",
+          "lanes": "2",
+          "maxspeed": "15 mph",
+          "name": "Ferry Place Northeast",
+          "parking:lane:both": "no_parking",
+          "sidewalk": "none"
         },
         "turn_restrictions": []
       }

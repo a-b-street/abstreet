@@ -184,6 +184,11 @@ impl Map {
                 "{} sidewalks are disconnected!",
                 disconnected.len()
             ));
+            for l in disconnected {
+                // Best response is to use map_editor to delete them. Hard to do automatically
+                // because maybe there are bus stops nearby -- force myself to look at it manually.
+                timer.warn(format!("- Sidewalk {} is disconnected", l));
+            }
         }
 
         timer.stop("finalize Map");
