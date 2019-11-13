@@ -154,4 +154,9 @@ impl Button {
             ctx,
         )
     }
+
+    pub fn at(mut self, pt: ScreenPt) -> Button {
+        self.set_pos(pt, 0.0);
+        self
+    }
 }

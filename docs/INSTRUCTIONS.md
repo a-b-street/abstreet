@@ -74,3 +74,5 @@ A/B Street binary releases contain pre-built maps that combine data from:
 - Puget Sound Regional Council
   (https://www.psrc.org/activity-based-travel-model-soundcast)
 - http://www.textures4photoshop.com for textures
+- Icons from https://thenounproject.com/aiga-icons/,
+  https://thenounproject.com/sakchai.ruankam, https://thenounproject.com/wilmax

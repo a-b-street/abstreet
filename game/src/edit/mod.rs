@@ -14,8 +14,8 @@ use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::{PerMapUI, ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, MenuUnderButton,
-    ModalMenu, Text, Wizard,
+    hotkey, lctrl, Button, Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line,
+    MenuUnderButton, ModalMenu, ScreenPt, Text, Wizard,
 };
 use map_model::{
     IntersectionID, Lane, LaneID, LaneType, Map, MapEdits, Road, RoadID, TurnID, TurnType,
@@ -27,10 +27,21 @@ pub struct EditMode {
     menu: ModalMenu,
     general_tools: MenuUnderButton,
     mode: GameplayMode,
+
+    driving_btn: Button,
+    bike_btn: Button,
+    bus_btn: Button,
+    construction_btn: Button,
+    // TODO Not used yet
+    contraflow_btn: Button,
+    change_lanes_to: Option<LaneType>,
 }
 
 impl EditMode {
     pub fn new(ctx: &EventCtx, mode: GameplayMode) -> EditMode {
+        // TODO This won't handle resizing well
+        let x1 = 0.5 * ctx.canvas.window_width;
+
         EditMode {
             common: CommonState::new(ctx),
             menu: ModalMenu::new(
@@ -54,6 +65,48 @@ impl EditMode {
                 ctx,
             ),
             mode,
+
+            driving_btn: Button::icon_btn(
+                "assets/ui/edit_driving.png",
+                32.0,
+                "driving lane",
+                hotkey(Key::D),
+                ctx,
+            )
+            .at(ScreenPt::new(x1 + 0.0 * 70.0, 0.0)),
+            bike_btn: Button::icon_btn(
+                "assets/ui/edit_bike.png",
+                32.0,
+                "protected bike lane",
+                hotkey(Key::B),
+                ctx,
+            )
+            .at(ScreenPt::new(x1 + 1.0 * 70.0, 0.0)),
+            bus_btn: Button::icon_btn(
+                "assets/ui/edit_bus.png",
+                32.0,
+                "bus-only lane",
+                hotkey(Key::T),
+                ctx,
+            )
+            .at(ScreenPt::new(x1 + 2.0 * 70.0, 0.0)),
+            construction_btn: Button::icon_btn(
+                "assets/ui/edit_construction.png",
+                32.0,
+                "lane closed for construction",
+                hotkey(Key::C),
+                ctx,
+            )
+            .at(ScreenPt::new(x1 + 3.0 * 70.0, 0.0)),
+            contraflow_btn: Button::icon_btn(
+                "assets/ui/edit_contraflow.png",
+                32.0,
+                "reverse lane direction",
+                hotkey(Key::F),
+                ctx,
+            )
+            .at(ScreenPt::new(x1 + 4.0 * 70.0, 0.0)),
+            change_lanes_to: None,
         }
     }
 }
@@ -78,10 +131,29 @@ impl State for EditMode {
                 "{} traffic signals",
                 orig_edits.traffic_signal_overrides.len()
             )));
+            if let Some(lt) = self.change_lanes_to {
+                txt.add(Line(format!("{:?}", lt)).fg(Color::RED));
+            }
             self.menu.set_info(ctx, txt);
         }
         self.menu.event(ctx);
         self.general_tools.event(ctx);
+
+        for (b, lt) in vec![
+            (&mut self.driving_btn, LaneType::Driving),
+            (&mut self.bike_btn, LaneType::Biking),
+            (&mut self.bus_btn, LaneType::Bus),
+            (&mut self.construction_btn, LaneType::Construction),
+        ] {
+            b.event(ctx);
+            if b.clicked() {
+                if self.change_lanes_to == Some(lt) {
+                    self.change_lanes_to = None;
+                } else {
+                    self.change_lanes_to = Some(lt);
+                }
+            }
+        }
 
         ctx.canvas.handle_event(ctx.input);
 
@@ -326,6 +398,15 @@ impl State for EditMode {
         self.common.draw(g, ui);
         self.menu.draw(g);
         self.general_tools.draw(g);
+        for b in vec![
+            &self.driving_btn,
+            &self.bike_btn,
+            &self.bus_btn,
+            &self.construction_btn,
+            &self.contraflow_btn,
+        ] {
+            b.draw(g);
+        }
     }
 }
 

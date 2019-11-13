@@ -55,39 +55,39 @@ impl SpeedControls {
             ),
         );
 
-        let mut resume_btn = Button::icon_btn(
+        let resume_btn = Button::icon_btn(
             "assets/ui/resume.png",
             50.0,
             "resume",
             hotkey(Key::Space),
             ctx,
-        );
-        resume_btn.set_pos(ScreenPt::new(0.0, 0.0), 0.0);
-        let mut pause_btn = Button::icon_btn(
+        )
+        .at(ScreenPt::new(0.0, 0.0));
+        let pause_btn = Button::icon_btn(
             "assets/ui/pause.png",
             50.0,
             "pause",
             hotkey(Key::Space),
             ctx,
-        );
-        pause_btn.set_pos(ScreenPt::new(0.0, 0.0), 0.0);
+        )
+        .at(ScreenPt::new(0.0, 0.0));
 
-        let mut slow_down_btn = Button::icon_btn(
+        let slow_down_btn = Button::icon_btn(
             "assets/ui/slow_down.png",
             25.0,
             "slow down",
             hotkey(Key::LeftBracket),
             ctx,
-        );
-        slow_down_btn.set_pos(ScreenPt::new(100.0, 50.0), 0.0);
-        let mut speed_up_btn = Button::icon_btn(
+        )
+        .at(ScreenPt::new(100.0, 50.0));
+        let speed_up_btn = Button::icon_btn(
             "assets/ui/speed_up.png",
             25.0,
             "speed up",
             hotkey(Key::RightBracket),
             ctx,
-        );
-        speed_up_btn.set_pos(ScreenPt::new(150.0, 50.0), 0.0);
+        )
+        .at(ScreenPt::new(150.0, 50.0));
 
         let mut slider = Slider::new();
         // Start with speed=1.0
@@ -95,32 +95,32 @@ impl SpeedControls {
         slider.set_pos(ScreenPt::new(0.0, 100.0), 150.0);
 
         let (small_step_btn, large_step_btn, jump_to_time_btn) = if step_controls {
-            let mut small = Button::icon_btn(
+            let small = Button::icon_btn(
                 "assets/ui/small_step.png",
                 25.0,
                 "step forwards 0.1s",
                 hotkey(Key::M),
                 ctx,
-            );
-            small.set_pos(ScreenPt::new(200.0, 50.0), 0.0);
+            )
+            .at(ScreenPt::new(200.0, 50.0));
 
-            let mut large = Button::icon_btn(
+            let large = Button::icon_btn(
                 "assets/ui/large_step.png",
                 25.0,
                 "step forwards 10 mins",
                 hotkey(Key::N),
                 ctx,
-            );
-            large.set_pos(ScreenPt::new(250.0, 50.0), 0.0);
+            )
+            .at(ScreenPt::new(250.0, 50.0));
 
-            let mut jump = Button::icon_btn(
+            let jump = Button::icon_btn(
                 "assets/ui/jump_to_time.png",
                 25.0,
                 "jump to specific time",
                 hotkey(Key::B),
                 ctx,
-            );
-            jump.set_pos(ScreenPt::new(300.0, 50.0), 0.0);
+            )
+            .at(ScreenPt::new(300.0, 50.0));
 
             (Some(small), Some(large), Some(jump))
         } else {
