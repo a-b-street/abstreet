@@ -4,7 +4,7 @@ use std::fmt;
 
 const TRIANGLES_PER_CIRCLE: usize = 60;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Circle {
     pub center: Pt2D,
     pub radius: Distance,

@@ -1,6 +1,6 @@
 use crate::{Color, ScreenPt, ScreenRectangle, Text, UserInput};
 use abstutil::Timer;
-use geom::{Bounds, Pt2D};
+use geom::{Bounds, Circle, Pt2D};
 use glium::texture::Texture2d;
 use glium_glyph::glyph_brush::rusttype::Scale;
 use glium_glyph::glyph_brush::GlyphCruncher;
@@ -32,6 +32,7 @@ pub struct Canvas {
 
     // TODO Bit weird and hacky to mutate inside of draw() calls.
     pub(crate) covered_areas: RefCell<Vec<ScreenRectangle>>,
+    pub(crate) covered_circles: RefCell<Vec<Circle>>,
 
     // Kind of just ezgui state awkwardly stuck here...
     pub(crate) lctrl_held: bool,
@@ -71,6 +72,7 @@ impl Canvas {
             mapspace_glyphs: RefCell::new(mapspace_glyphs),
             line_height_per_font_size: RefCell::new(HashMap::new()),
             covered_areas: RefCell::new(Vec::new()),
+            covered_circles: RefCell::new(Vec::new()),
 
             lctrl_held: false,
             button_tooltip: None,
@@ -113,6 +115,7 @@ impl Canvas {
 
     pub(crate) fn start_drawing(&self) {
         self.covered_areas.borrow_mut().clear();
+        self.covered_circles.borrow_mut().clear();
     }
 
     pub fn mark_covered_area(&self, rect: ScreenRectangle) {
@@ -129,6 +132,11 @@ impl Canvas {
 
             for rect in self.covered_areas.borrow().iter() {
                 if rect.contains(pt) {
+                    return None;
+                }
+            }
+            for c in self.covered_circles.borrow().iter() {
+                if c.contains_pt(Pt2D::new(pt.x, pt.y)) {
                     return None;
                 }
             }

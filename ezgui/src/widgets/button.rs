@@ -1,15 +1,18 @@
 use crate::layout::Widget;
 use crate::{
     hotkey, text, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, MultiKey, ScreenDims,
-    ScreenPt, ScreenRectangle, Text,
+    ScreenPt, Text,
 };
 use geom::{Circle, Distance, Pt2D};
 
+// Assumed circular.
 pub struct Button {
     draw_normal: Drawable,
     draw_hovered: Drawable,
     hotkey: Option<MultiKey>,
     tooltip: Text,
+    // Screenspace
+    cover_circle: Circle,
 
     hovering: bool,
     clicked: bool,
@@ -20,11 +23,12 @@ pub struct Button {
 
 impl Button {
     // Top-left should be at Pt2D::new(0.0, 0.0). normal and hovered must have same dimensions.
-    pub fn new(
+    fn new(
         normal: GeomBatch,
         hovered: GeomBatch,
         hotkey: Option<MultiKey>,
         tooltip: &str,
+        cover_circle: Circle,
         ctx: &EventCtx,
     ) -> Button {
         let dims = normal.get_dims();
@@ -40,6 +44,7 @@ impl Button {
             } else {
                 Text::from(Line(tooltip))
             },
+            cover_circle,
 
             hovering: false,
             clicked: false,
@@ -55,8 +60,8 @@ impl Button {
         }
 
         if ctx.redo_mouseover() {
-            self.hovering = ScreenRectangle::top_left(self.top_left, self.dims)
-                .contains(ctx.canvas.get_cursor_in_screen_space());
+            let pt = ctx.canvas.get_cursor_in_screen_space();
+            self.hovering = self.cover_circle.contains_pt(Pt2D::new(pt.x, pt.y));
         }
         if self.hovering && ctx.input.left_mouse_button_pressed() {
             self.clicked = true;
@@ -75,8 +80,8 @@ impl Button {
     }
 
     pub fn just_replaced(&mut self, ctx: &EventCtx) {
-        self.hovering = ScreenRectangle::top_left(self.top_left, self.dims)
-            .contains(ctx.canvas.get_cursor_in_screen_space());
+        let pt = ctx.canvas.get_cursor_in_screen_space();
+        self.hovering = self.cover_circle.contains_pt(Pt2D::new(pt.x, pt.y));
     }
 
     pub fn clicked(&mut self) -> bool {
@@ -96,6 +101,11 @@ impl Button {
             g.redraw(&self.draw_normal);
         }
         g.unfork();
+
+        g.canvas
+            .covered_circles
+            .borrow_mut()
+            .push(self.cover_circle.clone());
     }
 }
 
@@ -106,7 +116,8 @@ impl Widget for Button {
 
     fn set_pos(&mut self, top_left: ScreenPt, _total_width: f64) {
         self.top_left = top_left;
-        // TODO Center?
+        let r = self.cover_circle.radius.inner_meters();
+        self.cover_circle.center = Pt2D::new(top_left.x + r, top_left.y + r);
     }
 }
 
@@ -132,7 +143,7 @@ impl Button {
         hovered.push(ICON_BACKGROUND_SELECTED, circle.to_polygon());
         hovered.push(ctx.canvas.texture(icon), circle.to_polygon());
 
-        Button::new(normal, hovered, key, tooltip, ctx)
+        Button::new(normal, hovered, key, tooltip, circle, ctx)
     }
 
     pub fn icon_btn(
