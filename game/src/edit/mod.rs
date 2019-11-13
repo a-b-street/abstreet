@@ -17,9 +17,7 @@ use ezgui::{
     hotkey, lctrl, Button, Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line,
     MenuUnderButton, ModalMenu, ScreenPt, Text, Wizard,
 };
-use map_model::{
-    IntersectionID, Lane, LaneID, LaneType, Map, MapEdits, Road, RoadID, TurnID, TurnType,
-};
+use map_model::{IntersectionID, LaneID, LaneType, Map, MapEdits, RoadID, TurnID, TurnType};
 use std::collections::{BTreeSet, HashMap};
 
 pub struct EditMode {
@@ -326,8 +324,9 @@ fn load_edits(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Trans
     Some(Transition::Pop)
 }
 
-fn can_change_lane_type(r: &Road, l: &Lane, new_lt: LaneType, map: &Map) -> bool {
-    let (fwds, idx) = r.dir_and_offset(l.id);
+fn can_change_lane_type(l: LaneID, new_lt: LaneType, map: &Map) -> Option<String> {
+    let r = map.get_parent(l);
+    let (fwds, idx) = r.dir_and_offset(l);
     let mut proposed_lts = if fwds {
         r.get_lane_types().0
     } else {
@@ -336,8 +335,8 @@ fn can_change_lane_type(r: &Road, l: &Lane, new_lt: LaneType, map: &Map) -> bool
     proposed_lts[idx] = new_lt;
 
     // No-op change
-    if l.lane_type == new_lt {
-        return false;
+    if map.get_l(l).lane_type == new_lt {
+        return None;
     }
 
     // Only one parking lane per side.
@@ -347,42 +346,35 @@ fn can_change_lane_type(r: &Road, l: &Lane, new_lt: LaneType, map: &Map) -> bool
         .count()
         > 1
     {
-        return false;
+        // TODO Actually, we just don't want two adjacent parking lanes
+        // (What about dppd though?)
+        return Some(format!(
+            "You can only have one parking lane on the same side of the road"
+        ));
     }
 
-    // Two adjacent bike lanes is unnecessary.
-    for pair in proposed_lts.windows(2) {
-        if pair[0] == LaneType::Biking && pair[1] == LaneType::Biking {
-            return false;
-        }
-    }
+    let types: BTreeSet<LaneType> = r
+        .all_lanes()
+        .iter()
+        .map(|l| map.get_l(*l).lane_type)
+        .collect();
 
     // Don't let players orphan a bus stop.
     if !r.all_bus_stops(map).is_empty()
-        && (new_lt == LaneType::Parking || new_lt == LaneType::Biking)
+        && !types.contains(&LaneType::Driving)
+        && !types.contains(&LaneType::Bus)
     {
-        // Is this the last one?
-        let mut other_bus_lane = false;
-        for id in r.all_lanes() {
-            if l.id != id {
-                let other_lt = map.get_l(id).lane_type;
-                if other_lt == LaneType::Driving || other_lt == LaneType::Bus {
-                    other_bus_lane = true;
-                    break;
-                }
-            }
-        }
-        if !other_bus_lane {
-            return false;
-        }
+        return Some(format!("You need a driving or bus lane for the bus stop!"));
     }
 
-    // A parking lane must have a driving lane on the same side of the road.
-    if proposed_lts.contains(&LaneType::Parking) && !proposed_lts.contains(&LaneType::Driving) {
-        return false;
+    // A parking lane must have a driving lane somewhere on the road.
+    if types.contains(&LaneType::Parking) && !types.contains(&LaneType::Driving) {
+        return Some(format!(
+            "A parking lane needs a driving lane somewhere on the same road"
+        ));
     }
 
-    true
+    None
 }
 
 pub fn apply_map_edits(
@@ -490,12 +482,11 @@ fn make_bulk_edit_lanes(road: RoadID) -> Box<dyn State> {
             if l.lane_type != from {
                 continue;
             }
-            let parent = map.get_parent(l.id);
-            if parent.get_name() != road_name {
+            if map.get_parent(l.id).get_name() != road_name {
                 continue;
             }
             // TODO This looks at the original state of the map, not with all the edits applied so far!
-            if can_change_lane_type(parent, l, to, map) {
+            if can_change_lane_type(l.id, to, map).is_none() {
                 edits.lane_overrides.insert(l.id, to);
                 cnt += 1;
             }
@@ -521,7 +512,8 @@ struct Paintbrush {
     btn: Button,
     enabled_btn: Button,
     label: String,
-    apply: Box<dyn Fn(&Map, &mut MapEdits, LaneID)>,
+    // If this returns a string error message, the edit didn't work.
+    apply: Box<dyn Fn(&Map, &mut MapEdits, LaneID) -> Option<String>>,
 }
 
 impl LaneEditor {
@@ -529,7 +521,10 @@ impl LaneEditor {
         // TODO This won't handle resizing well
         let mut x1 = 0.5 * ctx.canvas.window_width;
         let mut make_brush =
-            |icon: &str, label: &str, key: Key, apply: Box<dyn Fn(&Map, &mut MapEdits, LaneID)>| {
+            |icon: &str,
+             label: &str,
+             key: Key,
+             apply: Box<dyn Fn(&Map, &mut MapEdits, LaneID) -> Option<String>>| {
                 let btn = Button::icon_btn(
                     &format!("assets/ui/edit_{}.png", icon),
                     32.0,
@@ -562,40 +557,60 @@ impl LaneEditor {
                 "driving",
                 "driving lane",
                 Key::D,
-                Box::new(|_, edits, l| {
+                Box::new(|map, edits, l| {
+                    if let Some(err) = can_change_lane_type(l, LaneType::Driving, map) {
+                        return Some(err);
+                    }
                     edits.lane_overrides.insert(l, LaneType::Driving);
+                    None
                 }),
             ),
             make_brush(
                 "bike",
                 "protected bike lane",
                 Key::B,
-                Box::new(|_, edits, l| {
+                Box::new(|map, edits, l| {
+                    if let Some(err) = can_change_lane_type(l, LaneType::Biking, map) {
+                        return Some(err);
+                    }
                     edits.lane_overrides.insert(l, LaneType::Biking);
+                    None
                 }),
             ),
             make_brush(
                 "bus",
                 "bus-only lane",
                 Key::T,
-                Box::new(|_, edits, l| {
+                Box::new(|map, edits, l| {
+                    if let Some(err) = can_change_lane_type(l, LaneType::Bus, map) {
+                        return Some(err);
+                    }
                     edits.lane_overrides.insert(l, LaneType::Bus);
+                    None
                 }),
             ),
             make_brush(
                 "parking",
                 "on-street parking lane",
                 Key::P,
-                Box::new(|_, edits, l| {
+                Box::new(|map, edits, l| {
+                    if let Some(err) = can_change_lane_type(l, LaneType::Parking, map) {
+                        return Some(err);
+                    }
                     edits.lane_overrides.insert(l, LaneType::Parking);
+                    None
                 }),
             ),
             make_brush(
                 "construction",
                 "lane closed for construction",
                 Key::C,
-                Box::new(|_, edits, l| {
+                Box::new(|map, edits, l| {
+                    if let Some(err) = can_change_lane_type(l, LaneType::Construction, map) {
+                        return Some(err);
+                    }
                     edits.lane_overrides.insert(l, LaneType::Construction);
+                    None
                 }),
             ),
             make_brush(
@@ -603,7 +618,17 @@ impl LaneEditor {
                 "reverse lane direction",
                 Key::F,
                 Box::new(|map, edits, l| {
-                    edits.contraflow_lanes.insert(l, map.get_l(l).src_i);
+                    let lane = map.get_l(l);
+                    if !lane.lane_type.is_for_moving_vehicles() {
+                        return Some(format!("You can't reverse a {:?} lane", lane.lane_type));
+                    }
+                    if map.get_r(lane.parent).dir_and_offset(l).1 != 0 {
+                        return Some(format!(
+                            "You can only reverse the lanes next to the road's yellow center line"
+                        ));
+                    }
+                    edits.contraflow_lanes.insert(l, lane.src_i);
+                    None
                 }),
             ),
         ];
@@ -649,7 +674,7 @@ impl LaneEditor {
                     .input
                     .contextual_action(Key::Space, &self.brushes[idx].label)
                 {
-                    // TODO Do validity checks better...
+                    // These errors are universal.
                     if ui.primary.map.get_l(l).is_sidewalk() {
                         return Some(Transition::Push(msg(
                             "Error",
@@ -662,11 +687,11 @@ impl LaneEditor {
                             vec!["Can't modify shared-left turn lanes yet"],
                         )));
                     }
-                    // TODO For reversal:
-                    //lane.lane_type.is_for_moving_vehicles() && road.dir_and_offset(id).1 == 0
 
                     let mut edits = ui.primary.map.get_edits().clone();
-                    (self.brushes[idx].apply)(&ui.primary.map, &mut edits, l);
+                    if let Some(err) = (self.brushes[idx].apply)(&ui.primary.map, &mut edits, l) {
+                        return Some(Transition::Push(msg("Error", vec![err])));
+                    }
                     apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
                 }
             }
