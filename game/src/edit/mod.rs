@@ -81,9 +81,6 @@ impl State for EditMode {
                 "{} traffic signals",
                 orig_edits.traffic_signal_overrides.len()
             )));
-            if let Some(idx) = self.lane_editor.active_idx {
-                txt.add(Line(format!("{}", self.lane_editor.brushes[idx].label)).fg(Color::RED));
-            }
             self.menu.set_info(ctx, txt);
         }
         self.menu.event(ctx);
@@ -561,6 +558,7 @@ struct LaneEditor {
 
 struct Paintbrush {
     btn: Button,
+    enabled_btn: Button,
     label: String,
     apply: Box<dyn Fn(&Map, &mut MapEdits, LaneID)>,
 }
@@ -569,56 +567,77 @@ impl LaneEditor {
     fn setup(ctx: &EventCtx) -> LaneEditor {
         // TODO This won't handle resizing well
         let mut x1 = 0.5 * ctx.canvas.window_width;
-        let mut make_btn = |icon: &str, label: &str, key: Key| {
-            //(icon: &str, label: &str, key: Key) -> Button {
-            let btn = Button::icon_btn(
-                &format!("assets/ui/edit_{}.png", icon),
-                32.0,
-                label,
-                hotkey(key),
-                ctx,
-            )
-            .at(ScreenPt::new(x1, 0.0));
-            x1 += 70.0;
-            btn
-        };
+        let mut make_brush =
+            |icon: &str, label: &str, key: Key, apply: Box<dyn Fn(&Map, &mut MapEdits, LaneID)>| {
+                let btn = Button::icon_btn(
+                    &format!("assets/ui/edit_{}.png", icon),
+                    32.0,
+                    label,
+                    hotkey(key),
+                    ctx,
+                )
+                .at(ScreenPt::new(x1, 0.0));
+                let enabled_btn = Button::icon_btn_bg(
+                    &format!("assets/ui/edit_{}.png", icon),
+                    32.0,
+                    label,
+                    hotkey(key),
+                    Color::RED,
+                    ctx,
+                )
+                .at(ScreenPt::new(x1, 0.0));
 
-        let mut brushes = Vec::new();
-        brushes.push(Paintbrush {
-            btn: make_btn("driving", "driving lane", Key::D),
-            label: "driving lane".to_string(),
-            apply: Box::new(|_, edits, l| {
-                edits.lane_overrides.insert(l, LaneType::Driving);
-            }),
-        });
-        brushes.push(Paintbrush {
-            btn: make_btn("bike", "protected bike lane", Key::B),
-            label: "protected bike lane".to_string(),
-            apply: Box::new(|_, edits, l| {
-                edits.lane_overrides.insert(l, LaneType::Biking);
-            }),
-        });
-        brushes.push(Paintbrush {
-            btn: make_btn("bus", "bus-only lane", Key::T),
-            label: "bus-only lane".to_string(),
-            apply: Box::new(|_, edits, l| {
-                edits.lane_overrides.insert(l, LaneType::Bus);
-            }),
-        });
-        brushes.push(Paintbrush {
-            btn: make_btn("construction", "lane closed for construction", Key::C),
-            label: "lane closed for construction".to_string(),
-            apply: Box::new(|_, edits, l| {
-                edits.lane_overrides.insert(l, LaneType::Construction);
-            }),
-        });
-        brushes.push(Paintbrush {
-            btn: make_btn("contraflow", "reverse lane direction", Key::F),
-            label: "reverse lane direction".to_string(),
-            apply: Box::new(|map, edits, l| {
-                edits.contraflow_lanes.insert(l, map.get_l(l).src_i);
-            }),
-        });
+                x1 += 70.0;
+                Paintbrush {
+                    btn,
+                    enabled_btn,
+                    label: label.to_string(),
+                    apply,
+                }
+            };
+
+        let brushes = vec![
+            make_brush(
+                "driving",
+                "driving lane",
+                Key::D,
+                Box::new(|_, edits, l| {
+                    edits.lane_overrides.insert(l, LaneType::Driving);
+                }),
+            ),
+            make_brush(
+                "bike",
+                "protected bike lane",
+                Key::B,
+                Box::new(|_, edits, l| {
+                    edits.lane_overrides.insert(l, LaneType::Biking);
+                }),
+            ),
+            make_brush(
+                "bus",
+                "bus-only lane",
+                Key::T,
+                Box::new(|_, edits, l| {
+                    edits.lane_overrides.insert(l, LaneType::Bus);
+                }),
+            ),
+            make_brush(
+                "construction",
+                "lane closed for construction",
+                Key::C,
+                Box::new(|_, edits, l| {
+                    edits.lane_overrides.insert(l, LaneType::Construction);
+                }),
+            ),
+            make_brush(
+                "contraflow",
+                "reverse lane direction",
+                Key::F,
+                Box::new(|map, edits, l| {
+                    edits.contraflow_lanes.insert(l, map.get_l(l).src_i);
+                }),
+            ),
+        ];
 
         LaneEditor {
             brushes,
@@ -627,15 +646,32 @@ impl LaneEditor {
     }
 
     fn event(&mut self, ui: &mut UI, ctx: &mut EventCtx) -> Option<Transition> {
+        // TODO This is some awkward way to express mutual exclusion. :(
+        let mut undo_old = None;
         for (idx, p) in self.brushes.iter_mut().enumerate() {
-            p.btn.event(ctx);
-            if p.btn.clicked() {
-                if self.active_idx == Some(idx) {
+            if Some(idx) == undo_old {
+                p.btn.just_replaced(ctx);
+                undo_old = None;
+            }
+
+            if self.active_idx == Some(idx) {
+                p.enabled_btn.event(ctx);
+                if p.enabled_btn.clicked() {
                     self.active_idx = None;
-                } else {
+                    p.btn.just_replaced(ctx);
+                }
+            } else {
+                p.btn.event(ctx);
+                if p.btn.clicked() {
+                    undo_old = self.active_idx;
                     self.active_idx = Some(idx);
+                    p.enabled_btn.just_replaced(ctx);
                 }
             }
+        }
+        // Have to do this outside the loop where brushes are all mutably borrowed
+        if let Some(idx) = undo_old {
+            self.brushes[idx].btn.just_replaced(ctx);
         }
 
         if let Some(ID::Lane(l)) = ui.primary.current_selection {
@@ -669,8 +705,12 @@ impl LaneEditor {
     }
 
     fn draw(&self, g: &mut GfxCtx) {
-        for p in &self.brushes {
-            p.btn.draw(g);
+        for (idx, p) in self.brushes.iter().enumerate() {
+            if self.active_idx == Some(idx) {
+                p.enabled_btn.draw(g);
+            } else {
+                p.btn.draw(g);
+            }
         }
     }
 }

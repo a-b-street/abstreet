@@ -69,7 +69,7 @@ impl Button {
         }
 
         if self.hovering {
-            assert!(ctx.canvas.button_tooltip.is_none());
+            // Once we asserted this was None, but because of just_replaced, sometimes not true.
             ctx.canvas.button_tooltip = Some(self.tooltip.clone());
         }
     }
@@ -114,17 +114,18 @@ const ICON_BACKGROUND: Color = Color::grey(0.5);
 const ICON_BACKGROUND_SELECTED: Color = Color::YELLOW;
 
 impl Button {
-    pub fn icon_btn(
+    pub fn icon_btn_bg(
         icon: &str,
         radius: f64,
         tooltip: &str,
         key: Option<MultiKey>,
+        bg: Color,
         ctx: &EventCtx,
     ) -> Button {
         let circle = Circle::new(Pt2D::new(radius, radius), Distance::meters(radius));
 
         let mut normal = GeomBatch::new();
-        normal.push(ICON_BACKGROUND, circle.to_polygon());
+        normal.push(bg, circle.to_polygon());
         normal.push(ctx.canvas.texture(icon), circle.to_polygon());
 
         let mut hovered = GeomBatch::new();
@@ -132,6 +133,16 @@ impl Button {
         hovered.push(ctx.canvas.texture(icon), circle.to_polygon());
 
         Button::new(normal, hovered, key, tooltip, ctx)
+    }
+
+    pub fn icon_btn(
+        icon: &str,
+        radius: f64,
+        tooltip: &str,
+        key: Option<MultiKey>,
+        ctx: &EventCtx,
+    ) -> Button {
+        Button::icon_btn_bg(icon, radius, tooltip, key, ICON_BACKGROUND, ctx)
     }
 
     pub fn show_btn(ctx: &EventCtx, tooltip: &str) -> Button {
