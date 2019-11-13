@@ -137,45 +137,6 @@ impl State for EditMode {
         }
 
         if let Some(ID::Lane(id)) = ui.primary.current_selection {
-            {
-                let lane = ui.primary.map.get_l(id);
-                let road = ui.primary.map.get_r(lane.parent);
-                if lane.lane_type != LaneType::Sidewalk
-                    && lane.lane_type != LaneType::SharedLeftTurn
-                {
-                    for (lt, key) in &[
-                        (LaneType::Driving, Key::D),
-                        (LaneType::Parking, Key::P),
-                        (LaneType::Biking, Key::B),
-                        (LaneType::Bus, Key::T),
-                        (LaneType::Construction, Key::C),
-                    ] {
-                        if can_change_lane_type(road, lane, *lt, &ui.primary.map)
-                            && ctx
-                                .input
-                                .contextual_action(*key, format!("change to {}", lt.describe()))
-                        {
-                            let mut new_edits = orig_edits.clone();
-                            new_edits.lane_overrides.insert(lane.id, *lt);
-                            apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
-                            break;
-                        }
-                    }
-                }
-            }
-            {
-                let lane = ui.primary.map.get_l(id);
-                let road = ui.primary.map.get_r(lane.parent);
-                // TODO More validity checks
-                if lane.lane_type.is_for_moving_vehicles() && road.dir_and_offset(id).1 == 0 {
-                    if ctx.input.contextual_action(Key::F, "swap lane direction") {
-                        let mut new_edits = orig_edits.clone();
-                        new_edits.contraflow_lanes.insert(lane.id, lane.src_i);
-                        apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
-                    }
-                }
-            }
-
             if ctx
                 .input
                 .contextual_action(Key::U, "bulk edit lanes on this road")
@@ -622,6 +583,14 @@ impl LaneEditor {
                 }),
             ),
             make_brush(
+                "parking",
+                "on-street parking lane",
+                Key::P,
+                Box::new(|_, edits, l| {
+                    edits.lane_overrides.insert(l, LaneType::Parking);
+                }),
+            ),
+            make_brush(
                 "construction",
                 "lane closed for construction",
                 Key::C,
@@ -693,6 +662,8 @@ impl LaneEditor {
                             vec!["Can't modify shared-left turn lanes yet"],
                         )));
                     }
+                    // TODO For reversal:
+                    //lane.lane_type.is_for_moving_vehicles() && road.dir_and_offset(id).1 == 0
 
                     let mut edits = ui.primary.map.get_edits().clone();
                     (self.brushes[idx].apply)(&ui.primary.map, &mut edits, l);
