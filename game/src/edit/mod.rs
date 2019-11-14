@@ -80,6 +80,10 @@ impl State for EditMode {
                 "{} traffic signals",
                 orig_edits.traffic_signal_overrides.len()
             )));
+            txt.add(Line(format!(
+                "{} closed intersections ",
+                orig_edits.intersections_under_construction.len()
+            )));
             self.menu.set_info(ctx, txt);
         }
         self.menu.event(ctx);
@@ -93,6 +97,12 @@ impl State for EditMode {
         if ctx.redo_mouseover() {
             ui.recalculate_current_selection(ctx);
             if let Some(ID::Lane(_)) = ui.primary.current_selection {
+            } else if let Some(ID::Intersection(_)) = ui.primary.current_selection {
+                if self.lane_editor.active_idx != Some(self.lane_editor.construction_idx)
+                    && self.lane_editor.active_idx.is_some()
+                {
+                    ui.primary.current_selection = None;
+                }
             } else {
                 if self.lane_editor.active_idx.is_some() {
                     ui.primary.current_selection = None;
@@ -185,15 +195,13 @@ impl State for EditMode {
                     apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
                 }
             }
-            if !ui.primary.map.get_i(id).is_closed()
-                && ctx
-                    .input
-                    .contextual_action(Key::C, "close for construction")
+            if orig_edits
+                .intersections_under_construction
+                .contains_key(&id)
+                && ctx.input.contextual_action(Key::R, "revert")
             {
                 let mut new_edits = orig_edits.clone();
-                new_edits.stop_sign_overrides.remove(&id);
-                new_edits.traffic_signal_overrides.remove(&id);
-                new_edits.intersections_under_construction.insert(id);
+                new_edits.intersections_under_construction.remove(&id);
                 apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
             }
         }
@@ -237,6 +245,7 @@ impl State for EditMode {
                 .stop_sign_overrides
                 .keys()
                 .chain(edits.traffic_signal_overrides.keys())
+                .chain(edits.intersections_under_construction.keys())
             {
                 opts.override_colors
                     .insert(ID::Intersection(*i), Color::HatchingStyle1);

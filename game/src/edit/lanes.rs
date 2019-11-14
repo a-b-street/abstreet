@@ -3,12 +3,13 @@ use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::ui::UI;
 use ezgui::{hotkey, Button, Choice, Color, EventCtx, GfxCtx, Key, ScreenPt};
-use map_model::{LaneID, LaneType, Map, MapEdits, RoadID};
+use map_model::{connectivity, LaneID, LaneType, Map, MapEdits, RoadID};
 use std::collections::BTreeSet;
 
 pub struct LaneEditor {
     brushes: Vec<Paintbrush>,
     pub active_idx: Option<usize>,
+    pub construction_idx: usize,
 }
 
 struct Paintbrush {
@@ -106,7 +107,7 @@ impl LaneEditor {
             ),
             make_brush(
                 "construction",
-                "lane closed for construction",
+                "closed for construction",
                 Key::C,
                 Box::new(|map, edits, l| {
                     if let Some(err) = can_change_lane_type(l, LaneType::Construction, map) {
@@ -135,10 +136,15 @@ impl LaneEditor {
                 }),
             ),
         ];
+        let construction_idx = brushes
+            .iter()
+            .position(|b| b.label == "closed for construction")
+            .unwrap();
 
         LaneEditor {
             brushes,
             active_idx: None,
+            construction_idx,
         }
     }
 
@@ -196,6 +202,34 @@ impl LaneEditor {
                         return Some(Transition::Push(msg("Error", vec![err])));
                     }
                     apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
+                }
+            }
+        }
+        // Woo, a special case! The construction tool also applies to intersections.
+        if let Some(ID::Intersection(i)) = ui.primary.current_selection {
+            if self.active_idx == Some(self.construction_idx)
+                && ctx
+                    .input
+                    .contextual_action(Key::Space, &self.brushes[self.construction_idx].label)
+            {
+                let orig_edits = ui.primary.map.get_edits().clone();
+                let mut edits = orig_edits.clone();
+                edits.stop_sign_overrides.remove(&i);
+                edits.traffic_signal_overrides.remove(&i);
+                edits
+                    .intersections_under_construction
+                    .insert(i, ui.primary.map.get_i(i).intersection_type);
+                apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
+
+                let (_, disconnected) = connectivity::find_sidewalk_scc(&ui.primary.map);
+                // TODO Display them
+                if !disconnected.is_empty() {
+                    let mut lines = vec![format!("{} sidewalks disconnected", disconnected.len())];
+                    for l in disconnected {
+                        lines.push(format!("- {}", l));
+                    }
+                    apply_map_edits(&mut ui.primary, &ui.cs, ctx, orig_edits);
+                    return Some(Transition::Push(msg("Error", lines)));
                 }
             }
         }

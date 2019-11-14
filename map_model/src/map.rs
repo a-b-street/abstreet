@@ -684,8 +684,8 @@ impl Map {
                 all_traffic_signals.insert(*id, ts.clone());
             }
         }
-        for id in &new_edits.intersections_under_construction {
-            if !self.edits.intersections_under_construction.contains(id) {
+        for (id, _) in &new_edits.intersections_under_construction {
+            if !self.edits.intersections_under_construction.contains_key(id) {
                 all_closed_intersections.insert(*id);
             }
         }
@@ -711,12 +711,13 @@ impl Map {
                 all_traffic_signals.insert(*id, ControlTrafficSignal::new(self, *id, timer));
             }
         }
-        // TODO Be able to un-close intersections
-        /*for id in &self.edits.intersections_under_construction {
-            if !new_edits.intersections_under_construction.contains(id) {
-                all_closed_intersections.insert(*id);
+        let mut changed_intersections = BTreeSet::new();
+        for (id, orig) in &self.edits.intersections_under_construction {
+            if !new_edits.intersections_under_construction.contains_key(id) {
+                self.intersections[id.0].intersection_type = *orig;
+                changed_intersections.insert(*id);
             }
-        }*/
+        }
 
         timer.note(format!(
             "Total diff: {} lane types, {} contraflow lanes, {} stop signs, {} traffic signals, {} closed intersections",
@@ -728,7 +729,6 @@ impl Map {
         ));
 
         let mut changed_lanes = BTreeSet::new();
-        let mut changed_intersections = BTreeSet::new();
         let mut changed_roads = BTreeSet::new();
         let mut changed_contraflow_roads = BTreeSet::new();
 

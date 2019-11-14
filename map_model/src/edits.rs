@@ -1,7 +1,9 @@
-use crate::{ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, LaneType};
+use crate::{
+    ControlStopSign, ControlTrafficSignal, IntersectionID, IntersectionType, LaneID, LaneType,
+};
 use abstutil::Timer;
 use serde_derive::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct MapEdits {
@@ -14,7 +16,8 @@ pub struct MapEdits {
     // TODO Storing the entire thing is maybe a bit dramatic, but works for now.
     pub stop_sign_overrides: BTreeMap<IntersectionID, ControlStopSign>,
     pub traffic_signal_overrides: BTreeMap<IntersectionID, ControlTrafficSignal>,
-    pub intersections_under_construction: BTreeSet<IntersectionID>,
+    // Remember the original type to undo it.
+    pub intersections_under_construction: BTreeMap<IntersectionID, IntersectionType>,
 
     #[serde(skip_serializing, skip_deserializing)]
     pub dirty: bool,
@@ -30,7 +33,7 @@ impl MapEdits {
             contraflow_lanes: BTreeMap::new(),
             stop_sign_overrides: BTreeMap::new(),
             traffic_signal_overrides: BTreeMap::new(),
-            intersections_under_construction: BTreeSet::new(),
+            intersections_under_construction: BTreeMap::new(),
             dirty: false,
         }
     }
