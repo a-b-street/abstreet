@@ -329,6 +329,17 @@ fn get_area_type(tags: &BTreeMap<String, String>) -> Option<AreaType> {
     if tags.get("natural") == Some(&"water".to_string()) {
         return Some(AreaType::Water);
     }
+    // TODO These just cover up poorly inferred road geometry now. Figure out how to use these.
+    if false {
+        if tags.get("traffic_calming") == Some(&"island".to_string()) {
+            return Some(AreaType::PedestrianIsland);
+        }
+        if tags.get("highway") == Some(&"pedestrian".to_string())
+            && tags.get("area") == Some(&"yes".to_string())
+        {
+            return Some(AreaType::PedestrianIsland);
+        }
+    }
     None
 }
 

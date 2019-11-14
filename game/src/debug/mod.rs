@@ -336,6 +336,15 @@ fn search_osm(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Trans
             batch.push(color, b.polygon.clone());
         }
     }
+    for a in map.all_areas() {
+        if a.osm_tags
+            .iter()
+            .any(|(k, v)| format!("{} = {}", k, v).contains(&filter))
+        {
+            ids.insert(ID::Area(a.id));
+            batch.push(color, a.polygon.clone());
+        }
+    }
 
     let results = SearchResults {
         query: filter,

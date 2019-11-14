@@ -18,6 +18,7 @@ impl fmt::Display for AreaID {
 pub enum AreaType {
     Park,
     Water,
+    PedestrianIsland,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

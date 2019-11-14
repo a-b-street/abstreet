@@ -1,6 +1,6 @@
 use crate::helpers::ID;
 use crate::render::{DrawCtx, DrawOptions, Renderable};
-use ezgui::{EventCtx, GeomBatch, GfxCtx};
+use ezgui::{Color, EventCtx, GeomBatch, GfxCtx};
 use geom::Polygon;
 use map_model::{Area, AreaID, AreaType, Map};
 
@@ -9,26 +9,13 @@ pub struct DrawArea {
 }
 
 impl DrawArea {
-    pub fn new(
-        area: &Area,
-        ctx: &EventCtx,
-        all_park_areas: &mut GeomBatch,
-        all_water_areas: &mut GeomBatch,
-    ) -> DrawArea {
-        match area.area_type {
-            AreaType::Park => {
-                all_park_areas.push(
-                    ctx.canvas.texture("assets/grass_texture.png"),
-                    area.polygon.clone(),
-                );
-            }
-            AreaType::Water => {
-                all_water_areas.push(
-                    ctx.canvas.texture("assets/water_texture.png"),
-                    area.polygon.clone(),
-                );
-            }
-        }
+    pub fn new(area: &Area, ctx: &EventCtx, all_areas: &mut GeomBatch) -> DrawArea {
+        let color = match area.area_type {
+            AreaType::Park => ctx.canvas.texture("assets/grass_texture.png"),
+            AreaType::Water => ctx.canvas.texture("assets/water_texture.png"),
+            AreaType::PedestrianIsland => Color::grey(0.3),
+        };
+        all_areas.push(color, area.polygon.clone());
         DrawArea { id: area.id }
     }
 }

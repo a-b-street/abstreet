@@ -209,21 +209,14 @@ impl DrawMap {
         }
 
         let mut areas: Vec<DrawArea> = Vec::new();
-        let mut all_park_areas = GeomBatch::new();
-        let mut all_water_areas = GeomBatch::new();
+        let mut all_areas = GeomBatch::new();
         timer.start_iter("make DrawAreas", map.all_areas().len());
         for a in map.all_areas() {
             timer.next();
-            areas.push(DrawArea::new(
-                a,
-                ctx,
-                &mut all_park_areas,
-                &mut all_water_areas,
-            ));
+            areas.push(DrawArea::new(a, ctx, &mut all_areas));
         }
         timer.start("upload all areas");
-        all_park_areas.append(all_water_areas);
-        let draw_all_areas = ctx.prerender.upload(all_park_areas);
+        let draw_all_areas = ctx.prerender.upload(all_areas);
         timer.stop("upload all areas");
 
         let boundary_polygon = ctx.prerender.upload_borrowed(vec![(
