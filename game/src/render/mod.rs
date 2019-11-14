@@ -107,6 +107,9 @@ pub struct DrawCtx<'a> {
     pub sim: &'a Sim,
 }
 
+// TODO Borrow, don't clone, and fix up lots of places storing indirect things to populate
+// DrawOptions.
+#[derive(Clone)]
 pub struct DrawOptions {
     pub override_colors: HashMap<ID, Color>,
     pub suppress_traffic_signal_details: Option<IntersectionID>,

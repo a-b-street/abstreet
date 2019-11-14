@@ -222,14 +222,18 @@ impl LaneEditor {
                 apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
 
                 let (_, disconnected) = connectivity::find_sidewalk_scc(&ui.primary.map);
-                // TODO Display them
                 if !disconnected.is_empty() {
-                    let mut lines = vec![format!("{} sidewalks disconnected", disconnected.len())];
-                    for l in disconnected {
-                        lines.push(format!("- {}", l));
-                    }
                     apply_map_edits(&mut ui.primary, &ui.cs, ctx, orig_edits);
-                    return Some(Transition::Push(msg("Error", lines)));
+                    let mut err_state = msg(
+                        "Error",
+                        vec![format!("{} sidewalks disconnected", disconnected.len())],
+                    );
+                    let opts = &mut err_state.downcast_mut::<WizardState>().unwrap().draw_opts;
+                    for l in disconnected {
+                        opts.override_colors
+                            .insert(ID::Lane(l), ui.cs.get("unreachable lane"));
+                    }
+                    return Some(Transition::Push(err_state));
                 }
             }
         }

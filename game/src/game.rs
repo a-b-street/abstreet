@@ -177,6 +177,7 @@ pub struct WizardState {
     wizard: Wizard,
     // Returning None means stay in this WizardState
     cb: Box<dyn Fn(&mut Wizard, &mut EventCtx, &mut UI) -> Option<Transition>>,
+    pub draw_opts: DrawOptions,
 }
 
 impl WizardState {
@@ -186,6 +187,7 @@ impl WizardState {
         Box::new(WizardState {
             wizard: Wizard::new(),
             cb,
+            draw_opts: DrawOptions::new(),
         })
     }
 }
@@ -201,7 +203,12 @@ impl State for WizardState {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+    fn draw_default_ui(&self) -> bool {
+        false
+    }
+
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        ui.draw(g, self.draw_opts.clone(), &ui.primary.sim, &ShowEverything::new());
         self.wizard.draw(g);
     }
 }
