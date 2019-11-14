@@ -208,7 +208,12 @@ impl State for WizardState {
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        ui.draw(g, self.draw_opts.clone(), &ui.primary.sim, &ShowEverything::new());
+        ui.draw(
+            g,
+            self.draw_opts.clone(),
+            &ui.primary.sim,
+            &ShowEverything::new(),
+        );
         self.wizard.draw(g);
     }
 }
