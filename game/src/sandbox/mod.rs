@@ -305,6 +305,9 @@ impl State for SandboxMode {
                 .time_limited_step(&ui.primary.map, dt, Duration::seconds(0.1));
             ui.recalculate_current_selection(ctx);
         }
+        if let Some(t) = time_controls(ctx, ui, &mut self.speed) {
+            return t;
+        }
 
         if self.menu.action("edit mode") {
             ui.primary.clear_sim();
@@ -318,10 +321,6 @@ impl State for SandboxMode {
                     ui,
                     self.gameplay.mode.clone(),
                 )));
-            }
-
-            if let Some(t) = time_controls(ctx, ui, &mut self.speed) {
-                return t;
             }
 
             Transition::Keep
