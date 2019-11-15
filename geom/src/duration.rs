@@ -121,6 +121,30 @@ impl Duration {
         s
     }
 
+    pub fn ampm_tostring(self) -> String {
+        let (mut hours, minutes, seconds, remainder) = self.get_parts();
+        let suffix = if hours < 12 {
+            "AM"
+        } else if hours < 24 {
+            "PM"
+        } else {
+            // Give up on the AM/PM distinction I guess. This shouldn't be used much.
+            "(+1 day)"
+        };
+        if hours == 0 {
+            hours = 12;
+        } else if hours >= 24 {
+            hours -= 24;
+        } else if hours > 12 {
+            hours -= 12;
+        }
+
+        format!(
+            "{:02}:{:02}:{:02}.{:01} {}",
+            hours, minutes, seconds, remainder, suffix
+        )
+    }
+
     pub fn as_filename(self) -> String {
         let (hours, minutes, seconds, remainder) = self.get_parts();
         format!(

@@ -36,3 +36,13 @@ process well at all yet.
 ## Bikes using bus lanes
 
 This should be pretty easy to allow.
+
+## Parking
+
+No restrictions -- all available spots are treated equally. No cost, time
+limits, or private spots.
+
+## U-turns
+
+Only happen at dead-ends right now. But there are a few important ones to
+support -- like Montlake Blvd to go WB on 520.

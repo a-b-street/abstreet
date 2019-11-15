@@ -86,7 +86,10 @@ impl State for SandboxMode {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         {
             let mut txt = Text::new();
-            txt.add(Line(ui.primary.sim.time().to_string()));
+            txt.add(Line(format!(
+                "Time: {}",
+                ui.primary.sim.time().ampm_tostring()
+            )));
             let (active, unfinished, buses) = ui.primary.sim.num_trips();
             txt.add(Line(format!("{} active (+{} buses)", active, buses)));
             txt.add(Line(format!("{} unfinished", unfinished)));
