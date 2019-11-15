@@ -151,79 +151,9 @@ impl Scenario {
 
         timer.start_iter("SpawnTrip", self.individ_trips.len());
         for t in &self.individ_trips {
-            match t.clone() {
-                SpawnTrip::CarAppearing {
-                    depart,
-                    start,
-                    goal,
-                    is_bike,
-                    ..
-                } => {
-                    sim.schedule_trip(
-                        depart,
-                        TripSpec::CarAppearing {
-                            start_pos: start,
-                            goal,
-                            vehicle_spec: if is_bike {
-                                Scenario::rand_bike(rng)
-                            } else {
-                                Scenario::rand_car(rng)
-                            },
-                            ped_speed: Scenario::rand_ped_speed(rng),
-                        },
-                        map,
-                    );
-                }
-                SpawnTrip::MaybeUsingParkedCar(depart, start_bldg, goal) => {
-                    sim.schedule_trip(
-                        depart,
-                        TripSpec::MaybeUsingParkedCar {
-                            start_bldg,
-                            goal,
-                            ped_speed: Scenario::rand_ped_speed(rng),
-                        },
-                        map,
-                    );
-                }
-                SpawnTrip::UsingBike(depart, start, goal) => {
-                    sim.schedule_trip(
-                        depart,
-                        TripSpec::UsingBike {
-                            start,
-                            goal,
-                            vehicle: Scenario::rand_bike(rng),
-                            ped_speed: Scenario::rand_ped_speed(rng),
-                        },
-                        map,
-                    );
-                }
-                SpawnTrip::JustWalking(depart, start, goal) => {
-                    sim.schedule_trip(
-                        depart,
-                        TripSpec::JustWalking {
-                            start,
-                            goal,
-                            ped_speed: Scenario::rand_ped_speed(rng),
-                        },
-                        map,
-                    );
-                }
-                SpawnTrip::UsingTransit(depart, start, goal, route, stop1, stop2) => {
-                    sim.schedule_trip(
-                        depart,
-                        TripSpec::UsingTransit {
-                            start,
-                            goal,
-                            route,
-                            stop1,
-                            stop2,
-                            ped_speed: Scenario::rand_ped_speed(rng),
-                        },
-                        map,
-                    );
-                }
-            }
             timer.next();
+            let (depart, spec) = t.clone().to_trip_spec(rng);
+            sim.schedule_trip(depart, spec, map);
         }
 
         sim.spawn_all_trips(map, timer, true);
@@ -899,4 +829,67 @@ pub enum SpawnTrip {
         BusStopID,
         BusStopID,
     ),
+}
+
+impl SpawnTrip {
+    // (departure time, spec)
+    pub fn to_trip_spec(self, rng: &mut XorShiftRng) -> (Duration, TripSpec) {
+        match self {
+            SpawnTrip::CarAppearing {
+                depart,
+                start,
+                goal,
+                is_bike,
+                ..
+            } => (
+                depart,
+                TripSpec::CarAppearing {
+                    start_pos: start,
+                    goal,
+                    vehicle_spec: if is_bike {
+                        Scenario::rand_bike(rng)
+                    } else {
+                        Scenario::rand_car(rng)
+                    },
+                    ped_speed: Scenario::rand_ped_speed(rng),
+                },
+            ),
+            SpawnTrip::MaybeUsingParkedCar(depart, start_bldg, goal) => (
+                depart,
+                TripSpec::MaybeUsingParkedCar {
+                    start_bldg,
+                    goal,
+                    ped_speed: Scenario::rand_ped_speed(rng),
+                },
+            ),
+            SpawnTrip::UsingBike(depart, start, goal) => (
+                depart,
+                TripSpec::UsingBike {
+                    start,
+                    goal,
+                    vehicle: Scenario::rand_bike(rng),
+                    ped_speed: Scenario::rand_ped_speed(rng),
+                },
+            ),
+            SpawnTrip::JustWalking(depart, start, goal) => (
+                depart,
+                TripSpec::JustWalking {
+                    start,
+                    goal,
+                    ped_speed: Scenario::rand_ped_speed(rng),
+                },
+            ),
+            SpawnTrip::UsingTransit(depart, start, goal, route, stop1, stop2) => (
+                depart,
+                TripSpec::UsingTransit {
+                    start,
+                    goal,
+                    route,
+                    stop1,
+                    stop2,
+                    ped_speed: Scenario::rand_ped_speed(rng),
+                },
+            ),
+        }
+    }
 }

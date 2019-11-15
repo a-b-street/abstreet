@@ -2,9 +2,7 @@ use crate::psrc::{Endpoint, Mode, Parcel, Purpose};
 use crate::PopDat;
 use abstutil::Timer;
 use geom::{Distance, Duration, LonLat, Polygon, Pt2D};
-use map_model::{
-    BuildingID, IntersectionID, LaneType, Map, PathConstraints, PathRequest, Position,
-};
+use map_model::{BuildingID, IntersectionID, LaneType, Map, PathConstraints, Position};
 use sim::{DrivingGoal, Scenario, SidewalkSpot, SpawnTrip, TripSpec};
 use std::collections::{BTreeMap, HashMap};
 
@@ -33,48 +31,86 @@ impl Trip {
         self.depart_at + self.trip_time
     }
 
-    pub fn path_req(&self, map: &Map) -> Option<PathRequest> {
-        Some(match self.mode {
-            Mode::Walk => PathRequest {
-                start: self.from.start_sidewalk_spot(map).sidewalk_pos,
-                end: self.from.end_sidewalk_spot(map).sidewalk_pos,
-                constraints: PathConstraints::Pedestrian,
-            },
-            Mode::Bike => PathRequest {
-                start: self.from.start_pos_driving(map)?,
-                end: self
-                    .to
-                    .driving_goal(PathConstraints::Bike, map)
-                    .goal_pos(map),
-                constraints: PathConstraints::Bike,
-            },
-            Mode::Drive => PathRequest {
-                start: self.from.start_pos_driving(map)?,
-                end: self
-                    .to
-                    .driving_goal(PathConstraints::Car, map)
-                    .goal_pos(map),
-                constraints: PathConstraints::Car,
-            },
-            Mode::Transit => {
-                let start = self.from.start_sidewalk_spot(map).sidewalk_pos;
-                let end = self.to.end_sidewalk_spot(map).sidewalk_pos;
-                if let Some((stop1, _, _)) = map.should_use_transit(start, end) {
-                    PathRequest {
-                        start,
-                        end: SidewalkSpot::bus_stop(stop1, map).sidewalk_pos,
-                        constraints: PathConstraints::Pedestrian,
-                    }
-                } else {
-                    // Just fall back to walking. :\
-                    PathRequest {
-                        start,
-                        end,
-                        constraints: PathConstraints::Pedestrian,
+    pub fn to_spawn_trip(&self, map: &Map) -> Option<SpawnTrip> {
+        match self.mode {
+            Mode::Drive => match self.from {
+                TripEndpt::Border(i, _) => {
+                    if let Some(start) = TripSpec::spawn_car_at(
+                        Position::new(
+                            map.get_i(i).get_outgoing_lanes(map, LaneType::Driving)[0],
+                            Distance::ZERO,
+                        ),
+                        map,
+                    ) {
+                        Some(SpawnTrip::CarAppearing {
+                            depart: self.depart_at,
+                            start,
+                            goal: self.to.driving_goal(PathConstraints::Car, map),
+                            is_bike: false,
+                        })
+                    } else {
+                        // TODO need to be able to emit warnings from parallelize
+                        //timer.warn(format!("No room for car to appear at {:?}", self.from));
+                        None
                     }
                 }
+                TripEndpt::Building(b) => Some(SpawnTrip::MaybeUsingParkedCar(
+                    self.depart_at,
+                    b,
+                    self.to.driving_goal(PathConstraints::Car, map),
+                )),
+            },
+            Mode::Bike => match self.from {
+                TripEndpt::Building(b) => Some(SpawnTrip::UsingBike(
+                    self.depart_at,
+                    SidewalkSpot::building(b, map),
+                    self.to.driving_goal(PathConstraints::Bike, map),
+                )),
+                TripEndpt::Border(i, _) => {
+                    if let Some(start) = TripSpec::spawn_car_at(
+                        Position::new(
+                            map.get_i(i).get_outgoing_lanes(map, LaneType::Driving)[0],
+                            Distance::ZERO,
+                        ),
+                        map,
+                    ) {
+                        Some(SpawnTrip::CarAppearing {
+                            depart: self.depart_at,
+                            start,
+                            goal: self.to.driving_goal(PathConstraints::Bike, map),
+                            is_bike: true,
+                        })
+                    } else {
+                        //timer.warn(format!("No room for bike to appear at {:?}", self.from));
+                        None
+                    }
+                }
+            },
+            Mode::Walk => Some(SpawnTrip::JustWalking(
+                self.depart_at,
+                self.from.start_sidewalk_spot(map),
+                self.to.end_sidewalk_spot(map),
+            )),
+            Mode::Transit => {
+                let start = self.from.start_sidewalk_spot(map);
+                let goal = self.to.end_sidewalk_spot(map);
+                if let Some((stop1, stop2, route)) =
+                    map.should_use_transit(start.sidewalk_pos, goal.sidewalk_pos)
+                {
+                    Some(SpawnTrip::UsingTransit(
+                        self.depart_at,
+                        start,
+                        goal,
+                        route,
+                        stop1,
+                        stop2,
+                    ))
+                } else {
+                    //timer.warn(format!("{:?} not actually using transit, because pathfinding didn't find any useful route", trip));
+                    Some(SpawnTrip::JustWalking(self.depart_at, start, goal))
+                }
             }
-        })
+        }
     }
 }
 
@@ -110,19 +146,6 @@ impl TripEndpt {
         match self {
             TripEndpt::Building(b) => SidewalkSpot::building(*b, map),
             TripEndpt::Border(i, _) => SidewalkSpot::end_at_border(*i, map).unwrap(),
-        }
-    }
-
-    // TODO or biking
-    // TODO bldg_via_driving needs to do find_driving_lane_near_building sometimes
-    // Doesn't adjust for starting length yet.
-    fn start_pos_driving(&self, map: &Map) -> Option<Position> {
-        match self {
-            TripEndpt::Building(b) => Position::bldg_via_driving(*b, map),
-            TripEndpt::Border(i, _) => Some(Position::new(
-                map.get_i(*i).get_outgoing_lanes(map, LaneType::Driving)[0],
-                Distance::ZERO,
-            )),
         }
     }
 
@@ -199,7 +222,7 @@ pub fn clip_trips(map: &Map, timer: &mut Timer) -> (Vec<Trip>, HashMap<BuildingI
             },
         )?;
 
-        let mut trip = Trip {
+        let trip = Trip {
             from,
             to,
             depart_at: trip.depart_at,
@@ -217,27 +240,8 @@ pub fn clip_trips(map: &Map, timer: &mut Timer) -> (Vec<Trip>, HashMap<BuildingI
             // Fix depart_at, trip_time, and trip_dist for border cases. Assume constant speed
             // through the trip.
             // TODO Disabled because slow and nonsensical distance ratios. :(
-            (TripEndpt::Border(_, _), TripEndpt::Building(_)) => {
-                if false {
-                    // TODO Figure out why some paths fail.
-                    // TODO Since we're doing the work anyway, store the result?
-                    let dist = map.pathfind(trip.path_req(map)?)?.total_length();
-                    // TODO This is failing all over the place, why?
-                    assert!(dist <= trip.trip_dist);
-                    let trip_time = (dist / trip.trip_dist) * trip.trip_time;
-                    trip.depart_at += trip.trip_time - trip_time;
-                    trip.trip_time = trip_time;
-                    trip.trip_dist = dist;
-                }
-            }
-            (TripEndpt::Building(_), TripEndpt::Border(_, _)) => {
-                if false {
-                    let dist = map.pathfind(trip.path_req(map)?)?.total_length();
-                    assert!(dist <= trip.trip_dist);
-                    trip.trip_time = (dist / trip.trip_dist) * trip.trip_time;
-                    trip.trip_dist = dist;
-                }
-            }
+            (TripEndpt::Border(_, _), TripEndpt::Building(_)) => {}
+            (TripEndpt::Building(_), TripEndpt::Border(_, _)) => {}
             (TripEndpt::Building(_), TripEndpt::Building(_)) => {}
         }
 
@@ -259,85 +263,7 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
     // TODO Don't clone trips for parallelize
     let individ_trips = timer
         .parallelize("turn PSRC trips into SpawnTrips", trips.clone(), |trip| {
-            match trip.mode {
-                Mode::Drive => match trip.from {
-                    TripEndpt::Border(i, _) => {
-                        if let Some(start) = TripSpec::spawn_car_at(
-                            Position::new(
-                                map.get_i(i).get_outgoing_lanes(map, LaneType::Driving)[0],
-                                Distance::ZERO,
-                            ),
-                            map,
-                        ) {
-                            Some(SpawnTrip::CarAppearing {
-                                depart: trip.depart_at,
-                                start,
-                                goal: trip.to.driving_goal(PathConstraints::Car, map),
-                                is_bike: false,
-                            })
-                        } else {
-                            // TODO need to be able to emit warnings from parallelize
-                            //timer.warn(format!("No room for car to appear at {:?}", trip.from));
-                            None
-                        }
-                    }
-                    TripEndpt::Building(b) => Some(SpawnTrip::MaybeUsingParkedCar(
-                        trip.depart_at,
-                        b,
-                        trip.to.driving_goal(PathConstraints::Car, map),
-                    )),
-                },
-                Mode::Bike => match trip.from {
-                    TripEndpt::Building(b) => Some(SpawnTrip::UsingBike(
-                        trip.depart_at,
-                        SidewalkSpot::building(b, map),
-                        trip.to.driving_goal(PathConstraints::Bike, map),
-                    )),
-                    TripEndpt::Border(i, _) => {
-                        if let Some(start) = TripSpec::spawn_car_at(
-                            Position::new(
-                                map.get_i(i).get_outgoing_lanes(map, LaneType::Driving)[0],
-                                Distance::ZERO,
-                            ),
-                            map,
-                        ) {
-                            Some(SpawnTrip::CarAppearing {
-                                depart: trip.depart_at,
-                                start,
-                                goal: trip.to.driving_goal(PathConstraints::Bike, map),
-                                is_bike: true,
-                            })
-                        } else {
-                            //timer.warn(format!("No room for bike to appear at {:?}", trip.from));
-                            None
-                        }
-                    }
-                },
-                Mode::Walk => Some(SpawnTrip::JustWalking(
-                    trip.depart_at,
-                    trip.from.start_sidewalk_spot(map),
-                    trip.to.end_sidewalk_spot(map),
-                )),
-                Mode::Transit => {
-                    let start = trip.from.start_sidewalk_spot(map);
-                    let goal = trip.to.end_sidewalk_spot(map);
-                    if let Some((stop1, stop2, route)) =
-                        map.should_use_transit(start.sidewalk_pos, goal.sidewalk_pos)
-                    {
-                        Some(SpawnTrip::UsingTransit(
-                            trip.depart_at,
-                            start,
-                            goal,
-                            route,
-                            stop1,
-                            stop2,
-                        ))
-                    } else {
-                        //timer.warn(format!("{:?} not actually using transit, because pathfinding didn't find any useful route", trip));
-                        Some(SpawnTrip::JustWalking(trip.depart_at, start, goal))
-                    }
-                }
-            }
+            trip.to_spawn_trip(map)
         })
         .into_iter()
         .flatten()

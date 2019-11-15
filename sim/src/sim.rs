@@ -952,6 +952,10 @@ impl Sim {
         self.driving
             .find_blockage_front(car, map, &self.intersections)
     }
+
+    pub fn trip_spec_to_path_req(&self, spec: &TripSpec, map: &Map) -> PathRequest {
+        spec.get_pathfinding_request(map, &self.parking)
+    }
 }
 
 // Invasive debugging

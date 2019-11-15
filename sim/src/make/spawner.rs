@@ -464,7 +464,11 @@ impl TripSpec {
         }
     }
 
-    fn get_pathfinding_request(&self, map: &Map, parking: &ParkingSimState) -> PathRequest {
+    pub(crate) fn get_pathfinding_request(
+        &self,
+        map: &Map,
+        parking: &ParkingSimState,
+    ) -> PathRequest {
         match self {
             TripSpec::CarAppearing {
                 start_pos,

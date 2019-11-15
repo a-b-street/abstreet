@@ -29,9 +29,14 @@ impl TripsVisualizer {
         let trips = ctx.loading_screen("load trip data", |_, mut timer| {
             let (all_trips, _) = clip_trips(&ui.primary.map, &mut timer);
             let map = &ui.primary.map;
+            let sim = &ui.primary.sim;
+            let flags = &ui.primary.current_flags.sim_flags;
             let maybe_trips =
                 timer.parallelize("calculate paths with geometry", all_trips, |trip| {
-                    if let Some(req) = trip.path_req(map) {
+                    if let Some(spawn_trip) = trip.to_spawn_trip(map) {
+                        let mut rng = flags.make_rng();
+                        let (_, spec) = spawn_trip.to_trip_spec(&mut rng);
+                        let req = sim.trip_spec_to_path_req(&spec, map);
                         if let Some(route) = map
                             .pathfind(req.clone())
                             .and_then(|path| path.trace(map, req.start.dist_along(), None))
