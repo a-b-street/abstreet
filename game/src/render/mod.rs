@@ -30,7 +30,7 @@ use map_model::{IntersectionID, Map};
 use sim::{DrawCarInput, Sim, VehicleType};
 use std::collections::HashMap;
 
-pub const MIN_ZOOM_FOR_DETAIL: f64 = 1.0;
+pub const MIN_ZOOM_FOR_DETAIL: f64 = 2.5;
 
 const EXTRA_SHAPE_THICKNESS: Distance = Distance::const_meters(1.0);
 const EXTRA_SHAPE_POINT_RADIUS: Distance = Distance::const_meters(10.0);
