@@ -28,6 +28,8 @@ pub struct AgentSpawner {
 
 enum Source {
     WalkFromBldg(BuildingID),
+    // Stash the driving Position here for convenience
+    BikeFromBldg(BuildingID, Position),
     WalkFromBldgThenMaybeUseCar(BuildingID),
     WalkFromSidewalk(Position),
     Drive(Position),
@@ -91,6 +93,17 @@ impl AgentSpawner {
                         return Some(Box::new(AgentSpawner {
                             menu,
                             from: Source::Drive(pos),
+                            maybe_goal: None,
+                        }));
+                    }
+                    // TODO First lane might be a bike lane! Need to pass PathConstraints.
+                    if ctx
+                        .input
+                        .contextual_action(Key::F7, "spawn a bike starting here")
+                    {
+                        return Some(Box::new(AgentSpawner {
+                            menu,
+                            from: Source::BikeFromBldg(id, pos),
                             maybe_goal: None,
                         }));
                     }
@@ -171,6 +184,7 @@ impl State for AgentSpawner {
                     Position::bldg_via_walking(b, map),
                     PathConstraints::Pedestrian,
                 ),
+                Source::BikeFromBldg(_, pos) => (pos, PathConstraints::Bike),
                 // TODO Find the driving lane in this case.
                 Source::WalkFromBldgThenMaybeUseCar(b) => (
                     Position::bldg_via_walking(b, map),
@@ -181,11 +195,12 @@ impl State for AgentSpawner {
             };
             let end = match new_goal {
                 Goal::Building(to) => {
-                    if constraints == PathConstraints::Car {
+                    if constraints == PathConstraints::Pedestrian {
+                        Position::bldg_via_walking(to, map)
+                    } else {
+                        // TODO Or biking.
                         let end = map.find_driving_lane_near_building(to);
                         Position::new(end, map.get_l(end).length())
-                    } else {
-                        Position::bldg_via_walking(to, map)
                     }
                 }
                 Goal::Border(to) => {
@@ -241,7 +256,9 @@ impl State for AgentSpawner {
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         let src = match self.from {
-            Source::WalkFromBldg(b) | Source::WalkFromBldgThenMaybeUseCar(b) => ID::Building(b),
+            Source::WalkFromBldg(b)
+            | Source::WalkFromBldgThenMaybeUseCar(b)
+            | Source::BikeFromBldg(b, _) => ID::Building(b),
             Source::WalkFromSidewalk(pos) | Source::Drive(pos) => ID::Lane(pos.lane()),
         };
         let mut opts = DrawOptions::new();
@@ -264,9 +281,9 @@ fn spawn_agents_around(i: IntersectionID, ui: &mut UI, ctx: &EventCtx) {
 
     for l in &map.get_i(i).incoming_lanes {
         let lane = map.get_l(*l);
-        if lane.is_driving() {
+        if lane.is_driving() || lane.is_biking() {
             for _ in 0..10 {
-                let vehicle_spec = if rng.gen_bool(0.7) {
+                let vehicle_spec = if rng.gen_bool(0.7) && lane.is_driving() {
                     Scenario::rand_car(&mut rng)
                 } else {
                     Scenario::rand_bike(&mut rng)
@@ -372,6 +389,32 @@ fn schedule_trip(
                 );
             }
         }
+        Source::BikeFromBldg(b, _) => {
+            let goal = match raw_goal {
+                Goal::Building(to) => DrivingGoal::ParkNear(to),
+                Goal::Border(to) => {
+                    if let Some(g) = DrivingGoal::end_at_border(
+                        map.get_i(to).some_incoming_road(map),
+                        PathConstraints::Bike,
+                        map,
+                    ) {
+                        g
+                    } else {
+                        return Some(format!("Can't end a bike trip at {}", to));
+                    }
+                }
+            };
+            sim.schedule_trip(
+                sim.time(),
+                TripSpec::UsingBike {
+                    start: SidewalkSpot::building(*b, map),
+                    vehicle: Scenario::rand_bike(rng),
+                    goal,
+                    ped_speed: Scenario::rand_ped_speed(rng),
+                },
+                map,
+            );
+        }
         _ => {
             // Driving
             let goal = match raw_goal {
@@ -384,7 +427,7 @@ fn schedule_trip(
                     ) {
                         g
                     } else {
-                        return Some(format!("Can't end a car trip at {}; no driving lanes", to));
+                        return Some(format!("Can't end a car trip at {}", to));
                     }
                 }
             };
