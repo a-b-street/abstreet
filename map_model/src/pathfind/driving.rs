@@ -1,5 +1,5 @@
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
-use crate::{LaneID, Map, Path, PathConstraints, PathRequest, PathStep, TurnID};
+use crate::{Lane, LaneID, Map, Path, PathConstraints, PathRequest, PathStep, Turn, TurnID};
 use fast_paths::{FastGraph, InputGraph, PathCalculator};
 use geom::Distance;
 use serde_derive::{Deserialize, Serialize};
@@ -103,10 +103,11 @@ fn make_input_graph(
         if constraints.can_use(l, map) {
             for turn in map.get_turns_for(l.id, constraints) {
                 any = true;
-                // TODO Speed limit or some other cost
-                let length = l.length() + turn.geom.length();
-                let length_cm = (length.inner_meters() * 100.0).round() as usize;
-                input_graph.add_edge(from, nodes.get(turn.id.dst), length_cm);
+                input_graph.add_edge(
+                    from,
+                    nodes.get(turn.id.dst),
+                    cost(l, turn, constraints, map),
+                );
             }
         }
         // The nodes in the graph MUST exactly be all of the lanes, so we can reuse node
@@ -120,4 +121,51 @@ fn make_input_graph(
     }
     input_graph.freeze();
     input_graph
+}
+
+fn cost(lane: &Lane, turn: &Turn, constraints: PathConstraints, map: &Map) -> usize {
+    // TODO Could cost turns differently.
+
+    match constraints {
+        PathConstraints::Car => {
+            // Prefer slightly longer route on faster roads
+            let t1 = lane.length() / map.get_r(lane.parent).get_speed_limit();
+            let t2 = turn.geom.length() / map.get_parent(turn.id.dst).get_speed_limit();
+            (t1 + t2).inner_seconds().round() as usize
+        }
+        PathConstraints::Bike => {
+            // Speed limits don't matter, bikes are usually constrained by their own speed limit.
+            let dist = lane.length() + turn.geom.length();
+            // TODO Elevation gain is bad, loss is good.
+            // TODO If we're on a driving lane, higher speed limit is worse.
+            // TODO Bike lanes next to parking is dangerous.
+
+            // TODO Prefer bike lanes, then bus lanes, then driving lanes. For now, express that as
+            // an extra cost.
+            let lt_penalty = if lane.is_biking() {
+                1.0
+            } else if lane.is_bus() {
+                1.1
+            } else {
+                assert!(lane.is_driving());
+                1.5
+            };
+
+            // 1m resolution is fine
+            (lt_penalty * dist).inner_meters().round() as usize
+        }
+        PathConstraints::Bus => {
+            // Like Car, but prefer bus lanes.
+            let t1 = lane.length() / map.get_r(lane.parent).get_speed_limit();
+            let t2 = turn.geom.length() / map.get_parent(turn.id.dst).get_speed_limit();
+            let lt_penalty = if lane.is_bus() {
+                1.0
+            } else {
+                assert!(lane.is_driving());
+                1.1
+            };
+            (lt_penalty * (t1 + t2)).inner_seconds().round() as usize
+        }
+        PathConstraints::Pedestrian => unreachable!(),
+    }
 }

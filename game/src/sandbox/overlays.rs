@@ -10,7 +10,7 @@ use crate::ui::{ShowEverything, UI};
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{Choice, Color, EventCtx, GfxCtx, Key, Line, MenuUnderButton, Text};
 use geom::Duration;
-use map_model::{IntersectionID, LaneType, PathStep, RoadID};
+use map_model::{IntersectionID, PathStep, RoadID};
 use sim::{ParkingSpot, TripMode};
 use std::collections::{BTreeMap, HashSet};
 
@@ -401,7 +401,7 @@ fn calculate_bus_network(ctx: &EventCtx, ui: &UI) -> RoadColorer {
         vec![("bike lanes", Color::GREEN)],
     );
     for l in ui.primary.map.all_lanes() {
-        if l.lane_type == LaneType::Bus {
+        if l.is_bus() {
             colorer.add(l.id, Color::GREEN, &ui.primary.map);
         }
     }

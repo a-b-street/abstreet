@@ -299,12 +299,12 @@ impl PathConstraints {
 
     pub fn can_use(self, l: &Lane, map: &Map) -> bool {
         match self {
-            PathConstraints::Pedestrian => l.lane_type == LaneType::Sidewalk,
-            PathConstraints::Car => l.lane_type == LaneType::Driving,
+            PathConstraints::Pedestrian => l.is_sidewalk(),
+            PathConstraints::Car => l.is_driving(),
             PathConstraints::Bike => {
-                if l.lane_type == LaneType::Biking {
+                if l.is_biking() {
                     true
-                } else if l.lane_type == LaneType::Driving || l.lane_type == LaneType::Bus {
+                } else if l.is_driving() || l.is_bus() {
                     // Note bikes can use bus lanes -- this is generally true in Seattle.
                     let road = map.get_r(l.parent);
                     road.osm_tags.get("bicycle") != Some(&"no".to_string())
@@ -314,9 +314,7 @@ impl PathConstraints {
                     false
                 }
             }
-            PathConstraints::Bus => {
-                l.lane_type == LaneType::Driving || l.lane_type == LaneType::Bus
-            }
+            PathConstraints::Bus => l.is_driving() || l.is_bus(),
         }
     }
 }
