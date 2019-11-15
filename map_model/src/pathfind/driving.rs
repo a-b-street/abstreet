@@ -1,5 +1,5 @@
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
-use crate::{LaneID, LaneType, Map, Path, PathRequest, PathStep, TurnID};
+use crate::{LaneID, Map, Path, PathConstraints, PathRequest, PathStep, TurnID};
 use fast_paths::{FastGraph, InputGraph, PathCalculator};
 use geom::Distance;
 use serde_derive::{Deserialize, Serialize};
@@ -11,7 +11,7 @@ pub struct VehiclePathfinder {
     graph: FastGraph,
     #[serde(deserialize_with = "deserialize_nodemap")]
     nodes: NodeMap<LaneID>,
-    lane_types: Vec<LaneType>,
+    constraints: PathConstraints,
 
     #[serde(skip_serializing, skip_deserializing)]
     path_calc: ThreadLocal<RefCell<PathCalculator>>,
@@ -20,7 +20,7 @@ pub struct VehiclePathfinder {
 impl VehiclePathfinder {
     pub fn new(
         map: &Map,
-        lane_types: Vec<LaneType>,
+        constraints: PathConstraints,
         seed: Option<&VehiclePathfinder>,
     ) -> VehiclePathfinder {
         // Insert every lane as a node. Even if the lane type is wrong now, it might change later,
@@ -30,7 +30,7 @@ impl VehiclePathfinder {
         for l in map.all_lanes() {
             nodes.get_or_insert(l.id);
         }
-        let input_graph = make_input_graph(map, &nodes, &lane_types);
+        let input_graph = make_input_graph(map, &nodes, constraints);
 
         // All VehiclePathfinders have the same nodes (lanes), so if we're not the first being
         // built, seed from the node ordering.
@@ -44,7 +44,7 @@ impl VehiclePathfinder {
         VehiclePathfinder {
             graph,
             nodes,
-            lane_types,
+            constraints,
             path_calc: ThreadLocal::new(),
         }
     }
@@ -84,27 +84,30 @@ impl VehiclePathfinder {
         // ordering.
         // TODO Make sure the result of this is deterministic and equivalent to computing from
         // scratch.
-        let input_graph = make_input_graph(map, &self.nodes, &self.lane_types);
+        let input_graph = make_input_graph(map, &self.nodes, self.constraints);
         let node_ordering = self.graph.get_node_ordering();
         self.graph = fast_paths::prepare_with_order(&input_graph, &node_ordering).unwrap();
     }
 }
 
-fn make_input_graph(map: &Map, nodes: &NodeMap<LaneID>, lane_types: &Vec<LaneType>) -> InputGraph {
+fn make_input_graph(
+    map: &Map,
+    nodes: &NodeMap<LaneID>,
+    constraints: PathConstraints,
+) -> InputGraph {
     let mut input_graph = InputGraph::new();
     let num_lanes = map.all_lanes().len();
     for l in map.all_lanes() {
         let from = nodes.get(l.id);
         let mut any = false;
-        for (turn, next) in map.get_next_turns_and_lanes(l.id, l.dst_i).into_iter() {
-            if !map.is_turn_allowed(turn.id) || !lane_types.contains(&next.lane_type) {
-                continue;
+        if constraints.can_use(l.lane_type) {
+            for turn in map.get_turns_for(l.id, constraints) {
+                any = true;
+                // TODO Speed limit or some other cost
+                let length = l.length() + turn.geom.length();
+                let length_cm = (length.inner_meters() * 100.0).round() as usize;
+                input_graph.add_edge(from, nodes.get(turn.id.dst), length_cm);
             }
-            any = true;
-            // TODO Speed limit or some other cost
-            let length = l.length() + turn.geom.length();
-            let length_cm = (length.inner_meters() * 100.0).round() as usize;
-            input_graph.add_edge(from, nodes.get(next.id), length_cm);
         }
         // The nodes in the graph MUST exactly be all of the lanes, so we can reuse node
         // ordering later. If the last lane doesn't have any edges, then this won't work. So

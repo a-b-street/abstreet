@@ -275,7 +275,7 @@ impl Path {
 
 // Who's asking for a path?
 // TODO This is an awful name.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub enum PathConstraints {
     Pedestrian,
     Car,
@@ -385,23 +385,15 @@ pub struct Pathfinder {
 impl Pathfinder {
     pub fn new_without_transit(map: &Map, timer: &mut Timer) -> Pathfinder {
         timer.start("prepare pathfinding for cars");
-        let car_graph = VehiclePathfinder::new(map, vec![LaneType::Driving], None);
+        let car_graph = VehiclePathfinder::new(map, PathConstraints::Car, None);
         timer.stop("prepare pathfinding for cars");
 
         timer.start("prepare pathfinding for bikes");
-        let bike_graph = VehiclePathfinder::new(
-            map,
-            vec![LaneType::Driving, LaneType::Biking],
-            Some(&car_graph),
-        );
+        let bike_graph = VehiclePathfinder::new(map, PathConstraints::Bike, Some(&car_graph));
         timer.stop("prepare pathfinding for bikes");
 
         timer.start("prepare pathfinding for buses");
-        let bus_graph = VehiclePathfinder::new(
-            map,
-            vec![LaneType::Driving, LaneType::Bus],
-            Some(&car_graph),
-        );
+        let bus_graph = VehiclePathfinder::new(map, PathConstraints::Bus, Some(&car_graph));
         timer.stop("prepare pathfinding for buses");
 
         timer.start("prepare pathfinding for pedestrians");
