@@ -2,7 +2,9 @@ use crate::psrc::{Endpoint, Mode, Parcel, Purpose};
 use crate::PopDat;
 use abstutil::Timer;
 use geom::{Distance, Duration, LonLat, Polygon, Pt2D};
-use map_model::{BuildingID, IntersectionID, LaneType, Map, PathRequest, Position};
+use map_model::{
+    BuildingID, IntersectionID, LaneType, Map, PathConstraints, PathRequest, Position,
+};
 use sim::{DrivingGoal, Scenario, SidewalkSpot, SpawnTrip, TripSpec};
 use std::collections::{BTreeMap, HashMap};
 
@@ -36,8 +38,7 @@ impl Trip {
             Mode::Walk => PathRequest {
                 start: self.from.start_sidewalk_spot(map).sidewalk_pos,
                 end: self.from.end_sidewalk_spot(map).sidewalk_pos,
-                can_use_bike_lanes: false,
-                can_use_bus_lanes: false,
+                constraints: PathConstraints::Pedestrian,
             },
             Mode::Bike => PathRequest {
                 start: self.from.start_pos_driving(map)?,
@@ -45,8 +46,7 @@ impl Trip {
                     .to
                     .driving_goal(vec![LaneType::Biking, LaneType::Driving], map)
                     .goal_pos(map),
-                can_use_bike_lanes: true,
-                can_use_bus_lanes: false,
+                constraints: PathConstraints::Bike,
             },
             Mode::Drive => PathRequest {
                 start: self.from.start_pos_driving(map)?,
@@ -54,8 +54,7 @@ impl Trip {
                     .to
                     .driving_goal(vec![LaneType::Driving], map)
                     .goal_pos(map),
-                can_use_bike_lanes: false,
-                can_use_bus_lanes: false,
+                constraints: PathConstraints::Car,
             },
             Mode::Transit => {
                 let start = self.from.start_sidewalk_spot(map).sidewalk_pos;
@@ -64,16 +63,14 @@ impl Trip {
                     PathRequest {
                         start,
                         end: SidewalkSpot::bus_stop(stop1, map).sidewalk_pos,
-                        can_use_bike_lanes: false,
-                        can_use_bus_lanes: false,
+                        constraints: PathConstraints::Pedestrian,
                     }
                 } else {
                     // Just fall back to walking. :\
                     PathRequest {
                         start,
                         end,
-                        can_use_bike_lanes: false,
-                        can_use_bus_lanes: false,
+                        constraints: PathConstraints::Pedestrian,
                     }
                 }
             }

@@ -10,8 +10,8 @@ use abstutil::{elapsed_seconds, Timer};
 use derivative::Derivative;
 use geom::{Distance, Duration, DurationHistogram, PolyLine, Pt2D};
 use map_model::{
-    BuildingID, BusRoute, BusRouteID, IntersectionID, LaneID, Map, Path, PathRequest, PathStep,
-    Traversable,
+    BuildingID, BusRoute, BusRouteID, IntersectionID, LaneID, Map, Path, PathConstraints,
+    PathRequest, PathStep, Traversable,
 };
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashSet;
@@ -411,8 +411,7 @@ impl Sim {
                             if let Some(path) = map.pathfind(PathRequest {
                                 start: create_ped.start.sidewalk_pos,
                                 end: create_ped.goal.sidewalk_pos,
-                                can_use_bike_lanes: false,
-                                can_use_bus_lanes: false,
+                                constraints: PathConstraints::Pedestrian,
                             }) {
                                 create_ped.path = path;
                                 let mut legs = vec![

@@ -273,32 +273,33 @@ impl Path {
     }
 }
 
+// Who's asking for a path?
+#[derive(Debug, Clone, PartialEq)]
+pub enum PathConstraints {
+    Pedestrian,
+    Car,
+    Bike,
+    Bus,
+}
+
 #[derive(Clone)]
 pub struct PathRequest {
     pub start: Position,
     pub end: Position,
-    pub can_use_bike_lanes: bool,
-    pub can_use_bus_lanes: bool,
+    pub constraints: PathConstraints,
 }
 
 impl fmt::Display for PathRequest {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "PathRequest({} along {}... to {} along {}",
+            "PathRequest({} along {}... to {} along {} for {:?})",
             self.start.dist_along(),
             self.start.lane(),
             self.end.dist_along(),
-            self.end.lane()
-        )?;
-        // TODO can_use_bike_lanes and can_use_bus_lanes are mutex, encode that directly.
-        if self.can_use_bike_lanes {
-            write!(f, ", bike lanes)")
-        } else if self.can_use_bus_lanes {
-            write!(f, ", bus lanes)")
-        } else {
-            write!(f, ")")
-        }
+            self.end.lane(),
+            self.constraints,
+        )
     }
 }
 
@@ -395,14 +396,11 @@ impl Pathfinder {
     }
 
     pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<Path> {
-        if map.get_l(req.start.lane()).is_sidewalk() {
-            self.walking_graph.pathfind(&req, map)
-        } else if req.can_use_bus_lanes {
-            self.bus_graph.pathfind(&req, map)
-        } else if req.can_use_bike_lanes {
-            self.bike_graph.pathfind(&req, map)
-        } else {
-            self.car_graph.pathfind(&req, map)
+        match req.constraints {
+            PathConstraints::Pedestrian => self.walking_graph.pathfind(&req, map),
+            PathConstraints::Car => self.car_graph.pathfind(&req, map),
+            PathConstraints::Bike => self.bike_graph.pathfind(&req, map),
+            PathConstraints::Bus => self.bus_graph.pathfind(&req, map),
         }
     }
 

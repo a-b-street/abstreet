@@ -1,6 +1,7 @@
 use crate::make::sidewalk_finder::find_sidewalk_points;
 use crate::{
-    BusRoute, BusRouteID, BusStop, BusStopID, LaneID, LaneType, Map, PathRequest, Position,
+    BusRoute, BusRouteID, BusStop, BusStopID, LaneID, LaneType, Map, PathConstraints, PathRequest,
+    Position,
 };
 use abstutil::{MultiMap, Timer};
 use geom::{Bounds, Distance, GPSBounds, HashablePt2D, Pt2D};
@@ -132,8 +133,7 @@ fn check_stops(stop1: BusStopID, stop2: BusStopID, map: &Map) -> bool {
         .pathfind(PathRequest {
             start: bs1.driving_pos,
             end: bs2.driving_pos,
-            can_use_bike_lanes: false,
-            can_use_bus_lanes: true,
+            constraints: PathConstraints::Bus,
         })
         .is_some();
     ok1 && ok2

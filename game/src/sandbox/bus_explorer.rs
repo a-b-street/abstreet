@@ -6,7 +6,7 @@ use ezgui::{
     Choice, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, MenuUnderButton, Text, WarpingItemSlider,
 };
 use geom::{Circle, Distance, Pt2D};
-use map_model::{BusRoute, BusRouteID, BusStopID, PathRequest, PathStep};
+use map_model::{BusRoute, BusRouteID, BusStopID, PathConstraints, PathRequest, PathStep};
 
 pub struct ShowBusRoute {
     colorer: RoadColorer,
@@ -47,8 +47,7 @@ impl ShowBusRoute {
                 .pathfind(PathRequest {
                     start: bs1.driving_pos,
                     end: bs2.driving_pos,
-                    can_use_bike_lanes: false,
-                    can_use_bus_lanes: true,
+                    constraints: PathConstraints::Bus,
                 })
                 .unwrap()
                 .get_steps()

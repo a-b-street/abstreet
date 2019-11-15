@@ -9,7 +9,8 @@ use abstutil::Timer;
 use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu};
 use geom::{Distance, Duration, PolyLine};
 use map_model::{
-    BuildingID, IntersectionID, LaneID, LaneType, Map, PathRequest, Position, LANE_THICKNESS,
+    BuildingID, IntersectionID, LaneID, LaneType, Map, PathConstraints, PathRequest, Position,
+    LANE_THICKNESS,
 };
 use rand::seq::SliceRandom;
 use rand::Rng;
@@ -166,18 +167,22 @@ impl State for AgentSpawner {
         };
 
         if recalculate {
-            let (start, driving) = match self.from {
-                Source::WalkFromBldg(b) => (Position::bldg_via_walking(b, map), false),
+            let (start, constraints) = match self.from {
+                Source::WalkFromBldg(b) => (
+                    Position::bldg_via_walking(b, map),
+                    PathConstraints::Pedestrian,
+                ),
                 // TODO Find the driving lane in this case.
-                Source::WalkFromBldgThenMaybeUseCar(b) => {
-                    (Position::bldg_via_walking(b, map), false)
-                }
-                Source::WalkFromSidewalk(pos) => (pos, false),
-                Source::Drive(pos) => (pos, true),
+                Source::WalkFromBldgThenMaybeUseCar(b) => (
+                    Position::bldg_via_walking(b, map),
+                    PathConstraints::Pedestrian,
+                ),
+                Source::WalkFromSidewalk(pos) => (pos, PathConstraints::Pedestrian),
+                Source::Drive(pos) => (pos, PathConstraints::Car),
             };
             let end = match new_goal {
                 Goal::Building(to) => {
-                    if driving {
+                    if constraints == PathConstraints::Car {
                         let end = map.find_driving_lane_near_building(to);
                         Position::new(end, map.get_l(end).length())
                     } else {
@@ -187,7 +192,7 @@ impl State for AgentSpawner {
                 Goal::Border(to) => {
                     let lanes = map.get_i(to).get_incoming_lanes(
                         map,
-                        if driving {
+                        if constraints == PathConstraints::Car {
                             LaneType::Driving
                         } else {
                             LaneType::Sidewalk
@@ -206,8 +211,7 @@ impl State for AgentSpawner {
                 if let Some(path) = map.pathfind(PathRequest {
                     start,
                     end,
-                    can_use_bike_lanes: false,
-                    can_use_bus_lanes: false,
+                    constraints,
                 }) {
                     self.maybe_goal = Some((new_goal, path.trace(map, start.dist_along(), None)));
                 } else {
@@ -506,8 +510,7 @@ impl State for SpawnManyAgents {
             if let Some(path) = map.pathfind(PathRequest {
                 start: Position::new(self.from, Distance::ZERO),
                 end: Position::new(new_goal, map.get_l(new_goal).length()),
-                can_use_bike_lanes: false,
-                can_use_bus_lanes: false,
+                constraints: PathConstraints::Car,
             }) {
                 self.maybe_goal = Some((new_goal, path.trace(map, Distance::ZERO, None)));
             } else {

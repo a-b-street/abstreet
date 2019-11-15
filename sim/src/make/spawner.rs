@@ -1,11 +1,11 @@
 use crate::{
     CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, ParkingSimState, ParkingSpot,
     PedestrianID, Scheduler, SidewalkPOI, SidewalkSpot, TripLeg, TripManager, TripStart,
-    VehicleSpec, VehicleType, MAX_CAR_LENGTH,
+    VehicleSpec, MAX_CAR_LENGTH,
 };
 use abstutil::Timer;
 use geom::{Duration, Speed, EPSILON_DIST};
-use map_model::{BuildingID, BusRouteID, BusStopID, Map, PathRequest, Position};
+use map_model::{BuildingID, BusRouteID, BusStopID, Map, PathConstraints, PathRequest, Position};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 
@@ -474,14 +474,12 @@ impl TripSpec {
             } => PathRequest {
                 start: *start_pos,
                 end: goal.goal_pos(map),
-                can_use_bus_lanes: vehicle_spec.vehicle_type == VehicleType::Bus,
-                can_use_bike_lanes: vehicle_spec.vehicle_type == VehicleType::Bike,
+                constraints: vehicle_spec.vehicle_type.to_constraints(),
             },
             TripSpec::UsingParkedCar { start, spot, .. } => PathRequest {
                 start: start.sidewalk_pos,
                 end: SidewalkSpot::parking_spot(*spot, map, parking).sidewalk_pos,
-                can_use_bike_lanes: false,
-                can_use_bus_lanes: false,
+                constraints: PathConstraints::Pedestrian,
             },
             // Don't know where the parked car will be, so just make a dummy path that'll never
             // fail.
@@ -490,29 +488,25 @@ impl TripSpec {
                 PathRequest {
                     start: pos,
                     end: pos,
-                    can_use_bike_lanes: false,
-                    can_use_bus_lanes: false,
+                    constraints: PathConstraints::Pedestrian,
                 }
             }
             TripSpec::JustWalking { start, goal, .. } => PathRequest {
                 start: start.sidewalk_pos,
                 end: goal.sidewalk_pos,
-                can_use_bike_lanes: false,
-                can_use_bus_lanes: false,
+                constraints: PathConstraints::Pedestrian,
             },
             TripSpec::UsingBike { start, .. } => PathRequest {
                 start: start.sidewalk_pos,
                 end: SidewalkSpot::bike_from_bike_rack(start.sidewalk_pos.lane(), map)
                     .unwrap()
                     .sidewalk_pos,
-                can_use_bike_lanes: false,
-                can_use_bus_lanes: false,
+                constraints: PathConstraints::Pedestrian,
             },
             TripSpec::UsingTransit { start, stop1, .. } => PathRequest {
                 start: start.sidewalk_pos,
                 end: SidewalkSpot::bus_stop(*stop1, map).sidewalk_pos,
-                can_use_bike_lanes: false,
-                can_use_bus_lanes: false,
+                constraints: PathConstraints::Pedestrian,
             },
         }
     }

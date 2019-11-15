@@ -5,7 +5,6 @@ use crate::ui::UI;
 use ezgui::{Color, EventCtx, GfxCtx, Key, Line, Text, WarpingItemSlider};
 use geom::{Distance, Polygon, Pt2D};
 use map_model::{Traversable, LANE_THICKNESS};
-use sim::AgentID;
 
 pub struct RouteExplorer {
     slider: WarpingItemSlider<Traversable>,
@@ -14,26 +13,12 @@ pub struct RouteExplorer {
 
 impl RouteExplorer {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> Option<RouteExplorer> {
-        let (agent, path) = if true {
-            let agent = ui
-                .primary
-                .current_selection
-                .as_ref()
-                .and_then(|id| id.agent_id())?;
-            (agent, ui.primary.sim.get_path(agent)?.clone())
-        } else {
-            use map_model::{LaneID, PathRequest, Position};
-
-            // TODO Temporary for debugging
-            let agent = AgentID::Pedestrian(sim::PedestrianID(42));
-            let path = ui.primary.map.pathfind(PathRequest {
-                start: Position::new(LaneID(4409), Distance::meters(146.9885)),
-                end: Position::new(LaneID(8188), Distance::meters(82.4241)),
-                can_use_bike_lanes: false,
-                can_use_bus_lanes: false,
-            });
-            (agent, path?)
-        };
+        let agent = ui
+            .primary
+            .current_selection
+            .as_ref()
+            .and_then(|id| id.agent_id())?;
+        let path = ui.primary.sim.get_path(agent)?.clone();
 
         if !ctx.input.contextual_action(Key::E, "explore route") {
             return None;

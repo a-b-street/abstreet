@@ -5,7 +5,9 @@ use crate::{
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Duration, Speed};
-use map_model::{BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathRequest, Position};
+use map_model::{
+    BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathConstraints, PathRequest, Position,
+};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, VecDeque};
 
@@ -193,8 +195,7 @@ impl TripManager {
         let path = if let Some(p) = map.pathfind(PathRequest {
             start,
             end,
-            can_use_bus_lanes: false,
-            can_use_bike_lanes: false,
+            constraints: PathConstraints::Car,
         }) {
             p
         } else {
@@ -246,8 +247,7 @@ impl TripManager {
         let path = if let Some(p) = map.pathfind(PathRequest {
             start: driving_pos,
             end,
-            can_use_bus_lanes: false,
-            can_use_bike_lanes: true,
+            constraints: PathConstraints::Bike,
         }) {
             p
         } else {
@@ -626,8 +626,7 @@ impl Trip {
         let path = if let Some(p) = map.pathfind(PathRequest {
             start: start.sidewalk_pos,
             end: walk_to.sidewalk_pos,
-            can_use_bus_lanes: false,
-            can_use_bike_lanes: false,
+            constraints: PathConstraints::Pedestrian,
         }) {
             p
         } else {

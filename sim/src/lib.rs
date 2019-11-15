@@ -32,7 +32,8 @@ pub use crate::render::{
 use abstutil::Cloneable;
 use geom::{Distance, Duration, Pt2D, Speed};
 use map_model::{
-    BuildingID, BusStopID, DirectedRoadID, IntersectionID, LaneID, LaneType, Map, Path, Position,
+    BuildingID, BusStopID, DirectedRoadID, IntersectionID, LaneID, LaneType, Map, Path,
+    PathConstraints, Position,
 };
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -118,6 +119,16 @@ pub enum VehicleType {
     Car,
     Bus,
     Bike,
+}
+
+impl VehicleType {
+    pub fn to_constraints(self) -> PathConstraints {
+        match self {
+            VehicleType::Car => PathConstraints::Car,
+            VehicleType::Bus => PathConstraints::Bus,
+            VehicleType::Bike => PathConstraints::Bike,
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]

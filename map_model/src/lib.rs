@@ -26,7 +26,7 @@ pub use crate::lane::{Lane, LaneID, LaneType, PARKING_SPOT_LENGTH};
 pub use crate::make::RoadSpec;
 pub use crate::map::Map;
 pub use crate::neighborhood::{FullNeighborhoodInfo, Neighborhood, NeighborhoodBuilder};
-pub use crate::pathfind::{Path, PathRequest, PathStep};
+pub use crate::pathfind::{Path, PathConstraints, PathRequest, PathStep};
 pub use crate::road::{DirectedRoadID, Road, RoadID};
 pub use crate::stop_signs::{ControlStopSign, RoadWithStopSign};
 pub use crate::traffic_signals::{ControlTrafficSignal, Phase};
