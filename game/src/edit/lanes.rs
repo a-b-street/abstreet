@@ -3,7 +3,7 @@ use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::ui::UI;
 use ezgui::{hotkey, Button, Choice, Color, EventCtx, GfxCtx, Key, ScreenPt};
-use map_model::{connectivity, LaneID, LaneType, Map, MapEdits, RoadID};
+use map_model::{connectivity, LaneID, LaneType, Map, MapEdits, PathConstraints, RoadID};
 use std::collections::BTreeSet;
 
 pub struct LaneEditor {
@@ -221,7 +221,8 @@ impl LaneEditor {
                     .insert(i, ui.primary.map.get_i(i).intersection_type);
                 apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
 
-                let (_, disconnected) = connectivity::find_sidewalk_scc(&ui.primary.map);
+                let (_, disconnected) =
+                    connectivity::find_scc(&ui.primary.map, PathConstraints::Pedestrian);
                 if !disconnected.is_empty() {
                     apply_map_edits(&mut ui.primary, &ui.cs, ctx, orig_edits);
                     let mut err_state = msg(

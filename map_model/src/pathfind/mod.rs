@@ -274,12 +274,38 @@ impl Path {
 }
 
 // Who's asking for a path?
-#[derive(Debug, Clone, PartialEq)]
+// TODO This is an awful name.
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum PathConstraints {
     Pedestrian,
     Car,
     Bike,
     Bus,
+}
+
+impl PathConstraints {
+    // Not bijective, but this is the best guess of user intent
+    pub fn from_lt(lt: LaneType) -> PathConstraints {
+        match lt {
+            LaneType::Sidewalk => PathConstraints::Pedestrian,
+            LaneType::Driving => PathConstraints::Car,
+            LaneType::Biking => PathConstraints::Bike,
+            LaneType::Bus => PathConstraints::Bus,
+            _ => panic!("PathConstraints::from_lt({:?}) doesn't make sense", lt),
+        }
+    }
+
+    pub fn can_use(self, lt: LaneType) -> bool {
+        match self {
+            PathConstraints::Pedestrian => lt == LaneType::Sidewalk,
+            PathConstraints::Car => lt == LaneType::Driving,
+            // Note bikes can use bus lanes -- this is generally true in Seattle.
+            PathConstraints::Bike => {
+                lt == LaneType::Driving || lt == LaneType::Biking || lt == LaneType::Bus
+            }
+            PathConstraints::Bus => lt == LaneType::Driving || lt == LaneType::Bus,
+        }
+    }
 }
 
 #[derive(Clone)]

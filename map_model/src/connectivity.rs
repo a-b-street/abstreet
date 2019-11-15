@@ -1,17 +1,18 @@
-use crate::{LaneID, Map};
+use crate::{LaneID, Map, PathConstraints};
 use petgraph::graphmap::DiGraphMap;
 use std::collections::HashSet;
 
 // SCC = strongly connected component
 
 // TODO Move make/parking_blackholes.rs logic here.
-// TODO Move debug/floodfill.rs logic here.
 
-// Returns (sidewalks in main component, disconnected sidewalks)
-pub fn find_sidewalk_scc(map: &Map) -> (HashSet<LaneID>, HashSet<LaneID>) {
+// Returns (relevant lanes in main component, disconnected relevant lanes)
+pub fn find_scc(map: &Map, constraints: PathConstraints) -> (HashSet<LaneID>, HashSet<LaneID>) {
     let mut graph = DiGraphMap::new();
     for turn in map.all_turns().values() {
-        if map.is_turn_allowed(turn.id) && turn.between_sidewalks() {
+        if constraints.can_use(map.get_l(turn.id.src).lane_type)
+            && constraints.can_use(map.get_l(turn.id.dst).lane_type)
+        {
             graph.add_edge(turn.id.src, turn.id.dst, 1);
         }
     }
@@ -26,7 +27,7 @@ pub fn find_sidewalk_scc(map: &Map) -> (HashSet<LaneID>, HashSet<LaneID>) {
         .all_lanes()
         .iter()
         .filter_map(|l| {
-            if l.is_sidewalk() && !largest_group.contains(&l.id) {
+            if constraints.can_use(l.lane_type) && !largest_group.contains(&l.id) {
                 Some(l.id)
             } else {
                 None

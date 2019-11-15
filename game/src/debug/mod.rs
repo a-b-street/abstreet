@@ -48,10 +48,9 @@ impl DebugMode {
                     (hotkey(Key::Num6), "show labels"),
                     (hotkey(Key::N), "show neighborhood summaries"),
                     (hotkey(Key::R), "show route for all agents"),
-                    (None, "show strongly-connected component roads"),
                     (None, "screenshot everything"),
                     (hotkey(Key::Slash), "search OSM metadata"),
-                    (hotkey(Key::S), "configure colors"),
+                    (None, "configure colors"),
                 ],
                 ctx,
             ),
@@ -236,7 +235,7 @@ impl State for DebugMode {
             return Transition::Push(color_picker::ColorChooser::new());
         }
 
-        if let Some(floodfiller) = floodfill::Floodfiller::new(ctx, ui, &mut self.menu) {
+        if let Some(floodfiller) = floodfill::Floodfiller::new(ctx, ui) {
             return Transition::Push(floodfiller);
         }
 

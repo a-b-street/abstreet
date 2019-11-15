@@ -3,8 +3,7 @@ use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::ui::UI;
 use ezgui::{hotkey, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
-use map_model::{LaneID, Map};
-use petgraph::graphmap::DiGraphMap;
+use map_model::{connectivity, LaneID, Map, PathConstraints};
 use std::collections::HashSet;
 
 pub struct Floodfiller {
@@ -13,41 +12,33 @@ pub struct Floodfiller {
 }
 
 impl Floodfiller {
-    pub fn new(ctx: &mut EventCtx, ui: &UI, parent_menu: &mut ModalMenu) -> Option<Box<dyn State>> {
+    pub fn new(ctx: &mut EventCtx, ui: &UI) -> Option<Box<dyn State>> {
         let map = &ui.primary.map;
-        let (reachable_lanes, is_sidewalk, title) =
+        let (reachable_lanes, unreachable_lanes, title) =
             if let Some(ID::Lane(l)) = ui.primary.current_selection {
-                if map.get_l(l).lane_type.supports_any_movement()
-                    && ctx
-                        .input
-                        .contextual_action(Key::F, "floodfill from this lane")
+                let lt = map.get_l(l).lane_type;
+                if !lt.supports_any_movement() {
+                    return None;
+                }
+                if ctx
+                    .input
+                    .contextual_action(Key::F, "floodfill from this lane")
                 {
+                    find_reachable_from(l, map)
+                } else if ctx
+                    .input
+                    .contextual_action(Key::S, "show strongly-connected components")
+                {
+                    let constraints = PathConstraints::from_lt(lt);
+                    let (good, bad) = connectivity::find_scc(map, constraints);
                     (
-                        find_reachable_from(l, map),
-                        map.get_l(l).is_sidewalk(),
-                        format!("Floodfiller from {}", l),
+                        good,
+                        bad,
+                        format!("strongly-connected components for {:?}", constraints),
                     )
                 } else {
                     return None;
                 }
-            } else if parent_menu.action("show strongly-connected component roads") {
-                let mut graph = DiGraphMap::new();
-                for turn in map.all_turns().values() {
-                    if map.is_turn_allowed(turn.id) && !turn.between_sidewalks() {
-                        graph.add_edge(turn.id.src, turn.id.dst, 1);
-                    }
-                }
-                let components = petgraph::algo::kosaraju_scc(&graph);
-                (
-                    components
-                        .into_iter()
-                        .max_by_key(|c| c.len())
-                        .unwrap()
-                        .into_iter()
-                        .collect(),
-                    false,
-                    "Strongy-connected component".to_string(),
-                )
             } else {
                 return None;
             };
@@ -62,25 +53,13 @@ impl Floodfiller {
                 ("reachable", reachable_color),
             ],
         );
-        let mut num_unreachable = 0;
-        for lane in map.all_lanes() {
-            if !lane.lane_type.supports_any_movement() {
-                continue;
-            }
-            if is_sidewalk != lane.is_sidewalk() {
-                continue;
-            }
-            colorer.add(
-                lane.id,
-                if reachable_lanes.contains(&lane.id) {
-                    reachable_color
-                } else {
-                    num_unreachable += 1;
-                    println!("{} is unreachable", lane.id);
-                    unreachable_color
-                },
-                map,
-            );
+        for l in reachable_lanes {
+            colorer.add(l, reachable_color, map);
+        }
+        let num_unreachable = unreachable_lanes.len();
+        for l in unreachable_lanes {
+            colorer.add(l, unreachable_color, map);
+            println!("{} is unreachable", l);
         }
 
         let mut menu = ModalMenu::new(title, vec![(hotkey(Key::Escape), "quit")], ctx);
@@ -121,7 +100,10 @@ impl State for Floodfiller {
     }
 }
 
-fn find_reachable_from(start: LaneID, map: &Map) -> HashSet<LaneID> {
+// (reachable, unreachable, a title)
+fn find_reachable_from(start: LaneID, map: &Map) -> (HashSet<LaneID>, HashSet<LaneID>, String) {
+    let constraints = PathConstraints::from_lt(map.get_l(start).lane_type);
+
     let mut visited = HashSet::new();
     let mut queue = vec![start];
     while !queue.is_empty() {
@@ -130,11 +112,23 @@ fn find_reachable_from(start: LaneID, map: &Map) -> HashSet<LaneID> {
             continue;
         }
         visited.insert(current);
-        for turn in map.get_turns_from_lane(current) {
-            if map.is_turn_allowed(turn.id) && !visited.contains(&turn.id.dst) {
+        for turn in map.get_turns_for(current, constraints) {
+            if !visited.contains(&turn.id.dst) {
                 queue.push(turn.id.dst);
             }
         }
     }
-    visited
+
+    let mut unreached = HashSet::new();
+    for l in map.all_lanes() {
+        if constraints.can_use(l.lane_type) && !visited.contains(&l.id) {
+            unreached.insert(l.id);
+        }
+    }
+
+    (
+        visited,
+        unreached,
+        format!("Floodfiller for {:?} from {}", constraints, start),
+    )
 }

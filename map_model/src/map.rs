@@ -3,8 +3,8 @@ use crate::raw::{OriginalIntersection, OriginalRoad, RawMap};
 use crate::{
     connectivity, make, osm, Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop,
     BusStopID, ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID,
-    IntersectionType, Lane, LaneID, LaneType, MapEdits, Path, PathRequest, Position, Road, RoadID,
-    Turn, TurnID, TurnPriority, LANE_THICKNESS,
+    IntersectionType, Lane, LaneID, LaneType, MapEdits, Path, PathConstraints, PathRequest,
+    Position, Road, RoadID, Turn, TurnID, TurnPriority, LANE_THICKNESS,
 };
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
@@ -178,7 +178,7 @@ impl Map {
         }
         timer.stop("find parking blackholes");
 
-        let (_, disconnected) = connectivity::find_sidewalk_scc(&m);
+        let (_, disconnected) = connectivity::find_scc(&m, PathConstraints::Pedestrian);
         if !disconnected.is_empty() {
             timer.warn(format!(
                 "{} sidewalks are disconnected!",
@@ -377,6 +377,7 @@ impl Map {
             .collect()
     }
 
+    // TODO Rm this one, along with is_turn_allowed
     pub fn get_legal_turns(&self, from: LaneID, lane_types: Vec<LaneType>) -> Vec<&Turn> {
         let valid_types: HashSet<LaneType> = lane_types.into_iter().collect();
         self.get_next_turns_and_lanes(from, self.get_l(from).dst_i)
@@ -384,6 +385,25 @@ impl Map {
             .filter(|(t, l)| self.is_turn_allowed(t.id) && valid_types.contains(&l.lane_type))
             .map(|(t, _)| t)
             .collect()
+    }
+
+    pub fn get_turns_for(&self, from: LaneID, constraints: PathConstraints) -> Vec<&Turn> {
+        let mut turns: Vec<&Turn> = self
+            .get_next_turns_and_lanes(from, self.get_l(from).dst_i)
+            .into_iter()
+            .filter(|(_, l)| constraints.can_use(l.lane_type))
+            .map(|(t, _)| t)
+            .collect();
+        // Sidewalks are bidirectional
+        if constraints == PathConstraints::Pedestrian {
+            turns.extend(
+                self.get_next_turns_and_lanes(from, self.get_l(from).src_i)
+                    .into_iter()
+                    .filter(|(_, l)| constraints.can_use(l.lane_type))
+                    .map(|(t, _)| t),
+            );
+        }
+        turns
     }
 
     // These come back sorted
