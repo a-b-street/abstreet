@@ -9,8 +9,8 @@ use std::collections::{HashSet, VecDeque};
 pub fn find_scc(map: &Map, constraints: PathConstraints) -> (HashSet<LaneID>, HashSet<LaneID>) {
     let mut graph = DiGraphMap::new();
     for turn in map.all_turns().values() {
-        if constraints.can_use(map.get_l(turn.id.src).lane_type)
-            && constraints.can_use(map.get_l(turn.id.dst).lane_type)
+        if constraints.can_use(map.get_l(turn.id.src), map)
+            && constraints.can_use(map.get_l(turn.id.dst), map)
         {
             graph.add_edge(turn.id.src, turn.id.dst, 1);
         }
@@ -26,7 +26,7 @@ pub fn find_scc(map: &Map, constraints: PathConstraints) -> (HashSet<LaneID>, Ha
         .all_lanes()
         .iter()
         .filter_map(|l| {
-            if constraints.can_use(l.lane_type) && !largest_group.contains(&l.id) {
+            if constraints.can_use(l, map) && !largest_group.contains(&l.id) {
                 Some(l.id)
             } else {
                 None

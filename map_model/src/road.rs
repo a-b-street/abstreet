@@ -82,8 +82,8 @@ impl DirectedRoadID {
             &r.children_backwards
         };
         list.iter()
-            .filter_map(|(l, t)| {
-                if constraints.can_use(*t) {
+            .filter_map(|(l, _)| {
+                if constraints.can_use(map.get_l(*l), map) {
                     Some(*l)
                 } else {
                     None
@@ -300,11 +300,6 @@ impl Road {
                 from, lane_types
             )))
         }
-    }
-
-    pub fn supports_bikes(&self) -> bool {
-        // TODO Should check LaneType to start
-        self.osm_tags.get("bicycle") != Some(&"no".to_string())
     }
 
     pub fn all_lanes(&self) -> Vec<LaneID> {

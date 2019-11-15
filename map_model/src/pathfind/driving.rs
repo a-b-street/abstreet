@@ -100,7 +100,7 @@ fn make_input_graph(
     for l in map.all_lanes() {
         let from = nodes.get(l.id);
         let mut any = false;
-        if constraints.can_use(l.lane_type) {
+        if constraints.can_use(l, map) {
             for turn in map.get_turns_for(l.id, constraints) {
                 any = true;
                 // TODO Speed limit or some other cost

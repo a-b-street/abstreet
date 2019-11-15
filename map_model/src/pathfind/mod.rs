@@ -4,7 +4,9 @@ mod walking;
 
 use self::driving::VehiclePathfinder;
 use self::walking::SidewalkPathfinder;
-use crate::{BusRouteID, BusStopID, LaneID, LaneType, Map, Position, Traversable, TurnID};
+use crate::{
+    osm, BusRouteID, BusStopID, Lane, LaneID, LaneType, Map, Position, Traversable, TurnID,
+};
 use abstutil::Timer;
 use geom::{Distance, PolyLine};
 use serde_derive::{Deserialize, Serialize};
@@ -295,15 +297,28 @@ impl PathConstraints {
         }
     }
 
-    pub fn can_use(self, lt: LaneType) -> bool {
+    pub fn can_use(self, l: &Lane, map: &Map) -> bool {
         match self {
-            PathConstraints::Pedestrian => lt == LaneType::Sidewalk,
-            PathConstraints::Car => lt == LaneType::Driving,
-            // Note bikes can use bus lanes -- this is generally true in Seattle.
+            PathConstraints::Pedestrian => l.lane_type == LaneType::Sidewalk,
+            PathConstraints::Car => l.lane_type == LaneType::Driving,
             PathConstraints::Bike => {
-                lt == LaneType::Driving || lt == LaneType::Biking || lt == LaneType::Bus
+                if l.lane_type == LaneType::Biking {
+                    true
+                } else if l.lane_type == LaneType::Driving || l.lane_type == LaneType::Bus {
+                    true
+                // TODO Disabled because it breaks PSRC scenario -- figuring out why
+                /*// Note bikes can use bus lanes -- this is generally true in Seattle.
+                let road = map.get_r(l.parent);
+                road.osm_tags.get("bicycle") != Some(&"no".to_string())
+                    && road.osm_tags.get(osm::HIGHWAY) != Some(&"motorway".to_string())
+                    && road.osm_tags.get(osm::HIGHWAY) != Some(&"motorway_link".to_string())*/
+                } else {
+                    false
+                }
             }
-            PathConstraints::Bus => lt == LaneType::Driving || lt == LaneType::Bus,
+            PathConstraints::Bus => {
+                l.lane_type == LaneType::Driving || l.lane_type == LaneType::Bus
+            }
         }
     }
 }

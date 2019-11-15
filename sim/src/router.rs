@@ -134,9 +134,12 @@ impl Router {
 
         // Sanity check laws haven't been broken
         if let Traversable::Lane(l) = self.head() {
-            let lt = map.get_l(l).lane_type;
-            if !vehicle.vehicle_type.to_constraints().can_use(lt) {
-                panic!("{} just wound up on {}, a {:?}", vehicle.id, l, lt);
+            let lane = map.get_l(l);
+            if !vehicle.vehicle_type.to_constraints().can_use(lane, map) {
+                panic!(
+                    "{} just wound up on {}, a {:?} (check the OSM tags)",
+                    vehicle.id, l, lane.lane_type
+                );
             }
         }
 

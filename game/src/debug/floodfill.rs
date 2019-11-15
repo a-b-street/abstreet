@@ -121,7 +121,7 @@ fn find_reachable_from(start: LaneID, map: &Map) -> (HashSet<LaneID>, HashSet<La
 
     let mut unreached = HashSet::new();
     for l in map.all_lanes() {
-        if constraints.can_use(l.lane_type) && !visited.contains(&l.id) {
+        if constraints.can_use(l, map) && !visited.contains(&l.id) {
             unreached.insert(l.id);
         }
     }

@@ -380,7 +380,7 @@ impl Map {
         let mut turns: Vec<&Turn> = self
             .get_next_turns_and_lanes(from, self.get_l(from).dst_i)
             .into_iter()
-            .filter(|(_, l)| constraints.can_use(l.lane_type))
+            .filter(|(_, l)| constraints.can_use(l, self))
             .map(|(t, _)| t)
             .collect();
         // Sidewalks are bidirectional
@@ -388,7 +388,7 @@ impl Map {
             turns.extend(
                 self.get_next_turns_and_lanes(from, self.get_l(from).src_i)
                     .into_iter()
-                    .filter(|(_, l)| constraints.can_use(l.lane_type))
+                    .filter(|(_, l)| constraints.can_use(l, self))
                     .map(|(t, _)| t),
             );
         }
