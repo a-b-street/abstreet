@@ -1,9 +1,9 @@
 use crate::mechanics::Queue;
-use crate::{ParkingSimState, ParkingSpot, SidewalkSpot, Vehicle, VehicleType};
+use crate::{ParkingSimState, ParkingSpot, SidewalkSpot, Vehicle};
 use geom::Distance;
 use map_model::{
-    BuildingID, IntersectionID, LaneID, LaneType, Map, Path, PathStep, Position, Traversable,
-    TurnID,
+    BuildingID, IntersectionID, LaneID, Map, Path, PathConstraints, PathStep, Position,
+    Traversable, TurnID,
 };
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap, VecDeque};
@@ -135,16 +135,7 @@ impl Router {
         // Sanity check laws haven't been broken
         if let Traversable::Lane(l) = self.head() {
             let lt = map.get_l(l).lane_type;
-            let ok = match lt {
-                LaneType::Driving => true,
-                LaneType::Biking => vehicle.vehicle_type == VehicleType::Bike,
-                LaneType::Bus => vehicle.vehicle_type == VehicleType::Bus,
-                LaneType::Parking
-                | LaneType::Sidewalk
-                | LaneType::SharedLeftTurn
-                | LaneType::Construction => false,
-            };
-            if !ok {
+            if !vehicle.vehicle_type.to_constraints().can_use(lt) {
                 panic!("{} just wound up on {}, a {:?}", vehicle.id, l, lt);
             }
         }
@@ -281,15 +272,14 @@ impl Router {
                     src: current_turn.src,
                     dst: *l,
                 };
-                if orig_lt == *lt && map.maybe_get_t(turn1).is_some() && map.is_turn_allowed(turn1)
-                {
+                if orig_lt == *lt && map.maybe_get_t(turn1).is_some() {
                     // Now make sure we can go from this lane to next_lane.
                     let turn2 = TurnID {
                         parent: next_parent,
                         src: *l,
                         dst: next_lane,
                     };
-                    if map.maybe_get_t(turn2).is_some() && map.is_turn_allowed(turn2) {
+                    if map.maybe_get_t(turn2).is_some() {
                         Some((queues[&Traversable::Lane(*l)].cars.len(), turn1, *l, turn2))
                     } else {
                         None
@@ -352,7 +342,7 @@ fn path_to_free_parking_spot(
                 }
             }
         }
-        for turn in map.get_legal_turns(current, vec![LaneType::Driving]) {
+        for turn in map.get_turns_for(current, PathConstraints::Car) {
             if !backrefs.contains_key(&turn.id.dst) {
                 backrefs.insert(turn.id.dst, turn.id);
                 queue.push_back(turn.id.dst);

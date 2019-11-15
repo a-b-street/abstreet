@@ -4,7 +4,7 @@ use crate::{
     connectivity, make, osm, Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop,
     BusStopID, ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID,
     IntersectionType, Lane, LaneID, LaneType, MapEdits, Path, PathConstraints, PathRequest,
-    Position, Road, RoadID, Turn, TurnID, TurnPriority, LANE_THICKNESS,
+    Position, Road, RoadID, Turn, TurnID, LANE_THICKNESS,
 };
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
@@ -173,7 +173,7 @@ impl Map {
         timer.stop("setup rest of Pathfinder (walking with transit)");
 
         timer.start("find parking blackholes");
-        for (l, redirect) in make::redirect_parking_blackholes(&m, timer) {
+        for (l, redirect) in connectivity::redirect_parking_blackholes(&m, timer) {
             m.lanes[l.0].parking_blackhole = Some(redirect);
         }
         timer.stop("find parking blackholes");
@@ -309,7 +309,6 @@ impl Map {
             .collect()
     }
 
-    // TODO Get rid of this, or rewrite it in in terms of get_next_turns_and_lanes
     // The turns may belong to two different intersections!
     pub fn get_turns_from_lane(&self, l: LaneID) -> Vec<&Turn> {
         let lane = self.get_l(l);
@@ -374,16 +373,6 @@ impl Map {
             .iter()
             .filter(|t| t.src == from)
             .map(|t| (self.get_t(*t), self.get_l(t.dst)))
-            .collect()
-    }
-
-    // TODO Rm this one, along with is_turn_allowed
-    pub fn get_legal_turns(&self, from: LaneID, lane_types: Vec<LaneType>) -> Vec<&Turn> {
-        let valid_types: HashSet<LaneType> = lane_types.into_iter().collect();
-        self.get_next_turns_and_lanes(from, self.get_l(from).dst_i)
-            .into_iter()
-            .filter(|(t, l)| self.is_turn_allowed(t.id) && valid_types.contains(&l.lane_type))
-            .map(|(t, _)| t)
             .collect()
     }
 
@@ -568,19 +557,6 @@ impl Map {
             }
         }
         panic!("No parking lane has label {}", label);
-    }
-
-    pub fn is_turn_allowed(&self, t: TurnID) -> bool {
-        if let Some(ss) = self.stop_signs.get(&t.parent) {
-            ss.get_priority(t, self) != TurnPriority::Banned
-        } else if let Some(ts) = self.traffic_signals.get(&t.parent) {
-            ts.phases
-                .iter()
-                .any(|p| p.get_priority(t) != TurnPriority::Banned)
-        } else {
-            // Border nodes have no turns...
-            panic!("{}'s intersection isn't a stop sign or traffic signal", t);
-        }
     }
 
     // Cars trying to park near this building should head for the driving lane returned here, then
@@ -925,7 +901,7 @@ impl Map {
         for l in self.lanes.iter_mut() {
             l.parking_blackhole = None;
         }
-        for (l, redirect) in make::redirect_parking_blackholes(self, timer) {
+        for (l, redirect) in connectivity::redirect_parking_blackholes(self, timer) {
             self.lanes[l.0].parking_blackhole = Some(redirect);
         }
         timer.stop("recompute parking blackholes");

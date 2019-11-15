@@ -217,7 +217,7 @@ fn get_sidewalk(dr: DirectedRoadID, map: &Map) -> LaneID {
 fn make_input_graph(map: &Map, nodes: &NodeMap<Node>, use_transit: bool) -> InputGraph {
     let mut input_graph = InputGraph::new();
     for t in map.all_turns().values() {
-        if !t.between_sidewalks() || !map.is_turn_allowed(t.id) {
+        if !t.between_sidewalks() {
             continue;
         }
         // Duplicate edges in InputGraph will be removed.
