@@ -305,13 +305,11 @@ impl PathConstraints {
                 if l.lane_type == LaneType::Biking {
                     true
                 } else if l.lane_type == LaneType::Driving || l.lane_type == LaneType::Bus {
-                    true
-                // TODO Disabled because it breaks PSRC scenario -- figuring out why
-                /*// Note bikes can use bus lanes -- this is generally true in Seattle.
-                let road = map.get_r(l.parent);
-                road.osm_tags.get("bicycle") != Some(&"no".to_string())
-                    && road.osm_tags.get(osm::HIGHWAY) != Some(&"motorway".to_string())
-                    && road.osm_tags.get(osm::HIGHWAY) != Some(&"motorway_link".to_string())*/
+                    // Note bikes can use bus lanes -- this is generally true in Seattle.
+                    let road = map.get_r(l.parent);
+                    road.osm_tags.get("bicycle") != Some(&"no".to_string())
+                        && road.osm_tags.get(osm::HIGHWAY) != Some(&"motorway".to_string())
+                        && road.osm_tags.get(osm::HIGHWAY) != Some(&"motorway_link".to_string())
                 } else {
                     false
                 }

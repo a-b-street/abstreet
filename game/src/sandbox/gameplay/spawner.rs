@@ -9,8 +9,7 @@ use abstutil::Timer;
 use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu};
 use geom::{Distance, Duration, PolyLine};
 use map_model::{
-    BuildingID, IntersectionID, LaneID, LaneType, Map, PathConstraints, PathRequest, Position,
-    LANE_THICKNESS,
+    BuildingID, IntersectionID, LaneID, Map, PathConstraints, PathRequest, Position, LANE_THICKNESS,
 };
 use rand::seq::SliceRandom;
 use rand::Rng;
@@ -190,14 +189,7 @@ impl State for AgentSpawner {
                     }
                 }
                 Goal::Border(to) => {
-                    let lanes = map.get_i(to).get_incoming_lanes(
-                        map,
-                        if constraints == PathConstraints::Car {
-                            LaneType::Driving
-                        } else {
-                            LaneType::Sidewalk
-                        },
-                    );
+                    let lanes = map.get_i(to).get_incoming_lanes(map, constraints);
                     if lanes.is_empty() {
                         self.maybe_goal = None;
                         return Transition::Keep;

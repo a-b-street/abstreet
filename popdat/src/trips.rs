@@ -2,7 +2,7 @@ use crate::psrc::{Endpoint, Mode, Parcel, Purpose};
 use crate::PopDat;
 use abstutil::Timer;
 use geom::{Distance, Duration, LonLat, Polygon, Pt2D};
-use map_model::{BuildingID, IntersectionID, LaneType, Map, PathConstraints, Position};
+use map_model::{BuildingID, IntersectionID, Map, PathConstraints, Position};
 use sim::{DrivingGoal, Scenario, SidewalkSpot, SpawnTrip, TripSpec};
 use std::collections::{BTreeMap, HashMap};
 
@@ -37,7 +37,7 @@ impl Trip {
                 TripEndpt::Border(i, _) => {
                     if let Some(start) = TripSpec::spawn_car_at(
                         Position::new(
-                            map.get_i(i).get_outgoing_lanes(map, LaneType::Driving)[0],
+                            map.get_i(i).get_outgoing_lanes(map, PathConstraints::Car)[0],
                             Distance::ZERO,
                         ),
                         map,
@@ -69,7 +69,7 @@ impl Trip {
                 TripEndpt::Border(i, _) => {
                     if let Some(start) = TripSpec::spawn_car_at(
                         Position::new(
-                            map.get_i(i).get_outgoing_lanes(map, LaneType::Driving)[0],
+                            map.get_i(i).get_outgoing_lanes(map, PathConstraints::Bike)[0],
                             Distance::ZERO,
                         ),
                         map,
@@ -180,25 +180,43 @@ pub fn clip_trips(map: &Map, timer: &mut Timer) -> (Vec<Trip>, HashMap<BuildingI
     let incoming_borders_walking: Vec<(IntersectionID, LonLat)> = map
         .all_incoming_borders()
         .into_iter()
-        .filter(|i| !i.get_outgoing_lanes(map, LaneType::Sidewalk).is_empty())
+        .filter(|i| {
+            !i.get_outgoing_lanes(map, PathConstraints::Pedestrian)
+                .is_empty()
+        })
         .filter_map(|i| i.polygon.center().to_gps(bounds).map(|pt| (i.id, pt)))
         .collect();
     let incoming_borders_driving: Vec<(IntersectionID, LonLat)> = map
         .all_incoming_borders()
         .into_iter()
-        .filter(|i| !i.get_outgoing_lanes(map, LaneType::Driving).is_empty())
+        .filter(|i| !i.get_outgoing_lanes(map, PathConstraints::Car).is_empty())
+        .filter_map(|i| i.polygon.center().to_gps(bounds).map(|pt| (i.id, pt)))
+        .collect();
+    let incoming_borders_biking: Vec<(IntersectionID, LonLat)> = map
+        .all_incoming_borders()
+        .into_iter()
+        .filter(|i| !i.get_outgoing_lanes(map, PathConstraints::Bike).is_empty())
         .filter_map(|i| i.polygon.center().to_gps(bounds).map(|pt| (i.id, pt)))
         .collect();
     let outgoing_borders_walking: Vec<(IntersectionID, LonLat)> = map
         .all_outgoing_borders()
         .into_iter()
-        .filter(|i| !i.get_incoming_lanes(map, LaneType::Sidewalk).is_empty())
+        .filter(|i| {
+            !i.get_incoming_lanes(map, PathConstraints::Pedestrian)
+                .is_empty()
+        })
         .filter_map(|i| i.polygon.center().to_gps(bounds).map(|pt| (i.id, pt)))
         .collect();
     let outgoing_borders_driving: Vec<(IntersectionID, LonLat)> = map
         .all_outgoing_borders()
         .into_iter()
-        .filter(|i| !i.get_incoming_lanes(map, LaneType::Driving).is_empty())
+        .filter(|i| !i.get_incoming_lanes(map, PathConstraints::Car).is_empty())
+        .filter_map(|i| i.polygon.center().to_gps(bounds).map(|pt| (i.id, pt)))
+        .collect();
+    let outgoing_borders_biking: Vec<(IntersectionID, LonLat)> = map
+        .all_outgoing_borders()
+        .into_iter()
+        .filter(|i| !i.get_incoming_lanes(map, PathConstraints::Bike).is_empty())
         .filter_map(|i| i.polygon.center().to_gps(bounds).map(|pt| (i.id, pt)))
         .collect();
 
@@ -209,7 +227,8 @@ pub fn clip_trips(map: &Map, timer: &mut Timer) -> (Vec<Trip>, HashMap<BuildingI
             &osm_id_to_bldg,
             match trip.mode {
                 Mode::Walk | Mode::Transit => &incoming_borders_walking,
-                Mode::Drive | Mode::Bike => &incoming_borders_driving,
+                Mode::Drive => &incoming_borders_driving,
+                Mode::Bike => &incoming_borders_biking,
             },
         )?;
         let to = TripEndpt::new(
@@ -218,7 +237,8 @@ pub fn clip_trips(map: &Map, timer: &mut Timer) -> (Vec<Trip>, HashMap<BuildingI
             &osm_id_to_bldg,
             match trip.mode {
                 Mode::Walk | Mode::Transit => &outgoing_borders_walking,
-                Mode::Drive | Mode::Bike => &outgoing_borders_driving,
+                Mode::Drive => &outgoing_borders_driving,
+                Mode::Bike => &outgoing_borders_biking,
             },
         )?;
 

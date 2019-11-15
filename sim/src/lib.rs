@@ -32,8 +32,8 @@ pub use crate::render::{
 use abstutil::Cloneable;
 use geom::{Distance, Duration, Pt2D, Speed};
 use map_model::{
-    BuildingID, BusStopID, DirectedRoadID, IntersectionID, LaneID, LaneType, Map, Path,
-    PathConstraints, Position,
+    BuildingID, BusStopID, DirectedRoadID, IntersectionID, LaneID, Map, Path, PathConstraints,
+    Position,
 };
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -303,7 +303,9 @@ impl SidewalkSpot {
 
     // Recall sidewalks are bidirectional.
     pub fn start_at_border(i: IntersectionID, map: &Map) -> Option<SidewalkSpot> {
-        let lanes = map.get_i(i).get_outgoing_lanes(map, LaneType::Sidewalk);
+        let lanes = map
+            .get_i(i)
+            .get_outgoing_lanes(map, PathConstraints::Pedestrian);
         if !lanes.is_empty() {
             return Some(SidewalkSpot {
                 sidewalk_pos: Position::new(lanes[0], Distance::ZERO),
@@ -311,7 +313,9 @@ impl SidewalkSpot {
             });
         }
 
-        let lanes = map.get_i(i).get_incoming_lanes(map, LaneType::Sidewalk);
+        let lanes = map
+            .get_i(i)
+            .get_incoming_lanes(map, PathConstraints::Pedestrian);
         if lanes.is_empty() {
             return None;
         }
@@ -322,7 +326,9 @@ impl SidewalkSpot {
     }
 
     pub fn end_at_border(i: IntersectionID, map: &Map) -> Option<SidewalkSpot> {
-        let lanes = map.get_i(i).get_incoming_lanes(map, LaneType::Sidewalk);
+        let lanes = map
+            .get_i(i)
+            .get_incoming_lanes(map, PathConstraints::Pedestrian);
         if !lanes.is_empty() {
             return Some(SidewalkSpot {
                 sidewalk_pos: Position::new(lanes[0], map.get_l(lanes[0]).length()),
@@ -330,7 +336,9 @@ impl SidewalkSpot {
             });
         }
 
-        let lanes = map.get_i(i).get_outgoing_lanes(map, LaneType::Sidewalk);
+        let lanes = map
+            .get_i(i)
+            .get_outgoing_lanes(map, PathConstraints::Pedestrian);
         if lanes.is_empty() {
             return None;
         }

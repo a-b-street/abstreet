@@ -1,5 +1,5 @@
 use crate::raw::OriginalIntersection;
-use crate::{DirectedRoadID, LaneID, LaneType, Map, Road, RoadID, TurnID};
+use crate::{DirectedRoadID, LaneID, Map, PathConstraints, Road, RoadID, TurnID};
 use abstutil;
 use geom::Polygon;
 use serde_derive::{Deserialize, Serialize};
@@ -60,18 +60,18 @@ impl Intersection {
         self.intersection_type == IntersectionType::TrafficSignal
     }
 
-    pub fn get_incoming_lanes(&self, map: &Map, lt: LaneType) -> Vec<LaneID> {
+    pub fn get_incoming_lanes(&self, map: &Map, constraints: PathConstraints) -> Vec<LaneID> {
         self.incoming_lanes
             .iter()
-            .filter(|l| map.get_l(**l).lane_type == lt)
+            .filter(|l| constraints.can_use(map.get_l(**l), map))
             .cloned()
             .collect()
     }
 
-    pub fn get_outgoing_lanes(&self, map: &Map, lt: LaneType) -> Vec<LaneID> {
+    pub fn get_outgoing_lanes(&self, map: &Map, constraints: PathConstraints) -> Vec<LaneID> {
         self.outgoing_lanes
             .iter()
-            .filter(|l| map.get_l(**l).lane_type == lt)
+            .filter(|l| constraints.can_use(map.get_l(**l), map))
             .cloned()
             .collect()
     }
