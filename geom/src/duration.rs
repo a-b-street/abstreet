@@ -339,13 +339,14 @@ impl DurationHistogram {
         }
 
         format!(
-            "{} count, 50%ile {}, 90%ile {}, 99%ile {}, min {}, max {}",
+            "{} count, 50%ile {}, 90%ile {}, 99%ile {}, min {}, mean {}, max {}",
             abstutil::prettyprint_usize(self.count),
             self.select(Statistic::P50).minimal_tostring(),
             self.select(Statistic::P90).minimal_tostring(),
             self.select(Statistic::P99).minimal_tostring(),
-            self.min.minimal_tostring(),
-            self.max.minimal_tostring(),
+            self.select(Statistic::Min).minimal_tostring(),
+            self.select(Statistic::Mean).minimal_tostring(),
+            self.select(Statistic::Max).minimal_tostring(),
         )
     }
 
@@ -366,6 +367,7 @@ impl DurationHistogram {
             Statistic::Min => {
                 return self.min;
             }
+            Statistic::Mean => self.histogram.mean().unwrap(),
             Statistic::Max => {
                 return self.max;
             }
@@ -381,6 +383,7 @@ impl DurationHistogram {
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum Statistic {
     Min,
+    Mean,
     P50,
     P90,
     P99,
@@ -391,6 +394,7 @@ impl Statistic {
     pub fn all() -> Vec<Statistic> {
         vec![
             Statistic::Min,
+            Statistic::Mean,
             Statistic::P50,
             Statistic::P90,
             Statistic::P99,
@@ -403,6 +407,7 @@ impl std::fmt::Display for Statistic {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             Statistic::Min => write!(f, "minimum"),
+            Statistic::Mean => write!(f, "mean"),
             Statistic::P50 => write!(f, "50%ile"),
             Statistic::P90 => write!(f, "90%ile"),
             Statistic::P99 => write!(f, "99%ile"),

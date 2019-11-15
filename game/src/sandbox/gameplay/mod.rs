@@ -229,7 +229,7 @@ fn manage_acs(
 }
 
 // Shorter is better
-fn cmp_duration_shorter(now: Duration, baseline: Duration) -> Vec<TextSpan> {
+pub fn cmp_duration_shorter(now: Duration, baseline: Duration) -> Vec<TextSpan> {
     if now.epsilon_eq(baseline) {
         vec![Line(" (same as baseline)")]
     } else if now < baseline {
@@ -250,7 +250,7 @@ fn cmp_duration_shorter(now: Duration, baseline: Duration) -> Vec<TextSpan> {
 }
 
 // Fewer is better
-fn cmp_count_fewer(now: usize, baseline: usize) -> TextSpan {
+pub fn cmp_count_fewer(now: usize, baseline: usize) -> TextSpan {
     if now < baseline {
         Line(format!("{} fewer", prettyprint_usize(baseline - now))).fg(Color::GREEN)
     } else if now > baseline {
@@ -261,7 +261,7 @@ fn cmp_count_fewer(now: usize, baseline: usize) -> TextSpan {
 }
 
 // More is better
-fn cmp_count_more(now: usize, baseline: usize) -> TextSpan {
+pub fn cmp_count_more(now: usize, baseline: usize) -> TextSpan {
     if now < baseline {
         Line(format!("{} fewer", prettyprint_usize(baseline - now))).fg(Color::RED)
     } else if now > baseline {

@@ -1,12 +1,12 @@
 use crate::game::{State, Transition, WizardState};
+use crate::sandbox::gameplay::{cmp_count_fewer, cmp_count_more, cmp_duration_shorter};
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{
     hotkey, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ModalMenu, Text,
     VerticalAlignment, Wizard,
 };
-use geom::{Duration, DurationHistogram};
-use itertools::Itertools;
+use geom::{Duration, Statistic};
 use sim::{TripID, TripMode};
 use std::collections::BTreeSet;
 
@@ -18,46 +18,80 @@ pub struct Scoreboard {
 impl Scoreboard {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> Scoreboard {
         let menu = ModalMenu::new(
-            "Scoreboard",
+            "Finished trips summary",
             vec![
                 (hotkey(Key::Escape), "quit"),
                 (hotkey(Key::B), "browse trips"),
             ],
             ctx,
         );
-        let t = ui.primary.sim.get_finished_trips();
 
-        let mut summary = Text::new();
-        summary.add_appended(vec![
-            Line("Score at "),
-            Line(ui.primary.sim.time().to_string()).fg(Color::RED),
-        ]);
-        summary.add_appended(vec![
-            Line(prettyprint_usize(t.unfinished_trips)).fg(Color::CYAN),
-            Line(" unfinished trips"),
-        ]);
-        summary.add_appended(vec![
-            Line(prettyprint_usize(t.aborted_trips)).fg(Color::CYAN),
-            Line(" aborted trips"),
-        ]);
+        let (now_all, now_aborted, now_per_mode) = ui
+            .primary
+            .sim
+            .get_analytics()
+            .all_finished_trips(ui.primary.sim.time());
+        let (baseline_all, baseline_aborted, baseline_per_mode) =
+            ui.prebaked.all_finished_trips(ui.primary.sim.time());
 
-        for (mode, trips) in &t
-            .finished_trips
-            .into_iter()
-            .sorted_by_key(|(_, m, _)| *m)
-            .group_by(|(_, m, _)| *m)
-        {
-            let mut distrib: DurationHistogram = DurationHistogram::new();
-            for (_, _, dt) in trips {
-                distrib.add(dt);
+        // TODO Include unfinished count
+        let mut txt = Text::new();
+        txt.add_appended(vec![
+            Line("Finished trips as of "),
+            Line(ui.primary.sim.time().ampm_tostring()).fg(Color::CYAN),
+        ]);
+        txt.add_appended(vec![
+            Line(format!(
+                "  {} aborted trips (",
+                prettyprint_usize(now_aborted)
+            )),
+            cmp_count_fewer(now_aborted, baseline_aborted),
+            Line(")"),
+        ]);
+        // TODO Refactor
+        txt.add_appended(vec![
+            Line(format!(
+                "{} total finished trips (",
+                prettyprint_usize(now_all.count())
+            )),
+            cmp_count_more(now_all.count(), baseline_all.count()),
+            Line(")"),
+        ]);
+        if now_all.count() > 0 && baseline_all.count() > 0 {
+            for stat in Statistic::all() {
+                txt.add(Line(format!(
+                    "  {}: {} ",
+                    stat,
+                    now_all.select(stat).minimal_tostring()
+                )));
+                txt.append_all(cmp_duration_shorter(
+                    now_all.select(stat),
+                    baseline_all.select(stat),
+                ));
             }
-            summary.add_appended(vec![
-                Line(format!("{}", mode)).fg(Color::CYAN),
-                Line(format!(" trips: {}", distrib.describe())),
-            ]);
         }
 
-        Scoreboard { menu, summary }
+        for mode in TripMode::all() {
+            let a = &now_per_mode[&mode];
+            let b = &baseline_per_mode[&mode];
+            txt.add_appended(vec![
+                Line(format!("{} {} trips (", prettyprint_usize(a.count()), mode)),
+                cmp_count_more(a.count(), b.count()),
+                Line(")"),
+            ]);
+            if a.count() > 0 && b.count() > 0 {
+                for stat in Statistic::all() {
+                    txt.add(Line(format!(
+                        "  {}: {} ",
+                        stat,
+                        a.select(stat).minimal_tostring()
+                    )));
+                    txt.append_all(cmp_duration_shorter(a.select(stat), b.select(stat)));
+                }
+            }
+        }
+
+        Scoreboard { menu, summary: txt }
     }
 }
 

@@ -122,16 +122,21 @@ impl Analytics {
         distrib
     }
 
-    // Returns (all trips except aborted, trips by mode)
+    // Returns (all trips except aborted, number of aborted trips, trips by mode)
     pub fn all_finished_trips(
         &self,
         now: Duration,
-    ) -> (DurationHistogram, BTreeMap<TripMode, DurationHistogram>) {
+    ) -> (
+        DurationHistogram,
+        usize,
+        BTreeMap<TripMode, DurationHistogram>,
+    ) {
         let mut per_mode = TripMode::all()
             .into_iter()
             .map(|m| (m, DurationHistogram::new()))
             .collect::<BTreeMap<_, _>>();
         let mut all = DurationHistogram::new();
+        let mut num_aborted = 0;
         for (t, m, dt) in &self.finished_trips {
             if *t > now {
                 break;
@@ -139,9 +144,11 @@ impl Analytics {
             if let Some(mode) = *m {
                 all.add(*dt);
                 per_mode.get_mut(&mode).unwrap().add(*dt);
+            } else {
+                num_aborted += 1;
             }
         }
-        (all, per_mode)
+        (all, num_aborted, per_mode)
     }
 
     pub fn bus_arrivals(
