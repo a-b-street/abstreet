@@ -1,5 +1,7 @@
 use crate::raw::{OriginalRoad, RestrictionType};
-use crate::{osm, BusStopID, IntersectionID, LaneID, LaneType, Map, LANE_THICKNESS};
+use crate::{
+    osm, BusStopID, IntersectionID, LaneID, LaneType, Map, PathConstraints, LANE_THICKNESS,
+};
 use abstutil::{Error, Warn};
 use geom::{Distance, PolyLine, Polygon, Speed};
 use serde_derive::{Deserialize, Serialize};
@@ -72,7 +74,7 @@ impl DirectedRoadID {
         }
     }
 
-    pub fn lanes(self, lt: LaneType, map: &Map) -> Vec<LaneID> {
+    pub fn lanes(self, constraints: PathConstraints, map: &Map) -> Vec<LaneID> {
         let r = map.get_r(self.id);
         let list = if self.forwards {
             &r.children_forwards
@@ -80,7 +82,13 @@ impl DirectedRoadID {
             &r.children_backwards
         };
         list.iter()
-            .filter_map(|(l, t)| if lt == *t { Some(*l) } else { None })
+            .filter_map(|(l, t)| {
+                if constraints.can_use(*t) {
+                    Some(*l)
+                } else {
+                    None
+                }
+            })
             .collect()
     }
 }

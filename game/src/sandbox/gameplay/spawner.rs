@@ -387,7 +387,7 @@ fn schedule_trip(
                 Goal::Border(to) => {
                     if let Some(g) = DrivingGoal::end_at_border(
                         map.get_i(to).some_incoming_road(map),
-                        vec![LaneType::Driving],
+                        PathConstraints::Car,
                         map,
                     ) {
                         g

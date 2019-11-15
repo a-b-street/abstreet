@@ -6,7 +6,7 @@ use abstutil;
 use abstutil::{fork_rng, prettyprint_usize, Timer, WeightedUsizeChoice};
 use geom::{Distance, Duration, Speed};
 use map_model::{
-    BuildingID, BusRouteID, BusStopID, DirectedRoadID, FullNeighborhoodInfo, LaneType, Map,
+    BuildingID, BusRouteID, BusStopID, DirectedRoadID, FullNeighborhoodInfo, Map, PathConstraints,
     Position, RoadID,
 };
 use rand::seq::SliceRandom;
@@ -401,13 +401,10 @@ impl SpawnOverTime {
             .into_iter()
             .find(|p| !reserved_cars.contains(&p.vehicle.id))
         {
-            if let Some(goal) = self.goal.pick_driving_goal(
-                vec![LaneType::Driving],
-                map,
-                &neighborhoods,
-                rng,
-                timer,
-            ) {
+            if let Some(goal) =
+                self.goal
+                    .pick_driving_goal(PathConstraints::Car, map, &neighborhoods, rng, timer)
+            {
                 reserved_cars.insert(parked_car.vehicle.id);
                 let spot = parked_car.spot;
                 sim.schedule_trip(
@@ -425,13 +422,10 @@ impl SpawnOverTime {
         }
 
         if rng.gen_bool(self.percent_biking) {
-            if let Some(goal) = self.goal.pick_driving_goal(
-                vec![LaneType::Driving, LaneType::Biking],
-                map,
-                &neighborhoods,
-                rng,
-                timer,
-            ) {
+            if let Some(goal) =
+                self.goal
+                    .pick_driving_goal(PathConstraints::Bike, map, &neighborhoods, rng, timer)
+            {
                 let start_at = map.get_b(from_bldg).sidewalk();
                 // TODO Just start biking on the other side of the street if the sidewalk
                 // is on a one-way. Or at least warn.
@@ -583,8 +577,8 @@ impl BorderSpawnOverTime {
         if self.num_cars == 0 {
             return;
         }
-        let starting_driving_lanes = self.start_from_border.lanes(LaneType::Driving, map);
-        if starting_driving_lanes.is_empty() {
+        let starting_lanes = self.start_from_border.lanes(PathConstraints::Car, map);
+        if starting_lanes.is_empty() {
             timer.warn(format!(
                 "Can't start car at border for {}",
                 self.start_from_border
@@ -592,29 +586,26 @@ impl BorderSpawnOverTime {
             return;
         }
 
-        let lane_len = map.get_l(starting_driving_lanes[0]).length();
+        let lane_len = map.get_l(starting_lanes[0]).length();
         if lane_len < MAX_CAR_LENGTH {
             timer.warn(format!(
                 "Skipping {:?} because {} is only {}, too short to spawn cars",
-                self, starting_driving_lanes[0], lane_len
+                self, starting_lanes[0], lane_len
             ));
             return;
         }
         for _ in 0..self.num_cars {
             let spawn_time = rand_time(rng, self.start_time, self.stop_time);
-            if let Some(goal) = self.goal.pick_driving_goal(
-                vec![LaneType::Driving],
-                map,
-                &neighborhoods,
-                rng,
-                timer,
-            ) {
+            if let Some(goal) =
+                self.goal
+                    .pick_driving_goal(PathConstraints::Car, map, &neighborhoods, rng, timer)
+            {
                 let vehicle = Scenario::rand_car(rng);
                 sim.schedule_trip(
                     spawn_time,
                     TripSpec::CarAppearing {
                         // TODO could pretty easily pick any lane here
-                        start_pos: Position::new(starting_driving_lanes[0], vehicle.length),
+                        start_pos: Position::new(starting_lanes[0], vehicle.length),
                         vehicle_spec: vehicle,
                         goal,
                         ped_speed: Scenario::rand_ped_speed(rng),
@@ -636,13 +627,8 @@ impl BorderSpawnOverTime {
         if self.num_bikes == 0 {
             return;
         }
-        let mut starting_biking_lanes = self.start_from_border.lanes(LaneType::Biking, map);
-        if map.get_r(self.start_from_border.id).supports_bikes() {
-            starting_biking_lanes.extend(self.start_from_border.lanes(LaneType::Driving, map));
-        }
-        if starting_biking_lanes.is_empty()
-            || map.get_l(starting_biking_lanes[0]).length() < BIKE_LENGTH
-        {
+        let starting_lanes = self.start_from_border.lanes(PathConstraints::Bike, map);
+        if starting_lanes.is_empty() || map.get_l(starting_lanes[0]).length() < BIKE_LENGTH {
             timer.warn(format!(
                 "Can't start bike at border for {}",
                 self.start_from_border
@@ -652,18 +638,15 @@ impl BorderSpawnOverTime {
 
         for _ in 0..self.num_bikes {
             let spawn_time = rand_time(rng, self.start_time, self.stop_time);
-            if let Some(goal) = self.goal.pick_driving_goal(
-                vec![LaneType::Driving, LaneType::Biking],
-                map,
-                &neighborhoods,
-                rng,
-                timer,
-            ) {
+            if let Some(goal) =
+                self.goal
+                    .pick_driving_goal(PathConstraints::Bike, map, &neighborhoods, rng, timer)
+            {
                 let bike = Scenario::rand_bike(rng);
                 sim.schedule_trip(
                     spawn_time,
                     TripSpec::CarAppearing {
-                        start_pos: Position::new(starting_biking_lanes[0], bike.length),
+                        start_pos: Position::new(starting_lanes[0], bike.length),
                         vehicle_spec: bike,
                         goal,
                         ped_speed: Scenario::rand_ped_speed(rng),
@@ -684,7 +667,7 @@ pub enum OriginDestination {
 impl OriginDestination {
     fn pick_driving_goal(
         &self,
-        lane_types: Vec<LaneType>,
+        constraints: PathConstraints,
         map: &Map,
         neighborhoods: &HashMap<String, FullNeighborhoodInfo>,
         rng: &mut XorShiftRng,
@@ -695,11 +678,11 @@ impl OriginDestination {
                 *neighborhoods[n].buildings.choose(rng).unwrap(),
             )),
             OriginDestination::EndOfRoad(dr) => {
-                let goal = DrivingGoal::end_at_border(*dr, lane_types, map);
+                let goal = DrivingGoal::end_at_border(*dr, constraints, map);
                 if goal.is_none() {
                     timer.warn(format!(
-                        "Can't spawn a car ending at border {}; no appropriate lanes there",
-                        dr
+                        "Can't spawn a {:?} ending at border {}; no appropriate lanes there",
+                        constraints, dr
                     ));
                 }
                 goal

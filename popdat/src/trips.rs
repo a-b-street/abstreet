@@ -44,7 +44,7 @@ impl Trip {
                 start: self.from.start_pos_driving(map)?,
                 end: self
                     .to
-                    .driving_goal(vec![LaneType::Biking, LaneType::Driving], map)
+                    .driving_goal(PathConstraints::Bike, map)
                     .goal_pos(map),
                 constraints: PathConstraints::Bike,
             },
@@ -52,7 +52,7 @@ impl Trip {
                 start: self.from.start_pos_driving(map)?,
                 end: self
                     .to
-                    .driving_goal(vec![LaneType::Driving], map)
+                    .driving_goal(PathConstraints::Car, map)
                     .goal_pos(map),
                 constraints: PathConstraints::Car,
             },
@@ -126,11 +126,11 @@ impl TripEndpt {
         }
     }
 
-    fn driving_goal(&self, lane_types: Vec<LaneType>, map: &Map) -> DrivingGoal {
+    fn driving_goal(&self, constraints: PathConstraints, map: &Map) -> DrivingGoal {
         match self {
             TripEndpt::Building(b) => DrivingGoal::ParkNear(*b),
             TripEndpt::Border(i, _) => {
-                DrivingGoal::end_at_border(map.get_i(*i).some_incoming_road(map), lane_types, map)
+                DrivingGoal::end_at_border(map.get_i(*i).some_incoming_road(map), constraints, map)
                     .unwrap()
             }
         }
@@ -272,7 +272,7 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
                             Some(SpawnTrip::CarAppearing {
                                 depart: trip.depart_at,
                                 start,
-                                goal: trip.to.driving_goal(vec![LaneType::Driving], map),
+                                goal: trip.to.driving_goal(PathConstraints::Car, map),
                                 is_bike: false,
                             })
                         } else {
@@ -284,15 +284,14 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
                     TripEndpt::Building(b) => Some(SpawnTrip::MaybeUsingParkedCar(
                         trip.depart_at,
                         b,
-                        trip.to.driving_goal(vec![LaneType::Driving], map),
+                        trip.to.driving_goal(PathConstraints::Car, map),
                     )),
                 },
                 Mode::Bike => match trip.from {
                     TripEndpt::Building(b) => Some(SpawnTrip::UsingBike(
                         trip.depart_at,
                         SidewalkSpot::building(b, map),
-                        trip.to
-                            .driving_goal(vec![LaneType::Biking, LaneType::Driving], map),
+                        trip.to.driving_goal(PathConstraints::Bike, map),
                     )),
                     TripEndpt::Border(i, _) => {
                         if let Some(start) = TripSpec::spawn_car_at(
@@ -305,9 +304,7 @@ pub fn trips_to_scenario(map: &Map, timer: &mut Timer) -> Scenario {
                             Some(SpawnTrip::CarAppearing {
                                 depart: trip.depart_at,
                                 start,
-                                goal: trip
-                                    .to
-                                    .driving_goal(vec![LaneType::Biking, LaneType::Driving], map),
+                                goal: trip.to.driving_goal(PathConstraints::Bike, map),
                                 is_bike: true,
                             })
                         } else {

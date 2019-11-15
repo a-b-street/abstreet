@@ -192,13 +192,10 @@ pub enum DrivingGoal {
 impl DrivingGoal {
     pub fn end_at_border(
         dr: DirectedRoadID,
-        lane_types: Vec<LaneType>,
+        constraints: PathConstraints,
         map: &Map,
     ) -> Option<DrivingGoal> {
-        let mut lanes = Vec::new();
-        for lt in lane_types {
-            lanes.extend(dr.lanes(lt, map));
-        }
+        let lanes = dr.lanes(constraints, map);
         if lanes.is_empty() {
             None
         } else {
