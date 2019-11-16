@@ -2,6 +2,7 @@ mod driving;
 mod node_map;
 mod walking;
 
+pub use self::driving::cost;
 use self::driving::VehiclePathfinder;
 use self::walking::SidewalkPathfinder;
 use crate::{

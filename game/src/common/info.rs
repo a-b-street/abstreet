@@ -5,6 +5,7 @@ use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{hotkey, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
 use geom::Duration;
+use map_model::PathConstraints;
 use sim::CarID;
 use std::collections::BTreeMap;
 
@@ -113,6 +114,22 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
                 "{} total agents crossed",
                 prettyprint_usize(sim.get_analytics().thruput_stats.count_per_road.get(r.id))
             )));
+
+            if l.lane_type.is_for_moving_vehicles() {
+                for constraint in vec![
+                    PathConstraints::Car,
+                    PathConstraints::Bike,
+                    PathConstraints::Bus,
+                ] {
+                    if constraint.can_use(l, map) {
+                        txt.add(Line(format!(
+                            "Cost for {:?}: {}",
+                            constraint,
+                            l.get_cost(constraint, map)
+                        )));
+                    }
+                }
+            }
         }
         ID::Intersection(id) => {
             let i = map.get_i(id);

@@ -1,5 +1,7 @@
+use crate::pathfind;
 use crate::{
-    osm, BuildingID, BusStopID, DirectedRoadID, IntersectionID, Map, Road, RoadID, TurnType,
+    osm, BuildingID, BusStopID, DirectedRoadID, IntersectionID, Map, PathConstraints, Road, RoadID,
+    TurnType,
 };
 use abstutil;
 use geom::{Angle, Distance, Line, PolyLine, Pt2D};
@@ -243,5 +245,15 @@ impl Lane {
                 })
                 .collect(),
         )
+    }
+
+    pub fn get_cost(&self, constraints: PathConstraints, map: &Map) -> usize {
+        if let Some(turn) = map.get_turns_to_lane(self.id).get(0) {
+            pathfind::cost(self, turn, constraints, map)
+        } else {
+            // Probably a border.
+            println!("{} has no incoming turns! Bogus cost 0", self.id);
+            0
+        }
     }
 }

@@ -2,7 +2,7 @@ use crate::common::{
     ObjectColorer, ObjectColorerBuilder, Plot, RoadColorer, RoadColorerBuilder, Series,
 };
 use crate::game::{Transition, WizardState};
-use crate::helpers::ID;
+use crate::helpers::{rotating_color, ID};
 use crate::render::DrawOptions;
 use crate::sandbox::bus_explorer::ShowBusRoute;
 use crate::sandbox::SandboxMode;
@@ -10,7 +10,7 @@ use crate::ui::{ShowEverything, UI};
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{Choice, Color, EventCtx, GfxCtx, Key, Line, MenuUnderButton, Text};
 use geom::Duration;
-use map_model::{IntersectionID, PathStep, RoadID};
+use map_model::{IntersectionID, LaneID, PathConstraints, PathStep, RoadID};
 use sim::{ParkingSpot, TripMode};
 use std::collections::{BTreeMap, HashSet};
 
@@ -34,6 +34,7 @@ pub enum Overlays {
     FinishedTrips(Duration, Plot<usize>),
     Chokepoints(Duration, ObjectColorer),
     BikeNetwork(RoadColorer),
+    BikePathCosts(RoadColorer),
     BusNetwork(RoadColorer),
     // Only set by certain gameplay modes
     BusRoute(ShowBusRoute),
@@ -61,6 +62,7 @@ impl Overlays {
                                 Choice::new("finished trips", ()).key(Key::F),
                                 Choice::new("chokepoints", ()).key(Key::C),
                                 Choice::new("bike network", ()).key(Key::B),
+                                Choice::new("bike path costs", ()).key(Key::X),
                                 Choice::new("bus network", ()).key(Key::U),
                             ]
                         })?;
@@ -87,6 +89,9 @@ impl Overlays {
                             "bike network" => {
                                 Overlays::BikeNetwork(calculate_bike_network(ctx, ui))
                             }
+                            "bike path costs" => {
+                                Overlays::BikePathCosts(calculate_bike_path_costs(ctx, ui))
+                            }
                             "bus network" => Overlays::BusNetwork(calculate_bus_network(ctx, ui)),
                             _ => unreachable!(),
                         };
@@ -97,8 +102,8 @@ impl Overlays {
 
         let now = ui.primary.sim.time();
         match self {
-            // Don't bother with Inactive, BusRoute, BusDelaysOverTime, BikeNetwork, BusNetwork --
-            // nothing needed or the gameplay mode will update it.
+            // Don't bother with Inactive, BusRoute, BusDelaysOverTime, BikeNetwork, BikePathCosts,
+            // BusNetwork -- nothing needed or the gameplay mode will update it.
             Overlays::ParkingAvailability(ref mut t, ref mut x) if now != *t => {
                 *t = now;
                 *x = calculate_parking_heatmap(ctx, ui);
@@ -148,6 +153,7 @@ impl Overlays {
             Overlays::Inactive => false,
             Overlays::ParkingAvailability(_, ref heatmap)
             | Overlays::BikeNetwork(ref heatmap)
+            | Overlays::BikePathCosts(ref heatmap)
             | Overlays::BusNetwork(ref heatmap) => {
                 heatmap.draw(g, ui);
                 true
@@ -522,4 +528,39 @@ pub fn calculate_intersection_thruput(
         0,
         ctx,
     )
+}
+
+fn calculate_bike_path_costs(ctx: &EventCtx, ui: &UI) -> RoadColorer {
+    let mut cost_per_lane: BTreeMap<LaneID, usize> = BTreeMap::new();
+    for l in ui.primary.map.all_lanes() {
+        if PathConstraints::Bike.can_use(l, &ui.primary.map) {
+            cost_per_lane.insert(l.id, l.get_cost(PathConstraints::Bike, &ui.primary.map));
+        }
+    }
+
+    let mut colorer = RoadColorerBuilder::new(
+        Text::prompt("bike pathfinding (% of max cost)"),
+        vec![
+            ("<= 10%", rotating_color(0)),
+            ("<= 20%", rotating_color(1)),
+            ("<= 30%", rotating_color(2)),
+            ("<= 40%", rotating_color(3)),
+            ("<= 50%", rotating_color(4)),
+            ("<= 60%", rotating_color(5)),
+            ("<= 70%", rotating_color(6)),
+            ("<= 80%", rotating_color(7)),
+            ("<= 90%", rotating_color(8)),
+            ("> 90%", rotating_color(9)),
+        ],
+    );
+    let max = *cost_per_lane.values().max().unwrap() as f64;
+    for (l, cost) in cost_per_lane {
+        let percent = (cost as f64) / max;
+        colorer.add(
+            l,
+            rotating_color((percent * 10.0).round() as usize),
+            &ui.primary.map,
+        );
+    }
+    colorer.build(ctx, &ui.primary.map)
 }

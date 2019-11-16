@@ -123,7 +123,7 @@ fn make_input_graph(
     input_graph
 }
 
-fn cost(lane: &Lane, turn: &Turn, constraints: PathConstraints, map: &Map) -> usize {
+pub fn cost(lane: &Lane, turn: &Turn, constraints: PathConstraints, map: &Map) -> usize {
     // TODO Could cost turns differently.
 
     match constraints {

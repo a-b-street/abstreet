@@ -46,3 +46,13 @@ limits, or private spots.
 
 Only happen at dead-ends right now. But there are a few important ones to
 support -- like Montlake Blvd to go WB on 520.
+
+## Roads without sidewalks
+
+Last-leg routing... pedestrians need to walk on the road. How to model this?
+Happens in Seattle when there's parking without sidewalks nearby.
+
+## One-at-a-time roads
+
+Some roads are "two-way", but have parking on both sides, and so are effectively
+one way at a time. How's this tagged in OSM? How do we model this?
