@@ -4,7 +4,7 @@ mod traffic_signals;
 
 use crate::common::CommonState;
 use crate::debug::DebugMode;
-use crate::game::{State, Transition, WizardState};
+use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{
     DrawIntersection, DrawLane, DrawMap, DrawOptions, DrawRoad, DrawTurn, Renderable,
@@ -17,7 +17,10 @@ use ezgui::{
     hotkey, lctrl, Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, MenuUnderButton,
     ModalMenu, Text, Wizard,
 };
-use map_model::{EditCmd, IntersectionID, LaneID, MapEdits, TurnID, TurnType};
+use map_model::{
+    ControlStopSign, ControlTrafficSignal, EditCmd, IntersectionID, LaneID, MapEdits, TurnID,
+    TurnType,
+};
 use std::collections::{BTreeSet, HashMap};
 
 pub struct EditMode {
@@ -60,28 +63,25 @@ impl EditMode {
 
 impl State for EditMode {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        // The .clone() is probably not that expensive, and it makes later code a bit
-        // easier to read. :)
-        let orig_edits = ui.primary.map.get_edits().clone();
         {
+            let edits = ui.primary.map.get_edits();
             let mut txt = Text::new();
-            txt.add(Line(format!("Edits: {}", orig_edits.edits_name)));
-            if orig_edits.dirty {
+            txt.add(Line(format!("Edits: {}", edits.edits_name)));
+            if edits.dirty {
                 txt.append(Line("*"));
             }
-            /*txt.add(Line(format!("{} lanes", orig_edits.lane_overrides.len())));
             txt.add(Line(format!(
-                "{} stop signs ",
-                orig_edits.stop_sign_overrides.len()
+                "{} lane types changed",
+                edits.original_lts.len()
             )));
             txt.add(Line(format!(
-                "{} traffic signals",
-                orig_edits.traffic_signal_overrides.len()
+                "{} lanes reversed",
+                edits.reversed_lanes.len()
             )));
             txt.add(Line(format!(
-                "{} closed intersections ",
-                orig_edits.intersections_under_construction.len()
-            )));*/
+                "{} intersections changed",
+                edits.changed_intersections.len()
+            )));
             self.menu.set_info(ctx, txt);
         }
         self.menu.event(ctx);
@@ -119,7 +119,7 @@ impl State for EditMode {
             return Transition::KeepWithMode(EventLoopMode::ScreenCaptureCurrentShot);
         }
 
-        if orig_edits.dirty && self.menu.action("save edits") {
+        if ui.primary.map.get_edits().dirty && self.menu.action("save edits") {
             return Transition::Push(WizardState::new(Box::new(save_edits)));
         } else if self.menu.action("load different edits") {
             return Transition::Push(WizardState::new(Box::new(load_edits)));
@@ -142,14 +142,35 @@ impl State for EditMode {
                 return Transition::Push(lanes::make_bulk_edit_lanes(
                     ui.primary.map.get_l(id).parent,
                 ));
-            } /* else if orig_edits.lane_overrides.contains_key(&id)
-                  && ctx.input.contextual_action(Key::R, "revert")
-              {
-                  let mut new_edits = orig_edits.clone();
-                  new_edits.lane_overrides.remove(&id);
-                  new_edits.contraflow_lanes.remove(&id);
-                  apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
-              }*/
+            } else if let Some(lt) = ui.primary.map.get_edits().original_lts.get(&id) {
+                if ctx.input.contextual_action(Key::R, "revert") {
+                    let mut edits = ui.primary.map.get_edits().clone();
+                    edits.commands.push(EditCmd::ChangeLaneType {
+                        id,
+                        lt: *lt,
+                        orig_lt: ui.primary.map.get_l(id).lane_type,
+                    });
+                    apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
+                }
+            } else if ui.primary.map.get_edits().reversed_lanes.contains(&id) {
+                if ctx.input.contextual_action(Key::R, "revert") {
+                    if ui.primary.map.get_parent(id).dir_and_offset(id).1 != 0 {
+                        return Transition::Push(msg(
+                            "Error",
+                            vec![
+                            "You can only reverse the lanes next to the road's yellow center line"
+                        ],
+                        ));
+                    }
+
+                    let mut edits = ui.primary.map.get_edits().clone();
+                    edits.commands.push(EditCmd::ReverseLane {
+                        l: id,
+                        dst_i: ui.primary.map.get_l(id).src_i,
+                    });
+                    apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
+                }
+            }
         }
         if let Some(ID::Intersection(id)) = ui.primary.current_selection {
             if ui.primary.map.maybe_get_stop_sign(id).is_some() {
@@ -160,13 +181,23 @@ impl State for EditMode {
                     return Transition::Push(Box::new(stop_signs::StopSignEditor::new(
                         id, ctx, ui,
                     )));
-                } /* else if orig_edits.stop_sign_overrides.contains_key(&id)
-                      && ctx.input.contextual_action(Key::R, "revert")
-                  {
-                      let mut new_edits = orig_edits.clone();
-                      new_edits.stop_sign_overrides.remove(&id);
-                      apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
-                  }*/
+                } else if ui
+                    .primary
+                    .map
+                    .get_edits()
+                    .changed_intersections
+                    .contains(&id)
+                    && ctx.input.contextual_action(Key::R, "revert")
+                {
+                    let mut edits = ui.primary.map.get_edits().clone();
+                    edits
+                        .commands
+                        .push(EditCmd::ChangeStopSign(ControlStopSign::new(
+                            &ui.primary.map,
+                            id,
+                        )));
+                    apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
+                }
             }
             if ui.primary.map.maybe_get_traffic_signal(id).is_some() {
                 if ctx
@@ -176,13 +207,24 @@ impl State for EditMode {
                     return Transition::Push(Box::new(traffic_signals::TrafficSignalEditor::new(
                         id, ctx, ui,
                     )));
-                } /* else if orig_edits.traffic_signal_overrides.contains_key(&id)
-                      && ctx.input.contextual_action(Key::R, "revert")
-                  {
-                      let mut new_edits = orig_edits.clone();
-                      new_edits.traffic_signal_overrides.remove(&id);
-                      apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
-                  }*/
+                } else if ui
+                    .primary
+                    .map
+                    .get_edits()
+                    .changed_intersections
+                    .contains(&id)
+                    && ctx.input.contextual_action(Key::R, "revert")
+                {
+                    let mut edits = ui.primary.map.get_edits().clone();
+                    edits
+                        .commands
+                        .push(EditCmd::ChangeTrafficSignal(ControlTrafficSignal::new(
+                            &ui.primary.map,
+                            id,
+                            &mut Timer::throwaway(),
+                        )));
+                    apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
+                }
             }
             if ui.primary.map.get_i(id).is_closed() && ctx.input.contextual_action(Key::R, "revert")
             {
@@ -220,25 +262,16 @@ impl State for EditMode {
         // supply a set of things to highlight and have something else take care of drawing
         // with detail or not.
         if g.canvas.cam_zoom >= MIN_ZOOM_FOR_DETAIL {
-            /*for l in edits
-                .lane_overrides
-                .keys()
-                .chain(edits.contraflow_lanes.keys())
-            {
+            for l in edits.original_lts.keys().chain(&edits.reversed_lanes) {
                 opts.override_colors
                     .insert(ID::Lane(*l), Color::HatchingStyle1);
                 ctx.draw_map.get_l(*l).draw(g, &opts, &ctx);
             }
-            for i in edits
-                .stop_sign_overrides
-                .keys()
-                .chain(edits.traffic_signal_overrides.keys())
-                .chain(edits.intersections_under_construction.keys())
-            {
+            for i in &edits.changed_intersections {
                 opts.override_colors
                     .insert(ID::Intersection(*i), Color::HatchingStyle1);
                 ctx.draw_map.get_i(*i).draw(g, &opts, &ctx);
-            }*/
+            }
 
             // The hatching covers up the selection outline, so redraw it.
             match ui.primary.current_selection {
@@ -258,18 +291,14 @@ impl State for EditMode {
             }
         } else {
             let color = ui.cs.get_def("unzoomed map diffs", Color::RED);
-            /*for l in edits.lane_overrides.keys() {
+            for l in edits.original_lts.keys().chain(&edits.reversed_lanes) {
                 g.draw_polygon(color, &ctx.map.get_parent(*l).get_thick_polygon().unwrap());
             }
 
-            for i in edits
-                .stop_sign_overrides
-                .keys()
-                .chain(edits.traffic_signal_overrides.keys())
-            {
+            for i in &edits.changed_intersections {
                 opts.override_colors.insert(ID::Intersection(*i), color);
                 ctx.draw_map.get_i(*i).draw(g, &opts, &ctx);
-            }*/
+            }
         }
 
         self.common.draw(g, ui);

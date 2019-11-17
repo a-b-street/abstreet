@@ -645,7 +645,7 @@ impl Map {
     // deleted, turns added. Doesn't update pathfinding yet.
     pub fn apply_edits(
         &mut self,
-        new_edits: MapEdits,
+        mut new_edits: MapEdits,
         timer: &mut Timer,
     ) -> (
         BTreeSet<LaneID>,
@@ -681,6 +681,7 @@ impl Map {
             new_edits.commands.len()
         ));
 
+        new_edits.update_derived(self, timer);
         self.edits = new_edits;
         self.pathfinder_dirty = true;
         (

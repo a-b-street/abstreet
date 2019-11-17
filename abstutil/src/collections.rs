@@ -115,6 +115,18 @@ pub fn retain_btreemap<K: Ord + Clone, V, F: Fn(&K, &V) -> bool>(
     }
 }
 
+pub fn retain_btreeset<K: Ord + Clone, F: FnMut(&K) -> bool>(set: &mut BTreeSet<K>, mut keep: F) {
+    let mut remove: Vec<K> = Vec::new();
+    for k in set.iter() {
+        if !keep(k) {
+            remove.push(k.clone());
+        }
+    }
+    for k in remove {
+        set.remove(&k);
+    }
+}
+
 pub fn contains_duplicates<T: Ord>(vec: &Vec<T>) -> bool {
     let mut set = BTreeSet::new();
     for item in vec {
