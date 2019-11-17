@@ -1137,6 +1137,28 @@ impl EditCmd {
                 recalculate_turns(*id, map, effects, timer);
                 true
             }
+            EditCmd::UncloseIntersection(id, orig_it) => {
+                let id = *id;
+                let orig_it = *orig_it;
+                if map.intersections[id.0].intersection_type == orig_it {
+                    return false;
+                }
+
+                map.intersections[id.0].intersection_type = orig_it;
+                recalculate_turns(id, map, effects, timer);
+                match orig_it {
+                    IntersectionType::StopSign => {
+                        map.stop_signs.insert(id, ControlStopSign::new(map, id));
+                    }
+                    IntersectionType::TrafficSignal => {
+                        map.traffic_signals
+                            .insert(id, ControlTrafficSignal::new(map, id, timer));
+                    }
+                    IntersectionType::Border | IntersectionType::Construction => unreachable!(),
+                }
+                effects.changed_intersections.insert(id);
+                true
+            }
         }
     }
 
@@ -1170,25 +1192,13 @@ impl EditCmd {
                     .apply(effects, map, timer)
             }
             EditCmd::CloseIntersection { id, orig_it } => {
-                if map.intersections[id.0].intersection_type == *orig_it {
-                    return false;
-                }
-
-                map.intersections[id.0].intersection_type = *orig_it;
-                recalculate_turns(*id, map, effects, timer);
-                match *orig_it {
-                    IntersectionType::StopSign => {
-                        map.stop_signs.insert(*id, ControlStopSign::new(map, *id));
-                    }
-                    IntersectionType::TrafficSignal => {
-                        map.traffic_signals
-                            .insert(*id, ControlTrafficSignal::new(map, *id, timer));
-                    }
-                    IntersectionType::Border | IntersectionType::Construction => unreachable!(),
-                }
-                effects.changed_intersections.insert(*id);
-                true
+                EditCmd::UncloseIntersection(*id, *orig_it).apply(effects, map, timer)
             }
+            EditCmd::UncloseIntersection(id, orig_it) => EditCmd::CloseIntersection {
+                id: *id,
+                orig_it: *orig_it,
+            }
+            .apply(effects, map, timer),
         }
     }
 }

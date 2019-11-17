@@ -237,7 +237,7 @@ impl LaneEditor {
                     .contextual_action(Key::Space, &self.brushes[self.construction_idx].label)
             {
                 let it = ui.primary.map.get_i(i).intersection_type;
-                if it != IntersectionType::Construction {
+                if it != IntersectionType::Construction && it != IntersectionType::Border {
                     let mut edits = ui.primary.map.get_edits().clone();
                     edits
                         .commands

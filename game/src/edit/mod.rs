@@ -17,7 +17,7 @@ use ezgui::{
     hotkey, lctrl, Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, MenuUnderButton,
     ModalMenu, Text, Wizard,
 };
-use map_model::{IntersectionID, LaneID, MapEdits, TurnID, TurnType};
+use map_model::{EditCmd, IntersectionID, LaneID, MapEdits, TurnID, TurnType};
 use std::collections::{BTreeSet, HashMap};
 
 pub struct EditMode {
@@ -184,15 +184,14 @@ impl State for EditMode {
                       apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
                   }*/
             }
-            /*if orig_edits
-                .intersections_under_construction
-                .contains_key(&id)
-                && ctx.input.contextual_action(Key::R, "revert")
+            if ui.primary.map.get_i(id).is_closed() && ctx.input.contextual_action(Key::R, "revert")
             {
-                let mut new_edits = orig_edits.clone();
-                new_edits.intersections_under_construction.remove(&id);
-                apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
-            }*/
+                let mut edits = ui.primary.map.get_edits().clone();
+                edits
+                    .commands
+                    .push(EditCmd::UncloseIntersection(id, edits.original_it(id)));
+                apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
+            }
         }
 
         Transition::Keep

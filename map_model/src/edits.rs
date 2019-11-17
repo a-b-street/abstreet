@@ -33,6 +33,7 @@ pub enum EditCmd {
         id: IntersectionID,
         orig_it: IntersectionType,
     },
+    UncloseIntersection(IntersectionID, IntersectionType),
 }
 
 pub struct EditEffects {
@@ -71,6 +72,17 @@ impl MapEdits {
         assert_ne!(self.edits_name, "no_edits");
         abstutil::save_json_object(abstutil::EDITS, &self.map_name, &self.edits_name, self);
         self.dirty = false;
+    }
+
+    pub fn original_it(&self, i: IntersectionID) -> IntersectionType {
+        for cmd in &self.commands {
+            if let EditCmd::CloseIntersection { id, orig_it } = cmd {
+                if *id == i {
+                    return *orig_it;
+                }
+            }
+        }
+        panic!("{} isn't closed", i);
     }
 }
 
