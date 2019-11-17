@@ -1,26 +1,46 @@
 use crate::{
     ControlStopSign, ControlTrafficSignal, IntersectionID, IntersectionType, LaneID, LaneType,
+    RoadID, TurnID,
 };
 use abstutil::Timer;
 use serde_derive::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+use std::collections::BTreeSet;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct MapEdits {
     pub(crate) map_name: String,
     pub edits_name: String,
-    pub lane_overrides: BTreeMap<LaneID, LaneType>,
-    // TODO Order matters if validity checks happen...
-    // The IntersectionID says where this lane now points. Used to detect reverts.
-    pub contraflow_lanes: BTreeMap<LaneID, IntersectionID>,
-    // TODO Storing the entire thing is maybe a bit dramatic, but works for now.
-    pub stop_sign_overrides: BTreeMap<IntersectionID, ControlStopSign>,
-    pub traffic_signal_overrides: BTreeMap<IntersectionID, ControlTrafficSignal>,
-    // Remember the original type to undo it.
-    pub intersections_under_construction: BTreeMap<IntersectionID, IntersectionType>,
+    pub commands: Vec<EditCmd>,
 
     #[serde(skip_serializing, skip_deserializing)]
     pub dirty: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum EditCmd {
+    ChangeLaneType {
+        id: LaneID,
+        lt: LaneType,
+        orig_lt: LaneType,
+    },
+    ReverseLane {
+        l: LaneID,
+        dst_i: IntersectionID,
+    },
+    ChangeStopSign(ControlStopSign),
+    ChangeTrafficSignal(ControlTrafficSignal),
+    CloseIntersection {
+        id: IntersectionID,
+        orig_it: IntersectionType,
+    },
+}
+
+pub struct EditEffects {
+    pub changed_lanes: BTreeSet<LaneID>,
+    pub changed_roads: BTreeSet<RoadID>,
+    pub changed_intersections: BTreeSet<IntersectionID>,
+    pub added_turns: BTreeSet<TurnID>,
+    pub deleted_turns: BTreeSet<TurnID>,
 }
 
 impl MapEdits {
@@ -29,11 +49,7 @@ impl MapEdits {
             map_name,
             // Something has to fill this out later
             edits_name: "no_edits".to_string(),
-            lane_overrides: BTreeMap::new(),
-            contraflow_lanes: BTreeMap::new(),
-            stop_sign_overrides: BTreeMap::new(),
-            traffic_signal_overrides: BTreeMap::new(),
-            intersections_under_construction: BTreeMap::new(),
+            commands: Vec::new(),
             dirty: false,
         }
     }
@@ -55,5 +71,17 @@ impl MapEdits {
         assert_ne!(self.edits_name, "no_edits");
         abstutil::save_json_object(abstutil::EDITS, &self.map_name, &self.edits_name, self);
         self.dirty = false;
+    }
+}
+
+impl EditEffects {
+    pub fn new() -> EditEffects {
+        EditEffects {
+            changed_lanes: BTreeSet::new(),
+            changed_roads: BTreeSet::new(),
+            changed_intersections: BTreeSet::new(),
+            added_turns: BTreeSet::new(),
+            deleted_turns: BTreeSet::new(),
+        }
     }
 }

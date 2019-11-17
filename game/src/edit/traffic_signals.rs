@@ -4,10 +4,11 @@ use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::render::{draw_signal_phase, DrawOptions, DrawTurn, TrafficSignalDiagram};
 use crate::ui::{ShowEverything, UI};
-use abstutil::Timer;
 use ezgui::{hotkey, Choice, Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu};
 use geom::Duration;
-use map_model::{ControlTrafficSignal, IntersectionID, Phase, TurnID, TurnPriority, TurnType};
+use map_model::{
+    ControlTrafficSignal, EditCmd, IntersectionID, Phase, TurnID, TurnPriority, TurnType,
+};
 
 // TODO Warn if there are empty phases or if some turn is completely absent from the signal.
 pub struct TrafficSignalEditor {
@@ -102,7 +103,7 @@ impl State for TrafficSignalEditor {
                     format!("toggle from {:?} to {:?}", phase.get_priority(id), pri),
                 ) {
                     phase.edit_turn(ui.primary.map.get_t(id), pri);
-                    change_traffic_signal(signal, self.diagram.i, ui, ctx);
+                    change_traffic_signal(signal, ui, ctx);
                     return Transition::Keep;
                 }
             }
@@ -122,7 +123,7 @@ impl State for TrafficSignalEditor {
             signal = ControlTrafficSignal::get_possible_policies(&ui.primary.map, self.diagram.i)
                 .remove(0)
                 .1;
-            change_traffic_signal(signal, self.diagram.i, ui, ctx);
+            change_traffic_signal(signal, ui, ctx);
             self.diagram = TrafficSignalDiagram::new(self.diagram.i, 0, ui, ctx);
             return Transition::Keep;
         }
@@ -138,18 +139,18 @@ impl State for TrafficSignalEditor {
 
         if current_phase != 0 && self.menu.action("move current phase up") {
             signal.phases.swap(current_phase, current_phase - 1);
-            change_traffic_signal(signal, self.diagram.i, ui, ctx);
+            change_traffic_signal(signal, ui, ctx);
             self.diagram = TrafficSignalDiagram::new(self.diagram.i, current_phase - 1, ui, ctx);
         } else if current_phase != signal.phases.len() - 1
             && self.menu.action("move current phase down")
         {
             signal.phases.swap(current_phase, current_phase + 1);
-            change_traffic_signal(signal, self.diagram.i, ui, ctx);
+            change_traffic_signal(signal, ui, ctx);
             self.diagram = TrafficSignalDiagram::new(self.diagram.i, current_phase + 1, ui, ctx);
         } else if signal.phases.len() > 1 && self.menu.action("delete current phase") {
             signal.phases.remove(current_phase);
             let num_phases = signal.phases.len();
-            change_traffic_signal(signal, self.diagram.i, ui, ctx);
+            change_traffic_signal(signal, ui, ctx);
             self.diagram = TrafficSignalDiagram::new(
                 self.diagram.i,
                 if current_phase == num_phases {
@@ -164,7 +165,7 @@ impl State for TrafficSignalEditor {
             signal
                 .phases
                 .insert(current_phase, Phase::new(self.diagram.i));
-            change_traffic_signal(signal, self.diagram.i, ui, ctx);
+            change_traffic_signal(signal, ui, ctx);
             self.diagram = TrafficSignalDiagram::new(self.diagram.i, current_phase, ui, ctx);
         } else if has_sidewalks && self.menu.action("add a new pedestrian scramble phase") {
             let mut phase = Phase::new(self.diagram.i);
@@ -174,7 +175,7 @@ impl State for TrafficSignalEditor {
                 }
             }
             signal.phases.insert(current_phase, phase);
-            change_traffic_signal(signal, self.diagram.i, ui, ctx);
+            change_traffic_signal(signal, ui, ctx);
             self.diagram = TrafficSignalDiagram::new(self.diagram.i, current_phase, ui, ctx);
         } else if has_sidewalks
             && self
@@ -182,7 +183,7 @@ impl State for TrafficSignalEditor {
                 .action("convert to dedicated pedestrian scramble phase")
         {
             signal.convert_to_ped_scramble(&ui.primary.map);
-            change_traffic_signal(signal, self.diagram.i, ui, ctx);
+            change_traffic_signal(signal, ui, ctx);
             self.diagram = TrafficSignalDiagram::new(self.diagram.i, 0, ui, ctx);
         }
 
@@ -237,20 +238,10 @@ impl State for TrafficSignalEditor {
     }
 }
 
-fn change_traffic_signal(
-    signal: ControlTrafficSignal,
-    i: IntersectionID,
-    ui: &mut UI,
-    ctx: &mut EventCtx,
-) {
-    let orig = ControlTrafficSignal::new(&ui.primary.map, i, &mut Timer::throwaway());
-    let mut new_edits = ui.primary.map.get_edits().clone();
-    if orig == signal {
-        new_edits.traffic_signal_overrides.remove(&i);
-    } else {
-        new_edits.traffic_signal_overrides.insert(i, signal);
-    }
-    apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
+fn change_traffic_signal(signal: ControlTrafficSignal, ui: &mut UI, ctx: &mut EventCtx) {
+    let mut edits = ui.primary.map.get_edits().clone();
+    edits.commands.push(EditCmd::ChangeTrafficSignal(signal));
+    apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
 }
 
 fn make_change_phase_duration(current_duration: Duration) -> Box<dyn State> {
@@ -264,7 +255,7 @@ fn make_change_phase_duration(current_duration: Duration) -> Box<dyn State> {
             let mut signal = ui.primary.map.get_traffic_signal(editor.diagram.i).clone();
             let idx = editor.diagram.current_phase();
             signal.phases[idx].duration = Duration::seconds(new_duration as f64);
-            change_traffic_signal(signal, editor.diagram.i, ui, ctx);
+            change_traffic_signal(signal, ui, ctx);
             editor.diagram = TrafficSignalDiagram::new(editor.diagram.i, idx, ui, ctx);
         })))
     }))
@@ -282,7 +273,7 @@ fn make_change_preset(i: IntersectionID) -> Box<dyn State> {
                 })?;
         Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
             let mut editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
-            change_traffic_signal(new_signal, editor.diagram.i, ui, ctx);
+            change_traffic_signal(new_signal, ui, ctx);
             editor.diagram = TrafficSignalDiagram::new(editor.diagram.i, 0, ui, ctx);
         })))
     }))

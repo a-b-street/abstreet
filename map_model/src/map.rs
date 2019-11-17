@@ -2,13 +2,13 @@ use crate::pathfind::Pathfinder;
 use crate::raw::{OriginalIntersection, OriginalRoad, RawMap};
 use crate::{
     connectivity, make, osm, Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop,
-    BusStopID, ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID,
-    IntersectionType, Lane, LaneID, LaneType, MapEdits, Path, PathConstraints, PathRequest,
-    Position, Road, RoadID, Turn, TurnID, LANE_THICKNESS,
+    BusStopID, ControlStopSign, ControlTrafficSignal, EditCmd, EditEffects, Intersection,
+    IntersectionID, IntersectionType, Lane, LaneID, LaneType, MapEdits, Path, PathConstraints,
+    PathRequest, Position, Road, RoadID, Turn, TurnID, LANE_THICKNESS,
 };
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
-use geom::{Bounds, Distance, GPSBounds, Polygon, Pt2D};
+use geom::{Bounds, GPSBounds, Polygon, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 use std::io;
@@ -653,142 +653,50 @@ impl Map {
         BTreeSet<TurnID>,
         BTreeSet<TurnID>,
     ) {
-        // Ignore if there's no change from current
-        let mut all_lane_edits: BTreeMap<LaneID, LaneType> = BTreeMap::new();
-        let mut all_contraflow_lanes: BTreeMap<LaneID, IntersectionID> = BTreeMap::new();
-        let mut all_stop_sign_edits: BTreeMap<IntersectionID, ControlStopSign> = BTreeMap::new();
-        let mut all_traffic_signals: BTreeMap<IntersectionID, ControlTrafficSignal> =
-            BTreeMap::new();
-        let mut all_closed_intersections: BTreeSet<IntersectionID> = BTreeSet::new();
-        for (id, lt) in &new_edits.lane_overrides {
-            if self.edits.lane_overrides.get(id) != Some(lt) {
-                all_lane_edits.insert(*id, *lt);
-            }
-        }
-        for (id, i) in &new_edits.contraflow_lanes {
-            if self.edits.contraflow_lanes.get(id) != Some(i) {
-                all_contraflow_lanes.insert(*id, *i);
-            }
-        }
-        for (id, ss) in &new_edits.stop_sign_overrides {
-            if self.edits.stop_sign_overrides.get(id) != Some(ss) {
-                all_stop_sign_edits.insert(*id, ss.clone());
-            }
-        }
-        for (id, ts) in &new_edits.traffic_signal_overrides {
-            if self.edits.traffic_signal_overrides.get(id) != Some(ts) {
-                all_traffic_signals.insert(*id, ts.clone());
-            }
-        }
-        for (id, _) in &new_edits.intersections_under_construction {
-            if !self.edits.intersections_under_construction.contains_key(id) {
-                all_closed_intersections.insert(*id);
-            }
-        }
+        // TODO More efficient ways to do this: given two sets of edits, produce a smaller diff.
+        // Simplest strategy: Remove common prefix.
+        let mut effects = EditEffects::new();
 
-        // May need to revert some previous changes
-        for id in self.edits.lane_overrides.keys() {
-            if !new_edits.lane_overrides.contains_key(id) {
-                all_lane_edits.insert(*id, self.get_original_lt(*id));
+        // First undo all existing edits.
+        let mut undo = std::mem::replace(&mut self.edits.commands, Vec::new());
+        undo.reverse();
+        let mut undid = 0;
+        for cmd in &undo {
+            if cmd.undo(&mut effects, self, timer) {
+                undid += 1;
             }
         }
-        for id in self.edits.contraflow_lanes.keys() {
-            if !new_edits.contraflow_lanes.contains_key(id) {
-                all_contraflow_lanes.insert(*id, self.get_original_endpt(*id));
-            }
-        }
-        for id in self.edits.stop_sign_overrides.keys() {
-            if !new_edits.stop_sign_overrides.contains_key(id) {
-                all_stop_sign_edits.insert(*id, ControlStopSign::new(self, *id));
-            }
-        }
-        for id in self.edits.traffic_signal_overrides.keys() {
-            if !new_edits.traffic_signal_overrides.contains_key(id) {
-                all_traffic_signals.insert(*id, ControlTrafficSignal::new(self, *id, timer));
-            }
-        }
-        let mut changed_intersections = BTreeSet::new();
-        for (id, orig) in &self.edits.intersections_under_construction {
-            if !new_edits.intersections_under_construction.contains_key(id) {
-                self.intersections[id.0].intersection_type = *orig;
-                changed_intersections.insert(*id);
-            }
-        }
+        timer.note(format!("Undid {} / {} existing edits", undid, undo.len()));
 
+        // Apply new edits.
+        let mut applied = 0;
+        for cmd in &new_edits.commands {
+            if cmd.apply(&mut effects, self, timer) {
+                applied += 1;
+            }
+        }
         timer.note(format!(
-            "Total diff: {} lane types, {} contraflow lanes, {} stop signs, {} traffic signals, {} closed intersections",
-            all_lane_edits.len(),
-            all_contraflow_lanes.len(),
-            all_stop_sign_edits.len(),
-            all_traffic_signals.len(),
-            all_closed_intersections.len(),
+            "Applied {} / {} new edits",
+            applied,
+            new_edits.commands.len()
         ));
 
-        let mut changed_lanes = BTreeSet::new();
-        let mut changed_roads = BTreeSet::new();
-        let mut changed_contraflow_roads = BTreeSet::new();
+        self.edits = new_edits;
+        self.pathfinder_dirty = true;
+        (
+            effects.changed_lanes,
+            // TODO We just care about contraflow roads here
+            effects.changed_roads,
+            effects.deleted_turns,
+            // Some of these might've been added, then later deleted.
+            effects
+                .added_turns
+                .into_iter()
+                .filter(|t| self.turns.contains_key(t))
+                .collect(),
+        )
 
-        for (id, lt) in all_lane_edits {
-            changed_lanes.insert(id);
-
-            let l = &mut self.lanes[id.0];
-            l.lane_type = lt;
-
-            let r = &mut self.roads[l.parent.0];
-            let (fwds, idx) = r.dir_and_offset(l.id);
-            if fwds {
-                r.children_forwards[idx] = (l.id, l.lane_type);
-            } else {
-                r.children_backwards[idx] = (l.id, l.lane_type);
-            }
-
-            changed_intersections.insert(l.src_i);
-            changed_intersections.insert(l.dst_i);
-            changed_roads.insert(l.parent);
-        }
-
-        for (id, dst_i) in all_contraflow_lanes {
-            changed_lanes.insert(id);
-
-            let l = &mut self.lanes[id.0];
-
-            self.intersections[l.src_i.0]
-                .outgoing_lanes
-                .retain(|x| *x != id);
-            self.intersections[l.dst_i.0]
-                .incoming_lanes
-                .retain(|x| *x != id);
-
-            std::mem::swap(&mut l.src_i, &mut l.dst_i);
-            assert_eq!(l.dst_i, dst_i);
-            l.lane_center_pts = l.lane_center_pts.reversed();
-
-            self.intersections[l.src_i.0].outgoing_lanes.push(id);
-            self.intersections[l.dst_i.0].incoming_lanes.push(id);
-
-            // We can only reverse the lane closest to the center.
-            let r = &mut self.roads[l.parent.0];
-            if dst_i == r.dst_i {
-                assert_eq!(r.children_backwards.remove(0).0, id);
-                r.children_forwards.insert(0, (id, l.lane_type));
-                for l in r.all_lanes() {
-                    changed_lanes.insert(l);
-                }
-            } else {
-                assert_eq!(r.children_forwards.remove(0).0, id);
-                r.children_backwards.insert(0, (id, l.lane_type));
-                for l in r.all_lanes() {
-                    changed_lanes.insert(l);
-                }
-            }
-            changed_contraflow_roads.insert(r.id);
-
-            changed_intersections.insert(l.src_i);
-            changed_intersections.insert(l.dst_i);
-            changed_roads.insert(l.parent);
-        }
-
-        for id in changed_roads {
+        /*for id in changed_roads {
             let stops = self.get_r(id).all_bus_stops(self);
             for s in stops {
                 let sidewalk_pos = self.get_bs(s).sidewalk_pos;
@@ -799,52 +707,6 @@ impl Map {
                     .unwrap();
                 let driving_pos = sidewalk_pos.equiv_pos(driving_lane, Distance::ZERO, self);
                 self.bus_stops.get_mut(&s).unwrap().driving_pos = driving_pos;
-            }
-        }
-
-        // Recompute turns and intersection policy
-        let mut delete_turns = BTreeSet::new();
-        let mut add_turns = BTreeSet::new();
-        for id in changed_intersections {
-            let i = &mut self.intersections[id.0];
-
-            if i.is_border() {
-                assert!(i.turns.is_empty());
-                continue;
-            }
-
-            let mut old_turns = Vec::new();
-            for id in i.turns.drain(..) {
-                old_turns.push(self.turns.remove(&id).unwrap());
-                delete_turns.insert(id);
-            }
-
-            if i.is_closed() {
-                continue;
-            }
-
-            for t in make::make_all_turns(i, &self.roads, &self.lanes, timer) {
-                add_turns.insert(t.id);
-                i.turns.push(t.id);
-                if let Some(_existing_t) = old_turns.iter().find(|turn| turn.id == t.id) {
-                    // TODO Except for lookup_idx
-                    //assert_eq!(t, *existing_t);
-                }
-                self.turns.insert(t.id, t);
-            }
-
-            // TODO Deal with turn_lookup
-
-            // Do this before applying intersection policy edits.
-            match i.intersection_type {
-                IntersectionType::StopSign => {
-                    self.stop_signs.insert(id, ControlStopSign::new(self, id));
-                }
-                IntersectionType::TrafficSignal => {
-                    self.traffic_signals
-                        .insert(id, ControlTrafficSignal::new(self, id, timer));
-                }
-                IntersectionType::Border | IntersectionType::Construction => unreachable!(),
             }
         }
 
@@ -875,16 +737,7 @@ impl Map {
                 self.turns.remove(&id).unwrap();
                 delete_turns.insert(id);
             }
-        }
-
-        self.edits = new_edits;
-        self.pathfinder_dirty = true;
-        (
-            changed_lanes,
-            changed_contraflow_roads,
-            delete_turns,
-            add_turns,
-        )
+        }*/
     }
 
     pub fn recalculate_pathfinding_after_edits(&mut self, timer: &mut Timer) {
@@ -910,7 +763,7 @@ impl Map {
     }
 
     pub fn simplify_edits(&mut self, timer: &mut Timer) {
-        let mut delete_lanes = Vec::new();
+        /*let mut delete_lanes = Vec::new();
         for (id, lt) in &self.edits.lane_overrides {
             if *lt == self.get_original_lt(*id) {
                 delete_lanes.push(*id);
@@ -948,32 +801,7 @@ impl Map {
         }
         for id in delete_signals {
             self.edits.traffic_signal_overrides.remove(&id);
-        }
-    }
-
-    fn get_original_lt(&self, id: LaneID) -> LaneType {
-        let parent = self.get_parent(id);
-        for (l, lt) in parent
-            .orig_children_forwards
-            .iter()
-            .chain(parent.orig_children_backwards.iter())
-        {
-            if id == *l {
-                return *lt;
-            }
-        }
-        panic!("get_original_lt broke for {}", id);
-    }
-
-    fn get_original_endpt(&self, id: LaneID) -> IntersectionID {
-        let parent = self.get_parent(id);
-        if parent.orig_children_forwards.iter().any(|(l, _)| *l == id) {
-            return parent.dst_i;
-        }
-        if parent.orig_children_backwards.iter().any(|(l, _)| *l == id) {
-            return parent.src_i;
-        }
-        panic!("get_original_endpt broke for {}", id);
+        }*/
     }
 }
 
@@ -1053,8 +881,6 @@ fn make_half_map(
             orig_id: r.id,
             children_forwards: Vec::new(),
             children_backwards: Vec::new(),
-            orig_children_forwards: Vec::new(),
-            orig_children_backwards: Vec::new(),
             center_pts: r.trimmed_center_pts.clone(),
             src_i: i1,
             dst_i: i2,
@@ -1069,14 +895,12 @@ fn make_half_map(
 
             let (unshifted_pts, offset) = if lane.reverse_pts {
                 road.children_backwards.push((id, lane.lane_type));
-                road.orig_children_backwards.push((id, lane.lane_type));
                 (
                     road.center_pts.reversed(),
                     road.children_backwards.len() - 1,
                 )
             } else {
                 road.children_forwards.push((id, lane.lane_type));
-                road.orig_children_forwards.push((id, lane.lane_type));
                 (road.center_pts.clone(), road.children_forwards.len() - 1)
             };
             // TODO probably different behavior for oneways
@@ -1197,4 +1021,224 @@ fn is_border(intersection: &Intersection, lanes: &Vec<Lane>) -> bool {
         .iter()
         .any(|l| lanes[l.0].is_driving());
     has_driving_in != has_driving_out
+}
+
+// TODO I want to put these in Edits, but then that forces Map members to become pub(crate). Can't
+// pass in individual fields, because some commands need the entire Map.
+impl EditCmd {
+    // Must be idempotent. True if it actually did anything.
+    pub(crate) fn apply(
+        &self,
+        effects: &mut EditEffects,
+        map: &mut Map,
+        timer: &mut Timer,
+    ) -> bool {
+        match self {
+            EditCmd::ChangeLaneType { id, lt, .. } => {
+                let id = *id;
+                let lt = *lt;
+
+                let lane = &mut map.lanes[id.0];
+                if lane.lane_type == lt {
+                    return false;
+                }
+
+                lane.lane_type = lt;
+                let r = &mut map.roads[lane.parent.0];
+                let (fwds, idx) = r.dir_and_offset(id);
+                if fwds {
+                    r.children_forwards[idx] = (id, lt);
+                } else {
+                    r.children_backwards[idx] = (id, lt);
+                }
+
+                effects.changed_lanes.insert(id);
+                effects.changed_roads.insert(lane.parent);
+                effects.changed_intersections.insert(lane.src_i);
+                effects.changed_intersections.insert(lane.dst_i);
+                let (src_i, dst_i) = (lane.src_i, lane.dst_i);
+                recalculate_turns(src_i, map, effects, timer);
+                recalculate_turns(dst_i, map, effects, timer);
+                true
+            }
+            EditCmd::ReverseLane { l, dst_i } => {
+                let l = *l;
+                let lane = &mut map.lanes[l.0];
+
+                if lane.dst_i == *dst_i {
+                    return false;
+                }
+
+                map.intersections[lane.src_i.0]
+                    .outgoing_lanes
+                    .retain(|x| *x != l);
+                map.intersections[lane.dst_i.0]
+                    .incoming_lanes
+                    .retain(|x| *x != l);
+
+                std::mem::swap(&mut lane.src_i, &mut lane.dst_i);
+                assert_eq!(lane.dst_i, *dst_i);
+                lane.lane_center_pts = lane.lane_center_pts.reversed();
+
+                map.intersections[lane.src_i.0].outgoing_lanes.push(l);
+                map.intersections[lane.dst_i.0].incoming_lanes.push(l);
+
+                // We can only reverse the lane closest to the center.
+                let r = &mut map.roads[lane.parent.0];
+                if *dst_i == r.dst_i {
+                    assert_eq!(r.children_backwards.remove(0).0, l);
+                    r.children_forwards.insert(0, (l, lane.lane_type));
+                    for id in r.all_lanes() {
+                        effects.changed_lanes.insert(id);
+                    }
+                } else {
+                    assert_eq!(r.children_forwards.remove(0).0, l);
+                    r.children_backwards.insert(0, (l, lane.lane_type));
+                    for id in r.all_lanes() {
+                        effects.changed_lanes.insert(id);
+                    }
+                }
+                effects.changed_lanes.insert(l);
+                effects.changed_roads.insert(r.id);
+                effects.changed_intersections.insert(lane.src_i);
+                effects.changed_intersections.insert(lane.dst_i);
+                let (src_i, dst_i) = (lane.src_i, lane.dst_i);
+                recalculate_turns(src_i, map, effects, timer);
+                recalculate_turns(dst_i, map, effects, timer);
+                true
+            }
+            EditCmd::ChangeStopSign(ref ss) => {
+                if &map.stop_signs[&ss.id] == ss {
+                    return false;
+                }
+
+                map.stop_signs.insert(ss.id, ss.clone());
+                effects.changed_intersections.insert(ss.id);
+                true
+            }
+            EditCmd::ChangeTrafficSignal(ref ts) => {
+                if &map.traffic_signals[&ts.id] == ts {
+                    return false;
+                }
+
+                map.traffic_signals.insert(ts.id, ts.clone());
+                effects.changed_intersections.insert(ts.id);
+                true
+            }
+            EditCmd::CloseIntersection { id, .. } => {
+                if map.intersections[id.0].intersection_type == IntersectionType::Construction {
+                    return false;
+                }
+
+                map.intersections[id.0].intersection_type = IntersectionType::Construction;
+                map.stop_signs.remove(id);
+                map.traffic_signals.remove(id);
+                effects.changed_intersections.insert(*id);
+                recalculate_turns(*id, map, effects, timer);
+                true
+            }
+        }
+    }
+
+    // Must be idempotent. True if it actually did anything.
+    pub(crate) fn undo(&self, effects: &mut EditEffects, map: &mut Map, timer: &mut Timer) -> bool {
+        match self {
+            EditCmd::ChangeLaneType { id, orig_lt, lt } => EditCmd::ChangeLaneType {
+                id: *id,
+                lt: *orig_lt,
+                orig_lt: *lt,
+            }
+            .apply(effects, map, timer),
+            EditCmd::ReverseLane { l, dst_i } => {
+                let lane = map.get_l(*l);
+                let other_i = if lane.src_i == *dst_i {
+                    lane.dst_i
+                } else {
+                    lane.src_i
+                };
+                EditCmd::ReverseLane {
+                    l: *l,
+                    dst_i: other_i,
+                }
+                .apply(effects, map, timer)
+            }
+            EditCmd::ChangeStopSign(ref ss) => {
+                EditCmd::ChangeStopSign(ControlStopSign::new(map, ss.id)).apply(effects, map, timer)
+            }
+            EditCmd::ChangeTrafficSignal(ref ts) => {
+                EditCmd::ChangeTrafficSignal(ControlTrafficSignal::new(map, ts.id, timer))
+                    .apply(effects, map, timer)
+            }
+            EditCmd::CloseIntersection { id, orig_it } => {
+                if map.intersections[id.0].intersection_type == *orig_it {
+                    return false;
+                }
+
+                map.intersections[id.0].intersection_type = *orig_it;
+                recalculate_turns(*id, map, effects, timer);
+                match *orig_it {
+                    IntersectionType::StopSign => {
+                        map.stop_signs.insert(*id, ControlStopSign::new(map, *id));
+                    }
+                    IntersectionType::TrafficSignal => {
+                        map.traffic_signals
+                            .insert(*id, ControlTrafficSignal::new(map, *id, timer));
+                    }
+                    IntersectionType::Border | IntersectionType::Construction => unreachable!(),
+                }
+                effects.changed_intersections.insert(*id);
+                true
+            }
+        }
+    }
+}
+
+// This clobbers previously set stop sign / traffic signal overrides.
+// TODO Step 1: Detect and warn about that
+// TODO Step 2: Avoid when possible
+fn recalculate_turns(
+    id: IntersectionID,
+    map: &mut Map,
+    effects: &mut EditEffects,
+    timer: &mut Timer,
+) {
+    let i = &mut map.intersections[id.0];
+
+    if i.is_border() {
+        assert!(i.turns.is_empty());
+        return;
+    }
+
+    let mut old_turns = Vec::new();
+    for t in i.turns.drain(..) {
+        old_turns.push(map.turns.remove(&t).unwrap());
+        effects.deleted_turns.insert(t);
+    }
+
+    if i.is_closed() {
+        return;
+    }
+
+    for t in make::make_all_turns(i, &map.roads, &map.lanes, timer) {
+        effects.added_turns.insert(t.id);
+        i.turns.push(t.id);
+        if let Some(_existing_t) = old_turns.iter().find(|turn| turn.id == t.id) {
+            // TODO Except for lookup_idx
+            //assert_eq!(t, *existing_t);
+        }
+        map.turns.insert(t.id, t);
+    }
+
+    // TODO Deal with turn_lookup
+
+    match i.intersection_type {
+        IntersectionType::StopSign => {
+            map.stop_signs.insert(id, ControlStopSign::new(map, id));
+        }
+        IntersectionType::TrafficSignal => {
+            map.traffic_signals
+                .insert(id, ControlTrafficSignal::new(map, id, timer));
+        }
+        IntersectionType::Border | IntersectionType::Construction => unreachable!(),
+    }
 }

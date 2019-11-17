@@ -3,7 +3,9 @@ use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::ui::UI;
 use ezgui::{hotkey, Button, Choice, Color, EventCtx, GfxCtx, Key, ScreenPt};
-use map_model::{connectivity, LaneID, LaneType, Map, MapEdits, PathConstraints, RoadID};
+use map_model::{
+    connectivity, EditCmd, IntersectionType, LaneID, LaneType, Map, PathConstraints, RoadID,
+};
 use std::collections::BTreeSet;
 
 pub struct LaneEditor {
@@ -17,7 +19,7 @@ struct Paintbrush {
     enabled_btn: Button,
     label: String,
     // If this returns a string error message, the edit didn't work.
-    apply: Box<dyn Fn(&Map, &mut MapEdits, LaneID) -> Option<String>>,
+    apply: Box<dyn Fn(&Map, LaneID) -> Result<EditCmd, String>>,
 }
 
 impl LaneEditor {
@@ -28,7 +30,7 @@ impl LaneEditor {
             |icon: &str,
              label: &str,
              key: Key,
-             apply: Box<dyn Fn(&Map, &mut MapEdits, LaneID) -> Option<String>>| {
+             apply: Box<dyn Fn(&Map, LaneID) -> Result<EditCmd, String>>| {
                 let btn = Button::icon_btn(
                     &format!("assets/ui/edit_{}.png", icon),
                     32.0,
@@ -61,78 +63,95 @@ impl LaneEditor {
                 "driving",
                 "driving lane",
                 Key::D,
-                Box::new(|map, edits, l| {
+                Box::new(|map, l| {
                     if let Some(err) = can_change_lane_type(l, LaneType::Driving, map) {
-                        return Some(err);
+                        return Err(err);
                     }
-                    edits.lane_overrides.insert(l, LaneType::Driving);
-                    None
+                    Ok(EditCmd::ChangeLaneType {
+                        id: l,
+                        lt: LaneType::Driving,
+                        orig_lt: map.get_l(l).lane_type,
+                    })
                 }),
             ),
             make_brush(
                 "bike",
                 "protected bike lane",
                 Key::B,
-                Box::new(|map, edits, l| {
+                Box::new(|map, l| {
                     if let Some(err) = can_change_lane_type(l, LaneType::Biking, map) {
-                        return Some(err);
+                        return Err(err);
                     }
-                    edits.lane_overrides.insert(l, LaneType::Biking);
-                    None
+                    Ok(EditCmd::ChangeLaneType {
+                        id: l,
+                        lt: LaneType::Biking,
+                        orig_lt: map.get_l(l).lane_type,
+                    })
                 }),
             ),
             make_brush(
                 "bus",
                 "bus-only lane",
                 Key::T,
-                Box::new(|map, edits, l| {
+                Box::new(|map, l| {
                     if let Some(err) = can_change_lane_type(l, LaneType::Bus, map) {
-                        return Some(err);
+                        return Err(err);
                     }
-                    edits.lane_overrides.insert(l, LaneType::Bus);
-                    None
+                    Ok(EditCmd::ChangeLaneType {
+                        id: l,
+                        lt: LaneType::Bus,
+                        orig_lt: map.get_l(l).lane_type,
+                    })
                 }),
             ),
             make_brush(
                 "parking",
                 "on-street parking lane",
                 Key::P,
-                Box::new(|map, edits, l| {
+                Box::new(|map, l| {
                     if let Some(err) = can_change_lane_type(l, LaneType::Parking, map) {
-                        return Some(err);
+                        return Err(err);
                     }
-                    edits.lane_overrides.insert(l, LaneType::Parking);
-                    None
+                    Ok(EditCmd::ChangeLaneType {
+                        id: l,
+                        lt: LaneType::Parking,
+                        orig_lt: map.get_l(l).lane_type,
+                    })
                 }),
             ),
             make_brush(
                 "construction",
                 "closed for construction",
                 Key::C,
-                Box::new(|map, edits, l| {
+                Box::new(|map, l| {
                     if let Some(err) = can_change_lane_type(l, LaneType::Construction, map) {
-                        return Some(err);
+                        return Err(err);
                     }
-                    edits.lane_overrides.insert(l, LaneType::Construction);
-                    None
+                    Ok(EditCmd::ChangeLaneType {
+                        id: l,
+                        lt: LaneType::Construction,
+                        orig_lt: map.get_l(l).lane_type,
+                    })
                 }),
             ),
             make_brush(
                 "contraflow",
                 "reverse lane direction",
                 Key::F,
-                Box::new(|map, edits, l| {
+                Box::new(|map, l| {
                     let lane = map.get_l(l);
                     if !lane.lane_type.is_for_moving_vehicles() {
-                        return Some(format!("You can't reverse a {:?} lane", lane.lane_type));
+                        return Err(format!("You can't reverse a {:?} lane", lane.lane_type));
                     }
                     if map.get_r(lane.parent).dir_and_offset(l).1 != 0 {
-                        return Some(format!(
+                        return Err(format!(
                             "You can only reverse the lanes next to the road's yellow center line"
                         ));
                     }
-                    edits.contraflow_lanes.insert(l, lane.src_i);
-                    None
+                    Ok(EditCmd::ReverseLane {
+                        l,
+                        dst_i: lane.src_i,
+                    })
                 }),
             ),
         ];
@@ -197,11 +216,16 @@ impl LaneEditor {
                         )));
                     }
 
-                    let mut edits = ui.primary.map.get_edits().clone();
-                    if let Some(err) = (self.brushes[idx].apply)(&ui.primary.map, &mut edits, l) {
-                        return Some(Transition::Push(msg("Error", vec![err])));
+                    match (self.brushes[idx].apply)(&ui.primary.map, l) {
+                        Ok(cmd) => {
+                            let mut edits = ui.primary.map.get_edits().clone();
+                            edits.commands.push(cmd);
+                            apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
+                        }
+                        Err(err) => {
+                            return Some(Transition::Push(msg("Error", vec![err])));
+                        }
                     }
-                    apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
                 }
             }
         }
@@ -212,29 +236,31 @@ impl LaneEditor {
                     .input
                     .contextual_action(Key::Space, &self.brushes[self.construction_idx].label)
             {
-                let orig_edits = ui.primary.map.get_edits().clone();
-                let mut edits = orig_edits.clone();
-                edits.stop_sign_overrides.remove(&i);
-                edits.traffic_signal_overrides.remove(&i);
-                edits
-                    .intersections_under_construction
-                    .insert(i, ui.primary.map.get_i(i).intersection_type);
-                apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
+                let it = ui.primary.map.get_i(i).intersection_type;
+                if it != IntersectionType::Construction {
+                    let mut edits = ui.primary.map.get_edits().clone();
+                    edits
+                        .commands
+                        .push(EditCmd::CloseIntersection { id: i, orig_it: it });
+                    apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
 
-                let (_, disconnected) =
-                    connectivity::find_scc(&ui.primary.map, PathConstraints::Pedestrian);
-                if !disconnected.is_empty() {
-                    apply_map_edits(&mut ui.primary, &ui.cs, ctx, orig_edits);
-                    let mut err_state = msg(
-                        "Error",
-                        vec![format!("{} sidewalks disconnected", disconnected.len())],
-                    );
-                    let opts = &mut err_state.downcast_mut::<WizardState>().unwrap().draw_opts;
-                    for l in disconnected {
-                        opts.override_colors
-                            .insert(ID::Lane(l), ui.cs.get("unreachable lane"));
+                    let (_, disconnected) =
+                        connectivity::find_scc(&ui.primary.map, PathConstraints::Pedestrian);
+                    if !disconnected.is_empty() {
+                        let mut edits = ui.primary.map.get_edits().clone();
+                        edits.commands.pop();
+                        apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
+                        let mut err_state = msg(
+                            "Error",
+                            vec![format!("{} sidewalks disconnected", disconnected.len())],
+                        );
+                        let opts = &mut err_state.downcast_mut::<WizardState>().unwrap().draw_opts;
+                        for l in disconnected {
+                            opts.override_colors
+                                .insert(ID::Lane(l), ui.cs.get("unreachable lane"));
+                        }
+                        return Some(Transition::Push(err_state));
                     }
-                    return Some(Transition::Push(err_state));
                 }
             }
         }
@@ -345,7 +371,11 @@ pub fn make_bulk_edit_lanes(road: RoadID) -> Box<dyn State> {
             }
             // TODO This looks at the original state of the map, not with all the edits applied so far!
             if can_change_lane_type(l.id, to, map).is_none() {
-                edits.lane_overrides.insert(l.id, to);
+                edits.commands.push(EditCmd::ChangeLaneType {
+                    id: l.id,
+                    lt: to,
+                    orig_lt: l.lane_type,
+                });
                 cnt += 1;
             }
         }

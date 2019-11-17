@@ -5,7 +5,7 @@ use crate::render::{DrawIntersection, DrawOptions};
 use crate::ui::{ShowEverything, UI};
 use ezgui::{hotkey, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu, Text};
 use geom::Polygon;
-use map_model::{IntersectionID, RoadID};
+use map_model::{ControlStopSign, EditCmd, IntersectionID, RoadID};
 use std::collections::HashMap;
 
 // TODO For now, individual turns can't be manipulated. Banning turns could be useful, but I'm not
@@ -70,16 +70,22 @@ impl State for StopSignEditor {
             if ctx.input.contextual_action(Key::Space, "toggle stop sign") {
                 let mut sign = ui.primary.map.get_stop_sign(self.id).clone();
                 sign.flip_sign(r);
-                let mut new_edits = ui.primary.map.get_edits().clone();
-                new_edits.stop_sign_overrides.insert(self.id, sign);
-                apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
+
+                let mut edits = ui.primary.map.get_edits().clone();
+                edits.commands.push(EditCmd::ChangeStopSign(sign));
+                apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
             }
         } else if self.menu.action("quit") {
             return Transition::Pop;
         } else if self.menu.action("reset to default") {
-            let mut new_edits = ui.primary.map.get_edits().clone();
-            new_edits.stop_sign_overrides.remove(&self.id);
-            apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
+            let mut edits = ui.primary.map.get_edits().clone();
+            edits
+                .commands
+                .push(EditCmd::ChangeStopSign(ControlStopSign::new(
+                    &ui.primary.map,
+                    self.id,
+                )));
+            apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
         }
         Transition::Keep
     }
