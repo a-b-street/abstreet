@@ -282,10 +282,10 @@ impl LaneEditor {
 fn can_change_lane_type(l: LaneID, new_lt: LaneType, map: &Map) -> Option<String> {
     let r = map.get_parent(l);
     let (fwds, idx) = r.dir_and_offset(l);
-    let mut proposed_lts = if fwds {
-        r.get_lane_types().0
+    let (mut proposed_lts, other_side) = if fwds {
+        (r.get_lane_types().0, r.get_lane_types().1)
     } else {
-        r.get_lane_types().1
+        (r.get_lane_types().1, r.get_lane_types().0)
     };
     proposed_lts[idx] = new_lt;
 
@@ -308,22 +308,22 @@ fn can_change_lane_type(l: LaneID, new_lt: LaneType, map: &Map) -> Option<String
         ));
     }
 
-    let types: BTreeSet<LaneType> = r
-        .all_lanes()
-        .iter()
-        .map(|l| map.get_l(*l).lane_type)
-        .collect();
-
     // Don't let players orphan a bus stop.
     if !r.all_bus_stops(map).is_empty()
-        && !types.contains(&LaneType::Driving)
-        && !types.contains(&LaneType::Bus)
+        && !proposed_lts
+            .iter()
+            .any(|lt| *lt == LaneType::Driving || *lt == LaneType::Bus)
     {
         return Some(format!("You need a driving or bus lane for the bus stop!"));
     }
 
+    let all_types: BTreeSet<LaneType> = other_side
+        .into_iter()
+        .chain(proposed_lts.iter().cloned())
+        .collect();
+
     // A parking lane must have a driving lane somewhere on the road.
-    if types.contains(&LaneType::Parking) && !types.contains(&LaneType::Driving) {
+    if all_types.contains(&LaneType::Parking) && !all_types.contains(&LaneType::Driving) {
         return Some(format!(
             "A parking lane needs a driving lane somewhere on the same road"
         ));

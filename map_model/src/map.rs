@@ -8,7 +8,7 @@ use crate::{
 };
 use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
-use geom::{Bounds, GPSBounds, Polygon, Pt2D};
+use geom::{Bounds, Distance, GPSBounds, Polygon, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 use std::io;
@@ -681,6 +681,21 @@ impl Map {
             new_edits.commands.len()
         ));
 
+        // Might need to update bus stops.
+        for id in &effects.changed_roads {
+            let stops = self.get_r(*id).all_bus_stops(self);
+            for s in stops {
+                let sidewalk_pos = self.get_bs(s).sidewalk_pos;
+                // Must exist, because we aren't allowed to orphan a bus stop.
+                let driving_lane = self
+                    .get_r(*id)
+                    .find_closest_lane(sidewalk_pos.lane(), vec![LaneType::Driving, LaneType::Bus])
+                    .unwrap();
+                let driving_pos = sidewalk_pos.equiv_pos(driving_lane, Distance::ZERO, self);
+                self.bus_stops.get_mut(&s).unwrap().driving_pos = driving_pos;
+            }
+        }
+
         new_edits.update_derived(self, timer);
         self.edits = new_edits;
         self.pathfinder_dirty = true;
@@ -696,49 +711,6 @@ impl Map {
                 .filter(|t| self.turns.contains_key(t))
                 .collect(),
         )
-
-        /*for id in changed_roads {
-            let stops = self.get_r(id).all_bus_stops(self);
-            for s in stops {
-                let sidewalk_pos = self.get_bs(s).sidewalk_pos;
-                // Must exist, because we aren't allowed to orphan a bus stop.
-                let driving_lane = self
-                    .get_r(id)
-                    .find_closest_lane(sidewalk_pos.lane(), vec![LaneType::Driving, LaneType::Bus])
-                    .unwrap();
-                let driving_pos = sidewalk_pos.equiv_pos(driving_lane, Distance::ZERO, self);
-                self.bus_stops.get_mut(&s).unwrap().driving_pos = driving_pos;
-            }
-        }
-
-        // Make sure all of the turns of modified intersections are re-added in the pathfinder;
-        // they might've become banned. Lane markings may also change based on turn priorities.
-        for (id, ss) in all_stop_sign_edits {
-            self.stop_signs.insert(id, ss);
-            for t in &self.get_i(id).turns {
-                add_turns.insert(*t);
-            }
-            for l in &self.get_i(id).incoming_lanes {
-                changed_lanes.insert(*l);
-            }
-        }
-        for (id, ts) in all_traffic_signals {
-            self.traffic_signals.insert(id, ts);
-            for t in &self.get_i(id).turns {
-                add_turns.insert(*t);
-            }
-            for l in &self.get_i(id).incoming_lanes {
-                changed_lanes.insert(*l);
-            }
-        }
-        for id in all_closed_intersections {
-            let i = &mut self.intersections[id.0];
-            i.intersection_type = IntersectionType::Construction;
-            for id in i.turns.drain(..) {
-                self.turns.remove(&id).unwrap();
-                delete_turns.insert(id);
-            }
-        }*/
     }
 
     pub fn recalculate_pathfinding_after_edits(&mut self, timer: &mut Timer) {
