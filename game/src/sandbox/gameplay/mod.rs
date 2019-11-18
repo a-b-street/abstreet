@@ -158,10 +158,7 @@ fn load_map(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transit
             .filter(|n| n != current_map)
             .collect()
     }) {
-        ctx.canvas.save_camera_state(ui.primary.map.get_name());
-        let mut flags = ui.primary.current_flags.clone();
-        flags.sim_flags.load = abstutil::path_map(&name);
-        *ui = UI::new(flags, ctx, false);
+        ui.switch_map(ctx, &name);
         Some(Transition::PopThenReplace(Box::new(SandboxMode::new(
             ctx,
             ui,

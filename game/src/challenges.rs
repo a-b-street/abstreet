@@ -1,3 +1,4 @@
+use crate::edit::apply_map_edits;
 use crate::game::{State, Transition, WizardState};
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::UI;
@@ -68,12 +69,14 @@ pub fn challenges_picker() -> Box<dyn State> {
                 .collect()
         })?;
 
+        let edits = abstutil::list_all_objects(abstutil::EDITS, &challenge.map_name);
         let mut summary = Text::from(Line(&challenge.description));
         summary.add(Line(""));
-        summary.add(Line("Proposals:"));
+        summary.add(Line(format!("{} proposals:", edits.len())));
         summary.add(Line(""));
-        summary.add(Line("- example bus lane fix (untested)"));
-        summary.add(Line("- example signal retiming (score 500)"));
+        for e in edits {
+            summary.add(Line(format!("- {} (untested)", e)));
+        }
 
         Some(Transition::Replace(Box::new(ChallengeSplash {
             summary,
@@ -81,7 +84,7 @@ pub fn challenges_picker() -> Box<dyn State> {
                 &challenge.title,
                 vec![
                     (hotkey(Key::Escape), "back to challenges"),
-                    (hotkey(Key::S), "start challenge"),
+                    (hotkey(Key::S), "start challenge fresh"),
                     (hotkey(Key::L), "load existing proposal"),
                 ],
                 ctx,
@@ -103,12 +106,32 @@ impl State for ChallengeSplash {
         if self.menu.action("back to challenges") {
             return Transition::Replace(challenges_picker());
         }
-        if self.menu.action("start challenge") {
+        if self.menu.action("load existing proposal") {
+            let map_name = self.challenge.map_name.clone();
+            let gameplay = self.challenge.gameplay.clone();
+            return Transition::Push(WizardState::new(Box::new(move |wiz, ctx, ui| {
+                let mut wizard = wiz.wrap(ctx);
+                let (_, new_edits) = wizard.choose("Load which map edits?", || {
+                    Choice::from(abstutil::load_all_objects(abstutil::EDITS, &map_name))
+                })?;
+                if &map_name != ui.primary.map.get_name() {
+                    ui.switch_map(ctx, &map_name);
+                }
+                apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
+                ui.primary.map.mark_edits_fresh();
+                ui.primary
+                    .map
+                    .recalculate_pathfinding_after_edits(&mut Timer::new("finalize loaded edits"));
+                Some(Transition::PopThenReplace(Box::new(SandboxMode::new(
+                    ctx,
+                    ui,
+                    gameplay.clone(),
+                ))))
+            })));
+        }
+        if self.menu.action("start challenge fresh") {
             if &self.challenge.map_name != ui.primary.map.get_name() {
-                ctx.canvas.save_camera_state(ui.primary.map.get_name());
-                let mut flags = ui.primary.current_flags.clone();
-                flags.sim_flags.load = abstutil::path_map(&self.challenge.map_name);
-                *ui = UI::new(flags, ctx, false);
+                ui.switch_map(ctx, &self.challenge.map_name);
             }
             return Transition::Replace(Box::new(SandboxMode::new(
                 ctx,

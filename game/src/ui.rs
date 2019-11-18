@@ -116,6 +116,13 @@ impl UI {
         }
     }
 
+    pub fn switch_map(&mut self, ctx: &mut EventCtx, name: &str) {
+        ctx.canvas.save_camera_state(self.primary.map.get_name());
+        let mut flags = self.primary.current_flags.clone();
+        flags.sim_flags.load = abstutil::path_map(name);
+        *self = UI::new(flags, ctx, false);
+    }
+
     pub fn draw_ctx(&self) -> DrawCtx<'_> {
         DrawCtx {
             cs: &self.cs,
@@ -403,7 +410,7 @@ impl UI {
         }
 
         // This is a stable sort.
-        borrows.sort_by_key(|r| r.get_zorder());
+        borrows.sort_by_key(|x| x.get_zorder());
 
         borrows
     }

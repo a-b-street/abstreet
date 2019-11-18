@@ -364,7 +364,7 @@ fn load_edits(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Trans
     // TODO Exclude current
     let map_name = map.get_name().to_string();
     let (_, new_edits) = wizard.choose("Load which map edits?", || {
-        let mut list = Choice::from(abstutil::load_all_objects("edits", &map_name));
+        let mut list = Choice::from(abstutil::load_all_objects(abstutil::EDITS, &map_name));
         list.push(Choice::new("no_edits", MapEdits::new(map_name.clone())));
         list
     })?;
