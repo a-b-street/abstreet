@@ -32,7 +32,6 @@ pub struct Intersection {
     pub turns: Vec<TurnID>,
 
     pub intersection_type: IntersectionType,
-    pub label: Option<String>,
     pub orig_id: OriginalIntersection,
 
     // Note that a lane may belong to both incoming_lanes and outgoing_lanes.

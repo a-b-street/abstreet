@@ -204,8 +204,10 @@ impl DrivingGoal {
         }
     }
 
+    // TODO Stick this in the DrivingGoal directly, like SidewalkSpot. Find it upon construction.
     pub fn goal_pos(&self, map: &Map) -> Position {
         let lane = match self {
+            // TODO Biking option.
             DrivingGoal::ParkNear(b) => map.find_driving_lane_near_building(*b),
             DrivingGoal::Border(_, l) => *l,
         };

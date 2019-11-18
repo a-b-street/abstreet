@@ -27,9 +27,6 @@ enum State {
     MovingIntersection(OriginalIntersection),
     MovingBuilding(OriginalBuilding),
     MovingRoadPoint(OriginalRoad, usize),
-    LabelingBuilding(OriginalBuilding, Wizard),
-    LabelingRoad(OriginalRoad, Wizard),
-    LabelingIntersection(OriginalIntersection, Wizard),
     CreatingRoad(OriginalIntersection),
     EditingLanes(OriginalRoad, Wizard),
     EditingRoadAttribs(OriginalRoad, Wizard),
@@ -174,8 +171,6 @@ impl GUI for UI {
                             self.model.world.handle_mouseover(ctx);
                         } else if ctx.input.key_pressed(Key::T, "toggle intersection type") {
                             self.model.toggle_i_type(i, ctx.prerender);
-                        } else if ctx.input.key_pressed(Key::L, "label intersection") {
-                            self.state = State::LabelingIntersection(i, Wizard::new());
                         } else if !self.model.intersection_geom
                             && ctx
                                 .input
@@ -191,8 +186,6 @@ impl GUI for UI {
                         } else if ctx.input.key_pressed(Key::Backspace, "delete building") {
                             self.model.delete_b(b);
                             self.model.world.handle_mouseover(ctx);
-                        } else if ctx.input.key_pressed(Key::L, "label building") {
-                            self.state = State::LabelingBuilding(b, Wizard::new());
                         }
                     }
                     Some(ID::Road(r)) => {
@@ -211,8 +204,6 @@ impl GUI for UI {
                         } else if could_swap && ctx.input.key_pressed(Key::S, "swap lanes") {
                             self.model.swap_lanes(r, ctx.prerender);
                             self.model.world.handle_mouseover(ctx);
-                        } else if ctx.input.key_pressed(Key::L, "label side of the road") {
-                            self.state = State::LabelingRoad(r, Wizard::new());
                         } else if ctx.input.key_pressed(Key::M, "merge road") {
                             self.model.merge_r(r, ctx.prerender);
                             self.model.world.handle_mouseover(ctx);
@@ -360,50 +351,6 @@ impl GUI for UI {
                     if ctx.input.key_released(Key::LeftControl) {
                         self.state = State::viewing();
                     }
-                }
-            }
-            State::LabelingBuilding(id, ref mut wizard) => {
-                if let Some(label) = wizard.wrap(ctx).input_string_prefilled(
-                    "Label the building",
-                    self.model.map.buildings[&id]
-                        .osm_tags
-                        .get(osm::LABEL)
-                        .cloned()
-                        .unwrap_or_else(String::new),
-                ) {
-                    self.model.set_b_label(id, label, ctx.prerender);
-                    self.state = State::viewing();
-                } else if wizard.aborted() {
-                    self.state = State::viewing();
-                }
-            }
-            State::LabelingRoad(r, ref mut wizard) => {
-                if let Some(label) = wizard.wrap(ctx).input_string_prefilled(
-                    "Label this side of the road",
-                    self.model.map.roads[&r]
-                        .osm_tags
-                        .get(osm::FWD_LABEL)
-                        .cloned()
-                        .unwrap_or_else(String::new),
-                ) {
-                    self.model.set_r_label(r, label, ctx.prerender);
-                    self.state = State::viewing();
-                } else if wizard.aborted() {
-                    self.state = State::viewing();
-                }
-            }
-            State::LabelingIntersection(id, ref mut wizard) => {
-                if let Some(label) = wizard.wrap(ctx).input_string_prefilled(
-                    "Label the intersection",
-                    self.model.map.intersections[&id]
-                        .label
-                        .clone()
-                        .unwrap_or_else(String::new),
-                ) {
-                    self.model.set_i_label(id, label, ctx.prerender);
-                    self.state = State::viewing();
-                } else if wizard.aborted() {
-                    self.state = State::viewing();
                 }
             }
             State::CreatingRoad(i1) => {
@@ -646,10 +593,7 @@ impl GUI for UI {
                     }
                 }
             }
-            State::LabelingBuilding(_, ref wizard)
-            | State::LabelingRoad(_, ref wizard)
-            | State::LabelingIntersection(_, ref wizard)
-            | State::EditingLanes(_, ref wizard)
+            State::EditingLanes(_, ref wizard)
             | State::EditingRoadAttribs(_, ref wizard)
             | State::SavingModel(ref wizard)
             | State::EnteringWarp(ref wizard) => {

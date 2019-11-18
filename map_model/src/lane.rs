@@ -247,13 +247,15 @@ impl Lane {
         )
     }
 
-    pub fn get_cost(&self, constraints: PathConstraints, map: &Map) -> usize {
-        if let Some(turn) = map.get_turns_to_lane(self.id).get(0) {
-            pathfind::cost(self, turn, constraints, map)
-        } else {
-            // Probably a border.
-            println!("{} has no incoming turns! Bogus cost 0", self.id);
-            0
-        }
+    pub fn get_max_cost(&self, constraints: PathConstraints, map: &Map) -> usize {
+        map.get_turns_to_lane(self.id)
+            .into_iter()
+            .map(|turn| pathfind::cost(self, turn, constraints, map))
+            .max()
+            .unwrap_or_else(|| {
+                // Probably a border.
+                println!("{} has no incoming turns! Bogus cost 0", self.id);
+                0
+            })
     }
 }

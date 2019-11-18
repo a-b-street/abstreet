@@ -226,10 +226,8 @@ impl Model {
             Circle::new(i.point, INTERSECTION_RADIUS).to_polygon()
         };
 
-        self.world.add(
-            prerender,
-            Object::new(ID::Intersection(id), color, poly).maybe_label(i.label.clone()),
-        );
+        self.world
+            .add(prerender, Object::new(ID::Intersection(id), color, poly));
     }
 
     pub fn create_i(&mut self, point: Pt2D, prerender: &Prerender) {
@@ -241,7 +239,6 @@ impl Model {
             RawIntersection {
                 point,
                 intersection_type: IntersectionType::StopSign,
-                label: None,
             },
         );
         self.intersection_added(id, prerender);
@@ -253,13 +250,6 @@ impl Model {
             self.road_deleted(r);
             self.road_added(r, prerender);
         }
-        self.intersection_added(id, prerender);
-    }
-
-    pub fn set_i_label(&mut self, id: OriginalIntersection, label: String, prerender: &Prerender) {
-        self.world.delete(ID::Intersection(id));
-        let i = self.map.intersections.get_mut(&id).unwrap();
-        i.label = Some(label);
         self.intersection_added(id, prerender);
     }
 
@@ -390,30 +380,7 @@ impl Model {
         mem::swap(&mut lanes.fwd, &mut lanes.back);
         osm_tags.insert(osm::SYNTHETIC_LANES.to_string(), lanes.to_string());
 
-        let fwd_label = osm_tags.remove(osm::FWD_LABEL);
-        let back_label = osm_tags.remove(osm::BACK_LABEL);
-        if let Some(l) = fwd_label {
-            osm_tags.insert(osm::BACK_LABEL.to_string(), l);
-        }
-        if let Some(l) = back_label {
-            osm_tags.insert(osm::FWD_LABEL.to_string(), l);
-        }
-
         self.road_added(id, prerender);
-    }
-
-    pub fn set_r_label(&mut self, r: OriginalRoad, label: String, prerender: &Prerender) {
-        self.road_deleted(r);
-
-        // Always insert the forward label. Can fiddle with swap_lanes to change it.
-        self.map
-            .roads
-            .get_mut(&r)
-            .unwrap()
-            .osm_tags
-            .insert(osm::FWD_LABEL.to_string(), label.to_string());
-
-        self.road_added(r, prerender);
     }
 
     pub fn set_r_name_and_speed(
@@ -575,9 +542,6 @@ impl Model {
         let center_pts = PolyLine::new(r.center_points.clone());
 
         let mut obj = Object::blank(ID::Road(id));
-        // TODO Labels are kinda unused. Just blindly use FWD_LABEL, whatever.
-        obj = obj.maybe_label(r.osm_tags.get(osm::FWD_LABEL).cloned());
-        //obj = obj.maybe_label(r.osm_tags.get(osm::BACK_LABEL).cloned());
 
         for (idx, lt) in spec.fwd.iter().enumerate() {
             obj.push(
@@ -829,8 +793,7 @@ impl Model {
         let b = &self.map.buildings[&id];
         self.world.add(
             prerender,
-            Object::new(ID::Building(id), Color::BLUE, b.polygon.clone())
-                .maybe_label(b.osm_tags.get(osm::LABEL).cloned()),
+            Object::new(ID::Building(id), Color::BLUE, b.polygon.clone()),
         );
     }
 
@@ -859,15 +822,6 @@ impl Model {
             Distance::meters(new_center.x() - old_center.x()),
             Distance::meters(new_center.y() - old_center.y()),
         );
-
-        self.bldg_added(id, prerender);
-    }
-
-    pub fn set_b_label(&mut self, id: OriginalBuilding, label: String, prerender: &Prerender) {
-        self.world.delete(ID::Building(id));
-
-        let b = self.map.buildings.get_mut(&id).unwrap();
-        b.osm_tags.insert(osm::LABEL.to_string(), label);
 
         self.bldg_added(id, prerender);
     }

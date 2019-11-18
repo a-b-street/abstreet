@@ -47,7 +47,6 @@ pub fn split_up_roads(
                 } else {
                     IntersectionType::StopSign
                 },
-                label: None,
             },
         );
     }

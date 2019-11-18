@@ -13,6 +13,7 @@ pub trait ObjectID: Clone + Copy + Debug + Eq + Hash {
 pub struct Object<ID: ObjectID> {
     id: ID,
     geometry: Vec<(Color, Polygon)>,
+    // TODO Unused
     label: Option<Text>,
 }
 
@@ -39,14 +40,6 @@ impl<ID: ObjectID> Object<ID> {
 
     pub fn push(&mut self, color: Color, poly: Polygon) {
         self.geometry.push((color, poly));
-    }
-
-    pub fn maybe_label(mut self, label: Option<String>) -> Object<ID> {
-        assert!(self.label.is_none());
-        if let Some(s) = label {
-            self.label = Some(Text::from(Line(s)));
-        }
-        self
     }
 }
 

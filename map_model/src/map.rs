@@ -1,7 +1,7 @@
 use crate::pathfind::Pathfinder;
 use crate::raw::{OriginalIntersection, OriginalRoad, RawMap};
 use crate::{
-    connectivity, make, osm, Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop,
+    connectivity, make, Area, AreaID, Building, BuildingID, BusRoute, BusRouteID, BusStop,
     BusStopID, ControlStopSign, ControlTrafficSignal, EditCmd, EditEffects, Intersection,
     IntersectionID, IntersectionType, Lane, LaneID, LaneType, MapEdits, Path, PathConstraints,
     PathRequest, Position, Road, RoadID, Turn, TurnID, LANE_THICKNESS,
@@ -293,14 +293,6 @@ impl Map {
 
     // All these helpers should take IDs and return objects.
 
-    pub fn get_source_intersection(&self, l: LaneID) -> &Intersection {
-        self.get_i(self.get_l(l).src_i)
-    }
-
-    pub fn get_destination_intersection(&self, l: LaneID) -> &Intersection {
-        self.get_i(self.get_l(l).dst_i)
-    }
-
     pub fn get_turns_in_intersection(&self, id: IntersectionID) -> Vec<&Turn> {
         self.get_i(id)
             .turns
@@ -492,79 +484,12 @@ impl Map {
         self.get_parent(from).find_closest_lane(from, types)
     }
 
-    pub fn find_closest_lane_to_bldg(
-        &self,
-        bldg: BuildingID,
-        types: Vec<LaneType>,
-    ) -> Result<LaneID, Error> {
-        let from = self.get_b(bldg).sidewalk();
-        self.find_closest_lane(from, types)
-    }
-
-    // TODO reconsider names, or put somewhere else?
-    pub fn intersection(&self, label: &str) -> &Intersection {
-        for i in &self.intersections {
-            if i.label == Some(label.to_string()) {
-                return i;
-            }
-        }
-        panic!("No intersection has label {}", label);
-    }
-
-    pub fn bldg(&self, label: &str) -> &Building {
-        for b in &self.buildings {
-            if b.osm_tags.get(osm::LABEL) == Some(&label.to_string()) {
-                return b;
-            }
-        }
-        panic!("No building has label {}", label);
-    }
-
-    pub fn driving_lane(&self, label: &str) -> &Lane {
-        for l in &self.lanes {
-            if !l.is_driving() {
-                continue;
-            }
-            let r = self.get_parent(l.id);
-            if (r.is_forwards(l.id) && r.osm_tags.get(osm::FWD_LABEL) == Some(&label.to_string()))
-                || (r.is_backwards(l.id)
-                    && r.osm_tags.get(osm::BACK_LABEL) == Some(&label.to_string()))
-            {
-                return l;
-            }
-        }
-        panic!("No driving lane has label {}", label);
-    }
-
-    pub fn parking_lane(&self, label: &str, expected_spots: usize) -> &Lane {
-        for l in &self.lanes {
-            if !l.is_parking() {
-                continue;
-            }
-            let r = self.get_parent(l.id);
-            if (r.is_forwards(l.id) && r.osm_tags.get(osm::FWD_LABEL) == Some(&label.to_string()))
-                || (r.is_backwards(l.id)
-                    && r.osm_tags.get(osm::BACK_LABEL) == Some(&label.to_string()))
-            {
-                let actual_spots = l.number_parking_spots();
-                if expected_spots != actual_spots {
-                    panic!(
-                        "Parking lane {} (labeled {}) has {} spots, not {}",
-                        l.id, label, actual_spots, expected_spots
-                    );
-                }
-                return l;
-            }
-        }
-        panic!("No parking lane has label {}", label);
-    }
-
     // Cars trying to park near this building should head for the driving lane returned here, then
     // start their search. Some parking lanes are connected to driving lanes that're "parking
     // blackholes" -- if there are no free spots on that lane, then the roads force cars to a
     // border.
     pub fn find_driving_lane_near_building(&self, b: BuildingID) -> LaneID {
-        if let Ok(l) = self.find_closest_lane_to_bldg(b, vec![LaneType::Driving]) {
+        if let Ok(l) = self.find_closest_lane(self.get_b(b).sidewalk(), vec![LaneType::Driving]) {
             return self.get_l(l).parking_blackhole.unwrap_or(l);
         }
 
@@ -777,8 +702,6 @@ fn make_half_map(
     let mut intersection_id_mapping: BTreeMap<OriginalIntersection, IntersectionID> =
         BTreeMap::new();
     for (idx, i) in initial_map.intersections.values().enumerate() {
-        let raw_i = &raw.intersections[&i.id];
-
         let id = IntersectionID(idx);
         map.intersections.push(Intersection {
             id,
@@ -788,7 +711,6 @@ fn make_half_map(
             turns: Vec::new(),
             // Might change later
             intersection_type: i.intersection_type,
-            label: raw_i.label.clone(),
             orig_id: i.id,
             incoming_lanes: Vec::new(),
             outgoing_lanes: Vec::new(),

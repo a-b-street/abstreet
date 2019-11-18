@@ -125,7 +125,7 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
                         txt.add(Line(format!(
                             "Cost for {:?}: {}",
                             constraint,
-                            l.get_cost(constraint, map)
+                            l.get_max_cost(constraint, map)
                         )));
                     }
                 }

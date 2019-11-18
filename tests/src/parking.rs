@@ -11,7 +11,7 @@ use sim::{DrivingGoal, Event, ParkingSpot, Scenario, SidewalkSpot, SimFlags, Tri
 pub fn run(t: &mut TestRunner) {
     // TODO Lots of boilerplate between these two. Can we do better?
 
-    t.run_slow("park_on_goal_st", |h| {
+    /*t.run_slow("park_on_goal_st", |h| {
         let (map, mut sim, mut rng) = SimFlags::synthetic_test("parking_test", "park_on_goal_st")
             .load(&mut Timer::throwaway());
         let north_bldg = map.bldg("north").id;
@@ -84,5 +84,5 @@ pub fn run(t: &mut TestRunner) {
             Duration::minutes(6),
         );
         sim.just_run_until_done(&map, Some(Duration::minutes(1)));
-    });
+    });*/
 }

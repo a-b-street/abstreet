@@ -198,18 +198,21 @@ impl State for AgentSpawner {
                     if constraints == PathConstraints::Pedestrian {
                         Position::bldg_via_walking(to, map)
                     } else {
-                        // TODO Or biking.
-                        let end = map.find_driving_lane_near_building(to);
-                        Position::new(end, map.get_l(end).length())
+                        // TODO Specify biking maybe
+                        DrivingGoal::ParkNear(to).goal_pos(map)
                     }
                 }
                 Goal::Border(to) => {
-                    let lanes = map.get_i(to).get_incoming_lanes(map, constraints);
-                    if lanes.is_empty() {
+                    if let Some(g) = DrivingGoal::end_at_border(
+                        map.get_i(to).some_incoming_road(map),
+                        constraints,
+                        map,
+                    ) {
+                        g.goal_pos(map)
+                    } else {
                         self.maybe_goal = None;
                         return Transition::Keep;
                     }
-                    Position::new(lanes[0], map.get_l(lanes[0]).length())
                 }
             };
             if start == end {

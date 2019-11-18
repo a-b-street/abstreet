@@ -534,7 +534,7 @@ fn calculate_bike_path_costs(ctx: &EventCtx, ui: &UI) -> RoadColorer {
     let mut cost_per_lane: BTreeMap<LaneID, usize> = BTreeMap::new();
     for l in ui.primary.map.all_lanes() {
         if PathConstraints::Bike.can_use(l, &ui.primary.map) {
-            cost_per_lane.insert(l.id, l.get_cost(PathConstraints::Bike, &ui.primary.map));
+            cost_per_lane.insert(l.id, l.get_max_cost(PathConstraints::Bike, &ui.primary.map));
         }
     }
 

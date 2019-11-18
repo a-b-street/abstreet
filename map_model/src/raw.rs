@@ -541,7 +541,6 @@ pub struct RawIntersection {
     // RawMap; roads and intersections get merged and deleted.
     pub point: Pt2D,
     pub intersection_type: IntersectionType,
-    pub label: Option<String>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

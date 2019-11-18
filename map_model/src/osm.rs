@@ -26,11 +26,6 @@ pub const ENDPT_BACK: &str = "abst:endpt_back";
 // Synthetic roads have (some of) these.
 pub const SYNTHETIC: &str = "abst:synthetic";
 pub const SYNTHETIC_LANES: &str = "abst:synthetic_lanes";
-pub const FWD_LABEL: &str = "abst:fwd_label";
-pub const BACK_LABEL: &str = "abst:back_label";
-
-// Synthetic buildings may have these.
-pub const LABEL: &str = "abst:label";
 
 // Any roads might have these.
 pub const INFERRED_PARKING: &str = "abst:parking_inferred";
