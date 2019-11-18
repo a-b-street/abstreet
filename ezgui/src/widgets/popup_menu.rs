@@ -74,8 +74,20 @@ impl<T: Clone> PopupMenu<T> {
         {
             let choice = &self.choices[self.current_idx];
             if ctx.input.left_mouse_button_pressed() {
-                if choice.active && ctx.canvas.get_cursor_in_map_space().is_none() {
-                    return InputResult::Done(choice.label.clone(), choice.data.clone());
+                // Did we actually click the entry?
+                let mut top_left = self.top_left;
+                top_left.y += ctx.canvas.text_dims(&self.prompt).1;
+                top_left.y += ctx.canvas.line_height * (self.current_idx as f64);
+                let rect = ScreenRectangle {
+                    x1: top_left.x,
+                    y1: top_left.y,
+                    x2: top_left.x + self.dims.width,
+                    y2: top_left.y + ctx.canvas.line_height,
+                };
+                if rect.contains(ctx.canvas.get_cursor_in_screen_space()) {
+                    if choice.active {
+                        return InputResult::Done(choice.label.clone(), choice.data.clone());
+                    }
                 } else if self.click_to_cancel {
                     return InputResult::Canceled;
                 }
