@@ -373,35 +373,37 @@ fn make_bulk_edit_lanes(road: RoadID) -> Box<dyn State> {
         })?;
 
         // Do the dirty deed. Match by road name; OSM way ID changes a fair bit.
-        let map = &ui.primary.map;
-        let road_name = map.get_r(road).get_name();
-        let mut edits = map.get_edits().clone();
-        let mut cnt = 0;
-        for l in map.all_lanes() {
-            if l.lane_type != from {
+        let road_name = ui.primary.map.get_r(road).get_name();
+        let mut success = 0;
+        let mut failure = 0;
+        let lane_ids: Vec<LaneID> = ui.primary.map.all_lanes().iter().map(|l| l.id).collect();
+        for l in lane_ids {
+            let orig_lt = ui.primary.map.get_l(l).lane_type;
+            if orig_lt != from || ui.primary.map.get_parent(l).get_name() != road_name {
                 continue;
             }
-            if map.get_parent(l.id).get_name() != road_name {
-                continue;
-            }
-            // TODO This looks at the original state of the map, not with all the edits applied so far!
-            if can_change_lane_type(l.id, to, map).is_none() {
+            if can_change_lane_type(l, to, &ui.primary.map).is_none() {
+                let mut edits = ui.primary.map.get_edits().clone();
                 edits.commands.push(EditCmd::ChangeLaneType {
-                    id: l.id,
+                    id: l,
                     lt: to,
-                    orig_lt: l.lane_type,
+                    orig_lt,
                 });
-                cnt += 1;
+                // Do this immediately, so the next lane we consider sees the true state of the
+                // world.
+                apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
+                success += 1;
+            } else {
+                failure += 1;
             }
         }
         // TODO warn about road names changing and being weird. :)
-        wizard.acknowledge("Bulk lane edit", || {
+        Some(Transition::Replace(msg(
+            "Bulk lane edit",
             vec![format!(
-                "Changed {} {:?} lanes to {:?} lanes on {}",
-                cnt, from, to, road_name
-            )]
-        })?;
-        apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
-        Some(Transition::Pop)
+                "Changed {} {:?} lanes to {:?} lanes on {}. Failed to change {}",
+                success, from, to, road_name, failure
+            )],
+        )))
     }))
 }
