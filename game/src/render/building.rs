@@ -109,6 +109,11 @@ impl Renderable for DrawBuilding {
         }
     }
 
+    // Some buildings cover up tunnels
+    fn get_zorder(&self) -> isize {
+        0
+    }
+
     fn get_outline(&self, map: &Map) -> Polygon {
         Ring::new(map.get_b(self.id).polygon.points().clone()).make_polygons(OUTLINE_THICKNESS)
     }
