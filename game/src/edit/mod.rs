@@ -2,7 +2,7 @@ mod lanes;
 mod stop_signs;
 mod traffic_signals;
 
-use crate::common::CommonState;
+use crate::common::{CommonState, Warping};
 use crate::debug::DebugMode;
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::{ColorScheme, ID};
@@ -42,6 +42,12 @@ impl EditMode {
                     (hotkey(Key::Escape), "back to sandbox mode"),
                     (hotkey(Key::S), "save edits"),
                     (hotkey(Key::L), "load different edits"),
+                    (lctrl(Key::Z), "undo"),
+                    (hotkey(Key::Num1), "1) ..."),
+                    (hotkey(Key::Num2), "2) ..."),
+                    (hotkey(Key::Num3), "3) ..."),
+                    (hotkey(Key::Num4), "4) ..."),
+                    (hotkey(Key::Num5), "5) ..."),
                 ],
                 ctx,
             ),
@@ -84,8 +90,55 @@ impl State for EditMode {
             )));
             self.menu.set_info(ctx, txt);
         }
+
+        // TODO Recalculate less frequently
+        {
+            let cmds = &ui.primary.map.get_edits().commands;
+            for (idx, key) in vec![Key::Num1, Key::Num2, Key::Num3, Key::Num4, Key::Num5]
+                .into_iter()
+                .enumerate()
+            {
+                let label = if idx < cmds.len() {
+                    format!("{}) {}", idx + 1, cmds[cmds.len() - 1 - idx].describe())
+                } else {
+                    format!("{}) ...", idx + 1)
+                };
+                self.menu
+                    .change_action_by_key(hotkey(key).unwrap(), label, ctx);
+            }
+        }
+
         self.menu.event(ctx);
         self.general_tools.event(ctx);
+
+        {
+            let cmds = &ui.primary.map.get_edits().commands;
+            for idx in 1..=5 {
+                if idx <= cmds.len() {
+                    let label = format!("{}) {}", idx, cmds[cmds.len() - idx].describe());
+                    if self.menu.action(&label) {
+                        let id = match &cmds[cmds.len() - idx] {
+                            EditCmd::ChangeLaneType { id, .. } => ID::Lane(*id),
+                            EditCmd::ReverseLane { l, .. } => ID::Lane(*l),
+                            EditCmd::ChangeStopSign(ss) => ID::Intersection(ss.id),
+                            EditCmd::ChangeTrafficSignal(ss) => ID::Intersection(ss.id),
+                            EditCmd::CloseIntersection { id, .. } => ID::Intersection(*id),
+                            EditCmd::UncloseIntersection(id, _) => ID::Intersection(*id),
+                        };
+                        return Transition::PushWithMode(
+                            Warping::new(
+                                ctx,
+                                id.canonical_point(&ui.primary).unwrap(),
+                                None,
+                                Some(id),
+                                &mut ui.primary,
+                            ),
+                            EventLoopMode::Animation,
+                        );
+                    }
+                }
+            }
+        }
 
         if let Some(t) = self.lane_editor.event(ui, ctx) {
             return t;
@@ -234,6 +287,12 @@ impl State for EditMode {
                     .push(EditCmd::UncloseIntersection(id, edits.original_it(id)));
                 apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
             }
+        }
+
+        if !ui.primary.map.get_edits().commands.is_empty() && self.menu.action("undo") {
+            let mut edits = ui.primary.map.get_edits().clone();
+            edits.commands.pop();
+            apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
         }
 
         Transition::Keep

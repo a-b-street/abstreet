@@ -133,6 +133,10 @@ impl MapEdits {
         }
 
         retain_btreemap(&mut orig_lts, |l, lt| map.get_l(*l).lane_type != *lt);
+        for i in &closed_intersections {
+            changed_stop_signs.remove(i);
+            changed_traffic_signals.remove(i);
+        }
         retain_btreeset(&mut changed_stop_signs, |i| {
             &ControlStopSign::new(map, *i) != map.get_stop_sign(*i)
         });
@@ -156,6 +160,19 @@ impl EditEffects {
             changed_intersections: BTreeSet::new(),
             added_turns: BTreeSet::new(),
             deleted_turns: BTreeSet::new(),
+        }
+    }
+}
+
+impl EditCmd {
+    pub fn describe(&self) -> String {
+        match self {
+            EditCmd::ChangeLaneType { id, lt, .. } => format!("Change {} to {:?}", id, lt),
+            EditCmd::ReverseLane { l, .. } => format!("Reverse {}", l),
+            EditCmd::ChangeStopSign(ss) => format!("Edit stop sign {}", ss.id),
+            EditCmd::ChangeTrafficSignal(ts) => format!("Edit traffic signal {}", ts.id),
+            EditCmd::CloseIntersection { id, .. } => format!("Close {}", id),
+            EditCmd::UncloseIntersection(id, _) => format!("Restore {}", id),
         }
     }
 }

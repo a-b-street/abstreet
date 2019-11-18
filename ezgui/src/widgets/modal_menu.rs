@@ -205,6 +205,17 @@ impl ModalMenu {
         panic!("Menu doesn't have {}", old_label);
     }
 
+    pub fn change_action_by_key(&mut self, mk: MultiKey, new_label: String, ctx: &EventCtx) {
+        for c in self.choices.iter_mut() {
+            if c.hotkey == Some(mk) {
+                c.label = new_label;
+                self.recalculate_dims(ctx);
+                return;
+            }
+        }
+        panic!("Menu doesn't have a choice with hotkey {:?}", mk);
+    }
+
     pub fn maybe_change_action(&mut self, old_label: &str, new_label: &str, ctx: &EventCtx) {
         for c in self.choices.iter_mut() {
             if c.label == old_label {
