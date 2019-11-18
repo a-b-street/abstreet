@@ -642,7 +642,7 @@ impl Map {
     }
 
     // new_edits assumed to be valid. Returns actual lanes that changed, roads changed, turns
-    // deleted, turns added. Doesn't update pathfinding yet.
+    // deleted, turns added, intersections modified. Doesn't update pathfinding yet.
     pub fn apply_edits(
         &mut self,
         mut new_edits: MapEdits,
@@ -652,6 +652,7 @@ impl Map {
         BTreeSet<RoadID>,
         BTreeSet<TurnID>,
         BTreeSet<TurnID>,
+        BTreeSet<IntersectionID>,
     ) {
         // TODO More efficient ways to do this: given two sets of edits, produce a smaller diff.
         // Simplest strategy: Remove common prefix.
@@ -710,6 +711,7 @@ impl Map {
                 .into_iter()
                 .filter(|t| self.turns.contains_key(t))
                 .collect(),
+            effects.changed_intersections,
         )
     }
 

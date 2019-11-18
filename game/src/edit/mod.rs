@@ -421,7 +421,7 @@ pub fn apply_map_edits(
     edits.dirty = true;
     let mut timer = Timer::new("apply map edits");
 
-    let (lanes_changed, roads_changed, turns_deleted, turns_added) =
+    let (lanes_changed, roads_changed, turns_deleted, turns_added, mut modified_intersections) =
         bundle.map.apply_edits(edits, &mut timer);
 
     for l in lanes_changed {
@@ -439,7 +439,6 @@ pub fn apply_map_edits(
             DrawRoad::new(bundle.map.get_r(r), &bundle.map, cs, ctx.prerender);
     }
 
-    let mut modified_intersections: BTreeSet<IntersectionID> = BTreeSet::new();
     let mut lanes_of_modified_turns: BTreeSet<LaneID> = BTreeSet::new();
     for t in turns_deleted {
         bundle.draw_map.turns.remove(&t);
