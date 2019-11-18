@@ -12,6 +12,7 @@ pub struct LaneEditor {
     brushes: Vec<Paintbrush>,
     pub active_idx: Option<usize>,
     pub construction_idx: usize,
+    reverse_idx: usize,
 }
 
 struct Paintbrush {
@@ -115,11 +116,16 @@ impl LaneEditor {
             .iter()
             .position(|b| b.label == "closed for construction")
             .unwrap();
+        let reverse_idx = brushes
+            .iter()
+            .position(|b| b.label == "reverse lane direction")
+            .unwrap();
 
         LaneEditor {
             brushes,
             active_idx: None,
             construction_idx,
+            reverse_idx,
         }
     }
 
@@ -173,6 +179,43 @@ impl LaneEditor {
                     }
 
                     match (self.brushes[idx].apply)(&ui.primary.map, l) {
+                        Ok(Some(cmd)) => {
+                            let mut edits = ui.primary.map.get_edits().clone();
+                            edits.commands.push(cmd);
+                            apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
+                        }
+                        Ok(None) => {}
+                        Err(err) => {
+                            return Some(Transition::Push(msg("Error", vec![err])));
+                        }
+                    }
+                }
+            }
+
+            if ctx
+                .input
+                .contextual_action(Key::U, "bulk edit lanes on this road")
+            {
+                return Some(Transition::Push(make_bulk_edit_lanes(
+                    ui.primary.map.get_l(l).parent,
+                )));
+            } else if let Some(lt) = ui.primary.map.get_edits().original_lts.get(&l) {
+                if ctx.input.contextual_action(Key::R, "revert") {
+                    if let Some(err) = can_change_lane_type(l, *lt, &ui.primary.map) {
+                        return Some(Transition::Push(msg("Error", vec![err])));
+                    }
+
+                    let mut edits = ui.primary.map.get_edits().clone();
+                    edits.commands.push(EditCmd::ChangeLaneType {
+                        id: l,
+                        lt: *lt,
+                        orig_lt: ui.primary.map.get_l(l).lane_type,
+                    });
+                    apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
+                }
+            } else if ui.primary.map.get_edits().reversed_lanes.contains(&l) {
+                if ctx.input.contextual_action(Key::R, "revert") {
+                    match (self.brushes[self.reverse_idx].apply)(&ui.primary.map, l) {
                         Ok(Some(cmd)) => {
                             let mut edits = ui.primary.map.get_edits().clone();
                             edits.commands.push(cmd);
@@ -304,7 +347,7 @@ fn try_change_lane_type(l: LaneID, new_lt: LaneType, map: &Map) -> Result<Option
     }
 }
 
-pub fn make_bulk_edit_lanes(road: RoadID) -> Box<dyn State> {
+fn make_bulk_edit_lanes(road: RoadID) -> Box<dyn State> {
     WizardState::new(Box::new(move |wiz, ctx, ui| {
         let mut wizard = wiz.wrap(ctx);
         let (_, from) = wizard.choose("Change all lanes of type...", || {

@@ -4,7 +4,7 @@ mod traffic_signals;
 
 use crate::common::{CommonState, Warping};
 use crate::debug::DebugMode;
-use crate::game::{msg, State, Transition, WizardState};
+use crate::game::{State, Transition, WizardState};
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{
     DrawIntersection, DrawLane, DrawMap, DrawOptions, DrawRoad, DrawTurn, Renderable,
@@ -186,44 +186,6 @@ impl State for EditMode {
             return Transition::Replace(Box::new(SandboxMode::new(ctx, ui, self.mode.clone())));
         }
 
-        if let Some(ID::Lane(id)) = ui.primary.current_selection {
-            if ctx
-                .input
-                .contextual_action(Key::U, "bulk edit lanes on this road")
-            {
-                return Transition::Push(lanes::make_bulk_edit_lanes(
-                    ui.primary.map.get_l(id).parent,
-                ));
-            } else if let Some(lt) = ui.primary.map.get_edits().original_lts.get(&id) {
-                if ctx.input.contextual_action(Key::R, "revert") {
-                    let mut edits = ui.primary.map.get_edits().clone();
-                    edits.commands.push(EditCmd::ChangeLaneType {
-                        id,
-                        lt: *lt,
-                        orig_lt: ui.primary.map.get_l(id).lane_type,
-                    });
-                    apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
-                }
-            } else if ui.primary.map.get_edits().reversed_lanes.contains(&id) {
-                if ctx.input.contextual_action(Key::R, "revert") {
-                    if ui.primary.map.get_parent(id).dir_and_offset(id).1 != 0 {
-                        return Transition::Push(msg(
-                            "Error",
-                            vec![
-                            "You can only reverse the lanes next to the road's yellow center line"
-                        ],
-                        ));
-                    }
-
-                    let mut edits = ui.primary.map.get_edits().clone();
-                    edits.commands.push(EditCmd::ReverseLane {
-                        l: id,
-                        dst_i: ui.primary.map.get_l(id).src_i,
-                    });
-                    apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
-                }
-            }
-        }
         if let Some(ID::Intersection(id)) = ui.primary.current_selection {
             if ui.primary.map.maybe_get_stop_sign(id).is_some() {
                 if ctx
