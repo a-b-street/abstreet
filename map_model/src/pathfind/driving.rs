@@ -1,5 +1,7 @@
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
-use crate::{Lane, LaneID, Map, Path, PathConstraints, PathRequest, PathStep, Turn, TurnID};
+use crate::{
+    Lane, LaneID, LaneType, Map, Path, PathConstraints, PathRequest, PathStep, Turn, TurnID,
+};
 use fast_paths::{FastGraph, InputGraph, PathCalculator};
 use geom::Distance;
 use serde_derive::{Deserialize, Serialize};
@@ -71,12 +73,16 @@ impl VehiclePathfinder {
             }));
         }
         steps.push(PathStep::Lane(req.end.lane()));
-        Some(Path::new(
+        let path = Path::new(
             map,
             steps,
             req.end.dist_along(),
             Distance::centimeters(raw_path.get_weight()),
-        ))
+        );
+        if self.constraints == PathConstraints::Bike {
+            check_bike_route(&path, map);
+        }
+        Some(path)
     }
 
     pub fn apply_edits(&mut self, map: &Map) {
@@ -167,5 +173,30 @@ pub fn cost(lane: &Lane, turn: &Turn, constraints: PathConstraints, map: &Map) -
             (lt_penalty * (t1 + t2)).inner_seconds().round() as usize
         }
         PathConstraints::Pedestrian => unreachable!(),
+    }
+}
+
+// TODO Temporary, while I'm figuring out why bike lanes aren't always used.
+fn check_bike_route(path: &Path, map: &Map) {
+    let steps: Vec<PathStep> = path.get_steps().iter().cloned().collect();
+    for pair in steps.windows(2) {
+        let (turn, lane) = match (pair[0], pair[1]) {
+            (PathStep::Turn(t), PathStep::Lane(l)) => (map.get_t(t), map.get_l(l)),
+            _ => {
+                continue;
+            }
+        };
+        if lane.is_biking() {
+            continue;
+        }
+        if let Ok(pbl) = map.find_closest_lane(lane.id, vec![LaneType::Biking]) {
+            let cost1 = cost(lane, turn, PathConstraints::Bike, map);
+            let cost2 = cost(map.get_l(pbl), turn, PathConstraints::Bike, map);
+
+            println!(
+                "Why does bike route use {} (cost {}) instead of {} (cost {})?",
+                lane.id, cost1, pbl, cost2
+            );
+        }
     }
 }
