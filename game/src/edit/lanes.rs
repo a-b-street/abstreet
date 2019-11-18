@@ -18,8 +18,9 @@ struct Paintbrush {
     btn: Button,
     enabled_btn: Button,
     label: String,
-    // If this returns a string error message, the edit didn't work.
-    apply: Box<dyn Fn(&Map, LaneID) -> Result<EditCmd, String>>,
+    // If this returns a string error message, the edit didn't work. If it returns Ok(None), then
+    // it's a no-op.
+    apply: Box<dyn Fn(&Map, LaneID) -> Result<Option<EditCmd>, String>>,
 }
 
 impl LaneEditor {
@@ -30,7 +31,7 @@ impl LaneEditor {
             |icon: &str,
              label: &str,
              key: Key,
-             apply: Box<dyn Fn(&Map, LaneID) -> Result<EditCmd, String>>| {
+             apply: Box<dyn Fn(&Map, LaneID) -> Result<Option<EditCmd>, String>>| {
                 let btn = Button::icon_btn(
                     &format!("assets/ui/edit_{}.png", icon),
                     32.0,
@@ -63,76 +64,31 @@ impl LaneEditor {
                 "driving",
                 "driving lane",
                 Key::D,
-                Box::new(|map, l| {
-                    if let Some(err) = can_change_lane_type(l, LaneType::Driving, map) {
-                        return Err(err);
-                    }
-                    Ok(EditCmd::ChangeLaneType {
-                        id: l,
-                        lt: LaneType::Driving,
-                        orig_lt: map.get_l(l).lane_type,
-                    })
-                }),
+                Box::new(|map, l| try_change_lane_type(l, LaneType::Driving, map)),
             ),
             make_brush(
                 "bike",
                 "protected bike lane",
                 Key::B,
-                Box::new(|map, l| {
-                    if let Some(err) = can_change_lane_type(l, LaneType::Biking, map) {
-                        return Err(err);
-                    }
-                    Ok(EditCmd::ChangeLaneType {
-                        id: l,
-                        lt: LaneType::Biking,
-                        orig_lt: map.get_l(l).lane_type,
-                    })
-                }),
+                Box::new(|map, l| try_change_lane_type(l, LaneType::Biking, map)),
             ),
             make_brush(
                 "bus",
                 "bus-only lane",
                 Key::T,
-                Box::new(|map, l| {
-                    if let Some(err) = can_change_lane_type(l, LaneType::Bus, map) {
-                        return Err(err);
-                    }
-                    Ok(EditCmd::ChangeLaneType {
-                        id: l,
-                        lt: LaneType::Bus,
-                        orig_lt: map.get_l(l).lane_type,
-                    })
-                }),
+                Box::new(|map, l| try_change_lane_type(l, LaneType::Bus, map)),
             ),
             make_brush(
                 "parking",
                 "on-street parking lane",
                 Key::P,
-                Box::new(|map, l| {
-                    if let Some(err) = can_change_lane_type(l, LaneType::Parking, map) {
-                        return Err(err);
-                    }
-                    Ok(EditCmd::ChangeLaneType {
-                        id: l,
-                        lt: LaneType::Parking,
-                        orig_lt: map.get_l(l).lane_type,
-                    })
-                }),
+                Box::new(|map, l| try_change_lane_type(l, LaneType::Parking, map)),
             ),
             make_brush(
                 "construction",
                 "closed for construction",
                 Key::C,
-                Box::new(|map, l| {
-                    if let Some(err) = can_change_lane_type(l, LaneType::Construction, map) {
-                        return Err(err);
-                    }
-                    Ok(EditCmd::ChangeLaneType {
-                        id: l,
-                        lt: LaneType::Construction,
-                        orig_lt: map.get_l(l).lane_type,
-                    })
-                }),
+                Box::new(|map, l| try_change_lane_type(l, LaneType::Construction, map)),
             ),
             make_brush(
                 "contraflow",
@@ -148,10 +104,10 @@ impl LaneEditor {
                             "You can only reverse the lanes next to the road's yellow center line"
                         ));
                     }
-                    Ok(EditCmd::ReverseLane {
+                    Ok(Some(EditCmd::ReverseLane {
                         l,
                         dst_i: lane.src_i,
-                    })
+                    }))
                 }),
             ),
         ];
@@ -217,11 +173,12 @@ impl LaneEditor {
                     }
 
                     match (self.brushes[idx].apply)(&ui.primary.map, l) {
-                        Ok(cmd) => {
+                        Ok(Some(cmd)) => {
                             let mut edits = ui.primary.map.get_edits().clone();
                             edits.commands.push(cmd);
                             apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
                         }
+                        Ok(None) => {}
                         Err(err) => {
                             return Some(Transition::Push(msg("Error", vec![err])));
                         }
@@ -330,6 +287,21 @@ fn can_change_lane_type(l: LaneID, new_lt: LaneType, map: &Map) -> Option<String
     }
 
     None
+}
+
+fn try_change_lane_type(l: LaneID, new_lt: LaneType, map: &Map) -> Result<Option<EditCmd>, String> {
+    if let Some(err) = can_change_lane_type(l, LaneType::Driving, map) {
+        return Err(err);
+    }
+    if map.get_l(l).lane_type == new_lt {
+        Ok(None)
+    } else {
+        Ok(Some(EditCmd::ChangeLaneType {
+            id: l,
+            lt: LaneType::Driving,
+            orig_lt: map.get_l(l).lane_type,
+        }))
+    }
 }
 
 pub fn make_bulk_edit_lanes(road: RoadID) -> Box<dyn State> {
