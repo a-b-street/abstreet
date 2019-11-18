@@ -159,3 +159,13 @@ changes here.
 - rendering: nicer routes, crosswalks, zoomed car colors
 - map data: better stop sign and sidewalk heuristics
 - fixed the mac hidpi text rendering issue once and for all?!
+
+0.1.14
+
+- better crosswalk generation when there's only a sidewalk on one side of a road
+- edit mode UI revamp: paintbrush-style buttons to apply changes to lanes
+- show error messages and prevent edits, like disconnecting sidewalks
+- properly ban bikes from highways (revamped rules for vehicles using a lane)
+- new freeform mode tool to spawn bikes
+- WIP (not working yet): make bikes prefer bike lanes. some debug heatmaps for path cost
+- edit mode has proper undo support
