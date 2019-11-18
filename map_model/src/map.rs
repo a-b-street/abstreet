@@ -1060,7 +1060,7 @@ impl EditCmd {
     }
 }
 
-// This clobbers previously set stop sign / traffic signal overrides.
+// This clobbers previously set traffic signal overrides.
 // TODO Step 1: Detect and warn about that
 // TODO Step 2: Avoid when possible
 fn recalculate_turns(
@@ -1099,9 +1099,8 @@ fn recalculate_turns(
     // TODO Deal with turn_lookup
 
     match i.intersection_type {
-        IntersectionType::StopSign => {
-            map.stop_signs.insert(id, ControlStopSign::new(map, id));
-        }
+        // Stop sign policy doesn't depend on incoming lane types. Leave edits alone.
+        IntersectionType::StopSign => {}
         IntersectionType::TrafficSignal => {
             map.traffic_signals
                 .insert(id, ControlTrafficSignal::new(map, id, timer));

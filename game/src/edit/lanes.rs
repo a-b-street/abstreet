@@ -290,7 +290,7 @@ fn can_change_lane_type(l: LaneID, new_lt: LaneType, map: &Map) -> Option<String
 }
 
 fn try_change_lane_type(l: LaneID, new_lt: LaneType, map: &Map) -> Result<Option<EditCmd>, String> {
-    if let Some(err) = can_change_lane_type(l, LaneType::Driving, map) {
+    if let Some(err) = can_change_lane_type(l, new_lt, map) {
         return Err(err);
     }
     if map.get_l(l).lane_type == new_lt {
@@ -298,7 +298,7 @@ fn try_change_lane_type(l: LaneID, new_lt: LaneType, map: &Map) -> Result<Option
     } else {
         Ok(Some(EditCmd::ChangeLaneType {
             id: l,
-            lt: LaneType::Driving,
+            lt: new_lt,
             orig_lt: map.get_l(l).lane_type,
         }))
     }
