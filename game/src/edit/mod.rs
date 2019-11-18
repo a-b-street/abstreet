@@ -18,8 +18,7 @@ use ezgui::{
     ModalMenu, Text, Wizard,
 };
 use map_model::{
-    ControlStopSign, ControlTrafficSignal, EditCmd, IntersectionID, LaneID, MapEdits, TurnID,
-    TurnType,
+    ControlStopSign, ControlTrafficSignal, EditCmd, LaneID, MapEdits, TurnID, TurnType,
 };
 use std::collections::{BTreeSet, HashMap};
 
@@ -477,7 +476,4 @@ pub fn apply_map_edits(
             &mut timer,
         );
     }
-
-    // Do this after fixing up all the state above.
-    bundle.map.simplify_edits(&mut timer);
 }

@@ -638,7 +638,9 @@ impl Map {
     }
 
     pub fn save_edits(&mut self) {
-        self.edits.save();
+        let mut edits = std::mem::replace(&mut self.edits, MapEdits::new(self.name.clone()));
+        edits.save(self);
+        self.edits = edits;
     }
 
     // new_edits assumed to be valid. Returns actual lanes that changed, roads changed, turns
@@ -735,48 +737,6 @@ impl Map {
         timer.stop("recompute parking blackholes");
 
         self.pathfinder_dirty = false;
-    }
-
-    pub fn simplify_edits(&mut self, timer: &mut Timer) {
-        /*let mut delete_lanes = Vec::new();
-        for (id, lt) in &self.edits.lane_overrides {
-            if *lt == self.get_original_lt(*id) {
-                delete_lanes.push(*id);
-            }
-        }
-        for id in delete_lanes {
-            self.edits.lane_overrides.remove(&id);
-        }
-
-        let mut delete_contraflow_lanes = Vec::new();
-        for (id, dst_i) in &self.edits.contraflow_lanes {
-            if *dst_i == self.get_original_endpt(*id) {
-                delete_contraflow_lanes.push(*id);
-            }
-        }
-        for id in delete_contraflow_lanes {
-            self.edits.contraflow_lanes.remove(&id);
-        }
-
-        let mut delete_stop_signs = Vec::new();
-        for (id, ss) in &self.edits.stop_sign_overrides {
-            if *ss == ControlStopSign::new(self, *id) {
-                delete_stop_signs.push(*id);
-            }
-        }
-        for id in delete_stop_signs {
-            self.edits.stop_sign_overrides.remove(&id);
-        }
-
-        let mut delete_signals = Vec::new();
-        for (id, ts) in &self.edits.traffic_signal_overrides {
-            if *ts == ControlTrafficSignal::new(self, *id, timer) {
-                delete_signals.push(*id);
-            }
-        }
-        for id in delete_signals {
-            self.edits.traffic_signal_overrides.remove(&id);
-        }*/
     }
 }
 

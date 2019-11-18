@@ -77,7 +77,9 @@ impl MapEdits {
     }
 
     // TODO Version these
-    pub(crate) fn save(&mut self) {
+    pub(crate) fn save(&mut self, map: &Map) {
+        self.compress(map);
+
         assert!(self.dirty);
         assert_ne!(self.edits_name, "no_edits");
         abstutil::save_json_object(abstutil::EDITS, &self.map_name, &self.edits_name, self);
@@ -149,6 +151,56 @@ impl MapEdits {
         self.changed_intersections = closed_intersections;
         self.changed_intersections.extend(changed_stop_signs);
         self.changed_intersections.extend(changed_traffic_signals);
+    }
+
+    // Assumes update_derived has been called.
+    pub(crate) fn compress(&mut self, map: &Map) {
+        let orig_cmds: Vec<EditCmd> = self.commands.drain(..).collect();
+
+        for (l, orig_lt) in &self.original_lts {
+            self.commands.push(EditCmd::ChangeLaneType {
+                id: *l,
+                lt: map.get_l(*l).lane_type,
+                orig_lt: *orig_lt,
+            });
+        }
+        for l in &self.reversed_lanes {
+            self.commands.push(EditCmd::ReverseLane {
+                l: *l,
+                dst_i: map.get_l(*l).dst_i,
+            });
+        }
+        for i in &self.changed_intersections {
+            match map.get_i(*i).intersection_type {
+                IntersectionType::StopSign => {
+                    self.commands
+                        .push(EditCmd::ChangeStopSign(map.get_stop_sign(*i).clone()));
+                }
+                IntersectionType::TrafficSignal => {
+                    self.commands.push(EditCmd::ChangeTrafficSignal(
+                        map.get_traffic_signal(*i).clone(),
+                    ));
+                }
+                IntersectionType::Construction => {
+                    // We have to recover orig_it from the original list of commands. :\
+                    let mut found = false;
+                    for cmd in &orig_cmds {
+                        match cmd {
+                            EditCmd::CloseIntersection { id, .. } => {
+                                if *id == *i {
+                                    self.commands.push(cmd.clone());
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            _ => {}
+                        }
+                    }
+                    assert!(found);
+                }
+                IntersectionType::Border => unreachable!(),
+            }
+        }
     }
 }
 
