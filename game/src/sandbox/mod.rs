@@ -151,12 +151,10 @@ impl State for SandboxMode {
         if self.general_tools.action("back to title screen") {
             // TODO Clear edits?
             return Transition::Push(WizardState::new(Box::new(move |wiz, ctx, ui| {
-                // TODO Open up a dialog if the edits need a name!
-                let dirty = ui.primary.map.get_edits().dirty
-                    && ui.primary.map.get_edits().edits_name != "no_edits";
-                let (resp, _) = wiz.wrap(ctx).choose(
-                    "Sure you want to abandon the current challenge?",
-                    || {
+                let mut wizard = wiz.wrap(ctx);
+                let dirty = ui.primary.map.get_edits().dirty;
+                let (resp, _) =
+                    wizard.choose("Sure you want to abandon the current challenge?", || {
                         let mut choices = Vec::new();
                         choices.push(Choice::new("keep playing", ()));
                         if dirty {
@@ -164,11 +162,18 @@ impl State for SandboxMode {
                         }
                         choices.push(Choice::new("quit challenge", ()).key(Key::Q));
                         choices
-                    },
-                )?;
+                    })?;
                 let map_name = ui.primary.map.get_name().to_string();
                 match resp.as_str() {
                     "save edits and quit" => {
+                        if ui.primary.map.get_edits().edits_name == "no_edits" {
+                            let name = wizard.input_string("Name these map edits")?;
+                            let mut edits = ui.primary.map.get_edits().clone();
+                            edits.edits_name = name;
+                            ui.primary
+                                .map
+                                .apply_edits(edits, &mut Timer::new("name map edits"));
+                        }
                         ui.primary.map.save_edits();
                         // Always reset edits if we just saved edits.
                         apply_map_edits(&mut ui.primary, &ui.cs, ctx, MapEdits::new(map_name));
