@@ -64,7 +64,7 @@ impl State for SplashScreen {
     }
 
     fn on_suspend(&mut self, _: &mut EventCtx, _: &mut UI) {
-        self.wizard.reset();
+        self.wizard = Wizard::new();
         self.maybe_screensaver = None;
     }
 }

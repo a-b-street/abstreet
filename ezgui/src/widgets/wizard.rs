@@ -71,14 +71,6 @@ impl Wizard {
         None
     }
 
-    pub fn reset(&mut self) {
-        assert!(self.tb.is_none());
-        assert!(self.menu.is_none());
-        assert!(self.log_scroller.is_none());
-        assert!(self.slider.is_none());
-        self.confirmed_state.clear();
-    }
-
     fn input_with_text_box<R: Cloneable>(
         &mut self,
         query: &str,
@@ -378,6 +370,15 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         } else {
             None
         }
+    }
+
+    // If the control flow through a wizard block needs to change, might need to call this.
+    pub fn reset(&mut self) {
+        assert!(self.wizard.tb.is_none());
+        assert!(self.wizard.menu.is_none());
+        assert!(self.wizard.log_scroller.is_none());
+        assert!(self.wizard.slider.is_none());
+        self.wizard.confirmed_state.clear();
     }
 }
 

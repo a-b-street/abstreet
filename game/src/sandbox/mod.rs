@@ -5,8 +5,8 @@ mod score;
 
 use crate::common::{time_controls, AgentTools, CommonState, SpeedControls};
 use crate::debug::DebugMode;
-use crate::edit::apply_map_edits;
 use crate::edit::EditMode;
+use crate::edit::{apply_map_edits, save_edits};
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::ui::{ShowEverything, UI};
@@ -166,15 +166,8 @@ impl State for SandboxMode {
                 let map_name = ui.primary.map.get_name().to_string();
                 match resp.as_str() {
                     "save edits and quit" => {
-                        if ui.primary.map.get_edits().edits_name == "no_edits" {
-                            let name = wizard.input_string("Name these map edits")?;
-                            let mut edits = ui.primary.map.get_edits().clone();
-                            edits.edits_name = name;
-                            ui.primary
-                                .map
-                                .apply_edits(edits, &mut Timer::new("name map edits"));
-                        }
-                        ui.primary.map.save_edits();
+                        save_edits(&mut wizard, ui)?;
+
                         // Always reset edits if we just saved edits.
                         apply_map_edits(&mut ui.primary, &ui.cs, ctx, MapEdits::new(map_name));
                         ui.primary.map.mark_edits_fresh();

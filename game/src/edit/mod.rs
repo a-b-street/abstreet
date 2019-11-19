@@ -15,7 +15,7 @@ use crate::ui::{PerMapUI, ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, MenuUnderButton,
-    ModalMenu, Text, Wizard,
+    ModalMenu, Text, Wizard, WrappedWizard,
 };
 use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, LaneID, MapEdits, TurnID, TurnType,
@@ -172,11 +172,13 @@ impl State for EditMode {
         }
 
         if ui.primary.map.get_edits().dirty && self.menu.action("save edits") {
-            return Transition::Push(WizardState::new(Box::new(save_edits)));
+            return Transition::Push(WizardState::new(Box::new(|wiz, ctx, ui| {
+                save_edits(&mut wiz.wrap(ctx), ui)?;
+                Some(Transition::Pop)
+            })));
         } else if self.menu.action("load different edits") {
             return Transition::Push(WizardState::new(Box::new(load_edits)));
         } else if self.menu.action("back to sandbox mode") {
-            // TODO Warn about unsaved edits
             // TODO Maybe put a loading screen around these.
             ui.primary
                 .map
@@ -328,9 +330,8 @@ impl State for EditMode {
     }
 }
 
-fn save_edits(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+pub fn save_edits(wizard: &mut WrappedWizard, ui: &mut UI) -> Option<()> {
     let map = &mut ui.primary.map;
-    let mut wizard = wiz.wrap(ctx);
 
     let rename = if map.get_edits().edits_name == "no_edits" {
         Some(wizard.input_string("Name these map edits")?)
@@ -340,6 +341,7 @@ fn save_edits(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Trans
     // TODO Don't allow naming them no_edits!
 
     // TODO Do it this weird way to avoid saving edits on every event. :P
+    // TODO Do some kind of versioning? Don't ask this if the file doesn't exist yet?
     let save = "save edits";
     let cancel = "cancel";
     if wizard
@@ -354,15 +356,27 @@ fn save_edits(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Trans
         }
         map.save_edits();
     }
-    Some(Transition::Pop)
+    Some(())
 }
 
 fn load_edits(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
-    let map = &mut ui.primary.map;
     let mut wizard = wiz.wrap(ctx);
 
+    if ui.primary.map.get_edits().dirty {
+        let save = "save edits";
+        let discard = "discard";
+        if wizard
+            .choose_string("Save current edits first?", || vec![save, discard])?
+            .as_str()
+            == save
+        {
+            save_edits(&mut wizard, ui)?;
+            wizard.reset();
+        }
+    }
+
     // TODO Exclude current
-    let map_name = map.get_name().to_string();
+    let map_name = ui.primary.map.get_name().to_string();
     let (_, new_edits) = wizard.choose("Load which map edits?", || {
         let mut list = Choice::from(abstutil::load_all_objects(abstutil::EDITS, &map_name));
         list.push(Choice::new("no_edits", MapEdits::new(map_name.clone())));
