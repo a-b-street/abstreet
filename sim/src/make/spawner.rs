@@ -135,7 +135,7 @@ impl TripSpawner {
                     return;
                 }
                 if let DrivingGoal::ParkNear(_) = goal {
-                    let last_lane = goal.goal_pos(map).lane();
+                    let last_lane = goal.goal_pos(PathConstraints::Bike, map).lane();
                     // If bike_to_sidewalk works, then SidewalkSpot::bike_rack should too.
                     if map
                         .get_parent(last_lane)
@@ -475,11 +475,14 @@ impl TripSpec {
                 vehicle_spec,
                 goal,
                 ..
-            } => PathRequest {
-                start: *start_pos,
-                end: goal.goal_pos(map),
-                constraints: vehicle_spec.vehicle_type.to_constraints(),
-            },
+            } => {
+                let constraints = vehicle_spec.vehicle_type.to_constraints();
+                PathRequest {
+                    start: *start_pos,
+                    end: goal.goal_pos(constraints, map),
+                    constraints,
+                }
+            }
             TripSpec::UsingParkedCar { start, spot, .. } => PathRequest {
                 start: start.sidewalk_pos,
                 end: SidewalkSpot::parking_spot(*spot, map, parking).sidewalk_pos,

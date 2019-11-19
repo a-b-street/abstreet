@@ -183,6 +183,8 @@ pub struct ParkedCar {
     pub spot: ParkingSpot,
 }
 
+// It'd be nice to inline the goal_pos like SidewalkSpot does, but DrivingGoal is persisted in
+// Scenarios, so this wouldn't survive map edits.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum DrivingGoal {
     ParkNear(BuildingID),
@@ -204,17 +206,19 @@ impl DrivingGoal {
         }
     }
 
-    // TODO Stick this in the DrivingGoal directly, like SidewalkSpot. Find it upon construction.
-    pub fn goal_pos(&self, map: &Map) -> Position {
+    pub fn goal_pos(&self, constraints: PathConstraints, map: &Map) -> Position {
         let lane = match self {
-            // TODO Biking option.
-            DrivingGoal::ParkNear(b) => map.find_driving_lane_near_building(*b),
+            DrivingGoal::ParkNear(b) => match constraints {
+                PathConstraints::Car => map.find_driving_lane_near_building(*b),
+                PathConstraints::Bike => map.find_biking_lane_near_building(*b),
+                PathConstraints::Bus | PathConstraints::Pedestrian => unreachable!(),
+            },
             DrivingGoal::Border(_, l) => *l,
         };
         Position::new(lane, map.get_l(lane).length())
     }
 
-    pub fn make_router(&self, path: Path, map: &Map, vt: VehicleType) -> Router {
+    pub(crate) fn make_router(&self, path: Path, map: &Map, vt: VehicleType) -> Router {
         match self {
             DrivingGoal::ParkNear(b) => {
                 if vt == VehicleType::Bike {

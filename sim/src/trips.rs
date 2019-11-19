@@ -191,7 +191,7 @@ impl TripManager {
             // Actually, to unpark, the car's front should be where it'll wind up at the end.
             start = Position::new(start.lane(), start.dist_along() + parked_car.vehicle.length);
         }
-        let end = drive_to.goal_pos(map);
+        let end = drive_to.goal_pos(PathConstraints::Car, map);
         let path = if let Some(p) = map.pathfind(PathRequest {
             start,
             end,
@@ -243,7 +243,7 @@ impl TripManager {
             _ => unreachable!(),
         };
 
-        let end = drive_to.goal_pos(map);
+        let end = drive_to.goal_pos(PathConstraints::Bike, map);
         let path = if let Some(p) = map.pathfind(PathRequest {
             start: driving_pos,
             end,

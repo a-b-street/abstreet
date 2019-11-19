@@ -404,7 +404,7 @@ fn calculate_bike_network(ctx: &EventCtx, ui: &UI) -> RoadColorer {
 fn calculate_bus_network(ctx: &EventCtx, ui: &UI) -> RoadColorer {
     let mut colorer = RoadColorerBuilder::new(
         Text::prompt("bus networks"),
-        vec![("bike lanes", Color::GREEN)],
+        vec![("bus lanes", Color::GREEN)],
     );
     for l in ui.primary.map.all_lanes() {
         if l.is_bus() {

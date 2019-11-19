@@ -72,6 +72,19 @@ impl Position {
                 .equiv_pos(driving_lane, Distance::ZERO, map),
         )
     }
+
+    pub fn bldg_via_biking(b: BuildingID, map: &Map) -> Option<Position> {
+        let bldg = map.get_b(b);
+        let driving_lane = map
+            .find_closest_lane(bldg.sidewalk(), vec![LaneType::Biking])
+            .or_else(|_| map.find_closest_lane(bldg.sidewalk(), vec![LaneType::Driving]))
+            .ok()?;
+        Some(
+            bldg.front_path
+                .sidewalk
+                .equiv_pos(driving_lane, Distance::ZERO, map),
+        )
+    }
 }
 
 // TODO also building paths?

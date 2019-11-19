@@ -96,7 +96,8 @@ impl AgentSpawner {
                             maybe_goal: None,
                         }));
                     }
-                    // TODO First lane might be a bike lane! Need to pass PathConstraints.
+                }
+                if let Some(pos) = Position::bldg_via_biking(id, map) {
                     if ctx
                         .input
                         .contextual_action(Key::F7, "spawn a bike starting here")
@@ -198,8 +199,7 @@ impl State for AgentSpawner {
                     if constraints == PathConstraints::Pedestrian {
                         Position::bldg_via_walking(to, map)
                     } else {
-                        // TODO Specify biking maybe
-                        DrivingGoal::ParkNear(to).goal_pos(map)
+                        DrivingGoal::ParkNear(to).goal_pos(constraints, map)
                     }
                 }
                 Goal::Border(to) => {
@@ -208,7 +208,7 @@ impl State for AgentSpawner {
                         constraints,
                         map,
                     ) {
-                        g.goal_pos(map)
+                        g.goal_pos(constraints, map)
                     } else {
                         self.maybe_goal = None;
                         return Transition::Keep;

@@ -33,9 +33,11 @@ will eventually shift mode or take different trips altogether. Not attempting
 any of that yet -- just using PSRC trips. I don't understand the demand modeling
 process well at all yet.
 
-## Bikes using bus lanes
+## Bike/bus lane connectivity
 
-This should be pretty easy to allow.
+Bikes and buses can make crazy left turns from the rightmost protected lane.
+Alternatively, stop generating those turns and start generating turns between
+protected and general lanes.
 
 ## Parking
 

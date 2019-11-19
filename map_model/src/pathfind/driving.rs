@@ -79,7 +79,8 @@ impl VehiclePathfinder {
             req.end.dist_along(),
             Distance::centimeters(raw_path.get_weight()),
         );
-        if self.constraints == PathConstraints::Bike {
+        // Disabled, because this looks stable now.
+        if false && self.constraints == PathConstraints::Bike {
             check_bike_route(&path, map);
         }
         Some(path)
@@ -176,7 +177,6 @@ pub fn cost(lane: &Lane, turn: &Turn, constraints: PathConstraints, map: &Map) -
     }
 }
 
-// TODO Temporary, while I'm figuring out why bike lanes aren't always used.
 fn check_bike_route(path: &Path, map: &Map) {
     let steps: Vec<PathStep> = path.get_steps().iter().cloned().collect();
     for pair in steps.windows(2) {
