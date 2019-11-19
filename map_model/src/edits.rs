@@ -65,6 +65,10 @@ impl MapEdits {
         }
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.edits_name == "no_edits" && self.commands.is_empty()
+    }
+
     pub fn load(map_name: &str, edits_name: &str, timer: &mut Timer) -> MapEdits {
         if edits_name == "no_edits" {
             return MapEdits::new(map_name.to_string());

@@ -5,16 +5,19 @@ mod score;
 
 use crate::common::{time_controls, AgentTools, CommonState, SpeedControls};
 use crate::debug::DebugMode;
+use crate::edit::apply_map_edits;
 use crate::edit::EditMode;
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::ui::{ShowEverything, UI};
+use abstutil::Timer;
 use ezgui::{
     hotkey, layout, lctrl, Choice, EventCtx, EventLoopMode, GfxCtx, Key, Line, MenuUnderButton,
     ModalMenu, Text, Wizard,
 };
 pub use gameplay::GameplayMode;
 use geom::Duration;
+use map_model::MapEdits;
 use sim::Sim;
 
 pub struct SandboxMode {
@@ -163,13 +166,29 @@ impl State for SandboxMode {
                         choices
                     },
                 )?;
+                let map_name = ui.primary.map.get_name().to_string();
                 match resp.as_str() {
                     "save edits and quit" => {
                         ui.primary.map.save_edits();
+                        // Always reset edits if we just saved edits.
+                        apply_map_edits(&mut ui.primary, &ui.cs, ctx, MapEdits::new(map_name));
+                        ui.primary.map.mark_edits_fresh();
+                        ui.primary
+                            .map
+                            .recalculate_pathfinding_after_edits(&mut Timer::new("reset edits"));
                         ui.primary.clear_sim();
                         Some(Transition::PopTwice)
                     }
                     "quit challenge" => {
+                        if !ui.primary.map.get_edits().is_empty() {
+                            apply_map_edits(&mut ui.primary, &ui.cs, ctx, MapEdits::new(map_name));
+                            ui.primary.map.mark_edits_fresh();
+                            ui.primary
+                                .map
+                                .recalculate_pathfinding_after_edits(&mut Timer::new(
+                                    "reset edits",
+                                ));
+                        }
                         ui.primary.clear_sim();
                         Some(Transition::PopTwice)
                     }
