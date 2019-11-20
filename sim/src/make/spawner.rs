@@ -124,7 +124,12 @@ impl TripSpawner {
                     );
                 }
             }
-            TripSpec::UsingBike { start, goal, .. } => {
+            TripSpec::UsingBike {
+                start,
+                goal,
+                ped_speed,
+                ..
+            } => {
                 // TODO These trips are just silently erased; they don't even show up as aborted
                 // trips! Really need to fix the underlying problem.
                 if SidewalkSpot::bike_from_bike_rack(start.sidewalk_pos.lane(), map).is_none() {
@@ -134,7 +139,7 @@ impl TripSpawner {
                     );
                     return;
                 }
-                if let DrivingGoal::ParkNear(_) = goal {
+                if let DrivingGoal::ParkNear(b) = goal {
                     let last_lane = goal.goal_pos(PathConstraints::Bike, map).lane();
                     // If bike_to_sidewalk works, then SidewalkSpot::bike_rack should too.
                     if map
@@ -146,6 +151,24 @@ impl TripSpawner {
                             "Can't fulfill {:?} for a bike trip; no sidewalk near {}",
                             goal, last_lane
                         );
+                        return;
+                    }
+                    // A bike trip going from one lane to the same lane should... just walk.
+                    if start.sidewalk_pos.lane() == map.get_b(*b).sidewalk() {
+                        println!(
+                            "Bike trip from {:?} to {:?} will just walk; it's the same sidewalk!",
+                            start, goal
+                        );
+                        self.trips.push((
+                            start_time,
+                            ped_id,
+                            None,
+                            TripSpec::JustWalking {
+                                start: start.clone(),
+                                goal: SidewalkSpot::building(*b, map),
+                                ped_speed: *ped_speed,
+                            },
+                        ));
                         return;
                     }
                 }
