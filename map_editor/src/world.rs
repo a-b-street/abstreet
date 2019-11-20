@@ -1,5 +1,5 @@
 use aabb_quadtree::{ItemId, QuadTree};
-use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Prerender, Text};
+use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Prerender, Text};
 use geom::{Bounds, Circle, Distance, Polygon};
 use std::collections::HashMap;
 use std::fmt::Debug;

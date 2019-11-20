@@ -366,18 +366,6 @@ impl RawMap {
     }
 
     pub fn can_merge_short_road(&self, id: OriginalRoad) -> Result<(), Error> {
-        let mut orig_restrictions = BTreeSet::new();
-        for r in self
-            .roads_per_intersection(id.i1)
-            .into_iter()
-            .chain(self.roads_per_intersection(id.i2))
-        {
-            orig_restrictions.extend(self.turn_restrictions_involving(r));
-        }
-        if !orig_restrictions.is_empty() {
-            return Err(Error::new(format!("Some turn restriction near {}", id)));
-        }
-
         let i1 = &self.intersections[&id.i1];
         let i2 = &self.intersections[&id.i2];
         if i1.intersection_type == IntersectionType::Border
@@ -412,9 +400,10 @@ impl RawMap {
             orig_restrictions.extend(self.turn_restrictions_involving(r));
         }
         // Clear out these restrictions first
-        /*for tr in &orig_restrictions {
+        for tr in &orig_restrictions {
+            println!("Warning: deleting turn restriction");
             self.delete_turn_restriction(*tr);
-        }*/
+        }
 
         let (i1, i2) = (short.i1, short.i2);
         let i1_pt = self.intersections[&i1].point;
