@@ -247,6 +247,8 @@ impl GUI for UI {
                             {
                                 self.model.world.force_set_selection(id);
                             }
+                        } else if ctx.input.key_pressed(Key::X, "clear interior points") {
+                            self.model.clear_r_pts(r, ctx.prerender);
                         }
                     }
                     Some(ID::RoadPoint(r, idx)) => {

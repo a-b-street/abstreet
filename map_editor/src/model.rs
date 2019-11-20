@@ -724,6 +724,23 @@ impl Model {
         new_id
     }
 
+    pub fn clear_r_pts(&mut self, id: OriginalRoad, prerender: &Prerender) {
+        assert_eq!(self.showing_pts, Some(id));
+
+        self.stop_showing_pts(id);
+        self.road_deleted(id);
+        self.world.delete(ID::Intersection(id.i1));
+        self.world.delete(ID::Intersection(id.i2));
+
+        let r = &mut self.map.roads.get_mut(&id).unwrap();
+        r.center_points = vec![r.center_points[0], *r.center_points.last().unwrap()];
+
+        self.road_added(id, prerender);
+        self.intersection_added(id.i1, prerender);
+        self.intersection_added(id.i2, prerender);
+        self.show_r_points(id, prerender);
+    }
+
     // TODO Need to show_r_points of the thing we wind up selecting after this.
     pub fn merge_r(&mut self, id: OriginalRoad, prerender: &Prerender) {
         if let Err(e) = self.map.can_merge_short_road(id) {
