@@ -15,12 +15,11 @@ const PANEL_RECT: ScreenRectangle = ScreenRectangle {
 };
 
 const ADJUST_SPEED_PERCENT: f64 = 0.01;
-// TODO hardcoded cap for now... 10 sim minutes / real second
-const SPEED_CAP: f64 = 600.0;
 
 pub struct SpeedControls {
     slider: Slider,
     state: State,
+    speed_cap: f64,
 
     panel_bg: Drawable,
     resume_btn: Button,
@@ -44,7 +43,7 @@ enum State {
 }
 
 impl SpeedControls {
-    pub fn new(ctx: &mut EventCtx, step_controls: bool) -> SpeedControls {
+    pub fn new(ctx: &mut EventCtx, dev_mode: bool, step_controls: bool) -> SpeedControls {
         let mut panel_bg = GeomBatch::new();
         panel_bg.push(
             Color::grey(0.3),
@@ -89,9 +88,11 @@ impl SpeedControls {
         )
         .at(ScreenPt::new(150.0, 50.0));
 
+        // 10 sim minutes / real second normally, or 1 sim hour / real second for dev mode
+        let speed_cap: f64 = if dev_mode { 3600.0 } else { 600.0 };
         let mut slider = Slider::new();
         // Start with speed=1.0
-        slider.set_percent(ctx, (SPEED_CAP / 1.0).powf(-1.0 / std::f64::consts::E));
+        slider.set_percent(ctx, (speed_cap / 1.0).powf(-1.0 / std::f64::consts::E));
         slider.set_pos(ScreenPt::new(0.0, 100.0), 150.0);
 
         let (small_step_btn, large_step_btn, jump_to_time_btn) = if step_controls {
@@ -130,6 +131,7 @@ impl SpeedControls {
         SpeedControls {
             slider,
             state: State::Paused,
+            speed_cap,
 
             panel_bg: ctx.prerender.upload(panel_bg),
             resume_btn,
@@ -148,7 +150,7 @@ impl SpeedControls {
         self.speed_up_btn.event(ctx);
 
         let desired_speed = self.desired_speed();
-        if self.speed_up_btn.clicked() && desired_speed != SPEED_CAP {
+        if self.speed_up_btn.clicked() && desired_speed != self.speed_cap {
             self.slider.set_percent(
                 ctx,
                 (self.slider.get_percent() + ADJUST_SPEED_PERCENT).min(1.0),
@@ -265,6 +267,6 @@ impl SpeedControls {
     }
 
     fn desired_speed(&self) -> f64 {
-        SPEED_CAP * self.slider.get_percent().powf(std::f64::consts::E)
+        self.speed_cap * self.slider.get_percent().powf(std::f64::consts::E)
     }
 }

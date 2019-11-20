@@ -57,7 +57,7 @@ impl ABTestMode {
                 0.2,
                 ctx,
             ),
-            speed: SpeedControls::new(ctx, true),
+            speed: SpeedControls::new(ctx, ui.primary.current_flags.dev, true),
             info_tools: MenuUnderButton::new(
                 "assets/ui/info.png",
                 "Info",

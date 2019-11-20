@@ -35,7 +35,7 @@ pub struct SandboxMode {
 impl SandboxMode {
     pub fn new(ctx: &mut EventCtx, ui: &mut UI, mode: GameplayMode) -> SandboxMode {
         SandboxMode {
-            speed: SpeedControls::new(ctx, true),
+            speed: SpeedControls::new(ctx, ui.primary.current_flags.dev, true),
             general_tools: MenuUnderButton::new(
                 "assets/ui/hamburger.png",
                 "General",
