@@ -135,7 +135,12 @@ impl RawMap {
 
         for i in &fixes.delete_intersections {
             if self.intersections.contains_key(i) {
-                self.delete_intersection(*i);
+                if self.can_delete_intersection(*i) {
+                    self.delete_intersection(*i);
+                } else {
+                    println!("Can't delete {}, roads are connected, skipping", i);
+                    skipped += 1;
+                }
                 applied += 1;
             } else {
                 skipped += 1;
