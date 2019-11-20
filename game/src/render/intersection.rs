@@ -149,7 +149,7 @@ impl Renderable for DrawIntersection {
                 if recalc {
                     let (_, phase, t) = signal.current_phase_and_remaining_time(ctx.sim.time());
                     let mut batch = GeomBatch::new();
-                    draw_signal_phase(phase, Some(t), &mut batch, ctx);
+                    draw_signal_phase(phase, self.id, Some(t), &mut batch, ctx);
                     *maybe_redraw = Some((g.prerender.upload(batch), ctx.sim.time()));
                 }
                 g.redraw(&maybe_redraw.as_ref().unwrap().0);

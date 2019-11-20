@@ -1,5 +1,5 @@
 use crate::{IntersectionID, Map, RoadID, Turn, TurnID, TurnPriority, TurnType};
-use abstutil::{Error, Timer};
+use abstutil::Timer;
 use geom::Duration;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeSet;
@@ -8,6 +8,13 @@ use std::collections::BTreeSet;
 pub struct ControlTrafficSignal {
     pub id: IntersectionID,
     pub phases: Vec<Phase>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+pub struct Phase {
+    pub protected_turns: BTreeSet<TurnID>,
+    pub yield_turns: BTreeSet<TurnID>,
+    pub duration: Duration,
 }
 
 impl ControlTrafficSignal {
@@ -70,7 +77,7 @@ impl ControlTrafficSignal {
         unreachable!()
     }
 
-    fn validate(self, map: &Map) -> Result<ControlTrafficSignal, Error> {
+    pub fn validate(self, map: &Map) -> Result<ControlTrafficSignal, String> {
         // TODO Reuse assertions from edit_turn.
 
         // Does the assignment cover the correct set of turns?
@@ -81,7 +88,7 @@ impl ControlTrafficSignal {
             actual_turns.extend(phase.yield_turns.iter());
         }
         if expected_turns != actual_turns {
-            return Err(Error::new(format!("Traffic signal assignment for {} broken. Missing turns {:?}, contains irrelevant turns {:?}", self.id, expected_turns.difference(&actual_turns).cloned().collect::<Vec<TurnID>>(), actual_turns.difference(&expected_turns).cloned().collect::<Vec<TurnID>>())));
+            return Err(format!("Traffic signal assignment for {} broken. Missing turns {:?}, contains irrelevant turns {:?}", self.id, expected_turns.difference(&actual_turns).cloned().collect::<Vec<TurnID>>(), actual_turns.difference(&expected_turns).cloned().collect::<Vec<TurnID>>()));
         }
 
         for phase in &self.phases {
@@ -89,10 +96,10 @@ impl ControlTrafficSignal {
             for t1 in phase.protected_turns.iter().map(|t| map.get_t(*t)) {
                 for t2 in phase.protected_turns.iter().map(|t| map.get_t(*t)) {
                     if t1.conflicts_with(t2) {
-                        return Err(Error::new(format!(
+                        return Err(format!(
                             "Traffic signal has conflicting priority turns in one phase:\n{:?}\n\n{:?}",
                             t1, t2
-                        )));
+                        ));
                     }
                 }
             }
@@ -127,7 +134,7 @@ impl ControlTrafficSignal {
             .iter()
             .map(|t| t.id)
             .collect();
-        let mut current_phase = Phase::new(intersection);
+        let mut current_phase = Phase::new();
         loop {
             let add_turn = remaining_turns
                 .iter()
@@ -140,7 +147,7 @@ impl ControlTrafficSignal {
                 }
                 None => {
                     phases.push(current_phase);
-                    current_phase = Phase::new(intersection);
+                    current_phase = Phase::new();
                     if remaining_turns.is_empty() {
                         break;
                     }
@@ -369,8 +376,8 @@ impl ControlTrafficSignal {
     }
 
     fn all_walk_all_yield(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
-        let mut all_walk = Phase::new(i);
-        let mut all_yield = Phase::new(i);
+        let mut all_walk = Phase::new();
+        let mut all_yield = Phase::new();
 
         for turn in map.get_turns_in_intersection(i) {
             match turn.turn_type {
@@ -405,7 +412,7 @@ impl ControlTrafficSignal {
             let adj1 = *abstutil::wraparound_get(&sorted_roads, (idx as isize) - 1);
             let adj2 = *abstutil::wraparound_get(&sorted_roads, (idx as isize) + 1);
 
-            let mut phase = Phase::new(i);
+            let mut phase = Phase::new();
             for turn in map.get_turns_in_intersection(i) {
                 let parent = map.get_l(turn.id.src).parent;
                 if turn.turn_type == TurnType::SharedSidewalkCorner {
@@ -451,7 +458,7 @@ impl ControlTrafficSignal {
             }
         }
 
-        let mut phase = Phase::new(self.id);
+        let mut phase = Phase::new();
         for t in map.get_turns_in_intersection(self.id) {
             if t.between_sidewalks() {
                 phase.edit_turn(t, TurnPriority::Protected);
@@ -461,18 +468,9 @@ impl ControlTrafficSignal {
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
-pub struct Phase {
-    pub parent: IntersectionID,
-    pub protected_turns: BTreeSet<TurnID>,
-    pub yield_turns: BTreeSet<TurnID>,
-    pub duration: Duration,
-}
-
 impl Phase {
-    pub fn new(parent: IntersectionID) -> Phase {
+    pub fn new() -> Phase {
         Phase {
-            parent,
             protected_turns: BTreeSet::new(),
             yield_turns: BTreeSet::new(),
             duration: Duration::seconds(30.0),
@@ -543,7 +541,7 @@ fn make_phases(
     let mut phases: Vec<Phase> = Vec::new();
 
     for specs in phase_specs {
-        let mut phase = Phase::new(i);
+        let mut phase = Phase::new();
         let mut empty = true;
 
         for (roads, turn_type, protected) in specs.into_iter() {

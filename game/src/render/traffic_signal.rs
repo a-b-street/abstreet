@@ -10,12 +10,13 @@ use map_model::{IntersectionID, Phase, TurnPriority, TurnType, LANE_THICKNESS};
 // Only draws a box when time_left is present
 pub fn draw_signal_phase(
     phase: &Phase,
+    i: IntersectionID,
     time_left: Option<Duration>,
     batch: &mut GeomBatch,
     ctx: &DrawCtx,
 ) {
     if false {
-        draw_signal_phase_with_icons(phase, batch, ctx);
+        draw_signal_phase_with_icons(phase, i, batch, ctx);
         return;
     }
 
@@ -27,7 +28,7 @@ pub fn draw_signal_phase(
         Color::rgba(255, 105, 180, 0.8),
     );
 
-    for (id, crosswalk) in &ctx.draw_map.get_i(phase.parent).crosswalks {
+    for (id, crosswalk) in &ctx.draw_map.get_i(i).crosswalks {
         if phase.get_priority(*id) == TurnPriority::Protected {
             batch.append(crosswalk.clone());
         }
@@ -57,7 +58,7 @@ pub fn draw_signal_phase(
     let radius = Distance::meters(0.5);
     let box_width = 2.5 * radius;
     let box_height = 6.5 * radius;
-    let center = ctx.map.get_i(phase.parent).polygon.center();
+    let center = ctx.map.get_i(i).polygon.center();
     let top_left = center.offset(-box_width / 2.0, -box_height / 2.0);
     let percent = time_left.unwrap() / phase.duration;
     // TODO Tune colors.
@@ -81,14 +82,19 @@ pub fn draw_signal_phase(
 }
 
 // TODO Written in a complicated way, and still doesn't look right.
-fn draw_signal_phase_with_icons(phase: &Phase, batch: &mut GeomBatch, ctx: &DrawCtx) {
-    for (id, crosswalk) in &ctx.draw_map.get_i(phase.parent).crosswalks {
+fn draw_signal_phase_with_icons(
+    phase: &Phase,
+    i: IntersectionID,
+    batch: &mut GeomBatch,
+    ctx: &DrawCtx,
+) {
+    for (id, crosswalk) in &ctx.draw_map.get_i(i).crosswalks {
         if phase.get_priority(*id) == TurnPriority::Protected {
             batch.append(crosswalk.clone());
         }
     }
 
-    for l in &ctx.map.get_i(phase.parent).incoming_lanes {
+    for l in &ctx.map.get_i(i).incoming_lanes {
         let lane = ctx.map.get_l(*l);
         // TODO Show a hand or a walking sign for crosswalks
         if lane.is_parking() || lane.is_sidewalk() {
@@ -98,7 +104,7 @@ fn draw_signal_phase_with_icons(phase: &Phase, batch: &mut GeomBatch, ctx: &Draw
         let mut green = Vec::new();
         let mut yellow = Vec::new();
         let mut red = Vec::new();
-        for (turn, _) in ctx.map.get_next_turns_and_lanes(lane.id, phase.parent) {
+        for (turn, _) in ctx.map.get_next_turns_and_lanes(lane.id, i) {
             if turn.turn_type == TurnType::LaneChangeLeft
                 || turn.turn_type == TurnType::LaneChangeRight
             {
@@ -315,7 +321,7 @@ impl TrafficSignalDiagram {
         for (idx, rect) in self.scroller.draw(g) {
             g.fork(self.top_left, ScreenPt::new(rect.x1, rect.y1), self.zoom);
             let mut batch = GeomBatch::new();
-            draw_signal_phase(&phases[idx], None, &mut batch, ctx);
+            draw_signal_phase(&phases[idx], self.i, None, &mut batch, ctx);
             batch.draw(g);
 
             g.draw_text_at_screenspace_topleft(&self.labels[idx], ScreenPt::new(rect.x2, rect.y1));
@@ -341,7 +347,7 @@ fn make_new_scroller(i: IntersectionID, draw_ctx: &DrawCtx, ctx: &EventCtx) -> N
     let mut y_offset = 0.0;
     for (idx, phase) in draw_ctx.map.get_traffic_signal(i).phases.iter().enumerate() {
         let mut batch = GeomBatch::new();
-        draw_signal_phase(phase, None, &mut batch, draw_ctx);
+        draw_signal_phase(phase, i, None, &mut batch, draw_ctx);
         for (color, poly) in batch.consume() {
             master_batch.push(
                 color,

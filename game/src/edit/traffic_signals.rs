@@ -1,6 +1,6 @@
 use crate::common::CommonState;
 use crate::edit::apply_map_edits;
-use crate::game::{State, Transition, WizardState};
+use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::render::{draw_signal_phase, DrawOptions, DrawTurn, TrafficSignalDiagram};
 use crate::ui::{ShowEverything, UI};
@@ -9,6 +9,7 @@ use geom::Duration;
 use map_model::{
     ControlTrafficSignal, EditCmd, IntersectionID, Phase, TurnID, TurnPriority, TurnType,
 };
+use std::collections::BTreeSet;
 
 // TODO Warn if there are empty phases or if some turn is completely absent from the signal.
 pub struct TrafficSignalEditor {
@@ -110,7 +111,7 @@ impl State for TrafficSignalEditor {
         }
 
         if self.menu.action("quit") {
-            return Transition::Pop;
+            return check_for_missing_turns(signal, &mut self.diagram, ui, ctx);
         }
 
         if self.menu.action("change phase duration") {
@@ -162,13 +163,11 @@ impl State for TrafficSignalEditor {
                 ctx,
             );
         } else if self.menu.action("add a new empty phase") {
-            signal
-                .phases
-                .insert(current_phase, Phase::new(self.diagram.i));
+            signal.phases.insert(current_phase, Phase::new());
             change_traffic_signal(signal, ui, ctx);
             self.diagram = TrafficSignalDiagram::new(self.diagram.i, current_phase, ui, ctx);
         } else if has_sidewalks && self.menu.action("add a new pedestrian scramble phase") {
-            let mut phase = Phase::new(self.diagram.i);
+            let mut phase = Phase::new();
             for t in ui.primary.map.get_turns_in_intersection(self.diagram.i) {
                 if t.between_sidewalks() {
                     phase.edit_turn(t, TurnPriority::Protected);
@@ -217,7 +216,7 @@ impl State for TrafficSignalEditor {
                 self.icon_selected == Some(t.id),
             );
         }
-        draw_signal_phase(phase, None, &mut batch, &ctx);
+        draw_signal_phase(phase, self.diagram.i, None, &mut batch, &ctx);
         if let Some(id) = self.icon_selected {
             DrawTurn::draw_dashed(
                 map.get_t(id),
@@ -240,6 +239,19 @@ impl State for TrafficSignalEditor {
 
 fn change_traffic_signal(signal: ControlTrafficSignal, ui: &mut UI, ctx: &mut EventCtx) {
     let mut edits = ui.primary.map.get_edits().clone();
+    // TODO Only record one command for the entire session. Otherwise, we can exit this editor and
+    // undo a few times, potentially ending at an invalid state!
+    if edits
+        .commands
+        .last()
+        .map(|cmd| match cmd {
+            EditCmd::ChangeTrafficSignal(ref s) => s.id == signal.id,
+            _ => false,
+        })
+        .unwrap_or(false)
+    {
+        edits.commands.pop();
+    }
     edits.commands.push(EditCmd::ChangeTrafficSignal(signal));
     apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
 }
@@ -277,4 +289,49 @@ fn make_change_preset(i: IntersectionID) -> Box<dyn State> {
             editor.diagram = TrafficSignalDiagram::new(editor.diagram.i, 0, ui, ctx);
         })))
     }))
+}
+
+fn check_for_missing_turns(
+    mut signal: ControlTrafficSignal,
+    diagram: &mut TrafficSignalDiagram,
+    ui: &mut UI,
+    ctx: &mut EventCtx,
+) -> Transition {
+    let mut missing_turns: BTreeSet<TurnID> = ui
+        .primary
+        .map
+        .get_i(signal.id)
+        .turns
+        .iter()
+        .cloned()
+        .collect();
+    for phase in &signal.phases {
+        for t in &phase.protected_turns {
+            missing_turns.remove(t);
+        }
+        for t in &phase.yield_turns {
+            missing_turns.remove(t);
+        }
+    }
+    if missing_turns.is_empty() {
+        let i = signal.id;
+        if let Err(err) = signal.validate(&ui.primary.map) {
+            panic!("Edited traffic signal {} finalized with errors: {}", i, err);
+        }
+        return Transition::Pop;
+    }
+    let num_missing = missing_turns.len();
+    let mut phase = Phase::new();
+    phase.yield_turns = missing_turns;
+    for t in ui.primary.map.get_turns_in_intersection(signal.id) {
+        if t.turn_type == TurnType::SharedSidewalkCorner {
+            phase.protected_turns.insert(t.id);
+        }
+    }
+    signal.phases.push(phase);
+    let last_phase = signal.phases.len() - 1;
+    change_traffic_signal(signal, ui, ctx);
+    *diagram = TrafficSignalDiagram::new(diagram.i, last_phase, ui, ctx);
+
+    Transition::Push(msg("Error: missing turns", vec![format!("{} turns are missing from this traffic signal", num_missing), "They've all been added as a new last phase. Please update your changes to include them.".to_string()]))
 }
