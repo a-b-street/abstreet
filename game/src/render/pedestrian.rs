@@ -3,7 +3,7 @@ use crate::render::{AgentColorScheme, DrawCtx, DrawOptions, Renderable, OUTLINE_
 use ezgui::{Canvas, Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Circle, Distance, PolyLine, Polygon};
 use map_model::{Map, LANE_THICKNESS};
-use sim::{DrawPedCrowdInput, DrawPedestrianInput, PedestrianID};
+use sim::{DrawPedCrowdInput, DrawPedestrianInput, PedCrowdLocation, PedestrianID};
 
 pub struct DrawPedestrian {
     pub id: PedestrianID,
@@ -201,12 +201,21 @@ impl DrawPedCrowd {
         prerender: &Prerender,
         cs: &ColorScheme,
     ) -> DrawPedCrowd {
-        // TODO front path
-        let pl_slice = input.on.exact_slice(input.low, input.high, map);
-        let pl_shifted = if input.contraflow {
-            pl_slice.shift_left(LANE_THICKNESS / 4.0).unwrap()
-        } else {
-            pl_slice.shift_right(LANE_THICKNESS / 4.0).unwrap()
+        let pl_shifted = match input.location {
+            PedCrowdLocation::Sidewalk(on, contraflow) => {
+                let pl_slice = on.exact_slice(input.low, input.high, map);
+                if contraflow {
+                    pl_slice.shift_left(LANE_THICKNESS / 4.0).unwrap()
+                } else {
+                    pl_slice.shift_right(LANE_THICKNESS / 4.0).unwrap()
+                }
+            }
+            PedCrowdLocation::FrontPath(b) => map
+                .get_b(b)
+                .front_path
+                .line
+                .to_polyline()
+                .exact_slice(input.low, input.high),
         };
         let blob = pl_shifted.make_polygons(LANE_THICKNESS / 2.0);
         let draw_default = prerender.upload_borrowed(vec![(cs.get("pedestrian"), &blob)]);
@@ -223,7 +232,10 @@ impl DrawPedCrowd {
             members: input.members,
             blob_pl: pl_shifted,
             blob,
-            zorder: input.on.get_zorder(map),
+            zorder: match input.location {
+                PedCrowdLocation::Sidewalk(on, _) => on.get_zorder(map),
+                PedCrowdLocation::FrontPath(_) => 0,
+            },
             draw_default,
             label,
         }

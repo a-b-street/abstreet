@@ -27,7 +27,7 @@ pub use self::trips::{TripCount, TripResult};
 pub(crate) use self::trips::{TripLeg, TripManager};
 pub use crate::render::{
     AgentMetadata, CarStatus, DontDrawAgents, DrawCarInput, DrawPedCrowdInput, DrawPedestrianInput,
-    GetDrawAgents, UnzoomedAgent,
+    GetDrawAgents, PedCrowdLocation, UnzoomedAgent,
 };
 use abstutil::Cloneable;
 use geom::{Distance, Duration, Pt2D, Speed};

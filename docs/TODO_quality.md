@@ -2,9 +2,6 @@
 
 ## Boundary clipping
 
-- lakes missing from huge_seattle
-	- just connecting the ends of ways doesnt always work well
-	- maybe increase the Bounds for areas, and let clipping clean up later?
 - some border intersections have weird OOBish geometry, or the arrows look weird
 - simplify border node detection, only do it in convert_osm?
 
@@ -69,17 +66,12 @@
 	- iterative process... have to redo affected roads and intersections
 	- we havent filtered buildings by proximity to sidewalk yet
 		- if we dont filter at all, we pick up some houseboats! :) should draw water...
-- undo disabled traffic signal assertion
 
 ## Map edits
 
 - lane type can affect border intersections
 - lane type can affect turn idx
 	- assert turns are the same
-- crash when loading some edits (priori->bikelanez)
-	- edit an intersection first, then change lanes to destroy turns. need to recalculate the policy, preserving edits!
-		- just revert intersection and warn
-		- or store overrides more granularly and warn or do something reasonable
 
 ## Sim bugs/tests needed
 

@@ -20,7 +20,6 @@
 
 - optionally limit canvas scrolling/zooming to some map bounds
 - start context menu when left click releases and we're not dragging
-- distinguish hints from status of modal menus, for hiding purposes
 - move context menus out of ezgui
 	- simplify/remove UserInput.
 	- maybe separate impls for context, wizard, modal menu make sense.
