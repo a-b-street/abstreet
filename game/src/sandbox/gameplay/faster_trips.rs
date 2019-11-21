@@ -54,12 +54,27 @@ impl GameplayState for FasterTrips {
 }
 
 pub fn faster_trips_panel(mode: TripMode, ui: &UI) -> Text {
-    let now = ui
-        .primary
-        .sim
-        .get_analytics()
-        .finished_trips(ui.primary.sim.time(), mode);
-    let baseline = ui.prebaked.finished_trips(ui.primary.sim.time(), mode);
+    let time = ui.primary.sim.time();
+    let now = ui.primary.sim.get_analytics().finished_trips(time, mode);
+    let baseline = ui.prebaked.finished_trips(time, mode);
+
+    // Enable to debug why sim results don't match prebaked.
+    if !now.seems_eq(&baseline) {
+        abstutil::write_json(
+            "../current_sim.json",
+            &ui.primary.sim.get_analytics().finished_trips,
+        )
+        .unwrap();
+        let filtered = ui
+            .prebaked
+            .finished_trips
+            .iter()
+            .filter(|(t, _, _, _)| *t <= time)
+            .cloned()
+            .collect::<Vec<_>>();
+        abstutil::write_json("../prebaked.json", &filtered).unwrap();
+        panic!("At {} ({:?}), finished_trips doesn't match", time, time);
+    }
 
     let mut txt = Text::new();
     txt.add_appended(vec![

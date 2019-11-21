@@ -1,4 +1,4 @@
-use crate::{AgentID, CarID, Event, TripMode, VehicleType};
+use crate::{AgentID, CarID, Event, TripID, TripMode, VehicleType};
 use abstutil::Counter;
 use derivative::Derivative;
 use geom::{Duration, DurationHistogram};
@@ -17,8 +17,8 @@ pub struct Analytics {
     #[serde(skip_serializing, skip_deserializing)]
     pub total_bus_passengers: Counter<BusRouteID>,
     // TODO Hack: No TripMode means aborted
-    // Finish time, mode (or None as aborted), trip duration
-    pub finished_trips: Vec<(Duration, Option<TripMode>, Duration)>,
+    // Finish time, ID, mode (or None as aborted), trip duration
+    pub finished_trips: Vec<(Duration, TripID, Option<TripMode>, Duration)>,
 }
 
 #[derive(Serialize, Deserialize, Derivative)]
@@ -99,10 +99,10 @@ impl Analytics {
         }
 
         // Finished trips
-        if let Event::TripFinished(_, mode, dt) = ev {
-            self.finished_trips.push((time, Some(mode), dt));
-        } else if let Event::TripAborted(_) = ev {
-            self.finished_trips.push((time, None, Duration::ZERO));
+        if let Event::TripFinished(id, mode, dt) = ev {
+            self.finished_trips.push((time, id, Some(mode), dt));
+        } else if let Event::TripAborted(id) = ev {
+            self.finished_trips.push((time, id, None, Duration::ZERO));
         }
     }
 
@@ -111,7 +111,7 @@ impl Analytics {
 
     pub fn finished_trips(&self, now: Duration, mode: TripMode) -> DurationHistogram {
         let mut distrib = DurationHistogram::new();
-        for (t, m, dt) in &self.finished_trips {
+        for (t, _, m, dt) in &self.finished_trips {
             if *t > now {
                 break;
             }
@@ -137,7 +137,7 @@ impl Analytics {
             .collect::<BTreeMap<_, _>>();
         let mut all = DurationHistogram::new();
         let mut num_aborted = 0;
-        for (t, m, dt) in &self.finished_trips {
+        for (t, _, m, dt) in &self.finished_trips {
             if *t > now {
                 break;
             }

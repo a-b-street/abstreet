@@ -378,6 +378,11 @@ impl DurationHistogram {
     pub fn count(&self) -> usize {
         self.count
     }
+
+    // Could implement PartialEq, but be a bit more clear how approximate this is
+    pub fn seems_eq(&self, other: &DurationHistogram) -> bool {
+        self.describe() == other.describe()
+    }
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
