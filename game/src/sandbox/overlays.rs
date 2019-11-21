@@ -266,7 +266,7 @@ fn calculate_parking_heatmap(ctx: &EventCtx, ui: &UI) -> RoadColorer {
     colorer.build(ctx, &ui.primary.map)
 }
 
-fn calculate_intersection_delay(ctx: &EventCtx, ui: &UI) -> ObjectColorer {
+pub fn calculate_intersection_delay(ctx: &EventCtx, ui: &UI) -> ObjectColorer {
     let fast = Color::GREEN;
     let meh = Color::YELLOW;
     let slow = Color::RED;

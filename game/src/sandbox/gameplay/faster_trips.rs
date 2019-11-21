@@ -53,7 +53,7 @@ impl GameplayState for FasterTrips {
     }
 }
 
-fn faster_trips_panel(mode: TripMode, ui: &UI) -> Text {
+pub fn faster_trips_panel(mode: TripMode, ui: &UI) -> Text {
     let now = ui
         .primary
         .sim

@@ -14,7 +14,7 @@ use sim::{SimFlags, SimOptions, TripMode};
 #[derive(Clone)]
 struct Challenge {
     title: String,
-    description: String,
+    description: Vec<String>,
     map_name: String,
     gameplay: GameplayMode,
 }
@@ -23,37 +23,49 @@ impl abstutil::Cloneable for Challenge {}
 fn all_challenges() -> Vec<Challenge> {
     vec![
         Challenge {
+            title: "Fix all of the traffic signals".to_string(),
+            description: vec![
+                "A city-wide power surge knocked out all of the traffic signals!".to_string(),
+                "Their timing has been reset to default settings, and drivers are stuck.".to_string(),
+                "It's up to you to repair the signals, choosing appropriate turn phases and timing.".to_string(),
+                "".to_string(),
+                "Objective: Reduce the 50%ile trip time of all drivers by at least 30s".to_string()
+            ],
+            map_name: "montlake".to_string(),
+            gameplay: GameplayMode::FixTrafficSignals,
+        },
+        Challenge {
             title: "Speed up route 48 (just Montlake area)".to_string(),
-            description:
+            description: vec![
                 "Decrease the average waiting time between all of route 48's stops by at least 30s"
-                    .to_string(),
+                    .to_string()],
             map_name: "montlake".to_string(),
             gameplay: GameplayMode::OptimizeBus("48".to_string()),
         },
         Challenge {
             title: "Speed up route 48 (larger section)".to_string(),
-            description:
+            description: vec![
                 "Decrease the average waiting time between all of 48's stops by at least 30s"
-                    .to_string(),
+                    .to_string()],
             map_name: "23rd".to_string(),
             gameplay: GameplayMode::OptimizeBus("48".to_string()),
         },
         Challenge {
             title: "Gridlock all of the everything".to_string(),
-            description: "Make traffic as BAD as possible!".to_string(),
+            description: vec!["Make traffic as BAD as possible!".to_string()],
             map_name: "montlake".to_string(),
             gameplay: GameplayMode::CreateGridlock,
         },
         Challenge {
             title: "Speed up all bike trips".to_string(),
-            description: "Reduce the 50%ile trip times of bikes by at least 1 minute".to_string(),
+            description: vec!["Reduce the 50%ile trip times of bikes by at least 1 minute".to_string()],
             map_name: "montlake".to_string(),
             gameplay: GameplayMode::FasterTrips(TripMode::Bike),
         },
         Challenge {
             title: "Speed up all car trips".to_string(),
-            description: "Reduce the 50%ile trip times of drivers by at least 5 minutes"
-                .to_string(),
+            description: vec!["Reduce the 50%ile trip times of drivers by at least 5 minutes"
+                .to_string()],
             map_name: "montlake".to_string(),
             gameplay: GameplayMode::FasterTrips(TripMode::Drive),
         },
@@ -70,7 +82,10 @@ pub fn challenges_picker() -> Box<dyn State> {
         })?;
 
         let edits = abstutil::list_all_objects(abstutil::EDITS, &challenge.map_name);
-        let mut summary = Text::from(Line(&challenge.description));
+        let mut summary = Text::new();
+        for l in &challenge.description {
+            summary.add(Line(l));
+        }
         summary.add(Line(""));
         summary.add(Line(format!("{} proposals:", edits.len())));
         summary.add(Line(""));

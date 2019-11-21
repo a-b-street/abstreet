@@ -1,5 +1,6 @@
 mod create_gridlock;
 mod faster_trips;
+mod fix_traffic_signals;
 mod freeform;
 mod optimize_bus;
 mod play_scenario;
@@ -31,6 +32,7 @@ pub enum GameplayMode {
     CreateGridlock,
     // TODO Be able to filter population by more factors
     FasterTrips(TripMode),
+    FixTrafficSignals,
 }
 
 pub trait GameplayState: downcast_rs::Downcast {
@@ -93,6 +95,7 @@ impl GameplayRunner {
             }
             GameplayMode::CreateGridlock => create_gridlock::CreateGridlock::new(ctx),
             GameplayMode::FasterTrips(trip_mode) => faster_trips::FasterTrips::new(trip_mode, ctx),
+            GameplayMode::FixTrafficSignals => fix_traffic_signals::FixTrafficSignals::new(ctx),
         };
         ctx.loading_screen("instantiate scenario", |_, timer| {
             if let Some(scenario) = mode.scenario(ui, timer) {
