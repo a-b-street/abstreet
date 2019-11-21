@@ -1,4 +1,4 @@
-use crate::{IntersectionID, Map, RoadID, Turn, TurnID, TurnPriority, TurnType};
+use crate::{IntersectionID, Map, RoadID, Turn, TurnGroup, TurnID, TurnPriority, TurnType};
 use abstutil::Timer;
 use geom::Duration;
 use serde_derive::{Deserialize, Serialize};
@@ -538,6 +538,38 @@ impl Phase {
                 self.yield_turns.insert(id);
             }
         }
+    }
+
+    // Returns (protected, permitted)
+    pub fn turn_groups(&self, i: IntersectionID, map: &Map) -> (Vec<TurnGroup>, Vec<TurnGroup>) {
+        let mut protected = Vec::new();
+        let mut permitted = Vec::new();
+        for group in TurnGroup::for_i(i, map) {
+            // TODO All or nothing based on the first member. Temporary measure before switching
+            // ControlTrafficSignal to natively understand TurnGroup.
+            let t = group.members.iter().next().unwrap();
+            if self.protected_turns.contains(t) {
+                protected.push(group);
+            } else if self.yield_turns.contains(t) {
+                permitted.push(group);
+            }
+        }
+        (protected, permitted)
+    }
+
+    pub fn get_priority_group(&self, g: &TurnGroup) -> TurnPriority {
+        let t = *g.members.iter().next().unwrap();
+        self.get_priority(t)
+    }
+
+    pub fn could_be_protected_group(&self, g: &TurnGroup, map: &Map) -> bool {
+        let t = *g.members.iter().next().unwrap();
+        self.could_be_protected_turn(t, map)
+    }
+
+    pub fn edit_group(&mut self, g: &TurnGroup, pri: TurnPriority, map: &Map) {
+        let t = *g.members.iter().next().unwrap();
+        self.edit_turn(map.get_t(t), pri);
     }
 }
 

@@ -6,7 +6,6 @@ use crate::{
     IntersectionID, IntersectionType, Lane, LaneID, LaneType, MapEdits, Path, PathConstraints,
     PathRequest, Position, Road, RoadID, Turn, TurnID, LANE_THICKNESS,
 };
-use abstutil;
 use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
 use geom::{Bounds, Distance, GPSBounds, Polygon, Pt2D};
 use serde_derive::{Deserialize, Serialize};

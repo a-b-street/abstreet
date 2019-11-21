@@ -3,7 +3,6 @@ use crate::{
     osm, BuildingID, BusStopID, DirectedRoadID, IntersectionID, Map, PathConstraints, Road, RoadID,
     TurnType,
 };
-use abstutil;
 use geom::{Angle, Distance, Line, PolyLine, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeSet;

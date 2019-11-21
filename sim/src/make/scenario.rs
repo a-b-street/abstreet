@@ -2,7 +2,6 @@ use crate::{
     CarID, DrivingGoal, ParkingSpot, SidewalkSpot, Sim, TripSpec, VehicleSpec, VehicleType,
     BIKE_LENGTH, MAX_CAR_LENGTH, MIN_CAR_LENGTH,
 };
-use abstutil;
 use abstutil::{fork_rng, prettyprint_usize, Timer, WeightedUsizeChoice};
 use geom::{Distance, Duration, Speed};
 use map_model::{

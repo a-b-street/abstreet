@@ -1,6 +1,6 @@
-use crate::{IntersectionID, LaneID};
-use abstutil;
-use geom::{Angle, PolyLine};
+use crate::{IntersectionID, LaneID, Map, RoadID};
+use abstutil::MultiMap;
+use geom::{Angle, PolyLine, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 use std::fmt;
@@ -111,5 +111,57 @@ impl Turn {
 
     pub fn dump_debug(&self) {
         println!("{}", abstutil::to_json(self));
+    }
+}
+
+// TODO Unclear how this plays with different lane types
+// This is for vehicles, not sidewalks.
+#[derive(Clone, PartialEq)]
+pub struct TurnGroup {
+    pub from: RoadID,
+    pub to: RoadID,
+
+    // Derived
+    pub members: BTreeSet<TurnID>,
+}
+
+impl TurnGroup {
+    pub fn for_i(i: IntersectionID, map: &Map) -> Vec<TurnGroup> {
+        let mut groups: MultiMap<(RoadID, RoadID), TurnID> = MultiMap::new();
+        for turn in map.get_turns_in_intersection(i) {
+            if !turn.between_sidewalks() {
+                groups.insert(
+                    (map.get_l(turn.id.src).parent, map.get_l(turn.id.dst).parent),
+                    turn.id,
+                );
+            }
+        }
+        groups
+            .consume()
+            .into_iter()
+            .map(|((from, to), members)| TurnGroup { from, to, members })
+            .collect()
+    }
+
+    pub fn geom(&self, map: &Map) -> PolyLine {
+        let polylines: Vec<&PolyLine> = self.members.iter().map(|t| &map.get_t(*t).geom).collect();
+        let num_pts = polylines[0].points().len();
+        for pl in &polylines {
+            if num_pts != pl.points().len() {
+                println!(
+                    "TurnGroup between {} and {} can't make nice geometry",
+                    self.from, self.to
+                );
+                return polylines[0].clone();
+            }
+        }
+
+        let mut pts = Vec::new();
+        for idx in 0..num_pts {
+            pts.push(Pt2D::center(
+                &polylines.iter().map(|pl| pl.points()[idx]).collect(),
+            ));
+        }
+        PolyLine::new(pts)
     }
 }

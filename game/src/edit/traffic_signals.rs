@@ -1,21 +1,23 @@
 use crate::common::CommonState;
 use crate::edit::apply_map_edits;
 use crate::game::{msg, State, Transition, WizardState};
-use crate::helpers::ID;
-use crate::render::{draw_signal_phase, DrawOptions, DrawTurn, TrafficSignalDiagram};
+use crate::render::{
+    draw_signal_phase, DrawOptions, DrawTurnGroup, TrafficSignalDiagram, BIG_ARROW_THICKNESS,
+};
 use crate::ui::{ShowEverything, UI};
 use ezgui::{hotkey, Choice, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu, Text};
-use geom::Duration;
+use geom::{Distance, Duration};
 use map_model::{
-    ControlTrafficSignal, EditCmd, IntersectionID, Phase, TurnID, TurnPriority, TurnType,
+    ControlTrafficSignal, EditCmd, IntersectionID, Phase, TurnGroup, TurnID, TurnPriority, TurnType,
 };
 use std::collections::BTreeSet;
 
 // TODO Warn if there are empty phases or if some turn is completely absent from the signal.
 pub struct TrafficSignalEditor {
     menu: ModalMenu,
-    icon_selected: Option<TurnID>,
     diagram: TrafficSignalDiagram,
+    groups: Vec<DrawTurnGroup>,
+    group_selected: Option<TurnGroup>,
 }
 
 impl TrafficSignalEditor {
@@ -45,8 +47,9 @@ impl TrafficSignalEditor {
         );
         TrafficSignalEditor {
             menu,
-            icon_selected: None,
             diagram: TrafficSignalDiagram::new(id, 0, ui, ctx),
+            groups: DrawTurnGroup::for_i(id, &ui.primary.map),
+            group_selected: None,
         }
     }
 }
@@ -68,27 +71,24 @@ impl State for TrafficSignalEditor {
         self.diagram.event(ctx, &mut self.menu);
 
         if ctx.redo_mouseover() {
-            self.icon_selected = None;
+            self.group_selected = None;
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-                for t in ui
-                    .primary
-                    .draw_map
-                    .get_turns(self.diagram.i, &ui.primary.map)
-                {
-                    if t.contains_pt(pt) {
-                        self.icon_selected = Some(t.id);
+                for g in &self.groups {
+                    if g.block.contains_pt(pt) {
+                        self.group_selected = Some(g.group.clone());
                         break;
                     }
                 }
             }
         }
 
-        if let Some(id) = self.icon_selected {
+        if let Some(ref group) = self.group_selected {
             let phase = &mut signal.phases[self.diagram.current_phase()];
             // Just one key to toggle between the 3 states
-            let next_priority = match phase.get_priority(id) {
+            let next_priority = match phase.get_priority_group(group) {
                 TurnPriority::Banned => {
-                    if ui.primary.map.get_t(id).turn_type == TurnType::Crosswalk {
+                    Some(TurnPriority::Yield)
+                    /*if ui.primary.map.get_t(id).turn_type == TurnType::Crosswalk {
                         if phase.could_be_protected_turn(id, &ui.primary.map) {
                             Some(TurnPriority::Protected)
                         } else {
@@ -96,10 +96,10 @@ impl State for TrafficSignalEditor {
                         }
                     } else {
                         Some(TurnPriority::Yield)
-                    }
+                    }*/
                 }
                 TurnPriority::Yield => {
-                    if phase.could_be_protected_turn(id, &ui.primary.map) {
+                    if phase.could_be_protected_group(group, &ui.primary.map) {
                         Some(TurnPriority::Protected)
                     } else {
                         Some(TurnPriority::Banned)
@@ -110,9 +110,13 @@ impl State for TrafficSignalEditor {
             if let Some(pri) = next_priority {
                 if ctx.input.contextual_action(
                     Key::Space,
-                    format!("toggle from {:?} to {:?}", phase.get_priority(id), pri),
+                    format!(
+                        "toggle from {:?} to {:?}",
+                        phase.get_priority_group(group),
+                        pri
+                    ),
                 ) {
-                    phase.edit_turn(ui.primary.map.get_t(id), pri);
+                    phase.edit_group(group, pri, &ui.primary.map);
                     change_traffic_signal(signal, ui, ctx);
                     return Transition::Keep;
                 }
@@ -207,44 +211,48 @@ impl State for TrafficSignalEditor {
             ui.draw(g, opts, &ui.primary.sim, &ShowEverything::new());
         }
 
-        let mut batch = GeomBatch::new();
+        let phase =
+            &ui.primary.map.get_traffic_signal(self.diagram.i).phases[self.diagram.current_phase()];
         let ctx = ui.draw_ctx();
-        let map = &ui.primary.map;
-        let phase = &map.get_traffic_signal(self.diagram.i).phases[self.diagram.current_phase()];
-        for t in &ui.primary.draw_map.get_turns(self.diagram.i, map) {
-            let arrow_color = match phase.get_priority(t.id) {
-                TurnPriority::Protected => ui.cs.get("turn protected by traffic signal"),
-                TurnPriority::Yield => ui
-                    .cs
-                    .get("turn that can yield by traffic signal")
-                    .alpha(1.0),
-                TurnPriority::Banned => ui.cs.get_def("turn not in current phase", Color::BLACK),
-            };
-            t.draw_icon(
-                &mut batch,
-                &ctx.cs,
-                arrow_color,
-                self.icon_selected == Some(t.id),
-            );
-        }
+        let mut batch = GeomBatch::new();
         draw_signal_phase(phase, self.diagram.i, None, &mut batch, &ctx);
-        if let Some(id) = self.icon_selected {
-            DrawTurn::draw_dashed(
-                map.get_t(id),
-                &mut batch,
-                ui.cs.get_def("selected turn", Color::RED),
-            );
+
+        for g in &self.groups {
+            if Some(g.group.clone()) == self.group_selected {
+                batch.push(Color::RED, g.block.clone());
+                batch.extend(
+                    ui.cs.get_def("selected turn", Color::RED),
+                    g.group.geom(&ui.primary.map).dashed_polygons(
+                        BIG_ARROW_THICKNESS,
+                        Distance::meters(1.0),
+                        Distance::meters(0.5),
+                    ),
+                );
+            } else {
+                let color = match phase.get_priority_group(&g.group) {
+                    TurnPriority::Protected => ui.cs.get("turn protected by traffic signal"),
+                    TurnPriority::Yield => ui
+                        .cs
+                        .get("turn that can yield by traffic signal")
+                        .alpha(1.0),
+                    TurnPriority::Banned => {
+                        ui.cs.get_def("turn not in current phase", Color::BLACK)
+                    }
+                };
+                batch.push(color, g.block.clone());
+            }
         }
         batch.draw(g);
 
         self.diagram.draw(g, &ctx);
 
         self.menu.draw(g);
-        if let Some(t) = self.icon_selected {
+        // TODO groups...
+        /*if let Some(t) = self.icon_selected {
             CommonState::draw_osd(g, ui, &Some(ID::Turn(t)));
-        } else {
-            CommonState::draw_osd(g, ui, &None);
-        }
+        } else {*/
+        CommonState::draw_osd(g, ui, &None);
+        //}
     }
 }
 

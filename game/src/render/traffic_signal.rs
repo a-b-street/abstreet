@@ -1,4 +1,4 @@
-use crate::render::{DrawCtx, DrawTurn};
+use crate::render::{DrawCtx, BIG_ARROW_THICKNESS};
 use crate::ui::UI;
 use ezgui::{
     Color, EventCtx, GeomBatch, GfxCtx, Line, ModalMenu, MultiText, NewScroller, ScreenDims,
@@ -34,21 +34,22 @@ pub fn draw_signal_phase(
         }
     }
 
-    for t in &phase.protected_turns {
-        let turn = ctx.map.get_t(*t);
-        if !turn.between_sidewalks() {
-            DrawTurn::full_geom(turn, batch, protected_color);
-        }
+    let (protected, yielding) = phase.turn_groups(i, ctx.map);
+    for g in protected {
+        batch.push(
+            protected_color,
+            g.geom(ctx.map)
+                .make_arrow(BIG_ARROW_THICKNESS * 2.0)
+                .unwrap(),
+        );
     }
-    for t in &phase.yield_turns {
-        let turn = ctx.map.get_t(*t);
-        // Lane-changing as yield is implied and very messy to show.
-        if !turn.between_sidewalks()
-            && turn.turn_type != TurnType::LaneChangeLeft
-            && turn.turn_type != TurnType::LaneChangeRight
-        {
-            DrawTurn::outline_geom(turn, batch, yield_color);
-        }
+    for g in yielding {
+        batch.extend(
+            yield_color,
+            g.geom(ctx.map)
+                .make_arrow_outline(BIG_ARROW_THICKNESS * 2.0, BIG_ARROW_THICKNESS / 2.0)
+                .unwrap(),
+        );
     }
 
     if time_left.is_none() {

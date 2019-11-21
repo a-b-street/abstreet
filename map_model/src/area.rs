@@ -1,4 +1,3 @@
-use abstutil;
 use geom::Polygon;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;

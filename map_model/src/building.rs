@@ -1,5 +1,4 @@
 use crate::{osm, LaneID, Position};
-use abstutil;
 use geom::{Line, Polygon, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;

@@ -31,7 +31,7 @@ pub use crate::road::{DirectedRoadID, Road, RoadID};
 pub use crate::stop_signs::{ControlStopSign, RoadWithStopSign};
 pub use crate::traffic_signals::{ControlTrafficSignal, Phase};
 pub use crate::traversable::{Position, Traversable};
-pub use crate::turn::{Turn, TurnID, TurnPriority, TurnType};
+pub use crate::turn::{Turn, TurnGroup, TurnID, TurnPriority, TurnType};
 use abstutil::Cloneable;
 use geom::Distance;
 

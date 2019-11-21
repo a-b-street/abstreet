@@ -1,7 +1,6 @@
 use crate::helpers::rotating_color;
 use crate::render::DrawMap;
 use crate::ui::UI;
-use abstutil;
 use ezgui::{Color, Drawable, EventCtx, GfxCtx, Line, ModalMenu, Prerender, Text};
 use geom::{Duration, Polygon, Pt2D};
 use map_model::{LaneID, Map, Neighborhood};

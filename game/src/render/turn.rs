@@ -1,42 +1,12 @@
-use crate::helpers::ColorScheme;
-use crate::render::{BIG_ARROW_THICKNESS, TURN_ICON_ARROW_LENGTH, TURN_ICON_ARROW_THICKNESS};
+use crate::render::{BIG_ARROW_THICKNESS, TURN_ICON_ARROW_LENGTH};
 use ezgui::{Color, GeomBatch, GfxCtx};
-use geom::{Circle, Distance, Line, Polygon, Pt2D};
-use map_model::{Map, Turn, TurnID};
+use geom::{Distance, Line, Polygon};
+use map_model::{IntersectionID, Map, RoadID, Turn, TurnGroup, LANE_THICKNESS};
+use std::collections::HashMap;
 
-pub struct DrawTurn {
-    pub id: TurnID,
-    icon_circle: Circle,
-    icon_arrow: Polygon,
-}
+pub struct DrawTurn {}
 
 impl DrawTurn {
-    pub fn new(map: &Map, turn: &Turn, offset_along_lane: usize) -> DrawTurn {
-        let offset_along_lane = offset_along_lane as f64;
-        let angle = turn.angle();
-
-        let end_line = map.get_l(turn.id.src).end_line(turn.id.parent);
-        // Start the distance from the intersection
-        let icon_center = end_line
-            .reverse()
-            .unbounded_dist_along(TURN_ICON_ARROW_LENGTH * (offset_along_lane + 0.5));
-
-        let icon_circle = Circle::new(icon_center, TURN_ICON_ARROW_LENGTH / 2.0);
-
-        let icon_src = icon_center.project_away(TURN_ICON_ARROW_LENGTH / 2.0, angle.opposite());
-        let icon_dst = icon_center.project_away(TURN_ICON_ARROW_LENGTH / 2.0, angle);
-        let icon_arrow = Line::new(icon_src, icon_dst)
-            .to_polyline()
-            .make_arrow(TURN_ICON_ARROW_THICKNESS)
-            .unwrap();
-
-        DrawTurn {
-            id: turn.id,
-            icon_circle,
-            icon_arrow,
-        }
-    }
-
     pub fn full_geom(t: &Turn, batch: &mut GeomBatch, color: Color) {
         batch.push(color, t.geom.make_arrow(BIG_ARROW_THICKNESS * 2.0).unwrap());
     }
@@ -45,13 +15,10 @@ impl DrawTurn {
         let mut batch = GeomBatch::new();
         DrawTurn::full_geom(t, &mut batch, color);
         batch.draw(g);
-
-        // For debugging
-        /*for pt in t.geom.points() {
-            g.draw_circle(Color::RED, &geom::Circle::new(*pt, Distance::meters(0.4)));
-        }*/
     }
 
+    // TODO make a polyline.dashed or something
+    // TODO get rid of all these weird DrawTurn things generally
     pub fn draw_dashed(turn: &Turn, batch: &mut GeomBatch, color: Color) {
         let dash_len = Distance::meters(1.0);
         batch.extend(
@@ -76,35 +43,44 @@ impl DrawTurn {
                 .unwrap(),
         );
     }
+}
 
-    pub fn outline_geom(turn: &Turn, batch: &mut GeomBatch, color: Color) {
-        batch.extend(
-            color,
-            turn.geom
-                .make_arrow_outline(BIG_ARROW_THICKNESS * 2.0, BIG_ARROW_THICKNESS / 2.0)
-                .unwrap(),
-        );
-    }
+// TODO Don't store these in DrawMap; just generate when we hop into the traffic signal editor.
+// Simplifies apply_map_edits!
+pub struct DrawTurnGroup {
+    pub group: TurnGroup,
+    pub block: Polygon,
+}
 
-    pub fn draw_icon(
-        &self,
-        batch: &mut GeomBatch,
-        cs: &ColorScheme,
-        arrow_color: Color,
-        selected: bool,
-    ) {
-        batch.push(
-            if selected {
-                cs.get("selected")
-            } else {
-                cs.get_def("turn icon circle", Color::grey(0.6))
-            },
-            self.icon_circle.to_polygon(),
-        );
-        batch.push(arrow_color, self.icon_arrow.clone());
-    }
+impl DrawTurnGroup {
+    pub fn for_i(i: IntersectionID, map: &Map) -> Vec<DrawTurnGroup> {
+        // TODO Sort by angle here if we want some consistency
+        // TODO Handle short roads
+        let mut offset_per_road: HashMap<RoadID, f64> = HashMap::new();
+        let mut draw = Vec::new();
+        for group in TurnGroup::for_i(i, map) {
+            let offset = offset_per_road.entry(group.from).or_insert(0.5);
 
-    pub fn contains_pt(&self, pt: Pt2D) -> bool {
-        self.icon_circle.contains_pt(pt)
+            // TODO center it properly
+            let pl = {
+                let r = map.get_r(group.from);
+                if r.dst_i == i {
+                    r.center_pts.reversed()
+                } else {
+                    r.center_pts.clone()
+                }
+            };
+            // TODO Not number of turns, number of source lanes
+            let block = pl
+                .exact_slice(
+                    *offset * TURN_ICON_ARROW_LENGTH,
+                    (*offset + 1.0) * TURN_ICON_ARROW_LENGTH,
+                )
+                .make_polygons(LANE_THICKNESS * (group.members.len() as f64));
+            draw.push(DrawTurnGroup { group, block });
+
+            *offset += 1.0;
+        }
+        draw
     }
 }

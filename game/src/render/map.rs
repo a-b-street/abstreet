@@ -7,7 +7,6 @@ use crate::render::extra_shape::{DrawExtraShape, ExtraShapeID};
 use crate::render::intersection::DrawIntersection;
 use crate::render::lane::DrawLane;
 use crate::render::road::DrawRoad;
-use crate::render::turn::DrawTurn;
 use crate::render::Renderable;
 use crate::ui::Flags;
 use aabb_quadtree::QuadTree;
@@ -15,8 +14,8 @@ use abstutil::{Cloneable, Timer};
 use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Text};
 use geom::{Bounds, Circle, Distance, Duration, FindClosest};
 use map_model::{
-    AreaID, BuildingID, BusStopID, DirectedRoadID, Intersection, IntersectionID, Lane, LaneID, Map,
-    Road, RoadID, Traversable, Turn, TurnID, TurnType, LANE_THICKNESS,
+    AreaID, BuildingID, BusStopID, DirectedRoadID, Intersection, IntersectionID, LaneID, Map, Road,
+    RoadID, Traversable, LANE_THICKNESS,
 };
 use sim::{
     AgentMetadata, CarStatus, DrawCarInput, DrawPedestrianInput, GetDrawAgents, UnzoomedAgent,
@@ -30,7 +29,6 @@ pub struct DrawMap {
     pub roads: Vec<DrawRoad>,
     pub lanes: Vec<DrawLane>,
     pub intersections: Vec<DrawIntersection>,
-    pub turns: HashMap<TurnID, DrawTurn>,
     pub buildings: Vec<DrawBuilding>,
     pub extra_shapes: Vec<DrawExtraShape>,
     pub bus_stops: HashMap<BusStopID, DrawBusStop>,
@@ -99,24 +97,6 @@ impl DrawMap {
         for almost in almost_lanes {
             timer.next();
             lanes.push(almost.finish(ctx.prerender));
-        }
-
-        timer.start_iter("compute_turn_to_lane_offset", map.all_lanes().len());
-        let mut turn_to_lane_offset: HashMap<TurnID, usize> = HashMap::new();
-        for l in map.all_lanes() {
-            timer.next();
-            DrawMap::compute_turn_to_lane_offset(&mut turn_to_lane_offset, l, map);
-        }
-
-        timer.start_iter("make DrawTurns", map.all_turns().len());
-        let mut turns: HashMap<TurnID, DrawTurn> = HashMap::new();
-        for t in map.all_turns().values() {
-            timer.next();
-            // There's never a reason to draw these icons; the turn priority is only ever Priority,
-            // since they can't conflict with anything.
-            if t.turn_type != TurnType::SharedSidewalkCorner {
-                turns.insert(t.id, DrawTurn::new(map, t, turn_to_lane_offset[&t.id]));
-            }
         }
 
         let mut intersections: Vec<DrawIntersection> = Vec::new();
@@ -257,7 +237,6 @@ impl DrawMap {
             roads,
             lanes,
             intersections,
-            turns,
             buildings,
             extra_shapes,
             bus_stops,
@@ -278,28 +257,6 @@ impl DrawMap {
         }
     }
 
-    pub fn compute_turn_to_lane_offset(result: &mut HashMap<TurnID, usize>, l: &Lane, map: &Map) {
-        // Split into two groups, based on the endpoint
-        let mut pair: (Vec<&Turn>, Vec<&Turn>) = map
-            .get_turns_from_lane(l.id)
-            .iter()
-            .filter(|t| t.turn_type != TurnType::SharedSidewalkCorner)
-            .partition(|t| t.id.parent == l.dst_i);
-
-        // Sort the turn icons by angle.
-        pair.0
-            .sort_by_key(|t| t.angle().normalized_degrees() as i64);
-        pair.1
-            .sort_by_key(|t| t.angle().normalized_degrees() as i64);
-
-        for (idx, t) in pair.0.iter().enumerate() {
-            result.insert(t.id, idx);
-        }
-        for (idx, t) in pair.1.iter().enumerate() {
-            result.insert(t.id, idx);
-        }
-    }
-
     // The alt to these is implementing std::ops::Index, but that's way more verbose!
     pub fn get_r(&self, id: RoadID) -> &DrawRoad {
         &self.roads[id.0]
@@ -311,20 +268,6 @@ impl DrawMap {
 
     pub fn get_i(&self, id: IntersectionID) -> &DrawIntersection {
         &self.intersections[id.0]
-    }
-
-    pub fn get_t(&self, id: TurnID) -> &DrawTurn {
-        &self.turns[&id]
-    }
-
-    pub fn get_turns(&self, i: IntersectionID, map: &Map) -> Vec<&DrawTurn> {
-        let mut results = Vec::new();
-        for t in &map.get_i(i).turns {
-            if map.get_t(*t).turn_type != TurnType::SharedSidewalkCorner {
-                results.push(self.get_t(*t));
-            }
-        }
-        results
     }
 
     pub fn get_b(&self, id: BuildingID) -> &DrawBuilding {

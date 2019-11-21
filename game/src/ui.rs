@@ -3,7 +3,6 @@ use crate::render::{
     draw_vehicle, AgentCache, AgentColorScheme, DrawCtx, DrawMap, DrawOptions, DrawPedCrowd,
     DrawPedestrian, Renderable, MIN_ZOOM_FOR_DETAIL,
 };
-use abstutil;
 use abstutil::{MeasureMemory, Timer};
 use ezgui::{Canvas, Color, EventCtx, GfxCtx, Prerender, TextureType};
 use geom::{Bounds, Circle, Distance, Pt2D};

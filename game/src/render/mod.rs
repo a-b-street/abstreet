@@ -23,7 +23,7 @@ pub use crate::render::map::{AgentCache, AgentColorScheme, DrawMap};
 pub use crate::render::pedestrian::{DrawPedCrowd, DrawPedestrian};
 pub use crate::render::road::DrawRoad;
 pub use crate::render::traffic_signal::{draw_signal_phase, TrafficSignalDiagram};
-pub use crate::render::turn::DrawTurn;
+pub use crate::render::turn::{DrawTurn, DrawTurnGroup};
 use ezgui::{Canvas, Color, GfxCtx, Prerender};
 use geom::{Distance, PolyLine, Polygon, Pt2D, EPSILON_DIST};
 use map_model::{IntersectionID, Map};
@@ -35,7 +35,7 @@ pub const MIN_ZOOM_FOR_DETAIL: f64 = 2.5;
 const EXTRA_SHAPE_THICKNESS: Distance = Distance::const_meters(1.0);
 const EXTRA_SHAPE_POINT_RADIUS: Distance = Distance::const_meters(10.0);
 
-const BIG_ARROW_THICKNESS: Distance = Distance::const_meters(0.5);
+pub const BIG_ARROW_THICKNESS: Distance = Distance::const_meters(0.5);
 
 const TURN_ICON_ARROW_THICKNESS: Distance = Distance::const_meters(0.15);
 const TURN_ICON_ARROW_LENGTH: Distance = Distance::const_meters(2.0);

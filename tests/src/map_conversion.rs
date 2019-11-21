@@ -1,7 +1,4 @@
 use crate::runner::TestRunner;
-use abstutil;
-use convert_osm;
-use map_model;
 
 pub fn run(t: &mut TestRunner) {
     t.run_slow("convert_osm_twice", |_| {

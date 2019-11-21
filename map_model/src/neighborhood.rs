@@ -1,6 +1,5 @@
 use crate::{BuildingID, Map, RoadID};
 use aabb_quadtree::QuadTree;
-use abstutil;
 use geom::{GPSBounds, LonLat, Polygon, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeSet, HashMap};

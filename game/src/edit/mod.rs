@@ -7,8 +7,7 @@ use crate::debug::DebugMode;
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{
-    DrawIntersection, DrawLane, DrawMap, DrawOptions, DrawRoad, DrawTurn, Renderable,
-    MIN_ZOOM_FOR_DETAIL,
+    DrawIntersection, DrawLane, DrawOptions, DrawRoad, Renderable, MIN_ZOOM_FOR_DETAIL,
 };
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::{PerMapUI, ShowEverything, UI};
@@ -17,10 +16,8 @@ use ezgui::{
     hotkey, lctrl, Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, MenuUnderButton,
     ModalMenu, Text, Wizard, WrappedWizard,
 };
-use map_model::{
-    ControlStopSign, ControlTrafficSignal, EditCmd, LaneID, MapEdits, TurnID, TurnType,
-};
-use std::collections::{BTreeSet, HashMap};
+use map_model::{ControlStopSign, ControlTrafficSignal, EditCmd, LaneID, MapEdits};
+use std::collections::BTreeSet;
 
 pub struct EditMode {
     common: CommonState,
@@ -421,31 +418,12 @@ pub fn apply_map_edits(
 
     let mut lanes_of_modified_turns: BTreeSet<LaneID> = BTreeSet::new();
     for t in turns_deleted {
-        bundle.draw_map.turns.remove(&t);
         lanes_of_modified_turns.insert(t.src);
         modified_intersections.insert(t.parent);
     }
     for t in &turns_added {
         lanes_of_modified_turns.insert(t.src);
         modified_intersections.insert(t.parent);
-    }
-
-    let mut turn_to_lane_offset: HashMap<TurnID, usize> = HashMap::new();
-    for l in lanes_of_modified_turns {
-        DrawMap::compute_turn_to_lane_offset(
-            &mut turn_to_lane_offset,
-            bundle.map.get_l(l),
-            &bundle.map,
-        );
-    }
-    for t in turns_added {
-        let turn = bundle.map.get_t(t);
-        if turn.turn_type != TurnType::SharedSidewalkCorner {
-            bundle
-                .draw_map
-                .turns
-                .insert(t, DrawTurn::new(&bundle.map, turn, turn_to_lane_offset[&t]));
-        }
     }
 
     for i in modified_intersections {
