@@ -8,6 +8,7 @@ use std::collections::BTreeSet;
 pub struct ControlTrafficSignal {
     pub id: IntersectionID,
     pub phases: Vec<Phase>,
+    pub offset: Duration,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
@@ -66,7 +67,7 @@ impl ControlTrafficSignal {
             cycle_length += p.duration;
         }
 
-        let mut now_offset = now % cycle_length;
+        let mut now_offset = (now + self.offset) % cycle_length;
         for (idx, p) in self.phases.iter().enumerate() {
             if now_offset < p.duration {
                 return (idx, p, p.duration - now_offset);
@@ -160,6 +161,7 @@ impl ControlTrafficSignal {
         let ts = ControlTrafficSignal {
             id: intersection,
             phases,
+            offset: Duration::ZERO,
         };
         // This must succeed
         ts.validate(map).unwrap()
@@ -187,7 +189,11 @@ impl ControlTrafficSignal {
 
         let phases = make_phases(map, i, phases);
 
-        let ts = ControlTrafficSignal { id: i, phases };
+        let ts = ControlTrafficSignal {
+            id: i,
+            phases,
+            offset: Duration::ZERO,
+        };
         ts.validate(map).ok()
     }
 
@@ -236,7 +242,11 @@ impl ControlTrafficSignal {
             ],
         );
 
-        let ts = ControlTrafficSignal { id: i, phases };
+        let ts = ControlTrafficSignal {
+            id: i,
+            phases,
+            offset: Duration::ZERO,
+        };
         ts.validate(map).ok()
     }
 
@@ -278,7 +288,11 @@ impl ControlTrafficSignal {
             ],
         );
 
-        let ts = ControlTrafficSignal { id: i, phases };
+        let ts = ControlTrafficSignal {
+            id: i,
+            phases,
+            offset: Duration::ZERO,
+        };
         ts.validate(map).ok()
     }
 
@@ -319,7 +333,11 @@ impl ControlTrafficSignal {
             ],
         );
 
-        let ts = ControlTrafficSignal { id: i, phases };
+        let ts = ControlTrafficSignal {
+            id: i,
+            phases,
+            offset: Duration::ZERO,
+        };
         ts.validate(map).ok()
     }
 
@@ -371,7 +389,11 @@ impl ControlTrafficSignal {
             ],
         );
 
-        let ts = ControlTrafficSignal { id: i, phases };
+        let ts = ControlTrafficSignal {
+            id: i,
+            phases,
+            offset: Duration::ZERO,
+        };
         ts.validate(map).ok()
     }
 
@@ -397,6 +419,7 @@ impl ControlTrafficSignal {
         let ts = ControlTrafficSignal {
             id: i,
             phases: vec![all_walk, all_yield],
+            offset: Duration::ZERO,
         };
         // This must succeed
         ts.validate(map).unwrap()
@@ -430,7 +453,11 @@ impl ControlTrafficSignal {
                 phases.push(phase);
             }
         }
-        let ts = ControlTrafficSignal { id: i, phases };
+        let ts = ControlTrafficSignal {
+            id: i,
+            phases,
+            offset: Duration::ZERO,
+        };
         ts.validate(map).ok()
     }
 

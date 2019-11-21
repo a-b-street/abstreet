@@ -4,7 +4,7 @@ use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::render::{draw_signal_phase, DrawOptions, DrawTurn, TrafficSignalDiagram};
 use crate::ui::{ShowEverything, UI};
-use ezgui::{hotkey, Choice, Color, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu};
+use ezgui::{hotkey, Choice, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu, Text};
 use geom::Duration;
 use map_model::{
     ControlTrafficSignal, EditCmd, IntersectionID, Phase, TurnID, TurnPriority, TurnType,
@@ -38,6 +38,7 @@ impl TrafficSignalEditor {
                     hotkey(Key::B),
                     "convert to dedicated pedestrian scramble phase",
                 ),
+                (hotkey(Key::O), "change signal offset"),
                 (hotkey(Key::Escape), "quit"),
             ],
             ctx,
@@ -52,7 +53,17 @@ impl TrafficSignalEditor {
 
 impl State for TrafficSignalEditor {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+        let mut signal = ui.primary.map.get_traffic_signal(self.diagram.i).clone();
+
         self.menu.event(ctx);
+        // TODO This really needs to be shown in the diagram!
+        self.menu.set_info(
+            ctx,
+            Text::from(Line(format!(
+                "Signal offset: {}",
+                signal.offset.minimal_tostring()
+            ))),
+        );
         ctx.canvas.handle_event(ctx.input);
         self.diagram.event(ctx, &mut self.menu);
 
@@ -71,8 +82,6 @@ impl State for TrafficSignalEditor {
                 }
             }
         }
-
-        let mut signal = ui.primary.map.get_traffic_signal(self.diagram.i).clone();
 
         if let Some(id) = self.icon_selected {
             let phase = &mut signal.phases[self.diagram.current_phase()];
@@ -115,11 +124,13 @@ impl State for TrafficSignalEditor {
         }
 
         if self.menu.action("change phase duration") {
-            return Transition::Push(make_change_phase_duration(
+            return Transition::Push(change_phase_duration(
                 signal.phases[self.diagram.current_phase()].duration,
             ));
+        } else if self.menu.action("change signal offset") {
+            return Transition::Push(change_offset(signal.offset));
         } else if self.menu.action("choose a preset signal") {
-            return Transition::Push(make_change_preset(self.diagram.i));
+            return Transition::Push(change_preset(self.diagram.i));
         } else if self.menu.action("reset to original") {
             signal = ControlTrafficSignal::get_possible_policies(&ui.primary.map, self.diagram.i)
                 .remove(0)
@@ -256,7 +267,7 @@ fn change_traffic_signal(signal: ControlTrafficSignal, ui: &mut UI, ctx: &mut Ev
     apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
 }
 
-fn make_change_phase_duration(current_duration: Duration) -> Box<dyn State> {
+fn change_phase_duration(current_duration: Duration) -> Box<dyn State> {
     WizardState::new(Box::new(move |wiz, ctx, _| {
         let new_duration = wiz.wrap(ctx).input_usize_prefilled(
             "How long should this phase be (seconds)?",
@@ -273,7 +284,28 @@ fn make_change_phase_duration(current_duration: Duration) -> Box<dyn State> {
     }))
 }
 
-fn make_change_preset(i: IntersectionID) -> Box<dyn State> {
+fn change_offset(current_duration: Duration) -> Box<dyn State> {
+    WizardState::new(Box::new(move |wiz, ctx, _| {
+        let new_duration = wiz.wrap(ctx).input_usize_prefilled(
+            "What should the offset of this traffic signal be (seconds)?",
+            format!("{}", current_duration.inner_seconds() as usize),
+        )?;
+        Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
+            let mut editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
+            let mut signal = ui.primary.map.get_traffic_signal(editor.diagram.i).clone();
+            signal.offset = Duration::seconds(new_duration as f64);
+            change_traffic_signal(signal, ui, ctx);
+            editor.diagram = TrafficSignalDiagram::new(
+                editor.diagram.i,
+                editor.diagram.current_phase(),
+                ui,
+                ctx,
+            );
+        })))
+    }))
+}
+
+fn change_preset(i: IntersectionID) -> Box<dyn State> {
     WizardState::new(Box::new(move |wiz, ctx, ui| {
         let (_, new_signal) =
             wiz.wrap(ctx)
