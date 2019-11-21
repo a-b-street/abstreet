@@ -81,6 +81,20 @@ impl GameplayMode {
             .unwrap()
         })
     }
+
+    pub fn can_edit_lanes(&self) -> bool {
+        match self {
+            GameplayMode::FixTrafficSignals => false,
+            _ => true,
+        }
+    }
+
+    pub fn can_edit_stop_signs(&self) -> bool {
+        match self {
+            GameplayMode::FixTrafficSignals => false,
+            _ => true,
+        }
+    }
 }
 
 impl GameplayRunner {

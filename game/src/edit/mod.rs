@@ -139,8 +139,10 @@ impl State for EditMode {
             }
         }
 
-        if let Some(t) = self.lane_editor.event(ui, ctx) {
-            return t;
+        if self.mode.can_edit_lanes() {
+            if let Some(t) = self.lane_editor.event(ui, ctx) {
+                return t;
+            }
         }
         ctx.canvas.handle_event(ctx.input);
         // It only makes sense to mouseover lanes while painting them.
@@ -190,9 +192,10 @@ impl State for EditMode {
 
         if let Some(ID::Intersection(id)) = ui.primary.current_selection {
             if ui.primary.map.maybe_get_stop_sign(id).is_some() {
-                if ctx
-                    .input
-                    .contextual_action(Key::E, format!("edit stop signs for {}", id))
+                if self.mode.can_edit_stop_signs()
+                    && ctx
+                        .input
+                        .contextual_action(Key::E, format!("edit stop signs for {}", id))
                 {
                     return Transition::Push(Box::new(stop_signs::StopSignEditor::new(
                         id, ctx, ui,
@@ -326,7 +329,9 @@ impl State for EditMode {
         self.common.draw(g, ui);
         self.menu.draw(g);
         self.general_tools.draw(g);
-        self.lane_editor.draw(g);
+        if self.mode.can_edit_lanes() {
+            self.lane_editor.draw(g);
+        }
     }
 }
 
