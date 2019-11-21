@@ -33,7 +33,7 @@ fn main() {
         textures: args.enabled("--textures"),
         dev: args.enabled("--dev"),
     };
-    if args.enabled("--dev") {
+    if flags.dev {
         flags.sim_flags.rng_seed = Some(42);
     }
     let mut settings = ezgui::Settings::new("A/B Street", (1800.0, 800.0));

@@ -59,7 +59,7 @@ pub fn faster_trips_panel(mode: TripMode, ui: &UI) -> Text {
     let baseline = ui.prebaked.finished_trips(time, mode);
 
     // Enable to debug why sim results don't match prebaked.
-    if !now.seems_eq(&baseline) {
+    if false && !now.seems_eq(&baseline) {
         abstutil::write_json(
             "../current_sim.json",
             &ui.primary.sim.get_analytics().finished_trips,

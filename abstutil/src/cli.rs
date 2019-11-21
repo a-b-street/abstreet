@@ -4,6 +4,8 @@ pub struct CmdArgs {
     kv: HashMap<String, String>,
     bits: HashSet<String>,
     free: Vec<String>,
+
+    used: HashSet<String>,
 }
 
 impl CmdArgs {
@@ -12,6 +14,7 @@ impl CmdArgs {
             kv: HashMap::new(),
             bits: HashSet::new(),
             free: Vec::new(),
+            used: HashSet::new(),
         };
 
         for arg in std::env::args().skip(1) {
@@ -41,7 +44,14 @@ impl CmdArgs {
     }
 
     pub fn optional(&mut self, key: &str) -> Option<String> {
-        self.kv.remove(key)
+        if let Some(value) = self.kv.remove(key) {
+            self.used.insert(key.to_string());
+            Some(value)
+        } else if self.used.contains(key) {
+            panic!("args.optional(\"{}\") called twice!", key);
+        } else {
+            None
+        }
     }
 
     pub fn optional_parse<T, E, F: Fn(&str) -> Result<T, E>>(
@@ -57,7 +67,14 @@ impl CmdArgs {
     }
 
     pub fn enabled(&mut self, key: &str) -> bool {
-        self.bits.remove(key)
+        if self.bits.remove(key) {
+            self.used.insert(key.to_string());
+            true
+        } else if self.used.contains(key) {
+            panic!("args.enabled(\"{}\") called twice!", key);
+        } else {
+            false
+        }
     }
 
     pub fn required_free(&mut self) -> String {
