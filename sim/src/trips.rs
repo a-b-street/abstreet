@@ -50,7 +50,12 @@ impl TripManager {
         let mut mode = TripMode::Walk;
         for l in &legs {
             match l {
-                TripLeg::Walk(_, _, _) => {}
+                TripLeg::Walk(_, _, ref spot) => match spot.connection {
+                    SidewalkPOI::DeferredParkingSpot(_, _) => {
+                        mode = TripMode::Drive;
+                    }
+                    _ => {}
+                },
                 TripLeg::Drive(_, _) => {
                     mode = TripMode::Drive;
                 }
