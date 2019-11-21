@@ -1,7 +1,7 @@
 use crate::game::{msg, Transition};
 use crate::sandbox::gameplay::faster_trips::faster_trips_panel;
 use crate::sandbox::gameplay::{manage_overlays, GameplayState};
-use crate::sandbox::overlays::{calculate_intersection_delay, Overlays};
+use crate::sandbox::overlays::Overlays;
 use crate::ui::UI;
 use ezgui::{hotkey, EventCtx, Key, ModalMenu};
 use geom::Duration;
@@ -52,10 +52,7 @@ impl GameplayState for FixTrafficSignals {
             },
             self.time != ui.primary.sim.time(),
         ) {
-            *overlays = Overlays::IntersectionDelay(
-                ui.primary.sim.time(),
-                calculate_intersection_delay(ctx, ui),
-            );
+            *overlays = Overlays::intersection_delay(ctx, ui);
         }
 
         if self.time != ui.primary.sim.time() {

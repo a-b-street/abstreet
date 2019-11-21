@@ -3,6 +3,7 @@ mod gameplay;
 mod overlays;
 mod score;
 
+use self::overlays::Overlays;
 use crate::common::{time_controls, AgentTools, CommonState, SpeedControls};
 use crate::debug::DebugMode;
 use crate::edit::EditMode;
@@ -26,7 +27,7 @@ pub struct SandboxMode {
     general_tools: MenuUnderButton,
     save_tools: MenuUnderButton,
     agent_tools: AgentTools,
-    overlay: overlays::Overlays,
+    overlay: Overlays,
     gameplay: gameplay::GameplayRunner,
     common: CommonState,
     menu: ModalMenu,
@@ -72,7 +73,7 @@ impl SandboxMode {
                 ctx,
             ),
             agent_tools: AgentTools::new(),
-            overlay: overlays::Overlays::Inactive,
+            overlay: Overlays::Inactive,
             gameplay: gameplay::GameplayRunner::initialize(mode, ui, ctx),
             common: CommonState::new(ctx),
             menu: ModalMenu::new(
@@ -231,14 +232,8 @@ impl State for SandboxMode {
                 .contextual_action(Key::T, "throughput over 1-hour buckets")
             {
                 let r = ui.primary.map.get_l(l).parent;
-                let t = ui.primary.sim.time();
                 let bucket = Duration::minutes(60);
-                self.overlay = overlays::Overlays::RoadThroughput {
-                    t,
-                    bucket,
-                    r,
-                    plot: overlays::calculate_road_thruput(r, bucket, ctx, ui),
-                };
+                self.overlay = Overlays::road_throughput(r, bucket, ctx, ui);
             }
         }
         if let Some(ID::Intersection(i)) = ui.primary.current_selection {
@@ -246,14 +241,8 @@ impl State for SandboxMode {
                 .input
                 .contextual_action(Key::T, "throughput over 1-hour buckets")
             {
-                let t = ui.primary.sim.time();
                 let bucket = Duration::minutes(60);
-                self.overlay = overlays::Overlays::IntersectionThroughput {
-                    t,
-                    bucket,
-                    i,
-                    plot: overlays::calculate_intersection_thruput(i, bucket, ctx, ui),
-                };
+                self.overlay = Overlays::intersection_throughput(i, bucket, ctx, ui);
             }
         }
 
