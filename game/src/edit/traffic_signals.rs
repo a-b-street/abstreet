@@ -6,7 +6,7 @@ use crate::render::{
 };
 use crate::ui::{ShowEverything, UI};
 use ezgui::{hotkey, Choice, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu, Text};
-use geom::{Distance, Duration};
+use geom::Duration;
 use map_model::{
     ControlTrafficSignal, EditCmd, IntersectionID, Phase, TurnGroup, TurnID, TurnPriority, TurnType,
 };
@@ -219,40 +219,48 @@ impl State for TrafficSignalEditor {
 
         for g in &self.groups {
             if Some(g.group.clone()) == self.group_selected {
-                batch.push(Color::RED, g.block.clone());
-                batch.extend(
-                    ui.cs.get_def("selected turn", Color::RED),
-                    g.group.geom(&ui.primary.map).dashed_polygons(
-                        BIG_ARROW_THICKNESS,
-                        Distance::meters(1.0),
-                        Distance::meters(0.5),
-                    ),
+                batch.push(ui.cs.get_def("solid selected", Color::RED), g.block.clone());
+                // Overwrite the original thing
+                batch.push(
+                    ui.cs.get("solid selected"),
+                    g.group
+                        .geom(&ui.primary.map)
+                        .make_arrow(BIG_ARROW_THICKNESS)
+                        .unwrap(),
                 );
             } else {
-                let color = match phase.get_priority_group(&g.group) {
-                    TurnPriority::Protected => ui.cs.get("turn protected by traffic signal"),
-                    TurnPriority::Yield => ui
-                        .cs
-                        .get("turn that can yield by traffic signal")
-                        .alpha(1.0),
-                    TurnPriority::Banned => {
-                        ui.cs.get_def("turn not in current phase", Color::BLACK)
-                    }
-                };
-                batch.push(color, g.block.clone());
+                batch.push(
+                    ui.cs.get_def("turn block background", Color::grey(0.6)),
+                    g.block.clone(),
+                );
             }
+            let arrow_color = match phase.get_priority_group(&g.group) {
+                TurnPriority::Protected => ui.cs.get("turn protected by traffic signal"),
+                TurnPriority::Yield => ui
+                    .cs
+                    .get("turn that can yield by traffic signal")
+                    .alpha(1.0),
+                TurnPriority::Banned => ui.cs.get_def("turn not in current phase", Color::BLACK),
+            };
+            batch.push(arrow_color, g.arrow.clone());
         }
         batch.draw(g);
 
         self.diagram.draw(g, &ctx);
 
         self.menu.draw(g);
-        // TODO groups...
-        /*if let Some(t) = self.icon_selected {
-            CommonState::draw_osd(g, ui, &Some(ID::Turn(t)));
-        } else {*/
-        CommonState::draw_osd(g, ui, &None);
-        //}
+        if let Some(ref group) = self.group_selected {
+            CommonState::draw_custom_osd(
+                g,
+                Text::from(Line(format!(
+                    "Turn from {} to {}",
+                    ui.primary.map.get_r(group.from).get_name(),
+                    ui.primary.map.get_r(group.to).get_name()
+                ))),
+            );
+        } else {
+            CommonState::draw_osd(g, ui, &None);
+        }
     }
 }
 

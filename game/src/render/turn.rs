@@ -1,20 +1,19 @@
-use crate::render::{BIG_ARROW_THICKNESS, TURN_ICON_ARROW_LENGTH};
+use crate::render::BIG_ARROW_THICKNESS;
 use ezgui::{Color, GeomBatch, GfxCtx};
-use geom::{Distance, Line, Polygon};
-use map_model::{IntersectionID, Map, RoadID, Turn, TurnGroup, LANE_THICKNESS};
-use std::collections::HashMap;
+use geom::{Distance, Line, PolyLine, Polygon};
+use map_model::{IntersectionID, LaneID, Map, Turn, TurnGroup};
+use std::collections::{HashMap, HashSet};
+
+const TURN_ICON_ARROW_LENGTH: Distance = Distance::const_meters(2.0);
 
 pub struct DrawTurn {}
 
 impl DrawTurn {
-    pub fn full_geom(t: &Turn, batch: &mut GeomBatch, color: Color) {
-        batch.push(color, t.geom.make_arrow(BIG_ARROW_THICKNESS * 2.0).unwrap());
-    }
-
     pub fn draw_full(t: &Turn, g: &mut GfxCtx, color: Color) {
-        let mut batch = GeomBatch::new();
-        DrawTurn::full_geom(t, &mut batch, color);
-        batch.draw(g);
+        g.draw_polygon(
+            color,
+            &t.geom.make_arrow(BIG_ARROW_THICKNESS * 2.0).unwrap(),
+        );
     }
 
     // TODO make a polyline.dashed or something
@@ -45,41 +44,56 @@ impl DrawTurn {
     }
 }
 
-// TODO Don't store these in DrawMap; just generate when we hop into the traffic signal editor.
-// Simplifies apply_map_edits!
 pub struct DrawTurnGroup {
     pub group: TurnGroup,
     pub block: Polygon,
+    pub arrow: Polygon,
 }
 
 impl DrawTurnGroup {
     pub fn for_i(i: IntersectionID, map: &Map) -> Vec<DrawTurnGroup> {
         // TODO Sort by angle here if we want some consistency
         // TODO Handle short roads
-        let mut offset_per_road: HashMap<RoadID, f64> = HashMap::new();
+        let mut offset_per_lane: HashMap<LaneID, usize> = HashMap::new();
         let mut draw = Vec::new();
         for group in TurnGroup::for_i(i, map) {
-            let offset = offset_per_road.entry(group.from).or_insert(0.5);
+            let offset = group
+                .members
+                .iter()
+                .map(|t| *offset_per_lane.entry(t.src).or_insert(0))
+                .max()
+                .unwrap() as f64;
+            let (pl, width) = group.src_center_and_width(map);
+            let slice = pl.exact_slice(
+                offset * TURN_ICON_ARROW_LENGTH,
+                (offset + 1.0) * TURN_ICON_ARROW_LENGTH,
+            );
+            let block = slice.make_polygons(width);
 
-            // TODO center it properly
-            let pl = {
-                let r = map.get_r(group.from);
-                if r.dst_i == i {
-                    r.center_pts.reversed()
-                } else {
-                    r.center_pts.clone()
-                }
+            let arrow = {
+                let angle = group.angle(map);
+                let center = slice.middle();
+                PolyLine::new(vec![
+                    center.project_away(TURN_ICON_ARROW_LENGTH / 2.0, angle.opposite()),
+                    center.project_away(TURN_ICON_ARROW_LENGTH / 2.0, angle),
+                ])
+                .make_arrow(Distance::meters(0.5))
+                .unwrap()
             };
-            // TODO Not number of turns, number of source lanes
-            let block = pl
-                .exact_slice(
-                    *offset * TURN_ICON_ARROW_LENGTH,
-                    (*offset + 1.0) * TURN_ICON_ARROW_LENGTH,
-                )
-                .make_polygons(LANE_THICKNESS * (group.members.len() as f64));
-            draw.push(DrawTurnGroup { group, block });
 
-            *offset += 1.0;
+            let mut seen_lanes = HashSet::new();
+            for t in &group.members {
+                if !seen_lanes.contains(&t.src) {
+                    *offset_per_lane.get_mut(&t.src).unwrap() += 1;
+                    seen_lanes.insert(t.src);
+                }
+            }
+
+            draw.push(DrawTurnGroup {
+                group,
+                block,
+                arrow,
+            });
         }
         draw
     }

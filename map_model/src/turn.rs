@@ -1,6 +1,6 @@
-use crate::{IntersectionID, LaneID, Map, RoadID};
+use crate::{IntersectionID, LaneID, Map, RoadID, LANE_THICKNESS};
 use abstutil::MultiMap;
-use geom::{Angle, PolyLine, Pt2D};
+use geom::{Angle, Distance, PolyLine, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 use std::fmt;
@@ -163,5 +163,41 @@ impl TurnGroup {
             ));
         }
         PolyLine::new(pts)
+    }
+
+    pub fn angle(&self, map: &Map) -> Angle {
+        let t = *self.members.iter().next().unwrap();
+        map.get_t(t).angle()
+    }
+
+    // Polyline points FROM intersection
+    pub fn src_center_and_width(&self, map: &Map) -> (PolyLine, Distance) {
+        let r = map.get_r(self.from);
+        let dir = r.dir_and_offset(self.members.iter().next().unwrap().src).0;
+        let pl = if dir {
+            r.center_pts.clone()
+        } else {
+            r.center_pts.reversed()
+        };
+
+        let mut offsets: Vec<usize> = self
+            .members
+            .iter()
+            .map(|t| r.dir_and_offset(t.src).1)
+            .collect();
+        offsets.sort();
+        offsets.dedup();
+        let offset = if offsets.len() % 2 == 0 {
+            // Middle of two lanes
+            (offsets[offsets.len() / 2] as f64) - 0.5
+        } else {
+            offsets[offsets.len() / 2] as f64
+        };
+        let pl = pl
+            .shift_right(LANE_THICKNESS * (0.5 + offset))
+            .unwrap()
+            .reversed();
+        let width = LANE_THICKNESS * ((*offsets.last().unwrap() - offsets[0] + 1) as f64);
+        (pl, width)
     }
 }
