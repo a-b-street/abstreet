@@ -43,7 +43,6 @@ enum Goal {
 
 impl AgentSpawner {
     pub fn new(ctx: &mut EventCtx, ui: &mut UI) -> Option<Box<dyn State>> {
-        let menu = ModalMenu::new("Agent Spawner", vec![(hotkey(Key::Escape), "quit")], ctx);
         let map = &ui.primary.map;
         match ui.primary.current_selection {
             Some(ID::Building(id)) => {
@@ -66,7 +65,11 @@ impl AgentSpawner {
                     .contextual_action(Key::F3, "spawn a pedestrian starting here just walking")
                 {
                     return Some(Box::new(AgentSpawner {
-                        menu,
+                        menu: ModalMenu::new(
+                            "Agent Spawner",
+                            vec![(hotkey(Key::Escape), "quit")],
+                            ctx,
+                        ),
                         from: Source::WalkFromBldg(id),
                         maybe_goal: None,
                     }));
@@ -80,7 +83,11 @@ impl AgentSpawner {
                     )
                 {
                     return Some(Box::new(AgentSpawner {
-                        menu,
+                        menu: ModalMenu::new(
+                            "Agent Spawner",
+                            vec![(hotkey(Key::Escape), "quit")],
+                            ctx,
+                        ),
                         from: Source::WalkFromBldgThenMaybeUseCar(id),
                         maybe_goal: None,
                     }));
@@ -91,7 +98,11 @@ impl AgentSpawner {
                         .contextual_action(Key::F4, "spawn a car starting here")
                     {
                         return Some(Box::new(AgentSpawner {
-                            menu,
+                            menu: ModalMenu::new(
+                                "Agent Spawner",
+                                vec![(hotkey(Key::Escape), "quit")],
+                                ctx,
+                            ),
                             from: Source::Drive(pos),
                             maybe_goal: None,
                         }));
@@ -103,7 +114,11 @@ impl AgentSpawner {
                         .contextual_action(Key::F7, "spawn a bike starting here")
                     {
                         return Some(Box::new(AgentSpawner {
-                            menu,
+                            menu: ModalMenu::new(
+                                "Agent Spawner",
+                                vec![(hotkey(Key::Escape), "quit")],
+                                ctx,
+                            ),
                             from: Source::BikeFromBldg(id, pos),
                             maybe_goal: None,
                         }));
@@ -117,7 +132,11 @@ impl AgentSpawner {
                         .contextual_action(Key::F3, "spawn a car starting here")
                 {
                     return Some(Box::new(AgentSpawner {
-                        menu,
+                        menu: ModalMenu::new(
+                            "Agent Spawner",
+                            vec![(hotkey(Key::Escape), "quit")],
+                            ctx,
+                        ),
                         from: Source::Drive(Position::new(id, map.get_l(id).length() / 2.0)),
                         maybe_goal: None,
                     }));
@@ -127,7 +146,11 @@ impl AgentSpawner {
                         .contextual_action(Key::F3, "spawn a pedestrian starting here")
                 {
                     return Some(Box::new(AgentSpawner {
-                        menu,
+                        menu: ModalMenu::new(
+                            "Agent Spawner",
+                            vec![(hotkey(Key::Escape), "quit")],
+                            ctx,
+                        ),
                         from: Source::WalkFromSidewalk(Position::new(
                             id,
                             map.get_l(id).length() / 2.0,

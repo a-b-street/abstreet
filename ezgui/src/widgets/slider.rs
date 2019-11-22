@@ -1,8 +1,8 @@
 use crate::layout::{stack_vertically, ContainerOrientation, Widget};
 use crate::widgets::text_box::TextBox;
 use crate::{
-    hotkey, Canvas, Color, EventCtx, EventLoopMode, GfxCtx, InputResult, Key, Line, ModalMenu,
-    MultiKey, ScreenDims, ScreenPt, ScreenRectangle, Text, Warper,
+    hotkey, Canvas, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, InputResult, Key, Line,
+    ModalMenu, MultiKey, ScreenDims, ScreenPt, ScreenRectangle, Text, Warper,
 };
 use geom::{Distance, Duration, Polygon, Pt2D};
 
@@ -98,12 +98,13 @@ impl Slider {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        g.fork_screenspace();
+        // TODO Cache the batch
+        let mut batch = GeomBatch::new();
 
         // A nice background for the entire thing
-        g.draw_polygon(
+        batch.push(
             Color::grey(0.3),
-            &Polygon::rectangle_topleft(
+            Polygon::rectangle_topleft(
                 Pt2D::new(self.top_left.x, self.top_left.y),
                 Distance::meters(self.dims.total_width),
                 Distance::meters(self.dims.bar_height + 2.0 * self.dims.vert_padding),
@@ -117,9 +118,9 @@ impl Slider {
         });
 
         // The bar
-        g.draw_polygon(
+        batch.push(
             Color::WHITE,
-            &Polygon::rectangle_topleft(
+            Polygon::rectangle_topleft(
                 Pt2D::new(
                     self.top_left.x + self.dims.horiz_padding,
                     self.top_left.y + self.dims.vert_padding,
@@ -131,9 +132,9 @@ impl Slider {
 
         // Show the progress
         if self.current_percent != 0.0 {
-            g.draw_polygon(
+            batch.push(
                 Color::GREEN,
-                &Polygon::rectangle_topleft(
+                Polygon::rectangle_topleft(
                     Pt2D::new(
                         self.top_left.x + self.dims.horiz_padding,
                         self.top_left.y + self.dims.vert_padding,
@@ -145,14 +146,18 @@ impl Slider {
         }
 
         // The actual slider
-        g.draw_polygon(
+        batch.push(
             if self.mouse_on_slider {
                 Color::YELLOW
             } else {
                 Color::grey(0.7)
             },
-            &self.slider_geom(),
+            self.slider_geom(),
         );
+
+        g.fork_screenspace();
+        batch.draw(g);
+        g.unfork();
     }
 
     fn slider_geom(&self) -> Polygon {

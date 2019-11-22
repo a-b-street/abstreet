@@ -182,11 +182,7 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
                 )
             )));
         }
-        // TODO No way to trigger the info panel for this yet.
-        ID::Turn(id) => {
-            let t = map.get_t(id);
-            txt.add(Line(format!("{:?}", t.turn_type)));
-        }
+        ID::Turn(_) => unreachable!(),
         ID::Building(id) => {
             let b = map.get_b(id);
             txt.add(Line(format!(
