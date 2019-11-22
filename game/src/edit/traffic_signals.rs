@@ -90,24 +90,22 @@ impl State for TrafficSignalEditor {
             // Just one key to toggle between the 3 states
             let next_priority = match phase.get_priority_group(id, &signal_copy) {
                 TurnPriority::Banned => {
-                    if id.crosswalk.is_some() {
-                        if phase.could_be_protected_group(id, &signal_copy, &ui.primary.map) {
-                            Some(TurnPriority::Protected)
-                        } else {
-                            None
-                        }
+                    if phase.could_be_protected_group(id, &signal_copy, &ui.primary.map) {
+                        Some(TurnPriority::Protected)
+                    } else if id.crosswalk.is_some() {
+                        None
                     } else {
                         Some(TurnPriority::Yield)
                     }
                 }
-                TurnPriority::Yield => {
-                    if phase.could_be_protected_group(id, &signal_copy, &ui.primary.map) {
-                        Some(TurnPriority::Protected)
-                    } else {
+                TurnPriority::Yield => Some(TurnPriority::Banned),
+                TurnPriority::Protected => {
+                    if id.crosswalk.is_some() {
                         Some(TurnPriority::Banned)
+                    } else {
+                        Some(TurnPriority::Yield)
                     }
                 }
-                TurnPriority::Protected => Some(TurnPriority::Banned),
             };
             if let Some(pri) = next_priority {
                 if ctx.input.contextual_action(
@@ -183,7 +181,7 @@ impl State for TrafficSignalEditor {
             let mut phase = Phase::new();
             for t in ui.primary.map.get_turns_in_intersection(self.diagram.i) {
                 if t.turn_type == TurnType::SharedSidewalkCorner {
-                    phase.edit_turn(t, TurnPriority::Protected);
+                    phase.protected_turns.insert(t.id);
                 }
             }
             signal.phases.insert(current_phase + 1, phase);
@@ -193,7 +191,7 @@ impl State for TrafficSignalEditor {
             let mut phase = Phase::new();
             for t in ui.primary.map.get_turns_in_intersection(self.diagram.i) {
                 if t.between_sidewalks() {
-                    phase.edit_turn(t, TurnPriority::Protected);
+                    phase.protected_turns.insert(t.id);
                 }
             }
             signal.phases.insert(current_phase + 1, phase);

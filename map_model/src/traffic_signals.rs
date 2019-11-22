@@ -520,7 +520,7 @@ impl Phase {
         }
     }
 
-    pub fn could_be_protected_turn(&self, t1: TurnID, map: &Map) -> bool {
+    fn could_be_protected_turn(&self, t1: TurnID, map: &Map) -> bool {
         let turn1 = map.get_t(t1);
         for t2 in &self.protected_turns {
             if t1 == *t2 || turn1.conflicts_with(map.get_t(*t2)) {
@@ -540,7 +540,7 @@ impl Phase {
         }
     }
 
-    pub fn edit_turn(&mut self, t: &Turn, pri: TurnPriority) {
+    fn edit_turn(&mut self, t: &Turn, pri: TurnPriority) {
         let mut ids = vec![t.id];
         if t.turn_type == TurnType::Crosswalk {
             ids.extend(t.other_crosswalk_ids.clone());
@@ -564,13 +564,14 @@ impl Phase {
         let mut protected = Vec::new();
         let mut permitted = Vec::new();
         for group in parent.turn_groups.values() {
-            // TODO All or nothing based on the first member. Temporary measure before switching
-            // ControlTrafficSignal to natively understand TurnGroup.
-            let t = group.members[0];
-            if self.protected_turns.contains(&t) {
-                protected.push(group);
-            } else if self.yield_turns.contains(&t) {
-                permitted.push(group);
+            match self.get_priority_group(group.id, parent) {
+                TurnPriority::Protected => {
+                    protected.push(group);
+                }
+                TurnPriority::Yield => {
+                    permitted.push(group);
+                }
+                TurnPriority::Banned => {}
             }
         }
         (protected, permitted)
@@ -581,7 +582,22 @@ impl Phase {
         g: TurnGroupID,
         parent: &ControlTrafficSignal,
     ) -> TurnPriority {
-        self.get_priority(parent.turn_groups[&g].members[0])
+        // Any, not all.
+        if parent.turn_groups[&g]
+            .members
+            .iter()
+            .any(|t| self.get_priority(*t) == TurnPriority::Protected)
+        {
+            return TurnPriority::Protected;
+        }
+        if parent.turn_groups[&g]
+            .members
+            .iter()
+            .any(|t| self.get_priority(*t) == TurnPriority::Yield)
+        {
+            return TurnPriority::Yield;
+        }
+        TurnPriority::Banned
     }
 
     pub fn could_be_protected_group(
@@ -590,7 +606,11 @@ impl Phase {
         parent: &ControlTrafficSignal,
         map: &Map,
     ) -> bool {
-        self.could_be_protected_turn(parent.turn_groups[&g].members[0], map)
+        // All, not any?
+        parent.turn_groups[&g]
+            .members
+            .iter()
+            .all(|t| self.could_be_protected_turn(*t, map))
     }
 
     pub fn edit_group(
@@ -600,7 +620,9 @@ impl Phase {
         parent: &ControlTrafficSignal,
         map: &Map,
     ) {
-        self.edit_turn(map.get_t(parent.turn_groups[&g].members[0]), pri);
+        for t in &parent.turn_groups[&g].members {
+            self.edit_turn(map.get_t(*t), pri);
+        }
     }
 }
 
