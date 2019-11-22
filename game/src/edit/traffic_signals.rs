@@ -8,7 +8,8 @@ use crate::ui::{ShowEverything, UI};
 use ezgui::{hotkey, Choice, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu, Text};
 use geom::Duration;
 use map_model::{
-    ControlTrafficSignal, EditCmd, IntersectionID, Phase, TurnGroup, TurnID, TurnPriority, TurnType,
+    ControlTrafficSignal, EditCmd, IntersectionID, Phase, TurnGroupID, TurnID, TurnPriority,
+    TurnType,
 };
 use std::collections::BTreeSet;
 
@@ -17,7 +18,7 @@ pub struct TrafficSignalEditor {
     menu: ModalMenu,
     diagram: TrafficSignalDiagram,
     groups: Vec<DrawTurnGroup>,
-    group_selected: Option<TurnGroup>,
+    group_selected: Option<TurnGroupID>,
 }
 
 impl TrafficSignalEditor {
@@ -57,6 +58,8 @@ impl TrafficSignalEditor {
 impl State for TrafficSignalEditor {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         let mut signal = ui.primary.map.get_traffic_signal(self.diagram.i).clone();
+        // TODO Temporary hack
+        let signal_copy = signal.clone();
 
         self.menu.event(ctx);
         // TODO This really needs to be shown in the diagram!
@@ -75,20 +78,20 @@ impl State for TrafficSignalEditor {
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
                 for g in &self.groups {
                     if g.block.contains_pt(pt) {
-                        self.group_selected = Some(g.group.clone());
+                        self.group_selected = Some(g.id);
                         break;
                     }
                 }
             }
         }
 
-        if let Some(ref group) = self.group_selected {
+        if let Some(id) = self.group_selected {
             let phase = &mut signal.phases[self.diagram.current_phase()];
             // Just one key to toggle between the 3 states
-            let next_priority = match phase.get_priority_group(group) {
+            let next_priority = match phase.get_priority_group(id, &signal_copy) {
                 TurnPriority::Banned => {
-                    if group.is_crosswalk {
-                        if phase.could_be_protected_group(group, &ui.primary.map) {
+                    if id.crosswalk.is_some() {
+                        if phase.could_be_protected_group(id, &signal_copy, &ui.primary.map) {
                             Some(TurnPriority::Protected)
                         } else {
                             None
@@ -98,7 +101,7 @@ impl State for TrafficSignalEditor {
                     }
                 }
                 TurnPriority::Yield => {
-                    if phase.could_be_protected_group(group, &ui.primary.map) {
+                    if phase.could_be_protected_group(id, &signal_copy, &ui.primary.map) {
                         Some(TurnPriority::Protected)
                     } else {
                         Some(TurnPriority::Banned)
@@ -111,11 +114,11 @@ impl State for TrafficSignalEditor {
                     Key::Space,
                     format!(
                         "toggle from {:?} to {:?}",
-                        phase.get_priority_group(group),
+                        phase.get_priority_group(id, &signal_copy),
                         pri
                     ),
                 ) {
-                    phase.edit_group(group, pri, &ui.primary.map);
+                    phase.edit_group(id, pri, &signal_copy, &ui.primary.map);
                     change_traffic_signal(signal, ui, ctx);
                     return Transition::Keep;
                 }
@@ -177,7 +180,13 @@ impl State for TrafficSignalEditor {
                 ctx,
             );
         } else if self.menu.action("add a new empty phase") {
-            signal.phases.insert(current_phase + 1, Phase::new());
+            let mut phase = Phase::new();
+            for t in ui.primary.map.get_turns_in_intersection(self.diagram.i) {
+                if t.turn_type == TurnType::SharedSidewalkCorner {
+                    phase.edit_turn(t, TurnPriority::Protected);
+                }
+            }
+            signal.phases.insert(current_phase + 1, phase);
             change_traffic_signal(signal, ui, ctx);
             self.diagram = TrafficSignalDiagram::new(self.diagram.i, current_phase + 1, ui, ctx);
         } else if has_sidewalks && self.menu.action("add a new pedestrian scramble phase") {
@@ -210,19 +219,22 @@ impl State for TrafficSignalEditor {
             ui.draw(g, opts, &ui.primary.sim, &ShowEverything::new());
         }
 
-        let phase =
-            &ui.primary.map.get_traffic_signal(self.diagram.i).phases[self.diagram.current_phase()];
+        let signal = ui.primary.map.get_traffic_signal(self.diagram.i);
+        let phase = &signal.phases[self.diagram.current_phase()];
         let ctx = ui.draw_ctx();
         let mut batch = GeomBatch::new();
         draw_signal_phase(phase, self.diagram.i, None, &mut batch, &ctx);
 
         for g in &self.groups {
-            if Some(g.group.clone()) == self.group_selected {
+            if Some(g.id) == self.group_selected {
                 batch.push(ui.cs.get_def("solid selected", Color::RED), g.block.clone());
                 // Overwrite the original thing
                 batch.push(
                     ui.cs.get("solid selected"),
-                    g.group.geom.make_arrow(BIG_ARROW_THICKNESS).unwrap(),
+                    signal.turn_groups[&g.id]
+                        .geom
+                        .make_arrow(BIG_ARROW_THICKNESS)
+                        .unwrap(),
                 );
             } else {
                 batch.push(
@@ -230,7 +242,7 @@ impl State for TrafficSignalEditor {
                     g.block.clone(),
                 );
             }
-            let arrow_color = match phase.get_priority_group(&g.group) {
+            let arrow_color = match phase.get_priority_group(g.id, &signal) {
                 TurnPriority::Protected => ui.cs.get("turn protected by traffic signal"),
                 TurnPriority::Yield => ui
                     .cs
@@ -245,17 +257,17 @@ impl State for TrafficSignalEditor {
         self.diagram.draw(g, &ctx);
 
         self.menu.draw(g);
-        if let Some(ref group) = self.group_selected {
-            let osd = if group.is_crosswalk {
+        if let Some(id) = self.group_selected {
+            let osd = if id.crosswalk.is_some() {
                 Text::from(Line(format!(
                     "Crosswalk across {}",
-                    ui.primary.map.get_r(group.from).get_name()
+                    ui.primary.map.get_r(id.from).get_name()
                 )))
             } else {
                 Text::from(Line(format!(
                     "Turn from {} to {}",
-                    ui.primary.map.get_r(group.from).get_name(),
-                    ui.primary.map.get_r(group.to).get_name()
+                    ui.primary.map.get_r(id.from).get_name(),
+                    ui.primary.map.get_r(id.to).get_name()
                 )))
             };
             CommonState::draw_custom_osd(g, osd);

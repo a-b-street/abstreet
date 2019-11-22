@@ -1,7 +1,7 @@
 use crate::render::BIG_ARROW_THICKNESS;
 use ezgui::{Color, GeomBatch, GfxCtx};
 use geom::{Distance, Line, PolyLine, Polygon};
-use map_model::{IntersectionID, LaneID, Map, Turn, TurnGroup};
+use map_model::{IntersectionID, LaneID, Map, Turn, TurnGroupID};
 use std::collections::{HashMap, HashSet};
 
 const TURN_ICON_ARROW_LENGTH: Distance = Distance::const_meters(2.0);
@@ -45,7 +45,7 @@ impl DrawTurn {
 }
 
 pub struct DrawTurnGroup {
-    pub group: TurnGroup,
+    pub id: TurnGroupID,
     pub block: Polygon,
     pub arrow: Polygon,
 }
@@ -56,7 +56,7 @@ impl DrawTurnGroup {
         // TODO Handle short roads
         let mut offset_per_lane: HashMap<LaneID, usize> = HashMap::new();
         let mut draw = Vec::new();
-        for group in TurnGroup::for_i(i, map) {
+        for group in map.get_traffic_signal(i).turn_groups.values() {
             let offset = group
                 .members
                 .iter()
@@ -89,7 +89,7 @@ impl DrawTurnGroup {
             }
 
             draw.push(DrawTurnGroup {
-                group,
+                id: group.id,
                 block,
                 arrow,
             });

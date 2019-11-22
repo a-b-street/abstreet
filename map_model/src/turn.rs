@@ -2,7 +2,7 @@ use crate::{IntersectionID, LaneID, Map, RoadID, LANE_THICKNESS};
 use abstutil::MultiMap;
 use geom::{Angle, Distance, PolyLine, Pt2D};
 use serde_derive::{Deserialize, Serialize};
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
 
 // Turns are uniquely identified by their (src, dst) lanes and their parent intersection.
@@ -114,15 +114,20 @@ impl Turn {
     }
 }
 
-// TODO Unclear how this plays with different lane types
-#[derive(Clone, PartialEq)]
-pub struct TurnGroup {
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+pub struct TurnGroupID {
     pub from: RoadID,
     pub to: RoadID,
-    // If this is true, there's only one member. Separate TurnGroups for each side of a crosswalk!
-    pub is_crosswalk: bool,
+    // If this is true, there's only one member. There are separate TurnGroups for each side of a
+    // crosswalk! The TurnID is embedded here so the two crosswalks have different IDs.
+    pub crosswalk: Option<TurnID>,
+}
 
-    // Derived
+// TODO Unclear how this plays with different lane types
+// This is only useful for traffic signals currently.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct TurnGroup {
+    pub id: TurnGroupID,
     pub members: Vec<TurnID>,
     // The "overall" path of movement, aka, an "average" of the turn geometry
     pub geom: PolyLine,
@@ -130,8 +135,8 @@ pub struct TurnGroup {
 }
 
 impl TurnGroup {
-    pub fn for_i(i: IntersectionID, map: &Map) -> Vec<TurnGroup> {
-        let mut results = Vec::new();
+    pub(crate) fn for_i(i: IntersectionID, map: &Map) -> BTreeMap<TurnGroupID, TurnGroup> {
+        let mut results = BTreeMap::new();
         let mut groups: MultiMap<(RoadID, RoadID), TurnID> = MultiMap::new();
         for turn in map.get_turns_in_intersection(i) {
             let from = map.get_l(turn.id.src).parent;
@@ -139,14 +144,20 @@ impl TurnGroup {
             match turn.turn_type {
                 TurnType::SharedSidewalkCorner => {}
                 TurnType::Crosswalk => {
-                    results.push(TurnGroup {
+                    let id = TurnGroupID {
                         from,
                         to,
-                        is_crosswalk: true,
-                        members: vec![turn.id],
-                        geom: turn.geom.clone(),
-                        angle: turn.angle(),
-                    });
+                        crosswalk: Some(turn.id),
+                    };
+                    results.insert(
+                        id,
+                        TurnGroup {
+                            id,
+                            members: vec![turn.id],
+                            geom: turn.geom.clone(),
+                            angle: turn.angle(),
+                        },
+                    );
                 }
                 _ => {
                     groups.insert((from, to), turn.id);
@@ -160,21 +171,27 @@ impl TurnGroup {
                 to,
             );
             let members: Vec<TurnID> = members.into_iter().collect();
-            results.push(TurnGroup {
+            let id = TurnGroupID {
                 from,
                 to,
-                is_crosswalk: false,
-                angle: map.get_t(members[0]).angle(),
-                members,
-                geom,
-            });
+                crosswalk: None,
+            };
+            results.insert(
+                id,
+                TurnGroup {
+                    id,
+                    angle: map.get_t(members[0]).angle(),
+                    members,
+                    geom,
+                },
+            );
         }
         results
     }
 
     // Polyline points FROM intersection
     pub fn src_center_and_width(&self, map: &Map) -> (PolyLine, Distance) {
-        let r = map.get_r(self.from);
+        let r = map.get_r(self.id.from);
         let dir = r.dir_and_offset(self.members[0].src).0;
         // Points away from the intersection
         let pl = if dir {
@@ -199,8 +216,11 @@ impl TurnGroup {
             offsets[offsets.len() / 2] as f64
         };
         let pl = pl.shift_right(LANE_THICKNESS * (0.5 + offset)).unwrap();
-        let pl = if self.is_crosswalk
-            && map.get_l(self.members[0].src).src_i == self.members[0].parent
+        let pl = if self
+            .id
+            .crosswalk
+            .map(|t| map.get_l(t.src).src_i == t.parent)
+            .unwrap_or(false)
         {
             pl
         } else {

@@ -34,9 +34,9 @@ pub fn draw_signal_phase(
         }
     }
 
-    let (protected, yielding) = phase.turn_groups(i, ctx.map);
+    let (protected, yielding) = phase.active_turn_groups(ctx.map.get_traffic_signal(i));
     for g in protected {
-        if !g.is_crosswalk {
+        if g.id.crosswalk.is_none() {
             batch.push(
                 protected_color,
                 g.geom.make_arrow(BIG_ARROW_THICKNESS * 2.0).unwrap(),
@@ -44,7 +44,7 @@ pub fn draw_signal_phase(
         }
     }
     for g in yielding {
-        if !g.is_crosswalk {
+        if g.id.crosswalk.is_none() {
             batch.extend(
                 yield_color,
                 g.geom

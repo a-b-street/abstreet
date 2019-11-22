@@ -1,14 +1,22 @@
-use crate::{IntersectionID, Map, RoadID, Turn, TurnGroup, TurnID, TurnPriority, TurnType};
-use abstutil::Timer;
+use crate::{
+    IntersectionID, Map, RoadID, Turn, TurnGroup, TurnGroupID, TurnID, TurnPriority, TurnType,
+};
+use abstutil::{deserialize_btreemap, serialize_btreemap, Timer};
 use geom::Duration;
 use serde_derive::{Deserialize, Serialize};
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ControlTrafficSignal {
     pub id: IntersectionID,
     pub phases: Vec<Phase>,
     pub offset: Duration,
+
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
+    pub turn_groups: BTreeMap<TurnGroupID, TurnGroup>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
@@ -162,6 +170,7 @@ impl ControlTrafficSignal {
             id: intersection,
             phases,
             offset: Duration::ZERO,
+            turn_groups: TurnGroup::for_i(intersection, map),
         };
         // This must succeed
         ts.validate(map).unwrap()
@@ -193,6 +202,7 @@ impl ControlTrafficSignal {
             id: i,
             phases,
             offset: Duration::ZERO,
+            turn_groups: TurnGroup::for_i(i, map),
         };
         ts.validate(map).ok()
     }
@@ -246,6 +256,7 @@ impl ControlTrafficSignal {
             id: i,
             phases,
             offset: Duration::ZERO,
+            turn_groups: TurnGroup::for_i(i, map),
         };
         ts.validate(map).ok()
     }
@@ -292,6 +303,7 @@ impl ControlTrafficSignal {
             id: i,
             phases,
             offset: Duration::ZERO,
+            turn_groups: TurnGroup::for_i(i, map),
         };
         ts.validate(map).ok()
     }
@@ -337,6 +349,7 @@ impl ControlTrafficSignal {
             id: i,
             phases,
             offset: Duration::ZERO,
+            turn_groups: TurnGroup::for_i(i, map),
         };
         ts.validate(map).ok()
     }
@@ -393,6 +406,7 @@ impl ControlTrafficSignal {
             id: i,
             phases,
             offset: Duration::ZERO,
+            turn_groups: TurnGroup::for_i(i, map),
         };
         ts.validate(map).ok()
     }
@@ -420,6 +434,7 @@ impl ControlTrafficSignal {
             id: i,
             phases: vec![all_walk, all_yield],
             offset: Duration::ZERO,
+            turn_groups: TurnGroup::for_i(i, map),
         };
         // This must succeed
         ts.validate(map).unwrap()
@@ -457,6 +472,7 @@ impl ControlTrafficSignal {
             id: i,
             phases,
             offset: Duration::ZERO,
+            turn_groups: TurnGroup::for_i(i, map),
         };
         ts.validate(map).ok()
     }
@@ -541,10 +557,13 @@ impl Phase {
     }
 
     // Returns (protected, permitted)
-    pub fn turn_groups(&self, i: IntersectionID, map: &Map) -> (Vec<TurnGroup>, Vec<TurnGroup>) {
+    pub fn active_turn_groups<'a>(
+        &self,
+        parent: &'a ControlTrafficSignal,
+    ) -> (Vec<&'a TurnGroup>, Vec<&'a TurnGroup>) {
         let mut protected = Vec::new();
         let mut permitted = Vec::new();
-        for group in TurnGroup::for_i(i, map) {
+        for group in parent.turn_groups.values() {
             // TODO All or nothing based on the first member. Temporary measure before switching
             // ControlTrafficSignal to natively understand TurnGroup.
             let t = group.members[0];
@@ -557,16 +576,31 @@ impl Phase {
         (protected, permitted)
     }
 
-    pub fn get_priority_group(&self, g: &TurnGroup) -> TurnPriority {
-        self.get_priority(g.members[0])
+    pub fn get_priority_group(
+        &self,
+        g: TurnGroupID,
+        parent: &ControlTrafficSignal,
+    ) -> TurnPriority {
+        self.get_priority(parent.turn_groups[&g].members[0])
     }
 
-    pub fn could_be_protected_group(&self, g: &TurnGroup, map: &Map) -> bool {
-        self.could_be_protected_turn(g.members[0], map)
+    pub fn could_be_protected_group(
+        &self,
+        g: TurnGroupID,
+        parent: &ControlTrafficSignal,
+        map: &Map,
+    ) -> bool {
+        self.could_be_protected_turn(parent.turn_groups[&g].members[0], map)
     }
 
-    pub fn edit_group(&mut self, g: &TurnGroup, pri: TurnPriority, map: &Map) {
-        self.edit_turn(map.get_t(g.members[0]), pri);
+    pub fn edit_group(
+        &mut self,
+        g: TurnGroupID,
+        pri: TurnPriority,
+        parent: &ControlTrafficSignal,
+        map: &Map,
+    ) {
+        self.edit_turn(map.get_t(parent.turn_groups[&g].members[0]), pri);
     }
 }
 
