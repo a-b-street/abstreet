@@ -115,36 +115,56 @@ impl Turn {
 }
 
 // TODO Unclear how this plays with different lane types
-// This is for vehicles, not sidewalks.
 #[derive(Clone, PartialEq)]
 pub struct TurnGroup {
     pub from: RoadID,
     pub to: RoadID,
+    // If this is true, there's only one member. Separate TurnGroups for each side of a crosswalk!
+    pub is_crosswalk: bool,
 
     // Derived
-    pub members: BTreeSet<TurnID>,
+    pub members: Vec<TurnID>,
 }
 
 impl TurnGroup {
     pub fn for_i(i: IntersectionID, map: &Map) -> Vec<TurnGroup> {
+        let mut results = Vec::new();
         let mut groups: MultiMap<(RoadID, RoadID), TurnID> = MultiMap::new();
         for turn in map.get_turns_in_intersection(i) {
-            if !turn.between_sidewalks() {
-                groups.insert(
-                    (map.get_l(turn.id.src).parent, map.get_l(turn.id.dst).parent),
-                    turn.id,
-                );
+            let from = map.get_l(turn.id.src).parent;
+            let to = map.get_l(turn.id.dst).parent;
+            match turn.turn_type {
+                TurnType::SharedSidewalkCorner => {}
+                TurnType::Crosswalk => {
+                    results.push(TurnGroup {
+                        from,
+                        to,
+                        is_crosswalk: true,
+                        members: vec![turn.id],
+                    });
+                }
+                _ => {
+                    groups.insert((from, to), turn.id);
+                }
             }
         }
-        groups
-            .consume()
-            .into_iter()
-            .map(|((from, to), members)| TurnGroup { from, to, members })
-            .collect()
+        for ((from, to), members) in groups.consume() {
+            results.push(TurnGroup {
+                from,
+                to,
+                is_crosswalk: false,
+                members: members.into_iter().collect(),
+            });
+        }
+        results
     }
 
     pub fn geom(&self, map: &Map) -> PolyLine {
         let polylines: Vec<&PolyLine> = self.members.iter().map(|t| &map.get_t(*t).geom).collect();
+        if self.is_crosswalk {
+            return polylines[0].clone();
+        }
+
         let num_pts = polylines[0].points().len();
         for pl in &polylines {
             if num_pts != pl.points().len() {
@@ -166,14 +186,14 @@ impl TurnGroup {
     }
 
     pub fn angle(&self, map: &Map) -> Angle {
-        let t = *self.members.iter().next().unwrap();
-        map.get_t(t).angle()
+        map.get_t(self.members[0]).angle()
     }
 
     // Polyline points FROM intersection
     pub fn src_center_and_width(&self, map: &Map) -> (PolyLine, Distance) {
         let r = map.get_r(self.from);
-        let dir = r.dir_and_offset(self.members.iter().next().unwrap().src).0;
+        let dir = r.dir_and_offset(self.members[0].src).0;
+        // Points away from the intersection
         let pl = if dir {
             r.center_pts.clone()
         } else {
@@ -187,16 +207,22 @@ impl TurnGroup {
             .collect();
         offsets.sort();
         offsets.dedup();
+        // TODO This breaks if the group is non-contiguous. Add a rightmost bike lane that gets a
+        // crazy left turn.
         let offset = if offsets.len() % 2 == 0 {
             // Middle of two lanes
             (offsets[offsets.len() / 2] as f64) - 0.5
         } else {
             offsets[offsets.len() / 2] as f64
         };
-        let pl = pl
-            .shift_right(LANE_THICKNESS * (0.5 + offset))
-            .unwrap()
-            .reversed();
+        let pl = pl.shift_right(LANE_THICKNESS * (0.5 + offset)).unwrap();
+        let pl = if self.is_crosswalk
+            && map.get_l(self.members[0].src).src_i == self.members[0].parent
+        {
+            pl
+        } else {
+            pl.reversed()
+        };
         let width = LANE_THICKNESS * ((*offsets.last().unwrap() - offsets[0] + 1) as f64);
         (pl, width)
     }

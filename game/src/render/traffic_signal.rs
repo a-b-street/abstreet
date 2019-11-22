@@ -36,20 +36,24 @@ pub fn draw_signal_phase(
 
     let (protected, yielding) = phase.turn_groups(i, ctx.map);
     for g in protected {
-        batch.push(
-            protected_color,
-            g.geom(ctx.map)
-                .make_arrow(BIG_ARROW_THICKNESS * 2.0)
-                .unwrap(),
-        );
+        if !g.is_crosswalk {
+            batch.push(
+                protected_color,
+                g.geom(ctx.map)
+                    .make_arrow(BIG_ARROW_THICKNESS * 2.0)
+                    .unwrap(),
+            );
+        }
     }
     for g in yielding {
-        batch.extend(
-            yield_color,
-            g.geom(ctx.map)
-                .make_arrow_outline(BIG_ARROW_THICKNESS * 2.0, BIG_ARROW_THICKNESS / 2.0)
-                .unwrap(),
-        );
+        if !g.is_crosswalk {
+            batch.extend(
+                yield_color,
+                g.geom(ctx.map)
+                    .make_arrow_outline(BIG_ARROW_THICKNESS * 2.0, BIG_ARROW_THICKNESS / 2.0)
+                    .unwrap(),
+            );
+        }
     }
 
     if time_left.is_none() {

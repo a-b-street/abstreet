@@ -547,10 +547,10 @@ impl Phase {
         for group in TurnGroup::for_i(i, map) {
             // TODO All or nothing based on the first member. Temporary measure before switching
             // ControlTrafficSignal to natively understand TurnGroup.
-            let t = group.members.iter().next().unwrap();
-            if self.protected_turns.contains(t) {
+            let t = group.members[0];
+            if self.protected_turns.contains(&t) {
                 protected.push(group);
-            } else if self.yield_turns.contains(t) {
+            } else if self.yield_turns.contains(&t) {
                 permitted.push(group);
             }
         }
@@ -558,18 +558,15 @@ impl Phase {
     }
 
     pub fn get_priority_group(&self, g: &TurnGroup) -> TurnPriority {
-        let t = *g.members.iter().next().unwrap();
-        self.get_priority(t)
+        self.get_priority(g.members[0])
     }
 
     pub fn could_be_protected_group(&self, g: &TurnGroup, map: &Map) -> bool {
-        let t = *g.members.iter().next().unwrap();
-        self.could_be_protected_turn(t, map)
+        self.could_be_protected_turn(g.members[0], map)
     }
 
     pub fn edit_group(&mut self, g: &TurnGroup, pri: TurnPriority, map: &Map) {
-        let t = *g.members.iter().next().unwrap();
-        self.edit_turn(map.get_t(t), pri);
+        self.edit_turn(map.get_t(g.members[0]), pri);
     }
 }
 

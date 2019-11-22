@@ -87,16 +87,15 @@ impl State for TrafficSignalEditor {
             // Just one key to toggle between the 3 states
             let next_priority = match phase.get_priority_group(group) {
                 TurnPriority::Banned => {
-                    Some(TurnPriority::Yield)
-                    /*if ui.primary.map.get_t(id).turn_type == TurnType::Crosswalk {
-                        if phase.could_be_protected_turn(id, &ui.primary.map) {
+                    if group.is_crosswalk {
+                        if phase.could_be_protected_group(group, &ui.primary.map) {
                             Some(TurnPriority::Protected)
                         } else {
                             None
                         }
                     } else {
                         Some(TurnPriority::Yield)
-                    }*/
+                    }
                 }
                 TurnPriority::Yield => {
                     if phase.could_be_protected_group(group, &ui.primary.map) {
@@ -250,14 +249,19 @@ impl State for TrafficSignalEditor {
 
         self.menu.draw(g);
         if let Some(ref group) = self.group_selected {
-            CommonState::draw_custom_osd(
-                g,
+            let osd = if group.is_crosswalk {
+                Text::from(Line(format!(
+                    "Crosswalk across {}",
+                    ui.primary.map.get_r(group.from).get_name()
+                )))
+            } else {
                 Text::from(Line(format!(
                     "Turn from {} to {}",
                     ui.primary.map.get_r(group.from).get_name(),
                     ui.primary.map.get_r(group.to).get_name()
-                ))),
-            );
+                )))
+            };
+            CommonState::draw_custom_osd(g, osd);
         } else {
             CommonState::draw_osd(g, ui, &None);
         }
