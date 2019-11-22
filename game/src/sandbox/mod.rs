@@ -16,6 +16,7 @@ use ezgui::{
     hotkey, layout, lctrl, Choice, EventCtx, EventLoopMode, GfxCtx, Key, Line, MenuUnderButton,
     ModalMenu, Text, Wizard,
 };
+pub use gameplay::spawner::spawn_agents_around;
 pub use gameplay::GameplayMode;
 use geom::Duration;
 use map_model::MapEdits;

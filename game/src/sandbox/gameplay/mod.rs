@@ -4,7 +4,7 @@ mod fix_traffic_signals;
 mod freeform;
 mod optimize_bus;
 mod play_scenario;
-mod spawner;
+pub mod spawner;
 
 use crate::game::Transition;
 use crate::render::AgentColorScheme;

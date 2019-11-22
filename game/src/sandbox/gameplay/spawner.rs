@@ -300,7 +300,7 @@ impl State for AgentSpawner {
     }
 }
 
-fn spawn_agents_around(i: IntersectionID, ui: &mut UI, ctx: &EventCtx) {
+pub fn spawn_agents_around(i: IntersectionID, ui: &mut UI, ctx: &EventCtx) {
     let map = &ui.primary.map;
     let sim = &mut ui.primary.sim;
     let mut rng = ui.primary.current_flags.sim_flags.make_rng();

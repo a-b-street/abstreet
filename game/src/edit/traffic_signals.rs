@@ -4,14 +4,20 @@ use crate::game::{msg, State, Transition, WizardState};
 use crate::render::{
     draw_signal_phase, DrawOptions, DrawTurnGroup, TrafficSignalDiagram, BIG_ARROW_THICKNESS,
 };
+use crate::sandbox::spawn_agents_around;
 use crate::ui::{ShowEverything, UI};
-use ezgui::{hotkey, Choice, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu, Text};
+use abstutil::{elapsed_seconds, Timer};
+use ezgui::{
+    hotkey, lctrl, Choice, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu,
+    Text,
+};
 use geom::Duration;
 use map_model::{
     ControlTrafficSignal, EditCmd, IntersectionID, Phase, TurnGroupID, TurnID, TurnPriority,
     TurnType,
 };
 use std::collections::BTreeSet;
+use std::time::Instant;
 
 // TODO Warn if there are empty phases or if some turn is completely absent from the signal.
 pub struct TrafficSignalEditor {
@@ -42,6 +48,7 @@ impl TrafficSignalEditor {
                     "convert to dedicated pedestrian scramble phase",
                 ),
                 (hotkey(Key::O), "change signal offset"),
+                (lctrl(Key::P), "preview changes"),
                 (hotkey(Key::Escape), "quit"),
             ],
             ctx,
@@ -205,6 +212,18 @@ impl State for TrafficSignalEditor {
             signal.convert_to_ped_scramble(&ui.primary.map);
             change_traffic_signal(signal, ui, ctx);
             self.diagram = TrafficSignalDiagram::new(self.diagram.i, 0, ui, ctx);
+        }
+
+        if self.menu.action("preview changes") {
+            return Transition::PushWithMode(
+                Box::new(PreviewTrafficSignal::new(
+                    self.diagram.i,
+                    current_phase,
+                    ui,
+                    ctx,
+                )),
+                EventLoopMode::Animation,
+            );
         }
 
         Transition::Keep
@@ -393,4 +412,77 @@ fn check_for_missing_turns(
     *diagram = TrafficSignalDiagram::new(diagram.i, last_phase, ui, ctx);
 
     Transition::Push(msg("Error: missing turns", vec![format!("{} turns are missing from this traffic signal", num_missing), "They've all been added as a new last phase. Please update your changes to include them.".to_string()]))
+}
+
+// TODO Show diagram, auto-sync the phase.
+// TODO Auto quit after things are gone?
+struct PreviewTrafficSignal {
+    menu: ModalMenu,
+    last_step: Instant,
+}
+
+impl PreviewTrafficSignal {
+    fn new(
+        i: IntersectionID,
+        phase_idx: usize,
+        ui: &mut UI,
+        ctx: &EventCtx,
+    ) -> PreviewTrafficSignal {
+        // Start at the current phase
+        let signal = ui.primary.map.get_traffic_signal(i);
+        // TODO Use the offset correctly
+        let mut step = Duration::ZERO;
+        for idx in 0..phase_idx {
+            step += signal.phases[idx].duration;
+        }
+        ui.primary.sim.step(&ui.primary.map, step);
+
+        // This should be a no-op
+        ui.primary
+            .map
+            .recalculate_pathfinding_after_edits(&mut Timer::throwaway());
+        spawn_agents_around(i, ui, ctx);
+
+        PreviewTrafficSignal {
+            menu: ModalMenu::new(
+                "Preview traffic signal",
+                vec![(hotkey(Key::Escape), "back to editing")],
+                ctx,
+            ),
+            last_step: Instant::now(),
+        }
+    }
+}
+
+impl State for PreviewTrafficSignal {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+        self.menu.event(ctx);
+        ctx.canvas.handle_event(ctx.input);
+        if self.menu.action("back to editing") {
+            ui.primary.clear_sim();
+            return Transition::Pop;
+        }
+
+        if ctx.input.nonblocking_is_update_event() {
+            ctx.input.use_update_event();
+            let dt = Duration::seconds(elapsed_seconds(self.last_step));
+            self.last_step = Instant::now();
+            ui.primary
+                .sim
+                .time_limited_step(&ui.primary.map, dt, Duration::seconds(0.1));
+            self.menu.set_info(
+                ctx,
+                Text::from(Line(format!(
+                    "Time: {}",
+                    ui.primary.sim.time().minimal_tostring()
+                ))),
+            );
+        }
+
+        Transition::KeepWithMode(EventLoopMode::Animation)
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        self.menu.draw(g);
+    }
 }
