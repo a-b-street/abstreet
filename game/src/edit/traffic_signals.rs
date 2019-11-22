@@ -177,9 +177,9 @@ impl State for TrafficSignalEditor {
                 ctx,
             );
         } else if self.menu.action("add a new empty phase") {
-            signal.phases.insert(current_phase, Phase::new());
+            signal.phases.insert(current_phase + 1, Phase::new());
             change_traffic_signal(signal, ui, ctx);
-            self.diagram = TrafficSignalDiagram::new(self.diagram.i, current_phase, ui, ctx);
+            self.diagram = TrafficSignalDiagram::new(self.diagram.i, current_phase + 1, ui, ctx);
         } else if has_sidewalks && self.menu.action("add a new pedestrian scramble phase") {
             let mut phase = Phase::new();
             for t in ui.primary.map.get_turns_in_intersection(self.diagram.i) {
@@ -187,9 +187,9 @@ impl State for TrafficSignalEditor {
                     phase.edit_turn(t, TurnPriority::Protected);
                 }
             }
-            signal.phases.insert(current_phase, phase);
+            signal.phases.insert(current_phase + 1, phase);
             change_traffic_signal(signal, ui, ctx);
-            self.diagram = TrafficSignalDiagram::new(self.diagram.i, current_phase, ui, ctx);
+            self.diagram = TrafficSignalDiagram::new(self.diagram.i, current_phase + 1, ui, ctx);
         } else if has_sidewalks
             && self
                 .menu
@@ -222,10 +222,7 @@ impl State for TrafficSignalEditor {
                 // Overwrite the original thing
                 batch.push(
                     ui.cs.get("solid selected"),
-                    g.group
-                        .geom(&ui.primary.map)
-                        .make_arrow(BIG_ARROW_THICKNESS)
-                        .unwrap(),
+                    g.group.geom.make_arrow(BIG_ARROW_THICKNESS).unwrap(),
                 );
             } else {
                 batch.push(

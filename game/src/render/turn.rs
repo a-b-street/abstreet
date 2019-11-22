@@ -71,11 +71,10 @@ impl DrawTurnGroup {
             let block = slice.make_polygons(width);
 
             let arrow = {
-                let angle = group.angle(map);
                 let center = slice.middle();
                 PolyLine::new(vec![
-                    center.project_away(TURN_ICON_ARROW_LENGTH / 2.0, angle.opposite()),
-                    center.project_away(TURN_ICON_ARROW_LENGTH / 2.0, angle),
+                    center.project_away(TURN_ICON_ARROW_LENGTH / 2.0, group.angle.opposite()),
+                    center.project_away(TURN_ICON_ARROW_LENGTH / 2.0, group.angle),
                 ])
                 .make_arrow(Distance::meters(0.5))
                 .unwrap()

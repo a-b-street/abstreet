@@ -39,9 +39,7 @@ pub fn draw_signal_phase(
         if !g.is_crosswalk {
             batch.push(
                 protected_color,
-                g.geom(ctx.map)
-                    .make_arrow(BIG_ARROW_THICKNESS * 2.0)
-                    .unwrap(),
+                g.geom.make_arrow(BIG_ARROW_THICKNESS * 2.0).unwrap(),
             );
         }
     }
@@ -49,7 +47,7 @@ pub fn draw_signal_phase(
         if !g.is_crosswalk {
             batch.extend(
                 yield_color,
-                g.geom(ctx.map)
+                g.geom
                     .make_arrow_outline(BIG_ARROW_THICKNESS * 2.0, BIG_ARROW_THICKNESS / 2.0)
                     .unwrap(),
             );

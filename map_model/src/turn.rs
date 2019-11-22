@@ -124,6 +124,9 @@ pub struct TurnGroup {
 
     // Derived
     pub members: Vec<TurnID>,
+    // The "overall" path of movement, aka, an "average" of the turn geometry
+    pub geom: PolyLine,
+    pub angle: Angle,
 }
 
 impl TurnGroup {
@@ -141,6 +144,8 @@ impl TurnGroup {
                         to,
                         is_crosswalk: true,
                         members: vec![turn.id],
+                        geom: turn.geom.clone(),
+                        angle: turn.angle(),
                     });
                 }
                 _ => {
@@ -149,44 +154,22 @@ impl TurnGroup {
             }
         }
         for ((from, to), members) in groups.consume() {
+            let geom = turn_group_geom(
+                members.iter().map(|t| &map.get_t(*t).geom).collect(),
+                from,
+                to,
+            );
+            let members: Vec<TurnID> = members.into_iter().collect();
             results.push(TurnGroup {
                 from,
                 to,
                 is_crosswalk: false,
-                members: members.into_iter().collect(),
+                angle: map.get_t(members[0]).angle(),
+                members,
+                geom,
             });
         }
         results
-    }
-
-    pub fn geom(&self, map: &Map) -> PolyLine {
-        let polylines: Vec<&PolyLine> = self.members.iter().map(|t| &map.get_t(*t).geom).collect();
-        if self.is_crosswalk {
-            return polylines[0].clone();
-        }
-
-        let num_pts = polylines[0].points().len();
-        for pl in &polylines {
-            if num_pts != pl.points().len() {
-                println!(
-                    "TurnGroup between {} and {} can't make nice geometry",
-                    self.from, self.to
-                );
-                return polylines[0].clone();
-            }
-        }
-
-        let mut pts = Vec::new();
-        for idx in 0..num_pts {
-            pts.push(Pt2D::center(
-                &polylines.iter().map(|pl| pl.points()[idx]).collect(),
-            ));
-        }
-        PolyLine::new(pts)
-    }
-
-    pub fn angle(&self, map: &Map) -> Angle {
-        map.get_t(self.members[0]).angle()
     }
 
     // Polyline points FROM intersection
@@ -226,4 +209,25 @@ impl TurnGroup {
         let width = LANE_THICKNESS * ((*offsets.last().unwrap() - offsets[0] + 1) as f64);
         (pl, width)
     }
+}
+
+fn turn_group_geom(polylines: Vec<&PolyLine>, from: RoadID, to: RoadID) -> PolyLine {
+    let num_pts = polylines[0].points().len();
+    for pl in &polylines {
+        if num_pts != pl.points().len() {
+            println!(
+                "TurnGroup between {} and {} can't make nice geometry",
+                from, to
+            );
+            return polylines[0].clone();
+        }
+    }
+
+    let mut pts = Vec::new();
+    for idx in 0..num_pts {
+        pts.push(Pt2D::center(
+            &polylines.iter().map(|pl| pl.points()[idx]).collect(),
+        ));
+    }
+    PolyLine::new(pts)
 }
