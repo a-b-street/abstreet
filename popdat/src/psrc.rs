@@ -165,9 +165,9 @@ fn import_parcels(
     let output = std::process::Command::new("cs2cs")
         // cs2cs +init=esri:102748 +to +init=epsg:4326 -f '%.5f' foo
         .args(vec![
-            "+init=esri:102748",
+            "esri:102748",
             "+to",
-            "+init=epsg:4326",
+            "epsg:4326",
             "-f",
             "%.5f",
             "/tmp/parcels",
