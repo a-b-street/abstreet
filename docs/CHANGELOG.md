@@ -169,3 +169,15 @@ changes here.
 - new freeform mode tool to spawn bikes
 - WIP (not working yet): make bikes prefer bike lanes. some debug heatmaps for path cost
 - edit mode has proper undo support
+
+0.1.15
+
+- minor bugfixes with reverting lane types, preserving stop signs
+- incorporate edits into the challenge splash screen, make sure edits are reset when appropriate
+- starting a new challenge mode, just focused on traffic signals
+- can't leave traffic signal editor with missing turns
+- render pedestrian crowds on building front paths
+- traffic signals support an offset parameter
+- traffic signal visualization and editing revamped to group related turns together
+- can preview traffic using a signal from the editor
+- actually apply priority at intersections, so protected turns get first dibs over yield turns
