@@ -20,11 +20,11 @@ uniform sampler2D tex11;
 uniform sampler2D tex12;
 uniform sampler2D tex13;
 uniform sampler2D tex14;
-uniform sampler2D tex15;
+/*uniform sampler2D tex15;
 uniform sampler2D tex16;
 uniform sampler2D tex17;
 uniform sampler2D tex18;
-uniform sampler2D tex19;
+uniform sampler2D tex19;*/
 
 in vec4 pass_style;
 out vec4 f_color;
@@ -62,7 +62,7 @@ void main() {
         f_color = texture(tex13, vec2(pass_style[1], pass_style[2]));
     } else if (pass_style[0] == 14.0) {
         f_color = texture(tex14, vec2(pass_style[1], pass_style[2]));
-    } else if (pass_style[0] == 15.0) {
+    /*} else if (pass_style[0] == 15.0) {
         f_color = texture(tex15, vec2(pass_style[1], pass_style[2]));
     } else if (pass_style[0] == 16.0) {
         f_color = texture(tex16, vec2(pass_style[1], pass_style[2]));
@@ -71,7 +71,7 @@ void main() {
     } else if (pass_style[0] == 18.0) {
         f_color = texture(tex18, vec2(pass_style[1], pass_style[2]));
     } else if (pass_style[0] == 19.0) {
-        f_color = texture(tex19, vec2(pass_style[1], pass_style[2]));
+        f_color = texture(tex19, vec2(pass_style[1], pass_style[2]));*/
     } else if (pass_style[0] == 100.0) {
         // The hatching should be done in map-space, so panning/zooming doesn't move the stripes.
         // This is screen_to_map, also accounting for the y-inversion done by the vertex shader.
