@@ -13,8 +13,7 @@ use ezgui::{
 };
 use geom::Duration;
 use map_model::{
-    ControlTrafficSignal, EditCmd, IntersectionID, Phase, TurnGroupID, TurnID, TurnPriority,
-    TurnType,
+    ControlTrafficSignal, EditCmd, IntersectionID, Phase, TurnGroupID, TurnPriority, TurnType,
 };
 use std::collections::BTreeSet;
 use std::time::Instant;
@@ -64,9 +63,7 @@ impl TrafficSignalEditor {
 
 impl State for TrafficSignalEditor {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        let mut signal = ui.primary.map.get_traffic_signal(self.diagram.i).clone();
-        // TODO Temporary hack
-        let signal_copy = signal.clone();
+        let orig_signal = ui.primary.map.get_traffic_signal(self.diagram.i);
 
         self.menu.event(ctx);
         // TODO This really needs to be shown in the diagram!
@@ -74,7 +71,7 @@ impl State for TrafficSignalEditor {
             ctx,
             Text::from(Line(format!(
                 "Signal offset: {}",
-                signal.offset.minimal_tostring()
+                orig_signal.offset.minimal_tostring()
             ))),
         );
         ctx.canvas.handle_event(ctx.input);
@@ -93,11 +90,12 @@ impl State for TrafficSignalEditor {
         }
 
         if let Some(id) = self.group_selected {
-            let phase = &mut signal.phases[self.diagram.current_phase()];
+            let mut new_signal = orig_signal.clone();
+            let phase = &mut new_signal.phases[self.diagram.current_phase()];
             // Just one key to toggle between the 3 states
-            let next_priority = match phase.get_priority_group(id, &signal_copy) {
+            let next_priority = match phase.get_priority_of_group(id) {
                 TurnPriority::Banned => {
-                    if phase.could_be_protected_group(id, &signal_copy, &ui.primary.map) {
+                    if phase.could_be_protected(id, &orig_signal.turn_groups) {
                         Some(TurnPriority::Protected)
                     } else if id.crosswalk.is_some() {
                         None
@@ -119,34 +117,40 @@ impl State for TrafficSignalEditor {
                     Key::Space,
                     format!(
                         "toggle from {:?} to {:?}",
-                        phase.get_priority_group(id, &signal_copy),
+                        phase.get_priority_of_group(id),
                         pri
                     ),
                 ) {
-                    phase.edit_group(id, pri, &signal_copy, &ui.primary.map);
-                    change_traffic_signal(signal, ui, ctx);
+                    phase.edit_group(
+                        &orig_signal.turn_groups[&id],
+                        pri,
+                        &orig_signal.turn_groups,
+                        &ui.primary.map,
+                    );
+                    change_traffic_signal(new_signal, ui, ctx);
                     return Transition::Keep;
                 }
             }
         }
 
         if self.menu.action("quit") {
-            return check_for_missing_turns(signal, &mut self.diagram, ui, ctx);
+            return check_for_missing_groups(orig_signal.clone(), &mut self.diagram, ui, ctx);
         }
 
         if self.menu.action("change phase duration") {
             return Transition::Push(change_phase_duration(
-                signal.phases[self.diagram.current_phase()].duration,
+                orig_signal.phases[self.diagram.current_phase()].duration,
             ));
         } else if self.menu.action("change signal offset") {
-            return Transition::Push(change_offset(signal.offset));
+            return Transition::Push(change_offset(orig_signal.offset));
         } else if self.menu.action("choose a preset signal") {
             return Transition::Push(change_preset(self.diagram.i));
         } else if self.menu.action("reset to original") {
-            signal = ControlTrafficSignal::get_possible_policies(&ui.primary.map, self.diagram.i)
-                .remove(0)
-                .1;
-            change_traffic_signal(signal, ui, ctx);
+            let new_signal =
+                ControlTrafficSignal::get_possible_policies(&ui.primary.map, self.diagram.i)
+                    .remove(0)
+                    .1;
+            change_traffic_signal(new_signal, ui, ctx);
             self.diagram = TrafficSignalDiagram::new(self.diagram.i, 0, ui, ctx);
             return Transition::Keep;
         }
@@ -161,19 +165,22 @@ impl State for TrafficSignalEditor {
         let current_phase = self.diagram.current_phase();
 
         if current_phase != 0 && self.menu.action("move current phase up") {
-            signal.phases.swap(current_phase, current_phase - 1);
-            change_traffic_signal(signal, ui, ctx);
+            let mut new_signal = orig_signal.clone();
+            new_signal.phases.swap(current_phase, current_phase - 1);
+            change_traffic_signal(new_signal, ui, ctx);
             self.diagram = TrafficSignalDiagram::new(self.diagram.i, current_phase - 1, ui, ctx);
-        } else if current_phase != signal.phases.len() - 1
+        } else if current_phase != orig_signal.phases.len() - 1
             && self.menu.action("move current phase down")
         {
-            signal.phases.swap(current_phase, current_phase + 1);
-            change_traffic_signal(signal, ui, ctx);
+            let mut new_signal = orig_signal.clone();
+            new_signal.phases.swap(current_phase, current_phase + 1);
+            change_traffic_signal(new_signal, ui, ctx);
             self.diagram = TrafficSignalDiagram::new(self.diagram.i, current_phase + 1, ui, ctx);
-        } else if signal.phases.len() > 1 && self.menu.action("delete current phase") {
-            signal.phases.remove(current_phase);
-            let num_phases = signal.phases.len();
-            change_traffic_signal(signal, ui, ctx);
+        } else if orig_signal.phases.len() > 1 && self.menu.action("delete current phase") {
+            let mut new_signal = orig_signal.clone();
+            new_signal.phases.remove(current_phase);
+            let num_phases = new_signal.phases.len();
+            change_traffic_signal(new_signal, ui, ctx);
             self.diagram = TrafficSignalDiagram::new(
                 self.diagram.i,
                 if current_phase == num_phases {
@@ -185,32 +192,29 @@ impl State for TrafficSignalEditor {
                 ctx,
             );
         } else if self.menu.action("add a new empty phase") {
-            let mut phase = Phase::new();
-            for t in ui.primary.map.get_turns_in_intersection(self.diagram.i) {
-                if t.turn_type == TurnType::SharedSidewalkCorner {
-                    phase.protected_turns.insert(t.id);
-                }
-            }
-            signal.phases.insert(current_phase + 1, phase);
-            change_traffic_signal(signal, ui, ctx);
+            let mut new_signal = orig_signal.clone();
+            new_signal.phases.insert(current_phase + 1, Phase::new());
+            change_traffic_signal(new_signal, ui, ctx);
             self.diagram = TrafficSignalDiagram::new(self.diagram.i, current_phase + 1, ui, ctx);
         } else if has_sidewalks && self.menu.action("add a new pedestrian scramble phase") {
             let mut phase = Phase::new();
-            for t in ui.primary.map.get_turns_in_intersection(self.diagram.i) {
-                if t.between_sidewalks() {
-                    phase.protected_turns.insert(t.id);
+            for g in orig_signal.turn_groups.values() {
+                if g.turn_type == TurnType::Crosswalk {
+                    phase.protected_groups.insert(g.id);
                 }
             }
-            signal.phases.insert(current_phase + 1, phase);
-            change_traffic_signal(signal, ui, ctx);
+            let mut new_signal = orig_signal.clone();
+            new_signal.phases.insert(current_phase + 1, phase);
+            change_traffic_signal(new_signal, ui, ctx);
             self.diagram = TrafficSignalDiagram::new(self.diagram.i, current_phase + 1, ui, ctx);
         } else if has_sidewalks
             && self
                 .menu
                 .action("convert to dedicated pedestrian scramble phase")
         {
-            signal.convert_to_ped_scramble(&ui.primary.map);
-            change_traffic_signal(signal, ui, ctx);
+            let mut new_signal = orig_signal.clone();
+            new_signal.convert_to_ped_scramble(&ui.primary.map);
+            change_traffic_signal(new_signal, ui, ctx);
             self.diagram = TrafficSignalDiagram::new(self.diagram.i, 0, ui, ctx);
         }
 
@@ -259,7 +263,7 @@ impl State for TrafficSignalEditor {
                     g.block.clone(),
                 );
             }
-            let arrow_color = match phase.get_priority_group(g.id, &signal) {
+            let arrow_color = match phase.get_priority_of_group(g.id) {
                 TurnPriority::Protected => ui.cs.get("turn protected by traffic signal"),
                 TurnPriority::Yield => ui
                     .cs
@@ -369,43 +373,31 @@ fn change_preset(i: IntersectionID) -> Box<dyn State> {
     }))
 }
 
-fn check_for_missing_turns(
+fn check_for_missing_groups(
     mut signal: ControlTrafficSignal,
     diagram: &mut TrafficSignalDiagram,
     ui: &mut UI,
     ctx: &mut EventCtx,
 ) -> Transition {
-    let mut missing_turns: BTreeSet<TurnID> = ui
-        .primary
-        .map
-        .get_i(signal.id)
-        .turns
-        .iter()
-        .cloned()
-        .collect();
+    let mut missing: BTreeSet<TurnGroupID> = signal.turn_groups.keys().cloned().collect();
     for phase in &signal.phases {
-        for t in &phase.protected_turns {
-            missing_turns.remove(t);
+        for g in &phase.protected_groups {
+            missing.remove(g);
         }
-        for t in &phase.yield_turns {
-            missing_turns.remove(t);
+        for g in &phase.yield_groups {
+            missing.remove(g);
         }
     }
-    if missing_turns.is_empty() {
+    if missing.is_empty() {
         let i = signal.id;
-        if let Err(err) = signal.validate(&ui.primary.map) {
+        if let Err(err) = signal.validate() {
             panic!("Edited traffic signal {} finalized with errors: {}", i, err);
         }
         return Transition::Pop;
     }
-    let num_missing = missing_turns.len();
+    let num_missing = missing.len();
     let mut phase = Phase::new();
-    phase.yield_turns = missing_turns;
-    for t in ui.primary.map.get_turns_in_intersection(signal.id) {
-        if t.turn_type == TurnType::SharedSidewalkCorner {
-            phase.protected_turns.insert(t.id);
-        }
-    }
+    phase.yield_groups = missing;
     signal.phases.push(phase);
     let last_phase = signal.phases.len() - 1;
     change_traffic_signal(signal, ui, ctx);

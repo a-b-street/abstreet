@@ -135,7 +135,7 @@ impl IntersectionSimState {
         } else if let Some(ref signal) = map.maybe_get_traffic_signal(i) {
             let (_, phase, _) = signal.current_phase_and_remaining_time(now);
             for (req, _) in all {
-                match phase.get_priority(req.turn) {
+                match phase.get_priority_of_turn(req.turn, signal) {
                     TurnPriority::Protected => {
                         protected.push(req);
                     }
@@ -344,7 +344,7 @@ impl State {
         let (_, phase, remaining_phase_time) = signal.current_phase_and_remaining_time(now);
 
         // Can't go at all this phase.
-        if phase.get_priority(new_req.turn) == TurnPriority::Banned {
+        if phase.get_priority_of_turn(new_req.turn, signal) == TurnPriority::Banned {
             return false;
         }
 

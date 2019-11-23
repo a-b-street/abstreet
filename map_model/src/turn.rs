@@ -49,6 +49,8 @@ impl TurnType {
     }
 }
 
+// TODO This concept may be dated, now that TurnGroups exist. Within a group, the lane-changing
+// turns should be treated as less important.
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy, PartialOrd)]
 pub enum TurnPriority {
     // For stop signs: Can't currently specify this!
@@ -128,6 +130,7 @@ pub struct TurnGroupID {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct TurnGroup {
     pub id: TurnGroupID,
+    pub turn_type: TurnType,
     pub members: Vec<TurnID>,
     // The "overall" path of movement, aka, an "average" of the turn geometry
     pub geom: PolyLine,
@@ -153,6 +156,7 @@ impl TurnGroup {
                         id,
                         TurnGroup {
                             id,
+                            turn_type: TurnType::Crosswalk,
                             members: vec![turn.id],
                             geom: turn.geom.clone(),
                             angle: turn.angle(),
@@ -170,6 +174,23 @@ impl TurnGroup {
                 from,
                 to,
             );
+            let turn_types: BTreeSet<TurnType> = members
+                .iter()
+                .map(|t| match map.get_t(*t).turn_type {
+                    TurnType::Crosswalk | TurnType::SharedSidewalkCorner => unreachable!(),
+                    TurnType::Straight | TurnType::LaneChangeLeft | TurnType::LaneChangeRight => {
+                        TurnType::Straight
+                    }
+                    TurnType::Left => TurnType::Left,
+                    TurnType::Right => TurnType::Right,
+                })
+                .collect();
+            if turn_types.len() > 1 {
+                println!(
+                    "TurnGroup between {} and {} has weird turn types! {:?}",
+                    from, to, turn_types
+                );
+            }
             let members: Vec<TurnID> = members.into_iter().collect();
             let id = TurnGroupID {
                 from,
@@ -180,11 +201,15 @@ impl TurnGroup {
                 id,
                 TurnGroup {
                     id,
+                    turn_type: *turn_types.iter().next().unwrap(),
                     angle: map.get_t(members[0]).angle(),
                     members,
                     geom,
                 },
             );
+        }
+        if results.is_empty() {
+            panic!("{} has no TurnGroups!", i);
         }
         results
     }
@@ -228,6 +253,23 @@ impl TurnGroup {
         };
         let width = LANE_THICKNESS * ((*offsets.last().unwrap() - offsets[0] + 1) as f64);
         (pl, width)
+    }
+
+    pub fn conflicts_with(&self, other: &TurnGroup) -> bool {
+        if self.id == other.id {
+            return false;
+        }
+        if self.turn_type == TurnType::Crosswalk && other.turn_type == TurnType::Crosswalk {
+            return false;
+        }
+
+        if self.id.from == other.id.from {
+            return false;
+        }
+        if self.id.to == other.id.to {
+            return true;
+        }
+        self.geom.intersection(&other.geom).is_some()
     }
 }
 

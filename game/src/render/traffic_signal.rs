@@ -28,52 +28,61 @@ pub fn draw_signal_phase(
         Color::rgba(255, 105, 180, 0.8),
     );
 
+    let signal = ctx.map.get_traffic_signal(i);
     for (id, crosswalk) in &ctx.draw_map.get_i(i).crosswalks {
-        if phase.get_priority(*id) == TurnPriority::Protected {
+        if phase.get_priority_of_turn(*id, signal) == TurnPriority::Protected {
             batch.append(crosswalk.clone());
         }
     }
 
     if true {
-        let (protected, yielding) = phase.active_turn_groups(ctx.map.get_traffic_signal(i));
-        for g in protected {
-            if g.id.crosswalk.is_none() {
+        for g in &phase.protected_groups {
+            if g.crosswalk.is_none() {
                 batch.push(
                     protected_color,
-                    g.geom.make_arrow(BIG_ARROW_THICKNESS * 2.0).unwrap(),
+                    signal.turn_groups[g]
+                        .geom
+                        .make_arrow(BIG_ARROW_THICKNESS * 2.0)
+                        .unwrap(),
                 );
             }
         }
-        for g in yielding {
-            if g.id.crosswalk.is_none() {
+        for g in &phase.yield_groups {
+            if g.crosswalk.is_none() {
                 batch.extend(
                     yield_color,
-                    g.geom
+                    signal.turn_groups[g]
+                        .geom
                         .make_arrow_outline(BIG_ARROW_THICKNESS * 2.0, BIG_ARROW_THICKNESS / 2.0)
                         .unwrap(),
                 );
             }
         }
     } else {
-        // For debugging, can still show individual turns:
-        for t in &phase.protected_turns {
-            let turn = ctx.map.get_t(*t);
-            if !turn.between_sidewalks() {
-                batch.push(
-                    protected_color,
-                    turn.geom.make_arrow(BIG_ARROW_THICKNESS * 2.0).unwrap(),
-                );
+        // For debugging, can still show individual turns
+        for turn in ctx.map.get_turns_in_intersection(i) {
+            if turn.between_sidewalks() {
+                continue;
             }
-        }
-        for t in &phase.yield_turns {
-            let turn = ctx.map.get_t(*t);
-            if !turn.between_sidewalks() {
-                batch.extend(
-                    yield_color,
-                    turn.geom
-                        .make_arrow_outline(BIG_ARROW_THICKNESS * 2.0, BIG_ARROW_THICKNESS / 2.0)
-                        .unwrap(),
-                );
+            match phase.get_priority_of_turn(turn.id, signal) {
+                TurnPriority::Protected => {
+                    batch.push(
+                        protected_color,
+                        turn.geom.make_arrow(BIG_ARROW_THICKNESS * 2.0).unwrap(),
+                    );
+                }
+                TurnPriority::Yield => {
+                    batch.extend(
+                        yield_color,
+                        turn.geom
+                            .make_arrow_outline(
+                                BIG_ARROW_THICKNESS * 2.0,
+                                BIG_ARROW_THICKNESS / 2.0,
+                            )
+                            .unwrap(),
+                    );
+                }
+                TurnPriority::Banned => {}
             }
         }
     }
@@ -115,8 +124,9 @@ fn draw_signal_phase_with_icons(
     batch: &mut GeomBatch,
     ctx: &DrawCtx,
 ) {
+    let signal = ctx.map.get_traffic_signal(i);
     for (id, crosswalk) in &ctx.draw_map.get_i(i).crosswalks {
-        if phase.get_priority(*id) == TurnPriority::Protected {
+        if phase.get_priority_of_turn(*id, signal) == TurnPriority::Protected {
             batch.append(crosswalk.clone());
         }
     }
@@ -138,7 +148,7 @@ fn draw_signal_phase_with_icons(
                 continue;
             }
 
-            match phase.get_priority(turn.id) {
+            match phase.get_priority_of_turn(turn.id, signal) {
                 TurnPriority::Protected => {
                     green.push(turn.id);
                 }

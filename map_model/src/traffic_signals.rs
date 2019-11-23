@@ -1,7 +1,5 @@
-use crate::{
-    IntersectionID, Map, RoadID, Turn, TurnGroup, TurnGroupID, TurnID, TurnPriority, TurnType,
-};
-use abstutil::{deserialize_btreemap, serialize_btreemap, Timer};
+use crate::{IntersectionID, Map, RoadID, TurnGroup, TurnGroupID, TurnID, TurnPriority, TurnType};
+use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap, Timer};
 use geom::Duration;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -21,8 +19,8 @@ pub struct ControlTrafficSignal {
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct Phase {
-    pub protected_turns: BTreeSet<TurnID>,
-    pub yield_turns: BTreeSet<TurnID>,
+    pub protected_groups: BTreeSet<TurnGroupID>,
+    pub yield_groups: BTreeSet<TurnGroupID>,
     pub duration: Duration,
 }
 
@@ -86,44 +84,45 @@ impl ControlTrafficSignal {
         unreachable!()
     }
 
-    pub fn validate(self, map: &Map) -> Result<ControlTrafficSignal, String> {
-        // TODO Reuse assertions from edit_turn.
-
-        // Does the assignment cover the correct set of turns?
-        let expected_turns: BTreeSet<TurnID> = map.get_i(self.id).turns.iter().cloned().collect();
-        let mut actual_turns: BTreeSet<TurnID> = BTreeSet::new();
+    pub fn validate(self) -> Result<ControlTrafficSignal, String> {
+        // Does the assignment cover the correct set of groups?
+        let expected_groups: BTreeSet<TurnGroupID> = self.turn_groups.keys().cloned().collect();
+        let mut actual_groups: BTreeSet<TurnGroupID> = BTreeSet::new();
         for phase in &self.phases {
-            actual_turns.extend(phase.protected_turns.iter());
-            actual_turns.extend(phase.yield_turns.iter());
+            actual_groups.extend(phase.protected_groups.iter());
+            actual_groups.extend(phase.yield_groups.iter());
         }
-        if expected_turns != actual_turns {
-            return Err(format!("Traffic signal assignment for {} broken. Missing turns {:?}, contains irrelevant turns {:?}", self.id, expected_turns.difference(&actual_turns).cloned().collect::<Vec<TurnID>>(), actual_turns.difference(&expected_turns).cloned().collect::<Vec<TurnID>>()));
+        if expected_groups != actual_groups {
+            return Err(format!(
+                "Traffic signal assignment for {} broken. Missing {:?}, contains irrelevant {:?}",
+                self.id,
+                expected_groups
+                    .difference(&actual_groups)
+                    .cloned()
+                    .collect::<Vec<_>>(),
+                actual_groups
+                    .difference(&expected_groups)
+                    .cloned()
+                    .collect::<Vec<_>>()
+            ));
         }
 
         for phase in &self.phases {
-            // Do any of the priority turns in one phase conflict?
-            for t1 in phase.protected_turns.iter().map(|t| map.get_t(*t)) {
-                for t2 in phase.protected_turns.iter().map(|t| map.get_t(*t)) {
-                    if t1.conflicts_with(t2) {
+            // Do any of the priority groups in one phase conflict?
+            for g1 in phase.protected_groups.iter().map(|g| &self.turn_groups[g]) {
+                for g2 in phase.protected_groups.iter().map(|g| &self.turn_groups[g]) {
+                    if g1.conflicts_with(g2) {
                         return Err(format!(
-                            "Traffic signal has conflicting priority turns in one phase:\n{:?}\n\n{:?}",
-                            t1, t2
+                            "Traffic signal has conflicting protected groups in one phase:\n{:?}\n\n{:?}",
+                            g1, g2
                         ));
                     }
                 }
             }
 
-            // Do any of the crosswalks yield? Are all of the SharedSidewalkCorner prioritized?
-            for t in map.get_turns_in_intersection(self.id) {
-                match t.turn_type {
-                    TurnType::Crosswalk => {
-                        assert!(!phase.yield_turns.contains(&t.id));
-                    }
-                    TurnType::SharedSidewalkCorner => {
-                        assert!(phase.protected_turns.contains(&t.id));
-                    }
-                    _ => {}
-                }
+            // Do any of the crosswalks yield?
+            for g in phase.yield_groups.iter().map(|g| &self.turn_groups[g]) {
+                assert!(g.turn_type != TurnType::Crosswalk);
             }
         }
 
@@ -131,49 +130,44 @@ impl ControlTrafficSignal {
     }
 
     fn greedy_assignment(map: &Map, intersection: IntersectionID) -> ControlTrafficSignal {
-        if map.get_turns_in_intersection(intersection).is_empty() {
-            panic!("{} has no turns", intersection);
-        }
+        let turn_groups = TurnGroup::for_i(intersection, map);
 
         let mut phases = Vec::new();
 
-        // Greedily partition turns into phases. More clever things later. No yields.
-        let mut remaining_turns: Vec<TurnID> = map
-            .get_turns_in_intersection(intersection)
-            .iter()
-            .map(|t| t.id)
-            .collect();
+        // Greedily partition groups into phases that only have protected groups.
+        let mut remaining_groups: Vec<TurnGroupID> = turn_groups.keys().cloned().collect();
         let mut current_phase = Phase::new();
         loop {
-            let add_turn = remaining_turns
+            let add = remaining_groups
                 .iter()
-                .position(|&t| current_phase.could_be_protected_turn(t, map));
-            match add_turn {
+                .position(|&g| current_phase.could_be_protected(g, &turn_groups));
+            match add {
                 Some(idx) => {
                     current_phase
-                        .protected_turns
-                        .insert(remaining_turns.remove(idx));
+                        .protected_groups
+                        .insert(remaining_groups.remove(idx));
                 }
                 None => {
+                    assert!(!current_phase.protected_groups.is_empty());
                     phases.push(current_phase);
                     current_phase = Phase::new();
-                    if remaining_turns.is_empty() {
+                    if remaining_groups.is_empty() {
                         break;
                     }
                 }
             }
         }
 
-        expand_all_phases(&mut phases, map, intersection);
+        expand_all_phases(&mut phases, &turn_groups);
 
         let ts = ControlTrafficSignal {
             id: intersection,
             phases,
             offset: Duration::ZERO,
-            turn_groups: TurnGroup::for_i(intersection, map),
+            turn_groups,
         };
         // This must succeed
-        ts.validate(map).unwrap()
+        ts.validate().unwrap()
     }
 
     fn degenerate(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
@@ -187,11 +181,7 @@ impl ControlTrafficSignal {
         // TODO One-ways downtown should also have crosswalks.
         let has_crosswalks = !map.get_r(r1).children_backwards.is_empty()
             || !map.get_r(r2).children_backwards.is_empty();
-        let mut phases = vec![vec![
-            (vec![r1, r2], TurnType::Straight, PROTECTED),
-            (vec![r1, r2], TurnType::LaneChangeLeft, YIELD),
-            (vec![r1, r2], TurnType::LaneChangeRight, YIELD),
-        ]];
+        let mut phases = vec![vec![(vec![r1, r2], TurnType::Straight, PROTECTED)]];
         if has_crosswalks {
             phases.push(vec![(vec![r1, r2], TurnType::Crosswalk, PROTECTED)]);
         }
@@ -204,23 +194,20 @@ impl ControlTrafficSignal {
             offset: Duration::ZERO,
             turn_groups: TurnGroup::for_i(i, map),
         };
-        ts.validate(map).ok()
+        ts.validate().ok()
     }
 
     fn three_way(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
         if map.get_i(i).roads.len() != 3 {
             return None;
         }
+        let turn_groups = TurnGroup::for_i(i, map);
 
         // Picture a T intersection. Use turn angles to figure out the "main" two roads.
-        let straight_turn = map
-            .get_turns_in_intersection(i)
-            .into_iter()
-            .find(|t| t.turn_type == TurnType::Straight)?;
-        let (north, south) = (
-            map.get_l(straight_turn.id.src).parent,
-            map.get_l(straight_turn.id.dst).parent,
-        );
+        let straight = turn_groups
+            .values()
+            .find(|g| g.turn_type == TurnType::Straight)?;
+        let (north, south) = (straight.id.from, straight.id.to);
         let mut roads = map.get_i(i).roads.clone();
         roads.remove(&north);
         roads.remove(&south);
@@ -233,8 +220,6 @@ impl ControlTrafficSignal {
             vec![
                 vec![
                     (vec![north, south], TurnType::Straight, PROTECTED),
-                    (vec![north, south], TurnType::LaneChangeLeft, YIELD),
-                    (vec![north, south], TurnType::LaneChangeRight, YIELD),
                     (vec![north, south], TurnType::Right, YIELD),
                     (vec![north, south], TurnType::Left, YIELD),
                     (vec![east], TurnType::Right, YIELD),
@@ -242,8 +227,6 @@ impl ControlTrafficSignal {
                 ],
                 vec![
                     (vec![east], TurnType::Straight, PROTECTED),
-                    (vec![east], TurnType::LaneChangeLeft, YIELD),
-                    (vec![east], TurnType::LaneChangeRight, YIELD),
                     (vec![east], TurnType::Right, YIELD),
                     (vec![east], TurnType::Left, YIELD),
                     (vec![north, south], TurnType::Right, YIELD),
@@ -256,9 +239,9 @@ impl ControlTrafficSignal {
             id: i,
             phases,
             offset: Duration::ZERO,
-            turn_groups: TurnGroup::for_i(i, map),
+            turn_groups,
         };
-        ts.validate(map).ok()
+        ts.validate().ok()
     }
 
     fn four_way_four_phase(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
@@ -280,8 +263,6 @@ impl ControlTrafficSignal {
             vec![
                 vec![
                     (vec![north, south], TurnType::Straight, PROTECTED),
-                    (vec![north, south], TurnType::LaneChangeLeft, YIELD),
-                    (vec![north, south], TurnType::LaneChangeRight, YIELD),
                     (vec![north, south], TurnType::Right, YIELD),
                     (vec![east, west], TurnType::Right, YIELD),
                     (vec![east, west], TurnType::Crosswalk, PROTECTED),
@@ -289,8 +270,6 @@ impl ControlTrafficSignal {
                 vec![(vec![north, south], TurnType::Left, PROTECTED)],
                 vec![
                     (vec![east, west], TurnType::Straight, PROTECTED),
-                    (vec![east, west], TurnType::LaneChangeLeft, YIELD),
-                    (vec![east, west], TurnType::LaneChangeRight, YIELD),
                     (vec![east, west], TurnType::Right, YIELD),
                     (vec![north, south], TurnType::Right, YIELD),
                     (vec![north, south], TurnType::Crosswalk, PROTECTED),
@@ -305,7 +284,7 @@ impl ControlTrafficSignal {
             offset: Duration::ZERO,
             turn_groups: TurnGroup::for_i(i, map),
         };
-        ts.validate(map).ok()
+        ts.validate().ok()
     }
 
     fn four_way_two_phase(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
@@ -326,8 +305,6 @@ impl ControlTrafficSignal {
             vec![
                 vec![
                     (vec![north, south], TurnType::Straight, PROTECTED),
-                    (vec![north, south], TurnType::LaneChangeLeft, YIELD),
-                    (vec![north, south], TurnType::LaneChangeRight, YIELD),
                     (vec![north, south], TurnType::Right, YIELD),
                     (vec![north, south], TurnType::Left, YIELD),
                     (vec![east, west], TurnType::Right, YIELD),
@@ -335,8 +312,6 @@ impl ControlTrafficSignal {
                 ],
                 vec![
                     (vec![east, west], TurnType::Straight, PROTECTED),
-                    (vec![east, west], TurnType::LaneChangeLeft, YIELD),
-                    (vec![east, west], TurnType::LaneChangeRight, YIELD),
                     (vec![east, west], TurnType::Right, YIELD),
                     (vec![east, west], TurnType::Left, YIELD),
                     (vec![north, south], TurnType::Right, YIELD),
@@ -351,7 +326,7 @@ impl ControlTrafficSignal {
             offset: Duration::ZERO,
             turn_groups: TurnGroup::for_i(i, map),
         };
-        ts.validate(map).ok()
+        ts.validate().ok()
     }
 
     fn four_oneways(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
@@ -378,8 +353,6 @@ impl ControlTrafficSignal {
             vec![
                 vec![
                     (vec![r1], TurnType::Straight, PROTECTED),
-                    (vec![r1], TurnType::LaneChangeLeft, YIELD),
-                    (vec![r1], TurnType::LaneChangeRight, YIELD),
                     (vec![r1], TurnType::Crosswalk, PROTECTED),
                     // TODO Technically, upgrade to protected if there's no opposing crosswalk --
                     // even though it doesn't matter much.
@@ -390,8 +363,6 @@ impl ControlTrafficSignal {
                 ],
                 vec![
                     (vec![r2], TurnType::Straight, PROTECTED),
-                    (vec![r2], TurnType::LaneChangeLeft, YIELD),
-                    (vec![r2], TurnType::LaneChangeRight, YIELD),
                     (vec![r2], TurnType::Crosswalk, PROTECTED),
                     // TODO Technically, upgrade to protected if there's no opposing crosswalk --
                     // even though it doesn't matter much.
@@ -408,24 +379,22 @@ impl ControlTrafficSignal {
             offset: Duration::ZERO,
             turn_groups: TurnGroup::for_i(i, map),
         };
-        ts.validate(map).ok()
+        ts.validate().ok()
     }
 
     fn all_walk_all_yield(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
+        let turn_groups = TurnGroup::for_i(i, map);
+
         let mut all_walk = Phase::new();
         let mut all_yield = Phase::new();
 
-        for turn in map.get_turns_in_intersection(i) {
-            match turn.turn_type {
-                TurnType::SharedSidewalkCorner => {
-                    all_walk.protected_turns.insert(turn.id);
-                    all_yield.protected_turns.insert(turn.id);
-                }
+        for group in turn_groups.values() {
+            match group.turn_type {
                 TurnType::Crosswalk => {
-                    all_walk.protected_turns.insert(turn.id);
+                    all_walk.protected_groups.insert(group.id);
                 }
                 _ => {
-                    all_yield.yield_turns.insert(turn.id);
+                    all_yield.yield_groups.insert(group.id);
                 }
             }
         }
@@ -434,13 +403,15 @@ impl ControlTrafficSignal {
             id: i,
             phases: vec![all_walk, all_yield],
             offset: Duration::ZERO,
-            turn_groups: TurnGroup::for_i(i, map),
+            turn_groups,
         };
         // This must succeed
-        ts.validate(map).unwrap()
+        ts.validate().unwrap()
     }
 
     fn phase_per_road(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
+        let turn_groups = TurnGroup::for_i(i, map);
+
         let mut phases = Vec::new();
         let sorted_roads = map
             .get_i(i)
@@ -451,20 +422,17 @@ impl ControlTrafficSignal {
             let adj2 = *abstutil::wraparound_get(&sorted_roads, (idx as isize) + 1);
 
             let mut phase = Phase::new();
-            for turn in map.get_turns_in_intersection(i) {
-                let parent = map.get_l(turn.id.src).parent;
-                if turn.turn_type == TurnType::SharedSidewalkCorner {
-                    phase.protected_turns.insert(turn.id);
-                } else if turn.turn_type == TurnType::Crosswalk {
-                    if parent == adj1 || parent == adj2 {
-                        phase.protected_turns.insert(turn.id);
+            for group in turn_groups.values() {
+                if group.turn_type == TurnType::Crosswalk {
+                    if group.id.from == adj1 || group.id.from == adj2 {
+                        phase.protected_groups.insert(group.id);
                     }
-                } else if parent == r {
-                    phase.yield_turns.insert(turn.id);
+                } else if group.id.from == r {
+                    phase.yield_groups.insert(group.id);
                 }
             }
             // Might have a one-way outgoing road. Skip it.
-            if !phase.yield_turns.is_empty() {
+            if !phase.yield_groups.is_empty() {
                 phases.push(phase);
             }
         }
@@ -472,39 +440,38 @@ impl ControlTrafficSignal {
             id: i,
             phases,
             offset: Duration::ZERO,
-            turn_groups: TurnGroup::for_i(i, map),
+            turn_groups,
         };
-        ts.validate(map).ok()
+        ts.validate().ok()
     }
 
     pub fn convert_to_ped_scramble(&mut self, map: &Map) {
-        // Remove Crosswalk turns from existing phases.
-        for phase in self.phases.iter_mut() {
-            // Crosswalks are usually only protected_turns, but also clear out from yield_turns.
-            for t in map.get_turns_in_intersection(self.id) {
-                if t.turn_type == TurnType::Crosswalk {
-                    phase.protected_turns.remove(&t.id);
-                    phase.yield_turns.remove(&t.id);
-                }
-            }
+        // Remove Crosswalk groups from existing phases.
+        let mut replaced = std::mem::replace(&mut self.phases, Vec::new());
+        for phase in replaced.iter_mut() {
+            // Crosswalks are only in protected_groups.
+            retain_btreeset(&mut phase.protected_groups, |g| {
+                self.turn_groups[g].turn_type != TurnType::Crosswalk
+            });
 
-            // Blindly try to promote yield turns to protected, now that crosswalks are gone.
+            // Blindly try to promote yield groups to protected, now that crosswalks are gone.
             let mut promoted = Vec::new();
-            for t in &phase.yield_turns {
-                if phase.could_be_protected_turn(*t, map) {
-                    phase.protected_turns.insert(*t);
-                    promoted.push(*t);
+            for g in &phase.yield_groups {
+                if phase.could_be_protected(*g, &self.turn_groups) {
+                    phase.protected_groups.insert(*g);
+                    promoted.push(*g);
                 }
             }
-            for t in promoted {
-                phase.yield_turns.remove(&t);
+            for g in promoted {
+                phase.yield_groups.remove(&g);
             }
         }
+        self.phases = replaced;
 
         let mut phase = Phase::new();
-        for t in map.get_turns_in_intersection(self.id) {
-            if t.between_sidewalks() {
-                phase.edit_turn(t, TurnPriority::Protected);
+        for g in self.turn_groups.values() {
+            if g.turn_type == TurnType::Crosswalk {
+                phase.edit_group(g, TurnPriority::Protected, &self.turn_groups, map);
             }
         }
         self.phases.push(phase);
@@ -514,129 +481,83 @@ impl ControlTrafficSignal {
 impl Phase {
     pub fn new() -> Phase {
         Phase {
-            protected_turns: BTreeSet::new(),
-            yield_turns: BTreeSet::new(),
+            protected_groups: BTreeSet::new(),
+            yield_groups: BTreeSet::new(),
             duration: Duration::seconds(30.0),
         }
     }
 
-    fn could_be_protected_turn(&self, t1: TurnID, map: &Map) -> bool {
-        let turn1 = map.get_t(t1);
-        for t2 in &self.protected_turns {
-            if t1 == *t2 || turn1.conflicts_with(map.get_t(*t2)) {
+    pub fn could_be_protected(
+        &self,
+        g1: TurnGroupID,
+        turn_groups: &BTreeMap<TurnGroupID, TurnGroup>,
+    ) -> bool {
+        let group1 = &turn_groups[&g1];
+        for g2 in &self.protected_groups {
+            if g1 == *g2 || group1.conflicts_with(&turn_groups[g2]) {
                 return false;
             }
         }
         true
     }
 
-    pub fn get_priority(&self, t: TurnID) -> TurnPriority {
-        if self.protected_turns.contains(&t) {
+    pub fn get_priority_of_turn(&self, t: TurnID, parent: &ControlTrafficSignal) -> TurnPriority {
+        // TODO Cache this?
+        let g = parent
+            .turn_groups
+            .values()
+            .find(|g| g.members.contains(&t))
+            .map(|g| g.id)
+            .unwrap();
+        self.get_priority_of_group(g)
+    }
+
+    pub fn get_priority_of_group(&self, g: TurnGroupID) -> TurnPriority {
+        if self.protected_groups.contains(&g) {
             TurnPriority::Protected
-        } else if self.yield_turns.contains(&t) {
+        } else if self.yield_groups.contains(&g) {
             TurnPriority::Yield
         } else {
             TurnPriority::Banned
         }
     }
 
-    fn edit_turn(&mut self, t: &Turn, pri: TurnPriority) {
-        let mut ids = vec![t.id];
-        if t.turn_type == TurnType::Crosswalk {
-            ids.extend(t.other_crosswalk_ids.clone());
-        }
-        for id in ids {
-            self.protected_turns.remove(&id);
-            self.yield_turns.remove(&id);
-            if pri == TurnPriority::Protected {
-                self.protected_turns.insert(id);
-            } else if pri == TurnPriority::Yield {
-                self.yield_turns.insert(id);
-            }
-        }
-    }
-
-    // Returns (protected, permitted)
-    pub fn active_turn_groups<'a>(
-        &self,
-        parent: &'a ControlTrafficSignal,
-    ) -> (Vec<&'a TurnGroup>, Vec<&'a TurnGroup>) {
-        let mut protected = Vec::new();
-        let mut permitted = Vec::new();
-        for group in parent.turn_groups.values() {
-            match self.get_priority_group(group.id, parent) {
-                TurnPriority::Protected => {
-                    protected.push(group);
-                }
-                TurnPriority::Yield => {
-                    permitted.push(group);
-                }
-                TurnPriority::Banned => {}
-            }
-        }
-        (protected, permitted)
-    }
-
-    pub fn get_priority_group(
-        &self,
-        g: TurnGroupID,
-        parent: &ControlTrafficSignal,
-    ) -> TurnPriority {
-        // Any, not all.
-        if parent.turn_groups[&g]
-            .members
-            .iter()
-            .any(|t| self.get_priority(*t) == TurnPriority::Protected)
-        {
-            return TurnPriority::Protected;
-        }
-        if parent.turn_groups[&g]
-            .members
-            .iter()
-            .any(|t| self.get_priority(*t) == TurnPriority::Yield)
-        {
-            return TurnPriority::Yield;
-        }
-        TurnPriority::Banned
-    }
-
-    pub fn could_be_protected_group(
-        &self,
-        g: TurnGroupID,
-        parent: &ControlTrafficSignal,
-        map: &Map,
-    ) -> bool {
-        // All, not any?
-        parent.turn_groups[&g]
-            .members
-            .iter()
-            .all(|t| self.could_be_protected_turn(*t, map))
-    }
-
     pub fn edit_group(
         &mut self,
-        g: TurnGroupID,
+        g: &TurnGroup,
         pri: TurnPriority,
-        parent: &ControlTrafficSignal,
+        turn_groups: &BTreeMap<TurnGroupID, TurnGroup>,
         map: &Map,
     ) {
-        for t in &parent.turn_groups[&g].members {
-            self.edit_turn(map.get_t(*t), pri);
+        let mut ids = vec![g.id];
+        if g.turn_type == TurnType::Crosswalk {
+            for t in &map.get_t(g.id.crosswalk.unwrap()).other_crosswalk_ids {
+                ids.push(
+                    *turn_groups
+                        .keys()
+                        .find(|id| id.crosswalk == Some(*t))
+                        .unwrap(),
+                );
+            }
+        }
+        for id in ids {
+            self.protected_groups.remove(&id);
+            self.yield_groups.remove(&id);
+            if pri == TurnPriority::Protected {
+                self.protected_groups.insert(id);
+            } else if pri == TurnPriority::Yield {
+                self.yield_groups.insert(id);
+            }
         }
     }
 }
 
-// Add all legal protected turns to existing phases.
-fn expand_all_phases(phases: &mut Vec<Phase>, map: &Map, intersection: IntersectionID) {
-    let all_turns: Vec<TurnID> = map
-        .get_turns_in_intersection(intersection)
-        .iter()
-        .map(|t| t.id)
-        .collect();
+// Add all possible protected groups to existing phases.
+fn expand_all_phases(phases: &mut Vec<Phase>, turn_groups: &BTreeMap<TurnGroupID, TurnGroup>) {
     for phase in phases.iter_mut() {
-        for t in &all_turns {
-            if !phase.protected_turns.contains(t) && phase.could_be_protected_turn(*t, map) {
-                phase.protected_turns.insert(*t);
+        for g in turn_groups.keys() {
+            if phase.could_be_protected(*g, turn_groups) {
+                phase.protected_groups.insert(*g);
             }
         }
     }
@@ -650,38 +571,34 @@ fn make_phases(
     i: IntersectionID,
     phase_specs: Vec<Vec<(Vec<RoadID>, TurnType, bool)>>,
 ) -> Vec<Phase> {
+    // TODO Could pass this in instead of recompute...
+    let turn_groups = TurnGroup::for_i(i, map);
     let mut phases: Vec<Phase> = Vec::new();
 
     for specs in phase_specs {
         let mut phase = Phase::new();
-        let mut empty = true;
 
         for (roads, turn_type, protected) in specs.into_iter() {
-            for turn in map.get_turns_in_intersection(i) {
-                // These never conflict with anything.
-                if turn.turn_type == TurnType::SharedSidewalkCorner {
-                    phase.protected_turns.insert(turn.id);
+            for group in turn_groups.values() {
+                if !roads.contains(&group.id.from) || turn_type != group.turn_type {
                     continue;
                 }
 
-                if !roads.contains(&map.get_l(turn.id.src).parent) || turn_type != turn.turn_type {
-                    continue;
-                }
-
-                phase.edit_turn(
-                    turn,
+                phase.edit_group(
+                    group,
                     if protected {
                         TurnPriority::Protected
                     } else {
                         TurnPriority::Yield
                     },
+                    &turn_groups,
+                    map,
                 );
-                empty = false;
             }
         }
 
         // Filter out empty phases if they happen.
-        if empty {
+        if phase.protected_groups.is_empty() && phase.yield_groups.is_empty() {
             continue;
         }
 
