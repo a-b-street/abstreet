@@ -561,7 +561,7 @@ impl DrivingSimState {
                 Traversable::Lane(l) => map.get_l(l).src_i,
                 Traversable::Turn(t) => t.parent,
             };
-            intersections.space_freed(now, i, scheduler);
+            intersections.space_freed(now, i, scheduler, map);
         }
 
         // We might be vanishing while partly clipping into other stuff.
@@ -672,11 +672,17 @@ impl DrivingSimState {
             old_queue.laggy_head = None;
             match on {
                 Traversable::Turn(t) => {
-                    intersections.turn_finished(now, AgentID::Car(car.vehicle.id), *t, scheduler);
+                    intersections.turn_finished(
+                        now,
+                        AgentID::Car(car.vehicle.id),
+                        *t,
+                        scheduler,
+                        map,
+                    );
                 }
                 Traversable::Lane(l) => {
                     old_queue.free_reserved_space(car);
-                    intersections.space_freed(now, map.get_l(*l).src_i, scheduler);
+                    intersections.space_freed(now, map.get_l(*l).src_i, scheduler, map);
                 }
             }
 

@@ -168,7 +168,13 @@ impl WalkingSimState {
                     }
                 } else {
                     if let PathStep::Turn(t) = ped.path.current_step() {
-                        intersections.turn_finished(now, AgentID::Pedestrian(ped.id), t, scheduler);
+                        intersections.turn_finished(
+                            now,
+                            AgentID::Pedestrian(ped.id),
+                            t,
+                            scheduler,
+                            map,
+                        );
                     }
 
                     let dist = dist_int.end;

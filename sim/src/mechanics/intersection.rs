@@ -79,10 +79,13 @@ impl IntersectionSimState {
         agent: AgentID,
         turn: TurnID,
         scheduler: &mut Scheduler,
+        map: &Map,
     ) {
         let state = self.state.get_mut(&turn.parent).unwrap();
         assert!(state.accepted.remove(&Request { agent, turn }));
-        self.wakeup_waiting(now, turn.parent, scheduler);
+        if map.get_t(turn).turn_type != TurnType::SharedSidewalkCorner {
+            self.wakeup_waiting(now, turn.parent, scheduler, map);
+        }
     }
 
     // For deleting cars
@@ -91,22 +94,73 @@ impl IntersectionSimState {
         state.waiting.remove(&Request { agent, turn });
     }
 
-    pub fn space_freed(&mut self, now: Duration, i: IntersectionID, scheduler: &mut Scheduler) {
-        self.wakeup_waiting(now, i, scheduler);
+    pub fn space_freed(
+        &mut self,
+        now: Duration,
+        i: IntersectionID,
+        scheduler: &mut Scheduler,
+        map: &Map,
+    ) {
+        self.wakeup_waiting(now, i, scheduler, map);
     }
 
-    fn wakeup_waiting(&self, now: Duration, i: IntersectionID, scheduler: &mut Scheduler) {
-        // TODO Only wake up agents that would then be accepted.
-
-        // Sort by waiting time, so things like stop signs actually are first-come, first-served.
-        // TODO Actually, this should be by priority first.
-        let mut waiting: Vec<(Request, Duration)> = self.state[&i]
+    fn wakeup_waiting(
+        &self,
+        now: Duration,
+        i: IntersectionID,
+        scheduler: &mut Scheduler,
+        map: &Map,
+    ) {
+        /*if i == IntersectionID(64) {
+            println!("at {}: wakeup_waiting -----------------", now);
+        }*/
+        let mut all: Vec<(Request, Duration)> = self.state[&i]
             .waiting
             .iter()
-            .map(|(req, t)| (req.clone(), *t))
+            .map(|(r, t)| (r.clone(), *t))
             .collect();
-        waiting.sort_by_key(|(_, t)| *t);
-        for (req, _) in waiting {
+        // Sort by waiting time, so things like stop signs actually are first-come, first-served.
+        all.sort_by_key(|(_, t)| *t);
+
+        // Wake up Priority turns before Yield turns. Don't wake up Banned turns at all. This makes
+        // sure priority vehicles should get the head-start, without blocking yield vehicles
+        // unnecessarily.
+        let mut protected = Vec::new();
+        let mut yielding = Vec::new();
+
+        if self.use_freeform_policy_everywhere {
+            for (req, _) in all {
+                protected.push(req);
+            }
+        } else if let Some(ref signal) = map.maybe_get_traffic_signal(i) {
+            let (_, phase, _) = signal.current_phase_and_remaining_time(now);
+            for (req, _) in all {
+                match phase.get_priority(req.turn) {
+                    TurnPriority::Protected => {
+                        protected.push(req);
+                    }
+                    TurnPriority::Yield => {
+                        yielding.push(req);
+                    }
+                    // No need to wake up
+                    TurnPriority::Banned => {}
+                }
+            }
+        } else if let Some(ref sign) = map.maybe_get_stop_sign(i) {
+            for (req, _) in all {
+                // Banned is impossible
+                if sign.get_priority(req.turn, map) == TurnPriority::Protected {
+                    protected.push(req);
+                } else {
+                    yielding.push(req);
+                }
+            }
+        } else {
+            unreachable!()
+        };
+
+        protected.extend(yielding);
+        for req in protected {
             // Use update because multiple agents could finish a turn at the same time, before the
             // waiting one has a chance to try again.
             scheduler.update(now, Command::update_agent(req.agent));
@@ -121,31 +175,10 @@ impl IntersectionSimState {
         map: &Map,
         scheduler: &mut Scheduler,
     ) {
-        let state = &self.state[&id];
-        let (_, phase, remaining) = map
+        self.wakeup_waiting(now, id, scheduler, map);
+        let (_, _, remaining) = map
             .get_traffic_signal(id)
             .current_phase_and_remaining_time(now);
-
-        // Wake up Priority turns before Yield turns. Don't wake up Banned turns at all. This makes
-        // sure priority vehicles should get the head-start, without blocking yield vehicles
-        // unnecessarily.
-        let mut yields = Vec::new();
-        for req in state.waiting.keys() {
-            match phase.get_priority(req.turn) {
-                TurnPriority::Banned => {}
-                TurnPriority::Yield => {
-                    yields.push(req.agent);
-                }
-                TurnPriority::Protected => {
-                    // TODO Use update in case turn_finished scheduled an event for them already.
-                    scheduler.update(now, Command::update_agent(req.agent));
-                }
-            }
-        }
-        for a in yields {
-            scheduler.update(now, Command::update_agent(a));
-        }
-
         scheduler.push(now + remaining, Command::UpdateIntersection(id));
     }
 
@@ -166,6 +199,7 @@ impl IntersectionSimState {
         scheduler: &mut Scheduler,
         maybe_car_and_target_queue: Option<(&mut Queue, &Car)>,
     ) -> bool {
+        //let debug = turn.parent == IntersectionID(64);
         let req = Request { agent, turn };
         let state = self.state.get_mut(&turn.parent).unwrap();
         state.waiting.entry(req.clone()).or_insert(now);
@@ -180,12 +214,18 @@ impl IntersectionSimState {
             unreachable!()
         };
         if !allowed {
+            /*if debug {
+                println!("{}: {} can't go yet", now, agent)
+            };*/
             return false;
         }
 
         // Don't block the box
         if let Some((queue, car)) = maybe_car_and_target_queue {
             if !queue.try_to_reserve_entry(car, self.force_queue_entry) {
+                /*if debug {
+                    println!("{}: {} can't block box", now, agent)
+                };*/
                 return false;
             }
         }
@@ -193,6 +233,9 @@ impl IntersectionSimState {
         assert!(!state.any_accepted_conflict_with(turn, map));
         state.delays.add(now - state.waiting.remove(&req).unwrap());
         state.accepted.insert(req);
+        /*if debug {
+            println!("{}: {} going!", now, agent)
+        };*/
         true
     }
 
