@@ -70,6 +70,7 @@ impl Ord for Item {
         if ord != Ordering::Equal {
             return ord;
         }
+        // This is important! The tie-breaker if time is the same is ARBITRARY!
         self.cmd_type.cmp(&other.cmd_type)
     }
 }

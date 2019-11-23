@@ -71,7 +71,8 @@ pub struct Turn {
     // TODO Some turns might not actually have geometry. Currently encoded by two equal points.
     // Represent more directly?
     pub geom: PolyLine,
-    // Empty except for TurnType::Crosswalk.
+    // Empty except for TurnType::Crosswalk. Usually just one other ID, except for the case of 4
+    // duplicates at a degenerate intersection.
     pub other_crosswalk_ids: BTreeSet<TurnID>,
 
     // Just for convenient debugging lookup.

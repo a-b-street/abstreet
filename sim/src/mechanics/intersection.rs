@@ -159,11 +159,18 @@ impl IntersectionSimState {
             unreachable!()
         };
 
-        protected.extend(yielding);
         for req in protected {
             // Use update because multiple agents could finish a turn at the same time, before the
             // waiting one has a chance to try again.
             scheduler.update(now, Command::update_agent(req.agent));
+        }
+        // Make sure the protected group gets first dibs. The scheduler arbitrarily (but
+        // deterministically) orders commands with the same time.
+        for req in yielding {
+            scheduler.update(
+                now + Duration::seconds(0.1),
+                Command::update_agent(req.agent),
+            );
         }
     }
 
