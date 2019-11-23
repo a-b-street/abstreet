@@ -28,37 +28,32 @@ impl LaneEditor {
     pub fn setup(ctx: &EventCtx) -> LaneEditor {
         // TODO This won't handle resizing well
         let mut x1 = 0.5 * ctx.canvas.window_width;
-        let mut make_brush =
-            |icon: &str,
-             label: &str,
-             key: Key,
-             apply: Box<dyn Fn(&Map, LaneID) -> Result<Option<EditCmd>, String>>| {
-                let btn = Button::icon_btn(
-                    &format!("assets/ui/edit_{}.png", icon),
-                    32.0,
-                    label,
-                    hotkey(key),
-                    ctx,
-                )
+        let mut make_brush = |icon: &str,
+                              label: &str,
+                              key: Key,
+                              apply: Box<
+            dyn Fn(&Map, LaneID) -> Result<Option<EditCmd>, String>,
+        >| {
+            let btn = Button::icon_btn("assets/ui/hamburger.png", 32.0, label, hotkey(key), ctx)
                 .at(ScreenPt::new(x1, 0.0));
-                let enabled_btn = Button::icon_btn_bg(
-                    &format!("assets/ui/edit_{}.png", icon),
-                    32.0,
-                    label,
-                    hotkey(key),
-                    Color::RED,
-                    ctx,
-                )
-                .at(ScreenPt::new(x1, 0.0));
+            let enabled_btn = Button::icon_btn_bg(
+                "assets/ui/hamburger.png",
+                32.0,
+                label,
+                hotkey(key),
+                Color::RED,
+                ctx,
+            )
+            .at(ScreenPt::new(x1, 0.0));
 
-                x1 += 70.0;
-                Paintbrush {
-                    btn,
-                    enabled_btn,
-                    label: label.to_string(),
-                    apply,
-                }
-            };
+            x1 += 70.0;
+            Paintbrush {
+                btn,
+                enabled_btn,
+                label: label.to_string(),
+                apply,
+            }
+        };
 
         let brushes = vec![
             make_brush(

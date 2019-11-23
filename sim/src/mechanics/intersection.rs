@@ -156,7 +156,8 @@ impl IntersectionSimState {
                 }
             }
         } else {
-            unreachable!()
+            return;
+            //unreachable!()
         };
 
         for req in protected {
