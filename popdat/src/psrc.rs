@@ -163,7 +163,7 @@ fn import_parcels(
         prettyprint_usize(parcel_metadata.len())
     ));
     let output = std::process::Command::new("cs2cs")
-        // cs2cs +init=esri:102748 +to +init=epsg:4326 -f '%.5f' foo
+        // cs2cs esri:102748 +to epsg:4326 -f '%.5f' foo
         .args(vec![
             "esri:102748",
             "+to",
