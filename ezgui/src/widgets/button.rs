@@ -60,8 +60,9 @@ impl Button {
         }
 
         if ctx.redo_mouseover() {
-            let pt = ctx.canvas.get_cursor_in_screen_space();
-            self.hovering = self.cover_circle.contains_pt(Pt2D::new(pt.x, pt.y));
+            self.hovering = self
+                .cover_circle
+                .contains_pt(ctx.canvas.get_cursor_in_screen_space().to_pt());
         }
         if self.hovering && ctx.input.left_mouse_button_pressed() {
             self.clicked = true;
@@ -80,8 +81,9 @@ impl Button {
     }
 
     pub fn just_replaced(&mut self, ctx: &EventCtx) {
-        let pt = ctx.canvas.get_cursor_in_screen_space();
-        self.hovering = self.cover_circle.contains_pt(Pt2D::new(pt.x, pt.y));
+        self.hovering = self
+            .cover_circle
+            .contains_pt(ctx.canvas.get_cursor_in_screen_space().to_pt());
     }
 
     pub fn clicked(&mut self) -> bool {

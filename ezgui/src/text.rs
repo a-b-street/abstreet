@@ -196,7 +196,7 @@ pub fn draw_text_bubble(
         g.draw_polygon(
             c,
             &Polygon::rectangle_topleft(
-                Pt2D::new(top_left.x, top_left.y),
+                top_left.to_pt(),
                 Distance::meters(total_width),
                 Distance::meters(total_height),
             ),
@@ -264,7 +264,7 @@ pub fn draw_text_bubble_mapspace(
         g.draw_polygon(
             c,
             &Polygon::rectangle_topleft(
-                Pt2D::new(top_left.x(), top_left.y()),
+                top_left,
                 Distance::meters(total_width / SCALE_DOWN),
                 Distance::meters(total_height / SCALE_DOWN),
             ),

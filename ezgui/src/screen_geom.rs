@@ -1,4 +1,5 @@
 use crate::Canvas;
+use geom::Pt2D;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct ScreenPt {
@@ -9,6 +10,12 @@ pub struct ScreenPt {
 impl ScreenPt {
     pub fn new(x: f64, y: f64) -> ScreenPt {
         ScreenPt { x, y }
+    }
+
+    // The geom layer operates in map-space, but currently reusing lots of geom abstractions for
+    // screen-space.
+    pub fn to_pt(self) -> Pt2D {
+        Pt2D::new(self.x, self.y)
     }
 }
 

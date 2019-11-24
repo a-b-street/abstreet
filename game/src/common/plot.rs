@@ -130,10 +130,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
         if self.rect.contains(cursor) {
             let radius = Distance::meters(5.0);
             let mut txt = Text::new();
-            for (label, pt, _) in self
-                .closest
-                .all_close_pts(Pt2D::new(cursor.x, cursor.y), radius)
-            {
+            for (label, pt, _) in self.closest.all_close_pts(cursor.to_pt(), radius) {
                 let t = (pt.x() - self.rect.x1) / self.rect.width() * self.max_x;
                 let y_percent = 1.0 - (pt.y() - self.rect.y1) / self.rect.height();
 
@@ -146,10 +143,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
                 )));
             }
             if txt.num_lines() > 0 {
-                g.draw_circle(
-                    Color::RED,
-                    &Circle::new(Pt2D::new(cursor.x, cursor.y), radius),
-                );
+                g.draw_circle(Color::RED, &Circle::new(cursor.to_pt(), radius));
                 g.draw_mouse_tooltip(&txt);
             }
         }

@@ -136,7 +136,7 @@ impl Canvas {
                 }
             }
             for c in self.covered_circles.borrow().iter() {
-                if c.contains_pt(Pt2D::new(pt.x, pt.y)) {
+                if c.contains_pt(pt.to_pt()) {
                     return None;
                 }
             }

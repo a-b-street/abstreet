@@ -175,7 +175,7 @@ impl<T: Clone + Copy> Scroller<T> {
         g.draw_polygon(
             self.bg_color,
             &Polygon::rectangle_topleft(
-                Pt2D::new(self.master_topleft.x, self.master_topleft.y),
+                self.master_topleft.to_pt(),
                 Distance::meters(max_width),
                 Distance::meters(total_height),
             ),

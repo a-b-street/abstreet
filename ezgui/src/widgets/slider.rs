@@ -41,8 +41,9 @@ impl Slider {
         self.current_percent = percent;
         // Just reset dragging, to prevent chaos
         self.dragging = false;
-        let pt = ctx.canvas.get_cursor_in_screen_space();
-        self.mouse_on_slider = self.slider_geom().contains_pt(Pt2D::new(pt.x, pt.y));
+        self.mouse_on_slider = self
+            .slider_geom()
+            .contains_pt(ctx.canvas.get_cursor_in_screen_space().to_pt());
     }
 
     pub fn set_value(&mut self, ctx: &EventCtx, idx: usize, num_items: usize) {
@@ -65,8 +66,9 @@ impl Slider {
             }
         } else {
             if ctx.redo_mouseover() {
-                let pt = ctx.canvas.get_cursor_in_screen_space();
-                self.mouse_on_slider = self.slider_geom().contains_pt(Pt2D::new(pt.x, pt.y));
+                self.mouse_on_slider = self
+                    .slider_geom()
+                    .contains_pt(ctx.canvas.get_cursor_in_screen_space().to_pt());
             }
             if ctx.input.left_mouse_button_pressed() {
                 if self.mouse_on_slider {
@@ -82,7 +84,7 @@ impl Slider {
                         Distance::meters(self.dims.bar_width),
                         Distance::meters(self.dims.bar_height),
                     )
-                    .contains_pt(Pt2D::new(pt.x, pt.y))
+                    .contains_pt(pt.to_pt())
                     {
                         let percent = (pt.x - self.dims.horiz_padding - self.top_left.x)
                             / self.dims.bar_width;
@@ -105,7 +107,7 @@ impl Slider {
         batch.push(
             Color::grey(0.3),
             Polygon::rectangle_topleft(
-                Pt2D::new(self.top_left.x, self.top_left.y),
+                self.top_left.to_pt(),
                 Distance::meters(self.dims.total_width),
                 Distance::meters(self.dims.bar_height + 2.0 * self.dims.vert_padding),
             ),
