@@ -103,7 +103,7 @@ impl<'a> EventCtx<'a> {
                         TextureType::CustomUV => Color::CustomUVTexture(tex_id),
                     },
                 );
-                raw_data.push(RawImage2d::from_raw_rgba_reversed(&raw, dims));
+                raw_data.push(RawImage2d::from_raw_rgba(raw, dims));
             }
             self.canvas
                 .texture_arrays
