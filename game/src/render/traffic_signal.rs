@@ -388,10 +388,7 @@ fn make_new_scroller(i: IntersectionID, draw_ctx: &DrawCtx, ctx: &EventCtx) -> N
         for (color, poly) in batch.consume() {
             master_batch.push(
                 color,
-                poly.translate(
-                    Distance::meters(-bounds.min_x),
-                    Distance::meters(y_offset - bounds.min_y),
-                ),
+                poly.translate(-bounds.min_x, y_offset - bounds.min_y),
             );
         }
         txt.add(

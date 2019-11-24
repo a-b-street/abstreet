@@ -55,10 +55,7 @@ impl Button {
     }
 
     fn get_hitbox(&self) -> Polygon {
-        self.hitbox.translate(
-            Distance::meters(self.top_left.x),
-            Distance::meters(self.top_left.y),
-        )
+        self.hitbox.translate(self.top_left.x, self.top_left.y)
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx) {

@@ -132,9 +132,13 @@ impl Polygon {
         Bounds::from(&self.points)
     }
 
-    pub fn translate(&self, dx: Distance, dy: Distance) -> Polygon {
+    pub fn translate(&self, dx: f64, dy: f64) -> Polygon {
         Polygon {
-            points: self.points.iter().map(|pt| pt.offset(dx, dy)).collect(),
+            points: self
+                .points
+                .iter()
+                .map(|pt| pt.offset(Distance::meters(dx), Distance::meters(dy)))
+                .collect(),
             indices: self.indices.clone(),
             uv: None,
         }

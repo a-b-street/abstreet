@@ -28,7 +28,7 @@ impl Minimap {
             Distance::meters(square_len),
             Distance::meters(10.0),
         )
-        .translate(Distance::meters(top_left.x), Distance::meters(top_left.y));
+        .translate(top_left.x, top_left.y);
         g.canvas.mark_covered_area(ScreenRectangle {
             x1: top_left.x,
             x2: top_left.x + square_len,

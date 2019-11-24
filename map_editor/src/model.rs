@@ -836,8 +836,8 @@ impl Model {
         let b = self.map.buildings.get_mut(&id).unwrap();
         let old_center = b.polygon.center();
         b.polygon = b.polygon.translate(
-            Distance::meters(new_center.x() - old_center.x()),
-            Distance::meters(new_center.y() - old_center.y()),
+            new_center.x() - old_center.x(),
+            new_center.y() - old_center.y(),
         );
 
         self.bldg_added(id, prerender);
