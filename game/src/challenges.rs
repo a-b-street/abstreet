@@ -80,8 +80,8 @@ pub fn challenges_picker(ctx: &EventCtx) -> Box<dyn State> {
     state.draw_text(Text::from(Line("CHALLENGES")).no_bg());
     state.draw_text(Text::from(Line("Make changes to achieve a goal")).no_bg());
 
-    state.text_button(
-        "BACK",
+    state.img_button(
+        "assets/pregame/back.png",
         hotkey(Key::Escape),
         Box::new(|_, _| Some(Transition::Pop)),
     );

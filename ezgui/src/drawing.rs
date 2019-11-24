@@ -437,12 +437,12 @@ impl<'a> Prerender<'a> {
                 // alpha values, so bump by 100 to distinguish from that.
                 let style = match color {
                     Color::RGBA(r, g, b, a) => [r, g, b, a],
-                    Color::TileTexture(id, (tex_width, tex_height)) => {
+                    Color::TileTexture(id, tex_dims) => {
                         // The texture uses SamplerWrapFunction::Repeat, so don't clamp to [0, 1].
                         // Also don't offset based on the polygon's bounds -- even if there are
                         // separate but adjacent polygons, we want seamless tiling.
-                        let tx = pt.x() / tex_width;
-                        let ty = pt.y() / tex_height;
+                        let tx = pt.x() / tex_dims.width;
+                        let ty = pt.y() / tex_dims.height;
                         [tx as f32, ty as f32, id.0, 100.0 + id.1]
                     }
                     Color::StretchTexture(id, _, angle) => {

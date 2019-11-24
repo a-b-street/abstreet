@@ -127,6 +127,37 @@ const ICON_BACKGROUND: Color = Color::grey(0.5);
 const ICON_BACKGROUND_SELECTED: Color = Color::YELLOW;
 
 impl Button {
+    pub fn rectangle_img(filename: &str, key: Option<MultiKey>, ctx: &EventCtx) -> Button {
+        let color = ctx.canvas.texture(filename);
+        let dims = color.texture_dims();
+        // TODO Until we move off of circle...
+        let radius = if dims.width >= dims.height {
+            dims.width
+        } else {
+            dims.height
+        };
+        let circle = Circle::new(Pt2D::new(radius, radius), Distance::meters(radius));
+
+        let normal = GeomBatch::from(vec![(
+            color,
+            Polygon::rectangle_topleft(
+                Pt2D::new(0.0, 0.0),
+                Distance::meters(dims.width),
+                Distance::meters(dims.height),
+            ),
+        )]);
+        // TODO Different color...
+        let hovered = GeomBatch::from(vec![(
+            color,
+            Polygon::rectangle_topleft(
+                Pt2D::new(0.0, 0.0),
+                Distance::meters(dims.width),
+                Distance::meters(dims.height),
+            ),
+        )]);
+        Button::new(normal, hovered, key, "", circle, ctx)
+    }
+
     pub fn icon_btn_bg(
         icon: &str,
         radius: f64,

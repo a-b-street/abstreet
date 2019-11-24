@@ -1,6 +1,7 @@
 use crate::widgets::ContextMenu;
 use crate::{
-    Canvas, Color, GfxCtx, HorizontalAlignment, Line, Prerender, Text, UserInput, VerticalAlignment,
+    Canvas, Color, GfxCtx, HorizontalAlignment, Line, Prerender, ScreenDims, Text, UserInput,
+    VerticalAlignment,
 };
 use abstutil::{elapsed_seconds, Timer, TimerSink};
 use geom::Angle;
@@ -93,7 +94,7 @@ impl<'a> EventCtx<'a> {
             let mut raw_data = Vec::new();
             for (tex_idx, (filename, raw, tex_type)) in list.into_iter().enumerate() {
                 let tex_id = (group_idx as f32, tex_idx as f32);
-                let dims = (f64::from(raw_dims.0), f64::from(raw_dims.1));
+                let dims = ScreenDims::new(f64::from(raw_dims.0), f64::from(raw_dims.1));
                 self.canvas.texture_lookups.insert(
                     filename,
                     match tex_type {

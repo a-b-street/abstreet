@@ -1,5 +1,6 @@
 use crate::Canvas;
 use geom::Pt2D;
+use serde_derive::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct ScreenPt {
@@ -55,7 +56,7 @@ impl ScreenRectangle {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct ScreenDims {
     pub width: f64,
     pub height: f64,

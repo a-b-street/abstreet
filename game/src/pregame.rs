@@ -27,7 +27,7 @@ impl TitleScreen {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> TitleScreen {
         let mut rng = ui.primary.current_flags.sim_flags.make_rng();
         TitleScreen {
-            logo: JustDraw::image("assets/logo.png", ctx),
+            logo: JustDraw::image("assets/pregame/logo.png", ctx),
             // TODO that nicer font
             // TODO Any key
             play_btn: TextButton::new(
@@ -77,13 +77,13 @@ pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
     state.draw_text(Text::from(Line("Created by Dustin Carlino")).no_bg());
     state.draw_text(Text::from(Line("Choose your game")).no_bg());
 
-    state.text_button(
-        "TUTORIAL",
+    state.img_button(
+        "assets/pregame/tutorial.png",
         hotkey(Key::T),
         Box::new(|ctx, _| Some(Transition::Push(Box::new(TutorialMode::new(ctx))))),
     );
-    state.text_button(
-        "SANDBOX",
+    state.img_button(
+        "assets/pregame/sandbox.png",
         hotkey(Key::S),
         Box::new(|ctx, ui| {
             Some(Transition::Push(Box::new(SandboxMode::new(
@@ -93,8 +93,8 @@ pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
             ))))
         }),
     );
-    state.text_button(
-        "CHALLENGES",
+    state.img_button(
+        "assets/pregame/challenges.png",
         hotkey(Key::C),
         Box::new(|ctx, _| Some(Transition::Push(challenges_picker(ctx)))),
     );
@@ -115,8 +115,8 @@ pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
         None,
         Box::new(|ctx, _| Some(Transition::Push(about(ctx)))),
     );
-    state.text_button(
-        "QUIT",
+    state.img_button(
+        "assets/pregame/quit.png",
         hotkey(Key::Escape),
         Box::new(|_, _| {
             // TODO before_quit?
@@ -143,8 +143,8 @@ fn about(ctx: &EventCtx) -> Box<dyn State> {
     // TODO centered
     state.draw_text(txt);
 
-    state.text_button(
-        "BACK",
+    state.img_button(
+        "assets/pregame/back.png",
         hotkey(Key::Escape),
         Box::new(|_, _| Some(Transition::Pop)),
     );

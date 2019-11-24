@@ -13,19 +13,19 @@ pub struct JustDraw {
 impl JustDraw {
     pub fn image(filename: &str, ctx: &EventCtx) -> JustDraw {
         let color = ctx.canvas.texture(filename);
-        let (w, h) = color.texture_dims();
+        let dims = color.texture_dims();
         let draw = GeomBatch::from(vec![(
             color,
             Polygon::rectangle_topleft(
                 Pt2D::new(0.0, 0.0),
-                Distance::meters(w),
-                Distance::meters(h),
+                Distance::meters(dims.width),
+                Distance::meters(dims.height),
             ),
         )])
         .upload(ctx);
         JustDraw {
             draw,
-            dims: ScreenDims::new(w, h),
+            dims,
             top_left: ScreenPt::new(0.0, 0.0),
         }
     }

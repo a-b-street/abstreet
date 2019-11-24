@@ -1,3 +1,4 @@
+use crate::ScreenDims;
 use geom::Angle;
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
@@ -9,14 +10,12 @@ type TextureID = (f32, f32);
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub enum Color {
     RGBA(f32, f32, f32, f32),
-    // (The texture ID to pass to the shader, (texture width, height)). Tiles seamlessly through
-    // all of map-space.
-    TileTexture(TextureID, (f64, f64)),
+    // Tiles seamlessly through all of map-space.
+    TileTexture(TextureID, ScreenDims),
     // Stretches the entire texture to fit the entire polygon. Rotates from the center of the
     // polygon. Not sure what this means for anything but circles right now. Have to manually
-    // fiddle with the original orientation to fix y inversion. Also embeds (texture width,
-    // height).
-    StretchTexture(TextureID, (f64, f64), Angle),
+    // fiddle with the original orientation to fix y inversion.
+    StretchTexture(TextureID, ScreenDims, Angle),
     // A polygon with UV coordinates for each point must be used.
     CustomUVTexture(TextureID),
     // TODO Figure out how to pack more data into this.
@@ -28,15 +27,15 @@ impl fmt::Display for Color {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Color::RGBA(r, g, b, a) => write!(f, "Color(r={}, g={}, b={}, a={})", r, g, b, a),
-            Color::TileTexture(id, (w, h)) => write!(
+            Color::TileTexture(id, dims) => write!(
                 f,
                 "Color::TileTexture({}:{}, width={}, height={})",
-                id.0, id.1, w, h
+                id.0, id.1, dims.width, dims.height
             ),
-            Color::StretchTexture(id, (w, h), angle) => write!(
+            Color::StretchTexture(id, dims, angle) => write!(
                 f,
                 "Color::StretchTexture({}:{}, width={}, height={}, {})",
-                id.0, id.1, w, h, angle
+                id.0, id.1, dims.width, dims.height, angle
             ),
             Color::CustomUVTexture(id) => write!(f, "Color::CustomUVTexture({}:{})", id.0, id.1),
             Color::HatchingStyle1 => write!(f, "Color::HatchingStyle1"),
@@ -108,7 +107,7 @@ impl Color {
         }
     }
 
-    pub fn texture_dims(&self) -> (f64, f64) {
+    pub fn texture_dims(&self) -> ScreenDims {
         match self {
             Color::TileTexture(_, dims) => *dims,
             Color::StretchTexture(_, dims, _) => *dims,
