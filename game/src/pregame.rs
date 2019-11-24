@@ -7,7 +7,8 @@ use crate::tutorial::TutorialMode;
 use crate::ui::UI;
 use abstutil::elapsed_seconds;
 use ezgui::{
-    layout, Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, Text, TextButton, Wizard,
+    layout, Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, MultiText, ScreenPt, Text,
+    TextButton, Wizard,
 };
 use geom::{Duration, Line, Pt2D, Speed};
 use map_model::Map;
@@ -46,6 +47,7 @@ impl State for TitleScreen {
         self.play_btn.event(ctx);
         if self.play_btn.clicked() {
             return Transition::Replace(Box::new(SplashScreen::new()));
+            //return Transition::Replace(Box::new(MainMenu::new(ctx)));
         }
 
         self.screensaver.update(&mut self.rng, ctx, &ui.primary.map);
@@ -55,6 +57,97 @@ impl State for TitleScreen {
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
         self.play_btn.draw(g);
+    }
+}
+
+pub struct MainMenu {
+    txts: MultiText,
+    // TODO Icon with text? Nah, just an image button on a rounded rectangle
+    tutorial_btn: TextButton,
+    sandbox_btn: TextButton,
+    challenges_btn: TextButton,
+    about_btn: TextButton,
+}
+
+impl MainMenu {
+    fn new(ctx: &EventCtx) -> MainMenu {
+        let mut txts = MultiText::new();
+        // TODO Lots wrong here.
+        txts.add(
+            Text::from(Line("A/B STREET").size(50)).no_bg(),
+            ScreenPt::new(200.0, 100.0),
+        );
+        txts.add(
+            Text::from(Line("Created by Dustin Carlino")).no_bg(),
+            ScreenPt::new(250.0, 300.0),
+        );
+        txts.add(
+            Text::from(Line("Choose your game")).no_bg(),
+            ScreenPt::new(250.0, 500.0),
+        );
+
+        MainMenu {
+            txts,
+            tutorial_btn: TextButton::new(
+                Text::from(Line("TUTORIAL").fg(Color::BLACK)),
+                Color::WHITE,
+                Color::ORANGE,
+                ctx,
+            ),
+            sandbox_btn: TextButton::new(
+                Text::from(Line("SANDBOX").fg(Color::BLACK)),
+                Color::WHITE,
+                Color::ORANGE,
+                ctx,
+            ),
+            challenges_btn: TextButton::new(
+                Text::from(Line("CHALLENGES").fg(Color::BLACK)),
+                Color::WHITE,
+                Color::ORANGE,
+                ctx,
+            ),
+            // TODO No background at all...
+            about_btn: TextButton::new(
+                Text::from(Line("About A/B Street").fg(Color::WHITE)),
+                Color::BLACK,
+                Color::ORANGE,
+                ctx,
+            ),
+        }
+    }
+}
+
+impl State for MainMenu {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
+        // TODO How do we want to express layouting?
+        layout::stack_vertically(
+            layout::ContainerOrientation::Centered,
+            ctx,
+            vec![
+                &mut self.tutorial_btn,
+                &mut self.sandbox_btn,
+                &mut self.challenges_btn,
+                &mut self.about_btn,
+            ],
+        );
+
+        self.tutorial_btn.event(ctx);
+        self.sandbox_btn.event(ctx);
+        self.challenges_btn.event(ctx);
+        self.about_btn.event(ctx);
+
+        // TODO transitions
+        // TODO Hotkeys? How to communicate?
+
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        self.txts.draw(g);
+        self.tutorial_btn.draw(g);
+        self.sandbox_btn.draw(g);
+        self.challenges_btn.draw(g);
+        self.about_btn.draw(g);
     }
 }
 
