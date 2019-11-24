@@ -1,4 +1,4 @@
-use crate::pregame::{main_menu, TitleScreen};
+use crate::pregame::TitleScreen;
 use crate::render::DrawOptions;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::{Flags, ShowEverything, UI};
@@ -22,10 +22,11 @@ impl Game {
         let states: Vec<Box<dyn State>> = if title {
             vec![Box::new(TitleScreen::new(ctx, &ui))]
         } else {
-            vec![
-                main_menu(ctx, &ui),
-                Box::new(SandboxMode::new(ctx, &mut ui, GameplayMode::Freeform)),
-            ]
+            vec![Box::new(SandboxMode::new(
+                ctx,
+                &mut ui,
+                GameplayMode::Freeform,
+            ))]
         };
         Game { states, ui }
     }
@@ -38,7 +39,6 @@ impl GUI for Game {
         let transition = match self.states.last_mut().unwrap().event(ctx, &mut self.ui) {
             Transition::Keep => Transition::KeepWithMode(EventLoopMode::InputOnly),
             Transition::Pop => Transition::PopWithMode(EventLoopMode::InputOnly),
-            Transition::PopTwice => Transition::PopTwiceWithMode(EventLoopMode::InputOnly),
             Transition::Push(state) => Transition::PushWithMode(state, EventLoopMode::InputOnly),
             Transition::Replace(state) => {
                 Transition::ReplaceWithMode(state, EventLoopMode::InputOnly)
@@ -52,15 +52,6 @@ impl GUI for Game {
         match transition {
             Transition::KeepWithMode(evmode) => evmode,
             Transition::PopWithMode(evmode) => {
-                self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
-                if self.states.is_empty() {
-                    self.before_quit(ctx.canvas);
-                    std::process::exit(0);
-                }
-                evmode
-            }
-            Transition::PopTwiceWithMode(evmode) => {
-                self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
                 if self.states.is_empty() {
                     self.before_quit(ctx.canvas);
@@ -92,6 +83,13 @@ impl GUI for Game {
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
                 self.states.push(state);
                 evmode
+            }
+            Transition::Clear(state) => {
+                while !self.states.is_empty() {
+                    self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
+                }
+                self.states.push(state);
+                EventLoopMode::InputOnly
             }
             _ => unreachable!(),
         }
@@ -167,17 +165,16 @@ pub enum Transition {
     // These variants imply EventLoopMode::InputOnly.
     Keep,
     Pop,
-    PopTwice,
     // If a state needs to pass data back to the parent, use this. Sadly, runtime type casting.
     PopWithData(Box<dyn FnOnce(&mut Box<dyn State>, &mut UI, &mut EventCtx)>),
     Push(Box<dyn State>),
     Replace(Box<dyn State>),
     PopThenReplace(Box<dyn State>),
+    Clear(Box<dyn State>),
 
     // These don't.
     KeepWithMode(EventLoopMode),
     PopWithMode(EventLoopMode),
-    PopTwiceWithMode(EventLoopMode),
     PushWithMode(Box<dyn State>, EventLoopMode),
     ReplaceWithMode(Box<dyn State>, EventLoopMode),
     PopThenReplaceWithMode(Box<dyn State>, EventLoopMode),

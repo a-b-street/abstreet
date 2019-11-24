@@ -10,6 +10,7 @@ use crate::edit::EditMode;
 use crate::edit::{apply_map_edits, save_edits};
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
+use crate::pregame::main_menu;
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
@@ -177,7 +178,7 @@ impl State for SandboxMode {
                             .map
                             .recalculate_pathfinding_after_edits(&mut Timer::new("reset edits"));
                         ui.primary.clear_sim();
-                        Some(Transition::PopTwice)
+                        Some(Transition::Clear(main_menu(ctx, ui)))
                     }
                     "quit challenge" => {
                         if !ui.primary.map.get_edits().is_empty() {
@@ -190,7 +191,7 @@ impl State for SandboxMode {
                                 ));
                         }
                         ui.primary.clear_sim();
-                        Some(Transition::PopTwice)
+                        Some(Transition::Clear(main_menu(ctx, ui)))
                     }
                     "keep playing" => Some(Transition::Pop),
                     _ => unreachable!(),
