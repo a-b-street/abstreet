@@ -1,6 +1,6 @@
 use crate::layout::Widget;
 use crate::{
-    hotkey, text, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, MultiKey, ScreenDims,
+    hotkey, text, Color, DrawBoth, EventCtx, GeomBatch, GfxCtx, Key, Line, MultiKey, ScreenDims,
     ScreenPt, Text,
 };
 use geom::{Circle, Distance, Polygon, Pt2D};
@@ -125,50 +125,6 @@ impl Widget for Button {
 
     fn set_pos(&mut self, top_left: ScreenPt) {
         self.top_left = top_left;
-    }
-}
-
-// TODO Probably going to fold this into Drawable or do something else...
-struct DrawBoth {
-    geom: Drawable,
-    txt: Vec<(Text, ScreenPt)>,
-    // Covers both geometry and text
-    dims: ScreenDims,
-}
-
-impl DrawBoth {
-    fn new(ctx: &EventCtx, batch: GeomBatch, txt: Vec<(Text, ScreenPt)>) -> DrawBoth {
-        let mut total_dims = batch.get_dims();
-        for (t, pt) in &txt {
-            let dims = ctx.canvas.text_dims(t);
-            let w = dims.width + pt.x;
-            let h = dims.height + pt.y;
-            if w > total_dims.width {
-                total_dims.width = w;
-            }
-            if h > total_dims.height {
-                total_dims.height = h;
-            }
-        }
-        DrawBoth {
-            geom: batch.upload(ctx),
-            txt,
-            dims: total_dims,
-        }
-    }
-
-    fn draw(&self, top_left: ScreenPt, g: &mut GfxCtx) {
-        g.redraw(&self.geom);
-        for (txt, pt) in &self.txt {
-            g.draw_text_at_screenspace_topleft(
-                txt,
-                ScreenPt::new(top_left.x + pt.x, top_left.y + pt.y),
-            );
-        }
-    }
-
-    fn get_dims(&self) -> ScreenDims {
-        self.dims
     }
 }
 

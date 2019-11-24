@@ -18,7 +18,7 @@ pub use self::button::Button;
 pub(crate) use self::context_menu::ContextMenu;
 pub use self::menu_under_button::MenuUnderButton;
 pub use self::modal_menu::ModalMenu;
-pub use self::no_op::{JustDraw, JustDrawText};
+pub use self::no_op::JustDraw;
 pub(crate) use self::popup_menu::PopupMenu;
 pub(crate) use self::screenshot::{screenshot_current, screenshot_everything};
 pub use self::scroller::{NewScroller, Scroller};

@@ -540,3 +540,50 @@ impl MultiText {
         }
     }
 }
+
+// I'm tempted to fold this into GeomBatch and Drawable, but since this represents a screen-space
+// thing, it'd be weird to do that.
+pub struct DrawBoth {
+    geom: Drawable,
+    txt: Vec<(Text, ScreenPt)>,
+    // Covers both geometry and text
+    dims: ScreenDims,
+}
+
+impl DrawBoth {
+    pub fn new(ctx: &EventCtx, batch: GeomBatch, txt: Vec<(Text, ScreenPt)>) -> DrawBoth {
+        let mut total_dims = batch.get_dims();
+        for (t, pt) in &txt {
+            let dims = ctx.canvas.text_dims(t);
+            let w = dims.width + pt.x;
+            let h = dims.height + pt.y;
+            if w > total_dims.width {
+                total_dims.width = w;
+            }
+            if h > total_dims.height {
+                total_dims.height = h;
+            }
+        }
+        DrawBoth {
+            geom: batch.upload(ctx),
+            txt,
+            dims: total_dims,
+        }
+    }
+
+    pub fn draw(&self, top_left: ScreenPt, g: &mut GfxCtx) {
+        g.fork(Pt2D::new(0.0, 0.0), top_left, 1.0);
+        g.redraw(&self.geom);
+        g.unfork();
+        for (txt, pt) in &self.txt {
+            g.draw_text_at_screenspace_topleft(
+                txt,
+                ScreenPt::new(top_left.x + pt.x, top_left.y + pt.y),
+            );
+        }
+    }
+
+    pub fn get_dims(&self) -> ScreenDims {
+        self.dims
+    }
+}

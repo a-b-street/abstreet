@@ -1,12 +1,11 @@
 use crate::layout::Widget;
-use crate::{Drawable, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenPt, Text};
+use crate::{DrawBoth, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenPt, Text};
 use geom::{Distance, Polygon, Pt2D};
 
 // Just draw something. A widget just so layouting works.
 pub struct JustDraw {
-    draw: Drawable,
+    draw: DrawBoth,
 
-    dims: ScreenDims,
     top_left: ScreenPt,
 }
 
@@ -14,63 +13,35 @@ impl JustDraw {
     pub fn image(filename: &str, ctx: &EventCtx) -> JustDraw {
         let color = ctx.canvas.texture(filename);
         let dims = color.texture_dims();
-        let draw = GeomBatch::from(vec![(
+        let batch = GeomBatch::from(vec![(
             color,
             Polygon::rectangle_topleft(
                 Pt2D::new(0.0, 0.0),
                 Distance::meters(dims.width),
                 Distance::meters(dims.height),
             ),
-        )])
-        .upload(ctx);
+        )]);
         JustDraw {
-            draw,
-            dims,
+            draw: DrawBoth::new(ctx, batch, vec![]),
             top_left: ScreenPt::new(0.0, 0.0),
         }
     }
 
-    // TODO I wish this wasn't a separate type...
-    pub fn text(text: Text, ctx: &EventCtx) -> JustDrawText {
-        JustDrawText {
-            dims: ctx.canvas.text_dims(&text),
-            text,
+    pub fn text(text: Text, ctx: &EventCtx) -> JustDraw {
+        JustDraw {
+            draw: DrawBoth::new(ctx, GeomBatch::new(), vec![(text, ScreenPt::new(0.0, 0.0))]),
             top_left: ScreenPt::new(0.0, 0.0),
         }
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        g.fork(Pt2D::new(0.0, 0.0), self.top_left, 1.0);
-        g.redraw(&self.draw);
+        self.draw.draw(self.top_left, g);
     }
 }
 
 impl Widget for JustDraw {
     fn get_dims(&self) -> ScreenDims {
-        self.dims
-    }
-
-    fn set_pos(&mut self, top_left: ScreenPt) {
-        self.top_left = top_left;
-    }
-}
-
-pub struct JustDrawText {
-    text: Text,
-
-    dims: ScreenDims,
-    top_left: ScreenPt,
-}
-
-impl JustDrawText {
-    pub fn draw(&self, g: &mut GfxCtx) {
-        g.draw_text_at_screenspace_topleft(&self.text, self.top_left);
-    }
-}
-
-impl Widget for JustDrawText {
-    fn get_dims(&self) -> ScreenDims {
-        self.dims
+        self.draw.get_dims()
     }
 
     fn set_pos(&mut self, top_left: ScreenPt) {

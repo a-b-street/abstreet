@@ -1,8 +1,6 @@
 use crate::game::{State, Transition};
 use crate::ui::UI;
-use ezgui::{
-    layout, Button, Color, EventCtx, GfxCtx, JustDraw, JustDrawText, Line, MultiKey, Text,
-};
+use ezgui::{layout, Button, Color, EventCtx, GfxCtx, JustDraw, Line, MultiKey, Text};
 
 type Callback = Box<dyn Fn(&mut EventCtx, &mut UI) -> Option<Transition>>;
 
@@ -13,7 +11,7 @@ pub struct ManagedGUIStateBuilder<'a> {
 
 impl<'a> ManagedGUIStateBuilder<'a> {
     pub fn draw_text(&mut self, txt: Text) {
-        self.state.draw_text.push(JustDraw::text(txt, &self.ctx));
+        self.state.just_draw.push(JustDraw::text(txt, &self.ctx));
     }
 
     pub fn img_button(&mut self, filename: &str, hotkey: Option<MultiKey>, onclick: Callback) {
@@ -47,7 +45,7 @@ impl<'a> ManagedGUIStateBuilder<'a> {
 }
 
 pub struct ManagedGUIState {
-    draw_text: Vec<JustDrawText>,
+    just_draw: Vec<JustDraw>,
     buttons: Vec<(Button, Callback)>,
 }
 
@@ -56,7 +54,7 @@ impl ManagedGUIState {
         ManagedGUIStateBuilder {
             ctx,
             state: ManagedGUIState {
-                draw_text: Vec::new(),
+                just_draw: Vec::new(),
                 buttons: Vec::new(),
             },
         }
@@ -68,7 +66,7 @@ impl State for ManagedGUIState {
         // TODO If this ever gets slow, only run if window size has changed.
         layout::flexbox(
             ctx,
-            self.draw_text
+            self.just_draw
                 .iter_mut()
                 .map(|t| t as &mut dyn layout::Widget)
                 .chain(
@@ -96,7 +94,7 @@ impl State for ManagedGUIState {
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         // Happens to be a nice background color too ;)
         g.clear(ui.cs.get("grass"));
-        for t in &self.draw_text {
+        for t in &self.just_draw {
             t.draw(g);
         }
         for (btn, _) in &self.buttons {
