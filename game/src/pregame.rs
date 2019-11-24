@@ -7,8 +7,7 @@ use crate::tutorial::TutorialMode;
 use crate::ui::UI;
 use abstutil::elapsed_seconds;
 use ezgui::{
-    layout, Canvas, Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, Text, TextButton,
-    UserInput, Wizard,
+    layout, Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, Text, TextButton, Wizard,
 };
 use geom::{Duration, Line, Pt2D, Speed};
 use map_model::Map;
@@ -18,14 +17,19 @@ use std::time::Instant;
 
 pub struct TitleScreen {
     play_btn: TextButton,
+    screensaver: Screensaver,
+    rng: XorShiftRng,
 }
 
 impl TitleScreen {
-    pub fn new(ctx: &EventCtx, _: &UI) -> TitleScreen {
+    pub fn new(ctx: &mut EventCtx, ui: &UI) -> TitleScreen {
+        let mut rng = ui.primary.current_flags.sim_flags.make_rng();
         TitleScreen {
             // TODO logo
             // TODO that nicer font
             play_btn: TextButton::new(Text::from(Line("PLAY")), Color::BLUE, Color::ORANGE, ctx),
+            screensaver: Screensaver::start_bounce(&mut rng, ctx, &ui.primary.map),
+            rng,
         }
     }
 }
@@ -41,12 +45,12 @@ impl State for TitleScreen {
         // TODO or any keypress
         self.play_btn.event(ctx);
         if self.play_btn.clicked() {
-            return Transition::ReplaceWithMode(
-                Box::new(SplashScreen::new_with_screensaver(ctx, ui)),
-                EventLoopMode::Animation,
-            );
+            return Transition::Replace(Box::new(SplashScreen::new()));
         }
-        Transition::Keep
+
+        self.screensaver.update(&mut self.rng, ctx, &ui.primary.map);
+
+        Transition::KeepWithMode(EventLoopMode::Animation)
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
@@ -56,47 +60,24 @@ impl State for TitleScreen {
 
 pub struct SplashScreen {
     wizard: Wizard,
-    maybe_screensaver: Option<(Screensaver, XorShiftRng)>,
 }
 
 impl SplashScreen {
-    pub fn new_without_screensaver() -> SplashScreen {
+    pub fn new() -> SplashScreen {
         SplashScreen {
             wizard: Wizard::new(),
-            maybe_screensaver: None,
-        }
-    }
-
-    pub fn new_with_screensaver(ctx: &mut EventCtx, ui: &UI) -> SplashScreen {
-        let mut rng = ui.primary.current_flags.sim_flags.make_rng();
-        SplashScreen {
-            wizard: Wizard::new(),
-            maybe_screensaver: Some((
-                Screensaver::start_bounce(&mut rng, ctx.canvas, &ui.primary.map),
-                rng,
-            )),
         }
     }
 }
 
 impl State for SplashScreen {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        if let Some((ref mut screensaver, ref mut rng)) = self.maybe_screensaver {
-            screensaver.update(rng, ctx.input, ctx.canvas, &ui.primary.map);
-        }
-
-        let evmode = if self.maybe_screensaver.is_some() {
-            EventLoopMode::Animation
-        } else {
-            EventLoopMode::InputOnly
-        };
-
         if let Some(t) = splash_screen(&mut self.wizard, ctx, ui) {
             t
         } else if self.wizard.aborted() {
-            Transition::PopWithMode(evmode)
+            Transition::Pop
         } else {
-            Transition::KeepWithMode(evmode)
+            Transition::Keep
         }
     }
 
@@ -106,7 +87,6 @@ impl State for SplashScreen {
 
     fn on_suspend(&mut self, _: &mut EventCtx, _: &mut UI) {
         self.wizard = Wizard::new();
-        self.maybe_screensaver = None;
     }
 }
 
@@ -118,8 +98,8 @@ struct Screensaver {
 }
 
 impl Screensaver {
-    fn start_bounce(rng: &mut XorShiftRng, canvas: &mut Canvas, map: &Map) -> Screensaver {
-        let at = canvas.center_to_map_pt();
+    fn start_bounce(rng: &mut XorShiftRng, ctx: &mut EventCtx, map: &Map) -> Screensaver {
+        let at = ctx.canvas.center_to_map_pt();
         let bounds = map.get_bounds();
         // TODO Ideally bounce off the edge of the map
         let goto = Pt2D::new(
@@ -127,8 +107,8 @@ impl Screensaver {
             rng.gen_range(0.0, bounds.max_y),
         );
 
-        canvas.cam_zoom = 10.0;
-        canvas.center_on_map_pt(at);
+        ctx.canvas.cam_zoom = 10.0;
+        ctx.canvas.center_on_map_pt(at);
 
         Screensaver {
             line: Line::new(at, goto),
@@ -136,20 +116,15 @@ impl Screensaver {
         }
     }
 
-    fn update(
-        &mut self,
-        rng: &mut XorShiftRng,
-        input: &mut UserInput,
-        canvas: &mut Canvas,
-        map: &Map,
-    ) {
-        if input.nonblocking_is_update_event() {
-            input.use_update_event();
+    fn update(&mut self, rng: &mut XorShiftRng, ctx: &mut EventCtx, map: &Map) {
+        if ctx.input.nonblocking_is_update_event() {
+            ctx.input.use_update_event();
             let dist_along = Duration::seconds(elapsed_seconds(self.started)) * SPEED;
             if dist_along < self.line.length() {
-                canvas.center_on_map_pt(self.line.dist_along(dist_along));
+                ctx.canvas
+                    .center_on_map_pt(self.line.dist_along(dist_along));
             } else {
-                *self = Screensaver::start_bounce(rng, canvas, map)
+                *self = Screensaver::start_bounce(rng, ctx, map)
             }
         }
     }

@@ -20,7 +20,7 @@ impl Game {
             vec![Box::new(TitleScreen::new(ctx, &ui))]
         } else {
             vec![
-                Box::new(SplashScreen::new_without_screensaver()),
+                Box::new(SplashScreen::new()),
                 Box::new(SandboxMode::new(ctx, &mut ui, GameplayMode::Freeform)),
             ]
         };
