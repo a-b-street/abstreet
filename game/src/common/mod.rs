@@ -49,7 +49,7 @@ impl CommonState {
                     (hotkey(Key::K), "navigate"),
                     (hotkey(Key::SingleQuote), "shortcuts"),
                 ],
-                0.25,
+                0.35,
                 ctx,
             ),
         }

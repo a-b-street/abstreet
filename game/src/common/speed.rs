@@ -16,7 +16,6 @@ const PANEL_RECT: ScreenRectangle = ScreenRectangle {
 };
 
 const ADJUST_SPEED_PERCENT: f64 = 0.01;
-const SECONDS_PER_GAME: f64 = 86400.0; /* 24 hours */
 
 pub struct SpeedControls {
     slider_speed: Slider,
@@ -175,14 +174,14 @@ impl SpeedControls {
         } else if self.slider_speed.event(ctx) {
             self.speed_actual = self.speed_cap * self.slider_speed.get_percent();
         } else if self.slider_time.event(ctx) {
-            let time_next = self.slider_time.get_percent() * SECONDS_PER_GAME;
-            let delta = time_next - current_sim_time.inner_seconds();
-            if delta > 0.0 {
-                return Some(Duration::seconds(delta));
+            let time_next = self.slider_time.get_percent() * Duration::END_OF_DAY;
+            let delta = time_next - current_sim_time;
+            if delta > Duration::ZERO {
+                return Some(delta);
             } else {
                 // cannot go back, so reset the slider.
                 self.slider_time
-                    .set_percent(ctx, current_sim_time.inner_seconds() / SECONDS_PER_GAME);
+                    .set_percent(ctx, current_sim_time / Duration::END_OF_DAY);
             }
         }
 
@@ -196,7 +195,7 @@ impl SpeedControls {
                         last_measurement_sim: current_sim_time,
                     };
                     self.slider_time
-                        .set_percent(ctx, current_sim_time.inner_seconds() / SECONDS_PER_GAME);
+                        .set_percent(ctx, current_sim_time / Duration::END_OF_DAY);
                     // Sorta hack to trigger EventLoopMode::Animation.
                     return Some(Duration::ZERO);
                 }
@@ -227,7 +226,7 @@ impl SpeedControls {
                         *last_measurement_sim = current_sim_time;
                     }
                     self.slider_time
-                        .set_percent(ctx, current_sim_time.inner_seconds() / SECONDS_PER_GAME);
+                        .set_percent(ctx, current_sim_time / Duration::END_OF_DAY);
                     return Some(dt);
                 }
             }

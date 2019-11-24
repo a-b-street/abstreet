@@ -47,7 +47,7 @@ impl SandboxMode {
                     (lctrl(Key::D), "debug mode"),
                     (hotkey(Key::F1), "take a screenshot"),
                 ],
-                0.2,
+                0.3,
                 ctx,
             ),
             info_tools: MenuUnderButton::new(
@@ -59,7 +59,7 @@ impl SandboxMode {
                     (hotkey(Key::Semicolon), "change agent colorscheme"),
                     (None, "explore a bus route"),
                 ],
-                0.3,
+                0.4,
                 ctx,
             ),
             save_tools: MenuUnderButton::new(
@@ -71,7 +71,7 @@ impl SandboxMode {
                     (hotkey(Key::U), "load next sim state"),
                     (None, "pick a savestate to load"),
                 ],
-                0.35,
+                0.45,
                 ctx,
             ),
             agent_tools: AgentTools::new(),
