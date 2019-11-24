@@ -6,7 +6,7 @@ type Callback = Box<dyn Fn(&mut EventCtx, &mut UI) -> Option<Transition>>;
 
 pub struct ManagedGUIStateBuilder {
     multi_txt: MultiText,
-    buttons: Vec<(String, Callback)>,
+    buttons: Vec<(Text, Callback)>,
 }
 
 impl ManagedGUIStateBuilder {
@@ -15,7 +15,12 @@ impl ManagedGUIStateBuilder {
     }
 
     pub fn text_button(&mut self, label: &str, onclick: Callback) {
-        self.buttons.push((label.to_string(), onclick));
+        self.buttons
+            .push((Text::from(Line(label).fg(Color::BLACK)), onclick));
+    }
+
+    pub fn detailed_text_button(&mut self, txt: Text, onclick: Callback) {
+        self.buttons.push((txt, onclick));
     }
 
     pub fn build(self, ctx: &EventCtx) -> Box<dyn State> {
@@ -25,14 +30,9 @@ impl ManagedGUIStateBuilder {
             buttons: self
                 .buttons
                 .into_iter()
-                .map(|(label, onclick)| {
+                .map(|(txt, onclick)| {
                     (
-                        TextButton::new(
-                            Text::from(Line(label).fg(Color::BLACK)),
-                            Color::WHITE,
-                            Color::ORANGE,
-                            ctx,
-                        ),
+                        TextButton::new(txt, Color::WHITE, Color::ORANGE, ctx),
                         onclick,
                     )
                 })

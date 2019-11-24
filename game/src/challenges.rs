@@ -1,11 +1,12 @@
 use crate::edit::apply_map_edits;
 use crate::game::{State, Transition, WizardState};
+use crate::managed::ManagedGUIState;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{
-    hotkey, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ModalMenu, Text,
-    VerticalAlignment,
+    hotkey, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ModalMenu, ScreenPt,
+    Text, VerticalAlignment,
 };
 use geom::Duration;
 use sim::{SimFlags, SimOptions, TripMode};
@@ -72,41 +73,68 @@ fn all_challenges() -> Vec<Challenge> {
     ]
 }
 
-pub fn challenges_picker() -> Box<dyn State> {
-    WizardState::new(Box::new(move |wiz, ctx, _| {
-        let (_, challenge) = wiz.wrap(ctx).choose("Play which challenge?", || {
-            all_challenges()
-                .into_iter()
-                .map(|c| Choice::new(c.title.clone(), c))
-                .collect()
-        })?;
+pub fn challenges_picker(ctx: &EventCtx) -> Box<dyn State> {
+    let mut state = ManagedGUIState::builder();
 
+    state.draw_text(
+        Text::from(Line("A/B STREET").size(50)).no_bg(),
+        ScreenPt::new(200.0, 100.0),
+    );
+    state.draw_text(
+        Text::from(Line("CHALLENGES")).no_bg(),
+        ScreenPt::new(250.0, 500.0),
+    );
+    state.draw_text(
+        Text::from(Line("Make changes to achieve a goal")).no_bg(),
+        ScreenPt::new(250.0, 700.0),
+    );
+
+    state.text_button("BACK", Box::new(|_, _| Some(Transition::Pop)));
+
+    for challenge in all_challenges() {
         let edits = abstutil::list_all_objects(abstutil::EDITS, &challenge.map_name);
-        let mut summary = Text::new();
-        for l in &challenge.description {
-            summary.add(Line(l));
-        }
-        summary.add(Line(""));
-        summary.add(Line(format!("{} proposals:", edits.len())));
-        summary.add(Line(""));
-        for e in edits {
-            summary.add(Line(format!("- {} (untested)", e)));
-        }
 
-        Some(Transition::Replace(Box::new(ChallengeSplash {
-            summary,
-            menu: ModalMenu::new(
-                &challenge.title,
-                vec![
-                    (hotkey(Key::Escape), "back to challenges"),
-                    (hotkey(Key::S), "start challenge fresh"),
-                    (hotkey(Key::L), "load existing proposal"),
-                ],
-                ctx,
-            ),
-            challenge,
-        })))
-    }))
+        let mut txt = Text::new();
+        txt.add(Line(&challenge.title).size(40).fg(Color::BLACK));
+        txt.add(Line(""));
+        // TODO Real values
+        txt.add(Line("Not completed").fg(Color::BLACK));
+        txt.add(Line(format!("{} attempts", edits.len())).fg(Color::BLACK));
+        txt.add(Line("Last opened ???").fg(Color::BLACK));
+
+        state.detailed_text_button(
+            txt,
+            Box::new(move |ctx, _| {
+                let edits = abstutil::list_all_objects(abstutil::EDITS, &challenge.map_name);
+                let mut summary = Text::new();
+                for l in &challenge.description {
+                    summary.add(Line(l));
+                }
+                summary.add(Line(""));
+                summary.add(Line(format!("{} proposals:", edits.len())));
+                summary.add(Line(""));
+                for e in edits {
+                    summary.add(Line(format!("- {} (untested)", e)));
+                }
+
+                Some(Transition::Push(Box::new(ChallengeSplash {
+                    summary,
+                    menu: ModalMenu::new(
+                        &challenge.title,
+                        vec![
+                            (hotkey(Key::Escape), "back to challenges"),
+                            (hotkey(Key::S), "start challenge fresh"),
+                            (hotkey(Key::L), "load existing proposal"),
+                        ],
+                        ctx,
+                    ),
+                    challenge: challenge.clone(),
+                })))
+            }),
+        );
+    }
+
+    state.build(ctx)
 }
 
 struct ChallengeSplash {
@@ -119,7 +147,7 @@ impl State for ChallengeSplash {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         self.menu.event(ctx);
         if self.menu.action("back to challenges") {
-            return Transition::Replace(challenges_picker());
+            return Transition::Pop;
         }
         if self.menu.action("load existing proposal") {
             let map_name = self.challenge.map_name.clone();

@@ -95,7 +95,7 @@ pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
     );
     state.text_button(
         "CHALLENGES",
-        Box::new(|_, _| Some(Transition::Push(challenges_picker()))),
+        Box::new(|ctx, _| Some(Transition::Push(challenges_picker(ctx)))),
     );
     if ui.primary.current_flags.dev {
         state.text_button(
