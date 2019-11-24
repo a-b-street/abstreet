@@ -1,4 +1,4 @@
-use crate::{Bounds, Distance, HashablePt2D, Pt2D};
+use crate::{Angle, Bounds, Distance, HashablePt2D, Pt2D};
 use geo_booleanop::boolean::BooleanOp;
 use geo_offset::Offset;
 use serde_derive::{Deserialize, Serialize};
@@ -223,22 +223,26 @@ impl Polygon {
         let w = width.inner_meters();
         let h = height.inner_meters();
         let r = radius.inner_meters();
-
-        // TODO Round arcs on the corners ;)
-
         let mut pts = vec![];
+
+        const RESOLUTION: usize = 5;
+        let mut arc = |center: Pt2D, angle1_degs: f64, angle2_degs: f64| {
+            for i in 0..=RESOLUTION {
+                let angle = Angle::new_degs(
+                    angle1_degs + (angle2_degs - angle1_degs) * ((i as f64) / (RESOLUTION as f64)),
+                );
+                pts.push(center.project_away(radius, angle.invert_y()));
+            }
+        };
+
         // Top-left corner
-        pts.push(Pt2D::new(0.0, r));
-        pts.push(Pt2D::new(r, 0.0));
+        arc(Pt2D::new(r, r), 180.0, 90.0);
         // Top-right
-        pts.push(Pt2D::new(w - r, 0.0));
-        pts.push(Pt2D::new(w, r));
+        arc(Pt2D::new(w - r, r), 90.0, 0.0);
         // Bottom-right
-        pts.push(Pt2D::new(w, h - r));
-        pts.push(Pt2D::new(w - r, h));
+        arc(Pt2D::new(w - r, h - r), 360.0, 270.0);
         // Bottom-left
-        pts.push(Pt2D::new(r, h));
-        pts.push(Pt2D::new(0.0, h - r));
+        arc(Pt2D::new(r, h - r), 270.0, 180.0);
         // Close it off
         pts.push(Pt2D::new(0.0, r));
 
