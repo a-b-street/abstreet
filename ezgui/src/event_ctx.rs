@@ -4,8 +4,10 @@ use crate::{
 };
 use abstutil::{elapsed_seconds, Timer, TimerSink};
 use geom::Angle;
+use glium::texture::{RawImage2d, Texture2dArray};
 use glium_glyph::glyph_brush::rusttype::Font;
 use glium_glyph::GlyphBrush;
+use std::collections::BTreeMap;
 use std::collections::VecDeque;
 use std::time::Instant;
 
@@ -47,9 +49,7 @@ impl<'a> EventCtx<'a> {
     pub fn set_textures(
         &mut self,
         skip_textures: Vec<(&str, Color)>,
-        // Each group must have the same dimensions, because they're getting grouped in a texture
-        // array.
-        texture_groups: Vec<Vec<(&str, TextureType)>>,
+        textures: Vec<(&str, TextureType)>,
         timer: &mut Timer,
     ) {
         self.canvas.texture_arrays.clear();
@@ -61,25 +61,40 @@ impl<'a> EventCtx<'a> {
                 .insert(filename.to_string(), fallback);
         }
 
+        // Group textures with the same dimensions and create a texture array. Videocards have a
+        // limit on the number of textures that can be uploaded.
+        let mut dims_to_textures: BTreeMap<(u32, u32), Vec<(String, Vec<u8>, TextureType)>> =
+            BTreeMap::new();
+        let num_textures = textures.len();
+        timer.start_iter("upload textures", num_textures);
+        for (filename, tex_type) in textures {
+            timer.next();
+            let img = image::open(filename).unwrap().to_rgba();
+            let dims = img.dimensions();
+            //let raw = RawImage2d::from_raw_rgba_reversed(&img.into_raw(), dims);
+            dims_to_textures.entry(dims).or_insert_with(Vec::new).push((
+                filename.to_string(),
+                img.into_raw(),
+                tex_type,
+            ));
+        }
+        timer.note(format!(
+            "{} textures grouped into {} arrays (with the same dimensions)",
+            num_textures,
+            dims_to_textures.len()
+        ));
+
         // The limit depends on videocard and drivers -- I can't find a reasonable minimum
         // documented online. But in practice, some Mac users hit a limit of 16. :)
-        if texture_groups.len() > 15 {
-            panic!("Due to lovely hacks, only 15 texture groups supported");
+        if dims_to_textures.len() > 15 {
+            panic!("Only 15 texture arrays supported by some videocards. Group more textures by using the same image dimensions.");
         }
-        timer.start_iter("upload textures", texture_groups.len());
-        for (group_idx, group) in texture_groups.into_iter().enumerate() {
-            timer.next();
+        for (group_idx, (dims, list)) in dims_to_textures.into_iter().enumerate() {
             let mut raw_data = Vec::new();
-            for (tex_idx, (filename, tex_type)) in group.into_iter().enumerate() {
-                let img = image::open(filename).unwrap().to_rgba();
-                let dims = img.dimensions();
-                raw_data.push(glium::texture::RawImage2d::from_raw_rgba_reversed(
-                    &img.into_raw(),
-                    dims,
-                ));
+            for (tex_idx, (filename, raw, tex_type)) in list.into_iter().enumerate() {
                 let tex_id = (group_idx as f32, tex_idx as f32);
                 self.canvas.texture_lookups.insert(
-                    filename.to_string(),
+                    filename,
                     match tex_type {
                         TextureType::Stretch => Color::StretchTexture(tex_id, Angle::ZERO),
                         TextureType::Tile => {
@@ -88,12 +103,11 @@ impl<'a> EventCtx<'a> {
                         TextureType::CustomUV => Color::CustomUVTexture(tex_id),
                     },
                 );
+                raw_data.push(RawImage2d::from_raw_rgba_reversed(&raw, dims));
             }
-            // TODO When the "Varying dimensions were found" error happens, print a friendlier
-            // error that has the list of files in the group with mismatched sizes.
-            self.canvas.texture_arrays.push(
-                glium::texture::Texture2dArray::new(self.prerender.display, raw_data).unwrap(),
-            );
+            self.canvas
+                .texture_arrays
+                .push(Texture2dArray::new(self.prerender.display, raw_data).unwrap());
         }
     }
 }
