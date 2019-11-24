@@ -47,10 +47,12 @@ impl<'a> EventCtx<'a> {
     pub fn set_textures(
         &mut self,
         skip_textures: Vec<(&str, Color)>,
-        textures: Vec<(&str, TextureType)>,
+        // Each group must have the same dimensions, because they're getting grouped in a texture
+        // array.
+        texture_groups: Vec<Vec<(&str, TextureType)>>,
         timer: &mut Timer,
     ) {
-        self.canvas.textures.clear();
+        self.canvas.texture_arrays.clear();
         self.canvas.texture_lookups.clear();
 
         for (filename, fallback) in skip_textures {
@@ -59,29 +61,38 @@ impl<'a> EventCtx<'a> {
                 .insert(filename.to_string(), fallback);
         }
 
-        if textures.len() > 15 {
-            panic!("Due to lovely hacks, only 15 textures supported");
+        // The limit depends on videocard and drivers -- I can't find a reasonable minimum
+        // documented online. But in practice, some Mac users hit a limit of 16. :)
+        if texture_groups.len() > 15 {
+            panic!("Due to lovely hacks, only 15 texture groups supported");
         }
-        timer.start_iter("upload textures", textures.len());
-        for (idx, (filename, tex_type)) in textures.into_iter().enumerate() {
+        timer.start_iter("upload textures", texture_groups.len());
+        for (group_idx, group) in texture_groups.into_iter().enumerate() {
             timer.next();
-            let img = image::open(filename).unwrap().to_rgba();
-            let dims = img.dimensions();
-            let tex = glium::texture::Texture2d::new(
-                self.prerender.display,
-                glium::texture::RawImage2d::from_raw_rgba_reversed(&img.into_raw(), dims),
-            )
-            .unwrap();
-            self.canvas.textures.push((filename.to_string(), tex));
-            self.canvas.texture_lookups.insert(
-                filename.to_string(),
-                match tex_type {
-                    TextureType::Stretch => Color::StretchTexture(idx as f32, Angle::ZERO),
-                    TextureType::Tile => {
-                        Color::TileTexture(idx as f32, (f64::from(dims.0), f64::from(dims.1)))
-                    }
-                    TextureType::CustomUV => Color::CustomUVTexture(idx as f32),
-                },
+            let mut raw_data = Vec::new();
+            for (tex_idx, (filename, tex_type)) in group.into_iter().enumerate() {
+                let img = image::open(filename).unwrap().to_rgba();
+                let dims = img.dimensions();
+                raw_data.push(glium::texture::RawImage2d::from_raw_rgba_reversed(
+                    &img.into_raw(),
+                    dims,
+                ));
+                let tex_id = (group_idx as f32, tex_idx as f32);
+                self.canvas.texture_lookups.insert(
+                    filename.to_string(),
+                    match tex_type {
+                        TextureType::Stretch => Color::StretchTexture(tex_id, Angle::ZERO),
+                        TextureType::Tile => {
+                            Color::TileTexture(tex_id, (f64::from(dims.0), f64::from(dims.1)))
+                        }
+                        TextureType::CustomUV => Color::CustomUVTexture(tex_id),
+                    },
+                );
+            }
+            // TODO When the "Varying dimensions were found" error happens, print a friendlier
+            // error that has the list of files in the group with mismatched sizes.
+            self.canvas.texture_arrays.push(
+                glium::texture::Texture2dArray::new(self.prerender.display, raw_data).unwrap(),
             );
         }
     }

@@ -1,7 +1,7 @@
 use crate::{Color, ScreenPt, ScreenRectangle, Text, UserInput};
 use abstutil::Timer;
 use geom::{Bounds, Circle, Pt2D};
-use glium::texture::Texture2d;
+use glium::texture::Texture2dArray;
 use glium_glyph::glyph_brush::rusttype::Scale;
 use glium_glyph::glyph_brush::GlyphCruncher;
 use glium_glyph::GlyphBrush;
@@ -40,7 +40,7 @@ pub struct Canvas {
     pub(crate) button_tooltip: Option<Text>,
 
     // TODO Definitely a weird place to stash this!
-    pub(crate) textures: Vec<(String, Texture2d)>,
+    pub(crate) texture_arrays: Vec<Texture2dArray>,
     pub(crate) texture_lookups: HashMap<String, Color>,
     // Of the default font size
     pub line_height: f64,
@@ -77,7 +77,7 @@ impl Canvas {
             lctrl_held: false,
             button_tooltip: None,
 
-            textures: Vec::new(),
+            texture_arrays: Vec::new(),
             texture_lookups: HashMap::new(),
             line_height: 0.0,
             font_size,

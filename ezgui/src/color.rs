@@ -2,19 +2,22 @@ use geom::Angle;
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 
+// Group index, texture index
+type TextureID = (f32, f32);
+
 // Copy could be reconsidered, but eh
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub enum Color {
     RGBA(f32, f32, f32, f32),
     // (The texture ID to pass to the shader, (texture width, height)). Tiles seamlessly through
     // all of map-space.
-    TileTexture(f32, (f64, f64)),
+    TileTexture(TextureID, (f64, f64)),
     // Stretches the entire texture to fit the entire polygon. Rotates from the center of the
     // polygon. Not sure what this means for anything but circles right now. Have to manually
     // fiddle with the original orientation to fix y inversion.
-    StretchTexture(f32, Angle),
+    StretchTexture(TextureID, Angle),
     // A polygon with UV coordinates for each point must be used.
-    CustomUVTexture(f32),
+    CustomUVTexture(TextureID),
     // TODO Figure out how to pack more data into this.
     HatchingStyle1,
     HatchingStyle2,
@@ -24,13 +27,15 @@ impl fmt::Display for Color {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Color::RGBA(r, g, b, a) => write!(f, "Color(r={}, g={}, b={}, a={})", r, g, b, a),
-            Color::TileTexture(id, (w, h)) => {
-                write!(f, "Color::TileTexture({}, width={}, height={})", id, w, h)
-            }
+            Color::TileTexture(id, (w, h)) => write!(
+                f,
+                "Color::TileTexture({}:{}, width={}, height={})",
+                id.0, id.1, w, h
+            ),
             Color::StretchTexture(id, angle) => {
-                write!(f, "Color::StretchTexture({}, {})", id, angle)
+                write!(f, "Color::StretchTexture({}:{}, {})", id.0, id.1, angle)
             }
-            Color::CustomUVTexture(id) => write!(f, "Color::CustomUVTexture({})", id),
+            Color::CustomUVTexture(id) => write!(f, "Color::CustomUVTexture({}:{})", id.0, id.1),
             Color::HatchingStyle1 => write!(f, "Color::HatchingStyle1"),
             Color::HatchingStyle2 => write!(f, "Color::HatchingStyle2"),
         }

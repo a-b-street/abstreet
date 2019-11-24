@@ -24,13 +24,13 @@ impl UI {
         let cs = ColorScheme::load().unwrap();
         let (primary, prebaked) = ctx.loading_screen("load map", |ctx, mut timer| {
             // Always load some small icons.
-            let mut textures = vec![
-                /*("assets/ui/edit_bike.png", TextureType::Stretch),
+            let mut texture_groups = vec![vec![
+                ("assets/ui/edit_bike.png", TextureType::Stretch),
                 ("assets/ui/edit_bus.png", TextureType::Stretch),
                 ("assets/ui/edit_construction.png", TextureType::Stretch),
                 ("assets/ui/edit_contraflow.png", TextureType::Stretch),
                 ("assets/ui/edit_driving.png", TextureType::Stretch),
-                ("assets/ui/edit_parking.png", TextureType::Stretch),*/
+                ("assets/ui/edit_parking.png", TextureType::Stretch),
                 ("assets/ui/hamburger.png", TextureType::Stretch),
                 ("assets/ui/hide.png", TextureType::Stretch),
                 ("assets/ui/info.png", TextureType::Stretch),
@@ -44,13 +44,13 @@ impl UI {
                 ("assets/ui/slow_down.png", TextureType::Stretch),
                 ("assets/ui/small_step.png", TextureType::Stretch),
                 ("assets/ui/speed_up.png", TextureType::Stretch),
-            ];
+            ]];
             let skip_textures = if flags.textures {
-                textures.extend(vec![
-                    ("assets/water_texture.png", TextureType::Tile),
-                    ("assets/grass_texture.png", TextureType::Tile),
-                    ("assets/pedestrian.png", TextureType::Stretch),
-                    ("assets/car.png", TextureType::CustomUV),
+                texture_groups.extend(vec![
+                    vec![("assets/water_texture.png", TextureType::Tile)],
+                    vec![("assets/grass_texture.png", TextureType::Tile)],
+                    vec![("assets/pedestrian.png", TextureType::Stretch)],
+                    vec![("assets/car.png", TextureType::CustomUV)],
                 ]);
                 Vec::new()
             } else {
@@ -68,7 +68,7 @@ impl UI {
                 ]
             };
 
-            ctx.set_textures(skip_textures, textures, &mut timer);
+            ctx.set_textures(skip_textures, texture_groups, &mut timer);
 
             let primary = PerMapUI::new(flags, &cs, ctx, &mut timer);
             let prebaked: Analytics = abstutil::read_binary(

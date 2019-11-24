@@ -51,10 +51,10 @@ impl<'b> glium::uniforms::Uniforms for Uniforms<'b> {
             ),
             ..Default::default()
         };
-        for (idx, (_, tex)) in self.canvas.textures.iter().enumerate() {
+        for (idx, tex) in self.canvas.texture_arrays.iter().enumerate() {
             output(
                 &format!("tex{}", idx),
-                UniformValue::Texture2d(tex, Some(tile)),
+                UniformValue::Texture2dArray(tex, Some(tile)),
             );
         }
     }
@@ -379,10 +379,8 @@ pub struct Drawable {
 #[derive(Copy, Clone)]
 pub(crate) struct Vertex {
     position: [f32; 2],
-    // If the last component is non-zero, then this is an RGBA value.
-    // When the last component is 0, then this is (texture ID, tex coord X, text coord Y, 0)
-    // And more cases -- (100, 0, 0, 0) means to just draw hatching style 1. (101, 0, 0, 0) is
-    // hatching style 2.
+    // Each type of Color encodes something different here. See the actually_upload method and
+    // fragment_140.glsl.
     // TODO Make this u8?
     style: [f32; 4],
 }
@@ -429,6 +427,9 @@ impl<'a> Prerender<'a> {
             let idx_offset = vertices.len();
             let (pts, raw_indices, maybe_uv) = poly.raw_for_rendering();
             for (idx, pt) in pts.iter().enumerate() {
+                // For the three texture cases, pass [U coordinate, V coordinate, texture group ID,
+                // 100 + texture offset ID] as the style. The last field is between 0 an 1 RGBA's
+                // alpha values, so bump by 100 to distinguish from that.
                 let style = match color {
                     Color::RGBA(r, g, b, a) => [r, g, b, a],
                     Color::TileTexture(id, (tex_width, tex_height)) => {
@@ -437,7 +438,7 @@ impl<'a> Prerender<'a> {
                         // separate but adjacent polygons, we want seamless tiling.
                         let tx = pt.x() / tex_width;
                         let ty = pt.y() / tex_height;
-                        [id, tx as f32, ty as f32, 0.0]
+                        [tx as f32, ty as f32, id.0, 100.0 + id.1]
                     }
                     Color::StretchTexture(id, angle) => {
                         // TODO Cache
@@ -452,13 +453,14 @@ impl<'a> Prerender<'a> {
 
                         let tx = (rot_pt.x() - b.min_x) / (b.max_x - b.min_x);
                         let ty = (rot_pt.y() - b.min_y) / (b.max_y - b.min_y);
-                        [id, tx as f32, ty as f32, 0.0]
+                        [tx as f32, ty as f32, id.0, 100.0 + id.1]
                     }
                     Color::CustomUVTexture(id) => {
                         let (tx, ty) =
                             maybe_uv.expect("CustomUVTexture with polygon lacking UV")[idx];
-                        [id, tx, ty, 0.0]
+                        [tx, ty, id.0, 100.0 + id.1]
                     }
+                    // Two final special cases
                     Color::HatchingStyle1 => [100.0, 0.0, 0.0, 0.0],
                     Color::HatchingStyle2 => [101.0, 0.0, 0.0, 0.0],
                 };
