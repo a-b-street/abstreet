@@ -160,6 +160,7 @@ fn change_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<
             list.push("just buses".to_string());
             list
         })?;
+    ui.primary.clear_sim();
     Some(Transition::PopThenReplace(Box::new(SandboxMode::new(
         ctx,
         ui,
