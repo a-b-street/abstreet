@@ -400,8 +400,10 @@ impl Pathfinder {
         let car_graph = VehiclePathfinder::new(map, PathConstraints::Car, None);
         timer.stop("prepare pathfinding for cars");
 
+        // The edge weights for bikes are so different from the driving graph that reusing the node
+        // ordering actually hurts!
         timer.start("prepare pathfinding for bikes");
-        let bike_graph = VehiclePathfinder::new(map, PathConstraints::Bike, Some(&car_graph));
+        let bike_graph = VehiclePathfinder::new(map, PathConstraints::Bike, None);
         timer.stop("prepare pathfinding for bikes");
 
         timer.start("prepare pathfinding for buses");
