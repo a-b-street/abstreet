@@ -73,10 +73,10 @@ fn screencap(filename: &str) -> bool {
     if !process::Command::new("scrot")
         .args(&["--quality", "100", "--focused", "--silent", filename])
         .status()
-        .unwrap()
-        .success()
+        .map(|s| s.success())
+        .unwrap_or(false)
     {
-        println!("scrot failed; aborting");
+        println!("Screencapping failed; you probably don't have scrot (https://en.wikipedia.org/wiki/Scrot) installed");
         return false;
     }
     true

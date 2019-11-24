@@ -45,19 +45,42 @@ Things to try:
 
 ## For developers: Compiling from source
 
-To build, you need a Linux-like environment with `bash`, `wget`, `unzip`, etc.
-You also `osmconvert` for the import script. At runtime if you want to use the
-screen-capture plugin, you need `scrot`.
+You will first need:
 
-1.  Install Rust, at least 1.38. https://www.rust-lang.org/tools/install
+- Standard dependencies: `bash`, `curl`, `unzip`, `gunzip`
+- `osmconvert`: See https://wiki.openstreetmap.org/wiki/Osmconvert#Download
+- Rust, at least 1.38. https://www.rust-lang.org/tools/install
 
-2.  Download the repository:
+One-time setup:
+
+1.  Download the repository:
     `git clone https://github.com/dabreegster/abstreet.git`
 
-3.  Download all input data and build maps. Compilation times will be very slow
+2.  Download all input data and build maps. Compilation times will be very slow
     the first time. `cd abstreet; ./import.sh && ./precompute.sh --release`
 
-4.  Then run the game: `cd game; cargo run --release`
+3.  Run the game: `cd game; cargo run --release`
+
+### Development tips
+
+- You don't need to rerun `./import.sh` nd `./precompute.sh` most of the time.
+  - If you're just touching code in `game`, `sim`, and `ezgui`, you can just
+    `cargo run` from `game`
+  - If you're modifying the initial OSM data -> RawMap conversion in
+    `convert_osm`, then you do need to rerun `./import.sh` and `precompute.sh`
+    to regenerate the map.
+  - If you're modifying `map_model` but not the OSM -> RawMap conversion, then
+    you can just do `precompute.sh`.
+  - Both of those scripts can just regenerate a single map, which is much
+    faster: `./import.sh caphill; ./precompute.sh caphill`
+- Compile faster by just doing `cargo run`. The executable will have debug stack
+  traces and run more slowly. You can do `cargo run --release` to build in
+  optimized release mode; compilation will be slower, but the executable much
+  faster.
+- To add some extra debug modes to the game, `cargo run -- --dev`
+- All code is automatically formatted using
+  https://github.com/rust-lang/rustfmt; please run `cargo fmt` before sending a
+  PR.
 
 ## Data source licensing
 
