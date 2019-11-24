@@ -1,5 +1,5 @@
 use crate::layout::Widget;
-use crate::{Drawable, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenPt};
+use crate::{Drawable, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenPt, Text};
 use geom::{Distance, Polygon, Pt2D};
 
 // Just draw something. A widget just so layouting works.
@@ -30,6 +30,17 @@ impl JustDraw {
         }
     }
 
+    // TODO I wish this wasn't a separate type...
+    pub fn text(text: Text, ctx: &EventCtx) -> JustDrawText {
+        let (w, h) = ctx.canvas.text_dims(&text);
+        JustDrawText {
+            text,
+
+            dims: ScreenDims::new(w, h),
+            top_left: ScreenPt::new(0.0, 0.0),
+        }
+    }
+
     pub fn draw(&self, g: &mut GfxCtx) {
         g.fork(Pt2D::new(0.0, 0.0), self.top_left, 1.0);
         g.redraw(&self.draw);
@@ -37,6 +48,29 @@ impl JustDraw {
 }
 
 impl Widget for JustDraw {
+    fn get_dims(&self) -> ScreenDims {
+        self.dims
+    }
+
+    fn set_pos(&mut self, top_left: ScreenPt, _total_width: f64) {
+        self.top_left = top_left;
+    }
+}
+
+pub struct JustDrawText {
+    text: Text,
+
+    dims: ScreenDims,
+    top_left: ScreenPt,
+}
+
+impl JustDrawText {
+    pub fn draw(&self, g: &mut GfxCtx) {
+        g.draw_text_at_screenspace_topleft(&self.text, self.top_left);
+    }
+}
+
+impl Widget for JustDrawText {
     fn get_dims(&self) -> ScreenDims {
         self.dims
     }

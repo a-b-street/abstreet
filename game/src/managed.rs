@@ -1,56 +1,47 @@
 use crate::game::{State, Transition};
 use crate::ui::UI;
-use ezgui::{layout, Color, EventCtx, GfxCtx, Line, MultiText, ScreenPt, Text, TextButton};
+use ezgui::{layout, Color, EventCtx, GfxCtx, JustDraw, JustDrawText, Line, Text, TextButton};
 
 type Callback = Box<dyn Fn(&mut EventCtx, &mut UI) -> Option<Transition>>;
 
-pub struct ManagedGUIStateBuilder {
-    multi_txt: MultiText,
-    buttons: Vec<(Text, Callback)>,
+pub struct ManagedGUIStateBuilder<'a> {
+    ctx: &'a EventCtx<'a>,
+    state: ManagedGUIState,
 }
 
-impl ManagedGUIStateBuilder {
-    pub fn draw_text(&mut self, txt: Text, pt: ScreenPt) {
-        self.multi_txt.add(txt, pt);
+impl<'a> ManagedGUIStateBuilder<'a> {
+    pub fn draw_text(&mut self, txt: Text) {
+        self.state.draw_text.push(JustDraw::text(txt, &self.ctx));
     }
 
     pub fn text_button(&mut self, label: &str, onclick: Callback) {
-        self.buttons
-            .push((Text::from(Line(label).fg(Color::BLACK)), onclick));
+        self.detailed_text_button(Text::from(Line(label).fg(Color::BLACK)), onclick);
     }
 
     pub fn detailed_text_button(&mut self, txt: Text, onclick: Callback) {
-        self.buttons.push((txt, onclick));
+        // TODO Default style. Lots of variations.
+        let btn = TextButton::new(txt, Color::WHITE, Color::ORANGE, self.ctx);
+        self.state.buttons.push((btn, onclick));
     }
 
-    pub fn build(self, ctx: &EventCtx) -> Box<dyn State> {
-        Box::new(ManagedGUIState {
-            multi_txt: self.multi_txt,
-            // TODO Default style. Lots of variations.
-            buttons: self
-                .buttons
-                .into_iter()
-                .map(|(txt, onclick)| {
-                    (
-                        TextButton::new(txt, Color::WHITE, Color::ORANGE, ctx),
-                        onclick,
-                    )
-                })
-                .collect(),
-        })
+    pub fn build(self) -> Box<dyn State> {
+        Box::new(self.state)
     }
 }
 
 pub struct ManagedGUIState {
-    multi_txt: MultiText,
+    draw_text: Vec<JustDrawText>,
     buttons: Vec<(TextButton, Callback)>,
 }
 
 impl ManagedGUIState {
-    pub fn builder() -> ManagedGUIStateBuilder {
+    pub fn builder<'a>(ctx: &'a EventCtx<'a>) -> ManagedGUIStateBuilder<'a> {
         ManagedGUIStateBuilder {
-            multi_txt: MultiText::new(),
-            buttons: Vec::new(),
+            ctx,
+            state: ManagedGUIState {
+                draw_text: Vec::new(),
+                buttons: Vec::new(),
+            },
         }
     }
 }
@@ -60,9 +51,14 @@ impl State for ManagedGUIState {
         // TODO If this ever gets slow, only run if window size has changed.
         layout::flexbox(
             ctx,
-            self.buttons
+            self.draw_text
                 .iter_mut()
-                .map(|(btn, _)| btn as &mut dyn layout::Widget)
+                .map(|t| t as &mut dyn layout::Widget)
+                .chain(
+                    self.buttons
+                        .iter_mut()
+                        .map(|(btn, _)| btn as &mut dyn layout::Widget),
+                )
                 .collect(),
         );
         for (btn, onclick) in self.buttons.iter_mut() {
@@ -83,7 +79,9 @@ impl State for ManagedGUIState {
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         // Happens to be a nice background color too ;)
         g.clear(ui.cs.get("grass"));
-        self.multi_txt.draw(g);
+        for t in &self.draw_text {
+            t.draw(g);
+        }
         for (btn, _) in &self.buttons {
             btn.draw(g);
         }

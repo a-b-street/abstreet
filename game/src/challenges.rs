@@ -5,8 +5,8 @@ use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{
-    hotkey, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ModalMenu, ScreenPt,
-    Text, VerticalAlignment,
+    hotkey, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ModalMenu, Text,
+    VerticalAlignment,
 };
 use geom::Duration;
 use sim::{SimFlags, SimOptions, TripMode};
@@ -74,20 +74,11 @@ fn all_challenges() -> Vec<Challenge> {
 }
 
 pub fn challenges_picker(ctx: &EventCtx) -> Box<dyn State> {
-    let mut state = ManagedGUIState::builder();
+    let mut state = ManagedGUIState::builder(ctx);
 
-    state.draw_text(
-        Text::from(Line("A/B STREET").size(50)).no_bg(),
-        ScreenPt::new(200.0, 100.0),
-    );
-    state.draw_text(
-        Text::from(Line("CHALLENGES")).no_bg(),
-        ScreenPt::new(250.0, 500.0),
-    );
-    state.draw_text(
-        Text::from(Line("Make changes to achieve a goal")).no_bg(),
-        ScreenPt::new(250.0, 700.0),
-    );
+    state.draw_text(Text::from(Line("A/B STREET").size(50)).no_bg());
+    state.draw_text(Text::from(Line("CHALLENGES")).no_bg());
+    state.draw_text(Text::from(Line("Make changes to achieve a goal")).no_bg());
 
     state.text_button("BACK", Box::new(|_, _| Some(Transition::Pop)));
 
@@ -134,7 +125,7 @@ pub fn challenges_picker(ctx: &EventCtx) -> Box<dyn State> {
         );
     }
 
-    state.build(ctx)
+    state.build()
 }
 
 struct ChallengeSplash {

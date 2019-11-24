@@ -55,7 +55,7 @@ pub fn flexbox(ctx: &EventCtx, widgets: Vec<&mut dyn Widget>) {
 
     use stretch::geometry::Size;
     use stretch::node::{Node, Stretch};
-    use stretch::style::{Dimension, FlexWrap, Style};
+    use stretch::style::{AlignContent, Dimension, FlexDirection, FlexWrap, JustifyContent, Style};
 
     let mut stretch = Stretch::new();
 
@@ -86,6 +86,9 @@ pub fn flexbox(ctx: &EventCtx, widgets: Vec<&mut dyn Widget>) {
                     height: Dimension::Points(ctx.canvas.window_height as f32),
                 },
                 flex_wrap: FlexWrap::Wrap,
+                flex_direction: FlexDirection::Column,
+                justify_content: JustifyContent::SpaceAround,
+                align_content: AlignContent::Center,
                 ..Default::default()
             },
             widget_nodes.clone(),

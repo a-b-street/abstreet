@@ -7,9 +7,7 @@ use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::tutorial::TutorialMode;
 use crate::ui::UI;
 use abstutil::elapsed_seconds;
-use ezgui::{
-    layout, Color, EventCtx, EventLoopMode, GfxCtx, JustDraw, Line, ScreenPt, Text, TextButton,
-};
+use ezgui::{layout, Color, EventCtx, EventLoopMode, GfxCtx, JustDraw, Line, Text, TextButton};
 use geom::{Duration, Line, Pt2D, Speed};
 use map_model::Map;
 use rand::Rng;
@@ -64,20 +62,11 @@ impl State for TitleScreen {
 }
 
 pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
-    let mut state = ManagedGUIState::builder();
+    let mut state = ManagedGUIState::builder(ctx);
 
-    state.draw_text(
-        Text::from(Line("A/B STREET").size(50)).no_bg(),
-        ScreenPt::new(200.0, 100.0),
-    );
-    state.draw_text(
-        Text::from(Line("Created by Dustin Carlino")).no_bg(),
-        ScreenPt::new(250.0, 300.0),
-    );
-    state.draw_text(
-        Text::from(Line("Choose your game")).no_bg(),
-        ScreenPt::new(250.0, 500.0),
-    );
+    state.draw_text(Text::from(Line("A/B STREET").size(50)).no_bg());
+    state.draw_text(Text::from(Line("Created by Dustin Carlino")).no_bg());
+    state.draw_text(Text::from(Line("Choose your game")).no_bg());
 
     state.text_button(
         "TUTORIAL",
@@ -118,11 +107,11 @@ pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
             std::process::exit(0);
         }),
     );
-    state.build(ctx)
+    state.build()
 }
 
 fn about(ctx: &EventCtx) -> Box<dyn State> {
-    let mut state = ManagedGUIState::builder();
+    let mut state = ManagedGUIState::builder(ctx);
 
     let mut txt = Text::new().no_bg();
     txt.add(Line("A/B STREET").size(50));
@@ -136,11 +125,11 @@ fn about(ctx: &EventCtx) -> Box<dyn State> {
         "See full credits at https://github.com/dabreegster/abstreet#credits",
     ));
     // TODO centered
-    state.draw_text(txt, ScreenPt::new(100.0, 100.0));
+    state.draw_text(txt);
 
     state.text_button("BACK", Box::new(|_, _| Some(Transition::Pop)));
 
-    state.build(ctx)
+    state.build()
 }
 
 const SPEED: Speed = Speed::const_meters_per_second(20.0);
