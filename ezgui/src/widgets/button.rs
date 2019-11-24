@@ -206,11 +206,10 @@ impl TextButton {
         ctx: &EventCtx,
     ) -> TextButton {
         let (w, h) = ctx.canvas.text_dims(&text);
-        // TODO Rounded corners
-        let geom = Polygon::rectangle_topleft(
-            Pt2D::new(0.0, 0.0),
+        let geom = Polygon::rounded_rectangle(
             Distance::meters(w + 2.0 * HORIZ_PADDING),
             Distance::meters(h + 2.0 * VERT_PADDING),
+            Distance::meters(VERT_PADDING),
         );
 
         TextButton {

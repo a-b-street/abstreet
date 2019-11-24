@@ -214,6 +214,36 @@ impl Polygon {
     pub fn shrink(&self, distance: f64) -> Vec<Polygon> {
         from_multi(to_geo(self.points()).offset(distance).unwrap())
     }
+
+    // Top-left at the origin; use translate
+    pub fn rounded_rectangle(width: Distance, height: Distance, radius: Distance) -> Polygon {
+        assert!(2.0 * radius <= width);
+        assert!(2.0 * radius <= height);
+
+        let w = width.inner_meters();
+        let h = height.inner_meters();
+        let r = radius.inner_meters();
+
+        // TODO Round arcs on the corners ;)
+
+        let mut pts = vec![];
+        // Top-left corner
+        pts.push(Pt2D::new(0.0, r));
+        pts.push(Pt2D::new(r, 0.0));
+        // Top-right
+        pts.push(Pt2D::new(w - r, 0.0));
+        pts.push(Pt2D::new(w, r));
+        // Bottom-right
+        pts.push(Pt2D::new(w, h - r));
+        pts.push(Pt2D::new(w - r, h));
+        // Bottom-left
+        pts.push(Pt2D::new(r, h));
+        pts.push(Pt2D::new(0.0, h - r));
+        // Close it off
+        pts.push(Pt2D::new(0.0, r));
+
+        Polygon::new(&pts)
+    }
 }
 
 impl fmt::Display for Polygon {
