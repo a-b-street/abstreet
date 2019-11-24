@@ -4,7 +4,7 @@ mod overlays;
 mod score;
 
 use self::overlays::Overlays;
-use crate::common::{time_controls, AgentTools, CommonState, SpeedControls};
+use crate::common::{time_controls, AgentTools, CommonState, Minimap, SpeedControls};
 use crate::debug::DebugMode;
 use crate::edit::EditMode;
 use crate::edit::{apply_map_edits, save_edits};
@@ -32,6 +32,7 @@ pub struct SandboxMode {
     overlay: Overlays,
     gameplay: gameplay::GameplayRunner,
     common: CommonState,
+    minimap: Minimap,
     menu: ModalMenu,
 }
 
@@ -78,6 +79,7 @@ impl SandboxMode {
             overlay: Overlays::Inactive,
             gameplay: gameplay::GameplayRunner::initialize(mode, ui, ctx),
             common: CommonState::new(ctx),
+            minimap: Minimap::new(),
             menu: ModalMenu::new(
                 "Sandbox Mode",
                 vec![(lctrl(Key::E), "edit mode"), (hotkey(Key::X), "reset sim")],
@@ -134,6 +136,7 @@ impl State for SandboxMode {
         if let Some(t) = self.overlay.event(ctx, ui, &mut self.info_tools) {
             return t;
         }
+        self.minimap.event(ui, ctx);
 
         if let Some(t) = self
             .agent_tools
@@ -363,6 +366,7 @@ impl State for SandboxMode {
         self.general_tools.draw(g);
         self.save_tools.draw(g);
         self.gameplay.draw(g, ui);
+        self.minimap.draw(g, ui);
     }
 
     fn on_suspend(&mut self, _: &mut EventCtx, _: &mut UI) {

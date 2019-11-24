@@ -1,6 +1,7 @@
 mod agent;
 mod colors;
 mod info;
+mod minimap;
 mod navigate;
 mod plot;
 mod route_explorer;
@@ -16,6 +17,7 @@ pub use self::agent::AgentTools;
 pub use self::colors::{
     ColorLegend, ObjectColorer, ObjectColorerBuilder, RoadColorer, RoadColorerBuilder,
 };
+pub use self::minimap::Minimap;
 pub use self::plot::{Plot, Series};
 pub use self::route_explorer::RouteExplorer;
 pub use self::speed::SpeedControls;
