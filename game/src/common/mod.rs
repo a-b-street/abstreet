@@ -27,7 +27,7 @@ use crate::helpers::ID;
 use crate::render::DrawOptions;
 use crate::ui::UI;
 use ezgui::{
-    hotkey, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, MenuUnderButton, Text,
+    hotkey, lctrl, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, MenuUnderButton, Text,
     VerticalAlignment,
 };
 use std::collections::BTreeSet;
@@ -57,6 +57,10 @@ impl CommonState {
 
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
         self.location_tools.event(ctx);
+
+        if ctx.input.new_was_pressed(lctrl(Key::S).unwrap()) {
+            ui.primary.current_flags.dev = !ui.primary.current_flags.dev;
+        }
 
         if self.location_tools.action("warp") {
             return Some(Transition::Push(warp::EnteringWarp::new()));

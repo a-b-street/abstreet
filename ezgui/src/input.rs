@@ -176,7 +176,7 @@ impl UserInput {
         false
     }
 
-    pub(crate) fn new_was_pressed(&mut self, multikey: MultiKey) -> bool {
+    pub fn new_was_pressed(&mut self, multikey: MultiKey) -> bool {
         if self.context_menu_active() {
             return false;
         }

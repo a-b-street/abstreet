@@ -80,6 +80,11 @@ impl Text {
         txt
     }
 
+    pub fn bg(mut self, color: Color) -> Text {
+        self.bg_color = Some(color);
+        self
+    }
+
     pub fn no_bg(mut self) -> Text {
         self.bg_color = None;
         self

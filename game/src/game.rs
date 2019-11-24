@@ -2,7 +2,10 @@ use crate::pregame::{main_menu, TitleScreen};
 use crate::render::DrawOptions;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::{Flags, ShowEverything, UI};
-use ezgui::{Canvas, EventCtx, EventLoopMode, GfxCtx, Wizard, GUI};
+use ezgui::{
+    Canvas, Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Line, Text,
+    VerticalAlignment, Wizard, GUI,
+};
 
 // This is the top-level of the GUI logic. This module should just manage interactions between the
 // top-level game states.
@@ -106,6 +109,13 @@ impl GUI for Game {
             );
         }
         state.draw(g, &self.ui);
+
+        if self.ui.primary.current_flags.dev {
+            g.draw_blocking_text(
+                &Text::from(Line("DEV")).bg(Color::RED),
+                (HorizontalAlignment::Right, VerticalAlignment::Bottom),
+            );
+        }
 
         /*println!(
             "{} uploads, {} draw calls",

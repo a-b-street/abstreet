@@ -77,7 +77,8 @@ One-time setup:
   traces and run more slowly. You can do `cargo run --release` to build in
   optimized release mode; compilation will be slower, but the executable much
   faster.
-- To add some extra debug modes to the game, `cargo run -- --dev`
+- To add some extra debug modes to the game, `cargo run -- --dev` or press
+  Control+S to toggle in-game
 - All code is automatically formatted using
   https://github.com/rust-lang/rustfmt; please run `cargo fmt` before sending a
   PR.
