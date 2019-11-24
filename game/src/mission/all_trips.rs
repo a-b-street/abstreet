@@ -198,7 +198,7 @@ impl State for TripsVisualizer {
 
         self.menu.draw(g);
         self.time_slider.draw(g);
-        self.speed.draw(g);
+        self.speed.draw(g, ui);
         CommonState::draw_osd(g, ui, &ui.primary.current_selection);
     }
 }
