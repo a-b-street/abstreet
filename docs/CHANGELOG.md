@@ -181,3 +181,9 @@ changes here.
 - traffic signal visualization and editing revamped to group related turns together
 - can preview traffic using a signal from the editor
 - actually apply priority at intersections, so protected turns get first dibs over yield turns
+
+0.1.16
+
+- fix Mac crashing with texture limit bug by switching to texture arrays
+- fix crashing simulation when a border intersection was used
+- started to implement a new UI design for starting the game
