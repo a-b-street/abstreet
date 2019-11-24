@@ -16,6 +16,8 @@ const PANEL_RECT: ScreenRectangle = ScreenRectangle {
 };
 
 const ADJUST_SPEED_PERCENT: f64 = 0.01;
+const GAME_DURATION: Duration = Duration::END_OF_DAY;
+const BACKGROUND_COLOR: Color = Color::grey(0.3);
 
 pub struct SpeedControls {
     slider_speed: Slider,
@@ -47,7 +49,7 @@ impl SpeedControls {
     pub fn new(ctx: &mut EventCtx, dev_mode: bool, step_controls: bool) -> SpeedControls {
         let mut panel_bg = GeomBatch::new();
         panel_bg.push(
-            Color::grey(0.3),
+            BACKGROUND_COLOR,
             Polygon::rectangle_topleft(
                 Pt2D::new(PANEL_RECT.x1, PANEL_RECT.y1),
                 Distance::meters(PANEL_RECT.x2 - PANEL_RECT.x1),
@@ -55,36 +57,40 @@ impl SpeedControls {
             ),
         );
 
-        let resume_btn = Button::icon_btn(
+        let resume_btn = Button::icon_btn_bg(
             "assets/ui/resume.png",
             25.0,
             "resume",
             hotkey(Key::Space),
+            BACKGROUND_COLOR,
             ctx,
         )
         .at(ScreenPt::new(10.0, 10.0));
-        let pause_btn = Button::icon_btn(
+        let pause_btn = Button::icon_btn_bg(
             "assets/ui/pause.png",
             25.0,
             "pause",
             hotkey(Key::Space),
+            BACKGROUND_COLOR,
             ctx,
         )
         .at(ScreenPt::new(10.0, 10.0));
 
-        let slow_down_btn = Button::icon_btn(
+        let slow_down_btn = Button::icon_btn_bg(
             "assets/ui/slow_down.png",
             16.0,
             "slow down",
             hotkey(Key::LeftBracket),
+            BACKGROUND_COLOR,
             ctx,
         )
         .at(ScreenPt::new(270.0, 144.0));
-        let speed_up_btn = Button::icon_btn(
+        let speed_up_btn = Button::icon_btn_bg(
             "assets/ui/speed_up.png",
             16.0,
             "speed up",
             hotkey(Key::RightBracket),
+            BACKGROUND_COLOR,
             ctx,
         )
         .at(ScreenPt::new(407.0, 144.0));
@@ -104,25 +110,26 @@ impl SpeedControls {
                 "assets/ui/small_step.png",
                 20.0,
                 "step forwards 0.1s",
-                hotkey(Key::M),
-                ctx,
-            )
-            .at(ScreenPt::new(405.0, 50.0));
-
-            let large = Button::icon_btn(
-                "assets/ui/large_step.png",
-                20.0,
-                "step forwards 10 mins",
                 hotkey(Key::N),
                 ctx,
             )
             .at(ScreenPt::new(405.0, 90.0));
 
-            let jump = Button::icon_btn(
+            let large = Button::icon_btn(
+                "assets/ui/large_step.png",
+                20.0,
+                "step forwards 10 mins",
+                hotkey(Key::M),
+                ctx,
+            )
+            .at(ScreenPt::new(405.0, 50.0));
+
+            let jump = Button::icon_btn_bg(
                 "assets/ui/edit_time.png",
                 20.0,
                 "jump to a specific time in the future",
                 hotkey(Key::B),
+                BACKGROUND_COLOR,
                 ctx,
             )
             .at(ScreenPt::new(405.0, 10.0));
@@ -174,14 +181,14 @@ impl SpeedControls {
         } else if self.slider_speed.event(ctx) {
             self.speed_actual = self.speed_cap * self.slider_speed.get_percent();
         } else if self.slider_time.event(ctx) {
-            let time_next = self.slider_time.get_percent() * Duration::END_OF_DAY;
+            let time_next = self.slider_time.get_percent() * GAME_DURATION;
             let delta = time_next - current_sim_time;
             if delta > Duration::ZERO {
                 return Some(delta);
             } else {
                 // cannot go back, so reset the slider.
                 self.slider_time
-                    .set_percent(ctx, current_sim_time / Duration::END_OF_DAY);
+                    .set_percent(ctx, current_sim_time / GAME_DURATION);
             }
         }
 
@@ -195,7 +202,7 @@ impl SpeedControls {
                         last_measurement_sim: current_sim_time,
                     };
                     self.slider_time
-                        .set_percent(ctx, current_sim_time / Duration::END_OF_DAY);
+                        .set_percent(ctx, current_sim_time / GAME_DURATION);
                     // Sorta hack to trigger EventLoopMode::Animation.
                     return Some(Duration::ZERO);
                 }
@@ -226,7 +233,7 @@ impl SpeedControls {
                         *last_measurement_sim = current_sim_time;
                     }
                     self.slider_time
-                        .set_percent(ctx, current_sim_time / Duration::END_OF_DAY);
+                        .set_percent(ctx, current_sim_time.inner_seconds() / GAME_DURATION.inner_seconds());
                     return Some(dt);
                 }
             }
