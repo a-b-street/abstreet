@@ -111,12 +111,12 @@ impl Widget for MenuUnderButton {
         self.button.get_dims()
     }
 
-    fn set_pos(&mut self, top_left: ScreenPt, total_width: f64) {
-        self.button.set_pos(top_left, total_width);
+    fn set_pos(&mut self, top_left: ScreenPt) {
+        self.button.set_pos(top_left);
         // TODO Brittle, convenient only for where these buttons are being placed right now
-        self.menu.set_pos(
-            ScreenPt::new(top_left.x, top_left.y + self.get_dims().height),
-            total_width,
-        );
+        self.menu.set_pos(ScreenPt::new(
+            top_left.x,
+            top_left.y + self.get_dims().height,
+        ));
     }
 }

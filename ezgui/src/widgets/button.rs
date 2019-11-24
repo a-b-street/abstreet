@@ -116,7 +116,7 @@ impl Widget for Button {
         self.dims
     }
 
-    fn set_pos(&mut self, top_left: ScreenPt, _total_width: f64) {
+    fn set_pos(&mut self, top_left: ScreenPt) {
         self.top_left = top_left;
         let r = self.cover_circle.radius.inner_meters();
         self.cover_circle.center = Pt2D::new(top_left.x + r, top_left.y + r);
@@ -180,7 +180,7 @@ impl Button {
     }
 
     pub fn at(mut self, pt: ScreenPt) -> Button {
-        self.set_pos(pt, 0.0);
+        self.set_pos(pt);
         self
     }
 }
@@ -277,7 +277,7 @@ impl Widget for TextButton {
         self.rect.dims()
     }
 
-    fn set_pos(&mut self, top_left: ScreenPt, _total_width: f64) {
+    fn set_pos(&mut self, top_left: ScreenPt) {
         self.rect = ScreenRectangle::top_left(top_left, self.rect.dims());
     }
 }

@@ -50,7 +50,7 @@ impl Widget for JustDraw {
         self.dims
     }
 
-    fn set_pos(&mut self, top_left: ScreenPt, _total_width: f64) {
+    fn set_pos(&mut self, top_left: ScreenPt) {
         self.top_left = top_left;
     }
 }
@@ -73,7 +73,7 @@ impl Widget for JustDrawText {
         self.dims
     }
 
-    fn set_pos(&mut self, top_left: ScreenPt, _total_width: f64) {
+    fn set_pos(&mut self, top_left: ScreenPt) {
         self.top_left = top_left;
     }
 }

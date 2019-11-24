@@ -131,13 +131,10 @@ impl ModalMenu {
         // TODO Layouting of nested widgets...
         // TODO Might not be room for the icon on the right side of the menu's top. Oh well. In the
         // common case, looks better like this.
-        self.show_hide_btn.set_pos(
-            ScreenPt::new(
-                self.top_left.x + self.dims.width - self.show_hide_btn.get_dims().width,
-                self.top_left.y,
-            ),
-            self.dims.width,
-        );
+        self.show_hide_btn.set_pos(ScreenPt::new(
+            self.top_left.x + self.dims.width - self.show_hide_btn.get_dims().width,
+            self.top_left.y,
+        ));
         self.show_hide_btn.event(ctx);
         if self.show_hide_btn.clicked() {
             match self.visible {
@@ -167,10 +164,10 @@ impl ModalMenu {
             }
             // Recalculate hovering immediately.
             self.recalculate_dims(ctx);
-            self.show_hide_btn.set_pos(
-                ScreenPt::new(self.top_left.x + self.dims.width, self.top_left.y),
-                self.dims.width,
-            );
+            self.show_hide_btn.set_pos(ScreenPt::new(
+                self.top_left.x + self.dims.width,
+                self.top_left.y,
+            ));
             self.show_hide_btn.just_replaced(ctx);
         }
 
@@ -317,8 +314,7 @@ impl Widget for ModalMenu {
         ScreenDims::new(self.dims.width, self.dims.height)
     }
 
-    fn set_pos(&mut self, top_left: ScreenPt, _total_width: f64) {
+    fn set_pos(&mut self, top_left: ScreenPt) {
         self.top_left = top_left;
-        // TODO Stretch to fill total width if it's smaller than us? Or that's impossible
     }
 }

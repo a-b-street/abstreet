@@ -179,8 +179,7 @@ impl<T: Clone> Widget for PopupMenu<T> {
         self.dims
     }
 
-    fn set_pos(&mut self, top_left: ScreenPt, _total_width: f64) {
+    fn set_pos(&mut self, top_left: ScreenPt) {
         self.top_left = top_left;
-        // TODO Stretch to fill total width if it's smaller than us? Or that's impossible
     }
 }

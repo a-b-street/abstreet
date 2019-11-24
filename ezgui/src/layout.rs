@@ -5,7 +5,7 @@ use ordered_float::NotNan;
 
 pub trait Widget {
     fn get_dims(&self) -> ScreenDims;
-    fn set_pos(&mut self, top_left: ScreenPt, total_width: f64);
+    fn set_pos(&mut self, top_left: ScreenPt);
 }
 
 #[derive(Clone, Copy)]
@@ -44,7 +44,7 @@ pub fn stack_vertically(
         ContainerOrientation::Top(percent) => ScreenPt::new(ctx.canvas.window_width * percent, 0.0),
     };
     for (w, dims) in widgets.into_iter().zip(dims_per_widget) {
-        w.set_pos(top_left, total_width);
+        w.set_pos(top_left);
         top_left.y += dims.height;
     }
 }
@@ -98,6 +98,6 @@ pub fn flexbox(ctx: &EventCtx, widgets: Vec<&mut dyn Widget>) {
     stretch.compute_layout(root, Size::undefined()).unwrap();
     for (node, widget) in widget_nodes.into_iter().zip(widgets) {
         let top_left = stretch.layout(node).unwrap().location;
-        widget.set_pos(ScreenPt::new(top_left.x.into(), top_left.y.into()), 0.0);
+        widget.set_pos(ScreenPt::new(top_left.x.into(), top_left.y.into()));
     }
 }
