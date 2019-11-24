@@ -80,7 +80,11 @@ pub fn challenges_picker(ctx: &EventCtx) -> Box<dyn State> {
     state.draw_text(Text::from(Line("CHALLENGES")).no_bg());
     state.draw_text(Text::from(Line("Make changes to achieve a goal")).no_bg());
 
-    state.text_button("BACK", Box::new(|_, _| Some(Transition::Pop)));
+    state.text_button(
+        "BACK",
+        hotkey(Key::Escape),
+        Box::new(|_, _| Some(Transition::Pop)),
+    );
 
     for challenge in all_challenges() {
         let edits = abstutil::list_all_objects(abstutil::EDITS, &challenge.map_name);
@@ -95,6 +99,7 @@ pub fn challenges_picker(ctx: &EventCtx) -> Box<dyn State> {
 
         state.detailed_text_button(
             txt,
+            None,
             Box::new(move |ctx, _| {
                 let edits = abstutil::list_all_objects(abstutil::EDITS, &challenge.map_name);
                 let mut summary = Text::new();

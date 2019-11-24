@@ -1,6 +1,8 @@
 use crate::game::{State, Transition};
 use crate::ui::UI;
-use ezgui::{layout, Color, EventCtx, GfxCtx, JustDraw, JustDrawText, Line, Text, TextButton};
+use ezgui::{
+    layout, Color, EventCtx, GfxCtx, JustDraw, JustDrawText, Line, MultiKey, Text, TextButton,
+};
 
 type Callback = Box<dyn Fn(&mut EventCtx, &mut UI) -> Option<Transition>>;
 
@@ -14,13 +16,13 @@ impl<'a> ManagedGUIStateBuilder<'a> {
         self.state.draw_text.push(JustDraw::text(txt, &self.ctx));
     }
 
-    pub fn text_button(&mut self, label: &str, onclick: Callback) {
-        self.detailed_text_button(Text::from(Line(label).fg(Color::BLACK)), onclick);
+    pub fn text_button(&mut self, label: &str, hotkey: Option<MultiKey>, onclick: Callback) {
+        self.detailed_text_button(Text::from(Line(label).fg(Color::BLACK)), hotkey, onclick);
     }
 
-    pub fn detailed_text_button(&mut self, txt: Text, onclick: Callback) {
+    pub fn detailed_text_button(&mut self, txt: Text, hotkey: Option<MultiKey>, onclick: Callback) {
         // TODO Default style. Lots of variations.
-        let btn = TextButton::new(txt, Color::WHITE, Color::ORANGE, self.ctx);
+        let btn = TextButton::new(txt, Color::WHITE, Color::ORANGE, hotkey, self.ctx);
         self.state.buttons.push((btn, onclick));
     }
 

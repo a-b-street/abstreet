@@ -230,6 +230,7 @@ impl State for DebugMode {
             .menu
             .swap_action("search OSM metadata", "clear OSM search results", ctx)
         {
+            // TODO If the wizard aborts (pressing escape), this crashes.
             return Transition::Push(WizardState::new(Box::new(search_osm)));
         } else if self.menu.action("configure colors") {
             return Transition::Push(color_picker::ColorChooser::new());

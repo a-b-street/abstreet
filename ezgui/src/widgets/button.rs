@@ -193,6 +193,7 @@ pub struct TextButton {
     bg_selected: Drawable,
     text: Text,
     rect: ScreenRectangle,
+    hotkey: Option<MultiKey>,
 
     hovering: bool,
     clicked: bool,
@@ -203,6 +204,7 @@ impl TextButton {
         text: Text,
         unselected_bg_color: Color,
         selected_bg_color: Color,
+        hotkey: Option<MultiKey>,
         ctx: &EventCtx,
     ) -> TextButton {
         let dims = ctx.canvas.text_dims(&text);
@@ -223,6 +225,7 @@ impl TextButton {
                     dims.height + 2.0 * VERT_PADDING,
                 ),
             ),
+            hotkey,
 
             hovering: false,
             clicked: false,
@@ -239,6 +242,12 @@ impl TextButton {
         }
         if self.hovering && ctx.input.left_mouse_button_pressed() {
             self.clicked = true;
+        }
+
+        if let Some(hotkey) = self.hotkey {
+            if ctx.input.new_was_pressed(hotkey) {
+                self.clicked = true;
+            }
         }
     }
 

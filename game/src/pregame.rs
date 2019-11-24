@@ -7,7 +7,9 @@ use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::tutorial::TutorialMode;
 use crate::ui::UI;
 use abstutil::elapsed_seconds;
-use ezgui::{layout, Color, EventCtx, EventLoopMode, GfxCtx, JustDraw, Line, Text, TextButton};
+use ezgui::{
+    hotkey, layout, Color, EventCtx, EventLoopMode, GfxCtx, JustDraw, Key, Line, Text, TextButton,
+};
 use geom::{Duration, Line, Pt2D, Speed};
 use map_model::Map;
 use rand::Rng;
@@ -27,7 +29,14 @@ impl TitleScreen {
         TitleScreen {
             logo: JustDraw::image("assets/logo.png", ctx),
             // TODO that nicer font
-            play_btn: TextButton::new(Text::from(Line("PLAY")), Color::BLUE, Color::ORANGE, ctx),
+            // TODO Any key
+            play_btn: TextButton::new(
+                Text::from(Line("PLAY")),
+                Color::BLUE,
+                Color::ORANGE,
+                hotkey(Key::Space),
+                ctx,
+            ),
             screensaver: Screensaver::start_bounce(&mut rng, ctx, &ui.primary.map),
             rng,
         }
@@ -70,10 +79,12 @@ pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
 
     state.text_button(
         "TUTORIAL",
+        hotkey(Key::T),
         Box::new(|ctx, _| Some(Transition::Push(Box::new(TutorialMode::new(ctx))))),
     );
     state.text_button(
         "SANDBOX",
+        hotkey(Key::S),
         Box::new(|ctx, ui| {
             Some(Transition::Push(Box::new(SandboxMode::new(
                 ctx,
@@ -84,24 +95,29 @@ pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
     );
     state.text_button(
         "CHALLENGES",
+        hotkey(Key::C),
         Box::new(|ctx, _| Some(Transition::Push(challenges_picker(ctx)))),
     );
     if ui.primary.current_flags.dev {
         state.text_button(
             "INTERNAL DEV TOOLS",
+            hotkey(Key::M),
             Box::new(|ctx, _| Some(Transition::Push(Box::new(MissionEditMode::new(ctx))))),
         );
         state.text_button(
             "INTERNAL A/B TEST MODE",
+            hotkey(Key::A),
             Box::new(|_, _| Some(Transition::Push(PickABTest::new()))),
         );
     }
     state.text_button(
         "About A/B Street",
+        None,
         Box::new(|ctx, _| Some(Transition::Push(about(ctx)))),
     );
     state.text_button(
         "QUIT",
+        hotkey(Key::Escape),
         Box::new(|_, _| {
             // TODO before_quit?
             std::process::exit(0);
@@ -127,7 +143,11 @@ fn about(ctx: &EventCtx) -> Box<dyn State> {
     // TODO centered
     state.draw_text(txt);
 
-    state.text_button("BACK", Box::new(|_, _| Some(Transition::Pop)));
+    state.text_button(
+        "BACK",
+        hotkey(Key::Escape),
+        Box::new(|_, _| Some(Transition::Pop)),
+    );
 
     state.build()
 }
