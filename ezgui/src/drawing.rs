@@ -445,7 +445,7 @@ impl<'a> Prerender<'a> {
                         let ty = pt.y() / tex_height;
                         [tx as f32, ty as f32, id.0, 100.0 + id.1]
                     }
-                    Color::StretchTexture(id, angle) => {
+                    Color::StretchTexture(id, _, angle) => {
                         // TODO Cache
                         let b = poly.get_bounds();
                         let center = poly.center();

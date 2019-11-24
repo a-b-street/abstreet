@@ -7,7 +7,9 @@ use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::tutorial::TutorialMode;
 use crate::ui::UI;
 use abstutil::elapsed_seconds;
-use ezgui::{layout, Color, EventCtx, EventLoopMode, GfxCtx, Line, ScreenPt, Text, TextButton};
+use ezgui::{
+    layout, Color, EventCtx, EventLoopMode, GfxCtx, JustDraw, Line, ScreenPt, Text, TextButton,
+};
 use geom::{Duration, Line, Pt2D, Speed};
 use map_model::Map;
 use rand::Rng;
@@ -15,6 +17,7 @@ use rand_xorshift::XorShiftRng;
 use std::time::Instant;
 
 pub struct TitleScreen {
+    logo: JustDraw,
     play_btn: TextButton,
     screensaver: Screensaver,
     rng: XorShiftRng,
@@ -24,7 +27,7 @@ impl TitleScreen {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> TitleScreen {
         let mut rng = ui.primary.current_flags.sim_flags.make_rng();
         TitleScreen {
-            // TODO logo
+            logo: JustDraw::image("assets/logo.png", ctx),
             // TODO that nicer font
             play_btn: TextButton::new(Text::from(Line("PLAY")), Color::BLUE, Color::ORANGE, ctx),
             screensaver: Screensaver::start_bounce(&mut rng, ctx, &ui.primary.map),
@@ -35,10 +38,12 @@ impl TitleScreen {
 
 impl State for TitleScreen {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+        // TODO I'm betting that I'll wind up extracting the ManagedGUIState pattern to work along
+        // with another state
         layout::stack_vertically(
             layout::ContainerOrientation::Centered,
             ctx,
-            vec![&mut self.play_btn],
+            vec![&mut self.logo, &mut self.play_btn],
         );
 
         // TODO or any keypress
@@ -53,6 +58,7 @@ impl State for TitleScreen {
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        self.logo.draw(g);
         self.play_btn.draw(g);
     }
 }
@@ -125,7 +131,10 @@ fn about(ctx: &EventCtx) -> Box<dyn State> {
     txt.add(Line("Contact: dabreegster@gmail.com"));
     txt.add(Line("Project: http://github.com/dabreegster/abstreet"));
     txt.add(Line("Map data from OpenStreetMap and King County GIS"));
-    // TODO Lots more credits
+    // TODO Add more here
+    txt.add(Line(
+        "See full credits at https://github.com/dabreegster/abstreet#credits",
+    ));
     // TODO centered
     state.draw_text(txt, ScreenPt::new(100.0, 100.0));
 

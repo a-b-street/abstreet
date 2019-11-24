@@ -79,10 +79,34 @@ writes:
 Existing urban planning software is either proprietary or hard to use. A/B
 Street strives to set the accessibility bar high, by being a fun, engaging game.
 
+## Credits
+
+- Created by Dustin Carlino (<dabreegster@gmail.com>)
+- Software engineering
+  - Lightning-fast pathfinding thanks to
+    [fast_paths](https://github.com/easbar/fast_paths) by Andreas Barth
+    (<easbar.mail@posteo.net>)
+  - And some
+    [contributors](https://github.com/dabreegster/abstreet/graphs/contributors)
+    found via [Democracy Lab](https://www.democracylab.org/)
+- Design
+  - Logo by [Ryan Pierson](https://www.ryandpierson.com/)
+  - UX design by [Yuwen Li](https://www.yuwen-li.com/)
+  - Art direction with help from [Starcat Games](http://starcatgames.com/)
+- Data
+  - Special thanks to all [OpenStreetMap](https://www.openstreetmap.org/about)
+    contributors!
+  - [King County GIS](https://www.kingcounty.gov/services/gis.aspx)
+  - [Seattle Open Data](https://data.seattle.gov/)
+  - [Puget Sound Regional Council](https://www.psrc.org/)
+- Sounding boards
+  - [CUGOS](https://cugos.org/)
+  - [Julian Michael](http://julianmichael.org/)
+
 ## Contributing
 
-I'm a one-person team. If you want to bring this to your city or if you're
-skilled in user experience design, traffic simulation, data visualization, or
+Help always needed! If you want to bring this to your city or if you're skilled
+in graphic or user experience, traffic simulation, data visualization, or
 civic/government outreach, please contact Dustin Carlino at
 <dabreegster@gmail.com> or post at
 [r/abstreet](https://www.reddit.com/r/abstreet/). I also welcome any

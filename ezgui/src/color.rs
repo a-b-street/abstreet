@@ -14,8 +14,9 @@ pub enum Color {
     TileTexture(TextureID, (f64, f64)),
     // Stretches the entire texture to fit the entire polygon. Rotates from the center of the
     // polygon. Not sure what this means for anything but circles right now. Have to manually
-    // fiddle with the original orientation to fix y inversion.
-    StretchTexture(TextureID, Angle),
+    // fiddle with the original orientation to fix y inversion. Also embeds (texture width,
+    // height).
+    StretchTexture(TextureID, (f64, f64), Angle),
     // A polygon with UV coordinates for each point must be used.
     CustomUVTexture(TextureID),
     // TODO Figure out how to pack more data into this.
@@ -32,9 +33,11 @@ impl fmt::Display for Color {
                 "Color::TileTexture({}:{}, width={}, height={})",
                 id.0, id.1, w, h
             ),
-            Color::StretchTexture(id, angle) => {
-                write!(f, "Color::StretchTexture({}:{}, {})", id.0, id.1, angle)
-            }
+            Color::StretchTexture(id, (w, h), angle) => write!(
+                f,
+                "Color::StretchTexture({}:{}, width={}, height={}, {})",
+                id.0, id.1, w, h, angle
+            ),
             Color::CustomUVTexture(id) => write!(f, "Color::CustomUVTexture({}:{})", id.0, id.1),
             Color::HatchingStyle1 => write!(f, "Color::HatchingStyle1"),
             Color::HatchingStyle2 => write!(f, "Color::HatchingStyle2"),
@@ -100,7 +103,15 @@ impl Color {
 
     pub fn rotate(&self, angle: Angle) -> Color {
         match self {
-            Color::StretchTexture(id, _) => Color::StretchTexture(*id, angle),
+            Color::StretchTexture(id, dims, _) => Color::StretchTexture(*id, *dims, angle),
+            _ => unreachable!(),
+        }
+    }
+
+    pub fn texture_dims(&self) -> (f64, f64) {
+        match self {
+            Color::TileTexture(_, dims) => *dims,
+            Color::StretchTexture(_, dims, _) => *dims,
             _ => unreachable!(),
         }
     }

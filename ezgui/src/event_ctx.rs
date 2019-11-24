@@ -89,21 +89,20 @@ impl<'a> EventCtx<'a> {
         if dims_to_textures.len() > 15 {
             panic!("Only 15 texture arrays supported by some videocards. Group more textures by using the same image dimensions.");
         }
-        for (group_idx, (dims, list)) in dims_to_textures.into_iter().enumerate() {
+        for (group_idx, (raw_dims, list)) in dims_to_textures.into_iter().enumerate() {
             let mut raw_data = Vec::new();
             for (tex_idx, (filename, raw, tex_type)) in list.into_iter().enumerate() {
                 let tex_id = (group_idx as f32, tex_idx as f32);
+                let dims = (f64::from(raw_dims.0), f64::from(raw_dims.1));
                 self.canvas.texture_lookups.insert(
                     filename,
                     match tex_type {
-                        TextureType::Stretch => Color::StretchTexture(tex_id, Angle::ZERO),
-                        TextureType::Tile => {
-                            Color::TileTexture(tex_id, (f64::from(dims.0), f64::from(dims.1)))
-                        }
+                        TextureType::Stretch => Color::StretchTexture(tex_id, dims, Angle::ZERO),
+                        TextureType::Tile => Color::TileTexture(tex_id, dims),
                         TextureType::CustomUV => Color::CustomUVTexture(tex_id),
                     },
                 );
-                raw_data.push(RawImage2d::from_raw_rgba(raw, dims));
+                raw_data.push(RawImage2d::from_raw_rgba(raw, raw_dims));
             }
             self.canvas
                 .texture_arrays

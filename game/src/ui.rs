@@ -25,6 +25,7 @@ impl UI {
         let (primary, prebaked) = ctx.loading_screen("load map", |ctx, mut timer| {
             // Always load some small icons.
             let mut textures = vec![
+                ("assets/logo.png", TextureType::Stretch),
                 ("assets/ui/edit_bike.png", TextureType::Stretch),
                 ("assets/ui/edit_bus.png", TextureType::Stretch),
                 ("assets/ui/edit_construction.png", TextureType::Stretch),
