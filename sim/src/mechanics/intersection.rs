@@ -156,8 +156,7 @@ impl IntersectionSimState {
                 }
             }
         } else {
-            return;
-            //unreachable!()
+            assert!(map.get_i(i).is_border());
         };
 
         for req in protected {
