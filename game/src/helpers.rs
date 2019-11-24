@@ -160,7 +160,7 @@ pub fn rotating_color_total(idx: usize, total: usize) -> Color {
         colorbrewer::get_color_ramp(colorbrewer::Palette::YlOrBr, total as u32)
             .unwrap()
             .into_iter()
-            .map(Color::from_hex)
+            .map(Color::hex)
             .collect();
 
     colors[idx % total]

@@ -1,4 +1,4 @@
-use crate::pregame::{SplashScreen, TitleScreen};
+use crate::pregame::{MainMenu, TitleScreen};
 use crate::render::DrawOptions;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::{Flags, ShowEverything, UI};
@@ -20,7 +20,7 @@ impl Game {
             vec![Box::new(TitleScreen::new(ctx, &ui))]
         } else {
             vec![
-                Box::new(SplashScreen::new()),
+                Box::new(MainMenu::new(ctx)),
                 Box::new(SandboxMode::new(ctx, &mut ui, GameplayMode::Freeform)),
             ]
         };

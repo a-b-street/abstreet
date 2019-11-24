@@ -1,14 +1,14 @@
 use crate::abtest::setup::PickABTest;
 use crate::challenges::challenges_picker;
-use crate::game::{State, Transition, WizardState};
+use crate::game::{State, Transition};
 use crate::mission::MissionEditMode;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::tutorial::TutorialMode;
 use crate::ui::UI;
 use abstutil::elapsed_seconds;
 use ezgui::{
-    layout, Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, MultiText, ScreenPt, Text,
-    TextButton, Wizard,
+    layout, Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Line, MultiText, ScreenPt,
+    Text, TextButton, VerticalAlignment,
 };
 use geom::{Duration, Line, Pt2D, Speed};
 use map_model::Map;
@@ -46,8 +46,7 @@ impl State for TitleScreen {
         // TODO or any keypress
         self.play_btn.event(ctx);
         if self.play_btn.clicked() {
-            return Transition::Replace(Box::new(SplashScreen::new()));
-            //return Transition::Replace(Box::new(MainMenu::new(ctx)));
+            return Transition::Replace(Box::new(MainMenu::new(ctx)));
         }
 
         self.screensaver.update(&mut self.rng, ctx, &ui.primary.map);
@@ -66,11 +65,13 @@ pub struct MainMenu {
     tutorial_btn: TextButton,
     sandbox_btn: TextButton,
     challenges_btn: TextButton,
+    dev_tools_btn: TextButton,
+    abtest_btn: TextButton,
     about_btn: TextButton,
 }
 
 impl MainMenu {
-    fn new(ctx: &EventCtx) -> MainMenu {
+    pub fn new(ctx: &EventCtx) -> MainMenu {
         let mut txts = MultiText::new();
         // TODO Lots wrong here.
         txts.add(
@@ -106,6 +107,19 @@ impl MainMenu {
                 Color::ORANGE,
                 ctx,
             ),
+            // TODO hide unless ui.primary.current_flags.dev
+            dev_tools_btn: TextButton::new(
+                Text::from(Line("INTERNAL DEV TOOLS").fg(Color::BLACK)),
+                Color::WHITE,
+                Color::ORANGE,
+                ctx,
+            ),
+            abtest_btn: TextButton::new(
+                Text::from(Line("INTERNAL A/B TEST MODE").fg(Color::BLACK)),
+                Color::WHITE,
+                Color::ORANGE,
+                ctx,
+            ),
             // TODO No background at all...
             about_btn: TextButton::new(
                 Text::from(Line("About A/B Street").fg(Color::WHITE)),
@@ -118,7 +132,7 @@ impl MainMenu {
 }
 
 impl State for MainMenu {
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         // TODO How do we want to express layouting?
         layout::stack_vertically(
             layout::ContainerOrientation::Centered,
@@ -127,6 +141,8 @@ impl State for MainMenu {
                 &mut self.tutorial_btn,
                 &mut self.sandbox_btn,
                 &mut self.challenges_btn,
+                &mut self.dev_tools_btn,
+                &mut self.abtest_btn,
                 &mut self.about_btn,
             ],
         );
@@ -134,52 +150,93 @@ impl State for MainMenu {
         self.tutorial_btn.event(ctx);
         self.sandbox_btn.event(ctx);
         self.challenges_btn.event(ctx);
+        self.dev_tools_btn.event(ctx);
+        self.abtest_btn.event(ctx);
         self.about_btn.event(ctx);
 
-        // TODO transitions
+        if self.tutorial_btn.clicked() {
+            return Transition::Push(Box::new(TutorialMode::new(ctx)));
+        }
+        if self.sandbox_btn.clicked() {
+            return Transition::Push(Box::new(SandboxMode::new(ctx, ui, GameplayMode::Freeform)));
+        }
+        if self.challenges_btn.clicked() {
+            return Transition::Push(challenges_picker());
+        }
+        if self.dev_tools_btn.clicked() {
+            return Transition::Push(Box::new(MissionEditMode::new(ctx)));
+        }
+        if self.abtest_btn.clicked() {
+            return Transition::Push(PickABTest::new());
+        }
+        if self.about_btn.clicked() {
+            return Transition::Push(Box::new(About::new(ctx)));
+        }
+
         // TODO Hotkeys? How to communicate?
 
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+    fn draw_default_ui(&self) -> bool {
+        false
+    }
+
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        g.clear(ui.cs.get("grass"));
         self.txts.draw(g);
         self.tutorial_btn.draw(g);
         self.sandbox_btn.draw(g);
         self.challenges_btn.draw(g);
+        self.dev_tools_btn.draw(g);
+        self.abtest_btn.draw(g);
         self.about_btn.draw(g);
     }
 }
 
-pub struct SplashScreen {
-    wizard: Wizard,
+struct About {
+    txt: Text,
+    back_btn: TextButton,
 }
 
-impl SplashScreen {
-    pub fn new() -> SplashScreen {
-        SplashScreen {
-            wizard: Wizard::new(),
+impl About {
+    fn new(ctx: &EventCtx) -> About {
+        let mut txt = Text::new().no_bg();
+        txt.add(Line("A/B STREET").size(50));
+        txt.add(Line("Created by Dustin Carlino"));
+        txt.add(Line(""));
+        txt.add(Line("Contact: dabreegster@gmail.com"));
+        txt.add(Line("Project: http://github.com/dabreegster/abstreet"));
+        txt.add(Line("Map data from OpenStreetMap and King County GIS"));
+        // TODO Lots more credits
+        About {
+            txt,
+            // TODO Arrow and no background
+            back_btn: TextButton::new(Text::from(Line("BACK")), Color::BLACK, Color::ORANGE, ctx),
         }
     }
 }
 
-impl State for SplashScreen {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        if let Some(t) = splash_screen(&mut self.wizard, ctx, ui) {
-            t
-        } else if self.wizard.aborted() {
-            Transition::Pop
-        } else {
-            Transition::Keep
+impl State for About {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
+        self.back_btn.event(ctx);
+        if self.back_btn.clicked() {
+            return Transition::Pop;
         }
+        Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &UI) {
-        self.wizard.draw(g);
+    fn draw_default_ui(&self) -> bool {
+        false
     }
 
-    fn on_suspend(&mut self, _: &mut EventCtx, _: &mut UI) {
-        self.wizard = Wizard::new();
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        g.clear(ui.cs.get("grass"));
+        g.draw_blocking_text(
+            &self.txt,
+            (HorizontalAlignment::Center, VerticalAlignment::Center),
+        );
+        self.back_btn.draw(g);
     }
 }
 
@@ -220,75 +277,5 @@ impl Screensaver {
                 *self = Screensaver::start_bounce(rng, ctx, map)
             }
         }
-    }
-}
-
-fn splash_screen(raw_wizard: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
-    let mut wizard = raw_wizard.wrap(ctx);
-    let sandbox = "Sandbox mode";
-    let challenge = "Challenge mode";
-    let abtest = "A/B Test Mode (internal/unfinished)";
-    let tutorial = "Tutorial (unfinished)";
-    let mission = "Internal developer tools";
-    let about = "About";
-    let quit = "Quit";
-
-    let dev = ui.primary.current_flags.dev;
-
-    match wizard
-        .choose("Welcome to A/B Street!", || {
-            vec![
-                Some(Choice::new(sandbox, ()).key(Key::S)),
-                Some(Choice::new(challenge, ()).key(Key::C)),
-                if dev {
-                    Some(Choice::new(abtest, ()).key(Key::A))
-                } else {
-                    None
-                },
-                if dev {
-                    Some(Choice::new(tutorial, ()).key(Key::T))
-                } else {
-                    None
-                },
-                if dev {
-                    Some(Choice::new(mission, ()).key(Key::M))
-                } else {
-                    None
-                },
-                Some(Choice::new(about, ())),
-                Some(Choice::new(quit, ())),
-            ]
-            .into_iter()
-            .flatten()
-            .collect()
-        })?
-        .0
-        .as_str()
-    {
-        x if x == sandbox => Some(Transition::Push(Box::new(SandboxMode::new(
-            ctx,
-            ui,
-            GameplayMode::Freeform,
-        )))),
-        x if x == challenge => Some(Transition::Push(challenges_picker())),
-        x if x == abtest => Some(Transition::Push(PickABTest::new())),
-        x if x == tutorial => Some(Transition::Push(Box::new(TutorialMode::new(ctx)))),
-        x if x == mission => Some(Transition::Push(Box::new(MissionEditMode::new(ctx)))),
-        x if x == about => Some(Transition::Push(WizardState::new(Box::new(
-            |wiz, ctx, _| {
-                wiz.wrap(ctx).acknowledge("About A/B Street", || {
-                    vec![
-                        "Author: Dustin Carlino (dabreegster@gmail.com)",
-                        "http://github.com/dabreegster/abstreet",
-                        "Map data from OpenStreetMap and King County GIS",
-                        "",
-                        "Press ENTER to continue",
-                    ]
-                })?;
-                Some(Transition::Pop)
-            },
-        )))),
-        x if x == quit => Some(Transition::Pop),
-        _ => unreachable!(),
     }
 }

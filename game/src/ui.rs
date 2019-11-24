@@ -61,7 +61,7 @@ impl UI {
                     ),
                     (
                         "assets/grass_texture.png",
-                        cs.get_def("grass", Color::rgb(148, 200, 74)),
+                        cs.get_def("grass", Color::hex("#94C84A")),
                     ),
                     ("assets/pedestrian.png", Color::rgb(51, 178, 178)),
                     ("assets/car.png", Color::CYAN),
