@@ -1,4 +1,4 @@
-use crate::{Canvas, Color, GfxCtx, ScreenPt, ScreenRectangle};
+use crate::{Canvas, Color, GfxCtx, ScreenDims, ScreenPt, ScreenRectangle};
 use geom::{Distance, Polygon, Pt2D};
 use glium_glyph::glyph_brush::rusttype::Scale;
 use glium_glyph::glyph_brush::GlyphCruncher;
@@ -155,7 +155,7 @@ impl Text {
         self.lines.extend(other.lines.clone())
     }
 
-    pub(crate) fn dims(&self, canvas: &Canvas) -> (f64, f64) {
+    pub(crate) fn dims(&self, canvas: &Canvas) -> ScreenDims {
         let mut max_width = 0;
         let mut height = 0.0;
 
@@ -180,7 +180,7 @@ impl Text {
             max_width = max_width.max(width);
             height += canvas.line_height(max_size);
         }
-        (
+        ScreenDims::new(
             self.override_width.unwrap_or_else(|| f64::from(max_width)),
             self.override_height.unwrap_or_else(|| height),
         )
@@ -192,7 +192,7 @@ pub fn draw_text_bubble(
     top_left: ScreenPt,
     txt: &Text,
     // Callers almost always calculate this anyway
-    (total_width, total_height): (f64, f64),
+    total_dims: ScreenDims,
 ) -> ScreenRectangle {
     // TODO Is it expensive to constantly change uniforms and the shader program?
     g.fork_screenspace();
@@ -202,8 +202,8 @@ pub fn draw_text_bubble(
             c,
             &Polygon::rectangle_topleft(
                 top_left.to_pt(),
-                Distance::meters(total_width),
-                Distance::meters(total_height),
+                Distance::meters(total_dims.width),
+                Distance::meters(total_dims.height),
             ),
         );
     }
@@ -238,7 +238,7 @@ pub fn draw_text_bubble(
                 *c,
                 &Polygon::rectangle_topleft(
                     Pt2D::new(top_left.x, y),
-                    Distance::meters(total_width),
+                    Distance::meters(total_dims.width),
                     Distance::meters(height),
                 ),
             );
@@ -250,12 +250,7 @@ pub fn draw_text_bubble(
 
     g.unfork();
 
-    ScreenRectangle {
-        x1: top_left.x,
-        y1: top_left.y,
-        x2: top_left.x + total_width,
-        y2: top_left.y + total_height,
-    }
+    ScreenRectangle::top_left(top_left, total_dims)
 }
 
 pub fn draw_text_bubble_mapspace(
@@ -263,15 +258,15 @@ pub fn draw_text_bubble_mapspace(
     top_left: Pt2D,
     txt: &Text,
     // Callers almost always calculate this anyway
-    (total_width, total_height): (f64, f64),
+    total_dims: ScreenDims,
 ) {
     if let Some(c) = txt.bg_color {
         g.draw_polygon(
             c,
             &Polygon::rectangle_topleft(
                 top_left,
-                Distance::meters(total_width / SCALE_DOWN),
-                Distance::meters(total_height / SCALE_DOWN),
+                Distance::meters(total_dims.width / SCALE_DOWN),
+                Distance::meters(total_dims.height / SCALE_DOWN),
             ),
         );
     }
@@ -308,7 +303,7 @@ pub fn draw_text_bubble_mapspace(
                 *c,
                 &Polygon::rectangle_topleft(
                     Pt2D::new(top_left.x(), y),
-                    Distance::meters(total_width / SCALE_DOWN),
+                    Distance::meters(total_dims.width / SCALE_DOWN),
                     Distance::meters(height),
                 ),
             );

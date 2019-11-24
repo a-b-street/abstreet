@@ -1,4 +1,4 @@
-use crate::{Color, ScreenPt, ScreenRectangle, Text, UserInput};
+use crate::{Color, ScreenDims, ScreenPt, ScreenRectangle, Text, UserInput};
 use abstutil::Timer;
 use geom::{Bounds, Circle, Pt2D};
 use glium::texture::Texture2dArray;
@@ -181,8 +181,7 @@ impl Canvas {
         b
     }
 
-    // TODO Maybe return ScreenDims
-    pub fn text_dims(&self, txt: &Text) -> (f64, f64) {
+    pub fn text_dims(&self, txt: &Text) -> ScreenDims {
         txt.dims(self)
     }
 

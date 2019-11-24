@@ -254,8 +254,8 @@ fn bar_chart(g: &mut GfxCtx, data: &BTreeMap<String, Estimate>) {
             Line(")"),
         ]);
     }
-    let (txt_width, total_height) = g.text_dims(&labels);
-    let line_height = total_height / ((data.len() as f64) - 1.0);
+    let txt_dims = g.text_dims(&labels);
+    let line_height = txt_dims.height / ((data.len() as f64) - 1.0);
     labels.add(Line(format!("{} samples", prettyprint_usize(sum))).size(40));
 
     // This is, uh, pixels. :P
@@ -266,8 +266,8 @@ fn bar_chart(g: &mut GfxCtx, data: &BTreeMap<String, Estimate>) {
         Color::grey(0.3),
         &Polygon::rectangle_topleft(
             Pt2D::new(0.0, 0.0),
-            Distance::meters(txt_width + 1.2 * max_bar_width),
-            Distance::meters(total_height + line_height),
+            Distance::meters(txt_dims.width + 1.2 * max_bar_width),
+            Distance::meters(txt_dims.height + line_height),
         ),
     );
     g.draw_blocking_text(&labels, (HorizontalAlignment::Left, VerticalAlignment::Top));
@@ -282,7 +282,7 @@ fn bar_chart(g: &mut GfxCtx, data: &BTreeMap<String, Estimate>) {
         g.draw_polygon(
             rotating_color_total(idx, data.len() - 1),
             &Polygon::rectangle_topleft(
-                Pt2D::new(txt_width, (0.1 + (idx as f64)) * line_height),
+                Pt2D::new(txt_dims.width, (0.1 + (idx as f64)) * line_height),
                 Distance::meters(this_width),
                 Distance::meters(0.8 * line_height),
             ),
@@ -295,7 +295,7 @@ fn bar_chart(g: &mut GfxCtx, data: &BTreeMap<String, Estimate>) {
             Color::BLACK,
             &Polygon::rectangle_topleft(
                 Pt2D::new(
-                    txt_width + this_width - half_moe_width,
+                    txt_dims.width + this_width - half_moe_width,
                     (0.4 + (idx as f64)) * line_height,
                 ),
                 2.0 * Distance::meters(half_moe_width),

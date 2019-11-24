@@ -205,10 +205,10 @@ impl TextButton {
         selected_bg_color: Color,
         ctx: &EventCtx,
     ) -> TextButton {
-        let (w, h) = ctx.canvas.text_dims(&text);
+        let dims = ctx.canvas.text_dims(&text);
         let geom = Polygon::rounded_rectangle(
-            Distance::meters(w + 2.0 * HORIZ_PADDING),
-            Distance::meters(h + 2.0 * VERT_PADDING),
+            Distance::meters(dims.width + 2.0 * HORIZ_PADDING),
+            Distance::meters(dims.height + 2.0 * VERT_PADDING),
             Distance::meters(VERT_PADDING),
         );
 
@@ -218,7 +218,10 @@ impl TextButton {
             text: text.no_bg(),
             rect: ScreenRectangle::top_left(
                 ScreenPt::new(0.0, 0.0),
-                ScreenDims::new(w + 2.0 * HORIZ_PADDING, h + 2.0 * VERT_PADDING),
+                ScreenDims::new(
+                    dims.width + 2.0 * HORIZ_PADDING,
+                    dims.height + 2.0 * VERT_PADDING,
+                ),
             ),
 
             hovering: false,

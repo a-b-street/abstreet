@@ -32,11 +32,9 @@ impl JustDraw {
 
     // TODO I wish this wasn't a separate type...
     pub fn text(text: Text, ctx: &EventCtx) -> JustDrawText {
-        let (w, h) = ctx.canvas.text_dims(&text);
         JustDrawText {
+            dims: ctx.canvas.text_dims(&text),
             text,
-
-            dims: ScreenDims::new(w, h),
             top_left: ScreenPt::new(0.0, 0.0),
         }
     }

@@ -29,9 +29,7 @@ impl TextBox {
             dims: ScreenDims::new(0.0, 0.0),
         };
         // TODO Assume the dims never exceed the prompt width?
-        // TODO Return dims directly
-        let (w, h) = canvas.text_dims(&tb.get_text());
-        tb.dims = ScreenDims::new(w, h);
+        tb.dims = canvas.text_dims(&tb.get_text());
         tb
     }
 

@@ -211,26 +211,26 @@ impl<'a> GfxCtx<'a> {
         txt: &Text,
         (horiz, vert): (HorizontalAlignment, VerticalAlignment),
     ) {
-        let (mut width, height) = self.text_dims(&txt);
+        let mut dims = self.text_dims(&txt);
         let x1 = match horiz {
             HorizontalAlignment::Left => 0.0,
-            HorizontalAlignment::Center => (self.canvas.window_width - width) / 2.0,
-            HorizontalAlignment::Right => self.canvas.window_width - width,
+            HorizontalAlignment::Center => (self.canvas.window_width - dims.width) / 2.0,
+            HorizontalAlignment::Right => self.canvas.window_width - dims.width,
             HorizontalAlignment::FillScreen => {
-                width = self.canvas.window_width;
+                dims.width = self.canvas.window_width;
                 0.0
             }
         };
         let y1 = match vert {
             VerticalAlignment::Top => 0.0,
-            VerticalAlignment::Center => (self.canvas.window_height - height) / 2.0,
-            VerticalAlignment::Bottom => self.canvas.window_height - height,
+            VerticalAlignment::Center => (self.canvas.window_height - dims.height) / 2.0,
+            VerticalAlignment::Bottom => self.canvas.window_height - dims.height,
         };
         self.canvas.mark_covered_area(text::draw_text_bubble(
             self,
             ScreenPt::new(x1, y1),
             txt,
-            (width, height),
+            dims,
         ));
     }
 
@@ -240,30 +240,30 @@ impl<'a> GfxCtx<'a> {
 
     // TODO Rename these draw_nonblocking_text_*
     pub fn draw_text_at(&mut self, txt: &Text, map_pt: Pt2D) {
-        let (width, height) = self.text_dims(&txt);
+        let dims = self.text_dims(&txt);
         let pt = self.canvas.map_to_screen(map_pt);
         text::draw_text_bubble(
             self,
-            ScreenPt::new(pt.x - (width / 2.0), pt.y - (height / 2.0)),
+            ScreenPt::new(pt.x - (dims.width / 2.0), pt.y - (dims.height / 2.0)),
             txt,
-            (width, height),
+            dims,
         );
     }
 
     pub fn draw_text_at_mapspace(&mut self, txt: &Text, map_pt: Pt2D) {
-        let (width, height) = self.text_dims(&txt);
+        let dims = self.text_dims(&txt);
         text::draw_text_bubble_mapspace(
             self,
             Pt2D::new(
-                map_pt.x() - (width / (2.0 * text::SCALE_DOWN)),
-                map_pt.y() - (height / (2.0 * text::SCALE_DOWN)),
+                map_pt.x() - (dims.width / (2.0 * text::SCALE_DOWN)),
+                map_pt.y() - (dims.height / (2.0 * text::SCALE_DOWN)),
             ),
             txt,
-            (width, height),
+            dims,
         );
     }
 
-    pub fn text_dims(&self, txt: &Text) -> (f64, f64) {
+    pub fn text_dims(&self, txt: &Text) -> ScreenDims {
         txt.dims(&self.canvas)
     }
 
@@ -274,15 +274,15 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn draw_mouse_tooltip(&mut self, txt: &Text) {
-        let (width, height) = self.text_dims(&txt);
+        let dims = self.text_dims(&txt);
         // TODO Maybe also consider the cursor as a valid center. After context menus go away, this
         // makes even more sense.
-        let pt = ScreenDims::new(width, height).top_left_for_corner(
+        let pt = dims.top_left_for_corner(
             ScreenPt::new(self.canvas.cursor_x, self.canvas.cursor_y),
             &self.canvas,
         );
         // No need to cover the tooltip; this tooltip follows the mouse anyway.
-        text::draw_text_bubble(self, pt, txt, (width, height));
+        text::draw_text_bubble(self, pt, txt, dims);
     }
 
     pub fn screen_to_map(&self, pt: ScreenPt) -> Pt2D {

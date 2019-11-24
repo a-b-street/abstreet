@@ -287,14 +287,14 @@ impl NewScroller {
     pub fn new(geom: GeomBatch, multi_txt: MultiText, zoom: f64, ctx: &EventCtx) -> NewScroller {
         let mut total_dims = geom.get_dims();
         for (txt, top_left) in &multi_txt.list {
-            let (mut w, mut h) = ctx.canvas.text_dims(txt);
-            w += top_left.x;
-            h += top_left.y;
-            if w > total_dims.width {
-                total_dims.width = w;
+            let mut dims = ctx.canvas.text_dims(txt);
+            dims.width += top_left.x;
+            dims.height += top_left.y;
+            if dims.width > total_dims.width {
+                total_dims.width = dims.width;
             }
-            if h > total_dims.height {
-                total_dims.height = h;
+            if dims.height > total_dims.height {
+                total_dims.height = dims.height;
             }
         }
 

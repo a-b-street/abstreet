@@ -54,8 +54,8 @@ impl ContextMenuImpl {
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(0.0, 0.0),
         };
-        let (w, h) = canvas.text_dims(&m.calculate_txt());
-        m.dims = ScreenDims::new(w, h);
+        let dims = canvas.text_dims(&m.calculate_txt());
+        m.dims = dims;
         m.top_left = m.dims.top_left_for_corner(corner, canvas);
 
         m
