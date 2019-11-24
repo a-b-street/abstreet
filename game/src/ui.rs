@@ -40,7 +40,7 @@ impl UI {
                 ("assets/ui/hamburger.png", TextureType::Stretch),
                 ("assets/ui/hide.png", TextureType::Stretch),
                 ("assets/ui/info.png", TextureType::Stretch),
-                ("assets/ui/jump_to_time.png", TextureType::Stretch),
+                ("assets/ui/edit_time.png", TextureType::Stretch),
                 ("assets/ui/large_step.png", TextureType::Stretch),
                 ("assets/ui/location.png", TextureType::Stretch),
                 ("assets/ui/pause.png", TextureType::Stretch),
@@ -50,6 +50,8 @@ impl UI {
                 ("assets/ui/slow_down.png", TextureType::Stretch),
                 ("assets/ui/small_step.png", TextureType::Stretch),
                 ("assets/ui/speed_up.png", TextureType::Stretch),
+                ("assets/ui/sunrise.png", TextureType::Stretch),
+                ("assets/ui/sunset.png", TextureType::Stretch),
             ];
             let skip_textures = if flags.textures {
                 textures.extend(vec![

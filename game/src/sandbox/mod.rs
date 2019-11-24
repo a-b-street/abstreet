@@ -358,7 +358,7 @@ impl State for SandboxMode {
         }
         self.common.draw(g, ui);
         self.menu.draw(g);
-        self.speed.draw(g);
+        self.speed.draw(g, ui);
         self.info_tools.draw(g);
         self.general_tools.draw(g);
         self.save_tools.draw(g);
