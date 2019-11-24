@@ -1,7 +1,7 @@
 use crate::widgets::ContextMenu;
 use crate::{
-    text, Canvas, Color, EventCtx, HorizontalAlignment, Key, ScreenDims, ScreenPt, Text,
-    VerticalAlignment,
+    text, Canvas, Color, EventCtx, HorizontalAlignment, Key, ScreenDims, ScreenPt, ScreenRectangle,
+    Text, VerticalAlignment,
 };
 use geom::{Bounds, Circle, Distance, Line, Polygon, Pt2D};
 use glium::uniforms::{SamplerBehavior, SamplerWrapFunction, UniformValue};
@@ -201,6 +201,27 @@ impl<'a> GfxCtx<'a> {
         self.num_draw_calls += 1;
 
         // println!("{:?}", backtrace::Backtrace::new());
+    }
+
+    pub fn redraw_clipped(&mut self, obj: &Drawable, rect: &ScreenRectangle) {
+        let mut params = self.params.clone();
+        params.scissor = Some(glium::Rect {
+            left: rect.x1 as u32,
+            // Y-inversion
+            bottom: (self.canvas.window_height - rect.y2) as u32,
+            width: (rect.x2 - rect.x1) as u32,
+            height: (rect.y2 - rect.y1) as u32,
+        });
+        self.target
+            .draw(
+                &obj.vertex_buffer,
+                &obj.index_buffer,
+                &self.program,
+                &self.uniforms,
+                &params,
+            )
+            .unwrap();
+        self.num_draw_calls += 1;
     }
 
     // Canvas stuff.

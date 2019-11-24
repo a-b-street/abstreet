@@ -40,14 +40,32 @@ impl Minimap {
         g.unfork();
 
         // The map
-        g.fork(Pt2D::new(0.0, 0.0), top_left, 0.1);
-        g.redraw(&ui.primary.draw_map.draw_all_areas);
-        g.redraw(&ui.primary.draw_map.draw_all_thick_roads);
-        g.redraw(&ui.primary.draw_map.draw_all_unzoomed_intersections);
-        g.redraw(&ui.primary.draw_map.draw_all_buildings);
+        let padding = 10.0;
+        let inner_rect = ScreenRectangle {
+            x1: top_left.x + padding,
+            x2: top_left.x + square_len - padding,
+            y1: top_left.y + padding,
+            y2: top_left.y + square_len - padding,
+        };
+        let bounds = ui.primary.map.get_bounds();
+        // Fit the entire width of the map in the box, to start
+        let zoom = (square_len - (padding * 2.0)) / (bounds.max_x - bounds.min_x);
+
+        g.fork(
+            Pt2D::new(0.0, 0.0),
+            ScreenPt::new(inner_rect.x1, inner_rect.y1),
+            zoom,
+        );
+        g.redraw_clipped(&ui.primary.draw_map.boundary_polygon, &inner_rect);
+        g.redraw_clipped(&ui.primary.draw_map.draw_all_areas, &inner_rect);
+        g.redraw_clipped(&ui.primary.draw_map.draw_all_thick_roads, &inner_rect);
+        g.redraw_clipped(
+            &ui.primary.draw_map.draw_all_unzoomed_intersections,
+            &inner_rect,
+        );
+        g.redraw_clipped(&ui.primary.draw_map.draw_all_buildings, &inner_rect);
 
         // The cursor
-        let bounds = ui.primary.map.get_bounds();
         let (x1, y1) = {
             let pt = g.canvas.screen_to_map(ScreenPt::new(0.0, 0.0));
             (
