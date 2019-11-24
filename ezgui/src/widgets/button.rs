@@ -1,13 +1,16 @@
 use crate::layout::Widget;
 use crate::{
     hotkey, text, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, MultiKey, ScreenDims,
-    ScreenPt, ScreenRectangle, Text,
+    ScreenPt, Text,
 };
 use geom::{Circle, Distance, Polygon, Pt2D};
 
 pub struct Button {
-    draw_normal: Drawable,
-    draw_hovered: Drawable,
+    // Both of these must have the same dimensions and are oriented with their top-left corner at
+    // 0, 0. Transformation happens later.
+    draw_normal: DrawBoth,
+    draw_hovered: DrawBoth,
+
     hotkey: Option<MultiKey>,
     tooltip: Text,
     // Screenspace, top-left always at the origin. Also, probably not a box. :P
@@ -21,20 +24,18 @@ pub struct Button {
 }
 
 impl Button {
-    // Top-left should be at Pt2D::new(0.0, 0.0). normal and hovered must have same dimensions.
     fn new(
-        normal: GeomBatch,
-        hovered: GeomBatch,
+        draw_normal: DrawBoth,
+        draw_hovered: DrawBoth,
         hotkey: Option<MultiKey>,
         tooltip: &str,
         hitbox: Polygon,
-        ctx: &EventCtx,
     ) -> Button {
-        let dims = normal.get_dims();
-        assert_eq!(dims, hovered.get_dims());
+        let dims = draw_normal.get_dims();
+        assert_eq!(dims, draw_hovered.get_dims());
         Button {
-            draw_normal: normal.upload(ctx),
-            draw_hovered: hovered.upload(ctx),
+            draw_normal,
+            draw_hovered,
             hotkey,
             tooltip: if let Some(key) = hotkey {
                 let mut txt = Text::from(Line(key.describe()).fg(text::HOTKEY_COLOR));
@@ -104,9 +105,9 @@ impl Button {
     pub fn draw(&self, g: &mut GfxCtx) {
         g.fork(Pt2D::new(0.0, 0.0), self.top_left, 1.0);
         if self.hovering {
-            g.redraw(&self.draw_hovered);
+            self.draw_hovered.draw(self.top_left, g);
         } else {
-            g.redraw(&self.draw_normal);
+            self.draw_normal.draw(self.top_left, g);
         }
         g.unfork();
 
@@ -127,9 +128,58 @@ impl Widget for Button {
     }
 }
 
-const ICON_BACKGROUND: Color = Color::grey(0.5);
-const ICON_BACKGROUND_SELECTED: Color = Color::YELLOW;
+// TODO Probably going to fold this into Drawable or do something else...
+struct DrawBoth {
+    geom: Drawable,
+    txt: Vec<(Text, ScreenPt)>,
+    // Covers both geometry and text
+    dims: ScreenDims,
+}
 
+impl DrawBoth {
+    fn new(ctx: &EventCtx, batch: GeomBatch, txt: Vec<(Text, ScreenPt)>) -> DrawBoth {
+        let mut total_dims = batch.get_dims();
+        for (t, pt) in &txt {
+            let dims = ctx.canvas.text_dims(t);
+            let w = dims.width + pt.x;
+            let h = dims.height + pt.y;
+            if w > total_dims.width {
+                total_dims.width = w;
+            }
+            if h > total_dims.height {
+                total_dims.height = h;
+            }
+        }
+        DrawBoth {
+            geom: batch.upload(ctx),
+            txt,
+            dims: total_dims,
+        }
+    }
+
+    fn draw(&self, top_left: ScreenPt, g: &mut GfxCtx) {
+        g.redraw(&self.geom);
+        for (txt, pt) in &self.txt {
+            g.draw_text_at_screenspace_topleft(
+                txt,
+                ScreenPt::new(top_left.x + pt.x, top_left.y + pt.y),
+            );
+        }
+    }
+
+    fn get_dims(&self) -> ScreenDims {
+        self.dims
+    }
+}
+
+// Stuff to construct different types of buttons
+
+const CIRCULAR_ICON_BACKGROUND: Color = Color::grey(0.5);
+const CIRCULAR_ICON_BACKGROUND_SELECTED: Color = Color::YELLOW;
+const HORIZ_PADDING: f64 = 30.0;
+const VERT_PADDING: f64 = 10.0;
+
+// TODO Simplify all of these APIs!
 impl Button {
     pub fn rectangle_img(filename: &str, key: Option<MultiKey>, ctx: &EventCtx) -> Button {
         let img_color = ctx.canvas.texture(filename);
@@ -145,15 +195,23 @@ impl Button {
             Distance::meters(VERT_PADDING),
         );
 
-        let normal = GeomBatch::from(vec![
-            (Color::WHITE, bg.clone()),
-            (img_color, img_rect.clone()),
-        ]);
-        let hovered = GeomBatch::from(vec![
-            (Color::ORANGE, bg.clone()),
-            (img_color, img_rect.clone()),
-        ]);
-        Button::new(normal, hovered, key, "", bg, ctx)
+        let normal = DrawBoth::new(
+            ctx,
+            GeomBatch::from(vec![
+                (Color::WHITE, bg.clone()),
+                (img_color, img_rect.clone()),
+            ]),
+            vec![],
+        );
+        let hovered = DrawBoth::new(
+            ctx,
+            GeomBatch::from(vec![
+                (Color::ORANGE, bg.clone()),
+                (img_color, img_rect.clone()),
+            ]),
+            vec![],
+        );
+        Button::new(normal, hovered, key, "", bg)
     }
 
     pub fn rectangle_img_no_bg(filename: &str, key: Option<MultiKey>, ctx: &EventCtx) -> Button {
@@ -165,9 +223,13 @@ impl Button {
             Distance::meters(dims.height),
         );
 
-        let normal = GeomBatch::from(vec![(color, rect.clone())]);
-        let hovered = GeomBatch::from(vec![(color.with_masking(), rect.clone())]);
-        Button::new(normal, hovered, key, "", rect, ctx)
+        let normal = DrawBoth::new(ctx, GeomBatch::from(vec![(color, rect.clone())]), vec![]);
+        let hovered = DrawBoth::new(
+            ctx,
+            GeomBatch::from(vec![(color.with_masking(), rect.clone())]),
+            vec![],
+        );
+        Button::new(normal, hovered, key, "", rect)
     }
 
     pub fn icon_btn_bg(
@@ -185,10 +247,16 @@ impl Button {
         normal.push(ctx.canvas.texture(icon), circle.clone());
 
         let mut hovered = GeomBatch::new();
-        hovered.push(ICON_BACKGROUND_SELECTED, circle.clone());
+        hovered.push(CIRCULAR_ICON_BACKGROUND_SELECTED, circle.clone());
         hovered.push(ctx.canvas.texture(icon), circle.clone());
 
-        Button::new(normal, hovered, key, tooltip, circle, ctx)
+        Button::new(
+            DrawBoth::new(ctx, normal, vec![]),
+            DrawBoth::new(ctx, hovered, vec![]),
+            key,
+            tooltip,
+            circle,
+        )
     }
 
     pub fn icon_btn(
@@ -198,7 +266,7 @@ impl Button {
         key: Option<MultiKey>,
         ctx: &EventCtx,
     ) -> Button {
-        Button::icon_btn_bg(icon, radius, tooltip, key, ICON_BACKGROUND, ctx)
+        Button::icon_btn_bg(icon, radius, tooltip, key, CIRCULAR_ICON_BACKGROUND, ctx)
     }
 
     pub fn show_btn(ctx: &EventCtx, tooltip: &str) -> Button {
@@ -222,116 +290,38 @@ impl Button {
         )
     }
 
-    pub fn at(mut self, pt: ScreenPt) -> Button {
-        self.set_pos(pt);
-        self
-    }
-}
-
-const HORIZ_PADDING: f64 = 30.0;
-const VERT_PADDING: f64 = 10.0;
-
-// TODO Unify with Button. Maybe Drawable should subsume MultiText (and understand screens-space
-// offsets)
-pub struct TextButton {
-    bg_unselected: Drawable,
-    bg_selected: Drawable,
-    text: Text,
-    rect: ScreenRectangle,
-    hotkey: Option<MultiKey>,
-
-    hovering: bool,
-    clicked: bool,
-}
-
-impl TextButton {
-    pub fn new(
-        text: Text,
+    pub fn text(
+        mut text: Text,
         unselected_bg_color: Color,
         selected_bg_color: Color,
         hotkey: Option<MultiKey>,
         ctx: &EventCtx,
-    ) -> TextButton {
+    ) -> Button {
+        text = text.no_bg();
         let dims = ctx.canvas.text_dims(&text);
         let geom = Polygon::rounded_rectangle(
             Distance::meters(dims.width + 2.0 * HORIZ_PADDING),
             Distance::meters(dims.height + 2.0 * VERT_PADDING),
             Distance::meters(VERT_PADDING),
         );
+        let draw_text = vec![(text, ScreenPt::new(HORIZ_PADDING, VERT_PADDING))];
 
-        TextButton {
-            bg_unselected: GeomBatch::from(vec![(unselected_bg_color, geom.clone())]).upload(ctx),
-            bg_selected: GeomBatch::from(vec![(selected_bg_color, geom)]).upload(ctx),
-            text: text.no_bg(),
-            rect: ScreenRectangle::top_left(
-                ScreenPt::new(0.0, 0.0),
-                ScreenDims::new(
-                    dims.width + 2.0 * HORIZ_PADDING,
-                    dims.height + 2.0 * VERT_PADDING,
-                ),
-            ),
-            hotkey,
-
-            hovering: false,
-            clicked: false,
-        }
-    }
-
-    pub fn event(&mut self, ctx: &mut EventCtx) {
-        if self.clicked {
-            panic!("Caller didn't consume button click");
-        }
-
-        if ctx.redo_mouseover() {
-            self.hovering = self.rect.contains(ctx.canvas.get_cursor_in_screen_space());
-        }
-        if self.hovering && ctx.input.left_mouse_button_pressed() {
-            self.clicked = true;
-        }
-
-        if let Some(hotkey) = self.hotkey {
-            if ctx.input.new_was_pressed(hotkey) {
-                self.clicked = true;
-            }
-        }
-    }
-
-    pub fn clicked(&mut self) -> bool {
-        if self.clicked {
-            self.clicked = false;
-            true
-        } else {
-            false
-        }
-    }
-
-    pub fn draw(&self, g: &mut GfxCtx) {
-        g.fork(
-            Pt2D::new(0.0, 0.0),
-            ScreenPt::new(self.rect.x1, self.rect.y1),
-            1.0,
+        let normal = DrawBoth::new(
+            ctx,
+            GeomBatch::from(vec![(unselected_bg_color, geom.clone())]),
+            draw_text.clone(),
         );
-        if self.hovering {
-            g.redraw(&self.bg_selected);
-        } else {
-            g.redraw(&self.bg_unselected);
-        }
-        g.unfork();
-
-        g.canvas.mark_covered_area(self.rect.clone());
-        g.draw_text_at_screenspace_topleft(
-            &self.text,
-            ScreenPt::new(self.rect.x1 + HORIZ_PADDING, self.rect.y1 + VERT_PADDING),
+        let hovered = DrawBoth::new(
+            ctx,
+            GeomBatch::from(vec![(selected_bg_color, geom.clone())]),
+            draw_text,
         );
-    }
-}
 
-impl Widget for TextButton {
-    fn get_dims(&self) -> ScreenDims {
-        self.rect.dims()
+        Button::new(normal, hovered, hotkey, "", geom)
     }
 
-    fn set_pos(&mut self, top_left: ScreenPt) {
-        self.rect = ScreenRectangle::top_left(top_left, self.rect.dims());
+    pub fn at(mut self, pt: ScreenPt) -> Button {
+        self.set_pos(pt);
+        self
     }
 }

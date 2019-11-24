@@ -8,7 +8,7 @@ use crate::tutorial::TutorialMode;
 use crate::ui::UI;
 use abstutil::elapsed_seconds;
 use ezgui::{
-    hotkey, layout, Color, EventCtx, EventLoopMode, GfxCtx, JustDraw, Key, Line, Text, TextButton,
+    hotkey, layout, Button, Color, EventCtx, EventLoopMode, GfxCtx, JustDraw, Key, Line, Text,
 };
 use geom::{Duration, Line, Pt2D, Speed};
 use map_model::Map;
@@ -18,7 +18,7 @@ use std::time::Instant;
 
 pub struct TitleScreen {
     logo: JustDraw,
-    play_btn: TextButton,
+    play_btn: Button,
     screensaver: Screensaver,
     rng: XorShiftRng,
 }
@@ -30,7 +30,7 @@ impl TitleScreen {
             logo: JustDraw::image("assets/pregame/logo.png", ctx),
             // TODO that nicer font
             // TODO Any key
-            play_btn: TextButton::new(
+            play_btn: Button::text(
                 Text::from(Line("PLAY")),
                 Color::BLUE,
                 Color::ORANGE,

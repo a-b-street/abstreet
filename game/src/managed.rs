@@ -2,7 +2,6 @@ use crate::game::{State, Transition};
 use crate::ui::UI;
 use ezgui::{
     layout, Button, Color, EventCtx, GfxCtx, JustDraw, JustDrawText, Line, MultiKey, Text,
-    TextButton,
 };
 
 type Callback = Box<dyn Fn(&mut EventCtx, &mut UI) -> Option<Transition>>;
@@ -19,7 +18,7 @@ impl<'a> ManagedGUIStateBuilder<'a> {
 
     pub fn img_button(&mut self, filename: &str, hotkey: Option<MultiKey>, onclick: Callback) {
         let btn = Button::rectangle_img(filename, hotkey, self.ctx);
-        self.state.img_buttons.push((btn, onclick));
+        self.state.buttons.push((btn, onclick));
     }
 
     pub fn img_button_no_bg(
@@ -29,7 +28,7 @@ impl<'a> ManagedGUIStateBuilder<'a> {
         onclick: Callback,
     ) {
         let btn = Button::rectangle_img_no_bg(filename, hotkey, self.ctx);
-        self.state.img_buttons.push((btn, onclick));
+        self.state.buttons.push((btn, onclick));
     }
 
     pub fn text_button(&mut self, label: &str, hotkey: Option<MultiKey>, onclick: Callback) {
@@ -38,7 +37,7 @@ impl<'a> ManagedGUIStateBuilder<'a> {
 
     pub fn detailed_text_button(&mut self, txt: Text, hotkey: Option<MultiKey>, onclick: Callback) {
         // TODO Default style. Lots of variations.
-        let btn = TextButton::new(txt, Color::WHITE, Color::ORANGE, hotkey, self.ctx);
+        let btn = Button::text(txt, Color::WHITE, Color::ORANGE, hotkey, self.ctx);
         self.state.buttons.push((btn, onclick));
     }
 
@@ -49,9 +48,7 @@ impl<'a> ManagedGUIStateBuilder<'a> {
 
 pub struct ManagedGUIState {
     draw_text: Vec<JustDrawText>,
-    // TODO Unify these
-    buttons: Vec<(TextButton, Callback)>,
-    img_buttons: Vec<(Button, Callback)>,
+    buttons: Vec<(Button, Callback)>,
 }
 
 impl ManagedGUIState {
@@ -61,7 +58,6 @@ impl ManagedGUIState {
             state: ManagedGUIState {
                 draw_text: Vec::new(),
                 buttons: Vec::new(),
-                img_buttons: Vec::new(),
             },
         }
     }
@@ -80,22 +76,9 @@ impl State for ManagedGUIState {
                         .iter_mut()
                         .map(|(btn, _)| btn as &mut dyn layout::Widget),
                 )
-                .chain(
-                    self.img_buttons
-                        .iter_mut()
-                        .map(|(btn, _)| btn as &mut dyn layout::Widget),
-                )
                 .collect(),
         );
         for (btn, onclick) in self.buttons.iter_mut() {
-            btn.event(ctx);
-            if btn.clicked() {
-                if let Some(t) = (onclick)(ctx, ui) {
-                    return t;
-                }
-            }
-        }
-        for (btn, onclick) in self.img_buttons.iter_mut() {
             btn.event(ctx);
             if btn.clicked() {
                 if let Some(t) = (onclick)(ctx, ui) {
@@ -117,9 +100,6 @@ impl State for ManagedGUIState {
             t.draw(g);
         }
         for (btn, _) in &self.buttons {
-            btn.draw(g);
-        }
-        for (btn, _) in &self.img_buttons {
             btn.draw(g);
         }
     }
