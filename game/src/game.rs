@@ -1,6 +1,6 @@
+use crate::pregame::{SplashScreen, TitleScreen};
 use crate::render::DrawOptions;
 use crate::sandbox::{GameplayMode, SandboxMode};
-use crate::splash_screen::SplashScreen;
 use crate::ui::{Flags, ShowEverything, UI};
 use ezgui::{Canvas, EventCtx, EventLoopMode, GfxCtx, Wizard, GUI};
 
@@ -14,10 +14,10 @@ pub struct Game {
 
 impl Game {
     pub fn new(flags: Flags, ctx: &mut EventCtx) -> Game {
-        let splash = !flags.dev && !flags.sim_flags.load.contains("data/save");
-        let mut ui = UI::new(flags, ctx, splash);
-        let states: Vec<Box<dyn State>> = if splash {
-            vec![Box::new(SplashScreen::new_with_screensaver(ctx, &ui))]
+        let title = !flags.dev && !flags.sim_flags.load.contains("data/save");
+        let mut ui = UI::new(flags, ctx, title);
+        let states: Vec<Box<dyn State>> = if title {
+            vec![Box::new(TitleScreen::new(ctx, &ui))]
         } else {
             vec![
                 Box::new(SplashScreen::new_without_screensaver()),

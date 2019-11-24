@@ -348,7 +348,7 @@ fn search_osm(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Trans
     let results = SearchResults {
         query: filter,
         ids,
-        unzoomed: ctx.prerender.upload(batch),
+        unzoomed: batch.upload(ctx),
     };
 
     Some(Transition::PopWithData(Box::new(|state, _, _| {

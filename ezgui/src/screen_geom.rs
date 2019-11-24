@@ -41,12 +41,17 @@ impl ScreenRectangle {
         pt.x >= self.x1 && pt.x <= self.x2 && pt.y >= self.y1 && pt.y <= self.y2
     }
 
+    // TODO Remove these in favor of dims()
     pub fn width(&self) -> f64 {
         self.x2 - self.x1
     }
 
     pub fn height(&self) -> f64 {
         self.y2 - self.y1
+    }
+
+    pub fn dims(&self) -> ScreenDims {
+        ScreenDims::new(self.x2 - self.x1, self.y2 - self.y1)
     }
 }
 

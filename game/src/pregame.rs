@@ -6,12 +6,53 @@ use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::tutorial::TutorialMode;
 use crate::ui::UI;
 use abstutil::elapsed_seconds;
-use ezgui::{Canvas, Choice, EventCtx, EventLoopMode, GfxCtx, Key, UserInput, Wizard};
+use ezgui::{
+    layout, Canvas, Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, Text, TextButton,
+    UserInput, Wizard,
+};
 use geom::{Duration, Line, Pt2D, Speed};
 use map_model::Map;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
 use std::time::Instant;
+
+pub struct TitleScreen {
+    play_btn: TextButton,
+}
+
+impl TitleScreen {
+    pub fn new(ctx: &EventCtx, _: &UI) -> TitleScreen {
+        TitleScreen {
+            // TODO logo
+            // TODO that nicer font
+            play_btn: TextButton::new(Text::from(Line("PLAY")), Color::BLUE, Color::ORANGE, ctx),
+        }
+    }
+}
+
+impl State for TitleScreen {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+        layout::stack_vertically(
+            layout::ContainerOrientation::Centered,
+            ctx,
+            vec![&mut self.play_btn],
+        );
+
+        // TODO or any keypress
+        self.play_btn.event(ctx);
+        if self.play_btn.clicked() {
+            return Transition::ReplaceWithMode(
+                Box::new(SplashScreen::new_with_screensaver(ctx, ui)),
+                EventLoopMode::Animation,
+            );
+        }
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        self.play_btn.draw(g);
+    }
+}
 
 pub struct SplashScreen {
     wizard: Wizard,

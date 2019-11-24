@@ -84,7 +84,7 @@ impl ModalMenu {
         }
 
         if let Some(o) = self.standalone_layout {
-            layout::stack_vertically(o, ctx.canvas, vec![self]);
+            layout::stack_vertically(o, ctx, vec![self]);
             self.recalculate_dims(ctx);
         }
 

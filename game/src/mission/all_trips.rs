@@ -110,7 +110,7 @@ impl State for TripsVisualizer {
         ctx.canvas.handle_event(ctx.input);
         layout::stack_vertically(
             layout::ContainerOrientation::TopRight,
-            ctx.canvas,
+            ctx,
             vec![&mut self.time_slider, &mut self.menu],
         );
 

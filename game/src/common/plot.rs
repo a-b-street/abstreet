@@ -110,7 +110,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
         }
 
         Plot {
-            draw: ctx.prerender.upload(batch),
+            draw: batch.upload(ctx),
             labels,
             legend,
             rect: ScreenRectangle { x1, y1, x2, y2 },

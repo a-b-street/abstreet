@@ -59,7 +59,7 @@ impl MenuUnderButton {
             panic!("Nothing consumed action {}", c);
         }
 
-        layout::stack_vertically(self.standalone_layout, ctx.canvas, vec![self]);
+        layout::stack_vertically(self.standalone_layout, ctx, vec![self]);
 
         self.button.event(ctx);
         if self.button.clicked() {

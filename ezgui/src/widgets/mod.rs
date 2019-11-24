@@ -13,7 +13,7 @@ mod warper;
 mod wizard;
 
 pub use self::autocomplete::Autocomplete;
-pub use self::button::Button;
+pub use self::button::{Button, TextButton};
 pub(crate) use self::context_menu::ContextMenu;
 pub use self::menu_under_button::MenuUnderButton;
 pub use self::modal_menu::ModalMenu;

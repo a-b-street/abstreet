@@ -1,4 +1,4 @@
-use crate::{Canvas, ScreenDims, ScreenPt};
+use crate::{EventCtx, ScreenDims, ScreenPt};
 use ordered_float::NotNan;
 
 // TODO Move this to widgets/mod
@@ -19,7 +19,7 @@ pub enum ContainerOrientation {
 
 pub fn stack_vertically(
     orientation: ContainerOrientation,
-    canvas: &Canvas,
+    ctx: &EventCtx,
     widgets: Vec<&mut dyn Widget>,
 ) {
     assert!(!widgets.is_empty());
@@ -34,14 +34,14 @@ pub fn stack_vertically(
 
     let mut top_left = match orientation {
         ContainerOrientation::TopLeft => ScreenPt::new(0.0, 0.0),
-        ContainerOrientation::TopRight => ScreenPt::new(canvas.window_width - total_width, 0.0),
+        ContainerOrientation::TopRight => ScreenPt::new(ctx.canvas.window_width - total_width, 0.0),
         ContainerOrientation::Centered => {
-            let mut pt = canvas.center_to_screen_pt();
+            let mut pt = ctx.canvas.center_to_screen_pt();
             pt.x -= total_width / 2.0;
             pt.y -= total_height / 2.0;
             pt
         }
-        ContainerOrientation::Top(percent) => ScreenPt::new(canvas.window_width * percent, 0.0),
+        ContainerOrientation::Top(percent) => ScreenPt::new(ctx.canvas.window_width * percent, 0.0),
     };
     for (w, dims) in widgets.into_iter().zip(dims_per_widget) {
         w.set_pos(top_left, total_width);

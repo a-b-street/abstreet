@@ -1,6 +1,7 @@
 use crate::widgets::ContextMenu;
 use crate::{
-    text, Canvas, Color, HorizontalAlignment, Key, ScreenDims, ScreenPt, Text, VerticalAlignment,
+    text, Canvas, Color, EventCtx, HorizontalAlignment, Key, ScreenDims, ScreenPt, Text,
+    VerticalAlignment,
 };
 use geom::{Bounds, Circle, Distance, Line, Polygon, Pt2D};
 use glium::uniforms::{SamplerBehavior, SamplerWrapFunction, UniformValue};
@@ -359,6 +360,10 @@ impl GeomBatch {
         let refs = self.list.iter().map(|(color, p)| (*color, p)).collect();
         let obj = g.prerender.upload_temporary(refs);
         g.redraw(&obj);
+    }
+
+    pub fn upload(self, ctx: &EventCtx) -> Drawable {
+        ctx.prerender.upload(self)
     }
 
     pub(crate) fn get_dims(&self) -> ScreenDims {

@@ -299,7 +299,7 @@ impl NewScroller {
         }
 
         NewScroller {
-            draw: ctx.prerender.upload(geom),
+            draw: geom.upload(ctx),
             multi_txt,
             _total_dims: total_dims,
             zoom,

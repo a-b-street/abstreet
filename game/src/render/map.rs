@@ -77,7 +77,7 @@ impl DrawMap {
                 );
             }
         }
-        let draw_all_thick_roads = ctx.prerender.upload(all_roads);
+        let draw_all_thick_roads = all_roads.upload(ctx);
         timer.stop("generate thick roads");
 
         let almost_lanes =
@@ -128,7 +128,7 @@ impl DrawMap {
                 );
             }
         }
-        let draw_all_unzoomed_intersections = ctx.prerender.upload(all_intersections);
+        let draw_all_unzoomed_intersections = all_intersections.upload(ctx);
         timer.stop("generate unzoomed intersections");
 
         let mut buildings: Vec<DrawBuilding> = Vec::new();
@@ -139,7 +139,7 @@ impl DrawMap {
             buildings.push(DrawBuilding::new(b, cs, &mut all_buildings));
         }
         timer.start("upload all buildings");
-        let draw_all_buildings = ctx.prerender.upload(all_buildings);
+        let draw_all_buildings = all_buildings.upload(ctx);
         timer.stop("upload all buildings");
 
         let mut extra_shapes: Vec<DrawExtraShape> = Vec::new();
@@ -196,7 +196,7 @@ impl DrawMap {
             areas.push(DrawArea::new(a, ctx, &mut all_areas));
         }
         timer.start("upload all areas");
-        let draw_all_areas = ctx.prerender.upload(all_areas);
+        let draw_all_areas = all_areas.upload(ctx);
         timer.stop("upload all areas");
 
         let boundary_polygon = ctx.prerender.upload_borrowed(vec![(

@@ -6,9 +6,9 @@ mod edit;
 mod game;
 mod helpers;
 mod mission;
+mod pregame;
 mod render;
 mod sandbox;
-mod splash_screen;
 mod tutorial;
 mod ui;
 

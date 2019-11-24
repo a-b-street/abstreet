@@ -114,7 +114,7 @@ impl State for SandboxMode {
         // Give both menus a chance to set_info before doing this
         layout::stack_vertically(
             layout::ContainerOrientation::TopRight,
-            ctx.canvas,
+            ctx,
             vec![&mut self.menu, &mut self.gameplay.menu],
         );
 

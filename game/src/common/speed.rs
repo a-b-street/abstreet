@@ -133,7 +133,7 @@ impl SpeedControls {
             state: State::Paused,
             speed_cap,
 
-            panel_bg: ctx.prerender.upload(panel_bg),
+            panel_bg: panel_bg.upload(ctx),
             resume_btn,
             pause_btn,
             slow_down_btn,

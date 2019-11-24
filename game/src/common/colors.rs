@@ -68,7 +68,7 @@ impl RoadColorerBuilder {
         }
         RoadColorer {
             zoomed_override_colors: self.zoomed_override_colors,
-            unzoomed: ctx.prerender.upload(batch),
+            unzoomed: batch.upload(ctx),
             legend: self.legend,
         }
     }
@@ -136,7 +136,7 @@ impl ObjectColorerBuilder {
         }
         ObjectColorer {
             zoomed_override_colors: self.zoomed_override_colors,
-            unzoomed: ctx.prerender.upload(batch),
+            unzoomed: batch.upload(ctx),
             legend: self.legend,
         }
     }

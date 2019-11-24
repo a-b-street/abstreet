@@ -697,5 +697,5 @@ fn show_demand(
         );
     }
 
-    ctx.prerender.upload(batch)
+    batch.upload(ctx)
 }

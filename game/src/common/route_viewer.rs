@@ -31,11 +31,7 @@ impl RouteViewer {
                         Distance::meters(0.4),
                     ),
                 );
-                return RouteViewer::Hovering(
-                    ui.primary.sim.time(),
-                    agent,
-                    ctx.prerender.upload(batch),
-                );
+                return RouteViewer::Hovering(ui.primary.sim.time(), agent, batch.upload(ctx));
             }
         }
         RouteViewer::Inactive
@@ -119,7 +115,7 @@ fn show_route(trip: TripID, ui: &UI, ctx: &EventCtx) -> RouteViewer {
                         trace.make_polygons(Distance::meters(10.0)),
                     );
 
-                    (ctx.prerender.upload(zoomed), ctx.prerender.upload(unzoomed))
+                    (zoomed.upload(ctx), unzoomed.upload(ctx))
                 }),
         ),
         TripResult::ModeChange => {

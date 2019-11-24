@@ -1,10 +1,7 @@
 use crate::widgets::log_scroller::LogScroller;
 use crate::widgets::text_box::TextBox;
 use crate::widgets::PopupMenu;
-use crate::{
-    layout, Canvas, EventCtx, GfxCtx, InputResult, Key, MultiKey, SliderWithTextBox, Text,
-    UserInput,
-};
+use crate::{layout, EventCtx, GfxCtx, InputResult, Key, MultiKey, SliderWithTextBox, Text};
 use abstutil::Cloneable;
 use geom::Duration;
 use std::collections::VecDeque;
@@ -75,27 +72,26 @@ impl Wizard {
         &mut self,
         query: &str,
         prefilled: Option<String>,
-        input: &mut UserInput,
         parser: Box<dyn Fn(String) -> Option<R>>,
-        canvas: &Canvas,
+        ctx: &mut EventCtx,
     ) -> Option<R> {
         assert!(self.alive);
 
         // Otherwise, we try to use one event for two inputs potentially
-        if input.has_been_consumed() {
+        if ctx.input.has_been_consumed() {
             return None;
         }
 
         if self.tb.is_none() {
-            self.tb = Some(TextBox::new(query, prefilled, canvas));
+            self.tb = Some(TextBox::new(query, prefilled, ctx.canvas));
         }
         layout::stack_vertically(
             layout::ContainerOrientation::Centered,
-            canvas,
+            ctx,
             vec![self.tb.as_mut().unwrap()],
         );
 
-        match self.tb.as_mut().unwrap().event(input) {
+        match self.tb.as_mut().unwrap().event(ctx.input) {
             InputResult::StillActive => None,
             InputResult::Canceled => {
                 self.alive = false;
@@ -167,13 +163,10 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
             let item: &R = first.as_any().downcast_ref::<R>().unwrap();
             return Some(item.clone());
         }
-        if let Some(obj) = self.wizard.input_with_text_box(
-            query,
-            prefilled,
-            self.ctx.input,
-            parser,
-            self.ctx.canvas,
-        ) {
+        if let Some(obj) = self
+            .wizard
+            .input_with_text_box(query, prefilled, parser, self.ctx)
+        {
             self.wizard.confirmed_state.push(Box::new(obj.clone()));
             Some(obj)
         } else {

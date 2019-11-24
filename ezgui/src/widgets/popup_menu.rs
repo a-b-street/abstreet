@@ -48,7 +48,7 @@ impl<T: Clone> PopupMenu<T> {
 
     pub fn event(&mut self, ctx: &mut EventCtx) -> InputResult<T> {
         if let Some(o) = self.standalone_layout {
-            layout::stack_vertically(o, ctx.canvas, vec![self]);
+            layout::stack_vertically(o, ctx, vec![self]);
             self.recalculate_dims(ctx);
         }
 

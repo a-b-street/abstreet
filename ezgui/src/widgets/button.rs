@@ -1,9 +1,9 @@
 use crate::layout::Widget;
 use crate::{
     hotkey, text, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, MultiKey, ScreenDims,
-    ScreenPt, Text,
+    ScreenPt, ScreenRectangle, Text,
 };
-use geom::{Circle, Distance, Pt2D};
+use geom::{Circle, Distance, Polygon, Pt2D};
 
 // Assumed circular.
 pub struct Button {
@@ -34,8 +34,8 @@ impl Button {
         let dims = normal.get_dims();
         assert_eq!(dims, hovered.get_dims());
         Button {
-            draw_normal: ctx.prerender.upload(normal),
-            draw_hovered: ctx.prerender.upload(hovered),
+            draw_normal: normal.upload(ctx),
+            draw_hovered: hovered.upload(ctx),
             hotkey,
             tooltip: if let Some(key) = hotkey {
                 let mut txt = Text::from(Line(key.describe()).fg(text::HOTKEY_COLOR));
@@ -182,5 +182,100 @@ impl Button {
     pub fn at(mut self, pt: ScreenPt) -> Button {
         self.set_pos(pt, 0.0);
         self
+    }
+}
+
+const HORIZ_PADDING: f64 = 30.0;
+const VERT_PADDING: f64 = 10.0;
+
+pub struct TextButton {
+    bg_unselected: Drawable,
+    bg_selected: Drawable,
+    text: Text,
+    rect: ScreenRectangle,
+
+    hovering: bool,
+    clicked: bool,
+}
+
+impl TextButton {
+    pub fn new(
+        text: Text,
+        unselected_bg_color: Color,
+        selected_bg_color: Color,
+        ctx: &EventCtx,
+    ) -> TextButton {
+        let (w, h) = ctx.canvas.text_dims(&text);
+        // TODO Rounded corners
+        let geom = Polygon::rectangle_topleft(
+            Pt2D::new(0.0, 0.0),
+            Distance::meters(w + 2.0 * HORIZ_PADDING),
+            Distance::meters(h + 2.0 * VERT_PADDING),
+        );
+
+        TextButton {
+            bg_unselected: GeomBatch::from(vec![(unselected_bg_color, geom.clone())]).upload(ctx),
+            bg_selected: GeomBatch::from(vec![(selected_bg_color, geom)]).upload(ctx),
+            text: text.no_bg(),
+            rect: ScreenRectangle::top_left(
+                ScreenPt::new(0.0, 0.0),
+                ScreenDims::new(w + 2.0 * HORIZ_PADDING, h + 2.0 * VERT_PADDING),
+            ),
+
+            hovering: false,
+            clicked: false,
+        }
+    }
+
+    pub fn event(&mut self, ctx: &mut EventCtx) {
+        if self.clicked {
+            panic!("Caller didn't consume button click");
+        }
+
+        if ctx.redo_mouseover() {
+            self.hovering = self.rect.contains(ctx.canvas.get_cursor_in_screen_space());
+        }
+        if self.hovering && ctx.input.left_mouse_button_pressed() {
+            self.clicked = true;
+        }
+    }
+
+    pub fn clicked(&mut self) -> bool {
+        if self.clicked {
+            self.clicked = false;
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx) {
+        g.fork(
+            Pt2D::new(0.0, 0.0),
+            ScreenPt::new(self.rect.x1, self.rect.y1),
+            1.0,
+        );
+        if self.hovering {
+            g.redraw(&self.bg_selected);
+        } else {
+            g.redraw(&self.bg_unselected);
+        }
+        g.unfork();
+
+        g.canvas.mark_covered_area(self.rect.clone());
+        g.draw_text_at_screenspace_topleft(
+            &self.text,
+            ScreenPt::new(self.rect.x1 + HORIZ_PADDING, self.rect.y1 + VERT_PADDING),
+        );
+    }
+}
+
+impl Widget for TextButton {
+    fn get_dims(&self) -> ScreenDims {
+        self.rect.dims()
+    }
+
+    fn set_pos(&mut self, top_left: ScreenPt, _total_width: f64) {
+        self.rect = ScreenRectangle::top_left(top_left, self.rect.dims());
     }
 }

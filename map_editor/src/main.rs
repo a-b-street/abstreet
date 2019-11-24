@@ -684,7 +684,7 @@ fn preview_intersection(
         labels.push((Text::from(Line(label)), poly.center()));
         batch.push(Color::RED.alpha(0.5), poly);
     }
-    (ctx.prerender.upload(batch), labels)
+    (batch.upload(ctx), labels)
 }
 
 fn preview_all_intersections(model: &Model, ctx: &EventCtx) -> (Drawable, Vec<(Text, Pt2D)>) {
@@ -699,7 +699,7 @@ fn preview_all_intersections(model: &Model, ctx: &EventCtx) -> (Drawable, Vec<(T
         let (intersection, _, _) = model.map.preview_intersection(*i, &mut timer);
         batch.push(Color::ORANGE.alpha(0.5), intersection);
     }
-    (ctx.prerender.upload(batch), Vec::new())
+    (batch.upload(ctx), Vec::new())
 }
 
 fn find_overlapping_intersections(model: &Model, ctx: &EventCtx) -> (Drawable, Vec<(Text, Pt2D)>) {
@@ -734,7 +734,7 @@ fn find_overlapping_intersections(model: &Model, ctx: &EventCtx) -> (Drawable, V
 
     let mut batch = GeomBatch::new();
     batch.extend(Color::RED.alpha(0.5), overlap);
-    (ctx.prerender.upload(batch), Vec::new())
+    (batch.upload(ctx), Vec::new())
 }
 
 // TODO OriginalRoad is dangerous, as this map changes. :\

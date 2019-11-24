@@ -289,7 +289,7 @@ impl<T> ItemSlider<T> {
         }
         stack_vertically(
             ContainerOrientation::TopRight,
-            ctx.canvas,
+            ctx,
             vec![&mut self.slider, &mut self.menu],
         );
 
@@ -432,7 +432,7 @@ impl SliderWithTextBox {
         ctx.canvas.handle_event(ctx.input);
         stack_vertically(
             ContainerOrientation::Centered,
-            ctx.canvas,
+            ctx,
             vec![&mut self.slider, &mut self.tb],
         );
 
