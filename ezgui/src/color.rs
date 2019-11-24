@@ -21,6 +21,8 @@ pub enum Color {
     // TODO Figure out how to pack more data into this.
     HatchingStyle1,
     HatchingStyle2,
+    // Complete hack. Turns the non-transparent pixels in the texture orange in the shader.
+    MaskedTexture(TextureID),
 }
 
 impl fmt::Display for Color {
@@ -40,6 +42,7 @@ impl fmt::Display for Color {
             Color::CustomUVTexture(id) => write!(f, "Color::CustomUVTexture({}:{})", id.0, id.1),
             Color::HatchingStyle1 => write!(f, "Color::HatchingStyle1"),
             Color::HatchingStyle2 => write!(f, "Color::HatchingStyle2"),
+            Color::MaskedTexture(id) => write!(f, "Color::MaskedTexture({}:{})", id.0, id.1),
         }
     }
 }
@@ -103,6 +106,13 @@ impl Color {
     pub fn rotate(&self, angle: Angle) -> Color {
         match self {
             Color::StretchTexture(id, dims, _) => Color::StretchTexture(*id, *dims, angle),
+            _ => unreachable!(),
+        }
+    }
+
+    pub fn with_masking(&self) -> Color {
+        match self {
+            Color::StretchTexture(id, _, _) => Color::MaskedTexture(*id),
             _ => unreachable!(),
         }
     }

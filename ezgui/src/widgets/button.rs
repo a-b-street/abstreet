@@ -5,7 +5,6 @@ use crate::{
 };
 use geom::{Circle, Distance, Polygon, Pt2D};
 
-// Assumed circular.
 pub struct Button {
     draw_normal: Drawable,
     draw_hovered: Drawable,
@@ -167,8 +166,7 @@ impl Button {
         );
 
         let normal = GeomBatch::from(vec![(color, rect.clone())]);
-        // TODO Different color...
-        let hovered = GeomBatch::from(vec![(color, rect.clone())]);
+        let hovered = GeomBatch::from(vec![(color.with_masking(), rect.clone())]);
         Button::new(normal, hovered, key, "", rect, ctx)
     }
 
@@ -233,6 +231,8 @@ impl Button {
 const HORIZ_PADDING: f64 = 30.0;
 const VERT_PADDING: f64 = 10.0;
 
+// TODO Unify with Button. Maybe Drawable should subsume MultiText (and understand screens-space
+// offsets)
 pub struct TextButton {
     bg_unselected: Drawable,
     bg_selected: Drawable,

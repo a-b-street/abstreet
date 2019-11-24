@@ -24,40 +24,47 @@ uniform sampler2DArray tex14;
 in vec4 pass_style;
 out vec4 f_color;
 
+void handle_texture(in sampler2DArray tex, in vec4 style, out vec4 color) {
+    color = texture(tex, vec3(pass_style[0], pass_style[1], pass_style[3] - 100.0));
+    if (pass_style[3] >= 200.0 && color[3] > 0.0) {
+        color = vec4(1.0, 0.55, 0.0, 1.0);
+    }
+}
+
 void main() {
     // See actually_upload in drawing.rs to understand the different things encoded.
     if (pass_style[3] < 100.0) {
         f_color = pass_style;
     } else if (pass_style[2] == 0.0) {
-        f_color = texture(tex0, vec3(pass_style[0], pass_style[1], pass_style[3] - 100.0));
+        handle_texture(tex0, pass_style, f_color);
     } else if (pass_style[2] == 1.0) {
-        f_color = texture(tex1, vec3(pass_style[0], pass_style[1], pass_style[3] - 100.0));
+        handle_texture(tex1, pass_style, f_color);
     } else if (pass_style[2] == 2.0) {
-        f_color = texture(tex2, vec3(pass_style[0], pass_style[1], pass_style[3] - 100.0));
+        handle_texture(tex2, pass_style, f_color);
     } else if (pass_style[2] == 3.0) {
-        f_color = texture(tex3, vec3(pass_style[0], pass_style[1], pass_style[3] - 100.0));
+        handle_texture(tex3, pass_style, f_color);
     } else if (pass_style[2] == 4.0) {
-        f_color = texture(tex4, vec3(pass_style[0], pass_style[1], pass_style[3] - 100.0));
+        handle_texture(tex4, pass_style, f_color);
     } else if (pass_style[2] == 5.0) {
-        f_color = texture(tex5, vec3(pass_style[0], pass_style[1], pass_style[3] - 100.0));
+        handle_texture(tex5, pass_style, f_color);
     } else if (pass_style[2] == 6.0) {
-        f_color = texture(tex6, vec3(pass_style[0], pass_style[1], pass_style[3] - 100.0));
+        handle_texture(tex6, pass_style, f_color);
     } else if (pass_style[2] == 7.0) {
-        f_color = texture(tex7, vec3(pass_style[0], pass_style[1], pass_style[3] - 100.0));
+        handle_texture(tex7, pass_style, f_color);
     } else if (pass_style[2] == 8.0) {
-        f_color = texture(tex8, vec3(pass_style[0], pass_style[1], pass_style[3] - 100.0));
+        handle_texture(tex8, pass_style, f_color);
     } else if (pass_style[2] == 9.0) {
-        f_color = texture(tex9, vec3(pass_style[0], pass_style[1], pass_style[3] - 100.0));
+        handle_texture(tex9, pass_style, f_color);
     } else if (pass_style[2] == 10.0) {
-        f_color = texture(tex10, vec3(pass_style[0], pass_style[1], pass_style[3] - 100.0));
+        handle_texture(tex10, pass_style, f_color);
     } else if (pass_style[2] == 11.0) {
-        f_color = texture(tex11, vec3(pass_style[0], pass_style[1], pass_style[3] - 100.0));
+        handle_texture(tex11, pass_style, f_color);
     } else if (pass_style[2] == 12.0) {
-        f_color = texture(tex12, vec3(pass_style[0], pass_style[1], pass_style[3] - 100.0));
+        handle_texture(tex12, pass_style, f_color);
     } else if (pass_style[2] == 13.0) {
-        f_color = texture(tex13, vec3(pass_style[0], pass_style[1], pass_style[3] - 100.0));
+        handle_texture(tex13, pass_style, f_color);
     } else if (pass_style[2] == 14.0) {
-        f_color = texture(tex14, vec3(pass_style[0], pass_style[1], pass_style[3] - 100.0));
+        handle_texture(tex14, pass_style, f_color);
     } else if (pass_style[0] == 100.0) {
         // The hatching should be done in map-space, so panning/zooming doesn't move the stripes.
         // This is screen_to_map, also accounting for the y-inversion done by the vertex shader.

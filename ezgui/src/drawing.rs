@@ -460,6 +460,12 @@ impl<'a> Prerender<'a> {
                         let ty = (rot_pt.y() - b.min_y) / (b.max_y - b.min_y);
                         [tx as f32, ty as f32, id.0, 100.0 + id.1]
                     }
+                    Color::MaskedTexture(id) => {
+                        let b = poly.get_bounds();
+                        let tx = (pt.x() - b.min_x) / (b.max_x - b.min_x);
+                        let ty = (pt.y() - b.min_y) / (b.max_y - b.min_y);
+                        [tx as f32, ty as f32, id.0, 200.0 + id.1]
+                    }
                     Color::CustomUVTexture(id) => {
                         let (tx, ty) =
                             maybe_uv.expect("CustomUVTexture with polygon lacking UV")[idx];
