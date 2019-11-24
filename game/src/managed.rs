@@ -22,6 +22,16 @@ impl<'a> ManagedGUIStateBuilder<'a> {
         self.state.img_buttons.push((btn, onclick));
     }
 
+    pub fn img_button_no_bg(
+        &mut self,
+        filename: &str,
+        hotkey: Option<MultiKey>,
+        onclick: Callback,
+    ) {
+        let btn = Button::rectangle_img_no_bg(filename, hotkey, self.ctx);
+        self.state.img_buttons.push((btn, onclick));
+    }
+
     pub fn text_button(&mut self, label: &str, hotkey: Option<MultiKey>, onclick: Callback) {
         self.detailed_text_button(Text::from(Line(label).fg(Color::BLACK)), hotkey, onclick);
     }

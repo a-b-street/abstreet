@@ -115,7 +115,7 @@ pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
         None,
         Box::new(|ctx, _| Some(Transition::Push(about(ctx)))),
     );
-    state.img_button(
+    state.img_button_no_bg(
         "assets/pregame/quit.png",
         hotkey(Key::Escape),
         Box::new(|_, _| {
@@ -143,7 +143,7 @@ fn about(ctx: &EventCtx) -> Box<dyn State> {
     // TODO centered
     state.draw_text(txt);
 
-    state.img_button(
+    state.img_button_no_bg(
         "assets/pregame/back.png",
         hotkey(Key::Escape),
         Box::new(|_, _| Some(Transition::Pop)),

@@ -11,8 +11,8 @@ pub struct Button {
     draw_hovered: Drawable,
     hotkey: Option<MultiKey>,
     tooltip: Text,
-    // Screenspace
-    cover_circle: Circle,
+    // Screenspace, top-left always at the origin. Also, probably not a box. :P
+    hitbox: Polygon,
 
     hovering: bool,
     clicked: bool,
@@ -28,7 +28,7 @@ impl Button {
         hovered: GeomBatch,
         hotkey: Option<MultiKey>,
         tooltip: &str,
-        cover_circle: Circle,
+        hitbox: Polygon,
         ctx: &EventCtx,
     ) -> Button {
         let dims = normal.get_dims();
@@ -44,7 +44,7 @@ impl Button {
             } else {
                 Text::from(Line(tooltip))
             },
-            cover_circle,
+            hitbox,
 
             hovering: false,
             clicked: false,
@@ -54,6 +54,13 @@ impl Button {
         }
     }
 
+    fn get_hitbox(&self) -> Polygon {
+        self.hitbox.translate(
+            Distance::meters(self.top_left.x),
+            Distance::meters(self.top_left.y),
+        )
+    }
+
     pub fn event(&mut self, ctx: &mut EventCtx) {
         if self.clicked {
             panic!("Caller didn't consume button click");
@@ -61,7 +68,7 @@ impl Button {
 
         if ctx.redo_mouseover() {
             self.hovering = self
-                .cover_circle
+                .get_hitbox()
                 .contains_pt(ctx.canvas.get_cursor_in_screen_space().to_pt());
         }
         if self.hovering && ctx.input.left_mouse_button_pressed() {
@@ -82,7 +89,7 @@ impl Button {
 
     pub fn just_replaced(&mut self, ctx: &EventCtx) {
         self.hovering = self
-            .cover_circle
+            .get_hitbox()
             .contains_pt(ctx.canvas.get_cursor_in_screen_space().to_pt());
     }
 
@@ -105,9 +112,9 @@ impl Button {
         g.unfork();
 
         g.canvas
-            .covered_circles
+            .covered_polygons
             .borrow_mut()
-            .push(self.cover_circle.clone());
+            .push(self.get_hitbox());
     }
 }
 
@@ -118,8 +125,6 @@ impl Widget for Button {
 
     fn set_pos(&mut self, top_left: ScreenPt) {
         self.top_left = top_left;
-        let r = self.cover_circle.radius.inner_meters();
-        self.cover_circle.center = Pt2D::new(top_left.x + r, top_left.y + r);
     }
 }
 
@@ -128,34 +133,43 @@ const ICON_BACKGROUND_SELECTED: Color = Color::YELLOW;
 
 impl Button {
     pub fn rectangle_img(filename: &str, key: Option<MultiKey>, ctx: &EventCtx) -> Button {
+        let img_color = ctx.canvas.texture(filename);
+        let dims = img_color.texture_dims();
+        let img_rect = Polygon::rectangle_topleft(
+            Pt2D::new(HORIZ_PADDING, VERT_PADDING),
+            Distance::meters(dims.width),
+            Distance::meters(dims.height),
+        );
+        let bg = Polygon::rounded_rectangle(
+            Distance::meters(dims.width + 2.0 * HORIZ_PADDING),
+            Distance::meters(dims.height + 2.0 * VERT_PADDING),
+            Distance::meters(VERT_PADDING),
+        );
+
+        let normal = GeomBatch::from(vec![
+            (Color::WHITE, bg.clone()),
+            (img_color, img_rect.clone()),
+        ]);
+        let hovered = GeomBatch::from(vec![
+            (Color::ORANGE, bg.clone()),
+            (img_color, img_rect.clone()),
+        ]);
+        Button::new(normal, hovered, key, "", bg, ctx)
+    }
+
+    pub fn rectangle_img_no_bg(filename: &str, key: Option<MultiKey>, ctx: &EventCtx) -> Button {
         let color = ctx.canvas.texture(filename);
         let dims = color.texture_dims();
-        // TODO Until we move off of circle...
-        let radius = if dims.width >= dims.height {
-            dims.width
-        } else {
-            dims.height
-        };
-        let circle = Circle::new(Pt2D::new(radius, radius), Distance::meters(radius));
+        let rect = Polygon::rectangle_topleft(
+            Pt2D::new(0.0, 0.0),
+            Distance::meters(dims.width),
+            Distance::meters(dims.height),
+        );
 
-        let normal = GeomBatch::from(vec![(
-            color,
-            Polygon::rectangle_topleft(
-                Pt2D::new(0.0, 0.0),
-                Distance::meters(dims.width),
-                Distance::meters(dims.height),
-            ),
-        )]);
+        let normal = GeomBatch::from(vec![(color, rect.clone())]);
         // TODO Different color...
-        let hovered = GeomBatch::from(vec![(
-            color,
-            Polygon::rectangle_topleft(
-                Pt2D::new(0.0, 0.0),
-                Distance::meters(dims.width),
-                Distance::meters(dims.height),
-            ),
-        )]);
-        Button::new(normal, hovered, key, "", circle, ctx)
+        let hovered = GeomBatch::from(vec![(color, rect.clone())]);
+        Button::new(normal, hovered, key, "", rect, ctx)
     }
 
     pub fn icon_btn_bg(
@@ -166,15 +180,15 @@ impl Button {
         bg: Color,
         ctx: &EventCtx,
     ) -> Button {
-        let circle = Circle::new(Pt2D::new(radius, radius), Distance::meters(radius));
+        let circle = Circle::new(Pt2D::new(radius, radius), Distance::meters(radius)).to_polygon();
 
         let mut normal = GeomBatch::new();
-        normal.push(bg, circle.to_polygon());
-        normal.push(ctx.canvas.texture(icon), circle.to_polygon());
+        normal.push(bg, circle.clone());
+        normal.push(ctx.canvas.texture(icon), circle.clone());
 
         let mut hovered = GeomBatch::new();
-        hovered.push(ICON_BACKGROUND_SELECTED, circle.to_polygon());
-        hovered.push(ctx.canvas.texture(icon), circle.to_polygon());
+        hovered.push(ICON_BACKGROUND_SELECTED, circle.clone());
+        hovered.push(ctx.canvas.texture(icon), circle.clone());
 
         Button::new(normal, hovered, key, tooltip, circle, ctx)
     }
