@@ -1,15 +1,13 @@
 use crate::abtest::setup::PickABTest;
 use crate::challenges::challenges_picker;
 use crate::game::{State, Transition};
+use crate::managed::ManagedGUIState;
 use crate::mission::MissionEditMode;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::tutorial::TutorialMode;
 use crate::ui::UI;
 use abstutil::elapsed_seconds;
-use ezgui::{
-    layout, Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment, Line, MultiText, ScreenPt,
-    Text, TextButton, VerticalAlignment,
-};
+use ezgui::{layout, Color, EventCtx, EventLoopMode, GfxCtx, Line, ScreenPt, Text, TextButton};
 use geom::{Duration, Line, Pt2D, Speed};
 use map_model::Map;
 use rand::Rng;
@@ -46,7 +44,7 @@ impl State for TitleScreen {
         // TODO or any keypress
         self.play_btn.event(ctx);
         if self.play_btn.clicked() {
-            return Transition::Replace(Box::new(MainMenu::new(ctx)));
+            return Transition::Replace(main_menu(ctx, ui));
         }
 
         self.screensaver.update(&mut self.rng, ctx, &ui.primary.map);
@@ -59,185 +57,81 @@ impl State for TitleScreen {
     }
 }
 
-pub struct MainMenu {
-    txts: MultiText,
-    // TODO Icon with text? Nah, just an image button on a rounded rectangle
-    tutorial_btn: TextButton,
-    sandbox_btn: TextButton,
-    challenges_btn: TextButton,
-    dev_tools_btn: TextButton,
-    abtest_btn: TextButton,
-    about_btn: TextButton,
+pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
+    let mut state = ManagedGUIState::builder();
+
+    state.draw_text(
+        Text::from(Line("A/B STREET").size(50)).no_bg(),
+        ScreenPt::new(200.0, 100.0),
+    );
+    state.draw_text(
+        Text::from(Line("Created by Dustin Carlino")).no_bg(),
+        ScreenPt::new(250.0, 300.0),
+    );
+    state.draw_text(
+        Text::from(Line("Choose your game")).no_bg(),
+        ScreenPt::new(250.0, 500.0),
+    );
+
+    state.text_button(
+        "TUTORIAL",
+        Box::new(|ctx, _| Some(Transition::Push(Box::new(TutorialMode::new(ctx))))),
+    );
+    state.text_button(
+        "SANDBOX",
+        Box::new(|ctx, ui| {
+            Some(Transition::Push(Box::new(SandboxMode::new(
+                ctx,
+                ui,
+                GameplayMode::Freeform,
+            ))))
+        }),
+    );
+    state.text_button(
+        "CHALLENGES",
+        Box::new(|_, _| Some(Transition::Push(challenges_picker()))),
+    );
+    if ui.primary.current_flags.dev {
+        state.text_button(
+            "INTERNAL DEV TOOLS",
+            Box::new(|ctx, _| Some(Transition::Push(Box::new(MissionEditMode::new(ctx))))),
+        );
+        state.text_button(
+            "INTERNAL A/B TEST MODE",
+            Box::new(|_, _| Some(Transition::Push(PickABTest::new()))),
+        );
+    }
+    state.text_button(
+        "About A/B Street",
+        Box::new(|ctx, _| Some(Transition::Push(about(ctx)))),
+    );
+    state.text_button(
+        "QUIT",
+        Box::new(|_, _| {
+            // TODO before_quit?
+            std::process::exit(0);
+        }),
+    );
+    state.build(ctx)
 }
 
-impl MainMenu {
-    pub fn new(ctx: &EventCtx) -> MainMenu {
-        let mut txts = MultiText::new();
-        // TODO Lots wrong here.
-        txts.add(
-            Text::from(Line("A/B STREET").size(50)).no_bg(),
-            ScreenPt::new(200.0, 100.0),
-        );
-        txts.add(
-            Text::from(Line("Created by Dustin Carlino")).no_bg(),
-            ScreenPt::new(250.0, 300.0),
-        );
-        txts.add(
-            Text::from(Line("Choose your game")).no_bg(),
-            ScreenPt::new(250.0, 500.0),
-        );
+fn about(ctx: &EventCtx) -> Box<dyn State> {
+    let mut state = ManagedGUIState::builder();
 
-        MainMenu {
-            txts,
-            tutorial_btn: TextButton::new(
-                Text::from(Line("TUTORIAL").fg(Color::BLACK)),
-                Color::WHITE,
-                Color::ORANGE,
-                ctx,
-            ),
-            sandbox_btn: TextButton::new(
-                Text::from(Line("SANDBOX").fg(Color::BLACK)),
-                Color::WHITE,
-                Color::ORANGE,
-                ctx,
-            ),
-            challenges_btn: TextButton::new(
-                Text::from(Line("CHALLENGES").fg(Color::BLACK)),
-                Color::WHITE,
-                Color::ORANGE,
-                ctx,
-            ),
-            // TODO hide unless ui.primary.current_flags.dev
-            dev_tools_btn: TextButton::new(
-                Text::from(Line("INTERNAL DEV TOOLS").fg(Color::BLACK)),
-                Color::WHITE,
-                Color::ORANGE,
-                ctx,
-            ),
-            abtest_btn: TextButton::new(
-                Text::from(Line("INTERNAL A/B TEST MODE").fg(Color::BLACK)),
-                Color::WHITE,
-                Color::ORANGE,
-                ctx,
-            ),
-            // TODO No background at all...
-            about_btn: TextButton::new(
-                Text::from(Line("About A/B Street").fg(Color::WHITE)),
-                Color::BLACK,
-                Color::ORANGE,
-                ctx,
-            ),
-        }
-    }
-}
+    let mut txt = Text::new().no_bg();
+    txt.add(Line("A/B STREET").size(50));
+    txt.add(Line("Created by Dustin Carlino"));
+    txt.add(Line(""));
+    txt.add(Line("Contact: dabreegster@gmail.com"));
+    txt.add(Line("Project: http://github.com/dabreegster/abstreet"));
+    txt.add(Line("Map data from OpenStreetMap and King County GIS"));
+    // TODO Lots more credits
+    // TODO centered
+    state.draw_text(txt, ScreenPt::new(100.0, 100.0));
 
-impl State for MainMenu {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        // TODO How do we want to express layouting?
-        layout::stack_vertically(
-            layout::ContainerOrientation::Centered,
-            ctx,
-            vec![
-                &mut self.tutorial_btn,
-                &mut self.sandbox_btn,
-                &mut self.challenges_btn,
-                &mut self.dev_tools_btn,
-                &mut self.abtest_btn,
-                &mut self.about_btn,
-            ],
-        );
+    state.text_button("BACK", Box::new(|_, _| Some(Transition::Pop)));
 
-        self.tutorial_btn.event(ctx);
-        self.sandbox_btn.event(ctx);
-        self.challenges_btn.event(ctx);
-        self.dev_tools_btn.event(ctx);
-        self.abtest_btn.event(ctx);
-        self.about_btn.event(ctx);
-
-        if self.tutorial_btn.clicked() {
-            return Transition::Push(Box::new(TutorialMode::new(ctx)));
-        }
-        if self.sandbox_btn.clicked() {
-            return Transition::Push(Box::new(SandboxMode::new(ctx, ui, GameplayMode::Freeform)));
-        }
-        if self.challenges_btn.clicked() {
-            return Transition::Push(challenges_picker());
-        }
-        if self.dev_tools_btn.clicked() {
-            return Transition::Push(Box::new(MissionEditMode::new(ctx)));
-        }
-        if self.abtest_btn.clicked() {
-            return Transition::Push(PickABTest::new());
-        }
-        if self.about_btn.clicked() {
-            return Transition::Push(Box::new(About::new(ctx)));
-        }
-
-        // TODO Hotkeys? How to communicate?
-
-        Transition::Keep
-    }
-
-    fn draw_default_ui(&self) -> bool {
-        false
-    }
-
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        g.clear(ui.cs.get("grass"));
-        self.txts.draw(g);
-        self.tutorial_btn.draw(g);
-        self.sandbox_btn.draw(g);
-        self.challenges_btn.draw(g);
-        self.dev_tools_btn.draw(g);
-        self.abtest_btn.draw(g);
-        self.about_btn.draw(g);
-    }
-}
-
-struct About {
-    txt: Text,
-    back_btn: TextButton,
-}
-
-impl About {
-    fn new(ctx: &EventCtx) -> About {
-        let mut txt = Text::new().no_bg();
-        txt.add(Line("A/B STREET").size(50));
-        txt.add(Line("Created by Dustin Carlino"));
-        txt.add(Line(""));
-        txt.add(Line("Contact: dabreegster@gmail.com"));
-        txt.add(Line("Project: http://github.com/dabreegster/abstreet"));
-        txt.add(Line("Map data from OpenStreetMap and King County GIS"));
-        // TODO Lots more credits
-        About {
-            txt,
-            // TODO Arrow and no background
-            back_btn: TextButton::new(Text::from(Line("BACK")), Color::BLACK, Color::ORANGE, ctx),
-        }
-    }
-}
-
-impl State for About {
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
-        self.back_btn.event(ctx);
-        if self.back_btn.clicked() {
-            return Transition::Pop;
-        }
-        Transition::Keep
-    }
-
-    fn draw_default_ui(&self) -> bool {
-        false
-    }
-
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        g.clear(ui.cs.get("grass"));
-        g.draw_blocking_text(
-            &self.txt,
-            (HorizontalAlignment::Center, VerticalAlignment::Center),
-        );
-        self.back_btn.draw(g);
-    }
+    state.build(ctx)
 }
 
 const SPEED: Speed = Speed::const_meters_per_second(20.0);

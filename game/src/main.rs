@@ -5,6 +5,7 @@ mod debug;
 mod edit;
 mod game;
 mod helpers;
+mod managed;
 mod mission;
 mod pregame;
 mod render;
