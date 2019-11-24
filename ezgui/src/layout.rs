@@ -48,3 +48,53 @@ pub fn stack_vertically(
         top_left.y += dims.height;
     }
 }
+
+// TODO This is just a first experiment...
+pub fn flexbox(ctx: &EventCtx, widgets: Vec<&mut dyn Widget>) {
+    assert!(!widgets.is_empty());
+
+    use stretch::geometry::Size;
+    use stretch::node::{Node, Stretch};
+    use stretch::style::{Dimension, FlexWrap, Style};
+
+    let mut stretch = Stretch::new();
+
+    let widget_nodes: Vec<Node> = widgets
+        .iter()
+        .map(|w| {
+            let dims = w.get_dims();
+            stretch
+                .new_node(
+                    Style {
+                        size: Size {
+                            width: Dimension::Points(dims.width as f32),
+                            height: Dimension::Points(dims.height as f32),
+                        },
+                        ..Default::default()
+                    },
+                    vec![],
+                )
+                .unwrap()
+        })
+        .collect();
+
+    let root = stretch
+        .new_node(
+            Style {
+                size: Size {
+                    width: Dimension::Points(ctx.canvas.window_width as f32),
+                    height: Dimension::Points(ctx.canvas.window_height as f32),
+                },
+                flex_wrap: FlexWrap::Wrap,
+                ..Default::default()
+            },
+            widget_nodes.clone(),
+        )
+        .unwrap();
+
+    stretch.compute_layout(root, Size::undefined()).unwrap();
+    for (node, widget) in widget_nodes.into_iter().zip(widgets) {
+        let top_left = stretch.layout(node).unwrap().location;
+        widget.set_pos(ScreenPt::new(top_left.x.into(), top_left.y.into()), 0.0);
+    }
+}

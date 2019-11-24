@@ -57,8 +57,8 @@ impl ManagedGUIState {
 
 impl State for ManagedGUIState {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        layout::stack_vertically(
-            layout::ContainerOrientation::Centered,
+        // TODO If this ever gets slow, only run if window size has changed.
+        layout::flexbox(
             ctx,
             self.buttons
                 .iter_mut()
