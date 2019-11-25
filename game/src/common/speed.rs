@@ -153,8 +153,14 @@ impl SpeedControls {
 
         if self.speed_up_btn.clicked() && self.speed_actual != self.speed_cap {
             self.speed_actual += self.speed_cap * ADJUST_SPEED_PERCENT;
+            if self.speed_actual > self.speed_cap {
+                self.speed_actual = self.speed_cap;
+            }
         } else if self.slow_down_btn.clicked() && self.speed_actual != 0.0 {
             self.speed_actual -= self.speed_cap * ADJUST_SPEED_PERCENT;
+            if self.speed_actual < 0.1 {
+                self.speed_actual = 0.1;
+            }
         } else if self.slider.event(ctx) {
             //
         }
