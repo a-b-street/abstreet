@@ -36,18 +36,21 @@ pub fn time_controls(
         }
     }
     {
-        let b = speed.jump_to_time_btn.as_mut().unwrap();
+        let b = speed.edit_time_btn.as_mut().unwrap();
         b.event(ctx);
         if b.clicked() {
-            return Some(Transition::Push(WizardState::new(Box::new(jump_to_time))));
+            return Some(Transition::Push(WizardState::new(Box::new(edit_time))));
         }
+    }
+    {
+        // todo: add slider control
     }
     None
 }
 
-fn jump_to_time(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+fn edit_time(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
     let t = wiz.wrap(ctx).input_time_slider(
-        "Jump to what time?",
+        "Jump to what time in the future?",
         ui.primary.sim.time(),
         Duration::END_OF_DAY,
     )?;

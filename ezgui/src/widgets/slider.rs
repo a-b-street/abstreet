@@ -206,11 +206,10 @@ struct Dims {
 
 impl Dims {
     fn fit_total_width(total_width: f64) -> Dims {
-        let horiz_padding = total_width / 7.0;
+        let horiz_padding = 10.0;
         let bar_width = total_width - 2.0 * horiz_padding;
-        let slider_width = bar_width / 6.0;
-
-        let bar_height = bar_width / 3.0;
+        let slider_width = 10.0;
+        let bar_height = 25.0;
         let slider_height = bar_height * 1.2;
         let vert_padding = bar_height / 5.0;
 
