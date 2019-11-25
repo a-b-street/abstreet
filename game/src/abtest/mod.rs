@@ -230,7 +230,7 @@ impl State for ABTestMode {
             diff.draw(g, ui);
         }
         self.menu.draw(g);
-        self.speed.draw(g);
+        self.speed.draw(g, ui);
         self.primary_agent_tools.draw(g, ui);
         self.info_tools.draw(g);
         self.general_tools.draw(g);
