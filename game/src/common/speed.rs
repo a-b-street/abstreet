@@ -113,7 +113,7 @@ impl SpeedControls {
                 hotkey(Key::N),
                 ctx,
             )
-            .at(ScreenPt::new(405.0, 90.0));
+            .at(ScreenPt::new(405.0, 50.0));
 
             let large = Button::icon_btn(
                 "assets/ui/large_step.png",
@@ -122,7 +122,7 @@ impl SpeedControls {
                 hotkey(Key::M),
                 ctx,
             )
-            .at(ScreenPt::new(405.0, 50.0));
+            .at(ScreenPt::new(405.0, 90.0));
 
             let jump = Button::icon_btn_bg(
                 "assets/ui/edit_time.png",
