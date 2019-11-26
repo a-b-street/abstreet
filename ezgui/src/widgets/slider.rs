@@ -135,7 +135,7 @@ impl Slider {
         // Show the progress
         if self.current_percent != 0.0 {
             batch.push(
-                Color::GREEN,
+                Color::rgb(128,128,128),
                 Polygon::rectangle_topleft(
                     Pt2D::new(
                         self.top_left.x + self.dims.horiz_padding,

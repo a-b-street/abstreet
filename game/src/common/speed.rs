@@ -12,13 +12,15 @@ const PANEL_RECT: ScreenRectangle = ScreenRectangle {
     x1: 0.0,
     y1: 0.0,
     x2: 460.0,
-    y2: 150.0,
+    y2: 200.0,
 };
 
 const ADJUST_SPEED_PERCENT: f64 = 0.01;
+const SECONDS_PER_GAME: f64 = 86400.0;    /* 24 hours */
 
 pub struct SpeedControls {
-    slider: Slider,
+    slider_speed: Slider,
+    slider_time: Slider,
     state: State,
     speed_cap: f64,
     speed_actual: f64,
@@ -37,7 +39,6 @@ pub struct SpeedControls {
 enum State {
     Paused,
     Running {
-        last_step: Instant,
         last_measurement: Instant,
         last_measurement_sim: Duration,
     },
@@ -57,72 +58,75 @@ impl SpeedControls {
 
         let resume_btn = Button::icon_btn(
             "assets/ui/resume.png",
-            50.0,
+            25.0,
             "resume",
             hotkey(Key::Space),
             ctx,
         )
-        .at(ScreenPt::new(0.0, 0.0));
+        .at(ScreenPt::new(10.0, 10.0));
         let pause_btn = Button::icon_btn(
             "assets/ui/pause.png",
-            50.0,
+            25.0,
             "pause",
             hotkey(Key::Space),
             ctx,
         )
-        .at(ScreenPt::new(0.0, 0.0));
+        .at(ScreenPt::new(10.0, 10.0));
 
         let slow_down_btn = Button::icon_btn(
             "assets/ui/slow_down.png",
-            25.0,
+            16.0,
             "slow down",
             hotkey(Key::LeftBracket),
             ctx,
         )
-        .at(ScreenPt::new(100.0, 100.0));
+        .at(ScreenPt::new(270.0, 144.0));
         let speed_up_btn = Button::icon_btn(
             "assets/ui/speed_up.png",
-            25.0,
+            16.0,
             "speed up",
             hotkey(Key::RightBracket),
             ctx,
         )
-        .at(ScreenPt::new(280.0, 100.0));
+        .at(ScreenPt::new(407.0, 144.0));
 
         // 10 sim minutes / real second normally, or 1 sim hour / real second for dev mode
         let speed_cap: f64 = if dev_mode { 3600.0 } else { 600.0 };
-        let mut slider = Slider::new();
+        let mut slider_time = Slider::new();
+        let mut slider_speed = Slider::new();
         // Start with speed=1.0
-        slider.set_percent(ctx, 0.0);
-        slider.set_pos(ScreenPt::new(100.0, 50.0), 300.0);
+        slider_time.set_percent(ctx, 0.0);
+        slider_time.set_pos(ScreenPt::new(5.0, 70.0), 390.0);
+        slider_speed.set_percent(ctx, 1.0/speed_cap);
+        slider_speed.set_pos(ScreenPt::new(90.0, 145.0), 180.0);
 
         let (small_step_btn, large_step_btn, edit_time_btn) = if step_controls {
             let small = Button::icon_btn(
                 "assets/ui/small_step.png",
-                25.0,
+                20.0,
                 "step forwards 0.1s",
                 hotkey(Key::M),
                 ctx,
             )
-            .at(ScreenPt::new(400.0, 50.0));
+            .at(ScreenPt::new(405.0, 50.0));
 
             let large = Button::icon_btn(
                 "assets/ui/large_step.png",
-                25.0,
+                20.0,
                 "step forwards 10 mins",
                 hotkey(Key::N),
                 ctx,
             )
-            .at(ScreenPt::new(400.0, 90.0));
+            .at(ScreenPt::new(405.0, 90.0));
 
             let jump = Button::icon_btn(
                 "assets/ui/edit_time.png",
-                25.0,
+                20.0,
                 "jump to a specific time in the future",
                 hotkey(Key::B),
                 ctx,
             )
-            .at(ScreenPt::new(400.0, 10.0));
+            .at(ScreenPt::new(405.0, 10.0));
 
             (Some(small), Some(large), Some(jump))
         } else {
@@ -142,7 +146,8 @@ impl SpeedControls {
             small_step_btn,
             large_step_btn,
             edit_time_btn,
-            slider,
+            slider_speed,
+            slider_time,
         }
     }
 
@@ -150,19 +155,32 @@ impl SpeedControls {
     pub fn event(&mut self, ctx: &mut EventCtx, current_sim_time: Duration) -> Option<Duration> {
         self.slow_down_btn.event(ctx);
         self.speed_up_btn.event(ctx);
+        self.slider_speed.event(ctx);
+        self.slider_time.event(ctx);
 
         if self.speed_up_btn.clicked() && self.speed_actual != self.speed_cap {
             self.speed_actual += self.speed_cap * ADJUST_SPEED_PERCENT;
             if self.speed_actual > self.speed_cap {
                 self.speed_actual = self.speed_cap;
             }
+            self.slider_speed.set_percent(ctx, self.speed_actual / self.speed_cap);
         } else if self.slow_down_btn.clicked() && self.speed_actual != 0.0 {
             self.speed_actual -= self.speed_cap * ADJUST_SPEED_PERCENT;
             if self.speed_actual < 0.1 {
                 self.speed_actual = 0.1;
             }
-        } else if self.slider.event(ctx) {
-            //
+            self.slider_speed.set_percent(ctx, self.speed_actual / self.speed_cap);
+        } else if self.slider_speed.event(ctx) {
+            self.speed_actual = self.speed_cap * self.slider_speed.get_percent();
+        } else if self.slider_time.event(ctx) {
+            let time_next = self.slider_time.get_percent() * SECONDS_PER_GAME;
+            let delta = time_next - current_sim_time.inner_seconds();
+            if delta > 0.0 {
+                return Some(Duration::seconds(delta));
+            } else {
+                // cannot go back, so reset the slider.
+                self.slider_time.set_percent(ctx, current_sim_time.inner_seconds() / SECONDS_PER_GAME);
+            }
         }
 
         match self.state {
@@ -171,17 +189,15 @@ impl SpeedControls {
                 if self.resume_btn.clicked() {
                     let now = Instant::now();
                     self.state = State::Running {
-                        last_step: now,
                         last_measurement: now,
                         last_measurement_sim: current_sim_time,
                     };
-                    self.slider.set_percent(ctx, current_sim_time.inner_seconds()/86400.0);
+                    self.slider_time.set_percent(ctx, current_sim_time.inner_seconds()/SECONDS_PER_GAME);
                     // Sorta hack to trigger EventLoopMode::Animation.
                     return Some(Duration::ZERO);
                 }
             }
             State::Running {
-                ref mut last_step,
                 ref mut last_measurement,
                 ref mut last_measurement_sim,
             } => {
@@ -194,16 +210,19 @@ impl SpeedControls {
                     if speed_desired > 2.0 {
                         speed_desired -= 1.0;
                     }
-                    let dt = Duration::seconds(elapsed_seconds(*last_step)) * speed_desired;
-                    *last_step = Instant::now();
-
+                    let dt = Duration::seconds(elapsed_seconds(*last_measurement)) * speed_desired;
                     let dt_descr = Duration::seconds(elapsed_seconds(*last_measurement));
+
+                    *last_measurement = Instant::now();
+
                     if dt_descr >= Duration::seconds(1.0) {
                         self.speed_actual = (current_sim_time - *last_measurement_sim) / dt_descr;
-                        *last_measurement = *last_step;
+                        if self.speed_actual > self.speed_cap {
+                            self.speed_actual = self.speed_cap;
+                        }
                         *last_measurement_sim = current_sim_time;
                     }
-                    self.slider.set_percent(ctx, current_sim_time.inner_seconds()/86400.0);
+                    self.slider_time.set_percent(ctx, current_sim_time.inner_seconds()/SECONDS_PER_GAME);
                     return Some(dt);
                 }
             }
@@ -214,7 +233,7 @@ impl SpeedControls {
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         g.draw_text_at_screenspace_topleft(
                 &Text::from(Line(format!("{}", ui.primary.sim.time().ampm_tostring())).size(40)).no_bg(),
-                ScreenPt::new(110.0, 10.0),
+                ScreenPt::new(110.0, 15.0),
         );
         g.fork_screenspace();
         g.redraw(&self.panel_bg);
@@ -227,24 +246,36 @@ impl SpeedControls {
         }
         self.slow_down_btn.draw(g);
         self.speed_up_btn.draw(g);
-        self.slider.draw(g);
+        self.slider_time.draw(g);
+        self.slider_speed.draw(g);
+        let speed_digit = self.speed_actual;
+        let mut left_align = 325.0;
+        if speed_digit >= 100.0 {
+            left_align = 312.0;
+        } else if speed_digit >= 10.0 {
+            left_align = 320.0;
+        }
         g.draw_text_at_screenspace_topleft(
-            &Text::from(Line(format!("{:.1}x", self.speed_actual))).no_bg(),
-            ScreenPt::new(170.0, 110.0),
+            &Text::from(Line(format!("{:.1}x", self.speed_actual))),
+            ScreenPt::new(left_align, 145.0),
         );
 
         /* todo add sunrise and sunset */
         g.draw_text_at_screenspace_topleft(
             &Text::from(Line("00:00").size(20)).no_bg(),
-            ScreenPt::new(90.0, 80.0),
+            ScreenPt::new(10.0, 105.0),
         );
         g.draw_text_at_screenspace_topleft(
             &Text::from(Line("12:00").size(20)).no_bg(),
-            ScreenPt::new(220.0, 80.0),
+            ScreenPt::new(175.0, 105.0),
         );
         g.draw_text_at_screenspace_topleft(
             &Text::from(Line("24:00").size(20)).no_bg(),
-            ScreenPt::new(350.0, 80.0),
+            ScreenPt::new(340.0, 105.0),
+        );
+        g.draw_text_at_screenspace_topleft(
+            &Text::from(Line("speed").size(30)).no_bg(),
+            ScreenPt::new(10.0, 145.0),
         );
 
         if let Some(ref btn) = self.small_step_btn {
