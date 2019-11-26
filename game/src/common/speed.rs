@@ -1,3 +1,4 @@
+use crate::ui::UI;
 use abstutil::elapsed_seconds;
 use ezgui::layout::Widget;
 use ezgui::{
@@ -6,7 +7,6 @@ use ezgui::{
 };
 use geom::{Distance, Duration, Polygon, Pt2D};
 use std::time::Instant;
-use crate::ui::UI;
 
 const PANEL_RECT: ScreenRectangle = ScreenRectangle {
     x1: 0.0,
@@ -16,7 +16,7 @@ const PANEL_RECT: ScreenRectangle = ScreenRectangle {
 };
 
 const ADJUST_SPEED_PERCENT: f64 = 0.01;
-const SECONDS_PER_GAME: f64 = 86400.0;    /* 24 hours */
+const SECONDS_PER_GAME: f64 = 86400.0; /* 24 hours */
 
 pub struct SpeedControls {
     slider_speed: Slider,
@@ -97,7 +97,7 @@ impl SpeedControls {
         // Start with speed=1.0
         slider_time.set_percent(ctx, 0.0);
         slider_time.set_pos(ScreenPt::new(5.0, 70.0));
-        slider_speed.set_percent(ctx, 1.0/speed_cap);
+        slider_speed.set_percent(ctx, 1.0 / speed_cap);
         slider_speed.set_pos(ScreenPt::new(90.0, 145.0));
 
         let (small_step_btn, large_step_btn, edit_time_btn) = if step_controls {
@@ -163,13 +163,15 @@ impl SpeedControls {
             if self.speed_actual > self.speed_cap {
                 self.speed_actual = self.speed_cap;
             }
-            self.slider_speed.set_percent(ctx, self.speed_actual / self.speed_cap);
+            self.slider_speed
+                .set_percent(ctx, self.speed_actual / self.speed_cap);
         } else if self.slow_down_btn.clicked() && self.speed_actual != 0.0 {
             self.speed_actual -= self.speed_cap * ADJUST_SPEED_PERCENT;
             if self.speed_actual < 0.1 {
                 self.speed_actual = 0.1;
             }
-            self.slider_speed.set_percent(ctx, self.speed_actual / self.speed_cap);
+            self.slider_speed
+                .set_percent(ctx, self.speed_actual / self.speed_cap);
         } else if self.slider_speed.event(ctx) {
             self.speed_actual = self.speed_cap * self.slider_speed.get_percent();
         } else if self.slider_time.event(ctx) {
@@ -179,7 +181,8 @@ impl SpeedControls {
                 return Some(Duration::seconds(delta));
             } else {
                 // cannot go back, so reset the slider.
-                self.slider_time.set_percent(ctx, current_sim_time.inner_seconds() / SECONDS_PER_GAME);
+                self.slider_time
+                    .set_percent(ctx, current_sim_time.inner_seconds() / SECONDS_PER_GAME);
             }
         }
 
@@ -192,7 +195,8 @@ impl SpeedControls {
                         last_measurement: now,
                         last_measurement_sim: current_sim_time,
                     };
-                    self.slider_time.set_percent(ctx, current_sim_time.inner_seconds()/SECONDS_PER_GAME);
+                    self.slider_time
+                        .set_percent(ctx, current_sim_time.inner_seconds() / SECONDS_PER_GAME);
                     // Sorta hack to trigger EventLoopMode::Animation.
                     return Some(Duration::ZERO);
                 }
@@ -222,7 +226,8 @@ impl SpeedControls {
                         }
                         *last_measurement_sim = current_sim_time;
                     }
-                    self.slider_time.set_percent(ctx, current_sim_time.inner_seconds()/SECONDS_PER_GAME);
+                    self.slider_time
+                        .set_percent(ctx, current_sim_time.inner_seconds() / SECONDS_PER_GAME);
                     return Some(dt);
                 }
             }
@@ -232,8 +237,9 @@ impl SpeedControls {
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         g.draw_text_at_screenspace_topleft(
-                &Text::from(Line(format!("{}", ui.primary.sim.time().ampm_tostring())).size(40)).no_bg(),
-                ScreenPt::new(110.0, 15.0),
+            &Text::from(Line(format!("{}", ui.primary.sim.time().ampm_tostring())).size(40))
+                .no_bg(),
+            ScreenPt::new(110.0, 15.0),
         );
         g.fork_screenspace();
         g.redraw(&self.panel_bg);
