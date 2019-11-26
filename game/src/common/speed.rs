@@ -92,13 +92,13 @@ impl SpeedControls {
 
         // 10 sim minutes / real second normally, or 1 sim hour / real second for dev mode
         let speed_cap: f64 = if dev_mode { 3600.0 } else { 600.0 };
-        let mut slider_time = Slider::new();
-        let mut slider_speed = Slider::new();
+        let mut slider_time = Slider::new(390.0);
+        let mut slider_speed = Slider::new(180.0);
         // Start with speed=1.0
         slider_time.set_percent(ctx, 0.0);
-        slider_time.set_pos(ScreenPt::new(5.0, 70.0), 390.0);
+        slider_time.set_pos(ScreenPt::new(5.0, 70.0));
         slider_speed.set_percent(ctx, 1.0/speed_cap);
-        slider_speed.set_pos(ScreenPt::new(90.0, 145.0), 180.0);
+        slider_speed.set_pos(ScreenPt::new(90.0, 145.0));
 
         let (small_step_btn, large_step_btn, edit_time_btn) = if step_controls {
             let small = Button::icon_btn(
