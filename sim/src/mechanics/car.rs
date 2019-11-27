@@ -2,7 +2,7 @@ use crate::{
     AgentMetadata, CarStatus, DistanceInterval, DrawCarInput, ParkingSpot, Router, TimeInterval,
     TransitSimState, TripID, Vehicle, VehicleType,
 };
-use geom::{Distance, Duration, PolyLine};
+use geom::{Distance, Duration, PolyLine, Time};
 use map_model::{Map, Traversable, LANE_THICKNESS};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::VecDeque;
@@ -13,8 +13,8 @@ pub struct Car {
     pub state: CarState,
     pub router: Router,
     pub trip: TripID,
-    pub blocked_since: Option<Duration>,
-    pub started_at: Duration,
+    pub blocked_since: Option<Time>,
+    pub started_at: Time,
 
     // In reverse order -- most recently left is first. The sum length of these must be >=
     // vehicle.length.
@@ -23,12 +23,7 @@ pub struct Car {
 
 impl Car {
     // Assumes the current head of the path is the thing to cross.
-    pub fn crossing_state(
-        &self,
-        start_dist: Distance,
-        start_time: Duration,
-        map: &Map,
-    ) -> CarState {
+    pub fn crossing_state(&self, start_dist: Distance, start_time: Time, map: &Map) -> CarState {
         let dist_int = DistanceInterval::new_driving(
             start_dist,
             if self.router.last_step() {
@@ -43,7 +38,7 @@ impl Car {
     pub fn crossing_state_with_end_dist(
         &self,
         dist_int: DistanceInterval,
-        start_time: Duration,
+        start_time: Time,
         map: &Map,
     ) -> CarState {
         let on = self.router.head();
@@ -58,7 +53,7 @@ impl Car {
     pub fn get_draw_car(
         &self,
         front: Distance,
-        now: Duration,
+        now: Time,
         map: &Map,
         transit: &TransitSimState,
     ) -> DrawCarInput {
@@ -178,7 +173,7 @@ impl Car {
         }
     }
 
-    pub fn metadata(&self, now: Duration) -> AgentMetadata {
+    pub fn metadata(&self, now: Time) -> AgentMetadata {
         AgentMetadata {
             time_spent_blocked: self
                 .blocked_since
@@ -204,7 +199,7 @@ pub enum CarState {
 }
 
 impl CarState {
-    pub fn get_end_time(&self) -> Duration {
+    pub fn get_end_time(&self) -> Time {
         match self {
             CarState::Crossing(ref time_int, _) => time_int.end,
             CarState::Queued => unreachable!(),

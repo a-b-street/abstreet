@@ -30,7 +30,7 @@ pub use crate::render::{
     GetDrawAgents, PedCrowdLocation, UnzoomedAgent,
 };
 use abstutil::Cloneable;
-use geom::{Distance, Duration, Pt2D, Speed};
+use geom::{Distance, Pt2D, Speed, Time};
 use map_model::{
     BuildingID, BusStopID, DirectedRoadID, IntersectionID, LaneID, Map, Path, PathConstraints,
     Position,
@@ -383,19 +383,19 @@ pub enum SidewalkPOI {
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct TimeInterval {
     // TODO Private fields
-    pub start: Duration,
-    pub end: Duration,
+    pub start: Time,
+    pub end: Time,
 }
 
 impl TimeInterval {
-    pub fn new(start: Duration, end: Duration) -> TimeInterval {
+    pub fn new(start: Time, end: Time) -> TimeInterval {
         if end < start {
             panic!("Bad TimeInterval {} .. {}", start, end);
         }
         TimeInterval { start, end }
     }
 
-    pub fn percent(&self, t: Duration) -> f64 {
+    pub fn percent(&self, t: Time) -> f64 {
         if self.start == self.end {
             return 1.0;
         }
@@ -405,7 +405,7 @@ impl TimeInterval {
         x
     }
 
-    pub fn percent_clamp_end(&self, t: Duration) -> f64 {
+    pub fn percent_clamp_end(&self, t: Time) -> f64 {
         if t > self.end {
             return 1.0;
         }
@@ -497,12 +497,12 @@ impl CreateCar {
 
 #[derive(Serialize, Deserialize, PartialEq)]
 pub struct TripPositions {
-    pub time: Duration,
+    pub time: Time,
     pub canonical_pt_per_trip: BTreeMap<TripID, Pt2D>,
 }
 
 impl TripPositions {
-    pub(crate) fn new(time: Duration) -> TripPositions {
+    pub(crate) fn new(time: Time) -> TripPositions {
         TripPositions {
             time,
             canonical_pt_per_trip: BTreeMap::new(),

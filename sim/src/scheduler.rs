@@ -1,6 +1,6 @@
 use crate::{AgentID, CarID, CreateCar, CreatePedestrian, PedestrianID};
 use derivative::Derivative;
-use geom::{Duration, DurationHistogram};
+use geom::{Duration, DurationHistogram, Time};
 use map_model::IntersectionID;
 use serde_derive::{Deserialize, Serialize};
 use std::cmp::Ordering;
@@ -53,7 +53,7 @@ pub enum CommandType {
 
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 struct Item {
-    time: Duration,
+    time: Time,
     cmd_type: CommandType,
 }
 
@@ -81,9 +81,9 @@ pub struct Scheduler {
     // TODO Argh, really?!
     #[derivative(PartialEq = "ignore")]
     items: BinaryHeap<Item>,
-    queued_commands: BTreeMap<CommandType, (Command, Duration)>,
+    queued_commands: BTreeMap<CommandType, (Command, Time)>,
 
-    latest_time: Duration,
+    latest_time: Time,
     #[derivative(PartialEq = "ignore")]
     #[serde(skip_serializing, skip_deserializing)]
     delta_times: DurationHistogram,
@@ -94,12 +94,12 @@ impl Scheduler {
         Scheduler {
             items: BinaryHeap::new(),
             queued_commands: BTreeMap::new(),
-            latest_time: Duration::ZERO,
+            latest_time: Time::START_OF_DAY,
             delta_times: DurationHistogram::new(),
         }
     }
 
-    pub fn push(&mut self, time: Duration, cmd: Command) {
+    pub fn push(&mut self, time: Time, cmd: Command) {
         if time < self.latest_time {
             panic!(
                 "It's at least {}, so can't schedule a command for {}",
@@ -124,13 +124,13 @@ impl Scheduler {
     // Doesn't touch the histogram. Have to call finalize_batch() after. Only for scheduling lots
     // of stuff at the beginning of a simulation.
     // TODO Phase this out?
-    pub fn quick_push(&mut self, time: Duration, cmd: Command) {
+    pub fn quick_push(&mut self, time: Time, cmd: Command) {
         self.push(time, cmd);
     }
 
     pub fn finalize_batch(&mut self) {}
 
-    pub fn update(&mut self, new_time: Duration, cmd: Command) {
+    pub fn update(&mut self, new_time: Time, cmd: Command) {
         if new_time < self.latest_time {
             panic!(
                 "It's at least {}, so can't schedule a command for {}",
@@ -160,7 +160,7 @@ impl Scheduler {
     // This API is safer than handing out a batch of items at a time, because while processing one
     // item, we might change the priority of other items or add new items. Don't make the caller
     // reconcile those changes -- just keep pulling items from here, one at a time.
-    pub fn get_next(&mut self, now: Duration) -> Option<(Command, Duration)> {
+    pub fn get_next(&mut self, now: Time) -> Option<(Command, Time)> {
         loop {
             let next_time = self.items.peek().as_ref()?.time;
             if next_time > now {

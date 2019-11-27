@@ -214,7 +214,7 @@ impl Analytics {
         road: RoadID,
         bucket: Duration,
     ) -> BTreeMap<TripMode, Vec<(Time, usize)>> {
-        let mut max_this_bucket = now.min(bucket.since_midnight());
+        let mut max_this_bucket = now.min(Time::START_OF_DAY + bucket);
         let mut per_mode = TripMode::all()
             .into_iter()
             .map(|m| (m, vec![(Time::START_OF_DAY, 0), (max_this_bucket, 0)]))
@@ -248,7 +248,7 @@ impl Analytics {
             .into_iter()
             .map(|m| (m, vec![(Time::START_OF_DAY, 0)]))
             .collect::<BTreeMap<_, _>>();
-        let mut max_this_bucket = bucket.since_midnight();
+        let mut max_this_bucket = Time::START_OF_DAY + bucket;
         for (t, m, i) in &self.thruput_stats.raw_per_intersection {
             if *i != intersection {
                 continue;

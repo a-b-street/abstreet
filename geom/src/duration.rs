@@ -196,13 +196,9 @@ impl Duration {
         }
     }
 
-    pub fn since_midnight(self) -> Time {
-        Time::START_OF_DAY + self
-    }
-
     // TODO During transition only
     pub fn tmp_as_time(self) -> Time {
-        Time::seconds_since_midnight(self.inner_seconds())
+        Time::START_OF_DAY + self
     }
 }
 

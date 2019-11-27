@@ -5,7 +5,7 @@ use crate::{
     TransitSimState, TripID, TripManager, TripPositions, UnzoomedAgent,
 };
 use abstutil::{deserialize_multimap, serialize_multimap, MultiMap};
-use geom::{Distance, Duration, Line, PolyLine, Speed};
+use geom::{Distance, Duration, Line, PolyLine, Speed, Time};
 use map_model::{BuildingID, BusRouteID, Map, Path, PathStep, Traversable, LANE_THICKNESS};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -36,7 +36,7 @@ impl WalkingSimState {
 
     pub fn spawn_ped(
         &mut self,
-        now: Duration,
+        now: Time,
         params: CreatePedestrian,
         map: &Map,
         scheduler: &mut Scheduler,
@@ -53,7 +53,10 @@ impl WalkingSimState {
             // Temporary bogus thing
             state: PedState::Crossing(
                 DistanceInterval::new_walking(Distance::ZERO, Distance::meters(1.0)),
-                TimeInterval::new(Duration::ZERO, Duration::seconds(1.0)),
+                TimeInterval::new(
+                    Time::seconds_since_midnight(0.0),
+                    Time::seconds_since_midnight(1.0),
+                ),
             ),
             speed: params.speed,
             blocked_since: None,
@@ -88,13 +91,13 @@ impl WalkingSimState {
     pub fn get_draw_ped(
         &self,
         id: PedestrianID,
-        now: Duration,
+        now: Time,
         map: &Map,
     ) -> Option<DrawPedestrianInput> {
         self.peds.get(&id).map(|p| p.get_draw_ped(now, map))
     }
 
-    pub fn get_all_draw_peds(&self, now: Duration, map: &Map) -> Vec<DrawPedestrianInput> {
+    pub fn get_all_draw_peds(&self, now: Time, map: &Map) -> Vec<DrawPedestrianInput> {
         self.peds
             .values()
             .map(|p| p.get_draw_ped(now, map))
@@ -104,7 +107,7 @@ impl WalkingSimState {
     pub fn update_ped(
         &mut self,
         id: PedestrianID,
-        now: Duration,
+        now: Time,
         map: &Map,
         intersections: &mut IntersectionSimState,
         parking: &ParkingSimState,
@@ -251,7 +254,7 @@ impl WalkingSimState {
         }
     }
 
-    pub fn ped_tooltip(&self, id: PedestrianID, now: Duration, map: &Map) -> Vec<String> {
+    pub fn ped_tooltip(&self, id: PedestrianID, now: Time, map: &Map) -> Vec<String> {
         let p = &self.peds[&id];
         let mut lines = vec![
             format!("{} on {:?}", p.id, p.path.current_step()),
@@ -281,7 +284,7 @@ impl WalkingSimState {
 
     pub fn trace_route(
         &self,
-        now: Duration,
+        now: Time,
         id: PedestrianID,
         map: &Map,
         dist_ahead: Option<Distance>,
@@ -298,7 +301,7 @@ impl WalkingSimState {
         Some(&p.path)
     }
 
-    pub fn get_unzoomed_agents(&self, now: Duration, map: &Map) -> Vec<UnzoomedAgent> {
+    pub fn get_unzoomed_agents(&self, now: Time, map: &Map) -> Vec<UnzoomedAgent> {
         let mut peds = Vec::new();
 
         for ped in self.peds.values() {
@@ -312,7 +315,7 @@ impl WalkingSimState {
         peds
     }
 
-    pub fn get_agent_metadata(&self, now: Duration) -> Vec<AgentMetadata> {
+    pub fn get_agent_metadata(&self, now: Time) -> Vec<AgentMetadata> {
         self.peds.values().map(|ped| ped.metadata(now)).collect()
     }
 
@@ -326,7 +329,7 @@ impl WalkingSimState {
 
     pub fn get_draw_peds_on(
         &self,
-        now: Duration,
+        now: Time,
         on: Traversable,
         map: &Map,
     ) -> (Vec<DrawPedestrianInput>, Vec<DrawPedCrowdInput>) {
@@ -428,9 +431,9 @@ struct Pedestrian {
     id: PedestrianID,
     state: PedState,
     speed: Speed,
-    blocked_since: Option<Duration>,
+    blocked_since: Option<Time>,
     // TODO organize analytics better.
-    started_at: Duration,
+    started_at: Time,
 
     path: Path,
     goal: SidewalkSpot,
@@ -438,7 +441,7 @@ struct Pedestrian {
 }
 
 impl Pedestrian {
-    fn crossing_state(&self, start_dist: Distance, start_time: Duration, map: &Map) -> PedState {
+    fn crossing_state(&self, start_dist: Distance, start_time: Time, map: &Map) -> PedState {
         let end_dist = if self.path.is_last_step() {
             self.goal.sidewalk_pos.dist_along()
         } else {
@@ -454,7 +457,7 @@ impl Pedestrian {
         PedState::Crossing(dist_int, time_int)
     }
 
-    fn get_dist_along(&self, now: Duration, map: &Map) -> Distance {
+    fn get_dist_along(&self, now: Time, map: &Map) -> Distance {
         match self.state {
             PedState::Crossing(ref dist_int, ref time_int) => dist_int.lerp(time_int.percent(now)),
             PedState::WaitingToTurn(dist) => dist,
@@ -466,7 +469,7 @@ impl Pedestrian {
         }
     }
 
-    fn get_draw_ped(&self, now: Duration, map: &Map) -> DrawPedestrianInput {
+    fn get_draw_ped(&self, now: Time, map: &Map) -> DrawPedestrianInput {
         let on = self.path.current_step().as_traversable();
         let (pos, facing) = match self.state {
             PedState::Crossing(ref dist_int, ref time_int) => {
@@ -547,7 +550,7 @@ impl Pedestrian {
         }
     }
 
-    fn metadata(&self, now: Duration) -> AgentMetadata {
+    fn metadata(&self, now: Time) -> AgentMetadata {
         AgentMetadata {
             time_spent_blocked: self
                 .blocked_since
@@ -565,7 +568,7 @@ impl Pedestrian {
     // True if we successfully continued to the next step of our path
     fn maybe_transition(
         &mut self,
-        now: Duration,
+        now: Time,
         map: &Map,
         intersections: &mut IntersectionSimState,
         peds_per_traversable: &mut MultiMap<Traversable, PedestrianID>,
@@ -616,7 +619,7 @@ enum PedState {
 }
 
 impl PedState {
-    fn get_end_time(&self) -> Duration {
+    fn get_end_time(&self) -> Time {
         match self {
             PedState::Crossing(_, ref time_int) => time_int.end,
             PedState::WaitingToTurn(_) => unreachable!(),

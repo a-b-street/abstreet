@@ -1,6 +1,6 @@
 use crate::{CarID, Event, PedestrianID, Router, Scheduler, TripManager, WalkingSimState};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
-use geom::{Distance, Duration};
+use geom::{Distance, Time};
 use map_model::{
     BusRoute, BusRouteID, BusStopID, Map, Path, PathConstraints, PathRequest, Position,
 };
@@ -140,7 +140,7 @@ impl TransitSimState {
 
     pub fn bus_arrived_at_stop(
         &mut self,
-        now: Duration,
+        now: Time,
         id: CarID,
         trips: &mut TripManager,
         walking: &mut WalkingSimState,

@@ -4,7 +4,7 @@ use crate::{
     VehicleSpec, MAX_CAR_LENGTH,
 };
 use abstutil::Timer;
-use geom::{Duration, Speed, EPSILON_DIST};
+use geom::{Duration, Speed, Time, EPSILON_DIST};
 use map_model::{BuildingID, BusRouteID, BusStopID, Map, PathConstraints, PathRequest, Position};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeSet;
@@ -53,7 +53,7 @@ pub enum TripSpec {
 #[derive(Serialize, Deserialize, PartialEq)]
 pub struct TripSpawner {
     parked_cars_claimed: BTreeSet<CarID>,
-    trips: Vec<(Duration, Option<PedestrianID>, Option<CarID>, TripSpec)>,
+    trips: Vec<(Time, Option<PedestrianID>, Option<CarID>, TripSpec)>,
 }
 
 impl TripSpawner {
@@ -160,7 +160,7 @@ impl TripSpawner {
                             start, goal
                         );
                         self.trips.push((
-                            start_time,
+                            start_time.tmp_as_time(),
                             ped_id,
                             None,
                             TripSpec::JustWalking {
@@ -176,7 +176,8 @@ impl TripSpawner {
             TripSpec::UsingTransit { .. } => {}
         };
 
-        self.trips.push((start_time, ped_id, car_id, spec));
+        self.trips
+            .push((start_time.tmp_as_time(), ped_id, car_id, spec));
     }
 
     pub fn spawn_all(

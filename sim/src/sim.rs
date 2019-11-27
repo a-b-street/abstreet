@@ -32,7 +32,7 @@ pub struct Sim {
     trips: TripManager,
     spawner: TripSpawner,
     scheduler: Scheduler,
-    time: Duration,
+    time: Time,
     car_id_counter: usize,
     ped_id_counter: usize,
 
@@ -80,7 +80,7 @@ impl Sim {
     pub fn new(map: &Map, opts: SimOptions, timer: &mut Timer) -> Sim {
         let mut scheduler = Scheduler::new();
         if let Some(d) = opts.savestate_every {
-            scheduler.push(d, Command::Savestate(d));
+            scheduler.push(Time::START_OF_DAY + d, Command::Savestate(d));
         }
         Sim {
             driving: DrivingSimState::new(map, opts.recalc_lanechanging),
@@ -96,7 +96,7 @@ impl Sim {
             trips: TripManager::new(),
             spawner: TripSpawner::new(),
             scheduler,
-            time: Duration::ZERO,
+            time: Time::START_OF_DAY,
             car_id_counter: 0,
             ped_id_counter: 0,
 
@@ -294,7 +294,7 @@ impl Sim {
 // Drawing
 impl GetDrawAgents for Sim {
     fn time(&self) -> Time {
-        self.time.tmp_as_time()
+        self.time
     }
 
     fn step_count(&self) -> usize {
@@ -358,7 +358,7 @@ impl Sim {
         }
 
         let target_time = self.time + dt;
-        let mut savestate_at: Option<Duration> = None;
+        let mut savestate_at: Option<Time> = None;
         while let Some((cmd, time)) = self.scheduler.get_next(target_time) {
             // Many commands might be scheduled for a particular time. Savestate at the END of a
             // certain time.
@@ -544,7 +544,7 @@ impl Sim {
             events.extend(self.driving.collect_events());
             events.extend(self.walking.collect_events());
             for ev in events {
-                self.analytics.event(ev, self.time.tmp_as_time(), map);
+                self.analytics.event(ev, self.time, map);
             }
         }
         if let Some(t) = savestate_at {
@@ -594,7 +594,7 @@ impl Sim {
             "********************************************************************************"
         );
         println!("At {}", self.time);
-        if let Some(path) = self.find_previous_savestate(self.time.tmp_as_time()) {
+        if let Some(path) = self.find_previous_savestate(self.time) {
             println!("Debug from {}", path);
         }
     }
@@ -706,7 +706,7 @@ impl Sim {
     }
 
     pub fn save(&self) -> String {
-        let path = self.save_path(self.time.tmp_as_time());
+        let path = self.save_path(self.time);
         abstutil::write_binary(&path, &self).expect("Writing sim state failed");
         println!("Saved to {}", path);
         path
@@ -729,7 +729,7 @@ impl Sim {
 // Queries of all sorts
 impl Sim {
     pub fn time(&self) -> Time {
-        self.time.tmp_as_time()
+        self.time
     }
 
     pub fn is_done(&self) -> bool {
@@ -737,7 +737,7 @@ impl Sim {
     }
 
     pub fn is_empty(&self) -> bool {
-        self.time == Duration::ZERO && self.is_done()
+        self.time == Time::START_OF_DAY && self.is_done()
     }
 
     // (active, unfinished, buses) prettyprinted

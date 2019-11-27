@@ -7,7 +7,7 @@ use crate::{
     FOLLOWING_DISTANCE,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
-use geom::{Distance, Duration, PolyLine};
+use geom::{Distance, Duration, PolyLine, Time};
 use map_model::{BuildingID, LaneID, Map, Path, PathStep, Traversable};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashSet, VecDeque};
@@ -65,7 +65,7 @@ impl DrivingSimState {
     // True if it worked
     pub fn start_car_on_lane(
         &mut self,
-        now: Duration,
+        now: Time,
         params: CreateCar,
         map: &Map,
         intersections: &IntersectionSimState,
@@ -140,7 +140,7 @@ impl DrivingSimState {
     pub fn update_car(
         &mut self,
         id: CarID,
-        now: Duration,
+        now: Time,
         map: &Map,
         parking: &mut ParkingSimState,
         intersections: &mut IntersectionSimState,
@@ -230,7 +230,7 @@ impl DrivingSimState {
     fn update_car_without_distances(
         &mut self,
         car: &mut Car,
-        now: Duration,
+        now: Time,
         map: &Map,
         parking: &mut ParkingSimState,
         intersections: &mut IntersectionSimState,
@@ -396,7 +396,7 @@ impl DrivingSimState {
         &mut self,
         car: &mut Car,
         dists: Vec<(CarID, Distance)>,
-        now: Duration,
+        now: Time,
         map: &Map,
         parking: &mut ParkingSimState,
         trips: &mut TripManager,
@@ -515,7 +515,7 @@ impl DrivingSimState {
     pub fn kill_stuck_car(
         &mut self,
         c: CarID,
-        now: Duration,
+        now: Time,
         map: &Map,
         scheduler: &mut Scheduler,
         intersections: &mut IntersectionSimState,
@@ -547,7 +547,7 @@ impl DrivingSimState {
         car: &mut Car,
         dists: Vec<(CarID, Distance)>,
         idx: usize,
-        now: Duration,
+        now: Time,
         map: &Map,
         scheduler: &mut Scheduler,
         intersections: &mut IntersectionSimState,
@@ -602,7 +602,7 @@ impl DrivingSimState {
     pub fn update_laggy_head(
         &mut self,
         id: CarID,
-        now: Duration,
+        now: Time,
         map: &Map,
         intersections: &mut IntersectionSimState,
         scheduler: &mut Scheduler,
@@ -656,7 +656,7 @@ impl DrivingSimState {
 
     fn clear_last_steps(
         &mut self,
-        now: Duration,
+        now: Time,
         car: &mut Car,
         intersections: &mut IntersectionSimState,
         scheduler: &mut Scheduler,
@@ -722,7 +722,7 @@ impl DrivingSimState {
         }
     }
 
-    pub fn get_unzoomed_agents(&self, now: Duration, map: &Map) -> Vec<UnzoomedAgent> {
+    pub fn get_unzoomed_agents(&self, now: Time, map: &Map) -> Vec<UnzoomedAgent> {
         let mut result = Vec::new();
 
         for queue in self.queues.values() {
@@ -743,7 +743,7 @@ impl DrivingSimState {
         result
     }
 
-    pub fn get_agent_metadata(&self, now: Duration) -> Vec<AgentMetadata> {
+    pub fn get_agent_metadata(&self, now: Time) -> Vec<AgentMetadata> {
         self.cars.values().map(|car| car.metadata(now)).collect()
     }
 
@@ -765,7 +765,7 @@ impl DrivingSimState {
 
     pub fn get_all_draw_cars(
         &self,
-        now: Duration,
+        now: Time,
         map: &Map,
         transit: &TransitSimState,
     ) -> Vec<DrawCarInput> {
@@ -785,7 +785,7 @@ impl DrivingSimState {
     pub fn get_single_draw_car(
         &self,
         id: CarID,
-        now: Duration,
+        now: Time,
         map: &Map,
         transit: &TransitSimState,
     ) -> Option<DrawCarInput> {
@@ -797,7 +797,7 @@ impl DrivingSimState {
 
     pub fn get_draw_cars_on(
         &self,
-        now: Duration,
+        now: Time,
         on: Traversable,
         map: &Map,
         transit: &TransitSimState,
@@ -826,7 +826,7 @@ impl DrivingSimState {
         }
     }
 
-    pub fn tooltip_lines(&self, id: CarID, now: Duration) -> Option<Vec<String>> {
+    pub fn tooltip_lines(&self, id: CarID, now: Time) -> Option<Vec<String>> {
         let car = self.cars.get(&id)?;
         let path = car.router.get_path();
         Some(vec![
@@ -860,7 +860,7 @@ impl DrivingSimState {
 
     pub fn trace_route(
         &self,
-        now: Duration,
+        now: Time,
         id: CarID,
         map: &Map,
         dist_ahead: Option<Distance>,

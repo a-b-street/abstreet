@@ -1,6 +1,6 @@
 use crate::mechanics::car::{Car, CarState};
 use crate::{CarID, FOLLOWING_DISTANCE};
-use geom::{Distance, Duration};
+use geom::{Distance, Time};
 use map_model::{Map, Traversable};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, VecDeque};
@@ -35,7 +35,7 @@ impl Queue {
     // Farthest along (greatest distance) is first.
     pub fn get_car_positions(
         &self,
-        now: Duration,
+        now: Time,
         cars: &BTreeMap<CarID, Car>,
         queues: &BTreeMap<Traversable, Queue>,
     ) -> Vec<(CarID, Distance)> {
@@ -126,7 +126,7 @@ impl Queue {
         &self,
         start_dist: Distance,
         vehicle_len: Distance,
-        now: Duration,
+        now: Time,
         cars: &BTreeMap<CarID, Car>,
         queues: &BTreeMap<Traversable, Queue>,
     ) -> Option<usize> {
@@ -194,7 +194,7 @@ impl Queue {
 fn validate_positions(
     dists: Vec<(CarID, Distance)>,
     cars: &BTreeMap<CarID, Car>,
-    now: Duration,
+    now: Time,
     id: Traversable,
 ) -> Vec<(CarID, Distance)> {
     for pair in dists.windows(2) {
@@ -213,7 +213,7 @@ fn dump_cars(
     dists: &Vec<(CarID, Distance)>,
     cars: &BTreeMap<CarID, Car>,
     id: Traversable,
-    now: Duration,
+    now: Time,
 ) {
     println!("\nOn {} at {}...", id, now);
     for (id, dist) in dists {

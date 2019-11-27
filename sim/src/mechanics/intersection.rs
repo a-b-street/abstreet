@@ -3,7 +3,7 @@ use crate::mechanics::Queue;
 use crate::{AgentID, Command, Scheduler, Speed};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use derivative::Derivative;
-use geom::{Duration, DurationHistogram};
+use geom::{Duration, DurationHistogram, Time};
 use map_model::{
     ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, Map, TurnID, TurnPriority,
     TurnType,
@@ -30,7 +30,7 @@ struct State {
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
     )]
-    waiting: BTreeMap<Request, Duration>,
+    waiting: BTreeMap<Request, Time>,
     // TODO Can we move this to analytics?
     #[derivative(PartialEq = "ignore")]
     #[serde(skip_serializing, skip_deserializing)]
@@ -60,7 +60,7 @@ impl IntersectionSimState {
                 },
             );
             if i.is_traffic_signal() && !use_freeform_policy_everywhere {
-                sim.update_intersection(Duration::ZERO, i.id, map, scheduler);
+                sim.update_intersection(Time::START_OF_DAY, i.id, map, scheduler);
             }
         }
         sim
@@ -75,7 +75,7 @@ impl IntersectionSimState {
 
     pub fn turn_finished(
         &mut self,
-        now: Duration,
+        now: Time,
         agent: AgentID,
         turn: TurnID,
         scheduler: &mut Scheduler,
@@ -96,7 +96,7 @@ impl IntersectionSimState {
 
     pub fn space_freed(
         &mut self,
-        now: Duration,
+        now: Time,
         i: IntersectionID,
         scheduler: &mut Scheduler,
         map: &Map,
@@ -104,17 +104,11 @@ impl IntersectionSimState {
         self.wakeup_waiting(now, i, scheduler, map);
     }
 
-    fn wakeup_waiting(
-        &self,
-        now: Duration,
-        i: IntersectionID,
-        scheduler: &mut Scheduler,
-        map: &Map,
-    ) {
+    fn wakeup_waiting(&self, now: Time, i: IntersectionID, scheduler: &mut Scheduler, map: &Map) {
         /*if i == IntersectionID(64) {
             println!("at {}: wakeup_waiting -----------------", now);
         }*/
-        let mut all: Vec<(Request, Duration)> = self.state[&i]
+        let mut all: Vec<(Request, Time)> = self.state[&i]
             .waiting
             .iter()
             .map(|(r, t)| (r.clone(), *t))
@@ -133,7 +127,7 @@ impl IntersectionSimState {
                 protected.push(req);
             }
         } else if let Some(ref signal) = map.maybe_get_traffic_signal(i) {
-            let (_, phase, _) = signal.current_phase_and_remaining_time(now.tmp_as_time());
+            let (_, phase, _) = signal.current_phase_and_remaining_time(now);
             for (req, _) in all {
                 match phase.get_priority_of_turn(req.turn, signal) {
                     TurnPriority::Protected => {
@@ -177,7 +171,7 @@ impl IntersectionSimState {
     // This is only triggered for traffic signals.
     pub fn update_intersection(
         &self,
-        now: Duration,
+        now: Time,
         id: IntersectionID,
         map: &Map,
         scheduler: &mut Scheduler,
@@ -185,7 +179,7 @@ impl IntersectionSimState {
         self.wakeup_waiting(now, id, scheduler, map);
         let (_, _, remaining) = map
             .get_traffic_signal(id)
-            .current_phase_and_remaining_time(now.tmp_as_time());
+            .current_phase_and_remaining_time(now);
         scheduler.push(now + remaining, Command::UpdateIntersection(id));
     }
 
@@ -201,7 +195,7 @@ impl IntersectionSimState {
         agent: AgentID,
         turn: TurnID,
         speed: Speed,
-        now: Duration,
+        now: Time,
         map: &Map,
         scheduler: &mut Scheduler,
         maybe_car_and_target_queue: Option<(&mut Queue, &Car)>,
@@ -292,7 +286,7 @@ impl State {
         &self,
         sign: &ControlStopSign,
         req: &Request,
-        now: Duration,
+        now: Time,
         map: &Map,
         scheduler: &mut Scheduler,
     ) -> bool {
@@ -338,7 +332,7 @@ impl State {
         signal: &ControlTrafficSignal,
         new_req: &Request,
         speed: Speed,
-        now: Duration,
+        now: Time,
         map: &Map,
     ) -> bool {
         let turn = map.get_t(new_req.turn);
@@ -348,8 +342,7 @@ impl State {
             return true;
         }
 
-        let (_, phase, remaining_phase_time) =
-            signal.current_phase_and_remaining_time(now.tmp_as_time());
+        let (_, phase, remaining_phase_time) = signal.current_phase_and_remaining_time(now);
 
         // Can't go at all this phase.
         if phase.get_priority_of_turn(new_req.turn, signal) == TurnPriority::Banned {

@@ -4,7 +4,7 @@ use crate::{
     Vehicle, WalkingSimState,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap};
-use geom::{Duration, Speed};
+use geom::{Duration, Speed, Time};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathConstraints, PathRequest, Position,
 };
@@ -37,12 +37,7 @@ impl TripManager {
         }
     }
 
-    pub fn new_trip(
-        &mut self,
-        spawned_at: Duration,
-        start: TripStart,
-        legs: Vec<TripLeg>,
-    ) -> TripID {
+    pub fn new_trip(&mut self, spawned_at: Time, start: TripStart, legs: Vec<TripLeg>) -> TripID {
         assert!(!legs.is_empty());
         // TODO Make sure the legs constitute a valid state machine.
 
@@ -122,7 +117,7 @@ impl TripManager {
 
     pub fn car_reached_parking_spot(
         &mut self,
-        now: Duration,
+        now: Time,
         car: CarID,
         spot: ParkingSpot,
         map: &Map,
@@ -169,7 +164,7 @@ impl TripManager {
 
     pub fn ped_reached_parking_spot(
         &mut self,
-        now: Duration,
+        now: Time,
         ped: PedestrianID,
         spot: ParkingSpot,
         map: &Map,
@@ -226,7 +221,7 @@ impl TripManager {
 
     pub fn ped_ready_to_bike(
         &mut self,
-        now: Duration,
+        now: Time,
         ped: PedestrianID,
         spot: SidewalkSpot,
         map: &Map,
@@ -278,7 +273,7 @@ impl TripManager {
 
     pub fn bike_reached_end(
         &mut self,
-        now: Duration,
+        now: Time,
         bike: CarID,
         bike_rack: SidewalkSpot,
         map: &Map,
@@ -302,7 +297,7 @@ impl TripManager {
 
     pub fn ped_reached_building(
         &mut self,
-        now: Duration,
+        now: Time,
         ped: PedestrianID,
         bldg: BuildingID,
         map: &Map,
@@ -364,7 +359,7 @@ impl TripManager {
 
     pub fn ped_left_bus(
         &mut self,
-        now: Duration,
+        now: Time,
         ped: PedestrianID,
         map: &Map,
         scheduler: &mut Scheduler,
@@ -386,7 +381,7 @@ impl TripManager {
 
     pub fn ped_reached_border(
         &mut self,
-        now: Duration,
+        now: Time,
         ped: PedestrianID,
         i: IntersectionID,
         map: &Map,
@@ -409,7 +404,7 @@ impl TripManager {
         ));
     }
 
-    pub fn car_or_bike_reached_border(&mut self, now: Duration, car: CarID, i: IntersectionID) {
+    pub fn car_or_bike_reached_border(&mut self, now: Time, car: CarID, i: IntersectionID) {
         self.events.push(Event::CarOrBikeReachedBorder(car, i));
         let trip = &mut self.trips[self.active_trip_mode.remove(&AgentID::Car(car)).unwrap().0];
         match trip.legs.pop_front().unwrap() {
@@ -529,19 +524,19 @@ impl TripManager {
     }
 
     // Return trip start time too
-    pub fn find_trip_using_car(&self, id: CarID, home: BuildingID) -> Option<(TripID, Duration)> {
+    pub fn find_trip_using_car(&self, id: CarID, home: BuildingID) -> Option<(TripID, Time)> {
         let t = self.trips.iter().find(|t| t.uses_car(id, home))?;
         Some((t.id, t.spawned_at))
     }
 
     // TODO Refactor after wrangling the TripStart/TripEnd mess
-    pub fn count_trips_involving_bldg(&self, b: BuildingID, now: Duration) -> TripCount {
+    pub fn count_trips_involving_bldg(&self, b: BuildingID, now: Time) -> TripCount {
         self.count_trips(TripStart::Bldg(b), TripEnd::Bldg(b), now)
     }
-    pub fn count_trips_involving_border(&self, i: IntersectionID, now: Duration) -> TripCount {
+    pub fn count_trips_involving_border(&self, i: IntersectionID, now: Time) -> TripCount {
         self.count_trips(TripStart::Border(i), TripEnd::Border(i), now)
     }
-    fn count_trips(&self, start: TripStart, end: TripEnd, now: Duration) -> TripCount {
+    fn count_trips(&self, start: TripStart, end: TripEnd, now: Time) -> TripCount {
         let mut cnt = TripCount {
             from_aborted: 0,
             from_in_progress: 0,
@@ -584,8 +579,8 @@ impl TripManager {
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 struct Trip {
     id: TripID,
-    spawned_at: Duration,
-    finished_at: Option<Duration>,
+    spawned_at: Time,
+    finished_at: Option<Time>,
     aborted: bool,
     legs: VecDeque<TripLeg>,
     mode: TripMode,
@@ -618,7 +613,7 @@ impl Trip {
     // Returns true if this succeeds. If not, trip aborted.
     fn spawn_ped(
         &self,
-        now: Duration,
+        now: Time,
         start: SidewalkSpot,
         map: &Map,
         scheduler: &mut Scheduler,
