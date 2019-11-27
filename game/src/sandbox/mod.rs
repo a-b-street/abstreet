@@ -2,9 +2,10 @@ mod bus_explorer;
 mod gameplay;
 mod overlays;
 mod score;
+mod speed;
 
 use self::overlays::Overlays;
-use crate::common::{time_controls, AgentTools, CommonState, Minimap, SpeedControls};
+use crate::common::{AgentTools, CommonState, Minimap};
 use crate::debug::DebugMode;
 use crate::edit::EditMode;
 use crate::edit::{apply_map_edits, save_edits};
@@ -24,7 +25,7 @@ use map_model::MapEdits;
 use sim::Sim;
 
 pub struct SandboxMode {
-    speed: SpeedControls,
+    speed: speed::SpeedControls,
     info_tools: MenuUnderButton,
     general_tools: MenuUnderButton,
     save_tools: MenuUnderButton,
@@ -39,7 +40,7 @@ pub struct SandboxMode {
 impl SandboxMode {
     pub fn new(ctx: &mut EventCtx, ui: &mut UI, mode: GameplayMode) -> SandboxMode {
         SandboxMode {
-            speed: SpeedControls::new(ctx, ui.primary.current_flags.dev, true),
+            speed: speed::SpeedControls::new(ctx, ui.primary.current_flags.dev),
             general_tools: MenuUnderButton::new(
                 "assets/ui/hamburger.png",
                 "General",
@@ -48,7 +49,7 @@ impl SandboxMode {
                     (lctrl(Key::D), "debug mode"),
                     (hotkey(Key::F1), "take a screenshot"),
                 ],
-                0.2,
+                0.3,
                 ctx,
             ),
             info_tools: MenuUnderButton::new(
@@ -60,7 +61,7 @@ impl SandboxMode {
                     (hotkey(Key::Semicolon), "change agent colorscheme"),
                     (None, "explore a bus route"),
                 ],
-                0.3,
+                0.4,
                 ctx,
             ),
             save_tools: MenuUnderButton::new(
@@ -72,7 +73,7 @@ impl SandboxMode {
                     (hotkey(Key::U), "load next sim state"),
                     (None, "pick a savestate to load"),
                 ],
-                0.35,
+                0.45,
                 ctx,
             ),
             agent_tools: AgentTools::new(),
@@ -94,10 +95,6 @@ impl State for SandboxMode {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         {
             let mut txt = Text::new();
-            txt.add(Line(format!(
-                "Time: {}",
-                ui.primary.sim.time().ampm_tostring()
-            )));
             let (active, unfinished, buses) = ui.primary.sim.num_trips();
             txt.add(Line(format!("{} active (+{} buses)", active, buses)));
             txt.add(Line(format!("{} unfinished", unfinished)));
@@ -311,15 +308,7 @@ impl State for SandboxMode {
             return Transition::Push(WizardState::new(Box::new(load_savestate)));
         }
 
-        if let Some(dt) = self.speed.event(ctx, ui.primary.sim.time()) {
-            // If speed is too high, don't be unresponsive for too long.
-            // TODO This should probably match the ezgui framerate.
-            ui.primary
-                .sim
-                .time_limited_step(&ui.primary.map, dt, Duration::seconds(0.1));
-            ui.recalculate_current_selection(ctx);
-        }
-        if let Some(t) = time_controls(ctx, ui, &mut self.speed) {
+        if let Some(t) = self.speed.event(ctx, ui) {
             return t;
         }
 
@@ -361,7 +350,7 @@ impl State for SandboxMode {
         }
         self.common.draw(g, ui);
         self.menu.draw(g);
-        self.speed.draw(g);
+        self.speed.draw(g, ui);
         self.info_tools.draw(g);
         self.general_tools.draw(g);
         self.save_tools.draw(g);

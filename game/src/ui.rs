@@ -50,6 +50,8 @@ impl UI {
                 ("assets/ui/slow_down.png", TextureType::Stretch),
                 ("assets/ui/small_step.png", TextureType::Stretch),
                 ("assets/ui/speed_up.png", TextureType::Stretch),
+                ("assets/ui/sunrise.png", TextureType::Stretch),
+                ("assets/ui/sunset.png", TextureType::Stretch),
             ];
             let skip_textures = if flags.textures {
                 textures.extend(vec![

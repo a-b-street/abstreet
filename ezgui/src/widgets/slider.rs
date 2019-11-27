@@ -103,14 +103,14 @@ impl Slider {
         let mut batch = GeomBatch::new();
 
         // A nice background for the entire thing
-        batch.push(
+        /*batch.push(
             Color::grey(0.3),
             Polygon::rectangle_topleft(
                 self.top_left.to_pt(),
                 Distance::meters(self.dims.total_width),
                 Distance::meters(self.dims.bar_height + 2.0 * self.dims.vert_padding),
             ),
-        );
+        );*/
         g.canvas.mark_covered_area(ScreenRectangle {
             x1: self.top_left.x,
             y1: self.top_left.y,
@@ -206,9 +206,9 @@ impl Dims {
     fn fit_total_width(total_width: f64) -> Dims {
         let horiz_padding = total_width / 7.0;
         let bar_width = total_width - 2.0 * horiz_padding;
-        let slider_width = bar_width / 6.0;
+        let slider_width = 15.0;
 
-        let bar_height = bar_width / 3.0;
+        let bar_height = 25.0;
         let slider_height = bar_height * 1.2;
         let vert_padding = bar_height / 5.0;
 
