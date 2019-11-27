@@ -9,7 +9,7 @@ use crate::sandbox::SandboxMode;
 use crate::ui::{ShowEverything, UI};
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{Choice, Color, EventCtx, GfxCtx, Key, Line, MenuUnderButton, Text};
-use geom::Duration;
+use geom::{Duration, Time};
 use map_model::{IntersectionID, LaneID, PathConstraints, PathStep, RoadID};
 use sim::{ParkingSpot, TripMode};
 use std::collections::{BTreeMap, HashSet};
@@ -326,7 +326,7 @@ impl Overlays {
             ui.primary
                 .sim
                 .get_analytics()
-                .throughput_road(ui.primary.sim.time(), r, bucket)
+                .throughput_road(ui.primary.sim.time().tmp_as_time(), r, bucket)
                 .into_iter()
                 .map(|(m, pts)| Series {
                     label: m.to_string(),
@@ -360,7 +360,7 @@ impl Overlays {
             ui.primary
                 .sim
                 .get_analytics()
-                .throughput_intersection(ui.primary.sim.time(), i, bucket)
+                .throughput_intersection(ui.primary.sim.time().tmp_as_time(), i, bucket)
                 .into_iter()
                 .map(|(m, pts)| Series {
                     label: m.to_string(),
@@ -459,13 +459,13 @@ impl Overlays {
         let mut times = Vec::new();
         for i in 0..num_x_pts {
             let percent_x = (i as f64) / ((num_x_pts - 1) as f64);
-            let t = ui.primary.sim.time() * percent_x;
+            let t = ui.primary.sim.time().tmp_as_time().percent_of(percent_x);
             times.push(t);
         }
 
         // Gather the data
         let mut counts = Counter::new();
-        let mut pts_per_mode: BTreeMap<Option<TripMode>, Vec<(Duration, usize)>> =
+        let mut pts_per_mode: BTreeMap<Option<TripMode>, Vec<(Time, usize)>> =
             lines.iter().map(|(_, _, m)| (*m, Vec::new())).collect();
         for (t, _, m, _) in &ui.primary.sim.get_analytics().finished_trips {
             counts.inc(*m);
@@ -484,7 +484,7 @@ impl Overlays {
             pts_per_mode
                 .get_mut(mode)
                 .unwrap()
-                .push((ui.primary.sim.time(), counts.get(*mode)));
+                .push((ui.primary.sim.time().tmp_as_time(), counts.get(*mode)));
         }
 
         let plot = Plot::new(

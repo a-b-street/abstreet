@@ -1,7 +1,7 @@
 use crate::{AgentID, CarID, Event, TripID, TripMode, VehicleType};
 use abstutil::Counter;
 use derivative::Derivative;
-use geom::{Duration, DurationHistogram};
+use geom::{Duration, DurationHistogram, Time};
 use map_model::{BusRouteID, BusStopID, IntersectionID, Map, RoadID, Traversable};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, VecDeque};
@@ -13,12 +13,12 @@ pub struct Analytics {
     pub thruput_stats: ThruputStats,
     #[serde(skip_serializing, skip_deserializing)]
     pub(crate) test_expectations: VecDeque<Event>,
-    pub bus_arrivals: Vec<(Duration, CarID, BusRouteID, BusStopID)>,
+    pub bus_arrivals: Vec<(Time, CarID, BusRouteID, BusStopID)>,
     #[serde(skip_serializing, skip_deserializing)]
     pub total_bus_passengers: Counter<BusRouteID>,
     // TODO Hack: No TripMode means aborted
     // Finish time, ID, mode (or None as aborted), trip duration
-    pub finished_trips: Vec<(Duration, TripID, Option<TripMode>, Duration)>,
+    pub finished_trips: Vec<(Time, TripID, Option<TripMode>, Duration)>,
 }
 
 #[derive(Serialize, Deserialize, Derivative)]
@@ -28,8 +28,8 @@ pub struct ThruputStats {
     #[serde(skip_serializing, skip_deserializing)]
     pub count_per_intersection: Counter<IntersectionID>,
 
-    raw_per_road: Vec<(Duration, TripMode, RoadID)>,
-    raw_per_intersection: Vec<(Duration, TripMode, IntersectionID)>,
+    raw_per_road: Vec<(Time, TripMode, RoadID)>,
+    raw_per_intersection: Vec<(Time, TripMode, IntersectionID)>,
 }
 
 impl Analytics {
@@ -48,7 +48,7 @@ impl Analytics {
         }
     }
 
-    pub fn event(&mut self, ev: Event, time: Duration, map: &Map) {
+    pub fn event(&mut self, ev: Event, time: Time, map: &Map) {
         // TODO Plumb a flag
         let raw_thruput = true;
 
@@ -109,7 +109,7 @@ impl Analytics {
     // TODO If these ever need to be speeded up, just cache the histogram and index in the events
     // list.
 
-    pub fn finished_trips(&self, now: Duration, mode: TripMode) -> DurationHistogram {
+    pub fn finished_trips(&self, now: Time, mode: TripMode) -> DurationHistogram {
         let mut distrib = DurationHistogram::new();
         for (t, _, m, dt) in &self.finished_trips {
             if *t > now {
@@ -125,7 +125,7 @@ impl Analytics {
     // Returns (all trips except aborted, number of aborted trips, trips by mode)
     pub fn all_finished_trips(
         &self,
-        now: Duration,
+        now: Time,
     ) -> (
         DurationHistogram,
         usize,
@@ -151,12 +151,8 @@ impl Analytics {
         (all, num_aborted, per_mode)
     }
 
-    pub fn bus_arrivals(
-        &self,
-        now: Duration,
-        r: BusRouteID,
-    ) -> BTreeMap<BusStopID, DurationHistogram> {
-        let mut per_bus: BTreeMap<CarID, Vec<(Duration, BusStopID)>> = BTreeMap::new();
+    pub fn bus_arrivals(&self, now: Time, r: BusRouteID) -> BTreeMap<BusStopID, DurationHistogram> {
+        let mut per_bus: BTreeMap<CarID, Vec<(Time, BusStopID)>> = BTreeMap::new();
         for (t, car, route, stop) in &self.bus_arrivals {
             if *t > now {
                 break;
@@ -184,10 +180,10 @@ impl Analytics {
     // For each stop, a list of (time, delay)
     pub fn bus_arrivals_over_time(
         &self,
-        now: Duration,
+        now: Time,
         r: BusRouteID,
-    ) -> BTreeMap<BusStopID, Vec<(Duration, Duration)>> {
-        let mut per_bus: BTreeMap<CarID, Vec<(Duration, BusStopID)>> = BTreeMap::new();
+    ) -> BTreeMap<BusStopID, Vec<(Time, Duration)>> {
+        let mut per_bus: BTreeMap<CarID, Vec<(Time, BusStopID)>> = BTreeMap::new();
         for (t, car, route, stop) in &self.bus_arrivals {
             if *t > now {
                 break;
@@ -199,7 +195,7 @@ impl Analytics {
                     .push((*t, *stop));
             }
         }
-        let mut delays_to_stop: BTreeMap<BusStopID, Vec<(Duration, Duration)>> = BTreeMap::new();
+        let mut delays_to_stop: BTreeMap<BusStopID, Vec<(Time, Duration)>> = BTreeMap::new();
         for events in per_bus.values() {
             for pair in events.windows(2) {
                 delays_to_stop
@@ -214,14 +210,14 @@ impl Analytics {
     // Slightly misleading -- TripMode::Transit means buses, not pedestrians taking transit
     pub fn throughput_road(
         &self,
-        now: Duration,
+        now: Time,
         road: RoadID,
         bucket: Duration,
-    ) -> BTreeMap<TripMode, Vec<(Duration, usize)>> {
-        let mut max_this_bucket = now.min(bucket);
+    ) -> BTreeMap<TripMode, Vec<(Time, usize)>> {
+        let mut max_this_bucket = now.min(bucket.since_midnight());
         let mut per_mode = TripMode::all()
             .into_iter()
-            .map(|m| (m, vec![(Duration::ZERO, 0), (max_this_bucket, 0)]))
+            .map(|m| (m, vec![(Time::START_OF_DAY, 0), (max_this_bucket, 0)]))
             .collect::<BTreeMap<_, _>>();
         for (t, m, r) in &self.thruput_stats.raw_per_road {
             if *r != road {
@@ -244,15 +240,15 @@ impl Analytics {
     // TODO Refactor!
     pub fn throughput_intersection(
         &self,
-        now: Duration,
+        now: Time,
         intersection: IntersectionID,
         bucket: Duration,
-    ) -> BTreeMap<TripMode, Vec<(Duration, usize)>> {
+    ) -> BTreeMap<TripMode, Vec<(Time, usize)>> {
         let mut per_mode = TripMode::all()
             .into_iter()
-            .map(|m| (m, vec![(Duration::ZERO, 0)]))
+            .map(|m| (m, vec![(Time::START_OF_DAY, 0)]))
             .collect::<BTreeMap<_, _>>();
-        let mut max_this_bucket = bucket;
+        let mut max_this_bucket = bucket.since_midnight();
         for (t, m, i) in &self.thruput_stats.raw_per_intersection {
             if *i != intersection {
                 continue;

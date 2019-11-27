@@ -4,7 +4,7 @@ use crate::helpers::ID;
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{hotkey, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
-use geom::Duration;
+use geom::Time;
 use map_model::PathConstraints;
 use sim::CarID;
 use std::collections::BTreeMap;
@@ -253,7 +253,7 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
             let passengers = &sim.get_analytics().total_bus_passengers;
             for r in map.get_routes_serving_stop(id) {
                 txt.add_appended(vec![Line("- Route "), Line(&r.name).fg(name_color)]);
-                let arrivals: Vec<(Duration, CarID)> = all_arrivals
+                let arrivals: Vec<(Time, CarID)> = all_arrivals
                     .iter()
                     .filter(|(_, _, route, stop)| r.id == *route && id == *stop)
                     .map(|(t, car, _, _)| (*t, *car))
@@ -261,7 +261,7 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
                 if let Some((t, car)) = arrivals.last() {
                     txt.add(Line(format!(
                         "  Last bus arrived {} ago ({})",
-                        (sim.time() - *t).minimal_tostring(),
+                        (sim.time().tmp_as_time() - *t).minimal_tostring(),
                         car
                     )));
                 } else {

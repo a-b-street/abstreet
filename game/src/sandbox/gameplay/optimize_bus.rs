@@ -133,8 +133,10 @@ fn bus_route_panel(id: BusRouteID, ui: &UI, stat: Statistic) -> Text {
         .primary
         .sim
         .get_analytics()
-        .bus_arrivals(ui.primary.sim.time(), id);
-    let baseline = ui.prebaked.bus_arrivals(ui.primary.sim.time(), id);
+        .bus_arrivals(ui.primary.sim.time().tmp_as_time(), id);
+    let baseline = ui
+        .prebaked
+        .bus_arrivals(ui.primary.sim.time().tmp_as_time(), id);
 
     let route = ui.primary.map.get_br(id);
     let mut txt = Text::new();
@@ -167,7 +169,7 @@ fn bus_delays(id: BusRouteID, ui: &UI, ctx: &mut EventCtx) -> Plot<Duration> {
         .primary
         .sim
         .get_analytics()
-        .bus_arrivals_over_time(ui.primary.sim.time(), id);
+        .bus_arrivals_over_time(ui.primary.sim.time().tmp_as_time(), id);
 
     let mut series = Vec::new();
     for idx1 in 0..route.stops.len() {

@@ -69,9 +69,10 @@ fn gridlock_panel(ui: &UI) -> Text {
         .primary
         .sim
         .get_analytics()
-        .all_finished_trips(ui.primary.sim.time());
-    let (baseline_all, _, baseline_per_mode) =
-        ui.prebaked.all_finished_trips(ui.primary.sim.time());
+        .all_finished_trips(ui.primary.sim.time().tmp_as_time());
+    let (baseline_all, _, baseline_per_mode) = ui
+        .prebaked
+        .all_finished_trips(ui.primary.sim.time().tmp_as_time());
 
     let mut txt = Text::new();
     txt.add_appended(vec![

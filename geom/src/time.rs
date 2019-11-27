@@ -1,6 +1,6 @@
-use crate::trim_f64;
+use crate::{trim_f64, Duration};
 use serde_derive::{Deserialize, Serialize};
-use std::cmp;
+use std::{cmp, ops};
 
 // In seconds since midnight. Can't be negative.
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
@@ -116,6 +116,33 @@ impl Time {
             ))),
         }
     }
+
+    // TODO Why isn't this free given Ord?
+    pub fn min(self, other: Time) -> Time {
+        if self <= other {
+            self
+        } else {
+            other
+        }
+    }
+
+    pub fn max(self, other: Time) -> Time {
+        if self >= other {
+            self
+        } else {
+            other
+        }
+    }
+
+    // TODO These are a little weird, so don't operator overload yet
+    pub fn percent_of(self, p: f64) -> Time {
+        assert!(p >= 0.0 && p <= 1.0);
+        Time::seconds_since_midnight(self.0 * p)
+    }
+
+    pub fn to_percent(self, other: Time) -> f64 {
+        self.0 / other.0
+    }
 }
 
 impl std::fmt::Display for Time {
@@ -126,5 +153,21 @@ impl std::fmt::Display for Time {
             "{0:02}:{1:02}:{2:02}.{3:01}",
             hours, minutes, seconds, remainder
         )
+    }
+}
+
+impl ops::Add<Duration> for Time {
+    type Output = Time;
+
+    fn add(self, other: Duration) -> Time {
+        Time::seconds_since_midnight(self.0 + other.inner_seconds())
+    }
+}
+
+impl ops::Sub for Time {
+    type Output = Duration;
+
+    fn sub(self, other: Time) -> Duration {
+        Duration::seconds(self.0 - other.0)
     }
 }

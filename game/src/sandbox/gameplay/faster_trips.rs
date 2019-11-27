@@ -54,7 +54,7 @@ impl GameplayState for FasterTrips {
 }
 
 pub fn faster_trips_panel(mode: TripMode, ui: &UI) -> Text {
-    let time = ui.primary.sim.time();
+    let time = ui.primary.sim.time().tmp_as_time();
     let now = ui.primary.sim.get_analytics().finished_trips(time, mode);
     let baseline = ui.prebaked.finished_trips(time, mode);
 

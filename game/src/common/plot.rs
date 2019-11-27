@@ -2,7 +2,7 @@ use crate::common::ColorLegend;
 use ezgui::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, MultiText, ScreenPt, ScreenRectangle, Text,
 };
-use geom::{Bounds, Circle, Distance, Duration, FindClosest, PolyLine, Polygon, Pt2D};
+use geom::{Bounds, Circle, Distance, Duration, FindClosest, PolyLine, Polygon, Pt2D, Time};
 
 pub struct Plot<T> {
     draw: Drawable,
@@ -11,7 +11,7 @@ pub struct Plot<T> {
     rect: ScreenRectangle,
 
     // The geometry here is in screen-space.
-    max_x: Duration,
+    max_x: Time,
     max_y: Box<dyn Yvalue<T>>,
     closest: FindClosest<String>,
 }
@@ -35,7 +35,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
             ),
         );
 
-        // Assume min_x is Duration::ZERO and min_y is 0
+        // Assume min_x is Time::START_OF_DAY and min_y is 0
         let max_x = series
             .iter()
             .map(|s| {
@@ -43,10 +43,10 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
                     .iter()
                     .map(|(t, _)| *t)
                     .max()
-                    .unwrap_or(Duration::ZERO)
+                    .unwrap_or(Time::START_OF_DAY)
             })
             .max()
-            .unwrap_or(Duration::ZERO);
+            .unwrap_or(Time::START_OF_DAY);
         let max_y = series
             .iter()
             .map(|s| {
@@ -62,7 +62,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
         let num_x_labels = 5;
         for i in 0..num_x_labels {
             let percent_x = (i as f64) / ((num_x_labels - 1) as f64);
-            let t = percent_x * max_x;
+            let t = max_x.percent_of(percent_x);
             labels.add(
                 Text::from(Line(t.to_string())),
                 ScreenPt::new(x1 + percent_x * (x2 - x1), y2),
@@ -86,12 +86,12 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
         let mut closest =
             FindClosest::new(&Bounds::from(&vec![Pt2D::new(x1, y1), Pt2D::new(x2, y2)]));
         for s in series {
-            if max_x == Duration::ZERO {
+            if max_x == Time::START_OF_DAY {
                 continue;
             }
             let mut pts = Vec::new();
             for (t, y) in s.pts {
-                let percent_x = t / max_x;
+                let percent_x = t.to_percent(max_x);
                 let percent_y = y.to_percent(max_y);
                 pts.push(Pt2D::new(
                     x1 + (x2 - x1) * percent_x,
@@ -131,7 +131,9 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
             let radius = Distance::meters(5.0);
             let mut txt = Text::new();
             for (label, pt, _) in self.closest.all_close_pts(cursor.to_pt(), radius) {
-                let t = (pt.x() - self.rect.x1) / self.rect.width() * self.max_x;
+                let t = self
+                    .max_x
+                    .percent_of((pt.x() - self.rect.x1) / self.rect.width());
                 let y_percent = 1.0 - (pt.y() - self.rect.y1) / self.rect.height();
 
                 // TODO Draw this info in the ColorLegend
@@ -178,7 +180,7 @@ impl Yvalue<usize> for usize {
 }
 impl Yvalue<Duration> for Duration {
     fn from_percent(&self, percent: f64) -> Duration {
-        percent * *self
+        *self * percent
     }
     fn to_percent(self, max: Duration) -> f64 {
         if max == Duration::ZERO {
@@ -196,5 +198,5 @@ pub struct Series<T> {
     pub label: String,
     pub color: Color,
     // X-axis is time. Assume this is sorted by X.
-    pub pts: Vec<(Duration, T)>,
+    pub pts: Vec<(Time, T)>,
 }

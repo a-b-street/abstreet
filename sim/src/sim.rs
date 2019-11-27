@@ -544,7 +544,7 @@ impl Sim {
             events.extend(self.driving.collect_events());
             events.extend(self.walking.collect_events());
             for ev in events {
-                self.analytics.event(ev, self.time, map);
+                self.analytics.event(ev, self.time.tmp_as_time(), map);
             }
         }
         if let Some(t) = savestate_at {

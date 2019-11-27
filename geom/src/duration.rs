@@ -1,4 +1,4 @@
-use crate::{trim_f64, Distance, Speed};
+use crate::{trim_f64, Distance, Speed, Time};
 use histogram::Histogram;
 use serde_derive::{Deserialize, Serialize};
 use std::{cmp, f64, ops};
@@ -202,6 +202,15 @@ impl Duration {
         } else {
             true
         }
+    }
+
+    pub fn since_midnight(self) -> Time {
+        Time::START_OF_DAY + self
+    }
+
+    // TODO During transition only
+    pub fn tmp_as_time(self) -> Time {
+        Time::seconds_since_midnight(self.inner_seconds())
     }
 }
 
