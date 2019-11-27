@@ -2,7 +2,7 @@ use crate::helpers::rotating_color;
 use crate::render::DrawMap;
 use crate::ui::UI;
 use ezgui::{Color, Drawable, EventCtx, GfxCtx, Line, ModalMenu, Prerender, Text};
-use geom::{Duration, Polygon, Pt2D};
+use geom::{Polygon, Pt2D, Time};
 use map_model::{LaneID, Map, Neighborhood};
 use std::collections::HashSet;
 
@@ -10,7 +10,7 @@ pub struct NeighborhoodSummary {
     regions: Vec<Region>,
     draw_all_regions: Drawable,
     pub active: bool,
-    last_summary: Option<Duration>,
+    last_summary: Option<Time>,
 }
 
 impl NeighborhoodSummary {

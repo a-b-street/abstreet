@@ -8,7 +8,7 @@ use crate::{
 };
 use abstutil::{elapsed_seconds, Timer};
 use derivative::Derivative;
-use geom::{Distance, Duration, DurationHistogram, PolyLine, Pt2D};
+use geom::{Distance, Duration, DurationHistogram, PolyLine, Pt2D, Time};
 use map_model::{
     BuildingID, BusRoute, BusRouteID, IntersectionID, LaneID, Map, Path, PathConstraints,
     PathRequest, PathStep, Traversable,
@@ -293,8 +293,8 @@ impl Sim {
 
 // Drawing
 impl GetDrawAgents for Sim {
-    fn time(&self) -> Duration {
-        self.time
+    fn time(&self) -> Time {
+        self.time.tmp_as_time()
     }
 
     fn step_count(&self) -> usize {
@@ -594,7 +594,7 @@ impl Sim {
             "********************************************************************************"
         );
         println!("At {}", self.time);
-        if let Some(path) = self.find_previous_savestate(self.time) {
+        if let Some(path) = self.find_previous_savestate(self.time.tmp_as_time()) {
             println!("Debug from {}", path);
         }
     }
@@ -617,12 +617,8 @@ impl Sim {
         let mut last_sim_time = self.time();
 
         loop {
-            let dt = if let Some(lim) = time_limit {
-                // TODO Regular printing then doesn't happen :\
-                self.time() + lim
-            } else {
-                Duration::seconds(30.0)
-            };
+            // TODO Regular printing doesn't happen if we use a time_limit :\
+            let dt = time_limit.unwrap_or(Duration::seconds(30.0));
 
             match panic::catch_unwind(panic::AssertUnwindSafe(|| {
                 self.step(&map, dt);
@@ -677,7 +673,7 @@ impl Sim {
         // TODO No benchmark printing at all this way.
         // TODO Doesn't stop early once all expectations are met.
         self.analytics.test_expectations.extend(all_expectations);
-        self.step(&map, self.time() + time_limit);
+        self.step(&map, time_limit);
         if self.analytics.test_expectations.is_empty() {
             return;
         }
@@ -698,7 +694,7 @@ impl Sim {
         )
     }
 
-    fn save_path(&self, base_time: Duration) -> String {
+    fn save_path(&self, base_time: Time) -> String {
         // If we wanted to be even more reproducible, we'd encode RNG seed, version of code, etc,
         // but that's overkill right now.
         abstutil::path2_bin(
@@ -710,17 +706,17 @@ impl Sim {
     }
 
     pub fn save(&self) -> String {
-        let path = self.save_path(self.time);
+        let path = self.save_path(self.time.tmp_as_time());
         abstutil::write_binary(&path, &self).expect("Writing sim state failed");
         println!("Saved to {}", path);
         path
     }
 
-    pub fn find_previous_savestate(&self, base_time: Duration) -> Option<String> {
+    pub fn find_previous_savestate(&self, base_time: Time) -> Option<String> {
         abstutil::find_prev_file(self.save_path(base_time))
     }
 
-    pub fn find_next_savestate(&self, base_time: Duration) -> Option<String> {
+    pub fn find_next_savestate(&self, base_time: Time) -> Option<String> {
         abstutil::find_next_file(self.save_path(base_time))
     }
 
@@ -732,8 +728,8 @@ impl Sim {
 
 // Queries of all sorts
 impl Sim {
-    pub fn time(&self) -> Duration {
-        self.time
+    pub fn time(&self) -> Time {
+        self.time.tmp_as_time()
     }
 
     pub fn is_done(&self) -> bool {

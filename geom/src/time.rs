@@ -143,6 +143,10 @@ impl Time {
     pub fn to_percent(self, other: Time) -> f64 {
         self.0 / other.0
     }
+
+    pub fn tmp_to_duration(self) -> Duration {
+        Duration::seconds(self.0)
+    }
 }
 
 impl std::fmt::Display for Time {
@@ -161,6 +165,14 @@ impl ops::Add<Duration> for Time {
 
     fn add(self, other: Duration) -> Time {
         Time::seconds_since_midnight(self.0 + other.inner_seconds())
+    }
+}
+
+impl ops::Sub<Duration> for Time {
+    type Output = Time;
+
+    fn sub(self, other: Duration) -> Time {
+        Time::seconds_since_midnight(self.0 - other.inner_seconds())
     }
 }
 

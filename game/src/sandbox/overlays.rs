@@ -16,11 +16,11 @@ use std::collections::{BTreeMap, HashSet};
 
 pub enum Overlays {
     Inactive,
-    ParkingAvailability(Duration, RoadColorer),
-    IntersectionDelay(Duration, ObjectColorer),
-    CumulativeThroughput(Duration, ObjectColorer),
-    FinishedTrips(Duration, Plot<usize>),
-    Chokepoints(Duration, ObjectColorer),
+    ParkingAvailability(Time, RoadColorer),
+    IntersectionDelay(Time, ObjectColorer),
+    CumulativeThroughput(Time, ObjectColorer),
+    FinishedTrips(Time, Plot<usize>),
+    Chokepoints(Time, ObjectColorer),
     BikeNetwork(RoadColorer),
     BikePathCosts(RoadColorer),
     BusNetwork(RoadColorer),
@@ -28,13 +28,13 @@ pub enum Overlays {
     BusRoute(ShowBusRoute),
     BusDelaysOverTime(Plot<Duration>),
     RoadThroughput {
-        t: Duration,
+        t: Time,
         bucket: Duration,
         r: RoadID,
         plot: Plot<usize>,
     },
     IntersectionThroughput {
-        t: Duration,
+        t: Time,
         bucket: Duration,
         i: IntersectionID,
         plot: Plot<usize>,
@@ -326,7 +326,7 @@ impl Overlays {
             ui.primary
                 .sim
                 .get_analytics()
-                .throughput_road(ui.primary.sim.time().tmp_as_time(), r, bucket)
+                .throughput_road(ui.primary.sim.time(), r, bucket)
                 .into_iter()
                 .map(|(m, pts)| Series {
                     label: m.to_string(),
@@ -360,7 +360,7 @@ impl Overlays {
             ui.primary
                 .sim
                 .get_analytics()
-                .throughput_intersection(ui.primary.sim.time().tmp_as_time(), i, bucket)
+                .throughput_intersection(ui.primary.sim.time(), i, bucket)
                 .into_iter()
                 .map(|(m, pts)| Series {
                     label: m.to_string(),
@@ -459,7 +459,7 @@ impl Overlays {
         let mut times = Vec::new();
         for i in 0..num_x_pts {
             let percent_x = (i as f64) / ((num_x_pts - 1) as f64);
-            let t = ui.primary.sim.time().tmp_as_time().percent_of(percent_x);
+            let t = ui.primary.sim.time().percent_of(percent_x);
             times.push(t);
         }
 
@@ -484,7 +484,7 @@ impl Overlays {
             pts_per_mode
                 .get_mut(mode)
                 .unwrap()
-                .push((ui.primary.sim.time().tmp_as_time(), counts.get(*mode)));
+                .push((ui.primary.sim.time(), counts.get(*mode)));
         }
 
         let plot = Plot::new(

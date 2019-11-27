@@ -4,11 +4,11 @@ use crate::sandbox::gameplay::{manage_overlays, GameplayState};
 use crate::sandbox::overlays::Overlays;
 use crate::ui::UI;
 use ezgui::{hotkey, EventCtx, Key, ModalMenu};
-use geom::Duration;
+use geom::Time;
 use sim::TripMode;
 
 pub struct FixTrafficSignals {
-    time: Duration,
+    time: Time,
 }
 
 impl FixTrafficSignals {
@@ -23,7 +23,7 @@ impl FixTrafficSignals {
                 ctx,
             ),
             Box::new(FixTrafficSignals {
-                time: Duration::ZERO,
+                time: Time::START_OF_DAY,
             }),
         )
     }

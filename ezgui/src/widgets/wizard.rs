@@ -3,7 +3,7 @@ use crate::widgets::text_box::TextBox;
 use crate::widgets::PopupMenu;
 use crate::{layout, EventCtx, GfxCtx, InputResult, Key, MultiKey, SliderWithTextBox, Text};
 use abstutil::Cloneable;
-use geom::Duration;
+use geom::Time;
 use std::collections::VecDeque;
 
 pub struct Wizard {
@@ -112,10 +112,10 @@ impl Wizard {
     fn input_time_slider(
         &mut self,
         query: &str,
-        low: Duration,
-        high: Duration,
+        low: Time,
+        high: Time,
         ctx: &mut EventCtx,
-    ) -> Option<Duration> {
+    ) -> Option<Time> {
         assert!(self.alive);
 
         // Otherwise, we try to use one event for two inputs potentially
@@ -174,16 +174,11 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
         }
     }
 
-    pub fn input_time_slider(
-        &mut self,
-        query: &str,
-        low: Duration,
-        high: Duration,
-    ) -> Option<Duration> {
+    pub fn input_time_slider(&mut self, query: &str, low: Time, high: Time) -> Option<Time> {
         if !self.ready_results.is_empty() {
             let first = self.ready_results.pop_front().unwrap();
             // TODO Simplify?
-            let item: &Duration = first.as_any().downcast_ref::<Duration>().unwrap();
+            let item: &Time = first.as_any().downcast_ref::<Time>().unwrap();
             return Some(*item);
         }
         if let Some(obj) = self.wizard.input_time_slider(query, low, high, self.ctx) {

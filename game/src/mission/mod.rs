@@ -8,7 +8,7 @@ use crate::game::{State, Transition, WizardState};
 use crate::ui::UI;
 use abstutil::Timer;
 use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu, Wizard, WrappedWizard};
-use geom::Duration;
+use geom::Time;
 use sim::Scenario;
 
 pub struct MissionEditMode {
@@ -92,8 +92,8 @@ pub fn pick_time_range(
     wizard: &mut WrappedWizard,
     low_query: &str,
     high_query: &str,
-) -> Option<(Duration, Duration)> {
-    let t1 = wizard.input_time_slider(low_query, Duration::ZERO, Duration::END_OF_DAY)?;
-    let t2 = wizard.input_time_slider(high_query, t1, Duration::END_OF_DAY)?;
+) -> Option<(Time, Time)> {
+    let t1 = wizard.input_time_slider(low_query, Time::START_OF_DAY, Time::END_OF_DAY)?;
+    let t2 = wizard.input_time_slider(high_query, t1, Time::END_OF_DAY)?;
     Some((t1, t2))
 }

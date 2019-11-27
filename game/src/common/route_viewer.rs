@@ -2,14 +2,14 @@ use crate::helpers::ID;
 use crate::render::{dashed_lines, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::UI;
 use ezgui::{hotkey, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu};
-use geom::{Distance, Duration};
+use geom::{Distance, Time};
 use sim::{AgentID, TripID, TripResult};
 
 pub enum RouteViewer {
     Inactive,
-    Hovering(Duration, AgentID, Drawable),
+    Hovering(Time, AgentID, Drawable),
     // (zoomed, unzoomed)
-    Active(Duration, TripID, Option<(Drawable, Drawable)>),
+    Active(Time, TripID, Option<(Drawable, Drawable)>),
 }
 
 impl RouteViewer {

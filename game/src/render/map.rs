@@ -12,7 +12,7 @@ use crate::ui::Flags;
 use aabb_quadtree::QuadTree;
 use abstutil::{Cloneable, Timer};
 use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Text};
-use geom::{Bounds, Circle, Distance, Duration, FindClosest};
+use geom::{Bounds, Circle, Distance, Duration, FindClosest, Time};
 use map_model::{
     AreaID, BuildingID, BusStopID, DirectedRoadID, Intersection, IntersectionID, LaneID, Map, Road,
     RoadID, Traversable, LANE_THICKNESS,
@@ -297,14 +297,14 @@ impl DrawMap {
 }
 
 pub struct AgentCache {
-    time: Option<Duration>,
+    time: Option<Time>,
     agents_per_on: HashMap<Traversable, Vec<Box<dyn Renderable>>>,
     // cam_zoom also matters
     unzoomed: Option<(f64, Drawable)>,
 }
 
 impl AgentCache {
-    pub fn has(&self, now: Duration, on: Traversable) -> bool {
+    pub fn has(&self, now: Time, on: Traversable) -> bool {
         if Some(now) != self.time {
             return false;
         }
@@ -319,7 +319,7 @@ impl AgentCache {
             .collect()
     }
 
-    pub fn put(&mut self, now: Duration, on: Traversable, agents: Vec<Box<dyn Renderable>>) {
+    pub fn put(&mut self, now: Time, on: Traversable, agents: Vec<Box<dyn Renderable>>) {
         if Some(now) != self.time {
             self.agents_per_on.clear();
             self.time = Some(now);

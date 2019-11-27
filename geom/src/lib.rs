@@ -35,5 +35,5 @@ pub(crate) fn trim_f64(x: f64) -> f64 {
     (x * 10_000.0).round() / 10_000.0
 }
 
-impl abstutil::Cloneable for Duration {}
+impl abstutil::Cloneable for Time {}
 impl abstutil::Cloneable for Statistic {}

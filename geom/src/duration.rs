@@ -145,14 +145,6 @@ impl Duration {
         )
     }
 
-    pub fn as_filename(self) -> String {
-        let (hours, minutes, seconds, remainder) = self.get_parts();
-        format!(
-            "{0:02}h{1:02}m{2:02}.{3:01}s",
-            hours, minutes, seconds, remainder
-        )
-    }
-
     pub fn parse(string: &str) -> Result<Duration, abstutil::Error> {
         let parts: Vec<&str> = string.split(':').collect();
         if parts.is_empty() {

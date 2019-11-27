@@ -1,12 +1,12 @@
 use crate::ui::UI;
 use ezgui::{EventCtx, GfxCtx, ModalMenu};
-use geom::{Duration, PolyLine};
+use geom::{PolyLine, Time};
 use map_model::LANE_THICKNESS;
 use sim::TripID;
 
 pub enum AllRoutesViewer {
     Inactive,
-    Active(Duration, Vec<PolyLine>),
+    Active(Time, Vec<PolyLine>),
 }
 
 impl AllRoutesViewer {

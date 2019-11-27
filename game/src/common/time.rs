@@ -2,7 +2,7 @@ use crate::common::SpeedControls;
 use crate::game::{Transition, WizardState};
 use crate::ui::UI;
 use ezgui::{EventCtx, Wizard};
-use geom::Duration;
+use geom::{Duration, Time};
 
 pub fn time_controls(
     ctx: &mut EventCtx,
@@ -49,7 +49,7 @@ fn jump_to_time(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
     let t = wiz.wrap(ctx).input_time_slider(
         "Jump to what time?",
         ui.primary.sim.time(),
-        Duration::END_OF_DAY,
+        Time::END_OF_DAY,
     )?;
     let dt = t - ui.primary.sim.time();
     ctx.loading_screen(&format!("step forwards {}", dt), |_, mut timer| {

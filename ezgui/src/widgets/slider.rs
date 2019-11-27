@@ -4,7 +4,7 @@ use crate::{
     hotkey, Canvas, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, InputResult, Key, Line,
     ModalMenu, MultiKey, ScreenDims, ScreenPt, ScreenRectangle, Text, Warper,
 };
-use geom::{Distance, Duration, Polygon, Pt2D};
+use geom::{Distance, Polygon, Pt2D, Time};
 
 pub struct Slider {
     current_percent: f64,
@@ -409,16 +409,16 @@ impl<T: PartialEq> WarpingItemSlider<T> {
     }
 }
 
-// TODO Hardcoded to Durations right now...
+// TODO Hardcoded to Times right now...
 pub struct SliderWithTextBox {
     slider: Slider,
     tb: TextBox,
-    low: Duration,
-    high: Duration,
+    low: Time,
+    high: Time,
 }
 
 impl SliderWithTextBox {
-    pub fn new(prompt: &str, low: Duration, high: Duration, canvas: &Canvas) -> SliderWithTextBox {
+    pub fn new(prompt: &str, low: Time, high: Time, canvas: &Canvas) -> SliderWithTextBox {
         SliderWithTextBox {
             slider: Slider::new(canvas.text_dims(&Text::from(Line(prompt))).width),
             tb: TextBox::new(prompt, None, canvas),
@@ -427,7 +427,7 @@ impl SliderWithTextBox {
         }
     }
 
-    pub fn event(&mut self, ctx: &mut EventCtx) -> InputResult<Duration> {
+    pub fn event(&mut self, ctx: &mut EventCtx) -> InputResult<Time> {
         ctx.canvas.handle_event(ctx.input);
         stack_vertically(
             ContainerOrientation::Centered,
@@ -443,7 +443,7 @@ impl SliderWithTextBox {
             let line_before = self.tb.get_line().to_string();
             match self.tb.event(ctx.input) {
                 InputResult::Done(line, _) => {
-                    if let Ok(t) = Duration::parse(&line) {
+                    if let Ok(t) = Time::parse(&line) {
                         if t >= self.low && t <= self.high {
                             return InputResult::Done(line, t);
                         }
@@ -453,7 +453,7 @@ impl SliderWithTextBox {
                 }
                 InputResult::StillActive => {
                     if line_before != self.tb.get_line() {
-                        if let Ok(t) = Duration::parse(self.tb.get_line()) {
+                        if let Ok(t) = Time::parse(self.tb.get_line()) {
                             if t >= self.low && t <= self.high {
                                 self.slider
                                     .set_percent(ctx, (t - self.low) / (self.high - self.low));

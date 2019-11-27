@@ -4,7 +4,7 @@ use ezgui::{
     hotkey, Button, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, ScreenPt,
     ScreenRectangle, Slider, Text,
 };
-use geom::{Distance, Duration, Polygon, Pt2D};
+use geom::{Distance, Duration, Polygon, Pt2D, Time};
 use std::time::Instant;
 
 const PANEL_RECT: ScreenRectangle = ScreenRectangle {
@@ -38,7 +38,7 @@ enum State {
         last_step: Instant,
         speed_description: String,
         last_measurement: Instant,
-        last_measurement_sim: Duration,
+        last_measurement_sim: Time,
     },
 }
 
@@ -145,7 +145,7 @@ impl SpeedControls {
     }
 
     // Returns the amount of simulation time to step, if running.
-    pub fn event(&mut self, ctx: &mut EventCtx, current_sim_time: Duration) -> Option<Duration> {
+    pub fn event(&mut self, ctx: &mut EventCtx, current_sim_time: Time) -> Option<Duration> {
         self.slow_down_btn.event(ctx);
         self.speed_up_btn.event(ctx);
 

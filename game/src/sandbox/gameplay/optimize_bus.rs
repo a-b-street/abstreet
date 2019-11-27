@@ -6,12 +6,12 @@ use crate::sandbox::overlays::Overlays;
 use crate::sandbox::{bus_explorer, SandboxMode};
 use crate::ui::UI;
 use ezgui::{hotkey, Choice, EventCtx, Key, Line, ModalMenu, Text};
-use geom::{Duration, Statistic};
+use geom::{Duration, Statistic, Time};
 use map_model::BusRouteID;
 
 pub struct OptimizeBus {
     route: BusRouteID,
-    time: Duration,
+    time: Time,
     stat: Statistic,
 }
 
@@ -31,7 +31,7 @@ impl OptimizeBus {
             ),
             Box::new(OptimizeBus {
                 route: route.id,
-                time: Duration::ZERO,
+                time: Time::START_OF_DAY,
                 stat: Statistic::Max,
             }),
         )
@@ -107,7 +107,7 @@ impl GameplayState for OptimizeBus {
                             .downcast_mut::<OptimizeBus>()
                             .unwrap();
                         // Force recalculation
-                        opt.time = Duration::ZERO;
+                        opt.time = Time::START_OF_DAY;
                         opt.stat = new_stat;
                     })))
                 },
@@ -133,10 +133,8 @@ fn bus_route_panel(id: BusRouteID, ui: &UI, stat: Statistic) -> Text {
         .primary
         .sim
         .get_analytics()
-        .bus_arrivals(ui.primary.sim.time().tmp_as_time(), id);
-    let baseline = ui
-        .prebaked
-        .bus_arrivals(ui.primary.sim.time().tmp_as_time(), id);
+        .bus_arrivals(ui.primary.sim.time(), id);
+    let baseline = ui.prebaked.bus_arrivals(ui.primary.sim.time(), id);
 
     let route = ui.primary.map.get_br(id);
     let mut txt = Text::new();
@@ -169,7 +167,7 @@ fn bus_delays(id: BusRouteID, ui: &UI, ctx: &mut EventCtx) -> Plot<Duration> {
         .primary
         .sim
         .get_analytics()
-        .bus_arrivals_over_time(ui.primary.sim.time().tmp_as_time(), id);
+        .bus_arrivals_over_time(ui.primary.sim.time(), id);
 
     let mut series = Vec::new();
     for idx1 in 0..route.stops.len() {

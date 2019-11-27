@@ -318,7 +318,7 @@ pub fn spawn_agents_around(i: IntersectionID, ui: &mut UI, ctx: &EventCtx) {
                     continue;
                 }
                 sim.schedule_trip(
-                    sim.time(),
+                    sim.time().tmp_to_duration(),
                     TripSpec::CarAppearing {
                         start_pos: Position::new(
                             lane.id,
@@ -336,7 +336,7 @@ pub fn spawn_agents_around(i: IntersectionID, ui: &mut UI, ctx: &EventCtx) {
         } else if lane.is_sidewalk() {
             for _ in 0..5 {
                 sim.schedule_trip(
-                    sim.time(),
+                    sim.time().tmp_to_duration(),
                     TripSpec::JustWalking {
                         start: SidewalkSpot::suddenly_appear(
                             lane.id,
@@ -392,7 +392,7 @@ fn schedule_trip(
                 map.should_use_transit(start.sidewalk_pos, goal.sidewalk_pos)
             {
                 sim.schedule_trip(
-                    sim.time(),
+                    sim.time().tmp_to_duration(),
                     TripSpec::UsingTransit {
                         start,
                         goal,
@@ -405,7 +405,7 @@ fn schedule_trip(
                 );
             } else {
                 sim.schedule_trip(
-                    sim.time(),
+                    sim.time().tmp_to_duration(),
                     TripSpec::JustWalking {
                         start,
                         goal,
@@ -431,7 +431,7 @@ fn schedule_trip(
                 }
             };
             sim.schedule_trip(
-                sim.time(),
+                sim.time().tmp_to_duration(),
                 TripSpec::UsingBike {
                     start: SidewalkSpot::building(*b, map),
                     vehicle: Scenario::rand_bike(rng),
@@ -461,7 +461,7 @@ fn schedule_trip(
                 Source::Drive(from) => {
                     if let Some(start_pos) = TripSpec::spawn_car_at(*from, map) {
                         sim.schedule_trip(
-                            sim.time(),
+                            sim.time().tmp_to_duration(),
                             TripSpec::CarAppearing {
                                 start_pos,
                                 vehicle_spec: Scenario::rand_car(rng),
@@ -476,7 +476,7 @@ fn schedule_trip(
                 }
                 Source::WalkFromBldgThenMaybeUseCar(b) => {
                     sim.schedule_trip(
-                        sim.time(),
+                        sim.time().tmp_to_duration(),
                         TripSpec::MaybeUsingParkedCar {
                             start_bldg: *b,
                             goal,
@@ -634,8 +634,8 @@ fn create_swarm(ui: &mut UI, from: LaneID, to: LaneID, count: usize, duration: D
         num_peds: 0,
         num_cars: count,
         num_bikes: 0,
-        start_time: ui.primary.sim.time() + SMALL_DT,
-        stop_time: ui.primary.sim.time() + SMALL_DT + duration,
+        start_time: (ui.primary.sim.time() + SMALL_DT).tmp_to_duration(),
+        stop_time: (ui.primary.sim.time() + SMALL_DT + duration).tmp_to_duration(),
         start_from_border: ui
             .primary
             .map

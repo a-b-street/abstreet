@@ -1,5 +1,5 @@
 use crate::{CarID, PedestrianID, VehicleType};
-use geom::{Angle, Distance, Duration, PolyLine, Pt2D};
+use geom::{Angle, Distance, Duration, PolyLine, Pt2D, Time};
 use map_model::{BuildingID, Map, Traversable, TurnID};
 
 // Intermediate structures so that sim and game crates don't have a cyclic dependency.
@@ -66,7 +66,7 @@ pub struct UnzoomedAgent {
 // actually good for main sim too; we're constantly calculating stuff while sim is paused
 // otherwise? except we don't know what to calculate. maybe cache it?
 pub trait GetDrawAgents {
-    fn time(&self) -> Duration;
+    fn time(&self) -> Time;
     // Every time the time changes, this should increase. For smoothly animating stuff.
     fn step_count(&self) -> usize;
     fn get_draw_car(&self, id: CarID, map: &Map) -> Option<DrawCarInput>;
@@ -85,8 +85,8 @@ pub trait GetDrawAgents {
 pub struct DontDrawAgents;
 
 impl GetDrawAgents for DontDrawAgents {
-    fn time(&self) -> Duration {
-        Duration::ZERO
+    fn time(&self) -> Time {
+        Time::START_OF_DAY
     }
     fn step_count(&self) -> usize {
         0

@@ -5,11 +5,11 @@ use crate::sandbox::overlays::Overlays;
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{hotkey, EventCtx, Key, Line, ModalMenu, Text};
-use geom::Duration;
+use geom::Time;
 use sim::TripMode;
 
 pub struct CreateGridlock {
-    time: Duration,
+    time: Time,
 }
 
 impl CreateGridlock {
@@ -24,7 +24,7 @@ impl CreateGridlock {
                 ctx,
             ),
             Box::new(CreateGridlock {
-                time: Duration::ZERO,
+                time: Time::START_OF_DAY,
             }),
         )
     }
@@ -69,10 +69,9 @@ fn gridlock_panel(ui: &UI) -> Text {
         .primary
         .sim
         .get_analytics()
-        .all_finished_trips(ui.primary.sim.time().tmp_as_time());
-    let (baseline_all, _, baseline_per_mode) = ui
-        .prebaked
-        .all_finished_trips(ui.primary.sim.time().tmp_as_time());
+        .all_finished_trips(ui.primary.sim.time());
+    let (baseline_all, _, baseline_per_mode) =
+        ui.prebaked.all_finished_trips(ui.primary.sim.time());
 
     let mut txt = Text::new();
     txt.add_appended(vec![

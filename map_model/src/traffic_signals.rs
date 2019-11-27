@@ -1,6 +1,6 @@
 use crate::{IntersectionID, Map, RoadID, TurnGroup, TurnGroupID, TurnID, TurnPriority, TurnType};
 use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap, Timer};
-use geom::Duration;
+use geom::{Duration, Time};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -67,13 +67,13 @@ impl ControlTrafficSignal {
         results
     }
 
-    pub fn current_phase_and_remaining_time(&self, now: Duration) -> (usize, &Phase, Duration) {
+    pub fn current_phase_and_remaining_time(&self, now: Time) -> (usize, &Phase, Duration) {
         let mut cycle_length = Duration::ZERO;
         for p in &self.phases {
             cycle_length += p.duration;
         }
 
-        let mut now_offset = (now + self.offset) % cycle_length;
+        let mut now_offset = (now + self.offset).tmp_to_duration() % cycle_length;
         for (idx, p) in self.phases.iter().enumerate() {
             if now_offset < p.duration {
                 return (idx, p, p.duration - now_offset);

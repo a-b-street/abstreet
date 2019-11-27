@@ -4,12 +4,12 @@ use crate::sandbox::overlays::Overlays;
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{hotkey, EventCtx, Key, Line, ModalMenu, Text};
-use geom::{Duration, Statistic};
+use geom::{Statistic, Time};
 use sim::TripMode;
 
 pub struct FasterTrips {
     mode: TripMode,
-    time: Duration,
+    time: Time,
 }
 
 impl FasterTrips {
@@ -22,7 +22,7 @@ impl FasterTrips {
             ),
             Box::new(FasterTrips {
                 mode: trip_mode,
-                time: Duration::ZERO,
+                time: Time::START_OF_DAY,
             }),
         )
     }
@@ -54,7 +54,7 @@ impl GameplayState for FasterTrips {
 }
 
 pub fn faster_trips_panel(mode: TripMode, ui: &UI) -> Text {
-    let time = ui.primary.sim.time().tmp_as_time();
+    let time = ui.primary.sim.time();
     let now = ui.primary.sim.get_analytics().finished_trips(time, mode);
     let baseline = ui.prebaked.finished_trips(time, mode);
 

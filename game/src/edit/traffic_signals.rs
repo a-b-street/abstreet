@@ -466,7 +466,7 @@ impl State for PreviewTrafficSignal {
                 ctx,
                 Text::from(Line(format!(
                     "Time: {}",
-                    ui.primary.sim.time().minimal_tostring()
+                    ui.primary.sim.time().tmp_to_duration().minimal_tostring()
                 ))),
             );
         }

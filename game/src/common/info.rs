@@ -261,7 +261,7 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
                 if let Some((t, car)) = arrivals.last() {
                     txt.add(Line(format!(
                         "  Last bus arrived {} ago ({})",
-                        (sim.time().tmp_as_time() - *t).minimal_tostring(),
+                        (sim.time() - *t).minimal_tostring(),
                         car
                     )));
                 } else {

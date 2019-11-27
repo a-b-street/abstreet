@@ -5,7 +5,7 @@ use abstutil::prettyprint_usize;
 use ezgui::{
     hotkey, layout, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu, Slider, Text,
 };
-use geom::{Circle, Distance, Duration, PolyLine};
+use geom::{Circle, Distance, Duration, PolyLine, Time};
 use map_model::LANE_THICKNESS;
 use popdat::psrc::Mode;
 use popdat::{clip_trips, Trip};
@@ -88,8 +88,8 @@ impl TripsVisualizer {
         }
     }
 
-    fn current_time(&self) -> Duration {
-        self.time_slider.get_percent() * Duration::END_OF_DAY
+    fn current_time(&self) -> Time {
+        Time::END_OF_DAY.percent_of(self.time_slider.get_percent())
     }
 }
 
@@ -123,23 +123,24 @@ impl State for TripsVisualizer {
 
         if self.menu.action("quit") {
             return Transition::Pop;
-        } else if time != Duration::END_OF_DAY && self.menu.action("forwards 10 seconds") {
+        } else if time != Time::END_OF_DAY && self.menu.action("forwards 10 seconds") {
             self.time_slider
-                .set_percent(ctx, (time + ten_secs) / Duration::END_OF_DAY);
-        } else if time + thirty_mins <= Duration::END_OF_DAY
-            && self.menu.action("forwards 30 minutes")
+                .set_percent(ctx, (time + ten_secs).to_percent(Time::END_OF_DAY));
+        } else if time + thirty_mins <= Time::END_OF_DAY && self.menu.action("forwards 30 minutes")
         {
             self.time_slider
-                .set_percent(ctx, (time + thirty_mins) / Duration::END_OF_DAY);
-        } else if time != Duration::ZERO && self.menu.action("backwards 10 seconds") {
+                .set_percent(ctx, (time + thirty_mins).to_percent(Time::END_OF_DAY));
+        } else if time != Time::START_OF_DAY && self.menu.action("backwards 10 seconds") {
             self.time_slider
-                .set_percent(ctx, (time - ten_secs) / Duration::END_OF_DAY);
-        } else if time - thirty_mins >= Duration::ZERO && self.menu.action("backwards 30 minutes") {
+                .set_percent(ctx, (time - ten_secs).to_percent(Time::START_OF_DAY));
+        } else if time - thirty_mins >= Time::START_OF_DAY
+            && self.menu.action("backwards 30 minutes")
+        {
             self.time_slider
-                .set_percent(ctx, (time - thirty_mins) / Duration::END_OF_DAY);
-        } else if time != Duration::ZERO && self.menu.action("goto start of day") {
+                .set_percent(ctx, (time - thirty_mins).to_percent(Time::END_OF_DAY));
+        } else if time != Time::START_OF_DAY && self.menu.action("goto start of day") {
             self.time_slider.set_percent(ctx, 0.0);
-        } else if time != Duration::END_OF_DAY && self.menu.action("goto end of day") {
+        } else if time != Time::END_OF_DAY && self.menu.action("goto end of day") {
             self.time_slider.set_percent(ctx, 1.0);
         } else if self.time_slider.event(ctx) {
             // Value changed, fall-through
@@ -147,7 +148,7 @@ impl State for TripsVisualizer {
             // TODO Speed description is briefly weird when we jump backwards with the other
             // control.
             self.time_slider
-                .set_percent(ctx, ((time + dt) / Duration::END_OF_DAY).min(1.0));
+                .set_percent(ctx, (time + dt).to_percent(Time::END_OF_DAY).min(1.0));
         } else {
             return Transition::Keep;
         }
@@ -158,7 +159,9 @@ impl State for TripsVisualizer {
             .trips
             .iter()
             .enumerate()
-            .filter(|(_, (trip, _))| time >= trip.depart_at && time <= trip.end_time())
+            .filter(|(_, (trip, _))| {
+                time >= trip.depart_at.tmp_as_time() && time <= trip.end_time().tmp_as_time()
+            })
             .map(|(idx, _)| idx)
             .collect();
 
@@ -174,7 +177,7 @@ impl State for TripsVisualizer {
         let mut batch = GeomBatch::new();
         for idx in &self.active_trips {
             let (trip, pl) = (&self.trips[*idx].0, &self.trips[*idx].1);
-            let percent = (time - trip.depart_at) / trip.trip_time;
+            let percent = (time - trip.depart_at.tmp_as_time()) / trip.trip_time;
 
             let color = match trip.mode {
                 Mode::Drive => ui.cs.get("unzoomed car"),

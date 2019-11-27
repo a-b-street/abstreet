@@ -5,7 +5,7 @@ use crate::render::{
 };
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
-use geom::{Angle, Distance, Duration, Line, PolyLine, Polygon, Pt2D, Ring, EPSILON_DIST};
+use geom::{Angle, Distance, Line, PolyLine, Polygon, Pt2D, Ring, Time, EPSILON_DIST};
 use map_model::{
     Intersection, IntersectionID, IntersectionType, Map, Road, RoadWithStopSign, Turn, TurnID,
     TurnType, LANE_THICKNESS,
@@ -18,7 +18,7 @@ pub struct DrawIntersection {
     zorder: isize,
 
     draw_default: Drawable,
-    draw_traffic_signal: RefCell<Option<(Drawable, Duration)>>,
+    draw_traffic_signal: RefCell<Option<(Drawable, Time)>>,
     // Only for traffic signals
     pub crosswalks: Vec<(TurnID, GeomBatch)>,
 }

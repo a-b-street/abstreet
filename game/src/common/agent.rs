@@ -4,12 +4,12 @@ use crate::game::{msg, Transition, WizardState};
 use crate::render::{AgentColorScheme, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::UI;
 use ezgui::{hotkey, Choice, EventCtx, GfxCtx, Key, MenuUnderButton, ModalMenu};
-use geom::{Duration, Pt2D};
+use geom::{Pt2D, Time};
 use sim::{TripID, TripResult};
 use std::cell::RefCell;
 
 pub struct AgentTools {
-    following: Option<(TripID, Option<Pt2D>, Duration)>,
+    following: Option<(TripID, Option<Pt2D>, Time)>,
     route_viewer: RouteViewer,
     // Weird to stash this here and lazily sync it, but...
     agent_cs_legend: RefCell<Option<(AgentColorScheme, ColorLegend)>>,
