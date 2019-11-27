@@ -149,7 +149,7 @@ fn bus_route_panel(id: BusRouteID, ui: &UI, stat: Statistic) -> Text {
         txt.add(Line(format!("Stop {}->{}: ", idx1 + 1, idx2 + 1)));
         if let Some(ref stats1) = now.get(&route.stops[idx2]) {
             let a = stats1.select(stat);
-            txt.append(Line(a.minimal_tostring()));
+            txt.append(Line(a.to_string()));
 
             if let Some(ref stats2) = baseline.get(&route.stops[idx2]) {
                 txt.append_all(cmp_duration_shorter(a, stats2.select(stat)));

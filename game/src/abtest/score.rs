@@ -193,11 +193,11 @@ impl CompareTrips {
     }
 }
 
-// TODO I think it's time for a proper Time and Duration distinction.
+// TODO Make duration understand negatives natively
 fn print_delta(x: Duration) -> TextSpan {
     if x >= Duration::ZERO {
-        Line(x.minimal_tostring()).fg(Color::YELLOW)
+        Line(x.to_string()).fg(Color::YELLOW)
     } else {
-        Line((-x).minimal_tostring()).fg(Color::GREEN)
+        Line((-x).to_string()).fg(Color::GREEN)
     }
 }

@@ -316,7 +316,7 @@ impl TrafficSignalDiagram {
             labels.push(Text::from(Line(format!(
                 "Phase {}: {}",
                 idx + 1,
-                phase.duration.minimal_tostring()
+                phase.duration
             ))));
         }
 

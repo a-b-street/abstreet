@@ -149,12 +149,9 @@ impl Time {
     pub fn inner_seconds(self) -> f64 {
         self.0
     }
-
-    pub fn tmp_to_duration(self) -> Duration {
-        Duration::seconds(self.0)
-    }
 }
 
+// 24-hour format by default
 impl std::fmt::Display for Time {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let (hours, minutes, seconds, remainder) = self.get_parts();

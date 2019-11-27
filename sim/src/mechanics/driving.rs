@@ -840,15 +840,9 @@ impl DrivingSimState {
             ),
             format!(
                 "Blocked for {}",
-                car.blocked_since
-                    .map(|t| now - t)
-                    .unwrap_or(Duration::ZERO)
-                    .minimal_tostring()
+                car.blocked_since.map(|t| now - t).unwrap_or(Duration::ZERO)
             ),
-            format!(
-                "Trip time so far: {}",
-                (now - car.started_at).minimal_tostring()
-            ),
+            format!("Trip time so far: {}", now - car.started_at),
             format!("{:?}", car.state),
         ])
     }

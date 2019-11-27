@@ -321,7 +321,7 @@ impl Overlays {
             &format!(
                 "throughput of {} in {} buckets",
                 ui.primary.map.get_r(r).get_name(),
-                bucket.minimal_tostring()
+                bucket
             ),
             ui.primary
                 .sim
@@ -352,11 +352,7 @@ impl Overlays {
         ui: &UI,
     ) -> Overlays {
         let plot = Plot::new(
-            &format!(
-                "throughput of {} in {} buckets",
-                i,
-                bucket.minimal_tostring()
-            ),
+            &format!("throughput of {} in {} buckets", i, bucket),
             ui.primary
                 .sim
                 .get_analytics()

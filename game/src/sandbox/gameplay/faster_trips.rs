@@ -91,11 +91,7 @@ pub fn faster_trips_panel(mode: TripMode, ui: &UI) -> Text {
     }
 
     for stat in Statistic::all() {
-        txt.add(Line(format!(
-            "{}: {} ",
-            stat,
-            now.select(stat).minimal_tostring()
-        )));
+        txt.add(Line(format!("{}: {} ", stat, now.select(stat))));
         txt.append_all(cmp_duration_shorter(
             now.select(stat),
             baseline.select(stat),

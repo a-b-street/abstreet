@@ -11,7 +11,7 @@ use ezgui::{
     hotkey, lctrl, Choice, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu,
     Text,
 };
-use geom::Duration;
+use geom::{Duration, Time};
 use map_model::{
     ControlTrafficSignal, EditCmd, IntersectionID, Phase, TurnGroupID, TurnPriority, TurnType,
 };
@@ -69,10 +69,7 @@ impl State for TrafficSignalEditor {
         // TODO This really needs to be shown in the diagram!
         self.menu.set_info(
             ctx,
-            Text::from(Line(format!(
-                "Signal offset: {}",
-                orig_signal.offset.minimal_tostring()
-            ))),
+            Text::from(Line(format!("Signal offset: {}", orig_signal.offset))),
         );
         ctx.canvas.handle_event(ctx.input);
         self.diagram.event(ctx, &mut self.menu);
@@ -466,7 +463,8 @@ impl State for PreviewTrafficSignal {
                 ctx,
                 Text::from(Line(format!(
                     "Time: {}",
-                    ui.primary.sim.time().tmp_to_duration().minimal_tostring()
+                    // For this preview, just show time passed so far
+                    ui.primary.sim.time() - Time::START_OF_DAY
                 ))),
             );
         }

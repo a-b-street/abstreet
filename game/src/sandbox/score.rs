@@ -59,11 +59,7 @@ impl Scoreboard {
         ]);
         if now_all.count() > 0 && baseline_all.count() > 0 {
             for stat in Statistic::all() {
-                txt.add(Line(format!(
-                    "  {}: {} ",
-                    stat,
-                    now_all.select(stat).minimal_tostring()
-                )));
+                txt.add(Line(format!("  {}: {} ", stat, now_all.select(stat))));
                 txt.append_all(cmp_duration_shorter(
                     now_all.select(stat),
                     baseline_all.select(stat),
@@ -81,11 +77,7 @@ impl Scoreboard {
             ]);
             if a.count() > 0 && b.count() > 0 {
                 for stat in Statistic::all() {
-                    txt.add(Line(format!(
-                        "  {}: {} ",
-                        stat,
-                        a.select(stat).minimal_tostring()
-                    )));
+                    txt.add(Line(format!("  {}: {} ", stat, a.select(stat))));
                     txt.append_all(cmp_duration_shorter(a.select(stat), b.select(stat)));
                 }
             }

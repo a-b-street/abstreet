@@ -8,7 +8,7 @@ use ezgui::{
     hotkey, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ModalMenu, Text,
     VerticalAlignment,
 };
-use geom::Duration;
+use geom::Time;
 use sim::{SimFlags, SimOptions, TripMode};
 
 // TODO Also have some kind of screenshot to display for each challenge
@@ -207,7 +207,7 @@ pub fn prebake() {
             opts: SimOptions::new("prebaked"),
         }
         .load(&mut timer);
-        sim.timed_step(&map, Duration::END_OF_DAY, &mut timer);
+        sim.timed_step(&map, Time::END_OF_DAY - Time::START_OF_DAY, &mut timer);
         timer.stop(&format!("run normal sim for {}", map_name));
 
         abstutil::write_binary(

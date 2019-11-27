@@ -190,7 +190,7 @@ impl Yvalue<Duration> for Duration {
         }
     }
     fn prettyprint(self) -> String {
-        self.minimal_tostring()
+        self.to_string()
     }
 }
 

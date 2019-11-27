@@ -266,15 +266,9 @@ impl WalkingSimState {
             ),
             format!(
                 "Blocked for {}",
-                p.blocked_since
-                    .map(|t| now - t)
-                    .unwrap_or(Duration::ZERO)
-                    .minimal_tostring()
+                p.blocked_since.map(|t| now - t).unwrap_or(Duration::ZERO)
             ),
-            format!(
-                "Trip time so far: {}",
-                (now - p.started_at).minimal_tostring()
-            ),
+            format!("Trip time so far: {}", now - p.started_at),
         ];
         if let PedState::WaitingForBus(r) = p.state {
             lines.push(format!("Waiting for bus {}", map.get_br(r).name));

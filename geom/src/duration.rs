@@ -1,4 +1,4 @@
-use crate::{trim_f64, Distance, Speed, Time};
+use crate::{trim_f64, Distance, Speed};
 use histogram::Histogram;
 use serde_derive::{Deserialize, Serialize};
 use std::{cmp, f64, ops};
@@ -19,9 +19,6 @@ impl Ord for Duration {
 impl Duration {
     pub const ZERO: Duration = Duration::const_seconds(0.0);
     const EPSILON: Duration = Duration::const_seconds(0.0001);
-    // This isn't the last possible time, but for UI control purposes, it'll do.
-    pub const END_OF_DAY: Duration =
-        Duration::const_seconds(59.9 + (59.0 * 60.0) + (23.0 * 3600.0));
 
     pub fn seconds(value: f64) -> Duration {
         if !value.is_finite() {
@@ -51,40 +48,12 @@ impl Duration {
         (x as f64) * Duration::EPSILON
     }
 
-    pub fn min(self, other: Duration) -> Duration {
-        if self <= other {
-            self
-        } else {
-            other
-        }
-    }
-
-    pub fn max(self, other: Duration) -> Duration {
-        if self >= other {
-            self
-        } else {
-            other
-        }
-    }
-
     // TODO Remove if possible.
     pub fn inner_seconds(self) -> f64 {
         self.0
     }
 
-    /*pub fn parse_filename(string: &str) -> Option<Duration> {
-        // TODO lazy_static! {
-        let regex = Regex::new(r"(\d+)h(\d+)m(\d+)\.(\d+)s").unwrap();
-
-        let caps = regex.captures(string)?;
-        let hours = 3600.0 * caps[1].parse::<f64>().ok()?;
-        let minutes = 60.0 * caps[2].parse::<f64>().ok()?;
-        let seconds = caps[3].parse::<f64>().ok()?;
-        let ms = caps[4].parse::<f64>().ok()? / 10.0;
-
-        Some(Duration::seconds(hours + minutes + seconds + ms))
-    }*/
-
+    // TODO Could share some of this with Time -- the representations are the same
     // (hours, minutes, seconds, centiseconds)
     fn get_parts(self) -> (usize, usize, usize, usize) {
         let mut remainder = self.inner_seconds();
@@ -104,47 +73,7 @@ impl Duration {
         )
     }
 
-    pub fn minimal_tostring(self) -> String {
-        let (hours, minutes, seconds, remainder) = self.get_parts();
-        let mut s = String::new();
-        if hours != 0 {
-            s.push_str(&format!("{}h", hours));
-        }
-        if hours != 0 || minutes != 0 {
-            s.push_str(&format!("{}m", minutes));
-        }
-        if remainder != 0 {
-            s.push_str(&format!("{}.{:01}s", seconds, remainder));
-        } else {
-            s.push_str(&format!("{}s", seconds));
-        }
-        s
-    }
-
-    pub fn ampm_tostring(self) -> String {
-        let (mut hours, minutes, seconds, remainder) = self.get_parts();
-        let suffix = if hours < 12 {
-            "AM"
-        } else if hours < 24 {
-            "PM"
-        } else {
-            // Give up on the AM/PM distinction I guess. This shouldn't be used much.
-            "(+1 day)"
-        };
-        if hours == 0 {
-            hours = 12;
-        } else if hours >= 24 {
-            hours -= 24;
-        } else if hours > 12 {
-            hours -= 12;
-        }
-
-        format!(
-            "{:02}:{:02}:{:02}.{:01} {}",
-            hours, minutes, seconds, remainder, suffix
-        )
-    }
-
+    // TODO This is NOT the inverse of Display!
     pub fn parse(string: &str) -> Result<Duration, abstutil::Error> {
         let parts: Vec<&str> = string.split(':').collect();
         if parts.is_empty() {
@@ -195,21 +124,22 @@ impl Duration {
             true
         }
     }
-
-    // TODO During transition only
-    pub fn tmp_as_time(self) -> Time {
-        Time::START_OF_DAY + self
-    }
 }
 
 impl std::fmt::Display for Duration {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let (hours, minutes, seconds, remainder) = self.get_parts();
-        write!(
-            f,
-            "{0:02}:{1:02}:{2:02}.{3:01}",
-            hours, minutes, seconds, remainder
-        )
+        if hours != 0 {
+            write!(f, "{}h", hours)?;
+        }
+        if hours != 0 || minutes != 0 {
+            write!(f, "{}m", minutes)?;
+        }
+        if remainder != 0 {
+            write!(f, "{}.{:01}s", seconds, remainder)
+        } else {
+            write!(f, "{}s", seconds)
+        }
     }
 }
 
@@ -338,12 +268,12 @@ impl DurationHistogram {
         format!(
             "{} count, 50%ile {}, 90%ile {}, 99%ile {}, min {}, mean {}, max {}",
             abstutil::prettyprint_usize(self.count),
-            self.select(Statistic::P50).minimal_tostring(),
-            self.select(Statistic::P90).minimal_tostring(),
-            self.select(Statistic::P99).minimal_tostring(),
-            self.select(Statistic::Min).minimal_tostring(),
-            self.select(Statistic::Mean).minimal_tostring(),
-            self.select(Statistic::Max).minimal_tostring(),
+            self.select(Statistic::P50),
+            self.select(Statistic::P90),
+            self.select(Statistic::P99),
+            self.select(Statistic::Min),
+            self.select(Statistic::Mean),
+            self.select(Statistic::Max),
         )
     }
 

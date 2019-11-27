@@ -73,7 +73,7 @@ impl ControlTrafficSignal {
             cycle_length += p.duration;
         }
 
-        let mut now_offset = (now + self.offset).tmp_to_duration() % cycle_length;
+        let mut now_offset = ((now + self.offset) - Time::START_OF_DAY) % cycle_length;
         for (idx, p) in self.phases.iter().enumerate() {
             if now_offset < p.duration {
                 return (idx, p, p.duration - now_offset);

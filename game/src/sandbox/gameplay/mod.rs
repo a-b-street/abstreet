@@ -250,13 +250,13 @@ pub fn cmp_duration_shorter(now: Duration, baseline: Duration) -> Vec<TextSpan> 
     } else if now < baseline {
         vec![
             Line(" ("),
-            Line((baseline - now).minimal_tostring()).fg(Color::GREEN),
+            Line((baseline - now).to_string()).fg(Color::GREEN),
             Line(" faster)"),
         ]
     } else if now > baseline {
         vec![
             Line(" ("),
-            Line((now - baseline).minimal_tostring()).fg(Color::RED),
+            Line((now - baseline).to_string()).fg(Color::RED),
             Line(" slower)"),
         ]
     } else {
