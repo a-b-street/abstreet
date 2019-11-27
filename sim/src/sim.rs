@@ -113,7 +113,7 @@ impl Sim {
 
     pub fn schedule_trip(
         &mut self,
-        start_time: Duration,
+        start_time: Time,
         spec: TripSpec,
         map: &Map,
     ) -> (Option<PedestrianID>, Option<CarID>) {

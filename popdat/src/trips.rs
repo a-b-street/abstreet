@@ -1,7 +1,7 @@
 use crate::psrc::{Endpoint, Mode, Parcel, Purpose};
 use crate::PopDat;
 use abstutil::Timer;
-use geom::{Distance, Duration, LonLat, Polygon, Pt2D};
+use geom::{Distance, Duration, LonLat, Polygon, Pt2D, Time};
 use map_model::{BuildingID, IntersectionID, Map, PathConstraints, Position};
 use sim::{DrivingGoal, Scenario, SidewalkSpot, SpawnTrip, TripSpec};
 use std::collections::{BTreeMap, HashMap};
@@ -10,7 +10,7 @@ use std::collections::{BTreeMap, HashMap};
 pub struct Trip {
     pub from: TripEndpt,
     pub to: TripEndpt,
-    pub depart_at: Duration,
+    pub depart_at: Time,
     pub purpose: (Purpose, Purpose),
     pub mode: Mode,
     // These are an upper bound when TripEndpt::Border is involved.
@@ -27,7 +27,7 @@ pub enum TripEndpt {
 }
 
 impl Trip {
-    pub fn end_time(&self) -> Duration {
+    pub fn end_time(&self) -> Time {
         self.depart_at + self.trip_time
     }
 

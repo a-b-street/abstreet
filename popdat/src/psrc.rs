@@ -1,5 +1,5 @@
 use abstutil::{prettyprint_usize, skip_fail, FileWithProgress, Timer};
-use geom::{Distance, Duration, FindClosest, LonLat, Pt2D};
+use geom::{Distance, Duration, FindClosest, LonLat, Pt2D, Time};
 use map_model::Map;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap};
@@ -10,8 +10,7 @@ use std::io::{BufRead, BufReader, BufWriter, Write};
 pub struct Trip {
     pub from: Endpoint,
     pub to: Endpoint,
-    // Relative to midnight
-    pub depart_at: Duration,
+    pub depart_at: Time,
     pub mode: Mode,
 
     pub purpose: (Purpose, Purpose),
@@ -84,7 +83,8 @@ pub fn import_trips(
         }
 
         // deptm
-        let depart_at = Duration::minutes(rec[4].trim_end_matches(".0").parse::<usize>()?);
+        let depart_at =
+            Time::START_OF_DAY + Duration::minutes(rec[4].trim_end_matches(".0").parse::<usize>()?);
 
         // mode
         let mode = skip_fail!(get_mode(&rec[13]));

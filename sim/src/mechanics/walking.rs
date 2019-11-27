@@ -54,8 +54,8 @@ impl WalkingSimState {
             state: PedState::Crossing(
                 DistanceInterval::new_walking(Distance::ZERO, Distance::meters(1.0)),
                 TimeInterval::new(
-                    Time::seconds_since_midnight(0.0),
-                    Time::seconds_since_midnight(1.0),
+                    Time::START_OF_DAY,
+                    Time::START_OF_DAY + Duration::seconds(1.0),
                 ),
             ),
             speed: params.speed,

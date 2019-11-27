@@ -3,7 +3,7 @@ use crate::{
     BIKE_LENGTH, MAX_CAR_LENGTH, MIN_CAR_LENGTH,
 };
 use abstutil::{fork_rng, prettyprint_usize, Timer, WeightedUsizeChoice};
-use geom::{Distance, Duration, Speed};
+use geom::{Distance, Duration, Speed, Time};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, DirectedRoadID, FullNeighborhoodInfo, Map, PathConstraints,
     Position, RoadID,
@@ -37,8 +37,8 @@ pub struct Scenario {
 pub struct SpawnOverTime {
     pub num_agents: usize,
     // TODO use https://docs.rs/rand/0.5.5/rand/distributions/struct.Normal.html
-    pub start_time: Duration,
-    pub stop_time: Duration,
+    pub start_time: Time,
+    pub stop_time: Time,
     pub start_from_neighborhood: String,
     pub goal: OriginDestination,
     pub percent_biking: f64,
@@ -51,8 +51,8 @@ pub struct BorderSpawnOverTime {
     pub num_cars: usize,
     pub num_bikes: usize,
     // TODO use https://docs.rs/rand/0.5.5/rand/distributions/struct.Normal.html
-    pub start_time: Duration,
-    pub stop_time: Duration,
+    pub start_time: Time,
+    pub stop_time: Time,
     pub start_from_border: DirectedRoadID,
     pub goal: OriginDestination,
     pub percent_use_transit: f64,
@@ -181,8 +181,8 @@ impl Scenario {
             }],
             spawn_over_time: vec![SpawnOverTime {
                 num_agents: 100,
-                start_time: Duration::ZERO,
-                stop_time: Duration::seconds(5.0),
+                start_time: Time::START_OF_DAY,
+                stop_time: Time::START_OF_DAY + Duration::seconds(5.0),
                 start_from_neighborhood: "_everywhere_".to_string(),
                 goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
                 percent_biking: 0.5,
@@ -197,8 +197,8 @@ impl Scenario {
                     num_peds: 10,
                     num_cars: 10,
                     num_bikes: 10,
-                    start_time: Duration::ZERO,
-                    stop_time: Duration::seconds(5.0),
+                    start_time: Time::START_OF_DAY,
+                    stop_time: Time::START_OF_DAY + Duration::seconds(5.0),
                     start_from_border: i.some_outgoing_road(map),
                     goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
                     percent_use_transit: 0.5,
@@ -210,8 +210,8 @@ impl Scenario {
         for i in map.all_outgoing_borders() {
             s.spawn_over_time.push(SpawnOverTime {
                 num_agents: 10,
-                start_time: Duration::ZERO,
-                stop_time: Duration::seconds(5.0),
+                start_time: Time::START_OF_DAY,
+                stop_time: Time::START_OF_DAY + Duration::seconds(5.0),
                 start_from_neighborhood: "_everywhere_".to_string(),
                 goal: OriginDestination::EndOfRoad(i.some_incoming_road(map)),
                 percent_biking: 0.5,
@@ -248,8 +248,8 @@ impl Scenario {
             }],
             spawn_over_time: vec![SpawnOverTime {
                 num_agents: num_agents,
-                start_time: Duration::ZERO,
-                stop_time: Duration::seconds(5.0),
+                start_time: Time::START_OF_DAY,
+                stop_time: Time::START_OF_DAY + Duration::seconds(5.0),
                 start_from_neighborhood: "_everywhere_".to_string(),
                 goal: OriginDestination::Neighborhood("_everywhere_".to_string()),
                 percent_biking: 0.5,
@@ -802,26 +802,26 @@ fn find_spot_near_building(
     }
 }
 
-fn rand_time(rng: &mut XorShiftRng, low: Duration, high: Duration) -> Duration {
+fn rand_time(rng: &mut XorShiftRng, low: Time, high: Time) -> Time {
     assert!(high > low);
-    Duration::seconds(rng.gen_range(low.inner_seconds(), high.inner_seconds()))
+    Time::START_OF_DAY + Duration::seconds(rng.gen_range(low.inner_seconds(), high.inner_seconds()))
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub enum SpawnTrip {
     CarAppearing {
-        depart: Duration,
+        depart: Time,
         // TODO Replace start with building|border
         start: Position,
         goal: DrivingGoal,
         // For bikes starting at a border, use CarAppearing. UsingBike implies a walk->bike trip.
         is_bike: bool,
     },
-    MaybeUsingParkedCar(Duration, BuildingID, DrivingGoal),
-    UsingBike(Duration, SidewalkSpot, DrivingGoal),
-    JustWalking(Duration, SidewalkSpot, SidewalkSpot),
+    MaybeUsingParkedCar(Time, BuildingID, DrivingGoal),
+    UsingBike(Time, SidewalkSpot, DrivingGoal),
+    JustWalking(Time, SidewalkSpot, SidewalkSpot),
     UsingTransit(
-        Duration,
+        Time,
         SidewalkSpot,
         SidewalkSpot,
         BusRouteID,
@@ -832,7 +832,7 @@ pub enum SpawnTrip {
 
 impl SpawnTrip {
     // (departure time, spec)
-    pub fn to_trip_spec(self, rng: &mut XorShiftRng) -> (Duration, TripSpec) {
+    pub fn to_trip_spec(self, rng: &mut XorShiftRng) -> (Time, TripSpec) {
         match self {
             SpawnTrip::CarAppearing {
                 depart,

@@ -159,9 +159,7 @@ impl State for TripsVisualizer {
             .trips
             .iter()
             .enumerate()
-            .filter(|(_, (trip, _))| {
-                time >= trip.depart_at.tmp_as_time() && time <= trip.end_time().tmp_as_time()
-            })
+            .filter(|(_, (trip, _))| time >= trip.depart_at && time <= trip.end_time())
             .map(|(idx, _)| idx)
             .collect();
 
@@ -177,7 +175,7 @@ impl State for TripsVisualizer {
         let mut batch = GeomBatch::new();
         for idx in &self.active_trips {
             let (trip, pl) = (&self.trips[*idx].0, &self.trips[*idx].1);
-            let percent = (time - trip.depart_at.tmp_as_time()) / trip.trip_time;
+            let percent = (time - trip.depart_at) / trip.trip_time;
 
             let color = match trip.mode {
                 Mode::Drive => ui.cs.get("unzoomed car"),

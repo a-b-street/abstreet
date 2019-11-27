@@ -19,7 +19,8 @@ impl Time {
     // This isn't the last possible time, but for UI control purposes, it'll do.
     pub const END_OF_DAY: Time = Time(59.9 + (59.0 * 60.0) + (23.0 * 3600.0));
 
-    pub fn seconds_since_midnight(value: f64) -> Time {
+    // No direct public constructors. Explicitly do Time::START_OF_DAY + duration.
+    fn seconds_since_midnight(value: f64) -> Time {
         if !value.is_finite() || value < 0.0 {
             panic!("Bad Time {}", value);
         }
@@ -142,6 +143,11 @@ impl Time {
 
     pub fn to_percent(self, other: Time) -> f64 {
         self.0 / other.0
+    }
+
+    // For RNG range generation. Don't abuse.
+    pub fn inner_seconds(self) -> f64 {
+        self.0
     }
 
     pub fn tmp_to_duration(self) -> Duration {

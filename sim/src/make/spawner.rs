@@ -4,7 +4,7 @@ use crate::{
     VehicleSpec, MAX_CAR_LENGTH,
 };
 use abstutil::Timer;
-use geom::{Duration, Speed, Time, EPSILON_DIST};
+use geom::{Speed, Time, EPSILON_DIST};
 use map_model::{BuildingID, BusRouteID, BusStopID, Map, PathConstraints, PathRequest, Position};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeSet;
@@ -66,7 +66,7 @@ impl TripSpawner {
 
     pub fn schedule_trip(
         &mut self,
-        start_time: Duration,
+        start_time: Time,
         ped_id: Option<PedestrianID>,
         car_id: Option<CarID>,
         spec: TripSpec,
@@ -160,7 +160,7 @@ impl TripSpawner {
                             start, goal
                         );
                         self.trips.push((
-                            start_time.tmp_as_time(),
+                            start_time,
                             ped_id,
                             None,
                             TripSpec::JustWalking {
@@ -176,8 +176,7 @@ impl TripSpawner {
             TripSpec::UsingTransit { .. } => {}
         };
 
-        self.trips
-            .push((start_time.tmp_as_time(), ped_id, car_id, spec));
+        self.trips.push((start_time, ped_id, car_id, spec));
     }
 
     pub fn spawn_all(
