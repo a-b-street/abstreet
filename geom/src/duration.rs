@@ -58,7 +58,8 @@ impl Duration {
     // TODO Could share some of this with Time -- the representations are the same
     // (hours, minutes, seconds, centiseconds)
     fn get_parts(self) -> (usize, usize, usize, usize) {
-        let mut remainder = self.inner_seconds();
+        // Force positive
+        let mut remainder = self.inner_seconds().abs();
         let hours = (remainder / 3600.0).floor();
         remainder -= hours * 3600.0;
         let minutes = (remainder / 60.0).floor();
@@ -134,6 +135,9 @@ impl Duration {
 
 impl std::fmt::Display for Duration {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        if *self < Duration::ZERO {
+            write!(f, "-")?;
+        }
         let (hours, minutes, seconds, remainder) = self.get_parts();
         if hours != 0 {
             write!(f, "{}h", hours)?;
@@ -174,15 +178,6 @@ impl ops::Sub for Duration {
 
     fn sub(self, other: Duration) -> Duration {
         Duration::seconds(self.0 - other.0)
-    }
-}
-
-// TODO If the priority queue doesn't need this, get rid of it.
-impl ops::Neg for Duration {
-    type Output = Duration;
-
-    fn neg(self) -> Duration {
-        Duration::seconds(-self.0)
     }
 }
 
