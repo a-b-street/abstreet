@@ -178,12 +178,12 @@ impl Duration {
             1 => Ok(Duration::seconds(seconds)),
             2 => {
                 seconds += 60.0 * parts[0].parse::<f64>()?;
-                Ok(Duration(seconds))
+                Ok(Duration::seconds(seconds))
             }
             3 => {
                 seconds += 60.0 * parts[1].parse::<f64>()?;
                 seconds += 3600.0 * parts[0].parse::<f64>()?;
-                Ok(Duration(seconds))
+                Ok(Duration::seconds(seconds))
             }
             _ => Err(abstutil::Error::new(format!(
                 "Duration {}: weird number of parts",

@@ -11,6 +11,7 @@ mod polyline;
 mod pt;
 mod ring;
 mod speed;
+mod time;
 
 pub use crate::angle::Angle;
 pub use crate::bounds::{Bounds, GPSBounds};
@@ -25,6 +26,7 @@ pub use crate::polyline::PolyLine;
 pub use crate::pt::{HashablePt2D, Pt2D};
 pub use crate::ring::Ring;
 pub use crate::speed::Speed;
+pub use crate::time::Time;
 
 // About 0.4 inches... which is quite tiny on the scale of things. :)
 pub const EPSILON_DIST: Distance = Distance::const_meters(0.01);
