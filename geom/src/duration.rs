@@ -1,6 +1,8 @@
 use crate::{trim_f64, Distance, Speed};
+use abstutil::elapsed_seconds;
 use histogram::Histogram;
 use serde_derive::{Deserialize, Serialize};
+use std::time::Instant;
 use std::{cmp, f64, ops};
 
 // In seconds. Can be negative.
@@ -123,6 +125,10 @@ impl Duration {
         } else {
             true
         }
+    }
+
+    pub fn realtime_elapsed(since: Instant) -> Duration {
+        Duration::seconds(elapsed_seconds(since))
     }
 }
 

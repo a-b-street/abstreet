@@ -1,4 +1,3 @@
-use abstutil::elapsed_seconds;
 use ezgui::layout::Widget;
 use ezgui::{
     hotkey, Button, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, ScreenPt,
@@ -190,10 +189,10 @@ impl SpeedControls {
                     self.pause();
                 } else if ctx.input.nonblocking_is_update_event() {
                     ctx.input.use_update_event();
-                    let dt = Duration::seconds(elapsed_seconds(*last_step)) * desired_speed;
+                    let dt = Duration::realtime_elapsed(*last_step) * desired_speed;
                     *last_step = Instant::now();
 
-                    let dt_descr = Duration::seconds(elapsed_seconds(*last_measurement));
+                    let dt_descr = Duration::realtime_elapsed(*last_measurement);
                     if dt_descr >= Duration::seconds(1.0) {
                         *speed_description = format!(
                             "{:.2}x",

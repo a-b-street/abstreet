@@ -6,7 +6,7 @@ use crate::{
     TripPositions, TripResult, TripSpawner, TripSpec, TripStart, TripStatus, UnzoomedAgent,
     VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
 };
-use abstutil::{elapsed_seconds, Timer};
+use abstutil::Timer;
 use derivative::Derivative;
 use geom::{Distance, Duration, DurationHistogram, PolyLine, Pt2D, Time};
 use map_model::{
@@ -580,9 +580,7 @@ impl Sim {
         let goal_time = self.time + dt;
 
         loop {
-            if Duration::seconds(elapsed_seconds(started_at)) > real_time_limit
-                || self.time >= goal_time
-            {
+            if Duration::realtime_elapsed(started_at) > real_time_limit || self.time >= goal_time {
                 break;
             }
             self.step(map, Duration::seconds(0.1));
@@ -632,7 +630,7 @@ impl Sim {
                 }
             }
 
-            let dt_real = Duration::seconds(elapsed_seconds(last_print));
+            let dt_real = Duration::realtime_elapsed(last_print);
             if dt_real >= Duration::seconds(1.0) {
                 let (active, unfinished, _) = self.num_trips();
                 println!(

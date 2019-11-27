@@ -6,7 +6,7 @@ use crate::render::{
 };
 use crate::sandbox::spawn_agents_around;
 use crate::ui::{ShowEverything, UI};
-use abstutil::{elapsed_seconds, Timer};
+use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Choice, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu,
     Text,
@@ -454,7 +454,7 @@ impl State for PreviewTrafficSignal {
 
         if ctx.input.nonblocking_is_update_event() {
             ctx.input.use_update_event();
-            let dt = Duration::seconds(elapsed_seconds(self.last_step));
+            let dt = Duration::realtime_elapsed(self.last_step);
             self.last_step = Instant::now();
             ui.primary
                 .sim

@@ -6,7 +6,6 @@ use crate::mission::MissionEditMode;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::tutorial::TutorialMode;
 use crate::ui::UI;
-use abstutil::elapsed_seconds;
 use ezgui::{
     hotkey, layout, Button, Color, EventCtx, EventLoopMode, GfxCtx, JustDraw, Key, Line, Text,
 };
@@ -181,7 +180,7 @@ impl Screensaver {
     fn update(&mut self, rng: &mut XorShiftRng, ctx: &mut EventCtx, map: &Map) {
         if ctx.input.nonblocking_is_update_event() {
             ctx.input.use_update_event();
-            let dist_along = Duration::seconds(elapsed_seconds(self.started)) * SPEED;
+            let dist_along = Duration::realtime_elapsed(self.started) * SPEED;
             if dist_along < self.line.length() {
                 ctx.canvas
                     .center_on_map_pt(self.line.dist_along(dist_along));
