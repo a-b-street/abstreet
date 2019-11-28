@@ -16,14 +16,14 @@ pub struct Slider {
 }
 
 impl Slider {
-    pub fn new(width: f64) -> Slider {
+    pub fn new(width: f64, height: f64) -> Slider {
         Slider {
             current_percent: 0.0,
             mouse_on_slider: false,
             dragging: false,
 
             top_left: ScreenPt::new(0.0, 0.0),
-            dims: Dims::fit_total_width(width),
+            dims: Dims::fit_total_width(width, height),
         }
     }
 
@@ -203,12 +203,11 @@ struct Dims {
 }
 
 impl Dims {
-    fn fit_total_width(total_width: f64) -> Dims {
+    fn fit_total_width(total_width: f64, bar_height: f64) -> Dims {
         let horiz_padding = total_width / 7.0;
         let bar_width = total_width - 2.0 * horiz_padding;
         let slider_width = 15.0;
 
-        let bar_height = 25.0;
         let slider_height = bar_height * 1.2;
         let vert_padding = bar_height / 5.0;
 
@@ -261,7 +260,7 @@ impl<T> ItemSlider<T> {
         let menu = ModalMenu::new(menu_title, choices, ctx).disable_standalone_layout();
         ItemSlider {
             items,
-            slider: Slider::new(menu.get_dims().width),
+            slider: Slider::new(menu.get_dims().width, 15.0),
             menu,
 
             noun: noun.to_string(),
@@ -420,7 +419,7 @@ pub struct SliderWithTextBox {
 impl SliderWithTextBox {
     pub fn new(prompt: &str, low: Time, high: Time, canvas: &Canvas) -> SliderWithTextBox {
         SliderWithTextBox {
-            slider: Slider::new(canvas.text_dims(&Text::from(Line(prompt))).width),
+            slider: Slider::new(canvas.text_dims(&Text::from(Line(prompt))).width, 15.0),
             tb: TextBox::new(prompt, None, canvas),
             low,
             high,

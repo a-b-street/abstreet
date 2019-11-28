@@ -2,40 +2,31 @@ use crate::game::{Transition, WizardState};
 use crate::ui::UI;
 use ezgui::layout::Widget;
 use ezgui::{
-    hotkey, Button, Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Key, Line, ScreenPt,
+    hotkey, Button, Color, DrawBoth, EventCtx, GeomBatch, GfxCtx, Key, Line, ScreenPt,
     ScreenRectangle, Slider, Text, Wizard,
 };
 use geom::{Distance, Duration, Line, Polygon, Pt2D, Time};
 use std::time::Instant;
 
-// TODO Everything in here is terrible. Layouting sucks.
+// Layouting is very hardcoded right now.
 
-const PANEL_RECT: ScreenRectangle = ScreenRectangle {
-    x1: 0.0,
-    y1: 0.0,
-    x2: 460.0,
-    y2: 200.0,
-};
+const PANEL_WIDTH: f64 = 379.0;
+const PANEL_HEIGHT: f64 = 166.0;
 
 const ADJUST_SPEED_PERCENT: f64 = 0.01;
 
 pub struct SpeedControls {
-    speed_slider: Slider,
-    state: State,
-    speed_cap: f64,
-
-    panel_bg: Drawable,
+    draw_fixed: DrawBoth,
     resume_btn: Button,
     pause_btn: Button,
+    jump_to_time_btn: Button,
+    large_step_btn: Button,
+    speed_slider: Slider,
     slow_down_btn: Button,
     speed_up_btn: Button,
 
-    small_step_btn: Button,
-    large_step_btn: Button,
-    jump_to_time_btn: Button,
-
-    sunrise: JustDraw,
-    sunset: JustDraw,
+    state: State,
+    speed_cap: f64,
 }
 
 enum State {
@@ -50,97 +41,131 @@ enum State {
 
 impl SpeedControls {
     pub fn new(ctx: &mut EventCtx, dev_mode: bool) -> SpeedControls {
-        let mut panel_bg = GeomBatch::new();
-        panel_bg.push(
-            Color::grey(0.3),
-            Polygon::rectangle_topleft(
-                Pt2D::new(PANEL_RECT.x1, PANEL_RECT.y1),
-                Distance::meters(PANEL_RECT.x2 - PANEL_RECT.x1),
-                Distance::meters(PANEL_RECT.y2 - PANEL_RECT.y1),
-            ),
-        );
+        let draw_fixed = {
+            let mut batch = GeomBatch::new();
+            let mut txt = Vec::new();
 
+            // Panel background
+            batch.push(
+                Color::hex("#4C4C4C"),
+                Polygon::rounded_rectangle(
+                    Distance::meters(PANEL_WIDTH),
+                    Distance::meters(PANEL_HEIGHT),
+                    Distance::meters(5.0),
+                ),
+            );
+
+            // Row 3 of labels for the time slider
+            // TODO Text should be roboto
+            txt.push((
+                Text::from(Line("00:00").size(12)).no_bg(),
+                ScreenPt::new(25.0, 97.0),
+            ));
+            let (sunrise_color, sunrise_rect) = ctx.canvas.texture_rect("assets/speed/sunrise.png");
+            batch.push(sunrise_color, sunrise_rect.translate(94.0, 94.0));
+            txt.push((
+                Text::from(Line("12:00").size(12)).no_bg(),
+                ScreenPt::new(153.0, 97.0),
+            ));
+            let (sunset_color, sunset_rect) = ctx.canvas.texture_rect("assets/speed/sunset.png");
+            batch.push(sunset_color, sunset_rect.translate(220.0, 94.0));
+            txt.push((
+                Text::from(Line("24:00").size(12)).no_bg(),
+                ScreenPt::new(280.0, 97.0),
+            ));
+
+            // Speed panel
+            batch.push(
+                Color::grey(0.5),
+                Polygon::rounded_rectangle(
+                    Distance::meters(331.0),
+                    Distance::meters(22.0),
+                    Distance::meters(5.0),
+                )
+                .translate(24.0, 128.0),
+            );
+            txt.push((
+                Text::from(Line("speed").size(14)).no_bg(),
+                ScreenPt::new(32.0, 131.0),
+            ));
+
+            DrawBoth::new(ctx, batch, txt)
+        };
+
+        // Row 1
         let resume_btn = Button::rectangle_img_no_bg(
-            "assets/ui/resume.png",
+            "assets/speed/resume.png",
             "resume",
             hotkey(Key::Space),
             ctx,
         )
-        .at(ScreenPt::new(10.0, 10.0));
-        let pause_btn = Button::rectangle_img_no_bg(
-            "assets/ui/pause.png",
-            "pause",
-            hotkey(Key::Space),
-            ctx,
-        )
-        .at(ScreenPt::new(10.0, 10.0));
+        .at(ScreenPt::new(23.0, 14.0));
+        let pause_btn =
+            Button::rectangle_img_no_bg("assets/speed/pause.png", "pause", hotkey(Key::Space), ctx)
+                .at(ScreenPt::new(23.0, 14.0));
 
         let jump_to_time_btn = Button::rectangle_img_no_bg(
-            "assets/ui/jump_to_time.png",
+            "assets/speed/jump_to_time.png",
             "jump to specific time",
             hotkey(Key::B),
             ctx,
         )
-        .at(ScreenPt::new(405.0, 10.0));
+        .at(ScreenPt::new(328.0, 22.0));
 
-        let small_step_btn = Button::rectangle_img_no_bg(
-            "assets/ui/small_step.png",
+        // Row 2
+
+        /*let small_step_btn = Button::rectangle_img_no_bg(
+            "assets/speed/small_step.png",
             "step forwards 0.1s",
             hotkey(Key::M),
             ctx,
         )
-        .at(ScreenPt::new(380.0, 70.0));
+        .at(ScreenPt::new(380.0, 70.0));*/
 
         let large_step_btn = Button::rectangle_img_no_bg(
-            "assets/ui/large_step.png",
+            "assets/speed/large_step.png",
             "step forwards 10 mins",
             hotkey(Key::N),
             ctx,
         )
-        .at(ScreenPt::new(380.0, 100.0));
+        .at(ScreenPt::new(315.0, 75.0));
 
-        let mut sunrise = JustDraw::image("assets/ui/sunrise.png", ctx);
-        sunrise.set_pos(ScreenPt::new(92.0, 120.0));
-        let mut sunset = JustDraw::image("assets/ui/sunset.png", ctx);
-        sunset.set_pos(ScreenPt::new(254.0, 120.0));
+        // Row 4
 
         // 10 sim minutes / real second normally, or 1 sim hour / real second for dev mode
         let speed_cap: f64 = if dev_mode { 3600.0 } else { 600.0 };
-        let mut speed_slider = Slider::new(270.0);
+        let mut speed_slider = Slider::new(157.0, 10.0);
         // Start with speed=1.0
         speed_slider.set_percent(ctx, (speed_cap / 1.0).powf(-1.0 / std::f64::consts::E));
-        speed_slider.set_pos(ScreenPt::new(50.0, 150.0));
+        speed_slider.set_pos(ScreenPt::new(92.0, 134.0));
 
         let slow_down_btn = Button::rectangle_img_no_bg(
-            "assets/ui/slow_down.png",
+            "assets/speed/slow_down.png",
             "slow down",
             hotkey(Key::LeftBracket),
             ctx,
         )
-        .at(ScreenPt::new(290.0, 170.0));
+        .at(ScreenPt::new(264.0, 129.0));
         let speed_up_btn = Button::rectangle_img_no_bg(
-            "assets/ui/speed_up.png",
+            "assets/speed/speed_up.png",
             "speed up",
             hotkey(Key::RightBracket),
             ctx,
         )
-        .at(ScreenPt::new(425.0, 160.0));
+        .at(ScreenPt::new(330.0, 129.0));
 
         SpeedControls {
-            speed_slider,
-            state: State::Paused,
-            speed_cap,
-
-            panel_bg: panel_bg.upload(ctx),
+            draw_fixed,
             resume_btn,
             pause_btn,
+            jump_to_time_btn,
+            large_step_btn,
+            speed_slider,
             slow_down_btn,
             speed_up_btn,
-            small_step_btn,
-            large_step_btn,
-            jump_to_time_btn,
-            sunrise,
-            sunset,
+
+            state: State::Paused,
+            speed_cap,
         }
     }
 
@@ -210,14 +235,14 @@ impl SpeedControls {
             }
         }
 
-        self.small_step_btn.event(ctx);
+        /*self.small_step_btn.event(ctx);
         if self.small_step_btn.clicked() {
             ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
             if let Some(ref mut s) = ui.secondary {
                 s.sim.step(&s.map, Duration::seconds(0.1));
             }
             ui.recalculate_current_selection(ctx);
-        }
+        }*/
 
         self.large_step_btn.event(ctx);
         if self.large_step_btn.clicked() {
@@ -242,8 +267,13 @@ impl SpeedControls {
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         g.fork_screenspace();
-        g.redraw(&self.panel_bg);
-        g.canvas.mark_covered_area(PANEL_RECT);
+        self.draw_fixed.draw(ScreenPt::new(0.0, 0.0), g);
+        g.canvas.mark_covered_area(ScreenRectangle {
+            x1: 0.0,
+            y1: 0.0,
+            x2: PANEL_WIDTH,
+            y2: PANEL_HEIGHT,
+        });
         g.unfork();
 
         // Row 1
@@ -255,8 +285,8 @@ impl SpeedControls {
         }
 
         g.draw_text_at_screenspace_topleft(
-            &Text::from(Line(ui.primary.sim.time().ampm_tostring()).size(40)).no_bg(),
-            ScreenPt::new(90.0, 15.0),
+            &Text::from(Line(ui.primary.sim.time().ampm_tostring()).size(30)).no_bg(),
+            ScreenPt::new(86.0, 13.0),
         );
 
         self.jump_to_time_btn.draw(g);
@@ -265,77 +295,39 @@ impl SpeedControls {
 
         // TODO Actual slider
         {
-            let y1 = 90.0;
+            let x1 = 24.0;
+            let y1 = 75.0;
             let percent = ui.primary.sim.time().to_percent(Time::END_OF_DAY);
-            let width = 350.0;
-            let height = Distance::meters(30.0);
+            let width = 287.0;
+            let height = Distance::meters(15.0);
+
             g.fork_screenspace();
             // TODO rounded
             g.draw_polygon(
                 Color::WHITE,
-                &Line::new(Pt2D::new(10.0, y1), Pt2D::new(10.0 + width, y1)).make_polygons(height),
+                &Line::new(Pt2D::new(x1, y1), Pt2D::new(x1 + width, y1)).make_polygons(height),
             );
-            if let Some(l) =
-                Line::maybe_new(Pt2D::new(10.0, y1), Pt2D::new(10.0 + percent * width, y1))
+            if let Some(l) = Line::maybe_new(Pt2D::new(x1, y1), Pt2D::new(x1 + percent * width, y1))
             {
                 g.draw_polygon(Color::grey(0.5), &l.make_polygons(height));
             }
             g.unfork();
         }
 
-        self.small_step_btn.draw(g);
+        //self.small_step_btn.draw(g);
         self.large_step_btn.draw(g);
-
-        // Row 3
-
-        {
-            // time slider is x = 10 to 360
-            let y1 = 120.0;
-            g.draw_text_at_screenspace_topleft(
-                &Text::from(Line("00:00").size(18)).no_bg(),
-                ScreenPt::new(10.0, y1),
-            );
-            self.sunrise.draw(g);
-            g.draw_text_at_screenspace_topleft(
-                &Text::from(Line("12:00").size(18)).no_bg(),
-                ScreenPt::new(175.0, y1),
-            );
-            self.sunset.draw(g);
-            g.draw_text_at_screenspace_topleft(
-                &Text::from(Line("24:00").size(18)).no_bg(),
-                ScreenPt::new(360.0, y1),
-            );
-        }
 
         // Row 4
 
         {
-            let y1 = 150.0;
-            g.fork_screenspace();
-            g.draw_polygon(
-                Color::grey(0.5),
-                &Polygon::rounded_rectangle(
-                    Distance::meters(0.95 * (PANEL_RECT.x2 - PANEL_RECT.x1)),
-                    Distance::meters(40.0),
-                    Distance::meters(5.0),
-                )
-                .translate(10.0, y1),
-            );
-            g.unfork();
-
-            g.draw_text_at_screenspace_topleft(
-                &Text::from(Line("speed").size(25)).no_bg(),
-                ScreenPt::new(10.0, y1),
-            );
-
             self.speed_slider.draw(g);
 
             self.slow_down_btn.draw(g);
 
             // TODO Center this text
             g.draw_text_at_screenspace_topleft(
-                &Text::from(Line(format!("{:.2}x", self.desired_speed())).size(25)).no_bg(),
-                ScreenPt::new(320.0, y1 + 5.0),
+                &Text::from(Line(format!("{:.1}x", self.desired_speed())).size(14)).no_bg(),
+                ScreenPt::new(290.0, 131.0),
             );
 
             self.speed_up_btn.draw(g);

@@ -82,7 +82,7 @@ impl TripsVisualizer {
             )
             .disable_standalone_layout(),
             trips,
-            time_slider: Slider::new(150.0),
+            time_slider: Slider::new(150.0, 15.0),
             speed: SpeedControls::new(ctx, ui.primary.current_flags.dev, false),
             active_trips: Vec::new(),
         }

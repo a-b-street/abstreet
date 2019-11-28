@@ -89,7 +89,7 @@ impl SpeedControls {
 
         // 10 sim minutes / real second normally, or 1 sim hour / real second for dev mode
         let speed_cap: f64 = if dev_mode { 3600.0 } else { 600.0 };
-        let mut speed_slider = Slider::new(150.0);
+        let mut speed_slider = Slider::new(150.0, 15.0);
         // Start with speed=1.0
         speed_slider.set_percent(ctx, (speed_cap / 1.0).powf(-1.0 / std::f64::consts::E));
         speed_slider.set_pos(ScreenPt::new(0.0, 100.0));
