@@ -20,6 +20,7 @@ pub struct SpeedControls {
     resume_btn: Button,
     pause_btn: Button,
     jump_to_time_btn: Button,
+    small_step_btn: Button,
     large_step_btn: Button,
     speed_slider: Slider,
     slow_down_btn: Button,
@@ -110,17 +111,17 @@ impl SpeedControls {
             hotkey(Key::B),
             ctx,
         )
-        .at(ScreenPt::new(328.0, 22.0));
+        .at(ScreenPt::new(300.0, 20.0));
 
         // Row 2
 
-        /*let small_step_btn = Button::rectangle_img_no_bg(
+        let small_step_btn = Button::rectangle_img_no_bg(
             "assets/speed/small_step.png",
             "step forwards 0.1s",
             hotkey(Key::M),
             ctx,
         )
-        .at(ScreenPt::new(380.0, 70.0));*/
+        .at(ScreenPt::new(315.0, 60.0));
 
         let large_step_btn = Button::rectangle_img_no_bg(
             "assets/speed/large_step.png",
@@ -145,7 +146,7 @@ impl SpeedControls {
             hotkey(Key::LeftBracket),
             ctx,
         )
-        .at(ScreenPt::new(264.0, 129.0));
+        .at(ScreenPt::new(245.0, 129.0));
         let speed_up_btn = Button::rectangle_img_no_bg(
             "assets/speed/speed_up.png",
             "speed up",
@@ -159,6 +160,7 @@ impl SpeedControls {
             resume_btn,
             pause_btn,
             jump_to_time_btn,
+            small_step_btn,
             large_step_btn,
             speed_slider,
             slow_down_btn,
@@ -235,14 +237,14 @@ impl SpeedControls {
             }
         }
 
-        /*self.small_step_btn.event(ctx);
+        self.small_step_btn.event(ctx);
         if self.small_step_btn.clicked() {
             ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
             if let Some(ref mut s) = ui.secondary {
                 s.sim.step(&s.map, Duration::seconds(0.1));
             }
             ui.recalculate_current_selection(ctx);
-        }*/
+        }
 
         self.large_step_btn.event(ctx);
         if self.large_step_btn.clicked() {
@@ -286,7 +288,7 @@ impl SpeedControls {
 
         g.draw_text_at_screenspace_topleft(
             &Text::from(Line(ui.primary.sim.time().ampm_tostring()).size(30)).no_bg(),
-            ScreenPt::new(86.0, 13.0),
+            ScreenPt::new(86.0, 19.0),
         );
 
         self.jump_to_time_btn.draw(g);
@@ -314,7 +316,7 @@ impl SpeedControls {
             g.unfork();
         }
 
-        //self.small_step_btn.draw(g);
+        self.small_step_btn.draw(g);
         self.large_step_btn.draw(g);
 
         // Row 4
@@ -327,7 +329,7 @@ impl SpeedControls {
             // TODO Center this text
             g.draw_text_at_screenspace_topleft(
                 &Text::from(Line(format!("{:.1}x", self.desired_speed())).size(14)).no_bg(),
-                ScreenPt::new(290.0, 131.0),
+                ScreenPt::new(275.0, 131.0),
             );
 
             self.speed_up_btn.draw(g);
