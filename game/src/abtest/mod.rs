@@ -1,7 +1,7 @@
 mod score;
 pub mod setup;
 
-use crate::common::{time_controls, AgentTools, CommonState, SpeedControls};
+use crate::common::{AgentTools, CommonState};
 use crate::debug::DebugMode;
 use crate::game::{State, Transition};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
@@ -16,10 +16,10 @@ use map_model::{Map, LANE_THICKNESS};
 use serde_derive::{Deserialize, Serialize};
 use sim::{Sim, SimOptions, TripID};
 
+// TODO I took out speed controls
 pub struct ABTestMode {
     menu: ModalMenu,
     general_tools: MenuUnderButton,
-    speed: SpeedControls,
     info_tools: MenuUnderButton,
     primary_agent_tools: AgentTools,
     secondary_agent_tools: AgentTools,
@@ -57,7 +57,6 @@ impl ABTestMode {
                 0.2,
                 ctx,
             ),
-            speed: SpeedControls::new(ctx, ui.primary.current_flags.dev, true),
             info_tools: MenuUnderButton::new(
                 "assets/ui/info.png",
                 "Info",
@@ -200,24 +199,16 @@ impl State for ABTestMode {
             }
         }
 
-        if let Some(dt) = self.speed.event(ctx, ui.primary.sim.time()) {
+        /*if let Some(dt) = self.speed.event(ctx, ui.primary.sim.time()) {
             ui.primary.sim.step(&ui.primary.map, dt);
             {
                 let s = ui.secondary.as_mut().unwrap();
                 s.sim.step(&s.map, dt);
             }
             self.recalculate_stuff(ui, ctx);
-        }
+        }*/
 
-        if self.speed.is_paused() {
-            if let Some(t) = time_controls(ctx, ui, &mut self.speed) {
-                // TODO Need to trigger recalculate_stuff in a few cases...
-                return t;
-            }
-            Transition::Keep
-        } else {
-            Transition::KeepWithMode(EventLoopMode::Animation)
-        }
+        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
@@ -230,14 +221,13 @@ impl State for ABTestMode {
             diff.draw(g, ui);
         }
         self.menu.draw(g);
-        self.speed.draw(g);
         self.primary_agent_tools.draw(g, ui);
         self.info_tools.draw(g);
         self.general_tools.draw(g);
     }
 
     fn on_suspend(&mut self, _: &mut EventCtx, _: &mut UI) {
-        self.speed.pause();
+        //self.speed.pause();
     }
 
     fn on_destroy(&mut self, ctx: &mut EventCtx, ui: &mut UI) {

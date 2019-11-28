@@ -7,8 +7,6 @@ mod plot;
 mod route_explorer;
 mod route_viewer;
 mod shortcuts;
-mod speed;
-mod time;
 mod trip_explorer;
 mod turn_cycler;
 mod warp;
@@ -20,8 +18,6 @@ pub use self::colors::{
 pub use self::minimap::Minimap;
 pub use self::plot::{Plot, Series};
 pub use self::route_explorer::RouteExplorer;
-pub use self::speed::SpeedControls;
-pub use self::time::time_controls;
 pub use self::trip_explorer::TripExplorer;
 pub use self::warp::Warping;
 use crate::game::Transition;

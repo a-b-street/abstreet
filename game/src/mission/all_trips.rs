@@ -1,20 +1,18 @@
-use crate::common::{CommonState, SpeedControls};
+use crate::common::CommonState;
 use crate::game::{State, Transition};
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
-use ezgui::{
-    hotkey, layout, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu, Slider, Text,
-};
+use ezgui::{hotkey, layout, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu, Slider, Text};
 use geom::{Circle, Distance, Duration, PolyLine, Time};
 use map_model::LANE_THICKNESS;
 use popdat::psrc::Mode;
 use popdat::{clip_trips, Trip};
 
+// TODO I removed the speed controls from this, for now
 pub struct TripsVisualizer {
     menu: ModalMenu,
     trips: Vec<(Trip, PolyLine)>,
     time_slider: Slider,
-    speed: SpeedControls,
 
     active_trips: Vec<usize>,
 }
@@ -83,7 +81,6 @@ impl TripsVisualizer {
             .disable_standalone_layout(),
             trips,
             time_slider: Slider::new(150.0, 15.0),
-            speed: SpeedControls::new(ctx, ui.primary.current_flags.dev, false),
             active_trips: Vec::new(),
         }
     }
@@ -144,11 +141,6 @@ impl State for TripsVisualizer {
             self.time_slider.set_percent(ctx, 1.0);
         } else if self.time_slider.event(ctx) {
             // Value changed, fall-through
-        } else if let Some(dt) = self.speed.event(ctx, time) {
-            // TODO Speed description is briefly weird when we jump backwards with the other
-            // control.
-            self.time_slider
-                .set_percent(ctx, (time + dt).to_percent(Time::END_OF_DAY).min(1.0));
         } else {
             return Transition::Keep;
         }
@@ -163,11 +155,7 @@ impl State for TripsVisualizer {
             .map(|(idx, _)| idx)
             .collect();
 
-        if self.speed.is_paused() {
-            Transition::Keep
-        } else {
-            Transition::KeepWithMode(EventLoopMode::Animation)
-        }
+        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
@@ -199,7 +187,6 @@ impl State for TripsVisualizer {
 
         self.menu.draw(g);
         self.time_slider.draw(g);
-        self.speed.draw(g);
         CommonState::draw_osd(g, ui, &ui.primary.current_selection);
     }
 }
