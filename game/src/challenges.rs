@@ -82,6 +82,7 @@ pub fn challenges_picker(ctx: &EventCtx) -> Box<dyn State> {
 
     state.img_button_no_bg(
         "assets/pregame/back.png",
+        "back",
         hotkey(Key::Escape),
         Box::new(|_, _| Some(Transition::Pop)),
     );

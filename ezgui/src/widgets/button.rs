@@ -167,14 +167,13 @@ impl Button {
         Button::new(normal, hovered, key, "", bg)
     }
 
-    pub fn rectangle_img_no_bg(filename: &str, key: Option<MultiKey>, ctx: &EventCtx) -> Button {
-        let color = ctx.canvas.texture(filename);
-        let dims = color.texture_dims();
-        let rect = Polygon::rectangle_topleft(
-            Pt2D::new(0.0, 0.0),
-            Distance::meters(dims.width),
-            Distance::meters(dims.height),
-        );
+    pub fn rectangle_img_no_bg(
+        filename: &str,
+        tooltip: &str,
+        key: Option<MultiKey>,
+        ctx: &EventCtx,
+    ) -> Button {
+        let (color, rect) = ctx.canvas.texture_rect(filename);
 
         let normal = DrawBoth::new(ctx, GeomBatch::from(vec![(color, rect.clone())]), vec![]);
         let hovered = DrawBoth::new(
@@ -182,7 +181,7 @@ impl Button {
             GeomBatch::from(vec![(color.with_masking(), rect.clone())]),
             vec![],
         );
-        Button::new(normal, hovered, key, "", rect)
+        Button::new(normal, hovered, key, tooltip, rect)
     }
 
     pub fn icon_btn_bg(

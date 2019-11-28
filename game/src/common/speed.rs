@@ -16,7 +16,7 @@ const PANEL_RECT: ScreenRectangle = ScreenRectangle {
 const ADJUST_SPEED_PERCENT: f64 = 0.01;
 
 pub struct SpeedControls {
-    slider: Slider,
+    speed_slider: Slider,
     state: State,
     speed_cap: f64,
 
@@ -89,10 +89,10 @@ impl SpeedControls {
 
         // 10 sim minutes / real second normally, or 1 sim hour / real second for dev mode
         let speed_cap: f64 = if dev_mode { 3600.0 } else { 600.0 };
-        let mut slider = Slider::new(150.0);
+        let mut speed_slider = Slider::new(150.0);
         // Start with speed=1.0
-        slider.set_percent(ctx, (speed_cap / 1.0).powf(-1.0 / std::f64::consts::E));
-        slider.set_pos(ScreenPt::new(0.0, 100.0));
+        speed_slider.set_percent(ctx, (speed_cap / 1.0).powf(-1.0 / std::f64::consts::E));
+        speed_slider.set_pos(ScreenPt::new(0.0, 100.0));
 
         let (small_step_btn, large_step_btn, jump_to_time_btn) = if step_controls {
             let small = Button::icon_btn(
@@ -128,7 +128,7 @@ impl SpeedControls {
         };
 
         SpeedControls {
-            slider,
+            speed_slider,
             state: State::Paused,
             speed_cap,
 
@@ -150,16 +150,16 @@ impl SpeedControls {
 
         let desired_speed = self.desired_speed();
         if self.speed_up_btn.clicked() && desired_speed != self.speed_cap {
-            self.slider.set_percent(
+            self.speed_slider.set_percent(
                 ctx,
-                (self.slider.get_percent() + ADJUST_SPEED_PERCENT).min(1.0),
+                (self.speed_slider.get_percent() + ADJUST_SPEED_PERCENT).min(1.0),
             );
         } else if self.slow_down_btn.clicked() && desired_speed != 0.0 {
-            self.slider.set_percent(
+            self.speed_slider.set_percent(
                 ctx,
-                (self.slider.get_percent() - ADJUST_SPEED_PERCENT).max(0.0),
+                (self.speed_slider.get_percent() - ADJUST_SPEED_PERCENT).max(0.0),
             );
-        } else if self.slider.event(ctx) {
+        } else if self.speed_slider.event(ctx) {
             // Keep going
         }
 
@@ -235,7 +235,7 @@ impl SpeedControls {
         }
         self.slow_down_btn.draw(g);
         self.speed_up_btn.draw(g);
-        self.slider.draw(g);
+        self.speed_slider.draw(g);
         g.draw_text_at_screenspace_topleft(
             &Text::from(Line(format!("{:.2}x", self.desired_speed()))).no_bg(),
             ScreenPt::new(150.0, 100.0),
@@ -266,6 +266,6 @@ impl SpeedControls {
     }
 
     fn desired_speed(&self) -> f64 {
-        self.speed_cap * self.slider.get_percent().powf(std::f64::consts::E)
+        self.speed_cap * self.speed_slider.get_percent().powf(std::f64::consts::E)
     }
 }

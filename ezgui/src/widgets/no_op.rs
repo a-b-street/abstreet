@@ -1,6 +1,5 @@
 use crate::layout::Widget;
 use crate::{DrawBoth, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenPt, Text};
-use geom::{Distance, Polygon, Pt2D};
 
 // Just draw something. A widget just so layouting works.
 pub struct JustDraw {
@@ -11,16 +10,8 @@ pub struct JustDraw {
 
 impl JustDraw {
     pub fn image(filename: &str, ctx: &EventCtx) -> JustDraw {
-        let color = ctx.canvas.texture(filename);
-        let dims = color.texture_dims();
-        let batch = GeomBatch::from(vec![(
-            color,
-            Polygon::rectangle_topleft(
-                Pt2D::new(0.0, 0.0),
-                Distance::meters(dims.width),
-                Distance::meters(dims.height),
-            ),
-        )]);
+        let (color, rect) = ctx.canvas.texture_rect(filename);
+        let batch = GeomBatch::from(vec![(color, rect)]);
         JustDraw {
             draw: DrawBoth::new(ctx, batch, vec![]),
             top_left: ScreenPt::new(0.0, 0.0),

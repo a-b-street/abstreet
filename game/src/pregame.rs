@@ -116,6 +116,7 @@ pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
     );
     state.img_button_no_bg(
         "assets/pregame/quit.png",
+        "quit",
         hotkey(Key::Escape),
         Box::new(|_, _| {
             // TODO before_quit?
@@ -144,6 +145,7 @@ fn about(ctx: &EventCtx) -> Box<dyn State> {
 
     state.img_button_no_bg(
         "assets/pregame/back.png",
+        "back",
         hotkey(Key::Escape),
         Box::new(|_, _| Some(Transition::Pop)),
     );

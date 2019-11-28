@@ -22,10 +22,11 @@ impl<'a> ManagedGUIStateBuilder<'a> {
     pub fn img_button_no_bg(
         &mut self,
         filename: &str,
+        tooltip: &str,
         hotkey: Option<MultiKey>,
         onclick: Callback,
     ) {
-        let btn = Button::rectangle_img_no_bg(filename, hotkey, self.ctx);
+        let btn = Button::rectangle_img_no_bg(filename, tooltip, hotkey, self.ctx);
         self.state.buttons.push((btn, onclick));
     }
 
