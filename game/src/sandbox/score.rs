@@ -122,7 +122,7 @@ fn browse_trips(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
             .map(|m| Choice::new(m.to_string(), m).active(modes.contains(&m)))
             .collect()
     })?;
-    wizard.choose("Examine which trip?", || {
+    let (_, trip) = wizard.choose("Examine which trip?", || {
         let trips = ui.primary.sim.get_finished_trips();
         let mut filtered: Vec<&(TripID, TripMode, Duration)> = trips
             .finished_trips
@@ -137,6 +137,15 @@ fn browse_trips(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
             .map(|(id, _, dt)| Choice::new(format!("{} taking {}", id, dt), *id))
             .collect()
     })?;
-    // TODO show trip departure, where it started and ended
+
+    wizard.acknowledge(&format!("Log for {}", trip), || {
+        let lines = ui.primary.sim.get_analytics().get_trip_log(trip);
+        // TODO Because we need word wrap...
+        for l in &lines {
+            println!("- {}", l);
+        }
+        lines
+    })?;
+
     Some(Transition::Pop)
 }

@@ -192,11 +192,12 @@ impl TripManager {
             start = Position::new(start.lane(), start.dist_along() + parked_car.vehicle.length);
         }
         let end = drive_to.goal_pos(PathConstraints::Car, map);
-        let path = if let Some(p) = map.pathfind(PathRequest {
+        let req = PathRequest {
             start,
             end,
             constraints: PathConstraints::Car,
-        }) {
+        };
+        let path = if let Some(p) = map.pathfind(req.clone()) {
             p
         } else {
             println!(
@@ -214,6 +215,7 @@ impl TripManager {
             now,
             Command::SpawnCar(
                 CreateCar::for_parked_car(parked_car.clone(), router, start.dist_along(), trip.id),
+                req,
                 true,
             ),
         );
@@ -244,11 +246,12 @@ impl TripManager {
         };
 
         let end = drive_to.goal_pos(PathConstraints::Bike, map);
-        let path = if let Some(p) = map.pathfind(PathRequest {
+        let req = PathRequest {
             start: driving_pos,
             end,
             constraints: PathConstraints::Bike,
-        }) {
+        };
+        let path = if let Some(p) = map.pathfind(req.clone()) {
             p
         } else {
             println!(
@@ -266,6 +269,7 @@ impl TripManager {
             now,
             Command::SpawnCar(
                 CreateCar::for_appearing(vehicle, driving_pos, router, trip.id),
+                req,
                 true,
             ),
         );
@@ -339,6 +343,11 @@ impl TripManager {
         }
         match trip.legs[1] {
             TripLeg::RideBus(_, route, stop2) => {
+                self.events.push(Event::TripPhaseStarting(
+                    trip.id,
+                    None,
+                    format!("{} waiting at {:?} for {}", ped, stop, route),
+                ));
                 if transit.ped_waiting_for_bus(ped, stop, route, stop2) {
                     trip.legs.pop_front();
                     None
@@ -623,11 +632,12 @@ impl Trip {
             _ => unreachable!(),
         };
 
-        let path = if let Some(p) = map.pathfind(PathRequest {
+        let req = PathRequest {
             start: start.sidewalk_pos,
             end: walk_to.sidewalk_pos,
             constraints: PathConstraints::Pedestrian,
-        }) {
+        };
+        let path = if let Some(p) = map.pathfind(req.clone()) {
             p
         } else {
             println!(
@@ -639,14 +649,17 @@ impl Trip {
 
         scheduler.push(
             now,
-            Command::SpawnPed(CreatePedestrian {
-                id: ped,
-                speed,
-                start,
-                goal: walk_to,
-                path,
-                trip: self.id,
-            }),
+            Command::SpawnPed(
+                CreatePedestrian {
+                    id: ped,
+                    speed,
+                    start,
+                    goal: walk_to,
+                    path,
+                    trip: self.id,
+                },
+                req,
+            ),
         );
         true
     }

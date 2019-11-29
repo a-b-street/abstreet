@@ -2,7 +2,7 @@ use crate::{AgentID, CarID, Event, TripID, TripMode, VehicleType};
 use abstutil::Counter;
 use derivative::Derivative;
 use geom::{Duration, DurationHistogram, Time};
-use map_model::{BusRouteID, BusStopID, IntersectionID, Map, RoadID, Traversable};
+use map_model::{BusRouteID, BusStopID, IntersectionID, Map, PathRequest, RoadID, Traversable};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, VecDeque};
 
@@ -19,6 +19,8 @@ pub struct Analytics {
     // TODO Hack: No TripMode means aborted
     // Finish time, ID, mode (or None as aborted), trip duration
     pub finished_trips: Vec<(Time, TripID, Option<TripMode>, Duration)>,
+    // TODO This subsumes finished_trips
+    pub trip_log: Vec<(Time, TripID, Option<PathRequest>, String)>,
 }
 
 #[derive(Serialize, Deserialize, Derivative)]
@@ -45,6 +47,7 @@ impl Analytics {
             bus_arrivals: Vec::new(),
             total_bus_passengers: Counter::new(),
             finished_trips: Vec::new(),
+            trip_log: Vec::new(),
         }
     }
 
@@ -103,6 +106,17 @@ impl Analytics {
             self.finished_trips.push((time, id, Some(mode), dt));
         } else if let Event::TripAborted(id) = ev {
             self.finished_trips.push((time, id, None, Duration::ZERO));
+        }
+
+        // Trip log
+        if let Event::TripPhaseStarting(id, maybe_req, metadata) = ev {
+            self.trip_log.push((time, id, maybe_req, metadata));
+        } else if let Event::TripAborted(id) = ev {
+            self.trip_log
+                .push((time, id, None, format!("trip aborted for some reason")));
+        } else if let Event::TripFinished(id, _, dt) = ev {
+            self.trip_log
+                .push((time, id, None, format!("trip finished, total time {}", dt)));
         }
     }
 
@@ -265,5 +279,22 @@ impl Analytics {
             per_mode.get_mut(m).unwrap().last_mut().unwrap().1 += 1;
         }
         per_mode
+    }
+
+    pub fn get_trip_log(&self, trip: TripID) -> Vec<String> {
+        self.trip_log
+            .iter()
+            .filter_map(|(t, id, maybe_req, md)| {
+                if *id == trip {
+                    if let Some(req) = maybe_req {
+                        Some(format!("At {}: {} via {}", t, md, req))
+                    } else {
+                        Some(format!("At {}: {}", t, md))
+                    }
+                } else {
+                    None
+                }
+            })
+            .collect()
     }
 }

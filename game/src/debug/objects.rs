@@ -3,7 +3,7 @@ use crate::render::DrawMap;
 use crate::ui::UI;
 use ezgui::{EventCtx, GfxCtx, Key, Line, Text};
 use map_model::Map;
-use sim::{CarID, Sim};
+use sim::{AgentID, CarID, Sim};
 
 pub struct ObjectDebugger {
     debug_tooltip_key_held: bool,
@@ -91,9 +91,21 @@ fn dump_debug(id: ID, map: &Map, sim: &Sim, draw_map: &DrawMap) {
         }
         ID::Car(id) => {
             sim.debug_car(id);
+            if let Some(t) = sim.agent_to_trip(AgentID::Car(id)) {
+                println!("Trip log for {}", t);
+                for ev in sim.get_analytics().get_trip_log(t) {
+                    println!("- {}", ev);
+                }
+            }
         }
         ID::Pedestrian(id) => {
             sim.debug_ped(id);
+            if let Some(t) = sim.agent_to_trip(AgentID::Pedestrian(id)) {
+                println!("Trip log for {}", t);
+                for ev in sim.get_analytics().get_trip_log(t) {
+                    println!("- {}", ev);
+                }
+            }
         }
         ID::PedCrowd(members) => {
             println!("Crowd with {} members", members.len());

@@ -371,8 +371,9 @@ impl Sim {
             }
 
             self.time = time;
+            let mut events = Vec::new();
             match cmd {
-                Command::SpawnCar(create_car, retry_if_no_room) => {
+                Command::SpawnCar(create_car, req, retry_if_no_room) => {
                     if self.driving.start_car_on_lane(
                         self.time,
                         create_car.clone(),
@@ -388,10 +389,16 @@ impl Sim {
                         if let Some(parked_car) = create_car.maybe_parked_car {
                             self.parking.remove_parked_car(parked_car);
                         }
+                        events.push(Event::TripPhaseStarting(
+                            create_car.trip,
+                            Some(req),
+                            format!("{}", create_car.vehicle.id),
+                        ));
                     } else if retry_if_no_room {
+                        // TODO Record this in the trip log
                         self.scheduler.push(
                             self.time + BLIND_RETRY_TO_SPAWN,
-                            Command::SpawnCar(create_car, retry_if_no_room),
+                            Command::SpawnCar(create_car, req, retry_if_no_room),
                         );
                     } else {
                         println!(
@@ -401,18 +408,19 @@ impl Sim {
                         self.trips.abort_trip_failed_start(create_car.trip);
                     }
                 }
-                Command::SpawnPed(mut create_ped) => {
+                Command::SpawnPed(mut create_ped, mut req) => {
                     let ok = if let SidewalkPOI::DeferredParkingSpot(b, driving_goal) =
                         create_ped.goal.connection.clone()
                     {
                         if let Some(parked_car) = self.parking.dynamically_reserve_car(b) {
                             create_ped.goal =
                                 SidewalkSpot::parking_spot(parked_car.spot, map, &self.parking);
-                            if let Some(path) = map.pathfind(PathRequest {
+                            req = PathRequest {
                                 start: create_ped.start.sidewalk_pos,
                                 end: create_ped.goal.sidewalk_pos,
                                 constraints: PathConstraints::Pedestrian,
-                            }) {
+                            };
+                            if let Some(path) = map.pathfind(req.clone()) {
                                 create_ped.path = path;
                                 let mut legs = vec![
                                     TripLeg::Walk(
@@ -462,6 +470,16 @@ impl Sim {
                             AgentID::Pedestrian(create_ped.id),
                             create_ped.trip,
                         );
+                        events.push(Event::TripPhaseStarting(
+                            create_ped.trip,
+                            Some(req),
+                            format!(
+                                "{} from {:?} to {:?}",
+                                create_ped.id,
+                                create_ped.start.connection,
+                                create_ped.goal.connection
+                            ),
+                        ));
 
                         // Maybe there's actually no work to do!
                         match (&create_ped.start.connection, &create_ped.goal.connection) {
@@ -538,7 +556,6 @@ impl Sim {
             }
 
             // Record events at precisely the time they occur.
-            let mut events = Vec::new();
             events.extend(self.trips.collect_events());
             events.extend(self.transit.collect_events());
             events.extend(self.driving.collect_events());

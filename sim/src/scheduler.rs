@@ -1,7 +1,7 @@
 use crate::{AgentID, CarID, CreateCar, CreatePedestrian, PedestrianID};
 use derivative::Derivative;
 use geom::{Duration, DurationHistogram, Time};
-use map_model::IntersectionID;
+use map_model::{IntersectionID, PathRequest};
 use serde_derive::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::collections::{BTreeMap, BinaryHeap};
@@ -9,8 +9,8 @@ use std::collections::{BTreeMap, BinaryHeap};
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub enum Command {
     // If true, retry when there's no room to spawn somewhere
-    SpawnCar(CreateCar, bool),
-    SpawnPed(CreatePedestrian),
+    SpawnCar(CreateCar, PathRequest, bool),
+    SpawnPed(CreatePedestrian, PathRequest),
     UpdateCar(CarID),
     // Distinguish this from UpdateCar to avoid confusing things
     UpdateLaggyHead(CarID),
@@ -29,8 +29,8 @@ impl Command {
 
     pub fn to_type(&self) -> CommandType {
         match self {
-            Command::SpawnCar(ref create, _) => CommandType::Car(create.vehicle.id),
-            Command::SpawnPed(ref create) => CommandType::Ped(create.id),
+            Command::SpawnCar(ref create, _, _) => CommandType::Car(create.vehicle.id),
+            Command::SpawnPed(ref create, _) => CommandType::Ped(create.id),
             Command::UpdateCar(id) => CommandType::Car(*id),
             Command::UpdateLaggyHead(id) => CommandType::CarLaggyHead(*id),
             Command::UpdatePed(id) => CommandType::Ped(*id),

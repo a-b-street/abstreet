@@ -283,7 +283,7 @@ impl Path {
 
 // Who's asking for a path?
 // TODO This is an awful name.
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 pub enum PathConstraints {
     Pedestrian,
     Car,
@@ -325,7 +325,7 @@ impl PathConstraints {
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
 pub struct PathRequest {
     pub start: Position,
     pub end: Position,
