@@ -83,7 +83,7 @@ impl Wizard {
         }
 
         if self.tb.is_none() {
-            self.tb = Some(TextBox::new(query, prefilled, ctx.canvas));
+            self.tb = Some(TextBox::new(query, prefilled, ctx));
         }
         layout::stack_vertically(
             layout::ContainerOrientation::Centered,
@@ -124,7 +124,7 @@ impl Wizard {
         }
 
         if self.slider.is_none() {
-            self.slider = Some(SliderWithTextBox::new(query, low, high, ctx.canvas));
+            self.slider = Some(SliderWithTextBox::new(query, low, high, ctx));
         }
 
         match self.slider.as_mut().unwrap().event(ctx) {

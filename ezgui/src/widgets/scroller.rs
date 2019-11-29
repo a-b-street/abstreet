@@ -34,7 +34,7 @@ impl<T: Clone + Copy> Scroller<T> {
         master_topleft: ScreenPt,
         actual_items: Vec<(T, ScreenDims)>,
         current_selection: usize,
-        canvas: &Canvas,
+        ctx: &EventCtx,
     ) -> Scroller<T> {
         let max_width = actual_items
             .iter()
@@ -43,14 +43,14 @@ impl<T: Clone + Copy> Scroller<T> {
             .unwrap();
         let mut items = vec![(
             Item::UpButton,
-            ScreenDims::new(max_width, canvas.line_height),
+            ScreenDims::new(max_width, ctx.default_line_height()),
         )];
         for (item, dims) in actual_items {
             items.push((Item::Actual(item), dims));
         }
         items.push((
             Item::DownButton,
-            ScreenDims::new(max_width, canvas.line_height),
+            ScreenDims::new(max_width, ctx.default_line_height()),
         ));
 
         let top_idx = current_selection;
@@ -287,7 +287,7 @@ impl NewScroller {
     pub fn new(geom: GeomBatch, multi_txt: MultiText, zoom: f64, ctx: &EventCtx) -> NewScroller {
         let mut total_dims = geom.get_dims();
         for (txt, top_left) in &multi_txt.list {
-            let mut dims = ctx.canvas.text_dims(txt);
+            let mut dims = ctx.text_dims(txt);
             dims.width += top_left.x;
             dims.height += top_left.y;
             if dims.width > total_dims.width {

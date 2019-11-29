@@ -1,3 +1,4 @@
+use crate::assets::Assets;
 use crate::widgets::ContextMenu;
 use crate::{
     Canvas, Color, GfxCtx, HorizontalAlignment, Line, Prerender, ScreenDims, Text, UserInput,
@@ -6,8 +7,6 @@ use crate::{
 use abstutil::{elapsed_seconds, Timer, TimerSink};
 use geom::Angle;
 use glium::texture::{RawImage2d, Texture2dArray};
-use glium_glyph::glyph_brush::rusttype::Font;
-use glium_glyph::GlyphBrush;
 use std::collections::BTreeMap;
 use std::collections::VecDeque;
 use std::time::Instant;
@@ -19,6 +18,7 @@ pub struct EventCtx<'a> {
     pub prerender: &'a Prerender<'a>,
 
     pub(crate) program: &'a glium::Program,
+    pub(crate) assets: &'a Assets,
 }
 
 impl<'a> EventCtx<'a> {
@@ -32,9 +32,9 @@ impl<'a> EventCtx<'a> {
             Box::new(LoadingScreen::new(
                 self.prerender,
                 self.program,
+                self.assets,
                 self.canvas.window_width,
                 self.canvas.window_height,
-                self.canvas.font_size,
                 timer_name.to_string(),
             )),
         );
@@ -110,12 +110,24 @@ impl<'a> EventCtx<'a> {
                 .push(Texture2dArray::new(self.prerender.display, raw_data).unwrap());
         }
     }
+
+    // Delegation to assets
+    pub fn default_line_height(&self) -> f64 {
+        self.assets.default_line_height
+    }
+    pub fn line_height(&self, font_size: usize) -> f64 {
+        self.assets.line_height(font_size)
+    }
+    pub fn text_dims(&self, txt: &Text) -> ScreenDims {
+        self.assets.text_dims(txt)
+    }
 }
 
 pub struct LoadingScreen<'a> {
     canvas: Canvas,
     prerender: &'a Prerender<'a>,
     program: &'a glium::Program,
+    assets: &'a Assets,
     lines: VecDeque<String>,
     max_capacity: usize,
     last_drawn: Option<Instant>,
@@ -126,30 +138,19 @@ impl<'a> LoadingScreen<'a> {
     pub fn new(
         prerender: &'a Prerender<'a>,
         program: &'a glium::Program,
+        assets: &'a Assets,
         initial_width: f64,
         initial_height: f64,
-        font_size: usize,
         title: String,
     ) -> LoadingScreen<'a> {
-        // TODO Ew! Expensive and wacky. Fix by not storing GlyphBrush in Canvas at all.
-        let dejavu: &[u8] = include_bytes!("assets/DejaVuSans.ttf");
-        let screenspace_glyphs =
-            GlyphBrush::new(prerender.display, vec![Font::from_bytes(dejavu).unwrap()]);
-        let mapspace_glyphs =
-            GlyphBrush::new(prerender.display, vec![Font::from_bytes(dejavu).unwrap()]);
-        let canvas = Canvas::new(
-            initial_width,
-            initial_height,
-            screenspace_glyphs,
-            mapspace_glyphs,
-            font_size,
-        );
+        let canvas = Canvas::new(initial_width, initial_height);
 
         LoadingScreen {
             prerender,
             program,
+            assets,
             lines: VecDeque::new(),
-            max_capacity: (0.8 * initial_height / canvas.line_height) as usize,
+            max_capacity: (0.8 * initial_height / assets.default_line_height) as usize,
             last_drawn: None,
             title,
             canvas,
@@ -180,6 +181,7 @@ impl<'a> LoadingScreen<'a> {
             &mut target,
             self.program,
             &context_menu,
+            &self.assets,
             false,
         );
         g.clear(Color::BLACK);
@@ -188,7 +190,7 @@ impl<'a> LoadingScreen<'a> {
             &txt,
             (HorizontalAlignment::Center, VerticalAlignment::Center),
         );
-        self.canvas
+        self.assets
             .screenspace_glyphs
             .borrow_mut()
             .draw_queued(self.prerender.display, &mut target);

@@ -1,8 +1,8 @@
 use crate::layout::{stack_vertically, ContainerOrientation, Widget};
 use crate::widgets::text_box::TextBox;
 use crate::{
-    hotkey, Canvas, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, InputResult, Key, Line,
-    ModalMenu, MultiKey, ScreenDims, ScreenPt, ScreenRectangle, Text, Warper,
+    hotkey, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, InputResult, Key, Line, ModalMenu,
+    MultiKey, ScreenDims, ScreenPt, ScreenRectangle, Text, Warper,
 };
 use geom::{Distance, Polygon, Pt2D, Time};
 
@@ -417,10 +417,10 @@ pub struct SliderWithTextBox {
 }
 
 impl SliderWithTextBox {
-    pub fn new(prompt: &str, low: Time, high: Time, canvas: &Canvas) -> SliderWithTextBox {
+    pub fn new(prompt: &str, low: Time, high: Time, ctx: &EventCtx) -> SliderWithTextBox {
         SliderWithTextBox {
-            slider: Slider::new(canvas.text_dims(&Text::from(Line(prompt))).width, 15.0),
-            tb: TextBox::new(prompt, None, canvas),
+            slider: Slider::new(ctx.text_dims(&Text::from(Line(prompt))).width, 15.0),
+            tb: TextBox::new(prompt, None, ctx),
             low,
             high,
         }

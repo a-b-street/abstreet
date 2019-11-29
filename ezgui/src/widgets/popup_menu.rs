@@ -56,19 +56,19 @@ impl<T: Clone> PopupMenu<T> {
         if ctx.redo_mouseover() {
             let cursor = ctx.canvas.get_cursor_in_screen_space();
             let mut top_left = self.top_left;
-            top_left.y += ctx.canvas.text_dims(&self.prompt).height;
+            top_left.y += ctx.text_dims(&self.prompt).height;
             for idx in 0..self.choices.len() {
                 let rect = ScreenRectangle {
                     x1: top_left.x,
                     y1: top_left.y,
                     x2: top_left.x + self.dims.width,
-                    y2: top_left.y + ctx.canvas.line_height,
+                    y2: top_left.y + ctx.default_line_height(),
                 };
                 if rect.contains(cursor) {
                     self.current_idx = idx;
                     break;
                 }
-                top_left.y += ctx.canvas.line_height;
+                top_left.y += ctx.default_line_height();
             }
         }
         {
@@ -76,13 +76,13 @@ impl<T: Clone> PopupMenu<T> {
             if ctx.input.left_mouse_button_pressed() {
                 // Did we actually click the entry?
                 let mut top_left = self.top_left;
-                top_left.y += ctx.canvas.text_dims(&self.prompt).height;
-                top_left.y += ctx.canvas.line_height * (self.current_idx as f64);
+                top_left.y += ctx.text_dims(&self.prompt).height;
+                top_left.y += ctx.default_line_height() * (self.current_idx as f64);
                 let rect = ScreenRectangle {
                     x1: top_left.x,
                     y1: top_left.y,
                     x2: top_left.x + self.dims.width,
-                    y2: top_left.y + ctx.canvas.line_height,
+                    y2: top_left.y + ctx.default_line_height(),
                 };
                 if rect.contains(ctx.canvas.get_cursor_in_screen_space()) {
                     if choice.active {
@@ -138,7 +138,7 @@ impl<T: Clone> PopupMenu<T> {
     }
 
     fn recalculate_dims(&mut self, ctx: &EventCtx) {
-        self.dims = ctx.canvas.text_dims(&self.calculate_txt());
+        self.dims = ctx.text_dims(&self.calculate_txt());
     }
 
     fn calculate_txt(&self) -> Text {

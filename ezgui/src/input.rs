@@ -1,3 +1,4 @@
+use crate::assets::Assets;
 use crate::widgets::ContextMenu;
 use crate::{hotkey, lctrl, text, Canvas, Event, InputResult, Key, Line, MultiKey, ScreenPt, Text};
 use std::collections::{BTreeMap, HashMap};
@@ -22,7 +23,12 @@ pub struct UserInput {
 }
 
 impl UserInput {
-    pub(crate) fn new(event: Event, context_menu: ContextMenu, canvas: &mut Canvas) -> UserInput {
+    pub(crate) fn new(
+        event: Event,
+        context_menu: ContextMenu,
+        canvas: &mut Canvas,
+        assets: &Assets,
+    ) -> UserInput {
         let mut input = UserInput {
             event,
             event_consumed: false,
@@ -80,7 +86,7 @@ impl UserInput {
                 // Can't call consume_event() because context_menu is borrowed.
                 assert!(!input.event_consumed);
                 input.event_consumed = true;
-                match menu.event(input.event, canvas) {
+                match menu.event(input.event, assets) {
                     InputResult::Canceled => {
                         input.context_menu = ContextMenu::new();
                     }

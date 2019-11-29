@@ -1,3 +1,4 @@
+mod assets;
 mod canvas;
 mod color;
 mod drawing;

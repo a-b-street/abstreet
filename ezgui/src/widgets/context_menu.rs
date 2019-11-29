@@ -1,3 +1,4 @@
+use crate::assets::Assets;
 use crate::{
     text, Canvas, Event, GfxCtx, InputResult, Key, Line, ScreenDims, ScreenPt, ScreenRectangle,
     Text,
@@ -16,7 +17,7 @@ impl ContextMenu {
         ContextMenu::Inactive(BTreeSet::new())
     }
 
-    pub fn maybe_build(self, canvas: &Canvas) -> ContextMenu {
+    pub fn maybe_build(self, canvas: &Canvas, assets: &Assets) -> ContextMenu {
         match self {
             ContextMenu::Building(origin, actions) => {
                 if actions.is_empty() {
@@ -29,6 +30,7 @@ impl ContextMenu {
                             .collect(),
                         origin,
                         canvas,
+                        assets,
                     ))
                 }
             }
@@ -46,7 +48,12 @@ pub struct ContextMenuImpl {
 }
 
 impl ContextMenuImpl {
-    pub fn new(choices: Vec<(String, Key)>, corner: ScreenPt, canvas: &Canvas) -> ContextMenuImpl {
+    pub fn new(
+        choices: Vec<(String, Key)>,
+        corner: ScreenPt,
+        canvas: &Canvas,
+        assets: &Assets,
+    ) -> ContextMenuImpl {
         let mut m = ContextMenuImpl {
             choices,
             current_idx: None,
@@ -54,14 +61,14 @@ impl ContextMenuImpl {
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(0.0, 0.0),
         };
-        let dims = canvas.text_dims(&m.calculate_txt());
+        let dims = assets.text_dims(&m.calculate_txt());
         m.dims = dims;
         m.top_left = m.dims.top_left_for_corner(corner, canvas);
 
         m
     }
 
-    pub fn event(&mut self, ev: Event, canvas: &Canvas) -> InputResult<()> {
+    pub fn event(&mut self, ev: Event, assets: &Assets) -> InputResult<()> {
         // Handle the mouse
         match ev {
             Event::WindowLostCursor => {
@@ -75,13 +82,13 @@ impl ContextMenuImpl {
                         x1: top_left.x,
                         y1: top_left.y,
                         x2: top_left.x + self.dims.width,
-                        y2: top_left.y + canvas.line_height,
+                        y2: top_left.y + assets.default_line_height,
                     };
                     if rect.contains(cursor) {
                         self.current_idx = Some(idx);
                         break;
                     }
-                    top_left.y += canvas.line_height;
+                    top_left.y += assets.default_line_height;
                 }
             }
             Event::LeftMouseButtonDown => {

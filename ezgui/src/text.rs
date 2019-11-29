@@ -1,3 +1,4 @@
+use crate::assets::Assets;
 use crate::{Canvas, Color, GfxCtx, ScreenDims, ScreenPt, ScreenRectangle};
 use geom::{Distance, Polygon, Pt2D};
 use glium_glyph::glyph_brush::rusttype::Scale;
@@ -155,7 +156,7 @@ impl Text {
         self.lines.extend(other.lines.clone())
     }
 
-    pub(crate) fn dims(&self, canvas: &Canvas) -> ScreenDims {
+    pub(crate) fn dims(&self, assets: &Assets) -> ScreenDims {
         let mut max_width = 0;
         let mut height = 0.0;
 
@@ -164,10 +165,10 @@ impl Text {
             let mut max_size = 0;
             for span in line {
                 full_line.push_str(&span.text);
-                max_size = max_size.max(span.size.unwrap_or(canvas.font_size));
+                max_size = max_size.max(span.size.unwrap_or(assets.font_size));
             }
             // Empty lines or whitespace-only lines effectively have 0 width.
-            let width = canvas
+            let width = assets
                 .screenspace_glyphs
                 .borrow_mut()
                 .pixel_bounds(Section {
@@ -178,7 +179,7 @@ impl Text {
                 .map(|rect| rect.width())
                 .unwrap_or(0);
             max_width = max_width.max(width);
-            height += canvas.line_height(max_size);
+            height += assets.line_height(max_size);
         }
         ScreenDims::new(
             self.override_width.unwrap_or_else(|| f64::from(max_width)),
@@ -217,21 +218,21 @@ pub fn draw_text_bubble(
             text: line
                 .iter()
                 .map(|span| {
-                    max_size = max_size.max(span.size.unwrap_or(g.canvas.font_size));
+                    max_size = max_size.max(span.size.unwrap_or(g.assets.font_size));
                     SectionText {
                         text: &span.text,
                         color: match span.fg_color {
                             Color::RGBA(r, g, b, a) => [r, g, b, a],
                             _ => unreachable!(),
                         },
-                        scale: Scale::uniform(span.size.unwrap_or(g.canvas.font_size) as f32),
+                        scale: Scale::uniform(span.size.unwrap_or(g.assets.font_size) as f32),
                         ..SectionText::default()
                     }
                 })
                 .collect(),
             ..VariedSection::default()
         };
-        let height = g.canvas.line_height(max_size);
+        let height = g.line_height(max_size);
 
         if let Some(c) = line_color {
             g.draw_polygon(
@@ -245,7 +246,7 @@ pub fn draw_text_bubble(
         }
 
         y += height;
-        g.canvas.screenspace_glyphs.borrow_mut().queue(section);
+        g.assets.screenspace_glyphs.borrow_mut().queue(section);
     }
 
     g.unfork();
@@ -282,21 +283,21 @@ pub fn draw_text_bubble_mapspace(
             text: line
                 .iter()
                 .map(|span| {
-                    max_size = max_size.max(span.size.unwrap_or(g.canvas.font_size));
+                    max_size = max_size.max(span.size.unwrap_or(g.assets.font_size));
                     SectionText {
                         text: &span.text,
                         color: match span.fg_color {
                             Color::RGBA(r, g, b, a) => [r, g, b, a],
                             _ => unreachable!(),
                         },
-                        scale: Scale::uniform(span.size.unwrap_or(g.canvas.font_size) as f32),
+                        scale: Scale::uniform(span.size.unwrap_or(g.assets.font_size) as f32),
                         ..SectionText::default()
                     }
                 })
                 .collect(),
             ..VariedSection::default()
         };
-        let height = g.canvas.line_height(max_size) / SCALE_DOWN;
+        let height = g.line_height(max_size) / SCALE_DOWN;
 
         if let Some(c) = line_color {
             g.draw_polygon(
@@ -310,6 +311,6 @@ pub fn draw_text_bubble_mapspace(
         }
 
         y += height;
-        g.canvas.mapspace_glyphs.borrow_mut().queue(section);
+        g.assets.mapspace_glyphs.borrow_mut().queue(section);
     }
 }

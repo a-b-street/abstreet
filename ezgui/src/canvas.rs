@@ -1,10 +1,7 @@
-use crate::{Color, ScreenDims, ScreenPt, ScreenRectangle, Text, UserInput};
+use crate::{Color, ScreenPt, ScreenRectangle, Text, UserInput};
 use abstutil::Timer;
 use geom::{Bounds, Distance, Polygon, Pt2D};
 use glium::texture::Texture2dArray;
-use glium_glyph::glyph_brush::rusttype::Scale;
-use glium_glyph::glyph_brush::GlyphCruncher;
-use glium_glyph::GlyphBrush;
 use serde_derive::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -26,10 +23,6 @@ pub struct Canvas {
     pub window_width: f64,
     pub window_height: f64,
 
-    pub(crate) screenspace_glyphs: RefCell<GlyphBrush<'static, 'static>>,
-    pub(crate) mapspace_glyphs: RefCell<GlyphBrush<'static, 'static>>,
-    line_height_per_font_size: RefCell<HashMap<usize, f64>>,
-
     // TODO Bit weird and hacky to mutate inside of draw() calls.
     pub(crate) covered_areas: RefCell<Vec<ScreenRectangle>>,
     pub(crate) covered_polygons: RefCell<Vec<Polygon>>,
@@ -42,20 +35,11 @@ pub struct Canvas {
     // TODO Definitely a weird place to stash this!
     pub(crate) texture_arrays: Vec<Texture2dArray>,
     pub(crate) texture_lookups: HashMap<String, Color>,
-    // Of the default font size
-    pub line_height: f64,
-    pub(crate) font_size: usize,
 }
 
 impl Canvas {
-    pub(crate) fn new(
-        initial_width: f64,
-        initial_height: f64,
-        screenspace_glyphs: GlyphBrush<'static, 'static>,
-        mapspace_glyphs: GlyphBrush<'static, 'static>,
-        font_size: usize,
-    ) -> Canvas {
-        let mut c = Canvas {
+    pub(crate) fn new(initial_width: f64, initial_height: f64) -> Canvas {
+        Canvas {
             cam_x: 0.0,
             cam_y: 0.0,
             cam_zoom: 1.0,
@@ -68,9 +52,6 @@ impl Canvas {
             window_width: initial_width,
             window_height: initial_height,
 
-            screenspace_glyphs: RefCell::new(screenspace_glyphs),
-            mapspace_glyphs: RefCell::new(mapspace_glyphs),
-            line_height_per_font_size: RefCell::new(HashMap::new()),
             covered_areas: RefCell::new(Vec::new()),
             covered_polygons: RefCell::new(Vec::new()),
 
@@ -79,11 +60,7 @@ impl Canvas {
 
             texture_arrays: Vec::new(),
             texture_lookups: HashMap::new(),
-            line_height: 0.0,
-            font_size,
-        };
-        c.line_height = c.line_height(c.font_size);
-        c
+        }
     }
 
     pub(crate) fn is_dragging(&self) -> bool {
@@ -179,24 +156,6 @@ impl Canvas {
         b.update(self.screen_to_map(ScreenPt::new(0.0, 0.0)));
         b.update(self.screen_to_map(ScreenPt::new(self.window_width, self.window_height)));
         b
-    }
-
-    pub fn text_dims(&self, txt: &Text) -> ScreenDims {
-        txt.dims(self)
-    }
-
-    // Don't call this while screenspace_glyphs is mutably borrowed.
-    pub(crate) fn line_height(&self, font_size: usize) -> f64 {
-        let mut hash = self.line_height_per_font_size.borrow_mut();
-        if hash.contains_key(&font_size) {
-            return hash[&font_size];
-        }
-        let vmetrics =
-            self.screenspace_glyphs.borrow().fonts()[0].v_metrics(Scale::uniform(font_size as f32));
-        // TODO This works for this font, but could be more paranoid with abs()
-        let line_height = f64::from(vmetrics.ascent - vmetrics.descent + vmetrics.line_gap);
-        hash.insert(font_size, line_height);
-        line_height
     }
 
     pub fn texture(&self, filename: &str) -> Color {

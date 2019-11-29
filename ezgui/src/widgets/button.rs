@@ -225,7 +225,7 @@ impl Button {
         // TODO Arbitrarilyish the first user to be event()'d will eat this key.
         Button::icon_btn(
             "assets/ui/show.png",
-            ctx.canvas.line_height / 2.0,
+            ctx.default_line_height() / 2.0,
             tooltip,
             hotkey(Key::Tab),
             ctx,
@@ -235,7 +235,7 @@ impl Button {
     pub fn hide_btn(ctx: &EventCtx, tooltip: &str) -> Button {
         Button::icon_btn(
             "assets/ui/hide.png",
-            ctx.canvas.line_height / 2.0,
+            ctx.default_line_height() / 2.0,
             tooltip,
             hotkey(Key::Tab),
             ctx,
@@ -250,7 +250,7 @@ impl Button {
         ctx: &EventCtx,
     ) -> Button {
         text = text.no_bg();
-        let dims = ctx.canvas.text_dims(&text);
+        let dims = ctx.text_dims(&text);
         let geom = Polygon::rounded_rectangle(
             Distance::meters(dims.width + 2.0 * HORIZ_PADDING),
             Distance::meters(dims.height + 2.0 * VERT_PADDING),

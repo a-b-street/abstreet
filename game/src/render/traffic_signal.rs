@@ -309,7 +309,7 @@ impl TrafficSignalDiagram {
                 .enumerate()
                 .collect(),
             current_phase,
-            &ctx.canvas,
+            ctx,
         );
         let mut labels = Vec::new();
         for (idx, phase) in phases.iter().enumerate() {

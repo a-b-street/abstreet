@@ -173,7 +173,7 @@ impl ColorLegend {
             ScreenPt::new(
                 50.0,
                 g.canvas.window_height
-                    - (g.canvas.line_height
+                    - (g.default_line_height()
                         * ((self.rows.len() + self.header.num_lines() + 1) as f64)),
             ),
         );
@@ -186,16 +186,17 @@ impl ColorLegend {
                 Pt2D::new(
                     0.0,
                     g.canvas.window_height
-                        - (g.canvas.line_height
+                        - (g.default_line_height()
                             * ((self.rows.len() + self.header.num_lines() + 1) as f64)),
                 ),
                 Distance::meters(50.0),
                 Distance::meters(
-                    g.canvas.line_height * ((self.rows.len() + self.header.num_lines() + 1) as f64),
+                    g.default_line_height()
+                        * ((self.rows.len() + self.header.num_lines() + 1) as f64),
                 ),
             ),
         );
-        let square_dims = 0.8 * g.canvas.line_height;
+        let square_dims = 0.8 * g.default_line_height();
         for (idx, (_, c)) in self.rows.iter().enumerate() {
             let offset_from_bottom = 1 + self.rows.len() - idx;
             batch.push(
@@ -203,8 +204,9 @@ impl ColorLegend {
                 Polygon::rectangle_topleft(
                     Pt2D::new(
                         20.0,
-                        g.canvas.window_height - g.canvas.line_height * (offset_from_bottom as f64)
-                            + (g.canvas.line_height - square_dims) / 2.0,
+                        g.canvas.window_height
+                            - g.default_line_height() * (offset_from_bottom as f64)
+                            + (g.default_line_height() - square_dims) / 2.0,
                     ),
                     Distance::meters(square_dims),
                     Distance::meters(square_dims),

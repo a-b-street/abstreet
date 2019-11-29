@@ -93,19 +93,19 @@ impl ModalMenu {
             let cursor = ctx.canvas.get_cursor_in_screen_space();
             self.hovering_idx = None;
             let mut top_left = self.top_left;
-            top_left.y += ctx.canvas.line_height + ctx.canvas.text_dims(&self.info).height;
+            top_left.y += ctx.default_line_height() + ctx.text_dims(&self.info).height;
             for idx in 0..self.choices.len() {
                 let rect = ScreenRectangle {
                     x1: top_left.x,
                     y1: top_left.y,
                     x2: top_left.x + self.dims.width,
-                    y2: top_left.y + ctx.canvas.line_height,
+                    y2: top_left.y + ctx.default_line_height(),
                 };
                 if rect.contains(cursor) {
                     self.hovering_idx = Some(idx);
                     break;
                 }
-                top_left.y += ctx.canvas.line_height;
+                top_left.y += ctx.default_line_height();
             }
         }
         if let Some(idx) = self.hovering_idx {
@@ -266,7 +266,7 @@ impl ModalMenu {
     }
 
     fn recalculate_dims(&mut self, ctx: &EventCtx) {
-        self.dims = ctx.canvas.text_dims(&self.calculate_txt());
+        self.dims = ctx.text_dims(&self.calculate_txt());
     }
 
     fn calculate_txt(&self) -> Text {

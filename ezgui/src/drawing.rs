@@ -1,3 +1,4 @@
+use crate::assets::Assets;
 use crate::widgets::ContextMenu;
 use crate::{
     text, Canvas, Color, EventCtx, HorizontalAlignment, Key, ScreenDims, ScreenPt, ScreenRectangle,
@@ -74,6 +75,7 @@ pub struct GfxCtx<'a> {
     pub canvas: &'a Canvas,
     pub prerender: &'a Prerender<'a>,
     context_menu: &'a ContextMenu,
+    pub(crate) assets: &'a Assets,
 
     pub num_draw_calls: usize,
 }
@@ -85,6 +87,7 @@ impl<'a> GfxCtx<'a> {
         target: &'a mut glium::Frame,
         program: &'a glium::Program,
         context_menu: &'a ContextMenu,
+        assets: &'a Assets,
         screencap_mode: bool,
     ) -> GfxCtx<'a> {
         let params = glium::DrawParameters {
@@ -110,6 +113,7 @@ impl<'a> GfxCtx<'a> {
             screencap_mode,
             naming_hint: None,
             context_menu,
+            assets,
         }
     }
 
@@ -284,10 +288,6 @@ impl<'a> GfxCtx<'a> {
         );
     }
 
-    pub fn text_dims(&self, txt: &Text) -> ScreenDims {
-        txt.dims(&self.canvas)
-    }
-
     pub fn draw_text_at_screenspace_topleft(&mut self, txt: &Text, pt: ScreenPt) {
         let dims = self.text_dims(&txt);
         self.canvas
@@ -342,6 +342,17 @@ impl<'a> GfxCtx<'a> {
 
     pub fn button_tooltip(&self) -> Option<Text> {
         self.canvas.button_tooltip.clone()
+    }
+
+    // Delegation to assets
+    pub fn default_line_height(&self) -> f64 {
+        self.assets.default_line_height
+    }
+    pub fn line_height(&self, font_size: usize) -> f64 {
+        self.assets.line_height(font_size)
+    }
+    pub fn text_dims(&self, txt: &Text) -> ScreenDims {
+        self.assets.text_dims(txt)
     }
 }
 
@@ -575,7 +586,7 @@ impl DrawBoth {
     pub fn new(ctx: &EventCtx, batch: GeomBatch, txt: Vec<(Text, ScreenPt)>) -> DrawBoth {
         let mut total_dims = batch.get_dims();
         for (t, pt) in &txt {
-            let dims = ctx.canvas.text_dims(t);
+            let dims = ctx.text_dims(t);
             let w = dims.width + pt.x;
             let h = dims.height + pt.y;
             if w > total_dims.width {

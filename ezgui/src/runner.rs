@@ -1,8 +1,7 @@
+use crate::assets::Assets;
 use crate::widgets::ContextMenu;
 use crate::{text, widgets, Canvas, Event, EventCtx, GfxCtx, Prerender, UserInput};
 use glium::glutin;
-use glium_glyph::glyph_brush::rusttype::Font;
-use glium_glyph::{GlyphBrush, GlyphBrushBuilder};
 use std::cell::Cell;
 use std::time::{Duration, Instant};
 use std::{panic, process, thread};
@@ -35,6 +34,7 @@ pub enum EventLoopMode {
 pub(crate) struct State<G: GUI> {
     pub(crate) gui: G,
     pub(crate) canvas: Canvas,
+    assets: Assets,
     context_menu: ContextMenu,
 }
 
@@ -53,13 +53,15 @@ impl<G: GUI> State<G> {
 
         // It's impossible / very unlikey we'll grab the cursor in map space before the very first
         // start_drawing call.
-        let mut input = UserInput::new(ev, self.context_menu, &mut self.canvas);
+        let mut input = UserInput::new(ev, self.context_menu, &mut self.canvas, &self.assets);
         let mut gui = self.gui;
         let mut canvas = self.canvas;
+        let assets = self.assets;
         let event_mode = match panic::catch_unwind(panic::AssertUnwindSafe(|| {
             gui.event(&mut EventCtx {
                 input: &mut input,
                 canvas: &mut canvas,
+                assets: &assets,
                 prerender,
                 program,
             })
@@ -72,6 +74,7 @@ impl<G: GUI> State<G> {
         };
         self.gui = gui;
         self.canvas = canvas;
+        self.assets = assets;
         // TODO We should always do has_been_consumed, but various hacks prevent this from being
         // true. For now, just avoid the specific annoying redraw case when a KeyRelease or Update
         // event is unused.
@@ -79,7 +82,7 @@ impl<G: GUI> State<G> {
             Event::KeyRelease(_) | Event::Update => input.has_been_consumed(),
             _ => true,
         };
-        self.context_menu = input.context_menu.maybe_build(&self.canvas);
+        self.context_menu = input.context_menu.maybe_build(&self.canvas, &self.assets);
 
         (self, event_mode, input_used)
     }
@@ -99,6 +102,7 @@ impl<G: GUI> State<G> {
             &mut target,
             program,
             &self.context_menu,
+            &self.assets,
             screenshot,
         );
 
@@ -132,7 +136,7 @@ impl<G: GUI> State<G> {
                 (top_left.y() as f32, bottom_right.y() as f32),
                 text::SCALE_DOWN,
             );
-            self.canvas
+            self.assets
                 .mapspace_glyphs
                 .borrow_mut()
                 .draw_queued_with_transform(transform, display, &mut target);
@@ -145,7 +149,7 @@ impl<G: GUI> State<G> {
                 (0.0, self.canvas.window_height as f32),
                 1.0,
             );
-            self.canvas
+            self.assets
                 .screenspace_glyphs
                 .borrow_mut()
                 .draw_queued_with_transform(transform, display, &mut target);
@@ -251,27 +255,8 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: 
     )
     .unwrap();
 
-    let dejavu: &[u8] = include_bytes!("assets/DejaVuSans.ttf");
-    let screenspace_glyphs = GlyphBrush::new(&display, vec![Font::from_bytes(dejavu).unwrap()]);
-    let mapspace_glyphs = GlyphBrushBuilder::using_font_bytes(dejavu)
-        .params(glium::DrawParameters {
-            blend: glium::Blend::alpha_blending(),
-            depth: glium::Depth {
-                test: glium::DepthTest::IfLessOrEqual,
-                write: true,
-                ..Default::default()
-            },
-            ..Default::default()
-        })
-        .build(&display);
-
-    let mut canvas = Canvas::new(
-        settings.initial_dims.0,
-        settings.initial_dims.1,
-        screenspace_glyphs,
-        mapspace_glyphs,
-        settings.default_font_size,
-    );
+    let mut canvas = Canvas::new(settings.initial_dims.0, settings.initial_dims.1);
+    let assets = Assets::new(&display, settings.default_font_size);
     let prerender = Prerender {
         display: &display,
         num_uploads: Cell::new(0),
@@ -279,14 +264,16 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: 
     };
 
     let gui = make_gui(&mut EventCtx {
-        input: &mut UserInput::new(Event::NoOp, ContextMenu::new(), &mut canvas),
+        input: &mut UserInput::new(Event::NoOp, ContextMenu::new(), &mut canvas, &assets),
         canvas: &mut canvas,
+        assets: &assets,
         prerender: &prerender,
         program: &program,
     });
 
     let state = State {
         canvas,
+        assets,
         context_menu: ContextMenu::new(),
         gui,
     };
