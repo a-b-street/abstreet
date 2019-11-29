@@ -258,7 +258,12 @@ impl Path {
                 self.steps[i].slice(map, start_dist_this_step, dist_remaining)
             {
                 if pts_so_far.is_some() {
-                    pts_so_far = Some(pts_so_far.unwrap().extend(new_pts));
+                    if let Some(new) = pts_so_far.unwrap().maybe_extend(new_pts) {
+                        pts_so_far = Some(new);
+                    } else {
+                        println!("WARNING: Couldn't trace some path because of duplicate points");
+                        return None;
+                    }
                 } else {
                     pts_so_far = Some(new_pts);
                 }

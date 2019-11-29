@@ -102,6 +102,10 @@ impl PolyLine {
     }
 
     pub fn extend(self, other: PolyLine) -> PolyLine {
+        self.maybe_extend(other).unwrap()
+    }
+
+    pub fn maybe_extend(self, other: PolyLine) -> Option<PolyLine> {
         assert_eq!(*self.pts.last().unwrap(), other.pts[0]);
 
         let pl1 = to_set(self.points());
@@ -136,7 +140,7 @@ impl PolyLine {
             self_pts.pop();
         }
         self_pts.extend(other_pts.iter().skip(1));
-        PolyLine::new(self_pts)
+        PolyLine::maybe_new(self_pts)
     }
 
     // One or both args might be empty.

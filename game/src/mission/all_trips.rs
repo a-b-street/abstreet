@@ -69,8 +69,8 @@ impl TripsVisualizer {
                 "Trips Visualizer",
                 vec![
                     (hotkey(Key::Dot), "forwards 10 seconds"),
-                    (hotkey(Key::RightArrow), "forwards 30 minutes"),
                     (hotkey(Key::Comma), "backwards 10 seconds"),
+                    (hotkey(Key::RightArrow), "forwards 30 minutes"),
                     (hotkey(Key::LeftArrow), "backwards 30 minutes"),
                     (hotkey(Key::F), "goto start of day"),
                     (hotkey(Key::L), "goto end of day"),
@@ -120,17 +120,18 @@ impl State for TripsVisualizer {
 
         if self.menu.action("quit") {
             return Transition::Pop;
-        } else if time != Time::END_OF_DAY && self.menu.action("forwards 10 seconds") {
+        } else if time + ten_secs <= Time::END_OF_DAY && self.menu.action("forwards 10 seconds") {
             self.time_slider
                 .set_percent(ctx, (time + ten_secs).to_percent(Time::END_OF_DAY));
         } else if time + thirty_mins <= Time::END_OF_DAY && self.menu.action("forwards 30 minutes")
         {
             self.time_slider
                 .set_percent(ctx, (time + thirty_mins).to_percent(Time::END_OF_DAY));
-        } else if time != Time::START_OF_DAY && self.menu.action("backwards 10 seconds") {
+        } else if time >= Time::START_OF_DAY + ten_secs && self.menu.action("backwards 10 seconds")
+        {
             self.time_slider
-                .set_percent(ctx, (time - ten_secs).to_percent(Time::START_OF_DAY));
-        } else if time - thirty_mins >= Time::START_OF_DAY
+                .set_percent(ctx, (time - ten_secs).to_percent(Time::END_OF_DAY));
+        } else if time >= Time::START_OF_DAY + thirty_mins
             && self.menu.action("backwards 30 minutes")
         {
             self.time_slider
