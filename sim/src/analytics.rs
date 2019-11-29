@@ -2,7 +2,9 @@ use crate::{AgentID, CarID, Event, TripID, TripMode, VehicleType};
 use abstutil::Counter;
 use derivative::Derivative;
 use geom::{Duration, DurationHistogram, Time};
-use map_model::{BusRouteID, BusStopID, IntersectionID, Map, PathRequest, RoadID, Traversable};
+use map_model::{
+    BusRouteID, BusStopID, IntersectionID, Map, Path, PathRequest, RoadID, Traversable,
+};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, VecDeque};
 
@@ -114,9 +116,9 @@ impl Analytics {
         } else if let Event::TripAborted(id) = ev {
             self.trip_log
                 .push((time, id, None, format!("trip aborted for some reason")));
-        } else if let Event::TripFinished(id, _, dt) = ev {
+        } else if let Event::TripFinished(id, _, _) = ev {
             self.trip_log
-                .push((time, id, None, format!("trip finished, total time {}", dt)));
+                .push((time, id, None, format!("trip finished")));
         }
     }
 
@@ -297,4 +299,36 @@ impl Analytics {
             })
             .collect()
     }
+
+    pub fn get_trip_phases(&self, trip: TripID, map: &Map) -> Vec<TripPhase> {
+        let mut phases: Vec<TripPhase> = Vec::new();
+        for (t, id, maybe_req, md) in &self.trip_log {
+            if *id != trip {
+                continue;
+            }
+            if let Some(ref mut last) = phases.last_mut() {
+                last.end_time = Some(*t);
+            }
+            if md == "trip finished" || md == "trip aborted for some reason" {
+                break;
+            }
+            phases.push(TripPhase {
+                start_time: *t,
+                end_time: None,
+                // Unwrap should be safe, because this is the request that was actually done...
+                path: maybe_req
+                    .as_ref()
+                    .map(|req| map.pathfind(req.clone()).unwrap()),
+                description: md.clone(),
+            })
+        }
+        phases
+    }
+}
+
+pub struct TripPhase {
+    pub start_time: Time,
+    pub end_time: Option<Time>,
+    pub path: Option<Path>,
+    pub description: String,
 }

@@ -1,10 +1,11 @@
-use crate::common::CommonState;
+use crate::common::{CommonState, RoadColorer, RoadColorerBuilder};
 use crate::game::{State, Transition};
-use crate::helpers::ID;
+use crate::helpers::{rotating_color_map, ID};
 use crate::ui::UI;
-use ezgui::{EventCtx, GfxCtx, Key, Line, Text, WarpingItemSlider};
+use ezgui::{hotkey, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, WarpingItemSlider};
 use geom::Pt2D;
-use sim::{TripEnd, TripStart};
+use map_model::PathStep;
+use sim::{TripEnd, TripID, TripStart};
 
 // TODO More info, like each leg of the trip, times, separate driving leg for looking for
 // parking...
@@ -102,5 +103,86 @@ impl State for TripExplorer {
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         self.slider.draw(g);
         CommonState::draw_osd(g, ui, &ui.primary.current_selection);
+    }
+}
+
+pub struct NewTripExplorer {
+    menu: ModalMenu,
+    // TODO Or path traces?
+    colorer: RoadColorer,
+}
+
+impl NewTripExplorer {
+    pub fn new(trip: TripID, ctx: &mut EventCtx, ui: &UI) -> NewTripExplorer {
+        let phases = ui
+            .primary
+            .sim
+            .get_analytics()
+            .get_trip_phases(trip, &ui.primary.map);
+        // TODO Hack because ColorLegend only takes &str
+        let mut rows = Vec::new();
+        for (idx, p) in phases.iter().enumerate() {
+            let label = if let Some(t2) = p.end_time {
+                format!("{} .. {} ({})", p.start_time, t2, t2 - p.start_time)
+            } else {
+                format!(
+                    "{} .. ongoing ({} so far)",
+                    p.start_time,
+                    ui.primary.sim.time() - p.start_time
+                )
+            };
+            rows.push((
+                format!("{}: {}", label, p.description),
+                rotating_color_map(idx),
+            ));
+        }
+        let mut colorer = RoadColorerBuilder::new(
+            Text::prompt(&trip.to_string()),
+            rows.iter()
+                .map(|(label, color)| (label.as_str(), *color))
+                .collect(),
+        );
+        for (p, (_, color)) in phases.iter().zip(rows.iter()) {
+            if let Some(ref path) = p.path {
+                for s in path.get_steps() {
+                    match s {
+                        PathStep::Lane(l) | PathStep::ContraflowLane(l) => {
+                            colorer.add(*l, *color, &ui.primary.map);
+                        }
+                        _ => {}
+                    }
+                }
+            }
+        }
+
+        NewTripExplorer {
+            menu: ModalMenu::new(trip.to_string(), vec![(hotkey(Key::Escape), "quit")], ctx),
+            colorer: colorer.build(ctx, &ui.primary.map),
+        }
+    }
+}
+
+impl State for NewTripExplorer {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+        if ctx.redo_mouseover() {
+            ui.recalculate_current_selection(ctx);
+        }
+        ctx.canvas.handle_event(ctx.input);
+
+        self.menu.event(ctx);
+        if self.menu.action("quit") {
+            return Transition::Pop;
+        }
+
+        Transition::Keep
+    }
+
+    fn draw_default_ui(&self) -> bool {
+        false
+    }
+
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        self.colorer.draw(g, ui);
+        self.menu.draw(g);
     }
 }

@@ -1,3 +1,4 @@
+use crate::common::NewTripExplorer;
 use crate::game::{State, Transition, WizardState};
 use crate::sandbox::gameplay::{cmp_count_fewer, cmp_count_more, cmp_duration_shorter};
 use crate::ui::UI;
@@ -138,14 +139,8 @@ fn browse_trips(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
             .collect()
     })?;
 
-    wizard.acknowledge(&format!("Log for {}", trip), || {
-        let lines = ui.primary.sim.get_analytics().get_trip_log(trip);
-        // TODO Because we need word wrap...
-        for l in &lines {
-            println!("- {}", l);
-        }
-        lines
-    })?;
-
-    Some(Transition::Pop)
+    wizard.reset();
+    Some(Transition::Push(Box::new(NewTripExplorer::new(
+        trip, ctx, ui,
+    ))))
 }
