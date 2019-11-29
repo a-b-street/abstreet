@@ -2,7 +2,7 @@ use crate::assets::Assets;
 use crate::{Canvas, Color, GfxCtx, ScreenDims, ScreenPt, ScreenRectangle};
 use geom::{Distance, Polygon, Pt2D};
 use glium_glyph::glyph_brush::rusttype::Scale;
-use glium_glyph::glyph_brush::GlyphCruncher;
+use glium_glyph::glyph_brush::{FontId, GlyphCruncher};
 use glium_glyph::glyph_brush::{Section, SectionText, VariedSection};
 use textwrap;
 
@@ -17,11 +17,16 @@ pub const INACTIVE_CHOICE_COLOR: Color = Color::grey(0.4);
 const MAX_CHAR_WIDTH: f64 = 25.0;
 pub const SCALE_DOWN: f64 = 10.0;
 
+// These're hardcoded for simplicity; this list doesn't change much.
+const DEJA_VU: FontId = FontId(0);
+const ROBOTO: FontId = FontId(1);
+
 #[derive(Debug, Clone)]
 pub struct TextSpan {
     text: String,
     fg_color: Color,
     size: Option<usize>,
+    font: FontId,
     // TODO bold, italic, font style
 }
 
@@ -37,6 +42,12 @@ impl TextSpan {
         self.size = Some(size);
         self
     }
+
+    pub fn roboto(mut self) -> TextSpan {
+        assert_eq!(self.font, DEJA_VU);
+        self.font = ROBOTO;
+        self
+    }
 }
 
 // TODO What's the better way of doing this? Also "Line" is a bit of a misnomer
@@ -46,6 +57,7 @@ pub fn Line<S: Into<String>>(text: S) -> TextSpan {
         text: text.into(),
         fg_color: FG_COLOR,
         size: None,
+        font: DEJA_VU,
     }
 }
 
@@ -179,7 +191,8 @@ impl Text {
                 .map(|rect| rect.width())
                 .unwrap_or(0);
             max_width = max_width.max(width);
-            height += assets.line_height(max_size);
+            // TODO Assume the same font for all spans
+            height += assets.line_height(line[0].font, max_size);
         }
         ScreenDims::new(
             self.override_width.unwrap_or_else(|| f64::from(max_width)),
@@ -232,7 +245,8 @@ pub fn draw_text_bubble(
                 .collect(),
             ..VariedSection::default()
         };
-        let height = g.line_height(max_size);
+        // TODO Assume the same font for all spans
+        let height = g.line_height(line[0].font, max_size);
 
         if let Some(c) = line_color {
             g.draw_polygon(
@@ -297,7 +311,8 @@ pub fn draw_text_bubble_mapspace(
                 .collect(),
             ..VariedSection::default()
         };
-        let height = g.line_height(max_size) / SCALE_DOWN;
+        // TODO Assume the same font for all spans
+        let height = g.line_height(line[0].font, max_size) / SCALE_DOWN;
 
         if let Some(c) = line_color {
             g.draw_polygon(

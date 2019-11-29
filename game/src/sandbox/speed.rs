@@ -57,21 +57,20 @@ impl SpeedControls {
             );
 
             // Row 3 of labels for the time slider
-            // TODO Text should be roboto
             txt.push((
-                Text::from(Line("00:00").size(12)).no_bg(),
+                Text::from(Line("00:00").size(12).roboto()).no_bg(),
                 ScreenPt::new(25.0, 97.0),
             ));
             let (sunrise_color, sunrise_rect) = ctx.canvas.texture_rect("assets/speed/sunrise.png");
             batch.push(sunrise_color, sunrise_rect.translate(94.0, 94.0));
             txt.push((
-                Text::from(Line("12:00").size(12)).no_bg(),
+                Text::from(Line("12:00").size(12).roboto()).no_bg(),
                 ScreenPt::new(153.0, 97.0),
             ));
             let (sunset_color, sunset_rect) = ctx.canvas.texture_rect("assets/speed/sunset.png");
             batch.push(sunset_color, sunset_rect.translate(220.0, 94.0));
             txt.push((
-                Text::from(Line("24:00").size(12)).no_bg(),
+                Text::from(Line("24:00").size(12).roboto()).no_bg(),
                 ScreenPt::new(280.0, 97.0),
             ));
 
@@ -86,7 +85,7 @@ impl SpeedControls {
                 .translate(24.0, 128.0),
             );
             txt.push((
-                Text::from(Line("speed").size(14)).no_bg(),
+                Text::from(Line("speed").size(14).roboto()).no_bg(),
                 ScreenPt::new(32.0, 131.0),
             ));
 
@@ -328,7 +327,12 @@ impl SpeedControls {
 
             // TODO Center this text
             g.draw_text_at_screenspace_topleft(
-                &Text::from(Line(format!("{:.1}x", self.desired_speed())).size(14)).no_bg(),
+                &Text::from(
+                    Line(format!("{:.1}x", self.desired_speed()))
+                        .size(14)
+                        .roboto(),
+                )
+                .no_bg(),
                 ScreenPt::new(275.0, 131.0),
             );
 

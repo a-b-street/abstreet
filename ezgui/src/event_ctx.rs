@@ -115,9 +115,6 @@ impl<'a> EventCtx<'a> {
     pub fn default_line_height(&self) -> f64 {
         self.assets.default_line_height
     }
-    pub fn line_height(&self, font_size: usize) -> f64 {
-        self.assets.line_height(font_size)
-    }
     pub fn text_dims(&self, txt: &Text) -> ScreenDims {
         self.assets.text_dims(txt)
     }

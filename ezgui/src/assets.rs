@@ -1,6 +1,6 @@
 use crate::{ScreenDims, Text};
 use glium_glyph::glyph_brush::rusttype::{Font, Scale};
-use glium_glyph::glyph_brush::GlyphCruncher;
+use glium_glyph::glyph_brush::{FontId, GlyphCruncher};
 use glium_glyph::{GlyphBrush, GlyphBrushBuilder};
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -9,7 +9,7 @@ use std::collections::HashMap;
 pub struct Assets {
     pub screenspace_glyphs: RefCell<GlyphBrush<'static, 'static>>,
     pub mapspace_glyphs: RefCell<GlyphBrush<'static, 'static>>,
-    line_height_per_font_size: RefCell<HashMap<usize, f64>>,
+    line_height_per_font_size: RefCell<HashMap<(FontId, usize), f64>>,
     pub default_line_height: f64,
     pub font_size: usize,
 }
@@ -17,7 +17,14 @@ pub struct Assets {
 impl Assets {
     pub fn new(display: &glium::Display, font_size: usize) -> Assets {
         let dejavu: &[u8] = include_bytes!("assets/DejaVuSans.ttf");
-        let screenspace_glyphs = GlyphBrush::new(display, vec![Font::from_bytes(dejavu).unwrap()]);
+        let roboto: &[u8] = include_bytes!("assets/Roboto-Regular.ttf");
+        let screenspace_glyphs = GlyphBrush::new(
+            display,
+            vec![
+                Font::from_bytes(dejavu).unwrap(),
+                Font::from_bytes(roboto).unwrap(),
+            ],
+        );
         let mapspace_glyphs = GlyphBrushBuilder::using_font_bytes(dejavu)
             .params(glium::DrawParameters {
                 blend: glium::Blend::alpha_blending(),
@@ -37,7 +44,7 @@ impl Assets {
             default_line_height: 0.0,
             font_size,
         };
-        a.default_line_height = a.line_height(a.font_size);
+        a.default_line_height = a.line_height(FontId(0), a.font_size);
         a
     }
 
@@ -46,16 +53,17 @@ impl Assets {
     }
 
     // Don't call this while screenspace_glyphs is mutably borrowed.
-    pub fn line_height(&self, font_size: usize) -> f64 {
+    pub fn line_height(&self, font: FontId, font_size: usize) -> f64 {
         let mut hash = self.line_height_per_font_size.borrow_mut();
-        if hash.contains_key(&font_size) {
-            return hash[&font_size];
+        let key = (font, font_size);
+        if hash.contains_key(&key) {
+            return hash[&key];
         }
-        let vmetrics =
-            self.screenspace_glyphs.borrow().fonts()[0].v_metrics(Scale::uniform(font_size as f32));
+        let vmetrics = self.screenspace_glyphs.borrow().fonts()[font.0]
+            .v_metrics(Scale::uniform(font_size as f32));
         // TODO This works for this font, but could be more paranoid with abs()
         let line_height = f64::from(vmetrics.ascent - vmetrics.descent + vmetrics.line_gap);
-        hash.insert(font_size, line_height);
+        hash.insert(key, line_height);
         line_height
     }
 }

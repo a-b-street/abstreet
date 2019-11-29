@@ -7,6 +7,7 @@ use crate::{
 use geom::{Bounds, Circle, Distance, Line, Polygon, Pt2D};
 use glium::uniforms::{SamplerBehavior, SamplerWrapFunction, UniformValue};
 use glium::Surface;
+use glium_glyph::glyph_brush::FontId;
 use std::cell::Cell;
 
 const MAPSPACE: f32 = 0.0;
@@ -348,8 +349,8 @@ impl<'a> GfxCtx<'a> {
     pub fn default_line_height(&self) -> f64 {
         self.assets.default_line_height
     }
-    pub fn line_height(&self, font_size: usize) -> f64 {
-        self.assets.line_height(font_size)
+    pub(crate) fn line_height(&self, font: FontId, font_size: usize) -> f64 {
+        self.assets.line_height(font, font_size)
     }
     pub fn text_dims(&self, txt: &Text) -> ScreenDims {
         self.assets.text_dims(txt)

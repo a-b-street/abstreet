@@ -94,9 +94,13 @@ A/B Street binary releases contain pre-built maps that combine data from:
   (https://www.opendatacommons.org/licenses/pddl/1.0/)
 - https://github.com/seattleio/seattle-boundaries-data
   (https://creativecommons.org/publicdomain/zero/1.0/)
-- DejaVuSans.ttf (https://dejavu-fonts.github.io/License.html)
 - Puget Sound Regional Council
   (https://www.psrc.org/activity-based-travel-model-soundcast)
+
+Other binary data bundled in:
+
+- DejaVuSans.ttf (https://dejavu-fonts.github.io/License.html)
+- Roboto-Regular.ttf (https://fonts.google.com/specimen/Roboto, Apache license)
 - http://www.textures4photoshop.com for textures
 - Icons from https://thenounproject.com/aiga-icons/,
   https://thenounproject.com/sakchai.ruankam, https://thenounproject.com/wilmax
