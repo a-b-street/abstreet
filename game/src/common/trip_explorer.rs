@@ -1,10 +1,12 @@
-use crate::common::{CommonState, RoadColorer, RoadColorerBuilder};
+use crate::common::{ColorLegend, CommonState};
 use crate::game::{State, Transition};
 use crate::helpers::{rotating_color_map, ID};
+use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::UI;
-use ezgui::{hotkey, EventCtx, GfxCtx, Key, Line, ModalMenu, Text, WarpingItemSlider};
-use geom::Pt2D;
-use map_model::PathStep;
+use ezgui::{
+    hotkey, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu, Text, WarpingItemSlider,
+};
+use geom::{Distance, Pt2D};
 use sim::{TripEnd, TripID, TripStart};
 
 // TODO More info, like each leg of the trip, times, separate driving leg for looking for
@@ -108,8 +110,9 @@ impl State for TripExplorer {
 
 pub struct NewTripExplorer {
     menu: ModalMenu,
-    // TODO Or path traces?
-    colorer: RoadColorer,
+    unzoomed: Drawable,
+    zoomed: Drawable,
+    legend: ColorLegend,
 }
 
 impl NewTripExplorer {
@@ -136,28 +139,28 @@ impl NewTripExplorer {
                 rotating_color_map(idx),
             ));
         }
-        let mut colorer = RoadColorerBuilder::new(
+        let legend = ColorLegend::new(
             Text::prompt(&trip.to_string()),
             rows.iter()
                 .map(|(label, color)| (label.as_str(), *color))
                 .collect(),
         );
+        let mut unzoomed = GeomBatch::new();
+        let mut zoomed = GeomBatch::new();
         for (p, (_, color)) in phases.iter().zip(rows.iter()) {
-            if let Some(ref path) = p.path {
-                for s in path.get_steps() {
-                    match s {
-                        PathStep::Lane(l) | PathStep::ContraflowLane(l) => {
-                            colorer.add(*l, *color, &ui.primary.map);
-                        }
-                        _ => {}
-                    }
+            if let Some((dist, ref path)) = p.path {
+                if let Some(t) = path.trace(&ui.primary.map, dist, None) {
+                    unzoomed.push(*color, t.make_polygons(Distance::meters(10.0)));
+                    zoomed.push(*color, t.make_polygons(Distance::meters(1.0)));
                 }
             }
         }
 
         NewTripExplorer {
             menu: ModalMenu::new(trip.to_string(), vec![(hotkey(Key::Escape), "quit")], ctx),
-            colorer: colorer.build(ctx, &ui.primary.map),
+            legend,
+            unzoomed: unzoomed.upload(ctx),
+            zoomed: zoomed.upload(ctx),
         }
     }
 }
@@ -177,12 +180,13 @@ impl State for NewTripExplorer {
         Transition::Keep
     }
 
-    fn draw_default_ui(&self) -> bool {
-        false
-    }
-
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        self.colorer.draw(g, ui);
+    fn draw(&self, g: &mut GfxCtx, _: &UI) {
+        if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
+            g.redraw(&self.unzoomed);
+        } else {
+            g.redraw(&self.zoomed);
+        }
+        self.legend.draw(g);
         self.menu.draw(g);
     }
 }

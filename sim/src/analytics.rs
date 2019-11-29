@@ -1,7 +1,7 @@
 use crate::{AgentID, CarID, Event, TripID, TripMode, VehicleType};
 use abstutil::Counter;
 use derivative::Derivative;
-use geom::{Duration, DurationHistogram, Time};
+use geom::{Distance, Duration, DurationHistogram, Time};
 use map_model::{
     BusRouteID, BusStopID, IntersectionID, Map, Path, PathRequest, RoadID, Traversable,
 };
@@ -318,7 +318,7 @@ impl Analytics {
                 // Unwrap should be safe, because this is the request that was actually done...
                 path: maybe_req
                     .as_ref()
-                    .map(|req| map.pathfind(req.clone()).unwrap()),
+                    .map(|req| (req.start.dist_along(), map.pathfind(req.clone()).unwrap())),
                 description: md.clone(),
             })
         }
@@ -329,6 +329,7 @@ impl Analytics {
 pub struct TripPhase {
     pub start_time: Time,
     pub end_time: Option<Time>,
-    pub path: Option<Path>,
+    // Plumb along start distance
+    pub path: Option<(Distance, Path)>,
     pub description: String,
 }
