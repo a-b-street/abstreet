@@ -1,6 +1,6 @@
 use crate::edit::apply_map_edits;
 use crate::game::{State, Transition, WizardState};
-use crate::managed::{ManagedGUIState, ManagedWidget};
+use crate::managed::{LayoutStyle, ManagedGUIState, ManagedWidget};
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::UI;
 use abstutil::Timer;
@@ -74,29 +74,32 @@ fn all_challenges() -> Vec<Challenge> {
 }
 
 pub fn challenges_picker(ctx: &EventCtx) -> Box<dyn State> {
-    let mut widgets = Vec::new();
+    let mut col = Vec::new();
 
-    widgets.push(ManagedWidget::draw_text(
-        ctx,
-        Text::from(Line("A/B STREET").size(50)).no_bg(),
+    col.push(ManagedWidget::Row(
+        LayoutStyle::Neutral,
+        vec![
+            ManagedWidget::img_button_no_bg(
+                ctx,
+                "assets/pregame/back.png",
+                "back",
+                hotkey(Key::Escape),
+                Box::new(|_, _| Some(Transition::Pop)),
+            ),
+            ManagedWidget::draw_text(ctx, Text::from(Line("A/B STREET").size(50)).no_bg()),
+        ],
     ));
-    widgets.push(ManagedWidget::draw_text(
+
+    col.push(ManagedWidget::draw_text(
         ctx,
         Text::from(Line("CHALLENGES")).no_bg(),
     ));
-    widgets.push(ManagedWidget::draw_text(
+    col.push(ManagedWidget::draw_text(
         ctx,
         Text::from(Line("Make changes to achieve a goal")).no_bg(),
     ));
 
-    widgets.push(ManagedWidget::img_button_no_bg(
-        ctx,
-        "assets/pregame/back.png",
-        "back",
-        hotkey(Key::Escape),
-        Box::new(|_, _| Some(Transition::Pop)),
-    ));
-
+    let mut flex_row = Vec::new();
     for challenge in all_challenges() {
         let edits = abstutil::list_all_objects(abstutil::EDITS, &challenge.map_name);
 
@@ -108,7 +111,7 @@ pub fn challenges_picker(ctx: &EventCtx) -> Box<dyn State> {
         txt.add(Line(format!("{} attempts", edits.len())).fg(Color::BLACK));
         txt.add(Line("Last opened ???").fg(Color::BLACK));
 
-        widgets.push(ManagedWidget::detailed_text_button(
+        flex_row.push(ManagedWidget::detailed_text_button(
             ctx,
             txt,
             None,
@@ -141,8 +144,9 @@ pub fn challenges_picker(ctx: &EventCtx) -> Box<dyn State> {
             }),
         ));
     }
+    col.push(ManagedWidget::Row(LayoutStyle::FlexWrap, flex_row));
 
-    ManagedGUIState::new(widgets)
+    ManagedGUIState::new(ManagedWidget::Column(LayoutStyle::Centered, col))
 }
 
 struct ChallengeSplash {

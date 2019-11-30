@@ -4,15 +4,37 @@ use ezgui::layout::Widget;
 use ezgui::{Button, Color, EventCtx, GfxCtx, JustDraw, Line, MultiKey, ScreenPt, Text};
 use stretch::geometry::Size;
 use stretch::node::{Node, Stretch};
-use stretch::style::{AlignContent, Dimension, FlexDirection, FlexWrap, JustifyContent, Style};
+use stretch::style::{AlignItems, Dimension, FlexDirection, FlexWrap, JustifyContent, Style};
 
 type Callback = Box<dyn Fn(&mut EventCtx, &mut UI) -> Option<Transition>>;
 
 pub enum ManagedWidget {
     Draw(JustDraw),
     Btn(Button, Callback),
-    Row(Vec<ManagedWidget>),
-    Column(Vec<ManagedWidget>),
+    Row(LayoutStyle, Vec<ManagedWidget>),
+    Column(LayoutStyle, Vec<ManagedWidget>),
+}
+
+pub enum LayoutStyle {
+    Neutral,
+    Centered,
+    FlexWrap,
+}
+
+impl LayoutStyle {
+    fn apply(&self, style: &mut Style) {
+        match self {
+            LayoutStyle::Neutral => {}
+            LayoutStyle::Centered => {
+                style.align_items = AlignItems::Center;
+                style.justify_content = JustifyContent::SpaceAround;
+            }
+            LayoutStyle::FlexWrap => {
+                style.flex_wrap = FlexWrap::Wrap;
+                style.justify_content = JustifyContent::SpaceAround;
+            }
+        }
+    }
 }
 
 impl ManagedWidget {
@@ -80,7 +102,7 @@ impl ManagedWidget {
                     }
                 }
             }
-            ManagedWidget::Row(widgets) | ManagedWidget::Column(widgets) => {
+            ManagedWidget::Row(_, widgets) | ManagedWidget::Column(_, widgets) => {
                 for w in widgets {
                     if let Some(t) = w.event(ctx, ui) {
                         return Some(t);
@@ -95,7 +117,7 @@ impl ManagedWidget {
         match self {
             ManagedWidget::Draw(j) => j.draw(g),
             ManagedWidget::Btn(btn, _) => btn.draw(g),
-            ManagedWidget::Row(widgets) | ManagedWidget::Column(widgets) => {
+            ManagedWidget::Row(_, widgets) | ManagedWidget::Column(_, widgets) => {
                 for w in widgets {
                     w.draw(g);
                 }
@@ -109,11 +131,8 @@ pub struct ManagedGUIState {
 }
 
 impl ManagedGUIState {
-    // TODO Rm this
-    pub fn new(widgets: Vec<ManagedWidget>) -> Box<dyn State> {
-        Box::new(ManagedGUIState {
-            top_level: ManagedWidget::Column(widgets),
-        })
+    pub fn new(top_level: ManagedWidget) -> Box<dyn State> {
+        Box::new(ManagedGUIState { top_level })
     }
 }
 
@@ -196,38 +215,26 @@ fn flexbox(parent: Node, w: &ManagedWidget, stretch: &mut Stretch, nodes: &mut V
             stretch.add_child(parent, node).unwrap();
             nodes.push(node);
         }
-        ManagedWidget::Row(widgets) => {
-            let row = stretch
-                .new_node(
-                    Style {
-                        //flex_wrap: FlexWrap::Wrap,
-                        flex_direction: FlexDirection::Row,
-                        //justify_content: JustifyContent::SpaceAround,
-                        //align_content: AlignContent::Center,
-                        ..Default::default()
-                    },
-                    Vec::new(),
-                )
-                .unwrap();
+        ManagedWidget::Row(layout, widgets) => {
+            let mut style = Style {
+                flex_direction: FlexDirection::Row,
+                ..Default::default()
+            };
+            layout.apply(&mut style);
+            let row = stretch.new_node(style, Vec::new()).unwrap();
             nodes.push(row);
             for widget in widgets {
                 flexbox(row, widget, stretch, nodes);
             }
             stretch.add_child(parent, row).unwrap();
         }
-        ManagedWidget::Column(widgets) => {
-            let col = stretch
-                .new_node(
-                    Style {
-                        //flex_wrap: FlexWrap::Wrap,
-                        flex_direction: FlexDirection::Column,
-                        //justify_content: JustifyContent::SpaceAround,
-                        //align_content: AlignContent::Center,
-                        ..Default::default()
-                    },
-                    Vec::new(),
-                )
-                .unwrap();
+        ManagedWidget::Column(layout, widgets) => {
+            let mut style = Style {
+                flex_direction: FlexDirection::Column,
+                ..Default::default()
+            };
+            layout.apply(&mut style);
+            let col = stretch.new_node(style, Vec::new()).unwrap();
             nodes.push(col);
             for widget in widgets {
                 flexbox(col, widget, stretch, nodes);
@@ -254,13 +261,13 @@ fn apply_flexbox(
         ManagedWidget::Btn(widget, _) => {
             widget.set_pos(ScreenPt::new(x + dx, y + dy));
         }
-        ManagedWidget::Row(widgets) => {
+        ManagedWidget::Row(_, widgets) => {
             // layout() doesn't return absolute position; it's relative to the container.
             for widget in widgets {
                 apply_flexbox(widget, stretch, nodes, x + dx, y + dy);
             }
         }
-        ManagedWidget::Column(widgets) => {
+        ManagedWidget::Column(_, widgets) => {
             for widget in widgets {
                 apply_flexbox(widget, stretch, nodes, x + dx, y + dy);
             }
