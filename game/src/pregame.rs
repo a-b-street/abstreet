@@ -1,7 +1,7 @@
 use crate::abtest::setup::PickABTest;
 use crate::challenges::challenges_picker;
 use crate::game::{State, Transition};
-use crate::managed::ManagedGUIState;
+use crate::managed::{ManagedGUIState, ManagedWidget};
 use crate::mission::MissionEditMode;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::tutorial::TutorialMode;
@@ -70,51 +70,69 @@ impl State for TitleScreen {
 }
 
 pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
-    let mut state = ManagedGUIState::builder(ctx);
+    let mut widgets = Vec::new();
 
-    state.draw_text(Text::from(Line("A/B STREET").size(50)).no_bg());
-    state.draw_text(Text::from(Line("Created by Dustin Carlino")).no_bg());
-    state.draw_text(Text::from(Line("Choose your game")).no_bg());
+    widgets.push(ManagedWidget::draw_text(
+        ctx,
+        Text::from(Line("A/B STREET").size(50)).no_bg(),
+    ));
+    widgets.push(ManagedWidget::draw_text(
+        ctx,
+        Text::from(Line("Created by Dustin Carlino")).no_bg(),
+    ));
+    widgets.push(ManagedWidget::draw_text(
+        ctx,
+        Text::from(Line("Choose your game")).no_bg(),
+    ));
 
-    state.img_button(
-        "assets/pregame/tutorial.png",
-        hotkey(Key::T),
-        Box::new(|ctx, _| Some(Transition::Push(Box::new(TutorialMode::new(ctx))))),
-    );
-    state.img_button(
-        "assets/pregame/sandbox.png",
-        hotkey(Key::S),
-        Box::new(|ctx, ui| {
-            Some(Transition::Push(Box::new(SandboxMode::new(
-                ctx,
-                ui,
-                GameplayMode::Freeform,
-            ))))
-        }),
-    );
-    state.img_button(
-        "assets/pregame/challenges.png",
-        hotkey(Key::C),
-        Box::new(|ctx, _| Some(Transition::Push(challenges_picker(ctx)))),
-    );
+    widgets.push(ManagedWidget::Row(vec![
+        ManagedWidget::img_button(
+            ctx,
+            "assets/pregame/tutorial.png",
+            hotkey(Key::T),
+            Box::new(|ctx, _| Some(Transition::Push(Box::new(TutorialMode::new(ctx))))),
+        ),
+        ManagedWidget::img_button(
+            ctx,
+            "assets/pregame/sandbox.png",
+            hotkey(Key::S),
+            Box::new(|ctx, ui| {
+                Some(Transition::Push(Box::new(SandboxMode::new(
+                    ctx,
+                    ui,
+                    GameplayMode::Freeform,
+                ))))
+            }),
+        ),
+        ManagedWidget::img_button(
+            ctx,
+            "assets/pregame/challenges.png",
+            hotkey(Key::C),
+            Box::new(|ctx, _| Some(Transition::Push(challenges_picker(ctx)))),
+        ),
+    ]));
     if ui.primary.current_flags.dev {
-        state.text_button(
+        widgets.push(ManagedWidget::text_button(
+            ctx,
             "INTERNAL DEV TOOLS",
             hotkey(Key::M),
             Box::new(|ctx, _| Some(Transition::Push(Box::new(MissionEditMode::new(ctx))))),
-        );
-        state.text_button(
+        ));
+        widgets.push(ManagedWidget::text_button(
+            ctx,
             "INTERNAL A/B TEST MODE",
             hotkey(Key::A),
             Box::new(|_, _| Some(Transition::Push(PickABTest::new()))),
-        );
+        ));
     }
-    state.text_button(
+    widgets.push(ManagedWidget::text_button(
+        ctx,
         "About A/B Street",
         None,
         Box::new(|ctx, _| Some(Transition::Push(about(ctx)))),
-    );
-    state.img_button_no_bg(
+    ));
+    widgets.push(ManagedWidget::img_button_no_bg(
+        ctx,
         "assets/pregame/quit.png",
         "quit",
         hotkey(Key::Escape),
@@ -122,12 +140,12 @@ pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
             // TODO before_quit?
             std::process::exit(0);
         }),
-    );
-    state.build()
+    ));
+    ManagedGUIState::new(widgets)
 }
 
 fn about(ctx: &EventCtx) -> Box<dyn State> {
-    let mut state = ManagedGUIState::builder(ctx);
+    let mut widgets = Vec::new();
 
     let mut txt = Text::new().no_bg();
     txt.add(Line("A/B STREET").size(50));
@@ -141,16 +159,17 @@ fn about(ctx: &EventCtx) -> Box<dyn State> {
         "See full credits at https://github.com/dabreegster/abstreet#credits",
     ));
     // TODO centered
-    state.draw_text(txt);
+    widgets.push(ManagedWidget::draw_text(ctx, txt));
 
-    state.img_button_no_bg(
+    widgets.push(ManagedWidget::img_button_no_bg(
+        ctx,
         "assets/pregame/back.png",
         "back",
         hotkey(Key::Escape),
         Box::new(|_, _| Some(Transition::Pop)),
-    );
+    ));
 
-    state.build()
+    ManagedGUIState::new(widgets)
 }
 
 const SPEED: Speed = Speed::const_meters_per_second(20.0);

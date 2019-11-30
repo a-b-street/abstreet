@@ -1,6 +1,6 @@
 use crate::edit::apply_map_edits;
 use crate::game::{State, Transition, WizardState};
-use crate::managed::ManagedGUIState;
+use crate::managed::{ManagedGUIState, ManagedWidget};
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::UI;
 use abstutil::Timer;
@@ -74,18 +74,28 @@ fn all_challenges() -> Vec<Challenge> {
 }
 
 pub fn challenges_picker(ctx: &EventCtx) -> Box<dyn State> {
-    let mut state = ManagedGUIState::builder(ctx);
+    let mut widgets = Vec::new();
 
-    state.draw_text(Text::from(Line("A/B STREET").size(50)).no_bg());
-    state.draw_text(Text::from(Line("CHALLENGES")).no_bg());
-    state.draw_text(Text::from(Line("Make changes to achieve a goal")).no_bg());
+    widgets.push(ManagedWidget::draw_text(
+        ctx,
+        Text::from(Line("A/B STREET").size(50)).no_bg(),
+    ));
+    widgets.push(ManagedWidget::draw_text(
+        ctx,
+        Text::from(Line("CHALLENGES")).no_bg(),
+    ));
+    widgets.push(ManagedWidget::draw_text(
+        ctx,
+        Text::from(Line("Make changes to achieve a goal")).no_bg(),
+    ));
 
-    state.img_button_no_bg(
+    widgets.push(ManagedWidget::img_button_no_bg(
+        ctx,
         "assets/pregame/back.png",
         "back",
         hotkey(Key::Escape),
         Box::new(|_, _| Some(Transition::Pop)),
-    );
+    ));
 
     for challenge in all_challenges() {
         let edits = abstutil::list_all_objects(abstutil::EDITS, &challenge.map_name);
@@ -98,7 +108,8 @@ pub fn challenges_picker(ctx: &EventCtx) -> Box<dyn State> {
         txt.add(Line(format!("{} attempts", edits.len())).fg(Color::BLACK));
         txt.add(Line("Last opened ???").fg(Color::BLACK));
 
-        state.detailed_text_button(
+        widgets.push(ManagedWidget::detailed_text_button(
+            ctx,
             txt,
             None,
             Box::new(move |ctx, _| {
@@ -128,10 +139,10 @@ pub fn challenges_picker(ctx: &EventCtx) -> Box<dyn State> {
                     challenge: challenge.clone(),
                 })))
             }),
-        );
+        ));
     }
 
-    state.build()
+    ManagedGUIState::new(widgets)
 }
 
 struct ChallengeSplash {
