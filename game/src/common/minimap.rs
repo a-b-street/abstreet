@@ -125,17 +125,22 @@ impl Minimap {
                 clamp(pt.y(), 0.0, bounds.max_y),
             )
         };
-        g.draw_polygon(
-            Color::RED,
-            &Ring::new(vec![
-                Pt2D::new(x1, y1),
-                Pt2D::new(x2, y1),
-                Pt2D::new(x2, y2),
-                Pt2D::new(x1, y2),
-                Pt2D::new(x1, y1),
-            ])
-            .make_polygons(Distance::meters(20.0)),
-        );
+        if x1 != x2 && y1 != y2 {
+            g.draw_polygon(
+                Color::RED,
+                &Ring::new(vec![
+                    Pt2D::new(x1, y1),
+                    Pt2D::new(x2, y1),
+                    Pt2D::new(x2, y2),
+                    Pt2D::new(x1, y2),
+                    Pt2D::new(x1, y1),
+                ])
+                .make_polygons(Distance::meters(20.0)),
+            );
+        } else {
+            // TODO Happens when we're quite out-of-bounds. Maybe stop allowing this at all?
+            println!("Warning: Minimap cursor is just a point right now");
+        }
         g.unfork();
     }
 }
