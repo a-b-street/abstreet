@@ -103,10 +103,14 @@ impl DrivingSimState {
             } else {
                 // Have to do this early
                 if car.router.last_step() {
-                    match car
-                        .router
-                        .maybe_handle_end(params.start_dist, &car.vehicle, parking, map)
-                    {
+                    match car.router.maybe_handle_end(
+                        params.start_dist,
+                        &car.vehicle,
+                        parking,
+                        map,
+                        car.trip,
+                        &mut self.events,
+                    ) {
                         None | Some(ActionAtEnd::GotoLaneEnd) => {}
                         x => {
                             panic!("Car with one-step route {:?} had unexpected result from maybe_handle_end: {:?}", car.router, x);
@@ -261,8 +265,14 @@ impl DrivingSimState {
                     // doing something weird like vanishing or re-parking immediately
                     // (quite unlikely), the next loop will pick that up. Just trigger the
                     // side effect of choosing an end_dist.
-                    car.router
-                        .maybe_handle_end(front, &car.vehicle, parking, map);
+                    car.router.maybe_handle_end(
+                        front,
+                        &car.vehicle,
+                        parking,
+                        map,
+                        car.trip,
+                        &mut self.events,
+                    );
                 }
                 car.state = car.crossing_state(front, now, map);
                 scheduler.push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
@@ -347,7 +357,9 @@ impl DrivingSimState {
                 // We do NOT need to update the follower. If they were Queued, they'll remain that
                 // way, until laggy_head is None.
 
-                let last_step = car.router.advance(&car.vehicle, parking, map);
+                let last_step =
+                    car.router
+                        .advance(&car.vehicle, parking, map, car.trip, &mut self.events);
                 car.state = car.crossing_state(Distance::ZERO, now, map);
                 car.blocked_since = None;
                 scheduler.push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
@@ -419,10 +431,14 @@ impl DrivingSimState {
             | CarState::Idling(_, _)
             | CarState::WaitingToAdvance => unreachable!(),
             CarState::Queued => {
-                match car
-                    .router
-                    .maybe_handle_end(our_dist, &car.vehicle, parking, map)
-                {
+                match car.router.maybe_handle_end(
+                    our_dist,
+                    &car.vehicle,
+                    parking,
+                    map,
+                    car.trip,
+                    &mut self.events,
+                ) {
                     Some(ActionAtEnd::VanishAtBorder(i)) => {
                         trips.car_or_bike_reached_border(now, car.vehicle.id, i);
                     }

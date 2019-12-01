@@ -1,9 +1,9 @@
 use crate::mechanics::Queue;
-use crate::{ParkingSimState, ParkingSpot, SidewalkSpot, Vehicle};
+use crate::{Event, ParkingSimState, ParkingSpot, SidewalkSpot, TripID, Vehicle};
 use geom::Distance;
 use map_model::{
-    BuildingID, IntersectionID, LaneID, Map, Path, PathConstraints, PathStep, Position,
-    Traversable, TurnID,
+    BuildingID, IntersectionID, LaneID, Map, Path, PathConstraints, PathRequest, PathStep,
+    Position, Traversable, TurnID,
 };
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap, VecDeque};
@@ -125,11 +125,13 @@ impl Router {
         vehicle: &Vehicle,
         parking: &ParkingSimState,
         map: &Map,
+        trip: TripID,
+        events: &mut Vec<Event>,
     ) -> Traversable {
         let prev = self.path.shift(map).as_traversable();
         if self.last_step() {
             // Do this to trigger the side-effect of looking for parking.
-            self.maybe_handle_end(Distance::ZERO, vehicle, parking, map);
+            self.maybe_handle_end(Distance::ZERO, vehicle, parking, map, trip, events);
         }
 
         // Sanity check laws haven't been broken
@@ -154,6 +156,9 @@ impl Router {
         vehicle: &Vehicle,
         parking: &ParkingSimState,
         map: &Map,
+        // TODO Not so nice to plumb all of this here
+        trip: TripID,
+        events: &mut Vec<Event>,
     ) -> Option<ActionAtEnd> {
         match self.goal {
             Goal::EndAtBorder { end_dist, i } => {
@@ -187,6 +192,15 @@ impl Router {
                         vehicle,
                         map,
                     ) {
+                        events.push(Event::TripPhaseStarting(
+                            trip,
+                            Some(PathRequest {
+                                start: Position::new(current_lane, front),
+                                end: new_pos,
+                                constraints: PathConstraints::Car,
+                            }),
+                            format!("parking on the current lane"),
+                        ));
                         *spot = Some((new_spot, new_pos.dist_along()));
                     } else {
                         if let Some((new_path_steps, new_spot, new_pos)) =
@@ -196,6 +210,16 @@ impl Router {
                             for step in new_path_steps {
                                 self.path.add(step, map);
                             }
+                            // TODO This path might not be the same as the one found here...
+                            events.push(Event::TripPhaseStarting(
+                                trip,
+                                Some(PathRequest {
+                                    start: Position::new(current_lane, front),
+                                    end: new_pos,
+                                    constraints: PathConstraints::Car,
+                                }),
+                                format!("parking somewhere else"),
+                            ));
                         } else {
                             println!("WARNING: {} can't find parking on {} or anywhere reachable from it. Possibly we're just totally out of parking space!", vehicle.id, current_lane);
                             *stuck_end_dist = Some(map.get_l(current_lane).length());
