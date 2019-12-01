@@ -207,15 +207,19 @@ impl DrivingGoal {
     }
 
     pub fn goal_pos(&self, constraints: PathConstraints, map: &Map) -> Position {
-        let lane = match self {
+        match self {
             DrivingGoal::ParkNear(b) => match constraints {
-                PathConstraints::Car => map.find_driving_lane_near_building(*b),
-                PathConstraints::Bike => map.find_biking_lane_near_building(*b),
+                PathConstraints::Car => {
+                    Position::new(map.find_driving_lane_near_building(*b), Distance::ZERO)
+                }
+                PathConstraints::Bike => {
+                    let l = map.find_biking_lane_near_building(*b);
+                    Position::new(l, map.get_l(l).length() / 2.0)
+                }
                 PathConstraints::Bus | PathConstraints::Pedestrian => unreachable!(),
             },
-            DrivingGoal::Border(_, l) => *l,
-        };
-        Position::new(lane, map.get_l(lane).length())
+            DrivingGoal::Border(_, l) => Position::new(*l, map.get_l(*l).length()),
+        }
     }
 
     pub(crate) fn make_router(&self, path: Path, map: &Map, vt: VehicleType) -> Router {
