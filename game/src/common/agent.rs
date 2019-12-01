@@ -116,8 +116,19 @@ impl AgentTools {
         if let Some(explorer) = RouteExplorer::new(ctx, ui) {
             return Some(Transition::Push(Box::new(explorer)));
         }
-        if let Some(explorer) = TripExplorer::new(ctx, ui) {
-            return Some(Transition::Push(Box::new(explorer)));
+        if let Some(trip) = ui
+            .primary
+            .current_selection
+            .as_ref()
+            .and_then(|id| id.agent_id())
+            .and_then(|agent| ui.primary.sim.agent_to_trip(agent))
+        {
+            if ctx
+                .input
+                .contextual_action(Key::T, format!("explore {}", trip))
+            {
+                return Some(Transition::Push(Box::new(TripExplorer::new(trip, ctx, ui))));
+            }
         }
 
         None

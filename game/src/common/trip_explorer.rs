@@ -1,122 +1,21 @@
-use crate::common::{ColorLegend, CommonState};
+use crate::common::ColorLegend;
 use crate::game::{State, Transition};
-use crate::helpers::{rotating_color_map, ID};
+use crate::helpers::rotating_color_map;
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::UI;
-use ezgui::{
-    hotkey, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu, Text, WarpingItemSlider,
-};
-use geom::{Distance, Pt2D};
+use ezgui::{hotkey, Drawable, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu, Text};
+use geom::{Circle, Distance};
 use sim::{TripEnd, TripID, TripStart};
 
-// TODO More info, like each leg of the trip, times, separate driving leg for looking for
-// parking...
 pub struct TripExplorer {
-    slider: WarpingItemSlider<ID>,
-}
-
-impl TripExplorer {
-    pub fn new(ctx: &mut EventCtx, ui: &UI) -> Option<TripExplorer> {
-        let map = &ui.primary.map;
-        let agent = ui
-            .primary
-            .current_selection
-            .as_ref()
-            .and_then(|id| id.agent_id())?;
-        let trip = ui.primary.sim.agent_to_trip(agent)?;
-        let status = ui.primary.sim.trip_status(trip);
-        if !ctx.input.contextual_action(Key::T, "explore trip") {
-            return None;
-        }
-
-        let steps: Vec<(Pt2D, ID, Text)> = vec![
-            match status.start {
-                TripStart::Bldg(b) => (
-                    map.get_b(b).front_path.line.pt1(),
-                    ID::Building(b),
-                    Text::from(Line(format!("start at {}", map.get_b(b).get_name()))),
-                ),
-                TripStart::Border(i) => (
-                    map.get_i(i).polygon.center(),
-                    ID::Intersection(i),
-                    Text::from(Line(format!("enter map via {}", i))),
-                ),
-            },
-            (
-                ui.primary
-                    .sim
-                    .get_canonical_pt_per_trip(trip, map)
-                    .ok()
-                    .unwrap(),
-                ID::from_agent(agent),
-                Text::from(Line("currently here")),
-            ),
-            match status.end {
-                TripEnd::Bldg(b) => (
-                    map.get_b(b).front_path.line.pt1(),
-                    ID::Building(b),
-                    Text::from(Line(format!("end at {}", map.get_b(b).get_name()))),
-                ),
-                TripEnd::Border(i) => (
-                    map.get_i(i).polygon.center(),
-                    ID::Intersection(i),
-                    Text::from(Line(format!("leave map via {}", i))),
-                ),
-                TripEnd::ServeBusRoute(br) => {
-                    let route = map.get_br(br);
-                    let stop = map.get_bs(route.stops[0]);
-                    (
-                        stop.driving_pos.pt(map),
-                        ID::BusStop(stop.id),
-                        Text::from(Line(format!("serve route {} forever", route.name))),
-                    )
-                }
-            },
-        ];
-
-        Some(TripExplorer {
-            slider: WarpingItemSlider::new(
-                steps,
-                &format!("Trip Explorer for {}", trip),
-                "step",
-                ctx,
-            ),
-        })
-    }
-}
-
-impl State for TripExplorer {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        if ctx.redo_mouseover() {
-            ui.recalculate_current_selection(ctx);
-        }
-        ctx.canvas.handle_event(ctx.input);
-
-        if let Some((evmode, done_warping)) = self.slider.event(ctx) {
-            if done_warping {
-                ui.primary.current_selection = Some(self.slider.get().1.clone());
-            }
-            Transition::KeepWithMode(evmode)
-        } else {
-            Transition::Pop
-        }
-    }
-
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        self.slider.draw(g);
-        CommonState::draw_osd(g, ui, &ui.primary.current_selection);
-    }
-}
-
-pub struct NewTripExplorer {
     menu: ModalMenu,
     unzoomed: Drawable,
     zoomed: Drawable,
     legend: ColorLegend,
 }
 
-impl NewTripExplorer {
-    pub fn new(trip: TripID, ctx: &mut EventCtx, ui: &UI) -> NewTripExplorer {
+impl TripExplorer {
+    pub fn new(trip: TripID, ctx: &mut EventCtx, ui: &UI) -> TripExplorer {
         let phases = ui
             .primary
             .sim
@@ -136,15 +35,9 @@ impl NewTripExplorer {
             };
             rows.push((
                 format!("{}: {}", label, p.description),
-                rotating_color_map(idx),
+                rotating_color_map(idx + 1),
             ));
         }
-        let legend = ColorLegend::new(
-            Text::prompt(&trip.to_string()),
-            rows.iter()
-                .map(|(label, color)| (label.as_str(), *color))
-                .collect(),
-        );
         let mut unzoomed = GeomBatch::new();
         let mut zoomed = GeomBatch::new();
         for (p, (_, color)) in phases.iter().zip(rows.iter()) {
@@ -156,7 +49,72 @@ impl NewTripExplorer {
             }
         }
 
-        NewTripExplorer {
+        // Handle endpoints
+        let status = ui.primary.sim.trip_status(trip);
+        let start_color = rotating_color_map(0);
+        match status.start {
+            TripStart::Bldg(b) => {
+                let bldg = ui.primary.map.get_b(b);
+                rows.insert(0, (format!("start at {}", bldg.get_name()), start_color));
+                unzoomed.push(start_color, bldg.polygon.clone());
+                zoomed.push(start_color, bldg.polygon.clone());
+            }
+            TripStart::Border(i) => {
+                let i = ui.primary.map.get_i(i);
+                rows.insert(0, (format!("enter map via {}", i.id), start_color));
+                unzoomed.push(start_color, i.polygon.clone());
+                zoomed.push(start_color, i.polygon.clone());
+            }
+        };
+
+        // Is the trip ongoing?
+        if let Some(pt) = ui
+            .primary
+            .sim
+            .get_canonical_pt_per_trip(trip, &ui.primary.map)
+            .ok()
+        {
+            let color = rotating_color_map(rows.len());
+            unzoomed.push(color, Circle::new(pt, Distance::meters(10.0)).to_polygon());
+            zoomed.push(
+                color.alpha(0.7),
+                Circle::new(pt, Distance::meters(5.0)).to_polygon(),
+            );
+            rows.push((format!("currently here"), color));
+        }
+
+        let end_color = rotating_color_map(rows.len());
+        match status.end {
+            TripEnd::Bldg(b) => {
+                let bldg = ui.primary.map.get_b(b);
+                rows.push((format!("end at {}", bldg.get_name()), end_color));
+                unzoomed.push(end_color, bldg.polygon.clone());
+                zoomed.push(end_color, bldg.polygon.clone());
+            }
+            TripEnd::Border(i) => {
+                let i = ui.primary.map.get_i(i);
+                rows.push((format!("leave map via {}", i.id), end_color));
+                unzoomed.push(end_color, i.polygon.clone());
+                zoomed.push(end_color, i.polygon.clone());
+            }
+            // TODO TripExplorer is pretty useless for buses; maybe jump to BusRouteExplorer or
+            // something instead
+            TripEnd::ServeBusRoute(br) => {
+                rows.push((
+                    format!("serve route {} forever", ui.primary.map.get_br(br).name),
+                    end_color,
+                ));
+            }
+        };
+
+        let legend = ColorLegend::new(
+            Text::prompt(&trip.to_string()),
+            rows.iter()
+                .map(|(label, color)| (label.as_str(), *color))
+                .collect(),
+        );
+
+        TripExplorer {
             menu: ModalMenu::new(trip.to_string(), vec![(hotkey(Key::Escape), "quit")], ctx),
             legend,
             unzoomed: unzoomed.upload(ctx),
@@ -165,7 +123,7 @@ impl NewTripExplorer {
     }
 }
 
-impl State for NewTripExplorer {
+impl State for TripExplorer {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         if ctx.redo_mouseover() {
             ui.recalculate_current_selection(ctx);

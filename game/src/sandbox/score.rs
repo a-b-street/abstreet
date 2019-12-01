@@ -1,4 +1,4 @@
-use crate::common::NewTripExplorer;
+use crate::common::TripExplorer;
 use crate::game::{State, Transition, WizardState};
 use crate::sandbox::gameplay::{cmp_count_fewer, cmp_count_more, cmp_duration_shorter};
 use crate::ui::UI;
@@ -140,7 +140,5 @@ fn browse_trips(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
     })?;
 
     wizard.reset();
-    Some(Transition::Push(Box::new(NewTripExplorer::new(
-        trip, ctx, ui,
-    ))))
+    Some(Transition::Push(Box::new(TripExplorer::new(trip, ctx, ui))))
 }
