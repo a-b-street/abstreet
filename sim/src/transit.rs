@@ -173,7 +173,16 @@ impl TransitSimState {
                     if stop == stop1 && bus.route == route {
                         bus.passengers.push((ped, stop2));
                         self.events.push(Event::PedEntersBus(ped, id, route));
-                        trips.ped_boarded_bus(ped, walking);
+                        let trip = trips.ped_boarded_bus(ped, walking);
+                        self.events.push(Event::TripPhaseStarting(
+                            trip,
+                            Some(PathRequest {
+                                start: map.get_bs(stop1).driving_pos,
+                                end: map.get_bs(stop2).driving_pos,
+                                constraints: PathConstraints::Bus,
+                            }),
+                            format!("{} riding {}", ped, route),
+                        ));
                     } else {
                         still_waiting.push((ped, stop1, route, stop2));
                     }
