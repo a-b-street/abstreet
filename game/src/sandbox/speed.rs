@@ -1,9 +1,10 @@
-use crate::game::{Transition, WizardState};
+use crate::game::{State, Transition, WizardState};
 use crate::ui::UI;
 use ezgui::layout::Widget;
 use ezgui::{
-    hotkey, Button, Color, DrawBoth, EventCtx, GeomBatch, GfxCtx, Key, Line, ScreenPt,
-    ScreenRectangle, Slider, Text, Wizard,
+    hotkey, Button, Color, DrawBoth, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, ScreenPt, ScreenRectangle, Slider, Text, VerticalAlignment,
+    Wizard,
 };
 use geom::{Distance, Duration, Line, Polygon, Pt2D, Time};
 use std::time::Instant;
@@ -26,11 +27,11 @@ pub struct SpeedControls {
     slow_down_btn: Button,
     speed_up_btn: Button,
 
-    state: State,
+    state: SpeedState,
     speed_cap: f64,
 }
 
-enum State {
+enum SpeedState {
     Paused,
     Running {
         last_step: Instant,
@@ -165,7 +166,7 @@ impl SpeedControls {
             slow_down_btn,
             speed_up_btn,
 
-            state: State::Paused,
+            state: SpeedState::Paused,
             speed_cap,
         }
     }
@@ -190,11 +191,11 @@ impl SpeedControls {
         }
 
         match self.state {
-            State::Paused => {
+            SpeedState::Paused => {
                 self.resume_btn.event(ctx);
                 if self.resume_btn.clicked() {
                     let now = Instant::now();
-                    self.state = State::Running {
+                    self.state = SpeedState::Running {
                         last_step: now,
                         speed_description: "...".to_string(),
                         last_measurement: now,
@@ -203,7 +204,7 @@ impl SpeedControls {
                     return None;
                 }
             }
-            State::Running {
+            SpeedState::Running {
                 ref mut last_step,
                 ref mut speed_description,
                 ref mut last_measurement,
@@ -342,14 +343,14 @@ impl SpeedControls {
 
     pub fn pause(&mut self) {
         if !self.is_paused() {
-            self.state = State::Paused;
+            self.state = SpeedState::Paused;
         }
     }
 
     pub fn is_paused(&self) -> bool {
         match self.state {
-            State::Paused => true,
-            State::Running { .. } => false,
+            SpeedState::Paused => true,
+            SpeedState::Running { .. } => false,
         }
     }
 
@@ -359,17 +360,64 @@ impl SpeedControls {
 }
 
 fn jump_to_time(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
-    let t = wiz.wrap(ctx).input_time_slider(
+    let target = wiz.wrap(ctx).input_time_slider(
         "Jump to what time?",
         ui.primary.sim.time(),
         Time::END_OF_DAY,
     )?;
-    let dt = t - ui.primary.sim.time();
-    ctx.loading_screen(&format!("step forwards {}", dt), |_, mut timer| {
-        ui.primary.sim.timed_step(&ui.primary.map, dt, &mut timer);
-        if let Some(ref mut s) = ui.secondary {
-            s.sim.timed_step(&s.map, dt, &mut timer);
+    Some(Transition::Replace(Box::new(TimeWarpScreen {
+        target,
+        started: Instant::now(),
+    })))
+}
+
+// Display a nicer screen for jumping forwards in time, allowing cancellation.
+pub struct TimeWarpScreen {
+    target: Time,
+    started: Instant,
+}
+
+impl State for TimeWarpScreen {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+        if ctx.input.new_was_pressed(hotkey(Key::Escape).unwrap()) {
+            return Transition::Pop;
         }
-    });
-    Some(Transition::Pop)
+        if ctx.input.nonblocking_is_update_event() {
+            ctx.input.use_update_event();
+            ui.primary.sim.time_limited_step(
+                &ui.primary.map,
+                self.target - ui.primary.sim.time(),
+                Duration::seconds(0.1),
+            );
+            // TODO secondary for a/b test mode
+        }
+        if ui.primary.sim.time() == self.target {
+            return Transition::Pop;
+        }
+
+        Transition::KeepWithMode(EventLoopMode::Animation)
+    }
+
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        // TODO Instead display base speed controls, some indication of target time and ability to
+        // cancel
+        let mut txt = Text::prompt("Warping through time...");
+        txt.add(Line(format!(
+            "Simulating until it's {}",
+            self.target.ampm_tostring()
+        )));
+        txt.add(Line(format!(
+            "It's currently {}",
+            ui.primary.sim.time().ampm_tostring()
+        )));
+        txt.add(Line(format!(
+            "Have been simulating for {}",
+            Duration::realtime_elapsed(self.started)
+        )));
+        txt.add(Line(format!("Press ESCAPE to stop now")));
+        g.draw_blocking_text(
+            &txt,
+            (HorizontalAlignment::Center, VerticalAlignment::Center),
+        );
+    }
 }
