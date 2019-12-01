@@ -248,15 +248,10 @@ impl SpeedControls {
 
         self.large_step_btn.event(ctx);
         if self.large_step_btn.clicked() {
-            ctx.loading_screen("step forwards 10 minutes", |_, mut timer| {
-                ui.primary
-                    .sim
-                    .timed_step(&ui.primary.map, Duration::minutes(10), &mut timer);
-                if let Some(ref mut s) = ui.secondary {
-                    s.sim.timed_step(&s.map, Duration::minutes(10), &mut timer);
-                }
-            });
-            ui.recalculate_current_selection(ctx);
+            return Some(Transition::Push(Box::new(TimeWarpScreen {
+                target: ui.primary.sim.time() + Duration::minutes(10),
+                started: Instant::now(),
+            })));
         }
 
         self.jump_to_time_btn.event(ctx);
