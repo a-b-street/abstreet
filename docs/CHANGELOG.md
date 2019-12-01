@@ -187,3 +187,11 @@ changes here.
 - fix Mac crashing with texture limit bug by switching to texture arrays
 - fix crashing simulation when a border intersection was used
 - started to implement a new UI design for starting the game
+
+0.1.17
+
+- more work on the pre-game UI, with some flexbox layouting
+- prototype a minimap in sandbox mode. doesn't pan or scroll yet.
+- prototype a new speed/time control panel from the mockup
+- nicer time warp loading screen
+- record and show detailed trip timeline, including time to park
