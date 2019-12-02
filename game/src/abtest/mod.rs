@@ -1,4 +1,3 @@
-mod score;
 pub mod setup;
 
 use crate::common::{AgentTools, CommonState};
@@ -60,10 +59,7 @@ impl ABTestMode {
             info_tools: MenuUnderButton::new(
                 "assets/ui/info.png",
                 "Info",
-                vec![
-                    (hotkey(Key::Q), "scoreboard"),
-                    (hotkey(Key::Semicolon), "change agent colorscheme"),
-                ],
+                vec![(hotkey(Key::Semicolon), "change agent colorscheme")],
                 0.3,
                 ctx,
             ),
@@ -146,14 +142,6 @@ impl State for ABTestMode {
                 &mut self.secondary_agent_tools,
             );
             self.flipped = !self.flipped;
-        }
-
-        if self.info_tools.action("scoreboard") {
-            return Transition::Push(Box::new(score::Scoreboard::new(
-                ctx,
-                &ui.primary,
-                ui.secondary.as_ref().unwrap(),
-            )));
         }
 
         if let Some(t) =

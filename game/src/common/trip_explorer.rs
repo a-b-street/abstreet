@@ -41,9 +41,9 @@ impl TripExplorer {
         }
 
         // Handle endpoints
-        let status = ui.primary.sim.trip_status(trip);
+        let (trip_start, trip_end) = ui.primary.sim.trip_endpoints(trip);
         let start_color = rotating_color_map(0);
-        match status.start {
+        match trip_start {
             TripStart::Bldg(b) => {
                 let bldg = ui.primary.map.get_b(b);
                 rows.insert(0, (format!("start at {}", bldg.get_name()), start_color));
@@ -75,7 +75,7 @@ impl TripExplorer {
         }
 
         let end_color = rotating_color_map(rows.len());
-        match status.end {
+        match trip_end {
             TripEnd::Bldg(b) => {
                 let bldg = ui.primary.map.get_b(b);
                 rows.push((format!("end at {}", bldg.get_name()), end_color));

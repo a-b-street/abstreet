@@ -22,8 +22,8 @@ pub(crate) use self::router::{ActionAtEnd, Router};
 pub(crate) use self::scheduler::{Command, Scheduler};
 pub use self::sim::{Sim, SimOptions};
 pub(crate) use self::transit::TransitSimState;
-pub use self::trips::{FinishedTrips, TripEnd, TripMode, TripStart, TripStatus};
 pub use self::trips::{TripCount, TripResult};
+pub use self::trips::{TripEnd, TripMode, TripStart};
 pub(crate) use self::trips::{TripLeg, TripManager};
 pub use crate::render::{
     AgentMetadata, CarStatus, DontDrawAgents, DrawCarInput, DrawPedCrowdInput, DrawPedestrianInput,

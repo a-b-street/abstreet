@@ -1,10 +1,10 @@
 use crate::{
     AgentID, AgentMetadata, Analytics, CarID, Command, CreateCar, DrawCarInput, DrawPedCrowdInput,
-    DrawPedestrianInput, DrivingGoal, DrivingSimState, Event, FinishedTrips, GetDrawAgents,
-    IntersectionSimState, ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, Router, Scheduler,
-    SidewalkPOI, SidewalkSpot, TransitSimState, TripCount, TripID, TripLeg, TripManager, TripMode,
-    TripPositions, TripResult, TripSpawner, TripSpec, TripStart, TripStatus, UnzoomedAgent,
-    VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
+    DrawPedestrianInput, DrivingGoal, DrivingSimState, Event, GetDrawAgents, IntersectionSimState,
+    ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, Router, Scheduler, SidewalkPOI,
+    SidewalkSpot, TransitSimState, TripCount, TripEnd, TripID, TripLeg, TripManager, TripMode,
+    TripPositions, TripResult, TripSpawner, TripSpec, TripStart, UnzoomedAgent, VehicleSpec,
+    VehicleType, WalkingSimState, BUS_LENGTH,
 };
 use abstutil::Timer;
 use derivative::Derivative;
@@ -768,10 +768,6 @@ impl Sim {
         )
     }
 
-    pub fn get_finished_trips(&self) -> FinishedTrips {
-        self.trips.get_finished_trips()
-    }
-
     pub fn count_trips_involving_bldg(&self, b: BuildingID) -> TripCount {
         self.trips.count_trips_involving_bldg(b, self.time)
     }
@@ -848,8 +844,8 @@ impl Sim {
         self.trips.trip_to_agent(id)
     }
 
-    pub fn trip_status(&self, id: TripID) -> TripStatus {
-        self.trips.trip_status(id)
+    pub fn trip_endpoints(&self, id: TripID) -> (TripStart, TripEnd) {
+        self.trips.trip_endpoints(id)
     }
 
     pub fn lookup_car_id(&self, idx: usize) -> Option<CarID> {

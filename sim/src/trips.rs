@@ -4,7 +4,7 @@ use crate::{
     Vehicle, VehicleType, WalkingSimState,
 };
 use abstutil::{deserialize_btreemap, serialize_btreemap, Counter};
-use geom::{Duration, Speed, Time};
+use geom::{Speed, Time};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathConstraints, PathRequest, Position,
 };
@@ -58,8 +58,7 @@ impl TripManager {
                     mode = TripMode::Transit;
                 }
                 TripLeg::ServeBusRoute(_, _) => {
-                    // Confusing, because Transit usually means riding transit. But bus trips will
-                    // never get returned in FinishedTrips anyway.
+                    // Confusing, because Transit usually means riding transit
                     mode = TripMode::Transit;
                 }
             }
@@ -506,24 +505,6 @@ impl TripManager {
         )
     }
 
-    pub fn get_finished_trips(&self) -> FinishedTrips {
-        let mut result = FinishedTrips {
-            unfinished_trips: self.unfinished_trips,
-            aborted_trips: 0,
-            finished_trips: Vec::new(),
-        };
-        for t in &self.trips {
-            if let Some(end) = t.finished_at {
-                result
-                    .finished_trips
-                    .push((t.id, t.mode, end - t.spawned_at));
-            } else if t.aborted {
-                result.aborted_trips += 1;
-            }
-        }
-        result
-    }
-
     pub fn is_done(&self) -> bool {
         self.unfinished_trips == 0
     }
@@ -532,18 +513,15 @@ impl TripManager {
         std::mem::replace(&mut self.events, Vec::new())
     }
 
-    pub fn trip_status(&self, id: TripID) -> TripStatus {
-        let trip = &self.trips[id.0];
-        TripStatus {
-            start: trip.start.clone(),
-            end: trip.end.clone(),
-        }
-    }
-
     // Return trip start time too
     pub fn find_trip_using_car(&self, id: CarID, home: BuildingID) -> Option<(TripID, Time)> {
         let t = self.trips.iter().find(|t| t.uses_car(id, home))?;
         Some((t.id, t.spawned_at))
+    }
+
+    pub fn trip_endpoints(&self, id: TripID) -> (TripStart, TripEnd) {
+        let t = &self.trips[id.0];
+        (t.start.clone(), t.end.clone())
     }
 
     // TODO Refactor after wrangling the TripStart/TripEnd mess
@@ -693,14 +671,6 @@ pub enum TripLeg {
     ServeBusRoute(CarID, BusRouteID),
 }
 
-// As of a moment in time, not necessarily the end of the simulation
-pub struct FinishedTrips {
-    pub unfinished_trips: usize,
-    pub aborted_trips: usize,
-    // (..., ..., time to complete trip)
-    pub finished_trips: Vec<(TripID, TripMode, Duration)>,
-}
-
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone, Copy, PartialOrd, Ord)]
 pub enum TripMode {
     Walk,
@@ -756,11 +726,6 @@ pub enum TripEnd {
     Border(IntersectionID),
     // No end!
     ServeBusRoute(BusRouteID),
-}
-
-pub struct TripStatus {
-    pub start: TripStart,
-    pub end: TripEnd,
 }
 
 pub enum TripResult<T> {

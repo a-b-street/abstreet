@@ -7,7 +7,7 @@ use ezgui::{
     hotkey, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ModalMenu, Text,
     VerticalAlignment, Wizard,
 };
-use geom::{Duration, Statistic};
+use geom::{Duration, Statistic, Time};
 use sim::{TripID, TripMode};
 use std::collections::BTreeSet;
 
@@ -120,11 +120,13 @@ impl State for Scoreboard {
 fn browse_trips(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
     let mut wizard = wiz.wrap(ctx);
     let (_, mode) = wizard.choose("Browse which trips?", || {
-        let trips = ui.primary.sim.get_finished_trips();
-        let modes = trips
+        let modes = ui
+            .primary
+            .sim
+            .get_analytics()
             .finished_trips
             .iter()
-            .map(|(_, m, _)| *m)
+            .filter_map(|(_, _, m, _)| *m)
             .collect::<BTreeSet<TripMode>>();
         TripMode::all()
             .into_iter()
@@ -132,18 +134,20 @@ fn browse_trips(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
             .collect()
     })?;
     let (_, trip) = wizard.choose("Examine which trip?", || {
-        let trips = ui.primary.sim.get_finished_trips();
-        let mut filtered: Vec<&(TripID, TripMode, Duration)> = trips
+        let mut filtered: Vec<&(Time, TripID, Option<TripMode>, Duration)> = ui
+            .primary
+            .sim
+            .get_analytics()
             .finished_trips
             .iter()
-            .filter(|(_, m, _)| *m == mode)
+            .filter(|(_, _, m, _)| *m == Some(mode))
             .collect();
-        filtered.sort_by_key(|(_, _, dt)| *dt);
+        filtered.sort_by_key(|(_, _, _, dt)| *dt);
         filtered.reverse();
         filtered
             .into_iter()
             // TODO Show percentile for time
-            .map(|(id, _, dt)| Choice::new(format!("{} taking {}", id, dt), *id))
+            .map(|(_, id, _, dt)| Choice::new(format!("{} taking {}", id, dt), *id))
             .collect()
     })?;
 
