@@ -14,7 +14,7 @@ use ezgui::{
 use geom::{Circle, Distance, Line, PolyLine};
 use map_model::{Map, LANE_THICKNESS};
 use serde_derive::{Deserialize, Serialize};
-use sim::{Sim, SimOptions, TripID};
+use sim::{Sim, SimOptions, TripID, TripMode};
 
 // TODO I took out speed controls
 pub struct ABTestMode {
@@ -100,9 +100,16 @@ impl State for ABTestMode {
                     diff.lines.len()
                 )));
             }
-            let (active, unfinished, buses) = ui.primary.sim.num_trips();
-            txt.add(Line(format!("{} active (+{} buses)", active, buses)));
-            txt.add(Line(format!("{} unfinished", unfinished)));
+            let (active, unfinished, by_mode) = ui.primary.sim.num_trips();
+            txt.add(Line(format!("Active trips: {}", active)));
+            txt.add(Line(format!("Unfinished trips: {}", unfinished)));
+            txt.add(Line(format!(
+                "Peds {}, Bikes {}, Cars {}, Buses {}",
+                by_mode[&TripMode::Walk],
+                by_mode[&TripMode::Bike],
+                by_mode[&TripMode::Drive],
+                by_mode[&TripMode::Transit]
+            )));
             self.menu.set_info(ctx, txt);
         }
         self.menu.event(ctx);

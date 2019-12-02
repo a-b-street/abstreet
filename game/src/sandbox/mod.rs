@@ -22,7 +22,7 @@ pub use gameplay::spawner::spawn_agents_around;
 pub use gameplay::GameplayMode;
 use geom::Duration;
 use map_model::MapEdits;
-use sim::Sim;
+use sim::{Sim, TripMode};
 
 pub struct SandboxMode {
     speed: speed::SpeedControls,
@@ -95,9 +95,16 @@ impl State for SandboxMode {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         {
             let mut txt = Text::new();
-            let (active, unfinished, buses) = ui.primary.sim.num_trips();
-            txt.add(Line(format!("{} active (+{} buses)", active, buses)));
-            txt.add(Line(format!("{} unfinished", unfinished)));
+            let (active, unfinished, by_mode) = ui.primary.sim.num_trips();
+            txt.add(Line(format!("Active trips: {}", active)));
+            txt.add(Line(format!("Unfinished trips: {}", unfinished)));
+            txt.add(Line(format!(
+                "Peds {}, Bikes {}, Cars {}, Buses {}",
+                by_mode[&TripMode::Walk],
+                by_mode[&TripMode::Bike],
+                by_mode[&TripMode::Drive],
+                by_mode[&TripMode::Transit]
+            )));
             txt.add(Line(""));
             {
                 let edits = ui.primary.map.get_edits();

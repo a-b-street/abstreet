@@ -1,9 +1,9 @@
 use crate::{
     AgentID, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal, Event, ParkingSimState,
     ParkingSpot, PedestrianID, Scheduler, SidewalkPOI, SidewalkSpot, TransitSimState, TripID,
-    Vehicle, WalkingSimState,
+    Vehicle, VehicleType, WalkingSimState,
 };
-use abstutil::{deserialize_btreemap, serialize_btreemap};
+use abstutil::{deserialize_btreemap, serialize_btreemap, Counter};
 use geom::{Duration, Speed, Time};
 use map_model::{
     BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathConstraints, PathRequest, Position,
@@ -490,12 +490,19 @@ impl TripManager {
         )]
     }
 
-    // (active not including buses, unfinished, buses)
-    pub fn num_trips(&self) -> (usize, usize, usize) {
+    // (total active trips, unfinished trips, active trips by the trip's current mode)
+    pub fn num_trips(&self) -> (usize, usize, BTreeMap<TripMode, usize>) {
+        let mut cnt = Counter::new();
+        for a in self.active_trip_mode.keys() {
+            cnt.inc(TripMode::from_agent(*a));
+        }
         (
-            self.active_trip_mode.len() - self.num_bus_trips,
+            self.active_trip_mode.len(),
             self.unfinished_trips,
-            self.num_bus_trips,
+            TripMode::all()
+                .into_iter()
+                .map(|k| (k, cnt.get(k)))
+                .collect(),
         )
     }
 
@@ -710,6 +717,17 @@ impl TripMode {
             TripMode::Transit,
             TripMode::Drive,
         ]
+    }
+
+    fn from_agent(id: AgentID) -> TripMode {
+        match id {
+            AgentID::Pedestrian(_) => TripMode::Walk,
+            AgentID::Car(id) => match id.1 {
+                VehicleType::Car => TripMode::Drive,
+                VehicleType::Bike => TripMode::Bike,
+                VehicleType::Bus => TripMode::Transit,
+            },
+        }
     }
 }
 

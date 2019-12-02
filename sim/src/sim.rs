@@ -2,7 +2,7 @@ use crate::{
     AgentID, AgentMetadata, Analytics, CarID, Command, CreateCar, DrawCarInput, DrawPedCrowdInput,
     DrawPedestrianInput, DrivingGoal, DrivingSimState, Event, FinishedTrips, GetDrawAgents,
     IntersectionSimState, ParkedCar, ParkingSimState, ParkingSpot, PedestrianID, Router, Scheduler,
-    SidewalkPOI, SidewalkSpot, TransitSimState, TripCount, TripID, TripLeg, TripManager,
+    SidewalkPOI, SidewalkSpot, TransitSimState, TripCount, TripID, TripLeg, TripManager, TripMode,
     TripPositions, TripResult, TripSpawner, TripSpec, TripStart, TripStatus, UnzoomedAgent,
     VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH,
 };
@@ -14,7 +14,7 @@ use map_model::{
     PathRequest, PathStep, Traversable,
 };
 use serde_derive::{Deserialize, Serialize};
-use std::collections::HashSet;
+use std::collections::{BTreeMap, HashSet};
 use std::panic;
 use std::time::Instant;
 
@@ -755,13 +755,16 @@ impl Sim {
         self.time == Time::START_OF_DAY && self.is_done()
     }
 
-    // (active, unfinished, buses) prettyprinted
-    pub fn num_trips(&self) -> (String, String, String) {
-        let (active, unfinished, buses) = self.trips.num_trips();
+    // (active, unfinished, by mode) prettyprinted
+    pub fn num_trips(&self) -> (String, String, BTreeMap<TripMode, String>) {
+        let (active, unfinished, by_mode) = self.trips.num_trips();
         (
             abstutil::prettyprint_usize(active),
             abstutil::prettyprint_usize(unfinished),
-            abstutil::prettyprint_usize(buses),
+            by_mode
+                .into_iter()
+                .map(|(k, v)| (k, abstutil::prettyprint_usize(v)))
+                .collect(),
         )
     }
 
