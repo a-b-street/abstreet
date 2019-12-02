@@ -1,5 +1,5 @@
 use crate::common::TripExplorer;
-use crate::game::{State, Transition, WizardState};
+use crate::game::{msg, State, Transition, WizardState};
 use crate::sandbox::gameplay::{cmp_count_fewer, cmp_count_more, cmp_duration_shorter};
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
@@ -23,6 +23,7 @@ impl Scoreboard {
             vec![
                 (hotkey(Key::Escape), "quit"),
                 (hotkey(Key::B), "browse trips"),
+                (hotkey(Key::P), "examine parking overhead"),
             ],
             ctx,
         );
@@ -89,13 +90,19 @@ impl Scoreboard {
 }
 
 impl State for Scoreboard {
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         self.menu.event(ctx);
         if self.menu.action("quit") {
             return Transition::Pop;
         }
         if self.menu.action("browse trips") {
             return Transition::Push(WizardState::new(Box::new(browse_trips)));
+        }
+        if self.menu.action("examine parking overhead") {
+            return Transition::Push(msg(
+                "Parking overhead",
+                ui.primary.sim.get_analytics().analyze_parking_phases(),
+            ));
         }
         Transition::Keep
     }

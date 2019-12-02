@@ -24,17 +24,8 @@ impl TripExplorer {
         // TODO Hack because ColorLegend only takes &str
         let mut rows = Vec::new();
         for (idx, p) in phases.iter().enumerate() {
-            let label = if let Some(t2) = p.end_time {
-                format!("{} .. {} ({})", p.start_time, t2, t2 - p.start_time)
-            } else {
-                format!(
-                    "{} .. ongoing ({} so far)",
-                    p.start_time,
-                    ui.primary.sim.time() - p.start_time
-                )
-            };
             rows.push((
-                format!("{}: {}", label, p.description),
+                p.describe(ui.primary.sim.time()),
                 rotating_color_map(idx + 1),
             ));
         }

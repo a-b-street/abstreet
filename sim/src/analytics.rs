@@ -283,23 +283,6 @@ impl Analytics {
         per_mode
     }
 
-    pub fn get_trip_log(&self, trip: TripID) -> Vec<String> {
-        self.trip_log
-            .iter()
-            .filter_map(|(t, id, maybe_req, md)| {
-                if *id == trip {
-                    if let Some(req) = maybe_req {
-                        Some(format!("At {}: {} via {}", t, md, req))
-                    } else {
-                        Some(format!("At {}: {}", t, md))
-                    }
-                } else {
-                    None
-                }
-            })
-            .collect()
-    }
-
     pub fn get_trip_phases(&self, trip: TripID, map: &Map) -> Vec<TripPhase> {
         let mut phases: Vec<TripPhase> = Vec::new();
         for (t, id, maybe_req, md) in &self.trip_log {
@@ -324,6 +307,61 @@ impl Analytics {
         }
         phases
     }
+
+    fn get_all_trip_phases(&self) -> BTreeMap<TripID, Vec<TripPhase>> {
+        let mut trips = BTreeMap::new();
+        for (t, id, _, md) in &self.trip_log {
+            let phases: &mut Vec<TripPhase> = trips.entry(*id).or_insert_with(Vec::new);
+            if let Some(ref mut last) = phases.last_mut() {
+                last.end_time = Some(*t);
+            }
+            if md == "trip finished" || md == "trip aborted for some reason" {
+                // TODO Remove aborted trips?
+                continue;
+            }
+            phases.push(TripPhase {
+                start_time: *t,
+                end_time: None,
+                // Don't compute any paths
+                path: None,
+                description: md.clone(),
+            })
+        }
+        trips
+    }
+
+    pub fn analyze_parking_phases(&self) -> Vec<String> {
+        // Of all completed trips involving parking, what percentage of total time was spent as
+        // "overhead" -- not the main driving part of the trip?
+        // TODO This is misleading for border trips -- the driving lasts longer.
+        for (_, phases) in self.get_all_trip_phases() {
+            if phases.last().as_ref().unwrap().end_time.is_none() {
+                continue;
+            }
+            let mut driving_time = Duration::ZERO;
+            let mut overhead = Duration::ZERO;
+            for p in phases {
+                let dt = p.end_time.unwrap() - p.start_time;
+                // TODO New enum instead of strings, if there'll be more analyses like this
+                if p.description.starts_with("CarID(") {
+                    driving_time += dt;
+                } else if p.description == "parking somewhere else"
+                    || p.description == "parking on the current lane"
+                {
+                    overhead += dt;
+                } else if p.description.starts_with("PedestrianID(") {
+                    overhead += dt;
+                } else {
+                    // Waiting for a bus. Irrelevant.
+                }
+            }
+            // Only interested in trips with both
+            if driving_time == Duration::ZERO || overhead == Duration::ZERO {
+                continue;
+            }
+        }
+        vec![format!("TODO: need a generic histogram")]
+    }
 }
 
 pub struct TripPhase {
@@ -332,4 +370,25 @@ pub struct TripPhase {
     // Plumb along start distance
     pub path: Option<(Distance, Path)>,
     pub description: String,
+}
+
+impl TripPhase {
+    pub fn describe(&self, now: Time) -> String {
+        if let Some(t2) = self.end_time {
+            format!(
+                "{} .. {} ({}): {}",
+                self.start_time,
+                t2,
+                t2 - self.start_time,
+                self.description
+            )
+        } else {
+            format!(
+                "{} .. ongoing ({} so far): {}",
+                self.start_time,
+                now - self.start_time,
+                self.description
+            )
+        }
+    }
 }
