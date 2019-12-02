@@ -1,4 +1,4 @@
-use crate::{osm, LaneID, Position};
+use crate::{osm, LaneID, Map, Position};
 use geom::{Line, Polygon, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -54,14 +54,15 @@ impl Building {
         self.front_path.sidewalk.lane()
     }
 
-    pub fn get_name(&self) -> String {
+    // TODO Cache?
+    pub fn get_name(&self, map: &Map) -> String {
         let address = match (
             self.osm_tags.get("addr:housenumber"),
             self.osm_tags.get("addr:street"),
         ) {
             (Some(num), Some(st)) => format!("{} {}", num, st),
             (None, Some(st)) => format!("??? {}", st),
-            _ => "???".to_string(),
+            _ => format!("??? {}", map.get_parent(self.sidewalk()).get_name()),
         };
         if let Some(name) = self.osm_tags.get(osm::NAME) {
             format!("{} (at {})", name, address)

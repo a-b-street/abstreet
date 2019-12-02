@@ -16,11 +16,8 @@ pub struct TripExplorer {
 
 impl TripExplorer {
     pub fn new(trip: TripID, ctx: &mut EventCtx, ui: &UI) -> TripExplorer {
-        let phases = ui
-            .primary
-            .sim
-            .get_analytics()
-            .get_trip_phases(trip, &ui.primary.map);
+        let map = &ui.primary.map;
+        let phases = ui.primary.sim.get_analytics().get_trip_phases(trip, map);
         // TODO Hack because ColorLegend only takes &str
         let mut rows = Vec::new();
         for (idx, p) in phases.iter().enumerate() {
@@ -33,7 +30,7 @@ impl TripExplorer {
         let mut zoomed = GeomBatch::new();
         for (p, (_, color)) in phases.iter().zip(rows.iter()) {
             if let Some((dist, ref path)) = p.path {
-                if let Some(t) = path.trace(&ui.primary.map, dist, None) {
+                if let Some(t) = path.trace(map, dist, None) {
                     unzoomed.push(*color, t.make_polygons(Distance::meters(10.0)));
                     zoomed.push(*color, t.make_polygons(Distance::meters(1.0)));
                 }
@@ -45,13 +42,13 @@ impl TripExplorer {
         let start_color = rotating_color_map(0);
         match trip_start {
             TripStart::Bldg(b) => {
-                let bldg = ui.primary.map.get_b(b);
-                rows.insert(0, (format!("start at {}", bldg.get_name()), start_color));
+                let bldg = map.get_b(b);
+                rows.insert(0, (format!("start at {}", bldg.get_name(map)), start_color));
                 unzoomed.push(start_color, bldg.polygon.clone());
                 zoomed.push(start_color, bldg.polygon.clone());
             }
             TripStart::Border(i) => {
-                let i = ui.primary.map.get_i(i);
+                let i = map.get_i(i);
                 rows.insert(0, (format!("enter map via {}", i.id), start_color));
                 unzoomed.push(start_color, i.polygon.clone());
                 zoomed.push(start_color, i.polygon.clone());
@@ -59,12 +56,7 @@ impl TripExplorer {
         };
 
         // Is the trip ongoing?
-        if let Some(pt) = ui
-            .primary
-            .sim
-            .get_canonical_pt_per_trip(trip, &ui.primary.map)
-            .ok()
-        {
+        if let Some(pt) = ui.primary.sim.get_canonical_pt_per_trip(trip, map).ok() {
             let color = rotating_color_map(rows.len());
             unzoomed.push(color, Circle::new(pt, Distance::meters(10.0)).to_polygon());
             zoomed.push(
@@ -77,13 +69,13 @@ impl TripExplorer {
         let end_color = rotating_color_map(rows.len());
         match trip_end {
             TripEnd::Bldg(b) => {
-                let bldg = ui.primary.map.get_b(b);
-                rows.push((format!("end at {}", bldg.get_name()), end_color));
+                let bldg = map.get_b(b);
+                rows.push((format!("end at {}", bldg.get_name(map)), end_color));
                 unzoomed.push(end_color, bldg.polygon.clone());
                 zoomed.push(end_color, bldg.polygon.clone());
             }
             TripEnd::Border(i) => {
-                let i = ui.primary.map.get_i(i);
+                let i = map.get_i(i);
                 rows.push((format!("leave map via {}", i.id), end_color));
                 unzoomed.push(end_color, i.polygon.clone());
                 zoomed.push(end_color, i.polygon.clone());
@@ -92,7 +84,7 @@ impl TripExplorer {
             // something instead
             TripEnd::ServeBusRoute(br) => {
                 rows.push((
-                    format!("serve route {} forever", ui.primary.map.get_br(br).name),
+                    format!("serve route {} forever", map.get_br(br).name),
                     end_color,
                 ));
             }

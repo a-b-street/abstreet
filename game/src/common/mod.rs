@@ -115,7 +115,7 @@ impl CommonState {
                 osd.append_all(vec![
                     Line(b.to_string()).fg(id_color),
                     Line(" is "),
-                    Line(bldg.get_name()).fg(name_color),
+                    Line(bldg.get_name(map)).fg(name_color),
                 ]);
                 if let Some(ref p) = bldg.parking {
                     osd.append(Line(format!(
