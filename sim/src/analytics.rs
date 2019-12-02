@@ -1,7 +1,7 @@
 use crate::{AgentID, CarID, Event, TripID, TripMode, VehicleType};
 use abstutil::Counter;
 use derivative::Derivative;
-use geom::{Distance, Duration, DurationHistogram, Time};
+use geom::{Distance, Duration, DurationHistogram, PercentageHistogram, Time};
 use map_model::{
     BusRouteID, BusStopID, IntersectionID, Map, Path, PathRequest, RoadID, Traversable,
 };
@@ -315,8 +315,12 @@ impl Analytics {
             if let Some(ref mut last) = phases.last_mut() {
                 last.end_time = Some(*t);
             }
-            if md == "trip finished" || md == "trip aborted for some reason" {
-                // TODO Remove aborted trips?
+            if md == "trip finished" {
+                continue;
+            }
+            // Remove aborted trips
+            if md == "trip aborted for some reason" {
+                trips.remove(id);
                 continue;
             }
             phases.push(TripPhase {
@@ -334,6 +338,7 @@ impl Analytics {
         // Of all completed trips involving parking, what percentage of total time was spent as
         // "overhead" -- not the main driving part of the trip?
         // TODO This is misleading for border trips -- the driving lasts longer.
+        let mut distrib = PercentageHistogram::new();
         for (_, phases) in self.get_all_trip_phases() {
             if phases.last().as_ref().unwrap().end_time.is_none() {
                 continue;
@@ -359,8 +364,9 @@ impl Analytics {
             if driving_time == Duration::ZERO || overhead == Duration::ZERO {
                 continue;
             }
+            distrib.add(overhead / (driving_time + overhead));
         }
-        vec![format!("TODO: need a generic histogram")]
+        vec![format!("Consider all trips with both a walking and driving portion"), format!("The portion of the trip spent walking to the parked car, looking for parking, and walking from the parking space to the final destination are all overhead."), format!("So what's the distribution of overhead percentages look like? 0% is ideal -- the entire trip is spent just driving between the original source and destination."), distrib.describe()]
     }
 }
 
