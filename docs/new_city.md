@@ -5,7 +5,7 @@ out A/B Street in another place, you can follow this guide. Please file a Github
 issue or email <dabreegster@gmail.com> if you hit any problems.
 
 First obtain a `.osm` with your desired area. You can use a tool like Osmosis to
-clip a specific area from a large file. Put the `.osm` in `data/input/`.
+clip a specific area from a large file. Put the `.osm` in `data/input/osm`.
 
 Then you'll run some tools to import the map. Make sure you can compile
 everything [from source](INSTRUCTIONS.md).
@@ -13,7 +13,7 @@ everything [from source](INSTRUCTIONS.md).
 ```
 cd convert_osm
 cargo run --release -- \
-  --osm=../data/input/your_city.osm \
+  --osm=../data/input/osm/your_city.osm \
   --output=../data/input/raw_maps/your_city.bin
 cd ../precompute
 cargo run --release -- ../data/input/raw_maps/your_city.bin

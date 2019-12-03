@@ -3,7 +3,7 @@ use crate::runner::TestRunner;
 pub fn run(t: &mut TestRunner) {
     t.run_slow("convert_osm_twice", |_| {
         let flags = convert_osm::Flags {
-            osm: "../data/input/montlake.osm".to_string(),
+            osm: "../data/input/osm/montlake.osm".to_string(),
             parking_shapes: Some("../data/input/blockface.bin".to_string()),
             offstreet_parking: Some("../data/input/offstreet_parking.kml".to_string()),
             sidewalks: Some("../data/input/sidewalks.bin".to_string()),

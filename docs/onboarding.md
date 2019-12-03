@@ -48,7 +48,7 @@ code. This is a nice, hefty starter project to understand how everything works.
 For now, this is just an initial list of considerations -- I haven't designed or
 implemented this yet.
 
-Poking around the .osm extracts in `data/input/`, you'll see a promising
+Poking around the .osm extracts in `data/input/osm/`, you'll see a promising
 relation with `route = light_rail`. The relation points to individual points
 (nodes) as stops, and segments of the track (ways). These need to be represented
 in the initial version of the map, `RawMap`, and the final version, `Map`.

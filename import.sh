@@ -39,11 +39,11 @@ if [ ! -f data/input/neighborhoods.geojson ]; then
 		data/input/neighborhoods.geojson;
 fi
 
-if [ ! -f data/input/Seattle.osm ]; then
+if [ ! -f data/input/osm/Seattle.osm ]; then
 	get_if_needed \
 		http://download.bbbike.org/osm/bbbike/Seattle/Seattle.osm.gz \
-		data/input/Seattle.osm.gz;
-	gunzip data/input/Seattle.osm.gz;
+		data/input/osm/Seattle.osm.gz;
+	gunzip data/input/osm/Seattle.osm.gz;
 fi
 
 # PSRC data comes from https://github.com/psrc/soundcast/releases.
@@ -55,12 +55,12 @@ fi
 
 for poly in `ls data/input/polygons/`; do
 	name=`basename -s .poly $poly`;
-	if [ ! -f data/input/$name.osm ]; then
+	if [ ! -f data/input/osm/$name.osm ]; then
 		echo "Running osmconvert for $name"
-		osmconvert data/input/Seattle.osm \
+		osmconvert data/input/osm/Seattle.osm \
 			-B=data/input/polygons/$name.poly \
 			--complete-ways \
-			-o=data/input/$name.osm
+			-o=data/input/osm/$name.osm
 	fi
 done
 
@@ -102,7 +102,7 @@ for poly in `ls ../data/input/polygons/`; do
 
 	rm -rf ../data/input/neighborhoods/$name ../data/system/maps/${name}.bin;
 	RUST_BACKTRACE=1 cargo run $release -- \
-		--osm=../data/input/$name.osm \
+		--osm=../data/input/osm/$name.osm \
 		--parking_shapes=../data/input/blockface.bin \
 		--offstreet_parking=../data/input/offstreet_parking.kml \
 		--gtfs=../data/input/google_transit_2018_18_08 \
