@@ -35,8 +35,7 @@ struct Tract {
 impl DataVisualizer {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> DataVisualizer {
         let (popdat, tracts) = ctx.loading_screen("initialize popdat", |_, mut timer| {
-            let popdat: PopDat = abstutil::read_binary("../data/shapes/popdat.bin", &mut timer)
-                .expect("Couldn't load popdat.bin");
+            let popdat: PopDat = abstutil::read_binary("../data/shapes/popdat.bin", &mut timer);
             let tracts = clip_tracts(&popdat, ui, &mut timer);
             (popdat, tracts)
         });

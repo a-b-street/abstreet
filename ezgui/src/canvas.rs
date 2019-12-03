@@ -192,7 +192,7 @@ impl Canvas {
     // True if this succeeds
     pub fn load_camera_state(&mut self, map_name: &str) -> bool {
         let path = abstutil::path_camera_state(map_name);
-        match abstutil::read_json::<CameraState>(&path, &mut Timer::throwaway()) {
+        match abstutil::maybe_read_json::<CameraState>(&path, &mut Timer::throwaway()) {
             Ok(ref loaded) => {
                 println!("Loaded {}", path);
                 self.cam_x = loaded.cam_x;

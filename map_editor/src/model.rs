@@ -1,5 +1,5 @@
 use crate::world::{Object, ObjectID, World};
-use abstutil::{read_binary, Timer};
+use abstutil::Timer;
 use ezgui::{Color, Line, Prerender, Text};
 use geom::{Bounds, Circle, Distance, FindClosest, PolyLine, Polygon, Pt2D};
 use map_model::raw::{
@@ -48,7 +48,7 @@ impl Model {
         let mut timer = Timer::new("import map");
         let mut model = Model::blank();
         model.include_bldgs = include_bldgs;
-        model.map = read_binary(path, &mut timer).unwrap();
+        model.map = abstutil::read_binary(path, &mut timer);
         model.intersection_geom = intersection_geom;
 
         if !no_fixes {

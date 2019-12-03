@@ -743,8 +743,7 @@ fn find_short_roads(model: &Model) -> HashSet<OriginalRoad> {
     let map: map_model::Map = abstutil::read_binary(
         &abstutil::path_map(&model.map.name),
         &mut Timer::throwaway(),
-    )
-    .unwrap();
+    );
     // Buses are 12.5
     let threshold = Distance::meters(13.0);
     let mut roads: HashSet<OriginalRoad> = HashSet::new();

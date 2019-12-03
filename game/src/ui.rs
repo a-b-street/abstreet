@@ -21,7 +21,7 @@ pub struct UI {
 
 impl UI {
     pub fn new(flags: Flags, ctx: &mut EventCtx, splash: bool) -> UI {
-        let cs = ColorScheme::load().unwrap();
+        let cs = ColorScheme::load();
         let (primary, prebaked) = ctx.loading_screen("load map", |ctx, mut timer| {
             // Always load some small icons.
             let mut textures = vec![
@@ -79,7 +79,7 @@ impl UI {
             ctx.set_textures(skip_textures, textures, &mut timer);
 
             let primary = PerMapUI::new(flags, &cs, ctx, &mut timer);
-            let prebaked: Analytics = abstutil::read_binary(
+            let prebaked: Analytics = abstutil::maybe_read_binary(
                 &abstutil::path_prebaked_results(primary.map.get_name()),
                 &mut timer,
             )

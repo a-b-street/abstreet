@@ -125,8 +125,7 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
             let scenario: Scenario = abstutil::read_binary(
                 &abstutil::path1_bin(&test.map_name, abstutil::SCENARIOS, &test.scenario_name),
                 &mut timer,
-            )
-            .expect("loading scenario failed");
+            );
 
             {
                 timer.start("load primary");
@@ -218,7 +217,7 @@ fn launch_savestate(test: &ABTest, ss_path: String, ui: &mut UI, ctx: &mut Event
     ctx.loading_screen(
         &format!("Launch A/B test from savestate {}", ss_path),
         |ctx, mut timer| {
-            let ss: ABTestSavestate = abstutil::read_binary(&ss_path, &mut timer).unwrap();
+            let ss: ABTestSavestate = abstutil::read_binary(&ss_path, &mut timer);
 
             timer.start("setup primary");
             ui.primary.map = ss.primary_map;

@@ -1,14 +1,14 @@
 use crate::runner::TestRunner;
-use abstutil::Timer;
+/*use abstutil::Timer;
 use geom::Duration;
-use sim::{DrivingGoal, Event, ParkingSpot, Scenario, SidewalkSpot, SimFlags, TripSpec};
+use sim::{DrivingGoal, Event, ParkingSpot, Scenario, SidewalkSpot, SimFlags, TripSpec};*/
 
 // TODO park in a garage, then walk somewhere else
 // TODO park in a garage that's also the trip destination
 // TODO ped walks to a garage to start driving somewhere else
 // TODO two peds leave same bldg at around the same time, contend for owned cars
 
-pub fn run(t: &mut TestRunner) {
+pub fn run(_t: &mut TestRunner) {
     // TODO Lots of boilerplate between these two. Can we do better?
 
     /*t.run_slow("park_on_goal_st", |h| {

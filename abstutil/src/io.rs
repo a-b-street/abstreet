@@ -29,7 +29,7 @@ pub fn write_json<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
     Ok(())
 }
 
-pub fn read_json<T: DeserializeOwned>(path: &str, timer: &mut Timer) -> Result<T, Error> {
+pub fn maybe_read_json<T: DeserializeOwned>(path: &str, timer: &mut Timer) -> Result<T, Error> {
     if !path.ends_with(".json") && !path.ends_with(".geojson") {
         panic!("read_json needs {} to end with .json or .geojson", path);
     }
@@ -51,6 +51,13 @@ pub fn read_json<T: DeserializeOwned>(path: &str, timer: &mut Timer) -> Result<T
     }
 }
 
+pub fn read_json<T: DeserializeOwned>(path: &str, timer: &mut Timer) -> T {
+    match maybe_read_json(path, timer) {
+        Ok(obj) => obj,
+        Err(err) => panic!("Couldn't read_json({}): {}", path, err),
+    }
+}
+
 pub fn write_binary<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
     if !path.ends_with(".bin") {
         panic!("write_binary needs {} to end with .bin", path);
@@ -63,7 +70,7 @@ pub fn write_binary<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
     bincode::serialize_into(file, obj).map_err(|err| Error::new(ErrorKind::Other, err))
 }
 
-pub fn read_binary<T: DeserializeOwned>(path: &str, timer: &mut Timer) -> Result<T, Error> {
+pub fn maybe_read_binary<T: DeserializeOwned>(path: &str, timer: &mut Timer) -> Result<T, Error> {
     if !path.ends_with(".bin") {
         panic!("read_binary needs {} to end with .bin", path);
     }
@@ -72,6 +79,13 @@ pub fn read_binary<T: DeserializeOwned>(path: &str, timer: &mut Timer) -> Result
     let obj: T =
         bincode::deserialize_from(timer).map_err(|err| Error::new(ErrorKind::Other, err))?;
     Ok(obj)
+}
+
+pub fn read_binary<T: DeserializeOwned>(path: &str, timer: &mut Timer) -> T {
+    match maybe_read_binary(path, timer) {
+        Ok(obj) => obj,
+        Err(err) => panic!("Couldn't read_binary({}): {}", path, err),
+    }
 }
 
 // For BTreeMaps with struct keys. See https://github.com/serde-rs/json/issues/402.
@@ -180,13 +194,11 @@ pub fn load_all_objects<T: DeserializeOwned>(dir: &str, map_name: &str) -> Vec<(
                         &format!("../data/{}/{}/{}.json", dir, map_name, name),
                         &mut timer,
                     )
-                    .unwrap()
                 } else if path_str.ends_with(".bin") {
                     read_binary(
                         &format!("../data/{}/{}/{}.bin", dir, map_name, name),
                         &mut timer,
                     )
-                    .unwrap()
                 } else {
                     panic!(
                         "Don't know what ../data/{}/{}/{} is",

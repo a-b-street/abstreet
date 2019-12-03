@@ -10,7 +10,6 @@ use abstutil::{deserialize_btreemap, serialize_btreemap, Error, Timer};
 use geom::{Bounds, Distance, GPSBounds, Polygon, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
-use std::io;
 
 #[derive(Serialize, Deserialize)]
 pub struct Map {
@@ -49,14 +48,14 @@ pub struct Map {
 }
 
 impl Map {
-    pub fn new(path: &str, use_map_fixes: bool, timer: &mut Timer) -> Result<Map, io::Error> {
-        let mut raw: RawMap = abstutil::read_binary(path, timer)?;
+    pub fn new(path: &str, use_map_fixes: bool, timer: &mut Timer) -> Map {
+        let mut raw: RawMap = abstutil::read_binary(path, timer);
         if use_map_fixes {
             raw.apply_all_fixes(timer);
         }
         // Do this after applying fixes, which might split off pieces of the map.
         make::remove_disconnected_roads(&mut raw, timer);
-        Ok(Map::create_from_raw(raw, timer))
+        Map::create_from_raw(raw, timer)
     }
 
     // Just for temporary std::mem::replace tricks.

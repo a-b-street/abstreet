@@ -52,8 +52,7 @@ fn choose_shortcut(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<
         }];
         let mut timer = Timer::new("load shortcuts");
         for name in abstutil::list_all_objects(abstutil::SHORTCUTS, "") {
-            let s: Shortcut =
-                abstutil::read_json(&abstutil::path_shortcut(&name), &mut timer).unwrap();
+            let s: Shortcut = abstutil::read_json(&abstutil::path_shortcut(&name), &mut timer);
             if ui
                 .primary
                 .map

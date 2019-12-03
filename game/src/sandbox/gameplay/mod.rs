@@ -78,7 +78,6 @@ impl GameplayMode {
                 &abstutil::path1_bin(&ui.primary.map.get_name(), abstutil::SCENARIOS, &name),
                 timer,
             )
-            .unwrap()
         })
     }
 

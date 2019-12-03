@@ -1,6 +1,6 @@
 use crate::runner::TestRunner;
 use abstutil::Timer;
-use geom::Duration;
+use geom::{Duration, Time};
 use sim::{Event, Scenario, SidewalkSpot, SimFlags, TripSpec};
 
 pub fn run(t: &mut TestRunner) {
@@ -47,7 +47,7 @@ pub fn run(t: &mut TestRunner) {
             .building_paths[0];
         let ped = sim
             .schedule_trip(
-                Duration::ZERO,
+                Time::START_OF_DAY,
                 TripSpec::UsingTransit {
                     start: SidewalkSpot::building(start_bldg, &map),
                     route: route.id,

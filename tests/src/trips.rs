@@ -1,6 +1,6 @@
 use crate::runner::TestRunner;
 use abstutil::Timer;
-use geom::Duration;
+use geom::{Duration, Time};
 use map_model::{BuildingID, IntersectionID};
 use sim::{DrivingGoal, Event, Scenario, SidewalkSpot, SimFlags, TripSpec};
 
@@ -12,7 +12,7 @@ pub fn run(t: &mut TestRunner) {
         // TODO Hardcoding IDs is fragile
         let goal_bldg = BuildingID(319);
         let (ped, bike) = sim.schedule_trip(
-            Duration::ZERO,
+            Time::START_OF_DAY,
             TripSpec::UsingBike {
                 start: SidewalkSpot::start_at_border(IntersectionID(186), &map).unwrap(),
                 vehicle: Scenario::rand_bike(&mut rng),

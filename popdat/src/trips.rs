@@ -168,8 +168,7 @@ impl TripEndpt {
 }
 
 pub fn clip_trips(map: &Map, timer: &mut Timer) -> (Vec<Trip>, HashMap<BuildingID, Parcel>) {
-    let popdat: PopDat = abstutil::read_binary("../data/shapes/popdat.bin", timer)
-        .expect("Couldn't load popdat.bin");
+    let popdat: PopDat = abstutil::read_binary("../data/shapes/popdat.bin", timer);
 
     let mut osm_id_to_bldg = HashMap::new();
     for b in map.all_buildings() {

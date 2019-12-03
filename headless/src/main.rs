@@ -1,11 +1,11 @@
 use abstutil::{CmdArgs, Timer};
-use geom::Duration;
+use geom::Time;
 use sim::{GetDrawAgents, Scenario, SimFlags};
 
 fn main() {
     let mut args = CmdArgs::new();
     let sim_flags = SimFlags::from_args(&mut args);
-    let save_at = args.optional_parse("--save_at", Duration::parse);
+    let save_at = args.optional_parse("--save_at", Time::parse);
     let num_agents = args.optional_parse("--num_agents", |s| s.parse::<usize>());
     let enable_profiler = args.enabled("--enable_profiler");
     // Every 0.1s, pretend to draw everything to make sure there are no bugs.

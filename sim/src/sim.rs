@@ -737,7 +737,7 @@ impl Sim {
 
     pub fn load_savestate(path: String, timer: &mut Timer) -> Result<Sim, std::io::Error> {
         println!("Loading {}", path);
-        abstutil::read_binary(&path, timer)
+        abstutil::maybe_read_binary(&path, timer)
     }
 }
 

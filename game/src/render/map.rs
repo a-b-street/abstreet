@@ -149,8 +149,7 @@ impl DrawMap {
                     .expect("Couldn't load extra KML shapes")
                     .shapes
             } else {
-                let shapes: kml::ExtraShapes =
-                    abstutil::read_binary(&path, timer).expect("Couldn't load ExtraShapes");
+                let shapes: kml::ExtraShapes = abstutil::read_binary(&path, timer);
                 shapes.shapes
             };
 

@@ -122,7 +122,7 @@ fn import_parcels(
     path: &str,
     timer: &mut Timer,
 ) -> Result<(HashMap<String, Endpoint>, BTreeMap<i64, Parcel>), failure::Error> {
-    let map: Map = abstutil::read_binary(&abstutil::path_map("huge_seattle"), timer)?;
+    let map: Map = abstutil::read_binary(&abstutil::path_map("huge_seattle"), timer);
 
     // TODO I really just want to do polygon containment with a quadtree. FindClosest only does
     // line-string stuff right now, which'll be weird for the last->first pt line and stuff.

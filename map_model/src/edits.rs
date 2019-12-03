@@ -77,7 +77,6 @@ impl MapEdits {
             &abstutil::path1_json(map_name, abstutil::EDITS, edits_name),
             timer,
         )
-        .unwrap()
     }
 
     // TODO Version these

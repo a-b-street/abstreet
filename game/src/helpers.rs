@@ -7,7 +7,6 @@ use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, RoadID, T
 use serde_derive::{Deserialize, Serialize};
 use sim::{AgentID, CarID, PedestrianID};
 use std::collections::{BTreeMap, HashMap};
-use std::io::Error;
 
 // Aside from Road, everything here can actually be selected.
 #[derive(Clone, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]
@@ -87,15 +86,14 @@ struct ModifiedColors {
 }
 
 impl ColorScheme {
-    pub fn load() -> Result<ColorScheme, Error> {
+    pub fn load() -> ColorScheme {
         let modified: ModifiedColors =
-            abstutil::read_json("../data/color_scheme.json", &mut Timer::throwaway())?;
+            abstutil::read_json("../data/color_scheme.json", &mut Timer::throwaway());
         let mut map: HashMap<String, Color> = default_colors();
         for (name, c) in &modified.map {
             map.insert(name.clone(), *c);
         }
-
-        Ok(ColorScheme { map, modified })
+        ColorScheme { map, modified }
     }
 
     pub fn save(&self) {

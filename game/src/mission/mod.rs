@@ -71,8 +71,7 @@ fn load_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tr
     let scenario = abstutil::read_binary(
         &abstutil::path1_bin(&map_name, abstutil::SCENARIOS, &s),
         &mut Timer::throwaway(),
-    )
-    .unwrap();
+    );
     Some(Transition::Replace(Box::new(
         scenario::ScenarioManager::new(scenario, ctx, ui),
     )))

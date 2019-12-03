@@ -29,14 +29,12 @@ pub fn run(t: &mut TestRunner) {
             &abstutil::path_raw_map("montlake"),
             true,
             &mut abstutil::Timer::throwaway(),
-        )
-        .unwrap();
+        );
         let map2 = map_model::Map::new(
             &abstutil::path_raw_map("montlake"),
             true,
             &mut abstutil::Timer::throwaway(),
-        )
-        .unwrap();
+        );
 
         if abstutil::to_json(&map1) != abstutil::to_json(&map2) {
             // TODO tmp files
@@ -51,8 +49,7 @@ pub fn run(t: &mut TestRunner) {
             &abstutil::path_raw_map("23rd"),
             true,
             &mut abstutil::Timer::throwaway(),
-        )
-        .expect("23rd broke");
+        );
     });
 
     t.run_slow("biggest_map_loads", |_| {
@@ -60,7 +57,6 @@ pub fn run(t: &mut TestRunner) {
             &abstutil::path_raw_map("huge_seattle"),
             true,
             &mut abstutil::Timer::throwaway(),
-        )
-        .expect("huge_seattle broke");
+        );
     });
 }

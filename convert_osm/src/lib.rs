@@ -56,7 +56,7 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> RawMap {
 
 fn use_parking_hints(map: &mut RawMap, path: &str, timer: &mut Timer) {
     timer.start("apply parking hints");
-    let shapes: ExtraShapes = abstutil::read_binary(path, timer).expect("loading blockface failed");
+    let shapes: ExtraShapes = abstutil::read_binary(path, timer);
 
     // Match shapes with the nearest road + direction (true for forwards)
     let mut closest: FindClosest<(OriginalRoad, bool)> =
@@ -192,7 +192,7 @@ fn use_offstreet_parking(map: &mut RawMap, path: &str, timer: &mut Timer) {
 
 fn use_sidewalk_hints(map: &mut RawMap, path: &str, timer: &mut Timer) {
     timer.start("apply sidewalk hints");
-    let shapes: ExtraShapes = abstutil::read_binary(path, timer).unwrap();
+    let shapes: ExtraShapes = abstutil::read_binary(path, timer);
 
     // Match shapes with the nearest road + direction (true for forwards)
     let mut closest: FindClosest<(OriginalRoad, bool)> =
