@@ -2,11 +2,11 @@ use crate::game::{State, Transition, WizardState};
 use ezgui::Choice;
 
 // TODO SimOptions stuff too
-// TODO Move dev mode here
 #[derive(Clone)]
 pub struct Options {
     pub traffic_signal_style: TrafficSignalStyle,
     pub color_scheme: String,
+    pub dev: bool,
 }
 
 impl Options {
@@ -14,6 +14,7 @@ impl Options {
         Options {
             traffic_signal_style: TrafficSignalStyle::GroupArrows,
             color_scheme: "../data/system/color_scheme.json".to_string(),
+            dev: false,
         }
     }
 }
@@ -54,6 +55,9 @@ pub fn open_panel() -> Box<dyn State> {
                 Choice::new("night mode", "../data/system/night_colors.json".to_string()),
             ]
         })?;
+        let (_, dev) = wizard.choose("Enable developer mode?", || {
+            vec![Choice::new("yes", true), Choice::new("no", false)]
+        })?;
 
         if ui.opts.color_scheme != color_scheme {
             wizard.acknowledge("Changing color scheme", || {
@@ -64,6 +68,8 @@ pub fn open_panel() -> Box<dyn State> {
                 ]
             })?;
         }
+
+        ui.opts.dev = dev;
 
         if ui.opts.traffic_signal_style != traffic_signal_style {
             ui.opts.traffic_signal_style = traffic_signal_style;

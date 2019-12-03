@@ -127,7 +127,7 @@ pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
             ),
         ],
     ));
-    if ui.primary.current_flags.dev {
+    if ui.opts.dev {
         col.push(ManagedWidget::Row(
             LayoutStyle::Centered,
             vec![

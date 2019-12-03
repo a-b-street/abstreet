@@ -57,7 +57,7 @@ impl CommonState {
         self.location_tools.event(ctx);
 
         if ctx.input.new_was_pressed(lctrl(Key::S).unwrap()) {
-            ui.primary.current_flags.dev = !ui.primary.current_flags.dev;
+            ui.opts.dev = !ui.opts.dev;
         }
 
         if self.location_tools.action("warp") {

@@ -485,7 +485,6 @@ pub struct Flags {
     // included.
     pub num_agents: Option<usize>,
     pub textures: bool,
-    pub dev: bool,
 }
 
 // All of the state that's bound to a specific map+edit has to live here.

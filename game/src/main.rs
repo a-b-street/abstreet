@@ -33,9 +33,10 @@ fn main() {
         draw_lane_markings: !args.enabled("--dont_draw_lane_markings"),
         num_agents: args.optional_parse("--num_agents", |s| s.parse()),
         textures: args.enabled("--textures"),
-        dev: args.enabled("--dev"),
     };
-    if flags.dev {
+    let mut opts = options::Options::default();
+    if args.enabled("--dev") {
+        opts.dev = true;
         flags.sim_flags.rng_seed = Some(42);
     }
     let mut settings = ezgui::Settings::new("A/B Street", (1800.0, 800.0));
@@ -47,5 +48,5 @@ fn main() {
     }
     args.done();
 
-    ezgui::run(settings, |ctx| game::Game::new(flags, ctx));
+    ezgui::run(settings, |ctx| game::Game::new(flags, opts, ctx));
 }

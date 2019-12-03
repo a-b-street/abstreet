@@ -17,11 +17,11 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(flags: Flags, ctx: &mut EventCtx) -> Game {
-        let title = !flags.dev
+    pub fn new(flags: Flags, opts: Options, ctx: &mut EventCtx) -> Game {
+        let title = !opts.dev
             && !flags.sim_flags.load.contains("data/player/save")
             && !flags.sim_flags.load.contains("data/system/scenarios");
-        let mut ui = UI::new(flags, Options::default(), ctx, title);
+        let mut ui = UI::new(flags, opts, ctx, title);
         let states: Vec<Box<dyn State>> = if title {
             vec![Box::new(TitleScreen::new(ctx, &ui))]
         } else {
@@ -111,7 +111,7 @@ impl GUI for Game {
         }
         state.draw(g, &self.ui);
 
-        if self.ui.primary.current_flags.dev {
+        if self.ui.opts.dev {
             g.draw_blocking_text(
                 &Text::from(Line("DEV")).bg(Color::RED),
                 (HorizontalAlignment::Right, VerticalAlignment::Bottom),

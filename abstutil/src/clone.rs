@@ -31,6 +31,7 @@ impl Clone for Box<dyn Cloneable> {
 }
 
 impl Cloneable for () {}
+impl Cloneable for bool {}
 impl Cloneable for usize {}
 impl Cloneable for f64 {}
 impl Cloneable for String {}
