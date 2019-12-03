@@ -16,8 +16,8 @@ fn main() {
     let (map, mut sim, mut rng) = sim_flags.load(&mut timer);
 
     // TODO not the ideal way to distinguish what thing we loaded
-    if sim_flags.load.starts_with("../data/raw_maps/")
-        || sim_flags.load.starts_with("../data/maps/")
+    if sim_flags.load.starts_with(&abstutil::path_all_raw_maps())
+        || sim_flags.load.starts_with(&abstutil::path_all_maps())
     {
         let s = if let Some(n) = num_agents {
             Scenario::scaled_run(&map, n)

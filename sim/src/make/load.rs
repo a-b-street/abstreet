@@ -92,7 +92,7 @@ impl SimFlags {
             scenario.instantiate(&mut sim, &map, &mut rng, timer);
 
             (map, sim, rng)
-        } else if self.load.starts_with("../data/raw_maps/") {
+        } else if self.load.starts_with(&abstutil::path_all_raw_maps()) {
             timer.note(format!("Loading map {}", self.load));
 
             let map = Map::new(self.load.clone(), self.use_map_fixes, timer);
@@ -102,7 +102,7 @@ impl SimFlags {
             timer.stop("create sim");
 
             (map, sim, rng)
-        } else if self.load.starts_with("../data/maps/") {
+        } else if self.load.starts_with(&abstutil::path_all_maps()) {
             timer.note(format!("Loading map {}", self.load));
 
             let map: Map = abstutil::read_binary(self.load.clone(), timer);

@@ -8,7 +8,6 @@ data/camera_state/*
 data/edits/*
 data/maps/*
 data/neighborhoods/*
-data/raw_maps/*
 data/prebaked_results/*
 data/saves/*
 data/scenarios/*
@@ -22,5 +21,6 @@ data/input/google_transit_2018_18_08
 data/input/offstreet_parking.kml
 data/input/parcels_urbansim.txt
 data/input/popdat.bin
+data/input/raw_maps
 data/input/sidewalks.bin
 data/input/trips_2014.csv

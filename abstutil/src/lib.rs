@@ -132,5 +132,8 @@ pub fn path_popdat() -> String {
 }
 
 pub fn path_raw_map(map_name: &str) -> String {
-    format!("../data/raw_maps/{}.bin", map_name)
+    format!("../data/input/raw_maps/{}.bin", map_name)
+}
+pub fn path_all_raw_maps() -> String {
+    format!("../data/input/raw_maps")
 }

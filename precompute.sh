@@ -9,7 +9,7 @@ if [ ! -f data/input/popdat.bin ]; then
 	# We probably don't have this map yet.
 	if [ ! -f data/maps/huge_seattle.bin ]; then
 		cd precompute;
-		RUST_BACKTRACE=1 cargo run --release ../data/raw_maps/huge_seattle.bin --disable_psrc_scenarios;
+		RUST_BACKTRACE=1 cargo run --release ../data/input/raw_maps/huge_seattle.bin --disable_psrc_scenarios;
 		cd ..;
 	fi
 
@@ -31,16 +31,16 @@ for arg in "$@"; do
 	else
 		# Just recompute a single map.
 		cd precompute;
-		RUST_BACKTRACE=1 cargo run $release_mode ../data/raw_maps/$arg.bin $psrc_scenarios $no_fixes;
+		RUST_BACKTRACE=1 cargo run $release_mode ../data/input/raw_maps/$arg.bin $psrc_scenarios $no_fixes;
 		cd ..;
 		exit;
 	fi
 done
 
-for map_path in `ls data/raw_maps/`; do
+for map_path in `ls data/input/raw_maps/`; do
 	map=`basename $map_path .bin`;
 	echo "Precomputing $map";
 	cd precompute;
-	RUST_BACKTRACE=1 cargo run $release_mode ../data/raw_maps/$map.bin $psrc_scenarios $no_fixes;
+	RUST_BACKTRACE=1 cargo run $release_mode ../data/input/raw_maps/$map.bin $psrc_scenarios $no_fixes;
 	cd ..;
 done

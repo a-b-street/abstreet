@@ -21,7 +21,7 @@ function get_if_needed {
 	fi
 }
 
-mkdir -p data/input data/raw_maps
+mkdir -p data/input/raw_maps
 
 # TODO refactor a variant for .zips?
 if [ ! -d data/input/google_transit_2018_18_08/ ]; then
@@ -108,6 +108,6 @@ for poly in `ls ../data/polygons/`; do
 		--gtfs=../data/input/google_transit_2018_18_08 \
 		--neighborhoods=../data/input/neighborhoods.geojson \
 		--clip=../data/polygons/$name.poly \
-		--output=../data/raw_maps/$name.bin
+		--output=../data/input/raw_maps/$name.bin
 		#--sidewalks=../data/input/sidewalks.bin \
 done

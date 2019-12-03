@@ -14,9 +14,9 @@ everything [from source](INSTRUCTIONS.md).
 cd convert_osm
 cargo run --release -- \
   --osm=../data/input/your_city.osm \
-  --output=../data/raw_maps/your_city.bin
+  --output=../data/input/raw_maps/your_city.bin
 cd ../precompute
-cargo run --release -- ../data/raw_maps/your_city.bin
+cargo run --release -- ../data/input/raw_maps/your_city.bin
 ```
 
 You should now be able to load the map using the option from the main game menu,
