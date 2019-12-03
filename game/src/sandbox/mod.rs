@@ -208,7 +208,7 @@ impl State for SandboxMode {
             })));
         }
         if self.general_tools.action("debug mode") {
-            return Transition::Push(Box::new(DebugMode::new(ctx, ui)));
+            return Transition::Push(Box::new(DebugMode::new(ctx)));
         }
         if self.general_tools.action("take a screenshot") {
             return Transition::KeepWithMode(EventLoopMode::ScreenCaptureCurrentShot);

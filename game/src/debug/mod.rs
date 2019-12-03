@@ -2,7 +2,6 @@ mod associated;
 mod color_picker;
 mod connected_roads;
 mod floodfill;
-mod neighborhood_summary;
 mod objects;
 mod polygons;
 mod routes;
@@ -13,7 +12,6 @@ use crate::helpers::ID;
 use crate::options;
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::{ShowLayers, ShowObject, UI};
-use abstutil::Timer;
 use ezgui::{
     hotkey, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line,
     MenuUnderButton, ModalMenu, Text, Wizard,
@@ -31,12 +29,11 @@ pub struct DebugMode {
     hidden: HashSet<ID>,
     layers: ShowLayers,
     search_results: Option<SearchResults>,
-    neighborhood_summary: neighborhood_summary::NeighborhoodSummary,
     all_routes: routes::AllRoutesViewer,
 }
 
 impl DebugMode {
-    pub fn new(ctx: &mut EventCtx, ui: &UI) -> DebugMode {
+    pub fn new(ctx: &mut EventCtx) -> DebugMode {
         DebugMode {
             menu: ModalMenu::new(
                 "Debug Mode",
@@ -47,7 +44,6 @@ impl DebugMode {
                     (hotkey(Key::Num4), "hide areas"),
                     (hotkey(Key::Num5), "hide extra shapes"),
                     (hotkey(Key::Num6), "show labels"),
-                    (hotkey(Key::N), "show neighborhood summaries"),
                     (hotkey(Key::R), "show route for all agents"),
                     (None, "screenshot everything"),
                     (hotkey(Key::Slash), "search OSM metadata"),
@@ -73,12 +69,6 @@ impl DebugMode {
             hidden: HashSet::new(),
             layers: ShowLayers::new(),
             search_results: None,
-            neighborhood_summary: neighborhood_summary::NeighborhoodSummary::new(
-                &ui.primary.map,
-                &ui.primary.draw_map,
-                ctx.prerender,
-                &mut Timer::new("set up DebugMode"),
-            ),
             all_routes: routes::AllRoutesViewer::Inactive,
         }
     }
@@ -178,7 +168,6 @@ impl State for DebugMode {
         }
         self.connected_roads.event(ctx, ui);
         self.objects.event(ctx, ui);
-        self.neighborhood_summary.event(ui, &mut self.menu, ctx);
 
         if let Some(debugger) = polygons::PolygonDebugger::new(ctx, ui) {
             return Transition::Push(Box::new(debugger));
@@ -282,7 +271,6 @@ impl State for DebugMode {
         }
 
         self.objects.draw(g, ui);
-        self.neighborhood_summary.draw(g);
         self.all_routes.draw(g, ui);
 
         if !g.is_screencap() {
