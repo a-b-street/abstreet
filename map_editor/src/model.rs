@@ -39,7 +39,7 @@ impl Model {
     }
 
     pub fn import(
-        path: &str,
+        path: String,
         include_bldgs: bool,
         intersection_geom: bool,
         no_fixes: bool,
@@ -94,14 +94,12 @@ impl Model {
     }
 
     pub fn save_fixes(&mut self) {
-        let path = abstutil::path_fixes(&self.map.name);
         abstutil::write_json(
-            &path,
+            abstutil::path_fixes(&self.map.name),
             &self
                 .map
                 .generate_fixes(&mut Timer::new("calculate MapFixes")),
         );
-        println!("Wrote {}", path);
     }
 
     fn compute_bounds(&self) -> Bounds {

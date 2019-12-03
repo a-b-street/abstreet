@@ -64,9 +64,9 @@ impl SimFlags {
         if self.load.starts_with("../data/save/") {
             timer.note(format!("Resuming from {}", self.load));
 
-            let sim: Sim = abstutil::read_binary(&self.load, timer);
+            let sim: Sim = abstutil::read_binary(self.load.clone(), timer);
 
-            let mut map: Map = abstutil::read_binary(&abstutil::path_map(&sim.map_name), timer);
+            let mut map: Map = abstutil::read_binary(abstutil::path_map(&sim.map_name), timer);
             map.apply_edits(
                 MapEdits::load(map.get_name(), &sim.edits_name, timer),
                 timer,
@@ -81,9 +81,9 @@ impl SimFlags {
                 self.load
             ));
 
-            let scenario: Scenario = abstutil::read_binary(&self.load, timer);
+            let scenario: Scenario = abstutil::read_binary(self.load.clone(), timer);
 
-            let map: Map = abstutil::read_binary(&abstutil::path_map(&scenario.map_name), timer);
+            let map: Map = abstutil::read_binary(abstutil::path_map(&scenario.map_name), timer);
 
             if opts.run_name == "unnamed" {
                 opts.run_name = scenario.scenario_name.clone();
@@ -95,7 +95,7 @@ impl SimFlags {
         } else if self.load.starts_with("../data/raw_maps/") {
             timer.note(format!("Loading map {}", self.load));
 
-            let map = Map::new(&self.load, self.use_map_fixes, timer);
+            let map = Map::new(self.load.clone(), self.use_map_fixes, timer);
 
             timer.start("create sim");
             let sim = Sim::new(&map, opts, timer);
@@ -105,7 +105,7 @@ impl SimFlags {
         } else if self.load.starts_with("../data/maps/") {
             timer.note(format!("Loading map {}", self.load));
 
-            let map: Map = abstutil::read_binary(&self.load, timer);
+            let map: Map = abstutil::read_binary(self.load.clone(), timer);
 
             timer.start("create sim");
             let sim = Sim::new(&map, opts, timer);

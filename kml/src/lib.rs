@@ -4,7 +4,6 @@ use quick_xml::events::Event;
 use quick_xml::Reader;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
-use std::path;
 use std::{fs, io};
 use xmltree::Element;
 
@@ -128,7 +127,7 @@ fn parse_pt(input: &str, gps_bounds: &GPSBounds) -> Option<LonLat> {
 
 fn fix_field_names(orig_path: &str, shapes: &mut ExtraShapes) -> Option<()> {
     let new_path = orig_path.replace(".kml", ".xml");
-    if !path::Path::new(&new_path).exists() {
+    if !std::path::Path::new(&new_path).exists() {
         return None;
     }
     println!("Loading extra metadata from {}", new_path);

@@ -3,7 +3,7 @@ use geojson::{GeoJson, PolygonType, Value};
 use geom::{GPSBounds, LonLat};
 use map_model::NeighborhoodBuilder;
 
-pub fn convert(geojson_path: &str, map_name: String, gps_bounds: &GPSBounds) {
+pub fn convert(geojson_path: String, map_name: String, gps_bounds: &GPSBounds) {
     println!("Extracting neighborhoods from {}...", geojson_path);
     let document: GeoJson = abstutil::read_json(geojson_path, &mut Timer::throwaway());
     match document {

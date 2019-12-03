@@ -15,9 +15,8 @@ pub use crate::collections::{
 pub use crate::error::Error;
 pub use crate::io::{
     basename, deserialize_btreemap, deserialize_multimap, find_next_file, find_prev_file,
-    list_all_objects, list_dir, load_all_objects, maybe_read_binary, maybe_read_json, read_binary,
-    read_json, save_binary_object, save_json_object, serialize_btreemap, serialize_multimap,
-    to_json, write_binary, write_json, FileWithProgress,
+    list_all_objects, load_all_objects, maybe_read_binary, maybe_read_json, read_binary, read_json,
+    serialize_btreemap, serialize_multimap, to_json, write_binary, write_json, FileWithProgress,
 };
 pub use crate::logs::Warn;
 pub use crate::random::{fork_rng, WeightedUsizeChoice};
@@ -40,27 +39,10 @@ macro_rules! skip_fail {
     };
 }
 
-// TODO It might be nice to organize stuff in data/per_map/. Except it makes looping over all maps
-// a bit tougher, and it's unclear how to represent singletons like maps/foo.bin.
+// TODO Organize these
 
-pub const AB_TESTS: &str = "ab_tests";
-pub const AB_TEST_SAVES: &str = "ab_test_saves";
-pub const EDITS: &str = "edits";
-pub const NEIGHBORHOODS: &str = "neighborhoods";
-pub const SAVE: &str = "save";
-pub const SCENARIOS: &str = "scenarios";
-pub const SHORTCUTS: &str = "shortcuts";
-
-pub fn path1(map_name: &str, category: &str, dir: &str) -> String {
-    format!("../data/{}/{}/{}", category, map_name, dir)
-}
-
-pub fn path2_dir(map_name: &str, category: &str, dir: &str) -> String {
-    format!("../data/{}/{}/{}/", category, map_name, dir)
-}
-
-pub fn path2_bin(map_name: &str, category: &str, dir: &str, instance: &str) -> String {
-    format!("../data/{}/{}/{}/{}.bin", category, map_name, dir, instance)
+pub fn path_all_maps() -> String {
+    format!("../data/maps")
 }
 
 pub fn path_map(map_name: &str) -> String {
@@ -91,14 +73,72 @@ pub fn path_prebaked_results(map_name: &str) -> String {
     format!("../data/prebaked_results/{}.bin", map_name)
 }
 
+pub fn path_all_shortcuts() -> String {
+    format!("../data/shortcuts")
+}
+
 pub fn path_shortcut(name: &str) -> String {
     format!("../data/shortcuts/{}.json", name)
+}
+
+pub fn path_all_scenarios(map_name: &str) -> String {
+    format!("../data/scenarios/{}", map_name)
 }
 
 pub fn path_scenario(map_name: &str, scenario_name: &str) -> String {
     format!("../data/scenarios/{}/{}.bin", map_name, scenario_name)
 }
 
+pub fn path_all_edits(map_name: &str) -> String {
+    format!("../data/edits/{}", map_name)
+}
+
 pub fn path_edits(map_name: &str, edits_name: &str) -> String {
     format!("../data/edits/{}/{}.json", map_name, edits_name)
+}
+
+pub fn path_all_neighborhoods(map_name: &str) -> String {
+    format!("../data/neighborhoods/{}", map_name)
+}
+
+pub fn path_neighborhood(map_name: &str, neighborhood: &str) -> String {
+    format!("../data/neighborhoods/{}/{}.json", map_name, neighborhood)
+}
+
+pub fn path_all_ab_tests(map_name: &str) -> String {
+    format!("../data/ab_tests/{}", map_name)
+}
+
+pub fn path_ab_test(map_name: &str, test_name: &str) -> String {
+    format!("../data/ab_tests/{}/{}.json", map_name, test_name)
+}
+
+pub fn path_all_ab_test_saves(map_name: &str, test_name: &str) -> String {
+    format!("../data/ab_test_saves/{}/{}", map_name, test_name)
+}
+
+pub fn path_ab_test_save(map_name: &str, test_name: &str, time: String) -> String {
+    format!(
+        "../data/ab_test_saves/{}/{}/{}.bin",
+        map_name, test_name, time
+    )
+}
+
+pub fn path_color_scheme() -> String {
+    format!("../data/color_scheme.json")
+}
+
+pub fn path_popdat() -> String {
+    format!("../data/shapes/popdat.bin")
+}
+
+pub fn path_all_saves(map_name: &str, edits_name: &str, run_name: &str) -> String {
+    format!("../data/saves/{}/{}_{}", map_name, edits_name, run_name)
+}
+
+pub fn path_save(map_name: &str, edits_name: &str, run_name: &str, time: String) -> String {
+    format!(
+        "../data/saves/{}/{}_{}/{}.bin",
+        map_name, edits_name, run_name, time
+    )
 }

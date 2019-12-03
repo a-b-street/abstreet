@@ -61,7 +61,7 @@ pub fn faster_trips_panel(mode: TripMode, ui: &UI) -> Text {
     // Enable to debug why sim results don't match prebaked.
     if false && !now.seems_eq(&baseline) {
         abstutil::write_json(
-            "../current_sim.json",
+            "../current_sim.json".to_string(),
             &ui.primary.sim.get_analytics().finished_trips,
         );
         let filtered = ui
@@ -71,7 +71,7 @@ pub fn faster_trips_panel(mode: TripMode, ui: &UI) -> Text {
             .filter(|(t, _, _, _)| *t <= time)
             .cloned()
             .collect::<Vec<_>>();
-        abstutil::write_json("../prebaked.json", &filtered);
+        abstutil::write_json("../prebaked.json".to_string(), &filtered);
         panic!("At {} ({:?}), finished_trips doesn't match", time, time);
     }
 

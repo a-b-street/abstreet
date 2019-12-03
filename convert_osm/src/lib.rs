@@ -31,13 +31,13 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> RawMap {
     abstutil::retain_btreemap(&mut map.roads, |r, _| r.i1 != r.i2);
 
     if let Some(ref path) = flags.parking_shapes {
-        use_parking_hints(&mut map, path, timer);
+        use_parking_hints(&mut map, path.clone(), timer);
     }
     if let Some(ref path) = flags.offstreet_parking {
         use_offstreet_parking(&mut map, path, timer);
     }
     if let Some(ref path) = flags.sidewalks {
-        use_sidewalk_hints(&mut map, path, timer);
+        use_sidewalk_hints(&mut map, path.clone(), timer);
     }
     if let Some(ref path) = flags.gtfs {
         timer.start("load GTFS");
@@ -47,14 +47,14 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> RawMap {
 
     if let Some(ref path) = flags.neighborhoods {
         timer.start("convert neighborhood polygons");
-        neighborhoods::convert(path, map.name.clone(), &map.gps_bounds);
+        neighborhoods::convert(path.clone(), map.name.clone(), &map.gps_bounds);
         timer.stop("convert neighborhood polygons");
     }
 
     map
 }
 
-fn use_parking_hints(map: &mut RawMap, path: &str, timer: &mut Timer) {
+fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
     timer.start("apply parking hints");
     let shapes: ExtraShapes = abstutil::read_binary(path, timer);
 
@@ -190,7 +190,7 @@ fn use_offstreet_parking(map: &mut RawMap, path: &str, timer: &mut Timer) {
     timer.stop("match offstreet parking points");
 }
 
-fn use_sidewalk_hints(map: &mut RawMap, path: &str, timer: &mut Timer) {
+fn use_sidewalk_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
     timer.start("apply sidewalk hints");
     let shapes: ExtraShapes = abstutil::read_binary(path, timer);
 

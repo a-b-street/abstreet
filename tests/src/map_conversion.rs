@@ -18,35 +18,35 @@ pub fn run(t: &mut TestRunner) {
 
         if abstutil::to_json(&map1) != abstutil::to_json(&map2) {
             // TODO tmp files
-            abstutil::write_json("map1.json", &map1);
-            abstutil::write_json("map2.json", &map2);
+            abstutil::write_json("map1.json".to_string(), &map1);
+            abstutil::write_json("map2.json".to_string(), &map2);
             panic!("map1.json and map2.json differ");
         }
     });
 
     t.run_slow("raw_to_map_twice", |_| {
         let map1 = map_model::Map::new(
-            &abstutil::path_raw_map("montlake"),
+            abstutil::path_raw_map("montlake"),
             true,
             &mut abstutil::Timer::throwaway(),
         );
         let map2 = map_model::Map::new(
-            &abstutil::path_raw_map("montlake"),
+            abstutil::path_raw_map("montlake"),
             true,
             &mut abstutil::Timer::throwaway(),
         );
 
         if abstutil::to_json(&map1) != abstutil::to_json(&map2) {
             // TODO tmp files
-            abstutil::write_json("map1.json", &map1);
-            abstutil::write_json("map2.json", &map2);
+            abstutil::write_json("map1.json".to_string(), &map1);
+            abstutil::write_json("map2.json".to_string(), &map2);
             panic!("map1.json and map2.json differ");
         }
     });
 
     t.run_slow("bigger_map_loads", |_| {
         map_model::Map::new(
-            &abstutil::path_raw_map("23rd"),
+            abstutil::path_raw_map("23rd"),
             true,
             &mut abstutil::Timer::throwaway(),
         );
@@ -54,7 +54,7 @@ pub fn run(t: &mut TestRunner) {
 
     t.run_slow("biggest_map_loads", |_| {
         map_model::Map::new(
-            &abstutil::path_raw_map("huge_seattle"),
+            abstutil::path_raw_map("huge_seattle"),
             true,
             &mut abstutil::Timer::throwaway(),
         );

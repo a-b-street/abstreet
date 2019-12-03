@@ -184,17 +184,16 @@ impl Canvas {
             cam_y: self.cam_y,
             cam_zoom: self.cam_zoom,
         };
-        let path = abstutil::path_camera_state(map_name);
-        abstutil::write_json(&path, &state);
-        println!("Saved {}", path);
+        abstutil::write_json(abstutil::path_camera_state(map_name), &state);
     }
 
     // True if this succeeds
     pub fn load_camera_state(&mut self, map_name: &str) -> bool {
-        let path = abstutil::path_camera_state(map_name);
-        match abstutil::maybe_read_json::<CameraState>(&path, &mut Timer::throwaway()) {
+        match abstutil::maybe_read_json::<CameraState>(
+            abstutil::path_camera_state(map_name),
+            &mut Timer::throwaway(),
+        ) {
             Ok(ref loaded) => {
-                println!("Loaded {}", path);
                 self.cam_x = loaded.cam_x;
                 self.cam_y = loaded.cam_y;
                 self.cam_zoom = loaded.cam_zoom;

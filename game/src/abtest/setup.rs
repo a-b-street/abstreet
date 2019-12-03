@@ -25,10 +25,9 @@ fn pick_ab_test(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
     {
         wizard
             .choose("Load which A/B test?", || {
-                Choice::from(abstutil::load_all_objects(
-                    abstutil::AB_TESTS,
+                Choice::from(abstutil::load_all_objects(abstutil::path_all_ab_tests(
                     ui.primary.map.get_name(),
-                ))
+                )))
             })?
             .1
     } else {
@@ -106,11 +105,10 @@ impl State for ABTestSetup {
 fn make_load_savestate(ab_test: ABTest) -> Box<dyn State> {
     WizardState::new(Box::new(move |wiz, ctx, ui| {
         let ss = wiz.wrap(ctx).choose_string("Load which savestate?", || {
-            abstutil::list_dir(std::path::Path::new(&abstutil::path1(
+            abstutil::list_all_objects(abstutil::path_all_ab_test_saves(
                 &ab_test.map_name,
-                abstutil::AB_TEST_SAVES,
                 &ab_test.test_name,
-            )))
+            ))
         })?;
         Some(Transition::Replace(Box::new(launch_savestate(
             &ab_test, ss, ui, ctx,
@@ -123,7 +121,7 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
         &format!("Launching A/B test {}", test.test_name),
         |ctx, mut timer| {
             let scenario: Scenario = abstutil::read_binary(
-                &abstutil::path_scenario(&test.map_name, &test.scenario_name),
+                abstutil::path_scenario(&test.map_name, &test.scenario_name),
                 &mut timer,
             );
 
@@ -217,7 +215,7 @@ fn launch_savestate(test: &ABTest, ss_path: String, ui: &mut UI, ctx: &mut Event
     ctx.loading_screen(
         &format!("Launch A/B test from savestate {}", ss_path),
         |ctx, mut timer| {
-            let ss: ABTestSavestate = abstutil::read_binary(&ss_path, &mut timer);
+            let ss: ABTestSavestate = abstutil::read_binary(ss_path, &mut timer);
 
             timer.start("setup primary");
             ui.primary.map = ss.primary_map;
@@ -257,7 +255,7 @@ fn launch_savestate(test: &ABTest, ss_path: String, ui: &mut UI, ctx: &mut Event
 
 fn choose_scenario(map_name: &str, wizard: &mut WrappedWizard, query: &str) -> Option<String> {
     wizard.choose_string(query, || {
-        abstutil::list_all_objects(abstutil::SCENARIOS, map_name)
+        abstutil::list_all_objects(abstutil::path_all_scenarios(map_name))
     })
 }
 
@@ -268,7 +266,7 @@ fn choose_edits(
     exclude: String,
 ) -> Option<String> {
     wizard.choose_string(query, || {
-        let mut list = abstutil::list_all_objects("edits", map_name);
+        let mut list = abstutil::list_all_objects(abstutil::path_all_edits(map_name));
         list.push("no_edits".to_string());
         list.into_iter().filter(|x| x != &exclude).collect()
     })

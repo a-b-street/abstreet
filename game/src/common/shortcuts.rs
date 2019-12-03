@@ -51,8 +51,8 @@ fn choose_shortcut(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<
             cam_zoom,
         }];
         let mut timer = Timer::new("load shortcuts");
-        for name in abstutil::list_all_objects(abstutil::SHORTCUTS, "") {
-            let s: Shortcut = abstutil::read_json(&abstutil::path_shortcut(&name), &mut timer);
+        for name in abstutil::list_all_objects(abstutil::path_all_shortcuts()) {
+            let s: Shortcut = abstutil::read_json(abstutil::path_shortcut(&name), &mut timer);
             if ui
                 .primary
                 .map
@@ -81,7 +81,7 @@ fn choose_shortcut(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<
         // TODO Enforce non-empty, unique names
         let name = wizard.input_string("Name this shortcut")?;
         s.name = name;
-        abstutil::write_json(&abstutil::path_shortcut(&s.name), &s);
+        abstutil::write_json(abstutil::path_shortcut(&s.name), &s);
         wizard.abort();
         Some(Transition::Pop)
     } else {

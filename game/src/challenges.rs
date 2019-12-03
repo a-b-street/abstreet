@@ -101,7 +101,7 @@ pub fn challenges_picker(ctx: &EventCtx) -> Box<dyn State> {
 
     let mut flex_row = Vec::new();
     for challenge in all_challenges() {
-        let edits = abstutil::list_all_objects(abstutil::EDITS, &challenge.map_name);
+        let edits = abstutil::list_all_objects(abstutil::path_all_edits(&challenge.map_name));
 
         let mut txt = Text::new();
         txt.add(Line(&challenge.title).size(40).fg(Color::BLACK));
@@ -116,7 +116,8 @@ pub fn challenges_picker(ctx: &EventCtx) -> Box<dyn State> {
             txt,
             None,
             Box::new(move |ctx, _| {
-                let edits = abstutil::list_all_objects(abstutil::EDITS, &challenge.map_name);
+                let edits =
+                    abstutil::list_all_objects(abstutil::path_all_edits(&challenge.map_name));
                 let mut summary = Text::new();
                 for l in &challenge.description {
                     summary.add(Line(l));
@@ -167,7 +168,9 @@ impl State for ChallengeSplash {
             return Transition::Push(WizardState::new(Box::new(move |wiz, ctx, ui| {
                 let mut wizard = wiz.wrap(ctx);
                 let (_, new_edits) = wizard.choose("Load which map edits?", || {
-                    Choice::from(abstutil::load_all_objects(abstutil::EDITS, &map_name))
+                    Choice::from(abstutil::load_all_objects(abstutil::path_all_edits(
+                        &map_name,
+                    )))
                 })?;
                 if &map_name != ui.primary.map.get_name() {
                     ui.switch_map(ctx, &map_name);
@@ -223,7 +226,7 @@ pub fn prebake() {
         timer.stop(&format!("run normal sim for {}", map_name));
 
         abstutil::write_binary(
-            &abstutil::path_prebaked_results(map_name),
+            abstutil::path_prebaked_results(map_name),
             sim.get_analytics(),
         );
     }

@@ -11,7 +11,7 @@ data/maps/*
 data/neighborhoods/*
 data/raw_maps/*
 data/prebaked_results/*
-data/save/*
+data/saves/*
 data/scenarios/*
 data/screenshots/*/*.png
 data/screenshots/*/combine.sh

@@ -93,15 +93,15 @@ impl RawMap {
     pub fn apply_all_fixes(&mut self, timer: &mut Timer) {
         if self.name == "huge_seattle" {
             let master_fixes: MapFixes =
-                abstutil::maybe_read_json(&abstutil::path_fixes("huge_seattle"), timer)
+                abstutil::maybe_read_json(abstutil::path_fixes("huge_seattle"), timer)
                     .unwrap_or_else(|_| MapFixes::new(self.gps_bounds.clone()));
             self.apply_fixes("huge_seattle", &master_fixes, timer);
         } else {
             let mut master_fixes: MapFixes =
-                abstutil::read_json(&abstutil::path_fixes("huge_seattle"), timer);
+                abstutil::read_json(abstutil::path_fixes("huge_seattle"), timer);
             master_fixes.remap_pts(&self.gps_bounds);
             let local_fixes: MapFixes =
-                abstutil::maybe_read_json(&abstutil::path_fixes(&self.name), timer)
+                abstutil::maybe_read_json(abstutil::path_fixes(&self.name), timer)
                     .unwrap_or_else(|_| MapFixes::new(self.gps_bounds.clone()));
             self.apply_fixes("huge_seattle", &master_fixes, timer);
             self.apply_fixes(&self.name.clone(), &local_fixes, timer);
@@ -177,7 +177,7 @@ impl RawMap {
 
     // TODO Ignores buildings right now.
     pub fn generate_fixes(&self, timer: &mut Timer) -> MapFixes {
-        let orig: RawMap = abstutil::read_binary(&abstutil::path_raw_map(&self.name), timer);
+        let orig: RawMap = abstutil::read_binary(abstutil::path_raw_map(&self.name), timer);
 
         let mut fixes = MapFixes::new(self.gps_bounds.clone());
 
@@ -217,7 +217,7 @@ impl RawMap {
         if self.name != "huge_seattle" {
             // Filter out things that we just inherited from the master fixes.
             let mut master_fixes: MapFixes =
-                abstutil::read_json(&abstutil::path_fixes("huge_seattle"), timer);
+                abstutil::read_json(abstutil::path_fixes("huge_seattle"), timer);
             master_fixes.remap_pts(&self.gps_bounds);
 
             fixes.delete_roads = fixes

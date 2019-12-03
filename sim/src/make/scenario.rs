@@ -160,10 +160,8 @@ impl Scenario {
     }
 
     pub fn save(&self) {
-        abstutil::save_binary_object(
-            abstutil::SCENARIOS,
-            &self.map_name,
-            &self.scenario_name,
+        abstutil::write_binary(
+            abstutil::path_scenario(&self.map_name, &self.scenario_name),
             self,
         );
     }

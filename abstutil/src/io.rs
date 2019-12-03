@@ -29,20 +29,21 @@ fn maybe_write_json<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
     Ok(())
 }
 
-pub fn write_json<T: Serialize>(path: &str, obj: &T) {
-    if let Err(err) = maybe_write_json(path, obj) {
+pub fn write_json<T: Serialize>(path: String, obj: &T) {
+    if let Err(err) = maybe_write_json(&path, obj) {
         panic!("Can't write_json({}): {}", path, err);
     }
+    println!("Wrote {}", path);
 }
 
-pub fn maybe_read_json<T: DeserializeOwned>(path: &str, timer: &mut Timer) -> Result<T, Error> {
+pub fn maybe_read_json<T: DeserializeOwned>(path: String, timer: &mut Timer) -> Result<T, Error> {
     if !path.ends_with(".json") && !path.ends_with(".geojson") {
         panic!("read_json needs {} to end with .json or .geojson", path);
     }
 
     timer.start(&format!("parse {}", path));
     // TODO timer.read_file isn't working here. And we need to call stop() if there's no file.
-    match File::open(path) {
+    match File::open(&path) {
         Ok(mut file) => {
             let mut contents = String::new();
             file.read_to_string(&mut contents)?;
@@ -57,8 +58,8 @@ pub fn maybe_read_json<T: DeserializeOwned>(path: &str, timer: &mut Timer) -> Re
     }
 }
 
-pub fn read_json<T: DeserializeOwned>(path: &str, timer: &mut Timer) -> T {
-    match maybe_read_json(path, timer) {
+pub fn read_json<T: DeserializeOwned>(path: String, timer: &mut Timer) -> T {
+    match maybe_read_json(path.clone(), timer) {
         Ok(obj) => obj,
         Err(err) => panic!("Couldn't read_json({}): {}", path, err),
     }
@@ -76,25 +77,26 @@ fn maybe_write_binary<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
     bincode::serialize_into(file, obj).map_err(|err| Error::new(ErrorKind::Other, err))
 }
 
-pub fn write_binary<T: Serialize>(path: &str, obj: &T) {
-    if let Err(err) = maybe_write_binary(path, obj) {
+pub fn write_binary<T: Serialize>(path: String, obj: &T) {
+    if let Err(err) = maybe_write_binary(&path, obj) {
         panic!("Can't write_binary({}): {}", path, err);
     }
+    println!("Wrote {}", path);
 }
 
-pub fn maybe_read_binary<T: DeserializeOwned>(path: &str, timer: &mut Timer) -> Result<T, Error> {
+pub fn maybe_read_binary<T: DeserializeOwned>(path: String, timer: &mut Timer) -> Result<T, Error> {
     if !path.ends_with(".bin") {
         panic!("read_binary needs {} to end with .bin", path);
     }
 
-    timer.read_file(path)?;
+    timer.read_file(&path)?;
     let obj: T =
         bincode::deserialize_from(timer).map_err(|err| Error::new(ErrorKind::Other, err))?;
     Ok(obj)
 }
 
-pub fn read_binary<T: DeserializeOwned>(path: &str, timer: &mut Timer) -> T {
-    match maybe_read_binary(path, timer) {
+pub fn read_binary<T: DeserializeOwned>(path: String, timer: &mut Timer) -> T {
+    match maybe_read_binary(path.clone(), timer) {
         Ok(obj) => obj,
         Err(err) => panic!("Couldn't read_binary({}): {}", path, err),
     }
@@ -152,10 +154,10 @@ pub fn deserialize_multimap<
 }
 
 // Just list all things from a directory, return sorted by name, with file extension removed.
-// Hacky that map_name can be blank. ;)
-pub fn list_all_objects(dir: &str, map_name: &str) -> Vec<String> {
+// TODO Then just post-proc list_dir
+pub fn list_all_objects(dir: String) -> Vec<String> {
     let mut results: BTreeSet<String> = BTreeSet::new();
-    match std::fs::read_dir(format!("../data/{}/{}", dir, map_name)) {
+    match std::fs::read_dir(dir) {
         Ok(iter) => {
             for entry in iter {
                 let filename = entry.unwrap().file_name();
@@ -180,13 +182,10 @@ pub fn list_all_objects(dir: &str, map_name: &str) -> Vec<String> {
 
 // Load all serialized things from a directory, return sorted by name, with file extension removed.
 // Detects JSON or binary.
-pub fn load_all_objects<T: DeserializeOwned>(dir: &str, map_name: &str) -> Vec<(String, T)> {
-    let mut timer = Timer::new(&format!(
-        "load_all_objects from ../data/{}/{}/",
-        dir, map_name
-    ));
+pub fn load_all_objects<T: DeserializeOwned>(dir: String) -> Vec<(String, T)> {
+    let mut timer = Timer::new(&format!("load_all_objects from {}", dir));
     let mut tree: BTreeMap<String, T> = BTreeMap::new();
-    match std::fs::read_dir(format!("../data/{}/{}/", dir, map_name)) {
+    match std::fs::read_dir(&dir) {
         Ok(iter) => {
             for entry in iter {
                 let filename = entry.unwrap().file_name();
@@ -195,6 +194,7 @@ pub fn load_all_objects<T: DeserializeOwned>(dir: &str, map_name: &str) -> Vec<(
                 if path_str.ends_with(".swp") {
                     continue;
                 }
+                let full_path = format!("{}/{}", dir, path_str);
                 let name = path
                     .file_stem()
                     .unwrap()
@@ -202,20 +202,11 @@ pub fn load_all_objects<T: DeserializeOwned>(dir: &str, map_name: &str) -> Vec<(
                     .into_string()
                     .unwrap();
                 let load: T = if path_str.ends_with(".json") {
-                    read_json(
-                        &format!("../data/{}/{}/{}.json", dir, map_name, name),
-                        &mut timer,
-                    )
+                    read_json(full_path, &mut timer)
                 } else if path_str.ends_with(".bin") {
-                    read_binary(
-                        &format!("../data/{}/{}/{}.bin", dir, map_name, name),
-                        &mut timer,
-                    )
+                    read_binary(full_path, &mut timer)
                 } else {
-                    panic!(
-                        "Don't know what ../data/{}/{}/{} is",
-                        dir, map_name, path_str
-                    );
+                    panic!("Don't know what {} is", full_path);
                 };
                 tree.insert(name, load);
             }
@@ -224,18 +215,6 @@ pub fn load_all_objects<T: DeserializeOwned>(dir: &str, map_name: &str) -> Vec<(
         Err(e) => panic!(e),
     };
     tree.into_iter().collect()
-}
-
-pub fn save_json_object<T: Serialize>(dir: &str, map_name: &str, obj_name: &str, obj: &T) {
-    let path = format!("../data/{}/{}/{}.json", dir, map_name, obj_name);
-    write_json(&path, obj);
-    println!("Saved {}", path);
-}
-
-pub fn save_binary_object<T: Serialize>(dir: &str, map_name: &str, obj_name: &str, obj: &T) {
-    let path = format!("../data/{}/{}/{}.bin", dir, map_name, obj_name);
-    write_binary(&path, obj);
-    println!("Saved {}", path);
 }
 
 // TODO I'd like to get rid of this and just use Timer.read_file, but external libraries consume

@@ -73,7 +73,7 @@ impl MapEdits {
         if edits_name == "no_edits" {
             return MapEdits::new(map_name.to_string());
         }
-        abstutil::read_json(&abstutil::path_edits(map_name, edits_name), timer)
+        abstutil::read_json(abstutil::path_edits(map_name, edits_name), timer)
     }
 
     // TODO Version these
@@ -82,7 +82,7 @@ impl MapEdits {
 
         assert!(self.dirty);
         assert_ne!(self.edits_name, "no_edits");
-        abstutil::save_json_object(abstutil::EDITS, &self.map_name, &self.edits_name, self);
+        abstutil::write_json(abstutil::path_edits(&self.map_name, &self.edits_name), self);
         self.dirty = false;
     }
 

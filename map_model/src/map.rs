@@ -48,7 +48,7 @@ pub struct Map {
 }
 
 impl Map {
-    pub fn new(path: &str, use_map_fixes: bool, timer: &mut Timer) -> Map {
+    pub fn new(path: String, use_map_fixes: bool, timer: &mut Timer) -> Map {
         let mut raw: RawMap = abstutil::read_binary(path, timer);
         if use_map_fixes {
             raw.apply_all_fixes(timer);
@@ -472,10 +472,7 @@ impl Map {
     pub fn save(&self) {
         assert_eq!(self.edits.edits_name, "no_edits");
         assert!(!self.pathfinder_dirty);
-        let path = abstutil::path_map(&self.name);
-        println!("Saving {}...", path);
-        abstutil::write_binary(&path, self);
-        println!("Saved {}", path);
+        abstutil::write_binary(abstutil::path_map(&self.name), self);
     }
 
     pub fn find_closest_lane(&self, from: LaneID, types: Vec<LaneType>) -> Result<LaneID, Error> {

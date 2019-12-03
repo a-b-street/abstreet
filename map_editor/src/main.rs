@@ -60,7 +60,7 @@ impl UI {
 
         let model = if let Some(path) = load {
             Model::import(
-                &path,
+                path,
                 include_bldgs,
                 intersection_geom,
                 no_fixes,
@@ -740,10 +740,8 @@ fn find_overlapping_intersections(model: &Model, ctx: &EventCtx) -> (Drawable, V
 // TODO OriginalRoad is dangerous, as this map changes. :\
 fn find_short_roads(model: &Model) -> HashSet<OriginalRoad> {
     // Assume the full map has been built. We really care about short lanes there.
-    let map: map_model::Map = abstutil::read_binary(
-        &abstutil::path_map(&model.map.name),
-        &mut Timer::throwaway(),
-    );
+    let map: map_model::Map =
+        abstutil::read_binary(abstutil::path_map(&model.map.name), &mut Timer::throwaway());
     // Buses are 12.5
     let threshold = Distance::meters(13.0);
     let mut roads: HashSet<OriginalRoad> = HashSet::new();

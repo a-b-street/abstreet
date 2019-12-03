@@ -80,7 +80,7 @@ impl UI {
 
             let primary = PerMapUI::new(flags, &cs, ctx, &mut timer);
             let prebaked: Analytics = abstutil::maybe_read_binary(
-                &abstutil::path_prebaked_results(primary.map.get_name()),
+                abstutil::path_prebaked_results(primary.map.get_name()),
                 &mut timer,
             )
             .unwrap_or_else(|_| {

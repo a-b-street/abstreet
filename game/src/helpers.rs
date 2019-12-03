@@ -88,7 +88,7 @@ struct ModifiedColors {
 impl ColorScheme {
     pub fn load() -> ColorScheme {
         let modified: ModifiedColors =
-            abstutil::read_json("../data/color_scheme.json", &mut Timer::throwaway());
+            abstutil::read_json(abstutil::path_color_scheme(), &mut Timer::throwaway());
         let mut map: HashMap<String, Color> = default_colors();
         for (name, c) in &modified.map {
             map.insert(name.clone(), *c);
@@ -97,7 +97,7 @@ impl ColorScheme {
     }
 
     pub fn save(&self) {
-        abstutil::write_json("../data/color_scheme.json", &self.modified);
+        abstutil::write_json(abstutil::path_color_scheme(), &self.modified);
     }
 
     // Get, but specify the default inline. The default is extracted before compilation by a script

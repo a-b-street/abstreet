@@ -75,7 +75,7 @@ impl GameplayMode {
             s
         } else {
             abstutil::read_binary(
-                &abstutil::path_scenario(&ui.primary.map.get_name(), &name),
+                abstutil::path_scenario(&ui.primary.map.get_name(), &name),
                 timer,
             )
         })
@@ -154,7 +154,7 @@ fn change_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<
         .wrap(ctx)
         .choose_string("Instantiate which scenario?", || {
             let mut list =
-                abstutil::list_all_objects(abstutil::SCENARIOS, ui.primary.map.get_name());
+                abstutil::list_all_objects(abstutil::path_all_scenarios(ui.primary.map.get_name()));
             list.push(builtin.clone());
             list.push("just buses".to_string());
             list
@@ -170,7 +170,7 @@ fn change_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<
 fn load_map(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
     if let Some(name) = wiz.wrap(ctx).choose_string("Load which map?", || {
         let current_map = ui.primary.map.get_name();
-        abstutil::list_all_objects("maps", "")
+        abstutil::list_all_objects(abstutil::path_all_maps())
             .into_iter()
             .filter(|n| n != current_map)
             .collect()

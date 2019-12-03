@@ -702,28 +702,23 @@ impl Sim {
 // Savestating
 impl Sim {
     pub fn save_dir(&self) -> String {
-        abstutil::path2_dir(
-            &self.map_name,
-            abstutil::SAVE,
-            &format!("{}_{}", self.edits_name, self.run_name),
-        )
+        abstutil::path_all_saves(&self.map_name, &self.edits_name, &self.run_name)
     }
 
     fn save_path(&self, base_time: Time) -> String {
         // If we wanted to be even more reproducible, we'd encode RNG seed, version of code, etc,
         // but that's overkill right now.
-        abstutil::path2_bin(
+        abstutil::path_save(
             &self.map_name,
-            abstutil::SAVE,
-            &format!("{}_{}", self.edits_name, self.run_name),
-            &base_time.as_filename(),
+            &self.edits_name,
+            &self.run_name,
+            base_time.as_filename(),
         )
     }
 
     pub fn save(&self) -> String {
         let path = self.save_path(self.time);
-        abstutil::write_binary(&path, &self);
-        println!("Saved to {}", path);
+        abstutil::write_binary(path.clone(), self);
         path
     }
 
@@ -736,8 +731,7 @@ impl Sim {
     }
 
     pub fn load_savestate(path: String, timer: &mut Timer) -> Result<Sim, std::io::Error> {
-        println!("Loading {}", path);
-        abstutil::maybe_read_binary(&path, timer)
+        abstutil::maybe_read_binary(path, timer)
     }
 }
 

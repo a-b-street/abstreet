@@ -194,8 +194,7 @@ fn load_neighborhood_builder(
     wizard
         .choose(query, || {
             Choice::from(abstutil::load_all_objects(
-                abstutil::NEIGHBORHOODS,
-                &map.get_name(),
+                abstutil::path_all_neighborhoods(&map.get_name()),
             ))
         })
         .map(|(_, n)| n)

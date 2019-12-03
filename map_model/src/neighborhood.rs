@@ -35,7 +35,10 @@ impl NeighborhoodBuilder {
     }
 
     pub fn save(&self) {
-        abstutil::save_json_object(abstutil::NEIGHBORHOODS, &self.map_name, &self.name, self);
+        abstutil::write_json(
+            abstutil::path_neighborhood(&self.map_name, &self.name),
+            self,
+        );
     }
 
     // https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format
@@ -73,10 +76,12 @@ pub struct Neighborhood {
 
 impl Neighborhood {
     pub fn load_all(map_name: &str, gps_bounds: &GPSBounds) -> Vec<(String, Neighborhood)> {
-        abstutil::load_all_objects::<NeighborhoodBuilder>(abstutil::NEIGHBORHOODS, map_name)
-            .into_iter()
-            .map(|(name, builder)| (name, builder.finalize(gps_bounds)))
-            .collect()
+        abstutil::load_all_objects::<NeighborhoodBuilder>(abstutil::path_all_neighborhoods(
+            map_name,
+        ))
+        .into_iter()
+        .map(|(name, builder)| (name, builder.finalize(gps_bounds)))
+        .collect()
     }
 
     fn make_everywhere(map: &Map) -> Neighborhood {

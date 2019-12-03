@@ -280,14 +280,14 @@ impl ABTestMode {
             ),
         };
 
-        let path = abstutil::path2_bin(
-            ss.primary_map.get_name(),
-            abstutil::AB_TEST_SAVES,
-            &self.test_name,
-            &ss.primary_sim.time().to_string(),
+        abstutil::write_binary(
+            abstutil::path_ab_test_save(
+                ss.primary_map.get_name(),
+                &self.test_name,
+                ss.primary_sim.time().as_filename(),
+            ),
+            &ss,
         );
-        abstutil::write_binary(&path, &ss);
-        println!("Saved {}", path);
 
         // Restore everything.
         ui.primary.sim = ss.primary_sim;
