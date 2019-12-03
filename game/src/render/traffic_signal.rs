@@ -1,11 +1,11 @@
-use crate::render::{DrawCtx, BIG_ARROW_THICKNESS};
+use crate::render::{DrawCtx, DrawTurnGroup, BIG_ARROW_THICKNESS};
 use crate::ui::UI;
 use ezgui::{
     Color, EventCtx, GeomBatch, GfxCtx, Line, ModalMenu, MultiText, NewScroller, ScreenDims,
     ScreenPt, Scroller, Text,
 };
-use geom::{Circle, Distance, Duration, Line, Polygon, Pt2D};
-use map_model::{IntersectionID, Phase, TurnPriority, TurnType, LANE_THICKNESS};
+use geom::{Circle, Distance, Duration, Polygon, Pt2D};
+use map_model::{IntersectionID, Phase, TurnPriority};
 
 // Only draws a box when time_left is present
 pub fn draw_signal_phase(
@@ -15,11 +15,6 @@ pub fn draw_signal_phase(
     batch: &mut GeomBatch,
     ctx: &DrawCtx,
 ) {
-    if false {
-        draw_signal_phase_with_icons(phase, i, batch, ctx);
-        return;
-    }
-
     let protected_color = ctx
         .cs
         .get_def("turn protected by traffic signal", Color::GREEN);
@@ -35,7 +30,21 @@ pub fn draw_signal_phase(
         }
     }
 
+    // TODO Live settings panel to toggle between these 3 styles
     if true {
+        for g in DrawTurnGroup::for_i(i, ctx.map) {
+            batch.push(ctx.cs.get("turn block background"), g.block.clone());
+            let arrow_color = match phase.get_priority_of_group(g.id) {
+                TurnPriority::Protected => ctx.cs.get("turn protected by traffic signal"),
+                TurnPriority::Yield => ctx
+                    .cs
+                    .get("turn that can yield by traffic signal")
+                    .alpha(1.0),
+                TurnPriority::Banned => ctx.cs.get("turn not in current phase"),
+            };
+            batch.push(arrow_color, g.arrow.clone());
+        }
+    } else if true {
         for g in &phase.protected_groups {
             if g.crosswalk.is_none() {
                 batch.push(
@@ -115,152 +124,6 @@ pub fn draw_signal_phase(
         Color::GREEN,
         Circle::new(center.offset(Distance::ZERO, 2.0 * radius), radius).to_polygon(),
     );
-}
-
-// TODO Written in a complicated way, and still doesn't look right.
-fn draw_signal_phase_with_icons(
-    phase: &Phase,
-    i: IntersectionID,
-    batch: &mut GeomBatch,
-    ctx: &DrawCtx,
-) {
-    let signal = ctx.map.get_traffic_signal(i);
-    for (id, crosswalk) in &ctx.draw_map.get_i(i).crosswalks {
-        if phase.get_priority_of_turn(*id, signal) == TurnPriority::Protected {
-            batch.append(crosswalk.clone());
-        }
-    }
-
-    for l in &ctx.map.get_i(i).incoming_lanes {
-        let lane = ctx.map.get_l(*l);
-        // TODO Show a hand or a walking sign for crosswalks
-        if lane.is_parking() || lane.is_sidewalk() {
-            continue;
-        }
-
-        let mut green = Vec::new();
-        let mut yellow = Vec::new();
-        let mut red = Vec::new();
-        for (turn, _) in ctx.map.get_next_turns_and_lanes(lane.id, i) {
-            if turn.turn_type == TurnType::LaneChangeLeft
-                || turn.turn_type == TurnType::LaneChangeRight
-            {
-                continue;
-            }
-
-            match phase.get_priority_of_turn(turn.id, signal) {
-                TurnPriority::Protected => {
-                    green.push(turn.id);
-                }
-                TurnPriority::Yield => {
-                    yellow.push(turn.id);
-                }
-                TurnPriority::Banned => {
-                    red.push(turn.id);
-                }
-            }
-        }
-        let count = vec![&green, &yellow, &red]
-            .into_iter()
-            .filter(|x| !x.is_empty())
-            .count();
-
-        let lane_line = lane.last_line();
-        let radius = LANE_THICKNESS / 2.0;
-        let arrow_thickness = Distance::meters(0.3);
-        let center1 = lane_line.unbounded_dist_along(lane_line.length() + radius);
-        let center2 = lane_line.unbounded_dist_along(lane_line.length() + (3.0 * radius));
-
-        if count == 0 {
-            panic!("{} has no turns to represent?!", lane.id);
-        } else if count == 1 {
-            let color = if !green.is_empty() {
-                Color::GREEN
-            } else if !red.is_empty() {
-                Color::RED
-            } else {
-                panic!("All turns yellow for {}?", lane.id);
-            };
-            batch.push(color, Circle::new(center1, radius).to_polygon());
-        } else if count == 2 {
-            if green.is_empty() {
-                batch.push(Color::RED, Circle::new(center1, radius).to_polygon());
-                for t in yellow {
-                    let angle = ctx.map.get_t(t).angle();
-                    batch.push(
-                        Color::YELLOW,
-                        Line::new(
-                            center1.project_away(radius, angle.opposite()),
-                            center1.project_away(radius, angle),
-                        )
-                        .to_polyline()
-                        .make_arrow(arrow_thickness)
-                        .unwrap(),
-                    );
-                }
-            } else if yellow.is_empty() {
-                batch.push(Color::GREEN, Circle::new(center1, radius).to_polygon());
-                for t in green {
-                    let angle = ctx.map.get_t(t).angle();
-                    batch.push(
-                        Color::BLACK,
-                        Line::new(
-                            center1.project_away(radius, angle.opposite()),
-                            center1.project_away(radius, angle),
-                        )
-                        .to_polyline()
-                        .make_arrow(arrow_thickness)
-                        .unwrap(),
-                    );
-                }
-            } else {
-                batch.push(Color::GREEN, Circle::new(center1, radius).to_polygon());
-                for t in yellow {
-                    let angle = ctx.map.get_t(t).angle();
-                    batch.push(
-                        Color::YELLOW,
-                        Line::new(
-                            center1.project_away(radius, angle.opposite()),
-                            center1.project_away(radius, angle),
-                        )
-                        .to_polyline()
-                        .make_arrow(arrow_thickness)
-                        .unwrap(),
-                    );
-                }
-            }
-        } else {
-            batch.push(Color::GREEN, Circle::new(center1, radius).to_polygon());
-            for t in yellow {
-                let angle = ctx.map.get_t(t).angle();
-                batch.push(
-                    Color::YELLOW,
-                    Line::new(
-                        center1.project_away(radius, angle.opposite()),
-                        center1.project_away(radius, angle),
-                    )
-                    .to_polyline()
-                    .make_arrow(arrow_thickness)
-                    .unwrap(),
-                );
-            }
-
-            batch.push(Color::RED, Circle::new(center2, radius).to_polygon());
-            for t in red {
-                let angle = ctx.map.get_t(t).angle();
-                batch.push(
-                    Color::BLACK,
-                    Line::new(
-                        center2.project_away(radius, angle.opposite()),
-                        center2.project_away(radius, angle),
-                    )
-                    .to_polyline()
-                    .make_arrow(arrow_thickness)
-                    .unwrap(),
-                );
-            }
-        }
-    }
 }
 
 const PADDING: f64 = 5.0;
