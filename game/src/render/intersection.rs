@@ -18,7 +18,7 @@ pub struct DrawIntersection {
     zorder: isize,
 
     draw_default: Drawable,
-    draw_traffic_signal: RefCell<Option<(Drawable, Time)>>,
+    pub draw_traffic_signal: RefCell<Option<(Drawable, Time)>>,
     // Only for traffic signals
     pub crosswalks: Vec<(TurnID, GeomBatch)>,
 }

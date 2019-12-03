@@ -3,6 +3,7 @@ pub mod setup;
 use crate::common::{AgentTools, CommonState};
 use crate::debug::DebugMode;
 use crate::game::{State, Transition};
+use crate::options;
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::{PerMapUI, UI};
 use abstutil::Timer;
@@ -52,6 +53,7 @@ impl ABTestMode {
                     (hotkey(Key::Escape), "quit"),
                     (lctrl(Key::D), "debug mode"),
                     (hotkey(Key::F1), "take a screenshot"),
+                    (None, "options"),
                 ],
                 0.2,
                 ctx,
@@ -129,6 +131,9 @@ impl State for ABTestMode {
         }
         if self.general_tools.action("take a screenshot") {
             return Transition::KeepWithMode(EventLoopMode::ScreenCaptureCurrentShot);
+        }
+        if self.general_tools.action("options") {
+            return Transition::Push(options::open_panel());
         }
 
         if self.menu.action("swap") {

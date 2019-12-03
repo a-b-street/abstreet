@@ -1,3 +1,4 @@
+use crate::options::TrafficSignalStyle;
 use crate::render::{DrawCtx, DrawTurnGroup, BIG_ARROW_THICKNESS};
 use crate::ui::UI;
 use ezgui::{
@@ -30,60 +31,25 @@ pub fn draw_signal_phase(
         }
     }
 
-    // TODO Live settings panel to toggle between these 3 styles
-    if true {
-        for g in DrawTurnGroup::for_i(i, ctx.map) {
-            batch.push(ctx.cs.get("turn block background"), g.block.clone());
-            let arrow_color = match phase.get_priority_of_group(g.id) {
-                TurnPriority::Protected => ctx.cs.get("turn protected by traffic signal"),
-                TurnPriority::Yield => ctx
-                    .cs
-                    .get("turn that can yield by traffic signal")
-                    .alpha(1.0),
-                TurnPriority::Banned => ctx.cs.get("turn not in current phase"),
-            };
-            batch.push(arrow_color, g.arrow.clone());
-        }
-    } else if true {
-        for g in &phase.protected_groups {
-            if g.crosswalk.is_none() {
-                batch.push(
-                    protected_color,
-                    signal.turn_groups[g]
-                        .geom
-                        .make_arrow(BIG_ARROW_THICKNESS * 2.0)
-                        .unwrap(),
-                );
-            }
-        }
-        for g in &phase.yield_groups {
-            if g.crosswalk.is_none() {
-                batch.extend(
-                    yield_color,
-                    signal.turn_groups[g]
-                        .geom
-                        .make_arrow_outline(BIG_ARROW_THICKNESS * 2.0, BIG_ARROW_THICKNESS / 2.0)
-                        .unwrap(),
-                );
-            }
-        }
-    } else {
-        // For debugging, can still show individual turns
-        for turn in ctx.map.get_turns_in_intersection(i) {
-            if turn.between_sidewalks() {
-                continue;
-            }
-            match phase.get_priority_of_turn(turn.id, signal) {
-                TurnPriority::Protected => {
+    match ctx.opts.traffic_signal_style {
+        TrafficSignalStyle::GroupArrows => {
+            for g in &phase.protected_groups {
+                if g.crosswalk.is_none() {
                     batch.push(
                         protected_color,
-                        turn.geom.make_arrow(BIG_ARROW_THICKNESS * 2.0).unwrap(),
+                        signal.turn_groups[g]
+                            .geom
+                            .make_arrow(BIG_ARROW_THICKNESS * 2.0)
+                            .unwrap(),
                     );
                 }
-                TurnPriority::Yield => {
+            }
+            for g in &phase.yield_groups {
+                if g.crosswalk.is_none() {
                     batch.extend(
                         yield_color,
-                        turn.geom
+                        signal.turn_groups[g]
+                            .geom
                             .make_arrow_outline(
                                 BIG_ARROW_THICKNESS * 2.0,
                                 BIG_ARROW_THICKNESS / 2.0,
@@ -91,7 +57,47 @@ pub fn draw_signal_phase(
                             .unwrap(),
                     );
                 }
-                TurnPriority::Banned => {}
+            }
+        }
+        TrafficSignalStyle::Icons => {
+            for g in DrawTurnGroup::for_i(i, ctx.map) {
+                batch.push(ctx.cs.get("turn block background"), g.block.clone());
+                let arrow_color = match phase.get_priority_of_group(g.id) {
+                    TurnPriority::Protected => ctx.cs.get("turn protected by traffic signal"),
+                    TurnPriority::Yield => ctx
+                        .cs
+                        .get("turn that can yield by traffic signal")
+                        .alpha(1.0),
+                    TurnPriority::Banned => ctx.cs.get("turn not in current phase"),
+                };
+                batch.push(arrow_color, g.arrow.clone());
+            }
+        }
+        TrafficSignalStyle::IndividualTurnArrows => {
+            for turn in ctx.map.get_turns_in_intersection(i) {
+                if turn.between_sidewalks() {
+                    continue;
+                }
+                match phase.get_priority_of_turn(turn.id, signal) {
+                    TurnPriority::Protected => {
+                        batch.push(
+                            protected_color,
+                            turn.geom.make_arrow(BIG_ARROW_THICKNESS * 2.0).unwrap(),
+                        );
+                    }
+                    TurnPriority::Yield => {
+                        batch.extend(
+                            yield_color,
+                            turn.geom
+                                .make_arrow_outline(
+                                    BIG_ARROW_THICKNESS * 2.0,
+                                    BIG_ARROW_THICKNESS / 2.0,
+                                )
+                                .unwrap(),
+                        );
+                    }
+                    TurnPriority::Banned => {}
+                }
             }
         }
     }

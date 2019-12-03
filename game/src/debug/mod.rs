@@ -10,6 +10,7 @@ mod routes;
 use crate::common::CommonState;
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
+use crate::options;
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::{ShowLayers, ShowObject, UI};
 use abstutil::Timer;
@@ -60,6 +61,7 @@ impl DebugMode {
                 vec![
                     (hotkey(Key::Escape), "return to previous mode"),
                     (hotkey(Key::F1), "take a screenshot"),
+                    (None, "options"),
                 ],
                 0.2,
                 ctx,
@@ -120,6 +122,9 @@ impl State for DebugMode {
         }
         if self.general_tools.action("take a screenshot") {
             return Transition::KeepWithMode(EventLoopMode::ScreenCaptureCurrentShot);
+        }
+        if self.general_tools.action("options") {
+            return Transition::Push(options::open_panel());
         }
 
         self.all_routes.event(ui, &mut self.menu, ctx);

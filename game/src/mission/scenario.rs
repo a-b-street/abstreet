@@ -2,6 +2,7 @@ use crate::common::{CommonState, ObjectColorer, ObjectColorerBuilder, Warping};
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::mission::pick_time_range;
+use crate::options;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::{ShowEverything, UI};
 use abstutil::{prettyprint_usize, Counter, MultiMap, WeightedUsizeChoice};
@@ -129,6 +130,7 @@ impl ScenarioManager {
                 vec![
                     (hotkey(Key::Escape), "quit"),
                     (hotkey(Key::F1), "take a screenshot"),
+                    (None, "options"),
                 ],
                 0.2,
                 ctx,
@@ -182,6 +184,8 @@ impl State for ScenarioManager {
             return Transition::Pop;
         } else if self.general_tools.action("take a screenshot") {
             return Transition::KeepWithMode(EventLoopMode::ScreenCaptureCurrentShot);
+        } else if self.general_tools.action("options") {
+            return Transition::Push(options::open_panel());
         } else if self.menu.action("save") {
             self.scenario.save();
         } else if self.menu.action("edit") {

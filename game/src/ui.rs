@@ -1,4 +1,5 @@
 use crate::helpers::{ColorScheme, ID};
+use crate::options::Options;
 use crate::render::{
     draw_vehicle, AgentCache, AgentColorScheme, DrawCtx, DrawMap, DrawOptions, DrawPedCrowd,
     DrawPedestrian, Renderable, MIN_ZOOM_FOR_DETAIL,
@@ -17,6 +18,7 @@ pub struct UI {
     pub cs: ColorScheme,
     pub agent_cs: AgentColorScheme,
     pub prebaked: Analytics,
+    pub opts: Options,
 }
 
 impl UI {
@@ -120,6 +122,7 @@ impl UI {
             cs,
             agent_cs: AgentColorScheme::VehicleTypes,
             prebaked,
+            opts: Options::default(),
         }
     }
 
@@ -136,6 +139,7 @@ impl UI {
             map: &self.primary.map,
             draw_map: &self.primary.draw_map,
             sim: &self.primary.sim,
+            opts: &self.opts,
         }
     }
 

@@ -11,6 +11,7 @@ use crate::edit::EditMode;
 use crate::edit::{apply_map_edits, save_edits};
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
+use crate::options;
 use crate::pregame::main_menu;
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
@@ -48,6 +49,7 @@ impl SandboxMode {
                     (hotkey(Key::Escape), "back to title screen"),
                     (lctrl(Key::D), "debug mode"),
                     (hotkey(Key::F1), "take a screenshot"),
+                    (None, "options"),
                 ],
                 0.3,
                 ctx,
@@ -210,6 +212,9 @@ impl State for SandboxMode {
         }
         if self.general_tools.action("take a screenshot") {
             return Transition::KeepWithMode(EventLoopMode::ScreenCaptureCurrentShot);
+        }
+        if self.general_tools.action("options") {
+            return Transition::Push(options::open_panel());
         }
 
         if let Some(ID::Building(b)) = ui.primary.current_selection {

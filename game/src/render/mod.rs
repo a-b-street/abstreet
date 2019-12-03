@@ -13,6 +13,7 @@ mod traffic_signal;
 mod turn;
 
 use crate::helpers::{ColorScheme, ID};
+use crate::options::Options;
 pub use crate::render::area::DrawArea;
 use crate::render::bike::DrawBike;
 use crate::render::car::DrawCar;
@@ -103,6 +104,7 @@ pub struct DrawCtx<'a> {
     pub map: &'a Map,
     pub draw_map: &'a DrawMap,
     pub sim: &'a Sim,
+    pub opts: &'a Options,
 }
 
 // TODO Borrow, don't clone, and fix up lots of places storing indirect things to populate

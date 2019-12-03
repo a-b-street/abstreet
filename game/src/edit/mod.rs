@@ -6,6 +6,7 @@ use crate::common::{CommonState, Warping};
 use crate::debug::DebugMode;
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::{ColorScheme, ID};
+use crate::options;
 use crate::render::{
     DrawIntersection, DrawLane, DrawOptions, DrawRoad, Renderable, MIN_ZOOM_FOR_DETAIL,
 };
@@ -53,6 +54,7 @@ impl EditMode {
                 vec![
                     (lctrl(Key::D), "debug mode"),
                     (hotkey(Key::F1), "take a screenshot"),
+                    (None, "options"),
                 ],
                 0.2,
                 ctx,
@@ -168,6 +170,9 @@ impl State for EditMode {
         }
         if self.general_tools.action("take a screenshot") {
             return Transition::KeepWithMode(EventLoopMode::ScreenCaptureCurrentShot);
+        }
+        if self.general_tools.action("options") {
+            return Transition::Push(options::open_panel());
         }
 
         if ui.primary.map.get_edits().dirty && self.menu.action("save edits") {
