@@ -62,48 +62,51 @@ pub fn path_all_scenarios(map_name: &str) -> String {
 // Player data (Players edit this)
 
 pub fn path_ab_test(map_name: &str, test_name: &str) -> String {
-    format!("../data/ab_tests/{}/{}.json", map_name, test_name)
+    format!("../data/player/ab_tests/{}/{}.json", map_name, test_name)
 }
 pub fn path_all_ab_tests(map_name: &str) -> String {
-    format!("../data/ab_tests/{}", map_name)
+    format!("../data/player/ab_tests/{}", map_name)
 }
 
 pub fn path_ab_test_save(map_name: &str, test_name: &str, time: String) -> String {
     format!(
-        "../data/ab_test_saves/{}/{}/{}.bin",
+        "../data/player/ab_test_saves/{}/{}/{}.bin",
         map_name, test_name, time
     )
 }
 pub fn path_all_ab_test_saves(map_name: &str, test_name: &str) -> String {
-    format!("../data/ab_test_saves/{}/{}", map_name, test_name)
+    format!("../data/player/ab_test_saves/{}/{}", map_name, test_name)
 }
 
 pub fn path_camera_state(map_name: &str) -> String {
-    format!("../data/camera_state/{}.json", map_name)
+    format!("../data/player/camera_state/{}.json", map_name)
 }
 
 pub fn path_edits(map_name: &str, edits_name: &str) -> String {
-    format!("../data/edits/{}/{}.json", map_name, edits_name)
+    format!("../data/player/edits/{}/{}.json", map_name, edits_name)
 }
 pub fn path_all_edits(map_name: &str) -> String {
-    format!("../data/edits/{}", map_name)
+    format!("../data/player/edits/{}", map_name)
 }
 
 pub fn path_save(map_name: &str, edits_name: &str, run_name: &str, time: String) -> String {
     format!(
-        "../data/saves/{}/{}_{}/{}.bin",
+        "../data/player/saves/{}/{}_{}/{}.bin",
         map_name, edits_name, run_name, time
     )
 }
 pub fn path_all_saves(map_name: &str, edits_name: &str, run_name: &str) -> String {
-    format!("../data/saves/{}/{}_{}", map_name, edits_name, run_name)
+    format!(
+        "../data/player/saves/{}/{}_{}",
+        map_name, edits_name, run_name
+    )
 }
 
 pub fn path_shortcut(name: &str) -> String {
-    format!("../data/shortcuts/{}.json", name)
+    format!("../data/player/shortcuts/{}.json", name)
 }
 pub fn path_all_shortcuts() -> String {
-    format!("../data/shortcuts")
+    format!("../data/player/shortcuts")
 }
 
 // Input data (For developers to build maps, not needed at runtime)

@@ -2,18 +2,12 @@
 /target/
 *.swp
 
-data/ab_test_saves/*
-data/ab_tests/*
-data/camera_state/*
-data/edits/*
 data/maps/*
 data/neighborhoods/*
 data/prebaked_results/*
-data/saves/*
 data/scenarios/*
 data/screenshots/*/*.png
 data/screenshots/*/combine.sh
-data/shortcuts/*
 
 data/input/*.osm
 data/input/blockface.bin
@@ -24,3 +18,5 @@ data/input/popdat.bin
 data/input/raw_maps
 data/input/sidewalks.bin
 data/input/trips_2014.csv
+
+data/player
