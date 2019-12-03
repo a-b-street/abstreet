@@ -185,7 +185,7 @@ impl Canvas {
             cam_zoom: self.cam_zoom,
         };
         let path = abstutil::path_camera_state(map_name);
-        abstutil::write_json(&path, &state).unwrap();
+        abstutil::write_json(&path, &state);
         println!("Saved {}", path);
     }
 

@@ -474,7 +474,7 @@ impl Map {
         assert!(!self.pathfinder_dirty);
         let path = abstutil::path_map(&self.name);
         println!("Saving {}...", path);
-        abstutil::write_binary(&path, self).expect(&format!("Saving {} failed", path));
+        abstutil::write_binary(&path, self);
         println!("Saved {}", path);
     }
 

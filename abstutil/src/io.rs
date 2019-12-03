@@ -17,7 +17,7 @@ pub fn to_json<T: Serialize>(obj: &T) -> String {
 }
 
 // TODO Idea: Have a wrapper type DotJSON(...) and DotBin(...) to distinguish raw path strings
-pub fn write_json<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
+fn maybe_write_json<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
     if !path.ends_with(".json") {
         panic!("write_json needs {} to end with .json", path);
     }
@@ -27,6 +27,12 @@ pub fn write_json<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
     let mut file = File::create(path)?;
     file.write_all(to_json(obj).as_bytes())?;
     Ok(())
+}
+
+pub fn write_json<T: Serialize>(path: &str, obj: &T) {
+    if let Err(err) = maybe_write_json(path, obj) {
+        panic!("Can't write_json({}): {}", path, err);
+    }
 }
 
 pub fn maybe_read_json<T: DeserializeOwned>(path: &str, timer: &mut Timer) -> Result<T, Error> {
@@ -58,7 +64,7 @@ pub fn read_json<T: DeserializeOwned>(path: &str, timer: &mut Timer) -> T {
     }
 }
 
-pub fn write_binary<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
+fn maybe_write_binary<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
     if !path.ends_with(".bin") {
         panic!("write_binary needs {} to end with .bin", path);
     }
@@ -68,6 +74,12 @@ pub fn write_binary<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
 
     let file = BufWriter::new(File::create(path)?);
     bincode::serialize_into(file, obj).map_err(|err| Error::new(ErrorKind::Other, err))
+}
+
+pub fn write_binary<T: Serialize>(path: &str, obj: &T) {
+    if let Err(err) = maybe_write_binary(path, obj) {
+        panic!("Can't write_binary({}): {}", path, err);
+    }
 }
 
 pub fn maybe_read_binary<T: DeserializeOwned>(path: &str, timer: &mut Timer) -> Result<T, Error> {
@@ -216,13 +228,13 @@ pub fn load_all_objects<T: DeserializeOwned>(dir: &str, map_name: &str) -> Vec<(
 
 pub fn save_json_object<T: Serialize>(dir: &str, map_name: &str, obj_name: &str, obj: &T) {
     let path = format!("../data/{}/{}/{}.json", dir, map_name, obj_name);
-    write_json(&path, obj).expect(&format!("Saving {} failed", path));
+    write_json(&path, obj);
     println!("Saved {}", path);
 }
 
 pub fn save_binary_object<T: Serialize>(dir: &str, map_name: &str, obj_name: &str, obj: &T) {
     let path = format!("../data/{}/{}/{}.bin", dir, map_name, obj_name);
-    write_binary(&path, obj).expect(&format!("Saving {} failed", path));
+    write_binary(&path, obj);
     println!("Saved {}", path);
 }
 

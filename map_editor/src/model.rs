@@ -89,7 +89,7 @@ impl Model {
         self.map.boundary_polygon = self.compute_bounds().get_rectangle();
 
         let path = abstutil::path_raw_map(&self.map.name);
-        abstutil::write_binary(&path, &self.map).expect(&format!("Saving {} failed", path));
+        abstutil::write_binary(&path, &self.map);
         println!("Exported {}", path);*/
     }
 
@@ -100,8 +100,7 @@ impl Model {
             &self
                 .map
                 .generate_fixes(&mut Timer::new("calculate MapFixes")),
-        )
-        .unwrap();
+        );
         println!("Wrote {}", path);
     }
 

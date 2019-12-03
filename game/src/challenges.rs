@@ -229,7 +229,6 @@ pub fn prebake() {
         abstutil::write_binary(
             &abstutil::path_prebaked_results(map_name),
             sim.get_analytics(),
-        )
-        .unwrap();
+        );
     }
 }

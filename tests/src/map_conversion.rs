@@ -18,8 +18,8 @@ pub fn run(t: &mut TestRunner) {
 
         if abstutil::to_json(&map1) != abstutil::to_json(&map2) {
             // TODO tmp files
-            abstutil::write_json("map1.json", &map1).unwrap();
-            abstutil::write_json("map2.json", &map2).unwrap();
+            abstutil::write_json("map1.json", &map1);
+            abstutil::write_json("map2.json", &map2);
             panic!("map1.json and map2.json differ");
         }
     });
@@ -38,8 +38,8 @@ pub fn run(t: &mut TestRunner) {
 
         if abstutil::to_json(&map1) != abstutil::to_json(&map2) {
             // TODO tmp files
-            abstutil::write_json("map1.json", &map1).unwrap();
-            abstutil::write_json("map2.json", &map2).unwrap();
+            abstutil::write_json("map1.json", &map1);
+            abstutil::write_json("map2.json", &map2);
             panic!("map1.json and map2.json differ");
         }
     });

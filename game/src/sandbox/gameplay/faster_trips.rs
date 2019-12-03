@@ -63,8 +63,7 @@ pub fn faster_trips_panel(mode: TripMode, ui: &UI) -> Text {
         abstutil::write_json(
             "../current_sim.json",
             &ui.primary.sim.get_analytics().finished_trips,
-        )
-        .unwrap();
+        );
         let filtered = ui
             .prebaked
             .finished_trips
@@ -72,7 +71,7 @@ pub fn faster_trips_panel(mode: TripMode, ui: &UI) -> Text {
             .filter(|(t, _, _, _)| *t <= time)
             .cloned()
             .collect::<Vec<_>>();
-        abstutil::write_json("../prebaked.json", &filtered).unwrap();
+        abstutil::write_json("../prebaked.json", &filtered);
         panic!("At {} ({:?}), finished_trips doesn't match", time, time);
     }
 

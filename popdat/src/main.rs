@@ -10,5 +10,5 @@ fn main() {
     .unwrap();
     popdat.trips = trips;
     popdat.parcels = parcels;
-    abstutil::write_binary("../data/shapes/popdat.bin", &popdat).unwrap();
+    abstutil::write_binary("../data/shapes/popdat.bin", &popdat);
 }

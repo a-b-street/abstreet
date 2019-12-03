@@ -286,7 +286,7 @@ impl ABTestMode {
             &self.test_name,
             &ss.primary_sim.time().to_string(),
         );
-        abstutil::write_binary(&path, &ss).unwrap();
+        abstutil::write_binary(&path, &ss);
         println!("Saved {}", path);
 
         // Restore everything.

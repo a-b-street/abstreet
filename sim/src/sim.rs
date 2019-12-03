@@ -722,7 +722,7 @@ impl Sim {
 
     pub fn save(&self) -> String {
         let path = self.save_path(self.time);
-        abstutil::write_binary(&path, &self).expect("Writing sim state failed");
+        abstutil::write_binary(&path, &self);
         println!("Saved to {}", path);
         path
     }

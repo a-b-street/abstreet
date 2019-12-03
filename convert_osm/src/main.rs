@@ -19,6 +19,6 @@ fn main() {
     let map = convert(&flags, &mut timer);
     println!("writing to {}", flags.output);
     timer.start("saving map");
-    abstutil::write_binary(&flags.output, &map).expect("serializing map failed");
+    abstutil::write_binary(&flags.output, &map);
     timer.stop("saving map");
 }

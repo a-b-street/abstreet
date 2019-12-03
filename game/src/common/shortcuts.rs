@@ -81,7 +81,7 @@ fn choose_shortcut(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<
         // TODO Enforce non-empty, unique names
         let name = wizard.input_string("Name this shortcut")?;
         s.name = name;
-        abstutil::write_json(&abstutil::path_shortcut(&s.name), &s).unwrap();
+        abstutil::write_json(&abstutil::path_shortcut(&s.name), &s);
         wizard.abort();
         Some(Transition::Pop)
     } else {

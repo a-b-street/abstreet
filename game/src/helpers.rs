@@ -97,8 +97,7 @@ impl ColorScheme {
     }
 
     pub fn save(&self) {
-        abstutil::write_json("../data/color_scheme.json", &self.modified)
-            .expect("Saving data/color_scheme.json failed");
+        abstutil::write_json("../data/color_scheme.json", &self.modified);
     }
 
     // Get, but specify the default inline. The default is extracted before compilation by a script

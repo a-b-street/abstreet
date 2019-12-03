@@ -15,5 +15,5 @@ fn main() {
     .unwrap();
 
     println!("Writing to {}", output);
-    abstutil::write_binary(&output, &shapes).unwrap();
+    abstutil::write_binary(&output, &shapes);
 }
