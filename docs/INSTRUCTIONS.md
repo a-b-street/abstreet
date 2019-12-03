@@ -4,7 +4,9 @@ General disclaimer: This is a very rough demo. The user interface is clunky, and
 gameplay is not cohesively tied together yet. Please email
 <dabreegster@gmail.com> or file a Github issue if you hit problems.
 
-## Installing the game from pre-built binaries
+## Installing the game
+
+Grab a pre-built binary release:
 
 - Windows:
   https://github.com/dabreegster/abstreet/releases/download/v0.1.17/abstreet_windows.zip
@@ -16,6 +18,8 @@ gameplay is not cohesively tied together yet. Please email
 Unzip the folder, then run `play_abstreet.sh` or `play_abstreet.bat`. On
 Windows, you'll probably get a warning about running software from an unknown
 publisher.
+
+Or you can [build from source](/docs/dev.md).
 
 ## Playing the game
 
@@ -42,46 +46,6 @@ Things to try:
   intersections with traffic signals.
 - Go back to the main menu and pick a challenge. Should be self-explanatory from
   there -- leave me feedbck if not.
-
-## For developers: Compiling from source
-
-You will first need:
-
-- Standard dependencies: `bash`, `curl`, `unzip`, `gunzip`
-- `osmconvert`: See https://wiki.openstreetmap.org/wiki/Osmconvert#Download
-- Rust, at least 1.38. https://www.rust-lang.org/tools/install
-
-One-time setup:
-
-1.  Download the repository:
-    `git clone https://github.com/dabreegster/abstreet.git`
-
-2.  Download all input data and build maps. Compilation times will be very slow
-    the first time. `cd abstreet; ./import.sh && ./precompute.sh --release`
-
-3.  Run the game: `cd game; cargo run --release`
-
-### Development tips
-
-- You don't need to rerun `./import.sh` nd `./precompute.sh` most of the time.
-  - If you're just touching code in `game`, `sim`, and `ezgui`, you can just
-    `cargo run` from `game`
-  - If you're modifying the initial OSM data -> RawMap conversion in
-    `convert_osm`, then you do need to rerun `./import.sh` and `precompute.sh`
-    to regenerate the map.
-  - If you're modifying `map_model` but not the OSM -> RawMap conversion, then
-    you can just do `precompute.sh`.
-  - Both of those scripts can just regenerate a single map, which is much
-    faster: `./import.sh caphill; ./precompute.sh caphill`
-- Compile faster by just doing `cargo run`. The executable will have debug stack
-  traces and run more slowly. You can do `cargo run --release` to build in
-  optimized release mode; compilation will be slower, but the executable much
-  faster.
-- To add some extra debug modes to the game, `cargo run -- --dev` or press
-  Control+S to toggle in-game
-- All code is automatically formatted using
-  https://github.com/rust-lang/rustfmt; please run `cargo fmt` before sending a
-  PR.
 
 ## Data source licensing
 

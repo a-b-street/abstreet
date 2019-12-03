@@ -349,6 +349,7 @@ impl<'a> Timer<'a> {
 }
 
 impl<'a> std::ops::Drop for Timer<'a> {
+    // TODO This often hides a panic
     fn drop(&mut self) {
         if self.outermost_name == "throwaway" {
             return;
@@ -408,7 +409,6 @@ impl<'a> std::ops::Drop for Timer<'a> {
 }
 
 // For repeated things
-// TODO Why does the PartialEq derivation in sim require this?
 pub struct Profiler {
     entries: Vec<ProfilerEntry>,
     current_entries: HashMap<String, Instant>,
