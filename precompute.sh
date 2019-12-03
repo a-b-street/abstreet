@@ -5,7 +5,7 @@ set -e
 mkdir -p data/maps/
 
 # Need this first
-if [ ! -f data/shapes/popdat.bin ]; then
+if [ ! -f data/input/popdat.bin ]; then
 	# We probably don't have this map yet.
 	if [ ! -f data/maps/huge_seattle.bin ]; then
 		cd precompute;

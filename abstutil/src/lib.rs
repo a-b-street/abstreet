@@ -128,7 +128,7 @@ pub fn path_polygon(polygon_name: &str) -> String {
 }
 
 pub fn path_popdat() -> String {
-    format!("../data/shapes/popdat.bin")
+    format!("../data/input/popdat.bin")
 }
 
 pub fn path_raw_map(map_name: &str) -> String {

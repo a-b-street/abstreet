@@ -14,7 +14,4 @@ function common_release {
 		mkdir -p $OUT/data/scenarios/$map
 		cp -v data/scenarios/$map/weekday_typical_traffic_from_psrc.bin $OUT/data/scenarios/$map/
 	done
-
-	mkdir $OUT/data/shapes
-	cp -v data/shapes/popdat.bin $OUT/data/shapes
 }

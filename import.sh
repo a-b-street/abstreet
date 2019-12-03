@@ -64,25 +64,27 @@ for poly in `ls data/polygons/`; do
 	fi
 done
 
-if [ ! -f data/shapes/blockface.bin ]; then
+if [ ! -f data/input/blockface.bin ]; then
 	# From http://data-seattlecitygis.opendata.arcgis.com/datasets/blockface
 	get_if_needed https://opendata.arcgis.com/datasets/a1458ad1abca41869b81f7c0db0cd777_0.kml data/input/blockface.kml;
 
 	cd kml
 	time cargo run --release -- \
 		--input=../data/input/blockface.kml \
-		--output=../data/shapes/blockface.bin
+		--output=../data/input/blockface.bin
+	rm -f data/input/blockface.kml;
 	cd ..
 fi
 
-if [ ! -f data/shapes/sidewalks.bin ]; then
+if [ ! -f data/input/sidewalks.bin ]; then
 	# From https://data-seattlecitygis.opendata.arcgis.com/datasets/sidewalks
 	get_if_needed https://opendata.arcgis.com/datasets/ee6d0642d2a04e35892d0eab77d971d6_2.kml data/input/sidewalks.kml;
 
 	cd kml
 	time cargo run --release -- \
 		--input=../data/input/sidewalks.kml \
-		--output=../data/shapes/sidewalks.bin
+		--output=../data/input/sidewalks.bin
+	rm -f data/input/sidewalks.kml;
 	cd ..
 fi
 
@@ -101,11 +103,11 @@ for poly in `ls ../data/polygons/`; do
 	rm -rf ../data/neighborhoods/$name ../data/maps/${name}.bin;
 	RUST_BACKTRACE=1 cargo run $release -- \
 		--osm=../data/input/$name.osm \
-		--parking_shapes=../data/shapes/blockface.bin \
+		--parking_shapes=../data/input/blockface.bin \
 		--offstreet_parking=../data/input/offstreet_parking.kml \
 		--gtfs=../data/input/google_transit_2018_18_08 \
 		--neighborhoods=../data/input/neighborhoods.geojson \
 		--clip=../data/polygons/$name.poly \
 		--output=../data/raw_maps/$name.bin
-		#--sidewalks=../data/shapes/sidewalks.bin \
+		#--sidewalks=../data/input/sidewalks.bin \
 done

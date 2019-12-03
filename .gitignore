@@ -6,7 +6,6 @@ data/ab_test_saves/*
 data/ab_tests/*
 data/camera_state/*
 data/edits/*
-data/input/*
 data/maps/*
 data/neighborhoods/*
 data/raw_maps/*
@@ -15,5 +14,13 @@ data/saves/*
 data/scenarios/*
 data/screenshots/*/*.png
 data/screenshots/*/combine.sh
-data/shapes/*
 data/shortcuts/*
+
+data/input/*.osm
+data/input/blockface.bin
+data/input/google_transit_2018_18_08
+data/input/offstreet_parking.kml
+data/input/parcels_urbansim.txt
+data/input/popdat.bin
+data/input/sidewalks.bin
+data/input/trips_2014.csv
