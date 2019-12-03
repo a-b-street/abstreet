@@ -22,8 +22,8 @@ pub struct UI {
 }
 
 impl UI {
-    pub fn new(flags: Flags, ctx: &mut EventCtx, splash: bool) -> UI {
-        let cs = ColorScheme::load();
+    pub fn new(flags: Flags, opts: Options, ctx: &mut EventCtx, splash: bool) -> UI {
+        let cs = ColorScheme::load(opts.color_scheme.clone());
         let (primary, prebaked) = ctx.loading_screen("load map", |ctx, mut timer| {
             // Always load some small icons.
             let mut textures = vec![
@@ -122,7 +122,7 @@ impl UI {
             cs,
             agent_cs: AgentColorScheme::VehicleTypes,
             prebaked,
-            opts: Options::default(),
+            opts,
         }
     }
 
@@ -130,7 +130,7 @@ impl UI {
         ctx.canvas.save_camera_state(self.primary.map.get_name());
         let mut flags = self.primary.current_flags.clone();
         flags.sim_flags.load = abstutil::path_map(name);
-        *self = UI::new(flags, ctx, false);
+        *self = UI::new(flags, self.opts.clone(), ctx, false);
     }
 
     pub fn draw_ctx(&self) -> DrawCtx<'_> {

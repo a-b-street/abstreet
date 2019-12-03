@@ -124,10 +124,6 @@ pub fn path_ab_test_save(map_name: &str, test_name: &str, time: String) -> Strin
     )
 }
 
-pub fn path_color_scheme() -> String {
-    format!("../data/color_scheme.json")
-}
-
 pub fn path_popdat() -> String {
     format!("../data/shapes/popdat.bin")
 }

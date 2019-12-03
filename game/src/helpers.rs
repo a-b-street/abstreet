@@ -78,6 +78,8 @@ pub struct ColorScheme {
 
     // A subset of map
     modified: ModifiedColors,
+
+    path: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -86,18 +88,22 @@ struct ModifiedColors {
 }
 
 impl ColorScheme {
-    pub fn load() -> ColorScheme {
-        let modified: ModifiedColors =
-            abstutil::read_json(abstutil::path_color_scheme(), &mut Timer::throwaway());
+    // TODO When we quit with this, it'll save and overwrite it... remember the name too
+    pub fn load(path: String) -> ColorScheme {
+        let modified: ModifiedColors = abstutil::read_json(path.clone(), &mut Timer::throwaway());
         let mut map: HashMap<String, Color> = default_colors();
         for (name, c) in &modified.map {
             map.insert(name.clone(), *c);
         }
-        ColorScheme { map, modified }
+        ColorScheme {
+            map,
+            modified,
+            path,
+        }
     }
 
     pub fn save(&self) {
-        abstutil::write_json(abstutil::path_color_scheme(), &self.modified);
+        abstutil::write_json(self.path.clone(), &self.modified);
     }
 
     // Get, but specify the default inline. The default is extracted before compilation by a script

@@ -1,3 +1,4 @@
+use crate::options::Options;
 use crate::pregame::TitleScreen;
 use crate::render::DrawOptions;
 use crate::sandbox::{GameplayMode, SandboxMode};
@@ -20,7 +21,7 @@ impl Game {
         let title = !flags.dev
             && !flags.sim_flags.load.contains("data/save")
             && !flags.sim_flags.load.contains("data/scenarios");
-        let mut ui = UI::new(flags, ctx, title);
+        let mut ui = UI::new(flags, Options::default(), ctx, title);
         let states: Vec<Box<dyn State>> = if title {
             vec![Box::new(TitleScreen::new(ctx, &ui))]
         } else {
