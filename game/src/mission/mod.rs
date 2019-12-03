@@ -1,5 +1,4 @@
 mod all_trips;
-mod dataviz;
 mod individ_trips;
 mod neighborhood;
 mod scenario;
@@ -21,7 +20,6 @@ impl MissionEditMode {
             menu: ModalMenu::new(
                 "Mission Edit Mode",
                 vec![
-                    (hotkey(Key::D), "visualize population data"),
                     (hotkey(Key::T), "visualize individual PSRC trips"),
                     (hotkey(Key::A), "visualize all PSRC trips"),
                     (hotkey(Key::N), "manage neighborhoods"),
@@ -42,8 +40,6 @@ impl State for MissionEditMode {
 
         if self.menu.action("quit") {
             return Transition::Pop;
-        } else if self.menu.action("visualize population data") {
-            return Transition::Push(Box::new(dataviz::DataVisualizer::new(ctx, ui)));
         } else if self.menu.action("visualize individual PSRC trips") {
             return Transition::Push(Box::new(individ_trips::TripsVisualizer::new(ctx, ui)));
         } else if self.menu.action("visualize all PSRC trips") {

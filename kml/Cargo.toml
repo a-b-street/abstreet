@@ -10,4 +10,3 @@ geom = { path = "../geom" }
 quick-xml = "0.13.3"
 serde = "1.0.98"
 serde_derive = "1.0.98"
-xmltree = "0.8.0"

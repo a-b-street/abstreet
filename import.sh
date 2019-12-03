@@ -86,24 +86,6 @@ if [ ! -f data/shapes/sidewalks.bin ]; then
 	cd ..
 fi
 
-if [ ! -f data/input/household_vehicles.kml ]; then
-	# From https://gis-kingcounty.opendata.arcgis.com/datasets/acs-household-size-by-vehicles-available-acs-b08201-householdvehicles
-	get_if_needed https://opendata.arcgis.com/datasets/7842d815523c4f1b9564e0301e2eafa4_2372.kml data/input/household_vehicles.kml;
-	get_if_needed https://www.arcgis.com/sharing/rest/content/items/7842d815523c4f1b9564e0301e2eafa4/info/metadata/metadata.xml data/input/household_vehicles.xml;
-fi
-
-if [ ! -f data/input/commute_time.kml ]; then
-	# From https://gis-kingcounty.opendata.arcgis.com/datasets/acs-travel-time-to-work-acs-b08303-traveltime
-	get_if_needed https://opendata.arcgis.com/datasets/9b5fd85861a04c5ab8b7407c7b58da7c_2375.kml data/input/commute_time.kml;
-	get_if_needed https://www.arcgis.com/sharing/rest/content/items/9b5fd85861a04c5ab8b7407c7b58da7c/info/metadata/metadata.xml data/input/commute_time.xml;
-fi
-
-if [ ! -f data/input/commute_mode.kml ]; then
-	# From https://gis-kingcounty.opendata.arcgis.com/datasets/acs-means-of-transportation-to-work-acs-b08301-transportation
-	get_if_needed https://opendata.arcgis.com/datasets/1da9717ca5ff4505826aba40a7ac0a58_2374.kml data/input/commute_mode.kml;
-	get_if_needed https://www.arcgis.com/sharing/rest/content/items/1da9717ca5ff4505826aba40a7ac0a58/info/metadata/metadata.xml data/input/commute_mode.xml;
-fi
-
 if [ ! -f data/input/offstreet_parking.kml ]; then
 	# From https://data.seattle.gov/Transportation/Public-Garages-or-Parking-Lots/xefx-khzm
 	get_if_needed http://data-seattlecitygis.opendata.arcgis.com/datasets/8e52dfde6d5d45948f7a90654c8d50cd_0.kml data/input/offstreet_parking.kml;
