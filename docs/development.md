@@ -54,7 +54,7 @@ Then:
 ```
 sudo systemctl start docker
 cross build --release --target x86_64-pc-windows-gnu --bin game
-wine target/x86_64-pc-windows-gnu/release/game.exe data/maps/montlake.bin
+wine target/x86_64-pc-windows-gnu/release/game.exe data/system/maps/montlake.bin
 ```
 
 ## Markdown

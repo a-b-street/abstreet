@@ -13,7 +13,7 @@ impl Options {
     pub fn default() -> Options {
         Options {
             traffic_signal_style: TrafficSignalStyle::GroupArrows,
-            color_scheme: "../data/color_scheme.json".to_string(),
+            color_scheme: "../data/system/color_scheme.json".to_string(),
         }
     }
 }
@@ -47,9 +47,11 @@ pub fn open_panel() -> Box<dyn State> {
                 ]
             })?;
         let (_, color_scheme) = wizard.choose("What color scheme?", || {
+            // TODO This is system data right now because I don't _really_ intend the player to
+            // change this right now...
             vec![
-                Choice::new("default", "../data/color_scheme.json".to_string()),
-                Choice::new("night mode", "../data/night_colors.json".to_string()),
+                Choice::new("default", "../data/system/color_scheme.json".to_string()),
+                Choice::new("night mode", "../data/system/night_colors.json".to_string()),
             ]
         })?;
 

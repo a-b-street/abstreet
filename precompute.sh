@@ -2,12 +2,12 @@
 
 set -e
 
-mkdir -p data/maps/
+mkdir -p data/system/maps/
 
 # Need this first
 if [ ! -f data/input/popdat.bin ]; then
 	# We probably don't have this map yet.
-	if [ ! -f data/maps/huge_seattle.bin ]; then
+	if [ ! -f data/system/maps/huge_seattle.bin ]; then
 		cd precompute;
 		RUST_BACKTRACE=1 cargo run --release ../data/input/raw_maps/huge_seattle.bin --disable_psrc_scenarios;
 		cd ..;

@@ -53,12 +53,12 @@ if [ ! -f data/input/parcels_urbansim.txt ]; then
 	rm -f data/input/psrc_2014.zip;
 fi
 
-for poly in `ls data/polygons/`; do
+for poly in `ls data/input/polygons/`; do
 	name=`basename -s .poly $poly`;
 	if [ ! -f data/input/$name.osm ]; then
 		echo "Running osmconvert for $name"
 		osmconvert data/input/Seattle.osm \
-			-B=data/polygons/$name.poly \
+			-B=data/input/polygons/$name.poly \
 			--complete-ways \
 			-o=data/input/$name.osm
 	fi
@@ -94,20 +94,20 @@ if [ ! -f data/input/offstreet_parking.kml ]; then
 fi
 
 cd convert_osm
-for poly in `ls ../data/polygons/`; do
+for poly in `ls ../data/input/polygons/`; do
 	name=`basename -s .poly $poly`;
 	if [ "$only_map" != "" ] && [ "$only_map" != "$name" ]; then
 		continue;
 	fi
 
-	rm -rf ../data/neighborhoods/$name ../data/maps/${name}.bin;
+	rm -rf ../data/input/neighborhoods/$name ../data/system/maps/${name}.bin;
 	RUST_BACKTRACE=1 cargo run $release -- \
 		--osm=../data/input/$name.osm \
 		--parking_shapes=../data/input/blockface.bin \
 		--offstreet_parking=../data/input/offstreet_parking.kml \
 		--gtfs=../data/input/google_transit_2018_18_08 \
 		--neighborhoods=../data/input/neighborhoods.geojson \
-		--clip=../data/polygons/$name.poly \
+		--clip=../data/input/polygons/$name.poly \
 		--output=../data/input/raw_maps/$name.bin
 		#--sidewalks=../data/input/sidewalks.bin \
 done

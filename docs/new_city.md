@@ -20,7 +20,7 @@ cargo run --release -- ../data/input/raw_maps/your_city.bin
 ```
 
 You should now be able to load the map using the option from the main game menu,
-or by running `cd game; cargo run --release ../data/maps/your_city.bin`.
+or by running `cd game; cargo run --release ../data/system/maps/your_city.bin`.
 
 ## Future work
 

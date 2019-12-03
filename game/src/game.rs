@@ -19,8 +19,8 @@ pub struct Game {
 impl Game {
     pub fn new(flags: Flags, ctx: &mut EventCtx) -> Game {
         let title = !flags.dev
-            && !flags.sim_flags.load.contains("data/save")
-            && !flags.sim_flags.load.contains("data/scenarios");
+            && !flags.sim_flags.load.contains("data/player/save")
+            && !flags.sim_flags.load.contains("data/system/scenarios");
         let mut ui = UI::new(flags, Options::default(), ctx, title);
         let states: Vec<Box<dyn State>> = if title {
             vec![Box::new(TitleScreen::new(ctx, &ui))]

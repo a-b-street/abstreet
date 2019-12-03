@@ -18,7 +18,7 @@ impl SimFlags {
         SimFlags {
             load: args
                 .optional_free()
-                .unwrap_or_else(|| "../data/maps/montlake.bin".to_string()),
+                .unwrap_or_else(|| "../data/system/maps/montlake.bin".to_string()),
             use_map_fixes: !args.enabled("--nofixes"),
             rng_seed: args.optional_parse("--rng_seed", |s| s.parse()),
             opts: SimOptions {
@@ -61,7 +61,7 @@ impl SimFlags {
 
         let mut opts = self.opts.clone();
 
-        if self.load.starts_with("../data/save/") {
+        if self.load.starts_with("../data/player/save/") {
             timer.note(format!("Resuming from {}", self.load));
 
             let sim: Sim = abstutil::read_binary(self.load.clone(), timer);
@@ -75,7 +75,7 @@ impl SimFlags {
             map.recalculate_pathfinding_after_edits(timer);
 
             (map, sim, rng)
-        } else if self.load.starts_with("../data/scenarios/") {
+        } else if self.load.starts_with("../data/system/scenarios/") {
             timer.note(format!(
                 "Seeding the simulation from scenario {}",
                 self.load

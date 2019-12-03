@@ -42,21 +42,24 @@ macro_rules! skip_fail {
 // System data (Players can't edit, needed at runtime)
 
 pub fn path_map(map_name: &str) -> String {
-    format!("../data/maps/{}.bin", map_name)
+    format!("../data/system/maps/{}.bin", map_name)
 }
 pub fn path_all_maps() -> String {
-    format!("../data/maps")
+    format!("../data/system/maps")
 }
 
 pub fn path_prebaked_results(map_name: &str) -> String {
-    format!("../data/prebaked_results/{}.bin", map_name)
+    format!("../data/system/prebaked_results/{}.bin", map_name)
 }
 
 pub fn path_scenario(map_name: &str, scenario_name: &str) -> String {
-    format!("../data/scenarios/{}/{}.bin", map_name, scenario_name)
+    format!(
+        "../data/system/scenarios/{}/{}.bin",
+        map_name, scenario_name
+    )
 }
 pub fn path_all_scenarios(map_name: &str) -> String {
-    format!("../data/scenarios/{}", map_name)
+    format!("../data/system/scenarios/{}", map_name)
 }
 
 // Player data (Players edit this)
@@ -112,22 +115,25 @@ pub fn path_all_shortcuts() -> String {
 // Input data (For developers to build maps, not needed at runtime)
 
 pub fn path_fixes(name: &str) -> String {
-    format!("../data/fixes/{}.json", name)
+    format!("../data/input/fixes/{}.json", name)
 }
 
 pub fn path_neighborhood(map_name: &str, neighborhood: &str) -> String {
-    format!("../data/neighborhoods/{}/{}.json", map_name, neighborhood)
+    format!(
+        "../data/input/neighborhoods/{}/{}.json",
+        map_name, neighborhood
+    )
 }
 pub fn path_all_neighborhoods(map_name: &str) -> String {
-    format!("../data/neighborhoods/{}", map_name)
+    format!("../data/input/neighborhoods/{}", map_name)
 }
 
 pub fn path_pending_screenshots(map_name: &str) -> String {
-    format!("../data/screenshots/pending_{}", map_name)
+    format!("../data/input/screenshots/pending_{}", map_name)
 }
 
 pub fn path_polygon(polygon_name: &str) -> String {
-    format!("../data/polygons/{}.poly", polygon_name)
+    format!("../data/input/polygons/{}.poly", polygon_name)
 }
 
 pub fn path_popdat() -> String {

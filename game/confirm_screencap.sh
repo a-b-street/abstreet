@@ -2,5 +2,5 @@
 
 name=$1;
 
-rm -rf ../data/screenshots/${name} diff;
-mv ../data/screenshots/pending_${name} ../data/screenshots/${name};
+rm -rf ../data/input/screenshots/${name} diff;
+mv ../data/input/screenshots/pending_${name} ../data/input/screenshots/${name};

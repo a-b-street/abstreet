@@ -1,8 +1,8 @@
 #!/bin/bash
 
 name=$1;
-before=../data/screenshots/$name;
-after=../data/screenshots/pending_$name;
+before=../data/input/screenshots/$name;
+after=../data/input/screenshots/pending_$name;
 
 rm -rf diff
 mkdir diff
