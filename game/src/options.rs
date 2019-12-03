@@ -2,6 +2,7 @@ use crate::game::{State, Transition, WizardState};
 use ezgui::Choice;
 
 // TODO SimOptions stuff too
+// TODO Move dev mode here
 #[derive(Clone)]
 pub struct Options {
     pub traffic_signal_style: TrafficSignalStyle,

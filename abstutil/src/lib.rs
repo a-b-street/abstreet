@@ -39,82 +39,33 @@ macro_rules! skip_fail {
     };
 }
 
-// TODO Organize these
-
-pub fn path_all_maps() -> String {
-    format!("../data/maps")
-}
+// System data (Players can't edit, needed at runtime)
 
 pub fn path_map(map_name: &str) -> String {
     format!("../data/maps/{}.bin", map_name)
 }
-
-pub fn path_polygon(polygon_name: &str) -> String {
-    format!("../data/polygons/{}.poly", polygon_name)
-}
-
-pub fn path_raw_map(map_name: &str) -> String {
-    format!("../data/raw_maps/{}.bin", map_name)
-}
-
-pub fn path_fixes(name: &str) -> String {
-    format!("../data/fixes/{}.json", name)
-}
-
-pub fn path_camera_state(map_name: &str) -> String {
-    format!("../data/camera_state/{}.json", map_name)
-}
-
-pub fn path_pending_screenshots(map_name: &str) -> String {
-    format!("../data/screenshots/pending_{}", map_name)
+pub fn path_all_maps() -> String {
+    format!("../data/maps")
 }
 
 pub fn path_prebaked_results(map_name: &str) -> String {
     format!("../data/prebaked_results/{}.bin", map_name)
 }
 
-pub fn path_all_shortcuts() -> String {
-    format!("../data/shortcuts")
+pub fn path_scenario(map_name: &str, scenario_name: &str) -> String {
+    format!("../data/scenarios/{}/{}.bin", map_name, scenario_name)
 }
-
-pub fn path_shortcut(name: &str) -> String {
-    format!("../data/shortcuts/{}.json", name)
-}
-
 pub fn path_all_scenarios(map_name: &str) -> String {
     format!("../data/scenarios/{}", map_name)
 }
 
-pub fn path_scenario(map_name: &str, scenario_name: &str) -> String {
-    format!("../data/scenarios/{}/{}.bin", map_name, scenario_name)
-}
-
-pub fn path_all_edits(map_name: &str) -> String {
-    format!("../data/edits/{}", map_name)
-}
-
-pub fn path_edits(map_name: &str, edits_name: &str) -> String {
-    format!("../data/edits/{}/{}.json", map_name, edits_name)
-}
-
-pub fn path_all_neighborhoods(map_name: &str) -> String {
-    format!("../data/neighborhoods/{}", map_name)
-}
-
-pub fn path_neighborhood(map_name: &str, neighborhood: &str) -> String {
-    format!("../data/neighborhoods/{}/{}.json", map_name, neighborhood)
-}
-
-pub fn path_all_ab_tests(map_name: &str) -> String {
-    format!("../data/ab_tests/{}", map_name)
-}
+// Player data (Players edit this)
 
 pub fn path_ab_test(map_name: &str, test_name: &str) -> String {
     format!("../data/ab_tests/{}/{}.json", map_name, test_name)
 }
-
-pub fn path_all_ab_test_saves(map_name: &str, test_name: &str) -> String {
-    format!("../data/ab_test_saves/{}/{}", map_name, test_name)
+pub fn path_all_ab_tests(map_name: &str) -> String {
+    format!("../data/ab_tests/{}", map_name)
 }
 
 pub fn path_ab_test_save(map_name: &str, test_name: &str, time: String) -> String {
@@ -123,13 +74,19 @@ pub fn path_ab_test_save(map_name: &str, test_name: &str, time: String) -> Strin
         map_name, test_name, time
     )
 }
-
-pub fn path_popdat() -> String {
-    format!("../data/shapes/popdat.bin")
+pub fn path_all_ab_test_saves(map_name: &str, test_name: &str) -> String {
+    format!("../data/ab_test_saves/{}/{}", map_name, test_name)
 }
 
-pub fn path_all_saves(map_name: &str, edits_name: &str, run_name: &str) -> String {
-    format!("../data/saves/{}/{}_{}", map_name, edits_name, run_name)
+pub fn path_camera_state(map_name: &str) -> String {
+    format!("../data/camera_state/{}.json", map_name)
+}
+
+pub fn path_edits(map_name: &str, edits_name: &str) -> String {
+    format!("../data/edits/{}/{}.json", map_name, edits_name)
+}
+pub fn path_all_edits(map_name: &str) -> String {
+    format!("../data/edits/{}", map_name)
 }
 
 pub fn path_save(map_name: &str, edits_name: &str, run_name: &str, time: String) -> String {
@@ -137,4 +94,43 @@ pub fn path_save(map_name: &str, edits_name: &str, run_name: &str, time: String)
         "../data/saves/{}/{}_{}/{}.bin",
         map_name, edits_name, run_name, time
     )
+}
+pub fn path_all_saves(map_name: &str, edits_name: &str, run_name: &str) -> String {
+    format!("../data/saves/{}/{}_{}", map_name, edits_name, run_name)
+}
+
+pub fn path_shortcut(name: &str) -> String {
+    format!("../data/shortcuts/{}.json", name)
+}
+pub fn path_all_shortcuts() -> String {
+    format!("../data/shortcuts")
+}
+
+// Input data (For developers to build maps, not needed at runtime)
+
+pub fn path_fixes(name: &str) -> String {
+    format!("../data/fixes/{}.json", name)
+}
+
+pub fn path_neighborhood(map_name: &str, neighborhood: &str) -> String {
+    format!("../data/neighborhoods/{}/{}.json", map_name, neighborhood)
+}
+pub fn path_all_neighborhoods(map_name: &str) -> String {
+    format!("../data/neighborhoods/{}", map_name)
+}
+
+pub fn path_pending_screenshots(map_name: &str) -> String {
+    format!("../data/screenshots/pending_{}", map_name)
+}
+
+pub fn path_polygon(polygon_name: &str) -> String {
+    format!("../data/polygons/{}.poly", polygon_name)
+}
+
+pub fn path_popdat() -> String {
+    format!("../data/shapes/popdat.bin")
+}
+
+pub fn path_raw_map(map_name: &str) -> String {
+    format!("../data/raw_maps/{}.bin", map_name)
 }

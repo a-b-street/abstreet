@@ -261,8 +261,8 @@ impl<'a, 'b> WrappedWizard<'a, 'b> {
             let choices: Vec<Choice<R>> = choices_generator();
             if choices.is_empty() {
                 self.wizard.log_scroller = Some(LogScroller::new(
-                    "Wizard".to_string(),
-                    vec![format!("No choices for \"{}\", canceling wizard", query)],
+                    query.to_string(),
+                    vec!["No choices, never mind".to_string()],
                 ));
                 return None;
             }
