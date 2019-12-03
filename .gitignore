@@ -4,6 +4,7 @@
 
 data/input/blockface.bin
 data/input/google_transit_2018_18_08
+data/input/neighborhoods.geojson
 data/input/offstreet_parking.kml
 data/input/osm
 data/input/parcels_urbansim.txt

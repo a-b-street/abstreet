@@ -17,7 +17,7 @@ done
 function get_if_needed {
 	if [ ! -f $2 ]; then
 		echo "Downloading $1";
-		curl -o $2 $1;
+		curl -L -o $2 $1;
 	fi
 }
 
