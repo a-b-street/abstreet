@@ -47,21 +47,12 @@ pub const AB_TESTS: &str = "ab_tests";
 pub const AB_TEST_SAVES: &str = "ab_test_saves";
 pub const EDITS: &str = "edits";
 pub const NEIGHBORHOODS: &str = "neighborhoods";
-pub const POLYGONS: &str = "polygons";
 pub const SAVE: &str = "save";
 pub const SCENARIOS: &str = "scenarios";
 pub const SHORTCUTS: &str = "shortcuts";
 
 pub fn path1(map_name: &str, category: &str, dir: &str) -> String {
     format!("../data/{}/{}/{}", category, map_name, dir)
-}
-
-pub fn path1_json(map_name: &str, category: &str, instance: &str) -> String {
-    format!("../data/{}/{}/{}.json", category, map_name, instance)
-}
-
-pub fn path1_bin(map_name: &str, category: &str, instance: &str) -> String {
-    format!("../data/{}/{}/{}.bin", category, map_name, instance)
 }
 
 pub fn path2_dir(map_name: &str, category: &str, dir: &str) -> String {
@@ -102,4 +93,12 @@ pub fn path_prebaked_results(map_name: &str) -> String {
 
 pub fn path_shortcut(name: &str) -> String {
     format!("../data/shortcuts/{}.json", name)
+}
+
+pub fn path_scenario(map_name: &str, scenario_name: &str) -> String {
+    format!("../data/scenarios/{}/{}.bin", map_name, scenario_name)
+}
+
+pub fn path_edits(map_name: &str, edits_name: &str) -> String {
+    format!("../data/edits/{}/{}.json", map_name, edits_name)
 }

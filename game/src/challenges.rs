@@ -213,11 +213,7 @@ pub fn prebake() {
     for map_name in vec!["montlake", "23rd"] {
         timer.start(&format!("run normal sim for {}", map_name));
         let (map, mut sim, _) = SimFlags {
-            load: abstutil::path1_bin(
-                map_name,
-                abstutil::SCENARIOS,
-                "weekday_typical_traffic_from_psrc",
-            ),
+            load: abstutil::path_scenario(map_name, "weekday_typical_traffic_from_psrc"),
             use_map_fixes: true,
             rng_seed: Some(42),
             opts: SimOptions::new("prebaked"),

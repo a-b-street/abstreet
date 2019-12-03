@@ -73,10 +73,7 @@ impl MapEdits {
         if edits_name == "no_edits" {
             return MapEdits::new(map_name.to_string());
         }
-        abstutil::read_json(
-            &abstutil::path1_json(map_name, abstutil::EDITS, edits_name),
-            timer,
-        )
+        abstutil::read_json(&abstutil::path_edits(map_name, edits_name), timer)
     }
 
     // TODO Version these

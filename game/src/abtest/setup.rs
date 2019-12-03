@@ -123,7 +123,7 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
         &format!("Launching A/B test {}", test.test_name),
         |ctx, mut timer| {
             let scenario: Scenario = abstutil::read_binary(
-                &abstutil::path1_bin(&test.map_name, abstutil::SCENARIOS, &test.scenario_name),
+                &abstutil::path_scenario(&test.map_name, &test.scenario_name),
                 &mut timer,
             );
 

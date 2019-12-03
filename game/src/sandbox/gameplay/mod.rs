@@ -75,7 +75,7 @@ impl GameplayMode {
             s
         } else {
             abstutil::read_binary(
-                &abstutil::path1_bin(&ui.primary.map.get_name(), abstutil::SCENARIOS, &name),
+                &abstutil::path_scenario(&ui.primary.map.get_name(), &name),
                 timer,
             )
         })
