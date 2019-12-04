@@ -16,13 +16,19 @@ use sim::{SimFlags, SimOptions, TripMode};
 struct Challenge {
     title: String,
     description: Vec<String>,
-    map_name: String,
+    map_path: String,
     gameplay: GameplayMode,
 }
 impl abstutil::Cloneable for Challenge {}
 
 fn all_challenges() -> Vec<Challenge> {
     vec![
+        Challenge {
+            title: "Traffic signal tutorial level 1".to_string(),
+            description: vec!["No description".to_string()],
+            map_path: abstutil::path_synthetic_map("traffic sig lvl1"),
+            gameplay: GameplayMode::FixTrafficSignalsTutorial,
+        },
         Challenge {
             title: "Fix all of the traffic signals".to_string(),
             description: vec![
@@ -32,7 +38,7 @@ fn all_challenges() -> Vec<Challenge> {
                 "".to_string(),
                 "Objective: Reduce the 50%ile trip time of all drivers by at least 30s".to_string()
             ],
-            map_name: "montlake".to_string(),
+            map_path: abstutil::path_map("montlake"),
             gameplay: GameplayMode::FixTrafficSignals,
         },
         Challenge {
@@ -40,7 +46,7 @@ fn all_challenges() -> Vec<Challenge> {
             description: vec![
                 "Decrease the average waiting time between all of route 48's stops by at least 30s"
                     .to_string()],
-            map_name: "montlake".to_string(),
+            map_path: abstutil::path_map("montlake"),
             gameplay: GameplayMode::OptimizeBus("48".to_string()),
         },
         Challenge {
@@ -48,26 +54,26 @@ fn all_challenges() -> Vec<Challenge> {
             description: vec![
                 "Decrease the average waiting time between all of 48's stops by at least 30s"
                     .to_string()],
-            map_name: "23rd".to_string(),
+            map_path: abstutil::path_map("23rd"),
             gameplay: GameplayMode::OptimizeBus("48".to_string()),
         },
         Challenge {
             title: "Gridlock all of the everything".to_string(),
             description: vec!["Make traffic as BAD as possible!".to_string()],
-            map_name: "montlake".to_string(),
+            map_path: abstutil::path_map("montlake"),
             gameplay: GameplayMode::CreateGridlock,
         },
         Challenge {
             title: "Speed up all bike trips".to_string(),
             description: vec!["Reduce the 50%ile trip times of bikes by at least 1 minute".to_string()],
-            map_name: "montlake".to_string(),
+            map_path: abstutil::path_map("montlake"),
             gameplay: GameplayMode::FasterTrips(TripMode::Bike),
         },
         Challenge {
             title: "Speed up all car trips".to_string(),
             description: vec!["Reduce the 50%ile trip times of drivers by at least 5 minutes"
                 .to_string()],
-            map_name: "montlake".to_string(),
+            map_path: abstutil::path_map("montlake"),
             gameplay: GameplayMode::FasterTrips(TripMode::Drive),
         },
     ]
@@ -101,7 +107,9 @@ pub fn challenges_picker(ctx: &EventCtx) -> Box<dyn State> {
 
     let mut flex_row = Vec::new();
     for challenge in all_challenges() {
-        let edits = abstutil::list_all_objects(abstutil::path_all_edits(&challenge.map_name));
+        let edits = abstutil::list_all_objects(abstutil::path_all_edits(&abstutil::basename(
+            &challenge.map_path,
+        )));
 
         let mut txt = Text::new();
         txt.add(Line(&challenge.title).size(40).fg(Color::BLACK));
@@ -116,8 +124,9 @@ pub fn challenges_picker(ctx: &EventCtx) -> Box<dyn State> {
             txt,
             None,
             Box::new(move |ctx, _| {
-                let edits =
-                    abstutil::list_all_objects(abstutil::path_all_edits(&challenge.map_name));
+                let edits = abstutil::list_all_objects(abstutil::path_all_edits(
+                    &abstutil::basename(&challenge.map_path),
+                ));
                 let mut summary = Text::new();
                 for l in &challenge.description {
                     summary.add(Line(l));
@@ -163,20 +172,22 @@ impl State for ChallengeSplash {
             return Transition::Pop;
         }
         if self.menu.action("load existing proposal") {
-            let map_name = self.challenge.map_name.clone();
+            let map_path = self.challenge.map_path.clone();
             let gameplay = self.challenge.gameplay.clone();
             return Transition::Push(WizardState::new(Box::new(move |wiz, ctx, ui| {
                 let mut wizard = wiz.wrap(ctx);
                 let (_, new_edits) = wizard.choose("Load which map edits?", || {
                     Choice::from(
-                        abstutil::load_all_objects(abstutil::path_all_edits(&map_name))
-                            .into_iter()
-                            .filter(|(_, edits)| gameplay.allows(edits))
-                            .collect(),
+                        abstutil::load_all_objects(abstutil::path_all_edits(&abstutil::basename(
+                            &map_path,
+                        )))
+                        .into_iter()
+                        .filter(|(_, edits)| gameplay.allows(edits))
+                        .collect(),
                     )
                 })?;
-                if &map_name != ui.primary.map.get_name() {
-                    ui.switch_map(ctx, &map_name);
+                if &abstutil::basename(&map_path) != ui.primary.map.get_name() {
+                    ui.switch_map(ctx, map_path.clone());
                 }
                 apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
                 ui.primary.map.mark_edits_fresh();
@@ -191,8 +202,8 @@ impl State for ChallengeSplash {
             })));
         }
         if self.menu.action("start challenge fresh") {
-            if &self.challenge.map_name != ui.primary.map.get_name() {
-                ui.switch_map(ctx, &self.challenge.map_name);
+            if &abstutil::basename(&self.challenge.map_path) != ui.primary.map.get_name() {
+                ui.switch_map(ctx, self.challenge.map_path.clone());
             }
             return Transition::Replace(Box::new(SandboxMode::new(
                 ctx,

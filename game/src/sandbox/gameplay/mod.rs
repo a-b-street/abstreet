@@ -34,6 +34,7 @@ pub enum GameplayMode {
     // TODO Be able to filter population by more factors
     FasterTrips(TripMode),
     FixTrafficSignals,
+    FixTrafficSignalsTutorial,
 }
 
 pub trait GameplayState: downcast_rs::Downcast {
@@ -55,6 +56,9 @@ impl GameplayMode {
                 return None;
             }
             GameplayMode::PlayScenario(ref scenario) => scenario,
+            GameplayMode::FixTrafficSignalsTutorial => {
+                return Some(fix_traffic_signals::tutorial_scenario(&ui.primary.map));
+            }
             _ => "weekday_typical_traffic_from_psrc",
         };
         let num_agents = ui.primary.current_flags.num_agents;
@@ -84,14 +88,14 @@ impl GameplayMode {
 
     pub fn can_edit_lanes(&self) -> bool {
         match self {
-            GameplayMode::FixTrafficSignals => false,
+            GameplayMode::FixTrafficSignals | GameplayMode::FixTrafficSignalsTutorial => false,
             _ => true,
         }
     }
 
     pub fn can_edit_stop_signs(&self) -> bool {
         match self {
-            GameplayMode::FixTrafficSignals => false,
+            GameplayMode::FixTrafficSignals | GameplayMode::FixTrafficSignalsTutorial => false,
             _ => true,
         }
     }
@@ -130,7 +134,9 @@ impl GameplayRunner {
             }
             GameplayMode::CreateGridlock => create_gridlock::CreateGridlock::new(ctx),
             GameplayMode::FasterTrips(trip_mode) => faster_trips::FasterTrips::new(trip_mode, ctx),
-            GameplayMode::FixTrafficSignals => fix_traffic_signals::FixTrafficSignals::new(ctx),
+            GameplayMode::FixTrafficSignals | GameplayMode::FixTrafficSignalsTutorial => {
+                fix_traffic_signals::FixTrafficSignals::new(ctx)
+            }
         };
         ctx.loading_screen("instantiate scenario", |_, timer| {
             if let Some(scenario) = mode.scenario(ui, timer) {
@@ -197,7 +203,7 @@ fn load_map(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transit
             .filter(|n| n != current_map)
             .collect()
     }) {
-        ui.switch_map(ctx, &name);
+        ui.switch_map(ctx, abstutil::path_map(&name));
         Some(Transition::PopThenReplace(Box::new(SandboxMode::new(
             ctx,
             ui,

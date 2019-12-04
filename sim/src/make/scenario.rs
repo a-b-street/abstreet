@@ -50,12 +50,12 @@ pub struct BorderSpawnOverTime {
     pub num_peds: usize,
     pub num_cars: usize,
     pub num_bikes: usize,
+    pub percent_use_transit: f64,
     // TODO use https://docs.rs/rand/0.5.5/rand/distributions/struct.Normal.html
     pub start_time: Time,
     pub stop_time: Time,
     pub start_from_border: DirectedRoadID,
     pub goal: OriginDestination,
-    pub percent_use_transit: f64,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]

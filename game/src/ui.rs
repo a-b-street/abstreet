@@ -126,10 +126,10 @@ impl UI {
         }
     }
 
-    pub fn switch_map(&mut self, ctx: &mut EventCtx, name: &str) {
+    pub fn switch_map(&mut self, ctx: &mut EventCtx, load: String) {
         ctx.canvas.save_camera_state(self.primary.map.get_name());
         let mut flags = self.primary.current_flags.clone();
-        flags.sim_flags.load = abstutil::path_map(name);
+        flags.sim_flags.load = load;
         *self = UI::new(flags, self.opts.clone(), ctx, false);
     }
 

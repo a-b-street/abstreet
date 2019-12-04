@@ -81,8 +81,7 @@ pub fn open_panel() -> Box<dyn State> {
 
         if ui.opts.color_scheme != color_scheme {
             ui.opts.color_scheme = color_scheme.clone();
-            let map_name = ui.primary.map.get_name().clone();
-            ui.switch_map(ctx, &map_name);
+            ui.switch_map(ctx, ui.primary.current_flags.sim_flags.load.clone());
         }
 
         Some(Transition::Pop)
