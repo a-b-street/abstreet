@@ -246,7 +246,7 @@ impl State for SandboxMode {
                 .contextual_action(Key::T, "throughput over 1-hour buckets")
             {
                 let r = ui.primary.map.get_l(l).parent;
-                let bucket = Duration::minutes(60);
+                let bucket = Duration::hours(1);
                 self.overlay = Overlays::road_throughput(r, bucket, ctx, ui);
             }
         }
@@ -255,7 +255,7 @@ impl State for SandboxMode {
                 .input
                 .contextual_action(Key::T, "throughput over 1-hour buckets")
             {
-                let bucket = Duration::minutes(60);
+                let bucket = Duration::hours(1);
                 self.overlay = Overlays::intersection_throughput(i, bucket, ctx, ui);
             }
         }

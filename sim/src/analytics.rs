@@ -8,8 +8,6 @@ use map_model::{
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, VecDeque};
 
-// Embed a deeper structure with its own impl when that makes sense, or feel free to just inline
-// things.
 #[derive(Serialize, Deserialize, Derivative)]
 pub struct Analytics {
     pub thruput_stats: ThruputStats,
@@ -23,6 +21,7 @@ pub struct Analytics {
     pub finished_trips: Vec<(Time, TripID, Option<TripMode>, Duration)>,
     // TODO This subsumes finished_trips
     pub trip_log: Vec<(Time, TripID, Option<PathRequest>, String)>,
+    pub intersection_delays: BTreeMap<IntersectionID, Vec<(Time, Duration)>>,
 }
 
 #[derive(Serialize, Deserialize, Derivative)]
@@ -50,6 +49,7 @@ impl Analytics {
             total_bus_passengers: Counter::new(),
             finished_trips: Vec::new(),
             trip_log: Vec::new(),
+            intersection_delays: BTreeMap::new(),
         }
     }
 
@@ -108,6 +108,14 @@ impl Analytics {
             self.finished_trips.push((time, id, Some(mode), dt));
         } else if let Event::TripAborted(id) = ev {
             self.finished_trips.push((time, id, None, Duration::ZERO));
+        }
+
+        // Intersection delays
+        if let Event::IntersectionDelayMeasured(id, delay) = ev {
+            self.intersection_delays
+                .entry(id)
+                .or_insert_with(Vec::new)
+                .push((time, delay));
         }
 
         // Trip log
@@ -367,6 +375,23 @@ impl Analytics {
             distrib.add(overhead / (driving_time + overhead));
         }
         vec![format!("Consider all trips with both a walking and driving portion"), format!("The portion of the trip spent walking to the parked car, looking for parking, and walking from the parking space to the final destination are all overhead."), format!("So what's the distribution of overhead percentages look like? 0% is ideal -- the entire trip is spent just driving between the original source and destination."), distrib.describe()]
+    }
+
+    pub fn intersection_delays(&self, i: IntersectionID, t1: Time, t2: Time) -> DurationHistogram {
+        let mut delays = DurationHistogram::new();
+        // TODO Binary search
+        if let Some(list) = self.intersection_delays.get(&i) {
+            for (t, dt) in list {
+                if *t < t1 {
+                    continue;
+                }
+                if *t > t2 {
+                    break;
+                }
+                delays.add(*dt);
+            }
+        }
+        delays
     }
 }
 

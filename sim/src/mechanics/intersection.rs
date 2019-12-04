@@ -1,9 +1,9 @@
 use crate::mechanics::car::Car;
 use crate::mechanics::Queue;
-use crate::{AgentID, Command, Scheduler, Speed};
+use crate::{AgentID, Command, Event, Scheduler, Speed};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use derivative::Derivative;
-use geom::{Duration, DurationHistogram, Time};
+use geom::{Duration, Time};
 use map_model::{
     ControlStopSign, ControlTrafficSignal, IntersectionID, LaneID, Map, TurnID, TurnPriority,
     TurnType,
@@ -18,6 +18,7 @@ pub struct IntersectionSimState {
     state: BTreeMap<IntersectionID, State>,
     use_freeform_policy_everywhere: bool,
     force_queue_entry: bool,
+    events: Vec<Event>,
 }
 
 #[derive(Serialize, Deserialize, Derivative)]
@@ -31,10 +32,6 @@ struct State {
         deserialize_with = "deserialize_btreemap"
     )]
     waiting: BTreeMap<Request, Time>,
-    // TODO Can we move this to analytics?
-    #[derivative(PartialEq = "ignore")]
-    #[serde(skip_serializing, skip_deserializing)]
-    delays: DurationHistogram,
 }
 
 impl IntersectionSimState {
@@ -48,6 +45,7 @@ impl IntersectionSimState {
             state: BTreeMap::new(),
             use_freeform_policy_everywhere,
             force_queue_entry: disable_block_the_box,
+            events: Vec::new(),
         };
         for i in map.all_intersections() {
             sim.state.insert(
@@ -56,7 +54,6 @@ impl IntersectionSimState {
                     id: i.id,
                     accepted: BTreeSet::new(),
                     waiting: BTreeMap::new(),
-                    delays: DurationHistogram::new(),
                 },
             );
             if i.is_traffic_signal() && !use_freeform_policy_everywhere {
@@ -232,7 +229,15 @@ impl IntersectionSimState {
         }
 
         assert!(!state.any_accepted_conflict_with(turn, map));
-        state.delays.add(now - state.waiting.remove(&req).unwrap());
+
+        // TODO For now, we're only interested in signals, and there's too much raw data to store
+        // for stop signs too.
+        if map.maybe_get_traffic_signal(state.id).is_some() {
+            self.events.push(Event::IntersectionDelayMeasured(
+                turn.parent,
+                now - state.waiting.remove(&req).unwrap(),
+            ));
+        }
         state.accepted.insert(req);
         /*if debug {
             println!("{}: {} going!", now, agent)
@@ -249,7 +254,6 @@ impl IntersectionSimState {
         } else {
             println!("Border");
         }
-        println!("Delays: {}", self.state[&id].delays.describe());
     }
 
     pub fn get_accepted_agents(&self, id: IntersectionID) -> HashSet<AgentID> {
@@ -260,8 +264,8 @@ impl IntersectionSimState {
             .collect()
     }
 
-    pub fn get_intersection_delays(&self, id: IntersectionID) -> &DurationHistogram {
-        &self.state[&id].delays
+    pub fn collect_events(&mut self) -> Vec<Event> {
+        std::mem::replace(&mut self.events, Vec::new())
     }
 }
 

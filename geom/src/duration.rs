@@ -33,6 +33,10 @@ impl Duration {
         Duration::seconds((mins as f64) * 60.0)
     }
 
+    pub fn hours(hours: usize) -> Duration {
+        Duration::seconds((hours as f64) * 3600.0)
+    }
+
     pub fn f64_minutes(mins: f64) -> Duration {
         Duration::seconds(mins * 60.0)
     }

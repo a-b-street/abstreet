@@ -148,15 +148,6 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
                 ]);
             }
 
-            let delays = ui.primary.sim.get_intersection_delays(id);
-            if let Some(p) = delays.percentile(50.0) {
-                txt.add(Line(""));
-                txt.add(Line(format!("50%ile delay: {}", p)));
-            }
-            if let Some(p) = delays.percentile(90.0) {
-                txt.add(Line(format!("90%ile delay: {}", p)));
-            }
-
             let accepted = ui.primary.sim.get_accepted_agents(id);
             if !accepted.is_empty() {
                 txt.add(Line(""));

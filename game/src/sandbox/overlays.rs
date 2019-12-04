@@ -240,12 +240,16 @@ impl Overlays {
         let meh = Color::YELLOW;
         let slow = Color::RED;
         let mut colorer = ObjectColorerBuilder::new(
-            Text::prompt("intersection delay (90%ile)"),
+            Text::prompt("intersection delay for traffic signals in the last 2 hours (90%ile)"),
             vec![("< 10s", fast), ("<= 60s", meh), ("> 60s", slow)],
         );
 
         for i in ui.primary.map.all_intersections() {
-            let delays = ui.primary.sim.get_intersection_delays(i.id);
+            let delays = ui.primary.sim.get_analytics().intersection_delays(
+                i.id,
+                ui.primary.sim.time().clamped_sub(Duration::hours(2)),
+                ui.primary.sim.time(),
+            );
             if let Some(d) = delays.percentile(90.0) {
                 let color = if d < Duration::seconds(10.0) {
                     fast

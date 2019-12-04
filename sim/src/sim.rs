@@ -8,7 +8,7 @@ use crate::{
 };
 use abstutil::Timer;
 use derivative::Derivative;
-use geom::{Distance, Duration, DurationHistogram, PolyLine, Pt2D, Time};
+use geom::{Distance, Duration, PolyLine, Pt2D, Time};
 use map_model::{
     BuildingID, BusRoute, BusRouteID, IntersectionID, LaneID, Map, Path, PathConstraints,
     PathRequest, PathStep, Traversable,
@@ -560,6 +560,7 @@ impl Sim {
             events.extend(self.transit.collect_events());
             events.extend(self.driving.collect_events());
             events.extend(self.walking.collect_events());
+            events.extend(self.intersections.collect_events());
             for ev in events {
                 self.analytics.event(ev, self.time, map);
             }
@@ -924,10 +925,6 @@ impl Sim {
 
     pub fn get_accepted_agents(&self, id: IntersectionID) -> HashSet<AgentID> {
         self.intersections.get_accepted_agents(id)
-    }
-
-    pub fn get_intersection_delays(&self, id: IntersectionID) -> &DurationHistogram {
-        self.intersections.get_intersection_delays(id)
     }
 
     pub fn location_of_buses(&self, route: BusRouteID, map: &Map) -> Vec<(CarID, Pt2D)> {
