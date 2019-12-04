@@ -16,12 +16,11 @@ Watching overall traffic patterns and zooming into a few slow areas:
 
 ## Documentation for developers
 
-- [Developer onboarding](docs/onboarding.md)
+- [Developer guide](docs/dev.md)
 - [Map model](docs/articles/map/article.md)
 - [Traffic simulation](docs/articles/trafficsim/article.md)
 - [Rust implementation notes](docs/articles/rust/article.md)
 - [Running A/B Street in a new city](docs/new_city.md)
-- [Features (outdated)](docs/articles/features/article.md)
 - [Current milestones](docs/project/milestones.md)
 - Presentations (nice pictures, but may not be easy to follow without me
   speaking ;) )
@@ -45,7 +44,7 @@ Watching overall traffic patterns and zooming into a few slow areas:
     walks a few blocks over to their parked car, drives somewhere, looks for
     parking, and walks to their final destination.
   - A realistic set of trips -- how many people go from building 1 to building 2
-    at some time using some form of transport -- comes from
+    at some time using some form of transport -- based on
     [PSRC's Soundcast](https://www.psrc.org/activity-based-travel-model-soundcast)
     model.
 - The gameplay
@@ -56,6 +55,20 @@ Watching overall traffic patterns and zooming into a few slow areas:
   - Try your change in A/B test mode, running two traffic simulations
     side-by-side. Explore how individual agents finish their trips faster or
     slower, and compare aggregate results about different groups of traffic.
+  - Attempt a predefined challenge with particular objectives, like speeding up
+    certain bus routes or designing a full bike network.
+
+### Roadmap
+
+Aiming for a first playable release in January 2020. After that:
+
+- Model more things: light rail, shared bike/walking paths, ridesharing, utility
+  functions for different groups
+- Improve map and demand data quality
+- Continue polishing the UI and improving data visualization
+- More challenges and exploring radical new ideas (like Madrid superblocks)
+- Expand to other cities
+- Implement a web version
 
 ## Project mission
 

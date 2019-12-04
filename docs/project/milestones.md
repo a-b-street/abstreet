@@ -1,5 +1,8 @@
 # Milestone tracking
 
+(I'm terrible at sticking to one goal -- haven't been focusing on data quality
+in a bit, so this is out-of-date.)
+
 How usable is each map overall? Different milestones (roughly in order):
 
 - doesn't crash, but gets permanently stuck in gridlock
