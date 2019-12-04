@@ -72,7 +72,7 @@ if [ ! -f data/input/blockface.bin ]; then
 	time cargo run --release -- \
 		--input=../data/input/blockface.kml \
 		--output=../data/input/blockface.bin
-	rm -f data/input/blockface.kml;
+	rm -f ../data/input/blockface.kml;
 	cd ..
 fi
 
@@ -84,7 +84,7 @@ if [ ! -f data/input/sidewalks.bin ]; then
 	time cargo run --release -- \
 		--input=../data/input/sidewalks.kml \
 		--output=../data/input/sidewalks.bin
-	rm -f data/input/sidewalks.kml;
+	rm -f ../data/input/sidewalks.kml;
 	cd ..
 fi
 

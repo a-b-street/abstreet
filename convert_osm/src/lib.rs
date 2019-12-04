@@ -86,7 +86,12 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
         // middle of the blockface.
         // TODO Long blockfaces sometimes cover two roads. Should maybe find ALL matches within
         // the threshold distance?
-        let middle = PolyLine::new(pts).middle();
+        let middle = if let Some(pl) = PolyLine::maybe_new(pts) {
+            pl.middle()
+        } else {
+            // Weird blockface with duplicate points. Shrug.
+            continue;
+        };
         if let Some(((r, fwds), _)) = closest.closest_pt(middle, LANE_THICKNESS * 5.0) {
             let tags = &mut map.roads.get_mut(&r).unwrap().osm_tags;
 
