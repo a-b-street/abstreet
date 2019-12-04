@@ -150,8 +150,8 @@
       {
         "center_points": [
           {
-            "inner_x": 967.3292,
-            "inner_y": 478.0642
+            "inner_x": 963.81,
+            "inner_y": 489.1055
           },
           {
             "inner_x": 1033.9668,
@@ -184,12 +184,12 @@
       {
         "center_points": [
           {
-            "inner_x": 966.6139,
-            "inner_y": 464.2034
+            "inner_x": 963.9514,
+            "inner_y": 470.6085
           },
           {
-            "inner_x": 1002.0513,
-            "inner_y": 459.651
+            "inner_x": 994.7834,
+            "inner_y": 461.1635
           },
           {
             "inner_x": 1033.9668,
@@ -399,8 +399,8 @@
       },
       {
         "point": {
-          "inner_x": 967.3292,
-          "inner_y": 478.0642
+          "inner_x": 963.81,
+          "inner_y": 489.1055
         },
         "intersection_type": "Border"
       }
@@ -411,8 +411,8 @@
       },
       {
         "point": {
-          "inner_x": 966.6139,
-          "inner_y": 464.2034
+          "inner_x": 963.9514,
+          "inner_y": 470.6085
         },
         "intersection_type": "Border"
       }
@@ -553,11 +553,11 @@
       },
       {
         "inner_x": 1120.6836,
-        "inner_y": 478.0642
+        "inner_y": 489.1055
       },
       {
         "inner_x": 963.3445,
-        "inner_y": 478.0642
+        "inner_y": 489.1055
       },
       {
         "inner_x": 963.3445,

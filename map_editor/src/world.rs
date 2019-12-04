@@ -1,6 +1,6 @@
 use aabb_quadtree::{ItemId, QuadTree};
 use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Prerender, Text};
-use geom::{Bounds, Circle, Distance, Polygon};
+use geom::{Bounds, Circle, Distance, Polygon, Pt2D};
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::hash::Hash;
@@ -57,10 +57,19 @@ pub struct World<ID: ObjectID> {
 }
 
 impl<ID: ObjectID> World<ID> {
-    pub fn new(bounds: &Bounds) -> World<ID> {
+    pub fn new() -> World<ID> {
         World {
             objects: HashMap::new(),
-            quadtree: QuadTree::default(bounds.as_bbox()),
+            // Force the quadtree to support any possible positions. Especially when creating
+            // synthetic maps, the bounds change, but updating the quadtree is nontrivial. But they
+            // have to be non-negative.
+            quadtree: QuadTree::default(
+                Bounds::from(&vec![
+                    Pt2D::new(0.0, 0.0),
+                    Pt2D::new(std::f64::MAX, std::f64::MAX),
+                ])
+                .as_bbox(),
+            ),
             current_selection: None,
         }
     }
@@ -131,9 +140,15 @@ impl<ID: ObjectID> World<ID> {
             unioned_polygon = unioned_polygon.union(p.clone());
         }
 
-        let quadtree_id = self
-            .quadtree
-            .insert_with_box(obj.id, unioned_polygon.get_bounds().as_bbox());
+        let bounds = unioned_polygon.get_bounds();
+        // This might break, it might not; the quadtree impl is a little unclear.
+        if bounds.min_x < 0.0 || bounds.min_y < 0.0 {
+            println!(
+                "WARNING: {:?} has negative coordinates {:?}",
+                obj.id, bounds
+            );
+        }
+        let quadtree_id = self.quadtree.insert_with_box(obj.id, bounds.as_bbox());
         let draw = prerender.upload(GeomBatch::from(obj.geometry));
         self.objects.insert(
             obj.id,

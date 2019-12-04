@@ -33,7 +33,7 @@ impl Model {
             showing_pts: None,
 
             include_bldgs: false,
-            world: World::new(&Bounds::new()),
+            world: World::new(),
             intersection_geom: false,
         }
     }
@@ -61,7 +61,6 @@ impl Model {
             model.map.apply_all_fixes(&mut timer);
         }
 
-        model.world = World::new(&model.compute_bounds());
         if model.include_bldgs {
             for id in model.map.buildings.keys().cloned().collect::<Vec<_>>() {
                 model.bldg_added(id, prerender);

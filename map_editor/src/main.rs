@@ -135,6 +135,16 @@ impl GUI for UI {
             self.model.world.handle_mouseover(ctx);
         }
 
+        let mut cursor = ctx.canvas.get_cursor_in_map_space();
+        // Negative coordinates break the quadtree in World, so try to prevent anything involving
+        // them. Creating stuff near the boundary or moving things past it still crash, but this
+        // and drawing the boundary kind of help.
+        if let Some(pt) = cursor {
+            if pt.x() < 0.0 || pt.y() < 0.0 {
+                cursor = None;
+            }
+        }
+
         match self.state {
             State::Viewing {
                 ref mut short_roads,
@@ -159,7 +169,6 @@ impl GUI for UI {
                     }
                 }
 
-                let cursor = ctx.canvas.get_cursor_in_map_space();
                 match self.model.world.get_selection() {
                     Some(ID::Intersection(i)) => {
                         if ctx.input.key_pressed(Key::LeftControl, "move intersection") {
@@ -333,24 +342,24 @@ impl GUI for UI {
                 }
             }
             State::MovingIntersection(id) => {
-                if let Some(cursor) = ctx.canvas.get_cursor_in_map_space() {
-                    self.model.move_i(id, cursor, ctx.prerender);
+                if let Some(pt) = cursor {
+                    self.model.move_i(id, pt, ctx.prerender);
                     if ctx.input.key_released(Key::LeftControl) {
                         self.state = State::viewing();
                     }
                 }
             }
             State::MovingBuilding(id) => {
-                if let Some(cursor) = ctx.canvas.get_cursor_in_map_space() {
-                    self.model.move_b(id, cursor, ctx.prerender);
+                if let Some(pt) = cursor {
+                    self.model.move_b(id, pt, ctx.prerender);
                     if ctx.input.key_released(Key::LeftControl) {
                         self.state = State::viewing();
                     }
                 }
             }
             State::MovingRoadPoint(r, idx) => {
-                if let Some(cursor) = ctx.canvas.get_cursor_in_map_space() {
-                    self.model.move_r_pt(r, idx, cursor, ctx.prerender);
+                if let Some(pt) = cursor {
+                    self.model.move_r_pt(r, idx, pt, ctx.prerender);
                     if ctx.input.key_released(Key::LeftControl) {
                         self.state = State::viewing();
                     }
@@ -432,8 +441,8 @@ impl GUI for UI {
                 }
 
                 if *keydown {
-                    if let Some(cursor) = ctx.canvas.get_cursor_in_map_space() {
-                        *pt2 = cursor;
+                    if let Some(pt) = cursor {
+                        *pt2 = pt;
                     }
                 }
                 if ctx.input.key_pressed(Key::Escape, "stop selecting area") {
@@ -577,6 +586,25 @@ impl GUI for UI {
 
     fn draw(&self, g: &mut GfxCtx) {
         g.clear(Color::BLACK);
+
+        // It's useful to see the origin.
+        g.draw_polygon(
+            Color::WHITE,
+            &Polygon::rectangle_topleft(
+                Pt2D::new(0.0, 0.0),
+                Distance::meters(100.0),
+                Distance::meters(10.0),
+            ),
+        );
+        g.draw_polygon(
+            Color::WHITE,
+            &Polygon::rectangle_topleft(
+                Pt2D::new(0.0, 0.0),
+                Distance::meters(10.0),
+                Distance::meters(100.0),
+            ),
+        );
+
         g.draw_polygon(Color::rgb(242, 239, 233), &self.model.map.boundary_polygon);
         match self.state {
             State::PreviewIntersection(_, _, _) => self.model.world.draw(g, |id| match id {
