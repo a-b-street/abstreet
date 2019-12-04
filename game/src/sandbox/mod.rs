@@ -257,6 +257,12 @@ impl State for SandboxMode {
             {
                 let bucket = Duration::hours(1);
                 self.overlay = Overlays::intersection_throughput(i, bucket, ctx, ui);
+            } else if ctx
+                .input
+                .contextual_action(Key::D, "delay over 1-hour buckets")
+            {
+                let bucket = Duration::hours(1);
+                self.overlay = Overlays::intersection_delay_over_time(i, bucket, ctx, ui);
             }
         }
 

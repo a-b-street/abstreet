@@ -9,7 +9,7 @@ use crate::sandbox::SandboxMode;
 use crate::ui::{ShowEverything, UI};
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{Choice, Color, EventCtx, GfxCtx, Key, Line, MenuUnderButton, Text};
-use geom::{Duration, Time};
+use geom::{Duration, Statistic, Time};
 use map_model::{IntersectionID, LaneID, PathConstraints, PathStep, RoadID};
 use sim::{ParkingSpot, TripMode};
 use std::collections::{BTreeMap, HashSet};
@@ -38,6 +38,12 @@ pub enum Overlays {
         bucket: Duration,
         i: IntersectionID,
         plot: Plot<usize>,
+    },
+    IntersectionDelayOverTime {
+        t: Time,
+        bucket: Duration,
+        i: IntersectionID,
+        plot: Plot<Duration>,
     },
 }
 
@@ -104,6 +110,9 @@ impl Overlays {
             Overlays::IntersectionThroughput { t, bucket, i, .. } if now != *t => {
                 *self = Overlays::intersection_throughput(*i, *bucket, ctx, ui);
             }
+            Overlays::IntersectionDelayOverTime { t, bucket, i, .. } if now != *t => {
+                *self = Overlays::intersection_delay_over_time(*i, *bucket, ctx, ui);
+            }
             Overlays::FinishedTrips(t, _) if now != *t => {
                 *self = Overlays::finished_trips(ctx, ui);
             }
@@ -144,14 +153,15 @@ impl Overlays {
                 plot.draw(g);
                 true
             }
-            Overlays::BusDelaysOverTime(ref s) => {
+            Overlays::BusDelaysOverTime(ref plot)
+            | Overlays::IntersectionDelayOverTime { ref plot, .. } => {
                 ui.draw(
                     g,
                     DrawOptions::new(),
                     &ui.primary.sim,
                     &ShowEverything::new(),
                 );
-                s.draw(g);
+                plot.draw(g);
                 true
             }
             Overlays::BusRoute(ref s) => {
@@ -372,6 +382,53 @@ impl Overlays {
             ctx,
         );
         Overlays::IntersectionThroughput {
+            t: ui.primary.sim.time(),
+            bucket,
+            i,
+            plot,
+        }
+    }
+
+    pub fn intersection_delay_over_time(
+        i: IntersectionID,
+        bucket: Duration,
+        ctx: &EventCtx,
+        ui: &UI,
+    ) -> Overlays {
+        let mut series: Vec<(Statistic, Vec<(Time, Duration)>)> = Statistic::all()
+            .into_iter()
+            .map(|stat| (stat, Vec::new()))
+            .collect();
+        for (t, distrib) in ui
+            .primary
+            .sim
+            .get_analytics()
+            .intersection_delays_bucketized(ui.primary.sim.time(), i, bucket)
+        {
+            for (stat, pts) in series.iter_mut() {
+                if distrib.count() == 0 {
+                    pts.push((t, Duration::ZERO));
+                } else {
+                    pts.push((t, distrib.select(*stat)));
+                }
+            }
+        }
+
+        let plot = Plot::new(
+            &format!("delay of {} in {} buckets", i, bucket),
+            series
+                .into_iter()
+                .enumerate()
+                .map(|(idx, (stat, pts))| Series {
+                    label: stat.to_string(),
+                    color: rotating_color(idx),
+                    pts,
+                })
+                .collect(),
+            Duration::ZERO,
+            ctx,
+        );
+        Overlays::IntersectionDelayOverTime {
             t: ui.primary.sim.time(),
             bucket,
             i,

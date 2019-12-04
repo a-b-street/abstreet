@@ -393,6 +393,32 @@ impl Analytics {
         }
         delays
     }
+
+    pub fn intersection_delays_bucketized(
+        &self,
+        now: Time,
+        i: IntersectionID,
+        bucket: Duration,
+    ) -> Vec<(Time, DurationHistogram)> {
+        let mut max_this_bucket = now.min(Time::START_OF_DAY + bucket);
+        let mut results = vec![
+            (Time::START_OF_DAY, DurationHistogram::new()),
+            (max_this_bucket, DurationHistogram::new()),
+        ];
+        if let Some(list) = self.intersection_delays.get(&i) {
+            for (t, dt) in list {
+                if *t > now {
+                    break;
+                }
+                if *t > max_this_bucket {
+                    max_this_bucket = now.min(max_this_bucket + bucket);
+                    results.push((max_this_bucket, DurationHistogram::new()));
+                }
+                results.last_mut().unwrap().1.add(*dt);
+            }
+        }
+        results
+    }
 }
 
 pub struct TripPhase {

@@ -232,11 +232,10 @@ impl IntersectionSimState {
 
         // TODO For now, we're only interested in signals, and there's too much raw data to store
         // for stop signs too.
+        let delay = now - state.waiting.remove(&req).unwrap();
         if map.maybe_get_traffic_signal(state.id).is_some() {
-            self.events.push(Event::IntersectionDelayMeasured(
-                turn.parent,
-                now - state.waiting.remove(&req).unwrap(),
-            ));
+            self.events
+                .push(Event::IntersectionDelayMeasured(turn.parent, delay));
         }
         state.accepted.insert(req);
         /*if debug {
