@@ -16,6 +16,9 @@ pub fn find_scc(map: &Map, constraints: PathConstraints) -> (HashSet<LaneID>, Ha
         }
     }
     let components = petgraph::algo::kosaraju_scc(&graph);
+    if components.is_empty() {
+        return (HashSet::new(), HashSet::new());
+    }
     let largest_group: HashSet<LaneID> = components
         .into_iter()
         .max_by_key(|c| c.len())

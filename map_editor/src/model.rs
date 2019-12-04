@@ -42,13 +42,19 @@ impl Model {
         path: String,
         include_bldgs: bool,
         intersection_geom: bool,
-        no_fixes: bool,
+        mut no_fixes: bool,
         prerender: &Prerender,
     ) -> Model {
         let mut timer = Timer::new("import map");
         let mut model = Model::blank();
         model.include_bldgs = include_bldgs;
-        model.map = abstutil::read_binary(path, &mut timer);
+        if path.starts_with(&abstutil::path_all_raw_maps()) {
+            model.map = abstutil::read_binary(path, &mut timer);
+        } else {
+            // Synthetic map!
+            model.map = abstutil::read_json(path, &mut timer);
+            no_fixes = true;
+        }
         model.intersection_geom = intersection_geom;
 
         if !no_fixes {
@@ -83,14 +89,10 @@ impl Model {
 impl Model {
     // TODO Only for truly synthetic maps...
     pub fn export(&mut self) {
-        println!("TODO: disabled for now");
-        /*assert!(self.map.name != "");
-        // TODO Or maybe we should do this more regularly?
+        assert!(self.map.name != "");
         self.map.boundary_polygon = self.compute_bounds().get_rectangle();
 
-        let path = abstutil::path_raw_map(&self.map.name);
-        abstutil::write_binary(&path, &self.map);
-        println!("Exported {}", path);*/
+        abstutil::write_json(abstutil::path_synthetic_map(&self.map.name), &self.map);
     }
 
     pub fn save_fixes(&mut self) {

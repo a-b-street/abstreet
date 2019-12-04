@@ -48,8 +48,14 @@ pub struct Map {
 }
 
 impl Map {
-    pub fn new(path: String, use_map_fixes: bool, timer: &mut Timer) -> Map {
-        let mut raw: RawMap = abstutil::read_binary(path, timer);
+    pub fn new(path: String, mut use_map_fixes: bool, timer: &mut Timer) -> Map {
+        let mut raw: RawMap = if path.starts_with(&abstutil::path_all_raw_maps()) {
+            abstutil::read_binary(path, timer)
+        } else {
+            // Synthetic
+            use_map_fixes = false;
+            abstutil::read_json(path, timer)
+        };
         if use_map_fixes {
             raw.apply_all_fixes(timer);
         }

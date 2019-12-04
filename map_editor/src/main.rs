@@ -85,7 +85,7 @@ impl UI {
                 "Map Editor",
                 vec![
                     (hotkey(Key::Escape), "quit"),
-                    (hotkey(Key::S), "save raw map"),
+                    (None, "save raw map"),
                     (hotkey(Key::F), "save map fixes"),
                     (hotkey(Key::J), "warp to something"),
                     (None, "produce OSM parking+sidewalk diff"),
@@ -273,6 +273,7 @@ impl GUI for UI {
                             self.before_quit(ctx.canvas);
                             std::process::exit(0);
                         } else if self.menu.action("save raw map") {
+                            // TODO Only do this for synthetic maps
                             if self.model.map.name != "" {
                                 self.model.export();
                             } else {

@@ -10,8 +10,20 @@ use std::fmt;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RawMap {
     pub name: String,
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
     pub roads: BTreeMap<OriginalRoad, RawRoad>,
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
     pub intersections: BTreeMap<OriginalIntersection, RawIntersection>,
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
     pub buildings: BTreeMap<OriginalBuilding, RawBuilding>,
     pub bus_routes: Vec<Route>,
     pub areas: Vec<RawArea>,
