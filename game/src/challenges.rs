@@ -168,9 +168,12 @@ impl State for ChallengeSplash {
             return Transition::Push(WizardState::new(Box::new(move |wiz, ctx, ui| {
                 let mut wizard = wiz.wrap(ctx);
                 let (_, new_edits) = wizard.choose("Load which map edits?", || {
-                    Choice::from(abstutil::load_all_objects(abstutil::path_all_edits(
-                        &map_name,
-                    )))
+                    Choice::from(
+                        abstutil::load_all_objects(abstutil::path_all_edits(&map_name))
+                            .into_iter()
+                            .filter(|(_, edits)| gameplay.allows(edits))
+                            .collect(),
+                    )
                 })?;
                 if &map_name != ui.primary.map.get_name() {
                     ui.switch_map(ctx, &map_name);

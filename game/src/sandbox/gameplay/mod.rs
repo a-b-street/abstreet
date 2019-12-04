@@ -14,6 +14,7 @@ use crate::ui::UI;
 use abstutil::{prettyprint_usize, Timer};
 use ezgui::{Color, EventCtx, GfxCtx, Line, ModalMenu, TextSpan, Wizard};
 use geom::Duration;
+use map_model::{EditCmd, MapEdits};
 use sim::{Scenario, TripMode};
 
 pub struct GameplayRunner {
@@ -93,6 +94,27 @@ impl GameplayMode {
             GameplayMode::FixTrafficSignals => false,
             _ => true,
         }
+    }
+
+    pub fn allows(&self, edits: &MapEdits) -> bool {
+        for cmd in &edits.commands {
+            match cmd {
+                EditCmd::ChangeLaneType { .. } | EditCmd::ReverseLane { .. } => {
+                    if !self.can_edit_lanes() {
+                        return false;
+                    }
+                }
+                EditCmd::ChangeStopSign(_) => {
+                    if !self.can_edit_stop_signs() {
+                        return false;
+                    }
+                }
+                EditCmd::ChangeTrafficSignal(_)
+                | EditCmd::CloseIntersection { .. }
+                | EditCmd::UncloseIntersection(_, _) => {}
+            }
+        }
+        true
     }
 }
 

@@ -15,7 +15,7 @@ use crate::ui::{PerMapUI, ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, MenuUnderButton,
-    ModalMenu, Text, Wizard, WrappedWizard,
+    ModalMenu, Text, WrappedWizard,
 };
 use map_model::{ControlStopSign, ControlTrafficSignal, EditCmd, LaneID, MapEdits};
 use std::collections::BTreeSet;
@@ -181,7 +181,7 @@ impl State for EditMode {
                 Some(Transition::Pop)
             })));
         } else if self.menu.action("load different edits") {
-            return Transition::Push(WizardState::new(Box::new(load_edits)));
+            return Transition::Push(make_load_edits(self.mode.clone()));
         } else if self.menu.action("back to sandbox mode") {
             // TODO Maybe put a loading screen around these.
             ui.primary
@@ -366,34 +366,39 @@ pub fn save_edits(wizard: &mut WrappedWizard, ui: &mut UI) -> Option<()> {
     Some(())
 }
 
-fn load_edits(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
-    let mut wizard = wiz.wrap(ctx);
+fn make_load_edits(mode: GameplayMode) -> Box<dyn State> {
+    WizardState::new(Box::new(move |wiz, ctx, ui| {
+        let mut wizard = wiz.wrap(ctx);
 
-    if ui.primary.map.get_edits().dirty {
-        let save = "save edits";
-        let discard = "discard";
-        if wizard
-            .choose_string("Save current edits first?", || vec![save, discard])?
-            .as_str()
-            == save
-        {
-            save_edits(&mut wizard, ui)?;
-            wizard.reset();
+        if ui.primary.map.get_edits().dirty {
+            let save = "save edits";
+            let discard = "discard";
+            if wizard
+                .choose_string("Save current edits first?", || vec![save, discard])?
+                .as_str()
+                == save
+            {
+                save_edits(&mut wizard, ui)?;
+                wizard.reset();
+            }
         }
-    }
 
-    // TODO Exclude current
-    let map_name = ui.primary.map.get_name().to_string();
-    let (_, new_edits) = wizard.choose("Load which map edits?", || {
-        let mut list = Choice::from(abstutil::load_all_objects(abstutil::path_all_edits(
-            &map_name,
-        )));
-        list.push(Choice::new("no_edits", MapEdits::new(map_name.clone())));
-        list
-    })?;
-    apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
-    ui.primary.map.mark_edits_fresh();
-    Some(Transition::Pop)
+        // TODO Exclude current
+        let map_name = ui.primary.map.get_name().to_string();
+        let (_, new_edits) = wizard.choose("Load which map edits?", || {
+            let mut list = Choice::from(
+                abstutil::load_all_objects(abstutil::path_all_edits(&map_name))
+                    .into_iter()
+                    .filter(|(_, edits)| mode.allows(edits))
+                    .collect(),
+            );
+            list.push(Choice::new("no_edits", MapEdits::new(map_name.clone())));
+            list
+        })?;
+        apply_map_edits(&mut ui.primary, &ui.cs, ctx, new_edits);
+        ui.primary.map.mark_edits_fresh();
+        Some(Transition::Pop)
+    }))
 }
 
 pub fn apply_map_edits(
