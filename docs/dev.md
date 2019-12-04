@@ -38,7 +38,7 @@ You can skip this section if you're just touching code in `game`, `ezgui`, and
 You'll need some extra dependencies:
 
 - `osmconvert`: See https://wiki.openstreetmap.org/wiki/Osmconvert#Download
-- `cs2cs` from proj4 (See X or `apt-get install proj-bin` on Ubuntu)
+- `cs2cs` from proj4: See https://proj.org
 
 The seed data from `data/grab_seed_data.sh` can be built from scratch by doing
 `./import.sh && ./precompute.sh --release`. This takes a while.

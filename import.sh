@@ -21,7 +21,7 @@ function get_if_needed {
 	fi
 }
 
-mkdir -p data/input/raw_maps
+mkdir -p data/input/osm data/input/raw_maps
 
 # TODO refactor a variant for .zips?
 if [ ! -d data/input/google_transit_2018_18_08/ ]; then

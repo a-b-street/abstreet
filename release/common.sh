@@ -6,8 +6,8 @@ function common_release {
 
 	cp docs/INSTRUCTIONS.md $OUT
 
-	mkdir -p $OUT/data/system
-	cp -Rv data/system $OUT/data/system
+	mkdir -p $OUT/data
+	cp -Rv data/system $OUT/data
 	# Not worth blowing up the download size yet
 	rm -rfv $OUT/data/system/maps/huge_seattle.bin $OUT/data/system/scenarios/huge_seattle
 }
