@@ -70,7 +70,6 @@ impl UI {
             Model::blank()
         };
         ctx.set_textures(
-            Vec::new(),
             vec![
                 ("assets/ui/hide.png", TextureType::Stretch),
                 ("assets/ui/show.png", TextureType::Stretch),

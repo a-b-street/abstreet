@@ -5,7 +5,7 @@ use crate::render::{
     DrawPedestrian, Renderable, MIN_ZOOM_FOR_DETAIL,
 };
 use abstutil::{MeasureMemory, Timer};
-use ezgui::{Canvas, Color, EventCtx, GfxCtx, Prerender, TextureType};
+use ezgui::{Color, EventCtx, GfxCtx, Prerender, TextureType};
 use geom::{Bounds, Circle, Distance, Pt2D};
 use map_model::{Map, Traversable};
 use rand::seq::SliceRandom;
@@ -24,60 +24,38 @@ impl UI {
     pub fn new(flags: Flags, opts: Options, ctx: &mut EventCtx, splash: bool) -> UI {
         let cs = ColorScheme::load(opts.color_scheme.clone());
         let primary = ctx.loading_screen("load map", |ctx, mut timer| {
-            // Always load some small icons.
-            let mut textures = vec![
-                ("assets/pregame/back.png", TextureType::Stretch),
-                ("assets/pregame/challenges.png", TextureType::Stretch),
-                ("assets/pregame/quit.png", TextureType::Stretch),
-                ("assets/pregame/sandbox.png", TextureType::Stretch),
-                ("assets/pregame/tutorial.png", TextureType::Stretch),
-                ("assets/pregame/logo.png", TextureType::Stretch),
-                ("assets/speed/jump_to_time.png", TextureType::Stretch),
-                ("assets/speed/large_step.png", TextureType::Stretch),
-                ("assets/speed/pause.png", TextureType::Stretch),
-                ("assets/speed/resume.png", TextureType::Stretch),
-                ("assets/speed/slow_down.png", TextureType::Stretch),
-                ("assets/speed/small_step.png", TextureType::Stretch),
-                ("assets/speed/speed_up.png", TextureType::Stretch),
-                ("assets/speed/sunrise.png", TextureType::Stretch),
-                ("assets/speed/sunset.png", TextureType::Stretch),
-                ("assets/ui/edit_bike.png", TextureType::Stretch),
-                ("assets/ui/edit_bus.png", TextureType::Stretch),
-                ("assets/ui/edit_construction.png", TextureType::Stretch),
-                ("assets/ui/edit_contraflow.png", TextureType::Stretch),
-                ("assets/ui/edit_driving.png", TextureType::Stretch),
-                ("assets/ui/edit_parking.png", TextureType::Stretch),
-                ("assets/ui/hamburger.png", TextureType::Stretch),
-                ("assets/ui/hide.png", TextureType::Stretch),
-                ("assets/ui/info.png", TextureType::Stretch),
-                ("assets/ui/location.png", TextureType::Stretch),
-                ("assets/ui/save.png", TextureType::Stretch),
-                ("assets/ui/show.png", TextureType::Stretch),
-            ];
-            let skip_textures = if flags.textures {
-                textures.extend(vec![
-                    ("assets/water_texture.png", TextureType::Tile),
-                    ("assets/grass_texture.png", TextureType::Tile),
-                    ("assets/pedestrian.png", TextureType::Stretch),
-                    ("assets/car.png", TextureType::CustomUV),
-                ]);
-                Vec::new()
-            } else {
+            ctx.set_textures(
                 vec![
-                    (
-                        "assets/water_texture.png",
-                        cs.get_def("water", Color::rgb(164, 200, 234)),
-                    ),
-                    (
-                        "assets/grass_texture.png",
-                        cs.get_def("grass", Color::hex("#94C84A")),
-                    ),
-                    ("assets/pedestrian.png", Color::rgb(51, 178, 178)),
-                    ("assets/car.png", Color::CYAN),
-                ]
-            };
-
-            ctx.set_textures(skip_textures, textures, &mut timer);
+                    ("assets/pregame/back.png", TextureType::Stretch),
+                    ("assets/pregame/challenges.png", TextureType::Stretch),
+                    ("assets/pregame/quit.png", TextureType::Stretch),
+                    ("assets/pregame/sandbox.png", TextureType::Stretch),
+                    ("assets/pregame/tutorial.png", TextureType::Stretch),
+                    ("assets/pregame/logo.png", TextureType::Stretch),
+                    ("assets/speed/jump_to_time.png", TextureType::Stretch),
+                    ("assets/speed/large_step.png", TextureType::Stretch),
+                    ("assets/speed/pause.png", TextureType::Stretch),
+                    ("assets/speed/resume.png", TextureType::Stretch),
+                    ("assets/speed/slow_down.png", TextureType::Stretch),
+                    ("assets/speed/small_step.png", TextureType::Stretch),
+                    ("assets/speed/speed_up.png", TextureType::Stretch),
+                    ("assets/speed/sunrise.png", TextureType::Stretch),
+                    ("assets/speed/sunset.png", TextureType::Stretch),
+                    ("assets/ui/edit_bike.png", TextureType::Stretch),
+                    ("assets/ui/edit_bus.png", TextureType::Stretch),
+                    ("assets/ui/edit_construction.png", TextureType::Stretch),
+                    ("assets/ui/edit_contraflow.png", TextureType::Stretch),
+                    ("assets/ui/edit_driving.png", TextureType::Stretch),
+                    ("assets/ui/edit_parking.png", TextureType::Stretch),
+                    ("assets/ui/hamburger.png", TextureType::Stretch),
+                    ("assets/ui/hide.png", TextureType::Stretch),
+                    ("assets/ui/info.png", TextureType::Stretch),
+                    ("assets/ui/location.png", TextureType::Stretch),
+                    ("assets/ui/save.png", TextureType::Stretch),
+                    ("assets/ui/show.png", TextureType::Stretch),
+                ],
+                &mut timer,
+            );
 
             PerMapUI::new(flags, &cs, ctx, &mut timer)
         });
@@ -189,7 +167,6 @@ impl UI {
             let objects = self.get_renderables_back_to_front(
                 g.get_screen_bounds(),
                 &g.prerender,
-                &g.canvas,
                 &mut cache,
                 source,
                 show_objs,
@@ -264,7 +241,6 @@ impl UI {
         let mut objects = self.get_renderables_back_to_front(
             Circle::new(pt, Distance::meters(3.0)).get_bounds(),
             ctx.prerender,
-            ctx.canvas,
             &mut cache,
             source,
             show_objs,
@@ -302,7 +278,6 @@ impl UI {
         &'a self,
         bounds: Bounds,
         prerender: &Prerender,
-        canvas: &Canvas,
         agents: &'a mut AgentCache,
         source: &dyn GetDrawAgents,
         show_objs: &dyn ShowObject,
@@ -372,15 +347,7 @@ impl UI {
                 if !agents.has(time, *on) {
                     let mut list: Vec<Box<dyn Renderable>> = Vec::new();
                     for c in source.get_draw_cars(*on, map).into_iter() {
-                        list.push(draw_vehicle(
-                            c,
-                            map,
-                            prerender,
-                            canvas,
-                            &self.cs,
-                            self.agent_cs,
-                            self.primary.current_flags.textures,
-                        ));
+                        list.push(draw_vehicle(c, map, prerender, &self.cs, self.agent_cs));
                     }
                     let (loners, crowds) = source.get_draw_peds(*on, map);
                     for p in loners {
@@ -389,10 +356,8 @@ impl UI {
                             step_count,
                             map,
                             prerender,
-                            canvas,
                             &self.cs,
                             self.agent_cs,
-                            self.primary.current_flags.textures,
                         )));
                     }
                     for c in crowds {
@@ -473,7 +438,6 @@ pub struct Flags {
     // Number of agents to generate when requested. If unspecified, trips to/from borders will be
     // included.
     pub num_agents: Option<usize>,
-    pub textures: bool,
 }
 
 // All of the state that's bound to a specific map+edit has to live here.

@@ -65,6 +65,5 @@ Other binary data bundled in:
 
 - DejaVuSans.ttf (https://dejavu-fonts.github.io/License.html)
 - Roboto-Regular.ttf (https://fonts.google.com/specimen/Roboto, Apache license)
-- http://www.textures4photoshop.com for textures
 - Icons from https://thenounproject.com/aiga-icons/,
   https://thenounproject.com/sakchai.ruankam, https://thenounproject.com/wilmax

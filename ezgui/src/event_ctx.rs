@@ -47,20 +47,9 @@ impl<'a> EventCtx<'a> {
             || self.input.get_mouse_scroll().is_some()
     }
 
-    pub fn set_textures(
-        &mut self,
-        skip_textures: Vec<(&str, Color)>,
-        textures: Vec<(&str, TextureType)>,
-        timer: &mut Timer,
-    ) {
+    pub fn set_textures(&mut self, textures: Vec<(&str, TextureType)>, timer: &mut Timer) {
         self.canvas.texture_arrays.clear();
         self.canvas.texture_lookups.clear();
-
-        for (filename, fallback) in skip_textures {
-            self.canvas
-                .texture_lookups
-                .insert(filename.to_string(), fallback);
-        }
 
         // Group textures with the same dimensions and create a texture array. Videocards have a
         // limit on the number of textures that can be uploaded.

@@ -25,7 +25,7 @@ pub use crate::render::pedestrian::{DrawPedCrowd, DrawPedestrian};
 pub use crate::render::road::DrawRoad;
 pub use crate::render::traffic_signal::{draw_signal_phase, TrafficSignalDiagram};
 pub use crate::render::turn::{DrawTurn, DrawTurnGroup};
-use ezgui::{Canvas, Color, GfxCtx, Prerender};
+use ezgui::{Color, GfxCtx, Prerender};
 use geom::{Distance, PolyLine, Polygon, Pt2D, EPSILON_DIST};
 use map_model::{IntersectionID, Map};
 use sim::{DrawCarInput, Sim, VehicleType};
@@ -65,23 +65,13 @@ pub fn draw_vehicle(
     input: DrawCarInput,
     map: &Map,
     prerender: &Prerender,
-    canvas: &Canvas,
     cs: &ColorScheme,
     acs: AgentColorScheme,
-    use_textures: bool,
 ) -> Box<dyn Renderable> {
     if input.id.1 == VehicleType::Bike {
         Box::new(DrawBike::new(input, map, prerender, cs, acs))
     } else {
-        Box::new(DrawCar::new(
-            input,
-            map,
-            prerender,
-            canvas,
-            cs,
-            acs,
-            use_textures,
-        ))
+        Box::new(DrawCar::new(input, map, prerender, cs, acs))
     }
 }
 

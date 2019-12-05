@@ -192,7 +192,7 @@ impl DrawMap {
         timer.start_iter("make DrawAreas", map.all_areas().len());
         for a in map.all_areas() {
             timer.next();
-            areas.push(DrawArea::new(a, ctx, &mut all_areas));
+            areas.push(DrawArea::new(a, cs, &mut all_areas));
         }
         timer.start("upload all areas");
         let draw_all_areas = all_areas.upload(ctx);
