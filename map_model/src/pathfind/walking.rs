@@ -1,8 +1,5 @@
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
-use crate::{
-    BusRouteID, BusStopID, DirectedRoadID, IntersectionID, LaneID, LaneType, Map, Path,
-    PathRequest, PathStep, Position,
-};
+use crate::{BusRouteID, BusStopID, LaneID, Map, Path, PathRequest, PathStep, Position};
 use fast_paths::{FastGraph, InputGraph, PathCalculator};
 use geom::Distance;
 use serde_derive::{Deserialize, Serialize};
@@ -22,8 +19,8 @@ pub struct SidewalkPathfinder {
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 enum Node {
-    // Direction determined later
-    Cross(DirectedRoadID),
+    // false is src_i, true is dst_i
+    SidewalkEndpoint(LaneID, bool),
     RideBus(BusStopID),
 }
 
@@ -33,7 +30,8 @@ impl SidewalkPathfinder {
         // We're assuming that to start with, no sidewalks are closed for construction!
         for l in map.all_lanes() {
             if l.is_sidewalk() {
-                nodes.get_or_insert(lane_to_node(l.id, map));
+                nodes.get_or_insert(Node::SidewalkEndpoint(l.id, true));
+                nodes.get_or_insert(Node::SidewalkEndpoint(l.id, false));
             }
         }
         if use_transit {
@@ -62,6 +60,7 @@ impl SidewalkPathfinder {
 
     pub fn pathfind(&self, req: &PathRequest, map: &Map) -> Option<Path> {
         // Special-case one-step paths.
+        // TODO Maybe we don't need these special cases anymore.
         if req.start.lane() == req.end.lane() {
             let len = map.get_l(req.start.lane()).length();
             // Weird case, but it can happen for walking from a building path to a bus stop that're
@@ -96,56 +95,60 @@ impl SidewalkPathfinder {
             .borrow_mut();
         let raw_path = calc.calc_path(
             &self.graph,
-            self.nodes.maybe_get(lane_to_node(req.start.lane(), map))?,
-            self.nodes.maybe_get(lane_to_node(req.end.lane(), map))?,
+            self.nodes.get(closest_node(req.start, map)),
+            self.nodes.get(closest_node(req.end, map)),
         )?;
         let path = self.nodes.translate(&raw_path);
 
         let mut steps: Vec<PathStep> = Vec::new();
-        // If the request starts at the beginning/end of a lane, still include that as the first
-        // PathStep. Sim layer breaks otherwise.
-        let mut current_i: Option<IntersectionID> = None;
 
         for pair in path.windows(2) {
-            let lane1 = match pair[0] {
-                Node::Cross(dr) => map.get_l(get_sidewalk(dr, map)),
+            let (l1, l1_endpt) = match pair[0] {
+                Node::SidewalkEndpoint(l, endpt) => (l, endpt),
                 Node::RideBus(_) => unreachable!(),
             };
             let l2 = match pair[1] {
-                Node::Cross(dr) => get_sidewalk(dr, map),
+                Node::SidewalkEndpoint(l, _) => l,
                 Node::RideBus(_) => unreachable!(),
             };
 
-            let fwd_t = map.get_turn_between(lane1.id, l2, lane1.dst_i);
-            let back_t = map.get_turn_between(lane1.id, l2, lane1.src_i);
-            // TODO If both are available, we sort of need to lookahead to pick the better one.
-            // Oh well.
-            if let Some(t) = fwd_t {
-                if current_i != Some(lane1.dst_i) {
-                    steps.push(PathStep::Lane(lane1.id));
+            if l1 == l2 {
+                if l1_endpt {
+                    steps.push(PathStep::ContraflowLane(l1));
+                } else {
+                    steps.push(PathStep::Lane(l1));
                 }
-                steps.push(PathStep::Turn(t));
-                current_i = Some(lane1.dst_i);
             } else {
-                if current_i != Some(lane1.src_i) {
-                    steps.push(PathStep::ContraflowLane(lane1.id));
-                }
-                steps.push(PathStep::Turn(back_t.unwrap()));
-                current_i = Some(lane1.src_i);
+                let i = {
+                    let l = map.get_l(l1);
+                    if l1_endpt {
+                        l.dst_i
+                    } else {
+                        l.src_i
+                    }
+                };
+                // Could assert the intersection matches (l2, l2_endpt).
+                let turn = map.get_turn_between(l1, l2, i).unwrap();
+                steps.push(PathStep::Turn(turn));
             }
         }
 
-        // Don't end a path in a turn; sim layer breaks.
-        let last_lane = match path.last().unwrap() {
-            Node::Cross(dr) => map.get_l(get_sidewalk(*dr, map)),
-            Node::RideBus(_) => unreachable!(),
-        };
-        if Some(last_lane.src_i) == current_i {
-            steps.push(PathStep::Lane(last_lane.id));
-        } else if Some(last_lane.dst_i) == current_i {
-            steps.push(PathStep::ContraflowLane(last_lane.id));
-        } else {
-            unreachable!();
+        // Don't start or end a path in a turn; sim layer breaks.
+        if let PathStep::Turn(t) = steps[0] {
+            let lane = map.get_l(t.src);
+            if lane.src_i == t.parent {
+                steps.insert(0, PathStep::ContraflowLane(lane.id));
+            } else {
+                steps.insert(0, PathStep::Lane(lane.id));
+            }
+        }
+        if let PathStep::Turn(t) = steps.last().unwrap() {
+            let lane = map.get_l(t.dst);
+            if lane.src_i == t.parent {
+                steps.push(PathStep::Lane(lane.id));
+            } else {
+                steps.push(PathStep::ContraflowLane(lane.id));
+            }
         }
 
         Some(Path::new(
@@ -163,13 +166,10 @@ impl SidewalkPathfinder {
         start: Position,
         end: Position,
     ) -> Option<(BusStopID, BusStopID, BusRouteID)> {
-        // TODO maybe_get is a temporaryish hack -- some sidewalks are actually totally
-        // disconnected, so there's no node for them. Just fail the pathfinding. Really this is a
-        // bug in turn creation though.
         let raw_path = fast_paths::calc_path(
             &self.graph,
-            self.nodes.maybe_get(lane_to_node(start.lane(), map))?,
-            self.nodes.maybe_get(lane_to_node(end.lane(), map))?,
+            self.nodes.get(closest_node(start, map)),
+            self.nodes.get(closest_node(end, map)),
         )?;
 
         let mut nodes = self.nodes.translate(&raw_path);
@@ -187,6 +187,7 @@ impl SidewalkPathfinder {
         for n in nodes {
             if let Node::RideBus(stop2) = n {
                 if let Some(route) = possible_routes.iter().find(|r| r.stops.contains(&stop2)) {
+                    assert_ne!(first_stop, stop2);
                     return Some((first_stop, stop2, route.id));
                 }
             }
@@ -195,53 +196,54 @@ impl SidewalkPathfinder {
     }
 }
 
-fn lane_to_node(l: LaneID, map: &Map) -> Node {
-    Node::Cross(map.get_l(l).get_directed_parent(map))
-}
-
-fn get_sidewalk(dr: DirectedRoadID, map: &Map) -> LaneID {
-    let r = map.get_r(dr.id);
-    let lanes = if dr.forwards {
-        &r.children_forwards
-    } else {
-        &r.children_backwards
-    };
-    for (id, lt) in lanes {
-        if *lt == LaneType::Sidewalk {
-            return *id;
-        }
-    }
-    panic!("{} has no sidewalk", dr);
+fn closest_node(pos: Position, map: &Map) -> Node {
+    let dst_i = map.get_l(pos.lane()).length() - pos.dist_along() <= pos.dist_along();
+    Node::SidewalkEndpoint(pos.lane(), dst_i)
 }
 
 fn make_input_graph(map: &Map, nodes: &NodeMap<Node>, use_transit: bool) -> InputGraph {
     let mut input_graph = InputGraph::new();
-    for t in map.all_turns().values() {
-        if !t.between_sidewalks() {
-            continue;
-        }
-        // Duplicate edges in InputGraph will be removed.
-        let length = map.get_l(t.id.src).length() + t.geom.length();
-        let length_cm = (length.inner_meters() * 100.0).round() as usize;
 
-        input_graph.add_edge(
-            nodes.get(lane_to_node(t.id.src, map)),
-            nodes.get(lane_to_node(t.id.dst, map)),
-            length_cm,
-        );
+    for l in map.all_lanes() {
+        if l.is_sidewalk() {
+            let cost = to_cm(l.length());
+            let n1 = nodes.get(Node::SidewalkEndpoint(l.id, true));
+            let n2 = nodes.get(Node::SidewalkEndpoint(l.id, false));
+            input_graph.add_edge(n1, n2, cost);
+            input_graph.add_edge(n2, n1, cost);
+        }
+    }
+
+    for t in map.all_turns().values() {
+        if t.between_sidewalks() {
+            let from = Node::SidewalkEndpoint(t.id.src, map.get_l(t.id.src).dst_i == t.id.parent);
+            let to = Node::SidewalkEndpoint(t.id.dst, map.get_l(t.id.dst).dst_i == t.id.parent);
+            input_graph.add_edge(nodes.get(from), nodes.get(to), to_cm(t.geom.length()));
+        }
     }
 
     if use_transit {
-        // Addd a "free" cost of 1 (fast_paths ignores 0-weight edges) for moving between the stop
-        // and sidewalk.
+        // Connect bus stops with both sidewalk endpoints, using the appropriate distance.
         for stop in map.all_bus_stops().values() {
-            let cross_lane = nodes.get(lane_to_node(stop.sidewalk_pos.lane(), map));
             let ride_bus = nodes.get(Node::RideBus(stop.id));
-            input_graph.add_edge(cross_lane, ride_bus, 1);
-            input_graph.add_edge(ride_bus, cross_lane, 1);
+            let lane = map.get_l(stop.sidewalk_pos.lane());
+            for endpt in vec![true, false] {
+                let cost = if endpt {
+                    to_cm(lane.length() - stop.sidewalk_pos.dist_along())
+                } else {
+                    to_cm(stop.sidewalk_pos.dist_along())
+                };
+                // Add some extra penalty (equivalent to 1m) to using a bus stop. Otherwise a path
+                // might try to pass through it uselessly.
+                let penalty = 100;
+                let sidewalk = nodes.get(Node::SidewalkEndpoint(lane.id, endpt));
+                input_graph.add_edge(sidewalk, ride_bus, cost + penalty);
+                input_graph.add_edge(ride_bus, sidewalk, cost + penalty);
+            }
         }
 
-        // Connect each adjacent stop along a route, again with a "free" cost.
+        // Connect each adjacent stop along a route, with a "free" cost of 1 (fast_paths ignores
+        // 0-weight edges).
         for route in map.get_all_bus_routes() {
             for (stop1, stop2) in
                 route
@@ -263,4 +265,8 @@ fn make_input_graph(map: &Map, nodes: &NodeMap<Node>, use_transit: bool) -> Inpu
     }
     input_graph.freeze();
     input_graph
+}
+
+fn to_cm(dist: Distance) -> usize {
+    (dist.inner_meters() * 100.0).round() as usize
 }

@@ -32,10 +32,6 @@ impl<T: Copy + Ord + Serialize> NodeMap<T> {
         self.node_to_id[&node]
     }
 
-    pub fn maybe_get(&self, node: T) -> Option<NodeId> {
-        self.node_to_id.get(&node).cloned()
-    }
-
     pub fn translate(&self, path: &ShortestPath) -> Vec<T> {
         path.get_nodes()
             .iter()
