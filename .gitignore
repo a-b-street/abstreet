@@ -7,10 +7,8 @@ data/input/google_transit_2018_18_08
 data/input/neighborhoods
 data/input/neighborhoods.geojson
 data/input/offstreet_parking.kml
-data/input/osm
 data/input/parcels_urbansim.txt
 data/input/popdat.bin
-data/input/raw_maps
 data/input/screenshots/*/*.png
 data/input/screenshots/*/combine.sh
 data/input/sidewalks.bin
@@ -18,6 +16,7 @@ data/input/trips_2014.csv
 
 data/player
 
-data/system/maps
-data/system/prebaked_results
-data/system/scenarios
+# Some data/system/ and data/input subdirectories have their own .gitignore
+# whitelists. Some tempporaryish exceptions:
+data/input/osm/Seattle.osm
+data/system/prebaked_results/traffic sig lvl1
