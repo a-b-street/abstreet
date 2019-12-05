@@ -121,3 +121,33 @@ impl DrawOptions {
         self.override_colors.get(&id).cloned()
     }
 }
+
+pub fn osm_rank_to_unzoomed_color(cs: &ColorScheme, rank: usize) -> Color {
+    if rank >= 16 {
+        cs.get_def("unzoomed highway road", Color::rgb(232, 146, 162))
+    } else if rank >= 6 {
+        cs.get_def("unzoomed arterial road", Color::rgb(255, 199, 62))
+    } else {
+        cs.get_def("unzoomed residential road", Color::WHITE)
+    }
+}
+
+pub fn osm_rank_to_zoomed_color(cs: &ColorScheme, rank: usize) -> Color {
+    if rank >= 16 {
+        cs.get_def("zoomed residential road", Color::hex("#7c7c7c"))
+    } else if rank >= 6 {
+        cs.get_def("zoomed highway road", Color::hex("#2a2a2a"))
+    } else {
+        cs.get_def("zoomed arterial road", Color::hex("#5b5b5b"))
+    }
+}
+
+pub fn osm_rank_to_road_center_line_color(cs: &ColorScheme, rank: usize) -> Color {
+    if rank >= 16 {
+        cs.get_def("residential center line", Color::hex("#f4da22"))
+    } else if rank >= 6 {
+        cs.get_def("highway center line", Color::hex("#db952e"))
+    } else {
+        cs.get_def("arterial center line", Color::hex("#d8b830"))
+    }
+}

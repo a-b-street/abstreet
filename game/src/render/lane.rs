@@ -1,5 +1,8 @@
 use crate::helpers::{ColorScheme, ID};
-use crate::render::{dashed_lines, DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
+use crate::render::{
+    dashed_lines, osm_rank_to_road_center_line_color, osm_rank_to_zoomed_color, DrawCtx,
+    DrawOptions, Renderable, OUTLINE_THICKNESS,
+};
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
 use geom::{Distance, Line, PolyLine, Polygon, Pt2D};
@@ -42,17 +45,18 @@ impl DrawLane {
         timer: &mut Timer,
     ) -> AlmostDrawLane {
         let road = map.get_r(lane.parent);
+        let rank = road.get_rank();
         let polygon = lane.lane_center_pts.make_polygons(LANE_THICKNESS);
 
         let mut draw = GeomBatch::new();
         draw.push(
             match lane.lane_type {
-                LaneType::Driving => cs.get_def("driving lane", Color::BLACK),
-                LaneType::Bus => cs.get_def("bus lane", Color::rgb(190, 74, 76)),
-                LaneType::Parking => cs.get_def("parking lane", Color::grey(0.2)),
-                LaneType::Sidewalk => cs.get_def("sidewalk", Color::grey(0.8)),
-                LaneType::Biking => cs.get_def("bike lane", Color::rgb(15, 125, 75)),
-                LaneType::SharedLeftTurn => cs.get("driving lane"),
+                LaneType::Driving | LaneType::Parking | LaneType::SharedLeftTurn => {
+                    osm_rank_to_zoomed_color(cs, rank)
+                }
+                LaneType::Bus => cs.get_def("bus lane", Color::hex("#ad302d")),
+                LaneType::Sidewalk => cs.get_def("sidewalk", Color::hex("#d6d6d6")),
+                LaneType::Biking => cs.get_def("bike lane", Color::hex("#72ce36")),
                 LaneType::Construction => {
                     cs.get_def("construction background", Color::rgb(255, 109, 0))
                 }
@@ -63,13 +67,13 @@ impl DrawLane {
             match lane.lane_type {
                 LaneType::Sidewalk => {
                     draw.extend(
-                        cs.get_def("sidewalk lines", Color::grey(0.7)),
+                        cs.get_def("sidewalk lines", Color::hex("#707070")),
                         calculate_sidewalk_lines(lane),
                     );
                 }
                 LaneType::Parking => {
                     draw.extend(
-                        cs.get_def("general road marking", Color::WHITE),
+                        cs.get_def("general road marking", Color::hex("#d6d6d6")),
                         calculate_parking_lines(lane),
                     );
                 }
@@ -85,15 +89,16 @@ impl DrawLane {
                 }
                 LaneType::Biking => {}
                 LaneType::SharedLeftTurn => {
+                    let color = osm_rank_to_road_center_line_color(cs, rank);
                     draw.push(
-                        cs.get("road center line"),
+                        color,
                         lane.lane_center_pts
                             .shift_right(LANE_THICKNESS / 2.0)
                             .get(timer)
                             .make_polygons(Distance::meters(0.25)),
                     );
                     draw.push(
-                        cs.get("road center line"),
+                        color,
                         lane.lane_center_pts
                             .shift_left(LANE_THICKNESS / 2.0)
                             .get(timer)
@@ -176,7 +181,6 @@ fn calculate_sidewalk_lines(lane: &Lane) -> Vec<Polygon> {
 }
 
 fn calculate_parking_lines(lane: &Lane) -> Vec<Polygon> {
-    // meters, but the dims get annoying below to remove
     let leg_length = Distance::meters(1.0);
 
     let mut result = Vec::new();
@@ -187,7 +191,7 @@ fn calculate_parking_lines(lane: &Lane) -> Vec<Polygon> {
             let perp_angle = lane_angle.rotate_degs(270.0);
             // Find the outside of the lane. Actually, shift inside a little bit, since the line will
             // have thickness, but shouldn't really intersect the adjacent line when drawn.
-            let t_pt = pt.project_away(LANE_THICKNESS * 0.4, perp_angle);
+            let t_pt = pt.project_away(LANE_THICKNESS * 0.3, perp_angle);
             // The perp leg
             let p1 = t_pt.project_away(leg_length, perp_angle.opposite());
             result.push(Line::new(t_pt, p1).make_polygons(Distance::meters(0.25)));
@@ -199,6 +203,13 @@ fn calculate_parking_lines(lane: &Lane) -> Vec<Polygon> {
             result.push(Line::new(t_pt, p3).make_polygons(Distance::meters(0.25)));
         }
     }
+
+    result.push(
+        lane.lane_center_pts
+            .shift_left(LANE_THICKNESS / 2.0)
+            .unwrap()
+            .make_polygons(Distance::meters(0.25)),
+    );
 
     result
 }

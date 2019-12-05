@@ -11,8 +11,8 @@ pub struct DrawArea {
 impl DrawArea {
     pub fn new(area: &Area, cs: &ColorScheme, all_areas: &mut GeomBatch) -> DrawArea {
         let color = match area.area_type {
-            AreaType::Park => cs.get_def("grass", Color::hex("#94C84A")),
-            AreaType::Water => cs.get_def("water", Color::rgb(164, 200, 234)),
+            AreaType::Park => cs.get_def("grass", Color::hex("#3D8E09")),
+            AreaType::Water => cs.get_def("water", Color::hex("#A4C8EA")),
             AreaType::PedestrianIsland => Color::grey(0.3),
         };
         all_areas.push(color, area.polygon.clone());

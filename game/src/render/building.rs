@@ -26,7 +26,7 @@ impl DrawBuilding {
         let front_path = front_path_line.make_polygons(Distance::meters(1.0));
 
         batch.push(
-            cs.get_def("building", Color::rgb(196, 193, 188)),
+            cs.get_def("building", Color::hex("#819BAA")),
             bldg.polygon.clone(),
         );
         batch.push(cs.get_def("building path", Color::grey(0.6)), front_path);

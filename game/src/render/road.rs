@@ -1,6 +1,8 @@
 use crate::helpers::{ColorScheme, ID};
-use crate::render::{dashed_lines, DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
-use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
+use crate::render::{
+    osm_rank_to_road_center_line_color, DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS,
+};
+use ezgui::{Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Distance, Polygon, Pt2D};
 use map_model::{LaneType, Map, Road, RoadID, LANE_THICKNESS};
 
@@ -26,20 +28,31 @@ impl DrawRoad {
             .lane_center_pts
             .shift_left(LANE_THICKNESS / 2.0)
             .unwrap();
-        let width = Distance::meters(0.25);
-        // If the road is a one-way (only parking and sidewalk on the off-side), draw a solid line
+        let color = osm_rank_to_road_center_line_color(cs, r.get_rank());
+
+        // Only one yellow line if the road is a oneway
         // No center line at all if there's a shared left turn lane
         if r.children_backwards
             .iter()
             .all(|(_, lt)| *lt == LaneType::Parking || *lt == LaneType::Sidewalk)
         {
-            draw.push(cs.get("road center line"), center.make_polygons(width));
+            draw.push(color, center.make_polygons(Distance::meters(0.25)));
         } else if r.children_forwards.is_empty()
             || r.children_forwards[0].1 != LaneType::SharedLeftTurn
         {
-            draw.extend(
-                cs.get_def("road center line", Color::YELLOW),
-                dashed_lines(&center, width, Distance::meters(2.0), Distance::meters(1.0)),
+            draw.push(
+                color,
+                center
+                    .shift_left(Distance::meters(0.25))
+                    .unwrap()
+                    .make_polygons(Distance::meters(0.25)),
+            );
+            draw.push(
+                color,
+                center
+                    .shift_right(Distance::meters(0.25))
+                    .unwrap()
+                    .make_polygons(Distance::meters(0.25)),
             );
         }
 

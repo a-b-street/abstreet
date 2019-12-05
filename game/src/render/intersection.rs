@@ -1,7 +1,7 @@
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{
-    draw_signal_phase, DrawCtx, DrawOptions, Renderable, CROSSWALK_LINE_THICKNESS,
-    OUTLINE_THICKNESS,
+    draw_signal_phase, osm_rank_to_zoomed_color, DrawCtx, DrawOptions, Renderable,
+    CROSSWALK_LINE_THICKNESS, OUTLINE_THICKNESS,
 };
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
@@ -39,7 +39,7 @@ impl DrawIntersection {
             } else if i.is_closed() {
                 cs.get("construction background")
             } else {
-                cs.get_def("normal intersection", Color::grey(0.2))
+                osm_rank_to_zoomed_color(cs, i.get_rank(map))
             },
             i.polygon.clone(),
         );
