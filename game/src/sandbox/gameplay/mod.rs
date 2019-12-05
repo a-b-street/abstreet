@@ -1,6 +1,7 @@
 mod create_gridlock;
 mod faster_trips;
-mod fix_traffic_signals;
+// TODO Remove pub
+pub mod fix_traffic_signals;
 mod freeform;
 mod optimize_bus;
 mod play_scenario;
@@ -15,7 +16,7 @@ use abstutil::{prettyprint_usize, Timer};
 use ezgui::{Color, EventCtx, GfxCtx, Line, ModalMenu, TextSpan, Wizard};
 use geom::Duration;
 use map_model::{EditCmd, MapEdits};
-use sim::{Scenario, TripMode};
+use sim::{Analytics, Scenario, TripMode};
 
 pub struct GameplayRunner {
     pub mode: GameplayMode,
@@ -74,8 +75,7 @@ impl GameplayMode {
                 Scenario::small_run(&ui.primary.map)
             }
         } else if name == "just buses" {
-            let mut s = Scenario::empty(&ui.primary.map);
-            s.scenario_name = "just buses".to_string();
+            let mut s = Scenario::empty(&ui.primary.map, "just buses");
             s.seed_buses = true;
             s
         } else {
@@ -147,6 +147,20 @@ impl GameplayRunner {
                     timer,
                 );
                 ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
+                ui.prebaked = abstutil::maybe_read_binary::<Analytics>(
+                    abstutil::path_prebaked_results(&scenario.map_name, &scenario.scenario_name),
+                    timer,
+                )
+                .unwrap_or_else(|_| {
+                    println!(
+                        "WARNING! No prebaked sim analytics for {} on {}",
+                        scenario.scenario_name, scenario.map_name
+                    );
+                    Analytics::new()
+                });
+                // TODO When do we reset these exactly? I think moving prebaked from UI back here
+                // is the right answer. Only sandbox scoreboard uses them outside of here, which is
+                // weird anyway.
             }
         });
         GameplayRunner {

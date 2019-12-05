@@ -48,8 +48,11 @@ pub fn path_all_maps() -> String {
     format!("../data/system/maps")
 }
 
-pub fn path_prebaked_results(map_name: &str) -> String {
-    format!("../data/system/prebaked_results/{}.bin", map_name)
+pub fn path_prebaked_results(map_name: &str, scenario_name: &str) -> String {
+    format!(
+        "../data/system/prebaked_results/{}/{}.bin",
+        map_name, scenario_name
+    )
 }
 
 pub fn path_scenario(map_name: &str, scenario_name: &str) -> String {

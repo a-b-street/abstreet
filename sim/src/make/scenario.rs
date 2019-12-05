@@ -219,9 +219,9 @@ impl Scenario {
         s
     }
 
-    pub fn empty(map: &Map) -> Scenario {
+    pub fn empty(map: &Map, name: &str) -> Scenario {
         Scenario {
-            scenario_name: "empty".to_string(),
+            scenario_name: name.to_string(),
             map_name: map.get_name().to_string(),
             seed_buses: false,
             seed_parked_cars: Vec::new(),

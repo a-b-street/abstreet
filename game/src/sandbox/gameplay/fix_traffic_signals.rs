@@ -136,7 +136,7 @@ pub fn tutorial_scenario(map: &Map) -> Scenario {
     let right = IntersectionID(0);
 
     // Motivate a separate left turn phase for north/south, but not left/right
-    let mut s = Scenario::empty(map);
+    let mut s = Scenario::empty(map, "tutorial lvl1");
 
     // What's the essence of what I've specified below? Don't care about the time distribution,
     // exact number of agents, different modes. It's just an OD matrix with relative weights.

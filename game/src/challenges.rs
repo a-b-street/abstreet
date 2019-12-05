@@ -9,7 +9,7 @@ use ezgui::{
     VerticalAlignment,
 };
 use geom::Time;
-use sim::{SimFlags, SimOptions, TripMode};
+use sim::{Sim, SimFlags, SimOptions, TripMode};
 
 // TODO Also have some kind of screenshot to display for each challenge
 #[derive(Clone)]
@@ -240,7 +240,29 @@ pub fn prebake() {
         timer.stop(&format!("run normal sim for {}", map_name));
 
         abstutil::write_binary(
-            abstutil::path_prebaked_results(map_name),
+            abstutil::path_prebaked_results(map_name, "weekday_typical_traffic_from_psrc"),
+            sim.get_analytics(),
+        );
+    }
+
+    // TODO Generically find all map/scenario combos from all_challenges()
+
+    {
+        // TODO Argh what a gross hack
+        let map = map_model::Map::new(
+            abstutil::path_synthetic_map("traffic sig lvl1"),
+            false,
+            &mut timer,
+        );
+        let scenario = crate::sandbox::gameplay::fix_traffic_signals::tutorial_scenario(&map);
+        let mut sim = Sim::new(&map, SimOptions::new("prebaked"), &mut timer);
+        // TODO Haaaaack
+        let mut rng = SimFlags::for_test("prebaked").make_rng();
+        scenario.instantiate(&mut sim, &map, &mut rng, &mut timer);
+        sim.timed_step(&map, Time::END_OF_DAY - Time::START_OF_DAY, &mut timer);
+
+        abstutil::write_binary(
+            abstutil::path_prebaked_results(&scenario.map_name, &scenario.scenario_name),
             sim.get_analytics(),
         );
     }

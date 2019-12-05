@@ -24,7 +24,7 @@ pub struct UI {
 impl UI {
     pub fn new(flags: Flags, opts: Options, ctx: &mut EventCtx, splash: bool) -> UI {
         let cs = ColorScheme::load(opts.color_scheme.clone());
-        let (primary, prebaked) = ctx.loading_screen("load map", |ctx, mut timer| {
+        let primary = ctx.loading_screen("load map", |ctx, mut timer| {
             // Always load some small icons.
             let mut textures = vec![
                 ("assets/pregame/back.png", TextureType::Stretch),
@@ -80,16 +80,7 @@ impl UI {
 
             ctx.set_textures(skip_textures, textures, &mut timer);
 
-            let primary = PerMapUI::new(flags, &cs, ctx, &mut timer);
-            let prebaked: Analytics = abstutil::maybe_read_binary(
-                abstutil::path_prebaked_results(primary.map.get_name()),
-                &mut timer,
-            )
-            .unwrap_or_else(|_| {
-                println!("WARNING! No prebaked sim analytics. Only freeform mode will work.");
-                Analytics::new()
-            });
-            (primary, prebaked)
+            PerMapUI::new(flags, &cs, ctx, &mut timer)
         });
 
         let mut rng = primary.current_flags.sim_flags.make_rng();
@@ -121,7 +112,7 @@ impl UI {
             secondary: None,
             cs,
             agent_cs: AgentColorScheme::VehicleTypes,
-            prebaked,
+            prebaked: Analytics::new(),
             opts,
         }
     }

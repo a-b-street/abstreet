@@ -1,5 +1,6 @@
 mod bus_explorer;
-mod gameplay;
+// TODO Remove pub
+pub mod gameplay;
 mod overlays;
 mod score;
 mod speed;
