@@ -66,7 +66,7 @@ pub(crate) fn screenshot_current<G: GUI>(
 ) {
     state.draw(display, program, prerender, true);
     thread::sleep(time::Duration::from_millis(100));
-    screencap("screenshot.png");
+    screencap("../screenshot.png");
 }
 
 fn screencap(filename: &str) -> bool {

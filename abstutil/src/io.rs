@@ -154,7 +154,6 @@ pub fn deserialize_multimap<
 }
 
 // Just list all things from a directory, return sorted by name, with file extension removed.
-// TODO Then just post-proc list_dir
 pub fn list_all_objects(dir: String) -> Vec<String> {
     let mut results: BTreeSet<String> = BTreeSet::new();
     match std::fs::read_dir(dir) {
@@ -162,7 +161,7 @@ pub fn list_all_objects(dir: String) -> Vec<String> {
             for entry in iter {
                 let filename = entry.unwrap().file_name();
                 let path = Path::new(&filename);
-                if path.to_string_lossy().ends_with(".swp") {
+                if path.to_string_lossy().starts_with(".") {
                     continue;
                 }
                 let name = path
@@ -191,7 +190,7 @@ pub fn load_all_objects<T: DeserializeOwned>(dir: String) -> Vec<(String, T)> {
                 let filename = entry.unwrap().file_name();
                 let path = Path::new(&filename);
                 let path_str = path.to_string_lossy();
-                if path_str.ends_with(".swp") {
+                if path_str.starts_with(".") {
                     continue;
                 }
                 let full_path = format!("{}/{}", dir, path_str);
@@ -315,7 +314,7 @@ pub fn find_next_file(orig: String) -> Option<String> {
     files.into_iter().find(|f| *f > orig)
 }
 
-pub fn list_dir(dir: &std::path::Path) -> Vec<String> {
+fn list_dir(dir: &std::path::Path) -> Vec<String> {
     let mut files: Vec<String> = Vec::new();
     match std::fs::read_dir(dir) {
         Ok(iter) => {
