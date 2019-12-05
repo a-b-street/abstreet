@@ -9,7 +9,7 @@ use ezgui::{Canvas, Color, EventCtx, GfxCtx, Prerender, TextureType};
 use geom::{Bounds, Circle, Distance, Pt2D};
 use map_model::{Map, Traversable};
 use rand::seq::SliceRandom;
-use sim::{Analytics, GetDrawAgents, Sim, SimFlags};
+use sim::{GetDrawAgents, Sim, SimFlags};
 
 pub struct UI {
     pub primary: PerMapUI,
@@ -17,7 +17,6 @@ pub struct UI {
     pub secondary: Option<PerMapUI>,
     pub cs: ColorScheme,
     pub agent_cs: AgentColorScheme,
-    pub prebaked: Analytics,
     pub opts: Options,
 }
 
@@ -112,7 +111,6 @@ impl UI {
             secondary: None,
             cs,
             agent_cs: AgentColorScheme::VehicleTypes,
-            prebaked: Analytics::new(),
             opts,
         }
     }

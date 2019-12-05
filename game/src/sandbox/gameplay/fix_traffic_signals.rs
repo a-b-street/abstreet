@@ -6,7 +6,7 @@ use crate::ui::UI;
 use ezgui::{hotkey, EventCtx, Key, ModalMenu};
 use geom::{Duration, Statistic, Time};
 use map_model::{IntersectionID, Map};
-use sim::{BorderSpawnOverTime, OriginDestination, Scenario, TripMode};
+use sim::{Analytics, BorderSpawnOverTime, OriginDestination, Scenario, TripMode};
 
 pub struct FixTrafficSignals {
     time: Time,
@@ -37,6 +37,7 @@ impl GameplayState for FixTrafficSignals {
         ctx: &mut EventCtx,
         ui: &mut UI,
         overlays: &mut Overlays,
+        prebaked: &Analytics,
         menu: &mut ModalMenu,
     ) -> Option<Transition> {
         menu.event(ctx);
@@ -59,7 +60,7 @@ impl GameplayState for FixTrafficSignals {
 
         if self.time != ui.primary.sim.time() {
             self.time = ui.primary.sim.time();
-            menu.set_info(ctx, faster_trips_panel(TripMode::Drive, ui));
+            menu.set_info(ctx, faster_trips_panel(TripMode::Drive, ui, prebaked));
         }
 
         if menu.action("help") {
@@ -72,26 +73,32 @@ impl GameplayState for FixTrafficSignals {
         }
 
         if menu.action("final score") {
-            return Some(Transition::Push(msg("Final score", final_score(ui))));
+            return Some(Transition::Push(msg(
+                "Final score",
+                final_score(ui, prebaked),
+            )));
         }
 
         if ui.primary.sim.time() >= Time::END_OF_DAY {
             // TODO Stop the challenge somehow
-            return Some(Transition::Push(msg("Final score", final_score(ui))));
+            return Some(Transition::Push(msg(
+                "Final score",
+                final_score(ui, prebaked),
+            )));
         }
 
         None
     }
 }
 
-fn final_score(ui: &UI) -> Vec<String> {
+fn final_score(ui: &UI, prebaked: &Analytics) -> Vec<String> {
     let time = ui.primary.sim.time();
     let now = ui
         .primary
         .sim
         .get_analytics()
         .finished_trips(time, TripMode::Drive);
-    let baseline = ui.prebaked.finished_trips(time, TripMode::Drive);
+    let baseline = prebaked.finished_trips(time, TripMode::Drive);
     // TODO Annoying to repeat this everywhere; any refactor possible?
     if now.count() == 0 || baseline.count() == 0 {
         return vec!["No data yet, run the simulation for longer".to_string()];

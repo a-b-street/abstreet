@@ -8,7 +8,7 @@ use ezgui::{
     VerticalAlignment, Wizard,
 };
 use geom::{Duration, Statistic, Time};
-use sim::{TripID, TripMode};
+use sim::{Analytics, TripID, TripMode};
 use std::collections::BTreeSet;
 
 pub struct Scoreboard {
@@ -17,7 +17,7 @@ pub struct Scoreboard {
 }
 
 impl Scoreboard {
-    pub fn new(ctx: &mut EventCtx, ui: &UI) -> Scoreboard {
+    pub fn new(ctx: &mut EventCtx, ui: &UI, prebaked: &Analytics) -> Scoreboard {
         let menu = ModalMenu::new(
             "Finished trips summary",
             vec![
@@ -34,7 +34,7 @@ impl Scoreboard {
             .get_analytics()
             .all_finished_trips(ui.primary.sim.time());
         let (baseline_all, baseline_aborted, baseline_per_mode) =
-            ui.prebaked.all_finished_trips(ui.primary.sim.time());
+            prebaked.all_finished_trips(ui.primary.sim.time());
 
         // TODO Include unfinished count
         let mut txt = Text::new();

@@ -152,7 +152,11 @@ impl State for SandboxMode {
             return t;
         }
         if self.info_tools.action("scoreboard") {
-            return Transition::Push(Box::new(score::Scoreboard::new(ctx, ui)));
+            return Transition::Push(Box::new(score::Scoreboard::new(
+                ctx,
+                ui,
+                &self.gameplay.prebaked,
+            )));
         }
         if let Some(explorer) = bus_explorer::BusRouteExplorer::new(ctx, ui) {
             return Transition::PushWithMode(explorer, EventLoopMode::Animation);

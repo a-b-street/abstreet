@@ -3,6 +3,7 @@ use crate::sandbox::gameplay::{change_scenario, load_map, GameplayState};
 use crate::sandbox::overlays::Overlays;
 use crate::ui::UI;
 use ezgui::{hotkey, lctrl, EventCtx, Key, ModalMenu};
+use sim::Analytics;
 
 pub struct PlayScenario;
 
@@ -29,6 +30,7 @@ impl GameplayState for PlayScenario {
         ctx: &mut EventCtx,
         _: &mut UI,
         _: &mut Overlays,
+        _: &Analytics,
         menu: &mut ModalMenu,
     ) -> Option<Transition> {
         menu.event(ctx);

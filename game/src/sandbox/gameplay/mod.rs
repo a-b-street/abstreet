@@ -22,6 +22,7 @@ pub struct GameplayRunner {
     pub mode: GameplayMode,
     pub menu: ModalMenu,
     state: Box<dyn GameplayState>,
+    pub prebaked: Analytics,
 }
 
 #[derive(Clone)]
@@ -44,6 +45,7 @@ pub trait GameplayState: downcast_rs::Downcast {
         ctx: &mut EventCtx,
         ui: &mut UI,
         overlays: &mut Overlays,
+        prebaked: &Analytics,
         menu: &mut ModalMenu,
     ) -> Option<Transition>;
     fn draw(&self, _: &mut GfxCtx, _: &UI) {}
@@ -138,7 +140,7 @@ impl GameplayRunner {
                 fix_traffic_signals::FixTrafficSignals::new(ctx)
             }
         };
-        ctx.loading_screen("instantiate scenario", |_, timer| {
+        let prebaked = ctx.loading_screen("instantiate scenario", |_, timer| {
             if let Some(scenario) = mode.scenario(ui, timer) {
                 scenario.instantiate(
                     &mut ui.primary.sim,
@@ -147,7 +149,7 @@ impl GameplayRunner {
                     timer,
                 );
                 ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
-                ui.prebaked = abstutil::maybe_read_binary::<Analytics>(
+                abstutil::maybe_read_binary::<Analytics>(
                     abstutil::path_prebaked_results(&scenario.map_name, &scenario.scenario_name),
                     timer,
                 )
@@ -157,14 +159,14 @@ impl GameplayRunner {
                         scenario.scenario_name, scenario.map_name
                     );
                     Analytics::new()
-                });
-                // TODO When do we reset these exactly? I think moving prebaked from UI back here
-                // is the right answer. Only sandbox scoreboard uses them outside of here, which is
-                // weird anyway.
+                })
+            } else {
+                Analytics::new()
             }
         });
         GameplayRunner {
             mode,
+            prebaked,
             menu: menu.disable_standalone_layout(),
             state,
         }
@@ -176,7 +178,8 @@ impl GameplayRunner {
         ui: &mut UI,
         overlays: &mut Overlays,
     ) -> Option<Transition> {
-        self.state.event(ctx, ui, overlays, &mut self.menu)
+        self.state
+            .event(ctx, ui, overlays, &self.prebaked, &mut self.menu)
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
