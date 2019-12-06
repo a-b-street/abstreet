@@ -25,6 +25,13 @@ use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::collections::HashMap;
 
+// TODO Unimplemented things from the mockups:
+// - building roof decorations
+// - bus and bike lane markings
+// - gutter by sidewalk
+// - front paths are sidewalk color
+// - animated pedestrians
+
 pub struct DrawMap {
     pub roads: Vec<DrawRoad>,
     pub lanes: Vec<DrawLane>,
