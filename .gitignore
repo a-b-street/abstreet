@@ -19,4 +19,4 @@ data/player
 # Some data/system/ and data/input subdirectories have their own .gitignore
 # whitelists. Some tempporaryish exceptions:
 data/input/osm/Seattle.osm
-data/system/prebaked_results/traffic sig lvl1
+data/system/prebaked_results/signal_single

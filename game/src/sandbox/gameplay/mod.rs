@@ -36,7 +36,8 @@ pub enum GameplayMode {
     // TODO Be able to filter population by more factors
     FasterTrips(TripMode),
     FixTrafficSignals,
-    FixTrafficSignalsTutorial,
+    // TODO Kinda gross. What stage in the tutorial?
+    FixTrafficSignalsTutorial(usize),
 }
 
 pub trait GameplayState: downcast_rs::Downcast {
@@ -59,8 +60,14 @@ impl GameplayMode {
                 return None;
             }
             GameplayMode::PlayScenario(ref scenario) => scenario,
-            GameplayMode::FixTrafficSignalsTutorial => {
-                return Some(fix_traffic_signals::tutorial_scenario(&ui.primary.map));
+            GameplayMode::FixTrafficSignalsTutorial(stage) => {
+                if *stage == 0 {
+                    return Some(fix_traffic_signals::tutorial_scenario_lvl1(&ui.primary.map));
+                } else if *stage == 1 {
+                    return Some(fix_traffic_signals::tutorial_scenario_lvl2(&ui.primary.map));
+                } else {
+                    unreachable!()
+                }
             }
             _ => "weekday_typical_traffic_from_psrc",
         };
@@ -90,14 +97,14 @@ impl GameplayMode {
 
     pub fn can_edit_lanes(&self) -> bool {
         match self {
-            GameplayMode::FixTrafficSignals | GameplayMode::FixTrafficSignalsTutorial => false,
+            GameplayMode::FixTrafficSignals | GameplayMode::FixTrafficSignalsTutorial(_) => false,
             _ => true,
         }
     }
 
     pub fn can_edit_stop_signs(&self) -> bool {
         match self {
-            GameplayMode::FixTrafficSignals | GameplayMode::FixTrafficSignalsTutorial => false,
+            GameplayMode::FixTrafficSignals | GameplayMode::FixTrafficSignalsTutorial(_) => false,
             _ => true,
         }
     }
@@ -136,7 +143,7 @@ impl GameplayRunner {
             }
             GameplayMode::CreateGridlock => create_gridlock::CreateGridlock::new(ctx),
             GameplayMode::FasterTrips(trip_mode) => faster_trips::FasterTrips::new(trip_mode, ctx),
-            GameplayMode::FixTrafficSignals | GameplayMode::FixTrafficSignalsTutorial => {
+            GameplayMode::FixTrafficSignals | GameplayMode::FixTrafficSignalsTutorial(_) => {
                 fix_traffic_signals::FixTrafficSignals::new(ctx)
             }
         };

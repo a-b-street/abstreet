@@ -26,8 +26,14 @@ fn all_challenges() -> Vec<Challenge> {
         Challenge {
             title: "Traffic signal tutorial level 1".to_string(),
             description: vec!["No description".to_string()],
-            map_path: abstutil::path_synthetic_map("traffic sig lvl1"),
-            gameplay: GameplayMode::FixTrafficSignalsTutorial,
+            map_path: abstutil::path_synthetic_map("signal_single"),
+            gameplay: GameplayMode::FixTrafficSignalsTutorial(0),
+        },
+        Challenge {
+            title: "Traffic signal tutorial level 2".to_string(),
+            description: vec!["No description".to_string()],
+            map_path: abstutil::path_synthetic_map("signal_single"),
+            gameplay: GameplayMode::FixTrafficSignalsTutorial(1),
         },
         Challenge {
             title: "Fix all of the traffic signals".to_string(),
@@ -250,20 +256,24 @@ pub fn prebake() {
     {
         // TODO Argh what a gross hack
         let map = map_model::Map::new(
-            abstutil::path_synthetic_map("traffic sig lvl1"),
+            abstutil::path_synthetic_map("signal_single"),
             false,
             &mut timer,
         );
-        let scenario = crate::sandbox::gameplay::fix_traffic_signals::tutorial_scenario(&map);
-        let mut sim = Sim::new(&map, SimOptions::new("prebaked"), &mut timer);
-        // TODO Haaaaack
-        let mut rng = SimFlags::for_test("prebaked").make_rng();
-        scenario.instantiate(&mut sim, &map, &mut rng, &mut timer);
-        sim.timed_step(&map, Time::END_OF_DAY - Time::START_OF_DAY, &mut timer);
+        for scenario in vec![
+            crate::sandbox::gameplay::fix_traffic_signals::tutorial_scenario_lvl1(&map),
+            crate::sandbox::gameplay::fix_traffic_signals::tutorial_scenario_lvl2(&map),
+        ] {
+            let mut sim = Sim::new(&map, SimOptions::new("prebaked"), &mut timer);
+            // TODO Haaaaack
+            let mut rng = SimFlags::for_test("prebaked").make_rng();
+            scenario.instantiate(&mut sim, &map, &mut rng, &mut timer);
+            sim.timed_step(&map, Time::END_OF_DAY - Time::START_OF_DAY, &mut timer);
 
-        abstutil::write_binary(
-            abstutil::path_prebaked_results(&scenario.map_name, &scenario.scenario_name),
-            sim.get_analytics(),
-        );
+            abstutil::write_binary(
+                abstutil::path_prebaked_results(&scenario.map_name, &scenario.scenario_name),
+                sim.get_analytics(),
+            );
+        }
     }
 }

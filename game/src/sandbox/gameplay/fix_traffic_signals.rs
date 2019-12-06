@@ -134,7 +134,9 @@ fn final_score(ui: &UI, prebaked: &Analytics) -> Vec<String> {
 // TODO Hacks in here, because I'm not convinced programatically specifying this is right. I think
 // the Scenario abstractions and UI need to change to make this convenient to express in JSON / the
 // UI.
-pub fn tutorial_scenario(map: &Map) -> Scenario {
+
+// Motivate a separate left turn phase for north/south, but not left/right
+pub fn tutorial_scenario_lvl1(map: &Map) -> Scenario {
     // TODO In lieu of the deleted labels
     let north = IntersectionID(4);
     let south = IntersectionID(2);
@@ -142,7 +144,6 @@ pub fn tutorial_scenario(map: &Map) -> Scenario {
     let left = IntersectionID(1);
     let right = IntersectionID(0);
 
-    // Motivate a separate left turn phase for north/south, but not left/right
     let mut s = Scenario::empty(map, "tutorial lvl1");
 
     // What's the essence of what I've specified below? Don't care about the time distribution,
@@ -183,19 +184,51 @@ pub fn tutorial_scenario(map: &Map) -> Scenario {
     s
 }
 
-fn heavy(s: &mut Scenario, map: &Map, from: IntersectionID, to: IntersectionID) {
-    spawn(s, map, from, to, 100);
-}
-fn medium(s: &mut Scenario, map: &Map, from: IntersectionID, to: IntersectionID) {
-    spawn(s, map, from, to, 100);
-}
-fn light(s: &mut Scenario, map: &Map, from: IntersectionID, to: IntersectionID) {
-    spawn(s, map, from, to, 100);
+// Motivate a pedestrian scramble cycle
+pub fn tutorial_scenario_lvl2(map: &Map) -> Scenario {
+    let north = IntersectionID(4);
+    let south = IntersectionID(2);
+    let left = IntersectionID(1);
+    let right = IntersectionID(0);
+
+    let mut s = tutorial_scenario_lvl1(map);
+    s.scenario_name = "tutorial lvl2".to_string();
+
+    // TODO The first few phases aren't affected, because the peds walk slowly from the border.
+    // Start them from a building instead?
+    // TODO All the peds get through in a single wave; spawn them continuously?
+    // TODO The metrics shown are just for driving trips...
+    heavy_peds(&mut s, map, south, north);
+    heavy_peds(&mut s, map, north, south);
+    heavy_peds(&mut s, map, left, right);
+    heavy_peds(&mut s, map, right, left);
+
+    s
 }
 
-fn spawn(s: &mut Scenario, map: &Map, from: IntersectionID, to: IntersectionID, num_cars: usize) {
+fn heavy(s: &mut Scenario, map: &Map, from: IntersectionID, to: IntersectionID) {
+    spawn(s, map, from, to, 100, 0);
+}
+fn heavy_peds(s: &mut Scenario, map: &Map, from: IntersectionID, to: IntersectionID) {
+    spawn(s, map, from, to, 0, 100);
+}
+fn medium(s: &mut Scenario, map: &Map, from: IntersectionID, to: IntersectionID) {
+    spawn(s, map, from, to, 100, 0);
+}
+fn light(s: &mut Scenario, map: &Map, from: IntersectionID, to: IntersectionID) {
+    spawn(s, map, from, to, 100, 0);
+}
+
+fn spawn(
+    s: &mut Scenario,
+    map: &Map,
+    from: IntersectionID,
+    to: IntersectionID,
+    num_cars: usize,
+    num_peds: usize,
+) {
     s.border_spawn_over_time.push(BorderSpawnOverTime {
-        num_peds: 0,
+        num_peds,
         num_cars,
         num_bikes: 0,
         percent_use_transit: 0.0,
