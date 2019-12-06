@@ -61,7 +61,6 @@ impl<'a> EventCtx<'a> {
             timer.next();
             let img = image::open(filename).unwrap().to_rgba();
             let dims = img.dimensions();
-            //let raw = RawImage2d::from_raw_rgba_reversed(&img.into_raw(), dims);
             dims_to_textures.entry(dims).or_insert_with(Vec::new).push((
                 filename.to_string(),
                 img.into_raw(),
@@ -77,6 +76,18 @@ impl<'a> EventCtx<'a> {
         // The limit depends on videocard and drivers -- I can't find a reasonable minimum
         // documented online. But in practice, some Mac users hit a limit of 16. :)
         if dims_to_textures.len() > 15 {
+            for ((w, h), list) in dims_to_textures {
+                println!(
+                    "- {}x{} have {} files: {}",
+                    w,
+                    h,
+                    list.len(),
+                    list.into_iter()
+                        .map(|(filename, _, _)| filename)
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                );
+            }
             panic!("Only 15 texture arrays supported by some videocards. Group more textures by using the same image dimensions.");
         }
         for (group_idx, (raw_dims, list)) in dims_to_textures.into_iter().enumerate() {
