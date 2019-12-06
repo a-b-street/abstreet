@@ -209,13 +209,18 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn redraw_clipped(&mut self, obj: &Drawable, rect: &ScreenRectangle) {
+        // We have to multiply by the DPI factor for the scissor test. But on the one Mac I've used
+        // to test, it reports a factor of 1, which isn't true. Hardcode it to 2 until I observe
+        // second Mac that differs. >_<
+        let factor = if cfg!(target_os = "macos") { 2.0 } else { 1.0 };
+
         let mut params = self.params.clone();
         params.scissor = Some(glium::Rect {
-            left: rect.x1 as u32,
+            left: (factor * rect.x1) as u32,
             // Y-inversion
-            bottom: (self.canvas.window_height - rect.y2) as u32,
-            width: (rect.x2 - rect.x1) as u32,
-            height: (rect.y2 - rect.y1) as u32,
+            bottom: (factor * (self.canvas.window_height - rect.y2)) as u32,
+            width: (factor * (rect.x2 - rect.x1)) as u32,
+            height: (factor * (rect.y2 - rect.y1)) as u32,
         });
         self.target
             .draw(
