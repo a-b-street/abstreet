@@ -1,5 +1,4 @@
 mod area;
-mod bike;
 mod building;
 mod bus_stop;
 mod car;
@@ -15,8 +14,7 @@ mod turn;
 use crate::helpers::{ColorScheme, ID};
 use crate::options::Options;
 pub use crate::render::area::DrawArea;
-use crate::render::bike::DrawBike;
-use crate::render::car::DrawCar;
+pub use crate::render::car::DrawCar;
 pub use crate::render::extra_shape::ExtraShapeID;
 pub use crate::render::intersection::{calculate_corners, DrawIntersection};
 pub use crate::render::lane::DrawLane;
@@ -25,10 +23,10 @@ pub use crate::render::pedestrian::{DrawPedCrowd, DrawPedestrian};
 pub use crate::render::road::DrawRoad;
 pub use crate::render::traffic_signal::{draw_signal_phase, TrafficSignalDiagram};
 pub use crate::render::turn::{DrawTurn, DrawTurnGroup};
-use ezgui::{Color, GfxCtx, Prerender};
+use ezgui::{Color, GfxCtx};
 use geom::{Distance, PolyLine, Polygon, Pt2D, EPSILON_DIST};
 use map_model::{IntersectionID, Map};
-use sim::{DrawCarInput, Sim, VehicleType};
+use sim::Sim;
 use std::collections::HashMap;
 
 pub const MIN_ZOOM_FOR_DETAIL: f64 = 2.5;
@@ -58,20 +56,6 @@ pub trait Renderable {
     fn get_outline(&self, map: &Map) -> Polygon;
     fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool {
         self.get_outline(map).contains_pt(pt)
-    }
-}
-
-pub fn draw_vehicle(
-    input: DrawCarInput,
-    map: &Map,
-    prerender: &Prerender,
-    cs: &ColorScheme,
-    acs: AgentColorScheme,
-) -> Box<dyn Renderable> {
-    if input.id.1 == VehicleType::Bike {
-        Box::new(DrawBike::new(input, map, prerender, cs, acs))
-    } else {
-        Box::new(DrawCar::new(input, map, prerender, cs, acs))
     }
 }
 

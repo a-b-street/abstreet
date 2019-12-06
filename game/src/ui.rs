@@ -1,11 +1,11 @@
 use crate::helpers::{ColorScheme, ID};
 use crate::options::Options;
 use crate::render::{
-    draw_vehicle, AgentCache, AgentColorScheme, DrawCtx, DrawMap, DrawOptions, DrawPedCrowd,
+    AgentCache, AgentColorScheme, DrawCar, DrawCtx, DrawMap, DrawOptions, DrawPedCrowd,
     DrawPedestrian, Renderable, MIN_ZOOM_FOR_DETAIL,
 };
 use abstutil::{MeasureMemory, Timer};
-use ezgui::{Color, EventCtx, GfxCtx, Prerender, TextureType};
+use ezgui::{Canvas, Color, EventCtx, GfxCtx, Prerender, TextureType};
 use geom::{Bounds, Circle, Distance, Pt2D};
 use map_model::{Map, Traversable};
 use rand::seq::SliceRandom;
@@ -26,6 +26,10 @@ impl UI {
         let primary = ctx.loading_screen("load map", |ctx, mut timer| {
             ctx.set_textures(
                 vec![
+                    ("assets/agents/bike.png", TextureType::CustomUV),
+                    ("assets/agents/bus.png", TextureType::CustomUV),
+                    ("assets/agents/car.png", TextureType::CustomUV),
+                    ("assets/agents/pedestrian.png", TextureType::Stretch),
                     ("assets/pregame/back.png", TextureType::Stretch),
                     ("assets/pregame/challenges.png", TextureType::Stretch),
                     ("assets/pregame/quit.png", TextureType::Stretch),
@@ -166,7 +170,8 @@ impl UI {
             let mut cache = self.primary.draw_map.agents.borrow_mut();
             let objects = self.get_renderables_back_to_front(
                 g.get_screen_bounds(),
-                &g.prerender,
+                g.prerender,
+                g.canvas,
                 &mut cache,
                 source,
                 show_objs,
@@ -241,6 +246,7 @@ impl UI {
         let mut objects = self.get_renderables_back_to_front(
             Circle::new(pt, Distance::meters(3.0)).get_bounds(),
             ctx.prerender,
+            ctx.canvas,
             &mut cache,
             source,
             show_objs,
@@ -278,6 +284,7 @@ impl UI {
         &'a self,
         bounds: Bounds,
         prerender: &Prerender,
+        canvas: &Canvas,
         agents: &'a mut AgentCache,
         source: &dyn GetDrawAgents,
         show_objs: &dyn ShowObject,
@@ -347,18 +354,11 @@ impl UI {
                 if !agents.has(time, *on) {
                     let mut list: Vec<Box<dyn Renderable>> = Vec::new();
                     for c in source.get_draw_cars(*on, map).into_iter() {
-                        list.push(draw_vehicle(c, map, prerender, &self.cs, self.agent_cs));
+                        list.push(Box::new(DrawCar::new(c, map, prerender, canvas)));
                     }
                     let (loners, crowds) = source.get_draw_peds(*on, map);
                     for p in loners {
-                        list.push(Box::new(DrawPedestrian::new(
-                            p,
-                            step_count,
-                            map,
-                            prerender,
-                            &self.cs,
-                            self.agent_cs,
-                        )));
+                        list.push(Box::new(DrawPedestrian::new(p, map, prerender, canvas)));
                     }
                     for c in crowds {
                         list.push(Box::new(DrawPedCrowd::new(c, map, prerender, &self.cs)));
