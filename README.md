@@ -10,7 +10,7 @@ Removing dedicated left-turn phases from a traffic signal:
 
 ![fix_traffic_signal](docs/videos/fix_traffic_signal.gif)
 
-Watching overall traffic patterns and zooming into a few slow areas:
+Watching the Mercer backup start at 4am:
 
 ![exploring_traffic](docs/videos/exploring_traffic.gif)
 
