@@ -9,8 +9,8 @@ use ezgui::{
     VerticalAlignment,
 };
 use geom::Time;
-use itertools::Itertools;
 use sim::{Sim, SimFlags, SimOptions, TripMode};
+use std::collections::BTreeMap;
 
 // TODO Also have some kind of screenshot to display for each challenge
 #[derive(Clone)]
@@ -22,22 +22,23 @@ struct Challenge {
 }
 impl abstutil::Cloneable for Challenge {}
 
-fn all_challenges() -> Vec<Challenge> {
-    vec![
+fn all_challenges() -> BTreeMap<String, Vec<Challenge>> {
+    let mut tree = BTreeMap::new();
+    tree.insert("Fix all of the traffic signals".to_string(), vec![
         Challenge {
-            title: "Traffic signal tutorial level 1".to_string(),
-            description: vec!["No description".to_string()],
+            title: "Tutorial 1".to_string(),
+            description: vec!["Add or remove a dedicated left phase".to_string()],
             map_path: abstutil::path_synthetic_map("signal_single"),
             gameplay: GameplayMode::FixTrafficSignalsTutorial(0),
         },
         Challenge {
-            title: "Traffic signal tutorial level 2".to_string(),
-            description: vec!["No description".to_string()],
+            title: "Tutorial 2".to_string(),
+            description: vec!["Deal with heavy foot traffic".to_string()],
             map_path: abstutil::path_synthetic_map("signal_single"),
             gameplay: GameplayMode::FixTrafficSignalsTutorial(1),
         },
         Challenge {
-            title: "Fix all of the traffic signals".to_string(),
+            title: "The real challenge!".to_string(),
             description: vec![
                 "A city-wide power surge knocked out all of the traffic signals!".to_string(),
                 "Their timing has been reset to default settings, and drivers are stuck.".to_string(),
@@ -48,42 +49,60 @@ fn all_challenges() -> Vec<Challenge> {
             map_path: abstutil::path_map("montlake"),
             gameplay: GameplayMode::FixTrafficSignals,
         },
-        Challenge {
-            title: "Speed up route 48 (just Montlake area)".to_string(),
-            description: vec![
+    ]);
+    tree.insert(
+        "Speed up bus route 48".to_string(),
+        vec![
+            Challenge {
+                title: "Just Montlake area".to_string(),
+                description: vec![
                 "Decrease the average waiting time between all of route 48's stops by at least 30s"
                     .to_string()],
-            map_path: abstutil::path_map("montlake"),
-            gameplay: GameplayMode::OptimizeBus("48".to_string()),
-        },
-        Challenge {
-            title: "Speed up route 48 (larger section)".to_string(),
-            description: vec![
-                "Decrease the average waiting time between all of 48's stops by at least 30s"
-                    .to_string()],
-            map_path: abstutil::path_map("23rd"),
-            gameplay: GameplayMode::OptimizeBus("48".to_string()),
-        },
-        Challenge {
+                map_path: abstutil::path_map("montlake"),
+                gameplay: GameplayMode::OptimizeBus("48".to_string()),
+            },
+            Challenge {
+                title: "Larger area of the 48".to_string(),
+                description: vec![
+                    "Decrease the average waiting time between all of 48's stops by at least 30s"
+                        .to_string(),
+                ],
+                map_path: abstutil::path_map("23rd"),
+                gameplay: GameplayMode::OptimizeBus("48".to_string()),
+            },
+        ],
+    );
+    tree.insert(
+        "Gridlock all of the everything".to_string(),
+        vec![Challenge {
             title: "Gridlock all of the everything".to_string(),
             description: vec!["Make traffic as BAD as possible!".to_string()],
             map_path: abstutil::path_map("montlake"),
             gameplay: GameplayMode::CreateGridlock,
-        },
-        Challenge {
-            title: "Speed up all bike trips".to_string(),
-            description: vec!["Reduce the 50%ile trip times of bikes by at least 1 minute".to_string()],
-            map_path: abstutil::path_map("montlake"),
-            gameplay: GameplayMode::FasterTrips(TripMode::Bike),
-        },
-        Challenge {
-            title: "Speed up all car trips".to_string(),
-            description: vec!["Reduce the 50%ile trip times of drivers by at least 5 minutes"
-                .to_string()],
-            map_path: abstutil::path_map("montlake"),
-            gameplay: GameplayMode::FasterTrips(TripMode::Drive),
-        },
-    ]
+        }],
+    );
+    tree.insert(
+        "Playing favorites".to_string(),
+        vec![
+            Challenge {
+                title: "Speed up all bike trips".to_string(),
+                description: vec![
+                    "Reduce the 50%ile trip times of bikes by at least 1 minute".to_string()
+                ],
+                map_path: abstutil::path_map("montlake"),
+                gameplay: GameplayMode::FasterTrips(TripMode::Bike),
+            },
+            Challenge {
+                title: "Speed up all car trips".to_string(),
+                description: vec![
+                    "Reduce the 50%ile trip times of drivers by at least 5 minutes".to_string(),
+                ],
+                map_path: abstutil::path_map("montlake"),
+                gameplay: GameplayMode::FasterTrips(TripMode::Drive),
+            },
+        ],
+    );
+    tree
 }
 
 pub fn challenges_picker(ctx: &EventCtx) -> Box<dyn State> {
@@ -113,51 +132,55 @@ pub fn challenges_picker(ctx: &EventCtx) -> Box<dyn State> {
     ));
 
     let mut flex_row = Vec::new();
-    for challenge in all_challenges() {
-        let edits = abstutil::list_all_objects(abstutil::path_all_edits(&abstutil::basename(
-            &challenge.map_path,
-        )));
-
-        let mut txt = Text::new();
-        txt.add(Line(&challenge.title).size(40).fg(Color::BLACK));
-        txt.add(Line(""));
-        // TODO Real values
-        txt.add(Line("Not completed").fg(Color::BLACK));
-        txt.add(Line(format!("{} attempts", edits.len())).fg(Color::BLACK));
-        txt.add(Line("Last opened ???").fg(Color::BLACK));
-
+    for (name, stages) in all_challenges() {
         flex_row.push(ManagedWidget::detailed_text_button(
             ctx,
-            txt,
+            Text::from(Line(name).size(40).fg(Color::BLACK)),
             None,
-            Box::new(move |ctx, _| {
-                let edits = abstutil::list_all_objects(abstutil::path_all_edits(
-                    &abstutil::basename(&challenge.map_path),
-                ));
-                let mut summary = Text::new();
-                for l in &challenge.description {
-                    summary.add(Line(l));
-                }
-                summary.add(Line(""));
-                summary.add(Line(format!("{} proposals:", edits.len())));
-                summary.add(Line(""));
-                for e in edits {
-                    summary.add(Line(format!("- {} (untested)", e)));
-                }
+            Box::new(move |_, _| {
+                // TODO Lifetime madness
+                let stages = stages.clone();
+                Some(Transition::Push(WizardState::new(Box::new(
+                    move |wiz, ctx, _| {
+                        let stages = stages.clone();
+                        let mut wizard = wiz.wrap(ctx);
+                        let (_, challenge) =
+                            wizard.choose("Which stage of this challenge?", move || {
+                                stages
+                                    .iter()
+                                    .map(|c| Choice::new(c.title.clone(), c.clone()))
+                                    .collect()
+                            })?;
+                        wizard.reset();
+                        let edits = abstutil::list_all_objects(abstutil::path_all_edits(
+                            &abstutil::basename(&challenge.map_path),
+                        ));
+                        let mut summary = Text::new();
+                        for l in &challenge.description {
+                            summary.add(Line(l));
+                        }
+                        summary.add(Line(""));
+                        summary.add(Line(format!("{} proposals:", edits.len())));
+                        summary.add(Line(""));
+                        for e in edits {
+                            summary.add(Line(format!("- {} (untested)", e)));
+                        }
 
-                Some(Transition::Push(Box::new(ChallengeSplash {
-                    summary,
-                    menu: ModalMenu::new(
-                        &challenge.title,
-                        vec![
-                            (hotkey(Key::Escape), "back to challenges"),
-                            (hotkey(Key::S), "start challenge fresh"),
-                            (hotkey(Key::L), "load existing proposal"),
-                        ],
-                        ctx,
-                    ),
-                    challenge: challenge.clone(),
-                })))
+                        Some(Transition::Push(Box::new(ChallengeSplash {
+                            summary,
+                            menu: ModalMenu::new(
+                                &challenge.title,
+                                vec![
+                                    (hotkey(Key::Escape), "back to challenges"),
+                                    (hotkey(Key::S), "start challenge fresh"),
+                                    (hotkey(Key::L), "load existing proposal"),
+                                ],
+                                ctx,
+                            ),
+                            challenge: challenge.clone(),
+                        })))
+                    },
+                ))))
             }),
         ));
     }
@@ -234,11 +257,16 @@ impl State for ChallengeSplash {
 pub fn prebake() {
     let mut timer = Timer::new("prebake all challenge results");
 
-    for (map_path, list) in all_challenges()
-        .into_iter()
-        .group_by(|c| c.map_path.clone())
-        .into_iter()
-    {
+    let mut per_map: BTreeMap<String, Vec<Challenge>> = BTreeMap::new();
+    for (_, list) in all_challenges() {
+        for c in list {
+            per_map
+                .entry(c.map_path.clone())
+                .or_insert_with(Vec::new)
+                .push(c);
+        }
+    }
+    for (map_path, list) in per_map {
         timer.start(&format!("prebake for {}", map_path));
         let map = map_model::Map::new(map_path.clone(), false, &mut timer);
 

@@ -12,7 +12,6 @@ counter = "0.4.3"
 downcast-rs = "1.0.4"
 ezgui = { path = "../ezgui" }
 geom = { path = "../geom" }
-itertools = "0.8.0"
 kml = { path = "../kml" }
 map_model = { path = "../map_model" }
 popdat = { path = "../popdat" }
