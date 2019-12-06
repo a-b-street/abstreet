@@ -9,6 +9,7 @@ use ezgui::{
     VerticalAlignment,
 };
 use geom::Time;
+use itertools::Itertools;
 use sim::{Sim, SimFlags, SimOptions, TripMode};
 
 // TODO Also have some kind of screenshot to display for each challenge
@@ -233,47 +234,31 @@ impl State for ChallengeSplash {
 pub fn prebake() {
     let mut timer = Timer::new("prebake all challenge results");
 
-    for map_name in vec!["montlake", "23rd"] {
-        timer.start(&format!("run normal sim for {}", map_name));
-        let (map, mut sim, _) = SimFlags {
-            load: abstutil::path_scenario(map_name, "weekday_typical_traffic_from_psrc"),
-            use_map_fixes: true,
-            rng_seed: Some(42),
-            opts: SimOptions::new("prebaked"),
-        }
-        .load(&mut timer);
-        sim.timed_step(&map, Time::END_OF_DAY - Time::START_OF_DAY, &mut timer);
-        timer.stop(&format!("run normal sim for {}", map_name));
-
-        abstutil::write_binary(
-            abstutil::path_prebaked_results(map_name, "weekday_typical_traffic_from_psrc"),
-            sim.get_analytics(),
-        );
-    }
-
-    // TODO Generically find all map/scenario combos from all_challenges()
-
+    for (map_path, list) in all_challenges()
+        .into_iter()
+        .group_by(|c| c.map_path.clone())
+        .into_iter()
     {
-        // TODO Argh what a gross hack
-        let map = map_model::Map::new(
-            abstutil::path_synthetic_map("signal_single"),
-            false,
-            &mut timer,
-        );
-        for scenario in vec![
-            crate::sandbox::gameplay::fix_traffic_signals::tutorial_scenario_lvl1(&map),
-            crate::sandbox::gameplay::fix_traffic_signals::tutorial_scenario_lvl2(&map),
-        ] {
-            let mut sim = Sim::new(&map, SimOptions::new("prebaked"), &mut timer);
-            // TODO Haaaaack
-            let mut rng = SimFlags::for_test("prebaked").make_rng();
-            scenario.instantiate(&mut sim, &map, &mut rng, &mut timer);
-            sim.timed_step(&map, Time::END_OF_DAY - Time::START_OF_DAY, &mut timer);
+        timer.start(&format!("prebake for {}", map_path));
+        let map = map_model::Map::new(map_path.clone(), false, &mut timer);
 
-            abstutil::write_binary(
-                abstutil::path_prebaked_results(&scenario.map_name, &scenario.scenario_name),
-                sim.get_analytics(),
-            );
+        for challenge in list {
+            timer.start(&format!("prebake for {}", challenge.title));
+            if let Some(scenario) = challenge.gameplay.scenario(&map, None, &mut timer) {
+                let mut sim = Sim::new(&map, SimOptions::new("prebaked"), &mut timer);
+                // Bit of an abuse of this, but just need to fix the rng seed.
+                let mut rng = SimFlags::for_test("prebaked").make_rng();
+                scenario.instantiate(&mut sim, &map, &mut rng, &mut timer);
+                sim.timed_step(&map, Time::END_OF_DAY - Time::START_OF_DAY, &mut timer);
+
+                abstutil::write_binary(
+                    abstutil::path_prebaked_results(&scenario.map_name, &scenario.scenario_name),
+                    sim.get_analytics(),
+                );
+            }
+            timer.stop(&format!("prebake for {}", challenge.title));
         }
+
+        timer.stop(&format!("prebake for {}", map_path));
     }
 }

@@ -66,7 +66,7 @@ impl SimFlags {
 
             let sim: Sim = abstutil::read_binary(self.load.clone(), timer);
 
-            let mut map: Map = abstutil::read_binary(abstutil::path_map(&sim.map_name), timer);
+            let mut map = Map::new(abstutil::path_map(&sim.map_name), false, timer);
             map.apply_edits(
                 MapEdits::load(map.get_name(), &sim.edits_name, timer),
                 timer,
@@ -83,7 +83,7 @@ impl SimFlags {
 
             let scenario: Scenario = abstutil::read_binary(self.load.clone(), timer);
 
-            let map: Map = abstutil::read_binary(abstutil::path_map(&scenario.map_name), timer);
+            let map = Map::new(abstutil::path_map(&scenario.map_name), false, timer);
 
             if opts.run_name == "unnamed" {
                 opts.run_name = scenario.scenario_name.clone();
@@ -107,7 +107,7 @@ impl SimFlags {
         } else if self.load.starts_with(&abstutil::path_all_maps()) {
             timer.note(format!("Loading map {}", self.load));
 
-            let map: Map = abstutil::read_binary(self.load.clone(), timer);
+            let map = Map::new(self.load.clone(), false, timer);
 
             timer.start("create sim");
             let sim = Sim::new(&map, opts, timer);

@@ -1,7 +1,6 @@
 mod create_gridlock;
 mod faster_trips;
-// TODO Remove pub
-pub mod fix_traffic_signals;
+mod fix_traffic_signals;
 mod freeform;
 mod optimize_bus;
 mod play_scenario;
@@ -15,7 +14,7 @@ use crate::ui::UI;
 use abstutil::{prettyprint_usize, Timer};
 use ezgui::{Color, EventCtx, GfxCtx, Line, ModalMenu, TextSpan, Wizard};
 use geom::Duration;
-use map_model::{EditCmd, MapEdits};
+use map_model::{EditCmd, Map, MapEdits};
 use sim::{Analytics, Scenario, TripMode};
 
 pub struct GameplayRunner {
@@ -54,24 +53,28 @@ pub trait GameplayState: downcast_rs::Downcast {
 downcast_rs::impl_downcast!(GameplayState);
 
 impl GameplayMode {
-    pub fn scenario(&self, ui: &UI, timer: &mut Timer) -> Option<Scenario> {
+    pub fn scenario(
+        &self,
+        map: &Map,
+        num_agents: Option<usize>,
+        timer: &mut Timer,
+    ) -> Option<Scenario> {
         let name = match self {
             GameplayMode::Freeform => {
                 return None;
             }
-            GameplayMode::PlayScenario(ref scenario) => scenario,
+            GameplayMode::PlayScenario(ref scenario) => scenario.to_string(),
             GameplayMode::FixTrafficSignalsTutorial(stage) => {
                 if *stage == 0 {
-                    return Some(fix_traffic_signals::tutorial_scenario_lvl1(&ui.primary.map));
+                    return Some(fix_traffic_signals::tutorial_scenario_lvl1(map));
                 } else if *stage == 1 {
-                    return Some(fix_traffic_signals::tutorial_scenario_lvl2(&ui.primary.map));
+                    return Some(fix_traffic_signals::tutorial_scenario_lvl2(map));
                 } else {
                     unreachable!()
                 }
             }
-            _ => "weekday_typical_traffic_from_psrc",
+            _ => "weekday_typical_traffic_from_psrc".to_string(),
         };
-        let num_agents = ui.primary.current_flags.num_agents;
         let builtin = if let Some(n) = num_agents {
             format!("random scenario with {} agents", n)
         } else {
@@ -79,19 +82,16 @@ impl GameplayMode {
         };
         Some(if name == builtin {
             if let Some(n) = num_agents {
-                Scenario::scaled_run(&ui.primary.map, n)
+                Scenario::scaled_run(map, n)
             } else {
-                Scenario::small_run(&ui.primary.map)
+                Scenario::small_run(map)
             }
         } else if name == "just buses" {
-            let mut s = Scenario::empty(&ui.primary.map, "just buses");
+            let mut s = Scenario::empty(map, "just buses");
             s.seed_buses = true;
             s
         } else {
-            abstutil::read_binary(
-                abstutil::path_scenario(&ui.primary.map.get_name(), &name),
-                timer,
-            )
+            abstutil::read_binary(abstutil::path_scenario(map.get_name(), &name), timer)
         })
     }
 
@@ -148,7 +148,9 @@ impl GameplayRunner {
             }
         };
         let prebaked = ctx.loading_screen("instantiate scenario", |_, timer| {
-            if let Some(scenario) = mode.scenario(ui, timer) {
+            if let Some(scenario) =
+                mode.scenario(&ui.primary.map, ui.primary.current_flags.num_agents, timer)
+            {
                 scenario.instantiate(
                     &mut ui.primary.sim,
                     &ui.primary.map,

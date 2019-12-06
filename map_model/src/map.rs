@@ -49,6 +49,10 @@ pub struct Map {
 
 impl Map {
     pub fn new(path: String, mut use_map_fixes: bool, timer: &mut Timer) -> Map {
+        if path.starts_with(&abstutil::path_all_maps()) {
+            return abstutil::read_binary(path, timer);
+        }
+
         let mut raw: RawMap = if path.starts_with(&abstutil::path_all_raw_maps()) {
             abstutil::read_binary(path, timer)
         } else {
