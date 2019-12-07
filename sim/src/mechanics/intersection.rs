@@ -12,6 +12,7 @@ use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 const WAIT_AT_STOP_SIGN: Duration = Duration::const_seconds(0.5);
+const WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL: Duration = Duration::const_seconds(0.2);
 
 #[derive(Serialize, Deserialize, PartialEq)]
 pub struct IntersectionSimState {
@@ -205,7 +206,7 @@ impl IntersectionSimState {
         let allowed = if self.use_freeform_policy_everywhere {
             state.freeform_policy(&req, map)
         } else if let Some(ref signal) = map.maybe_get_traffic_signal(state.id) {
-            state.traffic_signal_policy(signal, &req, speed, now, map)
+            state.traffic_signal_policy(signal, &req, speed, now, map, scheduler)
         } else if let Some(ref sign) = map.maybe_get_stop_sign(state.id) {
             state.stop_sign_policy(sign, &req, now, map, scheduler)
         } else {
@@ -333,12 +334,13 @@ impl State {
     fn traffic_signal_policy(
         &self,
         signal: &ControlTrafficSignal,
-        new_req: &Request,
+        req: &Request,
         speed: Speed,
         now: Time,
         map: &Map,
+        scheduler: &mut Scheduler,
     ) -> bool {
-        let turn = map.get_t(new_req.turn);
+        let turn = map.get_t(req.turn);
 
         // SharedSidewalkCorner doesn't conflict with anything -- fastpath!
         if turn.turn_type == TurnType::SharedSidewalkCorner {
@@ -348,12 +350,26 @@ impl State {
         let (_, phase, remaining_phase_time) = signal.current_phase_and_remaining_time(now);
 
         // Can't go at all this phase.
-        if phase.get_priority_of_turn(new_req.turn, signal) == TurnPriority::Banned {
+        let our_priority = phase.get_priority_of_turn(req.turn, signal);
+        if our_priority == TurnPriority::Banned {
             return false;
         }
 
         // Somebody might already be doing a Yield turn that conflicts with this one.
-        if self.any_accepted_conflict_with(new_req.turn, map) {
+        if self.any_accepted_conflict_with(req.turn, map) {
+            return false;
+        }
+
+        let our_time = self.waiting[req];
+        if our_priority == TurnPriority::Yield
+            && now < our_time + WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL
+        {
+            // Since we have "ownership" of scheduling for req.agent, don't need to use
+            // scheduler.update.
+            scheduler.push(
+                our_time + WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL,
+                Command::update_agent(req.agent),
+            );
             return false;
         }
 
@@ -372,7 +388,7 @@ impl State {
         if time_to_cross > remaining_phase_time {
             // Actually, we might have bigger problems...
             if time_to_cross > phase.duration {
-                println!("OYYY! {:?} is impossible to fit into phase duration of {}. Allowing, but fix the policy!", new_req, phase.duration);
+                println!("OYYY! {:?} is impossible to fit into phase duration of {}. Allowing, but fix the policy!", req, phase.duration);
             } else {
                 return false;
             }
