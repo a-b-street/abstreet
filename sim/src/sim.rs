@@ -40,6 +40,7 @@ pub struct Sim {
     pub(crate) map_name: String,
     pub(crate) edits_name: String,
     // Some tests deliberately set different scenario names for comparisons.
+    // TODO Maybe get rid of this, now that savestates aren't used
     #[derivative(PartialEq = "ignore")]
     run_name: String,
     #[derivative(PartialEq = "ignore")]

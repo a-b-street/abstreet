@@ -9,7 +9,7 @@ use crate::common::{AgentTools, CommonState, Minimap};
 use crate::debug::DebugMode;
 use crate::edit::EditMode;
 use crate::edit::{apply_map_edits, save_edits};
-use crate::game::{msg, State, Transition, WizardState};
+use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::options;
 use crate::pregame::main_menu;
@@ -17,19 +17,18 @@ use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
     hotkey, layout, lctrl, Choice, EventCtx, EventLoopMode, GfxCtx, Key, Line, MenuUnderButton,
-    ModalMenu, Text, Wizard,
+    ModalMenu, Text,
 };
 pub use gameplay::spawner::spawn_agents_around;
 pub use gameplay::GameplayMode;
 use geom::Duration;
 use map_model::MapEdits;
-use sim::{Sim, TripMode};
+use sim::TripMode;
 
 pub struct SandboxMode {
     speed: speed::SpeedControls,
     info_tools: MenuUnderButton,
     general_tools: MenuUnderButton,
-    save_tools: MenuUnderButton,
     agent_tools: AgentTools,
     overlay: Overlays,
     gameplay: gameplay::GameplayRunner,
@@ -64,18 +63,6 @@ impl SandboxMode {
                     (None, "explore a bus route"),
                 ],
                 0.4,
-                ctx,
-            ),
-            save_tools: MenuUnderButton::new(
-                "assets/ui/save.png",
-                "Savestates",
-                vec![
-                    (hotkey(Key::O), "save sim state"),
-                    (hotkey(Key::Y), "load previous sim state"),
-                    (hotkey(Key::U), "load next sim state"),
-                    (None, "pick a savestate to load"),
-                ],
-                0.45,
                 ctx,
             ),
             agent_tools: AgentTools::new(),
@@ -130,7 +117,6 @@ impl State for SandboxMode {
         self.menu.event(ctx);
         self.info_tools.event(ctx);
         self.general_tools.event(ctx);
-        self.save_tools.event(ctx);
 
         ctx.canvas.handle_event(ctx.input);
         if ctx.redo_mouseover() {
@@ -270,66 +256,6 @@ impl State for SandboxMode {
             }
         }
 
-        if self.save_tools.action("save sim state") {
-            self.speed.pause();
-            ctx.loading_screen("savestate", |_, timer| {
-                timer.start("save sim state");
-                ui.primary.sim.save();
-                timer.stop("save sim state");
-            });
-        }
-        if self.save_tools.action("load previous sim state") {
-            self.speed.pause();
-            if let Some(t) = ctx.loading_screen("load previous savestate", |ctx, mut timer| {
-                let prev_state = ui
-                    .primary
-                    .sim
-                    .find_previous_savestate(ui.primary.sim.time());
-                match prev_state
-                    .clone()
-                    .and_then(|path| Sim::load_savestate(path, &mut timer).ok())
-                {
-                    Some(new_sim) => {
-                        ui.primary.sim = new_sim;
-                        ui.recalculate_current_selection(ctx);
-                        None
-                    }
-                    None => Some(Transition::Push(msg(
-                        "Error",
-                        vec![format!("Couldn't load previous savestate {:?}", prev_state)],
-                    ))),
-                }
-            }) {
-                return t;
-            }
-        }
-        if self.save_tools.action("load next sim state") {
-            self.speed.pause();
-            if let Some(t) = ctx.loading_screen("load next savestate", |ctx, mut timer| {
-                let next_state = ui.primary.sim.find_next_savestate(ui.primary.sim.time());
-                match next_state
-                    .clone()
-                    .and_then(|path| Sim::load_savestate(path, &mut timer).ok())
-                {
-                    Some(new_sim) => {
-                        ui.primary.sim = new_sim;
-                        ui.recalculate_current_selection(ctx);
-                        None
-                    }
-                    None => Some(Transition::Push(msg(
-                        "Error",
-                        vec![format!("Couldn't load next savestate {:?}", next_state)],
-                    ))),
-                }
-            }) {
-                return t;
-            }
-        }
-        if self.save_tools.action("pick a savestate to load") {
-            self.speed.pause();
-            return Transition::Push(WizardState::new(Box::new(load_savestate)));
-        }
-
         if let Some(t) = self.speed.event(ctx, ui) {
             return t;
         }
@@ -375,7 +301,6 @@ impl State for SandboxMode {
         self.speed.draw(g, ui);
         self.info_tools.draw(g);
         self.general_tools.draw(g);
-        self.save_tools.draw(g);
         self.gameplay.draw(g, ui);
         self.minimap.draw(g, ui);
     }
@@ -383,18 +308,4 @@ impl State for SandboxMode {
     fn on_suspend(&mut self, _: &mut EventCtx, _: &mut UI) {
         self.speed.pause();
     }
-}
-
-fn load_savestate(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
-    let ss = wiz.wrap(ctx).choose_string("Load which savestate?", || {
-        abstutil::list_all_objects(ui.primary.sim.save_dir())
-    })?;
-    // TODO Oh no, we have to do path construction here :(
-    let ss_path = format!("{}/{}.bin", ui.primary.sim.save_dir(), ss);
-
-    ctx.loading_screen("load savestate", |ctx, mut timer| {
-        ui.primary.sim = Sim::load_savestate(ss_path, &mut timer).expect("Can't load savestate");
-        ui.recalculate_current_selection(ctx);
-    });
-    Some(Transition::Pop)
 }
