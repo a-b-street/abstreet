@@ -132,11 +132,11 @@ pub fn challenges_picker(ctx: &EventCtx) -> Box<dyn State> {
     ));
 
     let mut flex_row = Vec::new();
-    for (name, stages) in all_challenges() {
+    for (idx, (name, stages)) in all_challenges().into_iter().enumerate() {
         flex_row.push(ManagedWidget::detailed_text_button(
             ctx,
             Text::from(Line(name).size(40).fg(Color::BLACK)),
-            None,
+            hotkey(Key::NUM_KEYS[idx]),
             Box::new(move |_, _| {
                 // TODO Lifetime madness
                 let stages = stages.clone();

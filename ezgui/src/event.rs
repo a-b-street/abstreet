@@ -169,6 +169,18 @@ pub enum Key {
 }
 
 impl Key {
+    pub const NUM_KEYS: [Key; 9] = [
+        Key::Num1,
+        Key::Num2,
+        Key::Num3,
+        Key::Num4,
+        Key::Num5,
+        Key::Num6,
+        Key::Num7,
+        Key::Num8,
+        Key::Num9,
+    ];
+
     pub fn to_char(self, shift_pressed: bool) -> Option<char> {
         match self {
             Key::A => Some(if shift_pressed { 'A' } else { 'a' }),

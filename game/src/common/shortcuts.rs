@@ -31,20 +31,7 @@ fn choose_shortcut(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<
 
     let mut wizard = wiz.wrap(ctx);
     let (_, mut s) = wizard.choose("Jump to which shortcut?", || {
-        // TODO Handle >9
         // TODO Allow deleting
-        let keys = vec![
-            Key::Num1,
-            Key::Num2,
-            Key::Num3,
-            Key::Num4,
-            Key::Num5,
-            Key::Num6,
-            Key::Num7,
-            Key::Num8,
-            Key::Num9,
-        ];
-
         let mut shortcuts = vec![Shortcut {
             name: "Create a new shortcut here".to_string(),
             center,
@@ -72,7 +59,8 @@ fn choose_shortcut(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<
                 if idx == 0 {
                     Choice::new(s.name.clone(), s)
                 } else {
-                    Choice::new(s.name.clone(), s).key(keys[idx - 1])
+                    // TODO Handle >9
+                    Choice::new(s.name.clone(), s).key(Key::NUM_KEYS[idx - 1])
                 }
             })
             .collect()
