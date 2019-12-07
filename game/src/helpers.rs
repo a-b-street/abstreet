@@ -184,3 +184,19 @@ pub fn rotating_color_map(idx: usize) -> Color {
     }
     Color::BLACK
 }
+
+pub fn rotating_color_agents(idx: usize) -> Color {
+    if idx % 5 == 0 {
+        return Color::CYAN;
+    }
+    if idx % 5 == 1 {
+        return Color::BLUE;
+    }
+    if idx % 5 == 2 {
+        return Color::GREEN;
+    }
+    if idx % 5 == 3 {
+        return Color::ORANGE;
+    }
+    Color::RED
+}

@@ -1,5 +1,5 @@
 use crate::common::ColorLegend;
-use crate::helpers::{rotating_color, ColorScheme, ID};
+use crate::helpers::{rotating_color, rotating_color_agents, ColorScheme, ID};
 use crate::render::area::DrawArea;
 use crate::render::building::DrawBuilding;
 use crate::render::bus_stop::DrawBusStop;
@@ -385,6 +385,7 @@ fn osm_rank_to_color(cs: &ColorScheme, rank: usize) -> Color {
 // TODO ETA till goal...
 #[derive(Clone, Copy, PartialEq)]
 pub enum AgentColorScheme {
+    ByID,
     VehicleTypes,
     Delay,
     DistanceCrossedSoFar,
@@ -396,7 +397,8 @@ impl Cloneable for AgentColorScheme {}
 impl AgentColorScheme {
     pub fn unzoomed_color(self, agent: &UnzoomedAgent, cs: &ColorScheme) -> Color {
         match self {
-            AgentColorScheme::VehicleTypes => match agent.vehicle_type {
+            // ByID should just act like VehicleTypes unzoomed
+            AgentColorScheme::VehicleTypes | AgentColorScheme::ByID => match agent.vehicle_type {
                 Some(VehicleType::Car) => cs.get_def("unzoomed car", Color::RED.alpha(0.5)),
                 Some(VehicleType::Bike) => cs.get_def("unzoomed bike", Color::GREEN.alpha(0.5)),
                 Some(VehicleType::Bus) => cs.get_def("unzoomed bus", Color::BLUE.alpha(0.5)),
@@ -418,6 +420,7 @@ impl AgentColorScheme {
 
     pub fn zoomed_color_car(self, input: &DrawCarInput, cs: &ColorScheme) -> Color {
         match self {
+            AgentColorScheme::ByID => rotating_color_agents(input.id.0),
             AgentColorScheme::VehicleTypes => {
                 if input.id.1 == VehicleType::Bus {
                     cs.get_def("bus", Color::rgb(50, 133, 117))
@@ -434,6 +437,7 @@ impl AgentColorScheme {
 
     pub fn zoomed_color_bike(self, input: &DrawCarInput, cs: &ColorScheme) -> Color {
         match self {
+            AgentColorScheme::ByID => rotating_color_agents(input.id.0),
             AgentColorScheme::VehicleTypes => match input.status {
                 // TODO Hard to see on the greenish bike lanes? :P
                 CarStatus::Moving => cs.get_def("moving bike", Color::GREEN),
@@ -445,6 +449,7 @@ impl AgentColorScheme {
 
     pub fn zoomed_color_ped(self, input: &DrawPedestrianInput, cs: &ColorScheme) -> Color {
         match self {
+            AgentColorScheme::ByID => rotating_color_agents(input.id.0),
             AgentColorScheme::VehicleTypes => {
                 if input.preparing_bike {
                     cs.get_def("pedestrian preparing bike", Color::rgb(255, 0, 144))
@@ -458,7 +463,7 @@ impl AgentColorScheme {
 
     fn by_metadata(self, md: &AgentMetadata) -> Color {
         match self {
-            AgentColorScheme::VehicleTypes => unreachable!(),
+            AgentColorScheme::VehicleTypes | AgentColorScheme::ByID => unreachable!(),
             AgentColorScheme::Delay => {
                 if md.occupying_intersection && md.time_spent_blocked > Duration::minutes(1) {
                     Color::YELLOW
@@ -474,6 +479,9 @@ impl AgentColorScheme {
     // TODO Lots of duplicated values here. :\
     pub fn make_color_legend(self, cs: &ColorScheme) -> ColorLegend {
         match self {
+            AgentColorScheme::ByID => {
+                ColorLegend::new(Text::prompt("arbitrary colors by ID"), Vec::new())
+            }
             AgentColorScheme::VehicleTypes => ColorLegend::new(
                 Text::prompt("vehicle types"),
                 vec![

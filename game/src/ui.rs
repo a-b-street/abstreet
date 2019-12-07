@@ -88,7 +88,7 @@ impl UI {
             primary,
             secondary: None,
             cs,
-            agent_cs: AgentColorScheme::VehicleTypes,
+            agent_cs: AgentColorScheme::ByID,
             opts,
         }
     }
