@@ -100,10 +100,9 @@ impl DrawCar {
 
             let arrow_color = cs.get_def("blinker on", Color::RED);
             if let Some(t) = input.waiting_for_turn {
-                let turn = map.get_t(t);
-                let angle = turn.angle();
-                match turn.turn_type {
+                match map.get_t(t).turn_type {
                     TurnType::Left | TurnType::LaneChangeLeft => {
+                        let angle = back_angle.rotate_degs(-90.0);
                         draw_default.push(
                             arrow_color,
                             PolyLine::new(vec![
@@ -117,6 +116,7 @@ impl DrawCar {
                         );
                     }
                     TurnType::Right | TurnType::LaneChangeRight => {
+                        let angle = back_angle.rotate_degs(90.0);
                         draw_default.push(
                             arrow_color,
                             PolyLine::new(vec![

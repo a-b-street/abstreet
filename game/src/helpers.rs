@@ -198,5 +198,5 @@ pub fn rotating_color_agents(idx: usize) -> Color {
     if idx % 5 == 3 {
         return Color::ORANGE;
     }
-    Color::RED
+    Color::YELLOW
 }
