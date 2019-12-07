@@ -237,15 +237,15 @@ impl GUI for UI {
                                 road.osm_tags
                                     .get(osm::NAME)
                                     .cloned()
-                                    .unwrap_or_else(String::new),
+                                    .unwrap_or("Unnamed street".to_string()),
                                 road.osm_tags
                                     .get(osm::MAXSPEED)
                                     .cloned()
-                                    .unwrap_or_else(String::new),
+                                    .unwrap_or("25 mph".to_string()),
                                 road.osm_tags
                                     .get(osm::HIGHWAY)
                                     .cloned()
-                                    .unwrap_or_else(String::new),
+                                    .unwrap_or("residential".to_string()),
                             );
                         } else if cursor.is_some()
                             && ctx.input.key_pressed(Key::P, "create new point")

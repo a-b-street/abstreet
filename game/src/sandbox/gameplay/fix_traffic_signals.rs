@@ -138,8 +138,8 @@ fn final_score(ui: &UI, prebaked: &Analytics) -> Vec<String> {
 // Motivate a separate left turn phase for north/south, but not left/right
 pub fn tutorial_scenario_lvl1(map: &Map) -> Scenario {
     // TODO In lieu of the deleted labels
-    let north = IntersectionID(4);
-    let south = IntersectionID(2);
+    let north = IntersectionID(2);
+    let south = IntersectionID(3);
     // Hush, east/west is more cognitive overhead for me. >_<
     let left = IntersectionID(1);
     let right = IntersectionID(0);
@@ -186,8 +186,8 @@ pub fn tutorial_scenario_lvl1(map: &Map) -> Scenario {
 
 // Motivate a pedestrian scramble cycle
 pub fn tutorial_scenario_lvl2(map: &Map) -> Scenario {
-    let north = IntersectionID(4);
-    let south = IntersectionID(2);
+    let north = IntersectionID(3);
+    let south = IntersectionID(3);
     let left = IntersectionID(1);
     let right = IntersectionID(0);
 

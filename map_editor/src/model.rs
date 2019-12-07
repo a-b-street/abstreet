@@ -192,6 +192,14 @@ impl Model {
                         Line(format!("way {}", dst)).fg(Color::CYAN),
                     ]);
                 }
+
+                // (MAX_CAR_LENGTH + sim::FOLLOWING_DISTANCE) from sim, but without the dependency
+                txt.add(Line(format!(
+                    "Can fit ~{} cars",
+                    (PolyLine::new(road.center_points.clone()).length()
+                        / (Distance::meters(6.5 + 1.0)))
+                    .floor() as usize
+                )));
             }
             ID::RoadPoint(r, idx) => {
                 txt.add_highlighted(Line(format!("Point {}", idx)), Color::BLUE);
