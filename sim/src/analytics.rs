@@ -130,6 +130,9 @@ impl Analytics {
         }
     }
 
+    pub fn record_backpressure(&mut self, path: &Path) {
+    }
+
     // TODO If these ever need to be speeded up, just cache the histogram and index in the events
     // list.
 

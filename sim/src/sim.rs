@@ -395,6 +395,7 @@ impl Sim {
                             Some(req),
                             format!("{}", create_car.vehicle.id),
                         ));
+                        self.analytics.record_backpressure(create_car.router.get_path());
                     } else if retry_if_no_room {
                         // TODO Record this in the trip log
                         self.scheduler.push(
@@ -481,6 +482,7 @@ impl Sim {
                                 create_ped.goal.connection
                             ),
                         ));
+                        self.analytics.record_backpressure(&create_ped.path);
 
                         // Maybe there's actually no work to do!
                         match (&create_ped.start.connection, &create_ped.goal.connection) {
