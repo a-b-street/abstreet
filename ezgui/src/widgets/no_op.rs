@@ -1,4 +1,5 @@
 use crate::layout::Widget;
+use crate::svg;
 use crate::{DrawBoth, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenPt, Text};
 
 // Just draw something. A widget just so layouting works.
@@ -12,6 +13,15 @@ impl JustDraw {
     pub fn image(filename: &str, ctx: &EventCtx) -> JustDraw {
         let (color, rect) = ctx.canvas.texture_rect(filename);
         let batch = GeomBatch::from(vec![(color, rect)]);
+        JustDraw {
+            draw: DrawBoth::new(ctx, batch, vec![]),
+            top_left: ScreenPt::new(0.0, 0.0),
+        }
+    }
+
+    pub fn svg(filename: &str, ctx: &EventCtx) -> JustDraw {
+        let mut batch = GeomBatch::new();
+        svg::add_svg(&mut batch, filename);
         JustDraw {
             draw: DrawBoth::new(ctx, batch, vec![]),
             top_left: ScreenPt::new(0.0, 0.0),

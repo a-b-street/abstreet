@@ -111,9 +111,9 @@ pub fn challenges_picker(ctx: &EventCtx) -> Box<dyn State> {
     col.push(ManagedWidget::Row(
         LayoutStyle::Neutral,
         vec![
-            ManagedWidget::img_button_no_bg(
+            ManagedWidget::svg_button(
                 ctx,
-                "assets/pregame/back.png",
+                "assets/pregame/back.svg",
                 "back",
                 hotkey(Key::Escape),
                 Box::new(|_, _| Some(Transition::Pop)),

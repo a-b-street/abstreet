@@ -26,20 +26,11 @@ impl UI {
         let primary = ctx.loading_screen("load map", |ctx, mut timer| {
             ctx.set_textures(
                 vec![
-                    ("assets/pregame/back.png", TextureType::Stretch),
                     ("assets/pregame/challenges.png", TextureType::Stretch),
-                    ("assets/pregame/quit.png", TextureType::Stretch),
-                    ("assets/pregame/tutorial.png", TextureType::Stretch),
                     ("assets/pregame/logo.png", TextureType::Stretch),
                     ("assets/speed/jump_to_time.png", TextureType::Stretch),
                     ("assets/speed/large_step.png", TextureType::Stretch),
-                    ("assets/speed/pause.png", TextureType::Stretch),
-                    ("assets/speed/resume.png", TextureType::Stretch),
-                    ("assets/speed/slow_down.png", TextureType::Stretch),
                     ("assets/speed/small_step.png", TextureType::Stretch),
-                    ("assets/speed/speed_up.png", TextureType::Stretch),
-                    ("assets/speed/sunrise.png", TextureType::Stretch),
-                    ("assets/speed/sunset.png", TextureType::Stretch),
                     ("assets/ui/edit_bike.png", TextureType::Stretch),
                     ("assets/ui/edit_bus.png", TextureType::Stretch),
                     ("assets/ui/edit_construction.png", TextureType::Stretch),

@@ -56,21 +56,11 @@ impl ManagedWidget {
     pub fn svg_button(
         ctx: &EventCtx,
         filename: &str,
-        hotkey: Option<MultiKey>,
-        onclick: Callback,
-    ) -> ManagedWidget {
-        let btn = Button::rectangle_svg(filename, hotkey, ctx);
-        ManagedWidget::Btn(btn, onclick)
-    }
-
-    pub fn img_button_no_bg(
-        ctx: &EventCtx,
-        filename: &str,
         tooltip: &str,
         hotkey: Option<MultiKey>,
         onclick: Callback,
     ) -> ManagedWidget {
-        let btn = Button::rectangle_img_no_bg(filename, tooltip, hotkey, ctx);
+        let btn = Button::rectangle_svg(filename, tooltip, hotkey, ctx);
         ManagedWidget::Btn(btn, onclick)
     }
 

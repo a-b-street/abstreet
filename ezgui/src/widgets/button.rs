@@ -168,19 +168,24 @@ impl Button {
         Button::new(normal, hovered, key, "", bg)
     }
 
-    pub fn rectangle_svg(filename: &str, key: Option<MultiKey>, ctx: &EventCtx) -> Button {
+    pub fn rectangle_svg(
+        filename: &str,
+        tooltip: &str,
+        key: Option<MultiKey>,
+        ctx: &EventCtx,
+    ) -> Button {
         let mut normal = GeomBatch::new();
         let bounds = svg::add_svg(&mut normal, filename);
 
-        // TODO Rewrite colors
         let mut hovered = GeomBatch::new();
         svg::add_svg(&mut hovered, filename);
+        hovered.rewrite_color(Color::WHITE, Color::ORANGE);
 
         Button::new(
             DrawBoth::new(ctx, normal, Vec::new()),
             DrawBoth::new(ctx, hovered, Vec::new()),
             key,
-            "",
+            tooltip,
             bounds.get_rectangle(),
         )
     }

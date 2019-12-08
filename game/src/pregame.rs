@@ -75,9 +75,9 @@ pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
     col.push(ManagedWidget::Row(
         LayoutStyle::Neutral,
         vec![
-            ManagedWidget::img_button_no_bg(
+            ManagedWidget::svg_button(
                 ctx,
-                "assets/pregame/quit.png",
+                "assets/pregame/quit.svg",
                 "quit",
                 hotkey(Key::Escape),
                 Box::new(|_, _| {
@@ -101,15 +101,17 @@ pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
     col.push(ManagedWidget::Row(
         LayoutStyle::Centered,
         vec![
-            ManagedWidget::img_button(
+            ManagedWidget::svg_button(
                 ctx,
-                "assets/pregame/tutorial.png",
+                "assets/pregame/tutorial.svg",
+                "Tutorial",
                 hotkey(Key::T),
                 Box::new(|ctx, _| Some(Transition::Push(Box::new(TutorialMode::new(ctx))))),
             ),
             ManagedWidget::svg_button(
                 ctx,
                 "assets/pregame/sandbox.svg",
+                "Sandbox mode",
                 hotkey(Key::S),
                 Box::new(|ctx, ui| {
                     Some(Transition::Push(Box::new(SandboxMode::new(
@@ -158,9 +160,9 @@ pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
 fn about(ctx: &EventCtx) -> Box<dyn State> {
     let mut row = Vec::new();
 
-    row.push(ManagedWidget::img_button_no_bg(
+    row.push(ManagedWidget::svg_button(
         ctx,
-        "assets/pregame/back.png",
+        "assets/pregame/back.svg",
         "back",
         hotkey(Key::Escape),
         Box::new(|_, _| Some(Transition::Pop)),

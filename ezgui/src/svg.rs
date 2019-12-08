@@ -6,15 +6,21 @@ use lyon::math::Point;
 use lyon::path::PathEvent;
 use lyon::tessellation;
 use lyon::tessellation::geometry_builder::{simple_builder, VertexBuffers};
-use lyon::tessellation::FillVertex;
+use lyon::tessellation::{FillVertex, StrokeVertex};
 
 const TOLERANCE: f32 = 0.01;
 
-// No offset. Returns the button bounds.
+// Code here adapted from
+// https://github.com/nical/lyon/blob/b5c87c9a22dccfab24daa1947419a70915d60914/examples/wgpu_svg/src/main.rs.
+
+// No offset. I'm not exactly sure how the simplification in usvg works, but this doesn't support
+// transforms or strokes or text, just fills. Luckily, all of the files exported from Figma so far
+// work just fine.
 pub fn add_svg(batch: &mut GeomBatch, filename: &str) -> Bounds {
     let mut fill_tess = tessellation::FillTessellator::new();
     let mut stroke_tess = tessellation::StrokeTessellator::new();
-    let mut mesh_per_color: VecMap<Color, VertexBuffers<FillVertex, u16>> = VecMap::new();
+    let mut fill_mesh_per_color: VecMap<Color, VertexBuffers<FillVertex, u16>> = VecMap::new();
+    let mut stroke_mesh_per_color: VecMap<Color, VertexBuffers<StrokeVertex, u16>> = VecMap::new();
 
     let svg_tree = usvg::Tree::from_file(&filename, &usvg::Options::default()).unwrap();
     for node in svg_tree.root().descendants() {
@@ -23,31 +29,40 @@ pub fn add_svg(batch: &mut GeomBatch, filename: &str) -> Bounds {
 
             if let Some(ref fill) = p.fill {
                 let color = convert_color(&fill.paint, fill.opacity.value());
-                let geom = mesh_per_color.mut_or_insert(color, VertexBuffers::new);
+                let geom = fill_mesh_per_color.mut_or_insert(color, VertexBuffers::new);
                 fill_tess
                     .tessellate_path(
                         convert_path(p),
                         &tessellation::FillOptions::tolerance(TOLERANCE),
                         &mut simple_builder(geom),
                     )
-                    .unwrap();
+                    .expect(&format!("Couldn't tesellate something from {}", filename));
             }
 
             if let Some(ref stroke) = p.stroke {
-                panic!("aww we have a stroke {:?}", stroke);
                 let (color, stroke_opts) = convert_stroke(stroke);
-                let geom: &mut VertexBuffers<FillVertex, u16> =
-                    mesh_per_color.mut_or_insert(color, VertexBuffers::new);
-                /*stroke_tess.tessellate_path(
-                convert_path(p),
-                &stroke_opts,
-                &mut simple_builder(geom)).unwrap();*/
+                let geom = stroke_mesh_per_color.mut_or_insert(color, VertexBuffers::new);
+                stroke_tess
+                    .tessellate_path(convert_path(p), &stroke_opts, &mut simple_builder(geom))
+                    .unwrap();
             }
         }
     }
 
     let mut bounds = Bounds::new();
-    for (color, mesh) in mesh_per_color.consume() {
+    for (color, mesh) in fill_mesh_per_color.consume() {
+        let poly = Polygon::precomputed(
+            mesh.vertices
+                .into_iter()
+                .map(|v| Pt2D::new(v.position.x as f64, v.position.y as f64))
+                .collect(),
+            mesh.indices.into_iter().map(|idx| idx as usize).collect(),
+            None,
+        );
+        bounds.union(poly.get_bounds());
+        batch.push(color, poly);
+    }
+    for (color, mesh) in stroke_mesh_per_color.consume() {
         let poly = Polygon::precomputed(
             mesh.vertices
                 .into_iter()

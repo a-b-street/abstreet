@@ -62,14 +62,12 @@ impl SpeedControls {
                 Text::from(Line("00:00").size(12).roboto()).no_bg(),
                 ScreenPt::new(25.0, 97.0),
             ));
-            let (sunrise_color, sunrise_rect) = ctx.canvas.texture_rect("assets/speed/sunrise.png");
-            batch.push(sunrise_color, sunrise_rect.translate(94.0, 94.0));
+            batch.add_svg("assets/speed/sunrise.svg", 94.0, 94.0);
             txt.push((
                 Text::from(Line("12:00").size(12).roboto()).no_bg(),
                 ScreenPt::new(153.0, 97.0),
             ));
-            let (sunset_color, sunset_rect) = ctx.canvas.texture_rect("assets/speed/sunset.png");
-            batch.push(sunset_color, sunset_rect.translate(220.0, 94.0));
+            batch.add_svg("assets/speed/sunset.svg", 220.0, 94.0);
             txt.push((
                 Text::from(Line("24:00").size(12).roboto()).no_bg(),
                 ScreenPt::new(280.0, 97.0),
@@ -94,15 +92,11 @@ impl SpeedControls {
         };
 
         // Row 1
-        let resume_btn = Button::rectangle_img_no_bg(
-            "assets/speed/resume.png",
-            "resume",
-            hotkey(Key::Space),
-            ctx,
-        )
-        .at(ScreenPt::new(23.0, 14.0));
+        let resume_btn =
+            Button::rectangle_svg("assets/speed/resume.svg", "resume", hotkey(Key::Space), ctx)
+                .at(ScreenPt::new(23.0, 14.0));
         let pause_btn =
-            Button::rectangle_img_no_bg("assets/speed/pause.png", "pause", hotkey(Key::Space), ctx)
+            Button::rectangle_svg("assets/speed/pause.svg", "pause", hotkey(Key::Space), ctx)
                 .at(ScreenPt::new(23.0, 14.0));
 
         let jump_to_time_btn = Button::rectangle_img_no_bg(
@@ -140,15 +134,15 @@ impl SpeedControls {
         speed_slider.set_percent(ctx, (speed_cap / 1.0).powf(-1.0 / std::f64::consts::E));
         speed_slider.set_pos(ScreenPt::new(92.0, 134.0));
 
-        let slow_down_btn = Button::rectangle_img_no_bg(
-            "assets/speed/slow_down.png",
+        let slow_down_btn = Button::rectangle_svg(
+            "assets/speed/slow_down.svg",
             "slow down",
             hotkey(Key::LeftBracket),
             ctx,
         )
         .at(ScreenPt::new(245.0, 129.0));
-        let speed_up_btn = Button::rectangle_img_no_bg(
-            "assets/speed/speed_up.png",
+        let speed_up_btn = Button::rectangle_svg(
+            "assets/speed/speed_up.svg",
             "speed up",
             hotkey(Key::RightBracket),
             ctx,

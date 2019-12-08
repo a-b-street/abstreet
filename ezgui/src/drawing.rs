@@ -1,4 +1,5 @@
 use crate::assets::Assets;
+use crate::svg;
 use crate::widgets::ContextMenu;
 use crate::{
     text, Canvas, Color, EventCtx, HorizontalAlignment, Key, ScreenDims, ScreenPt, ScreenRectangle,
@@ -410,6 +411,24 @@ impl GeomBatch {
             bounds.union(poly.get_bounds());
         }
         ScreenDims::new(bounds.max_x - bounds.min_x, bounds.max_y - bounds.min_y)
+    }
+
+    // Slightly weird use case, but hotswap colors.
+    pub fn rewrite_color(&mut self, from: Color, to: Color) {
+        for (c, _) in self.list.iter_mut() {
+            if *c == from {
+                *c = to;
+            }
+        }
+    }
+
+    // TODO Weird API...
+    pub fn add_svg(&mut self, filename: &str, dx: f64, dy: f64) {
+        let mut batch = GeomBatch::new();
+        svg::add_svg(&mut batch, filename);
+        for (color, poly) in batch.consume() {
+            self.push(color, poly.translate(dx, dy));
+        }
     }
 }
 
