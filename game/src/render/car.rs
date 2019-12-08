@@ -82,6 +82,7 @@ impl DrawCar {
 
         {
             let radius = Distance::meters(0.3);
+            let arrow_len = 2.0 * radius;
             let edge_offset = Distance::meters(0.5);
             let (back_pos, back_angle) = input.body.dist_along(edge_offset);
 
@@ -95,8 +96,6 @@ impl DrawCar {
             );
 
             let bg_color = cs.get_def("blinker background", Color::grey(0.2));
-            draw_default.push(bg_color, back_left.to_polygon());
-            draw_default.push(bg_color, back_right.to_polygon());
 
             let arrow_color = cs.get_def("blinker on", Color::RED);
             if let Some(t) = input.waiting_for_turn {
@@ -108,8 +107,8 @@ impl DrawCar {
                             PolyLine::new(vec![
                                 back_left
                                     .center
-                                    .project_away(radius / 2.0, angle.opposite()),
-                                back_left.center.project_away(radius / 2.0, angle),
+                                    .project_away(arrow_len / 2.0, angle.opposite()),
+                                back_left.center.project_away(arrow_len / 2.0, angle),
                             ])
                             .make_arrow(Distance::meters(0.15))
                             .unwrap(),
@@ -122,8 +121,8 @@ impl DrawCar {
                             PolyLine::new(vec![
                                 back_right
                                     .center
-                                    .project_away(radius / 2.0, angle.opposite()),
-                                back_right.center.project_away(radius / 2.0, angle),
+                                    .project_away(arrow_len / 2.0, angle.opposite()),
+                                back_right.center.project_away(arrow_len / 2.0, angle),
                             ])
                             .make_arrow(Distance::meters(0.15))
                             .unwrap(),
