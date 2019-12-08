@@ -107,9 +107,9 @@ pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
                 hotkey(Key::T),
                 Box::new(|ctx, _| Some(Transition::Push(Box::new(TutorialMode::new(ctx))))),
             ),
-            ManagedWidget::img_button(
+            ManagedWidget::svg_button(
                 ctx,
-                "assets/pregame/sandbox.png",
+                "assets/pregame/sandbox.svg",
                 hotkey(Key::S),
                 Box::new(|ctx, ui| {
                     Some(Transition::Push(Box::new(SandboxMode::new(

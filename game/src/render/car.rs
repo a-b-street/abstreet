@@ -95,8 +95,6 @@ impl DrawCar {
                 radius,
             );
 
-            let bg_color = cs.get_def("blinker background", Color::grey(0.2));
-
             let arrow_color = cs.get_def("blinker on", Color::RED);
             if let Some(t) = input.waiting_for_turn {
                 match map.get_t(t).turn_type {

@@ -137,3 +137,26 @@ pub fn contains_duplicates<T: Ord>(vec: &Vec<T>) -> bool {
     }
     false
 }
+
+// Use when your key is just PartialEq, not Ord or Hash.
+pub struct VecMap<K, V> {
+    inner: Vec<(K, V)>,
+}
+
+impl<K: Copy + PartialEq, V> VecMap<K, V> {
+    pub fn new() -> VecMap<K, V> {
+        VecMap { inner: Vec::new() }
+    }
+
+    pub fn consume(self) -> Vec<(K, V)> {
+        self.inner
+    }
+
+    pub fn mut_or_insert<F: Fn() -> V>(&mut self, key: K, ctor: F) -> &mut V {
+        if let Some(idx) = self.inner.iter().position(|(k, _)| key == *k) {
+            return &mut self.inner[idx].1;
+        }
+        self.inner.push((key, ctor()));
+        &mut self.inner.last_mut().unwrap().1
+    }
+}

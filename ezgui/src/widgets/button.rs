@@ -1,4 +1,5 @@
 use crate::layout::Widget;
+use crate::svg;
 use crate::{
     hotkey, text, Color, DrawBoth, EventCtx, GeomBatch, GfxCtx, Key, Line, MultiKey, ScreenDims,
     ScreenPt, Text,
@@ -165,6 +166,23 @@ impl Button {
             vec![],
         );
         Button::new(normal, hovered, key, "", bg)
+    }
+
+    pub fn rectangle_svg(filename: &str, key: Option<MultiKey>, ctx: &EventCtx) -> Button {
+        let mut normal = GeomBatch::new();
+        let bounds = svg::add_svg(&mut normal, filename);
+
+        // TODO Rewrite colors
+        let mut hovered = GeomBatch::new();
+        svg::add_svg(&mut hovered, filename);
+
+        Button::new(
+            DrawBoth::new(ctx, normal, Vec::new()),
+            DrawBoth::new(ctx, hovered, Vec::new()),
+            key,
+            "",
+            bounds.get_rectangle(),
+        )
     }
 
     pub fn rectangle_img_no_bg(

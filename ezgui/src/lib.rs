@@ -8,6 +8,7 @@ mod input;
 pub mod layout;
 mod runner;
 mod screen_geom;
+mod svg;
 mod text;
 mod widgets;
 

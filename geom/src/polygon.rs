@@ -84,7 +84,7 @@ impl Polygon {
         }
     }
 
-    pub(crate) fn precomputed(
+    pub fn precomputed(
         points: Vec<Pt2D>,
         indices: Vec<usize>,
         uv: Option<Vec<(f32, f32)>>,

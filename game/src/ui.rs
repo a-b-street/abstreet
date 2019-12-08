@@ -29,7 +29,6 @@ impl UI {
                     ("assets/pregame/back.png", TextureType::Stretch),
                     ("assets/pregame/challenges.png", TextureType::Stretch),
                     ("assets/pregame/quit.png", TextureType::Stretch),
-                    ("assets/pregame/sandbox.png", TextureType::Stretch),
                     ("assets/pregame/tutorial.png", TextureType::Stretch),
                     ("assets/pregame/logo.png", TextureType::Stretch),
                     ("assets/speed/jump_to_time.png", TextureType::Stretch),

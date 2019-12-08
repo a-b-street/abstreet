@@ -17,8 +17,12 @@ glium = "0.25.1"
 glium-glyph = "0.6.0"
 glutin = "0.21.0"
 image = "0.22.2"
+lyon = "0.14.2"
 ordered-float = "1.0.1"
 serde = "1.0.98"
 serde_derive = "1.0.98"
 simsearch = "0.1.4"
 textwrap = "0.11"
+# TODO We need the ability to remove the harfbuzz dependency, which doesn't
+# build well on Windows.
+usvg = { git = "https://github.com/RazrFalcon/resvg", rev = "2e56929886736c0692a50b2163097f1a6c14b52f", default-features = false }
