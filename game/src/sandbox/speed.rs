@@ -3,8 +3,8 @@ use crate::ui::UI;
 use ezgui::layout::Widget;
 use ezgui::{
     hotkey, Button, Color, DrawBoth, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, ScreenPt, ScreenRectangle, Slider, Text, VerticalAlignment,
-    Wizard,
+    HorizontalAlignment, Key, Line, RewriteColor, ScreenPt, ScreenRectangle, Slider, Text,
+    VerticalAlignment, Wizard,
 };
 use geom::{Distance, Duration, Line, Polygon, Pt2D, Time};
 use std::time::Instant;
@@ -92,35 +92,48 @@ impl SpeedControls {
         };
 
         // Row 1
-        let resume_btn =
-            Button::rectangle_svg("assets/speed/resume.svg", "resume", hotkey(Key::Space), ctx)
-                .at(ScreenPt::new(23.0, 14.0));
-        let pause_btn =
-            Button::rectangle_svg("assets/speed/pause.svg", "pause", hotkey(Key::Space), ctx)
-                .at(ScreenPt::new(23.0, 14.0));
+        let resume_btn = Button::rectangle_svg(
+            "assets/speed/resume.svg",
+            "resume",
+            hotkey(Key::Space),
+            RewriteColor::ChangeAll(Color::ORANGE),
+            ctx,
+        )
+        .at(ScreenPt::new(23.0, 14.0));
+        let pause_btn = Button::rectangle_svg(
+            "assets/speed/pause.svg",
+            "pause",
+            hotkey(Key::Space),
+            RewriteColor::ChangeAll(Color::ORANGE),
+            ctx,
+        )
+        .at(ScreenPt::new(23.0, 14.0));
 
-        let jump_to_time_btn = Button::rectangle_img_no_bg(
-            "assets/speed/jump_to_time.png",
+        let jump_to_time_btn = Button::rectangle_svg(
+            "assets/speed/jump_to_time.svg",
             "jump to specific time",
             hotkey(Key::B),
+            RewriteColor::ChangeAll(Color::ORANGE),
             ctx,
         )
         .at(ScreenPt::new(300.0, 20.0));
 
         // Row 2
 
-        let small_step_btn = Button::rectangle_img_no_bg(
-            "assets/speed/small_step.png",
+        let small_step_btn = Button::rectangle_svg(
+            "assets/speed/small_step.svg",
             "step forwards 0.1s",
             hotkey(Key::M),
+            RewriteColor::ChangeAll(Color::ORANGE),
             ctx,
         )
         .at(ScreenPt::new(315.0, 60.0));
 
-        let large_step_btn = Button::rectangle_img_no_bg(
-            "assets/speed/large_step.png",
+        let large_step_btn = Button::rectangle_svg(
+            "assets/speed/large_step.svg",
             "step forwards 10 mins",
             hotkey(Key::N),
+            RewriteColor::ChangeAll(Color::ORANGE),
             ctx,
         )
         .at(ScreenPt::new(315.0, 75.0));
@@ -138,6 +151,7 @@ impl SpeedControls {
             "assets/speed/slow_down.svg",
             "slow down",
             hotkey(Key::LeftBracket),
+            RewriteColor::ChangeAll(Color::ORANGE),
             ctx,
         )
         .at(ScreenPt::new(245.0, 129.0));
@@ -145,6 +159,7 @@ impl SpeedControls {
             "assets/speed/speed_up.svg",
             "speed up",
             hotkey(Key::RightBracket),
+            RewriteColor::ChangeAll(Color::ORANGE),
             ctx,
         )
         .at(ScreenPt::new(330.0, 129.0));

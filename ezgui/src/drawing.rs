@@ -414,10 +414,17 @@ impl GeomBatch {
     }
 
     // Slightly weird use case, but hotswap colors.
-    pub fn rewrite_color(&mut self, from: Color, to: Color) {
+    pub fn rewrite_color(&mut self, transformation: RewriteColor) {
         for (c, _) in self.list.iter_mut() {
-            if *c == from {
-                *c = to;
+            match transformation {
+                RewriteColor::Change(from, to) => {
+                    if *c == from {
+                        *c = to;
+                    }
+                }
+                RewriteColor::ChangeAll(to) => {
+                    *c = to;
+                }
             }
         }
     }
@@ -430,6 +437,11 @@ impl GeomBatch {
             self.push(color, poly.translate(dx, dy));
         }
     }
+}
+
+pub enum RewriteColor {
+    Change(Color, Color),
+    ChangeAll(Color),
 }
 
 // Something that's been sent to the GPU already.
@@ -516,12 +528,6 @@ impl<'a> Prerender<'a> {
                         let tx = (rot_pt.x() - b.min_x) / (b.max_x - b.min_x);
                         let ty = (rot_pt.y() - b.min_y) / (b.max_y - b.min_y);
                         [tx as f32, ty as f32, id.0, 100.0 + id.1]
-                    }
-                    Color::MaskedTexture(id) => {
-                        let b = poly.get_bounds();
-                        let tx = (pt.x() - b.min_x) / (b.max_x - b.min_x);
-                        let ty = (pt.y() - b.min_y) / (b.max_y - b.min_y);
-                        [tx as f32, ty as f32, id.0, 200.0 + id.1]
                     }
                     Color::CustomUVTexture(id) => {
                         let (tx, ty) =

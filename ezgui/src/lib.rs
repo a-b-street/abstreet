@@ -14,7 +14,9 @@ mod widgets;
 
 pub use crate::canvas::{Canvas, HorizontalAlignment, VerticalAlignment};
 pub use crate::color::Color;
-pub use crate::drawing::{DrawBoth, Drawable, GeomBatch, GfxCtx, MultiText, Prerender};
+pub use crate::drawing::{
+    DrawBoth, Drawable, GeomBatch, GfxCtx, MultiText, Prerender, RewriteColor,
+};
 pub use crate::event::{hotkey, lctrl, Event, Key, MultiKey};
 pub use crate::event_ctx::{EventCtx, TextureType};
 pub use crate::input::UserInput;

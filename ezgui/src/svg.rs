@@ -49,32 +49,37 @@ pub fn add_svg(batch: &mut GeomBatch, filename: &str) -> Bounds {
         }
     }
 
-    let mut bounds = Bounds::new();
     for (color, mesh) in fill_mesh_per_color.consume() {
-        let poly = Polygon::precomputed(
-            mesh.vertices
-                .into_iter()
-                .map(|v| Pt2D::new(v.position.x as f64, v.position.y as f64))
-                .collect(),
-            mesh.indices.into_iter().map(|idx| idx as usize).collect(),
-            None,
+        batch.push(
+            color,
+            Polygon::precomputed(
+                mesh.vertices
+                    .into_iter()
+                    .map(|v| Pt2D::new(v.position.x as f64, v.position.y as f64))
+                    .collect(),
+                mesh.indices.into_iter().map(|idx| idx as usize).collect(),
+                None,
+            ),
         );
-        bounds.union(poly.get_bounds());
-        batch.push(color, poly);
     }
     for (color, mesh) in stroke_mesh_per_color.consume() {
-        let poly = Polygon::precomputed(
-            mesh.vertices
-                .into_iter()
-                .map(|v| Pt2D::new(v.position.x as f64, v.position.y as f64))
-                .collect(),
-            mesh.indices.into_iter().map(|idx| idx as usize).collect(),
-            None,
+        batch.push(
+            color,
+            Polygon::precomputed(
+                mesh.vertices
+                    .into_iter()
+                    .map(|v| Pt2D::new(v.position.x as f64, v.position.y as f64))
+                    .collect(),
+                mesh.indices.into_iter().map(|idx| idx as usize).collect(),
+                None,
+            ),
         );
-        bounds.union(poly.get_bounds());
-        batch.push(color, poly);
     }
-    bounds
+    let size = svg_tree.svg_node().size;
+    Bounds::from(&vec![
+        Pt2D::new(0.0, 0.0),
+        Pt2D::new(size.width(), size.height()),
+    ])
 }
 
 fn point(x: &f64, y: &f64) -> Point {

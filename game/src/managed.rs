@@ -1,7 +1,9 @@
 use crate::game::{State, Transition};
 use crate::ui::UI;
 use ezgui::layout::Widget;
-use ezgui::{Button, Color, EventCtx, GfxCtx, JustDraw, Line, MultiKey, ScreenPt, Text};
+use ezgui::{
+    Button, Color, EventCtx, GfxCtx, JustDraw, Line, MultiKey, RewriteColor, ScreenPt, Text,
+};
 use stretch::geometry::Size;
 use stretch::node::{Node, Stretch};
 use stretch::style::{AlignItems, Dimension, FlexDirection, FlexWrap, JustifyContent, Style};
@@ -60,7 +62,13 @@ impl ManagedWidget {
         hotkey: Option<MultiKey>,
         onclick: Callback,
     ) -> ManagedWidget {
-        let btn = Button::rectangle_svg(filename, tooltip, hotkey, ctx);
+        let btn = Button::rectangle_svg(
+            filename,
+            tooltip,
+            hotkey,
+            RewriteColor::Change(Color::WHITE, Color::ORANGE),
+            ctx,
+        );
         ManagedWidget::Btn(btn, onclick)
     }
 

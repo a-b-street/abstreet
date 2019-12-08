@@ -1,8 +1,8 @@
 use crate::layout::Widget;
 use crate::svg;
 use crate::{
-    hotkey, text, Color, DrawBoth, EventCtx, GeomBatch, GfxCtx, Key, Line, MultiKey, ScreenDims,
-    ScreenPt, Text,
+    hotkey, text, Color, DrawBoth, EventCtx, GeomBatch, GfxCtx, Key, Line, MultiKey, RewriteColor,
+    ScreenDims, ScreenPt, Text,
 };
 use geom::{Circle, Distance, Polygon, Pt2D};
 
@@ -172,14 +172,14 @@ impl Button {
         filename: &str,
         tooltip: &str,
         key: Option<MultiKey>,
+        hover: RewriteColor,
         ctx: &EventCtx,
     ) -> Button {
         let mut normal = GeomBatch::new();
         let bounds = svg::add_svg(&mut normal, filename);
 
-        let mut hovered = GeomBatch::new();
-        svg::add_svg(&mut hovered, filename);
-        hovered.rewrite_color(Color::WHITE, Color::ORANGE);
+        let mut hovered = normal.clone();
+        hovered.rewrite_color(hover);
 
         Button::new(
             DrawBoth::new(ctx, normal, Vec::new()),
@@ -188,23 +188,6 @@ impl Button {
             tooltip,
             bounds.get_rectangle(),
         )
-    }
-
-    pub fn rectangle_img_no_bg(
-        filename: &str,
-        tooltip: &str,
-        key: Option<MultiKey>,
-        ctx: &EventCtx,
-    ) -> Button {
-        let (color, rect) = ctx.canvas.texture_rect(filename);
-
-        let normal = DrawBoth::new(ctx, GeomBatch::from(vec![(color, rect.clone())]), vec![]);
-        let hovered = DrawBoth::new(
-            ctx,
-            GeomBatch::from(vec![(color.with_masking(), rect.clone())]),
-            vec![],
-        );
-        Button::new(normal, hovered, key, tooltip, rect)
     }
 
     pub fn icon_btn_bg(

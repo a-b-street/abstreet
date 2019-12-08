@@ -28,9 +28,6 @@ impl UI {
                 vec![
                     ("assets/pregame/challenges.png", TextureType::Stretch),
                     ("assets/pregame/logo.png", TextureType::Stretch),
-                    ("assets/speed/jump_to_time.png", TextureType::Stretch),
-                    ("assets/speed/large_step.png", TextureType::Stretch),
-                    ("assets/speed/small_step.png", TextureType::Stretch),
                     ("assets/ui/edit_bike.png", TextureType::Stretch),
                     ("assets/ui/edit_bus.png", TextureType::Stretch),
                     ("assets/ui/edit_construction.png", TextureType::Stretch),

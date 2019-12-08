@@ -25,14 +25,7 @@ in vec4 pass_style;
 out vec4 f_color;
 
 void handle_texture(in sampler2DArray tex, in vec4 style, out vec4 color) {
-    if (pass_style[3] >= 200.0) {
-        color = texture(tex, vec3(pass_style[0], pass_style[1], pass_style[3] - 200.0));
-        if (color[3] > 0.0) {
-            color = vec4(1.0, 0.55, 0.0, 1.0);
-        }
-    } else {
-        color = texture(tex, vec3(pass_style[0], pass_style[1], pass_style[3] - 100.0));
-    }
+    color = texture(tex, vec3(pass_style[0], pass_style[1], pass_style[3] - 100.0));
 }
 
 void main() {
