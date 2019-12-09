@@ -125,7 +125,10 @@ impl State for SandboxMode {
         if let Some(t) = self.common.event(ctx, ui) {
             return t;
         }
-        if let Some(t) = self.overlay.event(ctx, ui, &mut self.info_tools) {
+        if let Some(t) = self
+            .overlay
+            .event(ctx, ui, &mut self.info_tools, &self.gameplay.prebaked)
+        {
             return t;
         }
         self.minimap.event(ui, ctx);

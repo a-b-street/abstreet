@@ -175,6 +175,37 @@ impl Analytics {
         (all, num_aborted, per_mode)
     }
 
+    // Returns unsorted list of deltas, one for each trip finished in both worlds. Positive dt
+    // means faster.
+    pub fn finished_trip_deltas(&self, now: Time, baseline: &Analytics) -> Vec<Duration> {
+        let a: BTreeMap<TripID, Duration> = self
+            .finished_trips
+            .iter()
+            .filter_map(|(t, id, mode, dt)| {
+                if *t <= now && mode.is_some() {
+                    Some((*id, *dt))
+                } else {
+                    None
+                }
+            })
+            .collect();
+        let b: BTreeMap<TripID, Duration> = baseline
+            .finished_trips
+            .iter()
+            .filter_map(|(t, id, mode, dt)| {
+                if *t <= now && mode.is_some() {
+                    Some((*id, *dt))
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        a.into_iter()
+            .filter_map(|(id, dt1)| b.get(&id).map(|dt2| *dt2 - dt1))
+            .collect()
+    }
+
     pub fn bus_arrivals(&self, now: Time, r: BusRouteID) -> BTreeMap<BusStopID, DurationHistogram> {
         let mut per_bus: BTreeMap<CarID, Vec<(Time, BusStopID)>> = BTreeMap::new();
         for (t, car, route, stop) in &self.bus_arrivals {

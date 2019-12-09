@@ -19,6 +19,7 @@ impl FixTrafficSignals {
                 "Fix traffic signals",
                 vec![
                     (hotkey(Key::F), "find slowest traffic signals"),
+                    (hotkey(Key::D), "show finished trip distribution"),
                     (hotkey(Key::H), "help"),
                     (hotkey(Key::S), "final score"),
                 ],
@@ -56,6 +57,20 @@ impl GameplayState for FixTrafficSignals {
             self.time != ui.primary.sim.time(),
         ) {
             *overlays = Overlays::intersection_delay(ctx, ui);
+        }
+        if manage_overlays(
+            menu,
+            ctx,
+            "show finished trip distribution",
+            "hide finished trip distribution",
+            overlays,
+            match overlays {
+                Overlays::FinishedTripsHistogram(_, _) => true,
+                _ => false,
+            },
+            self.time != ui.primary.sim.time(),
+        ) {
+            *overlays = Overlays::finished_trips_histogram(ctx, ui, prebaked);
         }
 
         if self.time != ui.primary.sim.time() {

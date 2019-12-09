@@ -221,6 +221,17 @@ impl ops::Div<Duration> for Duration {
     }
 }
 
+impl ops::Div<f64> for Duration {
+    type Output = Duration;
+
+    fn div(self, other: f64) -> Duration {
+        if other == 0.0 {
+            panic!("Can't divide {} / {}", self, other);
+        }
+        Duration::seconds(self.0 / other)
+    }
+}
+
 impl ops::Rem<Duration> for Duration {
     type Output = Duration;
 

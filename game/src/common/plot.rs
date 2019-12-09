@@ -4,7 +4,9 @@ use ezgui::{
 };
 use geom::{Bounds, Circle, Distance, Duration, FindClosest, PolyLine, Polygon, Pt2D, Time};
 
+// The X is always time
 pub struct Plot<T> {
+    // TODO Could DrawBoth instead of MultiText here
     draw: Drawable,
     legend: ColorLegend,
     labels: MultiText,
@@ -199,4 +201,102 @@ pub struct Series<T> {
     pub color: Color,
     // X-axis is time. Assume this is sorted by X.
     pub pts: Vec<(Time, T)>,
+}
+
+// The X axis is Durations, with positive meaning "faster" (considered good) and negative "slower"
+pub struct Histogram {
+    draw: Drawable,
+    labels: MultiText,
+    rect: ScreenRectangle,
+}
+
+impl Histogram {
+    pub fn new(title: &str, unsorted_dts: Vec<Duration>, ctx: &EventCtx) -> Histogram {
+        let mut batch = GeomBatch::new();
+        let mut labels = MultiText::new();
+
+        let x1 = 0.5 * ctx.canvas.window_width;
+        let x2 = 0.9 * ctx.canvas.window_width;
+        let y1 = 0.4 * ctx.canvas.window_height;
+        let y2 = 0.8 * ctx.canvas.window_height;
+        batch.push(
+            Color::grey(0.8),
+            Polygon::rectangle_topleft(
+                Pt2D::new(x1, y1),
+                Distance::meters(x2 - x1),
+                Distance::meters(y2 - y1),
+            ),
+        );
+
+        if unsorted_dts.len() < 10 {
+            // TODO Add some warning label or something
+        } else {
+            // TODO Generic "bucket into 10 groups, give (min, max, count)"
+            let min_x = *unsorted_dts.iter().min().unwrap();
+            let max_x = *unsorted_dts.iter().max().unwrap();
+
+            let num_buckets = 10;
+            let bucket_size = (max_x - min_x) / (num_buckets as f64);
+            // lower, upper, count
+            let mut bars: Vec<(Duration, Duration, usize)> = (0..num_buckets)
+                .map(|idx| {
+                    let i = idx as f64;
+                    (min_x + bucket_size * i, min_x + bucket_size * (i + 1.0), 0)
+                })
+                .collect();
+            for dt in unsorted_dts {
+                // TODO Could sort them and do this more efficiently.
+                if dt == max_x {
+                    // Most bars represent [low, high) except the last
+                    bars[num_buckets - 1].2 += 1;
+                } else {
+                    let bin = ((dt - min_x) / bucket_size).floor() as usize;
+                    bars[bin].2 += 1;
+                }
+            }
+
+            let min_y = 0;
+            let max_y = bars.iter().map(|(_, _, cnt)| *cnt).max().unwrap();
+            for (idx, (min, max, cnt)) in bars.into_iter().enumerate() {
+                // TODO Or maybe the average?
+                let color = if min < Duration::ZERO {
+                    Color::RED
+                } else {
+                    Color::GREEN
+                };
+                let percent_x_left = (idx as f64) / (num_buckets as f64);
+                let percent_x_right = ((idx + 1) as f64) / (num_buckets as f64);
+                if let Some(rect) = Polygon::rectangle_two_corners(
+                    // Top-left
+                    Pt2D::new(
+                        x1 + (x2 - x1) * percent_x_left,
+                        y2 - (y2 - y1) * ((cnt as f64) / ((max_y - min_y) as f64)),
+                    ),
+                    // Bottom-right
+                    Pt2D::new(x1 + (x2 - x1) * percent_x_right, y2),
+                ) {
+                    batch.push(color, rect);
+                }
+                labels.add(
+                    Text::from(Line(min.to_string())),
+                    ScreenPt::new(x1 + (x2 - x1) * percent_x_left, y2),
+                );
+            }
+        }
+
+        Histogram {
+            draw: batch.upload(ctx),
+            labels,
+            rect: ScreenRectangle { x1, y1, x2, y2 },
+        }
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx) {
+        g.canvas.mark_covered_area(self.rect.clone());
+
+        g.fork_screenspace();
+        g.redraw(&self.draw);
+        g.unfork();
+        self.labels.draw(g);
+    }
 }

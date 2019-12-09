@@ -1,5 +1,5 @@
 use crate::common::{
-    ObjectColorer, ObjectColorerBuilder, Plot, RoadColorer, RoadColorerBuilder, Series,
+    Histogram, ObjectColorer, ObjectColorerBuilder, Plot, RoadColorer, RoadColorerBuilder, Series,
 };
 use crate::game::{Transition, WizardState};
 use crate::helpers::{rotating_color, ID};
@@ -11,7 +11,7 @@ use abstutil::{prettyprint_usize, Counter};
 use ezgui::{Choice, Color, EventCtx, GfxCtx, Key, Line, MenuUnderButton, Text};
 use geom::{Duration, Statistic, Time};
 use map_model::{IntersectionID, LaneID, PathConstraints, PathStep, RoadID};
-use sim::{ParkingSpot, TripMode};
+use sim::{Analytics, ParkingSpot, TripMode};
 use std::collections::{BTreeMap, HashSet};
 
 pub enum Overlays {
@@ -20,6 +20,7 @@ pub enum Overlays {
     IntersectionDelay(Time, ObjectColorer),
     CumulativeThroughput(Time, ObjectColorer),
     FinishedTrips(Time, Plot<usize>),
+    FinishedTripsHistogram(Time, Histogram),
     Chokepoints(Time, ObjectColorer),
     BikeNetwork(RoadColorer),
     BikePathCosts(RoadColorer),
@@ -53,6 +54,7 @@ impl Overlays {
         ctx: &mut EventCtx,
         ui: &UI,
         menu: &mut MenuUnderButton,
+        baseline: &Analytics,
     ) -> Option<Transition> {
         if menu.action("change analytics overlay") {
             return Some(Transition::Push(WizardState::new(Box::new(
@@ -66,6 +68,8 @@ impl Overlays {
                                 Choice::new("intersection delay", ()).key(Key::I),
                                 Choice::new("cumulative throughput", ()).key(Key::T),
                                 Choice::new("finished trips", ()).key(Key::F),
+                                // TODO baseline borrow doesn't live long enough
+                                //Choice::new("finished trips histogram", ()).key(Key::H),
                                 Choice::new("chokepoints", ()).key(Key::C),
                                 Choice::new("bike network", ()).key(Key::B),
                                 Choice::new("bike path costs", ()).key(Key::X),
@@ -116,6 +120,9 @@ impl Overlays {
             Overlays::FinishedTrips(t, _) if now != *t => {
                 *self = Overlays::finished_trips(ctx, ui);
             }
+            Overlays::FinishedTripsHistogram(t, _) if now != *t => {
+                *self = Overlays::finished_trips_histogram(ctx, ui, baseline);
+            }
             Overlays::Chokepoints(t, _) if now != *t => {
                 *self = Overlays::chokepoints(ctx, ui);
             }
@@ -151,6 +158,16 @@ impl Overlays {
                     &ShowEverything::new(),
                 );
                 plot.draw(g);
+                true
+            }
+            Overlays::FinishedTripsHistogram(_, ref hgram) => {
+                ui.draw(
+                    g,
+                    DrawOptions::new(),
+                    &ui.primary.sim,
+                    &ShowEverything::new(),
+                );
+                hgram.draw(g);
                 true
             }
             Overlays::BusDelaysOverTime(ref plot)
@@ -558,6 +575,21 @@ impl Overlays {
             ctx,
         );
         Overlays::FinishedTrips(ui.primary.sim.time(), plot)
+    }
+
+    pub fn finished_trips_histogram(ctx: &EventCtx, ui: &UI, baseline: &Analytics) -> Overlays {
+        let now = ui.primary.sim.time();
+        Overlays::FinishedTripsHistogram(
+            now,
+            Histogram::new(
+                "Finished trip time deltas",
+                ui.primary
+                    .sim
+                    .get_analytics()
+                    .finished_trip_deltas(now, baseline),
+                ctx,
+            ),
+        )
     }
 
     fn bike_path_costs(ctx: &EventCtx, ui: &UI) -> Overlays {
