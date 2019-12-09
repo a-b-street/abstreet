@@ -101,13 +101,11 @@ impl Button {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        g.fork(Pt2D::new(0.0, 0.0), self.top_left, 1.0);
         if self.hovering {
-            self.draw_hovered.draw(self.top_left, g);
+            self.draw_hovered.redraw(self.top_left, g);
         } else {
-            self.draw_normal.draw(self.top_left, g);
+            self.draw_normal.redraw(self.top_left, g);
         }
-        g.unfork();
 
         g.canvas
             .covered_polygons

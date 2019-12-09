@@ -1,6 +1,6 @@
 use crate::{
-    text, Canvas, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, MultiText, ScreenDims,
-    ScreenPt, ScreenRectangle, Text,
+    text, Canvas, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ScreenDims, ScreenPt,
+    ScreenRectangle, Text,
 };
 use geom::{Distance, Polygon, Pt2D};
 use ordered_float::NotNan;
@@ -272,7 +272,7 @@ impl<T: Clone + Copy> Scroller<T> {
 
 pub struct NewScroller {
     draw: Drawable,
-    multi_txt: MultiText,
+    txts: Vec<(Text, ScreenPt)>,
     _total_dims: ScreenDims,
     zoom: f64,
 
@@ -284,9 +284,14 @@ pub struct NewScroller {
 
 impl NewScroller {
     // geom and multi_txt should be in screen-space, with the top_left as (0.0, 0.0).
-    pub fn new(geom: GeomBatch, multi_txt: MultiText, zoom: f64, ctx: &EventCtx) -> NewScroller {
+    pub fn new(
+        geom: GeomBatch,
+        txts: Vec<(Text, ScreenPt)>,
+        zoom: f64,
+        ctx: &EventCtx,
+    ) -> NewScroller {
         let mut total_dims = geom.get_dims();
-        for (txt, top_left) in &multi_txt.list {
+        for (txt, top_left) in &txts {
             let mut dims = ctx.text_dims(txt);
             dims.width += top_left.x;
             dims.height += top_left.y;
@@ -300,7 +305,7 @@ impl NewScroller {
 
         NewScroller {
             draw: geom.upload(ctx),
-            multi_txt,
+            txts,
             _total_dims: total_dims,
             zoom,
 
@@ -342,7 +347,7 @@ impl NewScroller {
         g.redraw(&self.draw);
         g.unfork();
 
-        for (txt, pt) in &self.multi_txt.list {
+        for (txt, pt) in &self.txts {
             g.draw_text_at_screenspace_topleft(
                 txt,
                 ScreenPt::new(pt.x, pt.y - self.offset * self.zoom),

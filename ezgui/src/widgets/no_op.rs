@@ -36,7 +36,7 @@ impl JustDraw {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        self.draw.draw(self.top_left, g);
+        self.draw.redraw(self.top_left, g);
     }
 }
 

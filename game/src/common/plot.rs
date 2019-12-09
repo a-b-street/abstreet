@@ -1,15 +1,11 @@
 use crate::common::ColorLegend;
-use ezgui::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, MultiText, ScreenPt, ScreenRectangle, Text,
-};
+use ezgui::{Color, DrawBoth, EventCtx, GeomBatch, GfxCtx, Line, ScreenPt, ScreenRectangle, Text};
 use geom::{Bounds, Circle, Distance, Duration, FindClosest, PolyLine, Polygon, Pt2D, Time};
 
 // The X is always time
 pub struct Plot<T> {
-    // TODO Could DrawBoth instead of MultiText here
-    draw: Drawable,
+    draw: DrawBoth,
     legend: ColorLegend,
-    labels: MultiText,
     rect: ScreenRectangle,
 
     // The geometry here is in screen-space.
@@ -22,7 +18,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
     // TODO I want to store y_zero in the trait, but then we can't Box max_y.
     pub fn new(title: &str, series: Vec<Series<T>>, y_zero: T, ctx: &EventCtx) -> Plot<T> {
         let mut batch = GeomBatch::new();
-        let mut labels = MultiText::new();
+        let mut labels: Vec<(Text, ScreenPt)> = Vec::new();
 
         let x1 = 0.1 * ctx.canvas.window_width;
         let x2 = 0.7 * ctx.canvas.window_width;
@@ -65,19 +61,19 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
         for i in 0..num_x_labels {
             let percent_x = (i as f64) / ((num_x_labels - 1) as f64);
             let t = max_x.percent_of(percent_x);
-            labels.add(
+            labels.push((
                 Text::from(Line(t.to_string())),
                 ScreenPt::new(x1 + percent_x * (x2 - x1), y2),
-            );
+            ));
         }
 
         let num_y_labels = 5;
         for i in 0..num_y_labels {
             let percent_y = (i as f64) / ((num_y_labels - 1) as f64);
-            labels.add(
+            labels.push((
                 Text::from(Line(max_y.from_percent(percent_y).prettyprint())),
                 ScreenPt::new(x1, y2 - percent_y * (y2 - y1)),
-            );
+            ));
         }
 
         let legend = ColorLegend::new(
@@ -112,8 +108,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
         }
 
         Plot {
-            draw: batch.upload(ctx),
-            labels,
+            draw: DrawBoth::new(ctx, batch, labels),
             legend,
             rect: ScreenRectangle { x1, y1, x2, y2 },
             closest,
@@ -125,8 +120,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
     pub fn draw(&self, g: &mut GfxCtx) {
         g.canvas.mark_covered_area(self.rect.clone());
 
-        g.fork_screenspace();
-        g.redraw(&self.draw);
+        self.draw.redraw(ScreenPt::new(0.0, 0.0), g);
 
         let cursor = g.canvas.get_cursor_in_screen_space();
         if self.rect.contains(cursor) {
@@ -147,13 +141,13 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
                 )));
             }
             if txt.num_lines() > 0 {
+                g.fork_screenspace();
                 g.draw_circle(Color::RED, &Circle::new(cursor.to_pt(), radius));
                 g.draw_mouse_tooltip(&txt);
+                g.unfork();
             }
         }
-        g.unfork();
 
-        self.labels.draw(g);
         self.legend.draw(g);
     }
 }
@@ -205,15 +199,14 @@ pub struct Series<T> {
 
 // The X axis is Durations, with positive meaning "faster" (considered good) and negative "slower"
 pub struct Histogram {
-    draw: Drawable,
-    labels: MultiText,
+    draw: DrawBoth,
     rect: ScreenRectangle,
 }
 
 impl Histogram {
     pub fn new(title: &str, unsorted_dts: Vec<Duration>, ctx: &EventCtx) -> Histogram {
         let mut batch = GeomBatch::new();
-        let mut labels = MultiText::new();
+        let mut labels: Vec<(Text, ScreenPt)> = Vec::new();
 
         let x1 = 0.5 * ctx.canvas.window_width;
         let x2 = 0.9 * ctx.canvas.window_width;
@@ -257,7 +250,7 @@ impl Histogram {
 
             let min_y = 0;
             let max_y = bars.iter().map(|(_, _, cnt)| *cnt).max().unwrap();
-            for (idx, (min, max, cnt)) in bars.into_iter().enumerate() {
+            for (idx, (min, _, cnt)) in bars.into_iter().enumerate() {
                 // TODO Or maybe the average?
                 let color = if min < Duration::ZERO {
                     Color::RED
@@ -277,16 +270,16 @@ impl Histogram {
                 ) {
                     batch.push(color, rect);
                 }
-                labels.add(
+                labels.push((
                     Text::from(Line(min.to_string())),
                     ScreenPt::new(x1 + (x2 - x1) * percent_x_left, y2),
-                );
+                ));
             }
+            // TODO Print the max_x label
         }
 
         Histogram {
-            draw: batch.upload(ctx),
-            labels,
+            draw: DrawBoth::new(ctx, batch, labels),
             rect: ScreenRectangle { x1, y1, x2, y2 },
         }
     }
@@ -294,9 +287,6 @@ impl Histogram {
     pub fn draw(&self, g: &mut GfxCtx) {
         g.canvas.mark_covered_area(self.rect.clone());
 
-        g.fork_screenspace();
-        g.redraw(&self.draw);
-        g.unfork();
-        self.labels.draw(g);
+        self.draw.redraw(ScreenPt::new(0.0, 0.0), g);
     }
 }

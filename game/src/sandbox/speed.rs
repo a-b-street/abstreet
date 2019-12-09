@@ -272,15 +272,13 @@ impl SpeedControls {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        g.fork_screenspace();
-        self.draw_fixed.draw(ScreenPt::new(0.0, 0.0), g);
+        self.draw_fixed.redraw(ScreenPt::new(0.0, 0.0), g);
         g.canvas.mark_covered_area(ScreenRectangle {
             x1: 0.0,
             y1: 0.0,
             x2: PANEL_WIDTH,
             y2: PANEL_HEIGHT,
         });
-        g.unfork();
 
         // Row 1
 

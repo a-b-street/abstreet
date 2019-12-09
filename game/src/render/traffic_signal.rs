@@ -2,8 +2,8 @@ use crate::options::TrafficSignalStyle;
 use crate::render::{DrawCtx, DrawTurnGroup, BIG_ARROW_THICKNESS};
 use crate::ui::UI;
 use ezgui::{
-    Color, EventCtx, GeomBatch, GfxCtx, Line, ModalMenu, MultiText, NewScroller, ScreenDims,
-    ScreenPt, Scroller, Text,
+    Color, EventCtx, GeomBatch, GfxCtx, Line, ModalMenu, NewScroller, ScreenDims, ScreenPt,
+    Scroller, Text,
 };
 use geom::{Circle, Distance, Duration, Polygon, Pt2D};
 use map_model::{IntersectionID, Phase, TurnPriority};
@@ -242,10 +242,10 @@ impl TrafficSignalDiagram {
 fn make_new_scroller(i: IntersectionID, draw_ctx: &DrawCtx, ctx: &EventCtx) -> NewScroller {
     let zoom = 15.0;
 
-    // TODO Nicer API would be passing in a list of (GeomBatch, MultiText)s each starting at the
+    // TODO Nicer API would be passing in a list of (GeomBatch, text-at-points)s each starting at the
     // origin, then do the translation later.
     let mut master_batch = GeomBatch::new();
-    let mut txt = MultiText::new();
+    let mut txt: Vec<(Text, ScreenPt)> = Vec::new();
 
     // Slightly inaccurate -- the turn rendering may slightly exceed the intersection polygon --
     // but this is close enough.
@@ -260,10 +260,10 @@ fn make_new_scroller(i: IntersectionID, draw_ctx: &DrawCtx, ctx: &EventCtx) -> N
                 poly.translate(-bounds.min_x, y_offset - bounds.min_y),
             );
         }
-        txt.add(
+        txt.push((
             Text::from(Line(format!("Phase {}: {}", idx + 1, phase.duration))),
             ScreenPt::new(10.0 + (bounds.max_x - bounds.min_x) * zoom, y_offset * zoom),
-        );
+        ));
         y_offset += bounds.max_y - bounds.min_y;
     }
 
