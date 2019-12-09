@@ -1,11 +1,11 @@
 use crate::{AgentID, CarID, ParkingSpot, PedestrianID, TripID, TripMode};
 use geom::Duration;
 use map_model::{
-    BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, PathRequest, Traversable,
+    BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, Path, PathRequest, Traversable,
 };
 use serde_derive::{Deserialize, Serialize};
 
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub enum Event {
     CarReachedParkingSpot(CarID, ParkingSpot),
     CarOrBikeReachedBorder(CarID, IntersectionID),
@@ -28,4 +28,8 @@ pub enum Event {
     TripFinished(TripID, TripMode, Duration),
     TripAborted(TripID),
     TripPhaseStarting(TripID, Option<PathRequest>, String),
+
+    // Just use for parking replanning. Not happy about copying the full path in here, but the way
+    // to plumb info into Analytics is Event.
+    PathAmended(Path),
 }

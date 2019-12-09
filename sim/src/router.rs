@@ -210,6 +210,7 @@ impl Router {
                             for step in new_path_steps {
                                 self.path.add(step, map);
                             }
+                            events.push(Event::PathAmended(self.path.clone()));
                             // TODO This path might not be the same as the one found here...
                             events.push(Event::TripPhaseStarting(
                                 trip,

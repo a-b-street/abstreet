@@ -279,6 +279,8 @@ impl DrivingSimState {
             }
             CarState::Idling(dist, _) => {
                 car.router = transit.bus_departed_from_stop(car.vehicle.id);
+                self.events
+                    .push(Event::PathAmended(car.router.get_path().clone()));
                 car.state = car.crossing_state(dist, now, map);
                 scheduler.push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
 

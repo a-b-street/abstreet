@@ -8,8 +8,10 @@ use crate::sandbox::bus_explorer::ShowBusRoute;
 use crate::sandbox::SandboxMode;
 use crate::ui::{ShowEverything, UI};
 use abstutil::{prettyprint_usize, Counter};
-use ezgui::{Choice, Color, EventCtx, GfxCtx, Key, Line, MenuUnderButton, Text};
-use geom::{Duration, Statistic, Time};
+use ezgui::{
+    Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, MenuUnderButton, Text,
+};
+use geom::{Distance, Duration, PolyLine, Statistic, Time};
 use map_model::{IntersectionID, LaneID, PathConstraints, PathStep, RoadID};
 use sim::{Analytics, ParkingSpot, TripMode};
 use std::collections::{BTreeMap, HashSet};
@@ -46,6 +48,7 @@ pub enum Overlays {
         i: IntersectionID,
         plot: Plot<Duration>,
     },
+    IntersectionDemand(Time, IntersectionID, Drawable),
 }
 
 impl Overlays {
@@ -117,6 +120,9 @@ impl Overlays {
             Overlays::IntersectionDelayOverTime { t, bucket, i, .. } if now != *t => {
                 *self = Overlays::intersection_delay_over_time(*i, *bucket, ctx, ui);
             }
+            Overlays::IntersectionDemand(t, i, _) if now != *t => {
+                *self = Overlays::intersection_demand(*i, ctx, ui);
+            }
             Overlays::FinishedTrips(t, _) if now != *t => {
                 *self = Overlays::finished_trips(ctx, ui);
             }
@@ -179,6 +185,16 @@ impl Overlays {
                     &ShowEverything::new(),
                 );
                 plot.draw(g);
+                true
+            }
+            Overlays::IntersectionDemand(_, _, ref draw) => {
+                ui.draw(
+                    g,
+                    DrawOptions::new(),
+                    &ui.primary.sim,
+                    &ShowEverything::new(),
+                );
+                g.redraw(draw);
                 true
             }
             Overlays::BusRoute(ref s) => {
@@ -624,6 +640,38 @@ impl Overlays {
             );
         }
         Overlays::BikePathCosts(colorer.build(ctx, &ui.primary.map))
+    }
+
+    pub fn intersection_demand(i: IntersectionID, ctx: &EventCtx, ui: &UI) -> Overlays {
+        let mut batch = GeomBatch::new();
+
+        let mut total_demand = 0;
+        let mut demand_per_group: Vec<(&PolyLine, usize)> = Vec::new();
+        for g in ui.primary.map.get_traffic_signal(i).turn_groups.values() {
+            let demand = ui
+                .primary
+                .sim
+                .get_analytics()
+                .thruput_stats
+                .demand
+                .get(&g.id)
+                .cloned()
+                .unwrap_or(0);
+            if demand > 0 {
+                total_demand += demand;
+                demand_per_group.push((&g.geom, demand));
+            }
+        }
+
+        for (pl, demand) in demand_per_group {
+            let percent = (demand as f64) / (total_demand as f64);
+            batch.push(
+                Color::RED,
+                pl.make_arrow(percent * Distance::meters(5.0)).unwrap(),
+            );
+        }
+
+        Overlays::IntersectionDemand(ui.primary.sim.time(), i, batch.upload(ctx))
     }
 }
 

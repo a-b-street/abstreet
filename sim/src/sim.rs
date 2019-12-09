@@ -273,6 +273,7 @@ impl Sim {
                 ) {
                     self.trips.agent_starting_trip_leg(AgentID::Car(id), trip);
                     self.transit.bus_created(id, route.id, next_stop_idx);
+                    self.analytics.record_demand(&path, map);
                     results.push(id);
                     return results;
                 } else {
@@ -395,6 +396,8 @@ impl Sim {
                             Some(req),
                             format!("{}", create_car.vehicle.id),
                         ));
+                        self.analytics
+                            .record_demand(create_car.router.get_path(), map);
                     } else if retry_if_no_room {
                         // TODO Record this in the trip log
                         self.scheduler.push(
@@ -481,6 +484,7 @@ impl Sim {
                                 create_ped.goal.connection
                             ),
                         ));
+                        self.analytics.record_demand(&create_ped.path, map);
 
                         // Maybe there's actually no work to do!
                         match (&create_ped.start.connection, &create_ped.goal.connection) {

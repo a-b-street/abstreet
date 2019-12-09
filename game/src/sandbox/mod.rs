@@ -262,6 +262,10 @@ impl State for SandboxMode {
             {
                 let bucket = Duration::hours(1);
                 self.overlay = Overlays::intersection_delay_over_time(i, bucket, ctx, ui);
+            } else if ui.primary.map.get_i(i).is_traffic_signal()
+                && ctx.input.contextual_action(Key::E, "show current demand")
+            {
+                self.overlay = Overlays::intersection_demand(i, ctx, ui);
             }
         }
 

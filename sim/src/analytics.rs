@@ -3,7 +3,7 @@ use abstutil::Counter;
 use derivative::Derivative;
 use geom::{Distance, Duration, DurationHistogram, PercentageHistogram, Time};
 use map_model::{
-    BusRouteID, BusStopID, IntersectionID, Map, Path, PathRequest, RoadID, Traversable,
+    BusRouteID, BusStopID, IntersectionID, Map, Path, PathRequest, RoadID, Traversable, TurnGroupID,
 };
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, VecDeque};
@@ -33,6 +33,9 @@ pub struct ThruputStats {
 
     raw_per_road: Vec<(Time, TripMode, RoadID)>,
     raw_per_intersection: Vec<(Time, TripMode, IntersectionID)>,
+
+    // Unlike everything else in Analytics, this is just for a moment in time.
+    pub demand: BTreeMap<TurnGroupID, usize>,
 }
 
 impl Analytics {
@@ -43,6 +46,7 @@ impl Analytics {
                 count_per_intersection: Counter::new(),
                 raw_per_road: Vec::new(),
                 raw_per_intersection: Vec::new(),
+                demand: BTreeMap::new(),
             },
             test_expectations: VecDeque::new(),
             bus_arrivals: Vec::new(),
@@ -83,6 +87,10 @@ impl Analytics {
                             .raw_per_intersection
                             .push((time, mode, t.parent));
                     }
+
+                    if let Some(id) = map.get_turn_group(t) {
+                        *self.thruput_stats.demand.entry(id).or_insert(0) -= 1;
+                    }
                 }
             };
         }
@@ -118,15 +126,33 @@ impl Analytics {
                 .push((time, delay));
         }
 
-        // Trip log
-        if let Event::TripPhaseStarting(id, maybe_req, metadata) = ev {
-            self.trip_log.push((time, id, maybe_req, metadata));
-        } else if let Event::TripAborted(id) = ev {
-            self.trip_log
-                .push((time, id, None, format!("trip aborted for some reason")));
-        } else if let Event::TripFinished(id, _, _) = ev {
-            self.trip_log
-                .push((time, id, None, format!("trip finished")));
+        // TODO Kinda hacky, but these all consume the event, so kinda bundle em.
+        match ev {
+            Event::TripPhaseStarting(id, maybe_req, metadata) => {
+                self.trip_log.push((time, id, maybe_req, metadata));
+            }
+            Event::TripAborted(id) => {
+                self.trip_log
+                    .push((time, id, None, format!("trip aborted for some reason")));
+            }
+            Event::TripFinished(id, _, _) => {
+                self.trip_log
+                    .push((time, id, None, format!("trip finished")));
+            }
+            Event::PathAmended(path) => {
+                self.record_demand(&path, map);
+            }
+            _ => {}
+        }
+    }
+
+    pub fn record_demand(&mut self, path: &Path, map: &Map) {
+        for step in path.get_steps() {
+            if let Traversable::Turn(t) = step.as_traversable() {
+                if let Some(id) = map.get_turn_group(t) {
+                    *self.thruput_stats.demand.entry(id).or_insert(0) += 1;
+                }
+            }
         }
     }
 
