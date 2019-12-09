@@ -1,4 +1,5 @@
 use crate::common::ColorLegend;
+use abstutil::prettyprint_usize;
 use ezgui::{Color, DrawBoth, EventCtx, GeomBatch, GfxCtx, Line, ScreenPt, ScreenRectangle, Text};
 use geom::{Bounds, Circle, Distance, Duration, FindClosest, PolyLine, Polygon, Pt2D, Time};
 
@@ -171,7 +172,7 @@ impl Yvalue<usize> for usize {
         }
     }
     fn prettyprint(self) -> String {
-        abstutil::prettyprint_usize(self)
+        prettyprint_usize(self)
     }
 }
 impl Yvalue<Duration> for Duration {
@@ -201,12 +202,16 @@ pub struct Series<T> {
 pub struct Histogram {
     draw: DrawBoth,
     rect: ScreenRectangle,
+
+    // TODO Bit sad to pretty much duplicate the geometry from DrawBoth...
+    rect_labels: Vec<(Polygon, Text)>,
 }
 
 impl Histogram {
     pub fn new(unsorted_dts: Vec<Duration>, ctx: &EventCtx) -> Histogram {
         let mut batch = GeomBatch::new();
         let mut labels: Vec<(Text, ScreenPt)> = Vec::new();
+        let mut rect_labels = Vec::new();
 
         let x1 = 0.7 * ctx.canvas.window_width;
         let x2 = 0.95 * ctx.canvas.window_width;
@@ -269,7 +274,16 @@ impl Histogram {
                     // Bottom-right
                     Pt2D::new(x1 + (x2 - x1) * percent_x_right, y2),
                 ) {
-                    batch.push(color, rect);
+                    batch.push(color, rect.clone());
+                    rect_labels.push((
+                        rect,
+                        Text::from(Line(format!(
+                            "[{}, {}) has {} trips",
+                            min,
+                            max,
+                            prettyprint_usize(cnt)
+                        ))),
+                    ));
                 }
             }
 
@@ -290,7 +304,7 @@ impl Histogram {
                 // TODO Better alignment...
                 let left_px = 30.0;
                 labels.push((
-                    Text::from(Line(abstutil::prettyprint_usize(
+                    Text::from(Line(prettyprint_usize(
                         ((max_y as f64) * percent_y) as usize,
                     ))),
                     ScreenPt::new(x1 - left_px, y2 - percent_y * (y2 - y1)),
@@ -301,6 +315,7 @@ impl Histogram {
         Histogram {
             draw: DrawBoth::new(ctx, batch, labels),
             rect: ScreenRectangle { x1, y1, x2, y2 },
+            rect_labels,
         }
     }
 
@@ -308,5 +323,14 @@ impl Histogram {
         g.canvas.mark_covered_area(self.rect.clone());
 
         self.draw.redraw(ScreenPt::new(0.0, 0.0), g);
+
+        let cursor = g.canvas.get_cursor_in_screen_space();
+        if self.rect.contains(cursor) {
+            for (rect, lbl) in &self.rect_labels {
+                if rect.contains_pt(cursor.to_pt()) {
+                    g.draw_mouse_tooltip(lbl);
+                }
+            }
+        }
     }
 }
