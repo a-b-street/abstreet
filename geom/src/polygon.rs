@@ -1,4 +1,4 @@
-use crate::{Angle, Bounds, Distance, HashablePt2D, Pt2D};
+use crate::{Angle, Bounds, Distance, HashablePt2D, Pt2D, Ring};
 use geo_booleanop::boolean::BooleanOp;
 use geo_offset::Offset;
 use serde_derive::{Deserialize, Serialize};
@@ -169,6 +169,7 @@ impl Polygon {
                 top_left.offset(width, Distance::ZERO),
                 top_left.offset(width, height),
                 top_left.offset(Distance::ZERO, height),
+                top_left,
             ],
             indices: vec![0, 1, 2, 0, 2, 3],
             uv: None,
@@ -251,6 +252,12 @@ impl Polygon {
         pts.push(Pt2D::new(0.0, r));
 
         Polygon::new(&pts)
+    }
+
+    // Only works for polygons that're formed from rings. Those made from PolyLines won't work, for
+    // example.
+    pub fn to_outline(&self, thickness: Distance) -> Polygon {
+        Ring::new(self.points.clone()).make_polygons(thickness)
     }
 }
 

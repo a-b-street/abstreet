@@ -5,7 +5,7 @@ use crate::render::{
 };
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Prerender};
-use geom::{Angle, Distance, Line, PolyLine, Polygon, Pt2D, Ring, Time, EPSILON_DIST};
+use geom::{Angle, Distance, Line, PolyLine, Polygon, Pt2D, Time, EPSILON_DIST};
 use map_model::{
     Intersection, IntersectionID, IntersectionType, Map, Road, RoadWithStopSign, Turn, TurnID,
     TurnType, LANE_THICKNESS,
@@ -158,7 +158,7 @@ impl Renderable for DrawIntersection {
     }
 
     fn get_outline(&self, map: &Map) -> Polygon {
-        Ring::new(map.get_i(self.id).polygon.points().clone()).make_polygons(OUTLINE_THICKNESS)
+        map.get_i(self.id).polygon.to_outline(OUTLINE_THICKNESS)
     }
 
     fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool {

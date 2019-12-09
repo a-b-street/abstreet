@@ -1,4 +1,5 @@
 use crate::common::ColorLegend;
+use crate::render::OUTLINE_THICKNESS;
 use abstutil::prettyprint_usize;
 use ezgui::{Color, DrawBoth, EventCtx, GeomBatch, GfxCtx, Line, ScreenPt, ScreenRectangle, Text};
 use geom::{Bounds, Circle, Distance, Duration, FindClosest, PolyLine, Polygon, Pt2D, Time};
@@ -278,6 +279,7 @@ impl Histogram {
                     Pt2D::new(x1 + (x2 - x1) * percent_x_right, y2),
                 ) {
                     batch.push(color, rect.clone());
+                    batch.push(Color::BLACK.alpha(0.5), rect.to_outline(OUTLINE_THICKNESS));
                     rect_labels.push((
                         rect,
                         Text::from(Line(format!(
