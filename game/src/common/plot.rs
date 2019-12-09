@@ -226,8 +226,11 @@ impl Histogram {
             ),
         );
 
-        if unsorted_dts.len() < 10 {
-            // TODO Add some warning label or something
+        if unsorted_dts.is_empty() {
+            labels.push((
+                Text::from(Line("not enough data yet")),
+                ScreenPt::new(x1 + (x2 - x1) * 0.1, y1 + (y2 - y1) * 0.1),
+            ));
         } else {
             // TODO Generic "bucket into 10 groups, give (min, max, count)"
             let min_x = *unsorted_dts.iter().min().unwrap();

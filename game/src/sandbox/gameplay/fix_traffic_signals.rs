@@ -10,6 +10,7 @@ use sim::{Analytics, BorderSpawnOverTime, OriginDestination, Scenario, TripMode}
 
 pub struct FixTrafficSignals {
     time: Time,
+    once: bool,
 }
 
 impl FixTrafficSignals {
@@ -19,7 +20,7 @@ impl FixTrafficSignals {
                 "Fix traffic signals",
                 vec![
                     (hotkey(Key::F), "find slowest traffic signals"),
-                    (hotkey(Key::D), "show finished trip distribution"),
+                    (hotkey(Key::D), "hide finished trip distribution"),
                     (hotkey(Key::H), "help"),
                     (hotkey(Key::S), "final score"),
                 ],
@@ -27,6 +28,7 @@ impl FixTrafficSignals {
             ),
             Box::new(FixTrafficSignals {
                 time: Time::START_OF_DAY,
+                once: true,
             }),
         )
     }
@@ -41,6 +43,12 @@ impl GameplayState for FixTrafficSignals {
         prebaked: &Analytics,
         menu: &mut ModalMenu,
     ) -> Option<Transition> {
+        // Once is never...
+        if self.once {
+            *overlays = Overlays::finished_trips_histogram(ctx, ui, prebaked);
+            self.once = false;
+        }
+
         menu.event(ctx);
 
         // Technically this shows stop signs too, but mostly the bottlenecks are signals.
