@@ -33,7 +33,7 @@ pub struct SandboxMode {
     overlay: Overlays,
     gameplay: gameplay::GameplayRunner,
     common: CommonState,
-    minimap: Minimap,
+    minimap: Option<Minimap>,
     menu: ModalMenu,
 }
 
@@ -67,9 +67,13 @@ impl SandboxMode {
             ),
             agent_tools: AgentTools::new(),
             overlay: Overlays::Inactive,
-            gameplay: gameplay::GameplayRunner::initialize(mode, ui, ctx),
             common: CommonState::new(ctx),
-            minimap: Minimap::new(),
+            minimap: if mode.has_minimap() {
+                Some(Minimap::new())
+            } else {
+                None
+            },
+            gameplay: gameplay::GameplayRunner::initialize(mode, ui, ctx),
             menu: ModalMenu::new(
                 "Sandbox Mode",
                 vec![(lctrl(Key::E), "edit mode"), (hotkey(Key::X), "reset sim")],
@@ -131,7 +135,9 @@ impl State for SandboxMode {
         {
             return t;
         }
-        self.minimap.event(ui, ctx);
+        if let Some(ref mut m) = self.minimap {
+            m.event(ui, ctx);
+        }
 
         if let Some(t) = self
             .agent_tools
@@ -305,7 +311,9 @@ impl State for SandboxMode {
         self.info_tools.draw(g);
         self.general_tools.draw(g);
         self.gameplay.draw(g, ui);
-        self.minimap.draw(g, ui);
+        if let Some(ref m) = self.minimap {
+            m.draw(g, ui);
+        }
     }
 
     fn on_suspend(&mut self, _: &mut EventCtx, _: &mut UI) {

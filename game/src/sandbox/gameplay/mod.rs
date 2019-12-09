@@ -129,6 +129,13 @@ impl GameplayMode {
         }
         true
     }
+
+    pub fn has_minimap(&self) -> bool {
+        match self {
+            GameplayMode::FixTrafficSignalsTutorial(_) => false,
+            _ => true,
+        }
+    }
 }
 
 impl GameplayRunner {
