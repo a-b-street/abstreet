@@ -1,5 +1,5 @@
 use crate::game::{msg, Transition};
-use crate::sandbox::gameplay::faster_trips::faster_trips_panel;
+use crate::sandbox::gameplay::faster_trips::small_faster_trips_panel;
 use crate::sandbox::gameplay::{manage_overlays, GameplayState};
 use crate::sandbox::overlays::Overlays;
 use crate::ui::UI;
@@ -75,7 +75,7 @@ impl GameplayState for FixTrafficSignals {
 
         if self.time != ui.primary.sim.time() {
             self.time = ui.primary.sim.time();
-            menu.set_info(ctx, faster_trips_panel(TripMode::Drive, ui, prebaked));
+            menu.set_info(ctx, small_faster_trips_panel(TripMode::Drive, ui, prebaked));
         }
 
         if menu.action("help") {

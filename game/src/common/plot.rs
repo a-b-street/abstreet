@@ -204,14 +204,14 @@ pub struct Histogram {
 }
 
 impl Histogram {
-    pub fn new(title: &str, unsorted_dts: Vec<Duration>, ctx: &EventCtx) -> Histogram {
+    pub fn new(unsorted_dts: Vec<Duration>, ctx: &EventCtx) -> Histogram {
         let mut batch = GeomBatch::new();
         let mut labels: Vec<(Text, ScreenPt)> = Vec::new();
 
-        let x1 = 0.5 * ctx.canvas.window_width;
-        let x2 = 0.9 * ctx.canvas.window_width;
-        let y1 = 0.4 * ctx.canvas.window_height;
-        let y2 = 0.8 * ctx.canvas.window_height;
+        let x1 = 0.7 * ctx.canvas.window_width;
+        let x2 = 0.95 * ctx.canvas.window_width;
+        let y1 = 0.6 * ctx.canvas.window_height;
+        let y2 = 0.9 * ctx.canvas.window_height;
         batch.push(
             Color::grey(0.8),
             Polygon::rectangle_topleft(
@@ -250,10 +250,11 @@ impl Histogram {
 
             let min_y = 0;
             let max_y = bars.iter().map(|(_, _, cnt)| *cnt).max().unwrap();
-            for (idx, (min, _, cnt)) in bars.into_iter().enumerate() {
-                // TODO Or maybe the average?
-                let color = if min < Duration::ZERO {
+            for (idx, (min, max, cnt)) in bars.into_iter().enumerate() {
+                let color = if max < Duration::ZERO {
                     Color::RED
+                } else if min < Duration::ZERO {
+                    Color::YELLOW
                 } else {
                     Color::GREEN
                 };
@@ -270,12 +271,31 @@ impl Histogram {
                 ) {
                     batch.push(color, rect);
                 }
+            }
+
+            // TODO These can still get really squished. Draw rotated?
+            let num_x_labels = 3;
+            for i in 0..num_x_labels {
+                let percent_x = (i as f64) / ((num_x_labels - 1) as f64);
+                let dt = min_x + (max_x - min_x) * percent_x;
                 labels.push((
-                    Text::from(Line(min.to_string())),
-                    ScreenPt::new(x1 + (x2 - x1) * percent_x_left, y2),
+                    Text::from(Line(dt.to_string())),
+                    ScreenPt::new(x1 + percent_x * (x2 - x1), y2),
                 ));
             }
-            // TODO Print the max_x label
+
+            let num_y_labels = 5;
+            for i in 0..num_y_labels {
+                let percent_y = (i as f64) / ((num_y_labels - 1) as f64);
+                // TODO Better alignment...
+                let left_px = 30.0;
+                labels.push((
+                    Text::from(Line(abstutil::prettyprint_usize(
+                        ((max_y as f64) * percent_y) as usize,
+                    ))),
+                    ScreenPt::new(x1 - left_px, y2 - percent_y * (y2 - y1)),
+                ));
+            }
         }
 
         Histogram {

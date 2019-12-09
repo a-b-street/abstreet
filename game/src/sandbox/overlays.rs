@@ -582,7 +582,6 @@ impl Overlays {
         Overlays::FinishedTripsHistogram(
             now,
             Histogram::new(
-                "Finished trip time deltas",
                 ui.primary
                     .sim
                     .get_analytics()
