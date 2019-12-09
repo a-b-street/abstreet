@@ -195,3 +195,15 @@ changes here.
 - prototype a new speed/time control panel from the mockup
 - nicer time warp loading screen
 - record and show detailed trip timeline, including time to park
+
+0.1.18
+
+- map data: infer more building addresses
+- some analytics on how long people spend parking and intersection delay over time
+- create an options panel, allowing runtime customization of color scheme, traffic signal rendering, etc
+- internal changes to map building pipeline to make it much easier for new devs to onboard
+- organizing challenges into sub-stages, starting to flesh out specifics for the fix traffic signal track
+- much more realistic pedestrian pathfinding
+- fix minimap on mac (dpi issues)
+- visual tweaks to cars to make front/back easier to distinguish
+- internal change to switch most assets from PNG to SVG

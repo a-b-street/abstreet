@@ -9,11 +9,11 @@ gameplay is not cohesively tied together yet. Please email
 Grab a pre-built binary release:
 
 - Windows:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.17/abstreet_windows.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.18/abstreet_windows.zip
 - Mac:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.17/abstreet_mac.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.18/abstreet_mac.zip
 - Linux:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.17/abstreet_linux.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.18/abstreet_linux.zip
 
 Unzip the folder, then run `play_abstreet.sh` or `play_abstreet.bat`. On
 Windows, you'll probably get a warning about running software from an unknown
