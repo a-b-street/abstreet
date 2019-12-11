@@ -630,4 +630,9 @@ impl DrawBoth {
     pub fn get_dims(&self) -> ScreenDims {
         self.dims
     }
+
+    // TODO Hack
+    pub(crate) fn override_bounds(&mut self, b: Bounds) {
+        self.dims = ScreenDims::new(b.max_x - b.min_x, b.max_y - b.min_y);
+    }
 }

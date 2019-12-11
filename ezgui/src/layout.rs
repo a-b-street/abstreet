@@ -48,3 +48,13 @@ pub fn stack_vertically(
         top_left.y += dims.height;
     }
 }
+
+pub fn stack_horizontally(top_left: ScreenPt, padding: f64, widgets: Vec<&mut dyn Widget>) {
+    let mut x1 = top_left.x;
+    let y1 = top_left.y;
+
+    for w in widgets {
+        w.set_pos(ScreenPt::new(x1, y1));
+        x1 += w.get_dims().width + padding;
+    }
+}

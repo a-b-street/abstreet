@@ -10,6 +10,13 @@ pub struct JustDraw {
 }
 
 impl JustDraw {
+    pub fn wrap(draw: DrawBoth) -> JustDraw {
+        JustDraw {
+            draw,
+            top_left: ScreenPt::new(0.0, 0.0),
+        }
+    }
+
     pub fn image(filename: &str, ctx: &EventCtx) -> JustDraw {
         let (color, rect) = ctx.canvas.texture_rect(filename);
         let batch = GeomBatch::from(vec![(color, rect)]);
@@ -21,9 +28,12 @@ impl JustDraw {
 
     pub fn svg(filename: &str, ctx: &EventCtx) -> JustDraw {
         let mut batch = GeomBatch::new();
-        svg::add_svg(&mut batch, filename);
+        let bounds = svg::add_svg(&mut batch, filename);
+        let mut draw = DrawBoth::new(ctx, batch, vec![]);
+        // TODO The dims will be wrong; it'll only look at geometry, not the padding in the image.
+        draw.override_bounds(bounds);
         JustDraw {
-            draw: DrawBoth::new(ctx, batch, vec![]),
+            draw,
             top_left: ScreenPt::new(0.0, 0.0),
         }
     }
