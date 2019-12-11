@@ -1,4 +1,5 @@
 use crate::helpers::{ColorScheme, ID};
+use crate::obj_actions::PerObjectActions;
 use crate::options::Options;
 use crate::render::{
     draw_vehicle, AgentCache, AgentColorScheme, DrawCtx, DrawMap, DrawOptions, DrawPedCrowd,
@@ -18,6 +19,8 @@ pub struct UI {
     pub cs: ColorScheme,
     pub agent_cs: AgentColorScheme,
     pub opts: Options,
+
+    pub per_obj: PerObjectActions,
 }
 
 impl UI {
@@ -77,6 +80,7 @@ impl UI {
             cs,
             agent_cs: AgentColorScheme::ByID,
             opts,
+            per_obj: PerObjectActions::new(),
         }
     }
 

@@ -203,7 +203,7 @@ impl State for ScenarioManager {
             let from = self.trips_from_bldg.get(b);
             let to = self.trips_to_bldg.get(b);
             if !from.is_empty() || !to.is_empty() {
-                if ctx.input.contextual_action(Key::T, "browse trips") {
+                if ui.per_obj.action(ctx, Key::T, "browse trips") {
                     // TODO Avoid the clone? Just happens once though.
                     let mut all_trips = from.clone();
                     all_trips.extend(to);
@@ -215,9 +215,7 @@ impl State for ScenarioManager {
                         OD::Bldg(b),
                     ));
                 } else if self.demand.is_none()
-                    && ctx
-                        .input
-                        .contextual_action(Key::P, "show trips to and from")
+                    && ui.per_obj.action(ctx, Key::P, "show trips to and from")
                 {
                     self.demand = Some(show_demand(&self.scenario, from, to, OD::Bldg(b), ui, ctx));
                     self.menu
@@ -228,7 +226,7 @@ impl State for ScenarioManager {
             let from = self.trips_from_border.get(i);
             let to = self.trips_to_border.get(i);
             if !from.is_empty() || !to.is_empty() {
-                if ctx.input.contextual_action(Key::T, "browse trips") {
+                if ui.per_obj.action(ctx, Key::T, "browse trips") {
                     // TODO Avoid the clone? Just happens once though.
                     let mut all_trips = from.clone();
                     all_trips.extend(to);
@@ -240,9 +238,7 @@ impl State for ScenarioManager {
                         OD::Border(i),
                     ));
                 } else if self.demand.is_none()
-                    && ctx
-                        .input
-                        .contextual_action(Key::P, "show trips to and from")
+                    && ui.per_obj.action(ctx, Key::P, "show trips to and from")
                 {
                     self.demand = Some(show_demand(
                         &self.scenario,

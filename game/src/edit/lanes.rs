@@ -160,10 +160,7 @@ impl LaneEditor {
 
         if let Some(ID::Lane(l)) = ui.primary.current_selection {
             if let Some(idx) = self.active_idx {
-                if ctx
-                    .input
-                    .contextual_action(Key::Space, &self.brushes[idx].label)
-                {
+                if ui.per_obj.action(ctx, Key::Space, &self.brushes[idx].label) {
                     // These errors are universal.
                     if ui.primary.map.get_l(l).is_sidewalk() {
                         return Some(Transition::Push(msg(
@@ -192,15 +189,15 @@ impl LaneEditor {
                 }
             }
 
-            if ctx
-                .input
-                .contextual_action(Key::U, "bulk edit lanes on this road")
+            if ui
+                .per_obj
+                .action(ctx, Key::U, "bulk edit lanes on this road")
             {
                 return Some(Transition::Push(make_bulk_edit_lanes(
                     ui.primary.map.get_l(l).parent,
                 )));
             } else if let Some(lt) = ui.primary.map.get_edits().original_lts.get(&l) {
-                if ctx.input.contextual_action(Key::R, "revert") {
+                if ui.per_obj.action(ctx, Key::R, "revert") {
                     if let Some(err) = can_change_lane_type(l, *lt, &ui.primary.map) {
                         return Some(Transition::Push(msg("Error", vec![err])));
                     }
@@ -214,7 +211,7 @@ impl LaneEditor {
                     apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
                 }
             } else if ui.primary.map.get_edits().reversed_lanes.contains(&l) {
-                if ctx.input.contextual_action(Key::R, "revert") {
+                if ui.per_obj.action(ctx, Key::R, "revert") {
                     match (self.brushes[self.reverse_idx].apply)(&ui.primary.map, l) {
                         Ok(Some(cmd)) => {
                             let mut edits = ui.primary.map.get_edits().clone();
@@ -232,9 +229,9 @@ impl LaneEditor {
         // Woo, a special case! The construction tool also applies to intersections.
         if let Some(ID::Intersection(i)) = ui.primary.current_selection {
             if self.active_idx == Some(self.construction_idx)
-                && ctx
-                    .input
-                    .contextual_action(Key::Space, &self.brushes[self.construction_idx].label)
+                && ui
+                    .per_obj
+                    .action(ctx, Key::Space, &self.brushes[self.construction_idx].label)
             {
                 let it = ui.primary.map.get_i(i).intersection_type;
                 if it != IntersectionType::Construction && it != IntersectionType::Border {

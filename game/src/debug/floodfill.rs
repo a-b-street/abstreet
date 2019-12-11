@@ -20,14 +20,11 @@ impl Floodfiller {
                 if !lt.supports_any_movement() {
                     return None;
                 }
-                if ctx
-                    .input
-                    .contextual_action(Key::F, "floodfill from this lane")
-                {
+                if ui.per_obj.action(ctx, Key::F, "floodfill from this lane") {
                     find_reachable_from(l, map)
-                } else if ctx
-                    .input
-                    .contextual_action(Key::S, "show strongly-connected components")
+                } else if ui
+                    .per_obj
+                    .action(ctx, Key::S, "show strongly-connected components")
                 {
                     let constraints = PathConstraints::from_lt(lt);
                     let (good, bad) = connectivity::find_scc(map, constraints);

@@ -188,10 +188,7 @@ impl State for DebugMode {
         match ui.primary.current_selection {
             Some(ID::Lane(_)) | Some(ID::Intersection(_)) | Some(ID::ExtraShape(_)) => {
                 let id = ui.primary.current_selection.clone().unwrap();
-                if ctx
-                    .input
-                    .contextual_action(Key::H, format!("hide {:?}", id))
-                {
+                if ui.per_obj.action(ctx, Key::H, format!("hide {:?}", id)) {
                     println!("Hiding {:?}", id);
                     ui.primary.current_selection = None;
                     if self.hidden.is_empty() {
@@ -212,17 +209,14 @@ impl State for DebugMode {
         }
 
         if let Some(ID::Car(id)) = ui.primary.current_selection {
-            if ctx
-                .input
-                .contextual_action(Key::Backspace, "forcibly kill this car")
+            if ui
+                .per_obj
+                .action(ctx, Key::Backspace, "forcibly kill this car")
             {
                 ui.primary.sim.kill_stuck_car(id, &ui.primary.map);
                 ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
                 ui.primary.current_selection = None;
-            } else if ctx
-                .input
-                .contextual_action(Key::G, "find front of blockage")
-            {
+            } else if ui.per_obj.action(ctx, Key::G, "find front of blockage") {
                 return Transition::Push(msg(
                     "Blockage results",
                     vec![format!(

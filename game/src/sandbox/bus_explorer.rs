@@ -100,7 +100,7 @@ impl BusRouteExplorer {
         if routes.is_empty() {
             return None;
         }
-        if !ctx.input.contextual_action(Key::E, "explore bus route") {
+        if !ui.per_obj.action(ctx, Key::E, "explore bus route") {
             return None;
         }
         if routes.len() == 1 {

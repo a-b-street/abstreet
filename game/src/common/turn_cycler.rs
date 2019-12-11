@@ -18,17 +18,17 @@ impl TurnCyclerState {
                 if let TurnCyclerState::CycleTurns(current, idx) = self {
                     if *current != id {
                         *self = TurnCyclerState::ShowLane(id);
-                    } else if ctx
-                        .input
-                        .contextual_action(Key::Z, "cycle through this lane's turns")
+                    } else if ui
+                        .per_obj
+                        .action(ctx, Key::Z, "cycle through this lane's turns")
                     {
                         *self = TurnCyclerState::CycleTurns(id, *idx + 1);
                     }
                 } else {
                     *self = TurnCyclerState::ShowLane(id);
-                    if ctx
-                        .input
-                        .contextual_action(Key::Z, "cycle through this lane's turns")
+                    if ui
+                        .per_obj
+                        .action(ctx, Key::Z, "cycle through this lane's turns")
                     {
                         *self = TurnCyclerState::CycleTurns(id, 0);
                     }
@@ -36,9 +36,9 @@ impl TurnCyclerState {
             }
             Some(ID::Intersection(i)) => {
                 if let Some(ref signal) = ui.primary.map.maybe_get_traffic_signal(i) {
-                    if ctx
-                        .input
-                        .contextual_action(Key::F, "show full traffic signal diagram")
+                    if ui
+                        .per_obj
+                        .action(ctx, Key::F, "show full traffic signal diagram")
                     {
                         ui.primary.current_selection = None;
                         let (idx, _, _) =

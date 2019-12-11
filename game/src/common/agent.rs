@@ -39,10 +39,7 @@ impl AgentTools {
                 .and_then(|id| id.agent_id())
             {
                 if let Some(trip) = ui.primary.sim.agent_to_trip(agent) {
-                    if ctx
-                        .input
-                        .contextual_action(Key::F, format!("follow {}", agent))
-                    {
+                    if ui.per_obj.action(ctx, Key::F, format!("follow {}", agent)) {
                         self.following = Some((
                             trip,
                             ui.primary
@@ -123,10 +120,7 @@ impl AgentTools {
             .and_then(|id| id.agent_id())
             .and_then(|agent| ui.primary.sim.agent_to_trip(agent))
         {
-            if ctx
-                .input
-                .contextual_action(Key::T, format!("explore {}", trip))
-            {
+            if ui.per_obj.action(ctx, Key::T, format!("explore {}", trip)) {
                 return Some(Transition::Push(Box::new(TripExplorer::new(trip, ctx, ui))));
             }
         }

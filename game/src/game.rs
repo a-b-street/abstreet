@@ -12,8 +12,8 @@ use ezgui::{
 // top-level game states.
 pub struct Game {
     // A stack of states
-    pub states: Vec<Box<dyn State>>,
-    pub ui: UI,
+    states: Vec<Box<dyn State>>,
+    ui: UI,
 }
 
 impl Game {

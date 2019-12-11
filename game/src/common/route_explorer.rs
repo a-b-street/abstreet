@@ -20,7 +20,7 @@ impl RouteExplorer {
             .and_then(|id| id.agent_id())?;
         let path = ui.primary.sim.get_path(agent)?.clone();
 
-        if !ctx.input.contextual_action(Key::E, "explore route") {
+        if !ui.per_obj.action(ctx, Key::E, "explore route") {
             return None;
         }
 

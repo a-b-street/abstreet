@@ -52,9 +52,9 @@ impl RouteViewer {
                 if let RouteViewer::Hovering(_, agent, _) = self {
                     // If there's a current route, then there must be a trip.
                     let trip = ui.primary.sim.agent_to_trip(*agent).unwrap();
-                    if ctx
-                        .input
-                        .contextual_action(Key::R, format!("show {}'s route", agent))
+                    if ui
+                        .per_obj
+                        .action(ctx, Key::R, format!("show {}'s route", agent))
                     {
                         *self = show_route(trip, ui, ctx);
                         menu.push_action(hotkey(Key::R), "stop showing agent's route", ctx);

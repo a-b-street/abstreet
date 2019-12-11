@@ -47,11 +47,7 @@ impl AgentSpawner {
         match ui.primary.current_selection {
             Some(ID::Building(id)) => {
                 let spots = ui.primary.sim.get_free_offstreet_spots(id);
-                if !spots.is_empty()
-                    && ctx
-                        .input
-                        .contextual_action(Key::F6, "seed a parked car here")
-                {
+                if !spots.is_empty() && ui.per_obj.action(ctx, Key::F6, "seed a parked car here") {
                     let mut rng = ui.primary.current_flags.sim_flags.make_rng();
                     ui.primary.sim.seed_parked_car(
                         Scenario::rand_car(&mut rng),
@@ -60,10 +56,11 @@ impl AgentSpawner {
                     );
                     return None;
                 }
-                if ctx
-                    .input
-                    .contextual_action(Key::F3, "spawn a pedestrian starting here just walking")
-                {
+                if ui.per_obj.action(
+                    ctx,
+                    Key::F3,
+                    "spawn a pedestrian starting here just walking",
+                ) {
                     return Some(Box::new(AgentSpawner {
                         menu: ModalMenu::new(
                             "Agent Spawner",
@@ -77,7 +74,8 @@ impl AgentSpawner {
                 let parked = ui.primary.sim.get_parked_cars_by_owner(id);
                 // TODO Check if it's claimed... Haha if it is, MaybeUsingParkedCar still snags it!
                 if !parked.is_empty()
-                    && ctx.input.contextual_action(
+                    && ui.per_obj.action(
+                        ctx,
                         Key::F5,
                         "spawn a pedestrian here using an owned parked car",
                     )
@@ -93,10 +91,7 @@ impl AgentSpawner {
                     }));
                 }
                 if let Some(pos) = Position::bldg_via_driving(id, map) {
-                    if ctx
-                        .input
-                        .contextual_action(Key::F4, "spawn a car starting here")
-                    {
+                    if ui.per_obj.action(ctx, Key::F4, "spawn a car starting here") {
                         return Some(Box::new(AgentSpawner {
                             menu: ModalMenu::new(
                                 "Agent Spawner",
@@ -109,9 +104,9 @@ impl AgentSpawner {
                     }
                 }
                 if let Some(pos) = Position::bldg_via_biking(id, map) {
-                    if ctx
-                        .input
-                        .contextual_action(Key::F7, "spawn a bike starting here")
+                    if ui
+                        .per_obj
+                        .action(ctx, Key::F7, "spawn a bike starting here")
                     {
                         return Some(Box::new(AgentSpawner {
                             menu: ModalMenu::new(
@@ -127,9 +122,7 @@ impl AgentSpawner {
             }
             Some(ID::Lane(id)) => {
                 if map.get_l(id).is_driving()
-                    && ctx
-                        .input
-                        .contextual_action(Key::F3, "spawn a car starting here")
+                    && ui.per_obj.action(ctx, Key::F3, "spawn a car starting here")
                 {
                     return Some(Box::new(AgentSpawner {
                         menu: ModalMenu::new(
@@ -141,9 +134,9 @@ impl AgentSpawner {
                         maybe_goal: None,
                     }));
                 } else if map.get_l(id).is_sidewalk()
-                    && ctx
-                        .input
-                        .contextual_action(Key::F3, "spawn a pedestrian starting here")
+                    && ui
+                        .per_obj
+                        .action(ctx, Key::F3, "spawn a pedestrian starting here")
                 {
                     return Some(Box::new(AgentSpawner {
                         menu: ModalMenu::new(
@@ -160,9 +153,9 @@ impl AgentSpawner {
                 }
             }
             Some(ID::Intersection(i)) => {
-                if ctx
-                    .input
-                    .contextual_action(Key::Z, "spawn agents around this intersection")
+                if ui
+                    .per_obj
+                    .action(ctx, Key::Z, "spawn agents around this intersection")
                 {
                     spawn_agents_around(i, ui, ctx);
                 }
@@ -253,7 +246,7 @@ impl State for AgentSpawner {
             }
         }
 
-        if self.maybe_goal.is_some() && ctx.input.contextual_action(Key::F3, "end the agent here") {
+        if self.maybe_goal.is_some() && ui.per_obj.action(ctx, Key::F3, "end the agent here") {
             let mut rng = ui.primary.current_flags.sim_flags.make_rng();
             let sim = &mut ui.primary.sim;
             let err = schedule_trip(
@@ -504,9 +497,9 @@ impl SpawnManyAgents {
     pub fn new(ctx: &mut EventCtx, ui: &mut UI) -> Option<Box<dyn State>> {
         if let Some(ID::Lane(l)) = ui.primary.current_selection {
             if ui.primary.map.get_l(l).is_driving()
-                && ctx
-                    .input
-                    .contextual_action(Key::F2, "spawn many cars starting here")
+                && ui
+                    .per_obj
+                    .action(ctx, Key::F2, "spawn many cars starting here")
             {
                 return Some(Box::new(SpawnManyAgents {
                     menu: ModalMenu::new(
@@ -581,7 +574,7 @@ impl State for SpawnManyAgents {
 
         if self.maybe_goal.is_some()
             && self.schedule.is_none()
-            && ctx.input.contextual_action(Key::F2, "end the swarm here")
+            && ui.per_obj.action(ctx, Key::F2, "end the swarm here")
         {
             return Transition::Push(WizardState::new(Box::new(move |wiz, ctx, _| {
                 let mut wizard = wiz.wrap(ctx);

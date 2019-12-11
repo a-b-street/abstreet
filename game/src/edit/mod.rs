@@ -188,9 +188,9 @@ impl State for EditMode {
         if let Some(ID::Intersection(id)) = ui.primary.current_selection {
             if ui.primary.map.maybe_get_stop_sign(id).is_some() {
                 if self.mode.can_edit_stop_signs()
-                    && ctx
-                        .input
-                        .contextual_action(Key::E, format!("edit stop signs for {}", id))
+                    && ui
+                        .per_obj
+                        .action(ctx, Key::E, format!("edit stop signs for {}", id))
                 {
                     return Transition::Push(Box::new(stop_signs::StopSignEditor::new(
                         id, ctx, ui,
@@ -201,7 +201,7 @@ impl State for EditMode {
                     .get_edits()
                     .changed_intersections
                     .contains(&id)
-                    && ctx.input.contextual_action(Key::R, "revert")
+                    && ui.per_obj.action(ctx, Key::R, "revert")
                 {
                     let mut edits = ui.primary.map.get_edits().clone();
                     edits
@@ -214,9 +214,9 @@ impl State for EditMode {
                 }
             }
             if ui.primary.map.maybe_get_traffic_signal(id).is_some() {
-                if ctx
-                    .input
-                    .contextual_action(Key::E, format!("edit traffic signal for {}", id))
+                if ui
+                    .per_obj
+                    .action(ctx, Key::E, format!("edit traffic signal for {}", id))
                 {
                     return Transition::Push(Box::new(traffic_signals::TrafficSignalEditor::new(
                         id, ctx, ui,
@@ -227,7 +227,7 @@ impl State for EditMode {
                     .get_edits()
                     .changed_intersections
                     .contains(&id)
-                    && ctx.input.contextual_action(Key::R, "revert")
+                    && ui.per_obj.action(ctx, Key::R, "revert")
                 {
                     let mut edits = ui.primary.map.get_edits().clone();
                     edits
@@ -240,8 +240,7 @@ impl State for EditMode {
                     apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
                 }
             }
-            if ui.primary.map.get_i(id).is_closed() && ctx.input.contextual_action(Key::R, "revert")
-            {
+            if ui.primary.map.get_i(id).is_closed() && ui.per_obj.action(ctx, Key::R, "revert") {
                 let mut edits = ui.primary.map.get_edits().clone();
                 edits
                     .commands

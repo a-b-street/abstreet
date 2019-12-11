@@ -22,9 +22,9 @@ impl PolygonDebugger {
         match ui.primary.current_selection {
             Some(ID::Intersection(id)) => {
                 let i = ui.primary.map.get_i(id);
-                if ctx
-                    .input
-                    .contextual_action(Key::X, "debug intersection geometry")
+                if ui
+                    .per_obj
+                    .action(ctx, Key::X, "debug intersection geometry")
                 {
                     let pts = i.polygon.points();
                     let mut pts_without_last = pts.clone();
@@ -40,10 +40,7 @@ impl PolygonDebugger {
                         ),
                         center: Some(Pt2D::center(&pts_without_last)),
                     });
-                } else if ctx
-                    .input
-                    .contextual_action(Key::F2, "debug sidewalk corners")
-                {
+                } else if ui.per_obj.action(ctx, Key::F2, "debug sidewalk corners") {
                     return Some(PolygonDebugger {
                         slider: WarpingItemSlider::new(
                             calculate_corners(
@@ -63,7 +60,7 @@ impl PolygonDebugger {
                 }
             }
             Some(ID::Lane(id)) => {
-                if ctx.input.contextual_action(Key::X, "debug lane geometry") {
+                if ui.per_obj.action(ctx, Key::X, "debug lane geometry") {
                     return Some(PolygonDebugger {
                         slider: WarpingItemSlider::new(
                             ui.primary
@@ -80,7 +77,10 @@ impl PolygonDebugger {
                         ),
                         center: None,
                     });
-                } else if ctx.input.contextual_action(Key::F2, "debug lane triangles") {
+                } else if ui
+                    .per_obj
+                    .action(ctx, Key::F2, "debug lane triangles geometry")
+                {
                     return Some(PolygonDebugger {
                         slider: WarpingItemSlider::new(
                             ui.primary
@@ -106,7 +106,7 @@ impl PolygonDebugger {
                 }
             }
             Some(ID::Area(id)) => {
-                if ctx.input.contextual_action(Key::X, "debug area geometry") {
+                if ui.per_obj.action(ctx, Key::X, "debug area geometry") {
                     let pts = &ui.primary.map.get_a(id).polygon.points();
                     let center = if pts[0] == *pts.last().unwrap() {
                         // TODO The center looks really wrong for Volunteer Park and others, but I
@@ -126,7 +126,7 @@ impl PolygonDebugger {
                         ),
                         center: Some(center),
                     });
-                } else if ctx.input.contextual_action(Key::F2, "debug area triangles") {
+                } else if ui.per_obj.action(ctx, Key::F2, "debug area triangles") {
                     return Some(PolygonDebugger {
                         slider: WarpingItemSlider::new(
                             ui.primary

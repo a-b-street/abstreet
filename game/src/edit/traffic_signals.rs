@@ -110,7 +110,8 @@ impl State for TrafficSignalEditor {
                 }
             };
             if let Some(pri) = next_priority {
-                if ctx.input.contextual_action(
+                if ui.per_obj.action(
+                    ctx,
                     Key::Space,
                     format!(
                         "toggle from {:?} to {:?}",

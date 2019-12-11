@@ -176,9 +176,9 @@ impl State for ABTestMode {
                 .and_then(|id| id.agent_id())
             {
                 if let Some(trip) = ui.primary.sim.agent_to_trip(agent) {
-                    if ctx
-                        .input
-                        .contextual_action(Key::B, format!("Show {}'s parallel world", agent))
+                    if ui
+                        .per_obj
+                        .action(ctx, Key::B, format!("Show {}'s parallel world", agent))
                     {
                         self.diff_trip = Some(DiffOneTrip::new(
                             trip,

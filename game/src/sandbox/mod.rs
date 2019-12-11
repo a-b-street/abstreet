@@ -84,13 +84,10 @@ impl State for SandboxMode {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
         {
             let mut txt = Text::new();
-            txt.add(Line(""));
-            {
-                let edits = ui.primary.map.get_edits();
-                txt.add(Line(format!("Edits: {}", edits.edits_name)));
-                if edits.dirty {
-                    txt.append(Line("*"));
-                }
+            let edits = ui.primary.map.get_edits();
+            txt.add(Line(format!("Edits: {}", edits.edits_name)));
+            if edits.dirty {
+                txt.append(Line("*"));
             }
             self.menu.set_info(ctx, txt);
         }
@@ -209,9 +206,11 @@ impl State for SandboxMode {
                 .map(|p| p.vehicle.id)
                 .collect::<Vec<_>>();
             if !cars.is_empty()
-                && ctx
-                    .input
-                    .contextual_action(Key::P, format!("examine {} cars parked here", cars.len()))
+                && ui.per_obj.action(
+                    ctx,
+                    Key::P,
+                    format!("examine {} cars parked here", cars.len()),
+                )
             {
                 return Transition::Push(WizardState::new(Box::new(move |wiz, ctx, _| {
                     let _id = wiz.wrap(ctx).choose("Examine which car?", || {
@@ -224,9 +223,9 @@ impl State for SandboxMode {
             }
         }
         if let Some(ID::Lane(l)) = ui.primary.current_selection {
-            if ctx
-                .input
-                .contextual_action(Key::T, "throughput over 1-hour buckets")
+            if ui
+                .per_obj
+                .action(ctx, Key::T, "throughput over 1-hour buckets")
             {
                 let r = ui.primary.map.get_l(l).parent;
                 let bucket = Duration::hours(1);
@@ -234,20 +233,17 @@ impl State for SandboxMode {
             }
         }
         if let Some(ID::Intersection(i)) = ui.primary.current_selection {
-            if ctx
-                .input
-                .contextual_action(Key::T, "throughput over 1-hour buckets")
+            if ui
+                .per_obj
+                .action(ctx, Key::T, "throughput over 1-hour buckets")
             {
                 let bucket = Duration::hours(1);
                 self.overlay = Overlays::intersection_throughput(i, bucket, ctx, ui);
-            } else if ctx
-                .input
-                .contextual_action(Key::D, "delay over 1-hour buckets")
-            {
+            } else if ui.per_obj.action(ctx, Key::D, "delay over 1-hour buckets") {
                 let bucket = Duration::hours(1);
                 self.overlay = Overlays::intersection_delay_over_time(i, bucket, ctx, ui);
             } else if ui.primary.map.get_i(i).is_traffic_signal()
-                && ctx.input.contextual_action(Key::E, "show current demand")
+                && ui.per_obj.action(ctx, Key::E, "show current demand")
             {
                 self.overlay = Overlays::intersection_demand(i, ctx, ui);
             }

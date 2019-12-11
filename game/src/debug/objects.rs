@@ -26,7 +26,7 @@ impl ObjectDebugger {
         }
 
         if let Some(ref id) = ui.primary.current_selection {
-            if ctx.input.contextual_action(Key::D, "debug") {
+            if ui.per_obj.action(ctx, Key::D, "debug") {
                 dump_debug(
                     id.clone(),
                     &ui.primary.map,

@@ -7,6 +7,7 @@ mod game;
 mod helpers;
 mod managed;
 mod mission;
+mod obj_actions;
 mod options;
 mod pregame;
 mod render;

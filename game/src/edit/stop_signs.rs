@@ -67,7 +67,7 @@ impl State for StopSignEditor {
         }
 
         if let Some(r) = self.selected_sign {
-            if ctx.input.contextual_action(Key::Space, "toggle stop sign") {
+            if ui.per_obj.action(ctx, Key::Space, "toggle stop sign") {
                 let mut sign = ui.primary.map.get_stop_sign(self.id).clone();
                 sign.flip_sign(r);
 
