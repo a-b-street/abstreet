@@ -16,7 +16,7 @@ pub struct InfoPanel {
 }
 
 impl InfoPanel {
-    pub fn new(id: ID, ui: &UI, ctx: &EventCtx) -> InfoPanel {
+    pub fn new(id: ID, ui: &mut UI, ctx: &EventCtx) -> InfoPanel {
         let mut menu_entries = vec![(hotkey(Key::Escape), "quit".to_string())];
         let mut actions = Vec::new();
         for (key, label) in ui.per_obj.consume() {
@@ -35,14 +35,21 @@ impl InfoPanel {
 impl State for InfoPanel {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut UI) -> Transition {
         self.menu.event(ctx);
+
         // Can click on the map to cancel
         if self.menu.action("quit")
             || (ctx.normal_left_click() && ctx.canvas.get_cursor_in_map_space().is_some())
         {
-            Transition::Pop
-        } else {
-            Transition::Keep
+            return Transition::Pop;
         }
+
+        for a in &self.actions {
+            if self.menu.action(a) {
+                return Transition::PopThenApplyObjectAction(a.to_string());
+            }
+        }
+
+        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {

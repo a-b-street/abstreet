@@ -54,7 +54,7 @@ impl GUI for Game {
             x => x,
         };
 
-        match transition {
+        let ev_mode = match transition {
             Transition::KeepWithMode(evmode) => evmode,
             Transition::PopWithMode(evmode) => {
                 self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
@@ -96,8 +96,16 @@ impl GUI for Game {
                 self.states.push(state);
                 EventLoopMode::InputOnly
             }
+            Transition::PopThenApplyObjectAction(action) => {
+                self.states.pop().unwrap().on_destroy(ctx, &mut self.ui);
+                assert!(!self.states.is_empty());
+                self.ui.per_obj.action_chosen(action);
+                return EventLoopMode::InputOnly;
+            }
             _ => unreachable!(),
-        }
+        };
+        self.ui.per_obj.assert_chosen_used();
+        ev_mode
     }
 
     fn draw(&self, g: &mut GfxCtx) {
@@ -175,6 +183,7 @@ pub enum Transition {
     Replace(Box<dyn State>),
     PopThenReplace(Box<dyn State>),
     Clear(Box<dyn State>),
+    PopThenApplyObjectAction(String),
 
     // These don't.
     KeepWithMode(EventLoopMode),
