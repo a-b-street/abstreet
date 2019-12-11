@@ -18,7 +18,10 @@ pub struct Canvas {
     pub(crate) cursor_y: f64,
     pub(crate) window_has_cursor: bool,
 
-    pub(crate) left_mouse_drag_from: Option<ScreenPt>,
+    // Only for drags starting on the map. Only used to pan the map.
+    pub(crate) drag_canvas_from: Option<ScreenPt>,
+    pub(crate) actually_dragging: bool,
+    pub(crate) drag_just_ended: bool,
 
     pub window_width: f64,
     pub window_height: f64,
@@ -48,7 +51,10 @@ impl Canvas {
             cursor_y: 0.0,
             window_has_cursor: true,
 
-            left_mouse_drag_from: None,
+            drag_canvas_from: None,
+            actually_dragging: false,
+            drag_just_ended: false,
+
             window_width: initial_width,
             window_height: initial_height,
 
@@ -63,20 +69,13 @@ impl Canvas {
         }
     }
 
-    pub(crate) fn is_dragging(&self) -> bool {
-        self.left_mouse_drag_from.is_some()
-    }
-
     pub fn handle_event(&mut self, input: &mut UserInput) {
         // Can't start dragging or zooming on top of covered area
-        let mouse_on_map = self.get_cursor_in_map_space().is_some();
-        if input.left_mouse_button_pressed() && mouse_on_map {
-            self.left_mouse_drag_from = Some(self.get_cursor_in_screen_space());
-        }
-        if input.left_mouse_button_released() {
-            self.left_mouse_drag_from = None;
-        }
-        if mouse_on_map {
+        if self.get_cursor_in_map_space().is_some() {
+            if input.left_mouse_button_pressed() {
+                self.drag_canvas_from = Some(self.get_cursor_in_screen_space());
+            }
+
             if let Some(scroll) = input.get_mouse_scroll() {
                 let old_zoom = self.cam_zoom;
                 self.cam_zoom = 1.1_f64.powf(old_zoom.log(1.1) + scroll);
@@ -87,6 +86,28 @@ impl Canvas {
                 self.cam_y =
                     ((self.cam_zoom / old_zoom) * (self.cursor_y + self.cam_y)) - self.cursor_y;
             }
+        }
+
+        // If we start the drag on the map and move the mouse off the map, keep dragging.
+        if let Some(click) = self.drag_canvas_from {
+            let pt = self.get_cursor_in_screen_space();
+            self.cam_x += click.x - pt.x;
+            self.cam_y += click.y - pt.y;
+            self.drag_canvas_from = Some(pt);
+            if !self.actually_dragging && click != pt {
+                self.actually_dragging = true;
+            }
+
+            if input.left_mouse_button_released() {
+                self.drag_canvas_from = None;
+                if self.actually_dragging {
+                    self.drag_just_ended = true;
+                } else {
+                }
+                self.actually_dragging = false;
+            }
+        } else if self.drag_just_ended {
+            self.drag_just_ended = false;
         }
     }
 

@@ -118,8 +118,7 @@ impl State for NeighborhoodEditor {
             } else {
                 self.mouseover_pt = None;
             }
-            // TODO mouse dragging might be more intuitive, but it's unclear how to
-            // override part of canvas.handle_event
+            // TODO maybe click-and-drag is more intuitive
             if self.mouseover_pt.is_some()
                 && ctx
                     .input

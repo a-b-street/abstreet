@@ -43,8 +43,16 @@ impl<'a> EventCtx<'a> {
 
     pub fn redo_mouseover(&self) -> bool {
         self.input.window_lost_cursor()
-            || (!self.canvas.is_dragging() && self.input.get_moved_mouse().is_some())
+            || (!self.is_dragging() && self.input.get_moved_mouse().is_some())
             || self.input.get_mouse_scroll().is_some()
+    }
+
+    pub fn normal_left_click(&mut self) -> bool {
+        !self.is_dragging() && self.input.left_mouse_button_released()
+    }
+
+    fn is_dragging(&self) -> bool {
+        self.canvas.drag_canvas_from.is_some() || self.canvas.drag_just_ended
     }
 
     pub fn set_textures(&mut self, textures: Vec<(&str, TextureType)>, timer: &mut Timer) {

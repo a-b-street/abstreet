@@ -28,8 +28,7 @@ impl State for InfoPanel {
         self.menu.event(ctx);
         // Can click on the map to cancel
         if self.menu.action("quit")
-            || (ctx.input.left_mouse_button_released()
-                && ctx.canvas.get_cursor_in_map_space().is_some())
+            || (ctx.normal_left_click() && ctx.canvas.get_cursor_in_map_space().is_some())
         {
             Transition::Pop
         } else {

@@ -56,15 +56,8 @@ impl UserInput {
         if let Some(pt) = input.get_moved_mouse() {
             canvas.cursor_x = pt.x;
             canvas.cursor_y = pt.y;
-
-            // OK to update this here; the drag has to be initiated from canvas.handle_event, which
-            // the caller must invoke.
-            if let Some(click) = canvas.left_mouse_drag_from {
-                canvas.cam_x += click.x - pt.x;
-                canvas.cam_y += click.y - pt.y;
-                canvas.left_mouse_drag_from = Some(pt);
-            }
         }
+
         if input.event == Event::WindowGainedCursor {
             canvas.window_has_cursor = true;
         }

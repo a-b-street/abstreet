@@ -73,7 +73,7 @@ impl CommonState {
         }
 
         if let Some(ref id) = ui.primary.current_selection {
-            if ctx.input.contextual_action(Key::I, "info") {
+            if ctx.input.contextual_action(Key::I, "info") || ctx.normal_left_click() {
                 return Some(Transition::Push(Box::new(info::InfoPanel::new(
                     id.clone(),
                     ui,
