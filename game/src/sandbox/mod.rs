@@ -74,12 +74,8 @@ impl SandboxMode {
                 None
             },
             gameplay: gameplay::GameplayRunner::initialize(mode, ui, ctx),
-            menu: ModalMenu::new(
-                "Sandbox Mode",
-                vec![(lctrl(Key::E), "edit mode"), (hotkey(Key::X), "reset sim")],
-                ctx,
-            )
-            .disable_standalone_layout(),
+            menu: ModalMenu::new("Sandbox Mode", vec![(lctrl(Key::E), "edit mode")], ctx)
+                .disable_standalone_layout(),
         }
     }
 }
@@ -257,7 +253,7 @@ impl State for SandboxMode {
             }
         }
 
-        if let Some(t) = self.speed.event(ctx, ui) {
+        if let Some(t) = self.speed.event(ctx, ui, &self.gameplay.mode) {
             return t;
         }
 
@@ -266,15 +262,6 @@ impl State for SandboxMode {
             return Transition::Replace(Box::new(EditMode::new(ctx, self.gameplay.mode.clone())));
         }
         if self.speed.is_paused() {
-            if !ui.primary.sim.is_empty() && self.menu.action("reset sim") {
-                ui.primary.clear_sim();
-                return Transition::Replace(Box::new(SandboxMode::new(
-                    ctx,
-                    ui,
-                    self.gameplay.mode.clone(),
-                )));
-            }
-
             Transition::Keep
         } else {
             Transition::KeepWithMode(EventLoopMode::Animation)
