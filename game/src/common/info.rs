@@ -12,13 +12,22 @@ use std::collections::BTreeMap;
 pub struct InfoPanel {
     txt: Text,
     menu: ModalMenu,
+    actions: Vec<String>,
 }
 
 impl InfoPanel {
     pub fn new(id: ID, ui: &UI, ctx: &EventCtx) -> InfoPanel {
+        let mut menu_entries = vec![(hotkey(Key::Escape), "quit".to_string())];
+        let mut actions = Vec::new();
+        for (key, label) in ui.per_obj.consume() {
+            actions.push(label.clone());
+            menu_entries.push((hotkey(key), label));
+        }
+
         InfoPanel {
             txt: info_for(id, ui, ctx),
-            menu: ModalMenu::new("Info Panel", vec![(hotkey(Key::Escape), "quit")], ctx),
+            menu: ModalMenu::new("Info Panel", menu_entries, ctx),
+            actions,
         }
     }
 }

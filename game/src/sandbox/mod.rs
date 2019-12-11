@@ -110,9 +110,6 @@ impl State for SandboxMode {
         if ctx.redo_mouseover() {
             ui.recalculate_current_selection(ctx);
         }
-        if let Some(t) = self.common.event(ctx, ui) {
-            return t;
-        }
         if let Some(t) = self
             .overlay
             .event(ctx, ui, &mut self.info_tools, &self.gameplay.prebaked)
@@ -257,6 +254,11 @@ impl State for SandboxMode {
             ui.primary.clear_sim();
             return Transition::Replace(Box::new(EditMode::new(ctx, self.gameplay.mode.clone())));
         }
+
+        if let Some(t) = self.common.event(ctx, ui) {
+            return t;
+        }
+
         if self.speed.is_paused() {
             Transition::Keep
         } else {

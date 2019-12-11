@@ -34,9 +34,9 @@ struct Choice {
 }
 
 impl ModalMenu {
-    pub fn new<S: Into<String>>(
-        title: S,
-        raw_choices: Vec<(Option<MultiKey>, &str)>,
+    pub fn new<S1: Into<String>, S2: Into<String>>(
+        title: S1,
+        raw_choices: Vec<(Option<MultiKey>, S2)>,
         ctx: &EventCtx,
     ) -> ModalMenu {
         let mut m = ModalMenu {
@@ -47,7 +47,7 @@ impl ModalMenu {
                 .into_iter()
                 .map(|(hotkey, label)| Choice {
                     hotkey,
-                    label: label.to_string(),
+                    label: label.into(),
                     active: false,
                 })
                 .collect(),

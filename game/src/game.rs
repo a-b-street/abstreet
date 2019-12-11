@@ -37,6 +37,8 @@ impl Game {
 
 impl GUI for Game {
     fn event(&mut self, ctx: &mut EventCtx) -> EventLoopMode {
+        self.ui.per_obj.reset();
+
         // First rewrite the transitions to explicitly have EventLoopMode, to avoid duplicated
         // code.
         let transition = match self.states.last_mut().unwrap().event(ctx, &mut self.ui) {

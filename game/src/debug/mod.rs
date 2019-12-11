@@ -116,9 +116,6 @@ impl State for DebugMode {
         self.save_tools.event(ctx);
 
         ctx.canvas.handle_event(ctx.input);
-        if let Some(t) = self.common.event(ctx, ui) {
-            return t;
-        }
         self.associated.event(ui);
 
         if self.general_tools.action("return to previous mode") {
@@ -293,6 +290,10 @@ impl State for DebugMode {
 
         if let Some(floodfiller) = floodfill::Floodfiller::new(ctx, ui) {
             return Transition::Push(floodfiller);
+        }
+
+        if let Some(t) = self.common.event(ctx, ui) {
+            return t;
         }
 
         Transition::Keep

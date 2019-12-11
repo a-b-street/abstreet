@@ -52,6 +52,7 @@ impl CommonState {
         }
     }
 
+    // This has to be called after anything that calls ui.per_obj.action(). Oof.
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
         self.location_tools.event(ctx);
 

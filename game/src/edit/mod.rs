@@ -157,10 +157,6 @@ impl State for EditMode {
             }
         }
 
-        if let Some(t) = self.common.event(ctx, ui) {
-            return t;
-        }
-
         if ui.opts.dev && ctx.input.new_was_pressed(lctrl(Key::D).unwrap()) {
             return Transition::Push(Box::new(DebugMode::new(ctx)));
         }
@@ -253,6 +249,10 @@ impl State for EditMode {
             let mut edits = ui.primary.map.get_edits().clone();
             edits.commands.pop();
             apply_map_edits(&mut ui.primary, &ui.cs, ctx, edits);
+        }
+
+        if let Some(t) = self.common.event(ctx, ui) {
+            return t;
         }
 
         Transition::Keep

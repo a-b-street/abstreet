@@ -172,10 +172,6 @@ impl State for ScenarioManager {
         if ctx.redo_mouseover() {
             ui.recalculate_current_selection(ctx);
         }
-        if let Some(t) = self.common.event(ctx, ui) {
-            return t;
-        }
-
         if self.general_tools.action("quit") {
             return Transition::Pop;
         } else if self.general_tools.action("options") {
@@ -252,6 +248,10 @@ impl State for ScenarioManager {
                         .push_action(hotkey(Key::P), "stop showing paths", ctx);
                 }
             }
+        }
+
+        if let Some(t) = self.common.event(ctx, ui) {
+            return t;
         }
 
         Transition::Keep

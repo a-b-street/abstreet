@@ -112,9 +112,6 @@ impl State for ABTestMode {
         if ctx.redo_mouseover() {
             ui.recalculate_current_selection(ctx);
         }
-        if let Some(t) = self.common.event(ctx, ui) {
-            return t;
-        }
 
         // TODO Confirm first
         if self.general_tools.action("quit") {
@@ -198,6 +195,10 @@ impl State for ABTestMode {
             }
             self.recalculate_stuff(ui, ctx);
         }*/
+
+        if let Some(t) = self.common.event(ctx, ui) {
+            return t;
+        }
 
         Transition::Keep
     }
