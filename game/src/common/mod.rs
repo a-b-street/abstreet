@@ -43,7 +43,6 @@ impl CommonState {
                 "assets/ui/location.png",
                 "Location",
                 vec![
-                    (hotkey(Key::J), "warp"),
                     (hotkey(Key::K), "navigate"),
                     (hotkey(Key::SingleQuote), "shortcuts"),
                 ],
@@ -59,8 +58,7 @@ impl CommonState {
         if ctx.input.new_was_pressed(lctrl(Key::S).unwrap()) {
             ui.opts.dev = !ui.opts.dev;
         }
-
-        if self.location_tools.action("warp") {
+        if ui.opts.dev && ctx.input.new_was_pressed(hotkey(Key::J).unwrap()) {
             return Some(Transition::Push(warp::EnteringWarp::new()));
         }
         if self.location_tools.action("navigate") {

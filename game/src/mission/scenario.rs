@@ -127,11 +127,7 @@ impl ScenarioManager {
             general_tools: MenuUnderButton::new(
                 "assets/ui/hamburger.png",
                 "General",
-                vec![
-                    (hotkey(Key::Escape), "quit"),
-                    (hotkey(Key::F1), "take a screenshot"),
-                    (None, "options"),
-                ],
+                vec![(hotkey(Key::Escape), "quit"), (None, "options")],
                 0.2,
                 ctx,
             ),
@@ -182,8 +178,6 @@ impl State for ScenarioManager {
 
         if self.general_tools.action("quit") {
             return Transition::Pop;
-        } else if self.general_tools.action("take a screenshot") {
-            return Transition::KeepWithMode(EventLoopMode::ScreenCaptureCurrentShot);
         } else if self.general_tools.action("options") {
             return Transition::Push(options::open_panel());
         } else if self.menu.action("save") {

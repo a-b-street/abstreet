@@ -51,11 +51,7 @@ impl EditMode {
             general_tools: MenuUnderButton::new(
                 "assets/ui/hamburger.png",
                 "General",
-                vec![
-                    (lctrl(Key::D), "debug mode"),
-                    (hotkey(Key::F1), "take a screenshot"),
-                    (None, "options"),
-                ],
+                vec![(None, "options")],
                 0.2,
                 ctx,
             ),
@@ -165,11 +161,8 @@ impl State for EditMode {
             return t;
         }
 
-        if self.general_tools.action("debug mode") {
+        if ui.opts.dev && ctx.input.new_was_pressed(lctrl(Key::D).unwrap()) {
             return Transition::Push(Box::new(DebugMode::new(ctx)));
-        }
-        if self.general_tools.action("take a screenshot") {
-            return Transition::KeepWithMode(EventLoopMode::ScreenCaptureCurrentShot);
         }
         if self.general_tools.action("options") {
             return Transition::Push(options::open_panel());

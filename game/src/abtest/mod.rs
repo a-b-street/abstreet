@@ -8,8 +8,7 @@ use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::{PerMapUI, UI};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, MenuUnderButton,
-    ModalMenu, Text,
+    hotkey, lctrl, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, MenuUnderButton, ModalMenu, Text,
 };
 use geom::{Circle, Distance, Line, PolyLine};
 use map_model::{Map, LANE_THICKNESS};
@@ -49,12 +48,7 @@ impl ABTestMode {
             general_tools: MenuUnderButton::new(
                 "assets/ui/hamburger.png",
                 "General",
-                vec![
-                    (hotkey(Key::Escape), "quit"),
-                    (lctrl(Key::D), "debug mode"),
-                    (hotkey(Key::F1), "take a screenshot"),
-                    (None, "options"),
-                ],
+                vec![(hotkey(Key::Escape), "quit"), (None, "options")],
                 0.2,
                 ctx,
             ),
@@ -126,11 +120,8 @@ impl State for ABTestMode {
         if self.general_tools.action("quit") {
             return Transition::Pop;
         }
-        if self.general_tools.action("debug mode") {
+        if ui.opts.dev && ctx.input.new_was_pressed(lctrl(Key::D).unwrap()) {
             return Transition::Push(Box::new(DebugMode::new(ctx)));
-        }
-        if self.general_tools.action("take a screenshot") {
-            return Transition::KeepWithMode(EventLoopMode::ScreenCaptureCurrentShot);
         }
         if self.general_tools.action("options") {
             return Transition::Push(options::open_panel());

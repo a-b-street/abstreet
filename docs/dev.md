@@ -24,8 +24,10 @@ One-time setup:
   traces and run more slowly. You can do `cargo run --release` to build in
   optimized release mode; compilation will be slower, but the executable much
   faster.
-- To add some extra debug modes to the game, `cargo run -- --dev` or press
-  Control+S to toggle in-game
+- Some in-game features are turned off by default or don't have a normal menu to access them. The list:
+  - To toggle developer mode: press **Control+S** in game, or `cargo run -- --dev`
+  - To warp to an object by numeric ID: press **j**
+  - To enter debug mode with all sorts of goodies: press **Control+D**
 - All code is automatically formatted using
   https://github.com/rust-lang/rustfmt; please run `cargo fmt` before sending a
   PR.

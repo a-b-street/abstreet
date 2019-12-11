@@ -48,8 +48,6 @@ impl SandboxMode {
                 "General",
                 vec![
                     (hotkey(Key::Escape), "back to title screen"),
-                    (lctrl(Key::D), "debug mode"),
-                    (hotkey(Key::F1), "take a screenshot"),
                     (None, "options"),
                 ],
                 0.3,
@@ -199,11 +197,8 @@ impl State for SandboxMode {
                 }
             })));
         }
-        if self.general_tools.action("debug mode") {
+        if ui.opts.dev && ctx.input.new_was_pressed(lctrl(Key::D).unwrap()) {
             return Transition::Push(Box::new(DebugMode::new(ctx)));
-        }
-        if self.general_tools.action("take a screenshot") {
-            return Transition::KeepWithMode(EventLoopMode::ScreenCaptureCurrentShot);
         }
         if self.general_tools.action("options") {
             return Transition::Push(options::open_panel());

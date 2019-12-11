@@ -58,7 +58,6 @@ impl DebugMode {
                 "General",
                 vec![
                     (hotkey(Key::Escape), "return to previous mode"),
-                    (hotkey(Key::F1), "take a screenshot"),
                     (None, "options"),
                 ],
                 0.2,
@@ -124,9 +123,6 @@ impl State for DebugMode {
 
         if self.general_tools.action("return to previous mode") {
             return Transition::Pop;
-        }
-        if self.general_tools.action("take a screenshot") {
-            return Transition::KeepWithMode(EventLoopMode::ScreenCaptureCurrentShot);
         }
         if self.general_tools.action("options") {
             return Transition::Push(options::open_panel());
