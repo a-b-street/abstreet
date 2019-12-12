@@ -1,6 +1,5 @@
 use crate::assets::Assets;
-use crate::widgets::ContextMenu;
-use crate::{text, widgets, Canvas, Event, EventCtx, GfxCtx, Prerender, UserInput};
+use crate::{text, widgets, Canvas, Event, EventCtx, GfxCtx, Key, Prerender, UserInput};
 use glium::glutin;
 use std::cell::Cell;
 use std::time::{Duration, Instant};
@@ -35,7 +34,6 @@ pub(crate) struct State<G: GUI> {
     pub(crate) gui: G,
     pub(crate) canvas: Canvas,
     assets: Assets,
-    context_menu: ContextMenu,
 }
 
 impl<G: GUI> State<G> {
@@ -46,16 +44,41 @@ impl<G: GUI> State<G> {
         prerender: &Prerender,
         program: &glium::Program,
     ) -> (State<G>, EventLoopMode, bool) {
-        // Clear out the possible keys
-        if let ContextMenu::Inactive(_) = self.context_menu {
-            self.context_menu = ContextMenu::new();
-        }
-
         // It's impossible / very unlikey we'll grab the cursor in map space before the very first
         // start_drawing call.
-        let mut input = UserInput::new(ev, self.context_menu, &mut self.canvas, &self.assets);
+        let mut input = UserInput::new(ev, &mut self.canvas);
         let mut gui = self.gui;
         let mut canvas = self.canvas;
+
+        // Update some ezgui state that's stashed in Canvas for sad reasons.
+        {
+            canvas.button_tooltip = None;
+
+            if let Event::WindowResized(width, height) = input.event {
+                canvas.window_width = width;
+                canvas.window_height = height;
+            }
+
+            if input.event == Event::KeyPress(Key::LeftControl) {
+                canvas.lctrl_held = true;
+            }
+            if input.event == Event::KeyRelease(Key::LeftControl) {
+                canvas.lctrl_held = false;
+            }
+
+            if let Some(pt) = input.get_moved_mouse() {
+                canvas.cursor_x = pt.x;
+                canvas.cursor_y = pt.y;
+            }
+
+            if input.event == Event::WindowGainedCursor {
+                canvas.window_has_cursor = true;
+            }
+            if input.window_lost_cursor() {
+                canvas.window_has_cursor = false;
+            }
+        }
+
         let assets = self.assets;
         let event_mode = match panic::catch_unwind(panic::AssertUnwindSafe(|| {
             gui.event(&mut EventCtx {
@@ -82,7 +105,6 @@ impl<G: GUI> State<G> {
             Event::KeyRelease(_) | Event::Update => input.has_been_consumed(),
             _ => true,
         };
-        self.context_menu = input.context_menu.maybe_build(&self.canvas, &self.assets);
 
         (self, event_mode, input_used)
     }
@@ -101,7 +123,6 @@ impl<G: GUI> State<G> {
             &prerender,
             &mut target,
             program,
-            &self.context_menu,
             &self.assets,
             screenshot,
         );
@@ -115,11 +136,6 @@ impl<G: GUI> State<G> {
             panic::resume_unwind(err);
         }
         let naming_hint = g.naming_hint.take();
-
-        // Always draw the menus last.
-        if let ContextMenu::Displaying(ref menu) = self.context_menu {
-            menu.draw(&mut g);
-        }
 
         // Flush text just once, so that GlyphBrush's internal caching works. We have to assume
         // nothing will ever cover up text.
@@ -264,7 +280,7 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: 
     };
 
     let gui = make_gui(&mut EventCtx {
-        input: &mut UserInput::new(Event::NoOp, ContextMenu::new(), &mut canvas, &assets),
+        input: &mut UserInput::new(Event::NoOp, &mut canvas),
         canvas: &mut canvas,
         assets: &assets,
         prerender: &prerender,
@@ -274,7 +290,6 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: 
     let state = State {
         canvas,
         assets,
-        context_menu: ContextMenu::new(),
         gui,
     };
 

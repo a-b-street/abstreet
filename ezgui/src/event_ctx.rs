@@ -1,5 +1,4 @@
 use crate::assets::Assets;
-use crate::widgets::ContextMenu;
 use crate::{
     Canvas, Color, GfxCtx, HorizontalAlignment, Line, Prerender, ScreenDims, Text, UserInput,
     VerticalAlignment,
@@ -179,13 +178,11 @@ impl<'a> LoadingScreen<'a> {
         }
 
         let mut target = self.prerender.display.draw();
-        let context_menu = ContextMenu::new();
         let mut g = GfxCtx::new(
             &self.canvas,
             self.prerender,
             &mut target,
             self.program,
-            &context_menu,
             &self.assets,
             false,
         );

@@ -1,6 +1,5 @@
 mod autocomplete;
 mod button;
-mod context_menu;
 mod log_scroller;
 mod menu_under_button;
 mod modal_menu;
@@ -15,7 +14,6 @@ mod wizard;
 
 pub use self::autocomplete::Autocomplete;
 pub use self::button::Button;
-pub(crate) use self::context_menu::ContextMenu;
 pub use self::menu_under_button::MenuUnderButton;
 pub use self::modal_menu::ModalMenu;
 pub use self::no_op::JustDraw;

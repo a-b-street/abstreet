@@ -1,8 +1,7 @@
 use crate::assets::Assets;
 use crate::svg;
-use crate::widgets::ContextMenu;
 use crate::{
-    text, Canvas, Color, EventCtx, HorizontalAlignment, Key, ScreenDims, ScreenPt, ScreenRectangle,
+    text, Canvas, Color, EventCtx, HorizontalAlignment, ScreenDims, ScreenPt, ScreenRectangle,
     Text, VerticalAlignment,
 };
 use geom::{Bounds, Circle, Distance, Line, Polygon, Pt2D};
@@ -76,7 +75,6 @@ pub struct GfxCtx<'a> {
     // TODO Don't be pub. Delegate everything.
     pub canvas: &'a Canvas,
     pub prerender: &'a Prerender<'a>,
-    context_menu: &'a ContextMenu,
     pub(crate) assets: &'a Assets,
 
     pub num_draw_calls: usize,
@@ -88,7 +86,6 @@ impl<'a> GfxCtx<'a> {
         prerender: &'a Prerender<'a>,
         target: &'a mut glium::Frame,
         program: &'a glium::Program,
-        context_menu: &'a ContextMenu,
         assets: &'a Assets,
         screencap_mode: bool,
     ) -> GfxCtx<'a> {
@@ -114,7 +111,6 @@ impl<'a> GfxCtx<'a> {
             num_draw_calls: 0,
             screencap_mode,
             naming_hint: None,
-            context_menu,
             assets,
         }
     }
@@ -303,8 +299,7 @@ impl<'a> GfxCtx<'a> {
 
     pub fn draw_mouse_tooltip(&mut self, txt: &Text) {
         let dims = self.text_dims(&txt);
-        // TODO Maybe also consider the cursor as a valid center. After context menus go away, this
-        // makes even more sense.
+        // TODO Maybe also consider the cursor as a valid center
         let pt = dims.top_left_for_corner(
             ScreenPt::new(self.canvas.cursor_x, self.canvas.cursor_y),
             &self.canvas,
@@ -333,14 +328,6 @@ impl<'a> GfxCtx<'a> {
         assert!(self.screencap_mode);
         assert!(self.naming_hint.is_none());
         self.naming_hint = Some(hint);
-    }
-
-    pub fn get_active_context_menu_keys(&self) -> Vec<Key> {
-        match self.context_menu {
-            ContextMenu::Inactive(ref keys) => keys.iter().cloned().collect(),
-            ContextMenu::Displaying(ref menu) => menu.all_keys(),
-            _ => Vec::new(),
-        }
     }
 
     pub fn upload(&mut self, batch: GeomBatch) -> Drawable {
