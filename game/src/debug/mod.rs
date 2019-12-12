@@ -12,8 +12,8 @@ use crate::helpers::ID;
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::{ShowLayers, ShowObject, UI};
 use ezgui::{
-    hotkey, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line,
-    MenuUnderButton, ModalMenu, Text, Wizard,
+    hotkey, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu,
+    Text, Wizard,
 };
 use geom::Duration;
 use sim::Sim;
@@ -21,7 +21,6 @@ use std::collections::HashSet;
 
 pub struct DebugMode {
     menu: ModalMenu,
-    save_tools: MenuUnderButton,
     common: CommonState,
     associated: associated::ShowAssociatedState,
     connected_roads: connected_roads::ShowConnectedRoads,
@@ -48,19 +47,11 @@ impl DebugMode {
                     (None, "screenshot everything"),
                     (hotkey(Key::Slash), "search OSM metadata"),
                     (None, "configure colors"),
-                ],
-                ctx,
-            ),
-            save_tools: MenuUnderButton::new(
-                "assets/ui/save.png",
-                "Savestates",
-                vec![
                     (hotkey(Key::O), "save sim state"),
                     (hotkey(Key::Y), "load previous sim state"),
                     (hotkey(Key::U), "load next sim state"),
                     (None, "pick a savestate to load"),
                 ],
-                0.45,
                 ctx,
             ),
             common: CommonState::new(ctx),
@@ -100,19 +91,18 @@ impl State for DebugMode {
             self.menu.set_info(ctx, txt);
         }
         self.menu.event(ctx);
-        self.save_tools.event(ctx);
 
         ctx.canvas.handle_event(ctx.input);
         self.associated.event(ui);
 
-        if self.save_tools.action("save sim state") {
+        if self.menu.action("save sim state") {
             ctx.loading_screen("savestate", |_, timer| {
                 timer.start("save sim state");
                 ui.primary.sim.save();
                 timer.stop("save sim state");
             });
         }
-        if self.save_tools.action("load previous sim state") {
+        if self.menu.action("load previous sim state") {
             if let Some(t) = ctx.loading_screen("load previous savestate", |ctx, mut timer| {
                 let prev_state = ui
                     .primary
@@ -136,7 +126,7 @@ impl State for DebugMode {
                 return t;
             }
         }
-        if self.save_tools.action("load next sim state") {
+        if self.menu.action("load next sim state") {
             if let Some(t) = ctx.loading_screen("load next savestate", |ctx, mut timer| {
                 let next_state = ui.primary.sim.find_next_savestate(ui.primary.sim.time());
                 match next_state
@@ -157,7 +147,7 @@ impl State for DebugMode {
                 return t;
             }
         }
-        if self.save_tools.action("pick a savestate to load") {
+        if self.menu.action("pick a savestate to load") {
             return Transition::Push(WizardState::new(Box::new(load_savestate)));
         }
 
@@ -320,7 +310,6 @@ impl State for DebugMode {
 
         if !g.is_screencap() {
             self.menu.draw(g);
-            self.save_tools.draw(g);
             self.common.draw(g, ui);
         }
     }

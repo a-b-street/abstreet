@@ -40,7 +40,6 @@ impl UI {
                     ("assets/ui/hide.png", TextureType::Stretch),
                     ("assets/ui/info.png", TextureType::Stretch),
                     ("assets/ui/location.png", TextureType::Stretch),
-                    ("assets/ui/save.png", TextureType::Stretch),
                     ("assets/ui/show.png", TextureType::Stretch),
                 ],
                 &mut timer,
