@@ -9,7 +9,6 @@ mod routes;
 use crate::common::CommonState;
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
-use crate::options;
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::{ShowLayers, ShowObject, UI};
 use ezgui::{
@@ -22,7 +21,6 @@ use std::collections::HashSet;
 
 pub struct DebugMode {
     menu: ModalMenu,
-    general_tools: MenuUnderButton,
     save_tools: MenuUnderButton,
     common: CommonState,
     associated: associated::ShowAssociatedState,
@@ -51,16 +49,6 @@ impl DebugMode {
                     (hotkey(Key::Slash), "search OSM metadata"),
                     (None, "configure colors"),
                 ],
-                ctx,
-            ),
-            general_tools: MenuUnderButton::new(
-                "assets/ui/hamburger.png",
-                "General",
-                vec![
-                    (hotkey(Key::Escape), "return to previous mode"),
-                    (None, "options"),
-                ],
-                0.2,
                 ctx,
             ),
             save_tools: MenuUnderButton::new(
@@ -112,18 +100,10 @@ impl State for DebugMode {
             self.menu.set_info(ctx, txt);
         }
         self.menu.event(ctx);
-        self.general_tools.event(ctx);
         self.save_tools.event(ctx);
 
         ctx.canvas.handle_event(ctx.input);
         self.associated.event(ui);
-
-        if self.general_tools.action("return to previous mode") {
-            return Transition::Pop;
-        }
-        if self.general_tools.action("options") {
-            return Transition::Push(options::open_panel());
-        }
 
         if self.save_tools.action("save sim state") {
             ctx.loading_screen("savestate", |_, timer| {
@@ -295,6 +275,9 @@ impl State for DebugMode {
         if let Some(t) = self.common.event(ctx, ui) {
             return t;
         }
+        if self.common.tool_panel.home_btn.clicked() {
+            return Transition::Pop;
+        }
 
         Transition::Keep
     }
@@ -337,7 +320,6 @@ impl State for DebugMode {
 
         if !g.is_screencap() {
             self.menu.draw(g);
-            self.general_tools.draw(g);
             self.save_tools.draw(g);
             self.common.draw(g, ui);
         }

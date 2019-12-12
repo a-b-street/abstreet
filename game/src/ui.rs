@@ -37,7 +37,6 @@ impl UI {
                     ("assets/ui/edit_contraflow.png", TextureType::Stretch),
                     ("assets/ui/edit_driving.png", TextureType::Stretch),
                     ("assets/ui/edit_parking.png", TextureType::Stretch),
-                    ("assets/ui/hamburger.png", TextureType::Stretch),
                     ("assets/ui/hide.png", TextureType::Stretch),
                     ("assets/ui/info.png", TextureType::Stretch),
                     ("assets/ui/location.png", TextureType::Stretch),

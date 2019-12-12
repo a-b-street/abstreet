@@ -2,13 +2,12 @@ use crate::common::{CommonState, ObjectColorer, ObjectColorerBuilder, Warping};
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::mission::pick_time_range;
-use crate::options;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::{ShowEverything, UI};
 use abstutil::{prettyprint_usize, Counter, MultiMap, WeightedUsizeChoice};
 use ezgui::{
     hotkey, Choice, Color, Drawable, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line,
-    MenuUnderButton, ModalMenu, Text, Wizard, WrappedWizard,
+    ModalMenu, Text, Wizard, WrappedWizard,
 };
 use geom::{Distance, Duration, PolyLine, Time};
 use map_model::{BuildingID, IntersectionID, Map, Neighborhood};
@@ -20,7 +19,6 @@ use std::collections::BTreeSet;
 
 pub struct ScenarioManager {
     menu: ModalMenu,
-    general_tools: MenuUnderButton,
     common: CommonState,
     scenario: Scenario,
 
@@ -124,13 +122,6 @@ impl ScenarioManager {
                 ],
                 ctx,
             ),
-            general_tools: MenuUnderButton::new(
-                "assets/ui/hamburger.png",
-                "General",
-                vec![(hotkey(Key::Escape), "quit"), (None, "options")],
-                0.2,
-                ctx,
-            ),
             common: CommonState::new(ctx),
             scenario,
             trips_from_bldg,
@@ -167,16 +158,11 @@ impl State for ScenarioManager {
             self.menu.set_info(ctx, txt);
         }
         self.menu.event(ctx);
-        self.general_tools.event(ctx);
         ctx.canvas.handle_event(ctx.input);
         if ctx.redo_mouseover() {
             ui.recalculate_current_selection(ctx);
         }
-        if self.general_tools.action("quit") {
-            return Transition::Pop;
-        } else if self.general_tools.action("options") {
-            return Transition::Push(options::open_panel());
-        } else if self.menu.action("save") {
+        if self.menu.action("save") {
             self.scenario.save();
         } else if self.menu.action("edit") {
             return Transition::Push(Box::new(ScenarioEditor {
@@ -253,6 +239,9 @@ impl State for ScenarioManager {
         if let Some(t) = self.common.event(ctx, ui) {
             return t;
         }
+        if self.common.tool_panel.home_btn.clicked() {
+            return Transition::Pop;
+        }
 
         Transition::Keep
     }
@@ -277,7 +266,6 @@ impl State for ScenarioManager {
         }
 
         self.menu.draw(g);
-        self.general_tools.draw(g);
         self.common.draw_no_osd(g, ui);
 
         if let Some(ID::Building(b)) = ui.primary.current_selection {

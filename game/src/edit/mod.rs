@@ -6,7 +6,6 @@ use crate::common::{CommonState, Warping};
 use crate::debug::DebugMode;
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::{ColorScheme, ID};
-use crate::options;
 use crate::render::{
     DrawIntersection, DrawLane, DrawOptions, DrawRoad, Renderable, MIN_ZOOM_FOR_DETAIL,
 };
@@ -14,8 +13,8 @@ use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::{PerMapUI, ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, MenuUnderButton,
-    ModalMenu, Text, WrappedWizard,
+    hotkey, lctrl, Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, ModalMenu, Text,
+    WrappedWizard,
 };
 use map_model::{ControlStopSign, ControlTrafficSignal, EditCmd, LaneID, MapEdits};
 use std::collections::BTreeSet;
@@ -23,7 +22,6 @@ use std::collections::BTreeSet;
 pub struct EditMode {
     common: CommonState,
     menu: ModalMenu,
-    general_tools: MenuUnderButton,
     mode: GameplayMode,
 
     lane_editor: lanes::LaneEditor,
@@ -36,7 +34,6 @@ impl EditMode {
             menu: ModalMenu::new(
                 "Map Edit Mode",
                 vec![
-                    (hotkey(Key::Escape), "back to sandbox mode"),
                     (hotkey(Key::S), "save edits"),
                     (hotkey(Key::L), "load different edits"),
                     (lctrl(Key::Z), "undo"),
@@ -46,13 +43,6 @@ impl EditMode {
                     (hotkey(Key::Num4), "4) ..."),
                     (hotkey(Key::Num5), "5) ..."),
                 ],
-                ctx,
-            ),
-            general_tools: MenuUnderButton::new(
-                "assets/ui/hamburger.png",
-                "General",
-                vec![(None, "options")],
-                0.2,
                 ctx,
             ),
             mode,
@@ -103,7 +93,6 @@ impl State for EditMode {
         }
 
         self.menu.event(ctx);
-        self.general_tools.event(ctx);
 
         {
             let cmds = &ui.primary.map.get_edits().commands;
@@ -160,9 +149,6 @@ impl State for EditMode {
         if ui.opts.dev && ctx.input.new_was_pressed(lctrl(Key::D).unwrap()) {
             return Transition::Push(Box::new(DebugMode::new(ctx)));
         }
-        if self.general_tools.action("options") {
-            return Transition::Push(options::open_panel());
-        }
 
         if ui.primary.map.get_edits().dirty && self.menu.action("save edits") {
             return Transition::Push(WizardState::new(Box::new(|wiz, ctx, ui| {
@@ -171,14 +157,6 @@ impl State for EditMode {
             })));
         } else if self.menu.action("load different edits") {
             return Transition::Push(make_load_edits(self.mode.clone()));
-        } else if self.menu.action("back to sandbox mode") {
-            // TODO Maybe put a loading screen around these.
-            ui.primary
-                .map
-                .recalculate_pathfinding_after_edits(&mut Timer::new("apply pending map edits"));
-            // Parking state might've changed
-            ui.primary.clear_sim();
-            return Transition::Replace(Box::new(SandboxMode::new(ctx, ui, self.mode.clone())));
         }
 
         if let Some(ID::Intersection(id)) = ui.primary.current_selection {
@@ -254,6 +232,15 @@ impl State for EditMode {
         if let Some(t) = self.common.event(ctx, ui) {
             return t;
         }
+        if self.common.tool_panel.home_btn.clicked() {
+            // TODO Maybe put a loading screen around these.
+            ui.primary
+                .map
+                .recalculate_pathfinding_after_edits(&mut Timer::new("apply pending map edits"));
+            // Parking state might've changed
+            ui.primary.clear_sim();
+            return Transition::Replace(Box::new(SandboxMode::new(ctx, ui, self.mode.clone())));
+        }
 
         Transition::Keep
     }
@@ -322,7 +309,6 @@ impl State for EditMode {
 
         self.common.draw(g, ui);
         self.menu.draw(g);
-        self.general_tools.draw(g);
         if self.mode.can_edit_lanes() {
             self.lane_editor.draw(g);
         }

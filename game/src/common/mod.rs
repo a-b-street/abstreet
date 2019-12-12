@@ -3,6 +3,7 @@ mod colors;
 mod info;
 mod minimap;
 mod navigate;
+mod panels;
 mod plot;
 mod route_explorer;
 mod route_viewer;
@@ -16,12 +17,14 @@ pub use self::colors::{
     ColorLegend, ObjectColorer, ObjectColorerBuilder, RoadColorer, RoadColorerBuilder,
 };
 pub use self::minimap::Minimap;
+use self::panels::ToolPanel;
 pub use self::plot::{Histogram, Plot, Series};
 pub use self::route_explorer::RouteExplorer;
 pub use self::trip_explorer::TripExplorer;
 pub use self::warp::Warping;
 use crate::game::Transition;
 use crate::helpers::ID;
+use crate::options;
 use crate::render::DrawOptions;
 use crate::ui::UI;
 use ezgui::{
@@ -33,6 +36,7 @@ use std::collections::BTreeSet;
 pub struct CommonState {
     turn_cycler: turn_cycler::TurnCyclerState,
     location_tools: MenuUnderButton,
+    pub tool_panel: ToolPanel,
 }
 
 impl CommonState {
@@ -49,6 +53,7 @@ impl CommonState {
                 0.35,
                 ctx,
             ),
+            tool_panel: ToolPanel::new(ctx),
         }
     }
 
@@ -83,12 +88,21 @@ impl CommonState {
             }
         }
 
+        self.tool_panel.home_btn.event(ctx);
+        self.tool_panel.settings_btn.event(ctx);
+        // Up to the caller to reach in and check if home_btn was clicked. Means different stuff in
+        // some modes.
+        if self.tool_panel.settings_btn.clicked() {
+            return Some(Transition::Push(options::open_panel()));
+        }
+
         None
     }
 
     pub fn draw_no_osd(&self, g: &mut GfxCtx, ui: &UI) {
         self.turn_cycler.draw(g, ui);
         self.location_tools.draw(g);
+        self.tool_panel.draw(g);
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {

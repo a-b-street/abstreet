@@ -11,10 +11,10 @@ use crate::edit::EditMode;
 use crate::edit::{apply_map_edits, save_edits};
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
-use crate::options;
 use crate::pregame::main_menu;
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
+use ezgui::layout::Widget;
 use ezgui::{
     hotkey, layout, lctrl, Choice, Color, DrawBoth, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
     JustDraw, Key, Line, MenuUnderButton, ModalMenu, ScreenDims, ScreenPt, ScreenRectangle, Text,
@@ -29,7 +29,6 @@ pub struct SandboxMode {
     speed: speed::SpeedControls,
     agent_meter: AgentMeter,
     info_tools: MenuUnderButton,
-    general_tools: MenuUnderButton,
     agent_tools: AgentTools,
     overlay: Overlays,
     gameplay: gameplay::GameplayRunner,
@@ -43,16 +42,6 @@ impl SandboxMode {
         SandboxMode {
             speed: speed::SpeedControls::new(ctx, ui.opts.dev),
             agent_meter: AgentMeter::new(ctx, ui),
-            general_tools: MenuUnderButton::new(
-                "assets/ui/hamburger.png",
-                "General",
-                vec![
-                    (hotkey(Key::Escape), "back to title screen"),
-                    (None, "options"),
-                ],
-                0.3,
-                ctx,
-            ),
             info_tools: MenuUnderButton::new(
                 "assets/ui/info.png",
                 "Info",
@@ -104,7 +93,6 @@ impl State for SandboxMode {
 
         self.menu.event(ctx);
         self.info_tools.event(ctx);
-        self.general_tools.event(ctx);
 
         ctx.canvas.handle_event(ctx.input);
         if ctx.redo_mouseover() {
@@ -140,58 +128,8 @@ impl State for SandboxMode {
             return Transition::Push(picker);
         }
 
-        if self.general_tools.action("back to title screen") {
-            // TODO Clear edits?
-            return Transition::Push(WizardState::new(Box::new(move |wiz, ctx, ui| {
-                let mut wizard = wiz.wrap(ctx);
-                let dirty = ui.primary.map.get_edits().dirty;
-                let (resp, _) =
-                    wizard.choose("Sure you want to abandon the current challenge?", || {
-                        let mut choices = Vec::new();
-                        choices.push(Choice::new("keep playing", ()));
-                        if dirty {
-                            choices.push(Choice::new("save edits and quit", ()));
-                        }
-                        choices.push(Choice::new("quit challenge", ()).key(Key::Q));
-                        choices
-                    })?;
-                let map_name = ui.primary.map.get_name().to_string();
-                match resp.as_str() {
-                    "save edits and quit" => {
-                        save_edits(&mut wizard, ui)?;
-
-                        // Always reset edits if we just saved edits.
-                        apply_map_edits(&mut ui.primary, &ui.cs, ctx, MapEdits::new(map_name));
-                        ui.primary.map.mark_edits_fresh();
-                        ui.primary
-                            .map
-                            .recalculate_pathfinding_after_edits(&mut Timer::new("reset edits"));
-                        ui.primary.clear_sim();
-                        Some(Transition::Clear(main_menu(ctx, ui)))
-                    }
-                    "quit challenge" => {
-                        if !ui.primary.map.get_edits().is_empty() {
-                            apply_map_edits(&mut ui.primary, &ui.cs, ctx, MapEdits::new(map_name));
-                            ui.primary.map.mark_edits_fresh();
-                            ui.primary
-                                .map
-                                .recalculate_pathfinding_after_edits(&mut Timer::new(
-                                    "reset edits",
-                                ));
-                        }
-                        ui.primary.clear_sim();
-                        Some(Transition::Clear(main_menu(ctx, ui)))
-                    }
-                    "keep playing" => Some(Transition::Pop),
-                    _ => unreachable!(),
-                }
-            })));
-        }
         if ui.opts.dev && ctx.input.new_was_pressed(lctrl(Key::D).unwrap()) {
             return Transition::Push(Box::new(DebugMode::new(ctx)));
-        }
-        if self.general_tools.action("options") {
-            return Transition::Push(options::open_panel());
         }
 
         if let Some(ID::Building(b)) = ui.primary.current_selection {
@@ -258,6 +196,53 @@ impl State for SandboxMode {
         if let Some(t) = self.common.event(ctx, ui) {
             return t;
         }
+        if self.common.tool_panel.home_btn.clicked() {
+            // TODO Clear edits?
+            return Transition::Push(WizardState::new(Box::new(move |wiz, ctx, ui| {
+                let mut wizard = wiz.wrap(ctx);
+                let dirty = ui.primary.map.get_edits().dirty;
+                let (resp, _) =
+                    wizard.choose("Sure you want to abandon the current challenge?", || {
+                        let mut choices = Vec::new();
+                        choices.push(Choice::new("keep playing", ()));
+                        if dirty {
+                            choices.push(Choice::new("save edits and quit", ()));
+                        }
+                        choices.push(Choice::new("quit challenge", ()).key(Key::Q));
+                        choices
+                    })?;
+                let map_name = ui.primary.map.get_name().to_string();
+                match resp.as_str() {
+                    "save edits and quit" => {
+                        save_edits(&mut wizard, ui)?;
+
+                        // Always reset edits if we just saved edits.
+                        apply_map_edits(&mut ui.primary, &ui.cs, ctx, MapEdits::new(map_name));
+                        ui.primary.map.mark_edits_fresh();
+                        ui.primary
+                            .map
+                            .recalculate_pathfinding_after_edits(&mut Timer::new("reset edits"));
+                        ui.primary.clear_sim();
+                        Some(Transition::Clear(main_menu(ctx, ui)))
+                    }
+                    "quit challenge" => {
+                        if !ui.primary.map.get_edits().is_empty() {
+                            apply_map_edits(&mut ui.primary, &ui.cs, ctx, MapEdits::new(map_name));
+                            ui.primary.map.mark_edits_fresh();
+                            ui.primary
+                                .map
+                                .recalculate_pathfinding_after_edits(&mut Timer::new(
+                                    "reset edits",
+                                ));
+                        }
+                        ui.primary.clear_sim();
+                        Some(Transition::Clear(main_menu(ctx, ui)))
+                    }
+                    "keep playing" => Some(Transition::Pop),
+                    _ => unreachable!(),
+                }
+            })));
+        }
 
         if self.speed.is_paused() {
             Transition::Keep
@@ -286,7 +271,6 @@ impl State for SandboxMode {
         self.menu.draw(g);
         self.speed.draw(g, ui);
         self.info_tools.draw(g);
-        self.general_tools.draw(g);
         self.gameplay.draw(g, ui);
         self.agent_meter.draw(g);
         if let Some(ref m) = self.minimap {
@@ -339,7 +323,6 @@ impl AgentMeter {
         ];
 
         // TODO A horrible experiment in manual layouting
-        use layout::Widget;
 
         let top_left = ScreenPt::new(ctx.canvas.window_width - 300.0, 350.0);
         widgets[0].set_pos(top_left);

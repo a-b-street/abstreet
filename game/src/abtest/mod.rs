@@ -3,7 +3,6 @@ pub mod setup;
 use crate::common::{AgentTools, CommonState};
 use crate::debug::DebugMode;
 use crate::game::{State, Transition};
-use crate::options;
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::{PerMapUI, UI};
 use abstutil::Timer;
@@ -18,7 +17,6 @@ use sim::{Sim, SimOptions, TripID, TripMode};
 // TODO I took out speed controls
 pub struct ABTestMode {
     menu: ModalMenu,
-    general_tools: MenuUnderButton,
     info_tools: MenuUnderButton,
     primary_agent_tools: AgentTools,
     secondary_agent_tools: AgentTools,
@@ -43,13 +41,6 @@ impl ABTestMode {
                     (hotkey(Key::O), "save state"),
                     // TODO load arbitrary savestate
                 ],
-                ctx,
-            ),
-            general_tools: MenuUnderButton::new(
-                "assets/ui/hamburger.png",
-                "General",
-                vec![(hotkey(Key::Escape), "quit"), (None, "options")],
-                0.2,
                 ctx,
             ),
             info_tools: MenuUnderButton::new(
@@ -105,7 +96,6 @@ impl State for ABTestMode {
             self.menu.set_info(ctx, txt);
         }
         self.menu.event(ctx);
-        self.general_tools.event(ctx);
         self.info_tools.event(ctx);
 
         ctx.canvas.handle_event(ctx.input);
@@ -113,15 +103,8 @@ impl State for ABTestMode {
             ui.recalculate_current_selection(ctx);
         }
 
-        // TODO Confirm first
-        if self.general_tools.action("quit") {
-            return Transition::Pop;
-        }
         if ui.opts.dev && ctx.input.new_was_pressed(lctrl(Key::D).unwrap()) {
             return Transition::Push(Box::new(DebugMode::new(ctx)));
-        }
-        if self.general_tools.action("options") {
-            return Transition::Push(options::open_panel());
         }
 
         if self.menu.action("swap") {
@@ -199,6 +182,10 @@ impl State for ABTestMode {
         if let Some(t) = self.common.event(ctx, ui) {
             return t;
         }
+        // TODO Confirm first
+        if self.common.tool_panel.home_btn.clicked() {
+            return Transition::Pop;
+        }
 
         Transition::Keep
     }
@@ -215,7 +202,6 @@ impl State for ABTestMode {
         self.menu.draw(g);
         self.primary_agent_tools.draw(g, ui);
         self.info_tools.draw(g);
-        self.general_tools.draw(g);
     }
 
     fn on_suspend(&mut self, _: &mut EventCtx, _: &mut UI) {
