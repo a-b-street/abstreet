@@ -130,7 +130,7 @@ impl State for StopSignEditor {
                 Line("Stop sign for "),
                 Line(ui.primary.map.get_r(r).get_name()).fg(ui.cs.get("OSD name color")),
             ]);
-            CommonState::draw_custom_osd(g, osd);
+            CommonState::draw_custom_osd(ui, g, osd);
         } else {
             CommonState::draw_osd(g, ui, &None);
         }

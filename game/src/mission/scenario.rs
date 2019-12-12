@@ -288,7 +288,7 @@ impl State for ScenarioManager {
                 self.trips_to_bldg.get(b).len(),
                 self.scenario.individ_parked_cars[&b]
             )));
-            CommonState::draw_custom_osd(g, osd);
+            CommonState::draw_custom_osd(ui, g, osd);
         } else if let Some(ID::Intersection(i)) = ui.primary.current_selection {
             let mut osd = CommonState::default_osd(ID::Intersection(i), ui);
             osd.append(Line(format!(
@@ -296,7 +296,7 @@ impl State for ScenarioManager {
                 self.trips_from_border.get(i).len(),
                 self.trips_to_border.get(i).len(),
             )));
-            CommonState::draw_custom_osd(g, osd);
+            CommonState::draw_custom_osd(ui, g, osd);
         } else {
             CommonState::draw_osd(g, ui, &ui.primary.current_selection);
         }

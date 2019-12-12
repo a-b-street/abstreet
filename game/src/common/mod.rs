@@ -183,11 +183,11 @@ impl CommonState {
         } else {
             Text::from(Line("..."))
         };
-        CommonState::draw_custom_osd(g, osd);
+        CommonState::draw_custom_osd(ui, g, osd);
     }
 
-    pub fn draw_custom_osd(g: &mut GfxCtx, mut osd: Text) {
-        let keys = g.get_active_context_menu_keys();
+    pub fn draw_custom_osd(ui: &UI, g: &mut GfxCtx, mut osd: Text) {
+        let keys = ui.per_obj.get_active_keys();
         if !keys.is_empty() {
             osd.append(Line("   Hotkeys: "));
             for (idx, key) in keys.into_iter().enumerate() {

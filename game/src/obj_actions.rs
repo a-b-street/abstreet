@@ -1,4 +1,4 @@
-use ezgui::{EventCtx, Key};
+use ezgui::{hotkey, EventCtx, Key};
 use std::cell::RefCell;
 
 pub struct PerObjectActions {
@@ -22,8 +22,8 @@ impl PerObjectActions {
             return true;
         }
 
-        self.actions.borrow_mut().push((key, lbl.clone()));
-        ctx.input.contextual_action(key, lbl)
+        self.actions.borrow_mut().push((key, lbl));
+        ctx.input.new_was_pressed(hotkey(key).unwrap())
     }
 
     pub fn consume(&mut self) -> Vec<(Key, String)> {
@@ -44,5 +44,11 @@ impl PerObjectActions {
         if let Some(action) = &*self.chosen.borrow() {
             panic!("{} chosen, but nothing used it", action);
         }
+    }
+
+    pub fn get_active_keys(&self) -> Vec<Key> {
+        let mut keys: Vec<Key> = self.actions.borrow().iter().map(|(k, _)| *k).collect();
+        keys.sort();
+        keys
     }
 }
