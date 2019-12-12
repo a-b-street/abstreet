@@ -6,9 +6,7 @@ use crate::game::{State, Transition};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::{PerMapUI, UI};
 use abstutil::Timer;
-use ezgui::{
-    hotkey, lctrl, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, MenuUnderButton, ModalMenu, Text,
-};
+use ezgui::{hotkey, lctrl, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu, Text};
 use geom::{Circle, Distance, Line, PolyLine};
 use map_model::{Map, LANE_THICKNESS};
 use serde_derive::{Deserialize, Serialize};
@@ -17,7 +15,6 @@ use sim::{Sim, SimOptions, TripID, TripMode};
 // TODO I took out speed controls
 pub struct ABTestMode {
     menu: ModalMenu,
-    info_tools: MenuUnderButton,
     primary_agent_tools: AgentTools,
     secondary_agent_tools: AgentTools,
     diff_trip: Option<DiffOneTrip>,
@@ -39,15 +36,9 @@ impl ABTestMode {
                     (hotkey(Key::D), "diff all trips"),
                     (hotkey(Key::A), "stop diffing trips"),
                     (hotkey(Key::O), "save state"),
+                    (hotkey(Key::Semicolon), "change agent colorscheme"),
                     // TODO load arbitrary savestate
                 ],
-                ctx,
-            ),
-            info_tools: MenuUnderButton::new(
-                "assets/ui/info.png",
-                "Info",
-                vec![(hotkey(Key::Semicolon), "change agent colorscheme")],
-                0.3,
                 ctx,
             ),
             primary_agent_tools: AgentTools::new(),
@@ -96,7 +87,6 @@ impl State for ABTestMode {
             self.menu.set_info(ctx, txt);
         }
         self.menu.event(ctx);
-        self.info_tools.event(ctx);
 
         ctx.canvas.handle_event(ctx.input);
         if ctx.redo_mouseover() {
@@ -120,10 +110,7 @@ impl State for ABTestMode {
             self.flipped = !self.flipped;
         }
 
-        if let Some(t) =
-            self.primary_agent_tools
-                .event(ctx, ui, &mut self.menu, &mut self.info_tools)
-        {
+        if let Some(t) = self.primary_agent_tools.event(ctx, ui, &mut self.menu) {
             return t;
         }
 
@@ -201,7 +188,6 @@ impl State for ABTestMode {
         }
         self.menu.draw(g);
         self.primary_agent_tools.draw(g, ui);
-        self.info_tools.draw(g);
     }
 
     fn on_suspend(&mut self, _: &mut EventCtx, _: &mut UI) {

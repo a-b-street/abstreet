@@ -3,7 +3,7 @@ use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::ui::UI;
 use ezgui::{
-    Choice, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, MenuUnderButton, Text, WarpingItemSlider,
+    Choice, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu, Text, WarpingItemSlider,
 };
 use geom::{Circle, Distance, Pt2D};
 use map_model::{BusRoute, BusRouteID, BusStopID, PathConstraints, PathRequest, PathStep};
@@ -180,7 +180,7 @@ impl State for BusRouteExplorer {
 
 pub struct BusRoutePicker;
 impl BusRoutePicker {
-    pub fn new(ui: &UI, menu: &mut MenuUnderButton) -> Option<Box<dyn State>> {
+    pub fn new(ui: &UI, menu: &mut ModalMenu) -> Option<Box<dyn State>> {
         if ui.primary.current_selection.is_some() || !menu.action("explore a bus route") {
             return None;
         }

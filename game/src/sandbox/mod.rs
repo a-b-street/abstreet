@@ -17,7 +17,7 @@ use abstutil::Timer;
 use ezgui::layout::Widget;
 use ezgui::{
     hotkey, layout, lctrl, Choice, Color, DrawBoth, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
-    JustDraw, Key, Line, MenuUnderButton, ModalMenu, ScreenDims, ScreenPt, ScreenRectangle, Text,
+    JustDraw, Key, Line, ModalMenu, ScreenDims, ScreenPt, ScreenRectangle, Text,
 };
 pub use gameplay::spawner::spawn_agents_around;
 pub use gameplay::GameplayMode;
@@ -28,7 +28,6 @@ use sim::TripMode;
 pub struct SandboxMode {
     speed: speed::SpeedControls,
     agent_meter: AgentMeter,
-    info_tools: MenuUnderButton,
     agent_tools: AgentTools,
     overlay: Overlays,
     gameplay: gameplay::GameplayRunner,
@@ -42,17 +41,6 @@ impl SandboxMode {
         SandboxMode {
             speed: speed::SpeedControls::new(ctx, ui.opts.dev),
             agent_meter: AgentMeter::new(ctx, ui),
-            info_tools: MenuUnderButton::new(
-                "assets/ui/info.png",
-                "Info",
-                vec![
-                    (hotkey(Key::Q), "scoreboard"),
-                    (hotkey(Key::Semicolon), "change agent colorscheme"),
-                    (None, "explore a bus route"),
-                ],
-                0.4,
-                ctx,
-            ),
             agent_tools: AgentTools::new(),
             overlay: Overlays::Inactive,
             common: CommonState::new(ctx, true),
@@ -62,8 +50,17 @@ impl SandboxMode {
                 None
             },
             gameplay: gameplay::GameplayRunner::initialize(mode, ui, ctx),
-            menu: ModalMenu::new("Sandbox Mode", vec![(lctrl(Key::E), "edit mode")], ctx)
-                .disable_standalone_layout(),
+            menu: ModalMenu::new(
+                "Sandbox Mode",
+                vec![
+                    (lctrl(Key::E), "edit mode"),
+                    (hotkey(Key::Q), "scoreboard"),
+                    (hotkey(Key::Semicolon), "change agent colorscheme"),
+                    (None, "explore a bus route"),
+                ],
+                ctx,
+            )
+            .disable_standalone_layout(),
         }
     }
 }
@@ -91,7 +88,6 @@ impl State for SandboxMode {
         );
 
         self.menu.event(ctx);
-        self.info_tools.event(ctx);
 
         ctx.canvas.handle_event(ctx.input);
         if ctx.redo_mouseover() {
@@ -101,13 +97,10 @@ impl State for SandboxMode {
             m.event(ui, ctx);
         }
 
-        if let Some(t) = self
-            .agent_tools
-            .event(ctx, ui, &mut self.menu, &mut self.info_tools)
-        {
+        if let Some(t) = self.agent_tools.event(ctx, ui, &mut self.menu) {
             return t;
         }
-        if self.info_tools.action("scoreboard") {
+        if self.menu.action("scoreboard") {
             return Transition::Push(Box::new(score::Scoreboard::new(
                 ctx,
                 ui,
@@ -117,7 +110,7 @@ impl State for SandboxMode {
         if let Some(explorer) = bus_explorer::BusRouteExplorer::new(ctx, ui) {
             return Transition::PushWithMode(explorer, EventLoopMode::Animation);
         }
-        if let Some(picker) = bus_explorer::BusRoutePicker::new(ui, &mut self.info_tools) {
+        if let Some(picker) = bus_explorer::BusRoutePicker::new(ui, &mut self.menu) {
             return Transition::Push(picker);
         }
 
@@ -271,7 +264,6 @@ impl State for SandboxMode {
         self.common.draw(g, ui);
         self.menu.draw(g);
         self.speed.draw(g, ui);
-        self.info_tools.draw(g);
         self.gameplay.draw(g, ui);
         self.agent_meter.draw(g);
         if let Some(ref m) = self.minimap {
