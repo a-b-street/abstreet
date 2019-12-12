@@ -251,6 +251,7 @@ impl Button {
         unselected_bg_color: Color,
         selected_bg_color: Color,
         hotkey: Option<MultiKey>,
+        tooltip: &str,
         ctx: &EventCtx,
     ) -> Button {
         text = text.no_bg();
@@ -273,7 +274,7 @@ impl Button {
             draw_text,
         );
 
-        Button::new(normal, hovered, hotkey, "", geom)
+        Button::new(normal, hovered, hotkey, tooltip, geom)
     }
 
     pub fn at(mut self, pt: ScreenPt) -> Button {

@@ -34,6 +34,7 @@ impl TitleScreen {
                 Color::BLUE,
                 Color::ORANGE,
                 hotkey(Key::Space),
+                "start game",
                 ctx,
             ),
             screensaver: Screensaver::start_bounce(&mut rng, ctx, &ui.primary.map),

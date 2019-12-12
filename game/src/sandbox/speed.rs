@@ -116,11 +116,12 @@ impl SpeedControls {
             Color::WHITE.alpha(0.0),
             Color::ORANGE,
             hotkey(Key::M),
+            "step forwards 0.1 seconds",
             ctx,
         );
         let mut large_step_btn = Button::rectangle_svg(
             "assets/speed/large_step.svg",
-            "step forwards 10 mins",
+            "step forwards 1 hour",
             hotkey(Key::N),
             RewriteColor::ChangeAll(Color::ORANGE),
             ctx,
@@ -130,6 +131,7 @@ impl SpeedControls {
             Color::WHITE.alpha(0.0),
             Color::ORANGE,
             hotkey(Key::X),
+            "reset to midnight",
             ctx,
         );
         layout::stack_horizontally(
@@ -271,7 +273,7 @@ impl SpeedControls {
         self.large_step_btn.event(ctx);
         if self.large_step_btn.clicked() {
             return Some(Transition::Push(Box::new(TimeWarpScreen {
-                target: ui.primary.sim.time() + Duration::minutes(10),
+                target: ui.primary.sim.time() + Duration::hours(1),
                 started: Instant::now(),
             })));
         }

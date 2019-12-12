@@ -93,7 +93,7 @@ impl ManagedWidget {
         onclick: Callback,
     ) -> ManagedWidget {
         // TODO Default style. Lots of variations.
-        let btn = Button::text(txt, Color::WHITE, Color::ORANGE, hotkey, ctx);
+        let btn = Button::text(txt, Color::WHITE, Color::ORANGE, hotkey, "", ctx);
         ManagedWidget::Btn(btn, onclick)
     }
 
