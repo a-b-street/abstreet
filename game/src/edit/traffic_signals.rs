@@ -30,7 +30,7 @@ impl TrafficSignalEditor {
     pub fn new(id: IntersectionID, ctx: &mut EventCtx, ui: &mut UI) -> TrafficSignalEditor {
         ui.primary.current_selection = None;
         let menu = ModalMenu::new(
-            &format!("Traffic Signal Editor for {}", id),
+            format!("Traffic Signal Editor for {}", id),
             vec![
                 (hotkey(Key::UpArrow), "select previous phase"),
                 (hotkey(Key::DownArrow), "select next phase"),

@@ -118,7 +118,7 @@ fn make_load_savestate(ab_test: ABTest) -> Box<dyn State> {
 
 fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
     let secondary = ctx.loading_screen(
-        &format!("Launching A/B test {}", test.test_name),
+        format!("Launching A/B test {}", test.test_name),
         |ctx, mut timer| {
             let scenario: Scenario = abstutil::read_binary(
                 abstutil::path_scenario(&test.map_name, &test.scenario_name),
@@ -213,7 +213,7 @@ fn launch_test(test: &ABTest, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
 
 fn launch_savestate(test: &ABTest, ss_path: String, ui: &mut UI, ctx: &mut EventCtx) -> ABTestMode {
     ctx.loading_screen(
-        &format!("Launch A/B test from savestate {}", ss_path),
+        format!("Launch A/B test from savestate {}", ss_path),
         |ctx, mut timer| {
             let ss: ABTestSavestate = abstutil::read_binary(ss_path, &mut timer);
 

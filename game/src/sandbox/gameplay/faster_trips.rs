@@ -16,7 +16,7 @@ impl FasterTrips {
     pub fn new(trip_mode: TripMode, ctx: &EventCtx) -> (ModalMenu, Box<dyn GameplayState>) {
         (
             ModalMenu::new(
-                &format!("Speed up {} trips", trip_mode),
+                format!("Speed up {} trips", trip_mode),
                 vec![(hotkey(Key::H), "help")],
                 ctx,
             ),

@@ -9,7 +9,7 @@ fn main() {
     let use_fixes = !args.enabled("--nofixes");
     args.done();
 
-    let mut timer = Timer::new(&format!("precompute {}", load));
+    let mut timer = Timer::new(format!("precompute {}", load));
 
     let map = Map::new(load, use_fixes, &mut timer);
     timer.start("save map");

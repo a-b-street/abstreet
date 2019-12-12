@@ -41,18 +41,18 @@ pub fn maybe_read_json<T: DeserializeOwned>(path: String, timer: &mut Timer) -> 
         panic!("read_json needs {} to end with .json or .geojson", path);
     }
 
-    timer.start(&format!("parse {}", path));
+    timer.start(format!("parse {}", path));
     // TODO timer.read_file isn't working here. And we need to call stop() if there's no file.
     match File::open(&path) {
         Ok(mut file) => {
             let mut contents = String::new();
             file.read_to_string(&mut contents)?;
             let obj: T = serde_json::from_str(&contents)?;
-            timer.stop(&format!("parse {}", path));
+            timer.stop(format!("parse {}", path));
             Ok(obj)
         }
         Err(e) => {
-            timer.stop(&format!("parse {}", path));
+            timer.stop(format!("parse {}", path));
             Err(e)
         }
     }
@@ -182,7 +182,7 @@ pub fn list_all_objects(dir: String) -> Vec<String> {
 // Load all serialized things from a directory, return sorted by name, with file extension removed.
 // Detects JSON or binary.
 pub fn load_all_objects<T: DeserializeOwned>(dir: String) -> Vec<(String, T)> {
-    let mut timer = Timer::new(&format!("load_all_objects from {}", dir));
+    let mut timer = Timer::new(format!("load_all_objects from {}", dir));
     let mut tree: BTreeMap<String, T> = BTreeMap::new();
     match std::fs::read_dir(&dir) {
         Ok(iter) => {

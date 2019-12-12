@@ -267,11 +267,11 @@ pub fn prebake() {
         }
     }
     for (map_path, list) in per_map {
-        timer.start(&format!("prebake for {}", map_path));
+        timer.start(format!("prebake for {}", map_path));
         let map = map_model::Map::new(map_path.clone(), false, &mut timer);
 
         for challenge in list {
-            timer.start(&format!("prebake for {}", challenge.title));
+            timer.start(format!("prebake for {}", challenge.title));
             if let Some(scenario) = challenge.gameplay.scenario(&map, None, &mut timer) {
                 let mut sim = Sim::new(&map, SimOptions::new("prebaked"), &mut timer);
                 // Bit of an abuse of this, but just need to fix the rng seed.
@@ -284,9 +284,9 @@ pub fn prebake() {
                     sim.get_analytics(),
                 );
             }
-            timer.stop(&format!("prebake for {}", challenge.title));
+            timer.stop(format!("prebake for {}", challenge.title));
         }
 
-        timer.stop(&format!("prebake for {}", map_path));
+        timer.stop(format!("prebake for {}", map_path));
     }
 }

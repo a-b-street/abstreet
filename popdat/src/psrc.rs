@@ -158,7 +158,7 @@ fn import_parcels(
     // TODO Ideally we could just do the conversion directly without any dependencies, but the
     // formats are documented quite confusingly. Couldn't get the Rust crate for proj or GDAL
     // bindings to build. So just do this hack.
-    timer.start(&format!(
+    timer.start(format!(
         "run cs2cs on {} points",
         prettyprint_usize(parcel_metadata.len())
     ));
@@ -176,7 +176,7 @@ fn import_parcels(
         ])
         .output()?;
     assert!(output.status.success());
-    timer.stop(&format!(
+    timer.stop(format!(
         "run cs2cs on {} points",
         prettyprint_usize(parcel_metadata.len())
     ));

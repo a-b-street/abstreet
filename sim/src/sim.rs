@@ -583,7 +583,7 @@ impl Sim {
         // TODO Ideally print every second or so
         let orig_time = self.time;
         let chunks = (dt / Duration::seconds(10.0)).ceil() as usize;
-        timer.start_iter(&format!("advance simulation by {}", dt), chunks);
+        timer.start_iter(format!("advance simulation by {}", dt), chunks);
         for i in 0..chunks {
             timer.next();
             self.step(

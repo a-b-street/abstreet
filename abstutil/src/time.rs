@@ -19,9 +19,9 @@ struct Progress {
 }
 
 impl Progress {
-    fn new(label: &str, total_items: usize) -> Progress {
+    fn new(label: String, total_items: usize) -> Progress {
         Progress {
-            label: label.to_string(),
+            label,
             processed_items: 0,
             total_items,
             started_at: Instant::now(),
@@ -120,11 +120,12 @@ struct TimerSpan {
 }
 
 impl<'a> Timer<'a> {
-    pub fn new(name: &str) -> Timer<'a> {
+    pub fn new<S: Into<String>>(raw_name: S) -> Timer<'a> {
+        let name = raw_name.into();
         let mut t = Timer {
             results: Vec::new(),
             stack: Vec::new(),
-            outermost_name: name.to_string(),
+            outermost_name: name.clone(),
             notes: Vec::new(),
             warnings: Vec::new(),
             sink: None,
@@ -175,24 +176,26 @@ impl<'a> Timer<'a> {
     // Used to end the scope of a timer early.
     pub fn done(self) {}
 
-    pub fn start(&mut self, name: &str) {
+    pub fn start<S: Into<String>>(&mut self, raw_name: S) {
         if self.outermost_name == "throwaway" {
             return;
         }
 
+        let name = raw_name.into();
         self.println(format!("{}...", name));
         self.stack.push(StackEntry::TimerSpan(TimerSpan {
-            name: name.to_string(),
+            name,
             started_at: Instant::now(),
             nested_results: Vec::new(),
             nested_time: 0.0,
         }));
     }
 
-    pub fn stop(&mut self, name: &str) {
+    pub fn stop<S: Into<String>>(&mut self, raw_name: S) {
         if self.outermost_name == "throwaway" {
             return;
         }
+        let name = raw_name.into();
 
         let span = match self.stack.pop().unwrap() {
             StackEntry::TimerSpan(s) => s,
@@ -246,13 +249,14 @@ impl<'a> Timer<'a> {
         self.println(line);
     }
 
-    pub fn start_iter(&mut self, name: &str, total_items: usize) {
+    pub fn start_iter<S: Into<String>>(&mut self, raw_name: S, total_items: usize) {
         if self.outermost_name == "throwaway" {
             return;
         }
         if total_items == 0 {
             return;
         }
+        let name = raw_name.into();
         if let Some(StackEntry::Progress(p)) = self.stack.last() {
             panic!(
                 "Can't start_iter({}) while Progress({}) is top of the stack",

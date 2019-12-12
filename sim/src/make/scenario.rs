@@ -88,7 +88,7 @@ impl Scenario {
     pub fn instantiate(&self, sim: &mut Sim, map: &Map, rng: &mut XorShiftRng, timer: &mut Timer) {
         sim.set_name(self.scenario_name.clone());
 
-        timer.start(&format!("Instantiating {}", self.scenario_name));
+        timer.start(format!("Instantiating {}", self.scenario_name));
 
         if self.seed_buses {
             for route in map.get_all_bus_routes() {
@@ -156,7 +156,7 @@ impl Scenario {
         }
 
         sim.spawn_all_trips(map, timer, true);
-        timer.stop(&format!("Instantiating {}", self.scenario_name));
+        timer.stop(format!("Instantiating {}", self.scenario_name));
     }
 
     pub fn save(&self) {

@@ -27,7 +27,7 @@ impl State for NeighborhoodPicker {
             self.wizard = Wizard::new();
             return Transition::Push(Box::new(NeighborhoodEditor {
                 menu: ModalMenu::new(
-                    &format!("Neighborhood Editor for {}", n.name),
+                    format!("Neighborhood Editor for {}", n.name),
                     vec![
                         (hotkey(Key::Escape), "quit"),
                         (hotkey(Key::S), "save"),

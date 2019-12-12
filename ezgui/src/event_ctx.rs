@@ -21,20 +21,21 @@ pub struct EventCtx<'a> {
 }
 
 impl<'a> EventCtx<'a> {
-    pub fn loading_screen<O, F: FnOnce(&mut EventCtx, &mut Timer) -> O>(
+    pub fn loading_screen<O, S: Into<String>, F: FnOnce(&mut EventCtx, &mut Timer) -> O>(
         &mut self,
-        timer_name: &str,
+        raw_timer_name: S,
         f: F,
     ) -> O {
+        let timer_name = raw_timer_name.into();
         let mut timer = Timer::new_with_sink(
-            timer_name,
+            &timer_name,
             Box::new(LoadingScreen::new(
                 self.prerender,
                 self.program,
                 self.assets,
                 self.canvas.window_width,
                 self.canvas.window_height,
-                timer_name.to_string(),
+                timer_name.clone(),
             )),
         );
         f(self, &mut timer)

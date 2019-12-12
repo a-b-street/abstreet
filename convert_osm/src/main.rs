@@ -15,7 +15,7 @@ fn main() {
     };
     args.done();
 
-    let mut timer = abstutil::Timer::new(&format!("generate {}", flags.output));
+    let mut timer = abstutil::Timer::new(format!("generate {}", flags.output));
     let map = convert(&flags, &mut timer);
     timer.start("saving map");
     abstutil::write_binary(flags.output, &map);

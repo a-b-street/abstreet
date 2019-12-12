@@ -21,7 +21,7 @@ impl OptimizeBus {
         let route = ui.primary.map.get_bus_route(&route_name).unwrap();
         (
             ModalMenu::new(
-                &format!("Optimize {}", route_name),
+                format!("Optimize {}", route_name),
                 vec![
                     (hotkey(Key::E), "show bus route"),
                     (hotkey(Key::T), "show delays over time"),

@@ -11,7 +11,7 @@ impl PlayScenario {
     pub fn new(name: &String, ctx: &EventCtx) -> (ModalMenu, Box<dyn GameplayState>) {
         (
             ModalMenu::new(
-                &format!("Playing {}", name),
+                format!("Playing {}", name),
                 vec![
                     (hotkey(Key::S), "start another scenario"),
                     (lctrl(Key::L), "load another map"),
