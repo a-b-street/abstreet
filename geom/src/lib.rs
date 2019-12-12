@@ -33,7 +33,7 @@ pub use crate::time::Time;
 // About 0.4 inches... which is quite tiny on the scale of things. :)
 pub const EPSILON_DIST: Distance = Distance::const_meters(0.01);
 
-pub(crate) fn trim_f64(x: f64) -> f64 {
+pub fn trim_f64(x: f64) -> f64 {
     (x * 10_000.0).round() / 10_000.0
 }
 

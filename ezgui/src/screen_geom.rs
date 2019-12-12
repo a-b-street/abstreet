@@ -1,5 +1,5 @@
 use crate::Canvas;
-use geom::Pt2D;
+use geom::{trim_f64, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -56,6 +56,7 @@ impl ScreenRectangle {
     }
 }
 
+// TODO Everything screen-space should probably just be usize, can't have fractional pixels?
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct ScreenDims {
     pub width: f64,
@@ -64,7 +65,10 @@ pub struct ScreenDims {
 
 impl ScreenDims {
     pub fn new(width: f64, height: f64) -> ScreenDims {
-        ScreenDims { width, height }
+        ScreenDims {
+            width: trim_f64(width),
+            height: trim_f64(height),
+        }
     }
 
     pub fn top_left_for_corner(&self, corner: ScreenPt, canvas: &Canvas) -> ScreenPt {
