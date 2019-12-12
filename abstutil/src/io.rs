@@ -161,7 +161,7 @@ pub fn list_all_objects(dir: String) -> Vec<String> {
             for entry in iter {
                 let filename = entry.unwrap().file_name();
                 let path = Path::new(&filename);
-                if path.to_string_lossy().starts_with(".") {
+                if path.to_string_lossy().starts_with('.') {
                     continue;
                 }
                 let name = path
@@ -190,7 +190,7 @@ pub fn load_all_objects<T: DeserializeOwned>(dir: String) -> Vec<(String, T)> {
                 let filename = entry.unwrap().file_name();
                 let path = Path::new(&filename);
                 let path_str = path.to_string_lossy();
-                if path_str.starts_with(".") {
+                if path_str.starts_with('.') {
                     continue;
                 }
                 let full_path = format!("{}/{}", dir, path_str);

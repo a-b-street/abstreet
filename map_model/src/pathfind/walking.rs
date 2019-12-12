@@ -227,8 +227,8 @@ fn make_input_graph(map: &Map, nodes: &NodeMap<Node>, use_transit: bool) -> Inpu
         for stop in map.all_bus_stops().values() {
             let ride_bus = nodes.get(Node::RideBus(stop.id));
             let lane = map.get_l(stop.sidewalk_pos.lane());
-            for endpt in vec![true, false] {
-                let cost = if endpt {
+            for endpt in &[true, false] {
+                let cost = if *endpt {
                     to_cm(lane.length() - stop.sidewalk_pos.dist_along())
                 } else {
                     to_cm(stop.sidewalk_pos.dist_along())
@@ -236,7 +236,7 @@ fn make_input_graph(map: &Map, nodes: &NodeMap<Node>, use_transit: bool) -> Inpu
                 // Add some extra penalty (equivalent to 1m) to using a bus stop. Otherwise a path
                 // might try to pass through it uselessly.
                 let penalty = 100;
-                let sidewalk = nodes.get(Node::SidewalkEndpoint(lane.id, endpt));
+                let sidewalk = nodes.get(Node::SidewalkEndpoint(lane.id, *endpt));
                 input_graph.add_edge(sidewalk, ride_bus, cost + penalty);
                 input_graph.add_edge(ride_bus, sidewalk, cost + penalty);
             }

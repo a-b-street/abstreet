@@ -639,7 +639,7 @@ impl Sim {
 
         loop {
             // TODO Regular printing doesn't happen if we use a time_limit :\
-            let dt = time_limit.unwrap_or(Duration::seconds(30.0));
+            let dt = time_limit.unwrap_or_else(|| Duration::seconds(30.0));
 
             match panic::catch_unwind(panic::AssertUnwindSafe(|| {
                 self.step(&map, dt);

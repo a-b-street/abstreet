@@ -185,15 +185,12 @@ impl MapEdits {
                     // We have to recover orig_it from the original list of commands. :\
                     let mut found = false;
                     for cmd in &orig_cmds {
-                        match cmd {
-                            EditCmd::CloseIntersection { id, .. } => {
-                                if *id == *i {
-                                    self.commands.push(cmd.clone());
-                                    found = true;
-                                    break;
-                                }
+                        if let EditCmd::CloseIntersection { id, .. } = cmd {
+                            if *id == *i {
+                                self.commands.push(cmd.clone());
+                                found = true;
+                                break;
                             }
-                            _ => {}
                         }
                     }
                     assert!(found);

@@ -46,7 +46,7 @@ impl<G: GUI> State<G> {
     ) -> (State<G>, EventLoopMode, bool) {
         // It's impossible / very unlikey we'll grab the cursor in map space before the very first
         // start_drawing call.
-        let mut input = UserInput::new(ev, &mut self.canvas);
+        let mut input = UserInput::new(ev, &self.canvas);
         let mut gui = self.gui;
         let mut canvas = self.canvas;
 
@@ -280,7 +280,7 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: 
     };
 
     let gui = make_gui(&mut EventCtx {
-        input: &mut UserInput::new(Event::NoOp, &mut canvas),
+        input: &mut UserInput::new(Event::NoOp, &canvas),
         canvas: &mut canvas,
         assets: &assets,
         prerender: &prerender,

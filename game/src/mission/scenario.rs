@@ -363,8 +363,8 @@ fn edit_scenario(map: &Map, scenario: &mut Scenario, mut wizard: WrappedWizard) 
                 pick_time_range(&mut wizard, "Start spawning when?", "Stop spawning when?")?;
             scenario.spawn_over_time.push(SpawnOverTime {
                 num_agents: wizard.input_usize("Spawn how many agents?")?,
-                start_time: start_time,
-                stop_time: stop_time,
+                start_time,
+                stop_time,
                 start_from_neighborhood: choose_neighborhood(
                     map,
                     &mut wizard,
@@ -385,8 +385,8 @@ fn edit_scenario(map: &Map, scenario: &mut Scenario, mut wizard: WrappedWizard) 
                 num_peds: wizard.input_usize("Spawn how many pedestrians?")?,
                 num_cars: wizard.input_usize("Spawn how many cars?")?,
                 num_bikes: wizard.input_usize("Spawn how many bikes?")?,
-                start_time: start_time,
-                stop_time: stop_time,
+                start_time,
+                stop_time,
                 // TODO validate it's a border!
                 start_from_border: choose_intersection(
                     &mut wizard,

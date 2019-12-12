@@ -55,7 +55,7 @@ pub fn add_svg(batch: &mut GeomBatch, filename: &str) -> Bounds {
             Polygon::precomputed(
                 mesh.vertices
                     .into_iter()
-                    .map(|v| Pt2D::new(v.position.x as f64, v.position.y as f64))
+                    .map(|v| Pt2D::new(f64::from(v.position.x), f64::from(v.position.y)))
                     .collect(),
                 mesh.indices.into_iter().map(|idx| idx as usize).collect(),
                 None,
@@ -68,7 +68,7 @@ pub fn add_svg(batch: &mut GeomBatch, filename: &str) -> Bounds {
             Polygon::precomputed(
                 mesh.vertices
                     .into_iter()
-                    .map(|v| Pt2D::new(v.position.x as f64, v.position.y as f64))
+                    .map(|v| Pt2D::new(f64::from(v.position.x), f64::from(v.position.y)))
                     .collect(),
                 mesh.indices.into_iter().map(|idx| idx as usize).collect(),
                 None,
@@ -138,7 +138,7 @@ impl<'l> Iterator for PathConvIter<'l> {
     }
 }
 
-fn convert_path<'a>(p: &'a usvg::Path) -> PathConvIter<'a> {
+fn convert_path(p: &usvg::Path) -> PathConvIter<'_> {
     PathConvIter {
         iter: p.data.0.iter(),
         first: Point::new(0.0, 0.0),
