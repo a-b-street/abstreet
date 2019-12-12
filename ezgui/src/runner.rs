@@ -271,7 +271,13 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: 
     )
     .unwrap();
 
-    let mut canvas = Canvas::new(settings.initial_dims.0, settings.initial_dims.1);
+    let hidpi_factor = events_loop.get_primary_monitor().get_hidpi_factor();
+    println!("HiDPI factor is purportedly {}", hidpi_factor);
+    let mut canvas = Canvas::new(
+        settings.initial_dims.0,
+        settings.initial_dims.1,
+        hidpi_factor,
+    );
     let assets = Assets::new(&display, settings.default_font_size);
     let prerender = Prerender {
         display: &display,
@@ -322,7 +328,6 @@ fn loop_forever<G: GUI>(
 
     let mut wait_for_events = false;
 
-    let hidpi_factor = events_loop.get_primary_monitor().get_hidpi_factor();
     loop {
         let start_frame = Instant::now();
 
@@ -339,7 +344,7 @@ fn loop_forever<G: GUI>(
                     state.gui.before_quit(&state.canvas);
                     process::exit(0);
                 }
-                if let Some(ev) = Event::from_glutin_event(event, hidpi_factor) {
+                if let Some(ev) = Event::from_glutin_event(event, state.canvas.hidpi_factor) {
                     new_events.push(ev);
                 }
             }

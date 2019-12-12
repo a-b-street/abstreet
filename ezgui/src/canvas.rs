@@ -25,6 +25,7 @@ pub struct Canvas {
 
     pub window_width: f64,
     pub window_height: f64,
+    pub(crate) hidpi_factor: f64,
 
     // TODO Bit weird and hacky to mutate inside of draw() calls.
     pub(crate) covered_areas: RefCell<Vec<ScreenRectangle>>,
@@ -41,7 +42,7 @@ pub struct Canvas {
 }
 
 impl Canvas {
-    pub(crate) fn new(initial_width: f64, initial_height: f64) -> Canvas {
+    pub(crate) fn new(initial_width: f64, initial_height: f64, hidpi_factor: f64) -> Canvas {
         Canvas {
             cam_x: 0.0,
             cam_y: 0.0,
@@ -57,6 +58,7 @@ impl Canvas {
 
             window_width: initial_width,
             window_height: initial_height,
+            hidpi_factor,
 
             covered_areas: RefCell::new(Vec::new()),
             covered_polygons: RefCell::new(Vec::new()),
