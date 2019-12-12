@@ -330,6 +330,8 @@ impl<'a> Timer<'a> {
             for (idx, req) in requests.into_iter().enumerate() {
                 let tx = tx.clone();
                 scope.execute(move || {
+                    // TODO Can we catch panics here, dump a better stacktrace? ezgui runner does
+                    // this
                     tx.send((idx, cb(req))).unwrap();
                 });
             }

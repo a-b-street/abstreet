@@ -298,6 +298,11 @@ pub fn spawn_agents_around(i: IntersectionID, ui: &mut UI, ctx: &EventCtx) {
     let sim = &mut ui.primary.sim;
     let mut rng = ui.primary.current_flags.sim_flags.make_rng();
 
+    let mut timer = Timer::new(format!(
+        "spawning agents around {} (rng seed {:?})",
+        i, ui.primary.current_flags.sim_flags.rng_seed
+    ));
+
     for l in &map.get_i(i).incoming_lanes {
         let lane = map.get_l(*l);
         if lane.is_driving() || lane.is_biking() {
@@ -348,7 +353,7 @@ pub fn spawn_agents_around(i: IntersectionID, ui: &mut UI, ctx: &EventCtx) {
         }
     }
 
-    sim.spawn_all_trips(map, &mut Timer::throwaway(), false);
+    sim.spawn_all_trips(map, &mut timer, false);
     sim.step(map, SMALL_DT);
     ui.recalculate_current_selection(ctx);
 }

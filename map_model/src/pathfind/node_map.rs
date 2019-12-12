@@ -1,16 +1,17 @@
 use fast_paths::{NodeId, ShortestPath};
 use serde::{Deserialize, Deserializer, Serialize};
 use std::collections::BTreeMap;
+use std::fmt::Debug;
 
 // TODO Upstream this in fast_paths when this is more solid.
 #[derive(Serialize)]
-pub struct NodeMap<T: Copy + Ord + Serialize> {
+pub struct NodeMap<T: Copy + Ord + Debug + Serialize> {
     #[serde(skip_serializing)]
     node_to_id: BTreeMap<T, NodeId>,
     id_to_node: Vec<T>,
 }
 
-impl<T: Copy + Ord + Serialize> NodeMap<T> {
+impl<T: Copy + Ord + Debug + Serialize> NodeMap<T> {
     pub fn new() -> NodeMap<T> {
         NodeMap {
             node_to_id: BTreeMap::new(),
@@ -29,7 +30,11 @@ impl<T: Copy + Ord + Serialize> NodeMap<T> {
     }
 
     pub fn get(&self, node: T) -> NodeId {
-        self.node_to_id[&node]
+        if let Some(id) = self.node_to_id.get(&node) {
+            *id
+        } else {
+            panic!("{:?} not in NodeMap", node);
+        }
     }
 
     pub fn translate(&self, path: &ShortestPath) -> Vec<T> {
@@ -44,7 +49,7 @@ impl<T: Copy + Ord + Serialize> NodeMap<T> {
 pub fn deserialize_nodemap<
     'de,
     D: Deserializer<'de>,
-    T: Deserialize<'de> + Copy + Ord + Serialize,
+    T: Deserialize<'de> + Copy + Ord + Debug + Serialize,
 >(
     d: D,
 ) -> Result<NodeMap<T>, D::Error> {

@@ -17,7 +17,7 @@ pub struct SidewalkPathfinder {
     path_calc: ThreadLocal<RefCell<PathCalculator>>,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug, Serialize, Deserialize)]
 enum Node {
     // false is src_i, true is dst_i
     SidewalkEndpoint(LaneID, bool),
