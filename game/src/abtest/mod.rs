@@ -54,7 +54,7 @@ impl ABTestMode {
             secondary_agent_tools: AgentTools::new(),
             diff_trip: None,
             diff_all: None,
-            common: CommonState::new(ctx),
+            common: CommonState::new(ctx, false),
             test_name: test_name.to_string(),
             flipped: false,
         }

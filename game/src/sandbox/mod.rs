@@ -47,7 +47,6 @@ impl SandboxMode {
                 "Info",
                 vec![
                     (hotkey(Key::Q), "scoreboard"),
-                    (hotkey(Key::L), "change analytics overlay"),
                     (hotkey(Key::Semicolon), "change agent colorscheme"),
                     (None, "explore a bus route"),
                 ],
@@ -56,7 +55,7 @@ impl SandboxMode {
             ),
             agent_tools: AgentTools::new(),
             overlay: Overlays::Inactive,
-            common: CommonState::new(ctx),
+            common: CommonState::new(ctx, true),
             minimap: if mode.has_minimap() {
                 Some(Minimap::new())
             } else {
@@ -97,12 +96,6 @@ impl State for SandboxMode {
         ctx.canvas.handle_event(ctx.input);
         if ctx.redo_mouseover() {
             ui.recalculate_current_selection(ctx);
-        }
-        if let Some(t) = self
-            .overlay
-            .event(ctx, ui, &mut self.info_tools, &self.gameplay.prebaked)
-        {
-            return t;
         }
         if let Some(ref mut m) = self.minimap {
             m.event(ui, ctx);
@@ -194,6 +187,14 @@ impl State for SandboxMode {
         }
 
         if let Some(t) = self.common.event(ctx, ui) {
+            return t;
+        }
+        if let Some(t) = self.overlay.event(
+            ctx,
+            ui,
+            self.common.tool_panel.layers_btn.as_mut().unwrap(),
+            &self.gameplay.prebaked,
+        ) {
             return t;
         }
         if self.common.tool_panel.home_btn.clicked() {

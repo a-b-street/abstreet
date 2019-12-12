@@ -54,7 +54,7 @@ impl DebugMode {
                 ],
                 ctx,
             ),
-            common: CommonState::new(ctx),
+            common: CommonState::new(ctx, false),
             associated: associated::ShowAssociatedState::Inactive,
             connected_roads: connected_roads::ShowConnectedRoads::new(),
             objects: objects::ObjectDebugger::new(),

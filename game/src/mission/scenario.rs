@@ -122,7 +122,7 @@ impl ScenarioManager {
                 ],
                 ctx,
             ),
-            common: CommonState::new(ctx),
+            common: CommonState::new(ctx, false),
             scenario,
             trips_from_bldg,
             trips_to_bldg,

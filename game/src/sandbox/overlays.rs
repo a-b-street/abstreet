@@ -8,9 +8,7 @@ use crate::sandbox::bus_explorer::ShowBusRoute;
 use crate::sandbox::SandboxMode;
 use crate::ui::{ShowEverything, UI};
 use abstutil::{prettyprint_usize, Counter};
-use ezgui::{
-    Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, MenuUnderButton, Text,
-};
+use ezgui::{Button, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Text};
 use geom::{Distance, Duration, PolyLine, Statistic, Time};
 use map_model::{IntersectionID, LaneID, PathConstraints, PathStep, RoadID};
 use sim::{Analytics, ParkingSpot, TripMode};
@@ -56,10 +54,10 @@ impl Overlays {
         &mut self,
         ctx: &mut EventCtx,
         ui: &UI,
-        menu: &mut MenuUnderButton,
+        btn: &mut Button,
         baseline: &Analytics,
     ) -> Option<Transition> {
-        if menu.action("change analytics overlay") {
+        if btn.clicked() {
             return Some(Transition::Push(WizardState::new(Box::new(
                 |wiz, ctx, _| {
                     let (choice, _) =

@@ -30,7 +30,7 @@ pub struct EditMode {
 impl EditMode {
     pub fn new(ctx: &EventCtx, mode: GameplayMode) -> EditMode {
         EditMode {
-            common: CommonState::new(ctx),
+            common: CommonState::new(ctx, false),
             menu: ModalMenu::new(
                 "Map Edit Mode",
                 vec![

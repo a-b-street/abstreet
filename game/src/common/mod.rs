@@ -28,50 +28,30 @@ use crate::options;
 use crate::render::DrawOptions;
 use crate::ui::UI;
 use ezgui::{
-    hotkey, lctrl, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, MenuUnderButton, Text,
-    VerticalAlignment,
+    hotkey, lctrl, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Text, VerticalAlignment,
 };
 use std::collections::BTreeSet;
 
 pub struct CommonState {
     turn_cycler: turn_cycler::TurnCyclerState,
-    location_tools: MenuUnderButton,
     pub tool_panel: ToolPanel,
 }
 
 impl CommonState {
-    pub fn new(ctx: &EventCtx) -> CommonState {
+    pub fn new(ctx: &EventCtx, with_layers: bool) -> CommonState {
         CommonState {
             turn_cycler: turn_cycler::TurnCyclerState::Inactive,
-            location_tools: MenuUnderButton::new(
-                "assets/ui/location.png",
-                "Location",
-                vec![
-                    (hotkey(Key::K), "navigate"),
-                    (hotkey(Key::SingleQuote), "shortcuts"),
-                ],
-                0.35,
-                ctx,
-            ),
-            tool_panel: ToolPanel::new(ctx),
+            tool_panel: ToolPanel::new(ctx, with_layers),
         }
     }
 
     // This has to be called after anything that calls ui.per_obj.action(). Oof.
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
-        self.location_tools.event(ctx);
-
         if ctx.input.new_was_pressed(lctrl(Key::S).unwrap()) {
             ui.opts.dev = !ui.opts.dev;
         }
         if ui.opts.dev && ctx.input.new_was_pressed(hotkey(Key::J).unwrap()) {
             return Some(Transition::Push(warp::EnteringWarp::new()));
-        }
-        if self.location_tools.action("navigate") {
-            return Some(Transition::Push(Box::new(navigate::Navigator::new(ui))));
-        }
-        if self.location_tools.action("shortcuts") {
-            return Some(Transition::Push(shortcuts::ChoosingShortcut::new()));
         }
 
         if let Some(t) = self.turn_cycler.event(ctx, ui) {
@@ -88,12 +68,17 @@ impl CommonState {
             }
         }
 
-        self.tool_panel.home_btn.event(ctx);
-        self.tool_panel.settings_btn.event(ctx);
+        self.tool_panel.event(ctx);
         // Up to the caller to reach in and check if home_btn was clicked. Means different stuff in
         // some modes.
         if self.tool_panel.settings_btn.clicked() {
             return Some(Transition::Push(options::open_panel()));
+        }
+        if self.tool_panel.search_btn.clicked() {
+            return Some(Transition::Push(Box::new(navigate::Navigator::new(ui))));
+        }
+        if self.tool_panel.shortcuts_btn.clicked() {
+            return Some(Transition::Push(shortcuts::ChoosingShortcut::new()));
         }
 
         None
@@ -101,7 +86,6 @@ impl CommonState {
 
     pub fn draw_no_osd(&self, g: &mut GfxCtx, ui: &UI) {
         self.turn_cycler.draw(g, ui);
-        self.location_tools.draw(g);
         self.tool_panel.draw(g);
     }
 
