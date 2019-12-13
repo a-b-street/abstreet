@@ -111,10 +111,6 @@ impl Turn {
     pub fn between_sidewalks(&self) -> bool {
         self.turn_type == TurnType::SharedSidewalkCorner || self.turn_type == TurnType::Crosswalk
     }
-
-    pub fn dump_debug(&self) {
-        println!("{}", abstutil::to_json(self));
-    }
 }
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]

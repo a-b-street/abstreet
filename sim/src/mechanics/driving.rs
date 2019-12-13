@@ -833,6 +833,7 @@ impl DrivingSimState {
     pub fn debug_car(&self, id: CarID) {
         if let Some(ref car) = self.cars.get(&id) {
             println!("{}", abstutil::to_json(car));
+            println!("State: {:?}", car.state);
         } else {
             println!("{} is parked somewhere", id);
         }
@@ -861,7 +862,6 @@ impl DrivingSimState {
                 car.blocked_since.map(|t| now - t).unwrap_or(Duration::ZERO)
             ),
             format!("Trip time so far: {}", now - car.started_at),
-            format!("{:?}", car.state),
         ])
     }
 

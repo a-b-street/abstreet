@@ -777,10 +777,12 @@ impl Sim {
 
     pub fn debug_ped(&self, id: PedestrianID) {
         self.walking.debug_ped(id);
+        self.trips.debug_trip(AgentID::Pedestrian(id));
     }
 
     pub fn debug_car(&self, id: CarID) {
         self.driving.debug_car(id);
+        self.trips.debug_trip(AgentID::Car(id));
     }
 
     pub fn debug_intersection(&self, id: IntersectionID, map: &Map) {
@@ -792,14 +794,11 @@ impl Sim {
     }
 
     pub fn ped_tooltip(&self, p: PedestrianID, map: &Map) -> Vec<String> {
-        let mut lines = self.walking.ped_tooltip(p, self.time, map);
-        lines.extend(self.trips.tooltip_lines(AgentID::Pedestrian(p)));
-        lines
+        self.walking.ped_tooltip(p, self.time, map)
     }
 
     pub fn car_tooltip(&self, car: CarID) -> Vec<String> {
         if let Some(mut lines) = self.driving.tooltip_lines(car, self.time) {
-            lines.extend(self.trips.tooltip_lines(AgentID::Car(car)));
             if car.1 == VehicleType::Bus {
                 let passengers = self.transit.get_passengers(car);
                 lines.push(format!("{} passengers riding", passengers.len()));

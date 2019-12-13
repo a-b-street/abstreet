@@ -34,12 +34,6 @@ pub struct BusStop {
     pub sidewalk_pos: Position,
 }
 
-impl BusStop {
-    pub fn dump_debug(&self) {
-        println!("{}", abstutil::to_json(self));
-    }
-}
-
 #[derive(Serialize, Deserialize, Debug)]
 pub struct BusRoute {
     pub id: BusRouteID,

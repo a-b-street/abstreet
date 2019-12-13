@@ -46,10 +46,6 @@ pub struct Building {
 }
 
 impl Building {
-    pub fn dump_debug(&self) {
-        println!("{}", abstutil::to_json(self));
-    }
-
     pub fn sidewalk(&self) -> LaneID {
         self.front_path.sidewalk.lane()
     }

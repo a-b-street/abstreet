@@ -478,14 +478,10 @@ impl TripManager {
         self.active_trip_mode.get(&id).cloned()
     }
 
-    pub fn tooltip_lines(&self, id: AgentID) -> Vec<String> {
+    pub fn debug_trip(&self, id: AgentID) {
         // Only called for agents that _should_ have trips
         let trip = &self.trips[self.active_trip_mode[&id].0];
-        vec![format!(
-            "{} has goal {:?}",
-            trip.id,
-            trip.legs.back().unwrap()
-        )]
+        println!("{} has goal {:?}", trip.id, trip.legs.back().unwrap());
     }
 
     // (total active trips, unfinished trips, active trips by the trip's current mode)

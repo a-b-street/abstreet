@@ -2,7 +2,7 @@ use crate::helpers::ID;
 use crate::render::DrawMap;
 use crate::ui::UI;
 use ezgui::{EventCtx, GfxCtx, Key, Line, Text};
-use map_model::Map;
+use map_model::{Map, PathConstraints};
 use sim::{AgentID, CarID, Sim};
 
 pub struct ObjectDebugger {
@@ -56,21 +56,50 @@ impl ObjectDebugger {
 fn dump_debug(id: ID, map: &Map, sim: &Sim, draw_map: &DrawMap) {
     match id {
         ID::Road(id) => {
-            map.get_r(id).dump_debug();
+            println!("{}", abstutil::to_json(map.get_r(id)));
         }
         ID::Lane(id) => {
-            map.get_l(id).dump_debug();
+            let l = map.get_l(id);
+            println!("{}", abstutil::to_json(l));
+
             sim.debug_lane(id);
+
+            let r = map.get_parent(id);
+            println!("Parent {} ({}) points to {}", r.id, r.orig_id, r.dst_i);
+
+            if l.lane_type.is_for_moving_vehicles() {
+                for constraint in vec![
+                    PathConstraints::Car,
+                    PathConstraints::Bike,
+                    PathConstraints::Bus,
+                ] {
+                    if constraint.can_use(l, map) {
+                        println!(
+                            "Cost for {:?}: {}",
+                            constraint,
+                            l.get_max_cost(constraint, map)
+                        );
+                    }
+                }
+            }
         }
         ID::Intersection(id) => {
-            map.get_i(id).dump_debug();
+            let i = map.get_i(id);
+            println!("{}", abstutil::to_json(i));
+
             sim.debug_intersection(id, map);
+
+            println!("{} connecting:", i.orig_id);
+            for r in &i.roads {
+                let road = map.get_r(*r);
+                println!("- {} = {}", road.id, road.orig_id);
+            }
         }
         ID::Turn(id) => {
-            map.get_t(id).dump_debug();
+            println!("{}", abstutil::to_json(map.get_t(id)));
         }
         ID::Building(id) => {
-            map.get_b(id).dump_debug();
+            println!("{}", abstutil::to_json(map.get_b(id)));
             for (cars, descr) in vec![
                 (
                     sim.get_parked_cars_by_owner(id),
@@ -121,10 +150,10 @@ fn dump_debug(id: ID, map: &Map, sim: &Sim, draw_map: &DrawMap) {
             println!("associated road: {:?}", es.road);
         }
         ID::BusStop(id) => {
-            map.get_bs(id).dump_debug();
+            println!("{}", abstutil::to_json(map.get_bs(id)));
         }
         ID::Area(id) => {
-            map.get_a(id).dump_debug();
+            println!("{}", abstutil::to_json(map.get_a(id)));
         }
     }
 }

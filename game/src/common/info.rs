@@ -5,7 +5,6 @@ use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{hotkey, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
 use geom::Time;
-use map_model::PathConstraints;
 use sim::CarID;
 use std::collections::BTreeMap;
 
@@ -25,7 +24,7 @@ impl InfoPanel {
         }
 
         InfoPanel {
-            txt: info_for(id, ui, ctx),
+            txt: info_for(id, ui),
             menu: ModalMenu::new("Info Panel", menu_entries, ctx),
             actions,
         }
@@ -64,16 +63,12 @@ impl State for InfoPanel {
     }
 }
 
-fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
+fn info_for(id: ID, ui: &UI) -> Text {
     let (map, sim, draw_map) = (&ui.primary.map, &ui.primary.sim, &ui.primary.draw_map);
     let mut txt = Text::new();
-    // TODO Technically we should recalculate all of this as the window resizes, then.
-    txt.override_width = Some(0.7 * ctx.canvas.window_width);
-    txt.override_height = Some(0.7 * ctx.canvas.window_height);
 
     txt.extend(&CommonState::default_osd(id.clone(), ui));
     txt.highlight_last_line(Color::BLUE);
-    let id_color = ui.cs.get("OSD ID color");
     let name_color = ui.cs.get("OSD name color");
 
     match id {
@@ -82,20 +77,7 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
             let l = map.get_l(id);
             let r = map.get_r(l.parent);
 
-            txt.add_appended(vec![
-                Line("Parent "),
-                Line(r.id.to_string()).fg(id_color),
-                Line(" ("),
-                Line(r.orig_id.to_string()).fg(id_color),
-                Line(" ) points to "),
-                Line(r.dst_i.to_string()).fg(id_color),
-            ]);
-            txt.add(Line(format!(
-                "Lane is {} long, parent {} is {} long",
-                l.length(),
-                r.id,
-                r.center_pts.length()
-            )));
+            txt.add(Line(format!("Lane is {} long", l.length())));
 
             txt.add(Line(""));
             styled_kv(&mut txt, &r.osm_tags);
@@ -129,38 +111,13 @@ fn info_for(id: ID, ui: &UI, ctx: &EventCtx) -> Text {
                 "{} total agents crossed",
                 prettyprint_usize(sim.get_analytics().thruput_stats.count_per_road.get(r.id))
             )));
-
-            if l.lane_type.is_for_moving_vehicles() {
-                for constraint in vec![
-                    PathConstraints::Car,
-                    PathConstraints::Bike,
-                    PathConstraints::Bus,
-                ] {
-                    if constraint.can_use(l, map) {
-                        txt.add(Line(format!(
-                            "Cost for {:?}: {}",
-                            constraint,
-                            l.get_max_cost(constraint, map)
-                        )));
-                    }
-                }
-            }
         }
         ID::Intersection(id) => {
             let i = map.get_i(id);
-            txt.add(Line(i.orig_id.to_string()).fg(id_color));
             txt.add(Line("Connecting"));
             for r in &i.roads {
                 let road = map.get_r(*r);
-                txt.add_appended(vec![
-                    Line("- "),
-                    Line(road.get_name()).fg(name_color),
-                    Line(" ("),
-                    Line(road.id.to_string()).fg(id_color),
-                    Line(" = "),
-                    Line(road.orig_id.to_string()).fg(id_color),
-                    Line(")"),
-                ]);
+                txt.add_appended(vec![Line("- "), Line(road.get_name()).fg(name_color)]);
             }
 
             let accepted = ui.primary.sim.get_accepted_agents(id);

@@ -28,9 +28,3 @@ pub struct Area {
     pub osm_tags: BTreeMap<String, String>,
     pub osm_id: i64,
 }
-
-impl Area {
-    pub fn dump_debug(&self) {
-        println!("{}", abstutil::to_json(self));
-    }
-}

@@ -143,14 +143,6 @@ impl Lane {
         self.lane_center_pts.length()
     }
 
-    pub fn dump_debug(&self) {
-        println!(
-            "\nlet lane_center_l{}_pts = {}",
-            self.id.0, self.lane_center_pts
-        );
-        println!("{}", abstutil::to_json(self));
-    }
-
     pub fn intersections(&self) -> Vec<IntersectionID> {
         // TODO I think we're assuming there are no loop lanes
         vec![self.src_i, self.dst_i]

@@ -109,10 +109,6 @@ impl Intersection {
         roads
     }
 
-    pub fn dump_debug(&self) {
-        println!("{}", abstutil::to_json(self));
-    }
-
     pub fn some_outgoing_road(&self, map: &Map) -> DirectedRoadID {
         map.get_l(self.outgoing_lanes[0]).get_directed_parent(map)
     }
