@@ -66,7 +66,7 @@ impl<T: Clone> PopupMenu<T> {
         }
         {
             let choice = &self.choices[self.current_idx];
-            if ctx.input.left_mouse_button_pressed() {
+            if ctx.normal_left_click() {
                 // Did we actually click the entry?
                 let mut top_left = self.top_left;
                 top_left.y += ctx.text_dims(&self.prompt).height;

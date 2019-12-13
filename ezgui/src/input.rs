@@ -89,6 +89,8 @@ impl UserInput {
     }
 
     // No consuming for these?
+    // Only places looking at special drag behavior should use these two, otherwise prefer
+    // normal_left_click in EventCtx
     pub fn left_mouse_button_pressed(&mut self) -> bool {
         self.event == Event::LeftMouseButtonDown
     }

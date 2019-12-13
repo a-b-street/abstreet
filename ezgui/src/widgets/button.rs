@@ -69,7 +69,7 @@ impl Button {
                 .get_hitbox()
                 .contains_pt(ctx.canvas.get_cursor_in_screen_space().to_pt());
         }
-        if self.hovering && ctx.input.left_mouse_button_pressed() {
+        if self.hovering && ctx.normal_left_click() {
             self.clicked = true;
         }
 

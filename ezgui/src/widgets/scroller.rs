@@ -138,7 +138,7 @@ impl<T: Clone + Copy> Scroller<T> {
             }
         }
         if let Some(idx) = self.hovering_on {
-            if ctx.input.left_mouse_button_pressed() {
+            if ctx.normal_left_click() {
                 match self.items[idx].0 {
                     Item::UpButton => {
                         if self.top_idx != 0 {

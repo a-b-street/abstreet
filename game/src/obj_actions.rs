@@ -36,7 +36,9 @@ impl PerObjectActions {
     }
 
     pub fn reset(&mut self) {
-        *self = PerObjectActions::new();
+        self.actions = RefCell::new(Vec::new());
+        self.click_action = None;
+        // Don't touch chosen
     }
 
     pub fn action_chosen(&mut self, action: String) {

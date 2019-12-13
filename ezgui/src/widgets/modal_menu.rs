@@ -109,7 +109,7 @@ impl ModalMenu {
             }
         }
         if let Some(idx) = self.hovering_idx {
-            if ctx.input.left_mouse_button_pressed() && self.choices[idx].active {
+            if ctx.normal_left_click() && self.choices[idx].active {
                 self.chosen_action = Some(self.choices[idx].label.clone());
             }
         }
