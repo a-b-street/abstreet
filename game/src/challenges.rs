@@ -10,7 +10,7 @@ use ezgui::{
 };
 use geom::Time;
 use sim::{Sim, SimFlags, SimOptions, TripMode};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashSet};
 
 // TODO Also have some kind of screenshot to display for each challenge
 #[derive(Clone)]
@@ -270,9 +270,18 @@ pub fn prebake() {
         timer.start(format!("prebake for {}", map_path));
         let map = map_model::Map::new(map_path.clone(), false, &mut timer);
 
+        let mut done_scenarios = HashSet::new();
         for challenge in list {
-            timer.start(format!("prebake for {}", challenge.title));
             if let Some(scenario) = challenge.gameplay.scenario(&map, None, &mut timer) {
+                if done_scenarios.contains(&scenario.scenario_name) {
+                    continue;
+                }
+                done_scenarios.insert(scenario.scenario_name.clone());
+                timer.start(format!(
+                    "prebake for {} / {}",
+                    scenario.map_name, scenario.scenario_name
+                ));
+
                 let mut sim = Sim::new(&map, SimOptions::new("prebaked"), &mut timer);
                 // Bit of an abuse of this, but just need to fix the rng seed.
                 let mut rng = SimFlags::for_test("prebaked").make_rng();
@@ -283,8 +292,11 @@ pub fn prebake() {
                     abstutil::path_prebaked_results(&scenario.map_name, &scenario.scenario_name),
                     sim.get_analytics(),
                 );
+                timer.stop(format!(
+                    "prebake for {} / {}",
+                    scenario.map_name, scenario.scenario_name
+                ));
             }
-            timer.stop(format!("prebake for {}", challenge.title));
         }
 
         timer.stop(format!("prebake for {}", map_path));
