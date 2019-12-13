@@ -94,7 +94,7 @@ impl UI {
                 ],
                 ctx,
             ),
-            sidebar: Text::new(),
+            sidebar: Text::new().with_bg(),
 
             last_id: None,
         };
@@ -562,7 +562,7 @@ impl GUI for UI {
             }
         }
 
-        self.sidebar = Text::new();
+        self.sidebar = Text::new().with_bg();
         self.sidebar.override_width = Some(0.3 * ctx.canvas.window_width);
         self.sidebar.override_height = Some(ctx.canvas.window_height);
         if let Some(id) = self.model.world.get_selection() {
@@ -669,7 +669,7 @@ impl GUI for UI {
                 if show_tooltip {
                     // TODO Argh, covers up mouseover tooltip.
                     if let Some(cursor) = g.canvas.get_cursor_in_map_space() {
-                        g.draw_mouse_tooltip(&Text::from(Line(cursor.to_string())));
+                        g.draw_mouse_tooltip(&Text::from(Line(cursor.to_string())).with_bg());
                     }
                 }
             }
@@ -709,7 +709,7 @@ fn preview_intersection(
         batch.push(Color::GREEN.alpha(0.5), r);
     }
     for (label, poly) in debug {
-        labels.push((Text::from(Line(label)), poly.center()));
+        labels.push((Text::from(Line(label)).with_bg(), poly.center()));
         batch.push(Color::RED.alpha(0.5), poly);
     }
     (batch.upload(ctx), labels)

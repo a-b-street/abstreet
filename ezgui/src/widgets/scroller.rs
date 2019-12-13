@@ -207,7 +207,7 @@ impl<T: Clone + Copy> Scroller<T> {
                 Item::UpButton => {
                     // TODO center the text inside the rectangle. and actually, g should have a
                     // method for that.
-                    let mut txt = Text::new().no_bg();
+                    let mut txt = Text::new();
                     if self.top_idx == 0 {
                         // TODO text::INACTIVE_CHOICE_COLOR
                         txt.add(Line("scroll up").fg(Color::grey(0.4)));
@@ -217,7 +217,7 @@ impl<T: Clone + Copy> Scroller<T> {
                     g.draw_text_at_screenspace_topleft(&txt, ScreenPt::new(rect.x1, rect.y1));
                 }
                 Item::DownButton => {
-                    let mut txt = Text::new().no_bg();
+                    let mut txt = Text::new();
                     let num_items = self.num_items_hidden_below(g.canvas);
                     if num_items == 0 {
                         txt.add(Line("scroll down").fg(Color::grey(0.4)));

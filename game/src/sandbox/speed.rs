@@ -77,7 +77,7 @@ impl SpeedControls {
                 .translate(330.0, 10.0),
             );
             txt.push((
-                Text::from(Line("speed").size(14).roboto()).no_bg(),
+                Text::from(Line("speed").size(14).roboto()),
                 ScreenPt::new(330.0, 15.0),
             ));
 
@@ -333,8 +333,7 @@ impl SpeedControls {
                     Line(format!("{:.1}x", self.desired_speed()))
                         .size(14)
                         .roboto(),
-                )
-                .no_bg(),
+                ),
                 ScreenPt::new(self.top_left.x + 530.0, self.top_left.y + 10.0),
             );
 
@@ -446,17 +445,17 @@ impl TimePanel {
         );
 
         txt.push((
-            Text::from(Line("00:00").size(12).roboto()).no_bg(),
+            Text::from(Line("00:00").size(12).roboto()),
             ScreenPt::new(25.0, 80.0),
         ));
         batch.add_svg("assets/speed/sunrise.svg", 94.0, 80.0);
         txt.push((
-            Text::from(Line("12:00").size(12).roboto()).no_bg(),
+            Text::from(Line("12:00").size(12).roboto()),
             ScreenPt::new(153.0, 80.0),
         ));
         batch.add_svg("assets/speed/sunset.svg", 220.0, 80.0);
         txt.push((
-            Text::from(Line("24:00").size(12).roboto()).no_bg(),
+            Text::from(Line("24:00").size(12).roboto()),
             ScreenPt::new(280.0, 80.0),
         ));
 
@@ -475,7 +474,7 @@ impl TimePanel {
         });
 
         g.draw_text_at_screenspace_topleft(
-            &Text::from(Line(ui.primary.sim.time().ampm_tostring()).size(30)).no_bg(),
+            &Text::from(Line(ui.primary.sim.time().ampm_tostring()).size(30)),
             ScreenPt::new(24.0, 10.0),
         );
 

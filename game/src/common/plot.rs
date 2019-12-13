@@ -64,7 +64,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
             let percent_x = (i as f64) / ((num_x_labels - 1) as f64);
             let t = max_x.percent_of(percent_x);
             labels.push((
-                Text::from(Line(t.to_string())),
+                Text::from(Line(t.to_string())).with_bg(),
                 ScreenPt::new(x1 + percent_x * (x2 - x1), y2),
             ));
         }
@@ -73,7 +73,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
         for i in 0..num_y_labels {
             let percent_y = (i as f64) / ((num_y_labels - 1) as f64);
             labels.push((
-                Text::from(Line(max_y.from_percent(percent_y).prettyprint())),
+                Text::from(Line(max_y.from_percent(percent_y).prettyprint())).with_bg(),
                 ScreenPt::new(x1, y2 - percent_y * (y2 - y1)),
             ));
         }
@@ -127,7 +127,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
         let cursor = g.canvas.get_cursor_in_screen_space();
         if self.rect.contains(cursor) {
             let radius = Distance::meters(5.0);
-            let mut txt = Text::new();
+            let mut txt = Text::new().with_bg();
             for (label, pt, _) in self.closest.all_close_pts(cursor.to_pt(), radius) {
                 let t = self
                     .max_x
@@ -287,7 +287,8 @@ impl Histogram {
                             min,
                             max,
                             prettyprint_usize(cnt)
-                        ))),
+                        )))
+                        .with_bg(),
                     ));
                 }
             }
@@ -298,7 +299,7 @@ impl Histogram {
                 let percent_x = (i as f64) / ((num_x_labels - 1) as f64);
                 let dt = min_x + (max_x - min_x) * percent_x;
                 labels.push((
-                    Text::from(Line(dt.to_string())),
+                    Text::from(Line(dt.to_string())).with_bg(),
                     ScreenPt::new(x1 + percent_x * (x2 - x1), y2),
                 ));
             }
@@ -311,7 +312,8 @@ impl Histogram {
                 labels.push((
                     Text::from(Line(prettyprint_usize(
                         ((max_y as f64) * percent_y) as usize,
-                    ))),
+                    )))
+                    .with_bg(),
                     ScreenPt::new(x1 - left_px, y2 - percent_y * (y2 - y1)),
                 ));
             }

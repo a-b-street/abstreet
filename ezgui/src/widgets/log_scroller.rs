@@ -9,7 +9,7 @@ pub struct LogScroller {
 
 impl LogScroller {
     pub fn new(title: String, lines: Vec<String>) -> LogScroller {
-        let mut text = Text::new();
+        let mut text = Text::new().with_bg();
         text.add_highlighted(Line(title).size(50), text::PROMPT_COLOR);
         for line in lines {
             text.add(Line(line));

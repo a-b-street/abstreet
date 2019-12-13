@@ -216,8 +216,7 @@ impl DrawPedCrowd {
             Line(format!("{}", input.members.len()))
                 .fg(Color::BLACK)
                 .size(15),
-        )
-        .no_bg();
+        );
 
         DrawPedCrowd {
             members: input.members,

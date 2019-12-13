@@ -100,7 +100,7 @@ impl CommonState {
         let map = &ui.primary.map;
         let id_color = ui.cs.get_def("OSD ID color", Color::RED);
         let name_color = ui.cs.get_def("OSD name color", Color::CYAN);
-        let mut osd = Text::new();
+        let mut osd = Text::new().with_bg();
         match id {
             ID::Lane(l) => {
                 osd.append_all(vec![
@@ -181,7 +181,7 @@ impl CommonState {
         } else if let Some(button) = g.button_tooltip() {
             button
         } else {
-            Text::from(Line("..."))
+            Text::from(Line("...")).with_bg()
         };
         CommonState::draw_custom_osd(ui, g, osd);
     }

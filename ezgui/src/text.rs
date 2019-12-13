@@ -74,7 +74,7 @@ impl Text {
     pub fn new() -> Text {
         Text {
             lines: Vec::new(),
-            bg_color: Some(BG_COLOR),
+            bg_color: None,
             override_width: None,
             override_height: None,
         }
@@ -86,20 +86,15 @@ impl Text {
         txt
     }
 
-    // TODO nope
     pub fn prompt(line: &str) -> Text {
-        let mut txt = Text::new();
+        let mut txt = Text::new().with_bg();
         txt.add_highlighted(Line(line), PROMPT_COLOR);
         txt
     }
 
-    pub fn bg(mut self, color: Color) -> Text {
-        self.bg_color = Some(color);
-        self
-    }
-
-    pub fn no_bg(mut self) -> Text {
-        self.bg_color = None;
+    pub fn with_bg(mut self) -> Text {
+        assert!(self.bg_color.is_none());
+        self.bg_color = Some(BG_COLOR);
         self
     }
 

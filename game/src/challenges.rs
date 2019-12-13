@@ -118,17 +118,17 @@ pub fn challenges_picker(ctx: &EventCtx) -> Box<dyn State> {
                 hotkey(Key::Escape),
                 Box::new(|_, _| Some(Transition::Pop)),
             ),
-            ManagedWidget::draw_text(ctx, Text::from(Line("A/B STREET").size(50)).no_bg()),
+            ManagedWidget::draw_text(ctx, Text::from(Line("A/B STREET").size(50))),
         ],
     ));
 
     col.push(ManagedWidget::draw_text(
         ctx,
-        Text::from(Line("CHALLENGES")).no_bg(),
+        Text::from(Line("CHALLENGES")),
     ));
     col.push(ManagedWidget::draw_text(
         ctx,
-        Text::from(Line("Make changes to achieve a goal")).no_bg(),
+        Text::from(Line("Make changes to achieve a goal")),
     ));
 
     let mut flex_row = Vec::new();
@@ -155,7 +155,7 @@ pub fn challenges_picker(ctx: &EventCtx) -> Box<dyn State> {
                         let edits = abstutil::list_all_objects(abstutil::path_all_edits(
                             &abstutil::basename(&challenge.map_path),
                         ));
-                        let mut summary = Text::new();
+                        let mut summary = Text::new().with_bg();
                         for l in &challenge.description {
                             summary.add(Line(l));
                         }

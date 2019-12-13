@@ -142,7 +142,7 @@ impl DrawCar {
             zorder: input.on.get_zorder(map),
             label: input
                 .label
-                .map(|line| Text::from(Line(line).fg(Color::rgb(249, 206, 24)).size(20)).no_bg()),
+                .map(|line| Text::from(Line(line).fg(Color::rgb(249, 206, 24)).size(20))),
             draw_default: prerender.upload(draw_default),
         }
     }

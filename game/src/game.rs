@@ -122,8 +122,10 @@ impl GUI for Game {
         state.draw(g, &self.ui);
 
         if self.ui.opts.dev {
+            let mut txt = Text::from(Line("DEV"));
+            txt.highlight_last_line(Color::RED);
             g.draw_blocking_text(
-                &Text::from(Line("DEV")).bg(Color::RED),
+                &txt,
                 (HorizontalAlignment::Right, VerticalAlignment::Bottom),
             );
         }

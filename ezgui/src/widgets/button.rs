@@ -39,11 +39,11 @@ impl Button {
             draw_hovered,
             hotkey,
             tooltip: if let Some(key) = hotkey {
-                let mut txt = Text::from(Line(key.describe()).fg(text::HOTKEY_COLOR));
+                let mut txt = Text::from(Line(key.describe()).fg(text::HOTKEY_COLOR)).with_bg();
                 txt.append(Line(format!(" - {}", tooltip)));
                 txt
             } else {
-                Text::from(Line(tooltip))
+                Text::from(Line(tooltip)).with_bg()
             },
             hitbox,
 
@@ -247,14 +247,13 @@ impl Button {
     }
 
     pub fn text(
-        mut text: Text,
+        text: Text,
         unselected_bg_color: Color,
         selected_bg_color: Color,
         hotkey: Option<MultiKey>,
         tooltip: &str,
         ctx: &EventCtx,
     ) -> Button {
-        text = text.no_bg();
         let dims = ctx.text_dims(&text);
         let geom = Polygon::rounded_rectangle(
             Distance::meters(dims.width + 2.0 * HORIZ_PADDING),

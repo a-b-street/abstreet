@@ -287,7 +287,7 @@ impl AgentMeter {
     pub fn new(ctx: &EventCtx, ui: &UI) -> AgentMeter {
         let (active, unfinished, by_mode) = ui.primary.sim.num_trips();
 
-        let mut row1_txt = Text::new().no_bg();
+        let mut row1_txt = Text::new();
         row1_txt.add(Line(format!("Active trips: {}", active)));
         row1_txt.add(Line(format!("Unfinished trips: {}", unfinished)));
 
@@ -306,13 +306,13 @@ impl AgentMeter {
             JustDraw::wrap(DrawBoth::new(ctx, rect_bg, Vec::new())),
             JustDraw::text(row1_txt, ctx),
             JustDraw::svg("assets/meters/pedestrian.svg", ctx),
-            JustDraw::text(Text::from(Line(&by_mode[&TripMode::Walk])).no_bg(), ctx),
+            JustDraw::text(Text::from(Line(&by_mode[&TripMode::Walk])), ctx),
             JustDraw::svg("assets/meters/bike.svg", ctx),
-            JustDraw::text(Text::from(Line(&by_mode[&TripMode::Bike])).no_bg(), ctx),
+            JustDraw::text(Text::from(Line(&by_mode[&TripMode::Bike])), ctx),
             JustDraw::svg("assets/meters/car.svg", ctx),
-            JustDraw::text(Text::from(Line(&by_mode[&TripMode::Drive])).no_bg(), ctx),
+            JustDraw::text(Text::from(Line(&by_mode[&TripMode::Drive])), ctx),
             JustDraw::svg("assets/meters/bus.svg", ctx),
-            JustDraw::text(Text::from(Line(&by_mode[&TripMode::Transit])).no_bg(), ctx),
+            JustDraw::text(Text::from(Line(&by_mode[&TripMode::Transit])), ctx),
         ];
 
         // TODO A horrible experiment in manual layouting

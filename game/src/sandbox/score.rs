@@ -37,7 +37,7 @@ impl Scoreboard {
             prebaked.all_finished_trips(ui.primary.sim.time());
 
         // TODO Include unfinished count
-        let mut txt = Text::new();
+        let mut txt = Text::new().with_bg();
         txt.add_appended(vec![
             Line("Finished trips as of "),
             Line(ui.primary.sim.time().ampm_tostring()).fg(Color::CYAN),

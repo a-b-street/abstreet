@@ -182,11 +182,8 @@ impl TrafficSignalDiagram {
         );
         let mut labels = Vec::new();
         for (idx, phase) in phases.iter().enumerate() {
-            labels.push(Text::from(Line(format!(
-                "Phase {}: {}",
-                idx + 1,
-                phase.duration
-            ))));
+            labels
+                .push(Text::from(Line(format!("Phase {}: {}", idx + 1, phase.duration))).with_bg());
         }
 
         TrafficSignalDiagram {
@@ -261,7 +258,7 @@ fn make_new_scroller(i: IntersectionID, draw_ctx: &DrawCtx, ctx: &EventCtx) -> N
             );
         }
         txt.push((
-            Text::from(Line(format!("Phase {}: {}", idx + 1, phase.duration))),
+            Text::from(Line(format!("Phase {}: {}", idx + 1, phase.duration))).with_bg(),
             ScreenPt::new(10.0 + (bounds.max_x - bounds.min_x) * zoom, y_offset * zoom),
         ));
         y_offset += bounds.max_y - bounds.min_y;

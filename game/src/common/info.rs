@@ -66,7 +66,7 @@ impl State for InfoPanel {
 
 fn info_for(id: ID, ui: &UI) -> Text {
     let (map, sim, draw_map) = (&ui.primary.map, &ui.primary.sim, &ui.primary.draw_map);
-    let mut txt = Text::new();
+    let mut txt = Text::new().with_bg();
 
     txt.extend(&CommonState::default_osd(id.clone(), ui));
     txt.highlight_last_line(Color::BLUE);

@@ -61,7 +61,7 @@ impl ShowBusRoute {
         let mut labels = Vec::new();
         for (idx, bs) in route.stops.iter().enumerate() {
             labels.push((
-                Text::from(Line(format!("{}", idx + 1))),
+                Text::from(Line(format!("{}", idx + 1))).with_bg(),
                 map.get_bs(*bs).sidewalk_pos.pt(map),
             ));
         }

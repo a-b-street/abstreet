@@ -289,7 +289,7 @@ impl State for TrafficSignalEditor {
                     ui.primary.map.get_r(id.to).get_name()
                 )))
             };
-            CommonState::draw_custom_osd(ui, g, osd);
+            CommonState::draw_custom_osd(ui, g, osd.with_bg());
         } else {
             CommonState::draw_osd(g, ui, &None);
         }

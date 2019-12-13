@@ -43,7 +43,7 @@ impl DrawRoad {
             );
         }
 
-        let mut label = Text::new();
+        let mut label = Text::new().with_bg();
         label.add(Line(r.get_name()).size(50));
 
         DrawRoad {

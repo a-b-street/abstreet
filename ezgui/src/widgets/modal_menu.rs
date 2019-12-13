@@ -41,7 +41,7 @@ impl ModalMenu {
     ) -> ModalMenu {
         let mut m = ModalMenu {
             title: title.into(),
-            info: Text::new(),
+            info: Text::new().with_bg(),
             chosen_action: None,
             choices: raw_choices
                 .into_iter()
@@ -74,7 +74,7 @@ impl ModalMenu {
     }
 
     pub fn set_info(&mut self, ctx: &EventCtx, info: Text) {
-        self.info = info;
+        self.info = info.with_bg();
         self.recalculate_dims(ctx);
     }
 

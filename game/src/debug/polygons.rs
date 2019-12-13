@@ -173,21 +173,21 @@ impl State for PolygonDebugger {
 
         match item {
             Item::Point(pt) => {
-                g.draw_text_at(&Text::from(Line(idx.to_string())), *pt);
+                g.draw_text_at(&Text::from(Line(idx.to_string())).with_bg(), *pt);
             }
             Item::Triangle(ref tri) => {
                 for pt in &[tri.pt1, tri.pt2, tri.pt3] {
-                    g.draw_text_at(&Text::from(Line(idx.to_string())), *pt);
+                    g.draw_text_at(&Text::from(Line(idx.to_string())).with_bg(), *pt);
                 }
                 g.draw_polygon(ui.cs.get("selected"), &Polygon::from_triangle(tri));
             }
             Item::Polygon(ref poly) => {
                 g.draw_polygon(ui.cs.get("selected"), poly);
-                g.draw_text_at(&Text::from(Line(idx.to_string())), poly.center());
+                g.draw_text_at(&Text::from(Line(idx.to_string())).with_bg(), poly.center());
             }
         }
         if let Some(pt) = self.center {
-            g.draw_text_at(&Text::from(Line("c")), pt);
+            g.draw_text_at(&Text::from(Line("c")).with_bg(), pt);
         }
 
         self.slider.draw(g);

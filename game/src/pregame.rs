@@ -86,17 +86,17 @@ pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
                     std::process::exit(0);
                 }),
             ),
-            ManagedWidget::draw_text(ctx, Text::from(Line("A/B STREET").size(50)).no_bg()),
+            ManagedWidget::draw_text(ctx, Text::from(Line("A/B STREET").size(50))),
         ],
     ));
 
     col.push(ManagedWidget::draw_text(
         ctx,
-        Text::from(Line("Created by Dustin Carlino")).no_bg(),
+        Text::from(Line("Created by Dustin Carlino")),
     ));
     col.push(ManagedWidget::draw_text(
         ctx,
-        Text::from(Line("Choose your game")).no_bg(),
+        Text::from(Line("Choose your game")),
     ));
 
     col.push(ManagedWidget::Row(
@@ -169,7 +169,7 @@ fn about(ctx: &EventCtx) -> Box<dyn State> {
         Box::new(|_, _| Some(Transition::Pop)),
     ));
 
-    let mut txt = Text::new().no_bg();
+    let mut txt = Text::new();
     txt.add(Line("A/B STREET").size(50));
     txt.add(Line("Created by Dustin Carlino"));
     txt.add(Line(""));
