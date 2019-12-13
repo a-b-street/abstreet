@@ -53,9 +53,9 @@ impl PerObjectActions {
         }
     }
 
-    pub fn left_click(&mut self, ctx: &mut EventCtx, label: &str) -> bool {
+    pub fn left_click<S: Into<String>>(&mut self, ctx: &mut EventCtx, label: S) -> bool {
         assert!(self.click_action.is_none());
-        self.click_action = Some(label.to_string());
+        self.click_action = Some(label.into());
         ctx.normal_left_click()
     }
 

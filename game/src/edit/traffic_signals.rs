@@ -110,9 +110,8 @@ impl State for TrafficSignalEditor {
                 }
             };
             if let Some(pri) = next_priority {
-                if ui.per_obj.action(
+                if ui.per_obj.left_click(
                     ctx,
-                    Key::Space,
                     format!(
                         "toggle from {:?} to {:?}",
                         phase.get_priority_of_group(id),

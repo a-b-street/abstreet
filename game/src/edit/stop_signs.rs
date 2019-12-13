@@ -67,8 +67,13 @@ impl State for StopSignEditor {
         }
 
         if let Some(r) = self.selected_sign {
-            if ui.per_obj.action(ctx, Key::Space, "toggle stop sign") {
-                let mut sign = ui.primary.map.get_stop_sign(self.id).clone();
+            let mut sign = ui.primary.map.get_stop_sign(self.id).clone();
+            let label = if sign.roads[&r].must_stop {
+                "remove stop sign"
+            } else {
+                "add stop sign"
+            };
+            if ui.per_obj.left_click(ctx, label) {
                 sign.flip_sign(r);
 
                 let mut edits = ui.primary.map.get_edits().clone();
