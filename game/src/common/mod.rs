@@ -59,7 +59,9 @@ impl CommonState {
         }
 
         if let Some(ref id) = ui.primary.current_selection {
-            if ui.per_obj.action(ctx, Key::I, "info") || ctx.normal_left_click() {
+            if ui.per_obj.action(ctx, Key::I, "show info")
+                || ui.per_obj.left_click(ctx, "show info")
+            {
                 return Some(Transition::Push(Box::new(info::InfoPanel::new(
                     id.clone(),
                     ui,
@@ -185,7 +187,7 @@ impl CommonState {
     }
 
     pub fn draw_custom_osd(ui: &UI, g: &mut GfxCtx, mut osd: Text) {
-        let keys = ui.per_obj.get_active_keys();
+        let (keys, click_action) = ui.per_obj.get_active_keys();
         if !keys.is_empty() {
             osd.append(Line("   Hotkeys: "));
             for (idx, key) in keys.into_iter().enumerate() {
@@ -194,6 +196,13 @@ impl CommonState {
                 }
                 osd.append(Line(key.describe()).fg(ezgui::HOTKEY_COLOR));
             }
+        }
+        if let Some(action) = click_action {
+            osd.append_all(vec![
+                Line("; "),
+                Line("click").fg(ezgui::HOTKEY_COLOR),
+                Line(format!(" to {}", action)),
+            ]);
         }
 
         g.draw_blocking_text(

@@ -246,7 +246,7 @@ impl State for AgentSpawner {
             }
         }
 
-        if self.maybe_goal.is_some() && ui.per_obj.action(ctx, Key::F3, "end the agent here") {
+        if self.maybe_goal.is_some() && ui.per_obj.left_click(ctx, "end the agent here") {
             let mut rng = ui.primary.current_flags.sim_flags.make_rng();
             let sim = &mut ui.primary.sim;
             let err = schedule_trip(
@@ -579,7 +579,7 @@ impl State for SpawnManyAgents {
 
         if self.maybe_goal.is_some()
             && self.schedule.is_none()
-            && ui.per_obj.action(ctx, Key::F2, "end the swarm here")
+            && ui.per_obj.left_click(ctx, "end the swarm here")
         {
             return Transition::Push(WizardState::new(Box::new(move |wiz, ctx, _| {
                 let mut wizard = wiz.wrap(ctx);
