@@ -272,10 +272,13 @@ impl SpeedControls {
 
         self.large_step_btn.event(ctx);
         if self.large_step_btn.clicked() {
-            return Some(Transition::Push(Box::new(TimeWarpScreen {
-                target: ui.primary.sim.time() + Duration::hours(1),
-                started: Instant::now(),
-            })));
+            return Some(Transition::PushWithMode(
+                Box::new(TimeWarpScreen {
+                    target: ui.primary.sim.time() + Duration::hours(1),
+                    started: Instant::now(),
+                }),
+                EventLoopMode::Animation,
+            ));
         }
 
         self.jump_to_time_btn.event(ctx);
@@ -363,10 +366,13 @@ fn jump_to_time(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Tra
         ui.primary.sim.time(),
         Time::END_OF_DAY,
     )?;
-    Some(Transition::Replace(Box::new(TimeWarpScreen {
-        target,
-        started: Instant::now(),
-    })))
+    Some(Transition::ReplaceWithMode(
+        Box::new(TimeWarpScreen {
+            target,
+            started: Instant::now(),
+        }),
+        EventLoopMode::Animation,
+    ))
 }
 
 // Display a nicer screen for jumping forwards in time, allowing cancellation.
