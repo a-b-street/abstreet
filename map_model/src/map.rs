@@ -779,7 +779,7 @@ fn make_half_map(
             // IMPORTANT! We're relying on the triangulation algorithm not to mess with the order
             // of the points. Sidewalk corner rendering depends on it later.
             polygon: Polygon::new(&i.polygon),
-            turns: Vec::new(),
+            turns: BTreeSet::new(),
             // Might change later
             intersection_type: i.intersection_type,
             orig_id: i.id,
@@ -884,7 +884,7 @@ fn make_half_map(
 
         for t in make::make_all_turns(i, &map.roads, &map.lanes, timer) {
             assert!(!map.turns.contains_key(&t.id));
-            i.turns.push(t.id);
+            i.turns.insert(t.id);
             map.turns.insert(t.id, t);
         }
     }
@@ -1148,7 +1148,7 @@ fn recalculate_turns(
     }
 
     let mut old_turns = Vec::new();
-    for t in i.turns.drain(..) {
+    for t in std::mem::replace(&mut i.turns, BTreeSet::new()) {
         old_turns.push(map.turns.remove(&t).unwrap());
         effects.deleted_turns.insert(t);
     }
@@ -1159,7 +1159,7 @@ fn recalculate_turns(
 
     for t in make::make_all_turns(i, &map.roads, &map.lanes, timer) {
         effects.added_turns.insert(t.id);
-        i.turns.push(t.id);
+        i.turns.insert(t.id);
         if let Some(_existing_t) = old_turns.iter().find(|turn| turn.id == t.id) {
             // TODO Except for lookup_idx
             //assert_eq!(t, *existing_t);

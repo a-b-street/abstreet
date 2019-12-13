@@ -28,7 +28,7 @@ pub struct Intersection {
     pub id: IntersectionID,
     // This needs to be in clockwise orientation, or later rendering of sidewalk corners breaks.
     pub polygon: Polygon,
-    pub turns: Vec<TurnID>,
+    pub turns: BTreeSet<TurnID>,
 
     pub intersection_type: IntersectionType,
     pub orig_id: OriginalIntersection,
