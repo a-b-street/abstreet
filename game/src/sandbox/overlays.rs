@@ -10,7 +10,7 @@ use crate::ui::{ShowEverything, UI};
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{Button, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Text};
 use geom::{Distance, Duration, PolyLine, Statistic, Time};
-use map_model::{IntersectionID, LaneID, PathConstraints, PathStep, RoadID};
+use map_model::{IntersectionID, RoadID};
 use sim::{Analytics, ParkingSpot, TripMode};
 use std::collections::{BTreeMap, HashSet};
 
@@ -21,9 +21,7 @@ pub enum Overlays {
     CumulativeThroughput(Time, ObjectColorer),
     FinishedTrips(Time, Plot<usize>),
     FinishedTripsHistogram(Time, Histogram),
-    Chokepoints(Time, ObjectColorer),
     BikeNetwork(RoadColorer),
-    BikePathCosts(RoadColorer),
     BusNetwork(RoadColorer),
     // Only set by certain gameplay modes
     BusRoute(ShowBusRoute),
@@ -71,9 +69,7 @@ impl Overlays {
                                 Choice::new("finished trips", ()).key(Key::F),
                                 // TODO baseline borrow doesn't live long enough
                                 //Choice::new("finished trips histogram", ()).key(Key::H),
-                                Choice::new("chokepoints", ()).key(Key::C),
                                 Choice::new("bike network", ()).key(Key::B),
-                                Choice::new("bike path costs", ()).key(Key::X),
                                 Choice::new("bus network", ()).key(Key::U),
                             ]
                         })?;
@@ -85,9 +81,7 @@ impl Overlays {
                             "intersection delay" => Overlays::intersection_delay(ctx, ui),
                             "cumulative throughput" => Overlays::cumulative_throughput(ctx, ui),
                             "finished trips" => Overlays::finished_trips(ctx, ui),
-                            "chokepoints" => Overlays::chokepoints(ctx, ui),
                             "bike network" => Overlays::bike_network(ctx, ui),
-                            "bike path costs" => Overlays::bike_path_costs(ctx, ui),
                             "bus network" => Overlays::bus_network(ctx, ui),
                             _ => unreachable!(),
                         };
@@ -98,8 +92,8 @@ impl Overlays {
 
         let now = ui.primary.sim.time();
         match self {
-            // Don't bother with Inactive, BusRoute, BusDelaysOverTime, BikeNetwork, BikePathCosts,
-            // BusNetwork -- nothing needed or the gameplay mode will update it.
+            // Don't bother with Inactive, BusRoute, BusDelaysOverTime, BikeNetwork, BusNetwork --
+            // nothing needed or the gameplay mode will update it.
             Overlays::ParkingAvailability(t, _) if now != *t => {
                 *self = Overlays::parking_availability(ctx, ui);
             }
@@ -127,9 +121,6 @@ impl Overlays {
             Overlays::FinishedTripsHistogram(t, _) if now != *t => {
                 *self = Overlays::finished_trips_histogram(ctx, ui, baseline);
             }
-            Overlays::Chokepoints(t, _) if now != *t => {
-                *self = Overlays::chokepoints(ctx, ui);
-            }
             _ => {}
         };
         None
@@ -141,14 +132,12 @@ impl Overlays {
             Overlays::Inactive => false,
             Overlays::ParkingAvailability(_, ref heatmap)
             | Overlays::BikeNetwork(ref heatmap)
-            | Overlays::BikePathCosts(ref heatmap)
             | Overlays::BusNetwork(ref heatmap) => {
                 heatmap.draw(g, ui);
                 true
             }
             Overlays::IntersectionDelay(_, ref heatmap)
-            | Overlays::CumulativeThroughput(_, ref heatmap)
-            | Overlays::Chokepoints(_, ref heatmap) => {
+            | Overlays::CumulativeThroughput(_, ref heatmap) => {
                 heatmap.draw(g, ui);
                 true
             }
@@ -467,48 +456,6 @@ impl Overlays {
         }
     }
 
-    fn chokepoints(ctx: &EventCtx, ui: &UI) -> Overlays {
-        const TOP_N: usize = 10;
-
-        let mut colorer = ObjectColorerBuilder::new(
-            Text::prompt("chokepoints"),
-            vec![("chokepoint", Color::RED)],
-        );
-
-        let mut per_road = Counter::new();
-        let mut per_intersection = Counter::new();
-
-        for a in ui.primary.sim.active_agents() {
-            // Why would an active agent not have a path? Pedestrian riding a bus.
-            if let Some(path) = ui.primary.sim.get_path(a) {
-                for step in path.get_steps() {
-                    match step {
-                        PathStep::Lane(l) | PathStep::ContraflowLane(l) => {
-                            per_road.inc(ui.primary.map.get_l(*l).parent);
-                        }
-                        PathStep::Turn(t) => {
-                            per_intersection.inc(t.parent);
-                        }
-                    }
-                }
-            }
-        }
-
-        let mut roads = per_road.sorted_asc();
-        roads.reverse();
-        for r in roads.into_iter().take(TOP_N) {
-            colorer.add(ID::Road(*r), Color::RED);
-        }
-
-        let mut intersections = per_intersection.sorted_asc();
-        intersections.reverse();
-        for i in intersections.into_iter().take(TOP_N) {
-            colorer.add(ID::Intersection(*i), Color::RED);
-        }
-
-        Overlays::Chokepoints(ui.primary.sim.time(), colorer.build(ctx, &ui.primary.map))
-    }
-
     fn bike_network(ctx: &EventCtx, ui: &UI) -> Overlays {
         let mut colorer = RoadColorerBuilder::new(
             Text::prompt("bike networks"),
@@ -603,41 +550,6 @@ impl Overlays {
                 ctx,
             ),
         )
-    }
-
-    fn bike_path_costs(ctx: &EventCtx, ui: &UI) -> Overlays {
-        let mut cost_per_lane: BTreeMap<LaneID, usize> = BTreeMap::new();
-        for l in ui.primary.map.all_lanes() {
-            if PathConstraints::Bike.can_use(l, &ui.primary.map) {
-                cost_per_lane.insert(l.id, l.get_max_cost(PathConstraints::Bike, &ui.primary.map));
-            }
-        }
-
-        let mut colorer = RoadColorerBuilder::new(
-            Text::prompt("bike pathfinding (% of max cost)"),
-            vec![
-                ("<= 10%", rotating_color(0)),
-                ("<= 20%", rotating_color(1)),
-                ("<= 30%", rotating_color(2)),
-                ("<= 40%", rotating_color(3)),
-                ("<= 50%", rotating_color(4)),
-                ("<= 60%", rotating_color(5)),
-                ("<= 70%", rotating_color(6)),
-                ("<= 80%", rotating_color(7)),
-                ("<= 90%", rotating_color(8)),
-                ("> 90%", rotating_color(9)),
-            ],
-        );
-        let max = *cost_per_lane.values().max().unwrap() as f64;
-        for (l, cost) in cost_per_lane {
-            let percent = (cost as f64) / max;
-            colorer.add(
-                l,
-                rotating_color((percent * 10.0).round() as usize),
-                &ui.primary.map,
-            );
-        }
-        Overlays::BikePathCosts(colorer.build(ctx, &ui.primary.map))
     }
 
     pub fn intersection_demand(i: IntersectionID, ctx: &EventCtx, ui: &UI) -> Overlays {
