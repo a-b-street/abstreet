@@ -3,7 +3,13 @@
 
 set -e
 
-OUT=abstreet_windows
+version=$1;
+if [ "$version" == "" ]; then
+	echo Gimme version number
+	exit 1
+fi
+
+OUT="abstreet_windows_$version"
 
 source release/common.sh
 common_release $OUT

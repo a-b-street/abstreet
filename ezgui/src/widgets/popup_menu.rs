@@ -39,13 +39,6 @@ impl<T: Clone> PopupMenu<T> {
         m
     }
 
-    // It's part of something bigger
-    pub fn disable_standalone_layout(mut self) -> PopupMenu<T> {
-        assert!(self.standalone_layout.is_some());
-        self.standalone_layout = None;
-        self
-    }
-
     pub fn event(&mut self, ctx: &mut EventCtx) -> InputResult<T> {
         if let Some(o) = self.standalone_layout {
             layout::stack_vertically(o, ctx, vec![self]);

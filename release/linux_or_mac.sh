@@ -3,9 +3,15 @@
 
 set -e
 
-OUT=abstreet_linux
+version=$1;
+if [ "$version" == "" ]; then
+	echo Gimme version number
+	exit 1
+fi
+
+OUT="abstreet_linux_$version"
 if [[ "$OSTYPE" == "darwin"* ]]; then
-	OUT=abstreet_mac
+	OUT="abstreet_mac_$version"
 fi
 
 source release/common.sh
