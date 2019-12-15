@@ -10,9 +10,6 @@ if [ "$version" == "" ]; then
 fi
 
 OUT="abstreet_linux_$version"
-if [[ "$OSTYPE" == "darwin"* ]]; then
-	OUT="abstreet_mac_$version"
-fi
 
 source release/common.sh
 common_release $OUT
@@ -20,8 +17,8 @@ common_release $OUT
 cp release/play_abstreet.sh $OUT
 
 mkdir $OUT/game
-cargo build --release --bin game
-cp target/release/game $OUT/game
+cross build --release --target x86_64-unknown-linux-gnu --bin game
+cp target/x86_64-unknown-linux-gnu/release/game $OUT/game
 cp -Rv game/assets $OUT/game
 
 zip -r $OUT $OUT
