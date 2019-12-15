@@ -24,10 +24,21 @@ One-time setup:
   traces and run more slowly. You can do `cargo run --release` to build in
   optimized release mode; compilation will be slower, but the executable much
   faster.
-- Some in-game features are turned off by default or don't have a normal menu to access them. The list:
-  - To toggle developer mode: press **Control+S** in game, or `cargo run -- --dev`
+- Some in-game features are turned off by default or don't have a normal menu to
+  access them. The list:
+  - To toggle developer mode: press **Control+S** in game, or
+    `cargo run -- --dev`
   - To warp to an object by numeric ID: press **j**
   - To enter debug mode with all sorts of goodies: press **Control+D**
+- You can start the game in different modes using flags:
+  - `cargo run -- --dev ../data/system/maps/downtown.bin` starts on a particular
+    map
+  - `cargo run ../data/system/scenarios/caphill/weekday_typical_traffic_from_psrc.bin`
+    starts with a scenario (which is tied to a certain map)
+  - `cargo run ../data/player/saves/montlake/no_edits_unnamed/00h00m20.3s.bin`
+    restores an exact simulation state. Savestates are found in debug mode
+    (**Control+D**) -- they're probably confusing for the normal player
+    experience, so they're hidden for now.
 - All code is automatically formatted using
   https://github.com/rust-lang/rustfmt; please run `cargo fmt` before sending a
   PR.
