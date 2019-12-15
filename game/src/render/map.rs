@@ -528,6 +528,7 @@ impl AgentColorScheme {
 
     pub fn all() -> Vec<(AgentColorScheme, String)> {
         vec![
+            (AgentColorScheme::ByID, "arbitrary colors by ID".to_string()),
             (
                 AgentColorScheme::VehicleTypes,
                 "by vehicle type".to_string(),

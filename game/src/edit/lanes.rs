@@ -33,20 +33,21 @@ impl LaneEditor {
              label: &str,
              key: Key,
              apply: Box<dyn Fn(&Map, LaneID) -> Result<Option<EditCmd>, String>>| {
-                let btn = Button::icon_btn(
-                    &format!("assets/ui/edit_{}.png", icon),
-                    32.0,
+                let btn = Button::rectangle_svg_bg(
+                    &format!("assets/edit/{}.svg", icon),
                     label,
                     hotkey(key),
+                    Color::grey(0.4),
+                    Color::ORANGE,
                     ctx,
                 )
                 .at(ScreenPt::new(x1, 0.0));
-                let enabled_btn = Button::icon_btn_bg(
-                    &format!("assets/ui/edit_{}.png", icon),
-                    32.0,
+                let enabled_btn = Button::rectangle_svg_bg(
+                    &format!("assets/edit/{}.svg", icon),
                     label,
                     hotkey(key),
                     Color::RED,
+                    Color::ORANGE,
                     ctx,
                 )
                 .at(ScreenPt::new(x1, 0.0));
