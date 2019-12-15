@@ -50,7 +50,7 @@ enum SpeedState {
 }
 
 impl SpeedControls {
-    pub fn new(ctx: &mut EventCtx, dev_mode: bool) -> SpeedControls {
+    pub fn new(ctx: &mut EventCtx, ui: &UI) -> SpeedControls {
         let draw_fixed = {
             let mut batch = GeomBatch::new();
             let mut txt = Vec::new();
@@ -147,7 +147,7 @@ impl SpeedControls {
         );
 
         // 10 sim minutes / real second normally, or 1 sim hour / real second for dev mode
-        let speed_cap: f64 = if dev_mode { 3600.0 } else { 600.0 };
+        let speed_cap: f64 = if ui.opts.dev { 3600.0 } else { 600.0 };
         let mut speed_slider = Slider::new(157.0, 10.0);
         // Start with speed=1.0
         speed_slider.set_percent(ctx, (speed_cap / 1.0).powf(-1.0 / std::f64::consts::E));
@@ -170,6 +170,7 @@ impl SpeedControls {
         )
         .at(ScreenPt::new(top_left.x + 600.0, top_left.y + 10.0));
 
+        let now = Instant::now();
         SpeedControls {
             time_panel: TimePanel::new(ctx),
             top_left,
@@ -185,7 +186,12 @@ impl SpeedControls {
             slow_down_btn,
             speed_up_btn,
 
-            state: SpeedState::Paused,
+            state: SpeedState::Running {
+                last_step: now,
+                speed_description: "...".to_string(),
+                last_measurement: now,
+                last_measurement_sim: ui.primary.sim.time(),
+            },
             speed_cap,
         }
     }

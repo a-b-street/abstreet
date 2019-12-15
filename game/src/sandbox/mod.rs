@@ -39,7 +39,7 @@ pub struct SandboxMode {
 impl SandboxMode {
     pub fn new(ctx: &mut EventCtx, ui: &mut UI, mode: GameplayMode) -> SandboxMode {
         SandboxMode {
-            speed: speed::SpeedControls::new(ctx, ui.opts.dev),
+            speed: speed::SpeedControls::new(ctx, ui),
             agent_meter: AgentMeter::new(ctx, ui),
             agent_tools: AgentTools::new(),
             overlay: Overlays::Inactive,
