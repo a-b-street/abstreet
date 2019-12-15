@@ -159,6 +159,8 @@ impl ColorLegend {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
+        let top_left = ScreenPt::new(0.0, 150.0);
+
         // TODO Want to draw a little rectangular box on each row, but how do we know positioning?
         // - v1: manually figure it out here with line height, padding, etc
         // - v2: be able to say something like "row: rectangle with width=30, height=80% of row.
@@ -168,45 +170,31 @@ impl ColorLegend {
         for (label, _) in &self.rows {
             txt.add(Line(label));
         }
-        g.draw_text_at_screenspace_topleft(
-            &txt,
-            ScreenPt::new(
-                50.0,
-                g.canvas.window_height
-                    - (g.default_line_height()
-                        * ((self.rows.len() + self.header.num_lines() + 1) as f64)),
-            ),
-        );
+        g.draw_text_at_screenspace_topleft(&txt, ScreenPt::new(top_left.x + 50.0, top_left.y));
 
         let mut batch = GeomBatch::new();
         // Hacky way to extend the text box's background a little...
         batch.push(
             Color::grey(0.2),
             Polygon::rectangle_topleft(
-                Pt2D::new(
-                    0.0,
-                    g.canvas.window_height
-                        - (g.default_line_height()
-                            * ((self.rows.len() + self.header.num_lines() + 1) as f64)),
-                ),
+                Pt2D::new(top_left.x, top_left.y),
                 Distance::meters(50.0),
                 Distance::meters(
-                    g.default_line_height()
-                        * ((self.rows.len() + self.header.num_lines() + 1) as f64),
+                    g.default_line_height() * ((self.rows.len() + self.header.num_lines()) as f64),
                 ),
             ),
         );
         let square_dims = 0.8 * g.default_line_height();
+        let center_squares = (g.default_line_height() - square_dims) / 2.0;
         for (idx, (_, c)) in self.rows.iter().enumerate() {
-            let offset_from_bottom = 1 + self.rows.len() - idx;
             batch.push(
                 *c,
                 Polygon::rectangle_topleft(
                     Pt2D::new(
-                        20.0,
-                        g.canvas.window_height
-                            - g.default_line_height() * (offset_from_bottom as f64)
-                            + (g.default_line_height() - square_dims) / 2.0,
+                        top_left.x + 20.0,
+                        top_left.y
+                            + g.default_line_height() * ((idx + self.header.num_lines()) as f64)
+                            + center_squares,
                     ),
                     Distance::meters(square_dims),
                     Distance::meters(square_dims),

@@ -317,7 +317,7 @@ impl AgentMeter {
 
         // TODO A horrible experiment in manual layouting
 
-        let top_left = ScreenPt::new(ctx.canvas.window_width - 300.0, 350.0);
+        let top_left = ScreenPt::new(350.0, 10.0);
         widgets[0].set_pos(top_left);
         widgets[1].set_pos(top_left);
         let top_left = ScreenPt::new(top_left.x, top_left.y + widgets[1].get_dims().height);

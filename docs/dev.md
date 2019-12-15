@@ -39,6 +39,9 @@ One-time setup:
     restores an exact simulation state. Savestates are found in debug mode
     (**Control+D**) -- they're probably confusing for the normal player
     experience, so they're hidden for now.
+- If you're testing anything related to prebaked results (used for comparisons
+  against a baseline in challenge mode), make sure to set `--rng_seed=42`. The
+  `--dev` flag does by default.
 - All code is automatically formatted using
   https://github.com/rust-lang/rustfmt; please run `cargo fmt` before sending a
   PR.
