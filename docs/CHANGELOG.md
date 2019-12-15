@@ -207,3 +207,11 @@ changes here.
 - fix minimap on mac (dpi issues)
 - visual tweaks to cars to make front/back easier to distinguish
 - internal change to switch most assets from PNG to SVG
+
+v0.1.19
+
+- some challenge modes show a histogram for counting faster/slower trips
+- new visualization of current demand per direction at a traffic signal
+- implementing some of Yuwen's UI changes: agent counter, split time/speed panel, moved functionality out of the old drop-down menus into a bottom-left tool panel, hiding debug functionality
+- replaced right-click context menus with left click to open info panels
+- fixed random issues reported by people from HN

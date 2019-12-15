@@ -2,18 +2,24 @@
 
 General disclaimer: This is a very rough demo. The user interface is clunky, and
 gameplay is not cohesively tied together yet. Please email
-<dabreegster@gmail.com> or file a Github issue if you hit problems.
+<dabreegster@gmail.com> or
+[file a Github issue](https://github.com/dabreegster/abstreet/issues/) if you
+hit problems.
 
 ## Installing the game
 
-Grab a pre-built binary release:
+Grab a pre-built binary release -- updated every Sunday, announced at
+[r/abstreet](http://old.reddit.com/r/abstreet):
 
 - Windows:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.18/abstreet_windows.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.19/abstreet_windows_v0_1_19.zip
 - Mac:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.18/abstreet_mac.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.19/abstreet_mac_v0_1_19.zip
+  - The minimap may be missing, depending on your monitor's DPI.
 - Linux:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.18/abstreet_linux.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.19/abstreet_linux_v0_1_19.zip
+  - The binary might not work on your flavor of Linux; let me know
+    [here](https://github.com/dabreegster/abstreet/issues/17) if so.
 
 Unzip the folder, then run `play_abstreet.sh` or `play_abstreet.bat`. On
 Windows, you'll probably get a warning about running software from an unknown
@@ -28,24 +34,25 @@ General controls:
 - Click and drag to move
 - Scroll wheel or touchpad to zoom
 - Menus should work as expected. Most actions have a keybinding.
-- You can hover over an object and right-click to see more actions.
+- You can hover over an object and left-click to see more actions.
 
 Things to try:
 
 - In sandbox mode, hover over an intersection, right click, and spawn agents.
-  Then you can start the simulation by pressing **space** or clicking the icon.
 - To run a realistic, full day's worth of traffic, go to sandbox mode, then
   "start a scenario" (hotkey **s**) and choose the "weekday_typical_traffic"
   entry. Time (shown in the top-right corner) starts at midnight. Things tend to
   get interesting around 6am -- use the speed controls in the top-left. Try
   zooming in for details, and zooming out to see an overview.
-- Go to edit mode (note this will reset the simulation). Pick a lane, right
-  click, and change it to another type. You can also change which roads see a
-  stop sign by right clicking the intersection, choosing to edit, hovering over
-  a stop sign, and pressing **space** to toggle it. You can do the same for
-  intersections with traffic signals.
-- Go back to the main menu and pick a challenge. Should be self-explanatory from
-  there -- leave me feedbck if not.
+  - The full scenario should complete successfully on the small montlake map. On
+    other maps, it currently gridlocks or crashes. Most of these are known
+    issues.
+- Go to edit mode (note this will reset the simulation). Use the buttons at the
+  top to pick a lane type, then hover over a lane and press **space** to change
+  it. Deselect the lane tool, then click an intersection to edit stop signs or
+  traffic signals.
+- Go back to the main menu and pick a challenge. Eventually these will be very
+  self-guided, but there are various problems with all of them right now.
 
 ## Data source licensing
 
