@@ -7,6 +7,7 @@ use ezgui::{
     Line, RewriteColor, ScreenPt, Slider, Text, VerticalAlignment, Wizard,
 };
 use geom::{Distance, Duration, Line, Pt2D, Time};
+use std::collections::HashMap;
 use std::time::Instant;
 
 const ADJUST_SPEED_PERCENT: f64 = 0.01;
@@ -16,6 +17,7 @@ pub struct SpeedControls {
 
     top_left: ScreenPt,
     composite: Composite,
+    slider: Slider,
 
     state: SpeedState,
     speed_cap: f64,
@@ -37,7 +39,6 @@ impl SpeedControls {
         paused: bool,
         desired_speed: f64,
         top_left: ScreenPt,
-        slider: Slider,
     ) -> Composite {
         let mut row = Vec::new();
         if paused {
@@ -117,7 +118,7 @@ impl SpeedControls {
         row.push(
             ManagedWidget::row(vec![
                 ManagedWidget::draw_text(ctx, Text::from(Line("speed").size(14).roboto())),
-                ManagedWidget::slider("speed".to_string(), slider),
+                ManagedWidget::slider("speed"),
                 ManagedWidget::btn_no_cb(Button::rectangle_svg(
                     "assets/speed/slow_down.svg",
                     "slow down",
@@ -160,16 +161,17 @@ impl SpeedControls {
 
         // 10 sim minutes / real second normally, or 1 sim hour / real second for dev mode
         let speed_cap: f64 = if ui.opts.dev { 3600.0 } else { 600.0 };
-        let mut speed_slider = Slider::new(160.0, 15.0);
+        let mut slider = Slider::new(160.0, 15.0);
         // Start with speed=1.0
-        speed_slider.set_percent(ctx, (speed_cap / 1.0).powf(-1.0 / std::f64::consts::E));
+        slider.set_percent(ctx, (speed_cap / 1.0).powf(-1.0 / std::f64::consts::E));
 
         let now = Instant::now();
         SpeedControls {
             time_panel: TimePanel::new(ctx, ui),
 
             top_left,
-            composite: SpeedControls::make_panel(ctx, false, 1.0, top_left, speed_slider),
+            composite: SpeedControls::make_panel(ctx, false, 1.0, top_left),
+            slider,
 
             state: SpeedState::Running {
                 last_step: now,
@@ -189,25 +191,28 @@ impl SpeedControls {
     ) -> Option<Transition> {
         self.time_panel.event(ctx, ui);
 
-        let current_percent = self.composite.slider("speed").get_percent();
         let desired_speed = self.desired_speed();
-        match self.composite.event(ctx, ui) {
+        let mut sliders = HashMap::new();
+        sliders.insert("speed".to_string(), &mut self.slider);
+        match self.composite.event_with_sliders(ctx, ui, sliders) {
             Some(Outcome::Transition(t)) => {
                 return Some(t);
             }
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "speed up" => {
                     if desired_speed != self.speed_cap {
-                        self.composite
-                            .slider_mut("speed")
-                            .set_percent(ctx, (current_percent + ADJUST_SPEED_PERCENT).min(1.0));
+                        self.slider.set_percent(
+                            ctx,
+                            (self.slider.get_percent() + ADJUST_SPEED_PERCENT).min(1.0),
+                        );
                     }
                 }
                 "slow down" => {
                     if desired_speed != 0.0 {
-                        self.composite
-                            .slider_mut("speed")
-                            .set_percent(ctx, (current_percent - ADJUST_SPEED_PERCENT).max(0.0));
+                        self.slider.set_percent(
+                            ctx,
+                            (self.slider.get_percent() - ADJUST_SPEED_PERCENT).max(0.0),
+                        );
                     }
                 }
                 "resume" => {
@@ -218,10 +223,8 @@ impl SpeedControls {
                         last_measurement: now,
                         last_measurement_sim: ui.primary.sim.time(),
                     };
-                    let mut slider = Slider::new(160.0, 15.0);
-                    slider.set_percent(ctx, current_percent);
                     self.composite =
-                        SpeedControls::make_panel(ctx, false, desired_speed, self.top_left, slider);
+                        SpeedControls::make_panel(ctx, false, desired_speed, self.top_left);
                     return None;
                 }
                 "pause" => {
@@ -275,17 +278,16 @@ impl SpeedControls {
 
     pub fn draw(&self, g: &mut GfxCtx) {
         self.time_panel.draw(g);
-        self.composite.draw(g);
+        let mut sliders = HashMap::new();
+        sliders.insert("speed".to_string(), &self.slider);
+        self.composite.draw_with_sliders(g, sliders);
     }
 
     pub fn pause(&mut self, ctx: &EventCtx) {
         if !self.is_paused() {
             self.state = SpeedState::Paused;
-            let mut slider = Slider::new(160.0, 15.0);
-            slider.set_percent(ctx, self.composite.slider("speed").get_percent());
-
             self.composite =
-                SpeedControls::make_panel(ctx, true, self.desired_speed(), self.top_left, slider);
+                SpeedControls::make_panel(ctx, true, self.desired_speed(), self.top_left);
         }
     }
 
@@ -297,12 +299,7 @@ impl SpeedControls {
     }
 
     fn desired_speed(&self) -> f64 {
-        self.speed_cap
-            * self
-                .composite
-                .slider("speed")
-                .get_percent()
-                .powf(std::f64::consts::E)
+        self.speed_cap * self.slider.get_percent().powf(std::f64::consts::E)
     }
 }
 

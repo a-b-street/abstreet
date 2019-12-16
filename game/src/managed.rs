@@ -6,6 +6,7 @@ use ezgui::{
     RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Slider, Text,
 };
 use geom::{Distance, Polygon};
+use std::collections::HashMap;
 use stretch::geometry::{Rect, Size};
 use stretch::node::{Node, Stretch};
 use stretch::style::{AlignItems, Dimension, FlexDirection, FlexWrap, JustifyContent, Style};
@@ -22,7 +23,7 @@ pub struct ManagedWidget {
 enum WidgetType {
     Draw(JustDraw),
     Btn(Button, Option<Callback>),
-    Slider(String, Slider),
+    Slider(String),
     Row(Vec<ManagedWidget>),
     Column(Vec<ManagedWidget>),
 }
@@ -197,8 +198,8 @@ impl ManagedWidget {
         )
     }
 
-    pub fn slider(label: String, slider: Slider) -> ManagedWidget {
-        ManagedWidget::new(WidgetType::Slider(label, slider))
+    pub fn slider(label: &str) -> ManagedWidget {
+        ManagedWidget::new(WidgetType::Slider(label.to_string()))
     }
 
     pub fn row(widgets: Vec<ManagedWidget>) -> ManagedWidget {
@@ -209,7 +210,12 @@ impl ManagedWidget {
         ManagedWidget::new(WidgetType::Column(widgets))
     }
 
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Outcome> {
+    fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        ui: &mut UI,
+        sliders: &mut HashMap<String, &mut Slider>,
+    ) -> Option<Outcome> {
         match self.widget {
             WidgetType::Draw(_) => {}
             WidgetType::Btn(ref mut btn, ref maybe_onclick) => {
@@ -224,12 +230,12 @@ impl ManagedWidget {
                     }
                 }
             }
-            WidgetType::Slider(_, ref mut slider) => {
-                slider.event(ctx);
+            WidgetType::Slider(ref name) => {
+                sliders.get_mut(name).unwrap().event(ctx);
             }
             WidgetType::Row(ref mut widgets) | WidgetType::Column(ref mut widgets) => {
                 for w in widgets {
-                    if let Some(o) = w.event(ctx, ui) {
+                    if let Some(o) = w.event(ctx, ui, sliders) {
                         return Some(o);
                     }
                 }
@@ -238,7 +244,7 @@ impl ManagedWidget {
         None
     }
 
-    fn draw(&self, g: &mut GfxCtx) {
+    fn draw(&self, g: &mut GfxCtx, sliders: &HashMap<String, &Slider>) {
         if let Some(ref bg) = self.bg {
             g.fork_screenspace();
             g.redraw(bg);
@@ -248,10 +254,150 @@ impl ManagedWidget {
         match self.widget {
             WidgetType::Draw(ref j) => j.draw(g),
             WidgetType::Btn(ref btn, _) => btn.draw(g),
-            WidgetType::Slider(_, ref slider) => slider.draw(g),
+            WidgetType::Slider(ref name) => sliders[name].draw(g),
             WidgetType::Row(ref widgets) | WidgetType::Column(ref widgets) => {
                 for w in widgets {
-                    w.draw(g);
+                    w.draw(g, sliders);
+                }
+            }
+        }
+    }
+
+    // Populate a flattened list of Nodes, matching the traversal order
+    fn get_flexbox(
+        &self,
+        parent: Node,
+        sliders: &HashMap<String, &mut Slider>,
+        stretch: &mut Stretch,
+        nodes: &mut Vec<Node>,
+    ) {
+        match self.widget {
+            // TODO Draw, Btn, Slider all the same -- treat as Widget. Cast in the match?
+            WidgetType::Draw(ref widget) => {
+                let dims = widget.get_dims();
+                let mut style = Style {
+                    size: Size {
+                        width: Dimension::Points(dims.width as f32),
+                        height: Dimension::Points(dims.height as f32),
+                    },
+                    ..Default::default()
+                };
+                self.style.apply(&mut style);
+                let node = stretch.new_node(style, Vec::new()).unwrap();
+                stretch.add_child(parent, node).unwrap();
+                nodes.push(node);
+            }
+            WidgetType::Btn(ref widget, _) => {
+                let dims = widget.get_dims();
+                let mut style = Style {
+                    size: Size {
+                        width: Dimension::Points(dims.width as f32),
+                        height: Dimension::Points(dims.height as f32),
+                    },
+                    ..Default::default()
+                };
+                self.style.apply(&mut style);
+                let node = stretch.new_node(style, Vec::new()).unwrap();
+                stretch.add_child(parent, node).unwrap();
+                nodes.push(node);
+            }
+            WidgetType::Slider(ref name) => {
+                let dims = sliders[name].get_dims();
+                let mut style = Style {
+                    size: Size {
+                        width: Dimension::Points(dims.width as f32),
+                        height: Dimension::Points(dims.height as f32),
+                    },
+                    ..Default::default()
+                };
+                self.style.apply(&mut style);
+                let node = stretch.new_node(style, Vec::new()).unwrap();
+                stretch.add_child(parent, node).unwrap();
+                nodes.push(node);
+            }
+            WidgetType::Row(ref widgets) => {
+                let mut style = Style {
+                    flex_direction: FlexDirection::Row,
+                    ..Default::default()
+                };
+                self.style.apply(&mut style);
+                let row = stretch.new_node(style, Vec::new()).unwrap();
+                nodes.push(row);
+                for widget in widgets {
+                    widget.get_flexbox(row, sliders, stretch, nodes);
+                }
+                stretch.add_child(parent, row).unwrap();
+            }
+            WidgetType::Column(ref widgets) => {
+                let mut style = Style {
+                    flex_direction: FlexDirection::Column,
+                    ..Default::default()
+                };
+                self.style.apply(&mut style);
+                let col = stretch.new_node(style, Vec::new()).unwrap();
+                nodes.push(col);
+                for widget in widgets {
+                    widget.get_flexbox(col, sliders, stretch, nodes);
+                }
+                stretch.add_child(parent, col).unwrap();
+            }
+        }
+    }
+
+    fn apply_flexbox(
+        &mut self,
+        sliders: &mut HashMap<String, &mut Slider>,
+        stretch: &Stretch,
+        nodes: &mut Vec<Node>,
+        dx: f64,
+        dy: f64,
+        ctx: &mut EventCtx,
+    ) {
+        let result = stretch.layout(nodes.pop().unwrap()).unwrap();
+        let x: f64 = result.location.x.into();
+        let y: f64 = result.location.y.into();
+        let width: f64 = result.size.width.into();
+        let height: f64 = result.size.height.into();
+        self.rect = Some(ScreenRectangle::top_left(
+            ScreenPt::new(x + dx, y + dy),
+            ScreenDims::new(width, height),
+        ));
+        if let Some(color) = self.style.bg_color {
+            let mut batch = GeomBatch::new();
+            batch.push(
+                color,
+                Polygon::rounded_rectangle(
+                    Distance::meters(width),
+                    Distance::meters(height),
+                    Distance::meters(5.0),
+                )
+                .translate(x + dx, y + dy),
+            );
+            self.bg = Some(batch.upload(ctx));
+        }
+
+        match self.widget {
+            WidgetType::Draw(ref mut widget) => {
+                widget.set_pos(ScreenPt::new(x + dx, y + dy));
+            }
+            WidgetType::Btn(ref mut widget, _) => {
+                widget.set_pos(ScreenPt::new(x + dx, y + dy));
+            }
+            WidgetType::Slider(ref name) => {
+                sliders
+                    .get_mut(name)
+                    .unwrap()
+                    .set_pos(ScreenPt::new(x + dx, y + dy));
+            }
+            WidgetType::Row(ref mut widgets) => {
+                // layout() doesn't return absolute position; it's relative to the container.
+                for widget in widgets {
+                    widget.apply_flexbox(sliders, stretch, nodes, x + dx, y + dy, ctx);
+                }
+            }
+            WidgetType::Column(ref mut widgets) => {
+                for widget in widgets {
+                    widget.apply_flexbox(sliders, stretch, nodes, x + dx, y + dy, ctx);
                 }
             }
         }
@@ -289,6 +435,15 @@ impl Composite {
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Outcome> {
+        self.event_with_sliders(ctx, ui, HashMap::new())
+    }
+
+    pub fn event_with_sliders(
+        &mut self,
+        ctx: &mut EventCtx,
+        ui: &mut UI,
+        mut sliders: HashMap<String, &mut Slider>,
+    ) -> Option<Outcome> {
         // TODO If this ever gets slow, only run if window size has changed.
         let mut stretch = Stretch::new();
         let root = stretch
@@ -311,7 +466,8 @@ impl Composite {
             .unwrap();
 
         let mut nodes = vec![];
-        flexbox(root, &self.top_level, &mut stretch, &mut nodes);
+        self.top_level
+            .get_flexbox(root, &sliders, &mut stretch, &mut nodes);
         nodes.reverse();
 
         stretch.compute_layout(root, Size::undefined()).unwrap();
@@ -319,8 +475,8 @@ impl Composite {
             CompositePosition::FillScreen => ScreenPt::new(0.0, 0.0),
             CompositePosition::MinimalTopLeft(pt) => pt,
         };
-        apply_flexbox(
-            &mut self.top_level,
+        self.top_level.apply_flexbox(
+            &mut sliders,
             &stretch,
             &mut nodes,
             top_left.x,
@@ -329,189 +485,19 @@ impl Composite {
         );
         assert!(nodes.is_empty());
 
-        self.top_level.event(ctx, ui)
+        self.top_level.event(ctx, ui, &mut sliders)
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
+        self.draw_with_sliders(g, HashMap::new());
+    }
+
+    pub fn draw_with_sliders(&self, g: &mut GfxCtx, sliders: HashMap<String, &Slider>) {
         // The order the very first round is a bit weird.
         if let Some(ref rect) = self.top_level.rect {
             g.canvas.mark_covered_area(rect.clone());
         }
-        self.top_level.draw(g);
-    }
-
-    // TODO Oh boy. Maybe make the caller own the Slider and hold onto a reference instead.
-    pub fn slider<'a>(&'a self, name: &str) -> &'a Slider {
-        fn find_slider<'b>(wt: &'b WidgetType, name: &str) -> Option<&'b Slider> {
-            match wt {
-                WidgetType::Draw(_) | WidgetType::Btn(_, _) => None,
-                WidgetType::Slider(ref n, ref slider) => {
-                    if n == name {
-                        Some(slider)
-                    } else {
-                        None
-                    }
-                }
-                WidgetType::Row(ref widgets) | WidgetType::Column(ref widgets) => widgets
-                    .iter()
-                    .flat_map(|w| find_slider(&w.widget, name))
-                    .next(),
-            }
-        }
-
-        find_slider(&self.top_level.widget, name).unwrap()
-    }
-
-    pub fn slider_mut<'a>(&'a mut self, name: &str) -> &'a mut Slider {
-        fn find_slider<'b>(wt: &'b mut WidgetType, name: &str) -> Option<&'b mut Slider> {
-            match wt {
-                WidgetType::Draw(_) | WidgetType::Btn(_, _) => None,
-                WidgetType::Slider(ref n, ref mut slider) => {
-                    if n == name {
-                        Some(slider)
-                    } else {
-                        None
-                    }
-                }
-                WidgetType::Row(ref mut widgets) | WidgetType::Column(ref mut widgets) => widgets
-                    .iter_mut()
-                    .flat_map(|w| find_slider(&mut w.widget, name))
-                    .next(),
-            }
-        }
-
-        find_slider(&mut self.top_level.widget, name).unwrap()
-    }
-}
-
-// TODO Put these two inside ManagedWidget
-// Populate a flattened list of Nodes, matching the traversal order
-fn flexbox(parent: Node, w: &ManagedWidget, stretch: &mut Stretch, nodes: &mut Vec<Node>) {
-    match w.widget {
-        // TODO Draw, Btn, Slider all the same -- treat as Widget. Cast in the match?
-        WidgetType::Draw(ref widget) => {
-            let dims = widget.get_dims();
-            let mut style = Style {
-                size: Size {
-                    width: Dimension::Points(dims.width as f32),
-                    height: Dimension::Points(dims.height as f32),
-                },
-                ..Default::default()
-            };
-            w.style.apply(&mut style);
-            let node = stretch.new_node(style, Vec::new()).unwrap();
-            stretch.add_child(parent, node).unwrap();
-            nodes.push(node);
-        }
-        WidgetType::Btn(ref widget, _) => {
-            let dims = widget.get_dims();
-            let mut style = Style {
-                size: Size {
-                    width: Dimension::Points(dims.width as f32),
-                    height: Dimension::Points(dims.height as f32),
-                },
-                ..Default::default()
-            };
-            w.style.apply(&mut style);
-            let node = stretch.new_node(style, Vec::new()).unwrap();
-            stretch.add_child(parent, node).unwrap();
-            nodes.push(node);
-        }
-        WidgetType::Slider(_, ref widget) => {
-            let dims = widget.get_dims();
-            let mut style = Style {
-                size: Size {
-                    width: Dimension::Points(dims.width as f32),
-                    height: Dimension::Points(dims.height as f32),
-                },
-                ..Default::default()
-            };
-            w.style.apply(&mut style);
-            let node = stretch.new_node(style, Vec::new()).unwrap();
-            stretch.add_child(parent, node).unwrap();
-            nodes.push(node);
-        }
-        WidgetType::Row(ref widgets) => {
-            let mut style = Style {
-                flex_direction: FlexDirection::Row,
-                ..Default::default()
-            };
-            w.style.apply(&mut style);
-            let row = stretch.new_node(style, Vec::new()).unwrap();
-            nodes.push(row);
-            for widget in widgets {
-                flexbox(row, widget, stretch, nodes);
-            }
-            stretch.add_child(parent, row).unwrap();
-        }
-        WidgetType::Column(ref widgets) => {
-            let mut style = Style {
-                flex_direction: FlexDirection::Column,
-                ..Default::default()
-            };
-            w.style.apply(&mut style);
-            let col = stretch.new_node(style, Vec::new()).unwrap();
-            nodes.push(col);
-            for widget in widgets {
-                flexbox(col, widget, stretch, nodes);
-            }
-            stretch.add_child(parent, col).unwrap();
-        }
-    }
-}
-
-fn apply_flexbox(
-    w: &mut ManagedWidget,
-    stretch: &Stretch,
-    nodes: &mut Vec<Node>,
-    dx: f64,
-    dy: f64,
-    ctx: &mut EventCtx,
-) {
-    let result = stretch.layout(nodes.pop().unwrap()).unwrap();
-    let x: f64 = result.location.x.into();
-    let y: f64 = result.location.y.into();
-    let width: f64 = result.size.width.into();
-    let height: f64 = result.size.height.into();
-    w.rect = Some(ScreenRectangle::top_left(
-        ScreenPt::new(x + dx, y + dy),
-        ScreenDims::new(width, height),
-    ));
-    if let Some(color) = w.style.bg_color {
-        let mut batch = GeomBatch::new();
-        batch.push(
-            color,
-            Polygon::rounded_rectangle(
-                Distance::meters(width),
-                Distance::meters(height),
-                Distance::meters(5.0),
-            )
-            .translate(x + dx, y + dy),
-        );
-        w.bg = Some(batch.upload(ctx));
-    }
-
-    match w.widget {
-        WidgetType::Draw(ref mut widget) => {
-            widget.set_pos(ScreenPt::new(x + dx, y + dy));
-        }
-        WidgetType::Btn(ref mut widget, _) => {
-            widget.set_pos(ScreenPt::new(x + dx, y + dy));
-        }
-        WidgetType::Slider(_, ref mut widget) => {
-            widget.set_pos(ScreenPt::new(x + dx, y + dy));
-        }
-        WidgetType::Row(ref mut widgets) => {
-            // layout() doesn't return absolute position; it's relative to the container.
-            for widget in widgets {
-                apply_flexbox(widget, stretch, nodes, x + dx, y + dy, ctx);
-            }
-        }
-        WidgetType::Column(ref mut widgets) => {
-            for widget in widgets {
-                apply_flexbox(widget, stretch, nodes, x + dx, y + dy, ctx);
-            }
-        }
+        self.top_level.draw(g, &sliders);
     }
 }
 
