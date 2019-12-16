@@ -11,17 +11,17 @@ use crate::edit::EditMode;
 use crate::edit::{apply_map_edits, save_edits};
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
+use crate::managed::{Composite, ManagedWidget};
 use crate::pregame::main_menu;
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
-use ezgui::layout::Widget;
 use ezgui::{
-    hotkey, layout, lctrl, Choice, Color, DrawBoth, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
-    JustDraw, Key, Line, ModalMenu, ScreenDims, ScreenPt, ScreenRectangle, Text,
+    Color, hotkey, layout, lctrl, Choice, EventCtx, EventLoopMode, GfxCtx, Key, Line, ModalMenu, ScreenPt,
+    Text,
 };
 pub use gameplay::spawner::spawn_agents_around;
 pub use gameplay::GameplayMode;
-use geom::{Distance, Duration, Polygon, Time};
+use geom::{Duration, Time};
 use map_model::MapEdits;
 use sim::TripMode;
 
@@ -276,79 +276,54 @@ impl State for SandboxMode {
     }
 }
 
-// TODO Some kind of composite thing...
 struct AgentMeter {
     time: Time,
-    widgets: Vec<JustDraw>,
-    rect: ScreenRectangle,
+    composite: Composite,
 }
 
 impl AgentMeter {
     pub fn new(ctx: &EventCtx, ui: &UI) -> AgentMeter {
         let (active, unfinished, by_mode) = ui.primary.sim.num_trips();
 
-        let mut row1_txt = Text::new();
-        row1_txt.add(Line(format!("Active trips: {}", active)));
-        row1_txt.add(Line(format!("Unfinished trips: {}", unfinished)));
-
-        // TODO Hardcoding guessed dims
-        let rect_bg = GeomBatch::from(vec![(
-            Color::grey(0.4),
-            Polygon::rounded_rectangle(
-                Distance::meters(290.0),
-                Distance::meters(100.0),
-                Distance::meters(5.0),
-            ),
-        )]);
-
-        // TODO Rectangle behind everything
-        let mut widgets = vec![
-            JustDraw::wrap(DrawBoth::new(ctx, rect_bg, Vec::new())),
-            JustDraw::text(row1_txt, ctx),
-            JustDraw::svg("assets/meters/pedestrian.svg", ctx),
-            JustDraw::text(Text::from(Line(&by_mode[&TripMode::Walk])), ctx),
-            JustDraw::svg("assets/meters/bike.svg", ctx),
-            JustDraw::text(Text::from(Line(&by_mode[&TripMode::Bike])), ctx),
-            JustDraw::svg("assets/meters/car.svg", ctx),
-            JustDraw::text(Text::from(Line(&by_mode[&TripMode::Drive])), ctx),
-            JustDraw::svg("assets/meters/bus.svg", ctx),
-            JustDraw::text(Text::from(Line(&by_mode[&TripMode::Transit])), ctx),
-        ];
-
-        // TODO A horrible experiment in manual layouting
-
-        let top_left = ScreenPt::new(350.0, 10.0);
-        widgets[0].set_pos(top_left);
-        widgets[1].set_pos(top_left);
-        let top_left = ScreenPt::new(top_left.x, top_left.y + widgets[1].get_dims().height);
-        layout::stack_horizontally(
-            top_left,
-            // TODO Padding is wrong, want to alternate the amount
-            5.0,
-            widgets
-                .iter_mut()
-                .skip(2)
-                .map(|w| w as &mut dyn Widget)
-                .collect(),
+        let composite = Composite::minimal_size(
+            ManagedWidget::col(vec![
+                {
+                    let mut txt = Text::new();
+                    txt.add(Line(format!("Active trips: {}", active)));
+                    txt.add(Line(format!("Unfinished trips: {}", unfinished)));
+                    ManagedWidget::draw_text(ctx, txt)
+                },
+                ManagedWidget::row(vec![
+                    ManagedWidget::draw_svg(ctx, "assets/meters/pedestrian.svg"),
+                    ManagedWidget::draw_text(ctx, Text::from(Line(&by_mode[&TripMode::Walk]))),
+                    ManagedWidget::draw_svg(ctx, "assets/meters/bike.svg"),
+                    ManagedWidget::draw_text(ctx, Text::from(Line(&by_mode[&TripMode::Bike]))),
+                    ManagedWidget::draw_svg(ctx, "assets/meters/car.svg"),
+                    ManagedWidget::draw_text(ctx, Text::from(Line(&by_mode[&TripMode::Drive]))),
+                    ManagedWidget::draw_svg(ctx, "assets/meters/bus.svg"),
+                    ManagedWidget::draw_text(ctx, Text::from(Line(&by_mode[&TripMode::Transit]))),
+                ])
+                .centered(),
+            ])
+            .bg(Color::grey(0.4))
+            .padding(20),
+            ScreenPt::new(350.0, 10.0),
         );
+
         AgentMeter {
-            widgets,
             time: ui.primary.sim.time(),
-            rect: ScreenRectangle::top_left(top_left, ScreenDims::new(290.0, 100.0)),
+            composite,
         }
     }
 
-    pub fn event(&mut self, ctx: &EventCtx, ui: &UI) {
-        // TODO Or window size changed...
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) {
         if self.time != ui.primary.sim.time() {
             *self = AgentMeter::new(ctx, ui);
         }
+        self.composite.event(ctx, ui);
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        for w in &self.widgets {
-            w.draw(g);
-        }
-        g.canvas.mark_covered_area(self.rect.clone());
+        self.composite.draw(g);
     }
 }

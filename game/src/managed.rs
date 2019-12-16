@@ -2,47 +2,105 @@ use crate::game::{State, Transition};
 use crate::ui::UI;
 use ezgui::layout::Widget;
 use ezgui::{
-    Button, Color, EventCtx, GfxCtx, JustDraw, Line, MultiKey, RewriteColor, ScreenPt, Text,
+    Button, Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, MultiKey, RewriteColor,
+    ScreenDims, ScreenPt, ScreenRectangle, Text,
 };
-use stretch::geometry::Size;
+use geom::{Distance, Polygon};
+use stretch::geometry::{Rect, Size};
 use stretch::node::{Node, Stretch};
 use stretch::style::{AlignItems, Dimension, FlexDirection, FlexWrap, JustifyContent, Style};
 
 type Callback = Box<dyn Fn(&mut EventCtx, &mut UI) -> Option<Transition>>;
 
-pub enum ManagedWidget {
-    Draw(JustDraw),
-    Btn(Button, Callback),
-    Row(LayoutStyle, Vec<ManagedWidget>),
-    Column(LayoutStyle, Vec<ManagedWidget>),
+pub struct ManagedWidget {
+    widget: WidgetType,
+    style: LayoutStyle,
+    rect: Option<ScreenRectangle>,
+    bg: Option<Drawable>,
 }
 
-pub enum LayoutStyle {
-    Neutral,
-    Centered,
-    FlexWrap,
+enum WidgetType {
+    Draw(JustDraw),
+    Btn(Button, Callback),
+    Row(Vec<ManagedWidget>),
+    Column(Vec<ManagedWidget>),
+}
+
+struct LayoutStyle {
+    bg_color: Option<Color>,
+    align_items: Option<AlignItems>,
+    justify_content: Option<JustifyContent>,
+    flex_wrap: Option<FlexWrap>,
+    padding: Option<Rect<Dimension>>,
 }
 
 impl LayoutStyle {
     fn apply(&self, style: &mut Style) {
-        match self {
-            LayoutStyle::Neutral => {}
-            LayoutStyle::Centered => {
-                style.align_items = AlignItems::Center;
-                style.justify_content = JustifyContent::SpaceAround;
-            }
-            LayoutStyle::FlexWrap => {
-                style.flex_wrap = FlexWrap::Wrap;
-                style.justify_content = JustifyContent::SpaceAround;
-            }
+        if let Some(x) = self.align_items {
+            style.align_items = x;
+        }
+        if let Some(x) = self.justify_content {
+            style.justify_content = x;
+        }
+        if let Some(x) = self.flex_wrap {
+            style.flex_wrap = x;
+        }
+        if let Some(x) = self.padding {
+            style.padding = x;
         }
     }
 }
 
 impl ManagedWidget {
+    fn new(widget: WidgetType) -> ManagedWidget {
+        ManagedWidget {
+            widget,
+            style: LayoutStyle {
+                bg_color: None,
+                align_items: None,
+                justify_content: None,
+                flex_wrap: None,
+                padding: None,
+            },
+            rect: None,
+            bg: None,
+        }
+    }
+
+    pub fn centered(mut self) -> ManagedWidget {
+        self.style.align_items = Some(AlignItems::Center);
+        self.style.justify_content = Some(JustifyContent::SpaceAround);
+        self
+    }
+
+    pub fn flex_wrap(mut self) -> ManagedWidget {
+        self.style.flex_wrap = Some(FlexWrap::Wrap);
+        self.style.justify_content = Some(JustifyContent::SpaceAround);
+        self
+    }
+
+    pub fn bg(mut self, color: Color) -> ManagedWidget {
+        self.style.bg_color = Some(color);
+        self
+    }
+
+    pub fn padding(mut self, pixels: usize) -> ManagedWidget {
+        self.style.padding = Some(Rect {
+            start: Dimension::Points(pixels as f32),
+            end: Dimension::Points(pixels as f32),
+            top: Dimension::Points(pixels as f32),
+            bottom: Dimension::Points(pixels as f32),
+        });
+        self
+    }
+
     // TODO Helpers that should probably be written differently
     pub fn draw_text(ctx: &EventCtx, txt: Text) -> ManagedWidget {
-        ManagedWidget::Draw(JustDraw::text(txt, ctx))
+        ManagedWidget::new(WidgetType::Draw(JustDraw::text(txt, ctx)))
+    }
+
+    pub fn draw_svg(ctx: &EventCtx, filename: &str) -> ManagedWidget {
+        ManagedWidget::new(WidgetType::Draw(JustDraw::svg(filename, ctx)))
     }
 
     pub fn img_button(
@@ -52,7 +110,7 @@ impl ManagedWidget {
         onclick: Callback,
     ) -> ManagedWidget {
         let btn = Button::rectangle_img(filename, hotkey, ctx);
-        ManagedWidget::Btn(btn, onclick)
+        ManagedWidget::new(WidgetType::Btn(btn, onclick))
     }
 
     pub fn svg_button(
@@ -69,7 +127,7 @@ impl ManagedWidget {
             RewriteColor::Change(Color::WHITE, Color::ORANGE),
             ctx,
         );
-        ManagedWidget::Btn(btn, onclick)
+        ManagedWidget::new(WidgetType::Btn(btn, onclick))
     }
 
     pub fn text_button(
@@ -94,15 +152,23 @@ impl ManagedWidget {
     ) -> ManagedWidget {
         // TODO Default style. Lots of variations.
         let btn = Button::text(txt, Color::WHITE, Color::ORANGE, hotkey, "", ctx);
-        ManagedWidget::Btn(btn, onclick)
+        ManagedWidget::new(WidgetType::Btn(btn, onclick))
+    }
+
+    pub fn row(widgets: Vec<ManagedWidget>) -> ManagedWidget {
+        ManagedWidget::new(WidgetType::Row(widgets))
+    }
+
+    pub fn col(widgets: Vec<ManagedWidget>) -> ManagedWidget {
+        ManagedWidget::new(WidgetType::Column(widgets))
     }
 
     // TODO Maybe just inline this code below, more clear
 
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
-        match self {
-            ManagedWidget::Draw(_) => {}
-            ManagedWidget::Btn(btn, onclick) => {
+        match self.widget {
+            WidgetType::Draw(_) => {}
+            WidgetType::Btn(ref mut btn, ref onclick) => {
                 btn.event(ctx);
                 if btn.clicked() {
                     if let Some(t) = (onclick)(ctx, ui) {
@@ -110,7 +176,7 @@ impl ManagedWidget {
                     }
                 }
             }
-            ManagedWidget::Row(_, widgets) | ManagedWidget::Column(_, widgets) => {
+            WidgetType::Row(ref mut widgets) | WidgetType::Column(ref mut widgets) => {
                 for w in widgets {
                     if let Some(t) = w.event(ctx, ui) {
                         return Some(t);
@@ -122,10 +188,16 @@ impl ManagedWidget {
     }
 
     fn draw(&self, g: &mut GfxCtx) {
-        match self {
-            ManagedWidget::Draw(j) => j.draw(g),
-            ManagedWidget::Btn(btn, _) => btn.draw(g),
-            ManagedWidget::Row(_, widgets) | ManagedWidget::Column(_, widgets) => {
+        if let Some(ref bg) = self.bg {
+            g.fork_screenspace();
+            g.redraw(bg);
+            g.unfork();
+        }
+
+        match self.widget {
+            WidgetType::Draw(ref j) => j.draw(g),
+            WidgetType::Btn(ref btn, _) => btn.draw(g),
+            WidgetType::Row(ref widgets) | WidgetType::Column(ref widgets) => {
                 for w in widgets {
                     w.draw(g);
                 }
@@ -134,28 +206,48 @@ impl ManagedWidget {
     }
 }
 
-pub struct ManagedGUIState {
+pub struct Composite {
     top_level: ManagedWidget,
+    pos: CompositePosition,
 }
 
-impl ManagedGUIState {
-    pub fn new(top_level: ManagedWidget) -> Box<dyn State> {
-        Box::new(ManagedGUIState { top_level })
+enum CompositePosition {
+    FillScreen,
+    MinimalTopLeft(ScreenPt),
+}
+
+impl Composite {
+    pub fn minimal_size(top_level: ManagedWidget, top_left: ScreenPt) -> Composite {
+        Composite {
+            top_level,
+            pos: CompositePosition::MinimalTopLeft(top_left),
+        }
     }
-}
 
-impl State for ManagedGUIState {
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+    pub fn fill_screen(top_level: ManagedWidget) -> Composite {
+        Composite {
+            top_level,
+            pos: CompositePosition::FillScreen,
+        }
+    }
+
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
         // TODO If this ever gets slow, only run if window size has changed.
         let mut stretch = Stretch::new();
         let root = stretch
             .new_node(
-                Style {
-                    size: Size {
-                        width: Dimension::Points(ctx.canvas.window_width as f32),
-                        height: Dimension::Points(ctx.canvas.window_height as f32),
+                match self.pos {
+                    CompositePosition::FillScreen => Style {
+                        size: Size {
+                            width: Dimension::Points(ctx.canvas.window_width as f32),
+                            height: Dimension::Points(ctx.canvas.window_height as f32),
+                        },
+                        ..Default::default()
                     },
-                    ..Default::default()
+                    CompositePosition::MinimalTopLeft(_) => Style {
+                        // TODO There a way to encode the offset in stretch?
+                        ..Default::default()
+                    },
                 },
                 Vec::new(),
             )
@@ -166,69 +258,68 @@ impl State for ManagedGUIState {
         nodes.reverse();
 
         stretch.compute_layout(root, Size::undefined()).unwrap();
-        apply_flexbox(&mut self.top_level, &stretch, &mut nodes, 0.0, 0.0);
+        let top_left = match self.pos {
+            CompositePosition::FillScreen => ScreenPt::new(0.0, 0.0),
+            CompositePosition::MinimalTopLeft(pt) => pt,
+        };
+        apply_flexbox(
+            &mut self.top_level,
+            &stretch,
+            &mut nodes,
+            top_left.x,
+            top_left.y,
+            ctx,
+        );
         assert!(nodes.is_empty());
 
-        if let Some(t) = self.top_level.event(ctx, ui) {
-            return t;
-        }
-        Transition::Keep
+        self.top_level.event(ctx, ui)
     }
 
-    fn draw_default_ui(&self) -> bool {
-        false
-    }
-
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        // Happens to be a nice background color too ;)
-        g.clear(ui.cs.get("grass"));
+    pub fn draw(&self, g: &mut GfxCtx) {
+        g.canvas
+            .mark_covered_area(self.top_level.rect.clone().unwrap());
         self.top_level.draw(g);
     }
 }
 
+// TODO Put these two inside ManagedWidget
 // Populate a flattened list of Nodes, matching the traversal order
 fn flexbox(parent: Node, w: &ManagedWidget, stretch: &mut Stretch, nodes: &mut Vec<Node>) {
-    match w {
-        ManagedWidget::Draw(widget) => {
+    match w.widget {
+        WidgetType::Draw(ref widget) => {
             let dims = widget.get_dims();
-            let node = stretch
-                .new_node(
-                    Style {
-                        size: Size {
-                            width: Dimension::Points(dims.width as f32),
-                            height: Dimension::Points(dims.height as f32),
-                        },
-                        ..Default::default()
-                    },
-                    vec![],
-                )
-                .unwrap();
+            let mut style = Style {
+                size: Size {
+                    width: Dimension::Points(dims.width as f32),
+                    height: Dimension::Points(dims.height as f32),
+                },
+                ..Default::default()
+            };
+            w.style.apply(&mut style);
+            let node = stretch.new_node(style, Vec::new()).unwrap();
             stretch.add_child(parent, node).unwrap();
             nodes.push(node);
         }
-        ManagedWidget::Btn(widget, _) => {
+        WidgetType::Btn(ref widget, _) => {
             let dims = widget.get_dims();
-            let node = stretch
-                .new_node(
-                    Style {
-                        size: Size {
-                            width: Dimension::Points(dims.width as f32),
-                            height: Dimension::Points(dims.height as f32),
-                        },
-                        ..Default::default()
-                    },
-                    vec![],
-                )
-                .unwrap();
+            let mut style = Style {
+                size: Size {
+                    width: Dimension::Points(dims.width as f32),
+                    height: Dimension::Points(dims.height as f32),
+                },
+                ..Default::default()
+            };
+            w.style.apply(&mut style);
+            let node = stretch.new_node(style, Vec::new()).unwrap();
             stretch.add_child(parent, node).unwrap();
             nodes.push(node);
         }
-        ManagedWidget::Row(layout, widgets) => {
+        WidgetType::Row(ref widgets) => {
             let mut style = Style {
                 flex_direction: FlexDirection::Row,
                 ..Default::default()
             };
-            layout.apply(&mut style);
+            w.style.apply(&mut style);
             let row = stretch.new_node(style, Vec::new()).unwrap();
             nodes.push(row);
             for widget in widgets {
@@ -236,12 +327,12 @@ fn flexbox(parent: Node, w: &ManagedWidget, stretch: &mut Stretch, nodes: &mut V
             }
             stretch.add_child(parent, row).unwrap();
         }
-        ManagedWidget::Column(layout, widgets) => {
+        WidgetType::Column(ref widgets) => {
             let mut style = Style {
                 flex_direction: FlexDirection::Column,
                 ..Default::default()
             };
-            layout.apply(&mut style);
+            w.style.apply(&mut style);
             let col = stretch.new_node(style, Vec::new()).unwrap();
             nodes.push(col);
             for widget in widgets {
@@ -258,27 +349,79 @@ fn apply_flexbox(
     nodes: &mut Vec<Node>,
     dx: f64,
     dy: f64,
+    ctx: &mut EventCtx,
 ) {
-    let top_left = stretch.layout(nodes.pop().unwrap()).unwrap().location;
-    let x: f64 = top_left.x.into();
-    let y: f64 = top_left.y.into();
-    match w {
-        ManagedWidget::Draw(widget) => {
+    let result = stretch.layout(nodes.pop().unwrap()).unwrap();
+    let x: f64 = result.location.x.into();
+    let y: f64 = result.location.y.into();
+    let width: f64 = result.size.width.into();
+    let height: f64 = result.size.height.into();
+    w.rect = Some(ScreenRectangle::top_left(
+        ScreenPt::new(x + dx, y + dy),
+        ScreenDims::new(width, height),
+    ));
+    if let Some(color) = w.style.bg_color {
+        let mut batch = GeomBatch::new();
+        batch.push(
+            color,
+            Polygon::rounded_rectangle(
+                Distance::meters(width),
+                Distance::meters(height),
+                Distance::meters(5.0),
+            )
+            .translate(x + dx, y + dy),
+        );
+        w.bg = Some(batch.upload(ctx));
+    }
+
+    match w.widget {
+        WidgetType::Draw(ref mut widget) => {
             widget.set_pos(ScreenPt::new(x + dx, y + dy));
         }
-        ManagedWidget::Btn(widget, _) => {
+        WidgetType::Btn(ref mut widget, _) => {
             widget.set_pos(ScreenPt::new(x + dx, y + dy));
         }
-        ManagedWidget::Row(_, widgets) => {
+        WidgetType::Row(ref mut widgets) => {
             // layout() doesn't return absolute position; it's relative to the container.
             for widget in widgets {
-                apply_flexbox(widget, stretch, nodes, x + dx, y + dy);
+                apply_flexbox(widget, stretch, nodes, x + dx, y + dy, ctx);
             }
         }
-        ManagedWidget::Column(_, widgets) => {
+        WidgetType::Column(ref mut widgets) => {
             for widget in widgets {
-                apply_flexbox(widget, stretch, nodes, x + dx, y + dy);
+                apply_flexbox(widget, stretch, nodes, x + dx, y + dy, ctx);
             }
         }
+    }
+}
+
+pub struct ManagedGUIState {
+    composite: Composite,
+}
+
+impl ManagedGUIState {
+    pub fn new(top_level: ManagedWidget) -> Box<dyn State> {
+        Box::new(ManagedGUIState {
+            composite: Composite::fill_screen(top_level),
+        })
+    }
+}
+
+impl State for ManagedGUIState {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
+        if let Some(t) = self.composite.event(ctx, ui) {
+            return t;
+        }
+        Transition::Keep
+    }
+
+    fn draw_default_ui(&self) -> bool {
+        false
+    }
+
+    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        // Happens to be a nice background color too ;)
+        g.clear(ui.cs.get("grass"));
+        self.composite.draw(g);
     }
 }

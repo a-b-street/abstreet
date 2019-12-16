@@ -1,7 +1,7 @@
 use crate::abtest::setup::PickABTest;
 use crate::challenges::challenges_picker;
 use crate::game::{State, Transition};
-use crate::managed::{LayoutStyle, ManagedGUIState, ManagedWidget};
+use crate::managed::{ManagedGUIState, ManagedWidget};
 use crate::mission::MissionEditMode;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::tutorial::TutorialMode;
@@ -73,22 +73,19 @@ impl State for TitleScreen {
 pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
     let mut col = Vec::new();
 
-    col.push(ManagedWidget::Row(
-        LayoutStyle::Neutral,
-        vec![
-            ManagedWidget::svg_button(
-                ctx,
-                "assets/pregame/quit.svg",
-                "quit",
-                hotkey(Key::Escape),
-                Box::new(|_, _| {
-                    // TODO before_quit?
-                    std::process::exit(0);
-                }),
-            ),
-            ManagedWidget::draw_text(ctx, Text::from(Line("A/B STREET").size(50))),
-        ],
-    ));
+    col.push(ManagedWidget::row(vec![
+        ManagedWidget::svg_button(
+            ctx,
+            "assets/pregame/quit.svg",
+            "quit",
+            hotkey(Key::Escape),
+            Box::new(|_, _| {
+                // TODO before_quit?
+                std::process::exit(0);
+            }),
+        ),
+        ManagedWidget::draw_text(ctx, Text::from(Line("A/B STREET").size(50))),
+    ]));
 
     col.push(ManagedWidget::draw_text(
         ctx,
@@ -99,9 +96,8 @@ pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
         Text::from(Line("Choose your game")),
     ));
 
-    col.push(ManagedWidget::Row(
-        LayoutStyle::Centered,
-        vec![
+    col.push(
+        ManagedWidget::row(vec![
             ManagedWidget::svg_button(
                 ctx,
                 "assets/pregame/tutorial.svg",
@@ -128,12 +124,12 @@ pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
                 hotkey(Key::C),
                 Box::new(|ctx, _| Some(Transition::Push(challenges_picker(ctx)))),
             ),
-        ],
-    ));
+        ])
+        .centered(),
+    );
     if ui.opts.dev {
-        col.push(ManagedWidget::Row(
-            LayoutStyle::Centered,
-            vec![
+        col.push(
+            ManagedWidget::row(vec![
                 ManagedWidget::text_button(
                     ctx,
                     "INTERNAL DEV TOOLS",
@@ -146,8 +142,9 @@ pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
                     hotkey(Key::A),
                     Box::new(|_, _| Some(Transition::Push(PickABTest::new()))),
                 ),
-            ],
-        ));
+            ])
+            .centered(),
+        );
     }
     col.push(ManagedWidget::text_button(
         ctx,
@@ -155,7 +152,7 @@ pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
         None,
         Box::new(|ctx, _| Some(Transition::Push(about(ctx)))),
     ));
-    ManagedGUIState::new(ManagedWidget::Column(LayoutStyle::Centered, col))
+    ManagedGUIState::new(ManagedWidget::col(col).centered())
 }
 
 fn about(ctx: &EventCtx) -> Box<dyn State> {
@@ -183,7 +180,7 @@ fn about(ctx: &EventCtx) -> Box<dyn State> {
     // TODO centered
     row.push(ManagedWidget::draw_text(ctx, txt));
 
-    ManagedGUIState::new(ManagedWidget::Row(LayoutStyle::Neutral, row))
+    ManagedGUIState::new(ManagedWidget::row(row))
 }
 
 const SPEED: Speed = Speed::const_meters_per_second(20.0);

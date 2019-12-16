@@ -1,6 +1,6 @@
 use crate::edit::apply_map_edits;
 use crate::game::{State, Transition, WizardState};
-use crate::managed::{LayoutStyle, ManagedGUIState, ManagedWidget};
+use crate::managed::{ManagedGUIState, ManagedWidget};
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::UI;
 use abstutil::Timer;
@@ -108,19 +108,16 @@ fn all_challenges() -> BTreeMap<String, Vec<Challenge>> {
 pub fn challenges_picker(ctx: &EventCtx) -> Box<dyn State> {
     let mut col = Vec::new();
 
-    col.push(ManagedWidget::Row(
-        LayoutStyle::Neutral,
-        vec![
-            ManagedWidget::svg_button(
-                ctx,
-                "assets/pregame/back.svg",
-                "back",
-                hotkey(Key::Escape),
-                Box::new(|_, _| Some(Transition::Pop)),
-            ),
-            ManagedWidget::draw_text(ctx, Text::from(Line("A/B STREET").size(50))),
-        ],
-    ));
+    col.push(ManagedWidget::row(vec![
+        ManagedWidget::svg_button(
+            ctx,
+            "assets/pregame/back.svg",
+            "back",
+            hotkey(Key::Escape),
+            Box::new(|_, _| Some(Transition::Pop)),
+        ),
+        ManagedWidget::draw_text(ctx, Text::from(Line("A/B STREET").size(50))),
+    ]));
 
     col.push(ManagedWidget::draw_text(
         ctx,
@@ -184,9 +181,9 @@ pub fn challenges_picker(ctx: &EventCtx) -> Box<dyn State> {
             }),
         ));
     }
-    col.push(ManagedWidget::Row(LayoutStyle::FlexWrap, flex_row));
+    col.push(ManagedWidget::row(flex_row).flex_wrap());
 
-    ManagedGUIState::new(ManagedWidget::Column(LayoutStyle::Centered, col))
+    ManagedGUIState::new(ManagedWidget::col(col).centered())
 }
 
 struct ChallengeSplash {

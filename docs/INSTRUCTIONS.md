@@ -72,5 +72,3 @@ Other binary data bundled in:
 
 - DejaVuSans.ttf (https://dejavu-fonts.github.io/License.html)
 - Roboto-Regular.ttf (https://fonts.google.com/specimen/Roboto, Apache license)
-- Icons from https://thenounproject.com/aiga-icons/,
-  https://thenounproject.com/sakchai.ruankam, https://thenounproject.com/wilmax
