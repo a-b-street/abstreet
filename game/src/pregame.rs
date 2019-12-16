@@ -1,14 +1,12 @@
 use crate::abtest::setup::PickABTest;
 use crate::challenges::challenges_picker;
 use crate::game::{State, Transition};
-use crate::managed::{ManagedGUIState, ManagedWidget};
+use crate::managed::{Composite, ManagedGUIState, ManagedWidget, Outcome};
 use crate::mission::MissionEditMode;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::tutorial::TutorialMode;
 use crate::ui::UI;
-use ezgui::{
-    hotkey, layout, Button, Color, EventCtx, EventLoopMode, GfxCtx, JustDraw, Key, Line, Text,
-};
+use ezgui::{hotkey, Button, Color, EventCtx, EventLoopMode, GfxCtx, JustDraw, Key, Line, Text};
 use geom::{Duration, Line, Pt2D, Speed};
 use map_model::Map;
 use rand::Rng;
@@ -16,8 +14,7 @@ use rand_xorshift::XorShiftRng;
 use std::time::Instant;
 
 pub struct TitleScreen {
-    logo: JustDraw,
-    play_btn: Button,
+    composite: Composite,
     screensaver: Screensaver,
     rng: XorShiftRng,
 }
@@ -26,16 +23,26 @@ impl TitleScreen {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> TitleScreen {
         let mut rng = ui.primary.current_flags.sim_flags.make_rng();
         TitleScreen {
-            logo: JustDraw::image("assets/pregame/logo.png", ctx),
-            // TODO that nicer font
-            // TODO Any key
-            play_btn: Button::text(
-                Text::from(Line("PLAY")),
-                Color::BLUE,
-                Color::ORANGE,
-                hotkey(Key::Space),
-                "start game",
-                ctx,
+            // TODO Double column to get the vertical centering. For some reason, the horizontal
+            // centering isn't working.
+            composite: Composite::fill_screen(
+                ManagedWidget::col(vec![ManagedWidget::col(vec![
+                    ManagedWidget::just_draw(JustDraw::image("assets/pregame/logo.png", ctx)),
+                    // TODO that nicer font
+                    // TODO Any key
+                    ManagedWidget::btn(
+                        Button::text(
+                            Text::from(Line("PLAY")),
+                            Color::BLUE,
+                            Color::ORANGE,
+                            hotkey(Key::Space),
+                            "start game",
+                            ctx,
+                        ),
+                        Box::new(|ctx, ui| Some(Transition::Replace(main_menu(ctx, ui)))),
+                    ),
+                ])])
+                .centered(),
             ),
             screensaver: Screensaver::start_bounce(&mut rng, ctx, &ui.primary.map),
             rng,
@@ -45,28 +52,18 @@ impl TitleScreen {
 
 impl State for TitleScreen {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        // TODO I'm betting that I'll wind up extracting the ManagedGUIState pattern to work along
-        // with another state
-        layout::stack_vertically(
-            layout::ContainerOrientation::Centered,
-            ctx,
-            vec![&mut self.logo, &mut self.play_btn],
-        );
-
-        // TODO or any keypress
-        self.play_btn.event(ctx);
-        if self.play_btn.clicked() {
-            return Transition::Replace(main_menu(ctx, ui));
+        match self.composite.event(ctx, ui) {
+            Some(Outcome::Transition(t)) => t,
+            Some(Outcome::Clicked(_)) => unreachable!(),
+            None => {
+                self.screensaver.update(&mut self.rng, ctx, &ui.primary.map);
+                Transition::KeepWithMode(EventLoopMode::Animation)
+            }
         }
-
-        self.screensaver.update(&mut self.rng, ctx, &ui.primary.map);
-
-        Transition::KeepWithMode(EventLoopMode::Animation)
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
-        self.logo.draw(g);
-        self.play_btn.draw(g);
+        self.composite.draw(g);
     }
 }
 

@@ -120,6 +120,10 @@ impl ManagedWidget {
         ))))
     }
 
+    pub fn just_draw(j: JustDraw) -> ManagedWidget {
+        ManagedWidget::new(WidgetType::Draw(j))
+    }
+
     // TODO Helpers that should probably be written differently
     pub fn draw_text(ctx: &EventCtx, txt: Text) -> ManagedWidget {
         ManagedWidget::new(WidgetType::Draw(JustDraw::text(txt, ctx)))

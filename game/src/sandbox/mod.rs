@@ -293,6 +293,7 @@ impl State for SandboxMode {
     }
 }
 
+// TODO This and TimePanel could get refactored
 struct AgentMeter {
     time: Time,
     composite: Composite,
