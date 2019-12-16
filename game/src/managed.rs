@@ -2,8 +2,8 @@ use crate::game::{State, Transition};
 use crate::ui::UI;
 use ezgui::layout::Widget;
 use ezgui::{
-    Button, Color, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, MultiKey, RewriteColor,
-    ScreenDims, ScreenPt, ScreenRectangle, Text,
+    Button, Color, DrawBoth, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, MultiKey,
+    RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Text,
 };
 use geom::{Distance, Polygon};
 use stretch::geometry::{Rect, Size};
@@ -73,6 +73,11 @@ impl ManagedWidget {
         self
     }
 
+    pub fn evenly_spaced(mut self) -> ManagedWidget {
+        self.style.justify_content = Some(JustifyContent::SpaceBetween);
+        self
+    }
+
     pub fn flex_wrap(mut self) -> ManagedWidget {
         self.style.flex_wrap = Some(FlexWrap::Wrap);
         self.style.justify_content = Some(JustifyContent::SpaceAround);
@@ -92,6 +97,14 @@ impl ManagedWidget {
             bottom: Dimension::Points(pixels as f32),
         });
         self
+    }
+
+    pub fn draw_batch(ctx: &EventCtx, batch: GeomBatch) -> ManagedWidget {
+        ManagedWidget::new(WidgetType::Draw(JustDraw::wrap(DrawBoth::new(
+            ctx,
+            batch,
+            Vec::new(),
+        ))))
     }
 
     // TODO Helpers that should probably be written differently
@@ -276,8 +289,10 @@ impl Composite {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        g.canvas
-            .mark_covered_area(self.top_level.rect.clone().unwrap());
+        // The order the very first round is a bit weird.
+        if let Some(ref rect) = self.top_level.rect {
+            g.canvas.mark_covered_area(rect.clone());
+        }
         self.top_level.draw(g);
     }
 }

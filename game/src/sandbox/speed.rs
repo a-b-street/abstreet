@@ -1,4 +1,5 @@
 use crate::game::{State, Transition, WizardState};
+use crate::managed::{Composite, ManagedWidget};
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::UI;
 use ezgui::layout::Widget;
@@ -11,9 +12,6 @@ use geom::{Distance, Duration, Line, Polygon, Pt2D, Time};
 use std::time::Instant;
 
 // Layouting is very hardcoded right now.
-
-const TIME_PANEL_WIDTH: f64 = 340.0;
-const TIME_PANEL_HEIGHT: f64 = 130.0;
 
 const SPEED_PANEL_WIDTH: f64 = 650.0;
 const SPEED_PANEL_HEIGHT: f64 = 50.0;
@@ -172,7 +170,7 @@ impl SpeedControls {
 
         let now = Instant::now();
         SpeedControls {
-            time_panel: TimePanel::new(ctx),
+            time_panel: TimePanel::new(ctx, ui),
             top_left,
 
             draw_fixed,
@@ -202,6 +200,8 @@ impl SpeedControls {
         ui: &mut UI,
         gameplay: &GameplayMode,
     ) -> Option<Transition> {
+        self.time_panel.event(ctx, ui);
+
         self.slow_down_btn.event(ctx);
         self.speed_up_btn.event(ctx);
 
@@ -305,8 +305,8 @@ impl SpeedControls {
         None
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        self.time_panel.draw(g, ui);
+    pub fn draw(&self, g: &mut GfxCtx) {
+        self.time_panel.draw(g);
 
         self.draw_fixed.redraw(self.top_left, g);
         g.canvas.mark_covered_area(ScreenRectangle {
@@ -432,76 +432,66 @@ impl State for TimeWarpScreen {
 }
 
 struct TimePanel {
-    draw_fixed: DrawBoth,
+    time: Time,
+    composite: Composite,
 }
 
 impl TimePanel {
-    fn new(ctx: &mut EventCtx) -> TimePanel {
-        let mut batch = GeomBatch::new();
-        let mut txt = Vec::new();
-
-        // Time panel background
-        batch.push(
-            Color::hex("#4C4C4C"),
-            Polygon::rounded_rectangle(
-                Distance::meters(TIME_PANEL_WIDTH),
-                Distance::meters(TIME_PANEL_HEIGHT),
-                Distance::meters(5.0),
-            ),
-        );
-
-        txt.push((
-            Text::from(Line("00:00").size(12).roboto()),
-            ScreenPt::new(25.0, 80.0),
-        ));
-        batch.add_svg("assets/speed/sunrise.svg", 94.0, 80.0);
-        txt.push((
-            Text::from(Line("12:00").size(12).roboto()),
-            ScreenPt::new(153.0, 80.0),
-        ));
-        batch.add_svg("assets/speed/sunset.svg", 220.0, 80.0);
-        txt.push((
-            Text::from(Line("24:00").size(12).roboto()),
-            ScreenPt::new(280.0, 80.0),
-        ));
-
+    fn new(ctx: &mut EventCtx, ui: &UI) -> TimePanel {
         TimePanel {
-            draw_fixed: DrawBoth::new(ctx, batch, txt),
+            time: ui.primary.sim.time(),
+            composite: Composite::minimal_size(
+                ManagedWidget::col(vec![
+                    ManagedWidget::draw_text(
+                        ctx,
+                        Text::from(Line(ui.primary.sim.time().ampm_tostring()).size(30)),
+                    )
+                    .centered(),
+                    {
+                        let mut batch = GeomBatch::new();
+                        // This is manually tuned
+                        let width = 300.0;
+                        let y1 = 5.0;
+                        let height = Distance::meters(15.0);
+                        let percent = ui.primary.sim.time().to_percent(Time::END_OF_DAY);
+
+                        // TODO rounded
+                        batch.push(
+                            Color::WHITE,
+                            Line::new(Pt2D::new(0.0, y1), Pt2D::new(width, y1))
+                                .make_polygons(height),
+                        );
+                        if let Some(l) =
+                            Line::maybe_new(Pt2D::new(0.0, y1), Pt2D::new(percent * width, y1))
+                        {
+                            batch.push(Color::grey(0.5), l.make_polygons(height));
+                        }
+                        ManagedWidget::draw_batch(ctx, batch).padding(5)
+                    },
+                    ManagedWidget::row(vec![
+                        ManagedWidget::draw_text(ctx, Text::from(Line("00:00").size(12).roboto())),
+                        ManagedWidget::draw_svg(ctx, "assets/speed/sunrise.svg"),
+                        ManagedWidget::draw_text(ctx, Text::from(Line("12:00").size(12).roboto())),
+                        ManagedWidget::draw_svg(ctx, "assets/speed/sunset.svg"),
+                        ManagedWidget::draw_text(ctx, Text::from(Line("24:00").size(12).roboto())),
+                    ])
+                    .evenly_spaced(),
+                ])
+                .bg(Color::hex("#4C4C4C"))
+                .padding(10),
+                ScreenPt::new(0.0, 0.0),
+            ),
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx, ui: &UI) {
-        self.draw_fixed.redraw(ScreenPt::new(0.0, 0.0), g);
-        g.canvas.mark_covered_area(ScreenRectangle {
-            x1: 0.0,
-            y1: 0.0,
-            x2: TIME_PANEL_WIDTH,
-            y2: TIME_PANEL_HEIGHT,
-        });
-
-        g.draw_text_at_screenspace_topleft(
-            &Text::from(Line(ui.primary.sim.time().ampm_tostring()).size(30)),
-            ScreenPt::new(24.0, 10.0),
-        );
-
-        {
-            let x1 = 24.0;
-            let y1 = 65.0;
-            let percent = ui.primary.sim.time().to_percent(Time::END_OF_DAY);
-            let width = 287.0;
-            let height = Distance::meters(15.0);
-
-            g.fork_screenspace();
-            // TODO rounded
-            g.draw_polygon(
-                Color::WHITE,
-                &Line::new(Pt2D::new(x1, y1), Pt2D::new(x1 + width, y1)).make_polygons(height),
-            );
-            if let Some(l) = Line::maybe_new(Pt2D::new(x1, y1), Pt2D::new(x1 + percent * width, y1))
-            {
-                g.draw_polygon(Color::grey(0.5), &l.make_polygons(height));
-            }
-            g.unfork();
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) {
+        if self.time != ui.primary.sim.time() {
+            *self = TimePanel::new(ctx, ui);
         }
+        self.composite.event(ctx, ui);
+    }
+
+    fn draw(&self, g: &mut GfxCtx) {
+        self.composite.draw(g);
     }
 }

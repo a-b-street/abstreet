@@ -16,8 +16,8 @@ use crate::pregame::main_menu;
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
-    Color, hotkey, layout, lctrl, Choice, EventCtx, EventLoopMode, GfxCtx, Key, Line, ModalMenu, ScreenPt,
-    Text,
+    hotkey, layout, lctrl, Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, ModalMenu,
+    ScreenPt, Text,
 };
 pub use gameplay::spawner::spawn_agents_around;
 pub use gameplay::GameplayMode;
@@ -263,7 +263,7 @@ impl State for SandboxMode {
         }
         self.common.draw(g, ui);
         self.menu.draw(g);
-        self.speed.draw(g, ui);
+        self.speed.draw(g);
         self.gameplay.draw(g, ui);
         self.agent_meter.draw(g);
         if let Some(ref m) = self.minimap {
