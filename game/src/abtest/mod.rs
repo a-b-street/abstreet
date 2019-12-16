@@ -38,7 +38,6 @@ impl ABTestMode {
                     (hotkey(Key::D), "diff all trips"),
                     (hotkey(Key::A), "stop diffing trips"),
                     (hotkey(Key::O), "save state"),
-                    (hotkey(Key::Semicolon), "change agent colorscheme"),
                     // TODO load arbitrary savestate
                 ],
                 ctx,

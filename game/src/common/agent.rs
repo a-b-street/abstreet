@@ -1,9 +1,9 @@
 use crate::common::route_viewer::RouteViewer;
 use crate::common::{RouteExplorer, TripExplorer};
-use crate::game::{msg, Transition, WizardState};
-use crate::render::{AgentColorScheme, MIN_ZOOM_FOR_DETAIL};
+use crate::game::{msg, Transition};
+use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::UI;
-use ezgui::{hotkey, Choice, EventCtx, GfxCtx, Key, ModalMenu};
+use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu};
 use geom::{Pt2D, Time};
 use sim::{TripID, TripResult};
 
@@ -82,29 +82,6 @@ impl AgentTools {
             }
         }
         self.route_viewer.event(ctx, ui, menu);
-
-        if menu.action("change agent colorscheme") {
-            return Some(Transition::Push(WizardState::new(Box::new(
-                |wiz, ctx, ui| {
-                    let (_, acs) = wiz.wrap(ctx).choose("Which colorscheme for agents?", || {
-                        let mut choices = Vec::new();
-                        for (acs, name) in AgentColorScheme::all() {
-                            if ui.agent_cs != acs {
-                                choices.push(Choice::new(name, acs));
-                            }
-                        }
-                        choices
-                    })?;
-                    ui.agent_cs = acs;
-                    ui.agent_cs_legend = acs.make_color_legend(ctx, &ui.cs);
-                    ui.primary.draw_map.agents.borrow_mut().invalidate_cache();
-                    if let Some(ref mut s) = ui.secondary {
-                        s.draw_map.agents.borrow_mut().invalidate_cache();
-                    }
-                    Some(Transition::Pop)
-                },
-            ))));
-        }
 
         if let Some(explorer) = RouteExplorer::new(ctx, ui) {
             return Some(Transition::Push(Box::new(explorer)));

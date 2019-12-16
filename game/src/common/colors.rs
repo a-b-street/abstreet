@@ -160,7 +160,6 @@ pub struct ColorLegend {
 
 impl ColorLegend {
     pub fn new(ctx: &EventCtx, header: Text, rows: Vec<(&str, Color)>) -> ColorLegend {
-        // TODO add a bg here and stop using prompt?
         let mut col = vec![ManagedWidget::draw_text(ctx, header)];
 
         let radius = 15.0;

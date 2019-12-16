@@ -47,7 +47,7 @@ impl SandboxMode {
             common: CommonState::new(),
             tool_panel: tool_panel(ctx, Some(Box::new(Overlays::change_overlays))),
             minimap: if mode.has_minimap() {
-                Some(Minimap::new())
+                Some(Minimap::new(ctx, ui))
             } else {
                 None
             },
@@ -57,7 +57,6 @@ impl SandboxMode {
                 vec![
                     (lctrl(Key::E), "edit mode"),
                     (hotkey(Key::Q), "scoreboard"),
-                    (hotkey(Key::Semicolon), "change agent colorscheme"),
                     (None, "explore a bus route"),
                 ],
                 ctx,
@@ -96,7 +95,9 @@ impl State for SandboxMode {
             ui.recalculate_current_selection(ctx);
         }
         if let Some(ref mut m) = self.minimap {
-            m.event(ui, ctx);
+            if let Some(t) = m.event(ui, ctx) {
+                return t;
+            }
         }
 
         if let Some(t) = self.agent_tools.event(ctx, ui, &mut self.menu) {

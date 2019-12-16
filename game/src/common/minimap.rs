@@ -1,18 +1,33 @@
-use crate::render::MIN_ZOOM_FOR_DETAIL;
+use crate::game::{Transition, WizardState};
+use crate::managed::{Composite, ManagedWidget, Outcome};
+use crate::render::{AgentColorScheme, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::UI;
-use ezgui::{Color, EventCtx, GfxCtx, ScreenPt, ScreenRectangle};
-use geom::{Distance, Polygon, Pt2D, Ring};
+use ezgui::{
+    hotkey, Button, Choice, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, RewriteColor, ScreenPt,
+    ScreenRectangle, Text,
+};
+use geom::{Circle, Distance, Polygon, Pt2D, Ring};
+use std::collections::HashMap;
 
 pub struct Minimap {
     dragging: bool,
+
+    controls: VisibilityPanel,
 }
 
 impl Minimap {
-    pub fn new() -> Minimap {
-        Minimap { dragging: false }
+    pub fn new(ctx: &EventCtx, ui: &UI) -> Minimap {
+        Minimap {
+            dragging: false,
+            controls: VisibilityPanel::new(ctx, ui),
+        }
     }
 
-    pub fn event(&mut self, ui: &mut UI, ctx: &mut EventCtx) {
+    pub fn event(&mut self, ui: &mut UI, ctx: &mut EventCtx) -> Option<Transition> {
+        if let Some(t) = self.controls.event(ctx, ui) {
+            return Some(t);
+        }
+
         // TODO duplicate some stuff for now, until we figure out what to cache
         let square_len = 0.15 * ctx.canvas.window_width;
         let top_left = ScreenPt::new(
@@ -38,7 +53,7 @@ impl Minimap {
         } else if inner_rect.contains(pt) && ctx.input.left_mouse_button_pressed() {
             self.dragging = true;
         } else {
-            return;
+            return None;
         }
 
         let percent_x = (pt.x - inner_rect.x1) / (inner_rect.x2 - inner_rect.x1);
@@ -53,9 +68,13 @@ impl Minimap {
         let map_y2 = bounds.min_y + (inner_rect.y2 - inner_rect.y1) / zoom;
         let map_pt = Pt2D::new(map_x, percent_y * (map_y2 - bounds.min_y));
         ctx.canvas.center_on_map_pt(map_pt);
+
+        None
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+        self.controls.draw(g);
+
         if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
             return;
         }
@@ -152,5 +171,118 @@ fn clamp(x: f64, min: f64, max: f64) -> f64 {
         max
     } else {
         x
+    }
+}
+
+pub struct VisibilityPanel {
+    composite: Composite,
+    enabled: HashMap<String, bool>,
+}
+
+impl VisibilityPanel {
+    fn make_panel(ctx: &EventCtx, entries: Vec<(String, Color, bool)>) -> Composite {
+        let radius = 15.0;
+        let mut col = vec![ManagedWidget::btn_no_cb(Button::text(
+            Text::from(Line("change")),
+            Color::INVISIBLE,
+            Color::ORANGE,
+            hotkey(Key::Semicolon),
+            "change agent colorscheme",
+            ctx,
+        ))];
+        for (label, color, enabled) in entries {
+            // TODO Blur out when disabled
+            col.push(
+                ManagedWidget::row(vec![
+                    ManagedWidget::btn_no_cb(Button::rectangle_svg(
+                        "assets/tools/visibility.svg",
+                        &format!("show/hide {}", label),
+                        None,
+                        RewriteColor::Change(Color::WHITE, Color::ORANGE),
+                        ctx,
+                    )),
+                    ManagedWidget::draw_batch(
+                        ctx,
+                        GeomBatch::from(vec![(
+                            color,
+                            Circle::new(Pt2D::new(radius, radius), Distance::meters(radius))
+                                .to_polygon(),
+                        )]),
+                    ),
+                    ManagedWidget::draw_text(ctx, Text::from(Line(label))),
+                ])
+                .centered_cross(),
+            );
+        }
+        Composite::minimal_size(
+            ManagedWidget::col(col).bg(Color::grey(0.4)),
+            ScreenPt::new(
+                ctx.canvas.window_width - 550.0,
+                ctx.canvas.window_height - 300.0,
+            ),
+        )
+    }
+
+    fn new(ctx: &EventCtx, ui: &UI) -> VisibilityPanel {
+        // TODO take over make_color_legend
+        let mut rows = Vec::new();
+        let mut enabled = HashMap::new();
+        for (label, color) in vec![
+            ("car", ui.cs.get("unzoomed car")),
+            ("bike", ui.cs.get("unzoomed bike")),
+            ("bus", ui.cs.get("unzoomed bus")),
+            ("pedestrian", ui.cs.get("unzoomed pedestrian")),
+        ] {
+            enabled.insert(label.to_string(), true);
+            rows.push((label.to_string(), color, true));
+        }
+
+        VisibilityPanel {
+            composite: VisibilityPanel::make_panel(ctx, rows),
+            enabled,
+        }
+    }
+
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+        match self.composite.event(ctx, ui) {
+            Some(Outcome::Transition(_)) => unreachable!(),
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "change agent colorscheme" => {
+                    return Some(Transition::Push(WizardState::new(Box::new(
+                        |wiz, ctx, ui| {
+                            let (_, acs) =
+                                wiz.wrap(ctx).choose("Which colorscheme for agents?", || {
+                                    let mut choices = Vec::new();
+                                    for (acs, name) in AgentColorScheme::all() {
+                                        if ui.agent_cs != acs {
+                                            choices.push(Choice::new(name, acs));
+                                        }
+                                    }
+                                    choices
+                                })?;
+                            ui.agent_cs = acs;
+                            ui.agent_cs_legend = acs.make_color_legend(ctx, &ui.cs);
+                            ui.primary.draw_map.agents.borrow_mut().invalidate_cache();
+                            if let Some(ref mut s) = ui.secondary {
+                                s.draw_map.agents.borrow_mut().invalidate_cache();
+                            }
+                            Some(Transition::Pop)
+                        },
+                    ))));
+                }
+                x => {
+                    let key = x["show/hide ".len()..].to_string();
+                    *self.enabled.get_mut(&key).unwrap() = !self.enabled[&key];
+                    println!("{} is now {}", key, self.enabled[&key]);
+                }
+            },
+            None => {}
+        }
+
+        None
+    }
+
+    fn draw(&self, g: &mut GfxCtx) {
+        self.composite.draw(g);
     }
 }

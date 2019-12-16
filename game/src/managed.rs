@@ -80,6 +80,11 @@ impl ManagedWidget {
         self
     }
 
+    pub fn centered_cross(mut self) -> ManagedWidget {
+        self.style.align_items = Some(AlignItems::Center);
+        self
+    }
+
     pub fn evenly_spaced(mut self) -> ManagedWidget {
         self.style.justify_content = Some(JustifyContent::SpaceBetween);
         self
