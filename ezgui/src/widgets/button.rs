@@ -7,6 +7,8 @@ use crate::{
 use geom::{Circle, Distance, Polygon, Pt2D};
 
 pub struct Button {
+    pub action: String,
+
     // Both of these must have the same dimensions and are oriented with their top-left corner at
     // 0, 0. Transformation happens later.
     draw_normal: DrawBoth,
@@ -35,6 +37,8 @@ impl Button {
         let dims = draw_normal.get_dims();
         assert_eq!(dims, draw_hovered.get_dims());
         Button {
+            action: tooltip.to_string(),
+
             draw_normal,
             draw_hovered,
             hotkey,

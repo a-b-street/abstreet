@@ -17,7 +17,7 @@ pub use self::colors::{
     ColorLegend, ObjectColorer, ObjectColorerBuilder, RoadColorer, RoadColorerBuilder,
 };
 pub use self::minimap::Minimap;
-pub use self::panels::ToolPanel;
+pub use self::panels::tool_panel;
 pub use self::plot::{Histogram, Plot, Series};
 pub use self::route_explorer::RouteExplorer;
 pub use self::trip_explorer::TripExplorer;
@@ -33,16 +33,12 @@ use std::collections::BTreeSet;
 
 pub struct CommonState {
     turn_cycler: turn_cycler::TurnCyclerState,
-    tool_panel: ToolPanel,
 }
 
 impl CommonState {
-    // TODO Should CommonState even own the ToolPanel? Maybe each State just winds up with some
-    // generic onscreen Composite controls.
-    pub fn new(tool_panel: ToolPanel) -> CommonState {
+    pub fn new() -> CommonState {
         CommonState {
             turn_cycler: turn_cycler::TurnCyclerState::Inactive,
-            tool_panel,
         }
     }
 
@@ -71,16 +67,11 @@ impl CommonState {
             }
         }
 
-        if let Some(t) = self.tool_panel.event(ctx, ui) {
-            return Some(t);
-        }
-
         None
     }
 
     pub fn draw_no_osd(&self, g: &mut GfxCtx, ui: &UI) {
         self.turn_cycler.draw(g, ui);
-        self.tool_panel.draw(g);
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {

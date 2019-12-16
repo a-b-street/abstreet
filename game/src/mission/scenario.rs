@@ -1,6 +1,7 @@
-use crate::common::{CommonState, ObjectColorer, ObjectColorerBuilder, ToolPanel, Warping};
+use crate::common::{tool_panel, CommonState, ObjectColorer, ObjectColorerBuilder, Warping};
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
+use crate::managed::{Composite, Outcome};
 use crate::mission::pick_time_range;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::{ShowEverything, UI};
@@ -20,6 +21,7 @@ use std::collections::BTreeSet;
 pub struct ScenarioManager {
     menu: ModalMenu,
     common: CommonState,
+    tool_panel: Composite,
     scenario: Scenario,
 
     // The usizes are indices into scenario.individ_trips
@@ -122,11 +124,8 @@ impl ScenarioManager {
                 ],
                 ctx,
             ),
-            common: CommonState::new(ToolPanel::new(
-                ctx,
-                Box::new(|_, _| Some(Transition::Pop)),
-                None,
-            )),
+            common: CommonState::new(),
+            tool_panel: tool_panel(ctx, None),
             scenario,
             trips_from_bldg,
             trips_to_bldg,
@@ -243,8 +242,14 @@ impl State for ScenarioManager {
         if let Some(t) = self.common.event(ctx, ui) {
             return t;
         }
-
-        Transition::Keep
+        match self.tool_panel.event(ctx, ui) {
+            Some(Outcome::Transition(t)) => t,
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "back" => Transition::Pop,
+                _ => unreachable!(),
+            },
+            None => Transition::Keep,
+        }
     }
 
     fn draw_default_ui(&self) -> bool {
@@ -268,6 +273,7 @@ impl State for ScenarioManager {
 
         self.menu.draw(g);
         self.common.draw_no_osd(g, ui);
+        self.tool_panel.draw(g);
 
         if let Some(ID::Building(b)) = ui.primary.current_selection {
             let mut osd = CommonState::default_osd(ID::Building(b), ui);

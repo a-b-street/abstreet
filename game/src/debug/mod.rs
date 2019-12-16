@@ -6,9 +6,10 @@ mod objects;
 mod polygons;
 mod routes;
 
-use crate::common::{CommonState, ToolPanel};
+use crate::common::{tool_panel, CommonState};
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
+use crate::managed::{Composite, Outcome};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::{ShowLayers, ShowObject, UI};
 use ezgui::{
@@ -22,6 +23,7 @@ use std::collections::HashSet;
 pub struct DebugMode {
     menu: ModalMenu,
     common: CommonState,
+    tool_panel: Composite,
     associated: associated::ShowAssociatedState,
     connected_roads: connected_roads::ShowConnectedRoads,
     objects: objects::ObjectDebugger,
@@ -54,11 +56,8 @@ impl DebugMode {
                 ],
                 ctx,
             ),
-            common: CommonState::new(ToolPanel::new(
-                ctx,
-                Box::new(|_, _| Some(Transition::Pop)),
-                None,
-            )),
+            common: CommonState::new(),
+            tool_panel: tool_panel(ctx, None),
             associated: associated::ShowAssociatedState::Inactive,
             connected_roads: connected_roads::ShowConnectedRoads::new(),
             objects: objects::ObjectDebugger::new(),
@@ -269,8 +268,14 @@ impl State for DebugMode {
         if let Some(t) = self.common.event(ctx, ui) {
             return t;
         }
-
-        Transition::Keep
+        match self.tool_panel.event(ctx, ui) {
+            Some(Outcome::Transition(t)) => t,
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "back" => Transition::Pop,
+                _ => unreachable!(),
+            },
+            None => Transition::Keep,
+        }
     }
 
     fn draw_default_ui(&self) -> bool {
@@ -312,6 +317,7 @@ impl State for DebugMode {
         if !g.is_screencap() {
             self.menu.draw(g);
             self.common.draw(g, ui);
+            self.tool_panel.draw(g);
         }
     }
 }

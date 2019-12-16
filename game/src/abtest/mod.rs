@@ -1,8 +1,9 @@
 pub mod setup;
 
-use crate::common::{AgentTools, CommonState, ToolPanel};
+use crate::common::{tool_panel, AgentTools, CommonState};
 use crate::debug::DebugMode;
 use crate::game::{State, Transition};
+use crate::managed::{Composite, Outcome};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::{PerMapUI, UI};
 use abstutil::Timer;
@@ -20,6 +21,7 @@ pub struct ABTestMode {
     diff_trip: Option<DiffOneTrip>,
     diff_all: Option<DiffAllTrips>,
     common: CommonState,
+    tool_panel: Composite,
     test_name: String,
     flipped: bool,
 }
@@ -45,12 +47,8 @@ impl ABTestMode {
             secondary_agent_tools: AgentTools::new(),
             diff_trip: None,
             diff_all: None,
-            // TODO Confirm before leaving state
-            common: CommonState::new(ToolPanel::new(
-                ctx,
-                Box::new(|_, _| Some(Transition::Pop)),
-                None,
-            )),
+            common: CommonState::new(),
+            tool_panel: tool_panel(ctx, None),
             test_name: test_name.to_string(),
             flipped: false,
         }
@@ -174,12 +172,20 @@ impl State for ABTestMode {
         if let Some(t) = self.common.event(ctx, ui) {
             return t;
         }
-
-        Transition::Keep
+        match self.tool_panel.event(ctx, ui) {
+            Some(Outcome::Transition(t)) => t,
+            // TODO Confirm first
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "back" => Transition::Pop,
+                _ => unreachable!(),
+            },
+            None => Transition::Keep,
+        }
     }
 
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         self.common.draw(g, ui);
+        self.tool_panel.draw(g);
 
         if let Some(ref diff) = self.diff_trip {
             diff.draw(g, ui);

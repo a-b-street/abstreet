@@ -21,7 +21,7 @@ pub struct ManagedWidget {
 
 enum WidgetType {
     Draw(JustDraw),
-    Btn(Button, Callback),
+    Btn(Button, Option<Callback>),
     Row(Vec<ManagedWidget>),
     Column(Vec<ManagedWidget>),
 }
@@ -130,7 +130,11 @@ impl ManagedWidget {
     }
 
     pub fn btn(btn: Button, onclick: Callback) -> ManagedWidget {
-        ManagedWidget::new(WidgetType::Btn(btn, onclick))
+        ManagedWidget::new(WidgetType::Btn(btn, Some(onclick)))
+    }
+
+    pub fn btn_no_cb(btn: Button) -> ManagedWidget {
+        ManagedWidget::new(WidgetType::Btn(btn, None))
     }
 
     pub fn img_button(
@@ -196,23 +200,25 @@ impl ManagedWidget {
         ManagedWidget::new(WidgetType::Column(widgets))
     }
 
-    // TODO Maybe just inline this code below, more clear
-
-    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+    fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Outcome> {
         match self.widget {
             WidgetType::Draw(_) => {}
-            WidgetType::Btn(ref mut btn, ref onclick) => {
+            WidgetType::Btn(ref mut btn, ref maybe_onclick) => {
                 btn.event(ctx);
                 if btn.clicked() {
-                    if let Some(t) = (onclick)(ctx, ui) {
-                        return Some(t);
+                    if let Some(ref cb) = maybe_onclick {
+                        if let Some(t) = (cb)(ctx, ui) {
+                            return Some(Outcome::Transition(t));
+                        }
+                    } else {
+                        return Some(Outcome::Clicked(btn.action.clone()));
                     }
                 }
             }
             WidgetType::Row(ref mut widgets) | WidgetType::Column(ref mut widgets) => {
                 for w in widgets {
-                    if let Some(t) = w.event(ctx, ui) {
-                        return Some(t);
+                    if let Some(o) = w.event(ctx, ui) {
+                        return Some(o);
                     }
                 }
             }
@@ -244,6 +250,11 @@ pub struct Composite {
     pos: CompositePosition,
 }
 
+pub enum Outcome {
+    Transition(Transition),
+    Clicked(String),
+}
+
 enum CompositePosition {
     FillScreen,
     MinimalTopLeft(ScreenPt),
@@ -264,7 +275,7 @@ impl Composite {
         }
     }
 
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Outcome> {
         // TODO If this ever gets slow, only run if window size has changed.
         let mut stretch = Stretch::new();
         let root = stretch
@@ -444,10 +455,14 @@ impl ManagedGUIState {
 
 impl State for ManagedGUIState {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        if let Some(t) = self.composite.event(ctx, ui) {
-            return t;
+        match self.composite.event(ctx, ui) {
+            Some(Outcome::Transition(t)) => t,
+            Some(Outcome::Clicked(x)) => panic!(
+                "Can't have a button {} without a callback in ManagedGUIState",
+                x
+            ),
+            None => Transition::Keep,
         }
-        Transition::Keep
     }
 
     fn draw_default_ui(&self) -> bool {
