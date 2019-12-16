@@ -1,18 +1,15 @@
 use crate::common::route_viewer::RouteViewer;
-use crate::common::{ColorLegend, RouteExplorer, TripExplorer};
+use crate::common::{RouteExplorer, TripExplorer};
 use crate::game::{msg, Transition, WizardState};
 use crate::render::{AgentColorScheme, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::UI;
 use ezgui::{hotkey, Choice, EventCtx, GfxCtx, Key, ModalMenu};
 use geom::{Pt2D, Time};
 use sim::{TripID, TripResult};
-use std::cell::RefCell;
 
 pub struct AgentTools {
     following: Option<(TripID, Option<Pt2D>, Time)>,
     route_viewer: RouteViewer,
-    // Weird to stash this here and lazily sync it, but...
-    agent_cs_legend: RefCell<Option<(AgentColorScheme, ColorLegend)>>,
 }
 
 impl AgentTools {
@@ -20,7 +17,6 @@ impl AgentTools {
         AgentTools {
             following: None,
             route_viewer: RouteViewer::Inactive,
-            agent_cs_legend: RefCell::new(None),
         }
     }
 
@@ -100,6 +96,7 @@ impl AgentTools {
                         choices
                     })?;
                     ui.agent_cs = acs;
+                    ui.agent_cs_legend = acs.make_color_legend(ctx, &ui.cs);
                     ui.primary.draw_map.agents.borrow_mut().invalidate_cache();
                     if let Some(ref mut s) = ui.secondary {
                         s.draw_map.agents.borrow_mut().invalidate_cache();
@@ -131,15 +128,7 @@ impl AgentTools {
         self.route_viewer.draw(g);
 
         if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
-            let mut maybe_legend = self.agent_cs_legend.borrow_mut();
-            if maybe_legend
-                .as_ref()
-                .map(|(acs, _)| *acs != ui.agent_cs)
-                .unwrap_or(true)
-            {
-                *maybe_legend = Some((ui.agent_cs, ui.agent_cs.make_color_legend(&ui.cs)));
-            }
-            maybe_legend.as_ref().unwrap().1.draw(g);
+            ui.agent_cs_legend.draw(g);
         }
     }
 }

@@ -3,7 +3,7 @@ use crate::game::{State, Transition};
 use crate::helpers::rotating_color_map;
 use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::UI;
-use ezgui::{hotkey, Drawable, EventCtx, GeomBatch, GfxCtx, Key, ModalMenu, Text};
+use ezgui::{hotkey, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu, Text};
 use geom::{Circle, Distance};
 use sim::{TripEnd, TripID, TripStart};
 
@@ -91,7 +91,8 @@ impl TripExplorer {
         };
 
         let legend = ColorLegend::new(
-            Text::prompt(&trip.to_string()),
+            ctx,
+            Text::from(Line(&trip.to_string())),
             rows.iter()
                 .map(|(label, color)| (label.as_str(), *color))
                 .collect(),

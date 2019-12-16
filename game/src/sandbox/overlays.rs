@@ -193,7 +193,7 @@ impl Overlays {
 impl Overlays {
     fn parking_availability(ctx: &EventCtx, ui: &UI) -> Overlays {
         let (filled_spots, avail_spots) = ui.primary.sim.get_all_parking_spots();
-        let mut txt = Text::prompt("parking availability");
+        let mut txt = Text::from(Line("parking availability"));
         txt.add(Line(format!(
             "{} spots filled",
             prettyprint_usize(filled_spots.len())
@@ -268,7 +268,9 @@ impl Overlays {
         let meh = Color::YELLOW;
         let slow = Color::RED;
         let mut colorer = ObjectColorerBuilder::new(
-            Text::prompt("intersection delay for traffic signals in the last 2 hours (90%ile)"),
+            Text::from(Line(
+                "intersection delay for traffic signals in the last 2 hours (90%ile)",
+            )),
             vec![("< 10s", fast), ("<= 60s", meh), ("> 60s", slow)],
         );
 
@@ -298,7 +300,7 @@ impl Overlays {
         let medium = Color::YELLOW;
         let heavy = Color::RED;
         let mut colorer = ObjectColorerBuilder::new(
-            Text::prompt("Throughput"),
+            Text::from(Line("Throughput")),
             vec![
                 ("< 50%ile", light),
                 ("< 90%ile", medium),
@@ -456,7 +458,7 @@ impl Overlays {
 
     fn bike_network(ctx: &EventCtx, ui: &UI) -> Overlays {
         let mut colorer = RoadColorerBuilder::new(
-            Text::prompt("bike networks"),
+            Text::from(Line("bike networks")),
             vec![("bike lanes", Color::GREEN)],
         );
         for l in ui.primary.map.all_lanes() {
@@ -469,7 +471,7 @@ impl Overlays {
 
     fn bus_network(ctx: &EventCtx, ui: &UI) -> Overlays {
         let mut colorer = RoadColorerBuilder::new(
-            Text::prompt("bus networks"),
+            Text::from(Line("bus networks")),
             vec![("bus lanes", Color::GREEN)],
         );
         for l in ui.primary.map.all_lanes() {

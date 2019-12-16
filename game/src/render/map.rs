@@ -11,7 +11,7 @@ use crate::render::Renderable;
 use crate::ui::Flags;
 use aabb_quadtree::QuadTree;
 use abstutil::{Cloneable, Timer};
-use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Text};
+use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Text};
 use geom::{Bounds, Circle, Distance, Duration, FindClosest, Time};
 use map_model::{
     AreaID, BuildingID, BusStopID, DirectedRoadID, Intersection, IntersectionID, LaneID, Map, Road,
@@ -477,13 +477,14 @@ impl AgentColorScheme {
     }
 
     // TODO Lots of duplicated values here. :\
-    pub fn make_color_legend(self, cs: &ColorScheme) -> ColorLegend {
+    pub fn make_color_legend(self, ctx: &EventCtx, cs: &ColorScheme) -> ColorLegend {
         match self {
             AgentColorScheme::ByID => {
-                ColorLegend::new(Text::prompt("arbitrary colors by ID"), Vec::new())
+                ColorLegend::new(ctx, Text::from(Line("arbitrary colors by ID")), Vec::new())
             }
             AgentColorScheme::VehicleTypes => ColorLegend::new(
-                Text::prompt("vehicle types"),
+                ctx,
+                Text::from(Line("vehicle types")),
                 vec![
                     ("car", cs.get("unzoomed car")),
                     ("bike", cs.get("unzoomed bike")),
@@ -492,7 +493,8 @@ impl AgentColorScheme {
                 ],
             ),
             AgentColorScheme::Delay => ColorLegend::new(
-                Text::prompt("time spent delayed/blocked"),
+                ctx,
+                Text::from(Line("time spent delayed/blocked")),
                 vec![
                     ("<= 1 minute", Color::BLUE.alpha(0.3)),
                     ("<= 5 minutes", Color::ORANGE.alpha(0.5)),
@@ -501,7 +503,8 @@ impl AgentColorScheme {
                 ],
             ),
             AgentColorScheme::DistanceCrossedSoFar => ColorLegend::new(
-                Text::prompt("distance crossed to goal so far"),
+                ctx,
+                Text::from(Line("distance crossed to goal so far")),
                 vec![
                     ("<= 10%", rotating_color(0)),
                     ("<= 20%", rotating_color(1)),
@@ -516,7 +519,8 @@ impl AgentColorScheme {
                 ],
             ),
             AgentColorScheme::TripTimeSoFar => ColorLegend::new(
-                Text::prompt("trip time so far"),
+                ctx,
+                Text::from(Line("trip time so far")),
                 vec![
                     ("<= 1 minute", Color::BLUE.alpha(0.3)),
                     ("<= 5 minutes", Color::ORANGE.alpha(0.5)),

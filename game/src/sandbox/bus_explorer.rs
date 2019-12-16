@@ -28,7 +28,7 @@ impl ShowBusRoute {
             bus_locations.push(pt);
         }
 
-        let mut txt = Text::prompt(&route.name);
+        let mut txt = Text::from(Line(&route.name));
         txt.add(Line(format!("{} buses", bus_locations.len())));
         let mut colorer = RoadColorerBuilder::new(txt, vec![("route", Color::RED)]);
         for (stop1, stop2) in

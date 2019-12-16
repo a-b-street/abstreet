@@ -79,7 +79,8 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
         }
 
         let legend = ColorLegend::new(
-            Text::prompt(title),
+            ctx,
+            Text::from(Line(title)),
             series.iter().map(|s| (s.label.as_str(), s.color)).collect(),
         );
 

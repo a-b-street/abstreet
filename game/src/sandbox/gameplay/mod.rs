@@ -298,8 +298,10 @@ fn manage_acs(
 
     if !active_originally && menu.swap_action(show, hide, ctx) {
         ui.agent_cs = acs;
+        ui.agent_cs_legend = ui.agent_cs.make_color_legend(ctx, &ui.cs);
     } else if active_originally && menu.swap_action(hide, show, ctx) {
         ui.agent_cs = AgentColorScheme::ByID;
+        ui.agent_cs_legend = ui.agent_cs.make_color_legend(ctx, &ui.cs);
     }
 }
 

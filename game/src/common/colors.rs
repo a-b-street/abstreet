@@ -1,17 +1,18 @@
 use crate::helpers::ID;
+use crate::managed::{Composite, ManagedWidget};
 use crate::render::{DrawOptions, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::{ShowEverything, UI};
 use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ScreenPt, Text};
-use geom::{Distance, Polygon, Pt2D};
+use geom::{Circle, Distance, Pt2D};
 use map_model::{LaneID, Map, RoadID};
 use sim::DontDrawAgents;
 use std::collections::HashMap;
 
 pub struct RoadColorerBuilder {
-    prioritized_colors: Vec<Color>,
+    header: Text,
+    prioritized_colors: Vec<(&'static str, Color)>,
     zoomed_override_colors: HashMap<ID, Color>,
     roads: HashMap<RoadID, Color>,
-    legend: ColorLegend,
 }
 
 pub struct RoadColorer {
@@ -38,12 +39,12 @@ impl RoadColorer {
 impl RoadColorerBuilder {
     // Colors listed earlier override those listed later. This is used in unzoomed mode, when one
     // road has lanes of different colors.
-    pub fn new(header: Text, prioritized_colors: Vec<(&str, Color)>) -> RoadColorerBuilder {
+    pub fn new(header: Text, prioritized_colors: Vec<(&'static str, Color)>) -> RoadColorerBuilder {
         RoadColorerBuilder {
-            prioritized_colors: prioritized_colors.iter().map(|(_, c)| *c).collect(),
+            header,
+            prioritized_colors,
             zoomed_override_colors: HashMap::new(),
             roads: HashMap::new(),
-            legend: ColorLegend::new(header, prioritized_colors),
         }
     }
 
@@ -51,8 +52,14 @@ impl RoadColorerBuilder {
         self.zoomed_override_colors.insert(ID::Lane(l), color);
         let r = map.get_parent(l).id;
         if let Some(existing) = self.roads.get(&r) {
-            if self.prioritized_colors.iter().position(|c| *c == color)
-                < self.prioritized_colors.iter().position(|c| c == existing)
+            if self
+                .prioritized_colors
+                .iter()
+                .position(|(_, c)| *c == color)
+                < self
+                    .prioritized_colors
+                    .iter()
+                    .position(|(_, c)| c == existing)
             {
                 self.roads.insert(r, color);
             }
@@ -69,14 +76,15 @@ impl RoadColorerBuilder {
         RoadColorer {
             zoomed_override_colors: self.zoomed_override_colors,
             unzoomed: batch.upload(ctx),
-            legend: self.legend,
+            legend: ColorLegend::new(ctx, self.header, self.prioritized_colors),
         }
     }
 }
 
 pub struct ObjectColorerBuilder {
+    header: Text,
+    prioritized_colors: Vec<(&'static str, Color)>,
     zoomed_override_colors: HashMap<ID, Color>,
-    legend: ColorLegend,
     roads: Vec<(RoadID, Color)>,
 }
 
@@ -102,10 +110,14 @@ impl ObjectColorer {
 }
 
 impl ObjectColorerBuilder {
-    pub fn new(header: Text, rows: Vec<(&str, Color)>) -> ObjectColorerBuilder {
+    pub fn new(
+        header: Text,
+        prioritized_colors: Vec<(&'static str, Color)>,
+    ) -> ObjectColorerBuilder {
         ObjectColorerBuilder {
+            header,
+            prioritized_colors,
             zoomed_override_colors: HashMap::new(),
-            legend: ColorLegend::new(header, rows),
             roads: Vec::new(),
         }
     }
@@ -137,72 +149,45 @@ impl ObjectColorerBuilder {
         ObjectColorer {
             zoomed_override_colors: self.zoomed_override_colors,
             unzoomed: batch.upload(ctx),
-            legend: self.legend,
+            legend: ColorLegend::new(ctx, self.header, self.prioritized_colors),
         }
     }
 }
 
 pub struct ColorLegend {
-    header: Text,
-    rows: Vec<(String, Color)>,
+    composite: Composite,
 }
 
 impl ColorLegend {
-    pub fn new(header: Text, rows: Vec<(&str, Color)>) -> ColorLegend {
-        ColorLegend {
-            header,
-            rows: rows
-                .into_iter()
-                .map(|(label, c)| (label.to_string(), c.alpha(1.0)))
-                .collect(),
+    pub fn new(ctx: &EventCtx, header: Text, rows: Vec<(&str, Color)>) -> ColorLegend {
+        // TODO add a bg here and stop using prompt?
+        let mut col = vec![ManagedWidget::draw_text(ctx, header)];
+
+        let radius = 15.0;
+        for (label, color) in rows {
+            col.push(ManagedWidget::row(vec![
+                ManagedWidget::draw_batch(
+                    ctx,
+                    GeomBatch::from(vec![(
+                        color,
+                        Circle::new(Pt2D::new(radius, radius), Distance::meters(radius))
+                            .to_polygon(),
+                    )]),
+                ),
+                ManagedWidget::draw_text(ctx, Text::from(Line(label))),
+            ]));
         }
+        let mut composite = Composite::minimal_size(
+            ManagedWidget::col(col).bg(Color::grey(0.4)),
+            ScreenPt::new(0.0, 150.0),
+        );
+        // Do this here, otherwise we have to be sure to call event()
+        composite.recompute_layout(ctx, &mut HashMap::new());
+
+        ColorLegend { composite }
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        let top_left = ScreenPt::new(0.0, 150.0);
-
-        // TODO Want to draw a little rectangular box on each row, but how do we know positioning?
-        // - v1: manually figure it out here with line height, padding, etc
-        // - v2: be able to say something like "row: rectangle with width=30, height=80% of row.
-        // then 10px spacing. then this text"
-        // TODO Need to recalculate all this if the panel moves
-        let mut txt = self.header.clone();
-        for (label, _) in &self.rows {
-            txt.add(Line(label));
-        }
-        g.draw_text_at_screenspace_topleft(&txt, ScreenPt::new(top_left.x + 50.0, top_left.y));
-
-        let mut batch = GeomBatch::new();
-        // Hacky way to extend the text box's background a little...
-        batch.push(
-            Color::grey(0.2),
-            Polygon::rectangle_topleft(
-                Pt2D::new(top_left.x, top_left.y),
-                Distance::meters(50.0),
-                Distance::meters(
-                    g.default_line_height() * ((self.rows.len() + self.header.num_lines()) as f64),
-                ),
-            ),
-        );
-        let square_dims = 0.8 * g.default_line_height();
-        let center_squares = (g.default_line_height() - square_dims) / 2.0;
-        for (idx, (_, c)) in self.rows.iter().enumerate() {
-            batch.push(
-                *c,
-                Polygon::rectangle_topleft(
-                    Pt2D::new(
-                        top_left.x + 20.0,
-                        top_left.y
-                            + g.default_line_height() * ((idx + self.header.num_lines()) as f64)
-                            + center_squares,
-                    ),
-                    Distance::meters(square_dims),
-                    Distance::meters(square_dims),
-                ),
-            );
-        }
-        g.fork_screenspace();
-        batch.draw(g);
-        g.unfork();
+        self.composite.draw(g);
     }
 }

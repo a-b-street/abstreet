@@ -351,7 +351,7 @@ impl ManagedWidget {
         nodes: &mut Vec<Node>,
         dx: f64,
         dy: f64,
-        ctx: &mut EventCtx,
+        ctx: &EventCtx,
     ) {
         let result = stretch.layout(nodes.pop().unwrap()).unwrap();
         let x: f64 = result.location.x.into();
@@ -434,16 +434,7 @@ impl Composite {
         }
     }
 
-    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Outcome> {
-        self.event_with_sliders(ctx, ui, HashMap::new())
-    }
-
-    pub fn event_with_sliders(
-        &mut self,
-        ctx: &mut EventCtx,
-        ui: &mut UI,
-        mut sliders: HashMap<String, &mut Slider>,
-    ) -> Option<Outcome> {
+    pub fn recompute_layout(&mut self, ctx: &EventCtx, sliders: &mut HashMap<String, &mut Slider>) {
         // TODO If this ever gets slow, only run if window size has changed.
         let mut stretch = Stretch::new();
         let root = stretch
@@ -467,7 +458,7 @@ impl Composite {
 
         let mut nodes = vec![];
         self.top_level
-            .get_flexbox(root, &sliders, &mut stretch, &mut nodes);
+            .get_flexbox(root, sliders, &mut stretch, &mut nodes);
         nodes.reverse();
 
         stretch.compute_layout(root, Size::undefined()).unwrap();
@@ -475,16 +466,22 @@ impl Composite {
             CompositePosition::FillScreen => ScreenPt::new(0.0, 0.0),
             CompositePosition::MinimalTopLeft(pt) => pt,
         };
-        self.top_level.apply_flexbox(
-            &mut sliders,
-            &stretch,
-            &mut nodes,
-            top_left.x,
-            top_left.y,
-            ctx,
-        );
+        self.top_level
+            .apply_flexbox(sliders, &stretch, &mut nodes, top_left.x, top_left.y, ctx);
         assert!(nodes.is_empty());
+    }
 
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Outcome> {
+        self.event_with_sliders(ctx, ui, HashMap::new())
+    }
+
+    pub fn event_with_sliders(
+        &mut self,
+        ctx: &mut EventCtx,
+        ui: &mut UI,
+        mut sliders: HashMap<String, &mut Slider>,
+    ) -> Option<Outcome> {
+        self.recompute_layout(ctx, &mut sliders);
         self.top_level.event(ctx, ui, &mut sliders)
     }
 
