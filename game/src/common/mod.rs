@@ -17,14 +17,13 @@ pub use self::colors::{
     ColorLegend, ObjectColorer, ObjectColorerBuilder, RoadColorer, RoadColorerBuilder,
 };
 pub use self::minimap::Minimap;
-use self::panels::ToolPanel;
+pub use self::panels::ToolPanel;
 pub use self::plot::{Histogram, Plot, Series};
 pub use self::route_explorer::RouteExplorer;
 pub use self::trip_explorer::TripExplorer;
 pub use self::warp::Warping;
 use crate::game::Transition;
 use crate::helpers::ID;
-use crate::options;
 use crate::render::DrawOptions;
 use crate::ui::UI;
 use ezgui::{
@@ -34,14 +33,16 @@ use std::collections::BTreeSet;
 
 pub struct CommonState {
     turn_cycler: turn_cycler::TurnCyclerState,
-    pub tool_panel: ToolPanel,
+    tool_panel: ToolPanel,
 }
 
 impl CommonState {
-    pub fn new(ctx: &EventCtx, with_layers: bool) -> CommonState {
+    // TODO Should CommonState even own the ToolPanel? Maybe each State just winds up with some
+    // generic onscreen Composite controls.
+    pub fn new(tool_panel: ToolPanel) -> CommonState {
         CommonState {
             turn_cycler: turn_cycler::TurnCyclerState::Inactive,
-            tool_panel: ToolPanel::new(ctx, with_layers),
+            tool_panel,
         }
     }
 
@@ -70,17 +71,8 @@ impl CommonState {
             }
         }
 
-        self.tool_panel.event(ctx);
-        // Up to the caller to reach in and check if home_btn was clicked. Means different stuff in
-        // some modes.
-        if self.tool_panel.settings_btn.clicked() {
-            return Some(Transition::Push(options::open_panel()));
-        }
-        if self.tool_panel.search_btn.clicked() {
-            return Some(Transition::Push(Box::new(navigate::Navigator::new(ui))));
-        }
-        if self.tool_panel.shortcuts_btn.clicked() {
-            return Some(Transition::Push(shortcuts::ChoosingShortcut::new()));
+        if let Some(t) = self.tool_panel.event(ctx, ui) {
+            return Some(t);
         }
 
         None

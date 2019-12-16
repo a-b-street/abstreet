@@ -2,7 +2,7 @@ mod lanes;
 mod stop_signs;
 mod traffic_signals;
 
-use crate::common::{CommonState, Warping};
+use crate::common::{CommonState, ToolPanel, Warping};
 use crate::debug::DebugMode;
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::{ColorScheme, ID};
@@ -30,7 +30,7 @@ pub struct EditMode {
 impl EditMode {
     pub fn new(ctx: &EventCtx, mode: GameplayMode) -> EditMode {
         EditMode {
-            common: CommonState::new(ctx, false),
+            common: CommonState::new(ToolPanel::new(ctx, Box::new(|_, _| None), None)),
             menu: ModalMenu::new(
                 "Map Edit Mode",
                 vec![
@@ -232,7 +232,7 @@ impl State for EditMode {
         if let Some(t) = self.common.event(ctx, ui) {
             return t;
         }
-        if self.common.tool_panel.home_btn.clicked() {
+        /*if self.common.tool_panel.home_btn.clicked() {
             // TODO Maybe put a loading screen around these.
             ui.primary
                 .map
@@ -240,7 +240,7 @@ impl State for EditMode {
             // Parking state might've changed
             ui.primary.clear_sim();
             return Transition::Replace(Box::new(SandboxMode::new(ctx, ui, self.mode.clone())));
-        }
+        }*/
 
         Transition::Keep
     }

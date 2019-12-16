@@ -5,7 +5,7 @@ mod score;
 mod speed;
 
 use self::overlays::Overlays;
-use crate::common::{AgentTools, CommonState, Minimap};
+use crate::common::{AgentTools, CommonState, Minimap, ToolPanel};
 use crate::debug::DebugMode;
 use crate::edit::EditMode;
 use crate::edit::{apply_map_edits, save_edits};
@@ -43,7 +43,69 @@ impl SandboxMode {
             agent_meter: AgentMeter::new(ctx, ui),
             agent_tools: AgentTools::new(),
             overlay: Overlays::Inactive,
-            common: CommonState::new(ctx, true),
+            // TODO Clear edits?
+            common: CommonState::new(ToolPanel::new(
+                ctx,
+                Box::new(|_, _| {
+                    Some(Transition::Push(WizardState::new(Box::new(
+                        move |wiz, ctx, ui| {
+                            let mut wizard = wiz.wrap(ctx);
+                            let dirty = ui.primary.map.get_edits().dirty;
+                            let (resp, _) = wizard.choose(
+                                "Sure you want to abandon the current challenge?",
+                                || {
+                                    let mut choices = Vec::new();
+                                    choices.push(Choice::new("keep playing", ()));
+                                    if dirty {
+                                        choices.push(Choice::new("save edits and quit", ()));
+                                    }
+                                    choices.push(Choice::new("quit challenge", ()).key(Key::Q));
+                                    choices
+                                },
+                            )?;
+                            let map_name = ui.primary.map.get_name().to_string();
+                            match resp.as_str() {
+                                "save edits and quit" => {
+                                    save_edits(&mut wizard, ui)?;
+
+                                    // Always reset edits if we just saved edits.
+                                    apply_map_edits(
+                                        &mut ui.primary,
+                                        &ui.cs,
+                                        ctx,
+                                        MapEdits::new(map_name),
+                                    );
+                                    ui.primary.map.mark_edits_fresh();
+                                    ui.primary.map.recalculate_pathfinding_after_edits(
+                                        &mut Timer::new("reset edits"),
+                                    );
+                                    ui.primary.clear_sim();
+                                    Some(Transition::Clear(main_menu(ctx, ui)))
+                                }
+                                "quit challenge" => {
+                                    if !ui.primary.map.get_edits().is_empty() {
+                                        apply_map_edits(
+                                            &mut ui.primary,
+                                            &ui.cs,
+                                            ctx,
+                                            MapEdits::new(map_name),
+                                        );
+                                        ui.primary.map.mark_edits_fresh();
+                                        ui.primary.map.recalculate_pathfinding_after_edits(
+                                            &mut Timer::new("reset edits"),
+                                        );
+                                    }
+                                    ui.primary.clear_sim();
+                                    Some(Transition::Clear(main_menu(ctx, ui)))
+                                }
+                                "keep playing" => Some(Transition::Pop),
+                                _ => unreachable!(),
+                            }
+                        },
+                    ))))
+                }),
+                Some(Box::new(Overlays::change_overlays)),
+            )),
             minimap: if mode.has_minimap() {
                 Some(Minimap::new())
             } else {
@@ -182,60 +244,8 @@ impl State for SandboxMode {
         if let Some(t) = self.common.event(ctx, ui) {
             return t;
         }
-        if let Some(t) = self.overlay.event(
-            ctx,
-            ui,
-            self.common.tool_panel.layers_btn.as_mut().unwrap(),
-            &self.gameplay.prebaked,
-        ) {
+        if let Some(t) = self.overlay.event(ctx, ui, &self.gameplay.prebaked) {
             return t;
-        }
-        if self.common.tool_panel.home_btn.clicked() {
-            // TODO Clear edits?
-            return Transition::Push(WizardState::new(Box::new(move |wiz, ctx, ui| {
-                let mut wizard = wiz.wrap(ctx);
-                let dirty = ui.primary.map.get_edits().dirty;
-                let (resp, _) =
-                    wizard.choose("Sure you want to abandon the current challenge?", || {
-                        let mut choices = Vec::new();
-                        choices.push(Choice::new("keep playing", ()));
-                        if dirty {
-                            choices.push(Choice::new("save edits and quit", ()));
-                        }
-                        choices.push(Choice::new("quit challenge", ()).key(Key::Q));
-                        choices
-                    })?;
-                let map_name = ui.primary.map.get_name().to_string();
-                match resp.as_str() {
-                    "save edits and quit" => {
-                        save_edits(&mut wizard, ui)?;
-
-                        // Always reset edits if we just saved edits.
-                        apply_map_edits(&mut ui.primary, &ui.cs, ctx, MapEdits::new(map_name));
-                        ui.primary.map.mark_edits_fresh();
-                        ui.primary
-                            .map
-                            .recalculate_pathfinding_after_edits(&mut Timer::new("reset edits"));
-                        ui.primary.clear_sim();
-                        Some(Transition::Clear(main_menu(ctx, ui)))
-                    }
-                    "quit challenge" => {
-                        if !ui.primary.map.get_edits().is_empty() {
-                            apply_map_edits(&mut ui.primary, &ui.cs, ctx, MapEdits::new(map_name));
-                            ui.primary.map.mark_edits_fresh();
-                            ui.primary
-                                .map
-                                .recalculate_pathfinding_after_edits(&mut Timer::new(
-                                    "reset edits",
-                                ));
-                        }
-                        ui.primary.clear_sim();
-                        Some(Transition::Clear(main_menu(ctx, ui)))
-                    }
-                    "keep playing" => Some(Transition::Pop),
-                    _ => unreachable!(),
-                }
-            })));
         }
 
         if self.speed.is_paused() {

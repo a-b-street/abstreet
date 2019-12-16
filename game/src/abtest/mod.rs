@@ -1,6 +1,6 @@
 pub mod setup;
 
-use crate::common::{AgentTools, CommonState};
+use crate::common::{AgentTools, CommonState, ToolPanel};
 use crate::debug::DebugMode;
 use crate::game::{State, Transition};
 use crate::render::MIN_ZOOM_FOR_DETAIL;
@@ -45,7 +45,12 @@ impl ABTestMode {
             secondary_agent_tools: AgentTools::new(),
             diff_trip: None,
             diff_all: None,
-            common: CommonState::new(ctx, false),
+            // TODO Confirm before leaving state
+            common: CommonState::new(ToolPanel::new(
+                ctx,
+                Box::new(|_, _| Some(Transition::Pop)),
+                None,
+            )),
             test_name: test_name.to_string(),
             flipped: false,
         }
@@ -168,10 +173,6 @@ impl State for ABTestMode {
 
         if let Some(t) = self.common.event(ctx, ui) {
             return t;
-        }
-        // TODO Confirm first
-        if self.common.tool_panel.home_btn.clicked() {
-            return Transition::Pop;
         }
 
         Transition::Keep

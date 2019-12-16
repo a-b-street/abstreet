@@ -8,7 +8,7 @@ use crate::sandbox::bus_explorer::ShowBusRoute;
 use crate::sandbox::SandboxMode;
 use crate::ui::{ShowEverything, UI};
 use abstutil::{prettyprint_usize, Counter};
-use ezgui::{Button, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Text};
+use ezgui::{Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Text};
 use geom::{Distance, Duration, PolyLine, Statistic, Time};
 use map_model::{IntersectionID, RoadID};
 use sim::{Analytics, ParkingSpot, TripMode};
@@ -52,44 +52,8 @@ impl Overlays {
         &mut self,
         ctx: &mut EventCtx,
         ui: &UI,
-        btn: &mut Button,
         baseline: &Analytics,
     ) -> Option<Transition> {
-        if btn.clicked() {
-            return Some(Transition::Push(WizardState::new(Box::new(
-                |wiz, ctx, _| {
-                    let (choice, _) =
-                        wiz.wrap(ctx).choose("Show which analytics overlay?", || {
-                            // TODO Filter out the current
-                            vec![
-                                Choice::new("none", ()).key(Key::N),
-                                Choice::new("parking availability", ()).key(Key::P),
-                                Choice::new("intersection delay", ()).key(Key::I),
-                                Choice::new("cumulative throughput", ()).key(Key::T),
-                                Choice::new("finished trips", ()).key(Key::F),
-                                // TODO baseline borrow doesn't live long enough
-                                //Choice::new("finished trips histogram", ()).key(Key::H),
-                                Choice::new("bike network", ()).key(Key::B),
-                                Choice::new("bus network", ()).key(Key::U),
-                            ]
-                        })?;
-                    Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
-                        let mut sandbox = state.downcast_mut::<SandboxMode>().unwrap();
-                        sandbox.overlay = match choice.as_ref() {
-                            "none" => Overlays::Inactive,
-                            "parking availability" => Overlays::parking_availability(ctx, ui),
-                            "intersection delay" => Overlays::intersection_delay(ctx, ui),
-                            "cumulative throughput" => Overlays::cumulative_throughput(ctx, ui),
-                            "finished trips" => Overlays::finished_trips(ctx, ui),
-                            "bike network" => Overlays::bike_network(ctx, ui),
-                            "bus network" => Overlays::bus_network(ctx, ui),
-                            _ => unreachable!(),
-                        };
-                    })))
-                },
-            ))));
-        }
-
         let now = ui.primary.sim.time();
         match self {
             // Don't bother with Inactive, BusRoute, BusDelaysOverTime, BikeNetwork, BusNetwork --
@@ -189,6 +153,40 @@ impl Overlays {
                 true
             }
         }
+    }
+
+    pub fn change_overlays(_: &mut EventCtx, _: &mut UI) -> Option<Transition> {
+        Some(Transition::Push(WizardState::new(Box::new(
+            |wiz, ctx, _| {
+                let (choice, _) = wiz.wrap(ctx).choose("Show which analytics overlay?", || {
+                    // TODO Filter out the current
+                    vec![
+                        Choice::new("none", ()).key(Key::N),
+                        Choice::new("parking availability", ()).key(Key::P),
+                        Choice::new("intersection delay", ()).key(Key::I),
+                        Choice::new("cumulative throughput", ()).key(Key::T),
+                        Choice::new("finished trips", ()).key(Key::F),
+                        // TODO baseline borrow doesn't live long enough
+                        //Choice::new("finished trips histogram", ()).key(Key::H),
+                        Choice::new("bike network", ()).key(Key::B),
+                        Choice::new("bus network", ()).key(Key::U),
+                    ]
+                })?;
+                Some(Transition::PopWithData(Box::new(move |state, ui, ctx| {
+                    let mut sandbox = state.downcast_mut::<SandboxMode>().unwrap();
+                    sandbox.overlay = match choice.as_ref() {
+                        "none" => Overlays::Inactive,
+                        "parking availability" => Overlays::parking_availability(ctx, ui),
+                        "intersection delay" => Overlays::intersection_delay(ctx, ui),
+                        "cumulative throughput" => Overlays::cumulative_throughput(ctx, ui),
+                        "finished trips" => Overlays::finished_trips(ctx, ui),
+                        "bike network" => Overlays::bike_network(ctx, ui),
+                        "bus network" => Overlays::bus_network(ctx, ui),
+                        _ => unreachable!(),
+                    };
+                })))
+            },
+        ))))
     }
 }
 

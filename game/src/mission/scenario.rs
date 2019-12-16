@@ -1,4 +1,4 @@
-use crate::common::{CommonState, ObjectColorer, ObjectColorerBuilder, Warping};
+use crate::common::{CommonState, ObjectColorer, ObjectColorerBuilder, ToolPanel, Warping};
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::mission::pick_time_range;
@@ -122,7 +122,11 @@ impl ScenarioManager {
                 ],
                 ctx,
             ),
-            common: CommonState::new(ctx, false),
+            common: CommonState::new(ToolPanel::new(
+                ctx,
+                Box::new(|_, _| Some(Transition::Pop)),
+                None,
+            )),
             scenario,
             trips_from_bldg,
             trips_to_bldg,
@@ -238,9 +242,6 @@ impl State for ScenarioManager {
 
         if let Some(t) = self.common.event(ctx, ui) {
             return t;
-        }
-        if self.common.tool_panel.home_btn.clicked() {
-            return Transition::Pop;
         }
 
         Transition::Keep

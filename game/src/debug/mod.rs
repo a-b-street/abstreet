@@ -6,7 +6,7 @@ mod objects;
 mod polygons;
 mod routes;
 
-use crate::common::CommonState;
+use crate::common::{CommonState, ToolPanel};
 use crate::game::{msg, State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::render::MIN_ZOOM_FOR_DETAIL;
@@ -54,7 +54,11 @@ impl DebugMode {
                 ],
                 ctx,
             ),
-            common: CommonState::new(ctx, false),
+            common: CommonState::new(ToolPanel::new(
+                ctx,
+                Box::new(|_, _| Some(Transition::Pop)),
+                None,
+            )),
             associated: associated::ShowAssociatedState::Inactive,
             connected_roads: connected_roads::ShowConnectedRoads::new(),
             objects: objects::ObjectDebugger::new(),
@@ -264,9 +268,6 @@ impl State for DebugMode {
 
         if let Some(t) = self.common.event(ctx, ui) {
             return t;
-        }
-        if self.common.tool_panel.home_btn.clicked() {
-            return Transition::Pop;
         }
 
         Transition::Keep

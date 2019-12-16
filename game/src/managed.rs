@@ -10,7 +10,7 @@ use stretch::geometry::{Rect, Size};
 use stretch::node::{Node, Stretch};
 use stretch::style::{AlignItems, Dimension, FlexDirection, FlexWrap, JustifyContent, Style};
 
-type Callback = Box<dyn Fn(&mut EventCtx, &mut UI) -> Option<Transition>>;
+pub type Callback = Box<dyn Fn(&mut EventCtx, &mut UI) -> Option<Transition>>;
 
 pub struct ManagedWidget {
     widget: WidgetType,
@@ -32,6 +32,7 @@ struct LayoutStyle {
     justify_content: Option<JustifyContent>,
     flex_wrap: Option<FlexWrap>,
     padding: Option<Rect<Dimension>>,
+    min_size: Option<Size<Dimension>>,
 }
 
 impl LayoutStyle {
@@ -48,6 +49,9 @@ impl LayoutStyle {
         if let Some(x) = self.padding {
             style.padding = x;
         }
+        if let Some(x) = self.min_size {
+            style.min_size = x;
+        }
     }
 }
 
@@ -61,6 +65,7 @@ impl ManagedWidget {
                 justify_content: None,
                 flex_wrap: None,
                 padding: None,
+                min_size: None,
             },
             rect: None,
             bg: None,
@@ -99,6 +104,14 @@ impl ManagedWidget {
         self
     }
 
+    pub fn min_width(mut self, pixels: usize) -> ManagedWidget {
+        self.style.min_size = Some(Size {
+            width: Dimension::Points(pixels as f32),
+            height: Dimension::Undefined,
+        });
+        self
+    }
+
     pub fn draw_batch(ctx: &EventCtx, batch: GeomBatch) -> ManagedWidget {
         ManagedWidget::new(WidgetType::Draw(JustDraw::wrap(DrawBoth::new(
             ctx,
@@ -116,14 +129,17 @@ impl ManagedWidget {
         ManagedWidget::new(WidgetType::Draw(JustDraw::svg(filename, ctx)))
     }
 
+    pub fn btn(btn: Button, onclick: Callback) -> ManagedWidget {
+        ManagedWidget::new(WidgetType::Btn(btn, onclick))
+    }
+
     pub fn img_button(
         ctx: &EventCtx,
         filename: &str,
         hotkey: Option<MultiKey>,
         onclick: Callback,
     ) -> ManagedWidget {
-        let btn = Button::rectangle_img(filename, hotkey, ctx);
-        ManagedWidget::new(WidgetType::Btn(btn, onclick))
+        ManagedWidget::btn(Button::rectangle_img(filename, hotkey, ctx), onclick)
     }
 
     pub fn svg_button(
@@ -133,14 +149,16 @@ impl ManagedWidget {
         hotkey: Option<MultiKey>,
         onclick: Callback,
     ) -> ManagedWidget {
-        let btn = Button::rectangle_svg(
-            filename,
-            tooltip,
-            hotkey,
-            RewriteColor::Change(Color::WHITE, Color::ORANGE),
-            ctx,
-        );
-        ManagedWidget::new(WidgetType::Btn(btn, onclick))
+        ManagedWidget::btn(
+            Button::rectangle_svg(
+                filename,
+                tooltip,
+                hotkey,
+                RewriteColor::Change(Color::WHITE, Color::ORANGE),
+                ctx,
+            ),
+            onclick,
+        )
     }
 
     pub fn text_button(
@@ -164,8 +182,10 @@ impl ManagedWidget {
         onclick: Callback,
     ) -> ManagedWidget {
         // TODO Default style. Lots of variations.
-        let btn = Button::text(txt, Color::WHITE, Color::ORANGE, hotkey, "", ctx);
-        ManagedWidget::new(WidgetType::Btn(btn, onclick))
+        ManagedWidget::btn(
+            Button::text(txt, Color::WHITE, Color::ORANGE, hotkey, "", ctx),
+            onclick,
+        )
     }
 
     pub fn row(widgets: Vec<ManagedWidget>) -> ManagedWidget {
