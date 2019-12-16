@@ -1,37 +1,21 @@
 use crate::game::{State, Transition, WizardState};
-use crate::managed::{Composite, ManagedWidget};
+use crate::managed::{Composite, ManagedWidget, Outcome};
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::UI;
-use ezgui::layout::Widget;
 use ezgui::{
-    hotkey, layout, Button, Color, DrawBoth, EventCtx, EventLoopMode, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, RewriteColor, ScreenPt, ScreenRectangle, Slider, Text,
-    VerticalAlignment, Wizard,
+    hotkey, Button, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, RewriteColor, ScreenPt, Slider, Text, VerticalAlignment, Wizard,
 };
-use geom::{Distance, Duration, Line, Polygon, Pt2D, Time};
+use geom::{Distance, Duration, Line, Pt2D, Time};
 use std::time::Instant;
-
-// Layouting is very hardcoded right now.
-
-const SPEED_PANEL_WIDTH: f64 = 650.0;
-const SPEED_PANEL_HEIGHT: f64 = 50.0;
 
 const ADJUST_SPEED_PERCENT: f64 = 0.01;
 
 pub struct SpeedControls {
     time_panel: TimePanel,
-    top_left: ScreenPt,
 
-    draw_fixed: DrawBoth,
-    resume_btn: Button,
-    pause_btn: Button,
-    jump_to_time_btn: Button,
-    small_step_btn: Button,
-    large_step_btn: Button,
-    reset_btn: Button,
-    speed_slider: Slider,
-    slow_down_btn: Button,
-    speed_up_btn: Button,
+    top_left: ScreenPt,
+    composite: Composite,
 
     state: SpeedState,
     speed_cap: f64,
@@ -48,141 +32,144 @@ enum SpeedState {
 }
 
 impl SpeedControls {
-    pub fn new(ctx: &mut EventCtx, ui: &UI) -> SpeedControls {
-        let draw_fixed = {
-            let mut batch = GeomBatch::new();
-            let mut txt = Vec::new();
-
-            // Speed panel
-            batch.push(
-                Color::hex("#4C4C4C"),
-                Polygon::rounded_rectangle(
-                    Distance::meters(SPEED_PANEL_WIDTH),
-                    Distance::meters(SPEED_PANEL_HEIGHT),
-                    Distance::meters(5.0),
+    fn make_panel(
+        ctx: &EventCtx,
+        paused: bool,
+        desired_speed: f64,
+        top_left: ScreenPt,
+        slider: Slider,
+    ) -> Composite {
+        let mut row = Vec::new();
+        if paused {
+            row.push(ManagedWidget::btn_no_cb(Button::rectangle_svg(
+                "assets/speed/resume.svg",
+                "resume",
+                hotkey(Key::Space),
+                RewriteColor::ChangeAll(Color::ORANGE),
+                ctx,
+            )));
+        } else {
+            row.push(ManagedWidget::btn_no_cb(Button::rectangle_svg(
+                "assets/speed/pause.svg",
+                "pause",
+                hotkey(Key::Space),
+                RewriteColor::ChangeAll(Color::ORANGE),
+                ctx,
+            )));
+        }
+        row.extend(vec![
+            ManagedWidget::btn(
+                Button::rectangle_svg(
+                    "assets/speed/jump_to_time.svg",
+                    "jump to specific time",
+                    hotkey(Key::B),
+                    RewriteColor::ChangeAll(Color::ORANGE),
+                    ctx,
                 ),
-            );
+                Box::new(|_, _| Some(Transition::Push(WizardState::new(Box::new(jump_to_time))))),
+            ),
+            ManagedWidget::btn(
+                Button::text(
+                    Text::from(Line("+0.1s").fg(Color::WHITE).size(12)),
+                    Color::WHITE.alpha(0.0),
+                    Color::ORANGE,
+                    hotkey(Key::M),
+                    "step forwards 0.1 seconds",
+                    ctx,
+                ),
+                Box::new(|ctx, ui| {
+                    ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
+                    if let Some(ref mut s) = ui.secondary {
+                        s.sim.step(&s.map, Duration::seconds(0.1));
+                    }
+                    ui.recalculate_current_selection(ctx);
+                    None
+                }),
+            ),
+            ManagedWidget::btn(
+                Button::rectangle_svg(
+                    "assets/speed/large_step.svg",
+                    "step forwards 1 hour",
+                    hotkey(Key::N),
+                    RewriteColor::ChangeAll(Color::ORANGE),
+                    ctx,
+                ),
+                Box::new(|_, ui| {
+                    Some(Transition::PushWithMode(
+                        Box::new(TimeWarpScreen {
+                            target: ui.primary.sim.time() + Duration::hours(1),
+                            started: Instant::now(),
+                        }),
+                        EventLoopMode::Animation,
+                    ))
+                }),
+            ),
+            ManagedWidget::btn_no_cb(Button::text(
+                Text::from(Line("reset").fg(Color::WHITE).size(12)),
+                Color::WHITE.alpha(0.0),
+                Color::ORANGE,
+                hotkey(Key::X),
+                "reset to midnight",
+                ctx,
+            )),
+        ]);
 
-            // Slider background
-            // TODO Figure these out automatically...
-            batch.push(
-                Color::grey(0.5),
-                Polygon::rounded_rectangle(
-                    Distance::meters(310.0),
-                    Distance::meters(22.0),
-                    Distance::meters(5.0),
-                )
-                .translate(330.0, 10.0),
-            );
-            txt.push((
-                Text::from(Line("speed").size(14).roboto()),
-                ScreenPt::new(330.0, 15.0),
-            ));
-
-            DrawBoth::new(ctx, batch, txt)
-        };
-
-        let top_left = ScreenPt::new(
-            (ctx.canvas.window_width - SPEED_PANEL_WIDTH) / 2.0,
-            ctx.canvas.window_height - SPEED_PANEL_HEIGHT - 50.0,
+        row.push(
+            ManagedWidget::row(vec![
+                ManagedWidget::draw_text(ctx, Text::from(Line("speed").size(14).roboto())),
+                ManagedWidget::slider("speed".to_string(), slider),
+                ManagedWidget::btn_no_cb(Button::rectangle_svg(
+                    "assets/speed/slow_down.svg",
+                    "slow down",
+                    hotkey(Key::LeftBracket),
+                    RewriteColor::ChangeAll(Color::ORANGE),
+                    ctx,
+                )),
+                ManagedWidget::draw_text(
+                    ctx,
+                    Text::from(Line(format!("{:.1}x", desired_speed)).size(14).roboto()),
+                ),
+                ManagedWidget::btn_no_cb(Button::rectangle_svg(
+                    "assets/speed/speed_up.svg",
+                    "speed up",
+                    hotkey(Key::RightBracket),
+                    RewriteColor::ChangeAll(Color::ORANGE),
+                    ctx,
+                )),
+            ])
+            .bg(Color::grey(0.5))
+            .min_width(200)
+            .evenly_spaced(),
         );
 
-        let mut resume_btn = Button::rectangle_svg(
-            "assets/speed/resume.svg",
-            "resume",
-            hotkey(Key::Space),
-            RewriteColor::ChangeAll(Color::ORANGE),
-            ctx,
-        );
-        let pause_btn = Button::rectangle_svg(
-            "assets/speed/pause.svg",
-            "pause",
-            hotkey(Key::Space),
-            RewriteColor::ChangeAll(Color::ORANGE),
-            ctx,
+        Composite::minimal_size(
+            ManagedWidget::row(row)
+                .bg(Color::hex("#4C4C4C"))
+                .min_width(600)
+                .evenly_spaced(),
+            top_left,
         )
-        .at(top_left);
-        let mut jump_to_time_btn = Button::rectangle_svg(
-            "assets/speed/jump_to_time.svg",
-            "jump to specific time",
-            hotkey(Key::B),
-            RewriteColor::ChangeAll(Color::ORANGE),
-            ctx,
-        );
-        let mut small_step_btn = Button::text(
-            Text::from(Line("+0.1s").fg(Color::WHITE).size(12)),
-            Color::WHITE.alpha(0.0),
-            Color::ORANGE,
-            hotkey(Key::M),
-            "step forwards 0.1 seconds",
-            ctx,
-        );
-        let mut large_step_btn = Button::rectangle_svg(
-            "assets/speed/large_step.svg",
-            "step forwards 1 hour",
-            hotkey(Key::N),
-            RewriteColor::ChangeAll(Color::ORANGE),
-            ctx,
-        );
-        let mut reset_btn = Button::text(
-            Text::from(Line("reset").fg(Color::WHITE).size(12)),
-            Color::WHITE.alpha(0.0),
-            Color::ORANGE,
-            hotkey(Key::X),
-            "reset to midnight",
-            ctx,
-        );
-        layout::stack_horizontally(
-            ScreenPt::new(top_left.x, top_left.y + 5.0),
-            10.0,
-            vec![
-                &mut resume_btn,
-                &mut jump_to_time_btn,
-                &mut small_step_btn,
-                &mut large_step_btn,
-                &mut reset_btn,
-            ],
+    }
+
+    pub fn new(ctx: &mut EventCtx, ui: &UI) -> SpeedControls {
+        // TODO Or fullscreen and align it?
+        let top_left = ScreenPt::new(
+            (ctx.canvas.window_width - 600.0) / 2.0,
+            ctx.canvas.window_height - 100.0,
         );
 
         // 10 sim minutes / real second normally, or 1 sim hour / real second for dev mode
         let speed_cap: f64 = if ui.opts.dev { 3600.0 } else { 600.0 };
-        let mut speed_slider = Slider::new(157.0, 10.0);
+        let mut speed_slider = Slider::new(160.0, 15.0);
         // Start with speed=1.0
         speed_slider.set_percent(ctx, (speed_cap / 1.0).powf(-1.0 / std::f64::consts::E));
-        speed_slider.set_pos(ScreenPt::new(top_left.x + 350.0, top_left.y + 15.0));
-
-        let slow_down_btn = Button::rectangle_svg(
-            "assets/speed/slow_down.svg",
-            "slow down",
-            hotkey(Key::LeftBracket),
-            RewriteColor::ChangeAll(Color::ORANGE),
-            ctx,
-        )
-        .at(ScreenPt::new(top_left.x + 500.0, top_left.y + 10.0));
-        let speed_up_btn = Button::rectangle_svg(
-            "assets/speed/speed_up.svg",
-            "speed up",
-            hotkey(Key::RightBracket),
-            RewriteColor::ChangeAll(Color::ORANGE),
-            ctx,
-        )
-        .at(ScreenPt::new(top_left.x + 600.0, top_left.y + 10.0));
 
         let now = Instant::now();
         SpeedControls {
             time_panel: TimePanel::new(ctx, ui),
-            top_left,
 
-            draw_fixed,
-            resume_btn,
-            pause_btn,
-            jump_to_time_btn,
-            small_step_btn,
-            large_step_btn,
-            reset_btn,
-            speed_slider,
-            slow_down_btn,
-            speed_up_btn,
+            top_left,
+            composite: SpeedControls::make_panel(ctx, false, 1.0, top_left, speed_slider),
 
             state: SpeedState::Running {
                 last_step: now,
@@ -202,28 +189,28 @@ impl SpeedControls {
     ) -> Option<Transition> {
         self.time_panel.event(ctx, ui);
 
-        self.slow_down_btn.event(ctx);
-        self.speed_up_btn.event(ctx);
-
+        let current_percent = self.composite.slider("speed").get_percent();
         let desired_speed = self.desired_speed();
-        if self.speed_up_btn.clicked() && desired_speed != self.speed_cap {
-            self.speed_slider.set_percent(
-                ctx,
-                (self.speed_slider.get_percent() + ADJUST_SPEED_PERCENT).min(1.0),
-            );
-        } else if self.slow_down_btn.clicked() && desired_speed != 0.0 {
-            self.speed_slider.set_percent(
-                ctx,
-                (self.speed_slider.get_percent() - ADJUST_SPEED_PERCENT).max(0.0),
-            );
-        } else if self.speed_slider.event(ctx) {
-            // Keep going
-        }
-
-        match self.state {
-            SpeedState::Paused => {
-                self.resume_btn.event(ctx);
-                if self.resume_btn.clicked() {
+        match self.composite.event(ctx, ui) {
+            Some(Outcome::Transition(t)) => {
+                return Some(t);
+            }
+            Some(Outcome::Clicked(x)) => match x.as_ref() {
+                "speed up" => {
+                    if desired_speed != self.speed_cap {
+                        self.composite
+                            .slider_mut("speed")
+                            .set_percent(ctx, (current_percent + ADJUST_SPEED_PERCENT).min(1.0));
+                    }
+                }
+                "slow down" => {
+                    if desired_speed != 0.0 {
+                        self.composite
+                            .slider_mut("speed")
+                            .set_percent(ctx, (current_percent - ADJUST_SPEED_PERCENT).max(0.0));
+                    }
+                }
+                "resume" => {
                     let now = Instant::now();
                     self.state = SpeedState::Running {
                         last_step: now,
@@ -231,75 +218,56 @@ impl SpeedControls {
                         last_measurement: now,
                         last_measurement_sim: ui.primary.sim.time(),
                     };
+                    let mut slider = Slider::new(160.0, 15.0);
+                    slider.set_percent(ctx, current_percent);
+                    self.composite =
+                        SpeedControls::make_panel(ctx, false, desired_speed, self.top_left, slider);
                     return None;
                 }
-            }
-            SpeedState::Running {
-                ref mut last_step,
-                ref mut speed_description,
-                ref mut last_measurement,
-                ref mut last_measurement_sim,
-            } => {
-                self.pause_btn.event(ctx);
-                if self.pause_btn.clicked() {
-                    self.pause();
-                } else if ctx.input.nonblocking_is_update_event() {
-                    ctx.input.use_update_event();
-                    let dt = Duration::realtime_elapsed(*last_step) * desired_speed;
-                    *last_step = Instant::now();
-
-                    let dt_descr = Duration::realtime_elapsed(*last_measurement);
-                    if dt_descr >= Duration::seconds(1.0) {
-                        *speed_description = format!(
-                            "{:.2}x",
-                            (ui.primary.sim.time() - *last_measurement_sim) / dt_descr
-                        );
-                        *last_measurement = *last_step;
-                        *last_measurement_sim = ui.primary.sim.time();
-                    }
-                    // If speed is too high, don't be unresponsive for too long.
-                    // TODO This should probably match the ezgui framerate.
-                    ui.primary
-                        .sim
-                        .time_limited_step(&ui.primary.map, dt, Duration::seconds(0.1));
-                    ui.recalculate_current_selection(ctx);
+                "pause" => {
+                    self.pause(ctx);
                 }
+                "reset to midnight" => {
+                    ui.primary.clear_sim();
+                    return Some(Transition::Replace(Box::new(SandboxMode::new(
+                        ctx,
+                        ui,
+                        gameplay.clone(),
+                    ))));
+                }
+                _ => unreachable!(),
+            },
+            None => {}
+        }
+
+        if let SpeedState::Running {
+            ref mut last_step,
+            ref mut speed_description,
+            ref mut last_measurement,
+            ref mut last_measurement_sim,
+        } = self.state
+        {
+            if ctx.input.nonblocking_is_update_event() {
+                ctx.input.use_update_event();
+                let dt = Duration::realtime_elapsed(*last_step) * desired_speed;
+                *last_step = Instant::now();
+
+                let dt_descr = Duration::realtime_elapsed(*last_measurement);
+                if dt_descr >= Duration::seconds(1.0) {
+                    *speed_description = format!(
+                        "{:.2}x",
+                        (ui.primary.sim.time() - *last_measurement_sim) / dt_descr
+                    );
+                    *last_measurement = *last_step;
+                    *last_measurement_sim = ui.primary.sim.time();
+                }
+                // If speed is too high, don't be unresponsive for too long.
+                // TODO This should probably match the ezgui framerate.
+                ui.primary
+                    .sim
+                    .time_limited_step(&ui.primary.map, dt, Duration::seconds(0.1));
+                ui.recalculate_current_selection(ctx);
             }
-        }
-
-        self.small_step_btn.event(ctx);
-        if self.small_step_btn.clicked() {
-            ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
-            if let Some(ref mut s) = ui.secondary {
-                s.sim.step(&s.map, Duration::seconds(0.1));
-            }
-            ui.recalculate_current_selection(ctx);
-        }
-
-        self.large_step_btn.event(ctx);
-        if self.large_step_btn.clicked() {
-            return Some(Transition::PushWithMode(
-                Box::new(TimeWarpScreen {
-                    target: ui.primary.sim.time() + Duration::hours(1),
-                    started: Instant::now(),
-                }),
-                EventLoopMode::Animation,
-            ));
-        }
-
-        self.jump_to_time_btn.event(ctx);
-        if self.jump_to_time_btn.clicked() {
-            return Some(Transition::Push(WizardState::new(Box::new(jump_to_time))));
-        }
-
-        self.reset_btn.event(ctx);
-        if self.reset_btn.clicked() {
-            ui.primary.clear_sim();
-            return Some(Transition::Replace(Box::new(SandboxMode::new(
-                ctx,
-                ui,
-                gameplay.clone(),
-            ))));
         }
 
         None
@@ -307,49 +275,17 @@ impl SpeedControls {
 
     pub fn draw(&self, g: &mut GfxCtx) {
         self.time_panel.draw(g);
-
-        self.draw_fixed.redraw(self.top_left, g);
-        g.canvas.mark_covered_area(ScreenRectangle {
-            x1: self.top_left.x,
-            y1: self.top_left.y,
-            x2: self.top_left.x + SPEED_PANEL_WIDTH,
-            y2: self.top_left.y + SPEED_PANEL_HEIGHT,
-        });
-
-        if self.is_paused() {
-            self.resume_btn.draw(g);
-        } else {
-            self.pause_btn.draw(g);
-        }
-
-        self.jump_to_time_btn.draw(g);
-
-        self.small_step_btn.draw(g);
-        self.large_step_btn.draw(g);
-        self.reset_btn.draw(g);
-
-        {
-            self.speed_slider.draw(g);
-
-            self.slow_down_btn.draw(g);
-
-            // TODO Center this text
-            g.draw_text_at_screenspace_topleft(
-                &Text::from(
-                    Line(format!("{:.1}x", self.desired_speed()))
-                        .size(14)
-                        .roboto(),
-                ),
-                ScreenPt::new(self.top_left.x + 530.0, self.top_left.y + 10.0),
-            );
-
-            self.speed_up_btn.draw(g);
-        }
+        self.composite.draw(g);
     }
 
-    pub fn pause(&mut self) {
+    pub fn pause(&mut self, ctx: &EventCtx) {
         if !self.is_paused() {
             self.state = SpeedState::Paused;
+            let mut slider = Slider::new(160.0, 15.0);
+            slider.set_percent(ctx, self.composite.slider("speed").get_percent());
+
+            self.composite =
+                SpeedControls::make_panel(ctx, true, self.desired_speed(), self.top_left, slider);
         }
     }
 
@@ -361,7 +297,12 @@ impl SpeedControls {
     }
 
     fn desired_speed(&self) -> f64 {
-        self.speed_cap * self.speed_slider.get_percent().powf(std::f64::consts::E)
+        self.speed_cap
+            * self
+                .composite
+                .slider("speed")
+                .get_percent()
+                .powf(std::f64::consts::E)
     }
 }
 

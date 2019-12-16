@@ -3,7 +3,7 @@ use crate::ui::UI;
 use ezgui::layout::Widget;
 use ezgui::{
     Button, Color, DrawBoth, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, MultiKey,
-    RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Text,
+    RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Slider, Text,
 };
 use geom::{Distance, Polygon};
 use stretch::geometry::{Rect, Size};
@@ -22,6 +22,7 @@ pub struct ManagedWidget {
 enum WidgetType {
     Draw(JustDraw),
     Btn(Button, Option<Callback>),
+    Slider(String, Slider),
     Row(Vec<ManagedWidget>),
     Column(Vec<ManagedWidget>),
 }
@@ -196,6 +197,10 @@ impl ManagedWidget {
         )
     }
 
+    pub fn slider(label: String, slider: Slider) -> ManagedWidget {
+        ManagedWidget::new(WidgetType::Slider(label, slider))
+    }
+
     pub fn row(widgets: Vec<ManagedWidget>) -> ManagedWidget {
         ManagedWidget::new(WidgetType::Row(widgets))
     }
@@ -219,6 +224,9 @@ impl ManagedWidget {
                     }
                 }
             }
+            WidgetType::Slider(_, ref mut slider) => {
+                slider.event(ctx);
+            }
             WidgetType::Row(ref mut widgets) | WidgetType::Column(ref mut widgets) => {
                 for w in widgets {
                     if let Some(o) = w.event(ctx, ui) {
@@ -240,6 +248,7 @@ impl ManagedWidget {
         match self.widget {
             WidgetType::Draw(ref j) => j.draw(g),
             WidgetType::Btn(ref btn, _) => btn.draw(g),
+            WidgetType::Slider(_, ref slider) => slider.draw(g),
             WidgetType::Row(ref widgets) | WidgetType::Column(ref widgets) => {
                 for w in widgets {
                     w.draw(g);
@@ -330,12 +339,56 @@ impl Composite {
         }
         self.top_level.draw(g);
     }
+
+    // TODO Oh boy. Maybe make the caller own the Slider and hold onto a reference instead.
+    pub fn slider<'a>(&'a self, name: &str) -> &'a Slider {
+        fn find_slider<'b>(wt: &'b WidgetType, name: &str) -> Option<&'b Slider> {
+            match wt {
+                WidgetType::Draw(_) | WidgetType::Btn(_, _) => None,
+                WidgetType::Slider(ref n, ref slider) => {
+                    if n == name {
+                        Some(slider)
+                    } else {
+                        None
+                    }
+                }
+                WidgetType::Row(ref widgets) | WidgetType::Column(ref widgets) => widgets
+                    .iter()
+                    .flat_map(|w| find_slider(&w.widget, name))
+                    .next(),
+            }
+        }
+
+        find_slider(&self.top_level.widget, name).unwrap()
+    }
+
+    pub fn slider_mut<'a>(&'a mut self, name: &str) -> &'a mut Slider {
+        fn find_slider<'b>(wt: &'b mut WidgetType, name: &str) -> Option<&'b mut Slider> {
+            match wt {
+                WidgetType::Draw(_) | WidgetType::Btn(_, _) => None,
+                WidgetType::Slider(ref n, ref mut slider) => {
+                    if n == name {
+                        Some(slider)
+                    } else {
+                        None
+                    }
+                }
+                WidgetType::Row(ref mut widgets) | WidgetType::Column(ref mut widgets) => widgets
+                    .iter_mut()
+                    .flat_map(|w| find_slider(&mut w.widget, name))
+                    .next(),
+            }
+        }
+
+        find_slider(&mut self.top_level.widget, name).unwrap()
+    }
 }
 
 // TODO Put these two inside ManagedWidget
 // Populate a flattened list of Nodes, matching the traversal order
 fn flexbox(parent: Node, w: &ManagedWidget, stretch: &mut Stretch, nodes: &mut Vec<Node>) {
     match w.widget {
+        // TODO Draw, Btn, Slider all the same -- treat as Widget. Cast in the match?
         WidgetType::Draw(ref widget) => {
             let dims = widget.get_dims();
             let mut style = Style {
@@ -351,6 +404,20 @@ fn flexbox(parent: Node, w: &ManagedWidget, stretch: &mut Stretch, nodes: &mut V
             nodes.push(node);
         }
         WidgetType::Btn(ref widget, _) => {
+            let dims = widget.get_dims();
+            let mut style = Style {
+                size: Size {
+                    width: Dimension::Points(dims.width as f32),
+                    height: Dimension::Points(dims.height as f32),
+                },
+                ..Default::default()
+            };
+            w.style.apply(&mut style);
+            let node = stretch.new_node(style, Vec::new()).unwrap();
+            stretch.add_child(parent, node).unwrap();
+            nodes.push(node);
+        }
+        WidgetType::Slider(_, ref widget) => {
             let dims = widget.get_dims();
             let mut style = Style {
                 size: Size {
@@ -429,6 +496,9 @@ fn apply_flexbox(
             widget.set_pos(ScreenPt::new(x + dx, y + dy));
         }
         WidgetType::Btn(ref mut widget, _) => {
+            widget.set_pos(ScreenPt::new(x + dx, y + dy));
+        }
+        WidgetType::Slider(_, ref mut widget) => {
             widget.set_pos(ScreenPt::new(x + dx, y + dy));
         }
         WidgetType::Row(ref mut widgets) => {

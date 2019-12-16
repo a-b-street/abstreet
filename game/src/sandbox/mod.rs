@@ -288,8 +288,8 @@ impl State for SandboxMode {
         }
     }
 
-    fn on_suspend(&mut self, _: &mut EventCtx, _: &mut UI) {
-        self.speed.pause();
+    fn on_suspend(&mut self, ctx: &mut EventCtx, _: &mut UI) {
+        self.speed.pause(ctx);
     }
 }
 
