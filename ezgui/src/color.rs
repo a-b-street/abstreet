@@ -94,6 +94,13 @@ impl Color {
         }
     }
 
+    pub fn fade(&self, factor: f32) -> Color {
+        match self {
+            Color::RGBA(r, g, b, a) => Color::RGBA(*r / factor, *g / factor, *b / factor, *a),
+            _ => unreachable!(),
+        }
+    }
+
     pub fn hex(raw: &str) -> Color {
         // Skip the leading '#'
         let r = usize::from_str_radix(&raw[1..3], 16).unwrap();
