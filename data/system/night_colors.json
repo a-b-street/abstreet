@@ -1,68 +1,34 @@
 {
-  "map": {
-    "building": {
-      "RGBA": [
-        0.259,
-        0.129,
-        0.549,
-        1.0
-      ]
-    },
-    "building path": {
-      "RGBA": [
-        0.49,
-        0.337,
-        0.788,
-        1.0
-      ]
-    },
-    "grass": {
-      "RGBA": [
-        0.024,
-        0.243,
-        0.537,
-        1.0
-      ]
-    },
-    "map background": {
-      "RGBA": [
-        0.031,
-        0.031,
-        0.282,
-        1.0
-      ]
-    },
-    "unzoomed arterial road": {
-      "RGBA": [
-        0.333,
-        0.145,
-        0.482,
-        1.0
-      ]
-    },
-    "unzoomed highway road": {
-      "RGBA": [
-        0.867,
-        0.122,
-        0.5,
-        1.0
-      ]
-    },
-    "unzoomed residential road": {
-      "RGBA": [
-        0.302,
-        0.318,
-        0.675,
-        1.0
-      ]
-    },
-    "water": {
-      "RGBA": [
-        0.165,
-        0.263,
-        0.667,
-        1.0
-      ]
-    }
-  }
+  "building": [
+    "#42208B",
+    1.0
+  ],
+  "building path": [
+    "#7C55C8",
+    1.0
+  ],
+  "grass": [
+    "#063D88",
+    1.0
+  ],
+  "map background": [
+    "#070747",
+    1.0
+  ],
+  "unzoomed arterial road": [
+    "#54247A",
+    1.0
+  ],
+  "unzoomed highway road": [
+    "#DD1F7F",
+    1.0
+  ],
+  "unzoomed residential road": [
+    "#4D51AC",
+    1.0
+  ],
+  "water": [
+    "#2A43AA",
+    1.0
+  ]
 }

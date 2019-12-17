@@ -39,6 +39,9 @@ fn main() {
         opts.dev = true;
         flags.sim_flags.rng_seed = Some(42);
     }
+    if let Some(x) = args.optional("--color_scheme") {
+        opts.color_scheme = Some(format!("../data/system/{}", x));
+    }
     let mut settings = ezgui::Settings::new("A/B Street", (1800.0, 800.0));
     if args.enabled("--enable_profiler") {
         settings.enable_profiling();

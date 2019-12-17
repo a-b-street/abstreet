@@ -35,5 +35,6 @@ impl Cloneable for bool {}
 impl Cloneable for usize {}
 impl Cloneable for f64 {}
 impl Cloneable for String {}
+impl Cloneable for Option<String> {}
 impl Cloneable for (String, Box<dyn Cloneable>) {}
 impl Cloneable for WeightedUsizeChoice {}

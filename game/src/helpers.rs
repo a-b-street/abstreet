@@ -73,73 +73,51 @@ impl ID {
     }
 }
 
-pub struct ColorScheme {
-    map: HashMap<String, Color>,
+pub struct ColorScheme(HashMap<String, Color>);
 
-    // A subset of map
-    modified: ModifiedColors,
-
-    path: String,
-}
-
+// Ideal for editing; values are (hex, alpha value).
 #[derive(Serialize, Deserialize)]
-struct ModifiedColors {
-    map: BTreeMap<String, Color>,
-}
+struct OverrideColorScheme(BTreeMap<String, (String, f32)>);
 
 impl ColorScheme {
-    // TODO When we quit with this, it'll save and overwrite it... remember the name too
-    pub fn load(path: String) -> ColorScheme {
-        let modified: ModifiedColors = abstutil::read_json(path.clone(), &mut Timer::throwaway());
+    pub fn load(maybe_path: Option<String>) -> ColorScheme {
         let mut map: HashMap<String, Color> = default_colors();
-        for (name, c) in &modified.map {
-            map.insert(name.clone(), *c);
-        }
-        ColorScheme {
-            map,
-            modified,
-            path,
-        }
-    }
 
-    pub fn save(&self) {
-        abstutil::write_json(self.path.clone(), &self.modified);
+        // TODO For now, regenerate this manually. If the build system could write in data/system/
+        // that'd be great, but...
+        if false {
+            let mut copy = OverrideColorScheme(BTreeMap::new());
+            for (name, c) in &map {
+                if let Color::RGBA(r, g, b, a) = *c {
+                    let hex = format!(
+                        "#{:02X}{:02X}{:02X}",
+                        (r * 255.0) as usize,
+                        (g * 255.0) as usize,
+                        (b * 255.0) as usize
+                    );
+                    copy.0.insert(name.clone(), (hex, a));
+                }
+            }
+            abstutil::write_json("../data/system/override_colors.json".to_string(), &copy);
+        }
+
+        if let Some(path) = maybe_path {
+            let overrides: OverrideColorScheme = abstutil::read_json(path, &mut Timer::throwaway());
+            for (name, (hex, a)) in overrides.0 {
+                map.insert(name, Color::hex(&hex).alpha(a));
+            }
+        }
+        ColorScheme(map)
     }
 
     // Get, but specify the default inline. The default is extracted before compilation by a script
     // and used to generate default_colors().
     pub fn get_def(&self, name: &str, _default: Color) -> Color {
-        self.map[name]
+        self.0[name]
     }
 
     pub fn get(&self, name: &str) -> Color {
-        self.map[name]
-    }
-
-    pub fn color_names(&self) -> Vec<String> {
-        let mut names: Vec<String> = self.map.keys().map(|n| n.to_string()).collect();
-        names.sort();
-        names
-    }
-
-    pub fn override_color(&mut self, name: &str, value: Color) {
-        self.modified.map.insert(name.to_string(), value);
-        self.map.insert(name.to_string(), value);
-    }
-
-    pub fn get_modified(&self, name: &str) -> Option<Color> {
-        self.modified.map.get(name).cloned()
-    }
-
-    pub fn reset_modified(&mut self, name: &str, orig: Option<Color>) {
-        if let Some(c) = orig {
-            self.modified.map.insert(name.to_string(), c);
-            self.map.insert(name.to_string(), c);
-        } else {
-            self.modified.map.remove(name);
-            // Restore the original default.
-            self.map.insert(name.to_string(), default_colors()[name]);
-        }
+        self.0[name]
     }
 }
 

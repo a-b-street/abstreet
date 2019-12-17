@@ -1,5 +1,4 @@
 mod associated;
-mod color_picker;
 mod connected_roads;
 mod floodfill;
 mod objects;
@@ -48,7 +47,6 @@ impl DebugMode {
                     (hotkey(Key::R), "show route for all agents"),
                     (None, "screenshot everything"),
                     (hotkey(Key::Slash), "search OSM metadata"),
-                    (None, "configure colors"),
                     (hotkey(Key::O), "save sim state"),
                     (hotkey(Key::Y), "load previous sim state"),
                     (hotkey(Key::U), "load next sim state"),
@@ -257,8 +255,6 @@ impl State for DebugMode {
         {
             // TODO If the wizard aborts (pressing escape), this crashes.
             return Transition::Push(WizardState::new(Box::new(search_osm)));
-        } else if self.menu.action("configure colors") {
-            return Transition::Push(color_picker::ColorChooser::new());
         }
 
         if let Some(floodfiller) = floodfill::Floodfiller::new(ctx, ui) {

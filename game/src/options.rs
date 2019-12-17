@@ -5,7 +5,7 @@ use ezgui::Choice;
 #[derive(Clone)]
 pub struct Options {
     pub traffic_signal_style: TrafficSignalStyle,
-    pub color_scheme: String,
+    pub color_scheme: Option<String>,
     pub dev: bool,
 }
 
@@ -13,7 +13,7 @@ impl Options {
     pub fn default() -> Options {
         Options {
             traffic_signal_style: TrafficSignalStyle::GroupArrows,
-            color_scheme: "../data/system/color_scheme.json".to_string(),
+            color_scheme: None,
             dev: false,
         }
     }
@@ -51,8 +51,15 @@ pub fn open_panel() -> Box<dyn State> {
             // TODO This is system data right now because I don't _really_ intend the player to
             // change this right now...
             vec![
-                Choice::new("default", "../data/system/color_scheme.json".to_string()),
-                Choice::new("night mode", "../data/system/night_colors.json".to_string()),
+                Choice::new("default", None),
+                Choice::new(
+                    "overridden colors",
+                    Some("../data/system/override_colors.json".to_string()),
+                ),
+                Choice::new(
+                    "night mode",
+                    Some("../data/system/night_colors.json".to_string()),
+                ),
             ]
         })?;
         let (_, dev) = wizard.choose("Enable developer mode?", || {

@@ -152,7 +152,6 @@ impl GUI for Game {
 
     fn before_quit(&self, canvas: &Canvas) {
         canvas.save_camera_state(self.ui.primary.map.get_name());
-        self.ui.cs.save();
     }
 }
 
