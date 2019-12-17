@@ -11,7 +11,7 @@ use crate::render::Renderable;
 use crate::ui::Flags;
 use aabb_quadtree::QuadTree;
 use abstutil::{Cloneable, Timer};
-use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Text};
+use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ScreenRectangle, Text};
 use geom::{Bounds, Circle, Distance, Duration, FindClosest, Time};
 use map_model::{
     AreaID, BuildingID, BusStopID, DirectedRoadID, Intersection, IntersectionID, LaneID, Map, Road,
@@ -296,10 +296,11 @@ impl DrawMap {
 }
 
 pub struct AgentCache {
+    // This time applies to agents_per_on. unzoomed has its own possibly separate Time!
     time: Option<Time>,
     agents_per_on: HashMap<Traversable, Vec<Box<dyn Renderable>>>,
     // cam_zoom also matters
-    unzoomed: Option<(f64, Drawable)>,
+    unzoomed: Option<(Time, f64, Drawable)>,
 }
 
 impl AgentCache {
@@ -334,6 +335,8 @@ impl AgentCache {
         self.unzoomed = None;
     }
 
+    // TODO GetDrawAgents indirection added for time traveling, but that's been removed. Maybe
+    // simplify this.
     pub fn draw_unzoomed_agents(
         &mut self,
         source: &dyn GetDrawAgents,
@@ -341,11 +344,17 @@ impl AgentCache {
         acs: AgentColorScheme,
         cs: &ColorScheme,
         g: &mut GfxCtx,
+        clip: Option<&ScreenRectangle>,
+        cam_zoom: f64,
     ) {
         let now = source.time();
-        if let Some((z, ref draw)) = self.unzoomed {
-            if g.canvas.cam_zoom == z && Some(now) == self.time {
-                g.redraw(draw);
+        if let Some((time, z, ref draw)) = self.unzoomed {
+            if cam_zoom == z && now == time {
+                if let Some(ref rect) = clip {
+                    g.redraw_clipped(draw, rect);
+                } else {
+                    g.redraw(draw);
+                }
                 return;
             }
         }
@@ -356,18 +365,17 @@ impl AgentCache {
         for agent in source.get_unzoomed_agents(map) {
             batch.push(
                 acs.unzoomed_color(&agent, cs),
-                Circle::new(agent.pos, acs.unzoomed_radius(&agent) / g.canvas.cam_zoom)
-                    .to_polygon(),
+                Circle::new(agent.pos, acs.unzoomed_radius(&agent) / cam_zoom).to_polygon(),
             );
         }
 
         let draw = g.upload(batch);
-        g.redraw(&draw);
-        self.unzoomed = Some((g.canvas.cam_zoom, draw));
-        if Some(now) != self.time {
-            self.agents_per_on.clear();
-            self.time = Some(now);
+        if let Some(ref rect) = clip {
+            g.redraw_clipped(&draw, rect);
+        } else {
+            g.redraw(&draw);
         }
+        self.unzoomed = Some((now, cam_zoom, draw));
     }
 }
 

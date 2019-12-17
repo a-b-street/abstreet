@@ -127,6 +127,17 @@ impl Minimap {
         );
         g.redraw_clipped(&ui.primary.draw_map.draw_all_buildings, &inner_rect);
 
+        let mut cache = ui.primary.draw_map.agents.borrow_mut();
+        cache.draw_unzoomed_agents(
+            &ui.primary.sim,
+            &ui.primary.map,
+            ui.agent_cs,
+            &ui.cs,
+            g,
+            Some(&inner_rect),
+            zoom,
+        );
+
         // The cursor
         let (x1, y1) = {
             let pt = g.canvas.screen_to_map(ScreenPt::new(0.0, 0.0));
