@@ -1,9 +1,9 @@
-use crate::helpers::{ColorScheme, ID};
-use crate::render::{AgentColorScheme, DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
+use crate::helpers::{rotating_color_agents, ColorScheme, ID};
+use crate::render::{DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Angle, Distance, PolyLine, Polygon, Pt2D};
 use map_model::{Map, TurnType};
-use sim::{CarID, DrawCarInput};
+use sim::{CarID, CarStatus, DrawCarInput, VehicleType};
 
 const CAR_WIDTH: Distance = Distance::const_meters(1.75);
 
@@ -18,13 +18,7 @@ pub struct DrawCar {
 }
 
 impl DrawCar {
-    pub fn new(
-        input: DrawCarInput,
-        map: &Map,
-        prerender: &Prerender,
-        cs: &ColorScheme,
-        acs: AgentColorScheme,
-    ) -> DrawCar {
+    pub fn new(input: DrawCarInput, map: &Map, prerender: &Prerender, cs: &ColorScheme) -> DrawCar {
         let mut draw_default = GeomBatch::new();
         let body_polygon = {
             let len = input.body.length();
@@ -45,7 +39,7 @@ impl DrawCar {
             front.union(thick_line)
         };
 
-        draw_default.push(acs.zoomed_color_car(&input, cs), body_polygon.clone());
+        draw_default.push(zoomed_color_car(&input, cs), body_polygon.clone());
 
         {
             let arrow_len = 0.8 * CAR_WIDTH;
@@ -162,4 +156,15 @@ fn thick_line_from_angle(
     let pt2 = pt.project_away(line_length, angle);
     // Shouldn't ever fail for a single line
     PolyLine::new(vec![pt, pt2]).make_polygons(thickness)
+}
+
+fn zoomed_color_car(input: &DrawCarInput, cs: &ColorScheme) -> Color {
+    if input.id.1 == VehicleType::Bus {
+        cs.get_def("bus", Color::rgb(50, 133, 117))
+    } else {
+        match input.status {
+            CarStatus::Moving => rotating_color_agents(input.id.0),
+            CarStatus::Parked => cs.get_def("parked car", Color::rgb(180, 233, 76)),
+        }
+    }
 }

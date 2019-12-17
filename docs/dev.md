@@ -14,7 +14,8 @@ One-time setup:
 
 2.  Build all input data. This is very slow, so you should seed from a pre-built
     copy: `./data/grab_seed_data.sh`. This will download about 1GB and expand to
-    about 5GB.
+    about 5GB. If you see version controlled files change after doing this, it
+    means I need to upload a new package; please let me know.
 
 3.  Run the game: `cd game; cargo run --release`
 

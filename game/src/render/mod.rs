@@ -66,12 +66,11 @@ pub fn draw_vehicle(
     map: &Map,
     prerender: &Prerender,
     cs: &ColorScheme,
-    acs: AgentColorScheme,
 ) -> Box<dyn Renderable> {
     if input.id.1 == VehicleType::Bike {
-        Box::new(DrawBike::new(input, map, prerender, cs, acs))
+        Box::new(DrawBike::new(input, map, prerender, cs))
     } else {
-        Box::new(DrawCar::new(input, map, prerender, cs, acs))
+        Box::new(DrawCar::new(input, map, prerender, cs))
     }
 }
 

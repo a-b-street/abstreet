@@ -117,7 +117,11 @@ impl ColorScheme {
     }
 
     pub fn get(&self, name: &str) -> Color {
-        self.0[name]
+        if let Some(c) = self.0.get(name) {
+            *c
+        } else {
+            panic!("Color {} undefined", name);
+        }
     }
 }
 

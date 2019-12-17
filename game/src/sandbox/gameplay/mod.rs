@@ -299,7 +299,7 @@ fn manage_acs(
     if !active_originally && menu.swap_action(show, hide, ctx) {
         ui.agent_cs = acs;
     } else if active_originally && menu.swap_action(hide, show, ctx) {
-        ui.agent_cs = AgentColorScheme::ByID;
+        ui.agent_cs = AgentColorScheme::VehicleTypes;
     }
 }
 

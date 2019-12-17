@@ -1,5 +1,5 @@
-use crate::helpers::{ColorScheme, ID};
-use crate::render::{AgentColorScheme, DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
+use crate::helpers::{rotating_color_agents, ColorScheme, ID};
+use crate::render::{DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Circle, Distance, PolyLine, Polygon};
 use map_model::{Map, LANE_THICKNESS};
@@ -20,7 +20,6 @@ impl DrawPedestrian {
         map: &Map,
         prerender: &Prerender,
         cs: &ColorScheme,
-        acs: AgentColorScheme,
     ) -> DrawPedestrian {
         // TODO Slight issues with rendering small pedestrians:
         // - route visualization is thick
@@ -123,7 +122,7 @@ impl DrawPedestrian {
         };
 
         let head_circle = Circle::new(input.pos, 0.5 * radius);
-        draw_default.push(acs.zoomed_color_ped(&input, cs), body_circle.to_polygon());
+        draw_default.push(zoomed_color_ped(&input, cs), body_circle.to_polygon());
         draw_default.push(
             cs.get_def("pedestrian head", Color::rgb(139, 69, 19)),
             head_circle.to_polygon(),
@@ -209,7 +208,10 @@ impl DrawPedCrowd {
                 .exact_slice(input.low, input.high),
         };
         let blob = pl_shifted.make_polygons(LANE_THICKNESS / 2.0);
-        let draw_default = prerender.upload_borrowed(vec![(cs.get("pedestrian"), &blob)]);
+        let draw_default = prerender.upload_borrowed(vec![(
+            cs.get_def("pedestrian crowd", Color::rgb_f(0.2, 0.7, 0.7)),
+            &blob,
+        )]);
 
         // Ideally "pedestrian head" color, but it looks really faded...
         let label = Text::from(
@@ -255,5 +257,12 @@ impl Renderable for DrawPedCrowd {
 
     fn get_zorder(&self) -> isize {
         self.zorder
+    }
+}
+fn zoomed_color_ped(input: &DrawPedestrianInput, cs: &ColorScheme) -> Color {
+    if input.preparing_bike {
+        cs.get_def("pedestrian preparing bike", Color::rgb(255, 0, 144))
+    } else {
+        rotating_color_agents(input.id.0)
     }
 }

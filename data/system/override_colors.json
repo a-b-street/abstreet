@@ -15,12 +15,12 @@
     "#0F7D4B",
     1.0
   ],
-  "blinker on": [
-    "#FF0000",
-    1.0
-  ],
   "border intersection": [
     "#32CD32",
+    1.0
+  ],
+  "brake light": [
+    "#FF1300",
     1.0
   ],
   "building": [
@@ -45,10 +45,6 @@
   ],
   "bus stop marking": [
     "#00FFFF",
-    1.0
-  ],
-  "car window": [
-    "#000000",
     1.0
   ],
   "change lanes left turn": [
@@ -115,14 +111,6 @@
     "#DDDDDD",
     1.0
   ],
-  "moving bike": [
-    "#00FF00",
-    1.0
-  ],
-  "moving car": [
-    "#00FFFF",
-    1.0
-  ],
   "neighborhood last placed point": [
     "#00FF00",
     1.0
@@ -159,7 +147,7 @@
     "#333333",
     1.0
   ],
-  "pedestrian": [
+  "pedestrian crowd": [
     "#33B2B2",
     1.0
   ],
@@ -249,6 +237,10 @@
   ],
   "true background": [
     "#000000",
+    1.0
+  ],
+  "turn arrow": [
+    "#DF8C3D",
     1.0
   ],
   "turn block background": [

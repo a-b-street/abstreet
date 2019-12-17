@@ -1,4 +1,4 @@
-use crate::helpers::{rotating_color, rotating_color_agents, ColorScheme, ID};
+use crate::helpers::{rotating_color, ColorScheme, ID};
 use crate::render::area::DrawArea;
 use crate::render::building::DrawBuilding;
 use crate::render::bus_stop::DrawBusStop;
@@ -16,10 +16,7 @@ use map_model::{
     AreaID, BuildingID, BusStopID, DirectedRoadID, Intersection, IntersectionID, LaneID, Map, Road,
     RoadID, Traversable, LANE_THICKNESS,
 };
-use sim::{
-    AgentMetadata, CarStatus, DrawCarInput, DrawPedestrianInput, GetDrawAgents, UnzoomedAgent,
-    VehicleType,
-};
+use sim::{GetDrawAgents, UnzoomedAgent, VehicleType};
 use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -393,7 +390,6 @@ fn osm_rank_to_color(cs: &ColorScheme, rank: usize) -> Color {
 // TODO ETA till goal...
 #[derive(Clone, Copy, PartialEq)]
 pub enum AgentColorScheme {
-    ByID,
     VehicleTypes,
     Delay,
     DistanceCrossedSoFar,
@@ -405,73 +401,23 @@ impl Cloneable for AgentColorScheme {}
 impl AgentColorScheme {
     pub fn unzoomed_color(self, agent: &UnzoomedAgent, cs: &ColorScheme) -> Color {
         match self {
-            // ByID should just act like VehicleTypes unzoomed
-            AgentColorScheme::VehicleTypes | AgentColorScheme::ByID => match agent.vehicle_type {
+            AgentColorScheme::VehicleTypes => match agent.vehicle_type {
                 Some(VehicleType::Car) => cs.get_def("unzoomed car", Color::RED.alpha(0.5)),
                 Some(VehicleType::Bike) => cs.get_def("unzoomed bike", Color::GREEN.alpha(0.5)),
                 Some(VehicleType::Bus) => cs.get_def("unzoomed bus", Color::BLUE.alpha(0.5)),
                 None => cs.get_def("unzoomed pedestrian", Color::ORANGE.alpha(0.5)),
             },
-            _ => self.by_metadata(&agent.metadata),
-        }
-    }
-
-    pub fn zoomed_color_car(self, input: &DrawCarInput, cs: &ColorScheme) -> Color {
-        match self {
-            AgentColorScheme::ByID => rotating_color_agents(input.id.0),
-            AgentColorScheme::VehicleTypes => {
-                if input.id.1 == VehicleType::Bus {
-                    cs.get_def("bus", Color::rgb(50, 133, 117))
-                } else {
-                    match input.status {
-                        CarStatus::Moving => cs.get_def("moving car", Color::CYAN),
-                        CarStatus::Parked => cs.get_def("parked car", Color::rgb(180, 233, 76)),
-                    }
-                }
+            AgentColorScheme::Delay => delay_color(agent.metadata.time_spent_blocked),
+            AgentColorScheme::DistanceCrossedSoFar => {
+                percent_color(agent.metadata.percent_dist_crossed)
             }
-            _ => self.by_metadata(&input.metadata),
-        }
-    }
-
-    pub fn zoomed_color_bike(self, input: &DrawCarInput, cs: &ColorScheme) -> Color {
-        match self {
-            AgentColorScheme::ByID => rotating_color_agents(input.id.0),
-            AgentColorScheme::VehicleTypes => match input.status {
-                // TODO Hard to see on the greenish bike lanes? :P
-                CarStatus::Moving => cs.get_def("moving bike", Color::GREEN),
-                CarStatus::Parked => unreachable!(),
-            },
-            _ => self.by_metadata(&input.metadata),
-        }
-    }
-
-    pub fn zoomed_color_ped(self, input: &DrawPedestrianInput, cs: &ColorScheme) -> Color {
-        match self {
-            AgentColorScheme::ByID => rotating_color_agents(input.id.0),
-            AgentColorScheme::VehicleTypes => {
-                if input.preparing_bike {
-                    cs.get_def("pedestrian preparing bike", Color::rgb(255, 0, 144))
-                } else {
-                    cs.get_def("pedestrian", Color::rgb_f(0.2, 0.7, 0.7))
-                }
-            }
-            _ => self.by_metadata(&input.metadata),
-        }
-    }
-
-    fn by_metadata(self, md: &AgentMetadata) -> Color {
-        match self {
-            AgentColorScheme::VehicleTypes | AgentColorScheme::ByID => unreachable!(),
-            AgentColorScheme::Delay => delay_color(md.time_spent_blocked),
-            AgentColorScheme::DistanceCrossedSoFar => percent_color(md.percent_dist_crossed),
-            AgentColorScheme::TripTimeSoFar => delay_color(md.trip_time_so_far),
+            AgentColorScheme::TripTimeSoFar => delay_color(agent.metadata.trip_time_so_far),
         }
     }
 
     // TODO Lots of duplicated values here. :\
     pub fn color_legend_entries(self, cs: &ColorScheme) -> (&str, Vec<(&str, Color)>) {
         match self {
-            AgentColorScheme::ByID => ("arbitrary colors", Vec::new()),
             AgentColorScheme::VehicleTypes => (
                 "vehicle types",
                 vec![
@@ -518,7 +464,6 @@ impl AgentColorScheme {
 
     pub fn all() -> Vec<(AgentColorScheme, String)> {
         vec![
-            (AgentColorScheme::ByID, "arbitrary colors".to_string()),
             (
                 AgentColorScheme::VehicleTypes,
                 "by vehicle type".to_string(),

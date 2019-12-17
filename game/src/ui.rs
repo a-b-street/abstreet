@@ -17,6 +17,8 @@ pub struct UI {
     // Invariant: This is Some(...) iff we're in A/B test mode or a sub-state.
     pub secondary: Option<PerMapUI>,
     pub cs: ColorScheme,
+    // TODO This is a bit weird to keep here; it's controlled almost entirely by the minimap panel.
+    // It has no meaning in edit mode.
     pub agent_cs: AgentColorScheme,
     pub opts: Options,
 
@@ -67,7 +69,7 @@ impl UI {
         UI {
             primary,
             secondary: None,
-            agent_cs: AgentColorScheme::ByID,
+            agent_cs: AgentColorScheme::VehicleTypes,
             cs,
             opts,
             per_obj: PerObjectActions::new(),
@@ -337,17 +339,12 @@ impl UI {
                 if !agents.has(time, *on) {
                     let mut list: Vec<Box<dyn Renderable>> = Vec::new();
                     for c in source.get_draw_cars(*on, map).into_iter() {
-                        list.push(draw_vehicle(c, map, prerender, &self.cs, self.agent_cs));
+                        list.push(draw_vehicle(c, map, prerender, &self.cs));
                     }
                     let (loners, crowds) = source.get_draw_peds(*on, map);
                     for p in loners {
                         list.push(Box::new(DrawPedestrian::new(
-                            p,
-                            step_count,
-                            map,
-                            prerender,
-                            &self.cs,
-                            self.agent_cs,
+                            p, step_count, map, prerender, &self.cs,
                         )));
                     }
                     for c in crowds {
