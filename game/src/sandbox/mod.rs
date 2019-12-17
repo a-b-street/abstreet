@@ -276,7 +276,7 @@ impl State for SandboxMode {
                 &ui.primary.sim,
                 &ShowEverything::new(),
             );
-            self.agent_tools.draw(g, ui);
+            self.agent_tools.draw(g);
         }
         self.common.draw(g, ui);
         self.tool_panel.draw(g);

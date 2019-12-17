@@ -1,4 +1,3 @@
-use crate::common::ColorLegend;
 use crate::helpers::{rotating_color, rotating_color_agents, ColorScheme, ID};
 use crate::render::area::DrawArea;
 use crate::render::building::DrawBuilding;
@@ -11,7 +10,7 @@ use crate::render::Renderable;
 use crate::ui::Flags;
 use aabb_quadtree::QuadTree;
 use abstutil::{Cloneable, Timer};
-use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ScreenRectangle, Text};
+use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, ScreenRectangle};
 use geom::{Bounds, Circle, Distance, Duration, FindClosest, Time};
 use map_model::{
     AreaID, BuildingID, BusStopID, DirectedRoadID, Intersection, IntersectionID, LaneID, Map, Road,
@@ -470,14 +469,11 @@ impl AgentColorScheme {
     }
 
     // TODO Lots of duplicated values here. :\
-    pub fn make_color_legend(self, ctx: &EventCtx, cs: &ColorScheme) -> ColorLegend {
+    pub fn color_legend_entries(self, cs: &ColorScheme) -> (&str, Vec<(&str, Color)>) {
         match self {
-            AgentColorScheme::ByID => {
-                ColorLegend::new(ctx, Text::from(Line("arbitrary colors by ID")), Vec::new())
-            }
-            AgentColorScheme::VehicleTypes => ColorLegend::new(
-                ctx,
-                Text::from(Line("vehicle types")),
+            AgentColorScheme::ByID => ("arbitrary colors", Vec::new()),
+            AgentColorScheme::VehicleTypes => (
+                "vehicle types",
                 vec![
                     ("car", cs.get("unzoomed car")),
                     ("bike", cs.get("unzoomed bike")),
@@ -485,9 +481,8 @@ impl AgentColorScheme {
                     ("pedestrian", cs.get("unzoomed pedestrian")),
                 ],
             ),
-            AgentColorScheme::Delay => ColorLegend::new(
-                ctx,
-                Text::from(Line("time spent delayed/blocked")),
+            AgentColorScheme::Delay => (
+                "time spent delayed/blocked",
                 vec![
                     ("<= 1 minute", Color::BLUE.alpha(0.3)),
                     ("<= 5 minutes", Color::ORANGE.alpha(0.5)),
@@ -495,9 +490,8 @@ impl AgentColorScheme {
                     ("stuck blocking intersection", Color::YELLOW),
                 ],
             ),
-            AgentColorScheme::DistanceCrossedSoFar => ColorLegend::new(
-                ctx,
-                Text::from(Line("distance crossed to goal so far")),
+            AgentColorScheme::DistanceCrossedSoFar => (
+                "distance crossed to goal so far",
                 vec![
                     ("<= 10%", rotating_color(0)),
                     ("<= 20%", rotating_color(1)),
@@ -511,9 +505,8 @@ impl AgentColorScheme {
                     ("> 90%", rotating_color(9)),
                 ],
             ),
-            AgentColorScheme::TripTimeSoFar => ColorLegend::new(
-                ctx,
-                Text::from(Line("trip time so far")),
+            AgentColorScheme::TripTimeSoFar => (
+                "trip time so far",
                 vec![
                     ("<= 1 minute", Color::BLUE.alpha(0.3)),
                     ("<= 5 minutes", Color::ORANGE.alpha(0.5)),
@@ -525,7 +518,7 @@ impl AgentColorScheme {
 
     pub fn all() -> Vec<(AgentColorScheme, String)> {
         vec![
-            (AgentColorScheme::ByID, "arbitrary colors by ID".to_string()),
+            (AgentColorScheme::ByID, "arbitrary colors".to_string()),
             (
                 AgentColorScheme::VehicleTypes,
                 "by vehicle type".to_string(),

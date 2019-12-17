@@ -1,7 +1,6 @@
 use crate::common::route_viewer::RouteViewer;
 use crate::common::{RouteExplorer, TripExplorer};
 use crate::game::{msg, Transition};
-use crate::render::MIN_ZOOM_FOR_DETAIL;
 use crate::ui::UI;
 use ezgui::{hotkey, EventCtx, GfxCtx, Key, ModalMenu};
 use geom::{Pt2D, Time};
@@ -101,11 +100,7 @@ impl AgentTools {
         None
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
+    pub fn draw(&self, g: &mut GfxCtx) {
         self.route_viewer.draw(g);
-
-        if g.canvas.cam_zoom < MIN_ZOOM_FOR_DETAIL {
-            ui.agent_cs_legend.draw(g);
-        }
     }
 }

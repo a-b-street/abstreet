@@ -1,4 +1,3 @@
-use crate::common::ColorLegend;
 use crate::helpers::{ColorScheme, ID};
 use crate::obj_actions::PerObjectActions;
 use crate::options::Options;
@@ -19,7 +18,6 @@ pub struct UI {
     pub secondary: Option<PerMapUI>,
     pub cs: ColorScheme,
     pub agent_cs: AgentColorScheme,
-    pub agent_cs_legend: ColorLegend,
     pub opts: Options,
 
     pub per_obj: PerObjectActions,
@@ -70,7 +68,6 @@ impl UI {
             primary,
             secondary: None,
             agent_cs: AgentColorScheme::ByID,
-            agent_cs_legend: AgentColorScheme::ByID.make_color_legend(ctx, &cs),
             cs,
             opts,
             per_obj: PerObjectActions::new(),

@@ -193,7 +193,7 @@ impl State for ABTestMode {
             diff.draw(g, ui);
         }
         self.menu.draw(g);
-        self.primary_agent_tools.draw(g, ui);
+        self.primary_agent_tools.draw(g);
     }
 
     fn on_suspend(&mut self, _: &mut EventCtx, _: &mut UI) {

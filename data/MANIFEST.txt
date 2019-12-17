@@ -1,5 +1,5 @@
-6a53362edcfd2bf8e69e234ace80f2c4  data/system/night_colors.json
-343d31604f68fb58772ea1c852b4ac37  data/system/color_scheme.json
+a5e849fa8883569519976ebfef3ae269  data/system/night_colors.json
+bb88577b253c978e4d08435a525f2b39  data/system/override_colors.json
 395df98242f9fd7bd2fc8545f0bbc908  data/system/maps/huge_seattle.bin
 5dbca78c451a3552502cb185edbee1ec  data/system/maps/ballard.bin
 b5fb2ec706d444f7f6ee23f63f4f44b4  data/system/maps/downtown.bin
