@@ -136,6 +136,7 @@ impl Minimap {
             g,
             Some(&inner_rect),
             zoom,
+            Distance::meters(5.0),
         );
 
         // The cursor
@@ -157,7 +158,7 @@ impl Minimap {
         };
         if x1 != x2 && y1 != y2 {
             g.draw_polygon(
-                Color::RED,
+                Color::BLACK,
                 &Ring::new(vec![
                     Pt2D::new(x1, y1),
                     Pt2D::new(x2, y1),

@@ -176,7 +176,6 @@ impl ParkingSimState {
                         time_spent_blocked: Duration::ZERO,
                         percent_dist_crossed: 0.0,
                         trip_time_so_far: Duration::ZERO,
-                        occupying_intersection: false,
                     },
 
                     body: map

@@ -153,6 +153,7 @@ impl UI {
                 g,
                 None,
                 g.canvas.cam_zoom,
+                Distance::meters(10.0),
             );
         } else {
             let mut cache = self.primary.draw_map.agents.borrow_mut();

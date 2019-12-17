@@ -299,8 +299,8 @@ pub struct AgentCache {
     // This time applies to agents_per_on. unzoomed has its own possibly separate Time!
     time: Option<Time>,
     agents_per_on: HashMap<Traversable, Vec<Box<dyn Renderable>>>,
-    // cam_zoom also matters
-    unzoomed: Option<(Time, f64, Drawable)>,
+    // cam_zoom and agent radius also matters
+    unzoomed: Option<(Time, f64, Distance, Drawable)>,
 }
 
 impl AgentCache {
@@ -346,10 +346,11 @@ impl AgentCache {
         g: &mut GfxCtx,
         clip: Option<&ScreenRectangle>,
         cam_zoom: f64,
+        radius: Distance,
     ) {
         let now = source.time();
-        if let Some((time, z, ref draw)) = self.unzoomed {
-            if cam_zoom == z && now == time {
+        if let Some((time, z, r, ref draw)) = self.unzoomed {
+            if cam_zoom == z && now == time && radius == r {
                 if let Some(ref rect) = clip {
                     g.redraw_clipped(draw, rect);
                 } else {
@@ -365,7 +366,7 @@ impl AgentCache {
         for agent in source.get_unzoomed_agents(map) {
             batch.push(
                 acs.unzoomed_color(&agent, cs),
-                Circle::new(agent.pos, acs.unzoomed_radius(&agent) / cam_zoom).to_polygon(),
+                Circle::new(agent.pos, radius / cam_zoom).to_polygon(),
             );
         }
 
@@ -375,7 +376,7 @@ impl AgentCache {
         } else {
             g.redraw(&draw);
         }
-        self.unzoomed = Some((now, cam_zoom, draw));
+        self.unzoomed = Some((now, cam_zoom, radius, draw));
     }
 }
 
@@ -414,16 +415,6 @@ impl AgentColorScheme {
             },
             _ => self.by_metadata(&agent.metadata),
         }
-    }
-
-    pub fn unzoomed_radius(self, agent: &UnzoomedAgent) -> Distance {
-        if self == AgentColorScheme::Delay
-            && agent.metadata.occupying_intersection
-            && agent.metadata.time_spent_blocked > Duration::minutes(1)
-        {
-            return Distance::meters(20.0);
-        }
-        Distance::meters(10.)
     }
 
     pub fn zoomed_color_car(self, input: &DrawCarInput, cs: &ColorScheme) -> Color {
@@ -472,13 +463,7 @@ impl AgentColorScheme {
     fn by_metadata(self, md: &AgentMetadata) -> Color {
         match self {
             AgentColorScheme::VehicleTypes | AgentColorScheme::ByID => unreachable!(),
-            AgentColorScheme::Delay => {
-                if md.occupying_intersection && md.time_spent_blocked > Duration::minutes(1) {
-                    Color::YELLOW
-                } else {
-                    delay_color(md.time_spent_blocked)
-                }
-            }
+            AgentColorScheme::Delay => delay_color(md.time_spent_blocked),
             AgentColorScheme::DistanceCrossedSoFar => percent_color(md.percent_dist_crossed),
             AgentColorScheme::TripTimeSoFar => delay_color(md.trip_time_so_far),
         }
