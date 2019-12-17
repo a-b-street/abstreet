@@ -181,6 +181,7 @@ pub struct Settings {
     initial_dims: (f64, f64),
     profiling_enabled: bool,
     default_font_size: usize,
+    override_hidpi_factor: Option<f64>,
 }
 
 impl Settings {
@@ -190,6 +191,7 @@ impl Settings {
             initial_dims,
             profiling_enabled: false,
             default_font_size: 30,
+            override_hidpi_factor: None,
         }
     }
 
@@ -200,6 +202,10 @@ impl Settings {
 
     pub fn default_font_size(&mut self, size: usize) {
         self.default_font_size = size;
+    }
+
+    pub fn override_hidpi_factor(&mut self, override_hidpi_factor: f64) {
+        self.override_hidpi_factor = Some(override_hidpi_factor);
     }
 }
 
@@ -271,8 +277,12 @@ pub fn run<G: GUI, F: FnOnce(&mut EventCtx) -> G>(settings: Settings, make_gui: 
     )
     .unwrap();
 
-    let hidpi_factor = events_loop.get_primary_monitor().get_hidpi_factor();
+    let mut hidpi_factor = events_loop.get_primary_monitor().get_hidpi_factor();
     println!("HiDPI factor is purportedly {}", hidpi_factor);
+    if let Some(x) = settings.override_hidpi_factor {
+        println!("... but overriding it to {} by flag", x);
+        hidpi_factor = x;
+    }
     let mut canvas = Canvas::new(
         settings.initial_dims.0,
         settings.initial_dims.1,
