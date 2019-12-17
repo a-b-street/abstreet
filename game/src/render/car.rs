@@ -1,7 +1,7 @@
 use crate::helpers::{ColorScheme, ID};
 use crate::render::{AgentColorScheme, DrawCtx, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
-use geom::{Angle, Circle, Distance, PolyLine, Polygon, Pt2D};
+use geom::{Angle, Distance, PolyLine, Polygon, Pt2D};
 use map_model::{Map, TurnType};
 use sim::{CarID, DrawCarInput};
 
@@ -48,87 +48,58 @@ impl DrawCar {
         draw_default.push(acs.zoomed_color_car(&input, cs), body_polygon.clone());
 
         {
-            let window_length_gap = Distance::meters(0.2);
-            let window_thickness = Distance::meters(0.3);
-            let front_window = {
-                let (pos, angle) = input
-                    .body
-                    .dist_along(input.body.length() - Distance::meters(1.0));
-                thick_line_from_angle(
-                    window_thickness,
-                    CAR_WIDTH - window_length_gap * 2.0,
-                    pos.project_away(
-                        CAR_WIDTH / 2.0 - window_length_gap,
-                        angle.rotate_degs(-90.0),
-                    ),
-                    angle.rotate_degs(90.0),
-                )
-            };
-            let back_window = {
-                let (pos, angle) = input.body.dist_along(Distance::meters(1.0));
-                thick_line_from_angle(
-                    window_thickness * 0.8,
-                    CAR_WIDTH - window_length_gap * 2.0,
-                    pos.project_away(
-                        CAR_WIDTH / 2.0 - window_length_gap,
-                        angle.rotate_degs(-90.0),
-                    ),
-                    angle.rotate_degs(90.0),
-                )
-            };
-            draw_default.push(cs.get_def("car window", Color::BLACK), front_window);
-            draw_default.push(cs.get("car window"), back_window);
-        }
+            let arrow_len = 0.8 * CAR_WIDTH;
+            let arrow_thickness = Distance::meters(0.5);
 
-        {
-            let radius = Distance::meters(0.3);
-            let arrow_len = 2.0 * radius;
-            let edge_offset = Distance::meters(0.5);
-            let (back_pos, back_angle) = input.body.dist_along(edge_offset);
-
-            let back_left = Circle::new(
-                back_pos.project_away(CAR_WIDTH / 2.0 - edge_offset, back_angle.rotate_degs(-90.0)),
-                radius,
-            );
-            let back_right = Circle::new(
-                back_pos.project_away(CAR_WIDTH / 2.0 - edge_offset, back_angle.rotate_degs(90.0)),
-                radius,
-            );
-
-            let arrow_color = cs.get_def("blinker on", Color::RED);
             if let Some(t) = input.waiting_for_turn {
                 match map.get_t(t).turn_type {
                     TurnType::Left | TurnType::LaneChangeLeft => {
-                        let angle = back_angle.rotate_degs(-90.0);
+                        let (pos, angle) = input
+                            .body
+                            .dist_along(input.body.length() - Distance::meters(2.5));
+
                         draw_default.push(
-                            arrow_color,
+                            cs.get_def("turn arrow", Color::hex("#DF8C3D")),
                             PolyLine::new(vec![
-                                back_left
-                                    .center
-                                    .project_away(arrow_len / 2.0, angle.opposite()),
-                                back_left.center.project_away(arrow_len / 2.0, angle),
+                                pos.project_away(arrow_len / 2.0, angle.rotate_degs(90.0)),
+                                pos.project_away(arrow_len / 2.0, angle.rotate_degs(-90.0)),
                             ])
-                            .make_arrow(Distance::meters(0.15))
+                            .make_arrow(arrow_thickness)
                             .unwrap(),
                         );
                     }
                     TurnType::Right | TurnType::LaneChangeRight => {
-                        let angle = back_angle.rotate_degs(90.0);
+                        let (pos, angle) = input
+                            .body
+                            .dist_along(input.body.length() - Distance::meters(2.5));
+
                         draw_default.push(
-                            arrow_color,
+                            cs.get("turn arrow"),
                             PolyLine::new(vec![
-                                back_right
-                                    .center
-                                    .project_away(arrow_len / 2.0, angle.opposite()),
-                                back_right.center.project_away(arrow_len / 2.0, angle),
+                                pos.project_away(arrow_len / 2.0, angle.rotate_degs(-90.0)),
+                                pos.project_away(arrow_len / 2.0, angle.rotate_degs(90.0)),
                             ])
-                            .make_arrow(Distance::meters(0.15))
+                            .make_arrow(arrow_thickness)
                             .unwrap(),
                         );
                     }
                     TurnType::Straight => {
-                        draw_default.push(arrow_color, back_left.to_polygon());
-                        draw_default.push(arrow_color, back_right.to_polygon());
+                        let (pos, angle) = input.body.dist_along(Distance::meters(0.5));
+                        // TODO rounded
+                        let window_length_gap = Distance::meters(0.2);
+                        let window_thickness = Distance::meters(0.3);
+                        draw_default.push(
+                            cs.get_def("brake light", Color::hex("#FF1300")),
+                            thick_line_from_angle(
+                                window_thickness,
+                                CAR_WIDTH - window_length_gap * 2.0,
+                                pos.project_away(
+                                    CAR_WIDTH / 2.0 - window_length_gap,
+                                    angle.rotate_degs(-90.0),
+                                ),
+                                angle.rotate_degs(90.0),
+                            ),
+                        );
                     }
                     TurnType::Crosswalk | TurnType::SharedSidewalkCorner => unreachable!(),
                 }
