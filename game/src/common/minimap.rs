@@ -205,7 +205,7 @@ impl VisibilityPanel {
             ManagedWidget::draw_text(ctx, Text::prompt(title)),
             ManagedWidget::btn_no_cb(Button::text(
                 Text::from(Line("change")),
-                Color::INVISIBLE,
+                Color::grey(0.6),
                 Color::ORANGE,
                 hotkey(Key::Semicolon),
                 "change agent colorscheme",

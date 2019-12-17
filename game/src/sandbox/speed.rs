@@ -72,7 +72,7 @@ impl SpeedControls {
             ManagedWidget::btn(
                 Button::text(
                     Text::from(Line("+0.1s").fg(Color::WHITE).size(12)),
-                    Color::WHITE.alpha(0.0),
+                    Color::grey(0.6),
                     Color::ORANGE,
                     hotkey(Key::M),
                     "step forwards 0.1 seconds",
@@ -88,11 +88,12 @@ impl SpeedControls {
                 }),
             ),
             ManagedWidget::btn(
-                Button::rectangle_svg(
-                    "assets/speed/large_step.svg",
+                Button::text(
+                    Text::from(Line("+1h").fg(Color::WHITE).size(12)),
+                    Color::grey(0.6),
+                    Color::ORANGE,
+                    hotkey(Key::M),
                     "step forwards 1 hour",
-                    hotkey(Key::N),
-                    RewriteColor::ChangeAll(Color::ORANGE),
                     ctx,
                 ),
                 Box::new(|_, ui| {
