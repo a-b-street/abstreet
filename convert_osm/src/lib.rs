@@ -41,7 +41,7 @@ pub fn convert(flags: &Flags, timer: &mut abstutil::Timer) -> RawMap {
     }
     if let Some(ref path) = flags.gtfs {
         timer.start("load GTFS");
-        map.bus_routes = gtfs::load(path).unwrap();
+        map.bus_routes = gtfs::load(path);
         timer.stop("load GTFS");
     }
 
