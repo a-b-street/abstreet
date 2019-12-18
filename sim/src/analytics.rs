@@ -22,6 +22,11 @@ pub struct Analytics {
     // TODO This subsumes finished_trips
     pub trip_log: Vec<(Time, TripID, Option<PathRequest>, String)>,
     pub intersection_delays: BTreeMap<IntersectionID, Vec<(Time, Duration)>>,
+
+    // After we restore from a savestate, don't record anything. This is only going to make sense
+    // if savestates are only used for quickly previewing against prebaked results, where we have
+    // the full Analytics anyway.
+    record_anything: bool,
 }
 
 #[derive(Serialize, Deserialize, Derivative)]
@@ -54,10 +59,15 @@ impl Analytics {
             finished_trips: Vec::new(),
             trip_log: Vec::new(),
             intersection_delays: BTreeMap::new(),
+            record_anything: true,
         }
     }
 
     pub fn event(&mut self, ev: Event, time: Time, map: &Map) {
+        if !self.record_anything {
+            return;
+        }
+
         // TODO Plumb a flag
         let raw_thruput = true;
 
@@ -480,7 +490,9 @@ impl Analytics {
 
 impl Default for Analytics {
     fn default() -> Analytics {
-        Analytics::new()
+        let mut a = Analytics::new();
+        a.record_anything = false;
+        a
     }
 }
 

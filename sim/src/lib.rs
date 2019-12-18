@@ -33,7 +33,7 @@ use abstutil::Cloneable;
 use geom::{Distance, Pt2D, Speed, Time};
 use map_model::{
     BuildingID, BusStopID, DirectedRoadID, IntersectionID, LaneID, Map, Path, PathConstraints,
-    Position,
+    PathRequest, Position,
 };
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -453,6 +453,7 @@ pub struct CreatePedestrian {
     pub start: SidewalkSpot,
     pub speed: Speed,
     pub goal: SidewalkSpot,
+    pub req: PathRequest,
     pub path: Path,
     pub trip: TripID,
 }
@@ -461,6 +462,7 @@ pub struct CreatePedestrian {
 pub struct CreateCar {
     pub vehicle: Vehicle,
     pub router: Router,
+    pub req: PathRequest,
     pub start_dist: Distance,
     pub maybe_parked_car: Option<ParkedCar>,
     pub trip: TripID,
@@ -471,11 +473,13 @@ impl CreateCar {
         vehicle: Vehicle,
         start_pos: Position,
         router: Router,
+        req: PathRequest,
         trip: TripID,
     ) -> CreateCar {
         CreateCar {
             vehicle,
             router,
+            req,
             start_dist: start_pos.dist_along(),
             maybe_parked_car: None,
             trip,
@@ -486,12 +490,14 @@ impl CreateCar {
     pub fn for_parked_car(
         parked_car: ParkedCar,
         router: Router,
+        req: PathRequest,
         start_dist: Distance,
         trip: TripID,
     ) -> CreateCar {
         CreateCar {
             vehicle: parked_car.vehicle.clone(),
             router,
+            req,
             start_dist,
             maybe_parked_car: Some(parked_car),
             trip,

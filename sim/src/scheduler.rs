@@ -1,7 +1,7 @@
 use crate::{AgentID, CarID, CreateCar, CreatePedestrian, PedestrianID};
 use derivative::Derivative;
 use geom::{Duration, DurationHistogram, Time};
-use map_model::{IntersectionID, PathRequest};
+use map_model::{IntersectionID, Path, PathRequest};
 use serde_derive::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::collections::{BTreeMap, BinaryHeap};
@@ -9,8 +9,8 @@ use std::collections::{BTreeMap, BinaryHeap};
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub enum Command {
     // If true, retry when there's no room to spawn somewhere
-    SpawnCar(CreateCar, PathRequest, bool),
-    SpawnPed(CreatePedestrian, PathRequest),
+    SpawnCar(CreateCar, bool),
+    SpawnPed(CreatePedestrian),
     UpdateCar(CarID),
     // Distinguish this from UpdateCar to avoid confusing things
     UpdateLaggyHead(CarID),
@@ -29,8 +29,8 @@ impl Command {
 
     pub fn to_type(&self) -> CommandType {
         match self {
-            Command::SpawnCar(ref create, _, _) => CommandType::Car(create.vehicle.id),
-            Command::SpawnPed(ref create, _) => CommandType::Ped(create.id),
+            Command::SpawnCar(ref create, _) => CommandType::Car(create.vehicle.id),
+            Command::SpawnPed(ref create) => CommandType::Ped(create.id),
             Command::UpdateCar(id) => CommandType::Car(*id),
             Command::UpdateLaggyHead(id) => CommandType::CarLaggyHead(*id),
             Command::UpdatePed(id) => CommandType::Ped(*id),
@@ -183,5 +183,64 @@ impl Scheduler {
 
     pub fn describe_stats(&self) -> String {
         format!("delta times for events: {}", self.delta_times.describe())
+    }
+
+    // It's much more efficient to save without the paths, and to recalculate them when loading
+    // later.
+    // TODO Why not just implement Default on Path and use skip_serializing? Because we want to
+    // serialize paths inside Router for live agents. We need to defer calling make_router and just
+    // store the input in CreateCar.
+    pub fn get_requests_for_savestate(&self) -> Vec<PathRequest> {
+        let mut reqs = Vec::new();
+        for (cmd, _) in self.queued_commands.values() {
+            match cmd {
+                Command::SpawnCar(ref create_car, _) => {
+                    reqs.push(create_car.req.clone());
+                }
+                Command::SpawnPed(ref create_ped) => {
+                    reqs.push(create_ped.req.clone());
+                }
+                _ => {}
+            }
+        }
+        reqs
+    }
+
+    pub fn before_savestate(&mut self) -> Vec<Path> {
+        let mut restore = Vec::new();
+        for (cmd, _) in self.queued_commands.values_mut() {
+            match cmd {
+                Command::SpawnCar(ref mut create_car, _) => {
+                    restore.push(
+                        create_car
+                            .router
+                            .replace_path_for_serialization(Path::dummy()),
+                    );
+                }
+                Command::SpawnPed(ref mut create_ped) => {
+                    restore.push(std::mem::replace(&mut create_ped.path, Path::dummy()));
+                }
+                _ => {}
+            }
+        }
+        restore
+    }
+
+    pub fn after_savestate(&mut self, mut restore: Vec<Path>) {
+        restore.reverse();
+        for (cmd, _) in self.queued_commands.values_mut() {
+            match cmd {
+                Command::SpawnCar(ref mut create_car, _) => {
+                    create_car
+                        .router
+                        .replace_path_for_serialization(restore.pop().unwrap());
+                }
+                Command::SpawnPed(ref mut create_ped) => {
+                    std::mem::replace(&mut create_ped.path, restore.pop().unwrap());
+                }
+                _ => {}
+            }
+        }
+        assert!(restore.is_empty());
     }
 }

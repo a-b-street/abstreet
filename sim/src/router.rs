@@ -329,6 +329,10 @@ impl Router {
         self.path.modify_step(2, PathStep::Lane(best_lane), map);
         self.path.modify_step(3, PathStep::Turn(turn2), map);
     }
+
+    pub fn replace_path_for_serialization(&mut self, path: Path) -> Path {
+        std::mem::replace(&mut self.path, path)
+    }
 }
 
 // Unrealistically assumes the driver has knowledge of currently free parking spots, even if

@@ -212,8 +212,13 @@ impl TripManager {
         scheduler.push(
             now,
             Command::SpawnCar(
-                CreateCar::for_parked_car(parked_car.clone(), router, start.dist_along(), trip.id),
-                req,
+                CreateCar::for_parked_car(
+                    parked_car.clone(),
+                    router,
+                    req,
+                    start.dist_along(),
+                    trip.id,
+                ),
                 true,
             ),
         );
@@ -266,8 +271,7 @@ impl TripManager {
         scheduler.push(
             now,
             Command::SpawnCar(
-                CreateCar::for_appearing(vehicle, driving_pos, router, trip.id),
-                req,
+                CreateCar::for_appearing(vehicle, driving_pos, router, req, trip.id),
                 true,
             ),
         );
@@ -630,17 +634,15 @@ impl Trip {
 
         scheduler.push(
             now,
-            Command::SpawnPed(
-                CreatePedestrian {
-                    id: ped,
-                    speed,
-                    start,
-                    goal: walk_to,
-                    path,
-                    trip: self.id,
-                },
+            Command::SpawnPed(CreatePedestrian {
+                id: ped,
+                speed,
+                start,
+                goal: walk_to,
+                path,
                 req,
-            ),
+                trip: self.id,
+            }),
         );
         true
     }

@@ -14,6 +14,7 @@ type StopIdx = usize;
 struct StopForRoute {
     id: BusStopID,
     driving_pos: Position,
+    req: PathRequest,
     path_to_next_stop: Path,
     next_stop_idx: StopIdx,
 }
@@ -74,7 +75,7 @@ impl TransitSimState {
         &mut self,
         bus_route: &BusRoute,
         map: &Map,
-    ) -> Vec<(StopIdx, Path, Distance)> {
+    ) -> Vec<(StopIdx, PathRequest, Path, Distance)> {
         assert!(bus_route.stops.len() > 1);
 
         let route = Route {
@@ -90,19 +91,19 @@ impl TransitSimState {
                     } else {
                         idx + 1
                     };
-                    let path = map
-                        .pathfind(PathRequest {
-                            start: stop1.driving_pos,
-                            end: map.get_bs(bus_route.stops[stop2_idx]).driving_pos,
-                            constraints: PathConstraints::Bus,
-                        })
-                        .expect(&format!(
-                            "No route between bus stops {:?} and {:?}",
-                            stop1_id, bus_route.stops[stop2_idx]
-                        ));
+                    let req = PathRequest {
+                        start: stop1.driving_pos,
+                        end: map.get_bs(bus_route.stops[stop2_idx]).driving_pos,
+                        constraints: PathConstraints::Bus,
+                    };
+                    let path = map.pathfind(req.clone()).expect(&format!(
+                        "No route between bus stops {:?} and {:?}",
+                        stop1_id, bus_route.stops[stop2_idx]
+                    ));
                     StopForRoute {
                         id: *stop1_id,
                         driving_pos: stop1.driving_pos,
+                        req,
                         path_to_next_stop: path,
                         next_stop_idx: stop2_idx,
                     }
@@ -116,6 +117,7 @@ impl TransitSimState {
             .map(|s| {
                 (
                     s.next_stop_idx,
+                    s.req.clone(),
                     s.path_to_next_stop.clone(),
                     route.stops[s.next_stop_idx].driving_pos.dist_along(),
                 )

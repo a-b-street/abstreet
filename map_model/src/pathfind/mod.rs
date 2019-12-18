@@ -116,6 +116,16 @@ impl Path {
         }
     }
 
+    // Only used for weird serialization magic.
+    pub fn dummy() -> Path {
+        Path {
+            steps: VecDeque::new(),
+            end_dist: Distance::ZERO,
+            total_length: Distance::ZERO,
+            crossed_so_far: Distance::ZERO,
+        }
+    }
+
     pub fn num_lanes(&self) -> usize {
         let mut count = 0;
         for s in &self.steps {

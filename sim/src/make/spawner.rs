@@ -231,8 +231,7 @@ impl TripSpawner {
                         scheduler.quick_push(
                             start_time,
                             Command::SpawnCar(
-                                CreateCar::for_appearing(vehicle, start_pos, router, trip),
-                                req,
+                                CreateCar::for_appearing(vehicle, start_pos, router, req, trip),
                                 retry_if_no_room,
                             ),
                         );
@@ -278,17 +277,15 @@ impl TripSpawner {
                     if let Some(path) = maybe_path {
                         scheduler.quick_push(
                             start_time,
-                            Command::SpawnPed(
-                                CreatePedestrian {
-                                    id: ped_id.unwrap(),
-                                    speed: ped_speed,
-                                    start,
-                                    goal: parking_spot,
-                                    path,
-                                    trip,
-                                },
+                            Command::SpawnPed(CreatePedestrian {
+                                id: ped_id.unwrap(),
+                                speed: ped_speed,
+                                start,
+                                goal: parking_spot,
+                                path,
                                 req,
-                            ),
+                                trip,
+                            }),
                         );
                     } else {
                         timer.warn(format!(
@@ -311,18 +308,16 @@ impl TripSpawner {
 
                     scheduler.quick_push(
                         start_time,
-                        Command::SpawnPed(
-                            CreatePedestrian {
-                                id: ped_id.unwrap(),
-                                speed: ped_speed,
-                                start: SidewalkSpot::building(start_bldg, map),
-                                goal: walk_to,
-                                // This is guaranteed to work, and is junk anyway.
-                                path: maybe_path.unwrap(),
-                                trip,
-                            },
+                        Command::SpawnPed(CreatePedestrian {
+                            id: ped_id.unwrap(),
+                            speed: ped_speed,
+                            start: SidewalkSpot::building(start_bldg, map),
+                            goal: walk_to,
+                            // This is guaranteed to work, and is junk anyway.
+                            path: maybe_path.unwrap(),
                             req,
-                        ),
+                            trip,
+                        }),
                     );
                 }
                 TripSpec::JustWalking {
@@ -346,17 +341,15 @@ impl TripSpawner {
                     if let Some(path) = maybe_path {
                         scheduler.quick_push(
                             start_time,
-                            Command::SpawnPed(
-                                CreatePedestrian {
-                                    id: ped_id.unwrap(),
-                                    speed: ped_speed,
-                                    start,
-                                    goal,
-                                    path,
-                                    trip,
-                                },
+                            Command::SpawnPed(CreatePedestrian {
+                                id: ped_id.unwrap(),
+                                speed: ped_speed,
+                                start,
+                                goal,
+                                path,
                                 req,
-                            ),
+                                trip,
+                            }),
                         );
                     } else {
                         timer.warn(format!(
@@ -404,17 +397,15 @@ impl TripSpawner {
                     if let Some(path) = maybe_path {
                         scheduler.quick_push(
                             start_time,
-                            Command::SpawnPed(
-                                CreatePedestrian {
-                                    id: ped_id.unwrap(),
-                                    speed: ped_speed,
-                                    start,
-                                    goal: walk_to,
-                                    path,
-                                    trip,
-                                },
+                            Command::SpawnPed(CreatePedestrian {
+                                id: ped_id.unwrap(),
+                                speed: ped_speed,
+                                start,
+                                goal: walk_to,
+                                path,
                                 req,
-                            ),
+                                trip,
+                            }),
                         );
                     } else {
                         timer.warn(format!(
@@ -453,17 +444,15 @@ impl TripSpawner {
                     if let Some(path) = maybe_path {
                         scheduler.quick_push(
                             start_time,
-                            Command::SpawnPed(
-                                CreatePedestrian {
-                                    id: ped_id.unwrap(),
-                                    speed: ped_speed,
-                                    start,
-                                    goal: walk_to,
-                                    path,
-                                    trip,
-                                },
+                            Command::SpawnPed(CreatePedestrian {
+                                id: ped_id.unwrap(),
+                                speed: ped_speed,
+                                start,
+                                goal: walk_to,
+                                path,
                                 req,
-                            ),
+                                trip,
+                            }),
                         );
                     } else {
                         timer.warn(format!(

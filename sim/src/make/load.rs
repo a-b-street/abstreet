@@ -61,18 +61,21 @@ impl SimFlags {
 
         let mut opts = self.opts.clone();
 
-        if self.load.starts_with("../data/player/save/") {
+        if self.load.starts_with("../data/player/saves/") {
             timer.note(format!("Resuming from {}", self.load));
 
-            let sim: Sim = abstutil::read_binary(self.load.clone(), timer);
+            let mut sim: Sim = abstutil::read_binary(self.load.clone(), timer);
 
             let mut map = Map::new(abstutil::path_map(&sim.map_name), false, timer);
-            map.apply_edits(
-                MapEdits::load(map.get_name(), &sim.edits_name, timer),
-                timer,
-            );
-            map.mark_edits_fresh();
-            map.recalculate_pathfinding_after_edits(timer);
+            if sim.edits_name != "no_edits" {
+                map.apply_edits(
+                    MapEdits::load(map.get_name(), &sim.edits_name, timer),
+                    timer,
+                );
+                map.mark_edits_fresh();
+                map.recalculate_pathfinding_after_edits(timer);
+            }
+            sim.restore_paths(&map, timer);
 
             (map, sim, rng)
         } else if self.load.starts_with("../data/system/scenarios/") {

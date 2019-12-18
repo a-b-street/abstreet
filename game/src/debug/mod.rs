@@ -111,7 +111,7 @@ impl State for DebugMode {
                     .find_previous_savestate(ui.primary.sim.time());
                 match prev_state
                     .clone()
-                    .and_then(|path| Sim::load_savestate(path, &mut timer).ok())
+                    .and_then(|path| Sim::load_savestate(path, &ui.primary.map, &mut timer).ok())
                 {
                     Some(new_sim) => {
                         ui.primary.sim = new_sim;
@@ -132,7 +132,7 @@ impl State for DebugMode {
                 let next_state = ui.primary.sim.find_next_savestate(ui.primary.sim.time());
                 match next_state
                     .clone()
-                    .and_then(|path| Sim::load_savestate(path, &mut timer).ok())
+                    .and_then(|path| Sim::load_savestate(path, &ui.primary.map, &mut timer).ok())
                 {
                     Some(new_sim) => {
                         ui.primary.sim = new_sim;
@@ -401,7 +401,8 @@ fn load_savestate(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<T
     let ss_path = format!("{}/{}.bin", ui.primary.sim.save_dir(), ss);
 
     ctx.loading_screen("load savestate", |ctx, mut timer| {
-        ui.primary.sim = Sim::load_savestate(ss_path, &mut timer).expect("Can't load savestate");
+        ui.primary.sim = Sim::load_savestate(ss_path, &ui.primary.map, &mut timer)
+            .expect("Can't load savestate");
         ui.recalculate_current_selection(ctx);
     });
     Some(Transition::Pop)
