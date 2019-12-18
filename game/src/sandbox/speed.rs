@@ -108,7 +108,7 @@ impl SpeedControls {
             ),
             ManagedWidget::btn_no_cb(Button::text(
                 Text::from(Line("reset").fg(Color::WHITE).size(12)),
-                Color::WHITE.alpha(0.0),
+                Color::grey(0.6),
                 Color::ORANGE,
                 hotkey(Key::X),
                 "reset to midnight",
@@ -117,38 +117,39 @@ impl SpeedControls {
         ]);
 
         row.push(
-            ManagedWidget::row(vec![
-                ManagedWidget::draw_text(ctx, Text::from(Line("speed").size(14).roboto())),
-                ManagedWidget::slider("speed"),
-                ManagedWidget::btn_no_cb(Button::rectangle_svg(
-                    "assets/speed/slow_down.svg",
-                    "slow down",
-                    hotkey(Key::LeftBracket),
-                    RewriteColor::ChangeAll(Color::ORANGE),
-                    ctx,
-                )),
-                ManagedWidget::draw_text(
-                    ctx,
-                    Text::from(Line(format!("{:.1}x", desired_speed)).size(14).roboto()),
-                ),
-                ManagedWidget::btn_no_cb(Button::rectangle_svg(
-                    "assets/speed/speed_up.svg",
-                    "speed up",
-                    hotkey(Key::RightBracket),
-                    RewriteColor::ChangeAll(Color::ORANGE),
-                    ctx,
-                )),
-            ])
-            .bg(Color::grey(0.5))
-            .min_width(200)
-            .evenly_spaced(),
+            ManagedWidget::row(
+                vec![
+                    ManagedWidget::draw_text(ctx, Text::from(Line("speed").size(14).roboto())),
+                    ManagedWidget::slider("speed"),
+                    ManagedWidget::btn_no_cb(Button::rectangle_svg(
+                        "assets/speed/slow_down.svg",
+                        "slow down",
+                        hotkey(Key::LeftBracket),
+                        RewriteColor::ChangeAll(Color::ORANGE),
+                        ctx,
+                    )),
+                    ManagedWidget::draw_text(
+                        ctx,
+                        Text::from(Line(format!("{:.1}x", desired_speed)).size(14).roboto()),
+                    ),
+                    ManagedWidget::btn_no_cb(Button::rectangle_svg(
+                        "assets/speed/speed_up.svg",
+                        "speed up",
+                        hotkey(Key::RightBracket),
+                        RewriteColor::ChangeAll(Color::ORANGE),
+                        ctx,
+                    )),
+                ]
+                .into_iter()
+                .map(|x| x.margin(5))
+                .collect(),
+            )
+            .bg(Color::grey(0.5)),
         );
 
         Composite::minimal_size(
-            ManagedWidget::row(row)
-                .bg(Color::hex("#4C4C4C"))
-                .min_width(600)
-                .evenly_spaced(),
+            ManagedWidget::row(row.into_iter().map(|x| x.margin(5)).collect())
+                .bg(Color::hex("#4C4C4C")),
             top_left,
         )
     }

@@ -44,11 +44,7 @@ pub fn tool_panel(ctx: &EventCtx, extra_buttons: Vec<ManagedWidget>) -> Composit
     row.extend(extra_buttons);
 
     Composite::minimal_size(
-        ManagedWidget::row(row)
-            .padding(10)
-            .bg(Color::grey(0.4))
-            .min_width(200)
-            .evenly_spaced(),
+        ManagedWidget::row(row.into_iter().map(|x| x.margin(10)).collect()).bg(Color::grey(0.4)),
         ScreenPt::new(30.0, ctx.canvas.window_height - 80.0),
     )
 }

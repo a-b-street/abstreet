@@ -34,7 +34,7 @@ struct LayoutStyle {
     justify_content: Option<JustifyContent>,
     flex_wrap: Option<FlexWrap>,
     padding: Option<Rect<Dimension>>,
-    min_size: Option<Size<Dimension>>,
+    margin: Option<Rect<Dimension>>,
 }
 
 impl LayoutStyle {
@@ -51,29 +51,16 @@ impl LayoutStyle {
         if let Some(x) = self.padding {
             style.padding = x;
         }
-        if let Some(x) = self.min_size {
-            style.min_size = x;
+        if let Some(x) = self.margin {
+            style.margin = x;
         }
     }
 }
 
+// Layouting
+// TODO Maybe I just want margin, not padding. And maybe more granular controls per side. And to
+// apply margin to everything in a row or column.
 impl ManagedWidget {
-    fn new(widget: WidgetType) -> ManagedWidget {
-        ManagedWidget {
-            widget,
-            style: LayoutStyle {
-                bg_color: None,
-                align_items: None,
-                justify_content: None,
-                flex_wrap: None,
-                padding: None,
-                min_size: None,
-            },
-            rect: None,
-            bg: None,
-        }
-    }
-
     pub fn centered(mut self) -> ManagedWidget {
         self.style.align_items = Some(AlignItems::Center);
         self.style.justify_content = Some(JustifyContent::SpaceAround);
@@ -111,12 +98,33 @@ impl ManagedWidget {
         self
     }
 
-    pub fn min_width(mut self, pixels: usize) -> ManagedWidget {
-        self.style.min_size = Some(Size {
-            width: Dimension::Points(pixels as f32),
-            height: Dimension::Undefined,
+    pub fn margin(mut self, pixels: usize) -> ManagedWidget {
+        self.style.margin = Some(Rect {
+            start: Dimension::Points(pixels as f32),
+            end: Dimension::Points(pixels as f32),
+            top: Dimension::Points(pixels as f32),
+            bottom: Dimension::Points(pixels as f32),
         });
         self
+    }
+}
+
+// Convenient?? constructors
+impl ManagedWidget {
+    fn new(widget: WidgetType) -> ManagedWidget {
+        ManagedWidget {
+            widget,
+            style: LayoutStyle {
+                bg_color: None,
+                align_items: None,
+                justify_content: None,
+                flex_wrap: None,
+                padding: None,
+                margin: None,
+            },
+            rect: None,
+            bg: None,
+        }
     }
 
     pub fn draw_batch(ctx: &EventCtx, batch: GeomBatch) -> ManagedWidget {
@@ -214,7 +222,10 @@ impl ManagedWidget {
     pub fn col(widgets: Vec<ManagedWidget>) -> ManagedWidget {
         ManagedWidget::new(WidgetType::Column(widgets))
     }
+}
 
+// Internals
+impl ManagedWidget {
     fn event(
         &mut self,
         ctx: &mut EventCtx,
