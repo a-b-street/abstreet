@@ -50,8 +50,10 @@ pub struct Sim {
     #[derivative(PartialEq = "ignore")]
     #[serde(skip_serializing, skip_deserializing)]
     trip_positions: Option<TripPositions>,
-    // TODO Maybe the buffered events in child objects should also have this.
+    // Don't serialize, to reduce prebaked savestate size. Analytics are saved once covering the
+    // full day and can be trimmed to any time.
     #[derivative(PartialEq = "ignore")]
+    #[serde(skip_serializing, skip_deserializing)]
     analytics: Analytics,
 }
 
@@ -723,6 +725,42 @@ impl Sim {
     }
 
     pub fn save(&self) -> String {
+        if true {
+            println!("sim savestate breakdown:");
+            println!(
+                "- driving: {} bytes",
+                abstutil::prettyprint_usize(abstutil::serialized_size_bytes(&self.driving))
+            );
+            println!(
+                "- parking: {} bytes",
+                abstutil::prettyprint_usize(abstutil::serialized_size_bytes(&self.parking))
+            );
+            println!(
+                "- walking: {} bytes",
+                abstutil::prettyprint_usize(abstutil::serialized_size_bytes(&self.walking))
+            );
+            println!(
+                "- intersections: {} bytes",
+                abstutil::prettyprint_usize(abstutil::serialized_size_bytes(&self.intersections))
+            );
+            println!(
+                "- transit: {} bytes",
+                abstutil::prettyprint_usize(abstutil::serialized_size_bytes(&self.transit))
+            );
+            println!(
+                "- trips: {} bytes",
+                abstutil::prettyprint_usize(abstutil::serialized_size_bytes(&self.trips))
+            );
+            println!(
+                "- spawner: {} bytes",
+                abstutil::prettyprint_usize(abstutil::serialized_size_bytes(&self.spawner))
+            );
+            println!(
+                "- scheduler: {} bytes",
+                abstutil::prettyprint_usize(abstutil::serialized_size_bytes(&self.scheduler))
+            );
+        }
+
         let path = self.save_path(self.time);
         abstutil::write_binary(path.clone(), self);
         path

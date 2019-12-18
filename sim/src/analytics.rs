@@ -478,6 +478,12 @@ impl Analytics {
     }
 }
 
+impl Default for Analytics {
+    fn default() -> Analytics {
+        Analytics::new()
+    }
+}
+
 pub struct TripPhase {
     pub start_time: Time,
     pub end_time: Option<Time>,

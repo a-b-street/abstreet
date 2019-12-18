@@ -77,6 +77,10 @@ fn maybe_write_binary<T: Serialize>(path: &str, obj: &T) -> Result<(), Error> {
     bincode::serialize_into(file, obj).map_err(|err| Error::new(ErrorKind::Other, err))
 }
 
+pub fn serialized_size_bytes<T: Serialize>(obj: &T) -> usize {
+    bincode::serialized_size(obj).unwrap() as usize
+}
+
 pub fn write_binary<T: Serialize>(path: String, obj: &T) {
     if let Err(err) = maybe_write_binary(&path, obj) {
         panic!("Can't write_binary({}): {}", path, err);

@@ -386,7 +386,6 @@ fn osm_rank_to_color(cs: &ColorScheme, rank: usize) -> Color {
     }
 }
 
-// TODO Show a little legend when it's first activated.
 // TODO ETA till goal...
 #[derive(Clone, Copy, PartialEq)]
 pub enum AgentColorScheme {

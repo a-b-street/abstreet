@@ -8,7 +8,7 @@ use ezgui::{
     hotkey, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ModalMenu, Text,
     VerticalAlignment,
 };
-use geom::Time;
+use geom::{Duration, Time};
 use sim::{Sim, SimFlags, SimOptions, TripMode};
 use std::collections::{BTreeMap, HashSet};
 
@@ -279,7 +279,9 @@ pub fn prebake() {
                     scenario.map_name, scenario.scenario_name
                 ));
 
-                let mut sim = Sim::new(&map, SimOptions::new("prebaked"), &mut timer);
+                let mut opts = SimOptions::new("prebaked");
+                opts.savestate_every = Some(Duration::hours(1));
+                let mut sim = Sim::new(&map, opts, &mut timer);
                 // Bit of an abuse of this, but just need to fix the rng seed.
                 let mut rng = SimFlags::for_test("prebaked").make_rng();
                 scenario.instantiate(&mut sim, &map, &mut rng, &mut timer);
