@@ -17,7 +17,7 @@ pub use self::colors::{
     ColorLegend, ObjectColorer, ObjectColorerBuilder, RoadColorer, RoadColorerBuilder,
 };
 pub use self::minimap::Minimap;
-pub use self::panels::tool_panel;
+pub use self::panels::{edit_map_panel, tool_panel};
 pub use self::plot::{Histogram, Plot, Series};
 pub use self::route_explorer::RouteExplorer;
 pub use self::trip_explorer::TripExplorer;

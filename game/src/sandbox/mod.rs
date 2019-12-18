@@ -5,9 +5,8 @@ mod score;
 mod speed;
 
 use self::overlays::Overlays;
-use crate::common::{tool_panel, AgentTools, CommonState, Minimap};
+use crate::common::{edit_map_panel, tool_panel, AgentTools, CommonState, Minimap};
 use crate::debug::DebugMode;
-use crate::edit::EditMode;
 use crate::edit::{apply_map_edits, save_edits};
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
@@ -16,8 +15,8 @@ use crate::pregame::main_menu;
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, layout, lctrl, Button, Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line,
-    ModalMenu, ScreenPt, Text,
+    hotkey, lctrl, Button, Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, ScreenPt,
+    Text,
 };
 pub use gameplay::spawner::spawn_agents_around;
 pub use gameplay::GameplayMode;
@@ -33,8 +32,8 @@ pub struct SandboxMode {
     gameplay: gameplay::GameplayRunner,
     common: CommonState,
     tool_panel: Composite,
+    edit_map_panel: Composite,
     minimap: Option<Minimap>,
-    menu: ModalMenu,
 }
 
 impl SandboxMode {
@@ -76,41 +75,23 @@ impl SandboxMode {
                     ),
                 ],
             ),
+            edit_map_panel: edit_map_panel(ctx, ui, mode.clone()),
             minimap: if mode.has_minimap() {
                 Some(Minimap::new(ctx, ui))
             } else {
                 None
             },
             gameplay: gameplay::GameplayRunner::initialize(mode, ui, ctx),
-            menu: ModalMenu::new("Sandbox Mode", vec![(lctrl(Key::E), "edit mode")], ctx)
-                .disable_standalone_layout(),
         }
     }
 }
 
 impl State for SandboxMode {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        {
-            let mut txt = Text::new();
-            let edits = ui.primary.map.get_edits();
-            txt.add(Line(format!("Edits: {}", edits.edits_name)));
-            if edits.dirty {
-                txt.append(Line("*"));
-            }
-            self.menu.set_info(ctx, txt);
-        }
         self.agent_meter.event(ctx, ui);
         if let Some(t) = self.gameplay.event(ctx, ui, &mut self.overlay) {
             return t;
         }
-        // Give both menus a chance to set_info before doing this
-        layout::stack_vertically(
-            layout::ContainerOrientation::TopRight,
-            ctx,
-            vec![&mut self.menu, &mut self.gameplay.menu],
-        );
-
-        self.menu.event(ctx);
 
         ctx.canvas.handle_event(ctx.input);
         if ctx.redo_mouseover() {
@@ -122,7 +103,7 @@ impl State for SandboxMode {
             }
         }
 
-        if let Some(t) = self.agent_tools.event(ctx, ui, &mut self.menu) {
+        if let Some(t) = self.agent_tools.event(ctx, ui, &mut self.gameplay.menu) {
             return t;
         }
         if let Some(explorer) = bus_explorer::BusRouteExplorer::new(ctx, ui) {
@@ -187,11 +168,6 @@ impl State for SandboxMode {
 
         if let Some(t) = self.speed.event(ctx, ui, &self.gameplay.mode) {
             return t;
-        }
-
-        if self.menu.action("edit mode") {
-            ui.primary.clear_sim();
-            return Transition::Replace(Box::new(EditMode::new(ctx, self.gameplay.mode.clone())));
         }
 
         if let Some(t) = self.common.event(ctx, ui) {
@@ -273,6 +249,13 @@ impl State for SandboxMode {
             },
             None => {}
         }
+        match self.edit_map_panel.event(ctx, ui) {
+            Some(Outcome::Transition(t)) => {
+                return t;
+            }
+            Some(Outcome::Clicked(_)) => unreachable!(),
+            None => {}
+        }
 
         if self.speed.is_paused() {
             Transition::Keep
@@ -299,7 +282,7 @@ impl State for SandboxMode {
         }
         self.common.draw(g, ui);
         self.tool_panel.draw(g);
-        self.menu.draw(g);
+        self.edit_map_panel.draw(g);
         self.speed.draw(g);
         self.gameplay.draw(g, ui);
         self.agent_meter.draw(g);

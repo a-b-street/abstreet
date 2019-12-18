@@ -1,8 +1,11 @@
 use crate::common::{navigate, shortcuts};
+use crate::edit::EditMode;
 use crate::game::Transition;
 use crate::managed::{Composite, ManagedWidget};
 use crate::options;
-use ezgui::{hotkey, Button, Color, EventCtx, Key, RewriteColor, ScreenPt};
+use crate::sandbox::GameplayMode;
+use crate::ui::UI;
+use ezgui::{hotkey, lctrl, Button, Color, EventCtx, Key, Line, RewriteColor, ScreenPt, Text};
 
 // TODO Rethink this API.
 pub fn tool_panel(ctx: &EventCtx, extra_buttons: Vec<ManagedWidget>) -> Composite {
@@ -46,5 +49,41 @@ pub fn tool_panel(ctx: &EventCtx, extra_buttons: Vec<ManagedWidget>) -> Composit
     Composite::minimal_size(
         ManagedWidget::row(row.into_iter().map(|x| x.margin(10)).collect()).bg(Color::grey(0.4)),
         ScreenPt::new(30.0, ctx.canvas.window_height - 80.0),
+    )
+}
+
+pub fn edit_map_panel(ctx: &EventCtx, ui: &UI, gameplay: GameplayMode) -> Composite {
+    Composite::minimal_size(
+        ManagedWidget::row(vec![
+            ManagedWidget::col(vec![
+                ManagedWidget::draw_text(ctx, Text::from(Line("Sandbox"))),
+                ManagedWidget::draw_text(ctx, Text::from(Line(ui.primary.map.get_name()))),
+            ]),
+            ManagedWidget::col(vec![
+                // TODO icon button
+                ManagedWidget::text_button(
+                    ctx,
+                    "edit map",
+                    lctrl(Key::E),
+                    Box::new(move |ctx, ui| {
+                        ui.primary.clear_sim();
+                        Some(Transition::Replace(Box::new(EditMode::new(
+                            ctx,
+                            gameplay.clone(),
+                        ))))
+                    }),
+                ),
+                {
+                    let edits = ui.primary.map.get_edits();
+                    let mut txt = Text::from(Line(&edits.edits_name));
+                    if edits.dirty {
+                        txt.append(Line("*"));
+                    }
+                    ManagedWidget::draw_text(ctx, txt)
+                },
+            ]),
+        ])
+        .bg(Color::grey(0.4)),
+        ScreenPt::new(ctx.canvas.window_width / 2.0, 5.0),
     )
 }

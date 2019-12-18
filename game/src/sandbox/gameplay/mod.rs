@@ -183,7 +183,7 @@ impl GameplayRunner {
         GameplayRunner {
             mode,
             prebaked,
-            menu: menu.disable_standalone_layout(),
+            menu,
             state,
         }
     }
