@@ -55,7 +55,7 @@ impl DebugMode {
                 ctx,
             ),
             common: CommonState::new(),
-            tool_panel: tool_panel(ctx, None),
+            tool_panel: tool_panel(ctx, Vec::new()),
             associated: associated::ShowAssociatedState::Inactive,
             connected_roads: connected_roads::ShowConnectedRoads::new(),
             objects: objects::ObjectDebugger::new(),

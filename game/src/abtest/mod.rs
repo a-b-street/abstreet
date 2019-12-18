@@ -47,7 +47,7 @@ impl ABTestMode {
             diff_trip: None,
             diff_all: None,
             common: CommonState::new(),
-            tool_panel: tool_panel(ctx, None),
+            tool_panel: tool_panel(ctx, Vec::new()),
             test_name: test_name.to_string(),
             flipped: false,
         }

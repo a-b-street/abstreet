@@ -33,7 +33,7 @@ impl EditMode {
     pub fn new(ctx: &EventCtx, mode: GameplayMode) -> EditMode {
         EditMode {
             common: CommonState::new(),
-            tool_panel: tool_panel(ctx, None),
+            tool_panel: tool_panel(ctx, Vec::new()),
             menu: ModalMenu::new(
                 "Map Edit Mode",
                 vec![

@@ -1,10 +1,11 @@
 use crate::common::{navigate, shortcuts};
 use crate::game::Transition;
-use crate::managed::{Callback, Composite, ManagedWidget};
+use crate::managed::{Composite, ManagedWidget};
 use crate::options;
 use ezgui::{hotkey, Button, Color, EventCtx, Key, RewriteColor, ScreenPt};
 
-pub fn tool_panel(ctx: &EventCtx, layers_callback: Option<Callback>) -> Composite {
+// TODO Rethink this API.
+pub fn tool_panel(ctx: &EventCtx, extra_buttons: Vec<ManagedWidget>) -> Composite {
     let mut row = vec![
         // TODO Maybe this is confusing -- it doesn't jump to the title screen necessarily.
         // Caller has to handle this one
@@ -40,15 +41,7 @@ pub fn tool_panel(ctx: &EventCtx, layers_callback: Option<Callback>) -> Composit
             Box::new(|_, _| Some(Transition::Push(shortcuts::ChoosingShortcut::new()))),
         ),
     ];
-    if let Some(cb) = layers_callback {
-        row.push(ManagedWidget::svg_button(
-            ctx,
-            "assets/tools/layers.svg",
-            "change overlay",
-            hotkey(Key::L),
-            cb,
-        ));
-    }
+    row.extend(extra_buttons);
 
     Composite::minimal_size(
         ManagedWidget::row(row)

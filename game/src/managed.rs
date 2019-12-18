@@ -11,7 +11,7 @@ use stretch::geometry::{Rect, Size};
 use stretch::node::{Node, Stretch};
 use stretch::style::{AlignItems, Dimension, FlexDirection, FlexWrap, JustifyContent, Style};
 
-pub type Callback = Box<dyn Fn(&mut EventCtx, &mut UI) -> Option<Transition>>;
+type Callback = Box<dyn Fn(&mut EventCtx, &mut UI) -> Option<Transition>>;
 
 pub struct ManagedWidget {
     widget: WidgetType,

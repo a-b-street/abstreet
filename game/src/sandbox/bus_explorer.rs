@@ -2,9 +2,7 @@ use crate::common::{CommonState, RoadColorer, RoadColorerBuilder};
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
 use crate::ui::UI;
-use ezgui::{
-    Choice, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, ModalMenu, Text, WarpingItemSlider,
-};
+use ezgui::{Choice, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Text, WarpingItemSlider};
 use geom::{Circle, Distance, Pt2D};
 use map_model::{BusRoute, BusRouteID, BusStopID, PathConstraints, PathRequest, PathStep};
 
@@ -178,22 +176,16 @@ impl State for BusRouteExplorer {
     }
 }
 
-pub struct BusRoutePicker;
-impl BusRoutePicker {
-    pub fn new(ui: &UI, menu: &mut ModalMenu) -> Option<Box<dyn State>> {
-        if ui.primary.current_selection.is_some() || !menu.action("explore a bus route") {
-            return None;
-        }
-        Some(make_bus_route_picker(
-            ui.primary
-                .map
-                .get_all_bus_routes()
-                .iter()
-                .map(|r| r.id)
-                .collect(),
-            None,
-        ))
-    }
+pub fn pick_any_bus_route(_: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
+    Some(Transition::Push(make_bus_route_picker(
+        ui.primary
+            .map
+            .get_all_bus_routes()
+            .iter()
+            .map(|r| r.id)
+            .collect(),
+        None,
+    )))
 }
 
 fn make_bus_route_picker(routes: Vec<BusRouteID>, start: Option<BusStopID>) -> Box<dyn State> {

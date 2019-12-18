@@ -16,8 +16,8 @@ use crate::pregame::main_menu;
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, layout, lctrl, Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, ModalMenu,
-    ScreenPt, Text,
+    hotkey, layout, lctrl, Button, Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line,
+    ModalMenu, ScreenPt, Text,
 };
 pub use gameplay::spawner::spawn_agents_around;
 pub use gameplay::GameplayMode;
@@ -45,23 +45,45 @@ impl SandboxMode {
             agent_tools: AgentTools::new(),
             overlay: Overlays::Inactive,
             common: CommonState::new(),
-            tool_panel: tool_panel(ctx, Some(Box::new(Overlays::change_overlays))),
+            tool_panel: tool_panel(
+                ctx,
+                vec![
+                    ManagedWidget::svg_button(
+                        ctx,
+                        "assets/tools/layers.svg",
+                        "change overlay",
+                        hotkey(Key::L),
+                        Box::new(Overlays::change_overlays),
+                    ),
+                    ManagedWidget::btn_no_cb(Button::text(
+                        Text::from(Line("scoreboard").size(12)),
+                        Color::grey(0.6),
+                        Color::ORANGE,
+                        hotkey(Key::Q),
+                        "scoreboard",
+                        ctx,
+                    )),
+                    ManagedWidget::btn(
+                        Button::text(
+                            Text::from(Line("explore a bus route").size(12)),
+                            Color::grey(0.6),
+                            Color::ORANGE,
+                            hotkey(Key::Q),
+                            "explore a bus route",
+                            ctx,
+                        ),
+                        Box::new(bus_explorer::pick_any_bus_route),
+                    ),
+                ],
+            ),
             minimap: if mode.has_minimap() {
                 Some(Minimap::new(ctx, ui))
             } else {
                 None
             },
             gameplay: gameplay::GameplayRunner::initialize(mode, ui, ctx),
-            menu: ModalMenu::new(
-                "Sandbox Mode",
-                vec![
-                    (lctrl(Key::E), "edit mode"),
-                    (hotkey(Key::Q), "scoreboard"),
-                    (None, "explore a bus route"),
-                ],
-                ctx,
-            )
-            .disable_standalone_layout(),
+            menu: ModalMenu::new("Sandbox Mode", vec![(lctrl(Key::E), "edit mode")], ctx)
+                .disable_standalone_layout(),
         }
     }
 }
@@ -103,18 +125,8 @@ impl State for SandboxMode {
         if let Some(t) = self.agent_tools.event(ctx, ui, &mut self.menu) {
             return t;
         }
-        if self.menu.action("scoreboard") {
-            return Transition::Push(Box::new(score::Scoreboard::new(
-                ctx,
-                ui,
-                &self.gameplay.prebaked,
-            )));
-        }
         if let Some(explorer) = bus_explorer::BusRouteExplorer::new(ctx, ui) {
             return Transition::PushWithMode(explorer, EventLoopMode::Animation);
-        }
-        if let Some(picker) = bus_explorer::BusRoutePicker::new(ui, &mut self.menu) {
-            return Transition::Push(picker);
         }
 
         if ui.opts.dev && ctx.input.new_was_pressed(lctrl(Key::D).unwrap()) {
@@ -249,6 +261,13 @@ impl State for SandboxMode {
                             _ => unreachable!(),
                         }
                     })));
+                }
+                "scoreboard" => {
+                    return Transition::Push(Box::new(score::Scoreboard::new(
+                        ctx,
+                        ui,
+                        &self.gameplay.prebaked,
+                    )));
                 }
                 _ => unreachable!(),
             },
