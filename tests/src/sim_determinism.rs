@@ -98,7 +98,7 @@ pub fn run(t: &mut TestRunner) {
         }
 
         let mut sim3: Sim =
-            Sim::load_savestate(sim1_save.clone(), &mut Timer::throwaway()).unwrap();
+            Sim::load_savestate(sim1_save.clone(), &map, &mut Timer::throwaway()).unwrap();
         sim3.set_name("with_savestating_3".to_string());
         if sim3 != sim2 {
             panic!(

@@ -11,7 +11,7 @@ pub fn run(t: &mut TestRunner) {
         let route = map.get_bus_route("49").unwrap();
         let buses = sim.seed_bus_route(route, &map, &mut Timer::throwaway());
         let bus = buses[0];
-        h.setup_done(&sim);
+        h.setup_done(&mut sim);
 
         let mut expectations: Vec<Event> = Vec::new();
         // TODO assert stuff about other buses as well, although the timing is a little unclear
@@ -61,7 +61,7 @@ pub fn run(t: &mut TestRunner) {
             .0
             .unwrap();
         sim.spawn_all_trips(&map, &mut Timer::throwaway(), false);
-        h.setup_done(&sim);
+        h.setup_done(&mut sim);
 
         sim.run_until_expectations_met(
             &map,

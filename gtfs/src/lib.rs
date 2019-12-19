@@ -50,7 +50,6 @@ pub fn load(dir_path: &str) -> Vec<Route> {
     for (key, group) in
         GTFSIterator::<_, transitfeed::StopTime>::from_path(&format!("{}/stop_times.txt", dir_path))
             .unwrap()
-            .into_iter()
             .map(|rec| rec.unwrap())
             .group_by(|rec| rec.trip_id.clone())
             .into_iter()

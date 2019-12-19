@@ -248,7 +248,7 @@ pub struct TestHelper {
 }
 
 impl TestHelper {
-    pub fn setup_done(&mut self, sim: &Sim) {
+    pub fn setup_done(&mut self, sim: &mut Sim) {
         if self.debug_with_savestate.is_some() {
             panic!("Can't call setup_done twice in one test");
         }

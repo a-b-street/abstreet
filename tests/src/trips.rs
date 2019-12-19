@@ -22,7 +22,7 @@ pub fn run(t: &mut TestRunner) {
             &map,
         );
         sim.spawn_all_trips(&map, &mut Timer::throwaway(), false);
-        h.setup_done(&sim);
+        h.setup_done(&mut sim);
 
         sim.run_until_expectations_met(
             &map,

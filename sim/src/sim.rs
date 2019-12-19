@@ -632,7 +632,7 @@ impl Sim {
         self.run_until_done(map, |_, _| {}, time_limit);
     }
 
-    pub fn run_until_done<F: Fn(&Sim, &Map)>(
+    pub fn run_until_done<F: Fn(&mut Sim, &Map)>(
         &mut self,
         map: &Map,
         callback: F,
