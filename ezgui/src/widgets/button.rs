@@ -1,10 +1,10 @@
 use crate::layout::Widget;
 use crate::svg;
 use crate::{
-    hotkey, text, Color, DrawBoth, EventCtx, GeomBatch, GfxCtx, Key, Line, MultiKey, RewriteColor,
-    ScreenDims, ScreenPt, Text,
+    text, Color, DrawBoth, EventCtx, GeomBatch, GfxCtx, Line, MultiKey, RewriteColor, ScreenDims,
+    ScreenPt, Text,
 };
-use geom::{Circle, Distance, Polygon, Pt2D};
+use geom::{Distance, Polygon, Pt2D};
 
 pub struct Button {
     pub action: String,
@@ -130,8 +130,6 @@ impl Widget for Button {
 
 // Stuff to construct different types of buttons
 
-const CIRCULAR_ICON_BACKGROUND: Color = Color::grey(0.5);
-const CIRCULAR_ICON_BACKGROUND_SELECTED: Color = Color::YELLOW;
 const HORIZ_PADDING: f64 = 30.0;
 const VERT_PADDING: f64 = 10.0;
 
@@ -217,64 +215,6 @@ impl Button {
             key,
             tooltip,
             bounds.get_rectangle(),
-        )
-    }
-
-    pub fn icon_btn_bg(
-        icon: &str,
-        radius: f64,
-        tooltip: &str,
-        key: Option<MultiKey>,
-        bg: Color,
-        ctx: &EventCtx,
-    ) -> Button {
-        let circle = Circle::new(Pt2D::new(radius, radius), Distance::meters(radius)).to_polygon();
-
-        let mut normal = GeomBatch::new();
-        normal.push(bg, circle.clone());
-        normal.push(ctx.canvas.texture(icon), circle.clone());
-
-        let mut hovered = GeomBatch::new();
-        hovered.push(CIRCULAR_ICON_BACKGROUND_SELECTED, circle.clone());
-        hovered.push(ctx.canvas.texture(icon), circle.clone());
-
-        Button::new(
-            DrawBoth::new(ctx, normal, vec![]),
-            DrawBoth::new(ctx, hovered, vec![]),
-            key,
-            tooltip,
-            circle,
-        )
-    }
-
-    pub fn icon_btn(
-        icon: &str,
-        radius: f64,
-        tooltip: &str,
-        key: Option<MultiKey>,
-        ctx: &EventCtx,
-    ) -> Button {
-        Button::icon_btn_bg(icon, radius, tooltip, key, CIRCULAR_ICON_BACKGROUND, ctx)
-    }
-
-    pub fn show_btn(ctx: &EventCtx, tooltip: &str) -> Button {
-        // TODO Arbitrarilyish the first user to be event()'d will eat this key.
-        Button::icon_btn(
-            "assets/ui/show.png",
-            ctx.default_line_height() / 2.0,
-            tooltip,
-            hotkey(Key::Tab),
-            ctx,
-        )
-    }
-
-    pub fn hide_btn(ctx: &EventCtx, tooltip: &str) -> Button {
-        Button::icon_btn(
-            "assets/ui/hide.png",
-            ctx.default_line_height() / 2.0,
-            tooltip,
-            hotkey(Key::Tab),
-            ctx,
         )
     }
 

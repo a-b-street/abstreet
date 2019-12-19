@@ -1,7 +1,6 @@
 use crate::layout::Widget;
 use crate::{
-    layout, text, Button, EventCtx, GfxCtx, Line, MultiKey, ScreenDims, ScreenPt, ScreenRectangle,
-    Text,
+    layout, text, EventCtx, GfxCtx, Line, MultiKey, ScreenDims, ScreenPt, ScreenRectangle, Text,
 };
 
 pub struct ModalMenu {
@@ -13,18 +12,8 @@ pub struct ModalMenu {
     hovering_idx: Option<usize>,
     standalone_layout: Option<layout::ContainerOrientation>,
 
-    show_hide_btn: Button,
-    visible: Visibility,
-
     top_left: ScreenPt,
     dims: ScreenDims,
-}
-
-#[derive(PartialEq)]
-enum Visibility {
-    Full,
-    Info,
-    JustTitle,
 }
 
 struct Choice {
@@ -53,10 +42,6 @@ impl ModalMenu {
                 .collect(),
             hovering_idx: None,
             standalone_layout: Some(layout::ContainerOrientation::TopRight),
-
-            // TODO If no info gets set, this should just be "hide". Woops.
-            show_hide_btn: Button::hide_btn(ctx, "just show info"),
-            visible: Visibility::Full,
 
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(0.0, 0.0),
@@ -94,7 +79,7 @@ impl ModalMenu {
         }
 
         // Handle the mouse
-        if self.visible == Visibility::Full && ctx.redo_mouseover() {
+        if ctx.redo_mouseover() {
             let cursor = ctx.canvas.get_cursor_in_screen_space();
             self.hovering_idx = None;
             let mut top_left = self.top_left;
@@ -130,50 +115,6 @@ impl ModalMenu {
                     break;
                 }
             }
-        }
-
-        // Handle showing/hiding
-        // TODO Layouting of nested widgets...
-        // TODO Might not be room for the icon on the right side of the menu's top. Oh well. In the
-        // common case, looks better like this.
-        self.show_hide_btn.set_pos(ScreenPt::new(
-            self.top_left.x + self.dims.width - self.show_hide_btn.get_dims().width,
-            self.top_left.y,
-        ));
-        self.show_hide_btn.event(ctx);
-        if self.show_hide_btn.clicked() {
-            match self.visible {
-                Visibility::Full => {
-                    // Skip the Info phase if there's nothing there.
-                    if self.info.num_lines() == 0 {
-                        self.visible = Visibility::JustTitle;
-                        self.show_hide_btn = Button::show_btn(ctx, "show");
-                    } else {
-                        self.visible = Visibility::Info;
-                        self.show_hide_btn = Button::hide_btn(ctx, "hide");
-                    }
-                    self.hovering_idx = None;
-                }
-                Visibility::Info => {
-                    self.visible = Visibility::JustTitle;
-                    self.show_hide_btn = Button::show_btn(ctx, "show");
-                }
-                Visibility::JustTitle => {
-                    self.visible = Visibility::Full;
-                    if self.info.num_lines() == 0 {
-                        self.show_hide_btn = Button::hide_btn(ctx, "hide");
-                    } else {
-                        self.show_hide_btn = Button::hide_btn(ctx, "just show info");
-                    }
-                }
-            }
-            // Recalculate hovering immediately.
-            self.recalculate_dims(ctx);
-            self.show_hide_btn.set_pos(ScreenPt::new(
-                self.top_left.x + self.dims.width,
-                self.top_left.y,
-            ));
-            self.show_hide_btn.just_replaced(ctx);
         }
 
         // Reset for next round
@@ -267,7 +208,6 @@ impl ModalMenu {
 
     pub fn draw(&self, g: &mut GfxCtx) {
         g.draw_text_at_screenspace_topleft(&self.calculate_txt(), self.top_left);
-        self.show_hide_btn.draw(g);
     }
 
     fn recalculate_dims(&mut self, ctx: &EventCtx) {
@@ -276,13 +216,7 @@ impl ModalMenu {
 
     fn calculate_txt(&self) -> Text {
         let mut txt = Text::prompt(&self.title);
-        if self.visible == Visibility::JustTitle {
-            return txt;
-        }
         txt.extend(&self.info);
-        if self.visible == Visibility::Info {
-            return txt;
-        }
 
         for (idx, choice) in self.choices.iter().enumerate() {
             if choice.active {

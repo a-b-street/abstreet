@@ -33,8 +33,6 @@ impl UI {
                 vec![
                     ("assets/pregame/challenges.png", TextureType::Stretch),
                     ("assets/pregame/logo.png", TextureType::Stretch),
-                    ("assets/ui/hide.png", TextureType::Stretch),
-                    ("assets/ui/show.png", TextureType::Stretch),
                 ],
                 &mut timer,
             );
