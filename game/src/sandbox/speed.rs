@@ -4,7 +4,7 @@ use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::UI;
 use ezgui::{
     hotkey, Button, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, RewriteColor, ScreenPt, Slider, Text, VerticalAlignment, Wizard,
+    Line, RewriteColor, Slider, Text, VerticalAlignment, Wizard,
 };
 use geom::{Distance, Duration, Line, Pt2D, Time};
 use std::collections::HashMap;
@@ -15,7 +15,6 @@ const ADJUST_SPEED_PERCENT: f64 = 0.01;
 pub struct SpeedControls {
     time_panel: TimePanel,
 
-    top_left: ScreenPt,
     composite: Composite,
     slider: Slider,
 
@@ -34,12 +33,7 @@ enum SpeedState {
 }
 
 impl SpeedControls {
-    fn make_panel(
-        ctx: &EventCtx,
-        paused: bool,
-        desired_speed: f64,
-        top_left: ScreenPt,
-    ) -> Composite {
+    fn make_panel(ctx: &EventCtx, paused: bool, desired_speed: f64) -> Composite {
         let mut row = Vec::new();
         if paused {
             row.push(ManagedWidget::btn_no_cb(Button::rectangle_svg(
@@ -147,20 +141,17 @@ impl SpeedControls {
             .bg(Color::grey(0.5)),
         );
 
-        Composite::minimal_size(
+        Composite::aligned(
+            (
+                HorizontalAlignment::Center,
+                VerticalAlignment::BottomAboveOSD,
+            ),
             ManagedWidget::row(row.into_iter().map(|x| x.margin(5)).collect())
                 .bg(Color::hex("#4C4C4C")),
-            top_left,
         )
     }
 
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> SpeedControls {
-        // TODO Or fullscreen and align it?
-        let top_left = ScreenPt::new(
-            (ctx.canvas.window_width - 600.0) / 2.0,
-            ctx.canvas.window_height - 80.0,
-        );
-
         // 10 sim minutes / real second normally, or 1 sim hour / real second for dev mode
         let speed_cap: f64 = if ui.opts.dev { 3600.0 } else { 600.0 };
         let mut slider = Slider::new(160.0, 15.0);
@@ -171,8 +162,7 @@ impl SpeedControls {
         SpeedControls {
             time_panel: TimePanel::new(ctx, ui),
 
-            top_left,
-            composite: SpeedControls::make_panel(ctx, false, 1.0, top_left),
+            composite: SpeedControls::make_panel(ctx, false, 1.0),
             slider,
 
             state: SpeedState::Running {
@@ -225,8 +215,7 @@ impl SpeedControls {
                         last_measurement: now,
                         last_measurement_sim: ui.primary.sim.time(),
                     };
-                    self.composite =
-                        SpeedControls::make_panel(ctx, false, desired_speed, self.top_left);
+                    self.composite = SpeedControls::make_panel(ctx, false, desired_speed);
                     return None;
                 }
                 "pause" => {
@@ -288,8 +277,7 @@ impl SpeedControls {
     pub fn pause(&mut self, ctx: &EventCtx) {
         if !self.is_paused() {
             self.state = SpeedState::Paused;
-            self.composite =
-                SpeedControls::make_panel(ctx, true, self.desired_speed(), self.top_left);
+            self.composite = SpeedControls::make_panel(ctx, true, self.desired_speed());
         }
     }
 
@@ -380,7 +368,8 @@ impl TimePanel {
     fn new(ctx: &mut EventCtx, ui: &UI) -> TimePanel {
         TimePanel {
             time: ui.primary.sim.time(),
-            composite: Composite::minimal_size(
+            composite: Composite::aligned(
+                (HorizontalAlignment::Left, VerticalAlignment::Top),
                 ManagedWidget::col(vec![
                     ManagedWidget::draw_text(
                         ctx,
@@ -419,7 +408,6 @@ impl TimePanel {
                 ])
                 .bg(Color::hex("#4C4C4C"))
                 .padding(10),
-                ScreenPt::new(0.0, 0.0),
             ),
         }
     }

@@ -232,13 +232,18 @@ fn change_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<
                 abstutil::list_all_objects(abstutil::path_all_scenarios(ui.primary.map.get_name()));
             list.push(builtin.clone());
             list.push("just buses".to_string());
+            list.push("empty".to_string());
             list
         })?;
     ui.primary.clear_sim();
     Some(Transition::PopThenReplace(Box::new(SandboxMode::new(
         ctx,
         ui,
-        GameplayMode::PlayScenario(scenario_name),
+        if scenario_name == "empty" {
+            GameplayMode::Freeform
+        } else {
+            GameplayMode::PlayScenario(scenario_name)
+        },
     ))))
 }
 

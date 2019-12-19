@@ -2,8 +2,9 @@ use crate::game::{State, Transition};
 use crate::ui::UI;
 use ezgui::layout::Widget;
 use ezgui::{
-    Button, Color, DrawBoth, Drawable, EventCtx, GeomBatch, GfxCtx, JustDraw, Line, MultiKey,
-    RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Slider, Text,
+    Button, Color, DrawBoth, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, JustDraw,
+    Line, MultiKey, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Slider, Text,
+    VerticalAlignment,
 };
 use geom::{Distance, Polygon};
 use std::collections::HashMap;
@@ -433,6 +434,7 @@ pub enum Outcome {
 enum CompositePosition {
     FillScreen,
     MinimalTopLeft(ScreenPt),
+    Aligned(HorizontalAlignment, VerticalAlignment),
 }
 
 impl Composite {
@@ -450,6 +452,16 @@ impl Composite {
         }
     }
 
+    pub fn aligned(
+        (horiz, vert): (HorizontalAlignment, VerticalAlignment),
+        top_level: ManagedWidget,
+    ) -> Composite {
+        Composite {
+            top_level,
+            pos: CompositePosition::Aligned(horiz, vert),
+        }
+    }
+
     pub fn recompute_layout(&mut self, ctx: &EventCtx, sliders: &mut HashMap<String, &mut Slider>) {
         // TODO If this ever gets slow, only run if window size has changed.
         let mut stretch = Stretch::new();
@@ -463,10 +475,12 @@ impl Composite {
                         },
                         ..Default::default()
                     },
-                    CompositePosition::MinimalTopLeft(_) => Style {
-                        // TODO There a way to encode the offset in stretch?
-                        ..Default::default()
-                    },
+                    CompositePosition::MinimalTopLeft(_) | CompositePosition::Aligned(_, _) => {
+                        Style {
+                            // TODO There a way to encode the offset in stretch?
+                            ..Default::default()
+                        }
+                    }
                 },
                 Vec::new(),
             )
@@ -481,6 +495,14 @@ impl Composite {
         let top_left = match self.pos {
             CompositePosition::FillScreen => ScreenPt::new(0.0, 0.0),
             CompositePosition::MinimalTopLeft(pt) => pt,
+            CompositePosition::Aligned(horiz, vert) => {
+                let result = stretch.layout(root).unwrap();
+                ctx.canvas.align_window(
+                    ScreenDims::new(result.size.width.into(), result.size.height.into()),
+                    horiz,
+                    vert,
+                )
+            }
         };
         self.top_level
             .apply_flexbox(sliders, &stretch, &mut nodes, top_left.x, top_left.y, ctx);

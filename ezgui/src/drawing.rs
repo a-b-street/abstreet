@@ -235,26 +235,12 @@ impl<'a> GfxCtx<'a> {
         (horiz, vert): (HorizontalAlignment, VerticalAlignment),
     ) {
         let mut dims = self.text_dims(&txt);
-        let x1 = match horiz {
-            HorizontalAlignment::Left => 0.0,
-            HorizontalAlignment::Center => (self.canvas.window_width - dims.width) / 2.0,
-            HorizontalAlignment::Right => self.canvas.window_width - dims.width,
-            HorizontalAlignment::FillScreen => {
-                dims.width = self.canvas.window_width;
-                0.0
-            }
-        };
-        let y1 = match vert {
-            VerticalAlignment::Top => 0.0,
-            VerticalAlignment::Center => (self.canvas.window_height - dims.height) / 2.0,
-            VerticalAlignment::Bottom => self.canvas.window_height - dims.height,
-        };
-        self.canvas.mark_covered_area(text::draw_text_bubble(
-            self,
-            ScreenPt::new(x1, y1),
-            txt,
-            dims,
-        ));
+        let top_left = self.canvas.align_window(dims, horiz, vert);
+        if let HorizontalAlignment::FillScreen = horiz {
+            dims.width = self.canvas.window_width;
+        }
+        self.canvas
+            .mark_covered_area(text::draw_text_bubble(self, top_left, txt, dims));
     }
 
     pub fn get_screen_bounds(&self) -> Bounds {

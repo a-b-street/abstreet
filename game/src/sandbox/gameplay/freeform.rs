@@ -5,7 +5,10 @@ use crate::managed::{Composite, ManagedWidget};
 use crate::sandbox::gameplay::{change_scenario, load_map, spawner, GameplayMode, GameplayState};
 use crate::sandbox::overlays::Overlays;
 use crate::ui::UI;
-use ezgui::{hotkey, lctrl, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, ScreenPt, Text};
+use ezgui::{
+    hotkey, lctrl, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ModalMenu, Text,
+    VerticalAlignment,
+};
 use map_model::IntersectionID;
 use sim::Analytics;
 use std::collections::BTreeSet;
@@ -75,7 +78,8 @@ pub fn freeform_controller(
     gameplay: GameplayMode,
     scenario_name: &str,
 ) -> Composite {
-    Composite::minimal_size(
+    Composite::aligned(
+        (HorizontalAlignment::Center, VerticalAlignment::Top),
         ManagedWidget::row(vec![
             ManagedWidget::col(vec![
                 ManagedWidget::text_button(
@@ -125,6 +129,5 @@ pub fn freeform_controller(
             ]),
         ])
         .bg(Color::grey(0.4)),
-        ScreenPt::new(ctx.canvas.window_width / 2.0 - 300.0, 5.0),
     )
 }

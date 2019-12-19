@@ -5,7 +5,10 @@ use crate::managed::{Composite, ManagedWidget};
 use crate::options;
 use crate::sandbox::GameplayMode;
 use crate::ui::UI;
-use ezgui::{hotkey, lctrl, Button, Color, EventCtx, Key, Line, RewriteColor, ScreenPt, Text};
+use ezgui::{
+    hotkey, lctrl, Button, Color, EventCtx, HorizontalAlignment, Key, Line, RewriteColor, Text,
+    VerticalAlignment,
+};
 
 // TODO Rethink this API.
 pub fn tool_panel(ctx: &EventCtx, extra_buttons: Vec<ManagedWidget>) -> Composite {
@@ -46,14 +49,15 @@ pub fn tool_panel(ctx: &EventCtx, extra_buttons: Vec<ManagedWidget>) -> Composit
     ];
     row.extend(extra_buttons);
 
-    Composite::minimal_size(
+    Composite::aligned(
+        (HorizontalAlignment::Left, VerticalAlignment::BottomAboveOSD),
         ManagedWidget::row(row.into_iter().map(|x| x.margin(10)).collect()).bg(Color::grey(0.4)),
-        ScreenPt::new(30.0, ctx.canvas.window_height - 80.0),
     )
 }
 
 pub fn edit_map_panel(ctx: &EventCtx, ui: &UI, gameplay: GameplayMode) -> Composite {
-    Composite::minimal_size(
+    Composite::aligned(
+        (HorizontalAlignment::Center, VerticalAlignment::Top),
         ManagedWidget::row(vec![
             ManagedWidget::col(vec![
                 ManagedWidget::draw_text(ctx, Text::from(Line("Sandbox"))),
@@ -84,6 +88,5 @@ pub fn edit_map_panel(ctx: &EventCtx, ui: &UI, gameplay: GameplayMode) -> Compos
             ]),
         ])
         .bg(Color::grey(0.4)),
-        ScreenPt::new(ctx.canvas.window_width / 2.0, 5.0),
     )
 }

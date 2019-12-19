@@ -15,8 +15,8 @@ use crate::pregame::main_menu;
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Button, Choice, Color, EventCtx, EventLoopMode, GfxCtx, Key, Line, ScreenPt,
-    Text,
+    hotkey, lctrl, Button, Choice, Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment,
+    Key, Line, Text, VerticalAlignment,
 };
 pub use gameplay::spawner::spawn_agents_around;
 pub use gameplay::GameplayMode;
@@ -296,7 +296,8 @@ impl AgentMeter {
     pub fn new(ctx: &EventCtx, ui: &UI) -> AgentMeter {
         let (active, unfinished, by_mode) = ui.primary.sim.num_trips();
 
-        let composite = Composite::minimal_size(
+        let composite = Composite::aligned(
+            (HorizontalAlignment::Right, VerticalAlignment::Top),
             ManagedWidget::col(vec![
                 {
                     let mut txt = Text::new();
@@ -318,7 +319,6 @@ impl AgentMeter {
             ])
             .bg(Color::grey(0.4))
             .padding(20),
-            ScreenPt::new(ctx.canvas.window_width - 300.0, 5.0),
         );
 
         AgentMeter {

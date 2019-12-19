@@ -1,4 +1,4 @@
-use crate::{Color, ScreenPt, ScreenRectangle, Text, UserInput};
+use crate::{Color, ScreenDims, ScreenPt, ScreenRectangle, Text, UserInput};
 use abstutil::Timer;
 use geom::{Bounds, Distance, Polygon, Pt2D};
 use glium::texture::Texture2dArray;
@@ -225,8 +225,31 @@ impl Canvas {
             _ => false,
         }
     }
+
+    pub fn align_window(
+        &self,
+        dims: ScreenDims,
+        horiz: HorizontalAlignment,
+        vert: VerticalAlignment,
+    ) -> ScreenPt {
+        let x1 = match horiz {
+            HorizontalAlignment::Left => 0.0,
+            HorizontalAlignment::Center => (self.window_width - dims.width) / 2.0,
+            HorizontalAlignment::Right => self.window_width - dims.width,
+            HorizontalAlignment::FillScreen => 0.0,
+        };
+        let y1 = match vert {
+            VerticalAlignment::Top => 0.0,
+            VerticalAlignment::Center => (self.window_height - dims.height) / 2.0,
+            VerticalAlignment::Bottom => self.window_height - dims.height,
+            // TODO Hack
+            VerticalAlignment::BottomAboveOSD => self.window_height - dims.height - 40.0,
+        };
+        ScreenPt::new(x1, y1)
+    }
 }
 
+#[derive(Clone, Copy)]
 pub enum HorizontalAlignment {
     Left,
     Center,
@@ -234,10 +257,12 @@ pub enum HorizontalAlignment {
     FillScreen,
 }
 
+#[derive(Clone, Copy)]
 pub enum VerticalAlignment {
     Top,
     Center,
     Bottom,
+    BottomAboveOSD,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
