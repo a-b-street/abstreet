@@ -7,6 +7,7 @@ mod play_scenario;
 pub mod spawner;
 
 use crate::game::Transition;
+use crate::managed::{Composite, Outcome};
 use crate::render::AgentColorScheme;
 use crate::sandbox::overlays::Overlays;
 use crate::sandbox::SandboxMode;
@@ -20,6 +21,7 @@ use sim::{Analytics, Scenario, TripMode};
 pub struct GameplayRunner {
     pub mode: GameplayMode,
     pub menu: ModalMenu,
+    controller: Composite,
     state: Box<dyn GameplayState>,
     pub prebaked: Analytics,
 }
@@ -140,18 +142,20 @@ impl GameplayMode {
 
 impl GameplayRunner {
     pub fn initialize(mode: GameplayMode, ui: &mut UI, ctx: &mut EventCtx) -> GameplayRunner {
-        let (menu, state) = match mode.clone() {
-            GameplayMode::Freeform => freeform::Freeform::new(ctx),
+        let (menu, controller, state) = match mode.clone() {
+            GameplayMode::Freeform => freeform::Freeform::new(ctx, ui),
             GameplayMode::PlayScenario(scenario) => {
-                play_scenario::PlayScenario::new(&scenario, ctx)
+                play_scenario::PlayScenario::new(&scenario, ctx, ui)
             }
             GameplayMode::OptimizeBus(route_name) => {
                 optimize_bus::OptimizeBus::new(route_name, ctx, ui)
             }
-            GameplayMode::CreateGridlock => create_gridlock::CreateGridlock::new(ctx),
-            GameplayMode::FasterTrips(trip_mode) => faster_trips::FasterTrips::new(trip_mode, ctx),
+            GameplayMode::CreateGridlock => create_gridlock::CreateGridlock::new(ctx, ui),
+            GameplayMode::FasterTrips(trip_mode) => {
+                faster_trips::FasterTrips::new(trip_mode, ctx, ui)
+            }
             GameplayMode::FixTrafficSignals | GameplayMode::FixTrafficSignalsTutorial(_) => {
-                fix_traffic_signals::FixTrafficSignals::new(ctx)
+                fix_traffic_signals::FixTrafficSignals::new(ctx, ui, mode.clone())
             }
         };
         let prebaked = ctx.loading_screen("instantiate scenario", |_, timer| {
@@ -184,6 +188,7 @@ impl GameplayRunner {
             mode,
             prebaked,
             menu,
+            controller,
             state,
         }
     }
@@ -194,12 +199,20 @@ impl GameplayRunner {
         ui: &mut UI,
         overlays: &mut Overlays,
     ) -> Option<Transition> {
+        match self.controller.event(ctx, ui) {
+            Some(Outcome::Transition(t)) => {
+                return Some(t);
+            }
+            Some(Outcome::Clicked(_)) => unreachable!(),
+            None => {}
+        }
         self.state
             .event(ctx, ui, overlays, &self.prebaked, &mut self.menu)
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         self.menu.draw(g);
+        self.controller.draw(g);
         self.state.draw(g, ui);
     }
 }

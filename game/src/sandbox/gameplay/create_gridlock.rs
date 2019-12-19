@@ -1,6 +1,8 @@
+use crate::common::edit_map_panel;
 use crate::game::{msg, Transition};
+use crate::managed::Composite;
 use crate::render::AgentColorScheme;
-use crate::sandbox::gameplay::{cmp_count_fewer, manage_acs, GameplayState};
+use crate::sandbox::gameplay::{cmp_count_fewer, manage_acs, GameplayMode, GameplayState};
 use crate::sandbox::overlays::Overlays;
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
@@ -13,7 +15,7 @@ pub struct CreateGridlock {
 }
 
 impl CreateGridlock {
-    pub fn new(ctx: &EventCtx) -> (ModalMenu, Box<dyn GameplayState>) {
+    pub fn new(ctx: &EventCtx, ui: &UI) -> (ModalMenu, Composite, Box<dyn GameplayState>) {
         (
             ModalMenu::new(
                 "Cause gridlock",
@@ -23,6 +25,7 @@ impl CreateGridlock {
                 ],
                 ctx,
             ),
+            edit_map_panel(ctx, ui, GameplayMode::CreateGridlock),
             Box::new(CreateGridlock {
                 time: Time::START_OF_DAY,
             }),

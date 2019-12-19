@@ -1,9 +1,11 @@
+use crate::edit::EditMode;
 use crate::game::{msg, Transition, WizardState};
 use crate::helpers::ID;
-use crate::sandbox::gameplay::{change_scenario, load_map, spawner, GameplayState};
+use crate::managed::{Composite, ManagedWidget};
+use crate::sandbox::gameplay::{change_scenario, load_map, spawner, GameplayMode, GameplayState};
 use crate::sandbox::overlays::Overlays;
 use crate::ui::UI;
-use ezgui::{hotkey, lctrl, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
+use ezgui::{hotkey, lctrl, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, ScreenPt, Text};
 use map_model::IntersectionID;
 use sim::Analytics;
 use std::collections::BTreeSet;
@@ -15,17 +17,10 @@ pub struct Freeform {
 }
 
 impl Freeform {
-    pub fn new(ctx: &EventCtx) -> (ModalMenu, Box<dyn GameplayState>) {
+    pub fn new(ctx: &EventCtx, ui: &UI) -> (ModalMenu, Composite, Box<dyn GameplayState>) {
         (
-            ModalMenu::new(
-                "Freeform mode",
-                vec![
-                    (hotkey(Key::S), "start a scenario"),
-                    (lctrl(Key::L), "load another map"),
-                    (hotkey(Key::H), "help"),
-                ],
-                ctx,
-            ),
+            ModalMenu::new("Freeform mode", vec![(hotkey(Key::H), "help")], ctx),
+            freeform_controller(ctx, ui, GameplayMode::Freeform, "empty scenario"),
             Box::new(Freeform {
                 spawn_pts: BTreeSet::new(),
             }),
@@ -43,14 +38,6 @@ impl GameplayState for Freeform {
         menu: &mut ModalMenu,
     ) -> Option<Transition> {
         menu.event(ctx);
-        if menu.action("start a scenario") {
-            return Some(Transition::Push(WizardState::new(Box::new(
-                change_scenario,
-            ))));
-        }
-        if menu.action("load another map") {
-            return Some(Transition::Push(WizardState::new(Box::new(load_map))));
-        }
         if menu.action("help") {
             return Some(Transition::Push(msg("Help", vec!["This simulation is empty by default.", "Try right-clicking an intersection and choosing to spawn agents (or just hover over it and press Z).", "You can also spawn agents from buildings or lanes.", "You can also start a full scenario to get realistic traffic."])));
         }
@@ -80,4 +67,64 @@ impl GameplayState for Freeform {
             }
         }
     }
+}
+
+pub fn freeform_controller(
+    ctx: &EventCtx,
+    ui: &UI,
+    gameplay: GameplayMode,
+    scenario_name: &str,
+) -> Composite {
+    Composite::minimal_size(
+        ManagedWidget::row(vec![
+            ManagedWidget::col(vec![
+                ManagedWidget::text_button(
+                    ctx,
+                    "change map",
+                    lctrl(Key::L),
+                    Box::new(|_, _| Some(Transition::Push(WizardState::new(Box::new(load_map))))),
+                ),
+                ManagedWidget::draw_text(ctx, Text::from(Line(ui.primary.map.get_name()))),
+            ]),
+            ManagedWidget::col(vec![
+                ManagedWidget::text_button(
+                    ctx,
+                    "change scenario",
+                    hotkey(Key::S),
+                    Box::new(|_, _| {
+                        Some(Transition::Push(WizardState::new(Box::new(
+                            change_scenario,
+                        ))))
+                    }),
+                ),
+                ManagedWidget::draw_text(ctx, Text::from(Line(scenario_name))),
+            ]),
+            // TODO Refactor
+            ManagedWidget::col(vec![
+                // TODO icon button
+                ManagedWidget::text_button(
+                    ctx,
+                    "edit map",
+                    lctrl(Key::E),
+                    Box::new(move |ctx, ui| {
+                        ui.primary.clear_sim();
+                        Some(Transition::Replace(Box::new(EditMode::new(
+                            ctx,
+                            gameplay.clone(),
+                        ))))
+                    }),
+                ),
+                {
+                    let edits = ui.primary.map.get_edits();
+                    let mut txt = Text::from(Line(&edits.edits_name));
+                    if edits.dirty {
+                        txt.append(Line("*"));
+                    }
+                    ManagedWidget::draw_text(ctx, txt)
+                },
+            ]),
+        ])
+        .bg(Color::grey(0.4)),
+        ScreenPt::new(ctx.canvas.window_width / 2.0, 5.0),
+    )
 }

@@ -5,7 +5,7 @@ mod score;
 mod speed;
 
 use self::overlays::Overlays;
-use crate::common::{edit_map_panel, tool_panel, AgentTools, CommonState, Minimap};
+use crate::common::{tool_panel, AgentTools, CommonState, Minimap};
 use crate::debug::DebugMode;
 use crate::edit::{apply_map_edits, save_edits};
 use crate::game::{State, Transition, WizardState};
@@ -32,7 +32,6 @@ pub struct SandboxMode {
     gameplay: gameplay::GameplayRunner,
     common: CommonState,
     tool_panel: Composite,
-    edit_map_panel: Composite,
     minimap: Option<Minimap>,
 }
 
@@ -75,7 +74,6 @@ impl SandboxMode {
                     ),
                 ],
             ),
-            edit_map_panel: edit_map_panel(ctx, ui, mode.clone()),
             minimap: if mode.has_minimap() {
                 Some(Minimap::new(ctx, ui))
             } else {
@@ -249,13 +247,6 @@ impl State for SandboxMode {
             },
             None => {}
         }
-        match self.edit_map_panel.event(ctx, ui) {
-            Some(Outcome::Transition(t)) => {
-                return t;
-            }
-            Some(Outcome::Clicked(_)) => unreachable!(),
-            None => {}
-        }
 
         if self.speed.is_paused() {
             Transition::Keep
@@ -282,7 +273,6 @@ impl State for SandboxMode {
         }
         self.common.draw(g, ui);
         self.tool_panel.draw(g);
-        self.edit_map_panel.draw(g);
         self.speed.draw(g);
         self.gameplay.draw(g, ui);
         self.agent_meter.draw(g);

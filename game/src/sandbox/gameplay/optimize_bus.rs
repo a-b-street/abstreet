@@ -1,7 +1,10 @@
-use crate::common::{Plot, Series};
+use crate::common::{edit_map_panel, Plot, Series};
 use crate::game::{msg, Transition, WizardState};
 use crate::helpers::rotating_color_total;
-use crate::sandbox::gameplay::{cmp_duration_shorter, manage_overlays, GameplayState};
+use crate::managed::Composite;
+use crate::sandbox::gameplay::{
+    cmp_duration_shorter, manage_overlays, GameplayMode, GameplayState,
+};
 use crate::sandbox::overlays::Overlays;
 use crate::sandbox::{bus_explorer, SandboxMode};
 use crate::ui::UI;
@@ -17,7 +20,11 @@ pub struct OptimizeBus {
 }
 
 impl OptimizeBus {
-    pub fn new(route_name: String, ctx: &EventCtx, ui: &UI) -> (ModalMenu, Box<dyn GameplayState>) {
+    pub fn new(
+        route_name: String,
+        ctx: &EventCtx,
+        ui: &UI,
+    ) -> (ModalMenu, Composite, Box<dyn GameplayState>) {
         let route = ui.primary.map.get_bus_route(&route_name).unwrap();
         (
             ModalMenu::new(
@@ -30,6 +37,7 @@ impl OptimizeBus {
                 ],
                 ctx,
             ),
+            edit_map_panel(ctx, ui, GameplayMode::OptimizeBus(route_name.clone())),
             Box::new(OptimizeBus {
                 route: route.id,
                 time: Time::START_OF_DAY,

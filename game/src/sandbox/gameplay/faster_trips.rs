@@ -1,5 +1,7 @@
+use crate::common::edit_map_panel;
 use crate::game::{msg, Transition};
-use crate::sandbox::gameplay::{cmp_count_more, cmp_duration_shorter, GameplayState};
+use crate::managed::Composite;
+use crate::sandbox::gameplay::{cmp_count_more, cmp_duration_shorter, GameplayMode, GameplayState};
 use crate::sandbox::overlays::Overlays;
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
@@ -13,13 +15,18 @@ pub struct FasterTrips {
 }
 
 impl FasterTrips {
-    pub fn new(trip_mode: TripMode, ctx: &EventCtx) -> (ModalMenu, Box<dyn GameplayState>) {
+    pub fn new(
+        trip_mode: TripMode,
+        ctx: &EventCtx,
+        ui: &UI,
+    ) -> (ModalMenu, Composite, Box<dyn GameplayState>) {
         (
             ModalMenu::new(
                 format!("Speed up {} trips", trip_mode),
                 vec![(hotkey(Key::H), "help")],
                 ctx,
             ),
+            edit_map_panel(ctx, ui, GameplayMode::FasterTrips(trip_mode)),
             Box::new(FasterTrips {
                 mode: trip_mode,
                 time: Time::START_OF_DAY,

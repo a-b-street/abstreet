@@ -1,6 +1,8 @@
+use crate::common::edit_map_panel;
 use crate::game::{msg, Transition};
+use crate::managed::Composite;
 use crate::sandbox::gameplay::faster_trips::small_faster_trips_panel;
-use crate::sandbox::gameplay::{manage_overlays, GameplayState};
+use crate::sandbox::gameplay::{manage_overlays, GameplayMode, GameplayState};
 use crate::sandbox::overlays::Overlays;
 use crate::ui::UI;
 use ezgui::{hotkey, EventCtx, Key, ModalMenu};
@@ -14,7 +16,11 @@ pub struct FixTrafficSignals {
 }
 
 impl FixTrafficSignals {
-    pub fn new(ctx: &EventCtx) -> (ModalMenu, Box<dyn GameplayState>) {
+    pub fn new(
+        ctx: &EventCtx,
+        ui: &UI,
+        mode: GameplayMode,
+    ) -> (ModalMenu, Composite, Box<dyn GameplayState>) {
         (
             ModalMenu::new(
                 "Fix traffic signals",
@@ -26,6 +32,7 @@ impl FixTrafficSignals {
                 ],
                 ctx,
             ),
+            edit_map_panel(ctx, ui, mode),
             Box::new(FixTrafficSignals {
                 time: Time::START_OF_DAY,
                 once: true,
