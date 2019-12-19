@@ -12,6 +12,7 @@ pub trait Widget {
 pub enum ContainerOrientation {
     TopLeft,
     TopRight,
+    TopRightButDownABit(f64),
     Centered,
     // Place the widget this percentage along the width of the screen
     Top(f64),
@@ -35,6 +36,9 @@ pub fn stack_vertically(
     let mut top_left = match orientation {
         ContainerOrientation::TopLeft => ScreenPt::new(0.0, 0.0),
         ContainerOrientation::TopRight => ScreenPt::new(ctx.canvas.window_width - total_width, 0.0),
+        ContainerOrientation::TopRightButDownABit(y1) => {
+            ScreenPt::new(ctx.canvas.window_width - total_width, y1)
+        }
         ContainerOrientation::Centered => {
             let mut pt = ctx.canvas.center_to_screen_pt();
             pt.x -= total_width / 2.0;

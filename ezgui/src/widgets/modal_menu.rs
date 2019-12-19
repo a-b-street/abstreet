@@ -73,6 +73,11 @@ impl ModalMenu {
         self
     }
 
+    pub fn set_standalone_layout(mut self, layout: layout::ContainerOrientation) -> ModalMenu {
+        self.standalone_layout = Some(layout);
+        self
+    }
+
     pub fn set_info(&mut self, ctx: &EventCtx, info: Text) {
         self.info = info.with_bg();
         self.recalculate_dims(ctx);

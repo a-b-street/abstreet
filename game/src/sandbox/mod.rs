@@ -318,7 +318,7 @@ impl AgentMeter {
             ])
             .bg(Color::grey(0.4))
             .padding(20),
-            ScreenPt::new(350.0, 10.0),
+            ScreenPt::new(ctx.canvas.window_width - 300.0, 5.0),
         );
 
         AgentMeter {

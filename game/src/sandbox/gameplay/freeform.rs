@@ -125,6 +125,6 @@ pub fn freeform_controller(
             ]),
         ])
         .bg(Color::grey(0.4)),
-        ScreenPt::new(ctx.canvas.window_width / 2.0, 5.0),
+        ScreenPt::new(ctx.canvas.window_width / 2.0 - 300.0, 5.0),
     )
 }

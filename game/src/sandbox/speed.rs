@@ -158,7 +158,7 @@ impl SpeedControls {
         // TODO Or fullscreen and align it?
         let top_left = ScreenPt::new(
             (ctx.canvas.window_width - 600.0) / 2.0,
-            ctx.canvas.window_height - 100.0,
+            ctx.canvas.window_height - 80.0,
         );
 
         // 10 sim minutes / real second normally, or 1 sim hour / real second for dev mode

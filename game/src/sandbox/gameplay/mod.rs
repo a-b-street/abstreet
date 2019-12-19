@@ -13,7 +13,7 @@ use crate::sandbox::overlays::Overlays;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
 use abstutil::{prettyprint_usize, Timer};
-use ezgui::{Color, EventCtx, GfxCtx, Line, ModalMenu, TextSpan, Wizard};
+use ezgui::{layout, Color, EventCtx, GfxCtx, Line, ModalMenu, TextSpan, Wizard};
 use geom::Duration;
 use map_model::{EditCmd, Map, MapEdits};
 use sim::{Analytics, Scenario, TripMode};
@@ -187,7 +187,8 @@ impl GameplayRunner {
         GameplayRunner {
             mode,
             prebaked,
-            menu,
+            menu: menu
+                .set_standalone_layout(layout::ContainerOrientation::TopRightButDownABit(150.0)),
             controller,
             state,
         }
