@@ -626,13 +626,19 @@ impl DrivingSimState {
         scheduler: &mut Scheduler,
     ) {
         // TODO The impl here is pretty gross; play the same trick and remove car temporarily?
-        let dists = self.queues[&self.cars[&id].router.head()].get_car_positions(
+        let on = self.cars[&id].router.head();
+        let dists = self.queues[&on].get_car_positions(
             now,
             &self.cars,
             &self.queues,
         );
         // This car must be the tail.
-        assert_eq!(id, dists.last().unwrap().0);
+        {
+            let last = dists.last().unwrap().0;
+            if id != last {
+                panic!("At {} on {:?}, laggy head {} isn't the last on the lane; it's {}", now, on, id, last);
+            }
+        }
         let our_len = self.cars[&id].vehicle.length + FOLLOWING_DISTANCE;
 
         // Have we made it far enough yet? Unfortunately, we have some math imprecision issues...

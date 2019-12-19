@@ -421,15 +421,6 @@
       }
     },
     {
-      "osm_way_id": 6488417,
-      "i1": {
-        "osm_node_id": 3857576850
-      },
-      "i2": {
-        "osm_node_id": 196717735
-      }
-    },
-    {
       "osm_way_id": 6489809,
       "i1": {
         "osm_node_id": 53224620
@@ -481,6 +472,24 @@
       },
       "i2": {
         "osm_node_id": 53238761
+      }
+    },
+    {
+      "osm_way_id": 6497926,
+      "i1": {
+        "osm_node_id": 53225678
+      },
+      "i2": {
+        "osm_node_id": 6958515433
+      }
+    },
+    {
+      "osm_way_id": 6497926,
+      "i1": {
+        "osm_node_id": 6958515433
+      },
+      "i2": {
+        "osm_node_id": 504886122
       }
     },
     {
@@ -742,24 +751,6 @@
       },
       "i2": {
         "osm_node_id": 53077630
-      }
-    },
-    {
-      "osm_way_id": 170683666,
-      "i1": {
-        "osm_node_id": 196717735
-      },
-      "i2": {
-        "osm_node_id": 1818407082
-      }
-    },
-    {
-      "osm_way_id": 170683666,
-      "i1": {
-        "osm_node_id": 1818407082
-      },
-      "i2": {
-        "osm_node_id": 53223864
       }
     },
     {
@@ -1282,6 +1273,24 @@
       },
       "i2": {
         "osm_node_id": 3737867838
+      }
+    },
+    {
+      "osm_way_id": 389322093,
+      "i1": {
+        "osm_node_id": 53225678
+      },
+      "i2": {
+        "osm_node_id": 6958515433
+      }
+    },
+    {
+      "osm_way_id": 389322093,
+      "i1": {
+        "osm_node_id": 6958515433
+      },
+      "i2": {
+        "osm_node_id": 244285045
       }
     },
     {
@@ -2427,9 +2436,6 @@
       "osm_node_id": 53214134
     },
     {
-      "osm_node_id": 53223864
-    },
-    {
       "osm_node_id": 53224620
     },
     {
@@ -2466,9 +2472,6 @@
       "osm_node_id": 128683528
     },
     {
-      "osm_node_id": 196717735
-    },
-    {
       "osm_node_id": 246758543
     },
     {
@@ -2491,9 +2494,6 @@
     },
     {
       "osm_node_id": 1726751425
-    },
-    {
-      "osm_node_id": 1818407082
     },
     {
       "osm_node_id": 2247309277
@@ -2656,6 +2656,9 @@
     },
     {
       "osm_node_id": 4906728043
+    },
+    {
+      "osm_node_id": 6958515433
     }
   ],
   "override_intersections": [
@@ -6543,6 +6546,54 @@
     ],
     [
       {
+        "osm_way_id": 6497926,
+        "i1": {
+          "osm_node_id": 53225678
+        },
+        "i2": {
+          "osm_node_id": 504886122
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 6616.1811,
+            "inner_y": 7524.8396
+          },
+          {
+            "inner_x": 6742.653,
+            "inner_y": 7524.9063
+          },
+          {
+            "inner_x": 6749.7114,
+            "inner_y": 7526.741
+          },
+          {
+            "inner_x": 6754.4894,
+            "inner_y": 7529.0761
+          },
+          {
+            "inner_x": 6760.6851,
+            "inner_y": 7532.0895
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "6497926",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "Etruria Street",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
+      }
+    ],
+    [
+      {
         "osm_way_id": 6505131,
         "i1": {
           "osm_node_id": 3978753105
@@ -9693,6 +9744,46 @@
             }
           ]
         ]
+      }
+    ],
+    [
+      {
+        "osm_way_id": 389322093,
+        "i1": {
+          "osm_node_id": 53225678
+        },
+        "i2": {
+          "osm_node_id": 244285045
+        }
+      },
+      {
+        "center_points": [
+          {
+            "inner_x": 6616.1811,
+            "inner_y": 7524.8396
+          },
+          {
+            "inner_x": 6692.6899,
+            "inner_y": 7577.3792
+          }
+        ],
+        "osm_tags": {
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "389322093",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "designated",
+          "cycleway": "shared_lane",
+          "highway": "primary",
+          "lanes": "4",
+          "lcn": "yes",
+          "maxspeed": "30 mph",
+          "name": "Nickerson Street",
+          "oneway": "no",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "turn_restrictions": []
       }
     ],
     [
