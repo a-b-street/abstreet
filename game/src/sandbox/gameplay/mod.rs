@@ -8,7 +8,7 @@ pub mod spawner;
 
 use crate::game::Transition;
 use crate::managed::{Composite, Outcome};
-use crate::render::AgentColorScheme;
+use crate::render::{AgentColorScheme, InnerAgentColorScheme};
 use crate::sandbox::overlays::Overlays;
 use crate::sandbox::SandboxMode;
 use crate::ui::UI;
@@ -304,9 +304,9 @@ fn manage_acs(
     ui: &mut UI,
     show: &str,
     hide: &str,
-    acs: AgentColorScheme,
+    acs: InnerAgentColorScheme,
 ) {
-    let active_originally = ui.agent_cs == acs;
+    let active_originally = ui.agent_cs.acs == acs;
 
     // Synchronize menus if needed. Player can change these separately.
     if active_originally {
@@ -316,9 +316,9 @@ fn manage_acs(
     }
 
     if !active_originally && menu.swap_action(show, hide, ctx) {
-        ui.agent_cs = acs;
+        ui.agent_cs = AgentColorScheme::new(acs, &ui.cs);
     } else if active_originally && menu.swap_action(hide, show, ctx) {
-        ui.agent_cs = AgentColorScheme::VehicleTypes;
+        ui.agent_cs = AgentColorScheme::default(&ui.cs);
     }
 }
 

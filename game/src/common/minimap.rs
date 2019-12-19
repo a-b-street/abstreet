@@ -7,7 +7,6 @@ use ezgui::{
     ScreenRectangle, Text,
 };
 use geom::{Circle, Distance, Polygon, Pt2D, Ring};
-use std::collections::HashMap;
 
 pub struct Minimap {
     dragging: bool,
@@ -19,7 +18,7 @@ impl Minimap {
     pub fn new(ctx: &EventCtx, ui: &UI) -> Minimap {
         Minimap {
             dragging: false,
-            controls: VisibilityPanel::new(ctx, ui, None),
+            controls: VisibilityPanel::new(ctx, ui),
         }
     }
 
@@ -131,8 +130,7 @@ impl Minimap {
         cache.draw_unzoomed_agents(
             &ui.primary.sim,
             &ui.primary.map,
-            ui.agent_cs,
-            &ui.cs,
+            &ui.agent_cs,
             g,
             Some(&inner_rect),
             zoom,
@@ -189,20 +187,14 @@ fn clamp(x: f64, min: f64, max: f64) -> f64 {
 pub struct VisibilityPanel {
     acs: AgentColorScheme,
     composite: Composite,
-    enabled: HashMap<String, bool>,
 }
 
 impl VisibilityPanel {
-    fn make_panel(
-        ctx: &EventCtx,
-        title: &str,
-        entries: Vec<(&str, Color)>,
-        enabled: &HashMap<String, bool>,
-    ) -> Composite {
+    fn make_panel(ctx: &EventCtx, acs: &AgentColorScheme) -> Composite {
         let radius = 15.0;
         let mut col = vec![
             // TODO Too wide most of the time...
-            ManagedWidget::draw_text(ctx, Text::prompt(title)),
+            ManagedWidget::draw_text(ctx, Text::prompt(&acs.title)),
             ManagedWidget::btn_no_cb(Button::text(
                 Text::from(Line("change")),
                 Color::grey(0.6),
@@ -212,7 +204,7 @@ impl VisibilityPanel {
                 ctx,
             )),
         ];
-        for (label, color) in entries {
+        for (label, color, enabled) in &acs.rows {
             col.push(
                 ManagedWidget::row(vec![
                     ManagedWidget::btn_no_cb(Button::rectangle_svg(
@@ -225,7 +217,7 @@ impl VisibilityPanel {
                     ManagedWidget::draw_batch(
                         ctx,
                         GeomBatch::from(vec![(
-                            if enabled[label] {
+                            if *enabled {
                                 color.alpha(1.0)
                             } else {
                                 color.alpha(0.5)
@@ -236,7 +228,7 @@ impl VisibilityPanel {
                     ),
                     ManagedWidget::draw_text(
                         ctx,
-                        Text::from(if enabled[label] {
+                        Text::from(if *enabled {
                             Line(label)
                         } else {
                             Line(label).fg(Color::WHITE.alpha(0.5))
@@ -255,31 +247,17 @@ impl VisibilityPanel {
         )
     }
 
-    fn new(
-        ctx: &EventCtx,
-        ui: &UI,
-        maybe_enabled: Option<HashMap<String, bool>>,
-    ) -> VisibilityPanel {
-        let (title, rows) = ui.agent_cs.color_legend_entries(&ui.cs);
-        let enabled = maybe_enabled.unwrap_or_else(|| {
-            let mut m = HashMap::new();
-            for (label, _) in &rows {
-                m.insert(label.to_string(), true);
-            }
-            m
-        });
-
+    fn new(ctx: &EventCtx, ui: &UI) -> VisibilityPanel {
         VisibilityPanel {
-            acs: ui.agent_cs,
-            composite: VisibilityPanel::make_panel(ctx, title, rows, &enabled),
-            enabled,
+            acs: ui.agent_cs.clone(),
+            composite: VisibilityPanel::make_panel(ctx, &ui.agent_cs),
         }
     }
 
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
         // Happens when we changed the colorscheme in WizardState
         if ui.agent_cs != self.acs {
-            *self = VisibilityPanel::new(ctx, ui, None);
+            *self = VisibilityPanel::new(ctx, ui);
         }
 
         match self.composite.event(ctx, ui) {
@@ -291,18 +269,14 @@ impl VisibilityPanel {
                             let (_, acs) =
                                 wiz.wrap(ctx).choose("Which colorscheme for agents?", || {
                                     let mut choices = Vec::new();
-                                    for (acs, name) in AgentColorScheme::all() {
-                                        if ui.agent_cs != acs {
+                                    for (acs, name) in AgentColorScheme::all(&ui.cs) {
+                                        if ui.agent_cs.acs != acs.acs {
                                             choices.push(Choice::new(name, acs));
                                         }
                                     }
                                     choices
                                 })?;
                             ui.agent_cs = acs;
-                            ui.primary.draw_map.agents.borrow_mut().invalidate_cache();
-                            if let Some(ref mut s) = ui.secondary {
-                                s.draw_map.agents.borrow_mut().invalidate_cache();
-                            }
                             // TODO It'd be great to replace self here, but the lifetimes don't
                             // work out.
                             Some(Transition::Pop)
@@ -311,12 +285,8 @@ impl VisibilityPanel {
                 }
                 x => {
                     let key = x["show/hide ".len()..].to_string();
-                    *self.enabled.get_mut(&key).unwrap() = !self.enabled[&key];
-                    *self = VisibilityPanel::new(
-                        ctx,
-                        ui,
-                        Some(std::mem::replace(&mut self.enabled, HashMap::new())),
-                    );
+                    ui.agent_cs.toggle(key);
+                    *self = VisibilityPanel::new(ctx, ui);
                 }
             },
             None => {}

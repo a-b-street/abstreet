@@ -20,7 +20,7 @@ use crate::render::car::DrawCar;
 pub use crate::render::extra_shape::ExtraShapeID;
 pub use crate::render::intersection::{calculate_corners, DrawIntersection};
 pub use crate::render::lane::DrawLane;
-pub use crate::render::map::{AgentCache, AgentColorScheme, DrawMap};
+pub use crate::render::map::{AgentCache, AgentColorScheme, DrawMap, InnerAgentColorScheme};
 pub use crate::render::pedestrian::{DrawPedCrowd, DrawPedestrian};
 pub use crate::render::road::DrawRoad;
 pub use crate::render::traffic_signal::{draw_signal_phase, TrafficSignalDiagram};

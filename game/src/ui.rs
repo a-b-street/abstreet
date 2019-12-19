@@ -67,7 +67,7 @@ impl UI {
         UI {
             primary,
             secondary: None,
-            agent_cs: AgentColorScheme::VehicleTypes,
+            agent_cs: AgentColorScheme::default(&cs),
             cs,
             opts,
             per_obj: PerObjectActions::new(),
@@ -145,8 +145,7 @@ impl UI {
             cache.draw_unzoomed_agents(
                 source,
                 &self.primary.map,
-                self.agent_cs,
-                &self.cs,
+                &self.agent_cs,
                 g,
                 None,
                 g.canvas.cam_zoom,

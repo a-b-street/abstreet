@@ -296,7 +296,7 @@ pub struct AgentCache {
     time: Option<Time>,
     agents_per_on: HashMap<Traversable, Vec<Box<dyn Renderable>>>,
     // cam_zoom and agent radius also matters
-    unzoomed: Option<(Time, f64, Distance, Drawable)>,
+    unzoomed: Option<(Time, f64, Distance, AgentColorScheme, Drawable)>,
 }
 
 impl AgentCache {
@@ -325,28 +325,21 @@ impl AgentCache {
         self.agents_per_on.insert(on, agents);
     }
 
-    pub fn invalidate_cache(&mut self) {
-        self.time = None;
-        self.agents_per_on.clear();
-        self.unzoomed = None;
-    }
-
     // TODO GetDrawAgents indirection added for time traveling, but that's been removed. Maybe
     // simplify this.
     pub fn draw_unzoomed_agents(
         &mut self,
         source: &dyn GetDrawAgents,
         map: &Map,
-        acs: AgentColorScheme,
-        cs: &ColorScheme,
+        acs: &AgentColorScheme,
         g: &mut GfxCtx,
         clip: Option<&ScreenRectangle>,
         cam_zoom: f64,
         radius: Distance,
     ) {
         let now = source.time();
-        if let Some((time, z, r, ref draw)) = self.unzoomed {
-            if cam_zoom == z && now == time && radius == r {
+        if let Some((time, z, r, ref orig_acs, ref draw)) = self.unzoomed {
+            if cam_zoom == z && now == time && radius == r && acs == orig_acs {
                 if let Some(ref rect) = clip {
                     g.redraw_clipped(draw, rect);
                 } else {
@@ -360,10 +353,12 @@ impl AgentCache {
         // without the extra data. Try plumbing a callback that directly populates batch.
         let mut batch = GeomBatch::new();
         for agent in source.get_unzoomed_agents(map) {
-            batch.push(
-                acs.unzoomed_color(&agent, cs),
-                Circle::new(agent.pos, radius / cam_zoom).to_polygon(),
-            );
+            if let Some(color) = acs.color(&agent) {
+                batch.push(
+                    color,
+                    Circle::new(agent.pos, radius / cam_zoom).to_polygon(),
+                );
+            }
         }
 
         let draw = g.upload(batch);
@@ -372,7 +367,7 @@ impl AgentCache {
         } else {
             g.redraw(&draw);
         }
-        self.unzoomed = Some((now, cam_zoom, radius, draw));
+        self.unzoomed = Some((now, cam_zoom, radius, acs.clone(), draw));
     }
 }
 
@@ -388,54 +383,45 @@ fn osm_rank_to_color(cs: &ColorScheme, rank: usize) -> Color {
 
 // TODO ETA till goal...
 #[derive(Clone, Copy, PartialEq)]
-pub enum AgentColorScheme {
+pub enum InnerAgentColorScheme {
     VehicleTypes,
     Delay,
-    DistanceCrossedSoFar,
     TripTimeSoFar,
+    DistanceCrossedSoFar,
 }
 
-impl Cloneable for AgentColorScheme {}
-
-impl AgentColorScheme {
-    pub fn unzoomed_color(self, agent: &UnzoomedAgent, cs: &ColorScheme) -> Color {
+impl InnerAgentColorScheme {
+    fn data(self, cs: &ColorScheme) -> (&str, Vec<(&str, Color)>) {
         match self {
-            AgentColorScheme::VehicleTypes => match agent.vehicle_type {
-                Some(VehicleType::Car) => cs.get_def("unzoomed car", Color::RED.alpha(0.5)),
-                Some(VehicleType::Bike) => cs.get_def("unzoomed bike", Color::GREEN.alpha(0.5)),
-                Some(VehicleType::Bus) => cs.get_def("unzoomed bus", Color::BLUE.alpha(0.5)),
-                None => cs.get_def("unzoomed pedestrian", Color::ORANGE.alpha(0.5)),
-            },
-            AgentColorScheme::Delay => delay_color(agent.metadata.time_spent_blocked),
-            AgentColorScheme::DistanceCrossedSoFar => {
-                percent_color(agent.metadata.percent_dist_crossed)
-            }
-            AgentColorScheme::TripTimeSoFar => delay_color(agent.metadata.trip_time_so_far),
-        }
-    }
-
-    // TODO Lots of duplicated values here. :\
-    pub fn color_legend_entries(self, cs: &ColorScheme) -> (&str, Vec<(&str, Color)>) {
-        match self {
-            AgentColorScheme::VehicleTypes => (
+            InnerAgentColorScheme::VehicleTypes => (
                 "vehicle types",
                 vec![
-                    ("car", cs.get("unzoomed car")),
-                    ("bike", cs.get("unzoomed bike")),
-                    ("bus", cs.get("unzoomed bus")),
-                    ("pedestrian", cs.get("unzoomed pedestrian")),
+                    ("car", cs.get_def("unzoomed car", Color::RED.alpha(0.5))),
+                    ("bike", cs.get_def("unzoomed bike", Color::GREEN.alpha(0.5))),
+                    ("bus", cs.get_def("unzoomed bus", Color::BLUE.alpha(0.5))),
+                    (
+                        "pedestrian",
+                        cs.get_def("unzoomed pedestrian", Color::ORANGE.alpha(0.5)),
+                    ),
                 ],
             ),
-            AgentColorScheme::Delay => (
+            InnerAgentColorScheme::Delay => (
                 "time spent delayed/blocked",
                 vec![
                     ("<= 1 minute", Color::BLUE.alpha(0.3)),
                     ("<= 5 minutes", Color::ORANGE.alpha(0.5)),
                     ("> 5 minutes", Color::RED.alpha(0.8)),
-                    ("stuck blocking intersection", Color::YELLOW),
                 ],
             ),
-            AgentColorScheme::DistanceCrossedSoFar => (
+            InnerAgentColorScheme::TripTimeSoFar => (
+                "trip time so far",
+                vec![
+                    ("<= 1 minute", Color::BLUE.alpha(0.3)),
+                    ("<= 5 minutes", Color::ORANGE.alpha(0.5)),
+                    ("> 5 minutes", Color::RED.alpha(0.8)),
+                ],
+            ),
+            InnerAgentColorScheme::DistanceCrossedSoFar => (
                 "distance crossed to goal so far",
                 vec![
                     ("<= 10%", rotating_color(0)),
@@ -450,50 +436,105 @@ impl AgentColorScheme {
                     ("> 90%", rotating_color(9)),
                 ],
             ),
-            AgentColorScheme::TripTimeSoFar => (
-                "trip time so far",
-                vec![
-                    ("<= 1 minute", Color::BLUE.alpha(0.3)),
-                    ("<= 5 minutes", Color::ORANGE.alpha(0.5)),
-                    ("> 5 minutes", Color::RED.alpha(0.8)),
-                ],
-            ),
         }
     }
 
-    pub fn all() -> Vec<(AgentColorScheme, String)> {
-        vec![
-            (
-                AgentColorScheme::VehicleTypes,
-                "by vehicle type".to_string(),
-            ),
-            (
-                AgentColorScheme::Delay,
-                "by time spent delayed/blocked".to_string(),
-            ),
-            (
-                AgentColorScheme::DistanceCrossedSoFar,
-                "by distance crossed to goal so far".to_string(),
-            ),
-            (
-                AgentColorScheme::TripTimeSoFar,
-                "by trip time so far".to_string(),
-            ),
-        ]
+    fn classify(self, agent: &UnzoomedAgent) -> String {
+        match self {
+            InnerAgentColorScheme::VehicleTypes => match agent.vehicle_type {
+                Some(VehicleType::Car) => "car".to_string(),
+                Some(VehicleType::Bike) => "bike".to_string(),
+                Some(VehicleType::Bus) => "bus".to_string(),
+                None => "pedestrian".to_string(),
+            },
+            InnerAgentColorScheme::Delay => classify_delay(agent.metadata.time_spent_blocked),
+            InnerAgentColorScheme::TripTimeSoFar => classify_delay(agent.metadata.trip_time_so_far),
+            InnerAgentColorScheme::DistanceCrossedSoFar => {
+                classify_percent(agent.metadata.percent_dist_crossed)
+            }
+        }
     }
 }
 
-fn delay_color(delay: Duration) -> Color {
-    // TODO Better gradient
+#[derive(Clone, PartialEq)]
+pub struct AgentColorScheme {
+    pub acs: InnerAgentColorScheme,
+    pub title: String,
+    pub rows: Vec<(String, Color, bool)>,
+}
+
+impl Cloneable for AgentColorScheme {}
+
+impl AgentColorScheme {
+    pub fn new(acs: InnerAgentColorScheme, cs: &ColorScheme) -> AgentColorScheme {
+        let (title, rows) = acs.data(cs);
+        AgentColorScheme {
+            acs,
+            title: title.to_string(),
+            rows: rows
+                .into_iter()
+                .map(|(name, color)| (name.to_string(), color, true))
+                .collect(),
+        }
+    }
+
+    pub fn default(cs: &ColorScheme) -> AgentColorScheme {
+        AgentColorScheme::new(InnerAgentColorScheme::VehicleTypes, cs)
+    }
+
+    pub fn all(cs: &ColorScheme) -> Vec<(AgentColorScheme, String)> {
+        vec![
+            InnerAgentColorScheme::VehicleTypes,
+            InnerAgentColorScheme::Delay,
+            InnerAgentColorScheme::TripTimeSoFar,
+            InnerAgentColorScheme::DistanceCrossedSoFar,
+        ]
+        .into_iter()
+        .map(|acs| {
+            let x = AgentColorScheme::new(acs, cs);
+            let title = x.title.clone();
+            (x, title)
+        })
+        .collect()
+    }
+
+    pub fn toggle(&mut self, name: String) {
+        for (n, _, enabled) in &mut self.rows {
+            if &name == n {
+                *enabled = !*enabled;
+                return;
+            }
+        }
+        panic!("Can't toggle category {}", name);
+    }
+
+    fn color(&self, agent: &UnzoomedAgent) -> Option<Color> {
+        let category = self.acs.classify(agent);
+        for (name, color, enabled) in &self.rows {
+            if name == &category {
+                if *enabled {
+                    return Some(*color);
+                }
+                return None;
+            }
+        }
+        panic!("Unknown AgentColorScheme category {}", category);
+    }
+}
+
+fn classify_delay(delay: Duration) -> String {
     if delay <= Duration::minutes(1) {
-        return Color::BLUE.alpha(0.3);
+        return "<= 1 minute".to_string();
     }
     if delay <= Duration::minutes(5) {
-        return Color::ORANGE.alpha(0.5);
+        return "<= 5 minutes".to_string();
     }
-    Color::RED.alpha(0.8)
+    "> 5 minutes".to_string()
 }
 
-fn percent_color(percent: f64) -> Color {
-    rotating_color((percent * 10.0).round() as usize)
+fn classify_percent(percent: f64) -> String {
+    if percent > 0.9 {
+        return "> 90%".to_string();
+    }
+    format!("<= {}%", ((percent * 10.0).round() as usize) * 10)
 }

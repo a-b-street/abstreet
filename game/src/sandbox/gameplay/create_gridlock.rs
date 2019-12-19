@@ -1,7 +1,7 @@
 use crate::common::edit_map_panel;
 use crate::game::{msg, Transition};
 use crate::managed::Composite;
-use crate::render::AgentColorScheme;
+use crate::render::InnerAgentColorScheme;
 use crate::sandbox::gameplay::{cmp_count_fewer, manage_acs, GameplayMode, GameplayState};
 use crate::sandbox::overlays::Overlays;
 use crate::ui::UI;
@@ -49,7 +49,7 @@ impl GameplayState for CreateGridlock {
             ui,
             "show agent delay",
             "hide agent delay",
-            AgentColorScheme::Delay,
+            InnerAgentColorScheme::Delay,
         );
 
         if self.time != ui.primary.sim.time() {
