@@ -426,7 +426,7 @@ impl Pathfinder {
         timer.stop("prepare pathfinding for buses");
 
         timer.start("prepare pathfinding for pedestrians");
-        let walking_graph = SidewalkPathfinder::new(map, false);
+        let walking_graph = SidewalkPathfinder::new(map, false, &bus_graph);
         timer.stop("prepare pathfinding for pedestrians");
 
         Pathfinder {
@@ -439,15 +439,15 @@ impl Pathfinder {
     }
 
     pub fn setup_walking_with_transit(&mut self, map: &Map) {
-        self.walking_with_transit_graph = Some(SidewalkPathfinder::new(map, true));
+        self.walking_with_transit_graph = Some(SidewalkPathfinder::new(map, true, &self.bus_graph));
     }
 
     pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<Path> {
         match req.constraints {
             PathConstraints::Pedestrian => self.walking_graph.pathfind(&req, map),
-            PathConstraints::Car => self.car_graph.pathfind(&req, map),
-            PathConstraints::Bike => self.bike_graph.pathfind(&req, map),
-            PathConstraints::Bus => self.bus_graph.pathfind(&req, map),
+            PathConstraints::Car => self.car_graph.pathfind(&req, map).map(|(p, _)| p),
+            PathConstraints::Bike => self.bike_graph.pathfind(&req, map).map(|(p, _)| p),
+            PathConstraints::Bus => self.bus_graph.pathfind(&req, map).map(|(p, _)| p),
         }
     }
 
@@ -477,14 +477,14 @@ impl Pathfinder {
         timer.stop("apply edits to bus pathfinding");
 
         timer.start("apply edits to pedestrian pathfinding");
-        self.walking_graph.apply_edits(map);
+        self.walking_graph.apply_edits(map, &self.bus_graph);
         timer.stop("apply edits to pedestrian pathfinding");
 
         timer.start("apply edits to pedestrian using transit pathfinding");
         self.walking_with_transit_graph
             .as_mut()
             .unwrap()
-            .apply_edits(map);
+            .apply_edits(map, &self.bus_graph);
         timer.stop("apply edits to pedestrian using transit pathfinding");
     }
 }

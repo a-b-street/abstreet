@@ -627,16 +627,15 @@ impl DrivingSimState {
     ) {
         // TODO The impl here is pretty gross; play the same trick and remove car temporarily?
         let on = self.cars[&id].router.head();
-        let dists = self.queues[&on].get_car_positions(
-            now,
-            &self.cars,
-            &self.queues,
-        );
+        let dists = self.queues[&on].get_car_positions(now, &self.cars, &self.queues);
         // This car must be the tail.
         {
             let last = dists.last().unwrap().0;
             if id != last {
-                panic!("At {} on {:?}, laggy head {} isn't the last on the lane; it's {}", now, on, id, last);
+                panic!(
+                    "At {} on {:?}, laggy head {} isn't the last on the lane; it's {}",
+                    now, on, id, last
+                );
             }
         }
         let our_len = self.cars[&id].vehicle.length + FOLLOWING_DISTANCE;

@@ -49,7 +49,7 @@ impl VehiclePathfinder {
         }
     }
 
-    pub fn pathfind(&self, req: &PathRequest, map: &Map) -> Option<Path> {
+    pub fn pathfind(&self, req: &PathRequest, map: &Map) -> Option<(Path, usize)> {
         assert!(!map.get_l(req.start.lane()).is_sidewalk());
         let mut calc = self
             .path_calc
@@ -71,11 +71,14 @@ impl VehiclePathfinder {
             }));
         }
         steps.push(PathStep::Lane(req.end.lane()));
-        Some(Path::new(
-            map,
-            steps,
-            req.end.dist_along(),
-            Distance::centimeters(raw_path.get_weight()),
+        Some((
+            Path::new(
+                map,
+                steps,
+                req.end.dist_along(),
+                Distance::centimeters(raw_path.get_weight()),
+            ),
+            raw_path.get_weight(),
         ))
     }
 

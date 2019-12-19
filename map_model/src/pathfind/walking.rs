@@ -1,7 +1,10 @@
+use crate::pathfind::driving::VehiclePathfinder;
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
-use crate::{BusRouteID, BusStopID, LaneID, Map, Path, PathRequest, PathStep, Position};
+use crate::{
+    BusRouteID, BusStopID, LaneID, Map, Path, PathConstraints, PathRequest, PathStep, Position,
+};
 use fast_paths::{FastGraph, InputGraph, PathCalculator};
-use geom::Distance;
+use geom::{Distance, Speed};
 use serde_derive::{Deserialize, Serialize};
 use std::cell::RefCell;
 use thread_local::ThreadLocal;
@@ -25,7 +28,7 @@ enum Node {
 }
 
 impl SidewalkPathfinder {
-    pub fn new(map: &Map, use_transit: bool) -> SidewalkPathfinder {
+    pub fn new(map: &Map, use_transit: bool, bus_graph: &VehiclePathfinder) -> SidewalkPathfinder {
         let mut nodes = NodeMap::new();
         // We're assuming that to start with, no sidewalks are closed for construction!
         for l in map.all_lanes() {
@@ -41,7 +44,7 @@ impl SidewalkPathfinder {
             }
         }
 
-        let graph = fast_paths::prepare(&make_input_graph(map, &nodes, use_transit));
+        let graph = fast_paths::prepare(&make_input_graph(map, &nodes, use_transit, bus_graph));
         SidewalkPathfinder {
             graph,
             nodes,
@@ -50,10 +53,10 @@ impl SidewalkPathfinder {
         }
     }
 
-    pub fn apply_edits(&mut self, map: &Map) {
+    pub fn apply_edits(&mut self, map: &Map, bus_graph: &VehiclePathfinder) {
         // The NodeMap is all sidewalks and bus stops -- it won't change. So we can also reuse the
         // node ordering.
-        let input_graph = make_input_graph(map, &self.nodes, self.use_transit);
+        let input_graph = make_input_graph(map, &self.nodes, self.use_transit, bus_graph);
         let node_ordering = self.graph.get_node_ordering();
         self.graph = fast_paths::prepare_with_order(&input_graph, &node_ordering).unwrap();
     }
@@ -201,12 +204,17 @@ fn closest_node(pos: Position, map: &Map) -> Node {
     Node::SidewalkEndpoint(pos.lane(), dst_i)
 }
 
-fn make_input_graph(map: &Map, nodes: &NodeMap<Node>, use_transit: bool) -> InputGraph {
+fn make_input_graph(
+    map: &Map,
+    nodes: &NodeMap<Node>,
+    use_transit: bool,
+    bus_graph: &VehiclePathfinder,
+) -> InputGraph {
     let mut input_graph = InputGraph::new();
 
     for l in map.all_lanes() {
         if l.is_sidewalk() {
-            let cost = to_cm(l.length());
+            let cost = to_s(l.length());
             let n1 = nodes.get(Node::SidewalkEndpoint(l.id, true));
             let n2 = nodes.get(Node::SidewalkEndpoint(l.id, false));
             input_graph.add_edge(n1, n2, cost);
@@ -218,7 +226,7 @@ fn make_input_graph(map: &Map, nodes: &NodeMap<Node>, use_transit: bool) -> Inpu
         if t.between_sidewalks() {
             let from = Node::SidewalkEndpoint(t.id.src, map.get_l(t.id.src).dst_i == t.id.parent);
             let to = Node::SidewalkEndpoint(t.id.dst, map.get_l(t.id.dst).dst_i == t.id.parent);
-            input_graph.add_edge(nodes.get(from), nodes.get(to), to_cm(t.geom.length()));
+            input_graph.add_edge(nodes.get(from), nodes.get(to), to_s(t.geom.length()));
         }
     }
 
@@ -229,9 +237,9 @@ fn make_input_graph(map: &Map, nodes: &NodeMap<Node>, use_transit: bool) -> Inpu
             let lane = map.get_l(stop.sidewalk_pos.lane());
             for endpt in &[true, false] {
                 let cost = if *endpt {
-                    to_cm(lane.length() - stop.sidewalk_pos.dist_along())
+                    to_s(lane.length() - stop.sidewalk_pos.dist_along())
                 } else {
-                    to_cm(stop.sidewalk_pos.dist_along())
+                    to_s(stop.sidewalk_pos.dist_along())
                 };
                 // Add some extra penalty (equivalent to 1m) to using a bus stop. Otherwise a path
                 // might try to pass through it uselessly.
@@ -242,8 +250,8 @@ fn make_input_graph(map: &Map, nodes: &NodeMap<Node>, use_transit: bool) -> Inpu
             }
         }
 
-        // Connect each adjacent stop along a route, with a "free" cost of 1 (fast_paths ignores
-        // 0-weight edges).
+        // Connect each adjacent stop along a route, with the cost based on how long it'll take a
+        // bus to drive between the stops. Optimistically assume no waiting time at a stop.
         for route in map.get_all_bus_routes() {
             for (stop1, stop2) in
                 route
@@ -255,10 +263,21 @@ fn make_input_graph(map: &Map, nodes: &NodeMap<Node>, use_transit: bool) -> Inpu
                         &route.stops[0],
                     )))
             {
+                let driving_cost = bus_graph
+                    .pathfind(
+                        &PathRequest {
+                            start: map.get_bs(*stop1).driving_pos,
+                            end: map.get_bs(*stop2).driving_pos,
+                            constraints: PathConstraints::Bus,
+                        },
+                        map,
+                    )
+                    .unwrap()
+                    .1;
                 input_graph.add_edge(
                     nodes.get(Node::RideBus(*stop1)),
                     nodes.get(Node::RideBus(*stop2)),
-                    1,
+                    driving_cost,
                 );
             }
         }
@@ -267,6 +286,8 @@ fn make_input_graph(map: &Map, nodes: &NodeMap<Node>, use_transit: bool) -> Inpu
     input_graph
 }
 
-fn to_cm(dist: Distance) -> usize {
-    (dist.inner_meters() * 100.0).round() as usize
+fn to_s(dist: Distance) -> usize {
+    let walking_speed = Speed::meters_per_second(1.34);
+    let time = dist / walking_speed;
+    time.inner_seconds().round() as usize
 }
