@@ -1,14 +1,17 @@
-use crate::common::{edit_map_panel, Plot, Series};
+use crate::common::edit_map_panel;
 use crate::game::{msg, Transition, WizardState};
 use crate::helpers::rotating_color_total;
-use crate::managed::Composite;
+use crate::managed::{Composite, ManagedWidget};
 use crate::sandbox::gameplay::{
     cmp_duration_shorter, manage_overlays, GameplayMode, GameplayState,
 };
 use crate::sandbox::overlays::Overlays;
 use crate::sandbox::{bus_explorer, SandboxMode};
 use crate::ui::UI;
-use ezgui::{hotkey, Choice, EventCtx, Key, Line, ModalMenu, Text};
+use ezgui::{
+    hotkey, Choice, Color, EventCtx, HorizontalAlignment, Key, Line, ModalMenu, Plot, Series, Text,
+    VerticalAlignment,
+};
 use geom::{Duration, Statistic, Time};
 use map_model::BusRouteID;
 use sim::Analytics;
@@ -171,7 +174,7 @@ fn bus_route_panel(id: BusRouteID, stat: Statistic, ui: &UI, prebaked: &Analytic
     txt
 }
 
-fn bus_delays(id: BusRouteID, ui: &UI, ctx: &mut EventCtx) -> Plot<Duration> {
+fn bus_delays(id: BusRouteID, ui: &UI, ctx: &mut EventCtx) -> Composite {
     let route = ui.primary.map.get_br(id);
     let mut delays_per_stop = ui
         .primary
@@ -194,10 +197,13 @@ fn bus_delays(id: BusRouteID, ui: &UI, ctx: &mut EventCtx) -> Plot<Duration> {
                 .unwrap_or_else(Vec::new),
         });
     }
-    Plot::new(
-        &format!("delays for {}", route.name),
-        series,
-        Duration::ZERO,
+    Composite::aligned(
         ctx,
+        (HorizontalAlignment::Center, VerticalAlignment::Center),
+        ManagedWidget::col(vec![
+            ManagedWidget::draw_text(ctx, Text::from(Line(format!("delays for {}", route.name)))),
+            ManagedWidget::duration_plot(Plot::new(series, Duration::ZERO, ctx)).margin(10),
+        ])
+        .bg(Color::grey(0.3)),
     )
 }

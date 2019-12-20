@@ -1,14 +1,18 @@
 use crate::common::{
-    Histogram, ObjectColorer, ObjectColorerBuilder, Plot, RoadColorer, RoadColorerBuilder, Series,
+    Histogram, ObjectColorer, ObjectColorerBuilder, RoadColorer, RoadColorerBuilder,
 };
 use crate::game::{Transition, WizardState};
 use crate::helpers::ID;
+use crate::managed::{Composite, ManagedWidget};
 use crate::render::DrawOptions;
 use crate::sandbox::bus_explorer::ShowBusRoute;
 use crate::sandbox::SandboxMode;
 use crate::ui::{ShowEverything, UI};
 use abstutil::{prettyprint_usize, Counter};
-use ezgui::{Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Text};
+use ezgui::{
+    Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Plot,
+    Series, Text, VerticalAlignment,
+};
 use geom::{Distance, Duration, PolyLine, Time};
 use map_model::IntersectionID;
 use sim::{Analytics, ParkingSpot, TripMode};
@@ -19,13 +23,13 @@ pub enum Overlays {
     ParkingAvailability(Time, RoadColorer),
     IntersectionDelay(Time, ObjectColorer),
     CumulativeThroughput(Time, ObjectColorer),
-    FinishedTrips(Time, Plot<usize>),
+    FinishedTrips(Time, Composite),
     FinishedTripsHistogram(Time, Histogram),
     BikeNetwork(RoadColorer),
     BusNetwork(RoadColorer),
     // Only set by certain gameplay modes
     BusRoute(ShowBusRoute),
-    BusDelaysOverTime(Plot<Duration>),
+    BusDelaysOverTime(Composite),
     IntersectionDemand(Time, IntersectionID, Drawable),
 }
 
@@ -78,14 +82,14 @@ impl Overlays {
                 heatmap.draw(g, ui);
                 true
             }
-            Overlays::FinishedTrips(_, ref plot) => {
+            Overlays::FinishedTrips(_, ref composite) => {
                 ui.draw(
                     g,
                     DrawOptions::new(),
                     &ui.primary.sim,
                     &ShowEverything::new(),
                 );
-                plot.draw(g);
+                composite.draw(g);
                 true
             }
             Overlays::FinishedTripsHistogram(_, ref hgram) => {
@@ -98,14 +102,14 @@ impl Overlays {
                 hgram.draw(g);
                 true
             }
-            Overlays::BusDelaysOverTime(ref plot) => {
+            Overlays::BusDelaysOverTime(ref composite) => {
                 ui.draw(
                     g,
                     DrawOptions::new(),
                     &ui.primary.sim,
                     &ShowEverything::new(),
                 );
-                plot.draw(g);
+                composite.draw(g);
                 true
             }
             Overlays::IntersectionDemand(_, _, ref draw) => {
@@ -386,7 +390,6 @@ impl Overlays {
         }
 
         let plot = Plot::new(
-            "finished trips",
             lines
                 .into_iter()
                 .map(|(label, color, m)| Series {
@@ -398,7 +401,16 @@ impl Overlays {
             0,
             ctx,
         );
-        Overlays::FinishedTrips(ui.primary.sim.time(), plot)
+        let composite = Composite::aligned(
+            ctx,
+            (HorizontalAlignment::Center, VerticalAlignment::Center),
+            ManagedWidget::col(vec![
+                ManagedWidget::draw_text(ctx, Text::from(Line("finished trips"))),
+                ManagedWidget::usize_plot(plot).margin(10),
+            ])
+            .bg(Color::grey(0.3)),
+        );
+        Overlays::FinishedTrips(ui.primary.sim.time(), composite)
     }
 
     pub fn finished_trips_histogram(ctx: &EventCtx, ui: &UI, baseline: &Analytics) -> Overlays {
