@@ -224,7 +224,9 @@ impl ParkingSimState {
         let mut maybe_spot = None;
         // TODO Ideally don't fill in one side first before considering the other.
         for l in self.driving_to_parking_lanes.get(driving_pos.lane()) {
-            let parking_dist = driving_pos.equiv_pos(*l, vehicle.length, map).dist_along();
+            let parking_dist = driving_pos
+                .equiv_pos(*l, driving_pos.dist_along(), map)
+                .dist_along();
             let lane = &self.onstreet_lanes[l];
             // Bit hacky to enumerate here to conveniently get idx.
             for (idx, spot) in lane.spots().into_iter().enumerate() {

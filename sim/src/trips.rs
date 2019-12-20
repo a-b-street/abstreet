@@ -483,9 +483,12 @@ impl TripManager {
     }
 
     pub fn debug_trip(&self, id: AgentID) {
-        // Only called for agents that _should_ have trips
-        let trip = &self.trips[self.active_trip_mode[&id].0];
-        println!("{} has goal {:?}", trip.id, trip.legs.back().unwrap());
+        if let Some(t) = self.active_trip_mode.get(&id) {
+            let trip = &self.trips[t.0];
+            println!("{} has goal {:?}", trip.id, trip.legs.back().unwrap());
+        } else {
+            println!("{} has no trip, must be parked car", id);
+        }
     }
 
     // (total active trips, unfinished trips, active trips by the trip's current mode)
