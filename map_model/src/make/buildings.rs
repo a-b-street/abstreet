@@ -103,6 +103,7 @@ pub fn make_all_buildings(
                         "Can't find driveway for {}, forfeiting {} stalls",
                         bldg.id, p.num_stalls
                     ));
+                    bldg.parking = None;
                 }
             }
 
