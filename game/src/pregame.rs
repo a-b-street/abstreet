@@ -26,6 +26,7 @@ impl TitleScreen {
             // TODO Double column to get the vertical centering. For some reason, the horizontal
             // centering isn't working.
             composite: Composite::fill_screen(
+                ctx,
                 ManagedWidget::col(vec![ManagedWidget::col(vec![
                     ManagedWidget::just_draw(JustDraw::image("assets/pregame/logo.png", ctx)),
                     // TODO that nicer font
@@ -145,7 +146,7 @@ pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
         None,
         Box::new(|ctx, _| Some(Transition::Push(about(ctx)))),
     ));
-    ManagedGUIState::new(ManagedWidget::col(col).centered())
+    ManagedGUIState::new(ctx, ManagedWidget::col(col).centered())
 }
 
 fn about(ctx: &EventCtx) -> Box<dyn State> {
@@ -198,7 +199,7 @@ fn about(ctx: &EventCtx) -> Box<dyn State> {
     txt.add(Line("Have the appropriate amount of fun."));
     col.push(ManagedWidget::draw_text(ctx, txt));
 
-    ManagedGUIState::new(ManagedWidget::col(col))
+    ManagedGUIState::new(ctx, ManagedWidget::col(col))
 }
 
 const SPEED: Speed = Speed::const_meters_per_second(20.0);

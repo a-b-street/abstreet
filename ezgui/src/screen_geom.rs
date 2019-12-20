@@ -38,6 +38,15 @@ impl ScreenRectangle {
         }
     }
 
+    pub fn placeholder() -> ScreenRectangle {
+        ScreenRectangle {
+            x1: 0.0,
+            y1: 0.0,
+            x2: 0.0,
+            y2: 0.0,
+        }
+    }
+
     pub fn contains(&self, pt: ScreenPt) -> bool {
         pt.x >= self.x1 && pt.x <= self.x2 && pt.y >= self.y1 && pt.y <= self.y2
     }

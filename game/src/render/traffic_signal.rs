@@ -257,6 +257,7 @@ fn make_scroller(
     }
 
     Scroller::new(Composite::aligned(
+        ctx,
         (HorizontalAlignment::Left, VerticalAlignment::Top),
         ManagedWidget::col(col).bg(Color::grey(0.4)),
     ))

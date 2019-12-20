@@ -17,7 +17,7 @@ type Callback = Box<dyn Fn(&mut EventCtx, &mut UI) -> Option<Transition>>;
 pub struct ManagedWidget {
     widget: WidgetType,
     style: LayoutStyle,
-    rect: Option<ScreenRectangle>,
+    rect: ScreenRectangle,
     bg: Option<Drawable>,
 }
 
@@ -124,7 +124,7 @@ impl ManagedWidget {
                 padding: None,
                 margin: None,
             },
-            rect: None,
+            rect: ScreenRectangle::placeholder(),
             bg: None,
         }
     }
@@ -376,10 +376,10 @@ impl ManagedWidget {
         let y: f64 = result.location.y.into();
         let width: f64 = result.size.width.into();
         let height: f64 = result.size.height.into();
-        self.rect = Some(ScreenRectangle::top_left(
+        self.rect = ScreenRectangle::top_left(
             ScreenPt::new(x + dx, y + dy),
             ScreenDims::new(width, height),
-        ));
+        );
         if let Some(color) = self.style.bg_color {
             let mut batch = GeomBatch::new();
             batch.push(
@@ -440,35 +440,67 @@ enum CompositePosition {
 }
 
 impl Composite {
-    pub fn minimal_size(top_level: ManagedWidget, top_left: ScreenPt) -> Composite {
-        Composite {
+    fn new(
+        ctx: &EventCtx,
+        top_level: ManagedWidget,
+        pos: CompositePosition,
+        mut sliders: HashMap<String, &mut Slider>,
+    ) -> Composite {
+        let mut c = Composite {
             top_level,
-            pos: CompositePosition::MinimalTopLeft(top_left),
+            pos,
             scroll_y_offset: 0.0,
-        }
+        };
+        c.recompute_layout(ctx, &mut sliders);
+        c
     }
 
-    pub fn fill_screen(top_level: ManagedWidget) -> Composite {
-        Composite {
+    pub fn minimal_size(ctx: &EventCtx, top_level: ManagedWidget, top_left: ScreenPt) -> Composite {
+        Composite::new(
+            ctx,
             top_level,
-            pos: CompositePosition::FillScreen,
-            scroll_y_offset: 0.0,
-        }
+            CompositePosition::MinimalTopLeft(top_left),
+            HashMap::new(),
+        )
+    }
+
+    pub fn fill_screen(ctx: &EventCtx, top_level: ManagedWidget) -> Composite {
+        Composite::new(
+            ctx,
+            top_level,
+            CompositePosition::FillScreen,
+            HashMap::new(),
+        )
     }
 
     pub fn aligned(
+        ctx: &EventCtx,
         (horiz, vert): (HorizontalAlignment, VerticalAlignment),
         top_level: ManagedWidget,
     ) -> Composite {
-        Composite {
+        Composite::new(
+            ctx,
             top_level,
-            pos: CompositePosition::Aligned(horiz, vert),
-            scroll_y_offset: 0.0,
-        }
+            CompositePosition::Aligned(horiz, vert),
+            HashMap::new(),
+        )
     }
 
-    pub fn recompute_layout(&mut self, ctx: &EventCtx, sliders: &mut HashMap<String, &mut Slider>) {
-        // TODO If this ever gets slow, only run if window size has changed.
+    pub fn aligned_with_sliders(
+        ctx: &EventCtx,
+        sliders: HashMap<String, &mut Slider>,
+        (horiz, vert): (HorizontalAlignment, VerticalAlignment),
+        top_level: ManagedWidget,
+    ) -> Composite {
+        Composite::new(
+            ctx,
+            top_level,
+            CompositePosition::Aligned(horiz, vert),
+            sliders,
+        )
+    }
+
+    fn recompute_layout(&mut self, ctx: &EventCtx, sliders: &mut HashMap<String, &mut Slider>) {
         let mut stretch = Stretch::new();
         let root = stretch
             .new_node(
@@ -530,7 +562,9 @@ impl Composite {
         ui: &mut UI,
         mut sliders: HashMap<String, &mut Slider>,
     ) -> Option<Outcome> {
-        self.recompute_layout(ctx, &mut sliders);
+        if ctx.input.is_window_resized() {
+            self.recompute_layout(ctx, &mut sliders);
+        }
         self.top_level.event(ctx, ui, &mut sliders)
     }
 
@@ -539,10 +573,7 @@ impl Composite {
     }
 
     pub fn draw_with_sliders(&self, g: &mut GfxCtx, sliders: HashMap<String, &Slider>) {
-        // The order the very first round is a bit weird.
-        if let Some(ref rect) = self.top_level.rect {
-            g.canvas.mark_covered_area(rect.clone());
-        }
+        g.canvas.mark_covered_area(self.top_level.rect.clone());
         self.top_level.draw(g, &sliders);
     }
 }
@@ -552,9 +583,9 @@ pub struct ManagedGUIState {
 }
 
 impl ManagedGUIState {
-    pub fn new(top_level: ManagedWidget) -> Box<dyn State> {
+    pub fn new(ctx: &EventCtx, top_level: ManagedWidget) -> Box<dyn State> {
         Box::new(ManagedGUIState {
-            composite: Composite::fill_screen(top_level),
+            composite: Composite::fill_screen(ctx, top_level),
         })
     }
 }
@@ -598,14 +629,19 @@ impl Scroller {
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Outcome> {
-        if let Some(ref rect) = self.composite.top_level.rect {
-            if rect.contains(ctx.canvas.get_cursor_in_screen_space()) {
-                if let Some(scroll) = ctx.input.get_mouse_scroll() {
-                    self.composite.scroll_y_offset -= scroll * SCROLL_SPEED;
-                    let max = (rect.height() - ctx.canvas.window_height).max(0.0);
-                    self.composite.scroll_y_offset =
-                        abstutil::clamp(self.composite.scroll_y_offset, 0.0, max);
-                }
+        if self
+            .composite
+            .top_level
+            .rect
+            .contains(ctx.canvas.get_cursor_in_screen_space())
+        {
+            if let Some(scroll) = ctx.input.get_mouse_scroll() {
+                self.composite.scroll_y_offset -= scroll * SCROLL_SPEED;
+                let max =
+                    (self.composite.top_level.rect.height() - ctx.canvas.window_height).max(0.0);
+                self.composite.scroll_y_offset =
+                    abstutil::clamp(self.composite.scroll_y_offset, 0.0, max);
+                self.composite.recompute_layout(ctx, &mut HashMap::new());
             }
         }
 

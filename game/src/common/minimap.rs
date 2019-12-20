@@ -230,6 +230,7 @@ impl VisibilityPanel {
             );
         }
         Composite::minimal_size(
+            ctx,
             ManagedWidget::col(col).bg(Color::grey(0.4)),
             ScreenPt::new(
                 ctx.canvas.window_width - 550.0,

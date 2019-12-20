@@ -176,14 +176,13 @@ impl ColorLegend {
                 ManagedWidget::draw_text(ctx, Text::from(Line(label))),
             ]));
         }
-        let mut composite = Composite::minimal_size(
-            ManagedWidget::col(col).bg(Color::grey(0.4)),
-            ScreenPt::new(0.0, 150.0),
-        );
-        // Do this here, otherwise we have to be sure to call event()
-        composite.recompute_layout(ctx, &mut HashMap::new());
-
-        ColorLegend { composite }
+        ColorLegend {
+            composite: Composite::minimal_size(
+                ctx,
+                ManagedWidget::col(col).bg(Color::grey(0.4)),
+                ScreenPt::new(0.0, 150.0),
+            ),
+        }
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {

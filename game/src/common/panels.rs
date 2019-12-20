@@ -50,6 +50,7 @@ pub fn tool_panel(ctx: &EventCtx, extra_buttons: Vec<ManagedWidget>) -> Composit
     row.extend(extra_buttons);
 
     Composite::aligned(
+        ctx,
         (HorizontalAlignment::Left, VerticalAlignment::BottomAboveOSD),
         ManagedWidget::row(row.into_iter().map(|x| x.margin(10)).collect()).bg(Color::grey(0.4)),
     )
@@ -57,6 +58,7 @@ pub fn tool_panel(ctx: &EventCtx, extra_buttons: Vec<ManagedWidget>) -> Composit
 
 pub fn edit_map_panel(ctx: &EventCtx, ui: &UI, gameplay: GameplayMode) -> Composite {
     Composite::aligned(
+        ctx,
         (HorizontalAlignment::Center, VerticalAlignment::Top),
         ManagedWidget::row(vec![
             ManagedWidget::col(vec![

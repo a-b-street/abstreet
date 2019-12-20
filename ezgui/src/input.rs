@@ -116,6 +116,13 @@ impl UserInput {
         None
     }
 
+    pub fn is_window_resized(&self) -> bool {
+        match self.event {
+            Event::WindowResized(_, _) => true,
+            _ => false,
+        }
+    }
+
     pub fn nonblocking_is_update_event(&mut self) -> bool {
         if self.event_consumed {
             return false;

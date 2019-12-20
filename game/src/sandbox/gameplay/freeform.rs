@@ -79,6 +79,7 @@ pub fn freeform_controller(
     scenario_name: &str,
 ) -> Composite {
     Composite::aligned(
+        ctx,
         (HorizontalAlignment::Center, VerticalAlignment::Top),
         ManagedWidget::row(vec![
             ManagedWidget::col(vec![

@@ -179,7 +179,7 @@ pub fn challenges_picker(ctx: &EventCtx) -> Box<dyn State> {
     }
     col.push(ManagedWidget::row(flex_row).flex_wrap());
 
-    ManagedGUIState::new(ManagedWidget::col(col).centered())
+    ManagedGUIState::new(ctx, ManagedWidget::col(col).centered())
 }
 
 struct ChallengeSplash {

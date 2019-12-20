@@ -299,6 +299,7 @@ impl AgentMeter {
         let (active, unfinished, by_mode) = ui.primary.sim.num_trips();
 
         let composite = Composite::aligned(
+            ctx,
             (HorizontalAlignment::Right, VerticalAlignment::Top),
             ManagedWidget::col(vec![
                 {

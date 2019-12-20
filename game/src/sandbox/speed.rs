@@ -33,7 +33,12 @@ enum SpeedState {
 }
 
 impl SpeedControls {
-    fn make_panel(ctx: &EventCtx, paused: bool, desired_speed: f64) -> Composite {
+    fn make_panel(
+        ctx: &EventCtx,
+        paused: bool,
+        desired_speed: f64,
+        slider: &mut Slider,
+    ) -> Composite {
         let mut row = Vec::new();
         if paused {
             row.push(ManagedWidget::btn_no_cb(Button::rectangle_svg(
@@ -141,7 +146,11 @@ impl SpeedControls {
             .bg(Color::grey(0.5)),
         );
 
-        Composite::aligned(
+        let mut sliders = HashMap::new();
+        sliders.insert("speed".to_string(), slider);
+        Composite::aligned_with_sliders(
+            ctx,
+            sliders,
             (
                 HorizontalAlignment::Center,
                 VerticalAlignment::BottomAboveOSD,
@@ -159,10 +168,12 @@ impl SpeedControls {
         slider.set_percent(ctx, (speed_cap / 1.0).powf(-1.0 / std::f64::consts::E));
 
         let now = Instant::now();
+        let composite = SpeedControls::make_panel(ctx, false, 1.0, &mut slider);
+
         SpeedControls {
             time_panel: TimePanel::new(ctx, ui),
 
-            composite: SpeedControls::make_panel(ctx, false, 1.0),
+            composite,
             slider,
 
             state: SpeedState::Running {
@@ -215,7 +226,8 @@ impl SpeedControls {
                         last_measurement: now,
                         last_measurement_sim: ui.primary.sim.time(),
                     };
-                    self.composite = SpeedControls::make_panel(ctx, false, desired_speed);
+                    self.composite =
+                        SpeedControls::make_panel(ctx, false, desired_speed, &mut self.slider);
                     return None;
                 }
                 "pause" => {
@@ -277,7 +289,8 @@ impl SpeedControls {
     pub fn pause(&mut self, ctx: &EventCtx) {
         if !self.is_paused() {
             self.state = SpeedState::Paused;
-            self.composite = SpeedControls::make_panel(ctx, true, self.desired_speed());
+            self.composite =
+                SpeedControls::make_panel(ctx, true, self.desired_speed(), &mut self.slider);
         }
     }
 
@@ -369,6 +382,7 @@ impl TimePanel {
         TimePanel {
             time: ui.primary.sim.time(),
             composite: Composite::aligned(
+                ctx,
                 (HorizontalAlignment::Left, VerticalAlignment::Top),
                 ManagedWidget::col(vec![
                     ManagedWidget::draw_text(
