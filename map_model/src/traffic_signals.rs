@@ -67,13 +67,16 @@ impl ControlTrafficSignal {
         results
     }
 
-    pub fn current_phase_and_remaining_time(&self, now: Time) -> (usize, &Phase, Duration) {
+    pub fn cycle_length(&self) -> Duration {
         let mut cycle_length = Duration::ZERO;
         for p in &self.phases {
             cycle_length += p.duration;
         }
+        cycle_length
+    }
 
-        let mut now_offset = ((now + self.offset) - Time::START_OF_DAY) % cycle_length;
+    pub fn current_phase_and_remaining_time(&self, now: Time) -> (usize, &Phase, Duration) {
+        let mut now_offset = ((now + self.offset) - Time::START_OF_DAY) % self.cycle_length();
         for (idx, p) in self.phases.iter().enumerate() {
             if now_offset < p.duration {
                 return (idx, p, p.duration - now_offset);

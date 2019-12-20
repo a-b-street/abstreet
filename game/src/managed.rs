@@ -656,7 +656,8 @@ impl Scroller {
         self.composite.scroll_y_offset
     }
 
-    pub fn restore_scroll(&mut self, offset: f64) {
+    pub fn restore_scroll(&mut self, ctx: &EventCtx, offset: f64) {
         self.composite.scroll_y_offset = offset;
+        self.composite.recompute_layout(ctx, &mut HashMap::new());
     }
 }

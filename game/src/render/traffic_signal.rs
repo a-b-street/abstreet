@@ -8,6 +8,7 @@ use ezgui::{
 };
 use geom::{Circle, Distance, Duration, Polygon};
 use map_model::{IntersectionID, Phase, TurnPriority};
+use std::collections::BTreeSet;
 
 // Only draws a box when time_left is present
 pub fn draw_signal_phase(
@@ -148,7 +149,7 @@ impl TrafficSignalDiagram {
     ) -> TrafficSignalDiagram {
         TrafficSignalDiagram {
             i,
-            scroller: make_scroller(i, current_phase, &ui.draw_ctx(), ctx),
+            scroller: make_scroller(i, current_phase, ui, ctx),
             current_phase,
         }
     }
@@ -177,8 +178,8 @@ impl TrafficSignalDiagram {
         if self.current_phase != idx {
             let preserve_scroll = self.scroller.preserve_scroll();
             self.current_phase = idx;
-            self.scroller = make_scroller(self.i, self.current_phase, &ui.draw_ctx(), ctx);
-            self.scroller.restore_scroll(preserve_scroll);
+            self.scroller = make_scroller(self.i, self.current_phase, ui, ctx);
+            self.scroller.restore_scroll(ctx, preserve_scroll);
         }
     }
 
@@ -191,29 +192,57 @@ impl TrafficSignalDiagram {
     }
 }
 
-fn make_scroller(
-    i: IntersectionID,
-    selected: usize,
-    draw_ctx: &DrawCtx,
-    ctx: &EventCtx,
-) -> Scroller {
-    let zoom = 20.0;
+fn make_scroller(i: IntersectionID, selected: usize, ui: &UI, ctx: &EventCtx) -> Scroller {
     // Slightly inaccurate -- the turn rendering may slightly exceed the intersection polygon --
     // but this is close enough.
-    let bounds = draw_ctx.map.get_i(i).polygon.get_bounds();
+    let bounds = ui.primary.map.get_i(i).polygon.get_bounds();
+    // Pick a zoom so that we fit some percentage of the screen
+    let zoom = 0.2 * ctx.canvas.window_width / (bounds.max_x - bounds.min_x);
     let bbox = Polygon::rectangle(
         zoom * (bounds.max_x - bounds.min_x),
         zoom * (bounds.max_y - bounds.min_y),
     );
 
-    let signal = draw_ctx.map.get_traffic_signal(i);
-    let mut col = vec![ManagedWidget::draw_text(
-        ctx,
-        Text::from(Line(format!("Signal offset: {}", signal.offset))),
-    )];
+    let signal = ui.primary.map.get_traffic_signal(i);
+    let mut col = vec![ManagedWidget::draw_text(ctx, {
+        let mut txt = Text::new();
+        txt.add(Line(i.to_string()).roboto());
+        let road_names = ui
+            .primary
+            .map
+            .get_i(i)
+            .roads
+            .iter()
+            .map(|r| ui.primary.map.get_r(*r).get_name())
+            .collect::<BTreeSet<_>>();
+        let len = road_names.len();
+        // TODO Some kind of reusable TextStyle thing
+        // TODO Need to wrap this
+        txt.add(Line("").roboto().size(21).fg(Color::WHITE.alpha(0.54)));
+        for (idx, n) in road_names.into_iter().enumerate() {
+            txt.append(Line(n).roboto().fg(Color::WHITE.alpha(0.54)));
+            if idx != len - 1 {
+                txt.append(Line(", ").roboto().fg(Color::WHITE.alpha(0.54)));
+            }
+        }
+        txt.add(Line(format!("{} phases", signal.phases.len())));
+        txt.add(Line(""));
+        txt.add(Line(format!("Signal offset: {}", signal.offset)));
+        txt.add(Line(format!("One cycle lasts {}", signal.cycle_length())));
+        txt
+    })];
     for (idx, phase) in signal.phases.iter().enumerate() {
+        col.push(
+            ManagedWidget::row(vec![
+                ManagedWidget::draw_text(ctx, Text::from(Line(format!("#{}", idx + 1)))),
+                ManagedWidget::draw_text(ctx, Text::from(Line(phase.duration.to_string()))),
+            ])
+            .margin(5)
+            .evenly_spaced(),
+        );
+
         let mut orig_batch = GeomBatch::new();
-        draw_signal_phase(phase, i, None, &mut orig_batch, draw_ctx);
+        draw_signal_phase(phase, i, None, &mut orig_batch, &ui.draw_ctx());
 
         let mut normal = GeomBatch::new();
         // TODO Ideally no background here, but we have to force the dimensions of normal and
@@ -236,21 +265,13 @@ fn make_scroller(
         hovered.append(normal.clone());
 
         col.push(
-            ManagedWidget::row(vec![
-                ManagedWidget::btn_no_cb(Button::new(
-                    DrawBoth::new(ctx, normal, Vec::new()),
-                    DrawBoth::new(ctx, hovered, Vec::new()),
-                    None,
-                    &format!("phase {}", idx + 1),
-                    bbox.clone(),
-                )),
-                // TODO Mad hacks to vertically center
-                ManagedWidget::col(vec![ManagedWidget::draw_text(
-                    ctx,
-                    Text::from(Line(format!("Phase {}: {}", idx + 1, phase.duration))),
-                )])
-                .centered(),
-            ])
+            ManagedWidget::btn_no_cb(Button::new(
+                DrawBoth::new(ctx, normal, Vec::new()),
+                DrawBoth::new(ctx, hovered, Vec::new()),
+                None,
+                &format!("phase {}", idx + 1),
+                bbox.clone(),
+            ))
             .margin(5),
         );
     }
@@ -258,6 +279,6 @@ fn make_scroller(
     Scroller::new(Composite::aligned(
         ctx,
         (HorizontalAlignment::Left, VerticalAlignment::Top),
-        ManagedWidget::col(col).bg(Color::grey(0.4)),
+        ManagedWidget::col(col).bg(Color::hex("#545454")),
     ))
 }
