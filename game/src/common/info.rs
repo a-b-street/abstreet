@@ -1,16 +1,20 @@
 use crate::common::CommonState;
-use crate::managed::{Composite, ManagedWidget};
 use crate::game::{State, Transition};
-use crate::helpers::ID;
+use crate::helpers::{rotating_color, ID};
+use crate::managed::{Composite, ManagedWidget, Scroller};
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
-use ezgui::{hotkey, HorizontalAlignment, VerticalAlignment, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
-use geom::Time;
-use sim::CarID;
+use ezgui::{
+    hotkey, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ModalMenu, Plot, Series, Text,
+    VerticalAlignment,
+};
+use geom::{Duration, Statistic, Time};
+use map_model::IntersectionID;
+use sim::{CarID, TripMode};
 use std::collections::BTreeMap;
 
 pub struct InfoPanel {
-    composite: Composite,
+    composite: Scroller,
     menu: ModalMenu,
     actions: Vec<String>,
 }
@@ -24,12 +28,42 @@ impl InfoPanel {
             menu_entries.push((hotkey(key), label));
         }
 
-        let mut col = vec![
-            ManagedWidget::draw_text(ctx, info_for(id, ui)),
-        ];
+        let mut col = vec![ManagedWidget::draw_text(ctx, info_for(id.clone(), ui))];
+
+        if let ID::Intersection(i) = id {
+            if ui.primary.map.get_i(i).is_traffic_signal() {
+                col.push(
+                    ManagedWidget::draw_text(ctx, Text::from(Line("delay in 1 hour buckets")))
+                        .bg(Color::grey(0.5)),
+                );
+                col.push(
+                    ManagedWidget::duration_plot(intersection_delay(
+                        i,
+                        Duration::hours(1),
+                        ctx,
+                        ui,
+                    ))
+                    .bg(Color::grey(0.5))
+                    .margin(10),
+                );
+            }
+            col.push(
+                ManagedWidget::draw_text(ctx, Text::from(Line("throughput in 1 hour buckets")))
+                    .bg(Color::grey(0.5)),
+            );
+            col.push(
+                ManagedWidget::usize_plot(intersection_throughput(i, Duration::hours(1), ctx, ui))
+                    .bg(Color::grey(0.5))
+                    .margin(10),
+            );
+        }
 
         InfoPanel {
-            composite: Composite::aligned(ctx, (HorizontalAlignment::Center, VerticalAlignment::Center), ManagedWidget::col(col)),
+            composite: Scroller::new(Composite::aligned(
+                ctx,
+                (HorizontalAlignment::Left, VerticalAlignment::Top),
+                ManagedWidget::col(col).bg(Color::grey(0.3)),
+            )),
             menu: ModalMenu::new("Info Panel", menu_entries, ctx),
             actions,
         }
@@ -70,7 +104,7 @@ impl State for InfoPanel {
 
 fn info_for(id: ID, ui: &UI) -> Text {
     let (map, sim, draw_map) = (&ui.primary.map, &ui.primary.sim, &ui.primary.draw_map);
-    let mut txt = Text::new().with_bg();
+    let mut txt = Text::new();
 
     txt.extend(&CommonState::default_osd(id.clone(), ui));
     txt.highlight_last_line(Color::BLUE);
@@ -256,5 +290,77 @@ fn styled_kv(txt: &mut Text, tags: &BTreeMap<String, String>) {
             Line(" = "),
             Line(v).fg(Color::CYAN),
         ]);
+    }
+}
+
+fn intersection_throughput(
+    i: IntersectionID,
+    bucket: Duration,
+    ctx: &EventCtx,
+    ui: &UI,
+) -> Plot<usize> {
+    Plot::new(
+        ui.primary
+            .sim
+            .get_analytics()
+            .throughput_intersection(ui.primary.sim.time(), i, bucket)
+            .into_iter()
+            .map(|(m, pts)| Series {
+                label: m.to_string(),
+                color: color_for_mode(m, ui),
+                pts,
+            })
+            .collect(),
+        0,
+        ctx,
+    )
+}
+
+fn intersection_delay(
+    i: IntersectionID,
+    bucket: Duration,
+    ctx: &EventCtx,
+    ui: &UI,
+) -> Plot<Duration> {
+    let mut series: Vec<(Statistic, Vec<(Time, Duration)>)> = Statistic::all()
+        .into_iter()
+        .map(|stat| (stat, Vec::new()))
+        .collect();
+    for (t, distrib) in ui
+        .primary
+        .sim
+        .get_analytics()
+        .intersection_delays_bucketized(ui.primary.sim.time(), i, bucket)
+    {
+        for (stat, pts) in series.iter_mut() {
+            if distrib.count() == 0 {
+                pts.push((t, Duration::ZERO));
+            } else {
+                pts.push((t, distrib.select(*stat)));
+            }
+        }
+    }
+
+    Plot::new(
+        series
+            .into_iter()
+            .enumerate()
+            .map(|(idx, (stat, pts))| Series {
+                label: stat.to_string(),
+                color: rotating_color(idx),
+                pts,
+            })
+            .collect(),
+        Duration::ZERO,
+        ctx,
+    )
+}
+
+fn color_for_mode(m: TripMode, ui: &UI) -> Color {
+    match m {
+        TripMode::Walk => ui.cs.get("unzoomed pedestrian"),
+        TripMode::Bike => ui.cs.get("unzoomed bike"),
+        TripMode::Transit => ui.cs.get("unzoomed bus"),
+        TripMode::Drive => ui.cs.get("unzoomed car"),
     }
 }

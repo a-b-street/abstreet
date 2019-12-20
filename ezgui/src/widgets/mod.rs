@@ -15,7 +15,7 @@ pub use self::autocomplete::Autocomplete;
 pub use self::button::Button;
 pub use self::modal_menu::ModalMenu;
 pub use self::no_op::JustDraw;
-pub use self::plot::Plot;
+pub use self::plot::{Plot, Series};
 pub(crate) use self::popup_menu::PopupMenu;
 pub(crate) use self::screenshot::{screenshot_current, screenshot_everything};
 pub use self::slider::{ItemSlider, Slider, SliderWithTextBox, WarpingItemSlider};

@@ -148,16 +148,7 @@ impl State for SandboxMode {
             }
         }
         if let Some(ID::Intersection(i)) = ui.primary.current_selection {
-            if ui
-                .per_obj
-                .action(ctx, Key::T, "throughput over 1-hour buckets")
-            {
-                let bucket = Duration::hours(1);
-                self.overlay = Overlays::intersection_throughput(i, bucket, ctx, ui);
-            } else if ui.per_obj.action(ctx, Key::D, "delay over 1-hour buckets") {
-                let bucket = Duration::hours(1);
-                self.overlay = Overlays::intersection_delay_over_time(i, bucket, ctx, ui);
-            } else if ui.primary.map.get_i(i).is_traffic_signal()
+            if ui.primary.map.get_i(i).is_traffic_signal()
                 && ui.per_obj.action(ctx, Key::E, "show current demand")
             {
                 self.overlay = Overlays::intersection_demand(i, ctx, ui);
