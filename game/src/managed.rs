@@ -587,13 +587,13 @@ const SCROLL_SPEED: f64 = 5.0;
 // TODO This doesn't clip. There's no way to express that the scrollable thing should occupy a
 // small part of the screen.
 // TODO Horizontal scrolling?
-pub struct CompositeScroller {
+pub struct Scroller {
     composite: Composite,
 }
 
-impl CompositeScroller {
-    pub fn new(composite: Composite) -> CompositeScroller {
-        CompositeScroller { composite }
+impl Scroller {
+    pub fn new(composite: Composite) -> Scroller {
+        Scroller { composite }
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Outcome> {

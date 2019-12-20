@@ -1,10 +1,10 @@
-use crate::managed::{Composite, CompositeScroller, ManagedWidget, Outcome};
+use crate::managed::{Composite, ManagedWidget, Outcome, Scroller};
 use crate::options::TrafficSignalStyle;
 use crate::render::{DrawCtx, DrawTurnGroup, BIG_ARROW_THICKNESS};
 use crate::ui::UI;
 use ezgui::{
     Button, Color, DrawBoth, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, ModalMenu,
-    NewScroller, ScreenDims, ScreenPt, Scroller, Text, VerticalAlignment,
+    Text, VerticalAlignment,
 };
 use geom::{Circle, Distance, Duration, Polygon, Pt2D};
 use map_model::{IntersectionID, Phase, TurnPriority};
@@ -133,13 +133,9 @@ pub fn draw_signal_phase(
     );
 }
 
-const PADDING: f64 = 5.0;
-// Not counting labels
-const PERCENT_WIDTH: f64 = 0.15;
-
 pub struct TrafficSignalDiagram {
     pub i: IntersectionID,
-    scroller: CompositeScroller,
+    scroller: Scroller,
     current_phase: usize,
 }
 
@@ -186,40 +182,9 @@ impl TrafficSignalDiagram {
         self.current_phase
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
+    pub fn draw(&self, g: &mut GfxCtx) {
         self.scroller.draw(g);
     }
-}
-
-fn make_new_scroller(i: IntersectionID, draw_ctx: &DrawCtx, ctx: &EventCtx) -> NewScroller {
-    let zoom = 15.0;
-
-    // TODO Nicer API would be passing in a list of (GeomBatch, text-at-points)s each starting at the
-    // origin, then do the translation later.
-    let mut master_batch = GeomBatch::new();
-    let mut txt: Vec<(Text, ScreenPt)> = Vec::new();
-
-    // Slightly inaccurate -- the turn rendering may slightly exceed the intersection polygon --
-    // but this is close enough.
-    let bounds = draw_ctx.map.get_i(i).polygon.get_bounds();
-    let mut y_offset = 0.0;
-    for (idx, phase) in draw_ctx.map.get_traffic_signal(i).phases.iter().enumerate() {
-        let mut batch = GeomBatch::new();
-        draw_signal_phase(phase, i, None, &mut batch, draw_ctx);
-        for (color, poly) in batch.consume() {
-            master_batch.push(
-                color,
-                poly.translate(-bounds.min_x, y_offset - bounds.min_y),
-            );
-        }
-        txt.push((
-            Text::from(Line(format!("Phase {}: {}", idx + 1, phase.duration))).with_bg(),
-            ScreenPt::new(10.0 + (bounds.max_x - bounds.min_x) * zoom, y_offset * zoom),
-        ));
-        y_offset += bounds.max_y - bounds.min_y;
-    }
-
-    NewScroller::new(master_batch, txt, zoom, ctx)
 }
 
 fn make_scroller(
@@ -227,7 +192,7 @@ fn make_scroller(
     selected: usize,
     draw_ctx: &DrawCtx,
     ctx: &EventCtx,
-) -> CompositeScroller {
+) -> Scroller {
     let zoom = 20.0;
     // Slightly inaccurate -- the turn rendering may slightly exceed the intersection polygon --
     // but this is close enough.
@@ -287,7 +252,7 @@ fn make_scroller(
         );
     }
 
-    CompositeScroller::new(Composite::aligned(
+    Scroller::new(Composite::aligned(
         (HorizontalAlignment::Left, VerticalAlignment::Top),
         ManagedWidget::col(col).bg(Color::grey(0.4)),
     ))

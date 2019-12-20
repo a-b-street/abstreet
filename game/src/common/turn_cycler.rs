@@ -142,7 +142,7 @@ impl State for ShowTrafficSignal {
             &ui.primary.sim,
             &ShowEverything::new(),
         );
-        self.diagram.draw(g, &ui.draw_ctx());
+        self.diagram.draw(g);
 
         self.menu.draw(g);
     }

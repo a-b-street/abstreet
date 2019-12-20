@@ -275,7 +275,7 @@ impl State for TrafficSignalEditor {
         }
         batch.draw(g);
 
-        self.diagram.draw(g, &ctx);
+        self.diagram.draw(g);
 
         self.menu.draw(g);
         if let Some(id) = self.group_selected {
