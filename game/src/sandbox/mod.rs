@@ -213,6 +213,7 @@ impl State for SandboxMode {
                                     &mut Timer::new("reset edits"),
                                 );
                                 ui.primary.clear_sim();
+                                ctx.canvas.save_camera_state(ui.primary.map.get_name());
                                 Some(Transition::Clear(main_menu(ctx, ui)))
                             }
                             "quit challenge" => {
@@ -229,6 +230,7 @@ impl State for SandboxMode {
                                     );
                                 }
                                 ui.primary.clear_sim();
+                                ctx.canvas.save_camera_state(ui.primary.map.get_name());
                                 Some(Transition::Clear(main_menu(ctx, ui)))
                             }
                             "keep playing" => Some(Transition::Pop),

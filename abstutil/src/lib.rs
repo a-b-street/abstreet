@@ -41,6 +41,16 @@ macro_rules! skip_fail {
     };
 }
 
+pub fn clamp(x: f64, min: f64, max: f64) -> f64 {
+    if x < min {
+        min
+    } else if x > max {
+        max
+    } else {
+        x
+    }
+}
+
 // System data (Players can't edit, needed at runtime)
 
 pub fn path_map(map_name: &str) -> String {

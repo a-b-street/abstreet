@@ -1,9 +1,10 @@
+use crate::managed::{Composite, CompositeScroller, ManagedWidget};
 use crate::options::TrafficSignalStyle;
 use crate::render::{DrawCtx, DrawTurnGroup, BIG_ARROW_THICKNESS};
 use crate::ui::UI;
 use ezgui::{
-    Color, EventCtx, GeomBatch, GfxCtx, Line, ModalMenu, NewScroller, ScreenDims, ScreenPt,
-    Scroller, Text,
+    Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, ModalMenu, NewScroller,
+    ScreenDims, ScreenPt, Scroller, Text, VerticalAlignment,
 };
 use geom::{Circle, Distance, Duration, Polygon, Pt2D};
 use map_model::{IntersectionID, Phase, TurnPriority};
@@ -145,6 +146,8 @@ pub struct TrafficSignalDiagram {
     scroller: Scroller<usize>,
 
     _new_scroller: NewScroller,
+
+    _experiment: CompositeScroller,
 }
 
 impl TrafficSignalDiagram {
@@ -194,11 +197,13 @@ impl TrafficSignalDiagram {
             scroller,
 
             _new_scroller: make_new_scroller(i, &ui.draw_ctx(), ctx),
+
+            _experiment: experiment(i, &ui.draw_ctx(), ctx),
         }
     }
 
-    pub fn event(&mut self, ctx: &mut EventCtx, menu: &mut ModalMenu) {
-        self.scroller.event(ctx);
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI, menu: &mut ModalMenu) {
+        /*self.scroller.event(ctx);
 
         if self.scroller.current_idx() != 0 && menu.action("select previous phase") {
             self.scroller.select_previous();
@@ -209,17 +214,20 @@ impl TrafficSignalDiagram {
         {
             self.scroller.select_next(ctx.canvas);
             return;
-        }
+        }*/
 
         //self.new_scroller.event(ctx);
+
+        self._experiment.event(ctx, ui);
     }
 
     pub fn current_phase(&self) -> usize {
-        self.scroller.current_idx()
+        //self.scroller.current_idx()
+        0
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
-        let phases = &ctx.map.get_traffic_signal(self.i).phases;
+        /*let phases = &ctx.map.get_traffic_signal(self.i).phases;
 
         for (idx, rect) in self.scroller.draw(g) {
             g.fork(self.top_left, ScreenPt::new(rect.x1, rect.y1), self.zoom);
@@ -230,9 +238,11 @@ impl TrafficSignalDiagram {
             g.draw_text_at_screenspace_topleft(&self.labels[idx], ScreenPt::new(rect.x2, rect.y1));
         }
 
-        g.unfork();
+        g.unfork();*/
 
         //self.new_scroller.draw(g);
+
+        self._experiment.draw(g);
     }
 }
 
@@ -265,4 +275,45 @@ fn make_new_scroller(i: IntersectionID, draw_ctx: &DrawCtx, ctx: &EventCtx) -> N
     }
 
     NewScroller::new(master_batch, txt, zoom, ctx)
+}
+
+fn experiment(i: IntersectionID, draw_ctx: &DrawCtx, ctx: &EventCtx) -> CompositeScroller {
+    let zoom = 20.0;
+    // Slightly inaccurate -- the turn rendering may slightly exceed the intersection polygon --
+    // but this is close enough.
+    let bounds = draw_ctx.map.get_i(i).polygon.get_bounds();
+
+    let signal = draw_ctx.map.get_traffic_signal(i);
+    let mut col = vec![ManagedWidget::draw_text(
+        ctx,
+        Text::from(Line(format!("Signal offset: {}", signal.offset))),
+    )];
+    for (idx, phase) in signal.phases.iter().enumerate() {
+        let mut orig_batch = GeomBatch::new();
+        draw_signal_phase(phase, i, None, &mut orig_batch, draw_ctx);
+
+        let mut batch = GeomBatch::new();
+        // Move to the origin and apply zoom
+        for (color, poly) in orig_batch.consume() {
+            batch.push(
+                color,
+                poly.translate(-bounds.min_x, -bounds.min_y).scale(zoom),
+            );
+        }
+
+        col.push(ManagedWidget::row(vec![
+            ManagedWidget::draw_batch(ctx, batch),
+            // TODO Mad hacks to vertically center
+            ManagedWidget::col(vec![ManagedWidget::draw_text(
+                ctx,
+                Text::from(Line(format!("Phase {}: {}", idx + 1, phase.duration))),
+            )])
+            .centered(),
+        ]));
+    }
+
+    CompositeScroller::new(Composite::aligned(
+        (HorizontalAlignment::Left, VerticalAlignment::Top),
+        ManagedWidget::col(col).bg(Color::grey(0.4)),
+    ))
 }

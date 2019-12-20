@@ -144,6 +144,18 @@ impl Polygon {
         }
     }
 
+    pub fn scale(&self, factor: f64) -> Polygon {
+        Polygon {
+            points: self
+                .points
+                .iter()
+                .map(|pt| Pt2D::new(pt.x() * factor, pt.y() * factor))
+                .collect(),
+            indices: self.indices.clone(),
+            uv: None,
+        }
+    }
+
     // The order of these points depends on the constructor! The first and last point may or may
     // not match. Polygons constructed from PolyLines will have a very weird order.
     pub fn points(&self) -> &Vec<Pt2D> {

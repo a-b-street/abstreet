@@ -63,16 +63,17 @@ impl TrafficSignalEditor {
 
 impl State for TrafficSignalEditor {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        let orig_signal = ui.primary.map.get_traffic_signal(self.diagram.i);
-
         self.menu.event(ctx);
         // TODO This really needs to be shown in the diagram!
         self.menu.set_info(
             ctx,
-            Text::from(Line(format!("Signal offset: {}", orig_signal.offset))),
+            Text::from(Line(format!(
+                "Signal offset: {}",
+                ui.primary.map.get_traffic_signal(self.diagram.i).offset
+            ))),
         );
         ctx.canvas.handle_event(ctx.input);
-        self.diagram.event(ctx, &mut self.menu);
+        self.diagram.event(ctx, ui, &mut self.menu);
 
         if ctx.redo_mouseover() {
             self.group_selected = None;
@@ -85,6 +86,8 @@ impl State for TrafficSignalEditor {
                 }
             }
         }
+
+        let orig_signal = ui.primary.map.get_traffic_signal(self.diagram.i);
 
         if let Some(id) = self.group_selected {
             let mut new_signal = orig_signal.clone();

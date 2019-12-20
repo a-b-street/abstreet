@@ -424,6 +424,7 @@ impl ManagedWidget {
 pub struct Composite {
     top_level: ManagedWidget,
     pos: CompositePosition,
+    scroll_y_offset: f64,
 }
 
 pub enum Outcome {
@@ -442,6 +443,7 @@ impl Composite {
         Composite {
             top_level,
             pos: CompositePosition::MinimalTopLeft(top_left),
+            scroll_y_offset: 0.0,
         }
     }
 
@@ -449,6 +451,7 @@ impl Composite {
         Composite {
             top_level,
             pos: CompositePosition::FillScreen,
+            scroll_y_offset: 0.0,
         }
     }
 
@@ -459,6 +462,7 @@ impl Composite {
         Composite {
             top_level,
             pos: CompositePosition::Aligned(horiz, vert),
+            scroll_y_offset: 0.0,
         }
     }
 
@@ -504,8 +508,14 @@ impl Composite {
                 )
             }
         };
-        self.top_level
-            .apply_flexbox(sliders, &stretch, &mut nodes, top_left.x, top_left.y, ctx);
+        self.top_level.apply_flexbox(
+            sliders,
+            &stretch,
+            &mut nodes,
+            top_left.x,
+            top_left.y - self.scroll_y_offset,
+            ctx,
+        );
         assert!(nodes.is_empty());
     }
 
@@ -567,6 +577,41 @@ impl State for ManagedGUIState {
     fn draw(&self, g: &mut GfxCtx, ui: &UI) {
         // Happens to be a nice background color too ;)
         g.clear(ui.cs.get("grass"));
+        self.composite.draw(g);
+    }
+}
+
+const SCROLL_SPEED: f64 = 5.0;
+
+// TODO Build into Composite directly
+// TODO This doesn't clip. There's no way to express that the scrollable thing should occupy a
+// small part of the screen.
+// TODO Horizontal scrolling?
+pub struct CompositeScroller {
+    composite: Composite,
+}
+
+impl CompositeScroller {
+    pub fn new(composite: Composite) -> CompositeScroller {
+        CompositeScroller { composite }
+    }
+
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Outcome> {
+        if let Some(ref rect) = self.composite.top_level.rect {
+            if rect.contains(ctx.canvas.get_cursor_in_screen_space()) {
+                if let Some(scroll) = ctx.input.get_mouse_scroll() {
+                    self.composite.scroll_y_offset -= scroll * SCROLL_SPEED;
+                    let max = (rect.height() - ctx.canvas.window_height).max(0.0);
+                    self.composite.scroll_y_offset =
+                        abstutil::clamp(self.composite.scroll_y_offset, 0.0, max);
+                }
+            }
+        }
+
+        self.composite.event(ctx, ui)
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx) {
         self.composite.draw(g);
     }
 }

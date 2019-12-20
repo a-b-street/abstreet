@@ -2,6 +2,7 @@ use crate::game::{Transition, WizardState};
 use crate::managed::{Composite, ManagedWidget, Outcome};
 use crate::render::{AgentColorScheme, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::UI;
+use abstutil::clamp;
 use ezgui::{
     hotkey, Button, Choice, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, RewriteColor, ScreenPt,
     ScreenRectangle, Text,
@@ -171,16 +172,6 @@ impl Minimap {
             println!("Warning: Minimap cursor is just a point right now");
         }
         g.unfork();
-    }
-}
-
-fn clamp(x: f64, min: f64, max: f64) -> f64 {
-    if x < min {
-        min
-    } else if x > max {
-        max
-    } else {
-        x
     }
 }
 
