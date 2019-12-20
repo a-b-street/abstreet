@@ -614,4 +614,12 @@ impl CompositeScroller {
     pub fn draw(&self, g: &mut GfxCtx) {
         self.composite.draw(g);
     }
+
+    pub fn preserve_scroll(&self) -> f64 {
+        self.composite.scroll_y_offset
+    }
+
+    pub fn restore_scroll(&mut self, offset: f64) {
+        self.composite.scroll_y_offset = offset;
+    }
 }

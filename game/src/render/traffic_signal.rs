@@ -1,10 +1,10 @@
-use crate::managed::{Composite, CompositeScroller, ManagedWidget};
+use crate::managed::{Composite, CompositeScroller, ManagedWidget, Outcome};
 use crate::options::TrafficSignalStyle;
 use crate::render::{DrawCtx, DrawTurnGroup, BIG_ARROW_THICKNESS};
 use crate::ui::UI;
 use ezgui::{
-    Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, ModalMenu, NewScroller,
-    ScreenDims, ScreenPt, Scroller, Text, VerticalAlignment,
+    Button, Color, DrawBoth, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, ModalMenu,
+    NewScroller, ScreenDims, ScreenPt, Scroller, Text, VerticalAlignment,
 };
 use geom::{Circle, Distance, Duration, Polygon, Pt2D};
 use map_model::{IntersectionID, Phase, TurnPriority};
@@ -139,15 +139,8 @@ const PERCENT_WIDTH: f64 = 0.15;
 
 pub struct TrafficSignalDiagram {
     pub i: IntersectionID,
-    labels: Vec<Text>,
-    top_left: Pt2D,
-    zoom: f64,
-    // The usizes are phase indices
-    scroller: Scroller<usize>,
-
-    _new_scroller: NewScroller,
-
-    _experiment: CompositeScroller,
+    scroller: CompositeScroller,
+    current_phase: usize,
 }
 
 impl TrafficSignalDiagram {
@@ -157,54 +150,15 @@ impl TrafficSignalDiagram {
         ui: &UI,
         ctx: &EventCtx,
     ) -> TrafficSignalDiagram {
-        let (top_left, intersection_width, intersection_height) = {
-            let b = ui.primary.map.get_i(i).polygon.get_bounds();
-            (
-                Pt2D::new(b.min_x, b.min_y),
-                b.max_x - b.min_x,
-                // Vertically pad
-                b.max_y - b.min_y,
-            )
-        };
-        let phases = &ui.primary.map.get_traffic_signal(i).phases;
-
-        let zoom = ctx.canvas.window_width * PERCENT_WIDTH / intersection_width;
-        let item_dims = ScreenDims::new(
-            ctx.canvas.window_width * PERCENT_WIDTH,
-            (PADDING + intersection_height) * zoom,
-        );
-
-        let scroller = Scroller::new(
-            ScreenPt::new(0.0, 0.0),
-            std::iter::repeat(item_dims)
-                .take(phases.len())
-                .enumerate()
-                .collect(),
-            current_phase,
-            ctx,
-        );
-        let mut labels = Vec::new();
-        for (idx, phase) in phases.iter().enumerate() {
-            labels
-                .push(Text::from(Line(format!("Phase {}: {}", idx + 1, phase.duration))).with_bg());
-        }
-
         TrafficSignalDiagram {
             i,
-            labels,
-            top_left,
-            zoom,
-            scroller,
-
-            _new_scroller: make_new_scroller(i, &ui.draw_ctx(), ctx),
-
-            _experiment: experiment(i, &ui.draw_ctx(), ctx),
+            scroller: make_scroller(i, current_phase, &ui.draw_ctx(), ctx),
+            current_phase,
         }
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI, menu: &mut ModalMenu) {
-        /*self.scroller.event(ctx);
-
+        /*
         if self.scroller.current_idx() != 0 && menu.action("select previous phase") {
             self.scroller.select_previous();
             return;
@@ -216,33 +170,24 @@ impl TrafficSignalDiagram {
             return;
         }*/
 
-        //self.new_scroller.event(ctx);
-
-        self._experiment.event(ctx, ui);
+        match self.scroller.event(ctx, ui) {
+            Some(Outcome::Transition(_)) => unreachable!(),
+            Some(Outcome::Clicked(x)) => {
+                self.current_phase = x["phase ".len()..].parse::<usize>().unwrap() - 1;
+                let preserve_scroll = self.scroller.preserve_scroll();
+                self.scroller = make_scroller(self.i, self.current_phase, &ui.draw_ctx(), ctx);
+                self.scroller.restore_scroll(preserve_scroll);
+            }
+            None => {}
+        }
     }
 
     pub fn current_phase(&self) -> usize {
-        //self.scroller.current_idx()
-        0
+        self.current_phase
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ctx: &DrawCtx) {
-        /*let phases = &ctx.map.get_traffic_signal(self.i).phases;
-
-        for (idx, rect) in self.scroller.draw(g) {
-            g.fork(self.top_left, ScreenPt::new(rect.x1, rect.y1), self.zoom);
-            let mut batch = GeomBatch::new();
-            draw_signal_phase(&phases[idx], self.i, None, &mut batch, ctx);
-            batch.draw(g);
-
-            g.draw_text_at_screenspace_topleft(&self.labels[idx], ScreenPt::new(rect.x2, rect.y1));
-        }
-
-        g.unfork();*/
-
-        //self.new_scroller.draw(g);
-
-        self._experiment.draw(g);
+        self.scroller.draw(g);
     }
 }
 
@@ -277,11 +222,21 @@ fn make_new_scroller(i: IntersectionID, draw_ctx: &DrawCtx, ctx: &EventCtx) -> N
     NewScroller::new(master_batch, txt, zoom, ctx)
 }
 
-fn experiment(i: IntersectionID, draw_ctx: &DrawCtx, ctx: &EventCtx) -> CompositeScroller {
+fn make_scroller(
+    i: IntersectionID,
+    selected: usize,
+    draw_ctx: &DrawCtx,
+    ctx: &EventCtx,
+) -> CompositeScroller {
     let zoom = 20.0;
     // Slightly inaccurate -- the turn rendering may slightly exceed the intersection polygon --
     // but this is close enough.
     let bounds = draw_ctx.map.get_i(i).polygon.get_bounds();
+    let bbox = Polygon::rectangle_topleft(
+        Pt2D::new(0.0, 0.0),
+        Distance::meters(zoom * (bounds.max_x - bounds.min_x)),
+        Distance::meters(zoom * (bounds.max_y - bounds.min_y)),
+    );
 
     let signal = draw_ctx.map.get_traffic_signal(i);
     let mut col = vec![ManagedWidget::draw_text(
@@ -292,24 +247,44 @@ fn experiment(i: IntersectionID, draw_ctx: &DrawCtx, ctx: &EventCtx) -> Composit
         let mut orig_batch = GeomBatch::new();
         draw_signal_phase(phase, i, None, &mut orig_batch, draw_ctx);
 
-        let mut batch = GeomBatch::new();
+        let mut normal = GeomBatch::new();
+        // TODO Ideally no background here, but we have to force the dimensions of normal and
+        // hovered to be the same. For some reason the bbox is slightly different.
+        if idx == selected {
+            normal.push(Color::RED.alpha(0.15), bbox.clone());
+        } else {
+            normal.push(Color::CYAN.alpha(0.05), bbox.clone());
+        }
         // Move to the origin and apply zoom
         for (color, poly) in orig_batch.consume() {
-            batch.push(
+            normal.push(
                 color,
                 poly.translate(-bounds.min_x, -bounds.min_y).scale(zoom),
             );
         }
 
-        col.push(ManagedWidget::row(vec![
-            ManagedWidget::draw_batch(ctx, batch),
-            // TODO Mad hacks to vertically center
-            ManagedWidget::col(vec![ManagedWidget::draw_text(
-                ctx,
-                Text::from(Line(format!("Phase {}: {}", idx + 1, phase.duration))),
-            )])
-            .centered(),
-        ]));
+        let mut hovered = GeomBatch::new();
+        hovered.push(Color::RED.alpha(0.95), bbox.clone());
+        hovered.append(normal.clone());
+
+        col.push(
+            ManagedWidget::row(vec![
+                ManagedWidget::btn_no_cb(Button::new(
+                    DrawBoth::new(ctx, normal, Vec::new()),
+                    DrawBoth::new(ctx, hovered, Vec::new()),
+                    None,
+                    &format!("phase {}", idx + 1),
+                    bbox.clone(),
+                )),
+                // TODO Mad hacks to vertically center
+                ManagedWidget::col(vec![ManagedWidget::draw_text(
+                    ctx,
+                    Text::from(Line(format!("Phase {}: {}", idx + 1, phase.duration))),
+                )])
+                .centered(),
+            ])
+            .margin(5),
+        );
     }
 
     CompositeScroller::new(Composite::aligned(

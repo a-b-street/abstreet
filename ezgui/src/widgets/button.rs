@@ -27,7 +27,7 @@ pub struct Button {
 }
 
 impl Button {
-    fn new(
+    pub fn new(
         draw_normal: DrawBoth,
         draw_hovered: DrawBoth,
         hotkey: Option<MultiKey>,
