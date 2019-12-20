@@ -56,27 +56,19 @@ impl DrawBuilding {
             // circle with color, though.
             batch.push(
                 cs.get_def("parking icon foreground", Color::WHITE),
-                Polygon::rectangle(
-                    center.offset(Distance::meters(-1.0), Distance::ZERO),
+                Polygon::rectangle_centered(
+                    center.offset(-1.0, 0.0),
                     Distance::meters(1.5),
                     Distance::meters(4.5),
                 ),
             );
             batch.push(
                 cs.get("parking icon foreground"),
-                Circle::new(
-                    center.offset(Distance::meters(0.5), Distance::meters(-0.5)),
-                    Distance::meters(1.5),
-                )
-                .to_polygon(),
+                Circle::new(center.offset(0.5, -0.5), Distance::meters(1.5)).to_polygon(),
             );
             batch.push(
                 cs.get("parking icon background"),
-                Circle::new(
-                    center.offset(Distance::meters(0.5), Distance::meters(-0.5)),
-                    Distance::meters(0.5),
-                )
-                .to_polygon(),
+                Circle::new(center.offset(0.5, -0.5), Distance::meters(0.5)).to_polygon(),
             );
         }
 

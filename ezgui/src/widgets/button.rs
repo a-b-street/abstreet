@@ -4,7 +4,7 @@ use crate::{
     text, Color, DrawBoth, EventCtx, GeomBatch, GfxCtx, Line, MultiKey, RewriteColor, ScreenDims,
     ScreenPt, Text,
 };
-use geom::{Distance, Polygon, Pt2D};
+use geom::{Distance, Polygon};
 
 pub struct Button {
     pub action: String,
@@ -138,11 +138,8 @@ impl Button {
     pub fn rectangle_img(filename: &str, key: Option<MultiKey>, ctx: &EventCtx) -> Button {
         let img_color = ctx.canvas.texture(filename);
         let dims = img_color.texture_dims();
-        let img_rect = Polygon::rectangle_topleft(
-            Pt2D::new(HORIZ_PADDING, VERT_PADDING),
-            Distance::meters(dims.width),
-            Distance::meters(dims.height),
-        );
+        let img_rect =
+            Polygon::rectangle(dims.width, dims.height).translate(HORIZ_PADDING, VERT_PADDING);
         let bg = Polygon::rounded_rectangle(
             Distance::meters(dims.width + 2.0 * HORIZ_PADDING),
             Distance::meters(dims.height + 2.0 * VERT_PADDING),

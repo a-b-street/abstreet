@@ -134,11 +134,7 @@ impl Polygon {
 
     pub fn translate(&self, dx: f64, dy: f64) -> Polygon {
         Polygon {
-            points: self
-                .points
-                .iter()
-                .map(|pt| pt.offset(Distance::meters(dx), Distance::meters(dy)))
-                .collect(),
+            points: self.points.iter().map(|pt| pt.offset(dx, dy)).collect(),
             indices: self.indices.clone(),
             uv: None,
         }
@@ -170,22 +166,26 @@ impl Polygon {
         Pt2D::center(&pts.iter().map(|pt| pt.to_pt2d()).collect())
     }
 
-    pub fn rectangle(center: Pt2D, width: Distance, height: Distance) -> Polygon {
-        Polygon::rectangle_topleft(center.offset(-width / 2.0, -height / 2.0), width, height)
-    }
-
-    pub fn rectangle_topleft(top_left: Pt2D, width: Distance, height: Distance) -> Polygon {
+    // Top-left at the origin. Doesn't take Distance, because this is usually pixels, actually.
+    pub fn rectangle(width: f64, height: f64) -> Polygon {
         Polygon {
             points: vec![
-                top_left,
-                top_left.offset(width, Distance::ZERO),
-                top_left.offset(width, height),
-                top_left.offset(Distance::ZERO, height),
-                top_left,
+                Pt2D::new(0.0, 0.0),
+                Pt2D::new(width, 0.0),
+                Pt2D::new(width, height),
+                Pt2D::new(0.0, height),
+                Pt2D::new(0.0, 0.0),
             ],
             indices: vec![0, 1, 2, 0, 2, 3],
             uv: None,
         }
+    }
+
+    pub fn rectangle_centered(center: Pt2D, width: Distance, height: Distance) -> Polygon {
+        Polygon::rectangle(width.inner_meters(), height.inner_meters()).translate(
+            center.x() - width.inner_meters() / 2.0,
+            center.y() - height.inner_meters() / 2.0,
+        )
     }
 
     pub fn rectangle_two_corners(pt1: Pt2D, pt2: Pt2D) -> Option<Polygon> {
@@ -196,40 +196,16 @@ impl Polygon {
         }
 
         let (x1, width) = if pt1.x() < pt2.x() {
-            (pt1.x(), Distance::meters(pt2.x() - pt1.x()))
+            (pt1.x(), pt2.x() - pt1.x())
         } else {
-            (pt2.x(), Distance::meters(pt1.x() - pt2.x()))
+            (pt2.x(), pt1.x() - pt2.x())
         };
         let (y1, height) = if pt1.y() < pt2.y() {
-            (pt1.y(), Distance::meters(pt2.y() - pt1.y()))
+            (pt1.y(), pt2.y() - pt1.y())
         } else {
-            (pt2.y(), Distance::meters(pt1.y() - pt2.y()))
+            (pt2.y(), pt1.y() - pt2.y())
         };
-        Some(Polygon::rectangle_topleft(Pt2D::new(x1, y1), width, height))
-    }
-
-    pub fn union(self, other: Polygon) -> Polygon {
-        let mut points = self.points;
-        let mut indices = self.indices;
-        let offset = points.len();
-        points.extend(other.points);
-        for idx in other.indices {
-            indices.push(offset + idx);
-        }
-        Polygon::precomputed(points, indices, None)
-    }
-
-    pub fn intersection(&self, other: &Polygon) -> Vec<Polygon> {
-        from_multi(to_geo(self.points()).intersection(&to_geo(other.points())))
-    }
-
-    pub fn polylabel(&self) -> Pt2D {
-        let pt = polylabel::polylabel(&to_geo(&self.points()), &1.0);
-        Pt2D::new(pt.x(), pt.y())
-    }
-
-    pub fn shrink(&self, distance: f64) -> Vec<Polygon> {
-        from_multi(to_geo(self.points()).offset(distance).unwrap())
+        Some(Polygon::rectangle(width, height).translate(x1, y1))
     }
 
     // Top-left at the origin; use translate
@@ -264,6 +240,30 @@ impl Polygon {
         pts.push(Pt2D::new(0.0, r));
 
         Polygon::new(&pts)
+    }
+
+    pub fn union(self, other: Polygon) -> Polygon {
+        let mut points = self.points;
+        let mut indices = self.indices;
+        let offset = points.len();
+        points.extend(other.points);
+        for idx in other.indices {
+            indices.push(offset + idx);
+        }
+        Polygon::precomputed(points, indices, None)
+    }
+
+    pub fn intersection(&self, other: &Polygon) -> Vec<Polygon> {
+        from_multi(to_geo(self.points()).intersection(&to_geo(other.points())))
+    }
+
+    pub fn polylabel(&self) -> Pt2D {
+        let pt = polylabel::polylabel(&to_geo(&self.points()), &1.0);
+        Pt2D::new(pt.x(), pt.y())
+    }
+
+    pub fn shrink(&self, distance: f64) -> Vec<Polygon> {
+        from_multi(to_geo(self.points()).offset(distance).unwrap())
     }
 
     // Only works for polygons that're formed from rings. Those made from PolyLines won't work, for

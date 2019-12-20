@@ -1,6 +1,6 @@
 use crate::assets::Assets;
 use crate::{Canvas, Color, GfxCtx, ScreenDims, ScreenPt, ScreenRectangle};
-use geom::{Distance, Polygon, Pt2D};
+use geom::{Polygon, Pt2D};
 use glium_glyph::glyph_brush::rusttype::Scale;
 use glium_glyph::glyph_brush::{FontId, GlyphCruncher};
 use glium_glyph::glyph_brush::{Section, SectionText, VariedSection};
@@ -209,11 +209,8 @@ pub fn draw_text_bubble(
     if let Some(c) = txt.bg_color {
         g.draw_polygon(
             c,
-            &Polygon::rectangle_topleft(
-                top_left.to_pt(),
-                Distance::meters(total_dims.width),
-                Distance::meters(total_dims.height),
-            ),
+            &Polygon::rectangle(total_dims.width, total_dims.height)
+                .translate(top_left.x, top_left.y),
         );
     }
 
@@ -246,11 +243,7 @@ pub fn draw_text_bubble(
         if let Some(c) = line_color {
             g.draw_polygon(
                 *c,
-                &Polygon::rectangle_topleft(
-                    Pt2D::new(top_left.x, y),
-                    Distance::meters(total_dims.width),
-                    Distance::meters(height),
-                ),
+                &Polygon::rectangle(total_dims.width, height).translate(top_left.x, y),
             );
         }
 
@@ -273,11 +266,11 @@ pub fn draw_text_bubble_mapspace(
     if let Some(c) = txt.bg_color {
         g.draw_polygon(
             c,
-            &Polygon::rectangle_topleft(
-                top_left,
-                Distance::meters(total_dims.width / SCALE_DOWN),
-                Distance::meters(total_dims.height / SCALE_DOWN),
-            ),
+            &Polygon::rectangle(
+                total_dims.width / SCALE_DOWN,
+                total_dims.height / SCALE_DOWN,
+            )
+            .translate(top_left.x(), top_left.y()),
         );
     }
 
@@ -312,11 +305,8 @@ pub fn draw_text_bubble_mapspace(
         if let Some(c) = line_color {
             g.draw_polygon(
                 *c,
-                &Polygon::rectangle_topleft(
-                    Pt2D::new(top_left.x(), y),
-                    Distance::meters(total_dims.width / SCALE_DOWN),
-                    Distance::meters(height),
-                ),
+                &Polygon::rectangle(total_dims.width / SCALE_DOWN, height)
+                    .translate(top_left.x(), y),
             );
         }
 

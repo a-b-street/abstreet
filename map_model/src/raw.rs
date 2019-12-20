@@ -1,7 +1,7 @@
 use crate::make::get_lane_types;
 use crate::{osm, AreaType, IntersectionType, OffstreetParking, RoadSpec};
 use abstutil::{deserialize_btreemap, retain_btreemap, serialize_btreemap, Error, Timer};
-use geom::{Distance, GPSBounds, Polygon, Pt2D};
+use geom::{GPSBounds, Polygon, Pt2D};
 use gtfs::Route;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -93,11 +93,7 @@ impl RawMap {
             bus_routes: Vec::new(),
             areas: Vec::new(),
             // Some nonsense thing
-            boundary_polygon: Polygon::rectangle(
-                Pt2D::new(50.0, 50.0),
-                Distance::meters(1.0),
-                Distance::meters(1.0),
-            ),
+            boundary_polygon: Polygon::rectangle(1.0, 1.0),
             gps_bounds: GPSBounds::new(),
         }
     }

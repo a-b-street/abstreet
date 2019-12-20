@@ -4,7 +4,7 @@ use crate::{
     hotkey, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, InputResult, Key, Line, ModalMenu,
     MultiKey, ScreenDims, ScreenPt, ScreenRectangle, Text, Warper,
 };
-use geom::{Distance, Polygon, Pt2D, Time};
+use geom::{Polygon, Pt2D, Time};
 
 pub struct Slider {
     current_percent: f64,
@@ -75,15 +75,12 @@ impl Slider {
                 } else {
                     // Did we click somewhere else on the bar?
                     let pt = ctx.canvas.get_cursor_in_screen_space();
-                    if Polygon::rectangle_topleft(
-                        Pt2D::new(
+                    if Polygon::rectangle(self.dims.bar_width, self.dims.bar_height)
+                        .translate(
                             self.dims.horiz_padding + self.top_left.x,
                             self.dims.vert_padding + self.top_left.y,
-                        ),
-                        Distance::meters(self.dims.bar_width),
-                        Distance::meters(self.dims.bar_height),
-                    )
-                    .contains_pt(pt.to_pt())
+                        )
+                        .contains_pt(pt.to_pt())
                     {
                         let percent = (pt.x - self.dims.horiz_padding - self.top_left.x)
                             / self.dims.bar_width;
@@ -102,15 +99,6 @@ impl Slider {
         // TODO Cache the batch
         let mut batch = GeomBatch::new();
 
-        // A nice background for the entire thing
-        /*batch.push(
-            Color::grey(0.3),
-            Polygon::rectangle_topleft(
-                self.top_left.to_pt(),
-                Distance::meters(self.dims.total_width),
-                Distance::meters(self.dims.bar_height + 2.0 * self.dims.vert_padding),
-            ),
-        );*/
         g.canvas.mark_covered_area(ScreenRectangle {
             x1: self.top_left.x,
             y1: self.top_left.y,
@@ -121,13 +109,9 @@ impl Slider {
         // The bar
         batch.push(
             Color::WHITE,
-            Polygon::rectangle_topleft(
-                Pt2D::new(
-                    self.top_left.x + self.dims.horiz_padding,
-                    self.top_left.y + self.dims.vert_padding,
-                ),
-                Distance::meters(self.dims.bar_width),
-                Distance::meters(self.dims.bar_height),
+            Polygon::rectangle(self.dims.bar_width, self.dims.bar_height).translate(
+                self.top_left.x + self.dims.horiz_padding,
+                self.top_left.y + self.dims.vert_padding,
             ),
         );
 
@@ -135,13 +119,13 @@ impl Slider {
         if self.current_percent != 0.0 {
             batch.push(
                 Color::GREEN,
-                Polygon::rectangle_topleft(
-                    Pt2D::new(
-                        self.top_left.x + self.dims.horiz_padding,
-                        self.top_left.y + self.dims.vert_padding,
-                    ),
-                    Distance::meters(self.current_percent * self.dims.bar_width),
-                    Distance::meters(self.dims.bar_height),
+                Polygon::rectangle(
+                    self.current_percent * self.dims.bar_width,
+                    self.dims.bar_height,
+                )
+                .translate(
+                    self.top_left.x + self.dims.horiz_padding,
+                    self.top_left.y + self.dims.vert_padding,
                 ),
             );
         }
@@ -162,17 +146,11 @@ impl Slider {
     }
 
     fn slider_geom(&self) -> Polygon {
-        Polygon::rectangle_topleft(
-            Pt2D::new(
-                self.top_left.x
-                    + self.dims.horiz_padding
-                    + self.current_percent * self.dims.bar_width
-                    - (self.dims.slider_width / 2.0),
-                self.top_left.y + self.dims.vert_padding
-                    - (self.dims.slider_height - self.dims.bar_height) / 2.0,
-            ),
-            Distance::meters(self.dims.slider_width),
-            Distance::meters(self.dims.slider_height),
+        Polygon::rectangle(self.dims.slider_width, self.dims.slider_height).translate(
+            self.top_left.x + self.dims.horiz_padding + self.current_percent * self.dims.bar_width
+                - (self.dims.slider_width / 2.0),
+            self.top_left.y + self.dims.vert_padding
+                - (self.dims.slider_height - self.dims.bar_height) / 2.0,
         )
     }
 }

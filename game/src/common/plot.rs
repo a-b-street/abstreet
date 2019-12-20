@@ -28,11 +28,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
         let y2 = 0.8 * ctx.canvas.window_height;
         batch.push(
             Color::grey(0.8),
-            Polygon::rectangle_topleft(
-                Pt2D::new(x1, y1),
-                Distance::meters(x2 - x1),
-                Distance::meters(y2 - y1),
-            ),
+            Polygon::rectangle(x2 - x1, y2 - y1).translate(x1, y1),
         );
 
         // Assume min_x is Time::START_OF_DAY and min_y is 0
@@ -221,11 +217,7 @@ impl Histogram {
         let y2 = 0.9 * ctx.canvas.window_height;
         batch.push(
             Color::grey(0.8),
-            Polygon::rectangle_topleft(
-                Pt2D::new(x1, y1),
-                Distance::meters(x2 - x1),
-                Distance::meters(y2 - y1),
-            ),
+            Polygon::rectangle(x2 - x1, y2 - y1).translate(x1, y1),
         );
 
         if unsorted_dts.is_empty() {

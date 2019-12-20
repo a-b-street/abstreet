@@ -581,22 +581,8 @@ impl GUI for UI {
         g.clear(Color::BLACK);
 
         // It's useful to see the origin.
-        g.draw_polygon(
-            Color::WHITE,
-            &Polygon::rectangle_topleft(
-                Pt2D::new(0.0, 0.0),
-                Distance::meters(100.0),
-                Distance::meters(10.0),
-            ),
-        );
-        g.draw_polygon(
-            Color::WHITE,
-            &Polygon::rectangle_topleft(
-                Pt2D::new(0.0, 0.0),
-                Distance::meters(10.0),
-                Distance::meters(100.0),
-            ),
-        );
+        g.draw_polygon(Color::WHITE, &Polygon::rectangle(100.0, 10.0));
+        g.draw_polygon(Color::WHITE, &Polygon::rectangle(10.0, 100.0));
 
         g.draw_polygon(Color::rgb(242, 239, 233), &self.model.map.boundary_polygon);
         match self.state {

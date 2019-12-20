@@ -1,6 +1,6 @@
 use crate::{Color, ScreenDims, ScreenPt, ScreenRectangle, Text, UserInput};
 use abstutil::Timer;
-use geom::{Bounds, Distance, Polygon, Pt2D};
+use geom::{Bounds, Polygon, Pt2D};
 use glium::texture::Texture2dArray;
 use serde_derive::{Deserialize, Serialize};
 use std::cell::RefCell;
@@ -191,14 +191,7 @@ impl Canvas {
     pub fn texture_rect(&self, filename: &str) -> (Color, Polygon) {
         let color = self.texture(filename);
         let dims = color.texture_dims();
-        (
-            color,
-            Polygon::rectangle_topleft(
-                Pt2D::new(0.0, 0.0),
-                Distance::meters(dims.width),
-                Distance::meters(dims.height),
-            ),
-        )
+        (color, Polygon::rectangle(dims.width, dims.height))
     }
 
     pub fn save_camera_state(&self, map_name: &str) {

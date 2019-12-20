@@ -6,7 +6,7 @@ use ezgui::{
     Button, Color, DrawBoth, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, ModalMenu,
     Text, VerticalAlignment,
 };
-use geom::{Circle, Distance, Duration, Polygon, Pt2D};
+use geom::{Circle, Distance, Duration, Polygon};
 use map_model::{IntersectionID, Phase, TurnPriority};
 
 // Only draws a box when time_left is present
@@ -108,19 +108,19 @@ pub fn draw_signal_phase(
     }
 
     let radius = Distance::meters(0.5);
-    let box_width = 2.5 * radius;
-    let box_height = 6.5 * radius;
+    let box_width = (2.5 * radius).inner_meters();
+    let box_height = (6.5 * radius).inner_meters();
     let center = ctx.map.get_i(i).polygon.center();
     let top_left = center.offset(-box_width / 2.0, -box_height / 2.0);
     let percent = time_left.unwrap() / phase.duration;
     // TODO Tune colors.
     batch.push(
         ctx.cs.get_def("traffic signal box", Color::grey(0.5)),
-        Polygon::rectangle_topleft(top_left, box_width, box_height),
+        Polygon::rectangle(box_width, box_height).translate(top_left.x(), top_left.y()),
     );
     batch.push(
         Color::RED,
-        Circle::new(center.offset(Distance::ZERO, -2.0 * radius), radius).to_polygon(),
+        Circle::new(center.offset(0.0, -2.0 * radius.inner_meters()), radius).to_polygon(),
     );
     batch.push(Color::grey(0.4), Circle::new(center, radius).to_polygon());
     batch.push(
@@ -129,7 +129,7 @@ pub fn draw_signal_phase(
     );
     batch.push(
         Color::GREEN,
-        Circle::new(center.offset(Distance::ZERO, 2.0 * radius), radius).to_polygon(),
+        Circle::new(center.offset(0.0, 2.0 * radius.inner_meters()), radius).to_polygon(),
     );
 }
 
@@ -201,10 +201,9 @@ fn make_scroller(
     // Slightly inaccurate -- the turn rendering may slightly exceed the intersection polygon --
     // but this is close enough.
     let bounds = draw_ctx.map.get_i(i).polygon.get_bounds();
-    let bbox = Polygon::rectangle_topleft(
-        Pt2D::new(0.0, 0.0),
-        Distance::meters(zoom * (bounds.max_x - bounds.min_x)),
-        Distance::meters(zoom * (bounds.max_y - bounds.min_y)),
+    let bbox = Polygon::rectangle(
+        zoom * (bounds.max_x - bounds.min_x),
+        zoom * (bounds.max_y - bounds.min_y),
     );
 
     let signal = draw_ctx.map.get_traffic_signal(i);

@@ -827,7 +827,7 @@ impl Model {
         self.map.buildings.insert(
             id,
             RawBuilding {
-                polygon: Polygon::rectangle(center, BUILDING_LENGTH, BUILDING_LENGTH),
+                polygon: Polygon::rectangle_centered(center, BUILDING_LENGTH, BUILDING_LENGTH),
                 osm_tags: BTreeMap::new(),
                 parking: None,
             },
