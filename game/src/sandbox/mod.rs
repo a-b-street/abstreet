@@ -20,7 +20,7 @@ use ezgui::{
 };
 pub use gameplay::spawner::spawn_agents_around;
 pub use gameplay::GameplayMode;
-use geom::{Duration, Time};
+use geom::Time;
 use map_model::MapEdits;
 use sim::TripMode;
 
@@ -135,16 +135,6 @@ impl State for SandboxMode {
                     })?;
                     Some(Transition::Pop)
                 })));
-            }
-        }
-        if let Some(ID::Lane(l)) = ui.primary.current_selection {
-            if ui
-                .per_obj
-                .action(ctx, Key::T, "throughput over 1-hour buckets")
-            {
-                let r = ui.primary.map.get_l(l).parent;
-                let bucket = Duration::hours(1);
-                self.overlay = Overlays::road_throughput(r, bucket, ctx, ui);
             }
         }
         if let Some(ID::Intersection(i)) = ui.primary.current_selection {

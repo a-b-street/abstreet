@@ -10,7 +10,7 @@ use crate::ui::{ShowEverything, UI};
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Text};
 use geom::{Distance, Duration, PolyLine, Time};
-use map_model::{IntersectionID, RoadID};
+use map_model::IntersectionID;
 use sim::{Analytics, ParkingSpot, TripMode};
 use std::collections::{BTreeMap, HashSet};
 
@@ -26,12 +26,6 @@ pub enum Overlays {
     // Only set by certain gameplay modes
     BusRoute(ShowBusRoute),
     BusDelaysOverTime(Plot<Duration>),
-    RoadThroughput {
-        t: Time,
-        bucket: Duration,
-        r: RoadID,
-        plot: Plot<usize>,
-    },
     IntersectionDemand(Time, IntersectionID, Drawable),
 }
 
@@ -54,9 +48,6 @@ impl Overlays {
             }
             Overlays::CumulativeThroughput(t, _) if now != *t => {
                 *self = Overlays::cumulative_throughput(ctx, ui);
-            }
-            Overlays::RoadThroughput { t, bucket, r, .. } if now != *t => {
-                *self = Overlays::road_throughput(*r, *bucket, ctx, ui);
             }
             Overlays::IntersectionDemand(t, i, _) if now != *t => {
                 *self = Overlays::intersection_demand(*i, ctx, ui);
@@ -87,7 +78,7 @@ impl Overlays {
                 heatmap.draw(g, ui);
                 true
             }
-            Overlays::RoadThroughput { ref plot, .. } | Overlays::FinishedTrips(_, ref plot) => {
+            Overlays::FinishedTrips(_, ref plot) => {
                 ui.draw(
                     g,
                     DrawOptions::new(),
@@ -326,36 +317,6 @@ impl Overlays {
         }
 
         Overlays::CumulativeThroughput(ui.primary.sim.time(), colorer.build(ctx, &ui.primary.map))
-    }
-
-    // TODO Refactor
-    pub fn road_throughput(r: RoadID, bucket: Duration, ctx: &EventCtx, ui: &UI) -> Overlays {
-        let plot = Plot::new(
-            &format!(
-                "throughput of {} in {} buckets",
-                ui.primary.map.get_r(r).get_name(),
-                bucket
-            ),
-            ui.primary
-                .sim
-                .get_analytics()
-                .throughput_road(ui.primary.sim.time(), r, bucket)
-                .into_iter()
-                .map(|(m, pts)| Series {
-                    label: m.to_string(),
-                    color: color_for_mode(m, ui),
-                    pts,
-                })
-                .collect(),
-            0,
-            ctx,
-        );
-        Overlays::RoadThroughput {
-            t: ui.primary.sim.time(),
-            bucket,
-            r,
-            plot,
-        }
     }
 
     fn bike_network(ctx: &EventCtx, ui: &UI) -> Overlays {

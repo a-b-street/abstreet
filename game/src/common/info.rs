@@ -9,7 +9,7 @@ use ezgui::{
     VerticalAlignment,
 };
 use geom::{Duration, Statistic, Time};
-use map_model::IntersectionID;
+use map_model::{IntersectionID, RoadID};
 use sim::{CarID, TripMode};
 use std::collections::BTreeMap;
 
@@ -30,14 +30,30 @@ impl InfoPanel {
 
         let mut col = vec![ManagedWidget::draw_text(ctx, info_for(id.clone(), ui))];
 
-        if let ID::Intersection(i) = id {
-            if ui.primary.map.get_i(i).is_traffic_signal() {
+        match id {
+            ID::Intersection(i) => {
+                if ui.primary.map.get_i(i).is_traffic_signal() {
+                    col.push(
+                        ManagedWidget::draw_text(ctx, Text::from(Line("delay in 1 hour buckets")))
+                            .bg(Color::grey(0.5)),
+                    );
+                    col.push(
+                        ManagedWidget::duration_plot(intersection_delay(
+                            i,
+                            Duration::hours(1),
+                            ctx,
+                            ui,
+                        ))
+                        .bg(Color::grey(0.5))
+                        .margin(10),
+                    );
+                }
                 col.push(
-                    ManagedWidget::draw_text(ctx, Text::from(Line("delay in 1 hour buckets")))
+                    ManagedWidget::draw_text(ctx, Text::from(Line("throughput in 1 hour buckets")))
                         .bg(Color::grey(0.5)),
                 );
                 col.push(
-                    ManagedWidget::duration_plot(intersection_delay(
+                    ManagedWidget::usize_plot(intersection_throughput(
                         i,
                         Duration::hours(1),
                         ctx,
@@ -47,15 +63,26 @@ impl InfoPanel {
                     .margin(10),
                 );
             }
-            col.push(
-                ManagedWidget::draw_text(ctx, Text::from(Line("throughput in 1 hour buckets")))
+            ID::Lane(l) => {
+                col.push(
+                    ManagedWidget::draw_text(
+                        ctx,
+                        Text::from(Line("throughput in 1 hour buckets (entire road)")),
+                    )
                     .bg(Color::grey(0.5)),
-            );
-            col.push(
-                ManagedWidget::usize_plot(intersection_throughput(i, Duration::hours(1), ctx, ui))
+                );
+                col.push(
+                    ManagedWidget::usize_plot(road_throughput(
+                        ui.primary.map.get_l(l).parent,
+                        Duration::hours(1),
+                        ctx,
+                        ui,
+                    ))
                     .bg(Color::grey(0.5))
                     .margin(10),
-            );
+                );
+            }
+            _ => {}
         }
 
         InfoPanel {
@@ -304,6 +331,24 @@ fn intersection_throughput(
             .sim
             .get_analytics()
             .throughput_intersection(ui.primary.sim.time(), i, bucket)
+            .into_iter()
+            .map(|(m, pts)| Series {
+                label: m.to_string(),
+                color: color_for_mode(m, ui),
+                pts,
+            })
+            .collect(),
+        0,
+        ctx,
+    )
+}
+
+fn road_throughput(r: RoadID, bucket: Duration, ctx: &EventCtx, ui: &UI) -> Plot<usize> {
+    Plot::new(
+        ui.primary
+            .sim
+            .get_analytics()
+            .throughput_road(ui.primary.sim.time(), r, bucket)
             .into_iter()
             .map(|(m, pts)| Series {
                 label: m.to_string(),
