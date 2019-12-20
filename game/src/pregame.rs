@@ -88,10 +88,6 @@ pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
         ctx,
         Text::from(Line("Created by Dustin Carlino")),
     ));
-    col.push(ManagedWidget::draw_text(
-        ctx,
-        Text::from(Line("Choose your game")),
-    ));
 
     col.push(
         ManagedWidget::row(vec![
@@ -153,9 +149,9 @@ pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
 }
 
 fn about(ctx: &EventCtx) -> Box<dyn State> {
-    let mut row = Vec::new();
+    let mut col = Vec::new();
 
-    row.push(ManagedWidget::svg_button(
+    col.push(ManagedWidget::svg_button(
         ctx,
         "assets/pregame/back.svg",
         "back",
@@ -168,16 +164,41 @@ fn about(ctx: &EventCtx) -> Box<dyn State> {
     txt.add(Line("Created by Dustin Carlino"));
     txt.add(Line(""));
     txt.add(Line("Contact: dabreegster@gmail.com"));
-    txt.add(Line("Project: http://github.com/dabreegster/abstreet"));
+    txt.add(Line(
+        "Project: http://github.com/dabreegster/abstreet / abstreet.org",
+    ));
     txt.add(Line("Map data from OpenStreetMap and King County GIS"));
     // TODO Add more here
     txt.add(Line(
         "See full credits at https://github.com/dabreegster/abstreet#credits",
     ));
-    // TODO centered
-    row.push(ManagedWidget::draw_text(ctx, txt));
+    txt.add(Line(""));
+    // TODO Word wrapping please?
+    txt.add(Line(
+        "Disclaimer: This game is based on imperfect data, heuristics ",
+    ));
+    txt.add(Line(
+        "concocted under the influence of cold brew, a simplified traffic ",
+    ));
+    txt.add(Line(
+        "simulation model, and a deeply flawed understanding of how much ",
+    ));
+    txt.add(Line(
+        "articulated buses can bend around tight corners. Use this as a ",
+    ));
+    txt.add(Line(
+        "conversation starter with your city government, not a final ",
+    ));
+    txt.add(Line(
+        "decision maker. Any resemblance of in-game characters to real ",
+    ));
+    txt.add(Line(
+        "people is probably coincidental, except for PedestrianID(42). ",
+    ));
+    txt.add(Line("Have the appropriate amount of fun."));
+    col.push(ManagedWidget::draw_text(ctx, txt));
 
-    ManagedGUIState::new(ManagedWidget::row(row))
+    ManagedGUIState::new(ManagedWidget::col(col))
 }
 
 const SPEED: Speed = Speed::const_meters_per_second(20.0);

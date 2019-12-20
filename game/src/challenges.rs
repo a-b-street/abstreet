@@ -123,10 +123,6 @@ pub fn challenges_picker(ctx: &EventCtx) -> Box<dyn State> {
         ctx,
         Text::from(Line("CHALLENGES")),
     ));
-    col.push(ManagedWidget::draw_text(
-        ctx,
-        Text::from(Line("Make changes to achieve a goal")),
-    ));
 
     let mut flex_row = Vec::new();
     for (idx, (name, stages)) in all_challenges().into_iter().enumerate() {
