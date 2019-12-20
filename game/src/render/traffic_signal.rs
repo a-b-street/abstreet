@@ -154,27 +154,31 @@ impl TrafficSignalDiagram {
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI, menu: &mut ModalMenu) {
-        /*
-        if self.scroller.current_idx() != 0 && menu.action("select previous phase") {
-            self.scroller.select_previous();
-            return;
+        if self.current_phase != 0 && menu.action("select previous phase") {
+            self.change_phase(self.current_phase - 1, ui, ctx);
         }
-        if self.scroller.current_idx() != self.scroller.num_items() - 1
+
+        if self.current_phase != ui.primary.map.get_traffic_signal(self.i).phases.len() - 1
             && menu.action("select next phase")
         {
-            self.scroller.select_next(ctx.canvas);
-            return;
-        }*/
+            self.change_phase(self.current_phase + 1, ui, ctx);
+        }
 
         match self.scroller.event(ctx, ui) {
             Some(Outcome::Transition(_)) => unreachable!(),
             Some(Outcome::Clicked(x)) => {
-                self.current_phase = x["phase ".len()..].parse::<usize>().unwrap() - 1;
-                let preserve_scroll = self.scroller.preserve_scroll();
-                self.scroller = make_scroller(self.i, self.current_phase, &ui.draw_ctx(), ctx);
-                self.scroller.restore_scroll(preserve_scroll);
+                self.change_phase(x["phase ".len()..].parse::<usize>().unwrap() - 1, ui, ctx);
             }
             None => {}
+        }
+    }
+
+    fn change_phase(&mut self, idx: usize, ui: &UI, ctx: &EventCtx) {
+        if self.current_phase != idx {
+            let preserve_scroll = self.scroller.preserve_scroll();
+            self.current_phase = idx;
+            self.scroller = make_scroller(self.i, self.current_phase, &ui.draw_ctx(), ctx);
+            self.scroller.restore_scroll(preserve_scroll);
         }
     }
 

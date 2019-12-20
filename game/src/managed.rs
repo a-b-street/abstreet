@@ -61,6 +61,7 @@ impl LayoutStyle {
 // Layouting
 // TODO Maybe I just want margin, not padding. And maybe more granular controls per side. And to
 // apply margin to everything in a row or column.
+// TODO Row and columns feel backwards when using them.
 impl ManagedWidget {
     pub fn centered(mut self) -> ManagedWidget {
         self.style.align_items = Some(AlignItems::Center);
