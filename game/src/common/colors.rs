@@ -1,8 +1,9 @@
 use crate::helpers::ID;
-use crate::managed::{Composite, ManagedWidget};
 use crate::render::{DrawOptions, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::{ShowEverything, UI};
-use ezgui::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ScreenPt, Text};
+use ezgui::{
+    Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Line, ManagedWidget, ScreenPt, Text,
+};
 use geom::{Circle, Distance, Pt2D};
 use map_model::{LaneID, Map, RoadID};
 use sim::DontDrawAgents;

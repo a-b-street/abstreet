@@ -3,15 +3,14 @@ use crate::common::{
 };
 use crate::game::{Transition, WizardState};
 use crate::helpers::ID;
-use crate::managed::{Composite, ManagedWidget};
 use crate::render::DrawOptions;
 use crate::sandbox::bus_explorer::ShowBusRoute;
 use crate::sandbox::SandboxMode;
 use crate::ui::{ShowEverything, UI};
 use abstutil::{prettyprint_usize, Counter};
 use ezgui::{
-    Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Plot,
-    Series, Text, VerticalAlignment,
+    Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, ManagedWidget, Plot, Series, Text, VerticalAlignment,
 };
 use geom::{Distance, Duration, PolyLine, Time};
 use map_model::IntersectionID;

@@ -1,13 +1,13 @@
 use crate::edit::EditMode;
 use crate::game::{msg, Transition, WizardState};
 use crate::helpers::ID;
-use crate::managed::{Composite, ManagedWidget};
+use crate::managed::Composite;
 use crate::sandbox::gameplay::{change_scenario, load_map, spawner, GameplayMode, GameplayState};
 use crate::sandbox::overlays::Overlays;
 use crate::ui::UI;
 use ezgui::{
-    hotkey, lctrl, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ModalMenu, Text,
-    VerticalAlignment,
+    hotkey, lctrl, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget,
+    ModalMenu, Text, VerticalAlignment,
 };
 use map_model::IntersectionID;
 use sim::Analytics;
@@ -78,47 +78,22 @@ pub fn freeform_controller(
     gameplay: GameplayMode,
     scenario_name: &str,
 ) -> Composite {
-    Composite::aligned(
+    Composite::new(ezgui::Composite::aligned(
         ctx,
         (HorizontalAlignment::Center, VerticalAlignment::Top),
         ManagedWidget::row(vec![
             ManagedWidget::col(vec![
-                ManagedWidget::text_button(
-                    ctx,
-                    "change map",
-                    lctrl(Key::L),
-                    Box::new(|_, _| Some(Transition::Push(WizardState::new(Box::new(load_map))))),
-                ),
+                Composite::text_button(ctx, "change map", lctrl(Key::L)),
                 ManagedWidget::draw_text(ctx, Text::from(Line(ui.primary.map.get_name()))),
             ]),
             ManagedWidget::col(vec![
-                ManagedWidget::text_button(
-                    ctx,
-                    "change scenario",
-                    hotkey(Key::S),
-                    Box::new(|_, _| {
-                        Some(Transition::Push(WizardState::new(Box::new(
-                            change_scenario,
-                        ))))
-                    }),
-                ),
+                Composite::text_button(ctx, "change scenario", hotkey(Key::S)),
                 ManagedWidget::draw_text(ctx, Text::from(Line(scenario_name))),
             ]),
             // TODO Refactor
             ManagedWidget::col(vec![
                 // TODO icon button
-                ManagedWidget::text_button(
-                    ctx,
-                    "edit map",
-                    lctrl(Key::E),
-                    Box::new(move |ctx, ui| {
-                        ui.primary.clear_sim();
-                        Some(Transition::Replace(Box::new(EditMode::new(
-                            ctx,
-                            gameplay.clone(),
-                        ))))
-                    }),
-                ),
+                Composite::text_button(ctx, "edit map", lctrl(Key::E)),
                 {
                     let edits = ui.primary.map.get_edits();
                     let mut txt = Text::from(Line(&edits.edits_name));
@@ -130,5 +105,27 @@ pub fn freeform_controller(
             ]),
         ])
         .bg(Color::grey(0.4)),
+    ))
+    .cb(
+        "change map",
+        Box::new(|_, _| Some(Transition::Push(WizardState::new(Box::new(load_map))))),
+    )
+    .cb(
+        "change scenario",
+        Box::new(|_, _| {
+            Some(Transition::Push(WizardState::new(Box::new(
+                change_scenario,
+            ))))
+        }),
+    )
+    .cb(
+        "edit map",
+        Box::new(move |ctx, ui| {
+            ui.primary.clear_sim();
+            Some(Transition::Replace(Box::new(EditMode::new(
+                ctx,
+                gameplay.clone(),
+            ))))
+        }),
     )
 }

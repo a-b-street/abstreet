@@ -1,10 +1,10 @@
 use crate::game::{State, Transition, WizardState};
-use crate::managed::{Composite, ManagedWidget, Outcome};
+use crate::managed::{Composite, Outcome};
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::ui::UI;
 use ezgui::{
     hotkey, Button, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, RewriteColor, Slider, Text, VerticalAlignment, Wizard,
+    Line, ManagedWidget, RewriteColor, Slider, Text, VerticalAlignment, Wizard,
 };
 use geom::{Distance, Duration, Line, Pt2D, Time};
 use std::collections::HashMap;
@@ -41,7 +41,7 @@ impl SpeedControls {
     ) -> Composite {
         let mut row = Vec::new();
         if paused {
-            row.push(ManagedWidget::btn_no_cb(Button::rectangle_svg(
+            row.push(ManagedWidget::btn(Button::rectangle_svg(
                 "assets/speed/resume.svg",
                 "resume",
                 hotkey(Key::Space),
@@ -49,7 +49,7 @@ impl SpeedControls {
                 ctx,
             )));
         } else {
-            row.push(ManagedWidget::btn_no_cb(Button::rectangle_svg(
+            row.push(ManagedWidget::btn(Button::rectangle_svg(
                 "assets/speed/pause.svg",
                 "pause",
                 hotkey(Key::Space),
@@ -58,54 +58,30 @@ impl SpeedControls {
             )));
         }
         row.extend(vec![
-            ManagedWidget::btn(
-                Button::rectangle_svg(
-                    "assets/speed/jump_to_time.svg",
-                    "jump to specific time",
-                    hotkey(Key::B),
-                    RewriteColor::ChangeAll(Color::ORANGE),
-                    ctx,
-                ),
-                Box::new(|_, _| Some(Transition::Push(WizardState::new(Box::new(jump_to_time))))),
-            ),
-            ManagedWidget::btn(
-                Button::text(
-                    Text::from(Line("+0.1s").fg(Color::WHITE).size(12)),
-                    Color::grey(0.6),
-                    Color::ORANGE,
-                    hotkey(Key::M),
-                    "step forwards 0.1 seconds",
-                    ctx,
-                ),
-                Box::new(|ctx, ui| {
-                    ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
-                    if let Some(ref mut s) = ui.secondary {
-                        s.sim.step(&s.map, Duration::seconds(0.1));
-                    }
-                    ui.recalculate_current_selection(ctx);
-                    None
-                }),
-            ),
-            ManagedWidget::btn(
-                Button::text(
-                    Text::from(Line("+1h").fg(Color::WHITE).size(12)),
-                    Color::grey(0.6),
-                    Color::ORANGE,
-                    hotkey(Key::M),
-                    "step forwards 1 hour",
-                    ctx,
-                ),
-                Box::new(|_, ui| {
-                    Some(Transition::PushWithMode(
-                        Box::new(TimeWarpScreen {
-                            target: ui.primary.sim.time() + Duration::hours(1),
-                            started: Instant::now(),
-                        }),
-                        EventLoopMode::Animation,
-                    ))
-                }),
-            ),
-            ManagedWidget::btn_no_cb(Button::text(
+            ManagedWidget::btn(Button::rectangle_svg(
+                "assets/speed/jump_to_time.svg",
+                "jump to specific time",
+                hotkey(Key::B),
+                RewriteColor::ChangeAll(Color::ORANGE),
+                ctx,
+            )),
+            ManagedWidget::btn(Button::text(
+                Text::from(Line("+0.1s").fg(Color::WHITE).size(12)),
+                Color::grey(0.6),
+                Color::ORANGE,
+                hotkey(Key::M),
+                "step forwards 0.1 seconds",
+                ctx,
+            )),
+            ManagedWidget::btn(Button::text(
+                Text::from(Line("+1h").fg(Color::WHITE).size(12)),
+                Color::grey(0.6),
+                Color::ORANGE,
+                hotkey(Key::M),
+                "step forwards 1 hour",
+                ctx,
+            )),
+            ManagedWidget::btn(Button::text(
                 Text::from(Line("reset").fg(Color::WHITE).size(12)),
                 Color::grey(0.6),
                 Color::ORANGE,
@@ -120,7 +96,7 @@ impl SpeedControls {
                 vec![
                     ManagedWidget::draw_text(ctx, Text::from(Line("speed").size(14).roboto())),
                     ManagedWidget::slider("speed"),
-                    ManagedWidget::btn_no_cb(Button::rectangle_svg(
+                    ManagedWidget::btn(Button::rectangle_svg(
                         "assets/speed/slow_down.svg",
                         "slow down",
                         hotkey(Key::LeftBracket),
@@ -131,7 +107,7 @@ impl SpeedControls {
                         ctx,
                         Text::from(Line(format!("{:.1}x", desired_speed)).size(14).roboto()),
                     ),
-                    ManagedWidget::btn_no_cb(Button::rectangle_svg(
+                    ManagedWidget::btn(Button::rectangle_svg(
                         "assets/speed/speed_up.svg",
                         "speed up",
                         hotkey(Key::RightBracket),
@@ -148,7 +124,7 @@ impl SpeedControls {
 
         let mut sliders = HashMap::new();
         sliders.insert("speed".to_string(), slider);
-        Composite::aligned_with_sliders(
+        Composite::new(ezgui::Composite::aligned_with_sliders(
             ctx,
             sliders,
             (
@@ -157,6 +133,33 @@ impl SpeedControls {
             ),
             ManagedWidget::row(row.into_iter().map(|x| x.margin(5)).collect())
                 .bg(Color::hex("#4C4C4C")),
+        ))
+        .cb(
+            "jump to specific time",
+            Box::new(|_, _| Some(Transition::Push(WizardState::new(Box::new(jump_to_time))))),
+        )
+        .cb(
+            "step forwards 0.1 seconds",
+            Box::new(|ctx, ui| {
+                ui.primary.sim.step(&ui.primary.map, Duration::seconds(0.1));
+                if let Some(ref mut s) = ui.secondary {
+                    s.sim.step(&s.map, Duration::seconds(0.1));
+                }
+                ui.recalculate_current_selection(ctx);
+                None
+            }),
+        )
+        .cb(
+            "step forwards 1 hour",
+            Box::new(|_, ui| {
+                Some(Transition::PushWithMode(
+                    Box::new(TimeWarpScreen {
+                        target: ui.primary.sim.time() + Duration::hours(1),
+                        started: Instant::now(),
+                    }),
+                    EventLoopMode::Animation,
+                ))
+            }),
         )
     }
 
@@ -374,14 +377,14 @@ impl State for TimeWarpScreen {
 
 struct TimePanel {
     time: Time,
-    composite: Composite,
+    composite: ezgui::Composite,
 }
 
 impl TimePanel {
     fn new(ctx: &mut EventCtx, ui: &UI) -> TimePanel {
         TimePanel {
             time: ui.primary.sim.time(),
-            composite: Composite::aligned(
+            composite: ezgui::Composite::aligned(
                 ctx,
                 (HorizontalAlignment::Left, VerticalAlignment::Top),
                 ManagedWidget::col(vec![
@@ -430,7 +433,7 @@ impl TimePanel {
         if self.time != ui.primary.sim.time() {
             *self = TimePanel::new(ctx, ui);
         }
-        self.composite.event(ctx, ui);
+        self.composite.event(ctx);
     }
 
     fn draw(&self, g: &mut GfxCtx) {

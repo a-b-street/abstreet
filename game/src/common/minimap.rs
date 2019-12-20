@@ -1,11 +1,10 @@
 use crate::game::{Transition, WizardState};
-use crate::managed::{Composite, ManagedWidget, Outcome};
 use crate::render::{AgentColorScheme, MIN_ZOOM_FOR_DETAIL};
 use crate::ui::UI;
 use abstutil::clamp;
 use ezgui::{
-    hotkey, Button, Choice, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, RewriteColor, ScreenPt,
-    ScreenRectangle, Text,
+    hotkey, Button, Choice, Color, Composite, EventCtx, GeomBatch, GfxCtx, Key, Line,
+    ManagedWidget, Outcome, RewriteColor, ScreenPt, ScreenRectangle, Text,
 };
 use geom::{Circle, Distance, Polygon, Pt2D, Ring};
 
@@ -186,7 +185,7 @@ impl VisibilityPanel {
         let mut col = vec![
             // TODO Too wide most of the time...
             ManagedWidget::draw_text(ctx, Text::prompt(&acs.title)),
-            ManagedWidget::btn_no_cb(Button::text(
+            ManagedWidget::btn(Button::text(
                 Text::from(Line("change")),
                 Color::grey(0.6),
                 Color::ORANGE,
@@ -198,7 +197,7 @@ impl VisibilityPanel {
         for (label, color, enabled) in &acs.rows {
             col.push(
                 ManagedWidget::row(vec![
-                    ManagedWidget::btn_no_cb(Button::rectangle_svg(
+                    ManagedWidget::btn(Button::rectangle_svg(
                         "assets/tools/visibility.svg",
                         &format!("show/hide {}", label),
                         None,
@@ -252,8 +251,7 @@ impl VisibilityPanel {
             *self = VisibilityPanel::new(ctx, ui);
         }
 
-        match self.composite.event(ctx, ui) {
-            Some(Outcome::Transition(_)) => unreachable!(),
+        match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "change agent colorscheme" => {
                     return Some(Transition::Push(WizardState::new(Box::new(

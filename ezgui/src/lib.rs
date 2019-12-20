@@ -6,6 +6,7 @@ mod event;
 mod event_ctx;
 mod input;
 pub mod layout;
+mod managed;
 mod runner;
 mod screen_geom;
 mod svg;
@@ -18,6 +19,7 @@ pub use crate::drawing::{DrawBoth, Drawable, GeomBatch, GfxCtx, Prerender, Rewri
 pub use crate::event::{hotkey, lctrl, Event, Key, MultiKey};
 pub use crate::event_ctx::{EventCtx, TextureType};
 pub use crate::input::UserInput;
+pub use crate::managed::{Composite, ManagedWidget, Outcome, Scroller};
 pub use crate::runner::{run, EventLoopMode, Settings, GUI};
 pub use crate::screen_geom::{ScreenDims, ScreenPt, ScreenRectangle};
 pub use crate::text::{Line, Text, TextSpan, HOTKEY_COLOR};

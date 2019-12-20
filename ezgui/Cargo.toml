@@ -22,6 +22,7 @@ ordered-float = "1.0.1"
 serde = "1.0.98"
 serde_derive = "1.0.98"
 simsearch = "0.1.4"
+stretch = "0.3.2"
 textwrap = "0.11"
 # TODO We need the ability to remove the harfbuzz dependency, which doesn't
 # build well on Windows.

@@ -1,7 +1,6 @@
 use crate::common::edit_map_panel;
 use crate::game::{msg, Transition, WizardState};
 use crate::helpers::rotating_color_total;
-use crate::managed::{Composite, ManagedWidget};
 use crate::sandbox::gameplay::{
     cmp_duration_shorter, manage_overlays, GameplayMode, GameplayState,
 };
@@ -9,8 +8,8 @@ use crate::sandbox::overlays::Overlays;
 use crate::sandbox::{bus_explorer, SandboxMode};
 use crate::ui::UI;
 use ezgui::{
-    hotkey, Choice, Color, EventCtx, HorizontalAlignment, Key, Line, ModalMenu, Plot, Series, Text,
-    VerticalAlignment,
+    hotkey, Choice, Color, Composite, EventCtx, HorizontalAlignment, Key, Line, ManagedWidget,
+    ModalMenu, Plot, Series, Text, VerticalAlignment,
 };
 use geom::{Duration, Statistic, Time};
 use map_model::BusRouteID;
@@ -27,7 +26,7 @@ impl OptimizeBus {
         route_name: String,
         ctx: &EventCtx,
         ui: &UI,
-    ) -> (ModalMenu, Composite, Box<dyn GameplayState>) {
+    ) -> (ModalMenu, crate::managed::Composite, Box<dyn GameplayState>) {
         let route = ui.primary.map.get_bus_route(&route_name).unwrap();
         (
             ModalMenu::new(

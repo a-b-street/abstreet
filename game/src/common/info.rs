@@ -1,12 +1,11 @@
 use crate::common::CommonState;
 use crate::game::{State, Transition};
 use crate::helpers::{rotating_color, ID};
-use crate::managed::{Composite, ManagedWidget, Scroller};
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ModalMenu, Plot, Series, Text,
-    VerticalAlignment,
+    hotkey, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget,
+    ModalMenu, Plot, Scroller, Series, Text, VerticalAlignment,
 };
 use geom::{Duration, Statistic, Time};
 use map_model::{IntersectionID, RoadID};
@@ -115,7 +114,7 @@ impl State for InfoPanel {
             }
         }
 
-        match self.composite.event(ctx, ui) {
+        match self.composite.event(ctx) {
             Some(_) => unreachable!(),
             None => {}
         }

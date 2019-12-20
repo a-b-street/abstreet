@@ -1,12 +1,15 @@
 use crate::abtest::setup::PickABTest;
 use crate::challenges::challenges_picker;
 use crate::game::{State, Transition};
-use crate::managed::{Composite, ManagedGUIState, ManagedWidget, Outcome};
+use crate::managed::{Composite, ManagedGUIState, Outcome};
 use crate::mission::MissionEditMode;
 use crate::sandbox::{GameplayMode, SandboxMode};
 use crate::tutorial::TutorialMode;
 use crate::ui::UI;
-use ezgui::{hotkey, Button, Color, EventCtx, EventLoopMode, GfxCtx, JustDraw, Key, Line, Text};
+use ezgui::{
+    hotkey, Button, Color, EventCtx, EventLoopMode, GfxCtx, JustDraw, Key, Line, ManagedWidget,
+    Text,
+};
 use geom::{Duration, Line, Pt2D, Speed};
 use map_model::Map;
 use rand::Rng;
@@ -25,25 +28,26 @@ impl TitleScreen {
         TitleScreen {
             // TODO Double column to get the vertical centering. For some reason, the horizontal
             // centering isn't working.
-            composite: Composite::fill_screen(
+            composite: Composite::new(ezgui::Composite::fill_screen(
                 ctx,
                 ManagedWidget::col(vec![ManagedWidget::col(vec![
                     ManagedWidget::just_draw(JustDraw::image("assets/pregame/logo.png", ctx)),
                     // TODO that nicer font
                     // TODO Any key
-                    ManagedWidget::btn(
-                        Button::text(
-                            Text::from(Line("PLAY")),
-                            Color::BLUE,
-                            Color::ORANGE,
-                            hotkey(Key::Space),
-                            "start game",
-                            ctx,
-                        ),
-                        Box::new(|ctx, ui| Some(Transition::Replace(main_menu(ctx, ui)))),
-                    ),
+                    ManagedWidget::btn(Button::text(
+                        Text::from(Line("PLAY")),
+                        Color::BLUE,
+                        Color::ORANGE,
+                        hotkey(Key::Space),
+                        "start game",
+                        ctx,
+                    )),
                 ])])
                 .centered(),
+            ))
+            .cb(
+                "start game",
+                Box::new(|ctx, ui| Some(Transition::Replace(main_menu(ctx, ui)))),
             ),
             screensaver: Screensaver::start_bounce(&mut rng, ctx, &ui.primary.map),
             rng,
@@ -72,16 +76,7 @@ pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
     let mut col = Vec::new();
 
     col.push(ManagedWidget::row(vec![
-        ManagedWidget::svg_button(
-            ctx,
-            "assets/pregame/quit.svg",
-            "quit",
-            hotkey(Key::Escape),
-            Box::new(|_, _| {
-                // TODO before_quit?
-                std::process::exit(0);
-            }),
-        ),
+        Composite::svg_button(ctx, "assets/pregame/quit.svg", "quit", hotkey(Key::Escape)),
         ManagedWidget::draw_text(ctx, Text::from(Line("A/B STREET").size(50))),
     ]));
 
@@ -92,31 +87,23 @@ pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
 
     col.push(
         ManagedWidget::row(vec![
-            ManagedWidget::svg_button(
+            Composite::svg_button(
                 ctx,
                 "assets/pregame/tutorial.svg",
                 "Tutorial",
                 hotkey(Key::T),
-                Box::new(|ctx, _| Some(Transition::Push(Box::new(TutorialMode::new(ctx))))),
             ),
-            ManagedWidget::svg_button(
+            Composite::svg_button(
                 ctx,
                 "assets/pregame/sandbox.svg",
                 "Sandbox mode",
                 hotkey(Key::S),
-                Box::new(|ctx, ui| {
-                    Some(Transition::Push(Box::new(SandboxMode::new(
-                        ctx,
-                        ui,
-                        GameplayMode::Freeform,
-                    ))))
-                }),
             ),
-            ManagedWidget::img_button(
+            Composite::img_button(
                 ctx,
                 "assets/pregame/challenges.png",
                 hotkey(Key::C),
-                Box::new(|ctx, _| Some(Transition::Push(challenges_picker(ctx)))),
+                "Challenges",
             ),
         ])
         .centered(),
@@ -124,40 +111,69 @@ pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
     if ui.opts.dev {
         col.push(
             ManagedWidget::row(vec![
-                ManagedWidget::text_button(
-                    ctx,
-                    "INTERNAL DEV TOOLS",
-                    hotkey(Key::M),
-                    Box::new(|ctx, _| Some(Transition::Push(Box::new(MissionEditMode::new(ctx))))),
-                ),
-                ManagedWidget::text_button(
-                    ctx,
-                    "INTERNAL A/B TEST MODE",
-                    hotkey(Key::A),
-                    Box::new(|_, _| Some(Transition::Push(PickABTest::new()))),
-                ),
+                Composite::text_button(ctx, "INTERNAL DEV TOOLS", hotkey(Key::M)),
+                Composite::text_button(ctx, "INTERNAL A/B TEST MODE", hotkey(Key::A)),
             ])
             .centered(),
         );
     }
-    col.push(ManagedWidget::text_button(
+    col.push(Composite::text_button(ctx, "About A/B Street", None));
+
+    let mut c = Composite::new(ezgui::Composite::fill_screen(
         ctx,
+        ManagedWidget::col(col).centered(),
+    ))
+    .cb(
+        "quit",
+        Box::new(|_, _| {
+            // TODO before_quit?
+            std::process::exit(0);
+        }),
+    )
+    .cb(
+        "Tutorial",
+        Box::new(|ctx, _| Some(Transition::Push(Box::new(TutorialMode::new(ctx))))),
+    )
+    .cb(
+        "Sandbox mode",
+        Box::new(|ctx, ui| {
+            Some(Transition::Push(Box::new(SandboxMode::new(
+                ctx,
+                ui,
+                GameplayMode::Freeform,
+            ))))
+        }),
+    )
+    .cb(
+        "Challenges",
+        Box::new(|ctx, _| Some(Transition::Push(challenges_picker(ctx)))),
+    )
+    .cb(
         "About A/B Street",
-        None,
         Box::new(|ctx, _| Some(Transition::Push(about(ctx)))),
-    ));
-    ManagedGUIState::new(ctx, ManagedWidget::col(col).centered())
+    );
+    if ui.opts.dev {
+        c = c
+            .cb(
+                "INTERNAL DEV TOOLS",
+                Box::new(|ctx, _| Some(Transition::Push(Box::new(MissionEditMode::new(ctx))))),
+            )
+            .cb(
+                "INTERNAL A/B TEST MODE",
+                Box::new(|_, _| Some(Transition::Push(PickABTest::new()))),
+            );
+    }
+    ManagedGUIState::new(c)
 }
 
 fn about(ctx: &EventCtx) -> Box<dyn State> {
     let mut col = Vec::new();
 
-    col.push(ManagedWidget::svg_button(
+    col.push(Composite::svg_button(
         ctx,
         "assets/pregame/back.svg",
         "back",
         hotkey(Key::Escape),
-        Box::new(|_, _| Some(Transition::Pop)),
     ));
 
     let mut txt = Text::new();
@@ -199,7 +215,10 @@ fn about(ctx: &EventCtx) -> Box<dyn State> {
     txt.add(Line("Have the appropriate amount of fun."));
     col.push(ManagedWidget::draw_text(ctx, txt));
 
-    ManagedGUIState::new(ctx, ManagedWidget::col(col))
+    ManagedGUIState::new(
+        Composite::new(ezgui::Composite::fill_screen(ctx, ManagedWidget::col(col)))
+            .cb("back", Box::new(|_, _| Some(Transition::Pop))),
+    )
 }
 
 const SPEED: Speed = Speed::const_meters_per_second(20.0);

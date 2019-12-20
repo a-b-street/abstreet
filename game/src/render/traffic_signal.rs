@@ -1,10 +1,9 @@
-use crate::managed::{Composite, ManagedWidget, Outcome, Scroller};
 use crate::options::TrafficSignalStyle;
 use crate::render::{DrawCtx, DrawTurnGroup, BIG_ARROW_THICKNESS};
 use crate::ui::UI;
 use ezgui::{
-    Button, Color, DrawBoth, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, ModalMenu,
-    Text, VerticalAlignment,
+    Button, Color, Composite, DrawBoth, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
+    ManagedWidget, ModalMenu, Outcome, Scroller, Text, VerticalAlignment,
 };
 use geom::{Circle, Distance, Duration, Polygon};
 use map_model::{IntersectionID, Phase, TurnPriority};
@@ -165,8 +164,7 @@ impl TrafficSignalDiagram {
             self.change_phase(self.current_phase + 1, ui, ctx);
         }
 
-        match self.scroller.event(ctx, ui) {
-            Some(Outcome::Transition(_)) => unreachable!(),
+        match self.scroller.event(ctx) {
             Some(Outcome::Clicked(x)) => {
                 self.change_phase(x["phase ".len()..].parse::<usize>().unwrap() - 1, ui, ctx);
             }
@@ -265,7 +263,7 @@ fn make_scroller(i: IntersectionID, selected: usize, ui: &UI, ctx: &EventCtx) ->
         hovered.append(normal.clone());
 
         col.push(
-            ManagedWidget::btn_no_cb(Button::new(
+            ManagedWidget::btn(Button::new(
                 DrawBoth::new(ctx, normal, Vec::new()),
                 DrawBoth::new(ctx, hovered, Vec::new()),
                 None,

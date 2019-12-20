@@ -10,13 +10,13 @@ use crate::debug::DebugMode;
 use crate::edit::{apply_map_edits, save_edits};
 use crate::game::{State, Transition, WizardState};
 use crate::helpers::ID;
-use crate::managed::{Composite, ManagedWidget, Outcome};
+use crate::managed::Outcome;
 use crate::pregame::main_menu;
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Button, Choice, Color, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment,
-    Key, Line, Text, VerticalAlignment,
+    hotkey, lctrl, Button, Choice, Color, Composite, EventCtx, EventLoopMode, GfxCtx,
+    HorizontalAlignment, Key, Line, ManagedWidget, Text, VerticalAlignment,
 };
 pub use gameplay::spawner::spawn_agents_around;
 pub use gameplay::GameplayMode;
@@ -31,49 +31,52 @@ pub struct SandboxMode {
     overlay: Overlays,
     gameplay: gameplay::GameplayRunner,
     common: CommonState,
-    tool_panel: Composite,
+    tool_panel: crate::managed::Composite,
     minimap: Option<Minimap>,
 }
 
 impl SandboxMode {
     pub fn new(ctx: &mut EventCtx, ui: &mut UI, mode: GameplayMode) -> SandboxMode {
+        let tool_panel = tool_panel(
+            ctx,
+            vec![
+                crate::managed::Composite::svg_button(
+                    ctx,
+                    "assets/tools/layers.svg",
+                    "change overlay",
+                    hotkey(Key::L),
+                ),
+                ManagedWidget::btn(Button::text(
+                    Text::from(Line("scoreboard").size(12)),
+                    Color::grey(0.6),
+                    Color::ORANGE,
+                    hotkey(Key::Q),
+                    "scoreboard",
+                    ctx,
+                )),
+                ManagedWidget::btn(Button::text(
+                    Text::from(Line("explore a bus route").size(12)),
+                    Color::grey(0.6),
+                    Color::ORANGE,
+                    hotkey(Key::Q),
+                    "explore a bus route",
+                    ctx,
+                )),
+            ],
+        )
+        .cb("change overlay", Box::new(Overlays::change_overlays))
+        .cb(
+            "explore a bus route",
+            Box::new(bus_explorer::pick_any_bus_route),
+        );
+
         SandboxMode {
             speed: speed::SpeedControls::new(ctx, ui),
             agent_meter: AgentMeter::new(ctx, ui),
             agent_tools: AgentTools::new(),
             overlay: Overlays::Inactive,
             common: CommonState::new(),
-            tool_panel: tool_panel(
-                ctx,
-                vec![
-                    ManagedWidget::svg_button(
-                        ctx,
-                        "assets/tools/layers.svg",
-                        "change overlay",
-                        hotkey(Key::L),
-                        Box::new(Overlays::change_overlays),
-                    ),
-                    ManagedWidget::btn_no_cb(Button::text(
-                        Text::from(Line("scoreboard").size(12)),
-                        Color::grey(0.6),
-                        Color::ORANGE,
-                        hotkey(Key::Q),
-                        "scoreboard",
-                        ctx,
-                    )),
-                    ManagedWidget::btn(
-                        Button::text(
-                            Text::from(Line("explore a bus route").size(12)),
-                            Color::grey(0.6),
-                            Color::ORANGE,
-                            hotkey(Key::Q),
-                            "explore a bus route",
-                            ctx,
-                        ),
-                        Box::new(bus_explorer::pick_any_bus_route),
-                    ),
-                ],
-            ),
+            tool_panel,
             minimap: if mode.has_minimap() {
                 Some(Minimap::new(ctx, ui))
             } else {
@@ -315,7 +318,7 @@ impl AgentMeter {
         if self.time != ui.primary.sim.time() {
             *self = AgentMeter::new(ctx, ui);
         }
-        self.composite.event(ctx, ui);
+        self.composite.event(ctx);
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {

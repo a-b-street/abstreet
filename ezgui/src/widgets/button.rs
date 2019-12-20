@@ -36,6 +36,7 @@ impl Button {
     ) -> Button {
         let dims = draw_normal.get_dims();
         assert_eq!(dims, draw_hovered.get_dims());
+        assert!(!tooltip.is_empty());
         Button {
             action: tooltip.to_string(),
 
@@ -135,7 +136,12 @@ const VERT_PADDING: f64 = 10.0;
 
 // TODO Simplify all of these APIs!
 impl Button {
-    pub fn rectangle_img(filename: &str, key: Option<MultiKey>, ctx: &EventCtx) -> Button {
+    pub fn rectangle_img(
+        filename: &str,
+        key: Option<MultiKey>,
+        ctx: &EventCtx,
+        label: &str,
+    ) -> Button {
         let img_color = ctx.canvas.texture(filename);
         let dims = img_color.texture_dims();
         let img_rect =
@@ -162,7 +168,7 @@ impl Button {
             ]),
             vec![],
         );
-        Button::new(normal, hovered, key, "", bg)
+        Button::new(normal, hovered, key, label, bg)
     }
 
     pub fn rectangle_svg(
