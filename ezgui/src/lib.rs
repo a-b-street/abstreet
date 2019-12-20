@@ -22,7 +22,7 @@ pub use crate::runner::{run, EventLoopMode, Settings, GUI};
 pub use crate::screen_geom::{ScreenDims, ScreenPt, ScreenRectangle};
 pub use crate::text::{Line, Text, TextSpan, HOTKEY_COLOR};
 pub use crate::widgets::{
-    Autocomplete, Button, Choice, ItemSlider, JustDraw, ModalMenu, Slider, SliderWithTextBox,
+    Autocomplete, Button, Choice, ItemSlider, JustDraw, ModalMenu, Plot, Slider, SliderWithTextBox,
     Warper, WarpingItemSlider, Wizard, WrappedWizard,
 };
 

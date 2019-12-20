@@ -3,10 +3,10 @@ use crate::ui::UI;
 use ezgui::layout::Widget;
 use ezgui::{
     Button, Color, DrawBoth, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, JustDraw,
-    Line, MultiKey, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Slider, Text,
+    Line, MultiKey, Plot, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Slider, Text,
     VerticalAlignment,
 };
-use geom::{Distance, Polygon};
+use geom::{Distance, Duration, Polygon};
 use std::collections::HashMap;
 use stretch::geometry::{Rect, Size};
 use stretch::node::{Node, Stretch};
@@ -25,6 +25,9 @@ enum WidgetType {
     Draw(JustDraw),
     Btn(Button, Option<Callback>),
     Slider(String),
+    // TODO Sadness. Can't have some kind of wildcard generic here?
+    DurationPlot(Plot<Duration>),
+    UsizePlot(Plot<usize>),
     Row(Vec<ManagedWidget>),
     Column(Vec<ManagedWidget>),
 }
@@ -217,6 +220,14 @@ impl ManagedWidget {
         ManagedWidget::new(WidgetType::Slider(label.to_string()))
     }
 
+    pub fn duration_plot(plot: Plot<Duration>) -> ManagedWidget {
+        ManagedWidget::new(WidgetType::DurationPlot(plot))
+    }
+
+    pub fn usize_plot(plot: Plot<usize>) -> ManagedWidget {
+        ManagedWidget::new(WidgetType::UsizePlot(plot))
+    }
+
     pub fn row(widgets: Vec<ManagedWidget>) -> ManagedWidget {
         ManagedWidget::new(WidgetType::Row(widgets))
     }
@@ -251,6 +262,7 @@ impl ManagedWidget {
             WidgetType::Slider(ref name) => {
                 sliders.get_mut(name).unwrap().event(ctx);
             }
+            WidgetType::DurationPlot(_) | WidgetType::UsizePlot(_) => {}
             WidgetType::Row(ref mut widgets) | WidgetType::Column(ref mut widgets) => {
                 for w in widgets {
                     if let Some(o) = w.event(ctx, ui, sliders) {
@@ -273,6 +285,8 @@ impl ManagedWidget {
             WidgetType::Draw(ref j) => j.draw(g),
             WidgetType::Btn(ref btn, _) => btn.draw(g),
             WidgetType::Slider(ref name) => sliders[name].draw(g),
+            WidgetType::DurationPlot(ref plot) => plot.draw(g),
+            WidgetType::UsizePlot(ref plot) => plot.draw(g),
             WidgetType::Row(ref widgets) | WidgetType::Column(ref widgets) => {
                 for w in widgets {
                     w.draw(g, sliders);
@@ -289,50 +303,13 @@ impl ManagedWidget {
         stretch: &mut Stretch,
         nodes: &mut Vec<Node>,
     ) {
-        match self.widget {
-            // TODO Draw, Btn, Slider all the same -- treat as Widget. Cast in the match?
-            WidgetType::Draw(ref widget) => {
-                let dims = widget.get_dims();
-                let mut style = Style {
-                    size: Size {
-                        width: Dimension::Points(dims.width as f32),
-                        height: Dimension::Points(dims.height as f32),
-                    },
-                    ..Default::default()
-                };
-                self.style.apply(&mut style);
-                let node = stretch.new_node(style, Vec::new()).unwrap();
-                stretch.add_child(parent, node).unwrap();
-                nodes.push(node);
-            }
-            WidgetType::Btn(ref widget, _) => {
-                let dims = widget.get_dims();
-                let mut style = Style {
-                    size: Size {
-                        width: Dimension::Points(dims.width as f32),
-                        height: Dimension::Points(dims.height as f32),
-                    },
-                    ..Default::default()
-                };
-                self.style.apply(&mut style);
-                let node = stretch.new_node(style, Vec::new()).unwrap();
-                stretch.add_child(parent, node).unwrap();
-                nodes.push(node);
-            }
-            WidgetType::Slider(ref name) => {
-                let dims = sliders[name].get_dims();
-                let mut style = Style {
-                    size: Size {
-                        width: Dimension::Points(dims.width as f32),
-                        height: Dimension::Points(dims.height as f32),
-                    },
-                    ..Default::default()
-                };
-                self.style.apply(&mut style);
-                let node = stretch.new_node(style, Vec::new()).unwrap();
-                stretch.add_child(parent, node).unwrap();
-                nodes.push(node);
-            }
+        // TODO Can I use | in the match and "cast" to Widget?
+        let widget: &dyn Widget = match self.widget {
+            WidgetType::Draw(ref widget) => widget,
+            WidgetType::Btn(ref widget, _) => widget,
+            WidgetType::Slider(ref name) => sliders[name],
+            WidgetType::DurationPlot(ref widget) => widget,
+            WidgetType::UsizePlot(ref widget) => widget,
             WidgetType::Row(ref widgets) => {
                 let mut style = Style {
                     flex_direction: FlexDirection::Row,
@@ -345,6 +322,7 @@ impl ManagedWidget {
                     widget.get_flexbox(row, sliders, stretch, nodes);
                 }
                 stretch.add_child(parent, row).unwrap();
+                return;
             }
             WidgetType::Column(ref widgets) => {
                 let mut style = Style {
@@ -358,8 +336,21 @@ impl ManagedWidget {
                     widget.get_flexbox(col, sliders, stretch, nodes);
                 }
                 stretch.add_child(parent, col).unwrap();
+                return;
             }
-        }
+        };
+        let dims = widget.get_dims();
+        let mut style = Style {
+            size: Size {
+                width: Dimension::Points(dims.width as f32),
+                height: Dimension::Points(dims.height as f32),
+            },
+            ..Default::default()
+        };
+        self.style.apply(&mut style);
+        let node = stretch.new_node(style, Vec::new()).unwrap();
+        stretch.add_child(parent, node).unwrap();
+        nodes.push(node);
     }
 
     fn apply_flexbox(
@@ -406,6 +397,12 @@ impl ManagedWidget {
                     .get_mut(name)
                     .unwrap()
                     .set_pos(ScreenPt::new(x + dx, y + dy));
+            }
+            WidgetType::DurationPlot(ref mut widget) => {
+                widget.set_pos(ScreenPt::new(x + dx, y + dy));
+            }
+            WidgetType::UsizePlot(ref mut widget) => {
+                widget.set_pos(ScreenPt::new(x + dx, y + dy));
             }
             WidgetType::Row(ref mut widgets) => {
                 // layout() doesn't return absolute position; it's relative to the container.

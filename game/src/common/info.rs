@@ -1,15 +1,16 @@
 use crate::common::CommonState;
+use crate::managed::{Composite, ManagedWidget};
 use crate::game::{State, Transition};
 use crate::helpers::ID;
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
-use ezgui::{hotkey, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
+use ezgui::{hotkey, HorizontalAlignment, VerticalAlignment, Color, EventCtx, GfxCtx, Key, Line, ModalMenu, Text};
 use geom::Time;
 use sim::CarID;
 use std::collections::BTreeMap;
 
 pub struct InfoPanel {
-    txt: Text,
+    composite: Composite,
     menu: ModalMenu,
     actions: Vec<String>,
 }
@@ -23,8 +24,12 @@ impl InfoPanel {
             menu_entries.push((hotkey(key), label));
         }
 
+        let mut col = vec![
+            ManagedWidget::draw_text(ctx, info_for(id, ui)),
+        ];
+
         InfoPanel {
-            txt: info_for(id, ui),
+            composite: Composite::aligned(ctx, (HorizontalAlignment::Center, VerticalAlignment::Center), ManagedWidget::col(col)),
             menu: ModalMenu::new("Info Panel", menu_entries, ctx),
             actions,
         }
@@ -49,17 +54,16 @@ impl State for InfoPanel {
             }
         }
 
+        match self.composite.event(ctx, ui) {
+            Some(_) => unreachable!(),
+            None => {}
+        }
+
         Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
-        g.draw_blocking_text(
-            &self.txt,
-            (
-                ezgui::HorizontalAlignment::Center,
-                ezgui::VerticalAlignment::Center,
-            ),
-        );
+        self.composite.draw(g);
         self.menu.draw(g);
     }
 }
