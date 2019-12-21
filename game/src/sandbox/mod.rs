@@ -1,7 +1,7 @@
 mod bus_explorer;
+mod dashboards;
 mod gameplay;
 mod overlays;
-mod score;
 mod speed;
 
 use self::overlays::Overlays;
@@ -15,8 +15,8 @@ use crate::pregame::main_menu;
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
-    hotkey, lctrl, Button, Choice, Color, Composite, EventCtx, EventLoopMode, GfxCtx,
-    HorizontalAlignment, Key, Line, ManagedWidget, Text, VerticalAlignment,
+    hotkey, lctrl, Choice, Color, Composite, EventCtx, EventLoopMode, GfxCtx, HorizontalAlignment,
+    Key, Line, ManagedWidget, Text, VerticalAlignment,
 };
 pub use gameplay::spawner::spawn_agents_around;
 pub use gameplay::GameplayMode;
@@ -46,29 +46,15 @@ impl SandboxMode {
                     "change overlay",
                     hotkey(Key::L),
                 ),
-                ManagedWidget::btn(Button::text(
-                    Text::from(Line("scoreboard").size(12)),
-                    Color::grey(0.6),
-                    Color::ORANGE,
-                    hotkey(Key::Q),
-                    "scoreboard",
+                crate::managed::Composite::svg_button(
                     ctx,
-                )),
-                ManagedWidget::btn(Button::text(
-                    Text::from(Line("explore a bus route").size(12)),
-                    Color::grey(0.6),
-                    Color::ORANGE,
+                    "assets/tools/info.svg",
+                    "info",
                     hotkey(Key::Q),
-                    "explore a bus route",
-                    ctx,
-                )),
+                ),
             ],
         )
-        .cb("change overlay", Box::new(Overlays::change_overlays))
-        .cb(
-            "explore a bus route",
-            Box::new(bus_explorer::pick_any_bus_route),
-        );
+        .cb("change overlay", Box::new(Overlays::change_overlays));
 
         SandboxMode {
             speed: speed::SpeedControls::new(ctx, ui),
@@ -222,12 +208,13 @@ impl State for SandboxMode {
                         }
                     })));
                 }
-                "scoreboard" => {
-                    return Transition::Push(Box::new(score::Scoreboard::new(
+                "info" => {
+                    return Transition::Push(dashboards::make(
                         ctx,
                         ui,
                         &self.gameplay.prebaked,
-                    )));
+                        dashboards::Tab::FinishedTripsSummary,
+                    ));
                 }
                 _ => unreachable!(),
             },

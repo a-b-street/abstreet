@@ -176,8 +176,8 @@ impl State for BusRouteExplorer {
     }
 }
 
-pub fn pick_any_bus_route(_: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
-    Some(Transition::Push(make_bus_route_picker(
+pub fn pick_any_bus_route(ui: &UI) -> Box<dyn State> {
+    make_bus_route_picker(
         ui.primary
             .map
             .get_all_bus_routes()
@@ -185,7 +185,7 @@ pub fn pick_any_bus_route(_: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
             .map(|r| r.id)
             .collect(),
         None,
-    )))
+    )
 }
 
 fn make_bus_route_picker(routes: Vec<BusRouteID>, start: Option<BusStopID>) -> Box<dyn State> {
