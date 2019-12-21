@@ -37,14 +37,9 @@ impl InfoPanel {
                             .bg(Color::grey(0.5)),
                     );
                     col.push(
-                        ManagedWidget::duration_plot(intersection_delay(
-                            i,
-                            Duration::hours(1),
-                            ctx,
-                            ui,
-                        ))
-                        .bg(Color::grey(0.5))
-                        .margin(10),
+                        intersection_delay(i, Duration::hours(1), ctx, ui)
+                            .bg(Color::grey(0.5))
+                            .margin(10),
                     );
                 }
                 col.push(
@@ -52,14 +47,9 @@ impl InfoPanel {
                         .bg(Color::grey(0.5)),
                 );
                 col.push(
-                    ManagedWidget::usize_plot(intersection_throughput(
-                        i,
-                        Duration::hours(1),
-                        ctx,
-                        ui,
-                    ))
-                    .bg(Color::grey(0.5))
-                    .margin(10),
+                    intersection_throughput(i, Duration::hours(1), ctx, ui)
+                        .bg(Color::grey(0.5))
+                        .margin(10),
                 );
             }
             ID::Lane(l) => {
@@ -71,14 +61,9 @@ impl InfoPanel {
                     .bg(Color::grey(0.5)),
                 );
                 col.push(
-                    ManagedWidget::usize_plot(road_throughput(
-                        ui.primary.map.get_l(l).parent,
-                        Duration::hours(1),
-                        ctx,
-                        ui,
-                    ))
-                    .bg(Color::grey(0.5))
-                    .margin(10),
+                    road_throughput(ui.primary.map.get_l(l).parent, Duration::hours(1), ctx, ui)
+                        .bg(Color::grey(0.5))
+                        .margin(10),
                 );
             }
             _ => {}
@@ -324,8 +309,8 @@ fn intersection_throughput(
     bucket: Duration,
     ctx: &EventCtx,
     ui: &UI,
-) -> Plot<usize> {
-    Plot::new(
+) -> ManagedWidget {
+    Plot::new_usize(
         ui.primary
             .sim
             .get_analytics()
@@ -337,13 +322,12 @@ fn intersection_throughput(
                 pts,
             })
             .collect(),
-        0,
         ctx,
     )
 }
 
-fn road_throughput(r: RoadID, bucket: Duration, ctx: &EventCtx, ui: &UI) -> Plot<usize> {
-    Plot::new(
+fn road_throughput(r: RoadID, bucket: Duration, ctx: &EventCtx, ui: &UI) -> ManagedWidget {
+    Plot::new_usize(
         ui.primary
             .sim
             .get_analytics()
@@ -355,7 +339,6 @@ fn road_throughput(r: RoadID, bucket: Duration, ctx: &EventCtx, ui: &UI) -> Plot
                 pts,
             })
             .collect(),
-        0,
         ctx,
     )
 }
@@ -365,7 +348,7 @@ fn intersection_delay(
     bucket: Duration,
     ctx: &EventCtx,
     ui: &UI,
-) -> Plot<Duration> {
+) -> ManagedWidget {
     let mut series: Vec<(Statistic, Vec<(Time, Duration)>)> = Statistic::all()
         .into_iter()
         .map(|stat| (stat, Vec::new()))
@@ -385,7 +368,7 @@ fn intersection_delay(
         }
     }
 
-    Plot::new(
+    Plot::new_duration(
         series
             .into_iter()
             .enumerate()
@@ -395,7 +378,6 @@ fn intersection_delay(
                 pts,
             })
             .collect(),
-        Duration::ZERO,
         ctx,
     )
 }

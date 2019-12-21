@@ -155,11 +155,11 @@ impl ManagedWidget {
         ManagedWidget::new(WidgetType::Slider(label.to_string()))
     }
 
-    pub fn duration_plot(plot: Plot<Duration>) -> ManagedWidget {
+    pub(crate) fn duration_plot(plot: Plot<Duration>) -> ManagedWidget {
         ManagedWidget::new(WidgetType::DurationPlot(plot))
     }
 
-    pub fn usize_plot(plot: Plot<usize>) -> ManagedWidget {
+    pub(crate) fn usize_plot(plot: Plot<usize>) -> ManagedWidget {
         ManagedWidget::new(WidgetType::UsizePlot(plot))
     }
 

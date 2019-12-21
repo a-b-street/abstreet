@@ -388,7 +388,7 @@ impl Overlays {
                 .push((ui.primary.sim.time(), counts.get(*mode)));
         }
 
-        let plot = Plot::new(
+        let plot = Plot::new_usize(
             lines
                 .into_iter()
                 .map(|(label, color, m)| Series {
@@ -397,7 +397,6 @@ impl Overlays {
                     pts: pts_per_mode.remove(&m).unwrap(),
                 })
                 .collect(),
-            0,
             ctx,
         );
         let composite = Composite::aligned(
@@ -405,7 +404,7 @@ impl Overlays {
             (HorizontalAlignment::Center, VerticalAlignment::Center),
             ManagedWidget::col(vec![
                 ManagedWidget::draw_text(ctx, Text::from(Line("finished trips"))),
-                ManagedWidget::usize_plot(plot).margin(10),
+                plot.margin(10),
             ])
             .bg(Color::grey(0.3)),
         );

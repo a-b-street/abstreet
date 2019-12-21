@@ -1,6 +1,7 @@
 use crate::layout::Widget;
 use crate::{
-    Color, DrawBoth, EventCtx, GeomBatch, GfxCtx, Line, ScreenDims, ScreenPt, ScreenRectangle, Text,
+    Color, DrawBoth, EventCtx, GeomBatch, GfxCtx, Line, ManagedWidget, ScreenDims, ScreenPt,
+    ScreenRectangle, Text,
 };
 use abstutil::prettyprint_usize;
 use geom::{Bounds, Circle, Distance, Duration, FindClosest, PolyLine, Pt2D, Time};
@@ -20,9 +21,13 @@ pub struct Plot<T> {
 
 impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T> {
     // TODO I want to store y_zero in the trait, but then we can't Box max_y.
-    pub fn new(series: Vec<Series<T>>, y_zero: T, ctx: &EventCtx) -> Plot<T> {
+    // Returns (plot, X axis labels, Y axis labels)
+    fn new(
+        series: Vec<Series<T>>,
+        y_zero: T,
+        ctx: &EventCtx,
+    ) -> (Plot<T>, ManagedWidget, ManagedWidget) {
         let mut batch = GeomBatch::new();
-        let mut labels: Vec<(Text, ScreenPt)> = Vec::new();
 
         let width = 0.5 * ctx.canvas.window_width;
         let height = 0.4 * ctx.canvas.window_height;
@@ -50,25 +55,6 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
             })
             .max()
             .unwrap_or(y_zero);
-
-        let num_x_labels = 5;
-        for i in 0..num_x_labels {
-            let percent_x = (i as f64) / ((num_x_labels - 1) as f64);
-            let t = max_x.percent_of(percent_x);
-            labels.push((
-                Text::from(Line(t.to_string())),
-                ScreenPt::new(percent_x * width, height),
-            ));
-        }
-
-        let num_y_labels = 5;
-        for i in 0..num_y_labels {
-            let percent_y = (i as f64) / ((num_y_labels - 1) as f64);
-            labels.push((
-                Text::from(Line(max_y.from_percent(percent_y).prettyprint())).with_bg(),
-                ScreenPt::new(0.0, (1.0 - percent_y) * height),
-            ));
-        }
 
         let mut closest = FindClosest::new(&Bounds::from(&vec![
             Pt2D::new(0.0, 0.0),
@@ -98,15 +84,41 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
             }
         }
 
-        Plot {
-            draw: DrawBoth::new(ctx, batch, labels),
+        let plot = Plot {
+            draw: DrawBoth::new(ctx, batch, Vec::new()),
             closest,
             max_x,
             max_y: Box::new(max_y),
 
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(width, height + ctx.default_line_height()),
+        };
+
+        let num_x_labels = 4;
+        let mut row = Vec::new();
+        for i in 0..num_x_labels {
+            let percent_x = (i as f64) / ((num_x_labels - 1) as f64);
+            let t = max_x.percent_of(percent_x);
+            row.push(ManagedWidget::draw_text(
+                ctx,
+                Text::from(Line(t.to_string())),
+            ));
         }
+        let x_axis = ManagedWidget::row(row);
+
+        let num_y_labels = 4;
+        let mut col = Vec::new();
+        for i in 0..num_y_labels {
+            let percent_y = (i as f64) / ((num_y_labels - 1) as f64);
+            col.push(ManagedWidget::draw_text(
+                ctx,
+                Text::from(Line(max_y.from_percent(percent_y).prettyprint())),
+            ));
+        }
+        col.reverse();
+        let y_axis = ManagedWidget::col(col);
+
+        (plot, x_axis, y_axis)
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
@@ -138,6 +150,32 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
                 g.unfork();
             }
         }
+    }
+}
+
+impl Plot<usize> {
+    pub fn new_usize(series: Vec<Series<usize>>, ctx: &EventCtx) -> ManagedWidget {
+        let (plot, x_axis, y_axis) = Plot::new(series, 0, ctx);
+        ManagedWidget::col(vec![
+            ManagedWidget::row(vec![
+                y_axis.evenly_spaced(),
+                ManagedWidget::usize_plot(plot),
+            ]),
+            x_axis.evenly_spaced(),
+        ])
+    }
+}
+
+impl Plot<Duration> {
+    pub fn new_duration(series: Vec<Series<Duration>>, ctx: &EventCtx) -> ManagedWidget {
+        let (plot, x_axis, y_axis) = Plot::new(series, Duration::ZERO, ctx);
+        ManagedWidget::col(vec![
+            ManagedWidget::row(vec![
+                y_axis.evenly_spaced(),
+                ManagedWidget::duration_plot(plot),
+            ]),
+            x_axis.evenly_spaced(),
+        ])
     }
 }
 

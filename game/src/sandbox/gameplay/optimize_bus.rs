@@ -11,7 +11,7 @@ use ezgui::{
     hotkey, Choice, Color, Composite, EventCtx, HorizontalAlignment, Key, Line, ManagedWidget,
     ModalMenu, Plot, Series, Text, VerticalAlignment,
 };
-use geom::{Duration, Statistic, Time};
+use geom::{Statistic, Time};
 use map_model::BusRouteID;
 use sim::Analytics;
 
@@ -201,7 +201,7 @@ fn bus_delays(id: BusRouteID, ui: &UI, ctx: &mut EventCtx) -> Composite {
         (HorizontalAlignment::Center, VerticalAlignment::Center),
         ManagedWidget::col(vec![
             ManagedWidget::draw_text(ctx, Text::from(Line(format!("delays for {}", route.name)))),
-            ManagedWidget::duration_plot(Plot::new(series, Duration::ZERO, ctx)).margin(10),
+            Plot::new_duration(series, ctx).margin(10),
         ])
         .bg(Color::grey(0.3)),
     )
