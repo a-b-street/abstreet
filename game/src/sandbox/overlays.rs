@@ -8,21 +8,17 @@ use crate::sandbox::bus_explorer::ShowBusRoute;
 use crate::sandbox::SandboxMode;
 use crate::ui::{ShowEverything, UI};
 use abstutil::{prettyprint_usize, Counter};
-use ezgui::{
-    Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, ManagedWidget, Plot, Series, Text, VerticalAlignment,
-};
+use ezgui::{Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Text};
 use geom::{Distance, Duration, PolyLine, Time};
 use map_model::IntersectionID;
-use sim::{Analytics, ParkingSpot, TripMode};
-use std::collections::{BTreeMap, HashSet};
+use sim::{Analytics, ParkingSpot};
+use std::collections::HashSet;
 
 pub enum Overlays {
     Inactive,
     ParkingAvailability(Time, RoadColorer),
     IntersectionDelay(Time, ObjectColorer),
     CumulativeThroughput(Time, ObjectColorer),
-    FinishedTrips(Time, Composite),
     FinishedTripsHistogram(Time, Histogram),
     BikeNetwork(RoadColorer),
     BusNetwork(RoadColorer),
@@ -55,9 +51,6 @@ impl Overlays {
             Overlays::IntersectionDemand(t, i, _) if now != *t => {
                 *self = Overlays::intersection_demand(*i, ctx, ui);
             }
-            Overlays::FinishedTrips(t, _) if now != *t => {
-                *self = Overlays::finished_trips(ctx, ui);
-            }
             Overlays::FinishedTripsHistogram(t, _) if now != *t => {
                 *self = Overlays::finished_trips_histogram(ctx, ui, baseline);
             }
@@ -79,16 +72,6 @@ impl Overlays {
             Overlays::IntersectionDelay(_, ref heatmap)
             | Overlays::CumulativeThroughput(_, ref heatmap) => {
                 heatmap.draw(g, ui);
-                true
-            }
-            Overlays::FinishedTrips(_, ref composite) => {
-                ui.draw(
-                    g,
-                    DrawOptions::new(),
-                    &ui.primary.sim,
-                    &ShowEverything::new(),
-                );
-                composite.draw(g);
                 true
             }
             Overlays::FinishedTripsHistogram(_, ref hgram) => {
@@ -138,7 +121,6 @@ impl Overlays {
                         Choice::new("parking availability", ()).key(Key::P),
                         Choice::new("intersection delay", ()).key(Key::I),
                         Choice::new("cumulative throughput", ()).key(Key::T),
-                        Choice::new("finished trips", ()).key(Key::F),
                         // TODO baseline borrow doesn't live long enough
                         //Choice::new("finished trips histogram", ()).key(Key::H),
                         Choice::new("bike network", ()).key(Key::B),
@@ -152,7 +134,6 @@ impl Overlays {
                         "parking availability" => Overlays::parking_availability(ctx, ui),
                         "intersection delay" => Overlays::intersection_delay(ctx, ui),
                         "cumulative throughput" => Overlays::cumulative_throughput(ctx, ui),
-                        "finished trips" => Overlays::finished_trips(ctx, ui),
                         "bike network" => Overlays::bike_network(ctx, ui),
                         "bus network" => Overlays::bus_network(ctx, ui),
                         _ => unreachable!(),
@@ -348,69 +329,6 @@ impl Overlays {
         Overlays::BusNetwork(colorer.build(ctx, &ui.primary.map))
     }
 
-    fn finished_trips(ctx: &EventCtx, ui: &UI) -> Overlays {
-        let mut lines: Vec<(String, Color, Option<TripMode>)> = TripMode::all()
-            .into_iter()
-            .map(|m| (m.to_string(), color_for_mode(m, ui), Some(m)))
-            .collect();
-        lines.push(("aborted".to_string(), Color::PURPLE.alpha(0.5), None));
-
-        // What times do we use for interpolation?
-        let num_x_pts = 100;
-        let mut times = Vec::new();
-        for i in 0..num_x_pts {
-            let percent_x = (i as f64) / ((num_x_pts - 1) as f64);
-            let t = ui.primary.sim.time().percent_of(percent_x);
-            times.push(t);
-        }
-
-        // Gather the data
-        let mut counts = Counter::new();
-        let mut pts_per_mode: BTreeMap<Option<TripMode>, Vec<(Time, usize)>> =
-            lines.iter().map(|(_, _, m)| (*m, Vec::new())).collect();
-        for (t, _, m, _) in &ui.primary.sim.get_analytics().finished_trips {
-            counts.inc(*m);
-            if *t > times[0] {
-                times.remove(0);
-                for (_, _, mode) in &lines {
-                    pts_per_mode
-                        .get_mut(mode)
-                        .unwrap()
-                        .push((*t, counts.get(*mode)));
-                }
-            }
-        }
-        // Don't forget the last batch
-        for (_, _, mode) in &lines {
-            pts_per_mode
-                .get_mut(mode)
-                .unwrap()
-                .push((ui.primary.sim.time(), counts.get(*mode)));
-        }
-
-        let plot = Plot::new_usize(
-            lines
-                .into_iter()
-                .map(|(label, color, m)| Series {
-                    label,
-                    color,
-                    pts: pts_per_mode.remove(&m).unwrap(),
-                })
-                .collect(),
-            ctx,
-        );
-        let composite = Composite::aligned(
-            ctx,
-            (HorizontalAlignment::Center, VerticalAlignment::Center),
-            ManagedWidget::col(vec![
-                ManagedWidget::draw_text(ctx, Text::from(Line("finished trips"))),
-                plot.margin(10),
-            ])
-            .bg(Color::grey(0.3)),
-        );
-        Overlays::FinishedTrips(ui.primary.sim.time(), composite)
-    }
-
     pub fn finished_trips_histogram(ctx: &EventCtx, ui: &UI, baseline: &Analytics) -> Overlays {
         let now = ui.primary.sim.time();
         Overlays::FinishedTripsHistogram(
@@ -455,14 +373,5 @@ impl Overlays {
         }
 
         Overlays::IntersectionDemand(ui.primary.sim.time(), i, batch.upload(ctx))
-    }
-}
-
-fn color_for_mode(m: TripMode, ui: &UI) -> Color {
-    match m {
-        TripMode::Walk => ui.cs.get("unzoomed pedestrian"),
-        TripMode::Bike => ui.cs.get("unzoomed bike"),
-        TripMode::Transit => ui.cs.get("unzoomed bus"),
-        TripMode::Drive => ui.cs.get("unzoomed car"),
     }
 }

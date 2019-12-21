@@ -5,10 +5,13 @@ use crate::sandbox::bus_explorer;
 use crate::sandbox::gameplay::{cmp_count_fewer, cmp_count_more, cmp_duration_shorter};
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
-use ezgui::{hotkey, Choice, Color, EventCtx, Key, Line, ManagedWidget, Text, Wizard};
+use abstutil::Counter;
+use ezgui::{
+    hotkey, Choice, Color, EventCtx, Key, Line, ManagedWidget, Plot, Series, Text, Wizard,
+};
 use geom::{Duration, Statistic, Time};
 use sim::{Analytics, TripID, TripMode};
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(PartialEq, Clone, Copy)]
 pub enum Tab {
@@ -136,9 +139,68 @@ fn finished_trips_summary(ctx: &EventCtx, ui: &UI, prebaked: &Analytics) -> Mana
         }
     }
 
-    // TODO include the plot here
+    ManagedWidget::col(vec![
+        ManagedWidget::draw_text(ctx, txt),
+        finished_trips_plot(ctx, ui),
+    ])
+}
 
-    ManagedWidget::draw_text(ctx, txt)
+fn finished_trips_plot(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
+    let mut lines: Vec<(String, Color, Option<TripMode>)> = TripMode::all()
+        .into_iter()
+        .map(|m| (m.to_string(), color_for_mode(m, ui), Some(m)))
+        .collect();
+    lines.push(("aborted".to_string(), Color::PURPLE.alpha(0.5), None));
+
+    // What times do we use for interpolation?
+    let num_x_pts = 100;
+    let mut times = Vec::new();
+    for i in 0..num_x_pts {
+        let percent_x = (i as f64) / ((num_x_pts - 1) as f64);
+        let t = ui.primary.sim.time().percent_of(percent_x);
+        times.push(t);
+    }
+
+    // Gather the data
+    let mut counts = Counter::new();
+    let mut pts_per_mode: BTreeMap<Option<TripMode>, Vec<(Time, usize)>> =
+        lines.iter().map(|(_, _, m)| (*m, Vec::new())).collect();
+    for (t, _, m, _) in &ui.primary.sim.get_analytics().finished_trips {
+        counts.inc(*m);
+        if *t > times[0] {
+            times.remove(0);
+            for (_, _, mode) in &lines {
+                pts_per_mode
+                    .get_mut(mode)
+                    .unwrap()
+                    .push((*t, counts.get(*mode)));
+            }
+        }
+    }
+    // Don't forget the last batch
+    for (_, _, mode) in &lines {
+        pts_per_mode
+            .get_mut(mode)
+            .unwrap()
+            .push((ui.primary.sim.time(), counts.get(*mode)));
+    }
+
+    let plot = Plot::new_usize(
+        lines
+            .into_iter()
+            .map(|(label, color, m)| Series {
+                label,
+                color,
+                pts: pts_per_mode.remove(&m).unwrap(),
+            })
+            .collect(),
+        ctx,
+    );
+    ManagedWidget::col(vec![
+        ManagedWidget::draw_text(ctx, Text::from(Line("finished trips"))),
+        plot.margin(10),
+    ])
+    .bg(Color::grey(0.3))
 }
 
 fn browse_trips(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
@@ -185,4 +247,14 @@ fn parking_overhead(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
         txt.add_wrapped_line(ctx, line);
     }
     ManagedWidget::draw_text(ctx, txt)
+}
+
+// TODO Refactor
+fn color_for_mode(m: TripMode, ui: &UI) -> Color {
+    match m {
+        TripMode::Walk => ui.cs.get("unzoomed pedestrian"),
+        TripMode::Bike => ui.cs.get("unzoomed bike"),
+        TripMode::Transit => ui.cs.get("unzoomed bus"),
+        TripMode::Drive => ui.cs.get("unzoomed car"),
+    }
 }
