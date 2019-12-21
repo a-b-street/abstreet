@@ -98,6 +98,12 @@ impl Text {
         self
     }
 
+    pub fn bg(mut self, bg: Color) -> Text {
+        assert!(self.bg_color.is_none());
+        self.bg_color = Some(bg);
+        self
+    }
+
     pub fn add(&mut self, line: TextSpan) {
         self.lines.push((None, vec![line]));
     }

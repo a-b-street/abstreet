@@ -21,16 +21,36 @@ pub struct Plot<T> {
 
 impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T> {
     // TODO I want to store y_zero in the trait, but then we can't Box max_y.
-    // Returns (plot, X axis labels, Y axis labels)
+    // Returns (plot, legend, X axis labels, Y axis labels)
     fn new(
         series: Vec<Series<T>>,
         y_zero: T,
         ctx: &EventCtx,
-    ) -> (Plot<T>, ManagedWidget, ManagedWidget) {
+    ) -> (Plot<T>, ManagedWidget, ManagedWidget, ManagedWidget) {
         let mut batch = GeomBatch::new();
 
         let width = 0.5 * ctx.canvas.window_width;
         let height = 0.4 * ctx.canvas.window_height;
+
+        let radius = 15.0;
+        let legend = ManagedWidget::col(
+            series
+                .iter()
+                .map(|s| {
+                    ManagedWidget::row(vec![
+                        ManagedWidget::draw_batch(
+                            ctx,
+                            GeomBatch::from(vec![(
+                                s.color,
+                                Circle::new(Pt2D::new(radius, radius), Distance::meters(radius))
+                                    .to_polygon(),
+                            )]),
+                        ),
+                        ManagedWidget::draw_text(ctx, Text::from(Line(&s.label))),
+                    ])
+                })
+                .collect(),
+        );
 
         // Assume min_x is Time::START_OF_DAY and min_y is 0
         let max_x = series
@@ -118,7 +138,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
         col.reverse();
         let y_axis = ManagedWidget::col(col);
 
-        (plot, x_axis, y_axis)
+        (plot, legend, x_axis, y_axis)
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
@@ -127,7 +147,7 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
         let cursor = g.canvas.get_cursor_in_screen_space();
         if ScreenRectangle::top_left(self.top_left, self.dims).contains(cursor) {
             let radius = Distance::meters(5.0);
-            let mut txt = Text::new().with_bg();
+            let mut txt = Text::new().bg(Color::grey(0.6));
             for (label, pt, _) in self.closest.all_close_pts(
                 Pt2D::new(cursor.x - self.top_left.x, cursor.y - self.top_left.y),
                 radius,
@@ -155,8 +175,9 @@ impl<T: 'static + Ord + PartialEq + Copy + core::fmt::Debug + Yvalue<T>> Plot<T>
 
 impl Plot<usize> {
     pub fn new_usize(series: Vec<Series<usize>>, ctx: &EventCtx) -> ManagedWidget {
-        let (plot, x_axis, y_axis) = Plot::new(series, 0, ctx);
+        let (plot, legend, x_axis, y_axis) = Plot::new(series, 0, ctx);
         ManagedWidget::col(vec![
+            legend,
             ManagedWidget::row(vec![
                 y_axis.evenly_spaced(),
                 ManagedWidget::usize_plot(plot),
@@ -168,8 +189,9 @@ impl Plot<usize> {
 
 impl Plot<Duration> {
     pub fn new_duration(series: Vec<Series<Duration>>, ctx: &EventCtx) -> ManagedWidget {
-        let (plot, x_axis, y_axis) = Plot::new(series, Duration::ZERO, ctx);
+        let (plot, legend, x_axis, y_axis) = Plot::new(series, Duration::ZERO, ctx);
         ManagedWidget::col(vec![
+            legend,
             ManagedWidget::row(vec![
                 y_axis.evenly_spaced(),
                 ManagedWidget::duration_plot(plot),
