@@ -5,7 +5,7 @@
 You will first need:
 
 - Standard dependencies: `bash`, `curl`, `unzip`, `gunzip`
-- Rust, at least 1.38. https://www.rust-lang.org/tools/install
+- Rust, at least 1.40. https://www.rust-lang.org/tools/install
 
 One-time setup:
 

@@ -12,16 +12,18 @@ Grab a pre-built binary release -- updated every Sunday, announced at
 [r/abstreet](http://old.reddit.com/r/abstreet):
 
 - Windows:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.19/abstreet_windows_v0_1_19.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.20/abstreet_windows_v0_1_20.zip
 - Mac:
   https://github.com/dabreegster/abstreet/releases/download/v0.1.19/abstreet_mac_v0_1_19.zip
+  - **Older release** -- I don't have a Mac to build on right now. Working on
+    getting Github Actions set up, will upload a new Mac build ASAP.
   - The minimap may be missing, depending on your monitor's DPI. If so, modify
     the `play_abstreet.sh` script to pass `--hidpi_factor=2.0` and experiment
     with different values. If you have to do this, please
     [file an issue](https://github.com/dabreegster/abstreet/issues) and let me
     know, so I can figure out why `glutin` misreports this.
 - Linux:
-  https://github.com/dabreegster/abstreet/releases/download/v0.1.19/abstreet_linux_v0_1_19.zip
+  https://github.com/dabreegster/abstreet/releases/download/v0.1.20/abstreet_linux_v0_1_20.zip
   - The binary might not work on your flavor of Linux; let me know
     [here](https://github.com/dabreegster/abstreet/issues/17) if so.
 

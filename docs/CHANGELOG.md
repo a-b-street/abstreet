@@ -215,3 +215,11 @@ v0.1.19
 - implementing some of Yuwen's UI changes: agent counter, split time/speed panel, moved functionality out of the old drop-down menus into a bottom-left tool panel, hiding debug functionality
 - replaced right-click context menus with left click to open info panels
 - fixed random issues reported by people from HN
+
+v0.1.20
+
+- moved some UI functionality around, pulling graphs into info panel
+- interactive legend for the minimap, toggle visibility of different agents
+- nicer colors and shapes for cars
+- misc simulation bugfixes that might help huge_seattle
+- pedestrians choose to use transit more realistically, factoring in time for the bus to drive
