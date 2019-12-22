@@ -10,7 +10,6 @@ use ezgui::{
     ModalMenu, Text, VerticalAlignment,
 };
 use map_model::IntersectionID;
-use sim::Analytics;
 use std::collections::BTreeSet;
 
 // TODO Maybe remember what things were spawned, offer to replay this later
@@ -37,7 +36,6 @@ impl GameplayState for Freeform {
         ctx: &mut EventCtx,
         ui: &mut UI,
         _: &mut Overlays,
-        _: &Analytics,
         menu: &mut ModalMenu,
     ) -> Option<Transition> {
         menu.event(ctx);

@@ -23,7 +23,6 @@ pub struct GameplayRunner {
     pub menu: ModalMenu,
     controller: Composite,
     state: Box<dyn GameplayState>,
-    pub prebaked: Analytics,
 }
 
 #[derive(Clone)]
@@ -47,7 +46,6 @@ pub trait GameplayState: downcast_rs::Downcast {
         ctx: &mut EventCtx,
         ui: &mut UI,
         overlays: &mut Overlays,
-        prebaked: &Analytics,
         menu: &mut ModalMenu,
     ) -> Option<Transition>;
     fn draw(&self, _: &mut GfxCtx, _: &UI) {}
@@ -158,6 +156,7 @@ impl GameplayRunner {
                 fix_traffic_signals::FixTrafficSignals::new(ctx, ui, mode.clone())
             }
         };
+        // TODO Maybe don't load this for Freeform mode
         let prebaked = ctx.loading_screen("instantiate scenario", |_, timer| {
             if let Some(scenario) =
                 mode.scenario(&ui.primary.map, ui.primary.current_flags.num_agents, timer)
@@ -184,9 +183,9 @@ impl GameplayRunner {
                 Analytics::new()
             }
         });
+        ui.set_prebaked(Some(prebaked));
         GameplayRunner {
             mode,
-            prebaked,
             menu: menu
                 .set_standalone_layout(layout::ContainerOrientation::TopRightButDownABit(150.0)),
             controller,
@@ -207,8 +206,7 @@ impl GameplayRunner {
             Some(Outcome::Clicked(_)) => unreachable!(),
             None => {}
         }
-        self.state
-            .event(ctx, ui, overlays, &self.prebaked, &mut self.menu)
+        self.state.event(ctx, ui, overlays, &mut self.menu)
     }
 
     pub fn draw(&self, g: &mut GfxCtx, ui: &UI) {

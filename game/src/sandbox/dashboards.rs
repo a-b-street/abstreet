@@ -10,7 +10,7 @@ use ezgui::{
     hotkey, Choice, Color, EventCtx, Key, Line, ManagedWidget, Plot, Series, Text, Wizard,
 };
 use geom::{Duration, Statistic, Time};
-use sim::{Analytics, TripID, TripMode};
+use sim::{TripID, TripMode};
 use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(PartialEq, Clone, Copy)]
@@ -22,7 +22,7 @@ pub enum Tab {
 }
 
 // Oh the dashboards melted, but we still had the radio
-pub fn make(ctx: &EventCtx, ui: &UI, prebaked: &Analytics, tab: Tab) -> Box<dyn State> {
+pub fn make(ctx: &EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
     let tab_data = vec![
         (Tab::FinishedTripsSummary, "Finished trips summary"),
         (
@@ -46,7 +46,7 @@ pub fn make(ctx: &EventCtx, ui: &UI, prebaked: &Analytics, tab: Tab) -> Box<dyn 
     tabs.push(Composite::text_button(ctx, "BACK", hotkey(Key::Escape)));
 
     let content = match tab {
-        Tab::FinishedTripsSummary => finished_trips_summary(ctx, ui, prebaked),
+        Tab::FinishedTripsSummary => finished_trips_summary(ctx, ui),
         Tab::IndividualFinishedTrips => {
             return WizardState::new(Box::new(browse_trips));
         }
@@ -65,15 +65,7 @@ pub fn make(ctx: &EventCtx, ui: &UI, prebaked: &Analytics, tab: Tab) -> Box<dyn 
         if t != tab {
             c = c.cb(
                 label,
-                Box::new(move |ctx, ui| {
-                    Some(Transition::Replace(make(
-                        ctx,
-                        ui,
-                        // TODO prebaked?
-                        &Analytics::new(),
-                        t,
-                    )))
-                }),
+                Box::new(move |ctx, ui| Some(Transition::Replace(make(ctx, ui, t)))),
             );
         }
     }
@@ -81,14 +73,14 @@ pub fn make(ctx: &EventCtx, ui: &UI, prebaked: &Analytics, tab: Tab) -> Box<dyn 
     ManagedGUIState::new(c)
 }
 
-fn finished_trips_summary(ctx: &EventCtx, ui: &UI, prebaked: &Analytics) -> ManagedWidget {
+fn finished_trips_summary(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
     let (now_all, now_aborted, now_per_mode) = ui
         .primary
         .sim
         .get_analytics()
         .all_finished_trips(ui.primary.sim.time());
     let (baseline_all, baseline_aborted, baseline_per_mode) =
-        prebaked.all_finished_trips(ui.primary.sim.time());
+        ui.prebaked().all_finished_trips(ui.primary.sim.time());
 
     // TODO Include unfinished count
     let mut txt = Text::new();

@@ -11,7 +11,7 @@ use abstutil::{prettyprint_usize, Counter};
 use ezgui::{Choice, Color, Composite, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Text};
 use geom::{Distance, Duration, PolyLine, Time};
 use map_model::IntersectionID;
-use sim::{Analytics, ParkingSpot};
+use sim::ParkingSpot;
 use std::collections::HashSet;
 
 pub enum Overlays {
@@ -29,12 +29,7 @@ pub enum Overlays {
 }
 
 impl Overlays {
-    pub fn event(
-        &mut self,
-        ctx: &mut EventCtx,
-        ui: &UI,
-        baseline: &Analytics,
-    ) -> Option<Transition> {
+    pub fn event(&mut self, ctx: &mut EventCtx, ui: &UI) -> Option<Transition> {
         let now = ui.primary.sim.time();
         match self {
             // Don't bother with Inactive, BusRoute, BusDelaysOverTime, BikeNetwork, BusNetwork --
@@ -52,7 +47,7 @@ impl Overlays {
                 *self = Overlays::intersection_demand(*i, ctx, ui);
             }
             Overlays::FinishedTripsHistogram(t, _) if now != *t => {
-                *self = Overlays::finished_trips_histogram(ctx, ui, baseline);
+                *self = Overlays::finished_trips_histogram(ctx, ui);
             }
             _ => {}
         };
@@ -121,8 +116,7 @@ impl Overlays {
                         Choice::new("parking availability", ()).key(Key::P),
                         Choice::new("intersection delay", ()).key(Key::I),
                         Choice::new("cumulative throughput", ()).key(Key::T),
-                        // TODO baseline borrow doesn't live long enough
-                        //Choice::new("finished trips histogram", ()).key(Key::H),
+                        Choice::new("finished trips histogram", ()).key(Key::H),
                         Choice::new("bike network", ()).key(Key::B),
                         Choice::new("bus network", ()).key(Key::U),
                     ]
@@ -134,6 +128,7 @@ impl Overlays {
                         "parking availability" => Overlays::parking_availability(ctx, ui),
                         "intersection delay" => Overlays::intersection_delay(ctx, ui),
                         "cumulative throughput" => Overlays::cumulative_throughput(ctx, ui),
+                        "finished trips histogram" => Overlays::finished_trips_histogram(ctx, ui),
                         "bike network" => Overlays::bike_network(ctx, ui),
                         "bus network" => Overlays::bus_network(ctx, ui),
                         _ => unreachable!(),
@@ -329,7 +324,7 @@ impl Overlays {
         Overlays::BusNetwork(colorer.build(ctx, &ui.primary.map))
     }
 
-    pub fn finished_trips_histogram(ctx: &EventCtx, ui: &UI, baseline: &Analytics) -> Overlays {
+    pub fn finished_trips_histogram(ctx: &EventCtx, ui: &UI) -> Overlays {
         let now = ui.primary.sim.time();
         Overlays::FinishedTripsHistogram(
             now,
@@ -337,7 +332,7 @@ impl Overlays {
                 ui.primary
                     .sim
                     .get_analytics()
-                    .finished_trip_deltas(now, baseline),
+                    .finished_trip_deltas(now, ui.prebaked()),
                 ctx,
             ),
         )

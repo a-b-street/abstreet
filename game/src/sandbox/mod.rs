@@ -141,7 +141,7 @@ impl State for SandboxMode {
         if let Some(t) = self.common.event(ctx, ui) {
             return t;
         }
-        if let Some(t) = self.overlay.event(ctx, ui, &self.gameplay.prebaked) {
+        if let Some(t) = self.overlay.event(ctx, ui) {
             return t;
         }
         match self.tool_panel.event(ctx, ui) {
@@ -150,7 +150,6 @@ impl State for SandboxMode {
             }
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "back" => {
-                    // TODO Clear edits?
                     return Transition::Push(WizardState::new(Box::new(move |wiz, ctx, ui| {
                         let mut wizard = wiz.wrap(ctx);
                         let dirty = ui.primary.map.get_edits().dirty;
@@ -183,6 +182,7 @@ impl State for SandboxMode {
                                     &mut Timer::new("reset edits"),
                                 );
                                 ui.primary.clear_sim();
+                                ui.set_prebaked(None);
                                 ctx.canvas.save_camera_state(ui.primary.map.get_name());
                                 Some(Transition::Clear(main_menu(ctx, ui)))
                             }
@@ -200,6 +200,7 @@ impl State for SandboxMode {
                                     );
                                 }
                                 ui.primary.clear_sim();
+                                ui.set_prebaked(None);
                                 ctx.canvas.save_camera_state(ui.primary.map.get_name());
                                 Some(Transition::Clear(main_menu(ctx, ui)))
                             }
@@ -212,7 +213,6 @@ impl State for SandboxMode {
                     return Transition::Push(dashboards::make(
                         ctx,
                         ui,
-                        &self.gameplay.prebaked,
                         dashboards::Tab::FinishedTripsSummary,
                     ));
                 }

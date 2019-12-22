@@ -10,12 +10,14 @@ use ezgui::{Color, EventCtx, GfxCtx, Prerender, TextureType};
 use geom::{Bounds, Circle, Distance, Pt2D};
 use map_model::{Map, Traversable};
 use rand::seq::SliceRandom;
-use sim::{GetDrawAgents, Sim, SimFlags};
+use sim::{Analytics, GetDrawAgents, Sim, SimFlags};
 
 pub struct UI {
     pub primary: PerMapUI,
     // Invariant: This is Some(...) iff we're in A/B test mode or a sub-state.
     pub secondary: Option<PerMapUI>,
+    // Only exists in some gameplay modes. Must be carefully reset otherwise.
+    prebaked: Option<Analytics>,
     pub cs: ColorScheme,
     // TODO This is a bit weird to keep here; it's controlled almost entirely by the minimap panel.
     // It has no meaning in edit mode.
@@ -67,11 +69,20 @@ impl UI {
         UI {
             primary,
             secondary: None,
+            prebaked: None,
             agent_cs: AgentColorScheme::default(&cs),
             cs,
             opts,
             per_obj: PerObjectActions::new(),
         }
+    }
+
+    pub fn prebaked(&self) -> &Analytics {
+        self.prebaked.as_ref().unwrap()
+    }
+
+    pub fn set_prebaked(&mut self, prebaked: Option<Analytics>) {
+        self.prebaked = prebaked;
     }
 
     pub fn switch_map(&mut self, ctx: &mut EventCtx, load: String) {
