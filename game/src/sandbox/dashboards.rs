@@ -56,10 +56,17 @@ pub fn make(ctx: &EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
         }
     };
 
-    let mut c = Composite::new(ezgui::Composite::fill_screen(
-        ctx,
-        ManagedWidget::col(vec![ManagedWidget::row(tabs).evenly_spaced(), content]),
-    ))
+    let mut c = Composite::new(
+        ezgui::Composite::aligned(
+            ctx,
+            (
+                ezgui::HorizontalAlignment::Left,
+                ezgui::VerticalAlignment::Top,
+            ),
+            ManagedWidget::col(vec![ManagedWidget::row(tabs).evenly_spaced(), content]),
+        )
+        .scrollable(),
+    )
     .cb("BACK", Box::new(|_, _| Some(Transition::Pop)));
     for (t, label) in tab_data {
         if t != tab {

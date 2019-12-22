@@ -373,6 +373,11 @@ impl ManagedWidget {
 pub struct Composite {
     top_level: ManagedWidget,
     pos: CompositePosition,
+
+    // TODO This doesn't clip. There's no way to express that the scrollable thing should occupy a
+    // small part of the screen.
+    // TODO Horizontal scrolling?
+    scrollable: bool,
     scroll_y_offset: f64,
 }
 
@@ -386,6 +391,8 @@ enum CompositePosition {
     Aligned(HorizontalAlignment, VerticalAlignment),
 }
 
+const SCROLL_SPEED: f64 = 5.0;
+
 impl Composite {
     fn new(
         ctx: &EventCtx,
@@ -396,6 +403,8 @@ impl Composite {
         let mut c = Composite {
             top_level,
             pos,
+
+            scrollable: false,
             scroll_y_offset: 0.0,
         };
         c.recompute_layout(ctx, &mut sliders);
@@ -445,6 +454,12 @@ impl Composite {
             CompositePosition::Aligned(horiz, vert),
             sliders,
         )
+    }
+
+    pub fn scrollable(mut self) -> Composite {
+        assert!(!self.scrollable);
+        self.scrollable = true;
+        self
     }
 
     fn recompute_layout(&mut self, ctx: &EventCtx, sliders: &mut HashMap<String, &mut Slider>) {
@@ -508,9 +523,24 @@ impl Composite {
         ctx: &mut EventCtx,
         mut sliders: HashMap<String, &mut Slider>,
     ) -> Option<Outcome> {
+        if self.scrollable
+            && self
+                .top_level
+                .rect
+                .contains(ctx.canvas.get_cursor_in_screen_space())
+        {
+            if let Some(scroll) = ctx.input.get_mouse_scroll() {
+                self.scroll_y_offset -= scroll * SCROLL_SPEED;
+                let max = (self.top_level.rect.height() - ctx.canvas.window_height).max(0.0);
+                self.scroll_y_offset = abstutil::clamp(self.scroll_y_offset, 0.0, max);
+                self.recompute_layout(ctx, &mut HashMap::new());
+            }
+        }
+
         if ctx.input.is_window_resized() {
             self.recompute_layout(ctx, &mut sliders);
         }
+
         self.top_level.event(ctx, &mut sliders)
     }
 
@@ -528,53 +558,15 @@ impl Composite {
         self.top_level.get_all_click_actions(&mut actions);
         actions
     }
-}
-
-const SCROLL_SPEED: f64 = 5.0;
-
-// TODO Build into Composite directly
-// TODO This doesn't clip. There's no way to express that the scrollable thing should occupy a
-// small part of the screen.
-// TODO Horizontal scrolling?
-pub struct Scroller {
-    composite: Composite,
-}
-
-impl Scroller {
-    pub fn new(composite: Composite) -> Scroller {
-        Scroller { composite }
-    }
-
-    pub fn event(&mut self, ctx: &mut EventCtx) -> Option<Outcome> {
-        if self
-            .composite
-            .top_level
-            .rect
-            .contains(ctx.canvas.get_cursor_in_screen_space())
-        {
-            if let Some(scroll) = ctx.input.get_mouse_scroll() {
-                self.composite.scroll_y_offset -= scroll * SCROLL_SPEED;
-                let max =
-                    (self.composite.top_level.rect.height() - ctx.canvas.window_height).max(0.0);
-                self.composite.scroll_y_offset =
-                    abstutil::clamp(self.composite.scroll_y_offset, 0.0, max);
-                self.composite.recompute_layout(ctx, &mut HashMap::new());
-            }
-        }
-
-        self.composite.event(ctx)
-    }
-
-    pub fn draw(&self, g: &mut GfxCtx) {
-        self.composite.draw(g);
-    }
 
     pub fn preserve_scroll(&self) -> f64 {
-        self.composite.scroll_y_offset
+        assert!(self.scrollable);
+        self.scroll_y_offset
     }
 
     pub fn restore_scroll(&mut self, ctx: &EventCtx, offset: f64) {
-        self.composite.scroll_y_offset = offset;
-        self.composite.recompute_layout(ctx, &mut HashMap::new());
+        assert!(self.scrollable);
+        self.scroll_y_offset = offset;
+        self.recompute_layout(ctx, &mut HashMap::new());
     }
 }

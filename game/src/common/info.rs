@@ -5,7 +5,7 @@ use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{
     hotkey, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget,
-    ModalMenu, Plot, Scroller, Series, Text, VerticalAlignment,
+    ModalMenu, Plot, Series, Text, VerticalAlignment,
 };
 use geom::{Duration, Statistic, Time};
 use map_model::{IntersectionID, RoadID};
@@ -13,7 +13,7 @@ use sim::{CarID, TripMode};
 use std::collections::BTreeMap;
 
 pub struct InfoPanel {
-    composite: Scroller,
+    composite: Composite,
     menu: ModalMenu,
     actions: Vec<String>,
 }
@@ -70,11 +70,12 @@ impl InfoPanel {
         }
 
         InfoPanel {
-            composite: Scroller::new(Composite::aligned(
+            composite: Composite::aligned(
                 ctx,
                 (HorizontalAlignment::Left, VerticalAlignment::Top),
                 ManagedWidget::col(col).bg(Color::grey(0.3)),
-            )),
+            )
+            .scrollable(),
             menu: ModalMenu::new("Info Panel", menu_entries, ctx),
             actions,
         }

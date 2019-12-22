@@ -3,7 +3,7 @@ use crate::render::{DrawCtx, DrawTurnGroup, BIG_ARROW_THICKNESS};
 use crate::ui::UI;
 use ezgui::{
     Button, Color, Composite, DrawBoth, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line,
-    ManagedWidget, ModalMenu, Outcome, Scroller, Text, VerticalAlignment,
+    ManagedWidget, ModalMenu, Outcome, Text, VerticalAlignment,
 };
 use geom::{Circle, Distance, Duration, Polygon};
 use map_model::{IntersectionID, Phase, TurnPriority};
@@ -135,7 +135,7 @@ pub fn draw_signal_phase(
 
 pub struct TrafficSignalDiagram {
     pub i: IntersectionID,
-    scroller: Scroller,
+    composite: Composite,
     current_phase: usize,
 }
 
@@ -148,7 +148,7 @@ impl TrafficSignalDiagram {
     ) -> TrafficSignalDiagram {
         TrafficSignalDiagram {
             i,
-            scroller: make_scroller(i, current_phase, ui, ctx),
+            composite: make_diagram(i, current_phase, ui, ctx),
             current_phase,
         }
     }
@@ -164,7 +164,7 @@ impl TrafficSignalDiagram {
             self.change_phase(self.current_phase + 1, ui, ctx);
         }
 
-        match self.scroller.event(ctx) {
+        match self.composite.event(ctx) {
             Some(Outcome::Clicked(x)) => {
                 self.change_phase(x["phase ".len()..].parse::<usize>().unwrap() - 1, ui, ctx);
             }
@@ -174,10 +174,10 @@ impl TrafficSignalDiagram {
 
     fn change_phase(&mut self, idx: usize, ui: &UI, ctx: &EventCtx) {
         if self.current_phase != idx {
-            let preserve_scroll = self.scroller.preserve_scroll();
+            let preserve_scroll = self.composite.preserve_scroll();
             self.current_phase = idx;
-            self.scroller = make_scroller(self.i, self.current_phase, ui, ctx);
-            self.scroller.restore_scroll(ctx, preserve_scroll);
+            self.composite = make_diagram(self.i, self.current_phase, ui, ctx);
+            self.composite.restore_scroll(ctx, preserve_scroll);
         }
     }
 
@@ -186,11 +186,11 @@ impl TrafficSignalDiagram {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        self.scroller.draw(g);
+        self.composite.draw(g);
     }
 }
 
-fn make_scroller(i: IntersectionID, selected: usize, ui: &UI, ctx: &EventCtx) -> Scroller {
+fn make_diagram(i: IntersectionID, selected: usize, ui: &UI, ctx: &EventCtx) -> Composite {
     // Slightly inaccurate -- the turn rendering may slightly exceed the intersection polygon --
     // but this is close enough.
     let bounds = ui.primary.map.get_i(i).polygon.get_bounds();
@@ -274,9 +274,10 @@ fn make_scroller(i: IntersectionID, selected: usize, ui: &UI, ctx: &EventCtx) ->
         );
     }
 
-    Scroller::new(Composite::aligned(
+    Composite::aligned(
         ctx,
         (HorizontalAlignment::Left, VerticalAlignment::Top),
         ManagedWidget::col(col).bg(Color::hex("#545454")),
-    ))
+    )
+    .scrollable()
 }
