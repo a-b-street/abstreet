@@ -457,8 +457,7 @@ impl<'a> Prerender<'a> {
     }
 
     fn actually_upload(&self, permanent: bool, list: Vec<(Color, &Polygon)>) -> Drawable {
-        //let bt = format!("{:?}", backtrace::Backtrace::new());
-        //println!("{}", bt);
+        // println!("{:?}", backtrace::Backtrace::new());
 
         self.num_uploads.set(self.num_uploads.get() + 1);
 

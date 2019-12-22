@@ -131,7 +131,7 @@ impl GUI for Game {
         }
 
         /*println!(
-            "{} uploads, {} draw calls",
+            "----- {} uploads, {} draw calls -----",
             g.get_num_uploads(),
             g.num_draw_calls
         );*/

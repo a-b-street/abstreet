@@ -1,7 +1,7 @@
 use crate::layout::Widget;
 use crate::{
-    Button, Color, DrawBoth, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, JustDraw,
-    Plot, ScreenDims, ScreenPt, ScreenRectangle, Slider, Text, VerticalAlignment,
+    Button, Color, DrawBoth, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, JustDraw, Plot,
+    ScreenDims, ScreenPt, ScreenRectangle, Slider, Text, VerticalAlignment,
 };
 use geom::{Distance, Duration, Polygon};
 use std::collections::{HashMap, HashSet};
@@ -13,7 +13,7 @@ pub struct ManagedWidget {
     widget: WidgetType,
     style: LayoutStyle,
     rect: ScreenRectangle,
-    bg: Option<Drawable>,
+    bg: Option<DrawBoth>,
 }
 
 enum WidgetType {
@@ -204,9 +204,7 @@ impl ManagedWidget {
 
     fn draw(&self, g: &mut GfxCtx, sliders: &HashMap<String, &Slider>) {
         if let Some(ref bg) = self.bg {
-            g.fork_screenspace();
-            g.redraw(bg);
-            g.unfork();
+            bg.redraw(ScreenPt::new(self.rect.x1, self.rect.y1), g);
         }
 
         match self.widget {
@@ -300,17 +298,18 @@ impl ManagedWidget {
             ScreenDims::new(width, height),
         );
         if let Some(color) = self.style.bg_color {
-            let mut batch = GeomBatch::new();
-            batch.push(
-                color,
-                Polygon::rounded_rectangle(
-                    Distance::meters(width),
-                    Distance::meters(height),
-                    Distance::meters(5.0),
-                )
-                .translate(x + dx, y + dy),
-            );
-            self.bg = Some(batch.upload(ctx));
+            // Assume widgets don't dynamically change, so we just upload the background once.
+            if self.bg.is_none() {
+                let batch = GeomBatch::from(vec![(
+                    color,
+                    Polygon::rounded_rectangle(
+                        Distance::meters(width),
+                        Distance::meters(height),
+                        Distance::meters(5.0),
+                    ),
+                )]);
+                self.bg = Some(DrawBoth::new(ctx, batch, Vec::new()));
+            }
         }
 
         match self.widget {
