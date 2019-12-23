@@ -5,7 +5,7 @@ use ezgui::{
 };
 use std::collections::HashMap;
 
-type Callback = Box<dyn Fn(&mut EventCtx, &mut UI) -> Option<Transition>>;
+pub type Callback = Box<dyn Fn(&mut EventCtx, &mut UI) -> Option<Transition>>;
 
 pub enum Outcome {
     Transition(Transition),

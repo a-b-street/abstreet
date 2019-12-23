@@ -176,18 +176,6 @@ impl State for BusRouteExplorer {
     }
 }
 
-pub fn pick_any_bus_route(ui: &UI) -> Box<dyn State> {
-    make_bus_route_picker(
-        ui.primary
-            .map
-            .get_all_bus_routes()
-            .iter()
-            .map(|r| r.id)
-            .collect(),
-        None,
-    )
-}
-
 fn make_bus_route_picker(routes: Vec<BusRouteID>, start: Option<BusStopID>) -> Box<dyn State> {
     WizardState::new(Box::new(move |wiz, ctx, ui| {
         let (_, id) = wiz.wrap(ctx).choose("Explore which bus route?", || {

@@ -1,15 +1,17 @@
 use crate::common::TripExplorer;
 use crate::game::{State, Transition, WizardState};
-use crate::managed::{Composite, ManagedGUIState};
+use crate::managed::{Callback, Composite, ManagedGUIState};
 use crate::sandbox::bus_explorer;
 use crate::sandbox::gameplay::{cmp_count_fewer, cmp_count_more, cmp_duration_shorter};
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use abstutil::Counter;
 use ezgui::{
-    hotkey, Choice, Color, EventCtx, Key, Line, ManagedWidget, Plot, Series, Text, Wizard,
+    hotkey, Choice, Color, EventCtx, EventLoopMode, Key, Line, ManagedWidget, Plot, Series, Text,
+    Wizard,
 };
 use geom::{Duration, Statistic, Time};
+use map_model::BusRouteID;
 use sim::{TripID, TripMode};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -37,23 +39,21 @@ pub fn make(ctx: &EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
         .iter()
         .map(|(t, label)| {
             if *t == tab {
-                ManagedWidget::draw_text(ctx, Text::from(Line(*label)))
+                ManagedWidget::draw_text(ctx, Text::from(Line(*label))).margin(5)
             } else {
-                Composite::text_button(ctx, label, None)
+                Composite::text_button(ctx, label, None).margin(5)
             }
         })
         .collect::<Vec<_>>();
-    tabs.push(Composite::text_button(ctx, "BACK", hotkey(Key::Escape)));
+    tabs.push(Composite::text_button(ctx, "BACK", hotkey(Key::Escape)).margin(5));
 
-    let content = match tab {
-        Tab::FinishedTripsSummary => finished_trips_summary(ctx, ui),
+    let (content, cbs) = match tab {
+        Tab::FinishedTripsSummary => (finished_trips_summary(ctx, ui), Vec::new()),
         Tab::IndividualFinishedTrips => {
             return WizardState::new(Box::new(browse_trips));
         }
-        Tab::ParkingOverhead => parking_overhead(ctx, ui),
-        Tab::ExploreBusRoute => {
-            return bus_explorer::pick_any_bus_route(ui);
-        }
+        Tab::ParkingOverhead => (parking_overhead(ctx, ui), Vec::new()),
+        Tab::ExploreBusRoute => pick_bus_route(ctx, ui),
     };
 
     let mut c = Composite::new(
@@ -63,7 +63,13 @@ pub fn make(ctx: &EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
                 ezgui::HorizontalAlignment::Left,
                 ezgui::VerticalAlignment::Top,
             ),
-            ManagedWidget::col(vec![ManagedWidget::row(tabs).evenly_spaced(), content]),
+            ManagedWidget::col(vec![
+                ManagedWidget::row(tabs)
+                    .evenly_spaced()
+                    .bg(Color::grey(0.6))
+                    .padding(10),
+                content,
+            ]),
         )
         .scrollable(),
     )
@@ -75,6 +81,9 @@ pub fn make(ctx: &EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
                 Box::new(move |ctx, ui| Some(Transition::Replace(make(ctx, ui, t)))),
             );
         }
+    }
+    for (name, cb) in cbs {
+        c = c.cb(&name, cb);
     }
 
     ManagedGUIState::new(c)
@@ -246,6 +255,41 @@ fn parking_overhead(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
         txt.add_wrapped_line(ctx, line);
     }
     ManagedWidget::draw_text(ctx, txt)
+}
+
+fn pick_bus_route(ctx: &EventCtx, ui: &UI) -> (ManagedWidget, Vec<(String, Callback)>) {
+    let mut buttons = Vec::new();
+    let mut cbs: Vec<(String, Callback)> = Vec::new();
+
+    let mut routes: Vec<(&String, BusRouteID)> = ui
+        .primary
+        .map
+        .get_all_bus_routes()
+        .iter()
+        .map(|r| (&r.name, r.id))
+        .collect();
+    // TODO Sort first by length, then lexicographically
+    routes.sort_by_key(|(name, _)| name.to_string());
+
+    for (name, id) in routes {
+        buttons.push(Composite::text_button(ctx, name, None));
+        cbs.push((
+            name.to_string(),
+            Box::new(move |ctx, ui| {
+                Some(Transition::PushWithMode(
+                    Box::new(bus_explorer::BusRouteExplorer::for_route(
+                        ui.primary.map.get_br(id),
+                        None,
+                        ui,
+                        ctx,
+                    )),
+                    EventLoopMode::Animation,
+                ))
+            }),
+        ));
+    }
+
+    (ManagedWidget::row(buttons).flex_wrap(), cbs)
 }
 
 // TODO Refactor
