@@ -1,15 +1,16 @@
 name: Build
 on: [push]
 jobs:
-  build-windows:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@master
-      - uses: hecrj/setup-rust-action@v1
-        with:
-          rust-version: 1.40.0
-      - name: Run build
-        run: cargo build --release --bin game
+# TODO The build.rs in game fails for Windows. My guess is the $OUT_DIR env var isn't there.
+#  build-windows:
+#    runs-on: windows-latest
+#    steps:
+#      - uses: actions/checkout@master
+#      - uses: hecrj/setup-rust-action@v1
+#        with:
+#          rust-version: 1.40.0
+#      - name: Run build
+#        run: cargo build --release --bin game
   build-macos:
     runs-on: macos-latest
     steps:
@@ -19,6 +20,11 @@ jobs:
           rust-version: 1.40.0
       - name: Run build
         run: cargo build --release --bin game
+      - name: Upload binary
+        uses: actions/upload-artifact@v1
+        with:
+          name: game
+          path: target/x86_64-apple-darwin/release/game
   build-linux:
     runs-on: ubuntu-latest
     steps:
@@ -28,3 +34,8 @@ jobs:
           rust-version: 1.40.0
       - name: Run build
         run: cargo build --release --bin game
+      - name: Upload binary
+        uses: actions/upload-artifact@v1
+        with:
+          name: game
+          path: target/x86_64-unknown-linux-gnu/release/game
