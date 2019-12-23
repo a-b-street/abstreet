@@ -1,8 +1,8 @@
 use crate::layout::{stack_vertically, ContainerOrientation, Widget};
 use crate::widgets::text_box::TextBox;
 use crate::{
-    hotkey, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, InputResult, Key, Line, ModalMenu,
-    MultiKey, ScreenDims, ScreenPt, ScreenRectangle, Text, Warper,
+    hotkey, Color, DrawBoth, EventCtx, EventLoopMode, GeomBatch, GfxCtx, InputResult, Key, Line,
+    ModalMenu, MultiKey, ScreenDims, ScreenPt, ScreenRectangle, Text, Warper,
 };
 use geom::{Polygon, Pt2D, Time};
 
@@ -11,19 +11,105 @@ pub struct Slider {
     mouse_on_slider: bool,
     dragging: bool,
 
+    horiz: bool,
+    main_bg_len: f64,
+
+    draw: DrawBoth,
+
     top_left: ScreenPt,
-    dims: Dims,
+    dims: ScreenDims,
 }
 
+const BG_CROSS_AXIS_LEN: f64 = 30.0;
+const DRAGGER_LEN: f64 = 25.0;
+
 impl Slider {
-    pub fn new(width: f64, height: f64) -> Slider {
-        Slider {
+    pub fn horizontal(ctx: &EventCtx, width: f64) -> Slider {
+        let mut s = Slider {
             current_percent: 0.0,
             mouse_on_slider: false,
             dragging: false,
 
+            horiz: true,
+            main_bg_len: width,
+
+            draw: DrawBoth::new(ctx, GeomBatch::new(), Vec::new()),
+
             top_left: ScreenPt::new(0.0, 0.0),
-            dims: Dims::fit_total_width(width, height),
+            dims: ScreenDims::new(0.0, 0.0),
+        };
+        s.recalc(ctx);
+        s
+    }
+
+    pub fn vertical(ctx: &EventCtx, height: f64) -> Slider {
+        let mut s = Slider {
+            current_percent: 0.0,
+            mouse_on_slider: false,
+            dragging: false,
+
+            horiz: false,
+            main_bg_len: height,
+
+            draw: DrawBoth::new(ctx, GeomBatch::new(), Vec::new()),
+
+            top_left: ScreenPt::new(0.0, 0.0),
+            dims: ScreenDims::new(0.0, 0.0),
+        };
+        s.recalc(ctx);
+        s
+    }
+
+    fn recalc(&mut self, ctx: &EventCtx) {
+        // Full dims
+        self.dims = if self.horiz {
+            ScreenDims::new(self.main_bg_len, BG_CROSS_AXIS_LEN)
+        } else {
+            ScreenDims::new(BG_CROSS_AXIS_LEN, self.main_bg_len)
+        };
+
+        let mut batch = GeomBatch::new();
+
+        // The background
+        batch.push(
+            Color::WHITE,
+            Polygon::rectangle(self.dims.width, self.dims.height),
+        );
+
+        // The progress
+        if self.current_percent != 0.0 {
+            batch.push(
+                Color::GREEN,
+                // This is technically a bit wrong, but the dragger is covering this up anyway
+                if self.horiz {
+                    Polygon::rectangle(self.current_percent * self.main_bg_len, BG_CROSS_AXIS_LEN)
+                } else {
+                    Polygon::rectangle(BG_CROSS_AXIS_LEN, self.current_percent * self.main_bg_len)
+                },
+            );
+        }
+
+        // The draggy thing
+        batch.push(
+            if self.mouse_on_slider {
+                Color::YELLOW
+            } else {
+                Color::grey(0.7)
+            },
+            self.slider_geom(),
+        );
+
+        self.draw = DrawBoth::new(ctx, batch, Vec::new());
+    }
+
+    // Doesn't touch self.top_left
+    fn slider_geom(&self) -> Polygon {
+        if self.horiz {
+            Polygon::rectangle(DRAGGER_LEN, BG_CROSS_AXIS_LEN)
+                .translate(self.current_percent * (self.main_bg_len - DRAGGER_LEN), 0.0)
+        } else {
+            Polygon::rectangle(BG_CROSS_AXIS_LEN, DRAGGER_LEN)
+                .translate(0.0, self.current_percent * (self.main_bg_len - DRAGGER_LEN))
         }
     }
 
@@ -38,10 +124,12 @@ impl Slider {
     pub fn set_percent(&mut self, ctx: &EventCtx, percent: f64) {
         assert!(percent >= 0.0 && percent <= 1.0);
         self.current_percent = percent;
+        self.recalc(ctx);
         // Just reset dragging, to prevent chaos
         self.dragging = false;
         self.mouse_on_slider = self
             .slider_geom()
+            .translate(self.top_left.x, self.top_left.y)
             .contains_pt(ctx.canvas.get_cursor_in_screen_space().to_pt());
     }
 
@@ -49,118 +137,86 @@ impl Slider {
         self.set_percent(ctx, (idx as f64) / (num_items as f64 - 1.0));
     }
 
-    // Returns true if the percentage changed.
+    // Returns true if anything changed
     pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
+        if self.inner_event(ctx) {
+            self.recalc(ctx);
+            true
+        } else {
+            false
+        }
+    }
+
+    fn inner_event(&mut self, ctx: &mut EventCtx) -> bool {
         if self.dragging {
             if ctx.input.get_moved_mouse().is_some() {
-                let percent = (ctx.canvas.get_cursor_in_screen_space().x
-                    - self.dims.horiz_padding
-                    - self.top_left.x)
-                    / self.dims.bar_width;
+                let percent = if self.horiz {
+                    (ctx.canvas.get_cursor_in_screen_space().x
+                        - self.top_left.x
+                        - (DRAGGER_LEN / 2.0))
+                        / (self.main_bg_len - DRAGGER_LEN)
+                } else {
+                    (ctx.canvas.get_cursor_in_screen_space().y
+                        - self.top_left.y
+                        - (DRAGGER_LEN / 2.0))
+                        / (self.main_bg_len - DRAGGER_LEN)
+                };
                 self.current_percent = percent.min(1.0).max(0.0);
                 return true;
             }
             if ctx.input.left_mouse_button_released() {
                 self.dragging = false;
+                return true;
             }
-        } else {
-            if ctx.redo_mouseover() {
-                self.mouse_on_slider = self
-                    .slider_geom()
-                    .contains_pt(ctx.canvas.get_cursor_in_screen_space().to_pt());
+            return false;
+        }
+
+        if ctx.redo_mouseover() {
+            let old = self.mouse_on_slider;
+            self.mouse_on_slider = self
+                .slider_geom()
+                .translate(self.top_left.x, self.top_left.y)
+                .contains_pt(ctx.canvas.get_cursor_in_screen_space().to_pt());
+            return self.mouse_on_slider != old;
+        }
+        if ctx.input.left_mouse_button_pressed() {
+            if self.mouse_on_slider {
+                self.dragging = true;
+                return true;
             }
-            if ctx.input.left_mouse_button_pressed() {
-                if self.mouse_on_slider {
-                    self.dragging = true;
+
+            // Did we click somewhere else on the bar?
+            let pt = ctx.canvas.get_cursor_in_screen_space();
+            if Polygon::rectangle(self.dims.width, self.dims.height)
+                .translate(self.top_left.x, self.top_left.y)
+                .contains_pt(pt.to_pt())
+            {
+                let percent = if self.horiz {
+                    (pt.x - self.top_left.x - (DRAGGER_LEN / 2.0))
+                        / (self.main_bg_len - DRAGGER_LEN)
                 } else {
-                    // Did we click somewhere else on the bar?
-                    let pt = ctx.canvas.get_cursor_in_screen_space();
-                    if Polygon::rectangle(self.dims.bar_width, self.dims.bar_height)
-                        .translate(
-                            self.dims.horiz_padding + self.top_left.x,
-                            self.dims.vert_padding + self.top_left.y,
-                        )
-                        .contains_pt(pt.to_pt())
-                    {
-                        let percent = (pt.x - self.dims.horiz_padding - self.top_left.x)
-                            / self.dims.bar_width;
-                        self.current_percent = percent.min(1.0).max(0.0);
-                        self.mouse_on_slider = true;
-                        self.dragging = true;
-                        return true;
-                    }
-                }
+                    (pt.y - self.top_left.y - (DRAGGER_LEN / 2.0))
+                        / (self.main_bg_len - DRAGGER_LEN)
+                };
+                self.current_percent = percent.min(1.0).max(0.0);
+                self.mouse_on_slider = true;
+                self.dragging = true;
+                return true;
             }
         }
         false
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        // TODO Cache the batch
-        let mut batch = GeomBatch::new();
-
-        g.canvas.mark_covered_area(ScreenRectangle {
-            x1: self.top_left.x,
-            y1: self.top_left.y,
-            x2: self.top_left.x + self.dims.total_width,
-            y2: self.top_left.y + self.dims.bar_height + 2.0 * self.dims.vert_padding,
-        });
-
-        // The bar
-        batch.push(
-            Color::WHITE,
-            Polygon::rectangle(self.dims.bar_width, self.dims.bar_height).translate(
-                self.top_left.x + self.dims.horiz_padding,
-                self.top_left.y + self.dims.vert_padding,
-            ),
-        );
-
-        // Show the progress
-        if self.current_percent != 0.0 {
-            batch.push(
-                Color::GREEN,
-                Polygon::rectangle(
-                    self.current_percent * self.dims.bar_width,
-                    self.dims.bar_height,
-                )
-                .translate(
-                    self.top_left.x + self.dims.horiz_padding,
-                    self.top_left.y + self.dims.vert_padding,
-                ),
-            );
-        }
-
-        // The actual slider
-        batch.push(
-            if self.mouse_on_slider {
-                Color::YELLOW
-            } else {
-                Color::grey(0.7)
-            },
-            self.slider_geom(),
-        );
-
-        g.fork_screenspace();
-        batch.draw(g);
-        g.unfork();
-    }
-
-    fn slider_geom(&self) -> Polygon {
-        Polygon::rectangle(self.dims.slider_width, self.dims.slider_height).translate(
-            self.top_left.x + self.dims.horiz_padding + self.current_percent * self.dims.bar_width
-                - (self.dims.slider_width / 2.0),
-            self.top_left.y + self.dims.vert_padding
-                - (self.dims.slider_height - self.dims.bar_height) / 2.0,
-        )
+        self.draw.redraw(self.top_left, g);
+        g.canvas
+            .mark_covered_area(ScreenRectangle::top_left(self.top_left, self.dims));
     }
 }
 
 impl Widget for Slider {
     fn get_dims(&self) -> ScreenDims {
-        ScreenDims::new(
-            self.dims.total_width,
-            self.dims.bar_height + 2.0 * self.dims.vert_padding,
-        )
+        self.dims
     }
 
     fn set_pos(&mut self, top_left: ScreenPt) {
@@ -168,9 +224,9 @@ impl Widget for Slider {
     }
 }
 
+// Pixels
 #[derive(Debug)]
 struct Dims {
-    // Pixels
     bar_width: f64,
     bar_height: f64,
     slider_width: f64,
@@ -178,27 +234,6 @@ struct Dims {
     horiz_padding: f64,
     vert_padding: f64,
     total_width: f64,
-}
-
-impl Dims {
-    fn fit_total_width(total_width: f64, bar_height: f64) -> Dims {
-        let horiz_padding = total_width / 7.0;
-        let bar_width = total_width - 2.0 * horiz_padding;
-        let slider_width = 15.0;
-
-        let slider_height = bar_height * 1.2;
-        let vert_padding = bar_height / 5.0;
-
-        Dims {
-            bar_width,
-            bar_height,
-            slider_width,
-            slider_height,
-            horiz_padding,
-            vert_padding,
-            total_width,
-        }
-    }
 }
 
 pub struct ItemSlider<T> {
@@ -238,7 +273,7 @@ impl<T> ItemSlider<T> {
         let menu = ModalMenu::new(menu_title, choices, ctx).disable_standalone_layout();
         ItemSlider {
             items,
-            slider: Slider::new(menu.get_dims().width, 15.0),
+            slider: Slider::horizontal(ctx, menu.get_dims().width),
             menu,
 
             noun: noun.to_string(),
@@ -397,7 +432,7 @@ pub struct SliderWithTextBox {
 impl SliderWithTextBox {
     pub fn new(prompt: &str, low: Time, high: Time, ctx: &EventCtx) -> SliderWithTextBox {
         SliderWithTextBox {
-            slider: Slider::new(ctx.text_dims(&Text::from(Line(prompt))).width, 15.0),
+            slider: Slider::horizontal(ctx, ctx.text_dims(&Text::from(Line(prompt))).width),
             tb: TextBox::new(prompt, None, ctx),
             low,
             high,

@@ -36,7 +36,7 @@ impl SpeedControls {
     fn make_panel(
         ctx: &EventCtx,
         paused: bool,
-        desired_speed: f64,
+        actual_speed: &str,
         slider: &mut Slider,
     ) -> Composite {
         let mut row = Vec::new();
@@ -103,10 +103,7 @@ impl SpeedControls {
                         RewriteColor::ChangeAll(Color::ORANGE),
                         ctx,
                     )),
-                    ManagedWidget::draw_text(
-                        ctx,
-                        Text::from(Line(format!("{:.1}x", desired_speed)).size(14).roboto()),
-                    ),
+                    ManagedWidget::draw_text(ctx, Text::from(Line(actual_speed).size(14).roboto())),
                     ManagedWidget::btn(Button::rectangle_svg(
                         "assets/speed/speed_up.svg",
                         "speed up",
@@ -166,12 +163,12 @@ impl SpeedControls {
     pub fn new(ctx: &mut EventCtx, ui: &UI) -> SpeedControls {
         // 10 sim minutes / real second normally, or 1 sim hour / real second for dev mode
         let speed_cap: f64 = if ui.opts.dev { 3600.0 } else { 600.0 };
-        let mut slider = Slider::new(160.0, 15.0);
+        let mut slider = Slider::horizontal(ctx, 160.0);
         // Start with speed=1.0
         slider.set_percent(ctx, (speed_cap / 1.0).powf(-1.0 / std::f64::consts::E));
 
         let now = Instant::now();
-        let composite = SpeedControls::make_panel(ctx, false, 1.0, &mut slider);
+        let composite = SpeedControls::make_panel(ctx, false, "...", &mut slider);
 
         SpeedControls {
             time_panel: TimePanel::new(ctx, ui),
@@ -229,8 +226,7 @@ impl SpeedControls {
                         last_measurement: now,
                         last_measurement_sim: ui.primary.sim.time(),
                     };
-                    self.composite =
-                        SpeedControls::make_panel(ctx, false, desired_speed, &mut self.slider);
+                    self.composite = SpeedControls::make_panel(ctx, false, "...", &mut self.slider);
                     return None;
                 }
                 "pause" => {
@@ -269,6 +265,8 @@ impl SpeedControls {
                     );
                     *last_measurement = *last_step;
                     *last_measurement_sim = ui.primary.sim.time();
+                    self.composite =
+                        SpeedControls::make_panel(ctx, false, &speed_description, &mut self.slider);
                 }
                 // If speed is too high, don't be unresponsive for too long.
                 // TODO This should probably match the ezgui framerate.
@@ -292,8 +290,7 @@ impl SpeedControls {
     pub fn pause(&mut self, ctx: &EventCtx) {
         if !self.is_paused() {
             self.state = SpeedState::Paused;
-            self.composite =
-                SpeedControls::make_panel(ctx, true, self.desired_speed(), &mut self.slider);
+            self.composite = SpeedControls::make_panel(ctx, true, "...", &mut self.slider);
         }
     }
 

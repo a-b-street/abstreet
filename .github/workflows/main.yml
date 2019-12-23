@@ -11,6 +11,11 @@ jobs:
 #          rust-version: 1.40.0
 #      - name: Run build
 #        run: cargo build --release --bin game
+#      - name: Upload binary
+#        uses: actions/upload-artifact@v1
+#        with:
+#          name: game_windows.exe
+#          path: target/release/game.exe
   build-macos:
     runs-on: macos-latest
     steps:
@@ -20,12 +25,10 @@ jobs:
           rust-version: 1.40.0
       - name: Run build
         run: cargo build --release --bin game
-      - name: Figure out where the output is
-        run: ls -R target
       - name: Upload binary
         uses: actions/upload-artifact@v1
         with:
-          name: game
+          name: game_mac
           path: target/release/game
   build-linux:
     runs-on: ubuntu-latest
@@ -36,10 +39,8 @@ jobs:
           rust-version: 1.40.0
       - name: Run build
         run: cargo build --release --bin game
-      - name: Figure out where the output is
-        run: ls -R target
       - name: Upload binary
         uses: actions/upload-artifact@v1
         with:
-          name: game
+          name: game_linux
           path: target/release/game
