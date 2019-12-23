@@ -32,6 +32,7 @@ struct LayoutStyle {
     align_items: Option<AlignItems>,
     justify_content: Option<JustifyContent>,
     flex_wrap: Option<FlexWrap>,
+    size: Option<Size<Dimension>>,
     padding: Option<Rect<Dimension>>,
     margin: Option<Rect<Dimension>>,
 }
@@ -46,6 +47,9 @@ impl LayoutStyle {
         }
         if let Some(x) = self.flex_wrap {
             style.flex_wrap = x;
+        }
+        if let Some(x) = self.size {
+            style.size = x;
         }
         if let Some(x) = self.padding {
             style.padding = x;
@@ -77,9 +81,13 @@ impl ManagedWidget {
         self
     }
 
-    pub fn flex_wrap(mut self) -> ManagedWidget {
+    pub fn flex_wrap(mut self, ctx: &EventCtx) -> ManagedWidget {
         self.style.flex_wrap = Some(FlexWrap::Wrap);
         self.style.justify_content = Some(JustifyContent::SpaceAround);
+        self.style.size = Some(Size {
+            width: Dimension::Points(ctx.canvas.window_width as f32),
+            height: Dimension::Undefined,
+        });
         self
     }
 
@@ -119,6 +127,7 @@ impl ManagedWidget {
                 align_items: None,
                 justify_content: None,
                 flex_wrap: None,
+                size: None,
                 padding: None,
                 margin: None,
             },

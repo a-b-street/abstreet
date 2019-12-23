@@ -127,7 +127,7 @@ pub fn challenges_picker(ctx: &EventCtx) -> Box<dyn State> {
             &name,
         ));
     }
-    col.push(ManagedWidget::row(flex_row).flex_wrap());
+    col.push(ManagedWidget::row(flex_row).flex_wrap(ctx));
 
     let mut c = Composite::new(ezgui::Composite::fill_screen(
         ctx,
