@@ -20,11 +20,13 @@ jobs:
           rust-version: 1.40.0
       - name: Run build
         run: cargo build --release --bin game
+      - name: Figure out where the output is
+        run: ls -R target
       - name: Upload binary
         uses: actions/upload-artifact@v1
         with:
           name: game
-          path: target/x86_64-apple-darwin/release/game
+          path: target/release/game
   build-linux:
     runs-on: ubuntu-latest
     steps:
@@ -34,8 +36,10 @@ jobs:
           rust-version: 1.40.0
       - name: Run build
         run: cargo build --release --bin game
+      - name: Figure out where the output is
+        run: ls -R target
       - name: Upload binary
         uses: actions/upload-artifact@v1
         with:
           name: game
-          path: target/x86_64-unknown-linux-gnu/release/game
+          path: target/release/game
