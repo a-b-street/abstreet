@@ -295,6 +295,7 @@ impl ManagedWidget {
         nodes: &mut Vec<Node>,
         dx: f64,
         dy: f64,
+        scroll_y_offset: f64,
         ctx: &EventCtx,
     ) {
         let result = stretch.layout(nodes.pop().unwrap()).unwrap();
@@ -302,10 +303,17 @@ impl ManagedWidget {
         let y: f64 = result.location.y.into();
         let width: f64 = result.size.width.into();
         let height: f64 = result.size.height.into();
-        self.rect = ScreenRectangle::top_left(
-            ScreenPt::new(x + dx, y + dy),
-            ScreenDims::new(width, height),
-        );
+        let top_left = match self.widget {
+            WidgetType::Slider(ref name) => {
+                if name == "scrollbar" {
+                    ScreenPt::new(x + dx, y + dy)
+                } else {
+                    ScreenPt::new(x + dx, y + dy - scroll_y_offset)
+                }
+            }
+            _ => ScreenPt::new(x + dx, y + dy - scroll_y_offset),
+        };
+        self.rect = ScreenRectangle::top_left(top_left, ScreenDims::new(width, height));
         if let Some(color) = self.style.bg_color {
             // Assume widgets don't dynamically change, so we just upload the background once.
             if self.bg.is_none() {
@@ -323,32 +331,45 @@ impl ManagedWidget {
 
         match self.widget {
             WidgetType::Draw(ref mut widget) => {
-                widget.set_pos(ScreenPt::new(x + dx, y + dy));
+                widget.set_pos(top_left);
             }
             WidgetType::Btn(ref mut widget) => {
-                widget.set_pos(ScreenPt::new(x + dx, y + dy));
+                widget.set_pos(top_left);
             }
             WidgetType::Slider(ref name) => {
-                sliders
-                    .get_mut(name)
-                    .unwrap()
-                    .set_pos(ScreenPt::new(x + dx, y + dy));
+                sliders.get_mut(name).unwrap().set_pos(top_left);
             }
             WidgetType::DurationPlot(ref mut widget) => {
-                widget.set_pos(ScreenPt::new(x + dx, y + dy));
+                widget.set_pos(top_left);
             }
             WidgetType::UsizePlot(ref mut widget) => {
-                widget.set_pos(ScreenPt::new(x + dx, y + dy));
+                widget.set_pos(top_left);
             }
             WidgetType::Row(ref mut widgets) => {
                 // layout() doesn't return absolute position; it's relative to the container.
                 for widget in widgets {
-                    widget.apply_flexbox(sliders, stretch, nodes, x + dx, y + dy, ctx);
+                    widget.apply_flexbox(
+                        sliders,
+                        stretch,
+                        nodes,
+                        x + dx,
+                        y + dy,
+                        scroll_y_offset,
+                        ctx,
+                    );
                 }
             }
             WidgetType::Column(ref mut widgets) => {
                 for widget in widgets {
-                    widget.apply_flexbox(sliders, stretch, nodes, x + dx, y + dy, ctx);
+                    widget.apply_flexbox(
+                        sliders,
+                        stretch,
+                        nodes,
+                        x + dx,
+                        y + dy,
+                        scroll_y_offset,
+                        ctx,
+                    );
                 }
             }
         }
@@ -388,7 +409,6 @@ pub struct Composite {
     // small part of the screen.
     // TODO Horizontal scrolling?
     scrollable: bool,
-    scroll_y_offset: f64,
 }
 
 pub enum Outcome {
@@ -412,7 +432,6 @@ impl Composite {
             sliders: HashMap::new(),
 
             scrollable: false,
-            scroll_y_offset: 0.0,
         }
     }
 
@@ -509,15 +528,38 @@ impl Composite {
                 )
             }
         };
+        let offset = self.scroll_y_offset(ctx);
         self.top_level.apply_flexbox(
             &mut self.sliders,
             &stretch,
             &mut nodes,
             top_left.x,
-            top_left.y - self.scroll_y_offset,
+            top_left.y,
+            offset,
             ctx,
         );
         assert!(nodes.is_empty());
+    }
+
+    fn scroll_y_offset(&self, ctx: &EventCtx) -> f64 {
+        if self.scrollable {
+            self.slider("scrollbar").get_percent()
+                * (self.top_level.rect.height() - ctx.canvas.window_height).max(0.0)
+        } else {
+            0.0
+        }
+    }
+
+    pub fn set_scroll_y_offset(&mut self, ctx: &EventCtx, offset: f64) {
+        assert!(self.scrollable);
+        let max = (self.top_level.rect.height() - ctx.canvas.window_height).max(0.0);
+        if max == 0.0 {
+            assert_eq!(offset, 0.0);
+            self.mut_slider("scrollbar").set_percent(ctx, 0.0);
+        } else {
+            self.mut_slider("scrollbar").set_percent(ctx, offset / max);
+        }
+        self.recompute_layout(ctx);
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx) -> Option<Outcome> {
@@ -528,10 +570,10 @@ impl Composite {
                 .contains(ctx.canvas.get_cursor_in_screen_space())
         {
             if let Some(scroll) = ctx.input.get_mouse_scroll() {
-                self.scroll_y_offset -= scroll * SCROLL_SPEED;
+                let offset = self.scroll_y_offset(ctx) - scroll * SCROLL_SPEED;
                 let max = (self.top_level.rect.height() - ctx.canvas.window_height).max(0.0);
-                self.scroll_y_offset = abstutil::clamp(self.scroll_y_offset, 0.0, max);
-                self.recompute_layout(ctx);
+                // TODO Do the clamping in there instead
+                self.set_scroll_y_offset(ctx, abstutil::clamp(offset, 0.0, max));
             }
         }
 
@@ -539,7 +581,12 @@ impl Composite {
             self.recompute_layout(ctx);
         }
 
-        self.top_level.event(ctx, &mut self.sliders)
+        let before = self.scroll_y_offset(ctx);
+        let result = self.top_level.event(ctx, &mut self.sliders);
+        if self.scroll_y_offset(ctx) != before {
+            self.recompute_layout(ctx);
+        }
+        result
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
@@ -553,16 +600,14 @@ impl Composite {
         actions
     }
 
-    pub fn preserve_scroll(&self) -> f64 {
+    pub fn preserve_scroll(&self, ctx: &EventCtx) -> f64 {
         assert!(self.scrollable);
-        self.scroll_y_offset
+        self.scroll_y_offset(ctx)
     }
 
     pub fn restore_scroll(&mut self, ctx: &EventCtx, offset: f64) {
         assert!(self.scrollable);
-        self.scroll_y_offset = offset;
-        // TODO Update the slider!
-        self.recompute_layout(ctx);
+        self.set_scroll_y_offset(ctx, offset);
     }
 
     pub fn slider(&self, name: &str) -> &Slider {
