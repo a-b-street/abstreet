@@ -1,0 +1,30 @@
+name: Build
+on: [push]
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: hecrj/setup-rust-action@v1
+        with:
+          rust-version: [1.40]
+      - name: Run build
+        run: cargo build --release --bin game
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: hecrj/setup-rust-action@v1
+        with:
+          rust-version: [1.40]
+      - name: Run build
+        run: cargo build --release --bin game
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: hecrj/setup-rust-action@v1
+        with:
+          rust-version: [1.40]
+      - name: Run build
+        run: cargo build --release --bin game
