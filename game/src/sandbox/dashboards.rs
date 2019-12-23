@@ -1,24 +1,21 @@
 use crate::common::TripExplorer;
-use crate::game::{State, Transition, WizardState};
+use crate::game::{State, Transition};
 use crate::managed::{Callback, Composite, ManagedGUIState};
 use crate::sandbox::bus_explorer;
 use crate::sandbox::gameplay::{cmp_count_fewer, cmp_count_more, cmp_duration_shorter};
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use abstutil::Counter;
-use ezgui::{
-    hotkey, Choice, Color, EventCtx, EventLoopMode, Key, Line, ManagedWidget, Plot, Series, Text,
-    Wizard,
-};
+use ezgui::{hotkey, Color, EventCtx, EventLoopMode, Key, Line, ManagedWidget, Plot, Series, Text};
 use geom::{Duration, Statistic, Time};
 use map_model::BusRouteID;
 use sim::{TripID, TripMode};
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 
 #[derive(PartialEq, Clone, Copy)]
 pub enum Tab {
     FinishedTripsSummary,
-    IndividualFinishedTrips,
+    IndividualFinishedTrips(Option<TripMode>),
     ParkingOverhead,
     ExploreBusRoute,
 }
@@ -28,7 +25,7 @@ pub fn make(ctx: &EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
     let tab_data = vec![
         (Tab::FinishedTripsSummary, "Finished trips summary"),
         (
-            Tab::IndividualFinishedTrips,
+            Tab::IndividualFinishedTrips(None),
             "Deep-dive into individual finished trips",
         ),
         (Tab::ParkingOverhead, "Parking overhead analysis"),
@@ -49,9 +46,8 @@ pub fn make(ctx: &EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
 
     let (content, cbs) = match tab {
         Tab::FinishedTripsSummary => (finished_trips_summary(ctx, ui), Vec::new()),
-        Tab::IndividualFinishedTrips => {
-            return WizardState::new(Box::new(browse_trips));
-        }
+        Tab::IndividualFinishedTrips(None) => pick_finished_trips_mode(ctx),
+        Tab::IndividualFinishedTrips(Some(m)) => pick_finished_trips(m, ctx, ui),
         Tab::ParkingOverhead => (parking_overhead(ctx, ui), Vec::new()),
         Tab::ExploreBusRoute => pick_bus_route(ctx, ui),
     };
@@ -75,6 +71,7 @@ pub fn make(ctx: &EventCtx, ui: &UI, tab: Tab) -> Box<dyn State> {
     )
     .cb("BACK", Box::new(|_, _| Some(Transition::Pop)));
     for (t, label) in tab_data {
+        // TODO Not quite... all the IndividualFinishedTrips variants need to act the same
         if t != tab {
             c = c.cb(
                 label,
@@ -211,42 +208,65 @@ fn finished_trips_plot(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
     .bg(Color::grey(0.3))
 }
 
-fn browse_trips(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
-    let mut wizard = wiz.wrap(ctx);
-    let (_, mode) = wizard.choose("Browse which trips?", || {
-        let modes = ui
-            .primary
-            .sim
-            .get_analytics()
-            .finished_trips
-            .iter()
-            .filter_map(|(_, _, m, _)| *m)
-            .collect::<BTreeSet<TripMode>>();
-        TripMode::all()
-            .into_iter()
-            .map(|m| Choice::new(m.to_string(), m).active(modes.contains(&m)))
-            .collect()
-    })?;
-    let (_, trip) = wizard.choose("Examine which trip?", || {
-        let mut filtered: Vec<&(Time, TripID, Option<TripMode>, Duration)> = ui
-            .primary
-            .sim
-            .get_analytics()
-            .finished_trips
-            .iter()
-            .filter(|(_, _, m, _)| *m == Some(mode))
-            .collect();
-        filtered.sort_by_key(|(_, _, _, dt)| *dt);
-        filtered.reverse();
-        filtered
-            .into_iter()
-            // TODO Show percentile for time
-            .map(|(_, id, _, dt)| Choice::new(format!("{} taking {}", id, dt), *id))
-            .collect()
-    })?;
+fn pick_finished_trips_mode(ctx: &EventCtx) -> (ManagedWidget, Vec<(String, Callback)>) {
+    let mut buttons = Vec::new();
+    let mut cbs: Vec<(String, Callback)> = Vec::new();
 
-    wizard.reset();
-    Some(Transition::Push(Box::new(TripExplorer::new(trip, ctx, ui))))
+    for mode in TripMode::all() {
+        buttons.push(Composite::text_button(ctx, &mode.to_string(), None));
+        cbs.push((
+            mode.to_string(),
+            Box::new(move |ctx, ui| {
+                Some(Transition::Replace(make(
+                    ctx,
+                    ui,
+                    Tab::IndividualFinishedTrips(Some(mode)),
+                )))
+            }),
+        ));
+    }
+
+    (ManagedWidget::row(buttons).flex_wrap(), cbs)
+}
+
+fn pick_finished_trips(
+    mode: TripMode,
+    ctx: &EventCtx,
+    ui: &UI,
+) -> (ManagedWidget, Vec<(String, Callback)>) {
+    let mut buttons = Vec::new();
+    let mut cbs: Vec<(String, Callback)> = Vec::new();
+
+    let mut filtered: Vec<&(Time, TripID, Option<TripMode>, Duration)> = ui
+        .primary
+        .sim
+        .get_analytics()
+        .finished_trips
+        .iter()
+        .filter(|(_, _, m, _)| *m == Some(mode))
+        .collect();
+    filtered.sort_by_key(|(_, _, _, dt)| *dt);
+    filtered.reverse();
+    for (_, id, _, dt) in filtered {
+        let label = format!("{} taking {}", id, dt);
+        buttons.push(Composite::text_button(ctx, &label, None));
+        let trip = *id;
+        cbs.push((
+            label,
+            Box::new(move |ctx, ui| {
+                Some(Transition::Push(Box::new(TripExplorer::new(trip, ctx, ui))))
+            }),
+        ));
+    }
+
+    // TODO Indicate the current mode
+    let (mode_picker, more_cbs) = pick_finished_trips_mode(ctx);
+    cbs.extend(more_cbs);
+
+    (
+        ManagedWidget::col(vec![mode_picker, ManagedWidget::row(buttons).flex_wrap()]),
+        cbs,
+    )
 }
 
 fn parking_overhead(ctx: &EventCtx, ui: &UI) -> ManagedWidget {
