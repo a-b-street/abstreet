@@ -35,16 +35,7 @@ impl Composite {
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Option<Outcome> {
-        self.event_with_sliders(ctx, ui, HashMap::new())
-    }
-
-    pub fn event_with_sliders(
-        &mut self,
-        ctx: &mut EventCtx,
-        ui: &mut UI,
-        sliders: HashMap<String, &mut Slider>,
-    ) -> Option<Outcome> {
-        match self.inner.event_with_sliders(ctx, sliders)? {
+        match self.inner.event(ctx)? {
             ezgui::Outcome::Clicked(x) => {
                 if let Some(ref cb) = self.callbacks.get(&x) {
                     let t = (cb)(ctx, ui)?;
@@ -60,8 +51,14 @@ impl Composite {
         self.inner.draw(g);
     }
 
-    pub fn draw_with_sliders(&self, g: &mut GfxCtx, sliders: HashMap<String, &Slider>) {
-        self.inner.draw_with_sliders(g, sliders);
+    pub fn slider(&self, name: &str) -> &Slider {
+        self.inner.slider(name)
+    }
+    pub fn mut_slider(&mut self, name: &str) -> &mut Slider {
+        self.inner.mut_slider(name)
+    }
+    pub fn take_slider(&mut self, name: &str) -> Slider {
+        self.inner.take_slider(name)
     }
 }
 

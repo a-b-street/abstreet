@@ -186,7 +186,7 @@ impl ManagedWidget {
     fn event(
         &mut self,
         ctx: &mut EventCtx,
-        sliders: &mut HashMap<String, &mut Slider>,
+        sliders: &mut HashMap<String, Slider>,
     ) -> Option<Outcome> {
         match self.widget {
             WidgetType::Draw(_) => {}
@@ -211,7 +211,7 @@ impl ManagedWidget {
         None
     }
 
-    fn draw(&self, g: &mut GfxCtx, sliders: &HashMap<String, &Slider>) {
+    fn draw(&self, g: &mut GfxCtx, sliders: &HashMap<String, Slider>) {
         if let Some(ref bg) = self.bg {
             bg.redraw(ScreenPt::new(self.rect.x1, self.rect.y1), g);
         }
@@ -234,7 +234,7 @@ impl ManagedWidget {
     fn get_flexbox(
         &self,
         parent: Node,
-        sliders: &HashMap<String, &mut Slider>,
+        sliders: &HashMap<String, Slider>,
         stretch: &mut Stretch,
         nodes: &mut Vec<Node>,
     ) {
@@ -242,7 +242,7 @@ impl ManagedWidget {
         let widget: &dyn Widget = match self.widget {
             WidgetType::Draw(ref widget) => widget,
             WidgetType::Btn(ref widget) => widget,
-            WidgetType::Slider(ref name) => sliders[name],
+            WidgetType::Slider(ref name) => &sliders[name],
             WidgetType::DurationPlot(ref widget) => widget,
             WidgetType::UsizePlot(ref widget) => widget,
             WidgetType::Row(ref widgets) => {
@@ -290,7 +290,7 @@ impl ManagedWidget {
 
     fn apply_flexbox(
         &mut self,
-        sliders: &mut HashMap<String, &mut Slider>,
+        sliders: &mut HashMap<String, Slider>,
         stretch: &Stretch,
         nodes: &mut Vec<Node>,
         dx: f64,
@@ -382,6 +382,8 @@ pub struct Composite {
     top_level: ManagedWidget,
     pos: CompositePosition,
 
+    sliders: HashMap<String, Slider>,
+
     // TODO This doesn't clip. There's no way to express that the scrollable thing should occupy a
     // small part of the screen.
     // TODO Horizontal scrolling?
@@ -402,39 +404,28 @@ enum CompositePosition {
 const SCROLL_SPEED: f64 = 5.0;
 
 impl Composite {
-    fn new(
-        ctx: &EventCtx,
-        top_level: ManagedWidget,
-        pos: CompositePosition,
-        mut sliders: HashMap<String, &mut Slider>,
-    ) -> Composite {
-        let mut c = Composite {
+    fn new(top_level: ManagedWidget, pos: CompositePosition) -> Composite {
+        Composite {
             top_level,
             pos,
 
+            sliders: HashMap::new(),
+
             scrollable: false,
             scroll_y_offset: 0.0,
-        };
-        c.recompute_layout(ctx, &mut sliders);
-        c
+        }
     }
 
     pub fn minimal_size(ctx: &EventCtx, top_level: ManagedWidget, top_left: ScreenPt) -> Composite {
-        Composite::new(
-            ctx,
-            top_level,
-            CompositePosition::MinimalTopLeft(top_left),
-            HashMap::new(),
-        )
+        let mut c = Composite::new(top_level, CompositePosition::MinimalTopLeft(top_left));
+        c.recompute_layout(ctx);
+        c
     }
 
     pub fn fill_screen(ctx: &EventCtx, top_level: ManagedWidget) -> Composite {
-        Composite::new(
-            ctx,
-            top_level,
-            CompositePosition::FillScreen,
-            HashMap::new(),
-        )
+        let mut c = Composite::new(top_level, CompositePosition::FillScreen);
+        c.recompute_layout(ctx);
+        c
     }
 
     pub fn aligned(
@@ -442,35 +433,42 @@ impl Composite {
         (horiz, vert): (HorizontalAlignment, VerticalAlignment),
         top_level: ManagedWidget,
     ) -> Composite {
-        Composite::new(
-            ctx,
-            top_level,
-            CompositePosition::Aligned(horiz, vert),
-            HashMap::new(),
-        )
+        let mut c = Composite::new(top_level, CompositePosition::Aligned(horiz, vert));
+        c.recompute_layout(ctx);
+        c
     }
 
     pub fn aligned_with_sliders(
         ctx: &EventCtx,
-        sliders: HashMap<String, &mut Slider>,
         (horiz, vert): (HorizontalAlignment, VerticalAlignment),
         top_level: ManagedWidget,
+        sliders: Vec<(&str, Slider)>,
     ) -> Composite {
-        Composite::new(
-            ctx,
+        let mut c = Composite::new(top_level, CompositePosition::Aligned(horiz, vert));
+        for (name, slider) in sliders {
+            c.sliders.insert(name.to_string(), slider);
+        }
+        c.recompute_layout(ctx);
+        c
+    }
+
+    pub fn scrollable(ctx: &EventCtx, top_level: ManagedWidget) -> Composite {
+        let mut c = Composite::new(
             top_level,
-            CompositePosition::Aligned(horiz, vert),
-            sliders,
-        )
+            CompositePosition::Aligned(HorizontalAlignment::Left, VerticalAlignment::Top),
+        );
+        c.scrollable = true;
+        // TODO Height of our panel
+        c.sliders.insert(
+            "scrollbar".to_string(),
+            Slider::vertical(ctx, ctx.canvas.window_height - 100.0),
+        );
+        c.top_level = ManagedWidget::row(vec![c.top_level, ManagedWidget::slider("scrollbar")]);
+        c.recompute_layout(ctx);
+        c
     }
 
-    pub fn scrollable(mut self) -> Composite {
-        assert!(!self.scrollable);
-        self.scrollable = true;
-        self
-    }
-
-    fn recompute_layout(&mut self, ctx: &EventCtx, sliders: &mut HashMap<String, &mut Slider>) {
+    fn recompute_layout(&mut self, ctx: &EventCtx) {
         let mut stretch = Stretch::new();
         let root = stretch
             .new_node(
@@ -495,7 +493,7 @@ impl Composite {
 
         let mut nodes = vec![];
         self.top_level
-            .get_flexbox(root, sliders, &mut stretch, &mut nodes);
+            .get_flexbox(root, &self.sliders, &mut stretch, &mut nodes);
         nodes.reverse();
 
         stretch.compute_layout(root, Size::undefined()).unwrap();
@@ -512,7 +510,7 @@ impl Composite {
             }
         };
         self.top_level.apply_flexbox(
-            sliders,
+            &mut self.sliders,
             &stretch,
             &mut nodes,
             top_left.x,
@@ -523,14 +521,6 @@ impl Composite {
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx) -> Option<Outcome> {
-        self.event_with_sliders(ctx, HashMap::new())
-    }
-
-    pub fn event_with_sliders(
-        &mut self,
-        ctx: &mut EventCtx,
-        mut sliders: HashMap<String, &mut Slider>,
-    ) -> Option<Outcome> {
         if self.scrollable
             && self
                 .top_level
@@ -541,24 +531,20 @@ impl Composite {
                 self.scroll_y_offset -= scroll * SCROLL_SPEED;
                 let max = (self.top_level.rect.height() - ctx.canvas.window_height).max(0.0);
                 self.scroll_y_offset = abstutil::clamp(self.scroll_y_offset, 0.0, max);
-                self.recompute_layout(ctx, &mut HashMap::new());
+                self.recompute_layout(ctx);
             }
         }
 
         if ctx.input.is_window_resized() {
-            self.recompute_layout(ctx, &mut sliders);
+            self.recompute_layout(ctx);
         }
 
-        self.top_level.event(ctx, &mut sliders)
+        self.top_level.event(ctx, &mut self.sliders)
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        self.draw_with_sliders(g, HashMap::new());
-    }
-
-    pub fn draw_with_sliders(&self, g: &mut GfxCtx, sliders: HashMap<String, &Slider>) {
         g.canvas.mark_covered_area(self.top_level.rect.clone());
-        self.top_level.draw(g, &sliders);
+        self.top_level.draw(g, &self.sliders);
     }
 
     pub fn get_all_click_actions(&self) -> HashSet<String> {
@@ -575,6 +561,17 @@ impl Composite {
     pub fn restore_scroll(&mut self, ctx: &EventCtx, offset: f64) {
         assert!(self.scrollable);
         self.scroll_y_offset = offset;
-        self.recompute_layout(ctx, &mut HashMap::new());
+        // TODO Update the slider!
+        self.recompute_layout(ctx);
+    }
+
+    pub fn slider(&self, name: &str) -> &Slider {
+        &self.sliders[name]
+    }
+    pub fn mut_slider(&mut self, name: &str) -> &mut Slider {
+        self.sliders.get_mut(name).unwrap()
+    }
+    pub fn take_slider(&mut self, name: &str) -> Slider {
+        self.sliders.remove(name).unwrap()
     }
 }

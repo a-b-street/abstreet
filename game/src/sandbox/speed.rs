@@ -7,7 +7,6 @@ use ezgui::{
     Line, ManagedWidget, RewriteColor, Slider, Text, VerticalAlignment, Wizard,
 };
 use geom::{Distance, Duration, Line, Pt2D, Time};
-use std::collections::HashMap;
 use std::time::Instant;
 
 const ADJUST_SPEED_PERCENT: f64 = 0.01;
@@ -16,7 +15,6 @@ pub struct SpeedControls {
     time_panel: TimePanel,
 
     composite: Composite,
-    slider: Slider,
 
     state: SpeedState,
     speed_cap: f64,
@@ -33,12 +31,7 @@ enum SpeedState {
 }
 
 impl SpeedControls {
-    fn make_panel(
-        ctx: &EventCtx,
-        paused: bool,
-        actual_speed: &str,
-        slider: &mut Slider,
-    ) -> Composite {
+    fn make_panel(ctx: &EventCtx, paused: bool, actual_speed: &str, slider: Slider) -> Composite {
         let mut row = Vec::new();
         if paused {
             row.push(ManagedWidget::btn(Button::rectangle_svg(
@@ -119,17 +112,15 @@ impl SpeedControls {
             .bg(Color::grey(0.5)),
         );
 
-        let mut sliders = HashMap::new();
-        sliders.insert("speed".to_string(), slider);
         Composite::new(ezgui::Composite::aligned_with_sliders(
             ctx,
-            sliders,
             (
                 HorizontalAlignment::Center,
                 VerticalAlignment::BottomAboveOSD,
             ),
             ManagedWidget::row(row.into_iter().map(|x| x.margin(5)).collect())
                 .bg(Color::hex("#4C4C4C")),
+            vec![("speed", slider)],
         ))
         .cb(
             "jump to specific time",
@@ -168,13 +159,12 @@ impl SpeedControls {
         slider.set_percent(ctx, (speed_cap / 1.0).powf(-1.0 / std::f64::consts::E));
 
         let now = Instant::now();
-        let composite = SpeedControls::make_panel(ctx, false, "...", &mut slider);
+        let composite = SpeedControls::make_panel(ctx, false, "...", slider);
 
         SpeedControls {
             time_panel: TimePanel::new(ctx, ui),
 
             composite,
-            slider,
 
             state: SpeedState::Running {
                 last_step: now,
@@ -195,27 +185,25 @@ impl SpeedControls {
         self.time_panel.event(ctx, ui);
 
         let desired_speed = self.desired_speed();
-        let mut sliders = HashMap::new();
-        sliders.insert("speed".to_string(), &mut self.slider);
-        match self.composite.event_with_sliders(ctx, ui, sliders) {
+        match self.composite.event(ctx, ui) {
             Some(Outcome::Transition(t)) => {
                 return Some(t);
             }
             Some(Outcome::Clicked(x)) => match x.as_ref() {
                 "speed up" => {
                     if desired_speed != self.speed_cap {
-                        self.slider.set_percent(
-                            ctx,
-                            (self.slider.get_percent() + ADJUST_SPEED_PERCENT).min(1.0),
-                        );
+                        let percent = self.composite.slider("speed").get_percent();
+                        self.composite
+                            .mut_slider("speed")
+                            .set_percent(ctx, (percent + ADJUST_SPEED_PERCENT).min(1.0));
                     }
                 }
                 "slow down" => {
                     if desired_speed != 0.0 {
-                        self.slider.set_percent(
-                            ctx,
-                            (self.slider.get_percent() - ADJUST_SPEED_PERCENT).max(0.0),
-                        );
+                        let percent = self.composite.slider("speed").get_percent();
+                        self.composite
+                            .mut_slider("speed")
+                            .set_percent(ctx, (percent - ADJUST_SPEED_PERCENT).max(0.0));
                     }
                 }
                 "resume" => {
@@ -226,7 +214,12 @@ impl SpeedControls {
                         last_measurement: now,
                         last_measurement_sim: ui.primary.sim.time(),
                     };
-                    self.composite = SpeedControls::make_panel(ctx, false, "...", &mut self.slider);
+                    self.composite = SpeedControls::make_panel(
+                        ctx,
+                        false,
+                        "...",
+                        self.composite.take_slider("speed"),
+                    );
                     return None;
                 }
                 "pause" => {
@@ -265,8 +258,12 @@ impl SpeedControls {
                     );
                     *last_measurement = *last_step;
                     *last_measurement_sim = ui.primary.sim.time();
-                    self.composite =
-                        SpeedControls::make_panel(ctx, false, &speed_description, &mut self.slider);
+                    self.composite = SpeedControls::make_panel(
+                        ctx,
+                        false,
+                        &speed_description,
+                        self.composite.take_slider("speed"),
+                    );
                 }
                 // If speed is too high, don't be unresponsive for too long.
                 // TODO This should probably match the ezgui framerate.
@@ -282,15 +279,14 @@ impl SpeedControls {
 
     pub fn draw(&self, g: &mut GfxCtx) {
         self.time_panel.draw(g);
-        let mut sliders = HashMap::new();
-        sliders.insert("speed".to_string(), &self.slider);
-        self.composite.draw_with_sliders(g, sliders);
+        self.composite.draw(g);
     }
 
     pub fn pause(&mut self, ctx: &EventCtx) {
         if !self.is_paused() {
             self.state = SpeedState::Paused;
-            self.composite = SpeedControls::make_panel(ctx, true, "...", &mut self.slider);
+            self.composite =
+                SpeedControls::make_panel(ctx, true, "...", self.composite.take_slider("speed"));
         }
     }
 
@@ -302,7 +298,12 @@ impl SpeedControls {
     }
 
     fn desired_speed(&self) -> f64 {
-        self.speed_cap * self.slider.get_percent().powf(std::f64::consts::E)
+        self.speed_cap
+            * self
+                .composite
+                .slider("speed")
+                .get_percent()
+                .powf(std::f64::consts::E)
     }
 }
 

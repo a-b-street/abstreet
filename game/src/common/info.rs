@@ -4,8 +4,8 @@ use crate::helpers::{rotating_color, ID};
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, Color, Composite, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, ManagedWidget,
-    ModalMenu, Plot, Series, Text, VerticalAlignment,
+    hotkey, Color, Composite, EventCtx, GfxCtx, Key, Line, ManagedWidget, ModalMenu, Plot, Series,
+    Text,
 };
 use geom::{Duration, Statistic, Time};
 use map_model::{IntersectionID, RoadID};
@@ -70,12 +70,7 @@ impl InfoPanel {
         }
 
         InfoPanel {
-            composite: Composite::aligned(
-                ctx,
-                (HorizontalAlignment::Left, VerticalAlignment::Top),
-                ManagedWidget::col(col).bg(Color::grey(0.3)),
-            )
-            .scrollable(),
+            composite: Composite::scrollable(ctx, ManagedWidget::col(col).bg(Color::grey(0.3))),
             menu: ModalMenu::new("Info Panel", menu_entries, ctx),
             actions,
         }
