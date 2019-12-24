@@ -75,12 +75,7 @@ impl GameplayMode {
             }
             _ => "weekday_typical_traffic_from_psrc".to_string(),
         };
-        let builtin = if let Some(n) = num_agents {
-            format!("random scenario with {} agents", n)
-        } else {
-            "random scenario with some agents".to_string()
-        };
-        Some(if name == builtin {
+        Some(if name == "random scenario with some agents" {
             if let Some(n) = num_agents {
                 Scenario::scaled_run(map, n)
             } else {
@@ -217,18 +212,12 @@ impl GameplayRunner {
 }
 
 fn change_scenario(wiz: &mut Wizard, ctx: &mut EventCtx, ui: &mut UI) -> Option<Transition> {
-    let num_agents = ui.primary.current_flags.num_agents;
-    let builtin = if let Some(n) = num_agents {
-        format!("random scenario with {} agents", n)
-    } else {
-        "random scenario with some agents".to_string()
-    };
     let scenario_name = wiz
         .wrap(ctx)
         .choose_string("Instantiate which scenario?", || {
             let mut list =
                 abstutil::list_all_objects(abstutil::path_all_scenarios(ui.primary.map.get_name()));
-            list.push(builtin.clone());
+            list.push("random scenario with some agents".to_string());
             list.push("just buses".to_string());
             list.push("empty".to_string());
             list

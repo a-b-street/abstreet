@@ -137,11 +137,14 @@ pub fn main_menu(ctx: &EventCtx, ui: &UI) -> Box<dyn State> {
     .cb(
         "Sandbox mode",
         Box::new(|ctx, ui| {
-            Some(Transition::Push(Box::new(SandboxMode::new(
-                ctx,
-                ui,
-                GameplayMode::Freeform,
-            ))))
+            Some(Transition::PushWithMode(
+                Box::new(SandboxMode::new(
+                    ctx,
+                    ui,
+                    GameplayMode::PlayScenario("random scenario with some agents".to_string()),
+                )),
+                EventLoopMode::Animation,
+            ))
         }),
     )
     .cb(
