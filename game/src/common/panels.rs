@@ -85,9 +85,9 @@ pub fn edit_map_panel(ctx: &EventCtx, ui: &UI, gameplay: GameplayMode) -> Compos
     .cb(
         "edit map",
         Box::new(move |ctx, ui| {
-            ui.primary.clear_sim();
             Some(Transition::Replace(Box::new(EditMode::new(
                 ctx,
+                ui,
                 gameplay.clone(),
             ))))
         }),

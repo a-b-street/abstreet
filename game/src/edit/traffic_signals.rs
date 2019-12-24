@@ -15,6 +15,7 @@ use geom::{Duration, Time};
 use map_model::{
     ControlTrafficSignal, EditCmd, IntersectionID, Phase, TurnGroupID, TurnPriority, TurnType,
 };
+use sim::Sim;
 use std::collections::BTreeSet;
 use std::time::Instant;
 
@@ -24,10 +25,17 @@ pub struct TrafficSignalEditor {
     diagram: TrafficSignalDiagram,
     groups: Vec<DrawTurnGroup>,
     group_selected: Option<TurnGroupID>,
+
+    suspended_sim: Sim,
 }
 
 impl TrafficSignalEditor {
-    pub fn new(id: IntersectionID, ctx: &mut EventCtx, ui: &mut UI) -> TrafficSignalEditor {
+    pub fn new(
+        id: IntersectionID,
+        ctx: &mut EventCtx,
+        ui: &mut UI,
+        suspended_sim: Sim,
+    ) -> TrafficSignalEditor {
         ui.primary.current_selection = None;
         let menu = ModalMenu::new(
             format!("Traffic Signal Editor for {}", id),
@@ -57,6 +65,7 @@ impl TrafficSignalEditor {
             diagram: TrafficSignalDiagram::new(id, 0, ui, ctx),
             groups: DrawTurnGroup::for_i(id, &ui.primary.map),
             group_selected: None,
+            suspended_sim,
         }
     }
 }
@@ -219,15 +228,12 @@ impl State for TrafficSignalEditor {
         }
 
         if self.menu.action("preview changes") {
-            return Transition::PushWithMode(
-                Box::new(PreviewTrafficSignal::new(
-                    self.diagram.i,
-                    current_phase,
-                    ui,
-                    ctx,
-                )),
-                EventLoopMode::Animation,
-            );
+            // TODO These're expensive clones :(
+            return Transition::Push(make_previewer(
+                self.diagram.i,
+                current_phase,
+                self.suspended_sim.clone(),
+            ));
         }
 
         Transition::Keep
@@ -406,6 +412,47 @@ fn check_for_missing_groups(
     Transition::Push(msg("Error: missing turns", vec![format!("{} turns are missing from this traffic signal", num_missing), "They've all been added as a new last phase. Please update your changes to include them.".to_string()]))
 }
 
+// TODO I guess it's valid to preview without all turns possible. Some agents are just sad.
+fn make_previewer(i: IntersectionID, phase: usize, suspended_sim: Sim) -> Box<dyn State> {
+    WizardState::new(Box::new(move |wiz, ctx, ui| {
+        let random = "random agents around just this intersection".to_string();
+        let right_now = format!("change the traffic signal live at {}", suspended_sim.time());
+        match wiz
+            .wrap(ctx)
+            .choose_string(
+                "Preview the traffic signal with what kind of traffic?",
+                || vec![random.clone(), right_now.clone()],
+            )?
+            .as_str()
+        {
+            x if x == random => {
+                // Start at the current phase
+                let signal = ui.primary.map.get_traffic_signal(i);
+                // TODO Use the offset correctly
+                let mut step = Duration::ZERO;
+                for idx in 0..phase {
+                    step += signal.phases[idx].duration;
+                }
+                ui.primary.sim.step(&ui.primary.map, step);
+
+                // This should be a no-op
+                ui.primary
+                    .map
+                    .recalculate_pathfinding_after_edits(&mut Timer::throwaway());
+                spawn_agents_around(i, ui, ctx);
+            }
+            x if x == right_now => {
+                ui.primary.sim = suspended_sim.clone();
+            }
+            _ => unreachable!(),
+        };
+        Some(Transition::ReplaceWithMode(
+            Box::new(PreviewTrafficSignal::new(ctx)),
+            EventLoopMode::Animation,
+        ))
+    }))
+}
+
 // TODO Show diagram, auto-sync the phase.
 // TODO Auto quit after things are gone?
 struct PreviewTrafficSignal {
@@ -414,27 +461,7 @@ struct PreviewTrafficSignal {
 }
 
 impl PreviewTrafficSignal {
-    fn new(
-        i: IntersectionID,
-        phase_idx: usize,
-        ui: &mut UI,
-        ctx: &EventCtx,
-    ) -> PreviewTrafficSignal {
-        // Start at the current phase
-        let signal = ui.primary.map.get_traffic_signal(i);
-        // TODO Use the offset correctly
-        let mut step = Duration::ZERO;
-        for idx in 0..phase_idx {
-            step += signal.phases[idx].duration;
-        }
-        ui.primary.sim.step(&ui.primary.map, step);
-
-        // This should be a no-op
-        ui.primary
-            .map
-            .recalculate_pathfinding_after_edits(&mut Timer::throwaway());
-        spawn_agents_around(i, ui, ctx);
-
+    fn new(ctx: &EventCtx) -> PreviewTrafficSignal {
         PreviewTrafficSignal {
             menu: ModalMenu::new(
                 "Preview traffic signal",

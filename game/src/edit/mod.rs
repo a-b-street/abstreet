@@ -18,19 +18,24 @@ use ezgui::{
     WrappedWizard,
 };
 use map_model::{ControlStopSign, ControlTrafficSignal, EditCmd, LaneID, MapEdits};
+use sim::Sim;
 use std::collections::BTreeSet;
 
 pub struct EditMode {
     common: CommonState,
     tool_panel: Composite,
     menu: ModalMenu,
+
+    // Retained state from the SandboxMode that spawned us
     mode: GameplayMode,
+    suspended_sim: Sim,
 
     lane_editor: lanes::LaneEditor,
 }
 
 impl EditMode {
-    pub fn new(ctx: &EventCtx, mode: GameplayMode) -> EditMode {
+    pub fn new(ctx: &EventCtx, ui: &mut UI, mode: GameplayMode) -> EditMode {
+        let suspended_sim = ui.primary.clear_sim();
         EditMode {
             common: CommonState::new(),
             tool_panel: tool_panel(ctx, Vec::new()),
@@ -49,6 +54,7 @@ impl EditMode {
                 ctx,
             ),
             mode,
+            suspended_sim,
             lane_editor: lanes::LaneEditor::setup(ctx),
         }
     }
@@ -196,7 +202,10 @@ impl State for EditMode {
                     .action(ctx, Key::E, format!("edit traffic signal for {}", id))
                 {
                     return Transition::Push(Box::new(traffic_signals::TrafficSignalEditor::new(
-                        id, ctx, ui,
+                        id,
+                        ctx,
+                        ui,
+                        self.suspended_sim.clone(),
                     )));
                 } else if ui
                     .primary

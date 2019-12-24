@@ -467,11 +467,15 @@ impl PerMapUI {
         }
     }
 
-    pub fn clear_sim(&mut self) {
-        self.sim = Sim::new(
-            &self.map,
-            self.current_flags.sim_flags.opts.clone(),
-            &mut Timer::new("reset simulation"),
-        );
+    // Returns whatever was there
+    pub fn clear_sim(&mut self) -> Sim {
+        std::mem::replace(
+            &mut self.sim,
+            Sim::new(
+                &self.map,
+                self.current_flags.sim_flags.opts.clone(),
+                &mut Timer::new("reset simulation"),
+            ),
+        )
     }
 }

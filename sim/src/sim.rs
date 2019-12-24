@@ -800,6 +800,14 @@ impl Sim {
         );
         self.scheduler.after_savestate(paths);
     }
+
+    // TODO Slight hack?
+    pub fn clone(&self) -> Sim {
+        // TODO Temp file
+        let path = self.save_path(self.time);
+        abstutil::write_binary(path.clone(), self);
+        abstutil::read_binary(path, &mut Timer::throwaway())
+    }
 }
 
 // Queries of all sorts
