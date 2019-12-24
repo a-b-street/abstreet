@@ -10,7 +10,7 @@ use std::collections::BTreeMap;
 // These index stops along a route, not stops along a single sidewalk.
 type StopIdx = usize;
 
-#[derive(Serialize, Deserialize, PartialEq)]
+#[derive(Serialize, Deserialize, PartialEq, Clone)]
 struct StopForRoute {
     id: BusStopID,
     driving_pos: Position,
@@ -19,13 +19,13 @@ struct StopForRoute {
     next_stop_idx: StopIdx,
 }
 
-#[derive(Serialize, Deserialize, PartialEq)]
+#[derive(Serialize, Deserialize, PartialEq, Clone)]
 struct Route {
     stops: Vec<StopForRoute>,
     buses: Vec<CarID>,
 }
 
-#[derive(Serialize, Deserialize, PartialEq)]
+#[derive(Serialize, Deserialize, PartialEq, Clone)]
 struct Bus {
     car: CarID,
     route: BusRouteID,
@@ -34,14 +34,14 @@ struct Bus {
     state: BusState,
 }
 
-#[derive(Serialize, Deserialize, PartialEq)]
+#[derive(Serialize, Deserialize, PartialEq, Clone)]
 enum BusState {
     DrivingToStop(StopIdx),
     AtStop(StopIdx),
 }
 
 // This kind of acts like TripManager, managing transitions... but a bit more statefully.
-#[derive(Serialize, Deserialize, PartialEq)]
+#[derive(Serialize, Deserialize, PartialEq, Clone)]
 pub struct TransitSimState {
     #[serde(
         serialize_with = "serialize_btreemap",

@@ -9,7 +9,7 @@ use map_model::{BuildingID, BusRouteID, BusStopID, Map, PathConstraints, PathReq
 use serde_derive::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub enum TripSpec {
     // Can be used to spawn from a border or anywhere for interactive debugging.
     CarAppearing {
@@ -50,7 +50,7 @@ pub enum TripSpec {
     },
 }
 
-#[derive(Serialize, Deserialize, PartialEq)]
+#[derive(Serialize, Deserialize, PartialEq, Clone)]
 pub struct TripSpawner {
     parked_cars_claimed: BTreeSet<CarID>,
     trips: Vec<(Time, Option<PedestrianID>, Option<CarID>, TripSpec)>,

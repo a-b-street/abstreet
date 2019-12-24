@@ -21,7 +21,7 @@ use std::time::Instant;
 // TODO Do something else.
 const BLIND_RETRY_TO_SPAWN: Duration = Duration::const_seconds(5.0);
 
-#[derive(Serialize, Deserialize, Derivative)]
+#[derive(Serialize, Deserialize, Clone, Derivative)]
 #[derivative(PartialEq)]
 pub struct Sim {
     driving: DrivingSimState,
@@ -799,14 +799,6 @@ impl Sim {
             |req| map.pathfind(req).unwrap(),
         );
         self.scheduler.after_savestate(paths);
-    }
-
-    // TODO Slight hack?
-    pub fn clone(&self) -> Sim {
-        // TODO Temp file
-        let path = self.save_path(self.time);
-        abstutil::write_binary(path.clone(), self);
-        abstutil::read_binary(path, &mut Timer::throwaway())
     }
 }
 

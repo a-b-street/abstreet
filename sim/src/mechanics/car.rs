@@ -7,7 +7,7 @@ use map_model::{Map, Traversable, LANE_THICKNESS};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::VecDeque;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct Car {
     pub vehicle: Vehicle,
     pub state: CarState,
@@ -185,7 +185,7 @@ impl Car {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub enum CarState {
     Crossing(TimeInterval, DistanceInterval),
     Queued,

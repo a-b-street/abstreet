@@ -40,6 +40,7 @@ impl std::fmt::Display for Statistic {
 
 // TODO Generic histogram
 
+#[derive(Clone)]
 pub struct DurationHistogram {
     count: usize,
     histogram: Histogram,

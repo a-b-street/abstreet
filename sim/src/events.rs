@@ -5,7 +5,7 @@ use map_model::{
 };
 use serde_derive::{Deserialize, Serialize};
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub enum Event {
     CarReachedParkingSpot(CarID, ParkingSpot),
     CarOrBikeReachedBorder(CarID, IntersectionID),

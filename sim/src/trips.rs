@@ -11,7 +11,7 @@ use map_model::{
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, VecDeque};
 
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub struct TripManager {
     trips: Vec<Trip>,
     // For quick lookup of active agents
@@ -573,7 +573,7 @@ impl TripManager {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 struct Trip {
     id: TripID,
     spawned_at: Time,
@@ -663,7 +663,7 @@ impl Trip {
 
 // These don't specify where the leg starts, since it might be unknown -- like when we drive and
 // don't know where we'll wind up parking.
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub enum TripLeg {
     Walk(PedestrianID, Speed, SidewalkSpot),
     Drive(Vehicle, DrivingGoal),

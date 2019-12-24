@@ -8,7 +8,7 @@ use map_model::{
 use serde_derive::{Deserialize, Serialize};
 use std::collections::{BTreeMap, VecDeque};
 
-#[derive(Serialize, Deserialize, Derivative)]
+#[derive(Clone, Serialize, Deserialize, Derivative)]
 pub struct Analytics {
     pub thruput_stats: ThruputStats,
     #[serde(skip_serializing, skip_deserializing)]
@@ -29,7 +29,7 @@ pub struct Analytics {
     record_anything: bool,
 }
 
-#[derive(Serialize, Deserialize, Derivative)]
+#[derive(Clone, Serialize, Deserialize, Derivative)]
 pub struct ThruputStats {
     #[serde(skip_serializing, skip_deserializing)]
     pub count_per_road: Counter<RoadID>,

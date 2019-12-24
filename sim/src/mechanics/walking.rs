@@ -13,7 +13,7 @@ use std::collections::BTreeMap;
 const TIME_TO_START_BIKING: Duration = Duration::const_seconds(30.0);
 const TIME_TO_FINISH_BIKING: Duration = Duration::const_seconds(45.0);
 
-#[derive(Serialize, Deserialize, PartialEq)]
+#[derive(Serialize, Deserialize, PartialEq, Clone)]
 pub struct WalkingSimState {
     // BTreeMap not for deterministic simulation, but to make serialized things easier to compare.
     peds: BTreeMap<PedestrianID, Pedestrian>,
@@ -420,7 +420,7 @@ impl WalkingSimState {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq)]
+#[derive(Serialize, Deserialize, PartialEq, Clone)]
 struct Pedestrian {
     id: PedestrianID,
     state: PedState,
@@ -596,7 +596,7 @@ impl Pedestrian {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 enum PedState {
     Crossing(DistanceInterval, TimeInterval),
     // The Distance is either 0 or the current traversable's length

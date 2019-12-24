@@ -3,11 +3,11 @@ use std::collections::{BTreeMap, BTreeSet};
 
 // TODO Ideally derive Serialize and Deserialize, but I can't seem to express the lifetimes
 // correctly.
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone)]
 pub struct MultiMap<K, V>
 where
-    K: Ord + PartialEq,
-    V: Ord + PartialEq,
+    K: Ord + PartialEq + Clone,
+    V: Ord + PartialEq + Clone,
 {
     map: BTreeMap<K, BTreeSet<V>>,
     empty: BTreeSet<V>,
@@ -15,8 +15,8 @@ where
 
 impl<K, V> MultiMap<K, V>
 where
-    K: Ord + PartialEq,
-    V: Ord + PartialEq,
+    K: Ord + PartialEq + Clone,
+    V: Ord + PartialEq + Clone,
 {
     pub fn new() -> MultiMap<K, V> {
         MultiMap {
@@ -55,17 +55,18 @@ where
     }
 }
 
-pub struct Counter<T: Ord + PartialEq> {
+#[derive(Clone)]
+pub struct Counter<T: Ord + PartialEq + Clone> {
     map: BTreeMap<T, usize>,
 }
 
-impl<T: Ord + PartialEq> Default for Counter<T> {
+impl<T: Ord + PartialEq + Clone> Default for Counter<T> {
     fn default() -> Counter<T> {
         Counter::new()
     }
 }
 
-impl<T: Ord + PartialEq> Counter<T> {
+impl<T: Ord + PartialEq + Clone> Counter<T> {
     pub fn new() -> Counter<T> {
         Counter {
             map: BTreeMap::new(),

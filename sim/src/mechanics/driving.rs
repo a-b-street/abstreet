@@ -20,7 +20,7 @@ const TIME_TO_WAIT_AT_STOP: Duration = Duration::const_seconds(10.0);
 pub(crate) const BLIND_RETRY_TO_CREEP_FORWARDS: Duration = Duration::const_seconds(0.1);
 pub(crate) const BLIND_RETRY_TO_REACH_END_DIST: Duration = Duration::const_seconds(5.0);
 
-#[derive(Serialize, Deserialize, PartialEq)]
+#[derive(Serialize, Deserialize, PartialEq, Clone)]
 pub struct DrivingSimState {
     #[serde(
         serialize_with = "serialize_btreemap",

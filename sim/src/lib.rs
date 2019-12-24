@@ -384,7 +384,7 @@ pub enum SidewalkPOI {
     SuddenlyAppear,
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct TimeInterval {
     // TODO Private fields
     pub start: Time,
@@ -417,7 +417,7 @@ impl TimeInterval {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct DistanceInterval {
     // TODO Private fields
     pub start: Distance,
@@ -447,7 +447,7 @@ impl DistanceInterval {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub struct CreatePedestrian {
     pub id: PedestrianID,
     pub start: SidewalkSpot,
@@ -505,7 +505,7 @@ impl CreateCar {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq)]
+#[derive(Serialize, Deserialize, PartialEq, Clone)]
 pub struct TripPositions {
     pub time: Time,
     pub canonical_pt_per_trip: BTreeMap<TripID, Pt2D>,

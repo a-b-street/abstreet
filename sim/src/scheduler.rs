@@ -6,7 +6,7 @@ use serde_derive::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::collections::{BTreeMap, BinaryHeap};
 
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub enum Command {
     // If true, retry when there's no room to spawn somewhere
     SpawnCar(CreateCar, bool),
@@ -51,7 +51,7 @@ pub enum CommandType {
     Savestate,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Clone)]
 struct Item {
     time: Time,
     cmd_type: CommandType,
@@ -75,7 +75,7 @@ impl Ord for Item {
     }
 }
 
-#[derive(Serialize, Deserialize, Derivative)]
+#[derive(Clone, Serialize, Deserialize, Derivative)]
 #[derivative(PartialEq)]
 pub struct Scheduler {
     // TODO Argh, really?!
