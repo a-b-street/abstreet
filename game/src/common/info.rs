@@ -4,7 +4,7 @@ use crate::helpers::{rotating_color, ID};
 use crate::ui::UI;
 use abstutil::prettyprint_usize;
 use ezgui::{
-    hotkey, Color, Composite, EventCtx, GfxCtx, Key, Line, ManagedWidget, ModalMenu, Plot, Series,
+    hotkey, Color, Composite, EventCtx, GfxCtx, Key, Line, ManagedWidget, Outcome, Plot, Series,
     Text,
 };
 use geom::{Duration, Statistic, Time};
@@ -14,20 +14,28 @@ use std::collections::BTreeMap;
 
 pub struct InfoPanel {
     composite: Composite,
-    menu: ModalMenu,
-    actions: Vec<String>,
 }
 
 impl InfoPanel {
     pub fn new(id: ID, ui: &mut UI, ctx: &EventCtx) -> InfoPanel {
-        let mut menu_entries = vec![(hotkey(Key::Escape), "quit".to_string())];
-        let mut actions = Vec::new();
+        let mut col = vec![ManagedWidget::row(vec![
+            {
+                let mut txt = CommonState::default_osd(id.clone(), ui);
+                txt.highlight_last_line(Color::BLUE);
+                ManagedWidget::draw_text(ctx, txt)
+            },
+            crate::managed::Composite::text_button(ctx, "X", hotkey(Key::Escape)),
+        ])];
+
         for (key, label) in ui.per_obj.consume() {
-            actions.push(label.clone());
-            menu_entries.push((hotkey(key), label));
+            col.push(crate::managed::Composite::text_button(
+                ctx,
+                &label,
+                hotkey(key),
+            ));
         }
 
-        let mut col = vec![ManagedWidget::draw_text(ctx, info_for(id.clone(), ui))];
+        col.push(ManagedWidget::draw_text(ctx, info_for(id.clone(), ui)));
 
         match id {
             ID::Intersection(i) => {
@@ -71,50 +79,39 @@ impl InfoPanel {
 
         InfoPanel {
             composite: Composite::scrollable(ctx, ManagedWidget::col(col).bg(Color::grey(0.3))),
-            menu: ModalMenu::new("Info Panel", menu_entries, ctx),
-            actions,
         }
     }
 }
 
 impl State for InfoPanel {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        self.menu.event(ctx);
-
         // Can click on the map to cancel
-        if self.menu.action("quit")
-            || (ctx.canvas.get_cursor_in_map_space().is_some()
-                && ui.per_obj.left_click(ctx, "stop showing info"))
+        if ctx.canvas.get_cursor_in_map_space().is_some()
+            && ui.per_obj.left_click(ctx, "stop showing info")
         {
             return Transition::Pop;
         }
 
-        for a in &self.actions {
-            if self.menu.action(a) {
-                return Transition::PopThenApplyObjectAction(a.to_string());
-            }
-        }
-
         match self.composite.event(ctx) {
-            Some(_) => unreachable!(),
-            None => {}
+            Some(Outcome::Clicked(action)) => {
+                if action == "X" {
+                    Transition::Pop
+                } else {
+                    Transition::PopThenApplyObjectAction(action)
+                }
+            }
+            None => Transition::Keep,
         }
-
-        Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
         self.composite.draw(g);
-        self.menu.draw(g);
     }
 }
 
 fn info_for(id: ID, ui: &UI) -> Text {
     let (map, sim, draw_map) = (&ui.primary.map, &ui.primary.sim, &ui.primary.draw_map);
     let mut txt = Text::new();
-
-    txt.extend(&CommonState::default_osd(id.clone(), ui));
-    txt.highlight_last_line(Color::BLUE);
     let name_color = ui.cs.get("OSD name color");
 
     match id {
