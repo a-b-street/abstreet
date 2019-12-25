@@ -23,9 +23,10 @@ pub use gameplay::GameplayMode;
 use geom::Time;
 use map_model::MapEdits;
 use sim::TripMode;
+pub use speed::SpeedControls;
 
 pub struct SandboxMode {
-    speed: speed::SpeedControls,
+    speed: SpeedControls,
     agent_meter: AgentMeter,
     agent_tools: AgentTools,
     overlay: Overlays,
@@ -57,7 +58,7 @@ impl SandboxMode {
         .cb("change overlay", Box::new(Overlays::change_overlays));
 
         SandboxMode {
-            speed: speed::SpeedControls::new(ctx, ui),
+            speed: SpeedControls::new(ctx, ui),
             agent_meter: AgentMeter::new(ctx, ui),
             agent_tools: AgentTools::new(),
             overlay: Overlays::Inactive,
@@ -134,8 +135,22 @@ impl State for SandboxMode {
             }
         }
 
-        if let Some(t) = self.speed.event(ctx, ui, &self.gameplay.mode) {
-            return t;
+        match self.speed.event(ctx, ui) {
+            Some(Outcome::Transition(t)) => {
+                return t;
+            }
+            Some(Outcome::Clicked(x)) => match x {
+                x if x == "reset to midnight" => {
+                    ui.primary.clear_sim();
+                    return Transition::Replace(Box::new(SandboxMode::new(
+                        ctx,
+                        ui,
+                        self.gameplay.mode.clone(),
+                    )));
+                }
+                _ => unreachable!(),
+            },
+            None => {}
         }
 
         if let Some(t) = self.common.event(ctx, ui) {

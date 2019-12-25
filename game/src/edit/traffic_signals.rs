@@ -1,23 +1,23 @@
 use crate::common::CommonState;
 use crate::edit::apply_map_edits;
 use crate::game::{msg, State, Transition, WizardState};
+use crate::managed::Outcome;
 use crate::render::{
     draw_signal_phase, DrawOptions, DrawTurnGroup, TrafficSignalDiagram, BIG_ARROW_THICKNESS,
 };
-use crate::sandbox::spawn_agents_around;
+use crate::sandbox::{spawn_agents_around, SpeedControls};
 use crate::ui::{ShowEverything, UI};
 use abstutil::Timer;
 use ezgui::{
     hotkey, lctrl, Choice, Color, EventCtx, EventLoopMode, GeomBatch, GfxCtx, Key, Line, ModalMenu,
     Text,
 };
-use geom::{Duration, Time};
+use geom::Duration;
 use map_model::{
     ControlTrafficSignal, EditCmd, IntersectionID, Phase, TurnGroupID, TurnPriority, TurnType,
 };
 use sim::Sim;
 use std::collections::BTreeSet;
-use std::time::Instant;
 
 // TODO Warn if there are empty phases or if some turn is completely absent from the signal.
 pub struct TrafficSignalEditor {
@@ -447,7 +447,7 @@ fn make_previewer(i: IntersectionID, phase: usize, suspended_sim: Sim) -> Box<dy
             _ => unreachable!(),
         };
         Some(Transition::ReplaceWithMode(
-            Box::new(PreviewTrafficSignal::new(ctx)),
+            Box::new(PreviewTrafficSignal::new(ctx, ui)),
             EventLoopMode::Animation,
         ))
     }))
@@ -457,52 +457,54 @@ fn make_previewer(i: IntersectionID, phase: usize, suspended_sim: Sim) -> Box<dy
 // TODO Auto quit after things are gone?
 struct PreviewTrafficSignal {
     menu: ModalMenu,
-    last_step: Instant,
+    speed: SpeedControls,
+    orig_sim: Sim,
 }
 
 impl PreviewTrafficSignal {
-    fn new(ctx: &EventCtx) -> PreviewTrafficSignal {
+    fn new(ctx: &EventCtx, ui: &UI) -> PreviewTrafficSignal {
         PreviewTrafficSignal {
             menu: ModalMenu::new(
                 "Preview traffic signal",
                 vec![(hotkey(Key::Escape), "back to editing")],
                 ctx,
             ),
-            last_step: Instant::now(),
+            speed: SpeedControls::new(ctx, ui),
+            orig_sim: ui.primary.sim.clone(),
         }
     }
 }
 
 impl State for PreviewTrafficSignal {
     fn event(&mut self, ctx: &mut EventCtx, ui: &mut UI) -> Transition {
-        self.menu.event(ctx);
         ctx.canvas.handle_event(ctx.input);
+        self.menu.event(ctx);
         if self.menu.action("back to editing") {
             ui.primary.clear_sim();
             return Transition::Pop;
         }
-
-        if ctx.input.nonblocking_is_update_event() {
-            ctx.input.use_update_event();
-            let dt = Duration::realtime_elapsed(self.last_step);
-            self.last_step = Instant::now();
-            ui.primary
-                .sim
-                .time_limited_step(&ui.primary.map, dt, Duration::seconds(0.1));
-            self.menu.set_info(
-                ctx,
-                Text::from(Line(format!(
-                    "Time: {}",
-                    // For this preview, just show time passed so far
-                    ui.primary.sim.time() - Time::START_OF_DAY
-                ))),
-            );
+        match self.speed.event(ctx, ui) {
+            Some(Outcome::Transition(t)) => {
+                return t;
+            }
+            Some(Outcome::Clicked(x)) => match x {
+                x if x == "reset to midnight" => {
+                    ui.primary.sim = self.orig_sim.clone();
+                    // TODO drawmap
+                }
+                _ => unreachable!(),
+            },
+            None => {}
         }
-
-        Transition::KeepWithMode(EventLoopMode::Animation)
+        if self.speed.is_paused() {
+            Transition::Keep
+        } else {
+            Transition::KeepWithMode(EventLoopMode::Animation)
+        }
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &UI) {
         self.menu.draw(g);
+        self.speed.draw(g);
     }
 }
