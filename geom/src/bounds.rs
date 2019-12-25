@@ -67,6 +67,14 @@ impl Bounds {
             Pt2D::new(self.min_x, self.min_y),
         ])
     }
+
+    // TODO Really should be Distace
+    pub fn width(&self) -> f64 {
+        self.max_x - self.min_x
+    }
+    pub fn height(&self) -> f64 {
+        self.max_y - self.min_y
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

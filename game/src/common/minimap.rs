@@ -8,17 +8,21 @@ use ezgui::{
 };
 use geom::{Circle, Distance, Pt2D, Ring};
 
+// TODO Some of the math in here might assume map bound minimums start at (0, 0).
 pub struct Minimap {
     dragging: bool,
     nav_panel: Composite,
-
     controls: VisibilityPanel,
+
+    zoom: f64,
+    offset_x: f64,
+    offset_y: f64,
 }
 
 impl Minimap {
     pub fn new(ctx: &EventCtx, ui: &UI) -> Minimap {
         let square_len = 0.15 * ctx.canvas.window_width;
-        Minimap {
+        let mut m = Minimap {
             dragging: false,
             nav_panel: Composite::minimal_size_with_fillers(
                 ctx,
@@ -70,7 +74,16 @@ impl Minimap {
                 )],
             ),
             controls: VisibilityPanel::new(ctx, ui),
-        }
+
+            zoom: 0.0,
+            offset_x: 0.0,
+            offset_y: 0.0,
+        };
+        // Initially pick a zoom to fit the entire map's width in the minimap. Arbitrary and
+        // probably pretty weird.
+        let bounds = ui.primary.map.get_bounds();
+        m.zoom = m.nav_panel.filler_rect("minimap").width() / (bounds.max_x - bounds.min_x);
+        m
     }
 
     pub fn event(&mut self, ui: &mut UI, ctx: &mut EventCtx) -> Option<Transition> {
@@ -78,10 +91,15 @@ impl Minimap {
             return Some(t);
         }
 
+        let pan_speed = 100.0;
         match self.nav_panel.event(ctx) {
-            Some(Outcome::Clicked(x)) => {
-                println!("clicked {}", x);
-            }
+            Some(Outcome::Clicked(x)) => match x {
+                x if x == "pan up" => self.offset_y -= pan_speed * self.zoom,
+                x if x == "pan down" => self.offset_y += pan_speed * self.zoom,
+                x if x == "pan left" => self.offset_x -= pan_speed * self.zoom,
+                x if x == "pan right" => self.offset_x += pan_speed * self.zoom,
+                _ => unreachable!(),
+            },
             None => {}
         }
 
@@ -101,17 +119,13 @@ impl Minimap {
             return None;
         }
 
-        let percent_x = (pt.x - inner_rect.x1) / (inner_rect.x2 - inner_rect.x1);
-        let percent_y = (pt.y - inner_rect.y1) / (inner_rect.y2 - inner_rect.y1);
+        let percent_x = (pt.x - inner_rect.x1) / inner_rect.width();
+        let percent_y = (pt.y - inner_rect.y1) / inner_rect.height();
 
-        let bounds = ui.primary.map.get_bounds();
-        let zoom = inner_rect.width() / (bounds.max_x - bounds.min_x);
-
-        // We're stretching to fit the entire width, so...
-        let map_x = percent_x * (bounds.max_x - bounds.min_x);
-        // The y2 on the map that we're currently displaying
-        let map_y2 = bounds.min_y + (inner_rect.y2 - inner_rect.y1) / zoom;
-        let map_pt = Pt2D::new(map_x, percent_y * (map_y2 - bounds.min_y));
+        let map_pt = Pt2D::new(
+            (self.offset_x + percent_x * inner_rect.width()) / self.zoom,
+            (self.offset_y + percent_y * inner_rect.height()) / self.zoom,
+        );
         ctx.canvas.center_on_map_pt(map_pt);
 
         None
@@ -126,16 +140,19 @@ impl Minimap {
 
         self.nav_panel.draw(g);
 
-        // The map
         let inner_rect = self.nav_panel.filler_rect("minimap");
-        let bounds = ui.primary.map.get_bounds();
-        // Fit the entire width of the map in the box, to start
-        let zoom = inner_rect.width() / (bounds.max_x - bounds.min_x);
+
+        let mut map_bounds = ui.primary.map.get_bounds().clone();
+        // Adjust bounds to account for the current pan and zoom
+        map_bounds.min_x = (map_bounds.min_x + self.offset_x) / self.zoom;
+        map_bounds.min_y = (map_bounds.min_y + self.offset_y) / self.zoom;
+        map_bounds.max_x = map_bounds.min_x + inner_rect.width() / self.zoom;
+        map_bounds.max_y = map_bounds.min_y + inner_rect.height() / self.zoom;
 
         g.fork(
-            Pt2D::new(0.0, 0.0),
+            Pt2D::new(map_bounds.min_x, map_bounds.min_y),
             ScreenPt::new(inner_rect.x1, inner_rect.y1),
-            zoom,
+            self.zoom,
         );
         g.redraw_clipped(&ui.primary.draw_map.boundary_polygon, &inner_rect);
         g.redraw_clipped(&ui.primary.draw_map.draw_all_areas, &inner_rect);
@@ -153,7 +170,7 @@ impl Minimap {
             &ui.agent_cs,
             g,
             Some(&inner_rect),
-            zoom,
+            self.zoom,
             Distance::meters(5.0),
         );
 
@@ -161,8 +178,8 @@ impl Minimap {
         let (x1, y1) = {
             let pt = g.canvas.screen_to_map(ScreenPt::new(0.0, 0.0));
             (
-                clamp(pt.x(), 0.0, bounds.max_x),
-                clamp(pt.y(), 0.0, bounds.max_y),
+                clamp(pt.x(), map_bounds.min_x, map_bounds.max_x),
+                clamp(pt.y(), map_bounds.min_y, map_bounds.max_y),
             )
         };
         let (x2, y2) = {
@@ -170,8 +187,8 @@ impl Minimap {
                 .canvas
                 .screen_to_map(ScreenPt::new(g.canvas.window_width, g.canvas.window_height));
             (
-                clamp(pt.x(), 0.0, bounds.max_x),
-                clamp(pt.y(), 0.0, bounds.max_y),
+                clamp(pt.x(), map_bounds.min_x, map_bounds.max_x),
+                clamp(pt.y(), map_bounds.min_y, map_bounds.max_y),
             )
         };
         if x1 != x2 && y1 != y2 {
